@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Botao, Campo, Etiqueta, type VarianteDeBotao } from '@pipe/ui';
-import type { ChannelInstagramVisivel, ChannelWhatsAppVisivel } from '../../lib/channels';
-import type { ChannelMessengerVisivel } from '../../lib/channels';
+import type { ChannelInstagramVisible, ChannelWhatsAppVisible } from '../../lib/channels';
+import type { ChannelMessengerVisible } from '../../lib/channels';
 import {
   conectarInstagramManual,
   conectarMessengerManual,
@@ -69,8 +69,8 @@ interface PropsDeConexaoManual<T> {
   onConectado?: (channel: T) => void;
 }
 
-export function ConectarMessengerManual({ flowId, rotulo = 'Conectar manualmente', variante = 'padrao', onConectado }: PropsDeConexaoManual<ChannelMessengerVisivel>) {
-  const [aberto, setAberto] = useState(false); const [enviando, setEnviando] = useState(false); const [error, setError] = useState<string | null>(null); const [sucesso, setSucesso] = useState<ChannelConnected<ChannelMessengerVisivel> | null>(null);
+export function ConectarMessengerManual({ flowId, rotulo = 'Conectar manualmente', variante = 'padrao', onConectado }: PropsDeConexaoManual<ChannelMessengerVisible>) {
+  const [aberto, setAberto] = useState(false); const [enviando, setEnviando] = useState(false); const [error, setError] = useState<string | null>(null); const [sucesso, setSucesso] = useState<ChannelConnected<ChannelMessengerVisible> | null>(null);
   function fechar() { setAberto(false); setError(null); if (sucesso) onConectado?.(sucesso.channel); setSucesso(null); }
   async function enviar(evento: FormEvent<HTMLFormElement>) { evento.preventDefault(); setEnviando(true); const d = new FormData(evento.currentTarget); const r = await conectarMessengerManual({ token: String(d.get('token') ?? '').trim(), appSecret: String(d.get('appSecret') ?? '').trim(), nome: String(d.get('nome') ?? '').trim() || undefined, ...(flowId ? { flowId } : {}) }); setEnviando(false); if (!r.ok) { setError(r.error); return; } setSucesso(r.value); }
   return <><Botao type="button" variante={variante} onClick={() => setAberto(true)}>{rotulo}</Botao><Modal aberto={aberto} titulo="Conectar Facebook Messenger manualmente" onFechar={fechar}>{sucesso ? <WebhookPronto webhook={sucesso.webhook} webhookError={sucesso.webhookError} onFechar={fechar} /> : <form onSubmit={(e) => void enviar(e)} style={column}><p className="sub">No developers.facebook.com, abra o aplicativo do cliente: Messenger → Configurações. Gere um token de Página de longa duração e copie o App Secret em Configurações básicas. Depois de conectar, cole a URL e o verify token exibidos aqui no Webhooks do app.</p><CampoComRotulo nome="token" rotuloTexto="Token de acesso da Página" /><CampoComRotulo nome="appSecret" rotuloTexto="App Secret" ajuda="32 caracteres, só números e letras de a a f." /><CampoComRotulo nome="nome" rotuloTexto="Nome do canal (opcional)" obrigatorio={false} />{error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}<div className="cl-actions"><Botao type="button" onClick={fechar} disabled={enviando}>Cancelar</Botao><Botao type="submit" variante="primario" disabled={enviando}>{enviando ? 'Conectando…' : 'Conectar'}</Botao></div></form>}</Modal></>;
@@ -122,11 +122,11 @@ export function ConectarWhatsappManual({
   rotulo = 'Conectar manualmente',
   variante = 'padrao',
   onConectado,
-}: PropsDeConexaoManual<ChannelWhatsAppVisivel>) {
+}: PropsDeConexaoManual<ChannelWhatsAppVisible>) {
   const [aberto, setAberto] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState<ChannelConnected<ChannelWhatsAppVisivel> | null>(null);
+  const [sucesso, setSucesso] = useState<ChannelConnected<ChannelWhatsAppVisible> | null>(null);
 
   function fechar() {
     setAberto(false);
@@ -235,11 +235,11 @@ export function ConectarInstagramManual({
   rotulo = 'Conectar manualmente',
   variante = 'padrao',
   onConectado,
-}: PropsDeConexaoManual<ChannelInstagramVisivel>) {
+}: PropsDeConexaoManual<ChannelInstagramVisible>) {
   const [aberto, setAberto] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState<ChannelConnected<ChannelInstagramVisivel> | null>(null);
+  const [sucesso, setSucesso] = useState<ChannelConnected<ChannelInstagramVisible> | null>(null);
 
   function fechar() {
     setAberto(false);

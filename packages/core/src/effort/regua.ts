@@ -5,19 +5,19 @@
 import { MINUTO } from '../comum/time.js';
 
 /** Caracteres por minuto digitados pelo atendente. */
-export const CARACTERES_BY_MINUTO_ESCRITA = 200;
+export const CHARACTERS_BY_MINUTE_WRITING = 200;
 
 /** Caracteres por minuto lidos pelo atendente. */
-export const CARACTERES_BY_MINUTO_READ = 1000;
+export const CHARACTERS_BY_MINUTE_READ = 1000;
 
 /**
  * Opus audio at about 16 kbps means 16,000 bits/s ÷ 8 = 2,000 bytes/s. The report's "2 KB/s" is decimal, not 2 KiB.
  */
-export const BYTES_BY_SEGUNDO_AUDIO = 2000;
+export const BYTES_BY_SECOND_AUDIO = 2000;
 
-export type AutorMessage = 'contato' | 'atendente' | 'bot' | 'sistema';
+export type AuthorMessage = 'contato' | 'atendente' | 'bot' | 'sistema';
 export type DirectionMessage = 'entrada' | 'saida' | 'interna';
-export type TipoMessage =
+export type TypeMessage =
   | 'texto'
   | 'imagem'
   | 'audio'
@@ -36,9 +36,9 @@ export interface AttachmentEffort {
 export interface MessageEffort {
   conversationId: string;
   em: Date;
-  autor: AutorMessage;
+  autor: AuthorMessage;
   direction: DirectionMessage;
-  tipo: TipoMessage;
+  tipo: TypeMessage;
   /** Texto efetivamente trafegado. */
   conteudo?: string | null;
   /** Agent responsible for the message; bot messages have none. */
@@ -70,12 +70,12 @@ export interface EffortConversation {
 
 
 export function segundosDeEscrita(caracteres: number): number {
-  return (caracteres * MINUTO) / CARACTERES_BY_MINUTO_ESCRITA;
+  return (caracteres * MINUTO) / CHARACTERS_BY_MINUTE_WRITING;
 }
 
 
-export function readSegundos(caracteres: number): number {
-  return (caracteres * MINUTO) / CARACTERES_BY_MINUTO_READ;
+export function readSeconds(caracteres: number): number {
+  return (caracteres * MINUTO) / CHARACTERS_BY_MINUTE_READ;
 }
 
 /**
@@ -84,7 +84,7 @@ export function readSegundos(caracteres: number): number {
 export function audioDuration(attachment: AttachmentEffort | null | undefined): number | null {
   if (!attachment) return null;
   if (typeof attachment.durationSeg === 'number' && attachment.durationSeg >= 0) return attachment.durationSeg;
-  if (typeof attachment.bytes === 'number' && attachment.bytes > 0) return attachment.bytes / BYTES_BY_SEGUNDO_AUDIO;
+  if (typeof attachment.bytes === 'number' && attachment.bytes > 0) return attachment.bytes / BYTES_BY_SECOND_AUDIO;
   return null;
 }
 
@@ -96,7 +96,7 @@ export function contarCaracteres(texto: string | null | undefined): number {
 /**
  * Apply the measure to a conversation. Departures from the literal spec: agent-written internal notes (`direcao: 'interna'`) count as typing; bot and system messages produce no typing or reading effort; an agent's own outbound audio is speaking rather than listening.
  */
-export function calcularEffortConversation(
+export function calculateEffortConversation(
   messages: readonly MessageEffort[],
   options: { conversationId?: string; agentId?: string | null } = {},
 ): EffortConversation {
@@ -143,7 +143,7 @@ export function calcularEffortConversation(
 
   const effortSeg =
     segundosDeEscrita(charsEscritos) +
-    readSegundos(charsLidos) +
+    readSeconds(charsLidos) +
     audioOuvidoSeg +
     audioGravadoSeg;
 
@@ -162,7 +162,7 @@ export function calcularEffortConversation(
 }
 
 
-export function calcularEffortByConversation(
+export function calculateEffortByConversation(
   messages: readonly MessageEffort[],
 ): EffortConversation[] {
   const groups = new Map<string, MessageEffort[]>();
@@ -174,6 +174,6 @@ export function calcularEffortByConversation(
   return [...groups.keys()]
     .sort()
     .map((conversationId) =>
-      calcularEffortConversation(groups.get(conversationId) as MessageEffort[], { conversationId }),
+      calculateEffortConversation(groups.get(conversationId) as MessageEffort[], { conversationId }),
     );
 }

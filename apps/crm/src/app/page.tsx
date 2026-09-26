@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { Etiqueta } from '@pipe/ui';
-import { fusoDoTenant, mesWindow } from '../lib/database';
-import { carregarIndicadores, leadsByFase, leadsByOrigem } from '../lib/panel';
+import { fusoDoTenant, monthWindow } from '../lib/database';
+import { carregarIndicadores, leadsByStage, leadsByOrigin } from '../lib/panel';
 import { carregarFunil } from '../lib/funil';
-import { money, moneyCurto, numero, percentual } from '../lib/format';
+import { money, moneyShort, numero, percentual } from '../lib/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,12 +28,12 @@ function Variation({ atual, anterior }: { atual: number; anterior: number }) {
 
 export default async function PagePanel() {
   const fuso = await fusoDoTenant();
-  const mes = await mesWindow(fuso);
-  const mesAnterior = await mesWindow(fuso, 1);
+  const mes = await monthWindow(fuso);
+  const mesAnterior = await monthWindow(fuso, 1);
   const ind = await carregarIndicadores(mes, mesAnterior);
   const funil = await carregarFunil();
-  const origens = await leadsByOrigem(mes);
-  const fases = await leadsByFase();
+  const origens = await leadsByOrigin(mes);
+  const fases = await leadsByStage();
 
   const nomeDoMes = mes.inicio.toLocaleDateString('pt-BR', {
     timeZone: fuso,
@@ -70,18 +70,18 @@ export default async function PagePanel() {
           </span>
         </div>
         <div>
-          <b>{numero(ind.opportunitiesAbertas)}</b>
+          <b>{numero(ind.opportunitiesOpen)}</b>
           <span>
             oportunidades abertas
             {ind.diasMediosAbertas === null ? '' : ` · ${numero(ind.diasMediosAbertas)} dias em média`}
           </span>
         </div>
         <div>
-          <b>{moneyCurto(ind.inNegotiation)}</b>
-          <span>em negociação · {moneyCurto(ind.valuePonderado)} ponderado</span>
+          <b>{moneyShort(ind.inNegotiation)}</b>
+          <span>em negociação · {moneyShort(ind.valueWeighted)} ponderado</span>
         </div>
         <div>
-          <b>{moneyCurto(ind.fechadoNoMes)}</b>
+          <b>{moneyShort(ind.fechadoNoMes)}</b>
           <span>
             fechado no mês{' '}
             <Variation atual={ind.fechadoNoMes} anterior={ind.fechadoNoMesAnterior} />

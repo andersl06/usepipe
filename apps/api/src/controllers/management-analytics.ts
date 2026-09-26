@@ -26,7 +26,7 @@ import {
   loadMessagesActive,
   loadReports,
   carregarVisaoGeral,
-  windowOfDatas,
+  windowOfDates,
   type LinhaDoLog,
 } from '../domain/management-analytics.js';
 
@@ -173,7 +173,7 @@ export class ManagementAnalyticsController {
       const fuso = await fusoDoTenant(tx);
       const hoje = hojeNoFuso(fuso);
       const { de, ate } = periodOfUrl(dePedido, atePedido, somarDias(hoje, -7), hoje);
-      const dados = await carregarVisaoGeral(tx, id, await windowOfDatas(tx, fuso, de, ate), fuso);
+      const dados = await carregarVisaoGeral(tx, id, await windowOfDates(tx, fuso, de, ate), fuso);
       return { dados, de, ate };
     });
   }
@@ -194,7 +194,7 @@ export class ManagementAnalyticsController {
       const fuso = await fusoDoTenant(tx);
       const hoje = hojeNoFuso(fuso);
       const { de, ate } = periodOfUrl(dePedido, atePedido, somarDias(hoje, -1), hoje);
-      const arestas = await carregarJornada(tx, id, await windowOfDatas(tx, fuso, de, ate));
+      const arestas = await carregarJornada(tx, id, await windowOfDates(tx, fuso, de, ate));
       return {
         arestas,
         de,

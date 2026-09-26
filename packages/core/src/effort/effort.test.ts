@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  BYTES_BY_SEGUNDO_AUDIO,
-  CARACTERES_BY_MINUTO_ESCRITA,
-  CARACTERES_BY_MINUTO_READ,
+  BYTES_BY_SECOND_AUDIO,
+  CHARACTERS_BY_MINUTE_WRITING,
+  CHARACTERS_BY_MINUTE_READ,
   SESSION_INTERVAL_LIMIT_SEG,
-  calcularEffortConversation,
-  calcularEffortByConversation,
-  calcularTimeInSession,
-  agentConsolidarDia,
+  calculateEffortConversation,
+  calculateEffortByConversation,
+  calculateTimeInSession,
+  agentConsolidateDay,
   audioDuration,
   occupancy,
   segundosDeEscrita,
-  readSegundos,
+  readSeconds,
   type MessageEffort,
 } from './index.js';
 
@@ -24,10 +24,10 @@ const texto = (n: number) => 'a'.repeat(n);
 
 describe('constantes da régua', () => {
   it('they are exactly the ones from the report validated in production', () => {
-    expect(CARACTERES_BY_MINUTO_ESCRITA).toBe(200);
-    expect(CARACTERES_BY_MINUTO_READ).toBe(1000);
+    expect(CHARACTERS_BY_MINUTE_WRITING).toBe(200);
+    expect(CHARACTERS_BY_MINUTE_READ).toBe(1000);
     // Opus a ~16 kbps: 16.000 bits ÷ 8 = 2.000 bytes por segundo.
-    expect(BYTES_BY_SEGUNDO_AUDIO).toBe(2000);
+    expect(BYTES_BY_SECOND_AUDIO).toBe(2000);
     expect(SESSION_INTERVAL_LIMIT_SEG).toBe(600);
   });
 });
@@ -46,21 +46,21 @@ describe('conversão de caracteres em segundos', () => {
     });
   }
 
-  const casosRead: [number, number][] = [
+  const casesRead: [number, number][] = [
     [0, 0],
     [1000, 60], // 1.000 caracteres = 1 minuto de leitura
     [500, 30],
     [250, 15],
     [2000, 120],
   ];
-  for (const [caracteres, segundos] of casosRead) {
+  for (const [caracteres, segundos] of casesRead) {
     it(`ler ${caracteres} caracteres custa ${segundos}s`, () => {
-      expect(readSegundos(caracteres)).toBe(segundos);
+      expect(readSeconds(caracteres)).toBe(segundos);
     });
   }
 
   it('ler é cinco vezes mais rápido que escrever', () => {
-    expect(segundosDeEscrita(1000) / readSegundos(1000)).toBe(5);
+    expect(segundosDeEscrita(1000) / readSeconds(1000)).toBe(5);
   });
 });
 
@@ -98,7 +98,7 @@ describe('effort per conversation', () => {
     { conversationId: 'c1', em: em('10:08:00'), autor: 'sistema', direction: 'interna', tipo: 'texto', conteudo: texto(300) },
   ];
 
-  const effort = calcularEffortConversation(messages);
+  const effort = calculateEffortConversation(messages);
 
   it('separates writing, reading, listening and speaking', () => {
     expect(effort.charsEscritos).toBe(500);
@@ -122,7 +122,7 @@ describe('effort per conversation', () => {
   });
 
   it('bot and system messages generate no effort at all', () => {
-    const soMaquina = calcularEffortConversation([
+    const soMaquina = calculateEffortConversation([
       { conversationId: 'x', em: em('10:00:00'), autor: 'bot', direction: 'saida', tipo: 'texto', conteudo: texto(9000) },
       { conversationId: 'x', em: em('10:01:00'), autor: 'sistema', direction: 'interna', tipo: 'texto', conteudo: texto(9000) },
     ]);
@@ -132,7 +132,7 @@ describe('effort per conversation', () => {
   });
 
   it('template também não foi digitado à mão', () => {
-    const comTemplate = calcularEffortConversation([
+    const comTemplate = calculateEffortConversation([
       { conversationId: 'x', em: em('10:00:00'), autor: 'atendente', direction: 'saida', tipo: 'template', conteudo: texto(200), userId: 'u1' },
     ]);
     expect(comTemplate.charsEscritos).toBe(0);
@@ -142,7 +142,7 @@ describe('effort per conversation', () => {
   });
 
   it('an empty conversation returns everything zeroed', () => {
-    const empty = calcularEffortConversation([], { conversationId: 'vazia' });
+    const empty = calculateEffortConversation([], { conversationId: 'vazia' });
     expect(empty.effortSeg).toBe(0);
     expect(empty.conversationId).toBe('vazia');
     expect(empty.agentId).toBeNull();
@@ -153,7 +153,7 @@ describe('effort per conversation', () => {
   });
 
   it('groups by conversation in deterministic order', () => {
-    const byConversation = calcularEffortByConversation([
+    const byConversation = calculateEffortByConversation([
       { conversationId: 'c2', em: em('10:00:00'), autor: 'contato', direction: 'entrada', tipo: 'texto', conteudo: texto(1000) },
       { conversationId: 'c1', em: em('10:00:00'), autor: 'atendente', direction: 'saida', tipo: 'texto', conteudo: texto(200), userId: 'u1' },
     ]);
@@ -178,7 +178,7 @@ describe('support metric: time in session', () => {
   ];
 
   it('soma 840 segundos em três blocos', () => {
-    const session = calcularTimeInSession(instantes);
+    const session = calculateTimeInSession(instantes);
     expect(session.sessionSeg).toBe(840);
     expect(session.blocos.map((b) => b.segundos)).toEqual([480, 360, 0]);
     expect(session.blocos.map((b) => b.messages)).toEqual([3, 3, 1]);
@@ -195,59 +195,59 @@ describe('support metric: time in session', () => {
 
   for (const caso of casosLimite) {
     it(caso.nome, () => {
-      expect(calcularTimeInSession(caso.instantes).sessionSeg).toBe(caso.esperado);
+      expect(calculateTimeInSession(caso.instantes).sessionSeg).toBe(caso.esperado);
     });
   }
 
   it('does not depend on the order messages arrive in', () => {
     const embaralhado = [...instantes].reverse();
-    expect(calcularTimeInSession(embaralhado).sessionSeg).toBe(840);
+    expect(calculateTimeInSession(embaralhado).sessionSeg).toBe(840);
   });
 
   it('aceita limite configurável', () => {
-    expect(calcularTimeInSession(instantes, { limiteSeg: 1800 }).sessionSeg).toBe(3600);
+    expect(calculateTimeInSession(instantes, { limiteSeg: 1800 }).sessionSeg).toBe(3600);
   });
 });
 
 describe('agent-day consolidation', () => {
   it('effort ÷ session becomes occupancy; effort ÷ tickets is a weighted average by construction', () => {
-    const dia = agentConsolidarDia({
+    const dia = agentConsolidateDay({
       dia: '2026-03-02',
       userId: 'u1',
       esforcosSeg: [200, 160],
-      messageInstantes: [em('10:00:00'), em('10:03:00'), em('10:08:00')],
+      messageInstants: [em('10:00:00'), em('10:03:00'), em('10:08:00')],
     });
     expect(dia.effortSeg).toBe(360);
     expect(dia.tickets).toBe(2);
     expect(dia.sessionSeg).toBe(480);
-    expect(dia.effortMedioByTicketSeg).toBe(180);
+    expect(dia.effortAverageByTicketSeg).toBe(180);
     expect(dia.occupancy).toBe(0.75);
   });
 
   it('with no measured session, occupancy is null, never infinite', () => {
     expect(occupancy(600, 0)).toBeNull();
-    const dia = agentConsolidarDia({
+    const dia = agentConsolidateDay({
       dia: '2026-03-02',
       userId: 'u1',
       esforcosSeg: [],
-      messageInstantes: [],
+      messageInstants: [],
     });
     expect(dia.occupancy).toBeNull();
-    expect(dia.effortMedioByTicketSeg).toBeNull();
+    expect(dia.effortAverageByTicketSeg).toBeNull();
   });
 
   it('a full day weighs more than an empty day in the per-ticket average', () => {
-    const cheio = agentConsolidarDia({
+    const cheio = agentConsolidateDay({
       dia: '2026-03-02',
       userId: 'u1',
       esforcosSeg: Array.from({ length: 10 }, () => 600),
-      messageInstantes: [],
+      messageInstants: [],
     });
-    const empty = agentConsolidarDia({
+    const empty = agentConsolidateDay({
       dia: '2026-03-03',
       userId: 'u1',
       esforcosSeg: [1800, 1800],
-      messageInstantes: [],
+      messageInstants: [],
     });
     // Dia cheio: 6.000s em 10 tickets (600s cada). Dia vazio: 3.600s em 2 (1.800s cada).
     // Weighted mean: 9,600 ÷ 12 = 800 seconds. Mean of daily means would be (600 + 1,800) ÷ 2 = 1,200 seconds.
@@ -255,7 +255,7 @@ describe('agent-day consolidation', () => {
       (cheio.effortSeg + empty.effortSeg) / (cheio.tickets + empty.tickets);
     expect(ponderada).toBe(800);
     expect(
-      ((cheio.effortMedioByTicketSeg as number) + (empty.effortMedioByTicketSeg as number)) / 2,
+      ((cheio.effortAverageByTicketSeg as number) + (empty.effortAverageByTicketSeg as number)) / 2,
     ).toBe(1200);
   });
 });

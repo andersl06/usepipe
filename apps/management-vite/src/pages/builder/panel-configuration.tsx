@@ -4,11 +4,11 @@ import { Etiqueta, Icone } from '@pipe/ui';
 import { IconePortal } from '../../components/icones-portal';
 import { ModalConfirmation } from '../registrations/_modal';
 import type { AcaoDoEditor, Mapa } from './model';
-import { CATALOGO_OF_ACTIONS, ROTULOS_OF_ACTIONS, novaAcao } from './actions-of-block';
-import type { ActionsLista } from './actions-of-block';
+import { CATALOG_OF_ACTIONS, LABELS_OF_ACTIONS, novaAcao } from './actions-of-block';
+import type { ActionsList } from './actions-of-block';
 import {
   adicionarAcaoGlobal,
-  actionsGlobalLista,
+  actionsGlobalList,
   moverAcaoGlobal,
   removerAcaoGlobal,
   substituirAcaoGlobal,
@@ -36,14 +36,14 @@ export function ConfigurationPanel({
   flowName,
   mapa,
   global,
-  onMudarGlobal,
+  onChangeGlobal,
   onImport,
   onFechar,
 }: {
   flowName: string;
   mapa: Mapa;
   global: Record<string, unknown>;
-  onMudarGlobal: (global: Record<string, unknown>) => void;
+  onChangeGlobal: (global: Record<string, unknown>) => void;
   onImport: (mapa: Mapa, global: Record<string, unknown>) => void;
   onFechar: () => void;
 }) {
@@ -76,16 +76,16 @@ export function ConfigurationPanel({
         ))}
       </div>
       <div className="bl-panel-body">
-        {aba === 'acoes' ? <ActionsGlobalAba global={global} onMudar={onMudarGlobal} /> : null}
+        {aba === 'acoes' ? <ActionsGlobalTab global={global} onMudar={onChangeGlobal} /> : null}
         {aba === 'versoes' ? (
-          <VersionsAba flowName={flowName} mapa={mapa} global={global} onImport={onImport} />
+          <VersionsTab flowName={flowName} mapa={mapa} global={global} onImport={onImport} />
         ) : null}
       </div>
     </aside>
   );
 }
 
-function ActionsGlobalAba({
+function ActionsGlobalTab({
   global,
   onMudar,
 }: {
@@ -94,19 +94,19 @@ function ActionsGlobalAba({
 }) {
   return (
     <div className="bl-aba-corpo">
-      <ActionsGlobalLista
+      <ActionsGlobalList
         lista="$enteringCustomActions"
-        titulo={ROTULOS_OF_ACTIONS.entrada}
-        description={ROTULOS_OF_ACTIONS.entradaDescricao}
-        rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarEntrada}
+        titulo={LABELS_OF_ACTIONS.entrada}
+        description={LABELS_OF_ACTIONS.entradaDescricao}
+        rotuloAdicionar={LABELS_OF_ACTIONS.adicionarEntrada}
         global={global}
         onMudar={onMudar}
       />
-      <ActionsGlobalLista
+      <ActionsGlobalList
         lista="$leavingCustomActions"
-        titulo={ROTULOS_OF_ACTIONS.saida}
-        description={ROTULOS_OF_ACTIONS.saidaDescricao}
-        rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarSaida}
+        titulo={LABELS_OF_ACTIONS.saida}
+        description={LABELS_OF_ACTIONS.saidaDescricao}
+        rotuloAdicionar={LABELS_OF_ACTIONS.adicionarSaida}
         global={global}
         onMudar={onMudar}
       />
@@ -114,7 +114,7 @@ function ActionsGlobalAba({
   );
 }
 
-function ActionsGlobalLista({
+function ActionsGlobalList({
   lista,
   titulo,
   description,
@@ -122,14 +122,14 @@ function ActionsGlobalLista({
   global,
   onMudar,
 }: {
-  lista: ActionsLista;
+  lista: ActionsList;
   titulo: string;
   description: string;
   rotuloAdicionar: string;
   global: Record<string, unknown>;
   onMudar: (global: Record<string, unknown>) => void;
 }) {
-  const actions = actionsGlobalLista(global, lista);
+  const actions = actionsGlobalList(global, lista);
   const [menuAberto, setMenuAberto] = useState(false);
   const [aberta, setAberta] = useState<number | null>(null);
 
@@ -173,7 +173,7 @@ function ActionsGlobalLista({
         {menuAberto ? (
           <div className="bl-menu-actions" role="menu">
             <header>
-              <b>{ROTULOS_OF_ACTIONS.menu}</b>
+              <b>{LABELS_OF_ACTIONS.menu}</b>
               <button type="button" className="iconbtn" aria-label="Fechar" onClick={() => setMenuAberto(false)}>
                 <Icone nome="x" tamanho={16} />
               </button>
@@ -181,7 +181,7 @@ function ActionsGlobalLista({
             {groups.map((grupo) => (
               <div key={grupo} className="bl-menu-actions-group">
                 <span className="sub">{grupo}</span>
-                {CATALOGO_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
+                {CATALOG_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
                   <button key={t.tipo} type="button" role="menuitem" onClick={() => adicionar(t.tipo)}>
                     {t.rotulo}
                   </button>
@@ -195,7 +195,7 @@ function ActionsGlobalLista({
   );
 }
 
-function VersionsAba({
+function VersionsTab({
   flowName,
   mapa,
   global,
@@ -221,7 +221,7 @@ function VersionsAba({
     URL.revokeObjectURL(url);
   }
 
-  function toEscolherFile(e: ChangeEvent<HTMLInputElement>): void {
+  function toChooseFile(e: ChangeEvent<HTMLInputElement>): void {
     const arq = e.target.files?.[0];
     e.target.value = '';
     if (!arq) return;
@@ -247,7 +247,7 @@ function VersionsAba({
             <IconePortal nome="enviar-arquivo" tamanho={18} />
             <span>Importar fluxo</span>
           </button>
-          <input ref={file} type="file" accept=".json" className="bl-oculto" onChange={toEscolherFile} />
+          <input ref={file} type="file" accept=".json" className="bl-oculto" onChange={toChooseFile} />
         </li>
         <li>
           <button type="button" className="bl-versions-item" onClick={exportar}>

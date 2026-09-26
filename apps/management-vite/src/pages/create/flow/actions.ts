@@ -8,12 +8,12 @@ import { RECADOS } from './regras';
 export async function createFlow(data: FormData): Promise<void> {
   const resultado = await saveContact(data, { tipo: 'fluxo', recados: RECADOS });
   if (resultado.error) {
-    return voltarWithError(resultado.error, String(data.get('nome') ?? ''), data.get('template'));
+    return backWithError(resultado.error, String(data.get('nome') ?? ''), data.get('template'));
   }
   irPara(`/flow/${resultado.id}`);
 }
 
-function voltarWithError(motivo: string, nome: string, template: FormDataEntryValue | null): void {
+function backWithError(motivo: string, nome: string, template: FormDataEntryValue | null): void {
   /* Passo no path (D-31, `std/nav-contract.md` §Gestão); erro/nome/template
      continuam na query, classificados em separado. */
   const search = new URLSearchParams({ error: motivo });

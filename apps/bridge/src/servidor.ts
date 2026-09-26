@@ -1,7 +1,7 @@
 import express from 'express';
 import { sql } from 'drizzle-orm';
 import type { Server } from 'node:http';
-import { noTenant, fecharDatabase } from './database.js';
+import { noTenant, closeDatabase } from './database.js';
 import { despachar } from './rotas.js';
 import type { Session } from './rotas.js';
 import { falha } from './lime.js';
@@ -106,7 +106,7 @@ export async function startBridge(porta = Number(process.env['PORT'] ?? 3020)): 
     porta: portaReal,
     fechar: async () => {
       await new Promise<void>((r) => servidor.close(() => r()));
-      await fecharDatabase();
+      await closeDatabase();
     },
   };
 }

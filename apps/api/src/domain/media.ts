@@ -38,7 +38,7 @@ export function hostOfMediaAllowed(bruto: string): boolean {
 
 /** Injectable HTTP fetch so tests use a fake without touching `cliente-graph.ts`. */
 let buscar: typeof fetch = fetch;
-export function defineBuscadorOfMedia(novo: typeof fetch | null): void {
+export function defineSearchOfMedia(novo: typeof fetch | null): void {
   buscar = novo ?? fetch;
 }
 
@@ -66,12 +66,12 @@ export type ResultadoDownload =
   | { state: 'falhou'; motivo: string };
 
 type Baixado = { mime: string; bytes: Uint8Array; sha256Esperado?: string | undefined };
-type FalhaPermanente = { errorPermanente: string };
+type FalhaPermanente = { errorPermanent: string };
 
 /**
  * Download one attachment's media, called by the queue consumer after inbound commit and by the periodic sweep.
  */
-export async function baixarMediaOfAttachment(tenantId: string, attachmentId: string): Promise<ResultadoDownload> {
+export async function downloadMediaOfAttachment(tenantId: string, attachmentId: string): Promise<ResultadoDownload> {
   const linha = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<LineAttachment>(sql`
       select a.id, a.chave_storage, a.mime, a.nome_original, a.checksum,
@@ -95,7 +95,7 @@ export async function baixarMediaOfAttachment(tenantId: string, attachmentId: st
       linha.channelType === 'whatsapp_cloud'
         ? await baixarDoWhatsApp(linha)
         : await baixarDoInstagram(linha);
-    if ('errorPermanente' in baixado) return marcarFalha(tenantId, linha, baixado.errorPermanente);
+    if ('errorPermanent' in baixado) return marcarFalha(tenantId, linha, baixado.errorPermanent);
 
     const mimeFinal = mimeParaServir(baixado.mime, baixado.bytes);
     const teto = maxBytesDoMime(mimeFinal);
@@ -133,12 +133,12 @@ export async function baixarMediaOfAttachment(tenantId: string, attachmentId: st
 async function baixarDoWhatsApp(linha: LineAttachment): Promise<Baixado | FalhaPermanente> {
   const mediaId = linha.keyStorage.startsWith('meta:') ? linha.keyStorage.slice(5) : null;
   if (!mediaId) {
-    return { errorPermanente: `"${linha.keyStorage}" não é uma referência de mídia da Meta.` };
+    return { errorPermanent: `"${linha.keyStorage}" não é uma referência de mídia da Meta.` };
   }
 
   const config = configDecifrada(linha.channelConfig);
   const token = typeof config['tokenAcesso'] === 'string' ? config['tokenAcesso'] : null;
-  if (!token) return { errorPermanente: 'O canal não tem tokenAcesso em canal.config.' };
+  if (!token) return { errorPermanent: 'O canal não tem tokenAcesso em canal.config.' };
   const versao = typeof config['apiVersao'] === 'string' ? config['apiVersao'] : VERSAO_PADRAO_GRAPH;
 
   // Treat network and HTTP errors as temporary and let the caller reschedule. The media URL expires in about five minutes, so the next attempt obtains a fresh URL.
@@ -147,9 +147,9 @@ async function baixarDoWhatsApp(linha: LineAttachment): Promise<Baixado | FalhaP
     token,
     'A busca dos metadados da mídia falhou',
   );
-  if (!info.url) return { errorPermanente: 'A Meta não devolveu a URL de download da mídia.' };
+  if (!info.url) return { errorPermanent: 'A Meta não devolveu a URL de download da mídia.' };
   if (!hostOfMediaAllowed(info.url)) {
-    return { errorPermanente: `Host de mídia fora da lista permitida: ${new URL(info.url).hostname}.` };
+    return { errorPermanent: `Host de mídia fora da lista permitida: ${new URL(info.url).hostname}.` };
   }
 
   const bytes = await pedirBytes(info.url, token, 'O download da mídia falhou');
@@ -158,7 +158,7 @@ async function baixarDoWhatsApp(linha: LineAttachment): Promise<Baixado | FalhaP
 
 async function baixarDoInstagram(linha: LineAttachment): Promise<Baixado | FalhaPermanente> {
   if (!hostOfMediaAllowed(linha.keyStorage)) {
-    return { errorPermanente: `Host de mídia fora da lista permitida: ${hostnameDe(linha.keyStorage)}.` };
+    return { errorPermanent: `Host de mídia fora da lista permitida: ${hostnameDe(linha.keyStorage)}.` };
   }
   const bytes = await pedirBytes(linha.keyStorage, undefined, 'O download da mídia falhou');
   return { mime: linha.mime, bytes };

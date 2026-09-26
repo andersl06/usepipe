@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useActionState } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
-import { salvarException, salvarFaixa, salvarHorario } from '../../lib/actions';
+import { saveException, salvarFaixa, salvarHorario } from '../../lib/actions';
 import { DIAS_DA_SEMANA } from '../../lib/format';
 import type { HorarioParaEscolher } from '../../lib/registrations';
 import { envioQuePreserva } from '../../components/envio-de-formulario';
@@ -114,9 +114,9 @@ function FormularioFaixa({ horarios }: { horarios: readonly HorarioParaEscolher[
   );
 }
 
-function FormularioException({ horarios }: { horarios: readonly HorarioParaEscolher[] }) {
+function ExceptionForm({ horarios }: { horarios: readonly HorarioParaEscolher[] }) {
   const formRef = useRef<HTMLFormElement>(null);
-  const [resultado, enviar, enviando] = useActionState(salvarException, { ok: true });
+  const [resultado, enviar, enviando] = useActionState(saveException, { ok: true });
 
   useEffect(() => {
     if (resultado.ok) formRef.current?.reset();
@@ -201,7 +201,7 @@ export function FormulariosDeHorario({ horarios }: { horarios: readonly HorarioP
             <p className="sub">
               Feriado, emenda, recesso. A exceção manda sobre a faixa da semana naquele dia.
             </p>
-            <FormularioException horarios={horarios} />
+            <ExceptionForm horarios={horarios} />
           </section>
         </>
       ) : null}

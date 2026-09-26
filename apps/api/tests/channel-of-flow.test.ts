@@ -36,7 +36,7 @@ let api: ApiNoAr;
 /** Quem edita fluxo na conta — o equivalente de conta de `channels.escrever`. */
 let sessionEditor: string;
 /** People from tenant A with no permission at all. */
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 /** Someone who's only a member of ONE flow, with `channels: write` — nothing at the account level. */
 let memberOfFlow: string;
 let sessionOfOtherTenant: string;
@@ -166,7 +166,7 @@ beforeAll(async () => {
   b = await montarCenario(`cf-${randomUUID().slice(0, 8)}`);
   api = await upApi(0);
   sessionEditor = await openSession(a, await pessoaCom(a, ['automacao.fluxo.editar']));
-  sessionWithoutPoder = await openSession(a, await pessoaCom(a, []));
+  sessionWithoutAuthority = await openSession(a, await pessoaCom(a, []));
   memberOfFlow = await pessoaCom(a, []);
   sessionOfOtherTenant = await openSession(b, await pessoaCom(b, ['automacao.fluxo.editar']));
 }, 180_000);
@@ -290,10 +290,10 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     const otherFlow = await newFlow(a, 'fluxo');
     const canalId = await newChannel(a);
 
-    const semPoder = await ligar(sessionWithoutPoder, fluxoId, canalId);
+    const semPoder = await ligar(sessionWithoutAuthority, fluxoId, canalId);
     expect(semPoder.status).toBe(403);
     expect(codigo(semPoder)).toBe('sem_permissao');
-    expect((await desligar(sessionWithoutPoder, fluxoId)).status).toBe(403);
+    expect((await desligar(sessionWithoutAuthority, fluxoId)).status).toBe(403);
 
     await a.dono.execute(sql`
       insert into fluxo_membro (tenant_id, fluxo_id, usuario_id, papel_no_fluxo, permissoes)
@@ -371,7 +371,7 @@ describe('Connect a new channel to a bot using `fluxo_id`', () => {
       return Number(rows[0]!.n);
     };
 
-    expect((await chamar(sessionWithoutPoder, 'POST', '/v1/channels/whatsapp/manual', corpo)).status).toBe(403);
+    expect((await chamar(sessionWithoutAuthority, 'POST', '/v1/channels/whatsapp/manual', corpo)).status).toBe(403);
     expect(await contar()).toBe(0);
 
     expect(

@@ -137,7 +137,7 @@ describe('Save SSO connection configuration', () => {
       customerSecret: 'segredo',
     });
     await expect(
-      connectionForFlow(cenario.tenantId, { exigirActive: false }, buscarDescoberta),
+      connectionForFlow(cenario.tenantId, { requireActive: false }, buscarDescoberta),
     ).rejects.toMatchObject({ codigo: 'issuer_multi_tenant' });
     await configurar();
   });

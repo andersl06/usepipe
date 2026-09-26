@@ -72,7 +72,7 @@ export default async function PageRules() {
                   {numero(daVersao.filter((r) => r.active).length)} regras ativas
                 </span>
               </header>
-              <Tabela colunas={COLUNAS} linhas={daVersao} linhaKey={(r) => r.id} />
+              <Tabela colunas={COLUNAS} linhas={daVersao} rowKey={(r) => r.id} />
               <div className="message">
                 &quot;Leads afetados&quot; conta o cálculo vigente de cada lead, não todos os
                 cálculos: lead recalculado três vezes conta uma.

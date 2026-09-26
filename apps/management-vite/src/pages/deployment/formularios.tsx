@@ -17,7 +17,7 @@ function Resultado({ resultado }: { resultado: ResultadoDaAcao }) {
 }
 
 /** Reuses the invite that already exists (`POST /v1/convites`). */
-export function FormularioInvitation() {
+export function InvitationForm() {
   const formulario = useRef<HTMLFormElement>(null);
   const [resultado, enviar, enviando] = useActionState(convidar, INICIAL);
 
@@ -70,7 +70,7 @@ export function FormularioInvitation() {
   );
 }
 
-export function FormularioImport() {
+export function ImportForm() {
   const formulario = useRef<HTMLFormElement>(null);
   const [resultado, enviar, enviando] = useActionState(importContacts, INICIAL);
 

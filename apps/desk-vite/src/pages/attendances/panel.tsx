@@ -16,13 +16,13 @@ type Aba = 'informacoes' | 'historico' | 'comentarios';
 
 export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; agora: Date }) {
   const [aba, setAba] = useState<Aba>('informacoes');
-  const [editandoContact, setEditandoContact] = useState(false);
+  const [editingContact, setEditingContact] = useState(false);
   const { openContact } = useDeskSelection();
   const conversationId = aberta?.conversation.id ?? null;
 
   // Leave edit mode when switching tickets, so one contact's form cannot remain open over another contact's data.
   // aberto por cima dos dados de outro.
-  useEffect(() => setEditandoContact(false), [conversationId]);
+  useEffect(() => setEditingContact(false), [conversationId]);
 
   if (!aberta) {
     return (
@@ -80,12 +80,12 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
         {aba === 'informacoes' ? (
           <div className="dk-panel-body" role="tabpanel">
             <section className="dk-paper">
-              {editandoContact ? (
+              {editingContact ? (
                 <ContactEdit
                   conversation={conversation}
-                  aoFechar={() => setEditandoContact(false)}
+                  aoFechar={() => setEditingContact(false)}
                   aoSalvar={() => {
-                    setEditandoContact(false);
+                    setEditingContact(false);
                     atualizarLeituras();
                   }}
                 />
@@ -96,12 +96,12 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
                     <button
                       type="button"
                       className="dk-botao dk-botao-secundario dk-botao-curto"
-                      onClick={() => setEditandoContact(true)}
+                      onClick={() => setEditingContact(true)}
                     >
                       Editar
                     </button>
                   </h3>
-                  <Campo rotulo="Nome:" value={displayName({ ...conversation, contactTelefone: conversation.contactPhone })} />
+                  <Campo rotulo="Nome:" value={displayName({ ...conversation, contactPhone: conversation.contactPhone })} />
                   <Campo rotulo="Id:" value={conversation.contactId} />
                   <Campo
                     rotulo="E-mail:"
@@ -112,7 +112,7 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
                   <Campo rotulo="Documento:" value={conversation.contactDocument} />
                 </>
               )}
-              {!editandoContact && Object.keys(conversation.contactAttributes).length > 0 ? (
+              {!editingContact && Object.keys(conversation.contactAttributes).length > 0 ? (
                 <>
                   <h3 className="dk-paper-title">Extras</h3>
                   {Object.entries(conversation.contactAttributes).map(([key, value]) => (

@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
 import { Selection } from './selection';
 
-const TAMANHOS_OF_PAGE = [5, 10, 15, 25, 50, 100, 250, 500] as const;
+const SIZES_OF_PAGE = [5, 10, 15, 25, 50, 100, 250, 500] as const;
 
 /**
  * Search sits alone below the header as reference `bds-input icon="search"` in a `w-30` column: 30% width, 54px high, 20px search icon (`dom/rules.html`).
  */
-function SearchTopo({
+function SearchTop({
   search,
   setSearch,
   placeholder,
@@ -33,7 +33,7 @@ function SearchTopo({
 /**
  * Footer navigation uses `arrow-first`, `arrow-left`, `arrow-right`, `arrow-last` from `FICHA-rules.md` and `FICHA-queue-management.md` Section 5. Keep these four single-use icons local instead of adding them to `@pipe/ui`.
  */
-function PageSeta({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
+function PageArrow({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
   const caminhos: Record<typeof tipo, string> = {
     primeira: 'M11 7l-5 5l5 5M17 7l-5 5l5 5',
     anterior: 'M15 6l-6 6l6 6',
@@ -50,18 +50,18 @@ function PageSeta({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultim
 /**
  * `Resultados por página` footer mirrors the two captured paginated screens (`FICHA-rules.md`, `FICHA-queue-management.md`, Sections 2.5 and 5): size select, `X-Y de Z` count, and four arrows. Paginate the already-filtered complete list in the browser; no server pagination contract is needed.
  */
-function PaginationRodape({
+function PaginationFooter({
   total,
   page,
   tamanho,
-  toMudarPage,
+  toChangePage,
   aoMudarTamanho,
   ocultarTamanho = false,
 }: {
   total: number;
   page: number;
   tamanho: number;
-  toMudarPage: (p: number) => void;
+  toChangePage: (p: number) => void;
   aoMudarTamanho: (t: number) => void;
   /**
    * Reference `personalizedbreaks` has no `pagination-and-search-results-select` (`FICHA-atendentes-filas-pausas.md` §b.3/§c), only a count and arrows.
@@ -77,7 +77,7 @@ function PaginationRodape({
         <label className="rp-tamanho">
           Resultados por página
           <Selection value={tamanho} onChange={(e) => aoMudarTamanho(Number(e.target.value))} aria-label="Resultados por página">
-            {TAMANHOS_OF_PAGE.map((o) => (
+            {SIZES_OF_PAGE.map((o) => (
               <option key={o} value={o}>
                 {o}
               </option>
@@ -87,23 +87,23 @@ function PaginationRodape({
       )}
       <span className="rp-count">{`${inicio}-${fim} de ${total}`}</span>
       <div className="rp-nav">
-        <button type="button" disabled={page <= 1} onClick={() => toMudarPage(1)} aria-label="Primeira página">
-          <PageSeta tipo="primeira" />
+        <button type="button" disabled={page <= 1} onClick={() => toChangePage(1)} aria-label="Primeira página">
+          <PageArrow tipo="primeira" />
         </button>
-        <button type="button" disabled={page <= 1} onClick={() => toMudarPage(page - 1)} aria-label="Página anterior">
-          <PageSeta tipo="anterior" />
+        <button type="button" disabled={page <= 1} onClick={() => toChangePage(page - 1)} aria-label="Página anterior">
+          <PageArrow tipo="anterior" />
         </button>
         <span className="rp-atual">{page}</span>
-        <button type="button" disabled={page >= totalPages} onClick={() => toMudarPage(page + 1)} aria-label="Próxima página">
-          <PageSeta tipo="proxima" />
+        <button type="button" disabled={page >= totalPages} onClick={() => toChangePage(page + 1)} aria-label="Próxima página">
+          <PageArrow tipo="proxima" />
         </button>
         <button
           type="button"
           disabled={page >= totalPages}
-          onClick={() => toMudarPage(totalPages)}
+          onClick={() => toChangePage(totalPages)}
           aria-label="Última página"
         >
-          <PageSeta tipo="ultima" />
+          <PageArrow tipo="ultima" />
         </button>
       </div>
     </div>
@@ -201,12 +201,12 @@ function Card({ card }: { card: CardRule }) {
 export function ListaRegras({
   sections,
   placeholder = 'Buscar regra, fila ou escopo',
-  sectionOcultarHeader = false,
+  sectionHideHeader = false,
   paginar = false,
-  pageInitialTamanho = 10,
-  ocultarSearch = false,
+  pageInitialSize = 10,
+  hideSearch = false,
   filters,
-  pageOcultarTamanho = false,
+  pageHideSize = false,
 }: {
   sections: readonly RulesSection[];
   /** Search text is the only variation because this list also serves screens beyond Rules. */
@@ -214,25 +214,25 @@ export function ListaRegras({
   /**
    * Blip does not repeat a section title above a card list after search. Hide it only when requested; multi-section screens such as schedules still need labels to distinguish groups.
    */
-  sectionOcultarHeader?: boolean;
+  sectionHideHeader?: boolean;
   /**
    * The `Resultados por página` footer appears in captured `rules` and `queue-management` screens, the only two with confirmed pagination. It works only with one section, as both callers have.
    */
   paginar?: boolean;
-  pageInitialTamanho?: number;
+  pageInitialSize?: number;
   /**
    * Reference `personalizedbreaks` has neither search nor filters (`FICHA-personalizedbreaks.md` §3); its list follows the header directly. Keep search enabled by default for screens that show it.
    */
-  ocultarSearch?: boolean;
+  hideSearch?: boolean;
   /**
    * Controls sharing the search row represent reference `Filtrar por:` selectors for `Modelos de mensagens` (`FICHA-message-template.md` §3), to the left of search, which occupies 69% of that row.
    */
   filters?: ReactNode;
 
-  pageOcultarTamanho?: boolean;
+  pageHideSize?: boolean;
 }) {
   const [search, setSearch] = useState('');
-  const [tamanho, setTamanho] = useState(pageInitialTamanho);
+  const [tamanho, setTamanho] = useState(pageInitialSize);
   const [page, setPage] = useState(1);
 
   const filtradas = useMemo(() => {
@@ -245,9 +245,9 @@ export function ListaRegras({
   }, [sections, search]);
 
   const nenhuma = filtradas.every((s) => s.cards.length === 0);
-  const unicaSection = filtradas.length === 1 ? filtradas[0] : undefined;
-  const podePaginar = paginar && unicaSection !== undefined;
-  const totalItens = unicaSection && podePaginar ? unicaSection.cards.length : 0;
+  const singleSection = filtradas.length === 1 ? filtradas[0] : undefined;
+  const podePaginar = paginar && singleSection !== undefined;
+  const totalItens = singleSection && podePaginar ? singleSection.cards.length : 0;
   const totalPages = Math.max(1, Math.ceil(totalItens / tamanho));
   const pageCurrent = Math.min(page, totalPages);
 
@@ -257,11 +257,11 @@ export function ListaRegras({
   }, [search, tamanho]);
 
   const sectionsShown =
-    podePaginar && unicaSection
+    podePaginar && singleSection
       ? [
           {
-            ...unicaSection,
-            cartoes: unicaSection.cards.slice(
+            ...singleSection,
+            cartoes: singleSection.cards.slice(
               (pageCurrent - 1) * tamanho,
               (pageCurrent - 1) * tamanho + tamanho,
             ),
@@ -271,13 +271,13 @@ export function ListaRegras({
 
   return (
     <>
-      {ocultarSearch ? null : filters ? (
+      {hideSearch ? null : filters ? (
         <div className="filter-by">
           {filters}
-          <SearchTopo search={search} setSearch={setSearch} placeholder={placeholder} />
+          <SearchTop search={search} setSearch={setSearch} placeholder={placeholder} />
         </div>
       ) : (
-        <SearchTopo search={search} setSearch={setSearch} placeholder={placeholder} />
+        <SearchTop search={search} setSearch={setSearch} placeholder={placeholder} />
       )}
 
       {nenhuma && search.trim() ? (
@@ -298,7 +298,7 @@ export function ListaRegras({
       ) : (
         sectionsShown.map((section) => (
           <div key={section.titulo} className="list-cards">
-            {sectionOcultarHeader ? null : (
+            {sectionHideHeader ? null : (
               <div className="group-cards">
                 {section.titulo} <span className="qt">{section.cards.length}</span>
               </div>
@@ -319,13 +319,13 @@ export function ListaRegras({
       )}
 
       {podePaginar && !nenhuma ? (
-        <PaginationRodape
+        <PaginationFooter
           total={totalItens}
           page={pageCurrent}
           tamanho={tamanho}
-          toMudarPage={setPage}
+          toChangePage={setPage}
           aoMudarTamanho={setTamanho}
-          ocultarTamanho={pageOcultarTamanho}
+          ocultarTamanho={pageHideSize}
         />
       ) : null}
     </>

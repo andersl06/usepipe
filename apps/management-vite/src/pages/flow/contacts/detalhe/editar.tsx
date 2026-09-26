@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { IconePortal } from '../../../../components/icones-portal';
 import { Selection } from '../../../../components/selection';
-import { salvarContact } from './gravar';
+import { saveContact } from './gravar';
 
 interface Properties {
   contactId: string;
@@ -38,7 +38,7 @@ export function InformationContact(props: Properties) {
     const data = new FormData(evento.currentTarget);
     setAviso('');
     setSalvando(true);
-    const resultado = await salvarContact(props.contactId, {
+    const resultado = await saveContact(props.contactId, {
       nome: ouNulo(String(data.get('nome') ?? '')),
       email: ouNulo(String(data.get('email') ?? '')),
       telefone_e164: ouNulo(String(data.get('telefone') ?? '')),

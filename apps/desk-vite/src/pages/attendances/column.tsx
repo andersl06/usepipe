@@ -5,8 +5,8 @@ import { executar } from '../../lib/actions';
 import { cronometro } from '../../lib/format';
 import {
   FILTERS,
-  ROTULOS_OF_FILTER,
-  aplicarFilter,
+  LABELS_OF_FILTER,
+  applyFilter,
   buscar,
   contagens,
   ordenar,
@@ -40,7 +40,7 @@ export function Column({
   const online = state === 'online';
   const totals = useMemo(() => contagens(queue.conversations, agora), [queue.conversations, agora]);
   const visiveis = useMemo(
-    () => ordenar(buscar(aplicarFilter(queue.conversations, filter, agora), termo), 'ultima-mensagem'),
+    () => ordenar(buscar(applyFilter(queue.conversations, filter, agora), termo), 'ultima-mensagem'),
     [queue.conversations, filter, termo, agora],
   );
 
@@ -160,7 +160,7 @@ export function Column({
               onClick={() => setMenuFilter((v) => !v)}
             >
               <IconeDesk nome="seta-baixo" />
-              {ROTULOS_OF_FILTER[filter]} ({totals[filter]})
+              {LABELS_OF_FILTER[filter]} ({totals[filter]})
             </button>
             {menuFilter ? (
               <div className="dk-menu" role="menu" onMouseLeave={() => setMenuFilter(false)}>
@@ -176,7 +176,7 @@ export function Column({
                       setMenuFilter(false);
                     }}
                   >
-                    {ROTULOS_OF_FILTER[f]} ({totals[f]})
+                    {LABELS_OF_FILTER[f]} ({totals[f]})
                   </button>
                 ))}
               </div>
@@ -189,10 +189,10 @@ export function Column({
                 type="button"
                 className="dk-ficha"
                 aria-pressed={f === filter}
-                title={`Filtrar ${ROTULOS_OF_FILTER[f]}`}
+                title={`Filtrar ${LABELS_OF_FILTER[f]}`}
                 onClick={() => setFilter(f)}
               >
-                {ROTULOS_OF_FILTER[f]} ({totals[f]})
+                {LABELS_OF_FILTER[f]} ({totals[f]})
               </button>
             ))}
           </div>

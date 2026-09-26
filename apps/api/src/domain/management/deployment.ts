@@ -99,7 +99,7 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
     return {
       signals: {
         adminEntrou: access.v === true,
-        channelsConectados: channels.filter((c) => c.active && c.numero_id && !c.reauthorization).length,
+        channelsConnected: channels.filter((c) => c.active && c.numero_id && !c.reauthorization).length,
         channelsPending: channels.filter((c) => c.active && c.reauthorization).length,
         convites: Number(pessoas.convites),
         members: Number(pessoas.members),
@@ -114,7 +114,7 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
               temFalhas: ultima.tem_falhas === true,
             }
           : null,
-        conversationAtendida: conversation.v === true,
+        conversationHandled: conversation.v === true,
       },
       channels: channels.map((c) => ({
         id: c.id,

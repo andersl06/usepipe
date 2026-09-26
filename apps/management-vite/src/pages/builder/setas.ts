@@ -7,8 +7,8 @@ import type { Position } from './model';
  */
 
 /** Their card's measurements: 175px wide (`.diagram-node`). Height is measured from the DOM. */
-export const LARGURA_OF_BLOCK = 175;
-export const ALTURA_DEFAULT_OF_BLOCK = 76;
+export const WIDTH_OF_BLOCK = 175;
+export const HEIGHT_DEFAULT_OF_BLOCK = 76;
 export const TOCO = 30;
 export const PONTA = 10;
 
@@ -122,14 +122,14 @@ export function caminhoProvisorio(de: Ponto, ate: Ponto): string {
 }
 
 /** Where "Adicionar bloco" places the new block: in the middle of what's visible, rounded to the 16 grid. */
-export function positionInCentro(
+export function positionInCenter(
   window: { largura: number; altura: number },
   offset: Position,
   zoom: number,
 ): Position {
   const grade = 16;
-  const left = (window.largura / 2 - offset.left) / zoom - LARGURA_OF_BLOCK / 2;
-  const top = (window.altura / 2 - offset.top) / zoom - ALTURA_DEFAULT_OF_BLOCK / 2;
+  const left = (window.largura / 2 - offset.left) / zoom - WIDTH_OF_BLOCK / 2;
+  const top = (window.altura / 2 - offset.top) / zoom - HEIGHT_DEFAULT_OF_BLOCK / 2;
   return {
     left: Math.max(0, Math.round(left / grade) * grade),
     top: Math.max(0, Math.round(top / grade) * grade),

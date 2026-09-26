@@ -25,7 +25,7 @@ export function namePartition(tabela: TabelaParticionada, mes: Date): string {
 /**
  * Ensure partitions for the current month and the next `mesesAFrente` months. Idempotent: a second call on the same day changes nothing.
  */
-export async function garantirPartitions(
+export async function ensurePartitions(
   db: DatabasePipe,
   mesesAFrente = 3,
   referencia = new Date(),

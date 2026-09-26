@@ -1,4 +1,4 @@
-import { IconeSearch, IconePortal } from '../../../../components/icones-portal';
+import { SearchIcon, IconePortal } from '../../../../components/icones-portal';
 import type { ReportCustom } from '@pipe/core/analytics';
 import { PageHeader } from '../pecas';
 
@@ -27,7 +27,7 @@ export function ReportsCustom({
  * `<search-input class="flex mr3">`: the 32px magnifying glass and the field, which starts at width 0 and only opens on focus. The `<label>` makes clicking the glass focus the field, which is their `focusInput()`.
  */}
             <label className="rl-search">
-              <IconeSearch tamanho={32} className="rl-search-magnifier" />
+              <SearchIcon tamanho={32} className="rl-search-magnifier" />
               <input type="text" placeholder="Buscar relatórios" />
             </label>
             {/* `goToReport()` opens the report editor, which doesn't exist here. */}
@@ -50,7 +50,7 @@ export function ReportsCustom({
             </div>
             <div className="rl-column rl-column--author">
               <p className="an-t12 rl-rotulo">Criado por</p>
-              <p className="an-t14 rl-value">{r.criadoBy}</p>
+              <p className="an-t14 rl-value">{r.createdBy}</p>
             </div>
             <div className="rl-column rl-column--data">
               <p className="an-t12 rl-rotulo">Última modificação</p>

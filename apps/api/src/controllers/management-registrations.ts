@@ -169,7 +169,7 @@ export class ManagementRegistrationsController {
 
   @Patch('agents/queues/:id')
   @WithSession()
-  async editarQueue(
+  async editQueue(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: cadastros.RequestOfEditOfQueue,
@@ -177,7 +177,7 @@ export class ManagementRegistrationsController {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'fila');
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.editarQueue(tx, sessao.tenantId, sessao.userId, id, corpo),
+      cadastros.editQueue(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
@@ -194,7 +194,7 @@ export class ManagementRegistrationsController {
 
   @Post('agents/queues/:id/agents')
   @WithSession()
-  async vincularAgent(
+  async linkAgent(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: { userId?: string; capacityOverride?: number | null },
@@ -203,7 +203,7 @@ export class ManagementRegistrationsController {
     idOu404(id, 'fila');
     const agentId = idOu404(String(corpo?.userId ?? ''), 'atendente');
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.vincularAgentInQueue(
+      cadastros.linkAgentInQueue(
         tx,
         sessao.tenantId,
         sessao.userId,
@@ -235,7 +235,7 @@ export class ManagementRegistrationsController {
 
   @Patch('rules/attendance/:id')
   @WithSession()
-  async editarRuleQueue(
+  async editRuleQueue(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: cadastros.RequestOfEditOfRuleQueue,
@@ -243,7 +243,7 @@ export class ManagementRegistrationsController {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'regra');
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.editarRuleQueue(tx, sessao.tenantId, sessao.userId, id, corpo),
+      cadastros.editRuleQueue(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
@@ -287,7 +287,7 @@ export class ManagementRegistrationsController {
 
   @Patch('rules/schedules/exceptions/:id')
   @WithSession()
-  async editarExceptionSchedule(
+  async editExceptionSchedule(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: cadastros.RequestOfEditOfException,
@@ -295,7 +295,7 @@ export class ManagementRegistrationsController {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'exceção de horário');
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.editarExceptionSchedule(tx, sessao.tenantId, sessao.userId, id, corpo),
+      cadastros.editExceptionSchedule(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
@@ -416,7 +416,7 @@ export class ManagementRegistrationsController {
 
   @Patch('rules/priority/:id')
   @WithSession()
-  async editarRulePriority(
+  async editRulePriority(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: regrasPrioridade.RequestOfEditOfRulePriority,
@@ -424,7 +424,7 @@ export class ManagementRegistrationsController {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'regra de prioridade');
     return noTenant(sessao.tenantId, (tx) =>
-      regrasPrioridade.editarRulePriority(tx, sessao.tenantId, sessao.userId, id, corpo),
+      regrasPrioridade.editRulePriority(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 

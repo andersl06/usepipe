@@ -6,10 +6,10 @@ import {
   ConfirmationButton,
   Formulario,
 } from '../../../../components/settings/formulario';
-import { readRole, permissionsListarCatalogo } from '../../../../lib/settings-data';
-import { ehUuid, type CatalogoPermission } from '../../../../lib/settings-comum';
+import { readRole, permissionsListCatalog } from '../../../../lib/settings-data';
+import { ehUuid, type CatalogPermission } from '../../../../lib/settings-comum';
 import { numero } from '../../../../lib/format';
-import { actionExcluirRole, actionSalvarPermissions } from '../../actions';
+import { actionDeleteRole, actionSavePermissions } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,8 +42,8 @@ const NOME_DO_GRUPO: Record<string, string> = {
   administracao: 'Administração',
 };
 
-function agrupar(catalogo: CatalogoPermission[]): [string, CatalogoPermission[]][] {
-  const groups = new Map<string, CatalogoPermission[]>();
+function agrupar(catalogo: CatalogPermission[]): [string, CatalogPermission[]][] {
+  const groups = new Map<string, CatalogPermission[]>();
   for (const item of catalogo) {
     const lista = groups.get(item.grupo) ?? [];
     lista.push(item);
@@ -59,7 +59,7 @@ export default async function RolePage({ params }: { params: Promise<{ id: strin
   const role = await readRole(id);
   if (!role) notFound();
 
-  const catalogo = await permissionsListarCatalogo();
+  const catalogo = await permissionsListCatalog();
   const concedidas = new Set(role.concedidas);
 
   return (
@@ -92,7 +92,7 @@ export default async function RolePage({ params }: { params: Promise<{ id: strin
         titulo="Permissões"
         description="Cada linha é uma capacidade nomeada do produto. Sem marca, o papel não a tem."
       >
-        <Formulario acao={actionSalvarPermissions} rotuloBotao="Salvar permissões">
+        <Formulario acao={actionSavePermissions} rotuloBotao="Salvar permissões">
           <input type="hidden" name="papelId" value={role.id} />
           {agrupar(catalogo).map(([grupo, itens]) => (
             <fieldset className="cfg-permissions" key={grupo}>
@@ -140,7 +140,7 @@ export default async function RolePage({ params }: { params: Promise<{ id: strin
           description="Só é possível quando ninguém está com ele. Fica registrado no log de auditoria."
         >
           <Formulario
-            acao={actionExcluirRole}
+            acao={actionDeleteRole}
             botao={
               <ConfirmationButton
                 rotulo="Excluir papel"

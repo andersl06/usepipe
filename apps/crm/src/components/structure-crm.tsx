@@ -55,7 +55,7 @@ const SETTINGS: readonly NavigationItem[] = [
 ];
 
 /** Whoever's logged in. `null` on both public routes, and only there. */
-export interface UserInLateral {
+export interface UserInSidebar {
   nome: string;
   email: string;
   tenant: string;
@@ -71,7 +71,7 @@ export function StructureCrm({
   user,
   children,
 }: {
-  user: UserInLateral | null;
+  user: UserInSidebar | null;
   children: React.ReactNode;
 }) {
   const caminho = usePathname();
@@ -127,10 +127,10 @@ export function StructureCrm({
  */
 
 /** A sidebar section: a label and the objects under it. */
-type SectionLateral = { rotulo: string; itens: readonly ItemLateralCrm[] };
+type SectionSidebar = { rotulo: string; itens: readonly ItemLateralCrm[] };
 type ItemLateralCrm = { rotulo: string; href: string; icone: NomeDeIcone };
 
-const SECTIONS: readonly SectionLateral[] = [
+const SECTIONS: readonly SectionSidebar[] = [
   {
     rotulo: 'Trabalho',
     itens: [
@@ -153,7 +153,7 @@ function LateralCrm({
   user,
 }: {
   caminho: string;
-  user: UserInLateral | null;
+  user: UserInSidebar | null;
 }) {
   return (
     <nav className="c-lateral" aria-label="Navegação">

@@ -3,13 +3,13 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { IconePortal } from '../../../../components/icones-portal';
 import { ApiError } from '../../../../lib/api';
 import { useRead } from '../../../../lib/query';
-import type { DetalheOfContact } from '@pipe/contracts';
+import type { DetailOfContact } from '@pipe/contracts';
 import { NaoEncontrado } from '../../../nao-encontrado';
 import { contactBase, useContact } from '../../contact';
 import {
-  messageCarimbo,
+  messageStamp,
   diaEHora,
-  messageLado,
+  messageSide,
   rotuloDoStatus,
   ticketAtivo,
 } from '../regras';
@@ -18,14 +18,14 @@ import { InformationContact } from './editar';
 /*
  * Structure of the origin's `details-container` template (portal.js, state `auth.application.detail.users.user`): `.history-header` (back, 56px avatar, name fs-24, reload, `.separator`), `.tickets-list-view` with the `.user-info-card` card (40%) and `.tickets-history` (60%, `expandable-list`), and the fixed `#user-detail-sidebar` panel (445px) with `.thread-header` and `.messages`.
  */
-export function BotDetalheContact() {
+export function BotDetailContact() {
   const { contact: bot } = useContact();
   const id = bot.id;
   const base = contactBase(bot.tipo, id);
   const { contactId = '' } = useParams();
   const [parametros] = useSearchParams();
   const ticketId = parametros.get('ticketId') ?? undefined;
-  const read = useRead<DetalheOfContact>(
+  const read = useRead<DetailOfContact>(
     `/v1/management/flows/${id}/contacts/${contactId}${ticketId ? `?ticketId=${encodeURIComponent(ticketId)}` : ''}`,
   );
   if (read.error instanceof ApiError && read.error.status === 404) return <NaoEncontrado />;
@@ -140,7 +140,7 @@ export function BotDetalheContact() {
                           <span>
                             {rotuloDoStatus(ticket.estado)}
                             <small>
-                              ({messageCarimbo(new Date(ticket.encerradaEm ?? ticket.criadaEm))})
+                              ({messageStamp(new Date(ticket.encerradaEm ?? ticket.criadaEm))})
                             </small>
                           </span>
                         </li>
@@ -159,7 +159,7 @@ export function BotDetalheContact() {
         <span className="ct-history-title">Histórico de Conversa</span>
         <div className="ct-messages">
           {history.map((message) => {
-            const lado = messageLado(message.direction);
+            const lado = messageSide(message.direction);
             return (
               <div
                 className={`ct-message ct-message--${lado === 'direita' ? 'right' : 'left'}`}
@@ -173,7 +173,7 @@ export function BotDetalheContact() {
                 <div className="ct-message-container">
                   <div className="ct-balao">{message.texto ?? `[${message.tipo}]`}</div>
                   <div className="ct-notification">
-                    {messageCarimbo(new Date(message.criadaEm))}
+                    {messageStamp(new Date(message.criadaEm))}
                   </div>
                 </div>
               </div>

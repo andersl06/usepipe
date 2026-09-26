@@ -6,13 +6,13 @@ import {
   Campo,
   Destaque,
   Section,
-  SectionAtributos,
+  SectionAttributes,
 } from '../../../components/ficha';
 import { fusoDoTenant } from '../../../lib/database';
 import {
   loadAccount,
   type AccountContact,
-  type FichaAccount,
+  type AccountRecord,
   type AccountOpportunity,
 } from '../../../lib/accounts';
 import { data, desde, money, document, numero } from '../../../lib/format';
@@ -39,10 +39,10 @@ const ABAS = [
   { key: 'contatos', rotulo: 'Contatos' },
 ] as const;
 
-type AbaAccount = (typeof ABAS)[number]['key'];
+type TabAccount = (typeof ABAS)[number]['key'];
 
-function abaValida(value: string | undefined): AbaAccount {
-  return (ABAS.find((a) => a.key === value)?.key ?? 'oportunidades') as AbaAccount;
+function abaValida(value: string | undefined): TabAccount {
+  return (ABAS.find((a) => a.key === value)?.key ?? 'oportunidades') as TabAccount;
 }
 
 const COLUMNS_CONTACT: readonly Column<AccountContact>[] = [
@@ -96,11 +96,11 @@ function columnsOpportunity(hoje: Date, fuso: string): readonly Column<AccountOp
         if (o.fechadaEm) {
           return <Etiqueta>{o.ganha ? 'Ganha' : 'Perdida'} em {data(o.fechadaEm, fuso)}</Etiqueta>;
         }
-        if (o.closingPrevisto && o.closingPrevisto < hoje) {
-          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
+        if (o.closingExpected && o.closingExpected < hoje) {
+          return <Etiqueta tom="alerta">venceu em {data(o.closingExpected, fuso)}</Etiqueta>;
         }
-        return o.closingPrevisto ? (
-          <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
+        return o.closingExpected ? (
+          <Etiqueta>fecha em {data(o.closingExpected, fuso)}</Etiqueta>
         ) : (
           '—'
         );
@@ -109,7 +109,7 @@ function columnsOpportunity(hoje: Date, fuso: string): readonly Column<AccountOp
   ];
 }
 
-function AccountDestaque({ ficha, fuso }: { ficha: FichaAccount; fuso: string }) {
+function AccountHighlight({ ficha, fuso }: { ficha: AccountRecord; fuso: string }) {
   const abertas = ficha.opportunities.filter((o) => o.fechadaEm === null).length;
 
   return (
@@ -129,8 +129,8 @@ function AccountDestaque({ ficha, fuso }: { ficha: FichaAccount; fuso: string })
           value: numero(abertas),
           nota: abertas === ficha.opportunities.length ? null : `de ${ficha.opportunities.length}`,
         },
-        { rotulo: 'Em negociação', numerico: true, value: money(ficha.valueAberto) },
-        { rotulo: 'Já fechado', numerico: true, value: money(ficha.valueGanho) },
+        { rotulo: 'Em negociação', numerico: true, value: money(ficha.valueOpen) },
+        { rotulo: 'Já fechado', numerico: true, value: money(ficha.valueWon) },
       ]}
     />
   );
@@ -155,7 +155,7 @@ export default async function PageAccount({
 
   return (
     <>
-      <AccountDestaque ficha={ficha} fuso={fuso} />
+      <AccountHighlight ficha={ficha} fuso={fuso} />
 
       <div className="ficha">
         <aside className="column">
@@ -194,7 +194,7 @@ export default async function PageAccount({
           </div>
 
           <div className="tblwrap">
-            <SectionAtributos atributos={ficha.atributos} />
+            <SectionAttributes atributos={ficha.atributos} />
           </div>
         </aside>
 
@@ -215,7 +215,7 @@ export default async function PageAccount({
                 <Tabela
                   colunas={columnsOpportunity(hoje, fuso)}
                   linhas={ficha.opportunities}
-                  linhaKey={(o) => o.id}
+                  rowKey={(o) => o.id}
                   empty="Nenhuma oportunidade nesta conta."
                 />
                 <div className="message">
@@ -229,7 +229,7 @@ export default async function PageAccount({
               <Tabela
                 colunas={COLUMNS_CONTACT}
                 linhas={ficha.contacts}
-                linhaKey={(c) => c.id}
+                rowKey={(c) => c.id}
                 empty="Nenhum contato ligado a esta conta."
               />
             ) : null}

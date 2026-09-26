@@ -2,16 +2,16 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   adicionarAcaoGlobal,
-  actionsGlobalLista,
+  actionsGlobalList,
   moverAcaoGlobal,
   removerAcaoGlobal,
   substituirAcaoGlobal,
 } from '../src/pages/builder/actions-global.ts';
 import {
   ACTIONS_LIMIT,
-  ROTULOS_OF_ACTIONS,
+  LABELS_OF_ACTIONS,
   tipoDeAcao,
-  colarActions,
+  pasteActions,
   cabecalhosDoCampo,
   comCabecalhos,
   comCampo,
@@ -30,9 +30,9 @@ import { newBlock } from '../src/pages/builder/model.ts';
 import { blockTags } from '../src/pages/builder/tags-of-block.ts';
 import { blockErrors } from '../src/pages/builder/validation.ts';
 import {
-  VARIABLES_OF_SISTEMA,
+  VARIABLES_OF_SYSTEM,
   filterVariables,
-  sistemaFiltrarVariables,
+  systemFilterVariables,
   userVariables,
 } from '../src/pages/builder/variables.ts';
 
@@ -45,7 +45,7 @@ test('pasting actions preserves origin, creates unique ids and respects the limi
     type: 'SetVariable',
     settings: { variable: 'saldo', value: '1' },
   };
-  const r = colarActions(block, '$enteringCustomActions', [original, original]);
+  const r = pasteActions(block, '$enteringCustomActions', [original, original]);
   assert.ok(r.ok);
   const actions = r.block.$enteringCustomActions!;
   assert.equal(new Set(actions.map((a) => a.$id)).size, 2);
@@ -58,7 +58,7 @@ test('pasting actions preserves origin, creates unique ids and respects the limi
     [actions[1]!.$id, actions[0]!.$id],
   );
   const cheio = { ...block, $enteringCustomActions: Array.from({ length: 14 }, () => original) };
-  assert.equal(colarActions(cheio, '$enteringCustomActions', [original, original]).ok, false);
+  assert.equal(pasteActions(cheio, '$enteringCustomActions', [original, original]).ok, false);
   assert.equal(cheio.$enteringCustomActions.length, 14);
 });
 
@@ -143,13 +143,13 @@ test('filterVariables ignores accents and case', () => {
 });
 
 test('filterSystemVariables searches the name and the description', () => {
-  const byName = sistemaFiltrarVariables(VARIABLES_OF_SISTEMA, 'contact.email');
+  const byName = systemFilterVariables(VARIABLES_OF_SYSTEM, 'contact.email');
   assert.deepEqual(
     byName.map((v) => v.nome),
     ['contact.email'],
   );
 
-  const byDescription = sistemaFiltrarVariables(VARIABLES_OF_SISTEMA, 'atendimento');
+  const byDescription = systemFilterVariables(VARIABLES_OF_SYSTEM, 'atendimento');
   assert.ok(byDescription.some((v) => v.nome === 'ticket.id'));
 });
 
@@ -211,17 +211,17 @@ test('validateImport accepts a valid export and returns the map ready to load', 
 /* ------------------------------------------------------------- acoes-globais.ts */
 
 test('globalActionList returns an empty list when the key does not exist', () => {
-  assert.deepEqual(actionsGlobalLista({}, '$enteringCustomActions'), []);
+  assert.deepEqual(actionsGlobalList({}, '$enteringCustomActions'), []);
 });
 
 test('adicionarAcaoGlobal acrescenta na lista certa sem mexer na outra', () => {
   const r = adicionarAcaoGlobal({}, '$enteringCustomActions', { type: 'SetVariable' });
   assert.equal(r.ok, true);
   if (!r.ok) return;
-  assert.deepEqual(actionsGlobalLista(r.global, '$enteringCustomActions'), [
+  assert.deepEqual(actionsGlobalList(r.global, '$enteringCustomActions'), [
     { type: 'SetVariable' },
   ]);
-  assert.deepEqual(actionsGlobalLista(r.global, '$leavingCustomActions'), []);
+  assert.deepEqual(actionsGlobalList(r.global, '$leavingCustomActions'), []);
 });
 
 test('addGlobalAction rejects past the limit of 15, same as block actions', () => {
@@ -231,7 +231,7 @@ test('addGlobalAction rejects past the limit of 15, same as block actions', () =
     })),
   };
   const r = adicionarAcaoGlobal(cheias, '$enteringCustomActions', { type: 'SetVariable' });
-  assert.deepEqual(r, { ok: false, erro: ROTULOS_OF_ACTIONS.limite });
+  assert.deepEqual(r, { ok: false, erro: LABELS_OF_ACTIONS.limite });
 });
 
 test('substituirAcaoGlobal troca só o índice pedido', () => {
@@ -246,7 +246,7 @@ test('substituirAcaoGlobal troca só o índice pedido', () => {
     $title: 'novo',
   });
   assert.deepEqual(
-    actionsGlobalLista(trocado, '$leavingCustomActions').map((a) => a.$title),
+    actionsGlobalList(trocado, '$leavingCustomActions').map((a) => a.$title),
     ['a', 'novo'],
   );
 });
@@ -257,13 +257,13 @@ test('removerAcaoGlobal e moverAcaoGlobal mexem só na lista indicada', () => {
   };
   const movido = moverAcaoGlobal(global, '$enteringCustomActions', 2, 0);
   assert.deepEqual(
-    actionsGlobalLista(movido, '$enteringCustomActions').map((a) => a.type),
+    actionsGlobalList(movido, '$enteringCustomActions').map((a) => a.type),
     ['C', 'A', 'B'],
   );
 
   const removido = removerAcaoGlobal(movido, '$enteringCustomActions', 1);
   assert.deepEqual(
-    actionsGlobalLista(removido, '$enteringCustomActions').map((a) => a.type),
+    actionsGlobalList(removido, '$enteringCustomActions').map((a) => a.type),
     ['C', 'B'],
   );
 });

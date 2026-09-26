@@ -94,7 +94,7 @@ export default async function PageProfile() {
           </div>
           <div>
             <dt>Último acesso</dt>
-            <dd>{dataHora(pessoa.ultimoAccessIn, espaco.fuso)}</dd>
+            <dd>{dataHora(pessoa.lastAccessIn, espaco.fuso)}</dd>
           </div>
         </dl>
       </Block>

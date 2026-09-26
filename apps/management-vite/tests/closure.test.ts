@@ -5,8 +5,8 @@ import { closureCanConfirm } from '../../../packages/ui/src/rules-closure';
 describe('monitoring\'s closure card rule', () => {
   it('exige os motivos configurados e aceita outras tags múltiplas', () => {
     const tags = [
-      { id: 'a', nome: 'Resolvido', obrigatoriaInClosure: true },
-      { id: 'b', nome: 'Dúvida', obrigatoriaInClosure: false },
+      { id: 'a', nome: 'Resolvido', requiredInClosure: true },
+      { id: 'b', nome: 'Dúvida', requiredInClosure: false },
     ];
     assert.equal(closureCanConfirm(tags, ['b'], false), false);
     assert.equal(closureCanConfirm(tags, ['a', 'b'], false), true);

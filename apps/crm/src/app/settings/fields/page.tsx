@@ -107,7 +107,7 @@ export default async function PageFields() {
         <Tabela
           colunas={COLUNAS}
           linhas={campos}
-          linhaKey={(c) => c.id}
+          rowKey={(c) => c.id}
           larguraMinima={820}
           empty="Nenhum campo personalizado ainda. O lead usa só os campos que o Pipe já traz."
         />

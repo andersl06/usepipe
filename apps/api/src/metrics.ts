@@ -90,7 +90,7 @@ export function watch(nome: string, rotulos: Rotulos, valor: number): void {
 /**
  * Measure every request, including unmatched routes. Middleware rather than a Nest interceptor observes 404s and oversized bodies before they reach a controller; both should appear in metrics.
  */
-export function medirRequest(
+export function measureRequest(
   requisicao: Request,
   resposta: Response,
   seguir: NextFunction,

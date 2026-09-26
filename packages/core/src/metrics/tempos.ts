@@ -14,7 +14,7 @@ import {
 /** Response-time result also reports how many conversations supplied the intervals. */
 export interface ResponseTimeResult extends ResultadoMetrica {
   /** Conversations with at least one complete exchange, the population in metrics spec §2. */
-  conversationsConsideradas: number;
+  conversationsConsidered: number;
 }
 
 function acumular(
@@ -50,21 +50,21 @@ export function timeInQueue(conversations: readonly ConversationEvents[]): Resul
 /**
  * Time to first response is `primeira_resposta_em − atribuida_em`; population includes conversations answered by an agent. A response without a recorded assignment cannot enter this formula and counts as excluded, shown beside the mean per the declared §2 divergence.
  */
-export function timeAteFirstResposta(conversations: readonly ConversationEvents[]): ResultadoMetrica {
+export function timeUntilFirstResponse(conversations: readonly ConversationEvents[]): ResultadoMetrica {
   return acumular(conversations, (m) =>
-    m.atribuidaEm && m.firstRespostaIn ? segundosEntre(m.atribuidaEm, m.firstRespostaIn) : null,
+    m.atribuidaEm && m.firstResponseIn ? segundosEntre(m.atribuidaEm, m.firstResponseIn) : null,
   );
 }
 
 /**
  * Total customer wait: with an answer, `primeira_resposta_em − criada_em`; without one, `encerrada_em − criada_em`. Population is all conversations closed in the period. An open unanswered conversation has no wait end and is excluded.
  */
-export function timeTotalOfEsperaOfCliente(
+export function timeTotalOfWaitOfClient(
   conversations: readonly ConversationEvents[],
 ): ResultadoMetrica {
   return acumular(conversations, (m) => {
     if (!m.criadaEm) return null;
-    if (m.firstRespostaIn) return segundosEntre(m.criadaEm, m.firstRespostaIn);
+    if (m.firstResponseIn) return segundosEntre(m.criadaEm, m.firstResponseIn);
     if (m.encerradaEm) return segundosEntre(m.criadaEm, m.encerradaEm);
     return null;
   });
@@ -73,7 +73,7 @@ export function timeTotalOfEsperaOfCliente(
 /**
  * Response time averages intervals from customer message to next agent message. The spec calls the population conversations with at least one complete exchange, but the formula averages INTERVALS. To preserve §5 sum/count rather than a mean of means, `valor` divides by interval count; `conversasConsideradas` separately reports conversation count, while `excluidas` counts conversations without a complete exchange.
  */
-export function respostaTime(conversations: readonly ConversationEvents[]): ResponseTimeResult {
+export function responseTime(conversations: readonly ConversationEvents[]): ResponseTimeResult {
   let soma = 0;
   let intervalos = 0;
   let conversationsConsidered = 0;
@@ -92,7 +92,7 @@ export function respostaTime(conversations: readonly ConversationEvents[]): Resp
     }
   }
 
-  return { ...resultado(soma, intervalos, excluidas), conversationsConsideradas: conversationsConsidered };
+  return { ...resultado(soma, intervalos, excluidas), conversationsConsidered: conversationsConsidered };
 }
 
 /**
@@ -100,6 +100,6 @@ export function respostaTime(conversations: readonly ConversationEvents[]): Resp
  */
 export function attendanceTime(conversations: readonly ConversationEvents[]): ResultadoMetrica {
   return acumular(conversations, (m) =>
-    m.firstRespostaIn && m.encerradaEm ? segundosEntre(m.firstRespostaIn, m.encerradaEm) : null,
+    m.firstResponseIn && m.encerradaEm ? segundosEntre(m.firstResponseIn, m.encerradaEm) : null,
   );
 }

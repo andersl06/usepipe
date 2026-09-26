@@ -7,7 +7,7 @@ import type { StatusClosure } from '@pipe/core';
  * pelo `@pipe/core`, nunca do campo mutável da conversa.
  */
 
-export interface LinhaHistory {
+export interface HistoryRow {
   id: string;
   ticket: string;
   contactName: string;
@@ -16,7 +16,7 @@ export interface LinhaHistory {
   encerradaEm: string | null;
   status: StatusClosure | null;
   esperaSeg: number | null;
-  firstRespostaSeg: number | null;
+  firstResponseSeg: number | null;
   attendanceSeg: number | null;
   etiquetas: string[];
 }
@@ -85,7 +85,7 @@ export function groupingValid(value: string | undefined): Grouping {
 
 export interface GroupHistory {
   titulo: string;
-  linhas: LinhaHistory[];
+  linhas: HistoryRow[];
 }
 
 const ROTULO_DESFECHO: Record<string, string> = {
@@ -102,13 +102,13 @@ const ROTULO_DESFECHO: Record<string, string> = {
  * passa do total de linhas de propósito, porque a pergunta ali é "quantas
  * conversas encostaram nesta etiqueta", não "como reparto o total".
  */
-export function agruparHistory(
-  linhas: readonly LinhaHistory[],
+export function groupHistory(
+  linhas: readonly HistoryRow[],
   by: Grouping,
 ): GroupHistory[] {
   if (by === 'nenhum') return [{ titulo: '', linhas: [...linhas] }];
 
-  const chavesDe = (l: LinhaHistory): string[] => {
+  const chavesDe = (l: HistoryRow): string[] => {
     if (by === 'fila') return [l.queueName ?? 'Sem fila'];
     if (by === 'atendente') return [l.agentName ?? 'Sem atendente'];
     if (by === 'status') {
@@ -117,7 +117,7 @@ export function agruparHistory(
     return l.etiquetas.length > 0 ? l.etiquetas : ['Sem etiqueta'];
   };
 
-  const mapa = new Map<string, LinhaHistory[]>();
+  const mapa = new Map<string, HistoryRow[]>();
   for (const l of linhas) {
     for (const key of chavesDe(l)) {
       const atual = mapa.get(key);

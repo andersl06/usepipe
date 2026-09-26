@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useActionState } from 'react';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
-import { salvarQueue } from '../../lib/actions';
+import { saveQueue } from '../../lib/actions';
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
@@ -17,7 +17,7 @@ import { envioQuePreserva } from '../../components/envio-de-formulario';
  *
  * The character hint is literal from the source. We don't reject names with accents (`nomeDeFilaConferido` only requires non-empty), so it's guidance, not a promise of validation — stated that way on purpose.
  */
-export function FormularioQueue({
+export function QueueForm({
   aoSalvar,
 }: {
   /** Closes the modal when the save succeeds. */
@@ -28,7 +28,7 @@ export function FormularioQueue({
    * Controlled only so "Salvar" starts disabled, like the source's `save-button` — not to hold the value, which `FormData` already carries.
    */
   const [nome, setNome] = useState('');
-  const [resultado, enviar, enviando] = useActionState(salvarQueue, { ok: true });
+  const [resultado, enviar, enviando] = useActionState(saveQueue, { ok: true });
   /*
    * See the equivalent comment in `regras-atendimento-formulario.tsx`: `useActionState`'s initial value isn't a submission confirmation.
    */

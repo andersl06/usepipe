@@ -6,7 +6,7 @@ import type { Aba } from './abas';
 /**
  * `#analytics-tabs-view`: the `bds-tabs` and the open tab's panel. It's client-side for just one reason — knowing which tab is open. In the origin it's `tabData[aba].active`, which `initilizeTabs()` derives from `$state.current.url`; here it's the path. The layout can't see the path, which is why this piece exists.
  */
-export function AnalyticsVista({
+export function AnalyticsView({
   base,
   abas,
   children,

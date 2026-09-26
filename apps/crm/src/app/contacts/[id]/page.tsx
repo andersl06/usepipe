@@ -6,10 +6,10 @@ import {
   Campo,
   Destaque,
   Section,
-  SectionAtributos,
+  SectionAttributes,
 } from '../../../components/ficha';
 import { fusoDoTenant } from '../../../lib/database';
-import { loadContact, type FichaContact } from '../../../lib/contacts';
+import { loadContact, type ContactRecord } from '../../../lib/contacts';
 import { ROTULO_STATUS } from '../../../lib/leads';
 import { data, dataHora, desde, document, numero } from '../../../lib/format';
 
@@ -25,7 +25,7 @@ export const dynamic = 'force-dynamic';
  * happened to them — conversation on one side, buying intent on the other.
  */
 
-const ROTULO_STATE: Record<string, string> = {
+const LABEL_STATE: Record<string, string> = {
   na_fila: 'Na fila',
   atribuida: 'Atribuída',
   em_atendimento: 'Em atendimento',
@@ -38,13 +38,13 @@ const ABAS = [
   { key: 'lead', rotulo: 'Lead' },
 ] as const;
 
-type AbaContact = (typeof ABAS)[number]['key'];
+type TabContact = (typeof ABAS)[number]['key'];
 
-function abaValida(value: string | undefined): AbaContact {
-  return (ABAS.find((a) => a.key === value)?.key ?? 'conversas') as AbaContact;
+function abaValida(value: string | undefined): TabContact {
+  return (ABAS.find((a) => a.key === value)?.key ?? 'conversas') as TabContact;
 }
 
-function ContactDestaque({ ficha, fuso }: { ficha: FichaContact; fuso: string }) {
+function ContactHighlight({ ficha, fuso }: { ficha: ContactRecord; fuso: string }) {
   const desqualificado = ficha.leadStatus === 'desqualificado';
 
   return (
@@ -103,7 +103,7 @@ export default async function PageContact({
 
   return (
     <>
-      <ContactDestaque ficha={ficha} fuso={fuso} />
+      <ContactHighlight ficha={ficha} fuso={fuso} />
 
       <div className="ficha">
         <aside className="column">
@@ -129,7 +129,7 @@ export default async function PageContact({
           </div>
 
           <div className="tblwrap">
-            <SectionAtributos atributos={ficha.atributos} />
+            <SectionAttributes atributos={ficha.atributos} />
           </div>
         </aside>
 
@@ -159,12 +159,12 @@ export default async function PageContact({
                       <span className="quando">{dataHora(c.criadaEm, fuso)}</span>
                       <span>
                         <span className="t">
-                          {c.categoria ?? ROTULO_STATE[c.state] ?? c.state}
+                          {c.categoria ?? LABEL_STATE[c.state] ?? c.state}
                         </span>
                         {c.queue ? <span className="quem"> · {c.queue}</span> : null}
                         {c.agent ? <span className="quem"> · {c.agent}</span> : null}
                         {c.encerradaEm ? null : (
-                          <span className="quem"> · {ROTULO_STATE[c.state] ?? c.state}</span>
+                          <span className="quem"> · {LABEL_STATE[c.state] ?? c.state}</span>
                         )}
                       </span>
                       {c.resumo ? <div className="resumo">{c.resumo}</div> : null}

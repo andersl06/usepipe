@@ -124,7 +124,7 @@ afterAll(async () => {
   await a?.encerrar();
 });
 
-describe('POST /v1/desk/actions/:acao — lista fechada e sessão obrigatória', () => {
+describe('POST /v1/desk/actions/:action — lista fechada e sessão obrigatória', () => {
   it('nome fora do mapa é 404', async () => {
     const { status } = await acao(sessionAgent, 'naoExiste');
     expect(status).toBe(404);

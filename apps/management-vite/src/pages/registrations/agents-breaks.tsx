@@ -11,7 +11,7 @@ import { Modal, ModalConfirmation } from './_modal';
 /**
  * Only "Excluir" — the source has no toggle or edit on this row, and no "Resultados por página" in the footer (`FICHA-atendentes-filas-pausas.md` §a.5 and §b.3: "There's no edit icon, no toggle" / "just the arrows + page number + counter"). `alternarMotivoPausa` (`cadastros-gravar.ts`) goes unused on this screen for that reason — it wasn't deleted because the `PATCH .../pausas/:id` route is still valid and tested.
  */
-function MotivoActions({ motivo, onExcluir }: { motivo: MotivoDePausa; onExcluir: () => void }) {
+function ReasonActions({ motivo, onExcluir }: { motivo: MotivoDePausa; onExcluir: () => void }) {
   return <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.nome}`} onClick={onExcluir} />;
 }
 
@@ -26,7 +26,7 @@ export function PageBreaks() {
   const [modalAberto, setModalAberto] = useState(false);
   const [motivoParaExcluir, setMotivoParaExcluir] = useState<MotivoDePausa | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
+  const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
   const read = useRead<UsoDePausas>('/v1/management/agents/pauses');
   if (!read.data) return null;
   const { motivos, dias, semMotivo, abertas } = read.data;
@@ -34,11 +34,11 @@ export function PageBreaks() {
   async function excluir() {
     if (!motivoParaExcluir) return;
     setExcluindo(true);
-    setErrorExclusao(null);
+    setErrorDeletion(null);
     const resultado = await excluirMotivoPausa(motivoParaExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setMotivoParaExcluir(null);
-    else setErrorExclusao(resultado.error);
+    else setErrorDeletion(resultado.error);
   }
 
   const sections: RulesSection[] = [
@@ -56,7 +56,7 @@ export function PageBreaks() {
         ],
         situation: m.ativo ? 'Ativo' : 'Desativado',
         active: m.ativo,
-        acao: <MotivoActions motivo={m} onExcluir={() => setMotivoParaExcluir(m)} />,
+        acao: <ReasonActions motivo={m} onExcluir={() => setMotivoParaExcluir(m)} />,
         procura: m.nome.toLowerCase(),
       })),
     },
@@ -90,11 +90,11 @@ export function PageBreaks() {
 
       <ListaRegras
         sections={sections}
-        sectionOcultarHeader
-        ocultarSearch
+        sectionHideHeader
+        hideSearch
         paginar
-        pageInitialTamanho={5}
-        pageOcultarTamanho
+        pageInitialSize={5}
+        pageHideSize
       />
 
       <Modal aberto={modalAberto} titulo="Criar nova pausa personalizada" onFechar={() => setModalAberto(false)}>
@@ -105,12 +105,12 @@ export function PageBreaks() {
         aberto={motivoParaExcluir !== null}
         titulo="Excluir motivo"
         message={<>Excluir o motivo "{motivoParaExcluir?.nome}"? Esta ação não pode ser desfeita.</>}
-        error={errorExclusao}
+        error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
           setMotivoParaExcluir(null);
-          setErrorExclusao(null);
+          setErrorDeletion(null);
         }}
       />
     </>

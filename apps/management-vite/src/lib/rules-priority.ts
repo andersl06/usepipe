@@ -1,4 +1,4 @@
-import { NIVEIS_ATRIBUIVEIS, ROTULOS_PRIORITY, type NivelPriority } from '@pipe/core/conversation';
+import { NIVEIS_ATRIBUIVEIS, LABELS_PRIORITY, type LevelPriority } from '@pipe/core/conversation';
 
 /**
  * Priority rules supply the queue-edit section from `FICHA-atendentes-filas-pausas.md` Section a.3. `GET /v1/gestao/regras/prioridade` returns the whole tenant: `regra_prioridade` has `escopo_tipo` (`tenant` or `fila`) and `escopo_id`. Show only rules with `fila` scope and this queue's `escopoId`; tenant rules apply here too but are not edited in this section. Keep this pure (no `./api` or JSX) so `tests/regras-prioridade.test.ts` runs with `node --test` and `tsx`.
@@ -18,7 +18,7 @@ export { NIVEIS_ATRIBUIVEIS };
 
 /** Use core `ROTULOS_PRIORIDADE` for Portuguese priority labels instead of a parallel map. */
 export function rotuloDoNivel(nivel: string): string {
-  return ROTULOS_PRIORITY[nivel as NivelPriority] ?? nivel;
+  return LABELS_PRIORITY[nivel as LevelPriority] ?? nivel;
 }
 
 /** Keep rules for this queue in the API's existing name order. */

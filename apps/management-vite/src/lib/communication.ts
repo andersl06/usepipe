@@ -48,12 +48,12 @@ export const ROTULO_CABECALHO: Record<CabecalhoTemplate, string> = {
  * a mesma, e é ela que faz a tela avisar o cadastro antes do disparo errar em
  * produção.
  */
-export function headerTemMedia(cabecalho: string): boolean {
+export function headerHasMedia(cabecalho: string): boolean {
   return cabecalho === 'imagem' || cabecalho === 'video' || cabecalho === 'documento';
 }
 
 export function headerOffset(cabecalho: string): 0 | 1 {
-  return headerTemMedia(cabecalho) ? 1 : 0;
+  return headerHasMedia(cabecalho) ? 1 : 0;
 }
 
 export interface RespostaProntaListada {

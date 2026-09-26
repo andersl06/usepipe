@@ -4,7 +4,7 @@ import { configurarWebhook } from './configuration-of-webhook.js';
 import { createChannel } from './creation-of-channel.js';
 import { validateConfigurationManual } from './validation-of-configuration-manual.js';
 import { reautorizar } from './reauthorization.js';
-import { atualizarChannel } from './channel.js';
+import { updateChannel } from './channel.js';
 
 /**
  * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_service.rb. Validate, create channel and inbox (`manual_setup_v2`), and configure webhook. A failed webhook leaves the channel and returns `erroDeWebhook` so the UI can explain it; the original runs setup explicitly rather than in a save callback. Unlike embedded signup, the token belongs to the customer's system user, so disconnecting must not deregister the number or unsubscribe its WABA (`desmontagem-de-webhook.ts`). Pipe additionally uses the customer's App Secret to verify Meta signatures, while Chatwoot uses one installation-wide secret.
@@ -20,7 +20,7 @@ export interface ConfigurationManual {
   webhook: { url: string; verifyToken: string };
 }
 
-export async function executarConfigurationManual(pedido: {
+export async function runConfigurationManual(pedido: {
   tenantId: string;
   userId: string;
   wabaId?: string | undefined;
@@ -52,7 +52,7 @@ export async function executarConfigurationManual(pedido: {
     /*
      * The App Secret belongs to the customer's app and may change with the token. Without the new secret, webhook signatures fail. `reautorizar` originated in embedded signup, but manual setup owns this value.
      */
-    const withSecret = await atualizarChannel(religado, {
+    const withSecret = await updateChannel(religado, {
       origem: 'manual_setup_v2',
       ...(pedido.appSecret ? { appSecret: pedido.appSecret } : {}),
       ...(previa.appId ? { appId: previa.appId } : {}),
@@ -63,7 +63,7 @@ export async function executarConfigurationManual(pedido: {
     };
     try {
       const resultado = await configurarWebhook(withSecret, { wabaId: previa.wabaId });
-      if (resultado.errorOfRegistro) throw resultado.errorOfRegistro;
+      if (resultado.errorOfRecord) throw resultado.errorOfRecord;
       return { channel: resultado.channel, webhookError: null, webhook: webhookDele };
     } catch (erro) {
       return { channel: withSecret, webhookError: (erro as Error).message, webhook: webhookDele };
@@ -91,7 +91,7 @@ export async function executarConfigurationManual(pedido: {
   // `setup_webhook`: registration failure also counts as a webhook error.
   try {
     const resultado = await configurarWebhook(channel, { wabaId: previa.wabaId });
-    if (resultado.errorOfRegistro) throw resultado.errorOfRegistro;
+    if (resultado.errorOfRecord) throw resultado.errorOfRecord;
     return { channel: resultado.channel, webhookError: null, webhook };
   } catch (error) {
     return { channel, webhookError: (error as Error).message, webhook };

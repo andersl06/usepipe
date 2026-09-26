@@ -138,7 +138,7 @@ export function linkDaEmpresa(url: string, empresaId: string): string {
   return `${url.replace(/\/$/, '')}/object/company/${empresaId}`;
 }
 
-export interface ContactForEspelhar {
+export interface ContactForMirror {
   id: string;
   name: string | null;
   email: string | null;
@@ -159,7 +159,7 @@ const CAMPOS_PESSOA = 'id pipeContatoId';
  */
 export async function mirrorContact(
   config: ConfigTwenty,
-  contact: ContactForEspelhar,
+  contact: ContactForMirror,
   buscar: typeof fetch = fetch,
 ): Promise<string> {
   const nome = partirNome(contact.name);

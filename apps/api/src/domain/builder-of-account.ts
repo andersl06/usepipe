@@ -58,7 +58,7 @@ export async function buildAccountOfLogin(pessoa: {
 
   const cliente = await provisionCustomer({
     name: nome,
-    slug: await slugLivre(enderecoOfAccount(email)),
+    slug: await slugLivre(addressOfAccount(email)),
     plan: 'essencial',
     admin: email,
     // A personal email does not claim a domain; neither does a corporate email here:
@@ -83,7 +83,7 @@ export async function buildAccountOfLogin(pessoa: {
 /**
  * The account address follows the source platform: the email LOCAL PART plus a short suffix, for example `anderson-linhares-oxo7k`. There it becomes the account portal subdomain. It uses the creator's email rather than company name because the company name has not yet been entered when the address is needed. The random suffix prevents people such as `joao.silva` at different companies from colliding or receiving sequential `-2`, `-3` suffixes that reveal account counts. Five base-36 characters provide about 60 million combinations per name.
  */
-export function enderecoOfAccount(email: string, aleatorio = Math.random): string {
+export function addressOfAccount(email: string, aleatorio = Math.random): string {
   const local = email.slice(0, email.indexOf('@') > 0 ? email.indexOf('@') : undefined);
   const base = local
     .normalize('NFD')

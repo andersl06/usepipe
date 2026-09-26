@@ -2,8 +2,8 @@
  * Ported from takenet/blip-sdk-csharp (Apache-2.0), src/Take.Blip.Builder/Models/Condition.cs, ConditionComparison.cs, ConditionOperator.cs, ValueSource.cs, ConditionsExtensions.cs, and StringExtensions.cs. Changes from C# to TypeScript: enum values become strings from published Blip JSON (Newtonsoft camelCase and case-insensitive reads); error messages remain Portuguese; `decimal.TryParse` becomes `paraDecimal`; JavaScript regex has no original two-minute timeout.
  */
 
-import type { Context, InboundPreguicosa } from './context.js';
-import { obterVariable } from './context.js';
+import type { Context, InboundLazy } from './context.js';
+import { getVariable } from './context.js';
 
 /** `ConditionComparison` order follows the original enum; its first value is the default. */
 export const COMPARISONS = [
@@ -86,13 +86,13 @@ export function validateCondition(c: ConditionBlip): void {
       'O nome da entidade é obrigatório quando a fonte da comparação é entidade.',
     );
   }
-  const temValues = !!c.values && c.values.length > 0;
-  if (ehUnaria(comparison) && temValues) {
+  const hasValues = !!c.values && c.values.length > 0;
+  if (ehUnaria(comparison) && hasValues) {
     throw new ValidationError(
       'A condição não leva valores quando a comparação é exists ou notExists.',
     );
   }
-  if (!ehUnaria(comparison) && !temValues) {
+  if (!ehUnaria(comparison) && !hasValues) {
     throw new ValidationError(
       'A condição precisa de valores quando a comparação não é exists nem notExists.',
     );
@@ -216,9 +216,9 @@ export function delegadoBinario(
 }
 
 /** `Condition.EvaluateConditionAsync`. */
-export async function avaliarConditionBlip(
+export async function evaluateConditionBlip(
   condition: ConditionBlip,
-  inbound: InboundPreguicosa,
+  inbound: InboundLazy,
   context: Context,
 ): Promise<boolean> {
   let value: string | null;
@@ -227,7 +227,7 @@ export async function avaliarConditionBlip(
       value = inbound.serializedContent;
       break;
     case 'context':
-      value = await obterVariable(context, condition.variable ?? '');
+      value = await getVariable(context, condition.variable ?? '');
       break;
     case 'intent':
       // Pipe has no AI provider here; this matches Blip's result when analysis fails.
@@ -252,13 +252,13 @@ export async function avaliarConditionBlip(
 }
 
 /** `ConditionsExtensions.EvaluateConditionsAsync`: todas, em ordem, parando na primeira falsa. */
-export async function avaliarConditions(
+export async function evaluateConditions(
   conditions: readonly ConditionBlip[],
-  inbound: InboundPreguicosa,
+  inbound: InboundLazy,
   context: Context,
 ): Promise<boolean> {
   for (const condition of conditions) {
-    if (!(await avaliarConditionBlip(condition, inbound, context))) return false;
+    if (!(await evaluateConditionBlip(condition, inbound, context))) return false;
   }
   return true;
 }

@@ -1,7 +1,7 @@
 import { portalUseShell } from '../../../lib/shell';
 import { useRead } from '../../../lib/query';
 import { NaoEncontrado } from '../../nao-encontrado';
-import { ModuloShell, useContact } from '../contact';
+import { ShellModule, useContact } from '../contact';
 import type { DataOfServices } from '@pipe/contracts';
 import { TelaDeServicos } from './tela';
 import '../integrations/header-of-page.css';
@@ -19,8 +19,8 @@ export function ServicesPage() {
   if (!data.router) return <NaoEncontrado />;
 
   return (
-    <ModuloShell ativo="Serviços">
+    <ShellModule ativo="Serviços">
       <TelaDeServicos data={data} podeEditar={shell.canCreate} />
-    </ModuloShell>
+    </ShellModule>
   );
 }

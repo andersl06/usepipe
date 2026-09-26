@@ -48,7 +48,7 @@ export async function salvarBasicas(
   }
 }
 
-export async function excluirFlow(id: string): Promise<Resultado<void>> {
+export async function deleteFlow(id: string): Promise<Resultado<void>> {
   try {
     await api.delete<void>(`/v1/management/flows/${id}`);
     atualizarLeituras();

@@ -4,7 +4,7 @@ import type { Block, Mapa } from './model';
 import { ehAttendance } from './model';
 import { LIMITE_DO_TITULO } from './validation';
 import { ROTULOS_DO_CONTEUDO } from './conteudo';
-import { ROTULOS_OF_ACTIONS } from './actions-of-block';
+import { LABELS_OF_ACTIONS } from './actions-of-block';
 import { ROTULOS_DAS_SAIDAS } from './conditions';
 import { ContentPanel } from './panel-content';
 import { ActionsPanel } from './panel-actions';
@@ -71,7 +71,7 @@ export function BlockPanel({
         : ROTULOS_DO_CONTEUDO.aba,
     },
     { key: 'saidas', rotulo: ROTULOS_DAS_SAIDAS.titulo },
-    { key: 'acoes', rotulo: ROTULOS_OF_ACTIONS.aba },
+    { key: 'acoes', rotulo: LABELS_OF_ACTIONS.aba },
   ] as { key: Aba; rotulo: string }[]).filter((a) => !ehAttendance(block.id) || a.key !== 'acoes');
   const tags = blockTags(block.$tags);
   function adicionarTag(): void {

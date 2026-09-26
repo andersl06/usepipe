@@ -4,7 +4,7 @@ import type { StateConversation } from '@pipe/core';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
-import { exigirPermission } from '../session.js';
+import { requirePermission } from '../session.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../realtime.js';
 
@@ -21,17 +21,17 @@ type LineConversation = {
 };
 
 /** Requester context: null `atendenteId` denotes an integration, which does not own a conversation. */
-export interface AtorOfConversation {
+export interface ActorOfConversation {
   tenantId: string;
   agentId: string | null;
   /** Require the conversation to be assigned to `atendenteId`; see `envio.ts`. */
-  exigirAssignment: boolean;
+  requireAssignment: boolean;
 }
 
 async function carregar(
   tx: Parameters<Parameters<typeof noTenant>[1]>[0],
   conversaId: string,
-  ator: AtorOfConversation,
+  ator: ActorOfConversation,
   permissionOfSupervisor?: string,
 ): Promise<LineConversation> {
   const { rows } = await tx.execute<LineConversation>(sql`
@@ -40,9 +40,9 @@ async function carregar(
   `);
   const conversa = rows[0];
   if (!conversa) throw PipeError.naoEncontrado('Conversa');
-  if (ator.exigirAssignment && conversa.agentId !== ator.agentId) {
+  if (ator.requireAssignment && conversa.agentId !== ator.agentId) {
     if (ator.agentId && permissionOfSupervisor) {
-      await exigirPermission(tx, ator.agentId, permissionOfSupervisor);
+      await requirePermission(tx, ator.agentId, permissionOfSupervisor);
       return conversa;
     }
     throw new PipeError(
@@ -57,7 +57,7 @@ async function carregar(
 }
 
 /** Convert a state-machine rejection to 409 without exposing `never` to the controller. */
-function exigirTransition(de: string, para: StateConversation): void {
+function requireTransition(de: string, para: StateConversation): void {
   try {
     transitar(de as StateConversation, para);
   } catch (error) {
@@ -79,14 +79,14 @@ export interface RequestOfClosure {
 }
 
 export async function closeConversation(
-  ator: AtorOfConversation,
+  ator: ActorOfConversation,
   pedido: RequestOfClosure,
 ): Promise<{ state: 'encerrada'; reason: string }> {
   const agora = new Date();
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
     const conversa = await carregar(tx, pedido.conversationId, ator, 'conversa.encerrar');
-    exigirTransition(conversa.state, 'encerrada');
+    requireTransition(conversa.state, 'encerrada');
 
     const etiquetaIds = [...new Set(pedido.etiquetaIds ?? (pedido.etiquetaIds ? [pedido.etiquetaIds] : []))];
     const { rows: etiquetas } = etiquetaIds.length
@@ -182,7 +182,7 @@ export interface EsperaAlternada {
  * Waiting mode pauses a conversation without counting client inactivity. Waiting time has its own report column; it is excluded from SLA, not from the count.
  */
 export async function alternarEspera(
-  ator: AtorOfConversation,
+  ator: ActorOfConversation,
   conversationId: string,
 ): Promise<EsperaAlternada> {
   const agora = new Date();
@@ -190,7 +190,7 @@ export async function alternarEspera(
   const resultado = await noTenant(ator.tenantId, async (tx) => {
     const conversation = await carregar(tx, conversationId, ator);
     const destination: StateConversation = conversation.state === 'em_espera' ? 'em_atendimento' : 'em_espera';
-    exigirTransition(conversation.state, destination);
+    requireTransition(conversation.state, destination);
 
     if (destination === 'em_espera') {
       await tx.execute(sql`
@@ -261,7 +261,7 @@ export interface Transferida {
  * Transfer a conversation to a queue or agent. A transfer is NOT a state transition: it closes the current conversation with `encerrada_por = transferencia` and opens another at the destination. `packages/core/src/conversa/maquina.ts` has no edge from `atribuida` back to `na_fila`, matching Blip's rule that the current ticket closes as transferred and a new one opens (`referencias-blip/pesquisa/blip-desk-funcoes.md` §3). The new conversation inherits the 24-hour window (`janela_expira_em` and the opening message) because the window belongs to the CONTACT, not the ticket; without it, the receiving agent could not send free text. It also inherits priority, as Blip does and as the issue requires, and the last message (`ultima_mensagem_em`/`_de`) so inactivity closing does not treat it as newly started. It does NOT inherit tags (also Blip's rule) or messages; the contact history joins both conversations on screen. The new conversation has `criada_em = agora` and `primeira_resposta_em` starts null: the receiving agent's TMR measures that agent, queue time starts again, and the `atribuicao` transfer report reconstructs the full client journey.
  */
 export async function transferConversation(
-  ator: AtorOfConversation,
+  ator: ActorOfConversation,
   pedido: PedidoDeTransferencia,
 ): Promise<Transferida> {
   const forQueue = pedido.forQueueId ?? null;
@@ -303,9 +303,9 @@ export async function transferConversation(
     // own conversation does not need it, as in Blip Desk where the action is on
     // the agent's own ticket header.
     const ehDono = conversa.agentId === ator.agentId && ator.agentId !== null;
-    if (ator.exigirAssignment && !ehDono) {
+    if (ator.requireAssignment && !ehDono) {
       if (!ator.agentId) throw PipeError.naoAutorizado();
-      await exigirPermission(tx, ator.agentId, 'conversa.transferir');
+      await requirePermission(tx, ator.agentId, 'conversa.transferir');
     }
 
     if (forQueue) {

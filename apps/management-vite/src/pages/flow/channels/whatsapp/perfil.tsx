@@ -30,7 +30,7 @@ function rotuloDoStatusMeta(status: string | null): string {
 }
 
 /** Accordion 1: read-only — Blip requires Meta approval to change it; we don't yet submit that change. */
-function DisplayAcordeaoName({ perfil }: { perfil: PerfilVisivel }) {
+function DisplayAccordionName({ perfil }: { perfil: PerfilVisivel }) {
   return (
     <details className="cw-acordeao" open>
       <summary>Nome de exibição da empresa</summary>
@@ -58,7 +58,7 @@ function DisplayAcordeaoName({ perfil }: { perfil: PerfilVisivel }) {
 }
 
 /** Accordion 2: a feature Blip has that the Cloud API we consume today doesn't expose — disabled, "em breve" (coming soon). */
-function UserAcordeaoName() {
+function UserAccordionName() {
   return (
     <details className="cw-acordeao">
       <summary>Nome de usuário da empresa</summary>
@@ -73,7 +73,7 @@ function UserAcordeaoName() {
   );
 }
 
-function EmpresaAcordeaoData({
+function CompanyAccordionData({
   channelId,
   numeroAtivado,
   perfil,
@@ -274,9 +274,9 @@ export function AbaPerfil() {
 
       <div className="cw-perfil">
         <div className="cw-accordions">
-          <DisplayAcordeaoName perfil={perfil} />
-          <UserAcordeaoName />
-          <EmpresaAcordeaoData
+          <DisplayAccordionName perfil={perfil} />
+          <UserAccordionName />
+          <CompanyAccordionData
             channelId={channel.id}
             numeroAtivado={saude?.numero ?? channel.numero ?? ''}
             perfil={perfil}

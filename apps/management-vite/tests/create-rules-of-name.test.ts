@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { IMAGE, conferir, nomeCurto, imageTipoReal } from '../src/pages/create/regras-de-nome';
+import { IMAGE, conferir, nomeCurto, imageTypeReal } from '../src/pages/create/regras-de-nome';
 import { RECADOS as RECADOS_ROTEADOR } from '../src/pages/create/router/regras';
 import { RECADOS as RECADOS_FLUXO } from '../src/pages/create/flow/regras';
 
@@ -16,26 +16,26 @@ const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]);
 const GIF = new Uint8Array([0x47, 0x49, 0x46, 0x38, 0x39, 0x61]);
 
 test('reconhece os três tipos que a origem aceita', () => {
-  assert.equal(imageTipoReal(PNG), 'image/png');
-  assert.equal(imageTipoReal(JPEG), 'image/jpeg');
-  assert.equal(imageTipoReal(GIF), 'image/gif');
+  assert.equal(imageTypeReal(PNG), 'image/png');
+  assert.equal(imageTypeReal(JPEG), 'image/jpeg');
+  assert.equal(imageTypeReal(GIF), 'image/gif');
 });
 
 test('HTML renomeado para .png não passa', () => {
   // `<!DOCTYPE h` — the start of a file that turns into script execution if
   // served with the type the upload claimed.
   const html = new Uint8Array([...'<!DOCTYPE h'].map((c) => c.charCodeAt(0)));
-  assert.equal(imageTipoReal(html), null);
+  assert.equal(imageTypeReal(html), null);
 });
 
 test('SVG não entra: a origem não o aceita, e ele carrega script', () => {
   const svg = new Uint8Array([...'<svg xmlns='].map((c) => c.charCodeAt(0)));
-  assert.equal(imageTipoReal(svg), null);
+  assert.equal(imageTypeReal(svg), null);
 });
 
 test('a file too short to have a signature does not throw', () => {
-  assert.equal(imageTipoReal(new Uint8Array([0x89, 0x50])), null);
-  assert.equal(imageTipoReal(new Uint8Array()), null);
+  assert.equal(imageTypeReal(new Uint8Array([0x89, 0x50])), null);
+  assert.equal(imageTypeReal(new Uint8Array()), null);
 });
 
 test('o teto cobre um avatar e não cobre uma foto de câmera', () => {

@@ -49,10 +49,10 @@ export async function executar(
 
 /* Status do atendente (`apps/api/src/dominio/desk/acoes.ts`) */
 export const definirStatus = acaoRemota('definirStatus');
-export const cairByInactivity = acaoRemota('cairPorInatividade');
+export const failByInactivity = acaoRemota('cairPorInatividade');
 /* Internal composer note maps to `Comentário` in the contact panel. */
 export const salvarNotaInterna = acaoRemota('salvarNotaInterna');
-export const transferirInBulk = acaoRemota('transferirEmMassa');
+export const transferInBulk = acaoRemota('transferirEmMassa');
 /* A mensagem ativa vai direto por `POST /v1/mensagens-ativas` (ver paginas/mensagem-ativa/page.tsx). */
 
 /** After success, invalidate cached reads; this replaces the former `revalidatePath` behavior. */

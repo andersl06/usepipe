@@ -8,8 +8,8 @@ import type { ChamadaEstruturada, Effort } from '../cliente/cliente.js';
 import { chamadaPadrao } from '../cliente/cliente.js';
 import { FormatIaError } from '../cliente/errors.js';
 import type { Consumo } from '../consumo/index.js';
-import type { OptionTaxonomia, Taxonomia } from '../prompts/classification.js';
-import { PROMPT_CLASSIFICATION, optionKey, prepararOptions } from '../prompts/classification.js';
+import type { OptionTaxonomy, Taxonomia } from '../prompts/classification.js';
+import { PROMPT_CLASSIFICATION, optionKey, prepareOptions } from '../prompts/classification.js';
 import { identificador } from '../prompts/tipos.js';
 import type { Transcription } from '../transcription/transcription.js';
 
@@ -19,7 +19,7 @@ export type Sentiment = (typeof SENTIMENTS)[number];
 /**
  * `desfecho` comes first so the model describes what happened before choosing a label; this improved case-sync accuracy by 4.3 percentage points.
  */
-const EsquemaClassification = z.object({
+const SchemaClassification = z.object({
   desfecho: z.string().min(1),
   categoria: z.string().min(1),
   subcategoria: z.string().nullable(),
@@ -67,25 +67,25 @@ export function normalizarRotulo(texto: string): string {
 
 
 export function matchOption(
-  options: readonly OptionTaxonomia[],
+  options: readonly OptionTaxonomy[],
   categoria: string,
   subcategoria: string | null,
-): OptionTaxonomia | undefined {
+): OptionTaxonomy | undefined {
   const alvo = normalizarRotulo(
     subcategoria?.trim() ? `${categoria} > ${subcategoria}` : categoria,
   );
   return options.find((o) => normalizarRotulo(optionKey(o)) === alvo);
 }
 
-export async function classificarConversation(
+export async function classifyConversation(
   options: OptionsClassification,
 ): Promise<ResultClassification> {
   const chamar = options.chamar ?? chamadaPadrao;
-  const apresentadas = prepararOptions(options.taxonomia, options.maxOptions);
+  const apresentadas = prepareOptions(options.taxonomia, options.maxOptions);
   const texto = PROMPT_CLASSIFICATION.montar({
     transcription: options.transcription.texto,
     truncada: options.transcription.truncada,
-    messagesOmitidas: options.transcription.messagesOmitidas,
+    messagesOmitted: options.transcription.messagesOmitted,
     taxonomia: options.taxonomia,
     maxOptions: options.maxOptions,
     context: options.context,
@@ -94,7 +94,7 @@ export async function classificarConversation(
   const { data, consumo, template } = await chamar({
     sistema: texto.sistema,
     user: texto.user,
-    esquema: EsquemaClassification,
+    esquema: SchemaClassification,
     feature: 'classificacao',
     template: options.template,
     effort: options.effort,

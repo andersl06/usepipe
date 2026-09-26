@@ -9,11 +9,11 @@ import { RECADOS } from './regras';
  */
 export async function createRouter(data: FormData): Promise<void> {
   const resultado = await saveContact(data, { tipo: 'roteador', recados: RECADOS });
-  if (resultado.error) return voltarWithError(resultado.error, String(data.get('nome') ?? ''));
+  if (resultado.error) return backWithError(resultado.error, String(data.get('nome') ?? ''));
   irPara(`/router/${resultado.id}`);
 }
 
-function voltarWithError(motivo: string, nome: string): void {
+function backWithError(motivo: string, nome: string): void {
   /* Passo no path (D-31, `std/nav-contract.md` §Gestão); erro/nome
      continuam na query, classificados em separado. */
   const search = new URLSearchParams({ error: motivo });

@@ -5,7 +5,7 @@ import { channel, flow } from '@pipe/db/schema';
 import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
 import { identifierOfChannel } from '../management-flow.js';
-import { exigirPermissionInFlow } from './team-of-flow.js';
+import { requirePermissionInFlow } from './team-of-flow.js';
 
 /**
  * Connect or disconnect a channel for a BOT, as source `/application/detail/{bot}/channels/{canal}` does behind 'Ativar número' (`FICHA-conectar-canal-no-bot.md` §§2,4). `fluxo.canal_id` was previously read by `fluxoPublicadoDoCanal`, while tests linked it by SQL; this adds the screen's write operation. Require `channels.escrever` on THIS flow or the account equivalent through `exigirPermissaoNoFluxo`. Reject a channel linked to another live bot, preserving the source's literal message 'Ops… Este número já está em uso / Para ativar o número neste bot, remova do anterior e tente novamente.' (`errorMsg.phoneNumberIsAlreadyConnected`); `detalhe` additionally identifies that bot. An inactive channel cannot receive, so linking returns 409. Pipe differs from Blip: `fluxo.canal_id` is one column, so this bot supports ONE channel; linking another returns 409 `fluxo_ja_tem_canal` rather than silently replacing WhatsApp, Messenger or Instagram.
@@ -16,7 +16,7 @@ const CONNECT_CHANNEL = 'channels.escrever';
 const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
 /** O contato vivo do tenant, ou 404 — o `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
-async function flowVivo(tx: TransactionPipe, tenantId: string, fluxoId: string) {
+async function flowLive(tx: TransactionPipe, tenantId: string, fluxoId: string) {
   const [atual] = await tx
     .select({ id: flow.id, nome: flow.nome, canalId: flow.channelId })
     .from(flow)
@@ -77,7 +77,7 @@ export async function loadChannelOfFlowInScreen(
   tenantId: string,
   flowId: string,
 ): Promise<ChannelOfFlowInScreen> {
-  const atual = await flowVivo(tx, tenantId, flowId);
+  const atual = await flowLive(tx, tenantId, flowId);
 
   const linhas = await tx
     .select(COLUNAS)
@@ -108,8 +108,8 @@ export async function conferirQuePodeLigar(
   userId: string,
   fluxoId: string,
 ): Promise<void> {
-  const atual = await flowVivo(tx, tenantId, fluxoId);
-  await exigirPermissionInFlow(tx, userId, fluxoId, CONNECT_CHANNEL);
+  const atual = await flowLive(tx, tenantId, fluxoId);
+  await requirePermissionInFlow(tx, userId, fluxoId, CONNECT_CHANNEL);
   if (atual.canalId) throw flowAlreadyHasChannel(await channelOfTenant(tx, tenantId, atual.canalId));
 }
 
@@ -129,8 +129,8 @@ export async function connectChannelToFlow(
   fluxoId: string,
   channelId: string,
 ): Promise<ChannelOfFlow> {
-  const atual = await flowVivo(tx, tenantId, fluxoId);
-  await exigirPermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
+  const atual = await flowLive(tx, tenantId, fluxoId);
+  await requirePermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
   const alvo = await channelOfTenant(tx, tenantId, channelId);
 
   if (atual.canalId === alvo.id) return forContract(tx, tenantId, alvo);
@@ -179,8 +179,8 @@ export async function disconnectChannelOfFlow(
   fluxoId: string,
   motivo?: string,
 ): Promise<void> {
-  const atual = await flowVivo(tx, tenantId, fluxoId);
-  await exigirPermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
+  const atual = await flowLive(tx, tenantId, fluxoId);
+  await requirePermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
   if (!atual.canalId) return;
 
   await tx
@@ -208,8 +208,8 @@ export async function canReconnectInFlow(
   fluxoId: string,
   canalId: string,
 ): Promise<boolean> {
-  const atual = await flowVivo(tx, tenantId, fluxoId);
+  const atual = await flowLive(tx, tenantId, fluxoId);
   if (atual.canalId !== canalId) return false;
-  await exigirPermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
+  await requirePermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
   return true;
 }

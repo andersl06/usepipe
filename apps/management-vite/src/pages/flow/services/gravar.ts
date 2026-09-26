@@ -7,7 +7,7 @@ import { motivoDe, type Resultado } from '../settings/basic/gravar';
  * Services writes: `POST`, `PATCH` and `DELETE` on `/v1/gestao/fluxos/:id/servicos`. The rule lives in the `api` (`dominio/gestao/servicos-do-roteador.ts`); a refusal comes back as text.
  */
 
-export async function salvarService(
+export async function saveService(
   routerId: string,
   serviceId: string | null,
   pedido: RequestOfService,
@@ -24,7 +24,7 @@ export async function salvarService(
   }
 }
 
-export async function excluirService(
+export async function deleteService(
   routerId: string,
   serviceId: string,
 ): Promise<Resultado<void>> {

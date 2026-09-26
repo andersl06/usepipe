@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Campo, Seletor } from '@pipe/ui';
 import { Filter } from '../../components/filters';
 import { ListaDeLeads } from '../../components/lista-de-leads';
-import { ViewsSalvas } from '../../components/views-salvas';
+import { ViewsSaved } from '../../components/views-salvas';
 import { fusoDoTenant } from '../../lib/database';
 import {
   ABAS,
@@ -140,7 +140,7 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
             options={options}
             href={(proximos) => `/leads?${query({}, proximos)}`}
           />
-          <ViewsSalvas queryCurrent={query()} />
+          <ViewsSaved queryCurrent={query()} />
           {/*
  * A shortcut nobody discovers is a shortcut nobody uses: the hint stays written
  * next to the count, on the same line, without taking up screen space.

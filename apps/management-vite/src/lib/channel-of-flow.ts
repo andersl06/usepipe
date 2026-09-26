@@ -5,16 +5,16 @@ import type { ChannelOfFlow } from '@pipe/contracts';
  */
 
 /** These are the channel kinds with dedicated Pipe pages, matching `tipo` in `canal.tipo`. */
-export type TipoOfChannelOfBot = 'whatsapp_cloud' | 'instagram' | 'messenger';
+export type TypeOfChannelOfBot = 'whatsapp_cloud' | 'instagram' | 'messenger';
 
 /** O segmento da URL de cada canal: `/{tipo}/{id}/canais/{segmento}` (o `/whatsapp-embedded` da origem vira `/whatsapp`). */
-export const SEGMENT_OF_CHANNEL: Readonly<Record<TipoOfChannelOfBot, string>> = {
+export const SEGMENT_OF_CHANNEL: Readonly<Record<TypeOfChannelOfBot, string>> = {
   whatsapp_cloud: 'whatsapp',
   instagram: 'instagram',
   messenger: 'messenger',
 };
 
-export function channelRota(base: string, tipo: TipoOfChannelOfBot): string {
+export function channelRoute(base: string, tipo: TypeOfChannelOfBot): string {
   return `${base}/channels/${SEGMENT_OF_CHANNEL[tipo]}`;
 }
 
@@ -28,7 +28,7 @@ export type ChannelInBotState =
 
 export function channelInBotState(
   channel: ChannelOfFlow | null,
-  tipo: TipoOfChannelOfBot,
+  tipo: TypeOfChannelOfBot,
 ): ChannelInBotState {
   if (!channel) return { state: 'nao_conectado' };
   if (channel.tipo !== tipo) return { state: 'outro_canal', channel };
@@ -38,18 +38,18 @@ export function channelInBotState(
 
 /** The list card says Connected only for an ACTIVE channel of this kind on the bot. */
 export function cardConnected(
-  contact: { channelTipo: string | null; channelActive: boolean | null },
+  contact: { channelType: string | null; channelActive: boolean | null },
   tipo: string,
 ): boolean {
-  return contact.channelActive === true && contact.channelTipo === tipo;
+  return contact.channelActive === true && contact.channelType === tipo;
 }
 
 /**
  * Pipe's number-activation step differs from the reference, where the number starts attached to the bot. Offer active free channels of this kind and channels attached to another live bot so the screen can name that bot; the reference requires removal from the previous bot.
  */
-export function channelsForOferecer(
+export function channelsForOffer(
   disponiveis: readonly ChannelOfFlow[],
-  tipo: TipoOfChannelOfBot,
+  tipo: TypeOfChannelOfBot,
   flowId: string,
 ): { livres: ChannelOfFlow[]; emUso: ChannelOfFlow[] } {
   const doTipo = disponiveis.filter((c) => c.tipo === tipo && c.ativo);
@@ -60,7 +60,7 @@ export function channelsForOferecer(
 }
 
 /** Show a channel's number, Instagram `@usuário`, or Page ID, falling back to its name. */
-export function channelRotulo(channel: Pick<ChannelOfFlow, 'nome' | 'numero'>): string {
+export function channelLabel(channel: Pick<ChannelOfFlow, 'nome' | 'numero'>): string {
   return channel.numero ? `${channel.numero} — ${channel.nome}` : channel.nome;
 }
 

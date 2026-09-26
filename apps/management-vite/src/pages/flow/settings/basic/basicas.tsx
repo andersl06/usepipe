@@ -1,6 +1,6 @@
 import { useEu } from '../../../../context/session';
 import { useContact } from '../../contact';
-import { SettingsBasicTela } from './tela';
+import { SettingsBasicScreen } from './tela';
 
 /**
  * `/configurations/basic` — state `auth.application.detail.configurations.basic` (real title "Editar Fluxo", confirmed in the runnable copy, `docs/capturas/regua.md`: `/application/detail/pipeprincipal/configurations/basic`). It's the FIRST tab of the Settings sidebar (`../navegacao.tsx`), and until now was the only item without a `rota` (`rota: null`) — this file closes that gap.
@@ -11,7 +11,7 @@ export function SettingsBasicPage() {
   const { contact } = useContact();
   const eu = useEu();
   return (
-    <SettingsBasicTela
+    <SettingsBasicScreen
       key={contact.id}
       id={contact.id}
       nome={contact.nome}

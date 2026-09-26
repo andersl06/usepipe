@@ -4,23 +4,23 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
   atorAtual,
-  memberDefinirActive,
-  cancelarInvitation,
+  memberSetActive,
+  cancelInvitation,
   convidar,
   createFieldCustom,
   createKey,
   createRole,
   createWebhook,
   definirAtivoDoWebhook,
-  definirRole,
+  setRole,
   excluirCampoPersonalizado,
-  excluirRole,
+  deleteRole,
   excluirWebhook,
   renomearCampoPersonalizado,
-  revogarKey,
+  revokeKey,
   salvarEspaco,
   salvarPerfil,
-  roleSalvarPermissions,
+  roleSavePermissions,
 } from '../../lib/settings-data';
 import { ehUuid, sugerirCodigo, type Resultado } from '../../lib/settings-comum';
 
@@ -99,30 +99,30 @@ export const acaoConvidar: Acao = async (_anterior, data) => {
   return resultado;
 };
 
-export const actionCancelarInvitation: Acao = async (_anterior, data) => {
+export const actionCancelInvitation: Acao = async (_anterior, data) => {
   const invitationId = id(data, 'id');
   if (!invitationId) return DESCONHECIDO;
 
-  const resultado = await cancelarInvitation(await atorAtual(), invitationId);
+  const resultado = await cancelInvitation(await atorAtual(), invitationId);
   if (resultado.ok) recarregar('/settings/members');
   return resultado;
 };
 
-export const actionDefinirRole: Acao = async (_anterior, data) => {
+export const actionSetRole: Acao = async (_anterior, data) => {
   const userId = id(data, 'usuarioId');
   const roleId = id(data, 'papelId');
   if (!userId || !roleId) return DESCONHECIDO;
 
-  const resultado = await definirRole(await atorAtual(), userId, roleId);
+  const resultado = await setRole(await atorAtual(), userId, roleId);
   if (resultado.ok) recarregar('/settings/members', '/settings/roles');
   return resultado;
 };
 
-export const actionAlternarMember: Acao = async (_anterior, data) => {
+export const actionToggleMember: Acao = async (_anterior, data) => {
   const userId = id(data, 'usuarioId');
   if (!userId) return DESCONHECIDO;
 
-  const resultado = await memberDefinirActive(
+  const resultado = await memberSetActive(
     await atorAtual(),
     userId,
     texto(data, 'ativo') === 'sim',
@@ -142,11 +142,11 @@ export const actionCreateRole: Acao = async (_anterior, data) => {
   return resultado;
 };
 
-export const actionSalvarPermissions: Acao = async (_anterior, data) => {
+export const actionSavePermissions: Acao = async (_anterior, data) => {
   const roleId = id(data, 'papelId');
   if (!roleId) return DESCONHECIDO;
 
-  const resultado = await roleSalvarPermissions(
+  const resultado = await roleSavePermissions(
     await atorAtual(),
     roleId,
     lista(data, 'permissao'),
@@ -155,11 +155,11 @@ export const actionSalvarPermissions: Acao = async (_anterior, data) => {
   return resultado;
 };
 
-export const actionExcluirRole: Acao = async (_anterior, data) => {
+export const actionDeleteRole: Acao = async (_anterior, data) => {
   const roleId = id(data, 'papelId');
   if (!roleId) return DESCONHECIDO;
 
-  const resultado = await excluirRole(await atorAtual(), roleId);
+  const resultado = await deleteRole(await atorAtual(), roleId);
   if (!resultado.ok) return resultado;
 
   // A tela de onde o clique veio deixou de existir. Ficar nela mostraria um
@@ -218,11 +218,11 @@ export const actionCreateKey: Acao = async (_anterior, data) => {
   return resultado;
 };
 
-export const actionRevogarKey: Acao = async (_anterior, data) => {
+export const actionRevokeKey: Acao = async (_anterior, data) => {
   const keyId = id(data, 'id');
   if (!keyId) return DESCONHECIDO;
 
-  const resultado = await revogarKey(await atorAtual(), keyId);
+  const resultado = await revokeKey(await atorAtual(), keyId);
   if (resultado.ok) recarregar('/settings/api');
   return resultado;
 };

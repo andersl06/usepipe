@@ -37,15 +37,15 @@ const STATUS_AGENT_BLIP: Record<string, string> = {
   offline: 'Offline',
 };
 
-export type LinhaConversation = {
+export type ConversationRow = {
   id: string;
   state: string;
   priority: string;
   criada_em: string | Date | null;
   atribuida_em: string | Date | null;
   encerrada_em: string | Date | null;
-  ultimaMessageIn: string | Date | null;
-  ultimaMessageOf: string | null;
+  lastMessageIn: string | Date | null;
+  lastMessageOf: string | null;
   queueId: string | null;
   queueName: string | null;
   agentId: string | null;
@@ -53,13 +53,13 @@ export type LinhaConversation = {
   agentEmail?: string | null;
   contactId: string;
   contactName: string | null;
-  contactTelefone: string | null;
-  channelTipo: string | null;
+  contactPhone: string | null;
+  channelType: string | null;
   nao_lidas?: number;
   lastMessageText?: string | null;
 }
 
-export type LinhaMessage = {
+export type MessageRow = {
   id: string;
   criada_em: string | Date | null;
   direction: string;
@@ -89,14 +89,14 @@ export function numeroVisivel(id: string): number {
   return parseInt(hex, 16) % 1_000_000;
 }
 
-export function comoTicket(linha: LinhaConversation, domain?: string): Record<string, unknown> {
-  const telefone = linha.contactTelefone ?? '';
+export function comoTicket(linha: ConversationRow, domain?: string): Record<string, unknown> {
+  const telefone = linha.contactPhone ?? '';
   const abertura = iso(linha.criada_em);
   return {
     id: linha.id,
     sequentialId: numeroVisivel(linha.id),
     // Pipe has no router here; the conversation owner is the channel through which it arrived.
-    ownerIdentity: `${linha.channelTipo ?? 'canal'}@pipe.local`,
+    ownerIdentity: `${linha.channelType ?? 'canal'}@pipe.local`,
     customerIdentity: telefone ? `${telefone.replace('+', '')}@wa.gw.msging.net` : linha.contactId,
     customerName: linha.contactName ?? 'Sem nome',
     customerPhoneNumber: telefone,
@@ -106,14 +106,14 @@ export function comoTicket(linha: LinhaConversation, domain?: string): Record<st
     storageDate: abertura,
     openDate: iso(linha.atribuida_em) ?? abertura,
     closeDate: iso(linha.encerrada_em),
-    lastMessage: linha.ultimaMessageIn
+    lastMessage: linha.lastMessageIn
       ? {
           content: linha.lastMessageText ?? '',
-          direction: linha.ultimaMessageOf === 'contato' ? 'received' : 'sent',
-          date: iso(linha.ultimaMessageIn),
+          direction: linha.lastMessageOf === 'contato' ? 'received' : 'sent',
+          date: iso(linha.lastMessageIn),
         }
       : null,
-    lastMessageSort: linha.ultimaMessageIn ? new Date(iso(linha.ultimaMessageIn)!).getTime() : 0,
+    lastMessageSort: linha.lastMessageIn ? new Date(iso(linha.lastMessageIn)!).getTime() : 0,
     unreadMessages: Number(linha.nao_lidas ?? 0),
     isNew: linha.state === 'na_fila',
     /*
@@ -134,7 +134,7 @@ export function comoTicket(linha: LinhaConversation, domain?: string): Record<st
         // Pipe has five priority levels, and Blip does not use the same
         // vocabulary. Keep the Pipe value rather than guessing a translation.
         prioridadePipe: linha.priority,
-        canal: linha.channelTipo ?? '',
+        canal: linha.channelType ?? '',
         fila: linha.queueName ?? '',
       },
     },
@@ -144,7 +144,7 @@ export function comoTicket(linha: LinhaConversation, domain?: string): Record<st
 /**
  * Map a message to a LIME document. Exclude INTERNAL messages (notes between agents): in Blip they are a separate resource, not conversation messages. Including one here would make it appear to have been sent to the client.
  */
-export function asDocument(linha: LinhaMessage): Record<string, unknown> | null {
+export function asDocument(linha: MessageRow): Record<string, unknown> | null {
   const direction = DIRECTION_BLIP[linha.direction];
   if (!direction) return null;
   return {
@@ -162,11 +162,11 @@ export function asDocument(linha: LinhaMessage): Record<string, unknown> | null 
   };
 }
 
-export function asDocuments(linhas: LinhaMessage[]): Record<string, unknown>[] {
+export function asDocuments(linhas: MessageRow[]): Record<string, unknown>[] {
   return linhas.map(asDocument).filter((m): m is Record<string, unknown> => m !== null);
 }
 
-export type LinhaAgent = {
+export type AgentRow = {
   id: string;
   nome: string | null;
   email: string;
@@ -177,7 +177,7 @@ export type LinhaAgent = {
 
 /** Desk's `/account` response needs `status`; without it the screen fails at `status.toLowerCase()`. */
 export function asAccount(
-  user: LinhaAgent,
+  user: AgentRow,
   queues: string[],
   domain?: string,
 ): Record<string, unknown> {

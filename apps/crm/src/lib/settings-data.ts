@@ -35,12 +35,12 @@ import {
   tipoDeCampoValido,
   type CampoPersonalizado,
   type ApiKey,
-  type InvitationPendente,
+  type InvitationPending,
   type Espaco,
   type Member,
   type RoleDetailed,
   type Perfil,
-  type CatalogoPermission,
+  type CatalogPermission,
   type Resultado,
   type RoleSummary,
   type WebhookDeSaida,
@@ -96,7 +96,7 @@ export async function userCurrent(): Promise<Perfil> {
         nome: user.nome,
         email: user.email,
         avatarUrl: user.avatarUrl,
-        ultimoAccessIn: user.lastAccessAt,
+        lastAccessIn: user.lastAccessAt,
       })
       .from(user)
       .where(fixo ? eq(user.id, fixo) : eq(user.ativo, true))
@@ -115,7 +115,7 @@ export async function userCurrent(): Promise<Perfil> {
 
     return {
       ...pessoa,
-      ultimoAccessIn: paraData(pessoa.ultimoAccessIn),
+      lastAccessIn: paraData(pessoa.lastAccessIn),
       papeis: papeis.map((p) => p.nome),
     };
   });
@@ -242,7 +242,7 @@ export async function listMembers(): Promise<Member[]> {
         nome: user.nome,
         email: user.email,
         ativo: user.ativo,
-        ultimoAccessIn: user.lastAccessAt,
+        lastAccessIn: user.lastAccessAt,
         roleId: role.id,
         role: role.nome,
       })
@@ -255,16 +255,16 @@ export async function listMembers(): Promise<Member[]> {
     // offers ONE role (see `definirPapel`), so here it's the first in alphabetical order —
     // and never two rows for the same person, which would become a duplicate key
     // repetida na tabela e uma pessoa contada duas vezes.
-    const byPessoa = new Map<string, Member>();
+    const byPerson = new Map<string, Member>();
     for (const l of linhas) {
-      if (byPessoa.has(l.id)) continue;
-      byPessoa.set(l.id, { ...l, ultimoAccessIn: paraData(l.ultimoAccessIn) });
+      if (byPerson.has(l.id)) continue;
+      byPerson.set(l.id, { ...l, lastAccessIn: paraData(l.lastAccessIn) });
     }
-    return [...byPessoa.values()];
+    return [...byPerson.values()];
   });
 }
 
-export async function listarConvitesPendentes(): Promise<InvitationPendente[]> {
+export async function listarConvitesPendentes(): Promise<InvitationPending[]> {
   return consultar(async (tx) => {
     const { rows } = await tx.execute<{
       id: string;
@@ -285,13 +285,13 @@ export async function listarConvitesPendentes(): Promise<InvitationPendente[]> {
       email: r.email,
       role: r.role,
       expiraEm: paraData(r.expira_em) ?? new Date(),
-      convidadoBy: r.convidado_by,
+      guestBy: r.convidado_by,
     }));
   });
 }
 
 /** Sete dias, o mesmo prazo de `apps/api/src/dominio/convites.ts`. */
-const PRAZO_INVITATION_MS = 7 * 24 * 60 * 60 * 1000;
+const DEADLINE_INVITATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**
  * O token de convite, no formato que `apps/api` já sabe aceitar: 32 bytes
@@ -369,7 +369,7 @@ export async function convidar(
         email: email!,
         papelId: alvo.id,
         tokenHash: novo.hash,
-        expiraEm: new Date(Date.now() + PRAZO_INVITATION_MS),
+        expiraEm: new Date(Date.now() + DEADLINE_INVITATION_MS),
         invitationCreatedBy: ator.id ?? null,
       })
       .returning({ id: invitation.id });
@@ -386,7 +386,7 @@ export async function convidar(
   });
 }
 
-export async function cancelarInvitation(ator: Ator, id: string): Promise<Resultado> {
+export async function cancelInvitation(ator: Ator, id: string): Promise<Resultado> {
   return escrever(async (tx, tenantIdAtual) => {
     const [antes] = await tx
       .select({ id: invitation.id, email: invitation.email, expiraEm: invitation.expiraEm })
@@ -418,16 +418,16 @@ export async function cancelarInvitation(ator: Ator, id: string): Promise<Result
  * role that describes it — which is the honest answer, and the one audit can
  * explain.
  */
-export async function definirRole(
+export async function setRole(
   ator: Ator,
-  userIdAlvo: string,
+  userIdTarget: string,
   roleId: string,
 ): Promise<Resultado> {
   return escrever(async (tx, tenantIdAtual) => {
     const [alvo] = await tx
       .select({ id: user.id, nome: user.nome })
       .from(user)
-      .where(eq(user.id, userIdAlvo));
+      .where(eq(user.id, userIdTarget));
     if (!alvo) return { ok: false, error: 'Esta pessoa não existe nesta conta.' };
 
     const [novo] = await tx
@@ -440,18 +440,18 @@ export async function definirRole(
       .select({ nome: role.nome })
       .from(userRole)
       .innerJoin(role, eq(role.id, userRole.papelId))
-      .where(eq(userRole.userId, userIdAlvo));
+      .where(eq(userRole.userId, userIdTarget));
 
-    await tx.delete(userRole).where(eq(userRole.userId, userIdAlvo));
+    await tx.delete(userRole).where(eq(userRole.userId, userIdTarget));
     await tx
       .insert(userRole)
-      .values({ tenantId: tenantIdAtual, userId: userIdAlvo, papelId: novo.id });
+      .values({ tenantId: tenantIdAtual, userId: userIdTarget, papelId: novo.id });
 
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: 'alterou',
       objetoTipo: 'usuario_papel',
-      objetoId: userIdAlvo,
+      objetoId: userIdTarget,
       antes: { papeis: antigos.map((p) => p.nome) },
       depois: { papeis: [novo.nome] },
     });
@@ -467,12 +467,12 @@ export async function definirRole(
  * removes access and keeps the history, which is what a contract audit asks
  * for.
  */
-export async function memberDefinirActive(
+export async function memberSetActive(
   ator: Ator,
-  userIdAlvo: string,
+  userIdTarget: string,
   ativo: boolean,
 ): Promise<Resultado> {
-  if (ator.id === userIdAlvo && !ativo) {
+  if (ator.id === userIdTarget && !ativo) {
     return { ok: false, error: 'Você não pode desativar o próprio acesso.' };
   }
 
@@ -480,19 +480,19 @@ export async function memberDefinirActive(
     const [antes] = await tx
       .select({ ativo: user.ativo, nome: user.nome })
       .from(user)
-      .where(eq(user.id, userIdAlvo));
+      .where(eq(user.id, userIdTarget));
     if (!antes) return { ok: false, error: 'Esta pessoa não existe nesta conta.' };
     if (antes.ativo === ativo) return OK;
 
     await tx
       .update(user)
       .set({ ativo, atualizadoEm: new Date() })
-      .where(eq(user.id, userIdAlvo));
+      .where(eq(user.id, userIdTarget));
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: ativo ? 'ativou' : 'desativou',
       objetoTipo: 'usuario',
-      objetoId: userIdAlvo,
+      objetoId: userIdTarget,
       antes: { ativo: antes.ativo },
       depois: { ativo },
     });
@@ -530,7 +530,7 @@ export async function listarPapeis(): Promise<RoleSummary[]> {
 }
 
 /** The catalog is global — product vocabulary, the same for every customer. */
-export async function permissionsListarCatalogo(): Promise<CatalogoPermission[]> {
+export async function permissionsListCatalog(): Promise<CatalogPermission[]> {
   return consultar(async (tx) =>
     tx
       .select({
@@ -617,7 +617,7 @@ export async function createRole(
  * A system role isn't editable — it's from day one, and a customer who wants a
  * different admin creates their own.
  */
-export async function roleSalvarPermissions(
+export async function roleSavePermissions(
   ator: Ator,
   roleId: string,
   codigos: string[],
@@ -669,7 +669,7 @@ export async function roleSalvarPermissions(
   });
 }
 
-export async function excluirRole(ator: Ator, roleId: string): Promise<Resultado> {
+export async function deleteRole(ator: Ator, roleId: string): Promise<Resultado> {
   return escrever(async (tx, tenantIdAtual) => {
     const [alvo] = await tx
       .select({ nome: role.nome, descricao: role.description, deSistema: role.deSistema })
@@ -729,9 +729,9 @@ export async function listarCamposPersonalizados(): Promise<CampoPersonalizado[]
        where excluido_em is null
        group by chave
     `);
-    const usoByKey = new Map(rows.map((r) => [r.key, Number(r.n)]));
+    const usageByKey = new Map(rows.map((r) => [r.key, Number(r.n)]));
 
-    return campos.map((c) => ({ ...c, preenchidos: usoByKey.get(c.codigo) ?? 0 }));
+    return campos.map((c) => ({ ...c, preenchidos: usageByKey.get(c.codigo) ?? 0 }));
   });
 }
 
@@ -925,7 +925,7 @@ export async function createKey(
   });
 }
 
-export async function revogarKey(ator: Ator, id: string): Promise<Resultado> {
+export async function revokeKey(ator: Ator, id: string): Promise<Resultado> {
   return escrever(async (tx, tenantIdAtual) => {
     const [antes] = await tx
       .select({ nome: keyApi.nome, revogadaEm: keyApi.revogadaEm })

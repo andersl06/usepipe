@@ -6,7 +6,7 @@ export interface BlockTag {
   cor: string;
 }
 
-const CORES_OF_ACTIONS: Record<string, string> = {
+const COLORS_OF_ACTIONS: Record<string, string> = {
   ExecuteScript: '#ff961e',
   ExecuteScriptV2: '#ff961e',
   TrackEvent: '#61d36f',
@@ -15,7 +15,7 @@ const CORES_OF_ACTIONS: Record<string, string> = {
 };
 
 function corDaEtiqueta(rotulo: string, corDaOrigem?: unknown): string {
-  const cor = typeof corDaOrigem === 'string' ? corDaOrigem : CORES_OF_ACTIONS[rotulo];
+  const cor = typeof corDaOrigem === 'string' ? corDaOrigem : COLORS_OF_ACTIONS[rotulo];
   if (!cor || ['#3f7de8', '#0096fa', '#1e6bf1', '#498bff'].includes(cor.toLowerCase())) return '#4a5d23';
   return cor;
 }

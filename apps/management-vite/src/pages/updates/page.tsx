@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarraDoPortal } from '../../components/barra-do-portal';
-import { IconeSearch, IconePortal } from '../../components/icones-portal';
+import { SearchIcon, IconePortal } from '../../components/icones-portal';
 import { Selection } from '../../components/selection';
 import { portalUseShell } from '../../lib/shell';
 import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-memory';
@@ -47,9 +47,9 @@ export function PageUpdates() {
 
   const achados = UPDATES.filter((n) => {
     const combinaCategoria = !categoria || categoria === CATEGORIAS[0] || n.categoria === categoria;
-    const combinaSearch =
+    const combineSearch =
       !search || `${n.titulo} ${n.resumo}`.toLowerCase().includes(search.toLowerCase());
-    return combinaCategoria && combinaSearch;
+    return combinaCategoria && combineSearch;
   });
 
   /*
@@ -87,7 +87,7 @@ export function PageUpdates() {
             }}
           >
             <div className="nv-campo">
-              <IconeSearch tamanho={20} />
+              <SearchIcon tamanho={20} />
               <input
                 type="search"
                 name="q"
@@ -169,7 +169,7 @@ function Card({
         <h2 className="nv-card-title">{update.titulo}</h2>
         <p className="nv-resumo">{update.resumo}</p>
         <p className="nv-meta">
-          <time dateTime={update.data}>{byExtenso(update.data)}</time>
+          <time dateTime={update.data}>{byLongForm(update.data)}</time>
           {' · '}
           {update.read} min de leitura
         </p>
@@ -189,7 +189,7 @@ function Card({
 }
 
 /** "20 de julho de 2026" — the format the blog uses, in uppercase via CSS. */
-function byExtenso(iso: string): string {
+function byLongForm(iso: string): string {
   const [ano, mes, dia] = iso.split('-').map(Number);
   const meses = [
     'janeiro',

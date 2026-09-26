@@ -1,5 +1,5 @@
 import type { ConversationOfList, TypeChannelDatabase } from '@pipe/contracts';
-import { channelTemWindow, windowAberta as janelaAbertaDoCore } from '@pipe/core';
+import { channelHasWindow, windowOpen as janelaAbertaDoCore } from '@pipe/core';
 
 /**
  * Pure attendance-column rules cover filter chips, search, ordering, and the 24-hour window. Callers pass `agora` instead of these functions reading the clock, which makes them testable. Names mirror `~/desk-clone/templates/chat-list.html` (`all-tickets-chip`, `unread-tickets-chip`, `standby-tickets-chip`, `inactive-tickets-chip`); default ordering mirrors `sortChatsBy: 'lastMessageDate'` in `/agents/preferences` (`docs/desk-store.md`).
@@ -8,7 +8,7 @@ import { channelTemWindow, windowAberta as janelaAbertaDoCore } from '@pipe/core
 export type Filter = 'todos' | 'nao-lidos' | 'em-espera' | 'inativos';
 
 
-export const ROTULOS_OF_FILTER: Record<Filter, string> = {
+export const LABELS_OF_FILTER: Record<Filter, string> = {
   todos: 'Todos',
   'nao-lidos': 'Não lidos',
   'em-espera': 'Em espera',
@@ -19,7 +19,7 @@ export const FILTERS: readonly Filter[] = ['todos', 'nao-lidos', 'em-espera', 'i
 
 
 const HORA_MS = 3_600_000;
-const WINDOW_HORAS = 24;
+const WINDOW_HOURS = 24;
 
 /**
  * A conversation is `Não lida` when the contact sent the latest message or the agent marked it manually through the card menu (`naoLidaEm`, source `UNREAD`). We do not store an unread count, only who spoke last; the chip and card bolding derive from this rule.
@@ -41,31 +41,31 @@ export function emEspera(c: ConversationOfList): boolean {
  * `Inativo` means the conversation's 24-hour window has closed: the contact stopped replying and the agent can only resume via a template. This is the closest domain state to the reference `inactive`.
  */
 export function inativa(c: ConversationOfList, agora: Date): boolean {
-  return !windowAberta(c.janelaExpiraEm, c.canalTipo, agora);
+  return !windowOpen(c.janelaExpiraEm, c.canalTipo, agora);
 }
 
 /**
  * Free-text eligibility follows `@pipe/core` (`janela/janela.ts`) and the `api` send rule: channels without a window (email, chat) are always open; WhatsApp without `janelaExpiraEm` means the contact never spoke and is closed. Instagram follows WhatsApp.
  */
-export function windowAberta(
-  windowExpiraIn: string | null,
-  channelTipo: TypeChannelDatabase,
+export function windowOpen(
+  windowExpiresIn: string | null,
+  channelType: TypeChannelDatabase,
   agora: Date,
 ): boolean {
-  const channel = channelTipo === 'instagram' ? 'whatsapp_cloud' : channelTipo;
-  if (!channelTemWindow(channel)) return true;
-  return janelaAbertaDoCore(windowExpiraIn ? new Date(windowExpiraIn) : null, agora);
+  const channel = channelType === 'instagram' ? 'whatsapp_cloud' : channelType;
+  if (!channelHasWindow(channel)) return true;
+  return janelaAbertaDoCore(windowExpiresIn ? new Date(windowExpiresIn) : null, agora);
 }
 
 /** Return whole hours remaining in the window for the warning; return `null` after closure or when there is no window. */
-export function horasRestantes(windowExpiraIn: string | null, agora: Date): number | null {
-  if (!windowExpiraIn) return null;
-  const restante = new Date(windowExpiraIn).getTime() - agora.getTime();
+export function horasRestantes(windowExpiresIn: string | null, agora: Date): number | null {
+  if (!windowExpiresIn) return null;
+  const restante = new Date(windowExpiresIn).getTime() - agora.getTime();
   if (restante <= 0) return null;
-  return Math.min(WINDOW_HORAS, Math.ceil(restante / HORA_MS));
+  return Math.min(WINDOW_HOURS, Math.ceil(restante / HORA_MS));
 }
 
-export function aplicarFilter(
+export function applyFilter(
   conversations: readonly ConversationOfList[],
   filter: Filter,
   agora: Date,
@@ -147,12 +147,12 @@ export function ordenar(conversations: readonly ConversationOfList[], order: Ord
  */
 export function displayName(c: {
   contactName: string | null;
-  contactTelefone: string | null;
+  contactPhone: string | null;
   contactEmail?: string | null;
   contactId?: string;
 }): string {
   if (c.contactName?.trim()) return c.contactName.trim();
-  if (c.contactTelefone?.trim()) return telefoneInternacional(c.contactTelefone);
+  if (c.contactPhone?.trim()) return telefoneInternacional(c.contactPhone);
   if (c.contactEmail?.trim()) return c.contactEmail.trim();
   return (c.contactId ?? '').split('@')[0] ?? '';
 }

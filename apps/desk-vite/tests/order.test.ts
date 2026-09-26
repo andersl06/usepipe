@@ -2,11 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { ConversationOfList } from '@pipe/contracts';
 import {
-  aplicarFilter,
+  applyFilter,
   buscar,
   contagens,
   horasRestantes,
-  windowAberta,
+  windowOpen,
   displayName,
   ordenar,
   telefoneInternacional,
@@ -50,11 +50,11 @@ test('the cards count over the entire list', () => {
     inativos: 1,
   });
   assert.deepEqual(
-    aplicarFilter(lista, 'nao-lidos', agora).map((c) => c.id),
+    applyFilter(lista, 'nao-lidos', agora).map((c) => c.id),
     ['1'],
   );
   assert.deepEqual(
-    aplicarFilter(lista, 'inativos', agora).map((c) => c.id),
+    applyFilter(lista, 'inativos', agora).map((c) => c.id),
     ['3'],
   );
 });
@@ -113,7 +113,7 @@ test('manually marked as unread appears in the "Unread" card even when the agent
     conversation({ id: 'lida', lastMessageFrom: 'atendente' }),
   ];
   assert.deepEqual(
-    aplicarFilter(lista, 'nao-lidos', agora).map((c) => c.id),
+    applyFilter(lista, 'nao-lidos', agora).map((c) => c.id),
     ['manual'],
   );
   assert.equal(contagens(lista, agora)['nao-lidos'], 1);
@@ -136,22 +136,22 @@ test('search matches by name without accents and by phone digits', () => {
 });
 
 test('the 24-hour window', () => {
-  assert.equal(windowAberta(null, 'email', agora), true);
-  assert.equal(windowAberta(null, 'whatsapp_cloud', agora), false);
-  assert.equal(windowAberta('2026-09-17T13:00:00Z', 'whatsapp_cloud', agora), true);
-  assert.equal(windowAberta('2026-09-17T11:00:00Z', 'whatsapp_cloud', agora), false);
+  assert.equal(windowOpen(null, 'email', agora), true);
+  assert.equal(windowOpen(null, 'whatsapp_cloud', agora), false);
+  assert.equal(windowOpen('2026-09-17T13:00:00Z', 'whatsapp_cloud', agora), true);
+  assert.equal(windowOpen('2026-09-17T11:00:00Z', 'whatsapp_cloud', agora), false);
   assert.equal(horasRestantes('2026-09-17T13:30:00Z', agora), 2);
   assert.equal(horasRestantes('2026-09-17T11:00:00Z', agora), null);
 });
 
 test('the display name is never left blank', () => {
-  assert.equal(displayName({ contactName: ' Ana ', contactTelefone: null }), 'Ana');
+  assert.equal(displayName({ contactName: ' Ana ', contactPhone: null }), 'Ana');
   assert.equal(
-    displayName({ contactName: null, contactTelefone: '+5531994714471' }),
+    displayName({ contactName: null, contactPhone: '+5531994714471' }),
     '+55 31 99471-4471',
   );
   assert.equal(
-    displayName({ contactName: null, contactTelefone: null, contactEmail: 'a@b.c' }),
+    displayName({ contactName: null, contactPhone: null, contactEmail: 'a@b.c' }),
     'a@b.c',
   );
   assert.equal(telefoneInternacional('+551133334444'), '+55 11 3333-4444');

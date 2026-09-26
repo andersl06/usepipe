@@ -10,7 +10,7 @@ import { faseValida, moverParaFase } from '../../lib/funil';
  * becoming a write: client input never determines a column value, not even as
  * free text.
  */
-export async function moverOpportunity(id: string, fase: string): Promise<void> {
+export async function moveOpportunity(id: string, fase: string): Promise<void> {
   if (!faseValida(fase)) throw new Error(`fase desconhecida: ${fase}`);
   await moverParaFase(id, fase);
   revalidatePath('/opportunities');

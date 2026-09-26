@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
-import { IconeManagement } from '../../components/icones-management';
+import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '../../components/icones-portal';
 import { Selection } from '../../components/selection';
 import type { Block, EditorInbound, ItemDeConteudo } from './model';
@@ -12,7 +12,7 @@ import {
   ROTULOS_DO_CONTEUDO,
   adicionarConteudo,
   cardsOf,
-  definirInbound,
+  setInbound,
   definirEspera,
   definirMenu,
   definirTexto,
@@ -21,7 +21,7 @@ import {
   novoQuickReply,
   novoTexto,
   removerConteudo,
-  temInbound,
+  hasInbound,
   validationWithRule,
 } from './conteudo';
 import type { Card, MenuOption } from './conteudo';
@@ -173,7 +173,7 @@ export function ContentPanel({
               <button type="button" role="menuitem" onClick={() => adicionar(novoQuickReply())}>
                 {ROTULOS_DO_CONTEUDO.quickReply}
               </button>
-              {!temInbound(block) ? (
+              {!hasInbound(block) ? (
                 <button type="button" role="menuitem" onClick={() => adicionar(newInbound())}>
                   {ROTULOS_DO_CONTEUDO.entrada}
                 </button>
@@ -274,7 +274,7 @@ function ContentCard({
         aria-label="Excluir"
         onClick={() => onMudar(removerConteudo(block, i))}
       >
-        <IconeManagement nome="lixeira" tamanho={18} />
+        <ManagementIcon nome="lixeira" tamanho={18} />
       </button>
     );
 
@@ -399,7 +399,7 @@ function InboundCard({
 }) {
   const validando = !!inbound.validation;
   const aguardando = !inbound.bypass;
-  const atualizar = (nova: EditorInbound): void => onMudar(definirInbound(block, nova));
+  const atualizar = (nova: EditorInbound): void => onMudar(setInbound(block, nova));
 
   return (
     <article className="bl-card bl-card--client">

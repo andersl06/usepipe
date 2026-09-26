@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import type { QueueRegistered } from '../../lib/registrations';
-import { alternarQueue, excluirQueue } from '../../lib/registrations-gravar';
+import { toggleQueue, deleteQueue } from '../../lib/registrations-gravar';
 import { numero } from '../../lib/format';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
-import { FormularioQueue } from './agents-queues-formulario';
+import { QueueForm } from './agents-queues-formulario';
 import { Modal, ModalConfirmation } from './_modal';
 
 /**
@@ -26,18 +26,18 @@ import { Modal, ModalConfirmation } from './_modal';
 /** The row card's toggle + edit/delete — the `acao` slot of `lista-regras.tsx`. */
 function QueueActions({
   queue,
-  onErrorAlternar,
+  onErrorToggle,
   onEditar,
   onExcluir,
 }: {
   queue: QueueRegistered;
-  onErrorAlternar: (error: string) => void;
+  onErrorToggle: (error: string) => void;
   onEditar: () => void;
   onExcluir: () => void;
 }) {
   const alternar = async () => {
-    const r = await alternarQueue(queue.id, queue.active);
-    if (!r.ok) onErrorAlternar(r.error);
+    const r = await toggleQueue(queue.id, queue.active);
+    if (!r.ok) onErrorToggle(r.error);
   };
   return (
     <>
@@ -63,22 +63,22 @@ export function PageQueues() {
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
   const [modalAberto, setModalAberto] = useState(false);
-  const [queueForExcluir, setQueueForExcluir] = useState<QueueRegistered | null>(null);
+  const [queueForDelete, setQueueForDelete] = useState<QueueRegistered | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
-  const [errorAlternar, setErrorAlternar] = useState<string | null>(null);
+  const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
+  const [errorToggle, setErrorToggle] = useState<string | null>(null);
   const read = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
   if (!read.data) return null;
   const { queues } = read.data;
 
   async function excluir() {
-    if (!queueForExcluir) return;
+    if (!queueForDelete) return;
     setExcluindo(true);
-    setErrorExclusao(null);
-    const resultado = await excluirQueue(queueForExcluir.id);
+    setErrorDeletion(null);
+    const resultado = await deleteQueue(queueForDelete.id);
     setExcluindo(false);
-    if (resultado.ok) setQueueForExcluir(null);
-    else setErrorExclusao(resultado.error);
+    if (resultado.ok) setQueueForDelete(null);
+    else setErrorDeletion(resultado.error);
   }
 
   const sections: RulesSection[] = [
@@ -96,9 +96,9 @@ export function PageQueues() {
         acao: (
           <QueueActions
             queue={f}
-            onErrorAlternar={setErrorAlternar}
+            onErrorToggle={setErrorToggle}
             onEditar={() => navegar(`${base}/agents/queues/${f.id}/edit`)}
-            onExcluir={() => setQueueForExcluir(f)}
+            onExcluir={() => setQueueForDelete(f)}
           />
         ),
         procura: f.nome.toLowerCase(),
@@ -120,30 +120,30 @@ export function PageQueues() {
         </Botao>
       </div>
 
-      {errorAlternar ? <Etiqueta tom="erro">{errorAlternar}</Etiqueta> : null}
+      {errorToggle ? <Etiqueta tom="erro">{errorToggle}</Etiqueta> : null}
 
       <ListaRegras
         sections={sections}
         placeholder="Buscar fila"
-        sectionOcultarHeader
+        sectionHideHeader
         paginar
-        pageInitialTamanho={5}
+        pageInitialSize={5}
       />
 
       <Modal aberto={modalAberto} titulo="Criar nova fila" onFechar={() => setModalAberto(false)}>
-        <FormularioQueue aoSalvar={() => setModalAberto(false)} />
+        <QueueForm aoSalvar={() => setModalAberto(false)} />
       </Modal>
 
       <ModalConfirmation
-        aberto={queueForExcluir !== null}
+        aberto={queueForDelete !== null}
         titulo="Confirmar exclusão"
-        message={<>Excluir a fila "{queueForExcluir?.nome}"? Esta ação não pode ser desfeita.</>}
-        error={errorExclusao}
+        message={<>Excluir a fila "{queueForDelete?.nome}"? Esta ação não pode ser desfeita.</>}
+        error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
-          setQueueForExcluir(null);
-          setErrorExclusao(null);
+          setQueueForDelete(null);
+          setErrorDeletion(null);
         }}
       />
     </>

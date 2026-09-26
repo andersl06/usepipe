@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import {
-  CATALOGO_OF_SCOPES,
+  CATALOG_OF_SCOPES,
   CATALOGO_DE_EVENTOS,
   ehUuid,
   scopesValid,
@@ -137,7 +137,7 @@ test('timezone is validated against the runtime\'s timezone database', () => {
  * Reads the file as TEXT instead of importing it on purpose — importing would
  * create the dependency the copy exists to avoid.
  */
-function listaInFile(caminho: string, constante: string): string[] {
+function listInFile(caminho: string, constante: string): string[] {
   const fonte = readFileSync(join(import.meta.dirname, '..', '..', '..', caminho), 'utf8');
   const block = new RegExp(`${constante}\\s*=\\s*\\[([^\\]]*)\\]`).exec(fonte);
   assert.ok(block, `não achei ${constante} em ${caminho}`);
@@ -146,14 +146,14 @@ function listaInFile(caminho: string, constante: string): string[] {
 
 test('the scope catalog has not diverged from apps/api', () => {
   assert.deepEqual(
-    CATALOGO_OF_SCOPES.map((e) => e.codigo),
-    listaInFile('apps/api/src/autenticacao.ts', 'CATALOGO_ESCOPOS'),
+    CATALOG_OF_SCOPES.map((e) => e.codigo),
+    listInFile('apps/api/src/autenticacao.ts', 'CATALOGO_ESCOPOS'),
   );
 });
 
 test('o catálogo de eventos não divergiu de apps/api', () => {
   assert.deepEqual(
     [...CATALOGO_DE_EVENTOS],
-    listaInFile('apps/api/src/webhooks-saida.ts', 'EVENTOS'),
+    listInFile('apps/api/src/webhooks-saida.ts', 'EVENTOS'),
   );
 });

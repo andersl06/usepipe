@@ -8,7 +8,7 @@ import { TelaDeMenuPersistente } from './tela';
  */
 export function PersistentMenuPage() {
   const { contact } = useContact();
-  const channelCompativel = contact.channelActive === true && contact.channelTipo === 'messenger';
+  const channelCompatible = contact.channelActive === true && contact.channelType === 'messenger';
   const read = useRead<ConfigurationOfMenuPersistent>(
     `/v1/management/flows/${contact.id}/menu-persistent`,
   );
@@ -16,7 +16,7 @@ export function PersistentMenuPage() {
   return (
     <TelaDeMenuPersistente
       id={contact.id}
-      channelCompativel={channelCompativel}
+      channelCompatible={channelCompatible}
       inicial={read.data}
     />
   );

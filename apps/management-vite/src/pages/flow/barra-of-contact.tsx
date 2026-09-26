@@ -1,10 +1,10 @@
 import { Avatar } from '@pipe/ui';
 import type { MyPermissionsInFlow } from '@pipe/contracts';
-import { IconeManagement } from '../../components/icones-management';
+import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '../../components/icones-portal';
 import { Link } from '../../components/link';
 import { useRead } from '../../lib/query';
-import { ICONES_OF_CONTACT, LIMITE_VISIVEL, itensDoMenu, type ItemDoMenu } from './itens';
+import { ICONS_OF_CONTACT, LIMITE_VISIVEL, itensDoMenu, type ItemDoMenu } from './itens';
 
 /**
  * The CONTACT bar — the source's `subheader-detail` (module 80688).
@@ -29,13 +29,13 @@ export interface Contact {
   criadoEm: Date | null;
   channelId: string | null;
   channelName: string | null;
-  channelTipo: string | null;
+  channelType: string | null;
   channelActive: boolean | null;
   /** The number (WhatsApp), the `@username` (Instagram), or the Page id (Messenger). */
-  channelNumero: string | null;
+  channelNumber: string | null;
 }
 
-export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: string }) {
+export function ContactBar({ contact, ativo }: { contact: Contact; ativo?: string }) {
   const tipo = contact.tipo === 'roteador' ? 'roteador' : 'fluxo';
   const base = `/${tipo === 'roteador' ? 'router' : 'flow'}/${contact.id}`;
   /*
@@ -101,7 +101,7 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
           {excedentes.length > 0 ? (
             <details className="g-menu fx-mais">
               <summary className="g-iconbtn" title="Mais seções" aria-label="Mais seções">
-                <IconeManagement nome="reticencias" tamanho={24} />
+                <ManagementIcon nome="reticencias" tamanho={24} />
               </summary>
               <div className="g-panel">
                 {excedentes.map((item) =>
@@ -125,7 +125,7 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
  * `subheader-icons`: Integrações, Configurações, and Equipe navigate to the contact's screens; only Testar still remains "coming soon".
  */}
         <div className="fx-icones">
-          {ICONES_OF_CONTACT.map((item) =>
+          {ICONS_OF_CONTACT.map((item) =>
             item.href ? (
               <Link
                 key={item.rotulo}

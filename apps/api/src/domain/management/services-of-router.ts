@@ -10,7 +10,7 @@ import type {
   LinkedService,
 } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
-import { exigirPermissionInFlow } from './team-of-flow.js';
+import { requirePermissionInFlow } from './team-of-flow.js';
 
 /**
  * Router services mirror Blip `master.services` (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`) in `roteador_servico` (migration 0024). Follow `ciclo-de-vida-do-fluxo.ts`/Chatwoot `inboxes_controller`: find router within account (404 otherwise), authorize, validate, write and audit. Source form requires unique router-local service name as `Redirect.address`, one live non-router account flow per service, at most one principal bot, hidden persistence/expiry for principal, and hidden expiry for persistent; expiry is required otherwise. Pipe defines integer expiry in MINUTES from 1 to 525,600 (source help says seconds but UI does not show a unit), 60-character name, 409 instead of silently replacing an existing principal, and deletion of principal without auto-promotion; conversations then fall back to the queue. All writes require `automacao.fluxo.editar` because changing a service edits its router.
@@ -91,7 +91,7 @@ export async function carregarServicos(
 /* ------------------------------------------------------------- Regras */
 
 /** Return this account's live router or 404; a non-router flow is an invalid request. */
-async function routerVivo(tx: TransactionPipe, tid: string, id: string) {
+async function routerLive(tx: TransactionPipe, tid: string, id: string) {
   const [atual] = await tx
     .select({ id: flow.id, tipo: flow.tipo })
     .from(flow)
@@ -228,13 +228,13 @@ export async function createService(
   roteadorId: string,
   pedido: Partial<RequestOfService>,
 ): Promise<LinkedService> {
-  await routerVivo(tx, tid, roteadorId);
+  await routerLive(tx, tid, roteadorId);
   /* A origem não tem linha para os serviços do master no `PermissionsList.html`:
      o item "Serviços" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
      linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
      do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
      segue editando (migração 0035). */
-  await exigirPermissionInFlow(tx, userId, roteadorId, 'basicConfigurations.escrever');
+  await requirePermissionInFlow(tx, userId, roteadorId, 'basicConfigurations.escrever');
   const f = conferido(pedido);
   await conferirConflitos(tx, tid, roteadorId, f, null, true);
 
@@ -263,7 +263,7 @@ export async function createService(
 }
 
 /** Change supplied fields only, then validate the result with creation rules. */
-export async function editarService(
+export async function editService(
   tx: TransactionPipe,
   tid: string,
   usuarioId: string,
@@ -271,14 +271,14 @@ export async function editarService(
   id: string,
   pedido: Partial<RequestOfService>,
 ): Promise<LinkedService> {
-  await routerVivo(tx, tid, roteadorId);
+  await routerLive(tx, tid, roteadorId);
   const atual = await vinculoAtual(tx, roteadorId, id);
   /* A origem não tem linha para os serviços do master no `PermissionsList.html`:
      o item "Serviços" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
      linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
      do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
      segue editando (migração 0035). */
-  await exigirPermissionInFlow(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
+  await requirePermissionInFlow(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
 
   const antes = {
     nome: atual.nome,
@@ -328,14 +328,14 @@ export async function deleteService(
   roteadorId: string,
   id: string,
 ): Promise<void> {
-  await routerVivo(tx, tid, roteadorId);
+  await routerLive(tx, tid, roteadorId);
   const atual = await vinculoAtual(tx, roteadorId, id);
   /* A origem não tem linha para os serviços do master no `PermissionsList.html`:
      o item "Serviços" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
      linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
      do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
      segue editando (migração 0035). */
-  await exigirPermissionInFlow(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
+  await requirePermissionInFlow(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
 
   await tx
     .delete(routerService)

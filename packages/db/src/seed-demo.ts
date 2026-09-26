@@ -24,7 +24,7 @@ import {
 } from './schema/conversations.js';
 import { classificationConversation } from './schema/quality-review.js';
 import { role, tenant, user, userRole } from './schema/identity.js';
-import { garantirRoleOfAccount } from './seed.js';
+import { ensureRoleOfAccount } from './seed.js';
 
 /**
  * Pipe Desk **demo** seed, separate from base `semente.ts`. The base seed gives every new tenant roles, permissions, and sample queues; this file adds fictional users and conversations only for the demo tenant.
@@ -150,7 +150,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
   // Reuse an existing user by email rather than recreating one: deleting an agent would clear
   // `atendente_id` from every existing conversation assigned to that agent, and in a shared
   // development database that would erase someone else's work.
-  const garantirUser = async (nome: string, email: string): Promise<string> => {
+  const ensureUser = async (nome: string, email: string): Promise<string> => {
     const [existente] = await db
       .select({ id: user.id })
       .from(user)
@@ -162,9 +162,9 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     return id;
   };
 
-  const anaId = await garantirUser('Ana Ribeiro', EMAIL_AGENT_DEMO);
-  const brunoId = await garantirUser('Bruno Faria', 'bruno.faria@demo.pipe.app');
-  const carlaId = await garantirUser('Carla Nunes', 'carla.nunes@demo.pipe.app');
+  const anaId = await ensureUser('Ana Ribeiro', EMAIL_AGENT_DEMO);
+  const brunoId = await ensureUser('Bruno Faria', 'bruno.faria@demo.pipe.app');
+  const carlaId = await ensureUser('Carla Nunes', 'carla.nunes@demo.pipe.app');
 
   // Assign an ATTENDANCE role to all three, which Desk checks in `exigirPermissao`,
   // then an ACCOUNT role listed by the Members screen. Existing roles
@@ -187,7 +187,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       )
       .onConflictDoNothing();
   }
-  await garantirRoleOfAccount(db, tenantId);
+  await ensureRoleOfAccount(db, tenantId);
 
   // New agents start Invisible so no one receives conversations before declaring readiness.
   await db
@@ -464,8 +464,8 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     state: 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
     priority: 'baixa' | 'media' | 'alta';
     /** When the contact last spoke; determines the 24-hour service window. */
-    lastOfContactAtras: number | null;
-    lastMessageAtras: number;
+    lastOfContactAgo: number | null;
+    lastMessageAgo: number;
     lastMessageOf: 'contato' | 'atendente';
     criadaAtras: number;
     encerradaAtras?: number;
@@ -480,8 +480,8 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       queueId: comercialId,
       state: 'em_atendimento',
       priority: 'alta',
-      lastOfContactAtras: 2 * HORA + 12 * MIN,
-      lastMessageAtras: 2 * HORA + 5 * MIN,
+      lastOfContactAgo: 2 * HORA + 12 * MIN,
+      lastMessageAgo: 2 * HORA + 5 * MIN,
       lastMessageOf: 'atendente',
       criadaAtras: 3 * HORA,
     },
@@ -493,8 +493,8 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       state: 'em_atendimento',
       priority: 'media',
       // Janela perto de expirar: faltam ~38 minutos.
-      lastOfContactAtras: 23 * HORA + 22 * MIN,
-      lastMessageAtras: 23 * HORA + 20 * MIN,
+      lastOfContactAgo: 23 * HORA + 22 * MIN,
+      lastMessageAgo: 23 * HORA + 20 * MIN,
       lastMessageOf: 'atendente',
       criadaAtras: 26 * HORA,
     },
@@ -506,8 +506,8 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       state: 'atribuida',
       priority: 'media',
       // Email has no 24-hour window; that rule is channel-specific.
-      lastOfContactAtras: null,
-      lastMessageAtras: 40 * MIN,
+      lastOfContactAgo: null,
+      lastMessageAgo: 40 * MIN,
       lastMessageOf: 'contato',
       criadaAtras: 45 * MIN,
     },
@@ -518,8 +518,8 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       queueId: comercialId,
       state: 'atribuida',
       priority: 'baixa',
-      lastOfContactAtras: null,
-      lastMessageAtras: 12 * MIN,
+      lastOfContactAgo: null,
+      lastMessageAgo: 12 * MIN,
       lastMessageOf: 'contato',
       criadaAtras: 14 * MIN,
     },
@@ -531,8 +531,8 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       state: 'em_espera',
       priority: 'media',
       // The window has closed: more than 24 hours since her last message.
-      lastOfContactAtras: 30 * HORA,
-      lastMessageAtras: 29 * HORA,
+      lastOfContactAgo: 30 * HORA,
+      lastMessageAgo: 29 * HORA,
       lastMessageOf: 'atendente',
       criadaAtras: 32 * HORA,
       inWaitSince: 28 * HORA,
@@ -544,8 +544,8 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       queueId: closerId,
       state: 'em_atendimento',
       priority: 'alta',
-      lastOfContactAtras: 18 * HORA,
-      lastMessageAtras: 17 * HORA + 50 * MIN,
+      lastOfContactAgo: 18 * HORA,
+      lastMessageAgo: 17 * HORA + 50 * MIN,
       lastMessageOf: 'atendente',
       criadaAtras: 19 * HORA,
     },
@@ -557,8 +557,8 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       queueId: suporteId,
       state: 'encerrada',
       priority: 'baixa',
-      lastOfContactAtras: null,
-      lastMessageAtras: 3 * 24 * HORA,
+      lastOfContactAgo: null,
+      lastMessageAgo: 3 * 24 * HORA,
       lastMessageOf: 'atendente',
       criadaAtras: 3 * 24 * HORA + 30 * MIN,
       encerradaAtras: 3 * 24 * HORA,
@@ -578,10 +578,10 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       criadaEm: atras(c.criadaAtras),
       atribuidaEm: atras(c.criadaAtras - MIN),
       primeiraRespostaEm: atras(c.criadaAtras - 2 * MIN),
-      ultimaMensagemEm: atras(c.lastMessageAtras),
+      ultimaMensagemEm: atras(c.lastMessageAgo),
       ultimaMensagemDe: c.lastMessageOf,
       janelaExpiraEm:
-        c.lastOfContactAtras === null ? null : atras(c.lastOfContactAtras - 24 * HORA),
+        c.lastOfContactAgo === null ? null : atras(c.lastOfContactAgo - 24 * HORA),
       ...(c.inWaitSince ? { inWaitSince: atras(c.inWaitSince) } : {}),
       ...(c.encerradaAtras
         ? { encerradaEm: atras(c.encerradaAtras), encerradaPor: anaId, motivoEncerramento: 'resolvido' }

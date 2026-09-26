@@ -2,7 +2,7 @@ import Link from '../../../components/link';
 import { IconePortal } from '../../../components/icones-portal';
 import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { portalUseShell } from '../../../lib/shell';
-import { CreationCasco, PassoDoNome } from '../casco';
+import { CreationShell, PassoDoNome } from '../casco';
 import { createFlow } from './actions';
 import { ROTULOS, RECADOS, TEMPLATE_PADRAO } from './regras';
 import '../create.css';
@@ -28,7 +28,7 @@ export function PageCreateFlow() {
   if (!shell.canCreate) return <Navigate to="/portal" replace />;
 
   return (
-    <CreationCasco>
+    <CreationShell>
       {passo === 'name' ? (
         <PassoDoNome
           acao={createFlow}
@@ -37,7 +37,7 @@ export function PageCreateFlow() {
             ...ROTULOS,
             tituloDoNome: veioDoTemplate ? ROTULOS.tituloDoNomeComTemplate : ROTULOS.tituloDoNome,
           }}
-          errorTitulo={RECADOS.titulo}
+          errorTitle={RECADOS.titulo}
           error={parametros.erro}
           nome={parametros.nome}
           camposOcultos={veioDoTemplate ? { template: TEMPLATE_PADRAO } : undefined}
@@ -47,7 +47,7 @@ export function PageCreateFlow() {
       ) : (
         <PassoDoMarketplace />
       )}
-    </CreationCasco>
+    </CreationShell>
   );
 }
 
@@ -102,7 +102,7 @@ function PassoDoMarketplace() {
 /**
  * An icon from `icones-portal.tsx` for each line of `ROTULOS.funcionalidades`, in the same order — a clock for hours, an agent for handoff, a checkmark for evaluation, a team for available agents. No exact match in the source: there each line has its own catalog icon, which we don't have; the visual distinction between the four is what matters here.
  */
-const ICONES_OF_FEATURES = ['relogio', 'suporte', 'concluido', 'equipe'] as const;
+const ICONS_OF_FEATURES = ['relogio', 'suporte', 'concluido', 'equipe'] as const;
 
 /**
  * `#create-application-test-step` — `auth.application.create.test`. We don't have this screen's pixel measurements (only step 1, the marketplace, was captured rendered): the layout below reuses the same centered stage as the other steps (`.cr-forma` / `.cr-titulos` / `.cr-acoes`, from `../criar.css`), with the description and the feature list in a column.
@@ -122,7 +122,7 @@ function PassoDoTemplate() {
         <ul className="cf-lista">
           {ROTULOS.funcionalidades.map((feature, indice) => (
             <li key={feature}>
-              <IconePortal nome={ICONES_OF_FEATURES[indice]!} tamanho={20} />
+              <IconePortal nome={ICONS_OF_FEATURES[indice]!} tamanho={20} />
               {feature}
             </li>
           ))}

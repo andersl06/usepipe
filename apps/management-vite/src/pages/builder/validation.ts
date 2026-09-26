@@ -4,7 +4,7 @@ import { contentErrors } from './conteudo';
 import { outputErrors } from './conditions';
 import { actionErrors } from './actions-of-block';
 
-const ERRORS_OF_RASCUNHO_OF_OUTPUT = new Set([
+const ERRORS_OF_DRAFT_OF_OUTPUT = new Set([
   'Definição de saída não preenchida',
   'A condição precisa de valores quando a comparação não é exists nem notExists.',
 ]);
@@ -29,7 +29,7 @@ export function blockErrors(block: Block, mapa: Mapa): string[] {
   for (const saida of block.$conditionOutputs ?? []) {
     for (const e of outputErrors(saida, existe)) {
       // The Builder keeps the incomplete draft on the card, without promoting it to the flow's alert.
-      if (!ERRORS_OF_RASCUNHO_OF_OUTPUT.has(e)) anotar(e);
+      if (!ERRORS_OF_DRAFT_OF_OUTPUT.has(e)) anotar(e);
     }
   }
   const padrao = block.$defaultOutput?.stateId;
@@ -56,7 +56,7 @@ export function errorsLocal(mapa: Mapa): BlockError[] {
 }
 
 /** Junta listas de erro sem repetir (mesmo bloco, mesma frase). */
-export function juntarErrors(...listas: BlockError[][]): BlockError[] {
+export function joinErrors(...listas: BlockError[][]): BlockError[] {
   const saida: BlockError[] = [];
   for (const lista of listas) {
     for (const e of lista) {

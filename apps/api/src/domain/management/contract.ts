@@ -104,7 +104,7 @@ export interface MemberOfContract {
 /**
  * Offer only the three account roles in Members and Invite. Manager, supervisor, agent and evaluator are attendance roles assigned per contact in the source.
  */
-export async function loadPapeisOfAccount(tx: TransactionPipe): Promise<RoleOfAccount[]> {
+export async function loadRolesOfAccount(tx: TransactionPipe): Promise<RoleOfAccount[]> {
   return consultar(tx, (tx) =>
     tx
       .select({ id: role.id, name: role.nome })
@@ -273,7 +273,7 @@ export async function removeMember(
     if (!alvo) return { ok: false, error: 'Esta pessoa não faz parte deste contrato.' };
     if (!alvo.ativo) return OK;
 
-    const [roleAtual] = await tx
+    const [roleCurrent] = await tx
       .select({ nome: role.nome })
       .from(userRole)
       .innerJoin(role, eq(role.id, userRole.papelId))
@@ -281,7 +281,7 @@ export async function removeMember(
       .limit(1);
     // Apply the `definirPapelDoMembro` guard here too: removing the last active admin
     // would leave nobody able to assign the role again.
-    if (roleAtual?.nome === ROLE_ADMIN && (await contarAdministradoresAtivos(tx)) <= 1) {
+    if (roleCurrent?.nome === ROLE_ADMIN && (await contarAdministradoresAtivos(tx)) <= 1) {
       return { ok: false, error: MESSAGE_LAST_ADMIN };
     }
 
@@ -344,7 +344,7 @@ export async function defineRoleOfInvitation(
 /**
  * Cancel an open invitation by expiring, not deleting it. Keep the row as evidence of who invited whom; expiry invalidates its link, as `criarConvite` does before issuing a replacement.
  */
-export async function cancelarInvitation(
+export async function cancelInvitation(
   tx: TransactionPipe,
   tid: string,
   ator: Ator,

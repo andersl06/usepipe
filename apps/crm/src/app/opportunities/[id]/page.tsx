@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Etiqueta, Tabela, type Column } from '@pipe/ui';
 import { AbasDaFicha, Campo, Destaque, Section } from '../../../components/ficha';
-import { TimeLinha } from '../../../components/linha-of-time';
+import { TimeRow } from '../../../components/linha-of-time';
 import { fusoDoTenant } from '../../../lib/database';
 import {
   loadOpportunity,
@@ -35,10 +35,10 @@ const ABAS = [
   { key: 'conta', rotulo: 'Na conta' },
 ] as const;
 
-type AbaOpportunity = (typeof ABAS)[number]['key'];
+type TabOpportunity = (typeof ABAS)[number]['key'];
 
-function abaValida(value: string | undefined): AbaOpportunity {
-  return (ABAS.find((a) => a.key === value)?.key ?? 'historico') as AbaOpportunity;
+function abaValida(value: string | undefined): TabOpportunity {
+  return (ABAS.find((a) => a.key === value)?.key ?? 'historico') as TabOpportunity;
 }
 
 function colunasIrmas(hoje: Date, fuso: string): readonly Column<OpportunityRow>[] {
@@ -74,7 +74,7 @@ function colunasIrmas(hoje: Date, fuso: string): readonly Column<OpportunityRow>
   ];
 }
 
-function OpportunityDestaque({
+function OpportunityHighlight({
   ficha,
   fuso,
   hoje,
@@ -159,7 +159,7 @@ export default async function PageOpportunity({
 
   return (
     <>
-      <OpportunityDestaque ficha={ficha} fuso={fuso} hoje={hoje} />
+      <OpportunityHighlight ficha={ficha} fuso={fuso} hoje={hoje} />
 
       <div className="ficha">
         <aside className="column">
@@ -255,7 +255,7 @@ export default async function PageOpportunity({
                   </span>
                 </div>
               ) : (
-                <TimeLinha itens={ficha.timeRow} fuso={fuso} agora={hoje} />
+                <TimeRow itens={ficha.timeRow} fuso={fuso} agora={hoje} />
               )
             ) : null}
 
@@ -263,7 +263,7 @@ export default async function PageOpportunity({
               <Tabela
                 colunas={colunasIrmas(hoje, fuso)}
                 linhas={ficha.irmas}
-                linhaKey={(o) => o.id}
+                rowKey={(o) => o.id}
                 empty={
                   ficha.accountId
                     ? 'Esta é a única oportunidade desta conta.'

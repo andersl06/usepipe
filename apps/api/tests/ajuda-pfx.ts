@@ -8,7 +8,7 @@ import {
   sign,
 } from 'node:crypto';
 import type { KeyObject } from 'node:crypto';
-import { derivarKeyPkcs12 } from '../src/domain/management/pfx.js';
+import { deriveKeyPkcs12 } from '../src/domain/management/pfx.js';
 
 /**
  * A real `.pfx` (PKCS#12), built in the test — no binary file in the repository and no new dependency.
@@ -192,7 +192,7 @@ export function generatePfxOfTest(options: {
   // // The MAC: HMAC-SHA256 over the AuthenticatedSafe, keyed by the PKCS#12 derivation (id 3).
   const salDoMac = randomBytes(8);
   const iterationsOfMac = 2048;
-  const keyOfMac = derivarKeyPkcs12('sha256', options.senha, salDoMac, iterationsOfMac, 3, 32);
+  const keyOfMac = deriveKeyPkcs12('sha256', options.senha, salDoMac, iterationsOfMac, 3, 32);
   const mac = createHmac('sha256', keyOfMac).update(authenticatedSafe).digest();
   const macData = seq(
     seq(seq(oid(OID.sha256), nulo()), octetos(mac)),

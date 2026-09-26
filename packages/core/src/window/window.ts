@@ -4,10 +4,10 @@
 
 import { HORA } from '../comum/time.js';
 
-export const WINDOW_HORAS = 24;
-export const WINDOW_SEG = WINDOW_HORAS * HORA;
+export const WINDOW_HOURS = 24;
+export const WINDOW_SEG = WINDOW_HOURS * HORA;
 
-export type TipoChannel = 'whatsapp_cloud' | 'email' | 'widget';
+export type TypeChannel = 'whatsapp_cloud' | 'email' | 'widget';
 
 export type CategoriaTemplate = 'utilidade' | 'marketing' | 'autenticacao';
 
@@ -21,28 +21,28 @@ export interface StateWindow {
   /** `conversa.janela_expira_em`. `null` = canal sem janela. */
   expiraEm: Date | null;
   /** `conversa.janela_aberta_por_mensagem_id`. */
-  abertaByMessageId?: string | null;
+  openByMessageId?: string | null;
 }
 
 /**
  * Expiry from the customer's latest message. Null input returns null: without a customer message there is no window.
  */
-export function calcularExpiration(contactInUltimaMessage: Date | null): Date | null {
-  if (!contactInUltimaMessage) return null;
-  return new Date(contactInUltimaMessage.getTime() + WINDOW_SEG * 1000);
+export function calculateExpiration(contactInLastMessage: Date | null): Date | null {
+  if (!contactInLastMessage) return null;
+  return new Date(contactInLastMessage.getTime() + WINDOW_SEG * 1000);
 }
 
 
-export function contactRegistrarMessage(em: Date, messageId?: string): StateWindow {
-  const state: StateWindow = { expiraEm: calcularExpiration(em) };
-  if (messageId) state.abertaByMessageId = messageId;
+export function contactRegisterMessage(em: Date, messageId?: string): StateWindow {
+  const state: StateWindow = { expiraEm: calculateExpiration(em) };
+  if (messageId) state.openByMessageId = messageId;
   return state;
 }
 
 /**
  * Window-open check is STRICT: at the exact expiry instant it is closed. Treating a tie as open would invite a Meta rejection after send, which the UI must prevent.
  */
-export function windowAberta(expiraEm: Date | null | undefined, agora: Date): boolean {
+export function windowOpen(expiraEm: Date | null | undefined, agora: Date): boolean {
   if (!expiraEm) return false;
   return agora.getTime() < expiraEm.getTime();
 }
@@ -59,12 +59,12 @@ export function pertoDeExpirar(
   agora: Date,
   limiarSeg = HORA,
 ): boolean {
-  if (!windowAberta(expiraEm, agora)) return false;
+  if (!windowOpen(expiraEm, agora)) return false;
   return segundosRestantes(expiraEm, agora) <= limiarSeg;
 }
 
-export interface QueryEnvio {
-  channel: TipoChannel;
+export interface QuerySending {
+  channel: TypeChannel;
   expiraEm: Date | null;
   agora: Date;
   /** O que o atendente quer mandar. */
@@ -75,7 +75,7 @@ export interface QueryEnvio {
 
 export type MotivoBloqueio = 'janela_fechada' | 'template_sem_categoria';
 
-export interface EvaluationEnvio {
+export interface EvaluationSending {
   permitido: boolean;
 
   modo: ModoDeEnvio;
@@ -83,13 +83,13 @@ export interface EvaluationEnvio {
   restanteSeg: number;
   /** Billing-report category if the message is sent. */
   categoriaCobranca: CategoriaCobranca | null;
-  windowDentro: boolean;
+  withinWindow: boolean;
 }
 
 /**
  * Email and widget have no window, so `janela_expira_em` is null; the channel rule and UI remain the same.
  */
-export function channelTemWindow(channel: TipoChannel): boolean {
+export function channelHasWindow(channel: TypeChannel): boolean {
   return channel === 'whatsapp_cloud';
 }
 
@@ -98,32 +98,32 @@ export function channelTemWindow(channel: TipoChannel): boolean {
  */
 export function classificarCusto(inbound: {
   conteudo: 'texto_livre' | 'template';
-  windowDentro: boolean;
+  withinWindow: boolean;
   categoriaTemplate?: CategoriaTemplate | null;
 }): CategoriaCobranca | null {
   if (inbound.conteudo === 'template') return inbound.categoriaTemplate ?? null;
-  return inbound.windowDentro ? 'livre' : null;
+  return inbound.withinWindow ? 'livre' : null;
 }
 
 /**
  * Decide whether sending is allowed, what the UI should offer, and how cost is classified. Outside the window, replace free-text input with a template selector and an explicit reason, rather than failing only after send.
  */
-export function avaliarEnvio(query: QueryEnvio): EvaluationEnvio {
-  const temWindow = channelTemWindow(query.channel);
-  const windowDentro = temWindow ? windowAberta(query.expiraEm, query.agora) : true;
-  const restanteSeg = temWindow ? segundosRestantes(query.expiraEm, query.agora) : 0;
-  const modo: ModoDeEnvio = windowDentro ? 'texto_livre' : 'somente_template';
+export function avaliarEnvio(query: QuerySending): EvaluationSending {
+  const hasWindow = channelHasWindow(query.channel);
+  const withinWindow = hasWindow ? windowOpen(query.expiraEm, query.agora) : true;
+  const restanteSeg = hasWindow ? segundosRestantes(query.expiraEm, query.agora) : 0;
+  const modo: ModoDeEnvio = withinWindow ? 'texto_livre' : 'somente_template';
 
   if (query.conteudo === 'template') {
     const categoria = query.categoriaTemplate ?? null;
-    if (temWindow && !categoria) {
+    if (hasWindow && !categoria) {
       return {
         permitido: false,
         modo,
         motivo: 'template_sem_categoria',
         restanteSeg,
         categoriaCobranca: null,
-        windowDentro,
+        withinWindow,
       };
     }
     return {
@@ -133,21 +133,21 @@ export function avaliarEnvio(query: QueryEnvio): EvaluationEnvio {
       restanteSeg,
       categoriaCobranca: classificarCusto({
         conteudo: 'template',
-        windowDentro,
+        withinWindow,
         categoriaTemplate: categoria,
       }),
-      windowDentro,
+      withinWindow,
     };
   }
 
-  if (!windowDentro) {
+  if (!withinWindow) {
     return {
       permitido: false,
       modo,
       motivo: 'janela_fechada',
       restanteSeg,
       categoriaCobranca: null,
-      windowDentro,
+      withinWindow,
     };
   }
 
@@ -157,6 +157,6 @@ export function avaliarEnvio(query: QueryEnvio): EvaluationEnvio {
     motivo: null,
     restanteSeg,
     categoriaCobranca: 'livre',
-    windowDentro,
+    withinWindow,
   };
 }

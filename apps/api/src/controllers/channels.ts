@@ -2,18 +2,18 @@ import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Req } from
 import { noTenant } from '../database.js';
 import { desconectarWhatsApp, readChannelVisible, listChannelsWhatsApp } from '../domain/channels.js';
 import type { ChannelWhatsAppVisible } from '../domain/channels.js';
-import { executarRegistrationEmbedded, validarParametros } from '../domain/whatsapp/registration-embedded.js';
+import { runRegistrationEmbedded, validarParametros } from '../domain/whatsapp/registration-embedded.js';
 import { readChannelWhatsApp } from '../domain/whatsapp/channel.js';
 import { modoDaConexao, versaoDaApi } from '../domain/whatsapp/cliente-graph.js';
-import { executarConfigurationManual } from '../domain/whatsapp/configuration-manual.js';
-import { checkState, emitirState } from '../domain/whatsapp/state-of-connection.js';
+import { runConfigurationManual } from '../domain/whatsapp/configuration-manual.js';
+import { checkState, issueState } from '../domain/whatsapp/state-of-connection.js';
 import { createTemplateInMeta, deleteTemplateInMeta, sincronizarModelos } from '../domain/whatsapp/modelos.js';
 import type { RequestOfTemplate, ResultOfSynchronization } from '../domain/whatsapp/modelos.js';
 import { writeProfileOfChannel, readProfileOfChannel } from '../domain/whatsapp/perfil.js';
 import { writePreferences, readPreferences } from '../domain/whatsapp/preferences.js';
 import type { RequestOfPreferences, PreferencesOfChannel } from '../domain/whatsapp/preferences.js';
 import type { PedidoDePerfil, PerfilVisivel } from '../domain/whatsapp/perfil.js';
-import { WithSession, exigirPermission, sessionOf } from '../session.js';
+import { WithSession, requirePermission, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import {
   flowIdOfBody,
@@ -46,7 +46,7 @@ export class ChannelsController {
     const sessao = sessionOf(requisicao);
     await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
     return {
-      estado: emitirState(sessao.tenantId, sessao.userId),
+      estado: issueState(sessao.tenantId, sessao.userId),
       appId: process.env['WHATSAPP_APP_ID'] ?? '',
       configId: process.env['WHATSAPP_CONFIG_ID'] ?? '',
       versao: versaoDaApi(),
@@ -84,7 +84,7 @@ export class ChannelsController {
     // `fetch_and_validate_inbox`: o canal a reautorizar tem de ser deste tenant.
     if (corpo.canal_id) await readChannelWhatsApp(sessao.tenantId, corpo.canal_id);
 
-    const channel = await executarRegistrationEmbedded({
+    const channel = await runRegistrationEmbedded({
       tenantId: sessao.tenantId,
       userId: sessao.userId,
       code: corpo.code,
@@ -132,7 +132,7 @@ export class ChannelsController {
     } else {
       await permitidoConectar(session.tenantId, session.userId, flowId);
     }
-    const feito = await executarConfigurationManual({
+    const feito = await runConfigurationManual({
       tenantId: session.tenantId,
       userId: session.userId,
       wabaId: corpo.waba_id?.trim(),
@@ -251,5 +251,5 @@ export class ChannelsController {
 }
 
 function permitido(tenantId: string, userId: string, codigo: string): Promise<void> {
-  return noTenant(tenantId, (tx) => exigirPermission(tx, userId, codigo));
+  return noTenant(tenantId, (tx) => requirePermission(tx, userId, codigo));
 }

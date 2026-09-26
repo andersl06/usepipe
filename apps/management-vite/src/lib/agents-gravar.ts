@@ -1,14 +1,14 @@
 import { api } from './api';
 import { atualizarLeituras } from './actions';
 import { motivoDe, type Resultado } from './rest';
-import { queueDesvincularAgent, vincularAgentInQueue } from './registrations-gravar';
+import { queueUnlinkAgent, linkAgentInQueue } from './registrations-gravar';
 
 /**
  * Keep agent-screen writes (permissions, bulk edit, Excluir) separate from pure `cadastros.ts` and `atendentes.ts`. This module imports `./api`, whose `import.meta.env` dependency breaks tests outside Vite, as happened to `comunicacao.ts` before its writes moved out.
  */
 
 /** One row of the reference Permission type by Status table. */
-export interface PermissionLinha {
+export interface PermissionRow {
   codigo: string;
   grupo: string;
   description: string;
@@ -21,17 +21,17 @@ export interface PermissionLinha {
 
 export interface AgentPermissions {
   agents: { id: string; nome: string; email: string }[];
-  permissions: PermissionLinha[];
+  permissions: PermissionRow[];
 }
 
 /** Build the read path with IDs in the query, matching the reference edit route without `:id`. */
-export function permissionsCaminho(ids: readonly string[]): string | null {
+export function permissionsPath(ids: readonly string[]): string | null {
   if (ids.length === 0) return null;
   return `/v1/management/agents/permissions?atendentes=${ids.join(',')}`;
 }
 
 /** Save only fields changed on the screen for `Salvar alterações`. */
-export async function salvarPermissions(
+export async function savePermissions(
   userIds: readonly string[],
   permissions: Record<string, boolean>,
 ): Promise<Resultado<void>> {
@@ -50,13 +50,13 @@ export async function salvarPermissions(
 /**
  * Reference bulk edit (`Editar N atendentes`, requiring at least one field) assigns selected agents to a queue and/or sets an individual concurrent-ticket limit. Pipe has no separate edit-agent route: concurrency comes from queue membership (`fila_atendente.capacidade_override` over `fila.capacidade_padrao`), so both fields write through `POST /filas/:id/atendentes`. Existing members get an updated capacity; others join.
  */
-export async function aplicarInSelection(
+export async function applyInSelection(
   userIds: readonly string[],
   queueId: string,
   capacityOverride: number | null,
 ): Promise<Resultado<void>> {
   for (const id of userIds) {
-    const r = await vincularAgentInQueue(queueId, id, capacityOverride);
+    const r = await linkAgentInQueue(queueId, id, capacityOverride);
     if (!r.ok) return { ok: false, error: r.error };
   }
   return { ok: true, value: undefined };
@@ -70,7 +70,7 @@ export async function removeFromAllQueues(
   queueIds: readonly string[],
 ): Promise<Resultado<void>> {
   for (const queueId of queueIds) {
-    const r = await queueDesvincularAgent(queueId, agentId);
+    const r = await queueUnlinkAgent(queueId, agentId);
     if (!r.ok) return r;
   }
   return { ok: true, value: undefined };
@@ -97,7 +97,7 @@ export async function priorityCreateRule(
   }
 }
 
-export async function priorityExcluirRule(id: string): Promise<Resultado<void>> {
+export async function priorityDeleteRule(id: string): Promise<Resultado<void>> {
   try {
     await api.delete(`/v1/management/rules/priority/${id}`);
     atualizarLeituras();

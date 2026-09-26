@@ -120,14 +120,14 @@ export async function registrar(conexao: Conexao): Promise<() => Promise<void>> 
 }
 
 /** Live connection count in this process, used by `/metrics` and tests. */
-export function connectionsVivas(tenantId?: string): number {
+export function connectionsLive(tenantId?: string): number {
   if (tenantId) return byTenant.get(tenantId)?.size ?? 0;
   let total = 0;
   for (const connections of byTenant.values()) total += connections.size;
   return total;
 }
 
-export async function closeTimeReal(): Promise<void> {
+export async function closeRealtime(): Promise<void> {
   byTenant.clear();
   await assinante?.quit();
   await publicador?.quit();

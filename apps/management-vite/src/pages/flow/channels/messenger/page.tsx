@@ -5,10 +5,10 @@ import { ApiError } from '../../../../lib/api';
 import { useRead } from '../../../../lib/query';
 import { channelInBotState } from '../../../../lib/channel-of-flow';
 import { ConectarMessengerManual } from '../../../registrations/channel-conectar-manual';
-import { ReadFalha, useContact } from '../../contact';
+import { ReadFailure, useContact } from '../../contact';
 import { ChannelLogo } from '../channels';
-import { ChannelShell, type ChannelAba } from '../shell-of-channel';
-import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '../conexao';
+import { ChannelShell, type ChannelTab } from '../shell-of-channel';
+import { OtherChannelNotice, ChooseChannelExisting, ModalDesconectar } from '../conexao';
 
 /**
  * Messenger inside the BOT — `…channels/messenger`. The source's current page is a micro-frontend not present in the captured bundle (`FICHA-conectar-canal-no-bot.md` §1.4 and §5); what was read is the legacy `messengerDpr` (template 8080 + `MessengerOverviewTab.html`, 208152): title "Messenger", "Visão Geral" tab with the icon and text about the Facebook Page, and the disconnect modal (`messenger.modals.disconnect`).
@@ -16,14 +16,14 @@ import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '
  * The connected state was NOT captured: here it follows the Instagram layout (chip with the Page + "Desconectar canal"), stated as a Pipe decision. The connection is the manual one (`ConectarMessengerManual`, with `fluxoId`) and, Pipe decision, picking a Page the account already has.
  */
 
-const ABAS: readonly ChannelAba[] = [{ rotulo: 'Visão Geral', segment: '' }];
+const ABAS: readonly ChannelTab[] = [{ rotulo: 'Visão Geral', segment: '' }];
 
 export function PageChannelMessenger() {
   const { contact } = useContact();
   const read = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
 
   if (read.error && !(read.error instanceof ApiError && read.error.status === 404)) {
-    return <ReadFalha error={read.error} />;
+    return <ReadFailure error={read.error} />;
   }
   if (!read.data) return null;
   const situation = channelInBotState(read.data.channel, 'messenger');
@@ -84,13 +84,13 @@ function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow
 
 function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: ChannelOfFlow[] }) {
   const [escolhendo, setEscolhendo] = useState(false);
-  const temPageLivre = disponiveis.some(
+  const hasFreePage = disponiveis.some(
     (c) => c.tipo === 'messenger' && c.ativo && (c.flowId === null || c.flowId === flowId),
   );
 
   if (escolhendo) {
     return (
-      <EscolherChannelExistente
+      <ChooseChannelExisting
         flowId={flowId}
         tipo="messenger"
         disponiveis={disponiveis}
@@ -116,7 +116,7 @@ function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: Ch
         </p>
         <div className="cb-actions-right">
           <ConectarMessengerManual flowId={flowId} rotulo="Conectar-se ao Messenger" variante="primario" />
-          {temPageLivre ? (
+          {hasFreePage ? (
             <Botao type="button" onClick={() => setEscolhendo(true)}>
               Usar uma Página já conectada
             </Botao>

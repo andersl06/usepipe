@@ -564,7 +564,7 @@ async function deliveryPending(cenario: Cenario, url: string): Promise<string> {
   return rows[0]!.id;
 }
 
-type OptionsOfAgente = { pfx?: Buffer; passphrase?: string };
+type OptionsOfAgent = { pfx?: Buffer; passphrase?: string };
 
 describe('mTLS na saída (webhooks)', () => {
   const chamadasHttps: Array<{ url: string; options: https.RequestOptions }> = [];
@@ -641,7 +641,7 @@ describe('mTLS na saída (webhooks)', () => {
     // O agente carrega exatamente o .pfx e a senha cadastrados (decifrados).
     const agente = um!.options.agent;
     expect(agente).toBeInstanceOf(https.Agent);
-    const options = (agente as unknown as { options: OptionsOfAgente }).options;
+    const options = (agente as unknown as { options: OptionsOfAgent }).options;
     expect(Buffer.isBuffer(options.pfx) && options.pfx.equals(pfxValido.pfx)).toBe(true);
     expect(options.passphrase).toBe(SENHA_DO_PFX);
 

@@ -138,7 +138,7 @@ export function Cabecalho({
  *
  * Returns `null` with fewer than two items: without a choice to offer, the sidebar only takes width from content.
  */
-export function LateralContext({
+export function SidebarContext({
   titulo,
   itens,
   caminhoAtual,
@@ -215,7 +215,7 @@ export function AreaSettings({
         <b>Configurações</b>
       </header>
       <div className="p-miolo">
-        <LateralContext
+        <SidebarContext
           itens={itens}
           caminhoAtual={caminhoAtual}
           className="p-config-lateral"

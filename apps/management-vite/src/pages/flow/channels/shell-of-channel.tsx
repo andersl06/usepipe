@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { IconeManagement } from '../../../components/icones-management';
+import { ManagementIcon } from '../../../components/icones-management';
 import { IconePortal } from '../../../components/icones-portal';
 import Link from '../../../components/link';
-import { channelRota, type TipoOfChannelOfBot } from '../../../lib/channel-of-flow';
-import { ModuloShell, contactBase, useContact } from '../contact';
+import { channelRoute, type TypeOfChannelOfBot } from '../../../lib/channel-of-flow';
+import { ShellModule, contactBase, useContact } from '../contact';
 import '../integrations/header-of-page.css';
 import '../integrations/integrations.css';
 import './channel-of-bot.css';
@@ -22,7 +22,7 @@ import './channel-of-bot.css';
  * "Documentação" in the source opens Blip's help center (`whatsapp.documentationLink`). Pipe has no such address; the text and icon stay, without a destination (`aria-disabled`) — inventing a URL isn't reproducing the screen.
  */
 
-export interface ChannelAba {
+export interface ChannelTab {
   rotulo: string;
   /** Empty is the index tab (the page's own URL). */
   segment: string;
@@ -38,9 +38,9 @@ export function ChannelShell({
   conectado,
   children,
 }: {
-  tipo: TipoOfChannelOfBot;
+  tipo: TypeOfChannelOfBot;
   titulo: string;
-  abas: readonly ChannelAba[];
+  abas: readonly ChannelTab[];
   conectado: boolean;
   children: ReactNode;
 }) {
@@ -48,10 +48,10 @@ export function ChannelShell({
   const base = contactBase(contact.tipo, contact.id);
   const caminho = useLocation().pathname.replace(/\/$/, '');
   /** This page's URL; whatever comes after it is the tab. */
-  const raiz = channelRota(base, tipo);
+  const raiz = channelRoute(base, tipo);
 
   return (
-    <ModuloShell ativo="Canais">
+    <ShellModule ativo="Canais">
       <header className="ph-cabecalho">
         <div className="ph-conteudo">
           <div className="ph-voltar-caixa">
@@ -99,7 +99,7 @@ export function ChannelShell({
               </nav>
               <span className="cb-doc" aria-disabled="true" title="Documentação: em breve">
                 Documentação
-                <IconeManagement nome="externo" tamanho={16} />
+                <ManagementIcon nome="externo" tamanho={16} />
               </span>
             </div>
 
@@ -107,6 +107,6 @@ export function ChannelShell({
           </div>
         </section>
       </div>
-    </ModuloShell>
+    </ShellModule>
   );
 }

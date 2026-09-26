@@ -1,9 +1,9 @@
 import Link from '../../components/link';
 import {
   ROTULO_AVALIADOR,
-  ROTULO_STATE_EVALUATION,
-  ROTULO_VALUE,
-  type EvaluationFicha,
+  LABEL_STATE_EVALUATION,
+  LABEL_VALUE,
+  type EvaluationRecord,
 } from '../../lib/quality-review';
 import { useParams } from 'react-router-dom';
 import { ApiError } from '../../lib/api';
@@ -24,17 +24,17 @@ import { attendanceBase } from './shell';
  * The two numbers at the top are deliberately two: the score as it stands, and the score BEFORE the fatal criterion. A zero from a fatal criterion on top of 84 summed points is a different case from a zero from poor service start to finish, and that difference decides whether the conversation becomes feedback or a coaching plan.
  */
 
-function valueRotulo(tipo: string, value: string | null): string {
+function valueLabel(tipo: string, value: string | null): string {
   if (value === null) return 'Sem resposta';
-  if (tipo === 'conforme') return ROTULO_VALUE[value] ?? value;
+  if (tipo === 'conforme') return LABEL_VALUE[value] ?? value;
   return value;
 }
 
-export function EvaluationPageFicha() {
+export function EvaluationPageRecord() {
   const { id = '' } = useParams();
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
-  const read = useRead<{ fuso: string; ficha: EvaluationFicha }>(
+  const read = useRead<{ fuso: string; ficha: EvaluationRecord }>(
     `/v1/management/quality-review/${id}`,
   );
   if (read.error instanceof ApiError && read.error.status === 404) return <NaoEncontrado />;
@@ -59,7 +59,7 @@ export function EvaluationPageFicha() {
         <Link href={`${base}/quality-review`} className="btn">
           ← Todas as avaliações
         </Link>
-        <span className="etiqueta">{ROTULO_STATE_EVALUATION[c.state] ?? c.state}</span>
+        <span className="etiqueta">{LABEL_STATE_EVALUATION[c.state] ?? c.state}</span>
         {c.categoria ? <span className="etiqueta">{c.categoria}</span> : null}
         {c.sentiment ? <span className="etiqueta">Sentimento {c.sentiment}</span> : null}
       </div>
@@ -73,7 +73,7 @@ export function EvaluationPageFicha() {
               {c.nota === null ? '—' : `${numero(c.nota, 1)} / ${numero(c.notaMaxima)}`}
             </span>
             <span className="den">
-              {ficha.fatalReprovados.length > 0
+              {ficha.fatalRejected.length > 0
                 ? 'zerada por critério fatal'
                 : 'sem critério fatal reprovado'}
             </span>
@@ -108,9 +108,9 @@ export function EvaluationPageFicha() {
           </div>
         </div>
 
-        {ficha.fatalReprovados.length > 0 ? (
+        {ficha.fatalRejected.length > 0 ? (
           <p className="note">
-            <b>Zerada por critério fatal:</b> {ficha.fatalReprovados.join(', ')}. Critério fatal
+            <b>Zerada por critério fatal:</b> {ficha.fatalRejected.join(', ')}. Critério fatal
             reprovado zera a avaliação inteira, por mais alto que tenha sido o resto — e o resto
             está ali ao lado, em “antes do critério fatal”.
           </p>
@@ -160,7 +160,7 @@ export function EvaluationPageFicha() {
                           fatalReprovado(k.tipo, k.fatal, k.value) ? 'etiqueta alerta' : 'etiqueta'
                         }
                       >
-                        {valueRotulo(k.tipo, k.value)}
+                        {valueLabel(k.tipo, k.value)}
                       </span>
                     </td>
                     <td className="num">

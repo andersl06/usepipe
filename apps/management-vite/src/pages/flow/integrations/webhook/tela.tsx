@@ -13,7 +13,7 @@ import {
   testarWebhook,
   type AuthenticationInbound,
   type CabecalhoCustomizado,
-  type TipoAuthentication,
+  type TypeAuthentication,
   type WebhookListado,
 } from './gravar';
 
@@ -42,7 +42,7 @@ function rotuloDoEvento(evento: string): string {
   return EVENTOS_ROTULOS[evento] ?? evento;
 }
 
-function authenticationRotulo(tipo: TipoAuthentication): string {
+function authenticationLabel(tipo: TypeAuthentication): string {
   if (tipo === 'basica') return 'Autenticação básica';
   if (tipo === 'oauth2_client_credentials') return 'OAuth 2.0';
   return 'Sem autenticação';
@@ -60,7 +60,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
 
   const [urls, setUrls] = useState<string[]>(['']);
   const [eventos, setEventos] = useState<string[]>([...TODOS_OS_EVENTOS]);
-  const [tipoAuth, setTipoAuth] = useState<TipoAuthentication>('nenhuma');
+  const [tipoAuth, setTipoAuth] = useState<TypeAuthentication>('nenhuma');
   const [authUser, setAuthUser] = useState('');
   const [authSenha, setAuthSenha] = useState('');
   const [oauthUrl, setOauthUrl] = useState('');
@@ -70,11 +70,11 @@ export function TelaDoWebhook({ base }: { base: string }) {
 
   const [criando, setCriando] = useState(false);
   const [creationNotice, creationSetNotice] = useState('');
-  const [secretsGerados, setSecretsGerados] = useState<{ url: string; secret: string }[]>([]);
+  const [secretsGenerated, setSecretsGenerated] = useState<{ url: string; secret: string }[]>([]);
 
   const [excluindo, setExcluindo] = useState<WebhookListado | null>(null);
   const [excluindoAgora, setExcluindoAgora] = useState(false);
-  const [exclusaoError, exclusaoSetError] = useState<string | null>(null);
+  const [deletionError, deletionSetError] = useState<string | null>(null);
   const [testOf, setTestOf] = useState<Record<string, string>>({});
 
   const urlsAparadas = urls.map((u) => u.trim());
@@ -83,7 +83,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
   const algumaUrlRepeteWebhookExistente = urlsPreenchidas.some((u) =>
     webhooks.some((w) => w.url === u),
   );
-  const authenticationIncompleta =
+  const authenticationIncomplete =
     (tipoAuth === 'basica' && (!authUser.trim() || !authSenha)) ||
     (tipoAuth === 'oauth2_client_credentials' &&
       (!oauthUrl.trim() || !oauthClientId.trim() || !oauthClientSecret));
@@ -93,9 +93,9 @@ export function TelaDoWebhook({ base }: { base: string }) {
     salvarDesabilitado(urlsAparadas) ||
     algumaUrlRepeteWebhookExistente ||
     eventos.length === 0 ||
-    authenticationIncompleta;
+    authenticationIncomplete;
 
-  function authenticationForEnvio(): AuthenticationInbound {
+  function authenticationForSending(): AuthenticationInbound {
     if (tipoAuth === 'basica') return { tipo: 'basica', user: authUser.trim(), senha: authSenha };
     if (tipoAuth === 'oauth2_client_credentials') {
       return {
@@ -125,7 +125,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
     if (salvarBloqueado) return;
     setCriando(true);
     creationSetNotice('');
-    const authentication = authenticationForEnvio();
+    const authentication = authenticationForSending();
     const cabecalhosPreenchidos = cabecalhos
       .map((c) => ({ key: c.key.trim(), value: c.value }))
       .filter((c) => c.key !== '');
@@ -136,13 +136,13 @@ export function TelaDoWebhook({ base }: { base: string }) {
       if (!resultado.ok) {
         setCriando(false);
         creationSetNotice(resultado.error);
-        if (criados.length > 0) setSecretsGerados(criados);
+        if (criados.length > 0) setSecretsGenerated(criados);
         return;
       }
       criados.push({ url: resultado.value.url, secret: resultado.value.secret });
     }
     setCriando(false);
-    setSecretsGerados(criados);
+    setSecretsGenerated(criados);
     limparRascunho();
   }
 
@@ -169,11 +169,11 @@ export function TelaDoWebhook({ base }: { base: string }) {
   async function confirmarExclusao() {
     if (!excluindo) return;
     setExcluindoAgora(true);
-    exclusaoSetError(null);
+    deletionSetError(null);
     const resultado = await excluirWebhook(excluindo.id);
     setExcluindoAgora(false);
     if (!resultado.ok) {
-      exclusaoSetError(resultado.error);
+      deletionSetError(resultado.error);
       return;
     }
     setExcluindo(null);
@@ -240,17 +240,17 @@ export function TelaDoWebhook({ base }: { base: string }) {
               </div>
             ) : (
               <div className="ig-panel-text">
-                {secretsGerados.length > 0 ? (
+                {secretsGenerated.length > 0 ? (
                   <div className="ig-form ig-secret-generated">
                     <p className="ig-typo-16">
                       <strong>
-                        {secretsGerados.length === 1
+                        {secretsGenerated.length === 1
                           ? 'Webhook criado.'
-                          : `${secretsGerados.length} webhooks criados.`}
+                          : `${secretsGenerated.length} webhooks criados.`}
                       </strong>{' '}
                       Copie os segredos agora: por segurança, eles não podem ser mostrados de novo.
                     </p>
-                    {secretsGerados.map((gerado) => (
+                    {secretsGenerated.map((gerado) => (
                       <div key={gerado.url} className="ig-mb3">
                         <p className="ig-typo-14">{gerado.url}</p>
                         <div className="cf-copiavel">
@@ -269,7 +269,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                     <button
                       type="button"
                       className="ig-botao ig-botao--fantasma"
-                      onClick={() => setSecretsGerados([])}
+                      onClick={() => setSecretsGenerated([])}
                     >
                       Já copiei
                     </button>
@@ -430,7 +430,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                                     className="ig-w10"
                                     rotulo="Grant Type"
                                     value="client_credentials"
-                                    somenteRead
+                                    onlyRead
                                   />
                                   <Campo
                                     className="ig-w40"
@@ -570,7 +570,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                           className="ig-botao-icone"
                           aria-label="Excluir webhook"
                           onClick={() => {
-                            exclusaoSetError(null);
+                            deletionSetError(null);
                             setExcluindo(webhook);
                           }}
                         >
@@ -583,7 +583,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                             {rotuloDoEvento(evento)}
                           </span>
                         ))}
-                        <span className="ig-chip">{authenticationRotulo(webhook.authentication.tipo)}</span>
+                        <span className="ig-chip">{authenticationLabel(webhook.authentication.tipo)}</span>
                         {webhook.cabecalhos.length > 0 ? (
                           <span className="ig-chip">
                             {webhook.cabecalhos.length}{' '}
@@ -608,7 +608,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
         aberto={excluindo !== null}
         titulo="Excluir webhook"
         message={<>Quer mesmo excluir o webhook para &quot;{excluindo?.url}&quot;?</>}
-        error={exclusaoError}
+        error={deletionError}
         confirmando={excluindoAgora}
         onConfirmar={() => void confirmarExclusao()}
         onCancelar={() => setExcluindo(null)}
@@ -626,7 +626,7 @@ function Campo({
   placeholder,
   className,
   tipo = 'text',
-  somenteRead,
+  onlyRead,
   aoMudar,
 }: {
   id?: string;
@@ -636,7 +636,7 @@ function Campo({
   placeholder?: string;
   className?: string;
   tipo?: 'text' | 'password';
-  somenteRead?: boolean;
+  onlyRead?: boolean;
   aoMudar?: (value: string) => void;
 }) {
   return (
@@ -644,7 +644,7 @@ function Campo({
       className={[
         'ig-campo',
         error ? 'ig-field--error' : '',
-        somenteRead ? 'ig-campo--desabilitado' : '',
+        onlyRead ? 'ig-campo--desabilitado' : '',
         className ?? '',
       ]
         .join(' ')
@@ -660,7 +660,7 @@ function Campo({
             placeholder={placeholder}
             autoComplete="off"
             autoCapitalize="off"
-            readOnly={somenteRead}
+            readOnly={onlyRead}
             onChange={(evento) => aoMudar?.(evento.target.value)}
           />
         </div>

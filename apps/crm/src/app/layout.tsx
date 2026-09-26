@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { StructureCrm } from '../components/structure-crm';
 import { euAtual } from '../lib/database';
-import { KEY_TEMA } from '../lib/settings-comum';
+import { KEY_THEME } from '../lib/settings-comum';
 // Order matters: the design system's tokens and base sheet load before the app's
 // stylesheet, so the local sheet overrides the base and never the other way around.
 import '@pipe/ui/estilos.css';
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
  * cookies blocked, and an error here would take down the page before the first
  * pixel.
  */
-const APLICAR_TEMA = `try{var t=localStorage.getItem(${JSON.stringify(KEY_TEMA)});if(t==='claro'||t==='escuro'){document.documentElement.dataset.tema=t}}catch(e){}`;
+const APLICAR_TEMA = `try{var t=localStorage.getItem(${JSON.stringify(KEY_THEME)});if(t==='claro'||t==='escuro'){document.documentElement.dataset.tema=t}}catch(e){}`;
 
 export default async function LayoutRaiz({ children }: { children: React.ReactNode }) {
   /*

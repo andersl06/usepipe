@@ -162,7 +162,7 @@ const DO_GESTOR = TODAS.filter(
  *
  * Each person has exactly one, enforced by a partial index on `usuario_papel`. The source "Cria e edita chatbots" maps to `automacao.fluxo.editar`, the permission checked by the portal on creation.
  */
-export const PAPEIS_OF_ACCOUNT = [
+export const ROLES_OF_ACCOUNT = [
   {
     nome: 'admin',
     descricao: 'Edita todos os dados do contrato, gerencia membros, cria e edita chatbots.',
@@ -247,7 +247,7 @@ export const QUEUES_EXAMPLE = [
  * por pessoa, e o `where not exists` não toca em quem já tem. Rodar duas vezes
  * não duplica nem troca papel dado à mão.
  */
-export async function garantirRoleOfAccount(db: DatabasePipe, tenantId: string): Promise<number> {
+export async function ensureRoleOfAccount(db: DatabasePipe, tenantId: string): Promise<number> {
   const resultado = await db.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id, escopo)
     select u.tenant_id, u.id, c.id, 'conta'
@@ -282,7 +282,7 @@ export interface ResultSeed {
   permissions: number;
   queues: number;
 
-  papeisOfAccountData: number;
+  rolesOfAccountData: number;
 }
 
 export async function seed(
@@ -305,7 +305,7 @@ export async function seed(
   const tenantId = registro.id;
 
   const todosOsPapeis = [
-    ...PAPEIS_OF_ACCOUNT.map((p) => ({ ...p, escopo: 'conta' as const })),
+    ...ROLES_OF_ACCOUNT.map((p) => ({ ...p, escopo: 'conta' as const })),
     ...PAPEIS_DIA_1.map((p) => ({ ...p, escopo: 'atendimento' as const })),
   ];
   for (const definition of todosOsPapeis) {
@@ -344,14 +344,14 @@ export async function seed(
 
   // Finally, after account roles exist, assign one to users seeded by another routine before this run or already present after migration 0021.
   // outra rotina antes desta rodada (ou pela 0021 ter passado) ganha o dele.
-  const papeisOfAccountData = await garantirRoleOfAccount(db, tenantId);
+  const rolesOfAccountData = await ensureRoleOfAccount(db, tenantId);
 
   return {
     tenantId,
     papeis: todosOsPapeis.length,
     permissions: CATALOG_PERMISSIONS.length,
     queues: QUEUES_EXAMPLE.length,
-    papeisOfAccountData,
+    rolesOfAccountData,
   };
 }
 
@@ -366,7 +366,7 @@ if (executadoDiretamente) {
       process.stdout.write(
         `semente aplicada: tenant ${resultado.tenantId}, ${resultado.papeis} papéis, ` +
           `${resultado.permissions} permissões, ${resultado.queues} filas, ` +
-          `${resultado.papeisOfAccountData} papéis de conta dados a quem não tinha\n`,
+          `${resultado.rolesOfAccountData} papéis de conta dados a quem não tinha\n`,
       );
     })
     .catch((error: unknown) => {

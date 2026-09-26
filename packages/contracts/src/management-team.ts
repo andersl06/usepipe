@@ -12,7 +12,7 @@ export type RoleInFlow = 'visualizar' | 'personalizado' | 'editar' | 'admin';
 export type PermissionsInFlow = Partial<Record<string, LevelInFlow>>;
 
 /** One `PermissionsList.html` row: source key and its pt-BR title. */
-export interface RecursoOfFlow {
+export interface ResourceOfFlow {
   key: string;
   titulo: string;
 }
@@ -31,7 +31,7 @@ export interface MemberOfFlow {
 export interface TeamOfFlow {
   members: MemberOfFlow[];
   /** As linhas do modal de editar, na ordem da origem. */
-  recursos: RecursoOfFlow[];
+  recursos: ResourceOfFlow[];
   /** Whether the current viewer can add, edit, and remove members. */
   podeGerir: boolean;
 }
@@ -42,7 +42,7 @@ export interface MyPermissionsInFlow {
   papelNoFluxo: RoleInFlow | null;
   permissoes: PermissionsInFlow;
   /** Account permission that currently allows flow editing and grants full visibility. */
-  editaByAccount: boolean;
+  editsByAccount: boolean;
 }
 
 /** Corpo do `POST` e do `PATCH` da equipe. */

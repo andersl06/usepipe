@@ -1,11 +1,11 @@
 import { useSearchParams } from 'react-router-dom';
 import type { ReportEffort } from '../../lib/effort';
 import { useRead } from '../../lib/query';
-import { dataOuNada, durationLonga, numero, percentual } from '../../lib/format';
+import { dataOuNada, durationLong, numero, percentual } from '../../lib/format';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from './shell';
 
-interface EffortResposta {
+interface EffortResponse {
   fuso: string;
   de: string;
   ate: string;
@@ -29,7 +29,7 @@ export function PageEffort() {
   const q = new URLSearchParams();
   if (params.de) q.set('de', params.de);
   if (params.ate) q.set('ate', params.ate);
-  const read = useRead<EffortResposta>(`/v1/management/reports/effort?${q}`);
+  const read = useRead<EffortResponse>(`/v1/management/reports/effort?${q}`);
   if (!read.data) return null;
   const { de, ate, report } = read.data;
   const totalEffort = report.agents.reduce((t, a) => t + a.effortSeg, 0);
@@ -67,19 +67,19 @@ export function PageEffort() {
         <div className="block-rel-grid" style={{ '--rel-colunas': 3 } as React.CSSProperties}>
           <div className="card-rel">
             <span className="r">Esforço somado</span>
-            <span className="v">{durationLonga(totalEffort)}</span>
+            <span className="v">{durationLong(totalEffort)}</span>
             <span className="den">{numero(totalTickets)} tickets</span>
           </div>
           <div className="card-rel">
             <span className="r">Esforço médio por ticket</span>
             <span className="v">
-              {durationLonga(totalTickets > 0 ? totalEffort / totalTickets : null)}
+              {durationLong(totalTickets > 0 ? totalEffort / totalTickets : null)}
             </span>
             <span className="den">soma ÷ soma, nunca média de médias</span>
           </div>
           <div className="card-rel">
             <span className="r">Conversas no período</span>
-            <span className="v">{numero(report.conversationsConsideradas)}</span>
+            <span className="v">{numero(report.conversationsConsidered)}</span>
             <span className="den">
               {numero(report.conversationsWithoutAgent)} sem atendente identificado
             </span>
@@ -134,17 +134,17 @@ export function PageEffort() {
                   <tr key={a.id}>
                     <td className="who">{a.nome}</td>
                     <td className="num">{numero(a.tickets)}</td>
-                    <td className="num">{durationLonga(a.effortSeg)}</td>
-                    <td className="num">{durationLonga(a.effortByTicketSeg)}</td>
+                    <td className="num">{durationLong(a.effortSeg)}</td>
+                    <td className="num">{durationLong(a.effortByTicketSeg)}</td>
                     <td className="num">{numero(a.charsEscritos)} car.</td>
                     <td className="num">{numero(a.charsLidos)} car.</td>
-                    <td className="num">{durationLonga(a.audioOuvidoSeg)}</td>
-                    <td className="num">{durationLonga(a.audioGravadoSeg)}</td>
-                    <td className="num">{durationLonga(a.sessionSeg)}</td>
+                    <td className="num">{durationLong(a.audioOuvidoSeg)}</td>
+                    <td className="num">{durationLong(a.audioGravadoSeg)}</td>
+                    <td className="num">{durationLong(a.sessionSeg)}</td>
                     <td className="num">{percentual(a.occupancy)}</td>
                     <td className="num">
                       {numero(a.charsDeRespostaPronta)} car. ·{' '}
-                      {durationLonga(a.effortCannedResponseSeg)} descontados
+                      {durationLong(a.effortCannedResponseSeg)} descontados
                     </td>
                   </tr>
                 ))}

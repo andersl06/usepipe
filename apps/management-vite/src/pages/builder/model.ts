@@ -91,8 +91,8 @@ export interface Aresta {
 /* ------------------------------------------------------------- constantes */
 
 export const TITULO_PADRAO = 'Novo bloco';
-export const TITULO_OF_ATTENDANCE = 'Atendimento humano';
-export const ROTULO_OF_INBOUND = 'Entrada do usuário';
+export const TITLE_OF_ATTENDANCE = 'Atendimento humano';
+export const LABEL_OF_INBOUND = 'Entrada do usuário';
 export const LIMITE_DE_SAIDAS = 25;
 export const ID_DO_FALLBACK = 'fallback';
 export const ID_DO_FIM = 'end';
@@ -165,7 +165,7 @@ const ARRANJO = { left: 160, top: 96, passoX: 300, passoY: 180, porLinha: 4 } as
 /**
  * A flow that never went through this editor (imported, or published some other way) arrives with `$position` empty on every block, and they'd all be born stacked at the same point. Whoever has no position gets one, in a grid, in map order.
  */
-function arranjarWithoutPosition(mapa: Mapa): void {
+function arrangeWithoutPosition(mapa: Mapa): void {
   const withoutPosition = Object.values(mapa).filter((b) => !b.$position?.top && !b.$position?.left);
   withoutPosition.forEach((block, i) => {
     block.$position = positionAsText({
@@ -183,7 +183,7 @@ export function lerDesenho(desenho: DesenhoDoBuilder): Mapa {
     if (typeof block.id !== 'string' || !block.id) block.id = codigo;
     mapa[codigo] = block;
   }
-  arranjarWithoutPosition(mapa);
+  arrangeWithoutPosition(mapa);
   return mapa;
 }
 
@@ -214,7 +214,7 @@ export function newInbound(id = gerarId()): ItemDeConteudo {
   return {
     input: {
       bypass: false,
-      $cardContent: card(id, 'text/plain', ROTULO_OF_INBOUND, 'right'),
+      $cardContent: card(id, 'text/plain', LABEL_OF_INBOUND, 'right'),
       $invalid: false,
     },
     $invalid: false,
@@ -281,7 +281,7 @@ export function attendanceNewBlock(mapa: Mapa, position: Position, id = gerarId(
     { source: 'context', variable: VARIABLE_OF_FORWARDING, comparison: 'equals', values: ['Success'] },
   ];
   return {
-    ...esqueleto(codigo, TITULO_OF_ATTENDANCE, position),
+    ...esqueleto(codigo, TITLE_OF_ATTENDANCE, position),
     deskStateVersion: VERSION_OF_BLOCK_OF_ATTENDANCE,
     $contentActions: [inbound],
     $enteringCustomActions: [{ $id: `${id}-forward`, type: 'ForwardToDesk', settings: {}, conditions: [] }],
@@ -298,25 +298,25 @@ export function addBlock(mapa: Mapa, block: Block): Mapa {
   return { ...mapa, [block.id]: block };
 }
 
-export function renomearBlock(mapa: Mapa, id: string, titulo: string): Mapa {
+export function renameBlock(mapa: Mapa, id: string, titulo: string): Mapa {
   const block = mapa[id];
   if (!block) return mapa;
   return { ...mapa, [id]: { ...block, $title: titulo } };
 }
 
-export function moverBlock(mapa: Mapa, id: string, position: Position): Mapa {
+export function moveBlock(mapa: Mapa, id: string, position: Position): Mapa {
   const block = mapa[id];
   if (!block) return mapa;
   return { ...mapa, [id]: { ...block, $position: positionAsText(position) } };
 }
 
 /** Replaces the whole block — what the panel does when editing content, actions, and outputs. */
-export function substituirBlock(mapa: Mapa, block: Block): Mapa {
+export function replaceBlock(mapa: Mapa, block: Block): Mapa {
   return { ...mapa, [block.id]: block };
 }
 
 /** "Duplicar" from the context menu: a copy with a new id, "[Cópia]" in the title, 20px to the side. */
-function blockCopia(origem: Block, position: Position, novoId = gerarId()): Block {
+function blockCopy(origem: Block, position: Position, novoId = gerarId()): Block {
   const copia = copiar(origem);
   copia.id = ehAttendance(origem.id) ? `${PREFIX_OF_ATTENDANCE}${novoId}` : novoId;
   copia.root = false;
@@ -334,11 +334,11 @@ function blockCopia(origem: Block, position: Position, novoId = gerarId()): Bloc
 }
 
 /** "Duplicar" conserva o deslocamento curto que o editor mostra ao lado do original. */
-export function duplicarBlock(mapa: Mapa, id: string, novoId = gerarId()): Mapa {
+export function duplicateBlock(mapa: Mapa, id: string, novoId = gerarId()): Mapa {
   const origem = mapa[id];
   if (!origem) return mapa;
   const position = positionOf(origem);
-  const copia = blockCopia(origem, { top: position.top + 20, left: position.left + 20 }, novoId);
+  const copia = blockCopy(origem, { top: position.top + 20, left: position.left + 20 }, novoId);
   return { ...mapa, [copia.id]: copia };
 }
 
@@ -358,8 +358,8 @@ export function copiedTextBlock(texto: string): Block | null {
 }
 
 /** "Colar" (paste) creates a copy at the click position and never overwrites the original. */
-export function colarBlock(mapa: Mapa, origem: Block, position: Position, novoId = gerarId()): Mapa {
-  const copia = blockCopia(origem, position, novoId);
+export function pasteBlock(mapa: Mapa, origem: Block, position: Position, novoId = gerarId()): Mapa {
+  const copia = blockCopy(origem, position, novoId);
   return { ...mapa, [copia.id]: copia };
 }
 
@@ -373,7 +373,7 @@ export function podeExcluir(mapa: Mapa, id: string): boolean {
 /**
  * Deletes the block and whatever pointed to it: a regular output condition disappears, a "Saída de atendimento" is left without a destination, the default output becomes empty.
  */
-export function excluirBlock(mapa: Mapa, id: string): Mapa {
+export function deleteBlock(mapa: Mapa, id: string): Mapa {
   if (!podeExcluir(mapa, id)) return mapa;
   const novo: Mapa = {};
   for (const block of Object.values(mapa)) {

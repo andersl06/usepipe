@@ -3,9 +3,9 @@ import { Campo } from '@pipe/ui';
 import { IconePortal } from '../../components/icones-portal';
 import type { Mapa } from './model';
 import {
-  VARIABLES_OF_SISTEMA,
+  VARIABLES_OF_SYSTEM,
   filterVariables,
-  sistemaFiltrarVariables,
+  systemFilterVariables,
   userVariables,
 } from './variables';
 
@@ -38,7 +38,7 @@ export function VariablesPanel({
   const [aba, setAba] = useState<Aba>('sistema');
   const [search, setSearch] = useState('');
   const user = userVariables(mapa, global);
-  const sistemaFiltrado = sistemaFiltrarVariables(VARIABLES_OF_SISTEMA, search);
+  const sistemaFiltrado = systemFilterVariables(VARIABLES_OF_SYSTEM, search);
   const userFiltered = filterVariables(user, search);
 
   return (

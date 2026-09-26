@@ -5,7 +5,7 @@ import { resolveChannel } from '../database.js';
 import {
   DAILY_LIMIT_BY_CONTACT,
   MAX_CONTACTS_BY_TRIGGER,
-  dispararMessageActive,
+  triggerMessageActive,
   applicationOfActive,
 } from '../domain/message-active.js';
 import type { DestinationOfTrigger } from '../domain/message-active.js';
@@ -95,7 +95,7 @@ export class ActiveMessagesController {
       );
     }
 
-    const resultados = await dispararMessageActive(channel, {
+    const resultados = await triggerMessageActive(channel, {
       tenantId: ator.tenantId,
       channelId: corpo.channelId,
       templateId: corpo.template_id,

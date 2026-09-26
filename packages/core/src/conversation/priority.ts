@@ -5,17 +5,17 @@
 /**
  * Five levels in precedence order; the array index is the weight and the first receives service first. `sem_prioridade` means priority is absent, not medium by default: even `baixa` precedes it. The old `media` default assigned an invented priority to every ticket. Array order is business meaning; inserting a level changes queue order. Use `pesoPrioridade`, never a parallel weight map.
  */
-export const NIVEIS_PRIORITY = ['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'] as const;
+export const LEVELS_PRIORITY = ['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'] as const;
 
-export type NivelPriority = (typeof NIVEIS_PRIORITY)[number];
+export type LevelPriority = (typeof LEVELS_PRIORITY)[number];
 
 /**
  * A prioritization rule may assign any level except absence. Assigning `sem_prioridade` would demote a ticket to the end without anyone requesting it.
  */
-export const NIVEIS_ATRIBUIVEIS = NIVEIS_PRIORITY.filter((n) => n !== 'sem_prioridade');
+export const NIVEIS_ATRIBUIVEIS = LEVELS_PRIORITY.filter((n) => n !== 'sem_prioridade');
 
 
-export const ROTULOS_PRIORITY: Record<NivelPriority, string> = {
+export const LABELS_PRIORITY: Record<LevelPriority, string> = {
   maxima: 'Máxima',
   alta: 'Alta',
   media: 'Média',
@@ -26,9 +26,9 @@ export const ROTULOS_PRIORITY: Record<NivelPriority, string> = {
 /**
  * Sort weight: lower is served first. Unknown values go to the END rather than the middle; assigning them invented priority is the defect this function prevents.
  */
-export function pesoPriority(nivel: string): number {
-  const position = (NIVEIS_PRIORITY as readonly string[]).indexOf(nivel);
-  return position === -1 ? NIVEIS_PRIORITY.length : position;
+export function weightPriority(nivel: string): number {
+  const position = (LEVELS_PRIORITY as readonly string[]).indexOf(nivel);
+  return position === -1 ? LEVELS_PRIORITY.length : position;
 }
 
 /*

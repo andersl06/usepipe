@@ -69,12 +69,12 @@ export const LIMITE_COMENTARIOS = 20;
 /**
  * Read stored classes from best to worst. `classe` has different vocabulary for CSAT (`satisfeito`/`insatisfeito`) and NPS (`promotor`/`neutro`/`detrator`). Show stored classification without recomputing historical scores, which could introduce new thresholds.
  */
-const ORDER_CLASSE = ['promotor', 'satisfeito', 'neutro', 'insatisfeito', 'detrator'];
+const ORDER_CLASS = ['promotor', 'satisfeito', 'neutro', 'insatisfeito', 'detrator'];
 
 function ordenarClasses(a: FatiaDeClasse, b: FatiaDeClasse): number {
-  const ia = ORDER_CLASSE.indexOf(a.name);
-  const ib = ORDER_CLASSE.indexOf(b.name);
-  if (ia !== ib) return (ia < 0 ? ORDER_CLASSE.length : ia) - (ib < 0 ? ORDER_CLASSE.length : ib);
+  const ia = ORDER_CLASS.indexOf(a.name);
+  const ib = ORDER_CLASS.indexOf(b.name);
+  if (ia !== ib) return (ia < 0 ? ORDER_CLASS.length : ia) - (ib < 0 ? ORDER_CLASS.length : ib);
   return a.name < b.name ? -1 : 1;
 }
 

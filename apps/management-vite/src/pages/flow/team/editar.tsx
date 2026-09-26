@@ -8,14 +8,14 @@ import { atualizarLeituras } from '../../../lib/actions';
 import { api, ApiError } from '../../../lib/api';
 import { useRead } from '../../../lib/query';
 import { NaoEncontrado } from '../../nao-encontrado';
-import { ContactBarras, contactBase, useContact } from '../contact';
+import { ContactBars, contactBase, useContact } from '../contact';
 import { BotaoBds, PageHeader, Role } from '../settings/pecas';
-import { PermissionsLista } from './tela';
+import { PermissionsList } from './tela';
 import {
-  NIVEIS_OF_EDIT,
-  editNivel,
-  permissionsOfNivelOfEdit,
-  type EditNivel,
+  LEVELS_OF_EDIT,
+  editLevel,
+  permissionsOfLevelOfEdit,
+  type EditLevel,
 } from './permissions';
 import '../settings/settings.css';
 import './equipe.css';
@@ -32,7 +32,7 @@ export function EditMemberPage() {
 
   return (
     <div className="pt-app">
-      <ContactBarras ativo="Equipe" />
+      <ContactBars ativo="Equipe" />
       <main>
         {withoutPermission ? (
           <p className="cf-aviso cf-container" role="alert">
@@ -74,8 +74,8 @@ function Edit({
   recursos: TeamOfFlow['recursos'];
 }) {
   const navegar = useNavigate();
-  const [nivel, setNivel] = useState<EditNivel>(() =>
-    editNivel(member.roleInFlow, recursos, member.permissions),
+  const [nivel, setNivel] = useState<EditLevel>(() =>
+    editLevel(member.roleInFlow, recursos, member.permissions),
   );
   const [permissions, setPermissions] = useState<PermissionsInFlow>(member.permissions);
   const [enviando, setEnviando] = useState(false);
@@ -89,9 +89,9 @@ function Edit({
         (member.permissions[recurso.key] ?? 'nenhum'),
     );
 
-  function escolher(proximo: EditNivel) {
+  function escolher(proximo: EditLevel) {
     setNivel(proximo);
-    setPermissions(permissionsOfNivelOfEdit(proximo, recursos, permissions));
+    setPermissions(permissionsOfLevelOfEdit(proximo, recursos, permissions));
   }
 
   async function salvar() {
@@ -150,17 +150,17 @@ function Edit({
             <h2>Permissões</h2>
             <Selection
               value={nivel}
-              onChange={(evento) => escolher(evento.currentTarget.value as EditNivel)}
+              onChange={(evento) => escolher(evento.currentTarget.value as EditLevel)}
               aria-label="Permissões"
             >
-              {NIVEIS_OF_EDIT.map((option) => (
+              {LEVELS_OF_EDIT.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.rotulo}
                 </option>
               ))}
             </Selection>
           </div>
-          <PermissionsLista
+          <PermissionsList
             recursos={recursos}
             permissions={permissions}
             editavel={nivel === 'personalizado'}

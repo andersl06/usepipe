@@ -42,14 +42,14 @@ function postarJson(caminho: string, corpo: unknown): Promise<Response> {
 }
 
 /** O primeiro passo do cadastro embutido: a `api` gera o estado e diz o modo. */
-export async function iniciarRegistrationEmbedded(): Promise<RegistrationStart> {
+export async function startRegistrationEmbedded(): Promise<RegistrationStart> {
   const resposta = await chamarApi('/v1/channels/whatsapp/estado', { method: 'POST' });
   if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
   return { ok: true, ...((await resposta.json()) as Omit<RegistrationStart, 'ok'>) };
 }
 
 /** The last one: the Facebook code becomes a channel in the `api`. */
-export async function concluirRegistrationEmbedded(
+export async function completeRegistrationEmbedded(
   credentials: RegistrationCredentials,
 ): Promise<ResultadoDaAcao> {
   const resposta = await postarJson('/v1/channels/whatsapp', {

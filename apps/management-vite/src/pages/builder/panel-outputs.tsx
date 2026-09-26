@@ -1,13 +1,13 @@
 import { Icone } from '@pipe/ui';
-import { IconeManagement } from '../../components/icones-management';
+import { ManagementIcon } from '../../components/icones-management';
 import { Selection } from '../../components/selection';
 import type { Block, Mapa, SaidaDoEditor } from './model';
 import { OUTPUTS_OF_ATTENDANCE, ehAttendance } from './model';
 import {
   ROTULOS_DAS_SAIDAS,
   adicionarSaida,
-  outputDefinirConditions,
-  outputDefinirDestination,
+  outputSetConditions,
+  outputSetDestination,
   definirSaidaPadrao,
   outputErrors,
   moverSaida,
@@ -24,7 +24,7 @@ import { CabecalhoInfo } from './cabecalho-info';
  * On the attendance block (`desk:`), the four outputs the editor created are the "Saídas de atendimento": a fixed condition (the closed `Ticket`, or the forwarding that failed), with only the destination to choose.
  */
 
-function rotuloOfOutputOfAttendance(saida: SaidaDoEditor): string {
+function labelOfOutputOfAttendance(saida: SaidaDoEditor): string {
   if (saida.$isDeskDefaultOutput) return 'sem atendente disponível (erro ao encaminhar)';
   const status = saida.conditions?.find((c) => c.variable === 'input.content@status')?.values?.[0];
   return OUTPUTS_OF_ATTENDANCE.find((s) => s.status === status)?.rotulo ?? 'saída de atendimento';
@@ -47,7 +47,7 @@ export function OutputsPanel({
   const existe = (id: string): boolean => id in mapa;
   const attendance = ehAttendance(block.id);
 
-  const destinationSeletor = (value: string, onEscolher: (id: string) => void, rotulo: string) => (
+  const destinationSelector = (value: string, onEscolher: (id: string) => void, rotulo: string) => (
     <label className="bl-campo">
       <span className="sub">{rotulo}</span>
       <Selection
@@ -125,9 +125,9 @@ export function OutputsPanel({
             ) : (
               <div key={status} className="bl-saida">
                 <p>{titulo.replace('+ Condição para ', '')}</p>
-                {destinationSeletor(
+                {destinationSelector(
                   saidas[indice]!.stateId ?? '',
-                  (id) => onMudar(outputDefinirDestination(block, indice, id)),
+                  (id) => onMudar(outputSetDestination(block, indice, id)),
                   ROTULOS_DAS_SAIDAS.irPara,
                 )}
                 <button
@@ -138,7 +138,7 @@ export function OutputsPanel({
                     onMudar({ ...block, $conditionOutputs: saidas.filter((_, i) => i !== indice) })
                   }
                 >
-                  <IconeManagement nome="lixeira" tamanho={18} />
+                  <ManagementIcon nome="lixeira" tamanho={18} />
                 </button>
               </div>
             );
@@ -173,7 +173,7 @@ export function OutputsPanel({
               <header className="bl-saida-cabecalho">
                 <b>
                   {fixa
-                    ? rotuloOfOutputOfAttendance(saida)
+                    ? labelOfOutputOfAttendance(saida)
                     : `${ROTULOS_DAS_SAIDAS.condicao} ${i + 1}`}
                 </b>
                 <span className="bl-output-order">
@@ -205,7 +205,7 @@ export function OutputsPanel({
                       aria-label="Deletar"
                       onClick={() => onMudar(removerSaida(block, i))}
                     >
-                      <IconeManagement nome="lixeira" tamanho={18} />
+                      <ManagementIcon nome="lixeira" tamanho={18} />
                     </button>
                   ) : null}
                 </span>
@@ -213,13 +213,13 @@ export function OutputsPanel({
               {fixa ? null : (
                 <ConditionsEditor
                   conditions={saida.conditions ?? []}
-                  onMudar={(conditions) => onMudar(outputDefinirConditions(block, i, conditions))}
+                  onMudar={(conditions) => onMudar(outputSetConditions(block, i, conditions))}
                   rotuloAdicionar="+ Adicionar condição"
                 />
               )}
-              {destinationSeletor(
+              {destinationSelector(
                 saida.stateId ?? '',
-                (id) => onMudar(outputDefinirDestination(block, i, id)),
+                (id) => onMudar(outputSetDestination(block, i, id)),
                 ROTULOS_DAS_SAIDAS.irPara,
               )}
               {errors.length > 0 ? (
@@ -242,7 +242,7 @@ export function OutputsPanel({
         <CabecalhoInfo titulo={ROTULOS_DAS_SAIDAS.saidaPadrao} aberto>
           <p>{ROTULOS_DAS_SAIDAS.saidaPadraoInfo}</p>
         </CabecalhoInfo>
-        {destinationSeletor(
+        {destinationSelector(
           block.$defaultOutput?.stateId ?? '',
           (id) => onMudar(definirSaidaPadrao(block, id)),
           ROTULOS_DAS_SAIDAS.irPara,

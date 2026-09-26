@@ -6,7 +6,7 @@ import { useContact } from '../flow/contact';
 import { attendanceBase } from './shell';
 import {
   ROTULO_AVALIADOR,
-  ROTULO_STATE_EVALUATION,
+  LABEL_STATE_EVALUATION,
   type QualityReviewPanel,
 } from '../../lib/quality-review';
 import type { Catalogos } from '../../lib/history';
@@ -19,7 +19,7 @@ import {
   uuidOuNada,
 } from '../../lib/format';
 
-interface QualityReviewResposta {
+interface QualityReviewResponse {
   fuso: string;
   de: string;
   ate: string;
@@ -60,7 +60,7 @@ export function PageQualityReview() {
   for (const key of ['agent', 'avaliador', 'de', 'ate'] as const) {
     if (params[key]) q.set(key, params[key] as string);
   }
-  const read = useRead<QualityReviewResposta>(`/v1/management/quality-review?${q}`);
+  const read = useRead<QualityReviewResponse>(`/v1/management/quality-review?${q}`);
   if (!read.data) return null;
   const { fuso, de, ate, catalogos, panel } = read.data;
 
@@ -153,9 +153,9 @@ export function PageQualityReview() {
             <span className="r">Quem avaliou</span>
             <span className="v">{numero(panel.evaluations.length)}</span>
             <span className="den">
-              {panel.byAvaliador.length === 0
+              {panel.byEvaluator.length === 0
                 ? 'nenhuma avaliação no período'
-                : panel.byAvaliador
+                : panel.byEvaluator
                     .map((p) => `${numero(p.total)} ${ROTULO_AVALIADOR[p.tipo] ?? p.tipo}`)
                     .join(' · ')}
             </span>
@@ -258,7 +258,7 @@ export function PageQualityReview() {
                     </td>
                     <td>
                       <span className={a.nota === 0 ? 'etiqueta alerta' : 'etiqueta'}>
-                        {ROTULO_STATE_EVALUATION[a.state] ?? a.state}
+                        {LABEL_STATE_EVALUATION[a.state] ?? a.state}
                       </span>
                     </td>
                     <td>

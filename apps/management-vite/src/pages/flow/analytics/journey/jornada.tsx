@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { IconePortal } from '../../../../components/icones-portal';
 import { Selection } from '../../../../components/selection';
 import type { ArestaDaJornada } from '@pipe/core/analytics';
-import { PageHeader, Card, PeriodSeletor } from '../pecas';
+import { PageHeader, Card, PeriodSelector } from '../pecas';
 import { desenharSankey } from './sankey';
 
 /**
@@ -105,7 +105,7 @@ export function ContactsJourney({
             </label>
           </div>
           <div className="jr-period">
-            <PeriodSeletor de={de} ate={ate} min={min} max={max} aoAplicar={aoAplicarPeriodo} />
+            <PeriodSelector de={de} ate={ate} min={min} max={max} aoAplicar={aoAplicarPeriodo} />
           </div>
         </div>
 

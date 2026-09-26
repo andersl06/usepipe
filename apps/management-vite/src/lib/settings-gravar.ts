@@ -11,7 +11,7 @@ export interface PedidoDeRegraSla {
   alvo: string;
   prazoSeg: number;
   alertaSeg?: number | null;
-  scopeTipo?: string;
+  scopeType?: string;
   scopeId?: string | null;
   active?: boolean;
 }

@@ -28,7 +28,7 @@ let sessionComplete: string;
 /** Only edits the flow: proves that reading the connection does not require the integration permission. */
 let sessionOnlyEditor: string;
 /** None of the three. */
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 /** Tenant B, with all three permissions — proves the tenant comes from the session. */
 let sessionOfOtherTenant: string;
 let flowId: string;
@@ -130,7 +130,7 @@ beforeAll(async () => {
   api = await upApi(0);
   sessionComplete = await openSession(a, completo);
   sessionOnlyEditor = await openSession(a, soEditor);
-  sessionWithoutPoder = await openSession(a, semPoder);
+  sessionWithoutAuthority = await openSession(a, semPoder);
   sessionOfOtherTenant = await openSession(b, completoDoB);
   flowId = await createFlow(a, `Fluxo de integração ${randomUUID().slice(0, 6)}`);
 }, 180_000);
@@ -197,7 +197,7 @@ describe('Manage flow access keys', () => {
   });
 
   it('Return 403 without `chave_api.gerenciar` and 404 for invalid or cross-tenant IDs', async () => {
-    const semPoder = await post(`/v1/management/flows/${flowId}/keys`, sessionWithoutPoder, {
+    const semPoder = await post(`/v1/management/flows/${flowId}/keys`, sessionWithoutAuthority, {
       nome: 'Proibida',
     });
     expect(semPoder.status).toBe(403);
@@ -224,7 +224,7 @@ describe('Manage flow access keys', () => {
     const outroTenant = await del(`/v1/management/flows/${flowId}/keys/${keyId}`, sessionOfOtherTenant);
     expect(outroTenant.status).toBe(404);
 
-    const semPoder = await del(`/v1/management/flows/${flowId}/keys/${keyId}`, sessionWithoutPoder);
+    const semPoder = await del(`/v1/management/flows/${flowId}/keys/${keyId}`, sessionWithoutAuthority);
     expect(semPoder.status).toBe(403);
 
     const first = await del(`/v1/management/flows/${flowId}/keys/${keyId}`, sessionComplete);
@@ -477,7 +477,7 @@ describe('Send outgoing webhooks for integrations', () => {
     });
     const id = criado.corpo.id;
 
-    const semPoder = await get(`/v1/management/webhooks`, sessionWithoutPoder);
+    const semPoder = await get(`/v1/management/webhooks`, sessionWithoutAuthority);
     expect(semPoder.status).toBe(403);
 
     const outroTenant = await patch(`/v1/management/webhooks/${id}`, sessionOfOtherTenant, { active: false });
@@ -588,14 +588,14 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
     expect(teste.status).toBe(200);
     expect(teste.corpo.ok).toBe(true);
     expect(chamadas).toHaveLength(2);
-    const [chamadaToken, chamadaDestination] = chamadas as [
+    const [chamadaToken, callDestination] = chamadas as [
       [string, RequestInit | undefined],
       [string, RequestInit | undefined],
     ];
     expect(chamadaToken[0]).toBe(urlToken);
     expect(String(chamadaToken[1]?.body)).toContain('grant_type=client_credentials');
     expect(String(chamadaToken[1]?.body)).toContain('client_secret=segredo-oauth-xyz');
-    const headersDestination = chamadaDestination[1]?.headers as Record<string, string>;
+    const headersDestination = callDestination[1]?.headers as Record<string, string>;
     expect(headersDestination['authorization']).toBe('Bearer token-de-mentira');
   });
 

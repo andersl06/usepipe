@@ -102,7 +102,7 @@ async function nomeDoTenant(tx: TransactionPipe): Promise<string> {
 /**
  * Shared operation for `criarConvite` and `reenviarConvite` in the caller's SAME transaction: issue a new token, invalidate any open invitation to that email, and insert the row. Keeping this in one helper prevents the two paths from disagreeing on "resend": today it literally creates a new invitation, not a separate table or counter.
  */
-async function emitirInvitation(
+async function issueInvitation(
   tx: TransactionPipe,
   tenantId: string,
   data: { email: string; role: string; createdBy?: string | null },
@@ -175,7 +175,7 @@ export async function createInvitation(
   }
 
   const { convite, tenantNome } = await noTenant(tenantId, async (tx) => ({
-    convite: await emitirInvitation(tx, tenantId, { email, role: nomeDoPapel, createdBy: dados.criadoPor }),
+    convite: await issueInvitation(tx, tenantId, { email, role: nomeDoPapel, createdBy: dados.criadoPor }),
     tenantNome: await nomeDoTenant(tx),
   }));
   // Send email outside the transaction: delivery must not delay commit or roll it back on failure.
@@ -202,7 +202,7 @@ export async function resendInvitation(
     const alvo = rows[0];
     if (!alvo) throw PipeError.naoEncontrado('Convite');
     return {
-      convite: await emitirInvitation(tx, tenantId, { email: alvo.email, role: alvo.role, createdBy }),
+      convite: await issueInvitation(tx, tenantId, { email: alvo.email, role: alvo.role, createdBy }),
       tenantNome: await nomeDoTenant(tx),
     };
   });
@@ -306,7 +306,7 @@ export async function acceptInvitation(
 
     // Run in series, never `Promise.all`: parallel queries within the transaction disrupt
     // `pipe.tenant_id` and may run without a tenant; see README.
-    const userId = await garantirUser(tx, achado.tenant_id, {
+    const userId = await ensureUser(tx, achado.tenant_id, {
       email: achado.email,
       name: pessoa?.nome ?? nomeProvisorio(achado.email),
       avatarUrl: pessoa?.avatarUrl ?? null,
@@ -348,7 +348,7 @@ export async function acceptInvitation(
 /**
  * Use `on conflict` because the invited email may belong to an inactive user. A returning person is the same user, and a second row would violate `(tenant_id, email)` anyway.
  */
-async function garantirUser(
+async function ensureUser(
   tx: TransactionPipe,
   tenantId: string,
   dados: { email: string; name: string; avatarUrl: string | null },

@@ -2,18 +2,18 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Icone } from '@pipe/ui';
 import Link from '../../components/link';
-import { IconeManagement } from '../../components/icones-management';
+import { ManagementIcon } from '../../components/icones-management';
 import { FieldPeriod, PanelFilters } from '../../components/panel-filters';
 import { Selection } from '../../components/selection';
 import { Dica } from '../../components/metrica';
 import { useRead } from '../../lib/query';
 import { type ReportSatisfaction, type GroupSatisfaction } from '../../lib/satisfaction';
 import { dataHora, dataOuNada, numero, percentual } from '../../lib/format';
-import { periodCurrent, periodRotulo } from '../../lib/periodos';
+import { periodCurrent, periodLabel } from '../../lib/periodos';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from './shell';
 
-interface SatisfactionResposta {
+interface SatisfactionResponse {
   fuso: string;
   de: string;
   ate: string;
@@ -80,8 +80,8 @@ export function PageSatisfaction() {
   const q = new URLSearchParams();
   if (params.de) q.set('de', params.de);
   if (params.ate) q.set('ate', params.ate);
-  const read = useRead<SatisfactionResposta>(`/v1/management/reports/satisfaction?${q}`);
-  const [panelAberto, setPanelAberto] = useState(false);
+  const read = useRead<SatisfactionResponse>(`/v1/management/reports/satisfaction?${q}`);
+  const [panelOpen, setPanelOpen] = useState(false);
   if (!read.data) return null;
   const { fuso, de, ate, report } = read.data;
   const groups = report.groups;
@@ -95,7 +95,7 @@ export function PageSatisfaction() {
   const totalRespostas = groups.reduce((t, g) => t + g.respostas, 0);
   const taxa = report.encerradas > 0 ? totalRespostas / report.encerradas : null;
   const unico = groups.length === 1 ? groups[0] : undefined;
-  const mediasByEscala = groups.map((g) => `${escalaDe(g)}: ${numero(g.media, 2)}`).join(' · ');
+  const averagesByScale = groups.map((g) => `${escalaDe(g)}: ${numero(g.media, 2)}`).join(' · ');
 
   return (
     <>
@@ -109,11 +109,11 @@ export function PageSatisfaction() {
             type="button"
             className="btn fantasma rel-period"
             title={`${de} → ${ate}`}
-            onClick={() => setPanelAberto(true)}
+            onClick={() => setPanelOpen(true)}
           >
-            {periodRotulo(periodCurrent(de, ate, fuso))}
+            {periodLabel(periodCurrent(de, ate, fuso))}
           </button>
-          <button type="button" className="btn" onClick={() => setPanelAberto(true)}>
+          <button type="button" className="btn" onClick={() => setPanelOpen(true)}>
             <Icone nome="funil" tamanho={20} />
             Filtros
           </button>
@@ -121,8 +121,8 @@ export function PageSatisfaction() {
       </div>
 
       <PanelFilters
-        aberto={panelAberto}
-        aoFechar={() => setPanelAberto(false)}
+        aberto={panelOpen}
+        aoFechar={() => setPanelOpen(false)}
         acao={`${base}/reports/satisfaction`}
         limpar={null}
       >
@@ -148,7 +148,7 @@ export function PageSatisfaction() {
                   ? `Média das notas na ${escalaDe(unico)}.`
                   : groups.length === 0
                     ? 'Nenhuma pesquisa respondida no período.'
-                    : `Há mais de uma escala no período, e nota de escalas diferentes não se soma. ${mediasByEscala}.`
+                    : `Há mais de uma escala no período, e nota de escalas diferentes não se soma. ${averagesByScale}.`
               }
             />
             <span className="v">{unico ? numero(unico.media, 2) : '—'}</span>
@@ -268,7 +268,7 @@ export function PageSatisfaction() {
             ))}
           </div>
           <button type="button" className="iconbtn" title="Baixar tabela" aria-label="Baixar tabela" disabled>
-            <IconeManagement nome="baixar" tamanho={24} />
+            <ManagementIcon nome="baixar" tamanho={24} />
           </button>
         </div>
 

@@ -2,7 +2,7 @@
  * Pure screen-side WhatsApp/Instagram channel types and rules mirror `apps/api/src/controladores/canais.ts` and `canais-instagram.ts` without importing backend Postgres code. Omit `./api` intentionally so `tests/canais.test.ts` can run without Vite or `import.meta.env`.
  */
 
-export interface ChannelWhatsAppVisivel {
+export interface ChannelWhatsAppVisible {
   id: string;
   nome: string;
   ativo: boolean;
@@ -56,7 +56,7 @@ export interface PreferencesRequest {
   alertRecategorization?: { ativo?: boolean; emails?: string[] };
 }
 
-export interface ChannelInstagramVisivel {
+export interface ChannelInstagramVisible {
   id: string;
   nome: string;
   ativo: boolean;
@@ -68,7 +68,7 @@ export interface ChannelInstagramVisivel {
   webhookUrl: string;
   criadoEm: string;
 }
-export interface ChannelMessengerVisivel { id: string; nome: string; ativo: boolean; pageId: string | null; state: 'conectado' | 'desligado'; webhookUrl: string; criadoEm: string }
+export interface ChannelMessengerVisible { id: string; nome: string; ativo: boolean; pageId: string | null; state: 'conectado' | 'desligado'; webhookUrl: string; criadoEm: string }
 
 /** Use the same profile limits as `apps/api/src/dominio/whatsapp/perfil.ts` for screen counters only. */
 export const LIMITES_DO_PERFIL = {

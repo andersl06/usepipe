@@ -2,18 +2,18 @@ import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { CardClosureTicket, avisarTicketFinalizado, type ClosureTag } from '@pipe/ui';
 import type { EtiquetaDoDesk } from '@pipe/contracts';
-import type { LinhaConversationAberta } from '../lib/monitoring';
+import type { ConversationOpenRow } from '../lib/monitoring';
 import { api } from '../lib/api';
 import { useRead } from '../lib/query';
 
 /**
  * The Monitoring menu keeps the Gestão operation route but reuses Desk's closing card because Blip shows one `close-modal` in both places.
  */
-export function ModalFinalizarMonitoring({
+export function ModalFinishMonitoring({
   linha,
   aoFechar,
 }: {
-  linha: LinhaConversationAberta;
+  linha: ConversationOpenRow;
   aoFechar: () => void;
 }) {
   const [selecionadas, setSelecionadas] = useState<string[]>([]);
@@ -25,7 +25,7 @@ export function ModalFinalizarMonitoring({
     id: e.id,
     nome: e.nome,
     cor: e.cor,
-    obrigatoriaInClosure: e.requiredInClosure,
+    requiredInClosure: e.requiredInClosure,
   }));
 
   useEffect(() => {

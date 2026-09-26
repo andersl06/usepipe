@@ -37,7 +37,7 @@ export async function loadRulesOfPriorityActive(
 /**
  * Deterministic evaluation order: `fila` scope (0) before `tenant` (1), then older creation time, then ID for exact ties.
  */
-export function ordenarRulesOfPriority(
+export function sortRulesOfPriority(
   regras: readonly RulePriorityForEngine[],
 ): RulePriorityForEngine[] {
   return [...regras].sort((a, b) => {
@@ -68,11 +68,11 @@ export interface ContextOfPriority {
 /**
  * Return the first active rule whose scope and condition match, checking cheap scope first. `null` leaves `conversa.prioridade` at default `sem_prioridade`, preserving behavior without registered rules.
  */
-export function avaliarPriority(
+export function evaluatePriority(
   regras: readonly RulePriorityForEngine[],
   context: ContextOfPriority,
 ): string | null {
-  for (const regra of ordenarRulesOfPriority(regras)) {
+  for (const regra of sortRulesOfPriority(regras)) {
     if (regra.scopeType === 'fila' && regra.scopeId !== (context.queueId ?? null)) continue;
     if (
       !conditionEmpty(regra.condition) &&

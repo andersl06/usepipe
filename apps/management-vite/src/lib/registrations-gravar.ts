@@ -8,7 +8,7 @@ import type { OperadorDeRegra } from './rule-queue';
  */
 
 /** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */
-export async function alternarQueue(id: string, active: boolean): Promise<Resultado<void>> {
+export async function toggleQueue(id: string, active: boolean): Promise<Resultado<void>> {
   try {
     await api.patch(`/v1/management/agents/queues/${id}`, { ativa: !active });
     atualizarLeituras();
@@ -18,7 +18,7 @@ export async function alternarQueue(id: string, active: boolean): Promise<Result
   }
 }
 
-export async function excluirQueue(id: string): Promise<Resultado<void>> {
+export async function deleteQueue(id: string): Promise<Resultado<void>> {
   try {
     await api.delete(`/v1/management/agents/queues/${id}`);
     atualizarLeituras();
@@ -85,7 +85,7 @@ export async function editQueue(
 }
 
 /** Link an agent to a queue through `POST .../filas/:id/atendentes`; omitting capacity uses the queue default. */
-export async function vincularAgentInQueue(
+export async function linkAgentInQueue(
   queueId: string,
   agentId: string,
   capacityOverride?: number | null,
@@ -103,7 +103,7 @@ export async function vincularAgentInQueue(
 }
 
 /** Desvincular atendente da fila — `DELETE .../filas/:id/atendentes/:atendenteId`. */
-export async function queueDesvincularAgent(
+export async function queueUnlinkAgent(
   queueId: string,
   agentId: string,
 ): Promise<Resultado<void>> {
@@ -160,7 +160,7 @@ export async function editRuleQueue(
   }
 }
 
-export async function excluirRuleQueue(id: string): Promise<Resultado<void>> {
+export async function deleteRuleQueue(id: string): Promise<Resultado<void>> {
   try {
     await api.delete(`/v1/management/rules/attendance/${id}`);
     atualizarLeituras();

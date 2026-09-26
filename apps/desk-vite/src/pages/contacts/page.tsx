@@ -8,7 +8,7 @@ import { Avatar } from '../../components/avatar';
 import { channelOf, numeroDoTicket } from '../../lib/channel';
 import { dataAbreviada } from '../../lib/format';
 import { displayName } from '../../lib/order';
-import { agruparContacts, type ListaContact, type ContactsOrder } from '../../lib/contacts';
+import { groupContacts, type ListContact, type ContactsOrder } from '../../lib/contacts';
 import { Thread } from '../attendances/thread';
 
 /**
@@ -24,15 +24,15 @@ export function PageContacts() {
   const id = selectedContact?.contactId ?? null;
   const ticketId = selectedContact?.ticketId ?? null;
 
-  const lista = useRead<{ contacts: ListaContact[] }>(
+  const lista = useRead<{ contacts: ListContact[] }>(
     `/v1/desk/contatos${search.trim().length >= 2 ? `?search=${encodeURIComponent(search.trim())}` : ''}`,
   );
-  const contact = useRead<{ contact: ContactFicha; history: ConversationOfHistory[] }>(
+  const contact = useRead<{ contact: ContactRecord; history: ConversationOfHistory[] }>(
     id ? `/v1/desk/contacts/${id}` : null,
   );
   const ticket = useRead<TicketDoDesk>(ticketId ? `/v1/desk/tickets/${ticketId}` : null);
   const groups = useMemo(
-    () => agruparContacts(lista.data?.contacts ?? [], order),
+    () => groupContacts(lista.data?.contacts ?? [], order),
     [lista.data, order],
   );
 
@@ -122,7 +122,7 @@ export function PageContacts() {
                         <b>
                           {displayName({
                             contactName: c.nome,
-                            contactTelefone: c.telefone,
+                            contactPhone: c.telefone,
                             contactEmail: c.email,
                             contactId: c.id,
                           })}
@@ -151,7 +151,7 @@ export function PageContacts() {
             conversationId={ticket.data.ticket.id}
             itens={ticket.data.itens}
             agora={new Date()}
-            somenteRead
+            onlyRead
           />
         ) : (
           <div className="dk-contacts-empty">
@@ -315,7 +315,7 @@ export function PageContacts() {
   );
 }
 
-interface ContactFicha {
+interface ContactRecord {
   id: string;
   nome: string | null;
   telefone: string | null;

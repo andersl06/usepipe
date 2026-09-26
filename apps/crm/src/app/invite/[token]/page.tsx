@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Simbolo } from '@pipe/ui';
-import { inboundWithGoogleUrl, verInvitation } from '../../../lib/session';
+import { inboundWithGoogleUrl, viewInvitation } from '../../../lib/session';
 
 /**
  * The invite as seen by someone still on the outside.
@@ -32,7 +32,7 @@ export default async function PageInvitation({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
-  const invitation = await verInvitation(token);
+  const invitation = await viewInvitation(token);
 
   return (
     <main className="login">

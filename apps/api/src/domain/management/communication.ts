@@ -4,7 +4,7 @@ import type { CATEGORIAS_TEMPLATE } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
-import { exigirPermission } from '../../session.js';
+import { requirePermission } from '../../session.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
@@ -276,7 +276,7 @@ export async function createResponseReady(
   userId: string,
   pedido: PedidoDeRespostaPronta,
 ): Promise<{ id: string }> {
-  await exigirPermission(tx, userId, RESPONSE_READY_MANAGE);
+  await requirePermission(tx, userId, RESPONSE_READY_MANAGE);
 
   const atalho = atalhoConferido(pedido.shortcut);
   const titulo = tituloConferido(pedido.title);
@@ -316,7 +316,7 @@ export async function editarRespostaPronta(
   pedido: RequestOfEditOfResponseReady,
 ): Promise<RespostaProntaListada> {
   const atual = await respostaProntaViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, RESPONSE_READY_MANAGE);
+  await requirePermission(tx, usuarioId, RESPONSE_READY_MANAGE);
 
   // Sem anotação de tipo — literal fresco aceita `Record<string, unknown>` em `diferenca`.
   const antes = { ...atual };
@@ -382,7 +382,7 @@ export async function excluirRespostaPronta(
   id: string,
 ): Promise<void> {
   const atual = await respostaProntaViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, RESPONSE_READY_MANAGE);
+  await requirePermission(tx, usuarioId, RESPONSE_READY_MANAGE);
 
   await tx.delete(respostaPronta).where(and(eq(respostaPronta.tenantId, tid), eq(respostaPronta.id, id)));
 

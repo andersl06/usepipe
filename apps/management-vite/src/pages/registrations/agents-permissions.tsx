@@ -3,8 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Avatar, Botao, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import {
-  permissionsCaminho,
-  salvarPermissions,
+  permissionsPath,
+  savePermissions,
   type AgentPermissions,
 } from '../../lib/agents-gravar';
 import { permissionsDescription } from '../../lib/agents';
@@ -25,7 +25,7 @@ export function AgentPagePermissions() {
   const base = attendanceBase(contact.tipo, contact.id);
   const ids = (params.get('agents') ?? '').split(',').filter(Boolean);
 
-  const caminho = permissionsCaminho(ids);
+  const caminho = permissionsPath(ids);
   const read = useRead<AgentPermissions>(caminho);
 
   const [editado, setEditado] = useState<Record<string, boolean>>({});
@@ -56,11 +56,11 @@ export function AgentPagePermissions() {
     setEditado((e) => ({ ...e, [codigo]: !atual }));
   }
 
-  async function salvarChanges() {
+  async function saveChanges() {
     if (Object.keys(editado).length === 0) return;
     setSalvando(true);
     setError(null);
-    const resultado = await salvarPermissions(
+    const resultado = await savePermissions(
       agents.map((a) => a.id),
       editado,
     );
@@ -139,7 +139,7 @@ export function AgentPagePermissions() {
         <Botao
           type="button"
           variante="primario"
-          onClick={() => void salvarChanges()}
+          onClick={() => void saveChanges()}
           disabled={salvando || Object.keys(editado).length === 0}
         >
           {salvando ? 'Salvando…' : 'Salvar alterações'}

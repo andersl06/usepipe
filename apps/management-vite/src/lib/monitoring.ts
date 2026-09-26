@@ -1,5 +1,5 @@
 import {
-  pesoPriority,
+  weightPriority,
   type CountClosure,
   type StateAgent,
   type Marcos,
@@ -8,7 +8,7 @@ import {
 } from '@pipe/core';
 import { type PillSla } from './sla';
 
-export interface LinhaConversationAberta {
+export interface ConversationOpenRow {
   id: string;
   ticket: string;
   contactName: string;
@@ -21,27 +21,27 @@ export interface LinhaConversationAberta {
   marcos: Marcos;
   /** Segundos na fila: fechado quando já foi atribuída, correndo quando não. */
   inQueueSeg: number | null;
-  queueCorrendo: boolean;
-  firstRespostaSeg: number | null;
-  firstRespostaCorrendo: boolean;
+  queueRunning: boolean;
+  firstResponseSeg: number | null;
+  firstResponseRunning: boolean;
   attendanceSeg: number | null;
   emEspera: boolean;
   /** A bola está com o atendente: o cliente falou por último, ou ninguém respondeu ainda. */
-  aguardandoAgent: boolean;
+  waitingAgent: boolean;
   sla: PillSla;
   etiquetas: string[];
 }
 
 export interface CardsRealTime {
   inQueue: number;
-  maiorEsperaInQueueSeg: number | null;
+  longestWaitInQueueSeg: number | null;
   /**
    * De quantas conversas o máximo acima saiu. Máximo sem população é a mesma
    * armadilha da média sem denominador (§2 da spec de métricas): "40 minutos"
    * entre duas conversas e entre duzentas pedem reações opostas.
    */
-  aguardandoFirstResposta: number;
-  maiorEsperaFirstRespostaSeg: number | null;
+  waitingFirstResponse: number;
+  longestWaitFirstResponseSeg: number | null;
   inAttendance: number;
   agentsOnline: number;
   mediaByAgent: number | null;
@@ -57,24 +57,24 @@ export interface CardAgents {
 
 export interface TodayCards {
   esperaDoCliente: ResultadoMetrica;
-  ateFirstResposta: ResultadoMetrica;
+  untilFirstResponse: ResultadoMetrica;
   attendanceTime: ResultadoMetrica;
-  respostaTime: ResponseTimeResult;
+  responseTime: ResponseTimeResult;
   closures: CountClosure;
 }
 
-export interface CargaAgent {
+export interface WorkloadAgent {
   id: string;
   nome: string;
   state: StateAgent;
   ativas: number;
-  aguardandoAgent: number;
+  waitingAgent: number;
   limite: number;
   carga: number;
   /** Carga máxima possível: o limite todo ocupado por conversa aguardando o atendente. */
   cargaMaxima: number;
-  timeMedioRespostaSeg: number | null;
-  timeMedioAttendanceSeg: number | null;
+  timeAverageResponseSeg: number | null;
+  timeAverageAttendanceSeg: number | null;
 }
 
 export interface SummaryQueue {
@@ -84,9 +84,9 @@ export interface SummaryQueue {
   inAttendance: number;
   maiorEsperaSeg: number | null;
   agentsOnline: number;
-  timeMedioInQueueSeg: number | null;
-  timeMedioRespostaSeg: number | null;
-  timeMedioAttendanceSeg: number | null;
+  timeAverageInQueueSeg: number | null;
+  timeAverageResponseSeg: number | null;
+  timeAverageAttendanceSeg: number | null;
 }
 
 export interface ResumoEtiqueta {
@@ -95,7 +95,7 @@ export interface ResumoEtiqueta {
   cor: string | null;
   abertas: number;
   finalizadas: number;
-  timeMedioAttendanceSeg: number | null;
+  timeAverageAttendanceSeg: number | null;
 }
 
 export interface Monitoring {
@@ -104,13 +104,13 @@ export interface Monitoring {
   realTime: CardsRealTime;
   agents: CardAgents;
   hoje: TodayCards;
-  abertas: LinhaConversationAberta[];
-  carga: CargaAgent[];
+  abertas: ConversationOpenRow[];
+  carga: WorkloadAgent[];
   queues: SummaryQueue[];
   etiquetas: ResumoEtiqueta[];
-  ticketsAbertosByHora: number[];
+  ticketsOpenByHour: number[];
   /** Catálogo para os filtros rápidos. */
-  listaAgents: { id: string; nome: string }[];
+  listAgents: { id: string; nome: string }[];
 }
 
 /** Número de ticket legível a partir do uuid — o modelo não tem sequência própria. */
@@ -144,11 +144,11 @@ export interface MonitoringFilter {
  * continua em ordem de criação: lá o ticket já tem dono, e prioridade não muda
  * mais quem atende.
  */
-export function esperaOrdenarQueue<
+export function waitSortQueue<
   T extends { priority: string; marcos: { criadaEm: Date | string | null } },
 >(linhas: readonly T[]): T[] {
   return [...linhas].sort((a, b) => {
-    const diferenca = pesoPriority(a.priority) - pesoPriority(b.priority);
+    const diferenca = weightPriority(a.priority) - weightPriority(b.priority);
     if (diferenca !== 0) return diferenca;
     /*
      * Missing creation time sorts last; it is unknown, not oldest, matching the Desk's null rule. API JSON supplies date as TEXT, not `Date`; calling `getTime` directly once broke the entire Waiting tab.

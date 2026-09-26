@@ -7,7 +7,7 @@ import { useRead } from './query';
 /**
  * Portal shell combines the signed-in user, current account, and account-selector list. This is browser-mounted `CascaDoPortal` from `apps/gestao/src/lib/portal.ts`, built from existing `api` responses `GET /v1/eu` and `GET /v1/contas/minhas`; no new endpoint is needed.
  */
-export interface AccountInLista {
+export interface AccountInList {
   tenantId: string;
   nome: string;
   slug: string;
@@ -20,14 +20,14 @@ export interface AccountInLista {
 export interface PortalShell {
   user: { nome: string; email: string; avatarUrl: string | null };
   tenant: { nome: string; slug: string; plano: string };
-  accounts: AccountInLista[];
+  accounts: AccountInList[];
   canCreate: boolean;
 }
 
 export function portalUseShell(): PortalShell {
   const eu = useEu();
   // Failure to load account choices must not bring down the screen; show only the current account in the selector.
-  const accounts = useRead<AccountInLista[]>('/v1/accounts/my', { staleTime: 5 * 60_000 });
+  const accounts = useRead<AccountInList[]>('/v1/accounts/my', { staleTime: 5 * 60_000 });
   return {
     user: { nome: eu.user.nome, email: eu.user.email, avatarUrl: eu.user.avatarUrl },
     tenant: { nome: eu.tenant.nome, slug: eu.tenant.slug, plano: eu.tenant.plano },

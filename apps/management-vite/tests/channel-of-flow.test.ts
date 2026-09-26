@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { ChannelOfFlow } from '@pipe/contracts';
 import {
-  channelsForOferecer,
+  channelsForOffer,
   cardConnected,
   channelInBotState,
   numeroParaWaMe,
   podeConfirmarDesconexao,
-  channelRota,
-  channelRotulo,
+  channelRoute,
+  channelLabel,
 } from '../src/lib/channel-of-flow.ts';
 
 /**
@@ -32,16 +32,16 @@ function channel(extra: Partial<ChannelOfFlow> = {}): ChannelOfFlow {
 }
 
 test('the list card leads to the channel page inside the bot, under its own type prefix', () => {
-  assert.equal(channelRota(`/roteador/${BOT}`, 'whatsapp_cloud'), `/roteador/${BOT}/channels/whatsapp`);
-  assert.equal(channelRota(`/fluxo/${BOT}`, 'instagram'), `/fluxo/${BOT}/channels/instagram`);
-  assert.equal(channelRota(`/fluxo/${BOT}`, 'messenger'), `/fluxo/${BOT}/channels/messenger`);
+  assert.equal(channelRoute(`/roteador/${BOT}`, 'whatsapp_cloud'), `/roteador/${BOT}/channels/whatsapp`);
+  assert.equal(channelRoute(`/fluxo/${BOT}`, 'instagram'), `/fluxo/${BOT}/channels/instagram`);
+  assert.equal(channelRoute(`/fluxo/${BOT}`, 'messenger'), `/fluxo/${BOT}/channels/messenger`);
 });
 
 test('"Connected" on the card is the bot with an ACTIVE channel of that type; disconnected or another type is "Connect"', () => {
-  assert.equal(cardConnected({ channelTipo: 'whatsapp_cloud', channelActive: true }, 'whatsapp_cloud'), true);
-  assert.equal(cardConnected({ channelTipo: 'whatsapp_cloud', channelActive: false }, 'whatsapp_cloud'), false);
-  assert.equal(cardConnected({ channelTipo: 'instagram', channelActive: true }, 'whatsapp_cloud'), false);
-  assert.equal(cardConnected({ channelTipo: null, channelActive: null }, 'whatsapp_cloud'), false);
+  assert.equal(cardConnected({ channelType: 'whatsapp_cloud', channelActive: true }, 'whatsapp_cloud'), true);
+  assert.equal(cardConnected({ channelType: 'whatsapp_cloud', channelActive: false }, 'whatsapp_cloud'), false);
+  assert.equal(cardConnected({ channelType: 'instagram', channelActive: true }, 'whatsapp_cloud'), false);
+  assert.equal(cardConnected({ channelType: null, channelActive: null }, 'whatsapp_cloud'), false);
 });
 
 test('the channel page: connected, not connected, or the bot already has ANOTHER channel (Pipe\'s decision)', () => {
@@ -63,16 +63,16 @@ test('"Number activation": only active channels of that type; free on one side, 
   const desligado = channel({ id: 'desligado', ativo: false });
   const instagram = channel({ id: 'ig', tipo: 'instagram' });
 
-  const { livres, emUso } = channelsForOferecer([livre, meu, deOutro, desligado, instagram], 'whatsapp_cloud', BOT);
+  const { livres, emUso } = channelsForOffer([livre, meu, deOutro, desligado, instagram], 'whatsapp_cloud', BOT);
   assert.deepEqual(livres.map((c) => c.id), ['livre', 'meu']);
   assert.deepEqual(emUso.map((c) => c.id), ['de-outro']);
 
-  assert.deepEqual(channelsForOferecer([instagram], 'instagram', BOT).livres.map((c) => c.id), ['ig']);
+  assert.deepEqual(channelsForOffer([instagram], 'instagram', BOT).livres.map((c) => c.id), ['ig']);
 });
 
 test('the channel\'s label in the list is the number and the name; without a number, just the name', () => {
-  assert.equal(channelRotulo({ nome: 'Suporte', numero: '+5511999990000' }), '+5511999990000 — Suporte');
-  assert.equal(channelRotulo({ nome: 'Página da loja', numero: null }), 'Página da loja');
+  assert.equal(channelLabel({ nome: 'Suporte', numero: '+5511999990000' }), '+5511999990000 — Suporte');
+  assert.equal(channelLabel({ nome: 'Página da loja', numero: null }), 'Página da loja');
 });
 
 test('"Testar no WhatsApp" abre wa.me só com dígitos', () => {

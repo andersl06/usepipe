@@ -4,7 +4,7 @@ import { useContact } from '../../contact';
 import { ReportsCustom } from './reports';
 import './reports.css';
 
-interface ReportsResposta {
+interface ReportsResponse {
   reports: ReportCustom[];
   fuso: string;
 }
@@ -12,7 +12,7 @@ interface ReportsResposta {
 /** `auth.application.detail.analytics.reports` — o painel `#reportsContent`. */
 export function ReportsPage() {
   const { contact } = useContact();
-  const read = useRead<ReportsResposta>(
+  const read = useRead<ReportsResponse>(
     `/v1/management/flows/${contact.id}/analytics/reports`,
   );
   if (!read.data) return null;

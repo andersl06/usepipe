@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   candidatosDoTelefone,
   normalizarWaid,
-  contactRegistrarMessage,
+  contactRegisterMessage,
   transitionDeliveryAllowed,
 } from '@pipe/core';
 import type { StateDelivery } from '@pipe/core';
@@ -19,15 +19,15 @@ import {
   enqueueMirrorCrm,
   enfileirarProcessHttp,
 } from '../queues.js';
-import { distribuirConversation } from './distribution.js';
+import { distributeConversation } from './distribution.js';
 import { registrarEvento } from './eventos.js';
 import {
-  avaliarPriority,
+  evaluatePriority,
   loadRulesOfPriorityActive,
   type ContextOfPriority,
 } from './management/priority-engine.js';
 import { applyEventsOfTemplate } from './whatsapp/events-of-template.js';
-import { flowPublishedOfChannel, rodarFlowInInbound } from './flow.js';
+import { flowPublishedOfChannel, runFlowInInbound } from './flow.js';
 import { payloadDoInstagram, valuesOfInstagram } from './instagram/inbound.js';
 import { payloadDoMessenger, valuesOfMessenger } from './messenger/inbound.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
@@ -91,7 +91,7 @@ interface MetaError {
 }
 
 export interface ResultInbound {
-  messagesRecebidas: number;
+  messagesReceived: number;
   statusAplicados: number;
   ignorados: number;
 }
@@ -124,19 +124,19 @@ export async function processarPayload(
   channel: ChannelResolved,
   payload: unknown,
 ): Promise<ResultInbound> {
-  const resumo: ResultInbound = { messagesRecebidas: 0, statusAplicados: 0, ignorados: 0 };
+  const resumo: ResultInbound = { messagesReceived: 0, statusAplicados: 0, ignorados: 0 };
   // Translate Instagram into WhatsApp shape and follow the shared inbound path.
   const igUserId = channel.config['igUserId'];
   const values = payloadDoInstagram(payload)
     ? valuesOfInstagram(payload, typeof igUserId === 'string' ? igUserId : null)
     : payloadDoMessenger(payload)
       ? valuesOfMessenger(payload, typeof channel.config['paginaId'] === 'string' ? channel.config['paginaId'] : null)
-    : extrairValues(payload);
+    : extractValues(payload);
 
   // Collect touched conversations to notify screens AFTER commit. A `Set` means two
   // messages from the same client in one batch produce one notification.
   const tocadas = new Set<string>();
-  let entrouInQueue = false;
+  let enteredInQueue = false;
   let respostasDoBot = 0;
 
   // Run serially: each value opens its own transaction with a fixed tenant.
@@ -144,9 +144,9 @@ export async function processarPayload(
     for (const message of value.messages ?? []) {
       const recebida = await receiveMessage(channel, value, message);
       if (recebida) {
-        resumo.messagesRecebidas += 1;
+        resumo.messagesReceived += 1;
         tocadas.add(recebida.conversationId);
-        entrouInQueue = true;
+        enteredInQueue = true;
         respostasDoBot += recebida.respostasDoBot;
         if (recebida.processHttpId) {
           await enfileirarProcessHttp({ tenantId: channel.tenantId, processoId: recebida.processHttpId });
@@ -171,7 +171,7 @@ export async function processarPayload(
   // Template status and category events are not conversations; exclude them from the message summary.
   const modelos = channel.type === 'whatsapp_cloud' ? await applyEventsOfTemplate(channel, payload) : 0;
 
-  if (resumo.messagesRecebidas > 0 || resumo.statusAplicados > 0 || modelos > 0) {
+  if (resumo.messagesReceived > 0 || resumo.statusAplicados > 0 || modelos > 0) {
     drenarEmSegundoPlano(channel.tenantId);
   }
   // After commit, the bot's response is in the outbox; nudging the worker
@@ -185,12 +185,12 @@ export async function processarPayload(
     await publicar(channel.tenantId, evento('conversation', conversationId));
   }
   // Mensagem nova mexe no tamanho e na ordem da fila; a lista do Desk repinta por isto.
-  if (entrouInQueue) await publicar(channel.tenantId, evento('queue'));
+  if (enteredInQueue) await publicar(channel.tenantId, evento('queue'));
 
   return resumo;
 }
 
-export function extrairValues(payload: unknown): ValueOfWebhook[] {
+export function extractValues(payload: unknown): ValueOfWebhook[] {
   const corpo = payload as { entry?: { changes?: { field?: string; value?: ValueOfWebhook }[] }[] };
   const valores: ValueOfWebhook[] = [];
   for (const inbound of corpo?.entry ?? []) {
@@ -258,12 +258,12 @@ async function receiveMessage(
 
     // Recalculate the 24-hour window after every inbound contact message; the rule
     // lives in `@pipe/core`, not here.
-    const window = contactRegistrarMessage(em, messageId ?? undefined);
+    const window = contactRegisterMessage(em, messageId ?? undefined);
     await tx.execute(sql`
       update conversa
          set ultima_mensagem_em = ${em}, ultima_mensagem_de = 'contato',
              janela_expira_em = ${window.expiraEm},
-             janela_aberta_por_mensagem_id = ${window.abertaByMessageId ?? null},
+             janela_aberta_por_mensagem_id = ${window.openByMessageId ?? null},
              atualizado_em = now()
        where id = ${conversation.id}
     `);
@@ -286,7 +286,7 @@ async function receiveMessage(
 
     // The bot speaks first. If it handled the message, it owns the conversation, or
     // has already transferred it and triggered distribution inside that path.
-    const bot = await rodarFlowInInbound(tx, flow, {
+    const bot = await runFlowInInbound(tx, flow, {
       tenantId: canal.tenantId,
       conversation: {
         id: conversation.id,
@@ -302,7 +302,7 @@ async function receiveMessage(
     // A conversation still queued is eligible for distribution on each new message if
     // atendente entrou online depois da primeira, ela sai da fila agora.
     if (!bot.tratou && conversation.state === 'na_fila' && !conversation.agentId && conversation.queueId) {
-      await distribuirConversation(tx, canal.tenantId, conversation.id, conversation.queueId, em);
+      await distributeConversation(tx, canal.tenantId, conversation.id, conversation.queueId, em);
     }
 
     return {
@@ -527,7 +527,7 @@ async function findOrOpenConversation(
     // `aplicarRegraDePrioridade` roda para ela (`dominio/gestao/prioridade-motor.ts`).
     // Without a bot, apply it HERE rather than on handoff (`fluxo.ts`), because there
     // transbordo: a conversa nasce direto na fila.
-    await aplicarRuleOfPriority(tx, conversaId, {
+    await applyRuleOfPriority(tx, conversaId, {
       queueId,
       message: contextPriority.message,
       contact: { nome: contextPriority.nomeDoPerfil },
@@ -545,14 +545,14 @@ async function findOrOpenConversation(
 /**
  * Apply `regra_prioridade` to a conversation JUST entering a queue. With no active rule, leave `conversa.prioridade` at its column default `sem_prioridade`.
  */
-async function aplicarRuleOfPriority(
+async function applyRuleOfPriority(
   tx: TransactionPipe,
   conversaId: string,
   context: ContextOfPriority,
 ): Promise<void> {
   const regras = await loadRulesOfPriorityActive(tx);
   if (regras.length === 0) return;
-  const nivel = avaliarPriority(regras, context);
+  const nivel = evaluatePriority(regras, context);
   if (!nivel) return;
   await tx.execute(sql`
     update conversa set prioridade = ${nivel}, atualizado_em = now() where id = ${conversaId}

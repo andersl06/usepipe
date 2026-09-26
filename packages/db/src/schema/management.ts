@@ -70,8 +70,8 @@ export const metricaDiaria = pgTable(
     dimensaoId: uuid('dimensao_id'),
     conversationsCreated: integer('conversas_criadas').notNull().default(0),
     conversationsCloseds: integer('conversas_encerradas').notNull().default(0),
-    conversationsPerdidas: integer('conversas_perdidas').notNull().default(0),
-    conversationsAbandonadas: integer('conversas_abandonadas').notNull().default(0),
+    conversationsLost: integer('conversas_perdidas').notNull().default(0),
+    conversationsAbandoned: integer('conversas_abandonadas').notNull().default(0),
     messagesInbound: integer('mensagens_entrada').notNull().default(0),
     messagesOutput: integer('mensagens_saida').notNull().default(0),
     /** Store sums in seconds; divide by count at display time to compute averages. */

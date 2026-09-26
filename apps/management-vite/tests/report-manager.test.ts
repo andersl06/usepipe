@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   cincoAnosAntes,
-  periodDias,
+  periodDays,
   inicioDoIntervalo,
   periodValid,
 } from '../src/pages/flow/analytics/report-manager/regras.ts';
 
 test('the manager\'s period repeats differenceInDays and the 90-day ceiling', () => {
-  assert.equal(periodDias('2026-06-15', '2026-09-13'), 90);
+  assert.equal(periodDays('2026-06-15', '2026-09-13'), 90);
   assert.equal(periodValid('2026-06-15', '2026-09-13'), true);
   assert.equal(periodValid('2026-06-14', '2026-09-13'), false);
   assert.equal(periodValid('2026-09-14', '2026-09-13'), false);

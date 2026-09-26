@@ -27,7 +27,7 @@
  */
 
 export interface AnalyticsFlags {
-  abaActiveMessages: boolean;
+  tabActiveMessages: boolean;
   abaVisaoGeral: boolean;
   dataDictionary: boolean;
   goodData: boolean;
@@ -44,7 +44,7 @@ export interface AnalyticsFlags {
  * constant becomes its reading, and the rule below doesn't change.
  */
 export const FLAGS_DA_CAPTURA: AnalyticsFlags = {
-  abaActiveMessages: true,
+  tabActiveMessages: true,
   abaVisaoGeral: true,
   dataDictionary: true,
   goodData: false,
@@ -69,7 +69,7 @@ export const CLUSTER_DA_CAPTURA = 'Beagle';
  * (`{"clusters":"Golden,Doberman"}`) and `show-data-extractor-tab` also exist in
  * the context, but only this one decides the tab.
  */
-export function mostraManager(
+export function showsManager(
   byCluster: AnalyticsFlags['managerByCluster'],
   cluster: string,
 ): boolean {
@@ -77,7 +77,7 @@ export function mostraManager(
   return (byCluster[key in byCluster ? key : 'default']?.isEnabled ?? false) === true;
 }
 
-export type AbaKey =
+export type TabKey =
   | 'dashboard'
   | 'activeMessages'
   | 'overview'
@@ -88,7 +88,7 @@ export type AbaKey =
   | 'goodData';
 
 export interface Aba {
-  key: AbaKey;
+  key: TabKey;
   /** `analyticsTabs.*` from the pt-BR package, with the source's casing. */
   rotulo: string;
   /** Route segment; null when the screen doesn't exist here (shows as "coming soon"). */
@@ -116,7 +116,7 @@ const CATALOGO: readonly (Omit<Aba, 'visivel'> & {
     key: 'activeMessages',
     rotulo: 'Mensagens ativas',
     segment: 'active-messages',
-    mostra: (f) => f.abaActiveMessages,
+    mostra: (f) => f.tabActiveMessages,
   },
   {
     key: 'overview',
@@ -140,7 +140,7 @@ const CATALOGO: readonly (Omit<Aba, 'visivel'> & {
     key: 'dataExtractor',
     rotulo: 'Gerenciador de Relatórios',
     segment: 'report-manager',
-    mostra: (f, cluster) => mostraManager(f.managerByCluster, cluster),
+    mostra: (f, cluster) => showsManager(f.managerByCluster, cluster),
   },
   {
     key: 'dataDictionary',
@@ -151,7 +151,7 @@ const CATALOGO: readonly (Omit<Aba, 'visivel'> & {
   { key: 'goodData', rotulo: 'GoodData', segment: null, mostra: (f) => f.goodData },
 ];
 
-export function analyticsAbas(flags: AnalyticsFlags, cluster: string): Aba[] {
+export function analyticsTabs(flags: AnalyticsFlags, cluster: string): Aba[] {
   return CATALOGO.map(({ mostra, ...aba }) => ({ ...aba, visivel: mostra(flags, cluster) }));
 }
 

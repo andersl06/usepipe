@@ -4,8 +4,8 @@ import { Navigate, useSearchParams } from 'react-router-dom';
 import { useEu } from '../../context/session';
 import { useSair } from '../../lib/shell';
 import { useRead } from '../../lib/query';
-import type { AccountInVigor } from '../../lib/account';
-import { salvarAccount } from './actions';
+import type { AccountInForce } from '../../lib/account';
+import { saveAccount } from './actions';
 import { PADRAO_DE_SITE, RECADOS, ROTULO_DE_FUSO, ROTULO_DE_IDIOMA, TAMANHO } from './regras';
 import { Selection } from '../../components/selection';
 import './my-account.css';
@@ -60,12 +60,12 @@ export function PageMyAccount() {
     erro: search.get('erro') ?? undefined,
     campo: search.get('campo') ?? undefined,
   };
-  const read = useRead<AccountInVigor>('/v1/account');
+  const read = useRead<AccountInForce>('/v1/account');
   if (read.error) return <Navigate to="/login" replace />;
   if (!read.data) return null;
   const account = read.data;
 
-  const firstVez = account.onboardingConcluidoEm === null;
+  const firstTime = account.onboardingConcluidoEm === null;
   /*
    * The field the server refused comes back marked. `data-erro` only exists when there is one, and it's what lights up the red ring on the right box.
    */
@@ -128,11 +128,11 @@ export function PageMyAccount() {
 
         {/* --------------------------------------------------- content */}
         <main className="account-content">
-          <form id="conta-form" action={salvarAccount} className="account-form">
+          <form id="conta-form" action={saveAccount} className="account-form">
             <div className="account-header">
-              <h1>{firstVez ? 'Sobre a sua empresa' : 'Minha conta'}</h1>
+              <h1>{firstTime ? 'Sobre a sua empresa' : 'Minha conta'}</h1>
               <button type="submit" className="account-button">
-                {firstVez ? 'Salvar e abrir o portal' : 'Salvar alterações'}
+                {firstTime ? 'Salvar e abrir o portal' : 'Salvar alterações'}
               </button>
             </div>
             <hr className="account-ruler" />

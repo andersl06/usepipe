@@ -24,7 +24,7 @@ export interface TimeInSession {
 /**
  * Sum consecutive gaps of at most `limiteSeg`. A single message adds zero seconds: this measures gaps, not mere presence. The conservative choice avoids inflating session time and making an agent seem less occupied than they are.
  */
-export function calcularTimeInSession(
+export function calculateTimeInSession(
   instantes: readonly Date[],
   options: { limiteSeg?: number } = {},
 ): TimeInSession {
@@ -39,7 +39,7 @@ export function calcularTimeInSession(
   let segundos = 0;
   let messagesInBlock = 1;
 
-  const fecharBlock = () => {
+  const closeBlock = () => {
     blocos.push({ inicio, fim: anterior, segundos, messages: messagesInBlock });
   };
 
@@ -50,14 +50,14 @@ export function calcularTimeInSession(
       segundos += delta;
       messagesInBlock += 1;
     } else {
-      fecharBlock();
+      closeBlock();
       inicio = atual;
       segundos = 0;
       messagesInBlock = 1;
     }
     anterior = atual;
   }
-  fecharBlock();
+  closeBlock();
 
   return {
     sessionSeg: blocos.reduce((total, block) => total + block.segundos, 0),
@@ -67,7 +67,7 @@ export function calcularTimeInSession(
 }
 
 /** Espelha `esforco_atendente_dia` do modelo de dados (§4). */
-export interface EffortAgentDia {
+export interface EffortAgentDay {
   dia: string;
   userId: string;
   effortSeg: number;
@@ -76,7 +76,7 @@ export interface EffortAgentDia {
   /** Effort divided by measured session time; null when no session was measured. */
   occupancy: number | null;
   /** Effort divided by tickets, a weighted average by construction (§5). */
-  effortMedioByTicketSeg: number | null;
+  effortAverageByTicketSeg: number | null;
 }
 
 export function occupancy(effortSeg: number, sessionSeg: number): number | null {
@@ -86,17 +86,17 @@ export function occupancy(effortSeg: number, sessionSeg: number): number | null 
 /**
  * Consolidate an agent's day. The weighted mean is total effort divided by total tickets, never the mean of daily means; a busy day carries more weight.
  */
-export function agentConsolidarDia(inbound: {
+export function agentConsolidateDay(inbound: {
   dia: string;
   userId: string;
   esforcosSeg: readonly number[];
-  messageInstantes: readonly Date[];
+  messageInstants: readonly Date[];
   limiteIntervaloSeg?: number;
-}): EffortAgentDia {
+}): EffortAgentDay {
   const effortSeg = inbound.esforcosSeg.reduce((a, b) => a + b, 0);
   const tickets = inbound.esforcosSeg.length;
   const options = inbound.limiteIntervaloSeg === undefined ? {} : { limiteSeg: inbound.limiteIntervaloSeg };
-  const { sessionSeg } = calcularTimeInSession(inbound.messageInstantes, options);
+  const { sessionSeg } = calculateTimeInSession(inbound.messageInstants, options);
 
   return {
     dia: inbound.dia,
@@ -105,6 +105,6 @@ export function agentConsolidarDia(inbound: {
     tickets,
     sessionSeg,
     occupancy: occupancy(effortSeg, sessionSeg),
-    effortMedioByTicketSeg: tickets > 0 ? effortSeg / tickets : null,
+    effortAverageByTicketSeg: tickets > 0 ? effortSeg / tickets : null,
   };
 }

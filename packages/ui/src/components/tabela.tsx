@@ -19,14 +19,14 @@ export type Column<L> = {
 export function Tabela<L>({
   colunas,
   linhas,
-  linhaKey,
+  rowKey,
   classeDaLinha,
   empty = 'Nada para mostrar aqui.',
   larguraMinima,
 }: {
   colunas: readonly Column<L>[];
   linhas: readonly L[];
-  linhaKey: (linha: L) => string;
+  rowKey: (linha: L) => string;
   /** Severity applies to the entire row (`grave`, `critico`), not only its text. */
   classeDaLinha?: (linha: L) => string | undefined;
   empty?: ReactNode;
@@ -48,7 +48,7 @@ export function Tabela<L>({
         </thead>
         <tbody>
           {linhas.map((linha) => (
-            <tr key={linhaKey(linha)} className={classeDaLinha?.(linha)}>
+            <tr key={rowKey(linha)} className={classeDaLinha?.(linha)}>
               {colunas.map((column) => (
                 <td key={column.key} className={column.numerica ? 'num' : undefined}>
                   {column.celula(linha)}

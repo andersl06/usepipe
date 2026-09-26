@@ -1,10 +1,10 @@
 import { and, asc, eq, gte, inArray, isNull, isNotNull, lt, sql } from 'drizzle-orm';
 import {
   cargaPonderada,
-  pesoPriority,
+  weightPriority,
   derivarMarcos,
   segundosEntre,
-  type AgentDisponivel,
+  type AgentAvailable,
   type CountClosure,
   type ConversationEvents,
   type ClosedBy,
@@ -29,10 +29,10 @@ import {
   user,
 } from '@pipe/db/schema';
 import { registrarAuditoria, type TransactionPipe } from '@pipe/db';
-import { exigirPermission } from '../../session.js';
+import { requirePermission } from '../../session.js';
 import { PipeError } from '../../errors.js';
 import {
-  avaliarSlaOfConversation,
+  evaluateSlaOfConversation,
   carregarRegrasSla,
   type PillSla,
   type RegraSlaCarregada,
@@ -78,7 +78,7 @@ export interface LineConversationOpen {
   labels: string[];
 }
 
-export interface CardsTimeReal {
+export interface RealtimeCards {
   naFila: number;
   largestWaitInQueueSeg: number | null;
   /**
@@ -86,7 +86,7 @@ export interface CardsTimeReal {
    * armadilha da média sem denominador (§2 da spec de métricas): "40 minutos"
    * entre duas conversas e entre duzentas pedem reações opostas.
    */
-  aguardandoFirstResponse: number;
+  waitingFirstResponse: number;
   largestWaitFirstResponseSeg: number | null;
   inAttendance: number;
   agentsOnline: number;
@@ -109,12 +109,12 @@ export interface CardsOfToday {
   closures: CountClosure;
 }
 
-export interface CargaAgent {
+export interface WorkloadAgent {
   id: string;
   name: string;
   state: StateAgent;
   ativas: number;
-  aguardandoAgent: number;
+  waitingAgent: number;
   limite: number;
   carga: number;
   /** Carga máxima possível: o limite todo ocupado por conversa aguardando o atendente. */
@@ -147,11 +147,11 @@ export interface ResumoEtiqueta {
 export interface Monitoring {
   agora: Date;
   fuso: string;
-  timeReal: CardsTimeReal;
+  realtime: RealtimeCards;
   agents: CardAgents;
   hoje: CardsOfToday;
   abertas: LineConversationOpen[];
-  carga: CargaAgent[];
+  carga: WorkloadAgent[];
   queues: SummaryQueue[];
   labels: ResumoEtiqueta[];
   ticketsOpenByHour: number[];
@@ -159,7 +159,7 @@ export interface Monitoring {
   listAgents: { id: string; name: string }[];
 }
 
-export interface PreviaOfConversationInMonitoring {
+export interface PreviewOfConversationInMonitoring {
   id: string;
   ticket: string;
   contactName: string;
@@ -169,12 +169,12 @@ export interface PreviaOfConversationInMonitoring {
 }
 
 /** Management may read any tenant ticket; Desk may read only tickets assigned to that agent. */
-export async function loadPreviaOfConversation(
+export async function loadPreviewOfConversation(
   tx: TransactionPipe,
   userId: string,
   conversationId: string,
-): Promise<PreviaOfConversationInMonitoring | null> {
-  await exigirPermission(tx, userId, 'monitoramento.tempo_real.ver');
+): Promise<PreviewOfConversationInMonitoring | null> {
+  await requirePermission(tx, userId, 'monitoramento.tempo_real.ver');
   const { rows } = await tx.execute<{
     id: string; contactName: string | null; queueName: string | null; agentName: string | null;
   }>(sql`
@@ -212,14 +212,14 @@ export async function loadPreviaOfConversation(
 }
 
 /** An internal note is the supervisor-agent conversation opened by the source bubble; it must not reach the customer. */
-export async function falarWithAgentInMonitoring(
+export async function speakWithAgentInMonitoring(
   tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   conversaId: string,
   texto: string,
 ): Promise<void> {
-  await exigirPermission(tx, usuarioId, 'conversa.nota_interna');
+  await requirePermission(tx, usuarioId, 'conversa.nota_interna');
   const corpo = texto.trim();
   if (!corpo) throw PipeError.request('note_empty', 'Escreva uma mensagem antes de enviar.');
   const { rows } = await tx.execute<{ id: string }>(sql`
@@ -288,7 +288,7 @@ function agruparEventos(linhas: readonly LinhaEvento[]): Map<string, Conversatio
       em: linha.at,
       userId: linha.userId,
       queueId: linha.queueId,
-      encerradaBy: (data.closedBy ?? null) as ClosedBy | null,
+      closedBy: (data.closedBy ?? null) as ClosedBy | null,
     };
     const atual = mapa.get(linha.conversationId);
     if (atual) atual.eventos.push(evento);
@@ -302,9 +302,9 @@ function marcosVazios(conversaId: string): Marcos {
     conversationId: conversaId,
     criadaEm: null,
     atribuidaEm: null,
-    firstRespostaIn: null,
+    firstResponseIn: null,
     encerradaEm: null,
-    encerradaBy: null,
+    closedBy: null,
     assignments: 0,
   };
 }
@@ -353,7 +353,7 @@ export function sortQueueOfWait<
   T extends { priority: string; marcos: { criadaEm: Date | null } },
 >(linhas: readonly T[]): T[] {
   return [...linhas].sort((a, b) => {
-    const diferenca = pesoPriority(a.priority) - pesoPriority(b.priority);
+    const diferenca = weightPriority(a.priority) - weightPriority(b.priority);
     if (diferenca !== 0) return diferenca;
     /*
      * Place a conversation without a creation timestamp last: it is not the oldest, but one whose start is unknown. Match Desk's `null` ordering.
@@ -447,8 +447,8 @@ export async function loadMonitoring(
       const inQueueSeg = marcos.atribuidaEm
         ? entre(marcos.criadaEm, marcos.atribuidaEm)
         : entre(marcos.criadaEm, agora);
-      const firstResponseSeg = marcos.firstRespostaIn
-        ? entre(marcos.atribuidaEm, marcos.firstRespostaIn)
+      const firstResponseSeg = marcos.firstResponseIn
+        ? entre(marcos.atribuidaEm, marcos.firstResponseIn)
         : entre(marcos.atribuidaEm, agora);
       return {
         id: c.id,
@@ -464,11 +464,11 @@ export async function loadMonitoring(
         inQueueSeg,
         queueRunning: marcos.atribuidaEm === null,
         firstResponseSeg,
-        firstResponseRunning: marcos.firstRespostaIn === null && marcos.atribuidaEm !== null,
-        attendanceSeg: entre(marcos.firstRespostaIn, agora),
+        firstResponseRunning: marcos.firstResponseIn === null && marcos.atribuidaEm !== null,
+        attendanceSeg: entre(marcos.firstResponseIn, agora),
         emEspera: c.emEsperaDesde !== null,
-        aguardandoAtendente: c.ultimaMensagemDe === 'contato' || marcos.firstRespostaIn === null,
-        sla: avaliarSlaOfConversation(regras, marcos, c.filaId, agora),
+        aguardandoAtendente: c.ultimaMensagemDe === 'contato' || marcos.firstResponseIn === null,
+        sla: evaluateSlaOfConversation(regras, marcos, c.filaId, agora),
         labels: labelsByConversation.get(c.id) ?? [],
       };
     });
@@ -512,14 +512,14 @@ export async function loadMonitoring(
 
     const inQueue = abertas.filter((c) => c.marcos.atribuidaEm === null);
     const semResposta = abertas.filter(
-      (c) => c.marcos.atribuidaEm !== null && c.marcos.firstRespostaIn === null,
+      (c) => c.marcos.atribuidaEm !== null && c.marcos.firstResponseIn === null,
     );
     const inAttendance = abertas.filter((c) => c.agentId !== null);
 
-    const timeReal: CardsTimeReal = {
+    const realtime: RealtimeCards = {
       naFila: inQueue.length,
       largestWaitInQueueSeg: maiorDe(inQueue.map((c) => c.inQueueSeg)),
-      aguardandoFirstResponse: semResposta.length,
+      waitingFirstResponse: semResposta.length,
       largestWaitFirstResponseSeg: maiorDe(semResposta.map((c) => c.firstResponseSeg)),
       inAttendance: inAttendance.length,
       agentsOnline: cardAgents.online,
@@ -563,36 +563,36 @@ export async function loadMonitoring(
       else queuesByAgent.set(c.usuarioId, [c.filaId]);
     }
 
-    const carga: CargaAgent[] = status
+    const carga: WorkloadAgent[] = status
       .filter((s) => s.estado !== 'offline')
       .map((s) => {
         const minhas = abertas.filter((c) => c.agentId === s.usuarioId);
         const aguardando = minhas.filter((c) => c.aguardandoAtendente).length;
         const limite = limitByAgent.get(s.usuarioId) ?? 5;
         const medias = byAgent.get(s.nome);
-        const disponivel: AgentDisponivel = {
+        const disponivel: AgentAvailable = {
           id: s.usuarioId,
           state: s.estado as StateAgent,
           queues: queuesByAgent.get(s.usuarioId) ?? [],
           limiteSimultaneo: limite,
           ativas: minhas.length,
-          aguardandoAgent: aguardando,
-          withoutFirstResposta: minhas.filter((c) => c.marcos.firstRespostaIn === null).length,
-          ultimaAssignmentIn: null,
+          waitingAgent: aguardando,
+          withoutFirstResponse: minhas.filter((c) => c.marcos.firstResponseIn === null).length,
+          lastAssignmentIn: null,
         };
         return {
           id: s.usuarioId,
           name: s.nome,
           state: disponivel.state,
           ativas: minhas.length,
-          aguardandoAgent: aguardando,
+          waitingAgent: aguardando,
           limite,
           carga: cargaPonderada(disponivel),
           // O teto da barra: o limite todo ocupado por conversa que aguarda o atendente.
           cargaMaxima: cargaPonderada({
             ...disponivel,
             ativas: limite,
-            aguardandoAgent: limite,
+            waitingAgent: limite,
           }),
           timeMediumResponseSeg: medias?.tempoMedioPrimeiraRespostaSeg ?? null,
           timeMediumAttendanceSeg: medias?.tempoMedioAtendimentoSeg ?? null,
@@ -673,7 +673,7 @@ export async function loadMonitoring(
     return {
       agora,
       fuso,
-      timeReal,
+      realtime,
       agents: cardAgents,
       hoje,
       abertas,
@@ -687,7 +687,7 @@ export async function loadMonitoring(
 }
 
 /** Closed-conversation count for the period, used by the history header. */
-export async function contarClosedsInPeriod(
+export async function countClosedsInPeriod(
   tx: TransactionPipe,
   janela: { start: Date; end: Date },
 ): Promise<number> {

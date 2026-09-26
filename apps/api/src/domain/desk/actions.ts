@@ -7,7 +7,7 @@ import type { StateAgent } from '@pipe/contracts';
 import type { Campos, Resultado } from '../management/actions/campos.js';
 import { registrarEvento } from '../eventos.js';
 import { transferConversation } from '../conversation.js';
-import { queuesOfAgent, tetoWithoutFirstResponse } from '../distribution.js';
+import { queuesOfAgent, ceilingWithoutFirstResponse } from '../distribution.js';
 
 /** The transaction already has its tenant fixed; `consultar` only names the block, as in Desk. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
@@ -70,7 +70,7 @@ export async function definirStatus(
 /**
  * Inactivity drops an agent from distribution after twenty minutes without screen activity. This follows the reference screen's ten-minute warning plus ten-minute grace period (`referencias-blip/pesquisa/blip-desk-medidas.md` §9). The browser counts time in `componentes/inatividade`; this action receives only the verdict. It is intentionally narrow and idempotent: it only moves offline and does nothing if already Offline. Otherwise an abandoned second tab could disconnect an agent actively using another tab. Close any open break too, as in `definirStatus`, or an endless break would count the same minute forever in occupancy reports.
  */
-export async function cairByInactivity(
+export async function failByInactivity(
   tx: TransactionPipe,
   tenantId: string,
   agentId: string,
@@ -151,7 +151,7 @@ export async function atender(
     );
     if (status[0]?.state !== 'online') return falha('Fique online para atender.');
 
-    const options = { tetoSemPrimeiraResposta: tetoWithoutFirstResponse() };
+    const options = { tetoSemPrimeiraResposta: ceilingWithoutFirstResponse() };
     const byQueue = await queuesOfAgent(tx, atendenteId);
     const comVaga: string[] = [];
     let motivoDeRecusa: MotivoInelegivel | null = null;
@@ -249,7 +249,7 @@ export async function transferInBulk(
   for (const conversationId of ids) {
     try {
       await transferConversation(
-        { tenantId, agentId: atendenteId, exigirAssignment: true },
+        { tenantId, agentId: atendenteId, requireAssignment: true },
         { conversationId, forQueueId, forAgentId, reason: 'Transferência em massa' },
       );
       transferidas += 1;

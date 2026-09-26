@@ -7,7 +7,7 @@ import {
   dataOuNada,
   denominador,
   duration,
-  durationLonga,
+  durationLong,
   numero,
   percentual,
   relogio,
@@ -44,20 +44,20 @@ test('a long duration never produces "1h 60min"', () => {
   /*
    * Rounding the hour's remainder separately added 60 minutes without adding the hour. 7,190s is 1h59min48s: the effort report printed "1h 60min".
    */
-  assert.equal(durationLonga(7190), '2h 00min');
-  assert.equal(durationLonga(3599), '1h 00min');
-  assert.equal(durationLonga(15120), '4h 12min');
-  assert.equal(durationLonga(90), '2min');
-  assert.equal(durationLonga(0), '0min');
+  assert.equal(durationLong(7190), '2h 00min');
+  assert.equal(durationLong(3599), '1h 00min');
+  assert.equal(durationLong(15120), '4h 12min');
+  assert.equal(durationLong(90), '2min');
+  assert.equal(durationLong(0), '0min');
 });
 
 test('a long duration returns a dash for absence, not "NaNmin"', () => {
   /*
    * Averaging over a zero population returns `NaN` from core. Without this guard, the report prints "NaNmin" instead of admitting there's no data.
    */
-  assert.equal(durationLonga(NaN), '—');
-  assert.equal(durationLonga(null), '—');
-  assert.equal(durationLonga(undefined), '—');
+  assert.equal(durationLong(NaN), '—');
+  assert.equal(durationLong(null), '—');
+  assert.equal(durationLong(undefined), '—');
 });
 
 test('numbers use Brazilian separators', () => {

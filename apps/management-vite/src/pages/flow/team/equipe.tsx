@@ -1,7 +1,7 @@
 import type { TeamOfFlow } from '@pipe/contracts';
 import { ApiError } from '../../../lib/api';
 import { useRead } from '../../../lib/query';
-import { ContactBarras, useContact } from '../contact';
+import { ContactBars, useContact } from '../contact';
 import { TelaDeEquipe } from './tela';
 
 /**
@@ -20,7 +20,7 @@ export function TeamPage() {
 
   return (
     <div className="pt-app">
-      <ContactBarras ativo="Equipe" />
+      <ContactBars ativo="Equipe" />
       <main>
         {withoutPermission ? (
           <p className="cf-aviso cf-container" role="alert">

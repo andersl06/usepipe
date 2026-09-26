@@ -16,7 +16,7 @@ export class RedirectController {
     @Res() resposta: Response,
   ): Promise<void> {
     const destination = await redirecionarClique(codigo, {
-      agenteUser: request.headers['user-agent'] ?? null,
+      agentUser: request.headers['user-agent'] ?? null,
       origin: origem ?? null,
       ip: enderecoDoCliente(request),
     });

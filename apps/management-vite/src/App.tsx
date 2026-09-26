@@ -1,17 +1,17 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { ClosureNotice } from '@pipe/ui';
-import { ExigirSession } from './components/exigir-session';
-import { useRegistrarNavigation } from './lib/navigation';
+import { RequireSession } from './components/exigir-session';
+import { useRegisterNavigation } from './lib/navigation';
 import { PageLogin } from './pages/login';
 import { NaoEncontrado } from './pages/nao-encontrado';
 import { PagePortal } from './pages/portal';
-import { ContactRota } from './pages/flow/contact';
+import { ContactRoute } from './pages/flow/contact';
 import { ContactHome } from './pages/flow/home';
 import { ChannelsPage } from './pages/flow/channels/channels';
 import { ServicesPage } from './pages/flow/services/servicos';
 import { ContactsShell } from './pages/flow/contacts/shell';
-import { BotListaContacts } from './pages/flow/contacts/lista';
-import { BotDetalheContact } from './pages/flow/contacts/detalhe/detalhe';
+import { BotListContacts } from './pages/flow/contacts/lista';
+import { BotDetailContact } from './pages/flow/contacts/detalhe/detalhe';
 import { IntegrationsShell } from './pages/flow/integrations/shell';
 import { PageIntegrations } from './pages/flow/integrations/integrations';
 import { PageWebhook } from './pages/flow/integrations/webhook/webhook';
@@ -47,7 +47,7 @@ import { PageAttendance } from './pages/operation/reports-attendance';
 import { PageEffort } from './pages/operation/reports-effort';
 import { PageSatisfaction } from './pages/operation/reports-satisfaction';
 import { PageQualityReview } from './pages/operation/quality-review';
-import { EvaluationPageFicha } from './pages/operation/quality-review-ficha';
+import { EvaluationPageRecord } from './pages/operation/quality-review-ficha';
 import { AttendancePageRules } from './pages/registrations/rules-attendance';
 import { PageHours } from './pages/registrations/regras-horarios';
 import { AgentsPageManagement } from './pages/registrations/agents-management';
@@ -66,7 +66,7 @@ import { PageChannels } from './pages/registrations/channels';
 import { ShellChannelWhatsapp } from './pages/flow/channels/whatsapp/shell';
 import { AbaVisaoGeral } from './pages/flow/channels/whatsapp/visao-geral';
 import { AbaPerfil } from './pages/flow/channels/whatsapp/perfil';
-import { AbaSettings } from './pages/flow/channels/whatsapp/settings';
+import { TabSettings } from './pages/flow/channels/whatsapp/settings';
 import { AbaAlerta } from './pages/flow/channels/whatsapp/alerta';
 import { PageChannelInstagram } from './pages/flow/channels/instagram/page';
 import { PageChannelMessenger } from './pages/flow/channels/messenger/page';
@@ -86,7 +86,7 @@ import { PageBuilder } from './pages/builder';
 /**
  * Contact child routes render beneath parent `RotaDoContato` at `/fluxo/:id` or `/roteador/:id`. Router reference screens formerly lived incorrectly under `/fluxo/:id/*` (`auvpsegurosrouter`, `pipeprincipal`) and moved to `/roteador/:id/*`. Keep `/fluxo/:id/*` on the same screens until the chatbot-specific view is designed. `RotaDoContato` redirects a prefix that disagrees with contact type, making shared child routes safe for now.
  */
-const contactRotas = (
+const contactRoutes = (
   <>
     <Route index element={<ContactHome />} />
     <Route path="channels" element={<ChannelsPage />} />
@@ -96,7 +96,7 @@ const contactRotas = (
     <Route path="channels/whatsapp" element={<ShellChannelWhatsapp />}>
       <Route index element={<AbaVisaoGeral />} />
       <Route path="profile" element={<AbaPerfil />} />
-      <Route path="settings" element={<AbaSettings />} />
+      <Route path="settings" element={<TabSettings />} />
       <Route path="alerta" element={<AbaAlerta />} />
     </Route>
     <Route path="channels/instagram" element={<PageChannelInstagram />} />
@@ -111,7 +111,7 @@ const contactRotas = (
       <Route path="monitoring" element={<PageMonitoring />} />
       <Route path="history" element={<PageHistory />} />
       <Route path="quality-review" element={<PageQualityReview />} />
-      <Route path="quality-review/:id" element={<EvaluationPageFicha />} />
+      <Route path="quality-review/:id" element={<EvaluationPageRecord />} />
       <Route path="reports/attendance" element={<PageAttendance />} />
       <Route path="reports/effort" element={<PageEffort />} />
       <Route path="reports/satisfaction" element={<PageSatisfaction />} />
@@ -139,11 +139,11 @@ const contactRotas = (
     </Route>
 
     <Route path="contacts" element={<ContactsShell />}>
-      <Route index element={<BotListaContacts />} />
+      <Route index element={<BotListContacts />} />
       {/* fix(01-24): o nome do param tinha ficado PT (`contatoId`) depois do
           rename, e `detalhe.tsx` já lê `contactId` — o contato nunca resolvia
           (D-29, contato no path continua "keep", mas precisa funcionar). */}
-      <Route path=":contactId" element={<BotDetalheContact />} />
+      <Route path=":contactId" element={<BotDetailContact />} />
     </Route>
 
     <Route path="integrations" element={<IntegrationsShell />}>
@@ -193,7 +193,7 @@ const contactRotas = (
  * Gestão routes retain the same URLs as the former Next app so bookmarks and history keep working. The tree uses contact `/fluxo/:id` for chatbot or `/roteador/:id` for router as parent state, with modules below. Only `/entrar` is public; `ExigirSessao` guards the rest.
  */
 export function App() {
-  useRegistrarNavigation();
+  useRegisterNavigation();
   return (
     <>
     <ClosureNotice />
@@ -201,7 +201,7 @@ export function App() {
       <Route path="/login" element={<PageLogin />} />
       <Route path="/invite/:token" element={<PageInvitation />} />
 
-      <Route element={<ExigirSession />}>
+      <Route element={<RequireSession />}>
         <Route path="/" element={<Navigate to="/portal" replace />} />
         <Route path="/portal" element={<PagePortal />} />
         <Route path="/updates" element={<PageUpdates />} />
@@ -222,15 +222,15 @@ export function App() {
  */}
         <Route path="/deployment" element={<PageDeployment />} />
 
-        <Route path="/flow/:id" element={<ContactRota />}>
-          {contactRotas}
+        <Route path="/flow/:id" element={<ContactRoute />}>
+          {contactRoutes}
           {/*
  * Builder is hidden from the router menu by `ESCONDIDOS_NO_ROTEADOR` in `fluxo/itens.ts`, matching the reference, so this route exists only here and not below `/roteador/:id`.
  */}
           <Route path="builder" element={<PageBuilder />} />
         </Route>
-        <Route path="/router/:id" element={<ContactRota />}>
-          {contactRotas}
+        <Route path="/router/:id" element={<ContactRoute />}>
+          {contactRoutes}
         </Route>
 
         <Route path="*" element={<NaoEncontrado />} />

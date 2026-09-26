@@ -25,7 +25,7 @@
 export const TEMAS = ['sistema', 'claro', 'escuro'] as const;
 export type Tema = (typeof TEMAS)[number];
 
-export const KEY_TEMA = 'pipe-tema';
+export const KEY_THEME = 'pipe-tema';
 
 export function temaValido(value: unknown): value is Tema {
   return typeof value === 'string' && (TEMAS as readonly string[]).includes(value);
@@ -162,7 +162,7 @@ export function recusarCodigoDeCampo(value: string | null): string | null {
  * `pnpm-workspace` exists to prevent. When the list changes there, it changes
  * here; the test below is what surfaces the drift.
  */
-export const CATALOGO_OF_SCOPES = [
+export const CATALOG_OF_SCOPES = [
   { codigo: 'conversas:ler', rotulo: 'Ler conversas' },
   { codigo: 'conversas:escrever', rotulo: 'Criar e alterar conversa' },
   { codigo: 'mensagens:ler', rotulo: 'Ler mensagens' },
@@ -175,7 +175,7 @@ export const CATALOGO_OF_SCOPES = [
 ] as const;
 
 export function scopesValid(codigos: readonly string[]): string[] {
-  const conhecidos = new Set(CATALOGO_OF_SCOPES.map((e) => e.codigo as string));
+  const conhecidos = new Set(CATALOG_OF_SCOPES.map((e) => e.codigo as string));
   return [...new Set(codigos)].filter((c) => conhecidos.has(c));
 }
 
@@ -227,7 +227,7 @@ export interface Perfil {
   nome: string;
   email: string;
   avatarUrl: string | null;
-  ultimoAccessIn: Date | null;
+  lastAccessIn: Date | null;
   papeis: string[];
 }
 
@@ -249,17 +249,17 @@ export interface Member {
   nome: string;
   email: string;
   ativo: boolean;
-  ultimoAccessIn: Date | null;
+  lastAccessIn: Date | null;
   roleId: string | null;
   role: string | null;
 }
 
-export interface InvitationPendente {
+export interface InvitationPending {
   id: string;
   email: string;
   role: string;
   expiraEm: Date;
-  convidadoBy: string | null;
+  guestBy: string | null;
 }
 
 export interface RoleSummary {
@@ -271,7 +271,7 @@ export interface RoleSummary {
   members: number;
 }
 
-export interface CatalogoPermission {
+export interface CatalogPermission {
   codigo: string;
   description: string;
   grupo: string;

@@ -83,8 +83,8 @@ function recusa(campo: string, message: string): PipeError {
 /**
  * Local placeholder for Meta-generated authentication template body until first sync imports the actual localized `BODY` text. Verify the exact pt_BR phrase with a real token. The required invariant is one `{{1}}` code variable. Synchronization also resolves the Meta-owned `add_security_recommendation` text.
  */
-export function textOfAuthentication(recommendationOfSeguranca: boolean): string {
-  return recommendationOfSeguranca
+export function textOfAuthentication(recommendationOfSecurity: boolean): string {
+  return recommendationOfSecurity
     ? '{{1}} é seu código de verificação. Para sua segurança, não compartilhe este código.'
     : '{{1}} é seu código de verificação.';
 }
@@ -105,7 +105,7 @@ interface TemplateLocal {
   statusMeta: string;
   body: string;
   headerType: string;
-  quantasVariables: number;
+  howManyVariables: number;
 }
 
 export function comoLocal(template: TemplateOfMeta): TemplateLocal | null {
@@ -126,7 +126,7 @@ export function comoLocal(template: TemplateOfMeta): TemplateLocal | null {
     statusMeta: STATUS[template.status ?? ''] ?? 'pendente',
     body: corpo,
     headerType: cabecalho ? (CABECALHO_DA_META[cabecalho.format ?? ''] ?? 'nenhum') : 'nenhum',
-    quantasVariables: variablesOfText(corpo).length,
+    howManyVariables: variablesOfText(corpo).length,
   };
 }
 
@@ -168,7 +168,7 @@ export async function sincronizarModelos(
   await noTenant(tenantId, async (tx) => {
     // Write serially, as for every write inside `noTenant`.
     for (const m of validos) {
-      const padrao = JSON.stringify(Array.from({ length: m.quantasVariables }, (_, i) => `Variável ${i + 1}`));
+      const padrao = JSON.stringify(Array.from({ length: m.howManyVariables }, (_, i) => `Variável ${i + 1}`));
       const { rows } = await tx.execute<{ criado: boolean }>(sql`
         insert into template_mensagem
           (tenant_id, canal_id, nome, idioma, categoria, status_meta, corpo, cabecalho_tipo, variaveis)
@@ -216,7 +216,7 @@ export interface OptionsOfAuthentication {
   /**
    * `add_security_recommendation` adds Meta's "não compartilhe este código" to the body. Default it on, as in the source card (`authenticationMessage`: "… Para sua segurança, não o compartilhe.").
    */
-  recommendationOfSeguranca?: boolean;
+  recommendationOfSecurity?: boolean;
   /** `code_expiration_minutes` (1–90) adds Meta's "este código expira em N minutos" footer; absent means no footer. */
   expiraEmMinutos?: number;
   /** Copy button label for `OTP`/`COPY_CODE`, up to 25 characters; default is "Copiar código". */
@@ -320,7 +320,7 @@ function assembleComponentsOfAuthentication(pedido: RequestOfTemplate): Componen
 
   const componentes: ComponentOfTemplate[] = [];
   const corpo: ComponentOfTemplate = { type: 'BODY' };
-  if (options.recommendationOfSeguranca ?? true) corpo.add_security_recommendation = true;
+  if (options.recommendationOfSecurity ?? true) corpo.add_security_recommendation = true;
   componentes.push(corpo);
 
   if (options.expiraEmMinutos !== undefined && options.expiraEmMinutos !== null) {

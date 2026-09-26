@@ -5,7 +5,7 @@ import { diferenca, registrarAuditoria } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { KeyOrSession, Scopes, atorDe, contextOf } from '../authentication.js';
 import type { RequestAuthenticated } from '../authentication.js';
-import { WithSession, exigirPermission, sessionOf } from '../session.js';
+import { WithSession, requirePermission, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import { definirStatus, ehStateAgent } from '../domain/status-agent.js';
 import { telefoneValido } from '../domain/message-active.js';
@@ -188,7 +188,7 @@ export class ContactsController {
     }
 
     return noTenant(session.tenantId, async (tx) => {
-      await exigirPermission(tx, session.userId, 'contato.editar');
+      await requirePermission(tx, session.userId, 'contato.editar');
 
       const { rows: current } = await tx.execute<LineContact>(sql`
         select id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos

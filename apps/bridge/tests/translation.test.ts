@@ -7,13 +7,13 @@ import {
   identity,
   numeroVisivel,
 } from '../src/translation.js';
-import type { LinhaConversation, LinhaMessage } from '../src/translation.js';
+import type { ConversationRow, MessageRow } from '../src/translation.js';
 
 /**
  * Bridge translation can fail silently: a wrong field name does not crash, but can show incorrect client data. Test every mapping for that reason.
  */
 
-function conversation(sobre: Partial<LinhaConversation> = {}): LinhaConversation {
+function conversation(sobre: Partial<ConversationRow> = {}): ConversationRow {
   return {
     id: '3f2504e0-4f89-41d3-9a0c-0305e82c3301',
     state: 'na_fila',
@@ -21,8 +21,8 @@ function conversation(sobre: Partial<LinhaConversation> = {}): LinhaConversation
     criada_em: '2026-09-12T10:00:00.000Z',
     atribuida_em: null,
     encerrada_em: null,
-    ultimaMessageIn: '2026-09-12T10:05:00.000Z',
-    ultimaMessageOf: 'contato',
+    lastMessageIn: '2026-09-12T10:05:00.000Z',
+    lastMessageOf: 'contato',
     queueId: 'f1',
     queueName: 'Suporte',
     agentId: null,
@@ -30,8 +30,8 @@ function conversation(sobre: Partial<LinhaConversation> = {}): LinhaConversation
     agentEmail: null,
     contactId: 'c1',
     contactName: 'Maria Souza',
-    contactTelefone: '+5531999998888',
-    channelTipo: 'whatsapp_cloud',
+    contactPhone: '+5531999998888',
+    channelType: 'whatsapp_cloud',
     lastMessageText: 'oi, preciso de ajuda',
     ...sobre,
   };
@@ -56,7 +56,7 @@ describe('conversation -> ticket', () => {
   it('the contact\'s last message is `received`; ours is `sent`', () => {
     const doCliente = comoTicket(conversation()) as { lastMessage: { direction: string } };
     expect(doCliente.lastMessage.direction).toBe('received');
-    const nossa = comoTicket(conversation({ ultimaMessageOf: 'atendente' })) as {
+    const nossa = comoTicket(conversation({ lastMessageOf: 'atendente' })) as {
       lastMessage: { direction: string };
     };
     expect(nossa.lastMessage.direction).toBe('sent');
@@ -87,7 +87,7 @@ describe('conversation -> ticket', () => {
 });
 
 describe('message -> document', () => {
-  const base: LinhaMessage = {
+  const base: MessageRow = {
     id: 'm1',
     criada_em: '2026-09-12T10:05:00.000Z',
     direction: 'entrada',

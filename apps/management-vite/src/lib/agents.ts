@@ -60,6 +60,6 @@ export function permissionsDescription(nomes: readonly string[]): string {
 }
 
 
-export function editTitulo(quantity: number): string {
+export function editTitle(quantity: number): string {
   return `Editar ${quantity} atendente${quantity === 1 ? '' : 's'}`;
 }

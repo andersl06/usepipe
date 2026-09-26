@@ -3,10 +3,10 @@ import type { KeyboardEvent as KeyboardEventDeReact } from 'react';
 import type { ConditionBlip } from '@pipe/core';
 import { ehUnaria } from '@pipe/core';
 import { Campo, Etiqueta } from '@pipe/ui';
-import { IconeManagement } from '../../components/icones-management';
+import { ManagementIcon } from '../../components/icones-management';
 import { Selection } from '../../components/selection';
 import {
-  COMPARISONS_OF_TELA,
+  COMPARISONS_OF_SCREEN,
   FONTES_DA_TELA,
   OPERADORES_DA_TELA,
   ROTULOS_DAS_SAIDAS,
@@ -19,7 +19,7 @@ import {
   fonteDe,
   fonteSemSuporte,
   newCondition,
-  removerValue,
+  removeValue,
 } from './conditions';
 
 /**
@@ -41,7 +41,7 @@ export function ConditionsEditor({
   return (
     <div className="bl-conditions">
       {conditions.map((c, i) => (
-        <ConditionLinha
+        <ConditionRow
           key={i}
           condition={c}
           first={i === 0}
@@ -62,7 +62,7 @@ export function ConditionsEditor({
   );
 }
 
-function ConditionLinha({
+function ConditionRow({
   condition,
   first,
   onMudar,
@@ -92,7 +92,7 @@ function ConditionLinha({
       e.preventDefault();
       confirmValue();
     } else if (e.key === 'Backspace' && !digitando && values.length > 0) {
-      onMudar(removerValue(condition, values.length - 1));
+      onMudar(removeValue(condition, values.length - 1));
     }
   }
 
@@ -130,14 +130,14 @@ function ConditionLinha({
           value={comparison}
           onChange={(e) => onMudar(withComparison(condition, e.target.value as typeof comparison))}
         >
-          {COMPARISONS_OF_TELA.map((c) => (
+          {COMPARISONS_OF_SCREEN.map((c) => (
             <option key={c.value} value={c.value}>
               {c.rotulo}
             </option>
           ))}
         </Selection>
         <button type="button" className="iconbtn bl-remover" title="Excluir condição" aria-label="Excluir condição" onClick={onRemover}>
-          <IconeManagement nome="lixeira" tamanho={18} />
+          <ManagementIcon nome="lixeira" tamanho={18} />
         </button>
       </div>
       {!unaria ? (
@@ -160,7 +160,7 @@ function ConditionLinha({
             {values.map((v, i) => (
               <span key={`${v}-${i}`} className="bl-value">
                 {v}
-                <button type="button" aria-label={`Remover ${v}`} onClick={() => onMudar(removerValue(condition, i))}>
+                <button type="button" aria-label={`Remover ${v}`} onClick={() => onMudar(removeValue(condition, i))}>
                   ×
                 </button>
               </span>

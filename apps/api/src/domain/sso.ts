@@ -153,7 +153,7 @@ async function linhaDoTenant(tenantId: string): Promise<LinhaConexao | null> {
   });
 }
 
-export interface MudancaOfState {
+export interface ChangeOfState {
   state?: string;
   policy?: string;
 }
@@ -164,7 +164,7 @@ export interface MudancaOfState {
 export async function defineState(
   tenantId: string,
   usuarioId: string,
-  mudanca: MudancaOfState,
+  mudanca: ChangeOfState,
 ): Promise<ConexaoSsoVisivel> {
   const atual = await linhaDoTenant(tenantId);
   if (!atual) throw PipeError.naoEncontrado('Conexão de SSO');
@@ -245,12 +245,12 @@ export interface ConnectionForFlow {
  */
 export async function connectionForFlow(
   tenantId: string,
-  options: { exigirActive: boolean },
+  options: { requireActive: boolean },
   buscar: typeof fetch = fetch,
 ): Promise<ConnectionForFlow> {
   const linha = await linhaDoTenant(tenantId);
   if (!linha) throw PipeError.naoEncontrado('Conexão de SSO');
-  if (options.exigirActive && linha.estado !== 'ativa') {
+  if (options.requireActive && linha.estado !== 'ativa') {
     throw PipeError.request('sso_inactive', 'O SSO desta conta ainda não foi ativado.');
   }
 

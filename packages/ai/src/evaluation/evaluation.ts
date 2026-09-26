@@ -14,7 +14,7 @@ import { calcularNota, valueFraction } from './nota.js';
 import type { Formulario, ResultEvaluation, RespostaBruta } from './tipos.js';
 import { criteriosDoFormulario } from './tipos.js';
 
-const EsquemaEvaluation = z.object({
+const SchemaEvaluation = z.object({
   respostas: z.array(
     z.object({
       criterioId: z.string(),
@@ -26,7 +26,7 @@ const EsquemaEvaluation = z.object({
   confianca: z.number().min(0).max(1),
 });
 
-export type OutputEvaluationIa = z.infer<typeof EsquemaEvaluation>;
+export type OutputEvaluationIa = z.infer<typeof SchemaEvaluation>;
 
 export interface OptionsEvaluation {
   formulario: Formulario;
@@ -64,13 +64,13 @@ export function resolverEvidencia(
   return messageId;
 }
 
-export async function avaliarConversation(options: OptionsEvaluation): Promise<ResultEvaluation> {
+export async function evaluateConversation(options: OptionsEvaluation): Promise<ResultEvaluation> {
   const { formulario, transcription } = options;
   const chamar = options.chamar ?? chamadaPadrao;
   const texto = PROMPT_EVALUATION.montar({
     transcription: transcription.texto,
     truncada: transcription.truncada,
-    messagesOmitidas: transcription.messagesOmitidas,
+    messagesOmitted: transcription.messagesOmitted,
     formulario,
     context: options.context,
   });
@@ -78,7 +78,7 @@ export async function avaliarConversation(options: OptionsEvaluation): Promise<R
   const { data, consumo, template } = await chamar({
     sistema: texto.sistema,
     user: texto.user,
-    esquema: EsquemaEvaluation,
+    esquema: SchemaEvaluation,
     feature: 'avaliacao',
     template: options.template,
     effort: options.effort ?? 'medium',
@@ -88,7 +88,7 @@ export async function avaliarConversation(options: OptionsEvaluation): Promise<R
   const byId = new Map(
     criteriosDoFormulario(formulario).map(({ criterio }) => [criterio.id, criterio]),
   );
-  const enriquecidas: (RespostaBruta & { evidenciaMessageId: string | null })[] = [];
+  const enriquecidas: (RespostaBruta & { evidenceMessageId: string | null })[] = [];
   const vistos = new Set<string>();
 
   for (const resposta of data.respostas) {
@@ -104,9 +104,9 @@ export async function avaliarConversation(options: OptionsEvaluation): Promise<R
     }
     vistos.add(criterio.id);
 
-    const evidenciaMessageId = resolverEvidencia(transcription, criterio.id, resposta.evidencia);
+    const evidenceMessageId = resolverEvidencia(transcription, criterio.id, resposta.evidencia);
     const fraction = valueFraction(criterio, resposta.valor);
-    if (fraction !== null && fraction < 1 && !evidenciaMessageId) {
+    if (fraction !== null && fraction < 1 && !evidenceMessageId) {
       throw new FormatIaError(
         `O critério "${criterio.nome}" (${criterio.id}) não saiu conforme e veio sem evidência. ` +
           'Evidência é obrigatória para o atendente poder contestar.',
@@ -119,7 +119,7 @@ export async function avaliarConversation(options: OptionsEvaluation): Promise<R
       value: resposta.valor,
       justificativa: resposta.justificativa,
       evidencia: resposta.evidencia,
-      evidenciaMessageId,
+      evidenceMessageId,
     });
   }
 
@@ -129,7 +129,7 @@ export async function avaliarConversation(options: OptionsEvaluation): Promise<R
     formularioId: formulario.id,
     nota: calculada.nota,
     notaAntesDoFatal: calculada.notaAntesDoFatal,
-    fatalReprovados: calculada.fatalReprovados,
+    fatalRejected: calculada.fatalRejected,
     respostas: calculada.respostas,
     confianca: data.confianca,
     consumo,

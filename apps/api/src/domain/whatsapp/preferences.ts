@@ -1,7 +1,7 @@
 import { registrarAuditoria } from '@pipe/db';
 import { noTenant } from '../../database.js';
 import { PipeError } from '../../errors.js';
-import { atualizarChannel, readChannelWhatsApp } from './channel.js';
+import { updateChannel, readChannelWhatsApp } from './channel.js';
 import type { ChannelWhatsApp } from './channel.js';
 
 // The worker owns the rule because it assembles the message; reexport it here.
@@ -83,7 +83,7 @@ export async function writePreferences(
   const channel: ChannelWhatsApp = await readChannelWhatsApp(tenantId, canalId);
   const antes = preferencesOf(channel);
   const depois = aplicarPedido(antes, pedido ?? {});
-  await atualizarChannel(channel, { preferencias: depois });
+  await updateChannel(channel, { preferencias: depois });
   await noTenant(tenantId, (tx) =>
     registrarAuditoria(tx, tenantId, {
       ator: { type: 'usuario', id: userId },

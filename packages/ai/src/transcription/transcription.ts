@@ -3,8 +3,8 @@
  */
 
 export type DirectionMessage = 'entrada' | 'saida' | 'interna';
-export type AutorMessage = 'contato' | 'atendente' | 'bot' | 'sistema';
-export type TipoMessage =
+export type AuthorMessage = 'contato' | 'atendente' | 'bot' | 'sistema';
+export type TypeMessage =
   'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'localizacao' | 'template';
 
 export interface AttachmentTranscription {
@@ -19,14 +19,14 @@ export interface MessageTranscription {
   id: string;
   criadaEm: Date;
   direction: DirectionMessage;
-  autorTipo: AutorMessage;
+  autorTipo: AuthorMessage;
   autorNome?: string | null;
-  tipo: TipoMessage;
+  tipo: TypeMessage;
   conteudo?: string | null;
   attachment?: AttachmentTranscription | null;
 }
 
-export interface LinhaTranscription {
+export interface TranscriptionRow {
   /** Short label used by the model to cite evidence. */
   rotulo: string;
   messageId: string;
@@ -36,11 +36,11 @@ export interface LinhaTranscription {
 export interface Transcription {
 
   texto: string;
-  linhas: LinhaTranscription[];
+  linhas: TranscriptionRow[];
   /** `rotulo` → `mensagem.id`, mapping cited evidence back to the database. */
   indice: Record<string, string>;
   truncada: boolean;
-  messagesOmitidas: number;
+  messagesOmitted: number;
   totalMessages: number;
 }
 
@@ -48,15 +48,15 @@ export interface OptionsTranscription {
   /** Total character budget for the transcript. */
   maxCaracteres?: number;
   /** Teto por mensagem, antes de qualquer truncamento global. */
-  maxCaracteresByMessage?: number;
+  maxCharactersByMessage?: number;
   /**
    * Share of the budget reserved for the beginning when truncating; the remainder goes to the end. The request and outcome are usually at these two ends.
    */
-  fractionInicio?: number;
+  fractionStart?: number;
 }
 
 export const MAX_CARACTERES_PADRAO = 24_000;
-export const MAX_CARACTERES_BY_MESSAGE_DEFAULT = 2_000;
+export const MAX_CHARACTERS_BY_MESSAGE_DEFAULT = 2_000;
 export const FRACTION_START_DEFAULT = 0.4;
 
 const MARCA_CORTE = '…(cortado)';
@@ -91,7 +91,7 @@ export function carimboDeHora(em: Date): string {
 /**
  * Resolved message body: audio uses its transcript when available, media becomes a description, and an empty message is identified as empty.
  */
-export function messageCorpo(m: MessageTranscription): string {
+export function messageBody(m: MessageTranscription): string {
   const texto = m.conteudo?.trim() ?? '';
   const file = m.attachment?.nameFile?.trim();
 
@@ -124,30 +124,30 @@ function cortar(texto: string, max: number): string {
 export function montarLinha(
   m: MessageTranscription,
   rotulo: string,
-  maxCaracteresByMessage: number,
-): LinhaTranscription {
+  maxCharactersByMessage: number,
+): TranscriptionRow {
   const marcaInterna = m.direction === 'interna' ? ' (nota interna)' : '';
   const cabecalho = `[${rotulo}] ${carimboDeHora(m.criadaEm)} ${rotuloDoAutor(m)}${marcaInterna}: `;
-  const corpo = cortar(messageCorpo(m).replace(/\s+/g, ' ').trim(), maxCaracteresByMessage);
+  const corpo = cortar(messageBody(m).replace(/\s+/g, ' ').trim(), maxCharactersByMessage);
   return { rotulo, messageId: m.id, texto: cabecalho + corpo };
 }
 
 /**
  * Index only lines retained after truncation. A cited label outside this index is a hallucination that evaluation rejects.
  */
-function indexar(linhas: readonly LinhaTranscription[]): Record<string, string> {
+function indexar(linhas: readonly TranscriptionRow[]): Record<string, string> {
   const indice: Record<string, string> = {};
   for (const linha of linhas) indice[linha.rotulo] = linha.messageId;
   return indice;
 }
 
-function semTruncar(linhas: LinhaTranscription[]): Transcription {
+function semTruncar(linhas: TranscriptionRow[]): Transcription {
   return {
     texto: linhas.map((l) => l.texto).join('\n'),
     linhas,
     indice: indexar(linhas),
     truncada: false,
-    messagesOmitidas: 0,
+    messagesOmitted: 0,
     totalMessages: linhas.length,
   };
 }
@@ -155,13 +155,13 @@ function semTruncar(linhas: LinhaTranscription[]): Transcription {
 /**
  * Normalize the conversation and, if it exceeds the budget, retain its beginning and end while reporting the number of omitted messages. Enforce chronological order here; input order is not trusted.
  */
-export function montarTranscription(
+export function buildTranscription(
   messages: readonly MessageTranscription[],
   options: OptionsTranscription = {},
 ): Transcription {
   const maxCaracteres = options.maxCaracteres ?? MAX_CARACTERES_PADRAO;
-  const maxByMessage = options.maxCaracteresByMessage ?? MAX_CARACTERES_BY_MESSAGE_DEFAULT;
-  const fractionStart = options.fractionInicio ?? FRACTION_START_DEFAULT;
+  const maxByMessage = options.maxCharactersByMessage ?? MAX_CHARACTERS_BY_MESSAGE_DEFAULT;
+  const fractionStart = options.fractionStart ?? FRACTION_START_DEFAULT;
 
   const ordenadas = [...messages].sort((a, b) => a.criadaEm.getTime() - b.criadaEm.getTime());
   const todas = ordenadas.map((m, i) => montarLinha(m, `m${i + 1}`, maxByMessage));
@@ -207,7 +207,7 @@ export function montarTranscription(
     linhas,
     indice: indexar(linhas),
     truncada: true,
-    messagesOmitidas: omitidas,
+    messagesOmitted: omitidas,
     totalMessages: todas.length,
   };
 }

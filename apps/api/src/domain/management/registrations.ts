@@ -24,7 +24,7 @@ import {
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../errors.js';
-import { exigirPermission } from '../../session.js';
+import { requirePermission } from '../../session.js';
 import { corValida } from './colors-of-queue.js';
 import { minutosDoRelogio, relogio, relogioValido } from './format.js';
 import { campoValido, operadorValido, type OperadorDeRegra, type RuleOfQueue } from './rule-queue.js';
@@ -428,7 +428,7 @@ export async function editarFaixaHorario(
   pedido: RequestOfEditOfRange,
 ): Promise<FaixaGravada> {
   const atual = await faixaViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, SCHEDULE_MANAGE);
+  await requirePermission(tx, usuarioId, SCHEDULE_MANAGE);
 
   // `relogio()` converts PostgreSQL `HH:MM:SS` to the API's `HH:MM`
   // format; otherwise resubmitting the same time appears to be a change
@@ -489,7 +489,7 @@ export async function excluirFaixaHorario(
   id: string,
 ): Promise<void> {
   const atual = await faixaViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, SCHEDULE_MANAGE);
+  await requirePermission(tx, usuarioId, SCHEDULE_MANAGE);
 
   await tx.delete(horarioFaixa).where(and(eq(horarioFaixa.tenantId, tid), eq(horarioFaixa.id, id)));
 
@@ -520,7 +520,7 @@ export interface ExceptionWritten {
   reason: string | null;
 }
 
-async function exceptionViva(tx: TransactionPipe, tid: string, id: string) {
+async function exceptionLive(tx: TransactionPipe, tid: string, id: string) {
   const [atual] = await tx
     .select({
       id: scheduleException.id,
@@ -541,15 +541,15 @@ async function exceptionViva(tx: TransactionPipe, tid: string, id: string) {
 /**
  * Update follows `salvarExcecaoInterna`: closed has no own hours, open requires both, start < end, and no conflicting date in the same schedule (`horario_excecao_uk`).
  */
-export async function editarExceptionSchedule(
+export async function editExceptionSchedule(
   tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   id: string,
   pedido: RequestOfEditOfException,
 ): Promise<ExceptionWritten> {
-  const atual = await exceptionViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, SCHEDULE_MANAGE);
+  const atual = await exceptionLive(tx, tid, id);
+  await requirePermission(tx, usuarioId, SCHEDULE_MANAGE);
 
   const antes = {
     data: atual.data,
@@ -650,8 +650,8 @@ export async function deleteExceptionSchedule(
   usuarioId: string,
   id: string,
 ): Promise<void> {
-  const atual = await exceptionViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, SCHEDULE_MANAGE);
+  const atual = await exceptionLive(tx, tid, id);
+  await requirePermission(tx, usuarioId, SCHEDULE_MANAGE);
 
   await tx.delete(scheduleException).where(and(eq(scheduleException.tenantId, tid), eq(scheduleException.id, id)));
 
@@ -678,7 +678,7 @@ export async function deleteExceptionSchedule(
  * quando a regra aponta para uma fila desativada — regra que manda conversa
  * para fila desativada é regra que engole conversa.
  */
-export interface QueueForEscolher {
+export interface QueueForChoose {
   id: string;
   name: string;
   ativa: boolean;
@@ -691,7 +691,7 @@ export interface RuleOfQueueRegistered extends RuleOfQueue {
 
 export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
   regras: RuleOfQueueRegistered[];
-  queues: QueueForEscolher[];
+  queues: QueueForChoose[];
   /** Inbox names and their default queue, used when no rule matches. */
   defaults: { inbox: string; queue: string | null }[];
 }> {
@@ -785,7 +785,7 @@ export async function writeRuleQueue(
   quemGrava: Ator,
   inbound: NewRuleOfQueue,
 ): Promise<Recording> {
-  if (quemGrava.type === 'usuario' && quemGrava.id) await exigirPermission(tx, quemGrava.id, RULE_MANAGE);
+  if (quemGrava.type === 'usuario' && quemGrava.id) await requirePermission(tx, quemGrava.id, RULE_MANAGE);
   return consultar(tx, async (tx) => {
     // `regra_fila` has no unique index on name; uniqueness is enforced by this
     // screen so duplicate 'Cobrança' rules cannot mislead a manager into editing the wrong one.
@@ -845,7 +845,7 @@ export async function toggleActiveOfRuleQueue(
   quemAlterna: Ator,
   id: string,
 ): Promise<Recording> {
-  if (quemAlterna.type === 'usuario' && quemAlterna.id) await exigirPermission(tx, quemAlterna.id, RULE_MANAGE);
+  if (quemAlterna.type === 'usuario' && quemAlterna.id) await requirePermission(tx, quemAlterna.id, RULE_MANAGE);
   return consultar(tx, async (tx) => {
     const [atual] = await tx
       .select({ nome: ruleQueue.nome, ativa: ruleQueue.active })
@@ -899,7 +899,7 @@ export interface RuleQueueWritten {
 }
 
 /** Return this tenant's live rule with conditions, or 404. */
-async function ruleQueueViva(tx: TransactionPipe, tid: string, id: string): Promise<RuleQueueWritten> {
+async function ruleQueueLive(tx: TransactionPipe, tid: string, id: string): Promise<RuleQueueWritten> {
   const [atual] = await tx
     .select({
       id: ruleQueue.id,
@@ -958,15 +958,15 @@ function conditionsChecked(bruto: readonly ConditionOfEdit[]): ConditionOfEdit[]
 }
 
 
-export async function editarRuleQueue(
+export async function editRuleQueue(
   tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   id: string,
   pedido: RequestOfEditOfRuleQueue,
 ): Promise<RuleQueueWritten> {
-  const atual = await ruleQueueViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, RULE_MANAGE);
+  const atual = await ruleQueueLive(tx, tid, id);
+  await requirePermission(tx, usuarioId, RULE_MANAGE);
 
   const antes = { nome: atual.name, ordem: atual.order, combinador: atual.combiner, filaDestinoId: atual.queueDestinationId };
   const depois = { ...antes };
@@ -1041,7 +1041,7 @@ export async function editarRuleQueue(
     depois: { ...mudanca.depois, ...(conditionsNews !== undefined ? { condicoes: conditionsNews.length } : {}) },
   });
 
-  return ruleQueueViva(tx, tid, id);
+  return ruleQueueLive(tx, tid, id);
 }
 
 /** On `destroy`, `regra_fila_condicao.regra_id` has `ON DELETE CASCADE`, so deleting the rule also deletes its conditions. */
@@ -1051,8 +1051,8 @@ export async function deleteRuleQueue(
   userId: string,
   id: string,
 ): Promise<void> {
-  const atual = await ruleQueueViva(tx, tid, id);
-  await exigirPermission(tx, userId, RULE_MANAGE);
+  const atual = await ruleQueueLive(tx, tid, id);
+  await requirePermission(tx, userId, RULE_MANAGE);
 
   await tx.delete(ruleQueue).where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.id, id)));
 
@@ -1221,12 +1221,12 @@ async function nameOfQueueInUse(
   return conflito !== undefined;
 }
 
-function conflitoOfNameOfQueue(nome: string): PipeError {
+function conflictOfNameOfQueue(nome: string): PipeError {
   return PipeError.conflito('name_in_use', `Já existe uma fila chamada "${nome}".`);
 }
 
 /** A fila viva do tenant, ou 404 — o `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
-async function queueViva(tx: TransactionPipe, tid: string, id: string): Promise<QueueWritten> {
+async function queueLive(tx: TransactionPipe, tid: string, id: string): Promise<QueueWritten> {
   const [atual] = await tx
     .select({
       id: queue.id,
@@ -1250,7 +1250,7 @@ export async function createQueue(
   usuarioId: string,
   pedido: RequestOfQueue,
 ): Promise<{ id: string }> {
-  await exigirPermission(tx, usuarioId, QUEUE_MANAGE);
+  await requirePermission(tx, usuarioId, QUEUE_MANAGE);
 
   const nome = nameOfQueueChecked(pedido.name);
   const cor = colorOfQueueChecked(pedido.color);
@@ -1259,7 +1259,7 @@ export async function createQueue(
   const horarioId = pedido.scheduleId ? String(pedido.scheduleId) : null;
   const active = pedido.active ?? true;
 
-  if (await nameOfQueueInUse(tx, tid, nome)) throw conflitoOfNameOfQueue(nome);
+  if (await nameOfQueueInUse(tx, tid, nome)) throw conflictOfNameOfQueue(nome);
   if (horarioId && !(await horarioExiste(tx, tid, horarioId))) {
     throw PipeError.request('schedule_not_found', 'Horário de atendimento não encontrado.');
   }
@@ -1281,15 +1281,15 @@ export async function createQueue(
 }
 
 
-export async function editarQueue(
+export async function editQueue(
   tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   id: string,
   pedido: RequestOfEditOfQueue,
 ): Promise<QueueWritten> {
-  const atual = await queueViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, QUEUE_MANAGE);
+  const atual = await queueLive(tx, tid, id);
+  await requirePermission(tx, usuarioId, QUEUE_MANAGE);
 
   // Leave `antes` and `depois` without explicit type annotations: inferred literals retain
   // the implicit index signature required by `diferenca` (`Record<string, unknown>`).
@@ -1316,7 +1316,7 @@ export async function editarQueue(
   if (Object.keys(mudanca.depois).length === 0) return atual;
 
   if (depois.name !== antes.name && (await nameOfQueueInUse(tx, tid, depois.name, id))) {
-    throw conflitoOfNameOfQueue(depois.name);
+    throw conflictOfNameOfQueue(depois.name);
   }
 
   const [gravada] = await tx
@@ -1362,8 +1362,8 @@ export async function deleteQueue(
   usuarioId: string,
   id: string,
 ): Promise<void> {
-  const atual = await queueViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, QUEUE_MANAGE);
+  const atual = await queueLive(tx, tid, id);
+  await requirePermission(tx, usuarioId, QUEUE_MANAGE);
 
   const [withConversation] = await tx
     .select({ id: conversation.id })
@@ -1415,7 +1415,7 @@ export async function deleteQueue(
 }
 
 /** Linking creates queue membership or changes `capacidadeOverride` for an existing member. */
-export async function vincularAgentInQueue(
+export async function linkAgentInQueue(
   tx: TransactionPipe,
   tid: string,
   usuarioId: string,
@@ -1423,8 +1423,8 @@ export async function vincularAgentInQueue(
   agentId: string,
   capacityOverride?: number | null,
 ): Promise<void> {
-  await queueViva(tx, tid, queueId);
-  await exigirPermission(tx, usuarioId, QUEUE_MANAGE);
+  await queueLive(tx, tid, queueId);
+  await requirePermission(tx, usuarioId, QUEUE_MANAGE);
 
   const [pessoa] = await tx
     .select({ id: user.id })
@@ -1464,8 +1464,8 @@ export async function unlinkAgentOfQueue(
   filaId: string,
   atendenteId: string,
 ): Promise<void> {
-  await queueViva(tx, tid, filaId);
-  await exigirPermission(tx, usuarioId, QUEUE_MANAGE);
+  await queueLive(tx, tid, filaId);
+  await requirePermission(tx, usuarioId, QUEUE_MANAGE);
 
   const apagados = await tx
     .delete(queueAgent)
@@ -1585,7 +1585,7 @@ export async function createReasonPause(
   usuarioId: string,
   pedido: PedidoDeMotivoPausa,
 ): Promise<{ id: string }> {
-  await exigirPermission(tx, usuarioId, PAUSE_MANAGE);
+  await requirePermission(tx, usuarioId, PAUSE_MANAGE);
 
   const nome = nomeDeMotivoConferido(pedido.name);
   const durationSuggestedMin = durationSuggestedChecked(pedido.durationSuggestedMin);
@@ -1620,7 +1620,7 @@ export async function editarMotivoPausa(
   pedido: RequestOfEditOfReasonPause,
 ): Promise<MotivoPausaGravado> {
   const atual = await motivoVivo(tx, tid, id);
-  await exigirPermission(tx, usuarioId, PAUSE_MANAGE);
+  await requirePermission(tx, usuarioId, PAUSE_MANAGE);
 
   // No explicit type annotation; see the equivalent comment in `editarFila`.
   const antes = { ...atual };
@@ -1676,7 +1676,7 @@ export async function excluirMotivoPausa(
   id: string,
 ): Promise<void> {
   const atual = await motivoVivo(tx, tid, id);
-  await exigirPermission(tx, usuarioId, PAUSE_MANAGE);
+  await requirePermission(tx, usuarioId, PAUSE_MANAGE);
 
   await tx.delete(motivoPausa).where(and(eq(motivoPausa.tenantId, tid), eq(motivoPausa.id, id)));
 

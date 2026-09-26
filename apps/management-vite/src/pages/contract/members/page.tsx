@@ -8,8 +8,8 @@ import { useRead } from '../../../lib/query';
 import type { ContractMember, AccountRole, ContractSummary } from '../../../lib/contract';
 import { PAPEIS_DA_ORIGEM, accountEhRole } from '../catalogo';
 import '../contract.css';
-import { ConvidarMembers } from './convidar';
-import { MembersAbas, MembersTabela } from './tabela';
+import { InviteMembers } from './convidar';
+import { MembersTabs, MembersTable } from './tabela';
 
 /**
  * Members — the panel's "Adicione e exclua membros do contrato" card, which in the source opens the fragment's `/panel` route. Anyone getting here needs `conta.membros.ler`, and the check is the REAL one: the panel's `?demo=1` is purely cosmetic and opens no door. Anyone arriving without the permission is sent back to the panel. The source data contract is at `referencias-blip/pesquisa/blip-membros-do-contrato.md`. The shell matches theirs: the back arrow and "Membros do contrato {nome}" at the top (`setHeaderContent({ redirect: "/", text: … })`), and below it a single card with the selection table inside. What the panel calls the card's description ("Adicione e exclua membros do contrato") **is not** repeated here: it isn't repeated there either. The roles are the three ACCOUNT roles (migration 0021) and appear with their labels — "Admin", "Pode editar", "Pode visualizar" —, never the DB name. Manager, supervisor, agent and evaluator belong to attendance and don't appear here: in the source they're per-contact data. **Convidar** sits below the table, on the right, only for those who can write — like their `bp-btn--blip-dark`. The `api` (`POST /v1/convites`) is what saves, and the link comes back through the modal's state, never through the URL (see `convidarMembros`). Issued invites show up in the list as "(Pendente)", as in the source.
@@ -60,8 +60,8 @@ export function MembersPage() {
 
           <div className="mb-quadro">
             <div className="mb-card">
-              <MembersAbas podeEscrever={podeEscrever}>
-                <MembersTabela
+              <MembersTabs podeEscrever={podeEscrever}>
+                <MembersTable
                   podeEscrever={podeEscrever}
                   papeis={roleOptions}
                   /*
@@ -80,14 +80,14 @@ export function MembersPage() {
                     }))}
                 />
                 {podeEscrever ? (
-                  <ConvidarMembers
+                  <InviteMembers
                     papeis={roleOptions}
                     membersEmails={members
                       .filter((m) => m.tipo === 'usuario')
                       .map((m) => m.email.toLowerCase())}
                   />
                 ) : null}
-              </MembersAbas>
+              </MembersTabs>
             </div>
           </div>
         </div>

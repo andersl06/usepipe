@@ -9,7 +9,7 @@ import {
   urlOfAuthorizationOidc,
 } from '@pipe/authentication';
 import { databaseApp, databaseOwner, noTenant } from '../database.js';
-import { WithSession, exigirPermission, sessionCookie, sessionOf } from '../session.js';
+import { WithSession, requirePermission, sessionCookie, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import {
   codigoDaRecusa,
@@ -106,7 +106,7 @@ export class SsoLoginController {
     const session = sessionOf(request);
     await permitido(session.tenantId, session.userId, 'tenant.configurar');
     // `exigirAtiva: false` permits testing a draft connection, which is the purpose here.
-    const flow = await connectionForFlow(session.tenantId, { exigirActive: false });
+    const flow = await connectionForFlow(session.tenantId, { requireActive: false });
     const desafio: ChallengeWithInvitation = {
       ...createChallenge('/'),
       tenantId: session.tenantId,
@@ -130,7 +130,7 @@ export class SsoLoginController {
     }
 
     try {
-      const fluxo = await connectionForFlow(desafio.tenantId, { exigirActive: !desafio.test });
+      const fluxo = await connectionForFlow(desafio.tenantId, { requireActive: !desafio.test });
       const pessoa = await exchangeCodeOidc(fluxo.config, fluxo.descoberta, desafio, {
         code: textoDaQuery(requisicao, 'code'),
         state: textoDaQuery(requisicao, 'state'),
@@ -197,7 +197,7 @@ export class SsoLoginController {
   ): Promise<void> {
     try {
       const tenantId = await tenantBySlug(slug);
-      const fluxo = await connectionForFlow(tenantId, { exigirActive: true });
+      const fluxo = await connectionForFlow(tenantId, { requireActive: true });
       const origem = origemDaQuery(requisicao);
       const desafio: ChallengeWithInvitation = {
         ...createChallenge(textoDaQuery(requisicao, 'returnTo') ?? '/'),
@@ -244,5 +244,5 @@ function paraJson(conexao: Awaited<ReturnType<typeof lerConexao>>): Record<strin
 
 /** As in `convites.ts`, check permission in a separate transaction. */
 function permitido(tenantId: string, userId: string, codigo: string): Promise<void> {
-  return noTenant(tenantId, (tx) => exigirPermission(tx, userId, codigo));
+  return noTenant(tenantId, (tx) => requirePermission(tx, userId, codigo));
 }

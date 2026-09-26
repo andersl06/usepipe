@@ -211,7 +211,7 @@ describe('bot com o dublê do WhatsApp', () => {
       returning id
     `);
     await closeConversation(
-      { tenantId: cenario.tenantId, agentId: cenario.agentId, exigirAssignment: true },
+      { tenantId: cenario.tenantId, agentId: cenario.agentId, requireAssignment: true },
       { conversationId: conversa.id, etiquetaIds: [etiquetas[0]!.id] },
     );
 

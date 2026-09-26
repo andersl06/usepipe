@@ -8,18 +8,18 @@ import { FormularioRespostaPronta } from './communication-respostas-formulario';
 import { Modal, ModalConfirmation } from './_modal';
 
 /** The switch and the "Excluir" on the row card — `PATCH`/`DELETE` on `.../respostas-prontas/:id`. */
-function RespostaActions({
+function ResponseActions({
   resposta,
-  onErrorAlternar,
+  onErrorToggle,
   onExcluir,
 }: {
   resposta: RespostaProntaListada;
-  onErrorAlternar: (error: string) => void;
+  onErrorToggle: (error: string) => void;
   onExcluir: () => void;
 }) {
   const alternar = async () => {
     const r = await alternarRespostaPronta(resposta.id, resposta.active);
-    if (!r.ok) onErrorAlternar(r.error);
+    if (!r.ok) onErrorToggle(r.error);
   };
   return (
     <>
@@ -48,8 +48,8 @@ export function PageCannedResponses() {
   const [modalAberto, setModalAberto] = useState(false);
   const [respostaParaExcluir, setRespostaParaExcluir] = useState<RespostaProntaListada | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
-  const [errorAlternar, setErrorAlternar] = useState<string | null>(null);
+  const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
+  const [errorToggle, setErrorToggle] = useState<string | null>(null);
   const read = useRead<RespostaProntaListada[]>('/v1/management/communication/responses-ready');
   if (!read.data) return null;
   const respostas = read.data;
@@ -57,11 +57,11 @@ export function PageCannedResponses() {
   async function excluir() {
     if (!respostaParaExcluir) return;
     setExcluindo(true);
-    setErrorExclusao(null);
+    setErrorDeletion(null);
     const resultado = await excluirRespostaPronta(respostaParaExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setRespostaParaExcluir(null);
-    else setErrorExclusao(resultado.error);
+    else setErrorDeletion(resultado.error);
   }
 
   const sections: RulesSection[] = [
@@ -83,9 +83,9 @@ export function PageCannedResponses() {
         situation: r.active ? 'Ativa' : 'Desativada',
         active: r.active,
         acao: (
-          <RespostaActions
+          <ResponseActions
             resposta={r}
-            onErrorAlternar={setErrorAlternar}
+            onErrorToggle={setErrorToggle}
             onExcluir={() => setRespostaParaExcluir(r)}
           />
         ),
@@ -108,9 +108,9 @@ export function PageCannedResponses() {
         </Botao>
       </div>
 
-      {errorAlternar ? <Etiqueta tom="erro">{errorAlternar}</Etiqueta> : null}
+      {errorToggle ? <Etiqueta tom="erro">{errorToggle}</Etiqueta> : null}
 
-      <ListaRegras sections={sections} placeholder="Buscar por título ou por atalho" sectionOcultarHeader />
+      <ListaRegras sections={sections} placeholder="Buscar por título ou por atalho" sectionHideHeader />
 
       <Modal
         aberto={modalAberto}
@@ -126,12 +126,12 @@ export function PageCannedResponses() {
         message={
           <>Excluir a resposta "{respostaParaExcluir?.titulo}"? Esta ação não pode ser desfeita.</>
         }
-        error={errorExclusao}
+        error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
           setRespostaParaExcluir(null);
-          setErrorExclusao(null);
+          setErrorDeletion(null);
         }}
       />
     </>

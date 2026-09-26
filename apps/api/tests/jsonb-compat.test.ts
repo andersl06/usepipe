@@ -40,7 +40,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { logAuditoria, lead } from '@pipe/db/schema';
 import type { Context } from '@pipe/core';
-import { createInbound, processarInbound } from '@pipe/core';
+import { createInbound, processInbound } from '@pipe/core';
 import { dubleWhatsApp, processarOutbox } from '@pipe/workers';
 
 const { montarCenario } = await import('./ajuda.js');
@@ -206,13 +206,13 @@ async function rodarMotor(
       send: async (m) => {
         mensagens.push(m);
       },
-      encaminharForAttendance: async () => {
+      forwardForAttendance: async () => {
         throw new Error('não usado no teste de compatibilidade jsonb');
       },
       registerEvent: async () => {},
     },
   };
-  const rastro = await processarInbound(contexto, {});
+  const rastro = await processInbound(contexto, {});
   return { mensagens, estadoFinalId: rastro.stateFinalId, variaveis: contexto.variables };
 }
 

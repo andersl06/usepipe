@@ -6,7 +6,7 @@ import type {
   LevelInFlow,
   RoleInFlow,
   PermissionsInFlow,
-  RecursoOfFlow,
+  ResourceOfFlow,
 } from '@pipe/contracts';
 import { IconePortal } from '../../../components/icones-portal';
 import { Pagination, usePage } from '../../../components/pagination';
@@ -57,7 +57,7 @@ const caminho = (flowId: string, alvo?: string) =>
 /**
  * The origin's "Permissão" `rzslider` (`rz-slider-model="$ctrl.permissionsValue"`), with the same four stops. A real `<input type="range">` underneath gives dragging and keyboard support without reimplementing native behavior.
  */
-function PermissionControle({
+function PermissionControl({
   role,
   aoEscolher,
 }: {
@@ -107,13 +107,13 @@ function PermissionControle({
  *
  * The rule is theirs entirely: the top-level radio marks the row radios (`selectAllPermissions()`) and only "Personalizado" frees each row for manual control (`checkStatus()`). The RESOURCES come from the server, in their template's order.
  */
-export function PermissionsLista({
+export function PermissionsList({
   recursos,
   permissions,
   editavel,
   toSwitch,
 }: {
-  recursos: readonly RecursoOfFlow[];
+  recursos: readonly ResourceOfFlow[];
   permissions: PermissionsInFlow;
   editavel: boolean;
   toSwitch: (key: string, nivel: LevelInFlow) => void;
@@ -224,7 +224,7 @@ function ModalDeAdicionar({
   }
 
   /** The `guest` from `confirmAddUser`: joining the tenant is a prerequisite, not the action itself. */
-  async function convidarForContract() {
+  async function inviteForContract() {
     setEnviando(true);
     try {
       const corpo = await api.post<{ url: string }>('/v1/convites', {
@@ -313,7 +313,7 @@ function ModalDeAdicionar({
                 Essa pessoa já faz parte da equipe.
               </p>
             ) : null}
-            <PermissionControle role={role} aoEscolher={setRole} />
+            <PermissionControl role={role} aoEscolher={setRole} />
             {aviso ? (
               <p className="cf-aviso" role="alert">
                 {aviso}
@@ -324,7 +324,7 @@ function ModalDeAdicionar({
                 Cancelar
               </BotaoBds>
               {convidar ? (
-                <BotaoBds variante="bot" disabled={enviando} onClick={convidarForContract}>
+                <BotaoBds variante="bot" disabled={enviando} onClick={inviteForContract}>
                   Convidar para o contrato
                 </BotaoBds>
               ) : (

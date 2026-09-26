@@ -18,7 +18,7 @@ export function duration(segundos: number | null | undefined): string {
  * hora: arredondando o resto separado, 7.190 segundos viravam `1h 60min` —
  * 59,8 minutos sobem para 60 e a hora não acompanha.
  */
-export function durationLonga(segundos: number | null | undefined): string {
+export function durationLong(segundos: number | null | undefined): string {
   if (segundos === null || segundos === undefined || Number.isNaN(segundos)) return '—';
   const minutos = Math.round(Math.max(0, segundos) / 60);
   const h = Math.floor(minutos / 60);

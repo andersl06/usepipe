@@ -15,14 +15,14 @@
  */
 
 /** `MAX_ATTACHMENT_COUNT` = 10 — `MAX_ARQUIVOS_POR_MENSAGEM`. */
-export const MAX_FILES_BY_ENVIO = 10;
+export const MAX_FILES_BY_SENDING = 10;
 /** `MAX_ATTACHMENT_SIZE` = 100 MB — `MAX_BYTES_POR_ARQUIVO`. */
 export const MAX_BYTES_BY_FILE = 104_857_600;
 /** 16 MB for audio and video (`MAX_BYTES_AUDIO_VIDEO`); Meta rejects larger files. */
 export const MAX_BYTES_AUDIO_VIDEO = 16_777_216;
 
 
-export interface LoteFile {
+export interface FileBatch {
   name: string;
   type: string;
   size: number;
@@ -41,10 +41,10 @@ function mb(bytes: number): string {
 /**
  * Return the reason the batch is rejected, or `null` when it can upload. Name the failing file so the error remains useful when many files were selected.
  */
-export function recusaDoLote(arquivos: readonly LoteFile[]): string | null {
+export function recusaDoLote(arquivos: readonly FileBatch[]): string | null {
   if (arquivos.length === 0) return 'Escolha ao menos um arquivo.';
-  if (arquivos.length > MAX_FILES_BY_ENVIO) {
-    return `São no máximo ${MAX_FILES_BY_ENVIO} arquivos por envio; você escolheu ${arquivos.length}. Nenhum arquivo foi enviado.`;
+  if (arquivos.length > MAX_FILES_BY_SENDING) {
+    return `São no máximo ${MAX_FILES_BY_SENDING} arquivos por envio; você escolheu ${arquivos.length}. Nenhum arquivo foi enviado.`;
   }
   for (const f of arquivos) {
     if (f.size === 0) return `"${f.name}" está vazio. Nenhum arquivo foi enviado.`;

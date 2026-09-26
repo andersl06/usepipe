@@ -34,7 +34,7 @@ import type { MyPermissionsInFlow } from '@pipe/contracts';
 import type { NomeDeIconePortal } from '../../components/icones-portal';
 
 /** `fluxo` and `roteador` are the source's `builder` and `master`. */
-export type ContactTipo = 'fluxo' | 'roteador';
+export type ContactType = 'fluxo' | 'roteador';
 
 export interface ItemDoMenu {
   /** The source's exact label, in pt-BR. */
@@ -83,12 +83,12 @@ const RECURSO_DO_ITEM: Readonly<Record<string, string>> = { contents: 'resources
  * Without the argument (or with `editaPelaConta`), nothing is sieved: whoever has `automacao.fluxo.editar` on the account keeps seeing everything, which is how Pipe worked before 0035 and is the other side of `exigirPermissaoNoFluxo`'s double gate. Whoever isn't a member and doesn't have the account permission also never reaches this point — the contact shell already refused.
  */
 export function itensDoMenu(
-  tipo: ContactTipo,
+  tipo: ContactType,
   id: string,
   permissions?: MyPermissionsInFlow | undefined,
 ): ItemDoMenu[] {
   const base = `/${tipo === 'roteador' ? 'router' : 'flow'}/${id}`;
-  const sieve = permissions && !permissions.editaByAccount ? permissions.permissoes : null;
+  const sieve = permissions && !permissions.editsByAccount ? permissions.permissoes : null;
   const itens: ItemDoMenu[] = CATALOGO.filter(
     (item) => tipo === 'fluxo' || !HIDDEN_IN_ROUTER.includes(item.key),
   )
@@ -132,7 +132,7 @@ export function itensDoMenu(
  *
  * They do NOT go through the template filter: `checkPermissions()` only runs on `subheaderMenu`, and the roteador shows the same four icons as fluxo. None of them has a screen here yet — "Configurações" belongs to the CONTACT, not the account settings that already exists at `/configuracoes`.
  */
-export const ICONES_OF_CONTACT: readonly (ItemDoMenu & { icone: NomeDeIconePortal })[] = [
+export const ICONS_OF_CONTACT: readonly (ItemDoMenu & { icone: NomeDeIconePortal })[] = [
   /* `getIcons(sref)`: `icon-integration`, `icon-config`, `icon-team-1`. */
   { rotulo: 'Integrações', href: '/integrations', icone: 'integracoes' },
   { rotulo: 'Configurações', href: '/settings/basic', icone: 'configuracoes' },

@@ -20,10 +20,10 @@ import type {
   VersaoPublicada,
 } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
-import { exigirPermission } from '../../session.js';
-import { loadFlow, classificarState } from '../flow.js';
-import { EDITAR_FLOW } from './cycle-of-lifetime-of-flow.js';
-import { exigirPermissionInFlow } from './team-of-flow.js';
+import { requirePermission } from '../../session.js';
+import { loadFlow, classifyState } from '../flow.js';
+import { EDIT_FLOW } from './cycle-of-lifetime-of-flow.js';
+import { requirePermissionInFlow } from './team-of-flow.js';
 
 /**
  * Builder lifecycle per flow: edit, save draft, publish. Blip stores the working drawing in `blip_portal:builder_working_flow` and publishes into the running Application. Here draft and published are `fluxo_versao` rows of the SAME flow. Save overwrites the one draft per flow, replacing blocks and transitions without incrementing its version; older `importarFluxoDaBlip` saves created numbered drafts each time. Publish promotes the draft to `publicada`, archives the prior published row, assigns the next version number, and sets `fluxo.estado` to `publicado` for `fluxoPublicadoDoCanal`. Published drawings stay immutable: `execucao_fluxo.fluxo_versao_id` restricts deletion and `execucao_passo.bloco_id` depends on that version's blocks. Editing a published flow starts a new draft; restoring copies an old drawing into a draft without changing its historical version. The engine loads `bloco` and `transicao` through `carregarFluxo`; the editor reads `bloco.conteudo.original` and `fluxo_versao.global.editor`. If `original` is absent, `estadoParaOEditor` reconstructs it. Viewing and saving require `automacao.fluxo.editar`; publishing requires `automacao.fluxo.publicar` (migration 0034). Routers have no Builder and return 409. Publishing does not archive another flow on the same channel; channel binding chooses the serving flow, and archiving requires an explicit deletion gesture.
@@ -55,8 +55,8 @@ async function flowOfBuilder(
   // Editing the drawing requires the FLOW permission `builder.escrever` on the Team tab, or the
   // account-wide equivalent: the dual gate in `equipe-do-fluxo.ts`. Publishing remains
   // an account permission because the source has no per-bot publish row.
-  if (permission === EDITAR_FLOW) await exigirPermissionInFlow(tx, usuarioId, id, 'builder.escrever');
-  else await exigirPermission(tx, usuarioId, permission);
+  if (permission === EDIT_FLOW) await requirePermissionInFlow(tx, usuarioId, id, 'builder.escrever');
+  else await requirePermission(tx, usuarioId, permission);
   if (atual.type === 'roteador') {
     throw PipeError.conflito(
       'router_without_builder',
@@ -312,7 +312,7 @@ async function gravarBlocos(
     const { rows } = await tx.execute<{ id: string }>(sql`
       insert into bloco (tenant_id, versao_id, codigo, nome, tipo, conteudo, posicao)
       values (
-        ${tid}, ${versaoId}, ${codigo}, ${nome}, ${classificarState(estado)},
+        ${tid}, ${versaoId}, ${codigo}, ${nome}, ${classifyState(estado)},
         ${JSON.stringify(original ? { ...conteudo, original } : conteudo)}::jsonb,
         ${JSON.stringify(estado['$position'] ?? {})}::jsonb
       )
@@ -400,7 +400,7 @@ export async function carregarBuilder(
   usuarioId: string,
   fluxoId: string,
 ): Promise<BuilderOfFlow> {
-  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLOW);
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDIT_FLOW);
   const publicada = await versionInState(tx, fluxoId, 'publicada');
   const rascunho = await versionInState(tx, fluxoId, 'rascunho');
   const carregada = rascunho ?? publicada;
@@ -425,7 +425,7 @@ export async function salvarRascunho(
   fluxoId: string,
   desenho: unknown,
 ): Promise<RascunhoGravado> {
-  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLOW);
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDIT_FLOW);
   const compilado = compilar(desenho, fluxoId);
   return gravarRascunho(tx, tid, usuarioId, fluxoId, compilado);
 }
@@ -519,7 +519,7 @@ export async function listVersions(
   usuarioId: string,
   fluxoId: string,
 ): Promise<VersionOfFlow[]> {
-  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLOW);
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDIT_FLOW);
   const { rows } = await tx.execute<LinhaVersao>(sql`
     select ${COLUNAS_DA_VERSAO} ${DE_VERSAO}
      where v.fluxo_id = ${fluxoId}
@@ -536,7 +536,7 @@ export async function restoreVersion(
   fluxoId: string,
   numero: number,
 ): Promise<RascunhoGravado> {
-  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLOW);
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDIT_FLOW);
   if (!Number.isInteger(numero) || numero < 1) throw PipeError.naoEncontrado('versão');
   const { rows } = await tx.execute<{ id: string }>(sql`
     select id from fluxo_versao where fluxo_id = ${fluxoId} and versao = ${numero} limit 1

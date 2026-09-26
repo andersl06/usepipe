@@ -11,7 +11,7 @@ import {
   excluirWebhook,
   listKeysOfFlow,
   listarWebhooks,
-  revogarKeyOfFlow,
+  revokeKeyOfFlow,
   saveConnectionOfFlow,
   testarWebhook,
 } from '../domain/management/integrations.js';
@@ -90,7 +90,7 @@ export class ManagementIntegrationsController {
   @Delete('v1/management/flows/:id/keys/:keyId')
   @HttpCode(204)
   @WithSession()
-  async revogarKey(
+  async revokeKey(
     @Req() request: RequestWithSession,
     @Param('id') id: string,
     @Param('keyId') keyId: string,
@@ -99,7 +99,7 @@ export class ManagementIntegrationsController {
     uuidOu404(id, 'fluxo');
     uuidOu404(keyId, 'chave de API');
     await noTenant(session.tenantId, (tx) =>
-      revogarKeyOfFlow(tx, session.tenantId, session.userId, id, keyId),
+      revokeKeyOfFlow(tx, session.tenantId, session.userId, id, keyId),
     );
   }
 

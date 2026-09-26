@@ -3,7 +3,7 @@
  */
 
 import type { Context, PedidoDeHttp } from './context.js';
-import { KEY_OF_TICKET, apagarVariable, definirVariable } from './context.js';
+import { KEY_OF_TICKET, deleteVariable as deleteContextVariable, setVariable as setContextVariable } from './context.js';
 
 export type Settings = Record<string, unknown> | null;
 
@@ -26,7 +26,7 @@ const comoTexto = (v: unknown): string | null =>
   v === undefined || v === null ? null : typeof v === 'string' ? v : JSON.stringify(v);
 
 /** `ActionBase.ExecuteAsync` rejects null configuration before any work. */
-function exigirSettings(tipo: string, settings: Settings): Record<string, unknown> {
+function requireSettings(tipo: string, settings: Settings): Record<string, unknown> {
   if (!settings) throw new Error(`As configurações são obrigatórias na ação '${tipo}'.`);
   return settings;
 }
@@ -37,11 +37,11 @@ const MIME = /^[\w.+-]+\/[\w.+-]+$/;
 const setVariable: AcaoDoMotor = {
   tipo: 'SetVariable',
   async executar(context, settings) {
-    const c = exigirSettings(this.tipo, settings);
+    const c = requireSettings(this.tipo, settings);
     const variable = comoTexto(campo(c, 'variable'));
     if (variable === null)
       throw new Error("O valor 'variable' é obrigatório na ação 'SetVariable'.");
-    definirVariable(context, variable, comoTexto(campo(c, 'value')));
+    setContextVariable(context, variable, comoTexto(campo(c, 'value')));
   },
 };
 
@@ -49,11 +49,11 @@ const setVariable: AcaoDoMotor = {
 const deleteVariable: AcaoDoMotor = {
   tipo: 'DeleteVariable',
   async executar(context, settings) {
-    const c = exigirSettings(this.tipo, settings);
+    const c = requireSettings(this.tipo, settings);
     const variable = comoTexto(campo(c, 'variable'));
     if (variable === null)
       throw new Error("O valor 'variable' é obrigatório na ação 'DeleteVariable'.");
-    apagarVariable(context, variable);
+    deleteContextVariable(context, variable);
   },
 };
 
@@ -61,7 +61,7 @@ const deleteVariable: AcaoDoMotor = {
 const sendMessage: AcaoDoMotor = {
   tipo: 'SendMessage',
   async executar(context, settings) {
-    const c = exigirSettings(this.tipo, settings);
+    const c = requireSettings(this.tipo, settings);
     const tipo = comoTexto(campo(c, 'type'));
     if (!tipo || !MIME.test(tipo)) throw new Error(`Tipo de mídia inválido: '${tipo}'.`);
     // ponytail: unlike the source, do not await typing `interval` (`Task.Delay`) here:
@@ -78,7 +78,7 @@ const sendMessage: AcaoDoMotor = {
 const sendRawMessage: AcaoDoMotor = {
   tipo: 'SendRawMessage',
   async executar(context, settings) {
-    const c = exigirSettings(this.tipo, settings);
+    const c = requireSettings(this.tipo, settings);
     const bruto = comoTexto(campo(c, 'rawContent'));
     const tipo = comoTexto(campo(c, 'type'));
     if (bruto === null)
@@ -99,7 +99,7 @@ const sendRawMessage: AcaoDoMotor = {
 const trackEvent: AcaoDoMotor = {
   tipo: 'TrackEvent',
   async executar(context, settings) {
-    const c = exigirSettings(this.tipo, settings);
+    const c = requireSettings(this.tipo, settings);
     if (!comoTexto(campo(c, 'category'))?.trim()) {
       throw new Error("O valor 'category' é obrigatório na ação 'TrackEvent'.");
     }
@@ -114,14 +114,14 @@ const trackEvent: AcaoDoMotor = {
 const createTicket: AcaoDoMotor = {
   tipo: 'CreateTicket',
   async executar(context, settings) {
-    const c = exigirSettings(this.tipo, settings);
-    const attendance = await context.services.encaminharForAttendance({
+    const c = requireSettings(this.tipo, settings);
+    const attendance = await context.services.forwardForAttendance({
       origem: this.tipo,
       settings: c,
     });
     context.inboundContext.set(KEY_OF_TICKET, attendance);
     const variable = comoTexto(campo(c, 'variable'));
-    if (variable?.trim()) definirVariable(context, variable, attendance.id);
+    if (variable?.trim()) setContextVariable(context, variable, attendance.id);
   },
 };
 
@@ -135,14 +135,14 @@ const forwardToDesk: AcaoDoMotor = {
   tipo: 'ForwardToDesk',
   async executar(context, settings) {
     try {
-      const attendance = await context.services.encaminharForAttendance({
+      const attendance = await context.services.forwardForAttendance({
         origem: this.tipo,
         settings: settings,
       });
       context.inboundContext.set(KEY_OF_TICKET, attendance);
-      definirVariable(context, VARIABLE_OF_FORWARDING, 'Success');
+      setContextVariable(context, VARIABLE_OF_FORWARDING, 'Success');
     } catch {
-      definirVariable(context, VARIABLE_OF_FORWARDING, 'Error');
+      setContextVariable(context, VARIABLE_OF_FORWARDING, 'Error');
     }
   },
 };
@@ -159,7 +159,7 @@ const leavingFromDesk: AcaoDoMotor = {
 const redirect: AcaoDoMotor = {
   tipo: 'Redirect',
   async executar(context, settings) {
-    const c = exigirSettings(this.tipo, settings);
+    const c = requireSettings(this.tipo, settings);
     const endereco = comoTexto(campo(c, 'address'))?.trim();
     if (!endereco) throw new Error("O valor 'address' é obrigatório na ação 'Redirect'.");
     if (!context.services.redirect) {
@@ -175,7 +175,7 @@ const redirect: AcaoDoMotor = {
 const processHttp: AcaoDoMotor = {
   tipo: 'ProcessHttp',
   async executar(context, settings) {
-    const c = exigirSettings(this.tipo, settings);
+    const c = requireSettings(this.tipo, settings);
     if (!context.services.callHttp) throw new Error('A ação ProcessHttp não está disponível neste fluxo.');
     const metodo = (comoTexto(campo(c, 'method')) ?? 'GET').toUpperCase();
     if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(metodo)) {
@@ -191,10 +191,10 @@ const processHttp: AcaoDoMotor = {
         if (texto !== null) cabecalhos[key] = texto;
       }
     }
-    const corpoValue = campo(c, 'body');
-    const corpo = corpoValue === undefined || corpoValue === null
+    const bodyValue = campo(c, 'body');
+    const corpo = bodyValue === undefined || bodyValue === null
       ? undefined
-      : typeof corpoValue === 'string' ? corpoValue : JSON.stringify(corpoValue);
+      : typeof bodyValue === 'string' ? bodyValue : JSON.stringify(bodyValue);
     const timeoutCru = campo(c, 'requestTimeout');
     const timeoutMs = typeof timeoutCru === 'number' && timeoutCru > 0 ? timeoutCru * 1000 : 60_000;
     const pedido: PedidoDeHttp = {
@@ -207,13 +207,13 @@ const processHttp: AcaoDoMotor = {
     }
     const resposta = await context.services.callHttp(pedido);
     const status = comoTexto(campo(c, 'responseStatusVariable'))?.trim();
-    const corpoVariable = comoTexto(campo(c, 'responseBodyVariable'))?.trim();
-    if (status) definirVariable(context, status, String(resposta.status));
-    if (corpoVariable) definirVariable(context, corpoVariable, resposta.corpo);
+    const bodyVariable = comoTexto(campo(c, 'responseBodyVariable'))?.trim();
+    if (status) setContextVariable(context, status, String(resposta.status));
+    if (bodyVariable) setContextVariable(context, bodyVariable, resposta.corpo);
   },
 };
 
-export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
+export const ACTIONS_OF_ENGINE: readonly AcaoDoMotor[] = [
   setVariable,
   deleteVariable,
   sendMessage,
@@ -227,7 +227,7 @@ export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
 ];
 
 /** Default `ActionProvider` containing actions Pipe executes. */
-export const PROVEDOR_PADRAO: ActionsProvider = new Map(ACTIONS_OF_MOTOR.map((a) => [a.tipo, a]));
+export const PROVEDOR_PADRAO: ActionsProvider = new Map(ACTIONS_OF_ENGINE.map((a) => [a.tipo, a]));
 
 /** `ActionProvider.Get` treats an unimplemented type as an error, never an ignored action. */
 export function obterAcao(provedor: ActionsProvider, tipo: string): AcaoDoMotor {

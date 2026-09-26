@@ -76,7 +76,7 @@ const ASSINATURAS: readonly (readonly [string, readonly number[]])[] = [
 ] as const;
 
 /** The MIME type revealed by the bytes, or `null` when it's none of the three. */
-export function imageTipoReal(data: Uint8Array): string | null {
+export function imageTypeReal(data: Uint8Array): string | null {
   for (const [mime, bytes] of ASSINATURAS) {
     if (data.length < bytes.length) continue;
     if (bytes.every((esperado, i) => data[i] === esperado)) return mime;

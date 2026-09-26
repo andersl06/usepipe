@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, Param, Post, Req } from '@nest
 import { noTenant } from '../database.js';
 import { conectarInstagramManual, desconectarInstagram, listChannelsInstagram } from '../domain/instagram/channel.js';
 import type { ChannelInstagramVisible, ConexaoInstagram } from '../domain/instagram/channel.js';
-import { WithSession, exigirPermission, sessionOf } from '../session.js';
+import { WithSession, requirePermission, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import { flowIdOfBody, connectToFlow, permitidoConectar } from './connection-in-flow.js';
 
@@ -54,5 +54,5 @@ export class InstagramChannelsController {
 }
 
 function permitido(tenantId: string, userId: string): Promise<void> {
-  return noTenant(tenantId, (tx) => exigirPermission(tx, userId, 'canal.gerenciar'));
+  return noTenant(tenantId, (tx) => requirePermission(tx, userId, 'canal.gerenciar'));
 }

@@ -1,7 +1,7 @@
 import { and, asc, eq, gte, isNotNull, lt } from 'drizzle-orm';
 import {
-  calcularEffortConversation,
-  calcularTimeInSession,
+  calculateEffortConversation,
+  calculateTimeInSession,
   occupancy,
   type EffortConversation,
   type MessageEffort,
@@ -46,7 +46,7 @@ export interface EffortOfAgent {
 export interface ReportEffort {
   window: Window;
   agents: EffortOfAgent[];
-  conversationsConsideradas: number;
+  conversationsConsidered: number;
   /** Conversas encerradas no período que não geraram esforço de nenhum atendente. */
   conversationsWithoutAgent: number;
 }
@@ -87,7 +87,7 @@ export async function loadEffort(
 
     const byConversation = new Map<string, { agentId: string | null; msgs: MessageEffort[] }>();
     // Timestamps of each agent's outgoing messages form the session-time basis.
-    const instantesByAgent = new Map<string, Date[]>();
+    const instantsByAgent = new Map<string, Date[]>();
 
     for (const l of linhas) {
       const grupo = byConversation.get(l.conversaId) ?? { agentId: l.atendenteId, msgs: [] };
@@ -109,16 +109,16 @@ export async function loadEffort(
       byConversation.set(l.conversaId, grupo);
 
       if (l.autor === 'atendente' && l.usuarioId) {
-        const atual = instantesByAgent.get(l.usuarioId);
+        const atual = instantsByAgent.get(l.usuarioId);
         if (atual) atual.push(l.em);
-        else instantesByAgent.set(l.usuarioId, [l.em]);
+        else instantsByAgent.set(l.usuarioId, [l.em]);
       }
     }
 
     const byAgent = new Map<string, EffortConversation[]>();
     let withoutAgent = 0;
     for (const [conversationId, grupo] of byConversation) {
-      const calculado = calcularEffortConversation(grupo.msgs, {
+      const calculado = calculateEffortConversation(grupo.msgs, {
         conversationId,
         agentId: grupo.agentId,
       });
@@ -143,7 +143,7 @@ export async function loadEffort(
         const soma = (f: (c: EffortConversation) => number) =>
           conversations.reduce((total, c) => total + f(c), 0);
         const effortSeg = soma((c) => c.effortSeg);
-        const { sessionSeg } = calcularTimeInSession(instantesByAgent.get(id) ?? []);
+        const { sessionSeg } = calculateTimeInSession(instantsByAgent.get(id) ?? []);
         return {
           id,
           name: nomes.get(id) ?? id,
@@ -166,7 +166,7 @@ export async function loadEffort(
     return {
       window,
       agents,
-      conversationsConsideradas: byConversation.size,
+      conversationsConsidered: byConversation.size,
       conversationsWithoutAgent: withoutAgent,
     };
   });

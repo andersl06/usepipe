@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import {
   PERIODOS_DE_CALENDARIO,
   PERIODOS_FIXOS,
-  ROTULO_OF_PERIOD,
+  LABEL_OF_PERIOD,
   type ActiveMessagesData,
   type Intervalo,
   type Period,
@@ -14,7 +14,7 @@ import { filterStorageKey, loadFilters, saveFilters } from '../../../../lib/filt
 import { useEu } from '../../../../context/session';
 import { useContact } from '../../contact';
 import { Filter } from './filter';
-import { ActiveMessagesMiolo } from './miolo';
+import { ActiveMessagesCore } from './miolo';
 import './active-messages.css';
 
 /**
@@ -30,7 +30,7 @@ import './active-messages.css';
  * `localStorage`; `template` continua na URL (NEEDS VALIDATION, fora do
  * D-30) e a `api` resolve o período no fuso da conta.
  */
-interface ActiveMessagesResposta {
+interface ActiveMessagesResponse {
   period: Period;
   intervalo: Intervalo;
   hoje: string;
@@ -59,7 +59,7 @@ function validateActiveMessagesPeriod(value: unknown): ActiveMessagesPeriodFilte
 
 export function ActiveMessagesPage() {
   const { contact } = useContact();
-  const [search, definirSearch] = useSearchParams();
+  const [search, setSearch] = useSearchParams();
   const eu = useEu();
   const filtrosKey = filterStorageKey(
     'management',
@@ -80,7 +80,7 @@ export function ActiveMessagesPage() {
   if (periodo.ate) q.set('ate', periodo.ate);
   const templateFiltro = search.get('template');
   if (templateFiltro) q.set('template', templateFiltro);
-  const read = useRead<ActiveMessagesResposta>(
+  const read = useRead<ActiveMessagesResponse>(
     `/v1/management/flows/${contact.id}/analytics/messages-active?${q.toString()}`,
   );
   if (!read.data) return null;
@@ -104,7 +104,7 @@ export function ActiveMessagesPage() {
         <div className="ma-filter-strip">
           <Filter
             fileiras={[PERIODOS_FIXOS, PERIODOS_DE_CALENDARIO].map((f) =>
-              f.map((key) => ({ key, rotulo: ROTULO_OF_PERIOD[key] })),
+              f.map((key) => ({ key, rotulo: LABEL_OF_PERIOD[key] })),
             )}
             period={period}
             de={period === 'custom' ? intervalo.inicio : ''}
@@ -118,12 +118,12 @@ export function ActiveMessagesPage() {
               const proximos = new URLSearchParams(search);
               if (filtros.template) proximos.set('template', filtros.template);
               else proximos.delete('template');
-              definirSearch(proximos);
+              setSearch(proximos);
             }}
           />
         </div>
       </div>
-      <ActiveMessagesMiolo data={data} intervalo={intervalo} />
+      <ActiveMessagesCore data={data} intervalo={intervalo} />
     </div>
   );
 }

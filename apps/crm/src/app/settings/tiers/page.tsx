@@ -45,7 +45,7 @@ export default async function PageTiers() {
         <Tabela
           colunas={COLUNAS}
           linhas={faixas}
-          linhaKey={(f) => `${f.versao}-${f.nome}`}
+          rowKey={(f) => `${f.versao}-${f.nome}`}
           empty={
             <>
               Nenhuma faixa cadastrada. Rode <code>pnpm --filter @pipe/crm seed:crm</code>.

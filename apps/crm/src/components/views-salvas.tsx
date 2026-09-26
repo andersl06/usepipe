@@ -57,7 +57,7 @@ function gravar(views: Visao[]) {
   }
 }
 
-export function ViewsSalvas({ queryCurrent }: { queryCurrent: string }) {
+export function ViewsSaved({ queryCurrent }: { queryCurrent: string }) {
   const router = useRouter();
   const [views, setViews] = useState<Visao[]>([]);
   // `localStorage` only exists after mounting. Reading during render

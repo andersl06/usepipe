@@ -9,7 +9,7 @@ import { clienteGraph } from './cliente-graph.js';
 
 const PERMISSION_OF_MESSAGE = 'whatsapp_business_messaging';
 
-export interface PreviaOfConfiguration {
+export interface PreviewOfConfiguration {
   nomeVerificado: string | null;
   number: string;
   numberId: string;
@@ -38,7 +38,7 @@ export async function validateConfigurationManual(data: {
   appSecret?: string | undefined;
   /** On reconnection, the channel already owning this number does not conflict with itself. */
   channelId?: string | undefined;
-}): Promise<PreviaOfConfiguration> {
+}): Promise<PreviewOfConfiguration> {
   // `validate_parameters!`
   if (!data.wabaId) throw recusa('O WABA ID é obrigatório.');
   if (!data.numberId) throw recusa('O Phone Number ID é obrigatório.');

@@ -16,7 +16,7 @@ interface ContentOfState {
   n: string;
 }
 
-export function emitirState(tenantId: string, userId: string, agora = Date.now()): string {
+export function issueState(tenantId: string, userId: string, agora = Date.now()): string {
   const conteudo: ContentOfState = {
     t: tenantId,
     u: userId,

@@ -1,7 +1,7 @@
 import Link from '../../../components/link';
 import { useSearchParams } from 'react-router-dom';
 import { useRead } from '../../../lib/query';
-import type { AccountInLista } from '../../../lib/shell';
+import type { AccountInList } from '../../../lib/shell';
 import '../../welcome/boas-vindas.css';
 
 /**
@@ -14,7 +14,7 @@ import '../../welcome/boas-vindas.css';
 export function PageNoAccess() {
   const [search] = useSearchParams();
   const slug = (search.get('para') ?? '').trim().toLowerCase();
-  const read = useRead<AccountInLista[]>('/v1/accounts/my');
+  const read = useRead<AccountInList[]>('/v1/accounts/my');
   const accounts = read.data ?? [];
   const emVigor = accounts.find((c) => c.emVigor);
 

@@ -9,7 +9,7 @@ import {
 import { registrarAuditoria } from '@pipe/db';
 import type { Ator, TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
-import { exigirPermission } from '../../session.js';
+import { requirePermission } from '../../session.js';
 
 /**
  * The agent Permissions page mirrors source `attendance.desk.team.permission` as a PAGE, not modal (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §§a.1/a.4). Keep source literal labels 'Permissões', 'Configure as permissões de …', 'Permissões disponíveis', 'Tipo de permissão', 'Status', and 'Salvar alterações', but populate rows from Pipe's enforced catalog (`packages/db/src/semente.ts`) rather than Blip's ten Desk capabilities (`canSendActiveMessage`, `canCallsVideo`, etc.). Migration 0046 adds per-person `usuario_permissao` override: effective = `COALESCE(override, union of roles)`. Delete an override when the choice matches the role again, avoiding stale copies of RBAC. For multi-agent selection (`single`, `couple`, `multiples`), show a permission on only when ALL have it and `parcial` when mixed; saving without touching a mixed row must not silently revoke anyone.
@@ -57,7 +57,7 @@ export interface PermissionsOfAgent {
 }
 
 /** Reject duplicate, empty or out-of-tenant IDs; the screen sends its selected agents. */
-async function agentsVivos(
+async function agentsLive(
   tx: TransactionPipe,
   ids: readonly string[],
 ): Promise<AgentOfPermissions[]> {
@@ -81,7 +81,7 @@ export async function loadPermissionsOfAgent(
   tx: TransactionPipe,
   ids: readonly string[],
 ): Promise<PermissionsOfAgent> {
-  const agents = await agentsVivos(tx, ids);
+  const agents = await agentsLive(tx, ids);
   const alvos = agents.map((a) => a.id);
 
   const catalogo = await tx
@@ -153,9 +153,9 @@ export async function writePermissionsOfAgent(
   autorId: string,
   pedido: RequestOfPermissions,
 ): Promise<{ ok: true }> {
-  await exigirPermission(tx, autorId, USER_MANAGE);
+  await requirePermission(tx, autorId, USER_MANAGE);
 
-  const atendentes = await agentsVivos(tx, pedido.userIds ?? []);
+  const atendentes = await agentsLive(tx, pedido.userIds ?? []);
   const escolhas = Object.entries(pedido.permissions ?? {});
   if (escolhas.length === 0) return { ok: true };
 

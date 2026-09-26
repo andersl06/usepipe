@@ -148,7 +148,7 @@ export default async function PageOpportunities({
         {vista === 'quadro' ? (
           <QuadroDoFunil funil={funil} />
         ) : (
-          <OpportunitiesTabela situation={situation} search={search} hoje={hoje} />
+          <OpportunitiesTable situation={situation} search={search} hoje={hoje} />
         )}
       </div>
     </>
@@ -206,7 +206,7 @@ function QuadroDoFunil({ funil }: { funil: Awaited<ReturnType<typeof carregarFun
   return <QuadroFunil fases={FASES} cards={cards} />;
 }
 
-async function OpportunitiesTabela({
+async function OpportunitiesTable({
   situation,
   search,
   hoje,
@@ -262,7 +262,7 @@ async function OpportunitiesTabela({
         <Tabela
           colunas={colunasDaTabela(hoje, fuso)}
           linhas={linhas}
-          linhaKey={(o) => o.id}
+          rowKey={(o) => o.id}
           empty="Nenhuma oportunidade neste recorte."
         />
       )}

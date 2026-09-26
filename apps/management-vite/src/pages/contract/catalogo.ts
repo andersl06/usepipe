@@ -116,7 +116,7 @@ export interface FilterOptions {
 /**
  * The cards this person sees. Deliberately a pure function — takes the permission list and returns the card list, without touching session, database or URL. It's their funnel reduced to what's left with no flag and no subscription: one `hasPermission` per card.
  */
-export function cardsVisiveis(
+export function cardsVisible(
   permissions: readonly string[],
   options: FilterOptions = {},
 ): ContractCard[] {
@@ -173,7 +173,7 @@ export function byGroup(
 }
 
 /** A checked row on the Members screen: which table it came from and what its id is. */
-export interface MemberAlvo {
+export interface MemberTarget {
   tipo: 'usuario' | 'convite';
   id: string;
 }
@@ -181,8 +181,8 @@ export interface MemberAlvo {
 /**
  * Reads the targets the Members table sends in the form. Each checked row arrives as `usuario:<id>` or `convite:<id>` — our `userIdentity`, which at the source is a single key only because there member and invitee live in the same table. **Comes from the browser**, so anything that doesn't match the two known prefixes is discarded here, before it becomes a query: what's left is used to decide WHICH write function to call.
  */
-export function readMemberTargets(values: readonly string[]): MemberAlvo[] {
-  const lidos: MemberAlvo[] = [];
+export function readMemberTargets(values: readonly string[]): MemberTarget[] {
+  const lidos: MemberTarget[] = [];
   for (const cru of values) {
     const corte = cru.indexOf(':');
     if (corte < 0) continue;

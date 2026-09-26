@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Icone } from '@pipe/ui';
-import { KEY_TEMA, TEMAS, temaValido, type Tema } from '../../lib/settings-comum';
+import { KEY_THEME, TEMAS, temaValido, type Tema } from '../../lib/settings-comum';
 
 /**
  * The theme selector.
@@ -47,13 +47,13 @@ export function SeletorDeTema() {
   const [tema, setTema] = useState<Tema>('sistema');
 
   useEffect(() => {
-    const salvo = window.localStorage.getItem(KEY_TEMA);
+    const salvo = window.localStorage.getItem(KEY_THEME);
     if (temaValido(salvo)) setTema(salvo);
   }, []);
 
   function escolher(novo: Tema) {
     setTema(novo);
-    window.localStorage.setItem(KEY_TEMA, novo);
+    window.localStorage.setItem(KEY_THEME, novo);
     aplicar(novo);
   }
 

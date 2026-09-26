@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 import type { ChamadaEstruturada } from '../cliente/index.js';
 import { FormatIaError } from '../cliente/index.js';
 import { consumoDe } from '../consumo/index.js';
-import { PROMPT_CLASSIFICATION, optionKey, prepararOptions } from '../prompts/index.js';
+import { PROMPT_CLASSIFICATION, optionKey, prepareOptions } from '../prompts/index.js';
 import type { Taxonomia } from '../prompts/index.js';
-import { montarTranscription } from '../transcription/index.js';
-import { matchOption, classificarConversation, normalizarRotulo } from './index.js';
+import { buildTranscription } from '../transcription/index.js';
+import { matchOption, classifyConversation, normalizarRotulo } from './index.js';
 
 const taxonomia: Taxonomia = {
   options: [
@@ -19,7 +19,7 @@ const taxonomia: Taxonomia = {
   intents: ['resolver', 'informar-se', 'reclamar'],
 };
 
-const transcription = montarTranscription([
+const transcription = buildTranscription([
   {
     id: 'uuid-a',
     criadaEm: new Date('2026-03-02T13:00:00Z'),
@@ -41,7 +41,7 @@ function duble(saida: Record<string, unknown>): ChamadaEstruturada {
 
 describe('option preparation', () => {
   it('sorts by actual usage, from most chosen to least', () => {
-    expect(prepararOptions(taxonomia).map(optionKey)).toEqual([
+    expect(prepareOptions(taxonomia).map(optionKey)).toEqual([
       'Financeiro > Segunda via',
       'Suporte > Troca de produto',
       'Financeiro > Cobrança em duplicidade',
@@ -51,7 +51,7 @@ describe('option preparation', () => {
   });
 
   it('poda a lista ao teto pedido', () => {
-    expect(prepararOptions(taxonomia, 2).map(optionKey)).toEqual([
+    expect(prepareOptions(taxonomia, 2).map(optionKey)).toEqual([
       'Financeiro > Segunda via',
       'Suporte > Troca de produto',
     ]);
@@ -59,11 +59,11 @@ describe('option preparation', () => {
 
   it('breaks ties alphabetically so the list stays stable across runs', () => {
     const sem = { options: [{ categoria: 'Zeta' }, { categoria: 'Alfa' }, { categoria: 'Meio' }] };
-    expect(prepararOptions(sem).map(optionKey)).toEqual(['Alfa', 'Meio', 'Zeta']);
+    expect(prepareOptions(sem).map(optionKey)).toEqual(['Alfa', 'Meio', 'Zeta']);
   });
 
   it('nunca devolve lista vazia', () => {
-    expect(prepararOptions(taxonomia, 0)).toHaveLength(1);
+    expect(prepareOptions(taxonomia, 0)).toHaveLength(1);
   });
 });
 
@@ -72,7 +72,7 @@ describe('classification prompt', () => {
     const texto = PROMPT_CLASSIFICATION.montar({
       transcription: 'oi',
       truncada: true,
-      messagesOmitidas: 12,
+      messagesOmitted: 12,
       taxonomia,
       maxOptions: 2,
     });
@@ -92,14 +92,14 @@ describe('label normalization', () => {
   });
 
   it('matches the option even when the model writes it differently', () => {
-    const achada = matchOption(prepararOptions(taxonomia), 'financeiro', 'cobranca  em duplicidade');
+    const achada = matchOption(prepareOptions(taxonomia), 'financeiro', 'cobranca  em duplicidade');
     expect(achada?.subcategoria).toBe('Cobrança em duplicidade');
   });
 });
 
 describe('classifyConversation', () => {
   it('stores the taxonomy label, not what the model typed', async () => {
-    const r = await classificarConversation({
+    const r = await classifyConversation({
       transcription,
       taxonomia,
       chamar: duble({
@@ -120,7 +120,7 @@ describe('classifyConversation', () => {
   });
 
   it('accepts an option without a subcategory', async () => {
-    const r = await classificarConversation({
+    const r = await classifyConversation({
       transcription,
       taxonomia,
       chamar: duble({
@@ -138,7 +138,7 @@ describe('classifyConversation', () => {
 
   it('recusa rótulo fora da lista apresentada', async () => {
     await expect(
-      classificarConversation({
+      classifyConversation({
         transcription,
         taxonomia,
         chamar: duble({
@@ -155,7 +155,7 @@ describe('classifyConversation', () => {
 
   it('rejects an option pruned from the list, even if it exists in the taxonomy', async () => {
     await expect(
-      classificarConversation({
+      classifyConversation({
         transcription,
         taxonomia,
         maxOptions: 1,

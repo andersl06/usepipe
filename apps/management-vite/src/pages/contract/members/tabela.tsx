@@ -1,15 +1,15 @@
 import { useId, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
-import { IconePortal, IconeSearch } from '../../../components/icones-portal';
+import { IconePortal, SearchIcon } from '../../../components/icones-portal';
 import type { NomeDeIconePortal } from '../../../components/icones-portal';
-import { excluirMembers, reenviarInvitation, switchRole } from '../actions';
+import { deleteMembers, resendInvitation, switchRole } from '../actions';
 import type { ResultadoDoReenvio } from '../actions';
 
 /**
  * The contract Members table, following the source's mechanics. Their `TenantMembers` component (`main.e8593b01.chunk.js`, minified as `$t`) is a SELECTION table: nothing happens row by row. You select one or several, and then two menus appear in the header corner that act on the whole block — change the role and delete. Every measurement is commented in `contrato.css`; here only the rules remain. The four that change behavior, all copied: 1. **You don't appear in your own list** (their filter, `e.userIdentity !== o.identity`). Anyone who wants to leave uses "Deixar contrato", not this screen. 2. **The selection column only exists for those who can write** (`canSelect: canEdit`), and with it both menus disappear — read-only users see just the list and nothing else. 3. **The menus only appear once something is selected** (`selectedItems.length > 0`). 4. **"Aplicar" stays disabled until a role is chosen** (`disabled: undefined === selectedRole`). This is client-side because the source is: selecting, sorting and searching are screen state, and without JavaScript there'd be no way to show "3 selecionado(s)". The WRITES remain Server Actions that re-check the permission on the server (`../acoes.ts`) — the screen hiding the menu is a design choice, not access control.
  */
 
-export interface MemberLinha {
+export interface MemberRow {
   id: string;
   tipo: 'usuario' | 'convite';
   nome: string;
@@ -60,7 +60,7 @@ const COLUNAS: { campo: Campo; rotulo: string }[] = [
   { campo: 'papel', rotulo: TEXTO.papel },
 ];
 
-function value(linha: MemberLinha, campo: Campo): string {
+function value(linha: MemberRow, campo: Campo): string {
   if (campo === 'nome') {
     /*
      * `"".concat(fullName, " (", pendingInvitation, ")")` — an invitee who hasn't joined yet carries that state in their own name, which is why they're also included in search and sorting.
@@ -74,21 +74,21 @@ function value(linha: MemberLinha, campo: Campo): string {
   return linha.role;
 }
 
-export function MembersTabela({
+export function MembersTable({
   members,
   papeis,
   podeEscrever,
 }: {
-  members: MemberLinha[];
+  members: MemberRow[];
   papeis: RoleOption[];
   podeEscrever: boolean;
 }) {
-  const [search, definirSearch] = useState('');
-  const [searchAberta, abrirSearch] = useState(false);
-  const [order, definirOrder] = useState<{ campo: Campo; sentido: 'asc' | 'desc' } | null>(null);
+  const [search, setSearch] = useState('');
+  const [searchOpen, openSearch] = useState(false);
+  const [order, setOrder] = useState<{ campo: Campo; sentido: 'asc' | 'desc' } | null>(null);
   const [marcados, definirMarcados] = useState<readonly string[]>([]);
   const [menu, abrirMenu] = useState<'papel' | 'excluir' | null>(null);
-  const [roleEscolhido, escolherRole] = useState<RoleOption | null>(null);
+  const [roleChosen, chooseRole] = useState<RoleOption | null>(null);
   /*
    * The "Reenviar" result (`../acoes.ts`): with no email delivery in Pipe, the new link only exists here, and leaves the screen on close — it never goes into the URL.
    */
@@ -97,7 +97,7 @@ export function MembersTabela({
 
   async function reenviar(id: string) {
     definirReenviando(id);
-    const resultado = await reenviarInvitation(id);
+    const resultado = await resendInvitation(id);
     definirReenviando(null);
     definirReenvio({ ...resultado, id });
   }
@@ -119,7 +119,7 @@ export function MembersTabela({
   const marcadosVisiveis = visiveis.filter((m) => marcados.includes(key(m)));
   const todosMarcados = visiveis.length > 0 && marcadosVisiveis.length === visiveis.length;
 
-  function alternar(linha: MemberLinha) {
+  function alternar(linha: MemberRow) {
     const id = key(linha);
     definirMarcados((antes) =>
       antes.includes(id) ? antes.filter((x) => x !== id) : [...antes, id],
@@ -128,7 +128,7 @@ export function MembersTabela({
 
   function limpar() {
     definirMarcados([]);
-    escolherRole(null);
+    chooseRole(null);
     abrirMenu(null);
   }
 
@@ -137,16 +137,16 @@ export function MembersTabela({
       {/*
  * `BlipSearch`: the magnifying glass is a button, and the field starts at zero width and grows to 200px on focus. Closes on blur.
  */}
-      <div className={`mb-search${searchAberta || search ? ' mb-search--open' : ''}`}>
-        <button type="button" onClick={() => abrirSearch(true)} aria-label="Buscar membro">
-          <IconeSearch tamanho={20} />
+      <div className={`mb-search${searchOpen || search ? ' mb-search--open' : ''}`}>
+        <button type="button" onClick={() => openSearch(true)} aria-label="Buscar membro">
+          <SearchIcon tamanho={20} />
         </button>
         <input
           type="text"
           value={search}
-          onChange={(e) => definirSearch(e.target.value)}
-          onFocus={() => abrirSearch(true)}
-          onBlur={() => abrirSearch(false)}
+          onChange={(e) => setSearch(e.target.value)}
+          onFocus={() => openSearch(true)}
+          onBlur={() => openSearch(false)}
           aria-label="Buscar membro"
         />
       </div>
@@ -172,7 +172,7 @@ export function MembersTabela({
                   type="button"
                   className="mb-ordenar"
                   onClick={() =>
-                    definirOrder({
+                    setOrder({
                       campo: column.campo,
                       sentido:
                         order?.campo === column.campo && order.sentido === 'asc' ? 'desc' : 'asc',
@@ -212,7 +212,7 @@ export function MembersTabela({
                         <button
                           type="submit"
                           className="mb-btn mb-btn--texto mb-btn--marca"
-                          disabled={!roleEscolhido}
+                          disabled={!roleChosen}
                         >
                           {TEXTO.aplicar}
                         </button>
@@ -230,15 +230,15 @@ export function MembersTabela({
                       {TEXTO.editar} <span className="mb-numero">{marcadosVisiveis.length}</span>{' '}
                       {TEXTO.members}
                     </p>
-                    <RoleEscolha
+                    <RoleChoice
                       papeis={papeis}
-                      escolhido={roleEscolhido}
-                      escolher={escolherRole}
+                      escolhido={roleChosen}
+                      escolher={chooseRole}
                     />
                     {/*
  * The description of the chosen role, as in the source: it lives HERE, below the selector, not in a caption at the bottom.
  */}
-                    <p className="mb-description">{roleEscolhido?.description ?? ''}</p>
+                    <p className="mb-description">{roleChosen?.description ?? ''}</p>
                   </Menu>
 
                   <Menu
@@ -246,7 +246,7 @@ export function MembersTabela({
                     alternar={() => abrirMenu(menu === 'excluir' ? null : 'excluir')}
                     rotulo={TEXTO.excluir}
                     icone="lixeira"
-                    acao={excluirMembers}
+                    acao={deleteMembers}
                     aoEnviar={limpar}
                     alvos={marcadosVisiveis.map(key)}
                     rodape={
@@ -325,7 +325,7 @@ export function MembersTabela({
         </tbody>
       </table>
 
-      <InvitationReenvio resultado={reenvio} aoFechar={() => definirReenvio(null)} />
+      <InvitationResend resultado={reenvio} aoFechar={() => definirReenvio(null)} />
     </div>
   );
 }
@@ -333,7 +333,7 @@ export function MembersTabela({
 /**
  * What "Reenviar" shows: the same single-link panel as a freshly created invite (`convidar.tsx`), because it's the same gap — with no email delivery, someone has to copy the link by hand. Failures come from the API (`ResultadoDoReenvio.erro`), like an invite already expired by another tab while this one still showed the row.
  */
-function InvitationReenvio({
+function InvitationResend({
   resultado,
   aoFechar,
 }: {
@@ -409,7 +409,7 @@ function Marca({
 /**
  * The Edit menu's `BlipSelect`: label "Papel" inside the border, empty state "Escolha o papel", and the list below the field with each role's name. It's a sibling of the invite's Permission list (same keyboard: ↑↓, Enter, Esc), but the design differs — that one is the new `bds-select`, with an icon and description per option —, so they're two separate components. The value goes into the hidden `papelId`.
  */
-function RoleEscolha({
+function RoleChoice({
   papeis,
   escolhido,
   escolher,
@@ -419,13 +419,13 @@ function RoleEscolha({
   escolher: (role: RoleOption) => void;
 }) {
   const [aberta, abrirLista] = useState(false);
-  const [active, definirActive] = useState(0);
+  const [active, setActive] = useState(0);
   const botao = useRef<HTMLButtonElement>(null);
   const lista = useRef<HTMLUListElement>(null);
   const id = useId();
 
   function abrir() {
-    definirActive(
+    setActive(
       Math.max(
         0,
         papeis.findIndex((p) => p.id === escolhido?.id),
@@ -445,7 +445,7 @@ function RoleEscolha({
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       const passo = e.key === 'ArrowDown' ? 1 : -1;
-      definirActive((a) => (a + passo + papeis.length) % papeis.length);
+      setActive((a) => (a + passo + papeis.length) % papeis.length);
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       if (papeis[active]) pegar(papeis[active]);
@@ -503,7 +503,7 @@ function RoleEscolha({
                 aria-selected={p.id === escolhido?.id}
                 className={`mb-choice-option${i === active ? ' mb-choice-option--active' : ''}`}
                 onMouseDown={(e) => e.preventDefault()}
-                onMouseEnter={() => definirActive(i)}
+                onMouseEnter={() => setActive(i)}
                 onClick={() => pegar(p)}
               >
                 {p.rotulo}
@@ -588,7 +588,7 @@ function LinhaVazia({ colunas, texto }: { colunas: number; texto: string }) {
 /**
  * Their `#tab-nav`: "Membros do contrato" and "Pendentes", both for anyone who can read members. Pendentes is for whoever REQUESTED to join (`PendingTenant`) — a door Pipe doesn't have —, so it always opens empty, matching the source, without the count badge, which there only appears once someone is in the queue.
  */
-export function MembersAbas({
+export function MembersTabs({
   podeEscrever,
   children,
 }: {

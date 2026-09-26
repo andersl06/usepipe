@@ -10,8 +10,8 @@ import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import {
-  adicionarMember,
-  editarMember,
+  addMember,
+  editMember,
   listarEquipe,
   myPermissionsInFlow,
   removeMember,
@@ -70,7 +70,7 @@ export class ManagementTeamController {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
-      adicionarMember(tx, sessao.tenantId, sessao.userId, id, corpo ?? {}),
+      addMember(tx, sessao.tenantId, sessao.userId, id, corpo ?? {}),
     );
   }
 
@@ -86,7 +86,7 @@ export class ManagementTeamController {
     uuidOu404(id, 'fluxo');
     uuidOu404(usuarioId, 'membro');
     return noTenant(sessao.tenantId, (tx) =>
-      editarMember(tx, sessao.tenantId, sessao.userId, id, usuarioId, corpo ?? {}),
+      editMember(tx, sessao.tenantId, sessao.userId, id, usuarioId, corpo ?? {}),
     );
   }
 

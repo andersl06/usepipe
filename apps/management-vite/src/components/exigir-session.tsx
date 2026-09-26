@@ -6,7 +6,7 @@ import { useSession } from '../context/session';
  */
 const ROTAS_DO_ONBOARDING = /^\/(bem-vindo|minha-conta|trocar-conta)(\/|$)/;
 
-export function ExigirSession() {
+export function RequireSession() {
   const { eu } = useSession();
   const { pathname, search } = useLocation();
   if (eu === undefined) return null;

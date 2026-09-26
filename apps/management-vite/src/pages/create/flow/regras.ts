@@ -66,7 +66,7 @@ export const ROTULOS = {
   /** `createApplication.name.name` */
   rotuloDoNome: 'Nome do fluxo',
   /** `modules.ui.uploadButton.title` — the label inside the dashed circle. */
-  definirImage: 'Definir imagem',
+  setImage: 'Definir imagem',
   /** `createApplication.name.back` */
   voltar: 'Voltar',
 } as const;

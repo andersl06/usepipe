@@ -74,7 +74,7 @@ function normalizar(bruto: string): string {
   return limpo.startsWith('+') ? limpo : `+${limpo}`;
 }
 
-export async function dispararMessageActive(
+export async function triggerMessageActive(
   canal: ChannelResolved,
   pedido: PedidoDeDisparo,
 ): Promise<ResultOfDestination[]> {

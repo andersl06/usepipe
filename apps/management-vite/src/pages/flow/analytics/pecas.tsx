@@ -52,7 +52,7 @@ export function dataDoSeletor(iso: string): string {
 /**
  * `<blip-daterange-picker>`: the box with the calendar icon and the two dates separated by "~"; on open, the `bp-daterange-dropdown` with the calendars and the Cancelar/Aplicar buttons. The origin's two month calendars became two `<input type="date">` inside the same frame: only the panel's inner content changes, and the form sends `de` and `ate` via the URL. "Cancelar" reloads the screen as it was.
  */
-export function PeriodSeletor({
+export function PeriodSelector({
   de,
   ate,
   min,

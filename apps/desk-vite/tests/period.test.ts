@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { intervaloDoAtalho, intervaloPersonalizado, timeMedio } from '../src/lib/period';
-import { agruparContacts } from '../src/lib/contacts';
+import { intervaloDoAtalho, intervaloPersonalizado, timeAverage } from '../src/lib/period';
+import { groupContacts } from '../src/lib/contacts';
 import { aplicarParametros } from '../src/lib/template';
 import { readPreferences } from '../src/lib/preferences';
 
@@ -28,8 +28,8 @@ test('o intervalo à mão vira quando invertido e cabe no teto de 90 dias', () =
 });
 
 test('average time with no value shows a dash, not zero', () => {
-  assert.equal(timeMedio(null), '-');
-  assert.equal(timeMedio(61), '00:01:01');
+  assert.equal(timeAverage(null), '-');
+  assert.equal(timeAverage(61), '00:01:01');
 });
 
 const c = (id: string, nome: string | null, ultima: string | null) => ({
@@ -41,7 +41,7 @@ const c = (id: string, nome: string | null, ultima: string | null) => ({
 });
 
 test('alphabetical order groups by letter and sends unnamed items to the end', () => {
-  const groups = agruparContacts(
+  const groups = groupContacts(
     [c('1', null, null), c('2', 'Álvaro', null), c('3', 'Bia', null), c('4', 'ana', null)],
     'alfabetica',
   );
@@ -56,7 +56,7 @@ test('alphabetical order groups by letter and sends unnamed items to the end', (
 });
 
 test('last interaction groups by day, most recent first', () => {
-  const groups = agruparContacts(
+  const groups = groupContacts(
     [
       c('1', 'A', '2026-09-01T10:00:00'),
       c('2', 'B', '2026-09-17T10:00:00'),

@@ -55,7 +55,7 @@ export async function assignInBulk(
   return { mudadas, pedidas: limpos.length };
 }
 
-export async function desqualificarInBulk(ids: string[]): Promise<ResultInBulk> {
+export async function disqualifyInBulk(ids: string[]): Promise<ResultInBulk> {
   const limpos = idsLimpos(ids);
   const mudadas = await desqualificarLeads(limpos);
   recarregar();

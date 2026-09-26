@@ -4,7 +4,7 @@ import { Selection } from '../../../../components/selection';
 import {
   INTERVALOS_RAPIDOS,
   cincoAnosAntes,
-  periodDias,
+  periodDays,
   inicioDoIntervalo,
   periodValid,
 } from './regras';
@@ -76,7 +76,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
   const [error, setError] = useState(false);
   const [avisoVisivel, setAvisoVisivel] = useState(true);
   const [termoAberto, setTermoAberto] = useState(false);
-  const [ajudaHistoryAberta, setAjudaHistoryAberta] = useState(false);
+  const [helpHistoryOpen, setHelpHistoryOpen] = useState(false);
   const [feedbackEnviado, setFeedbackEnviado] = useState(false);
   const minimo = cincoAnosAntes(hoje);
 
@@ -218,7 +218,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
               <label className="gr-campo gr-contact">
                 <span className="gr-contact-label">
                   Contato
-                  <button type="button" onClick={() => setAjudaHistoryAberta(true)}>
+                  <button type="button" onClick={() => setHelpHistoryOpen(true)}>
                     (Saiba como gerar corretamente)
                   </button>
                 </span>
@@ -283,7 +283,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                     <td>agora</td>
                     <td>{reportName(report.tipo)}</td>
                     <td>{botEscolhido}</td>
-                    <td>{periodDias(report.inicio, report.fim)} dias</td>
+                    <td>{periodDays(report.inicio, report.fim)} dias</td>
                     <td>{dataPt(report.inicio)}</td>
                     <td>{dataPt(report.fim)}</td>
                     <td>
@@ -370,20 +370,20 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
         </div>
       ) : null}
 
-      {ajudaHistoryAberta ? (
+      {helpHistoryOpen ? (
         <div className="gr-modal" role="dialog" aria-modal="true" aria-labelledby="gr-ajuda-titulo">
           <button
             className="gr-modal-fundo"
             type="button"
             aria-label="Fechar"
-            onClick={() => setAjudaHistoryAberta(false)}
+            onClick={() => setHelpHistoryOpen(false)}
           />
           <div className="gr-modal-caixa gr-modal-ajuda">
             <button
               className="gr-modal-fechar"
               type="button"
               aria-label="Fechar"
-              onClick={() => setAjudaHistoryAberta(false)}
+              onClick={() => setHelpHistoryOpen(false)}
             >
               ×
             </button>
@@ -416,7 +416,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             <button
               type="button"
               className="an-bds-btn gr-modal-botao"
-              onClick={() => setAjudaHistoryAberta(false)}
+              onClick={() => setHelpHistoryOpen(false)}
             >
               Fechar
             </button>

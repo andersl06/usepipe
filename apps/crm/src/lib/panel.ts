@@ -12,10 +12,10 @@ export interface Indicadores {
   leadsNoMes: number;
   leadsNoMesAnterior: number;
   qualificadosNoMes: number;
-  opportunitiesAbertas: number;
+  opportunitiesOpen: number;
   diasMediosAbertas: number | null;
   inNegotiation: number;
-  valuePonderado: number;
+  valueWeighted: number;
   fechadoNoMes: number;
   fechadoNoMesAnterior: number;
   perdidoNoMes: number;
@@ -78,10 +78,10 @@ export async function carregarIndicadores(mes: Window, mesAnterior: Window): Pro
       leadsNoMes: leads?.total ?? 0,
       leadsNoMesAnterior: leadsAntes?.total ?? 0,
       qualificadosNoMes: leads?.qualificados ?? 0,
-      opportunitiesAbertas: abertas?.n ?? 0,
+      opportunitiesOpen: abertas?.n ?? 0,
       diasMediosAbertas: abertas?.diasMedios ? num(abertas.diasMedios) : null,
       inNegotiation: num(abertas?.valor),
-      valuePonderado: num(abertas?.ponderado),
+      valueWeighted: num(abertas?.ponderado),
       fechadoNoMes: num(fechadas?.ganho),
       fechadoNoMesAnterior: num(fechadasAntes?.ganho),
       perdidoNoMes: num(fechadas?.perdido),
@@ -90,7 +90,7 @@ export async function carregarIndicadores(mes: Window, mesAnterior: Window): Pro
 }
 
 /** Volume by source for the month, which is the reading a manager does right after the total. */
-export async function leadsByOrigem(mes: Window): Promise<{ origem: string; n: number }[]> {
+export async function leadsByOrigin(mes: Window): Promise<{ origem: string; n: number }[]> {
   return consultar(async (tx) => {
     const linhas = await tx
       .select({ origem: lead.origem, n: sql<number>`count(*)::int` })
@@ -103,7 +103,7 @@ export async function leadsByOrigem(mes: Window): Promise<{ origem: string; n: n
 }
 
 /** Leads by stage, with how many have been stalled for more than 7 days — which costs money. */
-export async function leadsByFase(): Promise<{ fase: string; n: number; parados: number }[]> {
+export async function leadsByStage(): Promise<{ fase: string; n: number; parados: number }[]> {
   return consultar(async (tx) => {
     const linhas = await tx
       .select({

@@ -74,7 +74,7 @@ export function useLarguras(storageKey: string, defaults: Larguras) {
    */
   const arraste = useRef<Arraste | null>(null);
   /** Only for the header's class. This one can be state: it's just paint. */
-  const [columnInArraste, setColumnInArraste] = useState<string | null>(null);
+  const [columnInDrag, setColumnInDrag] = useState<string | null>(null);
 
   // Only after mounting: the server has no `localStorage`, and reading during the
   // render would make the two sides draw different widths.
@@ -109,7 +109,7 @@ export function useLarguras(storageKey: string, defaults: Larguras) {
       evento.preventDefault();
       (evento.target as HTMLElement).setPointerCapture(evento.pointerId);
       arraste.current = { column, inicioX: evento.clientX, inicioLargura: largura(column) };
-      setColumnInArraste(column);
+      setColumnInDrag(column);
     };
   }
 
@@ -121,7 +121,7 @@ export function useLarguras(storageKey: string, defaults: Larguras) {
 
   function aoSoltar() {
     arraste.current = null;
-    setColumnInArraste(null);
+    setColumnInDrag(null);
   }
 
   /**
@@ -153,7 +153,7 @@ export function useLarguras(storageKey: string, defaults: Larguras) {
 
   return {
     largura,
-    columnInArraste,
+    columnInDrag,
     aoPegar,
     aoMover,
     aoSoltar,

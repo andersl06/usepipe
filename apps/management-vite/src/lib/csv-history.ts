@@ -26,7 +26,7 @@ function valuesOf(c: CardHistory): string[] {
     c.queue,
     c.agent,
     c.espera,
-    c.firstResposta,
+    c.firstResponse,
     c.attendance,
     c.statusTexto,
     c.etiquetas.join(', '),

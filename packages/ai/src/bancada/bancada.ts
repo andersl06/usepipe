@@ -3,13 +3,13 @@
  */
 
 import type { ResultEvaluation } from '../evaluation/index.js';
-import { avaliarConversation, calcularNota, criteriosDoFormulario } from '../evaluation/index.js';
+import { evaluateConversation, calcularNota, criteriosDoFormulario } from '../evaluation/index.js';
 import type { Formulario } from '../evaluation/tipos.js';
 import type { ChamadaEstruturada } from '../cliente/cliente.js';
 import type { Consumo } from '../consumo/index.js';
 import { somarConsumo } from '../consumo/index.js';
 import type { MessageTranscription, OptionsTranscription } from '../transcription/index.js';
-import { montarTranscription } from '../transcription/index.js';
+import { buildTranscription } from '../transcription/index.js';
 
 /** A reference-set conversation with a human evaluation. */
 export interface CasoReferencia {
@@ -79,9 +79,9 @@ export interface OptionsWorkbench {
 
 function avaliadorPadrao(options: OptionsWorkbench): AvaliadorBancada {
   return (caso) =>
-    avaliarConversation({
+    evaluateConversation({
       formulario: caso.formulario,
-      transcription: montarTranscription(caso.messages, options.transcription),
+      transcription: buildTranscription(caso.messages, options.transcription),
       context: caso.context,
       template: options.template,
       chamar: options.chamar,
@@ -127,7 +127,7 @@ export async function rodarBancada(options: OptionsWorkbench): Promise<Resultado
           criterioId: g.criterioId,
           value: g.value,
           justificativa: 'gabarito humano',
-          evidenciaMessageId: null,
+          evidenceMessageId: null,
         })),
       );
 

@@ -5,12 +5,12 @@ import { stateInitial, reduzir } from '../src/pages/builder/state.ts';
 import {
   addBlock,
   copiedTextBlock,
-  colarBlock,
+  pasteBlock,
   desligar,
-  excluirBlock,
+  deleteBlock,
   ligar,
   montarDesenho,
-  moverBlock,
+  moveBlock,
   newBlock,
   positionOf,
   copiedBlockText,
@@ -38,18 +38,18 @@ test('creates, moves and deletes a block, removing destinations that pointed to 
   assert.equal(resultado.ok, true);
   if (!resultado.ok) return;
   const ligado = resultado.mapa;
-  const movido = moverBlock(ligado, 'destino', { top: 99.6, left: -1 });
+  const movido = moveBlock(ligado, 'destino', { top: 99.6, left: -1 });
 
   assert.deepEqual(positionOf(movido.destino!), { top: 100, left: 0 });
-  assert.equal(excluirBlock(movido, 'destino').destino, undefined);
-  assert.deepEqual(excluirBlock(movido, 'destino').origem!.$conditionOutputs, []);
+  assert.equal(deleteBlock(movido, 'destino').destino, undefined);
+  assert.deepEqual(deleteBlock(movido, 'destino').origem!.$conditionOutputs, []);
 });
 
 test('copies a block to the clipboard and pastes a copy at the chosen position', () => {
   const origem = newBlock({}, { top: 10, left: 20 }, 'origem');
   const copiado = copiedTextBlock(copiedBlockText(origem));
   assert.ok(copiado);
-  const mapa = colarBlock({ origem }, copiado, { top: 120, left: 340 }, 'destino');
+  const mapa = pasteBlock({ origem }, copiado, { top: 120, left: 340 }, 'destino');
 
   assert.equal(mapa.origem, origem);
   assert.equal(mapa.destino?.$title, 'Novo bloco [Cópia]');
@@ -76,7 +76,7 @@ test('toggles an edge on and off without duplicating the output\'s condition', (
 test('desfazer e refazer tratam o arrasto como uma mudança única', () => {
   const mapa = { bloco: newBlock({}, { top: 0, left: 0 }, 'bloco') };
   const carregado = reduzir(stateInitial(), { tipo: 'carregar', mapa, global: {} });
-  const duranteArrasto = reduzir(carregado, { tipo: 'mover', mapa: moverBlock(mapa, 'bloco', { top: 30, left: 40 }) });
+  const duranteArrasto = reduzir(carregado, { tipo: 'mover', mapa: moveBlock(mapa, 'bloco', { top: 30, left: 40 }) });
   const solto = reduzir(duranteArrasto, { tipo: 'soltar' });
 
   assert.equal(solto.passado.length, 1);
@@ -101,15 +101,15 @@ test('Ctrl+Z disappears while a block is being dragged, so the drag\'s undo is n
   // First drag, complete — a real step in the history.
   const firstMovement = reduzir(carregado, {
     tipo: 'mover',
-    mapa: moverBlock(mapa, 'bloco', { top: 10, left: 10 }),
+    mapa: moveBlock(mapa, 'bloco', { top: 10, left: 10 }),
   });
-  const firstSolto = reduzir(firstMovement, { tipo: 'soltar' });
-  assert.equal(firstSolto.passado.length, 1);
+  const firstLoose = reduzir(firstMovement, { tipo: 'soltar' });
+  assert.equal(firstLoose.passado.length, 1);
 
   // Second drag in progress — Ctrl+Z in the middle of it does nothing.
-  const duranteArrasto = reduzir(firstSolto, {
+  const duranteArrasto = reduzir(firstLoose, {
     tipo: 'mover',
-    mapa: moverBlock(firstSolto.mapa, 'bloco', { top: 30, left: 40 }),
+    mapa: moveBlock(firstLoose.mapa, 'bloco', { top: 30, left: 40 }),
   });
   const desfeitoNoMeio = reduzir(duranteArrasto, { tipo: 'desfazer' });
   assert.equal(desfeitoNoMeio, duranteArrasto);
@@ -121,9 +121,9 @@ test('Ctrl+Z disappears while a block is being dragged, so the drag\'s undo is n
   assert.deepEqual(positionOf(segundoSolto.mapa.bloco!), { top: 30, left: 40 });
 
   // E os dois desfazeres, na ordem certa, voltam ao (10,10) e depois ao (0,0).
-  const firstDesfazer = reduzir(segundoSolto, { tipo: 'desfazer' });
-  assert.deepEqual(positionOf(firstDesfazer.mapa.bloco!), { top: 10, left: 10 });
-  const segundoDesfazer = reduzir(firstDesfazer, { tipo: 'desfazer' });
+  const firstUndo = reduzir(segundoSolto, { tipo: 'desfazer' });
+  assert.deepEqual(positionOf(firstUndo.mapa.bloco!), { top: 10, left: 10 });
+  const segundoDesfazer = reduzir(firstUndo, { tipo: 'desfazer' });
   assert.deepEqual(positionOf(segundoDesfazer.mapa.bloco!), { top: 0, left: 0 });
 });
 

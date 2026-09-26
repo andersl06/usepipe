@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   acaoDeAdicionar,
-  NIVEIS_OF_EDIT,
-  editNivel,
-  permissionsOfNivelOfEdit,
+  LEVELS_OF_EDIT,
+  editLevel,
+  permissionsOfLevelOfEdit,
   rolePermissions,
 } from '../src/pages/flow/team/permissions.ts';
 
@@ -25,11 +25,11 @@ test('adicionar oferece somente as quatro paradas da barra da Blip', () => {
 
 test('edit has the five literal states and derives the selector from the matrix', () => {
   assert.deepEqual(
-    NIVEIS_OF_EDIT.map((option) => option.rotulo),
+    LEVELS_OF_EDIT.map((option) => option.rotulo),
     ['Sem permissão', 'Customizado', 'Visualizar', 'Ver e editar', 'Admin'],
   );
   assert.equal(
-    editNivel('personalizado', RECURSOS, {
+    editLevel('personalizado', RECURSOS, {
       builder: 'nenhum',
       channels: 'nenhum',
       team: 'nenhum',
@@ -37,25 +37,25 @@ test('edit has the five literal states and derives the selector from the matrix'
     'nenhum',
   );
   assert.equal(
-    editNivel('personalizado', RECURSOS, {
+    editLevel('personalizado', RECURSOS, {
       builder: 'escrever',
       channels: 'ler',
       team: 'nenhum',
     }),
     'personalizado',
   );
-  assert.equal(editNivel('admin', RECURSOS, {}), 'admin');
+  assert.equal(editLevel('admin', RECURSOS, {}), 'admin');
 });
 
 test('o seletor marca as linhas; só Customizado preserva a escolha granular', () => {
   const misto = { builder: 'escrever', channels: 'ler', team: 'nenhum' } as const;
-  assert.deepEqual(permissionsOfNivelOfEdit('personalizado', RECURSOS, misto), misto);
-  assert.deepEqual(permissionsOfNivelOfEdit('nenhum', RECURSOS, misto), {
+  assert.deepEqual(permissionsOfLevelOfEdit('personalizado', RECURSOS, misto), misto);
+  assert.deepEqual(permissionsOfLevelOfEdit('nenhum', RECURSOS, misto), {
     builder: 'nenhum',
     channels: 'nenhum',
     team: 'nenhum',
   });
-  assert.deepEqual(permissionsOfNivelOfEdit('admin', RECURSOS, misto), {
+  assert.deepEqual(permissionsOfLevelOfEdit('admin', RECURSOS, misto), {
     builder: 'escrever',
     channels: 'escrever',
     team: 'escrever',

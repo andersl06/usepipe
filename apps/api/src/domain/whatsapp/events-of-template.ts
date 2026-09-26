@@ -44,7 +44,7 @@ interface ValueOfTemplate {
 
 type Mudanca = { field?: string; value?: ValueOfTemplate };
 
-export function mudancasOfTemplate(payload: unknown): Mudanca[] {
+export function changesOfTemplate(payload: unknown): Mudanca[] {
   const corpo = payload as { entry?: { changes?: Mudanca[] }[] } | null;
   return (corpo?.entry ?? [])
     .flatMap((e) => e.changes ?? [])
@@ -54,7 +54,7 @@ export function mudancasOfTemplate(payload: unknown): Mudanca[] {
 /**
  * An empty address list means all administrators, as the original screen says (`preferencias.ts`). Pipe defines administrators here as tenant users with `canal.gerenciar`, who manage the channel and can respond to a model price change.
  */
-async function emailsOfWhoGerenciaChannel(tx: TransactionPipe): Promise<string[]> {
+async function emailsOfWhoManagesChannel(tx: TransactionPipe): Promise<string[]> {
   const { rows } = await tx.execute<{ email: string }>(sql`
     select distinct u.email
       from usuario u
@@ -99,7 +99,7 @@ export function emailOfRecategorization(alerta: AlertOfRecategorization, canalNo
 /** Return the number of changed models; ignore unknown local models until synchronization imports them. */
 export async function applyEventsOfTemplate(channel: ChannelResolved, payload: unknown): Promise<number> {
   let aplicados = 0;
-  for (const { field, value } of mudancasOfTemplate(payload)) {
+  for (const { field, value } of changesOfTemplate(payload)) {
     const nome = value?.message_template_name;
     const idioma = value?.message_template_language;
     if (!nome || !idioma) continue;
@@ -143,7 +143,7 @@ export async function applyEventsOfTemplate(channel: ChannelResolved, payload: u
         rows.length > 0 && alerta.active
           ? alerta.emails.length > 0
             ? alerta.emails
-            : await emailsOfWhoGerenciaChannel(tx)
+            : await emailsOfWhoManagesChannel(tx)
           : [];
       for (const { id } of rows) {
         const anterior = CATEGORIA[value?.previous_category ?? ''] ?? null;

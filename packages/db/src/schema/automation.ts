@@ -72,7 +72,7 @@ export const flow = pgTable(
 /**
  * The four stops of the source Team modal's "Permissão" slider, keyed by `team.addUserModal.slider`: `visualize`, `custom`, `edit`, `admin`.
  */
-export const PAPEIS_IN_FLOW = ['visualizar', 'personalizado', 'editar', 'admin'] as const;
+export const ROLES_IN_FLOW = ['visualizar', 'personalizado', 'editar', 'admin'] as const;
 
 /**
  * Team for this contact: who may access this flow and at what permission. Migration 0035 explains why the source assigns permission to the BOT rather than the tenant and documents the `permissoes` shape from `PermissionsList.html` at `/team/team/edit`.
@@ -95,11 +95,11 @@ export const flowMember = pgTable(
       .default(sql`'{}'::jsonb`)
       .$type<Partial<Record<string, 'nenhum' | 'ler' | 'escrever'>>>(),
     /** Who added this person; survives their deletion via `set null`. */
-    convidadoBy: uuid('convidado_por').references(() => user.id, { onDelete: 'set null' }),
+    guestBy: uuid('convidado_por').references(() => user.id, { onDelete: 'set null' }),
     ...carimbos(),
   },
   (t) => [
-    listaCheck('fluxo_membro_papel_ck', t.roleInFlow, PAPEIS_IN_FLOW),
+    listaCheck('fluxo_membro_papel_ck', t.roleInFlow, ROLES_IN_FLOW),
     uniqueIndex('fluxo_membro_uk').on(t.flowId, t.userId),
     index('fluxo_membro_usuario_ix').on(t.userId),
   ],
@@ -177,7 +177,7 @@ export const positionInRouter = pgTable(
       .default(sql`'{}'::jsonb`),
     /** Pending Change-User-State: the service starts at `bloco_inicial` or at the root. */
     reiniciar: boolean('reiniciar').notNull().default(false),
-    blockInicial: text('bloco_inicial'),
+    blockInitial: text('bloco_inicial'),
   },
   (t) => [uniqueIndex('posicao_no_roteador_uk').on(t.roteadorId, t.contactId)],
 );
@@ -298,7 +298,7 @@ export const executionFlow = pgTable(
     contexto: jsonb('contexto')
       .notNull()
       .default(sql`'{}'::jsonb`),
-    blockAtualId: uuid('bloco_atual_id').references(() => block.id, { onDelete: 'set null' }),
+    blockCurrentId: uuid('bloco_atual_id').references(() => block.id, { onDelete: 'set null' }),
     iniciadaEm: moment('iniciada_em').notNull().defaultNow(),
     encerradaEm: moment('encerrada_em'),
   },
@@ -313,7 +313,7 @@ export const executionFlow = pgTable(
   ],
 );
 
-export const executionPasso = pgTable(
+export const executionStep = pgTable(
   'execucao_passo',
   {
     id: id(),
@@ -459,7 +459,7 @@ export const executionWorkflow = pgTable(
   ],
 );
 
-export const executionAcao = pgTable(
+export const executionAction = pgTable(
   'execucao_acao',
   {
     id: id(),

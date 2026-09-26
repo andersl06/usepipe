@@ -239,7 +239,7 @@ describe('Isolate downloaded media by tenant', () => {
 
   it('Do not process another tenant\'s import job', async () => {
     const deA = await runImport(A, 'nome,telefone\nJoão,11933332222\n');
-    const resultado = await workers.processarImport({
+    const resultado = await workers.processImport({
       tenantId: B.tenantId,
       importId: deA.id,
     });

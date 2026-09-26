@@ -10,7 +10,7 @@ import { MAX_BYTES_BY_FILE } from '@pipe/storage';
 import { fecharBancos } from './database.js';
 import { ErrorFilter } from './errors.js';
 import { connectChannelOfEvents } from './eventos-ws.js';
-import { closeTimeReal } from './realtime.js';
+import { closeRealtime } from './realtime.js';
 import {
   scheduleRenewalInstagram,
   scheduleSweepDictionaryCrm,
@@ -27,7 +27,7 @@ import {
   consumeMirrorCrm,
   closeQueues,
 } from './queues.js';
-import { medirRequest } from './metrics.js';
+import { measureRequest } from './metrics.js';
 
 /**
  * Start Nest with a custom JSON parser that preserves raw request bytes in `corpoCru`. Meta signs those bytes with `X-Hub-Signature-256`; reserializing parsed JSON can change spacing or key order and make valid webhooks fail signature verification.
@@ -51,7 +51,7 @@ export async function createApplication(): Promise<INestApplication> {
   });
 
   // Measure unmatched routes too so they appear in metrics.
-  app.use(medirRequest);
+  app.use(measureRequest);
 
   // Accept raw attachment uploads only on this route.
   //
@@ -140,7 +140,7 @@ export async function upApi(porta = Number(process.env['PORT'] ?? 3000)): Promis
       // O canal primeiro: socket vivo segura o `close` do servidor HTTP e o
       // Close the event channel first: a live socket keeps HTTP server `close` waiting and can stall shutdown until timeout.
       await channel.fechar();
-      await closeTimeReal();
+      await closeRealtime();
       await app.close();
       await closeQueues();
       await fecharBancos();

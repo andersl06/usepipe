@@ -1,4 +1,4 @@
-import { KEY_TEMA } from '../../lib/settings-comum';
+import { KEY_THEME } from '../../lib/settings-comum';
 import './settings.css';
 
 /**
@@ -17,7 +17,7 @@ import './settings.css';
  * The `try` isn't decoration: `localStorage` throws in a private window with cookies
  * blocked, and an error here would take down the whole page before the first pixel.
  */
-const APLICAR_TEMA = `try{var t=localStorage.getItem(${JSON.stringify(KEY_TEMA)});if(t==='claro'||t==='escuro'){document.documentElement.dataset.tema=t}}catch(e){}`;
+const APLICAR_TEMA = `try{var t=localStorage.getItem(${JSON.stringify(KEY_THEME)});if(t==='claro'||t==='escuro'){document.documentElement.dataset.tema=t}}catch(e){}`;
 
 export default function LayoutSettings({ children }: { children: React.ReactNode }) {
   return (

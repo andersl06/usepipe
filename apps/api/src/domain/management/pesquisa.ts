@@ -12,7 +12,7 @@ export interface EscalaDePesquisa {
   faixas: string;
 }
 
-export const ESCALA_BY_TYPE: Record<TipoDePesquisa, EscalaDePesquisa> = {
+export const SCALE_BY_TYPE: Record<TipoDePesquisa, EscalaDePesquisa> = {
   csat: { min: 1, max: 5, faixas: 'detrator 1–2 · neutro 3 · promotor 4–5' },
   nps: { min: 0, max: 10, faixas: 'detrator 0–6 · neutro 7–8 · promotor 9–10' },
 };
@@ -44,7 +44,7 @@ export function disparoValido(bruto: string): bruto is DisparoDePesquisa {
  * Classify a score within its survey type's scale. Keep this separate from `satisfacao.ts`, which reads the class stored with historical responses; configuration previews what scores will mean before save, without reclassifying the past.
  */
 export function classeDaNota(tipo: TipoDePesquisa, nota: number): string | null {
-  const escala = ESCALA_BY_TYPE[tipo];
+  const escala = SCALE_BY_TYPE[tipo];
   if (!Number.isFinite(nota) || nota < escala.min || nota > escala.max) return null;
   if (tipo === 'csat') return nota <= 2 ? 'detrator' : nota === 3 ? 'neutro' : 'promotor';
   return nota <= 6 ? 'detrator' : nota <= 8 ? 'neutro' : 'promotor';

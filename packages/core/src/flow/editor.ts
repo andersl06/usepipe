@@ -4,8 +4,8 @@
 
 import { COMPARISONS, FONTES } from './condition.js';
 import type { ConditionBlip } from './condition.js';
-import { FONTES_OF_VARIABLE, FONTES_SUPORTADAS } from './context.js';
-import type { VariableFonte } from './context.js';
+import { SOURCES_OF_VARIABLE, FONTES_SUPORTADAS } from './context.js';
+import type { VariableSource } from './context.js';
 import type { Acao, Inbound, State, FlowBlip, Saida } from './modelos.js';
 import { PROVEDOR_PADRAO } from './actions.js';
 
@@ -60,7 +60,7 @@ function converterAcao(a: Objeto): Acao {
   return acao;
 }
 
-function converterState(e: EditorState): State {
+function convertState(e: EditorState): State {
   const conteudo = e.$contentActions ?? [];
   const editorInbound = conteudo.find((c) => c.input)?.input;
   // An exit without a destination does not become a transition: Blip Builder stores it in
@@ -103,7 +103,7 @@ export function converterDoEditor(exportado: ExportDoEditor, id: string): FlowBl
   const global = exportado.globalActions ?? {};
   return {
     id,
-    states: Object.values(exportado.flow).map(converterState),
+    states: Object.values(exportado.flow).map(convertState),
     inputActions: (global.$enteringCustomActions ?? []).map(converterAcao),
     outputActions: (global.$leavingCustomActions ?? []).map(converterAcao),
     afterStateChangedActions: (global.$afterStateChangedActions ?? []).map(converterAcao),
@@ -130,7 +130,7 @@ export function blipReadFlow(json: unknown, id: string): FlowBlip {
 export const CONTEUDOS_SUPORTADOS = new Set(['text/plain', 'application/vnd.lime.select+json']);
 export const CONTEUDOS_SEM_EFEITO = new Set(['application/vnd.lime.chatstate+json']);
 /** Actions that execute without effect in Pipe, listed explicitly so they do not appear functional. */
-export const ACTIONS_WITHOUT_EFEITO = new Set(['LeavingFromDesk']);
+export const ACTIONS_WITHOUT_EFFECT = new Set(['LeavingFromDesk']);
 
 export interface ImportReport {
   estados: number;
@@ -159,7 +159,7 @@ export function importReport(flow: FlowBlip): ImportReport {
     semEfeito: {},
   };
 
-  const verConditions = (conditions: ConditionBlip[] | null | undefined): void => {
+  const viewConditions = (conditions: ConditionBlip[] | null | undefined): void => {
     for (const c of conditions ?? []) {
       const fonte = (c.source ?? 'input').toLowerCase();
       if (!FONTES.includes(fonte as (typeof FONTES)[number]))
@@ -175,9 +175,9 @@ export function importReport(flow: FlowBlip): ImportReport {
 
   const verAcao = (a: Acao): void => {
     somar(r.actions, a.type);
-    verConditions(a.conditions);
+    viewConditions(a.conditions);
     if (!PROVEDOR_PADRAO.has(a.type)) return somar(r.naoSuportado, `acao:${a.type}`);
-    if (ACTIONS_WITHOUT_EFEITO.has(a.type)) somar(r.semEfeito, `acao:${a.type}`);
+    if (ACTIONS_WITHOUT_EFFECT.has(a.type)) somar(r.semEfeito, `acao:${a.type}`);
     const tipo = (a.settings as { type?: unknown } | undefined)?.type;
     if (a.type === 'SendMessage' && tipo !== undefined) {
       if (CONTEUDOS_SEM_EFEITO.has(texto(tipo))) somar(r.semEfeito, `conteudo:${texto(tipo)}`);
@@ -212,10 +212,10 @@ export function importReport(flow: FlowBlip): ImportReport {
       somar(r.semEfeito, `acao-local:${a.type}`);
     }
     if (e.input?.expiration) somar(r.naoSuportado, 'entrada:expiracao');
-    verConditions(e.input?.conditions);
+    viewConditions(e.input?.conditions);
     for (const s of e.outputs ?? []) {
       r.saidas += 1;
-      verConditions(s.conditions);
+      viewConditions(s.conditions);
     }
   }
 
@@ -224,8 +224,8 @@ export function importReport(flow: FlowBlip): ImportReport {
     const nome = m[1]!.split('@')[0]!;
     if (!nome.includes('.')) continue;
     const fonte = nome.split('.')[0]!.toLowerCase();
-    const conhecida = FONTES_OF_VARIABLE.includes(fonte as VariableFonte);
-    if (!conhecida || !FONTES_SUPORTADAS.has(fonte as VariableFonte))
+    const conhecida = SOURCES_OF_VARIABLE.includes(fonte as VariableSource);
+    if (!conhecida || !FONTES_SUPORTADAS.has(fonte as VariableSource))
       somar(r.naoSuportado, `variavel:${fonte}`);
   }
 

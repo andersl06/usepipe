@@ -5,7 +5,7 @@ import type { Ator, TransactionPipe } from '@pipe/db';
 import { keyApi, user, webhookSaida } from '@pipe/db/schema';
 import { TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
 import { PipeError } from '../../errors.js';
-import { exigirPermission } from '../../session.js';
+import { requirePermission } from '../../session.js';
 import { hashOfSecret } from '../../authentication.js';
 import { keyring } from '../../database.js';
 import {
@@ -21,7 +21,7 @@ import type {
   TypeAuthenticationWebhook,
 } from '../../webhooks-saida.js';
 import { chamarComMtls } from '../mtls.js';
-import { EDITAR_FLOW } from './cycle-of-lifetime-of-flow.js';
+import { EDIT_FLOW } from './cycle-of-lifetime-of-flow.js';
 
 /**
  * Replace three mocked flow Integration screens. 'Chaves de acesso' (`configuracoes/keys`) may scope existing account `chave_api` to ONE flow via `chave_api.fluxo_id` (migration 0032); its `pipe_<prefixo>_<segredo>` token remains the same credential as `autenticacao.ts`. 'Informações de conexão' (`configuracoes/api`) reads flow ID, active key and API endpoint, and writes the two 'Conectar usando HTTP' URLs as `webhook_saida` resources by event set. 'Webhook' (`integracoes/webhook`) adds CRUD and test to existing delivery in `webhooks-saida.ts`. Keys require `chave_api.gerenciar`; webhook/connection writes require new `automacao.integracao.gerenciar` (migration 0032); connection reads use `EDITAR_FLUXO`.
@@ -120,7 +120,7 @@ export async function listKeysOfFlow(
   usuarioId: string,
   fluxoId: string,
 ): Promise<KeyOfFlow[]> {
-  await exigirPermission(tx, usuarioId, MANAGE_KEY);
+  await requirePermission(tx, usuarioId, MANAGE_KEY);
   await flowExists(tx, tenantId, fluxoId);
   const linhas = await tx
     .select(COLUMNS_KEY_LIST)
@@ -145,7 +145,7 @@ export async function createKeyOfFlow(
   fluxoId: string,
   nome: string,
 ): Promise<KeyOfFlowCreated> {
-  await exigirPermission(tx, usuarioId, MANAGE_KEY);
+  await requirePermission(tx, usuarioId, MANAGE_KEY);
   await flowExists(tx, tenantId, fluxoId);
 
   const nomeAparado = nome.trim();
@@ -194,14 +194,14 @@ export async function createKeyOfFlow(
 }
 
 /** `deleteKey()`: revoga (`revogada_em`), nunca apaga a linha — o mesmo motivo do log de uso. */
-export async function revogarKeyOfFlow(
+export async function revokeKeyOfFlow(
   tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
   keyId: string,
 ): Promise<void> {
-  await exigirPermission(tx, usuarioId, MANAGE_KEY);
+  await requirePermission(tx, usuarioId, MANAGE_KEY);
   await flowExists(tx, tenantId, fluxoId);
 
   const [atual] = await tx
@@ -476,7 +476,7 @@ function columnsOfAuthentication(authentication: AuthenticationWebhookInbound) {
 }
 
 /** O que entra no log de auditoria — nunca `senha`/`clientSecret`, nem cifrados. */
-function authenticationForAuditoria(
+function authenticationForAudit(
   autenticacao: AuthenticationWebhookInbound,
 ): AuthenticationWebhookVisible {
   return {
@@ -496,7 +496,7 @@ export async function listarWebhooks(
   tenantId: string,
   usuarioId: string,
 ): Promise<WebhookDeSaida[]> {
-  await exigirPermission(tx, usuarioId, MANAGE_INTEGRATION);
+  await requirePermission(tx, usuarioId, MANAGE_INTEGRATION);
   const linhas = await tx
     .select(COLUNAS_WEBHOOK)
     .from(webhookSaida)
@@ -520,7 +520,7 @@ export async function createWebhook(
   usuarioId: string,
   pedido: PedidoDeWebhook,
 ): Promise<WebhookDeSaidaCriado> {
-  await exigirPermission(tx, usuarioId, MANAGE_INTEGRATION);
+  await requirePermission(tx, usuarioId, MANAGE_INTEGRATION);
   confirmarUrlSegura(pedido.url);
   const eventos = eventosConferidos(pedido.eventos);
   const authentication = authenticationChecked(pedido.autenticacao);
@@ -550,7 +550,7 @@ export async function createWebhook(
       url: pedido.url,
       eventos,
       ativo: true,
-      autenticacao: authenticationForAuditoria(authentication),
+      autenticacao: authenticationForAudit(authentication),
       cabecalhos,
     },
   });
@@ -606,7 +606,7 @@ export async function editarWebhook(
   id: string,
   pedido: RequestOfEditOfWebhook,
 ): Promise<WebhookDeSaida> {
-  await exigirPermission(tx, usuarioId, MANAGE_INTEGRATION);
+  await requirePermission(tx, usuarioId, MANAGE_INTEGRATION);
   const atual = await webhookVivo(tx, tenantId, id);
 
   const antes = {
@@ -627,7 +627,7 @@ export async function editarWebhook(
   let authenticationInbound: AuthenticationWebhookInbound | undefined;
   if (pedido.autenticacao !== undefined) {
     authenticationInbound = authenticationChecked(pedido.autenticacao);
-    depois.autenticacao = authenticationForAuditoria(authenticationInbound);
+    depois.autenticacao = authenticationForAudit(authenticationInbound);
   }
   if (pedido.cabecalhos !== undefined) depois.cabecalhos = cabecalhosConferidos(pedido.cabecalhos);
 
@@ -668,7 +668,7 @@ export async function excluirWebhook(
   usuarioId: string,
   id: string,
 ): Promise<void> {
-  await exigirPermission(tx, usuarioId, MANAGE_INTEGRATION);
+  await requirePermission(tx, usuarioId, MANAGE_INTEGRATION);
   const atual = await webhookVivo(tx, tenantId, id);
 
   await tx
@@ -710,7 +710,7 @@ export async function testarWebhook(
   usuarioId: string,
   id: string,
 ): Promise<ResultOfTest> {
-  await exigirPermission(tx, usuarioId, MANAGE_INTEGRATION);
+  await requirePermission(tx, usuarioId, MANAGE_INTEGRATION);
   const webhook = await webhookVivo(tx, tenantId, id);
 
   const corpo = JSON.stringify({
@@ -840,7 +840,7 @@ export async function loadConnectionOfFlow(
   usuarioId: string,
   fluxoId: string,
 ): Promise<ConnectionOfFlow> {
-  await exigirPermission(tx, usuarioId, EDITAR_FLOW);
+  await requirePermission(tx, usuarioId, EDIT_FLOW);
   await flowExists(tx, tenantId, fluxoId);
   return montarConexao(tx, tenantId, fluxoId);
 }
@@ -878,7 +878,7 @@ async function upsertWebhookDeConexao(
     return;
   }
   if (existente.url === url) return;
-  await editarWebhookWithoutPermission(tx, tenantId, usuarioId, existente.id, { url });
+  await editWebhookWithoutPermission(tx, tenantId, usuarioId, existente.id, { url });
 }
 
 /**
@@ -905,7 +905,7 @@ async function createWebhookWithoutPermission(
   });
 }
 
-async function editarWebhookWithoutPermission(
+async function editWebhookWithoutPermission(
   tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
@@ -961,7 +961,7 @@ export async function saveConnectionOfFlow(
   flowId: string,
   pedido: PedidoDeConexao,
 ): Promise<ConnectionOfFlow> {
-  await exigirPermission(tx, userId, MANAGE_INTEGRATION);
+  await requirePermission(tx, userId, MANAGE_INTEGRATION);
   await flowExists(tx, tenantId, flowId);
 
   await upsertWebhookDeConexao(tx, tenantId, userId, EVENTS_MESSAGES, pedido.urlMensagens);

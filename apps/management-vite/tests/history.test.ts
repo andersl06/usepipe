@@ -3,11 +3,11 @@ import { test } from 'node:test';
 import {
   GROUPINGS,
   groupingValid,
-  agruparHistory,
+  groupHistory,
   alternarTodosVisiveis,
   reconciliarMarcados,
 } from '../src/lib/history.ts';
-import type { LinhaHistory } from '../src/lib/history.ts';
+import type { HistoryRow } from '../src/lib/history.ts';
 import { ticketDe } from '../src/lib/monitoring.ts';
 
 /**
@@ -16,7 +16,7 @@ import { ticketDe } from '../src/lib/monitoring.ts';
  * Both are read by people: grouping decides how many conversations the manager attributes to each queue, and the ticket is what the agent dictates over the phone. Neither one touches the database.
  */
 
-const linha = (parcial: Partial<LinhaHistory> = {}): LinhaHistory => ({
+const linha = (parcial: Partial<HistoryRow> = {}): HistoryRow => ({
   id: 'a',
   ticket: '#000001',
   contactName: 'Contato',
@@ -25,7 +25,7 @@ const linha = (parcial: Partial<LinhaHistory> = {}): LinhaHistory => ({
   encerradaEm: '2026-09-05T19:22:00.000Z',
   status: 'finalizada',
   esperaSeg: 10,
-  firstRespostaSeg: 20,
+  firstResponseSeg: 20,
   attendanceSeg: 30,
   etiquetas: [],
   ...parcial,
@@ -45,7 +45,7 @@ test('grouping from the URL falls back to "none" when it is not in the catalog',
 
 test('with no grouping, a single group comes out with the entire list', () => {
   const linhas = [linha(), linha({ id: 'b' })];
-  const groups = agruparHistory(linhas, 'nenhum');
+  const groups = groupHistory(linhas, 'nenhum');
   assert.equal(groups.length, 1);
   assert.equal(groups[0]!.titulo, '');
   assert.equal(groups[0]!.linhas.length, 2);
@@ -55,7 +55,7 @@ test('by queue, whoever has no queue gets its own group instead of disappearing'
   /*
    * A conversation lost at the root queue has a null `filaNome`. If it doesn't become its own group, the groups' sum falls short of the total, and the manager concludes the day had fewer conversations than it actually did.
    */
-  const groups = agruparHistory(
+  const groups = groupHistory(
     [linha({ queueName: 'Suporte' }), linha({ id: 'b', queueName: null })],
     'fila',
   );
@@ -68,7 +68,7 @@ test('by queue, whoever has no queue gets its own group instead of disappearing'
 
 test('the groups come out from largest to smallest', () => {
   /* The order is the screen's answer: the first group is where the volume is. */
-  const groups = agruparHistory(
+  const groups = groupHistory(
     [
       linha({ agentName: 'Ana' }),
       linha({ id: 'b', agentName: 'Bia' }),
@@ -89,7 +89,7 @@ test('o desfecho vira rótulo em português, e o desconhecido passa cru', () => 
   /*
    * The label is what the manager reads. A new status in the database must not make the group disappear — it shows up under its technical name, which is ugly but visible.
    */
-  const groups = agruparHistory(
+  const groups = groupHistory(
     [linha({ status: 'abandonada' }), linha({ id: 'b', status: null })],
     'status',
   );
@@ -101,7 +101,7 @@ test('by tag, the conversation enters every tag it has', () => {
   /*
    * By design the groups' sum exceeds the total: the question is "how many conversations touched this tag", not "how do I split the total". If someone "fixes" this, the per-tag count starts undercounting.
    */
-  const groups = agruparHistory(
+  const groups = groupHistory(
     [linha({ etiquetas: ['Elogio', 'Reclamação'] }), linha({ id: 'b', etiquetas: [] })],
     'etiqueta',
   );
@@ -115,7 +115,7 @@ test('by tag, the conversation enters every tag it has', () => {
 test('agrupar não mexe na lista que recebeu', () => {
   /* The same list feeds the CSV export right after. */
   const linhas = [linha(), linha({ id: 'b' })];
-  agruparHistory(linhas, 'fila');
+  groupHistory(linhas, 'fila');
   assert.equal(linhas.length, 2);
 });
 

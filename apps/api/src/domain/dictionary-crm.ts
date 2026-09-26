@@ -336,12 +336,12 @@ async function gravar(
 function doExcluded(
   tabela: typeof dictionaryObject | typeof dictionaryField,
   chavesDaLinha: string[],
-  keyOfConflito: string[],
+  keyOfConflict: string[],
 ) {
   const colunas = getTableColumns(tabela) as Record<string, { name: string }>;
   return Object.fromEntries(
     chavesDaLinha
-      .filter((k) => !keyOfConflito.includes(k))
+      .filter((k) => !keyOfConflict.includes(k))
       .map((k) => [k, sql.raw(`excluded."${colunas[k]!.name}"`)]),
   );
 }

@@ -11,14 +11,14 @@ import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 function pedidoDoFormulario(data: FormData): PedidoDeRegraSla {
   const alertaBruto = String(data.get('alertaSeg') ?? '').trim();
-  const scopeTipo = String(data.get('escopoTipo') ?? 'tenant');
+  const scopeType = String(data.get('escopoTipo') ?? 'tenant');
   return {
     nome: String(data.get('nome') ?? '').trim(),
     alvo: String(data.get('alvo') ?? '').trim(),
     prazoSeg: Number(data.get('prazoSeg') ?? 0),
     alertaSeg: alertaBruto ? Number(alertaBruto) : null,
-    scopeTipo,
-    scopeId: scopeTipo === 'fila' ? String(data.get('escopoId') ?? '').trim() : null,
+    scopeType,
+    scopeId: scopeType === 'fila' ? String(data.get('escopoId') ?? '').trim() : null,
   };
 }
 
@@ -32,7 +32,7 @@ function editAction(id: string) {
   // Editing doesn't send scope — see "Decisão Pipe" at the top of the file.
   return async (_anterior: Resultado, data: FormData): Promise<Resultado> => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- descarta escopo de propósito
-    const { scopeTipo, scopeId, ...pedido } = pedidoDoFormulario(data);
+    const { scopeType, scopeId, ...pedido } = pedidoDoFormulario(data);
     const resultado = await editarRegraSla(id, pedido);
     return resultado.ok ? { ok: true } : { ok: false, error: resultado.error };
   };

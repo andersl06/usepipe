@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import { schema } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
-import { exigirPermission } from '../session.js';
+import { requirePermission } from '../session.js';
 import { evento, publicar } from '../realtime.js';
 
 /**
@@ -42,7 +42,7 @@ export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: St
     //
     // ponytail: this borrows `monitoramento.tempo_real.ver`; a dedicated `atendente.gerenciar` permission would require adding it to `CATALOGO_PERMISSOES` in `packages/db/src/semente.ts`, assigning it to supervisors, and changing this check. Until then, anyone allowed to monitor can disconnect an agent. That audience overlaps today by coincidence rather than design.
     if (pedido.byUserId && pedido.byUserId !== pedido.targetUserId) {
-      await exigirPermission(tx, pedido.byUserId, 'monitoramento.tempo_real.ver');
+      await requirePermission(tx, pedido.byUserId, 'monitoramento.tempo_real.ver');
     }
 
     const { rows } = await tx.execute<{ id: string }>(

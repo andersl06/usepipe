@@ -1,5 +1,5 @@
 import { PipeError } from '../../errors.js';
-import { readChannelWhatsApp, pedirReauthorization, texto } from './channel.js';
+import { readChannelWhatsApp, requestReauthorization, texto } from './channel.js';
 import type { ChannelWhatsApp } from './channel.js';
 import { configureWebhooksOfChannel } from './configuration-of-webhook.js';
 import { createChannel } from './creation-of-channel.js';
@@ -35,7 +35,7 @@ export function validarParametros(pedido: { code?: string | undefined; wabaId?: 
   );
 }
 
-export async function executarRegistrationEmbedded(
+export async function runRegistrationEmbedded(
   pedido: RequestOfRegistrationEmbedded,
 ): Promise<ChannelWhatsApp> {
   try {
@@ -90,7 +90,7 @@ async function conferirSaude(channel: ChannelWhatsApp): Promise<void> {
       numberId: texto(channel.config['phoneNumberId']),
       wabaId: channel.wabaId,
     });
-    if (numeroPendente(saude)) await pedirReauthorization(channel);
+    if (numeroPendente(saude)) await requestReauthorization(channel);
   } catch (error) {
     console.error(`[whatsapp] a checagem de saúde do canal ${channel.id} falhou: ${(error as Error).message}`);
   }

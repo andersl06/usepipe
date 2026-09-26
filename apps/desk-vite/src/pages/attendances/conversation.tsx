@@ -26,8 +26,8 @@ export function Conversation({
   etiquetas,
   colegas,
   agora,
-  panelAberto,
-  toAlternarPanel,
+  panelOpen,
+  toTogglePanel,
   aoFechar,
 }: {
   aberta: ConversationOfDesk;
@@ -35,8 +35,8 @@ export function Conversation({
   etiquetas: EtiquetaDoDesk[];
   colegas: Colega[];
   agora: Date;
-  panelAberto: boolean;
-  toAlternarPanel: () => void;
+  panelOpen: boolean;
+  toTogglePanel: () => void;
   aoFechar: (proximaId?: string) => void;
 }) {
   const { conversation, itens, templates, conversationTags } = aberta;
@@ -44,7 +44,7 @@ export function Conversation({
   const [menu, setMenu] = useState(false);
   const [search, setSearch] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const nome = displayName({ ...conversation, contactTelefone: conversation.contactPhone });
+  const nome = displayName({ ...conversation, contactPhone: conversation.contactPhone });
   const numero = numeroDoTicket(conversation.id);
 
   /**
@@ -217,7 +217,7 @@ export function Conversation({
                     className="dk-menu-item"
                     onClick={() => {
                       setMenu(false);
-                      exportarTranscription(numero, nome, itens);
+                      exportTranscription(numero, nome, itens);
                     }}
                   >
                     <IconeDesk nome="externo" tamanho={20} />
@@ -230,12 +230,12 @@ export function Conversation({
               type="button"
               className="dk-botao-icone"
               id="show-user-info"
-              title={panelAberto ? 'Esconder dados do contato' : 'Mostrar dados do contato'}
-              aria-label={panelAberto ? 'Esconder dados do contato' : 'Mostrar dados do contato'}
-              aria-expanded={panelAberto}
-              onClick={toAlternarPanel}
+              title={panelOpen ? 'Esconder dados do contato' : 'Mostrar dados do contato'}
+              aria-label={panelOpen ? 'Esconder dados do contato' : 'Mostrar dados do contato'}
+              aria-expanded={panelOpen}
+              onClick={toTogglePanel}
             >
-              <IconeDesk nome={panelAberto ? 'seta-direita' : 'seta-esquerda'} />
+              <IconeDesk nome={panelOpen ? 'seta-direita' : 'seta-esquerda'} />
             </button>
           </div>
         </div>
@@ -625,7 +625,7 @@ function ModalFinalizar({
         id: e.id,
         nome: e.nome,
         cor: e.cor,
-        obrigatoriaInClosure: e.requiredInClosure,
+        requiredInClosure: e.requiredInClosure,
       }))}
       selecionadas={etiquetasIds}
       error={error}
@@ -646,7 +646,7 @@ function useQueues(): { id: string; nome: string }[] {
 /**
  * `Exportar ticket` needs no new backend: all thread `itens` are already loaded, so build a `.txt` transcript and download it in the browser. This is the simple version of reference transcript download (`blip-desk-funcoes.md` §7), without asynchronous email for a 90-day-to-5-year manager report outside this agent screen.
  */
-function exportarTranscription(numero: string, nome: string, itens: ItemOfConversation[]): void {
+function exportTranscription(numero: string, nome: string, itens: ItemOfConversation[]): void {
   const linhas = itens.map((item) => {
     const hora = new Date(item.criadaEm).toLocaleString('pt-BR');
     if (item.genero === 'nota') return `[${hora}] Nota interna (${item.autor ?? '—'}): ${item.corpo}`;

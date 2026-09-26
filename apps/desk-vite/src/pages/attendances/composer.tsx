@@ -3,8 +3,8 @@ import type { ConversationOpen, RespostaProntaDoDesk, TemplateAprovado } from '@
 import { IconeDesk } from '../../components/icones-desk';
 import { api, chamarApi, motivoDaFalha } from '../../lib/api';
 import { atualizarLeituras } from '../../lib/actions';
-import { MAX_FILES_BY_ENVIO, recusaDoLote } from '../../lib/attachments';
-import { windowAberta } from '../../lib/order';
+import { MAX_FILES_BY_SENDING, recusaDoLote } from '../../lib/attachments';
+import { windowOpen } from '../../lib/order';
 import { numeroDoTicket } from '../../lib/channel';
 
 /**
@@ -26,8 +26,8 @@ export function Composer({
   const [texto, setTexto] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [panelRespostas, setPanelRespostas] = useState(false);
-  const [templateAberto, setTemplateAberto] = useState(false);
+  const [panelResponses, setPanelResponses] = useState(false);
+  const [templateOpen, setTemplateOpen] = useState(false);
   /** Track the selected quick reply for effort reporting; clear its ID if the text is edited. */
   const [respostaProntaId, setRespostaProntaId] = useState<string | null>(null);
   const campo = useRef<HTMLTextAreaElement>(null);
@@ -36,7 +36,7 @@ export function Composer({
   useEffect(() => {
     setTexto('');
     setError(null);
-    setPanelRespostas(false);
+    setPanelResponses(false);
     setRespostaProntaId(null);
     campo.current?.focus();
   }, [conversation.id]);
@@ -70,7 +70,7 @@ export function Composer({
     );
   }
 
-  const aberta = windowAberta(conversation.windowExpiresAt, conversation.channelType, agora);
+  const aberta = windowOpen(conversation.windowExpiresAt, conversation.channelType, agora);
 
   async function enviar() {
     const corpo = texto.trim();
@@ -132,17 +132,17 @@ export function Composer({
   }
 
   function aoTeclar(e: KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && !e.shiftKey && !panelRespostas) {
+    if (e.key === 'Enter' && !e.shiftKey && !panelResponses) {
       e.preventDefault();
       void enviar();
     }
-    if (e.key === 'Escape') setPanelRespostas(false);
+    if (e.key === 'Escape') setPanelResponses(false);
   }
 
   function usarResposta(r: RespostaProntaDoDesk) {
     setTexto(r.corpo);
     setRespostaProntaId(r.id);
-    setPanelRespostas(false);
+    setPanelResponses(false);
     campo.current?.focus();
   }
 
@@ -152,15 +152,15 @@ export function Composer({
         <Fechado
           titulo="A janela de 24 horas de conversação foi excedida. Envie uma mensagem ativa para retomar o atendimento."
           botao="Enviar mensagem ativa"
-          aoClicar={() => setTemplateAberto(true)}
+          aoClicar={() => setTemplateOpen(true)}
         />
-        {templateAberto ? (
+        {templateOpen ? (
           <TemplateModal
             conversation={conversation}
             templates={templates}
-            aoFechar={() => setTemplateAberto(false)}
+            aoFechar={() => setTemplateOpen(false)}
             aoEnviar={() => {
-              setTemplateAberto(false);
+              setTemplateOpen(false);
               aoEnviar();
             }}
           />
@@ -172,8 +172,8 @@ export function Composer({
   return (
     <div className="dk-composer">
       <div className="dk-composer-paper">
-        {panelRespostas ? (
-          <RespostasPanel respostas={respostas} termo={texto} aoEscolher={usarResposta} />
+        {panelResponses ? (
+          <ResponsesPanel respostas={respostas} termo={texto} aoEscolher={usarResposta} />
         ) : null}
         <div className="dk-composer-core">
           <div className="dk-composer-field">
@@ -199,8 +199,8 @@ export function Composer({
                 id="custom-reply-btn"
                 title="Enviar resposta pronta"
                 aria-label="Enviar resposta pronta"
-                aria-expanded={panelRespostas}
-                onClick={() => setPanelRespostas((v) => !v)}
+                aria-expanded={panelResponses}
+                onClick={() => setPanelResponses((v) => !v)}
               >
                 <IconeDesk nome="resposta-pronta" />
               </button>
@@ -208,8 +208,8 @@ export function Composer({
                 type="button"
                 className="dk-botao-icone"
                 id="send-file-btn"
-                title={`Enviar arquivos (máximo de ${MAX_FILES_BY_ENVIO} arquivos por envio)`}
-                aria-label={`Enviar arquivos (máximo de ${MAX_FILES_BY_ENVIO} arquivos por envio)`}
+                title={`Enviar arquivos (máximo de ${MAX_FILES_BY_SENDING} arquivos por envio)`}
+                aria-label={`Enviar arquivos (máximo de ${MAX_FILES_BY_SENDING} arquivos por envio)`}
                 onClick={() => file.current?.click()}
               >
                 <IconeDesk nome="anexo" />
@@ -298,7 +298,7 @@ function Fechado({
 /**
  * Reference quick-reply panel `.custom-reply`: list on the left, preview on the right (`Pré-visualização` / `Pressione Enter para selecionar`). Show `Não há título de resposta pronta que contenha este texto.` when none match; filter titles by the entered text.
  */
-function RespostasPanel({
+function ResponsesPanel({
   respostas,
   termo,
   aoEscolher,

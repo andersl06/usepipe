@@ -28,7 +28,7 @@ export async function windowOfToday(tx: TransactionPipe, fuso: string): Promise<
 }
 
 /** From the start of `de` through the inclusive end of `ate`, as calendar days in the account time zone. */
-export async function windowOfDatas(
+export async function windowOfDates(
   tx: TransactionPipe,
   fuso: string,
   de: string,

@@ -66,7 +66,7 @@ async function marcar(job: JobImport, state: 'executando' | 'falhou'): Promise<v
   );
 }
 
-export async function processarImport(job: JobImport): Promise<ResultOfImport> {
+export async function processImport(job: JobImport): Promise<ResultOfImport> {
   const carregado = await noTenant(job.tenantId, async (tx) => {
     const { rows } = await tx.execute<{ conteudo: string }>(sql`
       select a.conteudo

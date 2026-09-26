@@ -3,7 +3,7 @@ import { Illustration } from '@pipe/ui';
 import { BY_PAGE, type FlowOfPortal, type GradeDoPortal } from '@pipe/contracts';
 import { BarraDoPortal } from '../components/barra-do-portal';
 import { Selection } from '../components/selection';
-import { IconeSearch, IconePortal, type NomeDeIconePortal } from '../components/icones-portal';
+import { SearchIcon, IconePortal, type NomeDeIconePortal } from '../components/icones-portal';
 import Link from '../components/link';
 import { portalUseShell, type PortalShell } from '../lib/shell';
 import { useRead } from '../lib/query';
@@ -278,7 +278,7 @@ function SubBarra({
   search: string;
   onBuscar: (value: string) => void;
 }) {
-  const [searchAberta, setSearchAberta] = useState(Boolean(search));
+  const [searchOpen, setSearchOpen] = useState(Boolean(search));
   const [textSearch, setTextSearch] = useState(search);
   const fieldSearch = useRef<HTMLInputElement>(null);
 
@@ -293,8 +293,8 @@ function SubBarra({
     return () => window.clearTimeout(timer);
   }, [textSearch, search, onBuscar]);
 
-  function abrirSearch() {
-    setSearchAberta(true);
+  function openSearch() {
+    setSearchOpen(true);
     requestAnimationFrame(() => fieldSearch.current?.focus());
   }
 
@@ -315,18 +315,18 @@ function SubBarra({
           {/*
  * Search follows the source's behavior: the text stays in local state and only updates the query 700ms after typing stops.
  */}
-          <div className={`pt-search${searchAberta ? ' pt-search-open' : ''}`} role="search">
-            <button className="pt-search-button" type="button" onClick={abrirSearch} aria-label="Abrir busca">
-              <IconeSearch tamanho={32} />
+          <div className={`pt-search${searchOpen ? ' pt-search-open' : ''}`} role="search">
+            <button className="pt-search-button" type="button" onClick={openSearch} aria-label="Abrir busca">
+              <SearchIcon tamanho={32} />
             </button>
-            {searchAberta ? (
+            {searchOpen ? (
               <input
                 ref={fieldSearch}
                 type="search"
                 value={textSearch}
                 aria-label="Buscar fluxos"
                 onChange={(e) => setTextSearch(e.target.value)}
-                onBlur={() => setSearchAberta(false)}
+                onBlur={() => setSearchOpen(false)}
               />
             ) : null}
           </div>

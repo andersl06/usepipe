@@ -1,6 +1,6 @@
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
-import { exigirPermission } from '../session.js';
+import { requirePermission } from '../session.js';
 import {
   conferirQuePodeLigar,
   connectChannelToFlow,
@@ -31,7 +31,7 @@ export function permitidoConectar(
 ): Promise<void> {
   return noTenant(tenantId, async (tx) => {
     if (flowId) await conferirQuePodeLigar(tx, tenantId, userId, flowId);
-    else await exigirPermission(tx, userId, 'canal.gerenciar');
+    else await requirePermission(tx, userId, 'canal.gerenciar');
   });
 }
 
@@ -46,7 +46,7 @@ export function permitidoReconectar(
 ): Promise<void> {
   return noTenant(tenantId, async (tx) => {
     if (fluxoId && (await canReconnectInFlow(tx, tenantId, usuarioId, fluxoId, channelId))) return;
-    await exigirPermission(tx, usuarioId, 'canal.gerenciar');
+    await requirePermission(tx, usuarioId, 'canal.gerenciar');
   });
 }
 

@@ -15,7 +15,7 @@ export const PERIODOS = [
   { chave: '180', rotulo: 'Últimos 180 dias' },
 ] as const;
 
-export function calcularPeriod(
+export function calculatePeriod(
   key: string,
   fuso: string,
 ): { de: string; ate: string } | undefined {
@@ -35,12 +35,12 @@ export function calcularPeriod(
 /** Find the shortcut matching current `de`/`ate`, if any; otherwise select Custom. */
 export function periodCurrent(de: string, ate: string, fuso: string): string {
   const achado = PERIODOS.find((p) => {
-    const calc = calcularPeriod(p.chave, fuso);
+    const calc = calculatePeriod(p.chave, fuso);
     return calc !== undefined && calc.de === de && calc.ate === ate;
   });
   return achado?.chave ?? 'personalizado';
 }
 
-export function periodRotulo(key: string): string {
+export function periodLabel(key: string): string {
   return PERIODOS.find((p) => p.chave === key)?.rotulo ?? 'Personalizado';
 }

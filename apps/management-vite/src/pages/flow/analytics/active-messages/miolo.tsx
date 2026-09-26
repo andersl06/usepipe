@@ -11,7 +11,7 @@ import {
 /**
  * The Active Messages body — the column of cards and charts from `Lx` (analytics-main.js 56300). Receives the data ready via prop: that's what lets the same markup render both the empty and the filled states. The origin draws the charts with chart.js + chartjs-plugin-datalabels. No library is used here: it's CSS and a line SVG, with the chart.js defaults that show on screen (12px ticks, 3px line, 10% grid).
  */
-export function ActiveMessagesMiolo({
+export function ActiveMessagesCore({
   data,
   intervalo,
 }: {
@@ -46,7 +46,7 @@ export function ActiveMessagesMiolo({
       </div>
       <div className="ma-row ma-row-last">
         <div className="ma-paper ma-flex1">
-          <Picos horas={data.respostasByHora} />
+          <Picos horas={data.responsesByHour} />
         </div>
         <Falhas falhas={data.falhas} />
       </div>
@@ -205,12 +205,12 @@ const SERIES = [
 
 function Conversions({ data, intervalo }: { data: ActiveMessagesData; intervalo: Intervalo }) {
   /* `b()`: one point per day in the period, zero where nothing was sent. */
-  const byDia = new Map(data.status.map((s) => [s.dia, s]));
+  const byDay = new Map(data.status.map((s) => [s.dia, s]));
   const dias = diasDoIntervalo(intervalo).map((d) => ({
     dia: d,
-    enviadas: byDia.get(d)?.enviadas ?? 0,
-    respondidas: byDia.get(d)?.respondidas ?? 0,
-    falhas: byDia.get(d)?.falhas ?? 0,
+    enviadas: byDay.get(d)?.enviadas ?? 0,
+    respondidas: byDay.get(d)?.respondidas ?? 0,
+    falhas: byDay.get(d)?.falhas ?? 0,
   }));
 
   /*

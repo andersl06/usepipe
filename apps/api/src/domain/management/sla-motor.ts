@@ -1,11 +1,11 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import {
-  NIVEIS_PRIORITY,
+  LEVELS_PRIORITY,
   avaliarSla,
   targetFulfillment,
   inicioDoAlvo,
   type MarcosSla,
-  type NivelPriority,
+  type LevelPriority,
 } from '@pipe/core';
 import { conversation, slaConversation } from '@pipe/db/schema';
 import type { TransactionPipe } from '@pipe/db';
@@ -48,11 +48,11 @@ export function rulesWinningByTarget(
 }
 
 /** Raise priority one step (`conversa/prioridade.ts`); do nothing when already at `maxima`. */
-function nivelElevado(atual: string): NivelPriority | null {
-  const position = (NIVEIS_PRIORITY as readonly string[]).indexOf(atual);
+function nivelElevado(atual: string): LevelPriority | null {
+  const position = (LEVELS_PRIORITY as readonly string[]).indexOf(atual);
   // A priority of -1 is unknown, and 0 is already `maxima`; neither can be raised.
   if (position <= 0) return null;
-  return NIVEIS_PRIORITY[position - 1] as NivelPriority;
+  return LEVELS_PRIORITY[position - 1] as LevelPriority;
 }
 
 /**
@@ -71,7 +71,7 @@ function nivelElevado(atual: string): NivelPriority | null {
  */
 async function executarAcao(
   tx: TransactionPipe,
-  ctx: { tenantId: string; conversationId: string; queueId: string | null; priorityAtual: string },
+  ctx: { tenantId: string; conversationId: string; queueId: string | null; priorityCurrent: string },
   acao: Record<string, unknown>,
   eventoWebhook: 'sla.alertou' | 'sla.estourou',
 ): Promise<void> {
@@ -84,7 +84,7 @@ async function executarAcao(
     return;
   }
   if (tipo === 'elevar_prioridade') {
-    const novoNivel = nivelElevado(ctx.priorityAtual);
+    const novoNivel = nivelElevado(ctx.priorityCurrent);
     if (!novoNivel) return;
     await tx
       .update(conversation)
@@ -214,7 +214,7 @@ async function processarRegra(
       .where(eq(slaConversation.id, existente.id));
   }
 
-  const context = { tenantId, conversationId: c.id, queueId: c.queueId, priorityAtual: c.priority };
+  const context = { tenantId, conversationId: c.id, queueId: c.queueId, priorityCurrent: c.priority };
 
   if (dispararAlerta) {
     await registrarEvento(tx, {
@@ -306,7 +306,7 @@ export interface CandidataASla {
 /**
  * Sweep open conversations and closed ones whose `sla_conversa` is still `correndo` or `alertado`. That final pass closes the cycle as met, canceled, or breached, as in `processarRegra`. `bancoDono()` crosses tenants only to find candidates, like `midiasPendentes` and `contatosSemEspelho`; `checarSlaDaConversa` then processes one tenant at a time under RLS.
  */
-export async function conversationsForChecarSla(lote = 200): Promise<CandidataASla[]> {
+export async function conversationsForCheckSla(lote = 200): Promise<CandidataASla[]> {
   const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`
     select distinct c.tenant_id, c.id
       from conversa c

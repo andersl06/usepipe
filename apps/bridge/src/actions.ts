@@ -10,8 +10,8 @@ import type { Session } from './rotas.js';
  */
 
 /** The actor for a screen action is the signed-in agent acting on their own behalf. */
-function ator(session: Session, exigirAssignment: boolean) {
-  return { tenantId: session.tenantId, atendenteId: session.userId, exigirAssignment };
+function ator(session: Session, requireAssignment: boolean) {
+  return { tenantId: session.tenantId, atendenteId: session.userId, requireAssignment };
 }
 
 export async function assumir(session: Session, conversationId: string): Promise<void> {
@@ -65,7 +65,7 @@ export async function responder(
   session: Session,
   conversationId: string,
   texto: string,
-): Promise<{ messageId: string; windowDentro: boolean }> {
+): Promise<{ messageId: string; withinWindow: boolean }> {
   const enfileirada = await sendMessage({
     tenantId: session.tenantId,
     conversationId,
@@ -75,10 +75,10 @@ export async function responder(
   /*
    * Return `dentroDaJanela` too: outside the 24-hour window Meta delivers only templates, and the screen must warn the sender.
    */
-  return { messageId: enfileirada.id, windowDentro: enfileirada.insideOfWindow };
+  return { messageId: enfileirada.id, withinWindow: enfileirada.insideOfWindow };
 }
 
-export async function transferirForQueue(
+export async function transferForQueue(
   session: Session,
   conversationId: string,
   queueName: string,

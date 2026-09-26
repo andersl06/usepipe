@@ -9,7 +9,7 @@ import { domainOfEmail, ehDomainPublic } from '@pipe/authentication';
 import { databaseOwner, fecharBancos, noTenant } from './database.js';
 import { PipeError } from './errors.js';
 import { logDomain, checkDomain } from './domain/dominios.js';
-import type { RegistroOfVerification } from './domain/dominios.js';
+import type { RecordOfVerification } from './domain/dominios.js';
 
 /**
  * Provision a tenant, first administrator, and verified domain through a command, not an HTTP route. Together these grant full tenant access; a route would require a master secret vulnerable to logs, screenshots, or `curl` shell history, plus rotation, rate limits, and caller audit. The command instead uses existing production database access, whose holder could already insert these records, and adds no Internet-facing surface. When a Pipe admin UI exists, it can call `provisionarCliente` through a session-authenticated route with a dedicated role and audit. Usage: `pnpm --filter @pipe/api provisionar --nome "Acme Atendimento" --slug acme --plano operacao --admin ana@acme.com.br [--dominio acme.com.br] [--verificar] [--reaplicar]`. Without `--verificar`, print the TXT record and leave the customer-owned DNS domain pending; staff can enter through invitations (`POST /v1/convites`) meanwhile.
@@ -59,7 +59,7 @@ export interface ClienteProvisionado {
     id: string;
     domain: string;
     verificado: boolean;
-    registro: RegistroOfVerification;
+    registro: RecordOfVerification;
   } | null;
 }
 

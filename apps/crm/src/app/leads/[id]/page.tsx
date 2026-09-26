@@ -7,9 +7,9 @@ import {
   Campo,
   Destaque,
   Section,
-  SectionAtributos,
+  SectionAttributes,
 } from '../../../components/ficha';
-import { TimeLinha } from '../../../components/linha-of-time';
+import { TimeRow } from '../../../components/linha-of-time';
 import { fusoDoTenant } from '../../../lib/database';
 import {
   carregarFicha,
@@ -206,7 +206,7 @@ export default async function PageRecord({
           </div>
 
           <div className="tblwrap">
-            <SectionAtributos atributos={atributos} />
+            <SectionAttributes atributos={atributos} />
           </div>
 
           <div className="tblwrap">
@@ -236,7 +236,7 @@ export default async function PageRecord({
             {aba === 'score' ? <PanelScore ficha={ficha} fuso={fuso} /> : null}
             {aba === 'formularios' ? <Formularios ficha={ficha} fuso={fuso} /> : null}
             {aba === 'tempo' ? (
-              <TimeLinha itens={ficha.timeRow} fuso={fuso} agora={agora} />
+              <TimeRow itens={ficha.timeRow} fuso={fuso} agora={agora} />
             ) : null}
           </div>
         </div>

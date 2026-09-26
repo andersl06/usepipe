@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import { Icone } from '@pipe/ui';
-import { parametrosWithFilters } from '../lib/filters-monitoring';
+import { parametersWithFilters } from '../lib/filters-monitoring';
 
 export type Option = { id: string; nome: string };
 
@@ -13,16 +13,16 @@ type Parametros = {
   search?: string;
 };
 
-function PilulaOptions({
+function PillOptions({
   rotulo,
   value,
-  toAbrirPanel,
-  panelAberto,
+  toOpenPanel,
+  panelOpen,
 }: {
   rotulo: string;
   value: string;
-  toAbrirPanel: () => void;
-  panelAberto: boolean;
+  toOpenPanel: () => void;
+  panelOpen: boolean;
 }) {
   return (
     <div className="at-filter">
@@ -30,8 +30,8 @@ function PilulaOptions({
         type="button"
         className={value ? 'pilula active at-filter-trigger' : 'pilula at-filter-trigger'}
         aria-haspopup="dialog"
-        aria-expanded={panelAberto}
-        onClick={toAbrirPanel}
+        aria-expanded={panelOpen}
+        onClick={toOpenPanel}
       >
         <span className="pilula-rotulo">{rotulo}</span>
       </button>
@@ -39,15 +39,15 @@ function PilulaOptions({
   );
 }
 
-function PilulaContact({ value, toAbrirPanel, panelAberto }: { value: string; toAbrirPanel: () => void; panelAberto: boolean }) {
+function PillContact({ value, toOpenPanel, panelOpen }: { value: string; toOpenPanel: () => void; panelOpen: boolean }) {
   return (
     <div className="at-filter">
       <button
         type="button"
         className={value ? 'pilula active at-filter-trigger' : 'pilula at-filter-trigger'}
         aria-haspopup="dialog"
-        aria-expanded={panelAberto}
-        onClick={toAbrirPanel}
+        aria-expanded={panelOpen}
+        onClick={toOpenPanel}
       >
         <span className="pilula-rotulo">Contato</span>
       </button>
@@ -55,15 +55,15 @@ function PilulaContact({ value, toAbrirPanel, panelAberto }: { value: string; to
   );
 }
 
-function ButtonFilters({ toAbrirPanel, aoLimpar, temFilters }: {
-  toAbrirPanel: () => void;
+function ButtonFilters({ toOpenPanel, aoLimpar, hasFilters }: {
+  toOpenPanel: () => void;
   aoLimpar: () => void;
-  temFilters: boolean;
+  hasFilters: boolean;
 }) {
   return (
     <div className="faixa-fim">
-      {temFilters ? <button type="button" className="btn fantasma" onClick={aoLimpar}>Limpar tudo</button> : null}
-      <button type="button" className="btn" title="Abrir filtros" onClick={toAbrirPanel}>
+      {hasFilters ? <button type="button" className="btn fantasma" onClick={aoLimpar}>Limpar tudo</button> : null}
+      <button type="button" className="btn" title="Abrir filtros" onClick={toOpenPanel}>
         <Icone nome="funil" tamanho={20} />
         Filtros
       </button>
@@ -76,17 +76,17 @@ function ButtonFilters({ toAbrirPanel, aoLimpar, temFilters }: {
  * limpar da fila vêm de fora, via props (D-30): o filtro de fila mora em
  * React state da tela, não na query string.
  */
-export function SOperationFilter({ atual, toAbrirPanel, panelAberto, aoLimparQueue }: {
+export function SOperationFilter({ atual, toOpenPanel, panelOpen, aoLimparQueue }: {
   atual: Parametros;
-  toAbrirPanel: () => void;
-  panelAberto: boolean;
+  toOpenPanel: () => void;
+  panelOpen: boolean;
   aoLimparQueue: () => void;
 }) {
   return (
     <div className="strip-filters">
       <span className="lbl">Filtros rápidos:</span>
-      <PilulaOptions rotulo="Filas" value={atual.queue ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
-      <ButtonFilters toAbrirPanel={toAbrirPanel} aoLimpar={aoLimparQueue} temFilters={Boolean(atual.queue)} />
+      <PillOptions rotulo="Filas" value={atual.queue ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
+      <ButtonFilters toOpenPanel={toOpenPanel} aoLimpar={aoLimparQueue} hasFilters={Boolean(atual.queue)} />
     </div>
   );
 }
@@ -96,27 +96,27 @@ export function SOperationFilter({ atual, toAbrirPanel, panelAberto, aoLimparQue
  * limpa via `aoLimparAgent` (state); `contato`/`status` continuam na query
  * string desta tela (NEEDS VALIDATION, fora do D-30).
  */
-export function SListaFilter({ atual, toAbrirPanel, panelAberto, aoLimparAgent }: {
+export function SListFilter({ atual, toOpenPanel, panelOpen, aoLimparAgent }: {
   atual: Parametros;
-  toAbrirPanel: () => void;
-  panelAberto: boolean;
+  toOpenPanel: () => void;
+  panelOpen: boolean;
   aoLimparAgent: () => void;
 }) {
   const [query, definirQuery] = useSearchParams();
-  const temFilters = Boolean(atual.agent || atual.contact || atual.status);
+  const hasFilters = Boolean(atual.agent || atual.contact || atual.status);
   return (
     <div className="strip-filters">
       <span className="lbl">Filtros rápidos:</span>
-      <PilulaOptions rotulo="Atendentes" value={atual.agent ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
-      <PilulaContact value={atual.contact ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
-      <PilulaOptions rotulo="Status do atendente" value={atual.status ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
+      <PillOptions rotulo="Atendentes" value={atual.agent ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
+      <PillContact value={atual.contact ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
+      <PillOptions rotulo="Status do atendente" value={atual.status ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
       <ButtonFilters
-        toAbrirPanel={toAbrirPanel}
+        toOpenPanel={toOpenPanel}
         aoLimpar={() => {
           aoLimparAgent();
-          definirQuery(parametrosWithFilters(query, { contato: '', status: '' }));
+          definirQuery(parametersWithFilters(query, { contato: '', status: '' }));
         }}
-        temFilters={temFilters}
+        hasFilters={hasFilters}
       />
     </div>
   );

@@ -1,20 +1,20 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-  messageCarimbo,
+  messageStamp,
   formatPeriodLimit,
-  messageLado,
+  messageSide,
   periodDefault,
-  countRotulo,
+  countLabel,
   rotuloDoStatus,
   ticketAtivo,
 } from '../src/pages/flow/contacts/regras';
 
 describe('contacts: count and period', () => {
   it('counts like the source: singular up to 1, "Approximately" above that', () => {
-    assert.equal(countRotulo(0), '0 Contato');
-    assert.equal(countRotulo(1), '1 Contato');
-    assert.equal(countRotulo(6), '6 Contatos Aproximadamente');
+    assert.equal(countLabel(0), '0 Contato');
+    assert.equal(countLabel(1), '1 Contato');
+    assert.equal(countLabel(6), '6 Contatos Aproximadamente');
   });
 
   it('the default period covers the last 7 days, from 00:00 to 23:59', () => {
@@ -35,13 +35,13 @@ describe('contacts: opening the detail view', () => {
   });
 
   it('puts the contact on the right and the bot/agent on the left', () => {
-    assert.equal(messageLado('entrada'), 'direita');
-    assert.equal(messageLado('saida'), 'esquerda');
-    assert.equal(messageLado('interna'), 'esquerda');
+    assert.equal(messageSide('entrada'), 'direita');
+    assert.equal(messageSide('saida'), 'esquerda');
+    assert.equal(messageSide('interna'), 'esquerda');
   });
 
   it('stamps the message as day - time and translates the ticket\'s state', () => {
-    assert.equal(messageCarimbo(new Date(2026, 8, 16, 13, 26)), '16/09/2026 - 13:26');
+    assert.equal(messageStamp(new Date(2026, 8, 16, 13, 26)), '16/09/2026 - 13:26');
     assert.equal(rotuloDoStatus('encerrada'), 'Atendido');
     assert.equal(rotuloDoStatus('na_fila'), 'Na fila');
     assert.equal(rotuloDoStatus('outro'), 'outro');

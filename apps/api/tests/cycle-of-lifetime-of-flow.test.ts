@@ -30,7 +30,7 @@ let sessionEditor: string;
 /** Who also deletes — their `admin`. */
 let sessionAdmin: string;
 /** People from tenant A with no permission at all on the flow. */
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 /** Admin of tenant B: proves the tenant comes from the session, never from the URL. */
 let sessionOfOtherTenant: string;
 
@@ -181,7 +181,7 @@ beforeAll(async () => {
   api = await upApi(0);
   sessionEditor = await openSession(a, editor);
   sessionAdmin = await openSession(a, admin);
-  sessionWithoutPoder = await openSession(a, semPoder);
+  sessionWithoutAuthority = await openSession(a, semPoder);
   sessionOfOtherTenant = await openSession(b, adminDoB);
 }, 180_000);
 
@@ -253,7 +253,7 @@ describe('POST /v1/management/flows', () => {
 
   it('Reject flow creation without `automacao.fluxo.editar` using the screen message and save nothing', async () => {
     const nome = `Proibido ${randomUUID().slice(0, 6)}`;
-    const { status, corpo } = await create(sessionWithoutPoder, { nome });
+    const { status, corpo } = await create(sessionWithoutAuthority, { nome });
     expect(status).toBe(200);
     expect(corpo).toEqual({ erro: RECADOS.semPermissao });
     const { rows } = await a.dono.execute<{ n: string }>(
@@ -406,7 +406,7 @@ describe('PATCH /v1/management/flows/:id', () => {
   it('Return 403 without permission and 404 for invalid or cross-tenant flow IDs', async () => {
     const id = await criado(`Guardado ${randomUUID().slice(0, 6)}`);
 
-    const semPoder = await editar(sessionWithoutPoder, id, { nome: 'Invasor' });
+    const semPoder = await editar(sessionWithoutAuthority, id, { nome: 'Invasor' });
     expect(semPoder.status).toBe(403);
     expect((semPoder.corpo['erro'] as { code: string }).codigo).toBe('without_permission');
 

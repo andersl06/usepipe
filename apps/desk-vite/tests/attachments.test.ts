@@ -1,14 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  MAX_FILES_BY_ENVIO,
+  MAX_FILES_BY_SENDING,
   MAX_BYTES_AUDIO_VIDEO,
   MAX_BYTES_BY_FILE,
   recusaDoLote,
-  type LoteFile,
+  type FileBatch,
 } from '../src/lib/attachments';
 
-function file(name: string, type: string, size: number): LoteFile {
+function file(name: string, type: string, size: number): FileBatch {
   return { name, type, size };
 }
 
@@ -22,11 +22,11 @@ test('lote dentro dos limites passa', () => {
 });
 
 test('more than ten files rejects the whole batch, reporting how many were sent', () => {
-  const lote = Array.from({ length: MAX_FILES_BY_ENVIO + 1 }, (_, i) =>
+  const lote = Array.from({ length: MAX_FILES_BY_SENDING + 1 }, (_, i) =>
     file(`f${i}.png`, 'image/png', 10),
   );
   const motivo = recusaDoLote(lote);
-  assert.ok(motivo?.includes(`máximo ${MAX_FILES_BY_ENVIO}`));
+  assert.ok(motivo?.includes(`máximo ${MAX_FILES_BY_SENDING}`));
   assert.ok(motivo?.includes('11'));
   assert.ok(motivo?.includes('Nenhum arquivo foi enviado.'));
 });

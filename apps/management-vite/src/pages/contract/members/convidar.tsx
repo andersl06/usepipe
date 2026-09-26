@@ -1,7 +1,7 @@
 import { useActionState, useId, useRef, useState } from 'react';
 import type { ClipboardEvent, KeyboardEvent } from 'react';
 import { IconePortal } from '../../../components/icones-portal';
-import { convidarMembers } from '../actions';
+import { inviteMembers } from '../actions';
 import type { InvitationResult } from '../actions';
 import type { RoleOption } from './tabela';
 
@@ -31,7 +31,7 @@ function separar(texto: string): string[] {
     .filter(Boolean);
 }
 
-export function ConvidarMembers({
+export function InviteMembers({
   papeis,
   membersEmails,
 }: {
@@ -48,15 +48,15 @@ export function ConvidarMembers({
 
   const [chips, definirChips] = useState<string[]>([]);
   const [texto, definirTexto] = useState('');
-  const [roleId, escolherRoleId] = useState('');
+  const [roleId, chooseRoleId] = useState('');
   const [aberta, abrirLista] = useState(false);
-  const [active, definirActive] = useState(0);
+  const [active, setActive] = useState(0);
   const [copiado, marcarCopiado] = useState<string | null>(null);
   /*
    * The action result survives closing; this tracks what the person already saw, so the modal reopens clean.
    */
   const [visto, marcarVisto] = useState<InvitationResult | null>(null);
-  const [resultado, enviar, enviando] = useActionState(convidarMembers, null);
+  const [resultado, enviar, enviando] = useActionState(inviteMembers, null);
 
   const options = papeis;
   const role = options.find((p) => p.id === roleId) ?? null;
@@ -107,13 +107,13 @@ export function ConvidarMembers({
   }
 
   function escolher(p: RoleOption) {
-    escolherRoleId(p.id);
+    chooseRoleId(p.id);
     abrirLista(false);
     roleButton.current?.focus();
   }
 
   function abrir() {
-    definirActive(
+    setActive(
       Math.max(
         0,
         options.findIndex((p) => p.id === roleId),
@@ -127,7 +127,7 @@ export function ConvidarMembers({
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       const passo = e.key === 'ArrowDown' ? 1 : -1;
-      definirActive((a) => (a + passo + options.length) % options.length);
+      setActive((a) => (a + passo + options.length) % options.length);
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       if (options[active]) escolher(options[active]);
@@ -143,7 +143,7 @@ export function ConvidarMembers({
     modal.current?.close();
     definirChips([]);
     definirTexto('');
-    escolherRoleId('');
+    chooseRoleId('');
     abrirLista(false);
     marcarCopiado(null);
     marcarVisto(resultado);
@@ -312,7 +312,7 @@ export function ConvidarMembers({
                           aria-selected={p.id === roleId}
                           className={`mb-option${i === active ? ' mb-option--active' : ''}`}
                           onMouseDown={(e) => e.preventDefault()}
-                          onMouseEnter={() => definirActive(i)}
+                          onMouseEnter={() => setActive(i)}
                           onClick={() => escolher(p)}
                         >
                           <IconePortal

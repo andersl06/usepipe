@@ -6,7 +6,7 @@ import { IconePortal, LogoPortal } from '../../../../components/icones-portal';
 import { rotuloDoMotivo } from '../../../../lib/channels';
 import { numeroParaWaMe } from '../../../../lib/channel-of-flow';
 import { ConectarWhatsappManual } from '../../../registrations/channel-conectar-manual';
-import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '../conexao';
+import { OtherChannelNotice, ChooseChannelExisting, ModalDesconectar } from '../conexao';
 import type { ChannelWhatsappContext, ContextWithoutChannel } from './shell';
 
 /**
@@ -154,7 +154,7 @@ function NaoConectado({ flowId, situation, disponiveis }: ContextWithoutChannel)
 
   if (passo === 'escolher') {
     return (
-      <EscolherChannelExistente
+      <ChooseChannelExisting
         flowId={flowId}
         tipo="whatsapp_cloud"
         disponiveis={disponiveis}

@@ -6,9 +6,9 @@ import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import {
-  cancelarInvitation,
+  cancelInvitation,
   loadMembers,
-  loadPapeisOfAccount,
+  loadRolesOfAccount,
   loadSummaryOfContract,
   defineRoleOfInvitation,
   defineRoleOfMember,
@@ -43,7 +43,7 @@ async function permissionsOf(tx: TransactionPipe, userId: string): Promise<strin
 }
 
 const READ_MEMBERS = 'conta.membros.ler';
-const ESCREVER_MEMBERS = 'conta.membros.escrever';
+const WRITE_MEMBERS = 'conta.membros.escrever';
 
 export interface TargetOfMember {
   type: 'usuario' | 'convite';
@@ -89,7 +89,7 @@ export class ManagementAccountController {
     return noTenant(sessao.tenantId, async (tx) => {
       const permissoes = await permissionsOf(tx, sessao.userId);
       if (!permissoes.includes(READ_MEMBERS)) throw PipeError.withoutPermission(READ_MEMBERS);
-      return { members: await loadMembers(tx), papeis: await loadPapeisOfAccount(tx) };
+      return { members: await loadMembers(tx), papeis: await loadRolesOfAccount(tx) };
     });
   }
 
@@ -107,7 +107,7 @@ export class ManagementAccountController {
     if (alvos.length === 0) return falha('Escolha quem terá o papel alterado.');
     return noTenant(session.tenantId, async (tx) => {
       const permissions = await permissionsOf(tx, session.userId);
-      if (!permissions.includes(ESCREVER_MEMBERS)) {
+      if (!permissions.includes(WRITE_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os membros deste contrato.');
       }
       const ator: Ator = { type: 'usuario', id: session.userId };
@@ -141,14 +141,14 @@ export class ManagementAccountController {
     }
     return noTenant(sessao.tenantId, async (tx) => {
       const permissoes = await permissionsOf(tx, sessao.userId);
-      if (!permissoes.includes(ESCREVER_MEMBERS)) {
+      if (!permissoes.includes(WRITE_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os membros deste contrato.');
       }
       const ator: Ator = { type: 'usuario', id: sessao.userId };
       for (const alvo of alvos) {
         const r = checkRecording(
           alvo.type === 'convite'
-            ? await cancelarInvitation(tx, sessao.tenantId, ator, alvo.id)
+            ? await cancelInvitation(tx, sessao.tenantId, ator, alvo.id)
             : await removeMember(tx, sessao.tenantId, ator, alvo.id),
         );
         if (!r.ok) return r;
@@ -188,7 +188,7 @@ export class ManagementAccountController {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
       const permissoes = await permissionsOf(tx, sessao.userId);
-      if (!permissoes.includes(ESCREVER_MEMBERS)) throw PipeError.withoutPermission(ESCREVER_MEMBERS);
+      if (!permissoes.includes(WRITE_MEMBERS)) throw PipeError.withoutPermission(WRITE_MEMBERS);
       const ator: Ator = { type: 'usuario', id: sessao.userId };
       return createCertificate(tx, sessao.tenantId, ator, corpo);
     });
@@ -204,7 +204,7 @@ export class ManagementAccountController {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
       const permissoes = await permissionsOf(tx, sessao.userId);
-      if (!permissoes.includes(ESCREVER_MEMBERS)) {
+      if (!permissoes.includes(WRITE_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os certificados deste contrato.');
       }
       const ator: Ator = { type: 'usuario', id: sessao.userId };
@@ -223,7 +223,7 @@ export class ManagementAccountController {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
       const permissoes = await permissionsOf(tx, sessao.userId);
-      if (!permissoes.includes(ESCREVER_MEMBERS)) {
+      if (!permissoes.includes(WRITE_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os certificados deste contrato.');
       }
       const ator: Ator = { type: 'usuario', id: sessao.userId };

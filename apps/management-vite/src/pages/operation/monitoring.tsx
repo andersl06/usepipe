@@ -4,12 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { Monitoring } from '../../lib/monitoring';
 import { useRead } from '../../lib/query';
 import { denominador, duration, numero } from '../../lib/format';
-import { IconeManagement } from '../../components/icones-management';
-import { SListaFilter, SOperationFilter } from '../../components/filters-quick';
+import { ManagementIcon } from '../../components/icones-management';
+import { SListFilter, SOperationFilter } from '../../components/filters-quick';
 import { PanelField, PanelFilters } from '../../components/panel-filters';
 import { Selection } from '../../components/selection';
 import { SelectionChips } from '../../components/selection-chips';
-import { parametrosWithFilters, filterIds } from '../../lib/filters-monitoring';
+import { parametersWithFilters, filterIds } from '../../lib/filters-monitoring';
 import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-memory';
 import { Metrica } from '../../components/metrica';
 import { MonitoringDetailed } from '../../components/monitoring-detailed';
@@ -36,7 +36,7 @@ function validateQueueAgentShape(value: unknown): QueueAgentFilters | null {
   return { queue: v.queue, agent: v.agent };
 }
 
-interface MonitoringResposta {
+interface MonitoringResponse {
   fuso: string;
   window: { inicio: string; fim: string };
   data: Monitoring;
@@ -70,7 +70,7 @@ function BotaoAtualizar() {
       aria-label="Atualizar tela"
       onClick={() => void queue.invalidateQueries({ queryKey: ['api'] })}
     >
-      <IconeManagement nome="atualizar" tamanho={24} />
+      <ManagementIcon nome="atualizar" tamanho={24} />
     </button>
   );
 }
@@ -106,7 +106,7 @@ function useRecargaSilenciosa(segundos: number) {
 /**
  * "Expandir tela": the header's second icon, next to "Atualizar tela" (`bds-button icon="screen-full"`, `data-testid="fullscreen-change-to-enable"`).
  */
-function ButtonExpandirPage({
+function ButtonExpandPage({
   cheia,
   aoMudar,
 }: {
@@ -131,12 +131,12 @@ function ButtonExpandirPage({
       aria-pressed={cheia}
       onClick={alternar}
     >
-      <IconeManagement nome="telaCheia" tamanho={24} />
+      <ManagementIcon nome="telaCheia" tamanho={24} />
     </button>
   );
 }
 
-function TicketsAbertosByHora({ horas }: { horas: readonly number[] }) {
+function TicketsOpenByHour({ horas }: { horas: readonly number[] }) {
   const maior = Math.max(1, ...horas);
   return (
     <section className="mon-per-hour" aria-label="Tickets abertos por hora">
@@ -163,7 +163,7 @@ function MetricaCarregando() {
   );
 }
 
-function CardCarregando({
+function CardLoading({
   titulo,
   quantity,
   dividido = false,
@@ -198,7 +198,7 @@ function CardCarregando({
   );
 }
 
-function MonitoringCarregando() {
+function MonitoringLoading() {
   return (
     <div className="mon-page mon-carregando" role="status" aria-label="Carregando monitoramento">
       <div className="board-head">
@@ -216,10 +216,10 @@ function MonitoringCarregando() {
         </div>
       </div>
       <div className="mon" aria-hidden="true">
-        <CardCarregando titulo="Atendimentos em tempo real" quantity={5} dividido />
-        <CardCarregando titulo="Status dos atendentes" quantity={3} />
-        <CardCarregando titulo="Atendimento hoje" quantity={4} />
-        <CardCarregando titulo="Status dos tickets hoje" quantity={4} />
+        <CardLoading titulo="Atendimentos em tempo real" quantity={5} dividido />
+        <CardLoading titulo="Status dos atendentes" quantity={3} />
+        <CardLoading titulo="Atendimento hoje" quantity={4} />
+        <CardLoading titulo="Status dos tickets hoje" quantity={4} />
       </div>
       <div className="strip-filters" aria-hidden="true">
         <span className="lbl">Filtros rápidos:</span>
@@ -267,12 +267,12 @@ function MonitoringCarregando() {
 export function PageMonitoring() {
   const { contact } = useContact();
   const base = `${attendanceBase(contact.tipo, contact.id)}/monitoramento`;
-  const [search, definirSearch] = useSearchParams();
-  const [panelAberto, setPanelAberto] = useState(false);
+  const [search, setSearch] = useSearchParams();
+  const [panelOpen, setPanelOpen] = useState(false);
   const [fieldPanel, setFieldPanel] = useState<string | null>(null);
-  const abrirPanel = (campo: string | null = null) => {
+  const openPanel = (campo: string | null = null) => {
     setFieldPanel(campo);
-    setPanelAberto(true);
+    setPanelOpen(true);
   };
   const [modoTv, setModoTv] = useState(false);
 
@@ -297,7 +297,7 @@ export function PageMonitoring() {
   const q = new URLSearchParams();
   if (params.queue) q.set('fila', params.queue);
   if (params.agent) q.set('atendente', params.agent);
-  const read = useRead<MonitoringResposta>(`/v1/management/monitoring?${q}`, {
+  const read = useRead<MonitoringResponse>(`/v1/management/monitoring?${q}`, {
     staleTime: 0,
   });
   useRecargaSilenciosa(30);
@@ -308,7 +308,7 @@ export function PageMonitoring() {
   useEffect(() => {
     if (!read.data) return;
     const idsQueue = new Set(read.data.data.queues.map((o) => o.id));
-    const idsAgent = new Set(read.data.data.listaAgents.map((o) => o.id));
+    const idsAgent = new Set(read.data.data.listAgents.map((o) => o.id));
     setQueueAgent((atual) => {
       const queue = filterIds(atual.queue)
         .filter((id) => idsQueue.has(id))
@@ -336,7 +336,7 @@ export function PageMonitoring() {
       </div>
     );
   }
-  if (!read.data) return <MonitoringCarregando />;
+  if (!read.data) return <MonitoringLoading />;
   const { data: m } = read.data;
   const { realTime, agents, hoje } = m;
 
@@ -346,7 +346,7 @@ export function PageMonitoring() {
         <h2>Monitoramento</h2>
         <div className="filters">
           <BotaoAtualizar />
-          <ButtonExpandirPage cheia={modoTv} aoMudar={setModoTv} />
+          <ButtonExpandPage cheia={modoTv} aoMudar={setModoTv} />
         </div>
       </div>
 
@@ -355,8 +355,8 @@ export function PageMonitoring() {
  */}
       <SOperationFilter
         atual={params}
-        toAbrirPanel={() => abrirPanel('fila')}
-        panelAberto={panelAberto && fieldPanel === 'fila'}
+        toOpenPanel={() => openPanel('fila')}
+        panelOpen={panelOpen && fieldPanel === 'fila'}
         aoLimparQueue={() => setQueueAgent((atual) => ({ ...atual, queue: '' }))}
       />
 
@@ -373,7 +373,7 @@ export function PageMonitoring() {
                 formula="Conversas abertas que ainda não foram atribuídas a nenhum atendente. Contagem deste instante, com o cronômetro correndo."
               />
               <Metrica
-                value={duration(realTime.maiorEsperaInQueueSeg)}
+                value={duration(realTime.longestWaitInQueueSeg)}
                 rotulo="Tempo máximo na fila"
                 dica="Tempo máximo que um atendimento ficou na fila"
                 formula="A maior espera entre as conversas ainda não atribuídas: agora menos criada_em."
@@ -382,11 +382,11 @@ export function PageMonitoring() {
             </div>
             <div className="metrics-grupo largo">
               <Metrica
-                value={duration(realTime.maiorEsperaFirstRespostaSeg)}
+                value={duration(realTime.longestWaitFirstResponseSeg)}
                 rotulo="Tempo máximo até 1ª resposta"
                 dica="Tempo máximo que um atendimento ficou sem resposta"
                 formula="A maior espera entre as conversas já atribuídas e ainda sem resposta do atendente: agora menos atribuida_em."
-                denominador={`Entre ${numero(realTime.aguardandoFirstResposta)} aguardando.`}
+                denominador={`Entre ${numero(realTime.waitingFirstResponse)} aguardando.`}
               />
               <Metrica
                 destaque
@@ -441,18 +441,18 @@ export function PageMonitoring() {
               denominador={denominador(hoje.esperaDoCliente, 'sem início')}
             />
             <Metrica
-              value={duration(hoje.respostaTime.value)}
+              value={duration(hoje.responseTime.value)}
               rotulo="Tempo médio de resposta"
               dica="Tempo médio de resposta para atendimento"
               formula="Média dos intervalos entre a mensagem do cliente e a próxima mensagem do atendente. População: conversas com pelo menos uma troca completa."
-              denominador={`${numero(hoje.respostaTime.conversationsConsideradas)} com troca completa · ${numero(hoje.respostaTime.population)} intervalos.`}
+              denominador={`${numero(hoje.responseTime.conversationsConsidered)} com troca completa · ${numero(hoje.responseTime.population)} intervalos.`}
             />
             <Metrica
-              value={duration(hoje.ateFirstResposta.value)}
+              value={duration(hoje.untilFirstResponse.value)}
               rotulo="Tempo médio até 1ª resposta"
               dica="Tempo médio de primeira resposta para atendimento"
               formula="primeira_resposta_em menos atribuida_em. População: conversas que tiveram resposta do atendente."
-              denominador={denominador(hoje.ateFirstResposta)}
+              denominador={denominador(hoje.untilFirstResponse)}
             />
             <Metrica
               value={duration(hoje.attendanceTime.value)}
@@ -495,14 +495,14 @@ export function PageMonitoring() {
         </CardMetric>
       </div>
 
-      {modoTv ? <TicketsAbertosByHora horas={m.ticketsAbertosByHora} /> : null}
+      {modoTv ? <TicketsOpenByHour horas={m.ticketsOpenByHour} /> : null}
 
       {!modoTv ? (
         <>
-          <SListaFilter
+          <SListFilter
             atual={params}
-            toAbrirPanel={() => abrirPanel('lista')}
-            panelAberto={panelAberto && fieldPanel === 'lista'}
+            toOpenPanel={() => openPanel('lista')}
+            panelOpen={panelOpen && fieldPanel === 'lista'}
             aoLimparAgent={() => setQueueAgent((atual) => ({ ...atual, agent: '' }))}
           />
 
@@ -516,9 +516,9 @@ export function PageMonitoring() {
       ) : null}
 
       <PanelFilters
-        aberto={panelAberto}
+        aberto={panelOpen}
         aoFechar={() => {
-          setPanelAberto(false);
+          setPanelOpen(false);
           setFieldPanel(null);
         }}
         acao={base}
@@ -541,15 +541,15 @@ export function PageMonitoring() {
             if (typeof value === 'string' && value.trim()) proximos.set(key, value.trim());
           }
           setQueueAgent({ queue, agent });
-          definirSearch(proximos);
-          setPanelAberto(false);
+          setSearch(proximos);
+          setPanelOpen(false);
         }}
         limpar={() => {
           if (fieldPanel === 'fila') {
             setQueueAgent((atual) => ({ ...atual, queue: '' }));
           } else {
             setQueueAgent((atual) => ({ ...atual, agent: '' }));
-            definirSearch(parametrosWithFilters(search, { contato: '', status: '' }));
+            setSearch(parametersWithFilters(search, { contato: '', status: '' }));
           }
         }}
       >
@@ -584,7 +584,7 @@ export function PageMonitoring() {
                 name="atendente"
                 rotulo="Atendentes"
                 placeholder="Selecione os atendentes"
-                options={m.listaAgents}
+                options={m.listAgents}
                 valuesInitials={filterIds(params.agent)}
               />
             </PanelField>

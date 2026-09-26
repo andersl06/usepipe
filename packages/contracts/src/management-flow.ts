@@ -93,7 +93,7 @@ export interface MessageOfHistory {
 }
 
 /** O detalhe — `GET /v1/gestao/fluxos/:id/contatos/:contatoId[?ticketId]`. */
-export interface DetalheOfContact {
+export interface DetailOfContact {
   pessoa: {
     id: string;
     nome: string | null;

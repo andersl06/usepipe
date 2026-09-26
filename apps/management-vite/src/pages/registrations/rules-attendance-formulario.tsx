@@ -1,16 +1,16 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
-import { salvarRuleQueue, type Resultado } from '../../lib/actions';
+import { saveRuleQueue, type Resultado } from '../../lib/actions';
 import { editRuleQueue } from '../../lib/registrations-gravar';
 import {
   CAMPOS_DE_REGRA,
   OPERADORES_DE_REGRA,
-  PREFIX_ATRIBUTO,
+  PREFIX_ATTRIBUTE,
   ROTULO_CAMPO,
   ROTULO_OPERADOR,
   type OperadorDeRegra,
 } from '../../lib/rule-queue';
-import type { QueueForEscolher, QueueRegisteredRule } from '../../lib/registrations';
+import type { QueueForChoose, QueueRegisteredRule } from '../../lib/registrations';
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
@@ -26,7 +26,7 @@ interface ConditionInitial {
   value: string;
 }
 
-function ConditionLinha({
+function ConditionRow({
   desabilitado,
   inicial,
 }: {
@@ -39,7 +39,7 @@ function ConditionLinha({
     inicial ? (campoInicialEhFixo ? inicial.campo : EXTRA) : CAMPOS_DE_REGRA[0],
   );
   const keyExtraInitial =
-    inicial && !campoInicialEhFixo ? inicial.campo.slice(PREFIX_ATRIBUTO.length) : '';
+    inicial && !campoInicialEhFixo ? inicial.campo.slice(PREFIX_ATTRIBUTE.length) : '';
 
   return (
     <div className="form-linha">
@@ -120,12 +120,12 @@ function editAction(id: string) {
   };
 }
 
-export function FormularioRuleQueue({
+export function RuleQueueForm({
   queues,
   regraExistente,
   aoSalvar,
 }: {
-  queues: readonly QueueForEscolher[];
+  queues: readonly QueueForChoose[];
   /** Presente = editar esta regra (`PATCH`); ausente = criar (mesmo de sempre). */
   regraExistente?: QueueRegisteredRule;
   /**
@@ -141,7 +141,7 @@ export function FormularioRuleQueue({
    */
   const [generation, setGeneration] = useState(0);
   const [resultado, enviar, enviando] = useActionState(
-    regraExistente ? editAction(regraExistente.id) : salvarRuleQueue,
+    regraExistente ? editAction(regraExistente.id) : saveRuleQueue,
     { ok: true },
   );
   /*
@@ -176,7 +176,7 @@ export function FormularioRuleQueue({
           data.delete('campo');
           for (const c of campos) {
             const fixo = (CAMPOS_DE_REGRA as readonly string[]).includes(c);
-            data.append('campo', fixo || c === '' ? c : `${PREFIX_ATRIBUTO}${c}`);
+            data.append('campo', fixo || c === '' ? c : `${PREFIX_ATTRIBUTE}${c}`);
           }
           enviar(data);
         })}
@@ -239,7 +239,7 @@ export function FormularioRuleQueue({
         </p>
 
         {Array.from({ length: linhas }, (_, i) => (
-          <ConditionLinha key={`${generation}-${i}`} desabilitado={enviando} inicial={regraExistente?.conditions[i]} />
+          <ConditionRow key={`${generation}-${i}`} desabilitado={enviando} inicial={regraExistente?.conditions[i]} />
         ))}
 
         <div className="cl-actions" style={{ justifyContent: 'flex-start' }}>

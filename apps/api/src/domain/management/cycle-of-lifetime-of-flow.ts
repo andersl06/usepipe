@@ -3,8 +3,8 @@ import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { Ator, TransactionPipe } from '@pipe/db';
 import { DESCRIPTION_FLOW_MAX, flow } from '@pipe/db/schema';
 import { PipeError } from '../../errors.js';
-import { exigirPermission } from '../../session.js';
-import { exigirPermissionInFlow } from './team-of-flow.js';
+import { requirePermission } from '../../session.js';
+import { requirePermissionInFlow } from './team-of-flow.js';
 import {
   IMAGE,
   TAMANHO,
@@ -18,7 +18,7 @@ import {
  * Ported from chatwoot/chatwoot (MIT), `app/controllers/api/v1/accounts/inboxes_controller.rb` (`create`, `update`, `destroy`, `avatar`) and `app/policies/inbox_policy.rb`. Contact (`fluxo` bot or router) lifecycle follows its Inbox sequence: authorize before create; fetch within account and authorize before update/delete; update supplied fields only; remove an avatar with `imagem: null`. Field rules come instead from Blip's Edit Flow DOM (`referencias-blip/portal/dom/application-detail-pipeprincipal-configurations-basic.html`) and creation wizard (`regras-de-nome.ts`): required name 2–30 starting with a letter; optional description 2–160 when present; optional image `.gif .png .jpeg .jpg` verified by BYTES. Source permissions also differ from Chatwoot: `automacao.fluxo.editar` (migration 0021) for create/edit, `automacao.fluxo.excluir` (migration 0023) for admin-only delete; the source says 'Somente um admin pode deletar o chatbot' (`deleteChatbotPermissionDenied`). Delete ARCHIVES here (`estado = 'arquivado'`) although Blip and Chatwoot permanently delete, because `execucao_fluxo.fluxo_versao_id` is `ON DELETE RESTRICT` and conversation history must remain for LGPD and contract obligations. Archived flows disappear from `carregarGradeDoPortal`, are ignored by `fluxoPublicadoDoCanal`, and free their name; this also permits restoration.
  */
 
-export const EDITAR_FLOW = 'automacao.fluxo.editar';
+export const EDIT_FLOW = 'automacao.fluxo.editar';
 export const DELETE_FLOW = 'automacao.fluxo.excluir';
 
 /** `ng-minlength="2"` / `ng-maxlength="160"` do `<textarea name="description">`. */
@@ -138,7 +138,7 @@ export async function createFlow(
   usuarioId: string,
   pedido: RequestOfCreation,
 ): Promise<{ id: string }> {
-  await exigirPermission(tx, usuarioId, EDITAR_FLOW);
+  await requirePermission(tx, usuarioId, EDIT_FLOW);
   const nome = nomeConferido(pedido.name);
   const tipo = pedido.type === 'roteador' ? 'roteador' : 'fluxo';
   const imageUrl = pedido.image ? imageOfBytes(pedido.image) : null;
@@ -161,7 +161,7 @@ export async function createFlow(
 }
 
 /** Return the live contact or 404, like source `fetch_inbox`; archived contacts are treated as absent. */
-async function flowVivo(tx: TransactionPipe, tenantId: string, id: string) {
+async function flowLive(tx: TransactionPipe, tenantId: string, id: string) {
   const [atual] = await tx
     .select({
       id: flow.id,
@@ -181,18 +181,18 @@ async function flowVivo(tx: TransactionPipe, tenantId: string, id: string) {
 }
 
 /** `update` changes supplied fields only; no change means no write and no audit entry. */
-export async function editarFlow(
+export async function editFlow(
   tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   id: string,
   pedido: RequestOfEdit,
 ): Promise<FlowWritten> {
-  const atual = await flowVivo(tx, tenantId, id);
+  const atual = await flowLive(tx, tenantId, id);
   /*
    * 'Configurações básicas' is a `PermissionsList.html` row (`basicConfigurations`), so a member with permission on THIS contact may edit it, alongside existing account-level permission (`exigirPermissaoNoFluxo`, migration 0035).
    */
-  await exigirPermissionInFlow(tx, usuarioId, id, 'basicConfigurations.escrever');
+  await requirePermissionInFlow(tx, usuarioId, id, 'basicConfigurations.escrever');
 
   const antes = {
     nome: atual.nome,
@@ -262,8 +262,8 @@ export async function deleteFlow(
   usuarioId: string,
   id: string,
 ): Promise<void> {
-  const atual = await flowVivo(tx, tenantId, id);
-  await exigirPermission(tx, usuarioId, DELETE_FLOW);
+  const atual = await flowLive(tx, tenantId, id);
+  await requirePermission(tx, usuarioId, DELETE_FLOW);
 
   await tx
     .update(flow)

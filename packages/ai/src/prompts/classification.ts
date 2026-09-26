@@ -4,7 +4,7 @@
 
 import type { Prompt } from './tipos.js';
 
-export interface OptionTaxonomia {
+export interface OptionTaxonomy {
   categoria: string;
   subcategoria?: string | null;
   description?: string | null;
@@ -13,7 +13,7 @@ export interface OptionTaxonomia {
 }
 
 export interface Taxonomia {
-  options: readonly OptionTaxonomia[];
+  options: readonly OptionTaxonomy[];
   /** Accepted intents; when empty, the model answers freely. */
   intents?: readonly string[];
 }
@@ -21,7 +21,7 @@ export interface Taxonomia {
 export interface InboundClassification {
   transcription: string;
   truncada: boolean;
-  messagesOmitidas: number;
+  messagesOmitted: number;
   taxonomia: Taxonomia;
   /** Maximum options shown; an overly long list dilutes the choice. */
   maxOptions?: number;
@@ -31,17 +31,17 @@ export interface InboundClassification {
 export const MAX_OPTIONS_DEFAULT = 40;
 
 /** Option's text key, as shown in the list and returned in the answer. */
-export function optionKey(o: OptionTaxonomia): string {
+export function optionKey(o: OptionTaxonomy): string {
   return o.subcategoria?.trim() ? `${o.categoria} > ${o.subcategoria}` : o.categoria;
 }
 
 /**
  * Sorts by observed use descending and prunes to the limit, breaking ties alphabetically for stable runs; a prompt that changes by itself cannot be measured.
  */
-export function prepararOptions(
+export function prepareOptions(
   taxonomia: Taxonomia,
   maxOptions = MAX_OPTIONS_DEFAULT,
-): OptionTaxonomia[] {
+): OptionTaxonomy[] {
   return [...taxonomia.options]
     .sort(
       (a, b) =>
@@ -50,7 +50,7 @@ export function prepararOptions(
     .slice(0, Math.max(1, maxOptions));
 }
 
-function listar(options: readonly OptionTaxonomia[]): string {
+function listar(options: readonly OptionTaxonomy[]): string {
   return options
     .map((o) => {
       const description = o.description?.trim() ? ` — ${o.description.trim()}` : '';
@@ -63,14 +63,14 @@ export const PROMPT_CLASSIFICATION: Prompt<InboundClassification> = {
   nome: 'classificacao',
   versao: 'v1',
   montar(inbound) {
-    const options = prepararOptions(inbound.taxonomia, inbound.maxOptions);
+    const options = prepareOptions(inbound.taxonomia, inbound.maxOptions);
     const intents = inbound.taxonomia.intents ?? [];
     const blockIntents = intents.length
       ? `\n\nIntenções aceitas (escolha exatamente uma):\n${intents.map((i) => `- ${i}`).join('\n')}`
       : '\n\nIntenção: descreva em até quatro palavras o que o cliente queria.';
 
     const aviso = inbound.truncada
-      ? `\n\nAviso: ${inbound.messagesOmitidas} mensagens do meio foram omitidas por tamanho. Início e fim estão inteiros.`
+      ? `\n\nAviso: ${inbound.messagesOmitted} mensagens do meio foram omitidas por tamanho. Início e fim estão inteiros.`
       : '';
     const context = inbound.context?.trim() ? `Contexto: ${inbound.context.trim()}\n\n` : '';
 

@@ -3,22 +3,22 @@ import { describe, expect, it } from 'vitest';
 import {
   WINDOW_SEG,
   avaliarEnvio,
-  calcularExpiration,
-  channelTemWindow,
+  calculateExpiration,
+  channelHasWindow,
   classificarCusto,
-  windowAberta,
+  windowOpen,
   pertoDeExpirar,
-  contactRegistrarMessage,
+  contactRegisterMessage,
   segundosRestantes,
   type CategoriaCobranca,
   type CategoriaTemplate,
-  type TipoChannel,
+  type TypeChannel,
 } from './index.js';
 
 const utc = (iso: string) => new Date(iso);
 
 
-const ULTIMA_OF_CONTACT = utc('2026-03-02T10:00:00Z');
+const LAST_OF_CONTACT = utc('2026-03-02T10:00:00Z');
 const EXPIRA_EM = utc('2026-03-03T10:00:00Z');
 
 describe('24-hour window', () => {
@@ -27,19 +27,19 @@ describe('24-hour window', () => {
   });
 
   it('expiration is the contact\'s last message plus 24h', () => {
-    expect(calcularExpiration(ULTIMA_OF_CONTACT)).toEqual(EXPIRA_EM);
+    expect(calculateExpiration(LAST_OF_CONTACT)).toEqual(EXPIRA_EM);
   });
 
   it('with no message from the contact there is no window', () => {
-    expect(calcularExpiration(null)).toBeNull();
+    expect(calculateExpiration(null)).toBeNull();
   });
 
   it('every new message from the contact reopens the window', () => {
-    const first = contactRegistrarMessage(ULTIMA_OF_CONTACT, 'm1');
-    const segunda = contactRegistrarMessage(utc('2026-03-02T18:00:00Z'), 'm2');
+    const first = contactRegisterMessage(LAST_OF_CONTACT, 'm1');
+    const segunda = contactRegisterMessage(utc('2026-03-02T18:00:00Z'), 'm2');
     expect(first.expiraEm).toEqual(EXPIRA_EM);
     expect(segunda.expiraEm).toEqual(utc('2026-03-03T18:00:00Z'));
-    expect(segunda.abertaByMessageId).toBe('m2');
+    expect(segunda.openByMessageId).toBe('m2');
   });
 
   const casosLimite: { nome: string; agora: string; aberta: boolean; restante: number }[] = [
@@ -54,14 +54,14 @@ describe('24-hour window', () => {
 
   for (const caso of casosLimite) {
     it(caso.nome, () => {
-      expect(windowAberta(EXPIRA_EM, utc(caso.agora))).toBe(caso.aberta);
+      expect(windowOpen(EXPIRA_EM, utc(caso.agora))).toBe(caso.aberta);
       expect(segundosRestantes(EXPIRA_EM, utc(caso.agora))).toBeCloseTo(caso.restante, 6);
     });
   }
 
   it('a null window is closed', () => {
-    expect(windowAberta(null, ULTIMA_OF_CONTACT)).toBe(false);
-    expect(segundosRestantes(null, ULTIMA_OF_CONTACT)).toBe(0);
+    expect(windowOpen(null, LAST_OF_CONTACT)).toBe(false);
+    expect(segundosRestantes(null, LAST_OF_CONTACT)).toBe(0);
   });
 
   const casosPerto: [string, boolean][] = [
@@ -78,14 +78,14 @@ describe('24-hour window', () => {
 });
 
 describe('channels', () => {
-  const casos: [TipoChannel, boolean][] = [
+  const casos: [TypeChannel, boolean][] = [
     ['whatsapp_cloud', true],
     ['email', false],
     ['widget', false],
   ];
   for (const [channel, esperado] of casos) {
     it(`${channel} ${esperado ? 'tem' : 'não tem'} janela`, () => {
-      expect(channelTemWindow(channel)).toBe(esperado);
+      expect(channelHasWindow(channel)).toBe(esperado);
     });
   }
 });
@@ -94,16 +94,16 @@ describe('cost classification', () => {
   const casos: {
     nome: string;
     conteudo: 'texto_livre' | 'template';
-    windowDentro: boolean;
+    withinWindow: boolean;
     categoriaTemplate?: CategoriaTemplate;
     esperado: CategoriaCobranca | null;
   }[] = [
-    { nome: 'texto livre dentro da janela é livre', conteudo: 'texto_livre', windowDentro: true, esperado: 'livre' },
-    { nome: 'texto livre fora da janela não tem custo porque não sai', conteudo: 'texto_livre', windowDentro: false, esperado: null },
-    { nome: 'template de utilidade fora da janela', conteudo: 'template', windowDentro: false, categoriaTemplate: 'utilidade', esperado: 'utilidade' },
-    { nome: 'template de marketing dentro da janela ainda cobra como template', conteudo: 'template', windowDentro: true, categoriaTemplate: 'marketing', esperado: 'marketing' },
-    { nome: 'template de autenticação', conteudo: 'template', windowDentro: false, categoriaTemplate: 'autenticacao', esperado: 'autenticacao' },
-    { nome: 'template sem categoria não classifica', conteudo: 'template', windowDentro: false, esperado: null },
+    { nome: 'texto livre dentro da janela é livre', conteudo: 'texto_livre', withinWindow: true, esperado: 'livre' },
+    { nome: 'texto livre fora da janela não tem custo porque não sai', conteudo: 'texto_livre', withinWindow: false, esperado: null },
+    { nome: 'template de utilidade fora da janela', conteudo: 'template', withinWindow: false, categoriaTemplate: 'utilidade', esperado: 'utilidade' },
+    { nome: 'template de marketing dentro da janela ainda cobra como template', conteudo: 'template', withinWindow: true, categoriaTemplate: 'marketing', esperado: 'marketing' },
+    { nome: 'template de autenticação', conteudo: 'template', withinWindow: false, categoriaTemplate: 'autenticacao', esperado: 'autenticacao' },
+    { nome: 'template sem categoria não classifica', conteudo: 'template', withinWindow: false, esperado: null },
   ];
 
   for (const caso of casos) {
@@ -111,7 +111,7 @@ describe('cost classification', () => {
       expect(
         classificarCusto({
           conteudo: caso.conteudo,
-          windowDentro: caso.windowDentro,
+          withinWindow: caso.withinWindow,
           categoriaTemplate: caso.categoriaTemplate ?? null,
         }),
       ).toBe(caso.esperado);
@@ -197,16 +197,16 @@ describe('send evaluation', () => {
     });
     expect(saida.permitido).toBe(false);
     expect(saida.motivo).toBe('janela_fechada');
-    expect(saida.windowDentro).toBe(false);
+    expect(saida.withinWindow).toBe(false);
   });
 
-  const withoutWindow: TipoChannel[] = ['email', 'widget'];
+  const withoutWindow: TypeChannel[] = ['email', 'widget'];
   for (const channel of withoutWindow) {
     it(`${channel} não tem janela: texto livre sempre permitido`, () => {
       const saida = avaliarEnvio({ channel, expiraEm: null, agora: fora, conteudo: 'texto_livre' });
       expect(saida.permitido).toBe(true);
       expect(saida.modo).toBe('texto_livre');
-      expect(saida.windowDentro).toBe(true);
+      expect(saida.withinWindow).toBe(true);
       expect(saida.categoriaCobranca).toBe('livre');
       expect(saida.restanteSeg).toBe(0);
     });

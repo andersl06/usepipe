@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
-import { IconeSearch, IconePortal } from '../../../components/icones-portal';
+import { SearchIcon, IconePortal } from '../../../components/icones-portal';
 import { Selection } from '../../../components/selection';
 import { Interruptor } from '../integrations/interruptor';
 
@@ -106,7 +106,7 @@ export function TelaDoLog({
 }) {
   const [ativo, setAtivo] = useState(false);
   const filterActive = Boolean(search || de || ate || direction || tipo);
-  const mostrarSearch = filterActive || messages.length !== 0;
+  const showSearch = filterActive || messages.length !== 0;
 
   /* Selects e datas reenviam o MESMO formulário: assim nenhum filtro já
      escolhido some quando outro muda. O envio é interceptado (onSubmit
@@ -137,7 +137,7 @@ export function TelaDoLog({
           </div>
           <div className="ph-direita">
             <div className="lg-custom">
-              {mostrarSearch ? (
+              {showSearch ? (
                 <div className="lg-doze">
                   <form id="messagesForm" className="lg-form" method="get" onSubmit={enviar}>
                     <div className="lg-grupo">
@@ -150,7 +150,7 @@ export function TelaDoLog({
                         />
                       </div>
                       <button type="submit" className="lg-search-button" aria-label="Pesquisar">
-                        <IconeSearch tamanho={24} />
+                        <SearchIcon tamanho={24} />
                       </button>
                     </div>
                     <div className="lg-filters">

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  MAX_CARACTERES_BY_MESSAGE_DEFAULT,
+  MAX_CHARACTERS_BY_MESSAGE_DEFAULT,
   carimboDeHora,
-  messageCorpo,
-  montarTranscription,
+  messageBody,
+  buildTranscription,
   rotuloDoAutor,
   type MessageTranscription,
 } from './index.js';
@@ -44,7 +44,7 @@ describe('quem falou', () => {
 
 describe('message body', () => {
   it('usa o texto transcrito do áudio quando existe', () => {
-    const corpo = messageCorpo(
+    const corpo = messageBody(
       msg({
         id: 'a',
         tipo: 'audio',
@@ -56,7 +56,7 @@ describe('message body', () => {
   });
 
   it('flags audio without a transcript instead of letting it turn into silence', () => {
-    const corpo = messageCorpo(
+    const corpo = messageBody(
       msg({ id: 'a', tipo: 'audio', conteudo: null, attachment: { durationSeg: 34 } }),
     );
     expect(corpo).toContain('NÃO TRANSCRITO');
@@ -64,14 +64,14 @@ describe('message body', () => {
   });
 
   it('reports when even the audio duration is missing', () => {
-    expect(messageCorpo(msg({ id: 'a', tipo: 'audio', conteudo: null }))).toContain(
+    expect(messageBody(msg({ id: 'a', tipo: 'audio', conteudo: null }))).toContain(
       'duração desconhecida',
     );
   });
 
   it('describes media with file name and caption', () => {
     expect(
-      messageCorpo(
+      messageBody(
         msg({
           id: 'a',
           tipo: 'imagem',
@@ -80,19 +80,19 @@ describe('message body', () => {
         }),
       ),
     ).toBe('(imagem: tela.jpg) olha como chegou');
-    expect(messageCorpo(msg({ id: 'a', tipo: 'documento', conteudo: null }))).toBe(
+    expect(messageBody(msg({ id: 'a', tipo: 'documento', conteudo: null }))).toBe(
       '(documento, sem legenda)',
     );
   });
 
   it('does not let an empty message disappear', () => {
-    expect(messageCorpo(msg({ id: 'a', conteudo: '   ' }))).toBe('(mensagem vazia)');
+    expect(messageBody(msg({ id: 'a', conteudo: '   ' }))).toBe('(mensagem vazia)');
   });
 });
 
 describe('transcript assembly', () => {
   it('sorts by time, numbers and indexes each line', () => {
-    const t = montarTranscription([
+    const t = buildTranscription([
       msg({ id: 'b', criadaEm: new Date('2026-03-02T14:10:00Z'), conteudo: 'segunda' }),
       msg({ id: 'a', criadaEm: new Date('2026-03-02T14:05:00Z'), conteudo: 'primeira' }),
     ]);
@@ -103,7 +103,7 @@ describe('transcript assembly', () => {
   });
 
   it('marca nota interna', () => {
-    const t = montarTranscription([
+    const t = buildTranscription([
       msg({
         id: 'a',
         direction: 'interna',
@@ -116,14 +116,14 @@ describe('transcript assembly', () => {
   });
 
   it('collapses line breaks so the transcript stays one line per message', () => {
-    const t = montarTranscription([msg({ id: 'a', conteudo: 'linha um\nlinha dois' })]);
+    const t = buildTranscription([msg({ id: 'a', conteudo: 'linha um\nlinha dois' })]);
     expect(t.texto.split('\n')).toHaveLength(1);
     expect(t.texto).toContain('linha um linha dois');
   });
 
   it('trims a giant message individually, without overflowing the line', () => {
-    const t = montarTranscription([msg({ id: 'a', conteudo: 'x'.repeat(9_000) })]);
-    expect(t.texto.length).toBeLessThan(MAX_CARACTERES_BY_MESSAGE_DEFAULT + 100);
+    const t = buildTranscription([msg({ id: 'a', conteudo: 'x'.repeat(9_000) })]);
+    expect(t.texto.length).toBeLessThan(MAX_CHARACTERS_BY_MESSAGE_DEFAULT + 100);
     expect(t.texto.endsWith('…(cortado)')).toBe(true);
   });
 });
@@ -138,31 +138,31 @@ describe('truncation', () => {
   );
 
   it('não trunca o que cabe', () => {
-    const t = montarTranscription(muitas.slice(0, 3));
+    const t = buildTranscription(muitas.slice(0, 3));
     expect(t.truncada).toBe(false);
-    expect(t.messagesOmitidas).toBe(0);
+    expect(t.messagesOmitted).toBe(0);
     expect(t.linhas).toHaveLength(3);
   });
 
   it('preserves the start and end, where the information is', () => {
-    const t = montarTranscription(muitas, { maxCaracteres: 4_000 });
+    const t = buildTranscription(muitas, { maxCaracteres: 4_000 });
     expect(t.truncada).toBe(true);
     expect(t.totalMessages).toBe(200);
-    expect(t.messagesOmitidas).toBeGreaterThan(0);
+    expect(t.messagesOmitted).toBeGreaterThan(0);
     expect(t.linhas[0]!.messageId).toBe('m0');
     expect(t.linhas.at(-1)!.messageId).toBe('m199');
     expect(t.texto).toContain(
-      `[… ${t.messagesOmitidas} mensagens omitidas do meio da conversa …]`,
+      `[… ${t.messagesOmitted} mensagens omitidas do meio da conversa …]`,
     );
   });
 
   it('respects the character budget with headroom from the cutoff marker', () => {
-    const t = montarTranscription(muitas, { maxCaracteres: 4_000 });
+    const t = buildTranscription(muitas, { maxCaracteres: 4_000 });
     expect(t.texto.length).toBeLessThanOrEqual(4_000 + 100);
   });
 
   it('reserva ao fim mais espaço que ao início: o desfecho pesa mais', () => {
-    const t = montarTranscription(muitas, { maxCaracteres: 4_000, fractionInicio: 0.4 });
+    const t = buildTranscription(muitas, { maxCaracteres: 4_000, fractionStart: 0.4 });
     const marca = t.texto.split('\n').findIndex((l) => l.startsWith('[…'));
     const doInicio = marca;
     const doFim = t.linhas.length - marca;
@@ -170,18 +170,18 @@ describe('truncation', () => {
   });
 
   it('the counts add up: start + end + omitted = total', () => {
-    const t = montarTranscription(muitas, { maxCaracteres: 4_000 });
-    expect(t.linhas.length + t.messagesOmitidas).toBe(t.totalMessages);
+    const t = buildTranscription(muitas, { maxCaracteres: 4_000 });
+    expect(t.linhas.length + t.messagesOmitted).toBe(t.totalMessages);
   });
 
   it('only indexes what remains — an omitted message\'s label cannot be cited as evidence', () => {
-    const t = montarTranscription(muitas, { maxCaracteres: 4_000 });
+    const t = buildTranscription(muitas, { maxCaracteres: 4_000 });
     expect(Object.keys(t.indice)).toHaveLength(t.linhas.length);
     for (const linha of t.linhas) expect(t.indice[linha.rotulo]).toBe(linha.messageId);
   });
 
   it('a two-message conversation is never truncated, no matter how large', () => {
-    const t = montarTranscription(muitas.slice(0, 2), { maxCaracteres: 10 });
+    const t = buildTranscription(muitas.slice(0, 2), { maxCaracteres: 10 });
     expect(t.truncada).toBe(false);
     expect(t.linhas).toHaveLength(2);
   });

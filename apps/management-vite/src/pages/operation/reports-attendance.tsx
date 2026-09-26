@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Icone } from '@pipe/ui';
 import Link from '../../components/link';
-import { IconeManagement } from '../../components/icones-management';
+import { ManagementIcon } from '../../components/icones-management';
 import { PanelField, FieldPeriod, PanelFilters } from '../../components/panel-filters';
 import { Selection } from '../../components/selection';
 import { Dica, Metrica } from '../../components/metrica';
@@ -10,11 +10,11 @@ import { useRead } from '../../lib/query';
 import type { Catalogos } from '../../lib/history';
 import { type ReportAttendance, type LinhaDeQuebra } from '../../lib/attendance';
 import { dataOuNada, denominador, duration, numero, uuidOuNada } from '../../lib/format';
-import { periodCurrent, periodRotulo } from '../../lib/periodos';
+import { periodCurrent, periodLabel } from '../../lib/periodos';
 import { contactBase, useContact } from '../flow/contact';
 import { attendanceBase } from './shell';
 
-interface RespostaOfReportOfAttendance {
+interface ResponseOfReportOfAttendance {
   fuso: string;
   de: string;
   ate: string;
@@ -34,15 +34,15 @@ interface Search {
 /**
  * Their three tabs over the same table — `bds-tab-item label="Atendentes|Filas|Tags"` in `desk-relatorio-atendimento__pagina.html`. The tab lives in the querystring, like every filter on this screen.
  */
-const ABAS_BREAKDOWN = [
+const TABS_BREAKDOWN = [
   { chave: 'atendentes', rotulo: 'Atendentes', eixo: 'Atendente' },
   { chave: 'filas', rotulo: 'Filas', eixo: 'Fila' },
   { chave: 'tags', rotulo: 'Tags', eixo: 'Tag' },
 ] as const;
-type AbaBreakdown = (typeof ABAS_BREAKDOWN)[number]['chave'];
+type TabBreakdown = (typeof TABS_BREAKDOWN)[number]['chave'];
 
-function abaValida(v: string | undefined): AbaBreakdown {
-  return ABAS_BREAKDOWN.some((a) => a.chave === v) ? (v as AbaBreakdown) : 'atendentes';
+function abaValida(v: string | undefined): TabBreakdown {
+  return TABS_BREAKDOWN.some((a) => a.chave === v) ? (v as TabBreakdown) : 'atendentes';
 }
 
 /**
@@ -63,7 +63,7 @@ function linhaEmCelulas(l: LinhaDeQuebra): string[] {
   return [
     l.key,
     numero(l.closures.finalizada),
-    duration(l.firstResposta.value),
+    duration(l.firstResponse.value),
     duration(l.inQueue.value),
     duration(l.resposta.value),
     duration(l.attendance.value),
@@ -99,7 +99,7 @@ function BotaoBaixar({ aoClicar, desabilitado }: { aoClicar: () => void; desabil
       disabled={desabilitado}
       onClick={aoClicar}
     >
-      <IconeManagement nome="baixar" tamanho={24} />
+      <ManagementIcon nome="baixar" tamanho={24} />
     </button>
   );
 }
@@ -122,8 +122,8 @@ function TabelaDeQuebra({ eixo, linhas }: { eixo: string; linhas: LinhaDeQuebra[
             <tr key={l.key}>
               <td className="who">{l.key}</td>
               <td className="num">{numero(l.closures.finalizada)}</td>
-              <td className="num" title={denominador(l.firstResposta, 'sem 1ª resposta')}>
-                {duration(l.firstResposta.value)}
+              <td className="num" title={denominador(l.firstResponse, 'sem 1ª resposta')}>
+                {duration(l.firstResponse.value)}
               </td>
               <td className="num" title={denominador(l.inQueue, 'sem atribuição')}>
                 {duration(l.inQueue.value)}
@@ -178,10 +178,10 @@ export function PageAttendance() {
   for (const key of ['queue', 'agent', 'de', 'ate'] as const) {
     if (params[key]) q.set(key, params[key] as string);
   }
-  const read = useRead<RespostaOfReportOfAttendance>(
+  const read = useRead<ResponseOfReportOfAttendance>(
     `/v1/management/reports/attendance?${q}`,
   );
-  const [panelAberto, setPanelAberto] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
   if (!read.data) return null;
   const { fuso, de, ate, catalogos, report } = read.data;
   const geral = report.geral;
@@ -189,20 +189,20 @@ export function PageAttendance() {
 
   const queueName = catalogos.queues.find((f) => f.id === params.queue)?.nome;
   const agentName = catalogos.agents.find((a) => a.id === params.agent)?.nome;
-  const temFilter = Boolean(params.queue || params.agent);
+  const hasFilter = Boolean(params.queue || params.agent);
 
   const aba = abaValida(crus.aba);
-  const hrefAba = (key: AbaBreakdown) => {
+  const hrefAba = (key: TabBreakdown) => {
     const p = new URLSearchParams(q);
     p.set('aba', key);
     return `${base}/reports/attendance?${p}`;
   };
-  const linhasDaAba: Record<AbaBreakdown, LinhaDeQuebra[]> = {
+  const linhasDaAba: Record<TabBreakdown, LinhaDeQuebra[]> = {
     atendentes: report.byAgent,
     filas: report.byQueue,
     tags: report.byTag,
   };
-  const abaAtual = ABAS_BREAKDOWN.find((a) => a.chave === aba) ?? ABAS_BREAKDOWN[0];
+  const abaAtual = TABS_BREAKDOWN.find((a) => a.chave === aba) ?? TABS_BREAKDOWN[0];
 
   return (
     <>
@@ -211,7 +211,7 @@ export function PageAttendance() {
         <div className="filters">
           <Link href={manager} className="btn">
             Gerenciador de Relatórios
-            <IconeManagement nome="baixo" tamanho={20} style={{ transform: 'rotate(-90deg)' }} />
+            <ManagementIcon nome="baixo" tamanho={20} style={{ transform: 'rotate(-90deg)' }} />
           </Link>
         </div>
       </div>
@@ -221,7 +221,7 @@ export function PageAttendance() {
         <button
           type="button"
           className={params.agent ? 'pilula active' : 'pilula'}
-          onClick={() => setPanelAberto(true)}
+          onClick={() => setPanelOpen(true)}
         >
           <span className="pilula-rotulo">Atendentes</span>
           {agentName ? <span className="pill-value">{agentName}</span> : null}
@@ -229,7 +229,7 @@ export function PageAttendance() {
         <button
           type="button"
           className={params.queue ? 'pilula active' : 'pilula'}
-          onClick={() => setPanelAberto(true)}
+          onClick={() => setPanelOpen(true)}
         >
           <span className="pilula-rotulo">Filas</span>
           {queueName ? <span className="pill-value">{queueName}</span> : null}
@@ -239,11 +239,11 @@ export function PageAttendance() {
             type="button"
             className="btn fantasma rel-period"
             title={`${de} → ${ate}`}
-            onClick={() => setPanelAberto(true)}
+            onClick={() => setPanelOpen(true)}
           >
-            {periodRotulo(periodCurrent(de, ate, fuso))}
+            {periodLabel(periodCurrent(de, ate, fuso))}
           </button>
-          <button type="button" className="btn" onClick={() => setPanelAberto(true)}>
+          <button type="button" className="btn" onClick={() => setPanelOpen(true)}>
             <Icone nome="funil" tamanho={20} />
             Filtros
           </button>
@@ -251,10 +251,10 @@ export function PageAttendance() {
       </div>
 
       <PanelFilters
-        aberto={panelAberto}
-        aoFechar={() => setPanelAberto(false)}
+        aberto={panelOpen}
+        aoFechar={() => setPanelOpen(false)}
         acao={`${base}/reports/attendance`}
-        limpar={temFilter ? `${base}/reports/attendance?de=${de}&to=${ate}` : null}
+        limpar={hasFilter ? `${base}/reports/attendance?de=${de}&to=${ate}` : null}
       >
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
         <FieldPeriod de={de} ate={ate} fuso={fuso} />
@@ -379,11 +379,11 @@ export function PageAttendance() {
             denominador={denominador(geral.inQueue, 'sem atribuição')}
           />
           <Metrica
-            value={duration(geral.firstResposta.value)}
+            value={duration(geral.firstResponse.value)}
             rotulo="Tempo médio até 1ª resposta"
             dica="Tempo médio até a primeira resposta do atendente"
             formula="primeira_resposta_em menos atribuida_em. População: conversas que tiveram resposta do atendente."
-            denominador={denominador(geral.firstResposta, 'sem 1ª resposta')}
+            denominador={denominador(geral.firstResponse, 'sem 1ª resposta')}
           />
           <Metrica
             value={duration(geral.esperaTotal.value)}
@@ -395,7 +395,7 @@ export function PageAttendance() {
             value={duration(geral.resposta.value)}
             rotulo="Tempo médio de resposta"
             dica="Tempo médio entre a mensagem do cliente e a resposta do atendente"
-            formula={`Média de INTERVALOS: ${numero(geral.resposta.population)} trocas em ${numero(geral.resposta.conversationsConsideradas)} conversas.`}
+            formula={`Média de INTERVALOS: ${numero(geral.resposta.population)} trocas em ${numero(geral.resposta.conversationsConsidered)} conversas.`}
             denominador={denominador(geral.resposta, 'sem troca completa')}
           />
           <Metrica
@@ -435,7 +435,7 @@ export function PageAttendance() {
       <section className="tblwrap">
         <div className="rel-aba-cabecalho">
           <div className="tabs" role="tablist">
-            {ABAS_BREAKDOWN.map((a) => (
+            {TABS_BREAKDOWN.map((a) => (
               <Link
                 key={a.chave}
                 href={hrefAba(a.chave)}
@@ -452,7 +452,7 @@ export function PageAttendance() {
         </div>
         <TabelaDeQuebra eixo={abaAtual.eixo} linhas={linhasDaAba[aba]} />
         <p className="rel-nota">
-          <IconeManagement nome="informacao" tamanho={16} />
+          <ManagementIcon nome="informacao" tamanho={16} />
           Os filtros de Canais, Atendentes, Filas e Tags não se aplicam à tabela abaixo.
         </p>
       </section>

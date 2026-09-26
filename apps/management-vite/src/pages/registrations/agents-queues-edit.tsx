@@ -3,8 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Botao, BotaoDeIcone, Campo, Card, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import type { QueueRegistered, Horarios } from '../../lib/registrations';
-import { queueDesvincularAgent, editQueue } from '../../lib/registrations-gravar';
-import { priorityCreateRule, priorityExcluirRule } from '../../lib/agents-gravar';
+import { queueUnlinkAgent, editQueue } from '../../lib/registrations-gravar';
+import { priorityCreateRule, priorityDeleteRule } from '../../lib/agents-gravar';
 import {
   NIVEIS_ATRIBUIVEIS,
   queueRules,
@@ -190,12 +190,12 @@ function QueueData({
 
 /* ----------------------------------------------------------- atendentes */
 
-const PASSO_AGENTS = 10;
+const STEP_AGENTS = 10;
 
 function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }) {
   const navegar = useNavigate();
   const [search, setSearch] = useState('');
-  const [visiveis, setVisiveis] = useState(PASSO_AGENTS);
+  const [visiveis, setVisiveis] = useState(STEP_AGENTS);
   const [paraRemover, setParaRemover] = useState<{ id: string; nome: string } | null>(null);
   const [removendo, setRemovendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -208,7 +208,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
     if (!paraRemover) return;
     setRemovendo(true);
     setError(null);
-    const resultado = await queueDesvincularAgent(queue.id, paraRemover.id);
+    const resultado = await queueUnlinkAgent(queue.id, paraRemover.id);
     setRemovendo(false);
     if (resultado.ok) setParaRemover(null);
     else setError(resultado.error);
@@ -239,7 +239,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
-                setVisiveis(PASSO_AGENTS);
+                setVisiveis(STEP_AGENTS);
               }}
               placeholder="Pesquisar atendente"
               aria-label="Pesquisar atendente"
@@ -272,7 +272,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
                   <button
                     type="button"
                     className="link-carregar-mais"
-                    onClick={() => setVisiveis((v) => v + PASSO_AGENTS)}
+                    onClick={() => setVisiveis((v) => v + STEP_AGENTS)}
                   >
                     Carregar mais
                   </button>
@@ -318,7 +318,7 @@ function PrioritySectionRules({
     if (!paraExcluir) return;
     setExcluindo(true);
     setError(null);
-    const resultado = await priorityExcluirRule(paraExcluir.id);
+    const resultado = await priorityDeleteRule(paraExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setParaExcluir(null);
     else setError(resultado.error);
@@ -334,7 +334,7 @@ function PrioritySectionRules({
       }
     >
       {criando ? (
-        <PriorityFormularioRule queueId={queue.id} onFechar={() => setCriando(false)} />
+        <PriorityFormRule queueId={queue.id} onFechar={() => setCriando(false)} />
       ) : null}
 
       {ofQueue.length === 0 ? (
@@ -371,7 +371,7 @@ function PrioritySectionRules({
   );
 }
 
-function PriorityFormularioRule({ queueId, onFechar }: { queueId: string; onFechar: () => void }) {
+function PriorityFormRule({ queueId, onFechar }: { queueId: string; onFechar: () => void }) {
   const [nome, setNome] = useState('');
   const [nivel, setNivel] = useState(NIVEIS_ATRIBUIVEIS[0] ?? '');
   const [enviando, setEnviando] = useState(false);

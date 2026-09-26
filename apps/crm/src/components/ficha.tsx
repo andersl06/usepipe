@@ -169,7 +169,7 @@ export function AbasDaFicha({
  * that avoids today's 304 custom fields on Salesforce's Lead. Since the shape is
  * the same across the three, so is this section.
  */
-export function SectionAtributos({
+export function SectionAttributes({
   atributos,
   titulo = 'Atributos',
   empty = 'Nenhum atributo personalizado.',

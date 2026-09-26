@@ -2,7 +2,7 @@ export interface ClosureTag {
   id: string;
   nome: string;
   cor?: string | null;
-  obrigatoriaInClosure: boolean;
+  requiredInClosure: boolean;
 }
 
 /** Blip blocks confirmation until all required tags are selected. */
@@ -12,6 +12,6 @@ export function closureCanConfirm(
   enviando: boolean,
 ): boolean {
   return !enviando && etiquetas.every((etiqueta) =>
-    !etiqueta.obrigatoriaInClosure || selecionadas.includes(etiqueta.id),
+    !etiqueta.requiredInClosure || selecionadas.includes(etiqueta.id),
   );
 }

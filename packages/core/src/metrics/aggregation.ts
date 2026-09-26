@@ -43,7 +43,7 @@ export function mediaDeMedias(values: readonly (number | null)[]): number | null
 }
 
 /** Group by key and apply the metric per group, preserving its denominator. */
-export function byDimensao<T>(
+export function byDimension<T>(
   itens: readonly T[],
   key: (item: T) => string | null,
   metrica: (grupo: readonly T[]) => ResultadoMetrica,

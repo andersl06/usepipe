@@ -22,7 +22,7 @@ import { PipeError } from '../errors.js';
 /** Use a dedicated TXT record prefix to avoid colliding with SPF and other apex records. */
 export const PREFIX_TXT = '_pipe-verificacao';
 
-export interface RegistroOfVerification {
+export interface RecordOfVerification {
   name: string;
   tipo: 'TXT';
   value: string;
@@ -32,11 +32,11 @@ export interface DomainRegistered {
   id: string;
   domain: string;
   verificadoEm: Date | null;
-  registro: RegistroOfVerification;
+  registro: RecordOfVerification;
 }
 
 /** Accept DNS labels with no scheme or path and at least one dot. */
-const DOMAIN_ACEITAVEL = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
+const DOMAIN_ACCEPTABLE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
 export function normalizeDomain(cru: string | undefined): string {
   const domain = (cru ?? '')
@@ -49,7 +49,7 @@ export function normalizeDomain(cru: string | undefined): string {
     // A trailing dot is a valid DNS FQDN but would break comparison with an email domain.
     .replace(/\.$/, '');
 
-  if (!DOMAIN_ACEITAVEL.test(domain)) {
+  if (!DOMAIN_ACCEPTABLE.test(domain)) {
     throw PipeError.request('domain_invalid', `"${cru ?? ''}" não é um domínio.`);
   }
   if (DOMINIOS_PUBLICOS.has(domain)) {
@@ -62,7 +62,7 @@ export function normalizeDomain(cru: string | undefined): string {
   return domain;
 }
 
-export function registroOfVerification(domain: string, token: string): RegistroOfVerification {
+export function recordOfVerification(domain: string, token: string): RecordOfVerification {
   return { name: `${PREFIX_TXT}.${domain}`, tipo: 'TXT', value: `pipe-verificacao=${token}` };
 }
 
@@ -89,7 +89,7 @@ export async function logDomain(
         id: linha.id,
          domain: dominio,
         verificadoEm: linha.verificado_em ? new Date(linha.verificado_em) : null,
-        registro: registroOfVerification(dominio, linha.token_verificacao),
+        registro: recordOfVerification(dominio, linha.token_verificacao),
       };
     }
 
@@ -107,7 +107,7 @@ export async function logDomain(
         id: rows[0]!.id,
          domain: dominio,
         verificadoEm: null,
-        registro: registroOfVerification(dominio, token),
+        registro: recordOfVerification(dominio, token),
       };
     } catch (error) {
       if (codigoDoPostgres(error) === '23505') {
@@ -145,7 +145,7 @@ export async function checkDomain(
   });
 
   if (!linha?.tokenVerification) throw PipeError.naoEncontrado('Domínio');
-  const esperado = registroOfVerification(linha.domain, linha.tokenVerification);
+  const esperado = recordOfVerification(linha.domain, linha.tokenVerification);
 
   let registros: string[][];
   try {

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
 import type { InvitationVisible } from '@pipe/contracts';
 import { noTenant } from '../database.js';
-import { WithSession, exigirPermission, sessionOf } from '../session.js';
+import { WithSession, requirePermission, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import { acceptInvitation, createInvitation, readInvitation, resendInvitation } from '../domain/convites.js';
 import { logDomain, checkDomain } from '../domain/dominios.js';
@@ -139,5 +139,5 @@ export class DomainsController {
  * Check permission in a separate transaction before the write transaction. Permission lives in a tenant table, while domain functions open their own transactions. One additional read keeps transaction handling out of the controller; passing `usuarioId` into every domain function would spread the access rule among them.
  */
 function permitido(tenantId: string, userId: string, codigo: string): Promise<void> {
-  return noTenant(tenantId, (tx) => exigirPermission(tx, userId, codigo));
+  return noTenant(tenantId, (tx) => requirePermission(tx, userId, codigo));
 }

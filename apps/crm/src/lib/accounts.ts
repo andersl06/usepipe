@@ -19,7 +19,7 @@ import { consultar, paraData, paraNumero } from './database';
 /** The listing is a work screen, not an export screen. Same cap as the leads one. */
 export const LIMITE_LISTA = 200;
 
-export interface LinhaAccount {
+export interface AccountRow {
   id: string;
   nome: string;
   document: string | null;
@@ -28,10 +28,10 @@ export interface LinhaAccount {
   contacts: number;
   leads: number;
   opportunities: number;
-  valueAberto: number;
+  valueOpen: number;
 }
 
-export async function listAccounts(search = ''): Promise<LinhaAccount[]> {
+export async function listAccounts(search = ''): Promise<AccountRow[]> {
   return consultar(async (tx) => {
     const termo = search.trim();
     const filter = termo
@@ -89,7 +89,7 @@ export async function listAccounts(search = ''): Promise<LinhaAccount[]> {
         contacts: contacts.get(c.id) ?? 0,
         leads: leads.get(c.id) ?? 0,
         opportunities: o?.n ?? 0,
-        valueAberto: paraNumero(o?.valor) ?? 0,
+        valueOpen: paraNumero(o?.valor) ?? 0,
       };
     });
   });
@@ -114,12 +114,12 @@ export interface AccountOpportunity {
   fase: string;
   probability: number | null;
   proprietario: string | null;
-  closingPrevisto: Date | null;
+  closingExpected: Date | null;
   fechadaEm: Date | null;
   ganha: boolean | null;
 }
 
-export interface FichaAccount {
+export interface AccountRecord {
   id: string;
   nome: string;
   document: string | null;
@@ -130,11 +130,11 @@ export interface FichaAccount {
   atributos: Record<string, unknown>;
   contacts: AccountContact[];
   opportunities: AccountOpportunity[];
-  valueAberto: number;
-  valueGanho: number;
+  valueOpen: number;
+  valueWon: number;
 }
 
-export async function loadAccount(id: string): Promise<FichaAccount | null> {
+export async function loadAccount(id: string): Promise<AccountRecord | null> {
   return consultar(async (tx) => {
     const [cabeca] = await tx
       .select({
@@ -181,7 +181,7 @@ export async function loadAccount(id: string): Promise<FichaAccount | null> {
         fase: opportunity.fase,
         probability: opportunity.probabilidade,
         proprietario: user.nome,
-        closingPrevisto: opportunity.fechamentoPrevisto,
+        closingExpected: opportunity.fechamentoPrevisto,
         fechadaEm: opportunity.fechadaEm,
         ganha: opportunity.ganha,
       })
@@ -198,7 +198,7 @@ export async function loadAccount(id: string): Promise<FichaAccount | null> {
       fase: o.fase,
       probability: o.probability,
       proprietario: o.proprietario,
-      closingPrevisto: paraData(o.closingPrevisto),
+      closingExpected: paraData(o.closingExpected),
       fechadaEm: paraData(o.fechadaEm),
       ganha: o.ganha,
     }));
@@ -213,10 +213,10 @@ export async function loadAccount(id: string): Promise<FichaAccount | null> {
       atributos: (cabeca.atributos ?? {}) as Record<string, unknown>,
       contacts: contacts.map((c) => ({ ...c, nome: c.nome ?? 'Contato sem nome' })),
       opportunities: linhas,
-      valueAberto: linhas
+      valueOpen: linhas
         .filter((o) => o.fechadaEm === null)
         .reduce((s, o) => s + (o.value ?? 0), 0),
-      valueGanho: linhas.filter((o) => o.ganha).reduce((s, o) => s + (o.value ?? 0), 0),
+      valueWon: linhas.filter((o) => o.ganha).reduce((s, o) => s + (o.value ?? 0), 0),
     };
   });
 }

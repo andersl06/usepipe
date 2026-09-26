@@ -83,7 +83,7 @@ function escolherRegra(
   return ofQueue ?? regras.find((r) => r.scopeType === 'tenant') ?? null;
 }
 
-export function avaliarSlaOfConversation(
+export function evaluateSlaOfConversation(
   regras: readonly RegraSlaCarregada[],
   marcos: Marcos,
   filaId: string | null,

@@ -12,7 +12,7 @@ import { verificarSaude } from '../saude.js';
 /**
  * Control access to `/metrics`. An open endpoint exposes customer activity: request counts by route and queue depth reveal Pipe's commercial volume. With `PIPE_METRICS_TOKEN`, require `Authorization: Bearer <token>`; production Prometheus sends it through `authorization` in `scrape_config`. Without the token, allow only loopback or private networks for development and neighboring `docker compose` Prometheus. Behind Traefik, the visible proxy IP is private, so that fallback admits anyone who can reach the proxy. Production therefore requires the token.
  */
-export function canVerMetrics(request: Request): boolean {
+export function canViewMetrics(request: Request): boolean {
   const esperado = process.env['PIPE_METRICS_TOKEN'];
   if (esperado && esperado.length > 0) {
     const dado = (request.header('authorization') ?? '').replace(/^Bearer\s+/i, '').trim();
@@ -47,7 +47,7 @@ export class OperationsController {
 
   @Get('metrics')
   async metrics(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
-    if (!canVerMetrics(requisicao)) {
+    if (!canViewMetrics(requisicao)) {
       throw PipeError.naoAutorizado('Métricas exigem PIPE_METRICS_TOKEN ou rede interna.');
     }
     resposta.setHeader('content-type', 'text/plain; version=0.0.4; charset=utf-8');

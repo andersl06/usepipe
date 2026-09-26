@@ -30,7 +30,7 @@ let sessionManager: string;
 /** Only `fila.gerenciar` — to prove each route requires ITS OWN permission, not just any. */
 let sessionOnlyQueues: string;
 /** People from tenant A with no permission at all. */
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 /** A valid session, but from another tenant — proves the tenant comes from the session, never from the URL. */
 let sessionOfOtherTenant: string;
 
@@ -118,7 +118,7 @@ beforeAll(async () => {
   api = await upApi(0);
   sessionManager = await openSession(a, gestor);
   sessionOnlyQueues = await openSession(a, onlyQueues);
-  sessionWithoutPoder = await openSession(a, semPoder);
+  sessionWithoutAuthority = await openSession(a, semPoder);
   sessionOfOtherTenant = await openSession(b, gestorDoB);
 }, 180_000);
 
@@ -192,7 +192,7 @@ describe('POST /v1/management/agents/queues', () => {
   });
 
   it('Return 403 without `fila.gerenciar` and 401 without a session', async () => {
-    const semPoder = await createQueue(sessionWithoutPoder, {});
+    const semPoder = await createQueue(sessionWithoutAuthority, {});
     expect(semPoder.status).toBe(403);
     expect(semPoder.corpo.erro.code).toBe('without_permission');
     expect(semPoder.corpo.erro.detalhe.permissao).toBe('fila.gerenciar');
@@ -244,7 +244,7 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
   it('Return 403 without `fila.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
     const { corpo: criada } = await createQueue(sessionManager, {});
 
-    const semPoder = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionWithoutPoder, {
+    const semPoder = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionWithoutAuthority, {
       nome: 'Invasor',
     });
     expect(semPoder.status).toBe(403);
@@ -334,7 +334,7 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
 
     const semPoder = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
       method: 'DELETE',
-      headers: comCookie(sessionWithoutPoder),
+      headers: comCookie(sessionWithoutAuthority),
     });
     expect(semPoder.status).toBe(403);
 

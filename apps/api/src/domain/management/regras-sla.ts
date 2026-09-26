@@ -3,7 +3,7 @@ import { queue, regraSla, slaConversation, ALVOS_SLA } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
-import { exigirPermission } from '../../session.js';
+import { requirePermission } from '../../session.js';
 import { RULE_MANAGE } from './registrations.js';
 
 /**
@@ -144,7 +144,7 @@ export async function createRuleSla(
   userId: string,
   pedido: PedidoDeRegraSla,
 ): Promise<{ id: string }> {
-  await exigirPermission(tx, userId, RULE_MANAGE);
+  await requirePermission(tx, userId, RULE_MANAGE);
 
   const nome = nomeConferido(pedido.name);
   const alvo = alvoConferido(pedido.target);
@@ -179,7 +179,7 @@ export async function editarRegraSla(
   pedido: RequestOfEditOfRuleSla,
 ): Promise<RegraSlaGravada> {
   const atual = await regraSlaViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, RULE_MANAGE);
+  await requirePermission(tx, usuarioId, RULE_MANAGE);
 
   const antes = { ...atual };
   const depois = { ...antes };
@@ -256,7 +256,7 @@ export async function editarRegraSla(
 
 export async function excluirRegraSla(tx: TransactionPipe, tid: string, usuarioId: string, id: string): Promise<void> {
   const atual = await regraSlaViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, RULE_MANAGE);
+  await requirePermission(tx, usuarioId, RULE_MANAGE);
 
   // `sla_conversa.regra_id` is `ON DELETE CASCADE`: deleting the rule would
   // silently delete timers for conversations still running under it.

@@ -1,4 +1,4 @@
-import { IconeManagement } from './icones-management';
+import { ManagementIcon } from './icones-management';
 
 /**
  * Reference metric card in `referencias-blip/portal/dom/monitoring.html` centers `bds-typo variant="fs-24"` value over `bds-typo variant="fs-12" class="text-center"` label with a 16px `bds-icon name="info" size="x-small"` in `bds-grid direction="row" gap="half"`. Use native `<details>` for keyboard/click access and Esc close without JavaScript; reject HTML `title=""` because it is not keyboard accessible. Keep literal source `tooltip-text` as the first line; put our spec formula and denominator inside the popup, not as a third card line.
@@ -53,7 +53,7 @@ export function Dica({
   return (
     <details className="dica">
       <summary aria-label={`Sobre "${rotulo}"`} title={texto}>
-        <IconeManagement nome="informacao" tamanho={16} />
+        <ManagementIcon nome="informacao" tamanho={16} />
       </summary>
       <div className="dica-balao" role="note">
         {texto}

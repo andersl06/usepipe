@@ -16,7 +16,7 @@ function itemEmpty(): ItemDoMenu {
   return { texto: '', link: '', aberto: false };
 }
 
-function itensInitials(inicial: ConfigurationOfMenuPersistent): ItemDoMenu[] {
+function itemsInitials(inicial: ConfigurationOfMenuPersistent): ItemDoMenu[] {
   const preenchidos = inicial.itens.map((item) => ({ ...item, aberto: true }));
   const vazios = Array.from({ length: MAXIMO_DE_ITENS - preenchidos.length }, itemEmpty);
   return [...preenchidos, ...vazios];
@@ -29,18 +29,18 @@ function itensInitials(inicial: ConfigurationOfMenuPersistent): ItemDoMenu[] {
  */
 export function TelaDeMenuPersistente({
   id,
-  channelCompativel,
+  channelCompatible,
   inicial,
 }: {
   id: string;
-  channelCompativel: boolean;
+  channelCompatible: boolean;
   inicial: ConfigurationOfMenuPersistent;
 }) {
-  const [itens, setItens] = useState<ItemDoMenu[]>(() => itensInitials(inicial));
+  const [itens, setItens] = useState<ItemDoMenu[]>(() => itemsInitials(inicial));
   const [aviso, setAviso] = useState('');
   const [sucesso, setSucesso] = useState('');
   const [salvando, setSalvando] = useState(false);
-  const podeSalvar = channelCompativel && inicial.boasVindasPreenchida;
+  const podeSalvar = channelCompatible && inicial.boasVindasPreenchida;
 
   function mudarCampo(indice: number, campo: 'texto' | 'link', value: string) {
     setItens((atual) => atual.map((item, i) => (i === indice ? { ...item, [campo]: value } : item)));
@@ -79,7 +79,7 @@ export function TelaDeMenuPersistente({
         }
       />
       <div className="cf-container cf-menu-persistente">
-        {!channelCompativel ? (
+        {!channelCompatible ? (
           <p className="cf-faixa-alerta" role="status">
             Só é possível ativar o menu persistente se o seu chatbot estiver conectado ao Facebook
             Messenger
@@ -91,7 +91,7 @@ export function TelaDeMenuPersistente({
           que poderão ser utilizadas em qualquer momento do fluxo. Você poderá adicionar até{' '}
           {MAXIMO_DE_ITENS} itens que disparam um comando.
         </p>
-        {channelCompativel && !inicial.boasVindasPreenchida ? (
+        {channelCompatible && !inicial.boasVindasPreenchida ? (
           <p className="cf-menu-aviso-boasvindas">
             Antes de salvar o menu persistente, você precisa preencher a tela de boas-vindas no
             menu lateral.

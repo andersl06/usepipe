@@ -1,6 +1,6 @@
 import { useRead } from '../../../lib/query';
 import type { TemplateListed } from '@pipe/contracts';
-import { ModuloShell, useContact } from '../contact';
+import { ShellModule, useContact } from '../contact';
 import { TelaDeConteudos } from './tela';
 import './conteudos.css';
 
@@ -13,7 +13,7 @@ export function PageContents() {
     `/v1/management/flows/${contact.id}/content-items`,
   );
   return (
-    <ModuloShell ativo="Conteúdos">
+    <ShellModule ativo="Conteúdos">
       {read.data ? (
         <TelaDeConteudos
           modelos={read.data.modelos}
@@ -21,6 +21,6 @@ export function PageContents() {
           channelId={read.data.channelId}
         />
       ) : null}
-    </ModuloShell>
+    </ShellModule>
   );
 }

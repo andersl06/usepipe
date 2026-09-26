@@ -118,7 +118,7 @@ export interface Window {
  * because it's the one that knows the timezone database — reimplementing
  * daylight saving in JavaScript costs a whole day.
  */
-export async function mesWindow(fuso: string, mesesAtras = 0): Promise<Window> {
+export async function monthWindow(fuso: string, mesesAtras = 0): Promise<Window> {
   return consultar(async (tx) => {
     const base = sql`date_trunc('month', now() at time zone ${fuso}) - make_interval(months => ${mesesAtras})`;
     const r = await tx.execute<{ inicio: unknown; fim: unknown }>(

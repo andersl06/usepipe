@@ -3,13 +3,13 @@
  */
 
 /** `{{ $ctrl.totalItems }} Contatos Aproximadamente` / `1 Contato` / `0 Contato`. */
-export function countRotulo(total: number): string {
+export function countLabel(total: number): string {
   if (total > 1) return `${total} Contatos Aproximadamente`;
   return `${total} Contato`;
 }
 
 /** `getFormatedLastInteraction`: `toLocaleString(locale, {year, month, day, hour, minute})`. */
-export function formatarUltimaInteraction(data: Date | null | undefined): string {
+export function formatLastInteraction(data: Date | null | undefined): string {
   if (!data) return '-';
   return data.toLocaleString('pt-BR', {
     year: 'numeric',
@@ -29,7 +29,7 @@ export function diaEHora(data: Date): { dia: string; hora: string } {
 }
 
 /** History bubble timestamp: `16/09/2026 - 13:26`. */
-export function messageCarimbo(data: Date): string {
+export function messageStamp(data: Date): string {
   const { dia, hora } = diaEHora(data);
   return `${dia} - ${hora}`;
 }
@@ -53,7 +53,7 @@ export function periodDefault(hoje: Date): { inicio: Date; fim: Date } {
 }
 
 /** In the origin the contact sits on the right (`.right`) and the bot/agent on the left, with a photo. */
-export function messageLado(direction: string): 'direita' | 'esquerda' {
+export function messageSide(direction: string): 'direita' | 'esquerda' {
   return direction === 'entrada' ? 'direita' : 'esquerda';
 }
 
@@ -70,7 +70,7 @@ export function rotuloDoStatus(state: string): string {
 }
 
 /** `getChannelNameFromSource`: nome do canal a partir da origem. */
-export function channelRotulo(tipo: string, nome: string): string {
+export function channelLabel(tipo: string, nome: string): string {
   const rotulos: Record<string, string> = {
     whatsapp_cloud: 'WhatsApp',
     email: 'E-mail',

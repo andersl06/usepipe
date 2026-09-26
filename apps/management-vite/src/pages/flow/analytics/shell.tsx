@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
-import { ContactBarras, contactBase, useContact } from '../contact';
-import { CLUSTER_DA_CAPTURA, FLAGS_DA_CAPTURA, analyticsAbas } from './abas';
-import { AnalyticsVista } from './vista';
+import { ContactBars, contactBase, useContact } from '../contact';
+import { CLUSTER_DA_CAPTURA, FLAGS_DA_CAPTURA, analyticsTabs } from './abas';
+import { AnalyticsView } from './vista';
 import './analytics.css';
 
 /**
@@ -23,19 +23,19 @@ export function AnalyticsShell() {
 
   return (
     <div className="pt-app">
-      <ContactBarras ativo="Análise" />
+      <ContactBars ativo="Análise" />
 
       {/*
  * `#main-content-area.main-detail-content.pa0`: no indent — each tab indents
  * itself, with its own `.container`.
  */}
       <main className="an-miolo">
-        <AnalyticsVista
+        <AnalyticsView
           base={`${contactBase(contact.tipo, id)}/analise`}
-          abas={analyticsAbas(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA)}
+          abas={analyticsTabs(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA)}
         >
           <Outlet />
-        </AnalyticsVista>
+        </AnalyticsView>
       </main>
     </div>
   );

@@ -6,9 +6,9 @@ import { ApiError } from '../../../../lib/api';
 import { useRead } from '../../../../lib/query';
 import { channelInBotState } from '../../../../lib/channel-of-flow';
 import { ConectarInstagramManual } from '../../../registrations/channel-conectar-manual';
-import { ReadFalha, useContact } from '../../contact';
-import { ChannelShell, type ChannelAba } from '../shell-of-channel';
-import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '../conexao';
+import { ReadFailure, useContact } from '../../contact';
+import { ChannelShell, type ChannelTab } from '../shell-of-channel';
+import { OtherChannelNotice, ChooseChannelExisting, ModalDesconectar } from '../conexao';
 
 /**
  * Instagram inside the BOT — `…channels/instagram` (template 230473, `FICHA-conectar-canal-no-bot.md` §1.4 and §3.3): title "Instagram", tabs "Visão Geral" and "Configurações" (the latter Pipe doesn't have internally), "Documentação" on the right.
@@ -18,7 +18,7 @@ import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '
  * Connected (`InstagramOverviewConnectedView.html`): "Seu chatbot está conectado à conta:", the `@username` chip, the description and "Desconectar canal" (`variant="delete"`, on the right) with the reason + agreement modal.
  */
 
-const ABAS: readonly ChannelAba[] = [
+const ABAS: readonly ChannelTab[] = [
   { rotulo: 'Visão Geral', segment: '' },
   { rotulo: 'Configurações', segment: 'configuracoes', emBreve: true },
 ];
@@ -28,7 +28,7 @@ export function PageChannelInstagram() {
   const read = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
 
   if (read.error && !(read.error instanceof ApiError && read.error.status === 404)) {
-    return <ReadFalha error={read.error} />;
+    return <ReadFailure error={read.error} />;
   }
   if (!read.data) return null;
   const situation = channelInBotState(read.data.channel, 'instagram');
@@ -93,13 +93,13 @@ function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow
 
 function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: ChannelOfFlow[] }) {
   const [escolhendo, setEscolhendo] = useState(false);
-  const temAccountLivre = disponiveis.some(
+  const hasFreeAccount = disponiveis.some(
     (c) => c.tipo === 'instagram' && c.ativo && (c.flowId === null || c.flowId === flowId),
   );
 
   if (escolhendo) {
     return (
-      <EscolherChannelExistente
+      <ChooseChannelExisting
         flowId={flowId}
         tipo="instagram"
         disponiveis={disponiveis}
@@ -126,7 +126,7 @@ function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: Ch
         </p>
         <div className="cb-actions-right">
           <ConectarInstagramManual flowId={flowId} rotulo="Iniciar conexão" variante="primario" />
-          {temAccountLivre ? (
+          {hasFreeAccount ? (
             <Botao type="button" onClick={() => setEscolhendo(true)}>
               Usar uma conta já conectada
             </Botao>

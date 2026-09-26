@@ -24,7 +24,7 @@ let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
 let sessionEditor: string;
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 let sessionOfOtherTenant: string;
 
 async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
@@ -127,7 +127,7 @@ beforeAll(async () => {
 
   api = await upApi(0);
   sessionEditor = await openSession(a, editorPessoa);
-  sessionWithoutPoder = await openSession(a, semPoder);
+  sessionWithoutAuthority = await openSession(a, semPoder);
   sessionOfOtherTenant = await openSession(b, editorDoB);
 }, 180_000);
 
@@ -203,7 +203,7 @@ describe('PATCH /v1/contacts/:id', () => {
 
   it('Return 403 without `contato.editar` and 404 for cross-tenant or malformed IDs', async () => {
     const id = await newContact(a);
-    const semPoder = await editar(sessionWithoutPoder, id, { nome: 'X' });
+    const semPoder = await editar(sessionWithoutAuthority, id, { nome: 'X' });
     expect(semPoder.status).toBe(403);
 
     const outroTenant = await editar(sessionOfOtherTenant, id, { nome: 'X' });

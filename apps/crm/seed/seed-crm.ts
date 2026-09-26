@@ -489,7 +489,7 @@ async function seedCrm(db: DatabasePipe) {
     })),
   );
 
-  const perguntasByVersion = new Map<string, { id: string; codigo: string; tipo: string }[]>();
+  const questionsByVersion = new Map<string, { id: string; codigo: string; tipo: string }[]>();
   const linhasPergunta: (typeof formularioPergunta.$inferInsert)[] = [];
 
   function registrarPerguntas(
@@ -513,7 +513,7 @@ async function seedCrm(db: DatabasePipe) {
       });
       registradas.push({ id, codigo: p.codigo, tipo: p.tipo });
     });
-    perguntasByVersion.set(versaoId, registradas);
+    questionsByVersion.set(versaoId, registradas);
   }
 
   registrarPerguntas(versions[0]!.id, 'diag1', PERGUNTAS_DIAGNOSTICO);
@@ -536,10 +536,10 @@ async function seedCrm(db: DatabasePipe) {
   const linhasLead: (typeof lead.$inferInsert)[] = [];
   const linhasResposta: (typeof respostaFormulario.$inferInsert)[] = [];
   const linhasScore: (typeof scoreLead.$inferInsert)[] = [];
-  const linhasActivity: (typeof activity.$inferInsert)[] = [];
-  const linhasOpportunity: (typeof opportunity.$inferInsert)[] = [];
-  const linhasContactTag: (typeof contactLabel.$inferInsert)[] = [];
-  const linhasClassification: (typeof classificationConversation.$inferInsert)[] = [];
+  const rowsActivity: (typeof activity.$inferInsert)[] = [];
+  const rowsOpportunity: (typeof opportunity.$inferInsert)[] = [];
+  const rowsContactTag: (typeof contactLabel.$inferInsert)[] = [];
+  const rowsClassification: (typeof classificationConversation.$inferInsert)[] = [];
 
   const tierByContact = new Map<string, string | null>();
   /** Account → its contacts. Turns into one `update` per account, not sixty. */
@@ -677,7 +677,7 @@ async function seedCrm(db: DatabasePipe) {
     // An old lead answered diagnostic version 1; a recent lead, version 2.
     const usaV2 = criadoEm.getTime() > agora.getTime() - dias(30);
     const versaoDiag = usaV2 ? versions[1]! : versions[0]!;
-    const perguntasDiag = perguntasByVersion.get(versaoDiag.id) ?? [];
+    const perguntasDiag = questionsByVersion.get(versaoDiag.id) ?? [];
 
     const respondidoEm = new Date(criadoEm.getTime() + 1000 * entire(30, 900));
     // An incomplete diagnostic only answers the first two — and the 18-point rule
@@ -700,7 +700,7 @@ async function seedCrm(db: DatabasePipe) {
 
     if (interessePlano) {
       const versaoPlano = versions[2]!;
-      const perguntasPlano = perguntasByVersion.get(versaoPlano.id) ?? [];
+      const perguntasPlano = questionsByVersion.get(versaoPlano.id) ?? [];
       const emPlano = new Date(respondidoEm.getTime() + 1000 * entire(600, 86_400));
       for (const p of perguntasPlano) {
         const value =
@@ -724,7 +724,7 @@ async function seedCrm(db: DatabasePipe) {
     /* ---------------------------------------------------------- etiquetas */
 
     if (patrimonio >= 500_000) {
-      linhasContactTag.push({
+      rowsContactTag.push({
         tenantId,
         contatoId: c.id,
         etiquetaId: idDe('etiqueta:Alto ticket'),
@@ -732,7 +732,7 @@ async function seedCrm(db: DatabasePipe) {
       });
     }
     if (diagnosticoCompleto) {
-      linhasContactTag.push({
+      rowsContactTag.push({
         tenantId,
         contatoId: c.id,
         etiquetaId: idDe('etiqueta:Perfil investidor'),
@@ -740,7 +740,7 @@ async function seedCrm(db: DatabasePipe) {
       });
     }
     if (!pontuado) {
-      linhasContactTag.push({
+      rowsContactTag.push({
         tenantId,
         contatoId: c.id,
         etiquetaId: idDe('etiqueta:Frio'),
@@ -750,7 +750,7 @@ async function seedCrm(db: DatabasePipe) {
 
     /* --------------------------------------------------------- atividades */
 
-    linhasActivity.push({
+    rowsActivity.push({
       id: idDe(`atividade:${c.id}:formulario`),
       tenantId,
       tipo: 'nota',
@@ -763,12 +763,12 @@ async function seedCrm(db: DatabasePipe) {
       criadoEm: respondidoEm,
     });
 
-    const quantasActivities = entire(1, 4);
-    for (let i = 0; i < quantasActivities; i += 1) {
+    const howManyActivities = entire(1, 4);
+    for (let i = 0; i < howManyActivities; i += 1) {
       const tipo = escolher(['ligacao', 'email', 'reuniao', 'nota', 'tarefa'] as const);
       const em = new Date(criadoEm.getTime() + dias(entre(0.2, 20)));
       if (em.getTime() > agora.getTime()) continue;
-      linhasActivity.push({
+      rowsActivity.push({
         id: idDe(`atividade:${c.id}:${i}`),
         tenantId,
         tipo,
@@ -790,7 +790,7 @@ async function seedCrm(db: DatabasePipe) {
       });
     }
 
-    linhasActivity.push({
+    rowsActivity.push({
       id: idDe(`atividade:${c.id}:fase`),
       tenantId,
       tipo: 'mudanca_fase',
@@ -810,7 +810,7 @@ async function seedCrm(db: DatabasePipe) {
     if ((resultado?.value ?? 0) >= 45 && status !== 'desqualificado') {
       const value = escolher([4788, 7200, 9600, 12_400, 18_000, 24_000, 36_000, 48_000]);
       const abertaEm = new Date(criadoEm.getTime() + dias(entre(1, 6)));
-      linhasOpportunity.push({
+      rowsOpportunity.push({
         id: idDe(`oportunidade:${c.id}:1`),
         tenantId,
         leadId,
@@ -830,7 +830,7 @@ async function seedCrm(db: DatabasePipe) {
       if (sorteio(0.28)) {
         const ganha = sorteio(0.7);
         const fechadaEm = new Date(agora.getTime() - dias(entre(0, 24)));
-        linhasOpportunity.push({
+        rowsOpportunity.push({
           id: idDe(`oportunidade:${c.id}:2`),
           tenantId,
           leadId,
@@ -861,10 +861,10 @@ async function seedCrm(db: DatabasePipe) {
   await db.insert(lead).values(linhasLead);
   if (linhasScore.length > 0) await db.insert(scoreLead).values(linhasScore);
   if (linhasResposta.length > 0) await db.insert(respostaFormulario).values(linhasResposta);
-  if (linhasActivity.length > 0) await db.insert(activity).values(linhasActivity);
-  if (linhasOpportunity.length > 0) await db.insert(opportunity).values(linhasOpportunity);
-  if (linhasContactTag.length > 0) {
-    await db.insert(contactLabel).values(linhasContactTag).onConflictDoNothing();
+  if (rowsActivity.length > 0) await db.insert(activity).values(rowsActivity);
+  if (rowsOpportunity.length > 0) await db.insert(opportunity).values(rowsOpportunity);
+  if (rowsContactTag.length > 0) {
+    await db.insert(contactLabel).values(rowsContactTag).onConflictDoNothing();
   }
 
   /* ------------------------------------- resumo do atendimento na linha do tempo */
@@ -875,7 +875,7 @@ async function seedCrm(db: DatabasePipe) {
    * created with their own id and `onConflictDoNothing`: if the AI worker already classified
    * the conversation, its version wins.
    */
-  const conversationsForResumir = await db
+  const conversationsForSummarize = await db
     .select({ id: conversation.id, contatoId: conversation.contatoId, encerradaEm: conversation.encerradaEm })
     .from(conversation)
     .where(
@@ -892,11 +892,11 @@ async function seedCrm(db: DatabasePipe) {
     .limit(60);
 
   const vistos = new Set<string>();
-  for (const cv of conversationsForResumir) {
+  for (const cv of conversationsForSummarize) {
     // One summarized conversation per contact: the goal is the record, not the AI's dataset.
     if (vistos.has(cv.contatoId)) continue;
     vistos.add(cv.contatoId);
-    linhasClassification.push({
+    rowsClassification.push({
       id: idDe(`classificacao:${cv.contatoId}`),
       tenantId,
       conversaId: cv.id,
@@ -908,19 +908,19 @@ async function seedCrm(db: DatabasePipe) {
       criadaEm: cv.encerradaEm ?? agora,
     });
   }
-  if (linhasClassification.length > 0) {
-    await db.insert(classificationConversation).values(linhasClassification).onConflictDoNothing();
+  if (rowsClassification.length > 0) {
+    await db.insert(classificationConversation).values(rowsClassification).onConflictDoNothing();
   }
 
   return {
     leads: linhasLead.length,
     comScore: linhasScore.length,
     respostas: linhasResposta.length,
-    oportunidades: linhasOpportunity.length,
-    atividades: linhasActivity.length,
+    oportunidades: rowsOpportunity.length,
+    atividades: rowsActivity.length,
     regras: REGRAS.length,
     contas: ACCOUNTS.length,
-    resumos: linhasClassification.length,
+    resumos: rowsClassification.length,
   };
 }
 
@@ -929,7 +929,7 @@ function dataIso(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-type ValueResposta = {
+type ValueResponse = {
   valueText?: string;
   valueNum?: string;
   valueBool?: boolean;
@@ -939,7 +939,7 @@ type ValueResposta = {
 function respostaDiagnostico(
   codigo: string,
   perfil: { patrimonio: number; age: number },
-): ValueResposta | null {
+): ValueResponse | null {
   switch (codigo) {
     case 'patrimonio_faixa':
       return {

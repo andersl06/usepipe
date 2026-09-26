@@ -44,8 +44,8 @@ export interface PeriodOfCount {
   ate: Date | null;
 }
 
-export interface ContextOfClique {
-  agenteUser: string | null;
+export interface ContextOfClick {
+  agentUser: string | null;
   origin: string | null;
   /** Chave do limitador de taxa — o IP visto pelo servidor. */
   ip: string;
@@ -172,7 +172,7 @@ function respeitaLimiteDeTaxa(key: string): boolean {
  */
 export async function redirecionarClique(
   codigo: string,
-  context: ContextOfClique,
+  context: ContextOfClick,
 ): Promise<string | null> {
   if (!respeitaLimiteDeTaxa(context.ip)) {
     throw new PipeError(429, 'limit_of_rate', 'Muitos cliques em pouco tempo. Tente de novo em instantes.');
@@ -189,7 +189,7 @@ export async function redirecionarClique(
   await noTenant(link.tenant_id, (tx) =>
     tx.execute(sql`
       insert into clique_link (tenant_id, link_id, agente_usuario, origem)
-      values (${link.tenant_id}, ${link.id}::uuid, ${context.agenteUser}, ${context.origin})
+      values (${link.tenant_id}, ${link.id}::uuid, ${context.agentUser}, ${context.origin})
     `),
   );
 

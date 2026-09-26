@@ -26,7 +26,7 @@ const RODAPE = {
 } as const;
 
 /** The full-screen shell: the "x", the logo, the middle, and the footer. */
-export function CreationCasco({ children }: { children: React.ReactNode }) {
+export function CreationShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="cr-tela">
       {/*
@@ -72,7 +72,7 @@ export interface RotulosDoPassoDoNome {
   /**
    * `modules.ui.uploadButton.title`. The same in both, but lives in each screen's `ROTULOS` because that's the screen's word list.
    */
-  definirImage: string;
+  setImage: string;
   /** `name.back`. */
   voltar: string;
 }
@@ -84,7 +84,7 @@ export function PassoDoNome({
   acao,
   voltarPara,
   rotulos,
-  errorTitulo,
+  errorTitle,
   error,
   nome,
   camposOcultos,
@@ -92,7 +92,7 @@ export function PassoDoNome({
   acao: (data: FormData) => Promise<void>;
   voltarPara: string;
   rotulos: RotulosDoPassoDoNome;
-  errorTitulo: string;
+  errorTitle: string;
   error?: string;
   nome?: string;
   /**
@@ -119,7 +119,7 @@ export function PassoDoNome({
  */}
         {error ? (
           <p className="cr-aviso" role="alert">
-            <b>{errorTitulo}</b>
+            <b>{errorTitle}</b>
             <span>{error}</span>
           </p>
         ) : null}
@@ -129,7 +129,7 @@ export function PassoDoNome({
  */}
         <label className="cr-foto">
           <input type="file" name="imagem" accept={IMAGE.aceitos.join(',')} />
-          <span>{rotulos.definirImage}</span>
+          <span>{rotulos.setImage}</span>
         </label>
 
         <div className="cr-campo" data-error={error ? '' : undefined}>

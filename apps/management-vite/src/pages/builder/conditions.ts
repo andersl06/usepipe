@@ -20,7 +20,7 @@ export const ROTULO_DA_FONTE: Record<string, string> = {
   entity: 'Entidade identificada',
 };
 
-export const ROTULO_OF_COMPARISON: Record<Comparison, string> = {
+export const LABEL_OF_COMPARISON: Record<Comparison, string> = {
   equals: 'Igual a',
   notEquals: 'Diferente de',
   contains: 'Contém',
@@ -36,9 +36,9 @@ export const ROTULO_OF_COMPARISON: Record<Comparison, string> = {
   notExists: 'Não existe',
 };
 
-export const COMPARISONS_OF_TELA = COMPARISONS.map((value) => ({
+export const COMPARISONS_OF_SCREEN = COMPARISONS.map((value) => ({
   value,
-  rotulo: ROTULO_OF_COMPARISON[value],
+  rotulo: LABEL_OF_COMPARISON[value],
 }));
 
 export const OPERADORES_DA_TELA = [
@@ -101,7 +101,7 @@ export function addValue(c: ConditionBlip, value: string): ConditionBlip {
   return { ...c, values: [...current, texto] };
 }
 
-export function removerValue(c: ConditionBlip, indice: number): ConditionBlip {
+export function removeValue(c: ConditionBlip, indice: number): ConditionBlip {
   const current = c.values ?? [];
   return { ...c, values: current.filter((_, i) => i !== indice) };
 }
@@ -152,7 +152,7 @@ export function moverSaida(block: Block, de: number, para: number): Block {
   return { ...block, $conditionOutputs: saidas };
 }
 
-export function outputDefinirDestination(block: Block, indice: number, destination: string): Block {
+export function outputSetDestination(block: Block, indice: number, destination: string): Block {
   const saidas = (block.$conditionOutputs ?? []).map((s, i) => {
     if (i !== indice) return s;
     if (!destination) return withoutDestination(s);
@@ -161,7 +161,7 @@ export function outputDefinirDestination(block: Block, indice: number, destinati
   return { ...block, $conditionOutputs: saidas };
 }
 
-export function outputDefinirConditions(block: Block, indice: number, conditions: ConditionBlip[]): Block {
+export function outputSetConditions(block: Block, indice: number, conditions: ConditionBlip[]): Block {
   const saidas = (block.$conditionOutputs ?? []).map((s, i) =>
     i === indice ? { ...s, conditions: conditions } : s,
   );

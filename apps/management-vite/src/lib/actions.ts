@@ -34,11 +34,11 @@ export function acaoRemota(nome: string) {
 /* Regras */
 export const salvarHorario = acaoRemota('salvarHorario');
 export const salvarFaixa = acaoRemota('salvarFaixa');
-export const salvarException = acaoRemota('salvarExcecao');
-export const salvarRuleQueue = acaoRemota('salvarRegraFila');
-export const alternarRuleQueue = acaoRemota('alternarRegraFila');
+export const saveException = acaoRemota('salvarExcecao');
+export const saveRuleQueue = acaoRemota('salvarRegraFila');
+export const toggleRuleQueue = acaoRemota('alternarRegraFila');
 /* Atendentes */
-export const salvarQueue = acaoRemota('salvarFila');
+export const saveQueue = acaoRemota('salvarFila');
 export const salvarMotivoPausa = acaoRemota('salvarMotivoPausa');
 
 export const salvarRespostaPronta = acaoRemota('salvarRespostaPronta');
@@ -46,9 +46,9 @@ export const salvarRespostaPronta = acaoRemota('salvarRespostaPronta');
  * `salvarModelo` was removed: `comunicacao-modelos-formulario.tsx` creates templates directly through `POST /v1/canais/whatsapp/:id/modelos`. Meta is now the source, replacing local `insert` through `acoes/salvarModelo`.
  */
 
-export const salvarIdentity = acaoRemota('salvarIdentidade');
+export const saveIdentity = acaoRemota('salvarIdentidade');
 export const salvarPesquisa = acaoRemota('salvarPesquisa');
-export const closureSalvarTags = acaoRemota('salvarEtiquetasDeEncerramento');
+export const closureSaveTags = acaoRemota('salvarEtiquetasDeEncerramento');
 
 /** After success, invalidate cached reads, replacing the former `revalidatePath` behavior. */
 export function atualizarLeituras(): void {

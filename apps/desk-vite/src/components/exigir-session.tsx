@@ -10,7 +10,7 @@ import { useSession } from '../context/session';
  * pergunta não voltou, não desenha nada: mostrar a tela e depois tirá-la é
  * pior que um instante em branco.
  */
-export function ExigirSession() {
+export function RequireSession() {
   const { eu } = useSession();
   const { pathname, search } = useLocation();
   if (eu === undefined) {

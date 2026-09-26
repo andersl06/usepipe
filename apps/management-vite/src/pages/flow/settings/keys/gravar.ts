@@ -33,7 +33,7 @@ export async function createKey(flowId: string, nome: string): Promise<Resultado
   }
 }
 
-export async function revogarKey(flowId: string, keyId: string): Promise<Resultado<void>> {
+export async function revokeKey(flowId: string, keyId: string): Promise<Resultado<void>> {
   try {
     await api.delete<void>(`/v1/management/flows/${flowId}/keys/${keyId}`);
     atualizarLeituras();

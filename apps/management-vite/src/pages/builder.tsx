@@ -1,13 +1,13 @@
 import { useState, type ReactNode } from 'react';
 import type { BuilderOfFlow, BlockError } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
-import { IconeManagement } from '../components/icones-management';
+import { ManagementIcon } from '../components/icones-management';
 import { IconePortal } from '../components/icones-portal';
 import { useEu } from '../context/session';
 import { ApiError } from '../lib/api';
 import { useRead } from '../lib/query';
 import { Modal } from './registrations/_modal';
-import { ContactBarras, useContact } from './flow/contact';
+import { ContactBars, useContact } from './flow/contact';
 import { publishFlow } from './builder-gravar';
 import { Editor } from './builder/editor';
 import { podeDesfazer, podeRefazer } from './builder/state';
@@ -16,7 +16,7 @@ import { QueuesPanel } from './builder/panel-queues';
 import { VariablesPanel } from './builder/panel-variables';
 import { ZOOM_MAXIMO, ZOOM_MINIMO, zoomAjustado } from './builder/setas';
 import { useEditorDoBuilder } from './builder/use-editor';
-import { errorsLocal, juntarErrors } from './builder/validation';
+import { errorsLocal, joinErrors } from './builder/validation';
 import './builder.css';
 
 /**
@@ -80,10 +80,10 @@ export function PageBuilder() {
   const { state, despachar, recording } = editor;
 
   const [avisoAberto, setAvisoAberto] = useState(true);
-  const [novoBlockAberto, setNovoBlockAberto] = useState(false);
-  const [variablesAberto, setVariablesAberto] = useState(false);
+  const [newBlockOpen, setNewBlockOpen] = useState(false);
+  const [variablesOpen, setVariablesOpen] = useState(false);
   const [configAberto, setConfigAberto] = useState(false);
-  const [queuesAberto, setQueuesAberto] = useState(false);
+  const [queuesOpen, setQueuesOpen] = useState(false);
   const [pesquisaAberta, setPesquisaAberta] = useState(false);
   const [pesquisa, setPesquisa] = useState('');
   const [zoom, setZoom] = useState(ZOOM_MAXIMO);
@@ -93,18 +93,18 @@ export function PageBuilder() {
   const [publicando, setPublicando] = useState(false);
   const [publicationError, publicationSetError] = useState<string | null>(null);
   /** Publish 409 can add errors to those already known from saving. */
-  const [motorErrors, motorSetErrors] = useState<BlockError[]>([]);
+  const [engineErrors, engineSetErrors] = useState<BlockError[]>([]);
 
   const podePublicar = eu.permissions.includes('automacao.fluxo.publicar');
 
-  const errors = juntarErrors(errorsLocal(state.mapa), editor.apiErrors, motorErrors);
+  const errors = joinErrors(errorsLocal(state.mapa), editor.apiErrors, engineErrors);
   const tituloDe = (id: string | null): string =>
     id === null ? 'Fluxo' : (state.mapa[id]?.$title ?? id);
 
   /*
    * Show the `api` refusal message for read failures: 409 for router and 403 for missing permission. This is not Not found; the parent route handles 404.
    */
-  const readRecusa =
+  const readRefusal =
     read.error instanceof ApiError
       ? ((read.error.corpo as { error?: { message?: string } } | null)?.error?.message ??
         read.error.message)
@@ -134,10 +134,10 @@ export function PageBuilder() {
     setPublicando(false);
     if (!r.ok) {
       publicationSetError(r.error);
-      motorSetErrors(r.errors);
+      engineSetErrors(r.errors);
       return;
     }
-    motorSetErrors([]);
+    engineSetErrors([]);
     setPublicarAberto(false);
     setRecado({
       tom: 'sucesso',
@@ -152,7 +152,7 @@ export function PageBuilder() {
   function motivoDoPublicar(): string {
     if (!podePublicar) return 'você não tem a permissão de publicar fluxo';
     if (nadaParaPublicar) return `nada para publicar: a versão ${data?.versao?.versao ?? ''} já está no ar`;
-    return readRecusa ?? 'carregando';
+    return readRefusal ?? 'carregando';
   }
 
   /** Footer Saved status includes its underlying persistence state. */
@@ -181,7 +181,7 @@ export function PageBuilder() {
 
   return (
     <div className="pt-app">
-      <ContactBarras ativo="Builder" />
+      <ContactBars ativo="Builder" />
       <div className="bl-tela">
         {avisoAberto ? (
           <div className="bl-aviso bl-aviso--sistema">
@@ -232,10 +232,10 @@ export function PageBuilder() {
         ) : null}
 
         <div className="bl-corpo">
-          {readRecusa ? (
+          {readRefusal ? (
             <div className="bl-empty">
               <Icone nome="alerta" tamanho={40} />
-              <p>{readRecusa}</p>
+              <p>{readRefusal}</p>
             </div>
           ) : !editor.carregado ? (
             <div className="bl-empty">
@@ -246,21 +246,21 @@ export function PageBuilder() {
               state={state}
               despachar={despachar}
               apiErrors={editor.apiErrors}
-              motorErrors={motorErrors}
+              engineErrors={engineErrors}
               zoom={zoom}
               onZoom={setZoom}
-              novoBlockAberto={novoBlockAberto}
-              onFecharNovoBlock={() => setNovoBlockAberto(false)}
-              panelExternoAberto={configAberto || queuesAberto}
+              newBlockOpen={newBlockOpen}
+              onCloseNewBlock={() => setNewBlockOpen(false)}
+              panelExternalOpen={configAberto || queuesOpen}
               pesquisa={pesquisa}
             />
           )}
 
-          {variablesAberto && editor.carregado ? (
+          {variablesOpen && editor.carregado ? (
             <VariablesPanel
               mapa={state.mapa}
               global={state.global}
-              onFechar={() => setVariablesAberto(false)}
+              onFechar={() => setVariablesOpen(false)}
               onAviso={(texto) => setRecado({ tom: 'sucesso', texto })}
             />
           ) : null}
@@ -270,7 +270,7 @@ export function PageBuilder() {
               flowName={contact.nome}
               mapa={state.mapa}
               global={state.global}
-              onMudarGlobal={(global) => despachar({ tipo: 'aplicarGlobais', global })}
+              onChangeGlobal={(global) => despachar({ tipo: 'aplicarGlobais', global })}
               onImport={(mapa, global) => {
                 // Use `aplicar`, not `carregar`: imported flow must become dirty for autosave and undo, like any edit.
                 // `carregar` only syncs server state and would leave an imported flow visible but unsaved.
@@ -283,11 +283,11 @@ export function PageBuilder() {
             />
           ) : null}
 
-          {queuesAberto ? (
+          {queuesOpen ? (
             <QueuesPanel
-              contactTipo={contact.tipo}
+              contactType={contact.tipo}
               contactId={contact.id}
-              onFechar={() => setQueuesAberto(false)}
+              onFechar={() => setQueuesOpen(false)}
             />
           ) : null}
 
@@ -298,9 +298,9 @@ export function PageBuilder() {
             <BotaoDaBarra
               rotulo="Adicionar bloco"
               desabilitado={!editor.carregado}
-              motivo={readRecusa ?? 'carregando'}
-              ativo={novoBlockAberto}
-              onClick={() => setNovoBlockAberto((v) => !v)}
+              motivo={readRefusal ?? 'carregando'}
+              ativo={newBlockOpen}
+              onClick={() => setNewBlockOpen((v) => !v)}
             >
               <Icone nome="mais" tamanho={24} />
             </BotaoDaBarra>
@@ -318,7 +318,7 @@ export function PageBuilder() {
             <BotaoDaBarra
               rotulo="Configuração"
               desabilitado={!editor.carregado}
-              motivo={readRecusa ?? 'carregando'}
+              motivo={readRefusal ?? 'carregando'}
               ativo={configAberto}
               onClick={() => setConfigAberto((v) => !v)}
             >
@@ -327,17 +327,17 @@ export function PageBuilder() {
             <BotaoDaBarra
               rotulo="Biblioteca de variáveis"
               desabilitado={!editor.carregado}
-              motivo={readRecusa ?? 'carregando'}
-              ativo={variablesAberto}
-              onClick={() => setVariablesAberto((v) => !v)}
+              motivo={readRefusal ?? 'carregando'}
+              ativo={variablesOpen}
+              onClick={() => setVariablesOpen((v) => !v)}
             >
-              <IconeManagement nome="biblioteca" tamanho={24} />
+              <ManagementIcon nome="biblioteca" tamanho={24} />
             </BotaoDaBarra>
             <BotaoDaBarra
               rotulo="Pesquisar"
               classe="bl-pesquisar"
               desabilitado={!editor.carregado}
-              motivo={readRecusa ?? 'carregando'}
+              motivo={readRefusal ?? 'carregando'}
               ativo={pesquisaAberta}
               onClick={() => setPesquisaAberta((aberta) => !aberta)}
             >
@@ -346,9 +346,9 @@ export function PageBuilder() {
             <BotaoDaBarra
               rotulo="Gerenciamento de Filas"
               desabilitado={!editor.carregado}
-              motivo={readRecusa ?? 'carregando'}
-              ativo={queuesAberto}
-              onClick={() => setQueuesAberto((v) => !v)}
+              motivo={readRefusal ?? 'carregando'}
+              ativo={queuesOpen}
+              onClick={() => setQueuesOpen((v) => !v)}
             >
               <IconePortal nome="suporte" tamanho={24} />
             </BotaoDaBarra>
@@ -375,7 +375,7 @@ export function PageBuilder() {
             <div className={`bl-status${recording.state === 'erro' ? ' bl-status--erro' : ''}`}>
               {data ? (
                 <>
-                  <IconeManagement
+                  <ManagementIcon
                     nome={status.icone === 'alerta' ? 'informacao' : status.icone}
                     tamanho={24}
                     className={recording.state === 'salvando' ? 'bl-girando' : undefined}
@@ -390,7 +390,7 @@ export function PageBuilder() {
                   ) : null}
                 </>
               ) : (
-                <span>{readRecusa ? 'Indisponível' : 'Carregando…'}</span>
+                <span>{readRefusal ? 'Indisponível' : 'Carregando…'}</span>
               )}
             </div>
             {recado ? (
@@ -408,7 +408,7 @@ export function PageBuilder() {
                 aria-label="Desfazer (Ctrl+z)"
                 onClick={() => despachar({ tipo: 'desfazer' })}
               >
-                <IconeManagement nome="desfazer" tamanho={24} />
+                <ManagementIcon nome="desfazer" tamanho={24} />
               </button>
               <button
                 type="button"
@@ -418,7 +418,7 @@ export function PageBuilder() {
                 aria-label="Refazer (Ctrl+Shift+z)"
                 onClick={() => despachar({ tipo: 'refazer' })}
               >
-                <IconeManagement nome="refazer" tamanho={24} />
+                <ManagementIcon nome="refazer" tamanho={24} />
               </button>
               <button
                 type="button"
@@ -427,7 +427,7 @@ export function PageBuilder() {
                 aria-label="Tela Cheia (Alt+Enter)"
                 onClick={telaCheia}
               >
-                <IconeManagement nome="telaCheia" tamanho={24} />
+                <ManagementIcon nome="telaCheia" tamanho={24} />
               </button>
             </div>
 

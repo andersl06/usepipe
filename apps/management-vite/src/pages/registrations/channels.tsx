@@ -1,4 +1,4 @@
-import { IconeManagement } from '../../components/icones-management';
+import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '../../components/icones-portal';
 import { Icone } from '@pipe/ui';
 
@@ -10,14 +10,14 @@ import { Icone } from '@pipe/ui';
  * Pipe Desk is Pipe's own Desk, always connected. Salesforce, Salesforce MIAW, and Canal Personalizado are integrations Pipe doesn't have: the cards stay, with the source's button pointing nowhere (`aria-disabled`), instead of faking a connection flow that the capture never opened either (photo `07`: "not clicked").
  */
 
-type CatalogoCard = {
+type CatalogCard = {
   titulo: string;
   subtitulo: string;
   icone: 'desk' | 'salesforce' | 'nuvem';
   conectado?: boolean;
 };
 
-const CATALOGO: readonly CatalogoCard[] = [
+const CATALOGO: readonly CatalogCard[] = [
   { titulo: 'Pipe Desk', subtitulo: 'Canal de atendimento do Pipe', icone: 'desk', conectado: true },
   { titulo: 'Salesforce', subtitulo: 'Live Agent da Salesforce', icone: 'salesforce' },
   { titulo: 'Salesforce MIAW', subtitulo: 'Nova integração', icone: 'salesforce' },
@@ -47,7 +47,7 @@ export function PageChannels() {
               {c.conectado ? (
                 <span className="btn fantasma">
                   Conectado
-                  <IconeManagement nome="circuloOk" tamanho={20} />
+                  <ManagementIcon nome="circuloOk" tamanho={20} />
                 </span>
               ) : (
                 <span className="btn primario" aria-disabled="true" title="Integração ainda não disponível no Pipe">

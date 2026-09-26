@@ -8,7 +8,7 @@ import { portalUseShell } from '../../lib/shell';
 import { useRead } from '../../lib/query';
 import type { ContractSummary } from '../../lib/contract';
 import { BotaoCopiar } from './copiar';
-import { cardsVisiveis, permissionRequired, byGroup, type ContractCard } from './catalogo';
+import { cardsVisible, permissionRequired, byGroup, type ContractCard } from './catalogo';
 import './contract.css';
 
 /**
@@ -27,7 +27,7 @@ export function ContractPage() {
    * Demo mode is ONLY this: a `?demo=1` in the URL that makes the filter return the whole catalog. It doesn't touch the session, doesn't become a cookie, and never reaches any Server Action — see the header of `acoes.ts`.
    */
   const demo = parametros.demo === '1';
-  const sections = byGroup(cardsVisiveis(eu.permissions, { demo }));
+  const sections = byGroup(cardsVisible(eu.permissions, { demo }));
   const podeEditarResumo = eu.permissions.includes('conta.resumo.escrever');
 
   return (
@@ -75,7 +75,7 @@ export function ContractPage() {
                         key={card.id}
                         card={card}
                         demo={demo}
-                        temPermission={eu.permissions.includes(permissionRequired(card))}
+                        hasPermission={eu.permissions.includes(permissionRequired(card))}
                       />
                     ))}
                   </div>
@@ -213,17 +213,17 @@ function SummaryCard({
 function Card({
   card,
   demo,
-  temPermission,
+  hasPermission,
 }: {
   card: ContractCard;
   demo: boolean;
-  temPermission: boolean;
+  hasPermission: boolean;
 }) {
   /*
    * In the preview, the label for whatever would hide the card in the real world: the missing permission and, when the source had one, the flag. That's what the panel exists to explain.
    */
   const whyItWouldDisappear = demo
-    ? [temPermission ? null : `exige ${permissionRequired(card)}`, card.flagNaOrigem]
+    ? [hasPermission ? null : `exige ${permissionRequired(card)}`, card.flagNaOrigem]
         .filter((p) => p !== null && p !== undefined)
         .join(' · ')
     : '';

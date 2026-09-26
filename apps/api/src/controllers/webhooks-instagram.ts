@@ -1,6 +1,6 @@
 import { Controller, Get, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { secretConfere } from '@pipe/db';
+import { secretChecks } from '@pipe/db';
 import { resolveChannel } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { PipeError } from '../errors.js';
@@ -23,7 +23,7 @@ export class InstagramWebhookController {
   ): Promise<void> {
     const channel = await channelOfInstagram(channelId);
     const esperado = String(channel.config['verifyToken'] ?? '');
-    if (modo !== 'subscribe' || !esperado || !secretConfere(token ?? '', esperado)) {
+    if (modo !== 'subscribe' || !esperado || !secretChecks(token ?? '', esperado)) {
       throw new PipeError(403, 'verification_refused', 'hub.verify_token não confere.');
     }
     resposta.status(200).type('text/plain').send(desafio ?? '');

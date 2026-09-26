@@ -23,7 +23,7 @@ export function money(value: number | null | undefined): string {
 }
 
 /** Funnel column sum: `R$ 812k` fits where `R$ 812,400` doesn't. */
-export function moneyCurto(value: number | null | undefined): string {
+export function moneyShort(value: number | null | undefined): string {
   if (value === null || value === undefined || Number.isNaN(value)) return '—';
   if (Math.abs(value) >= 1_000_000) return `R$ ${numero(value / 1_000_000, 1)} mi`;
   if (Math.abs(value) >= 1_000) return `R$ ${numero(value / 1_000)} mil`;

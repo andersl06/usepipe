@@ -250,7 +250,7 @@ export class ConversationsController {
   @Post(':id/messages/attachments')
   @HttpCode(201)
   @KeyOrSession('mensagens:escrever')
-  async sendLoteOfAttachments(
+  async sendBatchOfAttachments(
     @Req() requisicao: RequestAuthenticated & RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: { attachmentIds?: unknown; texto?: string; agentId?: string },
@@ -266,7 +266,7 @@ export class ConversationsController {
       tenantId: ator.tenantId,
       conversationId: id,
       agentId: ator.viaSession ? ator.userId : (corpo.agentId ?? null),
-      exigirAssignment: ator.viaSession,
+      requireAssignment: ator.viaSession,
       attachmentIds: ids,
       texto: corpo.texto ?? null,
     });
@@ -296,7 +296,7 @@ export class ConversationsController {
       {
         tenantId: ator.tenantId,
         agentId: ator.userId,
-        exigirAssignment: ator.viaSession,
+        requireAssignment: ator.viaSession,
       },
       { conversationId: id, etiquetaIds: corpo.etiqueta_ids ?? (corpo.etiqueta_id ? [corpo.etiqueta_id] : undefined) },
     );
@@ -332,7 +332,7 @@ export class ConversationsController {
       {
         tenantId: ator.tenantId,
         agentId: ator.userId,
-        exigirAssignment: ator.viaSession,
+        requireAssignment: ator.viaSession,
       },
       {
         conversationId: id,
@@ -360,7 +360,7 @@ export class ConversationsController {
       {
         tenantId: ator.tenantId,
         agentId: ator.userId,
-        exigirAssignment: ator.viaSession,
+        requireAssignment: ator.viaSession,
       },
       id,
     );

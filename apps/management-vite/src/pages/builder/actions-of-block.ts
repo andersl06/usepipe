@@ -33,7 +33,7 @@ export interface TipoDeAcao {
   campos: CampoDaAcao[];
 }
 
-export const CATALOGO_OF_ACTIONS: readonly TipoDeAcao[] = [
+export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
   {
     tipo: 'Redirect',
     rotulo: 'Redirecionar para serviço',
@@ -104,7 +104,7 @@ export const CATALOGO_OF_ACTIONS: readonly TipoDeAcao[] = [
   },
 ];
 
-export const ROTULOS_OF_ACTIONS = {
+export const LABELS_OF_ACTIONS = {
   aba: 'Ações',
   entrada: 'Ações de Entrada',
   entradaDescricao: 'Inclua ações que serão executadas antes do envio do primeiro conteúdo',
@@ -127,17 +127,17 @@ export const ROTULOS_OF_ACTIONS = {
 } as const;
 
 /** System-run actions belong to the Human block, not the person. */
-export const ACTIONS_OF_SISTEMA = new Set(['ForwardToDesk', 'LeavingFromDesk', 'CreateTicket']);
+export const ACTIONS_OF_SYSTEM = new Set(['ForwardToDesk', 'LeavingFromDesk', 'CreateTicket']);
 
 export const tipoDeAcao = (tipo: string): TipoDeAcao | undefined =>
-  CATALOGO_OF_ACTIONS.find((t) => t.tipo === tipo);
+  CATALOG_OF_ACTIONS.find((t) => t.tipo === tipo);
 
 export const rotuloDaAcao = (tipo: string): string => tipoDeAcao(tipo)?.titulo ?? tipo;
 
 /** The engine does not execute this action: it throws at runtime and the conversation falls into the queue. */
 export const acaoSemSuporte = (acao: AcaoDoEditor): boolean => !PROVEDOR_PADRAO.has(acao.type);
 
-export const acaoDoSistema = (acao: AcaoDoEditor): boolean => ACTIONS_OF_SISTEMA.has(acao.type);
+export const acaoDoSistema = (acao: AcaoDoEditor): boolean => ACTIONS_OF_SYSTEM.has(acao.type);
 
 /** Create an action like the plus button: no title, empty settings, no condition. */
 export function novaAcao(tipo: string, id = gerarId()): AcaoDoEditor {
@@ -263,29 +263,29 @@ export function actionErrors(acao: AcaoDoEditor): string[] {
   return errors;
 }
 
-export type ActionsLista = '$enteringCustomActions' | '$leavingCustomActions';
+export type ActionsList = '$enteringCustomActions' | '$leavingCustomActions';
 
 export type ResultadoDeAcao = { ok: true; block: Block } | { ok: false; error: string };
 
 export function adicionarAcao(
   block: Block,
-  lista: ActionsLista,
+  lista: ActionsList,
   acao: AcaoDoEditor,
 ): ResultadoDeAcao {
   const current = block[lista] ?? [];
-  if (current.length >= ACTIONS_LIMIT) return { ok: false, error: ROTULOS_OF_ACTIONS.limite };
+  if (current.length >= ACTIONS_LIMIT) return { ok: false, error: LABELS_OF_ACTIONS.limite };
   return { ok: true, block: { ...block, [lista]: [...current, acao] } };
 }
 
 /** Paste a full selection atomically or change nothing; copies must not share settings objects or IDs. */
-export function colarActions(
+export function pasteActions(
   block: Block,
-  lista: ActionsLista,
+  lista: ActionsList,
   copiadas: readonly AcaoDoEditor[],
 ): ResultadoDeAcao {
   const current = block[lista] ?? [];
   if (current.length + copiadas.length > ACTIONS_LIMIT)
-    return { ok: false, error: ROTULOS_OF_ACTIONS.limite };
+    return { ok: false, error: LABELS_OF_ACTIONS.limite };
   return {
     ok: true,
     block: {
@@ -300,7 +300,7 @@ export function colarActions(
 
 export function substituirAcao(
   block: Block,
-  lista: ActionsLista,
+  lista: ActionsList,
   indice: number,
   acao: AcaoDoEditor,
 ): Block {
@@ -308,13 +308,13 @@ export function substituirAcao(
   return { ...block, [lista]: current.map((a, i) => (i === indice ? acao : a)) };
 }
 
-export function removerAcao(block: Block, lista: ActionsLista, indice: number): Block {
+export function removerAcao(block: Block, lista: ActionsList, indice: number): Block {
   const current = block[lista] ?? [];
   return { ...block, [lista]: current.filter((_, i) => i !== indice) };
 }
 
 /** Move an action up/down in execution order. */
-export function moverAcao(block: Block, lista: ActionsLista, de: number, para: number): Block {
+export function moverAcao(block: Block, lista: ActionsList, de: number, para: number): Block {
   const current = [...(block[lista] ?? [])];
   if (de < 0 || de >= current.length || para < 0 || para >= current.length || de === para)
     return block;

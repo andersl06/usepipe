@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
-import type { QueueForEscolher, QueueRegisteredRule } from '../../lib/registrations';
+import type { QueueForChoose, QueueRegisteredRule } from '../../lib/registrations';
 import { descreverRegra, regrasInalcancaveis, rotuloDoCampo } from '../../lib/rule-queue';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
-import { alternarRuleQueue } from '../../lib/actions';
-import { editRuleQueue, excluirRuleQueue } from '../../lib/registrations-gravar';
+import { toggleRuleQueue } from '../../lib/actions';
+import { editRuleQueue, deleteRuleQueue } from '../../lib/registrations-gravar';
 import { Modal, ModalConfirmation } from './_modal';
-import { FormularioRuleQueue } from './rules-attendance-formulario';
+import { RuleQueueForm } from './rules-attendance-formulario';
 
 interface QueueRules {
   regras: QueueRegisteredRule[];
-  queues: QueueForEscolher[];
+  queues: QueueForChoose[];
   defaults: { inbox: string; queue: string | null }[];
 }
 
@@ -22,7 +22,7 @@ interface QueueRules {
 /** The card's toggle. A one-button form: there's nothing typed to preserve. */
 function Interruptor({ id, active, nome }: { id: string; active: boolean; nome: string }) {
   return (
-    <form action={(data: FormData) => void alternarRuleQueue({ ok: true }, data)}>
+    <form action={(data: FormData) => void toggleRuleQueue({ ok: true }, data)}>
       <input type="hidden" name="id" value={id} />
       <button
         type="submit"
@@ -80,8 +80,8 @@ export function AttendancePageRules() {
   const [ruleInEdit, setRuleInEdit] = useState<QueueRegisteredRule | null>(null);
   const [regraParaExcluir, setRegraParaExcluir] = useState<QueueRegisteredRule | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
-  const [errorReordenar, setErrorReordenar] = useState<string | null>(null);
+  const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
+  const [errorReorder, setErrorReorder] = useState<string | null>(null);
   const read = useRead<QueueRules>('/v1/management/rules/attendance');
   if (!read.data) return null;
   const { regras, queues, defaults } = read.data;
@@ -96,7 +96,7 @@ export function AttendancePageRules() {
     const i = regras.findIndex((r) => r.id === id);
     const j = i + direction;
     if (i < 0 || j < 0 || j >= regras.length) return;
-    setErrorReordenar(null);
+    setErrorReorder(null);
     const nova = [...regras];
     const tmp = nova[i]!;
     nova[i] = nova[j]!;
@@ -105,7 +105,7 @@ export function AttendancePageRules() {
       if (r.order === indice) continue;
       const resultado = await editRuleQueue(r.id, { order: indice });
       if (!resultado.ok) {
-        setErrorReordenar(resultado.error);
+        setErrorReorder(resultado.error);
         return;
       }
     }
@@ -114,11 +114,11 @@ export function AttendancePageRules() {
   async function excluir() {
     if (!regraParaExcluir) return;
     setExcluindo(true);
-    setErrorExclusao(null);
-    const resultado = await excluirRuleQueue(regraParaExcluir.id);
+    setErrorDeletion(null);
+    const resultado = await deleteRuleQueue(regraParaExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setRegraParaExcluir(null);
-    else setErrorExclusao(resultado.error);
+    else setErrorDeletion(resultado.error);
   }
 
   const sections: RulesSection[] = [
@@ -172,7 +172,7 @@ export function AttendancePageRules() {
         </Botao>
       </div>
 
-      {errorReordenar ? <Etiqueta tom="erro">{errorReordenar}</Etiqueta> : null}
+      {errorReorder ? <Etiqueta tom="erro">{errorReorder}</Etiqueta> : null}
 
       {/*
  * "Resultados por página" starts at 5, like the `bds-select value="5"` in their footer (`dom/rules.html`).
@@ -180,9 +180,9 @@ export function AttendancePageRules() {
       <ListaRegras
         sections={sections}
         placeholder="Buscar regras de atendimento"
-        sectionOcultarHeader
+        sectionHideHeader
         paginar
-        pageInitialTamanho={5}
+        pageInitialSize={5}
       />
 
       <Modal aberto={modalAberto} titulo="Nova regra" onFechar={() => setModalAberto(false)}>
@@ -197,7 +197,7 @@ export function AttendancePageRules() {
             : defaults.map((p) => `${p.inbox}: ${p.queue ?? 'sem fila padrão'}`).join(' · ')}
           .
         </p>
-        <FormularioRuleQueue queues={queues} aoSalvar={() => setModalAberto(false)} />
+        <RuleQueueForm queues={queues} aoSalvar={() => setModalAberto(false)} />
       </Modal>
 
       <Modal
@@ -206,7 +206,7 @@ export function AttendancePageRules() {
         onFechar={() => setRuleInEdit(null)}
       >
         {ruleInEdit ? (
-          <FormularioRuleQueue
+          <RuleQueueForm
             queues={queues}
             regraExistente={ruleInEdit}
             aoSalvar={() => setRuleInEdit(null)}
@@ -222,12 +222,12 @@ export function AttendancePageRules() {
             Excluir a regra “{regraParaExcluir?.nome}”? Esta ação não pode ser desfeita.
           </>
         }
-        error={errorExclusao}
+        error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
           setRegraParaExcluir(null);
-          setErrorExclusao(null);
+          setErrorDeletion(null);
         }}
       />
     </>

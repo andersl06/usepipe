@@ -2,9 +2,9 @@ import { api, ApiError, pedir } from './api';
 import { atualizarLeituras } from './actions';
 import type { ChannelOfFlow } from '@pipe/contracts';
 import type {
-  ChannelInstagramVisivel,
-  ChannelMessengerVisivel,
-  ChannelWhatsAppVisivel,
+  ChannelInstagramVisible,
+  ChannelMessengerVisible,
+  ChannelWhatsAppVisible,
   PedidoDePerfil,
   PreferencesRequest,
   PerfilVisivel,
@@ -52,10 +52,10 @@ export interface ChannelConnected<T> {
 
 export async function conectarWhatsappManual(
   data: ConexaoManualWhatsApp,
-): Promise<Resultado<ChannelConnected<ChannelWhatsAppVisivel>>> {
+): Promise<Resultado<ChannelConnected<ChannelWhatsAppVisible>>> {
   try {
     const resposta = await api.post<
-      ChannelWhatsAppVisivel & { webhookError: string | null; webhook: { url: string; verifyToken: string } }
+      ChannelWhatsAppVisible & { webhookError: string | null; webhook: { url: string; verifyToken: string } }
     >('/v1/channels/whatsapp/manual', {
       waba_id: data.wabaId,
       phone_number_id: data.numeroId,
@@ -76,7 +76,7 @@ export async function conectarWhatsappManual(
 /* -------------------------------------------------------- O canal do bot */
 
 /** `Ativar número`: `PUT /v1/gestao/fluxos/:id/canal` assigns the channel to this bot. */
-export async function ligarChannelToFlow(flowId: string, channelId: string): Promise<Resultado<ChannelOfFlow>> {
+export async function connectChannelToFlow(flowId: string, channelId: string): Promise<Resultado<ChannelOfFlow>> {
   try {
     const value = await api.put<ChannelOfFlow>(`/v1/management/flows/${flowId}/channel`, { channelId });
     atualizarLeituras();
@@ -87,7 +87,7 @@ export async function ligarChannelToFlow(flowId: string, channelId: string): Pro
 }
 
 /** `Desconectar canal`: `DELETE /v1/gestao/fluxos/:id/canal` detaches the channel from this bot while the channel itself remains connected to Meta. */
-export async function flowDesligarChannel(flowId: string, motivo: string): Promise<Resultado<void>> {
+export async function flowDisconnectChannel(flowId: string, motivo: string): Promise<Resultado<void>> {
   try {
     await pedir<void>(`/v1/management/flows/${flowId}/channel`, {
       method: 'DELETE',
@@ -100,9 +100,9 @@ export async function flowDesligarChannel(flowId: string, motivo: string): Promi
   }
 }
 
-export async function desconectarWhatsapp(id: string): Promise<Resultado<ChannelWhatsAppVisivel>> {
+export async function desconectarWhatsapp(id: string): Promise<Resultado<ChannelWhatsAppVisible>> {
   try {
-    const value = await api.delete<ChannelWhatsAppVisivel>(`/v1/channels/whatsapp/${id}`);
+    const value = await api.delete<ChannelWhatsAppVisible>(`/v1/channels/whatsapp/${id}`);
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {
@@ -143,7 +143,7 @@ export interface SyncResult {
   ignorados: number;
 }
 
-export async function channelSincronizarTemplates(id: string): Promise<Resultado<SyncResult>> {
+export async function channelSyncTemplates(id: string): Promise<Resultado<SyncResult>> {
   try {
     const value = await api.post<SyncResult>(`/v1/channels/whatsapp/${id}/templates/sync`);
     atualizarLeituras();
@@ -180,7 +180,7 @@ export async function createTemplateInChannel(
   }
 }
 
-export async function channelExcluirTemplate(id: string, nome: string): Promise<Resultado<{ removidos: number }>> {
+export async function channelDeleteTemplate(id: string, nome: string): Promise<Resultado<{ removidos: number }>> {
   try {
     const value = await api.delete<{ removidos: number }>(
       `/v1/channels/whatsapp/${id}/templates/${encodeURIComponent(nome)}`,
@@ -203,10 +203,10 @@ export interface ConexaoManualInstagram {
 
 export async function conectarInstagramManual(
   data: ConexaoManualInstagram,
-): Promise<Resultado<ChannelConnected<ChannelInstagramVisivel>>> {
+): Promise<Resultado<ChannelConnected<ChannelInstagramVisible>>> {
   try {
     const resposta = await api.post<
-      ChannelInstagramVisivel & { webhookError: string | null; webhook: { url: string; verifyToken: string } }
+      ChannelInstagramVisible & { webhookError: string | null; webhook: { url: string; verifyToken: string } }
     >('/v1/channels/instagram/manual', {
       access_token: data.token,
       app_secret: data.appSecret,
@@ -221,9 +221,9 @@ export async function conectarInstagramManual(
   }
 }
 
-export async function desconectarInstagram(id: string): Promise<Resultado<ChannelInstagramVisivel>> {
+export async function desconectarInstagram(id: string): Promise<Resultado<ChannelInstagramVisible>> {
   try {
-    const value = await api.delete<ChannelInstagramVisivel>(`/v1/channels/instagram/${id}`);
+    const value = await api.delete<ChannelInstagramVisible>(`/v1/channels/instagram/${id}`);
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {
@@ -231,5 +231,5 @@ export async function desconectarInstagram(id: string): Promise<Resultado<Channe
   }
 }
 
-export async function conectarMessengerManual(data: { token: string; appSecret: string; nome?: string; flowId?: string }): Promise<Resultado<ChannelConnected<ChannelMessengerVisivel>>> { try { const resposta = await api.post<ChannelMessengerVisivel & { webhookError: string | null; webhook: { url: string; verifyToken: string } }>('/v1/channels/messenger/manual', { access_token: data.token, app_secret: data.appSecret, ...(data.nome ? { nome: data.nome } : {}), ...(data.flowId ? { fluxo_id: data.flowId } : {}) }); atualizarLeituras(); const { webhookError, webhook, ...channel } = resposta; return { ok: true, value: { channel, webhookError, webhook } }; } catch (error) { return falha(error, 'Não foi possível conectar o Messenger.'); } }
-export async function desconectarMessenger(id: string): Promise<Resultado<ChannelMessengerVisivel>> { try { const value = await api.delete<ChannelMessengerVisivel>(`/v1/channels/messenger/${id}`); atualizarLeituras(); return { ok: true, value }; } catch (error) { return falha(error, 'Não foi possível desconectar o Messenger.'); } }
+export async function conectarMessengerManual(data: { token: string; appSecret: string; nome?: string; flowId?: string }): Promise<Resultado<ChannelConnected<ChannelMessengerVisible>>> { try { const resposta = await api.post<ChannelMessengerVisible & { webhookError: string | null; webhook: { url: string; verifyToken: string } }>('/v1/channels/messenger/manual', { access_token: data.token, app_secret: data.appSecret, ...(data.nome ? { nome: data.nome } : {}), ...(data.flowId ? { fluxo_id: data.flowId } : {}) }); atualizarLeituras(); const { webhookError, webhook, ...channel } = resposta; return { ok: true, value: { channel, webhookError, webhook } }; } catch (error) { return falha(error, 'Não foi possível conectar o Messenger.'); } }
+export async function desconectarMessenger(id: string): Promise<Resultado<ChannelMessengerVisible>> { try { const value = await api.delete<ChannelMessengerVisible>(`/v1/channels/messenger/${id}`); atualizarLeituras(); return { ok: true, value }; } catch (error) { return falha(error, 'Não foi possível desconectar o Messenger.'); } }

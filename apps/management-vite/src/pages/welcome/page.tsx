@@ -1,7 +1,7 @@
 import Link from '../../components/link';
 import { Navigate } from 'react-router-dom';
 import { useRead } from '../../lib/query';
-import type { AccountInVigor } from '../../lib/account';
+import type { AccountInForce } from '../../lib/account';
 import { FundoPipe } from '../fundo-pipe';
 import './boas-vindas.css';
 
@@ -9,7 +9,7 @@ import './boas-vindas.css';
  * Welcome screen announces that the account was just created at login. Reference `#welcome-screen` places brand upper-left, centered text in a 40% column, right-aligned arrow button, and artwork in the right 55%, hidden below 1286px. Like the reference, this is a one-time gate: completed onboarding cannot revisit it even by URL. Keep forms on the next step so first entry is not an eight-field form.
  */
 export function PageWelcome() {
-  const read = useRead<AccountInVigor>('/v1/account');
+  const read = useRead<AccountInForce>('/v1/account');
   if (read.error) return <Navigate to="/login" replace />;
   if (!read.data) return null;
   const account = read.data;

@@ -2,22 +2,22 @@
  * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/FlowManager.cs (`ProcessInputAsync`, `ProcessActionsAsync`, `ProcessOutputsAsync`, `ValidateInputAsync`, `ValidateDocument`), Hosting/ConventionsConfiguration.cs (limits), Constants.cs (date formats), and FlowConstructionException, ActionProcessingException, OutputProcessingException, BuilderException. Changes from C# to TypeScript: no semaphore because the `api` locks the execution row in the database; no remote trace because the returned trace becomes `execucao_passo`; subflows and `inputExpiration` throw; `ExecuteBlipFunction` maps to unsupported `ExecuteScriptV2`; no monitoring logs. Preserve execution order: global entry actions → validate input and store `input.variable` → state exit actions → first matching output → after-state-change actions → store state → next state entry actions → repeat until input is awaited → global exit actions.
  */
 
-import { avaliarConditions, paraDecimal } from './condition.js';
+import { evaluateConditions, paraDecimal } from './condition.js';
 import type {
   Context,
   CursorDeProcessHttp,
-  ActionsSuspensaLista,
+  ActionsSuspendedList,
   PedidoDeHttp,
   RespostaDeHttp,
 } from './context.js';
 import {
   KEY_OF_STATE_CURRENT,
-  apagarStateId,
-  definirStateAnteriorId,
-  definirStateId,
-  definirVariable,
-  obterStateId,
-  substituirVariables,
+  deleteStateId,
+  setStatePreviousId,
+  setStateId,
+  setVariable,
+  getStateId,
+  replaceVariables,
 } from './context.js';
 import type { Acao, State, FlowBlip, InboundValidation } from './modelos.js';
 import { contextEhVariable, validateFlow } from './modelos.js';
@@ -25,7 +25,7 @@ import type { ActionsProvider } from './actions.js';
 import { PROVEDOR_PADRAO, obterAcao } from './actions.js';
 
 /** `ConventionsConfiguration` values match the source. */
-export interface MotorConfiguration {
+export interface EngineConfiguration {
   /** `MaxTransitionsByInput` guards against loops. */
   maxTransitionsByInbound: number;
   /** `InputProcessingTimeout`. */
@@ -34,7 +34,7 @@ export interface MotorConfiguration {
   defaultActionTimeLimitMs: number;
 }
 
-export const CONFIGURATION_DEFAULT: MotorConfiguration = {
+export const CONFIGURATION_DEFAULT: EngineConfiguration = {
   maxTransitionsByInbound: 10,
   inboundTimeLimitMs: 60_000,
   defaultActionTimeLimitMs: 30_000,
@@ -48,16 +48,16 @@ export interface RastroDeAcao {
 }
 
 /** `StateTrace`. */
-export interface StateRastro {
+export interface StateTrace {
   stateId: string;
   actions: RastroDeAcao[];
-  proximoStateId?: string | null;
+  nextStateId?: string | null;
   error?: string;
 }
 
 /** `InputTrace`. */
-export interface InboundRastro {
-  estados: StateRastro[];
+export interface InboundTrace {
+  estados: StateTrace[];
   actionsGlobal: RastroDeAcao[];
   /** State left for the user; null means the next contact starts at the root. */
   stateFinalId: string | null;
@@ -97,11 +97,11 @@ export class ProcessingOutputError extends Error {
 }
 
 /** `BuilderException`: engine error carrying the trace up to the failure. */
-export class MotorError extends Error {
+export class EngineError extends Error {
   constructor(
     message: string,
     readonly stateId: string | null,
-    readonly rastro: InboundRastro,
+    readonly rastro: InboundTrace,
     override readonly cause: unknown,
   ) {
     super(message);
@@ -111,7 +111,7 @@ export class MotorError extends Error {
 
 export class SuspensaoDeProcessHttp extends Error {
   override readonly name = 'SuspensaoDeProcessHttp';
-  rastro?: InboundRastro;
+  rastro?: InboundTrace;
 
   constructor(
     readonly pedido: PedidoDeHttp,
@@ -133,8 +133,8 @@ function withTimeLimit<T>(promessa: Promise<T>, ms: number): Promise<T> {
 
 const messageOf = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
-export interface MotorOptions {
-  configuration?: Partial<MotorConfiguration>;
+export interface EngineOptions {
+  configuration?: Partial<EngineConfiguration>;
   actions?: ActionsProvider;
   retomarProcessHttp?: CursorDeProcessHttp;
 }
@@ -142,14 +142,14 @@ export interface MotorOptions {
 /**
  * `FlowManager.ProcessInputAsync` processes ONE user input. The `api` loads and stores state and variables in `contexto.variaveis`. Return the trace, or throw `ErroDoMotor` with the trace up to the error.
  */
-export async function processarInbound(
+export async function processInbound(
   context: Context,
-  options: MotorOptions = {},
-): Promise<InboundRastro> {
+  options: EngineOptions = {},
+): Promise<InboundTrace> {
   const configuration = { ...CONFIGURATION_DEFAULT, ...options.configuration };
   const provedor = options.actions ?? PROVEDOR_PADRAO;
   const flow = context.flow;
-  const rastro: InboundRastro = { estados: [], actionsGlobal: [], stateFinalId: null };
+  const rastro: InboundTrace = { estados: [], actionsGlobal: [], stateFinalId: null };
   const prazo = Date.now() + configuration.inboundTimeLimitMs;
   let state: State | null = null;
   let cursorPendente = options.retomarProcessHttp
@@ -160,12 +160,12 @@ export async function processarInbound(
     validateFlow(flow);
 
     // Restore stored state; use the root if absent or missing from this flow.
-    const stateId = obterStateId(context);
+    const stateId = getStateId(context);
     state = flow.states.find((s) => s.id === stateId) ?? flow.states.find((s) => s.root)!;
 
     let transitions = 0;
     if (flow.inputActions) {
-      await processarActions(
+      await processActions(
         context,
         flow.inputActions,
         state,
@@ -178,8 +178,8 @@ export async function processarInbound(
       );
     }
 
-    let esperaInbound = true;
-    let atual: StateRastro = { stateId: state.id, actions: [] };
+    let waitInbound = true;
+    let atual: StateTrace = { stateId: state.id, actions: [] };
     rastro.estados.push(atual);
 
     do {
@@ -191,10 +191,10 @@ export async function processarInbound(
         }
         const corrente: State = state!;
 
-        if (esperaInbound) {
-          if (!(await stateValidarInbound(context, corrente))) break;
+        if (waitInbound) {
+          if (!(await stateValidateInbound(context, corrente))) break;
           if (corrente.input?.variable) {
-            definirVariable(
+            setVariable(
               context,
               corrente.input.variable,
               context.inbound.serializedContent,
@@ -202,7 +202,7 @@ export async function processarInbound(
           }
         }
 
-        await processarActions(
+        await processActions(
           context,
           corrente.outputActions,
           corrente,
@@ -216,7 +216,7 @@ export async function processarInbound(
 
         let anteriorId = corrente.id;
         if (contextEhVariable(anteriorId))
-          anteriorId = await substituirVariables(anteriorId, context);
+          anteriorId = await replaceVariables(anteriorId, context);
 
         if (corrente.end) {
           // `RedirectToParentFlowAsync`: the source throws when there is no parent flow.
@@ -226,11 +226,11 @@ export async function processarInbound(
         }
 
         state = await processarSaidas(context, flow, corrente);
-        definirStateAnteriorId(context, anteriorId);
+        setStatePreviousId(context, anteriorId);
 
         // Run after-state-change actions only when the state actually changed.
         if (corrente.id !== state?.id) {
-          await processarActions(
+          await processActions(
             context,
             corrente.afterStateChangedActions,
             corrente,
@@ -242,7 +242,7 @@ export async function processarInbound(
             cursorPendente,
           );
           if (flow.afterStateChangedActions) {
-            await processarActions(
+            await processActions(
               context,
               flow.afterStateChangedActions,
               state,
@@ -262,16 +262,16 @@ export async function processarInbound(
           );
         }
 
-        atual.proximoStateId = state?.id ?? null;
+        atual.nextStateId = state?.id ?? null;
         if (state) {
           atual = { stateId: state.id, actions: [] };
           rastro.estados.push(atual);
-          definirStateId(context, state.id);
+          setStateId(context, state.id);
         } else {
-          apagarStateId(context);
+          deleteStateId(context);
         }
 
-        await processarActions(
+        await processActions(
           context,
           state?.inputActions,
           state,
@@ -296,14 +296,14 @@ export async function processarInbound(
         // Continue while the next state does not await input.
         const inboundCondition =
           !state?.input?.conditions ||
-          (await avaliarConditions(state.input.conditions, context.inbound, context));
-        esperaInbound =
+          (await evaluateConditions(state.input.conditions, context.inbound, context));
+        waitInbound =
           state === null || (!!state.input && !state.input.bypass && inboundCondition);
       }
-    } while (!esperaInbound);
+    } while (!waitInbound);
 
     if (flow.outputActions) {
-      await processarActions(
+      await processActions(
         context,
         flow.outputActions,
         state,
@@ -324,8 +324,8 @@ export async function processarInbound(
       throw error;
     }
     rastro.error = messageOf(error);
-    rastro.stateFinalId = obterStateId(context);
-    throw new MotorError(
+    rastro.stateFinalId = getStateId(context);
+    throw new EngineError(
       `Erro ao processar a entrada '${context.inbound.message.id}' do usuário '${context.user}' no estado '${state?.id ?? ''}': ${messageOf(error)}`,
       state?.id ?? null,
       rastro,
@@ -335,14 +335,14 @@ export async function processarInbound(
 }
 
 /** `ProcessActionsAsync`. */
-async function processarActions(
+async function processActions(
   context: Context,
   actions: readonly Acao[] | null | undefined,
   state: State | null,
   provedor: ActionsProvider,
-  configuration: MotorConfiguration,
+  configuration: EngineConfiguration,
   rastro: RastroDeAcao[],
-  lista: ActionsSuspensaLista,
+  lista: ActionsSuspendedList,
   stateId: string | null,
   cursor: (CursorDeProcessHttp & { resposta?: RespostaDeHttp; consumido?: boolean }) | null,
 ): Promise<void> {
@@ -354,7 +354,7 @@ async function processarActions(
   for (const [indice, flowAction] of ordenadas.entries()) {
     if (
       flowAction.conditions &&
-      !(await avaliarConditions(flowAction.conditions, context.inbound, context))
+      !(await evaluateConditions(flowAction.conditions, context.inbound, context))
     ) {
       continue;
     }
@@ -374,7 +374,7 @@ async function processarActions(
       if (flowAction.settings !== undefined && flowAction.settings !== null) {
         let texto = JSON.stringify(flowAction.settings);
         // `ExecuteTemplate` receives the raw template; other actions receive substituted variables.
-        if (acao.tipo !== 'ExecuteTemplate') texto = await substituirVariables(texto, context);
+        if (acao.tipo !== 'ExecuteTemplate') texto = await replaceVariables(texto, context);
         settings = JSON.parse(texto) as Record<string, unknown>;
       }
       context.inboundContext.set(KEY_OF_STATE_CURRENT, state?.id ?? null);
@@ -392,8 +392,8 @@ async function processarActions(
           ? settings['responseStatusVariable'].trim() : '';
         const corpo = typeof settings?.['responseBodyVariable'] === 'string'
           ? settings['responseBodyVariable'].trim() : '';
-        if (status) definirVariable(context, status, String(alvo.resposta.status));
-        if (corpo) definirVariable(context, corpo, alvo.resposta.corpo);
+        if (status) setVariable(context, status, String(alvo.resposta.status));
+        if (corpo) setVariable(context, corpo, alvo.resposta.corpo);
         if (cursor) cursor.consumido = true;
         continue;
       }
@@ -426,13 +426,13 @@ async function processarSaidas(
     try {
       if (
         !saida.conditions ||
-        (await avaliarConditions(saida.conditions, context.inbound, context))
+        (await evaluateConditions(saida.conditions, context.inbound, context))
       ) {
         let alvo = saida.stateId;
-        if (contextEhVariable(alvo)) alvo = await substituirVariables(alvo, context);
+        if (contextEhVariable(alvo)) alvo = await replaceVariables(alvo, context);
         const proximo = flow.states.find((s) => s.id === alvo);
         if (!proximo) {
-          apagarStateId(context);
+          deleteStateId(context);
           throw new Error(
             `A variável de contexto da saída '${saida.stateId}' está indefinida ou não existe no fluxo.`,
           );
@@ -453,7 +453,7 @@ async function processarSaidas(
 /**
  * `ValidateInputAsync`: invalid input sends an error message and stops; the user remains in the same state.
  */
-async function stateValidarInbound(context: Context, state: State): Promise<boolean> {
+async function stateValidateInbound(context: Context, state: State): Promise<boolean> {
   const validation = state.input?.validation;
   const conteudo = context.inbound.serializedContent;
   if (!validation || !conteudo || validateDocument(context, validation)) return true;
@@ -461,7 +461,7 @@ async function stateValidarInbound(context: Context, state: State): Promise<bool
     // In Blip, an error containing `{{variável}}` is sent with `#message.spinText` and the server
     // substitutes the variable; here no server intervenes, so substitution happens first.
     const texto = contextEhVariable(validation.error)
-      ? await substituirVariables(validation.error, context)
+      ? await replaceVariables(validation.error, context)
       : validation.error;
     await context.services.send({ tipo: 'text/plain', conteudo: texto });
   }

@@ -372,7 +372,7 @@ function DataFilter() {
 }
 
 /** `JN` (dictionary `PN`). */
-function ComparisonIndicador() {
+function ComparisonIndicator() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
@@ -633,7 +633,7 @@ function Messages() {
 }
 
 /** `gU` (dictionary `hU`). */
-function FlowConversacional() {
+function FlowConversational() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
@@ -1446,7 +1446,7 @@ function ChatbotMetrics() {
     ['WabaName', 'Nome da WABA.'],
     ['PhoneNumber', 'Número de telefone associado a WABA/Bot.'],
   ];
-  const DIRECTION_TIPO: readonly (readonly Celula[])[] = [
+  const DIRECTION_TYPE: readonly (readonly Celula[])[] = [
     ['Conversation_Direction', 'Indica se a sessão foi user_initiated ou business_initiated.'],
     [
       'Conversation_Type',
@@ -1456,7 +1456,7 @@ function ChatbotMetrics() {
   const CONVERSATIONS_SUBBOTS: readonly (readonly Celula[])[] = [
     ['Bot Router', 'Indicador do bot router analisado.'],
     ['SubBot', 'Indicador do subbot analisado.'],
-    ...DIRECTION_TIPO,
+    ...DIRECTION_TYPE,
     ['Users', 'Volume de pessoas usuárias únicas identificadas no período.'],
     ['Conversations', 'Volume estimado de conversas/sessões geradas no período.'],
     ['Estimated_Cost_USD', 'Custo estimado em dólares (USD) das sessões geradas no período.'],
@@ -1646,7 +1646,7 @@ function ChatbotMetrics() {
         ['Ano_Mes', 'Ano e mês em que as sessões foram iniciadas.'],
         ...CONVERSATIONS_WABA,
         ['BotId', 'Indicador do bot router analisado.'],
-        ...DIRECTION_TIPO,
+        ...DIRECTION_TYPE,
         ['Usuários Únicos', 'Volume de pessoas usuárias únicas identificadas no período.'],
         [
           'Volumetria de Conversas Estimada',
@@ -1724,7 +1724,7 @@ function ChatbotMetrics() {
             'Início da janela de tempo em que a sessão foi iniciada (no fuso GMT-0).',
           ],
           ['EndDateTime', 'Fim da janela de tempo em que a sessão foi iniciada (no fuso GMT-0).'],
-          ...DIRECTION_TIPO,
+          ...DIRECTION_TYPE,
           ['Country', 'País do número de WhatsApp com o qual a conversa foi estabelecida.'],
           ['CountryCode', 'Código de DDI do número com o qual foi iniciada a sessão.'],
           ['Cost', 'Custo estimado da sessão conforme a tabela do WhatsApp de precificação.'],
@@ -2010,11 +2010,11 @@ export const PAGES: Readonly<Record<string, () => JSX.Element>> = {
   aboutData: AboutData,
   dashboard: Dashboard,
   dateFilter: DataFilter,
-  comparisonIndicator: ComparisonIndicador,
+  comparisonIndicator: ComparisonIndicator,
   contacts: Contacts,
   recurrence: Recorrencia,
   messages: Messages,
-  conversationalFlow: FlowConversacional,
+  conversationalFlow: FlowConversational,
   listOfBlocks: ListaDeBlocos,
   frequentlyAskedQuestions: PerguntasFrequentes,
   reportManager: ReportsManager,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInbound, type Context } from './context.js';
-import { processarInbound } from './manager.js';
+import { processInbound } from './manager.js';
 
 function context(): Context {
   const chamada: Context['services']['callHttp'] = async (pedido) => {
@@ -21,7 +21,7 @@ function context(): Context {
     inboundContext: new Map(),
     services: {
       send: async () => {},
-      encaminharForAttendance: async () => ({ id: 'ticket-1' }),
+      forwardForAttendance: async () => ({ id: 'ticket-1' }),
       registerEvent: async () => {},
       callHttp: chamada,
     },
@@ -42,7 +42,7 @@ describe('ProcessHttp', () => {
         responseBodyVariable: 'http.body',
       },
     }];
-    await processarInbound(c);
+    await processInbound(c);
 
     expect(c.variables).toMatchObject({ 'http.status': '201', 'http.body': '{"id":"c-1"}' });
   });

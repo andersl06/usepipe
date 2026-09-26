@@ -3,7 +3,7 @@ import { and, eq } from 'drizzle-orm';
 import { scheduleAttendance, scheduleException, horarioFaixa } from '@pipe/db/schema';
 import type { TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../../errors.js';
-import { exigirPermission } from '../../../session.js';
+import { requirePermission } from '../../../session.js';
 import { SCHEDULE_MANAGE, toggleActiveOfRuleQueue, writeRuleQueue } from '../registrations.js';
 import { campoValido, operadorValido, type OperadorDeRegra } from '../rule-queue.js';
 import { minutosDoRelogio, relogioValido } from '../format.js';
@@ -59,7 +59,7 @@ async function salvarHorarioInterno(
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  await exigirPermission(tx, ator.id ?? '', SCHEDULE_MANAGE);
+  await requirePermission(tx, ator.id ?? '', SCHEDULE_MANAGE);
   const nome = String(dados.get('nome') ?? '').trim();
   const fusoBruto = String(dados.get('fuso') ?? '').trim();
 
@@ -103,7 +103,7 @@ async function salvarFaixaInterna(
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  await exigirPermission(tx, ator.id ?? '', SCHEDULE_MANAGE);
+  await requirePermission(tx, ator.id ?? '', SCHEDULE_MANAGE);
   const horarioId = String(dados.get('horarioId') ?? '').trim();
   const diaBruto = String(dados.get('diaSemana') ?? '').trim();
   const inicio = String(dados.get('inicio') ?? '').trim();
@@ -166,7 +166,7 @@ async function saveExceptionInternal(
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  await exigirPermission(tx, ator.id ?? '', SCHEDULE_MANAGE);
+  await requirePermission(tx, ator.id ?? '', SCHEDULE_MANAGE);
   const horarioId = String(dados.get('horarioId') ?? '').trim();
   const data = String(dados.get('data') ?? '').trim();
   const fechado = dados.get('fechado') !== null;

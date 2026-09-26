@@ -20,7 +20,7 @@ type LineOfPosition = {
   expirou: boolean;
   context: Record<string, string>;
   reiniciar: boolean;
-  blockInicial: string | null;
+  blockInitial: string | null;
 };
 
 /** Service deadline from now; null means no expiry. */
@@ -84,10 +84,10 @@ export async function serviceOfRouter(
     versaoId: escolhido.versao_id!,
     router: {
       id: router.id,
-      compartilhaContext: escolhido.usesContext,
+      sharesContext: escolhido.usesContext,
       contexto: position?.context ?? {},
       reiniciar: atual !== undefined && position!.reiniciar,
-      blockInicial: atual !== undefined ? position!.blockInicial : null,
+      blockInitial: atual !== undefined ? position!.blockInitial : null,
     },
   };
 }
@@ -95,14 +95,14 @@ export async function serviceOfRouter(
 /**
  * `Redirect` moves the contact to this router's service named `nome`. It must match a registered Services name (help.blip.ai); an unknown name fails the action. `blocoInicial` is the subsequent Change-User-State; without it, the destination starts at its root. This takes effect on the next message.
  */
-export async function redirecionarInRouter(
+export async function redirectInRouter(
   tx: TransactionPipe,
   pedido: {
     tenantId: string;
     routerId: string;
     contactId: string;
     service: string;
-    blockInicial?: string | null;
+    blockInitial?: string | null;
   },
 ): Promise<void> {
   const { rows } = await tx.execute<{
@@ -121,7 +121,7 @@ export async function redirecionarInRouter(
       tenant_id, roteador_id, contato_id, servico_id, expira_em, reiniciar, bloco_inicial
     ) values (
       ${pedido.tenantId}, ${pedido.routerId}, ${pedido.contactId}, ${destination.serviceId},
-      ${prazo(destination)}, true, ${pedido.blockInicial ?? null}
+      ${prazo(destination)}, true, ${pedido.blockInitial ?? null}
     )
     on conflict (roteador_id, contato_id) do update
       set servico_id = excluded.servico_id, desde = now(), expira_em = excluded.expira_em,

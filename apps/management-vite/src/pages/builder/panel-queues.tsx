@@ -7,11 +7,11 @@ import { attendanceBase } from '../operation/shell';
  * A Builder shortcut to the real queue registry. Listing, creation, editing, activation, and deletion already exist in PaginaFilas and the management routes; keeping the form here would duplicate registration and validation rules.
  */
 export function QueuesPanel({
-  contactTipo,
+  contactType,
   contactId,
   onFechar,
 }: {
-  contactTipo: string;
+  contactType: string;
   contactId: string;
   onFechar: () => void;
 }) {
@@ -31,7 +31,7 @@ export function QueuesPanel({
         <Botao
           type="button"
           variante="primario"
-          onClick={() => navegar(`${attendanceBase(contactTipo, contactId)}/atendentes/filas`)}
+          onClick={() => navegar(`${attendanceBase(contactType, contactId)}/atendentes/filas`)}
         >
           Abrir gerenciamento de filas
         </Botao>

@@ -8,7 +8,7 @@ import {
   type ActiveMessagesData,
   type DashboardData,
   type Intervalo,
-  type InstantesWindow,
+  type InstantsWindow,
   type ReportCustom,
   type VisaoGeral,
 } from '@pipe/core/analytics';
@@ -25,12 +25,12 @@ import {
  */
 
 /** An interval of instants already in the account time zone; see `janelaDeDatas` in banco.ts. */
-export async function windowOfDatas(
+export async function windowOfDates(
   tx: TransactionPipe,
   fuso: string,
   de: string,
   ate: string,
-): Promise<InstantesWindow> {
+): Promise<InstantsWindow> {
   const r = await tx.execute<{ start: Date; end: Date }>(
     sql`select (${de}::date)::timestamp at time zone ${fuso} as start,
                ((${ate}::date + 1)::timestamp) at time zone ${fuso} as "end"`,
@@ -160,7 +160,7 @@ export async function carregarDashboard(
       contacts: {
         withInteraction: par((m) => m.soma?.withInteraction),
         total: par((m) => m.soma?.total),
-        byDia: agora.porDia.map((d) => ({
+        byDay: agora.porDia.map((d) => ({
           dia: d.dia,
           withInteraction: d.com_interacao,
           total: d.total,
@@ -169,7 +169,7 @@ export async function carregarDashboard(
       messages: {
         enviadas: par((m) => m.soma?.enviadas),
         recebidas: par((m) => m.soma?.recebidas),
-        byDia: agora.porDia.map((d) => ({
+        byDay: agora.porDia.map((d) => ({
           dia: d.dia,
           enviadas: d.enviadas,
           recebidas: d.recebidas,
@@ -233,7 +233,7 @@ export async function loadMessagesActive(
   _intervalo: Intervalo,
   _template: string | null,
 ): Promise<ActiveMessagesData> {
-  return { status: [], respostasByHora: Array<number>(24).fill(0), falhas: [], templates: [] };
+  return { status: [], responsesByHour: Array<number>(24).fill(0), falhas: [], templates: [] };
 }
 
 
@@ -246,7 +246,7 @@ type Linha = Record<string, unknown>;
 export async function carregarVisaoGeral(
   tx: TransactionPipe,
   fluxoId: string,
-  period: InstantesWindow,
+  period: InstantsWindow,
   fuso: string,
 ): Promise<VisaoGeral> {
   const base = sql`
@@ -304,7 +304,7 @@ export async function carregarVisaoGeral(
         enviadas: n(c?.enviadas),
         ativas: n(c?.ativas),
       },
-      byDia: dias.map((d) => ({
+      byDay: dias.map((d) => ({
         dia: String(d.dia),
         ativos: n(d.ativos),
         engajados: n(d.engajados),
@@ -333,7 +333,7 @@ export async function loadReports(_tx: TransactionPipe): Promise<ReportCustom[]>
 export async function carregarJornada(
   tx: TransactionPipe,
   fluxoId: string,
-  periodo: InstantesWindow,
+  periodo: InstantsWindow,
 ): Promise<ArestaDaJornada[]> {
   {
     const { rows } = await tx.execute<Linha>(sql`

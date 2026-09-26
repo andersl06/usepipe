@@ -15,7 +15,7 @@ process.env['PIPE_WS_PING_MS'] = '150';
 const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
-const { evento, publicar, connectionsVivas } = await import('../src/realtime.js');
+const { evento, publicar, connectionsLive } = await import('../src/realtime.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -60,7 +60,7 @@ const abertos: WebSocket[] = [];
 afterEach(async () => {
   for (const ws of abertos.splice(0)) ws.close();
   const limite = Date.now() + 3_000;
-  while (connectionsVivas() > 0 && Date.now() < limite) {
+  while (connectionsLive() > 0 && Date.now() < limite) {
     await new Promise((r) => setTimeout(r, 20));
   }
 });
@@ -143,7 +143,7 @@ describe('Confirm requested topic subscriptions', () => {
   it('confirma os assuntos pedidos', async () => {
     const cliente = await conectar(await openSession(cenario), ['conversa']);
     // The confirmation was already awaited in `conectar`.
-    expect(connectionsVivas(cenario.tenantId)).toBeGreaterThan(0);
+    expect(connectionsLive(cenario.tenantId)).toBeGreaterThan(0);
     cliente.fechar();
   });
 
@@ -279,18 +279,18 @@ describe('o evento diz O QUE mudou, nunca O QUE É', () => {
 
 describe('queda', () => {
   it('a conexão some do registro quando o socket fecha', async () => {
-    const antes = connectionsVivas(cenario.tenantId);
+    const antes = connectionsLive(cenario.tenantId);
     const cliente = await conectar(await openSession(cenario));
-    expect(connectionsVivas(cenario.tenantId)).toBe(antes + 1);
+    expect(connectionsLive(cenario.tenantId)).toBe(antes + 1);
 
     cliente.fechar();
     const limite = Date.now() + 2_000;
-    while (connectionsVivas(cenario.tenantId) > antes && Date.now() < limite) {
+    while (connectionsLive(cenario.tenantId) > antes && Date.now() < limite) {
       await new Promise((r) => setTimeout(r, 20));
     }
     // A connection that never disappears from the registry is a memory leak, and delivery would go to a
     // dead socket — the process would keep writing to someone who has already left.
-    expect(connectionsVivas(cenario.tenantId)).toBe(antes);
+    expect(connectionsLive(cenario.tenantId)).toBe(antes);
   });
 
   it('Send the contract `ping` so the screen can detect a live connection', async () => {

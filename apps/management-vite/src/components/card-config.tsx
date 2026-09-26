@@ -12,7 +12,7 @@ export interface CardResult {
   error?: string;
 }
 
-export interface SectionInterruptor {
+export interface SectionSwitch {
   /** Form field name is included in `FormData` only when the switch is on, like a checkbox. */
   name: string;
   rotulo: string;
@@ -30,7 +30,7 @@ export function CardConfig({
   titulo: string;
   explanation: ReactNode;
   acao: (anterior: CardResult, data: FormData) => Promise<CardResult>;
-  interruptor?: SectionInterruptor;
+  interruptor?: SectionSwitch;
   children: ReactNode;
   /** Text to the left of Save states in one line what this card controls. */
   rodape?: ReactNode;

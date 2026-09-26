@@ -6,10 +6,10 @@ import { portalUseShell } from '../../lib/shell';
 import { useRead } from '../../lib/query';
 import type { Deployment } from '../../lib/deployment';
 import { montarPassos } from '../../lib/passos-of-deployment';
-import type { PassoState } from '../../lib/passos-of-deployment';
+import type { StepState } from '../../lib/passos-of-deployment';
 import { numero } from '../../lib/format';
 import { ConectarWhatsApp } from '../../components/registration-embedded-whatsapp';
-import { FormularioInvitation, FormularioImport, FormularioManual } from './formularios';
+import { InvitationForm, ImportForm, FormularioManual } from './formularios';
 
 /**
  * Implantação — from contract to first attended conversation, with no manual rollout.
@@ -24,13 +24,13 @@ import { FormularioInvitation, FormularioImport, FormularioManual } from './form
 const URL_DESK =
   (import.meta.env['VITE_PIPE_DESK_URL'] as string | undefined) ?? 'http://localhost:3200';
 
-const ROTULO: Record<PassoState, string> = {
+const ROTULO: Record<StepState, string> = {
   feito: 'Feito',
   andamento: 'Em andamento',
   pendente: 'Pendente',
 };
 
-const TOM: Record<PassoState, TomDeEtiqueta> = {
+const TOM: Record<StepState, TomDeEtiqueta> = {
   feito: 'sucesso',
   andamento: 'info',
   pendente: 'alerta',
@@ -51,7 +51,7 @@ export function PageDeployment() {
   const passos = montarPassos(signals, URL_DESK);
   const feitos = passos.filter((p) => p.state === 'feito').length;
   const firstName = eu.user.nome.split(' ')[0] ?? eu.user.nome;
-  const ultima = signals.ultimaImport;
+  const ultima = signals.lastImport;
 
   return (
     <div className="pt-app">
@@ -156,7 +156,7 @@ export function PageDeployment() {
             papel escolhido e liga a conta do Google na primeira entrada. {numero(signals.members)}{' '}
             pessoa(s) com acesso e {numero(signals.convites)} convite(s) criado(s).
           </p>
-          <FormularioInvitation />
+          <InvitationForm />
         </section>
 
         <section className="card" id="contatos">
@@ -168,7 +168,7 @@ export function PageDeployment() {
           </p>
           {ultima ? (
             <p className="note">
-              Última importação: <b>{ROTULO_IMPORT[ultima.state] ?? ultima.state}</b>,{' '}
+              Última importação: <b>{LABEL_IMPORT[ultima.state] ?? ultima.state}</b>,{' '}
               {numero(ultima.aceitos)} aceito(s) e {numero(ultima.rejeitados)} rejeitado(s).{' '}
               {ultima.temFalhas ? (
                 <a href={`/v1/contacts/imports/${ultima.id}/failures`}>
@@ -177,14 +177,14 @@ export function PageDeployment() {
               ) : null}
             </p>
           ) : null}
-          <FormularioImport />
+          <ImportForm />
         </section>
       </main>
     </div>
   );
 }
 
-const ROTULO_IMPORT: Record<string, string> = {
+const LABEL_IMPORT: Record<string, string> = {
   pronta: 'na fila',
   executando: 'em andamento',
   concluida: 'concluída',

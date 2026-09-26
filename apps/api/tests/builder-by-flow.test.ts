@@ -32,9 +32,9 @@ let api: ApiNoAr;
 /** Who creates and edits, but doesn't publish. */
 let sessionEditor: string;
 /** Who also publishes. */
-let sessionPublicador: string;
+let sessionPublisher: string;
 /** People from tenant A with no permission at all on the flow. */
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 /** Who can do everything in tenant B: proves the tenant comes from the session, never from the URL. */
 let sessionOfOtherTenant: string;
 
@@ -268,8 +268,8 @@ beforeAll(async () => {
 
   api = await upApi(0);
   sessionEditor = await openSession(a, editor);
-  sessionPublicador = await openSession(a, publicador);
-  sessionWithoutPoder = await openSession(a, semPoder);
+  sessionPublisher = await openSession(a, publicador);
+  sessionWithoutAuthority = await openSession(a, semPoder);
   sessionOfOtherTenant = await openSession(b, doB);
 
   // // With nobody online: the transferred conversation stays IN THE QUEUE, with no agent.
@@ -301,11 +301,11 @@ describe('GET /v1/management/flows/:id/builder', () => {
   it('Return 409 on every Builder route for router bots', async () => {
     const id = await criado(`Roteador ${randomUUID().slice(0, 6)}`, 'roteador');
     const respostas = [
-      await builder(sessionPublicador, id),
-      await salvar(sessionPublicador, id, desenho('x')),
-      await publicar(sessionPublicador, id),
-      await versions(sessionPublicador, id),
-      await restore(sessionPublicador, id, 1),
+      await builder(sessionPublisher, id),
+      await salvar(sessionPublisher, id, desenho('x')),
+      await publicar(sessionPublisher, id),
+      await versions(sessionPublisher, id),
+      await restore(sessionPublisher, id, 1),
     ];
     for (const { status, corpo } of respostas) {
       expect(status).toBe(409);
@@ -317,7 +317,7 @@ describe('GET /v1/management/flows/:id/builder', () => {
   it('Return 403 without `automacao.fluxo.editar` and 404 for invalid or cross-tenant IDs', async () => {
     const id = await criado(`Guardado ${randomUUID().slice(0, 6)}`);
 
-    const semPoder = await builder(sessionWithoutPoder, id);
+    const semPoder = await builder(sessionWithoutAuthority, id);
     expect(semPoder.status).toBe(403);
     expect(semPoder.corpo['erro']).toMatchObject({
       codigo: 'sem_permissao',
@@ -401,7 +401,7 @@ describe('PUT /v1/management/flows/:id/builder', () => {
     expect(aberto.corpo['erros']).toEqual(errors);
 
     // // And publishing rejects with the list, without touching anything.
-    const recusa = await publicar(sessionPublicador, id);
+    const recusa = await publicar(sessionPublisher, id);
     expect(recusa.status).toBe(409);
     expect(recusa.corpo['erro']['code']).toBe('fluxo_invalido');
     expect(recusa.corpo['erro']['detalhe']['errors']).toEqual(errors);
@@ -415,7 +415,7 @@ describe('PUT /v1/management/flows/:id/builder', () => {
 
   it('Do not save a draft without `automacao.fluxo.editar`', async () => {
     const id = await criado(`Trancado ${randomUUID().slice(0, 6)}`);
-    const { status, corpo } = await salvar(sessionWithoutPoder, id, desenho('x'));
+    const { status, corpo } = await salvar(sessionWithoutAuthority, id, desenho('x'));
     expect(status).toBe(403);
     expect(corpo['erro']['code']).toBe('sem_permissao');
     expect(await versionsInDatabase(id)).toHaveLength(0);
@@ -429,12 +429,12 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
     await a.dono.execute(sql`update fluxo set canal_id = ${a.channelId}::uuid where id = ${id}::uuid`);
 
     // // No draft, nothing to publish.
-    const semRascunho = await publicar(sessionPublicador, id);
+    const semRascunho = await publicar(sessionPublisher, id);
     expect(semRascunho.status).toBe(409);
     expect(semRascunho.corpo['erro']['code']).toBe('sem_rascunho');
 
     await salvar(sessionEditor, id, desenho('Olá! Qual é o seu nome? (v1)'));
-    const v1 = await publicar(sessionPublicador, id);
+    const v1 = await publicar(sessionPublisher, id);
     expect(v1.status).toBe(200);
     expect(v1.corpo['versao']).toMatchObject({ versao: 1, estado: 'publicada', blocos: 3 });
     expect(v1.corpo['versao']['publishedAt']).toEqual(expect.any(String));
@@ -465,7 +465,7 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
     expect(rascunho.corpo['versao']).toMatchObject({ versao: 2, estado: 'rascunho' });
     expect(rascunho.corpo['versao']['id']).not.toBe(v1Id);
 
-    const v2 = await publicar(sessionPublicador, id);
+    const v2 = await publicar(sessionPublisher, id);
     expect(v2.status).toBe(200);
     expect(v2.corpo['versao']).toMatchObject({ versao: 2, estado: 'publicada' });
     expect(v2.corpo['arquivada']).toMatchObject({ id: v1Id, versao: 1, estado: 'arquivada' });
@@ -535,9 +535,9 @@ describe('POST /v1/management/flows/:id/builder/versions/:versao/restore', () =>
   it('traz uma versão antiga de volta como rascunho, sem tirar a publicada do ar', async () => {
     const id = await criado(`Restaurado ${randomUUID().slice(0, 6)}`);
     await salvar(sessionEditor, id, desenho('primeira'));
-    await publicar(sessionPublicador, id);
+    await publicar(sessionPublisher, id);
     await salvar(sessionEditor, id, desenho('segunda'));
-    await publicar(sessionPublicador, id);
+    await publicar(sessionPublisher, id);
 
     const { status, corpo } = await restore(sessionEditor, id, 1);
     expect(status).toBe(200);

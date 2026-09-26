@@ -97,7 +97,7 @@ export async function listContactsOfFlow(tx: TransactionPipe, tid: string, fluxo
 
 export type ContactListed = Awaited<ReturnType<typeof listContactsOfFlow>>[number];
 
-export async function loadDetalheContactOfFlow(
+export async function loadDetailContactOfFlow(
   tx: TransactionPipe,
   tid: string,
   flowId: string,
@@ -199,8 +199,8 @@ export async function loadDetalheContactOfFlow(
   };
 }
 
-export type DetalheOfContact = NonNullable<
-  Awaited<ReturnType<typeof loadDetalheContactOfFlow>>
+export type DetailOfContact = NonNullable<
+  Awaited<ReturnType<typeof loadDetailContactOfFlow>>
 >;
 
 /* ------------------------------------------------------------------ Log */

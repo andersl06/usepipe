@@ -125,7 +125,7 @@ test('sobra item para o "…" nos dois tipos', () => {
 const SO_ISSO = (permissoes: Record<string, 'nenhum' | 'ler' | 'escrever'>) => ({
   papelNoFluxo: 'personalizado' as const,
   permissoes,
-  editaByAccount: false,
+  editsByAccount: false,
 });
 
 test('the flow\'s permissions hide what the person cannot see', () => {
@@ -158,7 +158,7 @@ test('whoever edits the flow through the ACCOUNT still sees the entire row', () 
   /*
    * The other side of the double gate: account permission isn't sieved by the flow's permission, otherwise 0035 would strip access from people who already had it.
    */
-  const account = { papelNoFluxo: null, permissoes: {}, editaByAccount: true };
+  const account = { papelNoFluxo: null, permissoes: {}, editsByAccount: true };
   assert.deepEqual(itensDoMenu('fluxo', ID, account), itensDoMenu('fluxo', ID));
 });
 

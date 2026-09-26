@@ -3,7 +3,7 @@ import { IconePortal, type NomeDeIconePortal } from '../../../../components/icon
 import {
   PERIODOS_DE_CALENDARIO,
   PERIODOS_FIXOS,
-  ROTULO_OF_PERIOD,
+  LABEL_OF_PERIOD,
   comparison,
   diaCurto,
   escalaDoEixo,
@@ -94,14 +94,14 @@ export function TelaDoDashboard(p: PropsDoDashboard) {
         </div>
 
         <SectionContacts {...p} cmp={cmp} />
-        <SectionRecorrencia {...p} cmp={cmp} />
+        <SectionRecurrence {...p} cmp={cmp} />
         <SectionMessages {...p} cmp={cmp} />
         <SectionChannels {...p} cmp={cmp} />
         <SectionFlow {...p} cmp={cmp} />
         <SectionBlocks {...p} />
       </div>
 
-      {p.lista ? <ContactsBarra {...p} lista={p.lista} /> : null}
+      {p.lista ? <ContactsBar {...p} lista={p.lista} /> : null}
     </div>
   );
 }
@@ -120,7 +120,7 @@ interface Comparison {
  * `is-displaying-dashboard-fixed-period-chips` flag.
  */
 function PeriodFilter(p: PropsDoDashboard) {
-  const chip = (nome: keyof typeof ROTULO_OF_PERIOD) => (
+  const chip = (nome: keyof typeof LABEL_OF_PERIOD) => (
     <a
       key={nome}
       href={`?periodo=${nome}`}
@@ -132,7 +132,7 @@ function PeriodFilter(p: PropsDoDashboard) {
         p.aoMudarPeriodo(nome);
       }}
     >
-      <span className="da-chip-texto">{ROTULO_OF_PERIOD[nome]}</span>
+      <span className="da-chip-texto">{LABEL_OF_PERIOD[nome]}</span>
     </a>
   );
   return (
@@ -227,7 +227,7 @@ function Indicador({
  * `kE`: fs-24 bold title (with the typo's 22px margin) and the solid `info`
  * tooltip icon.
  */
-function SectionTitulo({
+function SectionTitle({
   children,
   dica,
   semMargem = false,
@@ -385,7 +385,7 @@ function Legenda({ itens }: { itens: { rotulo: string; cor: string }[] }) {
  * (`Math.round(100 * v)`) at 24px to the right of the tip, and the right-side gap
  * growing from 50 to 80px with the largest value (`PT`).
  */
-function ParticipationBarras({
+function ParticipationBars({
   barras,
 }: {
   barras: { rotulo: string; cor: string; fraction: number }[];
@@ -434,9 +434,9 @@ function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
     <section className="da-paper da-contacts">
       <div className="da-section-header">
         <div className="da-section-titles">
-          <SectionTitulo dica="Contatos são todas as pessoas que receberam e/ou enviaram mensagens para o seu chatbot.">
+          <SectionTitle dica="Contatos são todas as pessoas que receberam e/ou enviaram mensagens para o seu chatbot.">
             Contatos
-          </SectionTitulo>
+          </SectionTitle>
           <p className="da-t16">
             Acompanhe as métricas relativas aos contatos que conversaram com o seu chatbot.
           </p>
@@ -459,14 +459,14 @@ function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
               />
             </span>
           </div>
-          <CardClaro
+          <CardLight
             titulo="Contatos que não responderam"
             dica="É a quantidade de contatos únicos que não responderam a nenhuma mensagem enviada pelo chatbot e não iniciaram nenhuma conversa no período selecionado."
             value={semResposta}
             variation={variation(semResposta, semRespostaAntes)}
             cmp={p.cmp}
           />
-          <CardClaro
+          <CardLight
             titulo="Contatos com interação"
             dica="É a quantidade de contatos únicos que realizaram alguma interação com seu chatbot no período selecionado, seja iniciando uma conversa ou respondendo a uma mensagem enviada."
             value={com}
@@ -477,17 +477,17 @@ function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
 
         <div className="da-column" style={{ width: '45%' }}>
           <GraficoDeLinhas
-            rotulos={contacts.byDia.map((d) => diaCurto(d.dia))}
+            rotulos={contacts.byDay.map((d) => diaCurto(d.dia))}
             series={[
               {
                 rotulo: 'Contatos com interação',
                 cor: 'da-cor-oceano',
-                values: contacts.byDia.map((d) => d.withInteraction),
+                values: contacts.byDay.map((d) => d.withInteraction),
               },
               {
                 rotulo: 'Contatos que não responderam',
                 cor: 'da-cor-cinza',
-                values: contacts.byDia.map((d) => d.total - d.withInteraction),
+                values: contacts.byDay.map((d) => d.total - d.withInteraction),
               },
             ]}
           />
@@ -522,7 +522,7 @@ function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
  * `c_`: fs-24 extra-bold number with the dark indicator and tooltip; fs-12 label
  * underneath.
  */
-function CardClaro(props: {
+function CardLight(props: {
   titulo: string;
   dica: string;
   value: number;
@@ -608,19 +608,19 @@ function CardStriped(props: {
 
 
 /** `BR`: two `DR` on the left and the `DT` table of most recurrent on the right. */
-function SectionRecorrencia(p: PropsDoDashboard & { cmp: Comparison }) {
+function SectionRecurrence(p: PropsDoDashboard & { cmp: Comparison }) {
   const { recorrencia, contacts } = p.data;
   const taxa = contacts.total.atual ? recorrencia.contacts.atual / contacts.total.atual : undefined;
   const tudoZero = recorrencia.contacts.atual === 0 && recorrencia.maisRecorrentes.length === 0;
   return (
     <div className="da-recorrencia">
       <div className="da-meia">
-        <CardAzul
+        <CardBlue
           titulo="Taxa de recorrência"
           texto="Taxa de contatos únicos que interagiram com seu chatbot 2 ou mais vezes em intervalos de 24h"
           value={formatar(taxa, { percentual: true, padrao: '0%' })}
         />
-        <CardAzul
+        <CardBlue
           titulo="Contatos únicos recorrentes"
           texto="Total de contatos únicos que interagiram com seu chatbot 2 ou mais vezes em intervalos de 24h"
           value={formatar(recorrencia.contacts.atual)}
@@ -663,7 +663,7 @@ function SectionRecorrencia(p: PropsDoDashboard & { cmp: Comparison }) {
 }
 
 /** `DR`: surface-3 card, title with no margin, fs-16 description, and fs-24 number. */
-function CardAzul(props: {
+function CardBlue(props: {
   titulo: string;
   texto: string;
   value: string;
@@ -671,7 +671,7 @@ function CardAzul(props: {
 }) {
   return (
     <div className="da-paper da-card-blue">
-      <SectionTitulo semMargem>{props.titulo}</SectionTitulo>
+      <SectionTitle semMargem>{props.titulo}</SectionTitle>
       <div className="da-card-blue-body">
         <p className="da-t16">{props.texto}</p>
         <div className="da-card-blue-value">
@@ -707,7 +707,7 @@ function Ranking(props: {
     <div className="da-paper da-ranking">
       <div className="da-ranking-cabeca">
         <div className="da-ranking-titulos">
-          <SectionTitulo dica={props.dica}>{props.titulo}</SectionTitulo>
+          <SectionTitle dica={props.dica}>{props.titulo}</SectionTitle>
           <p className="da-t16">{props.description}</p>
         </div>
         {props.csv ? <BotaoCsv {...props.csv} /> : null}
@@ -789,9 +789,9 @@ function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
       <div className="da-section-header">
         <div className="da-section-titles">
           <div style={{ width: '80%' }}>
-            <SectionTitulo dica="Mensagens são todos os conteúdos trocados entre o chatbot e seus contatos.">
+            <SectionTitle dica="Mensagens são todos os conteúdos trocados entre o chatbot e seus contatos.">
               Mensagens
-            </SectionTitulo>
+            </SectionTitle>
           </div>
           <p className="da-t16 da-apagado">
             Métricas sobre as mensagens recebidas e enviadas pelo seu chatbot
@@ -805,7 +805,7 @@ function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
 
       <div className="da-messages-body">
         <div className="da-messages-column" style={{ width: '20%' }}>
-          <ParticipationBarras
+          <ParticipationBars
             barras={[
               { rotulo: 'Enviadas', cor: 'da-cor-oceano', fraction: parte(enviadas) },
               { rotulo: 'Recebidas', cor: 'da-cor-azul', fraction: parte(recebidas) },
@@ -839,17 +839,17 @@ function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
         <div className="da-messages-column" style={{ width: '30%' }}>
           <GraficoDeLinhas
             titulo="Volume de mensagens no período"
-            rotulos={messages.byDia.map((d) => diaCurto(d.dia))}
+            rotulos={messages.byDay.map((d) => diaCurto(d.dia))}
             series={[
               {
                 rotulo: 'Mensagens enviadas',
                 cor: 'da-cor-oceano',
-                values: messages.byDia.map((d) => d.enviadas),
+                values: messages.byDay.map((d) => d.enviadas),
               },
               {
                 rotulo: 'Mensagens recebidas',
                 cor: 'da-cor-azul',
-                values: messages.byDia.map((d) => d.recebidas),
+                values: messages.byDay.map((d) => d.recebidas),
               },
             ]}
           />
@@ -971,9 +971,9 @@ function SectionChannels(p: PropsDoDashboard & { cmp: Comparison }) {
     <section className="da-paper da-channels">
       <div className="da-section-header">
         <div className="da-channels-titles">
-          <SectionTitulo dica="Canais de conversa nos quais o seu chatbot está conectado.">
+          <SectionTitle dica="Canais de conversa nos quais o seu chatbot está conectado.">
             Canais
-          </SectionTitulo>
+          </SectionTitle>
           <p className="da-t16 da-mr5">
             Um zoom na sua performance em cada canal de conversa no periodo selecionado
           </p>
@@ -1030,9 +1030,9 @@ function SectionFlow(p: PropsDoDashboard & { cmp: Comparison }) {
     <section className="da-paper da-flow">
       <div className="da-section-header">
         <div className="da-channels-titles">
-          <SectionTitulo dica="Fluxo conversacional é a jornada pela qual seus contatos passam durante as conversas com seu chatbot.">
+          <SectionTitle dica="Fluxo conversacional é a jornada pela qual seus contatos passam durante as conversas com seu chatbot.">
             Fluxo Conversacional
-          </SectionTitulo>
+          </SectionTitle>
           <p className="da-t16 da-mr5">
             Indicadores sobre a performance do seu fluxo de conversas.
           </p>
@@ -1214,7 +1214,7 @@ function SectionBlocks(p: PropsDoDashboard) {
  * ponytail: there the veil's `top` is measured by JavaScript below the portal bar;
  * here it covers the screen from the top.
  */
-function ContactsBarra(p: PropsDoDashboard & { lista: NonNullable<PropsDoDashboard['lista']> }) {
+function ContactsBar(p: PropsDoDashboard & { lista: NonNullable<PropsDoDashboard['lista']> }) {
   const { contacts } = p.data;
   const total = contacts.total.atual;
   const com = contacts.withInteraction.atual;

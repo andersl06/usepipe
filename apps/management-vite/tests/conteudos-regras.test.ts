@@ -4,10 +4,10 @@ import {
   FLAGS_DO_PIPE,
   blocosDoMenu,
   nameError,
-  listaState,
+  listState,
   idiomasRepetidos,
   templateValid,
-  blockMostrarEscolha,
+  blockShowChoice,
   mostrarVoltar,
   tiposDisponiveis,
 } from '../src/pages/flow/contents/regras.ts';
@@ -41,10 +41,10 @@ test('with no media only text remains; with everything on, payment and carousel 
 });
 
 test('block choice only shows before choosing, with a category and outside Authentication', () => {
-  assert.equal(blockMostrarEscolha('default', ''), false);
-  assert.equal(blockMostrarEscolha('default', 'marketing'), true);
-  assert.equal(blockMostrarEscolha('default', 'autenticacao'), false);
-  assert.equal(blockMostrarEscolha('texto', 'marketing'), false);
+  assert.equal(blockShowChoice('default', ''), false);
+  assert.equal(blockShowChoice('default', 'marketing'), true);
+  assert.equal(blockShowChoice('default', 'autenticacao'), false);
+  assert.equal(blockShowChoice('texto', 'marketing'), false);
 });
 
 test('the "back" step only exists on the first translation, with a block chosen and no other translations', () => {
@@ -94,7 +94,7 @@ test('authentication skips the text (the message is fixed) but requires a langua
 });
 
 test('the list shows unavailable without WhatsApp, empty without templates, and the list with templates', () => {
-  assert.equal(listaState(false, 3), 'indisponivel');
-  assert.equal(listaState(true, 0), 'vazio');
-  assert.equal(listaState(true, 2), 'lista');
+  assert.equal(listState(false, 3), 'indisponivel');
+  assert.equal(listState(true, 0), 'vazio');
+  assert.equal(listState(true, 2), 'lista');
 });

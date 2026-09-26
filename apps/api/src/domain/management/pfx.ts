@@ -166,7 +166,7 @@ function senhaComoBmpString(senha: string): Buffer {
 /**
  * Derive PKCS#12 keys per RFC 7292 appendix B.2 for legacy PBEs (`pbeWithSHA1And3-KeyTripleDES-CBC`) and file MAC. `id` selects purpose: 1 cipher key, 2 IV, 3 MAC key. Exported so tests build a real `.pfx` without a binary fixture; `createSecureContext` in OpenSSL verifies its MAC and would fail on wrong derivation.
  */
-export function derivarKeyPkcs12(
+export function deriveKeyPkcs12(
   hash: 'sha1' | 'sha256',
   senha: string,
   sal: Buffer,
@@ -245,8 +245,8 @@ function decifrarConteudo(algoritmo: Tlv, cifrado: Buffer, senha: string): Buffe
     const sal = esperar(partes[0], TAG.OCTETOS, 'salt').content;
     const iteracoes = integerOf(partes[1]);
     const tresChaves = oid === OID.pbeSha1E3DES;
-    const chave = derivarKeyPkcs12('sha1', senha, sal, iteracoes, 1, tresChaves ? 24 : 16);
-    const iv = derivarKeyPkcs12('sha1', senha, sal, iteracoes, 2, 8);
+    const chave = deriveKeyPkcs12('sha1', senha, sal, iteracoes, 1, tresChaves ? 24 : 16);
+    const iv = deriveKeyPkcs12('sha1', senha, sal, iteracoes, 2, 8);
     const decifra = createDecipheriv(tresChaves ? 'des-ede3-cbc' : 'des-ede-cbc', chave, iv);
     return Buffer.concat([decifra.update(cifrado), decifra.final()]);
   }

@@ -1,16 +1,16 @@
 import { sql } from 'drizzle-orm';
 import { noTenant } from './database.js';
-import { ausente, collection, falha, ok, partirUri, TIPO_DOCUMENT, TIPO_TICKET } from './lime.js';
+import { ausente, collection, falha, ok, partirUri, TYPE_DOCUMENT, TIPO_TICKET } from './lime.js';
 import type { ComandoLime, RespostaLime } from './lime.js';
 import { asAccount, asDocuments, comoTicket, comoTime } from './translation.js';
-import type { LinhaConversation, LinhaMessage } from './translation.js';
+import type { ConversationRow, MessageRow } from './translation.js';
 import { loadGlobal, carregarRascunho, saveFlow } from './builder.js';
 import {
   assumirProximo,
   identityConversation,
   encerrar,
   responder,
-  transferirForQueue,
+  transferForQueue,
 } from './actions.js';
 
 /**
@@ -60,9 +60,9 @@ const DE = `
 
 const ABERTAS = `c.estado in ('na_fila','atribuida','em_atendimento','em_espera')`;
 
-async function conversationsAbertas(session: Session, limite = 100): Promise<LinhaConversation[]> {
+async function conversationsOpen(session: Session, limite = 100): Promise<ConversationRow[]> {
   return noTenant(session.tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaConversation>(sql`
+    const { rows } = await tx.execute<ConversationRow>(sql`
       select ${sql.raw(COLUNAS)} ${sql.raw(DE)}
        where ${sql.raw(ABERTAS)}
        order by c.ultima_mensagem_em desc nulls last, c.criada_em desc
@@ -79,17 +79,17 @@ const ROTA_PING = new RegExp('^[/]ping');
 const ROTA_AGORA = new RegExp('^[/]now');
 const ROTA_RECIBO = new RegExp('^[/]receipt');
 /* Anchor this route so it cannot also match `/accounts/{email}`, a different resource. */
-const ROTA_ACCOUNT = new RegExp('^[/]account(\\?|$)');
+const ROUTE_ACCOUNT = new RegExp('^[/]account(\\?|$)');
 const ROTA_INFO_AGENTE = new RegExp('^[/]agents[/]info');
-const ROTA_QUEUES = new RegExp('^[/]attendance-teams');
+const ROUTE_QUEUES = new RegExp('^[/]attendance-teams');
 const ROTA_TICKETS = new RegExp('^[/]tickets(\\?|$)');
 const ROTA_TICKETS_ATIVOS = new RegExp('^[/]tickets[/]active');
-const ROTA_MESSAGES = new RegExp('^[/]tickets[/][^/]*[/]messages');
+const ROUTE_MESSAGES = new RegExp('^[/]tickets[/][^/]*[/]messages');
 const ROTA_TICKET = new RegExp('^[/]tickets[/][^/]+');
 
-const ROTA_FLOW_RASCUNHO = new RegExp('^[/]buckets[/]blip_portal:builder_working_flow');
-const ROTA_ACTIONS_GLOBAL = new RegExp('^[/]buckets[/]blip_portal:builder_working_global_actions');
-const ROTA_FLOW_PUBLISHED = new RegExp('^[/]buckets[/]blip_portal:builder_published_flow');
+const ROUTE_FLOW_DRAFT = new RegExp('^[/]buckets[/]blip_portal:builder_working_flow');
+const ROUTE_ACTIONS_GLOBAL = new RegExp('^[/]buckets[/]blip_portal:builder_working_global_actions');
+const ROUTE_FLOW_PUBLISHED = new RegExp('^[/]buckets[/]blip_portal:builder_published_flow');
 
 /*
  * Agent action URIs are observed screen calls from the bundle, recorded in `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`.
@@ -155,7 +155,7 @@ const rotas: Rota[] = [
       if (!r.team || r.team === 'DIRECT_TRANSFER') {
         return falha(4, 'transferência para atendente específico ainda não');
       }
-      await transferirForQueue(session, id, r.team);
+      await transferForQueue(session, id, r.team);
       return ok({});
     },
     ['set'],
@@ -177,7 +177,7 @@ const rotas: Rota[] = [
 
 
   [
-    ROTA_ACCOUNT,
+    ROUTE_ACCOUNT,
     async ({ session }) => {
       const data = await noTenant(session.tenantId, async (tx) => {
         const { rows: state } = await tx.execute<{ state: string }>(sql`
@@ -223,7 +223,7 @@ const rotas: Rota[] = [
   [
     ROTA_INFO_AGENTE,
     async ({ session }) => {
-      const linhas = await conversationsAbertas(session, 500);
+      const linhas = await conversationsOpen(session, 500);
       const inQueue = linhas.filter((l) => l.state === 'na_fila').length;
       const minhas = linhas.filter((l) => l.agentId === session.userId);
       return ok(
@@ -241,7 +241,7 @@ const rotas: Rota[] = [
 
   /* ---- as filas do cliente ---- */
   [
-    ROTA_QUEUES,
+    ROUTE_QUEUES,
     async ({ session }) => {
       const queues = await noTenant(session.tenantId, async (tx) => {
         const { rows } = await tx.execute<{ id: string; nome: string }>(
@@ -257,12 +257,12 @@ const rotas: Rota[] = [
    * On opening a conversation, Desk briefly asks for `/tickets//messages` with an empty ID. The source returns an empty collection rather than an error, so the screen continues.
    */
   [
-    ROTA_MESSAGES,
+    ROUTE_MESSAGES,
     async ({ session, path }) => {
       const id = path.split('/')[2];
-      if (!id) return collection([], TIPO_DOCUMENT);
+      if (!id) return collection([], TYPE_DOCUMENT);
       const linhas = await noTenant(session.tenantId, async (tx) => {
-        const { rows } = await tx.execute<LinhaMessage>(sql`
+        const { rows } = await tx.execute<MessageRow>(sql`
           select id, criada_em, direcao, autor_tipo, tipo, conteudo
             from mensagem
            where conversa_id = ${id}::uuid
@@ -271,7 +271,7 @@ const rotas: Rota[] = [
         `);
         return rows;
       });
-      return collection(asDocuments(linhas), TIPO_DOCUMENT);
+      return collection(asDocuments(linhas), TYPE_DOCUMENT);
     },
   ],
 
@@ -279,7 +279,7 @@ const rotas: Rota[] = [
   [
     ROTA_TICKETS_ATIVOS,
     async ({ session }) => {
-      const linhas = await conversationsAbertas(session);
+      const linhas = await conversationsOpen(session);
       const minhas = linhas.filter((l) => l.agentId === session.userId);
       return collection(
         minhas.map((l) => comoTicket(l)),
@@ -290,7 +290,7 @@ const rotas: Rota[] = [
   [
     ROTA_TICKETS,
     async ({ session }) => {
-      const linhas = await conversationsAbertas(session);
+      const linhas = await conversationsOpen(session);
       return collection(
         linhas.map((l) => comoTicket(l)),
         TIPO_TICKET,
@@ -302,7 +302,7 @@ const rotas: Rota[] = [
     async ({ session, path }) => {
       const id = path.split('/')[2] ?? '';
       const linha = await noTenant(session.tenantId, async (tx) => {
-        const { rows } = await tx.execute<LinhaConversation>(sql`
+        const { rows } = await tx.execute<ConversationRow>(sql`
           select ${sql.raw(COLUNAS)} ${sql.raw(DE)} where c.id = ${id}::uuid limit 1
         `);
         return rows[0] ?? null;
@@ -313,7 +313,7 @@ const rotas: Rota[] = [
 
 
   [
-    ROTA_FLOW_RASCUNHO,
+    ROUTE_FLOW_DRAFT,
     async ({ session, cmd }) => {
       if (cmd.method === 'get') {
         const mapa = await carregarRascunho(session);
@@ -330,7 +330,7 @@ const rotas: Rota[] = [
     ['get', 'set'],
   ],
   [
-    ROTA_ACTIONS_GLOBAL,
+    ROUTE_ACTIONS_GLOBAL,
     async ({ session, cmd }) => {
       if (cmd.method === 'get') {
         const global = await loadGlobal(session);
@@ -344,7 +344,7 @@ const rotas: Rota[] = [
     ['get', 'set'],
   ],
   [
-    ROTA_FLOW_PUBLISHED,
+    ROUTE_FLOW_PUBLISHED,
     async ({ session, cmd }) => {
       if (cmd.method === 'get') {
         const mapa = await carregarRascunho(session);

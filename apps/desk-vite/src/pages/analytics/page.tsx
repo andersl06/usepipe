@@ -11,7 +11,7 @@ import {
   diaCurto,
   intervaloDoAtalho,
   intervaloPersonalizado,
-  timeMedio,
+  timeAverage,
   type Atalho,
 } from '../../lib/period';
 
@@ -149,15 +149,15 @@ export function PageMetrics() {
           <div className="dk-medias">
             <div>
               <span>Primeira Resposta</span>
-              <b>{timeMedio(m?.tempos.firstResponseSeg ?? null)}</b>
+              <b>{timeAverage(m?.tempos.firstResponseSeg ?? null)}</b>
             </div>
             <div>
               <span>Espera na fila</span>
-              <b>{timeMedio(m?.tempos.waitInQueueSeg ?? null)}</b>
+              <b>{timeAverage(m?.tempos.waitInQueueSeg ?? null)}</b>
             </div>
             <div>
               <span>Espera total</span>
-              <b>{timeMedio(m?.tempos.esperaTotalSeg ?? null)}</b>
+              <b>{timeAverage(m?.tempos.esperaTotalSeg ?? null)}</b>
             </div>
           </div>
         </div>

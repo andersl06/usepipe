@@ -13,7 +13,7 @@ const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 const { noTenant } = await import('../src/database.js');
-const { exigirPermissionInFlow, permissionsOfRole } =
+const { requirePermissionInFlow, permissionsOfRole } =
   await import('../src/domain/management/team-of-flow.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
@@ -29,7 +29,7 @@ let api: ApiNoAr;
 /** Quem edita fluxo pela CONTA (`automacao.fluxo.editar`) — o `member` deles. */
 let sessionEditor: string;
 /** People from tenant A with no flow permission at all, and not even a member. */
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 let semPoderId: string;
 /** An editor from tenant B: proves the tenant comes from the session, never from the URL. */
 let sessionOfOtherTenant: string;
@@ -176,7 +176,7 @@ beforeAll(async () => {
 
   api = await upApi(0);
   sessionEditor = await openSession(a, editor.id);
-  sessionWithoutPoder = await openSession(a, semPoder.id);
+  sessionWithoutAuthority = await openSession(a, semPoder.id);
   sessionOfOtherTenant = await openSession(b, editorDoB.id);
 }, 180_000);
 
@@ -251,11 +251,11 @@ describe('POST /v1/management/flows/:id/team', () => {
 
 describe('Require permission to manage the flow team', () => {
   it('Return 403 without either flow or account team permission', async () => {
-    const lista = await listar(sessionWithoutPoder);
+    const lista = await listar(sessionWithoutAuthority);
     expect(lista.status).toBe(403);
     expect(lista.corpo).toMatchObject({ erro: { codigo: 'sem_permissao' } });
 
-    const posta = await adicionar(sessionWithoutPoder, {
+    const posta = await adicionar(sessionWithoutAuthority, {
       email: carla.email,
       papelNoFluxo: 'visualizar',
     });
@@ -264,7 +264,7 @@ describe('Require permission to manage the flow team', () => {
 
   it('Allow flow admins with no account-level permission', async () => {
     await seed(a, flowId, semPoderId, 'admin');
-    const lista = await listar(sessionWithoutPoder);
+    const lista = await listar(sessionWithoutAuthority);
     expect(lista.status).toBe(200);
     expect(lista.corpo['podeGerir']).toBe(true);
     /* Back to how it was: the remaining cases rely on him having no permission at all. */
@@ -342,7 +342,7 @@ describe('PATCH e DELETE /v1/management/flows/:id/team/:usuarioId', () => {
 describe('Check flow and account permissions at both access gates', () => {
   /** Runs the raw function inside the tenant's transaction, the same way the routes do. */
   const tentar = (usuarioId: string, fluxo: string, codigo: string) =>
-    noTenant(a.tenantId, (tx) => exigirPermissionInFlow(tx, usuarioId, fluxo, codigo))
+    noTenant(a.tenantId, (tx) => requirePermissionInFlow(tx, usuarioId, fluxo, codigo))
       .then(() => 'passou')
       .catch((error: Error & { code?: string }) => error.codigo ?? error.message);
 
@@ -381,7 +381,7 @@ describe('Check flow and account permissions at both access gates', () => {
     const fluxo = await createFlowInDatabase(a, `Básicas ${randomUUID().slice(0, 6)}`);
     const antes = await fetch(`${api.url}/v1/management/flows/${fluxo}`, {
       method: 'PATCH',
-      headers: comCookie(sessionWithoutPoder),
+      headers: comCookie(sessionWithoutAuthority),
       body: JSON.stringify({ descricao: 'sem poder nenhum' }),
     });
     expect(antes.status).toBe(403);
@@ -389,7 +389,7 @@ describe('Check flow and account permissions at both access gates', () => {
     await seed(a, fluxo, semPoderId, 'editar');
     const depois = await fetch(`${api.url}/v1/management/flows/${fluxo}`, {
       method: 'PATCH',
-      headers: comCookie(sessionWithoutPoder),
+      headers: comCookie(sessionWithoutAuthority),
       body: JSON.stringify({ descricao: 'agora sou membro' }),
     });
     expect(depois.status).toBe(200);

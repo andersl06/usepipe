@@ -62,7 +62,7 @@ export class ConversationLabelsController {
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
     const r = await labelConversation(
-      { tenantId: ator.tenantId, agentId: ator.userId, exigirAssignment: ator.viaSession },
+      { tenantId: ator.tenantId, agentId: ator.userId, requireAssignment: ator.viaSession },
       id,
       etiquetaIdDe(corpo),
     );
@@ -79,7 +79,7 @@ export class ConversationLabelsController {
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
     const r = await unlabelConversation(
-      { tenantId: ator.tenantId, agentId: ator.userId, exigirAssignment: ator.viaSession },
+      { tenantId: ator.tenantId, agentId: ator.userId, requireAssignment: ator.viaSession },
       id,
       etiquetaId,
     );

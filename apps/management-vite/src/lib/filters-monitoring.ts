@@ -5,16 +5,16 @@ export function filterIds(value: string | readonly string[] | undefined): string
     .flatMap(v => v.split(',')).map(v => v.trim()).filter(v => uuid.test(v)))];
 }
 
-export function urlForLimparFilters(
+export function urlForClearFilters(
   base: string,
   atual: { queue?: string },
-  preservarQueue = false,
+  preserveQueue = false,
 ): string {
-  return preservarQueue && atual.queue ? `${base}?queue=${encodeURIComponent(atual.queue)}` : base;
+  return preserveQueue && atual.queue ? `${base}?queue=${encodeURIComponent(atual.queue)}` : base;
 }
 
 /** Copy the whole query so tabs, search, and future parameters remain in the link. */
-export function parametrosWithFilters(
+export function parametersWithFilters(
   current: URLSearchParams,
   changes: Readonly<Record<string, string | readonly string[] | undefined>>,
 ): URLSearchParams {

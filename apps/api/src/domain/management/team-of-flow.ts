@@ -10,15 +10,15 @@ import type {
   RoleInFlow,
   RequestOfMemberOfFlow,
   PermissionsInFlow,
-  RecursoOfFlow,
+  ResourceOfFlow,
 } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
-import { exigirPermission } from '../../session.js';
+import { requirePermission } from '../../session.js';
 
 /**
  * Duplicate `EDITAR_FLUXO` here deliberately: `ciclo-de-vida-do-fluxo.ts` now imports `exigirPermissaoNoFluxo`; importing its constant back would create a module cycle.
  */
-const EDITAR_FLOW = 'automacao.fluxo.editar';
+const EDIT_FLOW = 'automacao.fluxo.editar';
 
 /**
  * The contact Team tab mirrors source `/team` and PER-FLOW RBAC. Source `getUsersAccounts` (`/applications/{shortName}@msging.net/users/accounts`) combines with `getApplicationUsersPermissions` (`.../permissions`) per contact in `TeamController._loadMembers`; research `referencias-blip/pesquisa/blip-identidade-tenant-permissao.md` §3 records 'a permissão não é do tenant, é do bot'. Contract membership is prerequisite, as the source says: 'Essa pessoa não faz parte do contrato. O administrador deve incluir a pessoa no contrato antes de adicioná-la ao chatbot.'. The role slider (`team.addUserModal.slider`: `visualize`, `custom`, `edit`, `admin`) fills per-resource radios (`PermissionsList.html`: `none` 0, `read` 1, `readWrite` 3) through `selectAllPermissions()`; only custom grants are edited individually. Store the full permission map via `permissoesDoPapel`. Team edits pass `team.escrever` ON THE FLOW or `automacao.fluxo.editar` ON THE ACCOUNT through `exigirPermissaoNoFluxo`. Requiring only flow admin would lock out tenants with no existing members; requiring only account permission would discard per-flow granularity.
@@ -39,7 +39,7 @@ const EDITAR_FLOW = 'automacao.fluxo.editar';
  * `team` não está no template, mas está no pacote (`permissions.team.title`) e
  * é o recurso que governa esta própria tela.
  */
-export const RECURSOS_OF_FLOW: readonly RecursoOfFlow[] = [
+export const RESOURCES_OF_FLOW: readonly ResourceOfFlow[] = [
   { key: 'payments', titulo: 'Integrações' },
   { key: 'channels', titulo: 'Canais' },
   { key: 'desk', titulo: 'Atendimento' },
@@ -54,7 +54,7 @@ export const RECURSOS_OF_FLOW: readonly RecursoOfFlow[] = [
   { key: 'team', titulo: 'Equipe' },
 ];
 
-const CHAVES = new Set(RECURSOS_OF_FLOW.map((r) => r.key));
+const CHAVES = new Set(RESOURCES_OF_FLOW.map((r) => r.key));
 
 const PAPEIS: readonly RoleInFlow[] = ['visualizar', 'personalizado', 'editar', 'admin'];
 const NIVEIS: readonly LevelInFlow[] = ['nenhum', 'ler', 'escrever'];
@@ -62,8 +62,8 @@ const NIVEIS: readonly LevelInFlow[] = ['nenhum', 'ler', 'escrever'];
 /**
  * Map each flow resource to an equivalent ACCOUNT permission for the second authorization gate. Currently all map to `automacao.fluxo.editar`: catalog 0019 has only 'Cria e edita chatbots', with no separate `automacao.fluxo.ler` (`paginas/fluxo/equipe/permissoes.ts`). Keep this mapping central so future account permissions for `desk` or `payments` do not require route changes.
  */
-const EQUIVALENTE_IN_ACCOUNT: Readonly<Record<string, string>> = Object.fromEntries(
-  RECURSOS_OF_FLOW.map((r) => [r.key, EDITAR_FLOW]),
+const EQUIVALENT_IN_ACCOUNT: Readonly<Record<string, string>> = Object.fromEntries(
+  RESOURCES_OF_FLOW.map((r) => [r.key, EDIT_FLOW]),
 );
 
 /** The resource governing the Team tab itself. */
@@ -80,14 +80,14 @@ export function permissionsOfRole(
 ): PermissionsInFlow {
   if (role === 'personalizado') {
     const mapa: PermissionsInFlow = {};
-    for (const recurso of RECURSOS_OF_FLOW) {
+    for (const recurso of RESOURCES_OF_FLOW) {
       const nivel = personalizadas[recurso.key];
       mapa[recurso.key] = nivel && NIVEIS.includes(nivel) ? nivel : 'nenhum';
     }
     return mapa;
   }
   const nivel: LevelInFlow = role === 'visualizar' ? 'ler' : 'escrever';
-  return Object.fromEntries(RECURSOS_OF_FLOW.map((r) => [r.key, nivel]));
+  return Object.fromEntries(RESOURCES_OF_FLOW.map((r) => [r.key, nivel]));
 }
 
 function roleChecked(bruto: unknown): RoleInFlow {
@@ -160,7 +160,7 @@ function separar(codigo: string): { recurso: string; verbo: LevelInFlow } {
 /**
  * Authorize THIS flow's permission or its account equivalent, matching `exigirPermissao` in `sessao.ts` and the second gate in research §4.3. `codigo` is a source `<recurso>.<verbo>` such as `builder.escrever`, `channels.ler`, or `team.escrever`. Permit a flow member with the requested resource level (`admin` grants all) OR an account member with `EQUIVALENTE_NA_CONTA`. Check the flow's unique-key row first, then the account's `exists` with two joins; many tenants have no flow membership rows.
  */
-export async function exigirPermissionInFlow(
+export async function requirePermissionInFlow(
   tx: TransactionPipe,
   usuarioId: string,
   fluxoId: string,
@@ -172,7 +172,7 @@ export async function exigirPermissionInFlow(
     if (linha.roleInFlow === 'admin') return;
     if (atende(linha.permissions[recurso], verbo)) return;
   }
-  await exigirPermission(tx, usuarioId, EQUIVALENTE_IN_ACCOUNT[recurso] ?? EDITAR_FLOW);
+  await requirePermission(tx, usuarioId, EQUIVALENT_IN_ACCOUNT[recurso] ?? EDIT_FLOW);
 }
 
 /** Check the same permission without throwing, so the screen can decide what to render. */
@@ -183,7 +183,7 @@ export async function canInFlow(
   codigo: string,
 ): Promise<boolean> {
   try {
-    await exigirPermissionInFlow(tx, usuarioId, fluxoId, codigo);
+    await requirePermissionInFlow(tx, usuarioId, fluxoId, codigo);
     return true;
   } catch (error) {
     if (error instanceof PipeError && error.status === 403) return false;
@@ -196,7 +196,7 @@ export async function canInFlow(
 const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
 /** O contato vivo do tenant, ou 404 — o mesmo `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
-async function flowVivo(tx: TransactionPipe, tenantId: string, fluxoId: string): Promise<string> {
+async function flowLive(tx: TransactionPipe, tenantId: string, fluxoId: string): Promise<string> {
   const [atual] = await tx
     .select({ id: flow.id })
     .from(flow)
@@ -242,8 +242,8 @@ export async function listarEquipe(
   usuarioId: string,
   fluxoId: string,
 ): Promise<TeamOfFlow> {
-  await flowVivo(tx, tenantId, fluxoId);
-  await exigirPermissionInFlow(tx, usuarioId, fluxoId, 'team.ler');
+  await flowLive(tx, tenantId, fluxoId);
+  await requirePermissionInFlow(tx, usuarioId, fluxoId, 'team.ler');
 
   const linhas = await tx
     .select(COLUNAS)
@@ -254,7 +254,7 @@ export async function listarEquipe(
 
   return {
     members: linhas.map(forContract),
-    recursos: [...RECURSOS_OF_FLOW],
+    recursos: [...RESOURCES_OF_FLOW],
     podeGerir: await canInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE),
   };
 }
@@ -266,20 +266,20 @@ export async function myPermissionsInFlow(
   usuarioId: string,
   fluxoId: string,
 ): Promise<MyPermissionsInFlow> {
-  await flowVivo(tx, tenantId, fluxoId);
+  await flowLive(tx, tenantId, fluxoId);
   const linha = await member(tx, usuarioId, fluxoId);
   const { rows } = await tx.execute<{ tem: boolean }>(sql`
     select exists (
       select 1
         from usuario_papel up
         join papel_permissao pp on pp.papel_id = up.papel_id
-       where up.usuario_id = ${usuarioId}::uuid and pp.permissao_codigo = ${EDITAR_FLOW}
+       where up.usuario_id = ${usuarioId}::uuid and pp.permissao_codigo = ${EDIT_FLOW}
     ) as tem
   `);
   return {
     papelNoFluxo: (linha?.roleInFlow as RoleInFlow | undefined) ?? null,
     permissoes: linha?.permissions ?? {},
-    editaByAccount: rows[0]?.tem === true,
+    editsByAccount: rows[0]?.tem === true,
   };
 }
 
@@ -306,15 +306,15 @@ function ultimoAdmin(): PipeError {
 /**
  * Source `confirmAddUser()` first invites non-contract users as `guest`. Pipe keeps invitation separate at `POST /v1/convites` in `dominio/convites.ts`; it starts its own transaction and returns a copyable link because Pipe sends no email. Use the source refusal text and let the screen offer invitation afterward.
  */
-export async function adicionarMember(
+export async function addMember(
   tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
   pedido: RequestOfMemberOfFlow,
 ): Promise<MemberOfFlow> {
-  await flowVivo(tx, tenantId, fluxoId);
-  await exigirPermissionInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE);
+  await flowLive(tx, tenantId, fluxoId);
+  await requirePermissionInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE);
 
   const email = (pedido.email ?? '').trim().toLowerCase();
   if (!email) throw PipeError.request('email_missing', 'Informe o e-mail de quem entra.');
@@ -344,7 +344,7 @@ export async function adicionarMember(
       userId: pessoa.id,
       roleInFlow,
       permissions,
-      convidadoBy: usuarioId,
+      guestBy: usuarioId,
     })
     .onConflictDoNothing({ target: [flowMember.flowId, flowMember.userId] })
     .returning({ criadoEm: flowMember.criadoEm });
@@ -371,7 +371,7 @@ export async function adicionarMember(
 }
 
 /** The edit modal's 'Salvar alterações'; write nothing when no values changed. */
-export async function editarMember(
+export async function editMember(
   tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
@@ -379,8 +379,8 @@ export async function editarMember(
   alvoId: string,
   pedido: RequestOfMemberOfFlow,
 ): Promise<MemberOfFlow> {
-  await flowVivo(tx, tenantId, fluxoId);
-  await exigirPermissionInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE);
+  await flowLive(tx, tenantId, fluxoId);
+  await requirePermissionInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE);
 
   const [atual] = await tx
     .select(COLUNAS)
@@ -439,8 +439,8 @@ export async function removeMember(
   fluxoId: string,
   alvoId: string,
 ): Promise<void> {
-  await flowVivo(tx, tenantId, fluxoId);
-  await exigirPermissionInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE);
+  await flowLive(tx, tenantId, fluxoId);
+  await requirePermissionInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE);
 
   const [atual] = await tx
     .select({

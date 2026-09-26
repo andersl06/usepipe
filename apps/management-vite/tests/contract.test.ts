@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import {
   CATALOGO,
   PAPEIS_DA_ORIGEM,
-  cardsVisiveis,
+  cardsVisible,
   accountEhRole,
   readMemberTargets,
   permissionRequired,
@@ -18,28 +18,28 @@ import {
  */
 
 test('with no account permission at all, no card appears', () => {
-  assert.deepEqual(cardsVisiveis([]), []);
+  assert.deepEqual(cardsVisible([]), []);
   /*
    * Their `guest`: reads the summary and the workspace, and sees zero cards — the source's only workspace card requires WRITE.
    */
-  assert.deepEqual(cardsVisiveis(['conta.resumo.ler', 'conta.workspace.ler']), []);
+  assert.deepEqual(cardsVisible(['conta.resumo.ler', 'conta.workspace.ler']), []);
 });
 
 test('each card shows the permission it requires, and only that one', () => {
   for (const card of CATALOGO) {
     const codigo = permissionRequired(card);
-    const vistos = cardsVisiveis([codigo]).map((c) => c.id);
+    const vistos = cardsVisible([codigo]).map((c) => c.id);
     assert.ok(vistos.includes(card.id), `${card.id} deveria aparecer com ${codigo}`);
   }
 
   // Reading members doesn't grant the card that requires WRITING members (their `e` check).
-  const readOnly = cardsVisiveis(['conta.membros.ler']).map((c) => c.id);
+  const readOnly = cardsVisible(['conta.membros.ler']).map((c) => c.id);
   assert.ok(readOnly.includes('membros'));
   assert.ok(!readOnly.includes('chamadas'));
 });
 
 test('demo mode shows the entire catalog, even with no permission at all', () => {
-  const previa = cardsVisiveis([], { demo: true });
+  const previa = cardsVisible([], { demo: true });
   assert.equal(previa.length, CATALOGO.length);
   // And it's still just a mockup: the card that has no route yet still shows "em breve" (coming soon).
   assert.ok(previa.some((c) => !c.pronto));

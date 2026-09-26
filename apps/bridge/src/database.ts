@@ -17,7 +17,7 @@ export function databaseApp(): DatabasePipe {
   return app;
 }
 
-export function databaseDono(): DatabasePipe {
+export function databaseOwner(): DatabasePipe {
   dono ??= createDatabase({ url: URL_DONO, maxConnections: 2 });
   return dono;
 }
@@ -29,7 +29,7 @@ export function noTenant<T>(tenantId: string, fn: (tx: TransactionPipe) => Promi
   return comTenant(databaseApp(), tenantId, fn);
 }
 
-export async function fecharDatabase(): Promise<void> {
+export async function closeDatabase(): Promise<void> {
   if (app) await fecharPool(app);
   if (dono) await fecharPool(dono);
   app = null;

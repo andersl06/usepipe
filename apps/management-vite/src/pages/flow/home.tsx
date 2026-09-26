@@ -1,5 +1,5 @@
 import { Avatar } from '@pipe/ui';
-import { ContactBarras, contactBase, useContact } from './contact';
+import { ContactBars, contactBase, useContact } from './contact';
 import {
   CardChannels,
   CardTeam,
@@ -33,7 +33,7 @@ export function ContactHome() {
 
   return (
     <div className="pt-app">
-      <ContactBarras />
+      <ContactBars />
 
       {/* `#main-content-area` is `pa0`: the inner `.container` is what adds the padding. */}
       <main className="pt-conteudo fx-miolo">
@@ -69,7 +69,7 @@ export function ContactHome() {
           <div className="fx-grade">
             <CardExtensions extensions={[]} />
             <CardChannels
-              ativos={contact.channelActive && contact.channelTipo ? [contact.channelTipo] : []}
+              ativos={contact.channelActive && contact.channelType ? [contact.channelType] : []}
               id={contact.id}
               tipo={contact.tipo}
             />

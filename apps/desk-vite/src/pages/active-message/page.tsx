@@ -7,7 +7,7 @@ import { atualizarLeituras } from '../../lib/actions';
 import { IconeDesk } from '../../components/icones-desk';
 import { Avatar } from '../../components/avatar';
 import { displayName, telefoneInternacional } from '../../lib/order';
-import type { ListaContact } from '../../lib/contacts';
+import type { ListContact } from '../../lib/contacts';
 import { aplicarParametros } from '../../lib/template';
 
 /**
@@ -41,13 +41,13 @@ export function PageActiveMessage() {
   const [search, setSearch] = useState('');
   const [destinos, setDestinos] = useState<Destination[]>([]);
   const [templateId, setTemplateId] = useState('');
-  const [templateParametros, templateSetParametros] = useState<string[]>([]);
+  const [templateParameters, templateSetParameters] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<{ enviadas: number; recusadas: number } | null>(null);
 
   const channels = useRead<{ channels: Channel[] }>('/v1/desk/channels');
-  const contacts = useRead<{ contacts: ListaContact[] }>(
+  const contacts = useRead<{ contacts: ListContact[] }>(
     origem === 'existente'
       ? `/v1/desk/contatos${search.trim().length >= 2 ? `?search=${encodeURIComponent(search.trim())}` : ''}`
       : null,
@@ -82,7 +82,7 @@ export function PageActiveMessage() {
     setError(null);
   }
 
-  function alternarExistente(c: ListaContact) {
+  function alternarExistente(c: ListContact) {
     const ja = destinos.some((d) => d.contactId === c.id);
     if (ja) setDestinos(destinos.filter((d) => d.contactId !== c.id));
     else if (destinos.length < MAX_CONTACTS)
@@ -97,7 +97,7 @@ export function PageActiveMessage() {
       const r = await api.post<{ enviadas: number; recusadas: number }>('/v1/messages-active', {
         canal_id: channel.id,
         template_id: template.id,
-        parametros: variables.map((_, i) => templateParametros[i] ?? ''),
+        parametros: variables.map((_, i) => templateParameters[i] ?? ''),
         contatos: destinos.map((d) => ({
           contato_id: d.contactId,
           telefone: d.telefone,
@@ -271,7 +271,7 @@ export function PageActiveMessage() {
                             <b>
                               {displayName({
                                 contactName: c.nome,
-                                contactTelefone: c.telefone,
+                                contactPhone: c.telefone,
                                 contactEmail: c.email,
                                 contactId: c.id,
                               })}
@@ -382,11 +382,11 @@ export function PageActiveMessage() {
                   <span>{v}</span>
                   <input
                     type="text"
-                    value={templateParametros[i] ?? ''}
+                    value={templateParameters[i] ?? ''}
                     onChange={(e) => {
-                      const novo = [...templateParametros];
+                      const novo = [...templateParameters];
                       novo[i] = e.target.value;
-                      templateSetParametros(novo);
+                      templateSetParameters(novo);
                     }}
                   />
                 </label>
@@ -405,7 +405,7 @@ export function PageActiveMessage() {
                   style={{ float: 'none', maxWidth: '100%', whiteSpace: 'pre-line' }}
                 >
                   {template
-                    ? aplicarParametros(template.corpo, templateParametros)
+                    ? aplicarParametros(template.corpo, templateParameters)
                     : 'Escolha um modelo para ver a mensagem.'}
                 </div>
               </div>
@@ -467,7 +467,7 @@ export function PageActiveMessage() {
                   className="dk-balao"
                   style={{ float: 'none', maxWidth: '100%', whiteSpace: 'pre-line' }}
                 >
-                  {template ? aplicarParametros(template.corpo, templateParametros) : ''}
+                  {template ? aplicarParametros(template.corpo, templateParameters) : ''}
                 </div>
               </div>
             </aside>

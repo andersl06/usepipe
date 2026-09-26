@@ -35,7 +35,7 @@ export const ROTULOS = {
   /** `createApplication.name.nameRouter` */
   rotuloDoNome: 'Nome do roteador',
   /** `modules.ui.uploadButton.title` — the label inside the dashed circle. */
-  definirImage: 'Definir imagem',
+  setImage: 'Definir imagem',
   /** `createApplication.name.back` */
   voltar: 'Voltar',
 } as const;

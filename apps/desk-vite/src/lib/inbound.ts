@@ -36,12 +36,12 @@ export function urlNaApi(caminho: string, destination?: string): string {
   return url.toString();
 }
 
-export type InboundDescoberta = RespostaDaDescoberta | { metodo: 'invalido' | 'falha' };
+export type InboundDiscovery = RespostaDaDescoberta | { metodo: 'invalido' | 'falha' };
 
 /**
  * Discover how this email signs in. The API deliberately answers identically for known and unknown addresses; only a verified domain with active SSO returns `sso`.
  */
-export async function descobrirInbound(email: string): Promise<InboundDescoberta> {
+export async function discoverInbound(email: string): Promise<InboundDiscovery> {
   let resposta: Response;
   try {
     resposta = await fetch(urlDaApi('/v1/auth/descobrir'), {

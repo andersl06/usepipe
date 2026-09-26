@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { noTenant } from '../../database.js';
 import { PipeError } from '../../errors.js';
-import { atualizarChannel, readChannelWhatsApp, marcarReautorizado, texto } from './channel.js';
+import { updateChannel, readChannelWhatsApp, marcarReautorizado, texto } from './channel.js';
 import type { ChannelWhatsApp } from './channel.js';
 import { sanitizarNumero } from './info-do-numero.js';
 import type { InfoDoNumero } from './info-do-numero.js';
@@ -33,7 +33,7 @@ export async function reautorizar(pedido: RequestOfReauthorization): Promise<Cha
 
   // An older client may omit `phone_number_id`; fall back to the value Meta just returned.
   const numeroId = pedido.numberId || pedido.info.numeroId;
-  const atualizado = await atualizarChannel(
+  const atualizado = await updateChannel(
     channel,
     { tokenAcesso: pedido.token, phoneNumberId: numeroId, origem: 'embedded_signup' },
     { wabaId: pedido.wabaId, numberId: numeroId },

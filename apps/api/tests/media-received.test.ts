@@ -12,7 +12,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_MIDIA_MAX_TENTATIVAS'] = '3';
 
 const { createDatabase, closeDatabase, migrate, seed } = await import('@pipe/db');
-const { baixarMediaOfAttachment, defineBuscadorOfMedia, hostOfMediaAllowed, MAX_TENTATIVAS_DOWNLOAD } =
+const { downloadMediaOfAttachment, defineSearchOfMedia, hostOfMediaAllowed, MAX_TENTATIVAS_DOWNLOAD } =
   await import('../src/domain/media.js');
 const { useStorage } = await import('../src/domain/attachment.js');
 
@@ -47,12 +47,12 @@ beforeAll(async () => {
 
 afterAll(async () => {
   useStorage(null);
-  defineBuscadorOfMedia(null);
+  defineSearchOfMedia(null);
   await closeDatabase(dono);
 });
 
 afterEach(() => {
-  defineBuscadorOfMedia(null);
+  defineSearchOfMedia(null);
 });
 
 async function novoTenant(sufixo: string): Promise<string> {
@@ -156,7 +156,7 @@ describe('Download WhatsApp media with one Bearer token, verify sha256, and dete
     const sha256 = createHash('sha256').update(PNG).digest('hex');
 
     const pedidos: { url: string; auth: string | null }[] = [];
-    defineBuscadorOfMedia(async (inbound, init) => {
+    defineSearchOfMedia(async (inbound, init) => {
       const url = String(inbound);
       pedidos.push({ url, auth: cabecalho(init, 'authorization') });
       if (url === 'https://graph.facebook.com/v26.0/media-123') {
@@ -172,7 +172,7 @@ describe('Download WhatsApp media with one Bearer token, verify sha256, and dete
       throw new Error(`url inesperada no dublê: ${url}`);
     });
 
-    const resultado = await baixarMediaOfAttachment(tenantId, attachmentId);
+    const resultado = await downloadMediaOfAttachment(tenantId, attachmentId);
     expect(resultado).toEqual({ estado: 'baixado' });
 
     // As DUAS chamadas — metadado e bytes — levam o Bearer do canal.
@@ -197,13 +197,13 @@ describe('Instagram: baixa direto da URL do CDN, sem token', () => {
 
     let auth: string | null | undefined;
     let urlPedida: string | undefined;
-    defineBuscadorOfMedia(async (entrada, init) => {
+    defineSearchOfMedia(async (entrada, init) => {
       urlPedida = String(entrada);
       auth = cabecalho(init, 'authorization');
       return respostaBytes(JPEG);
     });
 
-    const resultado = await baixarMediaOfAttachment(tenantId, anexoId);
+    const resultado = await downloadMediaOfAttachment(tenantId, anexoId);
     expect(resultado).toEqual({ estado: 'baixado' });
     expect(urlPedida).toBe(URL_INSTAGRAM);
     expect(auth).toBeNull();
@@ -221,7 +221,7 @@ describe('sha256 divergente', () => {
     const anexoId = await newAttachment(tenantId, canalId, 'meta:media-sha');
     const objetosAntes = objetos.size;
 
-    defineBuscadorOfMedia(async (entrada) => {
+    defineSearchOfMedia(async (entrada) => {
       const url = String(entrada);
       if (url.includes('graph.facebook.com')) {
         return respostaJson({ url: 'https://lookaside.fbsbx.com/x', mime_type: 'text/plain', sha256: 'deadbeef' });
@@ -229,7 +229,7 @@ describe('sha256 divergente', () => {
       return respostaBytes(Buffer.from('conteudo que nao bate com o sha256'));
     });
 
-    const resultado = await baixarMediaOfAttachment(tenantId, anexoId);
+    const resultado = await downloadMediaOfAttachment(tenantId, anexoId);
     expect(resultado).toMatchObject({ estado: 'falhou' });
     if (resultado.state === 'falhou') expect(resultado.motivo).toContain('sha256');
 
@@ -249,12 +249,12 @@ describe('host fora da lista', () => {
     const anexoId = await newAttachment(tenantId, canalId, 'https://evil.example/roubado.jpg');
 
     let chamou = false;
-    defineBuscadorOfMedia(async () => {
+    defineSearchOfMedia(async () => {
       chamou = true;
       return respostaBytes(Buffer.from('nunca deveria chegar aqui'));
     });
 
-    const resultado = await baixarMediaOfAttachment(tenantId, anexoId);
+    const resultado = await downloadMediaOfAttachment(tenantId, anexoId);
     expect(resultado).toMatchObject({ estado: 'falhou' });
     if (resultado.state === 'falhou') expect(resultado.motivo).toContain('fora da lista');
     expect(chamou).toBe(false);
@@ -275,9 +275,9 @@ describe('tamanho acima do limite', () => {
     grande[1] = 0x44;
     grande[2] = 0x33; // ID3 → audio/mpeg pelos bytes
 
-    defineBuscadorOfMedia(async () => respostaBytes(grande));
+    defineSearchOfMedia(async () => respostaBytes(grande));
 
-    const resultado = await baixarMediaOfAttachment(tenantId, anexoId);
+    const resultado = await downloadMediaOfAttachment(tenantId, anexoId);
     expect(resultado).toMatchObject({ estado: 'falhou' });
     if (resultado.state === 'falhou') expect(resultado.motivo).toContain('limite');
 
@@ -292,19 +292,19 @@ describe('falha temporária', () => {
     const canalId = await newChannel(tenantId, 'instagram', {});
     const anexoId = await newAttachment(tenantId, canalId, URL_INSTAGRAM);
 
-    defineBuscadorOfMedia(async () => {
+    defineSearchOfMedia(async () => {
       throw new Error('ECONNRESET: rede caiu no meio do download');
     });
 
     for (let tentativa = 1; tentativa < MAX_TENTATIVAS_DOWNLOAD; tentativa += 1) {
-      const resultado = await baixarMediaOfAttachment(tenantId, anexoId);
+      const resultado = await downloadMediaOfAttachment(tenantId, anexoId);
       expect(resultado).toEqual({ estado: 'reagendado' });
       const linha = await lineAttachment(anexoId);
       expect(linha.download_tentativas).toBe(tentativa);
       expect(linha.download_proxima_tentativa_em).not.toBeNull();
     }
 
-    const final = await baixarMediaOfAttachment(tenantId, anexoId);
+    const final = await downloadMediaOfAttachment(tenantId, anexoId);
     expect(final).toMatchObject({ estado: 'falhou' });
     if (final.state === 'falhou') expect(final.motivo).toContain('desistiu');
 
@@ -322,16 +322,16 @@ describe('idempotência', () => {
     const anexoId = await newAttachment(tenantId, canalId, URL_INSTAGRAM);
 
     let chamadas = 0;
-    defineBuscadorOfMedia(async () => {
+    defineSearchOfMedia(async () => {
       chamadas += 1;
       return respostaBytes(JPEG);
     });
 
-    expect(await baixarMediaOfAttachment(tenantId, anexoId)).toEqual({ estado: 'baixado' });
+    expect(await downloadMediaOfAttachment(tenantId, anexoId)).toEqual({ estado: 'baixado' });
     expect(chamadas).toBe(1);
 
     // Second call — the queue's push and the sweep can overlap.
-    expect(await baixarMediaOfAttachment(tenantId, anexoId)).toEqual({ estado: 'ignorado' });
+    expect(await downloadMediaOfAttachment(tenantId, anexoId)).toEqual({ estado: 'ignorado' });
     expect(chamadas).toBe(1);
   });
 });
@@ -344,12 +344,12 @@ describe('Isolate downloaded media by tenant', () => {
     const anexoId = await newAttachment(tenantA, channelA, URL_INSTAGRAM);
 
     let chamou = false;
-    defineBuscadorOfMedia(async () => {
+    defineSearchOfMedia(async () => {
       chamou = true;
       return respostaBytes(JPEG);
     });
 
-    const resultado = await baixarMediaOfAttachment(tenantB, anexoId);
+    const resultado = await downloadMediaOfAttachment(tenantB, anexoId);
     expect(resultado).toEqual({ estado: 'ignorado' });
     expect(chamou).toBe(false);
 

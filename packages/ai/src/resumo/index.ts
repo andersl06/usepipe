@@ -44,7 +44,7 @@ async function resumirCom(
   const texto = prompt.montar({
     transcription: options.transcription.texto,
     truncada: options.transcription.truncada,
-    messagesOmitted: options.transcription.messagesOmitidas,
+    messagesOmitted: options.transcription.messagesOmitted,
     maxPalavras: options.maxPalavras,
     context: options.context,
   });

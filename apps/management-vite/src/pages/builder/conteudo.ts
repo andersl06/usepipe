@@ -1,6 +1,6 @@
 import { CONTEUDOS_SEM_EFEITO, CONTEUDOS_SUPORTADOS } from '@pipe/core';
 import type { Block, EditorInbound, ItemDeConteudo, InboundValidation } from './model';
-import { ROTULO_OF_INBOUND, card, gerarId, newInbound } from './model';
+import { LABEL_OF_INBOUND, card, gerarId, newInbound } from './model';
 
 /**
  * Block Content tab follows Blip's conversation-like `$contentActions` cards, robot utterances left and user input right. Offer only Pipe channel `CONTEUDOS_SUPORTADOS` (`packages/core/src/fluxo/editor.ts`): text `text/plain` and two `application/vnd.lime.select+json` variants, Menu without `scope` and Quick reply with `scope: "immediate"`. Other Blip menu types (image, audio, video, document, sticker, carousel, HTTP, dynamic content, survey, location, web link, call request) are rejected on publish as unsupported `conteudo:<mime>`. Imported `chatstate` Typing appears but cannot be newly created and runs without effect. Limits match editor copy: 25 content items per block, menus up to 10 options of 24 characters, quick replies up to 3 options of 20 characters.
@@ -16,7 +16,7 @@ export const ROTULOS_DO_CONTEUDO = {
   texto: 'Texto',
   menu: 'Menu',
   quickReply: 'Quick reply',
-  entrada: ROTULO_OF_INBOUND,
+  entrada: LABEL_OF_INBOUND,
   digitando: 'Digitando',
   dinamico: 'Conteúdo dinâmico',
   limite: 'Limite de 25 conteúdos atingido',
@@ -112,13 +112,13 @@ export function cardsOf(block: Block): Card[] {
   return cards;
 }
 
-export const temInbound = (block: Block): boolean => (block.$contentActions ?? []).some((c) => c.input);
+export const hasInbound = (block: Block): boolean => (block.$contentActions ?? []).some((c) => c.input);
 
-function fala(id: string, mime: string, conteudo: unknown, cardTipo: string): ItemDeConteudo {
+function fala(id: string, mime: string, conteudo: unknown, cardType: string): ItemDeConteudo {
   return {
     action: {
       $id: id,
-      $typeOfContent: cardTipo,
+      $typeOfContent: cardType,
       type: 'SendMessage',
       settings: { id, type: mime, content: conteudo },
       $cardContent: card(id, mime, conteudo, 'left'),
@@ -147,13 +147,13 @@ export type ResultadoDeConteudo = { ok: true; block: Block } | { ok: false; erro
 export function adicionarConteudo(block: Block, item: ItemDeConteudo): ResultadoDeConteudo {
   const current = block.$contentActions ?? [];
   if (current.length >= LIMITE_DE_CONTEUDOS) return { ok: false, error: ROTULOS_DO_CONTEUDO.limite };
-  const inboundIndice = current.findIndex((c) => c.input);
+  const inboundIndex = current.findIndex((c) => c.input);
   const lista = [...current];
   if (item.input) {
-    if (inboundIndice >= 0) return { ok: true, block };
+    if (inboundIndex >= 0) return { ok: true, block };
     lista.push(item);
-  } else if (inboundIndice >= 0) {
-    lista.splice(inboundIndice, 0, item);
+  } else if (inboundIndex >= 0) {
+    lista.splice(inboundIndex, 0, item);
   } else {
     lista.push(item);
   }
@@ -211,7 +211,7 @@ export function definirMenu(block: Block, indice: number, conteudo: string, opti
 }
 
 /** Replace a block's `input`; do nothing when no input exists. */
-export function definirInbound(block: Block, inbound: EditorInbound): Block {
+export function setInbound(block: Block, inbound: EditorInbound): Block {
   const lista = (block.$contentActions ?? []).map((item) => (item.input ? { ...item, input: inbound } : item));
   return { ...block, $contentActions: lista };
 }
@@ -219,7 +219,7 @@ export function definirInbound(block: Block, inbound: EditorInbound): Block {
 /** Aguardar resposta enables waiting; Não aguardar maps to `bypass`. Create an input if none exists. */
 export function definirEspera(block: Block, aguardar: boolean): Block {
   const inbound = (block.$contentActions ?? []).find((c) => c.input)?.input;
-  if (inbound) return definirInbound(block, { ...inbound, bypass: !aguardar });
+  if (inbound) return setInbound(block, { ...inbound, bypass: !aguardar });
   const nova = newInbound();
   nova.input!.bypass = !aguardar;
   const r = adicionarConteudo(block, nova);

@@ -23,7 +23,7 @@ export * from './search-tipos';
  * results in a command list is a second list to scroll through.
  */
 
-export const BY_OBJETO = 5;
+export const BY_OBJECT = 5;
 
 export async function buscar(termo: string): Promise<Resultado[]> {
   const limpo = termo.trim();
@@ -48,25 +48,25 @@ export async function buscar(termo: string): Promise<Resultado[]> {
           or(ilike(contact.nome, padrao), ilike(contact.email, padrao)),
         ),
       )
-      .limit(BY_OBJETO);
+      .limit(BY_OBJECT);
 
     const opportunities = await tx
       .select({ id: opportunity.id, nome: opportunity.nome, fase: opportunity.fase })
       .from(opportunity)
       .where(ilike(opportunity.nome, padrao))
-      .limit(BY_OBJETO);
+      .limit(BY_OBJECT);
 
     const accounts = await tx
       .select({ id: account.id, nome: account.nome, dominio: account.dominio })
       .from(account)
       .where(or(ilike(account.nome, padrao), ilike(account.dominio, padrao)))
-      .limit(BY_OBJETO);
+      .limit(BY_OBJECT);
 
     const contacts = await tx
       .select({ id: contact.id, nome: contact.nome, email: contact.email })
       .from(contact)
       .where(or(ilike(contact.nome, padrao), ilike(contact.email, padrao)))
-      .limit(BY_OBJETO);
+      .limit(BY_OBJECT);
 
     return [
       ...leads.map((l) => ({

@@ -7,7 +7,7 @@ process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 
-const { avaliarPriority, ordenarRulesOfPriority } = await import(
+const { evaluatePriority, sortRulesOfPriority } = await import(
   '../src/domain/management/priority-engine.js'
 );
 const { upApi } = await import('../src/servidor.js');
@@ -15,7 +15,7 @@ const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
-type RegraDeMotor = Parameters<typeof avaliarPriority>[0][number];
+type RegraDeMotor = Parameters<typeof evaluatePriority>[0][number];
 
 /**
  * The `regra_prioridade` engine (`dominio/gestao/prioridade-motor.ts`) — item 2 of the "make what is only registered actually work" task. `regras-prioridade.ts` already had the CRUD; until this file, nothing READ the table to decide an actual conversation's priority. Two layers of tests: 1. `avaliarPrioridade`/`ordenarRegrasDePrioridade` directly, without a database — the "first match wins" rule is pure, and proving it here is faster. 2. A real webhook (`falar`, the same pattern as `entrada-telefone.test.ts`) proving that `dominio/entrada.ts` wires up the engine when a conversation enters the queue.
@@ -47,22 +47,22 @@ describe('Choose the first matching priority rule', () => {
       // wins for being more specific, not for having been registered earlier.
       criadoEm: new Date('2026-02-01T00:00:00Z'),
     });
-    expect(avaliarPriority([doTenant, ofQueue], { queueId: 'fila-vip' })).toBe('alta');
+    expect(evaluatePriority([doTenant, ofQueue], { queueId: 'fila-vip' })).toBe('alta');
     // Outside the fila-vip, only the tenant's rule applies.
-    expect(avaliarPriority([doTenant, ofQueue], { queueId: 'outra-fila' })).toBe('baixa');
+    expect(evaluatePriority([doTenant, ofQueue], { queueId: 'outra-fila' })).toBe('baixa');
   });
 
   it('Prefer the oldest matching rule within the same scope', () => {
     const antiga = regra({ id: 'antiga', nivel: 'media', criadoEm: new Date('2026-01-01T00:00:00Z') });
     const nova = regra({ id: 'nova', nivel: 'alta', criadoEm: new Date('2026-06-01T00:00:00Z') });
     // Arrival order does not matter — only the creation date.
-    expect(ordenarRulesOfPriority([nova, antiga]).map((r) => r.id)).toEqual(['antiga', 'nova']);
-    expect(avaliarPriority([nova, antiga], {})).toBe('media');
+    expect(sortRulesOfPriority([nova, antiga]).map((r) => r.id)).toEqual(['antiga', 'nova']);
+    expect(evaluatePriority([nova, antiga], {})).toBe('media');
   });
 
   it('Match an empty priority condition because scope already filters the rule', () => {
     const withoutCondition = regra({ id: 'sem-condicao', nivel: 'maxima', condition: {} });
-    expect(avaliarPriority([withoutCondition], { queueId: null, message: 'qualquer coisa' })).toBe(
+    expect(evaluatePriority([withoutCondition], { queueId: null, message: 'qualquer coisa' })).toBe(
       'maxima',
     );
   });
@@ -73,8 +73,8 @@ describe('Choose the first matching priority rule', () => {
       nivel: 'maxima',
       condition: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
     });
-    expect(avaliarPriority([urgente], { message: 'isso é urgente, por favor' })).toBe('maxima');
-    expect(avaliarPriority([urgente], { message: 'mensagem qualquer' })).toBeNull();
+    expect(evaluatePriority([urgente], { message: 'isso é urgente, por favor' })).toBe('maxima');
+    expect(evaluatePriority([urgente], { message: 'mensagem qualquer' })).toBeNull();
   });
 
   it('Return null when no priority rule matches (`sem_prioridade`)', () => {
@@ -83,7 +83,7 @@ describe('Choose the first matching priority rule', () => {
       nivel: 'alta',
       condition: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
     });
-    expect(avaliarPriority([doTenant], { message: 'oi, tudo bem?' })).toBeNull();
+    expect(evaluatePriority([doTenant], { message: 'oi, tudo bem?' })).toBeNull();
   });
 });
 

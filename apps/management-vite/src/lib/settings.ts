@@ -34,13 +34,13 @@ export interface QueueConfigured {
 
 /** Rótulos do banco em português corrente. O alvo é enum, não texto livre. */
 export const ROTULO_ALVO: Record<string, string> = {
-  firstResposta: 'Primeira resposta',
+  firstResponse: 'Primeira resposta',
   resposta: 'Tempo de resposta',
   resolution: 'Encerramento',
-  esperaQueue: 'Espera na fila',
+  waitQueue: 'Espera na fila',
 };
 
-export const ROTULO_SCOPE: Record<string, string> = {
+export const LABEL_SCOPE: Record<string, string> = {
   tenant: 'Toda a operação',
   queue: 'Fila',
 };
@@ -80,7 +80,7 @@ export interface ChannelConfigured {
  * A contagem é de conversas ABERTAS, não do total histórico: o que interessa
  * ao olhar um canal é se ele está entregando agora.
  */
-export interface ChannelCaixa {
+export interface ChannelBox {
   id: string;
   nome: string;
   queueDefault: string | null;
@@ -89,7 +89,7 @@ export interface ChannelCaixa {
 
 export interface ChannelDetailed extends ChannelConfigured {
   criadoEm: string;
-  caixas: ChannelCaixa[];
+  caixas: ChannelBox[];
 }
 
 /* ============================================ Preferências ├ Configurações gerais
@@ -147,7 +147,7 @@ export type Recording = { ok: true } | { ok: false; error: string };
 
 /* `type` e não `interface`: só o alias ganha índice implícito, e é isso que
    deixa `diferenca` — que recebe `Record<string, unknown>` — aceitar o objeto. */
-export type IdentityForGravar = {
+export type IdentityForSave = {
   nome: string;
   fuso: string;
   idioma: string;

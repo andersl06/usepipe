@@ -16,7 +16,7 @@ export interface ContactEdit {
 
 export type Resultado = { ok: true } | { ok: false; error: string };
 
-export async function salvarContact(id: string, edit: ContactEdit): Promise<Resultado> {
+export async function saveContact(id: string, edit: ContactEdit): Promise<Resultado> {
   try {
     await api.patch(`/v1/contacts/${id}`, edit);
     atualizarLeituras();

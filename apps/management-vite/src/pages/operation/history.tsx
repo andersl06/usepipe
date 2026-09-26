@@ -2,32 +2,32 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   GROUPINGS,
   groupingValid,
-  agruparHistory,
+  groupHistory,
   alternarTodosVisiveis,
   HISTORY_LIMIT,
   reconciliarMarcados,
   type Catalogos,
-  type LinhaHistory,
+  type HistoryRow,
 } from '../../lib/history';
 import { useSearchParams } from 'react-router-dom';
 import { useRead } from '../../lib/query';
 import { dataHora, dataOuNada, duration, numero, uuidOuNada } from '../../lib/format';
-import { periodCurrent, periodRotulo } from '../../lib/periodos';
+import { periodCurrent, periodLabel } from '../../lib/periodos';
 import { EmptyState, Icone } from '@pipe/ui';
-import { IconeManagement } from '../../components/icones-management';
+import { ManagementIcon } from '../../components/icones-management';
 import { PanelField, FieldPeriod, PanelFilters } from '../../components/panel-filters';
 import { Selection } from '../../components/selection';
 import { montarCsv } from '../../lib/csv-history';
-import { ListaHistory, type CardHistory } from '../../components/lista-history';
+import { ListHistory, type CardHistory } from '../../components/lista-history';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from './shell';
 
-interface HistoryResposta {
+interface HistoryResponse {
   fuso: string;
   de: string;
   ate: string;
   catalogos: Catalogos;
-  linhas: LinhaHistory[];
+  linhas: HistoryRow[];
   truncado: boolean;
 }
 
@@ -112,8 +112,8 @@ export function PageHistory() {
   for (const key of ['queue', 'agent', 'etiqueta', 'de', 'ate'] as const) {
     if (params[key]) q.set(key, params[key] as string);
   }
-  const read = useRead<HistoryResposta>(`/v1/management/history?${q}`);
-  const [panelAberto, setPanelAberto] = useState(false);
+  const read = useRead<HistoryResponse>(`/v1/management/history?${q}`);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
 
   const aoAlternar = useCallback(
@@ -145,7 +145,7 @@ export function PageHistory() {
    * Everything crosses over to the card already formatted: no Date and no null passes through, and the tenant's timezone formatting gets decided in one place.
    */
   const inCard = (fuso: string) =>
-    (l: LinhaHistory): CardHistory => {
+    (l: HistoryRow): CardHistory => {
       const status = l.status ? ROTULO_STATUS[l.status] : undefined;
       return {
         id: l.id,
@@ -155,7 +155,7 @@ export function PageHistory() {
         queue: l.queueName ?? '—',
         agent: l.agentName ?? '—',
         espera: duration(l.esperaSeg),
-        firstResposta: duration(l.firstRespostaSeg),
+        firstResponse: duration(l.firstResponseSeg),
         attendance: duration(l.attendanceSeg),
         statusTexto: status?.texto ?? 'Aberta',
         statusClasse: status?.classe ?? 'etiqueta',
@@ -182,7 +182,7 @@ export function PageHistory() {
 
   const groups = useMemo(() => {
     if (!data) return [];
-    return agruparHistory(linhas, by).map((g) => ({
+    return groupHistory(linhas, by).map((g) => ({
       titulo: g.titulo,
       cards: g.linhas.map(inCard(data.fuso)),
     }));
@@ -232,10 +232,10 @@ export function PageHistory() {
   /*
    * Period always exists; queue, agent, tag, ticket and contact are the optional filter. The distinction decides the server's empty-state phrase (truncation) — the screen's own text is fixed, like theirs.
    */
-  const temFilter = Boolean(
+  const hasFilter = Boolean(
     params.queue || params.agent || params.etiqueta || params.ticket || params.contact,
   );
-  const limparFilters = `${base}/history?de=${de}&to=${ate}`;
+  const clearFilters = `${base}/history?de=${de}&to=${ate}`;
 
   return (
     <>
@@ -249,7 +249,7 @@ export function PageHistory() {
             disabled={selecionados.length === 0}
             onClick={() => baixarCsv(selecionados)}
           >
-            <IconeManagement nome="baixar" tamanho={24} />
+            <ManagementIcon nome="baixar" tamanho={24} />
             Exportar CSV
           </button>
         </div>
@@ -263,14 +263,14 @@ export function PageHistory() {
         <button
           type="button"
           className={params.ticket ? 'pilula active' : 'pilula'}
-          onClick={() => setPanelAberto(true)}
+          onClick={() => setPanelOpen(true)}
         >
           <span className="pilula-rotulo">IDs dos tickets</span>
         </button>
         <button
           type="button"
           className={params.agent ? 'pilula active' : 'pilula'}
-          onClick={() => setPanelAberto(true)}
+          onClick={() => setPanelOpen(true)}
         >
           <span className="pilula-rotulo">Atendentes</span>
           {params.agent ? (
@@ -280,7 +280,7 @@ export function PageHistory() {
         <button
           type="button"
           className={params.etiqueta ? 'pilula active' : 'pilula'}
-          onClick={() => setPanelAberto(true)}
+          onClick={() => setPanelOpen(true)}
         >
           <span className="pilula-rotulo">Tags</span>
           {params.etiqueta ? (
@@ -292,10 +292,10 @@ export function PageHistory() {
           {/*
  * "Últimos 30 dias" is `bds-button variant="text"`: no border, just the label (`dom/history.html`). The funnel is `bds-icon size="small"`, 20px.
  */}
-          <button type="button" className="btn fantasma" onClick={() => setPanelAberto(true)}>
-            {periodRotulo(periodCurrent(de, ate, fuso))}
+          <button type="button" className="btn fantasma" onClick={() => setPanelOpen(true)}>
+            {periodLabel(periodCurrent(de, ate, fuso))}
           </button>
-          <button type="button" className="btn" onClick={() => setPanelAberto(true)}>
+          <button type="button" className="btn" onClick={() => setPanelOpen(true)}>
             <Icone nome="funil" tamanho={20} />
             Filtros
           </button>
@@ -303,10 +303,10 @@ export function PageHistory() {
       </div>
 
       <PanelFilters
-        aberto={panelAberto}
-        aoFechar={() => setPanelAberto(false)}
+        aberto={panelOpen}
+        aoFechar={() => setPanelOpen(false)}
         acao={`${base}/history`}
-        limpar={temFilter ? limparFilters : null}
+        limpar={hasFilter ? clearFilters : null}
       >
         <CamposEscondidos atual={params} exceto={['de', 'ate']} />
         <FieldPeriod de={de} ate={ate} fuso={fuso} />
@@ -383,7 +383,7 @@ export function PageHistory() {
             {/*
  * `bds-button variant="outline" color="primary" class="mt4"`: the border in brand color (`button 135x40 b=1px rgb(74,93,35)` in the live copy), 20px below the text.
  */}
-            <a href={limparFilters} className="btn contorno-marca">
+            <a href={clearFilters} className="btn contorno-marca">
               Redefinir filtros
             </a>
           </EmptyState>
@@ -418,7 +418,7 @@ export function PageHistory() {
               )}
             </form>
 
-            <ListaHistory
+            <ListHistory
               groups={groups}
               todos={todos}
               marcados={marcadosVisiveis}
@@ -431,7 +431,7 @@ export function PageHistory() {
         )}
 
         <a href="/termo-de-responsabilidade" className="term-of-responsibility">
-          <IconeManagement nome="documento" tamanho={14} />
+          <ManagementIcon nome="documento" tamanho={14} />
           Termo de responsabilidade
         </a>
       </div>

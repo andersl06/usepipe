@@ -191,7 +191,7 @@ export async function autenticar(cabecalho: string | undefined): Promise<Context
   `);
   const linha = rows[0];
   if (!linha) throw PipeError.naoAutorizado();
-  if (!equalInTimeConstante(hashOfSecret(secret), linha.hash)) throw PipeError.naoAutorizado();
+  if (!equalInTimeConstant(hashOfSecret(secret), linha.hash)) throw PipeError.naoAutorizado();
   if (linha.revogada) throw PipeError.naoAutorizado('Chave revogada.');
   if (linha.expirada) throw PipeError.naoAutorizado('Chave expirada.');
 
@@ -213,7 +213,7 @@ export function hashOfSecret(segredo: string): string {
 }
 
 /** Compare without revealing through response timing how many characters matched. */
-function equalInTimeConstante(a: string, b: string): boolean {
+function equalInTimeConstant(a: string, b: string): boolean {
   const bufferA = Buffer.from(a);
   const bufferB = Buffer.from(b);
   if (bufferA.length !== bufferB.length) return false;

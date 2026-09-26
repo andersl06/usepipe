@@ -12,7 +12,7 @@ import {
   tenant,
 } from '@pipe/db/schema';
 import type { TransactionPipe, Ator } from '@pipe/db';
-import { exigirPermission } from '../../session.js';
+import { requirePermission } from '../../session.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
@@ -175,7 +175,7 @@ export async function loadData(tx: TransactionPipe): Promise<{
  * A contagem é de conversas ABERTAS, não do total histórico: o que interessa
  * ao olhar um canal é se ele está entregando agora.
  */
-export interface CaixaOfChannel {
+export interface BoxOfChannel {
   id: string;
   name: string;
   queueDefault: string | null;
@@ -184,7 +184,7 @@ export interface CaixaOfChannel {
 
 export interface ChannelDetailed extends ChannelConfigured {
   criadoEm: Date;
-  caixas: CaixaOfChannel[];
+  caixas: BoxOfChannel[];
 }
 
 export async function loadChannels(tx: TransactionPipe): Promise<ChannelDetailed[]> {
@@ -359,7 +359,7 @@ export async function writeIdentity(
   inbound: IdentityForWrite,
 ): Promise<Recording> {
   if (ator.type === 'usuario' && ator.id) {
-    await exigirPermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
+    await requirePermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
   }
   return consultar(tx, async (tx) => {
     const [antes] = await tx
@@ -406,7 +406,7 @@ export async function gravarPesquisa(
   entrada: PesquisaParaGravar,
 ): Promise<Recording> {
   if (ator.type === 'usuario' && ator.id) {
-    await exigirPermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
+    await requirePermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
   }
   const { id, ...values } = entrada;
   const columns = {
@@ -476,7 +476,7 @@ export async function writeLabelsOfClosure(
   escolhidas: readonly string[],
 ): Promise<Recording> {
   if (ator.type === 'usuario' && ator.id) {
-    await exigirPermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
+    await requirePermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
   }
   return consultar(tx, async (tx) => {
     const antes = await tx

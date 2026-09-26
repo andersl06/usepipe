@@ -29,7 +29,7 @@ export function Card({
   const channel = channelOf(conversation.canalTipo);
   const nome = displayName({
     contactName: conversation.contatoNome,
-    contactTelefone: conversation.contatoTelefone,
+    contactPhone: conversation.contatoTelefone,
   });
   const naoLidaAgora = naoLida(conversation);
   const fixadaAgora = fixada(conversation);

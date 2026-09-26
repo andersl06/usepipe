@@ -5,16 +5,16 @@ import type { ContactListed } from '@pipe/contracts';
 import { contactBase, useContact } from '../contact';
 import {
   formatPeriodLimit,
-  formatarUltimaInteraction,
+  formatLastInteraction,
   periodDefault,
-  countRotulo,
-  channelRotulo,
+  countLabel,
+  channelLabel,
 } from './regras';
 
 /*
  * Structure of the origin's `users-content-view` template (portal.js, module 2753): sidebar `.static-sidebar` with a dark header (Filters + Apply) and a body with the `user-dimension` (dashed "+ Adicionar filtros" button); on the right, `page-header` (Contatos + reload), `#contacts-filter` (count + `blip-daterange-picker`), and the list of `card.card--mini-card.user-card`.
  */
-export function BotListaContacts() {
+export function BotListContacts() {
   const { contact: bot } = useContact();
   const id = bot.id;
   const base = contactBase(bot.tipo, id);
@@ -65,7 +65,7 @@ export function BotListaContacts() {
         <div className="ct-container">
           <div className="ct-filter-contacts">
             <div className="ct-count">
-              <span>{countRotulo(contacts.length)}</span>
+              <span>{countLabel(contacts.length)}</span>
             </div>
             {/* ponytail: the period picker is visual only; date filtering has no backend. */}
             <div className="ct-period" aria-label="Período">
@@ -111,7 +111,7 @@ export function BotListaContacts() {
                     <span className="ct-last-interaction">
                       <span>Última interação:</span>&nbsp;
                       <span>
-                        {formatarUltimaInteraction(
+                        {formatLastInteraction(
                           contact.lastConversation ? new Date(contact.lastConversation) : null,
                         )}
                       </span>
@@ -121,7 +121,7 @@ export function BotListaContacts() {
                   <span className="ct-section ct-section-channel">
                     <span className="ct-channel-label">Canal</span>
                     <span className="ct-channel-value">
-                      {channelRotulo(contact.canalTipo, contact.canalNome)}
+                      {channelLabel(contact.canalTipo, contact.canalNome)}
                     </span>
                   </span>
                   <span className="ct-section ct-section-test" />

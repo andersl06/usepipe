@@ -3,7 +3,7 @@
  */
 
 import { FormatIaError } from '../cliente/errors.js';
-import type { Criterio, Formulario, RespostaEvaluation, RespostaBruta } from './tipos.js';
+import type { Criterio, Formulario, ResponseEvaluation, RespostaBruta } from './tipos.js';
 import { TETO_ESCALA, TETO_NOTA, criteriosDoFormulario } from './tipos.js';
 
 /** Fraction of the criterion met, from 0 to 1; `null` means not applicable. */
@@ -34,8 +34,8 @@ export function valueFraction(criterio: Criterio, value: string): number | null 
 export interface NotaCalculada {
   nota: number;
   notaAntesDoFatal: number;
-  fatalReprovados: string[];
-  respostas: RespostaEvaluation[];
+  fatalRejected: string[];
+  respostas: ResponseEvaluation[];
 }
 
 /** Rounds to the two decimal places of `numeric(6,2)` without carrying floating-point error. */
@@ -48,9 +48,9 @@ export function duasCasas(value: number): number {
  */
 export function calcularNota(
   formulario: Formulario,
-  respostas: readonly (RespostaBruta & { evidenciaMessageId: string | null })[],
+  respostas: readonly (RespostaBruta & { evidenceMessageId: string | null })[],
 ): NotaCalculada {
-  const byCriterio = new Map(respostas.map((r) => [r.criterioId, r]));
+  const byCriterion = new Map(respostas.map((r) => [r.criterioId, r]));
   const pares = criteriosDoFormulario(formulario);
 
   let pesoTotal = 0;
@@ -58,15 +58,15 @@ export function calcularNota(
     criterio: Criterio;
     peso: number;
     fraction: number | null;
-    resposta: RespostaBruta & { evidenciaMessageId: string | null };
+    resposta: RespostaBruta & { evidenceMessageId: string | null };
   }[] = [];
 
   for (const { grupo, criterio } of pares) {
-    const resposta = byCriterio.get(criterio.id);
+    const resposta = byCriterion.get(criterio.id);
     if (!resposta) {
       throw new FormatIaError(
         `O critério "${criterio.nome}" (${criterio.id}) ficou sem resposta.`,
-        [...byCriterio.keys()],
+        [...byCriterion.keys()],
       );
     }
     const fraction = valueFraction(criterio, resposta.value);
@@ -77,7 +77,7 @@ export function calcularNota(
 
   const escala = pesoTotal > 0 ? formulario.notaMaxima / pesoTotal : 0;
 
-  const saida: RespostaEvaluation[] = [];
+  const saida: ResponseEvaluation[] = [];
   const fatalRejected: string[] = [];
   let soma = 0;
 
@@ -90,7 +90,7 @@ export function calcularNota(
       value: resposta.value.trim().toLowerCase(),
       pontos,
       justificativa: resposta.justificativa,
-      evidenciaMessageId: resposta.evidenciaMessageId,
+      evidenceMessageId: resposta.evidenceMessageId,
     });
   }
 
@@ -98,7 +98,7 @@ export function calcularNota(
   return {
     nota: fatalRejected.length > 0 ? 0 : notaAntesDoFatal,
     notaAntesDoFatal,
-    fatalReprovados: fatalRejected,
+    fatalRejected: fatalRejected,
     respostas: saida,
   };
 }

@@ -6,16 +6,16 @@ import type { DataOfServices, LinkedService } from '@pipe/contracts';
 
 import { contactBase } from '../contact';
 
-import { excluirService, salvarService } from './gravar';
+import { deleteService, saveService } from './gravar';
 
 import {
-  serviceFieldsVisiveis,
+  serviceFieldsVisible,
   searchChatbots,
   pedidoDoFormulario,
-  type ServiceFormulario,
+  type ServiceForm,
 } from './regras';
 
-const EMPTY: ServiceFormulario = {
+const EMPTY: ServiceForm = {
   nome: '',
   chatbotId: '',
   principal: false,
@@ -23,7 +23,7 @@ const EMPTY: ServiceFormulario = {
   expiration: '',
 };
 
-function formularioDe(service: LinkedService): ServiceFormulario {
+function formularioDe(service: LinkedService): ServiceForm {
   return {
     nome: service.nome,
     chatbotId: service.chatbot.id,
@@ -51,7 +51,7 @@ export function TelaDeServicos({
   const [aberto, setAberto] = useState<string | null>(null);
 
   const [formulario, setFormulario] =
-    useState<ServiceFormulario>(EMPTY);
+    useState<ServiceForm>(EMPTY);
 
   const [searchText, searchSetText] = useState('');
   const [error, setError] = useState('');
@@ -64,7 +64,7 @@ export function TelaDeServicos({
     ...data.filhos,
   ];
 
-  const campos = serviceFieldsVisiveis(
+  const campos = serviceFieldsVisible(
     formulario.principal,
     formulario.persistente,
   );
@@ -115,7 +115,7 @@ export function TelaDeServicos({
   };
 
   const mudar = (
-    parte: Partial<ServiceFormulario>,
+    parte: Partial<ServiceForm>,
   ) =>
     setFormulario((atual) => ({
       ...atual,
@@ -125,7 +125,7 @@ export function TelaDeServicos({
   const gravar = async () => {
     setGravando(true);
 
-    const r = await salvarService(
+    const r = await saveService(
       router.id,
       editando,
       pedidoDoFormulario(formulario),
@@ -143,7 +143,7 @@ export function TelaDeServicos({
   const excluir = async (
     service: LinkedService,
   ) => {
-    const r = await excluirService(
+    const r = await deleteService(
       router.id,
       service.id,
     );

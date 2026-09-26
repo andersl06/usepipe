@@ -6,16 +6,16 @@ import { createInbound } from './context.js';
 import type { Context, OutputMessage } from './context.js';
 import {
   ProcessingOutputError,
-  MotorError,
+  EngineError,
   SuspensaoDeProcessHttp,
-  processarInbound,
+  processInbound,
 } from './manager.js';
 import type { Acao, State, FlowBlip } from './modelos.js';
 
 const FLOW_ID = 'f1';
 const KEY_STATE = `stateId@${FLOW_ID}`;
 
-function servicosFalsos(falharAttendance = false) {
+function servicosFalsos(failAttendance = false) {
   const enviadas: OutputMessage[] = [];
   const attendances: unknown[] = [];
   const eventos: unknown[] = [];
@@ -27,8 +27,8 @@ function servicosFalsos(falharAttendance = false) {
       async send(m: OutputMessage) {
         enviadas.push(m);
       },
-      async encaminharForAttendance(p: unknown) {
-        if (falharAttendance) throw new Error('fila fechada');
+      async forwardForAttendance(p: unknown) {
+        if (failAttendance) throw new Error('fila fechada');
         attendances.push(p);
         return { id: 'atd-1', status: 'Open' };
       },
@@ -45,11 +45,11 @@ async function rodar(
   options: {
     variables?: Record<string, string>;
     tipo?: string;
-    falharAttendance?: boolean;
+    failAttendance?: boolean;
     contact?: Record<string, unknown>;
   } = {},
 ) {
-  const f = servicosFalsos(options.falharAttendance);
+  const f = servicosFalsos(options.failAttendance);
   const flow: FlowBlip = { id: FLOW_ID, states };
   const variables = options.variables ?? {};
   const context: Context = {
@@ -61,7 +61,7 @@ async function rodar(
     contact: options.contact ?? null,
     services: f.servicos,
   };
-  const rastro = await processarInbound(context);
+  const rastro = await processInbound(context);
   return { ...f, rastro, variables, textos: f.enviadas.map((m) => m.conteudo) };
 }
 
@@ -103,7 +103,7 @@ describe('FlowManager.ProcessInputAsync', () => {
       contact: null,
       services: {
         async send(m: OutputMessage) { enviados.push(String(m.conteudo)); },
-        async encaminharForAttendance() { return { id: 'atd-1', status: 'Open' }; },
+        async forwardForAttendance() { return { id: 'atd-1', status: 'Open' }; },
         async registerEvent() {},
         async callHttp() { return { status: 200, corpo: '{}' }; },
         async suspendHttp(pedido: unknown, cursor: unknown): Promise<never> {
@@ -112,12 +112,12 @@ describe('FlowManager.ProcessInputAsync', () => {
       },
     } satisfies Context;
 
-    await expect(processarInbound(base)).rejects.toMatchObject({ pedido: {
+    await expect(processInbound(base)).rejects.toMatchObject({ pedido: {
       url: 'https://cliente.test/Ana',
     } });
     expect(enviados).toEqual(['Antes']);
 
-    await processarInbound({
+    await processInbound({
       ...base,
       inboundContext: new Map(),
       services: {
@@ -211,7 +211,7 @@ describe('FlowManager.ProcessInputAsync', () => {
       ],
       'Ping!',
     ).catch((e: unknown) => e);
-    expect(error).toBeInstanceOf(MotorError);
+    expect(error).toBeInstanceOf(EngineError);
     expect((error as Error).message).toContain('TrackEvent');
   });
 
@@ -221,7 +221,7 @@ describe('FlowManager.ProcessInputAsync', () => {
       estados.push({ id: `t${i}`, outputs: [{ stateId: `t${i + 1}` }] });
     estados.push({ id: 't11' });
     const error = await rodar(estados, 'Ping!').catch((e: unknown) => e);
-    expect(error).toBeInstanceOf(MotorError);
+    expect(error).toBeInstanceOf(EngineError);
     expect((error as Error).message).toContain('limite de 10 transições');
   });
 
@@ -366,7 +366,7 @@ describe('FlowManager.ProcessInputAsync', () => {
       ],
       'x',
     ).catch((e: unknown) => e);
-    expect(error).toBeInstanceOf(MotorError);
+    expect(error).toBeInstanceOf(EngineError);
     expect((error as Error).message).toContain("'ExecuteScript' não existe no Pipe");
   });
 
@@ -461,8 +461,8 @@ describe('OutputConditions', () => {
       const variables: Record<string, string> =
         value === undefined ? {} : { variableWithState: value };
       const error = await rodar(stateByVariable, 'hello', { variables }).catch((e: unknown) => e);
-      expect(error).toBeInstanceOf(MotorError);
-      expect((error as MotorError).cause).toBeInstanceOf(ProcessingOutputError);
+      expect(error).toBeInstanceOf(EngineError);
+      expect((error as EngineError).cause).toBeInstanceOf(ProcessingOutputError);
     },
   );
 });
@@ -583,7 +583,7 @@ describe('attendance block (desk:) the way Blip\'s editor builds it', () => {
   });
 
   it('a forwarding failure becomes Error and follows attendance\'s default output', async () => {
-    const r = await rodar(deskStates, 'quero falar com alguém', { falharAttendance: true });
+    const r = await rodar(deskStates, 'quero falar com alguém', { failAttendance: true });
     expect(r.variables['desk_forwardToDeskState_status']).toBe('Error');
     expect(r.textos).toEqual(['Sem atendente agora.']);
   });
@@ -617,14 +617,14 @@ describe('Redirect (router service)', () => {
         },
       },
     };
-    await processarInbound(context);
+    await processInbound(context);
     expect(pedidos).toEqual([
       { endereco: 'suporte', contexto: { type: 'text/plain', value: 'x' } },
     ]);
   });
 
   it('outside the router, Redirect fails — in Blip it goes to the exceptions block', async () => {
-    await expect(rodar(redirecionar('suporte'), 'oi')).rejects.toBeInstanceOf(MotorError);
+    await expect(rodar(redirecionar('suporte'), 'oi')).rejects.toBeInstanceOf(EngineError);
   });
 
   it('sem address, falha antes de redirecionar', async () => {

@@ -9,7 +9,7 @@ import { Interruptor } from '../../integrations/interruptor';
 /**
  * Settings — `FICHA-canal-whatsapp.md` §3: Quick reply and Menu, each a `bds-switch` that "seems to persist the change directly" — with no save button, the toggle already writes (`gravarPreferenciasWhatsapp`). The channel is the bot's (`useCanalWhatsapp`).
  */
-export function AbaSettings() {
+export function TabSettings() {
   const { channel } = useChannelWhatsapp();
   const read = useRead<ChannelPreferences>(`/v1/channels/whatsapp/${channel.id}/preferences`, { retry: false });
   const [gravando, setGravando] = useState<'quickReply' | 'menu' | null>(null);

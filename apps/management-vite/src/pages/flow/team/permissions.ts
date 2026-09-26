@@ -48,9 +48,9 @@ export const acaoDeAdicionar = (role: RoleInFlow) =>
   role === 'personalizado' ? 'Continuar' : 'Salvar';
 
 /** The edit PAGE's selector has one more option than the add-member bar. */
-export type EditNivel = 'nenhum' | RoleInFlow;
+export type EditLevel = 'nenhum' | RoleInFlow;
 
-export const NIVEIS_OF_EDIT: readonly { value: EditNivel; rotulo: string }[] = [
+export const LEVELS_OF_EDIT: readonly { value: EditLevel; rotulo: string }[] = [
   { value: 'nenhum', rotulo: 'Sem permissão' },
   { value: 'personalizado', rotulo: 'Customizado' },
   { value: 'visualizar', rotulo: 'Visualizar' },
@@ -81,11 +81,11 @@ export function rolePermissions(
 /**
  * Blip's `/team/edit` `permissionSelect` is derived from the matrix: all 0 = none, all 1 = read, all 3 = readWrite; mixed = custom.
  */
-export function editNivel(
+export function editLevel(
   role: RoleInFlow,
   recursos: readonly { key: string }[],
   permissions: PermissionsInFlow,
-): EditNivel {
+): EditLevel {
   if (role === 'admin') return 'admin';
   const niveis = recursos.map((recurso) => permissions[recurso.key] ?? 'nenhum');
   if (niveis.every((nivel) => nivel === 'nenhum')) return 'nenhum';
@@ -95,8 +95,8 @@ export function editNivel(
 }
 
 /** `none` cabe no papel personalizado do Pipe com todas as linhas zeradas. */
-export function permissionsOfNivelOfEdit(
-  nivel: EditNivel,
+export function permissionsOfLevelOfEdit(
+  nivel: EditLevel,
   recursos: readonly { key: string }[],
   current: PermissionsInFlow,
 ): PermissionsInFlow {

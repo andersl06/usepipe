@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
 import { IconePortal } from './icones-portal';
-import { PERIODOS, calcularPeriod, periodCurrent } from '../lib/periodos';
+import { PERIODOS, calculatePeriod, periodCurrent } from '../lib/periodos';
 import { Selection } from './selection';
 
 /**
@@ -159,7 +159,7 @@ export function FieldPeriod({ de, ate, fuso }: { de: string; ate: string; fuso: 
         defaultValue={periodCurrent(de, ate, fuso)}
         aria-label="Atalho de período"
         onChange={(e) => {
-          const calc = calcularPeriod(e.currentTarget.value, fuso);
+          const calc = calculatePeriod(e.currentTarget.value, fuso);
           if (!calc) return;
           const form = e.currentTarget.form;
           const campoDe = form?.elements.namedItem('de');

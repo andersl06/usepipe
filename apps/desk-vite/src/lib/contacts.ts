@@ -1,7 +1,7 @@
 /**
  * Pure Contacts-tab sorting and grouping from `referencias-blip/pesquisa/blip-desk-medidas.md` §11. `Ordem alfabética` (default) groups by the first letter of the name, always putting unnamed contacts in `#` last; `Última interação` groups by the latest message date, newest first.
  */
-export interface ListaContact {
+export interface ListContact {
   id: string;
   nome: string | null;
   telefone: string | null;
@@ -13,7 +13,7 @@ export type ContactsOrder = 'alfabetica' | 'ultima-interacao';
 
 export interface ContactsGroup {
   rotulo: string;
-  contacts: ListaContact[];
+  contacts: ListContact[];
 }
 
 function letra(nome: string | null): string {
@@ -32,11 +32,11 @@ function dia(iso: string | null): string {
   });
 }
 
-export function agruparContacts(
-  contacts: readonly ListaContact[],
+export function groupContacts(
+  contacts: readonly ListContact[],
   order: ContactsOrder,
 ): ContactsGroup[] {
-  const groups = new Map<string, ListaContact[]>();
+  const groups = new Map<string, ListContact[]>();
   const ordenados = [...contacts].sort((a, b) => {
     if (order === 'alfabetica') {
       const an = (a.nome ?? '').trim();

@@ -1,11 +1,11 @@
 import { and, eq, gte, isNotNull, lt } from 'drizzle-orm';
 import {
-  contarClosures,
-  timeAteFirstResposta,
+  countClosures,
+  timeUntilFirstResponse,
   attendanceTime,
-  respostaTime,
+  responseTime,
   timeInQueue,
-  timeTotalOfEsperaOfCliente,
+  timeTotalOfWaitOfClient,
   type CountClosure,
   type ConversationEvents,
   type ClosedBy,
@@ -86,11 +86,11 @@ export interface AttendanceFilter {
 function medir(conversas: readonly ConversationEvents[]): BlockOfTimes {
   return {
     inQueue: timeInQueue(conversas),
-    firstResponse: timeAteFirstResposta(conversas),
-    esperaTotal: timeTotalOfEsperaOfCliente(conversas),
-    resposta: respostaTime(conversas),
+    firstResponse: timeUntilFirstResponse(conversas),
+    esperaTotal: timeTotalOfWaitOfClient(conversas),
+    resposta: responseTime(conversas),
     attendance: attendanceTime(conversas),
-    closures: contarClosures(conversas),
+    closures: countClosures(conversas),
     conversations: conversas.length,
   };
 }
@@ -122,7 +122,7 @@ function quebrar(
 /**
  * Break down by the many-to-one label key. A conversation with three labels appears in three rows, so the row totals exceed the period total. The screen must say so: measuring a billing ticket requires counting a conversation under every topic it had. Unlike Chatwoot, count distinct conversations, not `taggings` without explanation.
  */
-function quebrarByMuitas(
+function splitByMany(
   eventsByConversation: ReadonlyMap<string, ConversationEvents>,
   vinculos: readonly { conversationId: string; key: string }[],
 ): LinhaDeQuebra[] {
@@ -202,7 +202,7 @@ export async function loadAttendance(
         tipo: e.tipo as TipoEvento,
         em: e.em,
         userId: e.usuarioId,
-        encerradaBy: (data.closedBy ?? null) as ClosedBy | null,
+        closedBy: (data.closedBy ?? null) as ClosedBy | null,
       };
       const atual = byConversation.get(e.conversaId);
       if (atual) atual.push(evento);
@@ -236,7 +236,7 @@ export async function loadAttendance(
       byQueue: quebrar(conversations, 'queue'),
       byAgent: quebrar(conversations, 'agent'),
       byInbox: quebrar(conversations, 'inbox'),
-      byLabel: quebrarByMuitas(eventsByConversation, vinculos),
+      byLabel: splitByMany(eventsByConversation, vinculos),
       semEtiqueta: conversations.filter((c) => !etiquetadas.has(c.eventos.conversationId)).length,
     };
   });

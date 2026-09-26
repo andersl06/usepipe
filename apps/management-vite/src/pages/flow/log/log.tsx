@@ -3,7 +3,7 @@ import { api } from '../../../lib/api';
 import { useRead } from '../../../lib/query';
 import { filterStorageKey, loadFilters, saveFilters } from '../../../lib/filter-memory';
 import { useEu } from '../../../context/session';
-import { ModuloShell, useContact } from '../contact';
+import { ShellModule, useContact } from '../contact';
 import { TelaDoLog, type LogFilterValues } from './tela';
 import '../integrations/header-of-page.css';
 import './log.css';
@@ -113,7 +113,7 @@ export function PageLog() {
   const logs = [...(firstPage.data?.data ?? []), ...extras];
 
   return (
-    <ModuloShell ativo="Log">
+    <ShellModule ativo="Log">
       <TelaDoLog
         search={search}
         de={de}
@@ -136,6 +136,6 @@ export function PageLog() {
           metadata: log.metadata ? JSON.stringify(log.metadata, undefined, 2) : null,
         }))}
       />
-    </ModuloShell>
+    </ShellModule>
   );
 }

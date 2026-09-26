@@ -36,8 +36,8 @@ export class TransitionInvalidError extends Error {
   readonly evento?: TipoEvento;
 
   constructor(de: StateConversation, para: StateConversation, evento?: TipoEvento) {
-    const byCausaOf = evento ? ` (evento ${evento})` : '';
-    super(`Transição inválida de ${de} para ${para}${byCausaOf}`);
+    const byCauseOf = evento ? ` (evento ${evento})` : '';
+    super(`Transição inválida de ${de} para ${para}${byCauseOf}`);
     this.name = 'TransicaoInvalidaError';
     this.de = de;
     this.para = para;
@@ -73,7 +73,7 @@ export function tentarTransitar(
 /**
  * Destination state per event type; null means the event does not change state (customer message, SLA alert, evaluation, or queue transfer recorded as history).
  */
-export function eventStateAlvo(tipo: TipoEvento): StateConversation | null {
+export function eventStateTarget(tipo: TipoEvento): StateConversation | null {
   switch (tipo) {
     case 'criada':
     case 'enfileirada':
@@ -108,7 +108,7 @@ export function aplicarEvento(
   stateCurrent: StateConversation,
   evento: Pick<EventAttendance, 'tipo'>,
 ): ResultApplication {
-  const alvo = eventStateAlvo(evento.tipo);
+  const alvo = eventStateTarget(evento.tipo);
   if (alvo === null) return { state: stateCurrent, mudou: false };
   if (alvo === stateCurrent) return { state: stateCurrent, mudou: false };
   if (!transitionAllowed(stateCurrent, alvo)) {
@@ -174,7 +174,7 @@ export function transitionDeliveryAllowed(de: StateDelivery, para: StateDelivery
   return TRANSITIONS_DELIVERY[de].includes(para);
 }
 
-export function transitarDelivery(de: StateDelivery, para: StateDelivery): StateDelivery {
+export function transitionDelivery(de: StateDelivery, para: StateDelivery): StateDelivery {
   if (!transitionDeliveryAllowed(de, para)) throw new TransitionDeliveryInvalidError(de, para);
   return para;
 }

@@ -310,8 +310,8 @@ export async function carregarListaDeLeads(
         status: l.status,
         fase: l.fase,
         diasNaFase: desdeFase ? Math.floor((agora - desdeFase.getTime()) / 86_400_000) : null,
-        ultimaActivity: ult?.em ?? null,
-        ultimaActivityTipo: ult?.tipo ?? null,
+        lastActivity: ult?.em ?? null,
+        lastActivityType: ult?.tipo ?? null,
       };
     });
 

@@ -31,7 +31,7 @@ type Acao = (
 
 const ACTIONS: Record<string, Acao> = {
   definirStatus: acoesDesk.definirStatus,
-  cairPorInatividade: acoesDesk.cairByInactivity,
+  cairPorInatividade: acoesDesk.failByInactivity,
   salvarNotaInterna: acoesDesk.salvarNotaInterna,
   atender: acoesDesk.atender,
   transferirEmMassa: acoesDesk.transferInBulk,
@@ -41,7 +41,7 @@ const ACTIONS: Record<string, Acao> = {
 };
 
 /** Maximum metrics range: the screen's 90 days plus a little margin. */
-const TETO_OF_DAYS_OF_METRICS = 92;
+const CEILING_OF_DAYS_OF_METRICS = 92;
 
 function dataOuNada(value: string | undefined): Date | null {
   if (!value) return null;
@@ -185,7 +185,7 @@ export class DeskController {
       fim = agora;
     }
     if (inicio > fim) [inicio, fim] = [fim, inicio];
-    const tetoMs = TETO_OF_DAYS_OF_METRICS * 86_400_000;
+    const tetoMs = CEILING_OF_DAYS_OF_METRICS * 86_400_000;
     if (fim.getTime() - inicio.getTime() > tetoMs) inicio = new Date(fim.getTime() - tetoMs);
 
     const de = inicio;

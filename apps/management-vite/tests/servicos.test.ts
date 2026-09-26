@@ -1,21 +1,21 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-  serviceFieldsVisiveis,
+  serviceFieldsVisible,
   searchChatbots,
   pedidoDoFormulario,
 } from '../src/pages/flow/services/regras';
 
 describe('service form', () => {
   it('hides the redirect when the service is the main one', () => {
-    assert.deepEqual(serviceFieldsVisiveis(true, false), {
+    assert.deepEqual(serviceFieldsVisible(true, false), {
       mostrarPersistente: false,
       mostrarExpiracao: false,
     });
   });
 
   it('hides only the expiration when the redirect is persistent', () => {
-    assert.deepEqual(serviceFieldsVisiveis(false, true), {
+    assert.deepEqual(serviceFieldsVisible(false, true), {
       mostrarPersistente: true,
       mostrarExpiracao: false,
     });

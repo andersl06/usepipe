@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Campo, Etiqueta, Tabela, type Column } from '@pipe/ui';
 import { Block, SectionHeader } from '../../../components/settings/cabecalho';
 import { Formulario } from '../../../components/settings/formulario';
-import { permissionsListarCatalogo, listarPapeis } from '../../../lib/settings-data';
+import { permissionsListCatalog, listarPapeis } from '../../../lib/settings-data';
 import type { RoleSummary } from '../../../lib/settings-comum';
 import { numero } from '../../../lib/format';
 import { actionCreateRole } from '../actions';
@@ -51,7 +51,7 @@ const COLUNAS: readonly Column<RoleSummary>[] = [
 
 export default async function PageRoles() {
   const papeis = await listarPapeis();
-  const catalogo = await permissionsListarCatalogo();
+  const catalogo = await permissionsListCatalog();
 
   return (
     <>
@@ -64,7 +64,7 @@ export default async function PageRoles() {
         <Tabela
           colunas={COLUNAS}
           linhas={papeis}
-          linhaKey={(p) => p.id}
+          rowKey={(p) => p.id}
           larguraMinima={620}
           empty={
             <>

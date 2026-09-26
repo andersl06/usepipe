@@ -1,20 +1,20 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { IconeSearch, IconePortal } from '../../../../components/icones-portal';
+import { SearchIcon, IconePortal } from '../../../../components/icones-portal';
 import { Selection } from '../../../../components/selection';
 import { useRead } from '../../../../lib/query';
 import type { DataOfGrowth, EnvioGrowth } from '@pipe/contracts';
 import { analisarCsv, filtrarEnvios } from '../regras';
 import type { DestinationCsv } from '../regras';
-import { dispararActiveMessages, rotuloDeRecusa } from './disparo';
-import type { DisparoDestination, LimitesDeDisparo, RespostaDoDisparo } from './disparo';
+import { triggerActiveMessages, rotuloDeRecusa } from './disparo';
+import type { TriggerDestination, LimitesDeDisparo, RespostaDoDisparo } from './disparo';
 
 type Etapa = 1 | 2 | 3 | 4;
 
-export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
+export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
   /* The origin's "Atualizar" reloads the screen; here it invalidates the Growth read. */
   const queue = useQueryClient();
-  const [atualizando, iniciarUpdate] = useTransition();
+  const [atualizando, startUpdate] = useTransition();
   const [create, setCreate] = useState(false);
   const [etapa, setEtapa] = useState<Etapa>(1);
   const [channelId, setChannelId] = useState(data.channels[0]?.id ?? '');
@@ -30,9 +30,9 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
   const [resultadoEnvio, setResultadoEnvio] = useState<RespostaDoDisparo | null>(null);
   const [aviso, setAviso] = useState('');
   const [search, setSearch] = useState('');
-  const [mostrarSearch, setMostrarSearch] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const [channelFilter, setChannelFilter] = useState('whatsapp');
-  const [tipoMessage, setTipoMessage] = useState('todos');
+  const [typeMessage, setTypeMessage] = useState('todos');
   const [tipoCampanha, setTipoCampanha] = useState('todos');
   const quantityFile = contactsFile.length;
 
@@ -51,7 +51,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
   const templateSelected = data.modelos.find((template) => template.id === templateId);
   const envios = useMemo(() => filtrarEnvios(data.envios, search, 'todos'), [data.envios, search]);
 
-  function abrirCreation() {
+  function openCreation() {
     setCreate(true);
     setEtapa(1);
     setAviso('');
@@ -96,7 +96,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
   async function enviarAgora() {
     setAviso('');
     setEnviando(true);
-    const destinos: DisparoDestination[] =
+    const destinos: TriggerDestination[] =
       tipoAudiencia === 'massa'
         ? contactsFile.map((c) => ({
             telefone: c.telefone,
@@ -104,15 +104,15 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
             ...(c.parametros.length ? { parametros: c.parametros } : {}),
           }))
         : [{ contactId: contactId }];
-    const parametrosGlobal = parametrosTexto.trim()
+    const parametersGlobal = parametrosTexto.trim()
       ? parametrosTexto.split(',').map((p) => p.trim())
       : undefined;
 
-    const resultado = await dispararActiveMessages({
+    const resultado = await triggerActiveMessages({
       channelId: channelId,
       template_id: templateId,
       contacts: destinos,
-      ...(parametrosGlobal ? { parametros: parametrosGlobal } : {}),
+      ...(parametersGlobal ? { parametros: parametersGlobal } : {}),
     });
     setEnviando(false);
     if (!resultado.ok) {
@@ -138,7 +138,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
             type="button"
             disabled={atualizando}
             onClick={() =>
-              iniciarUpdate(() => {
+              startUpdate(() => {
                 void queue.invalidateQueries({ queryKey: ['api'] });
               })
             }
@@ -146,7 +146,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
             <IconePortal nome="atualizar" tamanho={20} />
             Atualizar
           </button>
-          <button className="gr-botao gr-botao-primario" type="button" onClick={abrirCreation}>
+          <button className="gr-botao gr-botao-primario" type="button" onClick={openCreation}>
             Enviar mensagens ativas
           </button>
         </div>
@@ -162,7 +162,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
         <header>
           <h2>Filtros</h2>
           <div>
-            {mostrarSearch ? (
+            {showSearch ? (
               <label>
                 Nome da campanha
                 <input
@@ -177,9 +177,9 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
               className="gr-botao gr-botao-pesquisa"
               type="button"
               aria-label="Pesquisar campanha"
-              onClick={() => setMostrarSearch((atual) => !atual)}
+              onClick={() => setShowSearch((atual) => !atual)}
             >
-              <IconeSearch tamanho={22} />
+              <SearchIcon tamanho={22} />
             </button>
           </div>
         </header>
@@ -196,8 +196,8 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
           <label>
             Tipo da mensagem
             <Selection
-              value={tipoMessage}
-              onChange={(evento) => setTipoMessage(evento.target.value)}
+              value={typeMessage}
+              onChange={(evento) => setTypeMessage(evento.target.value)}
             >
               <option value="todos">Todos</option>
               <option value="agendadas">Agendadas</option>
@@ -512,7 +512,7 @@ function ListaDeEnvios({ envios }: { envios: EnvioGrowth[] }) {
                   <td>{envio.templateNome ?? '—'}</td>
                   <td>
                     <span className={`gr-status gr-status--${envio.estado ?? 'pendente'}`}>
-                      {rotuloState(envio.estado)}
+                      {labelState(envio.estado)}
                     </span>
                   </td>
                   <td>Sem agendamento</td>
@@ -538,7 +538,7 @@ function ListaDeEnvios({ envios }: { envios: EnvioGrowth[] }) {
   );
 }
 
-function rotuloState(value: string | null): string {
+function labelState(value: string | null): string {
   const rotulos: Record<string, string> = {
     pendente: 'Aguardando envio',
     enviando: 'Enviando',

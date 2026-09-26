@@ -5,8 +5,8 @@ import { redirect } from 'next/navigation';
 import {
   COOKIE_SESSION,
   caminhoInterno,
-  descobrirInbound,
-  encerrarSession,
+  discoverInbound,
+  closeSession,
   urlNaApi,
 } from '../../lib/session';
 
@@ -25,7 +25,7 @@ import {
 export async function continuar(data: FormData): Promise<void> {
   const email = String(data.get('email') ?? '').trim();
   const destination = caminhoInterno(String(data.get('destino') ?? ''));
-  const inbound = await descobrirInbound(email);
+  const inbound = await discoverInbound(email);
 
   if (inbound.metodo === 'sso' && inbound.irPara) {
     redirect(urlNaApi(inbound.irPara, destination));
@@ -50,7 +50,7 @@ export async function continuar(data: FormData): Promise<void> {
 export async function sair(): Promise<void> {
   const pote = await cookies();
   const cookie = pote.get(COOKIE_SESSION);
-  if (cookie) await encerrarSession(`${COOKIE_SESSION}=${cookie.value}`);
+  if (cookie) await closeSession(`${COOKIE_SESSION}=${cookie.value}`);
 
   pote.set({
     name: COOKIE_SESSION,

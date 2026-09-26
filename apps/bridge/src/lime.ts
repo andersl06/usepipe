@@ -2,8 +2,8 @@
  * LIME protocol envelopes as expected by the Blip screen. The copy does not use REST: it sends `{ id, method, to, uri }` commands and reads `{ status, type, resource }`. `type` determines the screen component: `application/vnd.iris.ticket+json` builds a ticket card and `application/vnd.lime.collection+json` builds a list. The wrong type displays the wrong component or nothing. Names and values here are protocol fields consumed by the client, so preserve their spelling.
  */
 
-export const TIPO_COLLECTION = 'application/vnd.lime.collection+json';
-export const TIPO_DOCUMENT = 'application/vnd.lime.document+json';
+export const TYPE_COLLECTION = 'application/vnd.lime.collection+json';
+export const TYPE_DOCUMENT = 'application/vnd.lime.document+json';
 export const TIPO_TICKET = 'application/vnd.iris.ticket+json';
 export const TIPO_ACCOUNT = 'application/vnd.lime.account+json';
 
@@ -37,7 +37,7 @@ export function collection(itens: unknown[], tipoItem?: string, total?: number):
       itemType: tipoItem ?? 'application/json',
       items: itens,
     },
-    TIPO_COLLECTION,
+    TYPE_COLLECTION,
   );
 }
 

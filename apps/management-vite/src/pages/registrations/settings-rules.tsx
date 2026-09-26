@@ -1,7 +1,7 @@
 import { useRead } from '../../lib/query';
 import {
   ROTULO_ALVO,
-  ROTULO_SCOPE,
+  LABEL_SCOPE,
   type QueueConfigured,
   type RegraSlaConfigurada,
 } from '../../lib/settings';
@@ -23,7 +23,7 @@ export function PageRules() {
       titulo: 'Regras de SLA',
       empty: 'Nenhuma regra de SLA cadastrada. Toda conversa aparece como “Sem regra”.',
       cards: regras.map((r) => {
-        const scope = `${ROTULO_SCOPE[r.scopeType] ?? r.scopeType}${r.scopeName ? ` · ${r.scopeName}` : ''}`;
+        const scope = `${LABEL_SCOPE[r.scopeType] ?? r.scopeType}${r.scopeName ? ` · ${r.scopeName}` : ''}`;
         return {
           id: r.id,
           campos: [

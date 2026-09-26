@@ -9,12 +9,12 @@ import type { Prompt } from './tipos.js';
 export interface InboundEvaluation {
   transcription: string;
   truncada: boolean;
-  messagesOmitidas: number;
+  messagesOmitted: number;
   formulario: Formulario;
   context?: string | null;
 }
 
-function valuesAceitos(tipo: string): string {
+function valuesAccepted(tipo: string): string {
   switch (tipo) {
     case 'escala':
       return `um inteiro de 0 a ${TETO_ESCALA}, ou "nao_se_aplica"`;
@@ -32,7 +32,7 @@ function listarGrupo(grupo: GrupoCriterio): string {
       const fatal = c.fatal
         ? '\n    CRITÉRIO FATAL: não conforme aqui zera a avaliação inteira.'
         : '';
-      return `  - id: ${c.id}\n    critério: ${c.nome}\n    valores: ${valuesAceitos(c.tipo)}${description}${fatal}`;
+      return `  - id: ${c.id}\n    critério: ${c.nome}\n    valores: ${valuesAccepted(c.tipo)}${description}${fatal}`;
     })
     .join('\n');
   return `Grupo "${grupo.nome}":\n${criterios}`;
@@ -43,7 +43,7 @@ export const PROMPT_EVALUATION: Prompt<InboundEvaluation> = {
   versao: 'v1',
   montar(inbound) {
     const aviso = inbound.truncada
-      ? `\n\nAviso: ${inbound.messagesOmitidas} mensagens do meio foram omitidas por tamanho. Início e fim estão inteiros. Se um critério só puder ser julgado pelo trecho omitido, responda "nao_se_aplica" e diga isso na justificativa.`
+      ? `\n\nAviso: ${inbound.messagesOmitted} mensagens do meio foram omitidas por tamanho. Início e fim estão inteiros. Se um critério só puder ser julgado pelo trecho omitido, responda "nao_se_aplica" e diga isso na justificativa.`
       : '';
     const context = inbound.context?.trim() ? `Contexto: ${inbound.context.trim()}\n\n` : '';
 

@@ -26,21 +26,21 @@ export function AgentsPageManagement() {
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
 
-  const [queuesAplicadas, setQueuesAplicadas] = useState<string[]>([]);
+  const [queuesApplied, setQueuesApplied] = useState<string[]>([]);
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
   const [paraExcluir, setParaExcluir] = useState<AgentRegistered | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
+  const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
 
   const read = useRead<AgentRegistered[]>('/v1/management/agents/management');
   if (!read.data) return null;
   const agents = read.data;
 
-  const queuesDisponiveis = agentsQueues(agents);
-  const filtrados = filterAgents(agents, { search: '', queues: queuesAplicadas });
+  const queuesAvailable = agentsQueues(agents);
+  const filtrados = filterAgents(agents, { search: '', queues: queuesApplied });
   const todosMarcados = filtrados.length > 0 && filtrados.every((a) => selecionados.has(a.id));
 
-  function alternarSelection(id: string) {
+  function toggleSelection(id: string) {
     setSelecionados((atual) => {
       const novo = new Set(atual);
       if (novo.has(id)) novo.delete(id);
@@ -69,11 +69,11 @@ export function AgentsPageManagement() {
   async function excluir() {
     if (!paraExcluir) return;
     setExcluindo(true);
-    setErrorExclusao(null);
+    setErrorDeletion(null);
     const resultado = await removeFromAllQueues(paraExcluir.id, paraExcluir.queues);
     setExcluindo(false);
     if (resultado.ok) setParaExcluir(null);
-    else setErrorExclusao(resultado.error);
+    else setErrorDeletion(resultado.error);
   }
 
   const sections: RulesSection[] = [
@@ -87,7 +87,7 @@ export function AgentsPageManagement() {
             <input
               type="checkbox"
               checked={selecionados.has(a.id)}
-              onChange={() => alternarSelection(a.id)}
+              onChange={() => toggleSelection(a.id)}
               aria-label={`Selecionar ${a.nome}`}
             />
             <Avatar nome={a.nome} />
@@ -154,19 +154,19 @@ export function AgentsPageManagement() {
         ) : null}
       </div>
 
-      {errorExclusao ? (
+      {errorDeletion ? (
         <p className="sub" style={{ color: 'var(--p-error-content)' }}>
-          {errorExclusao}
+          {errorDeletion}
         </p>
       ) : null}
 
       <ListaRegras
         sections={sections}
         placeholder="Buscar por nome ou e-mail"
-        sectionOcultarHeader
+        sectionHideHeader
         paginar
-        pageInitialTamanho={5}
-        filters={<QueuesFilter options={queuesDisponiveis} aplicado={queuesAplicadas} onAplicar={setQueuesAplicadas} />}
+        pageInitialSize={5}
+        filters={<QueuesFilter options={queuesAvailable} aplicado={queuesApplied} onAplicar={setQueuesApplied} />}
       />
 
       <ModalConfirmation
@@ -178,12 +178,12 @@ export function AgentsPageManagement() {
             conta.
           </>
         }
-        error={errorExclusao}
+        error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
           setParaExcluir(null);
-          setErrorExclusao(null);
+          setErrorDeletion(null);
         }}
       />
     </>

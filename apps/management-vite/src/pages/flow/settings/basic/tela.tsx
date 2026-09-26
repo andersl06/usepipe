@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { IconePortal } from '../../../../components/icones-portal';
 import { irPara } from '../../../../lib/navigation';
 import { BotaoBds, PageHeader } from '../pecas';
-import { excluirFlow, salvarBasicas } from './gravar';
+import { deleteFlow, salvarBasicas } from './gravar';
 import './basicas.css';
 
 /**
@@ -92,7 +92,7 @@ function formularioInvalido(nome: string, description: string): boolean {
   return false;
 }
 
-export function SettingsBasicTela({
+export function SettingsBasicScreen({
   id,
   nome,
   description: descriptionInitial,
@@ -166,7 +166,7 @@ export function SettingsBasicTela({
   async function excluir() {
     setAviso('');
     setRemovendo(true);
-    const resultado = await excluirFlow(id);
+    const resultado = await deleteFlow(id);
     setRemovendo(false);
     if (!resultado.ok) {
       setAviso(resultado.error);

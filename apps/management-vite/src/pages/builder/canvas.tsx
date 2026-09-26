@@ -5,8 +5,8 @@ import { arestasDe, copiedTextBlock, podeExcluir, positionOf, copiedBlockText } 
 import { No } from './no';
 import { blockTags } from './tags-of-block';
 import {
-  ALTURA_DEFAULT_OF_BLOCK,
-  LARGURA_OF_BLOCK,
+  HEIGHT_DEFAULT_OF_BLOCK,
+  WIDTH_OF_BLOCK,
   PASSO_DO_ZOOM,
   caminhoDaSeta,
   caminhoProvisorio,
@@ -53,7 +53,7 @@ type ContextMenu =
   | { tipo: 'bloco'; id: string; x: number; y: number }
   | { tipo: 'fundo'; x: number; y: number; position: Position };
 
-const arestaKey = (a: Aresta): string => `${a.de}\u0000${a.para}`;
+const edgeKey = (a: Aresta): string => `${a.de}\u0000${a.para}`;
 
 export function Canvas({
   mapa,
@@ -146,13 +146,13 @@ export function Canvas({
   function caixaDe(id: string): Caixa {
     const block = mapa[id];
     const position = block ? positionOf(block) : { top: 0, left: 0 };
-    return { ...position, largura: LARGURA_OF_BLOCK, altura: alturas[id] ?? ALTURA_DEFAULT_OF_BLOCK };
+    return { ...position, largura: WIDTH_OF_BLOCK, altura: alturas[id] ?? HEIGHT_DEFAULT_OF_BLOCK };
   }
 
   /**
    * Find the block under the pointer in canvas coordinates; `elementFromPoint` can fail during pointer capture or with arrows overlaid.
    */
-  function blockSob(e: { clientX: number; clientY: number }): string | null {
+  function blockUnder(e: { clientX: number; clientY: number }): string | null {
     const ponto = pontoDoCanvas(e);
     const ids = Object.keys(mapa);
     for (let i = ids.length - 1; i >= 0; i -= 1) {
@@ -164,7 +164,7 @@ export function Canvas({
 
   /* ------------------------------------------------------------- blocos */
 
-  function toPressionarBlock(id: string, e: PointerEventDeReact<HTMLDivElement>): void {
+  function toPressBlock(id: string, e: PointerEventDeReact<HTMLDivElement>): void {
     if (e.button !== 0) return;
     e.stopPropagation();
     setMenu(null);
@@ -217,7 +217,7 @@ export function Canvas({
         top: arrasto.inicio.top + (e.clientY - arrasto.origem.y),
       });
     } else {
-      const alvo = blockSob(e);
+      const alvo = blockUnder(e);
       const moveu = arrasto.moveu || houveArrasto(e.clientX - arrasto.origem.x, e.clientY - arrasto.origem.y);
       setArrasto({ ...arrasto, ate: pontoDoCanvas(e), alvo, moveu });
     }
@@ -234,7 +234,7 @@ export function Canvas({
     } else if (arrasto.tipo === 'ligacao') {
       // Without real dragging, this is a click on the output point; do not create a self-loop merely from the click.
       // bloco para ele mesmo sozinho (ver `houveArrasto` em `setas.ts`).
-      const alvo = arrasto.moveu ? blockSob(e) : null;
+      const alvo = arrasto.moveu ? blockUnder(e) : null;
       if (alvo) onLigar(arrasto.de, alvo);
     }
     setArrasto(null);
@@ -255,7 +255,7 @@ export function Canvas({
 
   const arestas = arestasDe(mapa);
   const blocos = Object.values(mapa);
-  const connectionAlvo = arrasto?.tipo === 'ligacao' ? arrasto.alvo : null;
+  const connectionTarget = arrasto?.tipo === 'ligacao' ? arrasto.alvo : null;
   const blockMenu = menu?.tipo === 'bloco' ? mapa[menu.id] : undefined;
   const termoDaPesquisa = pesquisa.trim().toLocaleLowerCase('pt-BR');
   const corresponde = (block: (typeof blocos)[number]): boolean =>
@@ -285,7 +285,7 @@ export function Canvas({
     );
   }
 
-  async function colarBlock(): Promise<void> {
+  async function pasteBlock(): Promise<void> {
     if (!menu || menu.tipo !== 'fundo') return;
     let block = copiedBlock;
     try {
@@ -333,7 +333,7 @@ export function Canvas({
         <svg className="bl-setas" aria-hidden="true">
           {arestas.map((a) => {
             const { d, fim, faceDoFim } = caminhoDaSeta(caixaDe(a.de), caixaDe(a.para));
-            const key = arestaKey(a);
+            const key = edgeKey(a);
             const active = key === arestaSelecionada;
             return (
               <g
@@ -356,7 +356,7 @@ export function Canvas({
               className="bl-seta-traco bl-seta--provisoria"
               d={caminhoProvisorio(
                 {
-                  x: caixaDe(arrasto.de).left + LARGURA_OF_BLOCK / 2,
+                  x: caixaDe(arrasto.de).left + WIDTH_OF_BLOCK / 2,
                   y: caixaDe(arrasto.de).top + caixaDe(arrasto.de).altura,
                 },
                 arrasto.ate,
@@ -372,9 +372,9 @@ export function Canvas({
             errors={errorsByBlock[block.id] ?? []}
             selecionado={selecionado === block.id}
             editando={editando === block.id}
-            alvo={connectionAlvo === block.id}
+            alvo={connectionTarget === block.id}
             corresponde={corresponde(block)}
-            onPointerDown={(e) => toPressionarBlock(block.id, e)}
+            onPointerDown={(e) => toPressBlock(block.id, e)}
             onPointerDownNaSaida={(e) => aoPressionarSaida(block.id, e)}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -418,7 +418,7 @@ export function Canvas({
           style={{ left: menu.x, top: menu.y }}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <button type="button" role="menuitem" onClick={() => void colarBlock()}>
+          <button type="button" role="menuitem" onClick={() => void pasteBlock()}>
             Colar
           </button>
         </div>

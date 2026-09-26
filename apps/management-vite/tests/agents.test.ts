@@ -6,7 +6,7 @@ import {
   agentsQueues,
   queuesInCard,
   filterAgents,
-  editTitulo,
+  editTitle,
 } from '../src/lib/agents.ts';
 
 /**
@@ -83,6 +83,6 @@ test('the permissions page\'s description has the three variants from the source
 });
 
 test('the bulk-edit title agrees in number', () => {
-  assert.equal(editTitulo(1), 'Editar 1 atendente');
-  assert.equal(editTitulo(3), 'Editar 3 atendentes');
+  assert.equal(editTitle(1), 'Editar 1 atendente');
+  assert.equal(editTitle(3), 'Editar 3 atendentes');
 });

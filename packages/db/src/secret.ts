@@ -118,7 +118,7 @@ export function decifrar(pacote: string, keyring: Keyring): string {
  *
  * Use a closed list instead of encrypting the whole object: other configuration must remain readable and queryable. `phoneNumberId` appears in diagnostics and `apiVersao` in support. Encrypting everything would require decryption for ordinary operations.
  */
-export const FIELDS_SECRETOS_OF_CHANNEL = [
+export const FIELDS_SECRET_OF_CHANNEL = [
   'tokenAcesso',
   'appSecret',
   'verifyToken',
@@ -134,7 +134,7 @@ type Config = Record<string, unknown>;
 
 export function cifrarConfig(config: Config, chaveiro: Keyring): Config {
   const saida: Config = { ...config };
-  for (const campo of FIELDS_SECRETOS_OF_CHANNEL) {
+  for (const campo of FIELDS_SECRET_OF_CHANNEL) {
     const value = saida[campo];
     if (typeof value !== 'string' || value === '' || estaCifrado(value)) continue;
     saida[campo] = cifrar(value, chaveiro);
@@ -149,7 +149,7 @@ export function cifrarConfig(config: Config, chaveiro: Keyring): Config {
  */
 export function decifrarConfig(config: Config, chaveiro: Keyring): Config {
   const saida: Config = { ...config };
-  for (const campo of FIELDS_SECRETOS_OF_CHANNEL) {
+  for (const campo of FIELDS_SECRET_OF_CHANNEL) {
     const valor = saida[campo];
     if (typeof valor !== 'string' || !estaCifrado(valor)) continue;
     saida[campo] = decifrar(valor, chaveiro);
@@ -158,7 +158,7 @@ export function decifrarConfig(config: Config, chaveiro: Keyring): Config {
 }
 
 
-export function secretConfere(a: string, b: string): boolean {
+export function secretChecks(a: string, b: string): boolean {
   const bufferA = Buffer.from(a);
   const bufferB = Buffer.from(b);
   if (bufferA.length !== bufferB.length) return false;

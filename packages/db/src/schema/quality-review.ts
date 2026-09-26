@@ -158,7 +158,7 @@ export const dispute = pgTable(
     motivo: text('motivo').notNull(),
     estado: text('estado').notNull().default('aberta'),
     resposta: text('resposta'),
-    decididaBy: uuid('decidida_por').references(() => user.id, { onDelete: 'set null' }),
+    decidedBy: uuid('decidida_por').references(() => user.id, { onDelete: 'set null' }),
     decididaEm: moment('decidida_em'),
     ...carimbos(),
   },
@@ -277,7 +277,7 @@ export const insight = pgTable(
     categoria: text('categoria').notNull(),
     volume: integer('volume').notNull().default(0),
     variationPercent: numeric('variacao_pct', { precision: 8, scale: 2 }),
-    candidataAutomation: boolean('candidata_automacao').notNull().default(false),
+    candidateAutomation: boolean('candidata_automacao').notNull().default(false),
     exemplos: uuid('exemplos')
       .array()
       .notNull()

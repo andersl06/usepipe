@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 import type { ChamadaEstruturada } from '../cliente/index.js';
 import { FormatIaError } from '../cliente/index.js';
 import { consumoDe } from '../consumo/index.js';
-import { montarTranscription, type MessageTranscription } from '../transcription/index.js';
-import { avaliarConversation, calcularNota, valueFraction, type Formulario } from './index.js';
+import { buildTranscription, type MessageTranscription } from '../transcription/index.js';
+import { evaluateConversation, calcularNota, valueFraction, type Formulario } from './index.js';
 
 /**
  * Weights: c1=1×1, c2=1×2, c3=2×2, c4=3×1, totaling 10; each weight point is worth 10 score points. Round numbers are intentional: awkward arithmetic would obscure rounding errors in this calculation test.
@@ -46,7 +46,7 @@ const respostas = (
     criterioId,
     value,
     justificativa: 'porque sim',
-    evidenciaMessageId: evidencias[criterioId] ?? null,
+    evidenceMessageId: evidencias[criterioId] ?? null,
   }));
 
 describe('fraction of the value', () => {
@@ -81,7 +81,7 @@ describe('cálculo da nota', () => {
       respostas({ c1: 'conforme', c2: 'conforme', c3: '5', c4: 'conforme' }),
     );
     expect(r.nota).toBe(100);
-    expect(r.fatalReprovados).toEqual([]);
+    expect(r.fatalRejected).toEqual([]);
     expect(r.respostas.map((x) => x.pontos)).toEqual([10, 20, 40, 30]);
   });
 
@@ -117,7 +117,7 @@ describe('cálculo da nota', () => {
     );
     expect(r.nota).toBe(0);
     expect(r.notaAntesDoFatal).toBe(70);
-    expect(r.fatalReprovados).toEqual(['c4']);
+    expect(r.fatalRejected).toEqual(['c4']);
   });
 
   it('critério fatal marcado como não se aplica não zera nada', () => {
@@ -125,7 +125,7 @@ describe('cálculo da nota', () => {
       formulario,
       respostas({ c1: 'conforme', c2: 'conforme', c3: '5', c4: 'nao_se_aplica' }),
     );
-    expect(r.fatalReprovados).toEqual([]);
+    expect(r.fatalRejected).toEqual([]);
     expect(r.nota).toBe(100);
   });
 
@@ -200,11 +200,11 @@ function duble(saida: SaidaGravada): ChamadaEstruturada {
     }) as never;
 }
 
-const transcription = montarTranscription(conversation);
+const transcription = buildTranscription(conversation);
 
 describe('evaluateConversation', () => {
   it('resolves the evidence label to the message id', async () => {
-    const r = await avaliarConversation({
+    const r = await evaluateConversation({
       formulario,
       transcription,
       chamar: duble({
@@ -228,8 +228,8 @@ describe('evaluateConversation', () => {
       }),
     });
 
-    expect(r.respostas.find((x) => x.criterioId === 'c2')!.evidenciaMessageId).toBe('uuid-b');
-    expect(r.respostas.find((x) => x.criterioId === 'c3')!.evidenciaMessageId).toBeNull();
+    expect(r.respostas.find((x) => x.criterioId === 'c2')!.evidenceMessageId).toBe('uuid-b');
+    expect(r.respostas.find((x) => x.criterioId === 'c3')!.evidenceMessageId).toBeNull();
     expect(r.nota).toBe(80);
     expect(r.confianca).toBe(0.8);
     expect(r.prompt).toBe('avaliacao@v1');
@@ -238,7 +238,7 @@ describe('evaluateConversation', () => {
 
   it('rejects evidence that does not exist in the transcript', async () => {
     await expect(
-      avaliarConversation({
+      evaluateConversation({
         formulario,
         transcription,
         chamar: duble({
@@ -256,7 +256,7 @@ describe('evaluateConversation', () => {
 
   it('exige evidência quando o critério não sai conforme', async () => {
     await expect(
-      avaliarConversation({
+      evaluateConversation({
         formulario,
         transcription,
         chamar: duble({
@@ -274,7 +274,7 @@ describe('evaluateConversation', () => {
 
   it('exige evidência também em escala abaixo do máximo', async () => {
     await expect(
-      avaliarConversation({
+      evaluateConversation({
         formulario,
         transcription,
         chamar: duble({
@@ -292,7 +292,7 @@ describe('evaluateConversation', () => {
 
   it('recusa critério que não existe no formulário', async () => {
     await expect(
-      avaliarConversation({
+      evaluateConversation({
         formulario,
         transcription,
         chamar: duble({
@@ -307,7 +307,7 @@ describe('evaluateConversation', () => {
 
   it('recusa critério respondido duas vezes', async () => {
     await expect(
-      avaliarConversation({
+      evaluateConversation({
         formulario,
         transcription,
         chamar: duble({

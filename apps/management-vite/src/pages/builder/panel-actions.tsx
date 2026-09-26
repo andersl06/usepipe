@@ -1,13 +1,13 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
-import { IconeManagement } from '../../components/icones-management';
+import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '../../components/icones-portal';
 import { CabecalhoInfo } from './cabecalho-info';
 import type { AcaoDoEditor, Block } from './model';
 import { ehAttendance } from './model';
 import {
-  CATALOGO_OF_ACTIONS,
-  ROTULOS_OF_ACTIONS,
+  CATALOG_OF_ACTIONS,
+  LABELS_OF_ACTIONS,
   acaoDoSistema,
   acaoSemSuporte,
   adicionarAcao,
@@ -15,7 +15,7 @@ import {
   comCabecalhos,
   comCampo,
   comCampoJson,
-  colarActions,
+  pasteActions,
   withConditions,
   comTitulo,
   actionErrors,
@@ -27,7 +27,7 @@ import {
   tipoDeAcao,
   fieldValue,
 } from './actions-of-block';
-import type { ActionsLista } from './actions-of-block';
+import type { ActionsList } from './actions-of-block';
 import { ConditionsEditor } from './condition';
 
 let actionsCopied: AcaoDoEditor[] = [];
@@ -55,7 +55,7 @@ export function ActionsPanel({
   if (ehAttendance(block.id)) {
     return (
       <div className="bl-aba-corpo">
-        <p className="sub">{ROTULOS_OF_ACTIONS.atendimento}</p>
+        <p className="sub">{LABELS_OF_ACTIONS.atendimento}</p>
       </div>
     );
   }
@@ -63,7 +63,7 @@ export function ActionsPanel({
     <div className="bl-aba-corpo">
       {block.root ? (
         <section className="bl-section">
-          <CabecalhoInfo titulo={ROTULOS_OF_ACTIONS.entrada} aberto>
+          <CabecalhoInfo titulo={LABELS_OF_ACTIONS.entrada} aberto>
             <p>
               Este bloco é usado para marcar pontos especiais do fluxo a serem tratados pela
               plataforma, portanto{' '}
@@ -79,24 +79,24 @@ export function ActionsPanel({
           </CabecalhoInfo>
         </section>
       ) : (
-        <ListaOfActionsOfBlock
+        <ListOfActionsOfBlock
           block={block}
           lista="$enteringCustomActions"
-          titulo={ROTULOS_OF_ACTIONS.entrada}
-          description={ROTULOS_OF_ACTIONS.entradaDescricao}
-          rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarEntrada}
+          titulo={LABELS_OF_ACTIONS.entrada}
+          description={LABELS_OF_ACTIONS.entradaDescricao}
+          rotuloAdicionar={LABELS_OF_ACTIONS.adicionarEntrada}
           onMudar={onMudar}
           onAviso={onAviso}
           copiadas={copiadas}
           onCopiar={copiar}
         />
       )}
-      <ListaOfActionsOfBlock
+      <ListOfActionsOfBlock
         block={block}
         lista="$leavingCustomActions"
-        titulo={ROTULOS_OF_ACTIONS.saida}
-        description={ROTULOS_OF_ACTIONS.saidaDescricao}
-        rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarSaida}
+        titulo={LABELS_OF_ACTIONS.saida}
+        description={LABELS_OF_ACTIONS.saidaDescricao}
+        rotuloAdicionar={LABELS_OF_ACTIONS.adicionarSaida}
         onMudar={onMudar}
         onAviso={onAviso}
         copiadas={copiadas}
@@ -106,7 +106,7 @@ export function ActionsPanel({
   );
 }
 
-function ListaOfActionsOfBlock({
+function ListOfActionsOfBlock({
   block,
   lista,
   titulo,
@@ -118,7 +118,7 @@ function ListaOfActionsOfBlock({
   onCopiar,
 }: {
   block: Block;
-  lista: ActionsLista;
+  lista: ActionsList;
   titulo: string;
   description: string;
   rotuloAdicionar: string;
@@ -135,7 +135,7 @@ function ListaOfActionsOfBlock({
   const arrastada = useRef<number | null>(null);
 
   function colar(): void {
-    const resultado = colarActions(block, lista, copiadas);
+    const resultado = pasteActions(block, lista, copiadas);
     if (resultado.ok) onMudar(resultado.block);
     else onAviso(resultado.error);
   }
@@ -250,7 +250,7 @@ function ListaOfActionsOfBlock({
             {groups.map((grupo) => (
               <div key={grupo} className="bl-menu-actions-group">
                 <span className="sub">{grupo}</span>
-                {CATALOGO_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
+                {CATALOG_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
                   <button
                     key={t.tipo}
                     type="button"
@@ -369,8 +369,8 @@ export function ActionCard({
         <button type="button" className="bl-acao-abrir" onClick={onAbrir} aria-expanded={aberta}>
           <span className="bl-acao-tipo">{acao.$title || rotuloDaAcao(acao.type)}</span>
         </button>
-        {semSuporte ? <Etiqueta tom="alerta">{ROTULOS_OF_ACTIONS.naoExecutada}</Etiqueta> : null}
-        {doSistema ? <Etiqueta>{ROTULOS_OF_ACTIONS.doSistema}</Etiqueta> : null}
+        {semSuporte ? <Etiqueta tom="alerta">{LABELS_OF_ACTIONS.naoExecutada}</Etiqueta> : null}
+        {doSistema ? <Etiqueta>{LABELS_OF_ACTIONS.doSistema}</Etiqueta> : null}
         {errors.length > 0 ? (
           <Etiqueta tom="erro" redonda>
             {errors.length}
@@ -401,11 +401,11 @@ export function ActionCard({
             <button
               type="button"
               className="iconbtn"
-              title={ROTULOS_OF_ACTIONS.excluir}
-              aria-label={ROTULOS_OF_ACTIONS.excluir}
+              title={LABELS_OF_ACTIONS.excluir}
+              aria-label={LABELS_OF_ACTIONS.excluir}
               onClick={onRemover}
             >
-              <IconeManagement nome="lixeira" tamanho={18} />
+              <ManagementIcon nome="lixeira" tamanho={18} />
             </button>
           ) : null}
         </span>
@@ -472,7 +472,7 @@ export function ActionCard({
                 <IconePortal nome="voltar" tamanho={24} />
               </button>
               <input
-                aria-label={ROTULOS_OF_ACTIONS.nome}
+                aria-label={LABELS_OF_ACTIONS.nome}
                 value={acao.$title || ''}
                 placeholder={tipo?.titulo ?? acao.type}
                 onChange={(e) => onMudar(comTitulo(acao, e.target.value))}
@@ -492,7 +492,7 @@ export function ActionCard({
             <>
               {!onCopiar ? (
                 <label className="bl-campo">
-                  <span className="sub">{ROTULOS_OF_ACTIONS.nome}</span>
+                  <span className="sub">{LABELS_OF_ACTIONS.nome}</span>
                   <Campo
                     value={acao.$title ?? ''}
                     onChange={(e) => onMudar(comTitulo(acao, e.target.value))}
@@ -547,11 +547,11 @@ export function ActionCard({
                   {campo.ajuda ? <span className="bl-ajuda">{campo.ajuda}</span> : null}
                 </label>
               ))}
-              <h5 className="bl-section-subtitle">{ROTULOS_OF_ACTIONS.condicao}</h5>
+              <h5 className="bl-section-subtitle">{LABELS_OF_ACTIONS.condicao}</h5>
               <ConditionsEditor
                 conditions={acao.conditions ?? []}
                 onMudar={(conditions) => onMudar(withConditions(acao, conditions))}
-                rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarCondicao}
+                rotuloAdicionar={LABELS_OF_ACTIONS.adicionarCondicao}
               />
             </>
           ) : (
@@ -603,7 +603,7 @@ function EditorDeCabecalhos({
             aria-label="Remover cabeçalho"
             onClick={() => onMudar(cabecalhos.filter((_, i) => i !== indice))}
           >
-            <IconeManagement nome="lixeira" tamanho={18} />
+            <ManagementIcon nome="lixeira" tamanho={18} />
           </button>
         </div>
       ))}

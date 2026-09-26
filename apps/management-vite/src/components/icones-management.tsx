@@ -35,13 +35,13 @@ const CAMINHOS = {
     'M4 8v-2a2 2 0 0 1 2 -2h2M4 16v2a2 2 0 0 0 2 2h2M16 4h2a2 2 0 0 1 2 2v2M16 20h2a2 2 0 0 0 2 -2v-2',
 } as const;
 
-export type IconeManagementName = keyof typeof CAMINHOS;
+export type ManagementNameIcon = keyof typeof CAMINHOS;
 
-export function IconeManagement({
+export function ManagementIcon({
   nome,
   tamanho = 16,
   ...resto
-}: { nome: IconeManagementName; tamanho?: number } & Omit<SVGProps<SVGSVGElement>, 'name'>) {
+}: { nome: ManagementNameIcon; tamanho?: number } & Omit<SVGProps<SVGSVGElement>, 'name'>) {
   return (
     <svg
       width={tamanho}

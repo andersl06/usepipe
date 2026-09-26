@@ -5,7 +5,7 @@ import { flow } from '@pipe/db/schema';
 import type { ConfigurationOfWelcome, ConfigurationOfMenuPersistent } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
 import { loadContact } from '../management-flow.js';
-import { exigirPermissionInFlow } from './team-of-flow.js';
+import { requirePermissionInFlow } from './team-of-flow.js';
 import { aplicarPerfilMessenger, readChannelMessenger } from '../messenger/channel.js';
 
 /**
@@ -23,7 +23,7 @@ interface ConfigurationStored {
 const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
 /** Return this account's live flow with raw configuration, or 404. */
-async function flowVivo(
+async function flowLive(
   tx: TransactionPipe,
   tid: string,
   id: string,
@@ -65,7 +65,7 @@ export async function carregarBoasVindas(
   tid: string,
   id: string,
 ): Promise<ConfigurationOfWelcome> {
-  const { configuration } = await flowVivo(tx, tid, id);
+  const { configuration } = await flowLive(tx, tid, id);
   return boasVindasDe(configuration);
 }
 
@@ -86,11 +86,11 @@ export async function salvarBoasVindas(
   id: string,
   pedido: PedidoDeBoasVindas,
 ): Promise<ConfigurationOfWelcome> {
-  const { configuration } = await flowVivo(tx, tid, id);
+  const { configuration } = await flowLive(tx, tid, id);
   /* As duas telas são `basicConfigurations` no `PermissionsList.html` da origem:
      quem tem a permissão NESTE contato também salva, sem tirar de quem já
      salvava pela conta (migração 0035). */
-  await exigirPermissionInFlow(tx, userId, id, 'basicConfigurations.escrever');
+  await requirePermissionInFlow(tx, userId, id, 'basicConfigurations.escrever');
 
   const antes = boasVindasDe(configuration);
   let depois: ConfigurationOfWelcome;
@@ -162,7 +162,7 @@ export async function carregarMenuPersistente(
   tid: string,
   id: string,
 ): Promise<ConfigurationOfMenuPersistent> {
-  const { configuration } = await flowVivo(tx, tid, id);
+  const { configuration } = await flowLive(tx, tid, id);
   return {
     itens: itensDe(configuration),
     boasVindasPreenchida: boasVindasPreenchidaEm(configuration),
@@ -184,11 +184,11 @@ export async function salvarMenuPersistente(
   id: string,
   pedido: ItemDoPedido[],
 ): Promise<ConfigurationOfMenuPersistent> {
-  const { configuration } = await flowVivo(tx, tid, id);
+  const { configuration } = await flowLive(tx, tid, id);
   /* As duas telas são `basicConfigurations` no `PermissionsList.html` da origem:
      quem tem a permissão NESTE contato também salva, sem tirar de quem já
      salvava pela conta (migração 0035). */
-  await exigirPermissionInFlow(tx, usuarioId, id, 'basicConfigurations.escrever');
+  await requirePermissionInFlow(tx, usuarioId, id, 'basicConfigurations.escrever');
 
   const contact = await loadContact(tx, tid, id);
   if (contact?.canalTipo !== 'messenger' || contact.canalAtivo !== true) {

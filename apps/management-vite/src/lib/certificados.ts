@@ -66,14 +66,14 @@ export function hostValido(value: string, hostsCurrent: readonly HostDigitado[])
 }
 
 /** Reference `ht` requires description and every URL to be filled and valid. */
-export function informationCompletas(description: string, hosts: readonly HostDigitado[]): boolean {
+export function informationComplete(description: string, hosts: readonly HostDigitado[]): boolean {
   return hosts.every((h) => h.valido && h.host !== '') && description !== '';
 }
 
 /**
  * On Finalizar, validate the file through the reference `h` function's three branches in `yt`; return its toast text or `null` on success. Windows reports `.pfx` as `application/x-pkcs12`, while other browsers may leave MIME empty, so accept extension there; `api` still checks bytes.
  */
-export function problemaInFile(
+export function problemInFile(
   file: { name?: string; type: string; size: number } | null,
 ): string | null {
   if (!file) {

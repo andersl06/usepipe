@@ -25,18 +25,18 @@ import { processarPayload } from './domain/inbound.js';
 import { executarProcessHttp } from './domain/flow.js';
 import { renovarTokensInstagram } from './domain/instagram/renewal.js';
 import { contactsWithoutMirror, syncContact } from './domain/mirror-crm.js';
-import { baixarMediaOfAttachment, midiasPendentes } from './domain/media.js';
-import { checkSlaOfConversation, conversationsForChecarSla } from './domain/management/sla-motor.js';
-import { QUEUE_IMPORT, processarImport } from '@pipe/workers';
+import { downloadMediaOfAttachment, midiasPendentes } from './domain/media.js';
+import { checkSlaOfConversation, conversationsForCheckSla } from './domain/management/sla-motor.js';
+import { QUEUE_IMPORT, processImport } from '@pipe/workers';
 import type { JobImport } from '@pipe/workers';
 
 /**
  * The API enqueues work and `apps/workers` executes it. With `PIPE_FILAS=memoria`, inbound processing runs inline without Redis for development and end-to-end tests, following the same path minus Redis. Delivery never runs inline, even in memory mode: `outbox_mensagem` is authoritative, and the queue only prompts a worker to look before the next sweep.
  */
 
-export type ModoQueue = 'bullmq' | 'memoria';
+export type ModeQueue = 'bullmq' | 'memoria';
 
-export function modo(): ModoQueue {
+export function modo(): ModeQueue {
   return process.env['PIPE_FILAS'] === 'memoria' ? 'memoria' : 'bullmq';
 }
 
@@ -204,7 +204,7 @@ export async function enqueueDownloadMedia(job: JobMedia): Promise<void> {
 }
 
 let consumerMedia: Worker | null = null;
-let relogioMedia: ReturnType<typeof setInterval> | null = null;
+let clockMedia: ReturnType<typeof setInterval> | null = null;
 
 /**
  * Consume media downloads in `api`, which already decrypts channel tokens (`chaveiro`, `dominio/banco.ts`). `baixar` handles one attachment and `varredura` requeues missed ones. `baixarMidiaDoAnexo` owns backoff rescheduling, so BullMQ uses `attempts: 1` and never retries independently.
@@ -220,7 +220,7 @@ export function consumeDownloadMedia(): void {
         return pendentes.length;
       }
       const dados = job.data as JobMedia;
-      const r = await baixarMediaOfAttachment(dados.tenantId, dados.attachmentId);
+      const r = await downloadMediaOfAttachment(dados.tenantId, dados.attachmentId);
       return r.state;
     },
     {
@@ -237,14 +237,14 @@ export async function scheduleSweepDownloadMedia(): Promise<void> {
   if (modo() === 'memoria') {
     // Without Redis, run the sweep on an in-process timer only when `PIPE_MIDIA_EM_MEMORIA=1`, so tests still see the raw attachment immediately after the webhook; there is no per-attachment enqueue in this mode.
     // aqui: o intervalo curto faz o papel dele.
-    if (process.env['PIPE_MIDIA_EM_MEMORIA'] !== '1' || relogioMedia) return;
+    if (process.env['PIPE_MIDIA_EM_MEMORIA'] !== '1' || clockMedia) return;
     let rodando = false;
-    relogioMedia = setInterval(() => {
+    clockMedia = setInterval(() => {
       if (rodando) return;
       rodando = true;
       void (async () => {
         try {
-          for (const p of await midiasPendentes()) await baixarMediaOfAttachment(p.tenantId, p.attachmentId);
+          for (const p of await midiasPendentes()) await downloadMediaOfAttachment(p.tenantId, p.attachmentId);
         } catch (erro) {
           console.error(`[midia] varredura em memória falhou: ${(erro as Error).message}`);
         } finally {
@@ -252,7 +252,7 @@ export async function scheduleSweepDownloadMedia(): Promise<void> {
         }
       })();
     }, Number(process.env['PIPE_MIDIA_VARREDURA_MS'] ?? 15_000));
-    relogioMedia.unref();
+    clockMedia.unref();
     return;
   }
   queueMedia ??= new Queue(QUEUE_MEDIA, { connection: redis() });
@@ -293,7 +293,7 @@ export function consumeCheckSla(): void {
     QUEUE_SLA,
     async (job) => {
       if (job.name === 'varredura') {
-        const pendentes = await conversationsForChecarSla();
+        const pendentes = await conversationsForCheckSla();
         for (const p of pendentes) await enqueueCheckSla(p);
         return pendentes.length;
       }
@@ -321,7 +321,7 @@ export async function scheduleSweepSla(): Promise<void> {
       rodando = true;
       void (async () => {
         try {
-          for (const p of await conversationsForChecarSla()) {
+          for (const p of await conversationsForCheckSla()) {
             await checkSlaOfConversation(p.tenantId, p.conversationId);
           }
         } catch (erro) {
@@ -505,8 +505,8 @@ export async function closeQueues(): Promise<void> {
   await consumerMirrorCrm?.close();
   await consumerDictionaryCrm?.close();
   await consumerMedia?.close();
-  if (relogioMedia) clearInterval(relogioMedia);
-  relogioMedia = null;
+  if (clockMedia) clearInterval(clockMedia);
+  clockMedia = null;
   await consumidorSla?.close();
   if (relogioSla) clearInterval(relogioSla);
   relogioSla = null;
@@ -545,7 +545,7 @@ let queueImport: Queue<JobImport> | null = null;
  */
 export async function enqueueImport(job: JobImport): Promise<void> {
   if (modo() === 'memoria') {
-    await processarImport(job);
+    await processImport(job);
     return;
   }
   queueImport ??= new Queue(QUEUE_IMPORT, { connection: redis() });

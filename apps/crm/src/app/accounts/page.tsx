@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Campo, Etiqueta, EmptyState, Tabela, type Column } from '@pipe/ui';
-import { listAccounts, LIMITE_LISTA, type LinhaAccount } from '../../lib/accounts';
-import { moneyCurto, document, numero } from '../../lib/format';
+import { listAccounts, LIMITE_LISTA, type AccountRow } from '../../lib/accounts';
+import { moneyShort, document, numero } from '../../lib/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
  * No color. An account has no state that demands action — what demands action is
  * inside it, in the opportunities and leads, and that's where the row leads.
  */
-const COLUNAS: readonly Column<LinhaAccount>[] = [
+const COLUNAS: readonly Column<AccountRow>[] = [
   {
     key: 'nome',
     rotulo: 'Conta',
@@ -37,7 +37,7 @@ const COLUNAS: readonly Column<LinhaAccount>[] = [
     key: 'valor',
     rotulo: 'Em negociação',
     numerica: true,
-    celula: (c) => (c.opportunities === 0 ? '—' : moneyCurto(c.valueAberto)),
+    celula: (c) => (c.opportunities === 0 ? '—' : moneyShort(c.valueOpen)),
   },
 ];
 
@@ -89,7 +89,7 @@ export default async function PageAccounts({
             )}
           </EmptyState>
         ) : (
-          <Tabela colunas={COLUNAS} linhas={accounts} linhaKey={(c) => c.id} />
+          <Tabela colunas={COLUNAS} linhas={accounts} rowKey={(c) => c.id} />
         )}
       </div>
     </>

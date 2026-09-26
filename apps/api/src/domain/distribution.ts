@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { escolherAgent } from '@pipe/core';
-import type { AgentDisponivel, EscolhaDistribution, StateAgent } from '@pipe/core';
+import { chooseAgent } from '@pipe/core';
+import type { AgentAvailable, ChoiceDistribution, StateAgent } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { emitir } from '../webhooks-saida.js';
 import { registrarEvento } from './eventos.js';
@@ -14,15 +14,15 @@ type LineAgent = {
   state: StateAgent;
   limit: number;
   ativas: string;
-  aguardandoAgent: string;
+  waitingAgent: string;
   withoutFirstResponse: string;
   lastAssignmentAt: Date | string | null;
 };
 
-export async function candidatosOfQueue(
+export async function candidatesOfQueue(
   tx: TransactionPipe,
   filaId: string,
-): Promise<AgentDisponivel[]> {
+): Promise<AgentAvailable[]> {
   const { rows } = await tx.execute<LineAgent>(sql`
     select u.id,
            coalesce(s.estado, 'offline') as state,
@@ -32,7 +32,7 @@ export async function candidatosOfQueue(
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada'
                and (c.ultima_mensagem_de is distinct from 'atendente'))::text
-             as "aguardandoAgent",
+             as "waitingAgent",
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada'
                and c.primeira_resposta_em is null)::text as "withoutFirstResponse",
@@ -51,9 +51,9 @@ export async function candidatosOfQueue(
     queues: [filaId],
     limiteSimultaneo: Number(linha.limit),
     ativas: Number(linha.ativas),
-    aguardandoAgent: Number(linha.aguardandoAgent),
-    withoutFirstResposta: Number(linha.withoutFirstResponse),
-    ultimaAssignmentIn:
+    waitingAgent: Number(linha.waitingAgent),
+    withoutFirstResponse: Number(linha.withoutFirstResponse),
+    lastAssignmentIn:
       linha.lastAssignmentAt === null
         ? null
         : linha.lastAssignmentAt instanceof Date
@@ -68,7 +68,7 @@ export async function candidatosOfQueue(
 export async function queuesOfAgent(
   tx: TransactionPipe,
   agentId: string,
-): Promise<AgentDisponivel[]> {
+): Promise<AgentAvailable[]> {
   const { rows } = await tx.execute<LineAgent & { queueId: string }>(sql`
     select u.id, fa.fila_id as "queueId",
            coalesce(s.estado, 'offline') as state,
@@ -78,7 +78,7 @@ export async function queuesOfAgent(
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada'
                and (c.ultima_mensagem_de is distinct from 'atendente'))::text
-             as "aguardandoAgent",
+             as "waitingAgent",
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada'
                and c.primeira_resposta_em is null)::text as "withoutFirstResponse",
@@ -97,9 +97,9 @@ export async function queuesOfAgent(
     queues: [linha.queueId],
     limiteSimultaneo: Number(linha.limit),
     ativas: Number(linha.ativas),
-    aguardandoAgent: Number(linha.aguardandoAgent),
-    withoutFirstResposta: Number(linha.withoutFirstResponse),
-    ultimaAssignmentIn:
+    waitingAgent: Number(linha.waitingAgent),
+    withoutFirstResponse: Number(linha.withoutFirstResponse),
+    lastAssignmentIn:
       linha.lastAssignmentAt === null
         ? null
         : linha.lastAssignmentAt instanceof Date
@@ -109,33 +109,33 @@ export async function queuesOfAgent(
 }
 
 /** Teto de conversas sem 1ª resposta, por tenant. Ausente desliga o segundo teto. */
-export function tetoWithoutFirstResponse(): number | null {
+export function ceilingWithoutFirstResponse(): number | null {
   const bruto = process.env['PIPE_TETO_SEM_PRIMEIRA_RESPOSTA'];
   return bruto ? Number(bruto) : null;
 }
 
-export async function escolherForQueue(
+export async function chooseForQueue(
   tx: TransactionPipe,
   queueId: string,
-): Promise<EscolhaDistribution> {
-  const candidatos = await candidatosOfQueue(tx, queueId);
-  return escolherAgent(candidatos, {
+): Promise<ChoiceDistribution> {
+  const candidatos = await candidatesOfQueue(tx, queueId);
+  return chooseAgent(candidatos, {
     queueId,
-    tetoWithoutFirstResposta: tetoWithoutFirstResponse(),
+    ceilingWithoutFirstResponse: ceilingWithoutFirstResponse(),
   });
 }
 
 /**
  * Remove a conversation from its queue and assign it to the agent selected by the rule, if any. This moved from `entrada.ts` because both inbound handling and the bot now call it on transfer.
  */
-export async function distribuirConversation(
+export async function distributeConversation(
   tx: TransactionPipe,
   tenantId: string,
   conversationId: string,
   filaId: string,
   em: Date,
 ): Promise<void> {
-  const escolha = await escolherForQueue(tx, filaId);
+  const escolha = await chooseForQueue(tx, filaId);
   if (!escolha.escolhido) return;
 
   const agentId = escolha.escolhido.id;

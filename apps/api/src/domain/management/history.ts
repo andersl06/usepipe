@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, inArray, isNotNull, lt } from 'drizzle-orm';
 import {
-  classificarClosure,
+  classifyClosure,
   derivarMarcos,
   segundosEntre,
   type ConversationEvents,
@@ -147,7 +147,7 @@ export async function loadHistory(
         tipo: e.tipo as TipoEvento,
         em: e.em,
         userId: e.usuarioId,
-        encerradaBy: (data.closedBy ?? null) as ClosedBy | null,
+        closedBy: (data.closedBy ?? null) as ClosedBy | null,
       };
       const atual = byConversation.get(e.conversaId);
       if (atual) atual.push(evento);
@@ -181,13 +181,13 @@ export async function loadHistory(
         queueName: c.filaNome,
         agentName: c.atendenteNome,
         closedAt: marcos.encerradaEm ?? c.encerradaEm,
-        status: classificarClosure(marcos),
+        status: classifyClosure(marcos),
         // Total customer wait runs until the answer, or until closure when unanswered.
-        esperaSeg: marcos.firstRespostaIn
-          ? diferenca(marcos.criadaEm, marcos.firstRespostaIn)
+        esperaSeg: marcos.firstResponseIn
+          ? diferenca(marcos.criadaEm, marcos.firstResponseIn)
           : diferenca(marcos.criadaEm, marcos.encerradaEm),
-        firstResponseSeg: diferenca(marcos.atribuidaEm, marcos.firstRespostaIn),
-        attendanceSeg: diferenca(marcos.firstRespostaIn, marcos.encerradaEm),
+        firstResponseSeg: diferenca(marcos.atribuidaEm, marcos.firstResponseIn),
+        attendanceSeg: diferenca(marcos.firstResponseIn, marcos.encerradaEm),
         labels: labelsByConversation.get(c.id) ?? [],
       };
     });
@@ -242,7 +242,7 @@ const ROTULO_DESFECHO: Record<string, string> = {
  * passa do total de linhas de propósito, porque a pergunta ali é "quantas
  * conversas encostaram nesta etiqueta", não "como reparto o total".
  */
-export function agruparHistory(
+export function groupHistory(
   linhas: readonly LineHistory[],
   by: Grouping,
 ): GroupHistory[] {

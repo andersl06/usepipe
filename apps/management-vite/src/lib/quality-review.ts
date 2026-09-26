@@ -1,6 +1,6 @@
 import type { ResultadoMetrica } from '@pipe/core';
 
-export const ROTULO_STATE_EVALUATION: Record<string, string> = {
+export const LABEL_STATE_EVALUATION: Record<string, string> = {
   rascunho: 'Rascunho',
   concluida: 'Concluída',
   contestada: 'Contestada',
@@ -14,13 +14,13 @@ export const ROTULO_AVALIADOR: Record<string, string> = {
 };
 
 /** O que a IA respondeu num critério de conformidade. */
-export const ROTULO_VALUE: Record<string, string> = {
+export const LABEL_VALUE: Record<string, string> = {
   conforme: 'Conforme',
   nao_conforme: 'Não conforme',
   nao_se_aplica: 'Não se aplica',
 };
 
-export interface EvaluationInLista {
+export interface EvaluationInList {
   id: string;
   conversationId: string;
   contact: string | null;
@@ -40,7 +40,7 @@ export interface EvaluationInLista {
   sentiment: string | null;
 }
 
-export interface LinhaByAgent {
+export interface ByAgentRow {
   agent: string;
   media: ResultadoMetrica;
   /** Avaliações com nota zero por critério fatal — a média sozinha esconde isto. */
@@ -48,12 +48,12 @@ export interface LinhaByAgent {
 }
 
 export interface QualityReviewPanel {
-  evaluations: EvaluationInLista[];
+  evaluations: EvaluationInList[];
   /** Média geral das notas, com população e descartadas ao lado. */
   media: ResultadoMetrica;
-  byAgent: LinhaByAgent[];
+  byAgent: ByAgentRow[];
   /** Quantas foram da IA e quantas de gente: a nota da IA é sugestão até revisão. */
-  byAvaliador: { tipo: string; total: number }[];
+  byEvaluator: { tipo: string; total: number }[];
   /** Confiança média declarada pelo modelo, de 0 a 1. Só das avaliações da IA. */
   confiancaIa: ResultadoMetrica;
   /** Nota máxima do formulário mais usado no recorte — a escala em que a média é lida. */
@@ -91,13 +91,13 @@ export interface GrupoDaFicha {
   criterios: RespostaDeCriterio[];
 }
 
-export interface EvaluationFicha {
-  cabecalho: EvaluationInLista;
+export interface EvaluationRecord {
+  cabecalho: EvaluationInList;
   groups: GrupoDaFicha[];
   /** Soma dos pontos: a nota ANTES do critério fatal. Mostra o tamanho do estrago. */
   notaAntesDoFatal: number;
   /** Nomes dos critérios fatais reprovados. Vazio quando nenhum zerou a nota. */
-  fatalReprovados: string[];
+  fatalRejected: string[];
   /** O resumo da classificação da conversa, quando a IA também classificou. */
   resumo: string | null;
   modelClassification: string | null;

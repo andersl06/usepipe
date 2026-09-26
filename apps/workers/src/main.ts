@@ -5,7 +5,7 @@ import { fecharBancos } from './database.js';
 import { processarOutbox } from './delivery.js';
 import { QUEUE_AGGREGATION, QUEUE_DELIVERY, QUEUE_IMPORT, conexaoRedis } from './queues.js';
 import type { JobDelivery, JobImport } from './queues.js';
-import { processarImport } from './import-of-contacts.js';
+import { processImport } from './import-of-contacts.js';
 import { clienteWhatsApp } from './whatsapp/index.js';
 
 /**
@@ -50,7 +50,7 @@ const aggregation = new Worker(
 const importJob = new Worker<JobImport>(
   QUEUE_IMPORT,
   async (job) => {
-    const r = await processarImport(job.data);
+    const r = await processImport(job.data);
     console.log(`[importacao] ${job.data.importId}: ${r.state}, ${r.aceitos} aceitos, ${r.rejeitados} rejeitados`);
     return r;
   },

@@ -10,7 +10,7 @@ import { IconePortal } from '../../../../components/icones-portal';
  *
  * The origin shows fixed demo numbers (384,302 messages, R$ 91 million, a Top 5 of fashion products) — sample data for the Blip PRODUCT, not from the captured router. Pipe has no billing for active messages (PIX, card, boleto, link), for real or as a mock: instead of copying the demo numbers (which would look real but aren't), every value shows "—" and the bars don't fake a height — the layout is the same, the data is honest. TODO: once billing integration exists, swap in `lib/growth.ts#relatorioDePagamentos`.
  */
-const FORMAS_OF_PAYMENT = [
+const FORMS_OF_PAYMENT = [
   { rotulo: 'PIX', cor: 'var(--p-grafico-1)' },
   { rotulo: 'Cartão de crédito', cor: 'var(--p-grafico-2)' },
   { rotulo: 'Boleto', cor: 'var(--p-grafico-3)' },
@@ -24,7 +24,7 @@ function CardSummary({ rotulo, legenda }: { rotulo: string; legenda: string }) {
       <p className="pg-resumo-legenda">{legenda}</p>
       <p className="pg-summary-value">—</p>
       <div className="pg-barras">
-        {FORMAS_OF_PAYMENT.map((forma) => (
+        {FORMS_OF_PAYMENT.map((forma) => (
           <div className="pg-barra-vertical" key={forma.rotulo}>
             <span className="pg-barra-vertical-cheia" />
             <span className="pg-barra-vertical-rotulo">—</span>
@@ -80,7 +80,7 @@ export default function PaymentsPageReport() {
               <p>Sem dados suficientes para o gráfico.</p>
             </div>
             <ul className="pg-legenda">
-              {FORMAS_OF_PAYMENT.map((forma) => (
+              {FORMS_OF_PAYMENT.map((forma) => (
                 <li key={forma.rotulo}>
                   <span className="pg-legenda-ponto" style={{ background: forma.cor }} />
                   {forma.rotulo}

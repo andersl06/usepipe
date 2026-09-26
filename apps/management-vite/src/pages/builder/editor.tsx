@@ -9,20 +9,20 @@ import type { Position } from './model';
 import {
   MESSAGES,
   addBlock,
-  colarBlock,
+  pasteBlock,
   desligar,
-  duplicarBlock,
-  excluirBlock,
+  duplicateBlock,
+  deleteBlock,
   ligar,
-  moverBlock,
+  moveBlock,
   newBlock,
   attendanceNewBlock,
   podeExcluir,
-  substituirBlock,
+  replaceBlock,
 } from './model';
 import { BlockPanel } from './panel';
-import { positionInCentro } from './setas';
-import { errorsLocal, juntarErrors } from './validation';
+import { positionInCenter } from './setas';
+import { errorsLocal, joinErrors } from './validation';
 import './editor.css';
 import './panel-block.css';
 
@@ -36,23 +36,23 @@ export function Editor({
   state,
   despachar,
   apiErrors,
-  motorErrors,
+  engineErrors,
   zoom,
   onZoom,
-  novoBlockAberto,
-  onFecharNovoBlock,
-  panelExternoAberto,
+  newBlockOpen,
+  onCloseNewBlock,
+  panelExternalOpen,
   pesquisa,
 }: {
   state: EditorState;
   despachar: (gesto: GestoDoEditor) => void;
   apiErrors: BlockError[];
-  motorErrors: BlockError[];
+  engineErrors: BlockError[];
   zoom: number;
   onZoom: (value: number) => void;
-  novoBlockAberto: boolean;
-  onFecharNovoBlock: () => void;
-  panelExternoAberto: boolean;
+  newBlockOpen: boolean;
+  onCloseNewBlock: () => void;
+  panelExternalOpen: boolean;
   pesquisa: string;
 }) {
   const { mapa } = state;
@@ -67,8 +67,8 @@ export function Editor({
    * The Configuração and Filas panels occupy the same side as the block panel; opening one of them closes the block editor so it doesn't overlap content.
    */
   useEffect(() => {
-    if (panelExternoAberto) setEditando(null);
-  }, [panelExternoAberto]);
+    if (panelExternalOpen) setEditando(null);
+  }, [panelExternalOpen]);
 
   /* O aviso some sozinho, como o toast do editor. */
   useEffect(() => {
@@ -96,7 +96,7 @@ export function Editor({
     return () => window.removeEventListener('keydown', aoTeclar);
   }, [despachar]);
 
-  const errors = juntarErrors(errorsLocal(mapa), apiErrors, motorErrors);
+  const errors = joinErrors(errorsLocal(mapa), apiErrors, engineErrors);
   const errorsByBlock: Record<string, string[]> = {};
   for (const e of errors) {
     if (!e.block) continue;
@@ -107,7 +107,7 @@ export function Editor({
 
   function positionForNew(): Position {
     const caixa = area.current?.getBoundingClientRect();
-    return positionInCentro(
+    return positionInCenter(
       { largura: caixa?.width ?? 800, altura: caixa?.height ?? 600 },
       offset,
       zoom / 100,
@@ -117,15 +117,15 @@ export function Editor({
   function createDefault(): void {
     const block = newBlock(mapa, positionForNew());
     aplicar(addBlock(mapa, block));
-    onFecharNovoBlock();
+    onCloseNewBlock();
     setSelecionado(block.id);
     setEditando(block.id);
   }
 
-  function createHumano(): void {
+  function createHuman(): void {
     const block = attendanceNewBlock(mapa, positionForNew());
     aplicar(addBlock(mapa, block));
-    onFecharNovoBlock();
+    onCloseNewBlock();
     setSelecionado(block.id);
     setEditando(block.id);
   }
@@ -151,7 +151,7 @@ export function Editor({
     );
   }
 
-  const blockAberto = editando ? mapa[editando] : undefined;
+  const blockOpen = editando ? mapa[editando] : undefined;
 
   return (
     <div ref={area} className="bl-editor">
@@ -166,29 +166,29 @@ export function Editor({
         onZoom={onZoom}
         onSelecionar={setSelecionado}
         onAbrir={setEditando}
-        onMover={(id, position) => despachar({ tipo: 'mover', mapa: moverBlock(mapa, id, position) })}
+        onMover={(id, position) => despachar({ tipo: 'mover', mapa: moveBlock(mapa, id, position) })}
         onSoltar={() => despachar({ tipo: 'soltar' })}
         onLigar={ligarBlocos}
         onDesligar={(de, para) => aplicar(desligar(mapa, de, para))}
-        onDuplicar={(id) => aplicar(duplicarBlock(mapa, id))}
+        onDuplicar={(id) => aplicar(duplicateBlock(mapa, id))}
         onCopiarId={copiarId}
-        onColar={(block, position) => aplicar(colarBlock(mapa, block, position))}
+        onColar={(block, position) => aplicar(pasteBlock(mapa, block, position))}
         onExcluir={pedirExclusao}
         onAviso={setAviso}
         pesquisa={pesquisa}
       />
 
-      {novoBlockAberto ? (
-        <MenuNewBlock onPadrao={createDefault} onHumano={createHumano} onFechar={onFecharNovoBlock} />
+      {newBlockOpen ? (
+        <MenuNewBlock onPadrao={createDefault} onHumano={createHuman} onFechar={onCloseNewBlock} />
       ) : null}
 
-      {blockAberto ? (
+      {blockOpen ? (
         <BlockPanel
-          key={blockAberto.id}
-          block={blockAberto}
+          key={blockOpen.id}
+          block={blockOpen}
           mapa={mapa}
-          errors={errorsByBlock[blockAberto.id] ?? []}
-          onMudar={(block) => aplicar(substituirBlock(mapa, block))}
+          errors={errorsByBlock[blockOpen.id] ?? []}
+          onMudar={(block) => aplicar(replaceBlock(mapa, block))}
           onFechar={() => setEditando(null)}
           onAviso={setAviso}
         />
@@ -212,7 +212,7 @@ export function Editor({
           ) : null
         }
         onConfirmar={() => {
-          if (excluindo) aplicar(excluirBlock(mapa, excluindo));
+          if (excluindo) aplicar(deleteBlock(mapa, excluindo));
           setExcluindo(null);
         }}
         onCancelar={() => setExcluindo(null)}

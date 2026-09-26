@@ -128,7 +128,7 @@ export interface Horarios {
  * quando a regra aponta para uma fila desativada — regra que manda conversa
  * para fila desativada é regra que engole conversa.
  */
-export interface QueueForEscolher {
+export interface QueueForChoose {
   id: string;
   nome: string;
   active: boolean;

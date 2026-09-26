@@ -60,14 +60,14 @@ export const COOKIE_SESSION = 'pipe_session';
  * API — they're what THIS screen needs to say when there was no response to
  * route on.
  */
-export interface InboundDescoberta {
+export interface InboundDiscovery {
   metodo: 'sso' | 'google' | 'invalido' | 'falha';
   /** API path, when `sso`. Only missing the public base. */
   irPara?: string;
 }
 
 /** The minimum `GET /v1/convites/:token` shows to someone still on the outside. */
-export interface InvitationVisivel {
+export interface InvitationVisible {
   email: string;
   role: string;
   tenant: { nome: string; slug: string };
@@ -105,7 +105,7 @@ export async function buscarEu(cookie: string): Promise<Eu | null> {
  * own. If that ever matters, sign-out becomes a revocation queue, not a
  * `throw` here.
  */
-export async function encerrarSession(cookie: string): Promise<void> {
+export async function closeSession(cookie: string): Promise<void> {
   try {
     await fetch(`${URL_API}/v1/auth/sair`, {
       method: 'POST',
@@ -125,7 +125,7 @@ export async function encerrarSession(cookie: string): Promise<void> {
  * screen can deduce from this about who is a Pipe customer, and that's how it
  * has to be.
  */
-export async function descobrirInbound(email: string): Promise<InboundDescoberta> {
+export async function discoverInbound(email: string): Promise<InboundDiscovery> {
   let resposta: Response;
   try {
     resposta = await fetch(`${URL_API}/v1/auth/descobrir`, {
@@ -140,7 +140,7 @@ export async function descobrirInbound(email: string): Promise<InboundDescoberta
   // 400 is always `email_invalido` on this route — the only validation it does.
   if (resposta.status === 400) return { metodo: 'invalido' };
   if (!resposta.ok) return { metodo: 'falha' };
-  return (await resposta.json()) as InboundDescoberta;
+  return (await resposta.json()) as InboundDiscovery;
 }
 
 /**
@@ -148,13 +148,13 @@ export async function descobrirInbound(email: string): Promise<InboundDescoberta
  * from the outside all three are the same thing — ask for another — and
  * telling them apart would reveal whether that token ever existed.
  */
-export async function verInvitation(token: string): Promise<InvitationVisivel | null> {
+export async function viewInvitation(token: string): Promise<InvitationVisible | null> {
   const resposta = await fetch(`${URL_API}/v1/convites/${encodeURIComponent(token)}`, {
     headers: { accept: 'application/json' },
     cache: 'no-store',
   });
   if (!resposta.ok) return null;
-  return (await resposta.json()) as InvitationVisivel;
+  return (await resposta.json()) as InvitationVisible;
 }
 
 /**

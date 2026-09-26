@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Botao, Etiqueta } from '@pipe/ui';
 import type { VarianteDeBotao } from '@pipe/ui';
-import { concluirRegistrationEmbedded, iniciarRegistrationEmbedded } from '../pages/deployment/actions';
+import { completeRegistrationEmbedded, startRegistrationEmbedded } from '../pages/deployment/actions';
 
 /**
  * Ported from chatwoot/chatwoot (MIT): `app/javascript/dashboard/composables/useWhatsappEmbeddedSignup.js`, `app/javascript/dashboard/routes/dashboard/settings/inbox/channels/whatsapp/utils.js` (SDK load, `FB.login`, `WA_EMBEDDED_SIGNUP` event classification), and `connectWhatsapp` in `.../onboarding/inbox-setup/useChannelConnect.js`. The SDK opens embedded signup via `FB.login` with `config_id`, `response_type: 'code'`, and `override_default_response_type`. Login returns `code`; `postMessage` returns WABA identifiers, in no guaranteed order, so wait for both. Unlike Blip's redirect to `/dialog/oauth?...&state=` with random `state`, Pipe follows Chatwoot and gets `state` from `api` via `iniciarCadastroEmbutido` before opening the popup, returning it with `code`. Without a Meta-approved app (`modo: 'duble'`), generate test credentials instead of opening the popup, then run the rest against the `api` double.
@@ -57,15 +57,15 @@ function iniciarFacebook(appId: string, versao: string): Promise<void> {
   });
 }
 
-interface EmpresaData {
+interface CompanyData {
   waba_id: string;
   phone_number_id?: string;
   business_id?: string;
 }
 
 /** `isValidBusinessData` requires only `waba_id`, the sole field guaranteed by coexistence. */
-function empresaValidData(data: unknown): data is EmpresaData {
-  return Boolean(data && typeof data === 'object' && (data as EmpresaData).waba_id);
+function companyValidData(data: unknown): data is CompanyData {
+  return Boolean(data && typeof data === 'object' && (data as CompanyData).waba_id);
 }
 
 const EVENTO_DE_COEXISTENCIA = 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING';
@@ -104,7 +104,7 @@ function classificarEvento(data: { event?: unknown; error_message?: string }): C
 }
 
 /** `createMessageHandler` accepts only Facebook messages of the embedded-signup type. */
-function createTratador(
+function createHandler(
   aoReceber: (data: { event?: unknown; error_message?: string; data?: unknown }) => void,
 ): (evento: MessageEvent) => void {
   return (evento) => {
@@ -126,7 +126,7 @@ function createTratador(
 }
 
 /** `initWhatsAppEmbeddedSignup` */
-function abrirRegistration(configId: string): Promise<string> {
+function openRegistration(configId: string): Promise<string> {
   return new Promise((resolver, rejeitar) => {
     window.FB!.login(
       (resposta) => {
@@ -159,23 +159,23 @@ interface Credentials {
 /**
  * `runEmbeddedSignup` returns `null` when the popup closes; it rejects SDK errors, signup errors, and completion without a usable phone number.
  */
-function executarRegistration(
+function runRegistration(
   appId: string,
   versao: string,
   configId: string,
 ): Promise<Credentials | null> {
   return new Promise((resolver, rejeitar) => {
     let codigo: string | null = null;
-    let empresa: EmpresaData | null = null;
+    let empresa: CompanyData | null = null;
     let coexistencia = false;
     let encerrado = false;
 
-    const tratador = createTratador((data) => {
+    const tratador = createHandler((data) => {
       const resultado = classificarEvento(data);
       if (resultado.tipo === 'fim') {
         // Keep the first terminal event: a coexistence FINISH takes precedence over a later ordinary FINISH.
         if (empresa) return;
-        if (!empresaValidData(data.data)) {
+        if (!companyValidData(data.data)) {
           encerrar(() => rejeitar(new Error('A Meta devolveu os dados da empresa incompletos.')));
           return;
         }
@@ -219,7 +219,7 @@ function executarRegistration(
       try {
         await carregarSdk();
         await iniciarFacebook(appId, versao || VERSAO_PADRAO);
-        codigo = await abrirRegistration(configId);
+        codigo = await openRegistration(configId);
         seguirSePronto();
       } catch (error) {
         const message = (error as Error).message;
@@ -231,7 +231,7 @@ function executarRegistration(
   });
 }
 
-function ensaioCredentials(): Credentials {
+function trialCredentials(): Credentials {
   return {
     codigo: `ensaio-${crypto.randomUUID()}`,
     wabaId: 'waba-duble',
@@ -271,7 +271,7 @@ export function ConectarWhatsApp({
     setOcupado(true);
     setAviso(null);
     try {
-      const inicio = await iniciarRegistrationEmbedded();
+      const inicio = await startRegistrationEmbedded();
       if (!inicio.ok || !inicio.state) {
         setAviso({ tom: 'erro', texto: inicio.error ?? 'Não foi possível iniciar a conexão.' });
         return;
@@ -281,19 +281,19 @@ export function ConectarWhatsApp({
       try {
         credentials =
           inicio.modo === 'real'
-            ? await executarRegistration(
+            ? await runRegistration(
                 inicio.appId ?? '',
                 inicio.versao ?? VERSAO_PADRAO,
                 inicio.configId ?? '',
               )
-            : ensaioCredentials();
+            : trialCredentials();
       } catch (error) {
         setAviso({ tom: 'erro', texto: (error as Error).message || 'O cadastro na Meta falhou.' });
         return;
       }
       if (!credentials) return;
 
-      const resultado = await concluirRegistrationEmbedded({
+      const resultado = await completeRegistrationEmbedded({
         ...credentials,
         state: inicio.state,
         ...(channelId ? { channelId } : {}),

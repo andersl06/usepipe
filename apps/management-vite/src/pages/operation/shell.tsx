@@ -3,7 +3,7 @@ import { estaAtivo } from '@pipe/ui';
 import Link from '../../components/link';
 import { IconePortal, type NomeDeIconePortal } from '../../components/icones-portal';
 import { URL_DESK } from '../../components/structure-management';
-import { ModuloShell, contactBase, useContact } from '../flow/contact';
+import { ShellModule, contactBase, useContact } from '../flow/contact';
 import './attendance.css';
 
 /**
@@ -139,7 +139,7 @@ export function AttendanceShell() {
   const base = attendanceBase(contact.tipo, contact.id);
   const caminho = useLocation().pathname;
   return (
-    <ModuloShell ativo="Atendimento">
+    <ShellModule ativo="Atendimento">
       <div className="at-shell">
         <NavigationAttendance base={base} caminho={caminho} />
         <section className="at-miolo">
@@ -148,6 +148,6 @@ export function AttendanceShell() {
           </div>
         </section>
       </div>
-    </ModuloShell>
+    </ShellModule>
   );
 }

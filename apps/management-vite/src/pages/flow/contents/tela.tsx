@@ -7,10 +7,10 @@ import {
   CATEGORIAS,
   blocosDoMenu,
   nameError,
-  listaState,
+  listState,
   idiomasRepetidos,
   templateValid,
-  blockMostrarEscolha,
+  blockShowChoice,
   mostrarVoltar,
   type Categoria,
   type TipoDeConteudo,
@@ -174,7 +174,7 @@ export function TelaDeConteudos({
   channelId: string | null;
 }) {
   const [aberto, setAberto] = useState(false);
-  const state = listaState(temWhatsapp, modelos.length);
+  const state = listState(temWhatsapp, modelos.length);
 
   return (
     <div className="ct-shell">
@@ -337,11 +337,11 @@ function NewTemplateSidebar({
   const valido = templateValid({ nome, categoria, tipo, translations, existentes });
   const authentication = categoria === 'autenticacao';
 
-  function mudarTranslation(indice: number, mudanca: Partial<TranslationInEdit>) {
+  function changeTranslation(indice: number, mudanca: Partial<TranslationInEdit>) {
     setTranslations((lista) => lista.map((t, i) => (i === indice ? { ...t, ...mudanca } : t)));
   }
 
-  async function enviarForEvaluation() {
+  async function sendForEvaluation() {
     if (!channelId) return setAviso('Este fluxo não tem canal de WhatsApp conectado.');
     if (authentication) {
       return setAviso(
@@ -472,7 +472,7 @@ function NewTemplateSidebar({
                   <span className="ct-campo-rotulo">Idioma</span>
                   <Selection
                     value={translation.idioma}
-                    onChange={(evento) => mudarTranslation(indice, { idioma: evento.target.value })}
+                    onChange={(evento) => changeTranslation(indice, { idioma: evento.target.value })}
                   >
                     <option value="">Selecione</option>
                     {IDIOMAS.map(([codigo, rotulo]) => (
@@ -514,7 +514,7 @@ function NewTemplateSidebar({
                   </button>
                 ) : null}
 
-                {indice === 0 && blockMostrarEscolha(tipo, categoria) ? (
+                {indice === 0 && blockShowChoice(tipo, categoria) ? (
                   <div className="ct-menu-paper">
                     <span className="ct-menu-dica">Escolha um bloco para adicionar</span>
                     {blocosDoMenu(categoria).map((linha, l) => (
@@ -560,7 +560,7 @@ function NewTemplateSidebar({
                 {!authentication && tipo === 'texto' ? (
                   <TextCard
                     translation={translation}
-                    aoMudar={(mudanca) => mudarTranslation(indice, mudanca)}
+                    aoMudar={(mudanca) => changeTranslation(indice, mudanca)}
                   />
                 ) : null}
 
@@ -569,8 +569,8 @@ function NewTemplateSidebar({
                   <AttachmentCard
                     tipo={tipo}
                     translation={translation}
-                    somenteTranslation={indice > 0}
-                    aoMudar={(mudanca) => mudarTranslation(indice, mudanca)}
+                    onlyTranslation={indice > 0}
+                    aoMudar={(mudanca) => changeTranslation(indice, mudanca)}
                   />
                 ) : null}
               </div>
@@ -619,7 +619,7 @@ function NewTemplateSidebar({
             type="button"
             className={valido ? 'ct-enviar ct-enviar--ativo' : 'ct-enviar'}
             disabled={!valido || enviando}
-            onClick={() => void enviarForEvaluation()}
+            onClick={() => void sendForEvaluation()}
           >
             {enviando ? 'Enviando…' : 'Enviar para avaliação'}
           </button>
@@ -709,7 +709,7 @@ function TextCard({
           variável
         </button>
       </div>
-      <VariableExemplos translation={translation} aoMudar={aoMudar} />
+      <VariableExamples translation={translation} aoMudar={aoMudar} />
       <TemplateButtons buttons={translation.buttons} aoMudar={(buttons) => aoMudar({ buttons })} />
     </section>
   );
@@ -718,7 +718,7 @@ function TextCard({
 /**
  * Meta only approves a template with a variable if each one ships with a fill-in example — there's no equivalent screen in the origin (there it's a step of `saveMessageTemplate`, with no component of its own); here it's the minimum for `POST /v1/canais/whatsapp/:id/modelos` to accept "Enviar para avaliação".
  */
-function VariableExemplos({
+function VariableExamples({
   translation,
   aoMudar,
 }: {
@@ -839,12 +839,12 @@ function TemplateButtons({
 function AttachmentCard({
   tipo,
   translation,
-  somenteTranslation,
+  onlyTranslation,
   aoMudar,
 }: {
   tipo: 'imagem' | 'documento' | 'video';
   translation: TranslationInEdit;
-  somenteTranslation: boolean;
+  onlyTranslation: boolean;
   aoMudar: (mudanca: Partial<TranslationInEdit>) => void;
 }) {
   if (!translation.editando) {
@@ -899,7 +899,7 @@ function AttachmentCard({
         className="ct-card-input"
         placeholder={ATTACHMENT[tipo].link}
         value={translation.link}
-        disabled={somenteTranslation}
+        disabled={onlyTranslation}
         onChange={(evento) => aoMudar({ link: evento.target.value })}
       />
       <span className="ct-compat">{ATTACHMENT[tipo].compat}</span>

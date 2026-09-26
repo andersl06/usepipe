@@ -1,6 +1,6 @@
 import { IconePortal } from '../../../../components/icones-portal';
 import type { DiaDaVisaoGeral, VisaoGeral as DadosDaVisaoGeral } from '@pipe/core/analytics';
-import { PageHeader, Card, PeriodSeletor } from '../pecas';
+import { PageHeader, Card, PeriodSelector } from '../pecas';
 
 /**
  * Overview — the `generalDashboard` component from the `analyticsComponents` module (template 7780, controller `ri`), with the `counterChildCard` (14085) and the `analyticsChart` (1920). The context flags that affect this page, all enabled: `analytics-messages- general-info` (the title's help icon), `active-messages-per-domain-table` (the "Mensagens ativas por canal" block), and `analytics-general-dashboard-requests-for-user-quantity-enabled` (the user counters). `general-dashboard-initial-period-one-day` is disabled: the period opens at seven days.
@@ -38,7 +38,7 @@ export function VisaoGeral({
         }
         extra={
           /* `ng-if="$ctrl.usersPerDay && $ctrl.usersPerDay.length > 0"`. */
-          data.byDia.length > 0 ? (
+          data.byDay.length > 0 ? (
             <>
               <a className="an-bds-btn an-bds-btn--secundario vg-botao" href="">
                 <IconePortal nome="atualizar" tamanho={24} />
@@ -59,7 +59,7 @@ export function VisaoGeral({
       <div className="fx-column vg-panel" id="general-dashboard">
         <div className="vg-filters">
           <div className="vg-filter-period">
-            <PeriodSeletor de={de} ate={ate} aoAplicar={aoAplicarPeriodo} />
+            <PeriodSelector de={de} ate={ate} aoAplicar={aoAplicarPeriodo} />
           </div>
         </div>
 
@@ -160,7 +160,7 @@ export function VisaoGeral({
             dica="Total diário de usuários do bot"
           >
             <GraficoDeLinha
-              dias={data.byDia}
+              dias={data.byDay}
               series={[
                 { nome: 'Ativos', key: 'ativos' },
                 { nome: 'Engajados', key: 'engajados' },
@@ -176,7 +176,7 @@ export function VisaoGeral({
             dica="Mensagens que o bot recebeu dos usuários (ativos)"
           >
             <GraficoDeLinha
-              dias={data.byDia}
+              dias={data.byDay}
               series={[
                 { nome: 'Recebidas', key: 'recebidas' },
                 { nome: 'Enviadas', key: 'enviadas' },
@@ -211,7 +211,7 @@ function Contador({ nome, value, dica }: { nome: string; value: number; dica: st
   );
 }
 
-type SerieKey = 'ativos' | 'engajados' | 'recebidas' | 'enviadas';
+type SeriesKey = 'ativos' | 'engajados' | 'recebidas' | 'enviadas';
 
 /**
  * The `chart type="line"` from `analyticsChart`, which in the origin is the `LineChart` from Google Charts. No library: axis, grid, two lines, and the legend on the right, which is its default. With no day of data, the `noEnoughData` message.
@@ -221,7 +221,7 @@ function GraficoDeLinha({
   series,
 }: {
   dias: DiaDaVisaoGeral[];
-  series: { nome: string; key: SerieKey }[];
+  series: { nome: string; key: SeriesKey }[];
 }) {
   const L = 1000;
   const A = 290;

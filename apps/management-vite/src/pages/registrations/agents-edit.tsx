@@ -3,8 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Avatar, Botao, Campo, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import type { AgentRegistered, QueueRegistered } from '../../lib/registrations';
-import { aplicarInSelection } from '../../lib/agents-gravar';
-import { editTitulo } from '../../lib/agents';
+import { applyInSelection } from '../../lib/agents-gravar';
+import { editTitle } from '../../lib/agents';
 import { Selection } from '../../components/selection';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
@@ -43,10 +43,10 @@ export function AgentPageEdit({ modo }: { modo: 'editar' | 'adicionar' }) {
     );
   }
 
-  return <EditInLote ids={ids} base={base} />;
+  return <EditInBatch ids={ids} base={base} />;
 }
 
-function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
+function EditInBatch({ ids, base }: { ids: readonly string[]; base: string }) {
   const navegar = useNavigate();
   const readAgents = useRead<AgentRegistered[]>('/v1/management/agents/management');
   const readQueues = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
@@ -77,7 +77,7 @@ function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
     if (!queueId) return;
     setEnviando(true);
     setError(null);
-    const resultado = await aplicarInSelection(ids, queueId, capacity.trim() ? Number(capacity) : null);
+    const resultado = await applyInSelection(ids, queueId, capacity.trim() ? Number(capacity) : null);
     setEnviando(false);
     if (resultado.ok) navegar(`${base}/agents/management`);
     else setError(resultado.error);
@@ -86,7 +86,7 @@ function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
   return (
     <>
       <div className="board-head">
-        <h2>{editTitulo(selecionados.length)}</h2>
+        <h2>{editTitle(selecionados.length)}</h2>
       </div>
 
       <p className="sub">

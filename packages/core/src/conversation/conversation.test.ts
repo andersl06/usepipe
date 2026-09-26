@@ -5,14 +5,14 @@ import {
   TransitionDeliveryInvalidError,
   TransitionInvalidError,
   aplicarEvento,
-  eventStateAlvo,
+  eventStateTarget,
   reproduzirEventos,
   tentarAplicarEvento,
   tentarTransitar,
   transitionDeliveryAllowed,
   transitionAllowed,
   transitar,
-  transitarDelivery,
+  transitionDelivery,
   type StateConversation,
   type StateDelivery,
 } from './index.js';
@@ -110,7 +110,7 @@ describe('target state of each event', () => {
 
   for (const [tipo, esperado] of casos) {
     it(`${tipo} → ${esperado ?? 'não mexe no estado'}`, () => {
-      expect(eventStateAlvo(tipo)).toBe(esperado);
+      expect(eventStateTarget(tipo)).toBe(esperado);
     });
   }
 });
@@ -219,10 +219,10 @@ describe('outbound message state machine', () => {
   }
 
   it('resending takes it out of failed and returns it to the outbound queue', () => {
-    expect(transitarDelivery('falhou', 'pendente')).toBe('pendente');
+    expect(transitionDelivery('falhou', 'pendente')).toBe('pendente');
   });
 
   it('lida é terminal', () => {
-    expect(() => transitarDelivery('lida', 'entregue')).toThrow(TransitionDeliveryInvalidError);
+    expect(() => transitionDelivery('lida', 'entregue')).toThrow(TransitionDeliveryInvalidError);
   });
 });

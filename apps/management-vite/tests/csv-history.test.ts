@@ -17,7 +17,7 @@ const card = (parcial: Partial<CardHistory> = {}): CardHistory => ({
   queue: 'Suporte',
   agent: 'Ana',
   espera: '10:05',
-  firstResposta: '01:22',
+  firstResponse: '01:22',
   attendance: '45:33',
   statusTexto: 'Finalizada',
   statusClasse: 'etiqueta',

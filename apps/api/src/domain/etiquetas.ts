@@ -3,9 +3,9 @@ import { registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
-import { exigirPermission } from '../session.js';
+import { requirePermission } from '../session.js';
 import { evento, publicar } from '../realtime.js';
-import type { AtorOfConversation } from './conversation.js';
+import type { ActorOfConversation } from './conversation.js';
 
 /**
  * Tag an OPEN conversation or a CONTACT outside closing. Previously a conversation could be tagged only through `POST /encerrar`, which also closed it. The source distinguishes `ModalType.ADD_TAGS` from `CLOSE_TICKET` (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §1.8): an open ticket's tag is a work note, while the closing tag is final classification. Both use `conversa_etiqueta`, so a tag added here appears selected in the close modal. `contato_etiqueta` already existed without read or write routes. Enforce scope (`conversa` | `contato` | `ambos`) on the server: conversation-only tags cannot go on contacts and vice versa. Record `registrarAuditoria` in the SAME transaction as every catalog write.
@@ -83,7 +83,7 @@ type LineConversation = { id: string; state: string; agentId: string | null };
 async function loadConversationOpen(
   tx: TransactionPipe,
   conversaId: string,
-  ator: AtorOfConversation,
+  ator: ActorOfConversation,
 ): Promise<LineConversation> {
   if (!UUID.test(conversaId)) throw PipeError.naoEncontrado('Conversa');
   const { rows } = await tx.execute<LineConversation>(
@@ -97,7 +97,7 @@ async function loadConversationOpen(
       'A conversa está encerrada: a etiqueta de encerramento já foi dada.',
     );
   }
-  if (ator.exigirAssignment && conversation.agentId !== ator.agentId) {
+  if (ator.requireAssignment && conversation.agentId !== ator.agentId) {
     throw new PipeError(
       403,
       'conversation_of_other_agent',
@@ -117,14 +117,14 @@ export interface EtiquetaAplicada {
 }
 
 export async function labelConversation(
-  ator: AtorOfConversation,
+  ator: ActorOfConversation,
   conversationId: string,
   etiquetaId: string,
 ): Promise<EtiquetaAplicada> {
   const resultado = await noTenant(ator.tenantId, async (tx) => {
-    if (ator.exigirAssignment) {
+    if (ator.requireAssignment) {
       if (!ator.agentId) throw PipeError.naoAutorizado();
-      await exigirPermission(tx, ator.agentId, 'conversa.etiquetar');
+      await requirePermission(tx, ator.agentId, 'conversa.etiquetar');
     }
     const conversa = await loadConversationOpen(tx, conversationId, ator);
     const etiqueta = await carregarEtiqueta(tx, etiquetaId, 'conversa');
@@ -153,14 +153,14 @@ export async function labelConversation(
 }
 
 export async function unlabelConversation(
-  ator: AtorOfConversation,
+  ator: ActorOfConversation,
   conversaId: string,
   etiquetaId: string,
 ): Promise<{ removida: boolean }> {
   const resultado = await noTenant(ator.tenantId, async (tx) => {
-    if (ator.exigirAssignment) {
+    if (ator.requireAssignment) {
       if (!ator.agentId) throw PipeError.naoAutorizado();
-      await exigirPermission(tx, ator.agentId, 'conversa.etiquetar');
+      await requirePermission(tx, ator.agentId, 'conversa.etiquetar');
     }
     const conversa = await loadConversationOpen(tx, conversaId, ator);
     if (!UUID.test(etiquetaId)) throw PipeError.naoEncontrado('Etiqueta');
@@ -223,14 +223,14 @@ async function loadContact(tx: TransactionPipe, contatoId: string): Promise<{ id
 }
 
 /** Requester is a person with `contato.editar` or an API key with `contatos:escrever` and no person permission. */
-export interface AtorOfContact {
+export interface ActorOfContact {
   tenantId: string;
   userId: string | null;
   viaSession: boolean;
 }
 
 export async function labelContact(
-  ator: AtorOfContact,
+  ator: ActorOfContact,
   contatoId: string,
   etiquetaId: string,
 ): Promise<EtiquetaAplicada> {
@@ -238,7 +238,7 @@ export async function labelContact(
     if (ator.viaSession) {
       if (!ator.userId) throw PipeError.naoAutorizado();
       // Contact tags are contact data, so require the same permission as editing the profile.
-      await exigirPermission(tx, ator.userId, 'contato.editar');
+      await requirePermission(tx, ator.userId, 'contato.editar');
     }
     const contato = await loadContact(tx, contatoId);
     const etiqueta = await carregarEtiqueta(tx, etiquetaId, 'contato');
@@ -263,14 +263,14 @@ export async function labelContact(
 }
 
 export async function unlabelContact(
-  ator: AtorOfContact,
+  ator: ActorOfContact,
   contatoId: string,
   etiquetaId: string,
 ): Promise<{ removida: boolean }> {
   return noTenant(ator.tenantId, async (tx) => {
     if (ator.viaSession) {
       if (!ator.userId) throw PipeError.naoAutorizado();
-      await exigirPermission(tx, ator.userId, 'contato.editar');
+      await requirePermission(tx, ator.userId, 'contato.editar');
     }
     const contato = await loadContact(tx, contatoId);
     if (!UUID.test(etiquetaId)) throw PipeError.naoEncontrado('Etiqueta');

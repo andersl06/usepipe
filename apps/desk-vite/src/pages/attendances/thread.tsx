@@ -13,13 +13,13 @@ export function Thread({
   itens,
   agora,
   aoReenviar,
-  somenteRead = false,
+  onlyRead = false,
 }: {
   conversationId: string;
   itens: ItemOfConversation[];
   agora: Date;
   aoReenviar?: (messageId: string) => void;
-  somenteRead?: boolean;
+  onlyRead?: boolean;
 }) {
   const rolador = useRef<HTMLDivElement>(null);
   const [longeDoFim, setLongeDoFim] = useState(false);
@@ -58,7 +58,7 @@ export function Thread({
                 direction={g.direction}
                 messages={g.messages}
                 agora={agora}
-                aoReenviar={somenteRead ? undefined : aoReenviar}
+                aoReenviar={onlyRead ? undefined : aoReenviar}
               />
             ),
           )}

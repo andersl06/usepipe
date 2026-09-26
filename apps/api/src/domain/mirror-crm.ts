@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import type { JobMirrorCrm } from '@pipe/workers';
 import { databaseOwner, noTenant } from '../database.js';
 import { configDoTenant, mirrorContact } from './twenty.js';
-import type { ContactForEspelhar } from './twenty.js';
+import type { ContactForMirror } from './twenty.js';
 
 /**
  * Mirror a Pipe contact as a `person` in that client's CRM (`docs/specs/2026-09-07-integracao-twenty.md` §§4–5). Pipe remains the contact source of truth; writes only flow outward. Three §5 isolation checks apply: read `configDoTenant` inside `comTenant` so RLS guards CRM URL and key; reread the contact in the job tenant's `comTenant` so another client's `contatoId` returns no row; and verify returned `pipeContatoId` in `espelharContato` before storing any ID.
@@ -45,7 +45,7 @@ export async function syncContact(
     const linha = rows[0];
     if (!linha) return null;
 
-    const contact: ContactForEspelhar = {
+    const contact: ContactForMirror = {
       id: linha.id,
       name: linha.nome,
       email: linha.email,

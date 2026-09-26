@@ -73,7 +73,7 @@ export function tokenOfSession(requisicao: Request): string | undefined {
 /**
  * Check a person's permission inside `noTenant` before writing. A separate guard before `pipe.tenant_id` is set would need an owner-role lookup duplicating what the transaction can answer. Effective permission is `COALESCE` of that person's `usuario_permissao` override (migration 0046) and the union of their roles, as in `GET /v1/eu`. A per-person row explicitly grants or denies the capability; without one, roles decide. One query combines both. SQL `coalesce` combines the override and role result.
  */
-export async function exigirPermission(
+export async function requirePermission(
   tx: TransactionPipe,
   userId: string,
   codigo: string,

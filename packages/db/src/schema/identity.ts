@@ -34,39 +34,39 @@ export const PLANOS = ['essencial', 'operacao', 'escala'] as const;
 export type Plano = (typeof PLANOS)[number];
 
 export interface LimitesDoPlano {
-  priceByAgentCentavos: number;
+  priceByAgentCents: number;
   minimumOfAgents: number;
   conversationsAiByAgent: number;
 
   samplingOfQualityReview: number;
-  excessCentavosByConversation: number;
+  excessCentsByConversation: number;
   sso: boolean;
 }
 
 export const LIMITES_DO_PLANO: Readonly<Record<Plano, LimitesDoPlano>> = {
   essencial: {
-    priceByAgentCentavos: 9_700,
+    priceByAgentCents: 9_700,
     minimumOfAgents: 3,
     conversationsAiByAgent: 300,
     samplingOfQualityReview: 0.2,
-    excessCentavosByConversation: 25,
+    excessCentsByConversation: 25,
     sso: false,
   },
   operacao: {
-    priceByAgentCentavos: 17_900,
+    priceByAgentCents: 17_900,
     minimumOfAgents: 5,
     conversationsAiByAgent: 1_000,
     samplingOfQualityReview: 1,
-    excessCentavosByConversation: 18,
+    excessCentsByConversation: 18,
     sso: false,
   },
   /* Contract-only plan: price and allowance live in the tenant record, not this table. */
   escala: {
-    priceByAgentCentavos: 0,
+    priceByAgentCents: 0,
     minimumOfAgents: 20,
     conversationsAiByAgent: 0,
     samplingOfQualityReview: 1,
-    excessCentavosByConversation: 0,
+    excessCentsByConversation: 0,
     sso: true,
   },
 };
@@ -142,8 +142,8 @@ export const SCOPES_ROLE = ['conta', 'atendimento'] as const;
 export type ScopeRole = (typeof SCOPES_ROLE)[number];
 
 /** Source `roleId` values represented here by the NAMES of the three account roles. */
-export const PAPEIS_OF_ACCOUNT = ['admin', 'member', 'guest'] as const;
-export type RoleOfAccount = (typeof PAPEIS_OF_ACCOUNT)[number];
+export const ROLES_OF_ACCOUNT = ['admin', 'member', 'guest'] as const;
+export type RoleOfAccount = (typeof ROLES_OF_ACCOUNT)[number];
 
 export const role = pgTable(
   'papel',

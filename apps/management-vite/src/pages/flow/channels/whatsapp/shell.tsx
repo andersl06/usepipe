@@ -2,10 +2,10 @@ import { Outlet, useOutletContext } from 'react-router-dom';
 import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
 import { useRead } from '../../../../lib/query';
 import { ApiError } from '../../../../lib/api';
-import type { ChannelWhatsAppVisivel } from '../../../../lib/channels';
+import type { ChannelWhatsAppVisible } from '../../../../lib/channels';
 import { channelInBotState, type ChannelInBotState } from '../../../../lib/channel-of-flow';
-import { ReadFalha, useContact } from '../../contact';
-import { ChannelShell, type ChannelAba } from '../shell-of-channel';
+import { ReadFailure, useContact } from '../../contact';
+import { ChannelShell, type ChannelTab } from '../shell-of-channel';
 import './channel-whatsapp.css';
 
 /**
@@ -20,14 +20,14 @@ export interface ChannelWhatsappContext {
   flowId: string;
   channel: ChannelOfFlow;
   /** The channel as `/v1/canais/whatsapp` sees it (state on Meta, quality…); null if the read hasn't come back. */
-  saude: ChannelWhatsAppVisivel | null;
+  saude: ChannelWhatsAppVisible | null;
 }
 
 export function useChannelWhatsapp(): ChannelWhatsappContext {
   return useOutletContext<ChannelWhatsappContext>();
 }
 
-const ABAS: readonly ChannelAba[] = [
+const ABAS: readonly ChannelTab[] = [
   { rotulo: 'Visão Geral', segment: '' },
   { rotulo: 'Perfil da empresa', segment: 'profile', exigeConectado: true },
   { rotulo: 'Configurações', segment: 'settings', exigeConectado: true },
@@ -48,12 +48,12 @@ export function ShellChannelWhatsapp() {
   const situation = read.data ? channelInBotState(read.data.channel, 'whatsapp_cloud') : null;
   const conectado = situation?.state === 'conectado';
   /* Health only matters when connected; 403 (without `canal.gerenciar`) isn't a page failure. */
-  const saudes = useRead<{ channels: ChannelWhatsAppVisivel[] }>(conectado ? '/v1/channels/whatsapp' : null, {
+  const saudes = useRead<{ channels: ChannelWhatsAppVisible[] }>(conectado ? '/v1/channels/whatsapp' : null, {
     retry: false,
   });
 
   if (read.error && !(read.error instanceof ApiError && read.error.status === 404)) {
-    return <ReadFalha error={read.error} />;
+    return <ReadFailure error={read.error} />;
   }
   if (!read.data || !situation) return null;
 

@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { MAX_FILES_BY_MESSAGE, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/storage';
 import { avaliarEnvio, classificarCusto } from '@pipe/core';
-import type { CategoriaTemplate, TipoChannel } from '@pipe/core';
+import type { CategoriaTemplate, TypeChannel } from '@pipe/core';
 import { positionOfVariable } from '@pipe/workers/whatsapp';
 import type { CabecalhoTemplate } from '@pipe/workers/whatsapp';
 import { noTenant } from '../database.js';
@@ -57,7 +57,7 @@ export interface MessageQueued {
 // does have a 24-hour standard reply window, extended to seven days with HUMAN_AGENT;
 // outside it Meta rejects sends and the worker records the failure on the message. A
 // dedicated Instagram window rule in `@pipe/core` remains a product decision.
-function channelOfCore(tipo: string): TipoChannel {
+function channelOfCore(tipo: string): TypeChannel {
   return tipo === 'whatsapp_cloud' ? 'whatsapp_cloud' : 'widget';
 }
 
@@ -185,10 +185,10 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
         ${pedido.agentId ? 'atendente' : 'sistema'}, ${pedido.agentId ?? null},
         ${tipo}, ${conteudo}, ${pedido.attachmentId ?? null}, ${template?.id ?? null},
         ${pedido.responseReadyId ?? null},
-        'pendente', ${agora}, ${evaluation.windowDentro},
+        'pendente', ${agora}, ${evaluation.withinWindow},
         ${classificarCusto({
           conteudo: template ? 'template' : 'texto_livre',
-          windowDentro: evaluation.windowDentro,
+          withinWindow: evaluation.withinWindow,
           categoriaTemplate: template?.category ?? null,
         })}
       )
@@ -257,7 +257,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
 
     return {
       messageId,
-      dentroDaJanela: evaluation.windowDentro,
+      dentroDaJanela: evaluation.withinWindow,
       categoriaCobranca: evaluation.categoriaCobranca,
       conteudo,
       valores: template
@@ -284,7 +284,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
   };
 }
 
-export interface RequestOfLoteOfAttachments {
+export interface RequestOfBatchOfAttachments {
   tenantId: string;
   conversationId: string;
   agentId?: string | null;
@@ -292,7 +292,7 @@ export interface RequestOfLoteOfAttachments {
   attachmentIds: string[];
   /** Optional caption goes on the FIRST message of the batch, as the source does with `text`. */
   texto?: string | null;
-  exigirAssignment?: boolean;
+  requireAssignment?: boolean;
 }
 
 type LineAttachment = { id: string; mime: string; bytes: string; nome_original: string | null };
@@ -300,7 +300,7 @@ type LineAttachment = { id: string; mime: string; bytes: string; nome_original: 
 /**
  * Send several attachments as ONE operation but ONE message per file, serially. This follows the source LIME protocol: each `application/vnd.lime.media-link+json` carries ONE `uri` (`referencias-blip/pesquisa/blip-api-schemas.md`, "media-link"); the Desk `ModalType.SEND_MULT_FILE` builds `mediaLinkDocuments`, capped at `MAX_ATTACHMENT_COUNT = 10` (`blip-desk-regras-tecnicas.md` §3.3). Thus `mensagem.anexo_id` remains singular. Validate the WHOLE batch before sending the first: every attachment must exist in the tenant, have an accepted type and size, and total no more than 10. The source loop aborts on one oversized file (§3.3 step 6); sending half would leave the client and agent uncertain. Send each through `enviarMensagem` in series, retaining the same 24-hour window, outbox, and event rules. If the first is rejected, none are sent.
  */
-export async function sendAttachments(pedido: RequestOfLoteOfAttachments): Promise<MessageQueued[]> {
+export async function sendAttachments(pedido: RequestOfBatchOfAttachments): Promise<MessageQueued[]> {
   const ids = pedido.attachmentIds.filter((id, i, lista) => lista.indexOf(id) === i);
   if (ids.length === 0) {
     throw PipeError.request('content_empty', 'Anexe ao menos um arquivo.');
@@ -358,7 +358,7 @@ export async function sendAttachments(pedido: RequestOfLoteOfAttachments): Promi
         type: tipoDoMime(attachment.mime),
         attachmentId: attachment.id,
         texto: i === 0 ? (pedido.texto ?? null) : null,
-        exigirAtribuicao: pedido.exigirAssignment ?? false,
+        exigirAtribuicao: pedido.requireAssignment ?? false,
       }),
     );
   }

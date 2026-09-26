@@ -7,7 +7,7 @@ import {
 } from '../../../components/settings/formulario';
 import { lerEspaco, listarChaves, listarWebhooks } from '../../../lib/settings-data';
 import {
-  CATALOGO_OF_SCOPES,
+  CATALOG_OF_SCOPES,
   CATALOGO_DE_EVENTOS,
   type ApiKey,
   type WebhookDeSaida,
@@ -18,7 +18,7 @@ import {
   actionCreateKey,
   actionCreateWebhook,
   acaoExcluirWebhook,
-  actionRevogarKey,
+  actionRevokeKey,
 } from '../actions';
 
 export const dynamic = 'force-dynamic';
@@ -88,7 +88,7 @@ function colunasDeChaves(fuso: string): readonly Column<ApiKey>[] {
         c.revogadaEm ? (
           <Etiqueta tom="erro">Revogada em {data(c.revogadaEm, fuso)}</Etiqueta>
         ) : (
-          <FormularioDeLinha acao={actionRevogarKey} campos={{ id: c.id }}>
+          <FormularioDeLinha acao={actionRevokeKey} campos={{ id: c.id }}>
             <Etiqueta tom="sucesso">Ativa</Etiqueta>
             <ConfirmationButton
               rotulo="Revogar"
@@ -181,7 +181,7 @@ export default async function PageApi() {
         <Tabela
           colunas={colunasDeChaves(espaco.fuso)}
           linhas={chaves}
-          linhaKey={(c) => c.id}
+          rowKey={(c) => c.id}
           larguraMinima={760}
           empty="Nenhuma chave emitida."
         />
@@ -198,7 +198,7 @@ export default async function PageApi() {
           </label>
           <fieldset className="cfg-permissions">
             <legend>Escopos</legend>
-            {CATALOGO_OF_SCOPES.map((scope) => (
+            {CATALOG_OF_SCOPES.map((scope) => (
               <label key={scope.codigo}>
                 <input type="checkbox" name="escopo" value={scope.codigo} />
                 <span>
@@ -218,7 +218,7 @@ export default async function PageApi() {
         <Tabela
           colunas={colunasDeWebhooks(espaco.fuso)}
           linhas={webhooks}
-          linhaKey={(w) => w.id}
+          rowKey={(w) => w.id}
           larguraMinima={820}
           empty="Nenhum webhook cadastrado."
         />

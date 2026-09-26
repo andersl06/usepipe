@@ -2,20 +2,20 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from './link';
 import { Icone } from '@pipe/ui';
-import { ROTULOS_PRIORITY, type NivelPriority } from '@pipe/core/conversation';
+import { LABELS_PRIORITY, type LevelPriority } from '@pipe/core/conversation';
 import {
-  esperaOrdenarQueue,
-  type LinhaConversationAberta,
+  waitSortQueue,
+  type ConversationOpenRow,
   type Monitoring,
 } from '../lib/monitoring';
 import { numero } from '../lib/format';
 import { api } from '../lib/api';
-import { IconeManagement } from './icones-management';
+import { ManagementIcon } from './icones-management';
 import { IconePortal } from './icones-portal';
 import { Pagination, usePage } from './pagination';
 import { Selection } from './selection';
 import { useRead } from '../lib/query';
-import { ModalFinalizarMonitoring } from './modal-finalizar-monitoring';
+import { ModalFinishMonitoring } from './modal-finalizar-monitoring';
 
 /**
  * Detailed Monitoring follows the reference final card (`FICHA-monitoring.md` §2.5): title left and search inside at right, then tabs, table with Actions last, and pagination footer. Keep tab and search in the query string with the filter so a 30-second refresh does not reset the supervisor's view. Keep table page in client state because one transaction already loaded all rows. Color the entire severity row, not just text, following the `blip-dash` lesson in Section 3.
@@ -40,7 +40,7 @@ type Filter = {
   search?: string;
 };
 
-type MonitoringActions = Pick<Monitoring, 'queues' | 'listaAgents' | 'etiquetas'>;
+type MonitoringActions = Pick<Monitoring, 'queues' | 'listAgents' | 'etiquetas'>;
 
 /** Formato usado pelo BDS nas tabelas: sempre hh:mm:ss e, acima de 24h, dias. */
 function durationMonitoring(segundos: number | null | undefined): string {
@@ -79,10 +79,10 @@ function querystring(filter: Filter, aba: string): URLSearchParams {
 /**
  * Row severity has three precedence levels. The previously missing third level highlights a contact awaiting an agent's first response (`blip-gestao-funcoes.md` Section 1), the only highlight unrelated to SLA. First-response wait matters to the customer even when SLA may still be within time. Breached SLA wins because the deadline passed; SLA warning and first-response wait share yellow deliberately because both need the same supervisor action.
  */
-function classeDaLinha(linha: LinhaConversationAberta): string | undefined {
+function classeDaLinha(linha: ConversationOpenRow): string | undefined {
   if (linha.sla.state === 'estourado') return 'critico';
   if (linha.sla.state === 'alerta') return 'grave';
-  if (linha.firstRespostaCorrendo) return 'grave';
+  if (linha.firstResponseRunning) return 'grave';
   return undefined;
 }
 
@@ -90,7 +90,7 @@ function classeDaLinha(linha: LinhaConversationAberta): string | undefined {
  * Priority starts neutral like other category labels. Color only the top two levels that change a supervisor's immediate action; coloring all five would weaken red elsewhere. Maximum uses error color and High alert color, while the three lower levels, including absence, stay neutral. Get labels from `ROTULOS_PRIORIDADE`, the single source also defining queue order.
  */
 function PillPriority({ nivel }: { nivel: string }) {
-  const rotulo = ROTULOS_PRIORITY[nivel as NivelPriority] ?? nivel;
+  const rotulo = LABELS_PRIORITY[nivel as LevelPriority] ?? nivel;
   const tinta = nivel === 'maxima' ? ' erro' : nivel === 'alta' ? ' alerta' : '';
   return <span className={`etiqueta${tinta}`}>{rotulo}</span>;
 }
@@ -108,7 +108,7 @@ function TicketActions({
   catalogos,
   aoAbrir,
 }: {
-  linha: LinhaConversationAberta;
+  linha: ConversationOpenRow;
   catalogos: MonitoringActions;
   aoAbrir: (id: string) => void;
 }) {
@@ -151,14 +151,14 @@ function TicketActions({
         ) : null}
       </div>
       {modal === 'transferir' ? (
-        <ModalTransferirMonitoring
+        <ModalTransferMonitoring
           linha={linha}
           catalogos={catalogos}
           aoFechar={() => setModal(null)}
         />
       ) : null}
       {modal === 'finalizar' ? (
-        <ModalFinalizarMonitoring
+        <ModalFinishMonitoring
           linha={linha}
           aoFechar={() => setModal(null)}
         />
@@ -167,12 +167,12 @@ function TicketActions({
   );
 }
 
-function ModalTransferirMonitoring({
+function ModalTransferMonitoring({
   linha,
   catalogos,
   aoFechar,
 }: {
-  linha: LinhaConversationAberta;
+  linha: ConversationOpenRow;
   catalogos: MonitoringActions;
   aoFechar: () => void;
 }) {
@@ -181,7 +181,7 @@ function ModalTransferirMonitoring({
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const consultas = useQueryClient();
-  const options = alvo === 'fila' ? catalogos.queues : catalogos.listaAgents;
+  const options = alvo === 'fila' ? catalogos.queues : catalogos.listAgents;
 
   async function transferir() {
     if (!destination) return;
@@ -254,7 +254,7 @@ function MonitoringModal({
 /**
  * The agent-row action opens `Atribuído/Em andamento` already filtered by that agent. This is the reference Actions column behavior using an existing filter, not new data.
  */
-function ActionVerConversations({ filter, agentId }: { filter: Filter; agentId: string }) {
+function ActionViewConversations({ filter, agentId }: { filter: Filter; agentId: string }) {
   return (
     <td className="acts">
       <Link
@@ -263,7 +263,7 @@ function ActionVerConversations({ filter, agentId }: { filter: Filter; agentId: 
         title="Ver as conversas deste atendente"
         aria-label="Ver as conversas deste atendente"
       >
-        <IconeManagement nome="externo" tamanho={24} />
+        <ManagementIcon nome="externo" tamanho={24} />
       </Link>
     </td>
   );
@@ -281,7 +281,7 @@ function TabelaAtribuidas({
   catalogos,
   aoAbrir,
 }: {
-  linhas: readonly LinhaConversationAberta[];
+  linhas: readonly ConversationOpenRow[];
   catalogos: MonitoringActions;
   aoAbrir: (id: string) => void;
 }) {
@@ -307,11 +307,11 @@ function TabelaAtribuidas({
             <tr key={l.id} className={classeDaLinha(l)} onClick={() => aoAbrir(l.id)}>
               <td className="num">
                 {durationMonitoring(l.inQueueSeg)}
-                {l.queueCorrendo ? ' ⟳' : ''}
+                {l.queueRunning ? ' ⟳' : ''}
               </td>
               <td className="num">
-                {durationMonitoring(l.firstRespostaSeg)}
-                {l.firstRespostaCorrendo ? ' ⟳' : ''}
+                {durationMonitoring(l.firstResponseSeg)}
+                {l.firstResponseRunning ? ' ⟳' : ''}
               </td>
               <td className="time-sla">
                 {/*
@@ -350,7 +350,7 @@ function TabelaAguardando({
   catalogos,
   aoAbrir,
 }: {
-  linhas: readonly LinhaConversationAberta[];
+  linhas: readonly ConversationOpenRow[];
   catalogos: MonitoringActions;
   aoAbrir: (id: string) => void;
 }) {
@@ -375,7 +375,7 @@ function TabelaAguardando({
             <tr key={l.id} className={classeDaLinha(l)} onClick={() => aoAbrir(l.id)}>
               <td className="num">
                 {durationMonitoring(l.inQueueSeg)}
-                {l.queueCorrendo ? ' ⟳' : ''}
+                {l.queueRunning ? ' ⟳' : ''}
               </td>
               <td>
                 <PillPriority nivel={l.priority} />
@@ -398,7 +398,7 @@ function TabelaAguardando({
 /**
  * The Agent tab shows dashes for average response and attendance times: `CargaAtendente` supplies counts and limits, not averages. Inventing a value would be worse than leaving the missing API datum visibly empty; this gap is recorded in the delivery report.
  */
-function TabelaAgents({
+function TableAgents({
   agents,
   filter,
 }: {
@@ -424,9 +424,9 @@ function TabelaAgents({
             <tr key={a.id}>
               <td className="who">{a.nome}</td>
               <td className="num">{numero(a.ativas)}</td>
-              <td className="num">{durationMonitoring(a.timeMedioRespostaSeg)}</td>
-              <td className="num">{durationMonitoring(a.timeMedioAttendanceSeg)}</td>
-              <ActionVerConversations filter={filter} agentId={a.id} />
+              <td className="num">{durationMonitoring(a.timeAverageResponseSeg)}</td>
+              <td className="num">{durationMonitoring(a.timeAverageAttendanceSeg)}</td>
+              <ActionViewConversations filter={filter} agentId={a.id} />
             </tr>
           ))}
         </tbody>
@@ -440,7 +440,7 @@ function TabelaAgents({
 /**
  * Queue maximum wait is not average wait. Leave all three average columns empty until the query returns actual averages; never label a maximum as a mean.
  */
-function TabelaQueues({ queues }: { queues: Monitoring['queues'] }) {
+function TableQueues({ queues }: { queues: Monitoring['queues'] }) {
   const pg = usePage(queues);
   return (
     <>
@@ -465,9 +465,9 @@ function TabelaQueues({ queues }: { queues: Monitoring['queues'] }) {
               <td className="who">{f.nome}</td>
               <td className="num">{numero(f.inQueue)}</td>
               <td className="num">{numero(f.inAttendance)}</td>
-              <td className="num">{durationMonitoring(f.timeMedioInQueueSeg)}</td>
-              <td className="num">{durationMonitoring(f.timeMedioRespostaSeg)}</td>
-              <td className="num">{durationMonitoring(f.timeMedioAttendanceSeg)}</td>
+              <td className="num">{durationMonitoring(f.timeAverageInQueueSeg)}</td>
+              <td className="num">{durationMonitoring(f.timeAverageResponseSeg)}</td>
+              <td className="num">{durationMonitoring(f.timeAverageAttendanceSeg)}</td>
             </tr>
           ))}
         </tbody>
@@ -499,7 +499,7 @@ function TabelaTags({ etiquetas }: { etiquetas: Monitoring['etiquetas'] }) {
             <tr key={e.id}>
               <td className="who">{e.nome}</td>
               <td className="num">{numero(e.finalizadas)}</td>
-              <td className="num">{durationMonitoring(e.timeMedioAttendanceSeg)}</td>
+              <td className="num">{durationMonitoring(e.timeAverageAttendanceSeg)}</td>
             </tr>
           ))}
         </tbody>
@@ -519,7 +519,7 @@ type Previa = {
   itens: { id: string; em: string; tipo: 'mensagem' | 'nota'; direction?: string; texto: string; autor?: string | null }[];
 };
 
-function ConversationPrevia({ id, aoFechar }: { id: string; aoFechar: () => void }) {
+function ConversationPreview({ id, aoFechar }: { id: string; aoFechar: () => void }) {
   const read = useRead<Previa>(`/v1/management/monitoring/conversations/${id}`);
   const [texto, setTexto] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -585,7 +585,7 @@ export function MonitoringDetailed({
   search: string;
   filter: Filter;
 }) {
-  const [conversationAberta, setConversationAberta] = useState<string | null>(null);
+  const [conversationOpen, setConversationOpen] = useState<string | null>(null);
   const termo = search.trim().toLowerCase();
   const contact = (filter.contact ?? '').trim().toLowerCase();
 
@@ -594,7 +594,7 @@ export function MonitoringDetailed({
    */
   const stateByAgent = new Map(monitoring.carga.map((a) => [a.id, a.state]));
 
-  const casa = (l: LinhaConversationAberta) => {
+  const casa = (l: ConversationOpenRow) => {
     /*
      * Search inside this card uses the ticket number only; Contact has its own field in the filter strip.
      */
@@ -611,12 +611,12 @@ export function MonitoringDetailed({
   /*
    * Sort the waiting queue by priority through `ordenarFilaDeEspera`; leave assigned conversations in the creation order returned by the query.
    */
-  const aguardando = esperaOrdenarQueue(
+  const aguardando = waitSortQueue(
     monitoring.abertas.filter((l) => l.agentId === null).filter(casa),
   );
-  const actionsCatalogos: MonitoringActions = {
+  const actionCatalogs: MonitoringActions = {
     queues: monitoring.queues,
-    listaAgents: monitoring.listaAgents,
+    listAgents: monitoring.listAgents,
     etiquetas: monitoring.etiquetas,
   };
 
@@ -657,14 +657,14 @@ export function MonitoringDetailed({
         ))}
       </div>
 
-      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} catalogos={actionsCatalogos} aoAbrir={setConversationAberta} /> : null}
-      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} catalogos={actionsCatalogos} aoAbrir={setConversationAberta} /> : null}
+      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} catalogos={actionCatalogs} aoAbrir={setConversationOpen} /> : null}
+      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} catalogos={actionCatalogs} aoAbrir={setConversationOpen} /> : null}
       {aba === 'atendentes' ? (
-        <TabelaAgents agents={monitoring.carga} filter={filter} />
+        <TableAgents agents={monitoring.carga} filter={filter} />
       ) : null}
-      {aba === 'filas' ? <TabelaQueues queues={monitoring.queues} /> : null}
+      {aba === 'filas' ? <TableQueues queues={monitoring.queues} /> : null}
       {aba === 'etiquetas' ? <TabelaTags etiquetas={monitoring.etiquetas} /> : null}
-      {conversationAberta ? <ConversationPrevia id={conversationAberta} aoFechar={() => setConversationAberta(null)} /> : null}
+      {conversationOpen ? <ConversationPreview id={conversationOpen} aoFechar={() => setConversationOpen(null)} /> : null}
     </div>
   );
 }

@@ -12,12 +12,12 @@ const SECTIONS: {
     titulo: 'Notificações',
     itens: [
       {
-        key: 'navegadorNotifications',
+        key: 'browserNotifications',
         rotulo: 'Notificações no navegador',
         dica: 'Permite que o navegador de internet utilizado no Desk envie notificações',
       },
       {
-        key: 'ticketInQueueAlerta',
+        key: 'ticketInQueueAlert',
         rotulo: 'Alertas sonoros para novos tickets na fila',
         dica: 'Receba alertas sonoros quando novos tickets entrarem na fila de atendimento',
       },
@@ -27,12 +27,12 @@ const SECTIONS: {
         dica: 'Receba alertas sonoros quando novos tickets forem atribuídos a você',
       },
       {
-        key: 'messageAlerta',
+        key: 'messageAlert',
         rotulo: 'Alertas sonoros para novas mensagens',
         dica: 'Receba alertas sonoros quando novas mensagens forem recebidas',
       },
       {
-        key: 'alertaWithAbaActive',
+        key: 'alertWithTabActive',
         rotulo: 'Alertas sonoros na aba ativa do navegador',
         dica: 'Receba alertas sonoros enquanto a aba do navegador estiver ativa',
       },
@@ -52,7 +52,7 @@ const SECTIONS: {
     titulo: 'Barra de tickets',
     itens: [
       {
-        key: 'aberturaOrder',
+        key: 'openingOrder',
         rotulo: 'Ver mensagens por ordem de abertura do ticket',
         dica: 'Desligado, as novas mensagens ficam no topo',
       },

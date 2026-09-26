@@ -12,7 +12,7 @@ export interface CardHistory {
   queue: string;
   agent: string;
   espera: string;
-  firstResposta: string;
+  firstResponse: string;
   attendance: string;
   statusTexto: string;
   statusClasse: string;
@@ -69,7 +69,7 @@ const Card = memo(function Cartao({
         <Campo rotulo="Fila" value={card.queue} />
         <Campo rotulo="Atendente" value={card.agent} />
         <Campo rotulo="Espera do cliente" value={card.espera} classe="num" />
-        <Campo rotulo="1ª resposta" value={card.firstResposta} classe="num" />
+        <Campo rotulo="1ª resposta" value={card.firstResponse} classe="num" />
         <Campo rotulo="Atendimento" value={card.attendance} classe="num" />
       </div>
 
@@ -90,7 +90,7 @@ const Card = memo(function Cartao({
   );
 });
 
-export function ListaHistory({
+export function ListHistory({
   groups,
   todos,
   marcados,

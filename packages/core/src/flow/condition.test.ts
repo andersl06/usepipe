@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
-  avaliarConditionBlip,
+  evaluateConditionBlip,
   delegadoBinario,
   delegadoUnario,
   validateCondition,
@@ -86,13 +86,13 @@ describe('Condition.EvaluateConditionAsync', () => {
     inboundContext: new Map(),
     services: {
       send: async () => {},
-      encaminharForAttendance: async () => ({ id: 'x' }),
+      forwardForAttendance: async () => ({ id: 'x' }),
       registerEvent: async () => {},
     },
   });
   const avaliar = (c: ConditionBlip, texto: string) => {
     const ctx = context(texto);
-    return avaliarConditionBlip(c, ctx.inbound, ctx);
+    return evaluateConditionBlip(c, ctx.inbound, ctx);
   };
 
   it('with no source it is the input, with no comparison it is equals, and with several values one is enough (or)', async () => {

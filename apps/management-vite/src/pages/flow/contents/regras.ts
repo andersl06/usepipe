@@ -63,7 +63,7 @@ export function tiposDisponiveis(
 }
 
 /** `ng-if="$ctrl.messageTemplateType === 'default' && !isAuthenticationType() && !isEmptyCategory()"` */
-export function blockMostrarEscolha(tipo: TipoDeConteudo | 'default', categoria: Categoria | '') {
+export function blockShowChoice(tipo: TipoDeConteudo | 'default', categoria: Categoria | '') {
   return tipo === 'default' && categoria !== 'autenticacao' && categoria !== '';
 }
 
@@ -138,7 +138,7 @@ export function templateValid(data: {
 /**
  * What the list shows (`messagetemplate.html`): without a WhatsApp channel it's the `unavailable-warning`; with a channel and no templates, the `no-results`; otherwise the list.
  */
-export function listaState(temWhatsapp: boolean, totalDeModelos: number) {
+export function listState(temWhatsapp: boolean, totalDeModelos: number) {
   if (!temWhatsapp) return 'indisponivel' as const;
   return totalDeModelos === 0 ? ('vazio' as const) : ('lista' as const);
 }

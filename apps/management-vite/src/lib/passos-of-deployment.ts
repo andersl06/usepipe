@@ -17,25 +17,25 @@
 
 export interface DeploymentSignals {
   adminEntrou: boolean;
-  channelsConectados: number;
+  channelsConnected: number;
   /** Ligados, mas marcados para reautorização (webhook que falhou, número pendente na Meta). */
-  channelsPendentes: number;
+  channelsPending: number;
   convites: number;
   /** Usuários ativos, o administrador incluído. */
   members: number;
   queuesActive: number;
   queuesWithAgent: number;
-  ultimaImport: {
+  lastImport: {
     id: string;
     state: string;
     aceitos: number;
     rejeitados: number;
     temFalhas: boolean;
   } | null;
-  conversationAtendida: boolean;
+  conversationHandled: boolean;
 }
 
-export type PassoState = 'feito' | 'andamento' | 'pendente';
+export type StepState = 'feito' | 'andamento' | 'pendente';
 
 export type IdDoPasso = 'acesso' | 'whatsapp' | 'equipe' | 'fila' | 'contatos' | 'conversa';
 
@@ -45,10 +45,10 @@ export interface AcaoDoPasso {
   externo?: boolean;
 }
 
-export interface DeploymentPasso {
+export interface DeploymentStep {
   id: IdDoPasso;
   titulo: string;
-  state: PassoState;
+  state: StepState;
   /** O que falta, ou o que já existe. Uma frase. */
   resumo: string;
   acao: AcaoDoPasso | null;
@@ -58,10 +58,10 @@ function quantos(n: number, um: string, varios: string): string {
   return `${n} ${n === 1 ? um : varios}`;
 }
 
-function contactsPasso(
+function contactsStep(
   s: DeploymentSignals,
-): Omit<DeploymentPasso, 'id' | 'titulo' | 'acao'> {
-  const ultima = s.ultimaImport;
+): Omit<DeploymentStep, 'id' | 'titulo' | 'acao'> {
+  const ultima = s.lastImport;
   if (!ultima) {
     return {
       state: 'pendente',
@@ -91,8 +91,8 @@ function contactsPasso(
   };
 }
 
-export function montarPassos(s: DeploymentSignals, urlDoDesk: string): DeploymentPasso[] {
-  const temWhatsApp = s.channelsConectados > 0;
+export function montarPassos(s: DeploymentSignals, urlDoDesk: string): DeploymentStep[] {
+  const temWhatsApp = s.channelsConnected > 0;
   return [
     {
       id: 'acesso',
@@ -106,10 +106,10 @@ export function montarPassos(s: DeploymentSignals, urlDoDesk: string): Deploymen
     {
       id: 'whatsapp',
       titulo: 'Conectar o WhatsApp',
-      state: temWhatsApp ? 'feito' : s.channelsPendentes > 0 ? 'andamento' : 'pendente',
+      state: temWhatsApp ? 'feito' : s.channelsPending > 0 ? 'andamento' : 'pendente',
       resumo: temWhatsApp
-        ? `${quantos(s.channelsConectados, 'número conectado', 'números conectados')}.`
-        : s.channelsPendentes > 0
+        ? `${quantos(s.channelsConnected, 'número conectado', 'números conectados')}.`
+        : s.channelsPending > 0
           ? 'O número foi ligado, mas a Meta pede reautorização. Refaça a conexão.'
           : 'Sem número conectado, nenhuma conversa chega ao Desk.',
       acao: temWhatsApp
@@ -143,20 +143,20 @@ export function montarPassos(s: DeploymentSignals, urlDoDesk: string): Deploymen
     {
       id: 'contatos',
       titulo: 'Importar contatos',
-      ...contactsPasso(s),
+      ...contactsStep(s),
       acao: { rotulo: 'Importar', href: '#contatos' },
     },
     {
       id: 'conversa',
       titulo: 'Atender a conversa de teste',
-      state: s.conversationAtendida ? 'feito' : 'pendente',
-      resumo: s.conversationAtendida
+      state: s.conversationHandled ? 'feito' : 'pendente',
+      resumo: s.conversationHandled
         ? 'Uma conversa já foi respondida pelo Desk.'
         : temWhatsApp
           ? 'Mande um WhatsApp do seu celular para o número conectado e responda pelo Desk.'
           : 'Depende do WhatsApp conectado.',
       acao:
-        temWhatsApp && !s.conversationAtendida
+        temWhatsApp && !s.conversationHandled
           ? { rotulo: 'Abrir o Desk', href: urlDoDesk, externo: true }
           : null,
     },

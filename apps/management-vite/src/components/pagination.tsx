@@ -22,10 +22,10 @@ export function usePage<T>(
   byPageInitial: (typeof OPTIONS_BY_PAGE)[number] = 5,
 ): StatePagination & { visiveis: readonly T[] } {
   const [byPage, setByPageRaw] = useState<number>(byPageInitial);
-  const [pageBruta, setPage] = useState(1);
+  const [pageRaw, setPage] = useState(1);
   const total = linhas.length;
   const totalPages = Math.max(1, Math.ceil(total / byPage));
-  const page = Math.min(pageBruta, totalPages);
+  const page = Math.min(pageRaw, totalPages);
   const inicio = total === 0 ? 0 : (page - 1) * byPage;
   const fim = Math.min(inicio + byPage, total);
   const visiveis = useMemo(() => linhas.slice(inicio, fim), [linhas, inicio, fim]);
@@ -84,7 +84,7 @@ export function Pagination({ state, grade }: { state: StatePagination; grade?: s
           title="Primeira página"
           aria-label="Primeira página"
         >
-          <IconePagination tipo="primeira" />
+          <PaginationIcon tipo="primeira" />
         </button>
         <button
           type="button"
@@ -94,7 +94,7 @@ export function Pagination({ state, grade }: { state: StatePagination; grade?: s
           title="Página anterior"
           aria-label="Página anterior"
         >
-          <IconePagination tipo="anterior" />
+          <PaginationIcon tipo="anterior" />
         </button>
         {/*
  * Show current page number between arrows, matching reference `data-testid="current-page-test"`.
@@ -110,7 +110,7 @@ export function Pagination({ state, grade }: { state: StatePagination; grade?: s
           title="Próxima página"
           aria-label="Próxima página"
         >
-          <IconePagination tipo="proxima" />
+          <PaginationIcon tipo="proxima" />
         </button>
         <button
           type="button"
@@ -120,7 +120,7 @@ export function Pagination({ state, grade }: { state: StatePagination; grade?: s
           title="Última página"
           aria-label="Última página"
         >
-          <IconePagination tipo="ultima" />
+          <PaginationIcon tipo="ultima" />
         </button>
         </div>
       </div>
@@ -128,7 +128,7 @@ export function Pagination({ state, grade }: { state: StatePagination; grade?: s
   );
 }
 
-function IconePagination({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
+function PaginationIcon({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
   const esquerda = tipo === 'primeira' || tipo === 'anterior';
   const dupla = tipo === 'primeira' || tipo === 'ultima';
   return (

@@ -32,7 +32,7 @@ export interface EventAttendance {
   userId?: string | null;
   queueId?: string | null;
   /** Em `encerrada`, carrega `encerradaPor`. */
-  encerradaBy?: ClosedBy | null;
+  closedBy?: ClosedBy | null;
 }
 
 /** Conversation event list, the input unit for every metric. */
@@ -46,9 +46,9 @@ export interface Marcos {
   conversationId: string;
   criadaEm: Date | null;
   atribuidaEm: Date | null;
-  firstRespostaIn: Date | null;
+  firstResponseIn: Date | null;
   encerradaEm: Date | null;
-  encerradaBy: ClosedBy | null;
+  closedBy: ClosedBy | null;
   /** Assignment count; reassignment records a new event rather than overwriting the first. */
   assignments: number;
 }
@@ -71,7 +71,7 @@ export function derivarMarcos(conversation: ConversationEvents): Marcos {
   let criadaEm: Date | null = null;
   let enfileiradaEm: Date | null = null;
   let atribuidaEm: Date | null = null;
-  let firstRespostaIn: Date | null = null;
+  let firstResponseIn: Date | null = null;
   let agentInFirstOutput: Date | null = null;
   let encerradaEm: Date | null = null;
   let closedBy: ClosedBy | null = null;
@@ -91,7 +91,7 @@ export function derivarMarcos(conversation: ConversationEvents): Marcos {
         if (atribuidaEm === null) atribuidaEm = evento.em;
         break;
       case 'primeira_resposta':
-        if (firstRespostaIn === null) firstRespostaIn = evento.em;
+        if (firstResponseIn === null) firstResponseIn = evento.em;
         break;
       case 'mensagem_saida':
         if (agentInFirstOutput === null && evento.userId) {
@@ -100,7 +100,7 @@ export function derivarMarcos(conversation: ConversationEvents): Marcos {
         break;
       case 'encerrada':
         encerradaEm = evento.em;
-        closedBy = evento.encerradaBy ?? null;
+        closedBy = evento.closedBy ?? null;
         break;
       case 'reaberta':
         encerradaEm = null;
@@ -115,9 +115,9 @@ export function derivarMarcos(conversation: ConversationEvents): Marcos {
     conversationId: conversation.conversationId,
     criadaEm: criadaEm ?? enfileiradaEm,
     atribuidaEm,
-    firstRespostaIn: firstRespostaIn ?? agentInFirstOutput,
+    firstResponseIn: firstResponseIn ?? agentInFirstOutput,
     encerradaEm,
-    encerradaBy: closedBy,
+    closedBy: closedBy,
     assignments,
   };
 }
@@ -139,9 +139,9 @@ export function intervalosDeResposta(conversation: ConversationEvents): number[]
       if (aguardandoDesde === null) aguardandoDesde = evento.em;
       continue;
     }
-    const agentEhResposta =
+    const agentEhResponse =
       (evento.tipo === 'mensagem_saida' && !!evento.userId) || evento.tipo === 'primeira_resposta';
-    if (agentEhResposta && aguardandoDesde !== null) {
+    if (agentEhResponse && aguardandoDesde !== null) {
       intervalos.push((evento.em.getTime() - aguardandoDesde.getTime()) / 1000);
       aguardandoDesde = null;
     }

@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import {
-  FIELDS_SECRETOS_OF_CHANNEL,
+  FIELDS_SECRET_OF_CHANNEL,
   SecretError,
   keyringOfEnvironment,
   cifrar,
@@ -104,7 +104,7 @@ describe('Encrypt and decrypt channel secrets', () => {
   it('Cover all four channel credentials in the secret field list', () => {
     // If someone adds another channel secret but omits it from this list, the value
     // is stored in plaintext. This test is the reminder.
-    expect([...FIELDS_SECRETOS_OF_CHANNEL]).toEqual(
+    expect([...FIELDS_SECRET_OF_CHANNEL]).toEqual(
       expect.arrayContaining(['tokenAcesso', 'appSecret', 'verifyToken', 'senhaSmtp']),
     );
   });

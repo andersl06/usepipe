@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
-  contarClosures,
-  timeAteFirstResposta,
+  countClosures,
+  timeUntilFirstResponse,
   attendanceTime,
   timeInQueue,
 } from '@pipe/core';
@@ -89,7 +89,7 @@ export async function agregarDia(
        group by c.fila_id, c.atendente_id, m.direcao
     `);
 
-    const byConversation = agruparByConversation(eventos);
+    const byConversation = groupByConversation(eventos);
     const linhas = montarLinhas(byConversation, mensagens);
 
     // Run in series; never use `Promise.all` inside this transaction (see README).
@@ -104,7 +104,7 @@ export async function agregarDia(
         ) values (
           ${tenantId}, ${dia}, ${linha.dimensaoTipo}, ${linha.dimensaoId},
           ${linha.conversationsCreated}, ${linha.conversationsCloseds},
-          ${linha.conversationsPerdidas}, ${linha.conversationsAbandonadas},
+          ${linha.conversationsLost}, ${linha.conversationsAbandoned},
           ${linha.messagesInbound}, ${linha.messagesOutput},
           ${linha.waitQueueSeg}, ${linha.waitQueueN},
           ${linha.firstResponseSeg}, ${linha.firstResponseN},
@@ -143,7 +143,7 @@ interface ConversationOfDay {
   encerrada: boolean;
 }
 
-function agruparByConversation(eventos: readonly LinhaEvento[]): ConversationOfDay[] {
+function groupByConversation(eventos: readonly LinhaEvento[]): ConversationOfDay[] {
   const mapa = new Map<string, ConversationOfDay>();
 
   for (const linha of eventos) {
@@ -166,7 +166,7 @@ function agruparByConversation(eventos: readonly LinhaEvento[]): ConversationOfD
       em: linha.em instanceof Date ? linha.em : new Date(linha.em),
       userId: linha.usuario_id,
       queueId: linha.fila_id,
-      encerradaBy: linha.dados?.encerrada_por ?? null,
+      closedBy: linha.dados?.encerrada_por ?? null,
     };
     (item.conversation.eventos as EventAttendance[]).push(evento);
 
@@ -185,8 +185,8 @@ interface LinhaMetrica {
   dimensaoId: string;
   conversationsCreated: number;
   conversationsCloseds: number;
-  conversationsPerdidas: number;
-  conversationsAbandonadas: number;
+  conversationsLost: number;
+  conversationsAbandoned: number;
   messagesInbound: number;
   messagesOutput: number;
   waitQueueSeg: number;
@@ -228,9 +228,9 @@ function montarLinhas(
       // inserida de novo a cada reprocessamento em vez de ser sobrescrita.
       if (dimensaoId === null) continue;
       const eventos = grupo.map((g) => g.conversation);
-      const closures = contarClosures(eventos);
+      const closures = countClosures(eventos);
       const queue = timeInQueue(eventos);
-      const first = timeAteFirstResposta(eventos);
+      const first = timeUntilFirstResponse(eventos);
       const attendance = attendanceTime(eventos);
       const estourados = grupo.filter((g) => g.slaEstourado).length;
 
@@ -248,8 +248,8 @@ function montarLinhas(
         dimensaoId,
         conversationsCreated: grupo.filter((g) => g.criada).length,
         conversationsCloseds: closures.fechada,
-        conversationsPerdidas: closures.perdida,
-        conversationsAbandonadas: closures.abandonada,
+        conversationsLost: closures.perdida,
+        conversationsAbandoned: closures.abandonada,
         messagesInbound: count('entrada'),
         messagesOutput: count('saida'),
         // Keep the sum and denominator together; calculate the average when displaying it,

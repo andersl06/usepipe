@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Campo, Etiqueta, EmptyState, Tabela, type Column } from '@pipe/ui';
 import { fusoDoTenant } from '../../lib/database';
-import { listContacts, LIMITE_LISTA, type LinhaContact } from '../../lib/contacts';
+import { listContacts, LIMITE_LISTA, type ContactRow } from '../../lib/contacts';
 import { desde, numero } from '../../lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
  *
  * No color: a contact has no state that demands action.
  */
-function colunas(fuso: string, agora: Date): readonly Column<LinhaContact>[] {
+function colunas(fuso: string, agora: Date): readonly Column<ContactRow>[] {
   return [
     {
       key: 'nome',
@@ -51,7 +51,7 @@ function colunas(fuso: string, agora: Date): readonly Column<LinhaContact>[] {
     {
       key: 'ultima',
       rotulo: 'Última conversa',
-      celula: (c) => (c.ultimaConversation ? desde(c.ultimaConversation, fuso, agora) : '—'),
+      celula: (c) => (c.lastConversation ? desde(c.lastConversation, fuso, agora) : '—'),
     },
   ];
 }
@@ -100,7 +100,7 @@ export default async function PageContacts({
             illustration={search ? 'busca' : 'vazio'}
           />
         ) : (
-          <Tabela colunas={colunas(fuso, agora)} linhas={contacts} linhaKey={(c) => c.id} />
+          <Tabela colunas={colunas(fuso, agora)} linhas={contacts} rowKey={(c) => c.id} />
         )}
       </div>
     </>

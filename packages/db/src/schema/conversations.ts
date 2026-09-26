@@ -1,4 +1,4 @@
-import { NIVEIS_PRIORITY } from '@pipe/core/conversation';
+import { LEVELS_PRIORITY } from '@pipe/core/conversation';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -280,7 +280,7 @@ export const conversation = pgTable(
   },
   (t) => [
     listaCheck('conversa_estado_ck', t.state, STATES_CONVERSATION),
-    listaCheck('conversa_prioridade_ck', t.priority, NIVEIS_PRIORITY),
+    listaCheck('conversa_prioridade_ck', t.priority, LEVELS_PRIORITY),
     listaCheck('conversa_ultima_mensagem_de_ck', t.lastMessageOf, AUTHORS_LAST_MESSAGE),
     index('conversa_estado_fila_idx').on(t.tenantId, t.state, t.filaId),
     index('conversa_atendente_estado_idx').on(t.tenantId, t.agentId, t.state),

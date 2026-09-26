@@ -3,7 +3,7 @@ import { palavraProibida } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
-import { exigirPermission } from '../../session.js';
+import { requirePermission } from '../../session.js';
 import { SETTINGS_GENERAL_MANAGE } from './settings.js';
 
 /**
@@ -186,7 +186,7 @@ export async function createWordForbidden(
   userId: string,
   pedido: PedidoDePalavraProibida,
 ): Promise<{ id: string }> {
-  await exigirPermission(tx, userId, WORD_FORBIDDEN_MANAGE);
+  await requirePermission(tx, userId, WORD_FORBIDDEN_MANAGE);
 
   const termo = termoConferido(pedido.term);
   const ativo = pedido.active ?? true;
@@ -221,7 +221,7 @@ export async function editarPalavraProibida(
   pedido: RequestOfEditOfWordForbidden,
 ): Promise<PalavraProibidaListada> {
   const atual = await palavraViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, WORD_FORBIDDEN_MANAGE);
+  await requirePermission(tx, usuarioId, WORD_FORBIDDEN_MANAGE);
 
   // Leave the type unannotated: the inferred literal satisfies `Record<string, unknown>` in `diferenca`.
   const antes = { ...atual };
@@ -266,7 +266,7 @@ export async function excluirPalavraProibida(
   id: string,
 ): Promise<void> {
   const atual = await palavraViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, WORD_FORBIDDEN_MANAGE);
+  await requirePermission(tx, usuarioId, WORD_FORBIDDEN_MANAGE);
 
   await tx.delete(palavraProibida).where(and(eq(palavraProibida.tenantId, tid), eq(palavraProibida.id, id)));
 

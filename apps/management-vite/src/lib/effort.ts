@@ -36,7 +36,7 @@ export interface AgentEffort {
 export interface ReportEffort {
   window: Window;
   agents: AgentEffort[];
-  conversationsConsideradas: number;
+  conversationsConsidered: number;
   /** Conversas encerradas no período que não geraram esforço de nenhum atendente. */
   conversationsWithoutAgent: number;
 }

@@ -8,13 +8,13 @@ import { fieldValue } from './actions-of-block';
  * - "Variáveis do sistema" is the fixed list of sources with a provider in the Pipe engine (`FONTES_SUPORTADAS` from `@pipe/core/fluxo/contexto.ts`), with the property names the engine actually reads (`provedorDeEntrada`, `provedorDeContato`, etc.) — not Blip's system list (`bucket`, `resource`, `tunnel`… have no provider here and would be lying).
  */
 
-export interface SistemaVariable {
+export interface SystemVariable {
   nome: string;
   description: string;
 }
 
 /** As propriedades que os provedores do motor (`contexto.ts`) de fato respondem. */
-export const VARIABLES_OF_SISTEMA: readonly SistemaVariable[] = [
+export const VARIABLES_OF_SYSTEM: readonly SystemVariable[] = [
   { nome: 'input.content', description: 'O conteúdo da última mensagem recebida.' },
   { nome: 'input.type', description: 'O tipo (MIME) da última mensagem recebida.' },
   { nome: 'contact.name', description: 'O nome do contato.' },
@@ -25,7 +25,7 @@ export const VARIABLES_OF_SISTEMA: readonly SistemaVariable[] = [
   { nome: 'ticket.id', description: 'O id do atendimento em curso, dentro do bloco Humano.' },
 ] as const;
 
-function actionsAcrescentar(actions: AcaoDoEditor[] | undefined, nomes: Set<string>): void {
+function actionsAdd(actions: AcaoDoEditor[] | undefined, nomes: Set<string>): void {
   for (const acao of actions ?? []) {
     if (acao.type === 'SetVariable' || acao.type === 'DeleteVariable') {
       const nome = fieldValue(acao, 'variable').trim();
@@ -37,9 +37,9 @@ function actionsAcrescentar(actions: AcaoDoEditor[] | undefined, nomes: Set<stri
   }
 }
 
-function blockAcrescentar(block: Block, nomes: Set<string>): void {
-  actionsAcrescentar(block.$enteringCustomActions, nomes);
-  actionsAcrescentar(block.$leavingCustomActions, nomes);
+function blockAdd(block: Block, nomes: Set<string>): void {
+  actionsAdd(block.$enteringCustomActions, nomes);
+  actionsAdd(block.$leavingCustomActions, nomes);
   for (const item of block.$contentActions ?? []) {
     if (item.input?.variable?.trim()) nomes.add(item.input.variable.trim());
     for (const condition of item.input?.conditions ?? []) {
@@ -56,10 +56,10 @@ function blockAcrescentar(block: Block, nomes: Set<string>): void {
 /** Every `context` variable this flow creates or reads, in alphabetical order. */
 export function userVariables(mapa: Mapa, global: Record<string, unknown>): string[] {
   const nomes = new Set<string>();
-  for (const block of Object.values(mapa)) blockAcrescentar(block, nomes);
+  for (const block of Object.values(mapa)) blockAdd(block, nomes);
   const globalWithActions = global as { $enteringCustomActions?: AcaoDoEditor[]; $leavingCustomActions?: AcaoDoEditor[] };
-  actionsAcrescentar(globalWithActions.$enteringCustomActions, nomes);
-  actionsAcrescentar(globalWithActions.$leavingCustomActions, nomes);
+  actionsAdd(globalWithActions.$enteringCustomActions, nomes);
+  actionsAdd(globalWithActions.$leavingCustomActions, nomes);
   return [...nomes].sort((a, b) => a.localeCompare(b));
 }
 
@@ -77,10 +77,10 @@ export function filterVariables(nomes: readonly string[], search: string): strin
   return nomes.filter((nome) => normalizar(nome).includes(alvo));
 }
 
-export function sistemaFiltrarVariables(
-  variables: readonly SistemaVariable[],
+export function systemFilterVariables(
+  variables: readonly SystemVariable[],
   search: string,
-): SistemaVariable[] {
+): SystemVariable[] {
   const alvo = normalizar(search.trim());
   if (!alvo) return [...variables];
   return variables.filter((v) => normalizar(v.nome).includes(alvo) || normalizar(v.description).includes(alvo));

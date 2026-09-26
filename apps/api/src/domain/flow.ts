@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
-  MotorError,
+  EngineError,
   stateKey,
   classificarCusto,
   createInbound,
@@ -8,7 +8,7 @@ import {
   contextEhVariable,
   stateSaved,
   blipReadFlow,
-  processarInbound,
+  processInbound,
   importReport,
   SuspensaoDeProcessHttp,
   validateFlow,
@@ -22,7 +22,7 @@ import type {
   PedidoDeHttp,
   CursorDeProcessHttp,
   RespostaDeHttp,
-  InboundRastro,
+  InboundTrace,
   ImportReport,
   Saida,
   ServicosDoMotor,
@@ -30,10 +30,10 @@ import type {
 import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { emitir } from '../webhooks-saida.js';
-import { distribuirConversation } from './distribution.js';
+import { distributeConversation } from './distribution.js';
 import { registrarEvento } from './eventos.js';
-import { avaliarPriority, loadRulesOfPriorityActive } from './management/priority-engine.js';
-import { redirecionarInRouter, serviceOfRouter } from './router.js';
+import { evaluatePriority, loadRulesOfPriorityActive } from './management/priority-engine.js';
+import { redirectInRouter, serviceOfRouter } from './router.js';
 import { chamarComMtls } from './mtls.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 
@@ -48,12 +48,12 @@ export interface FlowPublished {
   router?: {
     id: string;
     /** This service uses the router context (`usa_contexto_do_roteador`). */
-    compartilhaContext: boolean;
+    sharesContext: boolean;
     /** O contexto do par (roteador, contato). */
     contexto: Record<string, string>;
     /** Pending Change-User-State from the last `Redirect`. */
     reiniciar: boolean;
-    blockInicial: string | null;
+    blockInitial: string | null;
   };
 }
 
@@ -182,7 +182,7 @@ const STATUS_DO_TICKET: Readonly<Record<string, string>> = {
   transferencia: 'Transferred',
 };
 
-export async function rodarFlowInInbound(
+export async function runFlowInInbound(
   tx: TransactionPipe,
   publicado: FlowPublished | null,
   e: InboundInFlow,
@@ -267,11 +267,11 @@ export async function rodarFlowInInbound(
   const { flow, blockByCode } = await loadFlow(tx, publicado);
   // With shared router context, variables are scoped to the router-contact pair.
   const variables: Record<string, string> = {
-    ...(roteador?.compartilhaContext ? roteador.contexto : execution.context),
+    ...(roteador?.sharesContext ? roteador.contexto : execution.context),
   };
   if (roteador?.reiniciar) {
     // Apply Change-User-State after Master-State: the destination starts at the requested block or at root.
-    if (roteador.blockInicial) variables[stateKey(flow.id)] = roteador.blockInicial;
+    if (roteador.blockInitial) variables[stateKey(flow.id)] = roteador.blockInitial;
     else delete variables[stateKey(flow.id)];
     await tx.execute(sql`
       update posicao_no_roteador set reiniciar = false, bloco_inicial = null
@@ -280,7 +280,7 @@ export async function rodarFlowInInbound(
   }
   /** Persist router context whenever the execution is saved. */
   const saveContextOfRouter = async (): Promise<void> => {
-    if (!roteador?.compartilhaContext) return;
+    if (!roteador?.sharesContext) return;
     await tx.execute(sql`
       update posicao_no_roteador set contexto = ${JSON.stringify(variables)}::jsonb
        where roteador_id = ${roteador.id} and contato_id = ${e.contactId}
@@ -301,7 +301,7 @@ export async function rodarFlowInInbound(
       await gravarRespostaDoBot(tx, e.tenantId, conversation.id, texto, relogio(), pergunta ? { pergunta } : null);
       respostas += 1;
     },
-    encaminharForAttendance: async ({ settings }) => {
+    forwardForAttendance: async ({ settings }) => {
       const queueId =
         typeof settings?.['filaId'] === 'string' ? settings['filaId'] : conversation.queueDefaultId;
       await transbordar(tx, e, queueId, variables, null, relogio());
@@ -367,7 +367,7 @@ export async function rodarFlowInInbound(
     ...(roteador
       ? {
           redirect: async ({ endereco }: { endereco: string }) => {
-            await redirecionarInRouter(tx, {
+            await redirectInRouter(tx, {
               tenantId: e.tenantId,
               routerId: roteador.id,
               contactId: e.contactId,
@@ -393,7 +393,7 @@ export async function rodarFlowInInbound(
       services: servicos,
     };
     try {
-      const rastro = await processarInbound(
+      const rastro = await processInbound(
         context,
         retomada ? { retomarProcessHttp: retomada.cursor } : {},
       );
@@ -429,7 +429,7 @@ export async function rodarFlowInInbound(
         await saveContextOfRouter();
         return true;
       }
-      if (!(erro instanceof MotorError)) throw erro;
+      if (!(erro instanceof EngineError)) throw erro;
       await gravarPassos(
         tx,
         e.tenantId,
@@ -572,7 +572,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
     `);
     const publicado = await flowPublishedOfChannel(tx, p.channelId, p.contactId);
     if (!publicado) return;
-    const retomada = await rodarFlowInInbound(tx, publicado, {
+    const retomada = await runFlowInInbound(tx, publicado, {
       tenantId: encontrado.tenant_id,
       conversation: {
         id: p.conversationId, nova: false, queueId: p.queueId,
@@ -606,7 +606,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
        order by m.criada_em, m.id
     `);
     for (const mensagem of messagesPending) {
-      const atual = await rodarFlowInInbound(tx, publicado, {
+      const atual = await runFlowInInbound(tx, publicado, {
         tenantId: encontrado.tenant_id,
         conversation: {
           id: p.conversationId, nova: false, queueId: null,
@@ -667,7 +667,7 @@ async function gravarPassos(
   tx: TransactionPipe,
   tenantId: string,
   execucaoId: string,
-  rastro: InboundRastro,
+  rastro: InboundTrace,
   blocoPorCodigo: Map<string, string>,
   entrada: Record<string, unknown>,
   eventos: Record<string, unknown>[],
@@ -720,7 +720,7 @@ async function transbordar(
   // to assess its priority. See the Pipe decision in `gestao/prioridade-motor.ts`.
   const rulesOfPriority = await loadRulesOfPriorityActive(tx);
   if (rulesOfPriority.length > 0) {
-    const nivel = avaliarPriority(rulesOfPriority, {
+    const nivel = evaluatePriority(rulesOfPriority, {
       queueId,
       message: e.message.content,
     });
@@ -758,7 +758,7 @@ async function transbordar(
     estado: 'na_fila',
     fila_id: queueId,
   });
-  await distribuirConversation(tx, e.tenantId, e.conversation.id, queueId, em);
+  await distributeConversation(tx, e.tenantId, e.conversation.id, queueId, em);
 }
 
 /** The emergency fallback must not abort the incoming message. */
@@ -801,7 +801,7 @@ async function gravarRespostaDoBot(
 ): Promise<void> {
   const categoria = classificarCusto({
     conteudo: 'texto_livre',
-    windowDentro: true,
+    withinWindow: true,
     categoriaTemplate: null,
   });
   const { rows } = await tx.execute<{ id: string }>(sql`
@@ -906,7 +906,7 @@ async function loadContact(
 async function lastAttendance(
   tx: TransactionPipe,
   contatoId: string,
-  conversationAtualId: string,
+  conversationCurrentId: string,
 ): Promise<{ id: string; status: string; closed: true }> {
   const { rows } = await tx.execute<{ id: string; by: string | null }>(sql`
     select c.id,
@@ -914,13 +914,13 @@ async function lastAttendance(
              where ev.conversa_id = c.id and ev.tipo = 'encerrada'
              order by ev.em desc limit 1) as "by"
       from conversa c
-     where c.contato_id = ${contatoId} and c.estado = 'encerrada' and c.id <> ${conversationAtualId}
+     where c.contato_id = ${contatoId} and c.estado = 'encerrada' and c.id <> ${conversationCurrentId}
      order by c.encerrada_em desc nulls last
      limit 1
   `);
   const linha = rows[0];
   return {
-    id: linha?.id ?? conversationAtualId,
+    id: linha?.id ?? conversationCurrentId,
     status: STATUS_DO_TICKET[linha?.by ?? ''] ?? 'ClosedAttendant',
     closed: true,
   };
@@ -949,7 +949,7 @@ export interface ImportOfFlow {
 /**
  * Pipe block type. Blip has no block type; this label serves only the screen and report, and the engine does not read it.
  */
-export function classificarState(e: State): string {
+export function classifyState(e: State): string {
   const tipos = [...(e.inputActions ?? []), ...(e.outputActions ?? [])].map((a) => a.type);
   if (
     e.id.startsWith('desk:') ||
@@ -1046,7 +1046,7 @@ export async function importFlowOfBlip(
     const { rows } = await tx.execute<{ id: string }>(sql`
       insert into bloco (tenant_id, versao_id, codigo, nome, tipo, conteudo, posicao)
       values (
-        ${pedido.tenantId}, ${versaoId}, ${codigo}, ${nome}, ${classificarState(state)},
+        ${pedido.tenantId}, ${versaoId}, ${codigo}, ${nome}, ${classifyState(state)},
         ${JSON.stringify(originalState ? { ...conteudo, original: originalState } : conteudo)}::jsonb,
         ${JSON.stringify(state['$position'] ?? {})}::jsonb
       )

@@ -1,7 +1,7 @@
 import type { RequestOfService, RouterService } from '@pipe/contracts';
 
 /** Principal hides persistence and expiration; persistent hides expiration. */
-export function serviceFieldsVisiveis(principal: boolean, persistente: boolean) {
+export function serviceFieldsVisible(principal: boolean, persistente: boolean) {
   return {
     mostrarPersistente: !principal,
     mostrarExpiracao: !principal && !persistente,
@@ -9,7 +9,7 @@ export function serviceFieldsVisiveis(principal: boolean, persistente: boolean) 
 }
 
 /** The form as the screen stores it: all text and checkbox. */
-export interface ServiceFormulario {
+export interface ServiceForm {
   nome: string;
   chatbotId: string;
   principal: boolean;
@@ -20,8 +20,8 @@ export interface ServiceFormulario {
 /**
  * The request that goes to the `api`: the hidden field doesn't go — it's the same rule the `api` (`servicos-do-roteador.ts`) has, which would ignore it too.
  */
-export function pedidoDoFormulario(f: ServiceFormulario): RequestOfService {
-  const campos = serviceFieldsVisiveis(f.principal, f.persistente);
+export function pedidoDoFormulario(f: ServiceForm): RequestOfService {
+  const campos = serviceFieldsVisible(f.principal, f.persistente);
   const persistente = campos.mostrarPersistente && f.persistente;
   const expiration = f.expiration.trim();
   return {

@@ -7,9 +7,9 @@ export * from './secret.js';
 export * from './auditoria.js';
 export {
   seed,
-  garantirRoleOfAccount,
+  ensureRoleOfAccount,
   CATALOG_PERMISSIONS,
-  PAPEIS_OF_ACCOUNT,
+  ROLES_OF_ACCOUNT,
   PAPEIS_DIA_1,
   QUEUES_EXAMPLE,
 } from './seed.js';

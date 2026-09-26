@@ -16,7 +16,7 @@ const POLLING_INTERVAL = 15_000;
 export function PageAttendances() {
   const { conversationId: id, openConversation, closeConversation } = useDeskSelection();
   const [agora, setAgora] = useState(() => new Date());
-  const [panelAberto, setPanelAberto] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(true);
 
   const queue = useRead<QueueOfDesk>('/v1/desk/queue', { refetchInterval: POLLING_INTERVAL });
   const conversation = useRead<ResponseOfConversation>(id ? `/v1/desk/conversations/${id}` : null, {
@@ -40,7 +40,7 @@ export function PageAttendances() {
     <div
       className="dk-app-colunas"
       style={{ display: 'contents' }}
-      data-panel={panelAberto ? 'open' : 'closed'}
+      data-panel={panelOpen ? 'open' : 'closed'}
     >
       {queue.data ? (
         <Column
@@ -74,8 +74,8 @@ export function PageAttendances() {
           etiquetas={queue.data.etiquetas}
           colegas={queue.data.colegas}
           agora={agora}
-          panelAberto={panelAberto}
-          toAlternarPanel={() => setPanelAberto((v) => !v)}
+          panelOpen={panelOpen}
+          toTogglePanel={() => setPanelOpen((v) => !v)}
           aoFechar={() => closeConversation()}
         />
       ) : id && conversation.isPending ? (
@@ -110,7 +110,7 @@ export function PageAttendances() {
         </div>
       )}
 
-      {panelAberto ? <Panel aberta={aberta} agora={agora} /> : null}
+      {panelOpen ? <Panel aberta={aberta} agora={agora} /> : null}
     </div>
   );
 }

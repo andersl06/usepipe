@@ -5,9 +5,9 @@ import {
   expirationData,
   etiquetaDoStatus,
   hostValido,
-  informationCompletas,
+  informationComplete,
   readFileAsDataUrl,
-  problemaInFile,
+  problemInFile,
   type CertificadoMtls,
   type HostDigitado,
 } from '../../../lib/certificados';
@@ -256,7 +256,7 @@ export function TelaDeCertificados({
             className="cm-modal"
             title={TEXTO.lista.tituloDosHosts}
           >
-            <FecharWindow window={hostsWindow} />
+            <CloseWindow window={hostsWindow} />
             <div className="cm-paper">
               <div className="cm-lista">
                 <div className="cm-cabeca">
@@ -370,7 +370,7 @@ function BotaoDeIcone({
 }
 
 /** The `bds-modal`'s `close-button`: the `close` icon (medium, 24), our `fechar`. */
-function FecharWindow({ window }: { window: RefObject<HTMLDialogElement | null> }) {
+function CloseWindow({ window }: { window: RefObject<HTMLDialogElement | null> }) {
   return (
     <button
       type="button"
@@ -469,8 +469,8 @@ function Registration({
   const [entradas, preencher] = useState<Entradas>(EMPTY);
   const [tocado, marcarTocado] = useState(false);
 
-  const temFile = entradas.file !== null && entradas.senha !== '';
-  const infoOk = informationCompletas(entradas.description, entradas.hosts);
+  const hasFile = entradas.file !== null && entradas.senha !== '';
+  const infoOk = informationComplete(entradas.description, entradas.hosts);
 
   function switchHost(indice: number, value: string) {
     preencher((antes) => ({
@@ -482,15 +482,15 @@ function Registration({
   }
 
   async function finalizar() {
-    if (!temFile || !infoOk || !entradas.file) return;
-    const problema = problemaInFile(entradas.file);
+    if (!hasFile || !infoOk || !entradas.file) return;
+    const problema = problemInFile(entradas.file);
     if (problema) return aoAvisar(problema);
 
     let file: string;
     try {
       file = await readFileAsDataUrl(entradas.file);
     } catch {
-      return aoAvisar(problemaInFile(null) ?? '');
+      return aoAvisar(problemInFile(null) ?? '');
     }
 
     const gravou = await aoFinalizar({
@@ -511,7 +511,7 @@ function Registration({
 
   return (
     <dialog ref={window} id="certificate-modal" className="cm-modal cm-modal--registration">
-      <FecharWindow window={window} />
+      <CloseWindow window={window} />
 
       <ol className="cm-passos">
         {PASSOS.map((rotulo, i) => (
@@ -667,7 +667,7 @@ function Registration({
           <button
             type="button"
             className="cm-botao"
-            disabled={passo === 0 ? !temFile : !infoOk}
+            disabled={passo === 0 ? !hasFile : !infoOk}
             onClick={() => irPara(passo + 1)}
           >
             {TEXTO.passo.proximo}
@@ -676,7 +676,7 @@ function Registration({
           <button
             type="button"
             className="cm-botao"
-            disabled={enviando || !temFile || !infoOk}
+            disabled={enviando || !hasFile || !infoOk}
             onClick={finalizar}
           >
             {enviando ? 'Enviando…' : TEXTO.passo.finalizar}

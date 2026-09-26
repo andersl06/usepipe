@@ -5,7 +5,7 @@ import { numero } from '../../lib/format';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
 
-const ROTULO_SCOPE_TAG: Record<string, string> = {
+const LABEL_SCOPE_TAG: Record<string, string> = {
   conversa: 'Conversa',
   contact: 'Contato',
   ambos: 'Conversa e contato',
@@ -57,7 +57,7 @@ export function PageData() {
                 {etiquetas.map((e) => (
                   <tr key={e.id}>
                     <td className="who">{e.nome}</td>
-                    <td>{ROTULO_SCOPE_TAG[e.scope] ?? e.scope}</td>
+                    <td>{LABEL_SCOPE_TAG[e.scope] ?? e.scope}</td>
                     <td>{e.requiredInClosure ? 'Sim' : 'Não'}</td>
                     <td className="num">{numero(e.usos)}</td>
                   </tr>

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { NIVEIS_PRIORITY, pesoPriority } from '@pipe/core/conversation';
-import { esperaOrdenarQueue } from '../src/lib/monitoring';
+import { LEVELS_PRIORITY, weightPriority } from '@pipe/core/conversation';
+import { waitSortQueue } from '../src/lib/monitoring';
 
 /**
  * The priority ruler and the waiting-queue order.
@@ -22,21 +22,21 @@ const nomes = (lista: readonly { nome: string }[]) => lista.map((l) => l.nome);
 
 test('a régua tem cinco degraus, e o índice é o peso', () => {
   assert.deepEqual(
-    [...NIVEIS_PRIORITY],
+    [...LEVELS_PRIORITY],
     ['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'],
   );
-  assert.equal(pesoPriority('maxima'), 0);
-  assert.equal(pesoPriority('sem_prioridade'), 4);
+  assert.equal(weightPriority('maxima'), 0);
+  assert.equal(weightPriority('sem_prioridade'), 4);
 });
 
 test('nível desconhecido cai no FIM, não no meio', () => {
   // The old defect sent unknown values to the "média" weight, which handed
   // free priority to garbage data.
-  assert.ok(pesoPriority('urgentissima') > pesoPriority('sem_prioridade'));
+  assert.ok(weightPriority('urgentissima') > weightPriority('sem_prioridade'));
 });
 
 test('low cuts in front of no-priority', () => {
-  const queue = esperaOrdenarQueue([
+  const queue = waitSortQueue([
     linha('sem-prioridade-antiga', 'sem_prioridade', 0),
     linha('baixa-recente', 'baixa', 59),
   ]);
@@ -44,7 +44,7 @@ test('low cuts in front of no-priority', () => {
 });
 
 test('máxima vem antes de alta, e o empate desempata pela mais antiga', () => {
-  const queue = esperaOrdenarQueue([
+  const queue = waitSortQueue([
     linha('alta-velha', 'alta', 5),
     linha('maxima', 'maxima', 40),
     linha('alta-nova', 'alta', 30),
@@ -54,7 +54,7 @@ test('máxima vem antes de alta, e o empate desempata pela mais antiga', () => {
 });
 
 test('a conversation with no creation marker goes to the end of its tier', () => {
-  const queue = esperaOrdenarQueue([
+  const queue = waitSortQueue([
     { nome: 'sem-marco', priority: 'alta', marcos: { criadaEm: null } },
     linha('com-marco', 'alta', 59),
   ]);
@@ -62,7 +62,7 @@ test('a conversation with no creation marker goes to the end of its tier', () =>
 });
 
 test('a data chegada como texto do JSON ordena igual à Date', () => {
-  const queue = esperaOrdenarQueue([
+  const queue = waitSortQueue([
     { nome: 'nova', priority: 'alta', marcos: { criadaEm: '2026-09-07T10:30:00.000Z' } },
     { nome: 'velha', priority: 'alta', marcos: { criadaEm: '2026-09-07T10:05:00.000Z' } },
   ]);

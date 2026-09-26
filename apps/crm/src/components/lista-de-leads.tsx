@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react';
 import { Etiqueta, EmptyState } from '@pipe/ui';
-import { assignInBulk, desqualificarInBulk } from '../app/leads/actions';
+import { assignInBulk, disqualifyInBulk } from '../app/leads/actions';
 import { CelulaInline } from './celula-inline';
 import {
   groupingColumn,
@@ -203,7 +203,7 @@ const ROTULOS = Object.fromEntries(COLUNAS.map((c) => [c.key, c.rotulo]));
  * The column that doesn't hide or move. It's Twenty's `labelIdentifier`: the one
  * that says who the row is, and the only one that leads to the record.
  */
-const COLUMN_FIXA = 'lead';
+const COLUMN_FIXED = 'lead';
 
 interface Props {
   groups: Grupo[];
@@ -260,7 +260,7 @@ export function ListaDeLeads({
   const arranjo = useColunas(
     'pipe.crm.leads.colunas',
     useMemo(() => disponiveis.map((c) => c.key), [disponiveis]),
-    COLUMN_FIXA,
+    COLUMN_FIXED,
   );
 
   // The fixed one always comes first, and the rest in the order the person arranged. The
@@ -268,7 +268,7 @@ export function ListaDeLeads({
   // to drift out of sync with the other.
   const colunas = useMemo(() => {
     const byKey = new Map(disponiveis.map((c) => [c.key, c]));
-    return [COLUMN_FIXA, ...arranjo.visiveis]
+    return [COLUMN_FIXED, ...arranjo.visiveis]
       .map((key) => byKey.get(key))
       .filter((c): c is ColumnLead => c !== undefined);
   }, [disponiveis, arranjo.visiveis]);
@@ -506,7 +506,7 @@ export function ListaDeLeads({
       <div className="barra-lista">
         <ControleDeColunas
           rotulos={ROTULOS}
-          fixa={COLUMN_FIXA}
+          fixa={COLUMN_FIXED}
           visiveis={arranjo.visiveis}
           ocultas={arranjo.ocultas}
           aoOcultar={arranjo.ocultar}
@@ -549,7 +549,7 @@ export function ListaDeLeads({
                   <th
                     key={c.key}
                     aria-sort={active ? (direction === 'asc' ? 'ascending' : 'descending') : undefined}
-                    className={larguras.columnInArraste === c.key ? 'arrastando' : undefined}
+                    className={larguras.columnInDrag === c.key ? 'arrastando' : undefined}
                   >
                     {columnSortable(c.key) ? (
                       <Link href={sorting(c.key)} className="ord" scroll={false}>
@@ -634,7 +634,7 @@ export function ListaDeLeads({
       </div>
 
       {marcados.size > 0 ? (
-        <BarraInBulk
+        <BarInBulk
           quantos={marcados.size}
           proprietarios={proprietarios}
           emCurso={emCurso}
@@ -643,7 +643,7 @@ export function ListaDeLeads({
             executar(() => assignInBulk([...marcados], id), 'leads passaram de proprietário')
           }
           aoDesqualificar={() =>
-            executar(() => desqualificarInBulk([...marcados]), 'leads foram desqualificados')
+            executar(() => disqualifyInBulk([...marcados]), 'leads foram desqualificados')
           }
         />
       ) : null}
@@ -660,7 +660,7 @@ export function ListaDeLeads({
  * reading and close to the thumb on a laptop. Disqualifying asks for
  * confirmation because it writes to a terminal-state field with no undo.
  */
-function BarraInBulk({
+function BarInBulk({
   quantos,
   proprietarios,
   emCurso,

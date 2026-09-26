@@ -1,9 +1,9 @@
 import Link from '../../../components/link';
-import { IconeManagement } from '../../../components/icones-management';
+import { ManagementIcon } from '../../../components/icones-management';
 import { IconePortal } from '../../../components/icones-portal';
 import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { portalUseShell } from '../../../lib/shell';
-import { CreationCasco, PassoDoNome } from '../casco';
+import { CreationShell, PassoDoNome } from '../casco';
 import { createRouter } from './actions';
 import { RECADOS, ROTULOS } from './regras';
 import '../create.css';
@@ -66,20 +66,20 @@ export function PageCreateRouter() {
   if (!shell.canCreate) return <Navigate to="/portal" replace />;
 
   return (
-    <CreationCasco>
+    <CreationShell>
       {passo === 'name' ? (
         <PassoDoNome
           acao={createRouter}
           voltarPara="/create/router"
           rotulos={ROTULOS}
-          errorTitulo={RECADOS.titulo}
+          errorTitle={RECADOS.titulo}
           error={parametros.erro}
           nome={parametros.nome}
         />
       ) : (
-        <InvitationPasso />
+        <InvitationStep />
       )}
-    </CreationCasco>
+    </CreationShell>
   );
 }
 
@@ -97,7 +97,7 @@ export function PageCreateRouter() {
  * the width, at most 18.75rem) and the text on the right (at most 27.5rem). The
  * button closes off the right column — it isn't centered on the screen.
  */
-function InvitationPasso() {
+function InvitationStep() {
   return (
     <div className="cr-forma">
       {/*
@@ -133,7 +133,7 @@ function InvitationPasso() {
  * matching artwork; `externo` from `icones-gestao.tsx` is the same gesture — the
  * sheet with the arrow pointing out.
  */}
-              <IconeManagement nome="externo" tamanho={16} />
+              <ManagementIcon nome="externo" tamanho={16} />
               {ROTULOS.saberMais}
             </a>
           ) : null}

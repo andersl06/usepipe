@@ -7,7 +7,7 @@ import {
   gravarPesquisa,
 } from '../settings.js';
 import {
-  ESCALA_BY_TYPE,
+  SCALE_BY_TYPE,
   disparoValido,
   tipoDePesquisaValido,
   type TipoDePesquisa,
@@ -88,7 +88,7 @@ export async function salvarPesquisa(
   if (!pergunta) return falha('Informe a pergunta que o cliente vai ler.');
 
   const tipo: TipoDePesquisa = tipoBruto;
-  const escala = ESCALA_BY_TYPE[tipo];
+  const escala = SCALE_BY_TYPE[tipo];
 
   try {
     const gravado = await gravarPesquisa(tx, tid, ator, {

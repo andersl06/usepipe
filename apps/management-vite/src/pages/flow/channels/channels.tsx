@@ -1,7 +1,7 @@
 import { LogoPortal } from '../../../components/icones-portal';
 import Link from '../../../components/link';
-import { cardConnected, channelRota, type TipoOfChannelOfBot } from '../../../lib/channel-of-flow';
-import { ModuloShell, contactBase, useContact } from '../contact';
+import { cardConnected, channelRoute, type TypeOfChannelOfBot } from '../../../lib/channel-of-flow';
+import { ShellModule, contactBase, useContact } from '../contact';
 import '../integrations/header-of-page.css';
 import './channels.css';
 
@@ -14,17 +14,17 @@ import './channels.css';
  */
 type Logo =
   'pipe' | 'whatsapp' | 'messenger' | 'instagram' | 'google' | 'telegram' | 'apple' | 'email';
-type TelaChannel = {
+type ScreenChannel = {
   key: string;
   nome: string;
   logo: Logo;
   sempre?: boolean;
   novo?: boolean;
   /** Has its own page inside the bot: the card navigates. */
-  page?: TipoOfChannelOfBot;
+  page?: TypeOfChannelOfBot;
 };
 
-const CHANNELS: readonly TelaChannel[] = [
+const CHANNELS: readonly ScreenChannel[] = [
   { key: 'pipe-chat', nome: 'Pipe Chat', logo: 'pipe', sempre: true },
   { key: 'whatsapp_cloud', nome: 'WhatsApp', logo: 'whatsapp', page: 'whatsapp_cloud' },
   { key: 'messenger', nome: 'Messenger', logo: 'messenger', page: 'messenger' },
@@ -40,7 +40,7 @@ export function ChannelsPage() {
   const base = contactBase(contact.tipo, contact.id);
 
   return (
-    <ModuloShell ativo="Canais">
+    <ShellModule ativo="Canais">
       <header className="ph-cabecalho">
         <div className="ph-conteudo">
           <div className="ph-titulo-caixa">
@@ -68,7 +68,7 @@ export function ChannelsPage() {
               {channel.novo ? <span className="cn-novo">Novo!</span> : null}
               {channel.page ? (
                 <Link
-                  href={channelRota(base, channel.page)}
+                  href={channelRoute(base, channel.page)}
                   className="cn-card cn-card--link"
                   aria-label={`${channel.nome}: ${conectado ? 'Conectado' : 'Conectar'}`}
                 >
@@ -83,7 +83,7 @@ export function ChannelsPage() {
           );
         })}
       </div>
-    </ModuloShell>
+    </ShellModule>
   );
 }
 

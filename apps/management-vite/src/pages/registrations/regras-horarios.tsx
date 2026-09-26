@@ -1,6 +1,6 @@
 import { useRead } from '../../lib/query';
 import type { Horarios } from '../../lib/registrations';
-import { dataHora, durationLonga, DIAS_DA_SEMANA, numero } from '../../lib/format';
+import { dataHora, durationLong, DIAS_DA_SEMANA, numero } from '../../lib/format';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { FormulariosDeHorario } from './regras-horarios-formulario';
 
@@ -33,7 +33,7 @@ export function PageHours() {
                 ? `Fechado · abre ${dataHora(h.proximaAberturaEm, h.fuso)}`
                 : 'Fechado · sem abertura prevista',
           },
-          { rotulo: 'Próximos 7 dias', value: durationLonga(h.seteDiasSeg), classe: 'num' },
+          { rotulo: 'Próximos 7 dias', value: durationLong(h.seteDiasSeg), classe: 'num' },
           { rotulo: 'Faixas', value: numero(h.faixas.length), classe: 'num' },
           { rotulo: 'Exceções', value: numero(h.exceptions.length), classe: 'num' },
           {

@@ -5,7 +5,7 @@ import { atualizarLeituras } from '../../../../lib/actions';
  * `POST /v1/mensagens-ativas` — the write that was missing to wire up the screen (the rest, `GET .../growth`, already reads real data). Same `Resultado<T>` format as `configuracoes/basicas/gravar.ts`: `ok`/`valor` or `ok`/`erro` with text ready for the screen's `aviso`.
  */
 
-export interface DisparoDestination {
+export interface TriggerDestination {
   contactId?: string;
   telefone?: string;
   nome?: string;
@@ -35,10 +35,10 @@ export interface LimitesDeDisparo {
 
 export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string };
 
-export async function dispararActiveMessages(pedido: {
+export async function triggerActiveMessages(pedido: {
   channelId: string;
   template_id: string;
-  contacts: DisparoDestination[];
+  contacts: TriggerDestination[];
   parametros?: string[];
 }): Promise<Resultado<RespostaDoDisparo>> {
   try {

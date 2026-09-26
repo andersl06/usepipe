@@ -3,12 +3,12 @@ import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
 import type { ChannelOfFlow } from '@pipe/contracts';
 import { IconePortal } from '../../../components/icones-portal';
 import {
-  channelsForOferecer,
+  channelsForOffer,
   podeConfirmarDesconexao,
-  channelRotulo,
-  type TipoOfChannelOfBot,
+  channelLabel,
+  type TypeOfChannelOfBot,
 } from '../../../lib/channel-of-flow';
-import { flowDesligarChannel, ligarChannelToFlow } from '../../../lib/channels-gravar';
+import { flowDisconnectChannel, connectChannelToFlow } from '../../../lib/channels-gravar';
 import { Modal } from '../../registrations/_modal';
 
 /**
@@ -27,7 +27,7 @@ interface TextosDaEscolha {
   naoEncontrou: string;
 }
 
-const ESCOLHA: Readonly<Record<TipoOfChannelOfBot, TextosDaEscolha>> = {
+const ESCOLHA: Readonly<Record<TypeOfChannelOfBot, TextosDaEscolha>> = {
   whatsapp_cloud: {
     titulo: 'Ativação do número',
     instruction: 'Escolha qual dos números válidos de WhatsApp você deseja ativar.',
@@ -52,20 +52,20 @@ const ESCOLHA: Readonly<Record<TipoOfChannelOfBot, TextosDaEscolha>> = {
   },
 };
 
-export function EscolherChannelExistente({
+export function ChooseChannelExisting({
   flowId,
   tipo,
   disponiveis,
   onVoltar,
 }: {
   flowId: string;
-  tipo: TipoOfChannelOfBot;
+  tipo: TypeOfChannelOfBot;
   disponiveis: readonly ChannelOfFlow[];
   /** "Volte e cadastre agora." — takes you back to the connection step. */
   onVoltar: () => void;
 }) {
   const textos = ESCOLHA[tipo];
-  const { livres, emUso } = channelsForOferecer(disponiveis, tipo, flowId);
+  const { livres, emUso } = channelsForOffer(disponiveis, tipo, flowId);
   const [escolhido, setEscolhido] = useState('');
   const [ativando, setAtivando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +74,7 @@ export function EscolherChannelExistente({
     if (!escolhido) return;
     setAtivando(true);
     setError(null);
-    const resultado = await ligarChannelToFlow(flowId, escolhido);
+    const resultado = await connectChannelToFlow(flowId, escolhido);
     setAtivando(false);
     if (!resultado.ok) setError(resultado.error);
   }
@@ -93,12 +93,12 @@ export function EscolherChannelExistente({
           <option value="">{textos.placeholder}</option>
           {livres.map((c) => (
             <option key={c.id} value={c.id}>
-              {channelRotulo(c)}
+              {channelLabel(c)}
             </option>
           ))}
           {emUso.map((c) => (
             <option key={c.id} value={c.id} disabled>
-              {channelRotulo(c)} — em uso por {c.flowName}
+              {channelLabel(c)} — em uso por {c.flowName}
             </option>
           ))}
         </Seletor>
@@ -128,7 +128,7 @@ interface TextosDaDesconexao {
   botao: string;
 }
 
-const DESCONEXAO: Readonly<Record<TipoOfChannelOfBot, TextosDaDesconexao>> = {
+const DESCONEXAO: Readonly<Record<TypeOfChannelOfBot, TextosDaDesconexao>> = {
   whatsapp_cloud: {
     titulo: 'Quer mesmo desconectar o WhatsApp?',
     description:
@@ -160,7 +160,7 @@ export function ModalDesconectar({
 }: {
   aberto: boolean;
   flowId: string;
-  tipo: TipoOfChannelOfBot;
+  tipo: TypeOfChannelOfBot;
   onFechar: () => void;
 }) {
   const textos = DESCONEXAO[tipo];
@@ -183,7 +183,7 @@ export function ModalDesconectar({
     }
     setEnviando(true);
     setError(null);
-    const resultado = await flowDesligarChannel(flowId, motivo.trim());
+    const resultado = await flowDisconnectChannel(flowId, motivo.trim());
     setEnviando(false);
     if (!resultado.ok) {
       setError(resultado.error);
@@ -244,7 +244,7 @@ export function OtherChannelNotice({ channel, rotulo }: { channel: ChannelOfFlow
     <div className="ig-faixa-alerta" role="status">
       <IconePortal nome="alerta" tamanho={24} />
       <p className="ig-typo-16">
-        Este bot já está conectado ao canal <strong>{channelRotulo(channel)}</strong>. Desconecte-o
+        Este bot já está conectado ao canal <strong>{channelLabel(channel)}</strong>. Desconecte-o
         na página daquele canal antes de conectar o {rotulo}.
       </p>
     </div>

@@ -19,19 +19,19 @@ export interface CountClosure {
 /**
  * Classify a conversation closure; return null while open. `atendente` or `transferencia` means finalized regardless of assignment, since a manager can also close in bulk from monitoring. `cliente` or `inatividade` means lost if never assigned, abandoned otherwise. Missing `encerradaPor` follows the assignment rule; unknown origin must not be optimistically labeled finalized.
  */
-export function classificarClosure(marcos: Marcos): StatusClosure | null {
+export function classifyClosure(marcos: Marcos): StatusClosure | null {
   if (!marcos.encerradaEm) return null;
-  if (marcos.encerradaBy === 'atendente' || marcos.encerradaBy === 'transferencia') {
+  if (marcos.closedBy === 'atendente' || marcos.closedBy === 'transferencia') {
     return 'finalizada';
   }
   return marcos.atribuidaEm ? 'abandonada' : 'perdida';
 }
 
-export function classificarConversation(conversation: ConversationEvents): StatusClosure | null {
-  return classificarClosure(derivarMarcos(conversation));
+export function classifyConversation(conversation: ConversationEvents): StatusClosure | null {
+  return classifyClosure(derivarMarcos(conversation));
 }
 
-export function contarClosures(
+export function countClosures(
   conversations: readonly ConversationEvents[],
 ): CountClosure {
   const count: CountClosure = {
@@ -43,7 +43,7 @@ export function contarClosures(
   };
 
   for (const conversation of conversations) {
-    const status = classificarConversation(conversation);
+    const status = classifyConversation(conversation);
     if (status === null) {
       count.abertas += 1;
       continue;

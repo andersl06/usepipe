@@ -92,13 +92,13 @@ export async function saveTemplate(
   }
 
   return consultar(tx, async (tx) => {
-    const [channelEscolhido] = await tx
+    const [channelChosen] = await tx
       .select({ id: channel.id, tipo: channel.tipo })
       .from(channel)
       .where(and(eq(channel.tenantId, tid), eq(channel.id, channelId)))
       .limit(1);
-    if (!channelEscolhido) return falha('Canal não encontrado.');
-    if (channelEscolhido.tipo !== 'whatsapp_cloud')
+    if (!channelChosen) return falha('Canal não encontrado.');
+    if (channelChosen.tipo !== 'whatsapp_cloud')
       return falha('Modelo de mensagem é só para canal WhatsApp.');
 
     // `template_mensagem_uk` is a real `uniqueIndex` on tenant, channel, name, and language,

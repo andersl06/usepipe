@@ -10,7 +10,7 @@ interface ResultadoSimples {
   error?: string;
 }
 
-function voltarWithError(error: string): void {
+function backWithError(error: string): void {
   irPara(`/contract/members?erro=${encodeURIComponent(error)}`);
 }
 
@@ -21,17 +21,17 @@ export async function switchRole(data: FormData): Promise<void> {
       alvos: data.getAll('alvo').map(String),
     })
     .catch((e: Error) => ({ ok: false, error: e.message }) as ResultadoSimples);
-  if (!resultado.ok) return voltarWithError(resultado.error ?? 'Não foi possível alterar o papel.');
+  if (!resultado.ok) return backWithError(resultado.error ?? 'Não foi possível alterar o papel.');
   atualizarLeituras();
 }
 
-export async function excluirMembers(data: FormData): Promise<void> {
+export async function deleteMembers(data: FormData): Promise<void> {
   const resultado = await api
     .post<ResultadoSimples>('/v1/management/contract/members/delete', {
       alvos: data.getAll('alvo').map(String),
     })
     .catch((e: Error) => ({ ok: false, error: e.message }) as ResultadoSimples);
-  if (!resultado.ok) return voltarWithError(resultado.error ?? 'Não foi possível excluir.');
+  if (!resultado.ok) return backWithError(resultado.error ?? 'Não foi possível excluir.');
   atualizarLeituras();
 }
 
@@ -50,7 +50,7 @@ export interface ResultadoDoReenvio {
 /**
  * Resends a pending invite: same email, same role, new link — the old one stops working (`POST /v1/convites/:id/reenviar`). Since Pipe doesn't deliver email, the link comes back in the response for the screen to show again.
  */
-export async function reenviarInvitation(invitationId: string): Promise<ResultadoDoReenvio> {
+export async function resendInvitation(invitationId: string): Promise<ResultadoDoReenvio> {
   const resposta = await chamarApi(`/v1/convites/${invitationId}/reenviar`, { method: 'POST' });
   if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
   const corpo = (await resposta.json()) as { email: string; url: string };
@@ -58,7 +58,7 @@ export async function reenviarInvitation(invitationId: string): Promise<Resultad
   return { ok: true, email: corpo.email, url: corpo.url };
 }
 
-export async function convidarMembers(
+export async function inviteMembers(
   _anterior: InvitationResult | null,
   data: FormData,
 ): Promise<InvitationResult> {

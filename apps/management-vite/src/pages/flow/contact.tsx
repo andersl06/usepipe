@@ -5,7 +5,7 @@ import { portalUseShell } from '../../lib/shell';
 import { useRead } from '../../lib/query';
 import { ApiError } from '../../lib/api';
 import { NaoEncontrado } from '../nao-encontrado';
-import { ContactBarra, UUID, type Contact } from './barra-of-contact';
+import { ContactBar, UUID, type Contact } from './barra-of-contact';
 import './flow.css';
 
 /**
@@ -45,7 +45,7 @@ export function useContact(): ContactLoaded {
  *
  * `/fluxo/:id` and `/roteador/:id` render the SAME tree (App.tsx mounts both over the same child routes); whoever enters through the wrong prefix for the contact's type gets redirected here, once, to the right prefix — preserving the rest of the path, the query string, and the hash. It's the safety net for an old link, a bookmark, or a link a not-yet-updated screen still generates.
  */
-export function ContactRota() {
+export function ContactRoute() {
   const { id = '' } = useParams();
   const local = useLocation();
   const valido = UUID.test(id);
@@ -54,14 +54,14 @@ export function ContactRota() {
   if (!valido || (read.error instanceof ApiError && read.error.status === 404)) {
     return <NaoEncontrado />;
   }
-  if (read.error) return <ReadFalha error={read.error} />;
+  if (read.error) return <ReadFailure error={read.error} />;
   if (!read.data) return null;
 
-  const prefixCerto = contactPrefix(read.data.contact.tipo);
+  const prefixCorrect = contactPrefix(read.data.contact.tipo);
   const prefixCurrent = local.pathname.startsWith('/router/') ? 'router' : 'flow';
-  if (prefixCurrent !== prefixCerto) {
+  if (prefixCurrent !== prefixCorrect) {
     const resto = local.pathname.slice(`/${prefixCurrent}/${id}`.length);
-    return <Navigate to={`/${prefixCerto}/${id}${resto}${local.search}${local.hash}`} replace />;
+    return <Navigate to={`/${prefixCorrect}/${id}${resto}${local.search}${local.hash}`} replace />;
   }
 
   return (
@@ -74,13 +74,13 @@ export function ContactRota() {
 /**
  * The contact modules' common shell: portal bar, contact bar, and the body with `fx-coluna` — the former `CascaDoModulo`, now without a query.
  */
-export function ModuloShell({ ativo, children }: { ativo?: string; children: ReactNode }) {
+export function ShellModule({ ativo, children }: { ativo?: string; children: ReactNode }) {
   const { contact } = useContact();
   const shell = portalUseShell();
   return (
     <div className="pt-app">
       <BarraDoPortal data={shell} />
-      <ContactBarra contact={contactWithData(contact)} ativo={ativo} />
+      <ContactBar contact={contactWithData(contact)} ativo={ativo} />
       <main className="pt-conteudo fx-miolo">
         <div className="fx-column">{children}</div>
       </main>
@@ -89,13 +89,13 @@ export function ModuloShell({ ativo, children }: { ativo?: string; children: Rea
 }
 
 /** The two bars without the standardized content area — for screens that draw their own `main`. */
-export function ContactBarras({ ativo }: { ativo?: string }) {
+export function ContactBars({ ativo }: { ativo?: string }) {
   const { contact } = useContact();
   const shell = portalUseShell();
   return (
     <>
       <BarraDoPortal data={shell} />
-      <ContactBarra contact={contactWithData(contact)} ativo={ativo} />
+      <ContactBar contact={contactWithData(contact)} ativo={ativo} />
     </>
   );
 }
@@ -105,7 +105,7 @@ function contactWithData(contact: ContactLoaded['contact']): Contact {
 }
 
 /** The `api` returned an error other than 404: showing what happened is worth more than a blank screen. */
-export function ReadFalha({ error }: { error: Error }) {
+export function ReadFailure({ error }: { error: Error }) {
   return (
     <div className="pt-app">
       <main className="pt-conteudo fx-miolo">

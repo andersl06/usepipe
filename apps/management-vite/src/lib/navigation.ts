@@ -13,7 +13,7 @@ export function irPara(url: string, options: { substituir?: boolean } = {}): voi
 }
 
 
-export function useRegistrarNavigation(): void {
+export function useRegisterNavigation(): void {
   const navigate = useNavigate();
   useEffect(() => {
     navegar = navigate;

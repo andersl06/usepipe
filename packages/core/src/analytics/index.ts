@@ -19,7 +19,7 @@ export type PeriodNamed =
 export type Period = PeriodNamed | 'custom';
 
 /** Portuguese labels of `sT` (Dashboard) and `gt` (active messages), identical on both screens. */
-export const ROTULO_OF_PERIOD: Record<PeriodNamed, string> = {
+export const LABEL_OF_PERIOD: Record<PeriodNamed, string> = {
   today: 'Hoje',
   yesterday: 'Ontem',
   '7days': 'Últimos 7 dias',
@@ -115,7 +115,7 @@ export function diaCurto(d: string): string {
 }
 
 /** `ot()`: `toLocaleString(locale, { year: 'numeric', month: 'long', day: '2-digit' })`. */
-function byExtenso(d: string): string {
+function byLongForm(d: string): string {
   return new Date(ms(d)).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'long',
@@ -127,8 +127,8 @@ function byExtenso(d: string): string {
 /** `IS()`: period label beside the title, e.g. "13 de setembro de 2026 - 00h às 23h59". */
 export function rotuloDoIntervalo(i: Intervalo): string {
   return i.inicio === i.fim
-    ? `${byExtenso(i.inicio)} - 00h às 23h59`
-    : `${byExtenso(i.inicio)} - ${byExtenso(i.fim)}`;
+    ? `${byLongForm(i.inicio)} - 00h às 23h59`
+    : `${byLongForm(i.inicio)} - ${byLongForm(i.fim)}`;
 }
 
 /**
@@ -217,13 +217,13 @@ export interface DashboardData {
   contacts: {
     withInteraction: ParDeContagens;
     total: ParDeContagens;
-    byDia: { dia: string; withInteraction: number; total: number }[];
+    byDay: { dia: string; withInteraction: number; total: number }[];
   };
   /** `/metrics/messages`; averages are per contact WITH interaction. */
   messages: {
     enviadas: ParDeContagens;
     recebidas: ParDeContagens;
-    byDia: { dia: string; enviadas: number; recebidas: number }[];
+    byDay: { dia: string; enviadas: number; recebidas: number }[];
   };
   /** `/metrics/recurrence`. */
   recorrencia: {
@@ -260,7 +260,7 @@ export interface StatusDoDia {
 export interface ActiveMessagesData {
   status: StatusDoDia[];
   /** `/active-messages/reply-hour`: respostas por hora do dia, 0 a 23. */
-  respostasByHora: number[];
+  responsesByHour: number[];
   /** `/active-messages/failed-count`. */
   falhas: { codigo: string | null; description: string; ocorrencias: number }[];
   /** `/active-messages/template-names` autocomplete options. */
@@ -275,7 +275,7 @@ export interface ActiveMessagesData {
  */
 
 
-export interface InstantesWindow {
+export interface InstantsWindow {
   inicio: Date;
   /** Exclusivo. */
   fim: Date;
@@ -312,7 +312,7 @@ export interface ActiveByChannel {
 
 export interface VisaoGeral {
   contagens: ContagensDaVisaoGeral;
-  byDia: DiaDaVisaoGeral[];
+  byDay: DiaDaVisaoGeral[];
   activeByChannel: ActiveByChannel[];
 }
 
@@ -321,7 +321,7 @@ export interface ReportCustom {
   id: string;
   nome: string | null;
   /** `owner.fullName || owner.email`. */
-  criadoBy: string;
+  createdBy: string;
   modificadoEm: Date | null;
   /** `owner.email === email da pessoa`: only the owner can see edit and delete. */
   souDono: boolean;

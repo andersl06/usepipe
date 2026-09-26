@@ -11,8 +11,8 @@ export const TETO_ESCALA = 5;
 export const TETO_NOTA = 10;
 
 /** `nao_se_aplica` removes the criterion from the denominator; it is not zero. */
-export const VALUES_CONFORME = ['conforme', 'nao_conforme', 'nao_se_aplica'] as const;
-export type ValueConforme = (typeof VALUES_CONFORME)[number];
+export const VALUES_CONFORMING = ['conforme', 'nao_conforme', 'nao_se_aplica'] as const;
+export type ValueConforming = (typeof VALUES_CONFORMING)[number];
 
 export interface Criterio {
   id: string;
@@ -50,13 +50,13 @@ export interface RespostaBruta {
 }
 
 /** Mirrors `resposta_avaliacao`; `pontos` is calculated here, never by the model. */
-export interface RespostaEvaluation {
+export interface ResponseEvaluation {
   criterioId: string;
   value: string;
   pontos: number;
   justificativa: string;
   /** `mensagem.id` resolved from the label. */
-  evidenciaMessageId: string | null;
+  evidenceMessageId: string | null;
 }
 
 export interface ResultEvaluation {
@@ -66,8 +66,8 @@ export interface ResultEvaluation {
   /** Score before fatal criteria, showing their impact. */
   notaAntesDoFatal: number;
   /** Failed fatal criteria; empty when none zeroed the score. */
-  fatalReprovados: string[];
-  respostas: RespostaEvaluation[];
+  fatalRejected: string[];
+  respostas: ResponseEvaluation[];
   /** Overall model-reported confidence, from 0 to 1. */
   confianca: number;
   consumo: Consumo;

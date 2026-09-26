@@ -85,7 +85,7 @@ export function diaCurto(iso: string): string {
 }
 
 /** Format average durations as `00:00:00`, or `-` when no value exists, as in the reference. */
-export function timeMedio(segundos: number | null): string {
+export function timeAverage(segundos: number | null): string {
   if (segundos === null) return '-';
   const s = Math.max(0, Math.round(segundos));
   const dois = (n: number) => String(n).padStart(2, '0');

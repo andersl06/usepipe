@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   CABECALHOS_TEMPLATE,
-  headerTemMedia,
+  headerHasMedia,
   headerOffset,
 } from '../src/lib/communication.ts';
 
@@ -15,21 +15,21 @@ import {
  */
 
 test('only a media header consumes position 1', () => {
-  assert.equal(headerTemMedia('imagem'), true);
-  assert.equal(headerTemMedia('video'), true);
-  assert.equal(headerTemMedia('documento'), true);
+  assert.equal(headerHasMedia('imagem'), true);
+  assert.equal(headerHasMedia('video'), true);
+  assert.equal(headerHasMedia('documento'), true);
   // Text and absence of a header don't consume a slot.
-  assert.equal(headerTemMedia('texto'), false);
-  assert.equal(headerTemMedia('nenhum'), false);
+  assert.equal(headerHasMedia('texto'), false);
+  assert.equal(headerHasMedia('nenhum'), false);
 });
 
 test('an unknown header is treated as no media', () => {
   /*
    * The value comes from a text column in the database. Mistakenly assuming media would shift variables for templates that have no header at all.
    */
-  assert.equal(headerTemMedia(''), false);
-  assert.equal(headerTemMedia('IMAGEM'), false);
-  assert.equal(headerTemMedia('carrossel'), false);
+  assert.equal(headerHasMedia(''), false);
+  assert.equal(headerHasMedia('IMAGEM'), false);
+  assert.equal(headerHasMedia('carrossel'), false);
 });
 
 test('the offset is 1 with media and 0 without', () => {

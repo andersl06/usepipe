@@ -8,7 +8,7 @@ import {
   importReport,
 } from './editor.js';
 import type { ExportDoEditor } from './editor.js';
-import { processarInbound } from './manager.js';
+import { processInbound } from './manager.js';
 import { validateFlow } from './modelos.js';
 import type { FlowBlip } from './modelos.js';
 import fixture from './fixtures/editor-sintetico.json' with { type: 'json' };
@@ -164,11 +164,11 @@ describe('the imported flow running in the engine', () => {
       inboundContext: new Map(),
       services: {
         send: async (m) => void enviadas.push(m),
-        encaminharForAttendance: async (p) => (attendances.push(p), { id: 'conversa-1' }),
+        forwardForAttendance: async (p) => (attendances.push(p), { id: 'conversa-1' }),
         registerEvent: async () => {},
       },
     };
-    await processarInbound(context);
+    await processInbound(context);
     return enviadas
       .filter((m) => m.tipo !== 'application/vnd.lime.chatstate+json')
       .map((m) => m.conteudo);

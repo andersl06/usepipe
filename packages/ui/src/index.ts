@@ -46,7 +46,7 @@ export {
   Marca,
   NavModulos,
   Cabecalho,
-  LateralContext,
+  SidebarContext,
   Application,
   AreaSettings,
   estaAtivo,

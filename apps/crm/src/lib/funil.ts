@@ -192,7 +192,7 @@ export async function listOpportunities(
         value: opportunity.valor,
         probability: opportunity.probabilidade,
         proprietario: user.nome,
-        closingPrevisto: opportunity.fechamentoPrevisto,
+        closingExpected: opportunity.fechamentoPrevisto,
         fechadaEm: opportunity.fechadaEm,
         ganha: opportunity.ganha,
       })
@@ -208,7 +208,7 @@ export async function listOpportunities(
     return linhas.map((o) => ({
       ...o,
       value: paraNumero(o.value),
-      closingPrevisto: paraData(o.closingPrevisto),
+      closingExpected: paraData(o.closingExpected),
       fechadaEm: paraData(o.fechadaEm),
     }));
   });
@@ -244,7 +244,7 @@ export async function loadOpportunity(id: string): Promise<OpportunityRecord | n
         moeda: opportunity.moeda,
         probability: opportunity.probabilidade,
         proprietario: user.nome,
-        closingPrevisto: opportunity.fechamentoPrevisto,
+        closingExpected: opportunity.fechamentoPrevisto,
         fechadaEm: opportunity.fechadaEm,
         ganha: opportunity.ganha,
         motivoPerda: opportunity.motivoPerda,
@@ -273,7 +273,7 @@ export async function loadOpportunity(id: string): Promise<OpportunityRecord | n
             value: opportunity.valor,
             probability: opportunity.probabilidade,
             proprietario: user.nome,
-            closingPrevisto: opportunity.fechamentoPrevisto,
+            closingExpected: opportunity.fechamentoPrevisto,
             fechadaEm: opportunity.fechadaEm,
             ganha: opportunity.ganha,
           })
@@ -291,13 +291,13 @@ export async function loadOpportunity(id: string): Promise<OpportunityRecord | n
     return {
       ...cabeca,
       value: paraNumero(cabeca.value),
-      closingPrevisto: paraData(cabeca.closingPrevisto),
+      closingExpected: paraData(cabeca.closingExpected),
       fechadaEm: paraData(cabeca.fechadaEm),
       criadoEm: paraData(cabeca.criadoEm),
       irmas: irmas.map((o) => ({
         ...o,
         value: paraNumero(o.value),
-        closingPrevisto: paraData(o.closingPrevisto),
+        closingExpected: paraData(o.closingExpected),
         fechadaEm: paraData(o.fechadaEm),
       })),
       timeRow,

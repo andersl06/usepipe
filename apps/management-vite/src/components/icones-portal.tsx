@@ -785,7 +785,7 @@ export function IconePortal({
 /**
  * The light rail's search icon alone is outside the 24px set. Reference `<icon name="Search" width="32" height="32">` uses a 72px grid separate from the design system; copy it as drawn to avoid thickening its stroke.
  */
-export function IconeSearch({ tamanho = 32, ...resto }: { tamanho?: number } & SVGProps<SVGSVGElement>) {
+export function SearchIcon({ tamanho = 32, ...resto }: { tamanho?: number } & SVGProps<SVGSVGElement>) {
   return (
     <svg
       width={tamanho}

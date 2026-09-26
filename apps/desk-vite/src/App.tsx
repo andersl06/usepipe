@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 import { ClosureNotice } from '@pipe/ui';
-import { ExigirSession } from './components/exigir-session';
+import { RequireSession } from './components/exigir-session';
 import { Shell } from './components/shell';
-import { useRegistrarNavigation } from './lib/navigation';
+import { useRegisterNavigation } from './lib/navigation';
 import { PageLogin } from './pages/login';
 import { PageInvitation } from './pages/invitation';
 import { PageAttendances } from './pages/attendances/page';
@@ -17,7 +17,7 @@ import { NaoEncontrado } from './pages/nao-encontrado';
  * Desk routes mirror the reference (`~/desk-clone/README.md`, "Telas replicadas"): `/` attendance, `/chat` the open conversation, `/activeMessage/send`, `/analytics`, `/contacts`, `/bulk-ticket`, and `/preferences`. `/chat/:id` puts the conversation ID in the URL so it survives F5. Only `/entrar` and `/convite/:token` are public; `ExigirSessao` guards everything else.
  */
 export function App() {
-  useRegistrarNavigation();
+  useRegisterNavigation();
   return (
     <>
     <ClosureNotice />
@@ -25,7 +25,7 @@ export function App() {
       <Route path="/login" element={<PageLogin />} />
       <Route path="/invite/:token" element={<PageInvitation />} />
 
-      <Route element={<ExigirSession />}>
+      <Route element={<RequireSession />}>
         <Route element={<Shell />}>
           <Route path="/" element={<PageAttendances />} />
           <Route path="/contacts" element={<PageContacts />} />

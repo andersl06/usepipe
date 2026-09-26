@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto';
 import { PipeError } from '../../errors.js';
-import { atualizarChannel, pedirReauthorization, texto, urlDoWebhook } from './channel.js';
+import { updateChannel, requestReauthorization, texto, urlDoWebhook } from './channel.js';
 import type { ChannelWhatsApp } from './channel.js';
 import { CAMPOS_PADRAO_DO_WEBHOOK, clienteGraph } from './cliente-graph.js';
 import { buscarSaude, numeroPendente } from './saude.js';
@@ -33,7 +33,7 @@ export interface OptionsOfWebhook {
 
 export interface ResultadoDoWebhook {
   channel: ChannelWhatsApp;
-  errorOfRegistro: Error | null;
+  errorOfRecord: Error | null;
 }
 
 function asError(erro: unknown): Error {
@@ -87,16 +87,16 @@ export async function configurarWebhook(
   };
 
   let atual = canal;
-  let errorOfRegistro: Error | null = null;
+  let errorOfRecord: Error | null = null;
   if (await deveRegistrar()) {
     try {
       // `fetch_or_create_pin`: o guardado, ou um novo entre 100000 e 999999.
       const pin = texto(atual.config['pinVerificacao']) ?? String(randomInt(100_000, 1_000_000));
       await cliente.registrarNumero(numeroId, pin);
-      atual = await atualizarChannel(atual, { pinVerificacao: pin });
+      atual = await updateChannel(atual, { pinVerificacao: pin });
     } catch (error) {
-      errorOfRegistro = asError(error);
-      console.warn(`[whatsapp] o registro do número falhou, seguindo: ${errorOfRegistro.message}`);
+      errorOfRecord = asError(error);
+      console.warn(`[whatsapp] o registro do número falhou, seguindo: ${errorOfRecord.message}`);
     }
   }
 
@@ -118,7 +118,7 @@ export async function configurarWebhook(
     throw new PipeError(502, 'webhook_failed', `Falha ao configurar o webhook: ${message}`);
   }
 
-  return { channel: atual, errorOfRegistro };
+  return { channel: atual, errorOfRecord };
 }
 
 /**
@@ -132,6 +132,6 @@ export async function configureWebhooksOfChannel(
     return (await configurarWebhook(channel, { coexistencia })).channel;
   } catch (erro) {
     console.error(`[whatsapp] a configuração do webhook falhou: ${asError(erro).message}`);
-    return pedirReauthorization(channel);
+    return requestReauthorization(channel);
   }
 }

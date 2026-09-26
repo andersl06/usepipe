@@ -4,7 +4,7 @@ import { rulePriority, queue } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
-import { exigirPermission } from '../../session.js';
+import { requirePermission } from '../../session.js';
 import { RULE_MANAGE } from './registrations.js';
 
 /**
@@ -165,7 +165,7 @@ export async function loadRulesOfPriority(tx: TransactionPipe): Promise<RulePrio
   return regras.map(linha);
 }
 
-async function rulePriorityViva(tx: TransactionPipe, tid: string, id: string): Promise<RulePriorityWritten> {
+async function rulePriorityLive(tx: TransactionPipe, tid: string, id: string): Promise<RulePriorityWritten> {
   const [atual] = await tx
     .select({
       id: rulePriority.id,
@@ -189,7 +189,7 @@ export async function createRulePriority(
   userId: string,
   pedido: RequestOfRulePriority,
 ): Promise<{ id: string }> {
-  await exigirPermission(tx, userId, RULE_MANAGE);
+  await requirePermission(tx, userId, RULE_MANAGE);
 
   const nome = nomeConferido(pedido.name);
   const nivel = nivelConferido(pedido.level);
@@ -215,15 +215,15 @@ export async function createRulePriority(
   return { id: criada.id };
 }
 
-export async function editarRulePriority(
+export async function editRulePriority(
   tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   id: string,
   pedido: RequestOfEditOfRulePriority,
 ): Promise<RulePriorityWritten> {
-  const atual = await rulePriorityViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, RULE_MANAGE);
+  const atual = await rulePriorityLive(tx, tid, id);
+  await requirePermission(tx, usuarioId, RULE_MANAGE);
 
   const antes = { ...atual };
   const depois = { ...antes };
@@ -285,8 +285,8 @@ export async function editarRulePriority(
 }
 
 export async function deleteRulePriority(tx: TransactionPipe, tid: string, usuarioId: string, id: string): Promise<void> {
-  const atual = await rulePriorityViva(tx, tid, id);
-  await exigirPermission(tx, usuarioId, RULE_MANAGE);
+  const atual = await rulePriorityLive(tx, tid, id);
+  await requirePermission(tx, usuarioId, RULE_MANAGE);
 
   await tx.delete(rulePriority).where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.id, id)));
 

@@ -12,9 +12,9 @@ import type { CountClosure, ResultadoMetrica, ResponseTimeResult } from '@pipe/c
  * O cronômetro parou; nenhuma conversa aberta entra em nada disto.
  */
 
-export interface TemposBlock {
+export interface TimesBlock {
   inQueue: ResultadoMetrica;
-  firstResposta: ResultadoMetrica;
+  firstResponse: ResultadoMetrica;
   esperaTotal: ResultadoMetrica;
   resposta: ResponseTimeResult;
   attendance: ResultadoMetrica;
@@ -23,12 +23,12 @@ export interface TemposBlock {
   conversations: number;
 }
 
-export interface LinhaDeQuebra extends TemposBlock {
+export interface LinhaDeQuebra extends TimesBlock {
   key: string;
 }
 
 export interface ReportAttendance {
-  geral: TemposBlock;
+  geral: TimesBlock;
   byQueue: LinhaDeQuebra[];
   byAgent: LinhaDeQuebra[];
   /**

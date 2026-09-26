@@ -26,7 +26,7 @@ import { consultar, paraData } from './database';
 
 export const LIMITE_LISTA = 200;
 
-export interface LinhaContact {
+export interface ContactRow {
   id: string;
   nome: string;
   email: string | null;
@@ -36,10 +36,10 @@ export interface LinhaContact {
   leadId: string | null;
   faixa: string | null;
   conversations: number;
-  ultimaConversation: Date | null;
+  lastConversation: Date | null;
 }
 
-export async function listContacts(search = ''): Promise<LinhaContact[]> {
+export async function listContacts(search = ''): Promise<ContactRow[]> {
   return consultar(async (tx) => {
     const termo = search.trim();
     const filter = termo
@@ -89,7 +89,7 @@ export async function listContacts(search = ''): Promise<LinhaContact[]> {
         ...l,
         nome: l.nome ?? 'Contato sem nome',
         conversations: c?.n ?? 0,
-        ultimaConversation: paraData(c?.ultima),
+        lastConversation: paraData(c?.ultima),
       };
     });
   });
@@ -108,7 +108,7 @@ export interface ContactConversation {
   encerradaEm: Date | null;
 }
 
-export interface FichaContact {
+export interface ContactRecord {
   id: string;
   nome: string;
   email: string | null;
@@ -129,7 +129,7 @@ export interface FichaContact {
   conversations: ContactConversation[];
 }
 
-export async function loadContact(id: string): Promise<FichaContact | null> {
+export async function loadContact(id: string): Promise<ContactRecord | null> {
   return consultar(async (tx) => {
     const [cabeca] = await tx
       .select({

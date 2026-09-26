@@ -71,7 +71,7 @@ export async function readChannelWhatsApp(tenantId: string, canalId: string): Pr
 /**
  * Merge and save `channel.provider_config` as in Chatwoot. Reencrypt all of `config` on write; `cifrarConfig` touches only secret fields and is idempotent. This mirrors `channel.provider_config = …merge(…)` followed by `save!`.
  */
-export async function atualizarChannel(
+export async function updateChannel(
   canal: ChannelWhatsApp,
   changes: Record<string, unknown>,
   colunas: { wabaId?: string; numberId?: string } = {},
@@ -105,13 +105,13 @@ export function novoVerifyToken(): string {
 /**
  * Chatwoot `prompt_reauthorization!` is a channel column; here it is a marker in `config`, where connection state already lives, avoiding a migration.
  */
-export function pedirReauthorization(channel: ChannelWhatsApp): Promise<ChannelWhatsApp> {
-  return atualizarChannel(channel, { reautorizacaoPendente: true });
+export function requestReauthorization(channel: ChannelWhatsApp): Promise<ChannelWhatsApp> {
+  return updateChannel(channel, { reautorizacaoPendente: true });
 }
 
 /** `reauthorized!`. */
 export function marcarReautorizado(canal: ChannelWhatsApp): Promise<ChannelWhatsApp> {
-  return atualizarChannel(canal, { reautorizacaoPendente: false });
+  return updateChannel(canal, { reautorizacaoPendente: false });
 }
 
 export function reauthorizationPending(canal: { config: Record<string, unknown> }): boolean {

@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  classificarClosure,
-  contarClosures,
+  classifyClosure,
+  countClosures,
   derivarMarcos,
   intervalosDeResposta,
   mediaDeMedias,
   mediaPonderada,
   mediaPonderadaDePares,
-  byDimensao,
+  byDimension,
   taxaDeResposta,
-  timeAteFirstResposta,
+  timeUntilFirstResponse,
   attendanceTime,
-  respostaTime,
+  responseTime,
   timeInQueue,
-  timeTotalOfEsperaOfCliente,
+  timeTotalOfWaitOfClient,
   type ConversationEvents,
   type ClosedBy,
   type EventAttendance,
@@ -45,7 +45,7 @@ const C1: ConversationEvents = {
     evento('c1', 'criada', '10:00:00'),
     evento('c1', 'atribuida', '10:02:30', { userId: 'u1' }),
     evento('c1', 'primeira_resposta', '10:03:30', { userId: 'u1' }),
-    evento('c1', 'encerrada', '10:20:00', { encerradaBy: 'atendente' }),
+    evento('c1', 'encerrada', '10:20:00', { closedBy: 'atendente' }),
   ],
 };
 
@@ -55,7 +55,7 @@ const C2: ConversationEvents = {
     evento('c2', 'criada', '10:00:00'),
     evento('c2', 'atribuida', '10:10:00', { userId: 'u2' }),
     evento('c2', 'primeira_resposta', '10:14:00', { userId: 'u2' }),
-    evento('c2', 'encerrada', '10:30:00', { encerradaBy: 'inatividade' }),
+    evento('c2', 'encerrada', '10:30:00', { closedBy: 'inatividade' }),
   ],
 };
 
@@ -63,7 +63,7 @@ const C3: ConversationEvents = {
   conversationId: 'c3',
   eventos: [
     evento('c3', 'criada', '10:00:00'),
-    evento('c3', 'encerrada', '10:05:00', { encerradaBy: 'cliente' }),
+    evento('c3', 'encerrada', '10:05:00', { closedBy: 'cliente' }),
   ],
 };
 
@@ -74,9 +74,9 @@ describe('derivarMarcos', () => {
     const marcos = derivarMarcos(C1);
     expect(marcos.criadaEm).toEqual(em('10:00:00'));
     expect(marcos.atribuidaEm).toEqual(em('10:02:30'));
-    expect(marcos.firstRespostaIn).toEqual(em('10:03:30'));
+    expect(marcos.firstResponseIn).toEqual(em('10:03:30'));
     expect(marcos.encerradaEm).toEqual(em('10:20:00'));
-    expect(marcos.encerradaBy).toBe('atendente');
+    expect(marcos.closedBy).toBe('atendente');
     expect(marcos.assignments).toBe(1);
   });
 
@@ -105,7 +105,7 @@ describe('derivarMarcos', () => {
         evento('c', 'mensagem_saida', '09:03:00', { userId: 'u1' }),
       ],
     });
-    expect(marcos.firstRespostaIn).toEqual(em('09:02:00'));
+    expect(marcos.firstResponseIn).toEqual(em('09:02:00'));
   });
 
   it('falls back to queued when there is no creation event', () => {
@@ -121,12 +121,12 @@ describe('derivarMarcos', () => {
       conversationId: 'c',
       eventos: [
         evento('c', 'criada', '10:00:00'),
-        evento('c', 'encerrada', '10:10:00', { encerradaBy: 'atendente' }),
+        evento('c', 'encerrada', '10:10:00', { closedBy: 'atendente' }),
         evento('c', 'reaberta', '10:20:00'),
       ],
     });
     expect(marcos.encerradaEm).toBeNull();
-    expect(marcos.encerradaBy).toBeNull();
+    expect(marcos.closedBy).toBeNull();
   });
 
   it('a conversation reopened and closed again stamps the latest closure', () => {
@@ -134,13 +134,13 @@ describe('derivarMarcos', () => {
       conversationId: 'c',
       eventos: [
         evento('c', 'criada', '10:00:00'),
-        evento('c', 'encerrada', '10:10:00', { encerradaBy: 'inatividade' }),
+        evento('c', 'encerrada', '10:10:00', { closedBy: 'inatividade' }),
         evento('c', 'reaberta', '10:20:00'),
-        evento('c', 'encerrada', '10:50:00', { encerradaBy: 'atendente' }),
+        evento('c', 'encerrada', '10:50:00', { closedBy: 'atendente' }),
       ],
     });
     expect(marcos.encerradaEm).toEqual(em('10:50:00'));
-    expect(marcos.encerradaBy).toBe('atendente');
+    expect(marcos.closedBy).toBe('atendente');
   });
 
   it('does not depend on the order events arrive in', () => {
@@ -160,7 +160,7 @@ describe('time metrics (§2)', () => {
     { nome: 'tempo na fila', metrica: timeInQueue, value: 375, population: 2, excluidas: 1 },
     {
       nome: 'tempo até a 1ª resposta',
-      metrica: timeAteFirstResposta,
+      metrica: timeUntilFirstResponse,
       value: 150,
       population: 2,
       excluidas: 1,
@@ -168,7 +168,7 @@ describe('time metrics (§2)', () => {
     // Espera do cliente: C1 210s, C2 840s, C3 300s (sem resposta, usa o encerramento).
     {
       nome: 'tempo total de espera do cliente',
-      metrica: timeTotalOfEsperaOfCliente,
+      metrica: timeTotalOfWaitOfClient,
       value: 450,
       population: 3,
       excluidas: 0,
@@ -206,15 +206,15 @@ describe('time metrics (§2)', () => {
         evento('so-cliente', 'mensagem_entrada', '10:00:01'),
         evento('so-cliente', 'mensagem_entrada', '10:03:00'),
         evento('so-cliente', 'mensagem_entrada', '10:09:00'),
-        evento('so-cliente', 'encerrada', '11:00:00', { encerradaBy: 'inatividade' }),
+        evento('so-cliente', 'encerrada', '11:00:00', { closedBy: 'inatividade' }),
       ],
     };
     expect(timeInQueue([soCliente])).toEqual(resultado(0, 0, 1));
-    expect(timeAteFirstResposta([soCliente])).toEqual(resultado(0, 0, 1));
+    expect(timeUntilFirstResponse([soCliente])).toEqual(resultado(0, 0, 1));
     expect(attendanceTime([soCliente])).toEqual(resultado(0, 0, 1));
     // A espera do cliente existe e vale 3600s: criada 10:00 → encerrada 11:00.
-    expect(timeTotalOfEsperaOfCliente([soCliente])).toEqual(resultado(3600, 1, 0));
-    expect(respostaTime([soCliente]).value).toBeNull();
+    expect(timeTotalOfWaitOfClient([soCliente])).toEqual(resultado(3600, 1, 0));
+    expect(responseTime([soCliente]).value).toBeNull();
   });
 
   it('an open conversation with no reply is left out of the customer\'s wait time', () => {
@@ -222,7 +222,7 @@ describe('time metrics (§2)', () => {
       conversationId: 'aberta',
       eventos: [evento('aberta', 'criada', '10:00:00'), evento('aberta', 'mensagem_entrada', '10:00:10')],
     };
-    expect(timeTotalOfEsperaOfCliente([aberta])).toEqual(resultado(0, 0, 1));
+    expect(timeTotalOfWaitOfClient([aberta])).toEqual(resultado(0, 0, 1));
   });
 
   it('intervalo negativo é dado inconsistente e sai do denominador', () => {
@@ -235,7 +235,7 @@ describe('time metrics (§2)', () => {
         evento('x', 'primeira_resposta', '10:05:00', { userId: 'u1' }),
       ],
     };
-    const saida = timeAteFirstResposta([invertida]);
+    const saida = timeUntilFirstResponse([invertida]);
     expect(saida.value).toBeNull();
     expect(saida.excluidas).toBe(1);
   });
@@ -290,11 +290,11 @@ describe('response time', () => {
 
   it('average of the intervals, with included and excluded conversations visible', () => {
     // (60 + 120 + 30) ÷ 3 intervalos = 70s
-    const saida = respostaTime([A, B, C]);
+    const saida = responseTime([A, B, C]);
     expect(saida.value).toBe(70);
     expect(saida.soma).toBe(210);
     expect(saida.population).toBe(3);
-    expect(saida.conversationsConsideradas).toBe(2);
+    expect(saida.conversationsConsidered).toBe(2);
     expect(saida.excluidas).toBe(1);
   });
 });
@@ -303,20 +303,20 @@ describe('closure status (§4)', () => {
   const casos: {
     nome: string;
     atribuida: boolean;
-    encerradaBy: ClosedBy | null;
+    closedBy: ClosedBy | null;
     encerrada: boolean;
     esperado: 'perdida' | 'abandonada' | 'finalizada' | null;
   }[] = [
-    { nome: 'cliente saiu antes de atribuir', atribuida: false, encerradaBy: 'cliente', encerrada: true, esperado: 'perdida' },
-    { nome: 'inatividade antes de atribuir', atribuida: false, encerradaBy: 'inatividade', encerrada: true, esperado: 'perdida' },
-    { nome: 'cliente saiu depois de atribuir', atribuida: true, encerradaBy: 'cliente', encerrada: true, esperado: 'abandonada' },
-    { nome: 'inatividade depois de atribuir', atribuida: true, encerradaBy: 'inatividade', encerrada: true, esperado: 'abandonada' },
-    { nome: 'atendente fechou', atribuida: true, encerradaBy: 'atendente', encerrada: true, esperado: 'finalizada' },
-    { nome: 'gestor fechou sem atribuição', atribuida: false, encerradaBy: 'atendente', encerrada: true, esperado: 'finalizada' },
-    { nome: 'transferida', atribuida: true, encerradaBy: 'transferencia', encerrada: true, esperado: 'finalizada' },
-    { nome: 'origem desconhecida com atribuição', atribuida: true, encerradaBy: null, encerrada: true, esperado: 'abandonada' },
-    { nome: 'origem desconhecida sem atribuição', atribuida: false, encerradaBy: null, encerrada: true, esperado: 'perdida' },
-    { nome: 'ainda aberta', atribuida: true, encerradaBy: null, encerrada: false, esperado: null },
+    { nome: 'cliente saiu antes de atribuir', atribuida: false, closedBy: 'cliente', encerrada: true, esperado: 'perdida' },
+    { nome: 'inatividade antes de atribuir', atribuida: false, closedBy: 'inatividade', encerrada: true, esperado: 'perdida' },
+    { nome: 'cliente saiu depois de atribuir', atribuida: true, closedBy: 'cliente', encerrada: true, esperado: 'abandonada' },
+    { nome: 'inatividade depois de atribuir', atribuida: true, closedBy: 'inatividade', encerrada: true, esperado: 'abandonada' },
+    { nome: 'atendente fechou', atribuida: true, closedBy: 'atendente', encerrada: true, esperado: 'finalizada' },
+    { nome: 'gestor fechou sem atribuição', atribuida: false, closedBy: 'atendente', encerrada: true, esperado: 'finalizada' },
+    { nome: 'transferida', atribuida: true, closedBy: 'transferencia', encerrada: true, esperado: 'finalizada' },
+    { nome: 'origem desconhecida com atribuição', atribuida: true, closedBy: null, encerrada: true, esperado: 'abandonada' },
+    { nome: 'origem desconhecida sem atribuição', atribuida: false, closedBy: null, encerrada: true, esperado: 'perdida' },
+    { nome: 'ainda aberta', atribuida: true, closedBy: null, encerrada: false, esperado: null },
   ];
 
   for (const caso of casos) {
@@ -324,14 +324,14 @@ describe('closure status (§4)', () => {
       const eventos: EventAttendance[] = [evento('c', 'criada', '10:00:00')];
       if (caso.atribuida) eventos.push(evento('c', 'atribuida', '10:01:00', { userId: 'u1' }));
       if (caso.encerrada) {
-        eventos.push(evento('c', 'encerrada', '10:30:00', { encerradaBy: caso.encerradaBy }));
+        eventos.push(evento('c', 'encerrada', '10:30:00', { closedBy: caso.closedBy }));
       }
-      expect(classificarClosure(derivarMarcos({ conversationId: 'c', eventos }))).toBe(caso.esperado);
+      expect(classifyClosure(derivarMarcos({ conversationId: 'c', eventos }))).toBe(caso.esperado);
     });
   }
 
   it('counts lost, abandoned, finished and the total closed', () => {
-    expect(contarClosures(TRIO)).toEqual({
+    expect(countClosures(TRIO)).toEqual({
       perdida: 1,
       abandonada: 1,
       finalizada: 1,
@@ -343,10 +343,10 @@ describe('closure status (§4)', () => {
 
 describe('volume-weighted average (§5)', () => {
   const diaCheio = resultado(900, 10, 0);
-  const diaEmpty = resultado(600, 2, 1);
+  const dayEmpty = resultado(600, 2, 1);
 
   it('weights by volume: 1500 ÷ 12 = 125s', () => {
-    const combinado = mediaPonderada([diaCheio, diaEmpty]);
+    const combinado = mediaPonderada([diaCheio, dayEmpty]);
     expect(combinado.value).toBe(125);
     expect(combinado.soma).toBe(1500);
     expect(combinado.population).toBe(12);
@@ -354,7 +354,7 @@ describe('volume-weighted average (§5)', () => {
   });
 
   it('the average of averages would give 195s — that is the mistake the rule avoids', () => {
-    expect(mediaDeMedias([diaCheio.value, diaEmpty.value])).toBe(195);
+    expect(mediaDeMedias([diaCheio.value, dayEmpty.value])).toBe(195);
   });
 
   it('combinar nada devolve null, não zero', () => {
@@ -373,7 +373,7 @@ describe('volume-weighted average (§5)', () => {
   });
 
   it('groups by dimension in deterministic order', () => {
-    const byQueue = byDimensao(
+    const byQueue = byDimension(
       [
         { fila: 'suporte', conversa: C1 },
         { fila: 'vendas', conversa: C2 },

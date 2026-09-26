@@ -26,7 +26,7 @@ let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
 let sessionEditor: string;
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 let sessionOfOtherTenant: string;
 
 async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
@@ -115,7 +115,7 @@ beforeAll(async () => {
 
   api = await upApi(0);
   sessionEditor = await openSession(a, editor);
-  sessionWithoutPoder = await openSession(a, semPoder);
+  sessionWithoutAuthority = await openSession(a, semPoder);
   sessionOfOtherTenant = await openSession(b, editorDoB);
 }, 180_000);
 
@@ -188,7 +188,7 @@ describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
 
   it('Return 403 without `automacao.fluxo.editar` and 404 for invalid or cross-tenant IDs', async () => {
     const id = await newFlow(a);
-    const semPoder = await chamar(sessionWithoutPoder, 'PATCH', `${id}/boas-vindas`, {
+    const semPoder = await chamar(sessionWithoutAuthority, 'PATCH', `${id}/boas-vindas`, {
       ativo: true,
       mensagem: 'Oi',
       textoBotao: 'Começar',
@@ -238,7 +238,7 @@ describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
 
   it('Check `automacao.fluxo.editar` before channel and welcome validation', async () => {
     const id = await newFlow(a);
-    const { status, corpo } = await chamar(sessionWithoutPoder, 'PATCH', `${id}/menu-persistente`, {
+    const { status, corpo } = await chamar(sessionWithoutAuthority, 'PATCH', `${id}/menu-persistente`, {
       itens: [],
     });
     expect(status).toBe(403);

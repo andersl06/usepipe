@@ -59,7 +59,7 @@ export function SlaPageRules() {
   const [ruleInEdit, setRuleInEdit] = useState<RegraSlaConfigurada | null>(null);
   const [regraParaExcluir, setRegraParaExcluir] = useState<RegraSlaConfigurada | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
+  const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
   const read = useRead<{ queues: QueueConfigured[]; regras: RegraSlaConfigurada[] }>(
     '/v1/management/settings/rules',
   );
@@ -69,11 +69,11 @@ export function SlaPageRules() {
   async function excluir() {
     if (!regraParaExcluir) return;
     setExcluindo(true);
-    setErrorExclusao(null);
+    setErrorDeletion(null);
     const resultado = await excluirRegraSla(regraParaExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setRegraParaExcluir(null);
-    else setErrorExclusao(resultado.error);
+    else setErrorDeletion(resultado.error);
   }
 
   const sections: RulesSection[] = [
@@ -127,9 +127,9 @@ export function SlaPageRules() {
       <ListaRegras
         sections={sections}
         placeholder="Buscar regras de SLA"
-        sectionOcultarHeader
+        sectionHideHeader
         paginar
-        pageInitialTamanho={5}
+        pageInitialSize={5}
       />
 
       <Modal aberto={modalAberto} titulo="Nova regra de SLA" onFechar={() => setModalAberto(false)}>
@@ -158,12 +158,12 @@ export function SlaPageRules() {
             Excluir a regra “{regraParaExcluir?.nome}”? Esta ação não pode ser desfeita.
           </>
         }
-        error={errorExclusao}
+        error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
           setRegraParaExcluir(null);
-          setErrorExclusao(null);
+          setErrorDeletion(null);
         }}
       />
     </>

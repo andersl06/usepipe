@@ -25,11 +25,11 @@ const { desconectarWhatsApp, listChannelsWhatsApp, urlDoWebhook } = await import
 const { ClienteGraphDuble, ClienteGraphReal, definirFabricaGraph } = await import(
   '../src/domain/whatsapp/cliente-graph.js'
 );
-const { executarRegistrationEmbedded } = await import('../src/domain/whatsapp/registration-embedded.js');
+const { runRegistrationEmbedded } = await import('../src/domain/whatsapp/registration-embedded.js');
 const { readChannelWhatsApp } = await import('../src/domain/whatsapp/channel.js');
 const { configurarWebhook } = await import('../src/domain/whatsapp/configuration-of-webhook.js');
-const { executarConfigurationManual } = await import('../src/domain/whatsapp/configuration-manual.js');
-const { emitirState } = await import('../src/domain/whatsapp/state-of-connection.js');
+const { runConfigurationManual } = await import('../src/domain/whatsapp/configuration-manual.js');
+const { issueState } = await import('../src/domain/whatsapp/state-of-connection.js');
 const { writeProfileOfChannel, readProfileOfChannel } = await import('../src/domain/whatsapp/perfil.js');
 const { createTemplateInMeta, deleteTemplateInMeta, sincronizarModelos } = await import(
   '../src/domain/whatsapp/modelos.js'
@@ -81,7 +81,7 @@ function request(quem: { tenantId: string; adminId: string }): RequestWithSessio
   } as unknown as RequestWithSession;
 }
 
-async function contarChannels(tenantId: string): Promise<number> {
+async function countChannels(tenantId: string): Promise<number> {
   const { rows } = await dono.execute<{ n: string }>(
     sql`select count(*)::text as n from canal where tenant_id = ${tenantId}::uuid`,
   );
@@ -103,7 +103,7 @@ function chamadas(acao: string) {
 function conectar(quem: { tenantId: string; adminId: string }, extra: Record<string, unknown>) {
   return controller.conectar(request(quem), {
     waba_id: WABA,
-    state: emitirState(quem.tenantId, quem.adminId),
+    state: issueState(quem.tenantId, quem.adminId),
     ...extra,
   });
 }
@@ -169,14 +169,14 @@ describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o
   });
 
   it('Reject missing, forged, cross-session, or expired state before calling Meta', async () => {
-    const antes = await contarChannels(A.tenantId);
+    const antes = await countChannels(A.tenantId);
     const onzeMinutosAtras = Date.now() - 11 * 60 * 1000;
     const estados = [
       undefined,
       'forjado',
-      emitirState(B.tenantId, B.adminId),
-      emitirState(A.tenantId, B.adminId),
-      emitirState(A.tenantId, A.adminId, onzeMinutosAtras),
+      issueState(B.tenantId, B.adminId),
+      issueState(A.tenantId, B.adminId),
+      issueState(A.tenantId, A.adminId, onzeMinutosAtras),
     ];
     for (const state of estados) {
       await expect(
@@ -184,28 +184,28 @@ describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o
       ).rejects.toMatchObject({ codigo: 'estado_invalido', status: 403 });
     }
     expect(ClienteGraphDuble.chamadas).toHaveLength(0);
-    expect(await contarChannels(A.tenantId)).toBe(antes);
+    expect(await countChannels(A.tenantId)).toBe(antes);
   });
 
   it('Create no channel when Meta denies WABA phone-number access', async () => {
-    const antes = await contarChannels(A.tenantId);
+    const antes = await countChannels(A.tenantId);
     await expect(conectar(A, { codigo: `sem-permissao-${S}` })).rejects.toMatchObject({
       codigo: 'meta_recusou',
       detalhe: { codigo_meta: 200 },
     });
     expect(chamadas('override')).toHaveLength(0);
-    expect(await contarChannels(A.tenantId)).toBe(antes);
+    expect(await countChannels(A.tenantId)).toBe(antes);
   });
 
   it('Reject a number already used by another tenant with the expected Chatwoot message', async () => {
     const codigo = `disputado-${S}`;
     await conectar(A, { codigo });
-    const antes = await contarChannels(B.tenantId);
+    const antes = await countChannels(B.tenantId);
 
     const erro = await conectar(B, { codigo }).catch((e: unknown) => e);
     expect(erro).toMatchObject({ codigo: 'numero_em_uso', status: 409 });
     expect((erro as Error).message).toContain('Já existe um canal para este número de telefone');
-    expect(await contarChannels(B.tenantId)).toBe(antes);
+    expect(await countChannels(B.tenantId)).toBe(antes);
   });
 
   it('parâmetros ausentes: a mesma recusa do original, antes de falar com a Meta', async () => {
@@ -333,7 +333,7 @@ describe('Configure the channel webhook (`webhook_setup_service_spec`)', () => {
 
   it('coexistência: não registra e nem pergunta a saúde', async () => {
     vi.spyOn(ClienteGraphDuble.prototype, 'numeroVerificado').mockResolvedValue(false);
-    await executarRegistrationEmbedded({
+    await runRegistrationEmbedded({
       tenantId: A.tenantId,
       userId: A.adminId,
       codigo: `coexistencia-${S}`,
@@ -354,7 +354,7 @@ describe('Configure the channel webhook (`webhook_setup_service_spec`)', () => {
     ClienteGraphDuble.reiniciar();
 
     const resultado = await configurarWebhook(await readChannelWhatsApp(A.tenantId, canal.id));
-    expect(resultado.errorOfRegistro?.message).toContain('O registro do número falhou');
+    expect(resultado.errorOfRecord?.message).toContain('O registro do número falhou');
     expect(chamadas('override')).toHaveLength(1);
   });
 
@@ -395,12 +395,12 @@ describe('Reauthorize disconnected WhatsApp channels (`reauthorization_service_s
     const codigo = `volta-${S}`;
     const first = await conectar(A, { codigo });
     await desconectarWhatsApp(A.tenantId, A.adminId, first.id);
-    const antes = await contarChannels(A.tenantId);
+    const antes = await countChannels(A.tenantId);
 
     const segunda = await conectar(A, { codigo, canal_id: first.id });
     expect(segunda.id).toBe(first.id);
     expect(segunda).toMatchObject({ ativo: true, estado: 'conectado', mensagem: 'Reautorização concluída.' });
-    expect(await contarChannels(A.tenantId)).toBe(antes);
+    expect(await countChannels(A.tenantId)).toBe(antes);
   });
 
   it('Reject a phone number that does not match the channel', async () => {
@@ -436,33 +436,33 @@ describe('Validate manual channel configuration (`manual_setup_validation_servic
 
   it('Reject a token without messaging permission using Meta\'s message', async () => {
     vi.spyOn(ClienteGraphDuble.prototype, 'buscarPermissoes').mockResolvedValue({ data: [] });
-    await expect(executarConfigurationManual(base())).rejects.toMatchObject({
+    await expect(runConfigurationManual(base())).rejects.toMatchObject({
       codigo: 'configuracao_invalida',
       message: expect.stringContaining('whatsapp_business_messaging'),
     });
   });
 
   it('Phone Number ID que não é da WABA: recusado', async () => {
-    await expect(executarConfigurationManual({ ...base(), numeroId: 'outro' })).rejects.toMatchObject({
+    await expect(runConfigurationManual({ ...base(), numeroId: 'outro' })).rejects.toMatchObject({
       message: 'Este Phone Number ID não pertence ao WABA ID informado.',
     });
   });
 
   it('Require a correctly formatted App Secret belonging to the token\'s app', async () => {
-    await expect(executarConfigurationManual({ ...base(), appSecret: undefined })).rejects.toMatchObject({
+    await expect(runConfigurationManual({ ...base(), appSecret: undefined })).rejects.toMatchObject({
       message: 'O App Secret é obrigatório.',
     });
-    await expect(executarConfigurationManual({ ...base(), appSecret: 'curto' })).rejects.toMatchObject({
+    await expect(runConfigurationManual({ ...base(), appSecret: 'curto' })).rejects.toMatchObject({
       message: 'O App Secret tem 32 caracteres, só números e letras de a a f.',
     });
     await expect(
-      executarConfigurationManual({ ...base(), appSecret: `bad${'0'.repeat(29)}` }),
+      runConfigurationManual({ ...base(), appSecret: `bad${'0'.repeat(29)}` }),
     ).rejects.toMatchObject({ message: 'Este App Secret não é do aplicativo que gerou o token.' });
     expect(chamadas('override')).toHaveLength(0);
   });
 
   it('Save the customer app and secret, return the webhook, and keep the number on disconnect', async () => {
-    const feito = await executarConfigurationManual({ ...base(), nome: 'Suporte manual' });
+    const feito = await runConfigurationManual({ ...base(), nome: 'Suporte manual' });
     expect(feito.webhookError).toBeNull();
     expect(feito.channel.nome).toBe('Suporte manual');
     expect(feito.channel.config['origem']).toBe('manual_setup_v2');
@@ -847,7 +847,7 @@ describe('Build Meta authentication templates with their fixed components', () =
     await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
       nome: 'otp_seco',
       categoria: 'autenticacao',
-      authentication: { recommendationOfSeguranca: false },
+      authentication: { recommendationOfSecurity: false },
     });
     const seco = ClienteGraphDuble.modelos.get(canal.wabaId!)!.find((m) => m.name === 'otp_seco')!;
     expect(seco.components![0]).toEqual({ type: 'BODY' });

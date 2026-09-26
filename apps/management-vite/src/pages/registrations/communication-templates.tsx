@@ -6,16 +6,16 @@ import {
   ROTULO_CABECALHO,
   ROTULO_CATEGORIA_TEMPLATE,
   ROTULO_STATUS_META,
-  headerTemMedia,
+  headerHasMedia,
   headerOffset,
   type CabecalhoTemplate,
   type CategoriaTemplate,
 } from '../../lib/communication';
-import { channelExcluirTemplate, channelSincronizarTemplates } from '../../lib/channels-gravar';
+import { channelDeleteTemplate, channelSyncTemplates } from '../../lib/channels-gravar';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { Selection } from '../../components/selection';
 import { ModalConfirmation } from './_modal';
-import { FormularioTemplate } from './communication-templates-formulario';
+import { TemplateForm } from './communication-templates-formulario';
 
 /**
  * "Status" filter options — `FICHA-message-template.md` §3 documents "Habilitado"/"Desabilitado" at the source, but that's THEIR LOCAL on/off toggle; our `statusMeta` is something else (the template's Meta approval status, `ROTULO_STATUS_META`) — there's no "habilitado" here to translate. The filter uses the options the screen already shows on each card (§4 "Status na Meta"), in the same documented POSITION ("Filtrar por:", before the search).
@@ -25,7 +25,7 @@ const OPTIONS_STATUS = Object.keys(ROTULO_STATUS_META);
 /**
  * Real trigger positions, readable directly on the card: without a media header it's `{{1}}, {{2}}…`; with media, each one shifts by +1 and the card already shows the shifted number — it's the rule from the task's §"modelos" section, visible on the registration screen, not just in the sending code (`apps/workers/src/whatsapp/template.ts`).
  */
-function disparoPositions(cabecalho: string, quantity: number): string {
+function triggerPositions(cabecalho: string, quantity: number): string {
   if (quantity === 0) return 'nenhuma';
   const offset = headerOffset(cabecalho);
   const positions = Array.from({ length: quantity }, (_, i) => i + 1 + offset);
@@ -33,14 +33,14 @@ function disparoPositions(cabecalho: string, quantity: number): string {
 }
 
 /** "Sincronizar com a Meta" — one button per channel, `POST .../modelos/sincronizar`. */
-function SyncBarra({ channels }: { channels: ChannelWhatsapp[] }) {
+function SyncBar({ channels }: { channels: ChannelWhatsapp[] }) {
   const [sincronizando, setSincronizando] = useState<string | null>(null);
   const [resultado, setResultado] = useState<{ channel: string; texto: string; error?: boolean } | null>(null);
 
   async function sincronizar(channel: ChannelWhatsapp) {
     setSincronizando(channel.id);
     setResultado(null);
-    const saida = await channelSincronizarTemplates(channel.id);
+    const saida = await channelSyncTemplates(channel.id);
     setSincronizando(null);
     if (!saida.ok) {
       setResultado({ channel: channel.nome, texto: saida.error, error: true });
@@ -85,7 +85,7 @@ export function PageTemplates() {
   const [status, setStatus] = useState('');
   const [paraExcluir, setParaExcluir] = useState<TemplateListed | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
+  const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
   if (!read.data) return null;
   const { modelos: todosOsModelos, channels } = read.data;
   const modelos = status ? todosOsModelos.filter((m) => m.statusMeta === status) : todosOsModelos;
@@ -93,11 +93,11 @@ export function PageTemplates() {
   async function excluir() {
     if (!paraExcluir) return;
     setExcluindo(true);
-    setErrorExclusao(null);
-    const resultado = await channelExcluirTemplate(paraExcluir.channelId, paraExcluir.nome);
+    setErrorDeletion(null);
+    const resultado = await channelDeleteTemplate(paraExcluir.channelId, paraExcluir.nome);
     setExcluindo(false);
     if (!resultado.ok) {
-      setErrorExclusao(resultado.error);
+      setErrorDeletion(resultado.error);
       return;
     }
     setParaExcluir(null);
@@ -126,10 +126,10 @@ export function PageTemplates() {
             value: ROTULO_CABECALHO[m.cabecalhoTipo as CabecalhoTemplate] ?? m.cabecalhoTipo,
           },
           {
-            rotulo: headerTemMedia(m.cabecalhoTipo)
+            rotulo: headerHasMedia(m.cabecalhoTipo)
               ? 'Variáveis (cabeçalho desloca +1)'
               : 'Variáveis',
-            value: disparoPositions(m.cabecalhoTipo, m.variables.length),
+            value: triggerPositions(m.cabecalhoTipo, m.variables.length),
           },
           { rotulo: 'Status na Meta', value: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta },
         ],
@@ -152,7 +152,7 @@ export function PageTemplates() {
         <h2>Modelos de mensagens</h2>
       </div>
 
-      <SyncBarra channels={channels} />
+      <SyncBar channels={channels} />
 
       {/*
  * §2.2/§2.3: inside the content panel, the title repeats and the "Filtrar por:" line comes BEFORE the search. "Fluxo de retorno" (§3) is left out — the source captured that filter with `options="[]"` (even they had nothing there), and Pipe has no such concept. "Status" also isn't the same field (theirs is a local enabled/disabled toggle; ours is the Meta approval status), but it occupies the same position with the real data the screen already shows on each card.
@@ -166,7 +166,7 @@ export function PageTemplates() {
         <ListaRegras
           sections={sections}
           placeholder="Pesquise pelo nome do modelo de mensagem"
-          sectionOcultarHeader
+          sectionHideHeader
           filters={
             <>
               <span className="filtrar-rotulo">Filtrar por:</span>
@@ -183,13 +183,13 @@ export function PageTemplates() {
         />
       </div>
 
-      <FormularioTemplate channels={channels} />
+      <TemplateForm channels={channels} />
 
       <ModalConfirmation
         aberto={paraExcluir !== null}
         titulo="Excluir modelo"
         message={`Excluir "${paraExcluir?.nome}"? A Meta apaga o modelo em todos os idiomas cadastrados com este nome.`}
-        error={errorExclusao}
+        error={errorDeletion}
         confirmando={excluindo}
         rotuloConfirmar="Excluir"
         onConfirmar={() => void excluir()}

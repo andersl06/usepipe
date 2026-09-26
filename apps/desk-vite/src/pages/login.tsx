@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { RefusesOfInbound } from '@pipe/contracts';
-import { caminhoInterno, descobrirInbound, inboundWithGoogleUrl, urlNaApi } from '../lib/inbound';
+import { caminhoInterno, discoverInbound, inboundWithGoogleUrl, urlNaApi } from '../lib/inbound';
 import { FundoPipe } from './fundo-pipe';
 
 /**
@@ -91,7 +91,7 @@ export function PageLogin() {
   async function continuar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     setEnviando(true);
-    const inbound = await descobrirInbound(email.trim());
+    const inbound = await discoverInbound(email.trim());
     if (inbound.metodo === 'sso' && inbound.irPara) {
       window.location.assign(urlNaApi(inbound.irPara, destination));
       return;

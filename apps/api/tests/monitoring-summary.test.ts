@@ -12,7 +12,7 @@ describe('Build the detailed monitoring summary', () => {
         inQueue: metrica(30),
         firstResponse: metrica(45),
         esperaTotal: metrica(60),
-        resposta: { ...metrica(20), conversationsConsideradas: 2 },
+        resposta: { ...metrica(20), conversationsConsidered: 2 },
         attendance: metrica(120),
         closures: { perdida: 0, abandonada: 0, finalizada: 3, fechada: 3, abertas: 0 },
       },

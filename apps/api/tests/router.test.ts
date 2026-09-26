@@ -14,7 +14,7 @@ const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
-const { redirecionarInRouter } = await import('../src/domain/router.js');
+const { redirectInRouter } = await import('../src/domain/router.js');
 const { closeConversation } = await import('../src/domain/conversation.js');
 const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
@@ -29,7 +29,7 @@ let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
 let sessionEditor: string;
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 let sessionOfOtherTenant: string;
 
 async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
@@ -111,7 +111,7 @@ beforeAll(async () => {
   b = await montarCenario(`rt-${randomUUID().slice(0, 8)}`);
   api = await upApi(0);
   sessionEditor = await openSession(a, await pessoaCom(a, ['automacao.fluxo.editar']));
-  sessionWithoutPoder = await openSession(a, await pessoaCom(a, []));
+  sessionWithoutAuthority = await openSession(a, await pessoaCom(a, []));
   sessionOfOtherTenant = await openSession(b, await pessoaCom(b, ['automacao.fluxo.editar']));
 }, 180_000);
 
@@ -243,7 +243,7 @@ describe('/v1/management/flows/:id/services', () => {
     expect(codigo(notRouter)).toBe('nao_e_roteador');
 
     const roteador = await newFlow(a, 'roteador');
-    const semPoder = await chamar(sessionWithoutPoder, 'POST', `${roteador}/servicos`, {
+    const semPoder = await chamar(sessionWithoutAuthority, 'POST', `${roteador}/servicos`, {
       name: 'S',
       chatbotId: outro,
       principal: true,
@@ -621,12 +621,12 @@ describe('Route conversations through services', () => {
     await falar(EVA, 'oi');
     const { contactId } = await position(EVA);
     await noTenant(a.tenantId, (tx) =>
-      redirecionarInRouter(tx, {
+      redirectInRouter(tx, {
         tenantId: a.tenantId,
         routerId,
         contactId: contactId,
         service: 'Suporte',
-        blockInicial: 'resposta',
+        blockInitial: 'resposta',
       }),
     );
     // At the root, "voltar" would go to `pergunta`; in `resposta`, it goes to `volta`.
@@ -661,7 +661,7 @@ describe('Route conversations through services', () => {
       returning id
     `);
     await closeConversation(
-      { tenantId: a.tenantId, agentId: a.agentId, exigirAssignment: true },
+      { tenantId: a.tenantId, agentId: a.agentId, requireAssignment: true },
       { conversaId: conversa.id, etiquetaId: etiquetas[0]!.id },
     );
 

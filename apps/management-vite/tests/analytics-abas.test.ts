@@ -3,8 +3,8 @@ import { test } from 'node:test';
 import {
   CLUSTER_DA_CAPTURA,
   FLAGS_DA_CAPTURA,
-  analyticsAbas,
-  mostraManager,
+  analyticsTabs,
+  showsManager,
 } from '../src/pages/flow/analytics/abas.ts';
 
 /**
@@ -14,7 +14,7 @@ import {
  */
 
 const visiveis = (flags = FLAGS_DA_CAPTURA, cluster = CLUSTER_DA_CAPTURA) =>
-  analyticsAbas(flags, cluster)
+  analyticsTabs(flags, cluster)
     .filter((a) => a.visivel)
     .map((a) => a.rotulo);
 
@@ -31,7 +31,7 @@ test('the capture\'s contract sees seven tabs, in the template\'s order', () => 
 });
 
 test('the Manager navigates the flow\'s current tree', () => {
-  const aba = analyticsAbas(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA).find(
+  const aba = analyticsTabs(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA).find(
     (item) => item.key === 'dataExtractor',
   );
   assert.equal(aba?.segment, 'report-manager');
@@ -39,13 +39,13 @@ test('the Manager navigates the flow\'s current tree', () => {
 
 test('the Manager falls back to `default` when the cluster has no key of its own', () => {
   const byCluster = FLAGS_DA_CAPTURA.managerByCluster;
-  assert.equal(mostraManager(byCluster, 'Beagle'), true);
-  assert.equal(mostraManager(byCluster, 'Golden'), false);
-  assert.equal(mostraManager(byCluster, 'DOBERMANN'), false);
+  assert.equal(showsManager(byCluster, 'Beagle'), true);
+  assert.equal(showsManager(byCluster, 'Golden'), false);
+  assert.equal(showsManager(byCluster, 'DOBERMANN'), false);
 });
 
 test('a hidden tab stays in the row, just invisible', () => {
-  const abas = analyticsAbas(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA);
+  const abas = analyticsTabs(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA);
   assert.equal(abas.length, 8);
   assert.equal(abas.at(-1)?.key, 'goodData');
   assert.equal(abas.at(-1)?.visivel, false);
@@ -54,7 +54,7 @@ test('a hidden tab stays in the row, just invisible', () => {
 test('cada flag desliga só a sua aba', () => {
   const sem = visiveis({
     ...FLAGS_DA_CAPTURA,
-    abaActiveMessages: false,
+    tabActiveMessages: false,
     abaVisaoGeral: false,
     dataDictionary: false,
   });

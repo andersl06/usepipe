@@ -89,7 +89,7 @@ export function PageBulkActions() {
                       onChange={() => alternar(c.id)}
                     />{' '}
                     {numeroDoTicket(c.id)} —{' '}
-                    {displayName({ contactName: c.contatoNome, contactTelefone: c.contatoTelefone })}{' '}
+                    {displayName({ contactName: c.contatoNome, contactPhone: c.contatoTelefone })}{' '}
                     <span className="dk-bulk-empty">({c.filaNome ?? 'Transferência direta'})</span>
                   </label>
                 ))

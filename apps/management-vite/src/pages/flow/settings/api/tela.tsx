@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BotaoBds, PageHeader, CampoBds, CampoCopiavel, Interruptor, Role } from '../pecas';
 import { useRead } from '../../../../lib/query';
-import { salvarConexao, type FlowConexao } from './gravar';
+import { salvarConexao, type FlowConnection } from './gravar';
 
 /**
  * The guts of `/configurations/apikey`, card by card as in the template (portal.js, module 83981):
@@ -17,7 +17,7 @@ import { salvarConexao, type FlowConexao } from './gravar';
  */
 export function TelaDeConexao({ flowId }: { flowId: string }) {
   const caminho = `/v1/management/flows/${flowId}/connection`;
-  const { data, isLoading } = useRead<FlowConexao>(caminho);
+  const { data, isLoading } = useRead<FlowConnection>(caminho);
 
   const [modo, setModo] = useState<'builder' | 'sdk' | 'http'>('builder');
   const [oauth, setOauth] = useState(false);

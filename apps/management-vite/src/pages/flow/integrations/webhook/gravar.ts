@@ -7,11 +7,11 @@ import { motivoDe } from '../../settings/basic/gravar';
  *
  * "Configurações de autenticação" and "Cabeçalhos customizados" (migration 0036): `autenticacao.senha`/`autenticacao.clientSecret` only exist in the creation/edit REQUEST — the response never returns them (not even encrypted).
  */
-export const TIPOS_AUTHENTICATION = ['nenhuma', 'basica', 'oauth2_client_credentials'] as const;
-export type TipoAuthentication = (typeof TIPOS_AUTHENTICATION)[number];
+export const TYPES_AUTHENTICATION = ['nenhuma', 'basica', 'oauth2_client_credentials'] as const;
+export type TypeAuthentication = (typeof TYPES_AUTHENTICATION)[number];
 
-export interface AuthenticationVisivel {
-  tipo: TipoAuthentication;
+export interface AuthenticationVisible {
+  tipo: TypeAuthentication;
   user: string | null;
   urlAuthorization: string | null;
   clientId: string | null;
@@ -19,7 +19,7 @@ export interface AuthenticationVisivel {
 
 /** What the screen SENDS — the secret fields only live here, never in the response. */
 export interface AuthenticationInbound {
-  tipo: TipoAuthentication;
+  tipo: TypeAuthentication;
   user?: string;
   senha?: string;
   urlAuthorization?: string;
@@ -38,7 +38,7 @@ export interface WebhookListado {
   eventos: string[];
   ativo: boolean;
   criadoEm: string;
-  authentication: AuthenticationVisivel;
+  authentication: AuthenticationVisible;
   cabecalhos: CabecalhoCustomizado[];
 }
 

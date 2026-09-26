@@ -29,14 +29,14 @@ export async function cadastrarCertificado(
     atualizarLeituras();
     return { ok: true, certificado };
   } catch (e) {
-    return { ok: false, error: errorMotivo(e) };
+    return { ok: false, error: errorReason(e) };
   }
 }
 
 /**
  * The `erro.mensagem` from the `api`'s body ("A senha do certificado está incorreta.", "O arquivo não é um .pfx válido…"): it's what the source shows in the toast instead of the status.
  */
-function errorMotivo(e: unknown): string {
+function errorReason(e: unknown): string {
   if (e instanceof ApiError) {
     const corpo = e.corpo as { error?: { message?: string } } | null;
     if (corpo?.error?.message) return corpo.error.message;

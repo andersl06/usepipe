@@ -2,7 +2,7 @@
  * Current and available accounts go through `api`; this front never touches the DB. `onboarding_concluido_em` and account switching issue sessions, identity rules owned by the API. The screen only displays and submits.
  */
 
-export interface AccountInVigor {
+export interface AccountInForce {
   id: string;
   nome: string;
   slug: string;
@@ -23,7 +23,7 @@ export interface AccountInVigor {
   fusos: readonly string[];
 }
 
-export interface AccountInLista {
+export interface AccountInList {
   tenantId: string;
   nome: string;
   slug: string;

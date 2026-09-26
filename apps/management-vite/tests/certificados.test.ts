@@ -4,8 +4,8 @@ import {
   expirationData,
   etiquetaDoStatus,
   hostValido,
-  informationCompletas,
-  problemaInFile,
+  informationComplete,
+  problemInFile,
 } from '../src/lib/certificados.ts';
 
 /**
@@ -34,27 +34,27 @@ test('the URL must be HTTPS with a domain and cannot repeat', () => {
 
 test('only advances with a description and the whole URL filled in and valid', () => {
   const boa = { host: 'https://a.exemplo.com', valido: true };
-  assert.equal(informationCompletas('Banco', [boa]), true);
-  assert.equal(informationCompletas('', [boa]), false);
-  assert.equal(informationCompletas('Banco', [boa, { host: '', valido: true }]), false);
-  assert.equal(informationCompletas('Banco', [{ host: 'x', valido: false }]), false);
+  assert.equal(informationComplete('Banco', [boa]), true);
+  assert.equal(informationComplete('', [boa]), false);
+  assert.equal(informationComplete('Banco', [boa, { host: '', valido: true }]), false);
+  assert.equal(informationComplete('Banco', [{ host: 'x', valido: false }]), false);
 });
 
 test('the file must be a .pfx up to 10MB', () => {
-  assert.match(problemaInFile(null) ?? '', /erro ao fazer o upload/);
+  assert.match(problemInFile(null) ?? '', /erro ao fazer o upload/);
   assert.equal(
-    problemaInFile({ type: 'text/plain', size: 1 }),
+    problemInFile({ type: 'text/plain', size: 1 }),
     'O arquivo deve ser do tipo .pfx',
   );
   assert.equal(
-    problemaInFile({ type: 'application/x-pkcs12', size: 11 * 1048576 }),
+    problemInFile({ type: 'application/x-pkcs12', size: 11 * 1048576 }),
     'O arquivo deve ter no máximo 10MB',
   );
-  assert.equal(problemaInFile({ type: 'application/x-pkcs12', size: 1024 }), null);
+  assert.equal(problemInFile({ type: 'application/x-pkcs12', size: 1024 }), null);
   // Browser that doesn't declare the .pfx's type: fall back to the extension.
-  assert.equal(problemaInFile({ name: 'cliente.pfx', type: '', size: 1024 }), null);
+  assert.equal(problemInFile({ name: 'cliente.pfx', type: '', size: 1024 }), null);
   assert.equal(
-    problemaInFile({ name: 'cliente.txt', type: '', size: 1024 }),
+    problemInFile({ name: 'cliente.txt', type: '', size: 1024 }),
     'O arquivo deve ser do tipo .pfx',
   );
 });

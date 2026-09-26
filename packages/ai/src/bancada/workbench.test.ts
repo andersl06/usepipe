@@ -26,14 +26,14 @@ function avaliadorQueResponde(trocas: Record<string, Record<string, string>> = {
         criterioId: g.criterioId,
         value: troca[g.criterioId] ?? g.value,
         justificativa: 'dublê',
-        evidenciaMessageId: null,
+        evidenceMessageId: null,
       })),
     );
     return {
       formularioId: caso.formulario.id,
       nota: calculada.nota,
       notaAntesDoFatal: calculada.notaAntesDoFatal,
-      fatalReprovados: calculada.fatalReprovados,
+      fatalRejected: calculada.fatalRejected,
       respostas: calculada.respostas,
       confianca: 0.7,
       consumo: consumoDe('claude-sonnet-5', 5_000, 600),
@@ -62,11 +62,11 @@ describe('conjunto de referência', () => {
     const caso = (await conjunto()).find((c) => c.id === 'dado-de-terceiro')!;
     const nota = calcularNota(
       caso.formulario,
-      caso.gabarito.map((g) => ({ ...g, justificativa: 'g', evidenciaMessageId: null })),
+      caso.gabarito.map((g) => ({ ...g, justificativa: 'g', evidenceMessageId: null })),
     );
     expect(nota.nota).toBe(0);
     expect(nota.notaAntesDoFatal).toBeGreaterThan(0);
-    expect(nota.fatalReprovados).toEqual(['c-dados']);
+    expect(nota.fatalRejected).toEqual(['c-dados']);
   });
 
   it('recusa gabarito que cita critério inexistente', () => {

@@ -10,7 +10,7 @@ import {
   Role,
 } from '../pecas';
 import { LIMITE_DE_CHAVES, errorToCreate, marcarPadrao, noLimite, podeExcluir } from '../regras';
-import { createKey, revogarKey, type KeyListed } from './gravar';
+import { createKey, revokeKey, type KeyListed } from './gravar';
 
 /** `/assets/img/ballons.svg` — the two help balloons, in the brand's soft ink. */
 function Bubbles() {
@@ -106,7 +106,7 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
   const [aviso, setAviso] = useState('');
   const [tokenGerado, setTokenGerado] = useState<string | null>(null);
   const [excluindo, setExcluindo] = useState<(KeyListed & { padrao: boolean }) | null>(null);
-  const [exclusaoError, exclusaoSetError] = useState<string | null>(null);
+  const [deletionError, deletionSetError] = useState<string | null>(null);
   const [excluindoAgora, setExcluindoAgora] = useState(false);
 
   const limite = noLimite(chaves.length);
@@ -137,11 +137,11 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
   async function confirmarExclusao() {
     if (!excluindo) return;
     setExcluindoAgora(true);
-    exclusaoSetError(null);
-    const resultado = await revogarKey(flowId, excluindo.id);
+    deletionSetError(null);
+    const resultado = await revokeKey(flowId, excluindo.id);
     setExcluindoAgora(false);
     if (!resultado.ok) {
-      exclusaoSetError(resultado.error);
+      deletionSetError(resultado.error);
       return;
     }
     setExcluindo(null);
@@ -275,7 +275,7 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
                   rotulo="Excluir chave"
                   disabled={!podeExcluir(key)}
                   onClick={() => {
-                    exclusaoSetError(null);
+                    deletionSetError(null);
                     setExcluindo(key);
                   }}
                 />
@@ -300,7 +300,7 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
             Quer mesmo excluir a chave &quot;{excluindo?.nome}&quot;?
           </>
         }
-        error={exclusaoError}
+        error={deletionError}
         confirmando={excluindoAgora}
         onConfirmar={() => void confirmarExclusao()}
         onCancelar={() => setExcluindo(null)}

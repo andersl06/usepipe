@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createDatabase, closeDatabase } from '../src/cliente.js';
 import type { DatabasePipe } from '../src/cliente.js';
 import { migrate } from '../src/migrate.js';
-import { garantirRoleOfAccount, seed } from '../src/seed.js';
+import { ensureRoleOfAccount, seed } from '../src/seed.js';
 import { URL_DONO } from './ajuda.js';
 
 /**
@@ -27,7 +27,7 @@ afterAll(async () => {
   await closeDatabase(dono);
 });
 
-async function papeisOfAccount(userId: string): Promise<string[]> {
+async function rolesOfAccount(userId: string): Promise<string[]> {
   const { rows } = await dono.execute<{ nome: string }>(sql`
     select p.nome from usuario_papel up
       join papel p on p.id = up.papel_id
@@ -61,14 +61,14 @@ describe('Assign account roles to every seeded user', () => {
     const administrador = await createUser('administrador');
     const semNada = await createUser(null);
 
-    const data = await garantirRoleOfAccount(dono, tenantId);
+    const data = await ensureRoleOfAccount(dono, tenantId);
     expect(data).toBe(4);
 
-    expect(await papeisOfAccount(agent)).toEqual(['guest']);
+    expect(await rolesOfAccount(agent)).toEqual(['guest']);
     // O gestor edita fluxo (`automacao.fluxo.editar`) → `member`.
-    expect(await papeisOfAccount(gestor)).toEqual(['member']);
-    expect(await papeisOfAccount(administrador)).toEqual(['admin']);
-    expect(await papeisOfAccount(semNada)).toEqual(['guest']);
+    expect(await rolesOfAccount(gestor)).toEqual(['member']);
+    expect(await rolesOfAccount(administrador)).toEqual(['admin']);
+    expect(await rolesOfAccount(semNada)).toEqual(['guest']);
   });
 
   it('Rerunning the seed adds no duplicate account roles and preserves manually assigned roles', async () => {
@@ -79,13 +79,13 @@ describe('Assign account roles to every seeded user', () => {
         from papel where tenant_id = ${tenantId}::uuid and nome = 'admin' and escopo = 'conta'
     `);
 
-    expect(await garantirRoleOfAccount(dono, tenantId)).toBe(0);
-    expect(await papeisOfAccount(pessoa)).toEqual(['admin']);
+    expect(await ensureRoleOfAccount(dono, tenantId)).toBe(0);
+    expect(await rolesOfAccount(pessoa)).toEqual(['admin']);
 
     // `semear` de novo, no mesmo tenant: nada duplica.
     const segunda = await seed(dono, { name: `Semente ${slug}`, slug });
     expect(segunda.tenantId).toBe(tenantId);
-    expect(segunda.papeisOfAccountData).toBe(0);
+    expect(segunda.rolesOfAccountData).toBe(0);
     const { rows } = await dono.execute<{ n: string }>(sql`
       select count(*)::text as n from usuario_papel up
         join usuario u on u.id = up.usuario_id

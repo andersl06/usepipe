@@ -8,7 +8,7 @@ import {
   listImports,
 } from '../domain/import-of-contacts.js';
 import type { ImportVisible } from '../domain/import-of-contacts.js';
-import { WithSession, exigirPermission, sessionOf } from '../session.js';
+import { WithSession, requirePermission, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 
 /**
@@ -72,5 +72,5 @@ export class ContactImportsController {
 }
 
 function permitido(tenantId: string, userId: string): Promise<void> {
-  return noTenant(tenantId, (tx) => exigirPermission(tx, userId, 'crm.importar'));
+  return noTenant(tenantId, (tx) => requirePermission(tx, userId, 'crm.importar'));
 }

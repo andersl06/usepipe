@@ -73,7 +73,7 @@ interface Mes {
  * The year only shows up when it changes relative to the previous group:
  * repeating "2026" twelve times says nothing.
  */
-function byMes(itens: TimeItemRow[], fuso: string): Mes[] {
+function byMonth(itens: TimeItemRow[], fuso: string): Mes[] {
   const groups: { ano: number; mes: string; itens: TimeItemRow[] }[] = [];
 
   for (const item of itens) {
@@ -99,7 +99,7 @@ function byMes(itens: TimeItemRow[], fuso: string): Mes[] {
   });
 }
 
-export function TimeLinha({
+export function TimeRow({
   itens,
   fuso,
   agora,
@@ -114,7 +114,7 @@ export function TimeLinha({
 
   return (
     <div className="time" style={{ ['--rail' as string]: `${RAIL}px` }}>
-      {byMes(itens, fuso).map((mes) => (
+      {byMonth(itens, fuso).map((mes) => (
         <section key={mes.titulo}>
           <h4>
             <span>{mes.titulo}</span>

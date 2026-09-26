@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useOptimistic, useState, useTransition } from 'react';
-import { moverOpportunity } from '../app/opportunities/actions';
+import { moveOpportunity } from '../app/opportunities/actions';
 import { Etiqueta, Seletor } from '@pipe/ui';
-import { moneyCurto, numero } from '../lib/format';
+import { moneyShort, numero } from '../lib/format';
 
 /**
  * Funnel board, with drag between stages.
@@ -68,7 +68,7 @@ export function QuadroFunil({ fases, cards }: Props) {
     if (!atual || atual.fase === fase) return;
     iniciar(async () => {
       moverOtimista({ id, fase });
-      await moverOpportunity(id, fase);
+      await moveOpportunity(id, fase);
     });
   }
 
@@ -101,8 +101,8 @@ export function QuadroFunil({ fases, cards }: Props) {
  */}
             <header>
               <span className="fase">{fase}</span>
-              <span className="c" title={`${numero(daFase.length)} oportunidades, ${moneyCurto(total)} em jogo`}>
-                {numero(daFase.length)} · {moneyCurto(total)}
+              <span className="c" title={`${numero(daFase.length)} oportunidades, ${moneyShort(total)} em jogo`}>
+                {numero(daFase.length)} · {moneyShort(total)}
               </span>
             </header>
 

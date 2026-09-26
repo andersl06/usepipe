@@ -9,14 +9,14 @@ import type { DeploymentSignals } from '../src/lib/passos-of-deployment.ts';
 
 const NADA: DeploymentSignals = {
   adminEntrou: false,
-  channelsConectados: 0,
-  channelsPendentes: 0,
+  channelsConnected: 0,
+  channelsPending: 0,
   convites: 0,
   members: 1,
   queuesActive: 0,
   queuesWithAgent: 0,
-  ultimaImport: null,
-  conversationAtendida: false,
+  lastImport: null,
+  conversationHandled: false,
 };
 
 const DESK = 'https://app.teste';
@@ -39,12 +39,12 @@ test('the test conversation depends on WhatsApp, and only then offers the Desk',
   assert.equal(sem.acao, null);
   assert.match(sem.resumo, /Depende do WhatsApp/);
 
-  const com = montarPassos({ ...NADA, channelsConectados: 1 }, DESK).find((p) => p.id === 'conversa')!;
+  const com = montarPassos({ ...NADA, channelsConnected: 1 }, DESK).find((p) => p.id === 'conversa')!;
   assert.deepEqual(com.acao, { rotulo: 'Abrir o Desk', href: DESK, externo: true });
 });
 
 test('a channel flagged for reauthorization is in progress, not done', () => {
-  assert.equal(estados({ ...NADA, channelsPendentes: 1 })['whatsapp'], 'andamento');
+  assert.equal(estados({ ...NADA, channelsPending: 1 })['whatsapp'], 'andamento');
 });
 
 test('an invitation without acceptance is in progress; someone beyond the admin is done', () => {
@@ -61,14 +61,14 @@ test('a queue with no agent does not count: the conversation would arrive and no
 
 test('import: in progress, failed and completed-without-accepted do not close the step', () => {
   const importBase = { id: 'i', aceitos: 0, rejeitados: 0, temFalhas: false };
-  assert.equal(estados({ ...NADA, ultimaImport: { ...importBase, state: 'executando' } })['contatos'], 'andamento');
-  assert.equal(estados({ ...NADA, ultimaImport: { ...importBase, state: 'falhou' } })['contatos'], 'pendente');
+  assert.equal(estados({ ...NADA, lastImport: { ...importBase, state: 'executando' } })['contatos'], 'andamento');
+  assert.equal(estados({ ...NADA, lastImport: { ...importBase, state: 'falhou' } })['contatos'], 'pendente');
   assert.equal(
-    estados({ ...NADA, ultimaImport: { ...importBase, state: 'concluida', rejeitados: 4 } })['contatos'],
+    estados({ ...NADA, lastImport: { ...importBase, state: 'concluida', rejeitados: 4 } })['contatos'],
     'pendente',
   );
   const feita = montarPassos(
-    { ...NADA, ultimaImport: { ...importBase, state: 'concluida', aceitos: 12, rejeitados: 1 } },
+    { ...NADA, lastImport: { ...importBase, state: 'concluida', aceitos: 12, rejeitados: 1 } },
     DESK,
   ).find((p) => p.id === 'contatos')!;
   assert.equal(feita.state, 'feito');
@@ -78,14 +78,14 @@ test('import: in progress, failed and completed-without-accepted do not close th
 test('tudo pronto: seis de seis', () => {
   const tudo = estados({
     adminEntrou: true,
-    channelsConectados: 1,
-    channelsPendentes: 0,
+    channelsConnected: 1,
+    channelsPending: 0,
     convites: 1,
     members: 2,
     queuesActive: 1,
     queuesWithAgent: 1,
-    ultimaImport: { id: 'i', state: 'concluida', aceitos: 3, rejeitados: 0, temFalhas: false },
-    conversationAtendida: true,
+    lastImport: { id: 'i', state: 'concluida', aceitos: 3, rejeitados: 0, temFalhas: false },
+    conversationHandled: true,
   });
   assert.ok(Object.values(tudo).every((e) => e === 'feito'));
 });

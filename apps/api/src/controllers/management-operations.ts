@@ -5,11 +5,11 @@ import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import { carregarCabecalho, type HeaderOfManagement } from '../domain/management/cabecalho.js';
-import { dataIso, fusoDoTenant, windowOfDatas, windowOfToday } from '../domain/management/window.js';
+import { dataIso, fusoDoTenant, windowOfDates, windowOfToday } from '../domain/management/window.js';
 import {
   loadMonitoring,
-  loadPreviaOfConversation,
-  falarWithAgentInMonitoring,
+  loadPreviewOfConversation,
+  speakWithAgentInMonitoring,
   type Monitoring,
 } from '../domain/management/monitoring.js';
 import {
@@ -30,7 +30,7 @@ import {
 import type { TransactionPipe } from '@pipe/db';
 import { registrarAuditoria } from '@pipe/db';
 import { closeConversation, transferConversation } from '../domain/conversation.js';
-import { exigirPermission } from '../session.js';
+import { requirePermission } from '../session.js';
 
 /**
  * Management operations (monitoring, history, reports and quality review) use browser sessions. Queries moved from Next Management to `dominio/gestao/*`; this adapter resolves timezone, window and filters as the server pages did. Filter IDs pass through `uuidOuNada` and dates through `dataOuNada`, so a pasted `?fila=abc` becomes no filter rather than a Postgres `::uuid` 500.
@@ -53,7 +53,7 @@ async function period(
   const hoje = await windowOfToday(tx, fuso);
   const ateFinal = ate || dataIso(hoje.start, fuso);
   const deFinal = de || dataIso(new Date(hoje.start.getTime() - (dias - 1) * 86400e3), fuso);
-  return { de: deFinal, ate: ateFinal, window: await windowOfDatas(tx, fuso, deFinal, ateFinal) };
+  return { de: deFinal, ate: ateFinal, window: await windowOfDates(tx, fuso, deFinal, ateFinal) };
 }
 
 /** Only History counts 30 civil dates, including across timezone or DST changes. */
@@ -69,7 +69,7 @@ async function periodHistory(
   const dia = new Date(`${hojeLocal}T00:00:00.000Z`);
   dia.setUTCDate(dia.getUTCDate() - 29);
   const deFinal = de || dia.toISOString().slice(0, 10);
-  return { de: deFinal, ate: ateFinal, janela: await windowOfDatas(tx, fuso, deFinal, ateFinal) };
+  return { de: deFinal, ate: ateFinal, janela: await windowOfDates(tx, fuso, deFinal, ateFinal) };
 }
 
 export interface ResponseOfMonitoring {
@@ -145,12 +145,12 @@ export class ManagementOperationsController {
 
   @Get('monitoring/conversations/:id')
   @WithSession()
-  async previaOfConversation(@Req() requisicao: RequestWithSession, @Param('id') id: string) {
+  async previewOfConversation(@Req() requisicao: RequestWithSession, @Param('id') id: string) {
     const sessao = sessionOf(requisicao);
     if (!UUID.test(id)) throw PipeError.naoEncontrado('Conversa');
     const previa = await noTenant(sessao.tenantId, async (tx) => {
-      await exigirPermission(tx, sessao.userId, 'monitoramento.tempo_real.ver');
-      return loadPreviaOfConversation(tx, sessao.userId, id);
+      await requirePermission(tx, sessao.userId, 'monitoramento.tempo_real.ver');
+      return loadPreviewOfConversation(tx, sessao.userId, id);
     });
     if (!previa) throw PipeError.naoEncontrado('Conversa');
     return previa;
@@ -159,7 +159,7 @@ export class ManagementOperationsController {
   @Post('monitoring/conversations/:id/notes')
   @HttpCode(201)
   @WithSession()
-  async falarWithAgent(
+  async speakWithAgent(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: { texto?: string },
@@ -167,7 +167,7 @@ export class ManagementOperationsController {
     const sessao = sessionOf(requisicao);
     if (!UUID.test(id)) throw PipeError.naoEncontrado('Conversa');
     await noTenant(sessao.tenantId, (tx) =>
-      falarWithAgentInMonitoring(tx, sessao.tenantId, sessao.userId, id, corpo?.texto ?? ''),
+      speakWithAgentInMonitoring(tx, sessao.tenantId, sessao.userId, id, corpo?.texto ?? ''),
     );
     return { ok: true };
   }
@@ -182,10 +182,10 @@ export class ManagementOperationsController {
     const sessao = sessionOf(requisicao);
     if (!UUID.test(id)) throw PipeError.naoEncontrado('Conversa');
     return noTenant(sessao.tenantId, async (tx) => {
-      await exigirPermission(tx, sessao.userId, 'monitoramento.tempo_real.ver');
-      await exigirPermission(tx, sessao.userId, 'conversa.transferir');
+      await requirePermission(tx, sessao.userId, 'monitoramento.tempo_real.ver');
+      await requirePermission(tx, sessao.userId, 'conversa.transferir');
       const resultado = await transferConversation(
-        { tenantId: sessao.tenantId, agentId: sessao.userId, exigirAssignment: false },
+        { tenantId: sessao.tenantId, agentId: sessao.userId, requireAssignment: false },
         { conversationId: id, forQueueId: corpo?.forQueueId ?? null, forAgentId: corpo?.forAgentId ?? null, reason: null },
       );
       await registrarAuditoria(tx, sessao.tenantId, {
@@ -206,10 +206,10 @@ export class ManagementOperationsController {
     const sessao = sessionOf(requisicao);
     if (!UUID.test(id)) throw PipeError.naoEncontrado('Conversa');
     return noTenant(sessao.tenantId, async (tx) => {
-      await exigirPermission(tx, sessao.userId, 'monitoramento.tempo_real.ver');
-      await exigirPermission(tx, sessao.userId, 'conversa.encerrar');
+      await requirePermission(tx, sessao.userId, 'monitoramento.tempo_real.ver');
+      await requirePermission(tx, sessao.userId, 'conversa.encerrar');
       const resultado = await closeConversation(
-        { tenantId: sessao.tenantId, agentId: sessao.userId, exigirAssignment: false },
+        { tenantId: sessao.tenantId, agentId: sessao.userId, requireAssignment: false },
         { conversationId: id, etiquetaIds: corpo?.etiqueta_ids ?? (corpo?.etiqueta_id ? [corpo.etiqueta_id] : undefined) },
       );
       await registrarAuditoria(tx, sessao.tenantId, {

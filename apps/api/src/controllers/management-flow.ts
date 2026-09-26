@@ -17,7 +17,7 @@ import { WithSession, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import {
   createFlow,
-  editarFlow,
+  editFlow,
   deleteFlow,
   type FlowWritten,
 } from '../domain/management/cycle-of-lifetime-of-flow.js';
@@ -36,14 +36,14 @@ import type { RecadosDoNome } from '../domain/management/regras-de-nome.js';
 import {
   carregarServicos,
   createService,
-  editarService,
+  editService,
   deleteService,
 } from '../domain/management/services-of-router.js';
 import {
   loadChannelOfFlow,
   carregarGradeDoPortal,
   loadContact,
-  loadDetalheContactOfFlow,
+  loadDetailContactOfFlow,
   carregarGrowth,
   loadLogsOfFlow,
   carregarModelos,
@@ -66,7 +66,7 @@ import type {
   ContactOfFlow,
   ContactListed,
   DataOfGrowth,
-  DetalheOfContact,
+  DetailOfContact,
   LogOfFlow,
   TemplateListed,
 } from '../domain/management-flow.js';
@@ -171,7 +171,7 @@ export class ManagementFlowController {
     const description = corpo?.description;
     const image = corpo?.imagem;
     return noTenant(sessao.tenantId, (tx) =>
-      editarFlow(tx, sessao.tenantId, sessao.userId, id, {
+      editFlow(tx, sessao.tenantId, sessao.userId, id, {
         name: typeof nome === 'string' ? nome : undefined,
         description: description === null || typeof description === 'string' ? description : undefined,
         imagem: image === null || typeof image === 'string' ? image : undefined,
@@ -349,17 +349,17 @@ export class ManagementFlowController {
 
   @Get(':id/contacts/:contactId')
   @WithSession()
-  async detalheOfContact(
+  async detailOfContact(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Param('contactId') contactId: string,
     @Query('ticketId') ticketId?: string,
-  ): Promise<DetalheOfContact> {
+  ): Promise<DetailOfContact> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     uuidOu404(contactId, 'contato');
     const detalhe = await noTenant(sessao.tenantId, (tx) =>
-      loadDetalheContactOfFlow(
+      loadDetailContactOfFlow(
         tx,
         sessao.tenantId,
         id,
@@ -444,7 +444,7 @@ export class ManagementFlowController {
 
   @Patch(':id/services/:serviceId')
   @WithSession()
-  async editarService(
+  async editService(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Param('serviceId') serviceId: string,
@@ -454,7 +454,7 @@ export class ManagementFlowController {
     uuidOu404(id, 'fluxo');
     uuidOu404(serviceId, 'serviço');
     return noTenant(sessao.tenantId, (tx) =>
-      editarService(tx, sessao.tenantId, sessao.userId, id, serviceId, corpo ?? {}),
+      editService(tx, sessao.tenantId, sessao.userId, id, serviceId, corpo ?? {}),
     );
   }
 

@@ -8,9 +8,9 @@ import {
   listarPapeis,
   userCurrent,
 } from '../../../lib/settings-data';
-import type { InvitationPendente, Member, RoleSummary } from '../../../lib/settings-comum';
+import type { InvitationPending, Member, RoleSummary } from '../../../lib/settings-comum';
 import { dataHora, desde } from '../../../lib/format';
-import { actionAlternarMember, actionCancelarInvitation, acaoConvidar, actionDefinirRole } from '../actions';
+import { actionToggleMember, actionCancelInvitation, acaoConvidar, actionSetRole } from '../actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,7 +53,7 @@ function colunasDaEquipe(euId: string, papeis: RoleSummary[], fuso: string): rea
       key: 'papel',
       rotulo: 'Papel',
       celula: (m) => (
-        <FormularioDeLinha acao={actionDefinirRole} campos={{ usuarioId: m.id }}>
+        <FormularioDeLinha acao={actionSetRole} campos={{ usuarioId: m.id }}>
           <label>
             <span className="cfg-oculto">Papel de {m.nome}</span>
             <Seletor name="papelId" defaultValue={m.roleId ?? ''}>
@@ -73,8 +73,8 @@ function colunasDaEquipe(euId: string, papeis: RoleSummary[], fuso: string): rea
       key: 'acesso',
       rotulo: 'Último acesso',
       celula: (m) =>
-        m.ultimoAccessIn ? (
-          <span title={dataHora(m.ultimoAccessIn, fuso)}>{desde(m.ultimoAccessIn, fuso)}</span>
+        m.lastAccessIn ? (
+          <span title={dataHora(m.lastAccessIn, fuso)}>{desde(m.lastAccessIn, fuso)}</span>
         ) : (
           <span className="sub">Nunca entrou</span>
         ),
@@ -84,7 +84,7 @@ function colunasDaEquipe(euId: string, papeis: RoleSummary[], fuso: string): rea
       rotulo: 'Acesso',
       celula: (m) => (
         <FormularioDeLinha
-          acao={actionAlternarMember}
+          acao={actionToggleMember}
           campos={{ usuarioId: m.id, ativo: m.ativo ? 'nao' : 'sim' }}
         >
           <Etiqueta tom={m.ativo ? 'neutro' : 'alerta'}>{m.ativo ? 'Ativo' : 'Desativado'}</Etiqueta>
@@ -101,7 +101,7 @@ function colunasDaEquipe(euId: string, papeis: RoleSummary[], fuso: string): rea
   ];
 }
 
-function colunasDeConvites(fuso: string): readonly Column<InvitationPendente>[] {
+function colunasDeConvites(fuso: string): readonly Column<InvitationPending>[] {
   return [
     { key: 'email', rotulo: 'E-mail', celula: (c) => <span className="mono">{c.email}</span> },
     { key: 'papel', rotulo: 'Papel', celula: (c) => <Etiqueta>{c.role}</Etiqueta> },
@@ -113,13 +113,13 @@ function colunasDeConvites(fuso: string): readonly Column<InvitationPendente>[] 
     {
       key: 'quem',
       rotulo: 'Convidado por',
-      celula: (c) => c.convidadoBy ?? <span className="sub">—</span>,
+      celula: (c) => c.guestBy ?? <span className="sub">—</span>,
     },
     {
       key: 'acao',
       rotulo: 'Ação',
       celula: (c) => (
-        <FormularioDeLinha acao={actionCancelarInvitation} campos={{ id: c.id }}>
+        <FormularioDeLinha acao={actionCancelInvitation} campos={{ id: c.id }}>
           <Botao type="submit" variante="perigo">
             Cancelar
           </Botao>
@@ -181,7 +181,7 @@ export default async function PageMembers() {
           <Tabela
             colunas={colunasDeConvites(espaco.fuso)}
             linhas={convites}
-            linhaKey={(c) => c.id}
+            rowKey={(c) => c.id}
           />
         </Block>
       ) : null}
@@ -193,7 +193,7 @@ export default async function PageMembers() {
         <Tabela
           colunas={colunasDaEquipe(eu.id, papeis, espaco.fuso)}
           linhas={members}
-          linhaKey={(m) => m.id}
+          rowKey={(m) => m.id}
           larguraMinima={720}
           empty="Ninguém ainda. Convide alguém acima."
         />

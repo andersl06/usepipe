@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { ModuloShell, useContact } from '../contact';
+import { ShellModule, useContact } from '../contact';
 import { NavigationSettings } from './navigation';
 import './settings.css';
 
@@ -16,7 +16,7 @@ export function SettingsShell() {
   const { contact } = useContact();
   const id = contact.id;
   return (
-    <ModuloShell ativo="Configurações">
+    <ShellModule ativo="Configurações">
       <div className="cf-shell">
         <NavigationSettings id={id} />
         <section className="cf-miolo">
@@ -25,6 +25,6 @@ export function SettingsShell() {
           </div>
         </section>
       </div>
-    </ModuloShell>
+    </ShellModule>
   );
 }
