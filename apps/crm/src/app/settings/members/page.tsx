@@ -87,7 +87,7 @@ function colunasDaEquipe(euId: string, papeis: RoleSummary[], fuso: string): rea
           acao={actionAlternarMember}
           campos={{ usuarioId: m.id, ativo: m.ativo ? 'nao' : 'sim' }}
         >
-          <Etiqueta tom={m.ativo ? 'neutro' : 'alert'}>{m.ativo ? 'Ativo' : 'Desativado'}</Etiqueta>
+          <Etiqueta tom={m.ativo ? 'neutro' : 'alerta'}>{m.ativo ? 'Ativo' : 'Desativado'}</Etiqueta>
           {m.id === euId ? (
             <span className="sub">é você</span>
           ) : (

@@ -51,7 +51,7 @@ const aggregation = new Worker(
 
 // Uma importação por vez: é a fila `low` do Chatwoot, e duas planilhas grandes em
 // paralelo disputariam o banco com a entrega de mensagem.
-const import = new Worker<JobImport>(
+const importJob = new Worker<JobImport>(
   QUEUE_IMPORT,
   async (job) => {
     const r = await processarImport(job.data);
@@ -83,7 +83,7 @@ async function up(): Promise<void> {
 async function down(): Promise<void> {
   await delivery.close();
   await aggregation.close();
-  await import.close();
+  await importJob.close();
   await queueDelivery.close();
   await queueAggregation.close();
   await conexao.quit();

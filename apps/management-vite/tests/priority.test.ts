@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { NIVEIS_PRIORITY, pesoPriority } from '@pipe/core/conversa';
+import { NIVEIS_PRIORITY, pesoPriority } from '@pipe/core/conversation';
 import { esperaOrdenarQueue } from '../src/lib/monitoring';
 
 /**
@@ -66,8 +66,8 @@ test('a conversation with no creation marker goes to the end of its tier', () =>
 
 test('a data chegada como texto do JSON ordena igual à Date', () => {
   const queue = esperaOrdenarQueue([
-    { nome: 'nova', prioridade: 'alta', marcos: { criadaEm: '2026-09-07T10:30:00.000Z' } },
-    { nome: 'velha', prioridade: 'alta', marcos: { criadaEm: '2026-09-07T10:05:00.000Z' } },
+    { nome: 'nova', priority: 'alta', marcos: { criadaEm: '2026-09-07T10:30:00.000Z' } },
+    { nome: 'velha', priority: 'alta', marcos: { criadaEm: '2026-09-07T10:05:00.000Z' } },
   ]);
   assert.deepEqual(nomes(queue), ['velha', 'nova']);
 });

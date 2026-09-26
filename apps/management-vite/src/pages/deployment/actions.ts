@@ -131,19 +131,19 @@ export async function importContacts(
     { method: 'POST', body: await file.text(), headers: { 'content-type': 'text/csv' } },
   );
   if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
-  const import = (await resposta.json()) as {
+  const importResult = (await resposta.json()) as {
     state: string;
-    aceitos: number;
+    accepted: number;
     rejeitados: number;
   };
   atualizarLeituras();
-  if (import.estado === 'falhou') {
+  if (importResult.state === 'falhou') {
     return { ok: false, error: 'O arquivo tem aspas malformadas e nada foi importado.' };
   }
-  if (import.estado === 'concluida') {
+  if (importResult.state === 'concluida') {
     return {
       ok: true,
-      message: `${import.aceitos} contato(s) importado(s), ${import.rejeitados} linha(s) rejeitada(s).`,
+      message: `${importResult.accepted} contato(s) importado(s), ${importResult.rejeitados} linha(s) rejeitada(s).`,
     };
   }
   return { ok: true, message: 'Arquivo recebido. A importação roda em segundo plano.' };

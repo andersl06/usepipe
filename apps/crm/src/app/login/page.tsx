@@ -37,22 +37,22 @@ export const metadata: Metadata = {
  * `tsc` quebra AQUI, e não em produção com um erro em branco na cara do cliente.
  */
 const RECUSAS: Record<RefusesOfInbound, { titulo: string; saida: string }> = {
-  dominio_publico: {
+  domain_public: {
     titulo: 'Este e-mail é pessoal, e ele não diz de que empresa você é',
     saida:
       'Gmail, Outlook e afins não identificam uma conta do Pipe. Peça um convite a quem administra o Pipe na sua empresa: o link do convite entra direto, sem depender do domínio.',
   },
-  dominio_desconhecido: {
+  domain_unknown: {
     titulo: 'Nenhuma conta do Pipe usa este domínio',
     saida:
       'Fale com quem contratou o Pipe na sua empresa. Se a conta existe e o domínio ainda não foi verificado, a entrada é por convite.',
   },
-  sem_convite: {
+  without_invitation: {
     titulo: 'Você ainda não foi convidado — ou o convite não serve mais',
     saida:
       'Convite vence em sete dias e vale uma vez só. Peça um novo a quem administra o Pipe na sua empresa.',
   },
-  usuario_inativo: {
+  user_inactive: {
     titulo: 'Seu acesso foi desativado',
     saida:
       'A conta existe, mas alguém a desativou. Fale com o administrador do Pipe na sua empresa para reativá-la.',

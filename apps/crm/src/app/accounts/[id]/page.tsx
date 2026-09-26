@@ -35,14 +35,14 @@ export const dynamic = 'force-dynamic';
  */
 
 const ABAS = [
-  { chave: 'oportunidades', rotulo: 'Oportunidades' },
-  { chave: 'contatos', rotulo: 'Contatos' },
+  { key: 'oportunidades', rotulo: 'Oportunidades' },
+  { key: 'contatos', rotulo: 'Contatos' },
 ] as const;
 
-type AbaAccount = (typeof ABAS)[number]['chave'];
+type AbaAccount = (typeof ABAS)[number]['key'];
 
 function abaValida(value: string | undefined): AbaAccount {
-  return (ABAS.find((a) => a.chave === value)?.chave ?? 'oportunidades') as AbaAccount;
+  return (ABAS.find((a) => a.key === value)?.key ?? 'oportunidades') as AbaAccount;
 }
 
 const COLUMNS_CONTACT: readonly Column<AccountContact>[] = [
@@ -96,7 +96,7 @@ function columnsOpportunity(hoje: Date, fuso: string): readonly Column<AccountOp
           return <Etiqueta>{o.ganha ? 'Ganha' : 'Perdida'} em {data(o.fechadaEm, fuso)}</Etiqueta>;
         }
         if (o.closingPrevisto && o.closingPrevisto < hoje) {
-          return <Etiqueta tom="alert">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
+          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
         }
         return o.closingPrevisto ? (
           <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
@@ -224,7 +224,7 @@ export default async function PageAccount({
               </>
             ) : null}
 
-            {aba === 'contacts' ? (
+            {aba === 'contatos' ? (
               <Tabela
                 colunas={COLUMNS_CONTACT}
                 linhas={ficha.contacts}

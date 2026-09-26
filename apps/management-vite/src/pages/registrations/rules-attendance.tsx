@@ -151,10 +151,10 @@ export function AttendancePageRules() {
       cards: regras.map((r, indice) => ({
         id: r.id,
         campos: [
-          { rotulo: 'Nome da Regra', valor: r.nome },
-          { rotulo: 'Fila', valor: r.queueDestinationName },
+          { rotulo: 'Nome da Regra', value: r.nome },
+          { rotulo: 'Fila', value: r.queueDestinationName },
         ],
-        situacao: r.active ? 'Ativa' : 'Desativada',
+        situation: r.active ? 'Ativa' : 'Desativada',
         active: r.active,
         acao: (
           <RuleActions

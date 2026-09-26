@@ -56,7 +56,7 @@ export function blockErrors(block: Block, mapa: Mapa): string[] {
 export function errorsLocal(mapa: Mapa): BlockError[] {
   const lista: BlockError[] = [];
   for (const block of Object.values(mapa)) {
-    for (const message of blockErrors(block, mapa)) lista.push({ block: block.id, message });
+    for (const message of blockErrors(block, mapa)) lista.push({ block: block.id, mensagem: message });
   }
   return lista;
 }

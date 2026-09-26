@@ -118,13 +118,13 @@ export function SlaPageRules() {
         return {
           id: r.id,
           campos: [
-            { rotulo: 'Regras de SLA', valor: r.nome },
-            { rotulo: 'Metas', valor: meta, titulo: prazo },
-            { rotulo: 'Filas atribuídas', valor: queueAssigned },
+            { rotulo: 'Regras de SLA', value: r.nome },
+            { rotulo: 'Metas', value: meta, titulo: prazo },
+            { rotulo: 'Filas atribuídas', value: queueAssigned },
           ],
           selo: r.scopeType === 'tenant' ? 'Padrão' : undefined,
-          situacao: r.active ? 'Ativa' : 'Desativada',
-          ativa: r.active,
+          situation: r.active ? 'Ativa' : 'Desativada',
+          active: r.active,
           acao: (
             <RuleSlaActions
               regra={r}

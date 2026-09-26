@@ -70,19 +70,16 @@ export function BlockPanel({
   const [editandoTitulo, setEditandoTitulo] = useState(false);
   const [novaTag, setNovaTag] = useState('');
   const [tagAberta, setTagAberta] = useState<number | null>(null);
-  const abas: { key: Aba; rotulo: string }[] = [
+  const abas = ([
     {
-      chave: 'conteudo',
+      key: 'conteudo',
       rotulo: ehAttendance(block.id)
         ? ROTULOS_DO_CONTEUDO.abaAtendimento
         : ROTULOS_DO_CONTEUDO.aba,
     },
-    { chave: 'saidas', rotulo: ROTULOS_DAS_SAIDAS.titulo },
-    { chave: 'acoes', rotulo: ROTULOS_OF_ACTIONS.aba },
-  ].filter((a) => !ehAttendance(block.id) || a.chave !== 'acoes') as {
-    key: Aba;
-    rotulo: string;
-  }[];
+    { key: 'saidas', rotulo: ROTULOS_DAS_SAIDAS.titulo },
+    { key: 'acoes', rotulo: ROTULOS_OF_ACTIONS.aba },
+  ] as { key: Aba; rotulo: string }[]).filter((a) => !ehAttendance(block.id) || a.key !== 'acoes');
   const tags = blockTags(block.$tags);
   function adicionarTag(): void {
     const label = novaTag.trim();

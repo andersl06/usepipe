@@ -23,7 +23,7 @@ export function PageBulkActions() {
   const queue = useRead<QueueOfDesk>('/v1/desk/queue');
   const queues = useRead<{ queues: { id: string; nome: string }[] }>('/v1/desk/queues');
   const [marcadas, setMarcadas] = useState<Set<string>>(new Set());
-  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('queue');
+  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('fila');
   const [queueId, setQueueId] = useState('');
   const [agentId, setAgentId] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +46,7 @@ export function PageBulkActions() {
     setAviso(null);
     const r = (await executar('transferirEmMassa', {
       conversaId: [...marcadas],
-      ...(alvo === 'queue' ? { paraFilaId: queueId } : { paraAtendenteId: agentId }),
+      ...(alvo === 'fila' ? { paraFilaId: queueId } : { paraAtendenteId: agentId }),
     })) as { ok: boolean; error?: string; transferidas?: number };
     setEnviando(false);
     if (!r.ok) setError(r.error ?? 'Falha ao transferir.');
@@ -57,7 +57,7 @@ export function PageBulkActions() {
   }
 
   const podeTransferir =
-    marcadas.size > 0 && (alvo === 'queue' ? Boolean(queueId) : Boolean(agentId));
+    marcadas.size > 0 && (alvo === 'fila' ? Boolean(queueId) : Boolean(agentId));
 
   return (
     <div className="dk-massa">
@@ -97,7 +97,8 @@ export function PageBulkActions() {
                       checked={marcadas.has(c.id)}
                       onChange={() => alternar(c.id)}
                     />{' '}
-                    {numeroDoTicket(c.id)} — {displayName(c)}{' '}
+                    {numeroDoTicket(c.id)} —{' '}
+                    {displayName({ contactName: c.contatoNome, contactTelefone: c.contatoTelefone })}{' '}
                     <span className="dk-massa-vazio">({c.filaNome ?? 'Transferência direta'})</span>
                   </label>
                 ))
@@ -111,8 +112,8 @@ export function PageBulkActions() {
                 <input
                   type="radio"
                   name="alvo"
-                  checked={alvo === 'queue'}
-                  onChange={() => setAlvo('queue')}
+                  checked={alvo === 'fila'}
+                  onChange={() => setAlvo('fila')}
                 />{' '}
                 Fila
               </label>
@@ -120,8 +121,8 @@ export function PageBulkActions() {
                 <input
                   type="radio"
                   name="alvo"
-                  checked={alvo === 'agent'}
-                  onChange={() => setAlvo('agent')}
+                  checked={alvo === 'atendente'}
+                  onChange={() => setAlvo('atendente')}
                 />{' '}
                 Atendente
               </label>
@@ -131,7 +132,7 @@ export function PageBulkActions() {
               <select
                 value={queueId}
                 onChange={(e) => setQueueId(e.target.value)}
-                disabled={alvo !== 'queue'}
+                disabled={alvo !== 'fila'}
               >
                 <option value="">Selecionar fila</option>
                 {queues.data?.queues.map((f) => (
@@ -146,7 +147,7 @@ export function PageBulkActions() {
               <select
                 value={agentId}
                 onChange={(e) => setAgentId(e.target.value)}
-                disabled={alvo !== 'agent'}
+                disabled={alvo !== 'atendente'}
               >
                 <option value="">Selecionar atendente</option>
                 {queue.data?.colegas.map((c) => (

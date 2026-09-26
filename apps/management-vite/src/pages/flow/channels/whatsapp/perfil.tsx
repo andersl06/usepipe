@@ -43,12 +43,12 @@ function DisplayAcordeaoName({ perfil }: { perfil: PerfilVisivel }) {
           <Campo value={perfil.nome.display ?? ''} readOnly disabled />
         </label>
         {perfil.nome.status ? (
-          <Etiqueta tom={perfil.nome.status === 'APPROVED' ? 'sucesso' : 'alert'}>
+          <Etiqueta tom={perfil.nome.status === 'APPROVED' ? 'sucesso' : 'alerta'}>
             Status: {rotuloDoStatusMeta(perfil.nome.status)}
           </Etiqueta>
         ) : null}
         {perfil.nome.novoNome ? (
-          <Etiqueta tom="alert">
+          <Etiqueta tom="alerta">
             Nome pendente de aprovação: {perfil.nome.novoNome} ({rotuloDoStatusMeta(perfil.nome.novoStatus)})
           </Etiqueta>
         ) : null}

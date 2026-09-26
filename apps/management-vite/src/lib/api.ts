@@ -52,7 +52,7 @@ export async function pedir<T>(caminho: string, init: RequestInit = {}): Promise
     }
     const message =
       corpo && typeof corpo === 'object' && 'mensagem' in corpo
-        ? String((corpo as { message: unknown }).message)
+        ? String((corpo as { mensagem: unknown }).mensagem)
         : undefined;
     throw new ApiError(resposta.status, corpo, message);
   }

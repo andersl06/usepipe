@@ -120,7 +120,7 @@ export function PageHistory() {
     ate: dataOuNada(crus.ate),
   };
   const q = new URLSearchParams();
-  for (const key of ['fila', 'atendente', 'etiqueta', 'de', 'ate'] as const) {
+  for (const key of ['queue', 'agent', 'etiqueta', 'de', 'ate'] as const) {
     if (params[key]) q.set(key, params[key] as string);
   }
   const read = useRead<HistoryResposta>(`/v1/management/history?${q}`);
@@ -194,7 +194,7 @@ export function PageHistory() {
     if (!data) return [];
     return agruparHistory(linhas, by).map((g) => ({
       titulo: g.titulo,
-      cartoes: g.linhas.map(inCard(data.fuso)),
+      cards: g.linhas.map(inCard(data.fuso)),
     }));
   }, [data, linhas, by]);
 
@@ -202,7 +202,7 @@ export function PageHistory() {
      CSV e no botão do cabeçalho. */
   const todos = useMemo(() => {
     const vistos = new Map<string, CardHistory>();
-    for (const g of groups) for (const c of g.cartoes) vistos.set(c.id, c);
+    for (const g of groups) for (const c of g.cards) vistos.set(c.id, c);
     return [...vistos.values()];
   }, [groups]);
   const idsVisiveis = useMemo(() => todos.map((c) => c.id), [todos]);

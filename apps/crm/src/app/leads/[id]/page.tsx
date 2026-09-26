@@ -47,15 +47,15 @@ export const dynamic = 'force-dynamic';
  */
 
 const ABAS = [
-  { chave: 'score', rotulo: 'Score' },
-  { chave: 'formularios', rotulo: 'Formulários' },
-  { chave: 'tempo', rotulo: 'Linha do tempo' },
+  { key: 'score', rotulo: 'Score' },
+  { key: 'formularios', rotulo: 'Formulários' },
+  { key: 'tempo', rotulo: 'Linha do tempo' },
 ] as const;
 
-type AbaFicha = (typeof ABAS)[number]['chave'];
+type AbaFicha = (typeof ABAS)[number]['key'];
 
 function abaValida(value: string | undefined): AbaFicha {
-  return (ABAS.find((a) => a.chave === value)?.chave ?? 'score') as AbaFicha;
+  return (ABAS.find((a) => a.key === value)?.key ?? 'score') as AbaFicha;
 }
 
 /** O destaque do lead, montado sobre a peça comum das três fichas. */
@@ -82,7 +82,7 @@ function DestaqueDoLead({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
             <Etiqueta>{ROTULO_STATUS[ficha.status] ?? ficha.status}</Etiqueta>
           )}
           {ficha.diasNaFase !== null && parado && !desqualificado ? (
-            <Etiqueta tom="alert">parado há {numero(ficha.diasNaFase)} dias</Etiqueta>
+            <Etiqueta tom="alerta">parado há {numero(ficha.diasNaFase)} dias</Etiqueta>
           ) : null}
         </>
       }
@@ -228,7 +228,7 @@ export default async function PageFicha({
             <AbasDaFicha
               base={`/leads/${ficha.id}`}
               aba={aba}
-              abas={ABAS.map((a) => ({ ...a, contagem: count[a.chave] }))}
+              abas={ABAS.map((a) => ({ ...a, count: count[a.key] }))}
               formatar={numero}
             />
 

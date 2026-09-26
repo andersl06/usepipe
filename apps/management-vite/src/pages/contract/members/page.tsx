@@ -96,7 +96,7 @@ export function MembersPage() {
                       tipo: m.tipo,
                       nome: m.nome,
                       email: m.email,
-                      papel: accountEhRole(m.roleName)
+                      role: accountEhRole(m.roleName)
                         ? PAPEIS_DA_ORIGEM[m.roleName].rotulo
                         : '',
                     }))}

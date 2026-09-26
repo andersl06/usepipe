@@ -34,14 +34,14 @@ const ROTULO_STATE: Record<string, string> = {
 };
 
 const ABAS = [
-  { chave: 'conversas', rotulo: 'Conversas' },
-  { chave: 'lead', rotulo: 'Lead' },
+  { key: 'conversas', rotulo: 'Conversas' },
+  { key: 'lead', rotulo: 'Lead' },
 ] as const;
 
-type AbaContact = (typeof ABAS)[number]['chave'];
+type AbaContact = (typeof ABAS)[number]['key'];
 
 function abaValida(value: string | undefined): AbaContact {
-  return (ABAS.find((a) => a.chave === value)?.chave ?? 'conversas') as AbaContact;
+  return (ABAS.find((a) => a.key === value)?.key ?? 'conversas') as AbaContact;
 }
 
 function ContactDestaque({ ficha, fuso }: { ficha: FichaContact; fuso: string }) {

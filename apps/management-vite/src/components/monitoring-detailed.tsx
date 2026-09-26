@@ -2,7 +2,7 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from './link';
 import { Icone } from '@pipe/ui';
-import { ROTULOS_PRIORITY, type NivelPriority } from '@pipe/core/conversa';
+import { ROTULOS_PRIORITY, type NivelPriority } from '@pipe/core/conversation';
 import {
   esperaOrdenarQueue,
   type LinhaConversationAberta,
@@ -57,7 +57,7 @@ type Filter = {
   search?: string;
 };
 
-type MonitoringActions = Pick<Monitoring, 'filas' | 'listaAtendentes' | 'etiquetas'>;
+type MonitoringActions = Pick<Monitoring, 'queues' | 'listaAgents' | 'etiquetas'>;
 
 /** Formato usado pelo BDS nas tabelas: sempre hh:mm:ss e, acima de 24h, dias. */
 function durationMonitoring(segundos: number | null | undefined): string {
@@ -107,8 +107,8 @@ function querystring(filter: Filter, aba: string): URLSearchParams {
  * de propósito — os dois pedem a mesma coisa do supervisor.
  */
 function classeDaLinha(linha: LinhaConversationAberta): string | undefined {
-  if (linha.sla.state === 'exceeded') return 'critico';
-  if (linha.sla.state === 'alert') return 'grave';
+  if (linha.sla.state === 'estourado') return 'critico';
+  if (linha.sla.state === 'alerta') return 'grave';
   if (linha.firstRespostaCorrendo) return 'grave';
   return undefined;
 }
@@ -216,12 +216,12 @@ function ModalTransferirMonitoring({
   catalogos: MonitoringActions;
   aoFechar: () => void;
 }) {
-  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('queue');
+  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('fila');
   const [destination, setDestination] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const consultas = useQueryClient();
-  const options = alvo === 'queue' ? catalogos.queues : catalogos.listaAgents;
+  const options = alvo === 'fila' ? catalogos.queues : catalogos.listaAgents;
 
   async function transferir() {
     if (!destination) return;
@@ -229,7 +229,7 @@ function ModalTransferirMonitoring({
     setError(null);
     try {
       await api.post(`/v1/management/monitoring/conversations/${linha.id}/transfer`,
-        alvo === 'queue' ? { para_fila_id: destination } : { para_atendente_id: destination },
+        alvo === 'fila' ? { para_fila_id: destination } : { para_atendente_id: destination },
       );
       await consultas.invalidateQueries({ queryKey: ['api'] });
       aoFechar();
@@ -243,18 +243,18 @@ function ModalTransferirMonitoring({
     <MonitoringModal titulo={`Transferir atendimento do Ticket ${linha.ticket}`} aoFechar={aoFechar}>
       <div className="mon-radios">
         <label>
-          <input type="radio" checked={alvo === 'queue'} onChange={() => { setAlvo('queue'); setDestination(''); }} />
+          <input type="radio" checked={alvo === 'fila'} onChange={() => { setAlvo('fila'); setDestination(''); }} />
           Fila
         </label>
         <label>
-          <input type="radio" checked={alvo === 'agent'} onChange={() => { setAlvo('agent'); setDestination(''); }} />
+          <input type="radio" checked={alvo === 'atendente'} onChange={() => { setAlvo('atendente'); setDestination(''); }} />
           Atendente
         </label>
       </div>
       <label className="mon-campo">
-        {alvo === 'queue' ? 'Fila' : 'Atendente'}
-        <Selection value={destination} onChange={(evento) => setDestination(evento.target.value)} aria-label={alvo === 'queue' ? 'Fila' : 'Atendente'}>
-          <option value="">{alvo === 'queue' ? 'Selecionar fila' : 'Selecionar atendente'}</option>
+        {alvo === 'fila' ? 'Fila' : 'Atendente'}
+        <Selection value={destination} onChange={(evento) => setDestination(evento.target.value)} aria-label={alvo === 'fila' ? 'Fila' : 'Atendente'}>
+          <option value="">{alvo === 'fila' ? 'Selecionar fila' : 'Selecionar atendente'}</option>
           {options.map((option) => (
             <option key={option.id} value={option.id}>{option.nome}</option>
           ))}

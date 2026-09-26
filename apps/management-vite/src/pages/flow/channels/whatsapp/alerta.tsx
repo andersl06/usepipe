@@ -20,7 +20,7 @@ import { Interruptor } from '../../integrations/interruptor';
  */
 export function AbaAlerta() {
   const context = useOutletContext<ChannelWhatsappContext | ContextWithoutChannel>();
-  const channelId = 'canal' in context ? context.channel.id : null;
+  const channelId = 'channel' in context ? context.channel.id : null;
   const read = useRead<ChannelPreferences>(
     channelId ? `/v1/channels/whatsapp/${channelId}/preferences` : null,
     { retry: false },

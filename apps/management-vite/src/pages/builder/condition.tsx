@@ -39,7 +39,7 @@ export function ConditionsEditor({
   onMudar: (conditions: ConditionBlip[]) => void;
   rotuloAdicionar: string;
 }) {
-  const switch = (indice: number, c: ConditionBlip): void =>
+  const substituir = (indice: number, c: ConditionBlip): void =>
     onMudar(conditions.map((x, i) => (i === indice ? c : x)));
   const remover = (indice: number): void => onMudar(conditions.filter((_, i) => i !== indice));
   return (
@@ -49,7 +49,7 @@ export function ConditionsEditor({
           key={i}
           condition={c}
           first={i === 0}
-          onMudar={(nova) => switch(i, nova)}
+          onMudar={(nova) => substituir(i, nova)}
           onRemover={() => remover(i)}
         />
       ))}
@@ -105,7 +105,7 @@ function ConditionLinha({
       <div className="bl-condicao-linha bl-condicao-campos">
         <span className="bl-condicao-se">{first ? ROTULOS_DAS_SAIDAS.se : 'e'}</span>
         {semSuporte ? (
-          <Etiqueta tom="alert" titulo="O Pipe não tem provedor de IA: esta condição nunca casa.">
+          <Etiqueta tom="alerta" titulo="O Pipe não tem provedor de IA: esta condição nunca casa.">
             {ROTULO_DA_FONTE[fonte] ?? fonte}
           </Etiqueta>
         ) : (
@@ -135,7 +135,7 @@ function ConditionLinha({
           onChange={(e) => onMudar(withComparison(condition, e.target.value as typeof comparison))}
         >
           {COMPARISONS_OF_TELA.map((c) => (
-            <option key={c.valor} value={c.valor}>
+            <option key={c.value} value={c.value}>
               {c.rotulo}
             </option>
           ))}

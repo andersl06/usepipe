@@ -45,9 +45,9 @@ const BLOCOS: Record<TipoDeConteudo, { rotulo: string; icone: NomeDeIconePortal;
 
 /* `messageTemplate.categories.*` para as três da `fillTemplateCategories`. */
 const ROTULO_CATEGORIA: Record<Categoria, string> = {
-  authentication: 'Autenticação',
+  autenticacao: 'Autenticação',
   marketing: 'Marketing',
-  utility: 'Utilidade',
+  utilidade: 'Utilidade',
 };
 
 /* `messageTemplateLanguages.*` — o recorte que o Pipe já usa em `/comunicacao/modelos`. */

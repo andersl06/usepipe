@@ -41,28 +41,28 @@ export function esperaMs(tentativas: number, sortear: () => number = Math.random
 type Reivindicada = {
   id: string;
   tenant_id: string;
-  messageId: string;
+  mensagem_id: string;
   tentativas: number;
 };
 
 type LinhaDeEnvio = {
-  type: string;
-  content: string | null;
-  data: Record<string, unknown> | null;
+  tipo: string;
+  conteudo: string | null;
+  dados: Record<string, unknown> | null;
   template_id: string | null;
-  phoneE164: string | null;
+  telefone_e164: string | null;
   identificador: string | null;
-  channelConfig: Record<string, unknown> | null;
-  channelType: string;
-  templateName: string | null;
+  canal_config: Record<string, unknown> | null;
+  canal_tipo: string;
+  template_nome: string | null;
   template_idioma: string | null;
   template_cabecalho: string | null;
-  templateVariables: unknown;
+  template_variaveis: unknown;
   template_status: string | null;
-  attachmentMime: string | null;
-  attachmentBytes: number | null;
-  attachmentKey: string | null;
-  attachmentName: string | null;
+  anexo_mime: string | null;
+  anexo_bytes: number | null;
+  anexo_chave: string | null;
+  anexo_nome: string | null;
 };
 
 export interface ResultDelivery {
@@ -157,9 +157,9 @@ async function entregarUma(
     return gravarFalha(linha, 'mensagem_sumiu', 'A mensagem não existe mais no banco.');
   }
 
-  const preparado = data.channelType === 'instagram' ? prepararEnvioInstagram(data) : data.channelType === 'messenger' ? prepararEnvioMessenger(data) : prepararEnvio(data, parametros);
+  const preparado = data.canal_tipo === 'instagram' ? prepararEnvioInstagram(data) : data.canal_tipo === 'messenger' ? prepararEnvioMessenger(data) : prepararEnvio(data, parametros);
   if ('erro' in preparado) {
-    return gravarFalha(linha, preparado.error.code, preparado.error.texto);
+    return gravarFalha(linha, preparado.erro.codigo, preparado.erro.texto);
   }
 
   try {
@@ -199,7 +199,7 @@ async function entregarUma(
   }
 }
 
-type Preparado = { pedido: PedidoEnvio } | { error: { code: string; texto: string } };
+type Preparado = { pedido: PedidoEnvio } | { erro: { codigo: string; texto: string } };
 
 /**
  * O Instagram manda para o IGSID (`contato_identidade`), nunca para telefone, e só
@@ -212,7 +212,7 @@ type Preparado = { pedido: PedidoEnvio } | { error: { code: string; texto: strin
  */
 function prepararEnvioInstagram(
   linha: LinhaDeEnvio,
-): { instagram: PedidoInstagram } | { error: { code: string; texto: string } } {
+): { instagram: PedidoInstagram } | { erro: { codigo: string; texto: string } } {
   if (!linha.identificador) {
     return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem conta do Instagram neste canal.' } };
   }
@@ -220,7 +220,7 @@ function prepararEnvioInstagram(
   // ponytail: chaveiro relido a cada envio; guardar em memória se aparecer no perfil.
   let config: Record<string, unknown>;
   try {
-    config = decifrarConfig(linha.channelConfig ?? {}, keyringOfAmbiente());
+    config = decifrarConfig(linha.canal_config ?? {}, keyringOfAmbiente());
   } catch (erro) {
     return { erro: { codigo: 'canal_sem_credencial', texto: `O token do canal não decifrou: ${(erro as Error).message}` } };
   }
@@ -252,9 +252,9 @@ function prepararEnvioInstagram(
   };
 }
 
-function prepararEnvioMessenger(linha: LinhaDeEnvio): { messenger: PedidoMessenger } | { error: { code: string; texto: string } } {
+function prepararEnvioMessenger(linha: LinhaDeEnvio): { messenger: PedidoMessenger } | { erro: { codigo: string; texto: string } } {
   if (!linha.identificador) return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem PSID neste canal.' } };
-  let config: Record<string, unknown>; try { config = decifrarConfig(linha.channelConfig ?? {}, keyringOfAmbiente()); } catch { return { erro: { codigo: 'canal_sem_credencial', texto: 'O token do canal não decifrou.' } }; }
+  let config: Record<string, unknown>; try { config = decifrarConfig(linha.canal_config ?? {}, keyringOfAmbiente()); } catch { return { erro: { codigo: 'canal_sem_credencial', texto: 'O token do canal não decifrou.' } }; }
   if (typeof config['tokenAcesso'] !== 'string' || !config['tokenAcesso']) return { erro: { codigo: 'canal_sem_credencial', texto: 'O canal não tem token de acesso.' } };
   const conteudo = montarConteudo(linha, undefined); if ('erro' in conteudo) return conteudo; const c = conteudo.conteudo;
   if (c.tipo === 'template' || c.tipo === 'interativo') return { erro: { codigo: 'tipo_nao_suportado', texto: 'O Messenger não envia template.' } };
@@ -274,13 +274,13 @@ function prepararEnvio(
 ): Preparado {
   const para = destinatario(linha);
   if (!para) {
-    return { error: { codigo: 'sem_destinatario', texto: 'O contato não tem telefone no canal.' } };
+    return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem telefone no canal.' } };
   }
 
-  const credenciais = credentialsOf(linha.channelConfig);
+  const credenciais = credentialsOf(linha.canal_config);
   if (!credenciais) {
     return {
-      error: {
+      erro: {
         codigo: 'canal_sem_credencial',
         texto: 'O canal não tem phoneNumberId e tokenAcesso em canal.config.',
       },
@@ -289,44 +289,44 @@ function prepararEnvio(
 
   const conteudo = montarConteudo(linha, parametros);
   if ('erro' in conteudo) return conteudo;
-  return { pedido: { para, conteudo: conteudo.conteudo, credentials } };
+  return { pedido: { para, conteudo: conteudo.conteudo, credentials: credenciais } };
 }
 
 function montarConteudo(
   linha: LinhaDeEnvio,
   parametros: Record<string, string> | undefined,
-): { content: Conteudo } | { error: { code: string; texto: string } } {
+): { conteudo: Conteudo } | { erro: { codigo: string; texto: string } } {
   if (linha.tipo === 'texto') {
     const texto = linha.conteudo?.trim();
     if (!texto) {
       return { erro: { codigo: 'texto_vazio', texto: 'Mensagem de texto sem conteúdo.' } };
     }
     // Pergunta do fluxo: botões ou lista quando o canal permite; senão o texto numerado.
-    const pergunta = linha.data?.['pergunta'] as PerguntaOfFlow | undefined;
+    const pergunta = linha.dados?.['pergunta'] as PerguntaOfFlow | undefined;
     // Só no WhatsApp: o Instagram tem quick reply próprio, ainda não ligado — sai texto.
-    const interativo = pergunta && linha.channelType === 'whatsapp_cloud'
-      ? conteudoDaPergunta(pergunta, preferencesInteractiveOf(linha.channelConfig))
+    const interativo = pergunta && linha.canal_tipo === 'whatsapp_cloud'
+      ? conteudoDaPergunta(pergunta, preferencesInteractiveOf(linha.canal_config))
       : null;
     return { conteudo: interativo ?? { tipo: 'texto', texto } };
   }
 
   const typeMedia = TYPES_OF_MEDIA[linha.tipo];
   if (typeMedia) {
-    if (!linha.attachmentMime || linha.attachmentBytes === null || !linha.attachmentKey) {
+    if (!linha.anexo_mime || linha.anexo_bytes === null || !linha.anexo_chave) {
       return { erro: { codigo: 'anexo_ausente', texto: `Mensagem de ${linha.tipo} sem anexo.` } };
     }
     const falha = validateMedia({
       tipo: typeMedia,
-      mime: linha.attachmentMime,
-      bytes: linha.attachmentBytes,
+      mime: linha.anexo_mime,
+      bytes: linha.anexo_bytes,
     });
     if (falha) return { erro: { codigo: falha.codigo, texto: falha.texto } };
     return {
       conteudo: {
         tipo: typeMedia,
-        link: urlOfMedia(linha.attachmentKey),
+        link: urlOfMedia(linha.anexo_chave),
         legenda: linha.conteudo ?? undefined,
-        nameFile: linha.attachmentName ?? undefined,
+        nameFile: linha.anexo_nome ?? undefined,
       },
     };
   }
@@ -348,7 +348,7 @@ function montarConteudo(
         },
       };
     }
-    const variables = readVariables(linha.templateVariables);
+    const variables = readVariables(linha.template_variaveis);
     const values = parametros ?? {};
     const cabecalho = (linha.template_cabecalho ?? 'nenhum') as CabecalhoTemplate;
     // Sem coluna jsonb em `mensagem`, os valores só existem no job da fila. Se o job
@@ -412,7 +412,7 @@ export function credentialsOf(cru: Record<string, unknown> | null): CredentialsC
   if (!phoneNumberId || !tokenAcesso) return null;
   return {
     phoneNumberId,
-    tokenAccess,
+    tokenAccess: tokenAcesso,
     apiVersao: (config?.['apiVersao'] as string | undefined) ?? process.env['WHATSAPP_API_VERSAO'],
   };
 }
@@ -470,7 +470,7 @@ async function reagendar(
        where id = ${linha.id}
     `);
   });
-  return { messageId: linha.mensagem_id, state: 'pending', errorCode: falha.codigo };
+  return { messageId: linha.mensagem_id, state: 'pendente', errorCode: falha.codigo };
 }
 
 /** Guarda contra status fora de ordem vindo de webhook. */

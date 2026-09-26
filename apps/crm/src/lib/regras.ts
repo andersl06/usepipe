@@ -39,8 +39,8 @@ export async function listarRegras(): Promise<LinhaRegra[]> {
         nome: regraScore.nome,
         versao: regraScore.versao,
         pontos: regraScore.pontos,
-        ativa: regraScore.ativa,
-        condicao: regraScore.condicao,
+        active: regraScore.ativa,
+        condition: regraScore.condicao,
       })
       .from(regraScore)
       .orderBy(desc(regraScore.versao), desc(regraScore.pontos), asc(regraScore.nome));
@@ -68,7 +68,7 @@ export async function listarRegras(): Promise<LinhaRegra[]> {
 
     return regras.map((r) => ({
       ...r,
-      condicao: r.condicao as Expressao,
+      condition: r.condition as Expressao,
       leadsAfetados: afetados.get(r.id) ?? 0,
     }));
   });
@@ -82,7 +82,7 @@ export async function listarFaixas(): Promise<LinhaFaixa[]> {
         versao: faixaScore.versao,
         minimo: faixaScore.minimo,
         maximo: faixaScore.maximo,
-        fila: queue.nome,
+        queue: queue.nome,
         estrategiaProprietario: faixaScore.estrategiaProprietario,
       })
       .from(faixaScore)

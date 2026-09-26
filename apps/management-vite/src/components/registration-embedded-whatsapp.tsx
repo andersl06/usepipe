@@ -33,7 +33,7 @@ interface RespostaDoLogin {
 
 interface SdkDoFacebook {
   init(options: Record<string, unknown>): void;
-  login(return: (resposta: RespostaDoLogin) => void, options: Record<string, unknown>): void;
+  login(retornar: (resposta: RespostaDoLogin) => void, options: Record<string, unknown>): void;
 }
 
 declare global {

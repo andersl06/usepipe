@@ -177,7 +177,7 @@ const COLUNAS: readonly ColumnLead[] = [
       l.diasNaFase === null ? (
         '—'
       ) : l.diasNaFase >= 7 && l.status !== 'desqualificado' ? (
-        <Etiqueta tom="alert">{numero(l.diasNaFase)}</Etiqueta>
+        <Etiqueta tom="alerta">{numero(l.diasNaFase)}</Etiqueta>
       ) : (
         numero(l.diasNaFase)
       ),
@@ -249,7 +249,7 @@ export function ListaDeLeads({
   }, [by]);
 
   const context = useMemo<Context>(
-    () => ({ timezone, now, owners }),
+    () => ({ timezone: fuso, now: agora, owners: proprietarios }),
     [fuso, agora, proprietarios],
   );
 
@@ -381,7 +381,7 @@ export function ListaDeLeads({
   /** Endereço desta mesma lista com um parâmetro trocado. `comFiltros` só muda
    *  quando a saída é justamente largar o filtro. */
   function endereco(extra: Record<string, string | null>, withFilters: SFilter = filters) {
-    const p = new URLSearchParams({ tab });
+    const p = new URLSearchParams({ aba });
     if (search) p.set('q', search);
     if (by !== 'nenhum') p.set('groupBy', by);
     if (order !== 'nenhuma') {
@@ -537,7 +537,7 @@ export function ListaDeLeads({
                   <th
                     key={c.key}
                     aria-sort={active ? (direction === 'asc' ? 'ascending' : 'descending') : undefined}
-                    className={larguras.colunaEmArraste === c.key ? 'arrastando' : undefined}
+                    className={larguras.columnInArraste === c.key ? 'arrastando' : undefined}
                   >
                     {columnOrdenavel(c.key) ? (
                       <Link href={sorting(c.key)} className="ord" scroll={false}>
@@ -560,7 +560,7 @@ export function ListaDeLeads({
                       onPointerUp={larguras.aoSoltar}
                       onPointerCancel={larguras.aoSoltar}
                       onKeyDown={larguras.aoTeclar(c.key)}
-                      onDoubleClick={larguras.aoRestaurar(c.key)}
+                      onDoubleClick={larguras.toRestore(c.key)}
                     />
                   </th>
                 );

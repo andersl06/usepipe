@@ -135,7 +135,7 @@ export function QuadroFunil({ fases, cards }: Props) {
                 */}
                 {c.diasVencido !== null ? (
                   <span>
-                    <Etiqueta tom="alert">
+                    <Etiqueta tom="alerta">
                       fechamento vencido há {numero(c.diasVencido)} dias
                     </Etiqueta>
                   </span>

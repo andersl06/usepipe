@@ -22,7 +22,7 @@ describe('service form', () => {
   });
 
   it('o campo escondido não vai no pedido', () => {
-    const base = { nome: ' Suporte ', chatbotId: 'c1', expiracao: '30' };
+    const base = { nome: ' Suporte ', chatbotId: 'c1', expiration: '30' };
     assert.deepEqual(pedidoDoFormulario({ ...base, principal: true, persistente: true }), {
       nome: 'Suporte',
       chatbotId: 'c1',

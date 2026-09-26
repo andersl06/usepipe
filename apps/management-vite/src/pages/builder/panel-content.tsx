@@ -107,7 +107,7 @@ export function ContentPanel({
                 >
                   {c.tipo === 'entrada'
                     ? raiz
-                      ? ROTULOS_DO_CONTEUDO.inbound
+                      ? ROTULOS_DO_CONTEUDO.entrada
                       : c.inbound.bypass
                         ? ROTULOS_DO_CONTEUDO.direto
                         : ROTULOS_DO_CONTEUDO.aguardando
@@ -182,7 +182,7 @@ export function ContentPanel({
               </button>
               {!temInbound(block) ? (
                 <button type="button" role="menuitem" onClick={() => adicionar(newInbound())}>
-                  {ROTULOS_DO_CONTEUDO.inbound}
+                  {ROTULOS_DO_CONTEUDO.entrada}
                 </button>
               ) : null}
             </div>
@@ -386,7 +386,7 @@ function ContentCard({
             {excluir}
           </header>
           {!card.suportado ? (
-            <Etiqueta tom="alert">{ROTULOS_DO_CONTEUDO.naoSuportado}</Etiqueta>
+            <Etiqueta tom="alerta">{ROTULOS_DO_CONTEUDO.naoSuportado}</Etiqueta>
           ) : null}
         </article>
       );
@@ -406,12 +406,12 @@ function InboundCard({
 }) {
   const validando = !!inbound.validation;
   const aguardando = !inbound.bypass;
-  const switch = (nova: EditorInbound): void => onMudar(definirInbound(block, nova));
+  const atualizar = (nova: EditorInbound): void => onMudar(definirInbound(block, nova));
 
   return (
     <article className="bl-cartao bl-cartao--cliente">
       <header>
-        <b>{ROTULOS_DO_CONTEUDO.inbound}</b>
+        <b>{ROTULOS_DO_CONTEUDO.entrada}</b>
         <span className="sub">
           {aguardando ? ROTULOS_DO_CONTEUDO.aguardando : ROTULOS_DO_CONTEUDO.direto}
         </span>
@@ -447,7 +447,7 @@ function InboundCard({
               <Campo
                 value={inbound.variable ?? ''}
                 placeholder="nomeDaVariavel"
-                onChange={(e) => switch({ ...inbound, variable: e.target.value || null })}
+                onChange={(e) => atualizar({ ...inbound, variable: e.target.value || null })}
               />
             </label>
           </section>
@@ -459,7 +459,7 @@ function InboundCard({
                   type="checkbox"
                   checked={validando}
                   onChange={(e) =>
-                    switch({
+                    atualizar({
                       ...inbound,
                       validation: e.target.checked
                         ? validationWithRule(inbound.validation, 'text')
@@ -476,7 +476,7 @@ function InboundCard({
                     <Selection
                       value={inbound.validation.rule}
                       onChange={(e) =>
-                        switch({
+                        atualizar({
                           ...inbound,
                           validation: validationWithRule(inbound.validation, e.target.value),
                         })
@@ -495,7 +495,7 @@ function InboundCard({
                       <Campo
                         value={inbound.validation.regex ?? ''}
                         onChange={(e) =>
-                          switch({
+                          atualizar({
                             ...inbound,
                             validation: { ...inbound.validation!, regex: e.target.value },
                           })
@@ -510,7 +510,7 @@ function InboundCard({
                         value={inbound.validation.type ?? ''}
                         placeholder="image/jpeg"
                         onChange={(e) =>
-                          switch({
+                          atualizar({
                             ...inbound,
                             validation: { ...inbound.validation!, type: e.target.value },
                           })
@@ -523,7 +523,7 @@ function InboundCard({
                     <Campo
                       value={inbound.validation.error ?? ''}
                       onChange={(e) =>
-                        switch({
+                        atualizar({
                           ...inbound,
                           validation: { ...inbound.validation!, error: e.target.value },
                         })

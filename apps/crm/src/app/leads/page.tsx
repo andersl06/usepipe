@@ -61,7 +61,7 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
   const groups = agrupar(linhas, by);
 
   const query = (extra: Record<string, string> = {}, withFilters: SFilter = filters) => {
-    const p = new URLSearchParams({ tab, ...(search ? { q: search } : {}), ...extra });
+    const p = new URLSearchParams({ aba, ...(search ? { q: search } : {}), ...extra });
     if (by !== 'nenhum' && !('groupBy' in extra)) p.set('groupBy', by);
     if (order !== 'nenhuma') {
       p.set('order', order);

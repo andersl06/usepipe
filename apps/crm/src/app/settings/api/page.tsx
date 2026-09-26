@@ -146,7 +146,7 @@ function colunasDeWebhooks(fuso: string): readonly Column<WebhookDeSaida>[] {
             acao={acaoAlternarWebhook}
             campos={{ id: w.id, ativo: w.ativo ? 'nao' : 'sim' }}
           >
-            <Etiqueta tom={w.ativo ? 'sucesso' : 'alert'}>
+            <Etiqueta tom={w.ativo ? 'sucesso' : 'alerta'}>
               {w.ativo ? 'Ativo' : 'Desligado'}
             </Etiqueta>
             <Botao type="submit">{w.ativo ? 'Desligar' : 'Ligar'}</Botao>

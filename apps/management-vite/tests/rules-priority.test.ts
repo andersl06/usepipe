@@ -20,11 +20,11 @@ import {
 function regra(
   id: string,
   nome: string,
-  scopeTipo: string,
+  scopeType: string,
   scopeId: string | null,
   nivel = 'alta',
 ): PriorityRule {
-  return { id, nome, nivel, scopeTipo, scopeId, condition: {}, active: true };
+  return { id, nome, nivel, scopeType, scopeId, condition: {}, active: true };
 }
 
 const TODAS = [

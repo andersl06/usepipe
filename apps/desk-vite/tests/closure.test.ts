@@ -4,8 +4,8 @@ import { closureCanConfirm } from '../../../packages/ui/src/rules-closure';
 
 describe('closure card rule copied from Blip', () => {
   const tags = [
-    { id: 'obrigatoria', nome: 'Resolvido', obrigatoriaNoEncerramento: true },
-    { id: 'opcional', nome: 'Dúvida', obrigatoriaNoEncerramento: false },
+    { id: 'obrigatoria', nome: 'Resolvido', obrigatoriaInClosure: true },
+    { id: 'opcional', nome: 'Dúvida', obrigatoriaInClosure: false },
   ];
 
   it('permite encerrar sem tag quando a política não exige nenhuma', () => {

@@ -42,7 +42,10 @@ export function Card({
 }) {
   const [menu, setMenu] = useState(false);
   const channel = channelOf(conversation.canalTipo);
-  const nome = displayName(conversation);
+  const nome = displayName({
+    contactName: conversation.contatoNome,
+    contactTelefone: conversation.contatoTelefone,
+  });
   const naoLidaAgora = naoLida(conversation);
   const fixadaAgora = fixada(conversation);
   const nova = conversation.primeiraRespostaEm === null;

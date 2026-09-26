@@ -68,9 +68,9 @@ export async function carregarFunil(): Promise<Funil> {
 
   const colunas: ColumnFunil[] = FASES.map((fase) => ({
     fase,
-    cartoes: [],
+    cards: [],
     total: 0,
-    quantidade: 0,
+    quantity: 0,
   }));
   let ponderadoGeral = 0;
 
@@ -182,14 +182,14 @@ export async function listOpportunities(
       .select({
         id: opportunity.id,
         nome: opportunity.nome,
-        contaId: opportunity.contaId,
-        contaNome: account.nome,
+        accountId: opportunity.contaId,
+        accountName: account.nome,
         leadId: opportunity.leadId,
         fase: opportunity.fase,
-        valor: opportunity.valor,
-        probabilidade: opportunity.probabilidade,
+        value: opportunity.valor,
+        probability: opportunity.probabilidade,
         proprietario: user.nome,
-        fechamentoPrevisto: opportunity.fechamentoPrevisto,
+        closingPrevisto: opportunity.fechamentoPrevisto,
         fechadaEm: opportunity.fechadaEm,
         ganha: opportunity.ganha,
       })
@@ -204,8 +204,8 @@ export async function listOpportunities(
 
     return linhas.map((o) => ({
       ...o,
-      valor: paraNumero(o.valor),
-      fechamentoPrevisto: paraData(o.fechamentoPrevisto),
+      value: paraNumero(o.value),
+      closingPrevisto: paraData(o.closingPrevisto),
       fechadaEm: paraData(o.fechadaEm),
     }));
   });
@@ -230,18 +230,18 @@ export async function loadOpportunity(id: string): Promise<FichaOpportunity | nu
       .select({
         id: opportunity.id,
         nome: opportunity.nome,
-        contaId: opportunity.contaId,
-        contaNome: account.nome,
+        accountId: opportunity.contaId,
+        accountName: account.nome,
         leadId: opportunity.leadId,
         contatoId: lead.contatoId,
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
         fase: opportunity.fase,
-        valor: opportunity.valor,
+        value: opportunity.valor,
         moeda: opportunity.moeda,
-        probabilidade: opportunity.probabilidade,
+        probability: opportunity.probabilidade,
         proprietario: user.nome,
-        fechamentoPrevisto: opportunity.fechamentoPrevisto,
+        closingPrevisto: opportunity.fechamentoPrevisto,
         fechadaEm: opportunity.fechadaEm,
         ganha: opportunity.ganha,
         motivoPerda: opportunity.motivoPerda,
@@ -258,26 +258,26 @@ export async function loadOpportunity(id: string): Promise<FichaOpportunity | nu
 
     // Em série, nunca em paralelo: `Promise.all` aqui dentro derruba o
     // `pipe.tenant_id` da transação (README).
-    const irmas = cabeca.contaId
+    const irmas = cabeca.accountId
       ? await tx
           .select({
             id: opportunity.id,
             nome: opportunity.nome,
-            contaId: opportunity.contaId,
-            contaNome: account.nome,
+            accountId: opportunity.contaId,
+            accountName: account.nome,
             leadId: opportunity.leadId,
             fase: opportunity.fase,
-            valor: opportunity.valor,
-            probabilidade: opportunity.probabilidade,
+            value: opportunity.valor,
+            probability: opportunity.probabilidade,
             proprietario: user.nome,
-            fechamentoPrevisto: opportunity.fechamentoPrevisto,
+            closingPrevisto: opportunity.fechamentoPrevisto,
             fechadaEm: opportunity.fechadaEm,
             ganha: opportunity.ganha,
           })
           .from(opportunity)
           .leftJoin(account, eq(account.id, opportunity.contaId))
           .leftJoin(user, eq(user.id, opportunity.proprietarioId))
-          .where(and(eq(opportunity.contaId, cabeca.contaId), sql`${opportunity.id} <> ${id}`))
+          .where(and(eq(opportunity.contaId, cabeca.accountId), sql`${opportunity.id} <> ${id}`))
           .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor))
       : [];
 
@@ -287,14 +287,14 @@ export async function loadOpportunity(id: string): Promise<FichaOpportunity | nu
 
     return {
       ...cabeca,
-      valor: paraNumero(cabeca.valor),
-      fechamentoPrevisto: paraData(cabeca.fechamentoPrevisto),
+      value: paraNumero(cabeca.value),
+      closingPrevisto: paraData(cabeca.closingPrevisto),
       fechadaEm: paraData(cabeca.fechadaEm),
       criadoEm: paraData(cabeca.criadoEm),
       irmas: irmas.map((o) => ({
         ...o,
-        valor: paraNumero(o.valor),
-        fechamentoPrevisto: paraData(o.fechamentoPrevisto),
+        value: paraNumero(o.value),
+        closingPrevisto: paraData(o.closingPrevisto),
         fechadaEm: paraData(o.fechadaEm),
       })),
       timeLinha,

@@ -114,7 +114,7 @@ export function ConvidarMembers({
     definirTexto('');
   }
 
-  async function import(lido: File | undefined) {
+  async function importarArquivo(lido: File | undefined) {
     if (!lido) return;
     const linhas = (await lido.text())
       .split(/\r?\n/)
@@ -350,7 +350,7 @@ export function ConvidarMembers({
 
               {alreadyMember ? (
                 <div className="mb-convite-aviso" role="alert">
-                  <IconePortal nome="alert" tamanho={40} />
+                  <IconePortal nome="alerta" tamanho={40} />
                   <span>
                     Existem pessoas que já fazem parte desse contrato. Para editar o
                     permissionamento desses membros{' '}
@@ -377,7 +377,7 @@ export function ConvidarMembers({
                     type="file"
                     accept=".csv"
                     hidden
-                    onChange={(e) => import(e.target.files?.[0])}
+                    onChange={(e) => importarArquivo(e.target.files?.[0])}
                   />
                 </div>
                 {/* O "formatacão" sem acento no lugar certo é deles. */}

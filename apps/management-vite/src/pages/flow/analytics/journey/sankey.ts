@@ -1,4 +1,4 @@
-import type { ArestaDaJornada, TipoDeAresta } from '@pipe/core/analise';
+import type { ArestaDaJornada, TipoDeAresta } from '@pipe/core/analytics';
 
 /**
  * O diagrama da Jornada sem biblioteca. Na origem é o `Sankey` do Google Charts
@@ -102,7 +102,7 @@ export function desenharSankey(
     return {
       rotulo: `${n.nome}: ${sufixoDoRotulo(n.nome, n.column, arestas)}`,
       tipo: n.tipo,
-      coluna: n.column,
+      column: n.column,
       ...p,
     };
   });

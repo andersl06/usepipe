@@ -1,4 +1,4 @@
-import type { DashboardData, Intervalo, Period } from '@pipe/core/analise';
+import type { DashboardData, Intervalo, Period } from '@pipe/core/analytics';
 
 /** O que `GET /v1/gestao/fluxos/:id/analise/dashboard` responde (`RespostaDoDashboard` na api). */
 export interface RespostaDoDashboard {

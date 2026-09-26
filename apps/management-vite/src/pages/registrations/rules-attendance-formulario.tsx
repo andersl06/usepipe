@@ -112,10 +112,10 @@ function editAction(id: string) {
       .map((campo, i) => ({
         campo,
         operador: (operadores[i] ?? 'contem') as OperadorDeRegra,
-        valor: values[i] ?? '',
+        value: values[i] ?? '',
       }))
       // Linha em branco não entra — mesmo filtro de `salvarRegraFila` (ação de criação).
-      .filter((c) => c.campo || c.valor);
+      .filter((c) => c.campo || c.value);
 
     const resultado = await editRuleQueue(id, {
       nome: String(data.get('nome') ?? '').trim(),
