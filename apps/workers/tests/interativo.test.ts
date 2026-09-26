@@ -3,7 +3,7 @@ import { conteudoDaPergunta, formatOfQuestion, preferencesInteractiveOf } from '
 import { montarCorpo } from '../src/whatsapp/real.js';
 
 const ligado = { quickReply: true, menu: true };
-const credentials = { phoneNumberId: '1', tokenAcesso: 't' };
+const credentials = { phoneNumberId: '1', tokenAccess: 't' };
 
 describe('Turn flow questions into interactive messages', () => {
   it('Choose buttons for up to three options, a list for up to ten, and text otherwise', () => {
