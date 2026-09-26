@@ -9,16 +9,7 @@ import { buscarSaude } from './whatsapp/saude.js';
 export { urlDoWebhook };
 
 /**
- * O que a tela de Canais lê e o desligar.
- *
- * CONECTAR não mora mais aqui: saiu para `./whatsapp/`, portado do Chatwoot
- * (`cadastro-embutido.ts` e `configuracao-manual.ts`). O que ficou é o que o
- * Chatwoot não tem igual — o estado da ligação para a tela, e desligar sem apagar.
- *
- * O desenho vem de duas specs, e nenhuma é negociável:
- * - `2026-09-05-infraestrutura.md` §5: o cliente é dono do WABA dele;
- * - `2026-09-07-webhook-por-cliente.md`: o webhook do número aponta para
- *   `…/webhooks/whatsapp/<canalId>`, com `verify_token` próprio do canal.
+ * Channel screen reads and disconnection live here. Connection moved to `./whatsapp/`, ported from Chatwoot through `cadastro-embutido.ts` and `configuracao-manual.ts`. This module retains screen connection state and disconnection without deletion, which differ from Chatwoot. Two specs govern this: `2026-09-05-infraestrutura.md` §5 says the customer owns their WABA; `2026-09-07-webhook-por-cliente.md` specifies the number webhook at `…/webhooks/whatsapp/<canalId>` with a channel-specific `verify_token`.
  */
 
 export interface ChannelWhatsAppVisible {
@@ -30,10 +21,7 @@ export interface ChannelWhatsAppVisible {
   number: string | null;
   displayName: string | null;
   /**
-   * `conectado` — a Meta respondeu sobre o número.
-   * `desligado` — o canal foi desconectado aqui.
-   * `indisponivel` — ligado, mas a Meta não respondeu, ou o canal espera
-   * reautorização; `motivo` diz qual.
+   * `conectado` means Meta answered about the number. `desligado` means this channel was disconnected here. `indisponivel` means connected but Meta did not respond or reauthorization is pending; `motivo` identifies which.
    */
   state: 'conectado' | 'desligado' | 'indisponivel';
   quality: string | null;
@@ -47,18 +35,16 @@ export interface ChannelWhatsAppVisible {
 interface LineChannel {
   [column: string]: unknown;
   id: string;
-  name: string;
-  active: boolean;
+  nome: string;
+  ativo: boolean;
   waba_id: string | null;
   numero_id: string | null;
-  createdAt: string | Date;
+  criado_em: string | Date;
   config: Record<string, unknown> | null;
 }
 
 /**
- * O estado da ligação. Qualidade e limite vêm da Meta a cada leitura, pela saúde
- * portada do Chatwoot (`whatsapp/saude.ts`) — mudam sozinhos, sem avisar. Meta
- * fora do ar vira `indisponivel` com o motivo, nunca 502 na tela inteira.
+ * Read connection status. Quality and limits come from Meta on each read through health code ported from Chatwoot (`whatsapp/saude.ts`); they can change without notice. A Meta outage yields `indisponivel` with a reason, not a 502 for the whole screen.
  */
 export async function listChannelsWhatsApp(tenantId: string): Promise<ChannelWhatsAppVisible[]> {
   const linhas = await noTenant(tenantId, async (tx) => {
@@ -83,7 +69,7 @@ export async function listChannelsWhatsApp(tenantId: string): Promise<ChannelWha
       continue;
     }
 
-    // O token sai cifrado da consulta acima; decifrar é o `resolverCanal`, que tem cache.
+    // The query above returns an encrypted token; cached `resolverCanal` decrypts it.
     const canal = await resolveChannel(linha.id);
     const token = texto(canal?.config['tokenAcesso']);
     if (!token) {
@@ -106,7 +92,7 @@ export async function listChannelsWhatsApp(tenantId: string): Promise<ChannelWha
         limite: saude.messaging_limit_tier ?? null,
       });
     } catch (error) {
-      // O motivo é o CÓDIGO, nunca a mensagem: mensagem da Meta pode ecoar o que recebeu.
+      // Record the error CODE, never the message: a Meta message may echo user-supplied content.
       saida.push({
         ...base,
         state: 'indisponivel',
@@ -117,7 +103,7 @@ export async function listChannelsWhatsApp(tenantId: string): Promise<ChannelWha
   return saida;
 }
 
-/** Um canal no formato da tela, sem perguntar à Meta — é o que volta de conectar. */
+/** Return a channel in screen format without querying Meta; this is the connection response. */
 export async function readChannelVisible(tenantId: string, channelId: string): Promise<ChannelWhatsAppVisible> {
   const linha = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<LineChannel>(sql`
@@ -135,12 +121,7 @@ export async function readChannelVisible(tenantId: string, channelId: string): P
 }
 
 /**
- * Desconectar: desmonta o webhook na Meta (porte de `webhook_teardown_service.rb`,
- * que nunca impede o desligamento) e desativa o canal.
- *
- * **Não apaga conversa nem mensagem**, e aqui o Pipe diverge do Chatwoot de
- * propósito: lá, tirar a caixa apaga o canal; aqui o histórico é do cliente. A
- * volta é pela reautorização, com o `canal_id`.
+ * Disconnect by tearing down the Meta webhook (ported from `webhook_teardown_service.rb`, whose failure does not block disconnect) and deactivating the channel. Do not delete conversations or messages: Pipe deliberately differs from Chatwoot, where removing the inbox deletes the channel, because history belongs to the customer. Reconnect by reauthorization with `canal_id`.
  */
 export async function desconectarWhatsApp(
   tenantId: string,
@@ -173,15 +154,15 @@ export async function desconectarWhatsApp(
 }
 
 function visivel(linha: LineChannel): ChannelWhatsAppVisible {
-  // `numero` e `nomeExibicao` não são segredo: ficam legíveis no `config` cifrado.
+  // `numero` and `nomeExibicao` are not secrets; they remain readable in encrypted `config`.
   const config = linha.config ?? {};
   return {
     id: linha.id,
     name: linha.nome,
-    ativo: linha.ativo,
+    active: linha.ativo,
     wabaId: linha.waba_id,
     numeroId: linha.numero_id,
-    numero: texto(config['numero']),
+    number: texto(config['numero']),
     displayName: texto(config['nomeExibicao']),
     state: linha.ativo ? 'indisponivel' : 'desligado',
     quality: null,

@@ -7,23 +7,14 @@ import type { ChannelInstagram } from './channel.js';
 import { clienteGraphInstagram } from './cliente-graph.js';
 
 /**
- * Reconstruído de chatwoot/chatwoot (MIT), app/services/instagram/refresh_oauth_token_service.rb.
- *
- * O token de longa duração vale 60 dias e só pode ser renovado depois de 24h de
- * vida e antes de vencer. Renovar devolve outro token com mais 60 dias. A varredura
- * roda uma vez por dia (`agendarRenovacaoInstagram` em `filas.ts`) e renova todo
- * canal elegível — o token nunca chega perto de vencer.
- *
- * Token que a Meta recusa (revogado, vencido, senha trocada) não tem conserto aqui:
- * o canal é marcado com `reautorizacaoPendente`, a lista mostra `indisponivel`, e o
- * cliente cola um token novo pelo mesmo `POST /v1/canais/instagram/manual`.
+ * Reconstructed from chatwoot/chatwoot (MIT), app/services/instagram/refresh_oauth_token_service.rb. A long-lived token lasts 60 days, can be renewed after 24 hours and before expiry, and renewal grants another 60 days. `agendarRenovacaoInstagram` in `filas.ts` sweeps daily and renews eligible channels. If Meta rejects a revoked, expired, or password-invalidated token, mark `reautorizacaoPendente`, show `indisponivel`, and let the customer paste a new token through `POST /v1/canais/instagram/manual`.
  */
 
 const UM_DIA_MS = 24 * 3600 * 1000;
 
 export type ResultOfRenewal = 'renovado' | 'early_excessive' | 'expired' | 'refused';
 
-/** `token_eligible_for_refresh?`: mais de 24h de vida e ainda não vencido. */
+/** `token_eligible_for_refresh?`: older than 24 hours and not expired. */
 export function tokenElegivel(config: Record<string, unknown>, agora = new Date()): ResultOfRenewal | null {
   const renovadoEm = Date.parse(texto(config['tokenRenovadoEm']) ?? '');
   const expiraEm = Date.parse(texto(config['tokenExpiraEm']) ?? '');
@@ -56,7 +47,7 @@ export async function renovarTokenOfChannel(
     });
     return 'renovado';
   } catch (error) {
-    // Só a recusa da Meta marca reautorização; rede fora tenta de novo amanhã.
+    // Only a Meta refusal marks reauthorization pending; a network failure retries tomorrow.
     if (!(error instanceof PipeError && error.codigo === 'meta_refused')) throw error;
     console.error(`[instagram] o token do canal ${channel.id} foi recusado na renovação: ${error.message}`);
     await atualizarConfigInstagram(channel, { reautorizacaoPendente: true });
@@ -65,14 +56,13 @@ export async function renovarTokenOfChannel(
 }
 
 /**
- * A varredura diária. Papel dono só para listar QUAIS canais (id e tenant); cada
- * canal é relido e gravado dentro do tenant dele. Um canal que falha não para os outros.
+ * Daily sweep: use the owner role only to list channel IDs and tenants; reread and update each channel inside its tenant. One failure must not stop the others.
  */
 export async function renovarTokensInstagram(agora = new Date()): Promise<Record<ResultOfRenewal, number>> {
   const { rows } = await databaseOwner().execute<{ id: string; tenant_id: string }>(sql`
     select id, tenant_id from canal where tipo = 'instagram' and ativo
   `);
-  const resumo: Record<ResultOfRenewal, number> = { renovado: 0, cedo_demais: 0, vencido: 0, recusado: 0 };
+  const resumo: Record<ResultOfRenewal, number> = { renovado: 0, early_excessive: 0, expired: 0, refused: 0 };
   for (const linha of rows) {
     try {
       const channel = await readChannelInstagram(linha.tenant_id, linha.id);

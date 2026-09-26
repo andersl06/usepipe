@@ -5,19 +5,10 @@ import { configDoTenant, espelharContact } from './twenty.js';
 import type { ContactForEspelhar } from './twenty.js';
 
 /**
- * Espelhar contato do Pipe como `person` no CRM daquele cliente.
- *
- * Ver `docs/specs/2026-09-07-integracao-twenty.md` §4 e §5. A verdade do contato
- * continua no Pipe; o CRM é espelho. Escrita é só de ida.
- *
- * As três conferências de isolamento da §5 estão aqui:
- * 1. `configDoTenant` roda dentro do `comTenant` — sem RLS não há URL nem chave;
- * 2. o contato é RELIDO dentro do `comTenant` do tenant do job — `contatoId` de outro
- *    cliente não retorna linha;
- * 3. `espelharContato` confere o `pipeContatoId` que volta antes de gravar id nenhum.
+ * Mirror a Pipe contact as a `person` in that client's CRM (`docs/specs/2026-09-07-integracao-twenty.md` §§4–5). Pipe remains the contact source of truth; writes only flow outward. Three §5 isolation checks apply: read `configDoTenant` inside `comTenant` so RLS guards CRM URL and key; reread the contact in the job tenant's `comTenant` so another client's `contatoId` returns no row; and verify returned `pipeContatoId` in `espelharContato` before storing any ID.
  */
 
-/** O contato não existe, ou o tenant não tem CRM. Não é erro: é ausência. */
+/** A missing contact or tenant CRM is absence, not an error. */
 export const WITHOUT_MIRROR = 'without_mirror' as const;
 
 export type ResultMirror =
@@ -29,9 +20,9 @@ export async function syncContact(
   contactId: string,
   buscar: typeof fetch = fetch,
 ): Promise<ResultMirror> {
-  // Leitura e configuração numa transação só, com o tenant fixado. Em SÉRIE: um
+  // Read contact and configuration in one transaction with a fixed tenant, IN SERIES;
   // `Promise.all` aqui derruba o `set_config('pipe.tenant_id')` e o passo seguinte
-  // escreve no CRM de um cliente — é o pior lugar do sistema para essa armadilha.
+  // a cross-tenant CRM write is the worst place for a transaction-context failure.
   const preparo = await noTenant(tenantId, async (tx) => {
     const config = await configDoTenant(tx, tenantId);
     if (!config) return null;
@@ -67,8 +58,8 @@ export async function syncContact(
 
   if (!preparo) return { state: WITHOUT_MIRROR };
 
-  // A chamada de rede acontece FORA da transação, de propósito: uma conexão de banco
-  // presa esperando o CRM de um cliente lento é uma conexão que falta para todos os
+  // Call the network OUTSIDE the transaction: a database connection
+  // held while waiting for a slow client CRM is unavailable to everyone else.
   // outros. O `PIPE_TWENTY_TIMEOUT_MS` protege o worker; isto protege o pool.
   const pessoaId = await espelharContact(preparo.config, preparo.contact, buscar);
 
@@ -85,18 +76,7 @@ export async function syncContact(
 }
 
 /**
- * A varredura de segurança: quem ficou sem espelho volta para a fila.
- *
- * Mesmo desenho da varredura do outbox — **a fila é o empurrão, a varredura é a
- * garantia**. Sem ela, um job perdido deixaria o contato para sempre sem espelho, e
- * sem espelho não há link para a ficha, que é o que o atendente usa.
- *
- * Roda com o papel dono porque varre todos os tenants, e a política de RLS não tem
- * como devolver linha antes de haver tenant em vigor — mesma lacuna registrada em
- * `0001_rls` e no `banco.ts`. **Só este `select` roda assim**; o trabalho de verdade
- * volta para o `comTenant` em `sincronizarContato`.
- *
- * Só olha tenant que TEM CRM configurado. Cliente sem CRM nunca entra na fila.
+ * The recovery sweep requeues contacts that have no CRM mirror. The queue is a nudge; the sweep is the guarantee, as with outbox delivery. Without it, a lost job leaves a contact permanently without the CRM profile link agents use. The owner role scans all tenants because RLS cannot return rows before a tenant is set (migration `0001_rls`, `banco.ts`). ONLY this `select` uses that role; actual sync returns to `comTenant` in `sincronizarContato`. Include only tenants with CRM configured.
  */
 export async function contactsWithoutMirror(lote = 200): Promise<JobMirrorCrm[]> {
   const { rows } = await databaseOwner().execute<{ tenant_id: string; contactId: string }>(sql`
@@ -111,5 +91,5 @@ export async function contactsWithoutMirror(lote = 200): Promise<JobMirrorCrm[]>
      order by c.criado_em
      limit ${lote}
   `);
-  return rows.map((l) => ({ tenantId: l.tenant_id, contatoId: l.contactId }));
+  return rows.map((l) => ({ tenantId: l.tenant_id, contactId: l.contactId }));
 }

@@ -26,49 +26,7 @@ import { EDITAR_FLOW } from './cycle-of-lifetime-of-flow.js';
 import { exigirPermissionInFlow } from './team-of-flow.js';
 
 /**
- * O ciclo EDITAR → SALVAR RASCUNHO → PUBLICAR do Builder, POR FLUXO.
- *
- * É o que a Blip faz com dois baldes e um botão: o desenho em edição vive em
- * `blip_portal:builder_working_flow` (mais as ações globais no balde irmão), e
- * "Publicar" compila o desenho para dentro da Application, que é o que o bot
- * roda. Aqui os dois lados são linhas de `fluxo_versao` do MESMO fluxo:
- *
- * - **um rascunho por fluxo** (`estado = 'rascunho'`), e o salvar grava POR
- *   CIMA dele — blocos e transições apagados e reescritos, o número da versão
- *   mantido. Antes disto cada salvar da ponte criava uma versão nova
- *   (`importarFluxoDaBlip`), e um cliente que salvava a cada tecla enchia a
- *   tabela de rascunhos numerados;
- * - **publicar é promover**: o rascunho vira `publicada`, a publicada anterior
- *   vira `arquivada`, o número é o seguinte ao maior que o fluxo já teve, e o
- *   `fluxo.estado` passa a `publicado` — que é o que `fluxoPublicadoDoCanal`
- *   procura. A partir daí o desenho é IMUTÁVEL: `execucao_fluxo.fluxo_versao_id`
- *   é `ON DELETE RESTRICT` porque conversa em andamento aponta para a versão
- *   que a atendeu, e o histórico de passos (`execucao_passo.bloco_id`) só faz
- *   sentido contra os blocos daquela versão. Quem quer mexer num fluxo
- *   publicado salva um rascunho novo e publica de novo;
- * - **restaurar** é copiar o desenho de uma versão antiga para o rascunho.
- *   Nunca reativa a versão antiga no lugar: o histórico dela fica intacto e a
- *   pessoa revisa antes de publicar.
- *
- * O motor lê a versão publicada remontada de `bloco` e `transicao`
- * (`carregarFluxo`); o editor lê o que ele mesmo desenhou, guardado em
- * `bloco.conteudo.original` e em `fluxo_versao.global.editor` — campos que o
- * motor ignora. Bloco gravado por outro caminho (a importação de um JSON já
- * publicado, por exemplo) não tem `original`: aí o estado do motor é
- * REMONTADO no formato do editor (`estadoParaOEditor`), para a tela abrir o
- * fluxo em vez de perdê-lo.
- *
- * Permissões: ver e salvar são de quem "cria e edita chatbots"
- * (`automacao.fluxo.editar`, como nas outras telas do contato); publicar é
- * `automacao.fluxo.publicar` (migração 0034), o gesto que muda o que o cliente
- * final recebe. Roteador não tem Builder — ele só distribui a conversa entre os
- * serviços (`servicos-do-roteador.ts`) — e todas as rotas respondem 409.
- *
- * O que NÃO se faz aqui: arquivar outro fluxo publicado no mesmo canal ("um bot
- * por número", que `importarFluxoDaBlip` faz). Arquivar um fluxo é o mesmo
- * gesto de excluí-lo (`ciclo-de-vida-do-fluxo.ts`), e publicar o fluxo B não
- * pode sumir com o fluxo A do portal sem ninguém pedir. Quem decide qual fluxo
- * atende o número é a ligação ao canal, não o botão de publicar.
+ * Builder lifecycle per flow: edit, save draft, publish. Blip stores the working drawing in `blip_portal:builder_working_flow` and publishes into the running Application. Here draft and published are `fluxo_versao` rows of the SAME flow. Save overwrites the one draft per flow, replacing blocks and transitions without incrementing its version; older `importarFluxoDaBlip` saves created numbered drafts each time. Publish promotes the draft to `publicada`, archives the prior published row, assigns the next version number, and sets `fluxo.estado` to `publicado` for `fluxoPublicadoDoCanal`. Published drawings stay immutable: `execucao_fluxo.fluxo_versao_id` restricts deletion and `execucao_passo.bloco_id` depends on that version's blocks. Editing a published flow starts a new draft; restoring copies an old drawing into a draft without changing its historical version. The engine loads `bloco` and `transicao` through `carregarFluxo`; the editor reads `bloco.conteudo.original` and `fluxo_versao.global.editor`. If `original` is absent, `estadoParaOEditor` reconstructs it. Viewing and saving require `automacao.fluxo.editar`; publishing requires `automacao.fluxo.publicar` (migration 0034). Routers have no Builder and return 409. Publishing does not archive another flow on the same channel; channel binding chooses the serving flow, and archiving requires an explicit deletion gesture.
  */
 
 export const PUBLISH_FLOW = 'automacao.fluxo.publicar';
@@ -78,9 +36,7 @@ const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 /* ------------------------------------------------------------- O fluxo */
 
 /**
- * O fluxo vivo desta conta que TEM Builder — ou 404, 403, 409, nesta ordem:
- * o que não existe para a conta não existe (antes de dizer que falta
- * permissão), e só quem pode entrar fica sabendo que roteador não tem editor.
+ * Find this account's live flow with Builder, or return 404, 403, then 409 in that order. A flow outside the account must not reveal its existence before permission checks, and only an authorized user learns that a router has no editor.
  */
 async function flowOfBuilder(
   tx: TransactionPipe,
@@ -96,9 +52,9 @@ async function flowOfBuilder(
   `);
   const atual = rows[0];
   if (!atual) throw PipeError.naoEncontrado('fluxo');
-  // Editar o desenho é permissão DO FLUXO (`builder.escrever` na aba Equipe) ou a
-  // equivalente na conta — o duplo portão de `equipe-do-fluxo.ts`. Publicar continua
-  // sendo permissão de conta: a origem não tem linha de publicação no mapa por bot.
+  // Editing the drawing requires the FLOW permission `builder.escrever` on the Team tab, or the
+  // account-wide equivalent: the dual gate in `equipe-do-fluxo.ts`. Publishing remains
+  // an account permission because the source has no per-bot publish row.
   if (permission === EDITAR_FLOW) await exigirPermissionInFlow(tx, usuarioId, id, 'builder.escrever');
   else await exigirPermission(tx, usuarioId, permission);
   if (atual.type === 'roteador') {
@@ -110,7 +66,7 @@ async function flowOfBuilder(
   return atual;
 }
 
-/* ----------------------------------------------------------- As versões */
+
 
 type LinhaVersao = {
   id: string;
@@ -153,7 +109,7 @@ async function versaoLida(tx: TransactionPipe, versaoId: string): Promise<Versio
   return comoVersao(linha);
 }
 
-/** A versão mais nova do fluxo naquele estado, ou nada. */
+
 async function versionInState(
   tx: TransactionPipe,
   flowId: string,
@@ -180,10 +136,7 @@ type LineTransition = {
 };
 
 /**
- * O estado do MOTOR de volta ao formato do editor — o inverso de
- * `converterEstado` (`@pipe/core`, `editor.ts`), para bloco sem `original`.
- * Só o que o motor guarda volta: posição e título se existirem, sem os
- * `$cardContent` que a tela redesenha sozinha.
+ * Convert engine state back to the editor format, the inverse of `converterEstado` in `@pipe/core`'s `editor.ts`, for blocks without `original`. Restore only stored position and title; the screen redraws `$cardContent` itself.
  */
 function stateForOEditor(
   codigo: string,
@@ -224,7 +177,7 @@ function stateForOEditor(
   };
 }
 
-/** O desenho de uma versão: o que o editor guardou, ou o do motor remontado. */
+/** Use the editor's saved drawing when available; otherwise reconstruct it from engine state. */
 async function desenhoDaVersao(tx: TransactionPipe, versaoId: string): Promise<DesenhoDoBuilder> {
   const { rows: versions } = await tx.execute<{ global: Record<string, unknown> }>(
     sql`select global from fluxo_versao where id = ${versaoId}`,
@@ -276,7 +229,7 @@ async function desenhoDaVersao(tx: TransactionPipe, versaoId: string): Promise<D
 
 const DESENHO_PADRAO: DesenhoDoBuilder = { flow: FLOW_DEFAULT, globals: ACTIONS_GLOBAL_DEFAULT };
 
-/* ---------------------------------------------------------- Compilação */
+
 
 interface Compilado {
   flow: FlowBlip;
@@ -289,9 +242,7 @@ const ehObjeto = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === 'object' && !Array.isArray(v);
 
 /**
- * O desenho do editor no formato do motor, com o que o motor diria dele. JSON
- * é texto de fora: o mapa tem de ser objeto de objetos, e estado sem `id`
- * ganha a própria chave — é o que o editor da Blip faz ao criar o bloco.
+ * Convert the editor drawing to engine format and report engine errors. External JSON must be an object of objects; a state without `id` uses its map key, as in Blip's editor.
  */
 function compilar(desenho: unknown, fluxoId: string): Compilado {
   const bruto = ehObjeto(desenho) ? desenho : {};
@@ -316,8 +267,8 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
       fluxoId,
     );
   } catch (error) {
-    // Bloco com `$contentActions` que não é lista, saída que não é objeto: o
-    // conversor tropeça, e a culpa é do desenho, não do servidor.
+    // If `$contentActions` is not a list or an output is not an object,
+    // the drawing is invalid; the converter error is not a server fault.
     throw PipeError.request(
       'design_invalid',
       `O desenho não está no formato do editor: ${(error as Error).message}`,
@@ -326,12 +277,12 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
   return {
     flow: compilado,
     desenho: { flow: fluxo, globals: globais },
-    errors: flowErrors(compilado).map((e) => ({ bloco: e.stateId, mensagem: e.message })),
-    naoSuportado: importReport(compilado).naoSuportado,
+    errors: flowErrors(compilado).map((e) => ({ block: e.stateId, mensagem: e.message })),
+    notSupported: importReport(compilado).naoSuportado,
   };
 }
 
-/** O que é do `Flow` e não de um estado, mais o que o editor guardou das ações globais. */
+/** Fields belonging to `Flow` rather than a state, plus saved global editor actions. */
 function globalDe(compilado: Compilado): string {
   const global: Record<string, unknown> = { ...compilado.flow };
   delete global['states'];
@@ -340,7 +291,7 @@ function globalDe(compilado: Compilado): string {
   return JSON.stringify(global);
 }
 
-/** Blocos e transições de uma versão, do zero — o miolo de `importarFluxoDaBlip`. */
+/** Rebuild a version's blocks and transitions from scratch, as `importarFluxoDaBlip` does. */
 async function gravarBlocos(
   tx: TransactionPipe,
   tid: string,
@@ -374,7 +325,7 @@ async function gravarBlocos(
     for (const [i, saida] of (estado.outputs ?? []).entries()) {
       const variable = contextEhVariable(saida.stateId) ? saida.stateId : null;
       const para = variable ? null : (blockByCode.get(saida.stateId) ?? null);
-      // Destino que não existe fica só no desenho (`original`) e na lista de erros.
+      // A nonexistent destination remains only in the drawing (`original`) and error list.
       if (!variable && !para) continue;
       await tx.execute(sql`
         insert into transicao (tenant_id, versao_id, de_bloco_id, para_bloco_id, para_variavel, condicao, ordem)
@@ -388,9 +339,7 @@ async function gravarBlocos(
 }
 
 /**
- * Grava o desenho no rascunho do fluxo — por cima do que havia, ou numa versão
- * nova numerada a seguir da maior. Sem conferir permissão: quem chama já
- * conferiu, e `restaurarVersao` passa por aqui com o desenho de outra versão.
+ * Write the drawing over the flow's existing draft or into a new version after the greatest version number. Callers already check permission; `restaurarVersao` also passes an older version's drawing here.
  */
 async function gravarRascunho(
   tx: TransactionPipe,
@@ -444,7 +393,7 @@ async function gravarRascunho(
 
 /* -------------------------------------------------------------- Gestos */
 
-/** O que o Builder abre: o rascunho, senão a publicada, senão o fluxo padrão. */
+/** Builder opens the draft, otherwise the published version, otherwise the default flow. */
 export async function carregarBuilder(
   tx: TransactionPipe,
   tid: string,
@@ -468,7 +417,7 @@ export async function carregarBuilder(
   };
 }
 
-/** O "salvar" do Builder. Grava mesmo inválido — e devolve o que o motor recusaria. */
+/** Builder save persists even an invalid drawing and returns what the engine would reject. */
 export async function salvarRascunho(
   tx: TransactionPipe,
   tid: string,
@@ -482,8 +431,7 @@ export async function salvarRascunho(
 }
 
 /**
- * O "publicar": promove o rascunho. Inválido não passa — a lista de erros vai
- * no `detalhe` do 409, bloco a bloco, para a tela marcar.
+ * Publish promotes the draft only if valid; `detalhe` of the 409 lists errors by block for the screen.
  */
 export async function publicarRascunho(
   tx: TransactionPipe,
@@ -500,9 +448,9 @@ export async function publicarRascunho(
     );
   }
 
-  // Duas conferências, e as duas têm de passar: o DESENHO (o que a pessoa vê — é
-  // onde mora a saída para um bloco que não existe, que `gravarBlocos` não grava)
-  // e o que está em `bloco`/`transicao`, remontado como o motor vai remontar.
+  // Both validations must pass: the DRAWING visible to the user, where
+  // an output can target a missing block that `gravarBlocos` never stores, and
+  // the stored `bloco`/`transicao` reconstructed as the engine will see them.
   const errors: BlockError[] = compilar(await desenhoDaVersao(tx, rascunho.id), fluxoId).errors;
   const { flow } = await loadFlow(tx, { flowId: fluxoId, versaoId: rascunho.id });
   for (const e of flowErrors(flow)) {
@@ -523,7 +471,7 @@ export async function publicarRascunho(
     select coalesce(max(versao), 0) as versao from fluxo_versao
      where fluxo_id = ${fluxoId} and id <> ${rascunho.id}
   `);
-  const numero = Math.max(rascunho.versao, Number(maior[0]?.versao ?? 0) + 1);
+  const numero = Math.max(rascunho.versao, Number(maior[0]?.version ?? 0) + 1);
 
   await tx.execute(sql`
     update fluxo_versao set estado = 'arquivada', atualizado_em = now()
@@ -564,7 +512,7 @@ export async function publicarRascunho(
   };
 }
 
-/** O histórico, da mais nova para a mais antiga. */
+
 export async function listVersions(
   tx: TransactionPipe,
   tid: string,
@@ -580,7 +528,7 @@ export async function listVersions(
   return rows.map(comoVersao);
 }
 
-/** Uma versão antiga de volta como rascunho — a publicada continua no ar até publicar de novo. */
+/** Copy an old version into the draft; the published version remains live until another publish. */
 export async function restoreVersion(
   tx: TransactionPipe,
   tid: string,

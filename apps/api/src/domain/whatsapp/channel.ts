@@ -37,8 +37,8 @@ type LineChannel = {
   [column: string]: unknown;
   id: string;
   tenant_id: string;
-  name: string;
-  active: boolean;
+  nome: string;
+  ativo: boolean;
   waba_id: string | null;
   numero_id: string | null;
   config: Record<string, unknown> | null;

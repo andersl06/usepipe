@@ -64,14 +64,14 @@ export const LIMIT_HISTORY = 200;
 
 export async function carregarCatalogos(tx: TransactionPipe): Promise<Catalogos> {
   return consultar(tx, async (tx) => ({
-    filas: await tx.select({ id: queue.id, nome: queue.nome }).from(queue).orderBy(queue.order),
-    atendentes: await tx
-      .select({ id: user.id, nome: user.nome })
+    queues: await tx.select({ id: queue.id, name: queue.nome }).from(queue).orderBy(queue.order),
+    agents: await tx
+      .select({ id: user.id, name: user.nome })
       .from(user)
       .where(eq(user.ativo, true))
       .orderBy(user.nome),
-    etiquetas: await tx
-      .select({ id: etiqueta.id, nome: etiqueta.nome })
+    labels: await tx
+      .select({ id: etiqueta.id, name: etiqueta.nome })
       .from(etiqueta)
       .orderBy(etiqueta.nome),
   }));
@@ -177,18 +177,18 @@ export async function loadHistory(
       return {
         id: c.id,
         ticket: ticketDe(c.id),
-        contatoNome: c.contatoNome ?? 'Contato sem nome',
-        filaNome: c.filaNome,
-        atendenteNome: c.atendenteNome,
-        encerradaEm: marcos.encerradaEm ?? c.encerradaEm,
+        contactName: c.contatoNome ?? 'Contato sem nome',
+        queueName: c.filaNome,
+        agentName: c.atendenteNome,
+        closedAt: marcos.encerradaEm ?? c.encerradaEm,
         status: classificarClosure(marcos),
-        // Espera total do cliente: com resposta, até ela; sem resposta, até o fim.
+        // Total customer wait runs until the answer, or until closure when unanswered.
         esperaSeg: marcos.firstRespostaIn
           ? diferenca(marcos.criadaEm, marcos.firstRespostaIn)
           : diferenca(marcos.criadaEm, marcos.encerradaEm),
-        primeiraRespostaSeg: diferenca(marcos.atribuidaEm, marcos.firstRespostaIn),
-        atendimentoSeg: diferenca(marcos.firstRespostaIn, marcos.encerradaEm),
-        etiquetas: labelsByConversation.get(c.id) ?? [],
+        firstResponseSeg: diferenca(marcos.atribuidaEm, marcos.firstRespostaIn),
+        attendanceSeg: diferenca(marcos.firstRespostaIn, marcos.encerradaEm),
+        labels: labelsByConversation.get(c.id) ?? [],
       };
     });
 

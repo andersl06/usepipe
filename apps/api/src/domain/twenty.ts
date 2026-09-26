@@ -3,32 +3,16 @@ import { keyringOfAmbiente, decifrar, estaCifrado } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
 
 /**
- * O cliente do CRM (Twenty). **A única porta do Pipe para o CRM.**
- *
- * Ver `docs/specs/2026-09-07-integracao-twenty.md`. Três coisas que doem se forem
- * redescobertas por acidente:
- *
- * 1. **O esquema de autenticação NÃO está em `/graphql`, está em `/metadata`.**
- *    `/graphql` serve só os dados do workspace. Apontar o login para `/graphql`
- *    devolve `Cannot query field "getLoginTokenFromCredentials" on type "Mutation"`,
- *    que parece divergência de versão e não é.
- * 2. **Casar por `name`, nunca por `label`.** O workspace está com `x-locale` em
- *    pt-BR e a API devolve rótulo traduzido (`Pessoa`, `Empresa`), mas `nameSingular`
- *    e o `name` dos campos seguem em inglês. Casar por rótulo quebra no dia em que
- *    alguém reescrever uma tradução.
- * 3. **Uma instância por cliente**, e por isso URL e chave vêm do `tenant`, nunca do
- *    ambiente. Não existe instância padrão: sem configuração, a integração não
- *    acontece. Fallback silencioso é como o dado de um cliente vai parar no CRM
- *    de outro.
+ * Twenty CRM client, Pipe's only CRM access path (`docs/specs/2026-09-07-integracao-twenty.md`). Authenticate via `/metadata`; `/graphql` serves workspace data only and returns `Cannot query field "getLoginTokenFromCredentials" on type "Mutation"` for login attempts. Match metadata by `name`, never translated `label`: with `x-locale` pt-BR, labels such as `Pessoa` and `Empresa` change while `nameSingular` and field `name` remain English. Each tenant has its own CRM instance, so take URL and key from the tenant, never environment defaults. Without configuration, skip integration; a fallback could send one tenant's data to another's CRM. The configuration is selected from `tenant`.
  */
 
-/** O CRM fora do ar não pode pendurar o worker. */
+/** A CRM outage must not hang the worker. */
 const TIMEOUT_MS = Number(process.env['PIPE_TWENTY_TIMEOUT_MS'] ?? 8_000);
 
 export interface ConfigTwenty {
-  /** Base pública da instância daquele cliente, sem barra final. */
+  /** Public base URL of this tenant's CRM instance, without a trailing slash. */
   url: string;
-  /** Chave de API já decifrada. **Nunca** vai para log. */
+  /** Already decrypted API key; never log it. */
   key: string;
 }
 
@@ -42,11 +26,7 @@ export class TwentyError extends Error {
 }
 
 /**
- * A configuração do CRM daquele tenant, ou `null` se ele não tem CRM.
- *
- * Roda dentro do `comTenant`: se a RLS não deixar ver a linha do tenant, não há
- * URL nem chave e a integração não acontece. É a primeira das três conferências
- * de isolamento da §5 da spec.
+ * Return this tenant's CRM configuration or null. Run inside `comTenant`: if RLS hides the tenant's row, no URL or key is available and no integration occurs. This is the first of three isolation checks in spec §5. Return `null` when this tenant has no CRM.
  */
 export async function configDoTenant(
   tx: TransactionPipe,
@@ -60,7 +40,7 @@ export async function configDoTenant(
 
   const bruta = linha.twentyKey;
   // Tolera chave em texto puro para o ambiente de desenvolvimento, do mesmo jeito
-  // que `decifrarConfig` faz com o token da Meta. Em produção ela chega cifrada.
+  // Accept plaintext CRM keys in development, as `decifrarConfig` does for Meta tokens; production supplies an encrypted key.
   const key = estaCifrado(bruta) ? decifrar(bruta, keyringOfAmbiente()) : bruta;
   return { url: linha.twenty_url.replace(/\/$/, ''), key };
 }
@@ -71,13 +51,7 @@ interface RespostaGraphql<T> {
 }
 
 /**
- * Uma chamada ao CRM.
- *
- * `caminho` é `/graphql` (dados) ou `/metadata` (auth e metadados) — ver o cabeçalho.
- * `buscar` é injetável pelo mesmo motivo de `packages/autenticacao`: teste não bate
- * na rede.
- *
- * O erro registra a URL e a mensagem, **nunca** o cabeçalho `Authorization`.
+ * Call the CRM at `caminho`: `/graphql` for data, `/metadata` for authentication and metadata. Inject `buscar` so tests avoid network calls, as in `packages/autenticacao`. Log URL and error message, never the `Authorization` header.
  */
 export async function chamar<T>(
   config: ConfigTwenty,
@@ -98,12 +72,12 @@ export async function chamar<T>(
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch (error) {
-    // Rede: sempre temporário. O CRM pode ter caído, e cai de volta.
+    // Treat network failures as temporary; the CRM may be down and recover.
     throw new TwentyError(`CRM inalcançável em ${config.url}: ${(error as Error).message}`);
   }
 
   if (!resposta.ok) {
-    // 401/403 é chave errada ou sem permissão: repetir não conserta.
+    // HTTP 401/403 means an invalid or unauthorized key; retrying cannot fix it.
     const permanente = resposta.status === 401 || resposta.status === 403;
     throw new TwentyError(`CRM respondeu ${resposta.status} em ${caminho}`, permanente);
   }
@@ -119,10 +93,7 @@ export async function chamar<T>(
 }
 
 /**
- * O nome do Pipe é campo único; o do Twenty é composto.
- *
- * Quebra no PRIMEIRO espaço: "Maria Clara Souza" vira `Maria` + `Clara Souza`. Nome
- * sem espaço deixa `lastName` vazio, que é o que o Twenty espera de um nome só.
+ * Pipe has one name field; Twenty splits names. Split on the first space: "Maria Clara Souza" becomes `Maria` and `Clara Souza`. Without a space, leave `lastName` empty, as Twenty expects.
  */
 export function partirNome(nome: string | null): { firstName: string; lastName: string } {
   const limpo = (nome ?? '').trim();
@@ -139,12 +110,7 @@ export interface TelefoneTwenty {
 }
 
 /**
- * `+5511988887777` vira `{número, +55, BR}`.
- *
- * Só o Brasil está mapeado, e de propósito: é o único país que o produto atende hoje,
- * e uma tabela de DDI completa seria código morto. Número de fora do +55 entra com o
- * país vazio, que o Twenty aceita — melhor perder a bandeirinha do que perder o
- * telefone.
+ * Map `+5511988887777` to number, +55, and BR. Only Brazil has a country mapping because it is the current market. For numbers outside +55, leave country empty, which Twenty accepts, rather than losing the phone number. The target shape is `{número, +55, BR}`.
  */
 export function partirTelefone(e164: string | null): TelefoneTwenty | null {
   const limpo = (e164 ?? '').replace(/[^\d+]/g, '');
@@ -163,7 +129,7 @@ export function partirTelefone(e164: string | null): TelefoneTwenty | null {
   };
 }
 
-/** O link para a FICHA do cliente no CRM. Nunca a home. */
+/** Link to the customer's CRM record, never the CRM home page. */
 export function linkDaPessoa(url: string, pessoaId: string): string {
   return `${url.replace(/\/$/, '')}/object/person/${pessoaId}`;
 }
@@ -189,12 +155,7 @@ interface NoPessoa {
 const CAMPOS_PESSOA = 'id pipeContatoId';
 
 /**
- * Cria ou atualiza a `person` do Twenty correspondente ao contato, e devolve o id dela.
- *
- * O passo do meio — procurar por `pipeContatoId` antes de criar — é o que impede
- * duplicata. Sem ele, o roteiro "cria no CRM, a transação do Pipe falha antes de
- * gravar o id" deixa um registro órfão, e a execução seguinte cria OUTRO. Com ele, a
- * segunda execução acha o órfão e adota.
+ * Create or update the matching Twenty `person` and return its ID. Look up `pipeContatoId` before creating to avoid duplicates when CRM creation succeeds but the Pipe transaction fails before saving the ID; the next run adopts the orphaned CRM record.
  */
 export async function espelharContact(
   config: ConfigTwenty,
@@ -254,11 +215,7 @@ async function acharPessoa(
 }
 
 /**
- * A terceira conferência de isolamento da §5 da spec.
- *
- * Se a resposta veio com um `pipeContatoId` que não é o do contato que originou a
- * chamada, a URL daquele tenant aponta para a instância de OUTRO cliente — erro de
- * digitação na implantação, com chave válida. Aborta sem gravar id nenhum.
+ * Third tenant-isolation check from spec §5: if the CRM response contains a `pipeContatoId` different from the originating contact, this tenant's URL points to another tenant's CRM instance despite a valid key. Abort without storing an ID.
  */
 function conferirDono(no: NoPessoa, contatoId: string, url: string): void {
   if (no.pipeContactId !== contatoId) {
@@ -278,7 +235,7 @@ export interface FichaNoCrm {
   link: string;
 }
 
-/** O que o CRM sabe daquele cliente. Leitura, e só leitura — o Desk não escreve lá. */
+/** Read-only view of what the CRM knows about this customer; Desk does not write there. */
 export async function lerFicha(
   config: ConfigTwenty,
   pessoaId: string,
@@ -306,7 +263,7 @@ export async function lerFicha(
   if (!p) return null;
   return {
     pessoaId: p.id,
-    nome: [p.name.firstName, p.name.lastName].filter(Boolean).join(' ').trim(),
+    name: [p.name.firstName, p.name.lastName].filter(Boolean).join(' ').trim(),
     email: p.emails?.primaryEmail ?? null,
     empresa: p.company?.name ?? null,
     link: linkDaPessoa(config.url, p.id),

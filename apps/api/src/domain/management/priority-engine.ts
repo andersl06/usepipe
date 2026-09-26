@@ -4,32 +4,7 @@ import { rulePriority } from '@pipe/db/schema';
 import type { TransactionPipe } from '@pipe/db';
 
 /**
- * O motor de `regra_prioridade` — item 2 da tarefa de "fazer funcionar o que só
- * está cadastrado". `regras-prioridade.ts` tem o CRUD completo desde a tarefa
- * de cadastros, mas registrava ali mesmo a decisão de NÃO construir este
- * motor ("Decisão Pipe — sem motor": "nenhum lugar do produto hoje LÊ
- * `regra_prioridade`"). Esta tarefa pediu para ligar: agora, quando a conversa
- * entra na fila (`dominio/entrada.ts`, `dominio/fluxo.ts`), as regras ativas
- * são avaliadas nesta ordem e a primeira que casar define `conversa.prioridade`.
- *
- * **Decisão Pipe — sem coluna de ordem, ainda.** `regras-prioridade.ts`
- * também tinha registrado "Decisão Pipe — sem ordem", condicionada a
- * "primeiro sinal de que faz falta é o motor de verdade nascer". O motor
- * nasceu agora, mas ainda dá para ter uma ordem determinística SEM migração:
- * regra de escopo `fila` sempre vence a de escopo `tenant` — a MESMA
- * precedência que `escolherRegra` já usa para `regra_sla` em `sla.ts`
- * ("a de escopo de fila vence a de escopo do tenant, porque a mais específica
- * é a que o gestor configurou de propósito") — e dentro do mesmo escopo a
- * mais ANTIGA (`criado_em`) vence. Uma coluna `ordem` (como `regra_fila` já
- * tem) fica para o dia em que alguém precisar reordenar sem recriar a regra.
- *
- * **Decisão Pipe — condição vazia sempre casa.** `regra_prioridade.condicao`
- * nasce `{}` (o padrão do schema, `packages/db/src/schema/gestao.ts`). Ao
- * contrário de `regra_fila` (`regra-fila.ts`, onde "regra ativa SEM condição
- * nenhuma nunca casa", porque lá a condição é a regra INTEIRA), aqui o
- * ESCOPO já filtra a aplicabilidade — condição é um refinamento OPCIONAL por
- * cima dele. "Toda conversa desta fila nasce com nível X" é um caso de uso
- * legítimo e não deveria exigir uma condição de mentira só para casar sempre.
+ * The `regra_prioridade` engine now evaluates active rules when a conversation enters a queue (`dominio/entrada.ts`, `dominio/fluxo.ts`), and the first match sets `conversa.prioridade`. Earlier `regras-prioridade.ts` implemented only CRUD. Pipe still has no explicit order column: queue-scoped rules precede tenant-scoped rules, as in SLA `escolherRegra` in `sla.ts`; within a scope, older `criado_em` wins. Add an `ordem` column only if reordering without recreation becomes necessary. An empty condition matches all conversations IN SCOPE: `regra_prioridade.condicao` defaults to `{}` (`packages/db/src/schema/gestao.ts`), and scope already filters applicability. This deliberately differs from empty `regra_fila` conditions, which never match because their conditions are the whole rule.
  */
 
 export interface RulePriorityForEngine {
@@ -47,22 +22,20 @@ export async function loadRulesOfPriorityActive(
   const linhas = await tx
     .select({
       id: rulePriority.id,
-      nivel: rulePriority.nivel,
-      escopoTipo: rulePriority.scopeType,
-      escopoId: rulePriority.scopeId,
-      condicao: rulePriority.condition,
+      level: rulePriority.nivel,
+      scopeType: rulePriority.scopeType,
+      scopeId: rulePriority.scopeId,
+      condition: rulePriority.condition,
       criadoEm: rulePriority.criadoEm,
     })
     .from(rulePriority)
     .where(and(eq(rulePriority.ativa, true)))
     .orderBy(asc(rulePriority.criadoEm), asc(rulePriority.id));
-  return linhas.map((l) => ({ ...l, condicao: (l.condicao ?? {}) as Record<string, unknown> }));
+  return linhas.map((l) => ({ ...l, condition: (l.condition ?? {}) as Record<string, unknown> }));
 }
 
 /**
- * Ordem de avaliação, estável e testável — ver a decisão Pipe no topo do
- * arquivo. Escopo `fila` (0) antes de `tenant` (1); empate desempata pela
- * mais antiga, e um empate residual (mesmo instante) pelo id.
+ * Deterministic evaluation order: `fila` scope (0) before `tenant` (1), then older creation time, then ID for exact ties.
  */
 export function ordenarRulesOfPriority(
   regras: readonly RulePriorityForEngine[],
@@ -80,7 +53,7 @@ function conditionEmpty(condition: Record<string, unknown>): boolean {
   return Object.keys(condition).length === 0;
 }
 
-/** O que a conversa recém-chegada oferece à condição — mesmo desenho de `ContextoDaConversa` em `regra-fila.ts`. */
+/** Fields offered by a newly arrived conversation, shaped like `ContextoDaConversa` in `regra-fila.ts`. */
 export interface ContextOfPriority {
   queueId?: string | null;
   message?: string | null;
@@ -93,10 +66,7 @@ export interface ContextOfPriority {
 }
 
 /**
- * A primeira regra ativa que casa (escopo + condição, nesta ordem — o escopo é
- * mais barato de checar e filtra a maioria antes de avaliar a expressão).
- * `null` quando nenhuma casa: a conversa mantém `sem_prioridade`, o padrão de
- * `conversa.prioridade` — não muda o comportamento de quem não cadastrou regra.
+ * Return the first active rule whose scope and condition match, checking cheap scope first. `null` leaves `conversa.prioridade` at default `sem_prioridade`, preserving behavior without registered rules.
  */
 export function avaliarPriority(
   regras: readonly RulePriorityForEngine[],

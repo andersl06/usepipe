@@ -56,8 +56,8 @@ export async function loadEffort(
   window: Window,
 ): Promise<ReportEffort> {
   return consultar(tx, async (tx) => {
-    // Mensagens das conversas encerradas dentro do período, com o áudio junto:
-    // sem a duração do anexo a régua não tem o que ouvir nem o que falar.
+    // Load messages from conversations closed in the period with audio attachments:
+    // without attachment duration, the effort model cannot measure listening or speaking.
     const linhas = await tx
       .select({
         conversaId: message.conversationId,
@@ -86,7 +86,7 @@ export async function loadEffort(
       .orderBy(asc(message.criadaEm));
 
     const byConversation = new Map<string, { agentId: string | null; msgs: MessageEffort[] }>();
-    // Instantes das mensagens de saída de cada atendente — base do tempo em sessão.
+    // Timestamps of each agent's outgoing messages form the session-time basis.
     const instantesByAgent = new Map<string, Date[]>();
 
     for (const l of linhas) {
@@ -99,7 +99,7 @@ export async function loadEffort(
         tipo: l.tipo as MessageEffort['tipo'],
         conteudo: l.conteudo,
         userId: l.usuarioId,
-        // Template também não foi digitado à mão: entra na mesma coluna separada.
+        // Template text was not typed by the agent either; report it in the same separate column.
         respostaProntaId: l.respostaProntaId ?? l.templateId ?? null,
         attachment:
           l.duracaoSeg !== null || l.bytes !== null
@@ -146,18 +146,18 @@ export async function loadEffort(
         const { sessionSeg } = calcularTimeInSession(instantesByAgent.get(id) ?? []);
         return {
           id,
-          nome: nomes.get(id) ?? id,
+          name: nomes.get(id) ?? id,
           tickets: conversations.length,
           effortSeg,
-          esforcoPorTicketSeg: conversations.length > 0 ? effortSeg / conversations.length : null,
+          effortByTicketSeg: conversations.length > 0 ? effortSeg / conversations.length : null,
           sessionSeg,
-          ocupacao: occupancy(effortSeg, sessionSeg),
+          occupancy: occupancy(effortSeg, sessionSeg),
           charsEscritos: soma((c) => c.charsEscritos),
           charsLidos: soma((c) => c.charsLidos),
           audioOuvidoSeg: soma((c) => c.audioOuvidoSeg),
           audioGravadoSeg: soma((c) => c.audioGravadoSeg),
           charsDeRespostaPronta: soma((c) => c.charsDeRespostaPronta),
-          esforcoRespostaProntaSeg: soma((c) => c.effortCannedResponseSeg),
+          effortResponseReadySeg: soma((c) => c.effortCannedResponseSeg),
           audiosSemMetadado: soma((c) => c.audiosSemMetadado),
         };
       })
@@ -166,8 +166,8 @@ export async function loadEffort(
     return {
       window,
       agents,
-      conversasConsideradas: byConversation.size,
-      conversasSemAtendente: withoutAgent,
+      conversationsConsideradas: byConversation.size,
+      conversationsWithoutAgent: withoutAgent,
     };
   });
 }

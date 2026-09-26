@@ -8,21 +8,7 @@ import { enviarEmailSemDerrubar } from '../email.js';
 import { preferencesOf } from './preferences.js';
 
 /**
- * O que a Meta avisa sobre os modelos da WABA pelo webhook, sem ninguém sincronizar:
- *
- * - `message_template_status_update`: aprovado, rejeitado, pausado, desativado;
- * - `template_category_update`: a Meta recategorizou o modelo (utilidade →
- *   marketing costuma mudar o preço). É o evento por trás do "Alertas de
- *   recategorização de modelos" da origem (`FICHA-canal-whatsapp.md` §4).
- *
- * Esses campos não aceitam override por número: chegam pelo webhook DO APP, que o
- * cliente aponta para a URL do canal na configuração manual. A atualização é por
- * (canal, nome, idioma), que é a chave de `template_mensagem`.
- *
- * O alerta sai por dois caminhos: o webhook de saída `modelo.recategorizado`
- * (na transação, com os e-mails configurados no corpo) e o E-MAIL para esses
- * mesmos endereços (`dominio/email.ts`), depois do commit. Falhar o e-mail não
- * desfaz nada: o modelo já está recategorizado e o webhook já foi enfileirado.
+ * Meta's WABA template webhooks update local models without polling: `message_template_status_update` reports approval, rejection, pause, or disablement; `template_category_update` reports recategorization, such as utility to marketing, which can change price and triggers Blip's recategorization alert (`FICHA-canal-whatsapp.md` §4). These fields have no per-number override, so they arrive at the customer's app webhook configured to the channel URL. Update by (channel, name, language), the `template_mensagem` key. Send alert through outbound webhook `modelo.recategorizado` in the transaction, including configured emails, and email those addresses through `dominio/email.ts` after commit. Email failure cannot undo the model update or queued webhook.
  */
 
 const STATUS: Readonly<Record<string, string>> = {
@@ -66,10 +52,7 @@ export function mudancasOfTemplate(payload: unknown): Mudanca[] {
 }
 
 /**
- * "Vazio = todos os administradores", como diz a tela da origem
- * (`preferencias.ts`). Decisão Pipe sobre quem é "administrador" aqui: quem tem
- * `canal.gerenciar` no tenant — a permissão de quem conecta e configura o canal,
- * e portanto de quem decide o que fazer com um modelo que mudou de preço.
+ * An empty address list means all administrators, as the original screen says (`preferencias.ts`). Pipe defines administrators here as tenant users with `canal.gerenciar`, who manage the channel and can respond to a model price change.
  */
 async function emailsOfWhoGerenciaChannel(tx: TransactionPipe): Promise<string[]> {
   const { rows } = await tx.execute<{ email: string }>(sql`
@@ -92,7 +75,7 @@ export interface AlertOfRecategorization {
   emails: string[];
 }
 
-/** O e-mail do alerta. Texto puro, com o que muda e onde olhar. */
+/** Plain-text alert email describing the change and where to inspect it. */
 export function emailOfRecategorization(alerta: AlertOfRecategorization, canalNome: string): {
   para: string[];
   assunto: string;
@@ -113,7 +96,7 @@ export function emailOfRecategorization(alerta: AlertOfRecategorization, canalNo
   };
 }
 
-/** Devolve quantos modelos mudaram. Modelo que o Pipe não conhece é ignorado — sincronizar traz. */
+/** Return the number of changed models; ignore unknown local models until synchronization imports them. */
 export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload: unknown): Promise<number> {
   let aplicados = 0;
   for (const { field, value } of mudancasOfTemplate(payload)) {
@@ -155,7 +138,7 @@ export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload:
       `);
       const alertas: AlertOfRecategorization[] = [];
       // Vazio = todos os administradores, como diz a tela da origem. Resolvido
-      // uma vez por evento, e só se houver o que avisar.
+      // Send once per event and only when there is something to report.
       const emails =
         rows.length > 0 && alerta.active
           ? alerta.emails.length > 0
@@ -179,7 +162,7 @@ export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload:
             idioma,
             categoria_anterior: anterior,
             categoria_nova: nova,
-            // O que está configurado no canal; vazio = todos os administradores.
+            // Use addresses configured on the channel; an empty list means all administrators.
             emails: alerta.emails,
           });
           alertas.push({
@@ -195,10 +178,10 @@ export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload:
       const { rows: channels } = await tx.execute<{ name: string }>(
         sql`select nome from canal where id = ${channel.id}::uuid limit 1`,
       );
-      return { mudados: rows.length, alertas, channelName: channels[0]?.nome ?? 'WhatsApp' };
+      return { mudados: rows.length, alertas, channelName: channels[0]?.name ?? 'WhatsApp' };
     });
     aplicados += mudados;
-    // Depois do commit, e sem derrubar: o modelo já mudou e o webhook já saiu.
+    // Send after commit without failing the already completed model update and webhook.
     for (const a of alertas) {
       await enviarEmailSemDerrubar(
         emailOfRecategorization(a, channelName),

@@ -13,16 +13,7 @@ import { evento, publicar } from '../realtime.js';
 import { enqueueDelivery } from '../queues.js';
 
 /**
- * Envio de mensagem pela API.
- *
- * O que muda em relação ao que o Desk fazia: a mensagem **não** nasce `enviada`.
- * Ela nasce `pendente` e ganha uma linha em `outbox_mensagem`; quem entrega é o
- * worker, e o estado só avança quando a Meta confirma. Era exatamente o ponto de
- * extensão marcado em `apps/desk/src/app/acoes.ts`.
- *
- * A regra da janela de 24h vem de `@pipe/core` e é avaliada **antes** de gravar:
- * fora da janela, texto livre é recusado com o motivo escrito, nunca com um erro
- * da Meta depois do envio.
+ * API sends do not start as `enviada`, unlike the old Desk path. A message starts `pendente` with an `outbox_mensagem` row; a worker delivers it and state advances only after Meta confirms, as anticipated in `apps/desk/src/app/acoes.ts`. Evaluate the 24-hour window rule from `@pipe/core` BEFORE writing; outside the window, reject free text with an actionable reason rather than a later Meta error.
  */
 
 export type TipoEnvio = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'template';
@@ -30,33 +21,23 @@ export type TipoEnvio = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | '
 export interface PedidoDeEnvio {
   tenantId: string;
   conversationId: string;
-  /** Atendente que assina a mensagem. Ausente = integração, e a mensagem é do sistema. */
+  /** Agent signing the message. Absent means an integration sends as the system. */
   agentId?: string | null;
   type?: TipoEnvio;
   texto?: string | null;
   templateId?: string | null;
-  /** Valores das variáveis do corpo, na ordem de `{{1}}`, `{{2}}`, … */
+  /** Body variable values in `{{1}}`, `{{2}}`, … order. */
   parametros?: string[];
-  /** Mídia já subida para o storage. */
+
   attachmentId?: string | null;
-  /** URL pública da mídia do cabeçalho do template. É ela que ocupa a posição 1. */
+  /** Public URL for template-header media; it occupies send position 1. */
   mediaUrl?: string | null;
   /**
-   * Resposta pronta usada para escrever a mensagem. Só alimenta o relatório de esforço
-   * — mas vem no MESMO insert de propósito: a tela carimbava numa segunda ida ao banco
-   * depois do envio, e toda vez que aquela segunda escrita falhava a marca sumia sem
-   * ninguém notar.
+   * Insert the prepared reply in the SAME write as the message so it can feed effort reporting. The old screen stamped it in a second database call after send; when that call failed, the mark vanished without notice.
    */
   responseReadyId?: string | null;
   /**
-   * Exige que a conversa esteja atribuída a `atendenteId`.
-   *
-   * Ligado quando quem pede é uma PESSOA num navegador: atendente responde no que é
-   * dele. Desligado para integração, que não tem dono e fala pelo sistema.
-   *
-   * A regra mora aqui, e não no controlador, de propósito: qualquer caminho que
-   * chegue a `enviarMensagem` obedece. Confiar na tela lembrar é como o Desk chegou
-   * a gravar mensagem sem outbox.
+   * Require the conversation to be assigned to `atendenteId` for a PERSON in a browser: agents reply only to their own work. Disable this requirement for an integration, which has no owner and sends as the system. Keep the rule here, not in the controller, so every path through `enviarMensagem` obeys it; relying on the screen previously allowed messages without an outbox.
    */
   exigirAtribuicao?: boolean;
 }
@@ -70,13 +51,12 @@ export interface MessageQueued {
 }
 
 /**
- * `@pipe/core` só conhece canal com janela e canal sem janela. Instagram, e-mail e
- * widget caem no segundo grupo — a mesma tradução que o Desk faz.
+ * `@pipe/core` distinguishes channels with a window from those without. Instagram, email, and widget are in the second group, as in Desk.
  */
-// Decisão Pipe: o Instagram cai aqui como canal SEM janela, igual ao widget. O Direct
-// tem janela de 24h para resposta padrão (7 dias com a tag HUMAN_AGENT); fora dela a
-// Meta recusa o envio e o worker grava a falha na mensagem. Regra de janela própria do
-// Instagram no `@pipe/core` é decisão de produto ainda por tomar.
+// Pipe currently treats Instagram as a channel WITHOUT a window, like widget. Direct
+// does have a 24-hour standard reply window, extended to seven days with HUMAN_AGENT;
+// outside it Meta rejects sends and the worker records the failure on the message. A
+// dedicated Instagram window rule in `@pipe/core` remains a product decision.
 function channelOfCore(tipo: string): TipoChannel {
   return tipo === 'whatsapp_cloud' ? 'whatsapp_cloud' : 'widget';
 }
@@ -125,15 +105,15 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
       );
     }
 
-    // Atendente responde no que é dele. Conversa na fila (sem dono) também é recusada:
-    // pegar a conversa é uma ação com evento próprio (`atribuida`), e deixar o envio
-    // atribuir por tabela faria o relatório de TMR perder o marco.
+    // Agents reply only to their assigned conversations. An unowned queued conversation is also rejected:
+    // claiming a conversation records its own `atribuida` event, and silently assigning on send
+    // would cause TMR reports to miss that event.
     if (pedido.exigirAtribuicao && conversation.agentId !== pedido.agentId) {
       throw new PipeError(
         403,
         'conversation_of_other_agent',
         // O texto segue o da Blip ("Contato sendo atendido por outra pessoa. Para
-        // atender, solicite a transferência a…"): diz o que houve e o que fazer.
+        // Keep the literal "atender, solicite a transferência a…": it explains what happened and what to do.
         conversation.agentId
           ? 'Contato sendo atendido por outra pessoa. Para atender, solicite a transferência.'
           : 'Esta conversa não está atribuída a você. Assuma a conversa antes de responder.',
@@ -168,7 +148,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     });
 
     if (!evaluation.permitido) {
-      // Mensagem em português e acionável: é ela que o atendente lê na tela.
+      // Use an actionable Portuguese message because the agent reads it on screen.
       const message =
         evaluation.motivo === 'janela_fechada'
           ? 'A janela de 24 horas fechou: fora dela só sai template aprovado pela Meta. ' +
@@ -188,9 +168,9 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     }
 
     // Palavras proibidas — ANTES de gravar, como o `sendTextMessage` do Desk da
-    // origem (`blip-desk-regras-tecnicas.md` §3.4): achou, não envia. Vale para o
+    // The source (`blip-desk-regras-tecnicas.md` §3.4) rejects forbidden words before sending. Apply this to
     // texto livre assinado por atendente (inclusive a legenda de anexo); template
-    // e mensagem do sistema/bot não passam pelo filtro, como lá.
+    // agent-authored free text, including attachment captions; templates and system/bot messages bypass the filter, as in the source.
     if (pedido.agentId && !template && conteudo) {
       await exigirSemPalavrasProibidas(tx, pedido.tenantId, conteudo);
     }
@@ -222,17 +202,17 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
       values (${pedido.tenantId}, ${messageId}, 'pendente')
     `);
 
-    // Responder tira a conversa de `atribuida` e de `em_espera` — as duas transições
-    // que a máquina de estados permite para `em_atendimento`.
+    // Replying moves a conversation from `atribuida` or `em_espera`, the two transitions
+    // the state machine allows into `em_atendimento`.
     const stateNew =
       conversation.state === 'atribuida' || conversation.state === 'em_espera'
         ? 'em_atendimento'
         : conversation.state;
-    // **Resposta pressupõe pergunta.** Só conta como `primeira_resposta` se o cliente
-    // já tiver falado nesta conversa (`ultima_mensagem_em` preenchido). Numa conversa
-    // aberta por mensagem ativa quem começou fomos nós, e contar o disparo como
+    // A REPLY presupposes a question. Count `primeira_resposta` only after the client
+    // has spoken in this conversation (`ultima_mensagem_em` set). For an active-message
+    // conversation we started first; counting that send as a first reply
     // primeira resposta cravaria um TMR de zero segundo — enfeitando justamente a
-    // métrica que a spec de métricas proíbe enfeitar.
+    // would manufacture a zero-second TMR, contrary to the metrics spec.
     const clienteJaFalou = comoData(conversation.lastMessageAt) !== null;
     const firstResponse =
       comoData(conversation.firstResponseAt) === null && !!pedido.agentId && clienteJaFalou;
@@ -286,7 +266,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     };
   });
 
-  // Fora da transação: enfileirar e drenar webhook não podem prender o commit.
+  // Enqueue and drain outside the transaction; neither may delay commit.
   await enqueueDelivery({
     messageId: resultado.messageId,
     ...(resultado.valores ? { parametros: resultado.valores } : {}),
@@ -297,10 +277,10 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
 
   return {
     id: resultado.messageId,
-    estadoEntrega: 'pending',
+    estadoEntrega: 'pendente',
     insideOfWindow: resultado.dentroDaJanela,
     categoriaCobranca: resultado.categoriaCobranca,
-    conteudo: resultado.conteudo,
+    content: resultado.conteudo,
   };
 }
 
@@ -308,9 +288,9 @@ export interface RequestOfLoteOfAttachments {
   tenantId: string;
   conversationId: string;
   agentId?: string | null;
-  /** Os anexos já subidos por `POST /v1/anexos`, na ordem em que devem sair. */
+  /** Previously uploaded attachments from `POST /v1/anexos`, in send order. */
   attachmentIds: string[];
-  /** Legenda opcional: vai na PRIMEIRA mensagem do lote, como a origem faz com `text`. */
+  /** Optional caption goes on the FIRST message of the batch, as the source does with `text`. */
   texto?: string | null;
   exigirAssignment?: boolean;
 }
@@ -318,26 +298,7 @@ export interface RequestOfLoteOfAttachments {
 type LineAttachment = { id: string; mime: string; bytes: string; nome_original: string | null };
 
 /**
- * Vários arquivos num envio só — **uma mensagem por arquivo, em sequência**.
- *
- * É o modelo da origem, e não uma simplificação nossa: no protocolo LIME cada
- * `application/vnd.lime.media-link+json` carrega UM `uri`
- * (`referencias-blip/pesquisa/blip-api-schemas.md`, "media-link"), e o modal de múltiplos
- * arquivos do Desk (`ModalType.SEND_MULT_FILE`) monta uma lista
- * `mediaLinkDocuments` — uma mensagem por arquivo — limitada a
- * `MAX_ATTACHMENT_COUNT = 10` (`blip-desk-regras-tecnicas.md` §3.3). Por isso
- * `mensagem.anexo_id` continua sendo UM, sem tabela nova.
- *
- * O que é do lote, e não de cada mensagem: a validação. O laço da origem aborta
- * inteiro quando um arquivo estoura o limite (§3.3, passo 6), e aqui vale o
- * mesmo — todos os anexos são conferidos (existem no tenant, tipo aceito,
- * tamanho dentro do teto do tipo, no máximo 10) ANTES de a primeira mensagem
- * sair. Uma recusa no meio do lote deixaria o cliente com metade dos arquivos
- * e o atendente sem saber quais.
- *
- * As mensagens saem em série pela mesma `enviarMensagem`: mesma janela de 24 h,
- * mesmo outbox, mesmo evento por mensagem. Se a primeira for recusada (janela
- * fechada, conversa de outro), nenhuma sai.
+ * Send several attachments as ONE operation but ONE message per file, serially. This follows the source LIME protocol: each `application/vnd.lime.media-link+json` carries ONE `uri` (`referencias-blip/pesquisa/blip-api-schemas.md`, "media-link"); the Desk `ModalType.SEND_MULT_FILE` builds `mediaLinkDocuments`, capped at `MAX_ATTACHMENT_COUNT = 10` (`blip-desk-regras-tecnicas.md` §3.3). Thus `mensagem.anexo_id` remains singular. Validate the WHOLE batch before sending the first: every attachment must exist in the tenant, have an accepted type and size, and total no more than 10. The source loop aborts on one oversized file (§3.3 step 6); sending half would leave the client and agent uncertain. Send each through `enviarMensagem` in series, retaining the same 24-hour window, outbox, and event rules. If the first is rejected, none are sent.
  */
 export async function sendAttachments(pedido: RequestOfLoteOfAttachments): Promise<MessageQueued[]> {
   const ids = pedido.attachmentIds.filter((id, i, lista) => lista.indexOf(id) === i);
@@ -367,8 +328,8 @@ export async function sendAttachments(pedido: RequestOfLoteOfAttachments): Promi
   for (const id of ids) {
     const attachment = byId.get(id);
     if (!attachment) throw PipeError.naoEncontrado('Anexo');
-    // `guardarAnexo` já recusou o que não passa, mas o teto é conferido de novo
-    // por arquivo: o lote inteiro cai se um deles não couber, com o nome dele.
+    // `guardarAnexo` already rejected invalid files, but recheck each size
+    // so one oversized file rejects the entire batch and identifies the file.
     const nome = attachment.nome_original ?? attachment.id;
     if (!mimeAceito(attachment.mime)) {
       throw PipeError.request('type_not_accepted', `O arquivo "${nome}" é de um tipo não aceito.`, {
@@ -411,19 +372,7 @@ function mb(bytes: number): string {
 }
 
 /**
- * Reenviar uma mensagem que falhou.
- *
- * O que a tela fazia sozinha estava **quebrado**: ela devolvia `mensagem` para
- * `pendente` e não encostava em `outbox_mensagem`. Como o worker reivindica pelo
- * ESTADO DO OUTBOX (`where estado = 'pendente'`), a linha continuava `falhou` e nada
- * era reentregue — o botão dizia que reenviou e o cliente seguia sem receber. É o
- * mesmo defeito do ✓ mentiroso, um andar abaixo.
- *
- * `tentativas` volta a zero: quem clicou está dizendo que a causa da falha foi
- * resolvida, e manter o backoff antigo faria o reenvio esperar 15 minutos por nada.
- *
- * `entregue_em` **não** é carimbado. Ele é a hora em que a Meta confirmou, e
- * preenchê-lo sem confirmação é inventar prova de entrega.
+ * Retry a failed message. The screen used to set `mensagem` back to `pendente` but left `outbox_mensagem` as `falhou`; the worker claims by OUTBOX STATE (`where estado = 'pendente'`), so nothing was redelivered although the button said it was. Reset `tentativas` to zero because the user says the cause is fixed; keeping the old backoff could delay retry 15 minutes. Do NOT stamp `entregue_em` without Meta confirmation, since that would fabricate delivery evidence.
  */
 export async function resendMessage(
   tenantId: string,
@@ -437,8 +386,8 @@ export async function resendMessage(
       returning id
     `);
     if (!rows[0]) {
-      // Sem linha afetada, a mensagem não existe ou já não estava falha. Responder
-      // 200 calado fazia o botão parecer que resolveu.
+      // If no row was affected, the message is missing or no longer failed; a silent 200
+      // would make the button appear to have fixed delivery.
       throw PipeError.conflito('message_not_failed', 'Esta mensagem não está mais em falha.');
     }
 
@@ -450,9 +399,9 @@ export async function resendMessage(
       returning id
     `);
     if (!outbox[0]) {
-      // Mensagem falha sem linha de outbox é a assinatura do defeito antigo: a tela
-      // gravava a mensagem e não enfileirava nada. Recriar a linha é o que faz essas
-      // mensagens antigas voltarem a ter conserto pelo botão.
+      // A failed message without an outbox row is the signature of the old defect: the screen
+      // stored the message but enqueued nothing. Recreating that row lets
+      // the retry button repair those legacy messages.
       await tx.execute(sql`
         insert into outbox_mensagem (tenant_id, mensagem_id, estado)
         values (${tenantId}, ${messageId}::uuid, 'pendente')
@@ -461,10 +410,10 @@ export async function resendMessage(
   });
 
   await enqueueDelivery({ messageId });
-  return { id: messageId, stateDelivery: 'pending' };
+  return { id: messageId, stateDelivery: 'pendente' };
 }
 
-/** `{{1}}`, `{{2}}`, … no corpo do template. A numeração aqui é a do **corpo**. */
+/** `{{1}}`, `{{2}}`, … in the template body; numbering here is BODY numbering. */
 function renderizar(corpo: string, parametros: readonly string[]): string {
   return corpo.replace(/\{\{(\d+)\}\}/g, (_todo, numero: string) => {
     const value = parametros[Number(numero) - 1];
@@ -473,9 +422,7 @@ function renderizar(corpo: string, parametros: readonly string[]): string {
 }
 
 /**
- * Traduz os valores do corpo para as posições de disparo, aplicando o deslocamento
- * de mídia no cabeçalho. A regra do deslocamento tem **uma** implementação, em
- * `@pipe/workers/whatsapp`; aqui só se chama ela.
+ * Map body values to send positions with the media-header offset. The offset has ONE implementation in `@pipe/workers/whatsapp`; call it here rather than duplicating it.
  */
 function posicionar(
   template: LinhaTemplate,

@@ -6,13 +6,7 @@ import { exigirPermission } from '../session.js';
 import { evento, publicar } from '../realtime.js';
 
 /**
- * Status do atendente: online, pausa, invisível, offline.
- *
- * Sobe do Desk para cá pelo mesmo motivo de encerrar e pausar conversa: **o evento não
- * pode depender de a tela lembrar**. Sem isto, a Gestão só descobre que alguém saiu no
- * próximo recarregamento — e o "desconectar atendente inativo" não teria como existir,
- * porque derrubar alguém é mexer no status de OUTRA pessoa, e isso nenhuma tela faz
- * direto no banco.
+ * Agent status is online, paused, invisible, or offline. Keep this transition in the API domain, as with closing and pausing conversations: the event cannot depend on a screen remembering to emit it. Otherwise Management learns of exits only on refresh, and disconnecting an inactive agent could not change another person's status safely through the screen.
  */
 
 const STATES_AGENT = schema.STATES_AGENT;
@@ -25,9 +19,9 @@ export function ehStateAgent(value: string): value is StateAgent {
 
 export interface PedidoDeStatus {
   tenantId: string;
-  /** Quem está pedindo. Nulo é integração. */
+  /** Requesting actor; null means an integration. */
   byUserId: string | null;
-  /** De quem é o status. Diferente de `porUsuarioId` = ação de supervisão. */
+  /** Agent whose status changes; unlike `porUsuarioId`, this can be a supervisor action. */
   targetUserId: string;
   state: StateAgent;
   motivoPausaId?: string | null;
@@ -35,7 +29,6 @@ export interface PedidoDeStatus {
 
 export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: StateAgent }> {
   // Pausa exige motivo, escolhido da lista que o gestor cadastra. Sem motivo, o tempo
-  // de pausa não alimenta relatório nenhum — e é por isso que é obrigatório.
   if (pedido.state === 'pausa' && !pedido.motivoPausaId) {
     throw PipeError.request('reason_required', 'Escolha o motivo da pausa.');
   }
@@ -43,18 +36,11 @@ export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: St
   const agora = new Date();
 
   await noTenant(pedido.tenantId, async (tx) => {
-    // Mexer no status de OUTRA pessoa é supervisão, e é o que a Gestão faz ao
-    // desconectar quem ficou inativo. Quem mexe no próprio não precisa de permissão.
+    // Changing another agent's status requires supervision permission, as when Management disconnects an inactive agent. Agents may change their own status without that permission.
     //
-    // A permissão é `monitoramento.tempo_real.ver`, e não uma nova: é a que o papel
-    // `supervisor` já tem e é exatamente a tela de onde a ação parte.
+    // Reuse `monitoramento.tempo_real.ver`, already granted to `supervisor` and used by the screen initiating this action.
     //
-    // ponytail: permissão emprestada. O certo é `atendente.gerenciar` própria, e o
-    // custo é UMA linha em `CATALOGO_PERMISSOES` de `packages/db/src/semente.ts`
-    // (mais o papel do supervisor) e UMA linha aqui. Ficou de fora hoje só para não
-    // haver dois agentes no mesmo arquivo de catálogo. Enquanto for assim, quem tiver
-    // o monitoramento consegue derrubar atendente — que é o mesmo público, mas por
-    // coincidência, não por desenho.
+    // ponytail: this borrows `monitoramento.tempo_real.ver`; a dedicated `atendente.gerenciar` permission would require adding it to `CATALOGO_PERMISSOES` in `packages/db/src/semente.ts`, assigning it to supervisors, and changing this check. Until then, anyone allowed to monitor can disconnect an agent. That audience overlaps today by coincidence rather than design.
     if (pedido.byUserId && pedido.byUserId !== pedido.targetUserId) {
       await exigirPermission(tx, pedido.byUserId, 'monitoramento.tempo_real.ver');
     }
@@ -71,7 +57,7 @@ export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: St
     `);
 
     // Sai da pausa anterior antes de abrir outra: pausa aberta em duplicidade conta o
-    // mesmo minuto duas vezes no relatório de ocupação.
+    // Avoid counting the same minute twice in the occupancy report.
     await tx.execute(sql`
       update pausa set encerrada_em = ${agora}
        where usuario_id = ${pedido.targetUserId}::uuid and encerrada_em is null
@@ -89,14 +75,12 @@ export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: St
     }
   });
 
-  // Depois do commit, como toda ação de domínio.
+  // Emit only after commit, like other domain actions.
   //
-  // SEM `usuarioId` de propósito: mudança de status é do interesse do time inteiro —
-  // a Gestão pinta o painel de presença e o Desk sabe quem pode receber transferência.
-  // Não é dado privado da pessoa.
+  // Omit `usuarioId` deliberately: status changes concern the whole team. Management updates presence and Desk knows who can receive transfers; this is not private user data.
   await publicar(pedido.tenantId, evento('agent', pedido.targetUserId));
-  // Quem sai de online devolve conversa para a fila na prática; a lista repinta.
+  // Leaving online status effectively returns conversations to the queue; refresh the list.
   await publicar(pedido.tenantId, evento('queue'));
 
-  return { estado: pedido.state };
+  return { state: pedido.state };
 }

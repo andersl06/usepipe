@@ -12,53 +12,18 @@ import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 
 /**
- * A página "Permissões" do atendente — `attendance.desk.team.permission` da
- * origem, que é PÁGINA e não modal
- * (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.1/§a.4).
- *
- * A forma é a deles: título "Permissões", a descrição "Configure as permissões
- * de …" nas três variantes, a seção "Permissões disponíveis" e uma tabela de
- * duas colunas — "Tipo de permissão" e "Status" — com um botão "Salvar
- * alterações". O CONTEÚDO das linhas é nosso: lá são dez capacidades do Blip
- * Desk (`canSendActiveMessage`, `canCallsVideo`, …); aqui é o catálogo de
- * permissões do Pipe (`packages/db/src/semente.ts`), que é o vocabulário que o
- * produto de verdade confere em cada rota. Copiar os nomes deles seria
- * desenhar dez interruptores que não ligam nada.
- *
- * **Como o Status é calculado, e por que existe `usuario_permissao`.** No Pipe
- * a permissão sempre veio do PAPEL, e papel é conjunto: não havia como dizer
- * "este atendente, e só ele, não transfere ticket" sem inventar um papel de uma
- * pessoa só. A migração 0046 cria a EXCEÇÃO por pessoa, e a conta passa a ser
- *
- *   efetiva = COALESCE(override desta pessoa, união dos papéis)
- *
- * A gravação APAGA o override quando a escolha volta a coincidir com o papel:
- * a tabela guarda só a exceção e nunca vira uma cópia desatualizada do RBAC.
- * É isso que faz trocar o papel de alguém continuar surtindo efeito depois de
- * a tela ter sido aberta uma vez.
- *
- * **Seleção múltipla.** A origem tem as três descrições (`single`, `couple`,
- * `multiples`), então a página atende N atendentes de uma vez. Com mais de um,
- * o Status de uma permissão só aparece LIGADO quando TODOS a têm; quando uns
- * têm e outros não, a linha vem `parcial` — e mexer nela decide para os dois
- * lados. Sem o `parcial`, abrir a tela com dois atendentes diferentes e salvar
- * sem tocar em nada rebaixaria silenciosamente quem tinha mais.
+ * The agent Permissions page mirrors source `attendance.desk.team.permission` as a PAGE, not modal (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §§a.1/a.4). Keep source literal labels 'Permissões', 'Configure as permissões de …', 'Permissões disponíveis', 'Tipo de permissão', 'Status', and 'Salvar alterações', but populate rows from Pipe's enforced catalog (`packages/db/src/semente.ts`) rather than Blip's ten Desk capabilities (`canSendActiveMessage`, `canCallsVideo`, etc.). Migration 0046 adds per-person `usuario_permissao` override: effective = `COALESCE(override, union of roles)`. Delete an override when the choice matches the role again, avoiding stale copies of RBAC. For multi-agent selection (`single`, `couple`, `multiples`), show a permission on only when ALL have it and `parcial` when mixed; saving without touching a mixed row must not silently revoke anyone.
  */
 
-/** "Criar, editar e desativar usuário" — quem manda na permissão dos outros. */
+/** Catalog permission 'Criar, editar e desativar usuário' governs changing others' permissions. */
 export const USER_MANAGE = 'usuario.gerenciar';
 
 /**
- * Só as capacidades DO ATENDENTE entram na página. A origem lista dez, todas do
- * Desk ("Transferir tickets", "Editar dados do contato", …); o catálogo inteiro
- * do Pipe punha ao lado delas "Emitir e revogar chave de API", "Criar papel e
- * atribuir permissão" e afins — e esta tela concederia isso a um atendente por
- * exceção, sem passar pelo papel. O que é de conversa e de contato é o que o
- * atendente faz no Desk; o resto continua sendo do papel.
+ * Expose only AGENT capabilities on this page. Blip lists ten Desk actions such as 'Transferir tickets' and 'Editar dados do contato'; including Pipe's whole catalog would let an agent receive API-key issuance or role-management powers through an override, bypassing roles. Conversation and contact capabilities belong here; the rest stay role-controlled.
  */
 export const EH_OF_AGENT = /^(conversa|contato)./;
 
-/** Os rótulos literais da origem onde a capacidade é a mesma. */
+/** Use literal source labels where the capability is equivalent. */
 const ROTULO_DA_ORIGEM: Record<string, string> = {
   "conversa.transferir": "Transferir tickets",
   "contato.editar": "Editar dados do contato",
@@ -70,13 +35,13 @@ export interface LineOfPermission {
   code: string;
   group: string;
   description: string;
-  /** O que a união dos papéis dá, antes de qualquer exceção. */
+  /** Union of role grants before per-person exceptions. */
   dosPapeis: boolean;
-  /** `null` = sem exceção, manda o papel. */
+  /** `null` means no override; use the role grant. */
   override: boolean | null;
-  /** O que vale hoje para TODOS os atendentes pedidos. */
+  /** Whether the permission is currently effective for ALL requested agents. */
   ligada: boolean;
-  /** Uns têm, outros não — só acontece com mais de um atendente. */
+  /** Some agents have it and others do not; possible only with multiple agents. */
   parcial: boolean;
 }
 
@@ -91,7 +56,7 @@ export interface PermissionsOfAgent {
   permissions: LineOfPermission[];
 }
 
-/** Ids repetidos, vazios ou fora do tenant não passam: a tela manda o que marcou. */
+/** Reject duplicate, empty or out-of-tenant IDs; the screen sends its selected agents. */
 async function agentsVivos(
   tx: TransactionPipe,
   ids: readonly string[],
@@ -101,7 +66,7 @@ async function agentsVivos(
     throw PipeError.request('agent_required', 'Escolha ao menos um atendente.');
   }
   const pessoas = await tx
-    .select({ id: user.id, nome: user.nome, email: user.email })
+    .select({ id: user.id, name: user.nome, email: user.email })
     .from(user)
     .where(inArray(user.id, unicos))
     .orderBy(asc(user.nome));
@@ -110,10 +75,7 @@ async function agentsVivos(
 }
 
 /**
- * O catálogo inteiro com o estado de cada linha para os atendentes pedidos.
- *
- * Em SÉRIE, nunca em `Promise.all`: consulta paralela na mesma conexão apaga o
- * `set_config('pipe.tenant_id')` da transação e a RLS para de filtrar.
+ * Load the whole catalog with each requested agent's permission state. Run queries SERIALLY, never under `Promise.all`: parallel work on one connection can clear transaction `set_config('pipe.tenant_id')` and stop RLS filtering.
  */
 export async function loadPermissionsOfAgent(
   tx: TransactionPipe,
@@ -127,8 +89,9 @@ export async function loadPermissionsOfAgent(
     .from(permission)
     .orderBy(asc(permission.grupo), asc(permission.codigo));
 
-  /* Uma linha por (pessoa, permissão) que o PAPEL dá. `selectDistinct` porque
-     dois papéis repetem permissão o tempo todo. */
+  /*
+   * One row per person and permission granted by a ROLE; use `selectDistinct` because multiple roles often grant the same permission.
+   */
   const dosPapeis = await tx
     .selectDistinct({
       usuarioId: userRole.userId,
@@ -157,15 +120,14 @@ export async function loadPermissionsOfAgent(
     });
     const todos = efetivas.every((v) => v);
     const nenhum = efetivas.every((v) => !v);
-    /* Com um atendente só, `dosPapeis`/`override` são o dele; com vários, o
-       que a tela precisa é só `ligada`/`parcial`, e os dois campos viram o
-       retrato do PRIMEIRO — é o que a coluna "Status" desenha ao lado do
-       nome quando a seleção é de um. */
+    /*
+     * With one agent, `dosPapeis` and `override` describe that agent. With several, the screen needs only `ligada`/`parcial`; those two fields describe the first solely for the single-selection Status column.
+     */
     const first = `${alvos[0]}\u0000${c.codigo}`;
     return {
-      codigo: c.codigo,
-      grupo: c.grupo,
-      descricao: ROTULO_DA_ORIGEM[c.codigo] ?? c.descricao,
+      code: c.codigo,
+      group: c.grupo,
+      description: ROTULO_DA_ORIGEM[c.codigo] ?? c.descricao,
       dosPapeis: ofRole.has(first),
       override: override.get(first) ?? null,
       ligada: todos,
@@ -178,13 +140,12 @@ export async function loadPermissionsOfAgent(
 
 export interface RequestOfPermissions {
   userIds: string[];
-  /** Só o que a tela MEXEU: código → ligado/desligado. O resto fica como está. */
+  /** Only permissions the screen CHANGED: code to enabled/disabled; leave all others as they are. */
   permissions: Record<string, boolean>;
 }
 
 /**
- * "Salvar alterações": para cada (pessoa, código) pedido, grava o override —
- * ou o APAGA, quando a escolha já é o que o papel dá.
+ * On 'Salvar alterações', write an override for each requested person and code, or DELETE it when the selected value already matches the role grant.
  */
 export async function writePermissionsOfAgent(
   tx: TransactionPipe,
@@ -240,7 +201,7 @@ export async function writePermissionsOfAgent(
       const efetivaAntes = atual?.concedida ?? doPapel;
 
       if (ligada === doPapel) {
-        /* Voltou a coincidir com o papel: a exceção deixa de existir. */
+        /* The choice matches the role again, so remove the exception. */
         if (atual !== undefined) {
           await tx
             .delete(userPermission)
@@ -273,7 +234,7 @@ export async function writePermissionsOfAgent(
       if (efetivaAntes !== ligada) mudou[codigo] = ligada;
     }
 
-    /* Log só de quem mudou de verdade: salvar sem mexer em nada não é evento. */
+    /* Audit only actual changes; saving without edits is not an event. */
     if (Object.keys(mudou).length > 0) {
       await registrarAuditoria(tx, tid, {
         ator: ator(autorId),

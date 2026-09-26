@@ -97,31 +97,31 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
 
     const ultima = imports[0];
     return {
-      sinais: {
+      signals: {
         adminEntrou: access.v === true,
-        canaisConectados: channels.filter((c) => c.active && c.numero_id && !c.reauthorization).length,
-        canaisPendentes: channels.filter((c) => c.active && c.reauthorization).length,
+        channelsConectados: channels.filter((c) => c.active && c.numero_id && !c.reauthorization).length,
+        channelsPending: channels.filter((c) => c.active && c.reauthorization).length,
         convites: Number(pessoas.convites),
-        membros: Number(pessoas.members),
-        filasAtivas: Number(queues.ativas),
-        filasComAtendente: Number(queues.withAgent),
-        ultimaImportacao: ultima
+        members: Number(pessoas.members),
+        queuesActive: Number(queues.ativas),
+        queuesWithAgent: Number(queues.withAgent),
+        lastImport: ultima
           ? {
               id: ultima.id,
-              estado: ultima.state,
-              aceitos: Number(ultima.accepted),
+              state: ultima.state,
+              accepted: Number(ultima.accepted),
               rejeitados: Number(ultima.rejeitados),
               temFalhas: ultima.tem_falhas === true,
             }
           : null,
-        conversaAtendida: conversation.v === true,
+        conversationAtendida: conversation.v === true,
       },
-      canais: channels.map((c) => ({
+      channels: channels.map((c) => ({
         id: c.id,
-        nome: c.name,
-        ativo: c.active,
-        numero: c.number,
-        reautorizacaoPendente: c.reauthorization === true,
+        name: c.name,
+        active: c.active,
+        number: c.number,
+        reauthorizationPending: c.reauthorization === true,
       })),
     };
   });

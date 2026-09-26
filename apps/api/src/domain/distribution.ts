@@ -6,12 +6,7 @@ import { emitir } from '../webhooks-saida.js';
 import { registrarEvento } from './eventos.js';
 
 /**
- * Distribuição por carga real (§4.3 da spec, §7 da spec de métricas).
- *
- * A decisão vive em `@pipe/core` e **não** é reimplementada aqui: este arquivo só
- * levanta o estado dos atendentes da fila e entrega para `escolherAtendente`. Assim
- * o desempate por carga ponderada continua tendo uma implementação só, testada com
- * tabela de casos, e a `api` não vira um segundo lugar onde a regra mora.
+ * Distribute by actual load (spec §4.3, metrics spec §7). `@pipe/core` owns the decision; this file collects agent state for `escolherAtendente` rather than reimplementing weighted-load tie breaking in `api`. The core rule has table-driven tests.
  */
 
 type LineAgent = {
@@ -52,13 +47,13 @@ export async function candidatosOfQueue(
 
   return rows.map((linha) => ({
     id: linha.id,
-    estado: linha.state,
-    filas: [filaId],
+    state: linha.state,
+    queues: [filaId],
     limiteSimultaneo: Number(linha.limit),
     ativas: Number(linha.ativas),
-    aguardandoAtendente: Number(linha.aguardandoAgent),
-    semPrimeiraResposta: Number(linha.withoutFirstResponse),
-    ultimaAtribuicaoEm:
+    aguardandoAgent: Number(linha.aguardandoAgent),
+    withoutFirstResposta: Number(linha.withoutFirstResponse),
+    ultimaAssignmentIn:
       linha.lastAssignmentAt === null
         ? null
         : linha.lastAssignmentAt instanceof Date
@@ -68,14 +63,7 @@ export async function candidatosOfQueue(
 }
 
 /**
- * O MESMO levantamento de `candidatosDaFila`, virado ao contrário: UM atendente em
- * TODAS as filas dele, uma linha por fila. É o que a puxada manual (`atender`, em
- * `desk/acoes.ts`) passa para `motivoInelegivel` de `@pipe/core`, para que "tem
- * vaga?" seja respondido pela mesma conta nos dois caminhos — a distribuição
- * automática já respeitava o limite e a puxada manual não (auditoria do Desk, item 8).
- *
- * `ativas` é o total do atendente, e não por fila: o limite é de quantas conversas
- * a pessoa segura ao mesmo tempo, e a fila só decide qual limite vale.
+ * Invert the same lookup as `candidatosDaFila`: one agent across ALL their queues, one row per queue. Manual claim (`atender` in `desk/acoes.ts`) passes this to `@pipe/core` `motivoInelegivel`, so capacity follows the same calculation as automatic distribution; previously manual claims ignored the limit (Desk audit item 8). `ativas` is the agent's total, not per queue: capacity counts all simultaneous conversations, while the queue chooses which limit applies.
  */
 export async function queuesOfAgent(
   tx: TransactionPipe,
@@ -105,13 +93,13 @@ export async function queuesOfAgent(
 
   return rows.map((linha) => ({
     id: linha.id,
-    estado: linha.state,
-    filas: [linha.queueId],
+    state: linha.state,
+    queues: [linha.queueId],
     limiteSimultaneo: Number(linha.limit),
     ativas: Number(linha.ativas),
-    aguardandoAtendente: Number(linha.aguardandoAgent),
-    semPrimeiraResposta: Number(linha.withoutFirstResponse),
-    ultimaAtribuicaoEm:
+    aguardandoAgent: Number(linha.aguardandoAgent),
+    withoutFirstResposta: Number(linha.withoutFirstResponse),
+    ultimaAssignmentIn:
       linha.lastAssignmentAt === null
         ? null
         : linha.lastAssignmentAt instanceof Date
@@ -138,10 +126,7 @@ export async function escolherForQueue(
 }
 
 /**
- * Tira da fila e atribui ao atendente que a regra escolher, se houver um.
- *
- * Morava em `entrada.ts`; mudou para cá porque agora são dois a chamar — a entrada e o
- * bot, quando transfere.
+ * Remove a conversation from its queue and assign it to the agent selected by the rule, if any. This moved from `entrada.ts` because both inbound handling and the bot now call it on transfer.
  */
 export async function distribuirConversation(
   tx: TransactionPipe,

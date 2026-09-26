@@ -13,32 +13,7 @@ import { PipeError } from '../../errors.js';
 import { exigirPermissionInFlow } from './team-of-flow.js';
 
 /**
- * Os serviços do roteador — a tela `master.services` da Blip
- * (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`), gravada em `roteador_servico`
- * (migration 0024). A forma dos gestos é a do ciclo de vida do fluxo
- * (`ciclo-de-vida-do-fluxo.ts`, que porta o `inboxes_controller` do Chatwoot):
- * acha o roteador (404 se não é da conta), autoriza, valida, grava, audita.
- *
- * As regras do formulário são as da origem:
- * - "Crie um nome para seu serviço": obrigatório, e único no roteador — é o
- *   `address` do `Redirect`, e dois iguais seriam ambíguos;
- * - "Associe um chatbot para este serviço": um FLUXO (não roteador) da conta,
- *   não arquivado; um chatbot entra uma vez só em cada roteador;
- * - "É o meu chatbot principal": no máximo um; principal esconde (e aqui
- *   ignora) persistência e expiração;
- * - "Não redirecionar automaticamente para o principal": persistente esconde
- *   (e ignora) a expiração;
- * - "Expiração do redirecionamento": obrigatória quando não é principal nem
- *   persistente.
- *
- * Decisões do Pipe onde a origem não diz: a expiração é em MINUTOS inteiros de
- * 1 a 525.600 (um ano; a ajuda da Blip fala em segundos, a tela não mostra a
- * unidade); o nome tem até 60 caracteres; marcar um segundo principal é recusado
- * (409) em vez de rebaixar o atual em silêncio; excluir o principal é permitido —
- * o roteador fica sem bot até outro ser marcado, e a conversa vai para a fila.
- *
- * Permissão: a de editar fluxo (`automacao.fluxo.editar`) nos três gestos —
- * mexer em serviço é editar o roteador.
+ * Router services mirror Blip `master.services` (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`) in `roteador_servico` (migration 0024). Follow `ciclo-de-vida-do-fluxo.ts`/Chatwoot `inboxes_controller`: find router within account (404 otherwise), authorize, validate, write and audit. Source form requires unique router-local service name as `Redirect.address`, one live non-router account flow per service, at most one principal bot, hidden persistence/expiry for principal, and hidden expiry for persistent; expiry is required otherwise. Pipe defines integer expiry in MINUTES from 1 to 525,600 (source help says seconds but UI does not show a unit), 60-character name, 409 instead of silently replacing an existing principal, and deletion of principal without auto-promotion; conversations then fall back to the queue. All writes require `automacao.fluxo.editar` because changing a service edits its router.
  */
 
 export const NAME_OF_SERVICE_MAX = 60;
@@ -57,7 +32,7 @@ const colunasDoChatbot = {
 
 /* ------------------------------------------------------------- Leitura */
 
-/** Os vínculos do roteador, com o chatbot de cada um. Principal primeiro. */
+/** Router associations with their chatbots, principal first. */
 async function vinculos(tx: TransactionPipe, roteadorId: string): Promise<LinkedService[]> {
   const chatbot = alias(flow, 'chatbot');
   const linhas = await tx
@@ -66,7 +41,7 @@ async function vinculos(tx: TransactionPipe, roteadorId: string): Promise<Linked
       nome: routerService.nome,
       principal: routerService.principal,
       persistente: routerService.persistente,
-      expiracaoMin: routerService.expirationMin,
+      expirationMin: routerService.expirationMin,
       chatbot: {
         id: chatbot.id,
         nome: chatbot.nome,
@@ -83,8 +58,7 @@ async function vinculos(tx: TransactionPipe, roteadorId: string): Promise<Linked
 }
 
 /**
- * `GET …/servicos`. `null` = o fluxo não existe nesta conta (404). Para fluxo que
- * não é roteador, a resposta vem vazia — a tela mostra "não encontrado".
+ * `GET …/servicos`: `null` when the flow is outside this account (404). A non-router flow returns an empty result and the screen shows 'não encontrado'.
  */
 export async function carregarServicos(
   tx: TransactionPipe,
@@ -116,7 +90,7 @@ export async function carregarServicos(
 
 /* ------------------------------------------------------------- Regras */
 
-/** O roteador vivo desta conta, ou 404; fluxo que não é roteador é pedido inválido. */
+/** Return this account's live router or 404; a non-router flow is an invalid request. */
 async function routerVivo(tx: TransactionPipe, tid: string, id: string) {
   const [atual] = await tx
     .select({ id: flow.id, tipo: flow.tipo })
@@ -132,7 +106,7 @@ async function routerVivo(tx: TransactionPipe, tid: string, id: string) {
 
 type Formulario = Omit<RequestOfService, 'nome'> & { name: string };
 
-/** O formulário normalizado: o que a tela esconde, o banco não guarda. */
+/** Normalize the form so hidden fields are not stored. */
 function conferido(pedido: Partial<RequestOfService>): Formulario {
   const nome = typeof pedido.nome === 'string' ? pedido.nome.trim() : '';
   if (!nome) throw PipeError.request('service_name', 'Crie um nome para seu serviço.');
@@ -162,7 +136,7 @@ function conferido(pedido: Partial<RequestOfService>): Formulario {
   return { name: nome, chatbotId, principal, persistente, expiracaoMin: expirationMin };
 }
 
-/** Os conflitos do formulário com os outros serviços do mesmo roteador. */
+
 async function conferirConflitos(
   tx: TransactionPipe,
   tid: string,
@@ -215,7 +189,7 @@ async function conferirConflitos(
   }
 }
 
-/** O vínculo como a tela lê. */
+
 async function vinculoLido(
   tx: TransactionPipe,
   roteadorId: string,
@@ -226,7 +200,7 @@ async function vinculoLido(
   return lido;
 }
 
-/** O vínculo deste roteador, ou 404. */
+/** Return this router's association or 404. */
 async function vinculoAtual(tx: TransactionPipe, roteadorId: string, id: string) {
   if (!UUID.test(id)) throw PipeError.naoEncontrado('serviço');
   const [atual] = await tx
@@ -268,12 +242,12 @@ export async function createService(
     .insert(routerService)
     .values({
       tenantId: tid,
-      roteadorId,
-      servicoId: f.chatbotId,
+      routerId: roteadorId,
+      serviceId: f.chatbotId,
       nome: f.name,
       principal: f.principal,
       persistente: f.persistente,
-      expiracaoMin: f.expiracaoMin,
+      expirationMin: f.expiracaoMin,
     })
     .returning({ id: routerService.id });
   if (!criado) throw PipeError.naoEncontrado('serviço');
@@ -288,7 +262,7 @@ export async function createService(
   return vinculoLido(tx, roteadorId, criado.id);
 }
 
-/** Só o que veio muda; o resultado passa pelas mesmas regras da criação. */
+/** Change supplied fields only, then validate the result with creation rules. */
 export async function editarService(
   tx: TransactionPipe,
   tid: string,
@@ -345,8 +319,7 @@ export async function editarService(
 }
 
 /**
- * Tira o serviço do roteador. O chatbot continua existindo; quem estava nele volta ao
- * principal na próxima mensagem (a posição aponta para um serviço que não está mais lá).
+ * Remove the router service but keep its chatbot. On the next message, conversations at its former position return to the principal service because that position no longer resolves.
  */
 export async function deleteService(
   tx: TransactionPipe,

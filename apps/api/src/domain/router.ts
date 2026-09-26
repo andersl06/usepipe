@@ -3,31 +3,7 @@ import type { TransactionPipe } from '@pipe/db';
 import type { FlowPublished } from './flow.js';
 
 /**
- * O roteador (o `master` da Blip) na entrada: em qual SERVIÇO o contato está.
- *
- * As regras são as da Blip (`referencias-blip/pesquisa/blip-api-schemas.md` §5.3–5.5):
- *
- * - O roteador não tem conteúdo; quem responde é o serviço. Na primeira interação, o
- *   PRINCIPAL ("Main SubBot").
- * - O `Redirect` (`content.address` = nome do serviço) troca o Master-State. Serviço não
- *   persistente volta ao principal quando passa a "Expiração do redirecionamento", contada
- *   da ÚLTIMA interação do cliente — por isso cada mensagem que chega renova o prazo, até
- *   as que o atendente humano responde (na Blip elas também passam pelo roteador).
- * - Master-State primeiro, Change-User-State depois (regra 4): mudar de serviço reinicia o
- *   bloco do destino na raiz, a menos que venha um bloco explícito; e esse bloco NÃO exibe
- *   o conteúdo — só as saídas, na próxima resposta (regra 5). É o que o motor já faz com
- *   estado guardado, então basta guardar o estado.
- * - "Utilizar o contexto do Roteador" (`builder:useTunnelOwnerContext`): as variáveis são
- *   do par (roteador, contato), em `posicao_no_roteador.contexto`.
- *
- * Não há túnel: o contato é o real, único no tenant (migration 0024).
- *
- * Decisões do Pipe onde a origem não diz:
- * - expirou → principal, no bloco em que ele estava (o estado é por fluxo, e nada na
- *   origem diz que a volta reinicia o principal);
- * - serviço que saiu do ar (despublicado, arquivado, ou tirado do roteador) conta como
- *   posição inválida → principal;
- * - principal fora do ar e nenhuma posição válida → sem bot: a conversa vai para a fila.
+ * Inbound router mirrors Blip's `master` (`referencias-blip/pesquisa/blip-api-schemas.md` §§5.3–5.5): it tracks the contact's current service, while the service supplies content; the first service is Main SubBot. `Redirect` (`content.address`) changes Master-State. Nonpersistent redirects expire after the customer's last interaction, so each inbound message renews the deadline, including those answered by a human. Apply Master-State before Change-User-State; changing service resets the destination block to root unless explicitly supplied, and the block emits only exits on the next reply. Router context (`builder:useTunnelOwnerContext`) belongs to the router/contact pair in `posicao_no_roteador.contexto`. There is no tunnel because the contact is unique within the tenant (migration 0024). Pipe decisions where Blip is silent: expiry returns to the main service at its saved block; unavailable services return to main; if main is unavailable and no valid position remains, queue the conversation without a bot.
  */
 
 type LineOfService = {
@@ -47,17 +23,16 @@ type LineOfPosition = {
   blockInicial: string | null;
 };
 
-/** O prazo do serviço a partir de agora; nulo = não expira. */
-function prazo(s: { principal: boolean; persistent: boolean; expiracao_min: number | null }) {
-  return s.principal || s.persistent || !s.expiracao_min
+/** Service deadline from now; null means no expiry. */
+function prazo(s: { principal: boolean; persistent: boolean; expiracao_min?: number | null; expirationMin?: number | null }) {
+  const minutes = s.expiracao_min ?? s.expirationMin;
+  return s.principal || s.persistent || !minutes
     ? null
-    : sql`now() + ${s.expiracao_min}::int * interval '1 minute'`;
+    : sql`now() + ${minutes}::int * interval '1 minute'`;
 }
 
 /**
- * O serviço publicado que atende o contato agora, com a posição (Master-State) já
- * resolvida: renovada, ou de volta ao principal. Trava a linha da posição até o fim da
- * transação — duas mensagens do mesmo contato não decidem ao mesmo tempo.
+ * Resolve the contact's current published service and Master-State, renewing or returning to main as needed. Lock the position row until transaction end so two messages from the same contact cannot decide concurrently.
  */
 export async function serviceOfRouter(
   tx: TransactionPipe,
@@ -94,7 +69,7 @@ export async function serviceOfRouter(
        where roteador_id = ${router.id} and contato_id = ${contactId}
     `);
   } else {
-    // Primeira interação, ou o redirecionamento acabou: o principal, que não expira.
+    // On first interaction or after a redirect expires, use the nonexpiring main service.
     await tx.execute(sql`
       insert into posicao_no_roteador (tenant_id, roteador_id, contato_id, servico_id)
       values (${router.tenantId}, ${router.id}, ${contactId}, ${escolhido.servico_id})
@@ -118,10 +93,7 @@ export async function serviceOfRouter(
 }
 
 /**
- * O `Redirect`: o contato passa para o serviço `nome` deste roteador. O nome tem de ser
- * exatamente o cadastrado em Serviços (help.blip.ai); outro é erro, e o motor trata como
- * falha da ação. `blocoInicial` é o Change-User-State que vem depois — sem ele, o destino
- * começa na raiz. Vale a partir da PRÓXIMA mensagem.
+ * `Redirect` moves the contact to this router's service named `nome`. It must match a registered Services name (help.blip.ai); an unknown name fails the action. `blocoInicial` is the subsequent Change-User-State; without it, the destination starts at its root. This takes effect on the next message.
  */
 export async function redirecionarInRouter(
   tx: TransactionPipe,

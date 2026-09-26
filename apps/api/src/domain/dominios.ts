@@ -19,7 +19,7 @@ import { PipeError } from '../errors.js';
  * ser verificado, o primeiro a cadastrá-lo levaria todo mundo para a conta dele.
  */
 
-/** O nome do registro. Prefixo próprio para não brigar com SPF e afins no apex. */
+/** Use a dedicated TXT record prefix to avoid colliding with SPF and other apex records. */
 export const PREFIX_TXT = '_pipe-verificacao';
 
 export interface RegistroOfVerification {
@@ -35,7 +35,7 @@ export interface DomainRegistered {
   registro: RegistroOfVerification;
 }
 
-/** Rótulos de DNS, sem esquema, sem caminho, com pelo menos um ponto. */
+/** Accept DNS labels with no scheme or path and at least one dot. */
 const DOMAIN_ACEITAVEL = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
 export function normalizeDomain(cru: string | undefined): string {
@@ -46,7 +46,7 @@ export function normalizeDomain(cru: string | undefined): string {
     .replace(/^https?:\/\//, '')
     .replace(/^@/, '')
     .replace(/\/.*$/, '')
-    // Ponto final é FQDN válido no DNS e lixo na comparação com o e-mail.
+    // A trailing dot is a valid DNS FQDN but would break comparison with an email domain.
     .replace(/\.$/, '');
 
   if (!DOMAIN_ACEITAVEL.test(domain)) {
@@ -67,9 +67,7 @@ export function registroOfVerification(domain: string, token: string): RegistroO
 }
 
 /**
- * Registra o domínio e devolve o TXT a publicar. Idempotente: chamar de novo para o
- * mesmo domínio devolve o mesmo token, senão quem já publicou o registro veria a
- * verificação falhar sem ter mexido em nada.
+ * Register a domain and return the TXT record to publish. Repeat calls are idempotent and return the same token; rotating it would invalidate a record already published by the client.
  */
 export async function logDomain(
   tenantId: string,
@@ -89,15 +87,15 @@ export async function logDomain(
     if (linha?.token_verificacao) {
       return {
         id: linha.id,
-        dominio,
+         domain: dominio,
         verificadoEm: linha.verificado_em ? new Date(linha.verificado_em) : null,
         registro: registroOfVerification(dominio, linha.token_verificacao),
       };
     }
 
-    // O único de `dominio` é GLOBAL. Sem tenant em vigor a RLS esconde a linha do
-    // outro cliente, então a colisão chega como violação de único, não como select
-    // vazio — e a resposta certa é 409, não 500.
+    // The unique constraint on `dominio` is GLOBAL. Without a tenant set, RLS hides another
+    // client's row, so a collision appears as a unique violation rather than a query result.
+    // empty; the correct response is 409, not 500.
     const token = randomBytes(16).toString('hex');
     try {
       const { rows } = await tx.execute<{ id: string }>(sql`
@@ -107,7 +105,7 @@ export async function logDomain(
       `);
       return {
         id: rows[0]!.id,
-        dominio,
+         domain: dominio,
         verificadoEm: null,
         registro: registroOfVerification(dominio, token),
       };
@@ -129,14 +127,7 @@ export interface ResultOfVerification {
 export type ResolvedorTxt = (nome: string) => Promise<string[][]>;
 
 /**
- * Confere o TXT no DNS e marca como verificado.
- *
- * `resolvedor` é injetável para o teste não sair para a rede — mesma escolha do
- * `buscar` de `trocarCodigo`. O padrão é o resolvedor do sistema.
- *
- * Um registro TXT chega partido em pedaços de até 255 bytes, e o valor é a
- * CONCATENAÇÃO deles; comparar pedaço a pedaço é o erro que faz a verificação
- * falhar só para quem tem token longo.
+ * Verify the DNS TXT record and mark the domain verified. Inject `resolvedor` so tests avoid network, as with `buscar` in `trocarCodigo`; the default uses the system resolver. TXT strings arrive in chunks of at most 255 bytes and must be CONCATENATED before comparison. Comparing chunks separately fails for long tokens.
  */
 export async function checkDomain(
   tenantId: string,
@@ -160,8 +151,8 @@ export async function checkDomain(
   try {
     registros = await resolvedor(esperado.name);
   } catch {
-    // `ENOTFOUND`/`ENODATA` é o caso comum: o registro ainda não foi publicado ou
-    // ainda não propagou. Isso é "tente de novo", não erro do servidor.
+    // `ENOTFOUND`/`ENODATA` usually means the record is unpublished or
+    // not yet propagated. Tell the caller to retry rather than treating it as a server error.
     registros = [];
   }
 
@@ -181,20 +172,18 @@ export async function checkDomain(
       returning verificado_em
     `);
     // `execute` devolve o timestamptz como veio do driver, em texto. Quem chama
-    // espera `Date`, e converter aqui é o que evita `.toISOString is not a function`
-    // aparecer na primeira tela que formatar a data.
+    // the consumer expects a `Date`; converting here prevents `.toISOString is not a function`
+    // on the first screen that formats it.
     return {
       id: linha.id,
-      dominio: linha.domain,
+       domain: linha.domain,
       verificadoEm: new Date(rows[0]!.verificado_em),
     };
   });
 }
 
 /**
- * O código SQLSTATE do erro. O Drizzle embrulha a falha do driver, então o `code`
- * pode estar uma camada abaixo — e é justamente o caso do `23505` que separa
- * "domínio de outro cliente" (409) de erro interno (500).
+ * Read SQLSTATE from a Postgres error. Drizzle wraps the driver failure, so `code` may be one layer down; `23505` distinguishes a domain already owned by another client (409) from an internal failure (500).
  */
 export function codigoDoPostgres(erro: unknown): string | undefined {
   for (let atual = erro; atual != null; atual = (atual as { cause?: unknown }).cause) {

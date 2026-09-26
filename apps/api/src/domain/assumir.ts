@@ -4,20 +4,7 @@ import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
 
 /**
- * O atendente pega para si uma conversa que está na fila.
- *
- * Existia distribuição automática (por carga) e existia transferência, mas **não
- * existia assumir** — e assumir é a ação mais usada da tela do atendente: ele vê a
- * fila, escolhe e puxa.
- *
- * Por que não dá para reaproveitar transferência: `transferirConversa` segue o
- * modelo da plataforma de origem, onde transferir **encerra a conversa e abre outra**
- * (motivo "Transferida"). Usar aquilo para assumir fecharia a conversa do cliente e
- * criaria uma vazia — foi o que aconteceu quando tentei o atalho.
- *
- * A trava é a mesma da distribuição automática: só sai de `na_fila`. Se duas pessoas
- * clicarem ao mesmo tempo, a segunda não muda nada e recebe recusa — o `where` faz o
- * desempate no banco, sem corrida.
+ * Let an attendant claim a queued conversation. Automatic load distribution and transfer existed, but claim did not, even though selecting and taking a conversation from the queue is a common attendant action. Do not reuse `transferirConversa`: the source platform's transfer closes the current conversation and opens another (reason "Transferida"). Using it to claim would close the customer conversation and create an empty one, as a previous shortcut did. Like automatic distribution, claim only from `na_fila`. If two attendants click together, the second update changes no row and is rejected; the database `where` decides the winner without a race.
  */
 export async function assumeConversation(
   ator: { tenantId: string; agentId: string },
@@ -62,6 +49,6 @@ export async function assumeConversation(
       queueId: conversation.queueId,
     });
 
-    return { conversationId, filaId: conversation.queueId };
+    return { conversationId, queueId: conversation.queueId };
   });
 }

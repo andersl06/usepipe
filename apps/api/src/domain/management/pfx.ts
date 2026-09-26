@@ -4,38 +4,18 @@ import { createSecureContext } from 'node:tls';
 import { PipeError } from '../../errors.js';
 
 /**
- * Leitura do `.pfx` (PKCS#12) no servidor, só com o que o Node traz.
- *
- * Na origem quem lê o arquivo é o serviço de `postmaster@mtls.blip.ai`: a tela
- * sobe `password` + `file` e volta `status`, `expiration_date`
- * (`referencias-blip/pesquisa/blip-certificados-mtls.md`). Aqui a leitura é em dois passos:
- *
- * 1. **`tls.createSecureContext({ pfx, passphrase })`** é o juiz. O OpenSSL por
- *    baixo confere o MAC do arquivo com a senha (senha errada → "mac verify
- *    failure"), decifra a chave privada e exige que ela case com um certificado
- *    do arquivo. Se passa aqui, o mesmo par vai funcionar no `https.Agent` de
- *    `dominio/mtls.ts` — é literalmente o mesmo caminho.
- * 2. **`X509Certificate`** lê validade, emissor, sujeito e a impressão digital
- *    SHA-256 — mas só de um certificado DER/PEM, não de um PKCS#12. O Node não
- *    tem API pública para tirar o certificado de dentro do `.pfx`; por isso o
- *    parser ASN.1 mínimo abaixo (RFC 7292): abre o envelope, decifra o saco de
- *    certificados (PBES2/AES ou o 3DES do PKCS#12) e entrega o DER de cada um.
- *
- * O que fica de fora, e por quê: os PBEs com RC2/RC4 (`.pfx` do Windows antigo
- * e do OpenSSL 1.x por padrão) não existem no OpenSSL 3 sem o provedor
- * `legacy`, que o Node não carrega — o passo 1 já recusa esses arquivos com
- * "unsupported", e a mensagem pede reexportar com AES.
+ * Read server-side `.pfx` (PKCS#12) with Node APIs. Blip delegates uploaded `password` and `file` to `postmaster@mtls.blip.ai`, returning `status` and `expiration_date` (`referencias-blip/pesquisa/blip-certificados-mtls.md`). First `tls.createSecureContext({ pfx, passphrase })` lets OpenSSL verify the password MAC, decrypt the private key and require a matching certificate; the same pair is used by `https.Agent` in `dominio/mtls.ts`. Then `X509Certificate` reads expiry, issuer, subject and SHA-256 fingerprint from DER/PEM. Since Node has no public PKCS#12 certificate extraction API, the minimal ASN.1 parser (RFC 7292) opens the envelope and decrypts PBES2/AES or PKCS#12 3DES certificate bags. RC2/RC4 PBEs from old Windows or OpenSSL 1.x exports require OpenSSL 3's `legacy` provider, unavailable to Node; step one rejects them as 'unsupported' and asks for AES re-export.
  */
 
 export interface ReadOfPfx {
-  /** `notAfter` do certificado que casa com a chave privada. */
+  /** `notAfter` of the certificate matching the private key. */
   expiraEm: Date;
   validoDesde: Date;
-  /** SHA-256 em hexadecimal maiúsculo separado por `:` — o `fingerprint256` do Node. */
+  /** Uppercase colon-separated SHA-256 hex, matching Node's `fingerprint256`. */
   impressaoDigital: string;
   emissor: string;
   sujeito: string;
-  /** Quantos certificados vieram no arquivo além do próprio (a cadeia). */
+  /** Number of additional chain certificates beyond the matching certificate. */
   certificadosNaCadeia: number;
 }
 
@@ -44,7 +24,7 @@ export interface ReadOfPfx {
 interface Tlv {
   tag: number;
   content: Buffer;
-  /** O elemento inteiro (tag + tamanho + conteúdo), para repassar ao OpenSSL. */
+  /** Keep the whole element (tag, length, content) for passing to OpenSSL. */
   bruto: Buffer;
 }
 
@@ -54,9 +34,9 @@ const TAG = {
   OID: 0x06,
   SEQUENCIA: 0x30,
   CONJUNTO: 0x31,
-  /** `[0]` explícito (construído). */
+  /** Explicit constructed `[0]`. */
   CTX0: 0xa0,
-  /** `[0]` implícito primitivo — o `encryptedContent` do PKCS#7. */
+  /** Primitive implicit `[0]`, the PKCS#7 `encryptedContent`. */
   CTX0_PRIMITIVO: 0x80,
 } as const;
 
@@ -67,7 +47,7 @@ class Asn1Error extends Error {
   }
 }
 
-/** Lê os elementos DER consecutivos de `dados`, do começo ao fim. */
+/** Read consecutive DER elements of `dados` from start to end. */
 function lerTlvs(data: Buffer): Tlv[] {
   const lidos: Tlv[] = [];
   let pos = 0;
@@ -80,7 +60,7 @@ function lerTlvs(data: Buffer): Tlv[] {
     let tamanho = primeiro;
     if (primeiro & 0x80) {
       const n = primeiro & 0x7f;
-      // `0x80` é tamanho indefinido (BER): nenhum exportador de .pfx usa.
+      // `0x80` denotes indefinite BER length, unused by supported `.pfx` exporters.
       if (n === 0 || n > 4 || inicio + n > data.length) throw new Asn1Error('tamanho inválido');
       tamanho = 0;
       for (let i = 0; i < n; i++) tamanho = tamanho * 256 + data[inicio + i]!;
@@ -105,7 +85,7 @@ function filhos(tlv: Tlv | undefined, tag: number, oQue: string): Tlv[] {
 }
 
 function oidDe(tlv: Tlv | undefined): string {
-  const { conteudo } = esperar(tlv, TAG.OID, 'OID');
+  const { content: conteudo } = esperar(tlv, TAG.OID, 'OID');
   const arcos: number[] = [];
   let value = 0;
   for (const byte of conteudo) {
@@ -123,7 +103,7 @@ function oidDe(tlv: Tlv | undefined): string {
 }
 
 function integerOf(tlv: Tlv | undefined): number {
-  const { conteudo } = esperar(tlv, TAG.INTEIRO, 'INTEGER');
+  const { content: conteudo } = esperar(tlv, TAG.INTEIRO, 'INTEGER');
   let n = 0;
   for (const byte of conteudo) n = n * 256 + byte;
   return n;
@@ -142,7 +122,7 @@ const OID = {
   pbeSha1E2DES: '1.2.840.113549.1.12.1.4',
 } as const;
 
-/** Os PBEs do PKCS#12 que o OpenSSL 3 só tem no provedor `legacy` (o Node não carrega). */
+/** PKCS#12 PBEs available in OpenSSL 3 only through the `legacy` provider, which Node does not load. */
 const PBE_ANTIGO = new Set([
   '1.2.840.113549.1.12.1.1', // pbeWithSHA1And128BitRC4
   '1.2.840.113549.1.12.1.2', // pbeWithSHA1And40BitRC4
@@ -165,9 +145,9 @@ const CIFRA_DO_PBES2: Record<string, { name: string; key: number }> = {
   '1.2.840.113549.3.7': { name: 'des-ede3-cbc', key: 24 },
 };
 
-/* ------------------------------------------------------- derivação PKCS#12 */
 
-/** Repete `parte` até encher `tamanho` bytes (o passo 2/3 do apêndice B.2). */
+
+/** Repeat `parte` until `tamanho` bytes are filled (appendix B.2 steps 2/3). */
 function encher(parte: Buffer, tamanho: number): Buffer {
   if (parte.length === 0 || tamanho === 0) return Buffer.alloc(0);
   const copias: Buffer[] = [];
@@ -176,9 +156,7 @@ function encher(parte: Buffer, tamanho: number): Buffer {
 }
 
 /**
- * A senha como o PKCS#12 quer: BMPString — UTF-16 big-endian com o terminador
- * de dois zeros incluído na contagem (é assim que o OpenSSL monta em
- * `OPENSSL_utf82uni`).
+ * Encode the password as PKCS#12 BMPString: UTF-16 big-endian including the two-zero terminator in the length, as OpenSSL `OPENSSL_utf82uni` does.
  */
 function senhaComoBmpString(senha: string): Buffer {
   const utf16 = Buffer.from(senha, 'utf16le').swap16();
@@ -186,13 +164,7 @@ function senhaComoBmpString(senha: string): Buffer {
 }
 
 /**
- * A derivação de chave do PKCS#12 (RFC 7292, apêndice B.2) — o que os PBEs
- * antigos (`pbeWithSHA1And3-KeyTripleDES-CBC`) e o MAC do arquivo usam. O
- * `id` diz para quê: 1 = chave de cifra, 2 = IV, 3 = chave do MAC.
- *
- * Exportada para o teste montar um `.pfx` de verdade sem arquivo binário no
- * repositório: o MAC do arquivo de teste sai daqui, e o `createSecureContext`
- * (OpenSSL) é quem confere — se a derivação estivesse errada, o teste cairia.
+ * Derive PKCS#12 keys per RFC 7292 appendix B.2 for legacy PBEs (`pbeWithSHA1And3-KeyTripleDES-CBC`) and file MAC. `id` selects purpose: 1 cipher key, 2 IV, 3 MAC key. Exported so tests build a real `.pfx` without a binary fixture; `createSecureContext` in OpenSSL verifies its MAC and would fail on wrong derivation.
  */
 export function derivarKeyPkcs12(
   hash: 'sha1' | 'sha256',
@@ -252,7 +224,7 @@ function decifrarConteudo(algoritmo: Tlv, cifrado: Buffer, senha: string): Buffe
     const partes = filhos(kdfParametros, TAG.SEQUENCIA, 'PBKDF2-params');
     const sal = esperar(partes[0], TAG.OCTETOS, 'salt').content;
     const iterations = integerOf(partes[1]);
-    // `keyLength` (INTEGER) e `prf` (SEQUENCE) são opcionais, nessa ordem.
+    // `keyLength` (INTEGER) and `prf` (SEQUENCE) are optional, in that order.
     const prfTlv = partes.find((p, i) => i >= 2 && p.tag === TAG.SEQUENCIA);
     const prf = prfTlv ? (PRF_DO_PBKDF2[oidDe(lerTlvs(prfTlv.content)[0])] ?? null) : 'sha1';
     if (!prf) throw new Asn1Error('PRF do PBKDF2 desconhecida');
@@ -261,8 +233,8 @@ function decifrarConteudo(algoritmo: Tlv, cifrado: Buffer, senha: string): Buffe
     const cifra = CIFRA_DO_PBES2[oidDe(cifraOid)];
     if (!cifra) throw new Asn1Error('cifra do PBES2 desconhecida');
     const iv = esperar(ivTlv, TAG.OCTETOS, 'IV').content;
-    // No PBES2 a senha entra como os bytes UTF-8, sem o BMPString do PKCS#12
-    // (é o que o `PKCS5_PBKDF2_HMAC` do OpenSSL recebe).
+    // PBES2 uses UTF-8 password bytes, without PKCS#12 BMPString,
+    // as OpenSSL `PKCS5_PBKDF2_HMAC` does.
     const key = pbkdf2Sync(Buffer.from(senha, 'utf8'), sal, iterations, cifra.key, prf);
     const decifra = createDecipheriv(cifra.name, key, iv);
     return Buffer.concat([decifra.update(cifrado), decifra.final()]);
@@ -291,13 +263,13 @@ interface ConteudoDoPfx {
   chaves: Buffer[];
 }
 
-/** O conteúdo de um `[0]` que embrulha um OCTET STRING (o `ContentInfo` de `data`). */
+/** Contents of `[0]` wrapping an OCTET STRING (`data` `ContentInfo`). */
 function octetosDentroDeCtx0(tlv: Tlv | undefined): Buffer {
   const [interno] = filhos(tlv, TAG.CTX0, '[0]');
   return esperar(interno, TAG.OCTETOS, 'OCTET STRING').content;
 }
 
-/** O `encryptedContent [0] IMPLICIT OCTET STRING` — primitivo no DER; construído (BER) em raríssimos exportadores. */
+/** `encryptedContent [0] IMPLICIT OCTET STRING` is primitive in DER, constructed by rare BER exporters. */
 function conteudoCifradoDe(tlv: Tlv | undefined): Buffer {
   if (!tlv) throw new Asn1Error('encryptedContent ausente');
   if (tlv.tag === TAG.CTX0_PRIMITIVO) return tlv.content;
@@ -326,7 +298,7 @@ function lerSacos(safeContents: Buffer, saida: ConteudoDoPfx): void {
   }
 }
 
-/** Abre o PKCS#12 até os sacos: certificados e chaves, em DER. */
+/** Parse PKCS#12 through the bags containing DER certificates and keys. */
 function abrirPfx(pfx: Buffer, senha: string): ConteudoDoPfx {
   const raiz = lerTlvs(pfx);
   const [versao, authSafe] = filhos(raiz[0], TAG.SEQUENCIA, 'PFX');
@@ -356,14 +328,13 @@ function abrirPfx(pfx: Buffer, senha: string): ConteudoDoPfx {
 
 /* --------------------------------------------------------------- leitura */
 
-/** Junta as linhas `CN=...\nO=...` do `X509Certificate` numa só. */
+/** Join `X509Certificate` `CN=...\nO=...` lines into one. */
 function nomeNumaLinha(nome: string): string {
   return nome.split('\n').filter(Boolean).join(', ');
 }
 
 /**
- * O certificado que casa com a chave privada — o "próprio", e não um da
- * cadeia. Sem chave legível, fica o que não emitiu nenhum outro do arquivo.
+ * Select the certificate matching the private key rather than an intermediate chain certificate. If no readable key exists, choose the certificate that issued no other certificate in the file.
  */
 function escolherProprio(certificados: X509Certificate[], chave: KeyObject | null): X509Certificate {
   if (chave) {
@@ -375,8 +346,8 @@ function escolherProprio(certificados: X509Certificate[], chave: KeyObject | nul
 }
 
 function classificarFalhaDoOpenSsl(falha: unknown): PipeError {
-  // O Node põe a razão do OpenSSL na mensagem ("mac verify failure") e o
-  // código em `code` (`ERR_OSSL_PKCS12_MAC_VERIFY_FAILURE`); olhamos os dois.
+  // Node includes the OpenSSL reason ('mac verify failure') in the message and
+  // the code in `code` (`ERR_OSSL_PKCS12_MAC_VERIFY_FAILURE`); inspect both.
   const error = falha as { message?: string; code?: string } | null;
   const message = `${error?.code ?? ''} ${error?.message ?? ''}`;
   if (/mac[ _]verify[ _]failure/i.test(message)) {
@@ -388,8 +359,8 @@ function classificarFalhaDoOpenSsl(falha: unknown): PipeError {
       'O arquivo usa uma cifra antiga (RC2/RC4) que não é mais suportada. Exporte o certificado de novo com AES-256 (no OpenSSL: `openssl pkcs12 -export` sem `-legacy`).',
     );
   }
-  // Não repassamos a mensagem do OpenSSL: ela descreve a estrutura do arquivo,
-  // e o que interessa a quem cadastra é que o arquivo não é um .pfx que sirva.
+  // Do not expose the OpenSSL message: it describes internal file structure,
+  // while the registrant only needs to know this is not a usable `.pfx`.
   return PipeError.request(
     'pfx_invalid',
     'O arquivo não é um .pfx válido, ou não tem a chave privada junto do certificado.',
@@ -397,12 +368,10 @@ function classificarFalhaDoOpenSsl(falha: unknown): PipeError {
 }
 
 /**
- * Lê o `.pfx` com a senha. Lança `ErroPipe` 400 (`senha_incorreta`,
- * `pfx_invalido`, `pfx_formato_antigo`, `pfx_ilegivel`) — nunca com a senha
- * nem com bytes do arquivo na mensagem.
+ * Read `.pfx` with its password and throw `ErroPipe` 400 (`senha_incorreta`, `pfx_invalido`, `pfx_formato_antigo`, `pfx_ilegivel`) without exposing password or file bytes in messages.
  */
 export function lerPfx(pfx: Buffer, senha: string): ReadOfPfx {
-  // 1. O OpenSSL julga: MAC com a senha, chave decifrada, chave casando com o certificado.
+  // First let OpenSSL verify the password MAC, decrypted key and key-certificate match.
   try {
     createSecureContext({ pfx, passphrase: senha });
   } catch (falha) {
@@ -425,22 +394,22 @@ export function lerPfx(pfx: Buffer, senha: string): ReadOfPfx {
     try {
       certificados.push(new X509Certificate(der));
     } catch {
-      /* um certificado corrompido na cadeia não invalida o próprio */
+      /* A corrupt chain certificate does not invalidate the leaf certificate. */
     }
   }
   if (certificados.length === 0) {
     throw PipeError.request('pfx_unreadable', 'O arquivo não tem nenhum certificado X.509 legível.');
   }
 
-  // A chave só serve para apontar qual certificado é o próprio: vive nesta
-  // função e morre com ela.
+  // Use the private key only to identify the matching leaf certificate; it lives
+  // only within this function and is discarded on return.
   let chave: KeyObject | null = null;
   for (const der of conteudo.chaves) {
     try {
       chave = createPrivateKey({ key: der, format: 'der', type: 'pkcs8', passphrase: senha });
       break;
     } catch {
-      /* saco de chave em formato que o OpenSSL não abre por aqui: cai na heurística */
+      /* If OpenSSL cannot open this key-bag format here, use the certificate heuristic. */
     }
   }
 

@@ -4,16 +4,7 @@ import { PipeError } from '../../errors.js';
 import { clienteGraph } from './cliente-graph.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_validation_service.rb
- *
- * O caminho SEM cadastro embutido: o cliente (ou o dono do Pipe, no próprio teste
- * — ver `docs/specs/2026-09-07-implantacao.md` §1.4) cola WABA ID, Phone Number ID
- * e um token de usuário de sistema. Antes de gravar qualquer coisa, prova que o
- * token serve: o número pertence à WABA, está verificado, não está em outro canal,
- * o token lê os modelos e tem permissão de enviar mensagem.
- *
- * Cada recusa sai com a mesma frase do original, em português, e todas como 422
- * `configuracao_invalida` — é o `ArgumentError` de lá.
+ * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_validation_service.rb. Without embedded signup, the customer (or Pipe owner during testing; `docs/specs/2026-09-07-implantacao.md` §1.4) supplies WABA ID, Phone Number ID, and a system-user token. Before writing, verify the number belongs to the WABA, is verified and unused by another channel, and the token can read templates and send messages. Return the original Portuguese rejection messages as 422 `configuracao_invalida`, corresponding to Chatwoot's `ArgumentError`.
  */
 
 const PERMISSION_OF_MESSAGE = 'whatsapp_business_messaging';
@@ -25,7 +16,7 @@ export interface PreviaOfConfiguration {
   wabaId: string;
   accessToTemplates: true;
   nomeSugerido: string;
-  /** O app dono do token: é nele que a foto do perfil sobe (`subirFoto`). */
+  /** Token-owning app, where `subirFoto` uploads the profile photo. */
   appId: string | null;
 }
 
@@ -45,20 +36,20 @@ export async function validateConfigurationManual(data: {
   numberId?: string | undefined;
   token?: string | undefined;
   appSecret?: string | undefined;
-  /** Reconexão: o canal que JÁ tem este número não disputa consigo mesmo. */
+  /** On reconnection, the channel already owning this number does not conflict with itself. */
   channelId?: string | undefined;
 }): Promise<PreviaOfConfiguration> {
   // `validate_parameters!`
   if (!data.wabaId) throw recusa('O WABA ID é obrigatório.');
   if (!data.numberId) throw recusa('O Phone Number ID é obrigatório.');
   if (!data.token) throw recusa('O token de acesso é obrigatório.');
-  // Acréscimo do Pipe: o token é do app do CLIENTE, e a Meta assina o webhook com
+  // The token belongs to the customer's app, and Meta signs its webhook with that app's secret. Require it or every inbound message will fail with 401.
   // o segredo DESSE app. Sem ele, toda mensagem recebida cai em 401.
   if (!data.appSecret) throw recusa('O App Secret é obrigatório.');
   if (!FORMAT_OF_SECRET.test(data.appSecret)) {
     throw recusa('O App Secret tem 32 caracteres, só números e letras de a a f.');
   }
-  const { wabaId, numeroId, token, appSecret } = data as {
+  const { wabaId, numberId: numeroId, token, appSecret } = data as {
     wabaId: string;
     numberId: string;
     token: string;
@@ -84,10 +75,11 @@ export async function validateConfigurationManual(data: {
     throw recusa('Conclua a verificação do número na Meta antes de continuar.');
   }
 
-  // `verify_uniqueness!` — global, entre clientes: papel dono, só sim ou não.
+  // `verify_uniqueness!` checks globally across tenants with the owner role, returning only yes/no.
   const numero = numeroNormalizado(dataOfNumber['display_phone_number']);
-  /* Na reconexão o dono do número é o próprio canal que está sendo reconectado:
-     ele não disputa consigo mesmo, senão trocar o token vencido seria impossível. */
+  /*
+   * During reconnection, the current channel owns the number and must not conflict with itself, or replacing an expired token would be impossible.
+   */
   const eu = data.channelId ?? null;
   const { rows } = await databaseOwner().execute<{ number: boolean; id: boolean }>(sql`
     select exists (
@@ -129,7 +121,7 @@ export async function validateConfigurationManual(data: {
     );
   }
 
-  // Acréscimo do Pipe: o segredo tem de ser do app que gerou o token.
+  // Pipe addition: the secret must belong to the app that issued the token.
   if (!(await cliente.checkSecretOfApp(numeroId, appSecret))) {
     throw recusa('Este App Secret não é do aplicativo que gerou o token.');
   }

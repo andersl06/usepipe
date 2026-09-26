@@ -55,7 +55,7 @@ function basePublica(): string {
   return (process.env['PIPE_API_URL_PUBLICA'] ?? 'https://api.pipe.app').replace(/\/$/, '');
 }
 
-/** `GET /l/:codigo` — curto de propósito; é o que vai no anúncio/mensagem. */
+/** `GET /l/:codigo` is deliberately short for ads and messages. */
 export function urlCurtaDe(codigo: string): string {
   return `${basePublica()}/l/${codigo}`;
 }
@@ -68,13 +68,7 @@ async function flowExists(tx: TransactionPipe, tenantId: string, fluxoId: string
 }
 
 /**
- * Cadastra o link e gera o código curto.
- *
- * `confirmarUrlSegura` é a mesma barreira de SSRF da tela de Webhook
- * (`dominio/gestao/integracoes.ts`): HTTPS, sem localhost, sem IP de rede privada.
- * Faz sentido aqui pela MESMA razão de lá — quem cadastra o destino não é
- * necessariamente quem vai clicar, e a rota pública de redirecionamento
- * devolveria esse destino para qualquer um.
+ * Register a link and generate its short code. `confirmarUrlSegura` applies the same SSRF barrier as the Webhook screen (`dominio/gestao/integracoes.ts`): HTTPS only, no localhost or private IPs. The registrant may differ from the visitor, and the public redirect would otherwise expose unsafe destinations to anyone.
  */
 export async function createLinkTracked(
   tx: TransactionPipe,
@@ -87,8 +81,7 @@ export async function createLinkTracked(
   confirmarUrlSegura(pedido.destination);
   await flowExists(tx, tenantId, fluxoId);
 
-  // Colisão de 6 bytes em base64url é praticamente nula; a tentativa de novo cobre
-  // o caso raro sem precisar de sequência à parte.
+  // A collision among six base64url bytes is very unlikely; retrying covers it without a separate sequence.
   for (let tentativa = 0; tentativa < 5; tentativa++) {
     const codigo = randomBytes(6).toString('base64url');
     try {
@@ -102,9 +95,9 @@ export async function createLinkTracked(
       return {
         id: linha.id,
         flowId: fluxoId,
-        nome,
+        name: nome,
         destinationUrl: pedido.destination,
-        codigo,
+        code: codigo,
         urlCurta: urlCurtaDe(codigo),
         cliques: 0,
         criadoEm: new Date(linha.createdAt).toISOString(),
@@ -117,7 +110,7 @@ export async function createLinkTracked(
   throw new Error('não conseguiu gerar um código curto único');
 }
 
-/** A lista da tela, com a contagem de cliques — total, ou só do período pedido. */
+/** Screen list with total clicks or clicks in the requested period. */
 export async function listarLinksRastreados(
   tx: TransactionPipe,
   tenantId: string,
@@ -147,9 +140,9 @@ export async function listarLinksRastreados(
   return rows.map((linha) => ({
     id: linha.id,
     flowId,
-    nome: linha.name,
-    destinoUrl: linha.destinationUrl,
-    codigo: linha.code,
+    name: linha.name,
+    destinationUrl: linha.destinationUrl,
+    code: linha.code,
     urlCurta: urlCurtaDe(linha.code),
     cliques: Number(linha.cliques),
     criadoEm: new Date(linha.createdAt).toISOString(),
@@ -161,11 +154,7 @@ const LIMIT_BY_WINDOW = 30;
 const countByKey = new Map<string, { start: number; n: number }>();
 
 /**
- * Limitador de taxa simples: N cliques por IP por minuto na rota pública.
- *
- * ponytail: janela fixa em memória de processo — reseta em cada deploy e não
- * divide entre réplicas. Um limitador distribuído (Redis) é o upgrade natural
- * se o Pipe rodar mais de uma instância da `api`; ninguém pediu isso ainda.
+ * Simple public-route rate limit of N clicks per IP per minute. ponytail: this fixed window is process-local and resets on deployment; if the `api` gains replicas, use a distributed limiter such as Redis.
  */
 function respeitaLimiteDeTaxa(key: string): boolean {
   const agora = Date.now();
@@ -179,11 +168,7 @@ function respeitaLimiteDeTaxa(key: string): boolean {
 }
 
 /**
- * A rota pública: resolve o código, registra o clique e devolve o destino para o
- * 302. `null` é "não achei" — o controlador transforma em 404 igual para código
- * inexistente e para link de outro tenant (a consulta abaixo não filtra tenant
- * de propósito: ainda não HÁ tenant em vigor, o mesmo problema de `resolverCanal`
- * no webhook da Meta) — não é o dado de outro tenant que vaza, é só "existe ou não".
+ * Public route: resolve the code, record the click, and return the 302 destination. `null` means not found; the controller returns the same 404 for missing codes and links from another tenant. This query intentionally has no tenant filter because no tenant is established yet, like `resolverCanal` in Meta webhooks. It reveals only existence, not another tenant's data.
  */
 export async function redirecionarClique(
   codigo: string,

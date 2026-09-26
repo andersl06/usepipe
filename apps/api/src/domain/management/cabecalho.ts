@@ -4,9 +4,7 @@ import type { TransactionPipe } from '@pipe/db';
 import { channel, motivoPausa, pausa } from '@pipe/db/schema';
 
 /**
- * O que as duas barras do topo da Gestão mostram: os canais da conta e a
- * contagem de avisos (pausas abertas além do tempo sugerido). Quem está logado
- * e o tenant vêm da sessão, no controlador.
+ * The two Management top bars show account channels and alerts for pauses exceeding the suggested time. The controller obtains the signed-in user and tenant from the session.
  */
 export interface HeaderOfManagement {
   channels: { id: string; name: string; type: string; active: boolean }[];
@@ -18,7 +16,7 @@ export async function carregarCabecalho(
   agora = new Date(),
 ): Promise<HeaderOfManagement> {
   const channels = await tx
-    .select({ id: channel.id, nome: channel.nome, tipo: channel.tipo, ativo: channel.ativo })
+    .select({ id: channel.id, name: channel.nome, type: channel.tipo, active: channel.ativo })
     .from(channel)
     .orderBy(desc(channel.ativo), channel.criadoEm);
 
