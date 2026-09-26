@@ -144,8 +144,8 @@ type LinhaDeCertificado = {
   createdAt: string;
 };
 
-function statusDe(linha: { tem_arquivo: boolean; expirado: boolean }): StatusDoCertificado {
-  if (!linha.tem_arquivo) return 'without_file';
+function statusDe(linha: { hasFile: boolean; expirado: boolean }): StatusDoCertificado {
+  if (!linha.hasFile) return 'without_file';
   return linha.expirado ? 'expirado' : 'valido';
 }
 
@@ -163,11 +163,11 @@ export async function listarCertificados(
   // como `Date` à meia-noite LOCAL, e `toISOString()` num fuso negativo
   // voltaria um dia.
   const { rows: certificados } = await tx.execute<LinhaDeCertificado>(sql`
-    select id, descricao, to_char(expira_em, 'YYYY-MM-DD') as expira_em,
-           impressao_digital, emissor, sujeito,
-           (arquivo_cifrado is not null and senha_cifrada is not null) as tem_arquivo,
+    select id, descricao as description, to_char(expira_em, 'YYYY-MM-DD') as expira_em,
+           impressao_digital, emissor as issuer, sujeito as subject,
+           (arquivo_cifrado is not null and senha_cifrada is not null) as "hasFile",
            (expira_em < current_date) as expirado,
-           criado_em
+           criado_em as "createdAt"
       from certificado_mtls
      where tenant_id = ${tenantId}::uuid
      order by criado_em desc
@@ -193,11 +193,11 @@ export async function listarCertificados(
 
   return certificados.map((c) => ({
     id: c.id,
-    descricao: c.description,
-    expiraEm: new Date(c.expira_em).toISOString(),
+    description: c.description,
+    expiresAt: new Date(c.expira_em).toISOString(),
     impressaoDigital: c.impressao_digital,
-    emissor: c.issuer,
-    sujeito: c.subject,
+    issuer: c.issuer,
+    subject: c.subject,
     status: statusDe(c),
     hosts: hostsByCertificate.get(c.id) ?? [],
     criadoEm: new Date(c.createdAt).toISOString(),
@@ -274,10 +274,10 @@ export async function createCertificate(
     id: novo.id,
     description,
     // A mesma forma da listagem: a data, à meia-noite UTC.
-    expiraEm: new Date(expiraEm).toISOString(),
+    expiresAt: new Date(expiraEm).toISOString(),
     impressaoDigital: read.impressaoDigital,
-    emissor: read.emissor,
-    sujeito: read.sujeito,
+    issuer: read.emissor,
+    subject: read.sujeito,
     status: novo.expirado ? 'expirado' : 'valido',
     hosts: hostsGravados,
     criadoEm: new Date(novo.createdAt).toISOString(),
