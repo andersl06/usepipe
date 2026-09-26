@@ -37,12 +37,12 @@ export function ContactHome() {
 
       {/* `#main-content-area` is `pa0`: the inner `.container` is what adds the padding. */}
       <main className="pt-conteudo fx-miolo">
-        <div className="fx-coluna">
+        <div className="fx-column">
           {/*
  * The origin's header: photo on the left, name and "Id:" beside it, and the creation date flush right, on the same line.
  */}
           <header className="fx-cabecalho">
-            <div className="fx-identidade">
+            <div className="fx-identity">
               {contact.imageUrl ? (
                 <img className="fx-foto" src={contact.imageUrl} alt="" width={72} height={72} />
               ) : (

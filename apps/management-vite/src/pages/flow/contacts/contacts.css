@@ -6,7 +6,7 @@
  */
 
 /* ------------------------------------------------------------ lista */
-.ct-listagem {
+.ct-listing {
   position: relative;
   display: flex;
   min-height: calc(100vh - var(--g-topo-h));
@@ -16,7 +16,7 @@
 }
 
 /* `.static-sidebar.absolute.w-25.min-h-100`: shadow 0 0 24px, surface 1. */
-.ct-filtros {
+.ct-filters {
   position: absolute;
   top: 0;
   left: 0;
@@ -32,11 +32,11 @@
  * `.static-sidebar__header`: dark background, padding 20px 30px; fs-20 title and
  *    a full-width 40px primary button (measured 260×40 at 320 sidebar width).
  */
-.ct-filtros-cabeca {
+.ct-filters-header {
   padding: 20px 30px;
   background: var(--p-superficie-4);
 }
-.ct-filtros-titulo {
+.ct-filters-title {
   display: block;
   height: 20px;
   color: var(--p-conteudo-claro);
@@ -64,7 +64,7 @@
   cursor: default;
 }
 /* `.static-sidebar__body`: 40px 0 40px 15px; `.dimension-card-item`: 0 20px. */
-.ct-filtros-corpo {
+.ct-filters-body {
   padding: 40px 0 40px 15px;
 }
 .ct-dimensao {
@@ -75,7 +75,7 @@
  * `.bp-btn--dashed.h3-1.w-90.ml3.mb4`: 60px tall, 90% wide, 2px dashed in the
  *    primary color, 3px radius, 14px/600.
  */
-.ct-adicionar-filtro {
+.ct-add-filter {
   width: 90%;
   height: 60px;
   margin: 0 0 20px 10px;
@@ -95,7 +95,7 @@
   width: 25%;
   flex: none;
 }
-.ct-usuarios {
+.ct-users {
   width: 75%;
   padding-bottom: 40px;
 }
@@ -104,7 +104,7 @@
  * `page-header`: `.container` with 0 5% margin, `.full-initial-section` with
  *    15px margin and padding and a bottom line, 42px content, h1 fs-24.
  */
-.ct-cabeca-secao {
+.ct-header-section {
   margin: 15px 5%;
   padding: 15px 0;
   border-bottom: 1px solid var(--p-superficie-3);
@@ -127,7 +127,7 @@
   font-weight: 400;
   line-height: 24px;
 }
-.ct-cabeca-acoes {
+.ct-header-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -169,13 +169,13 @@
   width: 90%;
   margin: 0 auto;
 }
-.ct-filtro-contatos {
+.ct-filter-contacts {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
 }
-.ct-contagem {
+.ct-count {
   width: 20%;
   margin-left: 10px;
   color: var(--p-conteudo-fantasma);
@@ -187,7 +187,7 @@
  * `.bp-daterange-inputs`: 384×38, 1px border, 8px radius, padding 0 6px;
  *    icon in a 25px box with 5px radius; two 160×36 boxes and the `~`.
  */
-.ct-periodo {
+.ct-period {
   display: flex;
   align-items: center;
   width: 384px;
@@ -199,7 +199,7 @@
   color: var(--p-conteudo);
   font-size: 14px;
 }
-.ct-periodo-icone {
+.ct-period-icon {
   display: grid;
   place-items: center;
   width: 25px;
@@ -209,7 +209,7 @@
   background: var(--p-marca-suave);
   color: var(--p-conteudo);
 }
-.ct-periodo-data {
+.ct-period-data {
   width: 160px;
   height: 36px;
   padding: 0;
@@ -220,21 +220,21 @@
   text-align: center;
   cursor: default;
 }
-.ct-periodo-data + span {
+.ct-period-data + span {
   margin-right: 4px;
   line-height: 22.4px;
 }
-.ct-periodo-data:focus {
+.ct-period-data:focus {
   outline: none;
 }
-.ct-cartoes {
+.ct-cards {
   margin-top: 20px;
 }
 /*
  * `card.card--mini-card.user-card`: 20px 50px 20px 60px, 10px bottom margin,
  *    surface 1, 8px radius; `.card-content` in a centered row, 14px/16px.
  */
-.ct-usuario {
+.ct-user {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -243,7 +243,7 @@
   padding: 20px 50px 20px 60px;
   border-radius: 8px;
   background: var(--p-superficie-1);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
   color: var(--p-conteudo);
   font-size: 14px;
   line-height: 16px;
@@ -251,13 +251,13 @@
   transition: box-shadow 0.3s ease-out;
   transition-delay: 0.1s;
 }
-.ct-usuario:hover {
+.ct-user:hover {
   box-shadow: var(--p-sombra-2);
 }
-.ct-secao {
+.ct-section {
   white-space: nowrap;
 }
-.ct-secao-avatar {
+.ct-section-avatar {
   width: 10%;
   padding: 0 10px;
 }
@@ -279,7 +279,7 @@
   height: 100%;
   object-fit: cover;
 }
-.ct-secao-nome {
+.ct-section-name {
   display: flex;
   flex-direction: column;
   width: 50%;
@@ -291,7 +291,7 @@
   color: var(--p-conteudo);
   line-height: 21px;
 }
-.ct-ultima-interacao {
+.ct-last-interaction {
   display: flex;
   color: var(--p-conteudo-fantasma);
   font-size: 12px;
@@ -303,25 +303,25 @@
   margin: 0 15px;
   background: var(--p-superficie-3);
 }
-.ct-secao-canal {
+.ct-section-channel {
   display: flex;
   flex-direction: column;
   width: 20%;
   padding-left: 10px;
 }
-.ct-canal-rotulo,
-.ct-canal-valor {
+.ct-channel-label,
+.ct-channel-value {
   display: block;
   margin-bottom: 3px;
   line-height: 21px;
 }
-.ct-canal-rotulo {
+.ct-channel-label {
   color: var(--p-conteudo-fantasma);
 }
-.ct-secao-teste {
+.ct-section-test {
   width: 10%;
 }
-.ct-secao-abrir {
+.ct-section-open {
   width: 5%;
   padding-left: 40px;
 }
@@ -336,7 +336,7 @@
   color: var(--p-conteudo);
   visibility: hidden;
 }
-.ct-usuario:hover .ct-nova-aba {
+.ct-user:hover .ct-nova-aba {
   visibility: visible;
 }
 .ct-nova-aba:hover {
@@ -344,7 +344,7 @@
   color: var(--p-marca);
 }
 /* `.no-users-found`: 30vh centrado. */
-.ct-sem-contatos {
+.ct-no-contacts {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -368,7 +368,7 @@
   width: calc(100% - 445px);
 }
 /* `.history-header.pv4`: 20px 31px 20px 96px, separador com margem 16px 8px 0. */
-.ct-historico-cabeca {
+.ct-history-header {
   position: relative;
   display: flex;
   flex-wrap: wrap;
@@ -393,7 +393,7 @@
   margin: 0 20px 0 0;
   flex: none;
 }
-.ct-nome-usuario {
+.ct-name-user {
   height: 24px;
   margin: 0 10px 0 0;
   overflow: hidden;
@@ -445,19 +445,19 @@
  * `card.ph4.w-40.mr3.user-info-card` and `.tickets-history.ph4.w-60.mr3`: the
  *    40/60 comes from the space left over after the 24px margins.
  */
-.ct-informacoes,
+.ct-information,
 .ct-tickets {
   height: 100%;
   min-width: 200px;
   margin: 9px 24px 9px 0;
   border-radius: 8px;
   background: var(--p-superficie-1);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
   overflow: auto;
   overflow-x: hidden;
   color: var(--p-conteudo);
 }
-.ct-informacoes {
+.ct-information {
   flex: 0 1 40%;
   max-height: 800px;
   padding: 0 20px;
@@ -467,25 +467,25 @@
   padding: 15px 20px;
   overflow-wrap: break-word;
 }
-.ct-informacoes-conteudo {
+.ct-information-content {
   padding: 15px;
   min-width: 0;
 }
-.ct-informacoes-cabeca {
+.ct-information-header {
   display: flex;
   justify-content: space-between;
   width: 100%;
   min-height: 40px;
 }
-.ct-informacoes-titulo {
+.ct-information-title {
   font-size: 16px;
   font-weight: 700;
   line-height: 24px;
 }
-.ct-editar-acoes {
+.ct-edit-actions {
   display: flex;
 }
-.ct-editar-acoes > :first-child {
+.ct-edit-actions > :first-child {
   margin: 0 10px;
 }
 .ct-linha {
@@ -505,7 +505,7 @@
   width: 30%;
   font-weight: 500;
 }
-.ct-valor {
+.ct-value {
   width: 70%;
   padding-left: 10px;
   text-align: left;
@@ -532,19 +532,19 @@
   margin-left: 4px;
   color: var(--p-conteudo-fantasma);
 }
-.ct-valor-container {
+.ct-value-container {
   display: flex;
   align-items: center;
   flex: 1 1 0;
   min-width: 0;
   padding-left: 12px;
 }
-.ct-valor-interno {
+.ct-value-internal {
   flex: 1 1 0;
   min-width: 0;
   overflow: hidden;
 }
-.ct-valor-texto {
+.ct-value-text {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -558,7 +558,7 @@
 .ct-linha--extras {
   margin-top: 0;
 }
-.ct-chave-extra {
+.ct-key-extra {
   width: 30%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -567,7 +567,7 @@
   font-weight: 500;
   line-height: 21px;
 }
-.ct-valor-extra {
+.ct-value-extra {
   width: 70%;
   margin-left: 5px;
   text-align: left;
@@ -576,8 +576,8 @@
   line-height: 21px;
 }
 /* `.user-info input`: ghost border and text, 60% max width. */
-.ct-entrada,
-.ct-selecao {
+.ct-input,
+.ct-selection {
   width: 70%;
   max-width: 60%;
   height: 40px;
@@ -589,12 +589,12 @@
   font: inherit;
   font-size: 14px;
 }
-.ct-entrada:focus,
-.ct-selecao:focus {
+.ct-input:focus,
+.ct-selection:focus {
   outline: none;
   border-color: var(--p-conteudo-fantasma);
 }
-.ct-caixa-teste {
+.ct-box-test {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -603,7 +603,7 @@
 }
 .ct-aviso {
   margin: 20px 0 0;
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
   font-size: 13px;
 }
 
@@ -663,7 +663,7 @@
  *    and `wrap` keeps the date from sticking to the id when there still isn't
  *    enough.
  */
-.ct-ticket-dados {
+.ct-ticket-data {
   display: flex;
   flex: 1;
   flex-wrap: wrap;
@@ -674,16 +674,16 @@
   font-size: 14px;
   line-height: 21px;
 }
-.ct-ticket-acoes {
+.ct-ticket-actions {
   display: flex;
   align-items: center;
   height: 100%;
   color: var(--p-conteudo-desabilitado);
 }
-.ct-ticket-acoes > :first-child {
+.ct-ticket-actions > :first-child {
   margin-right: 8px;
 }
-.ct-ticket-acoes .ct-botao-icone {
+.ct-ticket-actions .ct-botao-icone {
   color: inherit;
 }
 /* `.item-body`: surface 3; `li` 6px 0, label `pl6 ml3 w-40 fw5`, value `pl5 w-50`. */
@@ -725,7 +725,7 @@
 }
 
 /* `#user-detail-sidebar`: fixed to the right, 445px, surface 2. */
-.ct-historico {
+.ct-history {
   position: fixed;
   top: var(--g-topo-h);
   right: 0;
@@ -737,7 +737,7 @@
   box-shadow: var(--p-sombra-2);
   z-index: 1;
 }
-.ct-historico-titulo {
+.ct-history-title {
   display: flex;
   align-items: center;
   width: 100%;
@@ -752,7 +752,7 @@
  * `.messages`: 8px 50px 0, its own scroll; the reversed column keeps the most
  *    recent message visible on open, like `goToMostRecentMessage`.
  */
-.ct-mensagens {
+.ct-messages {
   display: flex;
   flex-direction: column-reverse;
   height: calc(100% - 61px);
@@ -760,25 +760,25 @@
   padding: 8px 50px 0;
   overflow-y: auto;
 }
-.ct-mensagem {
+.ct-message {
   position: relative;
   width: 100%;
   flex: none;
 }
-.ct-mensagem-container {
+.ct-message-container {
   display: flex;
   flex-direction: column;
   margin: 0 0 10px;
 }
-.ct-mensagem--direita .ct-mensagem-container {
+.ct-message--right .ct-message-container {
   align-items: flex-end;
 }
-.ct-mensagem--esquerda .ct-mensagem-container {
+.ct-message--left .ct-message-container {
   align-items: flex-start;
   margin: 0 -50px 10px 35px;
 }
 /* `.blip-card-photo.left`: 25px, absoluto, 37px do topo. */
-.ct-mensagem-foto {
+.ct-message-photo {
   position: absolute;
   top: 37px;
   left: 0;
@@ -804,22 +804,22 @@
   overflow-wrap: anywhere;
   white-space: pre-line;
 }
-.ct-mensagem--direita .ct-balao {
+.ct-message--right .ct-balao {
   border-radius: 13px 2px 13px 13px;
   background: var(--p-superficie-4);
   color: var(--p-conteudo-claro);
 }
-.ct-mensagem--esquerda .ct-balao {
+.ct-message--left .ct-balao {
   border-radius: 13px 13px 13px 2px;
   background: var(--p-superficie-1);
   color: var(--p-conteudo);
 }
-.ct-notificacao {
+.ct-notification {
   color: var(--p-conteudo-desabilitado);
   font-size: 10px;
   line-height: 14px;
 }
-.ct-sem-mensagens {
+.ct-no-messages {
   padding: 24px 0;
   color: var(--p-conteudo-fantasma);
   font-size: 14px;
@@ -827,18 +827,18 @@
 }
 
 @media (max-width: 1000px) {
-  .ct-filtros {
+  .ct-filters {
     position: static;
     width: 100%;
     min-height: 0;
   }
-  .ct-listagem {
+  .ct-listing {
     display: block;
   }
   .ct-espaco-lateral {
     display: none;
   }
-  .ct-usuarios {
+  .ct-users {
     width: 100%;
   }
   .ct-detalhes {
@@ -847,12 +847,12 @@
   .ct-detalhes-conteudo {
     width: 100%;
   }
-  .ct-historico {
+  .ct-history {
     position: static;
     width: 100%;
     height: 500px;
   }
-  .ct-historico-cabeca,
+  .ct-history-header,
   .ct-tickets-lista {
     padding-left: 24px;
     padding-right: 24px;
@@ -863,33 +863,33 @@
     display: grid;
     height: auto;
   }
-  .ct-informacoes,
+  .ct-information,
   .ct-tickets {
     max-height: 500px;
     margin-right: 0;
   }
-  .ct-filtro-contatos {
+  .ct-filter-contacts {
     align-items: flex-start;
     flex-direction: column;
     gap: 12px;
   }
-  .ct-periodo {
+  .ct-period {
     width: 100%;
   }
-  .ct-periodo-data {
+  .ct-period-data {
     width: auto;
     flex: 1 1 0;
   }
-  .ct-usuario {
+  .ct-user {
     padding: 16px;
   }
-  .ct-secao-canal,
-  .ct-secao-teste,
-  .ct-secao-abrir,
+  .ct-section-channel,
+  .ct-section-test,
+  .ct-section-open,
   .ct-divisor {
     display: none;
   }
-  .ct-secao-nome {
+  .ct-section-name {
     flex: 1 1 0;
     padding: 0 16px;
   }

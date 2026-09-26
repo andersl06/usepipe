@@ -149,20 +149,20 @@ export function TelaDoLog({
                           placeholder="Pesquise por qualquer termo para filtrar as mensagens..."
                         />
                       </div>
-                      <button type="submit" className="lg-busca-botao" aria-label="Pesquisar">
+                      <button type="submit" className="lg-search-button" aria-label="Pesquisar">
                         <IconeSearch tamanho={24} />
                       </button>
                     </div>
-                    <div className="lg-filtros">
-                      <label className="lg-filtro">
+                    <div className="lg-filters">
+                      <label className="lg-filter">
                         <span>De</span>
                         <input type="date" name="de" defaultValue={de} onChange={reenviar} />
                       </label>
-                      <label className="lg-filtro">
+                      <label className="lg-filter">
                         <span>Até</span>
                         <input type="date" name="ate" defaultValue={ate} onChange={reenviar} />
                       </label>
-                      <label className="lg-filtro">
+                      <label className="lg-filter">
                         <span>Direção</span>
                         <Selection name="direcao" defaultValue={direction} onChange={reenviar} aria-label="Direção">
                           {DIRECTIONS.map(([value, rotulo]) => (
@@ -172,7 +172,7 @@ export function TelaDoLog({
                           ))}
                         </Selection>
                       </label>
-                      <label className="lg-filtro">
+                      <label className="lg-filter">
                         <span>Tipo</span>
                         <Selection name="tipo" defaultValue={tipo} onChange={reenviar} aria-label="Tipo">
                           {TIPOS.map(([value, rotulo]) => (
@@ -193,7 +193,7 @@ export function TelaDoLog({
         </div>
       </header>
 
-      <div className="lg-historico">
+      <div className="lg-history">
         {!ativo ? (
           <div className="lg-chip" role="status">
             <span className="lg-chip-icone">
@@ -207,10 +207,10 @@ export function TelaDoLog({
         ) : null}
 
         {messages.length > 0 ? (
-          <div className="lg-fileira">
+          <div className="lg-row">
             {messages.map((message) => (
               <div key={message.id}>
-                <article className="lg-papel">
+                <article className="lg-paper">
                   <p>
                     <strong>Date:</strong> {message.data}
                   </p>
@@ -254,11 +254,11 @@ export function TelaDoLog({
         ) : null}
 
         {filterActive && messages.length === 0 ? (
-          <div className="lg-vazio">
-            <div className="lg-vazio-icone">
+          <div className="lg-empty">
+            <div className="lg-empty-icon">
               <IconePortal nome="erro-contorno" tamanho={56} />
             </div>
-            <div className="lg-fileira">
+            <div className="lg-row">
               <div className="lg-doze lg-centro">
                 <h4>Nenhum resultado encontrado</h4>
               </div>
@@ -268,10 +268,10 @@ export function TelaDoLog({
 
         {!filterActive && messages.length === 0 ? (
           <div>
-            <div className="lg-vazio">
+            <div className="lg-empty">
               <h4 className="lg-h4-apagado">Aguardando a primeira mensagem</h4>
             </div>
-            <p className="lg-descricao">
+            <p className="lg-description">
               Aqui você poderá visualizar todas as mensagens enviadas e recebidas, assim como
               informações de quem as enviou. Você pode aproveitar este tempo para ficar disponível
               em outros canais e alcançar mais clientes.

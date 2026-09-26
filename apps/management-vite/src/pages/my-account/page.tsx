@@ -72,12 +72,12 @@ export function PageMyAccount() {
   const recusado = (nome: string) => (parametros.campo === nome ? '' : undefined);
 
   return (
-    <div className="conta-pagina">
+    <div className="account-page">
       {/* ------------------------------------------------- a barra superior */}
-      <header className="conta-barra">
-        <div className="conta-barra-esq">
-          <span className="conta-barra-marca" role="img" aria-label="Pipe" />
-          <span className="conta-barra-risco" />
+      <header className="account-bar">
+        <div className="account-bar-left">
+          <span className="account-bar-brand" role="img" aria-label="Pipe" />
+          <span className="account-bar-risk" />
           <nav>
             <a href="/my-account" aria-current="page">
               Minha conta
@@ -90,9 +90,9 @@ export function PageMyAccount() {
           </nav>
         </div>
 
-        <div className="conta-barra-dir">
+        <div className="account-bar-right">
           <Avatar nome={eu.user.nome} />
-          <span className="conta-barra-eu">
+          <span className="account-bar-me">
             <b>{eu.user.nome}</b>
             {/*
  * Signing out ends the session, and ending a session changes state: it goes through POST, never through a link.
@@ -109,15 +109,15 @@ export function PageMyAccount() {
         </div>
       </header>
 
-      <div className="conta-corpo">
+      <div className="account-body">
         {/* ---------------------------------------------------- a lateral */}
-        <aside className="conta-lateral">
+        <aside className="account-side">
           <Avatar nome={eu.user.nome} />
-          <p className="conta-lateral-nome" title={eu.user.nome}>
+          <p className="account-side-name" title={eu.user.nome}>
             {eu.user.nome}
           </p>
           <hr />
-          <dl className="conta-lateral-info">
+          <dl className="account-side-info">
             <dt>Nome</dt>
             <dd title={eu.user.nome}>{eu.user.nome}</dd>
             <dt>E-mail</dt>
@@ -127,19 +127,19 @@ export function PageMyAccount() {
         </aside>
 
         {/* --------------------------------------------------- content */}
-        <main className="conta-conteudo">
-          <form id="conta-form" action={salvarAccount} className="conta-form">
-            <div className="conta-cabecalho">
+        <main className="account-content">
+          <form id="conta-form" action={salvarAccount} className="account-form">
+            <div className="account-header">
               <h1>{firstVez ? 'Sobre a sua empresa' : 'Minha conta'}</h1>
-              <button type="submit" className="conta-botao">
+              <button type="submit" className="account-button">
                 {firstVez ? 'Salvar e abrir o portal' : 'Salvar alterações'}
               </button>
             </div>
-            <hr className="conta-regua" />
+            <hr className="account-ruler" />
 
-            <div className="conta-area">
-              <section className="conta-cartao">
-                <ul className="conta-abas">
+            <div className="account-area">
+              <section className="account-card">
+                <ul className="account-tabs">
                   <li>
                     <input type="radio" name="aba" id="conta-aba-perfil" defaultChecked />
                     <label htmlFor="conta-aba-perfil">Meu perfil</label>
@@ -151,14 +151,14 @@ export function PageMyAccount() {
                 </ul>
 
                 {/* ------------------------------------------ aba: perfil */}
-                <div className="conta-painel conta-painel-perfil">
+                <div className="account-panel account-panel-profile">
                   {parametros.erro ? (
-                    <p className="conta-aviso" role="alert">
+                    <p className="account-notice" role="alert">
                       {parametros.erro}
                     </p>
                   ) : null}
 
-                  <label className="conta-campo" data-erro={recusado('nome')}>
+                  <label className="account-field" data-error={recusado('nome')}>
                     <span data-obrigatorio="">Nome da empresa</span>
                     <input
                       name="nome"
@@ -169,17 +169,17 @@ export function PageMyAccount() {
                       defaultValue={account.nome}
                     />
                   </label>
-                  <p className="conta-recado">{RECADOS.nome}</p>
+                  <p className="account-note">{RECADOS.nome}</p>
 
                   {/*
  * Read-only, as in the source: email is the sign-in key, and changing it here would change the person, not the data.
  */}
-                  <label className="conta-campo">
+                  <label className="account-field">
                     <span>Seu e-mail</span>
                     <input type="email" value={eu.user.email} readOnly disabled />
                   </label>
 
-                  <label className="conta-campo" data-erro={recusado('telefone')}>
+                  <label className="account-field" data-error={recusado('telefone')}>
                     <span data-obrigatorio="">Telefone</span>
                     <input
                       name="telefone"
@@ -190,9 +190,9 @@ export function PageMyAccount() {
                       defaultValue={account.telefone ?? ''}
                     />
                   </label>
-                  <p className="conta-recado">{RECADOS.telefone}</p>
+                  <p className="account-note">{RECADOS.telefone}</p>
 
-                  <label className="conta-campo" data-erro={recusado('site')}>
+                  <label className="account-field" data-error={recusado('site')}>
                     <span data-obrigatorio="">Site da empresa</span>
                     <input
                       name="site"
@@ -205,9 +205,9 @@ export function PageMyAccount() {
                       defaultValue={account.site ?? ''}
                     />
                   </label>
-                  <p className="conta-recado">{RECADOS.site}</p>
+                  <p className="account-note">{RECADOS.site}</p>
 
-                  <label className="conta-campo" data-erro={recusado('funcionarios')}>
+                  <label className="account-field" data-error={recusado('funcionarios')}>
                     <span>Tamanho da empresa</span>
                     <Selection name="funcionarios" defaultValue={account.funcionarios ?? ''} aria-label="Tamanho da empresa">
                       <option value="">Selecionar</option>
@@ -218,9 +218,9 @@ export function PageMyAccount() {
                       ))}
                     </Selection>
                   </label>
-                  <p className="conta-recado">{RECADOS.funcionarios}</p>
+                  <p className="account-note">{RECADOS.funcionarios}</p>
 
-                  <label className="conta-campo">
+                  <label className="account-field">
                     <span>Cidade</span>
                     <input
                       name="cidade"
@@ -230,7 +230,7 @@ export function PageMyAccount() {
                     />
                   </label>
 
-                  <label className="conta-campo">
+                  <label className="account-field">
                     <span>Estado</span>
                     <Selection name="estado" defaultValue={account.state ?? ''} aria-label="Estado">
                       <option value="">Selecionar</option>
@@ -242,7 +242,7 @@ export function PageMyAccount() {
                     </Selection>
                   </label>
 
-                  <label className="conta-campo">
+                  <label className="account-field">
                     <span>País</span>
                     <input
                       name="pais"
@@ -252,7 +252,7 @@ export function PageMyAccount() {
                     />
                   </label>
 
-                  <label className="conta-aceite">
+                  <label className="account-acceptance">
                     <input
                       type="checkbox"
                       name="optinWhatsapp"
@@ -263,8 +263,8 @@ export function PageMyAccount() {
                 </div>
 
                 {/* ------------------------------------- tab: preferences */}
-                <div className="conta-painel conta-painel-preferencias">
-                  <label className="conta-campo" data-erro={recusado('idioma')}>
+                <div className="account-panel account-panel-preferences">
+                  <label className="account-field" data-error={recusado('idioma')}>
                     <span>Idioma</span>
                     <Selection name="idioma" defaultValue={account.idioma} aria-label="Idioma">
                       {account.idiomas.map((codigo) => (
@@ -274,12 +274,12 @@ export function PageMyAccount() {
                       ))}
                     </Selection>
                   </label>
-                  <p className="conta-recado">{RECADOS.idioma}</p>
+                  <p className="account-note">{RECADOS.idioma}</p>
 
                   {/*
  * The timezone decides what "today" means on every card and every report: changing it redraws where the day cuts off, not just the time label.
  */}
-                  <label className="conta-campo" data-erro={recusado('fuso')}>
+                  <label className="account-field" data-error={recusado('fuso')}>
                     <span>Fuso horário</span>
                     <Selection name="fuso" defaultValue={account.fuso} aria-label="Fuso horário">
                       {account.fusos.map((nome) => (
@@ -289,13 +289,13 @@ export function PageMyAccount() {
                       ))}
                     </Selection>
                   </label>
-                  <p className="conta-recado">{RECADOS.fuso}</p>
+                  <p className="account-note">{RECADOS.fuso}</p>
                 </div>
 
                 {/*
  * Inside the card and below both panels, as in the source: it's the "Save changes" button's contract, and it applies to both tabs.
  */}
-                <p className="conta-termos">
+                <p className="account-terms">
                   Ao clicar em salvar alterações, eu aceito os{' '}
                   <a href="https://pipe.com.br/termos" target="_blank" rel="noreferrer">
                     Termos de Uso e Privacidade do Pipe

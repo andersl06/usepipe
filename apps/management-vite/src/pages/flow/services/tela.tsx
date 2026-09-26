@@ -262,11 +262,11 @@ export function TelaDeServicos({
         </div>
 
             {formulario.chatbotId ? null : encontrados.length === 0 ? (
-              <p className="sv-busca-vazia">
+              <p className="sv-search-empty">
                 Nenhum chatbot encontrado
               </p>
             ) : (
-              <ul className="sv-busca">
+              <ul className="sv-search">
                 {encontrados.map((item) => {
                   const initials = item.nome
                     .trim()
@@ -362,7 +362,7 @@ export function TelaDeServicos({
 
             {}
         {campos.mostrarExpiracao ? (
-          <div className="sv-campo sv-campo-expiracao">
+          <div className="sv-campo sv-field-expiration">
             <div className="sv-input">
               <div className="sv-input-container">
                 <div className="sv-input-wrapper">
@@ -393,7 +393,7 @@ export function TelaDeServicos({
           </div>
         ) : null}
 
-            <div className="sv-acoes">
+            <div className="sv-actions">
               <button
                 type="button"
                 className="sv-botao"
@@ -422,7 +422,7 @@ export function TelaDeServicos({
 
         {error ? (
           <p
-            className="sv-erro"
+            className="sv-error"
             role="alert"
           >
             {error}
@@ -431,10 +431,10 @@ export function TelaDeServicos({
 
         {servicos.map((service) => (
           <article
-            className="sv-cartao"
+            className="sv-card"
             key={service.id}
           >
-            <div className="sv-cartao-corpo">
+            <div className="sv-card-body">
               {service.principal ? (
                 <h2>
                   Chatbot principal{' '}
@@ -473,7 +473,7 @@ export function TelaDeServicos({
             </div>
 
             {podeEditar ? (
-              <div className="sv-cartao-acoes">
+              <div className="sv-card-actions">
                 <button
                   aria-label="Editar serviço"
                   type="button"

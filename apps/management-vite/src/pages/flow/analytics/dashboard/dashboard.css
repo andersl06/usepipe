@@ -30,7 +30,7 @@
 
 .da-raiz {
   --da-sombra-faixa: color-mix(in srgb, var(--ink) 12%, transparent);
-  --da-passagem: color-mix(in srgb, var(--ink) 8%, transparent);
+  --da-transition: color-mix(in srgb, var(--ink) 8%, transparent);
   box-sizing: border-box;
   width: 100%;
   /* `eN`: `padding: 55px 0 0 0`. */
@@ -108,7 +108,7 @@
 }
 
 /* `bds-paper` */
-.da-papel {
+.da-paper {
   border-radius: 16px;
   background: var(--surface);
   box-shadow: var(--p-sombra-1);
@@ -118,7 +118,7 @@
 
 /* `bT#wrapper-color`: largura cheia, `max-height: 128px`, sombra
    `0 10px 16px`, cantos de baixo 8. */
-.da-filtro {
+.da-filter {
   display: flex;
   justify-content: space-between;
   width: 100%;
@@ -130,7 +130,7 @@
 }
 
 /* `pT`: 90% up to 1366, `space-around`, 24px on top and below. */
-.da-filtro-miolo {
+.da-filter-core {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
@@ -142,25 +142,25 @@
 }
 
 /* `mT`: 38px tall; the icon with 5px on the left; 150px below 1300. */
-.da-filtro-rotulo {
+.da-filter-label {
   display: flex;
   flex-direction: row;
   align-items: center;
   height: 38px;
 }
 
-.da-filtro-rotulo .da-dica {
+.da-filter-label .da-dica {
   margin-left: 5px;
 }
 
 @media (max-width: 1300px) {
-  .da-filtro-rotulo {
+  .da-filter-label {
     max-width: 150px;
   }
 }
 
 /* `fT` (40%, `row-gap: 0.65vw`, 10 on the right) and `gT` (`column-gap: 0.65vw`). */
-.da-filtro-chips {
+.da-filter-chips {
   display: flex;
   flex-direction: column;
   row-gap: 0.65vw;
@@ -168,7 +168,7 @@
   margin-right: 10px;
 }
 
-.da-filtro-fileira {
+.da-filter-row {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -295,7 +295,7 @@
 }
 
 .da-botao:hover:not(:disabled) {
-  background-image: linear-gradient(var(--da-passagem), var(--da-passagem));
+  background-image: linear-gradient(var(--da-transition), var(--da-transition));
 }
 
 .da-botao:disabled {
@@ -325,7 +325,7 @@
   margin-right: 0;
 }
 
-.da-botoes {
+.da-buttons {
   display: flex;
   flex-direction: row;
   gap: 12px;
@@ -493,14 +493,14 @@
 }
 
 /* `F_`/`CE`/`bR`/`Pw`: section header, title on the left and CSV on the right. */
-.da-secao-cabeca {
+.da-section-header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
 
 /* `M_`/`vR`: recheio 10, coluna. */
-.da-secao-titulos {
+.da-section-titles {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -510,7 +510,7 @@
 }
 
 /* `DE`/`Hw`: recheio 10, coluna centrada. */
-.da-canais-titulos {
+.da-channels-titles {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -520,7 +520,7 @@
 /*
  * `mE`: centered column; 80px icon with 7 on top, 16 title on top, 12 text on top and 32 on the sides.
  */
-.da-vazio {
+.da-empty {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -528,17 +528,17 @@
   width: 100%;
 }
 
-.da-vazio-icone {
+.da-empty-icon {
   margin-top: 7px;
 }
 
-.da-vazio-titulo {
+.da-empty-title {
   margin-top: 16px;
   color: var(--ink-2);
   text-align: center;
 }
 
-.da-vazio-texto {
+.da-empty-text {
   margin: 12px 32px 0;
   color: var(--ink-3);
   text-align: center;
@@ -552,7 +552,7 @@
 /* ============================================================ Contatos */
 
 /* `C_.paper-card`: recheio 16, coluna, 16 embaixo, fundo surface-1. */
-.da-contatos {
+.da-contacts {
   display: flex;
   flex-direction: column;
   margin-bottom: 16px;
@@ -560,7 +560,7 @@
 }
 
 /* `D_`: linha, 10 em cima. */
-.da-contatos-corpo {
+.da-contacts-body {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -569,7 +569,7 @@
 }
 
 /* `O_`: coluna centrada, `margin: 0 12px`. */
-.da-coluna {
+.da-column {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -577,7 +577,7 @@
 }
 
 /* `YE.dark-paper`: linha, `padding: 22px 16px`, `margin: 4px 0`, surface-2. */
-.da-cartao-escuro {
+.da-card-dark {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -587,16 +587,16 @@
   background: var(--surface-2);
 }
 
-.da-cartao-escuro .da-t14 {
+.da-card-dark .da-t14 {
   margin-right: 8px;
 }
 
-.da-cartao-escuro .da-t24 {
+.da-card-dark .da-t24 {
   margin-right: 8px;
 }
 
 /* `i_.default-card`: coluna `space-around`, recheio 16, `margin: 4px 0`. */
-.da-cartao-claro {
+.da-card-light {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -606,7 +606,7 @@
 }
 
 /* `s_`: linha de largura cheia, `space-between`. */
-.da-cartao-claro-topo {
+.da-card-light-top {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -844,7 +844,7 @@
 }
 
 /* datalabels: 24px "bolder" to the right of the tip, color #292929. */
-.da-barra-valor {
+.da-bar-value {
   color: var(--ink);
   font-size: 24px;
   font-weight: 800;
@@ -872,7 +872,7 @@
 }
 
 /* `NR.blue_paper_Card-container`: `padding: 20px 24px`, gap 12, min 114.8, surface-3. */
-.da-cartao-azul {
+.da-card-blue {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -884,7 +884,7 @@
   background: var(--surface-3);
 }
 
-.da-cartao-azul-corpo {
+.da-card-blue-body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -892,12 +892,12 @@
   gap: 12px;
 }
 
-.da-cartao-azul-corpo .da-t16 {
+.da-card-blue-body .da-t16 {
   margin-right: 5px;
 }
 
 /* `FR`: 90px de largura. */
-.da-cartao-azul-valor {
+.da-card-blue-value {
   display: flex;
   width: 90px;
 }
@@ -931,7 +931,7 @@
   padding: 10px;
 }
 
-.da-ranking-vazio {
+.da-ranking-empty {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -988,7 +988,7 @@
 }
 
 /* `fS.color-circle`: 32px, round, 14 on the left, `system` background. */
-.da-posicao {
+.da-position {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1002,7 +1002,7 @@
 /* =========================================================== Mensagens */
 
 /* `fR.messageSection`: recheio 16, 16 embaixo. */
-.da-mensagens {
+.da-messages {
   display: flex;
   flex-direction: column;
   margin-bottom: 16px;
@@ -1010,7 +1010,7 @@
 }
 
 /* `gR`: recheio 10, linha. */
-.da-mensagens-corpo {
+.da-messages-body {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -1020,14 +1020,14 @@
 }
 
 /* `yR`: `space-evenly` column, 10 on the right except the last. */
-.da-mensagens-coluna {
+.da-messages-column {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
   min-height: 100%;
 }
 
-.da-mensagens-coluna:not(:last-child) {
+.da-messages-column:not(:last-child) {
   padding-right: 10px;
 }
 
@@ -1063,7 +1063,7 @@
 }
 
 /* `aR`: the number flush right. */
-.da-metrica-valor {
+.da-metric-value {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -1074,12 +1074,12 @@
 /* ============================================================== Canais */
 
 /* `.channel-section`: `padding: 16px 16px`, surface-1. */
-.da-canais {
+.da-channels {
   padding: 16px;
 }
 
 /* `ME`: recheio 10. */
-.da-canais-corpo {
+.da-channels-body {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -1089,13 +1089,13 @@
 }
 
 /* `RS` + `CS`/`FS` + `nE`/`oE`/`tE`. */
-.da-canais-tabela {
+.da-channels-table {
   width: 100%;
   height: 60%;
   margin-top: 18px;
 }
 
-.da-canais-tabela thead tr {
+.da-channels-table thead tr {
   display: table;
   width: 100%;
   margin-bottom: 12px;
@@ -1110,8 +1110,8 @@
 /*
  * Same reset as the ranking tables: the Pipe global `th`/`td` adds uppercase, a rule and padding that the source's `FS`/`tE` don't have.
  */
-.da-canais-tabela th,
-.da-canais-tabela td {
+.da-channels-table th,
+.da-channels-table td {
   padding: 0;
   border: 0;
   background: none;
@@ -1120,50 +1120,50 @@
   text-transform: none;
 }
 
-.da-canais-tabela thead th {
+.da-channels-table thead th {
   font-size: 14px;
   font-weight: 700;
 }
 
-.da-canais-tabela tbody {
+.da-channels-table tbody {
   display: block;
   height: 80%;
   margin-top: 10px;
 }
 
-.da-canais-tabela tbody tr {
+.da-channels-table tbody tr {
   display: table;
   width: 100%;
   padding: 7px 0;
   table-layout: fixed;
 }
 
-.da-canais-tabela tbody tr:nth-child(odd) {
+.da-channels-table tbody tr:nth-child(odd) {
   background: var(--surface-2);
 }
 
 /* `tr:last-child` (the "Totais") and the first cell of each row in bold. */
-.da-canais-tabela tbody tr:last-child {
+.da-channels-table tbody tr:last-child {
   font-weight: 700;
 }
 
-.da-canais-tabela tbody tr:last-child td:first-child {
+.da-channels-table tbody tr:last-child td:first-child {
   font-size: 16px;
 }
 
-.da-canais-tabela td {
+.da-channels-table td {
   font-size: 14px;
   text-align: center;
 }
 
-.da-canais-tabela td:first-child {
+.da-channels-table td:first-child {
   font-weight: 700;
 }
 
 /* ================================================ Fluxo conversacional */
 
 /* `zw`: recheio 16, 16 embaixo, e `margin-top: 16px` da folha. */
-.da-fluxo {
+.da-flow {
   display: flex;
   flex-direction: column;
   margin: 16px 0;
@@ -1171,7 +1171,7 @@
 }
 
 /* `Qw` + `Jw`: linha que quebra, recheio 10. */
-.da-fluxo-corpo {
+.da-flow-body {
   display: flex;
   flex: 1;
   flex-direction: row;
@@ -1210,7 +1210,7 @@
   justify-content: space-between;
 }
 
-.da-colunas-valores {
+.da-columns-values {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
@@ -1218,7 +1218,7 @@
 }
 
 /* `ww`: coluna centrada, 8 dos lados. */
-.da-colunas-valor {
+.da-columns-value {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1297,7 +1297,7 @@
 }
 
 /* `ow`: half, 5% on the left, centered. */
-.da-lateral-sub-coluna {
+.da-side-sub-column {
   display: flex;
   flex-direction: column;
   align-self: center;

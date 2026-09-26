@@ -27,36 +27,36 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
         {/*
  * The account selector names the current contract and lists other accounts, the first daily action in the reference. There, switching navigates to another subdomain; here it switches sessions when the `api` reissues the cookie for the selected account. With one account, show only its name: a one-item menu would repeat the current account.
  */}
-        <details className="g-menu pt-conta">
+        <details className="g-menu pt-account">
         {/*
  * Reference `menu-contract`: `business` in a light `icon-contract-white` circle, bold 16px name, 12px account type below (`pl3`), and `arrow-down` in a separate block outside `group-buttom-contract`.
  */}
         <summary>
-          <span className="pt-conta-icone">
+          <span className="pt-account-icon">
             <IconePortal nome="contrato" tamanho={24} />
           </span>
-          <span className="pt-conta-texto">
+          <span className="pt-account-text">
             <b>{data.tenant.nome}</b>
             <span className="pt-plano">{data.tenant.plano}</span>
           </span>
-          <span className="pt-conta-seta">
+          <span className="pt-account-arrow">
             <IconePortal nome="baixo" tamanho={24} />
           </span>
         </summary>
-        <div className="g-painel pt-conta-menu">
+        <div className="g-panel pt-account-menu">
           {/*
  * Reference menu's first destination is `Painel do contrato`, the contract panel, distinct from personal `Minha conta`; the previous link pointed to the wrong screen. Put the active account name beneath at 10px (`organization-panel-options`). Exclude the active account from the list below because it already titles the opener.
  */}
-          <Link className="pt-painel" href="/contract">
+          <Link className="pt-panel" href="/contract">
             <IconePortal nome="painel" tamanho={24} />
             <span>
               Painel do contrato
-              <span className="pt-painel-conta">{data.tenant.nome}</span>
+              <span className="pt-panel-account">{data.tenant.nome}</span>
             </span>
           </Link>
 
           {outras.length > 0 ? (
-            <div className="pt-contas">
+            <div className="pt-accounts">
               {/*
  * Each reference `tenant-profile` item has a building icon for a contract or speech balloon for a personal account, a 16px name, then a 12px account type or personal address (source example `beagleaz.blip.ai`).
  */}
@@ -74,9 +74,9 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
                   <span>
                     {account.nome}
                     {account.pessoal ? (
-                      <span className="pt-conta-tipo">{account.slug}.usepipe.ai</span>
+                      <span className="pt-account-type">{account.slug}.usepipe.ai</span>
                     ) : (
-                      <span className="pt-conta-tipo">{account.plano}</span>
+                      <span className="pt-account-type">{account.plano}</span>
                     )}
                     {account.onboardingConcluido ? null : <span className="g-tipo">em cadastro</span>}
                   </span>
@@ -117,7 +117,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
           {/*
  * The reference `?` menu has Help, Academy, Community, Support. We currently have support and an upcoming community; show the latter dimmed with a blinking badge so the destination remains discoverable without a dead link.
  */}
-          <div className="g-painel pt-menu">
+          <div className="g-panel pt-menu">
             <a href={`mailto:${EMAIL_SUPORTE}`}>
               <IconePortal nome="suporte" tamanho={20} />
               Pipe Suporte
@@ -133,7 +133,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
           <summary className="g-iconbtn" title="Notificações" aria-label="Notificações">
             <IconePortal nome="sino" tamanho={24} />
           </summary>
-          <div className="g-painel pt-sino">
+          <div className="g-panel pt-sino">
             <p>Você não tem nenhuma notificação</p>
           </div>
         </details>
@@ -159,11 +159,11 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
             )}
             <IconePortal nome="baixo" tamanho={24} className="pt-seta" />
           </summary>
-          <div className="g-painel pt-menu pt-eu">
+          <div className="g-panel pt-menu pt-eu">
             {/*
  * Reference `bds-menu-exibition` places avatar left, name at 16, email at 10 below, then a divider; each following item has another divider, three in total.
  */}
-            <div className="eu-bloco">
+            <div className="me-block">
               {data.user.avatarUrl ? (
                 <img className="avatar" src={data.user.avatarUrl} alt="" />
               ) : (

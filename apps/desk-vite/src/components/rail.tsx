@@ -40,14 +40,14 @@ export function Rail({
 
   return (
     <>
-      <nav className="dk-trilho" aria-label="Menu principal">
-        <NavLink to="/" className="dk-trilho-marca" aria-label="Pipe Desk" />
-        <ul className="dk-trilho-itens">
+      <nav className="dk-rail" aria-label="Menu principal">
+        <NavLink to="/" className="dk-rail-brand" aria-label="Pipe Desk" />
+        <ul className="dk-rail-items">
           {DESTINOS.map((d) => (
-            <li key={d.para} className="dk-trilho-item">
+            <li key={d.para} className="dk-rail-item">
               <NavLink
                 to={d.para}
-                className="dk-trilho-botao"
+                className="dk-rail-button"
                 title={d.rotulo}
                 aria-label={d.rotulo}
                 aria-current={d.para === '/' ? (pathname === '/' ? 'page' : undefined) : undefined}
@@ -57,11 +57,11 @@ export function Rail({
             </li>
           ))}
         </ul>
-        <ul className="dk-trilho-itens dk-trilho-rodape">
-          <li className="dk-trilho-item">
+        <ul className="dk-rail-items dk-rail-footer">
+          <li className="dk-rail-item">
             {/* The reference help link opens Blip's help center; this one goes to Pipe support. */}
             <a
-              className="dk-trilho-botao"
+              className="dk-rail-button"
               href="mailto:suporte@usepipe.com.br"
               title="Ajuda"
               aria-label="Ajuda"
@@ -69,27 +69,27 @@ export function Rail({
               <IconeDesk nome="ajuda" />
             </a>
           </li>
-          <li className="dk-trilho-item">
+          <li className="dk-rail-item">
             <NavLink
               to="/preferences"
-              className="dk-trilho-botao"
+              className="dk-rail-button"
               title="Preferências"
               aria-label="Preferências"
             >
               <IconeDesk nome="preferencias" />
             </NavLink>
           </li>
-          <li className="dk-trilho-item">
+          <li className="dk-rail-item">
             <button
               type="button"
-              className="dk-trilho-avatar"
+              className="dk-rail-avatar"
               title={`Seu status é: ${ROTULOS_DE_STATUS[state]}`}
               aria-label={`Opções de status. Seu status é: ${ROTULOS_DE_STATUS[state]}`}
               aria-expanded={aberto}
               onClick={() => aoAbrir(!aberto)}
             >
               <Avatar nome={eu?.user.nome} tamanho={32} />
-              <span className="dk-presenca" data-estado={state} />
+              <span className="dk-presenca" data-status={state} />
             </button>
           </li>
         </ul>
@@ -139,7 +139,7 @@ function StatusPanel({
   const options: StateAgent[] = ['online', 'pausa', 'invisivel'];
 
   return (
-    <aside className="dk-status-painel" aria-label="Seu status">
+    <aside className="dk-status-panel" aria-label="Seu status">
       <div className="dk-status-cabecalho">
         <button
           ref={first}
@@ -171,17 +171,17 @@ function StatusPanel({
               </button>
               <span>Em pausa</span>
             </div>
-            <ul className="dk-status-opcoes" role="menu">
+            <ul className="dk-status-options" role="menu">
               {motivos.map((m) => (
                 <li key={m.id} role="presentation">
                   <button
                     type="button"
                     role="menuitemradio"
                     aria-checked={state === 'pausa' && motivoAtual === m.nome}
-                    className="dk-status-opcao"
+                    className="dk-status-option"
                     onClick={() => void mudar('pausa', m.id)}
                   >
-                    <span className="dk-status-ponto" data-estado="pausa" />
+                    <span className="dk-status-ponto" data-status="paused" />
                     <span className="dk-status-rotulo">{m.nome}</span>
                     {state === 'pausa' && motivoAtual === m.nome ? (
                       <IconeDesk nome="check" />
@@ -190,22 +190,22 @@ function StatusPanel({
                 </li>
               ))}
               {motivos.length === 0 ? (
-                <li className="dk-status-vazio">Nenhum motivo de pausa cadastrado.</li>
+                <li className="dk-status-empty">Nenhum motivo de pausa cadastrado.</li>
               ) : null}
             </ul>
           </div>
         ) : (
-          <ul className="dk-status-opcoes" role="menu" aria-label="Opções de status">
+          <ul className="dk-status-options" role="menu" aria-label="Opções de status">
             {options.map((o) => (
               <li key={o} role="presentation">
                 <button
                   type="button"
                   role="menuitemradio"
                   aria-checked={state === o}
-                  className="dk-status-opcao"
+                  className="dk-status-option"
                   onClick={() => (o === 'pausa' ? setEscolhendoPausa(true) : void mudar(o))}
                 >
-                  <span className="dk-status-ponto" data-estado={o} />
+                  <span className="dk-status-ponto" data-status={o} />
                   <span className="dk-status-rotulo">
                     {ROTULOS_DE_STATUS[o]}
                     {o === 'pausa' && state === 'pausa' && motivoAtual ? ` · ${motivoAtual}` : ''}
@@ -216,7 +216,7 @@ function StatusPanel({
             ))}
           </ul>
         )}
-        {error ? <p className="dk-erro">{error}</p> : null}
+        {error ? <p className="dk-error">{error}</p> : null}
       </div>
       <button type="button" className="dk-status-sair" onClick={() => void sair()}>
         <span>Desconectar</span>

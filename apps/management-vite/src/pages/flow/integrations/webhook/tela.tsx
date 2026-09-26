@@ -195,8 +195,8 @@ export function TelaDoWebhook({ base }: { base: string }) {
       </header>
 
       <div className="ig-grade">
-        <section className="ig-papel">
-          <div className="ig-papel-miolo">
+        <section className="ig-paper">
+          <div className="ig-paper-core">
             <div className="ig-abas-linha">
               <div className="ig-abas" role="tablist" aria-label="Webhook">
                 <button
@@ -221,9 +221,9 @@ export function TelaDoWebhook({ base }: { base: string }) {
             </div>
 
             {aba === 'visao-geral' ? (
-              <div className="ig-painel">
+              <div className="ig-panel">
                 <IllustrationIntegration nome="webhook" altura={72} className="ig-figura-grande" />
-                <div className="ig-painel-texto">
+                <div className="ig-panel-text">
                   <p className="ig-typo-16">
                     Envie os dados do seu chatbot para sua aplicação, por HTTPS, assinados por HMAC
                     (`X-Pipe-Signature`).
@@ -239,9 +239,9 @@ export function TelaDoWebhook({ base }: { base: string }) {
                 </div>
               </div>
             ) : (
-              <div className="ig-painel-texto">
+              <div className="ig-panel-text">
                 {secretsGerados.length > 0 ? (
-                  <div className="ig-form ig-segredo-gerado">
+                  <div className="ig-form ig-secret-generated">
                     <p className="ig-typo-16">
                       <strong>
                         {secretsGerados.length === 1
@@ -360,11 +360,11 @@ export function TelaDoWebhook({ base }: { base: string }) {
                             ))}
                           </div>
                           {eventos.length === 0 ? (
-                            <p className="ig-campo-erro">Ao menos um tipo deve estar selecionado.</p>
+                            <p className="ig-field-error">Ao menos um tipo deve estar selecionado.</p>
                           ) : null}
                         </div>
 
-                        <div className="ig-autenticacao ig-mb4">
+                        <div className="ig-authentication ig-mb4">
                           <p className="ig-typo-14 ig-mb3">Configurações de autenticação</p>
                           <div className="ig-interruptor-linha">
                             <Interruptor
@@ -418,7 +418,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                                   Informe os dados de acesso do OAuth 2.0 para autenticar as chamadas
                                   enviadas a este webhook.
                                 </p>
-                                <div className="ig-oauth-fileira">
+                                <div className="ig-oauth-row">
                                   <Campo
                                     className="ig-w40"
                                     rotulo="URL de autorização"
@@ -439,7 +439,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                                     aoMudar={setOauthClientId}
                                   />
                                 </div>
-                                <div className="ig-oauth-fileira">
+                                <div className="ig-oauth-row">
                                   <Campo
                                     className="ig-w40"
                                     tipo="password"
@@ -455,7 +455,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                           {tipoAuth === 'basica' ? (
                             <div className="ig-oauth">
                               <div className="ig-oauth-miolo">
-                                <div className="ig-oauth-fileira">
+                                <div className="ig-oauth-row">
                                   <Campo
                                     className="ig-w40"
                                     rotulo="Usuário"
@@ -475,10 +475,10 @@ export function TelaDoWebhook({ base }: { base: string }) {
                           ) : null}
                         </div>
 
-                        <div className="ig-cabecalhos-bloco">
+                        <div className="ig-headers-block">
                           <p className="ig-typo-14 ig-mb3">Cabeçalhos customizados</p>
                           {cabecalhos.map((cabecalho, indice) => (
-                            <div className="ig-cabecalho-fileira" key={indice}>
+                            <div className="ig-header-row" key={indice}>
                               <Campo
                                 className="ig-cabecalho-campo ig-w40"
                                 rotulo="Chave"
@@ -531,7 +531,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                       {creationNotice}
                     </p>
                   ) : null}
-                  <div className="ig-acoes">
+                  <div className="ig-actions">
                     <button
                       type="button"
                       className="ig-botao ig-botao--fantasma"
@@ -665,7 +665,7 @@ function Campo({
           />
         </div>
       </div>
-      {error ? <p className="ig-campo-erro">{error}</p> : null}
+      {error ? <p className="ig-field-error">{error}</p> : null}
     </div>
   );
 }

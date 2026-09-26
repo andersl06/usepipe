@@ -19,7 +19,7 @@
   }
 }
 
-.cw-acordeoes {
+.cw-accordions {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-3);
@@ -66,7 +66,7 @@
   align-items: center;
   gap: var(--p-e-2);
   text-align: center;
-  background: var(--g-cartao-fundo);
+  background: var(--g-card-background);
 }
 
 .cw-preview-avatar {

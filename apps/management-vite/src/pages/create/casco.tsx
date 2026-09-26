@@ -132,7 +132,7 @@ export function PassoDoNome({
           <span>{rotulos.definirImage}</span>
         </label>
 
-        <div className="cr-campo" data-erro={error ? '' : undefined}>
+        <div className="cr-campo" data-error={error ? '' : undefined}>
           <input
             id="nome"
             name="nome"
@@ -155,7 +155,7 @@ export function PassoDoNome({
  */}
         <p className="cr-recado">Até {TAMANHO.nomeMax} caracteres.</p>
 
-        <div className="cr-acoes">
+        <div className="cr-actions">
           {/*
  * `backFromNameStep()` returns to the PREVIOUS saved state (`$ctrl.beforeNameStep`), which is the step the person came from — the invite in the router, the marketplace in the flow. Their `$watch` default, when there's no previous state, is exactly `auth.application.create.marketplace`. `bds-button variant="secondary" icon="arrow-left"`.
  */}

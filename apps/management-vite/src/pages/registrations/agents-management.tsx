@@ -83,7 +83,7 @@ export function AgentsPageManagement() {
       cards: filtrados.map((a) => ({
         id: a.id,
         esquerda: (
-          <span className="cl-selecao">
+          <span className="cl-selection">
             <input
               type="checkbox"
               checked={selecionados.has(a.id)}
@@ -144,7 +144,7 @@ export function AgentsPageManagement() {
           Selecionar todos
         </label>
         {selecionados.size > 0 ? (
-          <div className="acoes-em-lote">
+          <div className="actions-in-batch">
             <span className="sub">
               {numero(selecionados.size)} selecionado{selecionados.size === 1 ? '' : 's'}
             </span>
@@ -211,16 +211,16 @@ function QueuesFilter({
   }
 
   return (
-    <div className="filtro-filas">
+    <div className="filter-queues">
       <span className="filtrar-rotulo">Filtrar por:</span>
-      <button type="button" className="filtro-filas-ativador" onClick={() => (aberto ? setAberto(false) : abrir())}>
+      <button type="button" className="filter-queues-trigger" onClick={() => (aberto ? setAberto(false) : abrir())}>
         Filas{aplicado.length > 0 ? ` (${aplicado.length})` : ''}
         <Icone nome="baixo" tamanho={16} />
       </button>
 
       {aberto ? (
-        <div className="filtro-filas-painel" role="dialog" aria-label="Filtrar por filas">
-          <div className="filtro-filas-cabecalho">
+        <div className="filter-queues-panel" role="dialog" aria-label="Filtrar por filas">
+          <div className="filter-queues-header">
             <span className="sub">Selecione a(s) fila(s)</span>
             <button type="button" className="link-carregar-mais" onClick={() => setStaged([])}>
               Limpar seleção
@@ -231,7 +231,7 @@ function QueuesFilter({
             <p className="sub">Nenhuma fila cadastrada.</p>
           ) : (
             options.map((nome) => (
-              <label key={nome} className="filtro-filas-item">
+              <label key={nome} className="filter-queues-item">
                 <input
                   type="checkbox"
                   checked={staged.includes(nome)}
@@ -244,7 +244,7 @@ function QueuesFilter({
             ))
           )}
 
-          <div className="cl-acoes">
+          <div className="cl-actions">
             <Botao type="button" onClick={() => setAberto(false)}>
               Cancelar
             </Botao>

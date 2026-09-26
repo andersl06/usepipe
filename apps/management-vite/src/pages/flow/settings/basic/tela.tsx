@@ -180,7 +180,7 @@ export function SettingsBasicTela({
     <>
       <PageHeader titulo={<h1>Editar Fluxo</h1>} />
       <div className="cf-container cf-basicas">
-        <h2 className="cf-basicas-secao">Informações básicas</h2>
+        <h2 className="cf-basic-section">Informações básicas</h2>
         <form
           onSubmit={(evento) => {
             evento.preventDefault();
@@ -207,7 +207,7 @@ export function SettingsBasicTela({
             linhas={1}
           />
 
-          <div className="cf-mt4 cf-basicas-imagem">
+          <div className="cf-mt4 cf-basic-image">
             <span className="cf-campo-rotulo">
               Imagem do avatar <small className="cf-basicas-opcional">(Opcional)</small>
             </span>
@@ -305,7 +305,7 @@ export function SettingsBasicTela({
 
       {excluindo ? (
         <div
-          className="cf-sobreposicao"
+          className="cf-overlay"
           role="presentation"
           onMouseDown={(evento) => evento.target === evento.currentTarget && setExcluindo(false)}
         >
@@ -336,7 +336,7 @@ export function SettingsBasicTela({
                 {aviso}
               </p>
             ) : null}
-            <footer className="cf-modal-acoes">
+            <footer className="cf-modal-actions">
               <BotaoBds variante="secondary" onClick={() => setExcluindo(false)}>
                 Voltar
               </BotaoBds>

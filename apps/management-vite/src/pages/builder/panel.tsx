@@ -84,11 +84,11 @@ export function BlockPanel({
     setNovaTag('');
   }
   return (
-    <aside className="bl-painel bl-painel--bloco" aria-label={`Bloco ${block.$title ?? block.id}`}>
-      <div className="bl-painel-cabecalho">
+    <aside className="bl-panel bl-panel--block" aria-label={`Bloco ${block.$title ?? block.id}`}>
+      <div className="bl-panel-header">
         <input
           id="builder-sidebar-title"
-          className="bl-painel-titulo"
+          className="bl-panel-title"
           type="text"
           maxLength={LIMITE_DO_TITULO}
           placeholder="Nome do bloco"
@@ -111,10 +111,10 @@ export function BlockPanel({
           <IconePortal nome="fechar" tamanho={20} />
         </button>
       </div>
-      <div className="bl-painel-tags" data-test="state-tags">
+      <div className="bl-panel-tags" data-test="state-tags">
           {tags.map((tag) => (
             <span key={tag.indice} className="bl-tag-editor">
-              <span className="bl-painel-tag" style={{ backgroundColor: tag.color }}>
+              <span className="bl-panel-tag" style={{ backgroundColor: tag.color }}>
                 <button
                   type="button"
                   onClick={() => setTagAberta(tagAberta === tag.indice ? null : tag.indice)}
@@ -158,7 +158,7 @@ export function BlockPanel({
             </span>
           ))}
           <input
-            className="bl-painel-adicionar-tag"
+            className="bl-panel-add-tag"
             value={novaTag}
             placeholder="Adicionar tag..."
             onChange={(e) => setNovaTag(e.target.value)}
@@ -171,9 +171,9 @@ export function BlockPanel({
             onBlur={adicionarTag}
           />
       </div>
-      <hr className="bl-painel-fio" />
+      <hr className="bl-panel-wire" />
       {errors.length > 0 ? (
-        <ul className="bl-erros bl-painel-erros">
+        <ul className="bl-errors bl-panel-errors">
           {errors.map((e) => (
             <li key={e}>{e}</li>
           ))}

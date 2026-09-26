@@ -46,7 +46,7 @@ export function ContentPanel({
   const [selecionado, setSelecionado] = useState<number | null>(null);
   const conteudo = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
-    if (selecionado !== null) conteudo.current?.closest('.bl-painel-corpo')?.scrollTo(0, 0);
+    if (selecionado !== null) conteudo.current?.closest('.bl-panel-body')?.scrollTo(0, 0);
   }, [selecionado]);
   const [alterarEspera, setAlterarEspera] = useState(false);
   const attendance = ehAttendance(block.id);
@@ -62,12 +62,12 @@ export function ContentPanel({
   }
 
   return (
-    <div ref={conteudo} className="bl-aba-corpo bl-conteudo-bloco">
+    <div ref={conteudo} className="bl-aba-corpo bl-content-block">
       <span className="bl-conteudo-contador">
         {cards.filter((c) => c.tipo !== 'entrada' && c.tipo !== 'digitando').length}/25
       </span>
       {raiz ? (
-        <div className="bl-conteudo-introducao">
+        <div className="bl-content-introduction">
           <h4>Início</h4>
           <p>
             A conversa do seu chatbot sempre inicia através da <em>Entrada do usuário</em>. Crie
@@ -76,7 +76,7 @@ export function ContentPanel({
         </div>
       ) : null}
       {attendance ? (
-        <div className="bl-conteudo-introducao">
+        <div className="bl-content-introduction">
           <h4>Atendimento humano</h4>
           <p>Este bloco encaminhará a conversa para a sua fila de atendimento.</p>
           <p>
@@ -86,7 +86,7 @@ export function ContentPanel({
           <small>v.{block.deskStateVersion ?? '3.0.0'}</small>
         </div>
       ) : null}
-      <div className="bl-conversa-conteudo bl-lista-de-cartoes">
+      <div className="bl-conversation-content bl-lista-de-cartoes">
         {!attendance
           ? cards.map((c) => (
               <div
@@ -110,7 +110,7 @@ export function ContentPanel({
                         ? ROTULOS_DO_CONTEUDO.digitando
                         : c.texto || ROTULOS_DO_CONTEUDO[c.tipo]}
                   {c.tipo === 'menu' || c.tipo === 'quickReply' ? (
-                    <span className="bl-previa-opcoes">
+                    <span className="bl-preview-options">
                       {c.options.map((o, i) => (
                         <span key={i}>{o.text}</span>
                       ))}
@@ -133,7 +133,7 @@ export function ContentPanel({
                       (Alterar)
                     </button>
                     {alterarEspera ? (
-                      <div className="bl-menu-acoes">
+                      <div className="bl-menu-actions">
                         {[true, false].map((aguardar) => (
                           <button
                             type="button"
@@ -163,7 +163,7 @@ export function ContentPanel({
             + {ROTULOS_DO_CONTEUDO.adicionar}
           </button>
           {menuAberto ? (
-            <div className="bl-menu-acoes" role="menu">
+            <div className="bl-menu-actions" role="menu">
               <button type="button" role="menuitem" onClick={() => adicionar(novoTexto())}>
                 {ROTULOS_DO_CONTEUDO.texto}
               </button>
@@ -242,7 +242,7 @@ function ContentCard({
   const inbound = card.tipo === 'entrada';
   const order =
     inbound || fixo ? null : (
-      <span className="bl-saida-ordem">
+      <span className="bl-output-order">
         <button
           type="button"
           className="iconbtn"
@@ -281,7 +281,7 @@ function ContentCard({
   switch (card.tipo) {
     case 'texto':
       return (
-        <article className="bl-cartao bl-cartao--robo">
+        <article className="bl-card bl-card--bot">
           <header>
             <b>{ROTULOS_DO_CONTEUDO.texto}</b>
             {order}
@@ -303,7 +303,7 @@ function ContentCard({
       const switchOptions = (options: MenuOption[]): void =>
         onMudar(definirMenu(block, i, card.texto, options));
       return (
-        <article className="bl-cartao bl-cartao--robo">
+        <article className="bl-card bl-card--bot">
           <header>
             <b>{menu ? ROTULOS_DO_CONTEUDO.menu : ROTULOS_DO_CONTEUDO.quickReply}</b>
             {order}
@@ -316,7 +316,7 @@ function ContentCard({
             placeholder="Texto do menu"
             onChange={(e) => onMudar(definirMenu(block, i, e.target.value, card.options))}
           />
-          <ol className="bl-opcoes">
+          <ol className="bl-options">
             {card.options.map((o, j) => (
               <li key={j}>
                 <Campo
@@ -361,7 +361,7 @@ function ContentCard({
       );
     case 'digitando':
       return (
-        <article className="bl-cartao bl-cartao--robo bl-cartao--apagado">
+        <article className="bl-card bl-card--bot bl-card--deleted">
           <header>
             <b>{ROTULOS_DO_CONTEUDO.digitando}</b>
             {order}
@@ -372,7 +372,7 @@ function ContentCard({
       );
     case 'outro':
       return (
-        <article className="bl-cartao bl-cartao--robo bl-cartao--apagado">
+        <article className="bl-card bl-card--bot bl-card--deleted">
           <header>
             <b>{card.mime}</b>
             {order}
@@ -402,7 +402,7 @@ function InboundCard({
   const atualizar = (nova: EditorInbound): void => onMudar(definirInbound(block, nova));
 
   return (
-    <article className="bl-cartao bl-cartao--cliente">
+    <article className="bl-card bl-card--client">
       <header>
         <b>{ROTULOS_DO_CONTEUDO.entrada}</b>
         <span className="sub">
@@ -432,8 +432,8 @@ function InboundCard({
             </div>
           ) : null}
 
-          <section className="bl-secao">
-            <h5 className="bl-secao-subtitulo">{ROTULOS_DO_CONTEUDO.salvarEmVariavel}</h5>
+          <section className="bl-section">
+            <h5 className="bl-section-subtitle">{ROTULOS_DO_CONTEUDO.salvarEmVariavel}</h5>
             <p className="bl-ajuda">{ROTULOS_DO_CONTEUDO.salvarEmVariavelInfo}</p>
             <label className="bl-campo">
               <span className="sub">{ROTULOS_DO_CONTEUDO.variavel}</span>
@@ -446,7 +446,7 @@ function InboundCard({
           </section>
 
           {aguardando && !ehAttendance(block.id) ? (
-            <section className="bl-secao">
+            <section className="bl-section">
               <label className="form-caixa">
                 <input
                   type="checkbox"
@@ -460,7 +460,7 @@ function InboundCard({
                     })
                   }
                 />
-                <span className="bl-secao-subtitulo">{ROTULOS_DO_CONTEUDO.validar}</span>
+                <span className="bl-section-subtitle">{ROTULOS_DO_CONTEUDO.validar}</span>
               </label>
               {inbound.validation ? (
                 <>

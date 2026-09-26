@@ -12,7 +12,7 @@ export default function PageAds() {
   const [aviso, setAviso] = useState('');
 
   return (
-    <div className="ck-pagina">
+    <div className="ck-page">
       <div className="ck-espaco" />
       <div className="ck-linha">
         <div className="ck-container">
@@ -24,8 +24,8 @@ export default function PageAds() {
       <div className="ck-espaco" />
       <div className="ck-container">
         <div className="ck-col-12">
-          <div className="ck-papel an-conexao">
-            <div className="an-ilustracao">
+          <div className="ck-paper an-conexao">
+            <div className="an-illustration">
               <Illustration nome="vazio" tamanho={140} />
             </div>
             <div className="an-corpo">
@@ -37,7 +37,7 @@ export default function PageAds() {
                 permissão de administrador da página da sua empresa e conceda acesso a todas as
                 empresas e páginas, atuais e futuras, durante o processo de autorização.
               </p>
-              <div className="an-acoes">
+              <div className="an-actions">
                 <button
                   type="button"
                   className="an-botao"

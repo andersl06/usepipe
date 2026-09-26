@@ -139,12 +139,12 @@ function ButtonExpandirPage({
 function TicketsAbertosByHora({ horas }: { horas: readonly number[] }) {
   const maior = Math.max(1, ...horas);
   return (
-    <section className="mon-por-hora" aria-label="Tickets abertos por hora">
+    <section className="mon-per-hour" aria-label="Tickets abertos por hora">
       <h3>Tickets abertos por hora</h3>
-      <div className="mon-por-hora-grafico">
+      <div className="mon-per-hour-chart">
         {horas.map((total, hora) => (
-          <div key={hora} className="mon-por-hora-coluna" title={`${hora}h: ${total} ticket(s)`}>
-            <span className="mon-por-hora-valor">{total || ''}</span>
+          <div key={hora} className="mon-per-hour-column" title={`${hora}h: ${total} ticket(s)`}>
+            <span className="mon-per-hour-value">{total || ''}</span>
             <i style={{ height: `${Math.max(total > 0 ? 8 : 0, (total / maior) * 100)}%` }} />
             <small>{String(hora).padStart(2, '0')}</small>
           </div>
@@ -157,7 +157,7 @@ function TicketsAbertosByHora({ horas }: { horas: readonly number[] }) {
 function MetricaCarregando() {
   return (
     <div className="metric mon-metrica-carregando">
-      <span className="mon-esqueletico valor" />
+      <span className="mon-esqueletico value" />
       <span className="mon-esqueletico rotulo" />
     </div>
   );
@@ -200,7 +200,7 @@ function CardCarregando({
 
 function MonitoringCarregando() {
   return (
-    <div className="mon-pagina mon-carregando" role="status" aria-label="Carregando monitoramento">
+    <div className="mon-page mon-carregando" role="status" aria-label="Carregando monitoramento">
       <div className="board-head">
         <h2>Monitoramento</h2>
         <div className="filters" aria-hidden="true">
@@ -208,7 +208,7 @@ function MonitoringCarregando() {
           <span className="mon-esqueletico icone" />
         </div>
       </div>
-      <div className="faixa-filtros" aria-hidden="true">
+      <div className="strip-filters" aria-hidden="true">
         <span className="lbl">Filtros rápidos:</span>
         <span className="mon-esqueletico pilula" />
         <div className="faixa-fim">
@@ -221,7 +221,7 @@ function MonitoringCarregando() {
         <CardCarregando titulo="Atendimento hoje" quantity={4} />
         <CardCarregando titulo="Status dos tickets hoje" quantity={4} />
       </div>
-      <div className="faixa-filtros" aria-hidden="true">
+      <div className="strip-filters" aria-hidden="true">
         <span className="lbl">Filtros rápidos:</span>
         <span className="mon-esqueletico pilula" />
         <span className="mon-esqueletico pilula" />
@@ -233,7 +233,7 @@ function MonitoringCarregando() {
       <div className="tblwrap" aria-hidden="true">
         <div className="tblhead">
           <h3>Monitoramento detalhado</h3>
-          <span className="mon-esqueletico busca" />
+          <span className="mon-esqueletico search" />
         </div>
         <div className="tabs mon-abas-carregando">
           {Array.from({ length: 5 }, (_, indice) => (
@@ -322,11 +322,11 @@ export function PageMonitoring() {
 
   if (!read.data && read.isError) {
     return (
-      <div className="mon-pagina">
+      <div className="mon-page">
         <div className="board-head">
           <h2>Monitoramento</h2>
         </div>
-        <div className="card mon-erro" role="alert">
+        <div className="card mon-error" role="alert">
           <h3>Não foi possível carregar o monitoramento</h3>
           <p>Verifique a conexão e tente novamente.</p>
           <button type="button" className="btn" onClick={() => void read.refetch()}>
@@ -341,7 +341,7 @@ export function PageMonitoring() {
   const { realTime, agents, hoje } = m;
 
   return (
-    <div className={modoTv ? 'mon-pagina mon-pagina-tv' : 'mon-pagina'}>
+    <div className={modoTv ? 'mon-page mon-page-tv' : 'mon-page'}>
       <div className="board-head">
         <h2>Monitoramento</h2>
         <div className="filters">

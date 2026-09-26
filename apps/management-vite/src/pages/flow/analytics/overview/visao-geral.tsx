@@ -56,18 +56,18 @@ export function VisaoGeral({
         }
       />
 
-      <div className="fx-coluna vg-painel" id="general-dashboard">
-        <div className="vg-filtros">
-          <div className="vg-filtro-periodo">
+      <div className="fx-column vg-panel" id="general-dashboard">
+        <div className="vg-filters">
+          <div className="vg-filter-period">
             <PeriodSeletor de={de} ate={ate} aoAplicar={aoAplicarPeriodo} />
           </div>
         </div>
 
-        <div className="vg-cartoes">
-          <div className="vg-cartao vg-cartao--usuarios">
-            <div className="vg-cartao-cabeca">
-              <p className="an-t24 vg-cartao-titulo">Usuários</p>
-              <p className="an-t16 vg-cartao-descricao">
+        <div className="vg-cards">
+          <div className="vg-card vg-card--users">
+            <div className="vg-card-header">
+              <p className="an-t24 vg-card-title">Usuários</p>
+              <p className="an-t16 vg-card-description">
                 Todo usuário único que recebeu ou enviou mensagem para o chatbot.
               </p>
             </div>
@@ -85,10 +85,10 @@ export function VisaoGeral({
             </div>
           </div>
 
-          <div className="vg-cartao vg-cartao--mensagens">
-            <div className="vg-cartao-cabeca">
-              <p className="an-t24 vg-cartao-titulo">Mensagens</p>
-              <p className="an-t16 vg-cartao-descricao">
+          <div className="vg-card vg-card--messages">
+            <div className="vg-card-header">
+              <p className="an-t24 vg-card-title">Mensagens</p>
+              <p className="an-t16 vg-card-description">
                 São contabilizadas quando o chatbot envia ou recebe mensagens dos contatos.
               </p>
             </div>
@@ -118,18 +118,18 @@ export function VisaoGeral({
         </div>
       </div>
 
-      <div className="fx-coluna">
+      <div className="fx-column">
         <div className="vg-margem">
           {data.activeByChannel.length === 0 ? (
             <Card>
-              <p className="an-t24 vg-cartao-titulo">Mensagens ativas por canal</p>
+              <p className="an-t24 vg-card-title">Mensagens ativas por canal</p>
               <p className="an-t20 vg-sem-conteudo">
                 Não há mensagens ativas no período selecionado
               </p>
             </Card>
           ) : (
             <div className="vg-linha vg-grafico">
-              <Card className="vg-grafico-cartao" titulo="Mensagens ativas por canal">
+              <Card className="vg-chart-card" titulo="Mensagens ativas por canal">
                 <div className="vg-grafico-area">
                   <table className="vg-lista">
                     <thead>
@@ -155,7 +155,7 @@ export function VisaoGeral({
 
         <div className="vg-linha vg-grafico vg-grafico--24">
           <Card
-            className="vg-grafico-cartao"
+            className="vg-chart-card"
             titulo="Usuários por dia (DAUs e DEUs)"
             dica="Total diário de usuários do bot"
           >
@@ -171,7 +171,7 @@ export function VisaoGeral({
 
         <div className="vg-linha vg-grafico vg-grafico--24">
           <Card
-            className="vg-grafico-cartao"
+            className="vg-chart-card"
             titulo="Mensagens por dia"
             dica="Mensagens que o bot recebeu dos usuários (ativos)"
           >
@@ -206,7 +206,7 @@ function Contador({ nome, value, dica }: { nome: string; value: number; dica: st
           <IconePortal nome="informacao-cheia" tamanho={16} />
         </span>
       </div>
-      <p className="an-t20 vg-contador-valor">{numero(value)}</p>
+      <p className="an-t20 vg-counter-value">{numero(value)}</p>
     </div>
   );
 }
@@ -232,7 +232,7 @@ function GraficoDeLinha({
 
   if (dias.length === 0) {
     return (
-      <div className="vg-grafico-area vg-grafico-vazio">
+      <div className="vg-grafico-area vg-chart-empty">
         Não há dados suficientes para exibir este gráfico
       </div>
     );
@@ -295,7 +295,7 @@ function ModalDaVisaoGeral() {
       <div className="an-modal-legado">
         <div className="an-modal-legado-corpo">
           <div className="vg-ajuda">
-            <div className="vg-ajuda-imagem" />
+            <div className="vg-help-image" />
             <div className="vg-ajuda-texto">
               <h4 className="an-t20 vg-ajuda-titulo">O que é a Visão Geral?</h4>
               <p className="an-t14 vg-ajuda-corpo">

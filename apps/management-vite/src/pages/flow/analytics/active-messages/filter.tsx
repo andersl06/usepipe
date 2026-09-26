@@ -56,7 +56,7 @@ export function Filter({
   return (
     <form
       id="ma-filtro"
-      className="ma-filtro"
+      className="ma-filter"
       method="get"
       onSubmit={(e) => {
         if (!aoAplicar) return;
@@ -70,10 +70,10 @@ export function Filter({
         });
       }}
     >
-      <div className="ma-filtro-grade">
+      <div className="ma-filter-grid">
         {/* `.chips-wrapper` › `bds-grid direction="column" gap="1"` */}
         <div className="ma-chips-caixa">
-          <div className="ma-coluna">
+          <div className="ma-column">
             <div className="ma-rotulo-caixa">
               <p className="ma-t14 ma-negrito">Selecione o período</p>
             </div>
@@ -104,7 +104,7 @@ export function Filter({
         {/*
  * `.datepicker-wrapper`: fs-14 semi-bold label and the `bds-datepicker type-of-date="period"` — two "De"/"Até" `bds-input`s with the `calendar` icon. Their floating calendar becomes the native picker.
  */}
-        <div className="ma-coluna">
+        <div className="ma-column">
           <p className="ma-t14 ma-semi">Filtre por data</p>
           <div className="ma-datas">
             {(
@@ -136,9 +136,9 @@ export function Filter({
         {/*
  * `.autocomplete-wrapper`: the label says "campanha" because the template one is enabled (`y || v`); the Campaign one is hidden by the flag.
  */}
-        <div className="ma-coluna">
+        <div className="ma-column">
           <p className="ma-t14 ma-semi">Filtre por campanha</p>
-          <div className="ma-linha-chips ma-filtro-template">
+          <div className="ma-linha-chips ma-filter-template">
             <label className="ma-campo ma-campo-auto">
               <span className="ma-campo-miolo">
                 <span className="ma-campo-rotulo">Template</span>

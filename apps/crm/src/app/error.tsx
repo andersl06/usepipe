@@ -34,14 +34,14 @@ export default function CrmError({
 
   return (
     <div className="tblwrap">
-      <div className="vazio">
+      <div className="empty">
         <Illustration nome="erro" />
         <b>Esta tela não carregou.</b>
         <span>
           O CRM lê tudo do banco a cada visita. Quando a consulta não volta, não há tela — e
           mostrar meia tela com metade dos números seria pior do que não mostrar nenhuma.
         </span>
-        <span className="acoes-erro">
+        <span className="actions-error">
           <button type="button" className="btn primario" onClick={reset}>
             Tentar de novo
           </button>

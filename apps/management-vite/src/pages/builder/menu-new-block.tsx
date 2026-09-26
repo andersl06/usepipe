@@ -14,19 +14,19 @@ export function MenuNewBlock({
   onFechar: () => void;
 }) {
   return (
-    <div className="bl-novo-bloco" role="dialog" aria-label="Novo bloco">
-      <div className="bl-novo-bloco-cabecalho">
+    <div className="bl-new-block" role="dialog" aria-label="Novo bloco">
+      <div className="bl-new-block-header">
         <h4>NOVO BLOCO</h4>
         <button type="button" className="iconbtn" aria-label="Fechar" onClick={onFechar}>
           <IconePortal nome="fechar" tamanho={20} />
         </button>
       </div>
-      <hr className="bl-painel-fio" />
-      <button type="button" className="bl-novo-bloco-item" data-test="button-create-new-block" onClick={onPadrao}>
+      <hr className="bl-panel-wire" />
+      <button type="button" className="bl-new-block-item" data-test="button-create-new-block" onClick={onPadrao}>
         <IconePortal nome="fluxo" tamanho={20} />
         <span>Padrão</span>
       </button>
-      <button type="button" className="bl-novo-bloco-item" data-test="builder-add-desk-state" onClick={onHumano}>
+      <button type="button" className="bl-new-block-item" data-test="builder-add-desk-state" onClick={onHumano}>
         <IconePortal nome="suporte" tamanho={20} />
         <span>Humano</span>
       </button>

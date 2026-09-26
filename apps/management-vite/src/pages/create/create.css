@@ -44,8 +44,8 @@
   /*
    * Their error pair on this screen is the dark theme's `--color-negative`; our "on dark" pair already exists in `@pipe/ui` and is meant for this.
    */
-  --cr-erro: var(--p-erro-sobre-escuro);
-  --cr-erro-fundo: color-mix(in srgb, var(--p-erro-sobre-escuro) 20%, var(--g-barra-1));
+  --cr-error: var(--p-error-on-dark);
+  --cr-error-background: color-mix(in srgb, var(--p-error-on-dark) 20%, var(--g-barra-1));
 
   /*
    * The focus violet is chosen for a light background; against the chrome's black it disappears. Lightened by the same proportion the `@pipe/ui` dark theme uses.
@@ -92,15 +92,15 @@
   --p-marca: var(--cr-marca);
   --p-marca-forte: var(--cr-marca-forte);
   --p-marca-conteudo: var(--cr-fundo);
-  --p-erro-conteudo: var(--cr-erro);
-  --p-erro-fundo: var(--cr-erro-fundo);
+  --p-error-content: var(--cr-error);
+  --p-error-background: var(--cr-error-background);
   --p-foco: var(--cr-foco);
 
   /*
    * This screens' title scale, from the templates' `bds-typo variant`: the overtitle is `fs-20`, "Como funciona o roteador" is `fs-24` and the large titles ("Dê um nome ao fluxo", "Escolha como começar seu fluxo") are `fs-32`. There's no `--p-t-*` token for 24 or 32.
    */
   --cr-t-tagline: 20px;
-  --cr-t-secao: 24px;
+  --cr-t-section: 24px;
   --cr-t-nome: 32px;
 }
 
@@ -202,8 +202,8 @@
   margin: 2.5rem 0 0;
   padding: var(--p-e-3) var(--p-e-4);
   border-radius: var(--p-r-md);
-  background: var(--cr-erro-fundo);
-  color: var(--cr-erro);
+  background: var(--cr-error-background);
+  color: var(--cr-error);
   font-size: var(--p-t-md);
   text-align: left;
 }
@@ -313,8 +313,8 @@
   color: var(--cr-marca);
 }
 
-.cr-campo[data-erro] > input {
-  border-bottom-color: var(--cr-erro);
+.cr-campo[data-error] > input {
+  border-bottom-color: var(--cr-error);
 }
 
 /*
@@ -334,7 +334,7 @@
  *     `margin-top: 3rem · width: 28rem · max-width: 90%`
  *   plus the template's `flex justify-between` — one button at each end.
  */
-.cr-acoes {
+.cr-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;

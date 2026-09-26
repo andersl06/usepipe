@@ -114,8 +114,8 @@ export function PageActiveMessage() {
   }
 
   return (
-    <div className="dk-ativa">
-      <div className="dk-ativa-topo">
+    <div className="dk-active">
+      <div className="dk-active-top">
         <button
           type="button"
           className="dk-botao-icone dk-pequeno"
@@ -125,7 +125,7 @@ export function PageActiveMessage() {
           <IconeDesk nome="seta-esquerda" />
         </button>
         <h2>Enviar mensagem ativa</h2>
-        <div className="dk-metricas-atualizar">
+        <div className="dk-metrics-refresh">
           <IconeDesk nome="info" tamanho={20} /> Ajuda na busca
         </div>
       </div>
@@ -153,9 +153,9 @@ export function PageActiveMessage() {
               telefone é necessário.
             </div>
           </div>
-          <div className="dk-ativa-corpo">
-            <div className="dk-ativa-form">
-              <div className="dk-ativa-radios">
+          <div className="dk-active-body">
+            <div className="dk-active-form">
+              <div className="dk-active-radios">
                 <label>
                   <input
                     type="radio"
@@ -196,12 +196,12 @@ export function PageActiveMessage() {
                       ))}
                     </select>
                   </label>
-                  <div className="dk-ativa-ajuda">
+                  <div className="dk-active-help">
                     Para alterar o chatbot, é necessário limpar a seleção de contatos atual
                   </div>
                   <label className="dk-campo-flutuante">
                     <span>Telefone</span>
-                    <span className="dk-ativa-telefone">
+                    <span className="dk-active-phone">
                       <small>BR</small> +55{' '}
                       <input
                         type="tel"
@@ -257,7 +257,7 @@ export function PageActiveMessage() {
                       onChange={(e) => setSearch(e.target.value)}
                     />
                   </label>
-                  <ul className="dk-ativa-contatos">
+                  <ul className="dk-active-contacts">
                     {contacts.data?.contacts.slice(0, 20).map((c) => (
                       <li key={c.id}>
                         <label>
@@ -286,27 +286,27 @@ export function PageActiveMessage() {
                   </ul>
                 </>
               )}
-              {error ? <p className="dk-erro">{error}</p> : null}
+              {error ? <p className="dk-error">{error}</p> : null}
             </div>
-            <aside className="dk-ativa-lado">
-              <div className="dk-ativa-lado-topo">
+            <aside className="dk-active-side">
+              <div className="dk-active-side-top">
                 <span>
                   Contatos selecionados {destinos.length}/{MAX_CONTACTS}
                 </span>
-                <button type="button" className="dk-ativa-limpar" onClick={() => setDestinos([])}>
+                <button type="button" className="dk-active-clear" onClick={() => setDestinos([])}>
                   Limpar seleção
                 </button>
               </div>
-              <div className="dk-ativa-lado-corpo">
+              <div className="dk-active-side-body">
                 {destinos.length === 0 ? (
                   <>
-                    <div className="dk-ativa-caixa" />
+                    <div className="dk-active-box" />
                     <div>
                       Selecione entre 1 e {MAX_CONTACTS} contatos para enviar a mensagem ativa
                     </div>
                   </>
                 ) : (
-                  <ul className="dk-ativa-selecionados">
+                  <ul className="dk-active-selected">
                     {destinos.map((d, i) => (
                       <li key={(d.contactId ?? d.telefone ?? '') + i}>
                         <Avatar tamanho={32} />
@@ -329,7 +329,7 @@ export function PageActiveMessage() {
               </div>
             </aside>
           </div>
-          <div className="dk-ativa-pe">
+          <div className="dk-active-foot">
             <button
               type="button"
               className="dk-botao dk-botao-secundario dk-botao-curto"
@@ -351,14 +351,14 @@ export function PageActiveMessage() {
 
       {passo === 2 ? (
         <>
-          <div className="dk-ativa-corpo">
-            <div className="dk-ativa-form">
+          <div className="dk-active-body">
+            <div className="dk-active-form">
               <h3>Escolher modelo</h3>
               <p>Modelos de mensagem aprovados para o chatbot {channel?.nome ?? ''}.</p>
               {(channel?.templates ?? []).length === 0 ? (
                 <p>Nenhum modelo de mensagem aprovado para este chatbot.</p>
               ) : (
-                <ul className="dk-ativa-modelos">
+                <ul className="dk-active-templates">
                   {channel?.templates.map((t) => (
                     <li key={t.id}>
                       <label>
@@ -392,12 +392,12 @@ export function PageActiveMessage() {
                 </label>
               ))}
             </div>
-            <aside className="dk-ativa-lado">
-              <div className="dk-ativa-lado-topo">
+            <aside className="dk-active-side">
+              <div className="dk-active-side-top">
                 <span>Pré-visualização</span>
               </div>
               <div
-                className="dk-ativa-lado-corpo"
+                className="dk-active-side-body"
                 style={{ alignItems: 'stretch', textAlign: 'left' }}
               >
                 <div
@@ -411,7 +411,7 @@ export function PageActiveMessage() {
               </div>
             </aside>
           </div>
-          <div className="dk-ativa-pe">
+          <div className="dk-active-foot">
             <button
               type="button"
               className="dk-botao dk-botao-secundario dk-botao-curto"
@@ -433,8 +433,8 @@ export function PageActiveMessage() {
 
       {passo === 3 ? (
         <>
-          <div className="dk-ativa-corpo">
-            <div className="dk-ativa-form">
+          <div className="dk-active-body">
+            <div className="dk-active-form">
               <h3>Dados da Mensagem Ativa</h3>
               <div className="dk-campo-flutuante">
                 <span>Chatbot</span>
@@ -453,14 +453,14 @@ export function PageActiveMessage() {
                   {resultado.enviadas} enviada(s), {resultado.recusadas} recusada(s).
                 </p>
               ) : null}
-              {error ? <p className="dk-erro">{error}</p> : null}
+              {error ? <p className="dk-error">{error}</p> : null}
             </div>
-            <aside className="dk-ativa-lado">
-              <div className="dk-ativa-lado-topo">
+            <aside className="dk-active-side">
+              <div className="dk-active-side-top">
                 <span>Pré-visualização</span>
               </div>
               <div
-                className="dk-ativa-lado-corpo"
+                className="dk-active-side-body"
                 style={{ alignItems: 'stretch', textAlign: 'left' }}
               >
                 <div
@@ -472,7 +472,7 @@ export function PageActiveMessage() {
               </div>
             </aside>
           </div>
-          <div className="dk-ativa-pe">
+          <div className="dk-active-foot">
             <button
               type="button"
               className="dk-botao dk-botao-secundario dk-botao-curto"

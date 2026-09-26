@@ -81,14 +81,14 @@ export function PageIntegrations() {
           <div className="ig-item" key={card.id}>
             {card.rota ? (
               <Link
-                className="ig-cartao"
+                className="ig-card"
                 id={card.id}
                 href={`${base}/integrations/${card.rota}`}
               >
                 {miolo}
               </Link>
             ) : (
-              <div className="ig-cartao" id={card.id} aria-disabled="true">
+              <div className="ig-card" id={card.id} aria-disabled="true">
                 {miolo}
               </div>
             )}

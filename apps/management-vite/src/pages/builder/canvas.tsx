@@ -91,7 +91,7 @@ export function Canvas({
     if (!raiz) return;
     const medidas: Record<string, number> = {};
     let mudou = false;
-    for (const el of raiz.querySelectorAll<HTMLElement>('[data-bloco]')) {
+    for (const el of raiz.querySelectorAll<HTMLElement>('[data-block]')) {
       const id = el.dataset['bloco']!;
       medidas[id] = el.offsetHeight;
       if (alturas[id] !== el.offsetHeight) mudou = true;
@@ -390,7 +390,7 @@ export function Canvas({
 
       {menu?.tipo === 'bloco' && blockMenu ? (
         <div
-          className="bl-menu-contexto"
+          className="bl-menu-context"
           role="menu"
           style={{ left: menu.x, top: menu.y }}
           onPointerDown={(e) => e.stopPropagation()}
@@ -413,7 +413,7 @@ export function Canvas({
       ) : null}
       {menu?.tipo === 'fundo' ? (
         <div
-          className="bl-menu-contexto"
+          className="bl-menu-context"
           role="menu"
           style={{ left: menu.x, top: menu.y }}
           onPointerDown={(e) => e.stopPropagation()}

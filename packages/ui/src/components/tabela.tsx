@@ -38,7 +38,7 @@ export function Tabela<L>({
   larguraMinima?: number;
 }) {
   if (linhas.length === 0) {
-    return <div className="vazio">{empty}</div>;
+    return <div className="empty">{empty}</div>;
   }
 
   return (

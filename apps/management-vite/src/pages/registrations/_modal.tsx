@@ -64,7 +64,7 @@ export function ModalConfirmation({
     <Modal aberto={aberto} titulo={titulo} onFechar={onCancelar}>
       <p className="sub">{message}</p>
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao type="button" onClick={onCancelar} disabled={confirmando}>
           Cancelar
         </Botao>

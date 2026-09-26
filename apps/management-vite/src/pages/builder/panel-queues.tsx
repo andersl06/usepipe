@@ -17,15 +17,15 @@ export function QueuesPanel({
 }) {
   const navegar = useNavigate();
   return (
-    <aside className="bl-painel" aria-label="Gerenciamento de Filas">
-      <div className="bl-painel-cabecalho">
-        <span className="bl-painel-titulo">Gerenciamento de Filas</span>
+    <aside className="bl-panel" aria-label="Gerenciamento de Filas">
+      <div className="bl-panel-header">
+        <span className="bl-panel-title">Gerenciamento de Filas</span>
         <button type="button" className="iconbtn" aria-label="Fechar" title="Fechar" onClick={onFechar}>
           <IconePortal nome="fechar" tamanho={20} />
         </button>
       </div>
-      <hr className="bl-painel-fio" />
-      <div className="bl-painel-corpo bl-filas-corpo">
+      <hr className="bl-panel-wire" />
+      <div className="bl-panel-body bl-queues-body">
         <Icone nome="fila" tamanho={32} />
         <p>Gerencie filas, atendentes atribuídos e regras de atendimento.</p>
         <Botao

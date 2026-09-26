@@ -446,7 +446,7 @@ export function ListaDeLeads({
             O filtro está ativo e nenhum lead casa com ele. A base não está vazia — o recorte
             está.
           </span>
-          <span className="acoes-erro">
+          <span className="actions-error">
             <Link className="btn" href={endereco({}, {})}>
               Limpar o filtro
             </Link>
@@ -458,7 +458,7 @@ export function ListaDeLeads({
       return (
         <EmptyState titulo="Nenhum lead para esta busca." illustration="busca">
           <span>Nada casou com “{search}” em nome, CPF, telefone ou e-mail.</span>
-          <span className="acoes-erro">
+          <span className="actions-error">
             <Link className="btn" href={endereco({ q: null })}>
               Limpar a busca
             </Link>
@@ -472,7 +472,7 @@ export function ListaDeLeads({
           <span>
             Este é um recorte vazio, não uma base vazia. Nenhum lead se encaixa nele agora.
           </span>
-          <span className="acoes-erro">
+          <span className="actions-error">
             <Link className="btn" href={endereco({ aba: 'todos' })}>
               Ver todos os leads
             </Link>
@@ -517,7 +517,7 @@ export function ListaDeLeads({
       </div>
 
       <div className="scroll">
-        <table className="listagem" ref={tabela}>
+        <table className="listing" ref={tabela}>
           <colgroup>
             <col style={{ width: '32px' }} />
             {colunas.map((c) => (
@@ -678,7 +678,7 @@ function BarraInBulk({
   const [dono, setDono] = useState('');
 
   return (
-    <div className="em-massa" role="region" aria-label="Ações para os leads selecionados">
+    <div className="in-bulk" role="region" aria-label="Ações para os leads selecionados">
       <b>
         {numero(quantos)} {quantos === 1 ? 'lead selecionado' : 'leads selecionados'}
       </b>

@@ -57,13 +57,13 @@ export function InformationContact(props: Properties) {
   }
 
   return (
-    <section className="ct-informacoes">
-      <div className="ct-informacoes-conteudo">
+    <section className="ct-information">
+      <div className="ct-information-content">
         <div className="ct-usuario-info">
-          <div className="ct-informacoes-cabeca">
-            <span className="ct-informacoes-titulo">Informações</span>
+          <div className="ct-information-header">
+            <span className="ct-information-title">Informações</span>
             {editando ? (
-              <div className="ct-editar-acoes">
+              <div className="ct-edit-actions">
                 <button
                   className="ct-botao-icone ct-botao-icone--curto"
                   type="button"
@@ -108,7 +108,7 @@ export function InformationContact(props: Properties) {
             {editando ? (
               // ponytail: no dedicated column for "test user" in the
               // contact schema; the checkbox stays visual, as before, until there's somewhere to store it.
-              <label className="ct-caixa-teste">
+              <label className="ct-box-test">
                 <input type="checkbox" />
                 <span>Usuário de teste</span>
               </label>
@@ -133,13 +133,13 @@ export function InformationContact(props: Properties) {
             <div className="ct-linha">
               <span className="ct-rotulo ct-f4">Gênero</span>
               {editando ? (
-                <Selection className="ct-selecao" name="genero" defaultValue={genero ?? ''} aria-label="Gênero">
+                <Selection className="ct-selection" name="genero" defaultValue={genero ?? ''} aria-label="Gênero">
                   <option value="">Selecione o gênero</option>
                   <option value="male">Masculino</option>
                   <option value="female">Feminino</option>
                 </Selection>
               ) : (
-                <span className="ct-valor ct-f4">{generoExibido || '-'}</span>
+                <span className="ct-value ct-f4">{generoExibido || '-'}</span>
               )}
             </div>
             {props.identity ? (
@@ -153,9 +153,9 @@ export function InformationContact(props: Properties) {
                     <IconePortal nome="informacao" tamanho={16} />
                   </span>
                 </span>
-                <span className="ct-valor-container">
-                  <span className="ct-valor-interno" title={props.identity}>
-                    <span className="ct-valor-texto">{props.identity}</span>
+                <span className="ct-value-container">
+                  <span className="ct-value-internal" title={props.identity}>
+                    <span className="ct-value-text">{props.identity}</span>
                   </span>
                 </span>
               </div>
@@ -173,8 +173,8 @@ export function InformationContact(props: Properties) {
           </div>
           {extras.map(([key, value]) => (
             <div className="ct-linha ct-linha--extra" key={key}>
-              <span className="ct-chave-extra">{key}</span>
-              <span className="ct-valor-extra">
+              <span className="ct-key-extra">{key}</span>
+              <span className="ct-value-extra">
                 {typeof value === 'string' ? value : JSON.stringify(value)}
               </span>
             </div>
@@ -201,12 +201,12 @@ function Linha({
   first?: boolean;
 }) {
   return (
-    <div className={first ? 'ct-linha ct-linha--primeira' : 'ct-linha'}>
+    <div className={first ? 'ct-linha ct-line--first' : 'ct-linha'}>
       <span className={`ct-rotulo ${classe}`}>{rotulo}</span>
       {editando ? (
-        <input className="ct-entrada" type="text" name={nome} defaultValue={value ?? ''} />
+        <input className="ct-input" type="text" name={nome} defaultValue={value ?? ''} />
       ) : (
-        <span className={`ct-valor ${classe}`}>{value || '-'}</span>
+        <span className={`ct-value ${classe}`}>{value || '-'}</span>
       )}
     </div>
   );

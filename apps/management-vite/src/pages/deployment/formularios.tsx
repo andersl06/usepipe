@@ -26,7 +26,7 @@ export function FormularioInvitation() {
   }, [resultado]);
 
   return (
-    <form ref={formulario} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
+    <form ref={formulario} onSubmit={envioQuePreserva(enviar)} className="form-registration">
       <div className="form-linha">
         <label className="form-campo" style={{ flexBasis: '280px' }}>
           <span className="sub">E-mail</span>
@@ -60,7 +60,7 @@ export function FormularioInvitation() {
         </label>
       ) : null}
 
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Resultado resultado={resultado} />
         <Botao type="submit" variante="primario" disabled={enviando}>
           {enviando ? 'Convidando…' : 'Convidar'}
@@ -79,12 +79,12 @@ export function FormularioImport() {
   }, [resultado]);
 
   return (
-    <form ref={formulario} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
+    <form ref={formulario} onSubmit={envioQuePreserva(enviar)} className="form-registration">
       <label className="form-campo" style={{ flexBasis: '320px' }}>
         <span className="sub">Arquivo CSV (vírgula ou ponto e vírgula, até 20 MB)</span>
         <Campo name="arquivo" type="file" accept=".csv,text/csv" required disabled={enviando} />
       </label>
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Resultado resultado={resultado} />
         <Botao type="submit" variante="primario" disabled={enviando}>
           {enviando ? 'Enviando…' : 'Importar contatos'}
@@ -108,7 +108,7 @@ export function FormularioManual() {
       <summary className="sub">
         Conectar sem o cadastro embutido, com token de usuário de sistema
       </summary>
-      <form ref={formulario} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
+      <form ref={formulario} onSubmit={envioQuePreserva(enviar)} className="form-registration">
         <div className="form-linha">
           <label className="form-campo">
             <span className="sub">WABA ID</span>
@@ -134,7 +134,7 @@ export function FormularioManual() {
           Antes de gravar, o Pipe confere que o número é da WABA, está verificado, não está em outro
           canal e que o token lê os modelos e envia mensagem. O token é guardado cifrado.
         </p>
-        <div className="cl-acoes">
+        <div className="cl-actions">
           <Resultado resultado={resultado} />
           <Botao type="submit" disabled={enviando}>
             {enviando ? 'Conferindo…' : 'Conectar'}

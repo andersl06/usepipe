@@ -48,7 +48,7 @@ export function Illustration({ nome = 'vazio', tamanho = 96, className, ...resto
       strokeLinejoin="round"
       role="img"
       aria-label={ROTULOS[nome]}
-      className={className ? `ilustracao ${className}` : 'ilustracao'}
+      className={className ? `illustration ${className}` : 'illustration'}
       {...resto}
     >
       {CENAS[nome]}

@@ -25,10 +25,10 @@
      ser cromo. `--d-trilho-tinta` é o conteúdo claro; a passagem do cursor e o
      item em vigor são a tinta clara a 8%, que é o que a cópia mede
      (`.menu-selected` → rgba(255,255,255,.08) no tema escuro). */
-  --d-trilho: var(--p-superficie-4);
-  --d-trilho-tinta: var(--p-conteudo-claro);
-  --d-trilho-vigor: color-mix(in srgb, var(--p-conteudo-claro) 8%, transparent);
-  --d-trilho-cursor: color-mix(in srgb, var(--p-conteudo-claro) 8%, transparent);
+  --d-rail: var(--p-superficie-4);
+  --d-rail-ink: var(--p-conteudo-claro);
+  --d-rail-strength: color-mix(in srgb, var(--p-conteudo-claro) 8%, transparent);
+  --d-rail-cursor: color-mix(in srgb, var(--p-conteudo-claro) 8%, transparent);
 
   /*
    * The rail's list hover steps: 4% cursor and 12%/16% black on the selected item, over the surface (`.chat-list-item:hover`, `.active`, `.active:hover`).
@@ -39,7 +39,7 @@
   --d-tinta-16: color-mix(in srgb, var(--p-conteudo) 16%, transparent);
 
   /* The `bds-paper elevation="static"` shadow measured: 0 2px 8px -2px at 16%. */
-  --d-sombra-papel: 0 2px 8px -2px rgba(17, 17, 17, 0.16);
+  --d-shadow-paper: 0 2px 8px -2px rgba(17, 17, 17, 0.16);
 
   /* The field's border (`bds-input .input`): black at 20%. */
   --d-campo-linha: color-mix(in srgb, var(--p-conteudo) 20%, transparent);
@@ -53,26 +53,26 @@
 
   /* As colunas: 25% / 50% / 25% (`#container .sidenav|.pane-chat|.drawer`),
      trilho de 80px (medido; vem do componente web `bds-navbar`). */
-  --d-trilho-w: 80px;
+  --d-rail-w: 80px;
   --d-drawer-min: 260px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema='claro']) {
-    --d-sombra-papel: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
-    --d-trilho: var(--p-superficie-1);
-    --d-trilho-tinta: var(--p-conteudo);
-    --d-trilho-vigor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
-    --d-trilho-cursor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+    --d-shadow-paper: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+    --d-rail: var(--p-superficie-1);
+    --d-rail-ink: var(--p-conteudo);
+    --d-rail-strength: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+    --d-rail-cursor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
   }
 }
 
 :root[data-tema='escuro'] {
-  --d-sombra-papel: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
-  --d-trilho: var(--p-superficie-1);
-  --d-trilho-tinta: var(--p-conteudo);
-  --d-trilho-vigor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
-  --d-trilho-cursor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+  --d-shadow-paper: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  --d-rail: var(--p-superficie-1);
+  --d-rail-ink: var(--p-conteudo);
+  --d-rail-strength: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+  --d-rail-cursor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
 }
 
 html,
@@ -90,7 +90,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.dk-carregando-sessao {
+.dk-loading-session {
   display: grid;
   min-height: 100%;
   place-items: center;
@@ -121,20 +121,20 @@ button {
  * ======================================================= the rail (navbar)
  *    `bds-navbar orientation="vertical" background-color="surface-4"`: 80px wide, full height. 40×40 brand mark 16px from the top with 24px gap (`.blip-image`); 40×40 items with radius 8 and 8 inset (`.menu-button`), inside a strip with 12px side inset (`.navbar-menu-item`); 48px step between items (measured: 88, 136, 184…). Footer: help, preferences and the 32px avatar with the presence badge, 16px from the bottom.
  */
-.dk-trilho {
+.dk-rail {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 0 0 var(--d-trilho-w);
-  width: var(--d-trilho-w);
+  flex: 0 0 var(--d-rail-w);
+  width: var(--d-rail-w);
   height: 100%;
   padding: 16px 8px;
   box-sizing: border-box;
-  background: var(--d-trilho);
-  color: var(--d-trilho-tinta);
+  background: var(--d-rail);
+  color: var(--d-rail-ink);
 }
 
-.dk-trilho-marca {
+.dk-rail-brand {
   display: block;
   width: 40px;
   height: 40px;
@@ -146,7 +146,7 @@ button {
   background: url('/pipe/simbolo-claro.svg') center / 76% auto no-repeat;
 }
 
-.dk-trilho-itens {
+.dk-rail-items {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -158,11 +158,11 @@ button {
   list-style: none;
 }
 
-.dk-trilho-itens.dk-trilho-rodape {
+.dk-rail-items.dk-rail-footer {
   margin-top: auto;
 }
 
-.dk-trilho-item {
+.dk-rail-item {
   width: 100%;
   padding: 0 12px;
   box-sizing: border-box;
@@ -170,7 +170,7 @@ button {
   justify-content: center;
 }
 
-.dk-trilho-botao {
+.dk-rail-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,15 +186,15 @@ button {
   text-decoration: none;
 }
 
-.dk-trilho-botao:hover {
-  background: var(--d-trilho-cursor);
+.dk-rail-button:hover {
+  background: var(--d-rail-cursor);
 }
 
-.dk-trilho-botao[aria-current='page'] {
-  background: var(--d-trilho-vigor);
+.dk-rail-button[aria-current='page'] {
+  background: var(--d-rail-strength);
 }
 
-.dk-trilho-botao svg {
+.dk-rail-button svg {
   width: 24px;
   height: 24px;
   display: block;
@@ -203,7 +203,7 @@ button {
 /*
  * The footer avatar: `bds-avatar size="extra-small"` (32px) with the `.status-badge-profile` badge at 12px, `left: 22px; top: -2px`, 2px border in the rail's color.
  */
-.dk-trilho-avatar {
+.dk-rail-avatar {
   position: relative;
   display: flex;
   align-items: center;
@@ -228,21 +228,21 @@ button {
   width: 12px;
   height: 12px;
   box-sizing: border-box;
-  border: 2px solid var(--d-trilho);
+  border: 2px solid var(--d-rail);
   border-radius: 50%;
   background: var(--p-conteudo-fantasma);
 }
 
-.dk-presenca[data-estado='online'] {
+.dk-presenca[data-status='online'] {
   background: var(--p-sucesso-sobre-escuro);
 }
 
-.dk-presenca[data-estado='pausa'] {
+.dk-presenca[data-status='paused'] {
   background: var(--p-alerta-conteudo);
 }
 
-.dk-presenca[data-estado='offline'] {
-  background: var(--p-erro-sobre-escuro);
+.dk-presenca[data-status='offline'] {
+  background: var(--p-error-on-dark);
 }
 
 /*
@@ -298,7 +298,7 @@ button {
  * ===================================================== the column (sidenav)
  *    `#container .sidenav { width: 25% }`, background on surface 2.
  */
-.dk-coluna {
+.dk-column {
   display: flex;
   flex-direction: column;
   flex: 0 0 25%;
@@ -312,12 +312,12 @@ button {
 /*
  * `.header-content { padding: 1rem; background: surface-1 }` — 76px tall: title 20/700 (20 line height) and the "Lista ⌄" line at 24px.
  */
-.dk-coluna-cabecalho {
+.dk-column-header {
   padding: 16px;
   background: var(--p-superficie-1);
 }
 
-.dk-coluna-titulo {
+.dk-column-title {
   margin: 0;
   font-size: 20px;
   font-weight: var(--d-peso-negrito);
@@ -350,12 +350,12 @@ button {
 /*
  * `.sidenav-header`: 111px floor, 117px between 1112 and 1440, 160 ceiling; 1px border on surface 3 top and bottom; surface 1.
  */
-.dk-estado {
-  --dk-estado-min: 111px;
+.dk-status {
+  --dk-status-min: 111px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--dk-estado-min);
+  min-height: var(--dk-status-min);
   max-height: 160px;
   border-top: 1px solid var(--p-superficie-3);
   border-bottom: 1px solid var(--p-superficie-3);
@@ -363,18 +363,18 @@ button {
 }
 
 @media (max-width: 1440px) {
-  .dk-estado {
-    --dk-estado-min: 117px;
+  .dk-status {
+    --dk-status-min: 117px;
   }
 }
 
 @media (max-width: 1112px) {
-  .dk-estado {
-    --dk-estado-min: 111px;
+  .dk-status {
+    --dk-status-min: 111px;
   }
 }
 
-.dk-estado-miolo {
+.dk-status-core {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -398,7 +398,7 @@ button {
 }
 
 /* `.buttons-container { margin-top: .5rem; gap: 8px }` */
-.dk-estado-botoes {
+.dk-status-buttons {
   display: flex;
   justify-content: center;
   gap: 8px;
@@ -522,7 +522,7 @@ button {
  *    The search block takes 80px in the column (`.list-content-with-search`). `bds-input`: 42px, 1px border at 20%, radius 8, 8 4 8 12 inset, 20px magnifier in a 24px box and text 14/22; the parent has 8px inset on top and the sides. Placeholder: "Busque pelo nome ou telefone..." in ghost content.
  */
 /* O bloco da busca tem 8px de margem acima (medido: 193 → 201) e 8 de recuo. */
-.dk-busca {
+.dk-search {
   margin-top: 8px;
   padding: 8px 8px 0;
 }
@@ -642,7 +642,7 @@ button {
   color: var(--p-conteudo-claro);
 }
 
-.dk-fichas-fila {
+.dk-cards-queue {
   display: none;
   align-items: center;
   gap: 4px;
@@ -650,7 +650,7 @@ button {
   scrollbar-width: none;
 }
 
-.dk-fichas-fila .dk-ficha {
+.dk-cards-queue .dk-ficha {
   padding: 0 12px;
 }
 
@@ -659,7 +659,7 @@ button {
     display: none;
   }
 
-  .dk-fichas-fila {
+  .dk-cards-queue {
     display: flex;
   }
 }
@@ -707,7 +707,7 @@ button {
  * ================================================== the card (chat-list-item)
  *    Clickable `<article>`: radius 8, 8 inset, 1px border on surface 3, surface 1 background, 8px between cards. Cursor: +4% black; selected: surface 3 + 12%; selected with cursor: +16%.
  */
-.dk-cartao {
+.dk-card {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -723,30 +723,30 @@ button {
   transition: all 0.5s ease-out;
 }
 
-.dk-cartao:not(:last-child) {
+.dk-card:not(:last-child) {
   margin-bottom: 8px;
 }
 
-.dk-cartao:hover {
+.dk-card:hover {
   background: linear-gradient(var(--d-tinta-4), var(--d-tinta-4)), var(--p-superficie-1);
 }
 
-.dk-cartao[aria-current='true'] {
+.dk-card[aria-current='true'] {
   background: linear-gradient(var(--d-tinta-12), var(--d-tinta-12)), var(--p-superficie-3);
 }
 
-.dk-cartao[aria-current='true']:hover {
+.dk-card[aria-current='true']:hover {
   background: linear-gradient(var(--d-tinta-16), var(--d-tinta-16)), var(--p-superficie-3);
 }
 
-.dk-cartao:focus-visible {
+.dk-card:focus-visible {
   outline: 2px solid var(--p-foco);
   outline-offset: 2px;
 }
 
 /* `.ticket-content { margin-bottom: 8px }` — o rosto e a coluna de texto
    (`ml3 mr1` = 16px / 4px). */
-.dk-cartao-conteudo {
+.dk-card-content {
   display: flex;
   width: 100%;
   margin-bottom: 8px;
@@ -755,7 +755,7 @@ button {
 /*
  * `.customer-avatar { width: 37px; height: 37px }` with the `bds-avatar size="small"` (40px) inside; the channel badge (`.channel`) at 24×24, radius 6, white background, -10px on both axes, with the 20px logo (`top: 2px`).
  */
-.dk-cartao-rosto {
+.dk-card-face {
   position: relative;
   flex-shrink: 0;
   /* `self-center` num flex em COLUNA: centra na horizontal, e fica no topo. */
@@ -792,7 +792,7 @@ button {
   opacity: 0.5;
 }
 
-.dk-canal {
+.dk-channel {
   position: absolute;
   right: -10px;
   bottom: -10px;
@@ -805,14 +805,14 @@ button {
   background: var(--p-superficie-0);
 }
 
-.dk-canal svg {
+.dk-channel svg {
   position: relative;
   top: 2px;
   width: 20px;
   height: 20px;
 }
 
-.dk-cartao-texto {
+.dk-card-text {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -820,7 +820,7 @@ button {
   margin: 0 4px 0 16px;
 }
 
-.dk-cartao-linha {
+.dk-card-line {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -829,7 +829,7 @@ button {
 /*
  * Name: `bds-typo fs-16 tag=h1`, 24px line height; bold when there's an unread one (`bold="bold"`), regular otherwise.
  */
-.dk-cartao-nome {
+.dk-card-name {
   flex: 1 1 auto;
   min-width: 0;
   margin: 0;
@@ -841,13 +841,13 @@ button {
   text-overflow: ellipsis;
 }
 
-.dk-cartao[data-nao-lida='true'] .dk-cartao-nome,
-.dk-cartao[data-nao-lida='true'] .dk-cartao-previa {
+.dk-card[data-nao-lida='true'] .dk-card-name,
+.dk-card[data-nao-lida='true'] .dk-card-preview {
   font-weight: var(--d-peso-negrito);
 }
 
 /* Relative time: fs-12 in disabled content, next to the status icon. */
-.dk-cartao-hora {
+.dk-card-hour {
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -857,19 +857,19 @@ button {
   white-space: nowrap;
 }
 
-.dk-cartao-situacao {
+.dk-card-status {
   margin-left: 8px;
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-cartao-situacao svg {
+.dk-card-status svg {
   width: 24px;
   height: 24px;
   display: block;
 }
 
 /* Preview: `bds-typo fs-14 tag=p`, `.message-preview { line-height: 24px; color: content-disable }`. */
-.dk-cartao-previa {
+.dk-card-preview {
   flex: 1 1 auto;
   min-width: 0;
   margin: 0;
@@ -882,7 +882,7 @@ button {
 }
 
 /* The third alert row, right-aligned: 24px chips. */
-.dk-cartao-alertas {
+.dk-card-alerts {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -923,9 +923,9 @@ button {
   color: var(--p-alerta-conteudo);
 }
 
-.dk-chip-erro {
-  background: var(--p-erro-fundo);
-  color: var(--p-erro-conteudo);
+.dk-chip-error {
+  background: var(--p-error-background);
+  color: var(--p-error-content);
 }
 
 .dk-chip-contorno {
@@ -964,7 +964,7 @@ button {
   overflow-y: auto;
 }
 
-.dk-opcao-etiqueta {
+.dk-option-tag {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -973,7 +973,7 @@ button {
   cursor: pointer;
 }
 
-.dk-etiquetas-do-contato {
+.dk-contact-tags {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -991,7 +991,7 @@ button {
   padding: 0 6px;
   box-sizing: border-box;
   border-radius: 12px;
-  background: var(--p-erro-conteudo);
+  background: var(--p-error-content);
   color: var(--p-conteudo-claro);
   font-size: 12px;
   font-weight: var(--d-peso-negrito);
@@ -1001,7 +1001,7 @@ button {
 /*
  * `.ticket-info`: 1px line on surface 2 on top, 4px top inset, 8 gap, 24 line height; `x-small` info icon (16px) in a button with no inset; "#N" in fs-12; "Fila:" fs-12 bold in disabled content + the name; the 24px `⋮` menu appears on hover (`.ticket-menu { opacity: 0 }`).
  */
-.dk-cartao-info {
+.dk-card-info {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1011,7 +1011,7 @@ button {
   font-size: 12px;
 }
 
-.dk-cartao-info-botao {
+.dk-card-info-button {
   display: flex;
   align-items: center;
   width: 16px;
@@ -1023,17 +1023,17 @@ button {
   cursor: pointer;
 }
 
-.dk-cartao-info-botao svg {
+.dk-card-info-button svg {
   width: 16px;
   height: 16px;
 }
 
-.dk-cartao-numero {
+.dk-card-number {
   flex-shrink: 0;
   white-space: nowrap;
 }
 
-.dk-cartao-fila {
+.dk-card-queue {
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
@@ -1043,17 +1043,17 @@ button {
   text-overflow: ellipsis;
 }
 
-.dk-cartao-fila b {
+.dk-card-queue b {
   font-weight: var(--d-peso-negrito);
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-cartao-fila span {
+.dk-card-queue span {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.dk-cartao-menu {
+.dk-card-menu {
   height: 24px;
   width: 0;
   opacity: 0;
@@ -1066,52 +1066,52 @@ button {
   transition: opacity 0.2s;
 }
 
-.dk-cartao:hover .dk-cartao-menu,
-.dk-cartao[aria-current='true'] .dk-cartao-menu,
-.dk-cartao-menu[aria-expanded='true'] {
+.dk-card:hover .dk-card-menu,
+.dk-card[aria-current='true'] .dk-card-menu,
+.dk-card-menu[aria-expanded='true'] {
   width: 20px;
   opacity: 1;
   visibility: visible;
 }
 
 /* The card menu anchors on the ⋮ button and opens to the left, above the list. */
-.dk-cartao-menu-caixa {
+.dk-card-menu-box {
   position: relative;
   display: flex;
   flex-shrink: 0;
 }
 
-.dk-cartao-menu-lista {
+.dk-card-menu-list {
   top: 24px;
   right: 0;
   left: auto;
 }
 
 /* The pin for the pinned conversation, in the card's alert row. */
-.dk-cartao-fixada {
+.dk-card-pinned {
   display: inline-flex;
   align-items: center;
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-cartao-fixada svg {
+.dk-card-pinned svg {
   width: 16px;
   height: 16px;
 }
 
-.dk-cartao-menu svg {
+.dk-card-menu svg {
   width: 20px;
   height: 20px;
   display: block;
 }
 
 /* An `x-small` icon on the strip (`.ticket-info-icon`), in ghost content color. */
-.dk-cartao-info-icone {
+.dk-card-info-icon {
   display: flex;
   color: var(--p-conteudo-fantasma);
 }
 
-.dk-cartao-info-icone svg {
+.dk-card-info-icon svg {
   width: 20px;
   height: 20px;
 }
@@ -1120,7 +1120,7 @@ button {
  * ======================================================== the conversation (pane-chat)
  *    `.pane-chat { width: 50%; background: surface-2; border: 1px solid surface-3 }`. With the panel closed, 75% up to 1600px (`#container.drawer-hidden .pane-chat`).
  */
-.dk-conversa {
+.dk-conversation {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1136,7 +1136,7 @@ button {
 /*
  * The no-conversation state: illustration (78×73, 32 gap), fs-20 semi-bold title with 8 gap (`.message-title`), and the line in fs-16.
  */
-.dk-conversa-vazia {
+.dk-conversation-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1146,26 +1146,26 @@ button {
   text-align: center;
 }
 
-.dk-conversa-vazia .dk-ilustracao {
+.dk-conversation-empty .dk-illustration {
   height: 73px;
   width: 78px;
   margin-bottom: 32px;
   color: var(--p-conteudo-fantasma);
 }
 
-.dk-conversa-vazia .dk-ilustracao svg {
+.dk-conversation-empty .dk-illustration svg {
   width: 100%;
   height: 100%;
 }
 
-.dk-conversa-vazia h1 {
+.dk-conversation-empty h1 {
   margin: 0 0 8px;
   font-size: 20px;
   font-weight: var(--d-peso-semi);
   line-height: 20px;
 }
 
-.dk-conversa-vazia p {
+.dk-conversation-empty p {
   margin: 0;
   font-size: 16px;
   line-height: 24px;
@@ -1201,26 +1201,26 @@ button {
  * ----------------------------------------------------------- the header
  *    `.pane-chat-header { background: surface-1 }`, `.chat-header { padding: 1.5rem }` — 24px all around. Face `bds-avatar size="standard"` (56px); name in fs-16 semi-bold (`max-width: 265px`) and the "Ticket: #N · Bot: · Fila:" line in fs-12 with `column-gap: 5px`; on the right the 40px buttons, 8px apart; the .5px line on surface 3 at the bottom.
  */
-.dk-conversa-cabecalho {
+.dk-conversation-header {
   position: relative;
   flex-shrink: 0;
   background: var(--p-superficie-1);
 }
 
-.dk-conversa-cabecalho-miolo {
+.dk-conversation-header-core {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 24px;
 }
 
-.dk-conversa-contato {
+.dk-conversation-contact {
   display: flex;
   align-items: center;
   min-width: 0;
 }
 
-.dk-conversa-dados {
+.dk-conversation-data {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1229,7 +1229,7 @@ button {
   user-select: none;
 }
 
-.dk-conversa-nome {
+.dk-conversation-name {
   display: block;
   max-width: 265px;
   margin: 0;
@@ -1241,7 +1241,7 @@ button {
   text-overflow: ellipsis;
 }
 
-.dk-conversa-ticket {
+.dk-conversation-ticket {
   display: flex;
   flex-wrap: wrap;
   column-gap: 5px;
@@ -1249,27 +1249,27 @@ button {
   line-height: 19px;
 }
 
-.dk-conversa-ticket span {
+.dk-conversation-ticket span {
   display: flex;
   white-space: nowrap;
 }
 
-.dk-conversa-ticket b {
+.dk-conversation-ticket b {
   font-weight: var(--d-peso-semi);
 }
 
-.dk-conversa-ticket i {
+.dk-conversation-ticket i {
   margin-left: 4px;
   font-style: normal;
 }
 
 @media (max-width: 1112px) {
-  .dk-conversa-ticket .dk-some-medio {
+  .dk-conversation-ticket .dk-some-medio {
     display: none;
   }
 }
 
-.dk-conversa-acoes {
+.dk-conversation-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -1341,7 +1341,7 @@ button {
   height: 24px;
 }
 
-.dk-etiquetas-fila {
+.dk-queue-tags {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1353,7 +1353,7 @@ button {
 /*
  * The in-conversation search (`.search-section`): surface 1, 16px inset, field + close button; absolute over the body above 950px.
  */
-.dk-busca-conversa {
+.dk-search-conversation {
   position: absolute;
   left: 0;
   right: 0;
@@ -1366,13 +1366,13 @@ button {
   background: var(--p-superficie-1);
 }
 
-.dk-busca-conversa .dk-campo {
+.dk-search-conversation .dk-campo {
   flex: 1 1 auto;
   margin-right: 8px;
   min-width: 20%;
 }
 
-.dk-busca-resultado {
+.dk-search-result {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1386,7 +1386,7 @@ button {
  * ---------------------------------------------------------- the body
  *    `.message-list--panechat .card-group-container { padding: 32px 24px }` (40px 64px above 1600; 26px 16px up to 480), its own scroll.
  */
-.dk-conversa-corpo {
+.dk-conversation-body {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1484,11 +1484,11 @@ button {
 /*
  * The corners inside the group (`.blip-card-group > :first-child … .bubble`): the 2px clip lives at the bottom, on the speaker's side; on the rest, the top one on the same side also shrinks.
  */
-.dk-grupo-entrada .dk-balao-caixa:first-child .dk-balao {
+.dk-group-inbound .dk-balao-caixa:first-child .dk-balao {
   border-radius: 13px 13px 13px 2px;
 }
 
-.dk-grupo-entrada .dk-balao-caixa:not(:first-child) .dk-balao {
+.dk-group-inbound .dk-balao-caixa:not(:first-child) .dk-balao {
   border-radius: 2px 13px 13px 2px;
 }
 
@@ -1516,7 +1516,7 @@ button {
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
   cursor: pointer;
 }
 
@@ -1547,7 +1547,7 @@ button {
   margin-right: 2px;
 }
 
-.dk-grupo-hora[data-entrega='lida'] svg {
+.dk-grupo-hora[data-delivery='read'] svg {
   color: var(--p-info-conteudo);
 }
 
@@ -1644,14 +1644,14 @@ button {
  * -------------------------------------------------------- the composer
  *    `.pane-chat-message-input { padding: 0 24px }`; the `bds-paper` `.pane-chat-message-input__container`: 150 floor, 420 ceiling, radius 8, 1px border on surface 3, surface 1 background, 8px at the bottom, static shadow. Inside: `.input-wrapper pa3 pb0` (16 16 0), the `textarea` from 4em to 11.5em (16px), and `.action-buttons` at 56px with `mt3 ph3 pb3` (12 / 16 / 16).
  */
-.dk-compositor {
+.dk-composer {
   flex-shrink: 0;
   width: 100%;
   padding: 0 24px;
   box-sizing: border-box;
 }
 
-.dk-compositor-papel {
+.dk-composer-paper {
   position: relative;
   width: 100%;
   min-height: 150px;
@@ -1661,10 +1661,10 @@ button {
   border: 1px solid var(--p-superficie-3);
   border-radius: 8px;
   background: var(--p-superficie-1);
-  box-shadow: var(--d-sombra-papel);
+  box-shadow: var(--d-shadow-paper);
 }
 
-.dk-compositor-miolo {
+.dk-composer-core {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1672,14 +1672,14 @@ button {
   margin-bottom: 4px;
 }
 
-.dk-compositor-campo {
+.dk-composer-field {
   flex-grow: 1;
   /* 16 16 0 (`pa3 pb0`) plus the 4px the inline-block textarea leaves at the bottom (68 measured for a 64 field). */
   padding: 16px 16px 4px;
   overflow: hidden;
 }
 
-.dk-compositor textarea {
+.dk-composer textarea {
   display: block;
   width: 100%;
   height: 4em;
@@ -1699,15 +1699,15 @@ button {
   scrollbar-color: var(--p-conteudo-fantasma) transparent;
 }
 
-.dk-compositor textarea::placeholder {
+.dk-composer textarea::placeholder {
   color: var(--p-conteudo-fantasma);
 }
 
-.dk-compositor textarea:focus {
+.dk-composer textarea:focus {
   outline: none;
 }
 
-.dk-compositor-acoes {
+.dk-composer-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1717,7 +1717,7 @@ button {
   box-sizing: border-box;
 }
 
-.dk-compositor-esquerda {
+.dk-composer-left {
   display: flex;
   align-items: center;
   margin-left: 8px;
@@ -1725,27 +1725,27 @@ button {
 
 /* Below 1112 the block becomes a row: field and actions side by side. */
 @media (max-width: 1112px) {
-  .dk-compositor-papel {
+  .dk-composer-paper {
     min-height: 56px;
     max-height: 280px;
   }
 
-  .dk-compositor-miolo {
+  .dk-composer-core {
     flex-direction: row;
     align-items: center;
   }
 
-  .dk-compositor-campo {
+  .dk-composer-field {
     padding: 8px 0 8px 16px;
   }
 
-  .dk-compositor textarea {
+  .dk-composer textarea {
     height: 1.5em;
     min-height: 1.5em;
     max-height: 7em;
   }
 
-  .dk-compositor-acoes {
+  .dk-composer-actions {
     margin-top: 0;
     padding: 0 16px;
   }
@@ -1754,7 +1754,7 @@ button {
 /*
  * When the conversation doesn't accept free text, the whole composer gives way to a centered block with one line and a button (the reference's four cases).
  */
-.dk-compositor-fechado {
+.dk-composer-closed {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1786,7 +1786,7 @@ button {
   border: 1px solid var(--p-superficie-3);
   border-radius: 8px;
   background: var(--p-superficie-1);
-  box-shadow: var(--d-sombra-papel);
+  box-shadow: var(--d-shadow-paper);
   overflow: hidden;
 }
 
@@ -1847,7 +1847,7 @@ button {
   overflow-y: auto;
 }
 
-.dk-respostas-vazio {
+.dk-replies-empty {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1892,7 +1892,7 @@ button {
   opacity: 0.9;
 }
 
-.dk-soltar-cartao {
+.dk-drop-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1910,7 +1910,7 @@ button {
  * ======================================================= the panel (drawer)
  *    `#container .drawer { width: 25% }`, `.drawer { min-width: 260px }`, surface 2. `.drawer-heading`: 49px (57 up to 1440), `ph3` (16px), fs-20 semi-bold title. `.drawer-tabs { height: calc(100% - 58px) }` on surface 1, with a 54px tab strip; each tab is its own scroller.
  */
-.dk-painel {
+.dk-panel {
   display: flex;
   flex-direction: column;
   flex: 0 0 25%;
@@ -1921,7 +1921,7 @@ button {
   z-index: 2;
 }
 
-.dk-painel-topo {
+.dk-panel-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1932,12 +1932,12 @@ button {
 }
 
 @media (max-width: 1440px) {
-  .dk-painel-topo {
+  .dk-panel-top {
     height: 57px;
   }
 }
 
-.dk-painel-topo h2 {
+.dk-panel-top h2 {
   margin: 0;
   font-size: 20px;
   font-weight: var(--d-peso-semi);
@@ -1994,7 +1994,7 @@ button {
 /*
  * `.drawer__profile { padding: .5rem }` over surface 2; two 50% `bds-paper` (`.drawer__profile__paper { padding: 16px 24px }`, radius 16, static shadow), 8px apart.
  */
-.dk-painel-corpo {
+.dk-panel-body {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -2004,22 +2004,22 @@ button {
   overflow-y: auto;
 }
 
-.dk-papel {
+.dk-paper {
   flex: 1 1 50%;
   min-height: 0;
   padding: 16px 24px;
   box-sizing: border-box;
   border-radius: 16px;
   background: var(--p-superficie-1);
-  box-shadow: var(--d-sombra-papel);
+  box-shadow: var(--d-shadow-paper);
   overflow-y: auto;
 }
 
-.dk-papel:first-child {
+.dk-paper:first-child {
   margin-bottom: 8px;
 }
 
-.dk-papel-titulo {
+.dk-paper-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2092,7 +2092,7 @@ button {
   overflow-y: auto;
 }
 
-.dk-comentarios-vazio {
+.dk-comments-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2103,7 +2103,7 @@ button {
   line-height: 24px;
 }
 
-.dk-comentarios-vazio svg {
+.dk-comments-empty svg {
   width: 24px;
   height: 24px;
   margin-bottom: 0;
@@ -2158,7 +2158,7 @@ button {
 /*
  * The History tab (`.drawer__history__paper { padding: 16px 24px }`): an accordion per origin, each row with number, agent and date.
  */
-.dk-historico-item {
+.dk-history-item {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -2170,7 +2170,7 @@ button {
   line-height: 20px;
 }
 
-.dk-historico-item small {
+.dk-history-item small {
   color: var(--p-conteudo-desabilitado);
   font-size: 12px;
 }
@@ -2178,7 +2178,7 @@ button {
 /*
  * The no-conversation panel's skeleton (`.drawer > div.pa2 > img`): gray bars at the capture's positions.
  */
-.dk-painel-esqueleto {
+.dk-panel-skeleton {
   padding: 8px;
 }
 
@@ -2189,7 +2189,7 @@ button {
   background: var(--d-tinta-12);
 }
 
-.dk-esqueleto-papel {
+.dk-skeleton-paper {
   margin: 16px 0;
   padding: 16px;
   border-radius: 16px;
@@ -2228,7 +2228,7 @@ button {
   font-weight: var(--d-peso-negrito);
 }
 
-.dk-modal-acoes {
+.dk-modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -2256,9 +2256,9 @@ button {
   font-size: 14px;
 }
 
-.dk-erro {
+.dk-error {
   margin: 8px 0 0;
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
   font-size: 14px;
 }
 
@@ -2267,7 +2267,7 @@ button {
  *    Up to 1112 the panel hides behind and, when open, overlaps the conversation (z 10); up to 950 the three columns become 100% and slide with `left: -100%`/`-200%`.
  */
 @media (max-width: 1112px) {
-  .dk-painel {
+  .dk-panel {
     position: absolute;
     right: 0;
     top: 0;
@@ -2275,7 +2275,7 @@ button {
     z-index: -1;
   }
 
-  [data-painel='aberto'] .dk-painel {
+  [data-panel='open'] .dk-panel {
     z-index: 10;
   }
 }
@@ -2286,9 +2286,9 @@ button {
     overflow: hidden;
   }
 
-  .dk-coluna,
-  .dk-conversa,
-  .dk-painel {
+  .dk-column,
+  .dk-conversation,
+  .dk-panel {
     position: relative;
     flex: 0 0 100%;
     width: 100%;
@@ -2298,27 +2298,27 @@ button {
     z-index: 1;
   }
 
-  .dk-app[data-estado='chat'] .dk-coluna,
-  .dk-app[data-estado='chat'] .dk-conversa,
-  .dk-app[data-estado='chat'] .dk-painel {
+  .dk-app[data-status='chat'] .dk-column,
+  .dk-app[data-status='chat'] .dk-conversation,
+  .dk-app[data-status='chat'] .dk-panel {
     left: -100%;
   }
 
-  .dk-app[data-estado='drawer'] .dk-coluna,
-  .dk-app[data-estado='drawer'] .dk-conversa,
-  .dk-app[data-estado='drawer'] .dk-painel {
+  .dk-app[data-status='drawer'] .dk-column,
+  .dk-app[data-status='drawer'] .dk-conversation,
+  .dk-app[data-status='drawer'] .dk-panel {
     left: -200%;
   }
 }
 
 /* With the panel closed (up to 1600), the conversation takes 75%. */
 @media (max-width: 1600px) {
-  [data-painel='fechado'] .dk-conversa {
+  [data-panel='closed'] .dk-conversation {
     flex-basis: 75%;
     width: 75%;
   }
 
-  [data-painel='fechado'] .dk-painel {
+  [data-panel='closed'] .dk-panel {
     display: none;
   }
 }
@@ -2340,7 +2340,7 @@ button {
  * ================================================ the "Seu status" panel
  *    The reference's `navbar-submenu` (measured in `desk2/blip-menu-status.png`): 300px dark next to the rail, 8 24 inset, 40px header with the arrow and "Seu status" (gap 10); centered `user-info` (avatar 56, name 14/600, email 12); the statuses in 56px buttons (16 inset, radius 8, gap 10) — the active one with 8% background and the check; "Desconectar" at the footer.
  */
-.dk-status-painel {
+.dk-status-panel {
   display: flex;
   flex-direction: column;
   flex: 0 0 300px;
@@ -2348,8 +2348,8 @@ button {
   height: 100%;
   padding: 24px 24px 8px;
   box-sizing: border-box;
-  background: var(--d-trilho);
-  color: var(--d-trilho-tinta);
+  background: var(--d-rail);
+  color: var(--d-rail-ink);
 }
 
 .dk-status-cabecalho {
@@ -2393,17 +2393,17 @@ button {
   color: var(--p-conteudo-fantasma);
 }
 
-.dk-status-opcoes {
+.dk-status-options {
   margin: 0;
   padding: 8px 0;
   list-style: none;
 }
 
-.dk-status-opcoes li {
+.dk-status-options li {
   padding: 4px 0;
 }
 
-.dk-status-opcao {
+.dk-status-option {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -2420,16 +2420,16 @@ button {
   cursor: pointer;
 }
 
-.dk-status-opcao:hover {
-  background: var(--d-trilho-cursor);
+.dk-status-option:hover {
+  background: var(--d-rail-cursor);
 }
 
-.dk-status-opcao[aria-checked='true'] {
-  background: var(--d-trilho-vigor);
+.dk-status-option[aria-checked='true'] {
+  background: var(--d-rail-strength);
   font-weight: var(--d-peso-negrito);
 }
 
-.dk-status-opcao svg {
+.dk-status-option svg {
   width: 24px;
   height: 24px;
 }
@@ -2450,18 +2450,18 @@ button {
   background: var(--p-superficie-3);
 }
 
-.dk-status-ponto[data-estado='online'] {
+.dk-status-ponto[data-status='online'] {
   background: var(--p-sucesso-sobre-escuro);
 }
 
-.dk-status-ponto[data-estado='pausa'] {
+.dk-status-ponto[data-status='paused'] {
   background: var(--p-alerta-conteudo);
 }
 
 .dk-status-pausas {
   padding: 8px;
   border-radius: 8px;
-  background: var(--d-trilho-vigor);
+  background: var(--d-rail-strength);
 }
 
 .dk-status-pausas-titulo {
@@ -2471,7 +2471,7 @@ button {
   font-size: 16px;
 }
 
-.dk-status-vazio {
+.dk-status-empty {
   padding: 16px;
   font-size: 14px;
   color: var(--p-conteudo-fantasma);
@@ -2499,7 +2499,7 @@ button {
 }
 
 .dk-status-sair:hover {
-  background: var(--d-trilho-cursor);
+  background: var(--d-rail-cursor);
 }
 
 .dk-status-sair svg {
@@ -2523,7 +2523,7 @@ button {
    aqui desfaria o desenho. Os valores da entrega viram token locais no
    `.entrar` abaixo, e nada fora desta seção os enxerga. */
 
-.entrar {
+.login {
   position: relative;
   width: 100%;
   min-height: 100dvh;
@@ -2533,7 +2533,7 @@ button {
 
   /* The delivery's tokens. They stay scoped to the purpose screen. */
   --pe-fundo: #f2f1ec;
-  --pe-papel: #ffffff;
+  --pe-paper: #ffffff;
   --pe-campo: #fbfbf7;
   --pe-conteudo: #16150f;
   --pe-rotulo: #3f3e36;
@@ -2552,7 +2552,7 @@ button {
 /*
  * The background canvas. `pointer-events: none` because it covers the whole screen and can't steal a click from the form.
  */
-.entrar-fundo {
+.login-background {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -2563,7 +2563,7 @@ button {
 /*
  * `justify-content: flex-start`, not `center`: the card sits on the left and the beam sweeps the opposite corner. Centering would bring the card over the artwork.
  */
-.entrar-palco {
+.login-stage {
   position: relative;
   display: flex;
   flex-wrap: wrap;
@@ -2579,24 +2579,24 @@ button {
  * The card flush left, 120px from the border — the measurement from the source screen. Centering would bring the form over the beam.
  */
 @media (min-width: 1000px) {
-  .entrar-palco {
+  .login-stage {
     padding-left: 120px;
   }
 }
 
-.entrar-cartao {
+.login-card {
   width: 560px;
   max-width: 100%;
   box-sizing: border-box;
   padding: 48px 44px 36px;
-  background: var(--pe-papel);
+  background: var(--pe-paper);
   border-radius: 22px;
   box-shadow:
     0 1px 2px rgba(22, 21, 15, 0.05),
     0 24px 60px -14px rgba(22, 21, 15, 0.2);
 }
 
-.entrar-lockup {
+.login-lockup {
   display: block;
   height: 44px;
   margin-bottom: 32px;
@@ -2605,7 +2605,7 @@ button {
 /*
  * The sign-in screen has no written title: the brand plays that role. The `h1` is there for whoever listens to the screen and disappears only for the eyes. (In the invite screen the title IS information, and there it stays visible.)
  */
-.entrar-titulo-oculto {
+.login-title-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -2620,7 +2620,7 @@ button {
 /*
  * The rejection reason, with the person's exit. Comes BEFORE the buttons in reading order: someone using a screen reader needs the reason before the action.
  */
-.entrar-alerta {
+.login-alert {
   margin-bottom: 22px;
   padding: 14px 16px;
   background: var(--pe-campo);
@@ -2629,21 +2629,21 @@ button {
   border-radius: 12px;
 }
 
-.entrar-alerta h2 {
+.login-alert h2 {
   margin: 0 0 4px;
   font-size: 15px;
   font-weight: 600;
   color: var(--pe-conteudo);
 }
 
-.entrar-alerta p {
+.login-alert p {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
   color: var(--pe-apoio);
 }
 
-.entrar-google {
+.login-google {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2653,7 +2653,7 @@ button {
   box-sizing: border-box;
   border: 1px solid var(--pe-linha);
   border-radius: 14px;
-  background: var(--pe-papel);
+  background: var(--pe-paper);
   color: var(--pe-conteudo);
   font: inherit;
   font-size: 18px;
@@ -2665,31 +2665,31 @@ button {
     border-color 0.18s ease;
 }
 
-.entrar-google:hover {
+.login-google:hover {
   background: var(--pe-campo);
   border-color: var(--pe-linha-forte);
   color: var(--pe-conteudo);
 }
 
-.entrar-ou {
+.login-or {
   display: flex;
   align-items: center;
   gap: 12px;
   margin: 22px 0;
 }
 
-.entrar-ou span:not(.entrar-ou-texto) {
+.login-or span:not(.login-or-text) {
   flex: 1;
   height: 1px;
   background: var(--pe-linha-fina);
 }
 
-.entrar-ou-texto {
+.login-or-text {
   font-size: 14px;
   color: var(--pe-apoio);
 }
 
-.entrar-cartao label {
+.login-card label {
   display: block;
   margin: 0 0 7px 2px;
   font-size: 14px;
@@ -2697,9 +2697,9 @@ button {
   color: var(--pe-rotulo);
 }
 
-.entrar-cartao input[type='email'],
-.entrar-cartao input[type='password'],
-.entrar-cartao input[type='text'] {
+.login-card input[type='email'],
+.login-card input[type='password'],
+.login-card input[type='text'] {
   width: 100%;
   height: 60px;
   box-sizing: border-box;
@@ -2715,42 +2715,42 @@ button {
 
 /* As margens do desenho: 16px depois do e-mail, 10px depois da senha (a
    linha do "esqueci minha senha" vem logo abaixo dela). */
-.entrar-cartao input[type='email'] {
+.login-card input[type='email'] {
   margin-bottom: 16px;
 }
 
-.entrar-cartao input[type='password'] {
+.login-card input[type='password'] {
   margin-bottom: 10px;
 }
 
-.entrar-esqueci {
+.login-forgot {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 22px;
   font-size: 14px;
 }
 
-.entrar-esqueci a {
+.login-forgot a {
   text-decoration: none;
 }
 
-.entrar-cartao input::placeholder {
+.login-card input::placeholder {
   color: var(--pe-marca-dagua);
 }
 
-.entrar-cartao input:focus {
+.login-card input:focus {
   border-color: var(--pe-marca);
-  background: var(--pe-papel);
+  background: var(--pe-paper);
 }
 
-.entrar-ajuda {
+.login-help {
   margin: -12px 2px 18px;
   font-size: 14px;
   line-height: 1.5;
   color: var(--pe-apoio);
 }
 
-.entrar-cartao button[type='submit'] {
+.login-card button[type='submit'] {
   width: 100%;
   height: 60px;
   border: 0;
@@ -2764,11 +2764,11 @@ button {
   transition: background 0.18s ease;
 }
 
-.entrar-cartao button[type='submit']:hover {
+.login-card button[type='submit']:hover {
   background: var(--pe-marca-forte);
 }
 
-.entrar-pe {
+.login-foot {
   display: flex;
   justify-content: center;
   gap: 6px;
@@ -2779,21 +2779,21 @@ button {
   color: var(--pe-apoio);
 }
 
-.entrar a {
+.login a {
   color: var(--pe-marca);
 }
 
-.entrar a:hover {
+.login a:hover {
   color: var(--pe-marca-forte);
 }
 
-.entrar-pe a {
+.login-foot a {
   text-decoration: none;
 }
 
 /* ---- what the invite adds to the same card ---- */
 
-.entrar-cartao h1 {
+.login-card h1 {
   margin: 0 0 10px;
   font-size: 26px;
   font-weight: 600;
@@ -2801,7 +2801,7 @@ button {
   color: var(--pe-conteudo);
 }
 
-.entrar-sub {
+.login-sub {
   margin: 0 0 22px;
   font-size: 17px;
   line-height: 1.5;
@@ -2809,7 +2809,7 @@ button {
 }
 
 /* The invitation data: label on the left, value on the right. */
-.entrar-dados {
+.login-data {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 6px 16px;
@@ -2817,11 +2817,11 @@ button {
   font-size: 14px;
 }
 
-.entrar-dados dt {
+.login-data dt {
   color: var(--pe-apoio);
 }
 
-.entrar-dados dd {
+.login-data dd {
   margin: 0;
   font-weight: 500;
   color: var(--pe-conteudo);
@@ -2829,7 +2829,7 @@ button {
   overflow-wrap: anywhere;
 }
 
-.entrar-rodape {
+.login-footer {
   margin: 18px 0 0;
   font-size: 14px;
   line-height: 1.5;
@@ -2842,14 +2842,14 @@ button {
  * ============================================================ contacts
  *    The `desk-contact-history` MFE measured in `~/desk-clone/clone/mfe-teste.html` (1200 width): 300 / 600 / 300. Left: 110px block on surface 1 (52px title with 16 inset; 58px search with 8 inset and 8 gap: 42px field and 40px button); the list with 8 inset, the group label 14/700 in a 37px block (8 inset), 62px cards (8 inset, radius 8, 1px border on surface 3, surface 1 background, 12 gap): 40px face in a 44px box, name 16/600/24, "Última interação" 10/15, 20px arrow. Selected: surface 3.
  */
-.dk-contatos {
+.dk-contacts {
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
   height: 100%;
 }
 
-.dk-contatos-lista {
+.dk-contacts-list {
   display: flex;
   flex-direction: column;
   flex: 0 0 25%;
@@ -2858,33 +2858,33 @@ button {
   background: var(--p-superficie-2);
 }
 
-.dk-contatos-topo {
+.dk-contacts-top {
   background: var(--p-superficie-1);
 }
 
-.dk-contatos-titulo {
+.dk-contacts-title {
   padding: 16px;
 }
 
-.dk-contatos-titulo h1 {
+.dk-contacts-title h1 {
   margin: 0;
   font-size: 20px;
   font-weight: var(--d-peso-negrito);
   line-height: 20px;
 }
 
-.dk-contatos-busca {
+.dk-contacts-search {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px;
 }
 
-.dk-contatos-busca .dk-campo {
+.dk-contacts-search .dk-campo {
   flex: 1 1 auto;
 }
 
-.dk-contatos-ordem {
+.dk-contacts-order {
   top: calc(100% + 8px);
   right: 0;
   left: auto;
@@ -2892,7 +2892,7 @@ button {
   padding: 16px;
 }
 
-.dk-contatos-ordem-titulo {
+.dk-contacts-order-title {
   padding: 8px 0 0;
   margin-bottom: 24px;
   font-size: 16px;
@@ -2900,7 +2900,7 @@ button {
   line-height: 24px;
 }
 
-.dk-contatos-ordem-item {
+.dk-contacts-order-item {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2918,40 +2918,40 @@ button {
   cursor: pointer;
 }
 
-.dk-contatos-ordem-item[aria-checked='true'] {
+.dk-contacts-order-item[aria-checked='true'] {
   background: var(--p-superficie-3);
 }
 
-.dk-contatos-ordem-item span {
+.dk-contacts-order-item span {
   flex: 1 1 auto;
 }
 
-.dk-contatos-ordem-item svg {
+.dk-contacts-order-item svg {
   width: 24px;
   height: 24px;
 }
 
-.dk-contatos-rolagem {
+.dk-contacts-scroll {
   flex: 1 1 auto;
   min-height: 0;
   padding: 8px;
   overflow-y: auto;
 }
 
-.dk-contatos-grupo {
+.dk-contacts-group {
   padding: 8px;
   font-size: 14px;
   font-weight: var(--d-peso-negrito);
   line-height: 21px;
 }
 
-.dk-contatos-itens {
+.dk-contacts-items {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.dk-contato {
+.dk-contact {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -2967,11 +2967,11 @@ button {
   cursor: pointer;
 }
 
-.dk-contato[aria-current='true'] {
+.dk-contact[aria-current='true'] {
   background: var(--p-superficie-3);
 }
 
-.dk-contato-rosto {
+.dk-contact-face {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2980,14 +2980,14 @@ button {
   height: 44px;
 }
 
-.dk-contato-texto {
+.dk-contact-text {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.dk-contato-texto b {
+.dk-contact-text b {
   font-size: 16px;
   font-weight: var(--d-peso-semi);
   line-height: 24px;
@@ -2996,7 +2996,7 @@ button {
   text-overflow: ellipsis;
 }
 
-.dk-contato-texto small {
+.dk-contact-text small {
   font-size: 10px;
   line-height: 15px;
 }
@@ -3004,7 +3004,7 @@ button {
 /*
  * The middle: the empty state (150×155 illustration, 16 gap, title 16/700, text 16/400 at 420 width) and the footer with a 568px paper (0 16 32 inset, 126px paper with 16 gap, "Conversar novamente" button).
  */
-.dk-contatos-meio {
+.dk-contacts-middle {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -3013,7 +3013,7 @@ button {
   background: var(--p-superficie-2);
 }
 
-.dk-contatos-vazio {
+.dk-contacts-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3023,18 +3023,18 @@ button {
   text-align: center;
 }
 
-.dk-contatos-ilustracao {
+.dk-contacts-illustration {
   width: 150px;
   height: 155px;
   color: var(--p-conteudo-fantasma);
 }
 
-.dk-contatos-ilustracao svg {
+.dk-contacts-illustration svg {
   width: 100%;
   height: 100%;
 }
 
-.dk-contatos-vazio-texto {
+.dk-contacts-empty-text {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -3042,24 +3042,24 @@ button {
   max-width: 100%;
 }
 
-.dk-contatos-vazio-texto h2 {
+.dk-contacts-empty-text h2 {
   margin: 0;
   font-size: 16px;
   font-weight: var(--d-peso-negrito);
   line-height: 24px;
 }
 
-.dk-contatos-vazio-texto p {
+.dk-contacts-empty-text p {
   margin: 0;
   font-size: 16px;
   line-height: 24px;
 }
 
-.dk-contatos-rodape {
+.dk-contacts-footer {
   padding: 0 16px 32px;
 }
 
-.dk-contatos-rodape-papel {
+.dk-contacts-footer-paper {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3074,14 +3074,14 @@ button {
   text-align: center;
 }
 
-.dk-contatos-rodape-papel p {
+.dk-contacts-footer-paper p {
   margin: 0;
   font-size: 14px;
   line-height: 21px;
 }
 
 /* On the right: the tabs in a 56px header (4 16 inset), centered, 32 gap. */
-.dk-contatos-direita {
+.dk-contacts-right {
   display: flex;
   flex-direction: column;
   flex: 0 0 25%;
@@ -3090,7 +3090,7 @@ button {
   background: var(--p-superficie-2);
 }
 
-.dk-contatos-abas {
+.dk-contacts-tabs {
   display: flex;
   justify-content: center;
   gap: 32px;
@@ -3100,12 +3100,12 @@ button {
   background: var(--p-superficie-1);
 }
 
-.dk-contatos-abas .dk-aba {
+.dk-contacts-tabs .dk-aba {
   padding: 0;
   line-height: 48px;
 }
 
-.dk-historico-botao {
+.dk-history-button {
   width: 100%;
   border: 0;
   border-bottom: 1px solid var(--p-superficie-2);
@@ -3114,7 +3114,7 @@ button {
   cursor: pointer;
 }
 
-.dk-historico-botao[aria-current='true'] {
+.dk-history-button[aria-current='true'] {
   background: var(--p-superficie-2);
 }
 
@@ -3122,7 +3122,7 @@ button {
  * ============================================================= metrics
  *    The clone's `metrics` section from `~/desk-clone/clone/index.html` (photo `desk2/blip-clone-metrics.png`): surface 1, header with 14 gap and 14 24 inset over a line; title 19/700/24 and subtitle 12; "Atualizar" at 13 with 16 margin; the `.seg` button bar at 13 (7 14 inset, radius 8, the active one in dark chrome); body with 18 24 32 inset and 24 gap; `h3` 16/700 with 18 below; a 118px ring and a 3×2 card grid (surface 2, radius 8, 14 8 inset, number 20/400, label 12 with an 8px dot).
  */
-.dk-metricas {
+.dk-metrics {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -3132,7 +3132,7 @@ button {
   overflow-y: auto;
 }
 
-.dk-metricas-topo {
+.dk-metrics-top {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -3140,27 +3140,27 @@ button {
   border-bottom: 1px solid var(--p-superficie-2);
 }
 
-.dk-metricas-topo > svg {
+.dk-metrics-top > svg {
   width: 24px;
   height: 24px;
 }
 
-.dk-metricas-titulo {
+.dk-metrics-title {
   font-size: 19px;
   font-weight: var(--d-peso-negrito);
   line-height: 24px;
 }
 
-.dk-metricas-sub {
+.dk-metrics-sub {
   font-size: 12px;
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-metricas-espaco {
+.dk-metrics-space {
   flex: 1;
 }
 
-.dk-metricas-atualizar {
+.dk-metrics-refresh {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3203,7 +3203,7 @@ button {
   color: var(--p-conteudo-claro);
 }
 
-.dk-metricas-datas {
+.dk-metrics-dates {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -3212,7 +3212,7 @@ button {
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-metricas-datas input {
+.dk-metrics-dates input {
   margin-left: 6px;
   padding: 6px 8px;
   border: 1px solid var(--p-superficie-3);
@@ -3220,18 +3220,18 @@ button {
   font-family: inherit;
 }
 
-.dk-metricas-corpo {
+.dk-metrics-body {
   display: flex;
   gap: 24px;
   padding: 18px 24px 32px;
 }
 
-.dk-metricas-principal {
+.dk-metrics-main {
   flex: 1;
   min-width: 0;
 }
 
-.dk-metricas h3 {
+.dk-metrics h3 {
   margin: 0 0 18px;
   font-size: 16px;
   font-weight: var(--d-peso-negrito);
@@ -3360,7 +3360,7 @@ button {
  * ======================================================= active message
  *    The clone's `active-msg` section (photo `desk2/blip-clone-active.png`): header with 12 gap and 14 22 inset (title 17/400); the stepper between two lines with 10 22 inset (step 13, 20px disc number in dark chrome, 1px line); the yellow warning with a 3px left border (12 16 inset, 14 22 margin, 12/17); the body with 26 gap and 4 22 22 inset: form up to 520 and a 500px panel (12 14 header, centered 300px body).
  */
-.dk-ativa {
+.dk-active {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -3370,14 +3370,14 @@ button {
   overflow-y: auto;
 }
 
-.dk-ativa-topo {
+.dk-active-top {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 14px 22px;
 }
 
-.dk-ativa-topo h2 {
+.dk-active-top h2 {
   flex: 1;
   margin: 0;
   font-size: 17px;
@@ -3439,40 +3439,40 @@ button {
   flex-shrink: 0;
 }
 
-.dk-ativa-corpo {
+.dk-active-body {
   display: flex;
   justify-content: space-between;
   gap: 26px;
   padding: 4px 22px 22px;
 }
 
-.dk-ativa-form {
+.dk-active-form {
   flex: 1;
   max-width: 520px;
 }
 
-.dk-ativa-form h3 {
+.dk-active-form h3 {
   margin: 18px 0 6px;
   font-size: 15px;
   font-weight: var(--d-peso-negrito);
 }
 
-.dk-ativa-form > p {
+.dk-active-form > p {
   margin: 0 0 16px;
   font-size: 12px;
   line-height: 17px;
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-ativa-radios {
+.dk-active-radios {
   display: flex;
   gap: 36px;
   margin-bottom: 6px;
 }
 
-.dk-ativa-radios label,
-.dk-massa-radios label,
-.dk-massa-check {
+.dk-active-radios label,
+.dk-bulk-radios label,
+.dk-bulk-check {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3515,31 +3515,31 @@ button {
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-ativa-telefone {
+.dk-active-phone {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 13px;
 }
 
-.dk-ativa-telefone small {
+.dk-active-phone small {
   font-size: 9px;
   font-weight: var(--d-peso-negrito);
 }
 
-.dk-ativa-telefone input {
+.dk-active-phone input {
   flex: 1;
 }
 
-.dk-ativa-ajuda {
+.dk-active-help {
   margin: -6px 0 12px;
   font-size: 11px;
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-ativa-contatos,
-.dk-ativa-modelos,
-.dk-ativa-selecionados {
+.dk-active-contacts,
+.dk-active-templates,
+.dk-active-selected {
   margin: 12px 0 0;
   padding: 0;
   list-style: none;
@@ -3547,9 +3547,9 @@ button {
   overflow-y: auto;
 }
 
-.dk-ativa-contatos label,
-.dk-ativa-modelos label,
-.dk-ativa-selecionados li {
+.dk-active-contacts label,
+.dk-active-templates label,
+.dk-active-selected li {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -3559,27 +3559,27 @@ button {
   cursor: pointer;
 }
 
-.dk-ativa-contatos label:hover,
-.dk-ativa-modelos label:hover {
+.dk-active-contacts label:hover,
+.dk-active-templates label:hover {
   background: var(--p-superficie-2);
 }
 
-.dk-ativa-contatos label span,
-.dk-ativa-modelos label span,
-.dk-ativa-selecionados li span {
+.dk-active-contacts label span,
+.dk-active-templates label span,
+.dk-active-selected li span {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.dk-ativa-contatos small,
-.dk-ativa-modelos small,
-.dk-ativa-selecionados small {
+.dk-active-contacts small,
+.dk-active-templates small,
+.dk-active-selected small {
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-ativa-lado {
+.dk-active-side {
   flex: 0 0 500px;
   width: 500px;
   max-width: 100%;
@@ -3587,7 +3587,7 @@ button {
   border-radius: 8px;
 }
 
-.dk-ativa-lado-topo {
+.dk-active-side-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3596,7 +3596,7 @@ button {
   font-size: 13px;
 }
 
-.dk-ativa-limpar {
+.dk-active-clear {
   border: 0;
   padding: 0;
   background: transparent;
@@ -3606,7 +3606,7 @@ button {
   cursor: pointer;
 }
 
-.dk-ativa-lado-corpo {
+.dk-active-side-body {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3619,21 +3619,21 @@ button {
   text-align: center;
 }
 
-.dk-ativa-lado-corpo .dk-ativa-selecionados {
+.dk-active-side-body .dk-active-selected {
   width: 100%;
   margin: 0;
   color: var(--p-conteudo);
   text-align: left;
 }
 
-.dk-ativa-caixa {
+.dk-active-box {
   width: 78px;
   height: 62px;
   border: 2px dashed var(--p-linha-forte);
   border-radius: 6px;
 }
 
-.dk-ativa-pe {
+.dk-active-foot {
   display: flex;
   justify-content: space-between;
   padding: 0 22px 20px;
@@ -3643,7 +3643,7 @@ button {
  * ======================================================= bulk actions
  *    The clone's `bulk` section (photo `desk2/blip-clone-bulk.png`): 20 26 inset, title 20/400 with 16 below, surface-1 card (radius 8, 22 30 inset, 560 floor); the chatbot row with the "Transferir" record; the two columns with 40 gap over a line (18 inset and margin); radios with 60 gap.
  */
-.dk-massa {
+.dk-bulk {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -3654,13 +3654,13 @@ button {
   overflow-y: auto;
 }
 
-.dk-massa h2 {
+.dk-bulk h2 {
   margin: 0 0 16px;
   font-size: 20px;
   font-weight: var(--d-peso-normal);
 }
 
-.dk-massa-cartao {
+.dk-bulk-card {
   display: flex;
   flex-direction: column;
   min-height: 560px;
@@ -3669,13 +3669,13 @@ button {
   background: var(--p-superficie-1);
 }
 
-.dk-massa-linha {
+.dk-bulk-line {
   display: flex;
   align-items: flex-start;
   gap: 20px;
 }
 
-.dk-massa-colunas {
+.dk-bulk-columns {
   display: flex;
   flex: 1;
   gap: 40px;
@@ -3684,44 +3684,44 @@ button {
   border-top: 1px solid var(--p-superficie-2);
 }
 
-.dk-massa-coluna {
+.dk-bulk-column {
   flex: 1;
   min-width: 0;
 }
 
-.dk-massa-coluna h4 {
+.dk-bulk-column h4 {
   margin: 0 0 14px;
   font-size: 14px;
   font-weight: var(--d-peso-negrito);
 }
 
-.dk-massa-check {
+.dk-bulk-check {
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-massa-lista {
+.dk-bulk-list {
   margin-top: 12px;
 }
 
-.dk-massa-item {
+.dk-bulk-item {
   display: block;
   padding: 6px 0;
   font-size: 13px;
   cursor: pointer;
 }
 
-.dk-massa-vazio {
+.dk-bulk-empty {
   font-size: 13px;
   color: var(--p-conteudo-desabilitado);
 }
 
-.dk-massa-radios {
+.dk-bulk-radios {
   display: flex;
   gap: 60px;
   margin-bottom: 20px;
 }
 
-.dk-massa-pe {
+.dk-bulk-foot {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
@@ -3746,7 +3746,7 @@ button {
   font-weight: var(--d-peso-normal);
 }
 
-.dk-prefs-secao {
+.dk-prefs-section {
   max-width: 720px;
   margin-bottom: 16px;
   padding: 16px 24px;
@@ -3754,7 +3754,7 @@ button {
   background: var(--p-superficie-1);
 }
 
-.dk-prefs-secao h3 {
+.dk-prefs-section h3 {
   margin: 0 0 8px;
   font-size: 16px;
   font-weight: var(--d-peso-negrito);

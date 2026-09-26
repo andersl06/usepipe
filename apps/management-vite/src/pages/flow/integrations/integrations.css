@@ -61,7 +61,7 @@
 /*
  * `card.card--with-hover.card--square`: `display: inline-flex; flex-direction: column; height: 234px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.15); margin: .5625rem 0` and `.card-content { padding: .9375rem }`. On `[ng-click]:hover` the source does `transform: scale(1.03)` and raises the shadow.
  */
-.ig-cartao {
+.ig-card {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -72,7 +72,7 @@
   padding: 15px;
   border-radius: var(--p-r-md);
   background: var(--p-superficie-0);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
   color: var(--p-conteudo);
   text-align: center;
   text-decoration: none;
@@ -81,12 +81,12 @@
     transform 0.15s ease-in-out;
 }
 
-a.ig-cartao:hover {
+a.ig-card:hover {
   transform: scale(1.03);
   box-shadow: var(--p-sombra-2);
 }
 
-.ig-cartao[aria-disabled='true'] {
+.ig-card[aria-disabled='true'] {
   cursor: default;
 }
 
@@ -217,18 +217,18 @@ a.ig-cartao:hover {
   display: flex;
 }
 
-.ig-papel {
+.ig-paper {
   display: block;
   box-sizing: border-box;
   width: 100%;
   margin: 8px auto 0;
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
   background: var(--p-superficie-0);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
   color: var(--p-conteudo);
 }
 
-.ig-papel-miolo {
+.ig-paper-core {
   display: flex;
   flex-direction: column;
   padding: 24px;
@@ -275,7 +275,7 @@ a.ig-cartao:hover {
 }
 
 /* `bds-tab-panel > bds-grid padding="3" direction="row" gap="3" align-items="flex-start"` */
-.ig-painel {
+.ig-panel {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -289,7 +289,7 @@ a.ig-cartao:hover {
 }
 
 /* `bds-grid direction="column" gap="1"` (8px). */
-.ig-painel-texto {
+.ig-panel-text {
   display: flex;
   flex: 0 1 auto;
   flex-direction: column;
@@ -404,7 +404,7 @@ a.ig-cartao:hover {
 }
 
 .ig-campo--error .ig-campo-caixa {
-  border-color: var(--p-erro-conteudo);
+  border-color: var(--p-error-content);
 }
 
 .ig-campo--desabilitado label,
@@ -450,11 +450,11 @@ a.ig-cartao:hover {
   color: var(--p-conteudo-fantasma);
 }
 
-.ig-campo-erro {
+.ig-field-error {
   margin: 4px 0 0;
   font-size: var(--p-t-sm);
   line-height: 18px;
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
 /* The icon to the right of the field (password eye, selector arrow). */
@@ -559,7 +559,7 @@ a.ig-cartao:hover {
   cursor: pointer;
 }
 
-.ig-chips-opcoes {
+.ig-chips-options {
   position: absolute;
   z-index: 2;
   top: 100%;
@@ -573,7 +573,7 @@ a.ig-cartao:hover {
   box-shadow: var(--p-sombra-2);
 }
 
-.ig-chips-opcoes button {
+.ig-chips-options button {
   display: block;
   width: 100%;
   padding: 8px 16px;
@@ -586,11 +586,11 @@ a.ig-cartao:hover {
   cursor: pointer;
 }
 
-.ig-chips-opcoes button:hover {
+.ig-chips-options button:hover {
   background: var(--g-tinta-hover);
 }
 
-.ig-chips-vazio {
+.ig-chips-empty {
   padding: 8px 16px;
   font-size: var(--p-t-md);
   color: var(--p-conteudo-fantasma);
@@ -631,7 +631,7 @@ a.ig-cartao:hover {
  *
  *    `<div class="flex flex-column items-left">` with the title in `.mb3` and the `bds-switch size="short" class="pv2"` + `bds-typo.pv2.ph4` row (height 28, 14px). The short host measures 32×34: 5px of slack above and below the 18px track plus the `label`'s 6px.
  */
-.ig-autenticacao {
+.ig-authentication {
   display: flex;
   flex-direction: column;
 }
@@ -674,7 +674,7 @@ a.ig-cartao:hover {
   color: var(--p-conteudo);
 }
 
-.ig-oauth-fileira {
+.ig-oauth-row {
   display: flex;
   margin-bottom: 40px;
 }
@@ -701,7 +701,7 @@ a.ig-cartao:hover {
   margin: 40px 0;
 }
 
-.ig-cabecalho-fileira {
+.ig-header-row {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -735,7 +735,7 @@ a.ig-cartao:hover {
 }
 
 /* `bds-grid direction="row" gap="1" padding="none"` — "+ Adicionar" e "Salvar". */
-.ig-acoes {
+.ig-actions {
   display: flex;
   flex-direction: row;
   gap: 8px;
@@ -744,11 +744,11 @@ a.ig-cartao:hover {
 .ig-aviso {
   margin: 0 0 12px;
   font-size: var(--p-t-md);
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
 /* The "Webhook criado. Copie o segredo agora" panel — disappears after "Já copiei". */
-.ig-segredo-gerado {
+.ig-secret-generated {
   padding: 16px;
   margin-bottom: 20px;
   border-radius: var(--p-r-md);
@@ -756,7 +756,7 @@ a.ig-cartao:hover {
 }
 
 /* Extra space above the headers block, inside "Configurações avançadas". */
-.ig-cabecalhos-bloco {
+.ig-headers-block {
   margin-top: 24px;
 }
 
@@ -773,12 +773,12 @@ a.ig-cartao:hover {
 }
 
 @media (max-width: 700px) {
-  .ig-painel {
+  .ig-panel {
     flex-direction: column;
   }
 
-  .ig-oauth-fileira,
-  .ig-cabecalho-fileira {
+  .ig-oauth-row,
+  .ig-header-row {
     flex-wrap: wrap;
   }
 

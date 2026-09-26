@@ -20,7 +20,7 @@
 }
 
 /* `#contacts-journey-header .container { width: 90% }` */
-#contacts-journey-header .fx-coluna {
+#contacts-journey-header .fx-column {
   width: 90%;
 }
 
@@ -57,12 +57,12 @@
 }
 
 /* `#contacts-journey-filters.flex.justify-between` */
-.jr-filtros {
+.jr-filters {
   display: flex;
   justify-content: space-between;
 }
 
-.jr-filtro-inicio {
+.jr-filter-start {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -70,7 +70,7 @@
 
 /* `#contacts-journey-filter-first-node { padding-right: 10px }`, fs-16
    semi-bold. */
-.jr-filtro-rotulo {
+.jr-filter-label {
   padding-right: 10px;
   font-weight: 600;
   color: var(--ink);
@@ -105,13 +105,13 @@
   cursor: pointer;
 }
 
-.jr-periodo {
+.jr-period {
   display: flex;
   align-items: center;
 }
 
 /* `#contacts-journey-container { margin-top: 14px }` */
-.jr-cartao {
+.jr-card {
   margin-top: 14px;
 }
 
@@ -124,7 +124,7 @@
   line-height: 40px;
 }
 
-.jr-botao-contatos {
+.jr-button-contacts {
   max-height: 40px;
   padding-left: 5px;
 }
@@ -179,7 +179,7 @@
 /*
  * The "sem dado" (no-data) state: `div.pa3.mh4.flex.flex-column.items-center.justify-center` with `#contacts-journey-container .communication-div { height: 550px }`.
  */
-.jr-comunicacao {
+.jr-communication {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -190,7 +190,7 @@
 }
 
 /* `img.pa3.pb4` */
-.jr-comunicacao-imagem {
+.jr-communication-image {
   padding: 10px 10px 20px;
   color: var(--ink-3);
 }
@@ -198,7 +198,7 @@
 /*
  * `bds-typo.ma3.tc tag="span" fs-24 bold`: only the `.ma3`'s 10 on the host — the `typo__margin`'s 22 land on the inline `span` and don't count.
  */
-.jr-comunicacao-titulo {
+.jr-communication-title {
   display: block;
   margin: 10px;
   font-weight: 700;
@@ -207,7 +207,7 @@
 }
 
 /* `bds-typo.bp-c-rooftop.ph7.tc fs-16`: `.ph7` is 10rem on each side. */
-.jr-comunicacao-texto {
+.jr-communication-text {
   display: block;
   padding: 0 10rem;
   text-align: center;
@@ -229,7 +229,7 @@
 }
 
 /* `div.pa3.flex.flex-column.justify-center.items-stretch` */
-.jr-instrucoes {
+.jr-instructions {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -237,7 +237,7 @@
   padding: 10px;
 }
 
-.jr-instrucoes-cabeca {
+.jr-instructions-header {
   display: flex;
   flex-direction: column;
   color: var(--ink);
@@ -299,7 +299,7 @@
   align-items: center;
 }
 
-.jr-ajuda-imagem {
+.jr-help-image {
   position: relative;
   width: 30%;
 }

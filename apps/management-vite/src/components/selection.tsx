@@ -100,7 +100,7 @@ export function Selection({
       <input ref={campo} type="hidden" name={name} value={atual} />
       <button
         type="button"
-        className="selecao-controle"
+        className="selection-control"
         disabled={disabled}
         role="combobox"
         aria-label={ariaLabel}
@@ -111,11 +111,11 @@ export function Selection({
         onClick={() => setAberto((state) => !state)}
         onKeyDown={aoTeclar}
       >
-        <span className={optionCurrent ? undefined : 'selecao-placeholder'}>{optionCurrent?.rotulo}</span>
+        <span className={optionCurrent ? undefined : 'selection-placeholder'}>{optionCurrent?.rotulo}</span>
         <Icone nome="baixo" tamanho={16} />
       </button>
       {aberto ? (
-        <div id={listaId} className="selecao-lista" role="listbox" aria-label={ariaLabel}>
+        <div id={listaId} className="selection-list" role="listbox" aria-label={ariaLabel}>
           {options.map((option) => (
             <button
               key={option.value}

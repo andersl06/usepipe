@@ -96,7 +96,7 @@ function FormularioDeLink({ flowId, toCreate }: { flowId: string; toCreate: () =
         </p>
       ) : null}
 
-      <div className="gr-modal-acoes">
+      <div className="gr-modal-actions">
         <button className="gr-botao gr-botao-primario" type="submit" disabled={enviando}>
           {enviando ? 'Criando…' : 'Criar link'}
         </button>
@@ -121,7 +121,7 @@ export default function PageTrackedLinks() {
           <h1>Links rastreados</h1>
           <p>Crie links curtos para suas campanhas e acompanhe quantas pessoas clicaram.</p>
         </div>
-        <div className="gr-cabeca-acoes">
+        <div className="gr-header-actions">
           <button
             className="gr-botao gr-botao-primario"
             type="button"
@@ -134,7 +134,7 @@ export default function PageTrackedLinks() {
 
       <section className="gr-lista">
         {links.length ? (
-          <div className="gr-tabela-rolagem">
+          <div className="gr-table-scroll">
             <table>
               <thead>
                 <tr>
@@ -161,7 +161,7 @@ export default function PageTrackedLinks() {
             </table>
           </div>
         ) : (
-          <div className="gr-vazio">
+          <div className="gr-empty">
             <Illustration nome="vazio" tamanho={72} />
             <h2>Crie o primeiro link rastreado</h2>
             <p>Cadastre um destino e receba um link curto para medir os cliques da campanha.</p>
@@ -171,7 +171,7 @@ export default function PageTrackedLinks() {
 
       {create ? (
         <div
-          className="gr-sobreposicao"
+          className="gr-overlay"
           role="presentation"
           onMouseDown={(e) => e.target === e.currentTarget && setCreate(false)}
         >

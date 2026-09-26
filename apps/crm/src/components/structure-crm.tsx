@@ -172,7 +172,7 @@ function LateralCrm({
 
       {SECTIONS.map((section) => (
         <div key={section.rotulo}>
-          <div className="c-secao">{section.rotulo}</div>
+          <div className="c-section">{section.rotulo}</div>
           {section.itens.map((item) => (
             <Link
               key={item.href}
@@ -194,7 +194,7 @@ function LateralCrm({
  */}
       {user ? (
         <div className="c-lateral-eu">
-          <div className="eu-bloco">
+          <div className="me-block">
             <b>{user.nome}</b>
             <span>{user.email}</span>
             <span>{user.tenant}</span>

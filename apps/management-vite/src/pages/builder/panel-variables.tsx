@@ -42,13 +42,13 @@ export function VariablesPanel({
   const userFiltered = filterVariables(user, search);
 
   return (
-    <aside className="bl-painel bl-painel--esquerda" aria-label="Biblioteca de variáveis">
-      <div className="bl-painel-cabecalho">
+    <aside className="bl-panel bl-panel--left" aria-label="Biblioteca de variáveis">
+      <div className="bl-panel-header">
         <button type="button" className="iconbtn" aria-label="Fechar" title="Fechar" onClick={onFechar}>
           <IconePortal nome="fechar" tamanho={20} />
         </button>
       </div>
-      <hr className="bl-painel-fio" />
+      <hr className="bl-panel-wire" />
       <div className="bl-abas" role="tablist">
         <button
           type="button"
@@ -69,7 +69,7 @@ export function VariablesPanel({
           Variáveis do usuário
         </button>
       </div>
-      <div className="bl-painel-corpo">
+      <div className="bl-panel-body">
         <Campo
           value={search}
           placeholder="Pesquisar variável"
@@ -78,13 +78,13 @@ export function VariablesPanel({
         />
         {aba === 'sistema' ? (
           sistemaFiltrado.length === 0 ? (
-            <p className="sub bl-variaveis-vazio">Nenhuma variável encontrada.</p>
+            <p className="sub bl-variables-empty">Nenhuma variável encontrada.</p>
           ) : (
-            <ul className="bl-variaveis-lista">
+            <ul className="bl-variables-list">
               {sistemaFiltrado.map((v) => (
                 <li key={v.nome}>
-                  <div className="bl-variavel-linha">
-                    <span className="bl-variavel-nome">{v.nome}</span>
+                  <div className="bl-variable-line">
+                    <span className="bl-variable-name">{v.nome}</span>
                     <button
                       type="button"
                       className="iconbtn"
@@ -101,17 +101,17 @@ export function VariablesPanel({
             </ul>
           )
         ) : userFiltered.length === 0 ? (
-          <p className="sub bl-variaveis-vazio">
+          <p className="sub bl-variables-empty">
             {user.length === 0
               ? 'Nenhuma variável de contexto neste fluxo ainda — crie uma em "Definir variável" ou na entrada de um bloco.'
               : 'Nenhuma variável encontrada.'}
           </p>
         ) : (
-          <ul className="bl-variaveis-lista">
+          <ul className="bl-variables-list">
             {userFiltered.map((nome) => (
               <li key={nome}>
-                <div className="bl-variavel-linha">
-                  <span className="bl-variavel-nome">{nome}</span>
+                <div className="bl-variable-line">
+                  <span className="bl-variable-name">{nome}</span>
                   <button
                     type="button"
                     className="iconbtn"

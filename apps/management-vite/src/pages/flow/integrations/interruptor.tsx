@@ -37,7 +37,7 @@ export function Interruptor({
         disabled={desabilitado}
         onChange={(evento) => aoMudar(evento.target.checked)}
       />
-      <span className="ig-interruptor-trilho" aria-hidden="true" />
+      <span className="ig-switch-rail" aria-hidden="true" />
     </label>
   );
 }

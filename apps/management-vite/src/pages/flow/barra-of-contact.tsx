@@ -52,7 +52,7 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
  * Their `subheader-detail`: the CONTACT bar, dark, right below the account bar. It's what says "you're inside a contact now" — in the portal, this step is the light bar with search.
  */}
       <div className="fx-subbarra">
-        <div className="fx-contato">
+        <div className="fx-contact">
           <span className="fx-av">
             {contact.imageUrl ? (
               <img src={contact.imageUrl} alt="" width={36} height={36} />
@@ -71,12 +71,12 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
           {/*
  * The name `<dropdown-item>`: name + `arrow-down`, and a 160px panel with "Home", "Configuração" and "Deixar projeto" (the latter in red, their `bp-c-delete`). Only the first has a destination — "Home" is the contact's screen, which is where its `ui-sref` points.
  */}
-          <details className="g-menu fx-contato-menu">
+          <details className="g-menu fx-contact-menu">
             <summary>
-              <span className="fx-contato-nome">{contact.nome}</span>
+              <span className="fx-contact-name">{contact.nome}</span>
               <IconePortal nome="baixo" tamanho={16} />
             </summary>
-            <div className="g-painel">
+            <div className="g-panel">
               <Link href={base}>Home</Link>
               <span className="pt-obra">
                 Configuração
@@ -103,7 +103,7 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
               <summary className="g-iconbtn" title="Mais seções" aria-label="Mais seções">
                 <IconeManagement nome="reticencias" tamanho={24} />
               </summary>
-              <div className="g-painel">
+              <div className="g-panel">
                 {excedentes.map((item) =>
                   item.href ? (
                     <Link key={item.rotulo} href={item.href}>

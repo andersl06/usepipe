@@ -32,7 +32,7 @@ export default function CarregandoQuadro() {
  * rectangular skeleton advertises a screen that isn't coming.
  */}
               {Array.from({ length: Math.max(1, 4 - i) }, (_, c) => (
-                <div className="opp esqueleto-cartao" key={c}>
+                <div className="opp skeleton-card" key={c}>
                   <span className="barra" style={{ width: '78%' }} />
                   <span className="barra" style={{ width: '42%' }} />
                   <span className="barra" style={{ width: '60%' }} />

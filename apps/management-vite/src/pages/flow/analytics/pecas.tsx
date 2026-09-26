@@ -24,8 +24,8 @@ export function PageHeader({
 }) {
   return (
     <div id={id} className="an-cabecalho">
-      <div className="fx-coluna">
-        <div className="an-cabecalho-secao">
+      <div className="fx-column">
+        <div className="an-header-section">
           <div className="an-cabecalho-linha">
             <div className="an-cabecalho-titulo">
               {tituloProprio ?? <h1 className="an-h1">{titulo}</h1>}
@@ -71,17 +71,17 @@ export function PeriodSeletor({
   aoAplicar?: (de: string, ate: string) => void;
 }) {
   return (
-    <details className="an-periodo">
-      <summary className="an-periodo-campos">
-        <span className="an-periodo-icone">
+    <details className="an-period">
+      <summary className="an-period-fields">
+        <span className="an-period-icon">
           <IconePortal nome="calendario" tamanho={21} />
         </span>
-        <span className="an-periodo-data">{dataDoSeletor(de)}</span>
+        <span className="an-period-data">{dataDoSeletor(de)}</span>
         <span>~</span>
-        <span className="an-periodo-data">{dataDoSeletor(ate)}</span>
+        <span className="an-period-data">{dataDoSeletor(ate)}</span>
       </summary>
       <form
-        className="an-periodo-painel"
+        className="an-period-panel"
         method="get"
         onSubmit={(e) => {
           if (!aoAplicar) return;
@@ -90,7 +90,7 @@ export function PeriodSeletor({
           aoAplicar(String(data.get('de') ?? ''), String(data.get('ate') ?? ''));
         }}
       >
-        <div className="an-periodo-calendarios">
+        <div className="an-period-calendars">
           <input
             type="date"
             name="de"
@@ -108,11 +108,11 @@ export function PeriodSeletor({
             aria-label="Data final"
           />
         </div>
-        <div className="an-periodo-botoes">
-          <a className="an-periodo-cancelar" href="">
+        <div className="an-period-buttons">
+          <a className="an-period-cancel" href="">
             Cancelar
           </a>
-          <button type="submit" className="an-periodo-aplicar">
+          <button type="submit" className="an-period-apply">
             Aplicar
           </button>
         </div>

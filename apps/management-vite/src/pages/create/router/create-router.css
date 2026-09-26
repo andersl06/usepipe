@@ -10,7 +10,7 @@
    `.router-step-content`:
      `gap: 2.5rem · margin-top: 7rem · max-width: 52.5rem · width: 100%`
    mais o `flex items-center justify-between` do template. */
-.cr-convite {
+.cr-invitation {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,7 +24,7 @@
  * `.router-step-content img { max-width: 18.75rem; width: 40% }`.
  *   There it's `/assets/img/templates/router.svg`, a concept drawing; our core is the `roteador` icon — the SAME artwork as the button that brought the person here and the portal card's label —, so the box keeps the proportion and the icon adjusts to it.
  */
-.cr-convite-desenho {
+.cr-invitation-illustration {
   flex: 0 0 40%;
   max-width: 18.75rem;
   display: flex;
@@ -37,21 +37,21 @@
 }
 
 /* `.router-step-description { max-width: 27.5rem }` */
-.cr-convite-texto {
+.cr-invitation-text {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   max-width: 27.5rem;
 }
 
-.cr-convite-texto h3 {
+.cr-invitation-text h3 {
   margin: 0 0 var(--p-e-3);
-  font-size: var(--cr-t-secao);
+  font-size: var(--cr-t-section);
   /* `bold="semi-bold"` no `bds-typo` da origem. */
   font-weight: var(--p-peso-forte);
 }
 
-.cr-convite-texto p {
+.cr-invitation-text p {
   margin: 0;
   font-size: var(--p-t-md); /* fs-14 */
   line-height: var(--p-altura-linha);
@@ -73,7 +73,7 @@
 /*
  * Without the learn-more link, the 3rem it used to carry down to the button would disappear too and the button would stick to the description.
  */
-.cr-convite-texto p + .btn.cr-botao {
+.cr-invitation-text p + .btn.cr-botao {
   margin-top: 3rem;
 }
 
@@ -82,17 +82,17 @@
  *   The invite's two-column row doesn't fit: it becomes a single column, with the artwork on top, which is the arrangement the source itself takes when its 52.5rem `.router-step-content` doesn't fit the window.
  */
 @media (max-width: 56rem) {
-  .cr-convite {
+  .cr-invitation {
     flex-direction: column;
     margin-top: 3rem;
   }
 
-  .cr-convite-desenho {
+  .cr-invitation-illustration {
     flex: none;
     width: 12rem;
   }
 
-  .cr-convite-texto {
+  .cr-invitation-text {
     align-self: stretch;
   }
 }

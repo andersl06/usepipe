@@ -34,7 +34,7 @@ export function AgentPagePermissions() {
 
   if (!caminho) {
     return (
-      <div className="vazio">
+      <div className="empty">
         <b>Nenhum atendente selecionado</b>
         <p>
           <button type="button" className="btn" onClick={() => navegar(`${base}/agents/management`)}>
@@ -132,7 +132,7 @@ export function AgentPagePermissions() {
 
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao type="button" onClick={() => navegar(`${base}/agents/management`)} disabled={salvando}>
           Cancelar
         </Botao>

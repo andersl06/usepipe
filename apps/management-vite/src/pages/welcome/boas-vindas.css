@@ -27,7 +27,7 @@
    *      The background beam is drawn with a fixed color — moss over cream, the same as the sign-in screen. With theme tokens, whoever was in dark mode got a dark background under a light drawing: the screen split in two, with a light patch where the canvas paints and black everywhere else. That's why these front-door screens (sign-in, welcome) don't follow the theme.
    */
   --bv-fundo: #f2f1ec;
-  --bv-papel: #ffffff;
+  --bv-paper: #ffffff;
   --bv-conteudo: #16150f;
   --bv-apoio: #6a695e;
   --bv-marca: #4a5d23;

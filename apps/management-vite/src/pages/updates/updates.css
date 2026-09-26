@@ -28,7 +28,7 @@
 /*
  * The blog column is narrow — long text on a wide line doesn't read well. The ceiling follows the portal column's larger breakpoint so the two screens line up.
  */
-.nv-coluna {
+.nv-column {
   margin: 2.5rem auto 0;
   width: 100%;
   max-width: 60rem;
@@ -64,7 +64,7 @@
  * ------------------------------------------------------ search and filter
  *    The blog's two pills: 48 height, full radius, 1px outline and white background. Side by side on desktop, stacked when they don't fit.
  */
-.nv-filtros {
+.nv-filters {
   display: flex;
   flex-wrap: wrap;
   gap: var(--p-e-3);
@@ -107,7 +107,7 @@
   cursor: pointer;
 }
 
-.nv-filtros .btn {
+.nv-filters .btn {
   height: 48px;
   border-radius: 999px;
   padding: 0 var(--p-e-5);
@@ -120,7 +120,7 @@
 }
 
 /* ------------------------------------------------------------- cards */
-.nv-cartao {
+.nv-card {
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -129,7 +129,7 @@
   background: var(--surface);
 }
 
-.nv-cartao-grande {
+.nv-card-large {
   margin-bottom: var(--p-e-8);
 }
 
@@ -142,15 +142,15 @@
   background: var(--p-marca-suave);
 }
 
-.nv-cartao-grande .nv-capa {
+.nv-card-large .nv-capa {
   height: 260px;
 }
 
-.nv-capa[data-categoria='Atendimento'] {
+.nv-capa[data-category='attendance'] {
   background: var(--p-superficie-2);
 }
 
-.nv-capa[data-categoria='Automação'] {
+.nv-capa[data-category='automation'] {
   background: var(--p-superficie-3);
 }
 
@@ -186,7 +186,7 @@
   text-transform: uppercase;
 }
 
-.nv-cartao-titulo {
+.nv-card-title {
   margin: 0;
   font-size: var(--p-t-lg);
   line-height: 1.3;
@@ -194,7 +194,7 @@
   color: var(--ink);
 }
 
-.nv-cartao-grande .nv-cartao-titulo {
+.nv-card-large .nv-card-title {
   font-size: 28px;
   line-height: 1.2;
 }
@@ -240,7 +240,7 @@
     font-size: 30px;
   }
 
-  .nv-cartao-grande .nv-cartao-titulo {
+  .nv-card-large .nv-card-title {
     font-size: 22px;
   }
 }

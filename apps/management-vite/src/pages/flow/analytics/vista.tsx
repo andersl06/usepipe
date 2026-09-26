@@ -36,7 +36,7 @@ export function AnalyticsVista({
                 key={aba.key}
                 hidden={!aba.visivel}
                 href={`${base}/${aba.segment}`}
-                className={aba === aberta ? 'an-aba an-aba--ativa' : 'an-aba'}
+                className={aba === aberta ? 'an-aba an-tab--active' : 'an-aba'}
                 aria-current={aba === aberta ? 'page' : undefined}
               >
                 <span className="an-aba-texto">{aba.rotulo}</span>
@@ -56,7 +56,7 @@ export function AnalyticsVista({
  * `.tabs-content bds-tab-panel:not(#dashboardContent) { padding: 50px 0 0 }` — the Dashboard is the only panel without the padding that clears the fixed row.
  */}
       <div
-        className={aberta?.key === 'dashboard' ? 'an-painel an-painel--dashboard' : 'an-painel'}
+        className={aberta?.key === 'dashboard' ? 'an-panel an-panel--dashboard' : 'an-panel'}
       >
         {children}
       </div>

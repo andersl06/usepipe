@@ -121,22 +121,22 @@ export default async function PageLogin({
   const alerta = recusa ?? aviso;
 
   return (
-    <main className="entrar">
-      <section className="entrar-cartao" aria-labelledby="entrar-titulo">
-        <div className="entrar-marca">
+    <main className="login">
+      <section className="login-card" aria-labelledby="entrar-titulo">
+        <div className="login-brand">
           <Simbolo tamanho={40} />
           <b>Pipe CRM</b>
         </div>
 
         <h1 id="entrar-titulo">Entrar</h1>
-        <p className="entrar-sub">Leads, oportunidades e o funil, alimentados pelas conversas.</p>
+        <p className="login-sub">Leads, oportunidades e o funil, alimentados pelas conversas.</p>
 
         {/*
  * In reading order BEFORE the buttons, with its own heading: someone using a screen
  * reader needs the reason before the action, not after it.
  */}
         {alerta ? (
-          <div className="entrar-alerta" role="alert">
+          <div className="login-alert" role="alert">
             <h2>{alerta.titulo}</h2>
             <p>{alerta.saida}</p>
           </div>
@@ -146,15 +146,15 @@ export default async function PageLogin({
  * A link, not a button: signing in with Google is a top-level navigation to another
  * origin. A `fetch` here would run into CORS and wouldn't bring back the cookie.
  */}
-        <a className="btn primario entrar-google" href={inboundWithGoogleUrl({ destination })}>
+        <a className="btn primario login-google" href={inboundWithGoogleUrl({ destination })}>
           Entrar com Google
         </a>
 
-        <div className="entrar-ou">
+        <div className="login-or">
           <span>ou, se a sua empresa usa SSO</span>
         </div>
 
-        <form action={continuar} className="entrar-form">
+        <form action={continuar} className="login-form">
           <label htmlFor="entrar-email">E-mail corporativo</label>
           <input
             id="entrar-email"
@@ -167,7 +167,7 @@ export default async function PageLogin({
             defaultValue={parametros.email ?? ''}
             aria-describedby="entrar-ajuda"
           />
-          <p id="entrar-ajuda" className="entrar-ajuda">
+          <p id="entrar-ajuda" className="login-help">
             Levamos você ao provedor de identidade da sua empresa, quando ela tiver um. Não
             guardamos nada nesta etapa.
           </p>
@@ -177,7 +177,7 @@ export default async function PageLogin({
           </button>
         </form>
 
-        <p className="entrar-rodape">
+        <p className="login-footer">
           Recebeu um convite? Abra o link que chegou por e-mail — ele entra e cria a sua conta
           no mesmo passo.
         </p>

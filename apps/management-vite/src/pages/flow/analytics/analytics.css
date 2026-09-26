@@ -180,11 +180,11 @@
 
 /* `#analytics-tabs-view .tabs-content bds-tab-panel:not(#dashboardContent)
    { padding: 50px 0 0 }` */
-.an-painel {
+.an-panel {
   padding: 50px 0 0;
 }
 
-.an-painel--dashboard {
+.an-panel--dashboard {
   padding: 0;
 }
 
@@ -193,7 +193,7 @@
  *
  *   `.full-initial-section`: `border-bottom: 1px solid var(--color-surface-3)`, `margin: .9375rem 0`, `padding: .9375rem 0` — 15 and 15. `.full-initial-section .page-header-content { height: 2.625rem }` (42) and `.row { margin-top: .1875rem }` (3) with `.mb0`. The `.container` inside is the `fx-coluna` that `fluxo.css` already measured.
  */
-.an-cabecalho-secao {
+.an-header-section {
   margin: 15px 0;
   padding: 15px 0;
   border-bottom: 1px solid var(--surface-3);
@@ -372,21 +372,21 @@
    largura e cor `--color-content-default`. Em foco/hover, anel de 1px na cor da
    marca. `.bp-daterange-icon`: 1.5625rem (25) de lado, raio 5, recheio 2, fundo
    #e8f2ff e o desenho em #3f7de8. Cada data: 10rem, centrada, sem borda. */
-.an-periodo {
+.an-period {
   position: relative;
   display: inline-block;
 }
 
-.an-periodo > summary {
+.an-period > summary {
   list-style: none;
   cursor: pointer;
 }
 
-.an-periodo > summary::-webkit-details-marker {
+.an-period > summary::-webkit-details-marker {
   display: none;
 }
 
-.an-periodo-campos {
+.an-period-fields {
   display: flex;
   align-items: center;
   box-sizing: border-box;
@@ -399,12 +399,12 @@
   font-size: 14px;
 }
 
-.an-periodo-campos:hover,
-.an-periodo[open] .an-periodo-campos {
+.an-period-fields:hover,
+.an-period[open] .an-period-fields {
   box-shadow: 0 0 1px 1px var(--p-marca);
 }
 
-.an-periodo-icone {
+.an-period-icon {
   display: inline-flex;
   box-sizing: border-box;
   width: 25px;
@@ -415,7 +415,7 @@
   color: var(--p-marca);
 }
 
-.an-periodo-data {
+.an-period-data {
   display: inline-block;
   width: 10rem;
   height: 36px;
@@ -426,7 +426,7 @@
 /*
  * `.bp-daterange-dropdown`: radius 8, shadow `0 0 10px rgba(96,123,153,.4)`, `margin-top: .125rem`, `absolute`, `z-index: 10`, flush right inside `.small-datepicker-input`, `--color-surface-1` background. The core (`.bp-daterange-datepicker`) has `padding: .625rem`; the buttons, `margin: 1.5rem .75rem .75rem`, 1.875rem height, radius 8, `padding: .375rem .75rem`.
  */
-.an-periodo-painel {
+.an-period-panel {
   position: absolute;
   right: 0;
   z-index: 10;
@@ -437,26 +437,26 @@
   color: var(--ink);
 }
 
-.an-periodo-calendarios {
+.an-period-calendars {
   display: flex;
   gap: 10px;
   padding: 10px;
 }
 
-.an-periodo-calendarios input {
+.an-period-calendars input {
   font: inherit;
   font-size: 14px;
   color: var(--ink);
 }
 
-.an-periodo-botoes {
+.an-period-buttons {
   display: flex;
   justify-content: flex-end;
   margin: 24px 12px 12px;
 }
 
-.an-periodo-cancelar,
-.an-periodo-aplicar {
+.an-period-cancel,
+.an-period-apply {
   box-sizing: border-box;
   height: 30px;
   min-width: 50px;
@@ -471,12 +471,12 @@
   cursor: pointer;
 }
 
-.an-periodo-cancelar {
+.an-period-cancel {
   background: transparent;
   color: var(--ink-3);
 }
 
-.an-periodo-aplicar {
+.an-period-apply {
   background: var(--p-marca);
   color: var(--p-marca-conteudo);
 }

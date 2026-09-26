@@ -44,7 +44,7 @@ export function FormularioQueue({
   }, [resultado]);
 
   return (
-    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
+    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-registration">
       <p className="sub">Dê um nome para essa fila de atendimento</p>
 
       <label className="form-campo">
@@ -68,7 +68,7 @@ export function FormularioQueue({
 
       {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao type="button" onClick={aoSalvar} disabled={enviando}>
           Cancelar
         </Botao>

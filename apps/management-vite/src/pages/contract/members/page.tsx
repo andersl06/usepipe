@@ -59,7 +59,7 @@ export function MembersPage() {
           ) : null}
 
           <div className="mb-quadro">
-            <div className="mb-cartao">
+            <div className="mb-card">
               <MembersAbas podeEscrever={podeEscrever}>
                 <MembersTabela
                   podeEscrever={podeEscrever}

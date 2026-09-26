@@ -65,12 +65,12 @@ export function PageDeployment() {
           </span>
         </div>
 
-        <div className="lista-cartoes">
-          <div className="grupo-cartoes">
+        <div className="list-cards">
+          <div className="group-cards">
             Passos <span className="qt">{passos.length}</span>
           </div>
           {passos.map((passo, i) => (
-            <article key={passo.id} className="cartao-lista">
+            <article key={passo.id} className="card-list">
               <span />
               <div className="cl-campos" style={{ '--cl-colunas': 2 } as React.CSSProperties}>
                 <div className="cl-campo">
@@ -84,7 +84,7 @@ export function PageDeployment() {
                   </span>
                 </div>
               </div>
-              <div className="cl-acoes">
+              <div className="cl-actions">
                 <Etiqueta tom={TOM[passo.state]}>{ROTULO[passo.state]}</Etiqueta>
                 {passo.acao && passo.state !== 'feito' ? (
                   <a
@@ -109,11 +109,11 @@ export function PageDeployment() {
           </p>
 
           {channels.length === 0 ? null : (
-            <div className="lista-cartoes">
+            <div className="list-cards">
               {channels.map((c) => {
                 const precisaReconectar = !c.ativo || c.reauthorizationPending;
                 return (
-                  <article key={c.id} className="cartao-lista">
+                  <article key={c.id} className="card-list">
                     <span />
                     <div className="cl-campos" style={{ '--cl-colunas': 2 } as React.CSSProperties}>
                       <div className="cl-campo">
@@ -125,7 +125,7 @@ export function PageDeployment() {
                         <span className="v">{c.numero ?? 'Sem número'}</span>
                       </div>
                     </div>
-                    <div className="cl-acoes">
+                    <div className="cl-actions">
                       <Etiqueta tom={precisaReconectar ? 'alerta' : 'sucesso'}>
                         {!c.ativo
                           ? 'Desligado'

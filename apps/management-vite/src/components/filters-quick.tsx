@@ -25,10 +25,10 @@ function PilulaOptions({
   panelAberto: boolean;
 }) {
   return (
-    <div className="at-filtro">
+    <div className="at-filter">
       <button
         type="button"
-        className={value ? 'pilula ativa at-filtro-gatilho' : 'pilula at-filtro-gatilho'}
+        className={value ? 'pilula active at-filter-trigger' : 'pilula at-filter-trigger'}
         aria-haspopup="dialog"
         aria-expanded={panelAberto}
         onClick={toAbrirPanel}
@@ -41,10 +41,10 @@ function PilulaOptions({
 
 function PilulaContact({ value, toAbrirPanel, panelAberto }: { value: string; toAbrirPanel: () => void; panelAberto: boolean }) {
   return (
-    <div className="at-filtro">
+    <div className="at-filter">
       <button
         type="button"
-        className={value ? 'pilula ativa at-filtro-gatilho' : 'pilula at-filtro-gatilho'}
+        className={value ? 'pilula active at-filter-trigger' : 'pilula at-filter-trigger'}
         aria-haspopup="dialog"
         aria-expanded={panelAberto}
         onClick={toAbrirPanel}
@@ -83,7 +83,7 @@ export function SOperationFilter({ atual, toAbrirPanel, panelAberto, aoLimparQue
   aoLimparQueue: () => void;
 }) {
   return (
-    <div className="faixa-filtros">
+    <div className="strip-filters">
       <span className="lbl">Filtros rápidos:</span>
       <PilulaOptions rotulo="Filas" value={atual.queue ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
       <ButtonFilters toAbrirPanel={toAbrirPanel} aoLimpar={aoLimparQueue} temFilters={Boolean(atual.queue)} />
@@ -105,7 +105,7 @@ export function SListaFilter({ atual, toAbrirPanel, panelAberto, aoLimparAgent }
   const [query, definirQuery] = useSearchParams();
   const temFilters = Boolean(atual.agent || atual.contact || atual.status);
   return (
-    <div className="faixa-filtros">
+    <div className="strip-filters">
       <span className="lbl">Filtros rápidos:</span>
       <PilulaOptions rotulo="Atendentes" value={atual.agent ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
       <PilulaContact value={atual.contact ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />

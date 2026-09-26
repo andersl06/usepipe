@@ -66,8 +66,8 @@ export function ChannelShell({
       </header>
 
       <div className="ig-grade">
-        <section className="ig-papel">
-          <div className="ig-papel-miolo">
+        <section className="ig-paper">
+          <div className="ig-paper-core">
             <div className="cb-abas-linha">
               <nav className="ig-abas" role="tablist" aria-label={`Abas do canal ${titulo}`}>
                 {abas
@@ -103,7 +103,7 @@ export function ChannelShell({
               </span>
             </div>
 
-            <div className="cb-painel">{children}</div>
+            <div className="cb-panel">{children}</div>
           </div>
         </section>
       </div>

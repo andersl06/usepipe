@@ -20,7 +20,7 @@
  *    it's the same source `desk-sidebar`; only the shell around it changed.
  */
 
-.at-casca {
+.at-shell {
 
   display: flex;
 
@@ -36,7 +36,7 @@
 
 @media (min-width: 550px) {
 
-  .at-casca {
+  .at-shell {
 
     width: 111.1112%;
 
@@ -48,7 +48,7 @@
 
 @media (min-width: 750px) {
 
-  .at-casca {
+  .at-shell {
 
     width: 125%;
 
@@ -78,7 +78,7 @@
 
 /* History list geometry; cards with tags can grow. */
 
-.hist-resultados .lista-cartoes {
+.hist-resultados .list-cards {
 
   gap: 8px;
 
@@ -86,7 +86,7 @@
 
 
 
-.hist-resultados .cartao-lista {
+.hist-resultados .card-list {
 
   min-height: 88px;
 
@@ -146,7 +146,7 @@
 
 .hist-resultados .cl-sel input,
 
-.hist-resultados .barra-selecao input {
+.hist-resultados .bar-selection input {
 
   width: 18px;
 
@@ -166,7 +166,7 @@
 
 /* Quick filters exclusive to Attendance: one box per pill. */
 
-.at-filtro {
+.at-filter {
 
   position: relative;
 
@@ -176,7 +176,7 @@
 
 
 
-.at-filtro-gatilho {
+.at-filter-trigger {
 
   min-width: 96px;
 
@@ -190,17 +190,17 @@
 
 
 
-.mon-pagina .at-filtro-gatilho { min-width: 0; max-width: none; height: 40px; padding: 0 8px; font: 700 14px/21px 'Nunito Sans', var(--p-fonte); }
+.mon-page .at-filter-trigger { min-width: 0; max-width: none; height: 40px; padding: 0 8px; font: 700 14px/21px 'Nunito Sans', var(--p-fonte); }
 
-.mon-pagina .at-filtro-gatilho:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.mon-page .at-filter-trigger:focus:not(:focus-visible) { outline: none; box-shadow: none; }
 
-.mon-pagina .at-filtro-gatilho:active { transform: none; box-shadow: none; }
+.mon-page .at-filter-trigger:active { transform: none; box-shadow: none; }
 
-.mon-pagina .at-filtro-gatilho:focus-visible { outline: 2px solid var(--p-foco); outline-offset: 2px; }
+.mon-page .at-filter-trigger:focus-visible { outline: 2px solid var(--p-foco); outline-offset: 2px; }
 
-.mon-pagina .painel-lateral { font-family: 'Nunito Sans', var(--p-fonte); background: var(--p-superficie-1); }
+.mon-page .panel-side { font-family: 'Nunito Sans', var(--p-fonte); background: var(--p-superficie-1); }
 
-.mon-pagina .painel-apoio { margin: 12px 0; padding-left: 8px; }
+.mon-page .panel-support { margin: 12px 0; padding-left: 8px; }
 
 
 
@@ -240,11 +240,11 @@
 
 .mon-metrica-carregando { flex: 1 1 0; }
 
-.mon-metrica-carregando .valor { width: 75%; height: var(--g-t-valor); }
+.mon-metrica-carregando .value { width: 75%; height: var(--g-t-value); }
 
 .mon-metrica-carregando .rotulo { width: 100%; height: calc(var(--g-lh-rotulo) + var(--g-lh-rotulo)); margin-top: 10px; }
 
-.mon-carregando .tblhead .busca { margin-left: auto; flex: 1 1 auto; max-width: 410px; height: 42px; }
+.mon-carregando .tblhead .search { margin-left: auto; flex: 1 1 auto; max-width: 410px; height: 42px; }
 
 .mon-abas-carregando { display: flex; overflow: hidden; }
 
@@ -260,9 +260,9 @@
 
 .mon-tabela-linha .celula:nth-child(2n) { width: 90%; }
 
-.mon-erro { min-height: 180px; }
+.mon-error { min-height: 180px; }
 
-.mon-erro p { color: var(--p-conteudo-desabilitado); }
+.mon-error p { color: var(--p-conteudo-desabilitado); }
 
 
 
@@ -270,7 +270,7 @@
 
   .mon-carregando .tblhead { flex-wrap: wrap; }
 
-  .mon-carregando .tblhead .busca { flex-basis: 100%; max-width: none; }
+  .mon-carregando .tblhead .search { flex-basis: 100%; max-width: none; }
 
 }
 
@@ -296,7 +296,7 @@
 
 @media (max-width: 900px) {
 
-  .at-casca {
+  .at-shell {
 
     flex-direction: column;
 
@@ -322,9 +322,9 @@
  *    why.
  */
 
-.cartao-rel .vazio,
+.card-rel .empty,
 
-.card .vazio {
+.card .empty {
 
   display: flex;
 
@@ -348,15 +348,15 @@
  *    SLA no período informado", `desk-relatorio-atendimento__pagina.html`).
  */
 
-.cartao-rel .vazio b,
+.card-rel .empty b,
 
-.card .vazio b {
+.card .empty b {
 
   font-size: var(--g-t-celula);
 
   font-weight: var(--g-peso-forte);
 
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
 
   color: var(--p-conteudo);
 
@@ -366,9 +366,9 @@
 
 
 
-.cartao-rel .vazio p,
+.card-rel .empty p,
 
-.card .vazio p {
+.card .empty p {
 
   margin: 0;
 
@@ -376,7 +376,7 @@
 
   font-size: var(--g-t-celula);
 
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
 
   color: var(--p-conteudo-desabilitado);
 
@@ -432,9 +432,9 @@
 
 .card > h3.grande {
 
-  font-size: var(--g-t-valor-rel);
+  font-size: var(--g-t-value-report);
 
-  line-height: var(--g-t-valor-rel);
+  line-height: var(--g-t-value-report);
 
   font-weight: var(--g-peso-negrito);
 
@@ -510,7 +510,7 @@
 
   font-weight: var(--g-peso-normal);
 
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
 
   color: var(--p-conteudo);
 
@@ -524,7 +524,7 @@
  *    (`bds-button variant="text"`), and the full date range goes in the `title`.
  */
 
-.rel-periodo {
+.rel-period {
 
   white-space: nowrap;
 
@@ -538,7 +538,7 @@
  *    dialogs use the same compact paper as the Desk's actions.
  */
 
-.mon-acoes {
+.mon-actions {
 
   position: relative;
 
@@ -550,7 +550,7 @@
 
 
 
-.tblwrap td.acts .mon-acoes .iconbtn {
+.tblwrap td.acts .mon-actions .iconbtn {
 
   width: 20px;
 
@@ -606,7 +606,7 @@
 
 
 
-.tblwrap td.acts .mon-acoes .iconbtn {
+.tblwrap td.acts .mon-actions .iconbtn {
 
   padding: 0;
 
@@ -616,7 +616,7 @@
 
 
 
-.tblwrap td.acts .mon-acoes .iconbtn svg {
+.tblwrap td.acts .mon-actions .iconbtn svg {
 
   width: 20px;
 
@@ -626,7 +626,7 @@
 
 
 
-.mon-menu-acoes {
+.mon-menu-actions {
 
   position: absolute;
 
@@ -650,9 +650,9 @@
 
 
 
-.mon-menu-acoes a,
+.mon-menu-actions a,
 
-.mon-menu-acoes button {
+.mon-menu-actions button {
 
   width: 100%;
 
@@ -690,9 +690,9 @@
 
 
 
-.mon-menu-acoes a:hover,
+.mon-menu-actions a:hover,
 
-.mon-menu-acoes button:hover {
+.mon-menu-actions button:hover {
 
   background: var(--p-superficie-2);
 
@@ -700,11 +700,11 @@
 
 
 
-.mon-menu-acoes .perigo,
+.mon-menu-actions .perigo,
 
-.mon-modal-erro {
+.mon-modal-error {
 
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 
 }
 
@@ -784,7 +784,7 @@
 
 
 
-.mon-previa-historico {
+.mon-preview-history {
 
   display: flex;
 
@@ -816,7 +816,7 @@
 
 }
 
-.mon-balao.entrada { align-self: flex-start; background: var(--p-superficie-2); }
+.mon-balao.inbound { align-self: flex-start; background: var(--p-superficie-2); }
 
 .mon-balao.saida { align-self: flex-end; background: var(--p-marca-suave); }
 
@@ -828,7 +828,7 @@
 
 
 
-.mon-previa-compositor {
+.mon-preview-composer {
 
   display: grid;
 
@@ -840,11 +840,11 @@
 
 }
 
-.mon-previa-compositor label { font-size: 14px; font-weight: 700; }
+.mon-preview-composer label { font-size: 14px; font-weight: 700; }
 
-.mon-previa-compositor textarea { resize: vertical; min-height: 64px; padding: 10px; border: 1px solid var(--p-linha); border-radius: 8px; font: inherit; }
+.mon-preview-composer textarea { resize: vertical; min-height: 64px; padding: 10px; border: 1px solid var(--p-linha); border-radius: 8px; font: inherit; }
 
-.mon-previa-compositor .btn { justify-self: end; }
+.mon-preview-composer .btn { justify-self: end; }
 
 
 
@@ -890,7 +890,7 @@
 
   margin: 0 0 16px;
 
-  font-size: var(--g-t-valor-rel);
+  font-size: var(--g-t-value-report);
 
   line-height: 1.2;
 
@@ -980,7 +980,7 @@
 
 
 
-.mon-modal-acoes {
+.mon-modal-actions {
 
   display: flex;
 
@@ -1063,7 +1063,7 @@
 
 
 
-.mon-detalhado .tbl-busca {
+.mon-detalhado .tbl-search {
   box-sizing: border-box;
 
   /* In Blip the field is compact and does NOT grow to fill the line. */
@@ -1094,7 +1094,7 @@
 /*
  * The global `.tblhead .tbl-busca` selector sets the field's surface for other tables. In the BDS, `.input` doesn't paint its interior: it inherits the card's surface. The extra specificity keeps this field transparent even when the global sheet loads after this one.
  */
-.mon-detalhado .tblhead .tbl-busca {
+.mon-detalhado .tblhead .tbl-search {
   background: transparent;
   background-color: transparent;
 }
@@ -1103,7 +1103,7 @@
  * Blip's magnifying glass:
  *    a 20x20 glyph inside a small 28x28 gray surface.
  */
-.mon-detalhado .tbl-busca svg {
+.mon-detalhado .tbl-search svg {
   box-sizing: content-box;
   display: block;
   flex: 0 0 20px;
@@ -1120,7 +1120,7 @@
 }
 
 /* Only the visible field; doesn't touch the querystring's hidden inputs. */
-.mon-detalhado .tbl-busca input:not([type="hidden"]) {
+.mon-detalhado .tbl-search input:not([type="hidden"]) {
   box-sizing: border-box;
 
   flex: 1 1 auto;
@@ -1147,21 +1147,21 @@
   -webkit-appearance: none;
 }
 
-.mon-detalhado .tbl-busca input:not([type="hidden"])::placeholder {
+.mon-detalhado .tbl-search input:not([type="hidden"])::placeholder {
   color: #959595;
   opacity: 1;
 }
 
 /* Remove os controles nativos que o Chrome/Edge adicionam ao type="search". */
-.mon-detalhado .tbl-busca input::-webkit-search-decoration,
-.mon-detalhado .tbl-busca input::-webkit-search-cancel-button,
-.mon-detalhado .tbl-busca input::-webkit-search-results-button,
-.mon-detalhado .tbl-busca input::-webkit-search-results-decoration {
+.mon-detalhado .tbl-search input::-webkit-search-decoration,
+.mon-detalhado .tbl-search input::-webkit-search-cancel-button,
+.mon-detalhado .tbl-search input::-webkit-search-results-button,
+.mon-detalhado .tbl-search input::-webkit-search-results-decoration {
   display: none;
 }
 
 /* Focus state without changing the component's size/position. */
-.mon-detalhado .tbl-busca:focus-within {
+.mon-detalhado .tbl-search:focus-within {
   border-color: var(--mon-blue);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--mon-blue) 16%, transparent);
 }
@@ -1418,17 +1418,17 @@
 
 .mon-detalhado .mon-tabela-aguardando th:nth-child(7) { width: 5%; }
 
-.mon-detalhado .mon-tabela-atendentes th:nth-child(1) { width: 40%; }
+.mon-detalhado .mon-table-agents th:nth-child(1) { width: 40%; }
 
-.mon-detalhado .mon-tabela-atendentes th:nth-child(2) { width: 17%; }
+.mon-detalhado .mon-table-agents th:nth-child(2) { width: 17%; }
 
-.mon-detalhado .mon-tabela-atendentes th:nth-child(3),
+.mon-detalhado .mon-table-agents th:nth-child(3),
 
-.mon-detalhado .mon-tabela-atendentes th:nth-child(4) { width: 21.5%; }
+.mon-detalhado .mon-table-agents th:nth-child(4) { width: 21.5%; }
 
-.mon-detalhado .mon-tabela-atendentes th:nth-child(5) { width: 7%; }
+.mon-detalhado .mon-table-agents th:nth-child(5) { width: 7%; }
 
-.mon-detalhado .mon-tabela-filas th:first-child { width: 25%; }
+.mon-detalhado .mon-table-queues th:first-child { width: 25%; }
 
 .mon-detalhado .mon-tabela-tags th:first-child { width: 50%; }
 
@@ -1450,15 +1450,15 @@
 
 .mon-detalhado .who { overflow: hidden; text-overflow: ellipsis; }
 
-.mon-detalhado .tempo-sla { display: table-cell; }
+.mon-detalhado .time-sla { display: table-cell; }
 
 
 
 .mon-detalhado td.acts { position: relative; }
 
-.mon-detalhado .mon-acoes { justify-content: center; gap: 0; }
+.mon-detalhado .mon-actions { justify-content: center; gap: 0; }
 
-.mon-detalhado .mon-acoes .iconbtn {
+.mon-detalhado .mon-actions .iconbtn {
 
   position: relative;
 
@@ -1480,13 +1480,13 @@
 
 }
 
-.mon-detalhado .mon-acoes .iconbtn:hover { background: rgba(0, 0, 0, .08); }
+.mon-detalhado .mon-actions .iconbtn:hover { background: rgba(0, 0, 0, .08); }
 
-.mon-detalhado .mon-acoes .iconbtn:active { background: rgba(0, 0, 0, .16); }
+.mon-detalhado .mon-actions .iconbtn:active { background: rgba(0, 0, 0, .16); }
 
-.mon-detalhado .mon-acoes .iconbtn:focus-visible { outline: 2px solid var(--mon-blue); outline-offset: 2px; }
+.mon-detalhado .mon-actions .iconbtn:focus-visible { outline: 2px solid var(--mon-blue); outline-offset: 2px; }
 
-.mon-detalhado .mon-acoes .iconbtn svg { width: 24px; height: 24px; }
+.mon-detalhado .mon-actions .iconbtn svg { width: 24px; height: 24px; }
 
 .mon-detalhado .mon-acao[data-tooltip]::after {
 
@@ -1532,7 +1532,7 @@
 
 
 
-.mon-detalhado .mon-menu-acoes {
+.mon-detalhado .mon-menu-actions {
 
   top: 40px;
 
@@ -1554,7 +1554,7 @@
 
 
 
-.mon-detalhado .vazio-linha {
+.mon-detalhado .empty-line {
 
   min-height: 108px;
 
@@ -1592,7 +1592,7 @@
 
 }
 
-.mon-detalhado .pg-por-pagina { display: flex; align-items: center; gap: 16px; }
+.mon-detalhado .pg-per-page { display: flex; align-items: center; gap: 16px; }
 
 .mon-detalhado .pg-direita { display: flex; align-items: center; margin-left: auto; }
 
@@ -1653,7 +1653,7 @@
 
   .mon-detalhado .tblhead { align-items: stretch; flex-direction: column; gap: 12px; }
 
-  .mon-detalhado .tbl-busca { flex: 0 0 auto; width: 100%; min-width: 0; max-width: none; }
+  .mon-detalhado .tbl-search { flex: 0 0 auto; width: 100%; min-width: 0; max-width: none; }
 
   .mon-detalhado .tabs { margin-inline: -8px; padding-inline: 8px; gap: 24px; }
 

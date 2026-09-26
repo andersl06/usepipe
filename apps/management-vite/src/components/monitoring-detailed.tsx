@@ -99,7 +99,7 @@ function PillPriority({ nivel }: { nivel: string }) {
  * Reference empty state is literally one centered line, `Dados insuficientes` (`FICHA-monitoring.md` §6, `desk-grid-tabled-paginated-empty-*`), without our former explanation or button.
  */
 function WithoutData() {
-  return <div className="vazio-linha">Dados insuficientes</div>;
+  return <div className="empty-line">Dados insuficientes</div>;
 }
 
 
@@ -116,7 +116,7 @@ function TicketActions({
   const [modal, setModal] = useState<'transferir' | 'finalizar' | null>(null);
   return (
     <td className="acts" onClick={(evento) => evento.stopPropagation()}>
-      <div className="mon-acoes">
+      <div className="mon-actions">
         <button
           type="button"
           className="iconbtn mon-acao"
@@ -142,7 +142,7 @@ function TicketActions({
           <IconePortal nome="mais" tamanho={24} />
         </button>
         {aberto ? (
-          <div className="mon-menu-acoes" role="menu" aria-label={`Ações do ${linha.ticket}`}>
+          <div className="mon-menu-actions" role="menu" aria-label={`Ações do ${linha.ticket}`}>
             <button type="button" role="menuitem" onClick={() => aoAbrir(linha.id)}>Abrir conversa</button>
             <button type="button" role="menuitem" className="perigo" onClick={() => { setAberto(false); setModal('finalizar'); }}>
               Finalizar
@@ -221,8 +221,8 @@ function ModalTransferirMonitoring({
         </Selection>
       </label>
       <p className="mon-modal-aviso">A transferência encerra este ticket e cria um novo no destino.</p>
-      {error ? <p className="mon-modal-erro">{error}</p> : null}
-      <div className="mon-modal-acoes">
+      {error ? <p className="mon-modal-error">{error}</p> : null}
+      <div className="mon-modal-actions">
         <button type="button" className="btn" onClick={aoFechar}>Cancelar</button>
         <button type="button" className="btn primary" disabled={!destination || enviando} onClick={() => void transferir()}>
           Transferir ticket
@@ -313,12 +313,12 @@ function TabelaAtribuidas({
                 {durationMonitoring(l.firstRespostaSeg)}
                 {l.firstRespostaCorrendo ? ' ⟳' : ''}
               </td>
-              <td className="tempo-sla">
+              <td className="time-sla">
                 {/*
  * Before the first response, attendance time cannot be measured. Show reference `Aguardando...`, not a dash: a dash means not applicable, while waiting means the timer has not begun.
  */}
                 {l.attendanceSeg === null ? (
-                  <span className="g-vazio-espera">Aguardando...</span>
+                  <span className="g-empty-wait">Aguardando...</span>
                 ) : (
                   <span className="num">{durationMonitoring(l.attendanceSeg)}</span>
                 )}
@@ -409,7 +409,7 @@ function TabelaAgents({
   return (
     <>
       <div className="scroll">
-        <table className="mon-tabela mon-tabela-atendentes">
+        <table className="mon-tabela mon-table-agents">
         <thead>
           <tr>
             <th>Atendente</th>
@@ -445,7 +445,7 @@ function TabelaQueues({ queues }: { queues: Monitoring['queues'] }) {
   return (
     <>
       <div className="scroll">
-        <table className="mon-tabela mon-tabela-filas">
+        <table className="mon-tabela mon-table-queues">
         <thead>
           <tr>
             <th>Fila</th>
@@ -553,20 +553,20 @@ function ConversationPrevia({ id, aoFechar }: { id: string; aoFechar: () => void
           </div>
           <button type="button" className="iconbtn" aria-label="Fechar conversa" onClick={aoFechar}><Icone nome="x" tamanho={16} /></button>
         </header>
-        <div className="mon-previa-historico" aria-live="polite">
+        <div className="mon-preview-history" aria-live="polite">
           {read.isLoading ? <p>Carregando conversa…</p> : null}
           {read.isError ? <p>Não foi possível carregar a conversa.</p> : null}
           {read.data?.itens.map((item) => (
             item.tipo === 'nota' ? <p key={item.id} className="mon-previa-nota"><b>{item.autor ?? 'Nota interna'}</b>{item.texto}</p> :
-            <div key={item.id} className={item.direction === 'entrada' ? 'mon-balao entrada' : 'mon-balao saida'}>
+            <div key={item.id} className={item.direction === 'entrada' ? 'mon-balao inbound' : 'mon-balao saida'}>
               <p>{item.texto || 'Conteúdo sem texto'}</p><small>{item.autor ?? ''}</small>
             </div>
           ))}
         </div>
-        <form className="mon-previa-compositor" onSubmit={enviar}>
+        <form className="mon-preview-composer" onSubmit={enviar}>
           <label htmlFor="mensagem-atendente">Falar com atendente</label>
           <textarea id="mensagem-atendente" value={texto} onChange={(evento) => setTexto(evento.target.value)} placeholder="Escreva uma mensagem..." rows={3} />
-          {error ? <p className="mon-modal-erro">{error}</p> : null}
+          {error ? <p className="mon-modal-error">{error}</p> : null}
           <button type="submit" className="btn primary" disabled={!texto.trim() || enviando}>Enviar</button>
         </form>
       </aside>
@@ -628,7 +628,7 @@ export function MonitoringDetailed({
         {/*
  * Blip places ticket-number search here inside the card, not in the filter strip.
  */}
-        <form className="tbl-busca" method="get">
+        <form className="tbl-search" method="get">
           {[...querystring(filter, aba)]
             .filter(([key]) => key !== 'busca')
             .map(([key, value]) => (

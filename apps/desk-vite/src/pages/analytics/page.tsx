@@ -53,18 +53,18 @@ export function PageMetrics() {
   const total = cards.reduce((s, c) => s + (c.value ?? 0), 0);
 
   return (
-    <div className="dk-metricas">
-      <div className="dk-metricas-topo">
+    <div className="dk-metrics">
+      <div className="dk-metrics-top">
         <IconeDesk nome="seta-esquerda" />
         <Avatar nome={eu.user.nome} tamanho={56} />
         <div>
-          <div className="dk-metricas-titulo">Minhas métricas: {eu.user.nome}</div>
-          <div className="dk-metricas-sub">
+          <div className="dk-metrics-title">Minhas métricas: {eu.user.nome}</div>
+          <div className="dk-metrics-sub">
             Confira todas as suas métricas de atendimento nesse painel
           </div>
         </div>
-        <div className="dk-metricas-espaco" />
-        <button type="button" className="dk-metricas-atualizar" onClick={() => atualizarLeituras()}>
+        <div className="dk-metrics-space" />
+        <button type="button" className="dk-metrics-refresh" onClick={() => atualizarLeituras()}>
           Atualizar <IconeDesk nome="atualizar" tamanho={20} />
         </button>
         <div className="dk-seg" role="radiogroup" aria-label="Período">
@@ -83,7 +83,7 @@ export function PageMetrics() {
         </div>
       </div>
       {atalho === 'personalizado' ? (
-        <div className="dk-metricas-datas">
+        <div className="dk-metrics-dates">
           <label>
             De <input type="date" value={de} onChange={(e) => setDe(e.target.value)} />
           </label>
@@ -94,8 +94,8 @@ export function PageMetrics() {
         </div>
       ) : null}
 
-      <div className="dk-metricas-corpo">
-        <div className="dk-metricas-principal">
+      <div className="dk-metrics-body">
+        <div className="dk-metrics-main">
           <h3>Visão Geral de Tickets</h3>
           <div className="dk-kpis">
             <Rosca cards={cards} total={total} />

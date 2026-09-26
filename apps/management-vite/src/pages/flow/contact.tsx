@@ -82,7 +82,7 @@ export function ModuloShell({ ativo, children }: { ativo?: string; children: Rea
       <BarraDoPortal data={shell} />
       <ContactBarra contact={contactWithData(contact)} ativo={ativo} />
       <main className="pt-conteudo fx-miolo">
-        <div className="fx-coluna">{children}</div>
+        <div className="fx-column">{children}</div>
       </main>
     </div>
   );
@@ -109,7 +109,7 @@ export function ReadFalha({ error }: { error: Error }) {
   return (
     <div className="pt-app">
       <main className="pt-conteudo fx-miolo">
-        <div className="fx-coluna">
+        <div className="fx-column">
           <p role="alert">Não foi possível carregar esta tela: {error.message}</p>
         </div>
       </main>

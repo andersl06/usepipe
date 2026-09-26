@@ -29,14 +29,14 @@
  *    ==========================================================================
  */
 
-.dd-pagina,
+.dd-page,
 .dd-alerta {
   --dd-borda-1: color-mix(in srgb, var(--ink) 20%, transparent);
-  --dd-passagem: color-mix(in srgb, var(--ink) 8%, transparent);
+  --dd-transition: color-mix(in srgb, var(--ink) 8%, transparent);
   --dd-veu: color-mix(in srgb, var(--ink) 70%, transparent);
 }
 
-.dd-pagina :where(*),
+.dd-page :where(*),
 .dd-alerta :where(*) {
   margin: 0;
   padding: 0;
@@ -47,7 +47,7 @@
 /*
  * `nC` + `.dictionary-container { color: content-default }`. Loose text (outside a `bds-typo`) inherits from the page: 16px, normal height.
  */
-.dd-pagina {
+.dd-page {
   box-sizing: border-box;
   width: 100%;
   padding: 60px 0 0;
@@ -58,7 +58,7 @@
 }
 
 /* `oC`: 85% da largura, entre 1024 e 2560, centrada. */
-.dd-coluna {
+.dd-column {
   min-width: 1024px;
   max-width: 2560px;
   width: 85%;
@@ -74,7 +74,7 @@
 }
 
 /* `rC` = `bds-paper` (radius 16, static elevation) with `padding: 10px`, inline. */
-.dd-papel {
+.dd-paper {
   display: flex;
   flex-direction: row;
   padding: 10px;
@@ -341,7 +341,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
 }
 
 /* `UN` */
-.dd-bloco {
+.dd-block {
   width: 100%;
   padding-bottom: 20px;
 }
@@ -416,7 +416,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   cursor: pointer;
 }
 
-.dd-pagina a:not([class]) {
+.dd-page a:not([class]) {
   color: var(--p-marca);
   text-decoration: underline;
 }
@@ -522,7 +522,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
 }
 
 /* `MN` (the last after the comma, `yN`). */
-.dd-descricao {
+.dd-description {
   display: flex;
   align-self: flex-end;
   justify-content: flex-end;
@@ -544,15 +544,15 @@ a:hover > .dd-unico-linha > .dd-ativo {
 }
 
 /* `mU`: the "warning" from the Conversational Flow's "Atenção", in red. */
-.dd-atencao {
+.dd-attention {
   display: inline-flex;
   margin: 0 2px 0 5px;
   padding-top: 1px;
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
-.dd-cor-erro {
-  color: var(--p-erro-conteudo);
+.dd-color-error {
+  color: var(--p-error-content);
   vertical-align: middle;
 }
 
@@ -632,14 +632,14 @@ a:hover > .dd-unico-linha > .dd-ativo {
 }
 
 /* `wU`: `bds-grid direction="column" gap="2"`. */
-.dd-secoes {
+.dd-sections {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
 /* `attentionText`: `bds-typo tag="span"` (fs-16) with the icon and the fs-14 text. */
-.dd-atencao-texto {
+.dd-attention-text {
   font-size: 1rem;
   line-height: 150%;
 }
@@ -649,7 +649,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   margin: 0;
 }
 
-.dd-bloco-li {
+.dd-block-li {
   display: block;
 }
 
@@ -677,7 +677,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   text-transform: uppercase;
 }
 
-.dd-print-chave {
+.dd-print-key {
   position: relative;
   width: 19px;
   height: 11px;
@@ -686,7 +686,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   background: var(--p-marca);
 }
 
-.dd-print-chave::after {
+.dd-print-key::after {
   content: '';
   position: absolute;
   top: 1.5px;
@@ -744,7 +744,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   width: 100%;
   min-height: 64px;
   padding: 12px 16px;
-  background: var(--p-erro-fundo);
+  background: var(--p-error-background);
 }
 
 .dd-alerta-cabeca svg {
@@ -769,7 +769,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
 }
 
 /* `.alert__actions`: right-aligned, 12/16. */
-.dd-alerta-acoes {
+.dd-alert-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -794,5 +794,5 @@ a:hover > .dd-unico-linha > .dd-ativo {
 }
 
 .dd-botao-secundario:hover {
-  background: var(--dd-passagem);
+  background: var(--dd-transition);
 }

@@ -64,10 +64,10 @@ export function EvaluationPageFicha() {
         {c.sentiment ? <span className="etiqueta">Sentimento {c.sentiment}</span> : null}
       </div>
 
-      <section className="bloco-rel">
+      <section className="block-rel">
         <h3>A nota</h3>
-        <div className="bloco-rel-grade" style={{ '--rel-colunas': 4 } as React.CSSProperties}>
-          <div className="cartao-rel">
+        <div className="block-rel-grid" style={{ '--rel-colunas': 4 } as React.CSSProperties}>
+          <div className="card-rel">
             <span className="r">Nota valendo</span>
             <span className="v">
               {c.nota === null ? '—' : `${numero(c.nota, 1)} / ${numero(c.notaMaxima)}`}
@@ -79,7 +79,7 @@ export function EvaluationPageFicha() {
             </span>
           </div>
 
-          <div className="cartao-rel">
+          <div className="card-rel">
             <span className="r">Antes do critério fatal</span>
             <span className="v">
               {numero(ficha.notaAntesDoFatal, 1)} / {numero(c.notaMaxima)}
@@ -87,7 +87,7 @@ export function EvaluationPageFicha() {
             <span className="den">soma dos pontos de cada critério — o tamanho do estrago</span>
           </div>
 
-          <div className="cartao-rel">
+          <div className="card-rel">
             <span className="r">Confiança do modelo</span>
             <span className="v">{c.confiancaIa === null ? '—' : percentual(c.confiancaIa)}</span>
             <span className="den">
@@ -97,7 +97,7 @@ export function EvaluationPageFicha() {
             </span>
           </div>
 
-          <div className="cartao-rel">
+          <div className="card-rel">
             <span className="r">Critérios sem resposta</span>
             <span className="v">{numero(semResposta.length)}</span>
             <span className="den">
@@ -118,9 +118,9 @@ export function EvaluationPageFicha() {
       </section>
 
       {ficha.resumo ? (
-        <section className="bloco-rel">
+        <section className="block-rel">
           <h3>O que a conversa foi</h3>
-          <div className="cartao-rel">
+          <div className="card-rel">
             <p className="sub">{ficha.resumo}</p>
             <span className="den">
               Resumo e classificação da IA
@@ -132,11 +132,11 @@ export function EvaluationPageFicha() {
       ) : null}
 
       {ficha.groups.map((g) => (
-        <section key={g.id} className="bloco-rel">
+        <section key={g.id} className="block-rel">
           <h3>
             {g.nome} <span className="sub">peso {numero(g.peso, 2)}</span>
           </h3>
-          <div className="cartao-rel tabela scroll">
+          <div className="card-rel tabela scroll">
             <table>
               <thead>
                 <tr>

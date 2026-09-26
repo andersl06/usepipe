@@ -8,7 +8,7 @@
 
 /* `.marketplace-step-options { gap: 2.5rem; margin-top: 3.5rem }` mais o
    `flex justify-center flex-wrap` do template. */
-.cf-opcoes {
+.cf-options {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -25,7 +25,7 @@
  *
  *   The `border-radius` comes from `bds-paper`, their default card — our `--p-r-md` is the same paper.
  */
-.cf-cartao {
+.cf-card {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -46,17 +46,17 @@
   cursor: pointer;
 }
 
-.cf-cartao:hover {
+.cf-card:hover {
   background: color-mix(in srgb, var(--cr-tinta) 12%, transparent);
 }
 
-.cf-cartao:focus-visible {
+.cf-card:focus-visible {
   outline: 2px solid var(--cr-foco);
   outline-offset: 2px;
 }
 
 /* `bds-typo variant="fs-20" bold="bold" margin="false" line-height="plus"` */
-.cf-cartao h3 {
+.cf-card h3 {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -67,7 +67,7 @@
 }
 
 /* `bds-typo variant="fs-14"` */
-.cf-cartao p {
+.cf-card p {
   margin: 0;
   font-size: var(--p-t-md);
   line-height: var(--p-altura-linha);
@@ -99,7 +99,7 @@
  * ============================ step 2: template presentation
  *   `#create-application-test-step` — `auth.application.create.test`. We don't have this screen's pixel measurements (only the marketplace was captured rendered); the layout below is the same centered column as the other steps, with the description and the feature list above the `.cr-acoes` buttons.
  */
-.cf-apresentacao {
+.cf-presentation {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -109,13 +109,13 @@
   text-align: center;
 }
 
-.cf-apresentacao-subtitulo {
+.cf-presentation-subtitle {
   margin: 0;
   font-size: var(--p-t-lg);
   font-weight: var(--p-peso-forte);
 }
 
-.cf-apresentacao > p {
+.cf-presentation > p {
   margin: 0;
   color: var(--cr-fraca);
 }
@@ -150,7 +150,7 @@
  *   The template's `flex-wrap` already stacks the two cards on its own; what's missing is the top gap, which sticks the 3.5rem to the title when the row becomes a column.
  */
 @media (max-width: 46rem) {
-  .cf-opcoes {
+  .cf-options {
     margin-top: 2.5rem;
     gap: 2rem;
   }

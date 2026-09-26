@@ -17,7 +17,7 @@ function SearchTopo({
   placeholder: string;
 }) {
   return (
-    <div className="busca-topo">
+    <div className="search-top">
       <Icone nome="busca" tamanho={20} />
       <input
         type="search"
@@ -72,7 +72,7 @@ function PaginationRodape({
   const inicio = total === 0 ? 0 : (page - 1) * tamanho + 1;
   const fim = Math.min(page * tamanho, total);
   return (
-    <div className="rodape-paginacao">
+    <div className="footer-pagination">
       {ocultarTamanho ? null : (
         <label className="rp-tamanho">
           Resultados por página
@@ -85,7 +85,7 @@ function PaginationRodape({
           </Selection>
         </label>
       )}
-      <span className="rp-contagem">{`${inicio}-${fim} de ${total}`}</span>
+      <span className="rp-count">{`${inicio}-${fim} de ${total}`}</span>
       <div className="rp-nav">
         <button type="button" disabled={page <= 1} onClick={() => toMudarPage(1)} aria-label="Primeira página">
           <PageSeta tipo="primeira" />
@@ -160,7 +160,7 @@ export interface RulesSection {
 function Card({ card }: { card: CardRule }) {
   const colunas = card.campos.length + (card.selo ? 1 : 0);
   return (
-    <article className="cartao-lista">
+    <article className="card-list">
       {card.esquerda ?? (card.cor ? <span className="sw" style={{ background: card.cor }} /> : <span />)}
       <div className="cl-campos" style={{ '--cl-colunas': colunas } as React.CSSProperties}>
         {card.campos.map((c) => (
@@ -180,7 +180,7 @@ function Card({ card }: { card: CardRule }) {
           </div>
         ) : null}
       </div>
-      <div className="cl-acoes">
+      <div className="cl-actions">
         {!card.acao && !card.active ? (
           <span className="etiqueta alerta">{card.situation}</span>
         ) : null}
@@ -272,7 +272,7 @@ export function ListaRegras({
   return (
     <>
       {ocultarSearch ? null : filters ? (
-        <div className="filtrar-por">
+        <div className="filter-by">
           {filters}
           <SearchTopo search={search} setSearch={setSearch} placeholder={placeholder} />
         </div>
@@ -284,7 +284,7 @@ export function ListaRegras({
         /*
          * For empty search results, use reference `Nenhum resultado encontrado` (`dom/history.html`) and provide a way back; without the button, users would have to erase the query manually.
          */
-        <div className="vazio">
+        <div className="empty">
           <b>Nenhum resultado encontrado</b>
           <p>
             Não encontramos nenhum resultado a partir da pesquisa realizada.
@@ -297,9 +297,9 @@ export function ListaRegras({
         </div>
       ) : (
         sectionsShown.map((section) => (
-          <div key={section.titulo} className="lista-cartoes">
+          <div key={section.titulo} className="list-cards">
             {sectionOcultarHeader ? null : (
-              <div className="grupo-cartoes">
+              <div className="group-cards">
                 {section.titulo} <span className="qt">{section.cards.length}</span>
               </div>
             )}
@@ -307,7 +307,7 @@ export function ListaRegras({
               /*
                * Reference page-empty state has a 20/700 title and, when present, a 16/400 description below.
                */
-              <div className="vazio">
+              <div className="empty">
                 <b>{section.empty}</b>
                 {section.emptyDescription ? <p>{section.emptyDescription}</p> : null}
               </div>

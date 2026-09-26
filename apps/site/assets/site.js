@@ -210,11 +210,11 @@
       var achou = 0;
       itens.forEach(function (li) {
         var cat = li.getAttribute("data-cat") || "";
-        var texto = normalizar(li.getAttribute("data-busca") || li.textContent);
+        var texto = normalizar(li.getAttribute("data-search") || li.textContent);
         var ok = (categoria === "" || cat === categoria) && (q === "" || texto.indexOf(q) !== -1);
         /* O primeiro post aparece no bloco de destaque enquanto ninguém filtra,
            então o cartão dele na grade só entra quando o destaque some. */
-        if (!filtrando && li.hasAttribute("data-primeiro")) ok = false;
+        if (!filtrando && li.hasAttribute("data-first")) ok = false;
         li.hidden = !ok;
         if (ok) achou++;
       });

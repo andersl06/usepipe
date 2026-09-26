@@ -21,10 +21,10 @@ export function PageHeader({
 }) {
   return (
     <header className="cf-cabecalho" id={id}>
-      <div className="cf-cabecalho-secao">
+      <div className="cf-header-section">
         <div className="cf-cabecalho-linha">
           <div className="cf-cabecalho-titulo">{titulo}</div>
-          {actions ? <div className="cf-cabecalho-acoes">{actions}</div> : null}
+          {actions ? <div className="cf-header-actions">{actions}</div> : null}
         </div>
       </div>
       {description ? <div className="cf-cabecalho-info">{description}</div> : null}
@@ -34,7 +34,7 @@ export function PageHeader({
 
 /** `<bds-paper elevation="static">` — surface-1 card, 16 radius, fixed shadow. */
 export function Role({ className, children }: { className?: string; children: ReactNode }) {
-  return <section className={className ? `cf-papel ${className}` : 'cf-papel'}>{children}</section>;
+  return <section className={className ? `cf-paper ${className}` : 'cf-paper'}>{children}</section>;
 }
 
 /**

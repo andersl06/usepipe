@@ -17,7 +17,7 @@ export function SettingsShell() {
   const id = contact.id;
   return (
     <ModuloShell ativo="Configurações">
-      <div className="cf-casca">
+      <div className="cf-shell">
         <NavigationSettings id={id} />
         <section className="cf-miolo">
           <div className="cf-conteudo">

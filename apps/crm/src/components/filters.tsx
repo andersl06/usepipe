@@ -44,13 +44,13 @@ export function Filter({
   const ativos = FILTRAVEIS.filter((f) => filters[f.key] !== undefined);
 
   return (
-    <div className="filtros">
-      <details className="menu-filtro">
+    <div className="filters">
+      <details className="menu-filter">
         <summary className="btn">
           <Icone nome="filtro" tamanho={16} />
           Filtrar
         </summary>
-        <div className="menu-painel">
+        <div className="menu-panel">
           {FILTRAVEIS.map((f) => {
             // "Em branco" entra sempre, mesmo que nenhuma linha esteja em
             // blank right now: it's the question "who's left without an owner?", and it can't
@@ -87,7 +87,7 @@ export function Filter({
         return (
           <Link
             key={f.key}
-            className="filtro-chip"
+            className="filter-chip"
             href={href(semEste)}
             title={`Tirar o filtro ${filterRotulo(f.key, value)}`}
           >

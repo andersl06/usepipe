@@ -86,7 +86,7 @@ export function PagePreferences() {
     <div className="dk-prefs">
       <h2>Preferências</h2>
       {SECTIONS.map((s) => (
-        <section key={s.titulo} className="dk-prefs-secao">
+        <section key={s.titulo} className="dk-prefs-section">
           <h3>{s.titulo}</h3>
           {s.itens.map((item) => (
             <label key={item.key} className="dk-prefs-item">

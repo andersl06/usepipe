@@ -15,7 +15,7 @@ export function ExigirSession() {
   const { pathname, search } = useLocation();
   if (eu === undefined) {
     return (
-      <main className="dk-carregando-sessao" role="status" aria-live="polite">
+      <main className="dk-loading-session" role="status" aria-live="polite">
         Carregando Desk…
       </main>
     );

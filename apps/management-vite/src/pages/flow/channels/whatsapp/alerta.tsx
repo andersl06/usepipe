@@ -100,7 +100,7 @@ export function AbaAlerta() {
           disabled={withoutChannel || gravandoEmails}
         />
       </label>
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao
           type="button"
           variante="primario"

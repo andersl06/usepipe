@@ -19,7 +19,7 @@ function FormularioNovoHorario() {
   }, [resultado]);
 
   return (
-    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
+    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-registration">
       <div className="form-linha">
         <label className="form-campo" style={{ flexBasis: '260px' }}>
           <span className="sub">Nome</span>
@@ -45,7 +45,7 @@ function FormularioNovoHorario() {
 
       {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao type="submit" variante="primario" disabled={enviando}>
           {enviando ? 'Salvando…' : 'Criar horário'}
         </Botao>
@@ -63,7 +63,7 @@ function FormularioFaixa({ horarios }: { horarios: readonly HorarioParaEscolher[
   }, [resultado]);
 
   return (
-    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
+    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-registration">
       <div className="form-linha">
         <label className="form-campo" style={{ flexBasis: '220px' }}>
           <span className="sub">Horário</span>
@@ -105,7 +105,7 @@ function FormularioFaixa({ horarios }: { horarios: readonly HorarioParaEscolher[
 
       {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao type="submit" disabled={enviando}>
           {enviando ? 'Salvando…' : 'Acrescentar faixa'}
         </Botao>
@@ -123,7 +123,7 @@ function FormularioException({ horarios }: { horarios: readonly HorarioParaEscol
   }, [resultado]);
 
   return (
-    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
+    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-registration">
       <div className="form-linha">
         <label className="form-campo" style={{ flexBasis: '220px' }}>
           <span className="sub">Horário</span>
@@ -168,7 +168,7 @@ function FormularioException({ horarios }: { horarios: readonly HorarioParaEscol
 
       {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao type="submit" disabled={enviando}>
           {enviando ? 'Salvando…' : 'Acrescentar exceção'}
         </Botao>

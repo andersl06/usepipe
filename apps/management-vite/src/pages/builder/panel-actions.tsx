@@ -62,7 +62,7 @@ export function ActionsPanel({
   return (
     <div className="bl-aba-corpo">
       {block.root ? (
-        <section className="bl-secao">
+        <section className="bl-section">
           <CabecalhoInfo titulo={ROTULOS_OF_ACTIONS.entrada} aberto>
             <p>
               Este bloco é usado para marcar pontos especiais do fluxo a serem tratados pela
@@ -154,11 +154,11 @@ function ListaOfActionsOfBlock({
   const groups = ['Executar', 'Manipular'] as const;
 
   return (
-    <section className="bl-secao bl-lista-de-acoes">
+    <section className="bl-section bl-lista-de-acoes">
       <CabecalhoInfo titulo={titulo} contador={`${actions.length}/15`} aberto={actions.length === 0}>
         <p>{description}</p>
       </CabecalhoInfo>
-      <div className="bl-acoes-selecao">
+      <div className="bl-actions-selection">
         <label>
           <input
             type="checkbox"
@@ -235,7 +235,7 @@ function ListaOfActionsOfBlock({
           {rotuloAdicionar}
         </button>
         {menuAberto ? (
-          <div className="bl-menu-acoes bl-ferramentas" role="menu" style={positionMenu}>
+          <div className="bl-menu-actions bl-ferramentas" role="menu" style={positionMenu}>
             <header>
               <b>{rotuloAdicionar.toUpperCase()}</b>
               <button
@@ -248,7 +248,7 @@ function ListaOfActionsOfBlock({
               </button>
             </header>
             {groups.map((grupo) => (
-              <div key={grupo} className="bl-menu-acoes-grupo">
+              <div key={grupo} className="bl-menu-actions-group">
                 <span className="sub">{grupo}</span>
                 {CATALOGO_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
                   <button
@@ -307,7 +307,7 @@ export function ActionCard({
   const detalhe = useRef<HTMLDivElement>(null);
   const flutuante = !!onCopiar;
   useLayoutEffect(() => {
-    if (aberta && flutuante) detalhe.current?.closest('.bl-painel-corpo')?.scrollTo(0, 0);
+    if (aberta && flutuante) detalhe.current?.closest('.bl-panel-body')?.scrollTo(0, 0);
   }, [aberta, flutuante]);
   const tipo = tipoDeAcao(acao.type);
   const semSuporte = acaoSemSuporte(acao);
@@ -376,7 +376,7 @@ export function ActionCard({
             {errors.length}
           </Etiqueta>
         ) : null}
-        <span className="bl-saida-ordem">
+        <span className="bl-output-order">
           <button
             type="button"
             className="iconbtn"
@@ -431,7 +431,7 @@ export function ActionCard({
               </svg>
             </button>
             {menu ? (
-              <div className="bl-menu-acoes">
+              <div className="bl-menu-actions">
                 <button
                   type="button"
                   onClick={() => {
@@ -547,7 +547,7 @@ export function ActionCard({
                   {campo.ajuda ? <span className="bl-ajuda">{campo.ajuda}</span> : null}
                 </label>
               ))}
-              <h5 className="bl-secao-subtitulo">{ROTULOS_OF_ACTIONS.condicao}</h5>
+              <h5 className="bl-section-subtitle">{ROTULOS_OF_ACTIONS.condicao}</h5>
               <ConditionsEditor
                 conditions={acao.conditions ?? []}
                 onMudar={(conditions) => onMudar(withConditions(acao, conditions))}
@@ -558,7 +558,7 @@ export function ActionCard({
             <pre className="bl-acao-bruta">{JSON.stringify(acao.settings ?? {}, null, 2)}</pre>
           )}
           {errors.length > 0 ? (
-            <ul className="bl-erros">
+            <ul className="bl-errors">
               {errors.map((e) => (
                 <li key={e}>{e}</li>
               ))}
@@ -580,7 +580,7 @@ function EditorDeCabecalhos({
   return (
     <div className="bl-cabecalhos">
       {cabecalhos.map((cabecalho, indice) => (
-        <div className="bl-cabecalho-fileira" key={`${cabecalho.key}-${indice}`}>
+        <div className="bl-header-row" key={`${cabecalho.key}-${indice}`}>
           <Campo
             value={cabecalho.key}
             placeholder="Chave"

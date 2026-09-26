@@ -67,11 +67,11 @@ function PassoDoMarketplace() {
         <h2 className="cr-titulo-nome">{ROTULOS.tituloDoMarketplace}</h2>
       </div>
 
-      <div className="cf-opcoes">
+      <div className="cf-options">
         {/*
  * `selectTemplate('blip_deskCustomerService')` → `^.test`, the model's presentation (`PassoDoTemplate`, below). The source's `bds-chip-tag color="success"` — "Ideal para começar" — stays half over the top border: it's what makes people look at this card first.
  */}
-        <Link className="cf-cartao" href="/create/flow/template">
+        <Link className="cf-card" href="/create/flow/template">
           <span className="cf-selo-recomendado">{ROTULOS.selo}</span>
           {/*
  * `bds-icon name="integration" size="brand"`. Our `loja` icon is the `plugin` design from the same set — the outlet that fits.
@@ -84,7 +84,7 @@ function PassoDoMarketplace() {
         {/*
  * `selectTemplate('builder')` → `^.name`. It's the whole path we copied: this is where `template = 'builder'` comes from, which is our `tipo = 'fluxo'`.
  */}
-        <Link className="cf-cartao" href="/create/flow/name">
+        <Link className="cf-card" href="/create/flow/name">
           {/*
  * `bds-icon name="file-empty-file" size="brand"` — the blank sheet. `icones-portal.tsx` doesn't have that icon; `fluxo` (`builder-new-state`, the builder's empty block) is the same gesture and the SAME icon as the button that brought the person here.
  */}
@@ -115,8 +115,8 @@ function PassoDoTemplate() {
         <h2 className="cr-titulo-nome">{ROTULOS.usarTemplate}</h2>
       </div>
 
-      <div className="cf-apresentacao">
-        <h3 className="cf-apresentacao-subtitulo">{ROTULOS.apresentacaoSubtitulo}</h3>
+      <div className="cf-presentation">
+        <h3 className="cf-presentation-subtitle">{ROTULOS.apresentacaoSubtitulo}</h3>
         <p>{ROTULOS.apresentacaoDescricao}</p>
 
         <ul className="cf-lista">
@@ -128,7 +128,7 @@ function PassoDoTemplate() {
           ))}
         </ul>
 
-        <div className="cr-acoes">
+        <div className="cr-actions">
           {/* Volta ao passo 1, como o `back()` deles guardado em `beforeNameStep`. */}
           <Link className="btn cr-botao" href="/create/flow">
             <IconePortal nome="esquerda" tamanho={20} />

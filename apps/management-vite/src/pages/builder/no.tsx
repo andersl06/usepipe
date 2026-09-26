@@ -51,7 +51,7 @@ export function No({
     <div
       className={classes.join(' ')}
       style={{ top: position.top, left: position.left }}
-      data-bloco={block.id}
+      data-block={block.id}
       data-test={`builder-block-${block.id}`}
       title={errors.join('\n') || undefined}
       onPointerDown={onPointerDown}
@@ -60,7 +60,7 @@ export function No({
       <div className="bl-no-corpo">
         <span className="bl-no-titulo">{block.$title || block.id}</span>
         {errors.length > 0 ? (
-          <Etiqueta tom="erro" redonda className="bl-no-erros">
+          <Etiqueta tom="erro" redonda className="bl-node-errors">
             {errors.length}
           </Etiqueta>
         ) : null}

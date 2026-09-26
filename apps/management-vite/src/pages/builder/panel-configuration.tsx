@@ -53,14 +53,14 @@ export function ConfigurationPanel({
     { key: 'versoes', rotulo: 'Versões' },
   ];
   return (
-    <aside className="bl-painel bl-painel--configuracao" aria-label="Configuração">
-      <div className="bl-painel-cabecalho">
-        <span className="bl-painel-titulo">Configurações</span>
+    <aside className="bl-panel bl-panel--settings" aria-label="Configuração">
+      <div className="bl-panel-header">
+        <span className="bl-panel-title">Configurações</span>
         <button type="button" className="iconbtn" aria-label="Fechar" title="Fechar" onClick={onFechar}>
           <IconePortal nome="fechar" tamanho={20} />
         </button>
       </div>
-      <hr className="bl-painel-fio" />
+      <hr className="bl-panel-wire" />
       <div className="bl-abas" role="tablist">
         {abas.map((a) => (
           <button
@@ -75,7 +75,7 @@ export function ConfigurationPanel({
           </button>
         ))}
       </div>
-      <div className="bl-painel-corpo">
+      <div className="bl-panel-body">
         {aba === 'acoes' ? <ActionsGlobalAba global={global} onMudar={onMudarGlobal} /> : null}
         {aba === 'versoes' ? (
           <VersionsAba flowName={flowName} mapa={mapa} global={global} onImport={onImport} />
@@ -144,8 +144,8 @@ function ActionsGlobalLista({
   const groups = ['Executar', 'Manipular'] as const;
 
   return (
-    <section className="bl-secao">
-      <h4 className="bl-secao-titulo">{titulo}</h4>
+    <section className="bl-section">
+      <h4 className="bl-section-title">{titulo}</h4>
       <p className="sub">{description}</p>
 
       {actions.map((acao: AcaoDoEditor, i) => (
@@ -171,7 +171,7 @@ function ActionsGlobalLista({
           {rotuloAdicionar}
         </button>
         {menuAberto ? (
-          <div className="bl-menu-acoes" role="menu">
+          <div className="bl-menu-actions" role="menu">
             <header>
               <b>{ROTULOS_OF_ACTIONS.menu}</b>
               <button type="button" className="iconbtn" aria-label="Fechar" onClick={() => setMenuAberto(false)}>
@@ -179,7 +179,7 @@ function ActionsGlobalLista({
               </button>
             </header>
             {groups.map((grupo) => (
-              <div key={grupo} className="bl-menu-acoes-grupo">
+              <div key={grupo} className="bl-menu-actions-group">
                 <span className="sub">{grupo}</span>
                 {CATALOGO_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
                   <button key={t.tipo} type="button" role="menuitem" onClick={() => adicionar(t.tipo)}>
@@ -241,16 +241,16 @@ function VersionsAba({
 
   return (
     <div className="bl-aba-corpo">
-      <ul className="bl-versoes-acoes">
+      <ul className="bl-versions-actions">
         <li>
-          <button type="button" className="bl-versoes-item" onClick={() => file.current?.click()}>
+          <button type="button" className="bl-versions-item" onClick={() => file.current?.click()}>
             <IconePortal nome="enviar-arquivo" tamanho={18} />
             <span>Importar fluxo</span>
           </button>
           <input ref={file} type="file" accept=".json" className="bl-oculto" onChange={toEscolherFile} />
         </li>
         <li>
-          <button type="button" className="bl-versoes-item" onClick={exportar}>
+          <button type="button" className="bl-versions-item" onClick={exportar}>
             <IconePortal nome="baixar" tamanho={18} />
             <span>Exportar fluxo</span>
           </button>

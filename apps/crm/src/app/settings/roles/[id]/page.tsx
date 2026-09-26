@@ -95,7 +95,7 @@ export default async function RolePage({ params }: { params: Promise<{ id: strin
         <Formulario acao={actionSalvarPermissions} rotuloBotao="Salvar permissões">
           <input type="hidden" name="papelId" value={role.id} />
           {agrupar(catalogo).map(([grupo, itens]) => (
-            <fieldset className="cfg-permissoes" key={grupo}>
+            <fieldset className="cfg-permissions" key={grupo}>
               <legend>{NOME_DO_GRUPO[grupo] ?? grupo}</legend>
               {itens.map((item) => (
                 <label key={item.codigo}>

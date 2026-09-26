@@ -109,11 +109,11 @@ export function TimeLinha({
   agora: Date;
 }) {
   if (itens.length === 0) {
-    return <div className="vazio">Nada aconteceu com este lead ainda.</div>;
+    return <div className="empty">Nada aconteceu com este lead ainda.</div>;
   }
 
   return (
-    <div className="tempo" style={{ ['--trilho' as string]: `${RAIL}px` }}>
+    <div className="time" style={{ ['--trilho' as string]: `${RAIL}px` }}>
       {byMes(itens, fuso).map((mes) => (
         <section key={mes.titulo}>
           <h4>

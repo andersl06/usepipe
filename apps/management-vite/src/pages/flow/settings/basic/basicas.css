@@ -11,7 +11,7 @@
  * `h4.color-neutral-dark-rooftop`: 18px, not bold. The structure comes from the
  *    source; the color stays in Pipe's neutral palette.
  */
-.cf-basicas-secao {
+.cf-basic-section {
   margin: 0 0 20px;
   font-size: 18px;
   font-weight: var(--g-peso-normal);
@@ -76,7 +76,7 @@
   font-size: 12px;
   color: var(--p-conteudo-fantasma);
 }
-.cf-basicas-imagem {
+.cf-basic-image {
   display: flex;
   flex-direction: column;
 }
@@ -135,7 +135,7 @@
   cursor: pointer;
 }
 .cf-basicas-remover:hover {
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 /*
  * `.cf-basicas-sucesso` moved to `configuracoes.css` — it stopped being only for

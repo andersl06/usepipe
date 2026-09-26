@@ -94,14 +94,14 @@ export function ActiveMessagesPage() {
  */}
         <div className="ma-cabeca">
           <h1 className="ma-titulo">Mensagens ativas</h1>
-          <div className="ma-acoes">
+          <div className="ma-actions">
             <button type="submit" form="ma-filtro" className="ma-botao ma-botao-secundario">
               <IconePortal nome="atualizar" tamanho={24} />
               Atualizar
             </button>
           </div>
         </div>
-        <div className="ma-filtro-faixa">
+        <div className="ma-filter-strip">
           <Filter
             fileiras={[PERIODOS_FIXOS, PERIODOS_DE_CALENDARIO].map((f) =>
               f.map((key) => ({ key, rotulo: ROTULO_OF_PERIOD[key] })),

@@ -47,7 +47,7 @@ export function ContractPage() {
             faixa={sections.length === 0}
           />
 
-          <div className="ct-grupos">
+          <div className="ct-groups">
             {sections.length === 0 ? (
               /*
                * Their `guest` state: just the summary card, and nothing else. A line of explanatory text, instead of a blank that looks like a broken screen.
@@ -58,7 +58,7 @@ export function ContractPage() {
               </p>
             ) : (
               sections.map(({ grupo, cards }) => (
-                <section key={grupo.id} className="ct-secao">
+                <section key={grupo.id} className="ct-section">
                   <h2 className="ct-titulo">
                     {grupo.titulo}
                     {/*
@@ -69,7 +69,7 @@ export function ContractPage() {
                     </span>
                   </h2>
 
-                  <div className="ct-cartoes">
+                  <div className="ct-cards">
                     {cards.map((card) => (
                       <Card
                         key={card.id}
@@ -142,7 +142,7 @@ function SummaryCard({
  * `He`: everything that isn't the photo. Exists so the horizontal card can indent the body by 32 without touching the vertical card.
  */}
       <div className="ct-corpo">
-        <div className="ct-bloco">
+        <div className="ct-block">
           {/* The "Nome do contrato" label they place above the name. */}
           <span className="ct-rotulo">Nome do contrato</span>
           <h1 className="ct-nome">{resumo.nome}</h1>
@@ -157,15 +157,15 @@ function SummaryCard({
         </div>
 
         {podeEditar ? (
-          <p className="ct-bloco">
+          <p className="ct-block">
             <Link className="ct-editar" href="/my-account">
               Editar os dados do contrato
             </Link>
           </p>
         ) : null}
 
-        <dl className="ct-dados">
-          <div className="ct-bloco">
+        <dl className="ct-data">
+          <div className="ct-block">
             <dt>ID</dt>
             <dd>
               <span className="ct-id">{resumo.id}</span>
@@ -173,21 +173,21 @@ function SummaryCard({
             </dd>
           </div>
 
-          <div className="ct-bloco">
+          <div className="ct-block">
             <dt>Data de criação</dt>
             <dd>{dataComPontos(resumo.criadoEm, resumo.fuso)}</dd>
           </div>
 
           {/* "Chatbots" and "Membros" only appear when present — it's their `ng-if`. */}
           {resumo.flows > 0 ? (
-            <div className="ct-bloco">
+            <div className="ct-block">
               <dt>Fluxos e roteadores</dt>
               <dd>{resumo.flows}</dd>
             </div>
           ) : null}
 
           {resumo.members > 0 ? (
-            <div className="ct-bloco">
+            <div className="ct-block">
               <dt>Membros</dt>
               <dd>{resumo.members}</dd>
             </div>
@@ -231,14 +231,14 @@ function Card({
   const miolo = (
     <>
       {/* `de`: a 48px box with the `size="xx-large"` (36) icon inside. */}
-      <span className="ct-cartao-icone">
+      <span className="ct-card-icon">
         <IconePortal nome={card.icone} tamanho={36} />
       </span>
-      <span className="ct-cartao-texto">
+      <span className="ct-card-text">
         {/*
  * Their `flex row justify-between` row: title on the left, tag flush right.
  */}
-        <span className="ct-cartao-titulo">
+        <span className="ct-card-title">
           <b>{card.titulo}</b>
           {card.pronto ? null : <span className="pt-obra-selo">em breve</span>}
         </span>
@@ -252,11 +252,11 @@ function Card({
    * A card whose route doesn't exist yet stays in place, grayed out and badged — that's what the portal already does with anything under construction (`pt-obra`), and removing it would hide that the product has it.
    */
   if (!card.pronto) {
-    return <div className="ct-cartao pt-obra">{miolo}</div>;
+    return <div className="ct-card pt-obra">{miolo}</div>;
   }
 
   return (
-    <Link className="ct-cartao" href={card.rota}>
+    <Link className="ct-card" href={card.rota}>
       {miolo}
     </Link>
   );

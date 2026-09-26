@@ -68,7 +68,7 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
         }
       />
       <div className="cf-container">
-        <Role className="cf-papel--conexao">
+        <Role className="cf-paper--connection">
           <div className="cf-conexao-topo">
             <div className="cf-conexao-texto">
               <h1>Conectar usando o builder</h1>
@@ -83,7 +83,7 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
           </div>
         </Role>
 
-        <Role className="cf-papel--conexao">
+        <Role className="cf-paper--connection">
           <div className="cf-conexao-topo">
             <div className="cf-conexao-texto">
               <h1>
@@ -100,13 +100,13 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
           </div>
           {modo === 'sdk' ? (
             <div className="cf-duas-colunas">
-              <div className="cf-coluna-metade">
+              <div className="cf-column-half">
                 <CampoCopiavel rotulo="Endpoint WS" value="" />
                 <div className="cf-mt4">
                   <CampoCopiavel rotulo="Endpoint TCP" value="" />
                 </div>
               </div>
-              <div className="cf-coluna-metade">
+              <div className="cf-column-half">
                 <CampoCopiavel rotulo="Identificador" value={flowId} />
                 <div className="cf-mt4">
                   <CampoCopiavel rotulo="Endpoint HTTP" value={data?.endpoint ?? ''} />
@@ -122,7 +122,7 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
           ) : null}
         </Role>
 
-        <Role className="cf-papel--conexao">
+        <Role className="cf-paper--connection">
           <div className="cf-conexao-topo">
             <div className="cf-conexao-texto">
               <h1>
@@ -180,7 +180,7 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
                 </div>
               </div>
 
-              <Role className="cf-papel--oauth">
+              <Role className="cf-paper--oauth">
                 <div className="cf-oauth">
                   <div className="cf-oauth-topo">
                     <div className="cf-oauth-titulo">
@@ -275,16 +275,16 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
           ) : null}
         </Role>
 
-        <Role className="cf-papel--conexao">
-          <h1 className="cf-titulo-cartao">Endpoints HTTP</h1>
+        <Role className="cf-paper--connection">
+          <h1 className="cf-title-card">Endpoints HTTP</h1>
           <div className="cf-duas-colunas">
-            <div className="cf-coluna-metade">
+            <div className="cf-column-half">
               <CampoCopiavel rotulo="Url para enviar mensagens" value="" />
               <div className="cf-mt4">
                 <CampoCopiavel rotulo="Url para enviar notificações" value="" />
               </div>
             </div>
-            <div className="cf-coluna-metade">
+            <div className="cf-column-half">
               <CampoCopiavel rotulo="Url para enviar comandos" value="" />
             </div>
           </div>

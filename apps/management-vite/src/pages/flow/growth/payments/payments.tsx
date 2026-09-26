@@ -19,10 +19,10 @@ const FORMAS_OF_PAYMENT = [
 
 function CardSummary({ rotulo, legenda }: { rotulo: string; legenda: string }) {
   return (
-    <div className="pg-cartao pg-resumo">
+    <div className="pg-card pg-resumo">
       <p className="pg-resumo-rotulo">{rotulo}</p>
       <p className="pg-resumo-legenda">{legenda}</p>
-      <p className="pg-resumo-valor">—</p>
+      <p className="pg-summary-value">—</p>
       <div className="pg-barras">
         {FORMAS_OF_PAYMENT.map((forma) => (
           <div className="pg-barra-vertical" key={forma.rotulo}>
@@ -37,7 +37,7 @@ function CardSummary({ rotulo, legenda }: { rotulo: string; legenda: string }) {
 
 export default function PaymentsPageReport() {
   return (
-    <div className="gr-container pg-pagina">
+    <div className="gr-container pg-page">
       <p className="pg-aviso" role="status">
         O Pipe ainda não recebe dados de pagamento vinculados a mensagens ativas. A disposição
         abaixo segue a mesma da origem — duas colunas, tráfego à esquerda e pagamentos à direita
@@ -45,13 +45,13 @@ export default function PaymentsPageReport() {
       </p>
 
       <div className="pg-colunas">
-        <section className="pg-coluna">
-          <h2 className="pg-coluna-titulo">Tráfego de mensagens</h2>
-          <div className="pg-cartoes">
-            <div className="pg-cartao pg-metrica-linha">
+        <section className="pg-column">
+          <h2 className="pg-column-title">Tráfego de mensagens</h2>
+          <div className="pg-cards">
+            <div className="pg-card pg-metrica-linha">
               <div>
                 <span className="pg-metrica-rotulo">Enviadas</span>
-                <strong className="pg-metrica-valor">—</strong>
+                <strong className="pg-metric-value">—</strong>
                 <div className="pg-barra">
                   <div className="pg-barra-cheia" />
                 </div>
@@ -60,10 +60,10 @@ export default function PaymentsPageReport() {
                 <IconePortal nome="aviao" tamanho={20} />
               </span>
             </div>
-            <div className="pg-cartao pg-metrica-linha">
+            <div className="pg-card pg-metrica-linha">
               <div>
                 <span className="pg-metrica-rotulo">Lidas</span>
-                <strong className="pg-metrica-valor">—</strong>
+                <strong className="pg-metric-value">—</strong>
                 <div className="pg-barra">
                   <div className="pg-barra-cheia" />
                 </div>
@@ -73,9 +73,9 @@ export default function PaymentsPageReport() {
               </span>
             </div>
           </div>
-          <div className="pg-cartao pg-grafico">
+          <div className="pg-card pg-grafico">
             <h3>Evolução de valores enviados e recebidos</h3>
-            <div className="pg-grafico-vazio">
+            <div className="pg-chart-empty">
               <Illustration nome="vazio" tamanho={72} />
               <p>Sem dados suficientes para o gráfico.</p>
             </div>
@@ -90,8 +90,8 @@ export default function PaymentsPageReport() {
           </div>
         </section>
 
-        <section className="pg-coluna">
-          <h2 className="pg-coluna-titulo">Pagamentos</h2>
+        <section className="pg-column">
+          <h2 className="pg-column-title">Pagamentos</h2>
           <div className="pg-par">
             <CardSummary rotulo="Mensagens enviadas" legenda="Quantidade por tipo de pagamento" />
             <CardSummary
@@ -99,9 +99,9 @@ export default function PaymentsPageReport() {
               legenda="Valor total estimado enviado"
             />
           </div>
-          <div className="pg-cartao pg-top5">
+          <div className="pg-card pg-top5">
             <h3>Top 5 itens mais cobrados</h3>
-            <div className="gr-vazio">
+            <div className="gr-empty">
               <IconePortal nome="pix" tamanho={40} />
               <p>Sem dados de produtos cobrados por mensagem ativa.</p>
             </div>

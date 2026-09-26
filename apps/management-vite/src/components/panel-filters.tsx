@@ -32,9 +32,9 @@ export function PanelFilters({
 
   return (
     <>
-      <div className="painel-fundo" onClick={aoFechar} />
-      <aside className="painel-lateral" role="dialog" aria-modal="true" aria-label="Filtros">
-        <div className="painel-cabecalho">
+      <div className="panel-background" onClick={aoFechar} />
+      <aside className="panel-side" role="dialog" aria-modal="true" aria-label="Filtros">
+        <div className="panel-header">
           <div>
             <h3>Filtros</h3>
             <p>Selecione os parâmetros da sua busca ou aplique um filtro salvo</p>
@@ -50,12 +50,12 @@ export function PanelFilters({
           </button>
         </div>
 
-        <div className="painel-abas" role="tablist">
+        <div className="panel-tabs" role="tablist">
           <button
             type="button"
             role="tab"
             aria-selected={aba === 'nova'}
-            className={aba === 'nova' ? 'ativa' : undefined}
+            className={aba === 'nova' ? 'active' : undefined}
             onClick={() => setAba('nova')}
           >
             Nova consulta
@@ -64,7 +64,7 @@ export function PanelFilters({
             type="button"
             role="tab"
             aria-selected={aba === 'salvos'}
-            className={aba === 'salvos' ? 'ativa' : undefined}
+            className={aba === 'salvos' ? 'active' : undefined}
             onClick={() => setAba('salvos')}
           >
             Filtros salvos
@@ -75,7 +75,7 @@ export function PanelFilters({
           <form
             method="get"
             action={acao}
-            className="painel-form"
+            className="panel-form"
             onSubmit={evento => {
               if (aoAplicar) {
                 evento.preventDefault();
@@ -84,17 +84,17 @@ export function PanelFilters({
             }}
             aria-label="Nova consulta"
           >
-            <div className="painel-campos">{children}</div>
+            <div className="panel-fields">{children}</div>
 
-            <div className="painel-rodape">
+            <div className="panel-footer">
               <label
-                className="painel-sw"
+                className="panel-switch"
                 title="Filtro salvo ainda não existe nesta versão da tela."
               >
                 <input type="checkbox" disabled />
                 Criar Filtro Salvo com estes parâmetros
               </label>
-              <div className="painel-botoes">
+              <div className="panel-buttons">
                 {limpar ? (
                   typeof limpar === 'function' ? (
                     <button
@@ -120,7 +120,7 @@ export function PanelFilters({
             </div>
           </form>
         ) : (
-          <div className="painel-vazio-salvos">Nenhum filtro salvo ainda.</div>
+          <div className="panel-empty-saved">Nenhum filtro salvo ainda.</div>
         )}
       </aside>
     </>
@@ -140,9 +140,9 @@ export function PanelField({
   children: ReactNode;
 }) {
   return (
-    <div className="painel-campo">
-      <span className="painel-rotulo">{icone ? <IconePortal nome={icone} tamanho={16} /> : null}{rotulo}</span>
-      {apoio ? <span className="painel-apoio">{apoio}</span> : null}
+    <div className="panel-field">
+      <span className="panel-label">{icone ? <IconePortal nome={icone} tamanho={16} /> : null}{rotulo}</span>
+      {apoio ? <span className="panel-support">{apoio}</span> : null}
       {children}
     </div>
   );
@@ -175,7 +175,7 @@ export function FieldPeriod({ de, ate, fuso }: { de: string; ate: string; fuso: 
         ))}
         <option value="personalizado">Personalizado</option>
       </Selection>
-      <div className="painel-datas">
+      <div className="panel-dates">
         <input type="date" name="de" defaultValue={de} aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} aria-label="Até" />
       </div>

@@ -115,7 +115,7 @@ export default async function PagePanel() {
                   }}
                 />
               </span>
-              <span className="valor">{money(c.total)}</span>
+              <span className="value">{money(c.total)}</span>
               <span className="qtd">{numero(c.quantity)}</span>
             </div>
           ))}
@@ -133,7 +133,7 @@ export default async function PagePanel() {
             <span className="lbl">no mês</span>
           </header>
           {origens.length === 0 ? (
-            <div className="vazio">Nenhum lead neste mês.</div>
+            <div className="empty">Nenhum lead neste mês.</div>
           ) : (
             <div className="bars">
               {origens.map((o) => (
@@ -160,7 +160,7 @@ export default async function PagePanel() {
             <span className="lbl">parados há 7 dias</span>
           </header>
           {fases.length === 0 ? (
-            <div className="vazio">Sem leads em andamento.</div>
+            <div className="empty">Sem leads em andamento.</div>
           ) : (
             <div className="campos">
               {fases.map((f) => (

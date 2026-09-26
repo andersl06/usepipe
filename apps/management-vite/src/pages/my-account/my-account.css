@@ -43,7 +43,7 @@
  *    Theme: light only. No `prefers-color-scheme` rule in this sheet.
  */
 
-.conta-pagina {
+.account-page {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
@@ -55,7 +55,7 @@
 
 /* ------------------------------------------------------ a barra superior */
 
-.conta-barra {
+.account-bar {
   flex: none;
   display: flex;
   align-items: center;
@@ -66,8 +66,8 @@
   color: var(--g-barra-tinta);
 }
 
-.conta-barra-esq,
-.conta-barra-dir {
+.account-bar-left,
+.account-bar-right {
   display: flex;
   align-items: center;
 }
@@ -75,7 +75,7 @@
 /*
  * The lockup comes in as a MASK, not an `<img>`: the file is dark ink with the moss stroke, designed for a light background, and it disappears over the black bar. The mask paints it with the bar's ink — the same technique as the portal.
  */
-.conta-barra-marca {
+.account-bar-brand {
   display: block;
   width: 80px;
   height: 36px;
@@ -88,15 +88,15 @@
 /*
  * The vertical rule between the brand and the items: 1px by 43px, the height of their bar's content block.
  */
-.conta-barra-risco {
+.account-bar-risk {
   width: 1px;
   height: 43px;
   margin-right: 8px;
   background: var(--g-barra-linha);
 }
 
-.conta-barra nav a,
-.conta-barra nav span {
+.account-bar nav a,
+.account-bar nav span {
   display: inline-block;
   padding: 0 8px;
   font-size: var(--p-t-sm);
@@ -106,36 +106,36 @@
   color: var(--g-barra-fraca);
 }
 
-.conta-barra nav a:hover {
+.account-bar nav a:hover {
   color: var(--g-barra-tinta);
 }
 
 /*
  * The current item is the only lit one. In the source it's the light one among the dimmed ones, and that's the only thing that tells which screen someone is on.
  */
-.conta-barra nav a[aria-current='page'] {
+.account-bar nav a[aria-current='page'] {
   color: var(--g-barra-tinta);
 }
 
 /* Unavailable item: dimmed and without a link cursor — their "Desk". */
-.conta-barra nav span {
+.account-bar nav span {
   color: var(--p-conteudo-desabilitado);
 }
 
-.conta-barra-dir .avatar {
+.account-bar-right .avatar {
   width: 24px;
   height: 24px;
   margin-right: 9px;
   font-size: var(--p-t-xs);
 }
 
-.conta-barra-eu {
+.account-bar-me {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
 
-.conta-barra-eu b {
+.account-bar-me b {
   font-size: 13px;
   font-weight: var(--p-peso-medio);
   line-height: 19.5px;
@@ -144,7 +144,7 @@
 /*
  * "Sair" is a form button, not a link: ending the session changes state, and a state change doesn't belong in a GET. The color is the link's because that's how the source shows it — small, underlined, below the name.
  */
-.conta-barra-eu button {
+.account-bar-me button {
   padding: 0;
   border: 0;
   background: none;
@@ -158,13 +158,13 @@
 
 /* ----------------------------------------------------------- a lateral */
 
-.conta-corpo {
+.account-body {
   flex: 1;
   display: flex;
   min-height: 0;
 }
 
-.conta-lateral {
+.account-side {
   flex: none;
   box-sizing: border-box;
   width: 300px;
@@ -174,7 +174,7 @@
   text-align: center;
 }
 
-.conta-lateral .avatar {
+.account-side .avatar {
   width: 84px;
   height: 84px;
   margin: 0 auto 25px;
@@ -185,7 +185,7 @@
 /*
  * The name is truncated with an ellipsis, not wrapped onto two lines: their sidebar has 172px of usable width, and a long two-line name pushes everything down.
  */
-.conta-lateral-nome {
+.account-side-name {
   margin: 0 0 16px;
   font-size: 18px;
   line-height: 1.4;
@@ -194,24 +194,24 @@
   white-space: nowrap;
 }
 
-.conta-lateral hr {
+.account-side hr {
   height: 1px;
   margin: 32px 0;
   border: 0;
   background: var(--p-linha-forte);
 }
 
-.conta-lateral-info {
+.account-side-info {
   text-align: left;
 }
 
-.conta-lateral-info dt {
+.account-side-info dt {
   font-size: var(--p-t-sm);
   line-height: 18px;
   color: var(--p-conteudo-fantasma);
 }
 
-.conta-lateral-info dd {
+.account-side-info dd {
   margin: 0 0 16px;
   font-size: var(--p-t-md);
   line-height: 21px;
@@ -220,19 +220,19 @@
   white-space: nowrap;
 }
 
-.conta-lateral-info dd:last-child {
+.account-side-info dd:last-child {
   margin-bottom: 0;
 }
 
 /* ---------------------------------------------------------- the content */
 
-.conta-conteudo {
+.account-content {
   flex: 1;
   min-width: 0;
   padding: var(--p-e-8) 128px 0;
 }
 
-.conta-cabecalho {
+.account-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -240,14 +240,14 @@
   padding: 0 64px var(--p-e-4);
 }
 
-.conta-cabecalho h1 {
+.account-header h1 {
   margin: 0;
   font-size: var(--g-t-titulo);
   font-weight: var(--p-peso-forte);
   line-height: 1.2;
 }
 
-.conta-regua {
+.account-ruler {
   height: 1px;
   margin: 0;
   border: 0;
@@ -255,7 +255,7 @@
 }
 
 /* Header button: the size is theirs (160×42); the color is our brand. */
-.conta-botao {
+.account-button {
   flex: none;
   min-width: 160px;
   height: 42px;
@@ -271,29 +271,29 @@
   transition: background var(--p-dur-rapida) ease;
 }
 
-.conta-botao:hover {
+.account-button:hover {
   background: var(--p-marca-forte);
 }
 
 /*
  * Gray button while any field is invalid. It's the source's gate (`checkFormValidity`, which starts with `submitButton.disabled = true`) written in CSS: a Server Component has no JavaScript of ours to watch the fields. `novalidate` does NOT apply — if the CSS misses it, the browser still blocks it.
  */
-.conta-pagina:has(.conta-form :invalid) .conta-botao {
+.account-page:has(.account-form :invalid) .account-button {
   background: var(--p-superficie-3);
   color: var(--p-conteudo-desabilitado);
   cursor: not-allowed;
 }
 
-.conta-area {
+.account-area {
   padding: var(--p-e-8) 64px;
 }
 
-.conta-cartao {
+.account-card {
   box-sizing: border-box;
   max-width: 1002px;
   padding: var(--p-e-10) 60px;
   background: var(--p-superficie-0);
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
   box-shadow: var(--p-sombra-2);
 }
 
@@ -303,7 +303,7 @@
  *    No JavaScript: two hidden radio buttons control which panel shows. Both panels stay in the DOM, which is why a single Save writes both profile AND preferences — switching tabs via a link would reload the page and throw away whatever the person typed in the other panel.
  */
 
-.conta-abas {
+.account-tabs {
   display: flex;
   margin: 0;
   padding: 0;
@@ -314,24 +314,24 @@
 /*
  * The item drops 1px so the active tab's stripe covers the list's rule, instead of stacking on top of it — it's their `bottom: -1px`.
  */
-.conta-abas li {
+.account-tabs li {
   position: relative;
   bottom: -1px;
   margin: 0 5px;
   border-bottom: 4px solid transparent;
 }
 
-.conta-abas li:first-child {
+.account-tabs li:first-child {
   margin-left: 0;
 }
 
-.conta-abas input {
+.account-tabs input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-.conta-abas label {
+.account-tabs label {
   display: block;
   padding: 10px 20px;
   font-size: 15px;
@@ -342,20 +342,20 @@
   cursor: pointer;
 }
 
-.conta-abas li:has(input:checked) {
+.account-tabs li:has(input:checked) {
   border-bottom-color: var(--p-marca);
 }
 
-.conta-abas li:has(input:checked) label {
+.account-tabs li:has(input:checked) label {
   color: var(--p-marca);
 }
 
-.conta-abas li:has(input:focus-visible) label {
+.account-tabs li:has(input:focus-visible) label {
   outline: 2px solid var(--p-foco);
   outline-offset: -2px;
 }
 
-.conta-painel {
+.account-panel {
   display: none;
   box-sizing: border-box;
   width: 60%;
@@ -363,27 +363,27 @@
   padding: 45px 10px 10px;
 }
 
-.conta-cartao:has(#conta-aba-perfil:checked) .conta-painel-perfil,
-.conta-cartao:has(#conta-aba-preferencias:checked) .conta-painel-preferencias {
+.account-card:has(#conta-aba-perfil:checked) .account-panel-profile,
+.account-card:has(#conta-aba-preferencias:checked) .account-panel-preferences {
   display: block;
 }
 
 /* --------------------------------------------------------- os campos */
 
-.conta-form {
+.account-form {
   margin: 0;
 }
 
 /*
  * Server failure notice. Sits above the column and doesn't replace the field's marking: the message says WHAT went wrong, the ring says WHERE.
  */
-.conta-aviso {
+.account-notice {
   margin: 0 0 var(--p-e-4);
   padding: var(--p-e-3) var(--p-e-4);
-  border: 1px solid var(--p-erro-linha);
+  border: 1px solid var(--p-error-line);
   border-radius: var(--p-r-md);
-  background: var(--p-erro-fundo);
-  color: var(--p-erro-conteudo);
+  background: var(--p-error-background);
+  color: var(--p-error-content);
   font-size: var(--p-t-md);
   line-height: var(--p-altura-linha);
 }
@@ -391,7 +391,7 @@
 /*
  * The label lives INSIDE the box, above the value — it's the source's field design, and it's what makes the box 47px instead of 40.
  */
-.conta-campo {
+.account-field {
   display: block;
   box-sizing: border-box;
   height: 47px;
@@ -402,7 +402,7 @@
   background: var(--p-superficie-0);
 }
 
-.conta-campo > span {
+.account-field > span {
   display: block;
   height: 16px;
   font-size: var(--p-t-sm);
@@ -412,12 +412,12 @@
 }
 
 /* Required marker. It's the ` *` that the source appends to the label. */
-.conta-campo > span[data-obrigatorio]::after {
+.account-field > span[data-obrigatorio]::after {
   content: ' *';
 }
 
-.conta-campo input,
-.conta-campo select {
+.account-field input,
+.account-field select {
   display: block;
   width: 100%;
   height: 19px;
@@ -433,18 +433,18 @@
   appearance: none;
 }
 
-.conta-campo input::placeholder {
+.account-field input::placeholder {
   color: var(--p-conteudo-fantasma);
 }
 
 /*
  * The selector's arrow is ours (theirs is a `bds-icon`), but it sits where theirs sits: flush right, centered in the box.
  */
-.conta-campo:has(select) {
+.account-field:has(select) {
   position: relative;
 }
 
-.conta-campo:has(select)::after {
+.account-field:has(select)::after {
   content: '';
   position: absolute;
   right: 14px;
@@ -457,7 +457,7 @@
   pointer-events: none;
 }
 
-.conta-campo:focus-within {
+.account-field:focus-within {
   border-color: var(--p-marca-linha);
   box-shadow: 0 2px 12px rgba(17, 17, 17, 0.1);
 }
@@ -465,11 +465,11 @@
 /*
  * A disabled field stays legible: it SHOWS the signed-in person's email, and a dimmed gray here would look like a bug, not a locked field.
  */
-.conta-campo:has(input:disabled) {
+.account-field:has(input:disabled) {
   background: var(--p-superficie-2);
 }
 
-.conta-campo input:disabled {
+.account-field input:disabled {
   color: var(--p-conteudo-desabilitado);
   cursor: not-allowed;
   -webkit-text-fill-color: var(--p-conteudo-desabilitado);
@@ -478,26 +478,26 @@
 /*
  * Error: 2px ring on the box and a 12px note below, like the source. `:user-invalid` instead of `:invalid` because an untouched field isn't wrong yet — opening the screen with everything in red is the classic native-validation mistake. `data-erro` is the same state coming from the server, when the browser was bypassed.
  */
-.conta-campo:has(:user-invalid),
-.conta-campo[data-erro] {
-  border-color: var(--p-erro-linha);
-  box-shadow: 0 0 1px 2px var(--p-erro-conteudo);
+.account-field:has(:user-invalid),
+.account-field[data-error] {
+  border-color: var(--p-error-line);
+  box-shadow: 0 0 1px 2px var(--p-error-content);
 }
 
-.conta-recado {
+.account-note {
   display: none;
   margin: 0 0 var(--p-e-2);
   font-size: var(--p-t-sm);
   line-height: 18px;
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
-.conta-campo:has(:user-invalid) + .conta-recado,
-.conta-campo[data-erro] + .conta-recado {
+.account-field:has(:user-invalid) + .account-note,
+.account-field[data-error] + .account-note {
   display: block;
 }
 
-.conta-aceite {
+.account-acceptance {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -506,7 +506,7 @@
   color: var(--p-conteudo);
 }
 
-.conta-aceite input {
+.account-acceptance input {
   width: 20px;
   height: 20px;
   margin: 0;
@@ -516,7 +516,7 @@
 /*
  * The terms line sits OUTSIDE the card, between it and the area's footer — it's where the source puts it, and it's what gives the "Salvar alterações" button its anchor.
  */
-.conta-termos {
+.account-terms {
   margin: var(--p-e-6) 0 0;
   padding: 0 8px;
   font-size: var(--p-t-sm);
@@ -525,7 +525,7 @@
   color: var(--p-conteudo);
 }
 
-.conta-termos a {
+.account-terms a {
   font-weight: 800;
   color: var(--p-marca);
 }
@@ -536,30 +536,30 @@
  *    The 480px breakpoint is the source's: below it the sidebar and header disappear, and panel padding becomes phone padding. Ours kicks in earlier (900px) because 300px of sidebar plus 256px of padding don't fit a tablet.
  */
 @media (max-width: 900px) {
-  .conta-lateral {
+  .account-side {
     display: none;
   }
 
-  .conta-conteudo {
+  .account-content {
     padding: var(--p-e-5) var(--p-e-4) 0;
   }
 
-  .conta-cabecalho,
-  .conta-area {
+  .account-header,
+  .account-area {
     padding-left: 0;
     padding-right: 0;
   }
 
-  .conta-cartao {
+  .account-card {
     padding: var(--p-e-6) var(--p-e-4);
   }
 
-  .conta-painel {
+  .account-panel {
     width: 100%;
     padding: var(--p-e-6) 0 0;
   }
 
-  .conta-barra {
+  .account-bar {
     padding: 0 var(--p-e-4);
   }
 }

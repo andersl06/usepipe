@@ -41,7 +41,7 @@ export function PageData() {
         </div>
 
         {etiquetas.length === 0 ? (
-          <div className="vazio">Nenhuma etiqueta cadastrada.</div>
+          <div className="empty">Nenhuma etiqueta cadastrada.</div>
         ) : (
           <div className="scroll">
             <table>

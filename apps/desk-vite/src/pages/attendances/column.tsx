@@ -73,9 +73,9 @@ export function Column({
   }
 
   return (
-    <div className="dk-coluna" id="sidenav-div">
-      <div className="dk-coluna-cabecalho">
-        <h1 className="dk-coluna-titulo">Atendimentos</h1>
+    <div className="dk-column" id="sidenav-div">
+      <div className="dk-column-header">
+        <h1 className="dk-column-title">Atendimentos</h1>
         <div className="dk-ficha-menu">
           <button
             type="button"
@@ -115,7 +115,7 @@ export function Column({
         </div>
       </div>
 
-      <div className="dk-estado">
+      <div className="dk-status">
         <AgentState
           state={state}
           motivo={queue.status.motivoPausa}
@@ -128,12 +128,12 @@ export function Column({
         />
       </div>
       {error ? (
-        <p className="dk-erro" style={{ padding: '0 16px' }}>
+        <p className="dk-error" style={{ padding: '0 16px' }}>
           {error}
         </p>
       ) : null}
 
-      <div className="dk-busca">
+      <div className="dk-search">
         <label className="dk-campo">
           <span className="dk-campo-icone">
             <IconeDesk nome="busca" />
@@ -182,7 +182,7 @@ export function Column({
               </div>
             ) : null}
           </div>
-          <div className="dk-fichas-fila" id="ticket-filters-area">
+          <div className="dk-cards-queue" id="ticket-filters-area">
             {FILTERS.map((f) => (
               <button
                 key={f}
@@ -272,12 +272,12 @@ function AgentState({
 }) {
   if (state === 'online') {
     return (
-      <div className="dk-estado-miolo">
+      <div className="dk-status-core">
         <div className="dk-aguardando" id="waiting-tickets" tabIndex={0}>
           <b id="waiting-tickets-count">{aguardando}</b>
           <span>{aguardando === 1 ? 'Cliente' : 'Clientes'} aguardando</span>
         </div>
-        <div className="dk-estado-botoes">
+        <div className="dk-status-buttons">
           <button
             type="button"
             className="dk-botao"
@@ -294,7 +294,7 @@ function AgentState({
   if (state === 'pausa') {
     const segundos = (agora.getTime() - new Date(desde).getTime()) / 1000;
     return (
-      <div className="dk-estado-miolo">
+      <div className="dk-status-core">
         <div className="dk-status-texto">
           Seu status é <b id="agent-status-pause">{motivo ?? ROTULOS_DE_STATUS.pausa}</b>
         </div>
@@ -305,11 +305,11 @@ function AgentState({
     );
   }
   return (
-    <div className="dk-estado-miolo">
+    <div className="dk-status-core">
       <div className="dk-status-texto">
         Seu status é <b id={`agent-status-${state}`}>{ROTULOS_DE_STATUS[state]}</b>
       </div>
-      <div className="dk-estado-botoes">
+      <div className="dk-status-buttons">
         <button type="button" className="dk-botao" id="set-online-btn" onClick={aoFicarOnline}>
           Ficar Online
         </button>

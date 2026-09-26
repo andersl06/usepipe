@@ -180,7 +180,7 @@ export function FormularioRuleQueue({
           }
           enviar(data);
         })}
-        className="form-cadastro"
+        className="form-registration"
       >
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '240px' }}>
@@ -242,7 +242,7 @@ export function FormularioRuleQueue({
           <ConditionLinha key={`${generation}-${i}`} desabilitado={enviando} inicial={regraExistente?.conditions[i]} />
         ))}
 
-        <div className="cl-acoes" style={{ justifyContent: 'flex-start' }}>
+        <div className="cl-actions" style={{ justifyContent: 'flex-start' }}>
           <Botao type="button" onClick={() => setLinhas((n) => n + 1)} disabled={enviando}>
             Mais uma condição
           </Botao>
@@ -250,7 +250,7 @@ export function FormularioRuleQueue({
 
         {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
-        <div className="cl-acoes">
+        <div className="cl-actions">
           <Botao type="submit" variante="primario" disabled={enviando}>
             {enviando ? 'Salvando…' : editando ? 'Salvar alterações' : 'Salvar regra'}
           </Botao>

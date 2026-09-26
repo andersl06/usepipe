@@ -73,7 +73,7 @@
 /*
  * `bds-button-icon icon="search" size="short"` (primary): 40 tall, `padding: 8px`, radius 8, `margin-left: 8px`; the portal's global `button { min-width: 8.125rem }` gives the 130 width.
  */
-.lg-busca-botao {
+.lg-search-button {
   display: flex;
   flex: none;
   align-items: center;
@@ -90,14 +90,14 @@
   cursor: pointer;
 }
 
-.lg-busca-botao:hover {
+.lg-search-button:hover {
   background: var(--p-marca);
 }
 
 /*
  * Filter by period/direction/type (task item 4) — the source only had the text search above; these fields go into the SAME `<form method="get">` so switching one field at a time doesn't lose what was already filtered.
  */
-.lg-filtros {
+.lg-filters {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -105,7 +105,7 @@
   margin-top: 8px;
 }
 
-.lg-filtro {
+.lg-filter {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -113,8 +113,8 @@
   color: var(--p-conteudo-desabilitado);
 }
 
-.lg-filtro input,
-.lg-filtro select {
+.lg-filter input,
+.lg-filter select {
   height: 36px;
   padding: 0 8px;
   border: 1px solid var(--p-linha-media);
@@ -149,7 +149,7 @@
 /*
  * `<div class="container relative message-history">` — starts right below the header's 15px margin.
  */
-.lg-historico {
+.lg-history {
   position: relative;
 }
 
@@ -189,35 +189,35 @@
 }
 
 /* `.row` (Skeleton) antes da lista — medido: 3px acima e 9px abaixo. */
-.lg-fileira {
+.lg-row {
   margin: 3px 0 9px;
 }
 
 /*
  * `bds-paper elevation="primary" style="padding:16px" class="mb4"`: radius 16, `margin-bottom: 1.25rem`. Inside, `bds-typo tag="p" variant="fs-12"` (12px, 18 line height, no margin), bold 12px `strong`, 12px monospace `pre` with `white-space: pre-wrap; word-wrap: break-word; margin-bottom: 0`. The Id's `a` is the primary color, no underline.
  */
-.lg-papel {
+.lg-paper {
   display: block;
   box-sizing: border-box;
   margin: 0 0 20px;
   padding: 16px;
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
   background: var(--p-superficie-0);
   box-shadow: var(--p-sombra-2);
   color: var(--p-conteudo);
 }
 
-.lg-papel p {
+.lg-paper p {
   margin: 0;
   font-size: var(--p-t-sm);
   line-height: 18px;
 }
 
-.lg-papel strong {
+.lg-paper strong {
   font-weight: var(--g-peso-negrito);
 }
 
-.lg-papel pre {
+.lg-paper pre {
   margin: 0;
   overflow-x: auto;
   font-family: var(--p-fonte-mono);
@@ -234,11 +234,11 @@
 /*
  * `.message-history .no-logs-found { margin-bottom: .75rem }` and `.no-logs-found bds-typo { color: var(--color-content-disable) }`; the `fs-16` `h4` has 24 line height and the `fs-14` description has 21.
  */
-.lg-vazio {
+.lg-empty {
   margin-bottom: 12px;
 }
 
-.lg-vazio h4 {
+.lg-empty h4 {
   margin: 0;
   font-size: var(--p-t-lg);
   font-weight: var(--g-peso-normal);
@@ -250,7 +250,7 @@
   color: var(--p-conteudo-desabilitado) !important;
 }
 
-.lg-descricao {
+.lg-description {
   margin: 0;
   font-size: var(--p-t-md);
   line-height: 21px;
@@ -258,7 +258,7 @@
 }
 
 /* `bds-grid justify-content="center"` com `bds-icon size="brand"` e o `.tc`. */
-.lg-vazio-icone {
+.lg-empty-icon {
   display: flex;
   justify-content: center;
   color: var(--p-conteudo);

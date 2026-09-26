@@ -54,7 +54,7 @@ export function ChannelsPage() {
           const conectado = channel.sempre || cardConnected(contact, channel.key);
           const miolo = (
             <>
-              <div className="cn-cartao-conteudo">
+              <div className="cn-card-content">
                 <ChannelLogo nome={channel.logo} />
                 <h2>{channel.nome}</h2>
               </div>
@@ -69,13 +69,13 @@ export function ChannelsPage() {
               {channel.page ? (
                 <Link
                   href={channelRota(base, channel.page)}
-                  className="cn-cartao cn-cartao--link"
+                  className="cn-card cn-card--link"
                   aria-label={`${channel.nome}: ${conectado ? 'Conectado' : 'Conectar'}`}
                 >
                   {miolo}
                 </Link>
               ) : (
-                <article className="cn-cartao" aria-disabled="true">
+                <article className="cn-card" aria-disabled="true">
                   {miolo}
                 </article>
               )}

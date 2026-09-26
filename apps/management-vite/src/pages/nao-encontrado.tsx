@@ -4,7 +4,7 @@ import { Link } from '../components/link';
 export function NaoEncontrado() {
   return (
     <main className="pt-conteudo fx-miolo">
-      <div className="fx-coluna">
+      <div className="fx-column">
         <h1>Página não encontrada</h1>
         <p>
           O endereço não existe ou não pertence a esta conta.{' '}

@@ -110,7 +110,7 @@ function InvitationPasso() {
         <h4 className="cr-tagline">{ROTULOS.tagline}</h4>
       </div>
 
-      <div className="cr-convite">
+      <div className="cr-invitation">
         {/*
  * There it's `<img src="/assets/img/templates/router.svg">`, a drawing of the
  * concept. We don't have a router illustration (the four from `@pipe/ui` are empty
@@ -118,11 +118,11 @@ function InvitationPasso() {
  * button that brought the person here and the card label on the portal, enlarged.
  * It's in the report.
  */}
-        <div className="cr-convite-desenho" aria-hidden="true">
+        <div className="cr-invitation-illustration" aria-hidden="true">
           <IconePortal nome="roteador" tamanho={128} />
         </div>
 
-        <div className="cr-convite-texto">
+        <div className="cr-invitation-text">
           <h3>{ROTULOS.comoFunciona}</h3>
           <p>{ROTULOS.descricao}</p>
 

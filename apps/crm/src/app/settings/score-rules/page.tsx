@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
  */
 const COLUNAS: readonly Column<LinhaRegra>[] = [
   { key: 'nome', rotulo: 'Regra', celula: (r) => <span className="forte">{r.nome}</span> },
-  { key: 'condicao', rotulo: 'Condição', celula: (r) => <span className="condicao">{conditionInText(r.condition)}</span> },
+  { key: 'condicao', rotulo: 'Condição', celula: (r) => <span className="condition">{conditionInText(r.condition)}</span> },
   { key: 'pontos', rotulo: 'Peso', numerica: true, celula: (r) => pontos(r.pontos) },
   { key: 'versao', rotulo: 'Versão', numerica: true, celula: (r) => `v${r.versao}` },
   {
@@ -49,7 +49,7 @@ export default async function PageRules() {
 
       {regras.length === 0 ? (
         <div className="tblwrap">
-          <div className="vazio">
+          <div className="empty">
             Nenhuma regra cadastrada. Rode <code>pnpm --filter @pipe/crm seed:crm</code>.
           </div>
         </div>
@@ -73,7 +73,7 @@ export default async function PageRules() {
                 </span>
               </header>
               <Tabela colunas={COLUNAS} linhas={daVersao} linhaKey={(r) => r.id} />
-              <div className="mensagem">
+              <div className="message">
                 &quot;Leads afetados&quot; conta o cálculo vigente de cada lead, não todos os
                 cálculos: lead recalculado três vezes conta uma.
               </div>

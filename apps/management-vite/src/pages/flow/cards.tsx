@@ -54,15 +54,15 @@ function Botao({
 export function CardExtensions({ extensions }: { extensions: readonly Extensao[] }) {
   if (extensions.length === 0) return null;
   return (
-    <div className="fx-area-extensoes">
-      <section className="fx-papel fx-extensoes-papel">
-        <div className="fx-extensoes-cabeca">
-          <div className="fx-extensoes-titulo">
-            <div className="fx-extensoes-titulo-caixa">
+    <div className="fx-area-extensions">
+      <section className="fx-paper fx-extensions-paper">
+        <div className="fx-extensions-header">
+          <div className="fx-extensions-title">
+            <div className="fx-extensions-title-box">
               <h2 className="fx-h4">Extensões para você</h2>
             </div>
           </div>
-          <div className="fx-extensoes-botao">
+          <div className="fx-extensions-button">
             {/*
  * "Ir para Blip Store" with our store's name, which is also under construction in the top bar.
  */}
@@ -71,13 +71,13 @@ export function CardExtensions({ extensions }: { extensions: readonly Extensao[]
             </Botao>
           </div>
         </div>
-        <div className="fx-extensoes-lista">
+        <div className="fx-extensions-list">
           {extensions.map((x) => (
             <div key={x.id} className="fx-extensao-item">
               <div className="fx-extensao">
                 <div className="fx-extensao-topo">
-                  <div className="fx-extensao-imagem-caixa">
-                    <img className="fx-extensao-imagem" src={x.iconeUrl} alt="" />
+                  <div className="fx-extension-image-box">
+                    <img className="fx-extension-image" src={x.iconeUrl} alt="" />
                   </div>
                   <div className="fx-extensao-textos">
                     <b className="fx-extensao-nome">{x.nome}</b>
@@ -124,18 +124,18 @@ export function CardChannels({
 }) {
   const logos = LOGOS_OF_CHANNEL.filter((l) => l.sempre || ativos.includes(l.tipo));
   return (
-    <div className="fx-area-canais">
-      <section className="fx-papel fx-faixa">
+    <div className="fx-area-channels">
+      <section className="fx-paper fx-faixa">
         <div className="fx-faixa-titulo">
           <h2 className="fx-h4">Canais</h2>
         </div>
         <div className="fx-faixa-sub">
           {/* Each slot is a `bds-icon type="logo" size="large"` (28px). */}
-          <div className="fx-canais-logos">
+          <div className="fx-channels-logos">
             {logos.map((l) => (
               <span
                 key={l.tipo}
-                className="fx-canal-logo"
+                className="fx-channel-logo"
                 role="img"
                 aria-label={l.nome}
                 title={l.nome}
@@ -167,7 +167,7 @@ export function CardChannels({
 export function CardTeam({ members }: { members: readonly Member[] }) {
   return (
     <div className="fx-area-equipe">
-      <section className="fx-papel fx-faixa">
+      <section className="fx-paper fx-faixa">
         <div className="fx-faixa-titulo">
           <h2 className="fx-h4 fx-mb1">Equipe</h2>
         </div>
@@ -190,8 +190,8 @@ export function CardTeam({ members }: { members: readonly Member[] }) {
               </div>
             </div>
           ) : (
-            <div className="fx-faixa-descricao">
-              <p className="fx-descricao">Convide seu time para o seu contato inteligente</p>
+            <div className="fx-strip-description">
+              <p className="fx-description">Convide seu time para o seu contato inteligente</p>
             </div>
           )}
           <div className="fx-faixa-botao">
@@ -210,8 +210,8 @@ export function CardTeam({ members }: { members: readonly Member[] }) {
  */
 export function CardPreferences({ fuso, plano }: { fuso: string; plano: string }) {
   return (
-    <div className="fx-area-preferencias">
-      <section className="fx-papel fx-preferencias">
+    <div className="fx-area-preferences">
+      <section className="fx-paper fx-preferences">
         <h2 className="fx-h4">Preferências</h2>
         <div className="fx-campos">
           <Campo rotulo="Cultura" value="Português (Brasil)" />
@@ -227,7 +227,7 @@ function Campo({ rotulo, value, dica }: { rotulo: string; value: string; dica?: 
   return (
     <div className="fx-campo" aria-disabled="true">
       <span className="fx-campo-rotulo">{rotulo}</span>
-      <span className={dica ? 'fx-campo-valor fx-campo-dica' : 'fx-campo-valor'}>{value}</span>
+      <span className={dica ? 'fx-field-value fx-campo-dica' : 'fx-field-value'}>{value}</span>
     </div>
   );
 }
@@ -240,8 +240,8 @@ function Campo({ rotulo, value, dica }: { rotulo: string; value: string; dica?: 
 export function CardMetrics({ metrics, base }: { metrics: Metrics | null; base: string }) {
   if (!metrics || metrics.users === 0) return null;
   return (
-    <div className="fx-area-metricas">
-      <section className="fx-papel fx-metricas">
+    <div className="fx-area-metrics">
+      <section className="fx-paper fx-metrics">
         {/* `team` is the same design the portal already uses as `comunidade`. */}
         <Metrica
           icone="comunidade"
@@ -295,7 +295,7 @@ function Metrica({
             <IconePortal nome="informacao-cheia" tamanho={16} />
           </span>
         </div>
-        <b className="fx-metrica-valor">{numeroDaHome(value)}</b>
+        <b className="fx-metric-value">{numeroDaHome(value)}</b>
         {href ? (
           <Link className="fx-metrica-link" href={href}>
             Ver mais

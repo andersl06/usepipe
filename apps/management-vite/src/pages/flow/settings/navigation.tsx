@@ -69,7 +69,7 @@ export function NavigationSettings({ id }: { id: string }) {
               <IconePortal nome={item.icone} tamanho={24} className="cf-arvore-icone" />
               <span className="cf-arvore-texto">
                 <span className="cf-arvore-titulo">{item.titulo}</span>
-                <span className="cf-arvore-descricao">{item.description}</span>
+                <span className="cf-tree-description">{item.description}</span>
               </span>
             </>
           );

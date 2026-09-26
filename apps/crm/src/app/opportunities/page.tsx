@@ -194,7 +194,7 @@ function QuadroDoFunil({ funil }: { funil: Awaited<ReturnType<typeof carregarFun
           Oportunidade nasce de um lead qualificado. Assim que a primeira for aberta, ela aparece
           na coluna da fase em que estiver.
         </span>
-        <span className="acoes-erro">
+        <span className="actions-error">
           <Link className="btn" href="/leads?tab=qualificados">
             Ver os leads qualificados
           </Link>
@@ -252,7 +252,7 @@ async function OpportunitiesTabela({
       {linhas.length === 0 && search ? (
         <EmptyState titulo="Nenhuma oportunidade para esta busca." illustration="busca">
           <span>Nada casou com “{search}” no nome da oportunidade nem no da conta.</span>
-          <span className="acoes-erro">
+          <span className="actions-error">
             <Link className="btn" href={`/opportunities?${withoutSearch}`}>
               Limpar a busca
             </Link>

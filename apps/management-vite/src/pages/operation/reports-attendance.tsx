@@ -105,7 +105,7 @@ function BotaoBaixar({ aoClicar, desabilitado }: { aoClicar: () => void; desabil
 }
 
 function TabelaDeQuebra({ eixo, linhas }: { eixo: string; linhas: LinhaDeQuebra[] }) {
-  if (linhas.length === 0) return <div className="vazio-linha">Dados insuficientes</div>;
+  if (linhas.length === 0) return <div className="empty-line">Dados insuficientes</div>;
   return (
     <div className="scroll">
       <table>
@@ -220,24 +220,24 @@ export function PageAttendance() {
         <span className="lbl">Filtros rápidos:</span>
         <button
           type="button"
-          className={params.agent ? 'pilula ativa' : 'pilula'}
+          className={params.agent ? 'pilula active' : 'pilula'}
           onClick={() => setPanelAberto(true)}
         >
           <span className="pilula-rotulo">Atendentes</span>
-          {agentName ? <span className="pilula-valor">{agentName}</span> : null}
+          {agentName ? <span className="pill-value">{agentName}</span> : null}
         </button>
         <button
           type="button"
-          className={params.queue ? 'pilula ativa' : 'pilula'}
+          className={params.queue ? 'pilula active' : 'pilula'}
           onClick={() => setPanelAberto(true)}
         >
           <span className="pilula-rotulo">Filas</span>
-          {queueName ? <span className="pilula-valor">{queueName}</span> : null}
+          {queueName ? <span className="pill-value">{queueName}</span> : null}
         </button>
         <div className="faixa-fim">
           <button
             type="button"
-            className="btn fantasma rel-periodo"
+            className="btn fantasma rel-period"
             title={`${de} → ${ate}`}
             onClick={() => setPanelAberto(true)}
           >
@@ -293,7 +293,7 @@ export function PageAttendance() {
             formula="O estado de SLA de cada conversa já existe em Monitoramento; o indicador agregado por período ainda não tem consulta própria."
           />
         </h3>
-        <div className="vazio">
+        <div className="empty">
           <b>Não foram encontradas métricas de SLA no período informado</b>
         </div>
       </section>
@@ -423,7 +423,7 @@ export function PageAttendance() {
             />
           </h3>
         </div>
-        <div className="vazio">
+        <div className="empty">
           <b>Dados insuficientes</b>
         </div>
       </section>
@@ -482,7 +482,7 @@ export function PageAttendance() {
             <tbody>
               <tr>
                 <td colSpan={5}>
-                  <div className="vazio-linha" style={{ border: 0 }}>
+                  <div className="empty-line" style={{ border: 0 }}>
                     Dados insuficientes
                   </div>
                 </td>

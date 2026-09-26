@@ -292,7 +292,7 @@
 }
 
 .rules li em.n {
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
 /*
@@ -325,7 +325,7 @@
   align-items: start;
 }
 
-.coluna {
+.column {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-3);
@@ -435,7 +435,7 @@
 }
 
 .campos > div:hover .inline .lapis,
-.listagem tbody tr:hover .inline .lapis,
+.listing tbody tr:hover .inline .lapis,
 .inline:focus-within .lapis {
   visibility: visible;
 }
@@ -446,25 +446,25 @@
  *    - the error can't break the table row into two different heights, so it becomes a tooltip on the next cell instead of pushing the row.
  *    The rest (the hover pencil, Enter to save, Esc to cancel) is the same behavior as the record page, and it's intentional: whoever learned it in one place already knows the other.
  */
-.listagem .inline {
+.listing .inline {
   position: relative;
   width: 100%;
 }
 
-.listagem .inline .queixa {
+.listing .inline .queixa {
   position: absolute;
   z-index: 10;
   margin-top: var(--p-e-5);
   padding: 2px var(--p-e-2);
-  background: var(--p-erro-fundo);
-  border: 1px solid var(--p-erro-linha);
+  background: var(--p-error-background);
+  border: 1px solid var(--p-error-line);
   border-radius: var(--p-r-sm);
   max-width: 260px;
   white-space: normal;
 }
 
 /* The cell hosting the edit can't clip the `<select>` or the tooltip. */
-.listagem td:has(.inline) {
+.listing td:has(.inline) {
   overflow: visible;
 }
 
@@ -494,7 +494,7 @@
 .inline .queixa {
   flex-basis: 100%;
   font-size: var(--p-t-sm);
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
 .etiquetas {
@@ -527,7 +527,7 @@
   font-weight: var(--p-peso-forte);
 }
 
-.mensagem {
+.message {
   padding: var(--p-e-3) var(--p-e-4);
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-fantasma);
@@ -617,7 +617,7 @@
   display: block;
 }
 
-.etapa .valor,
+.etapa .value,
 .etapa .qtd {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
@@ -625,7 +625,7 @@
   font-size: var(--p-t-md);
 }
 
-.etapa .valor {
+.etapa .value {
   color: var(--p-conteudo);
 }
 
@@ -696,7 +696,7 @@ code {
 /*
  * Rule condition in Portuguese. Wraps and has a max width, otherwise a compound condition pushes the other six columns into scrolling.
  */
-.condicao {
+.condition {
   display: inline-block;
   white-space: normal;
   max-width: 460px;
@@ -745,7 +745,7 @@ code {
  * ================================================================ error and empty
  *    The button inside the state block. Without this it inherits `align-items:center` from `.vazio` and stretches to full width.
  */
-.acoes-erro {
+.actions-error {
   display: flex;
   gap: var(--p-e-2);
   margin-top: var(--p-e-2);
@@ -772,22 +772,22 @@ code {
  *
  *    `table-layout: fixed` is mandatory: without it the browser ignores the `<col>` width and negotiates on its own, and the dragged column returns to its place. With it, the last column of the `<colgroup>` is left without a declared width and absorbs the leftover space on wide screens, so the others keep their dragged value.
  */
-.listagem {
+.listing {
   table-layout: fixed;
   min-width: 100%;
 }
 
-.listagem td {
+.listing td {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* ----------------------------------------------------- sortable header */
-.listagem th {
+.listing th {
   position: relative;
 }
 
-.listagem th .ord {
+.listing th .ord {
   display: inline-flex;
   align-items: center;
   gap: var(--p-e-1);
@@ -795,21 +795,21 @@ code {
   text-decoration: none;
 }
 
-.listagem th .ord:hover {
+.listing th .ord:hover {
   color: var(--p-conteudo);
 }
 
 /*
  * The arrow reserves its own width even when empty: without this the label slides sideways on every click, and the column seems to flicker.
  */
-.listagem th .seta {
+.listing th .seta {
   display: inline-block;
   min-width: 9px;
   font-family: var(--p-fonte-mono);
   color: var(--p-marca-forte);
 }
 
-.listagem th[aria-sort] .ord {
+.listing th[aria-sort] .ord {
   color: var(--p-conteudo);
 }
 
@@ -817,7 +817,7 @@ code {
  * --------------------------------------------------------- drag handle
  *    A 9px target flush against the column border, with 1px visible. Too narrow a target is a handle no one can grab; too wide steals the label's click.
  */
-.listagem th .redim {
+.listing th .redim {
   position: absolute;
   top: 0;
   right: -4px;
@@ -829,7 +829,7 @@ code {
   z-index: 1;
 }
 
-.listagem th .redim::after {
+.listing th .redim::after {
   content: '';
   position: absolute;
   top: 20%;
@@ -840,20 +840,20 @@ code {
   transition: background var(--p-dur-rapida) ease;
 }
 
-.listagem th .redim:hover::after,
-.listagem th .redim:focus-visible::after,
-.listagem th.arrastando .redim::after {
+.listing th .redim:hover::after,
+.listing th .redim:focus-visible::after,
+.listing th.arrastando .redim::after {
   background: var(--p-marca);
 }
 
-.listagem th .redim:focus-visible {
+.listing th .redim:focus-visible {
   outline: none;
 }
 
 /*
  * While dragging, the whole column announces itself: without this the person loses track of which column is changing when the cursor leaves the header.
  */
-.listagem th.arrastando {
+.listing th.arrastando {
   background: var(--p-superficie-1);
 }
 
@@ -861,14 +861,14 @@ code {
  * -------------------------------------------------------- multiple selection
  *    32px is the checkbox column's width in Twenty, and it fits well with our 36px row. The checkbox disappears at rest and returns on hover or when checked: a column of empty checkboxes is the first thing the eye has to learn to ignore in a list.
  */
-.listagem .sel {
+.listing .sel {
   width: 32px;
   padding-left: var(--p-e-3);
   padding-right: 0;
   overflow: visible;
 }
 
-.listagem .sel input {
+.listing .sel input {
   accent-color: var(--p-marca);
   width: 14px;
   height: 14px;
@@ -877,24 +877,24 @@ code {
   vertical-align: middle;
 }
 
-.listagem tbody .sel input:not(:checked) {
+.listing tbody .sel input:not(:checked) {
   opacity: 0;
   transition: opacity var(--p-dur-rapida) ease;
 }
 
-.listagem tbody tr:hover .sel input,
-.listagem tbody .sel input:focus-visible {
+.listing tbody tr:hover .sel input,
+.listing tbody .sel input:focus-visible {
   opacity: 1;
 }
 
-.listagem tbody tr:hover td {
+.listing tbody tr:hover td {
   background: var(--p-superficie-1);
 }
 
 /*
  * The marked row uses the brand color in a soft version. It's the active state of an ongoing action, which is where the brand color can enter.
  */
-.listagem tbody tr.marcada td {
+.listing tbody tr.marcada td {
   background: var(--p-marca-suave);
 }
 
@@ -903,12 +903,12 @@ code {
  *
  *    The color is what changes: they use the brand color (`accent.quaternary`), we use surface. Brand color here would collide with the MARKED row, which is already a soft brand color, and the two need to be distinguishable — one is where the eye is, the other is a commitment the person has made. The bottom rule is what survives when the two coincide.
  */
-.listagem tbody tr.focada td {
+.listing tbody tr.focada td {
   background: var(--p-superficie-2);
   box-shadow: inset 0 -1px 0 var(--p-linha-media);
 }
 
-.listagem tbody tr.marcada.focada td {
+.listing tbody tr.marcada.focada td {
   background: var(--p-marca-suave);
 }
 
@@ -916,7 +916,7 @@ code {
  * --------------------------------------------- the bulk action bar
  *    Only exists when there's a selection. Stuck at the bottom and centered, away from the text the person is reading.
  */
-.em-massa {
+.in-bulk {
   position: fixed;
   left: 50%;
   bottom: var(--p-e-5);
@@ -934,7 +934,7 @@ code {
   flex-wrap: wrap;
 }
 
-.em-massa b {
+.in-bulk b {
   font-size: var(--p-t-md);
   font-weight: var(--p-peso-forte);
   white-space: nowrap;
@@ -954,13 +954,13 @@ code {
 }
 
 /* ------------------------------------------------------------ saved views */
-.visoes {
+.views {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
 }
 
-.visoes label {
+.views label {
   display: flex;
   align-items: center;
   gap: var(--p-e-1);
@@ -973,30 +973,30 @@ code {
  * ------------------------------------------------------- column filter
  *    Twenty's two-step menu (field → value), with the measurements from their fields panel: 200px width, 32px item, 4px side indent. Native `<details>` opens and closes, and each value is a link — the whole filter screen has zero lines of JavaScript.
  */
-.filtros {
+.filters {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
   flex-wrap: wrap;
 }
 
-.menu-filtro {
+.menu-filter {
   position: relative;
 }
 
-.menu-filtro > summary {
+.menu-filter > summary {
   list-style: none;
 }
 
-.menu-filtro > summary::-webkit-details-marker {
+.menu-filter > summary::-webkit-details-marker {
   display: none;
 }
 
-.menu-filtro[open] > summary {
+.menu-filter[open] > summary {
   background: var(--p-superficie-3);
 }
 
-.menu-painel {
+.menu-panel {
   position: absolute;
   top: calc(100% + var(--p-e-1));
   left: 0;
@@ -1011,7 +1011,7 @@ code {
   overflow-y: auto;
 }
 
-.menu-painel > details > summary {
+.menu-panel > details > summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1022,17 +1022,17 @@ code {
   cursor: pointer;
 }
 
-.menu-painel > details > summary:hover {
+.menu-panel > details > summary:hover {
   background: var(--p-superficie-2);
 }
 
-.menu-painel ul {
+.menu-panel ul {
   list-style: none;
   margin: 0 0 var(--p-e-1);
   padding: 0 0 0 var(--p-e-3);
 }
 
-.menu-painel li a {
+.menu-panel li a {
   display: block;
   height: 28px;
   line-height: 28px;
@@ -1046,13 +1046,13 @@ code {
   white-space: nowrap;
 }
 
-.menu-painel li a:hover {
+.menu-panel li a:hover {
   background: var(--p-superficie-2);
   color: var(--p-conteudo);
 }
 
 /* The already-selected value. The brand color here is the active state, which is where it's allowed to appear. */
-.menu-painel li a[aria-current='true'] {
+.menu-panel li a[aria-current='true'] {
   background: var(--p-marca-suave);
   color: var(--p-marca-forte);
 }
@@ -1060,7 +1060,7 @@ code {
 /*
  * The active filter chip is itself the remove button: one target, one action, and no 8px "x" asking for precision aim.
  */
-.filtro-chip {
+.filter-chip {
   display: inline-flex;
   align-items: center;
   gap: var(--p-e-1);
@@ -1074,7 +1074,7 @@ code {
   white-space: nowrap;
 }
 
-.filtro-chip:hover {
+.filter-chip:hover {
   background: var(--p-superficie-3);
 }
 
@@ -1094,7 +1094,7 @@ code {
   position: relative;
 }
 
-.colunas-painel {
+.columns-panel {
   position: absolute;
   top: calc(100% + var(--p-e-1));
   right: 0;
@@ -1110,18 +1110,18 @@ code {
   box-shadow: var(--p-sombra-2);
 }
 
-.colunas-painel .lbl {
+.columns-panel .lbl {
   margin: 0;
   padding: var(--p-e-1) var(--p-e-2) 0;
 }
 
-.colunas-painel ul {
+.columns-panel ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.colunas-painel li {
+.columns-panel li {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -1132,11 +1132,11 @@ code {
   color: var(--p-conteudo);
 }
 
-.colunas-painel li:hover {
+.columns-panel li:hover {
   background: var(--p-superficie-2);
 }
 
-.colunas-painel li .rot {
+.columns-panel li .rot {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1146,19 +1146,19 @@ code {
 /*
  * The column that doesn't move or hide. Muted tone and a drag handle without the drag cursor: the item stays in the list to say it IS the first, without promising a movement that won't happen.
  */
-.colunas-painel li.travada {
+.columns-panel li.travada {
   color: var(--p-conteudo-fantasma);
 }
 
-.colunas-painel li.travada:hover {
+.columns-panel li.travada:hover {
   background: transparent;
 }
 
-.colunas-painel li.oculta .rot {
+.columns-panel li.oculta .rot {
   color: var(--p-conteudo-fantasma);
 }
 
-.colunas-painel .pega {
+.columns-panel .pega {
   display: grid;
   place-items: center;
   color: var(--p-conteudo-fantasma);
@@ -1167,12 +1167,12 @@ code {
   border-radius: var(--p-r-sm);
 }
 
-.colunas-painel li.travada .pega {
+.columns-panel li.travada .pega {
   cursor: default;
   opacity: 0.5;
 }
 
-.colunas-painel .pega:focus-visible {
+.columns-panel .pega:focus-visible {
   outline: 2px solid var(--p-marca);
   outline-offset: 1px;
 }
@@ -1180,7 +1180,7 @@ code {
 /*
  * The eye icon only appears on the item under the cursor or with focus inside — the same rule as the inline cell's pencil. A column of icons at rest is noise.
  */
-.colunas-painel .olho {
+.columns-panel .olho {
   display: grid;
   place-items: center;
   flex: none;
@@ -1193,23 +1193,23 @@ code {
   transition: opacity var(--p-dur-rapida) ease;
 }
 
-.colunas-painel li:hover .olho,
-.colunas-painel .olho:focus-visible {
+.columns-panel li:hover .olho,
+.columns-panel .olho:focus-visible {
   opacity: 1;
 }
 
 /*
  * The item being dragged turns muted, and the one about to receive it gets a rule on top: two different signals for the two ends of the movement.
  */
-.colunas-painel li.pegada {
+.columns-panel li.pegada {
   opacity: 0.45;
 }
 
-.colunas-painel li.alvo {
+.columns-panel li.alvo {
   box-shadow: inset 0 2px 0 var(--p-marca);
 }
 
-.colunas-painel > .btn {
+.columns-panel > .btn {
   justify-content: center;
   margin-top: var(--p-e-1);
 }
@@ -1229,7 +1229,7 @@ code {
   margin-bottom: var(--p-e-4);
 }
 
-.destaque .identidade {
+.destaque .identity {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -1246,7 +1246,7 @@ code {
   color: var(--p-conteudo);
 }
 
-.destaque .identidade .barra {
+.destaque .identity .barra {
   color: var(--p-conteudo-fantasma);
 }
 
@@ -1268,14 +1268,14 @@ code {
 /*
  * The strip. Five fields, at most: it's Salesforce's rule for the highlight, and going over that stops being a highlight. Label on top, value below, unlike the sidebar — here the reading is horizontal and the label needs to get out of the number's way.
  */
-.destaque .principais {
+.destaque .main {
   display: flex;
   flex-wrap: wrap;
   gap: var(--p-e-2) var(--p-e-8);
   margin: 0;
 }
 
-.destaque .principais > div {
+.destaque .main > div {
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -1324,7 +1324,7 @@ code {
  * ================================================ section that opens and closes
  *    Native `<details>`. The browser already knows how to open, close, respond to the keyboard and announce it to screen readers; rewriting this in React would trade zero lines for thirty and lose in-page search.
  */
-.secao > summary {
+.section > summary {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -1334,15 +1334,15 @@ code {
   user-select: none;
 }
 
-.secao[open] > summary {
+.section[open] > summary {
   border-bottom: 1px solid var(--p-linha);
 }
 
-.secao > summary::-webkit-details-marker {
+.section > summary::-webkit-details-marker {
   display: none;
 }
 
-.secao > summary b {
+.section > summary b {
   font-size: var(--p-t-md);
   font-weight: var(--p-peso-forte);
 }
@@ -1350,7 +1350,7 @@ code {
 /*
  * The arrow, drawn in CSS. A 5px chevron that rotates on open: an SVG just for this would be one more request for a triangle.
  */
-.secao > summary::after {
+.section > summary::after {
   content: '';
   margin-left: auto;
   width: 5px;
@@ -1361,11 +1361,11 @@ code {
   transition: transform var(--p-dur-rapida) ease;
 }
 
-.secao[open] > summary::after {
+.section[open] > summary::after {
   transform: rotate(45deg);
 }
 
-.secao > summary:hover {
+.section > summary:hover {
   background: var(--p-superficie-1);
 }
 
@@ -1373,16 +1373,16 @@ code {
  * ========================================================= timeline
  *    A 26px rail with the event-type icon and a line connecting one event to the next. It's what makes the column read as a sequence instead of a stack of rows.
  */
-.tempo section {
+.time section {
   padding: var(--p-e-3) var(--p-e-4) 0;
 }
 
-.tempo section:last-child {
+.time section:last-child {
   padding-bottom: var(--p-e-4);
 }
 
 /* Month separator: the name on the left and a rule filling the rest of the line. */
-.tempo h4 {
+.time h4 {
   display: flex;
   align-items: center;
   gap: var(--p-e-3);
@@ -1392,38 +1392,38 @@ code {
   color: var(--p-conteudo-fantasma);
 }
 
-.tempo h4::after {
+.time h4::after {
   content: '';
   flex: 1;
   height: 1px;
   background: var(--p-linha);
 }
 
-.tempo ol {
+.time ol {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.tempo li {
+.time li {
   display: flex;
   gap: var(--p-e-3);
 }
 
-.tempo .marca {
+.time .marca {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: var(--trilho);
+  width: var(--rail);
   flex: none;
 }
 
-.tempo .slot {
+.time .slot {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--trilho);
-  height: var(--trilho);
+  width: var(--rail);
+  height: var(--rail);
   flex: none;
   border-radius: var(--p-r-md);
   border: 1px solid var(--p-linha);
@@ -1434,7 +1434,7 @@ code {
 /*
  * The rule uses the MEDIUM line, not the thin one. The thin one disappears at 2px width in dark mode, and an invisible rail is the same as having no rail.
  */
-.tempo .fio {
+.time .fio {
   width: 2px;
   flex: 1;
   min-height: var(--p-e-2);
@@ -1442,27 +1442,27 @@ code {
   border-radius: var(--p-r-pilula);
 }
 
-.tempo .corpo {
+.time .corpo {
   flex: 1;
   min-width: 0;
   padding-bottom: var(--p-e-4);
 }
 
-.tempo .cab {
+.time .cab {
   display: flex;
   align-items: baseline;
   gap: var(--p-e-2);
-  min-height: var(--trilho);
+  min-height: var(--rail);
   flex-wrap: wrap;
 }
 
-.tempo .t {
+.time .t {
   font-size: var(--p-t-md);
   font-weight: var(--p-peso-medio);
   color: var(--p-conteudo);
 }
 
-.tempo .quem {
+.time .quem {
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-fantasma);
 }
@@ -1470,7 +1470,7 @@ code {
 /*
  * The relative time sits on the right, and the absolute one is in the `title`. "há 3 dias" is what the person wants to know; the exact date is what they check once every twenty times.
  */
-.tempo .quando {
+.time .quando {
   margin-left: auto;
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-fantasma);
@@ -1479,7 +1479,7 @@ code {
 }
 
 /* The attendance summary is indented: it's machine-generated text, not the salesperson's own. */
-.tempo .resumo {
+.time .resumo {
   margin: var(--p-e-1) 0 0;
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-desabilitado);
@@ -1501,14 +1501,14 @@ code {
 /*
  * The board skeleton's card. Inherits `.opp`'s box and only swaps what dragging added: the cursor and the hover, which don't exist on something that isn't a card yet.
  */
-.esqueleto-cartao {
+.skeleton-card {
   cursor: default;
   gap: var(--p-e-2);
   padding-top: var(--p-e-3);
   padding-bottom: var(--p-e-3);
 }
 
-.esqueleto-cartao:hover {
+.skeleton-card:hover {
   border-color: var(--p-linha);
 }
 
@@ -1587,7 +1587,7 @@ code {
 /*
  * Section title: 28px height, uppercase, and the scale's most muted color. It's a label, not an item — it doesn't click and doesn't compete with what's below it.
  */
-.c-secao {
+.c-section {
   display: flex;
   align-items: center;
   height: var(--c-item-h);
@@ -1638,7 +1638,7 @@ code {
 }
 
 /* The count to the right of the item, when it exists. Tabular so it doesn't jiggle. */
-.c-item .c-conta {
+.c-item .c-account {
   margin-left: auto;
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
@@ -1864,7 +1864,7 @@ table th {
 /*
  * **Checkbox column**: 28px, from `RecordTableColumnCheckboxWidth.ts`. It was at 32.
  */
-.c-conteudo .listagem .sel {
+.c-conteudo .listing .sel {
   width: 28px;
 }
 
@@ -1877,8 +1877,8 @@ table th {
   background: transparent;
 }
 
-.c-conteudo .listagem td,
-.c-conteudo .listagem th {
+.c-conteudo .listing td,
+.c-conteudo .listing th {
   border-bottom: 1px solid var(--p-linha);
 }
 
@@ -1892,7 +1892,7 @@ table th {
  *    Every color comes from a token, like everywhere else: no literal value enters here.
  */
 
-.entrar {
+.login {
   min-height: 100dvh;
   display: grid;
   place-items: center;
@@ -1900,7 +1900,7 @@ table th {
   background: var(--p-fundo);
 }
 
-.entrar-cartao {
+.login-card {
   width: 100%;
   /*
    * 26rem is the width of a single-column form: any more and the label loses sight of the field at the end of the line.
@@ -1916,19 +1916,19 @@ table th {
   box-shadow: var(--p-sombra-1);
 }
 
-.entrar-marca {
+.login-brand {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
   color: var(--p-conteudo);
 }
 
-.entrar-marca b {
+.login-brand b {
   font-size: var(--p-t-lg);
   font-weight: var(--p-peso-forte);
 }
 
-.entrar-cartao h1 {
+.login-card h1 {
   margin: 0;
   font-size: var(--p-t-xl);
   font-weight: var(--p-peso-forte);
@@ -1936,7 +1936,7 @@ table th {
   color: var(--p-conteudo);
 }
 
-.entrar-sub {
+.login-sub {
   margin: 0;
   font-size: var(--p-t-sm);
   line-height: var(--p-altura-linha);
@@ -1946,7 +1946,7 @@ table th {
 /*
  * The rejection reason, with the person's exit. Comes BEFORE the buttons in reading order: someone using a screen reader needs the reason before the action.
  */
-.entrar-alerta {
+.login-alert {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-1);
@@ -1957,27 +1957,27 @@ table th {
   color: var(--p-alerta-conteudo);
 }
 
-.entrar-alerta h2 {
+.login-alert h2 {
   margin: 0;
   font-size: var(--p-t-sm);
   font-weight: var(--p-peso-forte);
   line-height: var(--p-altura-linha-curta);
 }
 
-.entrar-alerta p {
+.login-alert p {
   margin: 0;
   font-size: var(--p-t-sm);
   line-height: var(--p-altura-linha);
 }
 
 /* Screen's main action: full width, doesn't share the line with anything else. */
-.entrar-google {
+.login-google {
   width: 100%;
   justify-content: center;
   padding: 10px 12px;
 }
 
-.entrar-ou {
+.login-or {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -1985,40 +1985,40 @@ table th {
   color: var(--p-conteudo-fantasma);
 }
 
-.entrar-ou::before,
-.entrar-ou::after {
+.login-or::before,
+.login-or::after {
   content: '';
   flex: 1;
   height: 1px;
   background: var(--p-linha);
 }
 
-.entrar-form {
+.login-form {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-2);
 }
 
-.entrar-form label {
+.login-form label {
   font-size: var(--p-rotulo-tamanho);
   font-weight: var(--p-rotulo-peso);
   letter-spacing: var(--p-rotulo-espaco);
   color: var(--p-conteudo-claro);
 }
 
-.entrar-ajuda {
+.login-help {
   margin: 0;
   font-size: var(--p-t-xs);
   line-height: var(--p-altura-linha);
   color: var(--p-conteudo-fantasma);
 }
 
-.entrar-form .btn {
+.login-form .btn {
   justify-content: center;
 }
 
 /* The invitation data: label on the left, value on the right. */
-.entrar-dados {
+.login-data {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: var(--p-e-1) var(--p-e-3);
@@ -2026,11 +2026,11 @@ table th {
   font-size: var(--p-t-sm);
 }
 
-.entrar-dados dt {
+.login-data dt {
   color: var(--p-conteudo-fantasma);
 }
 
-.entrar-dados dd {
+.login-data dd {
   margin: 0;
   font-weight: var(--p-peso-medio);
   color: var(--p-conteudo);
@@ -2038,7 +2038,7 @@ table th {
   overflow-wrap: anywhere;
 }
 
-.entrar-rodape {
+.login-footer {
   margin: 0;
   font-size: var(--p-t-xs);
   line-height: var(--p-altura-linha);
@@ -2046,7 +2046,7 @@ table th {
 }
 
 /* The active account, in the logged-in menu. Serves all three screens. */
-.eu-bloco {
+.me-block {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -2054,13 +2054,13 @@ table th {
   border-bottom: 1px solid var(--p-linha);
 }
 
-.eu-bloco b {
+.me-block b {
   font-size: var(--p-t-sm);
   font-weight: var(--p-peso-forte);
   color: var(--p-conteudo);
 }
 
-.eu-bloco span {
+.me-block span {
   font-size: var(--p-t-xs);
   color: var(--p-conteudo-claro);
   overflow-wrap: anywhere;

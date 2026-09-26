@@ -155,7 +155,7 @@ export default async function PageFicha({
  * The fixed sidebar: the data describing the lead. It stays visible at all times
  * because it's what the person checks while reading any of the tabs.
  */}
-        <aside className="coluna">
+        <aside className="column">
           <div className="tblwrap">
             {/*
  * The sidebar is where you EDIT, like in Twenty: simple fields swap their value in
@@ -212,7 +212,7 @@ export default async function PageFicha({
           <div className="tblwrap">
             <Section titulo="Etiquetas" aberta={ficha.etiquetas.length > 0}>
               {ficha.etiquetas.length === 0 ? (
-                <div className="vazio">Sem etiquetas.</div>
+                <div className="empty">Sem etiquetas.</div>
               ) : (
                 <div className="etiquetas">
                   {ficha.etiquetas.map((e) => (
@@ -224,7 +224,7 @@ export default async function PageFicha({
           </div>
         </aside>
 
-        <div className="coluna">
+        <div className="column">
           <div className="tblwrap">
             <AbasDaFicha
               base={`/leads/${ficha.id}`}
@@ -257,7 +257,7 @@ export default async function PageFicha({
 function PanelScore({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
   if (!ficha.score) {
     return (
-      <div className="vazio">
+      <div className="empty">
         <b>Este lead ainda não foi pontuado.</b>
         <span>
           Sem cálculo não há explicação, e número sem explicação é o que este produto existe para
@@ -279,7 +279,7 @@ function PanelScore({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
       </header>
 
       {ficha.score.itens.length === 0 ? (
-        <div className="vazio">
+        <div className="empty">
           Nenhuma regra casou com este lead: o score {numero(ficha.score.value)} é o valor de
           partida.
         </div>
@@ -315,7 +315,7 @@ function PanelScore({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
  */
 function Formularios({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
   if (ficha.formularios.length === 0) {
-    return <div className="vazio">Este lead não respondeu nenhum formulário.</div>;
+    return <div className="empty">Este lead não respondeu nenhum formulário.</div>;
   }
 
   return (

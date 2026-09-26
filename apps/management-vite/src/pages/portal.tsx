@@ -94,7 +94,7 @@ export function PagePortal() {
       <SubBarra data={data} search={search} onBuscar={aoBuscar} />
 
       <main className="pt-conteudo">
-        <div className="pt-coluna">
+        <div className="pt-column">
           {/*
  * The welcome banner only exists on accounts with NO contact at all and for whoever can create one — it's their `welcome-banner` (`!applications.length && tenant.id && canCreateChatBot`).
  */}
@@ -110,7 +110,7 @@ export function PagePortal() {
  */}
           {empty ? null : (
             <div id="applications">
-              <div className="pt-secao">
+              <div className="pt-section">
                 <h2>Fluxos e roteadores em {data.tenant.nome}</h2>
               </div>
 
@@ -170,8 +170,8 @@ function Pagination({
    */
 
   return (
-    <div className="pt-paginacao">
-      <div className="pt-paginacao-esquerda">
+    <div className="pt-pagination">
+      <div className="pt-pagination-left">
         <label>Itens por página:</label>
 
         <Selection
@@ -189,17 +189,17 @@ function Pagination({
           ))}
         </Selection>
 
-        <span className="pt-paginacao-conta">
+        <span className="pt-pagination-account">
           {firstItem}-{ultimoItem} de {encontrados}
         </span>
       </div>
 
-      <nav className="pt-paginacao-direita" aria-label="Páginas">
+      <nav className="pt-pagination-right" aria-label="Páginas">
 
         {}
         <button
           type="button"
-          className="pt-paginacao-icone"
+          className="pt-pagination-icon"
           disabled={page === 1}
           onClick={() => setPage(1)}
           aria-label="Primeira página"
@@ -210,7 +210,7 @@ function Pagination({
         {}
         <button
           type="button"
-          className="pt-paginacao-icone"
+          className="pt-pagination-icon"
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
           aria-label="Página anterior"
@@ -231,14 +231,14 @@ function Pagination({
           ))}
         </Selection>
 
-        <span className="pt-paginacao-de">
+        <span className="pt-pagination-of">
           de {pages} páginas
         </span>
 
         {}
         <button
           type="button"
-          className="pt-paginacao-icone"
+          className="pt-pagination-icon"
           disabled={page === pages}
           onClick={() => setPage(page + 1)}
           aria-label="Próxima página"
@@ -249,7 +249,7 @@ function Pagination({
         {}
         <button
           type="button"
-          className="pt-paginacao-icone"
+          className="pt-pagination-icon"
           disabled={page === pages}
           onClick={() => setPage(pages)}
           aria-label="Última página"
@@ -311,12 +311,12 @@ function SubBarra({
  *
  * Search ALWAYS appears, even on an account with no contact at all: in the source it's there even on the empty account.
  */}
-        <div className="pt-subbarra-acoes">
+        <div className="pt-subbar-actions">
           {/*
  * Search follows the source's behavior: the text stays in local state and only updates the query 700ms after typing stops.
  */}
           <div className={`pt-busca${searchAberta ? ' pt-busca-aberta' : ''}`} role="search">
-            <button className="pt-busca-botao" type="button" onClick={abrirSearch} aria-label="Abrir busca">
+            <button className="pt-search-button" type="button" onClick={abrirSearch} aria-label="Abrir busca">
               <IconeSearch tamanho={32} />
             </button>
             {searchAberta ? (
@@ -391,7 +391,7 @@ function BoasVindas({ data }: { data: PortalData }) {
  */
 function ActionCards() {
   return (
-    <div className="pt-acoes">
+    <div className="pt-actions">
       {/*
  * Their four, in the same order: news, contract, help and community. Community is still being built and comes in disabled/greyed out.
  */}
@@ -512,7 +512,7 @@ function FlowCard({ flow }: { flow: Flow }) {
 
   return (
     <Link
-      className={naoPublicado ? 'pt-cartao pt-cartao-rascunho' : 'pt-cartao'}
+      className={naoPublicado ? 'pt-card pt-card-draft' : 'pt-card'}
       /*
        * The card opens the contact's HOME, not the builder: in the source, `handleContactClick` goes to `/application/detail/{contato}/home`, and that's where Builder, Atendimento, Canais and the rest get chosen from. Going straight to the builder skipped the screen that brings everything together — and, for a router, it led to a builder it doesn't even use.
        */
@@ -524,18 +524,18 @@ function FlowCard({ flow }: { flow: Flow }) {
  *
  * Plain `<img>`, not `next/image`: the photo is a `data:` URI stored right in the row, and Next's optimizer has nothing to optimize in it.
  */}
-      <span className="pt-cartao-av">
+      <span className="pt-card-avatar">
         {flow.imagemUrl ? (
-          <img className="pt-cartao-foto" src={flow.imagemUrl} alt="" />
+          <img className="pt-card-photo" src={flow.imagemUrl} alt="" />
         ) : (
           <IconePortal nome="bot" tamanho={32} />
         )}
       </span>
-      <span className="pt-cartao-nome">{flow.nome}</span>
+      <span className="pt-card-name">{flow.nome}</span>
       {/*
  * The icon is decoration next to the word, which stays visible and is what the screen reader reads.
  */}
-      <span className="pt-cartao-etq">
+      <span className="pt-card-tag">
         <IconePortal nome={flow.tipo === 'roteador' ? 'roteador' : 'fluxo'} tamanho={16} />
         <span>{etq}</span>
       </span>

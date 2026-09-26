@@ -22,7 +22,7 @@ function periodAnalyzed(hoje: Date) {
 export default function PageClickTracker() {
   const period = periodAnalyzed(new Date());
   return (
-    <div className="ck-pagina">
+    <div className="ck-page">
       <div className="ck-topo">
         <div className="ck-espaco" />
         <div className="ck-linha">
@@ -67,7 +67,7 @@ export default function PageClickTracker() {
           <div className="ck-container">
             <div className="ck-col-8">
               <div className="ck-evento-caixa">
-                <div className="ck-papel ck-evento">
+                <div className="ck-paper ck-evento">
                   <button
                     className="ck-chip"
                     type="button"
@@ -107,7 +107,7 @@ export default function PageClickTracker() {
 
       <div className="ck-container">
         <div className="ck-token-margem">
-          <div className="ck-papel ck-token">
+          <div className="ck-paper ck-token">
             <div className="ck-col-12">
               <div className="ck-token-status">
                 <span className="ck-token-status-texto">
@@ -120,14 +120,14 @@ export default function PageClickTracker() {
             </div>
             <div className="ck-col-12">
               <div className="ck-token-linha">
-                <div className="ck-col-4 ck-token-conta">
+                <div className="ck-col-4 ck-token-account">
                   <LogoPortal nome="meta" tamanho={64} className="ck-token-logo" />
                   <div className="ck-token-texto">
                     <strong>Token de acesso à Marketing API</strong>
                     <small>Conectado</small>
                   </div>
                 </div>
-                <div className="ck-col-8 ck-token-acoes">
+                <div className="ck-col-8 ck-token-actions">
                   <button className="ck-botao-fantasma" type="button">
                     <IconePortal nome="loja" tamanho={24} />
                     Alterar token
@@ -148,8 +148,8 @@ export default function PageClickTracker() {
 
       <div className="ck-container">
         <div className="ck-col-12">
-          <div className="ck-papel ck-desempenho">
-            <div className="ck-desempenho-coluna">
+          <div className="ck-paper ck-desempenho">
+            <div className="ck-performance-column">
               <strong className="ck-desempenho-titulo">Desempenho resumido de seus anúncios</strong>
               <span className="ck-desempenho-sub">
                 Detalhes sobre a performance de seus anúncios Click To WhatsApp
@@ -158,7 +158,7 @@ export default function PageClickTracker() {
                 {INDICADORES.map((indicador) => (
                   <div className="ck-col-3" key={indicador.rotulo}>
                     <div className="ck-indicador">
-                      <div className="ck-indicador-valor">
+                      <div className="ck-indicator-value">
                         {indicador.alerta ? (
                           <span
                             className="ck-indicador-alerta"
@@ -181,7 +181,7 @@ export default function PageClickTracker() {
                         {indicador.rodape ? (
                           <>
                             <span className="ck-indicador-rodape-texto">{indicador.rodape}</span>
-                            <span className="ck-indicador-rodape-valor">$ 0,00</span>
+                            <span className="ck-indicator-footer-value">$ 0,00</span>
                           </>
                         ) : null}
                       </div>
@@ -194,12 +194,12 @@ export default function PageClickTracker() {
         </div>
       </div>
 
-      <div className="ck-vazio">
-        <div className="ck-vazio-ilustracao">
+      <div className="ck-empty">
+        <div className="ck-empty-illustration">
           <Illustration nome="busca" tamanho={128} />
         </div>
-        <strong className="ck-vazio-titulo">Nenhum dado encontrado</strong>
-        <p className="ck-vazio-texto">
+        <strong className="ck-empty-title">Nenhum dado encontrado</strong>
+        <p className="ck-empty-text">
           Não encontramos dados de conversas iniciadas a partir de anúncios de Click To WhatsApp
           <br />
           no período selecionado.

@@ -83,7 +83,7 @@ export function FormularioDeLinha({
       ))}
       {children}
       {resultado && !resultado.ok ? (
-        <span className="cfg-aviso erro" role="alert">
+        <span className="cfg-aviso error" role="alert">
           {resultado.error}
         </span>
       ) : null}
@@ -159,7 +159,7 @@ function Resposta({ resultado }: { resultado: Resultado | null }) {
 
   if (!resultado.ok) {
     return (
-      <span className="cfg-aviso erro" role="alert">
+      <span className="cfg-aviso error" role="alert">
         {resultado.error}
       </span>
     );
@@ -188,7 +188,7 @@ function Secret({ value }: { value: string }) {
   const idCampo = useId();
 
   return (
-    <div className="cfg-segredo" role="status">
+    <div className="cfg-secret" role="status">
       <label htmlFor={idCampo}>
         Copie agora — isto não aparece de novo.
         <input id={idCampo} className="campo mono" readOnly value={value} />

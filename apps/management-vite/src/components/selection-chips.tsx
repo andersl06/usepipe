@@ -74,7 +74,7 @@ export function SelectionChips({
 
   return (
     <div
-      className="at-selecao-chips"
+      className="at-selection-chips"
       ref={raiz}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setAberta(false);
@@ -124,7 +124,7 @@ export function SelectionChips({
           )}
           <input
             ref={input}
-            className="at-sc-busca"
+            className="at-sc-search"
             type="text"
             role="combobox"
             aria-label={rotulo}
@@ -162,7 +162,7 @@ export function SelectionChips({
       </div>
       {aberta && (
         <div
-          className="at-sc-opcoes"
+          className="at-sc-options"
           id={listaId}
           role="listbox"
           aria-label={rotulo}
@@ -177,7 +177,7 @@ export function SelectionChips({
                 id={`${listaId}-${o.id}`}
                 key={o.id}
                 tabIndex={-1}
-                className={ativo?.id === o.id ? 'at-sc-opcao-ativa' : undefined}
+                className={ativo?.id === o.id ? 'at-sc-option-active' : undefined}
                 onPointerDown={(e) => e.preventDefault()}
                 onClick={() => adicionar(o.id)}
               >
@@ -185,7 +185,7 @@ export function SelectionChips({
               </button>
             ))
           ) : (
-            <div className="at-sc-vazio">Nenhum resultado encontrado</div>
+            <div className="at-sc-empty">Nenhum resultado encontrado</div>
           )}
         </div>
       )}

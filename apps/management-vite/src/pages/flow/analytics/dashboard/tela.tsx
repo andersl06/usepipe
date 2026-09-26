@@ -84,7 +84,7 @@ export function TelaDoDashboard(p: PropsDoDashboard) {
             <h1 className="da-t32 da-negrito da-margem">Dashboard</h1>
             <p className="da-t16">{rotuloDoIntervalo(p.intervalo)}</p>
           </div>
-          <div className="da-botoes">
+          <div className="da-buttons">
             {/* `Le icon="refresh" variant="secondary"`: refaz o pedido com o mesmo filtro. */}
             <a className="da-botao da-botao--secundario" href={query(p)}>
               <IconePortal nome="atualizar" tamanho={24} />
@@ -136,10 +136,10 @@ function PeriodFilter(p: PropsDoDashboard) {
     </a>
   );
   return (
-    <div className="da-filtro">
-      <div className="da-filtro-miolo">
+    <div className="da-filter">
+      <div className="da-filter-core">
         {/* `mT`: fs-20 bold label and the solid `info` tooltip icon. */}
-        <div className="da-filtro-rotulo">
+        <div className="da-filter-label">
           <span className="da-t20 da-negrito">Selecione o período</span>
           <Dica
             position="bottom-center"
@@ -149,9 +149,9 @@ function PeriodFilter(p: PropsDoDashboard) {
           </Dica>
         </div>
         {/* `fT` com as duas `gT`. */}
-        <div className="da-filtro-chips">
-          <div className="da-filtro-fileira">{PERIODOS_FIXOS.map(chip)}</div>
-          <div className="da-filtro-fileira">{PERIODOS_DE_CALENDARIO.map(chip)}</div>
+        <div className="da-filter-chips">
+          <div className="da-filter-row">{PERIODOS_FIXOS.map(chip)}</div>
+          <div className="da-filter-row">{PERIODOS_DE_CALENDARIO.map(chip)}</div>
         </div>
         <PeriodCustom
           hoje={p.hoje}
@@ -288,10 +288,10 @@ function WithoutData({
   texto: string;
 }) {
   return (
-    <div className="da-vazio">
-      <IconePortal nome={icone} tamanho={80} className="da-vazio-icone" />
-      <p className="da-t16 da-negrito da-vazio-titulo">{titulo}</p>
-      <p className="da-t14 da-semi da-vazio-texto">{texto}</p>
+    <div className="da-empty">
+      <IconePortal nome={icone} tamanho={80} className="da-empty-icon" />
+      <p className="da-t16 da-negrito da-empty-title">{titulo}</p>
+      <p className="da-t14 da-semi da-empty-text">{texto}</p>
     </div>
   );
 }
@@ -403,7 +403,7 @@ function ParticipationBarras({
               className={`da-barra ${b.cor}`}
               style={{ width: `${(b.fraction / topo) * 100}%` }}
             />
-            <span className="da-barra-valor">{` ${Math.round(100 * b.fraction)}%`}</span>
+            <span className="da-bar-value">{` ${Math.round(100 * b.fraction)}%`}</span>
           </div>
         ))}
       </div>
@@ -431,9 +431,9 @@ function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
   const rejection = interaction !== undefined ? 1 - interaction : undefined;
 
   return (
-    <section className="da-papel da-contatos">
-      <div className="da-secao-cabeca">
-        <div className="da-secao-titulos">
+    <section className="da-paper da-contacts">
+      <div className="da-section-header">
+        <div className="da-section-titles">
           <SectionTitulo dica="Contatos são todas as pessoas que receberam e/ou enviaram mensagens para o seu chatbot.">
             Contatos
           </SectionTitulo>
@@ -445,10 +445,10 @@ function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
         <BotaoCsv travado={false} dica="Baixar dados de Contatos em csv." />
       </div>
 
-      <div className="da-contatos-corpo">
+      <div className="da-contacts-body">
         {/* `O_` 30% (`#paperCard`): the dark total card and two light ones. */}
-        <div className="da-coluna" style={{ width: '30%' }}>
-          <div className="da-papel da-cartao-escuro">
+        <div className="da-column" style={{ width: '30%' }}>
+          <div className="da-paper da-card-dark">
             <span className="da-t14 da-negrito">Total de contatos únicos</span>
             <span className="da-linha">
               <span className="da-t24 da-extra">{formatar(total, { padrao: '0' })}</span>
@@ -475,7 +475,7 @@ function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
           />
         </div>
 
-        <div className="da-coluna" style={{ width: '45%' }}>
+        <div className="da-column" style={{ width: '45%' }}>
           <GraficoDeLinhas
             rotulos={contacts.byDia.map((d) => diaCurto(d.dia))}
             series={[
@@ -493,7 +493,7 @@ function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
           />
         </div>
 
-        <div className="da-coluna" style={{ width: '25%' }}>
+        <div className="da-column" style={{ width: '25%' }}>
           <CardStriped
             p={p}
             titulo="Taxa de rejeição"
@@ -530,8 +530,8 @@ function CardClaro(props: {
   cmp: Comparison;
 }) {
   return (
-    <div className="da-papel da-cartao-claro">
-      <div className="da-cartao-claro-topo">
+    <div className="da-paper da-card-light">
+      <div className="da-card-light-top">
         <div />
         <span className="da-linha">
           <span className="da-t24 da-extra">{formatar(props.value, { padrao: '0' })}</span>
@@ -670,11 +670,11 @@ function CardAzul(props: {
   indicador?: ReactNode;
 }) {
   return (
-    <div className="da-papel da-cartao-azul">
+    <div className="da-paper da-card-blue">
       <SectionTitulo semMargem>{props.titulo}</SectionTitulo>
-      <div className="da-cartao-azul-corpo">
+      <div className="da-card-blue-body">
         <p className="da-t16">{props.texto}</p>
-        <div className="da-cartao-azul-valor">
+        <div className="da-card-blue-value">
           <span className="da-linha">
             <span className="da-t24 da-extra da-mr5">{props.value}</span>
             {props.indicador}
@@ -704,7 +704,7 @@ function Ranking(props: {
   abrir?: boolean;
 }) {
   return (
-    <div className="da-papel da-ranking">
+    <div className="da-paper da-ranking">
       <div className="da-ranking-cabeca">
         <div className="da-ranking-titulos">
           <SectionTitulo dica={props.dica}>{props.titulo}</SectionTitulo>
@@ -732,7 +732,7 @@ function Ranking(props: {
             {props.linhas.map((linha, i) => (
               <tr key={i}>
                 <td style={{ width: '62px' }}>
-                  <span className="da-posicao">
+                  <span className="da-position">
                     <span className="da-t14 da-negrito">{i + 1}º</span>
                   </span>
                 </td>
@@ -760,7 +760,7 @@ function Ranking(props: {
           </tbody>
         </table>
       ) : (
-        <div className="da-ranking-vazio">
+        <div className="da-ranking-empty">
           <WithoutData {...props.empty} />
         </div>
       )}
@@ -785,9 +785,9 @@ function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
   const tudoZero = total === 0;
 
   return (
-    <section className="da-papel da-mensagens">
-      <div className="da-secao-cabeca">
-        <div className="da-secao-titulos">
+    <section className="da-paper da-messages">
+      <div className="da-section-header">
+        <div className="da-section-titles">
           <div style={{ width: '80%' }}>
             <SectionTitulo dica="Mensagens são todos os conteúdos trocados entre o chatbot e seus contatos.">
               Mensagens
@@ -803,8 +803,8 @@ function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
         />
       </div>
 
-      <div className="da-mensagens-corpo">
-        <div className="da-mensagens-coluna" style={{ width: '20%' }}>
+      <div className="da-messages-body">
+        <div className="da-messages-column" style={{ width: '20%' }}>
           <ParticipationBarras
             barras={[
               { rotulo: 'Enviadas', cor: 'da-cor-oceano', fraction: parte(enviadas) },
@@ -812,7 +812,7 @@ function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
             ]}
           />
         </div>
-        <div className="da-mensagens-coluna" style={{ width: '25%' }}>
+        <div className="da-messages-column" style={{ width: '25%' }}>
           <CardStriped
             titulo="Total de mensagens trafegadas"
             dica="Soma das mensagens enviadas e recebidas pelo chatbot."
@@ -836,7 +836,7 @@ function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
             cmp={p.cmp}
           />
         </div>
-        <div className="da-mensagens-coluna" style={{ width: '30%' }}>
+        <div className="da-messages-column" style={{ width: '30%' }}>
           <GraficoDeLinhas
             titulo="Volume de mensagens no período"
             rotulos={messages.byDia.map((d) => diaCurto(d.dia))}
@@ -854,7 +854,7 @@ function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
             ]}
           />
         </div>
-        <div className="da-mensagens-coluna" style={{ width: '25%' }}>
+        <div className="da-messages-column" style={{ width: '25%' }}>
           <CardStriped
             titulo="Média de mensagens recebidas"
             dica="Média de mensagens que seu chatbot recebeu de cada contato que interagiu com ele."
@@ -914,7 +914,7 @@ function MessageMetric(props: {
       </span>
       <div className="da-metrica-textos">
         <span className="da-t12 da-negrito da-mr5">{props.titulo}</span>
-        <span className="da-metrica-valor">
+        <span className="da-metric-value">
           <span className="da-t20 da-extra da-mr8">{formatar(props.value)}</span>
           <Indicador value={props.variation} variante="escuro" cmp={props.cmp} />
         </span>
@@ -968,9 +968,9 @@ function SectionChannels(p: PropsDoDashboard & { cmp: Comparison }) {
   const linhas = total > 0 ? [channel ?? '-', 'Totais'] : [];
 
   return (
-    <section className="da-papel da-canais">
-      <div className="da-secao-cabeca">
-        <div className="da-canais-titulos">
+    <section className="da-paper da-channels">
+      <div className="da-section-header">
+        <div className="da-channels-titles">
           <SectionTitulo dica="Canais de conversa nos quais o seu chatbot está conectado.">
             Canais
           </SectionTitulo>
@@ -979,9 +979,9 @@ function SectionChannels(p: PropsDoDashboard & { cmp: Comparison }) {
           </p>
         </div>
       </div>
-      <div className="da-canais-corpo">
+      <div className="da-channels-body">
         {linhas.length ? (
-          <table className="da-canais-tabela">
+          <table className="da-channels-table">
             <thead>
               <tr>
                 <th />
@@ -1027,9 +1027,9 @@ function SectionFlow(p: PropsDoDashboard & { cmp: Comparison }) {
   const retidosAntes = flow.total.anterior - flow.transbordo.anterior;
   const tudoZero = total === 0 && flow.transbordo.atual === 0;
   return (
-    <section className="da-papel da-fluxo">
-      <div className="da-secao-cabeca">
-        <div className="da-canais-titulos">
+    <section className="da-paper da-flow">
+      <div className="da-section-header">
+        <div className="da-channels-titles">
           <SectionTitulo dica="Fluxo conversacional é a jornada pela qual seus contatos passam durante as conversas com seu chatbot.">
             Fluxo Conversacional
           </SectionTitulo>
@@ -1045,7 +1045,7 @@ function SectionFlow(p: PropsDoDashboard & { cmp: Comparison }) {
           texto="Por favor, aguarde até 24 horas. Fluxos conversacionais maiores podem ter um tempo de processamento maior."
         />
       ) : (
-        <div className="da-fluxo-corpo">
+        <div className="da-flow-body">
           <ColumnsCard
             titulo="Contatos em transbordo"
             cor="da-borda-rosa"
@@ -1116,9 +1116,9 @@ function ColumnsCard(props: {
             <IconePortal nome="informacao-cheia" tamanho={16} />
           </Dica>
         </div>
-        <div className="da-colunas-valores">
+        <div className="da-columns-values">
           {props.values.map((v) => (
-            <div key={v.texto} className="da-colunas-valor">
+            <div key={v.texto} className="da-columns-value">
               <span className="da-linha">
                 <span className="da-t24 da-extra da-mr8">{v.value}</span>
                 {'variacao' in v ? (
@@ -1230,9 +1230,9 @@ function ContactsBarra(p: PropsDoDashboard & { lista: NonNullable<PropsDoDashboa
           <IconePortal nome="fechar" tamanho={24} />
         </a>
       </div>
-      <div className="da-papel da-lateral">
-        <div className="da-papel da-lateral-sub">
-          <div className="da-lateral-sub-coluna">
+      <div className="da-paper da-lateral">
+        <div className="da-paper da-lateral-sub">
+          <div className="da-side-sub-column">
             <div className="da-lateral-sub-titulo">
               <IconePortal nome="canais" tamanho={24} />
               <span className="da-t16 da-negrito">
@@ -1243,7 +1243,7 @@ function ContactsBarra(p: PropsDoDashboard & { lista: NonNullable<PropsDoDashboa
               {`${formatar(taxa, { percentual: true, padrao: '0%' })} (${interaction ? com : total - com} contatos)`}
             </span>
           </div>
-          <div className="da-lateral-sub-coluna">
+          <div className="da-side-sub-column">
             <Dica texto="Limitado aos 1000 contatos mais recentes" position="left-center">
               <button type="button" className="da-botao da-botao--curto da-botao--terciario">
                 <IconePortal nome="baixar" tamanho={24} />
@@ -1254,7 +1254,7 @@ function ContactsBarra(p: PropsDoDashboard & { lista: NonNullable<PropsDoDashboa
         </div>
         <div className="da-lateral-lista">
           {p.lista.nomes.map((n, i) => (
-            <div key={`${n}-${i}`} className="da-papel da-lateral-item">
+            <div key={`${n}-${i}`} className="da-paper da-lateral-item">
               <span className="da-t14">{n}</span>
             </div>
           ))}

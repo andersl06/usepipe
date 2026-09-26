@@ -21,7 +21,7 @@
 
 /* ==================== `custom-content` do `<page-header>`
    `<div class="search-input-container flex mr3">` + `<bds-button>`. */
-.cf-equipe-acoes {
+.cf-team-actions {
   display: flex;
   align-items: center;
 }
@@ -30,7 +30,7 @@
  *    1px border and 8 radius, with the 24px `avatar-user` icon on the left. The
  *    `mr3` (16px) separates the search from the button.
  */
-.cf-equipe-busca {
+.cf-team-search {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -44,7 +44,7 @@
   border-radius: var(--p-r-md);
   color: var(--p-conteudo-fantasma);
 }
-.cf-equipe-busca input {
+.cf-team-search input {
   width: 100%;
   height: 36px;
   border: 0;
@@ -53,7 +53,7 @@
   font: inherit;
   font-size: 14px;
 }
-.cf-equipe-busca input:focus {
+.cf-team-search input:focus {
   outline: none;
 }
 
@@ -77,16 +77,16 @@
 }
 
 /* `card.card--mini-card` */
-.cf-equipe-cartao {
+.cf-team-card {
   box-sizing: border-box;
   margin: 0 0 10px;
   padding: 20px 50px 20px 60px;
   border-radius: var(--p-r-md);
   background: var(--p-superficie-0);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
   transition: box-shadow 0.3s ease-out;
 }
-.cf-equipe-cartao:hover {
+.cf-team-card:hover {
   box-shadow: 0 13px 20px 0 color-mix(in srgb, var(--p-conteudo) 12%, transparent);
 }
 
@@ -102,16 +102,16 @@
 }
 
 /* `.card-section` e `.card-section--no-overflow` */
-.cf-equipe-secao {
+.cf-team-section {
   white-space: nowrap;
 }
-.cf-equipe-secao--corta {
+.cf-team-section--clip {
   display: table;
   table-layout: fixed;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.cf-equipe-secao--corta > .cf-equipe-valor {
+.cf-team-section--clip > .cf-team-value {
   display: inline-block;
   max-width: 100%;
   overflow: hidden;
@@ -126,7 +126,7 @@
   line-height: 25.6px;
   color: var(--p-conteudo-fantasma);
 }
-.cf-equipe-valor {
+.cf-team-value {
   font-size: 14px;
   line-height: 22.4px;
   color: var(--p-conteudo);
@@ -148,14 +148,14 @@
 
 /* `<div class="card-section w-5 flex justify-center"><avatar class="h3 w3">`:
    a bolinha da origem tem 40×40. */
-.cf-equipe-avatar-secao {
+.cf-team-avatar-section {
   display: flex;
   justify-content: center;
 }
 /*
  * Two class names to override `@pipe/ui`'s `.avatar` 26px, which has the same specificity.
  */
-.cf-equipe-avatar-secao .cf-equipe-avatar {
+.cf-team-avatar-section .cf-equipe-avatar {
   width: 40px;
   height: 40px;
   font-size: 14px;
@@ -191,7 +191,7 @@
   white-space: nowrap;
   text-align: center;
 }
-.cf-equipe-secao--selo {
+.cf-team-section--badge {
   flex: none;
   min-width: 10%;
 }
@@ -212,8 +212,8 @@
   visibility: hidden;
   transition: opacity 0.5s linear;
 }
-.cf-equipe-cartao:hover .cf-equipe-oculto,
-.cf-equipe-cartao:focus-within .cf-equipe-oculto {
+.cf-team-card:hover .cf-equipe-oculto,
+.cf-team-card:focus-within .cf-equipe-oculto {
   opacity: 1;
   visibility: visible;
 }
@@ -232,7 +232,7 @@
 }
 
 /* `.no-content-found` */
-.cf-equipe-vazio {
+.cf-team-empty {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -349,10 +349,10 @@
  *    35px` inside `add-user-modal`, 25px knob, 14px caption in 170px boxes
  *    centered on each stop.
  */
-.cf-equipe-permissao {
+.cf-team-permission {
   margin-top: 32px;
 }
-.cf-equipe-permissao-rotulo {
+.cf-team-permission-label {
   display: block;
   margin-bottom: 9px;
   font-size: 14px;
@@ -426,7 +426,7 @@
   flex: none;
   width: 60%;
 }
-.cf-equipe-granular-coluna {
+.cf-team-granular-column {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -559,7 +559,7 @@
   font-size: 24px;
   font-weight: var(--g-peso-normal);
 }
-.cf-equipe-editar-cartao {
+.cf-team-edit-card {
   margin-top: 16px;
   padding: 32px 48px;
 }
@@ -571,7 +571,7 @@
   font-size: 24px;
   font-weight: var(--g-peso-forte);
 }
-.cf-equipe-editar-controle .selecao {
+.cf-equipe-editar-controle .selection {
   width: 240px;
 }
 .cf-equipe-editar .cf-equipe-granular {

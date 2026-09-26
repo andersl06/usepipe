@@ -83,7 +83,7 @@ export function ViewsSalvas({ queryCurrent }: { queryCurrent: string }) {
   }
 
   return (
-    <div className="visoes">
+    <div className="views">
       {views.length > 0 ? (
         <label>
           Visão

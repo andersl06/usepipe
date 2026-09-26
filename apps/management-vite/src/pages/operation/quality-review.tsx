@@ -116,12 +116,12 @@ export function PageQualityReview() {
         </div>
       </form>
 
-      <section className="bloco-rel">
+      <section className="block-rel">
         <h3>
           Nota média <span className="sub">{`${de} → ${ate}`}</span>
         </h3>
-        <div className="bloco-rel-grade" style={{ '--rel-colunas': 4 } as React.CSSProperties}>
-          <div className="cartao-rel">
+        <div className="block-rel-grid" style={{ '--rel-colunas': 4 } as React.CSSProperties}>
+          <div className="card-rel">
             <span className="r">Nota média</span>
             <span className="v">
               {panel.media.value === null
@@ -131,7 +131,7 @@ export function PageQualityReview() {
             <span className="den">{denominador(panel.media, 'sem nota fechada')}</span>
           </div>
 
-          <div className="cartao-rel">
+          <div className="card-rel">
             <span className="r">Zeradas por critério fatal</span>
             <span className="v">{numero(zeradas)}</span>
             <span className="den">
@@ -139,7 +139,7 @@ export function PageQualityReview() {
             </span>
           </div>
 
-          <div className="cartao-rel">
+          <div className="card-rel">
             <span className="r">Confiança da IA</span>
             <span className="v">
               {panel.confiancaIa.value === null ? '—' : percentual(panel.confiancaIa.value)}
@@ -149,7 +149,7 @@ export function PageQualityReview() {
             </span>
           </div>
 
-          <div className="cartao-rel">
+          <div className="card-rel">
             <span className="r">Quem avaliou</span>
             <span className="v">{numero(panel.evaluations.length)}</span>
             <span className="den">
@@ -169,11 +169,11 @@ export function PageQualityReview() {
         </p>
       </section>
 
-      <section className="bloco-rel">
+      <section className="block-rel">
         <h3>Por atendente</h3>
         {panel.byAgent.length === 0 ? (
-          <div className="cartao-rel">
-            <div className="vazio">
+          <div className="card-rel">
+            <div className="empty">
               <b>Nenhuma avaliação neste período.</b>
               <p>
                 A monitoria roda sobre conversas já encerradas. Sem formulário de avaliação
@@ -183,7 +183,7 @@ export function PageQualityReview() {
             </div>
           </div>
         ) : (
-          <div className="cartao-rel tabela scroll">
+          <div className="card-rel tabela scroll">
             <table>
               <thead>
                 <tr>
@@ -213,17 +213,17 @@ export function PageQualityReview() {
         </p>
       </section>
 
-      <section className="bloco-rel">
+      <section className="block-rel">
         <h3>Conversas avaliadas</h3>
         {panel.evaluations.length === 0 ? (
-          <div className="cartao-rel">
-            <div className="vazio">
+          <div className="card-rel">
+            <div className="empty">
               <b>Nada avaliado no período.</b>
               <p>Alargue as datas ou tire o filtro de avaliador.</p>
             </div>
           </div>
         ) : (
-          <div className="cartao-rel tabela scroll">
+          <div className="card-rel tabela scroll">
             <table>
               <thead>
                 <tr>

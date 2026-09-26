@@ -38,7 +38,7 @@ export function Thread({
   }
 
   return (
-    <div className="dk-conversa-corpo">
+    <div className="dk-conversation-body">
       <div className="dk-thread" ref={rolador} onScroll={aoRolar} tabIndex={-1}>
         <div className="dk-thread-miolo">
           <div className="dk-ticket-linha">
@@ -122,7 +122,7 @@ function BubblesGroup({
           ) : null}
         </div>
       ))}
-      <div className="dk-grupo-hora" data-entrega={sinal ?? undefined} aria-hidden="true">
+      <div className="dk-grupo-hora" data-delivery={sinal ?? undefined} aria-hidden="true">
         {sinal === 'relogio' ? <IconeDesk nome="relogio" /> : null}
         {sinal === 'check' ? <IconeDesk nome="check" /> : null}
         {sinal === 'duplo-check' || sinal === 'lida' ? <IconeDesk nome="duplo-check" /> : null}

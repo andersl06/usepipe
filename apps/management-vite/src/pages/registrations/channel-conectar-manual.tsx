@@ -73,7 +73,7 @@ export function ConectarMessengerManual({ flowId, rotulo = 'Conectar manualmente
   const [aberto, setAberto] = useState(false); const [enviando, setEnviando] = useState(false); const [error, setError] = useState<string | null>(null); const [sucesso, setSucesso] = useState<ChannelConnected<ChannelMessengerVisivel> | null>(null);
   function fechar() { setAberto(false); setError(null); if (sucesso) onConectado?.(sucesso.channel); setSucesso(null); }
   async function enviar(evento: FormEvent<HTMLFormElement>) { evento.preventDefault(); setEnviando(true); const d = new FormData(evento.currentTarget); const r = await conectarMessengerManual({ token: String(d.get('token') ?? '').trim(), appSecret: String(d.get('appSecret') ?? '').trim(), nome: String(d.get('nome') ?? '').trim() || undefined, ...(flowId ? { flowId } : {}) }); setEnviando(false); if (!r.ok) { setError(r.error); return; } setSucesso(r.value); }
-  return <><Botao type="button" variante={variante} onClick={() => setAberto(true)}>{rotulo}</Botao><Modal aberto={aberto} titulo="Conectar Facebook Messenger manualmente" onFechar={fechar}>{sucesso ? <WebhookPronto webhook={sucesso.webhook} webhookError={sucesso.webhookError} onFechar={fechar} /> : <form onSubmit={(e) => void enviar(e)} style={column}><p className="sub">No developers.facebook.com, abra o aplicativo do cliente: Messenger → Configurações. Gere um token de Página de longa duração e copie o App Secret em Configurações básicas. Depois de conectar, cole a URL e o verify token exibidos aqui no Webhooks do app.</p><CampoComRotulo nome="token" rotuloTexto="Token de acesso da Página" /><CampoComRotulo nome="appSecret" rotuloTexto="App Secret" ajuda="32 caracteres, só números e letras de a a f." /><CampoComRotulo nome="nome" rotuloTexto="Nome do canal (opcional)" obrigatorio={false} />{error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}<div className="cl-acoes"><Botao type="button" onClick={fechar} disabled={enviando}>Cancelar</Botao><Botao type="submit" variante="primario" disabled={enviando}>{enviando ? 'Conectando…' : 'Conectar'}</Botao></div></form>}</Modal></>;
+  return <><Botao type="button" variante={variante} onClick={() => setAberto(true)}>{rotulo}</Botao><Modal aberto={aberto} titulo="Conectar Facebook Messenger manualmente" onFechar={fechar}>{sucesso ? <WebhookPronto webhook={sucesso.webhook} webhookError={sucesso.webhookError} onFechar={fechar} /> : <form onSubmit={(e) => void enviar(e)} style={column}><p className="sub">No developers.facebook.com, abra o aplicativo do cliente: Messenger → Configurações. Gere um token de Página de longa duração e copie o App Secret em Configurações básicas. Depois de conectar, cole a URL e o verify token exibidos aqui no Webhooks do app.</p><CampoComRotulo nome="token" rotuloTexto="Token de acesso da Página" /><CampoComRotulo nome="appSecret" rotuloTexto="App Secret" ajuda="32 caracteres, só números e letras de a a f." /><CampoComRotulo nome="nome" rotuloTexto="Nome do canal (opcional)" obrigatorio={false} />{error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}<div className="cl-actions"><Botao type="button" onClick={fechar} disabled={enviando}>Cancelar</Botao><Botao type="submit" variante="primario" disabled={enviando}>{enviando ? 'Conectando…' : 'Conectar'}</Botao></div></form>}</Modal></>;
 }
 
 /** O que sobra na tela depois de conectar: o cliente TEM de colar isto no app dele. */
@@ -106,7 +106,7 @@ function WebhookPronto({
         <span className="sub">Verify token</span>
         <Campo value={webhook.verifyToken} readOnly onFocus={(e) => e.currentTarget.select()} />
       </label>
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao type="button" variante="primario" onClick={onFechar}>
           Concluir
         </Botao>
@@ -215,7 +215,7 @@ export function ConectarWhatsappManual({
 
             {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-            <div className="cl-acoes">
+            <div className="cl-actions">
               <Botao type="button" onClick={fechar} disabled={enviando}>
                 Cancelar
               </Botao>
@@ -295,7 +295,7 @@ export function ConectarInstagramManual({
 
             {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-            <div className="cl-acoes">
+            <div className="cl-actions">
               <Botao type="button" onClick={fechar} disabled={enviando}>
                 Cancelar
               </Botao>

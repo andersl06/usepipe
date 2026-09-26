@@ -38,30 +38,30 @@ export function CardClosureTicket({
   }
 
   return (
-    <div className="pipe-encerramento-fundo" role="presentation" onClick={aoCancelar}>
+    <div className="pipe-closure-background" role="presentation" onClick={aoCancelar}>
       <section
-        className="pipe-encerramento"
+        className="pipe-closure"
         role="dialog"
         aria-modal="true"
         aria-labelledby="pipe-encerramento-titulo"
         onClick={(evento) => evento.stopPropagation()}
         >
-        <button type="button" className="pipe-encerramento-x" aria-label="Fechar" onClick={aoCancelar}>
+        <button type="button" className="pipe-closure-x" aria-label="Fechar" onClick={aoCancelar}>
           <Icone nome="x" tamanho={20} />
         </button>
-        <div className="pipe-encerramento-conteudo">
-          <div className="pipe-encerramento-ilustracao" aria-hidden="true" />
-          <div className="pipe-encerramento-detalhes">
+        <div className="pipe-closure-content">
+          <div className="pipe-closure-illustration" aria-hidden="true" />
+          <div className="pipe-closure-details">
             <h2 id="pipe-encerramento-titulo">Finalizar atendimento do Ticket {numero.startsWith('#') ? numero : `#${numero}`}</h2>
             {etiquetas.length === 0 ? (
-              <div className="pipe-encerramento-sem-tags">
+              <div className="pipe-closure-no-tags">
                 <p>Finalizar o atendimento zera as ações do usuário com o bot.<br />Novas interações geram um novo Ticket.</p>
                 <p className="forte">Deseja continuar?</p>
               </div>
             ) : (
-              <div className="pipe-encerramento-tags">
+              <div className="pipe-closure-tags">
                 <div
-                  className="pipe-encerramento-seletor"
+                  className="pipe-closure-selector"
                   role="combobox"
                   aria-label="Tags"
                   aria-haspopup="listbox"
@@ -75,12 +75,12 @@ export function CardClosureTicket({
                     }
                   }}
                 >
-                  <span className="pipe-encerramento-chips">
+                  <span className="pipe-closure-chips">
                     {selecionadasVisiveis.length
                       ? selecionadasVisiveis.map((etiqueta) => (
                           <button
                             type="button"
-                            className="pipe-encerramento-chip"
+                            className="pipe-closure-chip"
                             key={etiqueta.id}
                             aria-label={`Remover tag ${etiqueta.nome}`}
                             disabled={enviando}
@@ -93,12 +93,12 @@ export function CardClosureTicket({
                             <span aria-hidden="true">×</span>
                           </button>
                         ))
-                      : <span className="pipe-encerramento-placeholder">Selecione as tags</span>}
+                      : <span className="pipe-closure-placeholder">Selecione as tags</span>}
                   </span>
                   <Icone nome="baixo" tamanho={16} />
                 </div>
                 {listaAberta ? (
-                  <div className="pipe-encerramento-opcoes" role="group" aria-label="Tags de encerramento">
+                  <div className="pipe-closure-options" role="group" aria-label="Tags de encerramento">
                     {etiquetas.map((etiqueta) => {
                       const marcada = selecionadas.includes(etiqueta.id);
                       return (
@@ -108,7 +108,7 @@ export function CardClosureTicket({
                           aria-pressed={marcada}
                           onClick={() => alternar(etiqueta.id)}
                         >
-                          <span className={marcada ? 'pipe-encerramento-caixa marcada' : 'pipe-encerramento-caixa'} />
+                          <span className={marcada ? 'pipe-closure-box marcada' : 'pipe-closure-box'} />
                           {etiqueta.nome}
                         </button>
                       );
@@ -119,8 +119,8 @@ export function CardClosureTicket({
             )}
           </div>
         </div>
-        {error ? <p className="pipe-encerramento-erro" role="alert">{error}</p> : null}
-        <div className="pipe-encerramento-acoes">
+        {error ? <p className="pipe-closure-error" role="alert">{error}</p> : null}
+        <div className="pipe-closure-actions">
           <button type="button" className="secundario" onClick={aoCancelar} disabled={enviando}>Cancelar</button>
           <button type="button" className="primario" onClick={aoFinalizar} disabled={!podeFinalizar}>Finalizar</button>
         </div>

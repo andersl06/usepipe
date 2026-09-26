@@ -67,7 +67,7 @@ export function FormularioRespostaPronta({ aoSalvar }: { aoSalvar?: () => void }
 
         {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
-        <div className="cl-acoes">
+        <div className="cl-actions">
           <Botao type="submit" variante="primario" disabled={enviando}>
             {enviando ? 'Salvando…' : 'Salvar resposta pronta'}
           </Botao>

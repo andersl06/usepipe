@@ -107,7 +107,7 @@ export function PageSatisfaction() {
         <div className="faixa-fim">
           <button
             type="button"
-            className="btn fantasma rel-periodo"
+            className="btn fantasma rel-period"
             title={`${de} → ${ate}`}
             onClick={() => setPanelAberto(true)}
           >
@@ -131,7 +131,7 @@ export function PageSatisfaction() {
       </PanelFilters>
 
       {/* ------------------------------------------------------------ bloco 1 */}
-      <section className="bloco-rel">
+      <section className="block-rel">
         <h3>
           Dados gerais
           <Dica
@@ -139,8 +139,8 @@ export function PageSatisfaction() {
             texto="Resumo das pesquisas de satisfação respondidas no período"
           />
         </h3>
-        <div className="bloco-rel-grade" style={{ '--rel-colunas': 4 } as React.CSSProperties}>
-          <div className="cartao-rel">
+        <div className="block-rel-grid" style={{ '--rel-colunas': 4 } as React.CSSProperties}>
+          <div className="card-rel">
             <Rotulo
               texto="Média geral de satisfação"
               dica={
@@ -153,18 +153,18 @@ export function PageSatisfaction() {
             />
             <span className="v">{unico ? numero(unico.media, 2) : '—'}</span>
           </div>
-          <div className="cartao-rel">
+          <div className="card-rel">
             <Rotulo
               texto="Total de tickets fechados"
               dica="Conversas encerradas no período — a população que recebeu a pesquisa."
             />
             <span className="v">{numero(report.encerradas)}</span>
           </div>
-          <div className="cartao-rel">
+          <div className="card-rel">
             <Rotulo texto="Total de respostas" dica="Pesquisas respondidas com nota no período." />
             <span className="v">{numero(totalRespostas)}</span>
           </div>
-          <div className="cartao-rel">
+          <div className="card-rel">
             <Rotulo
               texto="Taxa de resposta"
               dica={`Respostas divididas pelos tickets fechados: ${numero(totalRespostas)} ÷ ${numero(report.encerradas)}.`}
@@ -173,8 +173,8 @@ export function PageSatisfaction() {
           </div>
         </div>
 
-        <div className="bloco-rel-grade" style={{ '--rel-colunas': 2, marginTop: 20 } as React.CSSProperties}>
-          <div className="cartao-rel alto">
+        <div className="block-rel-grid" style={{ '--rel-colunas': 2, marginTop: 20 } as React.CSSProperties}>
+          <div className="card-rel alto">
             <h4>
               Satisfação geral
               <Dica
@@ -183,7 +183,7 @@ export function PageSatisfaction() {
               />
             </h4>
             {groups.length === 0 || groups.every((g) => g.classes.length === 0) ? (
-              <div className="vazio">
+              <div className="empty">
                 <b>Dados insuficientes</b>
               </div>
             ) : (
@@ -211,7 +211,7 @@ export function PageSatisfaction() {
               ))
             )}
           </div>
-          <div className="cartao-rel alto">
+          <div className="card-rel alto">
             <h4>
               Comparativo de satisfação
               <Dica
@@ -226,7 +226,7 @@ export function PageSatisfaction() {
                 </Selection>
               </span>
             </h4>
-            <div className="vazio">
+            <div className="empty">
               <b>Dados insuficientes</b>
             </div>
           </div>
@@ -234,7 +234,7 @@ export function PageSatisfaction() {
       </section>
 
       {/* ------------------------------------------------------------ bloco 2 */}
-      <section className="bloco-rel">
+      <section className="block-rel">
         <h3>
           Análise do período
           <Dica
@@ -243,15 +243,15 @@ export function PageSatisfaction() {
             formula="A série por dia ainda não tem consulta própria."
           />
         </h3>
-        <div className="cartao-rel alto">
-          <div className="vazio">
+        <div className="card-rel alto">
+          <div className="empty">
             <b>Dados insuficientes</b>
           </div>
         </div>
       </section>
 
       {/* ------------------------------------------------------------ bloco 3 */}
-      <section className="bloco-rel">
+      <section className="block-rel">
         <h3>
           Detalhamento das pesquisas
           <Dica
@@ -274,13 +274,13 @@ export function PageSatisfaction() {
 
         {aba === 'geral' ? (
           report.comentarios.length === 0 ? (
-            <div className="cartao-rel">
-              <div className="vazio-linha" style={{ border: 0, minHeight: 0 }}>
+            <div className="card-rel">
+              <div className="empty-line" style={{ border: 0, minHeight: 0 }}>
                 Dados insuficientes
               </div>
             </div>
           ) : (
-            <div className="cartao-rel tabela scroll">
+            <div className="card-rel tabela scroll">
               <table>
                 <thead>
                   <tr>
@@ -319,7 +319,7 @@ export function PageSatisfaction() {
         ) : null}
 
         {aba !== 'geral' ? (
-          <div className="cartao-rel tabela scroll">
+          <div className="card-rel tabela scroll">
             <table>
               <thead>
                 <tr>
@@ -333,7 +333,7 @@ export function PageSatisfaction() {
               <tbody>
                 <tr>
                   <td colSpan={5}>
-                    <div className="vazio-linha" style={{ border: 0 }}>
+                    <div className="empty-line" style={{ border: 0 }}>
                       Dados insuficientes
                     </div>
                   </td>

@@ -162,7 +162,7 @@ export default async function PageOpportunity({
       <OpportunityDestaque ficha={ficha} fuso={fuso} hoje={hoje} />
 
       <div className="ficha">
-        <aside className="coluna">
+        <aside className="column">
           <div className="tblwrap">
             <Section titulo="Dados">
               <div className="campos">
@@ -233,7 +233,7 @@ export default async function PageOpportunity({
           </div>
         </aside>
 
-        <div className="coluna">
+        <div className="column">
           <div className="tblwrap">
             <AbasDaFicha
               base={`/opportunities/${ficha.id}`}
@@ -247,7 +247,7 @@ export default async function PageOpportunity({
 
             {aba === 'historico' ? (
               ficha.leadId === null ? (
-                <div className="vazio">
+                <div className="empty">
                   <b>Esta oportunidade não veio de um lead.</b>
                   <span>
                     O histórico da negociação é o do lead que a originou. Sem lead ligado, não há

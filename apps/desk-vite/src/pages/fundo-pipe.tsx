@@ -138,5 +138,5 @@ export function FundoPipe() {
     };
   }, []);
 
-  return <canvas ref={alvo} className="entrar-fundo" aria-hidden />;
+  return <canvas ref={alvo} className="login-background" aria-hidden />;
 }

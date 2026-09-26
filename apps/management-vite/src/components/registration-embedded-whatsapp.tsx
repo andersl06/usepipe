@@ -311,7 +311,7 @@ export function ConectarWhatsApp({
   }
 
   return (
-    <div className="cl-acoes">
+    <div className="cl-actions">
       <Botao variante={variante} className={className} onClick={() => void conectar()} disabled={ocupado}>
         {prefix}
         {ocupado ? 'Conectando…' : rotulo}

@@ -17,14 +17,14 @@
 /*
  * `.custom-header-content search-input { margin-right: .8rem }` — wins over `.mr3` by specificity — and `.search-input-container` is centered `flex`.
  */
-.rl-busca {
+.rl-search {
   display: flex;
   align-items: center;
   margin-right: 0.8rem;
   cursor: pointer;
 }
 
-.rl-busca-lupa {
+.rl-search-magnifier {
   flex: none;
   color: var(--ink-3);
 }
@@ -32,7 +32,7 @@
 /*
  * `input[type=text]`: no background or border, 2.25rem height, 0 width with `transition: width .4s`; on focus, 200px, 10 on the left and a 2px line.
  */
-.rl-busca input {
+.rl-search input {
   box-sizing: border-box;
   width: 0;
   height: 36px;
@@ -45,26 +45,26 @@
   transition: width 0.4s;
 }
 
-.rl-busca input:focus {
+.rl-search input:focus {
   width: 200px;
   margin-left: 10px;
   border-bottom: 2px solid var(--p-marca);
   outline: 0;
 }
 
-.rl-criar {
+.rl-create {
   display: flex;
   align-items: center;
 }
 
-.rl-criar .an-bp-btn:disabled {
+.rl-create .an-bp-btn:disabled {
   cursor: default;
 }
 
 /*
  * `#reports-id .cards`: surface-1 background, row with `space-between`, 5 at the bottom, 25 padding, `white-space: nowrap`, full width. `bds-paper` sets radius 16 and the `Static` shadow.
  */
-.rl-cartao {
+.rl-card {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -82,19 +82,19 @@
 /*
  * `.w-25.truncate` and `.w-30.truncate`: `#reports-id .truncate` fixes 250px and truncates with an ellipsis — it wins over the percentage. The date is `.w-25` without truncation.
  */
-.rl-coluna--nome,
-.rl-coluna--autor {
+.rl-column--name,
+.rl-column--author {
   width: 250px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.rl-coluna--data {
+.rl-column--data {
   width: 25%;
 }
 
-.rl-coluna p {
+.rl-column p {
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -103,7 +103,7 @@
   color: var(--ink-2);
 }
 
-.rl-valor {
+.rl-value {
   color: var(--ink);
 }
 
@@ -125,7 +125,7 @@
   transition: opacity 0.5s linear;
 }
 
-.rl-cartao:hover .rl-icones {
+.rl-card:hover .rl-icones {
   opacity: 1;
   visibility: visible;
 }
@@ -145,7 +145,7 @@
 /*
  * `.no-content-found`: centered `flex`, 31 height, `padding: 80px 0`, `margin: auto`, full width, color #a8bfc4. The text is the `bds-typo` inside — fs-16 regular —, which doesn't inherit the host's 1.25rem `font-size`.
  */
-.rl-vazio {
+.rl-empty {
   position: relative;
   display: flex;
   align-items: center;

@@ -266,11 +266,11 @@
           <div class="field">
             <span class="field__l">Modelos rápidos</span>
             <div class="chips" role="group" aria-label="Modelos de mensagem">
-              <button type="button" data-modelo="Olá! Vim pelo site e quero saber mais sobre os planos de vocês.">Site</button>
-              <button type="button" data-modelo="Oi! Vim pelo Instagram e queria falar com alguém do atendimento.">Instagram</button>
-              <button type="button" data-modelo="Olá! Gostaria de fazer um orçamento. Pode me ajudar?">Orçamento</button>
-              <button type="button" data-modelo="Oi! Quero fazer um pedido pelo WhatsApp.">Pedido</button>
-              <button type="button" data-modelo="">Limpar</button>
+              <button type="button" data-template="Olá! Vim pelo site e quero saber mais sobre os planos de vocês.">Site</button>
+              <button type="button" data-template="Oi! Vim pelo Instagram e queria falar com alguém do atendimento.">Instagram</button>
+              <button type="button" data-template="Olá! Gostaria de fazer um orçamento. Pode me ajudar?">Orçamento</button>
+              <button type="button" data-template="Oi! Quero fazer um pedido pelo WhatsApp.">Pedido</button>
+              <button type="button" data-template="">Limpar</button>
             </div>
           </div>
         </form>
@@ -878,9 +878,9 @@
   elNumero.addEventListener("input", atualizar);
   elMensagem.addEventListener("input", atualizar);
 
-  document.querySelectorAll("[data-modelo]").forEach(function (b) {
+  document.querySelectorAll("[data-template]").forEach(function (b) {
     b.addEventListener("click", function () {
-      elMensagem.value = b.getAttribute("data-modelo");
+      elMensagem.value = b.getAttribute("data-template");
       atualizar();
       elMensagem.focus();
     });

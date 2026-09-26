@@ -121,7 +121,7 @@
  *    ==========================================================
  */
 
-.sv-cartao {
+.sv-card {
   width: 100%;
 
   display: flex;
@@ -134,20 +134,20 @@
   padding: 24px;
 
   border: 0;
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
 
   background: var(--p-superficie-0);
 
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
 }
 
-.sv-cartao-corpo {
+.sv-card-body {
   width: 90%;
   min-width: 0;
   padding-right: 16px;
 }
 
-.sv-cartao h2 {
+.sv-card h2 {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -161,7 +161,7 @@
   font-weight: var(--g-peso-negrito);
 }
 
-.sv-cartao h2 > span {
+.sv-card h2 > span {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -236,7 +236,7 @@
    EDITAR / EXCLUIR
    ========================================================== */
 
-.sv-cartao-acoes {
+.sv-card-actions {
   width: 10%;
   min-width: 88px;
 
@@ -248,7 +248,7 @@
   gap: 8px;
 }
 
-.sv-cartao .sv-cartao-acoes > button {
+.sv-card .sv-card-actions > button {
   width: 40px;
   height: 40px;
 
@@ -283,24 +283,24 @@
     opacity 120ms ease;
 }
 
-.sv-cartao .sv-cartao-acoes > button:hover {
+.sv-card .sv-card-actions > button:hover {
   background: var(--p-superficie-2) !important;
 }
 
-.sv-cartao .sv-cartao-acoes > button:focus-visible {
+.sv-card .sv-card-actions > button:focus-visible {
   outline: 2px solid var(--p-marca-forte);
   outline-offset: 2px;
 }
 
-.sv-cartao .sv-cartao-acoes > button svg {
+.sv-card .sv-card-actions > button svg {
   display: block;
 }
 
-.sv-cartao-acoes button:hover {
+.sv-card-actions button:hover {
   background: var(--p-superficie-2);
 }
 
-.sv-cartao-acoes button:focus-visible {
+.sv-card-actions button:focus-visible {
   outline: 2px solid var(--p-marca-forte);
   outline-offset: 2px;
 }
@@ -324,11 +324,11 @@
   padding: 24px;
 
   border: 0;
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
 
   background: var(--p-superficie-0);
 
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
 }
 
 .sv-formulario h2 {
@@ -501,7 +501,7 @@
   margin: 0;
 }
 
-.sv-campo-expiracao {
+.sv-field-expiration {
   margin-bottom: 24px;
 }
 
@@ -509,7 +509,7 @@
    BUSCA DE CHATBOTS
    ========================================================== */
 
-.sv-busca {
+.sv-search {
   width: 100%;
   max-height: 280px;
 
@@ -530,19 +530,19 @@
   list-style: none;
 }
 
-.sv-busca li {
+.sv-search li {
   width: 100%;
 
   margin: 0 0 12px;
   padding: 0;
 }
 
-.sv-busca li:last-child {
+.sv-search li:last-child {
   margin-bottom: 0;
 }
 
 .sv-chatbot-item,
-.sv-busca button {
+.sv-search button {
   width: 100%;
   min-height: 40px;
 
@@ -626,7 +626,7 @@
   white-space: nowrap;
 }
 
-.sv-busca button.sv-apagado,
+.sv-search button.sv-apagado,
 .sv-chatbot-item.sv-apagado {
   opacity: 0.5;
 }
@@ -732,7 +732,7 @@
  *    ==========================================================
  */
 
-.sv-acoes {
+.sv-actions {
   width: 100%;
 
   display: flex;
@@ -758,16 +758,16 @@
    MENSAGENS
    ========================================================== */
 
-.sv-erro {
+.sv-error {
   margin: 12px 0;
 
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 
   font-size: 14px;
   line-height: 20px;
 }
 
-.sv-busca-vazia {
+.sv-search-empty {
   margin: -4px 0 16px;
 
   color: var(--p-conteudo-desabilitado);
@@ -782,20 +782,20 @@
 
 @media (max-width: 720px) {
   .sv-formulario,
-  .sv-cartao {
+  .sv-card {
     padding: 20px;
   }
 
-  .sv-cartao {
+  .sv-card {
     flex-direction: column;
   }
 
-  .sv-cartao-corpo {
+  .sv-card-body {
     width: 100%;
     padding-right: 0;
   }
 
-  .sv-cartao-acoes {
+  .sv-card-actions {
     width: 100%;
     min-width: 0;
 
@@ -815,7 +815,7 @@
     flex: 1;
   }
 
-  .sv-acoes {
+  .sv-actions {
     flex-wrap: wrap;
   }
 }

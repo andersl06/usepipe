@@ -62,22 +62,22 @@ export function PageEffort() {
  * ------------------------------------------------------------ block 1
  * Their reports' block structure, measured in `referencias-blip/pesquisa/blip-medidas-monitoramento.md` §6: a card that CONTAINS cards. The label comes on top in 14/600 and the value below in 20/700 — the opposite of the Monitoramento card, where the value comes first and is 24/400.
  */}
-      <section className="bloco-rel">
+      <section className="block-rel">
         <h3>Total do período</h3>
-        <div className="bloco-rel-grade" style={{ '--rel-colunas': 3 } as React.CSSProperties}>
-          <div className="cartao-rel">
+        <div className="block-rel-grid" style={{ '--rel-colunas': 3 } as React.CSSProperties}>
+          <div className="card-rel">
             <span className="r">Esforço somado</span>
             <span className="v">{durationLonga(totalEffort)}</span>
             <span className="den">{numero(totalTickets)} tickets</span>
           </div>
-          <div className="cartao-rel">
+          <div className="card-rel">
             <span className="r">Esforço médio por ticket</span>
             <span className="v">
               {durationLonga(totalTickets > 0 ? totalEffort / totalTickets : null)}
             </span>
             <span className="den">soma ÷ soma, nunca média de médias</span>
           </div>
-          <div className="cartao-rel">
+          <div className="card-rel">
             <span className="r">Conversas no período</span>
             <span className="v">{numero(report.conversationsConsideradas)}</span>
             <span className="den">
@@ -93,14 +93,14 @@ export function PageEffort() {
       </section>
 
       {/* ------------------------------------------------------ bloco 2 */}
-      <section className="bloco-rel">
+      <section className="block-rel">
         <h3>
           Por atendente <span className="sub">{`${de} → ${ate}`}</span>
         </h3>
 
         {report.agents.length === 0 ? (
-          <div className="cartao-rel">
-            <div className="vazio">
+          <div className="card-rel">
+            <div className="empty">
               <b>
                 Nenhuma conversa encerrada com atendente entre {de} e {ate}.
               </b>
@@ -112,7 +112,7 @@ export function PageEffort() {
             </div>
           </div>
         ) : (
-          <div className="cartao-rel tabela scroll">
+          <div className="card-rel tabela scroll">
             <table>
               <thead>
                 <tr>

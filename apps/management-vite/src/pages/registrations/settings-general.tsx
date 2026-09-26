@@ -158,14 +158,14 @@ export function PageSettingsGeneral() {
         }
       >
         {etiquetas.length === 0 ? (
-          <div className="vazio">
+          <div className="empty">
             <b>Nenhuma etiqueta cadastrada.</b>
             <p>
               Sem vocabulário não há o que exigir. As etiquetas aparecem em Preferências ├ Dados.
             </p>
           </div>
         ) : (
-          <div className="form-cadastro">
+          <div className="form-registration">
             {etiquetas.map((e) => (
               <label key={e.id} className="form-caixa">
                 <input

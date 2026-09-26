@@ -154,12 +154,12 @@ export function TelaDeCertificados({
   return (
     <div id="certificates" className="cm-grade">
       {/* `xt`: the presentation paper. */}
-      <section className="cm-papel">
-        <div className="cm-apresentacao">
+      <section className="cm-paper">
+        <div className="cm-presentation">
           {/*
  * Their `bds-illustration type="spots" name="lock-2"` is left out: it wasn't captured and we don't have one.
  */}
-          <div className="cm-apresentacao-texto">
+          <div className="cm-presentation-text">
             <div className="cm-cabeca">
               <h2 className="cm-t24 cm-t24--margem">{TEXTO.apresentacao.titulo}</h2>
               <p className="cm-t16">{TEXTO.apresentacao.subtitulo}</p>
@@ -188,7 +188,7 @@ export function TelaDeCertificados({
       </section>
 
       {/* `Pt`: o paper da listagem. */}
-      <section className="cm-papel">
+      <section className="cm-paper">
         <div className="cm-lista">
           <div className="cm-cabeca">
             <h2 className="cm-t24">{TEXTO.lista.titulo}</h2>
@@ -202,7 +202,7 @@ export function TelaDeCertificados({
             {certificados.map((c) => {
               return (
                 <tr key={c.id} data-testid={c.id}>
-                  <td className="cm-col-descricao" title={c.description}>
+                  <td className="cm-col-description" title={c.description}>
                     {c.description}
                   </td>
                   <td>{expirationData(c.expiraEm)}</td>
@@ -212,9 +212,9 @@ export function TelaDeCertificados({
  */}
                     <Etiqueta certificado={c} />
                   </td>
-                  <td className="cm-col-acoes">
+                  <td className="cm-col-actions">
                     {podeEscrever ? (
-                      <span className="cm-acoes">
+                      <span className="cm-actions">
                         <BotaoDeIcone
                           nome="lixeira"
                           rotulo={`Deletar ${c.description}`}
@@ -257,7 +257,7 @@ export function TelaDeCertificados({
             title={TEXTO.lista.tituloDosHosts}
           >
             <FecharWindow window={hostsWindow} />
-            <div className="cm-papel">
+            <div className="cm-paper">
               <div className="cm-lista">
                 <div className="cm-cabeca">
                   <p className="cm-t20">
@@ -265,12 +265,12 @@ export function TelaDeCertificados({
                     {certificado?.description ?? ''}
                   </p>
                 </div>
-                <div className="cm-rolagem">
+                <div className="cm-scroll">
                   <Tabela id="hosts-table" colunas={[TEXTO.hosts.host, TEXTO.hosts.acoes]}>
                     {(certificado?.hosts ?? []).map((h) => (
                       <tr key={h.id} data-testid={h.id}>
-                        <td className="cm-col-descricao">{h.host}</td>
-                        <td className="cm-col-acoes">
+                        <td className="cm-col-description">{h.host}</td>
+                        <td className="cm-col-actions">
                           {podeEscrever ? (
                             <BotaoDeIcone
                               nome="lixeira"
@@ -403,7 +403,7 @@ function Alerta({
         <b>{TEXTO.alerta.atencao}</b>
       </div>
       <p className="cm-alerta-corpo">{message}</p>
-      <div className="cm-alerta-acoes">
+      <div className="cm-alert-actions">
         <button
           type="button"
           className="cm-botao cm-botao--secundario"
@@ -510,7 +510,7 @@ function Registration({
   }
 
   return (
-    <dialog ref={window} id="certificate-modal" className="cm-modal cm-modal--cadastro">
+    <dialog ref={window} id="certificate-modal" className="cm-modal cm-modal--registration">
       <FecharWindow window={window} />
 
       <ol className="cm-passos">
@@ -530,7 +530,7 @@ function Registration({
 
       <div className="cm-caixa">
         {passo === 0 ? (
-          <div className="cm-coluna">
+          <div className="cm-column">
             {/* `bds-upload#certificate-upload`. */}
             <div className="cm-upload">
               <div className="cm-upload-topo">
@@ -578,7 +578,7 @@ function Registration({
         ) : null}
 
         {passo === 1 ? (
-          <div className="cm-coluna">
+          <div className="cm-column">
             <Campo
               rotulo={TEXTO.info.descricao}
               value={entradas.description}
@@ -600,7 +600,7 @@ function Registration({
                     aoMudar={(value) => switchHost(i, value)}
                   />
                 </div>
-                <div className="cm-linha-de-host-botoes">
+                <div className="cm-host-buttons-row">
                   {entradas.hosts.length > 1 ? (
                     <button
                       type="button"
@@ -721,7 +721,7 @@ function Campo({
         />
       </label>
       {error ? (
-        <p className="cm-campo-erro">
+        <p className="cm-field-error">
           {/* `bds-icon name="error" size="x-small"`: our `fechar-chip` is their `error`. */}
           <IconePortal nome="fechar-chip" tamanho={16} />
           {error}

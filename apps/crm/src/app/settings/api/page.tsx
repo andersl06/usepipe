@@ -196,7 +196,7 @@ export default async function PageApi() {
             <span>Para que serve</span>
             <Campo name="nome" required maxLength={120} placeholder="Integração do site" />
           </label>
-          <fieldset className="cfg-permissoes">
+          <fieldset className="cfg-permissions">
             <legend>Escopos</legend>
             {CATALOGO_OF_SCOPES.map((scope) => (
               <label key={scope.codigo}>
@@ -243,7 +243,7 @@ export default async function PageApi() {
               X-Pipe-Timestamp e X-Pipe-Delivery.
             </span>
           </label>
-          <fieldset className="cfg-permissoes">
+          <fieldset className="cfg-permissions">
             <legend>Eventos</legend>
             {CATALOGO_DE_EVENTOS.map((evento) => (
               <label key={evento}>

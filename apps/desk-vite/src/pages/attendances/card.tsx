@@ -53,7 +53,7 @@ export function Card({
 
   return (
     <article
-      className="dk-cartao"
+      className="dk-card"
       role="listitem"
       tabIndex={0}
       aria-label={`Ticket ${numeroDoTicket(conversation.id)} - ${nome}`}
@@ -64,34 +64,34 @@ export function Card({
         if (e.key === 'Enter') aoAbrir(conversation.id);
       }}
     >
-      <section className="dk-cartao-conteudo" tabIndex={-1}>
-        <div className="dk-cartao-rosto">
+      <section className="dk-card-content" tabIndex={-1}>
+        <div className="dk-card-face">
           <Avatar />
-          <span className="dk-canal" title={channel.nome}>
+          <span className="dk-channel" title={channel.nome}>
             <LogoPortal nome={channel.logo} tamanho={20} />
           </span>
         </div>
-        <div className="dk-cartao-texto">
-          <div className="dk-cartao-linha">
-            <h1 className="dk-cartao-nome" aria-hidden="true">
+        <div className="dk-card-text">
+          <div className="dk-card-line">
+            <h1 className="dk-card-name" aria-hidden="true">
               {nome}
             </h1>
-            <span className="dk-cartao-hora">
+            <span className="dk-card-hour">
               {ultima ? horarioRelativo(ultima, agora) : ''}
               {conversation.estado === 'encerrada' ? (
-                <span className="dk-cartao-situacao" title="Cliente encerrou o atendimento">
+                <span className="dk-card-status" title="Cliente encerrou o atendimento">
                   <IconeDesk nome="encerrado-pelo-cliente" />
                 </span>
               ) : null}
             </span>
           </div>
-          <div className="dk-cartao-linha">
-            <p className="dk-cartao-previa" aria-hidden="true">
+          <div className="dk-card-line">
+            <p className="dk-card-preview" aria-hidden="true">
               {previa(conversation)}
             </p>
-            <div className="dk-cartao-alertas">
+            <div className="dk-card-alerts">
               {fixadaAgora ? (
-                <span className="dk-cartao-fixada" title="Fixada no topo" aria-label="Fixada no topo">
+                <span className="dk-card-pinned" title="Fixada no topo" aria-label="Fixada no topo">
                   <IconeDesk nome="fixar" />
                 </span>
               ) : null}
@@ -106,27 +106,27 @@ export function Card({
           </div>
         </div>
       </section>
-      <section className="dk-cartao-info">
+      <section className="dk-card-info">
         <button
           type="button"
-          className="dk-cartao-info-botao"
+          className="dk-card-info-button"
           tabIndex={-1}
           aria-label="Informações do ticket"
           onClick={(e) => e.stopPropagation()}
         >
           <IconeDesk nome="info" />
         </button>
-        <span className="dk-cartao-numero" aria-hidden="true">
+        <span className="dk-card-number" aria-hidden="true">
           {numeroDoTicket(conversation.id)}
         </span>
-        <span className="dk-cartao-fila">
+        <span className="dk-card-queue">
           <b>Fila:</b>
           <span>{conversation.filaNome ?? 'Transferência direta'}</span>
         </span>
-        <div className="dk-cartao-menu-caixa" onClick={(e) => e.stopPropagation()}>
+        <div className="dk-card-menu-box" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
-            className="dk-cartao-menu"
+            className="dk-card-menu"
             aria-label="Mais opções"
             aria-expanded={menu}
             onClick={() => setMenu((m) => !m)}
@@ -136,7 +136,7 @@ export function Card({
           </button>
           {menu ? (
             <div
-              className="dk-menu dk-cartao-menu-lista"
+              className="dk-menu dk-card-menu-list"
               role="menu"
               onMouseLeave={() => setMenu(false)}
               onKeyDown={(e) => e.stopPropagation()}

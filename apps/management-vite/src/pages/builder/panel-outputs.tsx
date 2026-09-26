@@ -74,7 +74,7 @@ export function OutputsPanel({
   return (
     <div className="bl-aba-corpo">
       {attendance ? (
-        <section className="bl-disponibilidade">
+        <section className="bl-availability">
           <CabecalhoInfo titulo="Disponibilidade de atendimento" aberto>
             <p>
               Defina o bloco para o qual a conversa seguirá se a sua equipe de atendimento não
@@ -176,7 +176,7 @@ export function OutputsPanel({
                     ? rotuloOfOutputOfAttendance(saida)
                     : `${ROTULOS_DAS_SAIDAS.condicao} ${i + 1}`}
                 </b>
-                <span className="bl-saida-ordem">
+                <span className="bl-output-order">
                   <button
                     type="button"
                     className="iconbtn"
@@ -223,7 +223,7 @@ export function OutputsPanel({
                 ROTULOS_DAS_SAIDAS.irPara,
               )}
               {errors.length > 0 ? (
-                <ul className="bl-erros">
+                <ul className="bl-errors">
                   {errors.map((e) => (
                     <li key={e}>{e}</li>
                   ))}

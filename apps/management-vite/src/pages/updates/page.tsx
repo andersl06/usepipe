@@ -64,7 +64,7 @@ export function PageUpdates() {
       <BarraDoPortal data={shell} />
 
       <main className="nv-conteudo">
-        <div className="nv-coluna">
+        <div className="nv-column">
           <p className="nv-sobretitulo">Novidades</p>
           <h1 className="nv-titulo">O que mudou no Pipe</h1>
           <p className="nv-subtitulo">
@@ -73,7 +73,7 @@ export function PageUpdates() {
           </p>
 
           <form
-            className="nv-filtros"
+            className="nv-filters"
             method="get"
             action="/updates"
             role="search"
@@ -159,14 +159,14 @@ function Card({
   aoFiltrarCategoria: (categoria: string) => void;
 }) {
   return (
-    <article className={grande ? 'nv-cartao nv-cartao-grande' : 'nv-cartao'}>
+    <article className={grande ? 'nv-card nv-card-large' : 'nv-card'}>
       <div className="nv-capa" data-categoria={update.categoria}>
         <span className="nv-capa-etq">{update.categoria}</span>
       </div>
 
       <div className="nv-corpo">
         {grande ? <span className="nv-destaque">Destaque</span> : null}
-        <h2 className="nv-cartao-titulo">{update.titulo}</h2>
+        <h2 className="nv-card-title">{update.titulo}</h2>
         <p className="nv-resumo">{update.resumo}</p>
         <p className="nv-meta">
           <time dateTime={update.data}>{byExtenso(update.data)}</time>

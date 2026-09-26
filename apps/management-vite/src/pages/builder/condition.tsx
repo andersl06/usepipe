@@ -39,7 +39,7 @@ export function ConditionsEditor({
     onMudar(conditions.map((x, i) => (i === indice ? c : x)));
   const remover = (indice: number): void => onMudar(conditions.filter((_, i) => i !== indice));
   return (
-    <div className="bl-condicoes">
+    <div className="bl-conditions">
       {conditions.map((c, i) => (
         <ConditionLinha
           key={i}
@@ -51,7 +51,7 @@ export function ConditionsEditor({
       ))}
       <button
         type="button"
-        className="bl-adicionar-condicao"
+        className="bl-add-condition"
         aria-label={rotuloAdicionar}
         title={rotuloAdicionar}
         onClick={() => onMudar([...conditions, newCondition()])}
@@ -98,8 +98,8 @@ function ConditionLinha({
 
   return (
     <div className={`bl-condicao${error ? ' bl-condicao--erro' : ''}`}>
-      <div className="bl-condicao-linha bl-condicao-campos">
-        <span className="bl-condicao-se">{first ? ROTULOS_DAS_SAIDAS.se : 'e'}</span>
+      <div className="bl-condition-line bl-condition-fields">
+        <span className="bl-condition-if">{first ? ROTULOS_DAS_SAIDAS.se : 'e'}</span>
         {semSuporte ? (
           <Etiqueta tom="alerta" titulo="O Pipe não tem provedor de IA: esta condição nunca casa.">
             {ROTULO_DA_FONTE[fonte] ?? fonte}
@@ -141,11 +141,11 @@ function ConditionLinha({
         </button>
       </div>
       {!unaria ? (
-        <div className="bl-condicao-valores">
+        <div className="bl-condition-values">
           {values.length > 1 ? (
             <Selection
               aria-label="Operador"
-              className="bl-condicao-operador"
+              className="bl-condition-operator"
               value={(condition.operator ?? 'or').toLowerCase()}
               onChange={(e) => onMudar({ ...condition, operator: e.target.value })}
             >
@@ -156,9 +156,9 @@ function ConditionLinha({
               ))}
             </Selection>
           ) : null}
-          <div className="bl-valores" onClick={(e) => (e.currentTarget.querySelector('input') as HTMLInputElement | null)?.focus()}>
+          <div className="bl-values" onClick={(e) => (e.currentTarget.querySelector('input') as HTMLInputElement | null)?.focus()}>
             {values.map((v, i) => (
-              <span key={`${v}-${i}`} className="bl-valor">
+              <span key={`${v}-${i}`} className="bl-value">
                 {v}
                 <button type="button" aria-label={`Remover ${v}`} onClick={() => onMudar(removerValue(condition, i))}>
                   ×
@@ -166,7 +166,7 @@ function ConditionLinha({
               </span>
             ))}
             <input
-              className="bl-valores-campo"
+              className="bl-values-field"
               aria-label={ROTULOS_DAS_SAIDAS.valores}
               placeholder={values.length === 0 ? ROTULOS_DAS_SAIDAS.valores : ''}
               value={digitando}
@@ -177,7 +177,7 @@ function ConditionLinha({
           </div>
         </div>
       ) : null}
-      {error ? <p className="bl-erro-do-campo">{error}</p> : null}
+      {error ? <p className="bl-field-error">{error}</p> : null}
     </div>
   );
 }

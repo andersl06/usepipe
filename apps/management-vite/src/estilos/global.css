@@ -41,8 +41,8 @@
   --ink-3: var(--p-conteudo-fantasma);
   --moss: var(--p-marca);
   --moss-soft: var(--p-marca-suave);
-  --terracotta: var(--p-erro-conteudo);
-  --terracotta-soft: var(--p-erro-fundo);
+  --terracotta: var(--p-error-content);
+  --terracotta-soft: var(--p-error-background);
   --ochre: var(--p-alerta-conteudo);
   --ochre-soft: var(--p-alerta-fundo);
   --online: var(--p-sucesso-conteudo);
@@ -61,7 +61,7 @@
   --g-barra-tinta: var(--p-conteudo-claro);
   --g-barra-marca: color-mix(in srgb, var(--p-marca) 55%, var(--p-marca-suave));
   --g-ponto-on: var(--p-sucesso-sobre-escuro);
-  --g-ponto-off: var(--p-erro-sobre-escuro);
+  --g-ponto-off: var(--p-error-on-dark);
 
   /*
    * Their measurements, no discount. See `blip-medidas-monitoramento.md` §1. The old rule — "the table has to fit above the fold at 1440×900" — is REVOKED: it's what compressed 136px of chrome down to 84 and 262px of sidebar down to 170. Fidelity wins over density; if the table falls below the fold, the person scrolls, just like they scroll on their screen.
@@ -80,39 +80,39 @@
  *    These tokens are LOCAL to Gestão on purpose: `@pipe/ui` keeps the 16/14/12 ruler and the 400/500/600 weights for the other screens.
  */
 :root {
-  --g-cor-busca-blip: #8ca0b3;
+  --g-color-search-blip: #8ca0b3;
   --g-peso-leve: 300;
   --g-peso-normal: 400;
   --g-peso-forte: 600;
   --g-peso-negrito: 700;
 
   --g-t-titulo: 24px; /* screen title, weight 400 */
-  --g-t-bloco: 16px; /* report block title, weight 700 */
-  --g-t-cartao: 14px; /* metric card title, weight 600 */
-  --g-t-valor: 24px; /* metric value in monitoring, weight 400 */
-  --g-t-valor-rel: 20px; /* metric value in report, weight 700 */
+  --g-t-block: 16px; /* report block title, weight 700 */
+  --g-t-card: 14px; /* metric card title, weight 600 */
+  --g-t-value: 24px; /* metric value in monitoring, weight 400 */
+  --g-t-value-report: 20px; /* metric value in report, weight 700 */
   --g-t-rotulo: 12px; /* metric label, weight 400 */
   --g-t-item: 14px; /* item de lateral, peso 600 (ativo 700) */
   --g-t-modulo: 16px; /* top module, weight 300 */
   --g-t-celula: 14px; /* table cell, weight 400 */
-  --g-t-coluna: 14px; /* column header, weight 600 */
+  --g-t-column: 14px; /* column header, weight 600 */
   --g-t-aba: 16px; /* aba, peso 400 (ativa 700) */
 
   --g-lh-rotulo: 18px;
-  --g-lh-cartao: 21px;
-  --g-lh-bloco: 24px;
+  --g-lh-card: 21px;
+  --g-lh-block: 24px;
 
   /* Their card's geometry, with OUR color in the shadow. */
-  --g-r-cartao: 16px;
-  --g-cartao-pad: 20px;
-  --g-cartao-gap: 20px;
+  --g-r-card: 16px;
+  --g-card-pad: 20px;
+  --g-card-gap: 20px;
   --g-grade-gap: 10px;
-  --g-sombra-cartao: 0 2px 8px -2px rgba(17, 17, 17, 0.16);
+  --g-shadow-card: 0 2px 8px -2px rgba(17, 17, 17, 0.16);
 
   /*
    * Their `bds-paper bg-surface-1` measures `rgb(246,246,246)` in the live copy (`sistema-visual-portal.md` §1) — one step BELOW white and above the working background (237). Derived from our content color, like the other surfaces: 4% gives the same step with no new hex. It's the background of EVERY card in the module — metric, table, row-card, settings.
    */
-  --g-cartao-fundo: color-mix(in srgb, var(--p-conteudo) 4%, #fff);
+  --g-card-background: color-mix(in srgb, var(--p-conteudo) 4%, #fff);
 
   /*
    * Highlight of the active sidebar item: where they put 8% black, we put the brand's active-state background. The role is the same, the color is ours.
@@ -122,12 +122,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema='claro']) {
-    --g-sombra-cartao: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+    --g-shadow-card: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
   }
 }
 
 :root[data-tema='escuro'] {
-  --g-sombra-cartao: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  --g-shadow-card: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -208,9 +208,9 @@
 }
 
 .g-tenant b {
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -244,7 +244,7 @@
 }
 
 .g-marca b {
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -318,7 +318,7 @@
   height: 15px;
   padding: 0 4px;
   border-radius: var(--p-r-pilula);
-  background: var(--p-erro-conteudo);
+  background: var(--p-error-content);
   color: var(--p-conteudo-claro);
   font-family: var(--p-fonte-mono);
   font-size: var(--p-t-xs);
@@ -343,7 +343,7 @@
   display: none;
 }
 
-.g-painel {
+.g-panel {
   position: absolute;
   right: 0;
   top: calc(100% + 6px);
@@ -364,39 +364,39 @@
   font-size: var(--p-t-sm);
 }
 
-.g-painel b {
+.g-panel b {
   font-size: var(--p-t-md);
   font-weight: var(--p-peso-forte);
 }
 
-.g-painel p {
+.g-panel p {
   margin: 0;
   color: var(--p-conteudo-desabilitado);
   line-height: 1.45;
 }
 
-.g-painel a {
+.g-panel a {
   color: var(--p-marca-forte);
   text-decoration: none;
   font-weight: var(--p-peso-medio);
 }
 
-.g-painel a:hover {
+.g-panel a:hover {
   text-decoration: underline;
 }
 
-.g-painel .g-tipo {
+.g-panel .g-tipo {
   font-size: var(--p-t-xs);
   color: var(--p-conteudo-fantasma);
 }
 
 /* The channel, with the arrow, to the left of the bottom bar. */
-.g-canal {
+.g-channel {
   justify-self: start;
   min-width: 0;
 }
 
-.g-canal > summary {
+.g-channel > summary {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -410,18 +410,18 @@
   color: var(--g-barra-tinta);
 }
 
-.g-canal > summary:hover {
+.g-channel > summary:hover {
   background: var(--g-barra-hover);
 }
 
-.g-canal-nome {
+.g-channel-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* Channel status dot, mounted on the icon's vertex. */
-.g-canal-av {
+.g-channel-avatar {
   position: relative;
   display: flex;
   flex: none;
@@ -443,7 +443,7 @@
   background: var(--g-ponto-on);
 }
 
-.g-canal .g-painel {
+.g-channel .g-panel {
   left: 0;
   right: auto;
 }
@@ -539,11 +539,11 @@
   color: var(--g-barra-tinta);
 }
 
-.g-mais .g-painel {
+.g-mais .g-panel {
   width: 300px;
 }
 
-.g-mais .g-painel a {
+.g-mais .g-panel a {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -551,7 +551,7 @@
   border-radius: var(--p-r-sm);
 }
 
-.g-mais .g-painel a:hover {
+.g-mais .g-panel a:hover {
   background: var(--p-superficie-2);
   text-decoration: none;
 }
@@ -864,7 +864,7 @@
  * ================================================= quick-filter strips
  *    There are TWO in their screen: one above the grid and another between the grid and the table. Same design in both — small-caps label, pills, and the "Filtros" button with a funnel icon flush to the right.
  */
-.faixa-filtros,
+.strip-filters,
 .quickfilters {
   display: flex;
   align-items: center;
@@ -876,13 +876,13 @@
 /*
  * "Filtros rápidos:" comes out at 16/700, in normal case. Uppercase with letter-spacing was our own invention: they don't use it.
  */
-.faixa-filtros > .lbl,
+.strip-filters > .lbl,
 .quickfilters .lbl {
   margin-right: 2px;
   font-family: var(--p-fonte);
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   letter-spacing: 0;
   text-transform: none;
   color: var(--p-conteudo);
@@ -907,7 +907,7 @@
   gap: var(--p-e-1);
   font-size: var(--g-t-item);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo);
   border-color: var(--p-conteudo);
   background: transparent;
@@ -948,11 +948,11 @@
 /*
  * The 130px minimum width belongs to the STRIPS — that's where they apply it, and it's what gives the rhythm of same-size buttons side by side. Outside of that the button only has its height and label, so it doesn't bloat a dense form.
  */
-.faixa-filtros .btn,
+.strip-filters .btn,
 .quickfilters .btn,
 .board-head .btn,
 .tblhead .btn,
-.vazio .btn {
+.empty .btn {
   min-width: 130px;
   justify-content: center;
 }
@@ -1004,13 +1004,13 @@
   background: transparent;
   font-size: var(--g-t-item);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo);
   cursor: pointer;
   max-width: 260px;
 }
 
-.pilula.ativa {
+.pilula.active {
   background: var(--p-marca-suave);
   border-color: var(--p-marca-linha);
   color: var(--p-marca-forte);
@@ -1040,7 +1040,7 @@
 /*
  * The chosen value, next to the label — at 14/400, so the label remains what's read first.
  */
-.pilula-valor {
+.pill-value {
   font-weight: var(--g-peso-normal);
   white-space: nowrap;
   overflow: hidden;
@@ -1105,7 +1105,7 @@
 }
 
 .pilula input:focus,
-.pilula.ativa input {
+.pilula.active input {
   width: 12ch;
 }
 
@@ -1116,7 +1116,7 @@
 /*
  * `bds-select`: 40px field, its own arrow and list. The native select was invisible in the pills and still delivered the browser's old menu.
  */
-.selecao {
+.selection {
   position: relative;
   min-width: 0;
   display: block;
@@ -1125,13 +1125,13 @@
 /*
  * Inside a quick-filter pill the `Selecao` disappears as a box: only `.pilula` draws border/height/radius. The way it came from Codex, the two boxes stacked — the white box of `.selecao-controle` spilled inside the pill's black border (see capture). Source: quick-filter `bds-button` is a SINGLE box, with no embedded select.
  */
-.selecao.pilula {
+.selection.pilula {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-.pilula .selecao-controle {
+.pilula .selection-control {
   width: auto;
   height: auto;
   padding: 0;
@@ -1143,7 +1143,7 @@
   justify-content: center;
 }
 
-.pilula .selecao-lista {
+.pilula .selection-list {
   left: 0;
   right: auto;
   min-width: 100%;
@@ -1151,7 +1151,7 @@
   max-width: 320px;
 }
 
-.selecao-controle {
+.selection-control {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1172,22 +1172,22 @@
   cursor: pointer;
 }
 
-.selecao-controle:focus-visible {
+.selection-control:focus-visible {
   outline: 0;
   border-color: var(--p-marca);
   box-shadow: 0 0 0 2px var(--p-foco);
 }
 
-.selecao-controle:disabled {
+.selection-control:disabled {
   cursor: not-allowed;
   opacity: .55;
 }
 
-.selecao-placeholder {
+.selection-placeholder {
   color: var(--p-conteudo-fantasma);
 }
 
-.selecao-lista {
+.selection-list {
   position: absolute;
   z-index: 70;
   top: calc(100% + 4px);
@@ -1203,7 +1203,7 @@
     0 12px 12px -4px color-mix(in srgb, var(--p-conteudo) 16%, transparent);
 }
 
-.selecao-lista button {
+.selection-list button {
   display: flex;
   align-items: center;
   width: 100%;
@@ -1222,9 +1222,9 @@
   cursor: pointer;
 }
 
-.selecao-lista button:hover,
-.selecao-lista button:focus-visible,
-.selecao-lista button.selecionada {
+.selection-list button:hover,
+.selection-list button:focus-visible,
+.selection-list button.selecionada {
   background: var(--p-superficie-1);
   color: var(--p-marca);
 }
@@ -1247,7 +1247,7 @@
 /*
  * TV mode isn't just the same page enlarged: the reference swaps the theme, keeps only the indicators and adds the hour reading.
  */
-.mon-pagina-tv {
+.mon-page-tv {
   position: fixed;
   inset: 0;
   z-index: 60;
@@ -1258,52 +1258,52 @@
   color: var(--p-conteudo-claro);
 }
 
-.mon-pagina-tv .board-head {
+.mon-page-tv .board-head {
   padding-bottom: 16px;
   border-bottom: 1px solid color-mix(in srgb, var(--p-conteudo-claro) 24%, transparent);
 }
 
-.mon-pagina-tv .board-head h2,
-.mon-pagina-tv .faixa-filtros > .lbl,
-.mon-pagina-tv .metric .v,
-.mon-pagina-tv .metric .k,
-.mon-pagina-tv .card-cabecalho > h3 {
+.mon-page-tv .board-head h2,
+.mon-page-tv .strip-filters > .lbl,
+.mon-page-tv .metric .v,
+.mon-page-tv .metric .k,
+.mon-page-tv .card-cabecalho > h3 {
   color: var(--p-conteudo-claro);
 }
 
-.mon-pagina-tv .card,
-.mon-pagina-tv .mon-por-hora {
+.mon-page-tv .card,
+.mon-page-tv .mon-per-hour {
   background: color-mix(in srgb, var(--p-superficie-4) 82%, var(--p-conteudo-claro));
   box-shadow: none;
 }
 
-.mon-pagina-tv .pilula,
-.mon-pagina-tv .btn {
+.mon-page-tv .pilula,
+.mon-page-tv .btn {
   color: var(--p-conteudo-claro);
   border-color: color-mix(in srgb, var(--p-conteudo-claro) 42%, transparent);
   background: transparent;
 }
 
-.mon-pagina-tv .metrics-grupo.estreito {
+.mon-page-tv .metrics-grupo.estreito {
   border-right-color: color-mix(in srgb, var(--p-conteudo-claro) 22%, transparent);
 }
 
-.mon-por-hora {
+.mon-per-hour {
   margin-top: var(--g-grade-gap);
-  padding: var(--g-cartao-pad);
-  border-radius: var(--g-r-cartao);
-  background: var(--g-cartao-fundo);
-  box-shadow: var(--g-sombra-cartao);
+  padding: var(--g-card-pad);
+  border-radius: var(--g-r-card);
+  background: var(--g-card-background);
+  box-shadow: var(--g-shadow-card);
 }
 
-.mon-por-hora h3 {
+.mon-per-hour h3 {
   margin: 0 0 20px;
-  font-size: var(--g-t-cartao);
+  font-size: var(--g-t-card);
   font-weight: var(--g-peso-forte);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
 }
 
-.mon-por-hora-grafico {
+.mon-per-hour-chart {
   height: 220px;
   display: grid;
   grid-template-columns: repeat(24, minmax(16px, 1fr));
@@ -1311,7 +1311,7 @@
   gap: 8px;
 }
 
-.mon-por-hora-coluna {
+.mon-per-hour-column {
   height: 100%;
   display: grid;
   grid-template-rows: 18px 1fr 18px;
@@ -1320,7 +1320,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-.mon-por-hora-coluna i {
+.mon-per-hour-column i {
   width: 100%;
   align-self: end;
   min-height: 0;
@@ -1328,13 +1328,13 @@
   background: var(--p-marca);
 }
 
-.mon-por-hora-valor,
-.mon-por-hora-coluna small {
+.mon-per-hour-value,
+.mon-per-hour-column small {
   font-size: var(--g-t-rotulo);
   line-height: var(--g-lh-rotulo);
 }
 
-.mon-por-hora-coluna small {
+.mon-per-hour-column small {
   margin-top: 6px;
 }
 
@@ -1343,18 +1343,18 @@
  *    Padding 20, radius 16, NO border, and the shadow `0 2px 8px -2px` — the geometry is theirs, the shadow color is ours. The card title is 14/600 with 10px to the first metric.
  */
 .card {
-  padding: var(--g-cartao-pad);
+  padding: var(--g-card-pad);
   border: 0;
-  border-radius: var(--g-r-cartao);
-  background: var(--g-cartao-fundo);
-  box-shadow: var(--g-sombra-cartao);
+  border-radius: var(--g-r-card);
+  background: var(--g-card-background);
+  box-shadow: var(--g-shadow-card);
   gap: 0;
 }
 
 .card > h3 {
-  font-size: var(--g-t-cartao);
+  font-size: var(--g-t-card);
   font-weight: var(--g-peso-forte);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   margin-bottom: 10px;
 }
 
@@ -1369,18 +1369,18 @@
 
 .card-cabecalho > h3 {
   margin: 0;
-  font-size: var(--g-t-cartao);
+  font-size: var(--g-t-card);
   font-weight: var(--g-peso-forte);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
 }
 
 /*
  * Reading column for modules WITHOUT a sidebar. Without this the card takes up the screen's 1,650px and the text line goes past 200 characters, which the eye loses track of on the way back. Doesn't apply to a screen with a table, which wants the full width.
  */
-.g-leitura {
+.g-read {
   display: flex;
   flex-direction: column;
-  gap: var(--g-cartao-gap);
+  gap: var(--g-card-gap);
   max-width: 1000px;
 }
 
@@ -1432,9 +1432,9 @@
 .metric .v {
   font-family: var(--p-fonte);
   font-variant-numeric: tabular-nums;
-  font-size: var(--g-t-valor);
+  font-size: var(--g-t-value);
   font-weight: var(--g-peso-normal);
-  line-height: var(--g-t-valor);
+  line-height: var(--g-t-value);
   letter-spacing: 0;
   color: var(--p-conteudo);
   white-space: nowrap;
@@ -1462,8 +1462,8 @@
 /*
  * The "Perdidos" and "Abandonados" numbers use the error color — it's their `bds-typo`'s `color="var(--color-delete)"`, with our color.
  */
-.metric.erro .v {
-  color: var(--p-erro-conteudo);
+.metric.error .v {
+  color: var(--p-error-content);
 }
 
 /*
@@ -1479,8 +1479,8 @@
   background: var(--p-alerta-conteudo);
 }
 
-.sw.erro {
-  background: var(--p-erro-conteudo);
+.sw.error {
+  background: var(--p-error-content);
 }
 
 .sw.neutro {
@@ -1553,10 +1553,10 @@
  */
 .tblwrap {
   border: 0;
-  border-radius: var(--g-r-cartao);
-  background: var(--g-cartao-fundo);
-  box-shadow: var(--g-sombra-cartao);
-  padding: var(--g-cartao-pad);
+  border-radius: var(--g-r-card);
+  background: var(--g-card-background);
+  box-shadow: var(--g-shadow-card);
+  padding: var(--g-card-pad);
   overflow: visible;
 }
 
@@ -1571,9 +1571,9 @@
 }
 
 .tblwrap .tabs + .scroll,
-.tblwrap .tabs + .vazio-linha,
+.tblwrap .tabs + .empty-line,
 .tblwrap .rel-aba-cabecalho + .scroll,
-.tblwrap .rel-aba-cabecalho + .vazio-linha {
+.tblwrap .rel-aba-cabecalho + .empty-line {
   margin-top: 10px;
 }
 
@@ -1589,9 +1589,9 @@
  */
 .tblhead h3 {
   margin-right: 10px;
-  font-size: var(--g-t-valor-rel);
+  font-size: var(--g-t-value-report);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-t-valor-rel);
+  line-height: var(--g-t-value-report);
   white-space: nowrap;
 }
 
@@ -1611,7 +1611,7 @@
   padding: 0 var(--p-e-4);
   font-size: var(--g-t-aba);
   font-weight: var(--g-peso-normal);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   color: var(--p-conteudo);
   border-bottom-width: 2px;
 }
@@ -1628,9 +1628,9 @@
 .tblwrap th {
   height: 64px;
   padding: 0 var(--p-e-2);
-  font-size: var(--g-t-coluna);
+  font-size: var(--g-t-column);
   font-weight: var(--g-peso-forte);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   letter-spacing: 0;
   text-transform: none;
   color: var(--p-conteudo);
@@ -1645,7 +1645,7 @@
   padding: 0 var(--p-e-2);
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-normal);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo);
   border-bottom: 1px solid var(--p-linha-media);
 }
@@ -1658,7 +1658,7 @@
 /*
  * Empty state in three parts — title, explanation and exit —, in their layout: stacked and centered, with the button at the bottom. Inside the table card it lives in the table's white frame, like their "Dados insuficientes" (`desk-grid-tabled-paginated-empty-*`).
  */
-.tblwrap .vazio {
+.tblwrap .empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1672,11 +1672,11 @@
 /*
  * Empty-state title at 20/700 with 22px to the explanation, and the explanation at 16/400 in content color — measured on "Nenhum resultado encontrado". Ours came out at 16/700 with the paragraph in a faded 14, and that's what made the empty screen look like a footer notice.
  */
-.vazio b,
-.tblwrap .vazio b {
-  font-size: var(--g-t-valor-rel);
+.empty b,
+.tblwrap .empty b {
+  font-size: var(--g-t-value-report);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-t-valor-rel);
+  line-height: var(--g-t-value-report);
   color: var(--p-conteudo);
   margin-bottom: 14px;
 }
@@ -1684,7 +1684,7 @@
 /*
  * "Dados insuficientes" on the Monitoramento detalhado tabs is ONE line centered in the table body — no explanation and no button (`FICHA-monitoring.md` §6). It comes out at 14/600, the cell body with the header's weight, and without the margin the three-part title carries.
  */
-.vazio-linha {
+.empty-line {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1692,22 +1692,22 @@
   padding: var(--p-e-4);
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-forte);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo);
   background: var(--p-superficie-0);
   border: 1px solid var(--p-linha);
   border-radius: var(--p-r-md);
 }
 
-.vazio,
-.tblwrap .vazio {
-  font-size: var(--g-t-bloco);
-  line-height: var(--g-lh-bloco);
+.empty,
+.tblwrap .empty {
+  font-size: var(--g-t-block);
+  line-height: var(--g-lh-block);
   color: var(--p-conteudo);
   gap: var(--p-e-4);
 }
 
-.tblwrap .vazio p {
+.tblwrap .empty p {
   margin: 0;
   max-width: 44ch;
 }
@@ -1726,14 +1726,14 @@
 /*
  * "Aguardando..." instead of a number that doesn't exist yet: it's text, not a measurement, so it drops the monospace and the full color.
  */
-.g-vazio-espera {
+.g-empty-wait {
   color: var(--p-conteudo-fantasma);
 }
 
 /*
  * The attendance-time column carries the SLA indicator next to the number, not in its own column — that's where it lives on their screen. The number stays monospace and tabular, because it's still a time column that needs to align top to bottom.
  */
-.tblwrap td.tempo-sla {
+.tblwrap td.time-sla {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -1744,8 +1744,8 @@
  * Number cell in the BODY FONT, with tabular digits: their cell is `bds-typo fs-14 regular` like any other — the monospace was ours, and it's what most set the table apart from the original. Applies to every table in the module.
  */
 .tblwrap td.num,
-.tblwrap td.tempo-sla > .num,
-.cartao-rel.tabela td.num,
+.tblwrap td.time-sla > .num,
+.card-rel.tabela td.num,
 .cl-campo .v.num,
 .cl-campo .v.id {
   font-family: var(--p-fonte);
@@ -1777,7 +1777,7 @@
  * ------------------------------------------------- search inside the card
  *    On their screen the "Monitoramento detalhado" search lives inside the card, to the right of the title — not in the filter row.
  */
-.tblhead .tbl-busca {
+.tblhead .tbl-search {
   margin-left: auto;
   flex: 1 1 auto;
   display: flex;
@@ -1795,13 +1795,13 @@
 }
 
 /* The search magnifying glass is `bds-icon size="small"`: 20px. */
-.tblhead .tbl-busca svg {
+.tblhead .tbl-search svg {
   width: 20px;
   height: 20px;
   flex: none;
 }
 
-.tblhead .tbl-busca input {
+.tblhead .tbl-search input {
   flex: 1 1 auto;
   width: auto;
   min-width: 0;
@@ -1833,7 +1833,7 @@
 .bar-row .track {
   height: 7px;
   border-radius: var(--p-r-sm);
-  background: var(--p-grafico-trilho);
+  background: var(--p-chart-rail);
   overflow: hidden;
   display: block;
 }
@@ -1851,7 +1851,7 @@
 }
 
 .bar-row .fill.bad {
-  background: var(--p-erro-conteudo);
+  background: var(--p-error-content);
 }
 
 .bar-row .n {
@@ -1882,41 +1882,41 @@
  *
  *    Title 16/700, 44px from the top of the title to the top of the content, 20px inner grid on both axes, and 20px between blocks.
  */
-.bloco-rel {
+.block-rel {
   /*
    * Their `bds-paper bg-color="surface-1"` outside, `bg-color="surface-0"` inside (`desk-satisfacao__pagina.html`): the block is the card's gray, the inner card is white.
    */
-  background: var(--g-cartao-fundo);
-  padding: var(--g-cartao-pad);
-  border-radius: var(--g-r-cartao);
-  box-shadow: var(--g-sombra-cartao);
+  background: var(--g-card-background);
+  padding: var(--g-card-pad);
+  border-radius: var(--g-r-card);
+  box-shadow: var(--g-shadow-card);
 }
 
-.bloco-rel + .bloco-rel {
-  margin-top: var(--g-cartao-gap);
+.block-rel + .block-rel {
+  margin-top: var(--g-card-gap);
 }
 
-.bloco-rel > h3 {
+.block-rel > h3 {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
-  margin: 0 0 var(--g-cartao-gap);
-  font-size: var(--g-t-bloco);
+  margin: 0 0 var(--g-card-gap);
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   color: var(--p-conteudo);
 }
 
 /*
  * The info icon next to the block title and the card label (`bds-icon name="info" size="x-small"`, 16px, 8px from the text — `mr2`).
  */
-.bloco-rel > h3 .dica,
-.cartao-rel .r .dica {
+.block-rel > h3 .dica,
+.card-rel .r .dica {
   margin-left: 4px;
 }
 
 /* The report's date range sits next to the block title, at 12/400. */
-.bloco-rel > h3 .sub {
+.block-rel > h3 .sub {
   margin-left: var(--p-e-2);
   font-size: var(--g-t-rotulo);
   font-weight: var(--g-peso-normal);
@@ -1924,65 +1924,65 @@
 }
 
 /* The method note closes the block, after the same 20px gap. */
-.bloco-rel .note {
-  margin: var(--g-cartao-gap) 0 0;
+.block-rel .note {
+  margin: var(--g-card-gap) 0 0;
   border-top: 0;
   padding-top: 0;
   font-size: var(--g-t-rotulo);
   line-height: var(--g-lh-rotulo);
 }
 
-.bloco-rel-grade {
+.block-rel-grid {
   display: grid;
   grid-template-columns: repeat(var(--rel-colunas, 4), minmax(0, 1fr));
-  gap: var(--g-cartao-gap);
+  gap: var(--g-card-gap);
 }
 
 /* Inner card: same geometry as the outer one, one surface up. */
-.cartao-rel {
+.card-rel {
   background: var(--p-superficie-0);
-  padding: var(--g-cartao-pad);
-  border-radius: var(--g-r-cartao);
+  padding: var(--g-card-pad);
+  border-radius: var(--g-r-card);
   min-width: 0;
 }
 
 /*
  * Report metric: label 14/600 on top, value 20/700 below, with 41px from the top of one to the top of the other. It's the opposite of the Monitoramento metric, where the value comes first and is 24/400.
  */
-.cartao-rel .r {
+.card-rel .r {
   display: flex;
   align-items: center;
   gap: var(--p-e-1);
-  font-size: var(--g-t-cartao);
+  font-size: var(--g-t-card);
   font-weight: var(--g-peso-forte);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo);
 }
 
 /*
  * The value is `bds-typo fs-20 bold tag="h4"`: 20/700 in the body font, not monospace.
  */
-.cartao-rel .v {
+.card-rel .v {
   display: block;
-  margin-top: var(--g-cartao-gap);
+  margin-top: var(--g-card-gap);
   font-family: var(--p-fonte);
   font-variant-numeric: tabular-nums;
-  font-size: var(--g-t-valor-rel);
+  font-size: var(--g-t-value-report);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-t-valor-rel);
+  line-height: var(--g-t-value-report);
   color: var(--p-conteudo);
 }
 
 /*
  * Their inner card that carries a chart or a table has a fixed 400px height (`bds-paper height="400px"`); while the chart doesn't exist yet, the empty state fills the same box, so the page doesn't shrink.
  */
-.cartao-rel.alto {
+.card-rel.alto {
   min-height: 400px;
   display: flex;
   flex-direction: column;
 }
 
-.cartao-rel.alto > .vazio {
+.card-rel.alto > .empty {
   flex: 1;
   justify-content: center;
 }
@@ -1990,25 +1990,25 @@
 /*
  * 16/700 label for the inner chart card ("Satisfação geral", "Comparativo de satisfação").
  */
-.cartao-rel > h4 {
+.card-rel > h4 {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
   margin: 0;
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   color: var(--p-conteudo);
 }
 
-.cartao-rel > h4 .faixa-fim {
+.card-rel > h4 .faixa-fim {
   margin-left: auto;
 }
 
 /*
  * The Atendentes/Filas `bds-select` for "Comparativo de satisfação": 40px, radius 8, border at 20% color.
  */
-.cartao-rel > h4 select {
+.card-rel > h4 select {
   height: 40px;
   min-width: 150px;
   padding: 0 var(--p-e-3);
@@ -2021,7 +2021,7 @@
   font-weight: var(--g-peso-normal);
 }
 
-.cartao-rel .den {
+.card-rel .den {
   display: block;
   margin-top: var(--p-e-2);
   font-size: var(--p-t-xs);
@@ -2032,35 +2032,35 @@
 /*
  * The inner card that carries a table doesn't repeat the padding: the cell already has its own, and 20px on each side would push the first column out of alignment with the other screens.
  */
-.cartao-rel.tabela {
+.card-rel.tabela {
   padding: 0;
   overflow: hidden;
 }
 
-.cartao-rel.tabela th {
+.card-rel.tabela th {
   height: 48px;
   padding: 0 var(--p-e-2);
-  font-size: var(--g-t-coluna);
+  font-size: var(--g-t-column);
   font-weight: var(--g-peso-forte);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   letter-spacing: 0;
   text-transform: none;
   color: var(--p-conteudo);
   border-bottom: 0;
 }
 
-.cartao-rel.tabela td {
+.card-rel.tabela td {
   height: 49px;
   padding: 0 var(--p-e-2);
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-normal);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo);
   border-bottom: 1px solid var(--p-linha-media);
 }
 
-.cartao-rel.tabela th:first-child,
-.cartao-rel.tabela td:first-child {
+.card-rel.tabela th:first-child,
+.card-rel.tabela td:first-child {
   padding-left: var(--p-e-4);
 }
 
@@ -2075,7 +2075,7 @@
 
 /* Below 1180 the block's four metric cards don't fit in a row. */
 @media (max-width: 1180px) {
-  .bloco-rel-grade {
+  .block-rel-grid {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
 }
@@ -2162,32 +2162,32 @@ tr.grupo th {
  *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. Radius 16, padding 20, label 12/400 and value 16/700: the entire measurement is theirs. What stays ours is the color and the numbers' monospace.
  *    =========================================================================
  */
-.lista-cartoes {
+.list-cards {
   display: flex;
   flex-direction: column;
   gap: var(--g-grade-gap);
 }
 
-.cartao-lista {
+.card-list {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--p-e-3);
-  padding: var(--g-cartao-pad);
-  border-radius: var(--g-r-cartao);
+  padding: var(--g-card-pad);
+  border-radius: var(--g-r-card);
   /*
    * `bds-paper elevation="static" bg-surface-1` (`dom/sla-policy.html`, `dom/rules.html`): the same light gray as every card in the module.
    */
-  background: var(--g-cartao-fundo);
-  box-shadow: var(--g-sombra-cartao);
+  background: var(--g-card-background);
+  box-shadow: var(--g-shadow-card);
 }
 
 /*
  * The missed conversation is the one the supervisor needs to hunt for: it gets a rule on the left border, and it's the only place in the list where color appears unprompted.
  */
-.cartao-lista.critico {
+.card-list.critico {
   box-shadow:
-    inset 3px 0 0 var(--p-erro-conteudo),
+    inset 3px 0 0 var(--p-error-content),
     var(--p-sombra-1);
 }
 
@@ -2224,10 +2224,10 @@ tr.grupo th {
 
 /* Value: 16/700 with 24 line-height. It's what the eye catches first. */
 .cl-campo .v {
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
   color: var(--p-conteudo);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2254,14 +2254,14 @@ tr.grupo th {
 /*
  * Their row-card's actions: `bds-button-icon size="short"` (40×40, 24 glyph, no frame) for edit and delete, and the toggle. Spaced 8px apart and WITHOUT a status tag — the toggle already says it.
  */
-.cl-acoes {
+.cl-actions {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
   justify-self: end;
 }
 
-.cl-acoes .iconbtn {
+.cl-actions .iconbtn {
   width: 40px;
   height: 40px;
   border: 0;
@@ -2270,12 +2270,12 @@ tr.grupo th {
   border-radius: var(--p-r-md);
 }
 
-.cl-acoes .iconbtn svg {
+.cl-actions .iconbtn svg {
   width: 24px;
   height: 24px;
 }
 
-.cl-acoes .iconbtn:hover:not(:disabled) {
+.cl-actions .iconbtn:hover:not(:disabled) {
   background: var(--p-superficie-2);
 }
 
@@ -2295,14 +2295,14 @@ tr.grupo th {
   margin-top: var(--p-e-2);
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-normal);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo-desabilitado);
 }
 
 /*
  * Checkbox + avatar before the columns — the agent card (`FICHA-atendentes-filas-pausas.md` §b.2: "caixa de seleção, avatar com as iniciais"). Sits in `.cartao-lista`'s first `auto`, like `.sw`.
  */
-.cl-selecao {
+.cl-selection {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -2316,7 +2316,7 @@ tr.grupo th {
  * ------------------------------------------- multiple selection and bulk action
  *    The bar sits ABOVE the list, like on theirs. The bulk action only appears with a real selection: a button that does nothing is a disabled item with another name, and the house rule forbids it.
  */
-.barra-selecao {
+.bar-selection {
   display: flex;
   align-items: center;
   gap: var(--p-e-3);
@@ -2324,7 +2324,7 @@ tr.grupo th {
   padding: 0 var(--p-e-2);
 }
 
-.barra-selecao label {
+.bar-selection label {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -2333,7 +2333,7 @@ tr.grupo th {
   cursor: pointer;
 }
 
-.barra-selecao .qt-sel {
+.bar-selection .qt-sel {
   margin-left: auto;
   display: flex;
   align-items: center;
@@ -2354,7 +2354,7 @@ tr.grupo th {
 }
 
 .cl-sel input,
-.barra-selecao input {
+.bar-selection input {
   width: 16px;
   height: 16px;
   accent-color: var(--p-marca);
@@ -2369,7 +2369,7 @@ tr.grupo th {
 /*
  * `bds-input icon="search"` in a `w-30` column (`dom/queue-management.html`): 30% width, 54px tall (296×54 in the SLA Rules photo), radius 8, border at 20% color, 20px magnifying glass 8px from the text. It used to be 410×42.
  */
-.busca-topo {
+.search-top {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -2383,13 +2383,13 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
-.busca-topo svg {
+.search-top svg {
   width: 20px;
   height: 20px;
   flex: none;
 }
 
-.busca-topo input {
+.search-top input {
   flex: 1;
   min-width: 0;
   padding: 0;
@@ -2401,14 +2401,14 @@ tr.grupo th {
   outline: none;
 }
 
-.busca-topo input::placeholder {
+.search-top input::placeholder {
   color: var(--p-conteudo-fantasma);
 }
 
 /*
  * Group header above its cards. Plays the role in the list that `tr.grupo` played in the table: the grouping is our answer to the six report items that never became a screen.
  */
-.grupo-cartoes {
+.group-cards {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -2419,49 +2419,49 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
-.grupo-cartoes:first-child {
+.group-cards:first-child {
   margin-top: 0;
 }
 
 /*
  * Content panel for "Modelos de mensagem" — `FICHA-message-template.md` §2: the only registry where the title repeats INSIDE a card, with the "Filtrar por:" line before the search. Radius 16 and the same card shadow as always (`--g-r-cartao`/`--g-sombra-cartao`), our color.
  */
-.painel-modelos {
+.panel-templates {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-4);
-  padding: var(--g-cartao-pad);
-  border-radius: var(--g-r-cartao);
-  background: var(--g-cartao-fundo);
-  box-shadow: var(--g-sombra-cartao);
+  padding: var(--g-card-pad);
+  border-radius: var(--g-r-card);
+  background: var(--g-card-background);
+  box-shadow: var(--g-shadow-card);
 }
 
 /* The title repeated inside the panel is `bds-typo variant="fs-20"` bold. */
-.painel-modelos > h3 {
+.panel-templates > h3 {
   margin: 0;
-  font-size: var(--g-t-valor-rel);
+  font-size: var(--g-t-value-report);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-t-valor-rel);
+  line-height: var(--g-t-value-report);
   color: var(--p-conteudo);
 }
 
 /*
  * "Filtrar por:" at 14/700 in full color, the 40px selectors next to it and the search on the right taking up 69% of the line (`FICHA-message-template.md` §3).
  */
-.filtrar-por {
+.filter-by {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
 }
 
-.filtrar-por .filtrar-rotulo {
+.filter-by .filtrar-rotulo {
   white-space: nowrap;
   font-size: var(--g-t-item);
   font-weight: var(--g-peso-negrito);
   color: var(--p-conteudo);
 }
 
-.filtrar-por select {
+.filter-by select {
   height: 40px;
   padding: 0 var(--p-e-3);
   border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
@@ -2472,7 +2472,7 @@ tr.grupo th {
   font-size: var(--g-t-item);
 }
 
-.painel-modelos .busca-topo {
+.panel-templates .search-top {
   width: 69%;
   margin-left: auto;
 }
@@ -2490,7 +2490,7 @@ tr.grupo th {
  * ============================ Attendance report (/relatorios/atendimento)
  *    The metric's denominator also goes INSIDE the breakdown table cell: per queue and per agent, the average without the number of discarded conversations is misleading in the same way it's misleading on the card. In the cell it sticks to the value, and reverts to the text font: 10px monospace across two cell lines becomes noise.
  */
-.cartao-rel.tabela .den {
+.card-rel.tabela .den {
   margin-top: 2px;
   font-family: var(--p-fonte);
 }
@@ -2499,14 +2499,14 @@ tr.grupo th {
  * ============================== Satisfaction report (/relatorios/satisfacao)
  *    The per-class distribution goes in as a table INSIDE the same block as the cards, not its own block: average, response rate and distribution are the same survey, and splitting them into blocks would leave the average far from its denominator.
  */
-.bloco-rel-grade + .cartao-rel {
-  margin-top: var(--g-cartao-gap);
+.block-rel-grid + .card-rel {
+  margin-top: var(--g-card-gap);
 }
 
 /*
  * The table row has a fixed height across all of Gestão; the comment cell is the only one that needs to grow, because customer text doesn't fit on a ruler.
  */
-.cartao-rel.tabela td.comentario {
+.card-rel.tabela td.comentario {
   height: auto;
   max-width: 520px;
   padding-top: var(--p-e-2);
@@ -2520,7 +2520,7 @@ tr.grupo th {
  *    /regras/horarios)
  *    The design system doesn't have "a labeled form field" — `.cl-campo` is a label above a READ value and `.lbl` is forbidden on a field name by `base.css`'s own comment. The canned-responses screen solved this with inline styling; with three forms and twenty fields, repeated inline styling becomes noise, so the four rules become a class here. No color: it's layout only.
  */
-.form-cadastro {
+.form-registration {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-3);
@@ -2569,7 +2569,7 @@ tr.grupo th {
   border-bottom: none;
 }
 
-.secao-rodape {
+.section-footer {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -2605,7 +2605,7 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
-.acoes-em-lote {
+.actions-in-batch {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -2615,14 +2615,14 @@ tr.grupo th {
 /*
  * The "Filtrar por: Filas" panel — trigger + dropdown panel anchored to it (`FICHA-atendentes-filas-pausas.md` §a.4: multi-select, "Limpar seleção", "Cancelar"/"Aplicar").
  */
-.filtro-filas {
+.filter-queues {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
 }
 
-.filtro-filas-ativador {
+.filter-queues-trigger {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -2637,7 +2637,7 @@ tr.grupo th {
   cursor: pointer;
 }
 
-.filtro-filas-painel {
+.filter-queues-panel {
   position: absolute;
   z-index: 20;
   top: calc(100% + 4px);
@@ -2652,14 +2652,14 @@ tr.grupo th {
   box-shadow: var(--p-sombra-1);
 }
 
-.filtro-filas-cabecalho {
+.filter-queues-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--p-e-2);
 }
 
-.filtro-filas-item {
+.filter-queues-item {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -2701,52 +2701,52 @@ tr.grupo th {
  * ============================ the channels grid (/preferencias/canais)
  *    `FICHA-channels.md` §2: `bds-grid direction="row"` with four `bds-paper` at 242×292 (measured from the capture's boot-log). Each card: icon on top, title 16/700, subtitle 14/400 and the button at the foot, flush right.
  */
-.canais-grade {
+.channels-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 242px);
-  gap: var(--g-cartao-gap);
+  gap: var(--g-card-gap);
 }
 
-.canal-cartao {
+.channel-card {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-2);
   min-height: 292px;
-  padding: var(--g-cartao-pad);
-  border-radius: var(--g-r-cartao);
-  background: var(--g-cartao-fundo);
-  box-shadow: var(--g-sombra-cartao);
+  padding: var(--g-card-pad);
+  border-radius: var(--g-r-card);
+  background: var(--g-card-background);
+  box-shadow: var(--g-shadow-card);
 }
 
-.canal-icone {
+.channel-icon {
   display: flex;
   color: var(--p-marca);
   margin-bottom: var(--p-e-2);
 }
 
-.canal-cartao h3 {
+.channel-card h3 {
   margin: 0;
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   color: var(--p-conteudo);
 }
 
-.canal-cartao p {
+.channel-card p {
   margin: 0;
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-normal);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo);
   overflow-wrap: anywhere;
 }
 
-.canal-acao {
+.channel-action {
   margin-top: auto;
   align-self: flex-end;
 }
 
-.canal-acao.apagado {
+.channel-action.apagado {
   opacity: 0.5;
 }
 
@@ -2803,41 +2803,41 @@ tr.grupo th {
  *
  *    `Salvar` is born disabled and only wakes up when something changes: a card with no change offers no action. It's the same rule that forbids a disabled menu item, applied to the button.
  */
-.cartao-config {
+.card-config {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-3);
-  padding: var(--g-cartao-pad);
-  border-radius: var(--g-r-cartao);
+  padding: var(--g-card-pad);
+  border-radius: var(--g-r-card);
   /* `bds-paper elevation="static" bg-surface-1` (`dom/general-settings.html`). */
-  background: var(--g-cartao-fundo);
-  box-shadow: var(--g-sombra-cartao);
+  background: var(--g-card-background);
+  box-shadow: var(--g-shadow-card);
 }
 
-.cartao-config + .cartao-config {
-  margin-top: var(--g-cartao-gap);
+.card-config + .card-config {
+  margin-top: var(--g-card-gap);
 }
 
-.cartao-config > header {
+.card-config > header {
   display: flex;
   align-items: flex-start;
   gap: var(--p-e-3);
 }
 
-.cartao-config > header > div {
+.card-config > header > div {
   flex: 1;
   min-width: 0;
 }
 
-.cartao-config h3 {
+.card-config h3 {
   margin: 0;
-  font-size: var(--g-t-valor-rel);
+  font-size: var(--g-t-value-report);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-t-valor-rel);
+  line-height: var(--g-t-value-report);
   color: var(--p-conteudo);
 }
 
-.cartao-config h3 + p {
+.card-config h3 + p {
   margin: var(--p-e-2) 0 0;
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-normal);
@@ -2847,7 +2847,7 @@ tr.grupo th {
 
 /* The card's footer: its own `Salvar`, on the right, with the message on the left. */
 /* No rule above `Salvar`: their `bds-paper` has no internal divider. */
-.cartao-config footer {
+.card-config footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -2855,14 +2855,14 @@ tr.grupo th {
   padding-top: var(--p-e-2);
 }
 
-.cartao-config footer .sub {
+.card-config footer .sub {
   margin-right: auto;
 }
 
 /*
  * A turned-off section stays legible, but its content loses focus: the header toggle is what governs, and the body is a consequence.
  */
-.cartao-config[data-ligado='false'] .cartao-config-corpo {
+.card-config[data-ligado='false'] .card-config-body {
   opacity: 0.55;
 }
 
@@ -2876,7 +2876,7 @@ tr.grupo th {
  *    It does NOT use the rest of the application's scale: the sign-in screen has its own typography and spacing (DM Sans, 15px body), and forcing the platform's tokens here would undo the design. The delivery's values become local tokens in `.entrar` below, and nothing outside this section sees them.
  */
 
-.entrar {
+.login {
   position: relative;
   width: 100%;
   min-height: 100dvh;
@@ -2886,7 +2886,7 @@ tr.grupo th {
 
   /* The delivery's tokens. They stay scoped to the screen they're for. */
   --pe-fundo: #f2f1ec;
-  --pe-papel: #ffffff;
+  --pe-paper: #ffffff;
   --pe-campo: #fbfbf7;
   --pe-conteudo: #16150f;
   --pe-rotulo: #3f3e36;
@@ -2905,7 +2905,7 @@ tr.grupo th {
 /*
  * The background canvas. `pointer-events: none` because it covers the entire screen and must not steal a click from the form.
  */
-.entrar-fundo {
+.login-background {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -2916,7 +2916,7 @@ tr.grupo th {
 /*
  * `justify-content: flex-start`, not `center`: the card sits on the left and the beam sweeps the opposite corner. Centering would bring the card on top of the drawing.
  */
-.entrar-palco {
+.login-stage {
   position: relative;
   display: flex;
   flex-wrap: wrap;
@@ -2932,24 +2932,24 @@ tr.grupo th {
  * The card flush left, 120px from the edge — the source screen's measurement. Centering would bring the form on top of the beam.
  */
 @media (min-width: 1000px) {
-  .entrar-palco {
+  .login-stage {
     padding-left: 120px;
   }
 }
 
-.entrar-cartao {
+.login-card {
   width: 560px;
   max-width: 100%;
   box-sizing: border-box;
   padding: 48px 44px 36px;
-  background: var(--pe-papel);
+  background: var(--pe-paper);
   border-radius: 22px;
   box-shadow:
     0 1px 2px rgba(22, 21, 15, 0.05),
     0 24px 60px -14px rgba(22, 21, 15, 0.2);
 }
 
-.entrar-lockup {
+.login-lockup {
   display: block;
   height: 44px;
   margin-bottom: 32px;
@@ -2958,7 +2958,7 @@ tr.grupo th {
 /*
  * The sign-in screen has no written title: the brand mark fills that role. The `h1` remains for screen-reader users and disappears only visually. (In the invitation screen the title IS information, and there it stays visible.)
  */
-.entrar-titulo-oculto {
+.login-title-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -2973,7 +2973,7 @@ tr.grupo th {
 /*
  * The rejection reason, with the person's exit. Comes BEFORE the buttons in reading order: someone using a screen reader needs the reason before the action.
  */
-.entrar-alerta {
+.login-alert {
   margin-bottom: 22px;
   padding: 14px 16px;
   background: var(--pe-campo);
@@ -2982,21 +2982,21 @@ tr.grupo th {
   border-radius: 12px;
 }
 
-.entrar-alerta h2 {
+.login-alert h2 {
   margin: 0 0 4px;
   font-size: 15px;
   font-weight: 600;
   color: var(--pe-conteudo);
 }
 
-.entrar-alerta p {
+.login-alert p {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
   color: var(--pe-apoio);
 }
 
-.entrar-google {
+.login-google {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3006,7 +3006,7 @@ tr.grupo th {
   box-sizing: border-box;
   border: 1px solid var(--pe-linha);
   border-radius: 14px;
-  background: var(--pe-papel);
+  background: var(--pe-paper);
   color: var(--pe-conteudo);
   font: inherit;
   font-size: 18px;
@@ -3018,31 +3018,31 @@ tr.grupo th {
     border-color 0.18s ease;
 }
 
-.entrar-google:hover {
+.login-google:hover {
   background: var(--pe-campo);
   border-color: var(--pe-linha-forte);
   color: var(--pe-conteudo);
 }
 
-.entrar-ou {
+.login-or {
   display: flex;
   align-items: center;
   gap: 12px;
   margin: 22px 0;
 }
 
-.entrar-ou span:not(.entrar-ou-texto) {
+.login-or span:not(.login-or-text) {
   flex: 1;
   height: 1px;
   background: var(--pe-linha-fina);
 }
 
-.entrar-ou-texto {
+.login-or-text {
   font-size: 14px;
   color: var(--pe-apoio);
 }
 
-.entrar-cartao label {
+.login-card label {
   display: block;
   margin: 0 0 7px 2px;
   font-size: 14px;
@@ -3050,9 +3050,9 @@ tr.grupo th {
   color: var(--pe-rotulo);
 }
 
-.entrar-cartao input[type='email'],
-.entrar-cartao input[type='password'],
-.entrar-cartao input[type='text'] {
+.login-card input[type='email'],
+.login-card input[type='password'],
+.login-card input[type='text'] {
   width: 100%;
   height: 60px;
   box-sizing: border-box;
@@ -3068,42 +3068,42 @@ tr.grupo th {
 
 /* As margens do desenho: 16px depois do e-mail, 10px depois da senha (a
    linha do "esqueci minha senha" vem logo abaixo dela). */
-.entrar-cartao input[type='email'] {
+.login-card input[type='email'] {
   margin-bottom: 16px;
 }
 
-.entrar-cartao input[type='password'] {
+.login-card input[type='password'] {
   margin-bottom: 10px;
 }
 
-.entrar-esqueci {
+.login-forgot {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 22px;
   font-size: 14px;
 }
 
-.entrar-esqueci a {
+.login-forgot a {
   text-decoration: none;
 }
 
-.entrar-cartao input::placeholder {
+.login-card input::placeholder {
   color: var(--pe-marca-dagua);
 }
 
-.entrar-cartao input:focus {
+.login-card input:focus {
   border-color: var(--pe-marca);
-  background: var(--pe-papel);
+  background: var(--pe-paper);
 }
 
-.entrar-ajuda {
+.login-help {
   margin: -12px 2px 18px;
   font-size: 14px;
   line-height: 1.5;
   color: var(--pe-apoio);
 }
 
-.entrar-cartao button[type='submit'] {
+.login-card button[type='submit'] {
   width: 100%;
   height: 60px;
   border: 0;
@@ -3117,11 +3117,11 @@ tr.grupo th {
   transition: background 0.18s ease;
 }
 
-.entrar-cartao button[type='submit']:hover {
+.login-card button[type='submit']:hover {
   background: var(--pe-marca-forte);
 }
 
-.entrar-pe {
+.login-foot {
   display: flex;
   justify-content: center;
   gap: 6px;
@@ -3132,21 +3132,21 @@ tr.grupo th {
   color: var(--pe-apoio);
 }
 
-.entrar a {
+.login a {
   color: var(--pe-marca);
 }
 
-.entrar a:hover {
+.login a:hover {
   color: var(--pe-marca-forte);
 }
 
-.entrar-pe a {
+.login-foot a {
   text-decoration: none;
 }
 
 /* ---- what the invitation adds to the same card ---- */
 
-.entrar-cartao h1 {
+.login-card h1 {
   margin: 0 0 10px;
   font-size: 26px;
   font-weight: 600;
@@ -3154,7 +3154,7 @@ tr.grupo th {
   color: var(--pe-conteudo);
 }
 
-.entrar-sub {
+.login-sub {
   margin: 0 0 22px;
   font-size: 17px;
   line-height: 1.5;
@@ -3162,7 +3162,7 @@ tr.grupo th {
 }
 
 /* The invitation data: label on the left, value on the right. */
-.entrar-dados {
+.login-data {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 6px 16px;
@@ -3170,11 +3170,11 @@ tr.grupo th {
   font-size: 14px;
 }
 
-.entrar-dados dt {
+.login-data dt {
   color: var(--pe-apoio);
 }
 
-.entrar-dados dd {
+.login-data dd {
   margin: 0;
   font-weight: 500;
   color: var(--pe-conteudo);
@@ -3182,7 +3182,7 @@ tr.grupo th {
   overflow-wrap: anywhere;
 }
 
-.entrar-rodape {
+.login-footer {
   margin: 18px 0 0;
   font-size: 14px;
   line-height: 1.5;
@@ -3190,7 +3190,7 @@ tr.grupo th {
 }
 
 /* The active account, in the logged-in menu. Serves all three screens. */
-.eu-bloco {
+.me-block {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -3198,7 +3198,7 @@ tr.grupo th {
   border-bottom: 1px solid var(--p-linha);
 }
 
-.eu-bloco b {
+.me-block b {
   font-size: var(--p-t-sm);
   font-weight: var(--p-peso-forte);
   color: var(--p-conteudo);
@@ -3207,7 +3207,7 @@ tr.grupo th {
 /*
  * `--p-conteudo-claro` is WHITE in light mode: inside a white panel the email used to disappear. The right tone for secondary text is the disabled one.
  */
-.eu-bloco span {
+.me-block span {
   font-size: var(--p-t-xs);
   color: var(--p-conteudo-desabilitado);
   overflow-wrap: anywhere;
@@ -3216,7 +3216,7 @@ tr.grupo th {
 /*
  * In the portal the block is their `bds-menu-exibition`: avatar ON THE LEFT, the name at 16 and the email at 10 next to it.
  */
-.pt-eu .eu-bloco {
+.pt-eu .me-block {
   flex-direction: row;
   align-items: center;
   gap: var(--p-e-2);
@@ -3259,8 +3259,8 @@ tr.grupo th {
  *    `:focus-within` and not `:focus`: the focus is on the child, and it's the box that needs to light up.
  */
 .pilula:focus-within,
-.tblhead .tbl-busca:focus-within,
-.busca-topo:focus-within {
+.tblhead .tbl-search:focus-within,
+.search-top:focus-within {
   outline: 2px solid var(--p-foco);
   outline-offset: 2px;
 }
@@ -3306,7 +3306,7 @@ tr.grupo th {
 /*
  * The account selector: 285px minimum and GROWS with the name (on their screen it measured 409 with a long name). The 40% ceiling is what stops a huge name from pushing the mark off-center.
  */
-.pt-conta {
+.pt-account {
   min-width: 285px;
   max-width: 40%;
 }
@@ -3314,7 +3314,7 @@ tr.grupo th {
 /*
  * No `gap` and no right-side padding: in their `portal.css` the `.group-buttom-contract` only has `padding-left: 32px`, and every following distance comes from a piece — the text's `pl3` and the arrow's own padding.
  */
-.pt-conta > summary {
+.pt-account > summary {
   display: flex;
   align-items: center;
   height: var(--g-barra-sup-h);
@@ -3324,14 +3324,14 @@ tr.grupo th {
   min-width: 0;
 }
 
-.pt-conta > summary:hover {
+.pt-account > summary:hover {
   background: var(--g-barra-hover);
 }
 
 /*
  * `.menu-contract .icon-contract-white`: the dark icon in a light circle with 8 of padding (40 total), not the light icon loose on the bar. The colors invert — the background is the bar's ink, the stroke is the bar.
  */
-.pt-conta-icone {
+.pt-account-icon {
   flex: none;
   display: flex;
   padding: var(--p-e-2);
@@ -3341,7 +3341,7 @@ tr.grupo th {
 }
 
 /* Their `flex flex-column pl3`: 0.625rem between the circle and the text. */
-.pt-conta-texto {
+.pt-account-text {
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -3353,10 +3353,10 @@ tr.grupo th {
 /*
  * Their `contractNamePanel` is fs-16 BOLD, and the account type is fs-12 right below.
  */
-.pt-conta-texto b {
-  font-size: var(--g-t-bloco);
+.pt-account-text b {
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3378,14 +3378,14 @@ tr.grupo th {
 /*
  * `.menu-contract .arrow-icon`: 1.8rem on BOTH sides — it's this padding, not the summary's, that separates the arrow from the text and the divider. And `.icon-white` paints the arrow with the bar's full ink, not the faded one.
  */
-.pt-conta-seta {
+.pt-account-arrow {
   margin-left: auto;
   padding: 0 1.8rem;
   display: flex;
   flex: none;
 }
 
-.pt-conta .g-painel {
+.pt-account .g-panel {
   left: 0;
   right: auto;
   width: 300px;
@@ -3452,14 +3452,14 @@ tr.grupo th {
 /*
  * The selector's menu has TWO blocks, in this order, and nothing else: "Painel do contrato" and the `tenant-list`. The loose shortcuts that used to be here are gone — their menu has none.
  */
-.pt-conta-menu {
+.pt-account-menu {
   padding: var(--p-e-2) 0;
 }
 
 /*
  * The first item: icon, "Painel da conta" at 16 and the current account's name right below, at 10 (their `contractNamePanel`).
  */
-.pt-painel {
+.pt-panel {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -3468,18 +3468,18 @@ tr.grupo th {
   color: var(--ink);
 }
 
-.pt-painel > span {
+.pt-panel > span {
   display: flex;
   flex-direction: column;
   min-width: 0;
   font-size: var(--p-t-md);
 }
 
-.pt-painel:hover {
+.pt-panel:hover {
   background: var(--p-superficie-2);
 }
 
-.pt-painel-conta {
+.pt-panel-account {
   font-size: 10px;
   line-height: 1.4;
   color: var(--ink-3);
@@ -3488,7 +3488,7 @@ tr.grupo th {
 /*
  * The list of OTHER accounts. The current account isn't in it: it's the title of the button that opened the menu.
  */
-.pt-contas {
+.pt-accounts {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -3500,12 +3500,12 @@ tr.grupo th {
 /*
  * The account type, below the name, at 12: the plan when it's a contract account and the address when it's the personal account.
  */
-.pt-conta-tipo {
+.pt-account-type {
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-fantasma);
 }
 
-.pt-contas button {
+.pt-accounts button {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -3520,18 +3520,18 @@ tr.grupo th {
   cursor: pointer;
 }
 
-.pt-contas button > span {
+.pt-accounts button > span {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
-.pt-contas button:hover:not(:disabled) {
+.pt-accounts button:hover:not(:disabled) {
   background: var(--p-superficie-2);
 }
 
 /* The current account isn't clickable — switching to where you already are isn't a switch. */
-.pt-contas button:disabled {
+.pt-accounts button:disabled {
   cursor: default;
   background: var(--p-marca-suave);
 }
@@ -3746,14 +3746,14 @@ tr.grupo th {
 /*
  * The light bar's right end: the search and the two create buttons, in the order and place of their `action-icons`.
  */
-.pt-subbarra-acoes {
+.pt-subbar-actions {
   flex: none;
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.pt-subbarra-acoes .btn {
+.pt-subbar-actions .btn {
   display: inline-flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -3771,7 +3771,7 @@ tr.grupo th {
  *    =========================================================
  */
 
-.pt-busca {
+.pt-search {
   flex: none;
   display: flex;
   align-items: center;
@@ -3780,7 +3780,7 @@ tr.grupo th {
 }
 
 /* Lupa da BLiP: 32x32, solta, sem caixa */
-.pt-busca-botao {
+.pt-search-button {
   display: flex;
   flex: none;
   align-items: center;
@@ -3801,8 +3801,8 @@ tr.grupo th {
 }
 
 /* Keeps the SVG at exactly 32x32 */
-.pt-busca-botao svg,
-.pt-busca svg {
+.pt-search-button svg,
+.pt-search svg {
   display: block;
   flex: none;
 
@@ -3816,7 +3816,7 @@ tr.grupo th {
  * Search field:
  *    no box, no background, appears next to the magnifying glass
  */
-.pt-busca input {
+.pt-search input {
   box-sizing: border-box;
 
   height: 32px;
@@ -3848,7 +3848,7 @@ tr.grupo th {
 }
 
 /* Gap between the magnifying glass and the input only after opening */
-.pt-busca-aberta {
+.pt-search-open {
   gap: 8px;
 }
 
@@ -3856,7 +3856,7 @@ tr.grupo th {
  * Since React only creates the input on click,
  *    we fake the opening motion with an animation
  */
-.pt-busca-aberta input {
+.pt-search-open input {
   width: 224px;
   opacity: 1;
 
@@ -3875,22 +3875,22 @@ tr.grupo th {
   }
 }
 
-.pt-busca input::placeholder {
+.pt-search input::placeholder {
   color: #8ca0b3;
   opacity: 1;
 }
 
 /* BLiP doesn't turn the search into a box */
-.pt-busca input:focus {
+.pt-search input:focus {
   outline: none;
   border-bottom-color: #8ca0b3;
 }
 
 /* Remove os controles nativos do input search no Chrome/Edge */
-.pt-busca input::-webkit-search-decoration,
-.pt-busca input::-webkit-search-cancel-button,
-.pt-busca input::-webkit-search-results-button,
-.pt-busca input::-webkit-search-results-decoration {
+.pt-search input::-webkit-search-decoration,
+.pt-search input::-webkit-search-cancel-button,
+.pt-search input::-webkit-search-results-button,
+.pt-search input::-webkit-search-results-decoration {
   display: none;
 }
 
@@ -3905,21 +3905,21 @@ tr.grupo th {
 /*
  * Their column's breakpoints: 540, 830 from 852 and 1300 from 1300. `max-width` and not `width` so the screen doesn't scroll horizontally below 540px — which is where the phone lives.
  */
-.pt-coluna {
+.pt-column {
   margin: 2.5rem auto 0;
   width: 100%;
   max-width: 540px;
 }
 
 @media (min-width: 852px) {
-  .pt-coluna,
+  .pt-column,
   .pt-subbarra-conteudo {
     max-width: 830px;
   }
 }
 
 @media (min-width: 1300px) {
-  .pt-coluna,
+  .pt-column,
   .pt-subbarra-conteudo {
     max-width: 1300px;
   }
@@ -3939,10 +3939,10 @@ tr.grupo th {
   gap: 72px;
   padding: 56px;
   margin-bottom: var(--p-e-6);
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
   background: var(--surface);
   border: 1px solid var(--line);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
 }
 
 .pt-boasvindas-desenho {
@@ -3966,7 +3966,7 @@ tr.grupo th {
 
 .pt-boasvindas-texto p {
   margin: 0;
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-block);
   line-height: 1.5;
   color: var(--ink-2);
 }
@@ -3980,7 +3980,7 @@ tr.grupo th {
  * --------------------------------------------- action cards
  *    Their `action-card-container`: a wrapping row, 24 gap, and each card elastic from 300 (`flex: 1 0 300px`). With four cards that gives two per row up to ~1300 and four above — which is what their screen does. The card has 24 padding and the icon lives in a corner-8 box, 24 from the text.
  */
-.pt-acoes {
+.pt-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--p-e-6);
@@ -3995,10 +3995,10 @@ tr.grupo th {
   display: flex;
   align-items: center;
   padding: var(--p-e-6);
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
   background: var(--surface);
   border: 1px solid var(--line);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
   text-decoration: none;
   color: var(--ink);
   transition: transform var(--p-dur-rapida) ease-in-out;
@@ -4029,7 +4029,7 @@ tr.grupo th {
 }
 
 .pt-acao-texto b {
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
   line-height: 1.6;
 }
@@ -4046,7 +4046,7 @@ tr.grupo th {
  *
  *    The right end stays EMPTY: it's where the source puts the "Mover chatbots" button, hidden on this account by the `can-migrate-bots: false` flag. We don't have migration between accounts, so there's nothing to draw there — the contact count that occupied the spot doesn't exist on their screen.
  */
-.pt-secao {
+.pt-section {
   margin: 2.5rem 0 var(--p-e-6);
   padding-bottom: var(--p-e-2);
   border-bottom: 1px solid var(--p-conteudo-fantasma);
@@ -4056,7 +4056,7 @@ tr.grupo th {
   gap: var(--p-e-3);
 }
 
-.pt-secao h2 {
+.pt-section h2 {
   margin: 0;
   font-size: 24px;
   font-weight: var(--g-peso-negrito);
@@ -4072,7 +4072,7 @@ tr.grupo th {
   color: var(--ink-2);
 }
 
-.pt-paginacao {
+.pt-pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -4083,25 +4083,25 @@ tr.grupo th {
   color: var(--ink);
 }
 
-.pt-paginacao-esquerda,
-.pt-paginacao-direita {
+.pt-pagination-left,
+.pt-pagination-right {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.pt-paginacao-esquerda label {
+.pt-pagination-left label {
   white-space: nowrap;
   color: var(--ink);
 }
 
 /* Select 40 / current page */
-.pt-paginacao .selecao {
+.pt-pagination .selection {
   width: 84px;
   flex: none;
 }
 
-.pt-paginacao .selecao-controle {
+.pt-pagination .selection-control {
   width: 84px;
   height: 40px;
   padding: 0 12px 0 16px;
@@ -4112,24 +4112,24 @@ tr.grupo th {
   font-size: 14px;
 }
 
-.pt-paginacao-conta {
+.pt-pagination-account {
   margin-left: 0;
   white-space: nowrap;
   color: var(--ink);
 }
 
-.pt-paginacao-direita {
+.pt-pagination-right {
   margin-left: auto;
 }
 
-.pt-paginacao-de {
+.pt-pagination-of {
   margin: 0 8px 0 0;
   white-space: nowrap;
   color: var(--ink);
 }
 
 /* First / previous / next / last */
-.pt-paginacao-icone {
+.pt-pagination-icon {
   width: 40px;
   height: 40px;
   display: inline-flex;
@@ -4146,12 +4146,12 @@ tr.grupo th {
   line-height: 1;
 }
 
-.pt-paginacao-icone:hover:not(.is-disabled) {
+.pt-pagination-icon:hover:not(.is-disabled) {
   background: var(--p-superficie-2);
   color: var(--ink);
 }
 
-.pt-paginacao-icone.is-disabled {
+.pt-pagination-icon.is-disabled {
   opacity: 0.45;
   pointer-events: none;
 }
@@ -4177,14 +4177,14 @@ tr.grupo th {
 /*
  * The card: 188×196, corner 16, padding 15. The three tiers have a FIXED height — a 56 avatar, a 50 name and a 25 tag — and that's what stops a two-line name from pushing the tag out.
  */
-.pt-cartao {
+.pt-card {
   width: 188px;
   height: 196px;
   padding: 15px;
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
   background: var(--surface);
   border: 1px solid var(--line);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4195,18 +4195,18 @@ tr.grupo th {
   transition: transform var(--p-dur-rapida) ease-in-out;
 }
 
-.pt-cartao:hover {
+.pt-card:hover {
   transform: scale(1.02);
 }
 
 /*
  * Unpublished: their card gets a red dot in the top-left corner (`.chatbot-item.notPublished:after`, 12px at 30px from the edge). Here it's the same dot, in our error ink over a light surface.
  */
-.pt-cartao-rascunho {
+.pt-card-draft {
   position: relative;
 }
 
-.pt-cartao-rascunho::after {
+.pt-card-draft::after {
   content: '';
   position: absolute;
   top: 15px;
@@ -4214,13 +4214,13 @@ tr.grupo th {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--p-erro-conteudo);
+  background: var(--p-error-content);
 }
 
 /*
  * The card's top tier: 56 across. Without a photo, the source puts the product icon there in a light circle (`round-avatar`), not the name's initials.
  */
-.pt-cartao-av {
+.pt-card-avatar {
   width: 56px;
   height: 56px;
   margin-bottom: 0.625rem;
@@ -4233,22 +4233,22 @@ tr.grupo th {
 }
 
 /* The photo fills the 56 circle without distorting — it crops whatever spills over. */
-.pt-cartao-foto {
+.pt-card-photo {
   width: 100%;
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.pt-cartao-nome {
+.pt-card-name {
   height: 50px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   overflow-wrap: anywhere;
   overflow: hidden;
 }
@@ -4256,7 +4256,7 @@ tr.grupo th {
 /*
  * The `chip_tag` from `bds-chip-tag`: 24 height with the border, 4 padding, the icon in a 16 box and the word with 8 on each side (`chip_tag--text`).
  */
-.pt-cartao-etq {
+.pt-card-tag {
   height: 24px;
   margin-top: 0.625rem;
   display: inline-flex;
@@ -4270,7 +4270,7 @@ tr.grupo th {
   white-space: nowrap;
 }
 
-.pt-cartao-etq > span {
+.pt-card-tag > span {
   margin: 0 var(--p-e-2);
 }
 
@@ -4283,7 +4283,7 @@ tr.grupo th {
     padding: 0 var(--p-e-4) 0 0;
   }
 
-  .pt-conta > summary {
+  .pt-account > summary {
     padding-left: var(--p-e-4);
   }
 
@@ -4291,13 +4291,13 @@ tr.grupo th {
     display: none;
   }
 
-  .pt-conta {
+  .pt-account {
     min-width: 0;
     max-width: none;
     flex: 1;
   }
 
-  .pt-conta > summary > svg:last-child {
+  .pt-account > summary > svg:last-child {
     padding-left: var(--p-e-2);
   }
 
@@ -4327,16 +4327,16 @@ tr.grupo th {
     gap: var(--p-e-1);
   }
 
-  .pt-busca input {
+  .pt-search input {
     width: 100%;
     max-width: none;
   }
 
-  .pt-busca {
+  .pt-search {
     width: 100%;
   }
 
-  .pt-coluna {
+  .pt-column {
     margin-top: var(--p-e-6);
   }
 
@@ -4354,7 +4354,7 @@ tr.grupo th {
     align-self: center;
   }
 
-  .pt-acoes {
+  .pt-actions {
     gap: var(--p-e-3);
   }
 
@@ -4385,7 +4385,7 @@ tr.grupo th {
  *    The colors come from `.entrada-passo`'s own local tokens, twins of `.entrar`'s for the same reason: this is the sign-in area's design delivery, not the rest of the application's scale.
  */
 
-.entrada-passo {
+.entry-step {
   min-height: 100dvh;
   display: flex;
   align-items: center;
@@ -4396,7 +4396,7 @@ tr.grupo th {
   -webkit-font-smoothing: antialiased;
 
   --pe-fundo: #f2f1ec;
-  --pe-papel: #ffffff;
+  --pe-paper: #ffffff;
   --pe-campo: #fbfbf7;
   --pe-conteudo: #16150f;
   --pe-rotulo: #3f3e36;
@@ -4411,12 +4411,12 @@ tr.grupo th {
   color: var(--pe-conteudo);
 }
 
-.entrada-passo-cartao {
+.entry-step-card {
   width: 560px;
   max-width: 100%;
   box-sizing: border-box;
   padding: 48px 44px 40px;
-  background: var(--pe-papel);
+  background: var(--pe-paper);
   border-radius: 22px;
   box-shadow:
     0 1px 2px rgba(22, 21, 15, 0.05),
@@ -4426,11 +4426,11 @@ tr.grupo th {
 /*
  * The form is taller than the notice; a larger width keeps the field column from becoming a narrow ribbon in the middle of an empty screen.
  */
-.entrada-passo-largo {
+.entry-step-wide {
   width: 640px;
 }
 
-.entrada-passo h1 {
+.entry-step h1 {
   margin: 0 0 10px;
   font-size: 26px;
   font-weight: 600;
@@ -4438,14 +4438,14 @@ tr.grupo th {
   color: var(--pe-conteudo);
 }
 
-.entrada-passo-sub {
+.entry-step-sub {
   margin: 0 0 28px;
   font-size: 17px;
   line-height: 1.5;
   color: var(--pe-apoio);
 }
 
-.entrada-passo-botao {
+.entry-step-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4463,19 +4463,19 @@ tr.grupo th {
   transition: background 0.18s ease;
 }
 
-.entrada-passo-botao:hover {
+.entry-step-button:hover {
   background: var(--pe-marca-forte);
   color: var(--pe-fundo);
 }
 
-.entrada-passo .entrar-alerta {
+.entry-step .login-alert {
   margin-bottom: 24px;
 }
 
 /*
  * The person's accounts inside the selector's menu. A button, not a link: switching accounts issues a new session, and session issuance doesn't belong on GET.
  */
-.pt-contas {
+.pt-accounts {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -4485,13 +4485,13 @@ tr.grupo th {
   border-bottom: 1px solid var(--p-linha);
 }
 
-.pt-contas-titulo {
+.pt-accounts-title {
   margin: 0 0 var(--p-e-1);
   font-size: var(--p-t-xs);
   color: var(--p-conteudo-fantasma);
 }
 
-.pt-contas button {
+.pt-accounts button {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -4507,14 +4507,14 @@ tr.grupo th {
   cursor: pointer;
 }
 
-.pt-contas button:hover:not(:disabled) {
+.pt-accounts button:hover:not(:disabled) {
   background: var(--p-superficie-3);
 }
 
 /*
  * The active account is disabled, and because of that it can't look faded: it's the marker of where the person is.
  */
-.pt-contas button:disabled {
+.pt-accounts button:disabled {
   cursor: default;
   font-weight: var(--p-peso-forte);
   background: var(--p-marca-suave);
@@ -4524,14 +4524,14 @@ tr.grupo th {
  * ================================================== "Filtros" side panel
  *    Their `data-testid="saved-filters-sidebar"`, closed by default and measured in `FICHA-monitoring.md` and `FICHA-history.md` §2: title, fixed subtitle, two tabs, the query fields, and a footer with the saved-filter switch and the two buttons. The 420px width comes from the `width` attribute of `bds-sidebar[data-testid="saved-filters-sidebar"]` in the Blip capture.
  */
-.painel-fundo {
+.panel-background {
   position: fixed;
   inset: 0;
   z-index: 45;
   background: color-mix(in srgb, var(--p-conteudo) 70%, transparent);
 }
 
-.painel-lateral {
+.panel-side {
   position: fixed;
   top: 0;
   right: 0;
@@ -4546,7 +4546,7 @@ tr.grupo th {
   overflow-y: auto;
 }
 
-.painel-cabecalho {
+.panel-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -4557,30 +4557,30 @@ tr.grupo th {
 /*
  * Title `fs-20 bold`, subtitle `fs-14 regular`, tabs `fs-16` (the active one bold) and each field with a `fs-14 bold` label over `fs-14 regular` support — all read from the `saved-filters-sidebar` in `dom/monitoring.html`.
  */
-.painel-cabecalho h3 {
+.panel-header h3 {
   margin: 0;
-  font-size: var(--g-t-valor-rel);
+  font-size: var(--g-t-value-report);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-t-valor-rel);
+  line-height: var(--g-t-value-report);
   color: var(--p-conteudo);
 }
 
-.painel-cabecalho p {
+.panel-header p {
   margin: 8px 0 0;
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-normal);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo);
 }
 
-.painel-abas {
+.panel-tabs {
   display: flex;
   gap: var(--p-e-4);
   padding: 0 var(--p-e-6);
   border-bottom: 1px solid var(--p-linha);
 }
 
-.painel-abas button {
+.panel-tabs button {
   padding: var(--p-e-2) 0 var(--p-e-3);
   border: 0;
   border-bottom: 2px solid transparent;
@@ -4588,25 +4588,25 @@ tr.grupo th {
   font: inherit;
   font-size: var(--g-t-aba);
   font-weight: var(--g-peso-normal);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   color: var(--p-conteudo);
   cursor: pointer;
 }
 
-.painel-abas button.ativa {
+.panel-tabs button.active {
   font-weight: var(--g-peso-negrito);
   color: var(--p-conteudo);
   border-bottom-color: var(--p-marca);
 }
 
-.painel-form {
+.panel-form {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
 }
 
-.painel-campos {
+.panel-fields {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-5);
@@ -4614,31 +4614,31 @@ tr.grupo th {
   flex: 1;
 }
 
-.painel-campo {
+.panel-field {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.painel-rotulo {
+.panel-label {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-size: var(--g-t-item);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo);
 }
 
-.painel-apoio {
+.panel-support {
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-normal);
-  line-height: var(--g-lh-cartao);
+  line-height: var(--g-lh-card);
   color: var(--p-conteudo);
 }
 
-.painel-campo select,
-.painel-campo input {
+.panel-field select,
+.panel-field input {
   height: 40px;
   padding: 0 var(--p-e-3);
   border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
@@ -4649,7 +4649,7 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
-.painel-rodape {
+.panel-footer {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-3);
@@ -4658,7 +4658,7 @@ tr.grupo th {
 }
 
 /* "Criar Filtro Salvo com estes parâmetros" is `fs-14 regular` at full ink. */
-.painel-sw {
+.panel-switch {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -4667,13 +4667,13 @@ tr.grupo th {
   cursor: not-allowed;
 }
 
-.painel-botoes {
+.panel-buttons {
   display: flex;
   justify-content: flex-end;
   gap: var(--p-e-2);
 }
 
-.painel-vazio-salvos {
+.panel-empty-saved {
   padding: var(--p-e-8) var(--p-e-6);
   text-align: center;
   font-size: var(--p-t-sm);
@@ -4696,13 +4696,13 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
-.pg-por-pagina {
+.pg-per-page {
   display: flex;
   align-items: center;
   gap: var(--p-e-5);
 }
 
-.pg-por-pagina select {
+.pg-per-page select {
   height: 40px;
   min-width: 74px;
   padding: 0 var(--p-e-2);
@@ -4766,13 +4766,13 @@ tr.grupo th {
 /*
  * The panel's "Período" field's two dates, side by side — they only appear after the dropdown, and only really matter under "Personalizado".
  */
-.painel-datas {
+.panel-dates {
   display: flex;
   gap: var(--p-e-2);
   margin-top: var(--p-e-2);
 }
 
-.painel-datas input {
+.panel-dates input {
   flex: 1;
   min-width: 0;
 }
@@ -4787,7 +4787,7 @@ tr.grupo th {
   gap: var(--p-e-3);
 }
 
-.termo-de-responsabilidade {
+.term-of-responsibility {
   align-self: flex-end;
   display: flex;
   align-items: center;
@@ -4798,7 +4798,7 @@ tr.grupo th {
   text-decoration: none;
 }
 
-.termo-de-responsabilidade:hover {
+.term-of-responsibility:hover {
   color: var(--p-conteudo);
   text-decoration: underline;
 }
@@ -4854,7 +4854,7 @@ tr.grupo th {
   max-height: 88vh;
   overflow-y: auto;
   background: var(--p-superficie-0);
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
   box-shadow: var(--p-sombra-2);
   padding: var(--p-e-6);
 }
@@ -4869,9 +4869,9 @@ tr.grupo th {
 
 .modal-cabecalho h3 {
   margin: 0;
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-block);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-lh-block);
   color: var(--p-conteudo);
 }
 
@@ -4887,7 +4887,7 @@ tr.grupo th {
 /*
  * Same ruler as `.pg` above (it's their same `pagination-and-search` in `dom/rules.html`/`dom/sla-policy.html`): spread across the width, no rule.
  */
-.rodape-paginacao {
+.footer-pagination {
   display: flex;
   align-items: center;
   gap: var(--p-e-5);
@@ -4914,7 +4914,7 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
-.rp-contagem {
+.rp-count {
   margin: 0 auto;
 }
 

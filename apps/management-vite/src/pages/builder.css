@@ -182,7 +182,7 @@
   background-size: 16px 16px;
 }
 
-.bl-vazio {
+.bl-empty {
   position: absolute;
   inset: 0;
   display: flex;
@@ -195,11 +195,11 @@
   color: var(--p-conteudo-claro, #fff);
 }
 
-.bl-vazio svg {
+.bl-empty svg {
   color: color-mix(in srgb, var(--p-conteudo-claro, #fff) 45%, transparent);
 }
 
-.bl-vazio p {
+.bl-empty p {
   max-width: 46ch;
   font-size: var(--p-t-md);
   color: color-mix(in srgb, var(--p-conteudo-claro, #fff) 70%, transparent);
@@ -272,9 +272,9 @@
  * The UI package's error tokens (`tokens.css`): pastel background, dark rule and content — the same pair as `Etiqueta tom="erro"`.
  */
 .bl-aviso--error {
-  background: var(--p-erro-fundo);
-  border-bottom-color: var(--p-erro-linha);
-  color: var(--p-erro-conteudo);
+  background: var(--p-error-background);
+  border-bottom-color: var(--p-error-line);
+  color: var(--p-error-content);
 }
 
 .bl-aviso--error svg {
@@ -282,22 +282,22 @@
   margin-right: 4px;
 }
 
-.bl-erros {
+.bl-errors {
   margin: var(--p-e-2) 0 0;
   padding-left: 1.25em;
   font-size: var(--p-t-sm);
   color: var(--ink-2);
 }
 
-.bl-erros li + li {
+.bl-errors li + li {
   margin-top: 2px;
 }
 
-.bl-aviso--error .bl-erros {
+.bl-aviso--error .bl-errors {
   color: inherit;
 }
 
-.bl-erros--modal {
+.bl-errors--modal {
   margin-bottom: var(--p-e-3);
 }
 
@@ -311,7 +311,7 @@
   overflow: auto;
 }
 
-.bl-bloco {
+.bl-block {
   position: absolute;
   width: 240px;
   padding: var(--p-e-3);
@@ -323,7 +323,7 @@
   font-size: var(--p-t-sm);
 }
 
-.bl-bloco--inicio {
+.bl-block--start {
   border-left-color: var(--p-marca);
 }
 
@@ -332,11 +332,11 @@
 }
 
 .bl-bloco--error {
-  border-left-color: var(--p-erro-sobre-escuro);
-  outline: 1px solid var(--p-erro-linha);
+  border-left-color: var(--p-error-on-dark);
+  outline: 1px solid var(--p-error-line);
 }
 
-.bl-bloco header {
+.bl-block header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -345,7 +345,7 @@
   font-size: var(--p-t-md);
 }
 
-.bl-bloco-fala {
+.bl-block-speech {
   margin: var(--p-e-2) 0 0;
   padding: var(--p-e-2);
   border-radius: var(--p-r-sm);
@@ -354,7 +354,7 @@
   white-space: pre-wrap;
 }
 
-.bl-bloco-espera {
+.bl-block-wait {
   margin: var(--p-e-2) 0 0;
   color: var(--ink-3);
   font-style: italic;
@@ -370,7 +370,7 @@
  * --------------------------------------------------------- the history
  *    The modal's list: one row per version, with the status tag and "Restaurar" on the right.
  */
-.bl-versoes {
+.bl-versions {
   list-style: none;
   margin: 0 0 var(--p-e-3);
   padding: 0;
@@ -381,7 +381,7 @@
   overflow: auto;
 }
 
-.bl-versoes li {
+.bl-versions li {
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
@@ -391,7 +391,7 @@
   border-radius: var(--p-r-md);
 }
 
-.bl-versoes li > .btn {
+.bl-versions li > .btn {
   grid-row: 1 / span 2;
   align-self: center;
 }
@@ -478,7 +478,7 @@
   align-items: center;
 }
 
-.bl-zoom-valor {
+.bl-zoom-value {
   width: 60px;
   margin-right: 15px;
   font-size: var(--p-t-md);
@@ -486,7 +486,7 @@
   opacity: 0.85;
 }
 
-.bl-zoom-trilho {
+.bl-zoom-rail {
   position: relative;
   width: 100px;
   height: 3px;
@@ -549,7 +549,7 @@
 
 /* --------------------------------------------------------- the round button */
 
-.bl-conversa {
+.bl-conversation {
   position: absolute;
   right: var(--p-e-5);
   bottom: var(--p-e-5);

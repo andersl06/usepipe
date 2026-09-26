@@ -144,7 +144,7 @@
 }
 
 /* `Zx { display: flex; gap: 12px }` */
-.ma-acoes {
+.ma-actions {
   display: flex;
   flex-direction: row;
   gap: 12px;
@@ -196,7 +196,7 @@
 /* ------------------------------------------------------------ filtro (`St`) */
 
 /* `Wx { padding-bottom: 16px }` */
-.ma-filtro-faixa {
+.ma-filter-strip {
   width: 100%;
   padding-bottom: 16px;
 }
@@ -204,14 +204,14 @@
 /*
  * `.active-messages-filter-wrapper { width: 100%; max-height: 72px; margin: 0 }`. The 72 ceiling is theirs and the two chip rows go over it: the overflow invades the bottom indent, same as there.
  */
-.ma-filtro {
+.ma-filter {
   width: 100%;
   max-height: 72px;
   margin: 0;
 }
 
 /* `bds-grid direction="row" gap="2" align-items="start" justify-content="center"` */
-.ma-filtro-grade {
+.ma-filter-grid {
   display: flex;
   flex-direction: row;
   gap: 16px;
@@ -219,7 +219,7 @@
   justify-content: center;
 }
 
-.ma-coluna {
+.ma-column {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -398,23 +398,23 @@
 }
 
 /* `bds-grid gap="2"` (fileira) */
-.ma-fileira {
+.ma-row {
   display: flex;
   flex-direction: row;
   gap: 16px;
 }
-.ma-fileira-ultima {
+.ma-row-last {
   padding-bottom: 16px;
 }
 
 /* `bds-paper`: raio 16, sombra `static`. */
-.ma-papel {
+.ma-paper {
   display: block;
   border-radius: 16px;
   background: var(--surface);
   box-shadow: var(--p-sombra-1);
 }
-.ma-papel-plano {
+.ma-paper-plan {
   box-shadow: none;
 }
 .ma-flex1 {
@@ -478,13 +478,13 @@
   line-height: 28px;
 }
 
-.ma-cartoes {
+.ma-cards {
   display: flex;
   flex: 1;
   flex-direction: column;
   gap: 8px;
 }
-.ma-cartoes-linha {
+.ma-cards-line {
   display: flex;
   flex: 1;
   gap: 8px;
@@ -492,7 +492,7 @@
 
 /* `Ft` → `.big-numbers-card__content-container`: `bds-grid gap="1" padding="1"`,
    borda 20%, raio 8, centro vertical. */
-.ma-cartao {
+.ma-card {
   display: flex;
   flex: 1;
   gap: 8px;
@@ -503,23 +503,23 @@
 }
 
 /* `.big-numbers-card__icon`: 32 + 8 de recheio, raio 8. */
-.ma-cartao-icone {
+.ma-card-icon {
   display: flex;
   padding: 8px;
   border-radius: 8px;
   color: var(--ink);
 }
-.ma-cartao-textos {
+.ma-card-texts {
   display: flex;
   flex: 1;
   flex-direction: column;
 }
-.ma-cartao-numero {
+.ma-card-number {
   font-size: 24px;
   font-weight: 700;
   line-height: 32px;
 }
-.ma-cartao-titulo {
+.ma-card-title {
   font-size: 14px;
   line-height: 22px;
 }
@@ -616,7 +616,7 @@
   margin-bottom: 22px;
   color: var(--ink);
 }
-.ma-descricao-grafico {
+.ma-description-chart {
   margin-top: -22px;
   font-size: 14px;
   line-height: 150%;
@@ -644,7 +644,7 @@
   font-size: 12px;
   color: var(--ink-2);
 }
-.ma-funil-trilho {
+.ma-funnel-rail {
   position: relative;
   display: flex;
   align-items: center;
@@ -657,7 +657,7 @@
 }
 /* `datalabels`: `anchor/align: end`, `padding.left: 5` sobre o `offset` 4,
    14px bold, `content-disable`. */
-.ma-funil-valor {
+.ma-funnel-value {
   /* Out of flow: the bar measures against the whole area, like on the canvas. */
   position: absolute;
   padding-left: 9px;
@@ -670,7 +670,7 @@
 
 /* ------------------------------------------------------------ conversions (`Dl`) */
 
-.ma-conversoes {
+.ma-conversions {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -678,7 +678,7 @@
 }
 
 /* `.conversion-chart { height: 222px }` */
-.ma-conversoes-grafico {
+.ma-conversions-chart {
   display: flex;
   flex-direction: column;
   height: 222px;
@@ -713,11 +713,11 @@
   line-height: 1;
 }
 
-.ma-plotagem {
+.ma-plotting {
   position: relative;
   min-width: 0;
 }
-.ma-plotagem svg {
+.ma-plotting svg {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -767,7 +767,7 @@
 .ma-campo-auto input {
   width: auto;
 }
-.ma-filtro-template {
+.ma-filter-template {
   gap: 16px;
   align-items: flex-start;
 }
@@ -860,7 +860,7 @@
   font-weight: 700;
   line-height: 150%;
 }
-.ma-taxa-descricao {
+.ma-rate-description {
   font-size: 14px;
   line-height: 150%;
 }
@@ -905,7 +905,7 @@
   inset: 50% 0 auto;
   border-top: 1px solid var(--line);
 }
-.ma-picos-coluna {
+.ma-peaks-column {
   position: relative;
   display: flex;
   justify-content: center;
@@ -914,7 +914,7 @@
   background: linear-gradient(var(--line), var(--line)) center / 1px 100% no-repeat;
 }
 /* 95% × 95%, radius 8 only on top, 1.5 border in the same color. */
-.ma-picos-coluna span {
+.ma-peaks-column span {
   width: 90.25%;
   border-radius: 8px 8px 0 0;
   background: var(--p-grafico-2);
@@ -956,19 +956,19 @@
   line-height: 100%;
   color: var(--ink);
 }
-.ma-falhas-descricao {
+.ma-failures-description {
   display: block;
   font-size: 14px;
   line-height: 150%;
   color: var(--ink-2);
 }
 /* `.message-failures-link { color: #1e6bf1 }` */
-.ma-falhas-descricao a {
+.ma-failures-description a {
   color: var(--p-marca);
 }
 
 /* `style={{ flex: 1, overflowY: auto, maxHeight: 214px, marginTop: -30px }}` */
-.ma-falhas-rolagem {
+.ma-failures-scroll {
   flex: 1;
   max-height: 214px;
   margin-top: -30px;

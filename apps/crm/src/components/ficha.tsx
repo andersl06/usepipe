@@ -48,7 +48,7 @@ export function Section({
   children: ReactNode;
 }) {
   return (
-    <details className="secao" open={aberta}>
+    <details className="section" open={aberta}>
       <summary>
         <b>{titulo}</b>
       </summary>
@@ -89,7 +89,7 @@ export function Destaque({
 }) {
   return (
     <div className="destaque">
-      <div className="identidade">
+      <div className="identity">
         <Link href={trilha.href} className="trilha">
           {trilha.rotulo}
         </Link>
@@ -102,7 +102,7 @@ export function Destaque({
         {nota ? <span className="criado">{nota}</span> : null}
       </div>
 
-      <dl className="principais">
+      <dl className="main">
         {main.map((c) => (
           <div key={c.rotulo}>
             <dt>{c.rotulo}</dt>
@@ -182,7 +182,7 @@ export function SectionAtributos({
   return (
     <Section titulo={titulo} aberta={pares.length > 0}>
       {pares.length === 0 ? (
-        <div className="vazio">{empty}</div>
+        <div className="empty">{empty}</div>
       ) : (
         <div className="campos">
           {pares.map(([k, v]) => (

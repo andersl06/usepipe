@@ -145,7 +145,7 @@ function Edit({
           </div>
         </div>
 
-        <Role className="cf-equipe-editar-cartao">
+        <Role className="cf-team-edit-card">
           <div className="cf-equipe-editar-controle">
             <h2>Permissões</h2>
             <Selection

@@ -253,7 +253,7 @@ export function FormularioTemplate({ channels }: { channels: { id: string; nome:
 
           {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-          <div className="cl-acoes">
+          <div className="cl-actions">
             <Botao type="submit" variante="primario" disabled={enviando}>
               {enviando ? 'Salvando…' : 'Salvar modelo'}
             </Botao>

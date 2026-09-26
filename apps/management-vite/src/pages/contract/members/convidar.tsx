@@ -166,7 +166,7 @@ export function ConvidarMembers({
 
       <dialog ref={modal} className="mb-modal" aria-labelledby={`${id}-titulo`} onClose={fechar}>
         {novo && novo.links.length > 0 ? (
-          <div className="mb-convite-feito">
+          <div className="mb-invitation-done">
             <h1 id={`${id}-titulo`}>Convites criados</h1>
             <p>Copie o link de cada pessoa: ele não aparece de novo.</p>
             <ul className="mb-links">
@@ -187,7 +187,7 @@ export function ConvidarMembers({
         ) : (
           <>
             {enviando ? (
-              <p className="mb-convite-espera" role="status">
+              <p className="mb-invitation-wait" role="status">
                 Enviando convites...
               </p>
             ) : null}
@@ -197,11 +197,11 @@ export function ConvidarMembers({
               {/* The API matches the role by its DB NAME — the `roleId`, not the label. */}
               <input type="hidden" name="papel" value={role?.roleId ?? ''} />
 
-              <div className="mb-convite-topo">
+              <div className="mb-invitation-top">
                 {/*
  * ponytail: their `/fonts/invite_envelope.svg` isn't in any capture; the illustration spot stays empty until the file arrives.
  */}
-                <div className="mb-convite-titulos">
+                <div className="mb-invitation-titles">
                   <h1 id={`${id}-titulo`}>Convidar pessoas</h1>
                   <span>
                     Convide membros do seu time para trabalhar em projetos relacionados a este
@@ -210,8 +210,8 @@ export function ConvidarMembers({
                 </div>
               </div>
 
-              <div className="mb-convite-campos">
-                <div className="mb-chips-bloco">
+              <div className="mb-invitation-fields">
+                <div className="mb-chips-block">
                   <div
                     className={`mb-campo${invalido ? ' mb-campo--erro' : ''}`}
                     onClick={() => campoDeTexto.current?.focus()}
@@ -256,7 +256,7 @@ export function ConvidarMembers({
                     </div>
                   </div>
                   {invalido ? (
-                    <p className="mb-campo-erro" id={`${id}-erro-email`} role="alert">
+                    <p className="mb-field-error" id={`${id}-erro-email`} role="alert">
                       <IconePortal nome="fechar-chip" tamanho={16} />
                       Formato de endereço e-mail inválido
                     </p>
@@ -296,7 +296,7 @@ export function ConvidarMembers({
                       ref={lista}
                       role="listbox"
                       tabIndex={-1}
-                      className="mb-opcoes"
+                      className="mb-options"
                       aria-labelledby={`${id}-rotulo-papel`}
                       aria-activedescendant={`${id}-opcao-${active}`}
                       onKeyDown={teclaNaLista}
@@ -318,11 +318,11 @@ export function ConvidarMembers({
                           <IconePortal
                             nome={p.icone}
                             tamanho={20}
-                            className={`mb-opcao-icone ${p.classe}`}
+                            className={`mb-option-icon ${p.classe}`}
                           />
-                          <span className="mb-opcao-texto">
-                            <span className="mb-opcao-titulo">{p.rotulo}</span>
-                            <span className="mb-opcao-descricao">{p.description}</span>
+                          <span className="mb-option-text">
+                            <span className="mb-option-title">{p.rotulo}</span>
+                            <span className="mb-option-description">{p.description}</span>
                           </span>
                         </li>
                       ))}
@@ -332,7 +332,7 @@ export function ConvidarMembers({
               </div>
 
               {alreadyMember ? (
-                <div className="mb-convite-aviso" role="alert">
+                <div className="mb-invitation-notice" role="alert">
                   <IconePortal nome="alerta" tamanho={40} />
                   <span>
                     Existem pessoas que já fazem parte desse contrato. Para editar o
@@ -344,7 +344,7 @@ export function ConvidarMembers({
                 </div>
               ) : null}
 
-              <div className="mb-convite-importar">
+              <div className="mb-invitation-import">
                 <div>
                   <p>ou</p>
                   <button
@@ -365,7 +365,7 @@ export function ConvidarMembers({
                 </div>
                 {/* The unaccented "formatacão" in the right place is theirs. */}
                 <a
-                  className="mb-convite-modelo"
+                  className="mb-invitation-template"
                   href={`data:text/csv;charset=utf-8,${encodeURIComponent(TEMPLATE_CSV)}`}
                   download="modelo-convite.csv"
                 >
@@ -375,7 +375,7 @@ export function ConvidarMembers({
 
               {novo?.errors.length ? <SError errors={novo.errors} /> : null}
 
-              <div className="mb-convite-rodape">
+              <div className="mb-invitation-footer">
                 <button type="button" className="mb-botao mb-botao--secundario" onClick={fechar}>
                   Cancelar
                 </button>
@@ -393,7 +393,7 @@ export function ConvidarMembers({
 
 function SError({ errors }: { errors: string[] }) {
   return (
-    <ul className="mb-erros" role="alert">
+    <ul className="mb-errors" role="alert">
       {errors.map((e) => (
         <li key={e}>{e}</li>
       ))}

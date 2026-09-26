@@ -127,13 +127,13 @@
 /*
  * `qe`: each card block is `margin: 24px 0 8px 0`, and the labels and values inside it are 8 apart. Between neighboring blocks the margins merge into 24, which is their gap.
  */
-.ct-bloco {
+.ct-block {
   margin: var(--p-e-6) 0 var(--p-e-2);
 }
 
 /* Each block's label is `bds-typo variant="fs-14"`, normal weight. */
 .ct-rotulo,
-.ct-dados dt {
+.ct-data dt {
   display: block;
   margin-bottom: var(--p-e-2); /* 8px — `::part(bds-typo__text)` do primeiro */
   font-size: var(--p-t-md); /* 14px */
@@ -200,11 +200,11 @@
 }
 
 /* `Ge` only exists on the card lying flat; upright the pairs are stacked blocks. */
-.ct-dados {
+.ct-data {
   margin: 0;
 }
 
-.ct-dados dd {
+.ct-data dd {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -217,7 +217,7 @@
 
 /* Deitado, `Ge` vira fileira: `padding-top: 24px; gap: 7vmax;
    align-items: flex-end` e volta a coluna abaixo de 720. */
-.ct-resumo--faixa .ct-dados {
+.ct-resumo--faixa .ct-data {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -225,12 +225,12 @@
   padding-top: var(--p-e-6);
 }
 
-.ct-resumo--faixa .ct-dados .ct-bloco {
+.ct-resumo--faixa .ct-data .ct-block {
   margin: 0;
 }
 
 @media (max-width: 720px) {
-  .ct-resumo--faixa .ct-dados {
+  .ct-resumo--faixa .ct-data {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--p-e-6); /* 24px */
@@ -258,7 +258,7 @@
 .ct-rodape .pt-obra {
   padding: 0;
   font-size: var(--p-t-sm);
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
   text-decoration: underline;
 }
 
@@ -267,7 +267,7 @@
 /*
  * `it`: `grid-area: content`, and nothing else — the gap between groups comes from the header's margins.
  */
-.ct-grupos {
+.ct-groups {
   grid-area: content;
   min-width: 0;
 }
@@ -289,7 +289,7 @@
 /*
  * `rt` + their sheet's `bb-color-surface` class: `padding: 8px 0 16px 0; margin-bottom: 24px` plus `border-bottom: 2px solid var(--color-surface-3)`.
  */
-.ct-secao .ct-titulo {
+.ct-section .ct-titulo {
   flex-grow: 0;
   gap: 0;
   margin-bottom: var(--p-e-6); /* 24px */
@@ -301,7 +301,7 @@
 /*
  * The header's own `:not(:first-child) { margin-top: 48px }`: from the second group on, it breathes 48 before starting.
  */
-.ct-secao:not(:first-child) .ct-titulo {
+.ct-section:not(:first-child) .ct-titulo {
   margin-top: calc(var(--p-e-6) * 2); /* 48px; there's no 48 token */
 }
 
@@ -314,7 +314,7 @@
 }
 
 /* `ct` */
-.ct-cartoes {
+.ct-cards {
   display: flex;
   gap: var(--p-e-4); /* 16px */
   flex-wrap: wrap;
@@ -323,7 +323,7 @@
 /*
  * `ce` + `bds-paper`: FIXED width of 312, 16 padding, full row height, and the title underlines on hover.
  */
-.ct-cartao {
+.ct-card {
   width: 312px;
   max-width: 100%;
   display: flex;
@@ -341,7 +341,7 @@
 /*
  * `onMouseEnter` swaps the elevation from `static` to `secondary`, and `ce` itself underlines the text.
  */
-a.ct-cartao:hover {
+a.ct-card:hover {
   box-shadow: var(--p-sombra-2);
   text-decoration: underline;
 }
@@ -349,7 +349,7 @@ a.ct-cartao:hover {
 /*
  * The work-in-progress card uses the portal's `.pt-obra` for the muted look and the cursor, but the box stays the card's: without this, the portal menu item's padding (8/12) would beat the card's (16).
  */
-.ct-cartao.pt-obra {
+.ct-card.pt-obra {
   display: flex;
   align-items: stretch;
   padding: var(--p-e-4);
@@ -360,7 +360,7 @@ a.ct-cartao:hover {
 /*
  * `de`: 48 by 48, 8 radius, vertically centered in the card, with the `size="xx-large"` icon (36) inside.
  */
-.ct-cartao-icone {
+.ct-card-icon {
   flex: none;
   min-width: 48px;
   height: 48px;
@@ -374,7 +374,7 @@ a.ct-cartao:hover {
 }
 
 /* `le` */
-.ct-cartao-texto {
+.ct-card-text {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -383,7 +383,7 @@ a.ct-cartao:hover {
 }
 
 /* `div.flex.row.justify-between`: the title on the left, the tag on the right. */
-.ct-cartao-titulo {
+.ct-card-title {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -391,14 +391,14 @@ a.ct-cartao:hover {
   gap: var(--p-e-2);
 }
 
-.ct-cartao-titulo b {
+.ct-card-title b {
   font-size: var(--p-t-lg); /* 16px — `bds-typo fs-16 bold` */
   font-weight: var(--p-peso-forte);
   line-height: 1.5;
 }
 
 /* The description: `bds-typo fs-14 bold="regular"`. */
-.ct-cartao-texto > span {
+.ct-card-text > span {
   font-size: var(--p-t-md); /* 14px */
   font-weight: var(--p-peso-normal);
   line-height: 1.5;
@@ -406,7 +406,7 @@ a.ct-cartao:hover {
 }
 
 /* The label for what would hide the card in the real world. Preview only. */
-.ct-cartao-texto .ct-porque {
+.ct-card-text .ct-porque {
   font-family: var(--p-fonte-mono);
   font-size: var(--p-t-xs);
   color: var(--ink-3);
@@ -438,8 +438,8 @@ a.ct-cartao:hover {
   margin: 0 0 var(--p-e-4);
   padding: var(--p-e-3) var(--p-e-4);
   border-radius: var(--p-r-md);
-  background: var(--p-erro-fundo);
-  color: var(--p-erro-conteudo);
+  background: var(--p-error-background);
+  color: var(--p-error-content);
   font-size: var(--p-t-md);
 }
 
@@ -503,7 +503,7 @@ a.ct-cartao:hover {
 /*
  * `.bp-card`. The `--left-arrow` is the top-left corner's notch: a .46875rem square with two painted borders, rotated -45°.
  */
-.mb-cartao {
+.mb-card {
   position: relative;
   margin-top: 0.9375rem; /* 15px */
   padding: 2.5rem 3.75rem; /* 40px 60px */
@@ -511,7 +511,7 @@ a.ct-cartao:hover {
   box-shadow: var(--p-sombra-2);
 }
 
-.mb-cartao::after {
+.mb-card::after {
   content: '';
   position: absolute;
   top: 0;
@@ -572,11 +572,11 @@ a.ct-cartao:hover {
   outline-offset: 2px;
 }
 
-.mb-abas-nav .mb-aba-ativa {
+.mb-abas-nav .mb-tab-active {
   border-bottom: 4px solid var(--p-marca);
 }
 
-.mb-abas-nav .mb-aba-ativa button {
+.mb-abas-nav .mb-tab-active button {
   color: var(--p-marca);
 }
 
@@ -590,7 +590,7 @@ a.ct-cartao:hover {
 /*
  * `TenantMembers`: `flex flex-column items-end` — the search sits flush right and the table takes the full width.
  */
-.mb-membros {
+.mb-members {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -601,12 +601,12 @@ a.ct-cartao:hover {
 /*
  * `.BlipSearch`: the field is born at ZERO width next to the magnifying glass and grows to 200px over half a second. There's no box or label — just the underline.
  */
-.mb-busca {
+.mb-search {
   display: flex;
   align-items: center;
 }
 
-.mb-busca button {
+.mb-search button {
   display: inline-flex;
   padding: 0;
   border: 0;
@@ -615,7 +615,7 @@ a.ct-cartao:hover {
   cursor: pointer;
 }
 
-.mb-busca input {
+.mb-search input {
   width: 0;
   padding: 0;
   border: none;
@@ -626,11 +626,11 @@ a.ct-cartao:hover {
   transition: width 0.5s;
 }
 
-.mb-busca--aberta input {
+.mb-search--open input {
   width: 200px;
 }
 
-.mb-busca input:focus {
+.mb-search input:focus {
   border-bottom: 2px solid var(--p-marca);
 }
 
@@ -763,7 +763,7 @@ a.ct-cartao:hover {
 /*
  * With the table in front to beat the `tr > *` above, which clips with `overflow: hidden` — it's their `overflow: inherit !important`, without the `!important`.
  */
-.mb-tabela .mb-col-acoes {
+.mb-tabela .mb-col-actions {
   width: 16rem;
   overflow: visible;
 }
@@ -828,20 +828,20 @@ a.ct-cartao:hover {
 /*
  * `.selectedItems.flex.justify-around.items-center` — disappears when nothing is marked. Goes INVISIBLE instead of vanishing: the column already has a fixed width, and `display: none` would make the header jump on the first selection.
  */
-.mb-selecao {
+.mb-selection {
   display: flex;
   align-items: center;
   justify-content: space-around;
 }
 
-.mb-selecao.mb-oculto {
+.mb-selection.mb-oculto {
   visibility: hidden;
 }
 
 /*
  * Only the counter: the menu's paragraphs live inside the same block and need to wrap.
  */
-.mb-selecao > p {
+.mb-selection > p {
   margin: 0;
   white-space: nowrap;
 }
@@ -866,7 +866,7 @@ a.ct-cartao:hover {
 /*
  * `div.bp-card.bp-card--right-arrow.pa0.z-2.absolute.w6` from `BlipDropdownButton` (`Kt`): 24rem, `right: -1.5rem` and `padding: 15px` — `.BlipDropdownButton div.bp-card--right-arrow` beats the tag's own `pa0` —, with `margin-top: .9375rem` and the shadow `0 4px 29px 6px rgba(181,205,211,.29)` (→ `--p-sombra-2`) from `.bp-card`. The card lives inside the `th`, so it inherits its letter (.875rem/160%, weight 600): no weight of its own here.
  */
-.mb-menu-cartao {
+.mb-menu-card {
   position: absolute;
   right: -1.5rem;
   z-index: 2;
@@ -885,7 +885,7 @@ a.ct-cartao:hover {
 /*
  * `.bp-card.bp-card--right-arrow:after`: the same tip as the screen's card, now 2.5rem from the RIGHT (`margin-right: -.46875rem`).
  */
-.mb-menu-cartao::after {
+.mb-menu-card::after {
   content: '';
   position: absolute;
   top: 0;
@@ -917,7 +917,7 @@ a.ct-cartao:hover {
 }
 
 .mb-numero--perigo {
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
 /* `.bp-divider-h` */
@@ -995,7 +995,7 @@ a.ct-cartao:hover {
 /*
  * `input.blip-select__input.bp-c-rooftop`: .875rem, 1.1875rem height, `margin-top: .125rem` and 20px free for the arrow; the `<input>` doesn't inherit the `th`'s weight. Placeholder #8ca0b3.
  */
-.mb-escolha-valor {
+.mb-choice-value {
   display: block;
   height: 1.1875rem;
   margin-top: 0.125rem;
@@ -1009,7 +1009,7 @@ a.ct-cartao:hover {
   text-overflow: ellipsis;
 }
 
-.mb-escolha-vazio {
+.mb-choice-empty {
   color: var(--ink-3);
 }
 
@@ -1030,7 +1030,7 @@ a.ct-cartao:hover {
 /*
  * `.blip-select__options`: `top: 108%`, the field's width, white background, 1px #c9dfe4 border, .5rem radius, `0 .125rem .75rem 0 rgba(0,0,0,.1)` shadow; the `ul` scrolls starting at 312px.
  */
-.mb-escolha-opcoes {
+.mb-choice-options {
   position: absolute;
   top: 108%;
   left: 0;
@@ -1051,7 +1051,7 @@ a.ct-cartao:hover {
   scrollbar-width: thin;
 }
 
-.mb-escolha-opcoes:focus-visible {
+.mb-choice-options:focus-visible {
   box-shadow:
     0 0.125rem 0.75rem 0 color-mix(in srgb, var(--ink) 10%, transparent),
     0 0 0 2px var(--p-foco);
@@ -1060,7 +1060,7 @@ a.ct-cartao:hover {
 /*
  * `li.blip-select__option`: `padding: .5rem 1.0625rem`, #52636c (→ `--ink-2`); hover, focus and selected in #f5f8f9 (→ `--surface-2`). With only the label in the option, the bold and the blue (`:not(:only-child)`) don't apply.
  */
-.mb-escolha-opcao {
+.mb-choice-option {
   padding: 0.5rem 1.0625rem;
   color: var(--ink-2);
   overflow-wrap: anywhere;
@@ -1068,7 +1068,7 @@ a.ct-cartao:hover {
 }
 
 .mb-escolha-opcao--active,
-.mb-escolha-opcao[aria-selected='true'] {
+.mb-choice-option[aria-selected='true'] {
   background: var(--surface-2);
 }
 
@@ -1120,7 +1120,7 @@ a.ct-cartao:hover {
 /*
  * `mt3` — the description of the chosen role. Keeps its height even when empty, so the card doesn't jump when the choice changes (in the source, a `<br/>` does this).
  */
-.mb-menu-corpo .mb-descricao {
+.mb-menu-corpo .mb-description {
   min-height: 1.4em;
   margin-top: 1rem;
   font-size: var(--p-t-md);
@@ -1196,7 +1196,7 @@ a.ct-cartao:hover {
 
 /* `.bp-btn--delete.bp-btn--text-only` */
 .mb-btn--perigo {
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
 /* `.bp-btn--silver.bp-btn--text-only` */
@@ -1268,12 +1268,12 @@ a.ct-cartao:hover {
 /*
  * `div.flex.mb4`: the illustration (`img.mr4`) and the titles flush below, with `max-width: 380px`.
  */
-.mb-convite-topo {
+.mb-invitation-top {
   display: flex;
   margin-bottom: 1.5rem;
 }
 
-.mb-convite-titulos {
+.mb-invitation-titles {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1283,7 +1283,7 @@ a.ct-cartao:hover {
 /*
  * `h1.bp-fs-4.bp-fw-extra-bold.mb3`. The color is `.modal h1`'s, which beats the tag's own `bp-c-desk`.
  */
-.mb-convite-titulos h1 {
+.mb-invitation-titles h1 {
   margin: 0 0 0.625rem;
   font-size: 1.25rem;
   font-weight: 700;
@@ -1292,19 +1292,19 @@ a.ct-cartao:hover {
 }
 
 /* `span.bp-c-rooftop.bp-fs-6` */
-.mb-convite-titulos span {
+.mb-invitation-titles span {
   font-size: 0.875rem;
   color: var(--ink-2);
 }
 
 /* `div.flex`: emails and permission side by side. */
-.mb-convite-campos {
+.mb-invitation-fields {
   display: flex;
   align-items: flex-start;
 }
 
 /* `bds-input-chips.input-chips-responsive`: `min-width: 400px` e cresce. */
-.mb-chips-bloco {
+.mb-chips-block {
   flex: 1 1 auto;
   min-width: 400px;
 }
@@ -1342,11 +1342,11 @@ a.ct-cartao:hover {
 .mb-campo--error,
 .mb-campo--error:hover,
 .mb-campo--error:focus-within {
-  border-color: var(--p-erro-conteudo);
+  border-color: var(--p-error-content);
 }
 
 .mb-campo--error:focus-within {
-  box-shadow: 0 0 0 2px var(--p-erro-linha);
+  box-shadow: 0 0 0 2px var(--p-error-line);
 }
 
 /* `input__container__label`: `bds-typo fs-12 bold`, primary on focus. */
@@ -1364,7 +1364,7 @@ a.ct-cartao:hover {
 
 .mb-campo--error .mb-campo-rotulo,
 .mb-campo--error:focus-within .mb-campo-rotulo {
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
 /* `input__container__wrapper__chips`: passa de 80px, rola (medido na tela). */
@@ -1437,17 +1437,17 @@ a.ct-cartao:hover {
 /*
  * `input__message--danger`: `margin: 3.7px 2.5px`, x-small `error` icon with `padding: 2px 4px 0 0`, fs-12 text.
  */
-.mb-campo-erro {
+.mb-field-error {
   display: flex;
   align-items: flex-start;
   min-height: 20px;
   margin: 3.7px 2.5px;
   font-size: 0.75rem;
   line-height: 150%;
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
-.mb-campo-erro svg {
+.mb-field-error svg {
   flex: none;
   padding: 2px 4px 0 0;
 }
@@ -1478,7 +1478,7 @@ a.ct-cartao:hover {
   min-width: 0;
 }
 
-.mb-select-valor {
+.mb-select-value {
   overflow: hidden;
   font-size: 0.875rem;
   line-height: 150%;
@@ -1487,7 +1487,7 @@ a.ct-cartao:hover {
 }
 
 /* placeholder e `select__icon`: `--color-content-ghost`; `arrow-down` small (20px). */
-.mb-select-vazio,
+.mb-select-empty,
 .mb-select-campo svg {
   flex: none;
   color: var(--ink-3);
@@ -1495,7 +1495,7 @@ a.ct-cartao:hover {
 
 /* `select__options`: 4px abaixo do campo, raio 8px, `max-height: 200px`, fundo
    surface-2 — e 140% da largura do campo, medido na tela. */
-.mb-opcoes {
+.mb-options {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
@@ -1513,7 +1513,7 @@ a.ct-cartao:hover {
   outline: none;
 }
 
-.mb-opcoes:focus-visible {
+.mb-options:focus-visible {
   box-shadow:
     var(--p-sombra-2),
     0 0 0 2px var(--p-foco);
@@ -1522,7 +1522,7 @@ a.ct-cartao:hover {
 /*
  * `bds-select-option`: `padding: 8px 8px 8px 12px`, surface-1 background, surface-2 on hover and when selected. `slot-align="flex-start"` raises the icon (small, 20px, `margin-right: 10px`).
  */
-.mb-opcao {
+.mb-option {
   display: flex;
   align-items: center;
   padding: 8px 8px 8px 12px;
@@ -1532,17 +1532,17 @@ a.ct-cartao:hover {
 }
 
 .mb-opcao--active,
-.mb-opcao[aria-selected='true'] {
+.mb-option[aria-selected='true'] {
   background: var(--surface-2);
 }
 
-.mb-opcao-icone {
+.mb-option-icon {
   flex: none;
   align-self: flex-start;
   margin-right: 10px;
 }
 
-.mb-opcao-texto {
+.mb-option-text {
   display: flex;
   flex-direction: column;
 }
@@ -1550,19 +1550,19 @@ a.ct-cartao:hover {
 /*
  * `select-option__container--value`: `bds-typo fs-16 semi-bold`, primary when selected.
  */
-.mb-opcao-titulo {
+.mb-option-title {
   font-size: 1rem;
   font-weight: 600;
   line-height: 150%;
   color: var(--ink);
 }
 
-.mb-opcao[aria-selected='true'] .mb-opcao-titulo {
+.mb-option[aria-selected='true'] .mb-option-title {
   color: var(--p-marca);
 }
 
 /* `span.bp-c-cloud.bp-fs-7` */
-.mb-opcao-descricao {
+.mb-option-description {
   font-size: 0.75rem;
   line-height: 150%;
   color: var(--ink-3);
@@ -1582,19 +1582,19 @@ a.ct-cartao:hover {
 
 /* `div.flex.w-70.mt2.mb3.pt2`: `warning` xxx-large (40px) e
    `span.bp-c-rooftop.bp-fs-7.ml2`. */
-.mb-convite-aviso {
+.mb-invitation-notice {
   display: flex;
   width: 70%;
   margin: 0.3125rem 0 0.625rem;
   padding-top: 0.3125rem;
 }
 
-.mb-convite-aviso svg {
+.mb-invitation-notice svg {
   flex: none;
   color: var(--p-alerta-conteudo);
 }
 
-.mb-convite-aviso span {
+.mb-invitation-notice span {
   margin-left: 0.3125rem;
   font-size: 0.75rem;
   color: var(--ink-2);
@@ -1615,13 +1615,13 @@ a.ct-cartao:hover {
 }
 
 .mb-link:focus-visible,
-.mb-convite-modelo:focus-visible {
+.mb-invitation-template:focus-visible {
   outline: 2px solid var(--p-foco);
   outline-offset: 2px;
 }
 
 /* `div.flex.items-center.justify-between.w-70.mt2.ml2` */
-.mb-convite-importar {
+.mb-invitation-import {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1629,20 +1629,20 @@ a.ct-cartao:hover {
   margin: 0.3125rem 0 0 0.3125rem;
 }
 
-.mb-convite-importar > div {
+.mb-invitation-import > div {
   display: flex;
   align-items: center;
 }
 
 /* `p.bp-fs-6.bp-c-rooftop.mb0.mr4` */
-.mb-convite-importar p {
+.mb-invitation-import p {
   margin: 0 1.25rem 0 0;
   font-size: 0.875rem;
   color: var(--ink-2);
 }
 
 /* `p.bp-c-bot.underline.bp-fs-8.mb0.ml2`: 10px, sublinhado. */
-.mb-convite-modelo {
+.mb-invitation-template {
   margin-left: 0.3125rem;
   font-size: 0.625rem;
   color: var(--p-marca);
@@ -1650,7 +1650,7 @@ a.ct-cartao:hover {
 }
 
 /* `div.flex.justify-end.mt5.ph1`; o "Convidar" leva `ml3`. */
-.mb-convite-rodape {
+.mb-invitation-footer {
   display: flex;
   justify-content: flex-end;
   gap: 0.625rem;
@@ -1724,7 +1724,7 @@ a.ct-cartao:hover {
 }
 
 /* O `holdOn` deles: `p.tc.bp-fs-5.b`, no meio do modal. */
-.mb-convite-espera {
+.mb-invitation-wait {
   margin: 0;
   text-align: center;
   font-size: 1rem;
@@ -1735,7 +1735,7 @@ a.ct-cartao:hover {
 /*
  * The post-submission page — the only piece that isn't theirs (see `convidar.tsx`). Follows the `pages.success` shape: everything centered, with `mt4` (1.5rem) between the parts.
  */
-.mb-convite-feito {
+.mb-invitation-done {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1743,21 +1743,21 @@ a.ct-cartao:hover {
   min-width: 400px;
 }
 
-.mb-convite-feito h1 {
+.mb-invitation-done h1 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--ink);
 }
 
-.mb-convite-feito > p {
+.mb-invitation-done > p {
   margin: 0;
   font-size: 0.75rem;
   color: var(--ink-2);
 }
 
 .mb-links,
-.mb-erros {
+.mb-errors {
   width: 100%;
   margin: 0;
   padding: 0;
@@ -1774,23 +1774,23 @@ a.ct-cartao:hover {
   font-size: 0.875rem;
 }
 
-.mb-erros {
+.mb-errors {
   margin-top: 0.3125rem;
 }
 
-.mb-erros li {
+.mb-errors li {
   font-size: 0.75rem;
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
 /* Their `min-width: 400px` doesn't fit on a phone: the fields stack. */
 @media (max-width: 720px) {
-  .mb-convite-campos {
+  .mb-invitation-fields {
     flex-direction: column;
   }
 
-  .mb-chips-bloco,
-  .mb-convite-feito {
+  .mb-chips-block,
+  .mb-invitation-done {
     width: 100%;
     min-width: 0;
   }
@@ -1801,8 +1801,8 @@ a.ct-cartao:hover {
     margin: 8px 0 0;
   }
 
-  .mb-convite-aviso,
-  .mb-convite-importar {
+  .mb-invitation-notice,
+  .mb-invitation-import {
     width: 100%;
   }
 }
@@ -1811,7 +1811,7 @@ a.ct-cartao:hover {
  * The 60 padding and the 8rem/16rem columns don't fit on a phone: the card shrinks and the two service columns take the minimum.
  */
 @media (max-width: 720px) {
-  .mb-cartao {
+  .mb-card {
     padding: var(--p-e-6) var(--p-e-4);
   }
 
@@ -1819,7 +1819,7 @@ a.ct-cartao:hover {
     width: 3rem;
   }
 
-  .mb-tabela .mb-col-acoes {
+  .mb-tabela .mb-col-actions {
     width: 10rem;
   }
 }

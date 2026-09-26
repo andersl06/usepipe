@@ -342,12 +342,12 @@ a {
 }
 
 .btn.perigo {
-  border-color: var(--p-erro-linha);
-  color: var(--p-erro-conteudo);
+  border-color: var(--p-error-line);
+  color: var(--p-error-content);
 }
 
 .btn.perigo:hover:not(:disabled) {
-  background: var(--p-erro-fundo);
+  background: var(--p-error-background);
 }
 
 /*
@@ -446,11 +446,11 @@ a {
   color: var(--p-alerta-conteudo);
 }
 
-.etiqueta.erro,
+.etiqueta.error,
 .pill.hi {
-  background: var(--p-erro-fundo);
-  border-color: var(--p-erro-linha);
-  color: var(--p-erro-conteudo);
+  background: var(--p-error-background);
+  border-color: var(--p-error-line);
+  color: var(--p-error-content);
 }
 
 .etiqueta.info {
@@ -492,7 +492,7 @@ button.etiqueta[aria-pressed='true'] {
 
 button.etiqueta.sucesso:hover,
 button.etiqueta.alerta:hover,
-button.etiqueta.erro:hover,
+button.etiqueta.error:hover,
 button.etiqueta.info:hover {
   filter: brightness(0.97);
 }
@@ -591,7 +591,7 @@ button.etiqueta.info:hover {
 }
 
 .metric.bad .v {
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
 
 .sw {
@@ -728,7 +728,7 @@ tr.grave td {
 }
 
 tr.critico td {
-  background: var(--p-erro-fundo);
+  background: var(--p-error-background);
 }
 
 /*
@@ -736,7 +736,7 @@ tr.critico td {
  *    A drawn illustration, never a photo. It's what Blip packages as
  *    `bds-illustration`: a component, not a loose image.
  */
-.vazio {
+.empty {
   padding: var(--p-e-8) var(--p-e-4);
   font-size: var(--p-t-md);
   color: var(--p-conteudo-fantasma);
@@ -747,7 +747,7 @@ tr.critico td {
   gap: var(--p-e-2);
 }
 
-.vazio b {
+.empty b {
   display: block;
   color: var(--p-conteudo);
   font-size: var(--p-t-lg);
@@ -759,7 +759,7 @@ tr.critico td {
  *    extended palette in the accent — it's the other place, besides the chart,
  *    where it's allowed to appear.
  */
-.ilustracao {
+.illustration {
   color: var(--p-linha-forte);
   margin-bottom: var(--p-e-2);
 }
@@ -785,15 +785,15 @@ tr.critico td {
  * ------------------------------------------------------------------ bar
  *    Data bar. Uses `--p-dado`, the walled-off hue: charts may, chrome may not.
  */
-.trilho {
+.rail {
   height: 7px;
   border-radius: var(--p-r-sm);
-  background: var(--p-grafico-trilho);
+  background: var(--p-chart-rail);
   overflow: hidden;
   display: block;
 }
 
-.trilho > .fill,
+.rail > .fill,
 .fill {
   height: 100%;
   border-radius: var(--p-r-sm);
@@ -806,7 +806,7 @@ tr.critico td {
 }
 
 .fill.bad {
-  background: var(--p-erro-conteudo);
+  background: var(--p-error-content);
 }
 
 /*

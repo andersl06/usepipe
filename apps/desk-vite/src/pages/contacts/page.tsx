@@ -37,13 +37,13 @@ export function PageContacts() {
   );
 
   return (
-    <div className="dk-contatos">
-      <div className="dk-contatos-lista">
-        <div className="dk-contatos-topo">
-          <div className="dk-contatos-titulo">
+    <div className="dk-contacts">
+      <div className="dk-contacts-list">
+        <div className="dk-contacts-top">
+          <div className="dk-contacts-title">
             <h1>Contatos</h1>
           </div>
-          <div className="dk-contatos-busca">
+          <div className="dk-contacts-search">
             <label className="dk-campo">
               <span className="dk-campo-icone">
                 <IconeDesk nome="usuario" />
@@ -69,11 +69,11 @@ export function PageContacts() {
               </button>
               {menuOrder ? (
                 <div
-                  className="dk-menu dk-contatos-ordem"
+                  className="dk-menu dk-contacts-order"
                   role="menu"
                   onMouseLeave={() => setMenuOrder(false)}
                 >
-                  <div className="dk-contatos-ordem-titulo">Ordenar contatos</div>
+                  <div className="dk-contacts-order-title">Ordenar contatos</div>
                   {(
                     [
                       ['alfabetica', 'Ordem alfabética', 'lista'],
@@ -85,7 +85,7 @@ export function PageContacts() {
                       type="button"
                       role="menuitemradio"
                       aria-checked={order === value}
-                      className="dk-contatos-ordem-item"
+                      className="dk-contacts-order-item"
                       onClick={() => {
                         setOrder(value);
                         setMenuOrder(false);
@@ -101,24 +101,24 @@ export function PageContacts() {
             </div>
           </div>
         </div>
-        <div className="dk-contatos-rolagem">
+        <div className="dk-contacts-scroll">
           {lista.isPending ? <div className="dk-girando dk-girando-pequeno" /> : null}
           {groups.map((g) => (
             <div key={g.rotulo}>
-              <div className="dk-contatos-grupo">{g.rotulo}</div>
-              <ul className="dk-contatos-itens">
+              <div className="dk-contacts-group">{g.rotulo}</div>
+              <ul className="dk-contacts-items">
                 {g.contacts.map((c) => (
                   <li key={c.id}>
                     <button
                       type="button"
-                      className="dk-contato"
+                      className="dk-contact"
                       aria-current={c.id === id ? 'true' : undefined}
                       onClick={() => openContact(c.id, null)}
                     >
-                      <span className="dk-contato-rosto">
+                      <span className="dk-contact-face">
                         <Avatar />
                       </span>
-                      <span className="dk-contato-texto">
+                      <span className="dk-contact-text">
                         <b>
                           {displayName({
                             contactName: c.nome,
@@ -145,7 +145,7 @@ export function PageContacts() {
         </div>
       </div>
 
-      <div className="dk-contatos-meio">
+      <div className="dk-contacts-middle">
         {ticketId && ticket.data ? (
           <Thread
             conversationId={ticket.data.ticket.id}
@@ -154,11 +154,11 @@ export function PageContacts() {
             somenteRead
           />
         ) : (
-          <div className="dk-contatos-vazio">
-            <div className="dk-contatos-ilustracao" aria-hidden="true">
+          <div className="dk-contacts-empty">
+            <div className="dk-contacts-illustration" aria-hidden="true">
               <IconeDesk nome="atendimentos" />
             </div>
-            <div className="dk-contatos-vazio-texto">
+            <div className="dk-contacts-empty-text">
               <h2>Explore conversas anteriores</h2>
               <p>
                 Selecione um contato na lista ao lado e escolha um ticket para acessar abrir seu
@@ -168,8 +168,8 @@ export function PageContacts() {
           </div>
         )}
         {id && contact.data ? (
-          <div className="dk-contatos-rodape">
-            <div className="dk-contatos-rodape-papel">
+          <div className="dk-contacts-footer">
+            <div className="dk-contacts-footer-paper">
               <p>Inicie uma nova conversa com este contato enviando uma mensagem ativa.</p>
               <button
                 type="button"
@@ -183,10 +183,10 @@ export function PageContacts() {
         ) : null}
       </div>
 
-      <div className="dk-contatos-direita">
+      <div className="dk-contacts-right">
         {id ? (
           <div className="dk-abas">
-            <div className="dk-contatos-abas" role="tablist">
+            <div className="dk-contacts-tabs" role="tablist">
               {(
                 [
                   ['historico', 'Histórico'],
@@ -205,13 +205,13 @@ export function PageContacts() {
                 </button>
               ))}
             </div>
-            <div className="dk-painel-corpo" role="tabpanel">
+            <div className="dk-panel-body" role="tabpanel">
               {!contact.data ? (
                 <div className="dk-girando dk-girando-pequeno" />
               ) : aba === 'historico' ? (
-                <section className="dk-papel" style={{ flexBasis: '100%' }}>
+                <section className="dk-paper" style={{ flexBasis: '100%' }}>
                   {contact.data.history.length === 0 ? (
-                    <div className="dk-comentarios-vazio" style={{ minHeight: 120 }}>
+                    <div className="dk-comments-empty" style={{ minHeight: 120 }}>
                       Não há mensagens nos últimos 90 dias.
                     </div>
                   ) : (
@@ -219,7 +219,7 @@ export function PageContacts() {
                       <button
                         key={h.id}
                         type="button"
-                        className="dk-historico-item dk-historico-botao"
+                        className="dk-history-item dk-history-button"
                         aria-current={h.id === ticketId ? 'true' : undefined}
                         onClick={() => id && openContact(id, h.id)}
                       >
@@ -234,8 +234,8 @@ export function PageContacts() {
                   )}
                 </section>
               ) : (
-                <section className="dk-papel" style={{ flexBasis: '100%' }}>
-                  <h3 className="dk-papel-titulo">Contato</h3>
+                <section className="dk-paper" style={{ flexBasis: '100%' }}>
+                  <h3 className="dk-paper-title">Contato</h3>
                   <ContactField
                     rotulo="Nome"
                     value={contact.data.contact.nome}
@@ -266,7 +266,7 @@ export function PageContacts() {
                   ) : null}
                   {Object.keys(contact.data.contact.atributos).length > 0 ? (
                     <>
-                      <h3 className="dk-papel-titulo">Dados Extras</h3>
+                      <h3 className="dk-paper-title">Dados Extras</h3>
                       {Object.entries(contact.data.contact.atributos).map(([k, v]) => (
                         <ContactField
                           key={k}
@@ -282,30 +282,30 @@ export function PageContacts() {
             </div>
           </div>
         ) : (
-          <div className="dk-painel-esqueleto" aria-hidden="true">
+          <div className="dk-panel-skeleton" aria-hidden="true">
             <div
               style={{ display: 'flex', gap: 36, justifyContent: 'center', margin: '16px 0 24px' }}
             >
               <div className="dk-esqueleto-barra" style={{ width: 65, margin: 0 }} />
               <div className="dk-esqueleto-barra" style={{ width: 65, margin: 0 }} />
             </div>
-            <div className="dk-esqueleto-papel" style={{ minHeight: 46, padding: 12 }}>
+            <div className="dk-skeleton-paper" style={{ minHeight: 46, padding: 12 }}>
               <div className="dk-esqueleto-barra" style={{ width: '55%', margin: 0 }} />
             </div>
-            <div className="dk-esqueleto-papel">
+            <div className="dk-skeleton-paper">
               <div className="dk-esqueleto-barra" style={{ width: '50%' }} />
               <div className="dk-esqueleto-barra" style={{ width: '40%' }} />
               <div className="dk-esqueleto-barra" style={{ width: '25%' }} />
             </div>
-            <div className="dk-esqueleto-papel">
+            <div className="dk-skeleton-paper">
               <div className="dk-esqueleto-barra" style={{ width: '50%' }} />
               <div className="dk-esqueleto-barra" style={{ width: '40%' }} />
               <div className="dk-esqueleto-barra" style={{ width: '25%' }} />
             </div>
-            <div className="dk-esqueleto-papel" style={{ minHeight: 46, padding: 12 }}>
+            <div className="dk-skeleton-paper" style={{ minHeight: 46, padding: 12 }}>
               <div className="dk-esqueleto-barra" style={{ width: '55%', margin: 0 }} />
             </div>
-            <div className="dk-esqueleto-papel" style={{ minHeight: 46, padding: 12 }}>
+            <div className="dk-skeleton-paper" style={{ minHeight: 46, padding: 12 }}>
               <div className="dk-esqueleto-barra" style={{ width: '55%', margin: 0 }} />
             </div>
           </div>

@@ -51,10 +51,10 @@ export function PageBulkActions() {
     marcadas.size > 0 && (alvo === 'fila' ? Boolean(queueId) : Boolean(agentId));
 
   return (
-    <div className="dk-massa">
+    <div className="dk-bulk">
       <h2>Ações em Massa</h2>
-      <div className="dk-massa-cartao">
-        <div className="dk-massa-linha">
+      <div className="dk-bulk-card">
+        <div className="dk-bulk-line">
           <div className="dk-campo-flutuante" style={{ width: 420 }}>
             <span>Chatbot</span>
             <b>
@@ -65,9 +65,9 @@ export function PageBulkActions() {
           <div style={{ flex: 1 }} />
           <span className="dk-chip dk-chip-info">Transferir</span>
         </div>
-        <div className="dk-massa-colunas">
-          <div className="dk-massa-coluna">
-            <label className="dk-massa-check">
+        <div className="dk-bulk-columns">
+          <div className="dk-bulk-column">
+            <label className="dk-bulk-check">
               <input
                 type="checkbox"
                 checked={todas}
@@ -77,12 +77,12 @@ export function PageBulkActions() {
               />{' '}
               Selecionar todos
             </label>
-            <div className="dk-massa-lista">
+            <div className="dk-bulk-list">
               {conversations.length === 0 ? (
-                <div className="dk-massa-vazio">Nenhum atendimento aberto para transferir.</div>
+                <div className="dk-bulk-empty">Nenhum atendimento aberto para transferir.</div>
               ) : (
                 conversations.map((c) => (
-                  <label key={c.id} className="dk-massa-item">
+                  <label key={c.id} className="dk-bulk-item">
                     <input
                       type="checkbox"
                       checked={marcadas.has(c.id)}
@@ -90,15 +90,15 @@ export function PageBulkActions() {
                     />{' '}
                     {numeroDoTicket(c.id)} —{' '}
                     {displayName({ contactName: c.contatoNome, contactTelefone: c.contatoTelefone })}{' '}
-                    <span className="dk-massa-vazio">({c.filaNome ?? 'Transferência direta'})</span>
+                    <span className="dk-bulk-empty">({c.filaNome ?? 'Transferência direta'})</span>
                   </label>
                 ))
               )}
             </div>
           </div>
-          <div className="dk-massa-coluna">
+          <div className="dk-bulk-column">
             <h4>Transferir para:</h4>
-            <div className="dk-massa-radios">
+            <div className="dk-bulk-radios">
               <label>
                 <input
                   type="radio"
@@ -148,11 +148,11 @@ export function PageBulkActions() {
                 ))}
               </select>
             </label>
-            {error ? <p className="dk-erro">{error}</p> : null}
+            {error ? <p className="dk-error">{error}</p> : null}
             {aviso ? <p>{aviso}</p> : null}
           </div>
         </div>
-        <div className="dk-massa-pe">
+        <div className="dk-bulk-foot">
           <button
             type="button"
             className="dk-botao dk-botao-secundario dk-botao-curto"

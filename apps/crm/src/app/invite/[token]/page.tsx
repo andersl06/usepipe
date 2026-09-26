@@ -35,9 +35,9 @@ export default async function PageInvitation({
   const invitation = await verInvitation(token);
 
   return (
-    <main className="entrar">
-      <section className="entrar-cartao" aria-labelledby="convite-titulo">
-        <div className="entrar-marca">
+    <main className="login">
+      <section className="login-card" aria-labelledby="convite-titulo">
+        <div className="login-brand">
           <Simbolo tamanho={40} />
           <b>Pipe CRM</b>
         </div>
@@ -45,12 +45,12 @@ export default async function PageInvitation({
         {invitation ? (
           <>
             <h1 id="convite-titulo">Você foi convidado</h1>
-            <p className="entrar-sub">
+            <p className="login-sub">
               {invitation.tenant.nome} convidou você para o Pipe. Entrar com o Google já cria a sua
               conta.
             </p>
 
-            <dl className="entrar-dados">
+            <dl className="login-data">
               <dt>Para</dt>
               <dd>{invitation.email}</dd>
               <dt>Papel</dt>
@@ -60,13 +60,13 @@ export default async function PageInvitation({
             </dl>
 
             <a
-              className="btn primario entrar-google"
+              className="btn primario login-google"
               href={inboundWithGoogleUrl({ invitation: token })}
             >
               Entrar com Google e aceitar
             </a>
 
-            <p className="entrar-rodape">
+            <p className="login-footer">
               Entre com a conta do Google deste mesmo e-mail. Com outra conta, o convite não é
               aceito — ele vale para um endereço só.
             </p>
@@ -78,11 +78,11 @@ export default async function PageInvitation({
  * Expired, already used, and nonexistent all give the SAME screen: distinguishing
  * between them would tell whoever has the link whether that token ever existed.
  */}
-            <p className="entrar-sub">
+            <p className="login-sub">
               Convite vale sete dias e uma vez só. Peça um novo a quem administra o Pipe na sua
               empresa.
             </p>
-            <a className="btn entrar-google" href="/login">
+            <a className="btn login-google" href="/login">
               Ir para a tela de entrada
             </a>
           </>

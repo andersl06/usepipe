@@ -102,8 +102,8 @@ export function DictionaryPage() {
 
   return (
     /* `nC` + `oC`: 60 em cima; coluna de 85%, entre 1024 e 2560, centrada. */
-    <div className="dd-pagina">
-      <div className="dd-coluna">
+    <div className="dd-page">
+      <div className="dd-column">
         {/* `bds-grid xxs=12` > `bds-typo fs-32 bold` (margem de typo fs-32: 22). */}
         <h1 className="dd-titulo">Dicionário de Dados</h1>
 
@@ -111,7 +111,7 @@ export function DictionaryPage() {
  * `rC`: the `bds-paper` with 10 padding, menu on the left and the page alongside
  * (`aC`).
  */}
-        <div className="dd-papel">
+        <div className="dd-paper">
           <nav className="dd-menu" aria-label="Dicionário de dados">
             <div className="dd-menu-lista">
               {SECTIONS.map((s) =>
@@ -254,7 +254,7 @@ function Alerta() {
           Estamos trabalhando para trazer muito em breve o melhor conteúdo de análise de performace
           do seu contato inteligente.
         </p>
-        <div className="dd-alerta-acoes">
+        <div className="dd-alert-actions">
           <button
             type="button"
             className="dd-botao-secundario"

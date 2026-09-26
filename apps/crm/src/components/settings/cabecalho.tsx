@@ -115,7 +115,7 @@ export function Block({
 }) {
   const id = `b-${titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   return (
-    <section className="cfg-bloco" aria-labelledby={id}>
+    <section className="cfg-block" aria-labelledby={id}>
       <header>
         <h3 id={id}>{titulo}</h3>
         {actions}

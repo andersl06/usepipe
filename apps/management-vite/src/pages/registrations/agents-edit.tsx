@@ -29,7 +29,7 @@ export function AgentPageEdit({ modo }: { modo: 'editar' | 'adicionar' }) {
         <div className="board-head">
           <h2>Adicionar atendente</h2>
         </div>
-        <div className="vazio">
+        <div className="empty">
           <b>Ainda não dá para criar conta por aqui</b>
           <p>
             No Pipe, quem entra na equipe recebe um convite — não há cadastro solto de conta nesta tela. Para
@@ -61,7 +61,7 @@ function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
 
   if (selecionados.length === 0) {
     return (
-      <div className="vazio">
+      <div className="empty">
         <b>Nenhum atendente selecionado</b>
         <p>
           <button type="button" className="btn" onClick={() => navegar(`${base}/agents/management`)}>
@@ -101,7 +101,7 @@ function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
         ))}
       </div>
 
-      <form className="form-cadastro" onSubmit={(e) => void salvar(e)}>
+      <form className="form-registration" onSubmit={(e) => void salvar(e)}>
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '260px' }}>
             <span className="sub">Fila</span>
@@ -131,7 +131,7 @@ function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
 
         {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-        <div className="cl-acoes">
+        <div className="cl-actions">
           <Botao type="button" onClick={() => navegar(`${base}/agents/management`)} disabled={enviando}>
             Cancelar
           </Botao>

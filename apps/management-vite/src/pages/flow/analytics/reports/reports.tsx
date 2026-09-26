@@ -26,12 +26,12 @@ export function ReportsCustom({
             {/*
  * `<search-input class="flex mr3">`: the 32px magnifying glass and the field, which starts at width 0 and only opens on focus. The `<label>` makes clicking the glass focus the field, which is their `focusInput()`.
  */}
-            <label className="rl-busca">
-              <IconeSearch tamanho={32} className="rl-busca-lupa" />
+            <label className="rl-search">
+              <IconeSearch tamanho={32} className="rl-search-magnifier" />
               <input type="text" placeholder="Buscar relatórios" />
             </label>
             {/* `goToReport()` opens the report editor, which doesn't exist here. */}
-            <span className="rl-criar">
+            <span className="rl-create">
               <button type="button" className="an-bp-btn" disabled>
                 Criar relatório
               </button>
@@ -41,20 +41,20 @@ export function ReportsCustom({
         }
       />
 
-      <div className="fx-coluna rl-lista" id="reports-id">
+      <div className="fx-column rl-lista" id="reports-id">
         {reports.map((r) => (
-          <div key={r.id} className="rl-cartao">
-            <div className="rl-coluna rl-coluna--nome">
+          <div key={r.id} className="rl-card">
+            <div className="rl-column rl-column--name">
               <p className="an-t12 rl-rotulo">Nome do relatório</p>
-              <p className="an-t14 rl-valor">{r.nome || 'Sem título'}</p>
+              <p className="an-t14 rl-value">{r.nome || 'Sem título'}</p>
             </div>
-            <div className="rl-coluna rl-coluna--autor">
+            <div className="rl-column rl-column--author">
               <p className="an-t12 rl-rotulo">Criado por</p>
-              <p className="an-t14 rl-valor">{r.criadoBy}</p>
+              <p className="an-t14 rl-value">{r.criadoBy}</p>
             </div>
-            <div className="rl-coluna rl-coluna--data">
+            <div className="rl-column rl-column--data">
               <p className="an-t12 rl-rotulo">Última modificação</p>
-              <p className="an-t14 rl-valor">{reportData(r.modificadoEm, agora, fuso)}</p>
+              <p className="an-t14 rl-value">{reportData(r.modificadoEm, agora, fuso)}</p>
             </div>
             {/*
  * `.card-icons.card-icons--hidden.w-10`: edit and delete, only for the owner, and only appear on hover over the card.
@@ -85,7 +85,7 @@ export function ReportsCustom({
           ))}
 
         {reports.length === 0 ? (
-          <p className="an-t16 rl-vazio">Nenhum relatório encontrado :(</p>
+          <p className="an-t16 rl-empty">Nenhum relatório encontrado :(</p>
         ) : null}
       </div>
     </>

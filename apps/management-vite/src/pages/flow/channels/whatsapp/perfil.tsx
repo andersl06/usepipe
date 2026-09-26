@@ -227,7 +227,7 @@ function EmpresaAcordeaoData({
           </span>
         </label>
 
-        <div className="cl-acoes">
+        <div className="cl-actions">
           <Botao type="button" variante="primario" disabled={!mudou || gravando} onClick={() => void salvar()}>
             {gravando ? 'Salvando…' : 'Salvar'}
           </Botao>
@@ -273,7 +273,7 @@ export function AbaPerfil() {
       <p className="sub">Essas informações estarão visíveis para todos os seus clientes</p>
 
       <div className="cw-perfil">
-        <div className="cw-acordeoes">
+        <div className="cw-accordions">
           <DisplayAcordeaoName perfil={perfil} />
           <UserAcordeaoName />
           <EmpresaAcordeaoData

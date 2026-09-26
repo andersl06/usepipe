@@ -213,13 +213,13 @@ export function PageBuilder() {
         ) : null}
 
         {errors.length > 0 ? (
-          <div className="bl-aviso bl-aviso--erro" role="alert">
+          <div className="bl-aviso bl-notice--error" role="alert">
             <div className="bl-aviso-texto">
               <span>
                 <Icone nome="alerta" tamanho={16} /> O motor recusaria este fluxo — {errors.length}{' '}
                 {errors.length === 1 ? 'erro' : 'erros'} a corrigir antes de publicar:
               </span>
-              <ul className="bl-erros">
+              <ul className="bl-errors">
                 {errors.slice(0, 6).map((e) => (
                   <li key={`${e.block ?? ''}:${e.mensagem}`}>
                     <b>{tituloDe(e.block)}</b>: {e.mensagem}
@@ -233,12 +233,12 @@ export function PageBuilder() {
 
         <div className="bl-corpo">
           {readRecusa ? (
-            <div className="bl-vazio">
+            <div className="bl-empty">
               <Icone nome="alerta" tamanho={40} />
               <p>{readRecusa}</p>
             </div>
           ) : !editor.carregado ? (
-            <div className="bl-vazio">
+            <div className="bl-empty">
               <p>Carregando o desenho…</p>
             </div>
           ) : (
@@ -432,8 +432,8 @@ export function PageBuilder() {
             </div>
 
             <div className="bl-zoom">
-              <span className="bl-zoom-valor">{zoom}%</span>
-              <div className="bl-zoom-trilho">
+              <span className="bl-zoom-value">{zoom}%</span>
+              <div className="bl-zoom-rail">
                 <div className="bl-zoom-preenchido" style={{ width: `${((zoom - ZOOM_MINIMO) / (ZOOM_MAXIMO - ZOOM_MINIMO)) * 100}%` }} />
                 <input
                   type="range"
@@ -451,7 +451,7 @@ export function PageBuilder() {
 
           <button
             type="button"
-            className="bl-conversa"
+            className="bl-conversation"
             disabled
             title="Conversa — em breve"
             aria-label="Conversa"
@@ -482,7 +482,7 @@ export function PageBuilder() {
                 <Etiqueta tom="erro">
                   O motor recusaria este fluxo. Corrija antes de publicar:
                 </Etiqueta>
-                <ul className="bl-erros bl-erros--modal">
+                <ul className="bl-errors bl-errors--modal">
                   {errors.map((e) => (
                     <li key={`${e.block ?? ''}:${e.mensagem}`}>
                       <b>{tituloDe(e.block)}</b>: {e.mensagem}
@@ -498,7 +498,7 @@ export function PageBuilder() {
               </p>
             ) : null}
             {publicationError ? <Etiqueta tom="erro">{publicationError}</Etiqueta> : null}
-            <div className="cl-acoes">
+            <div className="cl-actions">
               <Botao type="button" onClick={() => setPublicarAberto(false)} disabled={publicando}>
                 Cancelar
               </Botao>

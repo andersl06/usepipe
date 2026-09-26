@@ -84,9 +84,9 @@ export function ContactsJourney({
       />
 
       <div className="jr-miolo" id="contacts-journey">
-        <div className="jr-filtros">
-          <div className="jr-filtro-inicio">
-            <span className="an-t16 jr-filtro-rotulo">Começar a partir de</span>
+        <div className="jr-filters">
+          <div className="jr-filter-start">
+            <span className="an-t16 jr-filter-label">Começar a partir de</span>
             {/* `<bds-autocomplete placeholder="Início">`. */}
             <label className="jr-autocompletar">
               <Selection
@@ -104,17 +104,17 @@ export function ContactsJourney({
               <IconePortal nome="baixo" tamanho={24} />
             </label>
           </div>
-          <div className="jr-periodo">
+          <div className="jr-period">
             <PeriodSeletor de={de} ate={ate} min={min} max={max} aoAplicar={aoAplicarPeriodo} />
           </div>
         </div>
 
-        <Card id="contacts-journey-container" className="jr-cartao">
+        <Card id="contacts-journey-container" className="jr-card">
           {temDiagrama ? (
             <>
               <div className="jr-cabeca-diagrama">
                 {/* Disabled until a node is chosen: tooltip "Primeiro selecione um nó". */}
-                <div className="jr-botao-contatos" title="Primeiro selecione um nó">
+                <div className="jr-button-contacts" title="Primeiro selecione um nó">
                   <button type="button" className="an-bds-btn" disabled>
                     Listar contatos
                   </button>
@@ -123,16 +123,16 @@ export function ContactsJourney({
               <Diagrama arestas={arestasFiltradas} />
             </>
           ) : (
-            <div className="jr-comunicacao" id="diagram-body">
+            <div className="jr-communication" id="diagram-body">
               {/*
  * `/assets/img/clock.svg`, which wasn't included in the capture: the clock icon from our icon set is used instead.
  */}
-              <IconePortal nome="relogio" tamanho={96} className="jr-comunicacao-imagem" />
-              <span className="an-t24 jr-comunicacao-titulo">
+              <IconePortal nome="relogio" tamanho={96} className="jr-communication-image" />
+              <span className="an-t24 jr-communication-title">
                 O chatbot não possui dados suficientes para mapeamento de uma jornada no período
                 selecionado
               </span>
-              <span className="an-t16 jr-comunicacao-texto">
+              <span className="an-t16 jr-communication-text">
                 {router
                   ? 'Para visualizar como as pessoas têm utilizado o seu chatbot, é necessário ativar o contexto do roteador no fluxo dos seus sub-bots.'
                   : 'É necessário republicar o seu fluxo e aguardar algumas horas para que os dados comecem a aparecer por aqui.'}
@@ -152,8 +152,8 @@ export function ContactsJourney({
 
         {temDiagrama ? (
           <Card id="contacts-journey-instructions">
-            <div className="jr-instrucoes">
-              <div className="jr-instrucoes-cabeca">
+            <div className="jr-instructions">
+              <div className="jr-instructions-header">
                 <span className="an-t16 jr-negrito">Compreendendo o diagrama</span>
                 <span className="an-t14">
                   O título de cada nó é composto por: nome do bloco criado no builder, sinalização
@@ -263,7 +263,7 @@ function ModalDaJornada() {
       <a className="an-modal-fundo an-modal-fundo--bds" href="#" aria-label="Fechar" />
       <div className="an-bds-modal">
         <div className="jr-ajuda">
-          <div className="jr-ajuda-imagem" />
+          <div className="jr-help-image" />
           <div className="jr-ajuda-texto">
             <h4 className="an-t20 jr-negrito">O que é a jornada dos contatos?</h4>
             <p className="an-t14">

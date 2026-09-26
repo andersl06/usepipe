@@ -158,7 +158,7 @@ export default async function PageAccount({
       <AccountDestaque ficha={ficha} fuso={fuso} />
 
       <div className="ficha">
-        <aside className="coluna">
+        <aside className="column">
           <div className="tblwrap">
             <Section titulo="Dados">
               <div className="campos">
@@ -178,7 +178,7 @@ export default async function PageAccount({
           <div className="tblwrap">
             <Section titulo="Quem falar" aberta={ficha.contacts.length > 0}>
               {ficha.contacts.length === 0 ? (
-                <div className="vazio">Nenhum contato ligado a esta conta.</div>
+                <div className="empty">Nenhum contato ligado a esta conta.</div>
               ) : (
                 <div className="campos">
                   {ficha.contacts.map((c) => (
@@ -198,7 +198,7 @@ export default async function PageAccount({
           </div>
         </aside>
 
-        <div className="coluna">
+        <div className="column">
           <div className="tblwrap">
             <AbasDaFicha
               base={`/accounts/${ficha.id}`}
@@ -218,7 +218,7 @@ export default async function PageAccount({
                   linhaKey={(o) => o.id}
                   empty="Nenhuma oportunidade nesta conta."
                 />
-                <div className="mensagem">
+                <div className="message">
                   A oportunidade fechada continua na lista: é ela que responde se esta conta já
                   comprou.
                 </div>

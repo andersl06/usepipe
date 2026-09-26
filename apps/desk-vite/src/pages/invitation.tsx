@@ -29,25 +29,25 @@ export function PageInvitation() {
   const invitation = read.data ?? null;
 
   return (
-    <main className="entrar">
+    <main className="login">
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap"
       />
       <FundoPipe />
 
-      <div className="entrar-palco">
-        <section className="entrar-cartao" aria-labelledby="convite-titulo">
-          <img className="entrar-lockup" src="/pipe/lockup.svg" alt="Pipe" />
+      <div className="login-stage">
+        <section className="login-card" aria-labelledby="convite-titulo">
+          <img className="login-lockup" src="/pipe/lockup.svg" alt="Pipe" />
           {invitation ? (
             <>
               <h1 id="convite-titulo">Você foi convidado</h1>
-              <p className="entrar-sub">
+              <p className="login-sub">
                 {invitation.tenant.nome} convidou você para o Pipe. Entrar com o Google já cria a sua
                 conta.
               </p>
 
-              <dl className="entrar-dados">
+              <dl className="login-data">
                 <dt>Para</dt>
                 <dd>{invitation.email}</dd>
                 <dt>Papel</dt>
@@ -56,11 +56,11 @@ export function PageInvitation() {
                 <dd>{DATA.format(new Date(invitation.expiraEm))}</dd>
               </dl>
 
-              <a className="entrar-google" href={inboundWithGoogleUrl({ invitation: token })}>
+              <a className="login-google" href={inboundWithGoogleUrl({ invitation: token })}>
                 Entrar com Google e aceitar
               </a>
 
-              <p className="entrar-rodape">
+              <p className="login-footer">
                 Entre com a conta do Google deste mesmo e-mail. Com outra conta, o convite não é
                 aceito — ele vale para um endereço só.
               </p>
@@ -70,11 +70,11 @@ export function PageInvitation() {
               <h1 id="convite-titulo">Este convite não serve mais</h1>
               {/* Vencido, já usado e inexistente dão a MESMA tela: separar
                 contaria a quem tem o link se aquele token um dia existiu. */}
-              <p className="entrar-sub">
+              <p className="login-sub">
                 Convite vale sete dias e uma vez só. Peça um novo a quem administra o Pipe na sua
                 empresa.
               </p>
-              <a className="entrar-google" href="/login">
+              <a className="login-google" href="/login">
                 Ir para a tela de entrada
               </a>
             </>

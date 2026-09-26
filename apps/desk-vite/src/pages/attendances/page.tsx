@@ -40,7 +40,7 @@ export function PageAttendances() {
     <div
       className="dk-app-colunas"
       style={{ display: 'contents' }}
-      data-painel={panelAberto ? 'aberto' : 'fechado'}
+      data-panel={panelAberto ? 'open' : 'closed'}
     >
       {queue.data ? (
         <Column
@@ -50,19 +50,19 @@ export function PageAttendances() {
           aoAbrir={(c) => openConversation(c)}
         />
       ) : (
-        <div className="dk-coluna">
-          <div className="dk-coluna-cabecalho">
-            <h1 className="dk-coluna-titulo">Atendimentos</h1>
+        <div className="dk-column">
+          <div className="dk-column-header">
+            <h1 className="dk-column-title">Atendimentos</h1>
             <div className="dk-modo">Lista</div>
           </div>
-          <div className="dk-estado" />
+          <div className="dk-status" />
           <div className="dk-girando dk-girando-pequeno" aria-label="Carregando" />
         </div>
       )}
 
       {!queue.data ? (
-        <div className="dk-conversa">
-          <div className="dk-conversa-vazia">
+        <div className="dk-conversation">
+          <div className="dk-conversation-empty">
             <div className="dk-girando" aria-hidden="true" />
             <h1 id="loading-tickets-text">Buscando tickets</h1>
           </div>
@@ -79,15 +79,15 @@ export function PageAttendances() {
           aoFechar={() => closeConversation()}
         />
       ) : id && conversation.isPending ? (
-        <div className="dk-conversa">
-          <div className="dk-conversa-vazia">
+        <div className="dk-conversation">
+          <div className="dk-conversation-empty">
             <div className="dk-girando" aria-hidden="true" />
           </div>
         </div>
       ) : (state === 'invisivel' || state === 'pausa') && queue.data.conversations.length === 0 ? (
-        <div className="dk-conversa">
-          <div className="dk-conversa-vazia">
-            <div className="dk-ilustracao" aria-hidden="true">
+        <div className="dk-conversation">
+          <div className="dk-conversation-empty">
+            <div className="dk-illustration" aria-hidden="true">
               <IconeDesk nome="olho-fechado" />
             </div>
             <h1 className="dk-conversa-titulo">Fique online para atender</h1>
@@ -99,9 +99,9 @@ export function PageAttendances() {
           </div>
         </div>
       ) : (
-        <div className="dk-conversa">
-          <div className="dk-conversa-vazia">
-            <div className="dk-ilustracao" aria-hidden="true">
+        <div className="dk-conversation">
+          <div className="dk-conversation-empty">
+            <div className="dk-illustration" aria-hidden="true">
               <IconeDesk nome="atendimentos" />
             </div>
             <h1 className="dk-conversa-titulo">Tudo pronto para atender</h1>

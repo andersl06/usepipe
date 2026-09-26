@@ -55,7 +55,7 @@ export function Pagination({ state, grade }: { state: StatePagination; grade?: s
       className="pg"
       data-testid={grade ? `desk-grid-tabled-paginated-pagination-container-${grade}` : undefined}
     >
-      <label className="pg-por-pagina">
+      <label className="pg-per-page">
         Resultados por página
         <Selection
           value={byPage}

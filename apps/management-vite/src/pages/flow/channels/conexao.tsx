@@ -80,7 +80,7 @@ export function EscolherChannelExistente({
   }
 
   return (
-    <div className="cb-coluna">
+    <div className="cb-column">
       <h2 className="cb-titulo-20">{textos.titulo}</h2>
       <p className="cb-typo-16">{textos.instruction}</p>
       <div className="cb-select-caixa">
@@ -104,7 +104,7 @@ export function EscolherChannelExistente({
         </Seletor>
         <p className="cb-typo-12">
           {textos.naoEncontrou}{' '}
-          <button type="button" className="cb-ligacao" onClick={onVoltar}>
+          <button type="button" className="cb-connection" onClick={onVoltar}>
             Volte e cadastre agora.
           </button>
         </p>
@@ -216,7 +216,7 @@ export function ModalDesconectar({
           <span className="cb-typo-14">Eu concordo com os resultados da desconexão</span>
         </label>
         {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
-        <div className="cb-acoes-modal">
+        <div className="cb-actions-modal">
           <Botao type="button" onClick={fechar} disabled={enviando}>
             Voltar
           </Botao>

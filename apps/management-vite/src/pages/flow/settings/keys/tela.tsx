@@ -16,7 +16,7 @@ import { createKey, revogarKey, type KeyListed } from './gravar';
 function Bubbles() {
   return (
     <svg
-      className="cf-baloes"
+      className="cf-bubbles"
       width="94"
       height="118"
       viewBox="0 0 94 118"
@@ -57,9 +57,9 @@ function KeyModal({ token, onFechar }: { token: string; onFechar: () => void }) 
   }, [onFechar]);
 
   return (
-    <div className="cf-sobreposicao">
+    <div className="cf-overlay">
       <div
-        className="cf-modal cf-modal--chave"
+        className="cf-modal cf-modal--key"
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-chave-gerada"
@@ -71,17 +71,17 @@ function KeyModal({ token, onFechar }: { token: string; onFechar: () => void }) 
             <li>Se você usa uma sessão HTTP, atualize o cabeçalho com a nova chave.</li>
           </ul>
         </div>
-        <div className="cf-modal-chave-campo">
+        <div className="cf-modal-key-field">
           <h3>Usando SDK</h3>
           <p>Chave de acesso</p>
           <CampoCopiavel rotulo="Chave de acesso" value={token} />
         </div>
-        <div className="cf-modal-chave-campo">
+        <div className="cf-modal-key-field">
           <h3>Usando HTTP</h3>
           <p>Cabeçalho de autenticação</p>
           <CampoCopiavel rotulo="Autorização HTTP" value={`Bearer ${token}`} />
         </div>
-        <div className="cf-modal-acoes">
+        <div className="cf-modal-actions">
           <BotaoBds autoFocus onClick={onFechar}>
             Fechar
           </BotaoBds>
@@ -185,7 +185,7 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
       <div className="cf-container cf-chaves">
         {mostrarAjuda ? (
           <Role className="cf-chaves-ajuda">
-            <div className="cf-chaves-ajuda-dados">
+            <div className="cf-keys-help-data">
               <div className="cf-chaves-ajuda-texto">
                 <p>
                   <strong>Chaves de acesso</strong>: as chaves de acesso são usadas para fazer a
@@ -209,8 +209,8 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
         ) : null}
 
         {criando ? (
-          <Role className="cf-chaves-criar">
-            <div className="cf-chaves-criar-dados">
+          <Role className="cf-keys-create">
+            <div className="cf-keys-create-data">
               <CampoBds
                 id="name"
                 rotulo="Nome"
@@ -226,7 +226,7 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
                 </p>
               ) : null}
             </div>
-            <div className="cf-chaves-criar-acoes">
+            <div className="cf-keys-create-actions">
               <BotaoBds
                 variante="secondary"
                 disabled={salvando}
@@ -247,29 +247,29 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
 
         {chaves.map((key) => (
           <Role key={key.id}>
-            <div className="cf-chave">
-              <dl className="cf-chave-dados">
-                <div className="cf-chave-coluna">
+            <div className="cf-key">
+              <dl className="cf-key-data">
+                <div className="cf-key-column">
                   <dt>Id</dt>
                   <dd>{key.id}</dd>
                 </div>
-                <div className="cf-chave-coluna">
+                <div className="cf-key-column">
                   <dt>Data de criação</dt>
                   <dd>{formatarData(key.criadaEm)}</dd>
                 </div>
-                <div className="cf-chave-coluna">
+                <div className="cf-key-column">
                   <dt>Nome</dt>
                   <dd>{key.nome}</dd>
                 </div>
-                <div className="cf-chave-coluna">
+                <div className="cf-key-column">
                   <dt>Requisitante</dt>
                   <dd>{key.requisitante ?? '-'}</dd>
                 </div>
               </dl>
-              <div className="cf-chave-selo">
+              <div className="cf-key-badge">
                 {key.padrao ? <span className="cf-selo cf-selo--info">Padrão</span> : null}
               </div>
-              <div className="cf-chave-acoes">
+              <div className="cf-key-actions">
                 <BotaoDeIcone
                   icone="lixeira"
                   rotulo="Excluir chave"

@@ -64,7 +64,7 @@ export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: Configu
       />
       {ativo ? (
         <div className="cf-container">
-          <Role className="cf-papel--conexao">
+          <Role className="cf-paper--connection">
             <form
               onSubmit={(evento) => {
                 evento.preventDefault();

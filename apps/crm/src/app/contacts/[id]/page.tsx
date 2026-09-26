@@ -106,7 +106,7 @@ export default async function PageContact({
       <ContactDestaque ficha={ficha} fuso={fuso} />
 
       <div className="ficha">
-        <aside className="coluna">
+        <aside className="column">
           <div className="tblwrap">
             <Section titulo="Dados">
               <div className="campos">
@@ -133,7 +133,7 @@ export default async function PageContact({
           </div>
         </aside>
 
-        <div className="coluna">
+        <div className="column">
           <div className="tblwrap">
             <AbasDaFicha
               base={`/contacts/${ficha.id}`}
@@ -151,9 +151,9 @@ export default async function PageContact({
  */}
             {aba === 'conversas' ? (
               ficha.conversations.length === 0 ? (
-                <div className="vazio">Esta pessoa nunca conversou com o atendimento.</div>
+                <div className="empty">Esta pessoa nunca conversou com o atendimento.</div>
               ) : (
-                <ul className="tempo">
+                <ul className="time">
                   {ficha.conversations.map((c) => (
                     <li key={c.id}>
                       <span className="quando">{dataHora(c.criadaEm, fuso)}</span>
@@ -176,7 +176,7 @@ export default async function PageContact({
 
             {aba === 'lead' ? (
               !ficha.leadId ? (
-                <div className="vazio">
+                <div className="empty">
                   <b>Esta pessoa ainda não virou lead.</b>
                   <span>
                     Contato e lead são coisas diferentes: a pessoa existe desde a primeira
@@ -216,7 +216,7 @@ export default async function PageContact({
                     />
                     <Campo k="Proprietário" v={ficha.proprietario ?? 'sem proprietário'} />
                   </div>
-                  <div className="mensagem">
+                  <div className="message">
                     <Link href={`/leads/${ficha.leadId}`}>Abrir a ficha do lead</Link> para ver a
                     explicação do score e as respostas de formulário.
                   </div>

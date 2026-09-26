@@ -24,7 +24,7 @@ export function FormularioMotivoPausa({ aoSalvar }: { aoSalvar?: () => void }) {
   }, [resultado]);
 
   return (
-    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
+    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-registration">
       <label className="form-campo">
         <span className="sub">Nome da pausa</span>
         <Campo name="nome" maxLength={30} required disabled={enviando} />
@@ -54,7 +54,7 @@ export function FormularioMotivoPausa({ aoSalvar }: { aoSalvar?: () => void }) {
 
       {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao type="button" onClick={aoSalvar} disabled={enviando}>
           Cancelar
         </Botao>

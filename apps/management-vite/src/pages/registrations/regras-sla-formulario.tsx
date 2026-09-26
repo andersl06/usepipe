@@ -68,7 +68,7 @@ export function FormularioRegraSla({
     <form
       ref={formRef}
       onSubmit={envioQuePreserva((data) => enviar(data))}
-      className="form-cadastro"
+      className="form-registration"
     >
       <div className="form-linha">
         <label className="form-campo" style={{ flexBasis: '240px' }}>
@@ -151,7 +151,7 @@ export function FormularioRegraSla({
 
       {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao type="submit" variante="primario" disabled={enviando}>
           {enviando ? 'Salvando…' : editando ? 'Salvar alterações' : 'Salvar regra'}
         </Botao>

@@ -31,10 +31,10 @@ export function PageChannels() {
         <h2>Canais de atendimento</h2>
       </div>
 
-      <div className="canais-grade">
+      <div className="channels-grid">
         {CATALOGO.map((c) => (
-          <section className="canal-cartao" key={c.titulo}>
-            <span className="canal-icone" aria-hidden="true">
+          <section className="channel-card" key={c.titulo}>
+            <span className="channel-icon" aria-hidden="true">
               {c.icone === 'desk' ? (
                 <img src="/pipe/simbolo.svg" alt="" width={40} height={40} />
               ) : (
@@ -43,7 +43,7 @@ export function PageChannels() {
             </span>
             <h3>{c.titulo}</h3>
             <p>{c.subtitulo}</p>
-            <div className="canal-acao">
+            <div className="channel-action">
               {c.conectado ? (
                 <span className="btn fantasma">
                   Conectado

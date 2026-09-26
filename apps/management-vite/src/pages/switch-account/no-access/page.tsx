@@ -19,16 +19,16 @@ export function PageNoAccess() {
   const emVigor = accounts.find((c) => c.emVigor);
 
   return (
-    <main className="entrada-passo">
+    <main className="entry-step">
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap"
       />
-      <section className="entrada-passo-cartao">
-        <img className="entrar-lockup" src="/pipe/lockup.svg" alt="Pipe" />
+      <section className="entry-step-card">
+        <img className="login-lockup" src="/pipe/lockup.svg" alt="Pipe" />
 
         <h1>Você faz parte de {slug || 'outra conta'}?</h1>
-        <p className="entrada-passo-sub">
+        <p className="entry-step-sub">
           Este endereço é de outra conta, e o seu acesso ainda não está nela. Peça a quem administra
           essa conta para convidar o seu e-mail — o convite entra direto, sem depender do domínio.
         </p>

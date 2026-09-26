@@ -22,32 +22,32 @@ export function BotListaContacts() {
   const contacts = read.data ?? [];
   const period = periodDefault(new Date());
   return (
-    <div className="ct-listagem">
-      <aside className="ct-filtros">
-        <header className="ct-filtros-cabeca">
-          <span className="ct-filtros-titulo">Filtros</span>
+    <div className="ct-listing">
+      <aside className="ct-filters">
+        <header className="ct-filters-header">
+          <span className="ct-filters-title">Filtros</span>
           {/* ponytail: dimension filters have no backend; the button starts disabled, as in the origin. */}
           <button className="ct-aplicar" type="button" disabled>
             Aplicar
           </button>
         </header>
-        <div className="ct-filtros-corpo">
+        <div className="ct-filters-body">
           <div className="ct-dimensao">
-            <button className="ct-adicionar-filtro" type="button">
+            <button className="ct-add-filter" type="button">
               + Adicionar filtros
             </button>
           </div>
         </div>
       </aside>
       <div className="ct-espaco-lateral" />
-      <section className="ct-usuarios">
+      <section className="ct-users">
         <div className="ct-cabeca">
-          <div className="ct-cabeca-secao">
+          <div className="ct-header-section">
             <div className="ct-cabeca-conteudo">
               <div className="ct-cabeca-titulo">
                 <h1>Contatos</h1>
               </div>
-              <div className="ct-cabeca-acoes">
+              <div className="ct-header-actions">
                 <form className="ct-dica" method="get">
                   <button
                     className="ct-botao-icone"
@@ -63,24 +63,24 @@ export function BotListaContacts() {
           </div>
         </div>
         <div className="ct-container">
-          <div className="ct-filtro-contatos">
-            <div className="ct-contagem">
+          <div className="ct-filter-contacts">
+            <div className="ct-count">
               <span>{countRotulo(contacts.length)}</span>
             </div>
             {/* ponytail: the period picker is visual only; date filtering has no backend. */}
-            <div className="ct-periodo" aria-label="Período">
-              <span className="ct-periodo-icone">
+            <div className="ct-period" aria-label="Período">
+              <span className="ct-period-icon">
                 <IconePortal nome="calendario" tamanho={21} />
               </span>
               <input
-                className="ct-periodo-data"
+                className="ct-period-data"
                 aria-label="Data inicial"
                 readOnly
                 value={formatPeriodLimit(period.inicio)}
               />
               <span>~</span>
               <input
-                className="ct-periodo-data"
+                className="ct-period-data"
                 aria-label="Data final"
                 readOnly
                 value={formatPeriodLimit(period.fim)}
@@ -88,16 +88,16 @@ export function BotListaContacts() {
             </div>
           </div>
           {contacts.length === 0 ? (
-            <div className="ct-sem-contatos">Nenhum contato encontrado</div>
+            <div className="ct-no-contacts">Nenhum contato encontrado</div>
           ) : (
-            <div className="ct-cartoes">
+            <div className="ct-cards">
               {contacts.map((contact) => (
                 <Link
-                  className="ct-usuario"
+                  className="ct-user"
                   href={`${base}/contacts/${contact.id}`}
                   key={contact.id}
                 >
-                  <span className="ct-secao ct-secao-avatar">
+                  <span className="ct-section ct-section-avatar">
                     <span className="ct-avatar">
                       {contact.avatarUrl ? (
                         <img src={contact.avatarUrl} alt="" />
@@ -106,9 +106,9 @@ export function BotListaContacts() {
                       )}
                     </span>
                   </span>
-                  <span className="ct-secao ct-secao-nome">
+                  <span className="ct-section ct-section-name">
                     <span className="ct-nome">{contact.nome ?? '-'}</span>
-                    <span className="ct-ultima-interacao">
+                    <span className="ct-last-interaction">
                       <span>Última interação:</span>&nbsp;
                       <span>
                         {formatarUltimaInteraction(
@@ -118,14 +118,14 @@ export function BotListaContacts() {
                     </span>
                   </span>
                   <span className="ct-divisor" />
-                  <span className="ct-secao ct-secao-canal">
-                    <span className="ct-canal-rotulo">Canal</span>
-                    <span className="ct-canal-valor">
+                  <span className="ct-section ct-section-channel">
+                    <span className="ct-channel-label">Canal</span>
+                    <span className="ct-channel-value">
                       {channelRotulo(contact.canalTipo, contact.canalNome)}
                     </span>
                   </span>
-                  <span className="ct-secao ct-secao-teste" />
-                  <span className="ct-secao ct-secao-abrir">
+                  <span className="ct-section ct-section-test" />
+                  <span className="ct-section ct-section-open">
                     <span className="ct-dica">
                       <span className="ct-nova-aba" title="Abrir em nova aba">
                         <IconePortal nome="abrir-arquivo" tamanho={24} />

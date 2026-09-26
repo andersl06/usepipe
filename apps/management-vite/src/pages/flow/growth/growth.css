@@ -4,7 +4,7 @@
 /*
  * ==================== the shell: `section.main-section > ui-view` is `display: flex` with the `<aside class="detail-aside fl">` (318px) and `section.main-detail-content` (the rest, 962 of 1280) side by side, full width, from the end of the sub-bar (y=136) to the bottom.
  */
-.gr-casca {
+.gr-shell {
   display: flex;
   align-items: stretch;
   min-height: calc(100dvh - var(--g-topo-h));
@@ -127,7 +127,7 @@
   color: var(--p-conteudo);
 }
 .gr-cabeca,
-.gr-acoes {
+.gr-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -146,7 +146,7 @@
   font-size: 14px;
 }
 .gr-titulo-com-info,
-.gr-cabeca-acoes {
+.gr-header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -168,7 +168,7 @@
   color: var(--p-conteudo-desabilitado);
   cursor: pointer;
 }
-.gr-abas button.ativa {
+.gr-abas button.active {
   border-bottom-color: var(--p-marca-forte);
   color: var(--p-conteudo);
 }
@@ -203,38 +203,38 @@
   border-color: transparent;
   background: transparent;
 }
-.gr-filtros {
+.gr-filters {
   display: flex;
   flex-direction: column;
   gap: 16px;
   margin-bottom: 12px;
   padding: 16px;
   background: var(--p-superficie-0);
-  border-radius: var(--g-r-cartao);
-  box-shadow: var(--g-sombra-cartao);
+  border-radius: var(--g-r-card);
+  box-shadow: var(--g-shadow-card);
 }
-.gr-filtros header,
-.gr-filtros header > div,
-.gr-filtros-campos {
+.gr-filters header,
+.gr-filters header > div,
+.gr-filters-fields {
   display: flex;
   align-items: center;
 }
-.gr-filtros header {
+.gr-filters header {
   justify-content: space-between;
 }
-.gr-filtros header > div {
+.gr-filters header > div {
   justify-content: flex-end;
   gap: 8px;
   width: 50%;
 }
-.gr-filtros h2 {
+.gr-filters h2 {
   margin: 0;
   font-size: 32px;
 }
-.gr-filtros-campos {
+.gr-filters-fields {
   gap: 16px;
 }
-.gr-filtros label {
+.gr-filters label {
   flex: 1;
   font-size: 14px;
 }
@@ -244,7 +244,7 @@
   justify-content: center;
   color: var(--p-marca-forte);
 }
-.gr-filtros input {
+.gr-filters input {
   display: block;
   width: 100%;
   box-sizing: border-box;
@@ -253,7 +253,7 @@
   border: 1px solid var(--p-linha-media);
   border-radius: var(--p-r-md);
 }
-.gr-filtros select,
+.gr-filters select,
 .gr-formulario input:not([type='radio']):not([type='file']),
 .gr-formulario select,
 .gr-modal textarea {
@@ -271,15 +271,15 @@
 .gr-lista {
   margin-top: 12px;
   padding: 24px;
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
   background: var(--p-superficie-0);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
 }
 .gr-lista h2 {
   margin: 0 0 8px;
   font-size: 20px;
 }
-.gr-metricas {
+.gr-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
@@ -302,16 +302,16 @@
   margin-top: 8px;
   font-size: 24px;
 }
-.gr-tabela-rolagem {
+.gr-table-scroll {
   overflow-x: auto;
 }
-.gr-tabela-rolagem table {
+.gr-table-scroll table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
 }
-.gr-tabela-rolagem th,
-.gr-tabela-rolagem td {
+.gr-table-scroll th,
+.gr-table-scroll td {
   padding: 14px 10px;
   border-bottom: 1px solid var(--p-linha-media);
 }
@@ -322,7 +322,7 @@
   background: var(--p-superficie-1);
   font-size: 12px;
 }
-.gr-sobreposicao {
+.gr-overlay {
   position: fixed;
   z-index: 50;
   inset: 0;
@@ -336,7 +336,7 @@
   max-height: 90vh;
   overflow: auto;
   padding: 24px;
-  border-radius: var(--g-r-cartao);
+  border-radius: var(--g-r-card);
   background: var(--p-superficie-0);
   color: var(--p-conteudo);
 }
@@ -344,7 +344,7 @@
   width: min(100%, 720px);
 }
 .gr-modal-cabeca,
-.gr-modal-acoes {
+.gr-modal-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -415,7 +415,7 @@
   border-radius: var(--p-r-md);
   background: var(--p-superficie-1);
 }
-.gr-arquivo {
+.gr-file {
   display: grid;
   gap: 12px;
   padding: 24px;
@@ -432,45 +432,45 @@
   margin: 0;
 }
 .gr-aviso {
-  color: var(--p-erro-conteudo);
+  color: var(--p-error-content);
 }
-.gr-modal-acoes {
+.gr-modal-actions {
   justify-content: flex-end;
   margin-top: 24px;
 }
-.gr-acoes {
+.gr-actions {
   justify-content: flex-start;
   margin: 24px 0;
 }
-.gr-vazio {
+.gr-empty {
   min-height: 280px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background: var(--p-superficie-0);
-  border-radius: var(--g-r-cartao);
-  box-shadow: var(--g-sombra-cartao);
+  border-radius: var(--g-r-card);
+  box-shadow: var(--g-shadow-card);
   text-align: center;
 }
-.gr-vazio svg {
+.gr-empty svg {
   color: var(--p-conteudo-fantasma);
 }
-.gr-vazio h2 {
+.gr-empty h2 {
   margin: 16px 0 0;
   font-size: 20px;
 }
-.gr-vazio p {
+.gr-empty p {
   margin: 4px 0 0;
   color: var(--p-conteudo-desabilitado);
 }
-.gr-vazio .gr-botao {
+.gr-empty .gr-botao {
   margin-top: 16px;
 }
 /*
  * Click Tracker — the `portal-fragment-click-tracker` microfrontend's panel on the `growth/clicktracker` route, measured in the copy with a ruler (1280×780 window): page with 24px 8px, rows with 0 8px, `bds-grid.container` at 944px centered, 8/4 and 3 columns with 0 8px, `bds-paper` with 16px radius. All color comes from Pipe's `--p-*` / `--g-*` tokens.
  */
-.ck-pagina {
+.ck-page {
   padding: 24px 8px;
   color: var(--p-conteudo);
   font-size: 16px;
@@ -553,10 +553,10 @@
   margin-left: 4px;
   color: var(--p-conteudo);
 }
-.ck-papel {
+.ck-paper {
   border-radius: 16px;
   background: var(--p-superficie-1);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
 }
 /* Event paper: 604×48, padding 12px; clickable chip 34×24 with a pencil. */
 .ck-evento-caixa {
@@ -676,7 +676,7 @@
   min-height: 76px;
   padding: 0 8px;
 }
-.ck-token-conta {
+.ck-token-account {
   align-items: flex-start;
 }
 .ck-token-logo {
@@ -701,7 +701,7 @@
   font-weight: 700;
   line-height: 18px;
 }
-.ck-token-acoes {
+.ck-token-actions {
   position: relative;
   justify-content: flex-end;
   align-items: flex-start;
@@ -752,7 +752,7 @@
   margin-bottom: 17px;
   padding: 12px;
 }
-.ck-desempenho-coluna {
+.ck-performance-column {
   display: flex;
   flex-direction: column;
   padding: 0 8px;
@@ -785,7 +785,7 @@
   border-radius: 12px;
   background: var(--p-superficie-2);
 }
-.ck-indicador-valor {
+.ck-indicator-value {
   display: flex;
   align-items: center;
   height: 46px;
@@ -824,29 +824,29 @@
 .ck-indicador-rodape-texto {
   width: 50%;
 }
-.ck-indicador-rodape-valor {
+.ck-indicator-footer-value {
   width: 41%;
   text-align: right;
 }
 /* Empty state: 20px margin, 130×134 illustration with 30px below, fs-24 title. */
-.ck-vazio {
+.ck-empty {
   margin: 20px;
   text-align: center;
 }
-.ck-vazio-ilustracao {
+.ck-empty-illustration {
   display: flex;
   justify-content: center;
   height: 134px;
   margin-bottom: 30px;
 }
-.ck-vazio-titulo {
+.ck-empty-title {
   display: block;
   margin-bottom: 22px;
   font-size: 24px;
   font-weight: 700;
   line-height: 24px;
 }
-.ck-vazio-texto {
+.ck-empty-text {
   margin: 0;
   font-size: 16px;
   line-height: 25.6px;
@@ -863,7 +863,7 @@
   margin: 72px auto;
   padding: 0 24px;
 }
-.an-ilustracao {
+.an-illustration {
   flex: none;
   color: var(--p-conteudo-fantasma);
 }
@@ -884,7 +884,7 @@
   line-height: 1.6;
   color: var(--p-conteudo-fantasma);
 }
-.an-acoes {
+.an-actions {
   display: flex;
   justify-content: flex-end;
   margin-top: 30px;
@@ -912,7 +912,7 @@
   .an-corpo {
     text-align: center;
   }
-  .an-acoes {
+  .an-actions {
     justify-content: center;
   }
 }
@@ -920,7 +920,7 @@
 /*
  * Payments Report — `growth/activemessages/paymentsReport` at the source: no page title (the `ui-view="content"` gets the MFE directly, without `home-header-testid`), two side-by-side columns — "Tráfego de mensagens" and "Pagamentos" — each with its own cards (measured in `roteador-relatoriopagamentos__pagina.html`: flex-wrap, gap 32, each card with `border-radius: 12px; padding: 12px`). The source shows fixed demo numbers (384,302 messages etc.) that Pipe doesn't reproduce — the reference here is the layout, not the data; that's why the values show as "—" and the bars don't fabricate a height.
  */
-.pg-pagina {
+.pg-page {
   padding-top: 24px;
 }
 .pg-aviso {
@@ -937,26 +937,26 @@
   align-items: flex-start;
   gap: 32px;
 }
-.pg-coluna {
+.pg-column {
   flex: 1 1 320px;
   min-width: 0;
 }
-.pg-coluna-titulo {
+.pg-column-title {
   margin: 0 0 16px;
   font-size: 24px;
   font-weight: 700;
 }
-.pg-cartoes {
+.pg-cards {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-bottom: 16px;
 }
-.pg-cartao {
+.pg-card {
   border-radius: 12px;
   padding: 12px;
   background: var(--p-superficie-0);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
 }
 .pg-metrica-linha {
   display: flex;
@@ -971,7 +971,7 @@
   font-size: 14px;
   color: var(--p-conteudo-fantasma);
 }
-.pg-metrica-valor {
+.pg-metric-value {
   display: block;
   font-size: 16px;
   font-weight: 700;
@@ -1006,7 +1006,7 @@
   font-size: 18px;
   font-weight: 600;
 }
-.pg-grafico-vazio {
+.pg-chart-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1017,7 +1017,7 @@
   color: var(--p-conteudo-fantasma);
   text-align: center;
 }
-.pg-grafico-vazio p {
+.pg-chart-empty p {
   margin: 0;
   font-size: 14px;
 }
@@ -1063,7 +1063,7 @@
   font-size: 12px;
   color: var(--p-conteudo-fantasma);
 }
-.pg-resumo-valor {
+.pg-summary-value {
   margin: 8px 0 0;
   font-size: 30px;
   font-weight: 700;
@@ -1096,19 +1096,19 @@
 
 @media (max-width: 700px) {
   .gr-cabeca,
-  .gr-filtros header,
-  .gr-filtros-campos {
+  .gr-filters header,
+  .gr-filters-fields {
     align-items: stretch;
     flex-direction: column;
   }
-  .gr-cabeca-acoes,
-  .gr-filtros header > div {
+  .gr-header-actions,
+  .gr-filters header > div {
     width: 100%;
   }
-  .gr-filtros input {
+  .gr-filters input {
     width: 100%;
   }
-  .gr-metricas {
+  .gr-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .gr-revisao dl {

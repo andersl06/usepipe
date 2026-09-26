@@ -44,7 +44,7 @@
 }
 
 /* `#general-dashboard { margin-bottom: 10px }` */
-.vg-painel {
+.vg-panel {
   margin-bottom: 10px;
 }
 
@@ -52,7 +52,7 @@
  * `#dashboard-filters.bp-c-rooftop.flex.justify-between.z-5.relative`, and the
  *    `.picker-view.mr2` selector: `flex: 1`, right-aligned, 5 to the right.
  */
-.vg-filtros {
+.vg-filters {
   position: relative;
   z-index: 5;
   display: flex;
@@ -61,7 +61,7 @@
   color: var(--ink-3);
 }
 
-.vg-filtro-periodo {
+.vg-filter-period {
   display: flex;
   flex: 1;
   align-items: center;
@@ -70,7 +70,7 @@
 }
 
 /* `div.flex.flex-wrap.z-2`, com `#general-dashboard .flex { flex-wrap: nowrap }`. */
-.vg-cartoes {
+.vg-cards {
   position: relative;
   z-index: 2;
   display: flex;
@@ -82,7 +82,7 @@
  *    20 padding, and `#general-dashboard .card-content` in a column with
  *    `space-between`. `.flex1` is `flex: 1.5`; `.flex3`, `flex: 3`.
  */
-.vg-cartao {
+.vg-card {
   position: relative;
   z-index: 2;
   display: flex;
@@ -103,19 +103,19 @@
   flex: 3;
 }
 
-.vg-cartao-cabeca {
+.vg-card-header {
   display: flex;
   flex-direction: column;
 }
 
 /* `bds-typo fs-24 bold` e `fs-16 regular` com `.general-card-description
    { line-height: 24px }`. */
-.vg-cartao-titulo {
+.vg-card-title {
   font-weight: 700;
   color: var(--ink);
 }
 
-.vg-cartao-descricao {
+.vg-card-description {
   font-weight: 400;
   line-height: 24px;
   color: var(--ink);
@@ -155,7 +155,7 @@
   margin-left: 5px;
 }
 
-.vg-contador-valor {
+.vg-counter-value {
   font-weight: 700;
 }
 
@@ -177,7 +177,7 @@
 }
 
 /* `.u-full-width.analytics-chart-card.tc` */
-.vg-grafico-cartao {
+.vg-chart-card {
   text-align: center;
 }
 
@@ -205,7 +205,7 @@
   padding: 20px;
 }
 
-.vg-grafico-vazio {
+.vg-chart-empty {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -286,7 +286,7 @@
   text-align: left;
 }
 
-.vg-ajuda-imagem {
+.vg-help-image {
   width: 30.6666%;
 }
 

@@ -10,7 +10,7 @@ export function GrowthShell() {
     <div className="pt-app">
       <ContactBarras ativo="Growth" />
       {/* `section.main-section > ui-view`: the sidebar and the body, side by side. */}
-      <div className="gr-casca">
+      <div className="gr-shell">
         <NavigationGrowth id={id} />
         <main className="gr-miolo">
           <Outlet />

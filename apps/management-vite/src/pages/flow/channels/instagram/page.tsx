@@ -39,10 +39,10 @@ export function PageChannelInstagram() {
         <Conectado flowId={contact.id} channel={situation.channel} />
       ) : situation.state === 'outro_canal' ? (
         <div className="cb-linha">
-          <div className="cb-icone-coluna">
+          <div className="cb-icon-column">
             <LogoPortal nome="instagram" tamanho={64} />
           </div>
-          <div className="cb-coluna">
+          <div className="cb-column">
             <OtherChannelNotice channel={situation.channel} rotulo="Instagram" />
           </div>
         </div>
@@ -58,10 +58,10 @@ function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow
   const user = channel.numero ? `@${channel.numero.replace(/^@/, '')}` : channel.nome;
   return (
     <div className="cb-linha">
-      <div className="cb-icone-coluna">
+      <div className="cb-icon-column">
         <LogoPortal nome="instagram" tamanho={64} />
       </div>
-      <div className="cb-coluna">
+      <div className="cb-column">
         <p className="cb-typo-16">
           <strong>Seu chatbot está conectado à conta:</strong>
         </p>
@@ -75,7 +75,7 @@ function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow
           Você já pode conversar com seus clientes pelo Instagram e gerar mais insights para o seu
           negócio!
         </p>
-        <div className="cb-acoes-direita">
+        <div className="cb-actions-right">
           <Botao type="button" variante="perigo" onClick={() => setDesconectando(true)}>
             Desconectar canal
           </Botao>
@@ -110,10 +110,10 @@ function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: Ch
 
   return (
     <div className="cb-linha">
-      <div className="cb-icone-coluna">
+      <div className="cb-icon-column">
         <LogoPortal nome="instagram" tamanho={64} />
       </div>
-      <div className="cb-coluna">
+      <div className="cb-column">
         <p className="cb-typo-16">
           <strong>
             Conecte seu chatbot ao canal de mensagens do Instagram e comece a transformar conversas em
@@ -124,7 +124,7 @@ function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: Ch
           ⚠️<strong>Atenção:</strong> para começar a conexão, você precisa ter permissão de
           administrador das páginas do Facebook e do Instagram da sua empresa. 🤓
         </p>
-        <div className="cb-acoes-direita">
+        <div className="cb-actions-right">
           <ConectarInstagramManual flowId={flowId} rotulo="Iniciar conexão" variante="primario" />
           {temAccountLivre ? (
             <Botao type="button" onClick={() => setEscolhendo(true)}>

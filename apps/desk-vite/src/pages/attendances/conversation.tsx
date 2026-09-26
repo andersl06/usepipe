@@ -91,21 +91,21 @@ export function Conversation({
     : 0;
 
   return (
-    <div className="dk-conversa" id="pane-chat-div">
-      <div className="dk-conversa-cabecalho">
-        <div className="dk-conversa-cabecalho-miolo">
-          <div className="dk-conversa-contato">
+    <div className="dk-conversation" id="pane-chat-div">
+      <div className="dk-conversation-header">
+        <div className="dk-conversation-header-core">
+          <div className="dk-conversation-contact">
             <Avatar nome={nome} tamanho={56} />
             <div
-              className="dk-conversa-dados"
+              className="dk-conversation-data"
               tabIndex={0}
               role="region"
               aria-label={`Dados do atendimento: ${nome}`}
             >
-              <span className="dk-conversa-nome" id="customer-name">
+              <span className="dk-conversation-name" id="customer-name">
                 {nome}
               </span>
-              <span className="dk-conversa-ticket">
+              <span className="dk-conversation-ticket">
                 <span>
                   <b>Ticket:</b>
                   <i id="ticket-sequential-id">{numero}</i>
@@ -117,7 +117,7 @@ export function Conversation({
               </span>
             </div>
           </div>
-          <div className="dk-conversa-acoes">
+          <div className="dk-conversation-actions">
             {/* Ponytail: `Ligação Ativa` depends on the calling MFE; keep the button where the reference places it. */}
             <button
               type="button"
@@ -252,7 +252,7 @@ export function Conversation({
                 <IconeDesk nome="etiqueta" />
                 Adicionar tags
               </button>
-              <div className="dk-etiquetas-fila" id="tags-scroll">
+              <div className="dk-queue-tags" id="tags-scroll">
                 {conversationTags.map((e) => (
                   <span key={e.id} className="dk-chip dk-chip-contorno">
                     {e.nome}
@@ -273,7 +273,7 @@ export function Conversation({
           </>
         ) : null}
         {search !== null ? (
-          <div className="dk-busca-conversa">
+          <div className="dk-search-conversation">
             <label className="dk-campo">
               <span className="dk-campo-icone">
                 <IconeDesk nome="busca" />
@@ -297,7 +297,7 @@ export function Conversation({
               <IconeDesk nome="fechar" />
             </button>
             {search ? (
-              <div className="dk-busca-resultado">
+              <div className="dk-search-result">
                 <span>
                   {ocorrencias === 0
                     ? 'Nenhum resultado encontrado para '
@@ -325,7 +325,7 @@ export function Conversation({
         aoReenviar={(id) => void reenviar(id)}
       />
       {error ? (
-        <p className="dk-erro" style={{ padding: '0 24px' }}>
+        <p className="dk-error" style={{ padding: '0 24px' }}>
           {error}
         </p>
       ) : null}
@@ -429,7 +429,7 @@ function ModalEtiquetas({
         ) : (
           <div className="dk-lista-de-etiquetas" role="group" aria-label="Tags da conversa">
             {etiquetas.map((e) => (
-              <label key={e.id} className="dk-opcao-etiqueta">
+              <label key={e.id} className="dk-option-tag">
                 <input
                   type="checkbox"
                   checked={aplicadas.has(e.id)}
@@ -441,8 +441,8 @@ function ModalEtiquetas({
             ))}
           </div>
         )}
-        {error ? <p className="dk-erro">{error}</p> : null}
-        <div className="dk-modal-acoes">
+        {error ? <p className="dk-error">{error}</p> : null}
+        <div className="dk-modal-actions">
           <button type="button" className="dk-botao" onClick={aoFechar}>
             Concluir
           </button>
@@ -558,8 +558,8 @@ function ModalTransferir({
           Escolha a fila que receberá esse atendimento. Lembrando que a transferência gera um novo
           número de ticket.
         </p>
-        {error ? <p className="dk-erro">{error}</p> : null}
-        <div className="dk-modal-acoes">
+        {error ? <p className="dk-error">{error}</p> : null}
+        <div className="dk-modal-actions">
           <button type="button" className="dk-botao dk-botao-secundario" onClick={aoFechar}>
             Cancelar
           </button>

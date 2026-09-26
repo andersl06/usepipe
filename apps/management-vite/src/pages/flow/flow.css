@@ -64,7 +64,7 @@
 }
 
 /* `.bot-header-details.flex.items-center` — avatar, nome e a seta. */
-.fx-contato {
+.fx-contact {
   display: flex;
   align-items: center;
   min-height: 55px; /* `.subheader-nav .bot-header-details` */
@@ -93,7 +93,7 @@
 /*
  * The `<dropdown-item>` for the name: `.bot-name.fw3` with `margin-left: 15px` and a `bds-icon name="arrow-down" size="small"` right after. `.fw3` is weight 300 — the name is LIGHT, not normal.
  */
-.fx-contato-menu > summary {
+.fx-contact-menu > summary {
   display: flex;
   align-items: center;
   gap: var(--p-e-1);
@@ -104,11 +104,11 @@
   min-width: 0;
 }
 
-.fx-contato-menu > summary:hover {
+.fx-contact-menu > summary:hover {
   background: var(--g-barra-hover);
 }
 
-.fx-contato-nome {
+.fx-contact-name {
   font-size: var(--g-t-modulo); /* 1rem, herdado de `.subheader-nav` */
   font-weight: var(--g-peso-leve); /* `.fw3` */
   line-height: 1.6;
@@ -119,20 +119,20 @@
   max-width: 22ch;
 }
 
-.fx-contato-menu > summary svg {
+.fx-contact-menu > summary svg {
   flex: none;
   /* `.arrow-icon.transition-0-3s`: the arrow rotates half a turn when it opens. */
   transition: transform var(--p-dur-normal) ease;
 }
 
-.fx-contato-menu[open] > summary svg {
+.fx-contact-menu[open] > summary svg {
   transform: rotate(180deg);
 }
 
 /*
  * `.subheader-nav .bot-header-details .dropdown-wrapper`: `width: 160px`, `max-width: 200px`, `padding: 0`; the `<ul class="no-style ma0 ph4">` gives the 20px indent (`.ph4` = 1.25rem). The panel opens to the right of the button (`dropdown-item .dropdown-item-content { right: -.5rem }`).
  */
-.fx-contato-menu .g-painel {
+.fx-contact-menu .g-panel {
   /*
    * There it's a fixed `width: 160px`; here the "coming soon" badge doesn't fit in 160, so the panel grows up to the `max-width: 200px` that their own rule already allows.
    */
@@ -148,8 +148,8 @@
 /*
  * `dropdown-item a { color: #52636c }`, hover `#3f7de8`. Here the panel link is already `--p-marca-forte` via `globais.css`; only the destructive one changes color.
  */
-.fx-contato-menu .g-painel .fx-sair {
-  color: var(--p-erro-conteudo); /* `.bp-c-delete` */
+.fx-contact-menu .g-panel .fx-sair {
+  color: var(--p-error-content); /* `.bp-c-delete` */
 }
 
 /*
@@ -231,7 +231,7 @@ a.fx-item:hover {
 /*
  * The panel is the portal's generic `dropdown-item`, with `align="center"` and `min-width="max-content"`: `.dropdown-item-content { background: #f6f6f6; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,60,128,.14), 0 2px 32px rgba(70,67,103,.1); margin-top: 5px; padding: 10px 0 }`, `.dropdown-direction-bottom { top: 130% }`, `.dropdown-align-center { transform: translateX(-50%) }`. Measured in the copy: the panel starts 12px below the 24px button (130% of 24 + 5); since `.fx-mais` spans the whole bar, the math starts from its center. The little arrow is the `:before`, 17×17 rotated 45° with `border-radius: 6px 0`. The background is the cards' surface (at the source `#f6f6f6` over a white page; here the page is surface 1 and the card is 0 — the contrast is kept, not the hex).
  */
-.fx-mais .g-painel {
+.fx-mais .g-panel {
   top: calc(50% + 12px + 12px);
   right: auto;
   left: calc(50% + 5px); /* the center of the button, minus the padding-left */
@@ -245,7 +245,7 @@ a.fx-item:hover {
   box-shadow: var(--p-sombra-2);
 }
 
-.fx-mais .g-painel::before {
+.fx-mais .g-panel::before {
   content: '';
   position: absolute;
   top: -8px;
@@ -260,8 +260,8 @@ a.fx-item:hover {
 /*
  * Each row: `.subheader-nav .main-subheader .dropdown-item-content ul li { padding: 0 20px }` with the global `li`'s 10px `margin-bottom` (the last one zeroes it), and the link `{ color: #52636c; font-size: 1rem; font-weight: 300; display: block }` — 26px height measured in the copy. The muted one (in progress) uses the SAME row, just with `pt-links-obra`'s opacity.
  */
-.fx-mais .g-painel > a,
-.fx-mais .g-painel > .pt-obra {
+.fx-mais .g-panel > a,
+.fx-mais .g-panel > .pt-obra {
   position: relative;
   display: flex;
   align-items: center;
@@ -276,16 +276,16 @@ a.fx-item:hover {
   text-decoration: none;
 }
 
-.fx-mais .g-painel > a:last-child,
-.fx-mais .g-painel > .pt-obra:last-child {
+.fx-mais .g-panel > a:last-child,
+.fx-mais .g-panel > .pt-obra:last-child {
   margin-bottom: 0;
 }
 
-.fx-mais .g-painel > a:hover {
+.fx-mais .g-panel > a:hover {
   color: var(--p-conteudo); /* `li:hover { color: #454545 }` */
 }
 
-.fx-mais .g-painel > .pt-obra {
+.fx-mais .g-panel > .pt-obra {
   opacity: 0.55;
   cursor: default;
 }
@@ -348,7 +348,7 @@ a.fx-icone--ativo:hover {
 /*
  * `<div class="container">` (Skeleton): `margin: 0 auto`, `padding: 0 20px`, `width: 100%`; from 550px it becomes `width: 90%` with no padding, and from 750px `width: 80%`. There's NO `max-width` — the column follows the screen.
  */
-.fx-coluna {
+.fx-column {
   box-sizing: border-box;
   width: 100%;
   margin: 0 auto;
@@ -357,14 +357,14 @@ a.fx-icone--ativo:hover {
 }
 
 @media (min-width: 550px) {
-  .fx-coluna {
+  .fx-column {
     width: 90%;
     padding: 0;
   }
 }
 
 @media (min-width: 750px) {
-  .fx-coluna {
+  .fx-column {
     width: 80%;
   }
 }
@@ -377,7 +377,7 @@ a.fx-icone--ativo:hover {
   margin-top: 2.5rem;
 }
 
-.fx-identidade {
+.fx-identity {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -475,7 +475,7 @@ a.fx-icone--ativo:hover {
   color: var(--p-conteudo-desabilitado);
 }
 
-.fx-grade:not(:has(.fx-area-extensoes)) {
+.fx-grade:not(:has(.fx-area-extensions)) {
   grid-template-areas:
     'canais canais canais'
     'equipe equipe equipe'
@@ -504,13 +504,13 @@ a.fx-icone--ativo:hover {
 }
 
 /* Each `*-area` gets `margin-bottom: .8rem` — the `gap` only applies between columns. */
-.fx-area-extensoes {
+.fx-area-extensions {
   grid-area: extensoes;
   margin-bottom: 0.8rem;
   min-width: 500px;
 }
 
-.fx-area-canais {
+.fx-area-channels {
   grid-area: canais;
   margin-bottom: 0.8rem;
 }
@@ -520,12 +520,12 @@ a.fx-icone--ativo:hover {
   margin-bottom: 0.8rem;
 }
 
-.fx-area-preferencias {
+.fx-area-preferences {
   grid-area: preferencias;
   margin-bottom: 0.8rem;
 }
 
-.fx-area-metricas {
+.fx-area-metrics {
   grid-area: metricas;
   margin-bottom: 0.8rem;
 }
@@ -535,13 +535,13 @@ a.fx-icone--ativo:hover {
  *
  *    The `:host` of `bds-paper`: `display: block; border-radius: 16px`, background `--color-surface-0` and `static` elevation (`0 2px 8px -2px var(--color-shadow-1)`) — the `--g-r-cartao` and `--g-sombra-cartao` from `globais.css`. And `.chatbot-home-content bds-paper { height: 100% }`.
  */
-.fx-papel {
+.fx-paper {
   display: block;
   box-sizing: border-box;
   height: 100%;
   background: var(--p-superficie-0);
-  border-radius: var(--g-r-cartao);
-  box-shadow: var(--g-sombra-cartao);
+  border-radius: var(--g-r-card);
+  box-shadow: var(--g-shadow-card);
 }
 
 /* `<bds-typo tag="h4" variant="fs-20" bold="bold" margin="false">`: 20px, 700,
@@ -632,13 +632,13 @@ a.fx-botao:hover {
 /*
  * `div.flex.items-center.mt1.__icons { margin-left: -.25rem; margin-right: 5px }` (`.mt1` = .15625rem). Each slot is a `bds-icon type="logo" size="large"`: 28×28, no gap between one and the next. The color is the logo's own; only `email`, which is Blip's own artwork in its primary color, is painted with our brand color.
  */
-.fx-canais-logos {
+.fx-channels-logos {
   display: flex;
   align-items: center;
   margin: 0.15625rem 5px 0 -0.25rem;
 }
 
-.fx-canal-logo {
+.fx-channel-logo {
   display: flex;
   width: 28px;
   height: 28px;
@@ -648,13 +648,13 @@ a.fx-botao:hover {
 /*
  * `__description-container { align-content: center; height: 100%; margin: 0 15px }` and `__description`: `fs-12` (150%) clipped to ONE line with an ellipsis.
  */
-.fx-faixa-descricao {
+.fx-strip-description {
   align-content: center;
   height: 100%;
   margin: 0 15px;
 }
 
-.fx-descricao {
+.fx-description {
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -724,7 +724,7 @@ a.fx-botao:hover {
  *
  *    `div.flex.flex-column.justify-between.w-100.h-100.__container { gap: 1rem; padding: 20px 15px 15px }` and `__inputs { display: flex; flex-wrap: wrap; gap: 1rem }`, each field at `flex: 1 1 10rem`.
  */
-.fx-preferencias {
+.fx-preferences {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -761,7 +761,7 @@ a.fx-botao:hover {
   line-height: 150%;
 }
 
-.fx-campo-valor {
+.fx-field-value {
   font-size: var(--p-t-md);
   line-height: 22px;
   overflow-wrap: anywhere;
@@ -783,7 +783,7 @@ a.fx-botao:hover {
  *
  *    `__container { display: flex; align-items: stretch; justify-content: space-between; padding: 1.5rem }`; each item `flex: 1; padding-right: 1rem; position: relative`, and from the second one on `border-left: 1px solid #8ca0b3; padding-left: 2rem`.
  */
-.fx-metricas {
+.fx-metrics {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
@@ -833,7 +833,7 @@ a.fx-botao:hover {
 }
 
 /* `fs-32` negrito: 2rem, `line-height: 100%`. */
-.fx-metrica-valor {
+.fx-metric-value {
   font-size: 2rem;
   font-weight: var(--g-peso-negrito);
   line-height: 100%;
@@ -866,7 +866,7 @@ a.fx-botao:hover {
 }
 
 @media screen and (max-width: 48em) {
-  .fx-metricas {
+  .fx-metrics {
     align-items: center;
     flex-direction: column;
     justify-content: center;
@@ -893,11 +893,11 @@ a.fx-botao:hover {
 
 /* `__container-bds-paper { min-height: 190px }`; `__container { display: flex;
    align-items: center; justify-content: space-between; padding: 20px 0 5px }`. */
-.fx-extensoes-papel {
+.fx-extensions-paper {
   min-height: 190px;
 }
 
-.fx-extensoes-cabeca {
+.fx-extensions-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -907,25 +907,25 @@ a.fx-botao:hover {
 /*
  * `__title-container { margin-left: 20px }` and `__title-box { display: inline-block; height: 10px }` — the 10px box with the 20px title inside.
  */
-.fx-extensoes-titulo {
+.fx-extensions-title {
   margin-left: 20px;
 }
 
-.fx-extensoes-titulo-caixa {
+.fx-extensions-title-box {
   display: inline-block;
   height: 10px;
 }
 
 /* `__button-container { height: 100%; margin-right: 15px }` e `__button
    { display: flex; justify-content: flex-end }`. */
-.fx-extensoes-botao {
+.fx-extensions-button {
   display: flex;
   justify-content: flex-end;
   height: 100%;
   margin-right: 15px;
 }
 
-.fx-extensoes-lista {
+.fx-extensions-list {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -965,7 +965,7 @@ a.fx-botao:hover {
 
 /* `__card-image-box`: borda de 1px `surface-3`, raio 8, `min-width: 4rem;
    max-height: 4rem; padding: .25rem`; a imagem 3.5rem, `contain`, raio 4. */
-.fx-extensao-imagem-caixa {
+.fx-extension-image-box {
   min-width: 4rem;
   max-height: 4rem;
   padding: 0.25rem;
@@ -973,7 +973,7 @@ a.fx-botao:hover {
   border-radius: var(--p-r-md);
 }
 
-.fx-extensao-imagem {
+.fx-extension-image {
   display: block;
   width: 3.5rem;
   height: 3.5rem;

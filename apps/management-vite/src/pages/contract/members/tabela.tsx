@@ -133,7 +133,7 @@ export function MembersTabela({
   }
 
   return (
-    <div className="mb-membros">
+    <div className="mb-members">
       {/*
  * `BlipSearch`: the magnifying glass is a button, and the field starts at zero width and grows to 200px on focus. Closes on blur.
  */}
@@ -187,15 +187,15 @@ export function MembersTabela({
                     nome="baixo"
                     tamanho={16}
                     className={`mb-seta${order?.campo === column.campo ? ' mb-seta--firme' : ''}${order?.campo === column.campo && order.sentido === 'asc'
-                                            ? ' mb-seta--sobe'
-                                            : ''}`}
+                                                                ? ' mb-seta--sobe'
+                                                                : ''}`}
                   />
                 </button>
               </th>
             ))}
 
             {podeEscrever ? (
-              <th className="mb-col-acoes">
+              <th className="mb-col-actions">
                 <div className={`mb-selecao${marcadosVisiveis.length > 0 ? '' : ' mb-oculto'}`}>
                   <p>{marcadosVisiveis.length} selecionado(s)</p>
 
@@ -238,7 +238,7 @@ export function MembersTabela({
                     {/*
  * The description of the chosen role, as in the source: it lives HERE, below the selector, not in a caption at the bottom.
  */}
-                    <p className="mb-descricao">{roleEscolhido?.description ?? ''}</p>
+                    <p className="mb-description">{roleEscolhido?.description ?? ''}</p>
                   </Menu>
 
                   <Menu
@@ -303,7 +303,7 @@ export function MembersTabela({
                   </td>
                 ))}
                 {podeEscrever ? (
-                  <td className="mb-col-acoes">
+                  <td className="mb-col-actions">
                     {/*
  * Only a pending invite can be resent: the user already joined, so there's nothing to resend for them. It's not bulk — each invite has its own email and its own new link.
  */}
@@ -356,7 +356,7 @@ function InvitationReenvio({
   return (
     <dialog open className="mb-modal" aria-label="Convite reenviado" onClose={fechar}>
       {resultado.ok && resultado.url ? (
-        <div className="mb-convite-feito">
+        <div className="mb-invitation-done">
           <h1>Convite reenviado</h1>
           <p>O link anterior parou de funcionar. Copie o novo para enviar de novo:</p>
           <ul className="mb-links">
@@ -372,9 +372,9 @@ function InvitationReenvio({
           </button>
         </div>
       ) : (
-        <div className="mb-convite-feito">
+        <div className="mb-invitation-done">
           <h1>Não foi possível reenviar</h1>
-          <ul className="mb-erros" role="alert">
+          <ul className="mb-errors" role="alert">
             <li>{resultado.error ?? 'Tente de novo.'}</li>
           </ul>
           <button type="button" className="mb-botao" onClick={fechar}>
@@ -487,7 +487,7 @@ function RoleEscolha({
             ref={lista}
             role="listbox"
             tabIndex={-1}
-            className="mb-escolha-opcoes"
+            className="mb-choice-options"
             aria-labelledby={`${id}-rotulo`}
             aria-activedescendant={`${id}-opcao-${active}`}
             onKeyDown={tecla}
@@ -560,7 +560,7 @@ function Menu({
       {aberto ? (
         <>
           <button type="button" className="mb-capa" aria-label="Fechar" onClick={alternar} />
-          <form className="mb-menu-cartao" action={acao} onSubmit={aoEnviar}>
+          <form className="mb-menu-card" action={acao} onSubmit={aoEnviar}>
             {alvos.map((alvo) => (
               <input key={alvo} type="hidden" name="alvo" value={alvo} />
             ))}
@@ -605,7 +605,7 @@ export function MembersAbas({
     <div>
       <ul className="mb-abas-nav" role="tablist">
         {abas.map((a) => (
-          <li key={a.id} role="presentation" className={aba === a.id ? 'mb-aba-ativa' : undefined}>
+          <li key={a.id} role="presentation" className={aba === a.id ? 'mb-tab-active' : undefined}>
             <button
               type="button"
               role="tab"
@@ -640,7 +640,7 @@ export function MembersAbas({
         {/*
  * `TenantPendingMembers`: the same table, without search, with Nome and Email; no row, not even the header checkbox appears.
  */}
-        <div className="mb-membros">
+        <div className="mb-members">
           <table className="mb-tabela">
             <thead>
               <tr>
@@ -652,7 +652,7 @@ export function MembersAbas({
                     </span>
                   </th>
                 ))}
-                {podeEscrever ? <th className="mb-col-acoes" /> : null}
+                {podeEscrever ? <th className="mb-col-actions" /> : null}
               </tr>
             </thead>
             <tbody>

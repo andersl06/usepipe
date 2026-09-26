@@ -104,7 +104,7 @@ export function PageLogin() {
   }
 
   return (
-    <main className="entrar">
+    <main className="login">
       {/* A entrada tem letra própria — é a única tela do produto que não usa a do aplicativo. */}
       <link
         rel="stylesheet"
@@ -112,29 +112,29 @@ export function PageLogin() {
       />
       <FundoPipe />
 
-      <div className="entrar-palco">
-        <section className="entrar-cartao" aria-labelledby="entrar-titulo">
-          <img className="entrar-lockup" src="/pipe/lockup.svg" alt="Pipe" />
-          <h1 id="entrar-titulo" className="entrar-titulo-oculto">
+      <div className="login-stage">
+        <section className="login-card" aria-labelledby="entrar-titulo">
+          <img className="login-lockup" src="/pipe/lockup.svg" alt="Pipe" />
+          <h1 id="entrar-titulo" className="login-title-hidden">
             Entrar no Pipe Desk
           </h1>
 
           {alerta ? (
-            <div className="entrar-alerta" role="alert">
+            <div className="login-alert" role="alert">
               <h2>{alerta.titulo}</h2>
               <p>{alerta.saida}</p>
             </div>
           ) : null}
 
           {/* Link, e não botão: entrar com o Google é navegação de topo para a `api`. */}
-          <a className="entrar-google" href={inboundWithGoogleUrl({ destination })}>
+          <a className="login-google" href={inboundWithGoogleUrl({ destination })}>
             <LogoGoogle />
             <span>Entrar com Google</span>
           </a>
 
-          <div className="entrar-ou">
+          <div className="login-or">
             <span />
-            <span className="entrar-ou-texto">ou</span>
+            <span className="login-or-text">ou</span>
             <span />
           </div>
 
@@ -165,11 +165,11 @@ export function PageLogin() {
               aria-describedby="entrar-ajuda"
             />
 
-            <div className="entrar-esqueci">
+            <div className="login-forgot">
               <a href="mailto:suporte@usepipe.com.br">Esqueci minha senha</a>
             </div>
 
-            <p id="entrar-ajuda" className="entrar-ajuda">
+            <p id="entrar-ajuda" className="login-help">
               Levamos você ao provedor de identidade da sua empresa, quando ela tiver um.
             </p>
             <button type="submit" disabled={enviando}>
@@ -177,7 +177,7 @@ export function PageLogin() {
             </button>
           </form>
 
-          <div className="entrar-pe">
+          <div className="login-foot">
             <span>Primeiro acesso?</span>
             <a href="mailto:suporte@usepipe.com.br">Falar com o suporte</a>
           </div>

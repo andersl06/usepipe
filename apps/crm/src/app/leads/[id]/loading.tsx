@@ -10,7 +10,7 @@ export default function CarregandoFicha() {
     <>
       <LoadingNotice>Carregando a ficha do lead.</LoadingNotice>
       <div className="ficha">
-        <div className="coluna">
+        <div className="column">
           <div className="tblwrap">
             <header>
               <b>Dados</b>
@@ -18,7 +18,7 @@ export default function CarregandoFicha() {
             <EsqueletoDeCampos linhas={9} />
           </div>
         </div>
-        <div className="coluna">
+        <div className="column">
           <div className="tblwrap">
             <header>
               <b>Score</b>

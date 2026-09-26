@@ -262,14 +262,14 @@ export function PageHistory() {
         <span className="lbl">Filtros rápidos:</span>
         <button
           type="button"
-          className={params.ticket ? 'pilula ativa' : 'pilula'}
+          className={params.ticket ? 'pilula active' : 'pilula'}
           onClick={() => setPanelAberto(true)}
         >
           <span className="pilula-rotulo">IDs dos tickets</span>
         </button>
         <button
           type="button"
-          className={params.agent ? 'pilula ativa' : 'pilula'}
+          className={params.agent ? 'pilula active' : 'pilula'}
           onClick={() => setPanelAberto(true)}
         >
           <span className="pilula-rotulo">Atendentes</span>
@@ -279,7 +279,7 @@ export function PageHistory() {
         </button>
         <button
           type="button"
-          className={params.etiqueta ? 'pilula ativa' : 'pilula'}
+          className={params.etiqueta ? 'pilula active' : 'pilula'}
           onClick={() => setPanelAberto(true)}
         >
           <span className="pilula-rotulo">Tags</span>
@@ -430,7 +430,7 @@ export function PageHistory() {
           </>
         )}
 
-        <a href="/termo-de-responsabilidade" className="termo-de-responsabilidade">
+        <a href="/termo-de-responsabilidade" className="term-of-responsibility">
           <IconeManagement nome="documento" tamanho={14} />
           Termo de responsabilidade
         </a>

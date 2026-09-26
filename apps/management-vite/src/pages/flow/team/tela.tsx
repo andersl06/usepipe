@@ -69,8 +69,8 @@ function PermissionControle({
     ROLES_OF_FLOW.findIndex((p) => p.role === role),
   );
   return (
-    <div className="cf-equipe-permissao">
-      <span className="cf-equipe-permissao-rotulo">Permissão</span>
+    <div className="cf-team-permission">
+      <span className="cf-team-permission-label">Permissão</span>
       <input
         type="range"
         className="cf-equipe-slider"
@@ -90,7 +90,7 @@ function PermissionControle({
             key={parada.role}
             className={
               parada.role === role
-                ? 'cf-equipe-slider-nivel cf-equipe-slider-nivel--ativa'
+                ? 'cf-equipe-slider-nivel cf-team-slider-level--active'
                 : 'cf-equipe-slider-nivel'
             }
           >
@@ -125,7 +125,7 @@ export function PermissionsLista({
         <span className="cf-equipe-granular-recurso">Funcionalidades</span>
         <div className="cf-equipe-granular-colunas">
           {COLUNAS_DE_NIVEL.map((column) => (
-            <span key={column.nivel} className="cf-equipe-granular-coluna">
+            <span key={column.nivel} className="cf-team-granular-column">
               {column.rotulo}
               <span className="cf-equipe-granular-dica" title={column.dica}>
                 <IconePortal nome="informacao-cheia" tamanho={16} />
@@ -143,7 +143,7 @@ export function PermissionsLista({
               <span className="cf-equipe-granular-recurso">{recurso.titulo}</span>
               <div className="cf-equipe-granular-colunas">
                 {COLUNAS_DE_NIVEL.map((column) => (
-                  <span key={column.nivel} className="cf-equipe-granular-coluna">
+                  <span key={column.nivel} className="cf-team-granular-column">
                     <input
                       type="radio"
                       className="cf-equipe-radio"
@@ -240,7 +240,7 @@ function ModalDeAdicionar({
 
   return (
     <div
-      className="cf-sobreposicao"
+      className="cf-overlay"
       role="presentation"
       onMouseDown={(evento) => evento.target === evento.currentTarget && aoFechar()}
     >
@@ -386,8 +386,8 @@ export function TelaDeEquipe({
       <PageHeader
         titulo={<h1>Equipe</h1>}
         actions={
-          <div className="cf-equipe-acoes">
-            <label className="cf-equipe-busca">
+          <div className="cf-team-actions">
+            <label className="cf-team-search">
               <IconePortal nome="avatar" tamanho={24} />
               <input
                 type="text"
@@ -430,28 +430,28 @@ export function TelaDeEquipe({
                 : undefined
             }
           >
-            <div className="cf-equipe-cartao">
+            <div className="cf-team-card">
               <div className="cf-equipe-linha">
-                <div className="cf-equipe-secao cf-equipe-w5 cf-equipe-avatar-secao">
+                <div className="cf-team-section cf-equipe-w5 cf-team-avatar-section">
                   <Avatar nome={member.nome} className="cf-equipe-avatar" />
                 </div>
-                <div className="cf-equipe-secao cf-equipe-secao--corta cf-equipe-w25">
+                <div className="cf-team-section cf-team-section--clip cf-equipe-w25">
                   <span className="cf-equipe-rotulo">Membro</span>
-                  <span className="cf-equipe-valor">{member.nome}</span>
+                  <span className="cf-team-value">{member.nome}</span>
                 </div>
                 <div className="cf-equipe-divisor" />
                 <div
-                  className={`cf-equipe-secao cf-equipe-secao--corta ${member.roleInFlow === 'admin' ? 'cf-equipe-w20' : 'cf-equipe-w40'}`}
+                  className={`cf-team-section cf-team-section--clip ${member.roleInFlow === 'admin' ? 'cf-equipe-w20' : 'cf-equipe-w40'}`}
                 >
                   <span className="cf-equipe-rotulo">E-mail</span>
-                  <span className="cf-equipe-valor" title={member.email}>
+                  <span className="cf-team-value" title={member.email}>
                     {member.email}
                   </span>
                 </div>
                 {member.roleInFlow === 'admin' ? (
                   <>
                     <div className="cf-equipe-divisor" />
-                    <div className="cf-equipe-secao cf-equipe-secao--selo">
+                    <div className="cf-team-section cf-team-section--badge">
                       <span className="cf-equipe-selo">Admin</span>
                     </div>
                   </>
@@ -492,7 +492,7 @@ export function TelaDeEquipe({
         ))}
 
         {filtrados.length === 0 ? (
-          <span className="cf-equipe-vazio">Nenhum membro encontrado =(</span>
+          <span className="cf-team-empty">Nenhum membro encontrado =(</span>
         ) : (
           <Pagination state={page} />
         )}
@@ -508,7 +508,7 @@ export function TelaDeEquipe({
 
       {excluindo ? (
         <div
-          className="cf-sobreposicao"
+          className="cf-overlay"
           role="presentation"
           onMouseDown={(evento) => evento.target === evento.currentTarget && setExcluindo(null)}
         >
@@ -525,7 +525,7 @@ export function TelaDeEquipe({
                 {aviso}
               </p>
             ) : null}
-            <footer className="cf-modal-acoes">
+            <footer className="cf-modal-actions">
               <BotaoBds variante="secondary" onClick={() => setExcluindo(null)}>
                 Não
               </BotaoBds>

@@ -191,7 +191,7 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="vazio">
+    <div className="empty">
       {illustration ? <Illustration nome={illustration} /> : null}
       <b>{titulo}</b>
       {children}

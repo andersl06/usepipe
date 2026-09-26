@@ -132,7 +132,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
           </div>
           <p>Monitore o envio de mensagens ativas dos canais para sua audiência.</p>
         </div>
-        <div className="gr-cabeca-acoes">
+        <div className="gr-header-actions">
           <button
             className="gr-botao gr-botao-terciario"
             type="button"
@@ -153,12 +153,12 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
       </header>
 
       <nav className="gr-abas" aria-label="Mensagens ativas">
-        <button type="button" className="ativa" aria-current="page">
+        <button type="button" className="active" aria-current="page">
           Disparo
         </button>
       </nav>
 
-      <section className="gr-filtros">
+      <section className="gr-filters">
         <header>
           <h2>Filtros</h2>
           <div>
@@ -183,7 +183,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
             </button>
           </div>
         </header>
-        <div className="gr-filtros-campos">
+        <div className="gr-filters-fields">
           <label>
             Canal
             <Selection value={channelFilter} onChange={(evento) => setChannelFilter(evento.target.value)} aria-label="Canal">
@@ -222,7 +222,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
 
       {create ? (
         <div
-          className="gr-sobreposicao"
+          className="gr-overlay"
           role="presentation"
           onMouseDown={(e) => e.target === e.currentTarget && setCreate(false)}
         >
@@ -359,7 +359,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
                     </label>
                   </fieldset>
                   {tipoAudiencia === 'massa' ? (
-                    <label className="gr-arquivo">
+                    <label className="gr-file">
                       Arraste e solte seus arquivos aqui ou clique para fazer upload do arquivo.
                       <input
                         type="file"
@@ -448,7 +448,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
                 </p>
               ) : null}
             </div>
-            <footer className="gr-modal-acoes">
+            <footer className="gr-modal-actions">
               {etapa > 1 && !resultadoEnvio ? (
                 <button
                   className="gr-botao"
@@ -495,7 +495,7 @@ function ListaDeEnvios({ envios }: { envios: EnvioGrowth[] }) {
   return (
     <section className="gr-lista">
       {envios.length ? (
-        <div className="gr-tabela-rolagem">
+        <div className="gr-table-scroll">
           <table>
             <thead>
               <tr>
@@ -524,7 +524,7 @@ function ListaDeEnvios({ envios }: { envios: EnvioGrowth[] }) {
           </table>
         </div>
       ) : (
-        <div className="gr-vazio">
+        <div className="gr-empty">
           <IconePortal nome="megafone" tamanho={40} />
           <h2>Crie campanhas e envie mensagens ativas para sua audiência</h2>
           <p>Você ainda não criou nenhuma campanha. Envie mensagens ativas e</p>

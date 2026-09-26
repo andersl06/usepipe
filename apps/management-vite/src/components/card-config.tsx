@@ -47,7 +47,7 @@ export function CardConfig({
 
   return (
     <form
-      className="cartao-config"
+      className="card-config"
       data-ligado={interruptor ? String(ligado) : undefined}
       onChange={() => setSujo(true)}
       onSubmit={envioQuePreserva(enviar)}
@@ -84,7 +84,7 @@ export function CardConfig({
         ) : null}
       </header>
 
-      <div className="cartao-config-corpo">{children}</div>
+      <div className="card-config-body">{children}</div>
 
       {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 

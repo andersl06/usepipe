@@ -140,7 +140,7 @@ export function AttendanceShell() {
   const caminho = useLocation().pathname;
   return (
     <ModuloShell ativo="Atendimento">
-      <div className="at-casca">
+      <div className="at-shell">
         <NavigationAttendance base={base} caminho={caminho} />
         <section className="at-miolo">
           <div className="p-conteudo">

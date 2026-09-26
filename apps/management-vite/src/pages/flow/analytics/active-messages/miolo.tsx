@@ -34,18 +34,18 @@ export function ActiveMessagesMiolo({
 
   return (
     <div className="ma-miolo">
-      <div className="ma-papel">
-        <div className="ma-fileira">
+      <div className="ma-paper">
+        <div className="ma-row">
           <Numeros t={t} />
           <Funil t={t} />
         </div>
       </div>
-      <div className="ma-fileira">
+      <div className="ma-row">
         <Conversions data={data} intervalo={intervalo} />
         <Taxas t={t} />
       </div>
-      <div className="ma-fileira ma-fileira-ultima">
-        <div className="ma-papel ma-flex1">
+      <div className="ma-row ma-row-last">
+        <div className="ma-paper ma-flex1">
           <Picos horas={data.respostasByHora} />
         </div>
         <Falhas falhas={data.falhas} />
@@ -92,16 +92,16 @@ function Numeros({ t }: { t: Totals }) {
     icone: NomeDeIconePortal,
     fundo: string,
   ) => (
-    <div className="ma-cartao">
-      <span className={`ma-cartao-icone ${fundo}`}>
+    <div className="ma-card">
+      <span className={`ma-card-icon ${fundo}`}>
         <IconePortal nome={icone} tamanho={32} />
       </span>
-      <div className="ma-cartao-textos">
+      <div className="ma-card-texts">
         <div className="ma-par">
-          <b className="ma-cartao-numero">{t[key]}</b>
+          <b className="ma-card-number">{t[key]}</b>
           <Dica texto={CONTAGENS[key][1]} />
         </div>
-        <span className="ma-cartao-titulo">{CONTAGENS[key][0]}</span>
+        <span className="ma-card-title">{CONTAGENS[key][0]}</span>
       </div>
     </div>
   );
@@ -121,12 +121,12 @@ function Numeros({ t }: { t: Totals }) {
             <b className="ma-enviadas-titulo">{CONTAGENS.enviadas[0]}</b>
           </div>
         </div>
-        <div className="ma-cartoes">
-          <div className="ma-cartoes-linha">
+        <div className="ma-cards">
+          <div className="ma-cards-line">
             {card('recebidas', 'cheque', 'ma-fundo-recebidas')}
             {card('lidas', 'duplo-cheque', 'ma-fundo-lidas')}
           </div>
-          <div className="ma-cartoes-linha">
+          <div className="ma-cards-line">
             {card('respondidas', 'responder', 'ma-fundo-respondidas')}
             {card('falhas', 'erro-contorno', 'ma-fundo-falharam')}
           </div>
@@ -155,7 +155,7 @@ function Funil({ t }: { t: Totals }) {
       <div className="ma-funil-caixa">
         <div className="ma-cabeca-grafico">
           <b className="ma-titulo-grafico">Funil de Conversão</b>
-          <span className="ma-descricao-grafico">
+          <span className="ma-description-chart">
             Avalie a eficácia no envio de mensagens e interações geradas pela audiência
           </span>
         </div>
@@ -185,9 +185,9 @@ function FunilLinha({
   return (
     <>
       <span className="ma-funil-rotulo">{rotulo}</span>
-      <span className="ma-funil-trilho">
+      <span className="ma-funnel-rail">
         <span className={`ma-funil-barra ${fundo}`} style={{ width: `${largura}%` }} />
-        <span className="ma-funil-valor" style={{ left: `${largura}%` }}>
+        <span className="ma-funnel-value" style={{ left: `${largura}%` }}>
           {children}
         </span>
       </span>
@@ -217,15 +217,15 @@ function Conversions({ data, intervalo }: { data: ActiveMessagesData; intervalo:
    * `bds-paper style={{ flex: 1 }}` › `bds-paper` › `bds-grid gap="2" padding="2"`: the paper-inside-paper is theirs, and the shadow doubles up. The title and description ask for `lineHeight="none"`, which doesn't take (see `.ma-taxa-titulo`).
    */
   return (
-    <div className="ma-papel ma-flex1">
-      <div className="ma-papel ma-conversoes">
+    <div className="ma-paper ma-flex1">
+      <div className="ma-paper ma-conversions">
         <div className="ma-cabeca-grafico">
           <b className="ma-t20 ma-negrito">Conversões</b>
           <span className="ma-t14">
             Todas as mensagens enviadas e respondidas pelos contatos ou que tiveram falhas no envio
           </span>
         </div>
-        <div className="ma-conversoes-grafico">
+        <div className="ma-conversions-chart">
           {intervalo.inicio === intervalo.fim ? (
             <BarrasDoDia dia={dias[0]} />
           ) : (
@@ -288,7 +288,7 @@ function Linhas({
           </span>
         ))}
       </div>
-      <div className="ma-plotagem">
+      <div className="ma-plotting">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           {tiques.map((v) => (
             <line
@@ -351,7 +351,7 @@ function Taxas({ t }: { t: Totals }) {
       <div className="ma-taxa-miolo">
         <div>
           <p className="ma-taxa-titulo">{titulo}</p>
-          <p className="ma-taxa-descricao">{description}</p>
+          <p className="ma-rate-description">{description}</p>
         </div>
         <b className="ma-t24">{value}</b>
       </div>
@@ -360,7 +360,7 @@ function Taxas({ t }: { t: Totals }) {
 
   return (
     <div className="ma-flex1 ma-taxas-fora">
-      <div className="ma-papel ma-taxas">
+      <div className="ma-paper ma-taxas">
         <div className="ma-taxas-caixa">
           {card(
             'mensagem-lida',
@@ -391,14 +391,14 @@ function Picos({ horas }: { horas: number[] }) {
     <div className="ma-picos">
       <div className="ma-picos-cabeca">
         <b className="ma-titulo-grafico">Picos de resposta</b>
-        <span className="ma-descricao-grafico">
+        <span className="ma-description-chart">
           Horários em que seus contatos mais respondem às mensagens
         </span>
       </div>
       <div className="ma-picos-grafico">
         <div className="ma-picos-area">
           {values.map((v, h) => (
-            <span key={h} className="ma-picos-coluna" title={`Respostas: ${v === 0.5 ? 0 : v}`}>
+            <span key={h} className="ma-peaks-column" title={`Respostas: ${v === 0.5 ? 0 : v}`}>
               <span style={{ height: `${(v / topo) * 100}%` }} />
             </span>
           ))}
@@ -417,12 +417,12 @@ function Picos({ horas }: { horas: number[] }) {
 
 function Falhas({ falhas }: { falhas: ActiveMessagesData['falhas'] }) {
   return (
-    <div className="ma-papel ma-falhas">
+    <div className="ma-paper ma-falhas">
       <div className="ma-falhas-caixa">
         <p className="ma-falhas-titulo">
           Falhas no envio
           <br />
-          <span className="ma-falhas-descricao">
+          <span className="ma-failures-description">
             Erros que impediram a entrega de mensagens aos contatos.{' '}
             <a
               href="https://developers.facebook.com/docs/whatsapp/cloud-api/support/error-codes/?translation"
@@ -433,7 +433,7 @@ function Falhas({ falhas }: { falhas: ActiveMessagesData['falhas'] }) {
             </a>
           </span>
         </p>
-        <div className="ma-falhas-rolagem">
+        <div className="ma-failures-scroll">
           <table className="ma-tabela">
             <thead>
               <tr>

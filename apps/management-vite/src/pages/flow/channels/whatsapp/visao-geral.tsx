@@ -39,7 +39,7 @@ function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
 
   if (saude && saude.state === 'indisponivel') {
     return (
-      <div className="cb-vazio">
+      <div className="cb-empty">
         <EmptyState titulo="Ainda não é possível usar este número" illustration="erro">
           <p className="sub">{rotuloDoMotivo(saude.motivo)}</p>
         </EmptyState>
@@ -64,7 +64,7 @@ function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
   }
 
   return (
-    <div className="cb-coluna">
+    <div className="cb-column">
       <h2 className="cb-titulo-20">Seu chatbot está conectado ao número:</h2>
       <span className="cb-chip">
         <span className="cb-chip-avatar" aria-hidden="true">
@@ -81,7 +81,7 @@ function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
         proativamente, sem precisar que ele te chame no WhatsApp primeiro. Conheça nossas{' '}
         <strong>boas práticas</strong>!
       </p>
-      <div className="cb-acoes-entre">
+      <div className="cb-actions-between">
         <Botao
           type="button"
           variante="primario"
@@ -119,10 +119,10 @@ function NaoConectado({ flowId, situation, disponiveis }: ContextWithoutChannel)
   if (situation.state === 'outro_canal') {
     return (
       <div className="cb-linha">
-        <div className="cb-icone-coluna">
+        <div className="cb-icon-column">
           <LogoPortal nome="whatsapp" tamanho={64} />
         </div>
-        <div className="cb-coluna">
+        <div className="cb-column">
           <OtherChannelNotice channel={situation.channel} rotulo="WhatsApp" />
         </div>
       </div>
@@ -132,16 +132,16 @@ function NaoConectado({ flowId, situation, disponiveis }: ContextWithoutChannel)
   if (passo === 'inicio') {
     return (
       <div className="cb-linha">
-        <div className="cb-icone-coluna">
+        <div className="cb-icon-column">
           <LogoPortal nome="whatsapp" tamanho={64} />
         </div>
-        <div className="cb-coluna">
+        <div className="cb-column">
           <p className="cb-typo-16">
             Quer estar presente no canal mais utilizado no mundo? Chegou a hora de conectar seu
             contato inteligente ao WhatsApp e ganhar proximidade real com clientes! Para começar,
             vamos ativar o número escolhido e depois verificar a autenticidade de sua empresa.
           </p>
-          <div className="cb-acoes-direita">
+          <div className="cb-actions-right">
             <Botao type="button" variante="primario" onClick={() => setPasso('conexao')}>
               Vamos lá!
               <IconePortal nome="direita" tamanho={16} />
@@ -176,7 +176,7 @@ function NaoConectado({ flowId, situation, disponiveis }: ContextWithoutChannel)
           Ao finalizar este processo, é só voltar para esta janela que continuaremos a conexão por
           aqui. 😊
         </p>
-        <div className="cb-acoes-entre" style={{ width: '100%' }}>
+        <div className="cb-actions-between" style={{ width: '100%' }}>
           <Botao type="button" onClick={() => setPasso('inicio')}>
             <IconePortal nome="esquerda" tamanho={16} />
             Voltar
@@ -191,7 +191,7 @@ function NaoConectado({ flowId, situation, disponiveis }: ContextWithoutChannel)
         {/*
  * Pipe additions: without an app approved on Meta, the path is the manual one; and a number the account already has can be chosen instead of registered again.
  */}
-        <div className="cb-acoes-entre" style={{ width: '100%' }}>
+        <div className="cb-actions-between" style={{ width: '100%' }}>
           <ConectarWhatsappManual flowId={flowId} rotulo="Conectar manualmente" />
           {temNumeroLivre ? (
             <Botao type="button" onClick={() => setPasso('escolher')}>

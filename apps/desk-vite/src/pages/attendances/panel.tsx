@@ -26,20 +26,20 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
 
   if (!aberta) {
     return (
-      <div className="dk-painel">
-        <div className="dk-painel-esqueleto" aria-hidden="true">
+      <div className="dk-panel">
+        <div className="dk-panel-skeleton" aria-hidden="true">
           <div className="dk-esqueleto-barra" style={{ width: '45%' }} />
           <div style={{ display: 'flex', gap: 24, margin: '24px 0 16px' }}>
             <div className="dk-esqueleto-barra" style={{ width: 60, margin: 0 }} />
             <div className="dk-esqueleto-barra" style={{ width: 60, margin: 0 }} />
           </div>
-          <div className="dk-esqueleto-papel">
+          <div className="dk-skeleton-paper">
             <div className="dk-esqueleto-barra" style={{ width: '35%' }} />
             <div className="dk-esqueleto-barra" style={{ width: '20%' }} />
             <div className="dk-esqueleto-barra" style={{ width: '20%' }} />
             <div className="dk-esqueleto-barra" style={{ width: '20%' }} />
           </div>
-          <div className="dk-esqueleto-papel" style={{ minHeight: 140 }}>
+          <div className="dk-skeleton-paper" style={{ minHeight: 140 }}>
             <div className="dk-esqueleto-barra" style={{ width: '25%', marginLeft: 'auto' }} />
             <div className="dk-esqueleto-barra" style={{ width: '90%', marginTop: 48 }} />
           </div>
@@ -57,8 +57,8 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
   ];
 
   return (
-    <div className="dk-painel">
-      <div className="dk-painel-topo">
+    <div className="dk-panel">
+      <div className="dk-panel-top">
         <h2 id="customer-name-drawer">Dados do Contato</h2>
       </div>
       <div className="dk-abas" id="drawer-tabs">
@@ -78,8 +78,8 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
           ))}
         </div>
         {aba === 'informacoes' ? (
-          <div className="dk-painel-corpo" role="tabpanel">
-            <section className="dk-papel">
+          <div className="dk-panel-body" role="tabpanel">
+            <section className="dk-paper">
               {editandoContact ? (
                 <ContactEdit
                   conversation={conversation}
@@ -91,7 +91,7 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
                 />
               ) : (
                 <>
-                  <h3 className="dk-papel-titulo">
+                  <h3 className="dk-paper-title">
                     Informações
                     <button
                       type="button"
@@ -114,7 +114,7 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
               )}
               {!editandoContact && Object.keys(conversation.contactAtributos).length > 0 ? (
                 <>
-                  <h3 className="dk-papel-titulo">Extras</h3>
+                  <h3 className="dk-paper-title">Extras</h3>
                   {Object.entries(conversation.contactAtributos).map(([key, value]) => (
                     <Campo
                       key={key}
@@ -127,20 +127,20 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
               <Campo rotulo="Canal:" value={channelOf(conversation.channelType).nome} />
               <Campo rotulo="fila:" value={conversation.queueName} />
             </section>
-            <section className="dk-papel">
+            <section className="dk-paper">
               <ContactTags contactId={conversation.contactId} aplicadas={contactTags} />
             </section>
-            <section className="dk-papel">
+            <section className="dk-paper">
               <Comentarios conversationId={conversation.id} notas={notas} agora={agora} />
             </section>
           </div>
         ) : null}
         {aba === 'historico' ? (
-          <div className="dk-painel-corpo" role="tabpanel">
-            <section className="dk-papel">
-              <h3 className="dk-papel-titulo">Histórico</h3>
+          <div className="dk-panel-body" role="tabpanel">
+            <section className="dk-paper">
+              <h3 className="dk-paper-title">Histórico</h3>
               {history.length === 0 ? (
-                <div className="dk-comentarios-vazio" style={{ minHeight: 120 }}>
+                <div className="dk-comments-empty" style={{ minHeight: 120 }}>
                   Não há mensagens nos últimos 90 dias.
                 </div>
               ) : (
@@ -149,7 +149,7 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
                     key={h.id}
                     type="button"
                     onClick={() => openContact(conversation.contactId, h.id)}
-                    className="dk-historico-item dk-historico-botao"
+                    className="dk-history-item dk-history-button"
                   >
                     <b>Ticket {numeroDoTicket(h.id)}</b>
                     <span>{h.filaNome ?? 'Transferência direta'}</span>
@@ -163,8 +163,8 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
           </div>
         ) : null}
         {aba === 'comentarios' ? (
-          <div className="dk-painel-corpo" role="tabpanel">
-            <section className="dk-papel" style={{ flexBasis: '100%' }}>
+          <div className="dk-panel-body" role="tabpanel">
+            <section className="dk-paper" style={{ flexBasis: '100%' }}>
               <Comentarios conversationId={conversation.id} notas={notas} agora={agora} />
             </section>
           </div>
@@ -247,7 +247,7 @@ function ContactEdit({
 
   return (
     <form onSubmit={(e) => void salvar(e)}>
-      <h3 className="dk-papel-titulo">Editar contato</h3>
+      <h3 className="dk-paper-title">Editar contato</h3>
       <label className="dk-campo-flutuante">
         <span>Nome</span>
         <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} />
@@ -264,8 +264,8 @@ function ContactEdit({
         <span>Documento</span>
         <input type="text" value={document} onChange={(e) => setDocument(e.target.value)} />
       </label>
-      {error ? <p className="dk-erro">{error}</p> : null}
-      <div className="dk-modal-acoes">
+      {error ? <p className="dk-error">{error}</p> : null}
+      <div className="dk-modal-actions">
         <button
           type="button"
           className="dk-botao dk-botao-secundario dk-botao-curto"
@@ -328,8 +328,8 @@ function ContactTags({
 
   return (
     <>
-      <h3 className="dk-papel-titulo">Etiquetas do contato</h3>
-      <div className="dk-etiquetas-do-contato" id="contact-tags">
+      <h3 className="dk-paper-title">Etiquetas do contato</h3>
+      <div className="dk-contact-tags" id="contact-tags">
         {aplicadas.length === 0 ? (
           <span style={{ color: 'var(--p-conteudo-desabilitado)', fontSize: 14 }}>
             Nenhuma etiqueta neste contato.
@@ -369,7 +369,7 @@ function ContactTags({
           ))}
         </select>
       </label>
-      {error ? <p className="dk-erro">{error}</p> : null}
+      {error ? <p className="dk-error">{error}</p> : null}
     </>
   );
 }
@@ -401,10 +401,10 @@ function Comentarios({
 
   return (
     <div className="dk-comentarios">
-      <h3 className="dk-papel-titulo">Comentários</h3>
+      <h3 className="dk-paper-title">Comentários</h3>
       <div className="dk-comentarios-lista">
         {notas.length === 0 ? (
-          <div className="dk-comentarios-vazio">
+          <div className="dk-comments-empty">
             <IconeDesk nome="comentario" />
             <span>Não há comentários sobre este usuário</span>
           </div>
@@ -435,7 +435,7 @@ function Comentarios({
             }}
           />
         </label>
-        {error ? <p className="dk-erro">{error}</p> : null}
+        {error ? <p className="dk-error">{error}</p> : null}
       </form>
     </div>
   );

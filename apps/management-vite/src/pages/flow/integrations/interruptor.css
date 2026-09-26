@@ -21,7 +21,7 @@
   cursor: inherit;
 }
 
-.ig-interruptor-trilho {
+.ig-switch-rail {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -30,7 +30,7 @@
   transition: background-color 0.2s;
 }
 
-.ig-interruptor-trilho::before {
+.ig-switch-rail::before {
   content: '';
   position: absolute;
   left: 3px;
@@ -42,15 +42,15 @@
   transition: transform 0.2s;
 }
 
-.ig-interruptor input:checked + .ig-interruptor-trilho {
+.ig-interruptor input:checked + .ig-switch-rail {
   background: var(--p-marca-forte);
 }
 
-.ig-interruptor input:checked + .ig-interruptor-trilho::before {
+.ig-interruptor input:checked + .ig-switch-rail::before {
   transform: translateX(18px);
 }
 
-.ig-interruptor input:focus-visible + .ig-interruptor-trilho {
+.ig-interruptor input:focus-visible + .ig-switch-rail {
   outline: 2px solid var(--p-foco);
   outline-offset: 2px;
 }
@@ -66,11 +66,11 @@
   margin: 0;
 }
 
-.ig-interruptor--curto .ig-interruptor-trilho::before {
+.ig-interruptor--curto .ig-switch-rail::before {
   width: 12px;
   height: 12px;
 }
 
-.ig-interruptor--curto input:checked + .ig-interruptor-trilho::before {
+.ig-interruptor--curto input:checked + .ig-switch-rail::before {
   transform: translateX(14px);
 }

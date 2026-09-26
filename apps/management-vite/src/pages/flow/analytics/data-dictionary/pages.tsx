@@ -25,7 +25,7 @@ function TituloMarca({ children, fs20 }: { children: ReactNode; fs20?: boolean }
 
 /** `UN`: 20 embaixo. */
 function Block({ children }: { children: ReactNode }) {
-  return <div className="dd-bloco">{children}</div>;
+  return <div className="dd-block">{children}</div>;
 }
 
 /** `VN`: block `bds-typo`, 5 margin-bottom. Without `variant`, the origin falls back to fs-16. */
@@ -153,7 +153,7 @@ function PrintTracking() {
     <span className="dd-print dd-print--tracking" aria-hidden="true">
       <IconePortal nome="direita" tamanho={8} />
       <span>Tracking automático</span>
-      <span className="dd-print-chave" />
+      <span className="dd-print-key" />
     </span>
   );
 }
@@ -383,7 +383,7 @@ function ComparisonIndicador() {
           <span className="dd-rotulo">
             <span className="dd-p14 dd-forte">Indicador de Comparação</span>
           </span>
-          <span className="dd-descricao">
+          <span className="dd-description">
             ao longo de toda a tela de dashboard, haverão os indicadores de comparação. Eles
             indicarão se o dado, métrica e informação analisada cresceram ou diminuíram em relação
             ao exato período anterior. Para períodos acima de 46 dias selecionados no filtro de data
@@ -393,11 +393,11 @@ function ComparisonIndicador() {
         </Linha>
         <Linha>
           {/* `DN`: the same indicator box, empty, to align the example. */}
-          <span className="dd-indicador dd-indicador--vazio" />
+          <span className="dd-indicador dd-indicator--empty" />
           <span className="dd-rotulo">
             <span className="dd-p14 dd-forte">Exemplo:</span>
           </span>
-          <span className="dd-descricao">
+          <span className="dd-description">
             ao escolher o período fixo de “Últimos 15 dias” (exemplo: 30 a 16 de junho), toda a
             página terá indicadores de comparação que compararão os dados com a exata quantidade de
             dias de um período anterior (de 15 a 1 de junho).
@@ -483,7 +483,7 @@ function Recorrencia() {
       <Linha>
         {/* `MU`: label between 83 and 100 width. */}
         <span className="dd-exemplo-rotulo">{rotulo}</span>
-        <span className="dd-descricao">
+        <span className="dd-description">
           <Texto>
             {texto}
             <ListaSimples itens={itens} />
@@ -700,7 +700,7 @@ function FlowConversacional() {
         </Texto>
         <Linha>
           {/* `mU`: o `warning` x-small em vermelho. */}
-          <span className="dd-atencao">
+          <span className="dd-attention">
             <IconePortal nome="alerta" tamanho={16} />
           </span>
           <Destaque>{'Atenção: '}</Destaque>o filtro de data fixo ou personalizado não se aplica a
@@ -760,7 +760,7 @@ function ListaDeBlocos() {
     <>
       <Atualizado data="Atualizado em 06/03/2023" />
       <Titulo>Lista de blocos</Titulo>
-      <div className="dd-secoes">
+      <div className="dd-sections">
         <div>
           <p className="dd-p14">
             As listas de blocos com mais exceção e com mais transbordo fornecem dados valiosos para
@@ -788,8 +788,8 @@ function ListaDeBlocos() {
             possuem mais eventos de transbordo e de exceção.
           </p>
         </div>
-        <p className="dd-atencao-texto">
-          <IconePortal nome="alerta" tamanho={16} className="dd-cor-erro" />{' '}
+        <p className="dd-attention-text">
+          <IconePortal nome="alerta" tamanho={16} className="dd-color-error" />{' '}
           <span className="dd-p14">
             <b>Atenção:</b> o filtro de data fixo ou personalizado não se aplica a esta seção. Os
             dados da seção da canais dizem respeito aos últimos 7 dias (D-7 a D-1), não incluindo o
@@ -816,7 +816,7 @@ function ListaDeBlocos() {
           <p className="dd-p14 dd-forte">Blocos com nomes idênticos:</p>
           <ul className="dd-lista-crua">
             <li>
-              <span className="dd-p14 dd-bloco-li">
+              <span className="dd-p14 dd-block-li">
                 <b>Chatbot:</b> se estiverem dentro do fluxo conversacional de um mesmo chatbot,
                 eles serão listados em posições diferentes na lista de blocos com mais transbordo e
                 mais exceções. Assim, eles aparecerão como blocos distintos, e seus eventos serão
@@ -826,7 +826,7 @@ function ListaDeBlocos() {
               </span>
             </li>
             <li>
-              <span className="dd-p14 dd-bloco-li">
+              <span className="dd-p14 dd-block-li">
                 <b>Roteador:</b> os chatbots conectados ao mesmo roteador que possuem blocos com
                 nomes idênticos serão listados em posições diferentes na lista de blocos com mais
                 transbordo e mais exceções. Assim, eles aparecerão como blocos distintos, e seus
@@ -906,7 +906,7 @@ function ListaDeBlocos() {
               'Clique em Análise, no menu superior do chatbot. ',
             ].map((t) => (
               <li key={t}>
-                <span className="dd-p14 dd-bloco-li">{t}</span>
+                <span className="dd-p14 dd-block-li">{t}</span>
               </li>
             ))}
           </ol>
@@ -922,7 +922,7 @@ function ListaDeBlocos() {
               'Clique em “Adicionar”.',
             ].map((t) => (
               <li key={t}>
-                <span className="dd-p14 dd-bloco-li">{t}</span>
+                <span className="dd-p14 dd-block-li">{t}</span>
               </li>
             ))}
           </ol>

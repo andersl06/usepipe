@@ -39,7 +39,7 @@
   font-weight: var(--g-peso-negrito);
 }
 
-.cn-cartao {
+.cn-card {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -55,19 +55,19 @@
     transform 0.3s ease-out;
 }
 
-.cn-cartao:hover {
+.cn-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--g-sombra-cartao);
+  box-shadow: var(--g-shadow-card);
 }
 
 /* `card--with-hover` with `ng-click`: the whole card is the link. */
-.cn-cartao--link {
+.cn-card--link {
   color: inherit;
   text-decoration: none;
   cursor: pointer;
 }
 
-.cn-cartao--link:focus-visible {
+.cn-card--link:focus-visible {
   outline: 2px solid var(--p-marca-forte);
   outline-offset: 2px;
 }
@@ -76,7 +76,7 @@
   animation: cn-novo 0.8s linear infinite;
 }
 
-.cn-cartao-conteudo {
+.cn-card-content {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -96,7 +96,7 @@
   fill: var(--p-conteudo);
 }
 
-.cn-cartao h2 {
+.cn-card h2 {
   margin: 0;
   color: var(--p-conteudo-desabilitado);
   font-size: var(--p-t-lg);
@@ -131,7 +131,7 @@
 }
 
 @media (min-width: 550px) {
-  .cn-coluna {
+  .cn-column {
     width: 90%;
     padding-left: 0;
     padding-right: 0;
@@ -139,7 +139,7 @@
 }
 
 @media (min-width: 750px) {
-  .cn-coluna {
+  .cn-column {
     width: 80%;
   }
 }
@@ -154,7 +154,7 @@
   .cn-item:hover .cn-novo {
     animation: none;
   }
-  .cn-cartao {
+  .cn-card {
     transition: none;
   }
 }

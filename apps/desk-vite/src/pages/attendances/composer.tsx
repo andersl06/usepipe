@@ -170,13 +170,13 @@ export function Composer({
   }
 
   return (
-    <div className="dk-compositor">
-      <div className="dk-compositor-papel">
+    <div className="dk-composer">
+      <div className="dk-composer-paper">
         {panelRespostas ? (
           <RespostasPanel respostas={respostas} termo={texto} aoEscolher={usarResposta} />
         ) : null}
-        <div className="dk-compositor-miolo">
-          <div className="dk-compositor-campo">
+        <div className="dk-composer-core">
+          <div className="dk-composer-field">
             <textarea
               ref={campo}
               id="text-input"
@@ -191,8 +191,8 @@ export function Composer({
               disabled={enviando}
             />
           </div>
-          <div className="dk-compositor-acoes">
-            <div className="dk-compositor-esquerda">
+          <div className="dk-composer-actions">
+            <div className="dk-composer-left">
               <button
                 type="button"
                 className="dk-botao-icone"
@@ -261,7 +261,7 @@ export function Composer({
           </div>
         </div>
       </div>
-      {error ? <p className="dk-erro">{error}</p> : null}
+      {error ? <p className="dk-error">{error}</p> : null}
     </div>
   );
 }
@@ -279,8 +279,8 @@ function Fechado({
   aoClicar?: () => void | Promise<void>;
 }) {
   return (
-    <div className="dk-compositor">
-      <div className="dk-compositor-fechado">
+    <div className="dk-composer">
+      <div className="dk-composer-closed">
         <div>
           <b>{titulo}</b>
           {description ? <div>{description}</div> : null}
@@ -335,7 +335,7 @@ function RespostasPanel({
   if (lista.length === 0) {
     return (
       <div className="dk-respostas" tabIndex={0}>
-        <div className="dk-respostas-vazio">
+        <div className="dk-replies-empty">
           Não há título de resposta pronta que contenha este texto.
         </div>
       </div>
@@ -449,8 +449,8 @@ function TemplateModal({
             <p style={{ whiteSpace: 'pre-line' }}>{template?.corpo}</p>
           </>
         )}
-        {error ? <p className="dk-erro">{error}</p> : null}
-        <div className="dk-modal-acoes">
+        {error ? <p className="dk-error">{error}</p> : null}
+        <div className="dk-modal-actions">
           <button type="button" className="dk-botao dk-botao-secundario" onClick={aoFechar}>
             Cancelar
           </button>

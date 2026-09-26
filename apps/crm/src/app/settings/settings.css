@@ -120,25 +120,25 @@
 
 /* ================================================================== bloco */
 
-.cfg-bloco {
+.cfg-block {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-3);
 }
 
-.cfg-bloco > header {
+.cfg-block > header {
   display: flex;
   align-items: baseline;
   gap: var(--p-e-2);
 }
 
-.cfg-bloco > header h3 {
+.cfg-block > header h3 {
   margin: 0;
   font-size: var(--p-t-lg);
   font-weight: var(--p-peso-forte);
 }
 
-.cfg-bloco > .sub {
+.cfg-block > .sub {
   margin: calc(-1 * var(--p-e-2)) 0 0;
   max-width: 72ch;
 }
@@ -217,10 +217,10 @@
   border-radius: var(--p-r-sm);
 }
 
-.cfg-aviso.erro {
-  background: var(--p-erro-fundo);
-  color: var(--p-erro-conteudo);
-  border: 1px solid var(--p-erro-linha);
+.cfg-aviso.error {
+  background: var(--p-error-background);
+  color: var(--p-error-content);
+  border: 1px solid var(--p-error-line);
 }
 
 .cfg-aviso.ok {
@@ -232,7 +232,7 @@
 /*
  * The secret that appears once. Alert background because that's the situation: leaving the screen without copying costs having to issue another key.
  */
-.cfg-segredo {
+.cfg-secret {
   display: flex;
   align-items: flex-end;
   gap: var(--p-e-2);
@@ -244,7 +244,7 @@
   color: var(--p-alerta-conteudo);
 }
 
-.cfg-segredo label {
+.cfg-secret label {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-1);
@@ -278,7 +278,7 @@
 /* ================================================================== tema */
 
 .cfg-temas,
-.cfg-permissoes {
+.cfg-permissions {
   margin: 0;
   padding: var(--p-e-3) var(--p-e-4);
   border: 1px solid var(--p-linha);
@@ -290,7 +290,7 @@
  * `legend` inside `fieldset` with `display:flex` or `grid` becomes an item of that context and sits next to the first control. The two declarations below return it to its own line, without taking it out of the `fieldset` — which is what gives the whole group its accessible name.
  */
 .cfg-temas > legend,
-.cfg-permissoes > legend {
+.cfg-permissions > legend {
   padding: 0 var(--p-e-1) var(--p-e-2);
   flex: 1 1 100%;
   grid-column: 1 / -1;
@@ -347,13 +347,13 @@
 
 /* =========================================================== permissions */
 
-.cfg-permissoes {
+.cfg-permissions {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--p-e-2) var(--p-e-4);
 }
 
-.cfg-permissoes label {
+.cfg-permissions label {
   display: flex;
   align-items: flex-start;
   gap: var(--p-e-2);
@@ -362,11 +362,11 @@
   cursor: pointer;
 }
 
-.cfg-permissoes label:hover {
+.cfg-permissions label:hover {
   background: var(--p-superficie-1);
 }
 
-.cfg-permissoes input {
+.cfg-permissions input {
   width: var(--c-caixa);
   height: var(--c-caixa);
   margin: 2px 0 0;
@@ -374,11 +374,11 @@
   flex: none;
 }
 
-.cfg-permissoes input:disabled + span {
+.cfg-permissions input:disabled + span {
   color: var(--p-conteudo-fantasma);
 }
 
-.cfg-permissoes label > span {
+.cfg-permissions label > span {
   display: flex;
   flex-direction: column;
   font-size: var(--p-t-sm);

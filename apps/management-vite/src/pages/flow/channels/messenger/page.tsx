@@ -34,10 +34,10 @@ export function PageChannelMessenger() {
         <Conectado flowId={contact.id} channel={situation.channel} />
       ) : situation.state === 'outro_canal' ? (
         <div className="cb-linha">
-          <div className="cb-icone-coluna">
+          <div className="cb-icon-column">
             <ChannelLogo nome="messenger" />
           </div>
-          <div className="cb-coluna">
+          <div className="cb-column">
             <OtherChannelNotice channel={situation.channel} rotulo="Messenger" />
           </div>
         </div>
@@ -52,10 +52,10 @@ function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow
   const [desconectando, setDesconectando] = useState(false);
   return (
     <div className="cb-linha">
-      <div className="cb-icone-coluna">
+      <div className="cb-icon-column">
         <ChannelLogo nome="messenger" />
       </div>
-      <div className="cb-coluna">
+      <div className="cb-column">
         <p className="cb-typo-16">
           <strong>Seu chatbot está conectado à Página:</strong>
         </p>
@@ -66,7 +66,7 @@ function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow
           {channel.nome}
           {channel.numero ? ` (${channel.numero})` : ''}
         </span>
-        <div className="cb-acoes-direita">
+        <div className="cb-actions-right">
           <Botao type="button" variante="perigo" onClick={() => setDesconectando(true)}>
             Desconectar canal
           </Botao>
@@ -101,10 +101,10 @@ function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: Ch
 
   return (
     <div className="cb-linha">
-      <div className="cb-icone-coluna">
+      <div className="cb-icon-column">
         <ChannelLogo nome="messenger" />
       </div>
-      <div className="cb-coluna">
+      <div className="cb-column">
         <p className="cb-typo-16">
           Seu chatbot será acessado através de uma página no Facebook. Por isso, é importante que
           você{' '}
@@ -114,7 +114,7 @@ function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: Ch
           para a sua empresa no Facebook. Caso sua empresa já tenha uma página, você poderá
           utilizá-la.
         </p>
-        <div className="cb-acoes-direita">
+        <div className="cb-actions-right">
           <ConectarMessengerManual flowId={flowId} rotulo="Conectar-se ao Messenger" variante="primario" />
           {temPageLivre ? (
             <Botao type="button" onClick={() => setEscolhendo(true)}>

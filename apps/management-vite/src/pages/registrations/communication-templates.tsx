@@ -157,7 +157,7 @@ export function PageTemplates() {
       {/*
  * §2.2/§2.3: inside the content panel, the title repeats and the "Filtrar por:" line comes BEFORE the search. "Fluxo de retorno" (§3) is left out — the source captured that filter with `options="[]"` (even they had nothing there), and Pipe has no such concept. "Status" also isn't the same field (theirs is a local enabled/disabled toggle; ours is the Meta approval status), but it occupies the same position with the real data the screen already shows on each card.
  */}
-      <div className="painel-modelos">
+      <div className="panel-templates">
         <h3>Modelos de mensagens</h3>
 
         {/*

@@ -8,7 +8,7 @@
 
 .gr-cabecalho,
 .gr-formulario,
-.gr-relatorios,
+.gr-reports,
 .gr-termo-acao {
   width: calc(95% - 16px);
   margin-left: 60px;
@@ -31,7 +31,7 @@
   line-height: 1.2;
 }
 
-.gr-papel > p {
+.gr-paper > p {
   margin: 6px 0 0;
   font-size: 16px;
   line-height: 1.5;
@@ -41,12 +41,12 @@
   margin-top: 16px;
 }
 
-.gr-cartoes {
+.gr-cards {
   display: flex;
   gap: 8px;
 }
 
-.gr-papel {
+.gr-paper {
   box-sizing: border-box;
   padding: 35px;
   border-radius: 8px;
@@ -60,15 +60,15 @@
   min-height: 390px;
 }
 
-.gr-papel h2,
-.gr-papel h3 {
+.gr-paper h2,
+.gr-paper h3 {
   margin: 0;
   font-size: 24px;
   line-height: 1.25;
   font-weight: 700;
 }
 
-.gr-papel h3 {
+.gr-paper h3 {
   font-size: 20px;
 }
 
@@ -228,24 +228,24 @@
   color: var(--p-marca);
 }
 
-.gr-opcoes {
+.gr-options {
   display: flex;
   flex-direction: column;
   gap: 13px;
   margin-top: 16px;
 }
 
-.gr-contato {
+.gr-contact {
   margin-top: 16px;
 }
 
-.gr-contato-rotulo {
+.gr-contact-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.gr-contato-rotulo button {
+.gr-contact-label button {
   border: 0;
   background: transparent;
   color: var(--p-marca);
@@ -254,7 +254,7 @@
   cursor: pointer;
 }
 
-.gr-contato > input {
+.gr-contact > input {
   box-sizing: border-box;
   height: 40px;
   padding: 0 12px;
@@ -266,7 +266,7 @@
   font-weight: 400;
 }
 
-.gr-opcao {
+.gr-option {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -275,7 +275,7 @@
   cursor: pointer;
 }
 
-.gr-opcao input {
+.gr-option input {
   width: 18px;
   height: 18px;
   margin: 0;
@@ -289,13 +289,13 @@
   margin-top: 16px;
 }
 
-.gr-erro {
+.gr-error {
   margin: 8px 0 0;
   color: #c53030;
   font-size: 12px;
 }
 
-.gr-relatorios {
+.gr-reports {
   margin-top: 16px;
 }
 
@@ -328,7 +328,7 @@
   font-weight: 600;
 }
 
-.gr-vazio {
+.gr-empty {
   padding: 32px !important;
   text-align: center;
 }
@@ -439,7 +439,7 @@
   cursor: pointer;
 }
 
-.gr-modal-ilustracao {
+.gr-modal-illustration {
   align-self: center;
   display: grid;
   width: 125px;
@@ -492,13 +492,13 @@
 @media (max-width: 900px) {
   .gr-cabecalho,
   .gr-formulario,
-  .gr-relatorios,
+  .gr-reports,
   .gr-termo-acao {
     width: calc(100% - 32px);
     margin-left: 16px;
   }
 
-  .gr-cartoes {
+  .gr-cards {
     flex-direction: column;
   }
 

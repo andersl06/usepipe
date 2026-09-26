@@ -92,9 +92,9 @@
    *      they become two different colors in two different files.
    *      Reserved for what demands ACTION. Occupancy target: ~1% of the screen.
    */
-  --p-erro-fundo: #f8e4df;
-  --p-erro-linha: rgba(156, 47, 29, 0.32);
-  --p-erro-conteudo: #9c2f1d;
+  --p-error-background: #f8e4df;
+  --p-error-line: rgba(156, 47, 29, 0.32);
+  --p-error-content: #9c2f1d;
 
   --p-alerta-fundo: #f8efd9;
   --p-alerta-linha: rgba(121, 87, 12, 0.32);
@@ -134,7 +134,7 @@
    *      the status ink itself, which is already this value.
    */
   --p-sucesso-sobre-escuro: #7ac58d;
-  --p-erro-sobre-escuro: #e4816d;
+  --p-error-on-dark: #e4816d;
 
   /*
    * ================================================= extended palette
@@ -148,7 +148,7 @@
   --p-grafico-3: #c08a2e; /* ocre */
   --p-grafico-4: #c4442e; /* terracota */
   --p-grafico-5: #1f3a2e; /* verde escuro */
-  --p-grafico-trilho: #e5e3da; /* fundo de barra */
+  --p-chart-rail: #e5e3da; /* fundo de barra */
 
   /*
    * ======================================================= typography
@@ -278,9 +278,9 @@
     --p-marca-linha: rgba(163, 183, 106, 0.36);
     --p-marca-conteudo: #12140e;
 
-    --p-erro-fundo: #3a211b;
-    --p-erro-linha: rgba(228, 129, 109, 0.34);
-    --p-erro-conteudo: #e4816d;
+    --p-error-background: #3a211b;
+    --p-error-line: rgba(228, 129, 109, 0.34);
+    --p-error-content: #e4816d;
 
     --p-alerta-fundo: #332714;
     --p-alerta-linha: rgba(203, 164, 83, 0.34);
@@ -302,14 +302,14 @@
      *          checker sees the pair.
      */
     --p-sucesso-sobre-escuro: var(--p-sucesso-conteudo);
-    --p-erro-sobre-escuro: var(--p-erro-conteudo);
+    --p-error-on-dark: var(--p-error-content);
 
     --p-grafico-1: #9fae74;
     --p-grafico-2: #6d9ab5;
     --p-grafico-3: #d3a352;
     --p-grafico-4: #d9705c;
     --p-grafico-5: #5f9c7c;
-    --p-grafico-trilho: #2a2e20;
+    --p-chart-rail: #2a2e20;
 
     --p-sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
     --p-sombra-2: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
@@ -340,9 +340,9 @@
   --p-marca-linha: rgba(163, 183, 106, 0.36);
   --p-marca-conteudo: #12140e;
 
-  --p-erro-fundo: #3a211b;
-  --p-erro-linha: rgba(228, 129, 109, 0.34);
-  --p-erro-conteudo: #e4816d;
+  --p-error-background: #3a211b;
+  --p-error-line: rgba(228, 129, 109, 0.34);
+  --p-error-content: #e4816d;
 
   --p-alerta-fundo: #332714;
   --p-alerta-linha: rgba(203, 164, 83, 0.34);
@@ -359,14 +359,14 @@
   --p-foco: #c98ef0;
 
   --p-sucesso-sobre-escuro: var(--p-sucesso-conteudo);
-  --p-erro-sobre-escuro: var(--p-erro-conteudo);
+  --p-error-on-dark: var(--p-error-content);
 
   --p-grafico-1: #9fae74;
   --p-grafico-2: #6d9ab5;
   --p-grafico-3: #d3a352;
   --p-grafico-4: #d9705c;
   --p-grafico-5: #5f9c7c;
-  --p-grafico-trilho: #2a2e20;
+  --p-chart-rail: #2a2e20;
 
   --p-sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
   --p-sombra-2: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
@@ -401,12 +401,12 @@
   --p-destaque-fundo: var(--p-marca-suave);
   --p-destaque-linha: var(--p-marca-linha);
 
-  --p-erro-tinta: var(--p-erro-conteudo);
+  --p-error-ink: var(--p-error-content);
   --p-alerta-tinta: var(--p-alerta-conteudo);
   --p-sucesso-tinta: var(--p-sucesso-conteudo);
 
   --p-dado: var(--p-grafico-1);
-  --p-dado-trilho: var(--p-grafico-trilho);
+  --p-data-rail: var(--p-chart-rail);
 
   --p-t-xl: var(--p-t-titulo);
   --p-t-2xl: var(--p-t-numero);

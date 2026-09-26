@@ -26,5 +26,5 @@ export function ClosureNotice() {
     };
   }, []);
 
-  return texto ? <div className="pipe-aviso-encerramento" role="status">{texto}</div> : null;
+  return texto ? <div className="pipe-notice-closure" role="status">{texto}</div> : null;
 }

@@ -106,8 +106,8 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
       </header>
 
       <form className="gr-formulario" onSubmit={gerar} noValidate>
-        <div className="gr-cartoes">
-          <section className="gr-papel gr-parametros">
+        <div className="gr-cards">
+          <section className="gr-paper gr-parametros">
             {avisoVisivel ? (
               <div className="gr-aviso" role="status">
                 <span className="gr-aviso-icone">!</span>
@@ -144,7 +144,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                 <IconePortal nome="baixo" tamanho={18} />
               </span>
             </label>
-            {error && !botEscolhido ? <p className="gr-erro">Campo obrigatório</p> : null}
+            {error && !botEscolhido ? <p className="gr-error">Campo obrigatório</p> : null}
 
             <div className="gr-divisor" />
 
@@ -202,11 +202,11 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
               ))}
             </div>
             {error && inicio && fim && !periodValid(inicio, fim) ? (
-              <p className="gr-erro">O período deve ser de no máximo 90 dias</p>
+              <p className="gr-error">O período deve ser de no máximo 90 dias</p>
             ) : null}
           </section>
 
-          <section className="gr-papel gr-tipos">
+          <section className="gr-paper gr-tipos">
             <h2>Defina o tipo de relatório</h2>
             <p>
               Selecione entre as opções os dados que deseja analisar no relatório. Entenda melhor
@@ -215,8 +215,8 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             </p>
             <Options itens={REPORTS} escolhido={tipo} aoEscolher={setTipo} />
             {tipo === 'thread-transcription' ? (
-              <label className="gr-campo gr-contato">
-                <span className="gr-contato-rotulo">
+              <label className="gr-campo gr-contact">
+                <span className="gr-contact-label">
                   Contato
                   <button type="button" onClick={() => setAjudaHistoryAberta(true)}>
                     (Saiba como gerar corretamente)
@@ -230,7 +230,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                   aria-invalid={error && contactFilter.trim().length < 5}
                 />
                 {error && contactFilter.trim().length < 5 ? (
-                  <span className="gr-erro">
+                  <span className="gr-error">
                     O filtro de contato deve ter pelo menos 5 caracteres
                   </span>
                 ) : null}
@@ -242,7 +242,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             <h2>Relatórios de atendimento</h2>
             <p>É necessário selecionar um bot com atendimento ativo para gerar estes relatórios.</p>
             <Options itens={REPORTS_OF_ATTENDANCE} escolhido={tipo} aoEscolher={setTipo} />
-            {error && !tipo ? <p className="gr-erro">Campo obrigatório</p> : null}
+            {error && !tipo ? <p className="gr-error">Campo obrigatório</p> : null}
           </section>
         </div>
 
@@ -254,7 +254,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
         </div>
       </form>
 
-      <section className="gr-relatorios gr-papel">
+      <section className="gr-reports gr-paper">
         <h2>Meus relatórios</h2>
         <p>Uma lista com todos os relatórios que você já criou.</p>
         <div className="gr-tabela-caixa">
@@ -273,7 +273,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             <tbody>
               {reports.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="gr-vazio">
+                  <td colSpan={7} className="gr-empty">
                     Nenhum arquivo gerado nos últimos 7 dias.
                   </td>
                 </tr>
@@ -347,7 +347,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             >
               ×
             </button>
-            <div className="gr-modal-ilustracao" aria-hidden="true">
+            <div className="gr-modal-illustration" aria-hidden="true">
               ✓
             </div>
             <div className="gr-modal-texto">
@@ -437,9 +437,9 @@ function Options({
   aoEscolher: (tipo: Tipo) => void;
 }) {
   return (
-    <div className="gr-opcoes">
+    <div className="gr-options">
       {itens.map((item) => (
-        <label key={item.value} className="gr-opcao">
+        <label key={item.value} className="gr-option">
           <input
             type="radio"
             name="relatorio"

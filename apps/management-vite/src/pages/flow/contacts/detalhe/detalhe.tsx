@@ -37,7 +37,7 @@ export function BotDetalheContact() {
   return (
     <div className="ct-detalhes">
       <div className="ct-detalhes-conteudo">
-        <header className="ct-historico-cabeca">
+        <header className="ct-history-header">
           <div className="ct-nome-container">
             <Link className="ct-voltar" href={`${base}/contacts`} aria-label="Voltar">
               <IconePortal nome="esquerda" tamanho={32} />
@@ -49,7 +49,7 @@ export function BotDetalheContact() {
                 <IconePortal nome="avatar" tamanho={32} />
               )}
             </span>
-            <h1 className="ct-nome-usuario">{nome}</h1>
+            <h1 className="ct-name-user">{nome}</h1>
           </div>
           <form className="ct-botao-recarregar" method="get">
             <button
@@ -90,12 +90,12 @@ export function BotDetalheContact() {
                           <IconePortal nome="direita" tamanho={12} />
                         </span>
                         <span className="ct-ticket-linha">
-                          <span className="ct-ticket-dados">
+                          <span className="ct-ticket-data">
                             <span>{dia}</span>
                             <span>{hora}</span>
                             <span>#{ticket.id.slice(0, 8)}</span>
                           </span>
-                          <span className="ct-ticket-acoes">
+                          <span className="ct-ticket-actions">
                             <Link
                               className="ct-botao-icone ct-botao-icone--curto"
                               href={`${base}/contacts/${contactId}?ticketId=${ticket.id}`}
@@ -155,9 +155,9 @@ export function BotDetalheContact() {
           </section>
         </div>
       </div>
-      <aside className="ct-historico">
-        <span className="ct-historico-titulo">Histórico de Conversa</span>
-        <div className="ct-mensagens">
+      <aside className="ct-history">
+        <span className="ct-history-title">Histórico de Conversa</span>
+        <div className="ct-messages">
           {history.map((message) => {
             const lado = messageLado(message.direction);
             return (
@@ -166,13 +166,13 @@ export function BotDetalheContact() {
                 key={`${message.id}-${message.criadaEm}`}
               >
                 {lado === 'esquerda' ? (
-                  <span className="ct-mensagem-foto">
+                  <span className="ct-message-photo">
                     <IconePortal nome="robo" tamanho={16} />
                   </span>
                 ) : null}
-                <div className="ct-mensagem-container">
+                <div className="ct-message-container">
                   <div className="ct-balao">{message.texto ?? `[${message.tipo}]`}</div>
-                  <div className="ct-notificacao">
+                  <div className="ct-notification">
                     {messageCarimbo(new Date(message.criadaEm))}
                   </div>
                 </div>
@@ -180,7 +180,7 @@ export function BotDetalheContact() {
             );
           })}
           {history.length === 0 ? (
-            <div className="ct-sem-mensagens">Ainda não há histórico de conversa ):</div>
+            <div className="ct-no-messages">Ainda não há histórico de conversa ):</div>
           ) : null}
         </div>
       </aside>

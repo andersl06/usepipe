@@ -44,7 +44,7 @@ export function QueuePageEdit() {
   const queue = readQueues.data.queues.find((f) => f.id === queueId);
   if (!queue) {
     return (
-      <div className="vazio">
+      <div className="empty">
         <b>Fila não encontrada</b>
         <p>
           <button type="button" className="btn" onClick={() => navegar(`${base}/agents/queues`)}>
@@ -113,7 +113,7 @@ function QueueData({
 
   return (
     <Card titulo="Dados da fila">
-      <form className="form-cadastro" onSubmit={(e) => void salvar(e)}>
+      <form className="form-registration" onSubmit={(e) => void salvar(e)}>
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '280px' }}>
             <span className="sub">Nome</span>
@@ -178,7 +178,7 @@ function QueueData({
 
         {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-        <div className="cl-acoes">
+        <div className="cl-actions">
           <Botao type="submit" variante="primario" disabled={salvando || !mudou || !nome.trim()}>
             {salvando ? 'Salvando…' : 'Salvar'}
           </Botao>
@@ -224,7 +224,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
       }
     >
       {queue.agents.length === 0 ? (
-        <div className="vazio">
+        <div className="empty">
           <b>Ops! Essa fila não possui nenhum atendente.</b>
           <p>
             Ops! Não há agentes nessa fila. Ao clicar em <b>Adicionar atendente</b>, um direcionamento será feito
@@ -233,7 +233,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
         </div>
       ) : (
         <>
-          <div className="busca-topo">
+          <div className="search-top">
             <input
               type="search"
               value={search}
@@ -247,7 +247,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
           </div>
 
           {filtrados.length === 0 ? (
-            <div className="vazio">
+            <div className="empty">
               <b>Atendente não encontrado :(</b>
               <p>Não há atendente cadastrados com esse nome.</p>
             </div>
@@ -266,7 +266,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
                   />
                 </div>
               ))}
-              <p className="sub secao-rodape">
+              <p className="sub section-footer">
                 Exibindo {mostrados.length} de {filtrados.length}
                 {mostrados.length < filtrados.length ? (
                   <button
@@ -338,7 +338,7 @@ function PrioritySectionRules({
       ) : null}
 
       {ofQueue.length === 0 ? (
-        <div className="vazio">
+        <div className="empty">
           <b>Essa fila ainda não possui regras de priorização!</b>
           <p>Adicione sua primeira regra e defina a prioridade em que os clientes devem ser atendidos</p>
         </div>
@@ -394,7 +394,7 @@ function PriorityFormularioRule({ queueId, onFechar }: { queueId: string; onFech
   }
 
   return (
-    <form className="form-cadastro" onSubmit={(e) => void create(e)}>
+    <form className="form-registration" onSubmit={(e) => void create(e)}>
       <div className="form-linha">
         <label className="form-campo">
           <span className="sub">Nome da regra de priorização</span>
@@ -414,7 +414,7 @@ function PriorityFormularioRule({ queueId, onFechar }: { queueId: string; onFech
 
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <Botao type="button" onClick={onFechar} disabled={enviando}>
           Cancelar
         </Botao>

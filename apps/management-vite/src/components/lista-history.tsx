@@ -52,7 +52,7 @@ const Card = memo(function Cartao({
   aoAlternar: (id: string) => void;
 }) {
   return (
-    <article className={card.critico ? 'cartao-lista critico' : 'cartao-lista'}>
+    <article className={card.critico ? 'card-list critico' : 'card-list'}>
       <label className="cl-sel">
         <input
           type="checkbox"
@@ -73,7 +73,7 @@ const Card = memo(function Cartao({
         <Campo rotulo="Atendimento" value={card.attendance} classe="num" />
       </div>
 
-      <div className="cl-acoes">
+      <div className="cl-actions">
         <span className={card.statusClasse}>{card.statusTexto}</span>
       </div>
 
@@ -109,7 +109,7 @@ export function ListaHistory({
 
   return (
     <>
-      <div className="barra-selecao">
+      <div className="bar-selection">
         <label>
           <input type="checkbox" checked={tudoMarcado} onChange={aoAlternarTodos} />
           Selecionar todos
@@ -120,11 +120,11 @@ export function ListaHistory({
         ) : null}
       </div>
 
-      <div className="lista-cartoes">
+      <div className="list-cards">
         {groups.map((grupo) => (
-          <div key={grupo.titulo || 'todos'} className="lista-cartoes">
+          <div key={grupo.titulo || 'todos'} className="list-cards">
             {grupo.titulo ? (
-              <div className="grupo-cartoes">
+              <div className="group-cards">
                 {grupo.titulo} <span className="qt">{grupo.cards.length}</span>
               </div>
             ) : null}
