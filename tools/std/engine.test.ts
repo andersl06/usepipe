@@ -226,6 +226,33 @@ test('endpoint rewrite covers templates, decorators, app.use and query keys but 
   assert.match(source, /'conversas e mensagens'/);
 });
 
+test('endpoint prefix and longer nested paths use original literals in apply and dry-run', () => {
+  const root = copyFixture();
+  const mapDir = path.join(root, 'map');
+  const map = path.join(mapDir, 'core.csv');
+  const oldRoot = '/v1/' + 'gestao';
+  fs.appendFileSync(map, [
+    `LIT-008,core,1,endpoint,${oldRoot},/v1/management,,,no,,,approved,sonnet,`,
+    `LIT-009,core,1,endpoint,${oldRoot}/regras/prioridade,/v1/management/rules/priority,,,no,,,approved,sonnet,`,
+    `LIT-010,core,1,endpoint,${oldRoot}/fluxos/:id/builder,/v1/management/flows/:id/builder,,,no,,,approved,sonnet,`,
+  ].join('\n') + '\n');
+  const file = path.join(root, 'apps/api/src/contracts.ts');
+  fs.appendFileSync(file, [
+    `\napp.use('${oldRoot}/regras/prioridade', () => {});`,
+    `app.use('${oldRoot}/fluxos/123/builder', () => {});`,
+  ].join('\n'));
+  execFileSync('git', ['add', '.'], { cwd: root, stdio: 'ignore' });
+  const ids = ['LIT-008', 'LIT-009', 'LIT-010'];
+  const preview = rewriteLiterals({ root, mapDir, ids, dryRun: true, log() {} });
+  const applied = rewriteLiterals({ root, mapDir, ids, log() {} });
+  assert.equal(applied.rewritten, preview.rewritten);
+  assert.deepEqual(applied.unmatchedIds, preview.unmatchedIds);
+  const source = fs.readFileSync(file, 'utf8');
+  assert.match(source, /\/v1\/management\/rules\/priority/);
+  assert.match(source, /\/v1\/management\/flows\/123\/builder/);
+  assert.doesNotMatch(source, /\/v1\/gestao/);
+});
+
 test('front-route rewrites technical route literals at segment boundaries and is idempotent', () => {
   const root = copyFixture();
   const mapDir = path.join(root, 'map');

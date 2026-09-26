@@ -537,10 +537,12 @@
 
 <script src="/assets/site.js" defer></script>
 <script>
-/* Calculadora de NPS. Duas entradas para o mesmo cálculo: contagens prontas ou
-   a lista crua de notas. A simulação de meta resolve para quantas respostas
-   promotoras seriam necessárias mantendo as respostas atuais:
-   (P + x) / (T + x) - D / (T + x) = meta  =>  x = (meta*T - (P - D)) / (1 - meta) */
+/*
+ * NPS calculator. Two inputs for the same calculation: ready-made counts or
+ *    the raw list of scores. The target simulation solves for how many
+ *    promoter responses would be needed while keeping the current responses:
+ *    (P + x) / (T + x) - D / (T + x) = meta  =>  x = (meta*T - (P - D)) / (1 - meta)
+ */
 (function () {
   "use strict";
 

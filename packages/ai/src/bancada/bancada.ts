@@ -1,52 +1,36 @@
 /**
- * A bancada de medição, generalizada do case-sync.
- *
- * Lá ela é o que separou "melhorou" de opinião: a acurácia da classificação saiu
- * de 26% para 64% porque cada mudança foi medida contra gabarito humano, caso a
- * caso, e três das ideias mais promissoras foram **descartadas por medição** —
- * exemplos por similaridade, definições destiladas e voto majoritário pioraram ou
- * custaram 5× sem ganho.
- *
- * Duas regras de método herdadas de lá, que este arquivo respeita:
- *
- * - **compare caso a caso, não só o total.** Um ganho que quebra outros casos não
- *   é ganho. Por isso o resultado traz o desvio por critério, ordenado do pior
- *   para o melhor, e não só a acurácia geral.
- * - **falha em caso não pode virar média melhor.** Caso que estourou entra em
- *   `falhas` e fica fora do denominador, dito em voz alta.
- *
- * A saída por critério tem o mesmo formato de `calibracao_item.desvio_por_criterio`.
+ * The measurement bench, generalized from case-sync. There, measuring every change against human labels case by case raised classification accuracy from 26% to 64%; similarity examples, distilled definitions, and majority voting were discarded after measurement because they worsened results or cost 5× more without gains. Compare cases individually: a gain that breaks other cases is no gain, so results report deviation by criterion from worst to best as well as overall accuracy. A failed case must not improve the average: record it in `falhas` and exclude it from the denominator. The per-criterion output matches `calibracao_item.desvio_por_criterio`.
  */
 
-import type { ResultadoAvaliacao } from '../avaliacao/index.js';
-import { avaliarConversa, calcularNota, criteriosDoFormulario } from '../avaliacao/index.js';
-import type { Formulario } from '../avaliacao/tipos.js';
+import type { ResultEvaluation } from '../evaluation/index.js';
+import { evaluateConversation, calcularNota, criteriosDoFormulario } from '../evaluation/index.js';
+import type { Formulario } from '../evaluation/tipos.js';
 import type { ChamadaEstruturada } from '../cliente/cliente.js';
 import type { Consumo } from '../consumo/index.js';
 import { somarConsumo } from '../consumo/index.js';
-import type { MensagemTranscricao, OpcoesTranscricao } from '../transcricao/index.js';
-import { montarTranscricao } from '../transcricao/index.js';
+import type { MessageTranscription, OptionsTranscription } from '../transcription/index.js';
+import { buildTranscription } from '../transcription/index.js';
 
-/** Uma conversa do conjunto de referência, com a avaliação feita por humano. */
+/** A reference-set conversation with a human evaluation. */
 export interface CasoReferencia {
   id: string;
-  descricao?: string;
-  contexto?: string | null;
-  mensagens: MensagemTranscricao[];
+  description?: string;
+  context?: string | null;
+  messages: MessageTranscription[];
   formulario: Formulario;
-  /** Gabarito: o valor que o humano deu a cada critério. A nota sai daqui. */
-  gabarito: { criterioId: string; valor: string }[];
+  /** Ground truth: the value assigned by a human to each criterion; the score follows from it. */
+  gabarito: { criterioId: string; value: string }[];
 }
 
 export interface DesvioCriterio {
   criterioId: string;
   nome: string;
-  /** Casos em que este critério foi medido. */
+  /** Number of cases in which this criterion was measured. */
   n: number;
   acertos: number;
   /** `acertos / n`. */
   acuracia: number;
-  /** Média de |pontos da IA − pontos do humano|, na escala da nota. */
+  /** Mean absolute difference between AI and human points, on the score scale. */
   desvioMedioPontos: number;
 }
 
@@ -55,79 +39,76 @@ export interface CasoMedido {
   notaHumana: number;
   notaIa: number;
   desvioNota: number;
-  criteriosIguais: number;
+  criteriaEqual: number;
   criteriosTotal: number;
   confianca: number;
 }
 
 export interface FalhaBancada {
   casoId: string;
-  erro: string;
+  error: string;
 }
 
 export interface ResultadoBancada {
   /** Casos medidos com sucesso. */
   casos: number;
   falhas: FalhaBancada[];
-  /** Respostas idênticas ao gabarito ÷ respostas comparadas. */
+  /** Responses identical to ground truth divided by compared responses. */
   acuraciaGeral: number;
-  /** Média de |nota da IA − nota humana|, na escala do formulário. */
+  /** Mean absolute difference between AI and human scores, on the form's scale. */
   desvioMedioNota: number;
-  /** Do pior critério para o melhor: é a lista de prompts a revisar. */
-  porCriterio: DesvioCriterio[];
-  porCaso: CasoMedido[];
+  /** Criteria from worst to best; the prompt review list. */
+  byCriterion: DesvioCriterio[];
+  byCase: CasoMedido[];
   consumo: Consumo[];
 }
 
-/** Como a bancada obtém a avaliação da IA. Trocável para medir outra variação. */
-export type AvaliadorBancada = (caso: CasoReferencia) => Promise<ResultadoAvaliacao>;
+/** How the bench obtains an AI evaluation; replaceable to measure another variant. */
+export type AvaliadorBancada = (caso: CasoReferencia) => Promise<ResultEvaluation>;
 
-export interface OpcoesBancada {
+export interface OptionsWorkbench {
   casos: readonly CasoReferencia[];
-  /** Por padrão: monta a transcrição e chama `avaliarConversa`. */
+  /** By default, builds the transcript and calls `avaliarConversa`. */
   avaliar?: AvaliadorBancada;
-  transcricao?: OpcoesTranscricao;
-  modelo?: string;
+  transcription?: OptionsTranscription;
+  template?: string;
   chamar?: ChamadaEstruturada;
-  /** Chamado a cada caso, para a linha de comando mostrar progresso. */
+  /** Called after each case so the CLI can show progress. */
   aoTerminarCaso?: (casoId: string, medido: CasoMedido | null) => void;
 }
 
-function avaliadorPadrao(opcoes: OpcoesBancada): AvaliadorBancada {
+function avaliadorPadrao(options: OptionsWorkbench): AvaliadorBancada {
   return (caso) =>
-    avaliarConversa({
+    evaluateConversation({
       formulario: caso.formulario,
-      transcricao: montarTranscricao(caso.mensagens, opcoes.transcricao),
-      contexto: caso.contexto,
-      modelo: opcoes.modelo,
-      chamar: opcoes.chamar,
+      transcription: buildTranscription(caso.messages, options.transcription),
+      context: caso.context,
+      template: options.template,
+      chamar: options.chamar,
     });
 }
 
-function media(valores: readonly number[]): number {
-  if (valores.length === 0) return 0;
-  return valores.reduce((s, v) => s + v, 0) / valores.length;
+function media(values: readonly number[]): number {
+  if (values.length === 0) return 0;
+  return values.reduce((s, v) => s + v, 0) / values.length;
 }
 
-function arredondar(valor: number, casas = 4): number {
+function arredondar(value: number, casas = 4): number {
   const f = 10 ** casas;
-  return Math.round((valor + Number.EPSILON) * f) / f;
+  return Math.round((value + Number.EPSILON) * f) / f;
 }
 
-/** Compara duas respostas de critério do jeito que o banco as guardaria. */
-export function mesmoValor(a: string, b: string): boolean {
+
+export function sameValue(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
 
-/**
- * Roda a avaliação por IA contra o conjunto de referência e devolve acurácia geral
- * e desvio por critério.
- */
-export async function rodarBancada(opcoes: OpcoesBancada): Promise<ResultadoBancada> {
-  const avaliar = opcoes.avaliar ?? avaliadorPadrao(opcoes);
+
+export async function rodarBancada(options: OptionsWorkbench): Promise<ResultadoBancada> {
+  const avaliar = options.avaliar ?? avaliadorPadrao(options);
 
   const falhas: FalhaBancada[] = [];
-  const porCaso: CasoMedido[] = [];
+  const byCase: CasoMedido[] = [];
   const consumos: Consumo[] = [];
   const acumulado = new Map<
     string,
@@ -135,25 +116,25 @@ export async function rodarBancada(opcoes: OpcoesBancada): Promise<ResultadoBanc
   >();
 
   let comparadas = 0;
-  let iguais = 0;
+  let equal = 0;
 
-  for (const caso of opcoes.casos) {
+  for (const caso of options.casos) {
     try {
       const ia = await avaliar(caso);
       const humano = calcularNota(
         caso.formulario,
         caso.gabarito.map((g) => ({
           criterioId: g.criterioId,
-          valor: g.valor,
+          value: g.value,
           justificativa: 'gabarito humano',
-          evidenciaMensagemId: null,
+          evidenceMessageId: null,
         })),
       );
 
       const pontosIa = new Map(ia.respostas.map((r) => [r.criterioId, r]));
       const pontosHumano = new Map(humano.respostas.map((r) => [r.criterioId, r]));
 
-      let iguaisNoCaso = 0;
+      let equalInCase = 0;
       let totalNoCaso = 0;
 
       for (const { criterio } of criteriosDoFormulario(caso.formulario)) {
@@ -161,12 +142,12 @@ export async function rodarBancada(opcoes: OpcoesBancada): Promise<ResultadoBanc
         const h = pontosHumano.get(criterio.id);
         if (!a || !h) continue;
 
-        const igual = mesmoValor(a.valor, h.valor);
+        const igual = sameValue(a.value, h.value);
         totalNoCaso++;
         comparadas++;
         if (igual) {
-          iguaisNoCaso++;
-          iguais++;
+          equalInCase++;
+          equal++;
         }
 
         const linha = acumulado.get(criterio.id) ?? {
@@ -186,20 +167,20 @@ export async function rodarBancada(opcoes: OpcoesBancada): Promise<ResultadoBanc
         notaHumana: humano.nota,
         notaIa: ia.nota,
         desvioNota: arredondar(Math.abs(ia.nota - humano.nota), 2),
-        criteriosIguais: iguaisNoCaso,
+        criteriaEqual: equalInCase,
         criteriosTotal: totalNoCaso,
         confianca: ia.confianca,
       };
-      porCaso.push(medido);
+      byCase.push(medido);
       consumos.push(ia.consumo);
-      opcoes.aoTerminarCaso?.(caso.id, medido);
-    } catch (erro) {
-      falhas.push({ casoId: caso.id, erro: erro instanceof Error ? erro.message : String(erro) });
-      opcoes.aoTerminarCaso?.(caso.id, null);
+      options.aoTerminarCaso?.(caso.id, medido);
+    } catch (error) {
+      falhas.push({ casoId: caso.id, error: error instanceof Error ? error.message : String(error) });
+      options.aoTerminarCaso?.(caso.id, null);
     }
   }
 
-  const porCriterio = [...acumulado.entries()]
+  const byCriterion = [...acumulado.entries()]
     .map(([criterioId, l]) => ({
       criterioId,
       nome: l.nome,
@@ -211,12 +192,12 @@ export async function rodarBancada(opcoes: OpcoesBancada): Promise<ResultadoBanc
     .sort((a, b) => a.acuracia - b.acuracia || b.desvioMedioPontos - a.desvioMedioPontos);
 
   return {
-    casos: porCaso.length,
+    casos: byCase.length,
     falhas,
-    acuraciaGeral: comparadas > 0 ? arredondar(iguais / comparadas) : 0,
-    desvioMedioNota: arredondar(media(porCaso.map((c) => c.desvioNota)), 2),
-    porCriterio,
-    porCaso,
+    acuraciaGeral: comparadas > 0 ? arredondar(equal / comparadas) : 0,
+    desvioMedioNota: arredondar(media(byCase.map((c) => c.desvioNota)), 2),
+    byCriterion,
+    byCase,
     consumo: somarConsumo(consumos),
   };
 }

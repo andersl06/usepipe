@@ -49,7 +49,7 @@ process.env['PIPE_PROCESS_HTTP_VARREDURA_MS'] ??= '3600000';
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { redigir } from './redacao.js';
+import { redigir } from './drafting.js';
 
 const RAIZ = fileURLToPath(new URL('../../', import.meta.url));
 const FIXTURES = `${RAIZ}apps/api/tests/fixtures/jsonb/`;
@@ -59,16 +59,16 @@ const { gerarRegistros } = await import('../../apps/api/tests/gerar-fixtures-jso
 
 const arquivos = await gerarRegistros();
 
-for (const [arquivo, registros] of arquivos) {
+for (const [file, registros] of arquivos) {
   const redigidos = registros.map((registro) => {
     const copia: Record<string, unknown> = {};
-    for (const [chave, valor] of Object.entries(registro)) {
-      copia[chave] = chave === 'id' ? valor : redigir(valor);
+    for (const [key, value] of Object.entries(registro)) {
+      copia[key] = key === 'id' ? value : redigir(value);
     }
     return copia;
   });
-  writeFileSync(`${FIXTURES}${arquivo}`, `${JSON.stringify(redigidos, null, 2)}\n`);
-  console.log(`wrote ${arquivo} (${redigidos.length} registro(s), gerado)`);
+  writeFileSync(`${FIXTURES}${file}`, `${JSON.stringify(redigidos, null, 2)}\n`);
+  console.log(`wrote ${file} (${redigidos.length} registro(s), gerado)`);
 }
 
 console.log(`\n${arquivos.size} arquivo(s) de fixture gerados em ${FIXTURES}`);

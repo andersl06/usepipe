@@ -1,0 +1,1664 @@
+/*
+ * ============================== Attendance (contact module)
+ *
+ *
+ *
+ *    The module's two-column shell — `desk-sidebar` + content — is the SAME
+ *
+ *    setup as `configuracoes/casca.tsx` (`.cf-casca`/`.cf-miolo`): the shared
+ *
+ *    shell's `fx-coluna` centers the core at 80%; here that indent is undone
+ *
+ *    so the sidebar opens flush with the edge, without touching the shell. The
+ *
+ *    sidebar itself
+ *
+ *    (`.g-lateral`, `.g-item`, `.g-grupo`, `.g-subitem`) already lives in
+ *
+ *    `estilos/globais.css` — it's the same one from the retired `estrutura-gestao.tsx`, because
+ *
+ *    it's the same source `desk-sidebar`; only the shell around it changed.
+ */
+
+.at-shell {
+
+  display: flex;
+
+  align-items: stretch;
+
+  width: calc(100% + 40px);
+
+  min-height: calc(100dvh - var(--g-topo-h));
+
+  margin-left: -20px;
+
+}
+
+@media (min-width: 550px) {
+
+  .at-shell {
+
+    width: 111.1112%;
+
+    margin-left: -5.5556%;
+
+  }
+
+}
+
+@media (min-width: 750px) {
+
+  .at-shell {
+
+    width: 125%;
+
+    margin-left: -12.5%;
+
+  }
+
+}
+
+
+
+.at-miolo {
+
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  background: var(--ground);
+
+}
+
+
+
+/* History list geometry; cards with tags can grow. */
+
+.hist-resultados .list-cards {
+
+  gap: 8px;
+
+}
+
+
+
+.hist-resultados .card-list {
+
+  min-height: 88px;
+
+  padding: 20px;
+
+  border-radius: 16px;
+
+}
+
+
+
+.hist-resultados .cl-campo .r {
+
+  font-size: 12px;
+
+  font-weight: 400;
+
+  line-height: 18px;
+
+}
+
+
+
+.hist-resultados .cl-campo .v,
+
+.hist-resultados .cl-campo .v.num {
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  line-height: 24px;
+
+}
+
+
+
+.hist-resultados .cl-campo .v.id {
+
+  font-size: 14px;
+
+  font-weight: 400;
+
+}
+
+
+
+.hist-resultados .cl-sel {
+
+  min-width: 40px;
+
+  min-height: 40px;
+
+}
+
+
+
+.hist-resultados .cl-sel input,
+
+.hist-resultados .bar-selection input {
+
+  width: 18px;
+
+  height: 18px;
+
+}
+
+
+
+.hist-resultados .hist-agrupar select {
+
+  height: 40px;
+
+}
+
+
+
+/* Quick filters exclusive to Attendance: one box per pill. */
+
+.at-filter {
+
+  position: relative;
+
+  flex: none;
+
+}
+
+
+
+.at-filter-trigger {
+
+  min-width: 96px;
+
+  width: auto;
+
+  max-width: 180px;
+
+  padding-inline: 16px;
+
+}
+
+
+
+.mon-page .at-filter-trigger { min-width: 0; max-width: none; height: 40px; padding: 0 8px; font: 700 14px/21px 'Nunito Sans', var(--p-fonte); }
+
+.mon-page .at-filter-trigger:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+
+.mon-page .at-filter-trigger:active { transform: none; box-shadow: none; }
+
+.mon-page .at-filter-trigger:focus-visible { outline: 2px solid var(--p-foco); outline-offset: 2px; }
+
+.mon-page .panel-side { font-family: 'Nunito Sans', var(--p-fonte); background: var(--p-superficie-1); }
+
+.mon-page .panel-support { margin: 12px 0; padding-left: 8px; }
+
+
+
+/* The skeleton uses the grid, cards and controls of the already-loaded view. */
+
+.mon-carregando .mon > .card {
+
+  min-height: 166px;
+
+}
+
+
+
+.mon-esqueletico {
+
+  display: block;
+
+  border-radius: var(--p-r-md);
+
+  background: var(--p-superficie-2);
+
+  animation: mon-pulsar 1.4s ease-in-out infinite alternate;
+
+}
+
+
+
+.mon-carregando .board-head .filters { margin-left: auto; }
+
+.mon-esqueletico.icone { width: 40px; height: 40px; }
+
+.mon-esqueletico.pilula { width: 130px; height: 40px; }
+
+.mon-esqueletico.pilula.larga { width: 166px; }
+
+.mon-esqueletico.botao { width: 130px; height: 40px; }
+
+.mon-metrica-carregando { flex: 1 1 0; }
+
+.mon-metrica-carregando .value { width: 75%; height: var(--g-t-value); }
+
+.mon-metrica-carregando .rotulo { width: 100%; height: calc(var(--g-lh-rotulo) + var(--g-lh-rotulo)); margin-top: 10px; }
+
+.mon-carregando .tblhead .search { margin-left: auto; flex: 1 1 auto; max-width: 410px; height: 42px; }
+
+.mon-abas-carregando { display: flex; overflow: hidden; }
+
+.mon-abas-carregando .aba { flex: 0 1 110px; height: 48px; margin-right: var(--p-e-2); }
+
+.mon-tabela-carregando { margin-top: 10px; }
+
+.mon-tabela-linha { display: grid; grid-template-columns: repeat(5, minmax(100px, 1fr)); align-items: center; gap: var(--p-e-4); min-width: 680px; min-height: 58px; padding: 0 var(--p-e-4); border-bottom: 1px solid var(--p-linha-media); }
+
+.mon-tabela-linha:first-child { min-height: 64px; }
+
+.mon-tabela-linha .celula { width: 75%; height: var(--g-lh-rotulo); }
+
+.mon-tabela-linha .celula:nth-child(2n) { width: 90%; }
+
+.mon-error { min-height: 180px; }
+
+.mon-error p { color: var(--p-conteudo-desabilitado); }
+
+
+
+@media (max-width: 700px) {
+
+  .mon-carregando .tblhead { flex-wrap: wrap; }
+
+  .mon-carregando .tblhead .search { flex-basis: 100%; max-width: none; }
+
+}
+
+
+
+@keyframes mon-pulsar {
+
+  from { opacity: 0.55; }
+
+  to { opacity: 1; }
+
+}
+
+
+
+@media (prefers-reduced-motion: reduce) {
+
+  .mon-esqueletico { animation: none; }
+
+}
+
+
+
+@media (max-width: 900px) {
+
+  .at-shell {
+
+    flex-direction: column;
+
+  }
+
+}
+
+
+
+/*
+ * ============================== Empty state inside a metric card
+ *
+ *    `.tblwrap .vazio` already exists in `estilos/globais.css` for the
+ *
+ *    Monitoring module's table card; this module's reports use the SAME three-part
+ *
+ *    empty state inside `.cartao-rel`, for the blocks where Blip shows a
+ *
+ *    metric (SLA, availability, per-agent comparison) that we don't yet
+ *
+ *    have our own query for — instead of the block disappearing, it stays and says
+ *
+ *    why.
+ */
+
+.card-rel .empty,
+
+.card .empty {
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: var(--p-e-2);
+
+  text-align: center;
+
+}
+
+
+
+/*
+ * Their report-block empty state is ONE sentence, `bds-typo fs-14
+ *
+ *    semi-bold`, centered under the illustration ("Não foram encontradas métricas de
+ *
+ *    SLA no período informado", `desk-relatorio-atendimento__pagina.html`).
+ */
+
+.card-rel .empty b,
+
+.card .empty b {
+
+  font-size: var(--g-t-celula);
+
+  font-weight: var(--g-peso-forte);
+
+  line-height: var(--g-lh-card);
+
+  color: var(--p-conteudo);
+
+  margin: 0;
+
+}
+
+
+
+.card-rel .empty p,
+
+.card .empty p {
+
+  margin: 0;
+
+  max-width: 60ch;
+
+  font-size: var(--g-t-celula);
+
+  line-height: var(--g-lh-card);
+
+  color: var(--p-conteudo-desabilitado);
+
+}
+
+
+
+/*
+ * ============================== Attendance report: the flat cards
+ *
+ *    There, the "Tempo máximo", "Status dos tickets" and "Tempo médio" blocks are the
+ *
+ *    SAME `bds-paper pa4 bg-surface-1` as Monitoring, with a 14/600 title and the
+ *
+ *    24/400 metrics row over a 12/400 label — not Satisfaction's block-with-cards.
+ *
+ *    The first three share one line (`flex justify-between`), the wide one with
+ *
+ *    `width: 100%` and the other two at content width.
+ */
+
+.rel-linha {
+
+  display: flex;
+
+  gap: var(--g-grade-gap);
+
+  align-items: stretch;
+
+}
+
+
+
+.rel-linha > .card {
+
+  flex: 1 1 auto;
+
+  min-width: 0;
+
+}
+
+
+
+.rel-linha > .card.estreito {
+
+  flex: 0 1 auto;
+
+}
+
+
+
+/* Title 20/700 with the info icon beside it ("Indicadores de SLA"). */
+
+.card > h3.grande {
+
+  font-size: var(--g-t-value-report);
+
+  line-height: var(--g-t-value-report);
+
+  font-weight: var(--g-peso-negrito);
+
+  display: flex;
+
+  align-items: center;
+
+  gap: var(--p-e-2);
+
+}
+
+
+
+.card > h3 .dica {
+
+  margin-left: 4px;
+
+}
+
+
+
+/*
+ * Tab header with the CSV download button flush right
+ *
+ *    (`bds-button-icon icon="download" class="ml-a"`).
+ */
+
+.rel-aba-cabecalho {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: var(--p-e-2);
+
+  margin-bottom: 10px;
+
+}
+
+
+
+.rel-aba-cabecalho .tabs {
+
+  flex: 1;
+
+  border-bottom: 0;
+
+  padding-left: 0;
+
+}
+
+
+
+/*
+ * The note under the agents table ("Os filtros de Canais, Atendentes,
+ *
+ *    Filas e Tags não se aplicam à tabela abaixo."): info icon and
+ *
+ *    14/400 text, with 10px between them (`ml3`).
+ */
+
+.rel-nota {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin: var(--p-e-4) 0 0;
+
+  font-size: var(--g-t-celula);
+
+  font-weight: var(--g-peso-normal);
+
+  line-height: var(--g-lh-card);
+
+  color: var(--p-conteudo);
+
+}
+
+
+
+/*
+ * The "Últimos 7 dias" text in the filter strip is their GHOST button
+ *
+ *    (`bds-button variant="text"`), and the full date range goes in the `title`.
+ */
+
+.rel-period {
+
+  white-space: nowrap;
+
+}
+
+
+
+/*
+ * Per-ticket actions in Monitoring: the menu stays anchored to the row and the
+ *
+ *    dialogs use the same compact paper as the Desk's actions.
+ */
+
+.mon-actions {
+
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+}
+
+
+
+.tblwrap td.acts .mon-actions .iconbtn {
+
+  width: 20px;
+
+  height: 20px;
+
+  display: inline-grid;
+
+  place-items: center;
+
+}
+
+
+
+.mon-reticencias {
+
+  font-size: 20px;
+
+  line-height: 1;
+
+}
+
+
+
+.mon-icone-transferir {
+
+  width: 20px;
+
+  height: 20px;
+
+}
+
+
+
+.mon-ticket {
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  color: inherit;
+
+  font: inherit;
+
+  text-decoration: underline;
+
+  text-underline-offset: 3px;
+
+  cursor: pointer;
+
+}
+
+
+
+.tblwrap td.acts .mon-actions .iconbtn {
+
+  padding: 0;
+
+  cursor: pointer;
+
+}
+
+
+
+.tblwrap td.acts .mon-actions .iconbtn svg {
+
+  width: 20px;
+
+  height: 20px;
+
+}
+
+
+
+.mon-menu-actions {
+
+  position: absolute;
+
+  z-index: 20;
+
+  top: calc(100% + 16px);
+
+  right: 0;
+
+  width: 240px;
+
+  padding: 2px;
+
+  border-radius: 8px;
+
+  background: var(--p-superficie-1);
+
+  box-shadow: 0 8px 12px color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+
+}
+
+
+
+.mon-menu-actions a,
+
+.mon-menu-actions button {
+
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 16px;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background: var(--p-superficie-1);
+
+  color: var(--p-conteudo);
+
+  font: inherit;
+
+  font-size: 14px;
+
+  font-weight: 400;
+
+  line-height: 22px;
+
+  text-align: left;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+}
+
+
+
+.mon-menu-actions a:hover,
+
+.mon-menu-actions button:hover {
+
+  background: var(--p-superficie-2);
+
+}
+
+
+
+.mon-menu-actions .perigo,
+
+.mon-modal-error {
+
+  color: var(--p-error-content);
+
+}
+
+
+
+.mon-previa-fundo {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 64;
+
+  background: color-mix(in srgb, var(--p-conteudo) 70%, transparent);
+
+}
+
+
+
+/*
+ * Conversation panel on the right: same width as Blip's monitoring `bds-sidebar`
+ *
+ *    (420px), but with Pipe's paint and components.
+ */
+
+.mon-previa {
+
+  position: fixed;
+
+  z-index: 65;
+
+  top: 0;
+
+  right: 0;
+
+  bottom: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  width: 420px;
+
+  max-width: 92vw;
+
+  background: var(--p-superficie-0);
+
+  box-shadow: var(--p-sombra-2);
+
+}
+
+
+
+.mon-previa > header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 24px;
+
+  border-bottom: 1px solid var(--p-linha);
+
+}
+
+
+
+.mon-previa h3,
+
+.mon-previa p { margin: 0; }
+
+.mon-previa h3 { font-size: 20px; line-height: 24px; }
+
+.mon-previa header p { margin-top: 4px; font-size: 14px; }
+
+
+
+.mon-preview-history {
+
+  display: flex;
+
+  flex: 1;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  overflow-y: auto;
+
+  padding: 16px;
+
+}
+
+
+
+.mon-balao {
+
+  max-width: 82%;
+
+  padding: 10px 12px;
+
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  line-height: 20px;
+
+}
+
+.mon-balao.inbound { align-self: flex-start; background: var(--p-superficie-2); }
+
+.mon-balao.saida { align-self: flex-end; background: var(--p-marca-suave); }
+
+.mon-balao small { display: block; margin-top: 4px; font-size: 12px; }
+
+.mon-previa-nota { padding: 10px 12px; border-radius: 8px; background: var(--p-superficie-2); font-size: 14px; }
+
+.mon-previa-nota b { display: block; margin-bottom: 3px; }
+
+
+
+.mon-preview-composer {
+
+  display: grid;
+
+  gap: 8px;
+
+  padding: 16px 24px 24px;
+
+  border-top: 1px solid var(--p-linha);
+
+}
+
+.mon-preview-composer label { font-size: 14px; font-weight: 700; }
+
+.mon-preview-composer textarea { resize: vertical; min-height: 64px; padding: 10px; border: 1px solid var(--p-linha); border-radius: 8px; font: inherit; }
+
+.mon-preview-composer .btn { justify-self: end; }
+
+
+
+.mon-modal-fundo {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 60;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 16px;
+
+  background: color-mix(in srgb, var(--p-conteudo) 48%, transparent);
+
+}
+
+
+
+.mon-modal {
+
+  width: min(520px, 100%);
+
+  padding: 28px;
+
+  border-radius: var(--p-r-lg);
+
+  background: var(--p-superficie-0);
+
+  color: var(--p-conteudo);
+
+  box-shadow: var(--p-sombra-2);
+
+}
+
+
+
+.mon-modal h2 {
+
+  margin: 0 0 16px;
+
+  font-size: var(--g-t-value-report);
+
+  line-height: 1.2;
+
+}
+
+
+
+.mon-modal p {
+
+  margin: 0 0 14px;
+
+  line-height: 1.5;
+
+}
+
+
+
+.mon-radios {
+
+  display: flex;
+
+  gap: 24px;
+
+  margin-bottom: 16px;
+
+}
+
+
+
+.mon-radios label {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+}
+
+
+
+.mon-campo {
+
+  display: grid;
+
+  gap: 6px;
+
+  font-size: var(--g-t-celula);
+
+  font-weight: var(--g-peso-forte);
+
+}
+
+
+
+.mon-campo select {
+
+  width: 100%;
+
+  height: 42px;
+
+  padding: 0 10px;
+
+  border: 1px solid var(--p-linha);
+
+  border-radius: var(--p-r-md);
+
+  background: var(--p-superficie-0);
+
+  color: var(--p-conteudo);
+
+  font: inherit;
+
+}
+
+
+
+.mon-modal-aviso {
+
+  margin-top: 14px !important;
+
+  color: var(--p-conteudo-desabilitado);
+
+  font-size: var(--g-t-celula);
+
+}
+
+
+
+.mon-modal-actions {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  margin-top: 24px;
+
+}
+
+
+
+/*
+ * -------------------------------------------------------------------------
+ *
+ *    Detailed monitoring — BDS (Blip) visual contract
+ *
+ *    We keep these rules scoped: the operation module's other grids keep the
+ *
+ *    old ruler, while this card uses the original component's measurements.
+ *
+ * ---------------------------------------------------------------------------
+ */
+
+.mon-detalhado {
+
+  --mon-blue: var(--p-marca, #4a5d23);
+
+  --mon-text: #282828;
+
+  --mon-line: rgba(0, 0, 0, .16);
+
+  --mon-hover: rgba(0, 0, 0, .04);
+
+  margin-top: 24px;
+  padding: 16px;
+
+  border-radius: 8px;
+
+  background: var(--p-superficie-1, #fff);
+
+  box-shadow: none;
+
+  color: var(--mon-text);
+
+  font-family: "Nunito Sans", "Carbona", Tahoma, Helvetica, Arial, sans-serif;
+
+}
+
+
+
+.mon-detalhado .tblhead {
+
+  display: flex;
+
+  align-items: center;
+
+  min-height: 40px;
+
+  margin: 0 0 4px;
+
+  gap: 12px;
+
+}
+
+
+
+.mon-detalhado .tblhead h3 {
+
+  margin: 0;
+
+  font-size: 20px;
+
+  font-weight: 700;
+
+  line-height: 20px;
+
+}
+
+
+
+.mon-detalhado .tbl-search {
+  box-sizing: border-box;
+
+  /* In Blip the field is compact and does NOT grow to fill the line. */
+  flex: 0 0 252px;
+  width: 252px;
+  max-width: 252px;
+  min-width: 252px;
+  height: 48px;
+
+  margin-left: 0;
+  padding: 0 16px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  /* Medido na captura: borda #c5c5c5 sobre o fundo #f6f6f6. */
+  border: 1px solid rgba(0, 0, 0, .20);
+  border-radius: 8px;
+
+  /* The bds-input uses the same surface as the card on this screen. */
+  background: transparent;
+
+  color: #282828;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+/*
+ * The global `.tblhead .tbl-busca` selector sets the field's surface for other tables. In the BDS, `.input` doesn't paint its interior: it inherits the card's surface. The extra specificity keeps this field transparent even when the global sheet loads after this one.
+ */
+.mon-detalhado .tblhead .tbl-search {
+  background: transparent;
+  background-color: transparent;
+}
+
+/*
+ * Blip's magnifying glass:
+ *    a 20x20 glyph inside a small 28x28 gray surface.
+ */
+.mon-detalhado .tbl-search svg {
+  box-sizing: content-box;
+  display: block;
+  flex: 0 0 20px;
+
+  width: 20px;
+  height: 20px;
+  padding: 4px;
+
+  border-radius: 8px;
+  background: #e3e3e3;
+
+  color: #282828;
+  fill: currentColor;
+}
+
+/* Only the visible field; doesn't touch the querystring's hidden inputs. */
+.mon-detalhado .tbl-search input:not([type="hidden"]) {
+  box-sizing: border-box;
+
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+
+  background: transparent;
+  color: #282828;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.mon-detalhado .tbl-search input:not([type="hidden"])::placeholder {
+  color: #959595;
+  opacity: 1;
+}
+
+/* Remove os controles nativos que o Chrome/Edge adicionam ao type="search". */
+.mon-detalhado .tbl-search input::-webkit-search-decoration,
+.mon-detalhado .tbl-search input::-webkit-search-cancel-button,
+.mon-detalhado .tbl-search input::-webkit-search-results-button,
+.mon-detalhado .tbl-search input::-webkit-search-results-decoration {
+  display: none;
+}
+
+/* Focus state without changing the component's size/position. */
+.mon-detalhado .tbl-search:focus-within {
+  border-color: var(--mon-blue);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--mon-blue) 16%, transparent);
+}
+
+.mon-detalhado .tabs {
+
+  position: relative;
+
+  display: flex;
+
+  align-items: stretch;
+
+  min-height: 56px;
+
+  margin: 0 -16px;
+
+  padding: 4px 16px;
+
+  gap: 32px;
+
+  overflow-x: auto;
+
+  border-bottom: 0;
+
+  scrollbar-width: none;
+
+}
+
+
+
+.mon-detalhado .tabs::-webkit-scrollbar { display: none; }
+
+
+
+.mon-detalhado .tabs a {
+
+  position: relative;
+
+  flex: 0 0 auto;
+
+  height: 48px;
+
+  padding: 0;
+
+  color: var(--p-conteudo-desabilitado, #595959);
+
+  font-size: 16px;
+
+  font-weight: 400;
+
+  line-height: 24px;
+
+  border: 0;
+
+  transition: color .18s ease, background-color .18s ease;
+
+}
+
+
+
+.mon-detalhado .tabs a::before {
+
+  content: "";
+
+  position: absolute;
+
+  inset: -4px -8px;
+
+  border: 2px solid transparent;
+
+  border-radius: 4px;
+
+  pointer-events: none;
+
+}
+
+
+
+.mon-detalhado .tabs a:hover { color: var(--mon-text); }
+
+.mon-detalhado .tabs a:focus-visible { outline: 0; }
+
+.mon-detalhado .tabs a:focus-visible::before { border-color: var(--mon-blue); }
+
+
+
+.mon-detalhado .tabs a[aria-current="true"] {
+
+  color: var(--mon-text);
+
+  font-weight: 700;
+
+}
+
+
+
+.mon-detalhado .tabs a[aria-current="true"]::after {
+
+  content: "";
+
+  position: absolute;
+
+  right: 0;
+
+  bottom: 0;
+
+  left: 0;
+
+  height: 2px;
+
+  border-radius: 2px 2px 0 0;
+
+  background: var(--mon-blue);
+
+}
+
+
+
+.mon-detalhado .scroll {
+
+  margin: 0;
+
+  overflow-x: auto;
+
+  border: 0;
+
+  border-radius: 0;
+
+  background: transparent;
+
+}
+
+.mon-detalhado .tabs + .scroll { margin-top: 0; }
+
+
+
+.mon-detalhado .mon-tabela {
+
+  width: 100%;
+
+  min-width: 920px;
+
+  table-layout: fixed;
+
+  border-collapse: collapse;
+
+  border-spacing: 0;
+
+}
+
+
+
+.mon-detalhado .mon-tabela th,
+
+.mon-detalhado .mon-tabela td {
+
+  box-sizing: border-box;
+
+  height: 49px;
+
+  padding: 0 8px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  line-height: 21px;
+
+  text-align: left;
+
+}
+
+
+
+.mon-detalhado .mon-tabela th {
+
+  height: 48px;
+
+  font-weight: 600;
+
+}
+
+
+
+.mon-detalhado .mon-tabela th:first-child,
+
+.mon-detalhado .mon-tabela td:first-child { padding-left: 16px; }
+
+
+
+.mon-detalhado .mon-tabela th:nth-child(-n + 4),
+
+.mon-detalhado .mon-tabela td.num,
+
+.mon-detalhado .mon-tabela td.acts { text-align: center; }
+
+
+
+.mon-detalhado .mon-tabela tbody tr {
+
+  border-bottom: 1px solid var(--mon-line);
+
+  transition: background-color .16s ease;
+
+}
+
+
+
+.mon-detalhado .mon-tabela tbody tr.clickable,
+
+.mon-detalhado .mon-tabela tbody tr:has(.mon-ticket) { cursor: pointer; }
+
+.mon-detalhado .mon-tabela tbody tr:hover { background: var(--mon-hover); }
+
+.mon-detalhado .mon-tabela tbody tr.grave { background: #fff8e1; }
+
+.mon-detalhado .mon-tabela tbody tr.critico { background: #ffebee; }
+
+
+
+.mon-detalhado .mon-tabela-atribuidas th:nth-child(1) { width: 11%; }
+
+.mon-detalhado .mon-tabela-atribuidas th:nth-child(2) { width: 14%; }
+
+.mon-detalhado .mon-tabela-atribuidas th:nth-child(3) { width: 14%; }
+
+.mon-detalhado .mon-tabela-atribuidas th:nth-child(4) { width: 9%; }
+
+.mon-detalhado .mon-tabela-atribuidas th:nth-child(5) { width: 17%; }
+
+.mon-detalhado .mon-tabela-atribuidas th:nth-child(6) { width: 14%; }
+
+.mon-detalhado .mon-tabela-atribuidas th:nth-child(7) { width: 14%; }
+
+.mon-detalhado .mon-tabela-atribuidas th:nth-child(8) { width: 7%; }
+
+.mon-detalhado .mon-tabela-aguardando th:nth-child(1) { width: 16%; }
+
+.mon-detalhado .mon-tabela-aguardando th:nth-child(2) { width: 15%; }
+
+.mon-detalhado .mon-tabela-aguardando th:nth-child(3) { width: 9%; }
+
+.mon-detalhado .mon-tabela-aguardando th:nth-child(4) { width: 30%; }
+
+.mon-detalhado .mon-tabela-aguardando th:nth-child(5) { width: 15%; }
+
+.mon-detalhado .mon-tabela-aguardando th:nth-child(6) { width: 10%; }
+
+.mon-detalhado .mon-tabela-aguardando th:nth-child(7) { width: 5%; }
+
+.mon-detalhado .mon-table-agents th:nth-child(1) { width: 40%; }
+
+.mon-detalhado .mon-table-agents th:nth-child(2) { width: 17%; }
+
+.mon-detalhado .mon-table-agents th:nth-child(3),
+
+.mon-detalhado .mon-table-agents th:nth-child(4) { width: 21.5%; }
+
+.mon-detalhado .mon-table-agents th:nth-child(5) { width: 7%; }
+
+.mon-detalhado .mon-table-queues th:first-child { width: 25%; }
+
+.mon-detalhado .mon-tabela-tags th:first-child { width: 50%; }
+
+
+
+.mon-detalhado .mon-ticket {
+
+  padding: 0;
+
+  color: inherit;
+
+  font: inherit;
+
+  text-decoration: none;
+
+}
+
+.mon-detalhado .mon-ticket:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.mon-detalhado .who { overflow: hidden; text-overflow: ellipsis; }
+
+.mon-detalhado .time-sla { display: table-cell; }
+
+
+
+.mon-detalhado td.acts { position: relative; }
+
+.mon-detalhado .mon-actions { justify-content: center; gap: 0; }
+
+.mon-detalhado .mon-actions .iconbtn {
+
+  position: relative;
+
+  width: 40px;
+
+  height: 40px;
+
+  padding: 8px;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: var(--mon-text);
+
+  transition: background-color .18s ease;
+
+}
+
+.mon-detalhado .mon-actions .iconbtn:hover { background: rgba(0, 0, 0, .08); }
+
+.mon-detalhado .mon-actions .iconbtn:active { background: rgba(0, 0, 0, .16); }
+
+.mon-detalhado .mon-actions .iconbtn:focus-visible { outline: 2px solid var(--mon-blue); outline-offset: 2px; }
+
+.mon-detalhado .mon-actions .iconbtn svg { width: 24px; height: 24px; }
+
+.mon-detalhado .mon-acao[data-tooltip]::after {
+
+  position: absolute;
+
+  z-index: 30;
+
+  right: 50%;
+
+  bottom: calc(100% + 8px);
+
+  padding: 6px 8px;
+
+  border-radius: 4px;
+
+  background: #282828;
+
+  color: #fff;
+
+  content: attr(data-tooltip);
+
+  font-size: 12px;
+
+  font-weight: 400;
+
+  line-height: 18px;
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transform: translateX(50%) translateY(4px);
+
+  transition: opacity .16s ease, transform .16s ease;
+
+  white-space: nowrap;
+
+}
+
+.mon-detalhado .mon-acao[data-tooltip]:hover::after,
+
+.mon-detalhado .mon-acao[data-tooltip]:focus-visible::after { opacity: 1; transform: translateX(50%) translateY(0); }
+
+
+
+.mon-detalhado .mon-menu-actions {
+
+  top: 40px;
+
+  right: 0;
+
+  width: 200px;
+
+  padding: 4px;
+
+  border: 1px solid rgba(0, 0, 0, .08);
+
+  border-radius: 8px;
+
+  background: #fff;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .14);
+
+}
+
+
+
+.mon-detalhado .empty-line {
+
+  min-height: 108px;
+
+  padding: 0;
+
+  border: 0;
+
+  border-radius: 0;
+
+  background: transparent;
+
+  font-size: 14px;
+
+  font-weight: 400;
+
+}
+
+.mon-detalhado .pg {
+
+  display: flex;
+
+  align-items: center;
+
+  min-height: 40px;
+
+  margin-top: 16px;
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  font-size: 14px;
+
+}
+
+.mon-detalhado .pg-per-page { display: flex; align-items: center; gap: 16px; }
+
+.mon-detalhado .pg-direita { display: flex; align-items: center; margin-left: auto; }
+
+.mon-detalhado .pg-contador { margin: 0 16px 0 0; }
+
+.mon-detalhado .pg-nav { display: flex; align-items: center; justify-content: flex-start; width: auto; gap: 4px; }
+
+.mon-detalhado .pg-nav .iconbtn { width: 32px; height: 32px; border-radius: 4px; }
+
+.mon-detalhado .pg-nav .pg-icone {
+  display: block;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mon-detalhado .pg-nav .iconbtn:hover:not(:disabled) { background: rgba(0, 0, 0, .08); }
+
+.mon-detalhado .pg-nav .iconbtn:disabled { opacity: .45; }
+
+.mon-detalhado .pg-atual { min-width: 24px; text-align: center; }
+
+.mon-detalhado .tbl-legenda {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 24px;
+
+  margin: 16px 0 0;
+
+  padding: 3px 8px;
+
+  border-radius: 12px;
+
+  background: #fff4cc;
+
+  color: #282828;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  line-height: 18px;
+
+}
+
+
+
+@media (max-width: 760px) {
+
+  .mon-detalhado { padding: 16px; }
+
+  .mon-detalhado .tblhead { align-items: stretch; flex-direction: column; gap: 12px; }
+
+  .mon-detalhado .tbl-search { flex: 0 0 auto; width: 100%; min-width: 0; max-width: none; }
+
+  .mon-detalhado .tabs { margin-inline: -8px; padding-inline: 8px; gap: 24px; }
+
+  .mon-detalhado .pg { align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+
+  .mon-detalhado .pg-contador { margin-left: auto; }
+
+}

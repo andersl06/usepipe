@@ -51,7 +51,8 @@ function trackedFiles(root: string): string[] {
   return execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
     .split(/\r?\n/)
     .filter(Boolean)
-    .map(normalize);
+    .map(normalize)
+    .filter((file) => !file.startsWith('tools/std/fixtures/'));
 }
 function splitPath(value: string): string[] {
   return value.replace(/^\//, '').split(/[?#]/)[0].split('/').filter(Boolean);
@@ -112,16 +113,48 @@ function literalValue(node: any): string | undefined {
   return undefined;
 }
 
-function setLiteral(node: any, value: string): void {
-  if (Node.isStringLiteral(node) || Node.isNoSubstitutionTemplateLiteral(node))
-    node.setLiteralValue(value);
-  else if (Node.isTemplateExpression(node)) {
-    let text = value;
+interface Edit {
+  start: number;
+  end: number;
+  text: string;
+  row: MapRow;
+  priority: number;
+}
+type RecordEdit = (node: any, text: string) => void;
+
+function literalText(node: any, value: string): string {
+  if (Node.isTemplateExpression(node)) {
     node.getTemplateSpans().forEach((span: any, index: number) => {
-      text = text.replace(`\${${index}}`, `\${${span.getExpression().getText()}}`);
+      value = value.replace(`\${${index}}`, `\${${span.getExpression().getText()}}`);
     });
-    node.replaceWithText(`\`${text}\``);
+    return `\`${value}\``;
   }
+  const quote = node.getText()[0];
+  const escaped = value.replaceAll('\\', '\\\\').replaceAll(quote, `\\${quote}`)
+    .replaceAll('\r', '\\r').replaceAll('\n', '\\n');
+  return `${quote}${escaped}${quote}`;
+}
+
+function selectEdits(edits: Edit[]): Edit[] {
+  const selected: Edit[] = [];
+  for (const edit of edits.sort((a, b) => a.start - b.start || b.priority - a.priority || b.row.old.length - a.row.old.length || b.end - a.end)) {
+    if (selected.some((prior) => edit.start < prior.end && prior.start < edit.end)) continue;
+    selected.push(edit);
+  }
+  return selected;
+}
+
+function matchPriority(value: string, row: MapRow): number {
+  if (row.kind !== 'endpoint' && row.kind !== 'front-route') return row.old.length;
+  const start = value.indexOf(row.old.startsWith('/') ? `/${splitPath(row.old)[0]}` : splitPath(row.old)[0]);
+  if (start < 0) return row.old.length;
+  const actual = splitPath(value.slice(start));
+  const expected = splitPath(row.old);
+  let length = 0;
+  while (length < expected.length &&
+    (expected[length] === actual[length] ||
+      (expected[length].startsWith(':') && actual[length] !== undefined))) length += 1;
+  return length * 1000 + row.old.length;
 }
 
 function firstLiteral(callLike: any): any | undefined {
@@ -214,7 +247,10 @@ function contextualLiteral(node: any, oldValue: string): boolean {
   const caseClause = node.getFirstAncestorByKind(SyntaxKind.CaseClause);
   const switchStatement = caseClause?.getFirstAncestorByKind(SyntaxKind.SwitchStatement);
   return Boolean(
-    switchStatement && typeContainsLiteral(switchStatement.getExpression().getType(), oldValue),
+    switchStatement && (
+      typeContainsLiteral(switchStatement.getExpression().getType(), oldValue) ||
+      !switchStatement.getExpression().getType().isAny()
+    ),
   );
 }
 
@@ -244,7 +280,7 @@ function rewriteWireKey(
   sourceFile: any,
   row: MapRow,
   allRows: MapRow[],
-  dryRun: boolean,
+  record: RecordEdit,
 ): number {
   if (!fileMatchesConsumer(root, sourceFile, row.consumers, allRows)) return 0;
   const targets: any[] = [];
@@ -273,15 +309,12 @@ function rewriteWireKey(
   for (const signature of sourceFile.getDescendantsOfKind(SyntaxKind.PropertySignature)) {
     if (signature.getName() === row.old) targets.push(signature.getNameNode());
   }
-  if (!dryRun)
-    for (const target of targets) {
-      if (Node.isStringLiteral(target)) target.setLiteralValue(row.new);
-      else target.replaceWithText(row.new);
-    }
+  for (const target of targets)
+    record(target, Node.isStringLiteral(target) ? literalText(target, row.new) : row.new);
   return targets.length;
 }
 
-function rewriteDecorators(sourceFile: any, row: MapRow, dryRun: boolean): number {
+function rewriteDecorators(sourceFile: any, row: MapRow, record: RecordEdit): number {
   if (row.kind !== 'endpoint') return 0;
   let count = 0;
   for (const classDeclaration of sourceFile.getClasses()) {
@@ -305,26 +338,17 @@ function rewriteDecorators(sourceFile: any, row: MapRow, dryRun: boolean): numbe
         const newSuffix = newSegments.slice(prefixSegments).join('/');
         count += prefix !== newPrefix ? 1 : 0;
         count += suffix !== newSuffix ? 1 : 0;
-        if (!dryRun) {
-          if (prefix !== newPrefix) setLiteral(controllerArg, newPrefix);
-          if (methodArg && suffix !== newSuffix) setLiteral(methodArg, newSuffix);
-        }
+        if (prefix !== newPrefix) record(controllerArg, literalText(controllerArg, newPrefix));
+        if (methodArg && suffix !== newSuffix) record(methodArg, literalText(methodArg, newSuffix));
       }
     }
   }
   return count;
 }
 
-// Collecting every literal node in a file is a full AST walk; rewriteAstRow used to redo it
-// for every row against every project file (O(rows x files) full walks) even though the same
-// file's literal list never changes across rows within one run. Cached per sourceFile - only in
-// dry-run, where nothing mutates the AST, so the cached node list can never go stale; a real
-// (non-dry-run) apply still recomputes it fresh per row, since an earlier row's edit in the same
-// run can shift or forget nodes ts-morph collected before the edit.
+// The AST remains unchanged while every row is matched, so this list is always reusable.
 const literalsCache = new WeakMap<object, any[]>();
-function fileLiterals(sourceFile: any, dryRun: boolean): any[] {
-  if (!dryRun)
-    return sourceFile.getDescendants().filter((node: any) => literalValue(node) !== undefined);
+function fileLiterals(sourceFile: any): any[] {
   const cached = literalsCache.get(sourceFile);
   if (cached) return cached;
   const literals = sourceFile
@@ -339,11 +363,11 @@ function rewriteAstRow(
   sourceFile: any,
   row: MapRow,
   allRows: MapRow[],
-  dryRun: boolean,
+  record: RecordEdit,
 ): number {
-  if (row.kind === 'wire-key') return rewriteWireKey(root, sourceFile, row, allRows, dryRun);
-  let count = rewriteDecorators(sourceFile, row, dryRun);
-  const literals = fileLiterals(sourceFile, dryRun);
+  if (row.kind === 'wire-key') return rewriteWireKey(root, sourceFile, row, allRows, record);
+  let count = rewriteDecorators(sourceFile, row, record);
+  const literals = fileLiterals(sourceFile);
   for (const literal of literals) {
     const value = literalValue(literal)!;
     let replacement: string | undefined;
@@ -380,7 +404,7 @@ function rewriteAstRow(
     else if (
       row.kind === 'literal-value' &&
       value === row.old &&
-      contextualLiteral(literal, row.old)
+      (contextualLiteral(literal, row.old) || contextualLiteral(literal, row.new))
     )
       replacement = row.new;
     else if (['subpath-export', 'package'].includes(row.kind) && value.includes(row.old)) {
@@ -398,7 +422,7 @@ function rewriteAstRow(
     }
     if (replacement !== undefined && replacement !== value) {
       count += 1;
-      if (!dryRun) setLiteral(literal, replacement);
+      record(literal, literalText(literal, replacement));
     }
   }
 
@@ -413,7 +437,7 @@ function rewriteAstRow(
           property.getName() === row.old
         ) {
           count += 1;
-          if (!dryRun) property.getNameNode().replaceWithText(row.new);
+          record(property.getNameNode(), row.new);
         }
       }
     }
@@ -435,7 +459,7 @@ function rewriteAstRow(
       });
       if (changed !== text) {
         count += 1;
-        if (!dryRun) regex.replaceWithText(changed);
+        record(regex, changed);
       }
     }
   }
@@ -453,14 +477,17 @@ function rewriteAstRow(
         .some((reference: any) => technicalExactPosition(reference, row.kind));
       if (usedTechnically) {
         count += 1;
-        if (!dryRun) setLiteral(initializer, row.new);
+        record(initializer, literalText(initializer, row.new));
       }
     }
   }
   return count;
 }
 
-function rewriteTextFiles(root: string, files: string[], row: MapRow, dryRun: boolean): number {
+function rewriteTextFiles(
+  root: string, files: string[], row: MapRow,
+  record: (file: string, start: number, end: number, text: string) => void,
+): number {
   if (!['script', 'subpath-export', 'package'].includes(row.kind)) return 0;
   const candidates = files.filter((file) =>
     /package\.json$|\.md$|\.sh$|(^|\/)Dockerfile[^/]*$|(?:vite|vitest)\.config\.[^/]+$/.test(file),
@@ -469,32 +496,40 @@ function rewriteTextFiles(root: string, files: string[], row: MapRow, dryRun: bo
   for (const file of candidates) {
     const fullPath = path.join(root, file);
     const original = fs.readFileSync(fullPath, 'utf8');
-    let changed = original;
+    let changed = false;
+    const replace = (oldValue: string, newValue: string) => {
+      if (!oldValue || oldValue === newValue) return;
+      let offset = 0;
+      while ((offset = original.indexOf(oldValue, offset)) >= 0) {
+        record(fullPath, offset, offset + oldValue.length, newValue);
+        changed = true;
+        offset += oldValue.length;
+      }
+    };
     if (row.kind === 'script') {
-      changed = changed
-        .replace(new RegExp(`("|')${escapeRegex(row.old)}("|')(?=\\s*:)`, 'g'), `$1${row.new}$2`)
-        .replace(
-          new RegExp(`(pnpm(?: run)?\\s+)${escapeRegex(row.old)}(?=\\s|$)`, 'g'),
-          `$1${row.new}`,
-        );
+      for (const pattern of [
+        new RegExp(`(?<=["'])${escapeRegex(row.old)}(?=["']\\s*:)`, 'g'),
+        new RegExp(`(?<=pnpm(?: run)?\\s+)${escapeRegex(row.old)}(?=\\s|$)`, 'g'),
+      ])
+        for (const match of original.matchAll(pattern)) {
+          record(fullPath, match.index, match.index + row.old.length, row.new);
+          changed = true;
+        }
     } else {
-      changed = changed.replaceAll(row.old, row.new);
+      replace(row.old, row.new);
       if (row.kind === 'subpath-export' && file.endsWith('package.json')) {
         const oldParts = row.old.split('/');
         const newParts = row.new.split('/');
         const packageParts = row.old.startsWith('@') ? 2 : 1;
         const oldSubpath = oldParts.slice(packageParts).join('/');
         const newSubpath = newParts.slice(packageParts).join('/');
-        if (oldSubpath)
-          changed = changed
-            .replaceAll(`./${oldSubpath}`, `./${newSubpath}`)
-            .replaceAll(`/${oldSubpath}/`, `/${newSubpath}/`);
+        if (oldSubpath) {
+          replace(`./${oldSubpath}`, `./${newSubpath}`);
+          replace(`/${oldSubpath}/`, `/${newSubpath}/`);
+        }
       }
     }
-    if (changed !== original) {
-      count += 1;
-      if (!dryRun) fs.writeFileSync(fullPath, changed, 'utf8');
-    }
+    if (changed) count += 1;
   }
   return count;
 }
@@ -553,20 +588,51 @@ export function rewriteLiterals(options: RewriteLiteralsOptions): RewriteLiteral
   const project = loadWorkspaceProject(root);
   for (const file of files.filter((file) => /\.(?:js|mjs|mts)$/.test(file)))
     project.addSourceFileAtPathIfExists(path.join(root, file));
+  const edits = new Map<string, Edit[]>();
+  const counts = new Map<string, number>();
+  const physicalCounts = new Map<string, number>();
+  const record = (file: string, start: number, end: number, replacement: string, row: MapRow, original = '') => {
+    const fileEdits = edits.get(file) ?? [];
+    fileEdits.push({ start, end, text: replacement, row, priority: matchPriority(original, row) });
+    edits.set(file, fileEdits);
+  };
+  // All matchers read the original AST and original text. Nothing is mutated until
+  // every row has contributed its candidate spans.
+  for (const row of rows) {
+    const declared = row.kind === 'literal-value'
+      ? declaringLiteral(project, root, row, allRows) : undefined;
+    for (const sourceFile of project.getSourceFiles()) {
+      if (normalize(path.relative(root, sourceFile.getFilePath())).startsWith('tools/std/fixtures/'))
+        continue;
+      const file = sourceFile.getFilePath();
+      counts.set(row.id, (counts.get(row.id) ?? 0) + rewriteAstRow(root, sourceFile, row, allRows,
+        (node, replacement) => record(file, node.getStart(), node.getEnd(), replacement, row,
+          literalValue(node) ?? node.getText())));
+    }
+    if (declared && literalValue(declared) === row.old && !contextualLiteral(declared, row.old)) {
+      record(declared.getSourceFile().getFilePath(), declared.getStart(), declared.getEnd(),
+        literalText(declared, row.new), row);
+      counts.set(row.id, (counts.get(row.id) ?? 0) + 1);
+    }
+    counts.set(row.id, (counts.get(row.id) ?? 0) + rewriteTextFiles(root, files, row,
+      (file, start, end, replacement) => record(file, start, end, replacement, row)));
+  }
+  for (const [file, candidates] of edits) {
+    const selected = selectEdits(candidates);
+    for (const edit of selected)
+      physicalCounts.set(edit.row.id, (physicalCounts.get(edit.row.id) ?? 0) + 1);
+    if (!options.dryRun) {
+      let content = fs.readFileSync(file, 'utf8');
+      for (const edit of selected.reverse())
+        content = content.slice(0, edit.start) + edit.text + content.slice(edit.end);
+      fs.writeFileSync(file, content, 'utf8');
+    }
+  }
   let rewritten = 0;
   const unmatchedIds: string[] = [];
   const applied: MapRow[] = [];
   for (const row of rows) {
-    let rowCount = 0;
-    const declared =
-      row.kind === 'literal-value' ? declaringLiteral(project, root, row, allRows) : undefined;
-    for (const sourceFile of project.getSourceFiles())
-      rowCount += rewriteAstRow(root, sourceFile, row, allRows, Boolean(options.dryRun));
-    if (declared && literalValue(declared) === row.old && !contextualLiteral(declared, row.old)) {
-      rowCount += 1;
-      if (!options.dryRun) setLiteral(declared, row.new);
-    }
-    rowCount += rewriteTextFiles(root, files, row, Boolean(options.dryRun));
+    const rowCount = counts.get(row.id) ?? 0;
     if (rowCount === 0) unmatchedIds.push(row.id);
     else {
       rewritten += rowCount;
@@ -579,7 +645,6 @@ export function rewriteLiterals(options: RewriteLiteralsOptions): RewriteLiteral
   }
   let report: string | undefined;
   if (!options.dryRun) {
-    project.saveSync();
     writeMap(options.mapDir, applied);
     const reports = path.join(path.dirname(options.mapDir), 'reports');
     fs.mkdirSync(reports, { recursive: true });
@@ -598,7 +663,7 @@ export function rewriteLiterals(options: RewriteLiteralsOptions): RewriteLiteral
       'utf8',
     );
   }
-  options.log?.(`rewritten=${rewritten} unmatched=${unmatchedIds.length}`);
+  options.log?.(`rewritten=${rewritten} edits=${[...physicalCounts.values()].reduce((a, b) => a + b, 0)} unmatched=${unmatchedIds.length}`);
   return { rewritten, unmatchedIds, report };
 }
 

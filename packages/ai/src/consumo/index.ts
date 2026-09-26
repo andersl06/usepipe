@@ -1,41 +1,32 @@
 /**
- * Consumo de IA — tokens e custo de cada chamada.
- *
- * Toda função deste pacote devolve um `Consumo` junto com o resultado. Quem chama
- * grava em `consumo_ia` (§6 do modelo de dados). Sem isto o produto vende IA no
- * prejuízo: é painel para o cliente e base de cobrança.
- *
- * Modelo desconhecido **estoura** em vez de devolver custo zero. Custo zero
- * silencioso é o defeito clássico do case-sync: sucesso sem fazer o trabalho.
+ * AI usage tracks tokens and cost per call. Each package function returns `Consumo` alongside its result; callers store it in `consumo_ia` (§6 of the data model) for the customer dashboard and billing, avoiding unbilled AI usage. Unknown models fail instead of silently returning zero cost, the same false-success failure mode seen in case-sync.
  */
 
-/** Preço de um modelo, em dólares por milhão de tokens. */
-export interface PrecoModelo {
-  entradaUsdPorMilhao: number;
-  saidaUsdPorMilhao: number;
+/** Model price in dollars per million tokens. */
+export interface PriceTemplate {
+  inboundUsdByMillion: number;
+  outputUsdByMillion: number;
 }
 
 /**
- * Tabela de preços da API da Anthropic (primeira parte, valores de 2026-06).
- * Fica aqui e não em variável de ambiente porque preço errado é erro de cobrança,
- * e erro de cobrança tem que aparecer em teste, não em produção.
+ * Anthropic API prices for the first set of models, as of 2026-06. Prices live here instead of an environment variable so billing errors are caught by tests rather than in production.
  */
-export const PRECOS: Readonly<Record<string, PrecoModelo>> = {
-  'claude-sonnet-5': { entradaUsdPorMilhao: 2, saidaUsdPorMilhao: 10 },
-  'claude-opus-5': { entradaUsdPorMilhao: 5, saidaUsdPorMilhao: 25 },
-  'claude-opus-4-8': { entradaUsdPorMilhao: 5, saidaUsdPorMilhao: 25 },
-  'claude-sonnet-4-6': { entradaUsdPorMilhao: 3, saidaUsdPorMilhao: 15 },
-  'claude-haiku-4-5': { entradaUsdPorMilhao: 1, saidaUsdPorMilhao: 5 },
-  'claude-fable-5-1': { entradaUsdPorMilhao: 10, saidaUsdPorMilhao: 50 },
+export const PRECOS: Readonly<Record<string, PriceTemplate>> = {
+  'claude-sonnet-5': { inboundUsdByMillion: 2, outputUsdByMillion: 10 },
+  'claude-opus-5': { inboundUsdByMillion: 5, outputUsdByMillion: 25 },
+  'claude-opus-4-8': { inboundUsdByMillion: 5, outputUsdByMillion: 25 },
+  'claude-sonnet-4-6': { inboundUsdByMillion: 3, outputUsdByMillion: 15 },
+  'claude-haiku-4-5': { inboundUsdByMillion: 1, outputUsdByMillion: 5 },
+  'claude-fable-5-1': { inboundUsdByMillion: 10, outputUsdByMillion: 50 },
 };
 
-/** Modelo padrão do pacote. Configurável por `PIPE_IA_MODELO`. */
-export const MODELO_PADRAO = 'claude-sonnet-5';
+/** Package default model, configurable through `PIPE_IA_MODELO`. */
+export const TEMPLATE_DEFAULT = 'claude-sonnet-5';
 
-export class ErroModeloSemPreco extends Error {
-  constructor(readonly modelo: string) {
+export class TemplateWithoutPriceError extends Error {
+  constructor(readonly template: string) {
     super(
-      `Modelo "${modelo}" não tem preço na tabela de \`PRECOS\`. ` +
+      `Modelo "${template}" não tem preço na tabela de \`PRECOS\`. ` +
         'Cadastre o preço antes de usar: custo zero silencioso vira prejuízo.',
     );
     this.name = 'ErroModeloSemPreco';
@@ -43,57 +34,54 @@ export class ErroModeloSemPreco extends Error {
 }
 
 /**
- * Espelha as colunas de `consumo_ia`. `custoCentavos` é **fracionário de
- * propósito**: uma chamada custa muito menos que um centavo. Acumule o período
- * inteiro e arredonde só na hora de gravar, com `arredondarCentavos`.
+ * Mirrors `consumo_ia` columns. `custoCentavos` is intentionally fractional because a call can cost far less than one cent; accumulate the whole period and round only when writing with `arredondarCentavos`.
  */
 export interface Consumo {
-  modelo: string;
-  tokensEntrada: number;
+  template: string;
+  tokensInbound: number;
   tokensSaida: number;
   custoCentavos: number;
 }
 
-/** Custo em centavos de dólar, sem arredondar. */
-export function calcularCusto(modelo: string, tokensEntrada: number, tokensSaida: number): number {
-  const preco = PRECOS[modelo];
-  if (!preco) throw new ErroModeloSemPreco(modelo);
+/** Cost in US cents, without rounding. */
+export function calcularCusto(template: string, tokensInbound: number, tokensSaida: number): number {
+  const preco = PRECOS[template];
+  if (!preco) throw new TemplateWithoutPriceError(template);
   const usd =
-    (tokensEntrada / 1_000_000) * preco.entradaUsdPorMilhao +
-    (tokensSaida / 1_000_000) * preco.saidaUsdPorMilhao;
+    (tokensInbound / 1_000_000) * preco.inboundUsdByMillion +
+    (tokensSaida / 1_000_000) * preco.outputUsdByMillion;
   return usd * 100;
 }
 
-/** Monta o `Consumo` de uma chamada a partir dos tokens devolvidos pela API. */
-export function consumoDe(modelo: string, tokensEntrada: number, tokensSaida: number): Consumo {
+
+export function consumoDe(template: string, tokensInbound: number, tokensSaida: number): Consumo {
   return {
-    modelo,
-    tokensEntrada,
+    template,
+    tokensInbound,
     tokensSaida,
-    custoCentavos: calcularCusto(modelo, tokensEntrada, tokensSaida),
+    custoCentavos: calcularCusto(template, tokensInbound, tokensSaida),
   };
 }
 
 /**
- * Soma consumos do mesmo modelo. Modelos diferentes viram linhas diferentes em
- * `consumo_ia` — por isso a soma recusa misturar modelos.
+ * Adds usage for the same model. Different models require separate `consumo_ia` rows, so this rejects mixing them.
  */
 export function somarConsumo(consumos: readonly Consumo[]): Consumo[] {
-  const porModelo = new Map<string, Consumo>();
+  const byTemplate = new Map<string, Consumo>();
   for (const c of consumos) {
-    const acumulado = porModelo.get(c.modelo);
+    const acumulado = byTemplate.get(c.template);
     if (!acumulado) {
-      porModelo.set(c.modelo, { ...c });
+      byTemplate.set(c.template, { ...c });
       continue;
     }
-    acumulado.tokensEntrada += c.tokensEntrada;
+    acumulado.tokensInbound += c.tokensInbound;
     acumulado.tokensSaida += c.tokensSaida;
     acumulado.custoCentavos += c.custoCentavos;
   }
-  return [...porModelo.values()];
+  return [...byTemplate.values()];
 }
 
-/** Arredonda para o `integer` de `consumo_ia.custo_centavos`, nunca para baixo de zero. */
+/** Rounds for `consumo_ia.custo_centavos` integer storage, never below zero. */
 export function arredondarCentavos(custoCentavos: number): number {
   return Math.max(0, Math.round(custoCentavos));
 }

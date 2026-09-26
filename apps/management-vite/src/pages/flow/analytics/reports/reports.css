@@ -1,0 +1,196 @@
+/*
+ * ============================ Custom Reports (`relatorios/`)
+ *
+ *    `customReports`, template 47754 from `portal.js`, and the `#reports-id`, `.no-content-found` and `.search-input-container` rules from `portal.css`.
+ *
+ *    The color mapping:
+ *      #f6f6f6 `--color-surface-1` (`.cards`)          → `--surface`
+ *      `bds-paper elevation="Static"`                  → `--p-sombra-1`
+ *      #595959 `--color-content-disable` (`.label`)    → `--ink-2`
+ *      #282828 `--color-content-default` (`.description`, icons) → `--ink`
+ *      #a8bfc4 (`.no-content-found`)                    → `--ink-3`
+ *      #8ca0b3 (the magnifier)                                 → `--ink-3`
+ *      #1e6bf1 `--color-primary` (focused field's stroke) → `--p-marca`
+ *    ==========================================================================
+ */
+
+/*
+ * `.custom-header-content search-input { margin-right: .8rem }` — wins over `.mr3` by specificity — and `.search-input-container` is centered `flex`.
+ */
+.rl-search {
+  display: flex;
+  align-items: center;
+  margin-right: 0.8rem;
+  cursor: pointer;
+}
+
+.rl-search-magnifier {
+  flex: none;
+  color: var(--ink-3);
+}
+
+/*
+ * `input[type=text]`: no background or border, 2.25rem height, 0 width with `transition: width .4s`; on focus, 200px, 10 on the left and a 2px line.
+ */
+.rl-search input {
+  box-sizing: border-box;
+  width: 0;
+  height: 36px;
+  margin-left: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  transition: width 0.4s;
+}
+
+.rl-search input:focus {
+  width: 200px;
+  margin-left: 10px;
+  border-bottom: 2px solid var(--p-marca);
+  outline: 0;
+}
+
+.rl-create {
+  display: flex;
+  align-items: center;
+}
+
+.rl-create .an-bp-btn:disabled {
+  cursor: default;
+}
+
+/*
+ * `#reports-id .cards`: surface-1 background, row with `space-between`, 5 at the bottom, 25 padding, `white-space: nowrap`, full width. `bds-paper` sets radius 16 and the `Static` shadow.
+ */
+.rl-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 25px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--p-sombra-1);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/*
+ * `.w-25.truncate` and `.w-30.truncate`: `#reports-id .truncate` fixes 250px and truncates with an ellipsis — it wins over the percentage. The date is `.w-25` without truncation.
+ */
+.rl-column--name,
+.rl-column--author {
+  width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rl-column--data {
+  width: 25%;
+}
+
+.rl-column p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rl-rotulo {
+  color: var(--ink-2);
+}
+
+.rl-value {
+  color: var(--ink);
+}
+
+/*
+ * `.card-icons`: `flex`, centered, `space-between`, 35 height, 5 left and 5 padding; `--hidden` disappears (`opacity: 0; visibility: hidden`, .5s) until the cursor passes over the card, when it gets `font-size: large` (18px).
+ */
+.rl-icones {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 10%;
+  height: 35px;
+  margin-left: 5px;
+  padding: 5px;
+  color: var(--ink);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s linear;
+}
+
+.rl-card:hover .rl-icones {
+  opacity: 1;
+  visibility: visible;
+}
+
+/*
+ * `bds-icon size="x-large"`: the 32 box; the drawing is the `icon-edit` / `icon-delete` glyph at the focused card's `font-size: large`.
+ */
+.rl-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+/*
+ * `.no-content-found`: centered `flex`, 31 height, `padding: 80px 0`, `margin: auto`, full width, color #a8bfc4. The text is the `bds-typo` inside — fs-16 regular —, which doesn't inherit the host's 1.25rem `font-size`.
+ */
+.rl-empty {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 31px;
+  margin: auto;
+  padding: 80px 0;
+  color: var(--ink-3);
+}
+
+/*
+ * ------------------------------------ the confirmation modal (84817)
+ *
+ *    `.modal-toolbar` with `bds-icon close` flush right; the title is `bds-typo fs-32.mb5` (2.5rem on the host + the typo's 22); the body, `bds-typo.mh6.ph4` (5rem margin and 1.25rem side padding); `.modal-footer` centers, with `padding-top: 9px`, and "Não" has `.mr3`.
+ */
+.rl-confirma-barra {
+  display: flex;
+  justify-content: flex-end;
+  color: var(--ink);
+}
+
+.rl-confirma-barra a {
+  display: flex;
+  color: inherit;
+}
+
+.rl-confirma-titulo {
+  margin-bottom: 62px;
+  color: var(--ink);
+}
+
+.rl-confirma-texto {
+  margin: 0 80px;
+  padding: 0 20px;
+  color: var(--ink);
+}
+
+.rl-confirma-pe {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 9px;
+}
+
+.rl-confirma-nao {
+  margin-right: 10px;
+}

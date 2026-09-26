@@ -391,10 +391,10 @@ Dev/test uses `PIPE_FILAS=memoria`, so no drain is needed there. The realtime WS
 The packages publish `dist` (`main: ./dist/index.js`, subpath `exports` → `dist/<sub>/index.js`). Renamed source leaves old `dist/*.js` behind, so a deep import of an old path can still resolve. Clean `dist` before each gate and always gate via turbo.
 
 ### Pitfall 5: `@pipe/core` subpath exports are public names
-`./metricas`, `./esforco`, `./distribuicao`, `./conversa`, `./janela`, `./analise` are import specifiers used by consumers. Renaming the folders means changing `package.json#exports` **and** every `'@pipe/core/metricas'` specifier in the same slice. The same applies to `@pipe/db/schema` (already EN).
+`./metrics`, `./effort`, `./distribution`, `./conversation`, `./window`, `./analytics` are import specifiers used by consumers. Renaming the folders means changing `package.json#exports` **and** every `'@pipe/core/metricas'` specifier in the same slice. The same applies to `@pipe/db/schema` (already EN).
 
 ### Pitfall 6: Package/app rename touches non-TS files
-When `@pipe/autenticacao` / `armazenamento` / `tempo-real` / `gestao-vite` / `ponte` are renamed, the following all have to change:
+When `@pipe/authentication` / `armazenamento` / `tempo-real` / `gestao-vite` / `ponte` are renamed, the following all have to change:
 - `package.json#name` and `dependencies` (`workspace:*`) in every dependent
 - the regenerated `pnpm-lock.yaml`
 - every Dockerfile `COPY packages/<x>/package.json` list (each Dockerfile lists manifests explicitly, and `gestao-vite`'s list already omits `armazenamento`/`tempo-real`)

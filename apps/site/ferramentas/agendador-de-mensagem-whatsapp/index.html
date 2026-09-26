@@ -546,9 +546,11 @@
 
 <script src="/assets/site.js" defer></script>
 <script>
-/* Agendador de mensagem. Monta a fila de links wa.me personalizados e exporta
-   um arquivo .ics com um evento por contato. Nada sai do navegador: a lista de
-   números é lida, montada e baixada localmente. */
+/*
+ * Message scheduler. Builds the queue of personalized wa.me links and exports
+ *    a .ics file with one event per contact. Nothing leaves the browser: the
+ *    number list is read, built and downloaded locally.
+ */
 (function () {
   "use strict";
 
@@ -574,8 +576,11 @@
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
-  /* Aceita 8 a 15 dígitos. Sem DDI explícito e com 10 ou 11 dígitos, assume 55,
-     que cobre praticamente toda lista brasileira colada de planilha. */
+  /*
+   * Accepts 8 to 15 digits. Without an explicit country code and with 10 or 11
+   *      digits, it assumes 55, which covers practically every Brazilian list
+   *      pasted from a spreadsheet.
+   */
   function normalizar(bruto) {
     var d = (bruto || "").replace(/\D+/g, "");
     if (!d) return null;
@@ -603,8 +608,10 @@
   }
 
   function dobrarIcs(linha) {
-    /* O padrão iCalendar limita a linha a 75 octetos; quebrar com espaço no
-       começo da continuação é o que manda a especificação. */
+    /*
+     * The iCalendar standard limits a line to 75 octets; wrapping with a space at
+     *          the start of the continuation is what the spec requires.
+     */
     var saida = "";
     while (linha.length > 73) {
       saida += linha.slice(0, 73) + "\r\n ";

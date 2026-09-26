@@ -1,24 +1,21 @@
 /**
- * Leitura do conjunto de referência a partir de JSON, validada.
- *
- * Conjunto malformado falha aqui, alto e cedo. Bancada que roda com dado torto
- * devolve número bonito e mentiroso — que é pior do que não medir.
+ * Reads and validates the JSON reference set. Malformed cases fail early and visibly: running the bench on bad data would return attractive but false numbers, worse than not measuring.
  */
 
 import { readFile } from 'node:fs/promises';
 
 import { z } from 'zod';
 
-import { ErroFormatoIa } from '../cliente/erros.js';
+import { FormatIaError } from '../cliente/errors.js';
 import type { CasoReferencia } from './bancada.js';
 
-const EsquemaAnexo = z.object({
+const SchemaAttachment = z.object({
   nomeArquivo: z.string().nullish(),
   duracaoSeg: z.number().nullish(),
   transcricao: z.string().nullish(),
 });
 
-const EsquemaMensagem = z.object({
+const SchemaMessage = z.object({
   id: z.string(),
   criadaEm: z.string(),
   direcao: z.enum(['entrada', 'saida', 'interna']),
@@ -26,7 +23,7 @@ const EsquemaMensagem = z.object({
   autorNome: z.string().nullish(),
   tipo: z.enum(['texto', 'imagem', 'audio', 'video', 'documento', 'localizacao', 'template']),
   conteudo: z.string().nullish(),
-  anexo: EsquemaAnexo.nullish(),
+  anexo: SchemaAttachment.nullish(),
 });
 
 const EsquemaCriterio = z.object({
@@ -58,7 +55,7 @@ const EsquemaCaso = z.object({
   id: z.string(),
   descricao: z.string().optional(),
   contexto: z.string().nullish(),
-  mensagens: z.array(EsquemaMensagem).min(1),
+  mensagens: z.array(SchemaMessage).min(1),
   formulario: EsquemaFormulario,
   gabarito: z.array(z.object({ criterioId: z.string(), valor: z.string() })).min(1),
 });
@@ -72,7 +69,7 @@ const EsquemaConjunto = z.object({
 export function carregarConjunto(bruto: unknown): CasoReferencia[] {
   const lido = EsquemaConjunto.safeParse(bruto);
   if (!lido.success) {
-    throw new ErroFormatoIa(`Conjunto de referência inválido: ${lido.error.message}`, bruto);
+    throw new FormatIaError(`Conjunto de referência inválido: ${lido.error.message}`, bruto);
   }
 
   return lido.data.casos.map((caso) => {
@@ -81,22 +78,58 @@ export function carregarConjunto(bruto: unknown): CasoReferencia[] {
     );
     for (const item of caso.gabarito) {
       if (!idsDoFormulario.has(item.criterioId)) {
-        throw new ErroFormatoIa(
+        throw new FormatIaError(
           `Caso "${caso.id}": o gabarito cita o critério "${item.criterioId}", que não existe no formulário.`,
           caso.gabarito,
         );
       }
     }
     if (caso.gabarito.length !== idsDoFormulario.size) {
-      throw new ErroFormatoIa(
+      throw new FormatIaError(
         `Caso "${caso.id}": o gabarito tem ${caso.gabarito.length} respostas para ${idsDoFormulario.size} critérios. Gabarito incompleto não mede nada.`,
         caso.gabarito,
       );
     }
 
     return {
-      ...caso,
-      mensagens: caso.mensagens.map((m) => ({ ...m, criadaEm: new Date(m.criadaEm) })),
+      id: caso.id,
+      description: caso.descricao,
+      context: caso.contexto,
+      messages: caso.mensagens.map((m) => ({
+        id: m.id,
+        criadaEm: new Date(m.criadaEm),
+        direction: m.direcao,
+        autorTipo: m.autorTipo,
+        autorNome: m.autorNome,
+        tipo: m.tipo,
+        conteudo: m.conteudo,
+        attachment: m.anexo
+          ? {
+              nameFile: m.anexo.nomeArquivo,
+              durationSeg: m.anexo.duracaoSeg,
+              transcription: m.anexo.transcricao,
+            }
+          : m.anexo,
+      })),
+      formulario: {
+        id: caso.formulario.id,
+        nome: caso.formulario.nome,
+        notaMaxima: caso.formulario.notaMaxima,
+        groups: caso.formulario.grupos.map((grupo) => ({
+          id: grupo.id,
+          nome: grupo.nome,
+          peso: grupo.peso,
+          criterios: grupo.criterios.map((criterio) => ({
+            id: criterio.id,
+            nome: criterio.nome,
+            description: criterio.descricao,
+            peso: criterio.peso,
+            tipo: criterio.tipo,
+            fatal: criterio.fatal,
+          })),
+        })),
+      },
+      gabarito: caso.gabarito.map((g) => ({ criterioId: g.criterioId, value: g.valor })),
     } as CasoReferencia;
   });
 }

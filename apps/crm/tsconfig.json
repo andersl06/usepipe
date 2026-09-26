@@ -13,6 +13,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "semente", "next-env.d.ts", ".next/types/**/*.ts"],
+  "include": ["src", "seed", "next-env.d.ts", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

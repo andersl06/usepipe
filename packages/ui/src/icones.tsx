@@ -1,23 +1,16 @@
 /**
- * Fachada de ícone — desenhos do Tabler Icons (MIT), © Paweł Kuna.
- * https://github.com/tabler/tabler-icons — licença MIT.
+ * Icon facade using Tabler Icons artwork (MIT), copyright Paweł Kuna. https://github.com/tabler/tabler-icons - MIT license.
  *
- * Por que uma fachada e não o pacote `@tabler/icons-react`: o Twenty usa a
- * fachada justamente para que nenhum componente importe o pacote direto, e o
- * conjunto que os três aplicativos do Pipe usam de verdade é pequeno. Copiar
- * o caminho SVG dos que usamos custa menos do que carregar a biblioteca
- * inteira, e mantém o traço e o tamanho sob um controle só.
+ * Twenty uses a facade so components never import the icon package directly. The set actually used by Pipe's three applications is small; copying those SVG paths costs less than loading the whole library and keeps stroke and size under one control point.
  *
- * Trocar por `@tabler/icons-react` depois é substituir o corpo deste arquivo;
- * a interface `<Icone nome="..." />` não muda.
+ * Switching to `@tabler/icons-react` later means replacing this file's implementation while preserving the `<Icone nome="..." />` interface.
  *
- * Todos os desenhos usam a grade de 24 do Tabler, traço arredondado, sem
- * preenchimento — as mesmas convenções do símbolo da marca.
+ * All drawings use Tabler's 24-unit grid, rounded strokes, and no fill, matching the brand symbol.
  */
 
 import type { SVGProps } from 'react';
 
-/** Caminhos na grade 24×24 do Tabler. Ordem alfabética. */
+
 const CAMINHOS = {
   alerta: 'M12 9v4M12 17h.01M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z',
   baixo: 'M6 9l6 6l6 -6',
@@ -57,7 +50,7 @@ export type NomeDeIcone = keyof typeof CAMINHOS;
 
 export type PropsDeIcone = {
   nome: NomeDeIcone;
-  /** Tamanho em px. Padrão 16 — a régua de ícone do Twenty é 14/16/20/24. */
+  /** Size in px. Default 16; Twenty's icon scale is 14/16/20/24. */
   tamanho?: number;
 } & Omit<SVGProps<SVGSVGElement>, 'name'>;
 
@@ -82,12 +75,9 @@ export function Icone({ nome, tamanho = 16, ...resto }: PropsDeIcone) {
 }
 
 /**
- * Símbolo da marca: dois cotovelos de tubulação que se encaixam sem se tocar.
- * O vão entre os dois é parte do desenho — nunca fechar (docs/marca/MARCA.md).
+ * Brand symbol: two pipe elbows fitting together without touching. The gap is part of the design and must remain open (docs/marca/MARCA.md).
  *
- * Estava duplicado inline em três componentes (`desk/trilho.tsx`,
- * `gestao/menu-lateral.tsx`, `crm/menu-lateral.tsx`), cada cópia com o seu
- * próprio hex. Agora é um só, e o segundo traço herda a cor de destaque.
+ * It was duplicated inline in three components (`desk/trilho.tsx`, `gestao/menu-lateral.tsx`, `crm/menu-lateral.tsx`), each with its own hex value. Now there is one copy, and the second stroke inherits the accent color.
  */
 export function Simbolo({ tamanho = 22, ...resto }: { tamanho?: number } & SVGProps<SVGSVGElement>) {
   return (

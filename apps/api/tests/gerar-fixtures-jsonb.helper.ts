@@ -1,10 +1,5 @@
 /**
- * Núcleo de `tools/std/gerar-fixtures-jsonb.ts`, colocado aqui (e não em `tools/std/`)
- * porque precisa resolver `drizzle-orm`/`@pipe/db` e todo o código de domínio da `api`
- * pelo `node_modules` desta workspace — `tools/std` não tem esses pacotes instalados.
- * Não é teste (sem `.test.` no nome, `node --test`/vitest não o coletam); é só a parte
- * do gerador que precisa rodar a partir daqui. Ver o cabeçalho de
- * `tools/std/gerar-fixtures-jsonb.ts` para o propósito e as decisões do dono.
+ * Core of `tools/std/gerar-fixtures-jsonb.ts`, placed here (rather than in `tools/std/`) because it needs to resolve `drizzle-orm`/`@pipe/db` and all of the `api`'s domain code through this workspace's `node_modules` — `tools/std` does not have those packages installed. It is not a test (no `.test.` in the name, so `node --test`/Vitest do not collect it); it is only the part of the generator that must run from here. See the header of `tools/std/gerar-fixtures-jsonb.ts` for the purpose and the owner's decisions.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -12,40 +7,38 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import { montarCenario, assinar, payloadDeMensagem, APP_SECRET } from './ajuda.js';
+import { montarCenario, assinar, payloadOfMessage, APP_SECRET } from './ajuda.js';
 
 const RAIZ = fileURLToPath(new URL('../../../', import.meta.url));
 
-const FIXTURE_FLUXO: unknown = JSON.parse(
-  readFileSync(`${RAIZ}packages/core/src/fluxo/fixtures/editor-sintetico.json`, 'utf8'),
+const FIXTURE_FLOW: unknown = JSON.parse(
+  readFileSync(`${RAIZ}packages/core/src/flow/fixtures/editor-sintetico.json`, 'utf8'),
 );
 
 export type Registro = Record<string, unknown>;
 
 /**
- * Gera todas as fixtures dentro de UM tenant descartável (criado e apagado aqui, como
- * `montarCenario` já faz para a suíte de teste inteira) e devolve os registros crus, por
- * nome de arquivo de fixture — quem chama redige e escreve.
+ * Generates all fixtures inside a SINGLE disposable tenant (created and deleted here, the same way `montarCenario` already does for the entire test suite) and returns the raw records, keyed by fixture file name — the caller redacts and writes them.
  */
 export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
-  const { subirApi } = await import('../src/servidor.js');
-  const { noTenant } = await import('../src/banco.js');
-  const { importarFluxoDaBlip } = await import('../src/dominio/fluxo.js');
+  const { upApi } = await import('../src/servidor.js');
+  const { noTenant } = await import('../src/database.js');
+  const { importFlowOfBlip } = await import('../src/domain/flow.js');
   const { emitir } = await import('../src/webhooks-saida.js');
 
   const arquivos = new Map<string, Registro[]>();
-  const acumular = (arquivo: string, registro: Registro): void => {
-    const lista = arquivos.get(arquivo) ?? [];
+  const acumular = (file: string, registro: Registro): void => {
+    const lista = arquivos.get(file) ?? [];
     lista.push(registro);
-    arquivos.set(arquivo, lista);
+    arquivos.set(file, lista);
   };
 
   const cenario = await montarCenario(`gerar-jsonb-${randomUUID().slice(0, 8)}`);
-  const api = await subirApi(0);
+  const api = await upApi(0);
 
-  async function falar(canalId: string, de: string, texto: string): Promise<void> {
-    const corpo = JSON.stringify(payloadDeMensagem(de, texto));
-    const resposta = await fetch(`${api.url}/webhooks/whatsapp/${canalId}`, {
+  async function falar(channelId: string, de: string, texto: string): Promise<void> {
+    const corpo = JSON.stringify(payloadOfMessage(de, texto));
+    const resposta = await fetch(`${api.url}/webhooks/whatsapp/${channelId}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-hub-signature-256': assinar(corpo) },
       body: corpo,
@@ -57,64 +50,64 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
 
   try {
     // --- flow version + flow execution + outbox (mensagem.dados) ---
-    // Reaproveita a fixture sintética do motor (a mesma de apps/api/tests/fluxo.test.ts):
+    // Reuses the engine's synthetic fixture (the same one from `apps/api/tests/fluxo.test.ts`):
     // publicar grava fluxo_versao.global, bloco.conteudo/posicao, transicao.condicao;
     // conversar com o bot grava execucao_fluxo.contexto, execucao_passo.entrada/saida e,
     // no menu (select), mensagem.dados.
-    const publicacao = await noTenant(cenario.tenantId, (tx) =>
-      importarFluxoDaBlip(tx, {
+    const publication = await noTenant(cenario.tenantId, (tx) =>
+      importFlowOfBlip(tx, {
         tenantId: cenario.tenantId,
-        nome: 'Gerador de fixtures',
-        canalId: cenario.canalId,
-        json: FIXTURE_FLUXO,
+        name: 'Gerador de fixtures',
+        channelId: cenario.channelId,
+        json: FIXTURE_FLOW,
         publicar: true,
       }),
     );
 
     const ANA = '5511922220001';
-    await falar(cenario.canalId, ANA, 'oi');
-    await falar(cenario.canalId, ANA, 'Ana');
-    await falar(cenario.canalId, ANA, '2'); // escolhe "Suporte", transfere pra fila
+    await falar(cenario.channelId, ANA, 'oi');
+    await falar(cenario.channelId, ANA, 'Ana');
+    await falar(cenario.channelId, ANA, '2'); // escolhe "Suporte", transfere pra fila
 
     const { rows: versaoRows } = await cenario.dono.execute<{ global: unknown }>(
-      sql`select global from fluxo_versao where id = ${publicacao.versaoId}::uuid`,
+      sql`select global from fluxo_versao where id = ${publication.versaoId}::uuid`,
     );
-    acumular('flow-version-global.json', { id: publicacao.versaoId, value: versaoRows[0]?.global });
+    acumular('flow-version-global.json', { id: publication.versaoId, value: versaoRows[0]?.global });
 
-    const { rows: blocoRows } = await cenario.dono.execute<{
+    const { rows: blockRows } = await cenario.dono.execute<{
       id: string;
-      conteudo: unknown;
-      posicao: unknown;
-    }>(sql`select id, conteudo, posicao from bloco where versao_id = ${publicacao.versaoId}::uuid`);
-    for (const b of blocoRows) {
-      acumular('flow-block-content.json', { id: b.id, value: b.conteudo });
-      acumular('flow-block-position.json', { id: b.id, value: b.posicao });
+      content: unknown;
+      position: unknown;
+    }>(sql`select id, conteudo, posicao from bloco where versao_id = ${publication.versaoId}::uuid`);
+    for (const b of blockRows) {
+      acumular('flow-block-content.json', { id: b.id, value: b.content });
+      acumular('flow-block-position.json', { id: b.id, value: b.position });
     }
 
-    const { rows: transicaoRows } = await cenario.dono.execute<{ id: string; condicao: unknown }>(
-      sql`select id, condicao from transicao where versao_id = ${publicacao.versaoId}::uuid and condicao <> '{}'::jsonb`,
+    const { rows: transitionRows } = await cenario.dono.execute<{ id: string; condition: unknown }>(
+      sql`select id, condicao from transicao where versao_id = ${publication.versaoId}::uuid and condicao <> '{}'::jsonb`,
     );
-    for (const t of transicaoRows) {
-      acumular('flow-transition-condition.json', { id: t.id, value: t.condicao });
+    for (const t of transitionRows) {
+      acumular('flow-transition-condition.json', { id: t.id, value: t.condition });
     }
 
     // `cenario.dono` tem `bypassrls` (papel dono): toda leitura daqui em diante filtra
-    // `tenant_id = cenario.tenantId` explicitamente, nunca só por telefone/id — sem RLS
-    // amarrando, um telefone de teste igual ao de outra execução (deste ou de outro
+    // Set `tenant_id = cenario.tenantId` explicitly, never by phone/id alone — without RLS
+    // enforcing it, a test phone number equal to one from another run (of this or another
     // agente, no mesmo Postgres local compartilhado) vazaria linha de outro tenant.
-    const { rows: execucaoRows } = await cenario.dono.execute<{ id: string; contexto: unknown }>(sql`
+    const { rows: executionRows } = await cenario.dono.execute<{ id: string; context: unknown }>(sql`
       select e.id, e.contexto from execucao_fluxo e
         join conversa c on c.id = e.conversa_id
         join contato ct on ct.id = c.contato_id
        where e.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${ANA}`}
     `);
-    for (const e of execucaoRows) {
-      acumular('flow-execution-context.json', { id: e.id, value: e.contexto });
+    for (const e of executionRows) {
+      acumular('flow-execution-context.json', { id: e.id, value: e.context });
     }
 
     const { rows: passoRows } = await cenario.dono.execute<{
       id: string;
-      entrada: unknown;
+      inbound: unknown;
       saida: unknown;
     }>(sql`
       select ep.id, ep.entrada, ep.saida from execucao_passo ep
@@ -124,30 +117,30 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
        where ep.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${ANA}`}
     `);
     for (const p of passoRows) {
-      if (p.entrada !== null) acumular('flow-step-input.json', { id: p.id, value: p.entrada });
+      if (p.inbound !== null) acumular('flow-step-input.json', { id: p.id, value: p.inbound });
       if (p.saida !== null) acumular('flow-step-output.json', { id: p.id, value: p.saida });
     }
 
-    const { rows: mensagemRows } = await cenario.dono.execute<{ id: string; dados: unknown }>(sql`
+    const { rows: messageRows } = await cenario.dono.execute<{ id: string; data: unknown }>(sql`
       select m.id, m.dados from mensagem m
         join conversa c on c.id = m.conversa_id
         join contato ct on ct.id = c.contato_id
        where m.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${ANA}`}
          and m.dados is not null
     `);
-    for (const m of mensagemRows) {
-      acumular('outbox-message-data.json', { id: m.id, value: m.dados });
+    for (const m of messageRows) {
+      acumular('outbox-message-data.json', { id: m.id, value: m.data });
     }
 
     // --- flow execution: process_http_execucao (suspenso, sem chamada de rede) ---
-    // `contexto.servicos.suspenderHttp` está sempre setado em `rodarFluxoNaEntrada`, então
-    // toda ação ProcessHttp SEMPRE suspende antes de chamar rede de verdade — a linha nasce
-    // com entrada/contexto/pedido preenchidos e `resposta` nula (estado 'pendente'), sem
-    // nenhum request sair da máquina.
-    const fluxoComProcessHttp = JSON.parse(JSON.stringify(FIXTURE_FLUXO)) as {
+    // `contexto.servicos.suspenderHttp` is always set in `rodarFluxoNaEntrada`, so
+    // every ProcessHttp action ALWAYS suspends before making a real network call — the row is created
+    // with entrada/contexto/pedido filled in and `resposta` null (state 'pendente'), without
+    // any request ever leaving the machine.
+    const flowWithProcessHttp = JSON.parse(JSON.stringify(FIXTURE_FLOW)) as {
       flow: Record<string, { $enteringCustomActions: unknown[] }>;
     };
-    fluxoComProcessHttp.flow['boas-vindas']!.$enteringCustomActions.push({
+    flowWithProcessHttp.flow['boas-vindas']!.$enteringCustomActions.push({
       $id: 'ph1',
       type: 'ProcessHttp',
       settings: {
@@ -162,16 +155,16 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
       conditions: [],
     });
     await noTenant(cenario.tenantId, (tx) =>
-      importarFluxoDaBlip(tx, {
+      importFlowOfBlip(tx, {
         tenantId: cenario.tenantId,
-        nome: 'Gerador de fixtures (ProcessHttp)',
-        canalId: cenario.canalId,
-        json: fluxoComProcessHttp,
+        name: 'Gerador de fixtures (ProcessHttp)',
+        channelId: cenario.channelId,
+        json: flowWithProcessHttp,
         publicar: true,
       }),
     );
     const CAIO = '5511922220002';
-    await falar(cenario.canalId, CAIO, 'oi');
+    await falar(cenario.channelId, CAIO, 'oi');
 
     const { rows: processoRows } = await cenario.dono.execute<{
       id: string;
@@ -198,7 +191,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
 
     // --- flow execution: posicao_no_roteador.contexto (roteador de verdade) ---
     {
-      const { rows: canalRows } = await cenario.dono.execute<{ id: string }>(sql`
+      const { rows: channelRows } = await cenario.dono.execute<{ id: string }>(sql`
         insert into canal (tenant_id, tipo, nome, config)
         values (${cenario.tenantId}::uuid, 'whatsapp_cloud', 'Roteador de teste', ${JSON.stringify({
           appSecret: APP_SECRET,
@@ -208,47 +201,47 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
         })}::jsonb)
         returning id
       `);
-      const canalRoteadorId = canalRows[0]!.id;
+      const channelRouterId = channelRows[0]!.id;
       await cenario.dono.execute(sql`
         insert into inbox (tenant_id, canal_id, nome, fila_padrao_id)
-        values (${cenario.tenantId}::uuid, ${canalRoteadorId}::uuid, 'Entrada do roteador', ${cenario.filaId}::uuid)
+        values (${cenario.tenantId}::uuid, ${channelRouterId}::uuid, 'Entrada do roteador', ${cenario.queueId}::uuid)
       `);
 
-      const { rows: roteadorRows } = await cenario.dono.execute<{ id: string }>(sql`
+      const { rows: routerRows } = await cenario.dono.execute<{ id: string }>(sql`
         insert into fluxo (tenant_id, nome, canal_id, tipo, estado)
-        values (${cenario.tenantId}::uuid, 'Roteador de teste', ${canalRoteadorId}::uuid, 'roteador', 'publicado')
+        values (${cenario.tenantId}::uuid, 'Roteador de teste', ${channelRouterId}::uuid, 'roteador', 'publicado')
         returning id
       `);
-      const roteadorId = roteadorRows[0]!.id;
+      const routerId = routerRows[0]!.id;
 
-      const servico = await noTenant(cenario.tenantId, (tx) =>
-        importarFluxoDaBlip(tx, {
+      const service = await noTenant(cenario.tenantId, (tx) =>
+        importFlowOfBlip(tx, {
           tenantId: cenario.tenantId,
-          nome: 'Serviço do roteador',
-          canalId: null,
-          json: FIXTURE_FLUXO,
+          name: 'Serviço do roteador',
+          channelId: null,
+          json: FIXTURE_FLOW,
           publicar: true,
         }),
       );
       await cenario.dono.execute(
-        sql`update fluxo set usa_contexto_do_roteador = true where id = ${servico.fluxoId}::uuid`,
+        sql`update fluxo set usa_contexto_do_roteador = true where id = ${service.flowId}::uuid`,
       );
       await cenario.dono.execute(sql`
         insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal)
-        values (${cenario.tenantId}::uuid, ${roteadorId}::uuid, ${servico.fluxoId}::uuid, 'principal', true)
+        values (${cenario.tenantId}::uuid, ${routerId}::uuid, ${service.flowId}::uuid, 'principal', true)
       `);
 
       const BIA = '5511922220004';
-      await falar(canalRoteadorId, BIA, 'oi');
-      await falar(canalRoteadorId, BIA, 'Bia');
+      await falar(channelRouterId, BIA, 'oi');
+      await falar(channelRouterId, BIA, 'Bia');
 
-      const { rows: posicaoRows } = await cenario.dono.execute<{ id: string; contexto: unknown }>(sql`
+      const { rows: positionRows } = await cenario.dono.execute<{ id: string; contexto: unknown }>(sql`
         select p.id, p.contexto from posicao_no_roteador p
           join contato ct on ct.id = p.contato_id
-         where p.tenant_id = ${cenario.tenantId}::uuid and p.roteador_id = ${roteadorId}::uuid
+         where p.tenant_id = ${cenario.tenantId}::uuid and p.roteador_id = ${routerId}::uuid
            and ct.telefone_e164 = ${`+${BIA}`}
       `);
-      for (const p of posicaoRows) {
+      for (const p of positionRows) {
         acumular('flow-router-context.json', { id: p.id, value: p.contexto });
       }
     }
@@ -268,41 +261,41 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
         origem: 'gerar-fixtures-jsonb',
       });
     });
-    const { rows: entregaRows } = await cenario.dono.execute<{ id: string; payload: unknown }>(
+    const { rows: deliveryRows } = await cenario.dono.execute<{ id: string; payload: unknown }>(
       sql`select id, payload from entrega_webhook where webhook_id = ${webhookId}::uuid`,
     );
-    for (const e of entregaRows) {
+    for (const e of deliveryRows) {
       acumular('outbox-webhook-payload.json', { id: e.id, value: e.payload });
     }
 
-    // --- crm: contato.atributos (POST /v1/contatos de verdade, chave escopo contatos:escrever) ---
-    const respostaContato = await fetch(`${api.url}/v1/contatos`, {
+    // --- crm: contato.atributos (POST /v1/contacts de verdade, chave escopo contatos:escrever) ---
+    const responseContact = await fetch(`${api.url}/v1/contacts`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${cenario.token}`,
       },
       body: JSON.stringify({
-        telefone_e164: '+5511922220003',
+        phoneE164: '+5511922220003',
         nome: 'Contato de exemplo',
         atributos: { plano: 'pro', origem_utm: 'anuncio-instagram', pontuacao_nps: 9 },
       }),
     });
-    if (!respostaContato.ok) {
+    if (!responseContact.ok) {
       throw new Error(
-        `POST /v1/contatos falhou: ${respostaContato.status} ${await respostaContato.text()}`,
+        `POST /v1/contacts falhou: ${responseContact.status} ${await responseContact.text()}`,
       );
     }
-    const contatoCriado = (await respostaContato.json()) as { id: string; atributos: unknown };
-    acumular('crm-contact-attributes.json', { id: contatoCriado.id, value: contatoCriado.atributos });
+    const contactCreated = (await responseContact.json()) as { id: string; atributos: unknown };
+    acumular('crm-contact-attributes.json', { id: contactCreated.id, value: contactCreated.atributos });
 
     // --- audit: log_auditoria.antes/depois (registrarAuditoria() de verdade) ---
     await noTenant(cenario.tenantId, (tx) =>
       registrarAuditoria(tx, cenario.tenantId, {
-        ator: { tipo: 'usuario', id: cenario.atendenteId },
+        ator: { type: 'usuario', id: cenario.agentId },
         acao: 'alterou',
         objetoTipo: 'contato',
-        objetoId: contatoCriado.id,
+        objetoId: contactCreated.id,
         antes: { nome: 'Contato de exemplo', email: null, telefone_e164: '+5511922220003' },
         depois: {
           nome: 'Contato Editado',
@@ -317,15 +310,15 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
       depois: unknown;
     }>(sql`
       select id, antes, depois from log_auditoria
-       where tenant_id = ${cenario.tenantId}::uuid and objeto_id = ${contatoCriado.id}::uuid
+       where tenant_id = ${cenario.tenantId}::uuid and objeto_id = ${contactCreated.id}::uuid
     `);
     for (const a of auditRows) {
       acumular('audit-before-after.json', { id: a.id, antes: a.antes, depois: a.depois });
     }
 
     // --- crm: lead.utm / lead.customizados ---
-    // Sem rota de escrita própria hoje; formato igual ao que
-    // apps/crm/semente/semente-crm.ts:625-654 grava (citado, não executado).
+    // There is no dedicated write route for it today; the format matches what
+    // `apps/crm/semente/semente-crm.ts:625-654` writes (referenced, not executed).
     const { rows: leadRows } = await cenario.dono.execute<{
       id: string;
       utm: unknown;
@@ -333,7 +326,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     }>(sql`
       insert into lead (tenant_id, contato_id, origem, campanha, utm, status, customizados)
       values (
-        ${cenario.tenantId}::uuid, ${contatoCriado.id}::uuid, 'Anúncio Instagram', 'novos-clientes-2026',
+        ${cenario.tenantId}::uuid, ${contactCreated.id}::uuid, 'Anúncio Instagram', 'novos-clientes-2026',
         ${JSON.stringify({ source: 'instagram', medium: 'cpc', campaign: 'novos-clientes-2026' })}::jsonb,
         'novo',
         ${JSON.stringify({
@@ -351,23 +344,23 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     }
 
     // --- template: template_mensagem.variaveis ---
-    // Sem chamada à Graph API da Meta; reproduz a MESMA transformação determinística de
+    // No call to Meta's Graph API; it reproduces the SAME deterministic transformation as
     // apps/api/src/dominio/whatsapp/modelos.ts:207 (`Array.from({length:n}, (_,i)=>...)`).
-    const quantasVariaveis = 2;
-    const variaveisPadrao = Array.from(
-      { length: quantasVariaveis },
+    const howManyVariables = 2;
+    const variablesDefault = Array.from(
+      { length: howManyVariables },
       (_, i) => `Variável ${i + 1}`,
     );
-    const { rows: templateRows } = await cenario.dono.execute<{ id: string; variaveis: unknown }>(sql`
+    const { rows: templateRows } = await cenario.dono.execute<{ id: string; variables: unknown }>(sql`
       insert into template_mensagem (tenant_id, canal_id, nome, idioma, categoria, status_meta, corpo, variaveis)
       values (
-        ${cenario.tenantId}::uuid, ${cenario.canalId}::uuid, 'boas_vindas_exemplo', 'pt_BR', 'utilidade',
-        'aprovado', 'Olá {{1}}, seu pedido {{2}} foi confirmado.', ${JSON.stringify(variaveisPadrao)}::jsonb
+        ${cenario.tenantId}::uuid, ${cenario.channelId}::uuid, 'boas_vindas_exemplo', 'pt_BR', 'utilidade',
+        'aprovado', 'Olá {{1}}, seu pedido {{2}} foi confirmado.', ${JSON.stringify(variablesDefault)}::jsonb
       )
-      returning id, variaveis
+      returning id, variaveis as "variables"
     `);
     for (const t of templateRows) {
-      acumular('template-variables.json', { id: t.id, value: t.variaveis });
+      acumular('template-variables.json', { id: t.id, value: t.variables });
     }
 
     return arquivos;

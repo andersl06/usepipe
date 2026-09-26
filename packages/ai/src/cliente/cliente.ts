@@ -1,98 +1,81 @@
 /**
- * Uma única porta para a API da Anthropic: saída estruturada validada por esquema,
- * consumo medido e nova tentativa com espera crescente.
- *
- * Nenhuma chave no código: `ANTHROPIC_API_KEY` sai do ambiente (o SDK resolve
- * sozinho). O modelo padrão é `claude-sonnet-5` e sai de `PIPE_IA_MODELO` quando
- * definido.
- *
- * O tipo `ChamadaEstruturada` é a costura de teste: toda função pública do pacote
- * aceita uma no lugar da real, e é assim que os testes rodam com resposta gravada
- * em vez de gastar chamada de verdade.
+ * Single entry point to the Anthropic API: schema-validated structured output, measured usage, and retries with increasing delay. No key is embedded: the SDK reads `ANTHROPIC_API_KEY` from the environment. The default model is `claude-sonnet-5`, overridden by `PIPE_IA_MODELO`. `ChamadaEstruturada` is the test seam: public package functions accept an injected call, allowing recorded responses instead of real paid calls.
  */
 
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import type { z } from 'zod';
 
-import { MODELO_PADRAO, consumoDe, type Consumo } from '../consumo/index.js';
-import { ErroChamadaIa, ErroFormatoIa } from './erros.js';
+import { TEMPLATE_DEFAULT, consumoDe, type Consumo } from '../consumo/index.js';
+import { CallIaError, FormatIaError } from './errors.js';
 
-/** Níveis de esforço aceitos pela API (`output_config.effort`). */
-export type Esforco = 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+/** Effort levels accepted by the API (`output_config.effort`). */
+export type Effort = 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 
 export interface PedidoIa<T> {
-  /** Instrução persistente da tarefa. Vem sempre de um arquivo de `prompts/`. */
+  /** Persistent task instruction, always loaded from a `prompts/` file. */
   sistema: string;
-  /** O material da vez: transcrição, taxonomia, formulário. */
-  usuario: string;
+  /** Current input: transcript, taxonomy, or form. */
+  user: string;
   /** Formato exigido da resposta. Fora dele, a chamada falha. */
   esquema: z.ZodType<T>;
-  modelo?: string;
+  template?: string;
   maxTokens?: number;
-  esforco?: Esforco;
+  effort?: Effort;
   /** Identifica a chamada em `consumo_ia.funcionalidade`. */
-  funcionalidade: string;
+  feature: string;
 }
 
 export interface RespostaIa<T> {
-  dados: T;
+  data: T;
   consumo: Consumo;
   /** Modelo que efetivamente respondeu. */
-  modelo: string;
+  template: string;
 }
 
-/** Assinatura da chamada ao modelo. Injetável para teste com dublê. */
+/** Model-call signature; injectable to test with a stub. */
 export type ChamadaEstruturada = <T>(pedido: PedidoIa<T>) => Promise<RespostaIa<T>>;
 
 /**
- * Esforço baixo por padrão. Não é economia às cegas: no case-sync, aumentar o
- * orçamento de raciocínio **piorou** a acurácia da classificação, e zero saiu
- * igual ou melhor. Quem precisar de mais passa `esforco` no pedido.
+ * Low effort by default, based on case-sync measurements: increasing the reasoning budget worsened classification accuracy, while zero effort matched or improved it. Callers needing more can pass `effort` in the request.
  */
-export const ESFORCO_PADRAO: Esforco = 'low';
+export const EFFORT_DEFAULT: Effort = 'low';
 
 export const MAX_TOKENS_PADRAO = 8000;
 
-/** Modelo em uso: `PIPE_IA_MODELO` quando definido, senão `claude-sonnet-5`. */
-export function modeloConfigurado(): string {
-  return process.env['PIPE_IA_MODELO']?.trim() || MODELO_PADRAO;
+/** Configured model: `PIPE_IA_MODELO` when set, otherwise `claude-sonnet-5`. */
+export function templateConfigured(): string {
+  return process.env['PIPE_IA_MODELO']?.trim() || TEMPLATE_DEFAULT;
 }
 
-export interface OpcoesRetentativa {
+export interface OptionsRetry {
   /** Total de tentativas, incluindo a primeira. */
   tentativas?: number;
   /** Espera da primeira retentativa, em ms. Dobra a cada rodada. */
   esperaBaseMs?: number;
-  /** Injetável para o teste não dormir de verdade. */
+  /** Injectable so tests do not actually sleep. */
   dormir?: (ms: number) => Promise<void>;
 }
 
-const dormirDeVerdade = (ms: number) => new Promise<void>((ok) => setTimeout(ok, ms));
+const trueSleep = (ms: number) => new Promise<void>((ok) => setTimeout(ok, ms));
 
 /**
- * Erro de rede ou limite de taxa: vale tentar de novo. Erro nosso (4xx de
- * requisição malformada, chave errada, modelo inexistente): não — repetir só
- * gasta dinheiro e atrasa o diagnóstico.
- *
- * A decisão é pelo **código HTTP**, não pela classe do erro: 408, 409, 429 e 5xx.
- * Classe é detalhe do SDK e muda de versão para versão; o código não.
+ * Retry network failures or rate limits; do not retry our request errors, bad keys, or nonexistent models, because that wastes money and delays diagnosis. Use HTTP status rather than SDK error classes, which may change across versions: 408, 409, 429, and 5xx are retryable.
  */
 export const STATUS_QUE_REPETEM = new Set([408, 409, 429]);
 
-export function vaiDeNovo(erro: unknown): boolean {
-  if (erro instanceof Anthropic.APIConnectionError) return true;
-  if (erro instanceof Anthropic.APIError) {
+export function vaiDeNovo(error: unknown): boolean {
+  if (error instanceof Anthropic.APIConnectionError) return true;
+  if (error instanceof Anthropic.APIError) {
     return (
-      typeof erro.status === 'number' && (STATUS_QUE_REPETEM.has(erro.status) || erro.status >= 500)
+      typeof error.status === 'number' && (STATUS_QUE_REPETEM.has(error.status) || error.status >= 500)
     );
   }
   return false;
 }
 
 /**
- * Espera crescente com sorteio: 500ms, 1s, 2s… cada uma com até 25% de variação,
- * para não ressincronizar todas as conversas encerradas no mesmo segundo.
+ * Exponential backoff with jitter: 500 ms, 1 s, 2 s, and so on, each varied by up to 25%, to avoid resynchronizing conversations closed in the same second.
  */
 export function esperaDaTentativa(
   indice: number,
@@ -106,19 +89,19 @@ export function esperaDaTentativa(
 /** Repete `tarefa` enquanto o erro for de rede ou limite de taxa. */
 export async function comRetentativa<T>(
   tarefa: () => Promise<T>,
-  opcoes: OpcoesRetentativa = {},
+  options: OptionsRetry = {},
 ): Promise<T> {
-  const tentativas = opcoes.tentativas ?? 4;
-  const esperaBaseMs = opcoes.esperaBaseMs ?? 500;
-  const dormir = opcoes.dormir ?? dormirDeVerdade;
+  const tentativas = options.tentativas ?? 4;
+  const esperaBaseMs = options.esperaBaseMs ?? 500;
+  const dormir = options.dormir ?? trueSleep;
 
   let ultimo: unknown;
   for (let i = 0; i < tentativas; i++) {
     try {
       return await tarefa();
-    } catch (erro) {
-      ultimo = erro;
-      if (!vaiDeNovo(erro) || i === tentativas - 1) throw erro;
+    } catch (error) {
+      ultimo = error;
+      if (!vaiDeNovo(error) || i === tentativas - 1) throw error;
       await dormir(esperaDaTentativa(i, esperaBaseMs));
     }
   }
@@ -133,66 +116,64 @@ function cliente(): Anthropic {
 }
 
 /**
- * A chamada de verdade. Falha explicitamente quando o modelo recusa, quando a
- * resposta é cortada por `max_tokens` e quando o conteúdo não passa no esquema —
- * em nenhum desses casos ela adivinha.
+ * Real API call. Refusal, truncation at `max_tokens`, and schema-invalid content fail explicitly; none is guessed into a result.
  */
-export function criarChamada(opcoes: OpcoesRetentativa = {}): ChamadaEstruturada {
+export function createCall(options: OptionsRetry = {}): ChamadaEstruturada {
   return async function chamar<T>(pedido: PedidoIa<T>): Promise<RespostaIa<T>> {
-    const modelo = pedido.modelo ?? modeloConfigurado();
+    const template = pedido.template ?? templateConfigured();
 
     const resposta = await comRetentativa(
       () =>
         cliente().messages.parse({
-          model: modelo,
+          model: template,
           max_tokens: pedido.maxTokens ?? MAX_TOKENS_PADRAO,
           system: pedido.sistema,
-          messages: [{ role: 'user', content: pedido.usuario }],
+          messages: [{ role: 'user', content: pedido.user }],
           output_config: {
-            effort: pedido.esforco ?? ESFORCO_PADRAO,
+            effort: pedido.effort ?? EFFORT_DEFAULT,
             format: zodOutputFormat(pedido.esquema as z.ZodType),
           },
         }),
-      opcoes,
+      options,
     );
 
     if (resposta.stop_reason === 'refusal') {
-      throw new ErroChamadaIa(
-        `O modelo recusou a tarefa "${pedido.funcionalidade}": ` +
+      throw new CallIaError(
+        `O modelo recusou a tarefa "${pedido.feature}": ` +
           `${resposta.stop_details?.category ?? 'sem categoria'}.`,
         resposta.stop_details,
       );
     }
     if (resposta.stop_reason === 'max_tokens') {
-      throw new ErroChamadaIa(
-        `Resposta de "${pedido.funcionalidade}" cortada em ${pedido.maxTokens ?? MAX_TOKENS_PADRAO} tokens. ` +
+      throw new CallIaError(
+        `Resposta de "${pedido.feature}" cortada em ${pedido.maxTokens ?? MAX_TOKENS_PADRAO} tokens. ` +
           'Aumente `maxTokens` ou trunque mais a transcrição.',
       );
     }
 
     const bruto = resposta.parsed_output;
     if (bruto == null) {
-      throw new ErroFormatoIa(
-        `"${pedido.funcionalidade}" devolveu conteúdo fora do formato exigido.`,
+      throw new FormatIaError(
+        `"${pedido.feature}" devolveu conteúdo fora do formato exigido.`,
         resposta.content,
       );
     }
 
     const validado = pedido.esquema.safeParse(bruto);
     if (!validado.success) {
-      throw new ErroFormatoIa(
-        `"${pedido.funcionalidade}" não passou na validação: ${validado.error.message}`,
+      throw new FormatIaError(
+        `"${pedido.feature}" não passou na validação: ${validado.error.message}`,
         bruto,
       );
     }
 
     return {
-      dados: validado.data,
-      modelo: resposta.model ?? modelo,
-      consumo: consumoDe(modelo, resposta.usage.input_tokens, resposta.usage.output_tokens),
+      data: validado.data,
+      template: resposta.model ?? template,
+      consumo: consumoDe(template, resposta.usage.input_tokens, resposta.usage.output_tokens),
     };
   };
 }
 
-/** Chamada padrão do pacote, usada quando o chamador não injeta uma. */
-export const chamadaPadrao: ChamadaEstruturada = (pedido) => criarChamada()(pedido);
+/** Default package call when the caller does not inject one. */
+export const chamadaPadrao: ChamadaEstruturada = (pedido) => createCall()(pedido);

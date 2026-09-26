@@ -162,6 +162,7 @@ export function compareRoutes(
   baseline: RouteInfo[],
   current: RouteInfo[],
   renames: RenameRow[],
+  persisted: ReadonlySet<string> = new Set(),
 ): RouteComparison {
   const active = renames.filter((row) => row.status === 'applied' || row.status === 'verified');
   const endpointRenames = active.filter((row) => row.kind === 'endpoint');
@@ -180,7 +181,7 @@ export function compareRoutes(
     guards: route.guards.map((guard) => ({
       name: translate ? (symbolRenames.get(guard.name) ?? guard.name) : guard.name,
       args: guard.args.map((argument) =>
-        translate ? replaceSymbols(argument, symbolRenames) : argument,
+        translate && !persisted.has(unquote(argument)) ? replaceSymbols(argument, symbolRenames) : argument,
       ),
     })),
   });
@@ -360,6 +361,10 @@ function segments(value: string): string[] {
   return value.split('/').filter(Boolean);
 }
 
+function unquote(value: string): string {
+  return value.replace(/^['"`]/, '').replace(/['"`]$/, '');
+}
+
 function replaceSymbols(value: string, renames: Map<string, string>): string {
   let result = value;
   for (const [oldName, newName] of renames) {
@@ -483,8 +488,8 @@ function isImportLikeLiteral(node: ts.Node): boolean {
 function regexPath(raw: string): string {
   const body = raw.replace(/^\//, '').replace(/\/[a-z]*$/i, '').replaceAll('\\/', '/');
   const v1 = body.indexOf('/v1/');
-  const fluxo = body.indexOf('/fluxos/');
-  const start = v1 >= 0 ? v1 : fluxo;
+  const flow = body.indexOf('/fluxos/');
+  const start = v1 >= 0 ? v1 : flow;
   if (start < 0) return '';
   return body
     .slice(start)
@@ -553,6 +558,25 @@ function writeConsumers(file: string, consumers: ConsumerInfo[]): void {
   fs.writeFileSync(file, `${rows.join('\n')}\n`);
 }
 
+function readPersistedValues(mapTarget: string): Set<string> {
+  const base = fs.existsSync(mapTarget) && fs.statSync(mapTarget).isDirectory()
+    ? path.dirname(mapTarget)
+    : path.dirname(path.dirname(mapTarget));
+  const file = path.join(base, 'persisted.csv');
+  if (!fs.existsSync(file)) return new Set();
+  const [header = [], ...rows] = parseCsv(fs.readFileSync(file, 'utf8'));
+  const oldIndex = header.indexOf('old');
+  if (oldIndex < 0) return new Set();
+  const decisionIndex = header.indexOf('decision');
+  const values = new Set<string>();
+  for (const row of rows) {
+    if (decisionIndex >= 0 && row[decisionIndex] && row[decisionIndex] !== 'keep') continue;
+    const value = row[oldIndex];
+    if (value) values.add(value);
+  }
+  return values;
+}
+
 function readAllowlist(file: string | undefined): Set<string> {
   if (!file || !fs.existsSync(file)) return new Set();
   const [header = [], ...rows] = parseCsv(fs.readFileSync(file, 'utf8'));
@@ -594,7 +618,7 @@ function main(): void {
   fs.mkdirSync(path.dirname(emitFile), { recursive: true });
   fs.writeFileSync(emitFile, `${JSON.stringify(routes, null, 2)}\n`);
 
-  const consumerApps = new Set(['desk-vite', 'gestao-vite', 'crm', 'ponte', 'workers']);
+  const consumerApps = new Set(['desk-vite', 'management-vite', 'crm', 'bridge', 'workers']);
   const consumerFiles = trackedFiles.filter((file) => {
     if (!/\.tsx?$/.test(file)) return false;
     const parts = file.split('/');
@@ -611,8 +635,9 @@ function main(): void {
   let failed = false;
   if (args.has('--compare')) {
     const baseline = JSON.parse(fs.readFileSync(requiredArgument(args, '--compare'), 'utf8')) as RouteInfo[];
-    const renames = readRenameRows(requiredArgument(args, '--map'));
-    const comparison = compareRoutes(baseline, routes, renames);
+    const mapTarget = requiredArgument(args, '--map');
+    const renames = readRenameRows(mapTarget);
+    const comparison = compareRoutes(baseline, routes, renames, readPersistedValues(mapTarget));
     if (!comparison.equal) {
       failed = true;
       console.error('ROUTE SET CHANGED');

@@ -8,7 +8,7 @@ test('collectKeys junta chaves aninhadas e desce em array', () => {
   assert.deepEqual(collectKeys(doc).sort(), ['a', 'b', 'c', 'd']);
 });
 
-test('collectKeys exclui filhos de caminho opaco mas mantém a própria chave', () => {
+test('`collectKeys` keeps an opaque path key while excluding its children', () => {
   const doc = { a: { b: 1, c: [{ d: 2 }] }, vars: { x: 1 } };
   const chaves = collectKeys(doc, ['$.vars.*']).sort();
   assert.deepEqual(chaves, ['a', 'b', 'c', 'd', 'vars']);
@@ -20,7 +20,7 @@ test('collectKeys com caminho opaco aninhado só some com o que está abaixo del
   assert.deepEqual(chaves, ['cabecalhos', 'pedido', 'url']);
 });
 
-test('collectKeys sem doc nem chave nenhuma devolve vazio', () => {
+test('`collectKeys` returns no keys for missing or non-object documents', () => {
   assert.deepEqual(collectKeys(null), []);
   assert.deepEqual(collectKeys('texto'), []);
   assert.deepEqual(collectKeys([1, 2, 3]), []);
@@ -30,7 +30,7 @@ function fonte(texto: string): ts.SourceFile {
   return ts.createSourceFile('x.ts', texto, ts.ScriptTarget.Latest, true);
 }
 
-test('codePropertyNames pega membro de interface e de type literal', () => {
+test('`codePropertyNames` finds interface and type literal members', () => {
   const nomes = codePropertyNames(
     fonte(`
       interface Foo { bar: string; }
@@ -41,7 +41,7 @@ test('codePropertyNames pega membro de interface e de type literal', () => {
   assert.ok(nomes.has('qux'));
 });
 
-test('codePropertyNames pega chave de objeto literal, inclusive shorthand', () => {
+test('`codePropertyNames` finds object literal keys, including shorthand properties', () => {
   const quux = 1;
   const nomes = codePropertyNames(
     fonte(`
@@ -55,7 +55,7 @@ test('codePropertyNames pega chave de objeto literal, inclusive shorthand', () =
   void quux;
 });
 
-test('codePropertyNames pega acesso.propriedade e acesso[\'indice\']', () => {
+test('`codePropertyNames` finds acesso.propriedade and acesso[\'indice\']', () => {
   const nomes = codePropertyNames(
     fonte(`
       o.acesso;

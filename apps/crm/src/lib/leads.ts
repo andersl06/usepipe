@@ -1,16 +1,16 @@
 import { and, desc, eq, inArray, isNull, lt, sql } from 'drizzle-orm';
 import type { PgColumn } from 'drizzle-orm/pg-core';
-import type { ItemExplicacao } from '@pipe/core';
+import type { ItemExplanation } from '@pipe/core';
 import {
-  atividade,
-  classificacaoConversa,
-  contato,
-  contatoEtiqueta,
-  conta,
-  conversa,
+  activity,
+  classificationConversation,
+  contact,
+  contactLabel,
+  account,
+  conversation,
   etiqueta,
   faixaScore,
-  fila,
+  queue,
   formulario,
   formularioPergunta,
   formularioVersao,
@@ -18,100 +18,104 @@ import {
   regraScore,
   respostaFormulario,
   scoreLead,
-  usuario,
+  user,
 } from '@pipe/db/schema';
-import { diferenca, registrarAuditoria, type TransacaoPipe } from '@pipe/db';
-import { atorDoCrm, consultar, paraData, paraNumero, tenantId } from './banco';
-// Só o tipo, e de um arquivo sem banco: é o mesmo catálogo que a célula inline
-// lê no navegador, e é ele que fecha a lista de colunas graváveis.
-import type { ChaveCampo } from './campos-editaveis';
+import { diferenca, registrarAuditoria, type TransactionPipe } from '@pipe/db';
+import { atorDoCrm, consultar, paraData, paraNumero, tenantId } from './database';
+// Just the type, and from a database-free file: it's the same catalog the inline cell
+// reads in the browser, and it's what closes the list of writable columns.
+import type { KeyField } from './campos-editaveis';
 
 /**
- * Leads: a listagem e a ficha.
+ * Leads: the listing and the record.
  *
- * Tudo em série dentro do `consultar` — `Promise.all` dentro da transação derruba o
- * `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
+ * Everything sequential inside `consultar` — `Promise.all` in the transaction
+ * drops `pipe.tenant_id` and the query ends up running with no tenant
+ * (README).
  */
 
 /*
- * Rótulo, recorte, agrupamento e ordenação moram em `leads-visao.ts`, que não
- * importa banco nenhum. É de lá que o componente de cliente da listagem lê:
- * importar deste arquivo arrastaria o driver do Postgres para o navegador.
- * Aqui eles são reexportados, para que a tela continue tendo um endereço só.
+ * Label, slice, grouping, and sorting live in `leads-visao.ts`, which imports no
+ * database at all. That's what the listing's client component reads from:
+ * importing from this file would drag the Postgres driver into the browser.
+ * They're re-exported here, so the screen still has a single address to
+ * import from.
  */
 export {
   ABAS,
   abaValida,
-  AGRUPAMENTOS,
-  agrupamentoValido,
+  GROUPINGS,
+  groupingValid,
   agrupar,
-  colunaDoAgrupamento,
-  colunaOrdenavel,
-  direcaoInicial,
-  direcaoValida,
-  escreverFiltros,
+  groupingColumn,
+  columnSortable,
+  directionInitial,
+  directionValid,
+  writeFilters,
   FILTRAVEIS,
-  filtroValido,
-  lerFiltros,
+  filterValid,
+  readFilters,
   LIMITE_LISTA,
-  ordemValida,
-  ROTULO_ATIVIDADE,
+  orderValid,
+  LABEL_ACTIVITY,
   ROTULO_STATUS,
-  rotuloDoFiltro,
-  SEM_VALOR,
+  filterLabel,
+  WITHOUT_VALUE,
 } from './leads-visao';
 export type {
   Aba,
-  Agrupamento,
-  ChaveDeFiltro,
-  Direcao,
-  Filtros,
+  Grouping,
+  FilterKey,
+  Direction,
+  SFilter,
   Grupo,
   LinhaLead,
-  Ordem,
+  Order,
   Proprietario,
 } from './leads-visao';
 
-// Reexportar não traz o nome para o escopo deste arquivo, e as consultas abaixo
-// usam quase todos. Por isso a segunda linha, que parece redundante e não é.
-import { filtroValido, LIMITE_LISTA, ROTULO_ATIVIDADE, SEM_VALOR } from './leads-visao';
+// Re-exporting doesn't bring the name into this file's scope, and the queries below
+// use nearly all of it. Hence the second line, which looks redundant and isn't.
+import { filterValid, LIMITE_LISTA, LABEL_ACTIVITY, WITHOUT_VALUE } from './leads-visao';
 import type {
   Aba,
-  ChaveDeFiltro,
-  Direcao,
-  Filtros,
+  FilterKey,
+  Direction,
+  SFilter,
   LinhaLead,
-  Ordem,
+  Order,
   Proprietario,
 } from './leads-visao';
 
-/** Nome da fila por faixa, da versão mais recente de `faixa_score`. */
-async function filasPorFaixa(tx: Parameters<Parameters<typeof consultar>[0]>[0]) {
+/** Queue name by band, from the most recent version of `faixa_score`. */
+async function queuesByTier(tx: Parameters<Parameters<typeof consultar>[0]>[0]) {
   const linhas = await tx
-    .select({ nome: faixaScore.nome, versao: faixaScore.versao, fila: fila.nome })
+    .select({ nome: faixaScore.name, versao: faixaScore.version, fila: queue.nome })
     .from(faixaScore)
-    .leftJoin(fila, eq(fila.id, faixaScore.filaId))
-    .orderBy(faixaScore.versao);
+    .leftJoin(queue, eq(queue.id, faixaScore.queueId))
+    .orderBy(faixaScore.version);
   const mapa = new Map<string, string | null>();
-  // Ordenado por versão crescente: a última escrita vence, que é a versão mais nova.
+  // Sorted by ascending version: the last write wins, which is the newest version.
   for (const l of linhas) mapa.set(l.nome, l.fila);
   return mapa;
 }
 
 /**
- * Nome de coluna da tela para coluna do Postgres. A lista de nomes ordenáveis
- * mora em `leads-visao.ts`, porque a tela precisa dela; a tradução mora aqui,
- * porque precisa do esquema.
+ * Screen column name to Postgres column. The list of sortable names lives in
+ * `leads-visao.ts`, because the screen needs it; the translation lives here,
+ * because it needs the schema.
  */
-const COLUNA_SQL = {
-  lead: contato.nome,
-  origem: lead.origem,
+const COLUMN_SQL = {
+  lead: contact.nome,
+  origem: lead.origin,
   score: lead.scoreAtual,
   faixa: lead.faixaAtual,
-  proprietario: usuario.nome,
+  proprietario: user.nome,
   fase: lead.fase,
-  /** Mais dias na fase é `fase_desde` mais antigo. O sentido inverte, e o
-   *  `desc` da coluna vira `asc` da data, resolvido em `ordenacaoSql`. */
+  /**
+   * More days in stage is an older `fase_desde`. The direction inverts, and the
+   * column's `desc` becomes the date's `asc`, resolved in `sortingSql`.
+   */
   dias: lead.faseDesde,
 } as const;
 
@@ -121,106 +125,108 @@ export interface ListaDeLeads {
 }
 
 /**
- * A cláusula `order by`, com três cuidados que a versão ingênua não tem:
+ * The `order by` clause, with three cares the naive version doesn't have:
  *
- * - **Nulo por último, sempre.** Lead sem score no topo da lista ordenada por
- *   score é a primeira coisa que alguém reclama. `nulls last` nos dois sentidos.
- * - **Dias na fase inverte.** "Mais dias" é `fase_desde` mais antigo, então o
- *   `desc` da coluna é `asc` da data.
- * - **Desempate estável.** Sem um segundo critério, dois leads de score 60
- *   trocam de lugar entre recargas, e a lista pisca sem nada ter mudado.
+ * - **Null always last.** A scoreless lead at the top of a list sorted by score
+ *   is the first thing anyone complains about. `nulls last` in both directions.
+ * - **Days in stage inverts.** "More days" is an older `fase_desde`, so the
+ *   column's `desc` is the date's `asc`.
+ * - **Stable tiebreak.** Without a second criterion, two leads with score 60
+ *   swap places between reloads, and the list flickers with nothing having changed.
  */
-function ordenacaoSql(ordem: Ordem, direcao: Direcao) {
+function sortingSql(order: Order, direction: Direction) {
   const recente = desc(lead.criadoEm);
-  if (ordem === 'nenhuma') return [recente];
+  if (order === 'nenhuma') return [recente];
 
-  const coluna = COLUNA_SQL[ordem];
-  const crescente = ordem === 'dias' ? direcao === 'desc' : direcao === 'asc';
+  const column = COLUMN_SQL[order];
+  const crescente = order === 'dias' ? direction === 'desc' : direction === 'asc';
   return [
-    crescente ? sql`${coluna} asc nulls last` : sql`${coluna} desc nulls last`,
+    crescente ? sql`${column} asc nulls last` : sql`${column} desc nulls last`,
     recente,
   ];
 }
 
 /**
- * A coluna do Postgres que cada filtro interroga, e o que "em branco" significa
- * em cada uma.
+ * The Postgres column each filter queries, and what "blank" means for each one.
  *
- * O nome da coluna **não vem da tela**: `chave` é do catálogo fechado de
- * `FILTRAVEIS`, e é este mapa que decide onde a comparação cai. Só o VALOR vem
- * de fora, e ele entra como parâmetro do driver, nunca concatenado.
+ * The column name **doesn't come from the screen**: `chave` is from the closed
+ * `FILTRAVEIS` catalog, and it's this map that decides where the comparison
+ * lands. Only the VALUE comes from outside, and it goes in as a driver
+ * parameter, never concatenated.
  *
- * `proprietario` compara pelo nome, e não pelo id, porque é o nome que a tela
- * mostra e é dele que o menu de valores é feito. Trocar por id exigiria o menu
- * carregar id e nome só para esconder um dos dois.
+ * `proprietario` compares by name, not by id, because the name is what the
+ * screen shows and the value menu is built from it. Switching to id would
+ * require the menu to load id and name just to hide one of the two.
  */
-function condicaoDeFiltro(chave: ChaveDeFiltro, valor: string) {
-  const vazio = valor === SEM_VALOR;
-  if (chave === 'origem') return vazio ? isNull(lead.origem) : eq(lead.origem, valor);
-  if (chave === 'faixa') return vazio ? isNull(lead.faixaAtual) : eq(lead.faixaAtual, valor);
-  if (chave === 'fase') return vazio ? isNull(lead.fase) : eq(lead.fase, valor);
-  return vazio ? isNull(lead.proprietarioId) : eq(usuario.nome, valor);
+function filterCondition(key: FilterKey, value: string) {
+  const empty = value === WITHOUT_VALUE;
+  if (key === 'origem') return empty ? isNull(lead.origin) : eq(lead.origin, value);
+  if (key === 'faixa') return empty ? isNull(lead.faixaAtual) : eq(lead.faixaAtual, value);
+  if (key === 'fase') return empty ? isNull(lead.fase) : eq(lead.fase, value);
+  return empty ? isNull(lead.proprietarioId) : eq(user.nome, value);
 }
 
 /**
- * Os valores que cada coluna filtrável tem hoje, para o menu de filtro.
+ * The values each filterable column has today, for the filter menu.
  *
- * Sai do banco, e não das 200 linhas já carregadas: a lista com teto mostraria
- * só as origens que couberam, e filtrar por uma origem que existe mas não
- * apareceu seria impossível pela tela.
+ * Comes from the database, not from the 200 already-loaded rows: the capped
+ * list would only show the sources that made the cut, and filtering by a
+ * source that exists but didn't show up would be impossible from the screen.
  *
- * Em série dentro do mesmo `consultar` (README), e com teto por coluna: um menu
- * de trezentas origens não é um menu, é uma segunda listagem.
+ * Sequential inside the same `consultar` (README), and capped per column: a
+ * menu of three hundred sources isn't a menu, it's a second listing.
  */
-const TETO_DE_OPCOES = 40;
+const CEILING_OF_OPTIONS = 40;
 
-export async function opcoesDeFiltro(): Promise<Record<ChaveDeFiltro, string[]>> {
+export async function filterOptions(): Promise<Record<FilterKey, string[]>> {
   return consultar(async (tx) => {
-    const distintos = async (coluna: PgColumn) => {
+    const distintos = async (column: PgColumn) => {
       const linhas = await tx
-        .selectDistinct({ v: coluna })
+        .selectDistinct({ v: column })
         .from(lead)
-        .where(and(isNull(lead.excluidoEm), sql`${coluna} is not null`))
-        .orderBy(coluna)
-        .limit(TETO_DE_OPCOES);
-      // O `is not null` já está no `where`; o filtro aqui é só para o tipo.
+        .where(and(isNull(lead.excluidoEm), sql`${column} is not null`))
+        .orderBy(column)
+        .limit(CEILING_OF_OPTIONS);
+      // The `is not null` is already in the `where`; the filter here is just for the type.
       return linhas.map((l) => String(l.v)).filter((v) => v !== 'null');
     };
 
-    const origem = await distintos(lead.origem);
+    const origem = await distintos(lead.origin);
     const faixa = await distintos(lead.faixaAtual);
     const fase = await distintos(lead.fase);
     const donos = await tx
-      .selectDistinct({ v: usuario.nome })
+      .selectDistinct({ v: user.nome })
       .from(lead)
-      .innerJoin(usuario, eq(usuario.id, lead.proprietarioId))
+      .innerJoin(user, eq(user.id, lead.proprietarioId))
       .where(isNull(lead.excluidoEm))
-      .orderBy(usuario.nome)
-      .limit(TETO_DE_OPCOES);
+      .orderBy(user.nome)
+      .limit(CEILING_OF_OPTIONS);
 
     return { origem, faixa, fase, proprietario: donos.map((d) => d.v) };
   });
 }
 
 /**
- * Lista e contagem das abas na **mesma** transação. Eram duas, mais a do fuso: três
- * transações e três conexões do pool para desenhar uma tela. Dentro daqui as
- * consultas continuam em série, que é obrigatório (README).
+ * List and count of the tabs in the **same** transaction. There used to be two,
+ * plus the timezone one: three transactions and three pool connections to draw
+ * one screen. Inside here the queries stay sequential, which is mandatory
+ * (README).
  *
- * O filtro entra no `where`, e não sobre as linhas já buscadas, pelo mesmo
- * motivo da ordenação: com teto de 200, filtrar depois responderia "dos 200
- * mais novos, os da origem X" quando a pergunta é "os 200 leads da origem X".
+ * The filter goes into the `where`, not over the already-fetched rows, for the
+ * same reason as the sort: with a 200 cap, filtering afterward would answer
+ * "of the 200 newest, the ones from source X" when the question is "the 200
+ * leads from source X".
  *
- * As contagens das abas, essas, **ignoram o filtro de propósito**: elas dizem
- * quantos leads existem em cada recorte, e um número que muda conforme o filtro
- * não serve para escolher para qual recorte ir.
+ * The tab counts, though, **ignore the filter on purpose**: they say how many
+ * leads exist in each slice, and a number that changes with the filter isn't
+ * useful for choosing which slice to go to.
  */
 export async function carregarListaDeLeads(
   aba: Aba,
-  busca: string,
-  ordem: Ordem = 'nenhuma',
-  direcao: Direcao = 'desc',
-  filtros: Filtros = {},
+  search: string,
+  order: Order = 'nenhuma',
+  direction: Direction = 'desc',
+  filters: SFilter = {},
 ): Promise<ListaDeLeads> {
   return consultar(async (tx) => {
     const recorte = {
@@ -235,46 +241,46 @@ export async function carregarListaDeLeads(
       desqualificados: eq(lead.status, 'desqualificado'),
     }[aba];
 
-    const termo = busca.trim();
-    const filtroBusca = termo
-      ? sql`(${contato.nome} ilike ${'%' + termo + '%'}
-             or ${contato.documento} ilike ${'%' + termo + '%'}
-             or ${contato.telefoneE164} ilike ${'%' + termo + '%'}
-             or ${contato.email} ilike ${'%' + termo + '%'})`
+    const termo = search.trim();
+    const filterSearch = termo
+      ? sql`(${contact.nome} ilike ${'%' + termo + '%'}
+             or ${contact.document} ilike ${'%' + termo + '%'}
+             or ${contact.telefoneE164} ilike ${'%' + termo + '%'}
+             or ${contact.email} ilike ${'%' + termo + '%'})`
       : undefined;
 
-    const condicoes = Object.entries(filtros)
-      .filter((par): par is [ChaveDeFiltro, string] => filtroValido(par[0]))
-      .map(([chave, valor]) => condicaoDeFiltro(chave, valor));
+    const conditions = Object.entries(filters)
+      .filter((par): par is [FilterKey, string] => filterValid(par[0]))
+      .map(([key, value]) => filterCondition(key, value));
 
     const cru = await tx
       .select({
         id: lead.id,
-        nome: contato.nome,
-        origem: lead.origem,
+        nome: contact.nome,
+        origem: lead.origin,
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
-        proprietario: usuario.nome,
-        // O id, e não só o nome: a célula editável da listagem grava o id, e
-        // nome muda sem que a atribuição mude junto.
+        proprietario: user.nome,
+        // The id, not just the name: the listing's editable cell saves the id, and
+        // a name change doesn't change the assignment along with it.
         proprietarioId: lead.proprietarioId,
         status: lead.status,
         fase: lead.fase,
         faseDesde: lead.faseDesde,
       })
       .from(lead)
-      .leftJoin(contato, eq(contato.id, lead.contatoId))
-      .leftJoin(usuario, eq(usuario.id, lead.proprietarioId))
-      .where(and(isNull(lead.excluidoEm), recorte, filtroBusca, ...condicoes))
-      .orderBy(...ordenacaoSql(ordem, direcao))
+      .leftJoin(contact, eq(contact.id, lead.contactId))
+      .leftJoin(user, eq(user.id, lead.proprietarioId))
+      .where(and(isNull(lead.excluidoEm), recorte, filterSearch, ...conditions))
+      .orderBy(...sortingSql(order, direction))
       .limit(LIMITE_LISTA);
 
-    const filas = await filasPorFaixa(tx);
-    const ultimas = await ultimaAtividadePorLead(
+    const queues = await queuesByTier(tx);
+    const ultimas = await lastActivityByLead(
       tx,
       cru.map((l) => l.id),
     );
-    const [contagem] = await tx
+    const [count] = await tx
       .select({
         todos: sql<number>`count(*)::int`,
         novos: sql<number>`count(*) filter (where ${lead.status} = 'novo')::int`,
@@ -298,32 +304,32 @@ export async function carregarListaDeLeads(
         origem: l.origem,
         score: l.score,
         faixa: l.faixa,
-        fila: l.faixa ? (filas.get(l.faixa) ?? null) : null,
+        queue: l.faixa ? (queues.get(l.faixa) ?? null) : null,
         proprietario: l.proprietario,
         proprietarioId: l.proprietarioId,
         status: l.status,
         fase: l.fase,
         diasNaFase: desdeFase ? Math.floor((agora - desdeFase.getTime()) / 86_400_000) : null,
-        ultimaAtividade: ult?.em ?? null,
-        ultimaAtividadeTipo: ult?.tipo ?? null,
+        lastActivity: ult?.em ?? null,
+        lastActivityType: ult?.tipo ?? null,
       };
     });
 
     return {
       linhas,
       contagens: {
-        todos: contagem?.todos ?? 0,
-        novos: contagem?.novos ?? 0,
-        qualificados: contagem?.qualificados ?? 0,
-        'sem-proprietario': contagem?.semProprietario ?? 0,
-        parados: contagem?.parados ?? 0,
-        desqualificados: contagem?.desqualificados ?? 0,
+        todos: count?.todos ?? 0,
+        novos: count?.novos ?? 0,
+        qualificados: count?.qualificados ?? 0,
+        'sem-proprietario': count?.semProprietario ?? 0,
+        parados: count?.parados ?? 0,
+        desqualificados: count?.desqualificados ?? 0,
       },
     };
   });
 }
 
-async function ultimaAtividadePorLead(
+async function lastActivityByLead(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
   ids: string[],
 ): Promise<Map<string, { em: Date; tipo: string }>> {
@@ -332,53 +338,53 @@ async function ultimaAtividadePorLead(
 
   const linhas = await tx
     .select({
-      leadId: atividade.leadId,
-      tipo: atividade.tipo,
-      em: atividade.ocorridaEm,
+      leadId: activity.leadId,
+      tipo: activity.type,
+      em: activity.ocorridaEm,
     })
-    .from(atividade)
-    .where(inArray(atividade.leadId, ids))
-    .orderBy(atividade.ocorridaEm);
+    .from(activity)
+    .where(inArray(activity.leadId, ids))
+    .orderBy(activity.ocorridaEm);
 
-  // Ordenado crescente: a última escrita por lead é a atividade mais recente.
+  // Sorted ascending: the last write per lead is the most recent activity.
   for (const l of linhas) {
     const em = paraData(l.em);
-    if (l.leadId && em) mapa.set(l.leadId, { em, tipo: ROTULO_ATIVIDADE[l.tipo] ?? l.tipo });
+    if (l.leadId && em) mapa.set(l.leadId, { em, tipo: LABEL_ACTIVITY[l.tipo] ?? l.tipo });
   }
   return mapa;
 }
 
 /* ------------------------------------------------------------------ a ficha */
 
-export interface RegraExplicada extends ItemExplicacao {
+export interface RegraExplicada extends ItemExplanation {
   nome: string;
 }
 
 export interface ScoreExplicado {
-  valor: number;
+  value: number;
   faixa: string | null;
   versaoRegra: number;
   calculadoEm: Date | null;
   itens: RegraExplicada[];
-  /** Da faixa vigente: é ela que decide fila e proprietário. */
-  fila: string | null;
+  /** From the current band: it's what decides queue and owner. */
+  queue: string | null;
   corte: number | null;
 }
 
 export interface RespostaExibida {
   pergunta: string;
   tipo: string;
-  valor: string;
+  value: string;
 }
 
-export interface BlocoRespostas {
+export interface BlockResponses {
   formulario: string;
   versao: number;
   respondidoEm: Date | null;
   respostas: RespostaExibida[];
 }
 
-export interface ItemLinhaDoTempo {
+export interface TimeItemRow {
   id: string;
   tipo: string;
   titulo: string;
@@ -392,9 +398,9 @@ export interface Ficha {
   nome: string;
   email: string | null;
   telefone: string | null;
-  documento: string | null;
-  contaId: string | null;
-  contaNome: string | null;
+  document: string | null;
+  accountId: string | null;
+  accountName: string | null;
   origem: string | null;
   campanha: string | null;
   utm: Record<string, unknown>;
@@ -404,35 +410,35 @@ export interface Ficha {
   faseDesde: Date | null;
   diasNaFase: number | null;
   proprietario: string | null;
-  /** O id, e não só o nome: a seleção inline grava id, porque nome muda. */
+  /** The id, not just the name: inline selection saves the id, because the name changes. */
   proprietarioId: string | null;
   criadoEm: Date | null;
   etiquetas: { nome: string; cor: string | null }[];
   score: ScoreExplicado | null;
-  formularios: BlocoRespostas[];
-  linhaDoTempo: ItemLinhaDoTempo[];
+  formularios: BlockResponses[];
+  timeRow: TimeItemRow[];
 }
 
 function textoDaResposta(r: {
   tipo: string;
-  valorTexto: string | null;
-  valorNum: unknown;
-  valorData: unknown;
-  valorBool: boolean | null;
-  valorJson: unknown;
+  valueText: string | null;
+  valueNum: unknown;
+  valueData: unknown;
+  valueBool: boolean | null;
+  valueJson: unknown;
 }): string {
-  if (r.valorTexto !== null && r.valorTexto !== undefined) return r.valorTexto;
-  if (r.valorBool !== null && r.valorBool !== undefined) return r.valorBool ? 'Sim' : 'Não';
-  const num = paraNumero(r.valorNum);
+  if (r.valueText !== null && r.valueText !== undefined) return r.valueText;
+  if (r.valueBool !== null && r.valueBool !== undefined) return r.valueBool ? 'Sim' : 'Não';
+  const num = paraNumero(r.valueNum);
   if (num !== null) {
     return r.tipo === 'numero'
       ? num.toLocaleString('pt-BR', { maximumFractionDigits: 2 })
       : String(num);
   }
-  const dt = paraData(r.valorData);
+  const dt = paraData(r.valueData);
   if (dt) return dt.toLocaleDateString('pt-BR');
-  if (Array.isArray(r.valorJson)) return r.valorJson.join(', ');
-  if (r.valorJson !== null && r.valorJson !== undefined) return JSON.stringify(r.valorJson);
+  if (Array.isArray(r.valueJson)) return r.valueJson.join(', ');
+  if (r.valueJson !== null && r.valueJson !== undefined) return JSON.stringify(r.valueJson);
   return '—';
 }
 
@@ -441,28 +447,28 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
     const [cabeca] = await tx
       .select({
         id: lead.id,
-        contatoId: lead.contatoId,
-        nome: contato.nome,
-        email: contato.email,
-        telefone: contato.telefoneE164,
-        documento: contato.documento,
-        contaId: lead.contaId,
-        contaNome: conta.nome,
-        origem: lead.origem,
+        contatoId: lead.contactId,
+        nome: contact.nome,
+        email: contact.email,
+        telefone: contact.telefoneE164,
+        document: contact.document,
+        accountId: lead.contaId,
+        accountName: account.name,
+        origem: lead.origin,
         campanha: lead.campanha,
         utm: lead.utm,
         customizados: lead.customizados,
         status: lead.status,
         fase: lead.fase,
         faseDesde: lead.faseDesde,
-        proprietario: usuario.nome,
+        proprietario: user.nome,
         proprietarioId: lead.proprietarioId,
         criadoEm: lead.criadoEm,
       })
       .from(lead)
-      .leftJoin(contato, eq(contato.id, lead.contatoId))
-      .leftJoin(conta, eq(conta.id, lead.contaId))
-      .leftJoin(usuario, eq(usuario.id, lead.proprietarioId))
+      .leftJoin(contact, eq(contact.id, lead.contactId))
+      .leftJoin(account, eq(account.id, lead.contaId))
+      .leftJoin(user, eq(user.id, lead.proprietarioId))
       .where(and(eq(lead.id, id), isNull(lead.excluidoEm)))
       .limit(1);
 
@@ -471,15 +477,15 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
     const etiquetas = cabeca.contatoId
       ? await tx
           .select({ nome: etiqueta.nome, cor: etiqueta.cor })
-          .from(contatoEtiqueta)
-          .innerJoin(etiqueta, eq(etiqueta.id, contatoEtiqueta.etiquetaId))
-          .where(eq(contatoEtiqueta.contatoId, cabeca.contatoId))
+          .from(contactLabel)
+          .innerJoin(etiqueta, eq(etiqueta.id, contactLabel.etiquetaId))
+          .where(eq(contactLabel.contatoId, cabeca.contatoId))
           .orderBy(etiqueta.nome)
       : [];
 
     const score = await carregarScore(tx, id);
     const formularios = await carregarRespostas(tx, id);
-    const linhaDoTempo = await carregarLinhaDoTempo(tx, id, cabeca.contatoId);
+    const timeRow = await timeLoadRow(tx, id, cabeca.contatoId);
 
     const desdeFase = paraData(cabeca.faseDesde);
 
@@ -488,9 +494,9 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
       nome: cabeca.nome ?? 'Lead sem contato',
       email: cabeca.email,
       telefone: cabeca.telefone,
-      documento: cabeca.documento,
-      contaId: cabeca.contaId,
-      contaNome: cabeca.contaNome,
+      document: cabeca.document,
+      accountId: cabeca.accountId,
+      accountName: cabeca.accountName,
       origem: cabeca.origem,
       campanha: cabeca.campanha,
       utm: (cabeca.utm ?? {}) as Record<string, unknown>,
@@ -505,18 +511,19 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
       etiquetas,
       score,
       formularios,
-      linhaDoTempo,
+      timeRow,
     };
   });
 }
 
 /**
- * O painel que explica o número.
+ * The panel that explains the number.
  *
- * `score_lead.explicacao` guarda `{regra, versao, pontos}` — o identificador da regra,
- * não o nome dela, porque o nome muda e o histórico não pode mudar junto. O nome vem
- * do join com `regra_score`; regra apagada aparece como "regra removida" em vez de
- * sumir da conta, senão a soma dos itens deixaria de bater com o total.
+ * `score_lead.explicacao` stores `{regra, versao, pontos}` — the rule's
+ * identifier, not its name, because the name changes and the history can't
+ * change along with it. The name comes from the join with `regra_score`; a
+ * deleted rule shows up as "rule removed" instead of vanishing from the
+ * account, otherwise the sum of the items would stop matching the total.
  */
 async function carregarScore(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
@@ -524,10 +531,10 @@ async function carregarScore(
 ): Promise<ScoreExplicado | null> {
   const [linha] = await tx
     .select({
-      valor: scoreLead.valor,
+      valor: scoreLead.value,
       faixa: scoreLead.faixa,
       versaoRegra: scoreLead.versaoRegra,
-      explicacao: scoreLead.explicacao,
+      explicacao: scoreLead.explanation,
       calculadoEm: scoreLead.calculadoEm,
     })
     .from(scoreLead)
@@ -537,148 +544,149 @@ async function carregarScore(
 
   if (!linha) return null;
 
-  const itensCrus = (Array.isArray(linha.explicacao) ? linha.explicacao : []) as ItemExplicacao[];
+  const itensCrus = (Array.isArray(linha.explicacao) ? linha.explicacao : []) as ItemExplanation[];
   const ids = itensCrus.map((i) => i.regra).filter((i) => typeof i === 'string');
 
   const nomes = new Map<string, string>();
   if (ids.length > 0) {
     const regras = await tx
-      .select({ id: regraScore.id, nome: regraScore.nome })
+      .select({ id: regraScore.id, nome: regraScore.name })
       .from(regraScore)
       .where(inArray(regraScore.id, ids));
     for (const r of regras) nomes.set(r.id, r.nome);
   }
 
-  let filaDaFaixa: string | null = null;
+  let tierQueue: string | null = null;
   let corte: number | null = null;
   if (linha.faixa) {
     const [f] = await tx
-      .select({ fila: fila.nome, minimo: faixaScore.minimo })
+      .select({ fila: queue.nome, minimo: faixaScore.minimo })
       .from(faixaScore)
-      .leftJoin(fila, eq(fila.id, faixaScore.filaId))
-      .where(and(eq(faixaScore.nome, linha.faixa), eq(faixaScore.versao, linha.versaoRegra)))
+      .leftJoin(queue, eq(queue.id, faixaScore.queueId))
+      .where(and(eq(faixaScore.name, linha.faixa), eq(faixaScore.version, linha.versaoRegra)))
       .limit(1);
-    filaDaFaixa = f?.fila ?? null;
+    tierQueue = f?.fila ?? null;
     corte = f?.minimo ?? null;
   }
 
   return {
-    valor: linha.valor,
+    value: linha.valor,
     faixa: linha.faixa,
     versaoRegra: linha.versaoRegra,
     calculadoEm: paraData(linha.calculadoEm),
     itens: itensCrus.map((i) => ({ ...i, nome: nomes.get(i.regra) ?? 'regra removida' })),
-    fila: filaDaFaixa,
+    queue: tierQueue,
     corte,
   };
 }
 
 /**
- * Respostas de formulário agrupadas por formulário e versão — nunca como colunas
- * soltas na ficha. É a decisão que evita os 304 campos customizados do Lead de hoje.
+ * Form responses grouped by form and version — never as loose columns on the
+ * record. It's the decision that avoids today's 304 custom fields on the Lead.
  */
 async function carregarRespostas(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
   leadId: string,
-): Promise<BlocoRespostas[]> {
+): Promise<BlockResponses[]> {
   const linhas = await tx
     .select({
-      formulario: formulario.nome,
-      versao: formularioVersao.versao,
+      formulario: formulario.name,
+      versao: formularioVersao.version,
       versaoId: formularioVersao.id,
       pergunta: formularioPergunta.rotulo,
-      ordem: formularioPergunta.ordem,
-      tipo: formularioPergunta.tipo,
-      valorTexto: respostaFormulario.valorTexto,
-      valorNum: respostaFormulario.valorNum,
-      valorData: respostaFormulario.valorData,
-      valorBool: respostaFormulario.valorBool,
-      valorJson: respostaFormulario.valorJson,
+      ordem: formularioPergunta.order,
+      tipo: formularioPergunta.type,
+      valueText: respostaFormulario.valueText,
+      valueNum: respostaFormulario.valueNumber,
+      valueData: respostaFormulario.valueData,
+      valueBool: respostaFormulario.valueBoolean,
+      valueJson: respostaFormulario.valueJson,
       criadoEm: respostaFormulario.criadoEm,
     })
     .from(respostaFormulario)
     .innerJoin(formularioVersao, eq(formularioVersao.id, respostaFormulario.versaoId))
-    .innerJoin(formulario, eq(formulario.id, formularioVersao.formularioId))
+    .innerJoin(formulario, eq(formulario.id, formularioVersao.formId))
     .innerJoin(formularioPergunta, eq(formularioPergunta.id, respostaFormulario.perguntaId))
     .where(eq(respostaFormulario.leadId, leadId))
-    .orderBy(formulario.nome, formularioVersao.versao, formularioPergunta.ordem);
+    .orderBy(formulario.name, formularioVersao.version, formularioPergunta.order);
 
-  const blocos = new Map<string, BlocoRespostas>();
+  const blocos = new Map<string, BlockResponses>();
   for (const l of linhas) {
-    let bloco = blocos.get(l.versaoId);
-    if (!bloco) {
-      bloco = {
+    let block = blocos.get(l.versaoId);
+    if (!block) {
+      block = {
         formulario: l.formulario,
         versao: l.versao,
         respondidoEm: paraData(l.criadoEm),
         respostas: [],
       };
-      blocos.set(l.versaoId, bloco);
+      blocos.set(l.versaoId, block);
     }
-    bloco.respostas.push({ pergunta: l.pergunta, tipo: l.tipo, valor: textoDaResposta(l) });
+    block.respostas.push({ pergunta: l.pergunta, tipo: l.tipo, value: textoDaResposta(l) });
   }
   return [...blocos.values()];
 }
 
 /**
- * Atividades e conversas na mesma linha do tempo. A conversa entra com o resumo do
- * atendimento quando a monitoria já classificou — é a promessa do produto: o CRM se
- * alimenta das conversas, e o vendedor lê o que aconteceu sem abrir o Desk.
+ * Activities and conversations in the same timeline. The conversation comes in
+ * with the attendance summary once monitoring has already classified it — it's
+ * the product's promise: the CRM feeds off conversations, and the salesperson
+ * reads what happened without opening the Desk.
  *
- * Exportada porque a ficha da oportunidade mostra a mesma linha: o histórico de
- * uma negociação É o histórico do lead que a originou, e `atividade` não tem
- * coluna de oportunidade. Recebe a `tx` de quem chama, então continua cabendo
- * na transação da ficha que a pediu.
+ * Exported because the opportunity record shows the same timeline: a deal's
+ * history IS the history of the lead that originated it, and `atividade` has no
+ * opportunity column. Receives the caller's `tx`, so it still fits inside the
+ * record's transaction that requested it.
  */
-export async function carregarLinhaDoTempo(
+export async function timeLoadRow(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
   leadId: string,
-  contatoId: string | null,
-): Promise<ItemLinhaDoTempo[]> {
-  const atividades = await tx
+  contactId: string | null,
+): Promise<TimeItemRow[]> {
+  const activities = await tx
     .select({
-      id: atividade.id,
-      tipo: atividade.tipo,
-      resumo: atividade.resumo,
-      corpo: atividade.corpo,
-      autor: usuario.nome,
-      em: atividade.ocorridaEm,
+      id: activity.id,
+      tipo: activity.type,
+      resumo: activity.summary,
+      corpo: activity.body,
+      autor: user.nome,
+      em: activity.ocorridaEm,
     })
-    .from(atividade)
-    .leftJoin(usuario, eq(usuario.id, atividade.usuarioId))
-    .where(eq(atividade.leadId, leadId))
-    .orderBy(desc(atividade.ocorridaEm))
+    .from(activity)
+    .leftJoin(user, eq(user.id, activity.userId))
+    .where(eq(activity.leadId, leadId))
+    .orderBy(desc(activity.ocorridaEm))
     .limit(50);
 
-  const itens: ItemLinhaDoTempo[] = atividades.map((a) => ({
+  const itens: TimeItemRow[] = activities.map((a) => ({
     id: a.id,
-    tipo: ROTULO_ATIVIDADE[a.tipo] ?? a.tipo,
-    titulo: a.resumo ?? (ROTULO_ATIVIDADE[a.tipo] ?? a.tipo),
+    tipo: LABEL_ACTIVITY[a.tipo] ?? a.tipo,
+    titulo: a.resumo ?? (LABEL_ACTIVITY[a.tipo] ?? a.tipo),
     corpo: a.corpo,
     autor: a.autor,
     em: paraData(a.em) ?? new Date(0),
   }));
 
-  if (contatoId) {
-    const conversas = await tx
+  if (contactId) {
+    const conversations = await tx
       .select({
-        id: conversa.id,
-        encerradaEm: conversa.encerradaEm,
-        criadaEm: conversa.criadaEm,
-        atendente: usuario.nome,
-        filaNome: fila.nome,
-        resumo: classificacaoConversa.resumo,
-        categoria: classificacaoConversa.categoria,
+        id: conversation.id,
+        encerradaEm: conversation.encerradaEm,
+        criadaEm: conversation.criadaEm,
+        atendente: user.nome,
+        filaNome: queue.nome,
+        resumo: classificationConversation.resumo,
+        categoria: classificationConversation.categoria,
       })
-      .from(conversa)
-      .leftJoin(usuario, eq(usuario.id, conversa.atendenteId))
-      .leftJoin(fila, eq(fila.id, conversa.filaId))
-      .leftJoin(classificacaoConversa, eq(classificacaoConversa.conversaId, conversa.id))
-      .where(eq(conversa.contatoId, contatoId))
-      .orderBy(desc(conversa.criadaEm))
+      .from(conversation)
+      .leftJoin(user, eq(user.id, conversation.agentId))
+      .leftJoin(queue, eq(queue.id, conversation.filaId))
+      .leftJoin(classificationConversation, eq(classificationConversation.conversaId, conversation.id))
+      .where(eq(conversation.contatoId, contactId))
+      .orderBy(desc(conversation.criadaEm))
       .limit(20);
 
-    for (const c of conversas) {
+    for (const c of conversations) {
       itens.push({
         id: `conversa-${c.id}`,
         tipo: 'Atendimento',
@@ -695,28 +703,28 @@ export async function carregarLinhaDoTempo(
   return itens.sort((a, b) => b.em.getTime() - a.em.getTime()).slice(0, 40);
 }
 
-/* ------------------------------------------------------- ações em massa */
+/* ------------------------------------------------------- bulk actions */
 
-/** Quem pode receber um lead: usuário ativo do tenant, em ordem alfabética. */
+/** Who can receive a lead: an active user of the tenant, in alphabetical order. */
 export async function listarProprietarios(): Promise<Proprietario[]> {
   return consultar(async (tx) =>
     tx
-      .select({ id: usuario.id, nome: usuario.nome })
-      .from(usuario)
-      .where(eq(usuario.ativo, true))
-      .orderBy(usuario.nome),
+      .select({ id: user.id, name: user.nome })
+      .from(user)
+      .where(eq(user.ativo, true))
+      .orderBy(user.nome),
   );
 }
 
 /**
- * Passar N leads para um proprietário.
+ * Move N leads to an owner.
  *
- * O `where` repete `excluido_em is null` mesmo com os ids vindo de uma lista que
- * a tela acabou de desenhar: entre desenhar e clicar cabe uma exclusão, e a
- * escrita é a última chance de recusá-la.
+ * The `where` repeats `excluido_em is null` even though the ids come from a list
+ * the screen just rendered: between rendering and clicking there's room for a
+ * deletion, and the write is the last chance to reject it.
  *
- * Devolve quantas linhas mudaram — é o que a tela precisa para dizer "3 de 4",
- * em vez de afirmar sucesso sobre linhas que não existem mais.
+ * Returns how many rows changed — it's what the screen needs to say "3 of 4",
+ * instead of claiming success on rows that no longer exist.
  */
 export async function atribuirProprietario(ids: string[], proprietarioId: string): Promise<number> {
   if (ids.length === 0) return 0;
@@ -731,11 +739,12 @@ export async function atribuirProprietario(ids: string[], proprietarioId: string
 }
 
 /**
- * Desqualificar N leads.
+ * Disqualify N leads.
  *
- * Lead já convertido não volta atrás: virou oportunidade, e desqualificar o que
- * já virou receita é o tipo de escrita em massa que ninguém desfaz. Ele é
- * excluído do `where`, e a contagem devolvida mostra a diferença.
+ * A lead that's already converted doesn't go back: it became an opportunity,
+ * and disqualifying something that's already revenue is the kind of bulk write
+ * nobody undoes. It's excluded from the `where`, and the returned count shows
+ * the difference.
  */
 export async function desqualificarLeads(ids: string[]): Promise<number> {
   if (ids.length === 0) return 0;
@@ -762,34 +771,36 @@ export async function desqualificarLeads(ids: string[]): Promise<number> {
 /* ------------------------------------------------ escrita de campo da ficha */
 
 /**
- * Gravar um campo da ficha, o que a célula inline faz a cada Enter.
+ * Save a record field, what the inline cell does on every Enter.
  *
- * Três cuidados que a versão ingênua não tem:
+ * Three cares the naive version doesn't have:
  *
- * - **A coluna nunca vem da tela.** `campo` é chave do catálogo fechado de
- *   `campos-editaveis.ts`, e é o `switch` daqui que decide qual coluna recebe a
- *   escrita. Não existe caminho em que um nome vindo do navegador vire coluna.
- * - **E-mail e telefone moram em `contato`, não em `lead`.** A ficha junta os
- *   dois numa tela só; a escrita tem de separar de novo — e um lead sem contato
- *   simplesmente não tem onde guardar e-mail, por isso ele recusa em vez de
- *   inventar um contato.
- * - **`excluido_em is null` no `where`**, pelo mesmo motivo da ação em massa:
- *   entre desenhar a ficha e clicar no campo cabe uma exclusão, e a escrita é a
- *   última chance de recusá-la.
+ * - **The column never comes from the screen.** `campo` is a key from
+ *   `campos-editaveis.ts`'s closed catalog, and it's the `switch` here that
+ *   decides which column receives the write. There's no path where a name
+ *   coming from the browser becomes a column.
+ * - **Email and phone live in `contato`, not in `lead`.** The record joins the
+ *   two into a single screen; the write has to split them again — and a lead
+ *   with no contact simply has nowhere to store an email, so it rejects
+ *   instead of inventing a contact.
+ * - **`excluido_em is null` in the `where`**, for the same reason as the bulk
+ *   action: between rendering the record and clicking the field there's room
+ *   for a deletion, and the write is the last chance to reject it.
  *
- * Devolve `false` quando nenhuma linha mudou. É o que faz a tela **restaurar o
- * valor anterior** em vez de afirmar que gravou o que não gravou.
+ * Returns `false` when no row changed. That's what makes the screen **restore
+ * the previous value** instead of claiming it saved what it didn't.
  *
- * **A auditoria é gravada na MESMA transação** (`registrarAuditoria` do
- * `@pipe/db`): log em transação separada some quando a mudança falha e sobra
- * quando ela é desfeita, e nos dois casos passa a mentir. O `antes` sai de uma
- * leitura feita aqui dentro, não do que a tela mandou — a tela pode estar
- * mostrando um valor de dois minutos atrás.
+ * **The audit entry is written in the SAME transaction**
+ * (`registrarAuditoria` from `@pipe/db`): a log in a separate transaction
+ * disappears when the change fails and lingers when it's rolled back, and in
+ * both cases it ends up lying. The `antes` (before) value comes from a read
+ * done right here, not from what the screen sent — the screen could be showing
+ * a value from two minutes ago.
  */
 export async function atualizarCampoDoLead(
   id: string,
-  campo: ChaveCampo,
-  valor: string | null,
+  campo: KeyField,
+  value: string | null,
 ): Promise<boolean> {
   const tid = await tenantId();
 
@@ -797,7 +808,7 @@ export async function atualizarCampoDoLead(
     if (campo === 'origem' || campo === 'campanha' || campo === 'proprietario') {
       const [antes] = await tx
         .select({
-          origem: lead.origem,
+          origem: lead.origin,
           campanha: lead.campanha,
           proprietarioId: lead.proprietarioId,
         })
@@ -808,10 +819,10 @@ export async function atualizarCampoDoLead(
 
       const mudanca =
         campo === 'origem'
-          ? { origem: valor }
+          ? { origem: value }
           : campo === 'campanha'
-            ? { campanha: valor }
-            : { proprietarioId: valor };
+            ? { campanha: value }
+            : { proprietarioId: value };
       const mudadas = await tx
         .update(lead)
         .set({ ...mudanca, atualizadoEm: sql`now()` })
@@ -824,44 +835,44 @@ export async function atualizarCampoDoLead(
     }
 
     const [dono] = await tx
-      .select({ contatoId: lead.contatoId })
+      .select({ contatoId: lead.contactId })
       .from(lead)
       .where(and(eq(lead.id, id), isNull(lead.excluidoEm)))
       .limit(1);
     if (!dono?.contatoId) return false;
 
     const [antes] = await tx
-      .select({ email: contato.email, telefoneE164: contato.telefoneE164 })
-      .from(contato)
-      .where(and(eq(contato.id, dono.contatoId), isNull(contato.excluidoEm)))
+      .select({ email: contact.email, telefoneE164: contact.telefoneE164 })
+      .from(contact)
+      .where(and(eq(contact.id, dono.contatoId), isNull(contact.excluidoEm)))
       .limit(1);
     if (!antes) return false;
 
-    const mudanca = campo === 'email' ? { email: valor } : { telefoneE164: valor };
+    const mudanca = campo === 'email' ? { email: value } : { telefoneE164: value };
     const mudadas = await tx
-      .update(contato)
+      .update(contact)
       .set({ ...mudanca, atualizadoEm: sql`now()` })
-      .where(and(eq(contato.id, dono.contatoId), isNull(contato.excluidoEm)))
-      .returning({ id: contato.id });
+      .where(and(eq(contact.id, dono.contatoId), isNull(contact.excluidoEm)))
+      .returning({ id: contact.id });
     if (mudadas.length === 0) return false;
 
-    // O objeto do log é `contato`, e não `lead`: é a linha que mudou de verdade,
-    // e quem for ler o log procura pela tabela que tem o dado.
+    // The log's object is `contato`, not `lead`: it's the row that actually changed,
+    // and whoever reads the log looks for the table that has the data.
     await anotar(tx, tid, 'contato', dono.contatoId, antes, { ...antes, ...mudanca });
     return true;
   });
 }
 
 /**
- * Registra a alteração, só com o que de fato mudou.
+ * Logs the change, with only what actually changed.
  *
- * Gravar todo o objeto dos dois lados incha a tabela e esconde a mudança, que é
- * o que `diferenca` existe para evitar. E quando nada mudou não há linha
- * nenhuma: a escrita de um valor igual ao que já estava lá é um clique, não um
- * evento.
+ * Saving the whole object on both sides bloats the table and hides the change,
+ * which is what `diferenca` exists to prevent. And when nothing changed there's
+ * no row at all: writing a value equal to what was already there is a click,
+ * not an event.
  */
 async function anotar(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   objetoTipo: string,
   objetoId: string,

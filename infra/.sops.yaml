@@ -10,16 +10,16 @@
 # Uma só significa que perder o notebook é perder produção.
 #
 # Rotacionar destinatária: edite as chaves abaixo e rode
-#   sops updatekeys compose/segredos/producao.enc.env
+#   sops updatekeys compose/secrets/production.enc.env
 # O conteúdo não muda; muda quem consegue abrir.
 
 creation_rules:
-  - path_regex: compose/segredos/producao.*\.enc\.env$
+  - path_regex: compose/secrets/production.*\.enc\.env$
     age: >-
       age1operador000000000000000000000000000000000000000000000000000,
       age1deployprod0000000000000000000000000000000000000000000000000
 
-  - path_regex: compose/segredos/homologacao.*\.enc\.env$
+  - path_regex: compose/secrets/staging.*\.enc\.env$
     age: >-
       age1operador000000000000000000000000000000000000000000000000000,
       age1deployhml00000000000000000000000000000000000000000000000000

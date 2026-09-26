@@ -1,0 +1,358 @@
+import { NIVEIS_ATRIBUIVEIS } from '@pipe/core/conversation';
+import { sql } from 'drizzle-orm';
+import {
+  boolean,
+  check,
+  date,
+  index,
+  integer,
+  jsonb,
+  numeric,
+  pgTable,
+  primaryKey,
+  smallint,
+  text,
+  time,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core';
+import {
+  TIPOS_DIMENSAO,
+  TYPES_EVENT_ATTENDANCE,
+  carimbos,
+  id,
+  listaCheck,
+  moment,
+} from './comum.js';
+import { refTenant, user } from './identity.js';
+import { conversation, queue } from './conversations.js';
+
+/**
+ * Module 4, Management: derive every metric from `evento_atendimento`, never mutable conversation fields, so historical periods can be recalculated when metric definitions change.
+ */
+
+/**
+ * Immutable and monthly partitioned by `em`; the primary key includes the partition key as with `message`.
+ */
+export const eventAttendance = pgTable(
+  'evento_atendimento',
+  {
+    id: uuid('id')
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    tenantId: refTenant(),
+    conversaId: uuid('conversa_id')
+      .notNull()
+      .references(() => conversation.id, { onDelete: 'cascade' }),
+    tipo: text('tipo').notNull(),
+    em: moment('em').notNull().defaultNow(),
+    usuarioId: uuid('usuario_id').references(() => user.id, { onDelete: 'set null' }),
+    queueId: uuid('fila_id').references(() => queue.id, { onDelete: 'set null' }),
+    data: jsonb('dados')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.id, t.em] }),
+    listaCheck('evento_atendimento_tipo_ck', t.tipo, TYPES_EVENT_ATTENDANCE),
+    index('evento_atendimento_conversa_idx').on(t.tenantId, t.conversaId, t.em),
+    index('evento_atendimento_tipo_idx').on(t.tenantId, t.tipo, t.em),
+  ],
+);
+
+export const metricaDiaria = pgTable(
+  'metrica_diaria',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    dia: date('dia').notNull(),
+    dimensaoTipo: text('dimensao_tipo').notNull(),
+    dimensaoId: uuid('dimensao_id'),
+    conversationsCreated: integer('conversas_criadas').notNull().default(0),
+    conversationsCloseds: integer('conversas_encerradas').notNull().default(0),
+    conversationsLost: integer('conversas_perdidas').notNull().default(0),
+    conversationsAbandoned: integer('conversas_abandonadas').notNull().default(0),
+    messagesInbound: integer('mensagens_entrada').notNull().default(0),
+    messagesOutput: integer('mensagens_saida').notNull().default(0),
+    /** Store sums in seconds; divide by count at display time to compute averages. */
+    waitQueueSeg: integer('espera_fila_seg').notNull().default(0),
+    waitQueueN: integer('espera_fila_n').notNull().default(0),
+    firstResponseSeg: integer('primeira_resposta_seg').notNull().default(0),
+    firstResponseN: integer('primeira_resposta_n').notNull().default(0),
+    attendanceSeg: integer('atendimento_seg').notNull().default(0),
+    attendanceN: integer('atendimento_n').notNull().default(0),
+    slaCumpridos: integer('sla_cumpridos').notNull().default(0),
+    slaEstourados: integer('sla_estourados').notNull().default(0),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('metrica_diaria_dimensao_tipo_ck', t.dimensaoTipo, TIPOS_DIMENSAO),
+    uniqueIndex('metrica_diaria_uk').on(t.tenantId, t.dia, t.dimensaoTipo, t.dimensaoId),
+  ],
+);
+
+/**
+ * Deterministic effort measure (spec §4.4): 200 written characters/minute, 1,000 read characters/minute, and audio at 1×. `chars_de_resposta_pronta` discounts text the agent did not type; without it, templates and canned responses inflate effort.
+ */
+export const effortConversation = pgTable(
+  'esforco_conversa',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    conversationId: uuid('conversa_id')
+      .notNull()
+      .references(() => conversation.id, { onDelete: 'cascade' }),
+    agentId: uuid('atendente_id').references(() => user.id, { onDelete: 'set null' }),
+    charsEscritos: integer('chars_escritos').notNull().default(0),
+    charsLidos: integer('chars_lidos').notNull().default(0),
+    audioOuvidoSeg: integer('audio_ouvido_seg').notNull().default(0),
+    audioGravadoSeg: integer('audio_gravado_seg').notNull().default(0),
+    charsDeRespostaPronta: integer('chars_de_resposta_pronta').notNull().default(0),
+    effortSeg: integer('esforco_seg').notNull().default(0),
+    pausadoSeg: integer('pausado_seg').notNull().default(0),
+    calculadoEm: moment('calculado_em').notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('esforco_conversa_uk').on(t.conversationId, t.agentId)],
+);
+
+export const effortAgentDay = pgTable(
+  'esforco_atendente_dia',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    dia: date('dia').notNull(),
+    userId: uuid('usuario_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    esforcoSeg: integer('esforco_seg').notNull().default(0),
+    tickets: integer('tickets').notNull().default(0),
+    sessionSeg: integer('sessao_seg').notNull().default(0),
+    occupancy: numeric('ocupacao', { precision: 5, scale: 4 }),
+    ...carimbos(),
+  },
+  (t) => [uniqueIndex('esforco_atendente_dia_uk').on(t.tenantId, t.dia, t.userId)],
+);
+
+export const COMBINADORES = ['e', 'ou'] as const;
+
+export const ruleQueue = pgTable(
+  'regra_fila',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    nome: text('nome').notNull(),
+    order: integer('ordem').notNull().default(0),
+    combinador: text('combinador').notNull().default('e'),
+    queueDestinationId: uuid('fila_destino_id')
+      .notNull()
+      .references(() => queue.id, { onDelete: 'cascade' }),
+    active: boolean('ativa').notNull().default(true),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('regra_fila_combinador_ck', t.combinador, COMBINADORES),
+    index('regra_fila_ordem_idx').on(t.tenantId, t.active, t.order),
+  ],
+);
+
+export const ruleQueueCondition = pgTable(
+  'regra_fila_condicao',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    regraId: uuid('regra_id')
+      .notNull()
+      .references(() => ruleQueue.id, { onDelete: 'cascade' }),
+    campo: text('campo').notNull(),
+    operador: text('operador').notNull(),
+    value: text('valor'),
+  },
+  (t) => [index('regra_fila_condicao_regra_idx').on(t.regraId)],
+);
+
+export const SCOPES_RULE = ['tenant', 'fila', 'inbox', 'equipe', 'etiqueta'] as const;
+
+export const rulePriority = pgTable(
+  'regra_prioridade',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    nome: text('nome').notNull(),
+    nivel: text('nivel').notNull(),
+    scopeType: text('escopo_tipo').notNull().default('tenant'),
+    scopeId: uuid('escopo_id'),
+    condition: jsonb('condicao')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    ativa: boolean('ativa').notNull().default(true),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('regra_prioridade_nivel_ck', t.nivel, NIVEIS_ATRIBUIVEIS),
+    listaCheck('regra_prioridade_escopo_tipo_ck', t.scopeType, SCOPES_RULE),
+  ],
+);
+
+export const ALVOS_SLA = ['primeira_resposta', 'resposta', 'resolucao', 'espera_fila'] as const;
+
+export const regraSla = pgTable(
+  'regra_sla',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    nome: text('nome').notNull(),
+    alvo: text('alvo').notNull(),
+    prazoSeg: integer('prazo_seg').notNull(),
+    alertaSeg: integer('alerta_seg'),
+    escopoTipo: text('escopo_tipo').notNull().default('tenant'),
+    escopoId: uuid('escopo_id'),
+    acaoAlerta: jsonb('acao_alerta')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    acaoEstouro: jsonb('acao_estouro')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    ativa: boolean('ativa').notNull().default(true),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('regra_sla_alvo_ck', t.alvo, ALVOS_SLA),
+    listaCheck('regra_sla_escopo_tipo_ck', t.escopoTipo, SCOPES_RULE),
+  ],
+);
+
+export const ESTADOS_SLA = ['correndo', 'alertado', 'estourado', 'cumprido', 'cancelado'] as const;
+
+export const slaConversation = pgTable(
+  'sla_conversa',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    conversaId: uuid('conversa_id')
+      .notNull()
+      .references(() => conversation.id, { onDelete: 'cascade' }),
+    regraId: uuid('regra_id')
+      .notNull()
+      .references(() => regraSla.id, { onDelete: 'cascade' }),
+    prazoEm: moment('prazo_em').notNull(),
+    alertadoEm: moment('alertado_em'),
+    estouradoEm: moment('estourado_em'),
+    state: text('estado').notNull().default('correndo'),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('sla_conversa_estado_ck', t.state, ESTADOS_SLA),
+    uniqueIndex('sla_conversa_uk').on(t.conversaId, t.regraId),
+    index('sla_conversa_prazo_idx').on(t.tenantId, t.state, t.prazoEm),
+  ],
+);
+
+/**
+ * Forbidden words, migration 0042: an ACCOUNT-level list blocks agent sending (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` retains the entered spelling; domain logic in `apps/api/src/dominio/gestao/palavras-proibidas.ts` compares without accents or case.
+ */
+export const palavraProibida = pgTable(
+  'palavra_proibida',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    termo: text('termo').notNull(),
+    ativo: boolean('ativo').notNull().default(true),
+    ...carimbos(),
+  },
+  (t) => [
+    check('palavra_proibida_termo_ck', sql`length(btrim(${t.termo})) > 0`),
+    uniqueIndex('palavra_proibida_termo_uk').on(t.tenantId, sql`lower(${t.termo})`),
+    index('palavra_proibida_ativa_idx')
+      .on(t.tenantId)
+      .where(sql`${t.ativo}`),
+  ],
+);
+
+export const scheduleAttendance = pgTable('horario_atendimento', {
+  id: id(),
+  tenantId: refTenant(),
+  nome: text('nome').notNull(),
+  fuso: text('fuso').notNull().default('America/Sao_Paulo'),
+  ...carimbos(),
+});
+
+export const horarioFaixa = pgTable(
+  'horario_faixa',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    horarioId: uuid('horario_id')
+      .notNull()
+      .references(() => scheduleAttendance.id, { onDelete: 'cascade' }),
+    /** 0 = domingo, seguindo `extract(dow)` do Postgres. */
+    diaSemana: smallint('dia_semana').notNull(),
+    inicio: time('inicio').notNull(),
+    fim: time('fim').notNull(),
+  },
+  (t) => [index('horario_faixa_horario_idx').on(t.horarioId, t.diaSemana)],
+);
+
+export const scheduleException = pgTable(
+  'horario_excecao',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    horarioId: uuid('horario_id')
+      .notNull()
+      .references(() => scheduleAttendance.id, { onDelete: 'cascade' }),
+    data: date('data').notNull(),
+    fechado: boolean('fechado').notNull().default(true),
+    inicio: time('inicio'),
+    fim: time('fim'),
+    motivo: text('motivo'),
+  },
+  (t) => [uniqueIndex('horario_excecao_uk').on(t.horarioId, t.data)],
+);
+
+export const TIPOS_PESQUISA = ['csat', 'nps'] as const;
+
+export const pesquisa = pgTable(
+  'pesquisa',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    tipo: text('tipo').notNull(),
+    escalaMin: smallint('escala_min').notNull(),
+    escalaMax: smallint('escala_max').notNull(),
+    pergunta: text('pergunta').notNull(),
+    /** Quando disparar: `encerramento`, `primeira_resposta`, `manual`. */
+    disparo: text('disparo').notNull().default('encerramento'),
+    ativa: boolean('ativa').notNull().default(true),
+    ...carimbos(),
+  },
+  (t) => [listaCheck('pesquisa_tipo_ck', t.tipo, TIPOS_PESQUISA)],
+);
+
+/**
+ * Store the scale alongside the score; otherwise CSAT 4 and NPS 4 would be added to the same chart when an account uses both models.
+ */
+export const respostaPesquisa = pgTable(
+  'resposta_pesquisa',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    conversaId: uuid('conversa_id')
+      .notNull()
+      .references(() => conversation.id, { onDelete: 'cascade' }),
+    pesquisaId: uuid('pesquisa_id')
+      .notNull()
+      .references(() => pesquisa.id, { onDelete: 'cascade' }),
+    nota: smallint('nota'),
+    escalaMin: smallint('escala_min').notNull(),
+    escalaMax: smallint('escala_max').notNull(),
+    /** NPS values are `promotor`, `neutro`, `detrator`; CSAT values are `satisfeito`, `insatisfeito`. */
+    classe: text('classe'),
+    comentario: text('comentario'),
+    respondidaEm: moment('respondida_em'),
+    criadoEm: moment('criado_em').notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('resposta_pesquisa_uk').on(t.conversaId, t.pesquisaId),
+    index('resposta_pesquisa_periodo_idx').on(t.tenantId, t.respondidaEm),
+  ],
+);

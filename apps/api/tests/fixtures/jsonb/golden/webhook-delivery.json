@@ -1,5 +1,5 @@
 {
-  "corpo": {
+  "body": {
     "data": {
       "estado": "na_fila",
       "origem": "gerar-fixtures-jsonb",

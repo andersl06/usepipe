@@ -11,45 +11,45 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./metricas": {
-      "types": "./dist/metricas/index.d.ts",
-      "default": "./dist/metricas/index.js"
+    "./metrics": {
+      "types": "./dist/metrics/index.d.ts",
+      "default": "./dist/metrics/index.js"
     },
-    "./esforco": {
-      "types": "./dist/esforco/index.d.ts",
-      "default": "./dist/esforco/index.js"
+    "./effort": {
+      "types": "./dist/effort/index.d.ts",
+      "default": "./dist/effort/index.js"
     },
     "./score": {
       "types": "./dist/score/index.d.ts",
       "default": "./dist/score/index.js"
     },
-    "./distribuicao": {
-      "types": "./dist/distribuicao/index.d.ts",
-      "default": "./dist/distribuicao/index.js"
+    "./distribution": {
+      "types": "./dist/distribution/index.d.ts",
+      "default": "./dist/distribution/index.js"
     },
     "./sla": {
       "types": "./dist/sla/index.d.ts",
       "default": "./dist/sla/index.js"
     },
-    "./conversa": {
-      "types": "./dist/conversa/index.d.ts",
-      "default": "./dist/conversa/index.js"
+    "./conversation": {
+      "types": "./dist/conversation/index.d.ts",
+      "default": "./dist/conversation/index.js"
     },
-    "./janela": {
-      "types": "./dist/janela/index.d.ts",
-      "default": "./dist/janela/index.js"
+    "./window": {
+      "types": "./dist/window/index.d.ts",
+      "default": "./dist/window/index.js"
     },
-    "./analise": {
-      "types": "./dist/analise/index.d.ts",
-      "default": "./dist/analise/index.js"
+    "./analytics": {
+      "types": "./dist/analytics/index.d.ts",
+      "default": "./dist/analytics/index.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.testes.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.tests.json",
     "lint": "eslint src",
     "test": "vitest run",
-    "test:observar": "vitest"
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

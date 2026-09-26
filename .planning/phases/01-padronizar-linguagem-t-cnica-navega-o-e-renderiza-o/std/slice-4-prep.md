@@ -5,8 +5,8 @@ Evidence: `git grep -n -I -F` against tracked content in this worktree at gate-2
 ## Safe order and invariants
 
 1. 01-28: rename one package at a time: `tempo-real -> realtime`, `armazenamento -> storage`, `autenticacao -> authentication`. For each: move dir, rewrite package name and dependents/imports/Dockerfile paths, regenerate lockfile, frozen install/typecheck/build, build affected image(s), commit; only then take next. The explicit auth COPY lines are `apps/api/Dockerfile:29`, `apps/workers/Dockerfile:29`, `apps/crm/Dockerfile:27`, `apps/gestao-vite/Dockerfile:28`. Other two packages are absent from those lists; check filtered install/build before adding COPY lines. Build is execution work, not done here.
-2. 01-29: move `apps/gestao-vite -> apps/management-vite` and change `@pipe/gestao-vite -> @pipe/management-vite` together with Dockerfile/dockerignore, build list, compose service/image, K8s selectors, docs; build image and validate compose. `desk-vite` has no approved rename: KEEP.
-3. 01-30: move `apps/ponte -> apps/bridge`, change `@pipe/ponte -> @pipe/bridge` and root script value. Root script key `ponte -> bridge` is 01-39. Site file/dir work follows `site.csv`; build site.
+2. 01-29: move `apps/gestao-vite -> apps/management-vite` and change `@pipe/management-vite -> @pipe/management-vite` together with Dockerfile/dockerignore, build list, compose service/image, K8s selectors, docs; build image and validate compose. `desk-vite` has no approved rename: KEEP.
+3. 01-30: move `apps/ponte -> apps/bridge`, change `@pipe/bridge -> @pipe/bridge` and root script value. Root script key `ponte -> bridge` is 01-39. Site file/dir work follows `site.csv`; build site.
 4. 01-39: move approved infra files/dirs, update their references, then script keys and shell identifiers. Syntax check scripts, build images, run gate. Keep env var NAMES (D-06/D-36), including `PIPE_VERSAO`, `VITE_PORTA`, `VITE_URL_API`. D-43 permits fresh VPS rebuild.
 
 Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` uses `apps/*` and `packages/*`; `turbo.json` has no old-name hit. No matching tracked old-name content found in `.github/`. Git grep old names after each unit, excluding historical maps and lockfile.
@@ -16,7 +16,7 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
 ### tempo-real -> realtime
 
 - `packages/tempo-real/package.json:2`
-  - old: `"name": "@pipe/tempo-real",`
+  - old: `"name": "@pipe/realtime",`
   - proposed: `"name": "@pipe/realtime",`
 - `PROJECT-HANDOFF.md:236`
   - old: `**`packages/mcp`, `packages/tempo-real`, `packages/ai`** — CORREÇÃO: em uma`
@@ -28,52 +28,52 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
 ### armazenamento -> storage
 
 - `apps/api/package.json:49`
-  - old: `"@pipe/armazenamento": "workspace:*",`
+  - old: `"@pipe/storage": "workspace:*",`
   - proposed: `"@pipe/storage": "workspace:*",`
 - `apps/api/src/controladores/anexos.ts:4`
-  - old: `import { MAX_ARQUIVOS_POR_MENSAGEM } from '@pipe/armazenamento';`
+  - old: `import { MAX_ARQUIVOS_POR_MENSAGEM } from '@pipe/storage';`
   - proposed: `import { MAX_ARQUIVOS_POR_MENSAGEM } from '@pipe/storage';`
 - `apps/api/src/dominio/anexo.ts:15`
-  - old: `} from '@pipe/armazenamento';`
+  - old: `} from '@pipe/storage';`
   - proposed: `} from '@pipe/storage';`
 - `apps/api/src/dominio/anexo.ts:16`
-  - old: `import type { Armazenamento } from '@pipe/armazenamento';`
+  - old: `import type { Armazenamento } from '@pipe/storage';`
   - proposed: `import type { Armazenamento } from '@pipe/storage';`
 - `apps/api/src/dominio/envio.ts:2`
-  - old: `import { MAX_ARQUIVOS_POR_MENSAGEM, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/armazenamento';`
+  - old: `import { MAX_ARQUIVOS_POR_MENSAGEM, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/storage';`
   - proposed: `import { MAX_ARQUIVOS_POR_MENSAGEM, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/storage';`
 - `apps/api/src/dominio/gestao/regras-de-nome.ts:64`
   - old: `* quinze formatos do anexo — vive em `packages/armazenamento/src/tipo-real.ts`;`
   - proposed: `* quinze formatos do anexo — vive em `packages/storage/src/tipo-real.ts`;`
 - `apps/api/src/dominio/gestao/regras-de-nome.ts:69`
-  - old: `* formato, troque pelo `tipoReal` de `@pipe/armazenamento`.`
+  - old: `* formato, troque pelo `tipoReal` de `@pipe/storage`.`
   - proposed: `* formato, troque pelo `tipoReal` de `@pipe/storage`.`
 - `apps/api/src/dominio/midia.ts:6`
-  - old: `import { chaveDeAnexo, maxBytesDoMime, mimeParaServir } from '@pipe/armazenamento';`
+  - old: `import { chaveDeAnexo, maxBytesDoMime, mimeParaServir } from '@pipe/storage';`
   - proposed: `import { chaveDeAnexo, maxBytesDoMime, mimeParaServir } from '@pipe/storage';`
 - `apps/api/src/servidor.ts:9`
-  - old: `import { MAX_BYTES_POR_ARQUIVO } from '@pipe/armazenamento';`
+  - old: `import { MAX_BYTES_POR_ARQUIVO } from '@pipe/storage';`
   - proposed: `import { MAX_BYTES_POR_ARQUIVO } from '@pipe/storage';`
 - `apps/api/tests/anexos-multiplos.test.ts:17`
-  - old: `const { MAX_ARQUIVOS_POR_MENSAGEM, MAX_BYTES_POR_ARQUIVO } = await import('@pipe/armazenamento');`
+  - old: `const { MAX_ARQUIVOS_POR_MENSAGEM, MAX_BYTES_POR_ARQUIVO } = await import('@pipe/storage');`
   - proposed: `const { MAX_ARQUIVOS_POR_MENSAGEM, MAX_BYTES_POR_ARQUIVO } = await import('@pipe/storage');`
 - `apps/api/tests/anexos.test.ts:14`
-  - old: `const { MAX_BYTES_AUDIO_VIDEO } = await import('@pipe/armazenamento');`
+  - old: `const { MAX_BYTES_AUDIO_VIDEO } = await import('@pipe/storage');`
   - proposed: `const { MAX_BYTES_AUDIO_VIDEO } = await import('@pipe/storage');`
 - `apps/desk-vite/src/lib/anexos.ts:9`
-  - old: `* Os números são os de `@pipe/armazenamento` (`MAX_ARQUIVOS_POR_MENSAGEM`,`
+  - old: `* Os números são os de `@pipe/storage` (`MAX_ARQUIVOS_POR_MENSAGEM`,`
   - proposed: `* Os números são os de `@pipe/storage` (`MAX_ARQUIVOS_POR_MENSAGEM`,`
 - `apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:64`
   - old: `* quinze formatos do anexo — vive em `packages/armazenamento/src/tipo-real.ts`;`
   - proposed: `* quinze formatos do anexo — vive em `packages/storage/src/tipo-real.ts`;`
 - `apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:69`
-  - old: `* formato, troque pelo `tipoReal` de `@pipe/armazenamento`.`
+  - old: `* formato, troque pelo `tipoReal` de `@pipe/storage`.`
   - proposed: `* formato, troque pelo `tipoReal` de `@pipe/storage`.`
 - `docs/specs/2026-09-07-storage-de-anexos.md:20`
   - old: `(`packages/armazenamento/src/porta.ts`) é bucket + chave opaca + objeto — a forma do S3. Trocar`
   - proposed: `(`packages/storage/src/porta.ts`) é bucket + chave opaca + objeto — a forma do S3. Trocar`
 - `packages/armazenamento/package.json:2`
-  - old: `"name": "@pipe/armazenamento",`
+  - old: `"name": "@pipe/storage",`
   - proposed: `"name": "@pipe/storage",`
 - `packages/db/drizzle/0044_certificado_mtls_arquivo.sql:19`
   - old: `-- 10 MB); e o storage de `packages/armazenamento` existe para servir mídia por`
@@ -88,166 +88,166 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
   - old: `COPY packages/autenticacao/package.json packages/autenticacao/`
   - proposed: `COPY packages/authentication/package.json packages/authentication/`
 - `apps/api/package.json:50`
-  - old: `"@pipe/autenticacao": "workspace:*",`
+  - old: `"@pipe/authentication": "workspace:*",`
   - proposed: `"@pipe/authentication": "workspace:*",`
 - `apps/api/src/controladores/entrar.ts:19`
-  - old: `} from '@pipe/autenticacao';`
+  - old: `} from '@pipe/authentication';`
   - proposed: `} from '@pipe/authentication';`
 - `apps/api/src/controladores/entrar.ts:20`
-  - old: `import type { DesafioDeLogin, OpcoesDeCookie, PessoaDoGoogle } from '@pipe/autenticacao';`
+  - old: `import type { DesafioDeLogin, OpcoesDeCookie, PessoaDoGoogle } from '@pipe/authentication';`
   - proposed: `import type { DesafioDeLogin, OpcoesDeCookie, PessoaDoGoogle } from '@pipe/authentication';`
 - `apps/api/src/controladores/entrar.ts:37`
-  - old: `* mora em `@pipe/autenticacao` e não se repete aqui. Este arquivo é só a casca HTTP:`
+  - old: `* mora em `@pipe/authentication` e não se repete aqui. Este arquivo é só a casca HTTP:`
   - proposed: `* mora em `@pipe/authentication` e não se repete aqui. Este arquivo é só a casca HTTP:`
 - `apps/api/src/controladores/minha-conta.ts:4`
-  - old: `import { abrirSessaoEm, cookieDeSessao } from '@pipe/autenticacao';`
+  - old: `import { abrirSessaoEm, cookieDeSessao } from '@pipe/authentication';`
   - proposed: `import { abrirSessaoEm, cookieDeSessao } from '@pipe/authentication';`
 - `apps/api/src/controladores/sso.ts:10`
-  - old: `} from '@pipe/autenticacao';`
+  - old: `} from '@pipe/authentication';`
   - proposed: `} from '@pipe/authentication';`
 - `apps/api/src/controladores/sso.ts:39`
-  - old: `* mora em `@pipe/autenticacao` e não se repete aqui. Este arquivo é a casca HTTP,`
+  - old: `* mora em `@pipe/authentication` e não se repete aqui. Este arquivo é a casca HTTP,`
   - proposed: `* mora em `@pipe/authentication` e não se repete aqui. Este arquivo é a casca HTTP,`
 - `apps/api/src/dominio/construtor-de-conta.ts:2`
-  - old: `import { dominioDoEmail, ehDominioPublico } from '@pipe/autenticacao';`
+  - old: `import { dominioDoEmail, ehDominioPublico } from '@pipe/authentication';`
   - proposed: `import { dominioDoEmail, ehDominioPublico } from '@pipe/authentication';`
 - `apps/api/src/dominio/convites.ts:2`
-  - old: `import { EntradaRecusada, criarToken, hashDoToken } from '@pipe/autenticacao';`
+  - old: `import { EntradaRecusada, criarToken, hashDoToken } from '@pipe/authentication';`
   - proposed: `import { EntradaRecusada, criarToken, hashDoToken } from '@pipe/authentication';`
 - `apps/api/src/dominio/convites.ts:3`
-  - old: `import type { PessoaDoGoogle } from '@pipe/autenticacao';`
+  - old: `import type { PessoaDoGoogle } from '@pipe/authentication';`
   - proposed: `import type { PessoaDoGoogle } from '@pipe/authentication';`
 - `apps/api/src/dominio/convites.ts:12`
   - old: `* A quarta pergunta de `packages/autenticacao/src/entrada.ts` recusa quem não foi`
   - proposed: `* A quarta pergunta de `packages/authentication/src/entrada.ts` recusa quem não foi`
 - `apps/api/src/dominio/dominios.ts:4`
-  - old: `import { DOMINIOS_PUBLICOS } from '@pipe/autenticacao';`
+  - old: `import { DOMINIOS_PUBLICOS } from '@pipe/authentication';`
   - proposed: `import { DOMINIOS_PUBLICOS } from '@pipe/authentication';`
 - `apps/api/src/dominio/dominios.ts:12`
   - old: `* É a segunda pergunta da entrada (`packages/autenticacao/src/entrada.ts`), e a`
   - proposed: `* É a segunda pergunta da entrada (`packages/authentication/src/entrada.ts`), e a`
 - `apps/api/src/dominio/dominios.ts:17`
-  - old: `* **Domínio público nunca é verificável.** A lista está em `@pipe/autenticacao``
+  - old: `* **Domínio público nunca é verificável.** A lista está em `@pipe/authentication``
   - proposed: `* **Domínio público nunca é verificável.** A lista está em `@pipe/authentication``
 - `apps/api/src/dominio/gestao/contrato.ts:293`
   - old: `* `ativo = false` já barra a entrada (`packages/autenticacao/src/entrada.ts`),`
   - proposed: `* `ativo = false` já barra a entrada (`packages/authentication/src/entrada.ts`),`
 - `apps/api/src/dominio/sso.ts:3`
-  - old: `import { DOMINIOS_PUBLICOS, descobrir, dominioDoEmail } from '@pipe/autenticacao';`
+  - old: `import { DOMINIOS_PUBLICOS, descobrir, dominioDoEmail } from '@pipe/authentication';`
   - proposed: `import { DOMINIOS_PUBLICOS, descobrir, dominioDoEmail } from '@pipe/authentication';`
 - `apps/api/src/dominio/sso.ts:4`
-  - old: `import type { ConfigOidc, DescobertaOidc, ProvedorSso } from '@pipe/autenticacao';`
+  - old: `import type { ConfigOidc, DescobertaOidc, ProvedorSso } from '@pipe/authentication';`
   - proposed: `import type { ConfigOidc, DescobertaOidc, ProvedorSso } from '@pipe/authentication';`
 - `apps/api/src/dominio/twenty.ts:77`
   - old: `* `buscar` é injetável pelo mesmo motivo de `packages/autenticacao`: teste não bate`
   - proposed: `* `buscar` é injetável pelo mesmo motivo de `packages/authentication`: teste não bate`
 - `apps/api/src/eventos-ws.ts:5`
-  - old: `import { hashDoToken, origemPermitida, origensPermitidas, resolverSessao } from '@pipe/autenticacao';`
+  - old: `import { hashDoToken, origemPermitida, origensPermitidas, resolverSessao } from '@pipe/authentication';`
   - proposed: `import { hashDoToken, origemPermitida, origensPermitidas, resolverSessao } from '@pipe/authentication';`
 - `apps/api/src/provisionar.ts:8`
-  - old: `import { dominioDoEmail, ehDominioPublico } from '@pipe/autenticacao';`
+  - old: `import { dominioDoEmail, ehDominioPublico } from '@pipe/authentication';`
   - proposed: `import { dominioDoEmail, ehDominioPublico } from '@pipe/authentication';`
 - `apps/api/src/servidor.ts:7`
-  - old: `import { origemPermitida, origensPermitidas } from '@pipe/autenticacao';`
+  - old: `import { origemPermitida, origensPermitidas } from '@pipe/authentication';`
   - proposed: `import { origemPermitida, origensPermitidas } from '@pipe/authentication';`
 - `apps/api/src/sessao.ts:6`
-  - old: `import { NOME_DO_COOKIE, hashDoToken, resolverSessao } from '@pipe/autenticacao';`
+  - old: `import { NOME_DO_COOKIE, hashDoToken, resolverSessao } from '@pipe/authentication';`
   - proposed: `import { NOME_DO_COOKIE, hashDoToken, resolverSessao } from '@pipe/authentication';`
 - `apps/api/src/sessao.ts:7`
-  - old: `import type { SessaoAtiva } from '@pipe/autenticacao';`
+  - old: `import type { SessaoAtiva } from '@pipe/authentication';`
   - proposed: `import type { SessaoAtiva } from '@pipe/authentication';`
 - `apps/api/tests/analise.test.ts:11`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/anexos-multiplos.test.ts:13`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/builder-por-fluxo.test.ts:13`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/cadastros-atendimento.test.ts:12`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/canal-do-fluxo.test.ts:17`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/chave-de-fluxo.test.ts:12`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:12`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/configuracao-do-fluxo.test.ts:12`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/contatos-editar.test.ts:12`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/contrato.test.ts:18`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/conversa-eventos.test.ts:11`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/convites.test.ts:17`
-  - old: `const { NOME_DO_COOKIE, criarToken, hashDoToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken, hashDoToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken, hashDoToken } = await import('@pipe/authentication');`
 - `apps/api/tests/convites.test.ts:39`
   - old: `* dublar o JWKS provaria de novo o que `packages/autenticacao` já prova. A parte`
   - proposed: `* dublar o JWKS provaria de novo o que `packages/authentication` já prova. A parte`
 - `apps/api/tests/desk-acoes.test.ts:12`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/dicionario-crm.test.ts:13`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/entrada.test.ts:20`
-  - old: `await import('@pipe/autenticacao');`
+  - old: `await import('@pipe/authentication');`
   - proposed: `await import('@pipe/authentication');`
 - `apps/api/tests/entrada.test.ts:34`
   - old: `* `entrarComGoogle` já têm teste em `packages/autenticacao`, e repetir a troca de`
   - proposed: `* `entrarComGoogle` já têm teste em `packages/authentication`, e repetir a troca de`
 - `apps/api/tests/envio-sessao.test.ts:11`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/equipe-do-fluxo.test.ts:12`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/etiquetas.test.ts:12`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/growth.test.ts:11`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/integracoes.test.ts:12`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/mensagens-ativas.test.ts:11`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/monitoramento-conversas.test.ts:11`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/palavras-proibidas.test.ts:14`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/permissoes-do-atendente.test.ts:12`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/roteador.test.ts:13`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/sso.test.ts:12`
-  - old: `const { EntradaRecusada, entrarComGoogle, entrarComSso } = await import('@pipe/autenticacao');`
+  - old: `const { EntradaRecusada, entrarComGoogle, entrarComSso } = await import('@pipe/authentication');`
   - proposed: `const { EntradaRecusada, entrarComGoogle, entrarComSso } = await import('@pipe/authentication');`
 - `apps/api/tests/sso.test.ts:35`
   - old: `* `packages/autenticacao/tests/oidc.test.ts`, e repeti-la aqui exigiria dublar o`
   - proposed: `* `packages/authentication/tests/oidc.test.ts`, e repeti-la aqui exigiria dublar o`
 - `apps/api/tests/tempo-real.test.ts:15`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/api/tests/transferencia.test.ts:11`
-  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
   - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
 - `apps/crm/Dockerfile:27`
   - old: `COPY packages/autenticacao/package.json packages/autenticacao/`
@@ -256,7 +256,7 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
   - old: `* ser trocado numa linha quando `packages/autenticacao` chegar nesta tela: o`
   - proposed: `* ser trocado numa linha quando `packages/authentication` chegar nesta tela: o`
 - `apps/crm/src/lib/configuracoes-dados.ts:297`
-  - old: `* aqui, e não importado de `@pipe/autenticacao`, porque o CRM não depende desse`
+  - old: `* aqui, e não importado de `@pipe/authentication`, porque o CRM não depende desse`
   - proposed: `* aqui, e não importado de `@pipe/authentication`, porque o CRM não depende desse`
 - `apps/gestao-vite/Dockerfile:28`
   - old: `COPY packages/autenticacao/package.json packages/autenticacao/`
@@ -271,13 +271,13 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
   - old: `O Pipe já entra por Google (`packages/autenticacao/src/google.ts`, OIDC com PKCE). O Twenty também`
   - proposed: `O Pipe já entra por Google (`packages/authentication/src/google.ts`, OIDC com PKCE). O Twenty também`
 - `packages/autenticacao/package.json:2`
-  - old: `"name": "@pipe/autenticacao",`
+  - old: `"name": "@pipe/authentication",`
   - proposed: `"name": "@pipe/authentication",`
 - `packages/db/src/schema/identidade.ts:530`
   - old: `* quarta pergunta de `packages/autenticacao/src/entrada.ts` recusa quem não foi`
   - proposed: `* quarta pergunta de `packages/authentication/src/entrada.ts` recusa quem não foi`
 - `tools/std/map-tools.test.ts:130`
-  - old: `const f = fixture(); mapRows(f.map, [row('pkg', { kind: 'package', old: '@pipe/autenticacao', new: '@pipe/authentication' }), row('file', { kind: 'file', old: 'apps/api/src/fluxo.teste.ts', new: 'apps/api/src/flow.test.ts' })]);`
+  - old: `const f = fixture(); mapRows(f.map, [row('pkg', { kind: 'package', old: '@pipe/authentication', new: '@pipe/authentication' }), row('file', { kind: 'file', old: 'apps/api/src/fluxo.teste.ts', new: 'apps/api/src/flow.test.ts' })]);`
   - proposed: `const f = fixture(); mapRows(f.map, [row('pkg', { kind: 'package', old: '@pipe/authentication', new: '@pipe/authentication' }), row('file', { kind: 'file', old: 'apps/api/src/fluxo.teste.ts', new: 'apps/api/src/flow.test.ts' })]);`
 
 ## 01-29 management app references
@@ -321,7 +321,7 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
   - old: `!apps/gestao-vite/package.json`
   - proposed: `!apps/management-vite/package.json`
 - `apps/crm/semente/semente-crm.ts:368`
-  - old: `'poucos contatos com conversa no tenant demo: rode `pnpm --filter @pipe/gestao-vite seed:gestao` antes.',`
+  - old: `'poucos contatos com conversa no tenant demo: rode `pnpm --filter @pipe/management-vite seed:gestao` antes.',`
   - proposed: `'poucos contatos com conversa no tenant demo: rode `pnpm --filter @pipe/management-vite seed:gestao` antes.',`
 - `apps/desk-vite/src/componentes/exigir-sessao.tsx:5`
   - old: `* O portão das telas do Desk — o mesmo de `apps/gestao-vite`, sem o desvio para`
@@ -351,16 +351,16 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
   - old: `COPY apps/gestao-vite/package.json apps/gestao-vite/`
   - proposed: `COPY apps/management-vite/package.json apps/management-vite/`
 - `apps/gestao-vite/Dockerfile:36`
-  - old: `# `@pipe/gestao-vite...` = o aplicativo e as dependências dele no workspace. Os`
+  - old: `# `@pipe/management-vite...` = o aplicativo e as dependências dele no workspace. Os`
   - proposed: `# `@pipe/management-vite...` = o aplicativo e as dependências dele no workspace. Os`
 - `apps/gestao-vite/Dockerfile:40`
-  - old: `pnpm install --frozen-lockfile --filter "@pipe/gestao-vite..."`
+  - old: `pnpm install --frozen-lockfile --filter "@pipe/management-vite..."`
   - proposed: `pnpm install --frozen-lockfile --filter "@pipe/management-vite..."`
 - `apps/gestao-vite/Dockerfile:46`
   - old: `COPY apps/gestao-vite apps/gestao-vite`
   - proposed: `COPY apps/management-vite apps/management-vite`
 - `apps/gestao-vite/Dockerfile:57`
-  - old: `RUN pnpm --filter "@pipe/gestao-vite..." build`
+  - old: `RUN pnpm --filter "@pipe/management-vite..." build`
   - proposed: `RUN pnpm --filter "@pipe/management-vite..." build`
 - `apps/gestao-vite/Dockerfile:64`
   - old: `COPY apps/gestao-vite/nginx.conf /etc/nginx/conf.d/default.conf`
@@ -375,10 +375,10 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
   - old: `# LUGAR do .dockerignore da raiz quando o -f aponta para apps/gestao-vite/Dockerfile,`
   - proposed: `# LUGAR do .dockerignore da raiz quando o -f aponta para apps/management-vite/Dockerfile,`
 - `apps/gestao-vite/package.json:2`
-  - old: `"name": "@pipe/gestao-vite",`
+  - old: `"name": "@pipe/management-vite",`
   - proposed: `"name": "@pipe/management-vite",`
 - `apps/gestao-vite/README.md:13`
-  - old: `pnpm --filter @pipe/gestao-vite dev  # :3110, com proxy de /v1 para a api`
+  - old: `pnpm --filter @pipe/management-vite dev  # :3110, com proxy de /v1 para a api`
   - proposed: `pnpm --filter @pipe/management-vite dev  # :3110, com proxy de /v1 para a api`
 - `apps/workers/Dockerfile:26`
   - old: `COPY apps/gestao-vite/package.json apps/gestao-vite/`
@@ -405,7 +405,7 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
   - old: `- Test: `apps/gestao-vite/tests/filtros-monitoramento.test.ts``
   - proposed: `- Test: `apps/management-vite/tests/filtros-monitoramento.test.ts``
 - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:48`
-  - old: `Run: `pnpm --filter @pipe/gestao-vite test -- filtros-monitoramento.test.ts``
+  - old: `Run: `pnpm --filter @pipe/management-vite test -- filtros-monitoramento.test.ts``
   - proposed: `Run: `pnpm --filter @pipe/management-vite test -- filtros-monitoramento.test.ts``
 - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:54`
   - old: `- Modify: `apps/gestao-vite/src/paginas/operacao/historico.tsx``
@@ -426,10 +426,10 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
   - old: `- Test: `apps/gestao-vite/tests/csv-historico.test.ts``
   - proposed: `- Test: `apps/management-vite/tests/csv-historico.test.ts``
 - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:81`
-  - old: `Run: `pnpm --filter @pipe/api test -- historico.test.ts && pnpm --filter @pipe/gestao-vite test -- historico.test.ts csv-historico.test.ts``
+  - old: `Run: `pnpm --filter @pipe/api test -- historico.test.ts && pnpm --filter @pipe/management-vite test -- historico.test.ts csv-historico.test.ts``
   - proposed: `Run: `pnpm --filter @pipe/api test -- historico.test.ts && pnpm --filter @pipe/management-vite test -- historico.test.ts csv-historico.test.ts``
 - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:96`
-  - old: `Run: `pnpm --filter @pipe/gestao-vite test && pnpm --filter @pipe/gestao-vite typecheck && pnpm --filter @pipe/gestao-vite build``
+  - old: `Run: `pnpm --filter @pipe/management-vite test && pnpm --filter @pipe/management-vite typecheck && pnpm --filter @pipe/management-vite build``
   - proposed: `Run: `pnpm --filter @pipe/management-vite test && pnpm --filter @pipe/management-vite typecheck && pnpm --filter @pipe/management-vite build``
 - `infra/compose/docker-compose.prod.yml:43`
   - old: `# consegue renderizar". `gestao-vite` não usa isto: é estático, sem banco para`
@@ -525,7 +525,7 @@ Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` 
   - old: `(`apps/gestao-vite/src/paginas/builder/modelo.ts:421`) só lê`
   - proposed: `(`apps/management-vite/src/paginas/builder/modelo.ts:421`) só lê`
 - `PROJECT-HANDOFF.md:299`
-  - old: `(`pnpm -F @pipe/api typecheck`, `@pipe/gestao-vite`, `@pipe/desk-vite`) NÃO`
+  - old: `(`pnpm -F @pipe/api typecheck`, `@pipe/management-vite`, `@pipe/desk-vite`) NÃO`
   - proposed: `(`pnpm -F @pipe/api typecheck`, `@pipe/management-vite`, `@pipe/desk-vite`) NÃO`
 - `PROJECT-HANDOFF.md:320`
   - old: `(`apps/gestao-vite` e irmãos), não a cópia compilada da Blip — reverteu a`
@@ -610,7 +610,7 @@ The compose service line at `infra/compose/docker-compose.prod.yml:182` and imag
 ### ponte -> bridge, technical paths and package only
 
 - `apps/ponte/package.json:2`
-  - old: `"name": "@pipe/ponte",`
+  - old: `"name": "@pipe/bridge",`
   - proposed: `"name": "@pipe/bridge",`
 - `docs/specs/2026-09-12-ponte-lime.md:45`
   - old: `apps/ponte  (novo)`
@@ -622,8 +622,8 @@ The compose service line at `infra/compose/docker-compose.prod.yml:182` and imag
   - old: `1. **Casca**: `apps/ponte` com `POST /comandos`, roteador por `to` + `uri` no mesmo`
   - proposed: `1. **Casca**: `apps/bridge` com `POST /comandos`, roteador por `to` + `uri` no mesmo`
 - `package.json:23`
-  - old: `"ponte": "pnpm --filter @pipe/ponte dev"`
-  - proposed: `"ponte": "pnpm --filter @pipe/bridge dev"`
+  - old: `"bridge": "pnpm --filter @pipe/bridge dev"`
+  - proposed: `"bridge": "pnpm --filter @pipe/bridge dev"`
 - `PROJECT-HANDOFF.md:321`
   - old: `tentativa da manhã do mesmo dia de rodar a cópia com uma ponte (`apps/ponte`,`
   - proposed: `tentativa da manhã do mesmo dia de rodar a cópia com uma ponte (`apps/bridge`,`
@@ -793,7 +793,7 @@ No literal content hit outside `.planning/` and the lockfile.
 ### Root script keys and command references
 
 - `README.md:11`
-  - old: `pnpm banco:subir      # Postgres 16 na 5433 e Redis na 6380`
+  - old: `pnpm db:up      # Postgres 16 na 5433 e Redis na 6380`
   - proposed: `pnpm db:up      # Postgres 16 na 5433 e Redis na 6380`
 - `README.md:12`
   - old: `pnpm banco:migrar`
@@ -802,7 +802,7 @@ No literal content hit outside `.planning/` and the lockfile.
   - old: `pnpm banco:semear`
   - proposed: `pnpm db:seed`
 - `apps/api/src/controladores/entrar.ts:244`
-  - old: `.end(`sem usuário "${email}" — rode o seed (pnpm banco:semear && pnpm seed:demo)`);`
+  - old: `.end(`sem usuário "${email}" — rode o seed (pnpm db:seed && pnpm seed:demo)`);`
   - proposed: `.end(`sem usuário "${email}" — rode o seed (pnpm db:seed && pnpm seed:demo)`);`
 - `apps/crm/semente/semente-crm.ts:338`
   - old: `if (!tenantLinha) throw new Error('tenant "demo" não existe: rode `pnpm banco:semear` antes.');`
@@ -811,20 +811,20 @@ No literal content hit outside `.planning/` and the lockfile.
   - old: `Nenhum papel cadastrado. Rode <code>pnpm banco:semear</code>.`
   - proposed: `Nenhum papel cadastrado. Rode <code>pnpm db:seed</code>.`
 - `package.json:17`
-  - old: `"banco:subir": "docker compose up -d postgres redis",`
+  - old: `"db:up": "docker compose up -d postgres redis",`
   - proposed: `"db:up": "docker compose up -d postgres redis",`
 - `package.json:18`
-  - old: `"banco:descer": "docker compose down",`
+  - old: `"db:down": "docker compose down",`
   - proposed: `"db:down": "docker compose down",`
 - `package.json:19`
-  - old: `"banco:migrar": "pnpm --filter @pipe/db migrar",`
+  - old: `"db:migrate": "pnpm --filter @pipe/db migrar",`
   - proposed: `"db:migrate": "pnpm --filter @pipe/db migrar",`
 - `package.json:20`
-  - old: `"banco:semear": "pnpm --filter @pipe/db semear",`
+  - old: `"db:seed": "pnpm --filter @pipe/db semear",`
   - proposed: `"db:seed": "pnpm --filter @pipe/db semear",`
 - `package.json:23`
-  - old: `"ponte": "pnpm --filter @pipe/ponte dev"`
-  - proposed: `"bridge": "pnpm --filter @pipe/ponte dev"`
+  - old: `"bridge": "pnpm --filter @pipe/bridge dev"`
+  - proposed: `"bridge": "pnpm --filter @pipe/bridge dev"`
 - `packages/db/src/semente-demo.ts:105`
   - old: `throw new Error(`tenant "${SLUG_DEMO}" não existe: rode "pnpm banco:semear" antes.`);`
   - proposed: `throw new Error(`tenant "${SLUG_DEMO}" não existe: rode "pnpm db:seed" antes.`);`

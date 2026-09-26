@@ -1,0 +1,246 @@
+/*
+ * ================================================ the "Novidades" screen (/novidades)
+ *
+ *    The PLACEMENT is their portal's: the "Novidades" card opens a screen hanging off
+ *    the dark bar, and the `ui-view` shows only that.
+ *
+ *    The DESIGN is Barbo's blog, measured on the page:
+ *      · short uppercase eyebrow, well above the title
+ *      · large title, two lines, bold weight
+ *      · gray subtitle, short width
+ *      · search and filter as PILLS (full radius), 1px outline and white background
+ *      · one large featured card: wide cover, category tag over it in the bottom
+ *        corner, white body with a "Destaque" chip, title, summary,
+ *        the gray date · reading-time line, and "Ler mais →"
+ *      · below, the grid of the rest, on the same card without the chip
+ *
+ *    THE PAINT IS OURS: no hex from the blog enters. Their orange becomes our
+ *    tokens' moss; their gray becomes our content scale.
+ */
+
+.nv-conteudo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--p-e-4) var(--p-e-10);
+}
+
+/*
+ * The blog column is narrow — long text on a wide line doesn't read well. The ceiling follows the portal column's larger breakpoint so the two screens line up.
+ */
+.nv-column {
+  margin: 2.5rem auto 0;
+  width: 100%;
+  max-width: 60rem;
+}
+
+.nv-sobretitulo {
+  margin: 0 0 var(--p-e-2);
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.nv-titulo {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.15;
+  font-weight: var(--g-peso-negrito);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.nv-subtitulo {
+  margin: var(--p-e-3) 0 0;
+  max-width: 42rem;
+  font-size: var(--p-t-lg);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/*
+ * ------------------------------------------------------ search and filter
+ *    The blog's two pills: 48 height, full radius, 1px outline and white background. Side by side on desktop, stacked when they don't fit.
+ */
+.nv-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-e-3);
+  margin: var(--p-e-6) 0 var(--p-e-8);
+}
+
+.nv-campo {
+  flex: 1 1 20rem;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  height: 48px;
+  padding: 0 var(--p-e-4);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-3);
+}
+
+.nv-campo:focus-within {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+.nv-campo input,
+.nv-campo select {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--p-t-md);
+}
+
+/* The arrow is drawn by us, so the native `select` arrow goes. */
+.nv-campo-lista select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.nv-filters .btn {
+  height: 48px;
+  border-radius: 999px;
+  padding: 0 var(--p-e-5);
+}
+
+.nv-nada {
+  margin: 0 0 var(--p-e-6);
+  font-size: var(--p-t-md);
+  color: var(--ink-2);
+}
+
+/* ------------------------------------------------------------- cards */
+.nv-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--p-r-lg);
+  background: var(--surface);
+}
+
+.nv-card-large {
+  margin-bottom: var(--p-e-8);
+}
+
+/*
+ * The cover. A color band, not a photo: we have no image library, and a generic photo over a release note lies about the content. The category tag sits over it, in the bottom corner, like the blog.
+ */
+.nv-capa {
+  position: relative;
+  height: 140px;
+  background: var(--p-marca-suave);
+}
+
+.nv-card-large .nv-capa {
+  height: 260px;
+}
+
+.nv-capa[data-category='attendance'] {
+  background: var(--p-superficie-2);
+}
+
+.nv-capa[data-category='automation'] {
+  background: var(--p-superficie-3);
+}
+
+.nv-capa-etq {
+  position: absolute;
+  left: var(--p-e-4);
+  bottom: var(--p-e-4);
+  padding: 4px 10px;
+  border-radius: var(--p-r-sm);
+  background: var(--p-superficie-4);
+  color: var(--p-conteudo-claro);
+  font-size: var(--p-t-xs);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.nv-corpo {
+  padding: var(--p-e-5);
+}
+
+/* The blog's "Destaque" chip, above the large card's title. */
+.nv-destaque {
+  display: inline-block;
+  margin-bottom: var(--p-e-3);
+  padding: 4px 10px;
+  border-radius: var(--p-r-sm);
+  background: var(--p-marca-suave);
+  color: var(--p-marca);
+  font-size: var(--p-t-xs);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.nv-card-title {
+  margin: 0;
+  font-size: var(--p-t-lg);
+  line-height: 1.3;
+  font-weight: var(--g-peso-negrito);
+  color: var(--ink);
+}
+
+.nv-card-large .nv-card-title {
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.nv-resumo {
+  margin: var(--p-e-3) 0 0;
+  font-size: var(--p-t-md);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+/* The gray date and reading-time line, in small uppercase. */
+.nv-meta {
+  margin: var(--p-e-4) 0 0;
+  font-size: var(--p-t-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.nv-ler {
+  display: inline-block;
+  margin-top: var(--p-e-4);
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  color: var(--p-marca-forte);
+  text-decoration: none;
+}
+
+.nv-ler:hover {
+  text-decoration: underline;
+}
+
+/* The grid of the rest: two columns when they fit, one when they don't. */
+.nv-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: var(--p-e-6);
+}
+
+@media (max-width: 700px) {
+  .nv-titulo {
+    font-size: 30px;
+  }
+
+  .nv-card-large .nv-card-title {
+    font-size: 22px;
+  }
+}

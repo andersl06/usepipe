@@ -14,8 +14,8 @@ function source(fileName: string, text: string): ts.SourceFile {
 }
 
 test('normalizePath normalizes templates, parameters and query strings', () => {
-  assert.equal(normalizePath('/v1/conversas/${id}/mensagens?x=1'), '/v1/conversas/:*/mensagens');
-  assert.equal(normalizePath('v1/conversas/:id'), '/v1/conversas/:*');
+  assert.equal(normalizePath('/v1/conversations/${id}/messages?x=1'), '/v1/conversations/:*/messages');
+  assert.equal(normalizePath('v1/conversations/:id'), '/v1/conversations/:*');
 });
 
 test('collectRoutes joins controller and method paths and captures decorators', () => {
@@ -105,4 +105,20 @@ test('compareRoutes ignores approved rows until they are applied', () => {
   ];
 
   assert.equal(compareRoutes(baseline, baseline, approved).equal, true);
+});
+
+test('compareRoutes keeps persisted guard arguments untranslated', () => {
+  const guards = (scope: string) => [{ name: 'Escopos', args: [scope] }];
+  const baseline = [
+    { method: 'GET', path: '/v1/conversas', guards: guards('conversas:ler') },
+  ] as unknown as Parameters<typeof compareRoutes>[0];
+  const current = [
+    { method: 'GET', path: '/v1/conversations', guards: guards('conversas:ler') },
+  ] as unknown as Parameters<typeof compareRoutes>[1];
+  const renames = [
+    { kind: 'endpoint', old: '/v1/conversas', new: '/v1/conversations', status: 'applied' },
+    { kind: 'symbol', old: 'conversas', new: 'conversations', status: 'applied' },
+  ] as unknown as Parameters<typeof compareRoutes>[2];
+  assert.equal(compareRoutes(baseline, current, renames).equal, false);
+  assert.equal(compareRoutes(baseline, current, renames, new Set(['conversas:ler'])).equal, true);
 });

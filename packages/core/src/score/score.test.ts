@@ -1,0 +1,297 @@
+import { describe, expect, it } from 'vitest';
+
+import {
+  evaluateCondition,
+  avaliarExpressao,
+  calcularScore,
+  valueTier,
+  lerCampo,
+  type DataLead,
+  type FaixaScore,
+  type RegraScore,
+} from './index.js';
+
+/**
+ * Day-one bands mirror n8n webhook `kq4lU8aFv5CKNpvr`: scores of 60 or more go to closer, lower scores to Comercial.
+ */
+const FAIXAS: FaixaScore[] = [
+  { nome: 'frio', minimo: 0, maximo: 39 },
+  { nome: 'morno', minimo: 40, maximo: 59 },
+  { nome: 'quente', minimo: 60, maximo: null },
+];
+
+const REGRAS: RegraScore[] = [
+  {
+    id: 'r1',
+    nome: 'renda alta',
+    versao: 2,
+    pontos: 30,
+    active: true,
+    condition: { campo: 'renda', operador: 'maior_igual', valor: 10_000 },
+  },
+  {
+    id: 'r2',
+    nome: 'quer investir',
+    versao: 1,
+    pontos: 20,
+    active: true,
+    condition: {
+      combinador: 'ou',
+      condicoes: [
+        { campo: 'objetivo', operador: 'igual', valor: 'investir' },
+        { campo: 'interesses', operador: 'contem', valor: 'renda passiva' },
+      ],
+    },
+  },
+  {
+    id: 'r3',
+    nome: 'e-mail corporativo',
+    versao: 1,
+    pontos: 10,
+    active: false, // desligada: não pode entrar no cálculo nem na explicação
+    condition: { campo: 'contato.email', operador: 'contem', valor: '@empresa' },
+  },
+  {
+    id: 'r4',
+    nome: 'sem telefone',
+    versao: 1,
+    pontos: -15,
+    active: true,
+    condition: { campo: 'contato.telefone', operador: 'nao_existe' },
+  },
+  {
+    id: 'r5',
+    nome: 'origem qualificada',
+    versao: 1,
+    pontos: 25,
+    active: true,
+    condition: { campo: 'origem', operador: 'em', valor: ['indicacao', 'evento'] },
+  },
+];
+
+const LEAD_QUENTE: DataLead = {
+  renda: 12_000,
+  objetivo: 'Investir', // acento e caixa não podem quebrar a comparação
+  origem: 'indicacao',
+  contato: { email: 'ana@empresa.com.br', telefone: '+5511999990000' },
+};
+
+const LEAD_MORNO: DataLead = {
+  renda: 3_000,
+  interesses: ['renda passiva', 'previdência'],
+  origem: 'site',
+  contato: { email: 'joao@gmail.com' },
+};
+
+const LEAD_EMPTY: DataLead = {};
+
+describe('field read', () => {
+  const casos: [string, unknown][] = [
+    ['renda', 12_000],
+    ['contato.email', 'ana@empresa.com.br'],
+    ['contato.inexistente', undefined],
+    ['nada.de.nada', undefined],
+  ];
+  for (const [caminho, esperado] of casos) {
+    it(`lê ${caminho}`, () => {
+      expect(lerCampo(LEAD_QUENTE, caminho)).toEqual(esperado);
+    });
+  }
+});
+
+describe('condition operators', () => {
+  const data: DataLead = {
+    nome: 'Ana Maria',
+    idade: 34,
+    tags: ['vip', 'renovação'],
+    saldo: '1500',
+    vazio: '',
+  };
+
+  const casos: { nome: string; condition: Parameters<typeof evaluateCondition>[0]; esperado: boolean }[] = [
+    { nome: 'igual com acento e caixa diferentes', condition: { campo: 'nome', operador: 'igual', valor: 'ana maria' }, esperado: true },
+    { nome: 'diferente', condition: { campo: 'nome', operador: 'diferente', valor: 'joão' }, esperado: true },
+    { nome: 'contém em texto', condition: { campo: 'nome', operador: 'contem', valor: 'maria' }, esperado: true },
+    { nome: 'contém em lista', condition: { campo: 'tags', operador: 'contem', valor: 'VIP' }, esperado: true },
+    { nome: 'não contém', condition: { campo: 'nome', operador: 'nao_contem', valor: 'pedro' }, esperado: true },
+    { nome: 'não contém em campo ausente é verdadeiro', condition: { campo: 'sumiu', operador: 'nao_contem', valor: 'x' }, esperado: true },
+    { nome: 'maior', condition: { campo: 'idade', operador: 'maior', valor: 30 }, esperado: true },
+    { nome: 'maior_igual no limite', condition: { campo: 'idade', operador: 'maior_igual', valor: 34 }, esperado: true },
+    { nome: 'menor', condition: { campo: 'idade', operador: 'menor', valor: 34 }, esperado: false },
+    { nome: 'menor_igual no limite', condition: { campo: 'idade', operador: 'menor_igual', valor: 34 }, esperado: true },
+    { nome: 'número em texto compara como número', condition: { campo: 'saldo', operador: 'maior', valor: 1000 }, esperado: true },
+    { nome: 'comparação numérica com texto não numérico é falsa', condition: { campo: 'nome', operador: 'maior', valor: 10 }, esperado: false },
+    { nome: 'em', condition: { campo: 'idade', operador: 'em', valor: [30, 34, 40] }, esperado: true },
+    { nome: 'nao_em', condition: { campo: 'idade', operador: 'nao_em', valor: [1, 2] }, esperado: true },
+    { nome: 'existe', condition: { campo: 'nome', operador: 'existe' }, esperado: true },
+    { nome: 'string vazia não existe', condition: { campo: 'vazio', operador: 'existe' }, esperado: false },
+    { nome: 'nao_existe em campo ausente', condition: { campo: 'sumiu', operador: 'nao_existe' }, esperado: true },
+  ];
+
+  for (const caso of casos) {
+    it(caso.nome, () => {
+      expect(evaluateCondition(caso.condition, data)).toBe(caso.esperado);
+    });
+  }
+});
+
+describe('composition with AND and OR', () => {
+  const data: DataLead = { a: 1, b: 2 };
+
+  it('E exige todas', () => {
+    expect(
+      avaliarExpressao(
+        {
+          combinador: 'e',
+          condicoes: [
+            { campo: 'a', operador: 'igual', valor: 1 },
+            { campo: 'b', operador: 'igual', valor: 2 },
+          ],
+        },
+        data,
+      ),
+    ).toBe(true);
+    expect(
+      avaliarExpressao(
+        {
+          combinador: 'e',
+          condicoes: [
+            { campo: 'a', operador: 'igual', valor: 1 },
+            { campo: 'b', operador: 'igual', valor: 99 },
+          ],
+        },
+        data,
+      ),
+    ).toBe(false);
+  });
+
+  it('OU exige uma', () => {
+    expect(
+      avaliarExpressao(
+        {
+          combinador: 'ou',
+          condicoes: [
+            { campo: 'a', operador: 'igual', valor: 99 },
+            { campo: 'b', operador: 'igual', valor: 2 },
+          ],
+        },
+        data,
+      ),
+    ).toBe(true);
+  });
+
+  it('nesting AND inside OR', () => {
+    expect(
+      avaliarExpressao(
+        {
+          combinador: 'ou',
+          condicoes: [
+            { campo: 'a', operador: 'igual', valor: 99 },
+            {
+              combinador: 'e',
+              condicoes: [
+                { campo: 'a', operador: 'igual', valor: 1 },
+                { campo: 'b', operador: 'igual', valor: 2 },
+              ],
+            },
+          ],
+        },
+        data,
+      ),
+    ).toBe(true);
+  });
+
+  it('a composite with no condition at all never matches', () => {
+    expect(avaliarExpressao({ combinador: 'e', condicoes: [] }, data)).toBe(false);
+  });
+});
+
+describe('faixas', () => {
+  const casos: [number, string | null][] = [
+    [0, 'frio'],
+    [39, 'frio'],
+    [40, 'morno'],
+    [59, 'morno'],
+    [60, 'quente'], // o corte do closer
+    [1000, 'quente'],
+    [-1, null],
+  ];
+  for (const [value, esperado] of casos) {
+    it(`${value} cai em ${esperado ?? 'nenhuma faixa'}`, () => {
+      expect(valueTier(value, FAIXAS)).toBe(esperado);
+    });
+  }
+});
+
+describe('cálculo de score', () => {
+  it('lead quente: 30 + 20 + 25 = 75', () => {
+    const saida = calcularScore(REGRAS, LEAD_QUENTE, { faixas: FAIXAS });
+    expect(saida.value).toBe(75);
+    expect(saida.faixa).toBe('quente');
+    expect(saida.explanation).toEqual([
+      { regra: 'r1', versao: 2, pontos: 30 },
+      { regra: 'r2', versao: 1, pontos: 20 },
+      { regra: 'r5', versao: 1, pontos: 25 },
+    ]);
+    expect(saida.versaoRegra).toBe(2);
+  });
+
+  it('warm lead: 20 for interest minus 15 for no phone = 5', () => {
+    const saida = calcularScore(REGRAS, LEAD_MORNO, { faixas: FAIXAS });
+    expect(saida.value).toBe(5);
+    expect(saida.faixa).toBe('frio');
+    expect(saida.explanation).toEqual([
+      { regra: 'r2', versao: 1, pontos: 20 },
+      { regra: 'r4', versao: 1, pontos: -15 },
+    ]);
+  });
+
+  it('empty lead: only the -15 penalty, and no tier', () => {
+    const saida = calcularScore(REGRAS, LEAD_EMPTY, { faixas: FAIXAS });
+    expect(saida.value).toBe(-15);
+    expect(saida.faixa).toBeNull();
+    expect(saida.explanation).toEqual([{ regra: 'r4', versao: 1, pontos: -15 }]);
+  });
+
+  it('a disabled rule neither counts nor appears in the explanation', () => {
+    const saida = calcularScore(REGRAS, LEAD_QUENTE, { faixas: FAIXAS });
+    expect(saida.explanation.some((item) => item.regra === 'r3')).toBe(false);
+    expect(saida.value).toBe(75);
+  });
+
+  it('the explanation adds up to exactly the value', () => {
+    const saida = calcularScore(REGRAS, LEAD_QUENTE);
+    expect(saida.explanation.reduce((total, item) => total + item.pontos, 0)).toBe(saida.value);
+  });
+
+  it('it is deterministic: the order of rules in the input does not change the output', () => {
+    const embaralhada = [REGRAS[4], REGRAS[1], REGRAS[3], REGRAS[0], REGRAS[2]] as RegraScore[];
+    expect(calcularScore(embaralhada, LEAD_QUENTE, { faixas: FAIXAS })).toEqual(
+      calcularScore(REGRAS, LEAD_QUENTE, { faixas: FAIXAS }),
+    );
+  });
+
+  it('it is reproducible: ten runs in a row produce the same JSON', () => {
+    const first = JSON.stringify(calcularScore(REGRAS, LEAD_QUENTE, { faixas: FAIXAS }));
+    for (let i = 0; i < 10; i += 1) {
+      expect(JSON.stringify(calcularScore(REGRAS, LEAD_QUENTE, { faixas: FAIXAS }))).toBe(first);
+    }
+  });
+
+  it('sem regra nenhuma o score é zero, não null', () => {
+    const saida = calcularScore([], LEAD_QUENTE, { faixas: FAIXAS });
+    expect(saida.value).toBe(0);
+    expect(saida.faixa).toBe('frio');
+    expect(saida.explanation).toEqual([]);
+    expect(saida.versaoRegra).toBe(0);
+  });
+
+  it('limits clamp the value when the tenant wants a closed scale', () => {
+    expect(calcularScore(REGRAS, LEAD_EMPTY, { limites: { minimo: 0 } }).value).toBe(0);
+    expect(calcularScore(REGRAS, LEAD_QUENTE, { limites: { maximo: 50 } }).value).toBe(50);
+  });
+
+  it('versão pode ser carimbada de fora', () => {
+    expect(calcularScore(REGRAS, LEAD_QUENTE, { versaoRegra: 7 }).versaoRegra).toBe(7);
+  });
+});

@@ -1,0 +1,1020 @@
+/*
+ * ==========================================================================
+ *    Analytics › Active messages (/fluxo/[id]/analise/mensagens-ativas)
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. The screen is `page="activeMessages"` from `portal-fragment-analytics` (`scratchpad/cap6s/portalmfe/analytics-main.js`): `Lx` (56300) and its children `St` (filter, 33556), `Mt`/`Ft` (numbers, 33870), `fc` (funnel), `Dl` (conversions), `Wl` (rates), `_c` (peaks) and `bc` (failures), between 43453 and 44990. Each one carries its own sheet in a `<style>` — the measurements below come from there. The blip-ds pieces come from the captured Stencil sheets: `bdscss/chipClickableCss.css`, `bdscss/tooltipCss.css`, `bdscss/buttonCss.css`, the `bds-grid_5` from cap6s (typo, paper, grid), the `bds-icon` from cap6s (sizes), the `bds-autocomplete` from cap4 and the Desk's `bds-datepicker` from blip-ds.
+ *
+ *    Type scale (`bds-typo`): fs-12 = 12px/150%, fs-14 = 14px/150%, fs-16 = 16px/150%, fs-20 = 20px/100%, fs-24 = 24px/100%, fs-32 = 32px/100%, fs-40 = 40px/100%; `margin` (on by default) adds 22px at the bottom of fs-20/24/32. Grid (`bds-grid`): gap/padding "1" = 8px, "2" = 16px.
+ *
+ *    The color mapping:
+ *      color-content-default #282828/#454545       → var(--ink)
+ *      color-content-disable #454545/#636363        → var(--ink-2)
+ *      color-content-ghost #8c8c8c · rgb(100,100,100) axes → var(--ink-3) · var(--ink-2)
+ *      color-surface-1 #F6F6F6 (outline chip and field background) → var(--ground)
+ *      bds-paper (no background of its own)                → var(--surface), as in certificados.css
+ *      paper elevation static                → var(--p-sombra-1)
+ *      rgba(0,0,0,.2) · color-border-1              → --ma-borda (color at 20%)
+ *      rgba(0,0,0,.1) (chart.js grid, peaks' middle line) → var(--line)
+ *      color-system #B2DFFD (active chip)            → var(--p-info-fundo)
+ *      color-primary #1e6bf1 (primary button, link, field focus) → var(--p-marca)
+ *      color-hover 8%                               → var(--g-tinta-hover)
+ *      tooltip content-default / surface-1          → var(--ink) / var(--surface)
+ *      The five series (`Mt`, `fc`), pastels on white:
+ *        sent #fd9bdc (pink)                    → --ma-enviadas (grafico-3 at 45%)
+ *        received rgb(128,227,235) (color-info)     → --ma-recebidas (grafico-1 at 45%)
+ *        read rgba(25,104,240,.6) (extended-blue)   → --ma-lidas (grafico-2 at 60%)
+ *        replied rgb(132,235,188) (success)      → --ma-respondidas (grafico-5 at 35%)
+ *        failed rgb(249,159,159) (color-error)     → --ma-falharam (grafico-4 at 40%)
+ *      Conversions (`Dl`), solid line and bar at 65%:
+ *        rgba(0,150,250) · rgba(53,222,144) · rgba(249,159,159)
+ *                                                     → grafico-2 · grafico-1 · grafico-4
+ *      Response peaks `vc` #0096fa               → var(--p-grafico-2)
+ *    ==========================================================================
+ */
+
+.ma-tela {
+  --ma-borda: color-mix(in srgb, var(--ink) 20%, transparent);
+  --ma-enviadas: color-mix(in srgb, var(--p-grafico-3) 45%, var(--surface));
+  --ma-recebidas: color-mix(in srgb, var(--p-grafico-1) 45%, var(--surface));
+  --ma-lidas: color-mix(in srgb, var(--p-grafico-2) 60%, var(--surface));
+  --ma-respondidas: color-mix(in srgb, var(--p-grafico-5) 35%, var(--surface));
+  --ma-falharam: color-mix(in srgb, var(--p-grafico-4) 40%, var(--surface));
+  --ma-serie-enviadas: var(--p-grafico-2);
+  --ma-serie-respondidas: var(--p-grafico-1);
+  --ma-serie-falharam: var(--p-grafico-4);
+
+  box-sizing: border-box;
+  color: var(--ink); /* `.activeMessages-container` */
+}
+
+.ma-tela *,
+.ma-tela *::before,
+.ma-tela *::after {
+  box-sizing: border-box;
+}
+
+/* Zero specificity on purpose: the classes' typo margin wins. */
+:where(.ma-tela) :where(p, h1, h4) {
+  margin: 0;
+}
+
+/*
+ * `.active-messages-charts-container`: the side indents per screen band. The rule order is theirs — the last one that matches wins.
+ */
+@media (max-width: 2560px) {
+  .ma-tela {
+    padding: 40px 328px 0;
+  }
+}
+@media (max-width: 1920px) {
+  .ma-tela {
+    padding: 40px 248px 0;
+  }
+}
+@media (max-width: 1366px) {
+  .ma-tela {
+    padding: 40px 64px 0;
+  }
+}
+@media (max-width: 1024px) {
+  .ma-tela {
+    padding: 40px 40px 0;
+  }
+}
+
+/* ------------------------------------------------------------ tipografia */
+
+.ma-t12 {
+  font-size: 12px;
+  line-height: 150%;
+}
+.ma-t14 {
+  font-size: 14px;
+  line-height: 150%;
+}
+.ma-t16 {
+  font-size: 16px;
+  line-height: 150%;
+}
+.ma-t20 {
+  font-size: 20px;
+  line-height: 100%;
+}
+.ma-t24 {
+  font-size: 24px;
+  line-height: 100%;
+}
+.ma-t40 {
+  font-size: 40px;
+  line-height: 100%;
+}
+.ma-semi {
+  font-weight: 600;
+}
+.ma-negrito {
+  font-weight: 700;
+}
+/* `typo__margin--fs-20/24/32`. */
+.ma-margem {
+  margin-bottom: 22px !important;
+}
+
+/* ------------------------------------------------------------ header */
+
+/* `Ox { padding-bottom: 24px }` */
+.ma-topo {
+  padding-bottom: 24px;
+}
+
+/* `Ix`: title on one side, button on the other, 16 at the bottom. */
+.ma-cabeca {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding-bottom: 16px;
+}
+
+/* `Xe variant="fs-32" bold="bold"`, with typo margin on. */
+.ma-titulo {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 100%;
+  margin: 0 0 22px;
+}
+
+/* `Zx { display: flex; gap: 12px }` */
+.ma-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+/*
+ * `bds-button`: radius 8, 16 side padding, 40 height (`standard`, and `large` is the legacy `tall` — both give 40), label `bds-typo fs-14 bold` lh 100%, 24 icon with 4 on the right.
+ */
+.ma-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 100%;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+/* `button__secondary`: no background, content color. */
+.ma-botao-secundario {
+  background: transparent;
+  color: var(--ink);
+}
+.ma-botao-secundario:hover {
+  background: var(--g-tinta-hover);
+}
+
+/* `button__primary`. */
+.ma-botao-primario {
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+}
+.ma-botao-primario:hover {
+  background: var(--p-marca-forte);
+}
+.ma-botao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------ filtro (`St`) */
+
+/* `Wx { padding-bottom: 16px }` */
+.ma-filter-strip {
+  width: 100%;
+  padding-bottom: 16px;
+}
+
+/*
+ * `.active-messages-filter-wrapper { width: 100%; max-height: 72px; margin: 0 }`. The 72 ceiling is theirs and the two chip rows go over it: the overflow invades the bottom indent, same as there.
+ */
+.ma-filter {
+  width: 100%;
+  max-height: 72px;
+  margin: 0;
+}
+
+/* `bds-grid direction="row" gap="2" align-items="start" justify-content="center"` */
+.ma-filter-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.ma-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+/* `.chips-wrapper { margin-top: auto }` */
+.ma-chips-caixa {
+  margin-top: auto;
+}
+
+/* `.label-wrapper { max-height: 72px; margin-right: 16px; align-items: center }` */
+.ma-rotulo-caixa {
+  max-height: 72px;
+  margin-right: 16px;
+  align-items: center;
+}
+
+.ma-linha-chips {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+}
+
+/*
+ * `bds-chip-clickable size="standard"`: 32 height, radius 16, `padding: 2px 4px`; `outline` with border and surface-1 background, `default` with the system color. The radio sits underneath: it's what carries the period in the GET.
+ */
+.ma-chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 2px 4px;
+  border: 1px solid var(--p-linha-forte);
+  border-radius: 16px;
+  background: var(--ground);
+  color: var(--ink);
+  cursor: pointer;
+}
+.ma-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ma-chip:has(input:checked) {
+  border-color: transparent;
+  background: var(--p-info-fundo);
+}
+/* `chip_darker`: o `brightness(0.9)` da passagem do cursor. */
+.ma-chip:hover {
+  filter: brightness(0.95);
+}
+.ma-chip:has(input:focus-visible) {
+  outline: 2px solid var(--p-foco);
+}
+
+/* `chip_clickable--text`: `margin: 0 8px`, `bds-typo fs-12 bold`, 20 de altura. */
+.ma-chip-texto {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  margin: 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 150%;
+  white-space: nowrap;
+}
+
+/* `bds-datepicker type-of-date="period"`: `.datepicker { max-width: 608px }` e
+   `.datepicker__inputs__period { grid-template-columns: 1fr 1fr; gap: 16px }`. */
+.ma-datas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 608px;
+}
+
+/*
+ * `bds-input` with label (`.input.input--label`): `padding: 7px 4px 8px 12px`, 20% border, radius 8; primary color on the cursor, 2px ring on focus.
+ */
+.ma-campo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: 7px 4px 8px 12px;
+  border: 1px solid var(--ma-borda);
+  border-radius: 8px;
+  background: var(--ground);
+  cursor: text;
+}
+.ma-campo:hover {
+  border-color: var(--p-marca);
+}
+.ma-campo:focus-within {
+  border-color: var(--p-marca);
+  box-shadow: 0 0 0 2px var(--p-marca-linha);
+}
+
+/*
+ * `input__icon input__icon--large`: `padding: 4px`, 8% transition background with radius 8 (`::before`), `medium` icon (24).
+ */
+.ma-campo-icone {
+  display: flex;
+  margin-right: 8px;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--g-tinta-hover);
+  color: var(--ink);
+}
+.ma-campo:focus-within .ma-campo-icone {
+  color: var(--p-marca);
+}
+
+/* `input__container`: label `bds-typo fs-12 bold` above the text. */
+.ma-campo-miolo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+.ma-campo-rotulo {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 150%;
+  color: var(--ink);
+}
+.ma-campo:focus-within .ma-campo-rotulo {
+  color: var(--p-marca);
+}
+
+/*
+ * `input__container__text`: no border or background, `.875rem/150%`, primary cursor, ghost placeholder.
+ */
+.ma-campo input {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 150%;
+  caret-color: var(--p-marca);
+  outline: none;
+}
+.ma-campo input::placeholder {
+  color: var(--ink-3);
+  opacity: 1;
+}
+
+/*
+ * `.select__icon { color: ghost; display: flex }`, `bds-icon { margin-left: 10px }` — the solid `error` (only with a value) and the arrow.
+ */
+.ma-campo-sufixo {
+  display: flex;
+  color: var(--ink-3);
+}
+.ma-campo-sufixo svg {
+  margin-left: 10px;
+}
+
+/* ------------------------------------------------------------ grade do miolo */
+
+/* `bds-grid gap="2" justify-content="center" direction="column"` */
+.ma-miolo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* `bds-grid gap="2"` (fileira) */
+.ma-row {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+.ma-row-last {
+  padding-bottom: 16px;
+}
+
+/* `bds-paper`: raio 16, sombra `static`. */
+.ma-paper {
+  display: block;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--p-sombra-1);
+}
+.ma-paper-plan {
+  box-shadow: none;
+}
+.ma-flex1 {
+  flex: 1;
+}
+
+/* ------------------------------------------------------------ numbers (`Mt`) */
+
+/* `.big-numbers { flex: 1 1 50%; padding: 16px 0 16px 16px }` */
+.ma-numeros {
+  display: flex;
+  flex: 1 1 50%;
+  padding: 16px 0 16px 16px;
+}
+
+/* `.big-numbers__content-container`: borda 20%, raio 8, gap e recheio 16. */
+.ma-numeros-caixa {
+  display: flex;
+  flex: 1;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--ma-borda);
+  border-radius: 8px;
+}
+
+.ma-enviadas {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* `.big-numbers__sent-messages-icon`: 40 + 16 de recheio, raio 8, rosa. */
+.ma-enviadas-icone {
+  display: flex;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--ma-enviadas);
+}
+
+.ma-enviadas-textos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ma-par {
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+}
+
+/* `::part(bds-typo__text) { line-height: 40px }` and `28px` for the title. */
+.ma-enviadas-numero {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 40px;
+}
+.ma-enviadas-titulo {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.ma-cards {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+}
+.ma-cards-line {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+}
+
+/* `Ft` → `.big-numbers-card__content-container`: `bds-grid gap="1" padding="1"`,
+   borda 20%, raio 8, centro vertical. */
+.ma-card {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--ma-borda);
+  border-radius: 8px;
+}
+
+/* `.big-numbers-card__icon`: 32 + 8 de recheio, raio 8. */
+.ma-card-icon {
+  display: flex;
+  padding: 8px;
+  border-radius: 8px;
+  color: var(--ink);
+}
+.ma-card-texts {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.ma-card-number {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+}
+.ma-card-title {
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.ma-fundo-enviadas {
+  background: var(--ma-enviadas);
+}
+.ma-fundo-recebidas {
+  background: var(--ma-recebidas);
+}
+.ma-fundo-lidas {
+  background: var(--ma-lidas);
+}
+.ma-fundo-respondidas {
+  background: var(--ma-respondidas);
+}
+.ma-fundo-falharam {
+  background: var(--ma-falharam);
+}
+
+/* ------------------------------------------------------------ dica (`bds-tooltip`) */
+
+/*
+ * `.tooltip__wrapper` + `.tooltip__tip`: radius 8, 8 padding, up to 320 wide, 6 arrow; `top-right` rises 10 and sits flush right at 15%.
+ */
+.ma-dica {
+  position: relative;
+  display: inline-flex;
+  color: var(--ink);
+}
+.ma-dica-texto {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  z-index: 90000;
+  width: max-content;
+  min-width: 32px;
+  max-width: 320px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 150%;
+  white-space: normal;
+  transform: translateX(15%);
+  visibility: hidden;
+  transition: all 0.2s ease-in-out;
+}
+.ma-dica-texto::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: calc(85% - 6px);
+  border: 6px solid transparent;
+  border-top-color: var(--ink);
+}
+.ma-dica:hover .ma-dica-texto {
+  visibility: visible;
+}
+
+/* ------------------------------------------------------------ funil (`fc`) */
+
+/* `.conversion-funnel`: `bds-grid padding="2"`, `flex: 1 1 50%`. */
+.ma-funil {
+  display: flex;
+  flex: 1 1 50%;
+  padding: 16px;
+}
+
+/* `.conversion-funnel__container { height: 248px }`, `gap="2" padding="2"`. */
+.ma-funil-caixa {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  height: 248px;
+  padding: 16px;
+}
+
+.ma-cabeca-grafico {
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * `__title { margin-bottom: 0 }` on the host doesn't remove the typo margin inside: it's `__description { margin-top: -22px }` that gives it back.
+ */
+.ma-titulo-grafico {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 100%;
+  margin-bottom: 22px;
+  color: var(--ink);
+}
+.ma-description-chart {
+  margin-top: -22px;
+  font-size: 14px;
+  line-height: 150%;
+  color: var(--ink-2);
+}
+
+/*
+ * `.conversion-funnel__chart { height: 218px }`; chart.js with `indexAxis: y`, `layout.padding.right: 50` and the categories with `bar/categoryPercentage .95`.
+ */
+.ma-funil-grafico {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-auto-rows: 1fr;
+  height: 218px;
+  padding-right: 50px;
+}
+
+/*
+ * Y-axis tick: 12px, `rgb(100,100,100)`, `crossAlign: far` (flush left) and chart.js's default 3px indent.
+ */
+.ma-funil-rotulo {
+  display: flex;
+  align-items: center;
+  padding-right: 3px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.ma-funnel-rail {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+/* 95% × 95% da faixa da categoria, raio 8, borda de 1 na mesma cor. */
+.ma-funil-barra {
+  height: 90.25%;
+  border-radius: 8px;
+}
+/* `datalabels`: `anchor/align: end`, `padding.left: 5` sobre o `offset` 4,
+   14px bold, `content-disable`. */
+.ma-funnel-value {
+  /* Out of flow: the bar measures against the whole area, like on the canvas. */
+  position: absolute;
+  padding-left: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ conversions (`Dl`) */
+
+.ma-conversions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* `.conversion-chart { height: 222px }` */
+.ma-conversions-chart {
+  display: flex;
+  flex-direction: column;
+  height: 222px;
+  overflow: hidden;
+}
+
+/* Chart area: y axis | plot, and the x axis at the bottom. */
+.ma-area {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  flex: 1;
+  min-height: 0;
+  /* chart.js reserves half a label on the right so the last day fits. */
+  padding-right: 16px;
+}
+
+/* chart.js y axis: 12px tick on the left, 8 gap to the plot area. */
+.ma-eixo-y {
+  position: relative;
+  min-width: 32px;
+  padding-right: 8px;
+  font-size: 12px;
+  color: var(--ink-2);
+  text-align: right;
+}
+.ma-eixo-y span {
+  position: absolute;
+  right: 8px;
+  transform: translateY(-50%);
+  line-height: 1;
+}
+
+.ma-plotting {
+  position: relative;
+  min-width: 0;
+}
+.ma-plotting svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.ma-grade {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.ma-linha {
+  fill: none;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.ma-eixo-x {
+  position: relative;
+  height: 20px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.ma-eixo-x span {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/*
+ * The single-day bars (`f()`): three categories, no axes or grid, radius 8 and no border (`f()` doesn't set `borderWidth`, and the bar's default is 0).
+ */
+.ma-barras {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: end;
+  height: 100%;
+}
+.ma-barras span {
+  width: 90.25%;
+  justify-self: center;
+  border-radius: 8px;
+}
+
+/* O template do autocomplete encolhe ao tamanho natural do campo (`size` 20). */
+.ma-campo-auto input {
+  width: auto;
+}
+.ma-filter-template {
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* A legenda (`position: bottom`, `boxWidth/boxHeight 16`, `padding 16`,
+   `rectRounded`, fonte 14). */
+.ma-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 16px;
+  padding: 16px 0 6px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink-2);
+}
+.ma-legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ma-legenda i {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid;
+  border-radius: 4px;
+}
+
+.ma-serie-enviadas {
+  --ma-serie: var(--ma-serie-enviadas);
+}
+.ma-serie-respondidas {
+  --ma-serie: var(--ma-serie-respondidas);
+}
+.ma-serie-falharam {
+  --ma-serie: var(--ma-serie-falharam);
+}
+.ma-linha.ma-serie-enviadas,
+.ma-linha.ma-serie-respondidas,
+.ma-linha.ma-serie-falharam {
+  stroke: var(--ma-serie);
+}
+.ma-barras span {
+  background: color-mix(in srgb, var(--ma-serie) 65%, transparent);
+}
+.ma-legenda i {
+  border-color: var(--ma-serie);
+  background: color-mix(in srgb, var(--ma-serie) 65%, transparent);
+}
+
+/* ------------------------------------------------------------ taxas (`Wl`) */
+
+/* `.conversion-failure-rate { display: flex; flex: 1 1 100% }` */
+.ma-taxas {
+  display: flex;
+  flex: 1 1 100%;
+}
+.ma-taxas-caixa {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* `.card-rate`: recheio 16, raio 8, borda `border-1`. */
+.ma-taxa {
+  display: flex;
+  flex: 1 1 50%;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--ma-borda);
+  border-radius: 8px;
+}
+/* `.card-rate__icon { width: 48px; height: 48px }` */
+.ma-taxa > svg {
+  flex: none;
+}
+.ma-taxa-miolo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+/*
+ * `fs-16 bold` and `fs-14 regular`. The code's `lineHeight="double"/"simple"` doesn't take effect: `bds-typo` is created as a string in React, which sets `lineheight` as an attribute, and Stencil only reads `line-height`. Use the variant's height instead.
+ */
+.ma-taxa-titulo {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 150%;
+}
+.ma-rate-description {
+  font-size: 14px;
+  line-height: 150%;
+}
+
+/* O `bds-grid style={{ flex: 1 }}` em volta do `Wl`. */
+.ma-taxas-fora {
+  display: flex;
+}
+
+/* ------------------------------------------------------------ picos (`_c`) */
+
+/* `.response-peaks-container { padding: 16px }`; 50 head with 12 at the bottom. */
+.ma-picos {
+  padding: 16px;
+}
+.ma-picos-cabeca {
+  display: flex;
+  flex-direction: column;
+  height: 50px;
+  padding-bottom: 12px;
+}
+
+/* `.response-peaks-chart { height: 214px }` */
+.ma-picos-grafico {
+  display: flex;
+  flex-direction: column;
+  height: 214px;
+}
+.ma-picos-area {
+  position: relative;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  align-items: end;
+}
+/*
+ * The x grid sits in the middle of each category (`grid.offset: false`) and the y grid is only the scale's middle line.
+ */
+.ma-picos-area::before {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  border-top: 1px solid var(--line);
+}
+.ma-peaks-column {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 100%;
+  background: linear-gradient(var(--line), var(--line)) center / 1px 100% no-repeat;
+}
+/* 95% × 95%, radius 8 only on top, 1.5 border in the same color. */
+.ma-peaks-column span {
+  width: 90.25%;
+  border-radius: 8px 8px 0 0;
+  background: var(--p-grafico-2);
+}
+.ma-picos-eixo {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  padding-top: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--ink-2);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ falhas (`bc`) */
+
+/* `bds-paper style={{ flex: 1, maxHeight: 400px, display: flex, column }}` */
+.ma-falhas {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-height: 400px;
+}
+.ma-falhas-caixa {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+}
+
+/*
+ * `bds-typo fs-20 bold` wraps the fs-14 one: without its own `bold`, the inner one inherits the outer's bold — the description comes out bold, same as there.
+ */
+.ma-falhas-titulo {
+  margin-bottom: 22px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 100%;
+  color: var(--ink);
+}
+.ma-failures-description {
+  display: block;
+  font-size: 14px;
+  line-height: 150%;
+  color: var(--ink-2);
+}
+/* `.message-failures-link { color: #1e6bf1 }` */
+.ma-failures-description a {
+  color: var(--p-marca);
+}
+
+/* `style={{ flex: 1, overflowY: auto, maxHeight: 214px, marginTop: -30px }}` */
+.ma-failures-scroll {
+  flex: 1;
+  max-height: 214px;
+  margin-top: -30px;
+  overflow-y: auto;
+}
+
+/*
+ * `bds-table style={{ width: 100%, tableLayout: fixed }}`; rows and cells with the measurements already taken from `certificados.css` (64 height, 8 side and 16 at the ends). `@pipe/ui`'s global `th`/`td` are for the dense table: zeroed out.
+ */
+.ma-tabela {
+  width: 100%;
+  table-layout: fixed;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+.ma-tabela thead {
+  border-bottom: 1px solid var(--ma-borda);
+}
+.ma-tabela tbody tr {
+  height: 64px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+}
+.ma-tabela tbody tr:last-child {
+  border-bottom: none;
+}
+.ma-tabela th,
+.ma-tabela td {
+  height: 64px;
+  padding: 0 8px;
+  border-bottom: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 150%;
+  letter-spacing: normal;
+  text-align: left;
+  text-transform: none;
+  vertical-align: middle;
+  white-space: normal;
+}
+.ma-tabela th:first-child,
+.ma-tabela td:first-child {
+  padding-left: 16px;
+}
+.ma-tabela th:last-child,
+.ma-tabela td:last-child {
+  padding-right: 16px;
+}

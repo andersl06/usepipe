@@ -1,0 +1,935 @@
+/*
+ * ==========================================================================
+ *    Builder — the EDITOR (canvas, nodes, arrows, block panel).
+ *
+ *    The frame is in `paginas/builder.css`; this is what lives inside it. The measurements are the ones noted on the components, taken from `portal.css` and the production Builder's DOM (`referencias-blip/builder/`): 175px node, radius 8, `0 8px 16px` shadow, 14/400 title that becomes 700 when selected, 4px ring on hover, 1em output dot in the middle of the bottom border, and a 360px side panel. The paint is our own.
+ *
+ *    ==========================================================================
+ */
+
+.bl-canvas {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+}
+.bl-canvas--arrastando {
+  cursor: grabbing;
+}
+
+/* The scene is the plane that pans and zooms; the nodes live in its coordinate space. */
+.bl-cena {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+}
+
+/* ------------------------------------------------------------------ the node */
+
+.bl-no {
+  position: absolute;
+  width: 175px;
+  box-sizing: border-box;
+  padding: 28px;
+  border-radius: 8px;
+  background: #393939;
+  color: #fff;
+  box-shadow: 0 8px 16px rgb(0 0 0 / 25%);
+  text-align: center;
+  cursor: grab;
+  user-select: none;
+  transition: box-shadow 0.25s ease-in, background-color 0.25s ease-in;
+}
+.bl-no:hover {
+  box-shadow: 0 0 0 4px var(--p-marca, #4a5d23);
+  z-index: 5;
+}
+.bl-no--selecionado,
+.bl-no--editando {
+  box-shadow: 0 0 0 4px var(--p-marca, #4a5d23);
+  z-index: 5;
+}
+.bl-no--selecionado:not(.bl-no--inicio),
+.bl-no--editando:not(.bl-no--inicio) {
+  background: var(--p-marca, #4a5d23);
+}
+.bl-no--selecionado:not(.bl-no--inicio)::before,
+.bl-no--editando:not(.bl-no--inicio)::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #141414;
+  content: '';
+  opacity: 0.5;
+}
+.bl-no--selecionado > *,
+.bl-no--editando > * {
+  position: relative;
+  z-index: 1;
+}
+.bl-no--alvo {
+  box-shadow: 0 0 0 4px var(--p-marca, #4a5d23);
+}
+.bl-node--outside-search {
+  opacity: 0.2;
+}
+.bl-canvas--pesquisando .bl-setas {
+  display: none;
+}
+.bl-canvas--pesquisando .bl-no-saida {
+  visibility: hidden;
+}
+/* `Início` is the flow's entry block; `atendimento` is the handoff to a human. */
+.bl-no--inicio {
+  background: var(--p-marca, #4a5d23);
+}
+.bl-node--attendance {
+  /*
+   * The capture doesn't highlight `atendimento` in orange: it's a flow state, not an alert. We keep the Pipe brand color instead of the reference's blue.
+   */
+  background: #393939;
+}
+.bl-node--error {
+  border: 1px solid var(--p-error-content, #c4442e);
+}
+
+.bl-no-titulo {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+  word-break: break-word;
+}
+.bl-no--selecionado .bl-no-titulo,
+.bl-no--editando .bl-no-titulo {
+  font-weight: 700;
+}
+.bl-no-corpo {
+  margin: 0;
+  color: inherit;
+}
+.bl-no-etiquetas {
+  position: relative;
+  bottom: -17px;
+  left: -10px;
+  align-self: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  justify-content: flex-start;
+  margin-right: -21px;
+  max-width: 115%;
+}
+.bl-no-etiqueta {
+  display: inline-flex;
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  min-height: 15px;
+  box-sizing: border-box;
+  margin-right: 5px;
+  overflow: hidden;
+  border-radius: 20px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: max-width 0.6s, max-height 0.5s, min-width 0.6s, min-height 0.6s, padding 0.6s cubic-bezier(0, 1, 0, 1);
+}
+.bl-no-etiqueta-rotulo {
+  max-width: 100%;
+  overflow: hidden;
+  opacity: 0;
+  text-overflow: ellipsis;
+  transition: opacity 60ms;
+  word-break: normal;
+}
+.bl-node-errors {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--p-error-content, #c4442e);
+}
+
+/* The point from which the connection is dragged: only appears with the mouse over it. */
+.bl-no-saida {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: var(--p-marca, #4a5d23);
+  opacity: 0;
+  cursor: crosshair;
+  transition: visibility 0.3s, opacity 0.3s linear;
+  visibility: hidden;
+}
+.bl-no:hover .bl-no-saida,
+.bl-no--selecionado .bl-no-saida {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------------------------------------------------------------- as setas */
+
+.bl-setas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.bl-seta {
+  pointer-events: auto;
+}
+.bl-seta-traco {
+  fill: none;
+  stroke: var(--p-marca, #4a5d23);
+  stroke-width: 2;
+}
+.bl-seta-alvo {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12;
+  cursor: pointer;
+}
+.bl-seta-ponta {
+  fill: var(--p-marca, #4a5d23);
+  stroke: none;
+}
+.bl-seta--selecionada .bl-seta-traco,
+.bl-seta--selecionada .bl-seta-ponta {
+  stroke: var(--p-marca, #4a5d23);
+  fill: var(--p-marca, #4a5d23);
+}
+.bl-seta--provisoria {
+  stroke-dasharray: 6 4;
+}
+
+/* ------------------------------------------------- menus flutuantes do canvas */
+
+.bl-menu-context,
+.bl-new-block,
+.bl-menu-actions {
+  position: absolute;
+  z-index: 3;
+  min-width: 200px;
+  padding: 6px;
+  border: 1px solid var(--p-linha, #e0e0e0);
+  border-radius: 8px;
+  background: var(--p-superficie-0, #fff);
+  box-shadow: 0 2px 8px -2px rgb(0 0 0 / 16%);
+}
+.bl-menu-context {
+  min-width: max-content;
+  padding: 0 5px;
+  border: 0;
+  border-radius: 16px;
+  background: #1f1f1f;
+  color: #fff;
+  box-shadow: 16px 0 56px 16px rgb(0 0 0 / 45%);
+}
+.bl-panel .bl-menu-actions {
+  left: 0;
+  bottom: calc(100% + 8px);
+  min-width: 240px;
+  padding: 8px;
+  border-color: #3a3a3a;
+  background: #282828;
+  color: #f6f6f6;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+}
+.bl-panel .bl-menu-actions header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px 10px;
+  border-bottom: 1px solid #3a3a3a;
+}
+.bl-new-block {
+  /* Medidas do #builder-command-buttons-add em portal.css da captura: 17rem,
+     4rem da borda, 24px de respiro e centrado na altura da janela. */
+  position: fixed;
+  top: 50%;
+  left: 4rem;
+  width: 17rem;
+  min-width: 0;
+  padding: 24px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 16px;
+  background: #1f1f1f;
+  color: #f6f6f6;
+  box-shadow: 16px 0 56px 16px rgba(0, 0, 0, 0.45);
+}
+.bl-menu-context button,
+.bl-new-block-item,
+.bl-menu-actions button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.bl-menu-context button:hover,
+.bl-new-block-item:hover,
+.bl-menu-actions button:hover {
+  background: var(--p-superficie-1, #f4f4f4);
+}
+.bl-menu-context button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 0;
+  color: inherit;
+  font-family: 'Nunito Sans', 'Carbona', Tahoma, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+}
+.bl-menu-context button:hover,
+.bl-menu-context button:focus-visible {
+  background: transparent;
+  color: var(--p-marca, #4a5d23);
+}
+.bl-new-block-item:hover {
+  background: color-mix(in srgb, var(--p-marca, #4a5d23) 24%, #282828);
+}
+.bl-panel .bl-menu-actions button:hover {
+  background: color-mix(in srgb, var(--p-marca, #4a5d23) 24%, #282828);
+}
+.bl-new-block-header,
+.bl-menu-actions-group {
+  padding: 6px 10px;
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-size: 12px;
+}
+.bl-new-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+.bl-new-block-header h4 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.bl-new-block-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 4px;
+}
+.bl-new-block .bl-panel-wire {
+  margin: 16px 0;
+}
+
+/* --------------------------------------------------------- o painel do bloco */
+
+/*
+ * `height: 100%`, and not just `flex: 1`: the parent (`.bl-corpo`, in `builder.css`) is a block, not a flex box, so `flex: 1` gives no height at all — the editor and canvas used to start at 0 height and the blocks ended up outside the painted area.
+ */
+.bl-editor {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  min-height: 0;
+}
+.bl-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  width: 445px;
+  border-radius: 16px 0 0 16px;
+  background: #1f1f1f;
+  color: #f6f6f6;
+  box-shadow: 0 2px 8px -2px rgb(0 0 0 / 16%);
+  overflow: hidden;
+}
+/*
+ * The Variables Library is the only panel on the LEFT in the origin (`library-sidebar`, `position-left`) — the others (block, Settings) are `position-right`.
+ */
+.bl-panel--left {
+  right: auto;
+  left: 0;
+  border-radius: 0 16px 16px 0;
+  background: #1f1f1f;
+}
+.bl-queues-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px;
+}
+.bl-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 16px 20px;
+}
+.bl-panel--settings .bl-panel-header {
+  padding: 24px 32px 0;
+}
+.bl-panel--settings .bl-panel-title {
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.bl-panel-title {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding: 5px 8px;
+  border: 1px solid #b1b1b1;
+  border-radius: 3px;
+  background: #393939;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+}
+.bl-panel-title:focus-visible {
+  outline: 0;
+  border-bottom-color: var(--p-marca, #4a5d23);
+}
+.bl-panel-id {
+  margin: -8px 20px 12px;
+  font-size: 12px;
+}
+.bl-panel-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 0 20px 16px;
+}
+.bl-panel-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 3px 12px;
+  border: 0;
+  border-radius: 20px;
+  color: #fff;
+  font: 400 14px/1 'Nunito Sans', 'Carbona', Tahoma, Helvetica, Arial, sans-serif;
+  cursor: pointer;
+}
+.bl-panel-tag span { font-size: 16px; line-height: 12px; }
+.bl-panel-add-tag {
+  min-width: 130px;
+  flex: 1;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: #fff;
+  font: 400 14px/21px 'Nunito Sans', 'Carbona', Tahoma, Helvetica, Arial, sans-serif;
+  outline: 0;
+}
+.bl-panel-add-tag:focus { border-bottom-color: var(--p-marca, #4a5d23); }
+.bl-panel-add-tag::placeholder { color: #a3a3a3; }
+.bl-panel-body {
+  flex: 1;
+  overflow: auto;
+  padding: 16px 20px;
+  scrollbar-color: #8c8c8c transparent;
+  scrollbar-width: thin;
+}
+.bl-panel-body::-webkit-scrollbar {
+  width: 6px;
+}
+.bl-panel-body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #8c8c8c;
+}
+.bl-panel .sub,
+.bl-panel .bl-section-subtitle,
+.bl-panel .bl-ajuda,
+.bl-panel .bl-panel-id,
+.bl-panel .bl-acao-tipo,
+.bl-panel .bl-output-order,
+.bl-panel .bl-condition-if {
+  color: #a3a3a3;
+}
+.bl-panel .iconbtn {
+  color: #d3d3d3;
+}
+.bl-panel .iconbtn:hover:not(:disabled) {
+  background: #3a3a3a;
+  color: #fff;
+}
+.bl-panel-errors,
+.bl-errors {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--p-error-background, #fbe9e6);
+  color: var(--p-error-content, #c4442e);
+  font-size: 12px;
+}
+.bl-panel-wire {
+  height: 1px;
+  margin: 0;
+  background: #3a3a3a;
+}
+
+.bl-abas {
+  display: flex;
+  gap: 4px;
+  background: #282828;
+  border-bottom: 1px solid #3a3a3a;
+  padding: 0 20px;
+}
+.bl-abas button {
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: #a3a3a3;
+  font: inherit;
+  cursor: pointer;
+}
+.bl-abas button[aria-selected='true'] {
+  border-bottom-color: var(--p-marca, #4a5d23);
+  color: #fff;
+  font-weight: 700;
+}
+.bl-aba-corpo {
+  padding-top: 20px;
+}
+
+.bl-section {
+  margin-bottom: 20px;
+}
+.bl-section-title {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.bl-section-subtitle,
+.bl-ajuda {
+  margin-bottom: 8px;
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-size: 12px;
+}
+
+.bl-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+.bl-campo input,
+.bl-campo textarea,
+.bl-value input,
+.bl-values-field input,
+.bl-panel .campo {
+  padding: 8px 10px;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  /*
+   * `.builder-sidebar-tabs .bp-input-wrapper`: surface-1, not the white applied by the dark-mode pass.
+   */
+  background: #282828;
+  color: #f6f6f6;
+  font: inherit;
+  font-size: 14px;
+}
+.bl-campo-longo textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+.bl-panel .selection-control,
+.bl-panel .selection-list {
+  border-color: #3a3a3a;
+  background: #282828;
+  color: #f6f6f6;
+}
+.bl-panel .selection-list button {
+  color: #f6f6f6;
+}
+.bl-panel .selection-list button:hover,
+.bl-panel .selection-list button:focus-visible,
+.bl-panel .selection-list button.selecionada {
+  background: color-mix(in srgb, var(--p-marca, #4a5d23) 24%, #282828);
+  color: #fff;
+}
+.bl-field-error {
+  color: var(--p-error-content, #c4442e);
+}
+
+/* ------------------------------------------------ outputs, conditions and actions */
+
+.bl-saida,
+.bl-acao,
+.bl-condition {
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  background: #282828;
+}
+.bl-lista-de-saidas > .bl-saida {
+  position: relative;
+  padding: 16px 0;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  background: transparent;
+}
+.bl-lista-de-saidas > .bl-saida:first-child { padding-top: 0; }
+.bl-condition {
+  position: relative;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.bl-saida--padrao {
+  border-style: dashed;
+}
+/*
+ * The card's error state (invalid output, action or condition) — the class was applied but the rule was missing, so no invalid card stood out.
+ */
+.bl-output--error,
+.bl-action--error,
+.bl-condition--error {
+  border-color: var(--p-error-content, #c4442e);
+}
+.bl-saida-cabecalho,
+.bl-acao-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  justify-content: space-between;
+  min-height: 32px;
+}
+.bl-output-order,
+.bl-acao-tipo {
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-weight: 400;
+}
+.bl-conditions,
+.bl-values,
+.bl-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bl-options {
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+.bl-condition-line,
+.bl-condition-values,
+.bl-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bl-condition-line,
+.bl-condition-values {
+  flex-wrap: wrap;
+}
+.bl-condition-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+}
+.bl-condition-fields > .bl-condition-if {
+  grid-column: 1;
+  margin-bottom: 38px;
+}
+.bl-condition-fields > .selection:first-of-type { grid-column: 1; }
+.bl-condition-fields > .selection:last-of-type { grid-column: 2; }
+.bl-condition-fields > .campo { grid-column: 1 / -1; }
+.bl-add-condition {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  margin: 12px auto;
+  padding: 0;
+  place-items: center;
+  border: 2px solid #aaa;
+  border-radius: 50%;
+  background: #393939;
+  color: #fff;
+  font: 700 18px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+.bl-add-condition::before,
+.bl-add-condition::after {
+  position: absolute;
+  z-index: -1;
+  width: calc(50% - 18px);
+  height: 1px;
+  background: #333;
+  content: '';
+}
+.bl-add-condition::before { transform: translateX(-68px); }
+.bl-add-condition::after { transform: translateX(68px); }
+/*
+ * The "OU"/"E" between values: its own width, without stretching across the row (the class existed with no rule at all, so `Selecao` grew like the fields next to it).
+ */
+.bl-condition-operator {
+  flex: none;
+  width: 90px;
+}
+.bl-condition-if {
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-size: 12px;
+}
+.bl-values {
+  flex: 1;
+  min-width: 160px;
+  padding: 4px 8px;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  background: #282828;
+}
+.bl-values .bl-values-field {
+  flex: 1;
+  min-width: 6ch;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.bl-acao-corpo,
+.bl-acao-bruta {
+  margin-top: 8px;
+}
+.bl-cabecalhos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bl-header-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.bl-header-row .campo {
+  flex: 1;
+  min-width: 0;
+}
+.bl-adicionar-cabecalho {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--p-marca, #4a5d23);
+  font: inherit;
+  cursor: pointer;
+}
+.bl-acao-abrir {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+.bl-acao-bruta textarea {
+  width: 100%;
+  min-height: 120px;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}
+.bl-adicionar-acao,
+.bl-mais {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.bl-adicionar-acao {
+  position: relative;
+}
+.bl-mais {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #f6f6f6;
+  border-radius: 8px;
+  background: #f6f6f6;
+  color: #282828;
+  font: inherit;
+  cursor: pointer;
+}
+.bl-remover,
+.bl-alterar,
+.bl-acao-abrir {
+  border: 0;
+  background: none;
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font: inherit;
+  cursor: pointer;
+}
+.bl-remover:hover {
+  color: var(--p-error-content, #c4442e);
+}
+.bl-condition > .bl-remover { opacity: 0; }
+.bl-condition:hover > .bl-remover,
+.bl-condition:focus-within > .bl-remover { opacity: 1; }
+
+/* The conversation preview inside the content panel. */
+.bl-conversation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bl-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.bl-card > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin-bottom: 12px;
+}
+.bl-card > header > :first-child {
+  margin-right: auto;
+}
+.bl-card--bot {
+  align-self: flex-start;
+  background: #282828;
+  border: 1px solid #3a3a3a;
+  color: #f6f6f6;
+}
+.bl-card--client {
+  align-self: flex-end;
+  background: #282828;
+  border: 1px solid #3a3a3a;
+  color: #f6f6f6;
+}
+.bl-card--deleted {
+  opacity: 0.6;
+}
+/*
+ * Two radio options side by side — the class existed without `display`/`gap`, so "Aguardar resposta" and "Não aguardar" ended up stuck together, with no space between the end of one label and the start of the other.
+ */
+.bl-escolha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 10px;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  background: #282828;
+  font-size: 12px;
+}
+
+.bl-toast {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  z-index: 4;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--p-conteudo, #1a1a1a);
+  color: var(--p-conteudo-claro, #fff);
+  font-size: 13px;
+  transform: translateX(-50%);
+}
+
+/* ------------------------------------------------- variables library */
+
+.bl-variables-empty {
+  margin-top: 12px;
+}
+.bl-variables-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+.bl-variables-list li {
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+.bl-variables-list li:hover {
+  background: color-mix(in srgb, var(--p-marca, #4a5d23) 24%, #282828);
+}
+.bl-variable-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bl-variable-name {
+  font-size: 13px;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+/* ------------------------------------------------- settings: versions */
+
+.bl-versions-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.bl-versions-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  background: #282828;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.bl-versions-item:hover {
+  background: color-mix(in srgb, var(--p-marca, #4a5d23) 24%, #282828);
+}
+
+.bl-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/*
+ * Builder-open capture 03 is this route's composition reference: light panel, white cards and an invalid condition marked in red.
+ */

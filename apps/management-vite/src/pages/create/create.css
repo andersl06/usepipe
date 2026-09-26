@@ -1,0 +1,378 @@
+/*
+ * ============================== the creation shell (/criar/*)
+ *
+ *   A copy of their portal's ABSTRACT `auth.application.create` state — the shell and the name step, the two pieces that the router and the flow share —, measured in the templates embedded in `portal.js` (`25.204.0-v0.43.1`) and in the `portal.css` sheet's rules:
+ *
+ *     module 30189  the shell (`#create-application-container`, the "x", the brand, the form and the footer);
+ *     module 96904  the name step (`#create-application-name-step`), ONE for both screens — three `ng-if="$ctrl.template != 'master'"` swap the words, and nothing else.
+ *
+ *   What belongs to only ONE screen lives in its own folder:
+ *     `roteador/criar-roteador.css`  the invite step (module 22046);
+ *     `fluxo/criar-fluxo.css`        the marketplace step (module 92466).
+ *
+ *   The `cr-` prefix is from "criar" (create), and applies to both screens.
+ *
+ *   Each block below carries the source selector and the measured numbers.
+ *
+ *   ═══ THE SCREEN IS FULL, AND COVERS THE PORTAL ═══
+ *
+ *   In the source, creation is `<bds-theme-provider theme="dark">` over a `.full-screen-container` (`min-height: 100%`, `width: 100%`, `z-index: 60000`) — the whole portal disappears behind a dark surface, leaving the brand at the top, a large "x" on the right and the budget footer at the bottom.
+ *
+ *   ═══ THE PAINT ═══
+ *
+ *   THE LAYOUT IS THEIRS, THE PAINT IS OURS. None of their hex enters. The dark comes from `--g-barra-*`, the chrome tokens that `globais.css` already derives for the portal's two bars — and which are already dark IN BOTH THEMES, which is exactly what their `theme="dark"` does on this screen: it doesn't follow the viewer's preference, it's always dark.
+ */
+
+/*
+ * ---------------------------------------------------------- the :root detour
+ *
+ *   These six aliases exist for ONE technical reason, not out of preference.
+ *
+ *   Inside `.cr-tela` the `--p-*` tokens that `@pipe/ui`'s primitives read (`.btn`, field, icon) are repointed to the dark chrome — the same move `globais.css` already makes in `.g-marca { --p-marca: var(--g-barra-marca) }`. Except in the DARK theme, `--g-barra-tinta`'s definition is `var(--p-conteudo)`; repointing `--p-conteudo: var(--g-barra-tinta)` on the same element would close a CYCLE, and a property in a cycle is invalid in the computed value — the whole screen would lose its color.
+ *
+ *   Declared at `:root`, they're COMPUTED there (where `--p-conteudo` is still a literal) and arrive at `.cr-tela` already resolved. The cycle is broken.
+ */
+:root {
+  --cr-fundo: var(--g-barra-1);
+  --cr-tinta: var(--g-barra-tinta);
+  --cr-fraca: var(--g-barra-fraca);
+  --cr-linha: var(--g-barra-linha);
+  --cr-hover: var(--g-barra-hover);
+  --cr-marca: var(--g-barra-marca);
+  --cr-marca-forte: color-mix(in srgb, var(--g-barra-marca) 82%, var(--g-barra-tinta));
+
+  /*
+   * Their error pair on this screen is the dark theme's `--color-negative`; our "on dark" pair already exists in `@pipe/ui` and is meant for this.
+   */
+  --cr-error: var(--p-error-on-dark);
+  --cr-error-background: color-mix(in srgb, var(--p-error-on-dark) 20%, var(--g-barra-1));
+
+  /*
+   * The focus violet is chosen for a light background; against the chrome's black it disappears. Lightened by the same proportion the `@pipe/ui` dark theme uses.
+   */
+  --cr-foco: color-mix(in srgb, var(--p-foco) 55%, var(--g-barra-tinta));
+
+  /*
+   * Their `.upload-button` is `background-color: var(--color-content-disable)`, which in the dark theme is a medium gray (#949494) over the #141414 background — ~42% ink over the background. The same proportion, with our ink.
+   */
+  --cr-controle: color-mix(in srgb, var(--g-barra-tinta) 42%, var(--g-barra-1));
+}
+
+/*
+ * ======================================= the shell (`#create-application-container`)
+ *
+ *   `.full-screen-container`: `min-height: 100%`, `width: 100%`, `position: relative`.
+ *   `#create-application-container`: `padding-top: 3rem`, `--color-surface-3` background and their dark theme's `--color-content-default` ink, plus the template's `flex flex-column items-center`.
+ *
+ *   `z-index: 60000` was NOT copied: there the screen is a layer on top of the SPA; here the `criar` route already mounts its own shell (`CASCO_PROPRIO` in `estrutura-gestao.tsx`) and there's nothing underneath to cover.
+ */
+.cr-tela {
+  min-height: 100dvh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem var(--p-e-4) 0;
+  background: var(--cr-fundo);
+  color: var(--cr-tinta);
+
+  /*
+   * The dark theme, expressed in the tokens the primitives read. No new value: everything comes from the `:root` aliases above.
+   */
+  --p-conteudo: var(--cr-tinta);
+  --p-conteudo-desabilitado: var(--cr-fraca);
+  --p-conteudo-fantasma: var(--cr-fraca);
+  /* What goes ON TOP of the brand mark — which here is light. */
+  --p-conteudo-claro: var(--cr-fundo);
+  --p-superficie-0: var(--cr-fundo);
+  --p-superficie-3: var(--cr-hover);
+  --p-linha: var(--cr-linha);
+  --p-linha-media: var(--cr-linha);
+  --p-marca: var(--cr-marca);
+  --p-marca-forte: var(--cr-marca-forte);
+  --p-marca-conteudo: var(--cr-fundo);
+  --p-error-content: var(--cr-error);
+  --p-error-background: var(--cr-error-background);
+  --p-foco: var(--cr-foco);
+
+  /*
+   * This screens' title scale, from the templates' `bds-typo variant`: the overtitle is `fs-20`, "Como funciona o roteador" is `fs-24` and the large titles ("Dê um nome ao fluxo", "Escolha como começar seu fluxo") are `fs-32`. There's no `--p-t-*` token for 24 or 32.
+   */
+  --cr-t-tagline: 20px;
+  --cr-t-section: 24px;
+  --cr-t-nome: 32px;
+}
+
+/*
+ * ---------------------------------------------------------------- the "x"
+ *   `<bds-icon name="close" size="xxx-large" class="close-icon absolute right-0">` — `xxx-large` is 40px in `bds-icon`, `right-0` is tachyons and `.close-icon { margin-right: 3rem }`. No `top`: it sits at the static height, i.e. aligned to the top of the container's 3rem padding.
+ *
+ *   In the source it's the ONLY way out of the screen, and Esc also closes it (`$document.on('keydown', 27 → close())`, and `close()` ends in `$state.go('auth.application.list')`). Here it leads to `/portal`, our list; Esc does NOT close, because a key is client state and these screens still have none.
+ */
+.cr-fechar {
+  position: absolute;
+  top: 3rem;
+  right: 3rem;
+  display: flex;
+  padding: var(--p-e-1);
+  border-radius: var(--p-r-md);
+  color: var(--cr-tinta);
+}
+
+.cr-fechar:hover {
+  background: var(--cr-hover);
+}
+
+/*
+ * ---------------------------------------------------------- the brand mark
+ *   `logoCenter` is only false in the `aiagent` state (`data: { logoCenter: !1 }`); in every router and flow step the default `!0` holds, and what shows is the CENTERED brand mark:
+ *   `.logo-image { width: 5rem; margin-top: .5rem; margin-bottom: 3rem }`.
+ *
+ *   The lockup is the same `.pt-lockup` as the portal bar — 80px wide, exactly the 5rem measured —, already painted with the chrome's ink.
+ */
+.cr-marca {
+  flex: none;
+  display: flex;
+  margin: 0.5rem 0 3rem;
+}
+
+/*
+ * ------------------------------------ `.create-application-form`
+ *   `flex-grow: 1; margin-bottom: 3rem` plus the template's `w-100`. It's what pushes the footer to the bottom of the window on a short step and lets it scroll on a long one.
+ */
+.cr-forma {
+  flex: 1 1 auto;
+  width: 100%;
+  margin-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---------------------------------------- `.tagline-title-container`
+   `display: flex; flex-direction: column; gap: 1rem; text-align: center`. */
+.cr-titulos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-4);
+  text-align: center;
+}
+
+.cr-tagline {
+  margin: 0;
+  font-size: var(--cr-t-tagline);
+  font-weight: var(--p-peso-normal);
+}
+
+.cr-titulo-nome {
+  margin: 0;
+  font-size: var(--cr-t-nome);
+  font-weight: var(--p-peso-normal);
+}
+
+/*
+ * Their default `bds-button` is `.button__size--standard { height: 40px }`. Our `.btn` is 28px, which disappears on a 52.5rem stage. These screens' buttons go up to the measured 40px — and only them: the primitive stays what it is.
+ */
+.btn.cr-botao {
+  height: 40px;
+  padding: 0 var(--p-e-4);
+  font-size: var(--p-t-md);
+}
+
+/* ================================================ o passo do nome
+   `#create-application-name-step { tc flex flex-column items-center }`. */
+.cr-nome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  text-align: center; /* o `tc` do template */
+}
+
+/*
+ * The rejection notice. In the source it's a `BlipToastService.show('danger', …)` — a floating red box with a title and a message. Here it's fixed above the field: with no client, a notice that vanishes on its own doesn't vanish, and a notice that doesn't vanish while floating covers the form. The title is the same.
+ */
+.cr-aviso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+  width: 28rem;
+  max-width: 90%;
+  margin: 2.5rem 0 0;
+  padding: var(--p-e-3) var(--p-e-4);
+  border-radius: var(--p-r-md);
+  background: var(--cr-error-background);
+  color: var(--cr-error);
+  font-size: var(--p-t-md);
+  text-align: left;
+}
+
+/*
+ * ---------------------------------------------------- `.upload-button`
+ *   `#create-application-name-step .upload-button { margin: 5rem 0 1.25rem }` and `.upload-button`: 150×150, `border-radius: 50%`, `--color-content-disable` background and, while there's no file, `border: 3px dashed var(--color-content-default)` (the `dashed-border` class). Inside, an arrow (`<img icon-src="Arrow">`) and the label `modules.ui.uploadButton.title` ("Definir imagem") at `.75rem` (`bp-fs-7`, `color-white`), with `padding: 8px 28px 0` and 1.5 line height. The `input[type=file]` covers the full 150px with `opacity: 0`.
+ *
+ *   DIVERGENCE: the source swaps the core for the chosen photo as soon as the file is read (`<img id="uploaded-img" class="uploaded-img" ng-show="showFile">`). A preview is client state, and these screens have none — the field's counter had already fallen to the same rule. The control stays whole: choose, submit, save. All that's missing is the check before submitting.
+ */
+.cr-foto {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex: none;
+  width: 150px;
+  height: 150px;
+  margin: 5rem 0 1.25rem;
+  border-radius: var(--p-r-pilula);
+  border: 3px dashed var(--cr-tinta);
+  background: var(--cr-controle);
+  color: var(--cr-tinta);
+  cursor: pointer;
+}
+
+.cr-foto > span {
+  padding: var(--p-e-2) 28px 0;
+  font-size: 0.75rem; /* `bp-fs-7` */
+  line-height: var(--p-altura-linha);
+  text-align: center;
+}
+
+.cr-foto > input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.cr-foto:focus-within {
+  outline: 2px solid var(--cr-foco);
+  outline-offset: 2px;
+}
+
+/*
+ * ------------------------------------------------------ `material-input`
+ *   `#create-application-name-step material-input { max-width: 90%; width: 28rem }`.
+ *
+ *   Their field has no box: transparent background, a line at the bottom (`border-bottom: 1px solid var(--color-content-ghost)`), `height: 35px`, `margin-top: 20px`, `padding: 8px 8px 8px 0`.
+ *
+ *   The label FLOATS: at rest it lives inside the field (`position: absolute; top: 24px; transform: scale(1.15)`, weight 300, `padding-left: 4px`, `transform-origin: 0 50%`) and rises when the field has content. Here that's done by `:placeholder-shown`, not JavaScript: the same behavior without a gram of client state.
+ */
+.cr-campo {
+  position: relative;
+  width: 28rem;
+  max-width: 90%;
+  text-align: left;
+}
+
+.cr-campo > input {
+  width: 100%;
+  height: 35px;
+  margin-top: 20px;
+  padding: 8px 8px 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--cr-fraca);
+  border-radius: 0;
+  background: transparent;
+  color: var(--cr-tinta);
+  font-family: var(--p-fonte);
+  font-size: var(--p-t-lg);
+}
+
+.cr-campo > input:focus {
+  outline: none;
+  border-bottom-color: var(--cr-marca);
+  box-shadow: 0 1px 0 0 var(--cr-marca);
+}
+
+.cr-campo > label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding-left: 4px;
+  font-size: var(--p-t-sm);
+  font-weight: 300;
+  color: var(--cr-fraca);
+  transform-origin: 0 50%;
+  transition:
+    transform var(--p-dur-normal) ease,
+    color var(--p-dur-rapida) ease;
+  pointer-events: none;
+}
+
+/*
+ * At rest — empty field, no focus — the label drops into the field and grows: it's the `top: 24px` + `scale(1.15)` measured in the source.
+ */
+.cr-campo > input:placeholder-shown:not(:focus) + label {
+  transform: translateY(24px) scale(1.15);
+}
+
+.cr-campo > input:focus + label {
+  color: var(--cr-marca);
+}
+
+.cr-campo[data-error] > input {
+  border-bottom-color: var(--cr-error);
+}
+
+/*
+ * Occupies the source's counter line, which sat to the right of the field (`span.input-right.bp-c-rooftop`, `position: absolute; bottom: 8px; right: 5px`, starting at 30 and counting down with each keystroke). Counting keystrokes is client state; the limit still holds through `maxLength` and the Server Action.
+ */
+.cr-recado {
+  width: 28rem;
+  max-width: 90%;
+  margin: var(--p-e-1) 0 0;
+  text-align: right;
+  font-size: var(--p-t-sm);
+  color: var(--cr-fraca);
+}
+
+/*
+ * `#create-application-name-step .create-application-actions`:
+ *     `margin-top: 3rem · width: 28rem · max-width: 90%`
+ *   plus the template's `flex justify-between` — one button at each end.
+ */
+.cr-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 28rem;
+  max-width: 90%;
+  margin-top: 3rem;
+}
+
+/*
+ * ======================================= `.create-application-footer`
+ *   `border-top: 1px solid …; padding: 1.5rem; width: 54rem` plus the template's `mw-100 tc`, and the link in bold with its own ink (`a > bds-typo { color: … }`). Appears on every step: `showFooter` is only false in the `aiagent` state.
+ */
+.cr-rodape {
+  flex: none;
+  width: 54rem;
+  max-width: 100%;
+  padding: 1.5rem;
+  border-top: 1px solid var(--cr-linha);
+  text-align: center;
+  font-size: var(--p-t-md); /* fs-14 nos dois trechos */
+}
+
+.cr-rodape a {
+  font-weight: var(--p-peso-forte);
+  color: var(--cr-marca);
+}
+
+/*
+ * --------------------------------------------------------- narrow
+ *   The "x" and the brand mark sit flush against their header's 3rem indent, which becomes the screen's indent.
+ */
+@media (max-width: 56rem) {
+  .cr-fechar {
+    top: var(--p-e-4);
+    right: var(--p-e-4);
+  }
+
+  .cr-foto {
+    margin-top: 3rem;
+  }
+}

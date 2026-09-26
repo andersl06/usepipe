@@ -1,0 +1,324 @@
+import { PROVEDOR_PADRAO } from '@pipe/core';
+import type { ConditionBlip } from '@pipe/core';
+import type { AcaoDoEditor, Block } from './model';
+import { gerarId } from './model';
+import { conditionError } from './conditions';
+
+/**
+ * Block enter/leave actions follow Blip editor Actions tab (`builder-tabs-actions`) but offer only what Pipe's `PROVEDOR_PADRAO` executes (`packages/core/src/fluxo/acoes.ts`). Add Tools offers `SetVariable`, `DeleteVariable` (Pipe label; absent from Blip's menu), `TrackEvent`, and `Redirect` with their Manipulate/Execute groups. `SendMessage`/`SendRawMessage` belong to block Content; `ForwardToDesk`, `LeavingFromDesk`, `CreateTicket` belong to Human and are created with it, hiding its Actions tab. Unsupported imported actions such as `ExecuteScript` or `MergeContact` remain readable and removable but marked Not executed in Pipe. Limit each action list to 15.
+ */
+
+export const ACTIONS_LIMIT = 15;
+
+export interface CampoDaAcao {
+  /** A `settings` key may use a dot for nested keys, such as `context.type`. */
+  key: string;
+  rotulo: string;
+  ajuda?: string;
+  obrigatorio?: boolean;
+  /** `texto` is one line; `longo` uses a textarea. */
+  tipo?: 'texto' | 'longo' | 'json' | 'cabecalhos';
+  /** Valores fechados usam o mesmo seletor do Builder. */
+  options?: readonly string[];
+}
+
+export interface TipoDeAcao {
+  tipo: string;
+  /** O nome no menu "ADICIONAR FERRAMENTAS". */
+  rotulo: string;
+
+  titulo: string;
+  grupo: 'Executar' | 'Manipular';
+  info?: string;
+  campos: CampoDaAcao[];
+}
+
+export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
+  {
+    tipo: 'Redirect',
+    rotulo: 'Redirecionar para serviço',
+    titulo: 'Redirecionar a um serviço',
+    grupo: 'Executar',
+    info: 'Para executar esta ação é necessário que seu projeto esteja em um bot router.',
+    campos: [
+      { key: 'address', rotulo: 'Serviço', obrigatorio: true },
+      { key: 'context.type', rotulo: 'Tipo do contexto' },
+      { key: 'context.value', rotulo: 'Valor do contexto', tipo: 'longo' },
+    ],
+  },
+  {
+    tipo: 'ProcessHttp',
+    rotulo: 'Requisição HTTP',
+    titulo: 'Requisição HTTP',
+    grupo: 'Executar',
+    info: 'A chamada é feita fora da transação e a resposta pode ser guardada em variáveis de contexto.',
+    campos: [
+      {
+        key: 'method',
+        rotulo: 'Método HTTP',
+        obrigatorio: true,
+        options: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+      },
+      { key: 'uri', rotulo: 'URL', obrigatorio: true },
+      { key: 'headers', rotulo: 'Cabeçalhos', tipo: 'cabecalhos' },
+      { key: 'body', rotulo: 'Corpo', tipo: 'longo' },
+      { key: 'requestTimeout', rotulo: 'Tempo limite (segundos)' },
+      { key: 'responseStatusVariable', rotulo: 'Variável do status' },
+      { key: 'responseBodyVariable', rotulo: 'Variável do corpo' },
+    ],
+  },
+  {
+    tipo: 'SetVariable',
+    rotulo: 'Definir variável',
+    titulo: 'Definir variável',
+    grupo: 'Manipular',
+    info: 'Essa ação permite a definição do valor de uma variável de context no fluxo. Para utilizar a variável, utilize {{context.variableName}}',
+    campos: [
+      {
+        key: 'variable',
+        rotulo: 'Nome da variável',
+        obrigatorio: true,
+      },
+      { key: 'value', rotulo: 'Valor' },
+    ],
+  },
+  {
+    tipo: 'DeleteVariable',
+    rotulo: 'Excluir variável',
+    titulo: 'Excluir variável',
+    grupo: 'Manipular',
+    campos: [{ key: 'variable', rotulo: 'Nome da variável', obrigatorio: true }],
+  },
+  {
+    tipo: 'TrackEvent',
+    rotulo: 'Registrar eventos',
+    titulo: 'Registro de eventos',
+    grupo: 'Manipular',
+    info: 'Os eventos são agregados por categoria, ação e dia.',
+    campos: [
+      { key: 'category', rotulo: 'Categoria', obrigatorio: true },
+      { key: 'action', rotulo: 'Ação', obrigatorio: true },
+      { key: 'label', rotulo: 'Rótulo (opcional)' },
+      { key: 'value', rotulo: 'Valor (opcional)' },
+    ],
+  },
+];
+
+export const LABELS_OF_ACTIONS = {
+  aba: 'Ações',
+  entrada: 'Ações de Entrada',
+  entradaDescricao: 'Inclua ações que serão executadas antes do envio do primeiro conteúdo',
+  adicionarEntrada: 'Adicionar ação de entrada',
+  saida: 'Ações de Saída',
+  saidaDescricao:
+    'Inclua ações que serão executadas após o envio do último conteúdo ou resposta do usuário',
+  adicionarSaida: 'Adicionar ação de saída',
+  nome: 'Nome da ação',
+  detalhe: 'Detalhes da ação',
+  excluir: 'Excluir ação',
+  limite: 'Limite de 15 ações atingidos',
+  menu: 'ADICIONAR FERRAMENTAS',
+  condicao: 'Condição para executar a ação',
+  adicionarCondicao: '+ Adicionar condição de execução',
+  atendimento:
+    'O bloco de atendimento representa o ponto do fluxo que um atendente está trocando mensagens com o usuário, portanto o bot não deve interferir nas ações de entrada e saída.',
+  naoExecutada: 'Não executada no Pipe',
+  doSistema: 'Ação do bloco de atendimento',
+} as const;
+
+/** System-run actions belong to the Human block, not the person. */
+export const ACTIONS_OF_SYSTEM = new Set(['ForwardToDesk', 'LeavingFromDesk', 'CreateTicket']);
+
+export const tipoDeAcao = (tipo: string): TipoDeAcao | undefined =>
+  CATALOG_OF_ACTIONS.find((t) => t.tipo === tipo);
+
+export const rotuloDaAcao = (tipo: string): string => tipoDeAcao(tipo)?.titulo ?? tipo;
+
+/** The engine does not execute this action: it throws at runtime and the conversation falls into the queue. */
+export const acaoSemSuporte = (acao: AcaoDoEditor): boolean => !PROVEDOR_PADRAO.has(acao.type);
+
+export const acaoDoSistema = (acao: AcaoDoEditor): boolean => ACTIONS_OF_SYSTEM.has(acao.type);
+
+/** Create an action like the plus button: no title, empty settings, no condition. */
+export function novaAcao(tipo: string, id = gerarId()): AcaoDoEditor {
+  return {
+    $id: id,
+    $title: '',
+    type: tipo,
+    settings: tipo === 'ProcessHttp' ? { method: 'GET' } : {},
+    conditions: [],
+    $invalid: false,
+  };
+}
+
+const partes = (key: string): string[] => key.split('.');
+
+/** Read `settings.a.b` case-insensitively because Newtonsoft matches keys without regard to case, and the screen must agree. */
+export function fieldValue(acao: AcaoDoEditor, key: string): string {
+  let atual: unknown = acao.settings ?? {};
+  for (const parte of partes(key)) {
+    if (!atual || typeof atual !== 'object') return '';
+    const objeto = atual as Record<string, unknown>;
+    const real = Object.keys(objeto).find((k) => k.toLowerCase() === parte.toLowerCase());
+    atual = real === undefined ? undefined : objeto[real];
+  }
+  if (atual === undefined || atual === null) return '';
+  return typeof atual === 'string' ? atual : JSON.stringify(atual);
+}
+
+/** Write `settings.a.b`; empty text deletes the key. */
+export function comCampo(acao: AcaoDoEditor, key: string, value: string): AcaoDoEditor {
+  const settings = JSON.parse(JSON.stringify(acao.settings ?? {})) as Record<string, unknown>;
+  const caminho = partes(key);
+  let atual = settings;
+  for (const parte of caminho.slice(0, -1)) {
+    const proximo = atual[parte];
+    if (!proximo || typeof proximo !== 'object') atual[parte] = {};
+    atual = atual[parte] as Record<string, unknown>;
+  }
+  const ultima = caminho[caminho.length - 1]!;
+  if (value === '') delete atual[ultima];
+  else atual[ultima] = value;
+  // Remove an empty nested object too; `context: {}` is not meaningful context.
+  for (const parte of caminho.slice(0, -1)) {
+    const filho = settings[parte];
+    if (filho && typeof filho === 'object' && Object.keys(filho).length === 0)
+      delete settings[parte];
+  }
+  return { ...acao, settings };
+}
+
+/** Flow headers must stay objects; leave invalid text visible for validation instead of silently discarding it. */
+export function comCampoJson(acao: AcaoDoEditor, key: string, value: string): AcaoDoEditor {
+  if (!value.trim()) return comCampo(acao, key, '');
+  try {
+    const json: unknown = JSON.parse(value);
+    if (json && typeof json === 'object' && !Array.isArray(json)) {
+      return withValue(acao, key, json);
+    }
+  } catch {
+    // Point to the invalid field without erasing what the user typed.
+  }
+  return comCampo(acao, key, value);
+}
+
+export interface CabecalhoHttp {
+  key: string;
+  value: string;
+}
+
+/** Flow stores headers as an object; Builder edits them as key/value pairs. */
+export function cabecalhosDoCampo(acao: AcaoDoEditor, key: string): CabecalhoHttp[] {
+  const bruto = acao.settings?.[key];
+  if (!bruto || typeof bruto !== 'object' || Array.isArray(bruto)) return [];
+  return Object.entries(bruto).map(([nome, value]) => ({ key: nome, value: String(value ?? '') }));
+}
+
+export function comCabecalhos(acao: AcaoDoEditor, key: string, cabecalhos: CabecalhoHttp[]): AcaoDoEditor {
+  const value = Object.fromEntries(
+    cabecalhos.filter(({ key }) => key.trim()).map(({ key, value }) => [key.trim(), value]),
+  );
+  return Object.keys(value).length ? withValue(acao, key, value) : comCampo(acao, key, '');
+}
+
+function withValue(acao: AcaoDoEditor, key: string, value: unknown): AcaoDoEditor {
+  const settings = JSON.parse(JSON.stringify(acao.settings ?? {})) as Record<string, unknown>;
+  settings[key] = value;
+  return { ...acao, settings };
+}
+
+export function comTitulo(acao: AcaoDoEditor, titulo: string): AcaoDoEditor {
+  return { ...acao, $title: titulo };
+}
+
+export function withConditions(acao: AcaoDoEditor, conditions: ConditionBlip[]): AcaoDoEditor {
+  return { ...acao, conditions: conditions };
+}
+
+/** Return missing action fields in panel wording; skip validation for actions the engine cannot execute. */
+export function actionErrors(acao: AcaoDoEditor): string[] {
+  const errors: string[] = [];
+  const tipo = tipoDeAcao(acao.type);
+  for (const campo of tipo?.campos ?? []) {
+    if (campo.obrigatorio && !fieldValue(acao, campo.key).trim()) {
+      errors.push(`${campo.rotulo}: campo obrigatório.`);
+    }
+    if (campo.tipo === 'json') {
+      const bruto = acao.settings?.[campo.key];
+      if (bruto !== undefined && (!bruto || typeof bruto !== 'object' || Array.isArray(bruto))) {
+        errors.push(`${campo.rotulo}: informe um objeto JSON válido.`);
+      }
+    }
+  }
+  if (tipo?.tipo === 'SetVariable' || tipo?.tipo === 'DeleteVariable') {
+    const nome = fieldValue(acao, 'variable').trim();
+    if (nome && !/^[a-zA-Z0-9.]+$/.test(nome)) {
+      errors.push('O nome da variável de entrada só pode ter letras, números e pontos.');
+    }
+  }
+  for (const c of acao.conditions ?? []) {
+    const error = conditionError(c);
+    if (error && !errors.includes(error)) errors.push(error);
+  }
+  return errors;
+}
+
+export type ActionsList = '$enteringCustomActions' | '$leavingCustomActions';
+
+export type ResultadoDeAcao = { ok: true; block: Block } | { ok: false; error: string };
+
+export function adicionarAcao(
+  block: Block,
+  lista: ActionsList,
+  acao: AcaoDoEditor,
+): ResultadoDeAcao {
+  const current = block[lista] ?? [];
+  if (current.length >= ACTIONS_LIMIT) return { ok: false, error: LABELS_OF_ACTIONS.limite };
+  return { ok: true, block: { ...block, [lista]: [...current, acao] } };
+}
+
+/** Paste a full selection atomically or change nothing; copies must not share settings objects or IDs. */
+export function pasteActions(
+  block: Block,
+  lista: ActionsList,
+  copiadas: readonly AcaoDoEditor[],
+): ResultadoDeAcao {
+  const current = block[lista] ?? [];
+  if (current.length + copiadas.length > ACTIONS_LIMIT)
+    return { ok: false, error: LABELS_OF_ACTIONS.limite };
+  return {
+    ok: true,
+    block: {
+      ...block,
+      [lista]: [
+        ...current,
+        ...copiadas.map((acao) => ({ ...structuredClone(acao), $id: gerarId() })),
+      ],
+    },
+  };
+}
+
+export function substituirAcao(
+  block: Block,
+  lista: ActionsList,
+  indice: number,
+  acao: AcaoDoEditor,
+): Block {
+  const current = block[lista] ?? [];
+  return { ...block, [lista]: current.map((a, i) => (i === indice ? acao : a)) };
+}
+
+export function removerAcao(block: Block, lista: ActionsList, indice: number): Block {
+  const current = block[lista] ?? [];
+  return { ...block, [lista]: current.filter((_, i) => i !== indice) };
+}
+
+/** Move an action up/down in execution order. */
+export function moverAcao(block: Block, lista: ActionsList, de: number, para: number): Block {
+  const current = [...(block[lista] ?? [])];
+  if (de < 0 || de >= current.length || para < 0 || para >= current.length || de === para)
+    return block;
+  const [acao] = current.splice(de, 1);
+  current.splice(para, 0, acao!);
+  return { ...block, [lista]: current };
+}

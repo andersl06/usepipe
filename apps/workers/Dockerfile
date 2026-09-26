@@ -23,10 +23,10 @@ FROM base AS manifestos
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api/package.json apps/api/
 COPY apps/workers/package.json apps/workers/
-COPY apps/gestao-vite/package.json apps/gestao-vite/
+COPY apps/management-vite/package.json apps/management-vite/
 COPY apps/crm/package.json apps/crm/
 COPY packages/ai/package.json packages/ai/
-COPY packages/autenticacao/package.json packages/autenticacao/
+COPY packages/authentication/package.json packages/authentication/
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/core/package.json packages/core/
 COPY packages/db/package.json packages/db/
@@ -88,7 +88,7 @@ WORKDIR /app/apps/workers
 # distingue "vivo" de "vivo e inútil" aqui é o Redis: sem ele o processo continua
 # de pé consumindo fila nenhuma. O teto: isto prova a conexão, não que a fila
 # esteja andando — para isso é preciso a métrica
-# `pipe_fila_idade_item_mais_velho_segundos` (pendência 3 do infra/README).
+# `pipe_queue_oldest_item_age_seconds` (pendência 3 do infra/README).
 HEALTHCHECK --interval=20s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "const R=require('ioredis');const c=new R(process.env.REDIS_URL||'redis://redis:6379',{maxRetriesPerRequest:1});c.ping().then(()=>process.exit(0)).catch(()=>process.exit(1))"
 

@@ -14,13 +14,13 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "format": "prettier --write .",
-    "banco:subir": "docker compose up -d postgres redis",
-    "banco:descer": "docker compose down",
-    "banco:migrar": "pnpm --filter @pipe/db migrar",
-    "banco:semear": "pnpm --filter @pipe/db semear",
-    "seed:demo": "pnpm --filter @pipe/db semear:demo",
+    "db:up": "docker compose up -d postgres redis",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @pipe/db migrate",
+    "db:seed": "pnpm --filter @pipe/db seed",
+    "seed:demo": "pnpm --filter @pipe/db seed:demo",
     "desk": "pnpm --filter @pipe/desk-vite dev",
-    "ponte": "pnpm --filter @pipe/ponte dev"
+    "bridge": "pnpm --filter @pipe/bridge dev"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

@@ -1,0 +1,1825 @@
+/*
+ * ==========================================================================
+ *    Contract panel (/contrato)
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. Every number below was measured from the micro-frontend `{conta}.tenant.fragment.blip.ai` — from the `styled-components` embedded in `static/js/main.e8593b01.chunk.js` and the `static/css/main.7b59c603.chunk.css` sheet. The source selector sits next to each block: `st`, `Re`, `qe`, `ce`… are the components' minified names, and `bds-*` are pieces of their design system (blip-ds), whose measurements come from `49.ab489ac8.chunk.js` (paper, typo) and `vendor-…bds-icon….js` (icon).
+ *
+ *    Their type scale, to read the rest: `bds-typo` fs-24 = 24px/100%, fs-16 = 16px/150%, fs-14 = 14px/150%, fs-12 = 12px/150%; `bold` regular=400, semi-bold=600, bold=700. `bds-paper` = 16px radius, no border, with elevation-based shadow. `bds-icon` xx-large = 36px, medium = 24px, x-small = 16px. `bds-avatar` extra-large = 72px.
+ *
+ *    None of their hex values: everything comes from `--p-*`/`--g-*`. The color mapping:
+ *      color-surface-1 (paper background) → var(--surface)
+ *      color-surface-3 (header rule) → var(--surface-3)
+ *      paper elevation static → var(--p-sombra-1)
+ *      paper elevation primary/secondary → var(--p-sombra-2)
+ *      bg-color-system (icon box) → var(--p-marca-suave)
+ *      color-primary / -dark → var(--p-marca) / var(--p-marca-forte)
+ *      color-extend-reds-delete → var(--p-erro-conteudo)
+ *
+ *    What this sheet does NOT redesign are the two pieces the portal already has — `.pt-obra` and `.pt-obra-selo`, the work-in-progress item with the "em breve" badge —, reused as they are.
+ *    ==========================================================================
+ */
+
+/*
+ * `st` = styled(Container): the whole screen's grid, and `nt.a`, the Container, which is just `max-width: 1440px; margin: 0 auto`.
+ */
+.ct-grade {
+  display: grid;
+  grid-template-areas: 'sidebar content';
+  grid-template-columns: 1fr 3fr;
+  gap: var(--p-e-8); /* 32px */
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-top: var(--p-e-8); /* 32px */
+  /* 80px: their screen's footer breathing room. There's no 80 token; there are two of 40. */
+  padding-bottom: calc(var(--p-e-10) * 2);
+  animation: ct-surge 0.5s ease-in 1;
+}
+
+/*
+ * `animation: fadeIn ease-in 0.5s; animation-iteration-count: 1` — bundle module 25 is just `from { opacity: 0 } to { opacity: 1 }`.
+ */
+@keyframes ct-surge {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-grade {
+    animation: none;
+  }
+}
+
+/*
+ * Below the portal's 852 breakpoint the grid becomes a single column: `1fr 3fr` on a phone would give a 90px summary card.
+ */
+@media (max-width: 851px) {
+  .ct-grade {
+    grid-template-areas: 'sidebar' 'content';
+    grid-template-columns: 1fr;
+  }
+}
+
+/*
+ * The horizontal strip: `Ve` is `grid-column: 1 / 3`, the summary card spanning both columns when there's no other card left, nor a consumption section.
+ */
+.ct-grade--faixa {
+  grid-template-areas: 'sidebar' 'content';
+  grid-template-columns: 1fr;
+}
+
+/* ------------------------------------------------------- summary card */
+
+/* `Fe` (grid-column: 1 / 2) + `bds-paper elevation="primary"` + `Re`
+   (flex coluna, padding 24px). */
+.ct-resumo {
+  grid-area: sidebar;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  padding: var(--p-e-6); /* 24px — `Re` */
+  border-radius: 16px; /* `bds-paper` :host { border-radius: 16px } */
+  background: var(--surface);
+  box-shadow: var(--p-sombra-2); /* elevation="primary" */
+}
+
+/* `We`: in a row the card lies flat — photo on the left, everything else on the right. */
+.ct-resumo--faixa {
+  flex-direction: row;
+}
+
+/*
+ * The photo box: `.avatar.placeholder` — `width: 92px` with centered content (`tc`). The photo itself is `bds-avatar size="extra-large"`, 72px.
+ */
+.ct-foto-caixa {
+  flex: none;
+  width: 92px;
+  text-align: center;
+}
+
+/*
+ * Written with the box in front to beat `@pipe/ui`'s 26px `.avatar` without `!important`: the `Avatar` component comes in with both classes.
+ */
+.ct-foto-caixa .ct-foto {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--p-r-pilula);
+  object-fit: cover;
+  font-size: var(--p-t-titulo);
+}
+
+/* `He`: the card's body. Only gets the 32 indent when the card lies flat. */
+.ct-corpo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ct-resumo--faixa .ct-corpo {
+  flex-grow: 1;
+  padding-left: var(--p-e-8); /* 32px — `He` */
+}
+
+/*
+ * `qe`: each card block is `margin: 24px 0 8px 0`, and the labels and values inside it are 8 apart. Between neighboring blocks the margins merge into 24, which is their gap.
+ */
+.ct-block {
+  margin: var(--p-e-6) 0 var(--p-e-2);
+}
+
+/* Each block's label is `bds-typo variant="fs-14"`, normal weight. */
+.ct-rotulo,
+.ct-data dt {
+  display: block;
+  margin-bottom: var(--p-e-2); /* 8px — `::part(bds-typo__text)` do primeiro */
+  font-size: var(--p-t-md); /* 14px */
+  font-weight: var(--p-peso-normal);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/*
+ * The contract name is `bds-typo variant="fs-24"` — 24px with 100% line height, the card's largest text.
+ */
+.ct-nome {
+  margin: 0;
+  font-size: 24px;
+  font-weight: var(--p-peso-forte);
+  line-height: 1;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/*
+ * `_e`: their `{id}.blip.ai` — an 8-gap row, baseline-aligned, in brand color, which darkens on hover. `bds-typo fs-14 bold`. Our address identifier is the account slug.
+ */
+.ct-endereco {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--p-e-2); /* 8px */
+  margin: var(--p-e-2) 0 0; /* 8px — `::part` do primeiro filho de `ze` */
+  font-size: var(--p-t-md); /* 14px */
+  color: var(--p-marca);
+  overflow-wrap: anywhere;
+}
+
+.ct-endereco:hover {
+  color: var(--p-marca-forte);
+}
+
+.ct-endereco b {
+  font-weight: var(--p-peso-forte);
+}
+
+.ct-editar {
+  font-size: var(--p-t-sm);
+}
+
+/*
+ * The copy button: a word, not an icon (see `copiar.tsx`). In the source it's the 24px `bds-icon name="copy"` inside `ze`; without that drawing in our set, the word stays on the same row and in the same color as the value.
+ */
+.ct-copiar {
+  flex: none;
+  padding: 0 var(--p-e-1);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--p-t-sm);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ct-copiar:hover {
+  color: var(--p-marca-forte);
+}
+
+/* `Ge` only exists on the card lying flat; upright the pairs are stacked blocks. */
+.ct-data {
+  margin: 0;
+}
+
+.ct-data dd {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin: 0;
+  font-size: var(--p-t-lg); /* 16px — `bds-typo fs-16 bold` */
+  font-weight: var(--p-peso-forte);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* Deitado, `Ge` vira fileira: `padding-top: 24px; gap: 7vmax;
+   align-items: flex-end` e volta a coluna abaixo de 720. */
+.ct-resumo--faixa .ct-data {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 7vmax;
+  padding-top: var(--p-e-6);
+}
+
+.ct-resumo--faixa .ct-data .ct-block {
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .ct-resumo--faixa .ct-data {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--p-e-6); /* 24px */
+  }
+}
+
+/*
+ * The ID is an identifier, and identifiers read in monospace. It's at 12, not their 16, because ours is a 36-character UUID: at their 16 monospace it would wrap into three lines in the narrow column.
+ */
+.ct-id {
+  font-family: var(--p-fonte-mono);
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-medio);
+  overflow-wrap: anywhere;
+}
+
+/*
+ * `xe` + `bds-typo fs-12 bold`: "Deixar contrato" at the footer, in red and underlined. No rule above — in the source it's just one more 24 block.
+ */
+.ct-rodape {
+  margin-top: var(--p-e-6);
+  font-size: var(--p-t-sm); /* 12px */
+}
+
+.ct-rodape .pt-obra {
+  padding: 0;
+  font-size: var(--p-t-sm);
+  color: var(--p-error-content);
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------- groups and cards */
+
+/*
+ * `it`: `grid-area: content`, and nothing else — the gap between groups comes from the header's margins.
+ */
+.ct-groups {
+  grid-area: content;
+  min-width: 0;
+}
+
+/*
+ * The 24 semi-bold title. What is the GROUP header (the rule, the padding, the 48 gap) lives in the selector below, under `.ct-secao`.
+ */
+.ct-titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin: 0 0 var(--p-e-4);
+  font-size: 24px; /* `bds-typo fs-24 bold="semi-bold"` */
+  font-weight: var(--p-peso-forte); /* 600 = semi-bold */
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+/*
+ * `rt` + their sheet's `bb-color-surface` class: `padding: 8px 0 16px 0; margin-bottom: 24px` plus `border-bottom: 2px solid var(--color-surface-3)`.
+ */
+.ct-section .ct-titulo {
+  flex-grow: 0;
+  gap: 0;
+  margin-bottom: var(--p-e-6); /* 24px */
+  padding: var(--p-e-2) 0 var(--p-e-4); /* 8px acima, 16px abaixo */
+  border-bottom: 2px solid var(--surface-3);
+  line-height: 1;
+}
+
+/*
+ * The header's own `:not(:first-child) { margin-top: 48px }`: from the second group on, it breathes 48 before starting.
+ */
+.ct-section:not(:first-child) .ct-titulo {
+  margin-top: calc(var(--p-e-6) * 2); /* 48px; there's no 48 token */
+}
+
+/* `& > bds-typo { margin-right: 8px }` — the gap between the title and the icon. */
+.ct-info {
+  display: inline-flex;
+  margin-left: var(--p-e-2);
+  color: var(--ink-3);
+  cursor: help;
+}
+
+/* `ct` */
+.ct-cards {
+  display: flex;
+  gap: var(--p-e-4); /* 16px */
+  flex-wrap: wrap;
+}
+
+/*
+ * `ce` + `bds-paper`: FIXED width of 312, 16 padding, full row height, and the title underlines on hover.
+ */
+.ct-card {
+  width: 312px;
+  max-width: 100%;
+  display: flex;
+  align-items: stretch;
+  padding: var(--p-e-4); /* 16px */
+  border-radius: 16px; /* `bds-paper` */
+  background: var(--surface);
+  box-shadow: var(--p-sombra-1); /* elevation="static" */
+  text-decoration: none;
+  color: var(--ink);
+  cursor: pointer;
+  transition: box-shadow var(--p-dur-rapida) ease-in-out;
+}
+
+/*
+ * `onMouseEnter` swaps the elevation from `static` to `secondary`, and `ce` itself underlines the text.
+ */
+a.ct-card:hover {
+  box-shadow: var(--p-sombra-2);
+  text-decoration: underline;
+}
+
+/*
+ * The work-in-progress card uses the portal's `.pt-obra` for the muted look and the cursor, but the box stays the card's: without this, the portal menu item's padding (8/12) would beat the card's (16).
+ */
+.ct-card.pt-obra {
+  display: flex;
+  align-items: stretch;
+  padding: var(--p-e-4);
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/*
+ * `de`: 48 by 48, 8 radius, vertically centered in the card, with the `size="xx-large"` icon (36) inside.
+ */
+.ct-card-icon {
+  flex: none;
+  min-width: 48px;
+  height: 48px;
+  border-radius: var(--p-r-md); /* 8px */
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--p-marca-suave);
+  color: var(--p-marca);
+}
+
+/* `le` */
+.ct-card-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: var(--p-e-4); /* 16px */
+  min-width: 0;
+}
+
+/* `div.flex.row.justify-between`: the title on the left, the tag on the right. */
+.ct-card-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-e-2);
+}
+
+.ct-card-title b {
+  font-size: var(--p-t-lg); /* 16px — `bds-typo fs-16 bold` */
+  font-weight: var(--p-peso-forte);
+  line-height: 1.5;
+}
+
+/* The description: `bds-typo fs-14 bold="regular"`. */
+.ct-card-text > span {
+  font-size: var(--p-t-md); /* 14px */
+  font-weight: var(--p-peso-normal);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* The label for what would hide the card in the real world. Preview only. */
+.ct-card-text .ct-porque {
+  font-family: var(--p-fonte-mono);
+  font-size: var(--p-t-xs);
+  color: var(--ink-3);
+}
+
+/* ---------------------------------------------------------------- preview */
+
+.ct-previa {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--p-e-2);
+  padding: var(--p-e-3) var(--p-e-8);
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+  font-size: var(--p-t-md);
+  border-bottom: 1px solid var(--line);
+}
+
+.ct-previa a {
+  margin-left: auto;
+  color: inherit;
+}
+
+/*
+ * The error message that comes back from Server Actions (`?erro=`). It has no counterpart in the source: there the failure becomes a toast (`BlipToastService`), which only exists with JavaScript and disappears on its own.
+ */
+.ct-aviso {
+  margin: 0 0 var(--p-e-4);
+  padding: var(--p-e-3) var(--p-e-4);
+  border-radius: var(--p-r-md);
+  background: var(--p-error-background);
+  color: var(--p-error-content);
+  font-size: var(--p-t-md);
+}
+
+/*
+ * ==========================================================================
+ *    Contract members (/contrato/membros)
+ *
+ *    A different source sheet: this screen is the same fragment's `/panel` route, but built with the OLD blip-toolkit (the `bp-*` classes), not the panel's `bds-*`. The measurements below come from `static/css/main.7b59c603.chunk.css` (`.bp-card`, `.bp-table`, `.bp-btn`, `.BlipSearch`, `.BlipDropdownButton`) and from `main.e8593b01.chunk.js`'s `styled-components` (`da`, `_t`). This part's color mapping:
+ *      .bp-card background #fff / shadow rgba(181,205,211,.29) → var(--surface) / var(--p-sombra-2)
+ *      .bp-table header rule #dee8ec               → var(--line)
+ *      .bp-table odd row #fff / even #f5f8f9          → var(--surface) / var(--surface-2)
+ *      .bp-table marked row #d1e3fa                    → var(--p-marca-suave)
+ *      scrollbar #b9cbd3                          → var(--line-strong)
+ *      .BlipSearch line #94a3ab / focus #b3d4ff       → var(--line-strong) / var(--p-marca)
+ *      .bp-btn--bot #3f7de8                               → var(--p-marca)
+ *      .bp-btn--delete #ff4c4c                            → var(--p-erro-conteudo)
+ *      .bp-divider-h #c9dfe4                              → var(--line)
+ *    ==========================================================================
+ */
+
+/* `da`: a tela inteira. */
+.mb-tela {
+  width: 93%;
+  margin: 10px auto;
+}
+
+/*
+ * The source's header isn't the PAGE's: the fragment sends `setHeaderContent({ redirect: "/", text: "Membros do contrato {nome}" })` and the portal bar is what draws it. Without that channel in our bar, the same pair — the arrow and the phrase — stays at the top of the page.
+ */
+.mb-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.mb-cabecalho h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: var(--p-peso-forte);
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.mb-voltar {
+  display: inline-flex;
+  color: var(--ink);
+}
+
+/* `_t`: the frame wrapping the card, with the same fadeIn as the panel. */
+.mb-quadro {
+  padding: 2rem 0;
+  animation: ct-surge 0.5s ease-in 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mb-quadro {
+    animation: none;
+  }
+}
+
+/*
+ * `.bp-card`. The `--left-arrow` is the top-left corner's notch: a .46875rem square with two painted borders, rotated -45°.
+ */
+.mb-card {
+  position: relative;
+  margin-top: 0.9375rem; /* 15px */
+  padding: 2.5rem 3.75rem; /* 40px 60px */
+  background: var(--surface);
+  box-shadow: var(--p-sombra-2);
+}
+
+.mb-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 2.5rem;
+  margin-left: -0.46875rem;
+  width: 0;
+  height: 0;
+  box-sizing: border-box;
+  border-width: 0.46875rem;
+  border-style: solid;
+  border-color: var(--surface) var(--surface) transparent transparent;
+  transform: rotate(-45deg);
+  transform-origin: 0 0;
+}
+
+/*
+ * `new BlipTabs("tab-nav")` puts `.bp-tabs-container`: `thin solid #ccc` rule (→ `--line`) under the tabs; each `li` with `padding: 10px 20px`, `margin: 0 5px` and `bottom: -1px`, so the active mark covers the rule; 15px/600/1.5rem text in the inherited color. The active one gets `border-bottom: 4px` and the letter in #3f7de8 (→ `--p-marca`).
+ */
+.mb-abas-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: thin solid var(--line);
+}
+
+.mb-abas-nav li {
+  position: relative;
+  bottom: -1px;
+  margin: 0 5px;
+  padding: 10px 20px;
+  white-space: nowrap;
+}
+
+.mb-abas-nav li:first-child {
+  margin-left: 0;
+}
+
+.mb-abas-nav li:last-child {
+  margin-right: 0;
+}
+
+.mb-abas-nav button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5rem;
+  cursor: pointer;
+}
+
+.mb-abas-nav button:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+.mb-abas-nav .mb-tab-active {
+  border-bottom: 4px solid var(--p-marca);
+}
+
+.mb-abas-nav .mb-tab-active button {
+  color: var(--p-marca);
+}
+
+/*
+ * `.bp-tab-content`: `padding: 45px 10px 10px`, and a rule further down in the same sheet lowers the top to 20px.
+ */
+.mb-aba-conteudo {
+  padding: 20px 10px 10px;
+}
+
+/*
+ * `TenantMembers`: `flex flex-column items-end` — the search sits flush right and the table takes the full width.
+ */
+.mb-members {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* --------------------------------------------------------------- a busca */
+
+/*
+ * `.BlipSearch`: the field is born at ZERO width next to the magnifying glass and grows to 200px over half a second. There's no box or label — just the underline.
+ */
+.mb-search {
+  display: flex;
+  align-items: center;
+}
+
+.mb-search button {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.mb-search input {
+  width: 0;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  outline: none;
+  transition: width 0.5s;
+}
+
+.mb-search--open input {
+  width: 200px;
+}
+
+.mb-search input:focus {
+  border-bottom: 2px solid var(--p-marca);
+}
+
+/* -------------------------------------------------------------- a tabela */
+
+/*
+ * `.bp-table.bp-table--scroll-y`: the table becomes a flex column so the body scrolls on its own under a fixed header. That's why `thead` and `tbody` become blocks and each `tr` goes back to `display: table`.
+ */
+.mb-tabela {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  table-layout: fixed;
+  border-spacing: 0;
+  border: none;
+  text-align: left;
+  color: var(--ink);
+  cursor: default;
+}
+
+.mb-tabela thead {
+  flex: 0 0 auto;
+  display: block;
+  border-bottom: 0.125rem solid var(--line);
+}
+
+/*
+ * The scrollbar width is discounted, so the header doesn't drift out of line with the cells when the body scrolls.
+ */
+.mb-tabela thead tr {
+  width: calc(100% - 1.0625rem);
+  margin-left: auto;
+  margin-right: auto;
+  background: var(--surface);
+}
+
+/*
+ * Our `base.css`'s `th` is a label: mono, uppercase and letter-spaced. Not here: in the source the header uses the same letter as the body, just heavier.
+ */
+.mb-tabela thead th {
+  height: 3.75rem; /* 60px */
+  padding: 1.25rem 0.625rem;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  line-height: 160%;
+  font-weight: var(--p-peso-forte);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
+}
+
+/* `bodyHeight: "400px"` — the list scrolls inside the card instead of stretching it. */
+.mb-tabela tbody {
+  flex: 1 1 auto;
+  display: block;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-color: var(--line-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.mb-tabela tbody::-webkit-scrollbar {
+  width: 0.375rem;
+  height: 0.375rem;
+}
+
+.mb-tabela tbody::-webkit-scrollbar-thumb {
+  background-color: var(--line-strong);
+  border-radius: 1000px;
+}
+
+.mb-tabela tbody tr,
+.mb-tabela thead tr {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.mb-tabela tbody td {
+  height: 2.9375rem; /* 47px */
+  padding: 0.625rem;
+  border: none;
+  font-size: 0.875rem;
+  line-height: 160%;
+  font-weight: var(--p-peso-normal);
+  color: var(--ink);
+}
+
+.mb-tabela thead th:first-of-type,
+.mb-tabela tbody td:first-of-type {
+  padding-left: 1.5625rem; /* 25px */
+}
+
+.mb-tabela thead th:last-of-type,
+.mb-tabela tbody td:last-of-type {
+  padding-right: 1.5625rem;
+}
+
+/*
+ * `tr > * { white-space: nowrap; text-overflow: ellipsis; padding-right: 30px }` — the cell NEVER wraps: it truncates with an ellipsis and the full value goes in the `title`. That's what keeps the 47px height stable with a long email.
+ */
+.mb-tabela tr > * {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-right: 30px;
+}
+
+.mb-tabela tbody tr:nth-child(odd) {
+  background: var(--surface);
+}
+
+.mb-tabela tbody tr:nth-child(even) {
+  background: var(--surface-2);
+}
+
+.mb-tabela tbody tr.mb-marcada {
+  background: var(--p-marca-suave);
+}
+
+/*
+ * Their tachyons `w4`. The actions column (`w5` = 16rem) can't clip: the menus escape from it. It fits "N selecionado(s)" — the `selected` key lives in the table's own dictionary (`j.pt`) — and the two 24px triggers.
+ */
+.mb-col-marca {
+  width: 8rem;
+}
+
+/*
+ * With the table in front to beat the `tr > *` above, which clips with `overflow: hidden` — it's their `overflow: inherit !important`, without the `!important`.
+ */
+.mb-tabela .mb-col-actions {
+  width: 16rem;
+  overflow: visible;
+}
+
+/*
+ * No rows to show: `tr.bp-bg-offwhite.tc > td[colSpan] > p.empty-message.pa5` — a `#dee8ec` (→ `--surface-3`) band with the centered phrase and 4rem of breathing room.
+ */
+.mb-tabela tbody tr.mb-vazia {
+  background: var(--surface-3);
+}
+
+.mb-tabela tbody tr.mb-vazia td {
+  height: auto;
+  padding: 0;
+  text-align: center;
+  white-space: normal;
+}
+
+.mb-vazia p {
+  margin: 0;
+  padding: 4rem;
+}
+
+/*
+ * The sort arrow only stays solid on the active column; on the others it exists faded and appears on hover (`.sortArrow { opacity: 0 }`).
+ */
+.mb-ordenar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--p-e-1);
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.mb-ordenar:hover {
+  opacity: 0.7;
+}
+
+.mb-seta {
+  opacity: 0;
+  transition: all 0.2s ease-in-out;
+}
+
+.mb-ordenar:hover .mb-seta,
+.mb-seta--firme {
+  opacity: 1;
+}
+
+.mb-seta--sobe {
+  transform: rotate(180deg);
+}
+
+/* -------------------------------------------------- the selection and the menus */
+
+/*
+ * `.selectedItems.flex.justify-around.items-center` — disappears when nothing is marked. Goes INVISIBLE instead of vanishing: the column already has a fixed width, and `display: none` would make the header jump on the first selection.
+ */
+.mb-selection {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.mb-selection.mb-oculto {
+  visibility: hidden;
+}
+
+/*
+ * Only the counter: the menu's paragraphs live inside the same block and need to wrap.
+ */
+.mb-selection > p {
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* `.BlipDropdownButton.relative.mr2` */
+.mb-menu {
+  position: relative;
+  margin-right: 0.5rem;
+}
+
+/* The overlay that closes the menu on a click anywhere (`div.overlay.z-1`). */
+.mb-capa {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+/*
+ * `div.bp-card.bp-card--right-arrow.pa0.z-2.absolute.w6` from `BlipDropdownButton` (`Kt`): 24rem, `right: -1.5rem` and `padding: 15px` — `.BlipDropdownButton div.bp-card--right-arrow` beats the tag's own `pa0` —, with `margin-top: .9375rem` and the shadow `0 4px 29px 6px rgba(181,205,211,.29)` (→ `--p-sombra-2`) from `.bp-card`. The card lives inside the `th`, so it inherits its letter (.875rem/160%, weight 600): no weight of its own here.
+ */
+.mb-menu-card {
+  position: absolute;
+  right: -1.5rem;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 24rem;
+  max-width: 80vw;
+  margin-top: 0.9375rem;
+  padding: 15px;
+  background: var(--surface);
+  box-shadow: var(--p-sombra-2);
+  white-space: normal;
+  text-align: left;
+  cursor: default;
+}
+
+/*
+ * `.bp-card.bp-card--right-arrow:after`: the same tip as the screen's card, now 2.5rem from the RIGHT (`margin-right: -.46875rem`).
+ */
+.mb-menu-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 2.5rem;
+  margin-right: -0.46875rem;
+  width: 0;
+  height: 0;
+  box-sizing: border-box;
+  border-width: 0.46875rem;
+  border-style: solid;
+  border-color: var(--surface) var(--surface) transparent transparent;
+  transform: rotate(-45deg);
+  transform-origin: 0 0;
+}
+
+.mb-menu-corpo {
+  padding: 1rem; /* `pa3` */
+}
+
+.mb-menu-corpo p {
+  margin: 0;
+}
+
+/*
+ * The count of marked items: `span.bp-c-blip-dark` (#0747a6 → `--p-marca`) for Edit and `span.bp-c-delete` (#ff4c4c → `--p-erro-conteudo`) for Delete.
+ */
+.mb-numero {
+  color: var(--p-marca);
+}
+
+.mb-numero--perigo {
+  color: var(--p-error-content);
+}
+
+/* `.bp-divider-h` */
+.mb-regua {
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+}
+
+/* `pa2 flex flex-row-reverse`: the first button written ends up on the RIGHT. */
+.mb-menu-rodape {
+  display: flex;
+  flex-direction: row-reverse;
+  padding: 0.5rem;
+}
+
+/* O `BlipSelect` do blip-toolkit ANTIGO (chunk 107): o `Zt` do fragmento monta
+   `new BlipSelect(props)` dentro de um `div.pt2`. */
+.mb-escolha {
+  padding-top: 0.5rem; /* `pt2` */
+}
+
+.mb-escolha-caixa {
+  position: relative;
+}
+
+/* `.bp-input-wrapper.blip-select`: 2.9375rem (47px), borda 1px #c9dfe4
+   (→ `--line-strong`), raio .5rem, `padding: .3125rem .625rem`, fundo branco.
+   Aberta ganha `bp-input-wrapper--focus`: borda e anel de 3px em #b3d4ff
+   (→ `--p-marca-linha`). */
+.mb-escolha-campo {
+  position: relative;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 2.9375rem;
+  margin: 0;
+  padding: 0.3125rem 0.625rem;
+  border: 0.0625rem solid var(--line-strong);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mb-escolha-campo--aberto {
+  border-color: var(--p-marca-linha);
+  box-shadow: 0 0 0 3px var(--p-marca-linha);
+}
+
+.mb-escolha-campo:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+/* `label.bp-label.bp-c-cloud.bp-fw-bold`: .75rem, altura e linha de 1rem, peso
+   600, #8ca0b3 (→ `--ink-3`); ao abrir, o select troca a cor por
+   `bp-c-blip-light` (→ `--p-marca`). */
+.mb-escolha-rotulo {
+  display: block;
+  width: calc(100% - 20px);
+  height: 1rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.mb-escolha-campo--aberto .mb-escolha-rotulo {
+  color: var(--p-marca);
+}
+
+/*
+ * `input.blip-select__input.bp-c-rooftop`: .875rem, 1.1875rem height, `margin-top: .125rem` and 20px free for the arrow; the `<input>` doesn't inherit the `th`'s weight. Placeholder #8ca0b3.
+ */
+.mb-choice-value {
+  display: block;
+  height: 1.1875rem;
+  margin-top: 0.125rem;
+  padding-right: 20px;
+  overflow: hidden;
+  font-size: 0.875rem;
+  line-height: 1.1875rem;
+  font-weight: var(--p-peso-normal);
+  color: var(--ink-2);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mb-choice-empty {
+  color: var(--ink-3);
+}
+
+/* `.blip-select__arrow-down`: 20px, a 10px da direita, gira 180° aberta. */
+.mb-escolha-seta {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  margin-top: -10px;
+  color: var(--ink-2);
+  transition: transform 0.3s;
+}
+
+.mb-escolha-campo--aberto .mb-escolha-seta {
+  transform: rotate(180deg);
+}
+
+/*
+ * `.blip-select__options`: `top: 108%`, the field's width, white background, 1px #c9dfe4 border, .5rem radius, `0 .125rem .75rem 0 rgba(0,0,0,.1)` shadow; the `ul` scrolls starting at 312px.
+ */
+.mb-choice-options {
+  position: absolute;
+  top: 108%;
+  left: 0;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 100%;
+  max-height: 312px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  border: 0.0625rem solid var(--line-strong);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  box-shadow: 0 0.125rem 0.75rem 0 color-mix(in srgb, var(--ink) 10%, transparent);
+  outline: none;
+  scrollbar-color: var(--line-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.mb-choice-options:focus-visible {
+  box-shadow:
+    0 0.125rem 0.75rem 0 color-mix(in srgb, var(--ink) 10%, transparent),
+    0 0 0 2px var(--p-foco);
+}
+
+/*
+ * `li.blip-select__option`: `padding: .5rem 1.0625rem`, #52636c (→ `--ink-2`); hover, focus and selected in #f5f8f9 (→ `--surface-2`). With only the label in the option, the bold and the blue (`:not(:only-child)`) don't apply.
+ */
+.mb-choice-option {
+  padding: 0.5rem 1.0625rem;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.mb-choice-option--active,
+.mb-choice-option[aria-selected='true'] {
+  background: var(--surface-2);
+}
+
+/*
+ * Their table's `Checkbox`: `label.bp-input--check--wrapper` with the `input` hidden and a `div.bp-input--checkbox` 1.0625rem, .25rem radius, 1px #3f7de8 border (→ `--p-marca`) and a transparent "✓"; checked, brand background and the "✓" in white (→ `--p-marca-conteudo`), with `transition: all .5s`.
+ */
+.mb-marca {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  cursor: default;
+}
+
+.mb-marca input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+
+.mb-marca span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 1.0625rem;
+  height: 1.0625rem;
+  margin-right: 0.5rem;
+  border: 0.0625rem solid var(--p-marca);
+  border-radius: 0.25rem;
+  color: transparent;
+  user-select: none;
+  transition: all 0.5s;
+}
+
+.mb-marca input:checked + span {
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+}
+
+.mb-marca input:focus-visible + span {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+/*
+ * `mt3` — the description of the chosen role. Keeps its height even when empty, so the card doesn't jump when the choice changes (in the source, a `<br/>` does this).
+ */
+.mb-menu-corpo .mb-description {
+  min-height: 1.4em;
+  margin-top: 1rem;
+  font-size: var(--p-t-md);
+  color: var(--ink-2);
+}
+
+/* `pt2 bp-fs-7` */
+.mb-menu-corpo .mb-aviso {
+  padding-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+/* ------------------------------------------------------------- the buttons */
+
+/* `.bp-btn` */
+.mb-btn {
+  box-sizing: border-box;
+  display: inline-block;
+  min-width: 10rem;
+  height: 2.625rem;
+  margin: 0;
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: 3px;
+  line-height: 2.375rem;
+  font-size: 0.875rem;
+  font-weight: var(--p-peso-forte);
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.mb-btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/*
+ * `.bp-btn--text-only`: no background and no minimum width. It's the shape of the header's two triggers, which in the source are icon-only (`edit` and `trash`) — without those two drawings in our set, the word stays, like "Copiar" on the summary card.
+ */
+.mb-btn--texto {
+  min-width: 0;
+  height: auto;
+  padding: 0.5rem 0.625rem;
+  line-height: 1.125rem;
+  background: transparent;
+  color: var(--p-marca);
+}
+
+/*
+ * `.bp-btn--text-only:disabled`: no opacity — the letter goes to #c9dfe4, the rule's color (→ `--line-strong`). Beats the colors below by specificity.
+ */
+.mb-btn--texto:disabled {
+  opacity: 1;
+  color: var(--line-strong);
+}
+
+/* The selection's two triggers: icon only, in the `desk` color (→ `--ink-2`). */
+.mb-btn--icone {
+  display: inline-flex;
+  color: var(--ink-2);
+}
+
+/*
+ * The three at the menus' footer. In the source all of them also carry `bp-btn--text-only` (`bp-btn bp-btn--bot bp-btn--text-only`): the color goes to the LETTER, and none of them has a background. That's why they only paint the text, and come after `--texto` to beat its color.
+ */
+
+/* `.bp-btn--bot.bp-btn--text-only` */
+.mb-btn--marca {
+  color: var(--p-marca);
+}
+
+/* `.bp-btn--delete.bp-btn--text-only` */
+.mb-btn--perigo {
+  color: var(--p-error-content);
+}
+
+/* `.bp-btn--silver.bp-btn--text-only` */
+.mb-btn--calado {
+  color: var(--ink-2);
+}
+
+/* `.bp-btn--blip-dark`: the only FULL button on the screen, dark brand background. */
+.mb-btn--escuro {
+  background: var(--p-marca);
+  color: var(--surface);
+}
+
+/*
+ * `bp-btn--small mt20` below the table, on the right: `min-width: 120px`, `margin-top: 20px`. The button is the table's sibling inside the card, which isn't flex: what pushes it to the right is a block's `margin-left: auto`.
+ */
+.mb-convidar {
+  display: block;
+  min-width: 120px;
+  margin: 20px 0 0 auto;
+}
+
+/* ---------------------------------------------------------- o convite */
+
+/*
+ * Their shell's `#invite-answer-modal` (template 632 of `portal.js`), built with the NEW blip-ds. The utilities come from `portal.css` (there `mb4` is 1.5rem and `ph4` is 1.25rem — not the stock tachyons); the components, from the Stencil sheets of `bds-input-chips`, `bds-select`, `bds-select-option`, `bds-chip-clickable`, `bds-tooltip`, `bds-button` and `bds-icon`. The mapping:
+ *      bp-bg-white #fff / z-depth-3 0 2px 16px #c6d1de      → var(--surface) / var(--p-sombra-2)
+ *      .modal-overlay rgba(0,0,0,.6)                        → var(--ink) at 60%
+ *      .modal h1 #282828 · bp-c-rooftop #738192 · bp-c-cloud #8ca0b3
+ *                                                           → var(--ink) · var(--ink-2) · var(--ink-3)
+ *      bp-c-bot #3f7de8 · --color-primary #1e6bf1           → var(--p-marca)
+ *      --color-surface-1 #F6F6F6 · --color-surface-2 #E0E0E0 → var(--ground) · var(--surface-2)
+ *      --color-border-1 #B1B1B1                             → var(--p-linha-forte)
+ *      --color-info #80e3eb (focused field ring)          → var(--p-marca-linha)
+ *      --color-delete #e60f0f · --color-error #f99f9f       → var(--p-erro-conteudo) · var(--p-erro-linha)
+ *      tooltip --color-content-default #454545              → var(--ink), letter var(--surface)
+ *      .warning-icon #f6a721                                → var(--p-alerta-conteudo)
+ *      guest pink #F66689 · member amber #F9B42F · admin cyan #2CC3D5
+ *                                                           → var(--p-grafico-4) · var(--p-grafico-3) · var(--p-grafico-2)
+ */
+
+/*
+ * `.modal-dialog.modal-sm` under `#invite-answer-modal`: `width: max-content`, `min-height: 450px`, 8px radius and content centered vertically; `ph4` on the sides and `pb6` (5rem) below. `mh2` and `layout-center-y` are the screen's center, which the modal `<dialog>` already gives.
+ */
+.mb-modal {
+  box-sizing: border-box;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  min-height: 450px;
+  padding: 0 1.25rem 5rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--p-sombra-2);
+  overflow: visible;
+}
+
+.mb-modal[open] {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mb-modal::backdrop {
+  background: color-mix(in srgb, var(--ink) 60%, transparent);
+}
+
+/*
+ * `div.flex.mb4`: the illustration (`img.mr4`) and the titles flush below, with `max-width: 380px`.
+ */
+.mb-invitation-top {
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+.mb-invitation-titles {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  max-width: 380px;
+}
+
+/*
+ * `h1.bp-fs-4.bp-fw-extra-bold.mb3`. The color is `.modal h1`'s, which beats the tag's own `bp-c-desk`.
+ */
+.mb-invitation-titles h1 {
+  margin: 0 0 0.625rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+/* `span.bp-c-rooftop.bp-fs-6` */
+.mb-invitation-titles span {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+/* `div.flex`: emails and permission side by side. */
+.mb-invitation-fields {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* `bds-input-chips.input-chips-responsive`: `min-width: 400px` e cresce. */
+.mb-chips-block {
+  flex: 1 1 auto;
+  min-width: 400px;
+}
+
+/*
+ * blip-ds's `.input.input--label`: the label lives INSIDE the border. `padding: 7px 4px 8px 12px`, surface-1 background, 1px border, 8px radius. The cursor paints the border primary; focus (`--pressed`) adds a 2px ring.
+ */
+.mb-campo {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 7px 4px 8px 12px;
+  border: 1px solid var(--p-linha-forte);
+  border-radius: 8px;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: text;
+}
+
+.mb-campo:hover {
+  border-color: var(--p-marca);
+}
+
+.mb-campo:focus-within,
+.mb-campo--aberto {
+  border-color: var(--p-marca);
+  box-shadow: 0 0 0 2px var(--p-marca-linha);
+  outline: none;
+}
+
+.mb-field--error,
+.mb-field--error:hover,
+.mb-field--error:focus-within {
+  border-color: var(--p-error-content);
+}
+
+.mb-field--error:focus-within {
+  box-shadow: 0 0 0 2px var(--p-error-line);
+}
+
+/* `input__container__label`: `bds-typo fs-12 bold`, primary on focus. */
+.mb-campo-rotulo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 150%;
+  color: var(--ink);
+}
+
+.mb-campo:focus-within .mb-campo-rotulo,
+.mb-campo--aberto .mb-campo-rotulo {
+  color: var(--p-marca);
+}
+
+.mb-field--error .mb-campo-rotulo,
+.mb-field--error:focus-within .mb-campo-rotulo {
+  color: var(--p-error-content);
+}
+
+/* `input__container__wrapper__chips`: passa de 80px, rola (medido na tela). */
+.mb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+/* `input__container__text`: sem borda nem fundo, .875rem/150%. */
+.mb-chips input {
+  flex: 1 0 8ch;
+  min-width: 8ch;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 150%;
+  outline: none;
+}
+
+/* `bds-chip-clickable color="outline"`: 32px, raio 16px, `padding: 2px 4px`,
+   margem `2px 4px 2px 0`. */
+.mb-chip {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  margin: 2px 4px 2px 0;
+  padding: 2px 4px;
+  border: 1px solid var(--p-linha-forte);
+  border-radius: 16px;
+  background: var(--ground);
+  color: var(--ink);
+}
+
+/* `chip_clickable--text`: `margin: 0 8px`, `bds-typo fs-12 bold`, sem quebra. */
+.mb-chip-texto {
+  margin: 0 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+/* `chip_clickable--close`: solid `error` x-small (16px) at 50%. */
+.mb-chip-fechar {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 4px 0 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.mb-chip-fechar:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid var(--p-foco);
+}
+
+/*
+ * `input__message--danger`: `margin: 3.7px 2.5px`, x-small `error` icon with `padding: 2px 4px 0 0`, fs-12 text.
+ */
+.mb-field-error {
+  display: flex;
+  align-items: flex-start;
+  min-height: 20px;
+  margin: 3.7px 2.5px;
+  font-size: 0.75rem;
+  line-height: 150%;
+  color: var(--p-error-content);
+}
+
+.mb-field-error svg {
+  flex: none;
+  padding: 2px 4px 0 0;
+}
+
+/*
+ * `bds-select`, with `margin-left: 8px` in this modal. The host is `display: block` inside a flex, so its width is its native `<input>`'s (no `size`, about 20 letters) — 12rem.
+ */
+.mb-select {
+  position: relative;
+  flex: 0 0 12rem;
+  margin-left: 8px;
+}
+
+/*
+ * The select's `.input--label`: `padding: 7px 4px 7px 12px`; the arrow sits on the right, midway between the two lines.
+ */
+.mb-select-campo {
+  flex-direction: row;
+  align-items: center;
+  padding-bottom: 7px;
+  cursor: pointer;
+}
+
+.mb-select-corpo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mb-select-value {
+  overflow: hidden;
+  font-size: 0.875rem;
+  line-height: 150%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* placeholder e `select__icon`: `--color-content-ghost`; `arrow-down` small (20px). */
+.mb-select-empty,
+.mb-select-campo svg {
+  flex: none;
+  color: var(--ink-3);
+}
+
+/* `select__options`: 4px abaixo do campo, raio 8px, `max-height: 200px`, fundo
+   surface-2 — e 140% da largura do campo, medido na tela. */
+.mb-options {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 140%;
+  max-height: 200px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  border-radius: 8px;
+  background: var(--surface-2);
+  box-shadow: var(--p-sombra-2);
+  outline: none;
+}
+
+.mb-options:focus-visible {
+  box-shadow:
+    var(--p-sombra-2),
+    0 0 0 2px var(--p-foco);
+}
+
+/*
+ * `bds-select-option`: `padding: 8px 8px 8px 12px`, surface-1 background, surface-2 on hover and when selected. `slot-align="flex-start"` raises the icon (small, 20px, `margin-right: 10px`).
+ */
+.mb-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 8px 8px 12px;
+  background: var(--ground);
+  cursor: pointer;
+  user-select: none;
+}
+
+.mb-option--active,
+.mb-option[aria-selected='true'] {
+  background: var(--surface-2);
+}
+
+.mb-option-icon {
+  flex: none;
+  align-self: flex-start;
+  margin-right: 10px;
+}
+
+.mb-option-text {
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * `select-option__container--value`: `bds-typo fs-16 semi-bold`, primary when selected.
+ */
+.mb-option-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 150%;
+  color: var(--ink);
+}
+
+.mb-option[aria-selected='true'] .mb-option-title {
+  color: var(--p-marca);
+}
+
+/* `span.bp-c-cloud.bp-fs-7` */
+.mb-option-description {
+  font-size: 0.75rem;
+  line-height: 150%;
+  color: var(--ink-3);
+}
+
+.mb-faixa--ver {
+  color: var(--p-grafico-4);
+}
+
+.mb-faixa--editar {
+  color: var(--p-grafico-3);
+}
+
+.mb-faixa--admin {
+  color: var(--p-grafico-2);
+}
+
+/* `div.flex.w-70.mt2.mb3.pt2`: `warning` xxx-large (40px) e
+   `span.bp-c-rooftop.bp-fs-7.ml2`. */
+.mb-invitation-notice {
+  display: flex;
+  width: 70%;
+  margin: 0.3125rem 0 0.625rem;
+  padding-top: 0.3125rem;
+}
+
+.mb-invitation-notice svg {
+  flex: none;
+  color: var(--p-alerta-conteudo);
+}
+
+.mb-invitation-notice span {
+  margin-left: 0.3125rem;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+/* The "clique aqui" and "Copiar link" `<a>`: just the letter, in link color. */
+.mb-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--p-marca);
+  font: inherit;
+  cursor: pointer;
+}
+
+.mb-link:hover {
+  text-decoration: underline;
+}
+
+.mb-link:focus-visible,
+.mb-invitation-template:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+/* `div.flex.items-center.justify-between.w-70.mt2.ml2` */
+.mb-invitation-import {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 70%;
+  margin: 0.3125rem 0 0 0.3125rem;
+}
+
+.mb-invitation-import > div {
+  display: flex;
+  align-items: center;
+}
+
+/* `p.bp-fs-6.bp-c-rooftop.mb0.mr4` */
+.mb-invitation-import p {
+  margin: 0 1.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+/* `p.bp-c-bot.underline.bp-fs-8.mb0.ml2`: 10px, sublinhado. */
+.mb-invitation-template {
+  margin-left: 0.3125rem;
+  font-size: 0.625rem;
+  color: var(--p-marca);
+  text-decoration: underline;
+}
+
+/* `div.flex.justify-end.mt5.ph1`; o "Convidar" leva `ml3`. */
+.mb-invitation-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  margin-top: 2.5rem;
+  padding: 0 0.15625rem;
+}
+
+/*
+ * `bds-button`: medium is 40px and `padding: 9px 16px`, short 32px and `padding: 5px 16px`; 8px radius, `fs-14 bold` text, 24px icon with 4px gap. Hover darkens 8% on top (`--color-hover`); locked, 50%.
+ */
+.mb-botao {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  margin: 0;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+.mb-botao:hover:not(:disabled) {
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--ink) 8%, transparent),
+    color-mix(in srgb, var(--ink) 8%, transparent)
+  );
+}
+
+.mb-botao:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+.mb-botao:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* `variant="secondary"`: sem fundo. */
+.mb-botao--secundario {
+  background: transparent;
+  color: var(--ink);
+}
+
+/* `variant="ghost"`: sem fundo, borda de 1px. */
+.mb-botao--fantasma {
+  border: 1px solid var(--p-linha-forte);
+  background: transparent;
+  color: var(--ink);
+}
+
+.mb-botao--curto {
+  height: 32px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.mb-botao svg {
+  margin-right: 4px;
+}
+
+/* O `holdOn` deles: `p.tc.bp-fs-5.b`, no meio do modal. */
+.mb-invitation-wait {
+  margin: 0;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+/*
+ * The post-submission page — the only piece that isn't theirs (see `convidar.tsx`). Follows the `pages.success` shape: everything centered, with `mt4` (1.5rem) between the parts.
+ */
+.mb-invitation-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  min-width: 400px;
+}
+
+.mb-invitation-done h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.mb-invitation-done > p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+.mb-links,
+.mb-errors {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mb-links li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.875rem;
+}
+
+.mb-errors {
+  margin-top: 0.3125rem;
+}
+
+.mb-errors li {
+  font-size: 0.75rem;
+  color: var(--p-error-content);
+}
+
+/* Their `min-width: 400px` doesn't fit on a phone: the fields stack. */
+@media (max-width: 720px) {
+  .mb-invitation-fields {
+    flex-direction: column;
+  }
+
+  .mb-chips-block,
+  .mb-invitation-done {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .mb-select {
+    flex: none;
+    width: 100%;
+    margin: 8px 0 0;
+  }
+
+  .mb-invitation-notice,
+  .mb-invitation-import {
+    width: 100%;
+  }
+}
+
+/*
+ * The 60 padding and the 8rem/16rem columns don't fit on a phone: the card shrinks and the two service columns take the minimum.
+ */
+@media (max-width: 720px) {
+  .mb-card {
+    padding: var(--p-e-6) var(--p-e-4);
+  }
+
+  .mb-col-marca {
+    width: 3rem;
+  }
+
+  .mb-tabela .mb-col-actions {
+    width: 10rem;
+  }
+}

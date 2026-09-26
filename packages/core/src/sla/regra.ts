@@ -1,10 +1,5 @@
 /**
- * SLA — §11 da spec de métricas.
- *
- * Uma regra de SLA tem alvo (tempo até 1ª resposta, tempo de resposta, ou tempo
- * até encerramento), prazo, escopo e duas ações: uma no limiar de alerta, outra
- * no estouro. O relógio respeita o horário de atendimento da fila e **pausa**
- * enquanto a conversa aguarda o cliente.
+ * SLA from metrics spec §11. A rule has a target (time to first response, response time, or time to closure), deadline, scope, and two actions: one at warning threshold and another on breach. The clock follows the queue business hours and pauses while the conversation awaits the customer.
  */
 
 import {
@@ -12,12 +7,13 @@ import {
   proximaAbertura,
   segundosUteisEntre,
   type Espera,
-  type HorarioAtendimento,
+  type HourAttendance,
 } from './expediente.js';
 
 export type AlvoSla = 'primeira_resposta' | 'tempo_resposta' | 'encerramento';
-export type EstadoSla = 'dentro' | 'alerta' | 'estourado';
-export type EscopoSla = 'fila' | 'prioridade' | 'etiqueta';
+/** The approved SLA contract keeps these literal values in Portuguese. */
+export type StateSla = 'dentro' | 'alerta' | 'estourado';
+export type ScopeSla = 'fila' | 'prioridade' | 'etiqueta';
 
 export interface RegraSla {
   id: string;
@@ -26,55 +22,50 @@ export interface RegraSla {
   prazoSeg: number;
   /** Limiar de alerta, em segundos decorridos. `null` desliga o alerta. */
   alertaSeg?: number | null;
-  escopoTipo?: EscopoSla;
-  escopoId?: string | null;
-  ativa?: boolean;
+  scopeType?: ScopeSla;
+  scopeId?: string | null;
+  active?: boolean;
 }
 
-export interface EntradaSla {
+export interface InboundSla {
   regra: Pick<RegraSla, 'prazoSeg' | 'alertaSeg'>;
-  /** Quando o relógio começou a valer (criação, atribuição ou última entrada do cliente). */
+  /** When the clock became applicable: creation, assignment, or latest inbound customer message. */
   inicio: Date;
-  /** Instante da avaliação. */
+
   agora: Date;
   /** `null`/ausente = atendimento ininterrupto. */
-  horario?: HorarioAtendimento | null;
-  /** Períodos em que a conversa aguardava o cliente. Pausam o relógio. */
+  horario?: HourAttendance | null;
+  /** Periods awaiting the customer pause the clock. */
   esperas?: readonly Espera[];
   /** Quando o alvo foi cumprido (respondeu, encerrou). Congela o decorrido. */
   cumpridoEm?: Date | null;
 }
 
 export interface ResultadoSla {
-  estado: EstadoSla;
+  state: StateSla;
   cumprido: boolean;
-  /** Tempo útil já gasto, em segundos. */
+  /** Business time already spent, in seconds. */
   decorridoSeg: number;
-  /** Quanto ainda cabe no prazo. Zero quando estourou. */
+  /** Time left until deadline, zero after breach. */
   restanteSeg: number;
   /** Instante absoluto do estouro. `null` quando indefinido (ver abaixo). */
   prazoEm: Date | null;
-  /** Instante absoluto do alerta. `null` sem limiar de alerta ou quando indefinido. */
+  /** Absolute warning instant; null without a threshold or when undefined. */
   alertaEm: Date | null;
-  /** Quando o relógio de fato começou a correr — a abertura seguinte, se chegou fora do expediente. */
+  /** When the clock actually began running: the next opening if arrival was outside business hours. */
   inicioEfetivo: Date | null;
 }
 
 /**
- * Estado e prazo de um SLA.
- *
- * `prazoEm` sai `null` quando o instante do estouro é indefinido: expediente sem
- * nenhuma faixa, prazo além do horizonte de varredura, ou espera ainda aberta —
- * enquanto a conversa aguarda o cliente, não há data de estouro a prometer. O
- * `estado` continua sendo calculado pelo decorrido, que é o que a tela mostra.
+ * SLA state and deadline. `prazoEm` is null when breach time is undefined: the schedule has no open interval, the deadline exceeds the scan horizon, or a wait is still open. While awaiting the customer there is no breach date to promise. `estado` still follows elapsed business time, which the UI displays.
  */
-export function avaliarSla(entrada: EntradaSla): ResultadoSla {
-  const { regra, inicio, agora, horario, esperas } = entrada;
-  const fimDaContagem = entrada.cumpridoEm ?? agora;
+export function avaliarSla(inbound: InboundSla): ResultadoSla {
+  const { regra, inicio, agora, horario, esperas } = inbound;
+  const countEnd = inbound.cumpridoEm ?? agora;
 
   const decorridoSeg =
-    fimDaContagem.getTime() > inicio.getTime()
-      ? segundosUteisEntre(inicio, fimDaContagem, horario, esperas)
+    countEnd.getTime() > inicio.getTime()
+      ? segundosUteisEntre(inicio, countEnd, horario, esperas)
       : 0;
 
   const prazoEm = avancarNoExpediente(inicio, regra.prazoSeg, horario, esperas);
@@ -83,13 +74,13 @@ export function avaliarSla(entrada: EntradaSla): ResultadoSla {
       ? avancarNoExpediente(inicio, regra.alertaSeg, horario, esperas)
       : null;
 
-  let estado: EstadoSla = 'dentro';
-  if (decorridoSeg >= regra.prazoSeg) estado = 'estourado';
-  else if (typeof regra.alertaSeg === 'number' && decorridoSeg >= regra.alertaSeg) estado = 'alerta';
+  let state: StateSla = 'dentro';
+  if (decorridoSeg >= regra.prazoSeg) state = 'estourado';
+  else if (typeof regra.alertaSeg === 'number' && decorridoSeg >= regra.alertaSeg) state = 'alerta';
 
   return {
-    estado,
-    cumprido: entrada.cumpridoEm != null,
+    state,
+    cumprido: inbound.cumpridoEm != null,
     decorridoSeg,
     restanteSeg: Math.max(0, regra.prazoSeg - decorridoSeg),
     prazoEm,
@@ -98,23 +89,18 @@ export function avaliarSla(entrada: EntradaSla): ResultadoSla {
   };
 }
 
-/** Marcos mínimos para escolher o início do relógio conforme o alvo. */
+
 export interface MarcosSla {
   criadaEm: Date | null;
   atribuidaEm: Date | null;
-  primeiraRespostaEm: Date | null;
+  firstResponseIn: Date | null;
   encerradaEm: Date | null;
-  /** Última mensagem do cliente ainda sem resposta — início do alvo `tempo_resposta`. */
+  /** Most recent unanswered customer message, the start for `tempo_resposta`. */
   aguardandoRespostaDesde?: Date | null;
 }
 
 /**
- * De onde o relógio parte, por alvo.
- *
- * - `primeira_resposta`: da atribuição, para bater com a métrica de §2; sem
- *   atribuição, da criação — conversa parada na fila também consome SLA.
- * - `tempo_resposta`: da última mensagem do cliente ainda sem resposta.
- * - `encerramento`: da criação.
+ * Clock start by target: `primeira_resposta` starts at assignment to match §2, or creation when unassigned so a queued conversation still consumes SLA; `tempo_resposta` starts at the latest unanswered customer message; `encerramento` starts at creation.
  */
 export function inicioDoAlvo(alvo: AlvoSla, marcos: MarcosSla): Date | null {
   switch (alvo) {
@@ -129,11 +115,11 @@ export function inicioDoAlvo(alvo: AlvoSla, marcos: MarcosSla): Date | null {
   }
 }
 
-/** Quando o alvo é considerado cumprido. */
-export function cumprimentoDoAlvo(alvo: AlvoSla, marcos: MarcosSla): Date | null {
+
+export function targetFulfillment(alvo: AlvoSla, marcos: MarcosSla): Date | null {
   switch (alvo) {
     case 'primeira_resposta':
-      return marcos.primeiraRespostaEm;
+      return marcos.firstResponseIn;
     case 'encerramento':
       return marcos.encerradaEm;
     case 'tempo_resposta':

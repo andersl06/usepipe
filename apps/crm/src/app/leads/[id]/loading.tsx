@@ -1,16 +1,16 @@
-import { AvisoDeCarregamento, EsqueletoDeCampos } from '../../../componentes/esqueleto';
+import { LoadingNotice, EsqueletoDeCampos } from '../../../components/esqueleto';
 
 /**
- * O esqueleto da ficha, na mesma grade de duas colunas da tela pronta: a lateral
- * estreita com os campos, a principal com o painel do score. Sem isso a ficha
- * abre em uma coluna e reorganiza sozinha meio segundo depois.
+ * The record's skeleton, in the same two-column grid as the finished screen: the
+ * narrow sidebar with the fields, the main area with the score panel. Without this
+ * the record opens in a single column and reorganizes itself half a second later.
  */
 export default function CarregandoFicha() {
   return (
     <>
-      <AvisoDeCarregamento>Carregando a ficha do lead.</AvisoDeCarregamento>
+      <LoadingNotice>Carregando a ficha do lead.</LoadingNotice>
       <div className="ficha">
-        <div className="coluna">
+        <div className="column">
           <div className="tblwrap">
             <header>
               <b>Dados</b>
@@ -18,7 +18,7 @@ export default function CarregandoFicha() {
             <EsqueletoDeCampos linhas={9} />
           </div>
         </div>
-        <div className="coluna">
+        <div className="column">
           <div className="tblwrap">
             <header>
               <b>Score</b>

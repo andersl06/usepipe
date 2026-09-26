@@ -2,53 +2,31 @@ import type { IncomingMessage, Server } from 'node:http';
 import type { Duplex } from 'node:stream';
 import { WebSocketServer } from 'ws';
 import type { WebSocket } from 'ws';
-import { hashDoToken, origemPermitida, origensPermitidas, resolverSessao } from '@pipe/autenticacao';
+import { hashDoToken, origemPermitida, origensPermitidas, resolveSession } from '@pipe/authentication';
 import { ASSUNTOS } from '@pipe/contracts';
-import type { Assunto, EventoDoServidor, Inscricao, QuadroDeControle } from '@pipe/contracts';
-import { bancoDono } from './banco.js';
-import { lerCookie } from './sessao.js';
-import { registrar } from './tempo-real.js';
-import type { Conexao } from './tempo-real.js';
+import type { Assunto, EventoDoServidor, Subscription, QuadroDeControle } from '@pipe/contracts';
+import { databaseOwner } from './database.js';
+import { lerCookie, SESSION_COOKIE_NAME } from './session.js';
+import { registrar } from './realtime.js';
+import type { Conexao } from './realtime.js';
 
 /**
- * O canal de tempo real do navegador — `GET /v1/eventos` com `Upgrade: websocket`.
- *
- * Fala o contrato de `packages/contracts/src/eventos.ts` sem inventar nada: o cliente
- * manda uma `Inscricao`, o servidor responde `QuadroDeControle` e a partir daí só
- * trafega `EventoDoServidor` — `{assunto, id, em}`, e nunca o registro em si.
- *
- * ## Autenticação: a MESMA sessão do cookie
- *
- * Nada de token de socket. O `Upgrade` carrega o cookie `pipe_sessao`, ele é resolvido
- * pelo mesmo `resolverSessao` do `GuardaSessao`, e o tenant sai DALI. Sessão ausente,
- * vencida ou forjada recebe `401` e o socket nunca chega a existir.
- *
- * ## Por que o `Origin` é conferido à mão
- *
- * **CORS não vale para WebSocket.** O navegador não faz preflight nem bloqueia
- * handshake por origem, então um site qualquer poderia abrir um socket para a nossa
- * API e o navegador anexaria o cookie da vítima — é o *cross-site WebSocket
- * hijacking*. O `SameSite=Lax` do nosso cookie já barra isso hoje, mas ele é uma
- * defesa que mora em OUTRO arquivo e pode mudar sem ninguém lembrar daqui. A conferência
- * de `Origin` contra `PIPE_ORIGENS` é a mesma lista fechada do CORS, e é barata.
+ * Browser realtime channel at `GET /v1/eventos` with `Upgrade: websocket`, using `packages/contracts/src/eventos.ts`: client sends `Inscricao`, server replies `QuadroDeControle`, then sends only `EventoDoServidor` (`{assunto, id, em}`), never full records. Authenticate with the existing `pipe_sessao` cookie through `resolverSessao`, as `GuardaSessao` does; derive tenant from that session and reject missing, expired, or forged sessions with 401 before opening a socket. Check `Origin` against `PIPE_ORIGENS` manually because CORS does not protect WebSocket handshakes: a malicious site could open a socket with the victim's cookie. `SameSite=Lax` also blocks this today, but may change independently; the explicit origin check preserves the boundary. Reject an unauthenticated `Upgrade` with `401`.
  */
 
-/** `CONNECTION_TEST_INTERVAL` da Blip: 15 s entre verificações de conexão. */
+/** Blip `CONNECTION_TEST_INTERVAL`: check the connection every 15 seconds. */
 const INTERVALO_PING_MS = Number(process.env['PIPE_WS_PING_MS'] ?? 15_000);
 /** `PING_TIMEOUT` da Blip: 5 s para o `pong` voltar. */
 const TIMEOUT_PONG_MS = Number(process.env['PIPE_WS_PONG_TIMEOUT_MS'] ?? 5_000);
 /**
- * `MAX_PING_RETRIES` da Blip: 1. Ou seja, o servidor tolera UM ping sem resposta e
- * derruba no segundo. Derrubar cedo é melhor que manter um socket morto: o navegador
- * reconecta em segundos e rebusca, enquanto um socket zumbi faz a tela parecer viva
- * e parada — que é o pior dos dois.
+ * Blip `MAX_PING_RETRIES` is 1: tolerate one unanswered ping and drop on the second. The browser can reconnect and refetch quickly; a zombie socket makes the screen appear live but frozen.
  */
 const MAX_PINGS_SEM_RESPOSTA = Number(process.env['PIPE_WS_MAX_PINGS'] ?? 1);
 
 const CAMINHO = '/v1/eventos';
 
-function ehAssunto(valor: unknown): valor is Assunto {
-  return typeof valor === 'string' && (ASSUNTOS as readonly string[]).includes(valor);
+function ehAssunto(value: unknown): value is Assunto {
+  return typeof value === 'string' && (ASSUNTOS as readonly string[]).includes(value);
 }
 
 function enviar(socket: WebSocket, dado: EventoDoServidor | QuadroDeControle): void {
@@ -60,34 +38,33 @@ function recusar(socket: Duplex, status: number, motivo: string): void {
   socket.destroy();
 }
 
-export interface CanalDeEventos {
+export interface ChannelOfEvents {
   fechar: () => Promise<void>;
 }
 
-export function ligarCanalDeEventos(servidor: Server): CanalDeEventos {
+export function connectChannelOfEvents(servidor: Server): ChannelOfEvents {
   const wss = new WebSocketServer({ noServer: true });
 
-  const aoSubir = (requisicao: IncomingMessage, socket: Duplex, cabeca: Buffer): void => {
-    // `void` porque `upgrade` não espera promessa; toda falha vira recusa explícita.
+  const toUp = (request: IncomingMessage, socket: Duplex, cabeca: Buffer): void => {
+    // Use `void` because `upgrade` does not await a promise; convert every failure into an explicit refusal.
     void (async () => {
       try {
-        const url = new URL(requisicao.url ?? '/', 'http://interno');
+        const url = new URL(request.url ?? '/', 'http://interno');
         if (url.pathname !== CAMINHO) return recusar(socket, 404, 'Not Found');
 
-        const origem = requisicao.headers.origin;
-        // Sem `Origin` é cliente que não é navegador (teste, integração). O cookie
-        // continua sendo exigido logo abaixo, então isto não abre porta.
+        const origem = request.headers.origin;
+        // No `Origin` means a non-browser client, such as a test or integration. The cookie is still required below, so this does not bypass authentication.
         if (origem && !origemPermitida(origem.replace(/\/$/, ''), origensPermitidas())) {
           return recusar(socket, 403, 'Forbidden');
         }
 
-        const token = lerCookie(requisicao.headers.cookie, 'pipe_sessao');
+        const token = lerCookie(request.headers.cookie, SESSION_COOKIE_NAME);
         if (!token) return recusar(socket, 401, 'Unauthorized');
-        const sessao = await resolverSessao(bancoDono(), hashDoToken(token));
-        if (!sessao) return recusar(socket, 401, 'Unauthorized');
+        const session = await resolveSession(databaseOwner(), hashDoToken(token));
+        if (!session) return recusar(socket, 401, 'Unauthorized');
 
-        wss.handleUpgrade(requisicao, socket, cabeca, (ws) => {
-          void aoConectar(ws, sessao.tenantId, sessao.usuarioId);
+        wss.handleUpgrade(request, socket, cabeca, (ws) => {
+          void aoConectar(ws, session.tenantId, session.userId);
         });
       } catch {
         recusar(socket, 500, 'Internal Server Error');
@@ -95,20 +72,19 @@ export function ligarCanalDeEventos(servidor: Server): CanalDeEventos {
     })();
   };
 
-  servidor.on('upgrade', aoSubir);
+  servidor.on('upgrade', toUp);
 
   return {
     fechar: async () => {
-      servidor.off('upgrade', aoSubir);
+      servidor.off('upgrade', toUp);
       for (const ws of wss.clients) ws.terminate();
       await new Promise<void>((resolve) => wss.close(() => resolve()));
     },
   };
 }
 
-async function aoConectar(ws: WebSocket, tenantId: string, usuarioId: string): Promise<void> {
-  // Começa sem assunto nenhum: o socket existe, mas não entrega nada até a `Inscricao`
-  // chegar. Assinar tudo por padrão seria entregar o que a tela não pediu.
+async function aoConectar(ws: WebSocket, tenantId: string, userId: string): Promise<void> {
+  // Start with no subscriptions: the socket exists but delivers nothing until `Inscricao` arrives. Subscribing to all by default would reveal subjects the screen did not request.
   const assuntos = new Set<Assunto>();
 
   // `semResposta` conta pings que estouraram os 5 s do `PING_TIMEOUT`. No
@@ -125,32 +101,24 @@ async function aoConectar(ws: WebSocket, tenantId: string, usuarioId: string): P
   };
 
   /**
-   * **Os ouvintes ANTES de qualquer `await`.**
-   *
-   * `registrar` fala com o Redis, e um `await` entre o socket abrir e o
-   * `on('message')` existir é uma janela em que a `Inscricao` do cliente se perde: o
-   * `ws` não guarda evento sem ouvinte. O navegador manda a inscrição no mesmo
-   * instante em que o socket abre, então ele cairia justamente nessa janela e ficaria
-   * pendurado para sempre — socket vivo, nenhum evento, e nada no log.
+   * Attach listeners before any `await`. `registrar` talks to Redis, and awaiting it before `on('message')` creates a gap in which the browser's immediate `Inscricao` is lost. `ws` does not buffer events without listeners, leaving a live socket with no events or error log.
    */
-  // Resolve quando o processo já está assinado no canal do tenant. A confirmação ao
+  // Wait until this process is subscribed to the tenant's Redis channel before acknowledging the client; otherwise the screen could appear connected while an event published in that gap is lost.
   // cliente espera por ela: dizer "inscrito" antes de o registro existir abriria uma
-  // janela — curta, mas real — em que a tela se acha ligada e um evento publicado
-  // naquele instante não chega a ninguém.
   let registrado: () => void;
   const pronto = new Promise<void>((resolve) => {
     registrado = resolve;
   });
 
   ws.on('message', (cru) => {
-    let pedido: Inscricao;
+    let pedido: Subscription;
     try {
-      pedido = JSON.parse(String(cru)) as Inscricao;
+      pedido = JSON.parse(String(cru)) as Subscription;
     } catch {
       enviar(ws, { tipo: 'recusado', motivo: 'assunto_desconhecido' });
       return;
     }
-    // Qualquer mensagem do cliente conta como sinal de vida: navegador que fala está
+    // Treat every client message as activity: a browser that speaks is alive.
     // vivo mesmo que o `pong` tenha se perdido.
     respondeu();
 
@@ -160,25 +128,23 @@ async function aoConectar(ws: WebSocket, tenantId: string, usuarioId: string): P
       return;
     }
 
-    // **O `tenant_id` NÃO vem da inscrição** — sai da sessão, e já saiu. O cliente só
-    // escolhe ASSUNTO; de quem ele ouve não é escolha dele.
+    // Never take `tenant_id` from `Inscricao`; it was derived from the session. The client chooses only the subject, not whose events it receives.
     assuntos.clear();
     for (const assunto of pedidos) assuntos.add(assunto);
-    // A partir daqui a conexão já entrega — mas só confirma depois de registrada.
+    // Event delivery begins here, but confirm only after registration.
     void pronto.then(() => enviar(ws, { tipo: 'inscrito', assuntos: [...assuntos] }));
   });
   ws.on('pong', respondeu);
 
   const conexao: Conexao = {
     tenantId,
-    usuarioId,
+    userId,
     assuntos,
     entregar: (evento) => enviar(ws, evento),
   };
   const desligar = await registrar(conexao);
 
-  // O socket pode ter morrido durante o `await` do Redis. Sem isto, a conexão ficaria
-  // no registro para sempre e o processo escreveria em quem já foi embora.
+  // The socket may have died during the Redis `await`; remove it from registration so the process does not keep writing to a departed client.
   if (ws.readyState === ws.CLOSING || ws.readyState === ws.CLOSED) {
     await desligar();
     return;
@@ -186,9 +152,7 @@ async function aoConectar(ws: WebSocket, tenantId: string, usuarioId: string): P
   registrado!();
 
   const relogio = setInterval(() => {
-    // Dois pings de propósito: o do protocolo, que o navegador responde sozinho e
-    // mantém proxies de olho aberto, e o do CONTRATO, que a tela usa para saber que
-    // a conexão está viva sem depender de API de baixo nível.
+    // Use two pings: protocol ping keeps proxies and the socket alive, while contract ping lets the screen detect liveness without low-level APIs.
     ws.ping();
     enviar(ws, { tipo: 'ping' });
 
@@ -196,8 +160,7 @@ async function aoConectar(ws: WebSocket, tenantId: string, usuarioId: string): P
     aguardandoPong = setTimeout(() => {
       semResposta += 1;
       if (semResposta > MAX_PINGS_SEM_RESPOSTA) {
-        // Socket zumbi: o cliente sumiu sem fechar. `terminate` e não `close`, porque
-        // `close` espera um handshake que este par já não responde. Derrubar cedo é
+        // Terminate a zombie socket whose client vanished. `close` waits for a handshake this peer will not answer; early termination lets the browser reconnect and refetch instead of displaying a stale but apparently live screen. Use `terminate` for the dead peer.
         // melhor que manter o socket: o navegador reconecta em segundos e rebusca,
         // enquanto um socket morto faz a tela parecer viva e parada.
         ws.terminate();

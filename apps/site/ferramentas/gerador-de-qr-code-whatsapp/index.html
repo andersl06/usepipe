@@ -573,9 +573,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" integrity="sha512-ZDSPMa/JM1D+7kdg2x3BsruQ6T/JpJo3jWDWkCZsP+5yVyp1KfESqLI+7RqB5k24F7p2cV7i2YHh/890y6P6Sw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="/assets/site.js" defer></script>
 <script>
-/* Gerador de QR code. O desenho é montado módulo a módulo a partir da matriz
-   da biblioteca, o que dá o SVG (vetor, para impressão) e o PNG (canvas, no
-   tamanho escolhido) sem depender de serviço externo. */
+/*
+ * QR code generator. The drawing is built module by module from the library's
+ *    matrix, which gives the SVG (vector, for printing) and the PNG (canvas, at the
+ *    chosen size) without depending on an external service.
+ */
 (function () {
   "use strict";
 

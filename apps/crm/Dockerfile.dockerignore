@@ -32,5 +32,5 @@ apps/api
 !apps/api/package.json
 apps/workers
 !apps/workers/package.json
-apps/gestao-vite
-!apps/gestao-vite/package.json
+apps/management-vite
+!apps/management-vite/package.json

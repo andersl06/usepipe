@@ -1,33 +1,24 @@
 /**
- * Design system do Pipe — fonte única de token e de componente para
- * `apps/desk`, `apps/gestao` e `apps/crm`.
+ * Pipe design system: the single source of tokens and components for `apps/desk`, `apps/gestao`, and `apps/crm`.
  *
- * O estilo NÃO é importado por este arquivo: cada aplicativo importa
- * `@pipe/ui/estilos.css` uma vez, no seu layout raiz. Manter os dois separados
- * é o que permite usar o tema tipado em código de servidor sem arrastar CSS.
+ * This file does NOT import styles: each application imports `@pipe/ui/estilos.css` once in its root layout. Keeping them separate lets server code use the typed theme without pulling in CSS.
  *
- * Decisões que este pacote existe para impor estão em
- * `docs/specs/2026-09-05-design-system.md`; a identidade continua sendo
- * `docs/marca/MARCA.md`; os números que as justificam estão em
- * `referencias-blip/pesquisa/visual-blip-salesforce.md` e em
- * `referencias-blip/pesquisa/blip-design-system.md`.
+ * The decisions enforced by this package are in `docs/specs/2026-09-05-design-system.md`; brand identity remains in `docs/marca/MARCA.md`; supporting measurements are in `referencias-blip/pesquisa/visual-blip-salesforce.md` and `referencias-blip/pesquisa/blip-design-system.md`.
  *
- * As três regras que a API pública impõe, e que nenhum aplicativo pode
- * contornar declarando cor própria:
- *   1. UMA cor de marca (moss), em ação primária e estado ativo. Mais nada.
- *   2. Estado é PAR: fundo pastel com conteúdo escuro. Quatro estados.
- *   3. A paleta estendida (`TEMA.grafico`) é exclusiva de gráfico e
- *      ilustração. Fora dali ela não existe.
+ * Its public API enforces three rules that applications must not bypass by declaring their own colors:
+ * 1. ONE brand color (moss) for primary actions and active state only.
+ * 2. A state is a PAIR: pastel background with dark content, across four states.
+ * 3. The extended palette (`TEMA.grafico`) is only for charts and illustrations.
  */
 
 export { TEMA, espaco } from './tema';
-export type { Tema, NomeDeEstado } from './tema';
+export type { Tema, StateName } from './tema';
 
 export { Icone, Simbolo } from './icones';
 export type { NomeDeIcone, PropsDeIcone } from './icones';
 
-export { Ilustracao } from './ilustracoes';
-export type { NomeDeIlustracao, PropsDeIlustracao } from './ilustracoes';
+export { Illustration } from './illustrations';
+export type { IllustrationName, IllustrationProps } from './illustrations';
 
 export {
   Botao,
@@ -36,12 +27,12 @@ export {
   Campo,
   Seletor,
   Abas,
-  EstadoVazio,
+  EmptyState,
   Carregando,
   Avatar,
-  Cartao,
-  iniciais,
-} from './componentes/primitivos';
+  Card,
+  initials,
+} from './components/primitivos';
 export type {
   PropsDeBotao,
   PropsDeBotaoDeIcone,
@@ -49,23 +40,23 @@ export type {
   PropsDeEtiqueta,
   TomDeEtiqueta,
   Aba,
-} from './componentes/primitivos';
+} from './components/primitivos';
 
 export {
   Marca,
   NavModulos,
   Cabecalho,
-  LateralContexto,
-  Aplicacao,
-  AreaConfiguracoes,
+  SidebarContext,
+  Application,
+  AreaSettings,
   estaAtivo,
-} from './componentes/estrutura';
-export type { ItemDeNavegacao, ComponenteDeLink } from './componentes/estrutura';
+} from './components/structure';
+export type { NavigationItem, LinkComponent } from './components/structure';
 
-export { Tabela } from './componentes/tabela';
-export type { Coluna } from './componentes/tabela';
+export { Tabela } from './components/tabela';
+export type { Column } from './components/tabela';
 
-export { CartaoEncerramentoTicket } from './componentes/encerramento-ticket';
-export { AvisoEncerramento, avisarTicketFinalizado } from './componentes/aviso-encerramento';
-export { encerramentoPodeConfirmar } from './regras-encerramento';
-export type { EtiquetaDeEncerramento } from './regras-encerramento';
+export { CardClosureTicket } from './components/closure-ticket';
+export { ClosureNotice, avisarTicketFinalizado } from './components/notice-closure';
+export { closureCanConfirm } from './rules-closure';
+export type { ClosureTag } from './rules-closure';

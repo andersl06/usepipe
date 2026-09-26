@@ -51,7 +51,7 @@ function isInside(value: string, parent: string): boolean {
 
 function mapPath(value: string, moves: Move[]): string {
   let current = normalize(value);
-  for (const move of moves) {
+  for (const move of [...moves].sort((a, b) => b.oldPath.length - a.oldPath.length)) {
     if (current === move.oldPath) current = move.newPath;
     else if (isInside(current, move.oldPath))
       current = `${move.newPath}${current.slice(move.oldPath.length)}`;
@@ -279,6 +279,7 @@ function rewriteConfigPaths(
 function performMoves(
   root: string,
   moves: Move[],
+  tracked: string[],
   dryRun: boolean,
   log?: (message: string) => void,
 ): void {
@@ -287,23 +288,25 @@ function performMoves(
     const source = mapPath(move.oldPath, applied);
     const destination = mapPath(move.newPath, applied);
     log?.(`${dryRun ? 'would move' : 'move'} ${source} -> ${destination}`);
-    if (!dryRun) {
-      fs.mkdirSync(path.dirname(path.join(root, destination)), { recursive: true });
-      if (source.toLowerCase() === destination.toLowerCase() && source !== destination) {
-        const temporary = `${source}.__tmp__`;
-        execFileSync('git', ['mv', source, temporary], { cwd: root });
-        execFileSync('git', ['mv', temporary, destination], { cwd: root });
-      } else {
-        execFileSync('git', ['mv', source, destination], { cwd: root });
+    if (!dryRun && source !== destination) {
+      // Move tracked files individually. Directory moves can carry ignored
+      // node_modules/build output and collide with destinations on a retry.
+      for (let index = 0; index < tracked.length; index += 1) {
+        const file = tracked[index]!;
+        if (!isInside(file, source)) continue;
+        const next = `${destination}${file.slice(source.length)}`;
+        fs.mkdirSync(path.dirname(path.join(root, next)), { recursive: true });
+        fs.renameSync(path.join(root, file), path.join(root, next));
+        tracked[index] = next;
       }
     }
     applied.push({ ...move, oldPath: source, newPath: destination });
   }
 }
 
-function writeLeftovers(root: string, mapDir: string, moves: Move[]): string {
+function writeLeftovers(root: string, mapDir: string, moves: Move[], movedFiles: string[]): string {
   const lines: string[] = [];
-  const files = trackedFiles(root).filter((file) =>
+  const files = movedFiles.filter((file) =>
     /(?:^Dockerfile|Dockerfile|\.dockerignore$|\.sh$|\.ya?ml$|\.md$|\.json$)/.test(file),
   );
   for (const file of files) {
@@ -358,7 +361,8 @@ export function moveFiles(options: MoveFilesOptions): MoveFilesResult {
   });
   const files = trackedFiles(root);
   const specifiers = collectSpecifiers(root, files);
-  performMoves(root, moves, Boolean(options.dryRun), options.log);
+  const movedFiles = [...files];
+  performMoves(root, moves, movedFiles, Boolean(options.dryRun), options.log);
   const rewritten =
     rewriteSpecifiers(root, specifiers, moves, Boolean(options.dryRun), options.log) +
     rewriteConfigPaths(root, files, moves, Boolean(options.dryRun), options.log);
@@ -366,7 +370,7 @@ export function moveFiles(options: MoveFilesOptions): MoveFilesResult {
   if (!options.dryRun) {
     for (const row of rows) row.status = 'applied';
     writeMap(options.mapDir, rows);
-    report = writeLeftovers(root, options.mapDir, moves);
+    report = writeLeftovers(root, options.mapDir, moves, movedFiles);
   }
   options.log?.(`moved=${options.dryRun ? 0 : moves.length} rewritten=${rewritten}`);
   return { moved: options.dryRun ? 0 : moves.length, rewritten, report };

@@ -1,0 +1,157 @@
+/*
+ * ================================ create flow (/criar/fluxo)
+ *
+ *   Only what belongs to THIS screen: the marketplace step, `portal.js`'s module 92466 (`25.204.0-v0.43.1`) — `#create-application-marketplace-step`.
+ *
+ *   The shell (the "x", the brand, the footer) and the name step are in `../criar.css`, because in the source they're the same template for the flow and the router. The page imports both sheets, in this order. The `cf-` prefix belongs to this screen; `cr-` is shared.
+ */
+
+/* `.marketplace-step-options { gap: 2.5rem; margin-top: 3.5rem }` mais o
+   `flex justify-center flex-wrap` do template. */
+.cf-options {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  margin-top: 3.5rem;
+}
+
+/*
+ * `.option-card` — a `<bds-paper>`:
+ *     `background-color: hsla(0,0%,100%,.07)`  →  7% ink over the background
+ *     `box-shadow: 0 .25rem 1rem rgba(10,15,26,.3)`
+ *     `gap: .75rem · padding: 3.75rem 1.5rem · width: 20rem`
+ *   plus the template's `flex flex-column items-center pointer relative`.
+ *
+ *   The `border-radius` comes from `bds-paper`, their default card — our `--p-r-md` is the same paper.
+ */
+.cf-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 20rem;
+  max-width: 100%;
+  padding: 3.75rem 1.5rem;
+  border-radius: var(--p-r-md);
+  background: color-mix(in srgb, var(--cr-tinta) 7%, transparent);
+  box-shadow: 0 0.25rem 1rem color-mix(in srgb, var(--cr-fundo) 60%, transparent);
+  color: var(--cr-tinta);
+  text-align: center;
+  /*
+   * The card is an `<a>`: without this the browser underlines the whole title and description. Their `bds-paper` isn't a link, so it doesn't inherit an underline.
+   */
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cf-card:hover {
+  background: color-mix(in srgb, var(--cr-tinta) 12%, transparent);
+}
+
+.cf-card:focus-visible {
+  outline: 2px solid var(--cr-foco);
+  outline-offset: 2px;
+}
+
+/* `bds-typo variant="fs-20" bold="bold" margin="false" line-height="plus"` */
+.cf-card h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin: 0;
+  font-size: var(--cr-t-tagline);
+  font-weight: var(--p-peso-forte);
+  line-height: var(--p-altura-linha);
+}
+
+/* `bds-typo variant="fs-14"` */
+.cf-card p {
+  margin: 0;
+  font-size: var(--p-t-md);
+  line-height: var(--p-altura-linha);
+}
+
+/*
+ * `bds-chip-tag color="success"`, and the rule that hangs it halfway over the card's top border:
+ *     `left: 50%; position: absolute; top: -.75rem; transform: translateX(-50%)`.
+ *
+ *   Their dark theme's success ink; ours is the "on dark" pair `@pipe/ui` already has, for the same reason as `--cr-erro` in `../criar.css`.
+ *
+ *   Named `cf-selo-recomendado`, not `cf-selo`: that class already exists in `configuracoes.css` for the Team/Keys paper badge — same name, global CSS with no module scoping, the import order decided which rule won and threw the paper badge out of line (this `position: absolute`).
+ */
+.cf-selo-recomendado {
+  position: absolute;
+  left: 50%;
+  top: -0.75rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 2px var(--p-e-3);
+  border-radius: var(--p-r-pilula);
+  background: color-mix(in srgb, var(--p-sucesso-sobre-escuro) 22%, var(--cr-fundo));
+  color: var(--p-sucesso-sobre-escuro);
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-forte);
+}
+
+/*
+ * ============================ step 2: template presentation
+ *   `#create-application-test-step` — `auth.application.create.test`. We don't have this screen's pixel measurements (only the marketplace was captured rendered); the layout below is the same centered column as the other steps, with the description and the feature list above the `.cr-acoes` buttons.
+ */
+.cf-presentation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--p-e-4);
+  max-width: 32rem;
+  margin-top: 2.5rem;
+  text-align: center;
+}
+
+.cf-presentation-subtitle {
+  margin: 0;
+  font-size: var(--p-t-lg);
+  font-weight: var(--p-peso-forte);
+}
+
+.cf-presentation > p {
+  margin: 0;
+  color: var(--cr-fraca);
+}
+
+/*
+ * The list of four pre-configured features. No measured counterpart in the source: each row's `bds-icon` is replaced by the closest `IconePortal` (see `ICONES_DAS_FUNCIONALIDADES` in `page.tsx`).
+ */
+.cf-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.cf-lista li {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+  color: var(--cr-tinta);
+}
+
+.cf-lista svg {
+  flex: none;
+  color: var(--cr-marca);
+}
+
+/*
+ * --------------------------------------------------------- narrow
+ *   The template's `flex-wrap` already stacks the two cards on its own; what's missing is the top gap, which sticks the 3.5rem to the title when the row becomes a column.
+ */
+@media (max-width: 46rem) {
+  .cf-options {
+    margin-top: 2.5rem;
+    gap: 2rem;
+  }
+}

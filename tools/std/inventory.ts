@@ -27,8 +27,8 @@ export interface SourceText { fileName: string; sourceText: string }
 
 export const SCOPES = [
   'packages-core', 'packages-db', 'packages-contracts', 'packages-ui', 'packages-ai',
-  'packages-autenticacao', 'packages-armazenamento', 'packages-tempo-real', 'packages-mcp',
-  'workers', 'api', 'ponte', 'desk-vite', 'gestao-vite', 'crm', 'site', 'infra', 'css',
+  'packages-authentication', 'packages-storage', 'packages-time-real', 'packages-mcp',
+  'workers', 'api', 'bridge', 'desk-vite', 'management-vite', 'crm', 'site', 'infra', 'css',
 ] as const;
 
 const CODE = /\.(?:[cm]?[jt]sx?)$/;

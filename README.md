@@ -8,9 +8,9 @@ Requisitos: Node 22 ou superior, pnpm 9, Docker. O `engines` da raiz exige `>=22
 
 ```bash
 pnpm install
-pnpm banco:subir      # Postgres 16 na 5433 e Redis na 6380
-pnpm banco:migrar
-pnpm banco:semear
+pnpm db:up      # Postgres 16 na 5433 e Redis na 6380
+pnpm db:migrate
+pnpm db:seed
 ```
 
 As portas fogem do padrão de propósito, para não brigar com outro Postgres na mesma máquina.

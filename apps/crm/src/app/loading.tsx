@@ -1,17 +1,17 @@
-import { AvisoDeCarregamento, EsqueletoDeTabela } from '../componentes/esqueleto';
+import { LoadingNotice, EsqueletoDeTabela } from '../components/esqueleto';
 
 /**
- * O carregamento padrão do CRM. Vale para toda rota que não declara um seu —
- * painel, contas, contatos, oportunidades e configurações.
+ * The CRM's default loading state. It applies to every route that doesn't
+ * declare its own — dashboard, accounts, contacts, opportunities, and settings.
  *
- * Sem título: o título de cada tela é diferente, e escrever um errado aqui é
- * pior do que não escrever nenhum. As rotas em que a forma da tela importa de
- * verdade (a lista de leads e a ficha) têm o seu próprio.
+ * No title: each screen's title is different, and writing the wrong one here is
+ * worse than writing none. The routes where the screen's shape really matters
+ * (the leads list and the record) have their own.
  */
 export default function Carregando() {
   return (
     <div className="tblwrap">
-      <AvisoDeCarregamento>Carregando.</AvisoDeCarregamento>
+      <LoadingNotice>Carregando.</LoadingNotice>
       <EsqueletoDeTabela colunas={6} linhas={8} />
     </div>
   );

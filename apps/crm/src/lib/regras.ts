@@ -1,13 +1,13 @@
 import { asc, desc, eq, sql } from 'drizzle-orm';
 import type { Expressao } from '@pipe/core';
-import { faixaScore, fila, regraScore, scoreLead } from '@pipe/db/schema';
-import { consultar } from './banco';
+import { faixaScore, queue, regraScore, scoreLead } from '@pipe/db/schema';
+import { consultar } from './database';
 
 /**
- * Regras de score, em leitura.
+ * Score rules, read-only.
  *
- * A edição fica para a fase seguinte; a leitura não pode faltar, porque é ela que
- * transforma o número numa regra que alguém escreveu — e não num mistério herdado.
+ * Editing is for the next phase; reading can't be missing, because it's what
+ * turns the number into a rule someone wrote — not an inherited mystery.
  */
 
 export interface LinhaRegra {
@@ -15,9 +15,9 @@ export interface LinhaRegra {
   nome: string;
   versao: number;
   pontos: number;
-  ativa: boolean;
-  condicao: Expressao;
-  /** Quantos leads esta regra afetou, contando o cálculo mais recente de cada um. */
+  active: boolean;
+  condition: Expressao;
+  /** How many leads this rule affected, counting each one's most recent calculation. */
   leadsAfetados: number;
 }
 
@@ -26,7 +26,7 @@ export interface LinhaFaixa {
   versao: number;
   minimo: number;
   maximo: number;
-  fila: string | null;
+  queue: string | null;
   estrategiaProprietario: string;
   leads: number;
 }
@@ -36,23 +36,24 @@ export async function listarRegras(): Promise<LinhaRegra[]> {
     const regras = await tx
       .select({
         id: regraScore.id,
-        nome: regraScore.nome,
-        versao: regraScore.versao,
+        nome: regraScore.name,
+        versao: regraScore.version,
         pontos: regraScore.pontos,
-        ativa: regraScore.ativa,
-        condicao: regraScore.condicao,
+        active: regraScore.active,
+        condition: regraScore.condition,
       })
       .from(regraScore)
-      .orderBy(desc(regraScore.versao), desc(regraScore.pontos), asc(regraScore.nome));
+      .orderBy(desc(regraScore.version), desc(regraScore.pontos), asc(regraScore.name));
 
     /**
-     * "Quantos leads esta regra afetou" só faz sentido sobre o cálculo vigente de
-     * cada lead: somar todos os `score_lead` contaria três vezes o lead recalculado
-     * três vezes. Daí o `distinct on (lead_id)` antes de abrir a explicação.
+     * "How many leads this rule affected" only makes sense over each lead's current
+     * calculation: summing every `score_lead` would count a lead recalculated three
+     * times three times over. Hence `distinct on (lead_id)` before opening the
+     * explanation.
      */
-    const contagem = await tx.execute<{ regra: string; n: number }>(sql`
+    const count = await tx.execute<{ regra: string; n: number }>(sql`
       with vigente as (
-        select distinct on (${scoreLead.leadId}) ${scoreLead.leadId}, ${scoreLead.explicacao}
+        select distinct on (${scoreLead.leadId}) ${scoreLead.leadId}, ${scoreLead.explanation}
           from ${scoreLead}
          order by ${scoreLead.leadId}, ${scoreLead.calculadoEm} desc
       )
@@ -62,13 +63,13 @@ export async function listarRegras(): Promise<LinhaRegra[]> {
     `);
 
     const afetados = new Map<string, number>();
-    for (const linha of contagem.rows) {
+    for (const linha of count.rows) {
       if (linha.regra) afetados.set(linha.regra, Number(linha.n));
     }
 
     return regras.map((r) => ({
       ...r,
-      condicao: r.condicao as Expressao,
+      condition: r.condition as Expressao,
       leadsAfetados: afetados.get(r.id) ?? 0,
     }));
   });
@@ -78,26 +79,26 @@ export async function listarFaixas(): Promise<LinhaFaixa[]> {
   return consultar(async (tx) => {
     const faixas = await tx
       .select({
-        nome: faixaScore.nome,
-        versao: faixaScore.versao,
+        nome: faixaScore.name,
+        versao: faixaScore.version,
         minimo: faixaScore.minimo,
         maximo: faixaScore.maximo,
-        fila: fila.nome,
+        queue: queue.nome,
         estrategiaProprietario: faixaScore.estrategiaProprietario,
       })
       .from(faixaScore)
-      .leftJoin(fila, eq(fila.id, faixaScore.filaId))
-      .orderBy(desc(faixaScore.versao), desc(faixaScore.minimo));
+      .leftJoin(queue, eq(queue.id, faixaScore.queueId))
+      .orderBy(desc(faixaScore.version), desc(faixaScore.minimo));
 
-    const porFaixa = await tx
+    const byTier = await tx
       .select({ faixa: scoreLead.faixa, n: sql<number>`count(distinct ${scoreLead.leadId})::int` })
       .from(scoreLead)
       .groupBy(scoreLead.faixa);
 
-    const contagem = new Map<string, number>();
-    for (const l of porFaixa) if (l.faixa) contagem.set(l.faixa, l.n);
+    const count = new Map<string, number>();
+    for (const l of byTier) if (l.faixa) count.set(l.faixa, l.n);
 
-    return faixas.map((f) => ({ ...f, leads: contagem.get(f.nome) ?? 0 }));
+    return faixas.map((f) => ({ ...f, leads: count.get(f.nome) ?? 0 }));
   });
 }
 
@@ -116,19 +117,19 @@ const ROTULO_OPERADOR: Record<string, string> = {
   nao_existe: 'está vazio',
 };
 
-/** A condição em português, para o gestor ler a regra sem abrir o JSON. */
-export function condicaoEmTexto(expressao: Expressao): string {
+/** The condition in Portuguese, so the manager can read the rule without opening the JSON. */
+export function conditionInText(expressao: Expressao): string {
   if ('combinador' in expressao) {
-    const juncao = expressao.combinador === 'e' ? ' e ' : ' ou ';
-    const partes = expressao.condicoes.map(condicaoEmTexto);
-    return partes.length > 1 ? `(${partes.join(juncao)})` : (partes[0] ?? '—');
+    const junction = expressao.combinador === 'e' ? ' e ' : ' ou ';
+    const partes = expressao.condicoes.map(conditionInText);
+    return partes.length > 1 ? `(${partes.join(junction)})` : (partes[0] ?? '—');
   }
   const operador = ROTULO_OPERADOR[expressao.operador] ?? expressao.operador;
   if (expressao.operador === 'existe' || expressao.operador === 'nao_existe') {
     return `${expressao.campo} ${operador}`;
   }
-  const valor = Array.isArray(expressao.valor)
+  const value = Array.isArray(expressao.valor)
     ? expressao.valor.join(', ')
     : String(expressao.valor);
-  return `${expressao.campo} ${operador} ${valor}`;
+  return `${expressao.campo} ${operador} ${value}`;
 }

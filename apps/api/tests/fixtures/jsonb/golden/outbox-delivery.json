@@ -1,9 +1,9 @@
 {
   "conteudo": {
     "tipo": "interativo",
-    "formato": "botoes",
+    "format": "botoes",
     "texto": "Prazer, Ana. Como posso ajudar?",
-    "opcoes": [
+    "options": [
       "Financeiro",
       "Suporte"
     ]

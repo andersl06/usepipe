@@ -29,15 +29,15 @@ crm compile proof (from the full `pnpm build` log): `@pipe/crm:build: ✓ Compil
 |---|---|---|---|---|
 | @pipe/api | vitest | 647 | 0 | 0 |
 | @pipe/workers | vitest | 42 | 0 | 0 |
-| @pipe/ponte | vitest | 17 | 0 | 0 |
+| @pipe/bridge | vitest | 17 | 0 | 0 |
 | @pipe/core | vitest | 421 | 0 | 0 |
 | @pipe/db | vitest | 31 | 0 | 0 |
 | @pipe/ai | vitest | 75 | 0 | 0 |
-| @pipe/autenticacao | vitest | 41 | 0 | 0 |
-| @pipe/armazenamento | vitest | 24 | 0 | 0 |
-| @pipe/tempo-real | vitest | 14 | 0 | 0 |
+| @pipe/authentication | vitest | 41 | 0 | 0 |
+| @pipe/storage | vitest | 24 | 0 | 0 |
+| @pipe/realtime | vitest | 14 | 0 | 0 |
 | @pipe/desk-vite | node:test | 27 | 0 | 0 |
-| @pipe/gestao-vite | node:test | 237 | 0 | 0 |
+| @pipe/management-vite | node:test | 237 | 0 | 0 |
 | @pipe/crm | node:test | 34 | 0 | 0 |
 | @pipe/ui | node verificar-tokens.mjs | exit 0 | - | - |
 

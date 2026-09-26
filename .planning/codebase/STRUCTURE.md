@@ -119,7 +119,7 @@ pipe/
 
 **Packages:**
 
-- Scoped `@pipe/*` (e.g. `@pipe/db`, `@pipe/contracts`, `@pipe/autenticacao`, `@pipe/workers`), matching the `packages/` and `apps/` directory name (Portuguese where the concept is Portuguese, e.g. `autenticacao`, `armazenamento`, `tempo-real`)
+- Scoped `@pipe/*` (e.g. `@pipe/db`, `@pipe/contracts`, `@pipe/authentication`, `@pipe/workers`), matching the `packages/` and `apps/` directory name (Portuguese where the concept is Portuguese, e.g. `autenticacao`, `armazenamento`, `tempo-real`)
 
 ## Where to Add New Code
 

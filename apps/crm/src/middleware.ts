@@ -1,40 +1,42 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 /**
- * Sem cookie de sessão, a pessoa vai para `/entrar`. É a porta, e ela é uma só.
+ * With no session cookie, the person goes to `/entrar`. It's the door, and
+ * there's only one.
  *
- * Aqui só se confere a PRESENÇA do cookie — nada de validar sessão: o
- * middleware roda em toda requisição, e uma ida à API por navegação de
- * imagem seria caro e frágil. Quem valida é `exigirEu()`, no servidor, contra
- * `GET /v1/eu`: cookie vencido ou forjado cai lá e volta para cá.
+ * Only the cookie's PRESENCE is checked here — no session validation: the
+ * middleware runs on every request, and a round trip to the API for an image
+ * navigation would be expensive and fragile. What validates it is
+ * `exigirEu()`, on the server, against `GET /v1/eu`: an expired or forged
+ * cookie falls through there and comes back here.
  *
- * Duas rotas ficam de fora, e são as duas públicas do produto: a de entrada e a
- * do convite. Sem essa exceção, quem não tem sessão seria mandado para `/entrar`
- * e de lá para `/entrar`, para sempre.
+ * Two routes are left out, and they're the product's two public ones: sign-in
+ * and the invite. Without this exception, whoever has no session would be sent
+ * to `/entrar`, and from there to `/entrar`, forever.
  */
-const PUBLICO = /^\/(entrar|convite)(\/|$)/;
+const PUBLICO = /^\/(login|invite)(\/|$)/;
 
-export function middleware(requisicao: NextRequest): NextResponse {
-  const { pathname, search } = requisicao.nextUrl;
+export function middleware(request: NextRequest): NextResponse {
+  const { pathname, search } = request.nextUrl;
   if (PUBLICO.test(pathname)) return NextResponse.next();
-  if (requisicao.cookies.has('pipe_sessao')) return NextResponse.next();
+  if (request.cookies.has('pipe_session')) return NextResponse.next();
 
-  const url = requisicao.nextUrl.clone();
-  url.pathname = '/entrar';
+  const url = request.nextUrl.clone();
+  url.pathname = '/login';
   url.search = '';
-  // Para onde a pessoa queria ir. A API confere que é caminho interno antes de
-  // usá-lo, e a tela confere de novo antes de mandar.
-  if (pathname !== '/') url.searchParams.set('destino', `${pathname}${search}`);
+  // Where the person wanted to go. The API checks it's an internal path before
+  // using it, and the screen checks again before sending it.
+  if (pathname !== '/') url.searchParams.set('returnTo', `${pathname}${search}`);
   return NextResponse.redirect(url);
 }
 
 /**
- * Fora do matcher: o que não é navegação de página. Arquivo do build e ícone
- * não têm para onde ser redirecionados — e mandá-los para `/entrar` quebraria a
- * própria tela de entrada.
+ * Outside the matcher: whatever isn't a page navigation. A build file or an
+ * icon has nowhere to be redirected to — and sending them to `/entrar` would
+ * break the sign-in screen itself.
  *
- * Não há `public/` em nenhum dos três aplicativos (a marca é SVG em componente,
- * a fonte vem do Google), então `_next/` e o ícone cobrem tudo.
+ * There's no `public/` in any of the three apps (the logo is an SVG component,
+ * the font comes from Google), so `_next/` and the icon cover everything.
  */
 export const config = {
   matcher: ['/((?!_next/|favicon.ico).*)'],
