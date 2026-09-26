@@ -129,20 +129,20 @@ afterAll(async () => {
 describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
   it('Start with the welcome message disabled and no message or button text', async () => {
     const id = await newFlow(a);
-    const { status, body } = await chamar(sessionEditor, 'GET', `${id}/boas-vindas`);
+    const { status, body } = await chamar(sessionEditor, 'GET', `${id}/welcome`);
     expect(status).toBe(200);
-    expect(body).toEqual({ ativo: false, mensagem: '', textoBotao: 'Começar' });
+    expect(body).toEqual({ ativo: false, message: '', textoBotao: 'Começar' });
   });
 
   it('Enable the welcome message with button text and audit the change', async () => {
     const id = await newFlow(a);
-    const { status, body } = await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
-      ativo: true,
-      mensagem: 'Olá! Seja bem-vindo.',
+    const { status, body } = await chamar(sessionEditor, 'PATCH', `${id}/welcome`, {
+      active: true,
+      message: 'Olá! Seja bem-vindo.',
       textoBotao: 'Começar agora',
     });
     expect(status).toBe(200);
-    expect(body).toEqual({ ativo: true, mensagem: 'Olá! Seja bem-vindo.', textoBotao: 'Começar agora' });
+    expect(body).toEqual({ ativo: true, message: 'Olá! Seja bem-vindo.', textoBotao: 'Começar agora' });
 
     const log = await auditoriaDe('fluxo_boas_vindas', id);
     expect(log).toHaveLength(1);
@@ -151,21 +151,21 @@ describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
 
   it('Require welcome message and button text and limit button text to 20 characters', async () => {
     const id = await newFlow(a);
-    const withoutMessage = await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
-      ativo: true,
+    const withoutMessage = await chamar(sessionEditor, 'PATCH', `${id}/welcome`, {
+      active: true,
       textoBotao: 'Começar',
     });
     expect(withoutMessage.status).toBe(400);
 
-    const semBotao = await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
-      ativo: true,
-      mensagem: 'Oi',
+    const semBotao = await chamar(sessionEditor, 'PATCH', `${id}/welcome`, {
+      active: true,
+      message: 'Oi',
     });
     expect(semBotao.status).toBe(400);
 
-    const botaoGrande = await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
-      ativo: true,
-      mensagem: 'Oi',
+    const botaoGrande = await chamar(sessionEditor, 'PATCH', `${id}/welcome`, {
+      active: true,
+      message: 'Oi',
       textoBotao: 'X'.repeat(21),
     });
     expect(botaoGrande.status).toBe(400);
@@ -173,33 +173,33 @@ describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
 
   it('Keep saved welcome text when disabled and reuse it when reenabled', async () => {
     const id = await newFlow(a);
-    await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
-      ativo: true,
-      mensagem: 'Mensagem original',
+    await chamar(sessionEditor, 'PATCH', `${id}/welcome`, {
+      active: true,
+      message: 'Mensagem original',
       textoBotao: 'Começar',
     });
 
-    const desligado = await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, { ativo: false });
+    const desligado = await chamar(sessionEditor, 'PATCH', `${id}/welcome`, { active: false });
     expect(desligado.status).toBe(200);
-    expect(desligado.body).toEqual({ ativo: false, mensagem: 'Mensagem original', textoBotao: 'Começar' });
+    expect(desligado.body).toEqual({ ativo: false, message: 'Mensagem original', textoBotao: 'Começar' });
 
-    const read = await chamar(sessionEditor, 'GET', `${id}/boas-vindas`);
-    expect(read.body).toEqual({ ativo: false, mensagem: 'Mensagem original', textoBotao: 'Começar' });
+    const read = await chamar(sessionEditor, 'GET', `${id}/welcome`);
+    expect(read.body).toEqual({ ativo: false, message: 'Mensagem original', textoBotao: 'Começar' });
   });
 
   it('Return 403 without `automacao.fluxo.editar` and 404 for invalid or cross-tenant IDs', async () => {
     const id = await newFlow(a);
-    const semPoder = await chamar(sessionWithoutAuthority, 'PATCH', `${id}/boas-vindas`, {
-      ativo: true,
-      mensagem: 'Oi',
+    const semPoder = await chamar(sessionWithoutAuthority, 'PATCH', `${id}/welcome`, {
+      active: true,
+      message: 'Oi',
       textoBotao: 'Começar',
     });
     expect(semPoder.status).toBe(403);
 
-    const outroTenant = await chamar(sessionOfOtherTenant, 'GET', `${id}/boas-vindas`);
+    const outroTenant = await chamar(sessionOfOtherTenant, 'GET', `${id}/welcome`);
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await chamar(sessionEditor, 'GET', `nao-e-uuid/boas-vindas`);
+    const malformado = await chamar(sessionEditor, 'GET', `nao-e-uuid/welcome`);
     expect(malformado.status).toBe(404);
   });
 });
@@ -207,42 +207,42 @@ describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
 describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
   it('Start with an empty persistent menu and no completed welcome message', async () => {
     const id = await newFlow(a);
-    const { status, body } = await chamar(sessionEditor, 'GET', `${id}/menu-persistente`);
+    const { status, body } = await chamar(sessionEditor, 'GET', `${id}/menu-persistent`);
     expect(status).toBe(200);
     expect(body).toEqual({ itens: [], boasVindasPreenchida: false });
   });
 
   it('boasVindasPreenchida acompanha a Tela de Boas-vindas', async () => {
     const id = await newFlow(a);
-    await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
-      ativo: true,
-      mensagem: 'Oi',
+    await chamar(sessionEditor, 'PATCH', `${id}/welcome`, {
+      active: true,
+      message: 'Oi',
       textoBotao: 'Começar',
     });
-    const { body } = await chamar(sessionEditor, 'GET', `${id}/menu-persistente`);
+    const { body } = await chamar(sessionEditor, 'GET', `${id}/menu-persistent`);
     expect(body['boasVindasPreenchida']).toBe(true);
   });
 
   it('Reject persistent-menu updates without a Messenger channel even when welcome is complete through PATCH', async () => {
     const id = await newFlow(a);
-    await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
-      ativo: true,
-      mensagem: 'Oi',
+    await chamar(sessionEditor, 'PATCH', `${id}/welcome`, {
+      active: true,
+      message: 'Oi',
       textoBotao: 'Começar',
     });
-    const { status, body } = await chamar(sessionEditor, 'PATCH', `${id}/menu-persistente`, {
+    const { status, body } = await chamar(sessionEditor, 'PATCH', `${id}/menu-persistent`, {
       itens: [{ texto: 'Falar com atendente', link: 'atendimento' }],
     });
     expect(status).toBe(400);
-    expect(body).toMatchObject({ erro: { codigo: 'menu_persistente_canal' } });
+    expect(body).toMatchObject({ error: { code: 'menu_persistent_channel' } });
   });
 
   it('Check `automacao.fluxo.editar` before channel and welcome validation', async () => {
     const id = await newFlow(a);
-    const { status, body } = await chamar(sessionWithoutAuthority, 'PATCH', `${id}/menu-persistente`, {
+    const { status, body } = await chamar(sessionWithoutAuthority, 'PATCH', `${id}/menu-persistent`, {
       itens: [],
     });
     expect(status).toBe(403);
-    expect(body).toMatchObject({ erro: { codigo: 'sem_permissao' } });
+    expect(body).toMatchObject({ error: { code: 'without_permission' } });
   });
 });

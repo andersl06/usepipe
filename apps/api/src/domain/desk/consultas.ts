@@ -139,11 +139,13 @@ export async function loadConversation(
     resumo_em: Date | string | null;
     summaryTemplate: string | null;
   }>(sql`
-    select c.id, c.estado, c.prioridade, c.criada_em, c.primeira_resposta_em, c.em_espera_desde,
-           c.janela_expira_em, f.nome as fila_nome, ca.id as canal_id, ca.tipo as canal_tipo,
-           ct.id as contato_id, ct.nome as contato_nome, ct.telefone_e164, ct.email,
-           ct.documento, ct.atributos,
-           cl.resumo, cl.criada_em as resumo_em, cl.modelo as resumo_modelo
+    select c.id, c.estado as "state", c.prioridade as "priority", c.criada_em,
+           c.primeira_resposta_em as "firstResponseAt", c.em_espera_desde,
+           c.janela_expira_em as "windowExpiresAt", f.nome as "queueName", ca.id as "channelId",
+           ca.tipo as "channelType",
+           ct.id as "contactId", ct.nome as "contactName", ct.telefone_e164 as "phoneE164", ct.email,
+           ct.documento as "document", ct.atributos,
+           cl.resumo as "summary", cl.criada_em as resumo_em, cl.modelo as "summaryTemplate"
       from conversa c
       join contato ct on ct.id = c.contato_id
       join inbox ib on ib.id = c.inbox_id
@@ -197,8 +199,8 @@ export async function listItemsOfConversation(
     resposta_pronta_id: string | null;
     template_id: string | null;
   }>(sql`
-    select id, criada_em, direcao, tipo, conteudo, estado_entrega, erro_codigo, erro_texto,
-           lida_em, entregue_em, resposta_pronta_id, template_id
+    select id, criada_em, direcao as "direction", tipo as "type", conteudo as "content", estado_entrega as "stateDelivery", erro_codigo as "errorCode", erro_texto as "errorText",
+           lida_em as "lidaAt", entregue_em as "entregueAt", resposta_pronta_id, template_id
       from mensagem
      where conversa_id = ${conversaId}
      order by criada_em
@@ -210,7 +212,7 @@ export async function listItemsOfConversation(
     body: string;
     author: string | null;
   }>(sql`
-    select n.id, n.em, n.corpo, u.nome as autor
+    select n.id, n.em as "at", n.corpo as "body", u.nome as "author"
       from nota_interna n
       left join usuario u on u.id = n.usuario_id
      where n.conversa_id = ${conversaId}
@@ -334,7 +336,7 @@ export async function carregarStatus(
     since: Date | string;
     reason: string | null;
   }>(sql`
-    select s.estado, s.desde, mp.nome as motivo
+    select s.estado as "state", s.desde as "since", mp.nome as "reason"
       from status_atendente s
       left join pausa p on p.usuario_id = s.usuario_id and p.encerrada_em is null
       left join motivo_pausa mp on mp.id = p.motivo_id
@@ -369,7 +371,7 @@ export async function listHistoryOfContact(
     state: StateConversation;
     fila_nome: string | null;
   }>(sql`
-    select c.id, c.criada_em, c.encerrada_em, c.estado, f.nome as fila_nome
+    select c.id, c.criada_em, c.encerrada_em, c.estado as "state", f.nome as fila_nome
       from conversa c
       left join fila f on f.id = c.fila_id
      where c.contato_id = ${contactId}
@@ -412,12 +414,12 @@ export async function carregarTicketAntigo(
     agentEmail: string | null;
     closedByName: string | null;
   }>(sql`
-    select c.id, c.estado, c.prioridade, c.criada_em, c.primeira_resposta_em,
-           c.ultima_mensagem_em, c.encerrada_em, c.motivo_encerramento, c.pausado_seg,
-           f.nome as fila_nome, ca.tipo as canal_tipo,
-           ct.id as contato_id, ct.nome as contato_nome, ct.telefone_e164,
-           ua.nome as atendente_nome, ua.email as atendente_email,
-           ue.nome as encerrada_por_nome
+    select c.id, c.estado as "state", c.prioridade as "priority", c.criada_em, c.primeira_resposta_em,
+           c.ultima_mensagem_em as "lastMessageAt", c.encerrada_em, c.motivo_encerramento as "reasonClosure", c.pausado_seg as "pausadoSeg",
+           f.nome as fila_nome, ca.tipo as "channelType",
+           ct.id as "contactId", ct.nome as contato_nome, ct.telefone_e164 as "phoneE164",
+           ua.nome as "agentName", ua.email as "agentEmail",
+           ue.nome as "closedByName"
       from conversa c
       join contato ct on ct.id = c.contato_id
       join inbox ib on ib.id = c.inbox_id
@@ -468,7 +470,7 @@ export async function contarAguardando(tx: TransactionPipe, atendenteId: string)
 
 export async function listQueues(tx: TransactionPipe): Promise<{ id: string; name: string }[]> {
   const { rows } = await tx.execute<{ id: string; name: string }>(sql`
-    select id, nome from fila where ativa order by nome
+    select id, nome as "name" from fila where ativa order by nome
   `);
   return rows;
 }
@@ -561,7 +563,7 @@ export async function listChannelsWithTemplates(
   tx: TransactionPipe,
 ): Promise<{ id: string; name: string; type: TypeChannelDatabase; templates: TemplateAprovado[] }[]> {
   const { rows } = await tx.execute<{ id: string; name: string; type: TypeChannelDatabase }>(sql`
-    select id, nome, tipo from canal where ativo order by nome
+    select id, nome as "name", tipo as "type" from canal where ativo order by nome
   `);
   const saida = [];
   for (const c of rows) {

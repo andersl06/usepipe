@@ -83,7 +83,7 @@ async function agenteDoCertificado(tenantId: string, certificadoId: string): Pro
 
   const linha = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ fileEncrypted: string | null; senha_cifrada: string | null }>(sql`
-      select arquivo_cifrado, senha_cifrada from certificado_mtls
+      select arquivo_cifrado as "fileEncrypted", senha_cifrada from certificado_mtls
        where id = ${certificadoId}::uuid and tenant_id = ${tenantId}::uuid
        limit 1
     `);

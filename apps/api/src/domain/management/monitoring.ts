@@ -191,7 +191,7 @@ export async function loadPreviewOfConversation(
   const itens = await tx.execute<{
     id: string; at: Date | string; type: 'mensagem' | 'nota'; direction: string | null; texto: string; autor: string | null;
   }>(sql`
-    select m.id, m.criada_em as em, 'mensagem'::text as tipo, m.direcao,
+    select m.id, m.criada_em as em, 'mensagem'::text as tipo, m.direcao as "direction",
            coalesce(m.conteudo, '') as texto, u.nome as autor
       from mensagem m left join usuario u on u.id = m.autor_id
      where m.conversa_id = ${conversationId}::uuid

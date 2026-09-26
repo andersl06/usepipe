@@ -129,7 +129,7 @@ export async function listarLinksRastreados(
     createdAt: string;
     cliques: string;
   }>(sql`
-    select l.id, l.nome, l.destino_url, l.codigo, l.criado_em,
+    select l.id, l.nome as "name", l.destino_url as "destinationUrl", l.codigo as "code", l.criado_em as "createdAt",
            count(c.id) filter (where c.criado_em >= ${desde} and c.criado_em <= ${ate})::text as cliques
       from link_rastreado l
       left join clique_link c on c.link_id = l.id
@@ -182,7 +182,7 @@ export async function redirecionarClique(
     id: string;
     tenant_id: string;
     destinationUrl: string;
-  }>(sql`select id, tenant_id, destino_url from link_rastreado where codigo = ${codigo} limit 1`);
+  }>(sql`select id, tenant_id, destino_url as "destinationUrl" from link_rastreado where codigo = ${codigo} limit 1`);
   const link = rows[0];
   if (!link) return null;
 

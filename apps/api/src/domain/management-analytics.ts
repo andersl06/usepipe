@@ -52,7 +52,7 @@ export async function carregarDashboard(
   const anterior = intervaloAnterior(intervalo);
   {
     const { rows: contact } = await tx.execute<{ type: string; channel: string | null }>(
-      sql`select f.tipo, k.tipo as canal from fluxo f left join canal k on k.id = f.canal_id where f.id = ${fluxoId}`,
+      sql`select f.tipo as "type", k.tipo as canal from fluxo f left join canal k on k.id = f.canal_id where f.id = ${fluxoId}`,
     );
     if (!contact[0]) return null;
 
@@ -137,7 +137,7 @@ export async function carregarDashboard(
       id: string;
       recorrencia: number;
     }>(sql`
-      select c.id, c.nome, c.telefone_e164 as telefone,
+      select c.id, c.nome as "name", c.telefone_e164 as telefone,
              (count(distinct (m.criada_em at time zone ${fuso})::date) - 1)::int as recorrencia
         from mensagem m
         join conversa cv on cv.id = m.conversa_id

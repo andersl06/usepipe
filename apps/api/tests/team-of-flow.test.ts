@@ -194,13 +194,13 @@ describe('POST /v1/management/flows/:id/team', () => {
       papelNoFluxo: 'editar',
     });
     expect(status).toBe(201);
-    expect(corpo).toMatchObject({ usuarioId: ana.id, email: ana.email, papelNoFluxo: 'editar' });
+    expect(corpo).toMatchObject({ userId: ana.id, email: ana.email, roleInFlow: 'editar' });
     /* `selectAllPermissions()`: "View and edit" sets EVERY row to `readWrite`. */
-    expect(corpo['permissoes']).toMatchObject({ builder: 'escrever', analysis: 'escrever' });
+    expect(corpo['permissions']).toMatchObject({ builder: 'escrever', analysis: 'escrever' });
 
     const log = await auditoriaDe(ana.id);
     expect(log).toHaveLength(1);
-    expect(log[0]).toMatchObject({ acao: 'criou', depois: { papelNoFluxo: 'editar' } });
+    expect(log[0]).toMatchObject({ acao: 'criou', depois: { roleInFlow: 'editar' } });
   });
 
   it('"Visualizar" põe tudo em ler e "Personalizado" respeita linha a linha', async () => {
@@ -209,14 +209,14 @@ describe('POST /v1/management/flows/:id/team', () => {
       papelNoFluxo: 'visualizar',
     });
     expect(visita.status).toBe(201);
-    expect(visita.body['permissoes']).toMatchObject({ builder: 'ler', channels: 'ler' });
+    expect(visita.body['permissions']).toMatchObject({ builder: 'ler', channels: 'ler' });
 
     const solta = await editar(sessionEditor, bruno.id, {
       papelNoFluxo: 'personalizado',
       permissoes: { builder: 'escrever', channels: 'ler' },
     });
     expect(solta.status).toBe(200);
-    expect(solta.body['permissoes']).toMatchObject({
+    expect(solta.body['permissions']).toMatchObject({
       builder: 'escrever',
       channels: 'ler',
       /* Whatever is absent falls into "No permission" — the source's zero radio option. */
@@ -230,7 +230,7 @@ describe('POST /v1/management/flows/:id/team', () => {
       papelNoFluxo: 'visualizar',
     });
     expect(status).toBe(400);
-    expect(corpo).toMatchObject({ erro: { codigo: 'pessoa_fora_do_contrato' } });
+    expect(corpo).toMatchObject({ error: { code: 'person_outside_of_contract' } });
     expect(String((corpo['error'] as { message: string }).message)).toContain(
       'não faz parte do contrato',
     );
@@ -239,14 +239,14 @@ describe('POST /v1/management/flows/:id/team', () => {
   it('recusa a mesma pessoa duas vezes e nível que a origem não tem', async () => {
     const repetida = await adicionar(sessionEditor, { email: ana.email, papelNoFluxo: 'editar' });
     expect(repetida.status).toBe(409);
-    expect(repetida.body).toMatchObject({ erro: { codigo: 'ja_e_membro' } });
+    expect(repetida.body).toMatchObject({ error: { code: 'already_member' } });
 
     const inventado = await adicionar(sessionEditor, {
       email: carla.email,
       papelNoFluxo: 'super-admin',
     });
     expect(inventado.status).toBe(400);
-    expect(inventado.body).toMatchObject({ erro: { codigo: 'papel_no_fluxo_invalido' } });
+    expect(inventado.body).toMatchObject({ error: { code: 'role_in_flow_invalid' } });
   });
 });
 
@@ -254,7 +254,7 @@ describe('Require permission to manage the flow team', () => {
   it('Return 403 without either flow or account team permission', async () => {
     const lista = await listar(sessionWithoutAuthority);
     expect(lista.status).toBe(403);
-    expect(lista.body).toMatchObject({ erro: { codigo: 'sem_permissao' } });
+    expect(lista.body).toMatchObject({ error: { code: 'without_permission' } });
 
     const posta = await adicionar(sessionWithoutAuthority, {
       email: carla.email,
@@ -294,7 +294,7 @@ describe('PATCH e DELETE /v1/management/flows/:id/team/:usuarioId', () => {
   it('altera o nível, registra no log e não grava quando nada mudou', async () => {
     const mudou = await editar(sessionEditor, ana.id, { papelNoFluxo: 'visualizar' });
     expect(mudou.status).toBe(200);
-    expect(mudou.body['papelNoFluxo']).toBe('visualizar');
+    expect(mudou.body['roleInFlow']).toBe('visualizar');
 
     const antes = (await auditoriaDe(ana.id)).length;
     const igual = await editar(sessionEditor, ana.id, { papelNoFluxo: 'visualizar' });
@@ -322,7 +322,7 @@ describe('PATCH e DELETE /v1/management/flows/:id/team/:usuarioId', () => {
 
     const rebaixa = await editar(sessionEditor, ana.id, { papelNoFluxo: 'editar' }, so);
     expect(rebaixa.status).toBe(409);
-    expect(rebaixa.body).toMatchObject({ erro: { codigo: 'ultimo_admin' } });
+    expect(rebaixa.body).toMatchObject({ error: { code: 'last_admin' } });
     expect((await remover(sessionEditor, ana.id, so)).status).toBe(409);
 
     /* Com um segundo administrador, os dois gestos passam. */
@@ -335,7 +335,7 @@ describe('PATCH e DELETE /v1/management/flows/:id/team/:usuarioId', () => {
     const log = await auditoriaDe(ana.id);
     expect(log.at(-1)).toMatchObject({ acao: 'excluiu' });
     const lista = await listar(sessionEditor);
-    const emails = (lista.body['membros'] as { email: string }[]).map((m) => m.email);
+    const emails = (lista.body['members'] as { email: string }[]).map((m) => m.email);
     expect(emails).not.toContain(ana.email);
   });
 });
@@ -345,7 +345,7 @@ describe('Check flow and account permissions at both access gates', () => {
   const tentar = (usuarioId: string, fluxo: string, codigo: string) =>
     noTenant(a.tenantId, (tx) => requirePermissionInFlow(tx, usuarioId, fluxo, codigo))
       .then(() => 'passou')
-      .catch((error: Error & { code?: string }) => error.code ?? error.message);
+      .catch((error: Error & { codigo?: string }) => error.codigo ?? error.message);
 
   it('Allow flow-only permission without account permission', async () => {
     const flow = await createFlowInDatabase(a, `Portão A ${randomUUID().slice(0, 6)}`);
@@ -368,11 +368,11 @@ describe('Check flow and account permissions at both access gates', () => {
 
   it('Reject missing permissions and prevent `ler` access from granting `escrever` access', async () => {
     const fluxo = await createFlowInDatabase(a, `Portão C ${randomUUID().slice(0, 6)}`);
-    expect(await tentar(semPoderId, fluxo, 'builder.escrever')).toBe('sem_permissao');
+    expect(await tentar(semPoderId, fluxo, 'builder.escrever')).toBe('without_permission');
 
     await seed(a, fluxo, semPoderId, 'visualizar');
     expect(await tentar(semPoderId, fluxo, 'builder.ler')).toBe('passou');
-    expect(await tentar(semPoderId, fluxo, 'builder.escrever')).toBe('sem_permissao');
+    expect(await tentar(semPoderId, fluxo, 'builder.escrever')).toBe('without_permission');
   });
 
   it('Allow flow-only members to edit basic flow settings', async () => {
@@ -383,7 +383,7 @@ describe('Check flow and account permissions at both access gates', () => {
     const antes = await fetch(`${api.url}/v1/management/flows/${fluxo}`, {
       method: 'PATCH',
       headers: comCookie(sessionWithoutAuthority),
-      body: JSON.stringify({ descricao: 'sem poder nenhum' }),
+      body: JSON.stringify({ description: 'sem poder nenhum' }),
     });
     expect(antes.status).toBe(403);
 
@@ -391,7 +391,7 @@ describe('Check flow and account permissions at both access gates', () => {
     const depois = await fetch(`${api.url}/v1/management/flows/${fluxo}`, {
       method: 'PATCH',
       headers: comCookie(sessionWithoutAuthority),
-      body: JSON.stringify({ descricao: 'agora sou membro' }),
+      body: JSON.stringify({ description: 'agora sou membro' }),
     });
     expect(depois.status).toBe(200);
   });

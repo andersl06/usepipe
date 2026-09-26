@@ -509,7 +509,8 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
     lista: CursorDeProcessHttp['lista']; indice: number;
   };
   const dono = await databaseOwner().execute<Linha>(sql`
-    select id, tenant_id, execucao_id, estado, pedido, entrada, bloco_codigo, lista, indice
+    select id, tenant_id, execucao_id as "executionId", estado as "state", pedido,
+           entrada as "inbound", bloco_codigo as "blockCode", lista, indice
       from process_http_execucao where id = ${processoId} limit 1
   `);
   const encontrado = dono.rows[0];
@@ -552,9 +553,9 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
       conversationId: string; contactId: string; channelId: string; queueId: string | null;
       agentId: string | null; queueDefaultId: string | null;
     }>(sql`
-      select p.execucao_id, p.bloco_codigo, p.lista, p.indice, p.entrada, p.contexto,
-             e.conversa_id, e.contato_id, f.canal_id, c.fila_id, c.atendente_id,
-             i.fila_padrao_id
+      select p.execucao_id as "executionId", p.bloco_codigo, p.lista, p.indice, p.entrada, p.contexto,
+             e.conversa_id as "conversationId", e.contato_id as "contactId", f.canal_id as "channelId", c.fila_id as "queueId", c.atendente_id as "agentId",
+             i.fila_padrao_id as "queueDefaultId"
         from process_http_execucao p
         join execucao_fluxo e on e.id = p.execucao_id
         join conversa c on c.id = e.conversa_id
@@ -595,7 +596,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
     const { rows: messagesPending } = await tx.execute<{
       id: string; idProvider: string; type: string; content: string | null;
     }>(sql`
-      select m.id, m.id_provedor, m.tipo, m.conteudo
+      select m.id, m.id_provedor as "idProvider", m.tipo as "type", m.conteudo as "content"
         from mensagem m
        where m.conversa_id = ${p.conversationId} and m.direcao = 'entrada'
          and not exists (
@@ -887,7 +888,7 @@ async function loadContact(
     email: string | null;
     atributos: Record<string, unknown> | null;
   }>(
-    sql`select nome, telefone_e164, email, atributos from contato where id = ${contactId} limit 1`,
+    sql`select nome as "name", telefone_e164 as "phoneE164", email, atributos from contato where id = ${contactId} limit 1`,
   );
   const c = rows[0];
   // Use Blip `Contact` vocabulary because the imported flow expects it.

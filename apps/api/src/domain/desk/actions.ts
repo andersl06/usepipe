@@ -147,7 +147,7 @@ export async function atender(
     // `for update` serializes claims per agent as described above. Online agents
     // always have this row; it records that they are online.
     const { rows: status } = await tx.execute<{ state: string }>(
-      sql`select estado from status_atendente where usuario_id = ${atendenteId}::uuid for update`,
+      sql`select estado as "state" from status_atendente where usuario_id = ${atendenteId}::uuid for update`,
     );
     if (status[0]?.state !== 'online') return falha('Fique online para atender.');
 
@@ -192,7 +192,7 @@ export async function atender(
           for update skip locked
           limit 1
        )
-       returning id, fila_id
+       returning id, fila_id as "queueId"
     `);
     const puxada = rows[0];
     if (!puxada) {

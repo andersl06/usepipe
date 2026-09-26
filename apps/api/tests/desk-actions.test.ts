@@ -59,7 +59,7 @@ async function statusDe(
   usuarioId: string,
 ): Promise<{ state: string; since: Date | string } | undefined> {
   const { rows } = await a.dono.execute<{ state: string; since: Date | string }>(
-    sql`select estado, desde from status_atendente where usuario_id = ${usuarioId}::uuid`,
+    sql`select estado as state, desde as since from status_atendente where usuario_id = ${usuarioId}::uuid`,
   );
   return rows[0];
 }
@@ -141,13 +141,13 @@ describe('definirStatus', () => {
   it('Reject an unknown agent status', async () => {
     const { status, body } = await acao(sessionAgent, 'definirStatus', { estado: 'sonolento' });
     expect(status).toBe(200);
-    expect(body).toMatchObject({ ok: false, erro: 'Estado desconhecido.' });
+    expect(body).toMatchObject({ ok: false, error: 'Estado desconhecido.' });
   });
 
   it('pausa sem motivo é recusada; não muda o status atual', async () => {
     await acao(sessionAgent, 'definirStatus', { estado: 'online' });
     const { body } = await acao(sessionAgent, 'definirStatus', { estado: 'pausa' });
-    expect(body).toMatchObject({ ok: false, erro: 'Escolha o motivo da pausa.' });
+    expect(body).toMatchObject({ ok: false, error: 'Escolha o motivo da pausa.' });
     expect((await statusDe(a.agentId))?.state).toBe('online');
   });
 
@@ -214,13 +214,13 @@ describe('salvarNotaInterna', () => {
   it('Save an internal note attributed to the session agent', async () => {
     const conversationId = await createConversationAssigned(a.agentId);
     const { body } = await acao(sessionAgent, 'salvarNotaInterna', {
-      conversationId,
+      conversaId: conversationId,
       texto: '  Cliente pediu retorno amanhã.  ',
     });
     expect(body).toMatchObject({ ok: true });
 
     const { rows } = await a.dono.execute<{ body: string; userId: string }>(sql`
-      select corpo, usuario_id from nota_interna where conversa_id = ${conversationId}::uuid
+      select corpo as body, usuario_id as "userId" from nota_interna where conversa_id = ${conversationId}::uuid
     `);
     expect(rows[0]?.body).toBe('Cliente pediu retorno amanhã.');
     expect(rows[0]?.userId).toBe(a.agentId);
@@ -228,13 +228,13 @@ describe('salvarNotaInterna', () => {
 
   it('Reject an internal note without conversationId or text', async () => {
     const withoutConversation = await acao(sessionAgent, 'salvarNotaInterna', { texto: 'oi' });
-    expect(withoutConversation.body).toMatchObject({ ok: false, erro: 'Conversa não informada.' });
+    expect(withoutConversation.body).toMatchObject({ ok: false, error: 'Conversa não informada.' });
 
     const conversaId = await createConversationAssigned(a.agentId);
     const semTexto = await acao(sessionAgent, 'salvarNotaInterna', { conversaId, texto: '   ' });
     expect(semTexto.body).toMatchObject({
       ok: false,
-      erro: 'Escreva alguma coisa antes de enviar.',
+      error: 'Escreva alguma coisa antes de enviar.',
     });
   });
 });
@@ -243,7 +243,7 @@ describe('atender', () => {
   it('recusa quem não está online', async () => {
     await acao(sessionAgent, 'definirStatus', { estado: 'invisivel' });
     const { body } = await acao(sessionAgent, 'atender');
-    expect(body).toMatchObject({ ok: false, erro: 'Fique online para atender.' });
+    expect(body).toMatchObject({ ok: false, error: 'Fique online para atender.' });
     await acao(sessionAgent, 'definirStatus', { estado: 'online' });
   });
 
@@ -252,7 +252,7 @@ describe('atender', () => {
     for (;;) {
       const { body } = await acao(sessionAgent, 'atender');
       if (body['ok'] !== true) {
-        expect(body).toMatchObject({ ok: false, erro: 'Não há clientes aguardando.' });
+        expect(body).toMatchObject({ ok: false, error: 'Não há clientes aguardando.' });
         break;
       }
     }
@@ -286,7 +286,7 @@ describe('atender', () => {
     await createConversationInQueue(otherQueue[0]!.id);
 
     const { body } = await acao(sessionAgent, 'atender');
-    expect(body).toMatchObject({ ok: false, erro: 'Não há clientes aguardando.' });
+    expect(body).toMatchObject({ ok: false, error: 'Não há clientes aguardando.' });
   });
 });
 
@@ -321,8 +321,8 @@ describe('Enforce the agent\'s available-slot limit when pulling from a queue', 
 
     const segunda = await acao(sessionAgent, 'atender');
     expect(segunda.body['ok']).toBe(false);
-    expect(String(segunda.body['erro'])).toContain('limite de atendimentos simultâneos');
-    expect(String(segunda.body['erro'])).toContain('(1 em andamento)');
+    expect(String(segunda.body['error'])).toContain('limite de atendimentos simultâneos');
+    expect(String(segunda.body['error'])).toContain('(1 em andamento)');
     expect(await activeOfAgent()).toBe(1);
   });
 
@@ -349,7 +349,7 @@ describe('Enforce the agent\'s available-slot limit when pulling from a queue', 
     const recusas = [r1, r2].filter((r) => r.body['ok'] === false);
     expect(oks).toHaveLength(1);
     expect(recusas).toHaveLength(1);
-    expect(String(recusas[0]!.body['erro'])).toContain('limite de atendimentos simultâneos');
+    expect(String(recusas[0]!.body['error'])).toContain('limite de atendimentos simultâneos');
     expect(await activeOfAgent()).toBe(1);
   });
 
@@ -364,7 +364,7 @@ describe('Enforce the agent\'s available-slot limit when pulling from a queue', 
     expect((await acao(sessionAgent, 'atender')).body['ok']).toBe(true);
     expect((await acao(sessionAgent, 'atender')).body['ok']).toBe(true);
     const vazia = await acao(sessionAgent, 'atender');
-    expect(vazia.body).toMatchObject({ ok: false, erro: 'Não há clientes aguardando.' });
+    expect(vazia.body).toMatchObject({ ok: false, error: 'Não há clientes aguardando.' });
 
     // // Returns the scenario: no override and no conversation stuck on the agent.
     await a.dono.execute(sql`
@@ -442,17 +442,17 @@ describe('Pin conversations and mark them unread per agent', () => {
 
     const doColega = await createConversationAssigned(colegaId);
     const alheia = await acao(sessionAgent, 'fixar', { conversaId: doColega, fixada: 'true' });
-    expect(alheia.body).toMatchObject({ ok: false, erro: 'Esta conversa não está com você.' });
+    expect(alheia.body).toMatchObject({ ok: false, error: 'Esta conversa não está com você.' });
     expect(await taggingOf(doColega)).toBeNull();
 
     await a.dono.execute(
       sql`update conversa set estado = 'encerrada', encerrada_em = now() where id = ${minha}::uuid`,
     );
     const fechada = await acao(sessionAgent, 'marcarNaoLida', { conversaId: minha, naoLida: 'true' });
-    expect(fechada.body).toMatchObject({ ok: false, erro: 'A conversa já foi encerrada.' });
+    expect(fechada.body).toMatchObject({ ok: false, error: 'A conversa já foi encerrada.' });
 
     const inexistente = await acao(sessionAgent, 'fixar', { conversaId: randomUUID(), fixada: 'true' });
-    expect(inexistente.body).toMatchObject({ ok: false, erro: 'Conversa não encontrada.' });
+    expect(inexistente.body).toMatchObject({ ok: false, error: 'Conversa não encontrada.' });
   });
 
   it('o teto de 50 fixadas da origem', async () => {
@@ -468,7 +468,7 @@ describe('Pin conversations and mark them unread per agent', () => {
     const recusa = await acao(sessionAgent, 'fixar', { conversaId: aMais, fixada: 'true' });
     expect(recusa.body).toMatchObject({
       ok: false,
-      erro: 'Você já tem 50 conversas fixadas. Desafixe uma para fixar outra.',
+      error: 'Você já tem 50 conversas fixadas. Desafixe uma para fixar outra.',
     });
     // // Re-fixing one of the 50 doesn't hit the ceiling.
     const refixa = await acao(sessionAgent, 'fixar', { conversaId: outras[0]!, fixada: 'true' });
@@ -485,14 +485,14 @@ describe('Transfer selected conversations in bulk', () => {
     const semConversa = await acao(sessionAgent, 'transferirEmMassa', { paraAtendenteId: colegaId });
     expect(semConversa.body).toMatchObject({
       ok: false,
-      erro: 'Selecione ao menos um atendimento.',
+      error: 'Selecione ao menos um atendimento.',
     });
 
     const conversaId = await createConversationAssigned(a.agentId);
     const withoutDestination = await acao(sessionAgent, 'transferirEmMassa', { conversaId: [conversaId] });
     expect(withoutDestination.body).toMatchObject({
       ok: false,
-      erro: 'Escolha a fila ou o atendente de destino.',
+      error: 'Escolha a fila ou o atendente de destino.',
     });
   });
 
@@ -507,7 +507,7 @@ describe('Transfer selected conversations in bulk', () => {
     expect(body).toMatchObject({ ok: true, transferidas: 2 });
 
     const { rows } = await a.dono.execute<{ id: string; state: string }>(sql`
-      select id, estado from conversa where id in (${c1}::uuid, ${c2}::uuid)
+      select id, estado as state from conversa where id in (${c1}::uuid, ${c2}::uuid)
     `);
     expect(rows.every((r) => r.state === 'encerrada')).toBe(true);
 
@@ -526,6 +526,6 @@ describe('Transfer selected conversations in bulk', () => {
     });
     expect(body['ok']).toBe(true);
     expect(body['transferidas']).toBe(1);
-    expect(typeof body['erro']).toBe('string');
+    expect(typeof body['error']).toBe('string');
   });
 });

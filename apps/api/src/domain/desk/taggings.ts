@@ -33,7 +33,7 @@ async function checkConversation(
 ): Promise<string | null> {
   if (!UUID.test(conversationId)) return 'Conversa não informada.';
   const { rows } = await tx.execute<{ state: string; agentId: string | null }>(
-    sql`select estado, atendente_id from conversa where id = ${conversationId}::uuid limit 1`,
+    sql`select estado as "state", atendente_id as "agentId" from conversa where id = ${conversationId}::uuid limit 1`,
   );
   const conversation = rows[0];
   if (!conversation) return 'Conversa não encontrada.';

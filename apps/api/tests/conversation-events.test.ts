@@ -97,7 +97,7 @@ function chamar(caminho: string, corpo?: unknown): Promise<Response> {
 
 async function eventosDe(conversationId: string): Promise<string[]> {
   const { rows } = await cenario.dono.execute<{ type: string }>(sql`
-    select tipo from evento_atendimento where conversa_id = ${conversationId}::uuid order by em, tipo
+    select tipo as type from evento_atendimento where conversa_id = ${conversationId}::uuid order by em, tipo
   `);
   return rows.map((r) => r.type);
 }
@@ -118,7 +118,7 @@ describe('Close conversations and record their events', () => {
     await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
 
     const { rows } = await cenario.dono.execute<{ userId: string; data: Record<string, string> }>(sql`
-      select usuario_id, dados from evento_atendimento
+      select usuario_id as "userId", dados as data from evento_atendimento
        where conversa_id = ${id}::uuid and tipo = 'encerrada' limit 1
     `);
     expect(rows[0]?.userId).toBe(cenario.agentId);
@@ -136,7 +136,7 @@ describe('Close conversations and record their events', () => {
     });
     expect(resposta.status).toBe(201);
     const { rows: associadas } = await cenario.dono.execute<{ name: string }>(sql`
-      select e.nome from conversa_etiqueta ce join etiqueta e on e.id = ce.etiqueta_id
+      select e.nome as name from conversa_etiqueta ce join etiqueta e on e.id = ce.etiqueta_id
        where ce.conversa_id = ${id}::uuid order by e.nome
     `);
     expect(associadas.map((etiqueta) => etiqueta.name)).toEqual(['Dúvida', 'Resolvido']);
@@ -158,7 +158,7 @@ describe('Close conversations and record their events', () => {
     expect(eventos).toContain('espera_encerrada');
     expect(eventos).toContain('encerrada');
     const { rows } = await cenario.dono.execute<{ pausadoSeg: number }>(
-      sql`select pausado_seg from conversa where id = ${id}::uuid`,
+      sql`select pausado_seg as "pausadoSeg" from conversa where id = ${id}::uuid`,
     );
     expect(rows[0]!.pausadoSeg).toBeGreaterThan(0);
   });
@@ -204,7 +204,7 @@ describe('espera', () => {
     const resposta = await chamar(`/v1/conversations/${id}/wait`);
 
     expect(resposta.status).toBe(201);
-    expect(((await resposta.json()) as { state: string }).state).toBe('em_espera');
+    expect(((await resposta.json()) as { estado: string }).estado).toBe('em_espera');
     expect(await eventosDe(id)).toContain('espera_iniciada');
   });
 
@@ -212,13 +212,13 @@ describe('espera', () => {
     const id = await newConversation('em_espera');
 
     const resposta = await chamar(`/v1/conversations/${id}/wait`);
-    const corpo = (await resposta.json()) as { state: string; pausadoSeg: number };
+    const corpo = (await resposta.json()) as { estado: string; pausado_seg: number };
 
-    expect(corpo.state).toBe('em_atendimento');
+    expect(corpo.estado).toBe('em_atendimento');
     // // The conversation was born with `em_espera_desde` 30 seconds ago.
-    expect(corpo.pausadoSeg).toBeGreaterThanOrEqual(29);
+    expect(corpo.pausado_seg).toBeGreaterThanOrEqual(29);
     const { rows } = await cenario.dono.execute<{ data: Record<string, number> }>(sql`
-      select dados from evento_atendimento
+      select dados as data from evento_atendimento
        where conversa_id = ${id}::uuid and tipo = 'espera_encerrada' limit 1
     `);
     expect(rows[0]?.data['pausado_seg']).toBeGreaterThanOrEqual(29);

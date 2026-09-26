@@ -46,7 +46,7 @@ async function flowOfBuilder(
   permission: string,
 ): Promise<{ id: string; name: string; state: string }> {
   const { rows } = await tx.execute<{ id: string; name: string; type: string; state: string }>(sql`
-    select id, nome, tipo, estado from fluxo
+    select id, nome as "name", tipo as "type", estado as "state" from fluxo
      where tenant_id = ${tid} and id = ${id} and estado <> 'arquivado'
      limit 1
   `);
@@ -80,9 +80,9 @@ type LinhaVersao = {
 };
 
 const COLUNAS_DA_VERSAO = sql`
-  v.id, v.versao, v.estado, v.publicada_em, v.criado_em, v.atualizado_em,
-  u.nome as publicada_por_nome,
-  (select count(*)::int from bloco b where b.versao_id = v.id) as blocos
+  v.id, v.versao as "version", v.estado as "state", v.publicada_em, v.criado_em as "createdAt", v.atualizado_em,
+  u.nome as "publishedByName",
+  (select count(*)::int from bloco b where b.versao_id = v.id) as "blocks"
 `;
 const DE_VERSAO = sql`from fluxo_versao v left join usuario u on u.id = v.publicada_por`;
 
@@ -246,7 +246,7 @@ const ehObjeto = (v: unknown): v is Record<string, unknown> =>
  */
 function compilar(desenho: unknown, fluxoId: string): Compilado {
   const bruto = ehObjeto(desenho) ? desenho : {};
-  const mapa = bruto['fluxo'];
+  const mapa = bruto['flow'];
   if (!ehObjeto(mapa) || Object.values(mapa).some((e) => !ehObjeto(e))) {
     throw PipeError.request(
       'design_invalid',
@@ -258,7 +258,7 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
     const e = estado as Record<string, unknown>;
     fluxo[codigo] = typeof e['id'] === 'string' && e['id'] ? e : { ...e, id: codigo };
   }
-  const globais = ehObjeto(bruto['globais']) ? bruto['globais'] : { ...ACTIONS_GLOBAL_DEFAULT };
+  const globais = ehObjeto(bruto['globals']) ? bruto['globals'] : { ...ACTIONS_GLOBAL_DEFAULT };
 
   let compilado: FlowBlip;
   try {

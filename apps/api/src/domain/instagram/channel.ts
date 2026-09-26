@@ -185,7 +185,7 @@ export async function conectarInstagramManual(pedido: {
 
   // Check global uniqueness with the owner role: RLS would hide another tenant's channel. Return only the information needed to decide.
   const { rows: existentes } = await databaseOwner().execute<{ id: string; tenant_id: string; active: boolean }>(sql`
-    select id, tenant_id, ativo from canal where numero_id = ${igUserId} limit 1
+    select id, tenant_id, ativo as "active" from canal where numero_id = ${igUserId} limit 1
   `);
   const existente = existentes[0];
   if (existente && (existente.tenant_id !== pedido.tenantId || existente.active)) throw accountInUse();

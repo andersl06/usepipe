@@ -134,10 +134,10 @@ export class ManagementFlowController {
     const recados = corpo?.recados;
     if (!recados) throw PipeError.request('messages_missing', 'Faltam os recados da tela.');
     const frases: Record<string, string | undefined> = {
-      nome_tamanho: recados.tamanho,
-      nome_comeco: recados.comecoInvalido,
-      nome_em_uso: recados.nomeEmUso,
-      sem_permissao: recados.withoutPermission,
+      name_size: recados.tamanho,
+      name_start: recados.comecoInvalido,
+      name_in_use: recados.nomeEmUso,
+      without_permission: recados.withoutPermission,
     };
     try {
       return await noTenant(session.tenantId, (tx) =>

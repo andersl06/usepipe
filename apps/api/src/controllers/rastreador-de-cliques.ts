@@ -41,7 +41,7 @@ export class TrackedLinksController {
   @WithSession()
   async listar(
     @Req() request: RequestWithSession,
-    @Param('fluxoId') flowId: string,
+    @Param('flowId') flowId: string,
     @Query('desde') desde: string | undefined,
     @Query('to') ate: string | undefined,
   ): Promise<{ data: LinkRastreado[] }> {
@@ -58,7 +58,7 @@ export class TrackedLinksController {
   @WithSession()
   async create(
     @Req() requisicao: RequestWithSession,
-    @Param('fluxoId') fluxoId: string,
+    @Param('flowId') fluxoId: string,
     @Body() corpo: CorpoDeLink,
   ): Promise<LinkRastreado> {
     const sessao = sessionOf(requisicao);

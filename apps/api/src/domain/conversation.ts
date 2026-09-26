@@ -287,9 +287,9 @@ export async function transferConversation(
         lastMessageOf: string | null;
       }
     >(sql`
-      select id, estado, fila_id, atendente_id, em_espera_desde, inbox_id, contato_id,
-             prioridade, janela_expira_em, janela_aberta_por_mensagem_id,
-             ultima_mensagem_em, ultima_mensagem_de
+      select id, estado as "state", fila_id as "queueId", atendente_id as "agentId", em_espera_desde, inbox_id, contato_id as "contactId",
+             prioridade as "priority", janela_expira_em as "windowExpiresAt", janela_aberta_por_mensagem_id as "windowOpenByMessageId",
+             ultima_mensagem_em as "lastMessageAt", ultima_mensagem_de as "lastMessageOf"
         from conversa where id = ${pedido.conversationId}::uuid limit 1
     `);
     const conversa = rows[0];

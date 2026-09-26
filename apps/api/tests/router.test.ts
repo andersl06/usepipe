@@ -130,16 +130,16 @@ describe('/v1/management/flows/:id/services', () => {
     const principal = await newFlow(a, 'fluxo', { state: 'publicado' });
     const suporte = await newFlow(a, 'fluxo');
 
-    const empty = await chamar(sessionEditor, 'GET', `${router}/servicos`);
+    const empty = await chamar(sessionEditor, 'GET', `${router}/services`);
     expect(empty.status).toBe(200);
     expect(empty.body).toMatchObject({ principal: null, filhos: [] });
-    expect((empty.body['roteador'] as { id: string }).id).toBe(router);
-    const search = empty.body['busca'] as { id: string; type: string }[];
+    expect((empty.body['router'] as { id: string }).id).toBe(router);
+    const search = empty.body['search'] as { id: string; tipo: string }[];
     expect(search.some((f) => f.id === suporte)).toBe(true);
-    expect(search.every((f) => f.type === 'fluxo')).toBe(true);
+    expect(search.every((f) => f.tipo === 'fluxo')).toBe(true);
 
-    const p = await chamar(sessionEditor, 'POST', `${router}/servicos`, {
-      name: 'Principal',
+    const p = await chamar(sessionEditor, 'POST', `${router}/services`, {
+      nome: 'Principal',
       chatbotId: principal,
       principal: true,
       // Principal esconde (e ignora) os dois campos.
@@ -151,23 +151,23 @@ describe('/v1/management/flows/:id/services', () => {
       nome: 'Principal',
       principal: true,
       persistente: false,
-      expiracaoMin: null,
+      expirationMin: null,
       chatbot: { id: principal, estado: 'publicado' },
     });
 
-    const s = await chamar(sessionEditor, 'POST', `${router}/servicos`, {
-      name: 'Suporte',
+    const s = await chamar(sessionEditor, 'POST', `${router}/services`, {
+      nome: 'Suporte',
       chatbotId: suporte,
       principal: false,
       persistente: false,
       expiracaoMin: 30,
     });
     expect(s.status).toBe(201);
-    expect(s.body).toMatchObject({ principal: false, persistente: false, expiracaoMin: 30 });
+    expect(s.body).toMatchObject({ principal: false, persistente: false, expirationMin: 30 });
 
-    const lido = await chamar(sessionEditor, 'GET', `${router}/servicos`);
+    const lido = await chamar(sessionEditor, 'GET', `${router}/services`);
     expect((lido.body['principal'] as { id: string }).id).toBe(p.body['id']);
-    expect((lido.body['filhos'] as { id: string; name: string }[]).map((f) => f.name)).toEqual([
+    expect((lido.body['filhos'] as { id: string; nome: string }[]).map((f) => f.nome)).toEqual([
       'Suporte',
     ]);
 
@@ -187,7 +187,7 @@ describe('/v1/management/flows/:id/services', () => {
     const archived = await newFlow(a, 'fluxo', { state: 'arquivado' });
     const doOutroTenant = await newFlow(b, 'fluxo');
     const post = (corpo: Record<string, unknown>) =>
-      chamar(sessionEditor, 'POST', `${roteador}/servicos`, {
+      chamar(sessionEditor, 'POST', `${roteador}/services`, {
         principal: false,
         persistente: false,
         expiracaoMin: 5,
@@ -198,33 +198,33 @@ describe('/v1/management/flows/:id/services', () => {
 
     const segundo = await post({ nome: 'Dois', chatbotId: f2, principal: true });
     expect(segundo.status).toBe(409);
-    expect(codigo(segundo)).toBe('servico_principal_em_uso');
+    expect(codigo(segundo)).toBe('service_principal_in_use');
 
     const mesmoNome = await post({ nome: 'Um', chatbotId: f2 });
     expect(mesmoNome.status).toBe(409);
-    expect(codigo(mesmoNome)).toBe('servico_nome_em_uso');
+    expect(codigo(mesmoNome)).toBe('service_name_in_use');
 
     const mesmoChatbot = await post({ nome: 'Outro', chatbotId: f1 });
     expect(mesmoChatbot.status).toBe(409);
-    expect(codigo(mesmoChatbot)).toBe('servico_chatbot_em_uso');
+    expect(codigo(mesmoChatbot)).toBe('service_chatbot_in_use');
 
     const withoutExpiration = await post({ nome: 'Três', chatbotId: f3, expiracaoMin: null });
     expect(withoutExpiration.status).toBe(400);
-    expect(codigo(withoutExpiration)).toBe('servico_expiracao');
+    expect(codigo(withoutExpiration)).toBe('service_expiration');
 
     const semNome = await post({ nome: '   ', chatbotId: f3 });
-    expect(codigo(semNome)).toBe('servico_nome');
+    expect(codigo(semNome)).toBe('service_name');
 
     for (const chatbotId of [otherRouter, archived, doOutroTenant, roteador]) {
       const r = await post({ nome: `X ${randomUUID().slice(0, 4)}`, chatbotId });
       expect(r.status).toBe(400);
-      expect(codigo(r)).toBe('servico_chatbot');
+      expect(codigo(r)).toBe('service_chatbot');
     }
 
     // Persistent ignores expiration.
     const persistente = await post({ nome: 'Três', chatbotId: f3, persistente: true });
     expect(persistente.status).toBe(201);
-    expect(persistente.body).toMatchObject({ persistente: true, expiracaoMin: null });
+    expect(persistente.body).toMatchObject({ persistente: true, expirationMin: null });
 
     const { rows } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from roteador_servico where roteador_id = ${roteador}::uuid`,
@@ -235,17 +235,17 @@ describe('/v1/management/flows/:id/services', () => {
   it('Allow services only on router bots and edits only by flow editors', async () => {
     const flow = await newFlow(a, 'fluxo');
     const outro = await newFlow(a, 'fluxo');
-    const notRouter = await chamar(sessionEditor, 'POST', `${flow}/servicos`, {
-      name: 'S',
+    const notRouter = await chamar(sessionEditor, 'POST', `${flow}/services`, {
+      nome: 'S',
       chatbotId: outro,
       principal: true,
     });
     expect(notRouter.status).toBe(400);
-    expect(codigo(notRouter)).toBe('nao_e_roteador');
+    expect(codigo(notRouter)).toBe('not_router');
 
     const roteador = await newFlow(a, 'roteador');
-    const semPoder = await chamar(sessionWithoutAuthority, 'POST', `${roteador}/servicos`, {
-      name: 'S',
+    const semPoder = await chamar(sessionWithoutAuthority, 'POST', `${roteador}/services`, {
+      nome: 'S',
       chatbotId: outro,
       principal: true,
     });
@@ -256,8 +256,8 @@ describe('/v1/management/flows/:id/services', () => {
     const roteador = await newFlow(a, 'roteador');
     const f1 = await newFlow(a, 'fluxo');
     const f2 = await newFlow(a, 'fluxo');
-    const criado = await chamar(sessionEditor, 'POST', `${roteador}/servicos`, {
-      name: 'Vendas',
+    const criado = await chamar(sessionEditor, 'POST', `${roteador}/services`, {
+      nome: 'Vendas',
       chatbotId: f1,
       principal: false,
       persistente: false,
@@ -265,27 +265,27 @@ describe('/v1/management/flows/:id/services', () => {
     });
     const id = criado.body['id'] as string;
 
-    const mais = await chamar(sessionEditor, 'PATCH', `${roteador}/servicos/${id}`, {
+    const mais = await chamar(sessionEditor, 'PATCH', `${roteador}/services/${id}`, {
       expiracaoMin: 45,
     });
     expect(mais.status).toBe(200);
-    expect(mais.body).toMatchObject({ nome: 'Vendas', expiracaoMin: 45 });
+    expect(mais.body).toMatchObject({ nome: 'Vendas', expirationMin: 45 });
 
-    const persistente = await chamar(sessionEditor, 'PATCH', `${roteador}/servicos/${id}`, {
+    const persistente = await chamar(sessionEditor, 'PATCH', `${roteador}/services/${id}`, {
       persistente: true,
       chatbotId: f2,
     });
     expect(persistente.body).toMatchObject({
       persistente: true,
-      expiracaoMin: null,
+      expirationMin: null,
       chatbot: { id: f2 },
     });
 
-    const invalido = await chamar(sessionEditor, 'PATCH', `${roteador}/servicos/${id}`, {
+    const invalido = await chamar(sessionEditor, 'PATCH', `${roteador}/services/${id}`, {
       persistente: false,
     });
     expect(invalido.status).toBe(400);
-    expect(codigo(invalido)).toBe('servico_expiracao');
+    expect(codigo(invalido)).toBe('service_expiration');
 
     const { rows: log } = await a.dono.execute<{ acao: string; depois: Record<string, unknown> }>(
       sql`
@@ -297,29 +297,29 @@ describe('/v1/management/flows/:id/services', () => {
     expect(log.map((l) => l.acao)).toEqual(['criou', 'alterou', 'alterou']);
     expect(log[1]!.depois).toEqual({ expiracaoMin: 45 });
 
-    const apagado = await chamar(sessionEditor, 'DELETE', `${roteador}/servicos/${id}`);
+    const apagado = await chamar(sessionEditor, 'DELETE', `${roteador}/services/${id}`);
     expect(apagado.status).toBe(204);
-    const depois = await chamar(sessionEditor, 'GET', `${roteador}/servicos`);
+    const depois = await chamar(sessionEditor, 'GET', `${roteador}/services`);
     expect(depois.body['filhos']).toEqual([]);
-    expect((await chamar(sessionEditor, 'DELETE', `${roteador}/servicos/${id}`)).status).toBe(404);
+    expect((await chamar(sessionEditor, 'DELETE', `${roteador}/services/${id}`)).status).toBe(404);
   });
 
   it('Return 404 for another tenant\'s router on every service action', async () => {
     const roteador = await newFlow(a, 'roteador');
     const f1 = await newFlow(a, 'fluxo');
-    const criado = await chamar(sessionEditor, 'POST', `${roteador}/servicos`, {
-      name: 'Principal',
+    const criado = await chamar(sessionEditor, 'POST', `${roteador}/services`, {
+      nome: 'Principal',
       chatbotId: f1,
       principal: true,
     });
     const id = criado.body['id'] as string;
     const deB = await newFlow(b, 'fluxo');
 
-    expect((await chamar(sessionOfOtherTenant, 'GET', `${roteador}/servicos`)).status).toBe(404);
+    expect((await chamar(sessionOfOtherTenant, 'GET', `${roteador}/services`)).status).toBe(404);
     expect(
       (
-        await chamar(sessionOfOtherTenant, 'POST', `${roteador}/servicos`, {
-          name: 'Intruso',
+        await chamar(sessionOfOtherTenant, 'POST', `${roteador}/services`, {
+          nome: 'Intruso',
           chatbotId: deB,
           principal: false,
           persistente: true,
@@ -327,16 +327,16 @@ describe('/v1/management/flows/:id/services', () => {
       ).status,
     ).toBe(404);
     expect(
-      (await chamar(sessionOfOtherTenant, 'PATCH', `${roteador}/servicos/${id}`, { name: 'X' }))
+      (await chamar(sessionOfOtherTenant, 'PATCH', `${roteador}/services/${id}`, { nome: 'X' }))
         .status,
     ).toBe(404);
-    expect((await chamar(sessionOfOtherTenant, 'DELETE', `${roteador}/servicos/${id}`)).status).toBe(
+    expect((await chamar(sessionOfOtherTenant, 'DELETE', `${roteador}/services/${id}`)).status).toBe(
       404,
     );
-    const { rows } = await a.dono.execute<{ name: string }>(
+    const { rows } = await a.dono.execute<{ nome: string }>(
       sql`select nome from roteador_servico where id = ${id}::uuid`,
     );
-    expect(rows[0]?.name).toBe('Principal');
+    expect(rows[0]?.nome).toBe('Principal');
   });
 });
 

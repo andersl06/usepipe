@@ -184,8 +184,8 @@ describe('GET /v1/management/contract/members', () => {
   it('List each member\'s role and reject users without conta.membros.ler', async () => {
     const { status, body } = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
     expect(status).toBe(200);
-    const member = body.membros.find((m: Corpo) => m.id === userMemberId);
-    expect(member).toMatchObject({ tipo: 'usuario', papelNome: 'member' });
+    const member = body.members.find((m: Corpo) => m.id === userMemberId);
+    expect(member).toMatchObject({ tipo: 'usuario', roleName: 'member' });
 
     const withoutSession = await fetch(`${api.url}/v1/management/contract/members`);
     expect(withoutSession.status).toBe(401);
@@ -195,15 +195,15 @@ describe('GET /v1/management/contract/members', () => {
 describe('convidar, reenviar e revogar', () => {
   it('Invite with a role, invalidate the old link on resend, and revoke the invitation', async () => {
     const email = `convidado-${randomUUID().slice(0, 8)}@e2e.pipe.app`;
-    const criado = await pedir('POST', '/v1/convites', sessionAdmin1, { email, papel: 'member' });
+    const criado = await pedir('POST', '/v1/convites', sessionAdmin1, { email, role: 'member' });
     expect(criado.status).toBe(201);
-    expect(criado.body).toMatchObject({ email, papel: 'member' });
-    expect(criado.body.url).toContain('/convite/');
+    expect(criado.body).toMatchObject({ email, role: 'member' });
+    expect(criado.body.url).toContain('/invite/');
 
     // aparece em Membros como pendente
     const lista1 = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
-    const pendente1 = lista1.body.membros.find((m: Corpo) => m.id === criado.body.id);
-    expect(pendente1).toMatchObject({ tipo: 'convite', email, papelNome: 'member' });
+    const pendente1 = lista1.body.members.find((m: Corpo) => m.id === criado.body.id);
+    expect(pendente1).toMatchObject({ tipo: 'convite', email, roleName: 'member' });
 
     const reenviado = await pedir(
       'POST',
@@ -229,13 +229,13 @@ describe('convidar, reenviar e revogar', () => {
     expect(revogado.body).toEqual({ ok: true });
 
     const lista2 = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
-    expect(lista2.body.membros.some((m: Corpo) => m.id === reenviado.body.id)).toBe(false);
+    expect(lista2.body.members.some((m: Corpo) => m.id === reenviado.body.id)).toBe(false);
   });
 
   it('Return 403 when inviting without `conta.membros.escrever`', async () => {
     const semPoder = await pedir('POST', '/v1/convites', sessionGuest, {
       email: `x-${randomUUID().slice(0, 6)}@e2e.pipe.app`,
-      papel: 'guest',
+      role: 'guest',
     });
     expect(semPoder.status).toBe(403);
     expect(semPoder.body.error.code).toBe('without_permission');
@@ -244,7 +244,7 @@ describe('convidar, reenviar e revogar', () => {
 
   it('Return 404 when resending another tenant\'s invitation', async () => {
     const email = `cross-${randomUUID().slice(0, 8)}@e2e.pipe.app`;
-    const criado = await pedir('POST', '/v1/convites', sessionAdmin1, { email, papel: 'guest' });
+    const criado = await pedir('POST', '/v1/convites', sessionAdmin1, { email, role: 'guest' });
     const doOutroTenant = await pedir(
       'POST',
       `/v1/convites/${criado.body.id}/reenviar`,
@@ -257,18 +257,18 @@ describe('convidar, reenviar e revogar', () => {
 describe('POST /v1/management/contract/members/role', () => {
   it('Change a member\'s role', async () => {
     const resultado = await pedir('POST', '/v1/management/contract/members/role', sessionAdmin1, {
-      papelId: a.papeis.guest,
+      roleId: a.papeis.guest,
       alvos: [`usuario:${userMemberId}`],
     });
     expect(resultado.body).toEqual({ ok: true });
 
     const lista = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
-    const membro = lista.body.membros.find((m: Corpo) => m.id === userMemberId);
+    const membro = lista.body.members.find((m: Corpo) => m.id === userMemberId);
     expect(membro.roleName).toBe('guest');
 
     // // returns to the original state, so it doesn't disrupt the other tests
     await pedir('POST', '/v1/management/contract/members/role', sessionAdmin1, {
-      papelId: a.papeis.member,
+      roleId: a.papeis.member,
       alvos: [`usuario:${userMemberId}`],
     });
   });
@@ -278,7 +278,7 @@ describe('POST /v1/management/contract/members/role', () => {
       'POST',
       '/v1/management/contract/members/role',
       sessionOfOtherTenant,
-      { papelId: a.papeis.guest, alvos: [`usuario:${userMemberId}`] },
+      { roleId: a.papeis.guest, alvos: [`usuario:${userMemberId}`] },
     );
     expect(resultado.body).toMatchObject({ ok: false });
   });
@@ -290,7 +290,7 @@ describe('o último administrador', () => {
       'POST',
       '/v1/management/contract/members/role',
       sessionUniqueAdmin,
-      { papelId: umAdmin.papeis.member, alvos: [`usuario:${userUniqueAdminId}`] },
+      { roleId: umAdmin.papeis.member, alvos: [`usuario:${userUniqueAdminId}`] },
     );
     expect(resultado.body.ok).toBe(false);
     expect(resultado.body.error).toMatch(/último administrador/);
@@ -298,7 +298,7 @@ describe('o último administrador', () => {
     // continua admin
     const lista = await pedir('GET', '/v1/management/contract/members', sessionUniqueAdmin);
     expect(
-      lista.body.membros.find((m: Corpo) => m.id === userUniqueAdminId)?.roleName,
+      lista.body.members.find((m: Corpo) => m.id === userUniqueAdminId)?.roleName,
     ).toBe('admin');
   });
 
@@ -313,19 +313,19 @@ describe('o último administrador', () => {
     expect(resultado.body.error).toMatch(/último administrador/);
 
     const lista = await pedir('GET', '/v1/management/contract/members', sessionUniqueAdmin);
-    expect(lista.body.membros.some((m: Corpo) => m.id === userUniqueAdminId)).toBe(true);
+    expect(lista.body.members.some((m: Corpo) => m.id === userUniqueAdminId)).toBe(true);
   });
 
   it('com DOIS admins, rebaixar ou remover um deles funciona', async () => {
     const rebaixa = await pedir('POST', '/v1/management/contract/members/role', sessionAdmin1, {
-      papelId: a.papeis.member,
+      roleId: a.papeis.member,
       alvos: [`usuario:${userAdmin2Id}`],
     });
     expect(rebaixa.body).toEqual({ ok: true });
 
     // // returns the admin and tests removal from the other side
     await pedir('POST', '/v1/management/contract/members/role', sessionAdmin1, {
-      papelId: a.papeis.admin,
+      roleId: a.papeis.admin,
       alvos: [`usuario:${userAdmin2Id}`],
     });
     const remove = await pedir('POST', '/v1/management/contract/members/delete', sessionAdmin1, {
@@ -344,10 +344,10 @@ const SENHA_DO_PFX = 'senha-do-pfx-2026';
 const pfxValido = generatePfxOfTest({ senha: SENHA_DO_PFX });
 
 const pedidoDeCertificado = (extra: Record<string, unknown> = {}) => ({
-  descricao: `Certificado ${randomUUID().slice(0, 6)}`,
+  description: `Certificado ${randomUUID().slice(0, 6)}`,
   hosts: ['https://api.exemplo.com.br'],
   senha: SENHA_DO_PFX,
-  arquivo: pfxValido.pfx.toString('base64'),
+  file: pfxValido.pfx.toString('base64'),
   ...extra,
 });
 
@@ -356,15 +356,15 @@ describe('Manage mTLS authentication certificates', () => {
     // // The screen sends a data URL (FileReader); plain base64 also works.
     const criado = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
       ...pedidoDeCertificado({
-        arquivo: `data:application/x-pkcs12;base64,${pfxValido.pfx.toString('base64')}`,
+        file: `data:application/x-pkcs12;base64,${pfxValido.pfx.toString('base64')}`,
       }),
     });
     expect(criado.status).toBe(201);
     expect(criado.body).toMatchObject({
       impressaoDigital: pfxValido.impressaoDigital,
-      expiraEm: `${pfxValido.expiraEm}T00:00:00.000Z`,
-      sujeito: 'CN=cliente.exemplo.com.br',
-      emissor: 'CN=cliente.exemplo.com.br',
+      expiresAt: `${pfxValido.expiraEm}T00:00:00.000Z`,
+      subject: 'CN=cliente.exemplo.com.br',
+      issuer: 'CN=cliente.exemplo.com.br',
       status: 'valido',
     });
 
@@ -373,7 +373,7 @@ describe('Manage mTLS authentication certificates', () => {
     const linha = lista.body.find((c: Corpo) => c.id === criado.body.id);
     expect(linha).toMatchObject({
       impressaoDigital: pfxValido.impressaoDigital,
-      expiraEm: `${pfxValido.expiraEm}T00:00:00.000Z`,
+      expiresAt: `${pfxValido.expiraEm}T00:00:00.000Z`,
       status: 'valido',
     });
   });
@@ -381,11 +381,11 @@ describe('Manage mTLS authentication certificates', () => {
   it('certificado vencido entra com status expirado', async () => {
     const vencido = generatePfxOfTest({ senha: 'outra', validoDesde: '2019-01-01', validoAte: '2021-01-01' });
     const criado = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
-      ...pedidoDeCertificado({ senha: 'outra', arquivo: vencido.pfx.toString('base64') }),
+      ...pedidoDeCertificado({ senha: 'outra', file: vencido.pfx.toString('base64') }),
     });
     expect(criado.status).toBe(201);
     expect(criado.body.status).toBe('expirado');
-    expect(criado.body.expiraEm).toBe('2021-01-01T00:00:00.000Z');
+    expect(criado.body.expiresAt).toBe('2021-01-01T00:00:00.000Z');
   });
 
   it('Reject a wrong certificate password without saving anything', async () => {
@@ -405,7 +405,7 @@ describe('Manage mTLS authentication certificates', () => {
 
   it('Return 400 for a non-.pfx file or missing password', async () => {
     const lixo = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
-      ...pedidoDeCertificado({ arquivo: Buffer.from('isto não é um pfx').toString('base64') }),
+      ...pedidoDeCertificado({ file: Buffer.from('isto não é um pfx').toString('base64') }),
     });
     expect(lixo.status).toBe(400);
     expect(lixo.body.error.code).toBe('pfx_invalid');
@@ -434,7 +434,7 @@ describe('Manage mTLS authentication certificates', () => {
 
     // No banco: envelopes `pipev1.` (AES-256-GCM), nunca o valor em claro.
     const { rows } = await a.dono.execute<{ fileEncrypted: string; senha_cifrada: string }>(
-      sql`select arquivo_cifrado, senha_cifrada from certificado_mtls where id = ${criado.body.id}::uuid`,
+      sql`select arquivo_cifrado as "fileEncrypted", senha_cifrada from certificado_mtls where id = ${criado.body.id}::uuid`,
     );
     expect(rows[0]!.fileEncrypted).toMatch(/^pipev1\./);
     expect(rows[0]!.senha_cifrada).toMatch(/^pipev1\./);

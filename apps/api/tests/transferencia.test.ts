@@ -103,8 +103,10 @@ async function conversation(id: string) {
     firstResponseAt: Date | null;
     lastMessageOf: string | null;
   }>(sql`
-    select estado, fila_id, atendente_id, prioridade, encerrada_em, motivo_encerramento,
-           janela_expira_em, primeira_resposta_em, ultima_mensagem_de
+    select estado as "state", fila_id as "queueId", atendente_id as "agentId",
+           prioridade as "priority", encerrada_em, motivo_encerramento as "reasonClosure",
+           janela_expira_em as "windowExpiresAt", primeira_resposta_em as "firstResponseAt",
+           ultima_mensagem_de as "lastMessageOf"
       from conversa where id = ${id}::uuid
   `);
   return rows[0]!;
@@ -121,7 +123,7 @@ describe('Transfer a conversation to a queue', () => {
   it('Close the old conversation and open one in the destination queue', async () => {
     const antiga = await newConversation();
 
-    const resposta = await transferir(antiga, { para_fila_id: otherQueueId, motivo: 'Setor errado' });
+    const resposta = await transferir(antiga, { forQueueId: otherQueueId, reason: 'Setor errado' });
 
     expect(resposta.status).toBe(201);
     const corpo = (await resposta.json()) as { ofConversationId: string; forConversationId: string; state: string };
@@ -137,7 +139,7 @@ describe('Transfer a conversation to a queue', () => {
 
   it('Mark the old conversation with `encerrada_por = transfer`', async () => {
     const antiga = await newConversation();
-    await transferir(antiga, { para_fila_id: otherQueueId });
+    await transferir(antiga, { forQueueId: otherQueueId });
 
     expect((await conversation(antiga)).reasonClosure).toBe('Transferida');
     const { rows } = await cenario.dono.execute<{ data: Record<string, string> }>(sql`
@@ -152,7 +154,7 @@ describe('Transfer a conversation to a queue', () => {
     const antiga = await newConversation();
     const antes = await conversation(antiga);
 
-    const r = await transferir(antiga, { para_fila_id: otherQueueId });
+    const r = await transferir(antiga, { forQueueId: otherQueueId });
     const { forConversationId } = (await r.json()) as { forConversationId: string };
 
     const nova = await conversation(forConversationId);
@@ -167,7 +169,7 @@ describe('Transfer a conversation to a queue', () => {
   it('Carry priority but not first-response time into the new conversation', async () => {
     const antiga = await newConversation();
 
-    const r = await transferir(antiga, { para_fila_id: otherQueueId });
+    const r = await transferir(antiga, { forQueueId: otherQueueId });
     const { forConversationId } = (await r.json()) as { forConversationId: string };
     const nova = await conversation(forConversationId);
 
@@ -178,7 +180,7 @@ describe('Transfer a conversation to a queue', () => {
 
   it('Link the old and new conversations through an `assignment` row', async () => {
     const antiga = await newConversation();
-    await transferir(antiga, { para_fila_id: otherQueueId, motivo: 'Setor errado' });
+    await transferir(antiga, { forQueueId: otherQueueId, reason: 'Setor errado' });
 
     const { rows } = await cenario.dono.execute<{
       ofQueueId: string;
@@ -186,7 +188,11 @@ describe('Transfer a conversation to a queue', () => {
       ofUserId: string | null;
       reason: string | null;
       byUserId: string;
-    }>(sql`select * from atribuicao where conversa_id = ${antiga}::uuid`);
+    }>(sql`
+      select de_fila_id as "ofQueueId", para_fila_id as "forQueueId",
+             de_usuario_id as "ofUserId", motivo as "reason", por_usuario_id as "byUserId"
+        from atribuicao where conversa_id = ${antiga}::uuid
+    `);
     expect(rows).toHaveLength(1);
     expect(rows[0]!.forQueueId).toBe(otherQueueId);
     expect(rows[0]!.ofQueueId).toBe(cenario.queueId);
@@ -197,7 +203,7 @@ describe('Transfer a conversation to a queue', () => {
 
   it('Record `criada` and `transferida_fila` on a queue transfer', async () => {
     const antiga = await newConversation();
-    const r = await transferir(antiga, { para_fila_id: otherQueueId });
+    const r = await transferir(antiga, { forQueueId: otherQueueId });
     const { forConversationId } = (await r.json()) as { forConversationId: string };
 
     const eventos = await eventosDe(forConversationId);
@@ -210,7 +216,7 @@ describe('Transfer a conversation to an agent', () => {
   it('Assign the new conversation immediately and record `atribuida`', async () => {
     const antiga = await newConversation();
 
-    const r = await transferir(antiga, { para_atendente_id: otherAgentId });
+    const r = await transferir(antiga, { forAgentId: otherAgentId });
     const corpo = (await r.json()) as { forConversationId: string; state: string };
 
     expect(corpo.state).toBe('atribuida');
@@ -222,11 +228,11 @@ describe('Transfer a conversation to an agent', () => {
   it('fecha a espera em aberto antes de transferir', async () => {
     const antiga = await newConversation(cenario.agentId, 'em_espera');
 
-    await transferir(antiga, { para_atendente_id: otherAgentId });
+    await transferir(antiga, { forAgentId: otherAgentId });
 
     expect(await eventosDe(antiga)).toContain('espera_encerrada');
     const { rows } = await cenario.dono.execute<{ pausadoSeg: number }>(
-      sql`select pausado_seg from conversa where id = ${antiga}::uuid`,
+      sql`select pausado_seg as "pausadoSeg" from conversa where id = ${antiga}::uuid`,
     );
     expect(rows[0]!.pausadoSeg).toBeGreaterThan(0);
   });
@@ -237,34 +243,34 @@ describe('recusas', () => {
     const antiga = await newConversation();
     expect((await transferir(antiga, {})).status).toBe(400);
     expect(
-      (await transferir(antiga, { para_fila_id: otherQueueId, para_atendente_id: otherAgentId }))
+      (await transferir(antiga, { forQueueId: otherQueueId, forAgentId: otherAgentId }))
         .status,
     ).toBe(400);
   });
 
   it('Reject transfer to the current destination', async () => {
     const antiga = await newConversation();
-    const resposta = await transferir(antiga, { para_atendente_id: cenario.agentId });
+    const resposta = await transferir(antiga, { forAgentId: cenario.agentId });
     expect(resposta.status).toBe(409);
   });
 
   it('Reject missing destination queues and agents', async () => {
     const antiga = await newConversation();
-    expect((await transferir(antiga, { para_fila_id: randomUUID() })).status).toBe(404);
-    expect((await transferir(antiga, { para_atendente_id: randomUUID() })).status).toBe(404);
+    expect((await transferir(antiga, { forQueueId: randomUUID() })).status).toBe(404);
+    expect((await transferir(antiga, { forAgentId: randomUUID() })).status).toBe(404);
   });
 
   it('Reject transfer of an already closed conversation', async () => {
     const antiga = await newConversation();
-    await transferir(antiga, { para_fila_id: otherQueueId });
-    expect((await transferir(antiga, { para_fila_id: cenario.queueId })).status).toBe(409);
+    await transferir(antiga, { forQueueId: otherQueueId });
+    expect((await transferir(antiga, { forQueueId: cenario.queueId })).status).toBe(409);
   });
 
   it('Require `conversa.transferir` to transfer another agent\'s conversation', async () => {
     // This is the difference between an agent and a supervisor: transferring your own conversation does not require
     // the permission; transferring someone else's does.
     const deOutro = await newConversation(otherAgentId);
-    const resposta = await transferir(deOutro, { para_fila_id: otherQueueId });
+    const resposta = await transferir(deOutro, { forQueueId: otherQueueId });
     expect(resposta.status).toBe(403);
     expect((await conversation(deOutro)).state).toBe('em_atendimento');
   });
@@ -287,7 +293,7 @@ describe('recusas', () => {
     `);
 
     const deOutro = await newConversation(otherAgentId);
-    const resposta = await transferir(deOutro, { para_fila_id: otherQueueId });
+    const resposta = await transferir(deOutro, { forQueueId: otherQueueId });
 
     expect(resposta.status).toBe(201);
     expect((await conversation(deOutro)).state).toBe('encerrada');

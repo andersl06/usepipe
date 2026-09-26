@@ -54,7 +54,7 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
       number: string | null;
       reauthorization: boolean;
     }>(sql`
-      select id, nome, ativo, numero_id, config->>'numero' as numero,
+      select id, nome as "name", ativo as "active", numero_id, config->>'numero' as numero,
              coalesce(config->>'reautorizacaoPendente', 'false') = 'true' as reautorizacao
         from canal
        where tipo = 'whatsapp_cloud'
@@ -81,7 +81,7 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
       rejeitados: number;
       tem_falhas: boolean;
     }>(sql`
-      select i.id, i.estado, i.aceitos, i.rejeitados, (a.falhas_csv is not null) as tem_falhas
+      select i.id, i.estado as "state", i.aceitos as "accepted", i.rejeitados, (a.falhas_csv is not null) as tem_falhas
         from importacao i
         left join importacao_arquivo a on a.importacao_id = i.id
        where i.origem = 'csv'

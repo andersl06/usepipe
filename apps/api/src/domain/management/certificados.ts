@@ -260,7 +260,7 @@ export async function excluirCertificado(
   certificadoId: string,
 ): Promise<Recording> {
   const { rows } = await tx.execute<{ id: string; description: string }>(sql`
-    select id, descricao from certificado_mtls
+    select id, descricao as "description" from certificado_mtls
      where id = ${certificadoId}::uuid and tenant_id = ${tenantId}::uuid
      limit 1
   `);

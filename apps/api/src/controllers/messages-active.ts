@@ -84,8 +84,8 @@ export class ActiveMessagesController {
 
     const destinos: DestinationOfTrigger[] = (corpo.contacts ?? []).map((c) => ({
       contatoId: c.contactId ?? null,
-      telefone: c.phone ?? null,
-      nome: c.name ?? null,
+      phone: c.phone ?? null,
+      name: c.name ?? null,
       parametros: c.parametros ?? null,
     }));
     if (destinos.some((d) => !d.contatoId && !d.phone)) {

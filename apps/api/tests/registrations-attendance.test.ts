@@ -148,8 +148,8 @@ async function auditoriaDe(objetoTipo: string, id: string) {
 
 async function createQueue(sessao: string, corpo: Record<string, unknown>) {
   return pedir('POST', '/v1/management/agents/queues', sessao, {
-    nome: `Fila ${randomUUID().slice(0, 8)}`,
-    capacidadePadrao: 5,
+    name: `Fila ${randomUUID().slice(0, 8)}`,
+    capacityDefault: 5,
     ...corpo,
   });
 }
@@ -157,37 +157,37 @@ async function createQueue(sessao: string, corpo: Record<string, unknown>) {
 describe('POST /v1/management/agents/queues', () => {
   it('Create a queue and record it in the audit log', async () => {
     const nome = `Cobrança ${randomUUID().slice(0, 6)}`;
-    const { status, body } = await createQueue(sessionManager, { nome, capacidadePadrao: 8, ordem: 2 });
+    const { status, body } = await createQueue(sessionManager, { name: nome, capacityDefault: 8, order: 2 });
     expect(status).toBe(201);
     expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
 
     const log = await auditoriaDe('fila', body.id);
     expect(log).toHaveLength(1);
-    expect(log[0]).toMatchObject({ acao: 'criou', depois: { nome, capacidadePadrao: 8 } });
+    expect(log[0]).toMatchObject({ acao: 'criou', depois: { nome, capacityDefault: 8 } });
   });
 
   it('Reject empty queue names, out-of-range capacity, and duplicate names', async () => {
-    const semNome = await createQueue(sessionManager, { nome: '  ' });
+    const semNome = await createQueue(sessionManager, { name: '  ' });
     expect(semNome.status).toBe(400);
     expect(semNome.body.error.code).toBe('name_required');
 
-    const capInvalida = await createQueue(sessionManager, { capacidadePadrao: 0 });
+    const capInvalida = await createQueue(sessionManager, { capacityDefault: 0 });
     expect(capInvalida.status).toBe(400);
     expect(capInvalida.body.error.code).toBe('capacity_invalid');
 
     const nome = `Repetida ${randomUUID().slice(0, 6)}`;
-    expect((await createQueue(sessionManager, { nome })).status).toBe(201);
-    const repetida = await createQueue(sessionManager, { nome });
+    expect((await createQueue(sessionManager, { name: nome })).status).toBe(201);
+    const repetida = await createQueue(sessionManager, { name: nome });
     expect(repetida.status).toBe(409);
     expect(repetida.body.error.code).toBe('name_in_use');
   });
 
   it('horário inexistente é 400; cor fora da paleta é 400', async () => {
-    const semHorario = await createQueue(sessionManager, { horarioId: randomUUID() });
+    const semHorario = await createQueue(sessionManager, { scheduleId: randomUUID() });
     expect(semHorario.status).toBe(400);
     expect(semHorario.body.error.code).toBe('schedule_not_found');
 
-    const corInvalida = await createQueue(sessionManager, { cor: 'vermelho-sangue' });
+    const corInvalida = await createQueue(sessionManager, { color: 'vermelho-sangue' });
     expect(corInvalida.status).toBe(400);
     expect(corInvalida.body.error.code).toBe('color_invalid');
   });
@@ -213,16 +213,16 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
     const novoNome = `Depois ${randomUUID().slice(0, 6)}`;
 
     const { status, body } = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionManager, {
-      nome: novoNome,
-      capacidadePadrao: 12,
+      name: novoNome,
+      capacityDefault: 12,
     });
     expect(status).toBe(200);
-    expect(body).toMatchObject({ id: criada.id, nome: novoNome, capacidadePadrao: 12 });
+    expect(body).toMatchObject({ id: criada.id, name: novoNome, capacityDefault: 12 });
 
     const log = await auditoriaDe('fila', criada.id);
-    expect(log.at(-1)).toMatchObject({ acao: 'alterou', depois: { nome: novoNome, capacidadePadrao: 12 } });
+    expect(log.at(-1)).toMatchObject({ acao: 'alterou', depois: { name: novoNome, capacityDefault: 12 } });
     // // A field that didn't change doesn't go into the record.
-    expect(log.at(-1)?.depois).not.toHaveProperty('ordem');
+    expect(log.at(-1)?.depois).not.toHaveProperty('order');
   });
 
   it('Toggle a queue with PATCH using `ativa`', async () => {
@@ -246,7 +246,7 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
     const { body: criada } = await createQueue(sessionManager, {});
 
     const semPoder = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionWithoutAuthority, {
-      nome: 'Invasor',
+      name: 'Invasor',
     });
     expect(semPoder.status).toBe(403);
 
@@ -254,12 +254,12 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
       'PATCH',
       `/v1/management/agents/queues/${criada.id}`,
       sessionOfOtherTenant,
-      { nome: 'Vizinho' },
+      { name: 'Vizinho' },
     );
     expect(outroTenant.status).toBe(404);
 
     const malformado = await pedir('PATCH', '/v1/management/agents/queues/nao-e-uuid', sessionManager, {
-      nome: 'Tanto faz',
+      name: 'Tanto faz',
     });
     expect(malformado.status).toBe(404);
   });
@@ -354,21 +354,21 @@ describe('Assign and unassign agents from a queue', () => {
       'POST',
       `/v1/management/agents/queues/${criada.id}/agents`,
       sessionManager,
-      { usuarioId: a.agentId, capacidadeOverride: 3 },
+      { userId: a.agentId, capacityOverride: 3 },
     );
     expect(vinculo.status).toBe(201);
 
-    const { rows } = await a.dono.execute<{ capacityOverride: number }>(sql`
+    const { rows } = await a.dono.execute<{ capacidade_override: number }>(sql`
       select capacidade_override from fila_atendente
        where fila_id = ${criada.id}::uuid and usuario_id = ${a.agentId}::uuid
     `);
-    expect(rows[0]?.capacityOverride).toBe(3);
+    expect(rows[0]?.capacidade_override).toBe(3);
 
     const de_novo = await pedir(
       'POST',
       `/v1/management/agents/queues/${criada.id}/agents`,
       sessionManager,
-      { usuarioId: a.agentId, capacidadeOverride: 9 },
+      { userId: a.agentId, capacityOverride: 9 },
     );
     expect(de_novo.status).toBe(201);
     const { rows: depois } = await a.dono.execute<{ capacidade_override: number }>(sql`
@@ -384,7 +384,7 @@ describe('Assign and unassign agents from a queue', () => {
       'POST',
       `/v1/management/agents/queues/${criada.id}/agents`,
       sessionManager,
-      { usuarioId: randomUUID() },
+      { userId: randomUUID() },
     );
     expect(withoutAgent.status).toBe(404);
 
@@ -392,7 +392,7 @@ describe('Assign and unassign agents from a queue', () => {
       'POST',
       `/v1/management/agents/queues/${randomUUID()}/agents`,
       sessionManager,
-      { usuarioId: a.agentId },
+      { userId: a.agentId },
     );
     expect(withoutQueue.status).toBe(404);
   });
@@ -425,9 +425,9 @@ describe('Assign and unassign agents from a queue', () => {
 
 async function createResponse(sessao: string, corpo: Record<string, unknown> = {}) {
   return pedir('POST', '/v1/management/communication/responses-ready', sessao, {
-    atalho: `atalho-${randomUUID().slice(0, 8)}`,
-    titulo: 'Saudação',
-    corpo: 'Olá, tudo bem?',
+    shortcut: `atalho-${randomUUID().slice(0, 8)}`,
+    title: 'Saudação',
+    body: 'Olá, tudo bem?',
     ...corpo,
   });
 }
@@ -442,17 +442,17 @@ describe('POST /v1/management/communication/responses-ready', () => {
   });
 
   it('Reject shortcuts with spaces, duplicate shortcuts, and empty required fields', async () => {
-    const comEspaco = await createResponse(sessionManager, { atalho: 'com espaco' });
+    const comEspaco = await createResponse(sessionManager, { shortcut: 'com espaco' });
     expect(comEspaco.status).toBe(400);
     expect(comEspaco.body.error.code).toBe('shortcut_with_space');
 
-    const semTitulo = await createResponse(sessionManager, { titulo: '' });
+    const semTitulo = await createResponse(sessionManager, { title: '' });
     expect(semTitulo.status).toBe(400);
     expect(semTitulo.body.error.code).toBe('title_required');
 
     const atalho = `unico-${randomUUID().slice(0, 6)}`;
-    expect((await createResponse(sessionManager, { atalho })).status).toBe(201);
-    const repetido = await createResponse(sessionManager, { atalho: `#${atalho}` });
+    expect((await createResponse(sessionManager, { shortcut: atalho })).status).toBe(201);
+    const repetido = await createResponse(sessionManager, { shortcut: `#${atalho}` });
     expect(repetido.status).toBe(409);
     expect(repetido.body.error.code).toBe('shortcut_in_use');
   });
@@ -471,10 +471,10 @@ describe('PATCH e DELETE /v1/management/communication/responses-ready/:id', () =
       'PATCH',
       `/v1/management/communication/responses-ready/${criada.id}`,
       sessionManager,
-      { corpo: 'Novo corpo', categoria: 'Suporte', ativa: false },
+      { body: 'Novo corpo', category: 'Suporte', ativa: false },
     );
     expect(editada.status).toBe(200);
-    expect(editada.body).toMatchObject({ corpo: 'Novo corpo', categoria: 'Suporte', ativa: false });
+    expect(editada.body).toMatchObject({ body: 'Novo corpo', category: 'Suporte', ativa: false });
   });
 
   it('exclui (204); de outro tenant é 404; id malformado é 404', async () => {
@@ -511,31 +511,31 @@ describe('PATCH e DELETE /v1/management/communication/responses-ready/:id', () =
 
 async function createPause(sessao: string, corpo: Record<string, unknown> = {}) {
   return pedir('POST', '/v1/management/agents/pauses', sessao, {
-    nome: `Pausa ${randomUUID().slice(0, 6)}`,
+    name: `Pausa ${randomUUID().slice(0, 6)}`,
     ...corpo,
   });
 }
 
 describe('POST /v1/management/agents/pauses', () => {
   it('cria e registra no log', async () => {
-    const { status, body } = await createPause(sessionManager, { duracaoSugeridaMin: 15 });
+    const { status, body } = await createPause(sessionManager, { durationSuggestedMin: 15 });
     expect(status).toBe(201);
     const log = await auditoriaDe('motivo_pausa', body.id);
-    expect(log[0]).toMatchObject({ acao: 'criou', depois: { duracaoSugeridaMin: 15 } });
+    expect(log[0]).toMatchObject({ acao: 'criou', depois: { durationSuggestedMin: 15 } });
   });
 
   it('Reject pause names over 30 characters, durations outside 1?480 minutes, and duplicate names', async () => {
-    const nomeLongo = await createPause(sessionManager, { nome: 'x'.repeat(31) });
+    const nomeLongo = await createPause(sessionManager, { name: 'x'.repeat(31) });
     expect(nomeLongo.status).toBe(400);
     expect(nomeLongo.body.error.code).toBe('name_size');
 
-    const durationInvalid = await createPause(sessionManager, { duracaoSugeridaMin: 481 });
+    const durationInvalid = await createPause(sessionManager, { durationSuggestedMin: 481 });
     expect(durationInvalid.status).toBe(400);
     expect(durationInvalid.body.error.code).toBe('duration_invalid');
 
     const nome = `Repetida ${randomUUID().slice(0, 6)}`;
-    expect((await createPause(sessionManager, { nome })).status).toBe(201);
-    const repetida = await createPause(sessionManager, { nome });
+    expect((await createPause(sessionManager, { name: nome })).status).toBe(201);
+    const repetida = await createPause(sessionManager, { name: nome });
     expect(repetida.status).toBe(409);
   });
 
@@ -550,11 +550,11 @@ describe('PATCH e DELETE /v1/management/agents/pauses/:id', () => {
   it('Toggle a pause reason and edit whether it counts as productive time', async () => {
     const { body: criada } = await createPause(sessionManager);
     const editada = await pedir('PATCH', `/v1/management/agents/pauses/${criada.id}`, sessionManager, {
-      ativo: false,
-      contaComoProdutivo: true,
+      active: false,
+      countsAsProductive: true,
     });
     expect(editada.status).toBe(200);
-    expect(editada.body).toMatchObject({ ativo: false, contaComoProdutivo: true });
+    expect(editada.body).toMatchObject({ active: false, countsAsProductive: true });
   });
 
   it('Delete a pause reason without affecting historical pauses', async () => {
@@ -600,10 +600,10 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
       'PATCH',
       `/v1/management/rules/attendance/${id}`,
       sessionManager,
-      { nome: novoNome, ordem: 5 },
+      { name: novoNome, order: 5 },
     );
     expect(status).toBe(200);
-    expect(body).toMatchObject({ id, nome: novoNome, ordem: 5 });
+    expect(body).toMatchObject({ id, name: novoNome, order: 5 });
 
     const log = await auditoriaDe('regra_fila', id);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou', depois: { nome: novoNome, ordem: 5 } });
@@ -616,10 +616,10 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
       'PATCH',
       `/v1/management/rules/attendance/${id}`,
       sessionManager,
-      { condicoes: [{ campo: 'contato.nome', operador: 'igual', valor: 'Ana' }] },
+      { condicoes: [{ field: 'contato.nome', operator: 'igual', value: 'Ana' }] },
     );
     expect(status).toBe(200);
-    expect(body.condicoes).toEqual([{ campo: 'contato.nome', operador: 'igual', valor: 'Ana' }]);
+    expect(body.condicoes).toEqual([{ field: 'contato.nome', operator: 'igual', value: 'Ana' }]);
   });
 
   it('Reject empty conditions, invalid fields, and missing destination queues', async () => {
@@ -632,13 +632,13 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
     expect(withoutCondition.body.error.code).toBe('without_condition');
 
     const campoInvalido = await pedir('PATCH', `/v1/management/rules/attendance/${id}`, sessionManager, {
-      condicoes: [{ campo: 'nao-existe', operador: 'igual', valor: 'x' }],
+      condicoes: [{ field: 'nao-existe', operator: 'igual', value: 'x' }],
     });
     expect(campoInvalido.status).toBe(400);
     expect(campoInvalido.body.error.code).toBe('field_invalid');
 
     const semFila = await pedir('PATCH', `/v1/management/rules/attendance/${id}`, sessionManager, {
-      filaDestinoId: randomUUID(),
+      queueDestinationId: randomUUID(),
     });
     expect(semFila.status).toBe(400);
     expect(semFila.body.error.code).toBe('queue_not_found');
@@ -648,7 +648,7 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
     const { nome: nomeExistente } = await createRuleQueueSql(a.queueId);
     const { id: outraId } = await createRuleQueueSql(a.queueId);
     const repetido = await pedir('PATCH', `/v1/management/rules/attendance/${outraId}`, sessionManager, {
-      nome: nomeExistente,
+      name: nomeExistente,
     });
     expect(repetido.status).toBe(409);
     expect(repetido.body.error.code).toBe('name_in_use');
@@ -658,7 +658,7 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
     const { id } = await createRuleQueueSql(a.queueId);
 
     const semPoder = await pedir('PATCH', `/v1/management/rules/attendance/${id}`, sessionOnlyQueues, {
-      nome: 'Invasor',
+      name: 'Invasor',
     });
     expect(semPoder.status).toBe(403);
     expect(semPoder.body.error.detalhe.permissao).toBe('regra.gerenciar');
@@ -667,12 +667,12 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
       'PATCH',
       `/v1/management/rules/attendance/${id}`,
       sessionOfOtherTenant,
-      { nome: 'Vizinho' },
+      { name: 'Vizinho' },
     );
     expect(outroTenant.status).toBe(404);
 
     const malformado = await pedir('PATCH', '/v1/management/rules/attendance/nao-e-uuid', sessionManager, {
-      nome: 'Tanto faz',
+      name: 'Tanto faz',
     });
     expect(malformado.status).toBe(404);
   });
@@ -719,16 +719,16 @@ describe('DELETE /v1/management/rules/attendance/:id', () => {
 
 async function createRuleSla(sessao: string, corpo: Record<string, unknown> = {}) {
   return pedir('POST', '/v1/management/settings/rules', sessao, {
-    nome: `SLA ${randomUUID().slice(0, 8)}`,
-    alvo: 'primeira_resposta',
-    prazoSeg: 600,
+    name: `SLA ${randomUUID().slice(0, 8)}`,
+    target: 'primeira_resposta',
+    deadlineSeg: 600,
     ...corpo,
   });
 }
 
 describe('POST /v1/management/settings/rules', () => {
   it('cria e registra no log de auditoria', async () => {
-    const { status, body } = await createRuleSla(sessionManager, { alertaSeg: 300 });
+    const { status, body } = await createRuleSla(sessionManager, { alertSeg: 300 });
     expect(status).toBe(201);
     const log = await auditoriaDe('regra_sla', body.id);
     expect(log).toHaveLength(1);
@@ -736,39 +736,39 @@ describe('POST /v1/management/settings/rules', () => {
   });
 
   it('recusa alvo inválido (400), prazo inválido (400), alerta ≥ prazo (400) e nome repetido (409)', async () => {
-    const alvoInvalido = await createRuleSla(sessionManager, { alvo: 'chute' });
+    const alvoInvalido = await createRuleSla(sessionManager, { target: 'chute' });
     expect(alvoInvalido.status).toBe(400);
     expect(alvoInvalido.body.error.code).toBe('target_invalid');
 
-    const prazoInvalido = await createRuleSla(sessionManager, { prazoSeg: 0 });
+    const prazoInvalido = await createRuleSla(sessionManager, { deadlineSeg: 0 });
     expect(prazoInvalido.status).toBe(400);
     expect(prazoInvalido.body.error.code).toBe('deadline_invalid');
 
-    const alertaInvalido = await createRuleSla(sessionManager, { prazoSeg: 100, alertaSeg: 200 });
+    const alertaInvalido = await createRuleSla(sessionManager, { deadlineSeg: 100, alertSeg: 200 });
     expect(alertaInvalido.status).toBe(400);
     expect(alertaInvalido.body.error.code).toBe('alert_invalid');
 
     const nome = `Única ${randomUUID().slice(0, 6)}`;
-    expect((await createRuleSla(sessionManager, { nome })).status).toBe(201);
-    const repetida = await createRuleSla(sessionManager, { nome });
+    expect((await createRuleSla(sessionManager, { name: nome })).status).toBe(201);
+    const repetida = await createRuleSla(sessionManager, { name: nome });
     expect(repetida.status).toBe(409);
     expect(repetida.body.error.code).toBe('name_in_use');
   });
 
   it('Require an existing scope ID for queue-scoped SLA rules and reject unsupported scopes (`fila`)', async () => {
-    const withoutScopeId = await createRuleSla(sessionManager, { escopoTipo: 'fila' });
+    const withoutScopeId = await createRuleSla(sessionManager, { scopeType: 'fila' });
     expect(withoutScopeId.status).toBe(400);
     expect(withoutScopeId.body.error.code).toBe('scope_id_required');
 
-    const queueWrong = await createRuleSla(sessionManager, { escopoTipo: 'fila', escopoId: randomUUID() });
+    const queueWrong = await createRuleSla(sessionManager, { scopeType: 'fila', scopeId: randomUUID() });
     expect(queueWrong.status).toBe(400);
     expect(queueWrong.body.error.code).toBe('queue_not_found');
 
-    const scopeOutside = await createRuleSla(sessionManager, { escopoTipo: 'inbox', escopoId: a.inboxId });
+    const scopeOutside = await createRuleSla(sessionManager, { scopeType: 'inbox', scopeId: a.inboxId });
     expect(scopeOutside.status).toBe(400);
     expect(scopeOutside.body.error.code).toBe('scope_invalid');
 
-    const withQueue = await createRuleSla(sessionManager, { escopoTipo: 'fila', escopoId: a.queueId });
+    const withQueue = await createRuleSla(sessionManager, { scopeType: 'fila', scopeId: a.queueId });
     expect(withQueue.status).toBe(201);
   });
 
@@ -781,24 +781,24 @@ describe('POST /v1/management/settings/rules', () => {
 
 describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
   it('edita prazo e alerta juntos, e registra só o que mudou', async () => {
-    const { body: criada } = await createRuleSla(sessionManager, { prazoSeg: 600, alertaSeg: 300 });
+    const { body: criada } = await createRuleSla(sessionManager, { deadlineSeg: 600, alertSeg: 300 });
     const editada = await pedir(
       'PATCH',
       `/v1/management/settings/rules/${criada.id}`,
       sessionManager,
-      { prazoSeg: 1200, alertaSeg: 900 },
+      { deadlineSeg: 1200, alertSeg: 900 },
     );
     expect(editada.status).toBe(200);
-    expect(editada.body).toMatchObject({ prazoSeg: 1200, alertaSeg: 900 });
+    expect(editada.body).toMatchObject({ deadlineSeg: 1200, alertSeg: 900 });
   });
 
   it('encolher o prazo abaixo do alerta já cadastrado sem mandar o novo alerta é 400', async () => {
-    const { body: criada } = await createRuleSla(sessionManager, { prazoSeg: 600, alertaSeg: 500 });
+    const { body: criada } = await createRuleSla(sessionManager, { deadlineSeg: 600, alertSeg: 500 });
     const resposta = await pedir(
       'PATCH',
       `/v1/management/settings/rules/${criada.id}`,
       sessionManager,
-      { prazoSeg: 400 },
+      { deadlineSeg: 400 },
     );
     expect(resposta.status).toBe(400);
     expect(resposta.body.error.code).toBe('alert_invalid');
@@ -811,7 +811,7 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
       'PATCH',
       `/v1/management/settings/rules/${criada.id}`,
       sessionOnlyQueues,
-      { nome: 'Invasor' },
+      { name: 'Invasor' },
     );
     expect(semPoder.status).toBe(403);
 
@@ -819,12 +819,12 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
       'PATCH',
       `/v1/management/settings/rules/${criada.id}`,
       sessionOfOtherTenant,
-      { nome: 'Vizinho' },
+      { name: 'Vizinho' },
     );
     expect(outroTenant.status).toBe(404);
 
     const malformado = await pedir('PATCH', '/v1/management/settings/rules/nao-e-uuid', sessionManager, {
-      nome: 'Tanto faz',
+      name: 'Tanto faz',
     });
     expect(malformado.status).toBe(404);
   });
@@ -931,10 +931,10 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
       'PATCH',
       `/v1/management/rules/schedules/ranges/${id}`,
       sessionManager,
-      { inicio: '08:00' },
+      { start: '08:00' },
     );
     expect(status).toBe(200);
-    expect(body).toMatchObject({ inicio: '08:00', fim: '18:00' });
+    expect(body).toMatchObject({ start: '08:00', end: '18:00' });
 
     const log = await auditoriaDe('horario_faixa', id);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou' });
@@ -944,7 +944,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
     const horarioId = await createScheduleSql();
     const id = await createRangeSql(horarioId);
     const resposta = await pedir('PATCH', `/v1/management/rules/schedules/ranges/${id}`, sessionManager, {
-      fim: '09:00',
+      end: '09:00',
     });
     expect(resposta.status).toBe(409);
     expect(resposta.body.error.code).toBe('end_before_of_start');
@@ -955,7 +955,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
     await createRangeSql(horarioId, 2, '09:00', '12:00');
     const id = await createRangeSql(horarioId, 2, '14:00', '18:00');
     const resposta = await pedir('PATCH', `/v1/management/rules/schedules/ranges/${id}`, sessionManager, {
-      inicio: '10:00',
+      start: '10:00',
     });
     expect(resposta.status).toBe(409);
     expect(resposta.body.error.code).toBe('range_overlapping');
@@ -966,7 +966,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
     const id = await createRangeSql(horarioId);
 
     const semPoder = await pedir('PATCH', `/v1/management/rules/schedules/ranges/${id}`, sessionOnlyQueues, {
-      inicio: '08:00',
+      start: '08:00',
     });
     expect(semPoder.status).toBe(403);
     expect(semPoder.body.error.detalhe.permissao).toBe('horario.gerenciar');
@@ -975,12 +975,12 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
       'PATCH',
       `/v1/management/rules/schedules/ranges/${id}`,
       sessionOfOtherTenant,
-      { inicio: '08:00' },
+      { start: '08:00' },
     );
     expect(outroTenant.status).toBe(404);
 
     const malformado = await pedir('PATCH', '/v1/management/rules/schedules/ranges/nao-e-uuid', sessionManager, {
-      inicio: '08:00',
+      start: '08:00',
     });
     expect(malformado.status).toBe(404);
   });
@@ -1009,10 +1009,10 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
       'PATCH',
       `/v1/management/rules/schedules/exceptions/${id}`,
       sessionManager,
-      { motivo: 'Natal' },
+      { reason: 'Natal' },
     );
     expect(status).toBe(200);
-    expect(body.motivo).toBe('Natal');
+    expect(body.reason).toBe('Natal');
   });
 
   it('recusa (400) abrir sem horário próprio e (400) fechar sem limpar o horário', async () => {
@@ -1023,7 +1023,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
       'PATCH',
       `/v1/management/rules/schedules/exceptions/${fechada}`,
       sessionManager,
-      { fechado: false },
+      { closed: false },
     );
     expect(abrirSemHorario.status).toBe(400);
     expect(abrirSemHorario.body.error.code).toBe('exception_without_schedule');
@@ -1033,7 +1033,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
       'PATCH',
       `/v1/management/rules/schedules/exceptions/${aberta}`,
       sessionManager,
-      { fechado: true },
+      { closed: true },
     );
     expect(fecharComHorario.status).toBe(400);
     expect(fecharComHorario.body.error.code).toBe('exception_closed_with_schedule');
@@ -1058,7 +1058,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
     const id = await createExceptionSql(horarioId, '2026-03-01', true);
 
     const semPoder = await pedir('PATCH', `/v1/management/rules/schedules/exceptions/${id}`, sessionOnlyQueues, {
-      motivo: 'x',
+      reason: 'x',
     });
     expect(semPoder.status).toBe(403);
 
@@ -1066,7 +1066,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
       'PATCH',
       `/v1/management/rules/schedules/exceptions/${id}`,
       sessionOfOtherTenant,
-      { motivo: 'x' },
+      { reason: 'x' },
     );
     expect(outroTenant.status).toBe(404);
 
@@ -1074,7 +1074,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
       'PATCH',
       '/v1/management/rules/schedules/exceptions/nao-e-uuid',
       sessionManager,
-      { motivo: 'x' },
+      { reason: 'x' },
     );
     expect(malformado.status).toBe(404);
   });
@@ -1101,8 +1101,8 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
 
 async function createRulePriority(session: string, corpo: Record<string, unknown> = {}) {
   return pedir('POST', '/v1/management/rules/priority', session, {
-    nome: `Prioridade ${randomUUID().slice(0, 8)}`,
-    nivel: 'alta',
+    name: `Prioridade ${randomUUID().slice(0, 8)}`,
+    level: 'alta',
     ...corpo,
   });
 }
@@ -1120,25 +1120,25 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
   });
 
   it('Reject an unassignable priority, invalid condition, or duplicate rule name', async () => {
-    const nivelInvalido = await createRulePriority(sessionManager, { nivel: 'sem_prioridade' });
+    const nivelInvalido = await createRulePriority(sessionManager, { level: 'sem_prioridade' });
     expect(nivelInvalido.status).toBe(400);
     expect(nivelInvalido.body.error.code).toBe('level_invalid');
 
-    const conditionInvalid = await createRulePriority(sessionManager, { condicao: 'nao e objeto' });
+    const conditionInvalid = await createRulePriority(sessionManager, { condition: 'nao e objeto' });
     expect(conditionInvalid.status).toBe(400);
     expect(conditionInvalid.body.error.code).toBe('condition_invalid');
 
     const nome = `Única ${randomUUID().slice(0, 6)}`;
-    expect((await createRulePriority(sessionManager, { nome })).status).toBe(201);
-    const repetida = await createRulePriority(sessionManager, { nome });
+    expect((await createRulePriority(sessionManager, { name: nome })).status).toBe(201);
+    const repetida = await createRulePriority(sessionManager, { name: nome });
     expect(repetida.status).toBe(409);
     expect(repetida.body.error.code).toBe('name_in_use');
   });
 
   it('Return 400 for unsupported priority-rule scopes', async () => {
     const resposta = await createRulePriority(sessionManager, {
-      escopoTipo: 'etiqueta',
-      escopoId: randomUUID(),
+      scopeType: 'etiqueta',
+      scopeId: randomUUID(),
     });
     expect(resposta.status).toBe(400);
     expect(resposta.body.error.code).toBe('scope_invalid');
@@ -1150,10 +1150,10 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
       'PATCH',
       `/v1/management/rules/priority/${criada.id}`,
       sessionManager,
-      { nivel: 'maxima', condicao: { etiqueta: 'vip' } },
+      { level: 'maxima', condition: { etiqueta: 'vip' } },
     );
     expect(editada.status).toBe(200);
-    expect(editada.body).toMatchObject({ nivel: 'maxima', condicao: { etiqueta: 'vip' } });
+    expect(editada.body).toMatchObject({ level: 'maxima', condition: { etiqueta: 'vip' } });
   });
 
   it('Return 403 without `regra.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
@@ -1163,7 +1163,7 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
       'PATCH',
       `/v1/management/rules/priority/${criada.id}`,
       sessionOnlyQueues,
-      { nivel: 'baixa' },
+      { level: 'baixa' },
     );
     expect(semPoder.status).toBe(403);
     expect(semPoder.body.error.detalhe.permissao).toBe('regra.gerenciar');
@@ -1172,12 +1172,12 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
       'PATCH',
       `/v1/management/rules/priority/${criada.id}`,
       sessionOfOtherTenant,
-      { nivel: 'baixa' },
+      { level: 'baixa' },
     );
     expect(outroTenant.status).toBe(404);
 
     const malformado = await pedir('PATCH', '/v1/management/rules/priority/nao-e-uuid', sessionManager, {
-      nivel: 'baixa',
+      level: 'baixa',
     });
     expect(malformado.status).toBe(404);
   });

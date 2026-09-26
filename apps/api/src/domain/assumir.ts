@@ -13,7 +13,7 @@ export async function assumeConversation(
 ): Promise<{ conversationId: string; queueId: string | null }> {
   return noTenant(ator.tenantId, async (tx) => {
     const { rows: antes } = await tx.execute<{ state: string; queueId: string | null }>(
-      sql`select estado, fila_id from conversa where id = ${conversationId}::uuid limit 1`,
+      sql`select estado as "state", fila_id as "queueId" from conversa where id = ${conversationId}::uuid limit 1`,
     );
     const conversation = antes[0];
     if (!conversation) throw PipeError.naoEncontrado('Conversa');

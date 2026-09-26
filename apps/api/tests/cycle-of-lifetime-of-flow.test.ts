@@ -39,7 +39,7 @@ const RECADOS = {
   tamanho: 'recado: tamanho',
   comecoInvalido: 'recado: começo',
   nomeEmUso: 'recado: em uso',
-  semPermissao: 'recado: sem permissão',
+  withoutPermission: 'recado: sem permissão',
 };
 
 /** A new user on the tenant, with a role carrying these permissions. */
@@ -113,7 +113,7 @@ type LineOfFlow = {
 
 async function lineOfFlow(id: string): Promise<LineOfFlow | undefined> {
   const { rows } = await a.dono.execute<LineOfFlow>(sql`
-    select nome, tipo, estado, short_name, descricao, imagem_url, tenant_id
+    select nome, tipo, estado, short_name, descricao as description, imagem_url as "imageUrl", tenant_id
       from fluxo where id = ${id}::uuid
   `);
   return rows[0];
@@ -148,7 +148,7 @@ async function create(
 
 /** Creates and returns the id, or fails the test — for scenarios that need a ready flow. */
 async function criado(nome: string, extra: Record<string, unknown> = {}): Promise<string> {
-  const { status, body } = await create(sessionEditor, { nome, ...extra });
+  const { status, body } = await create(sessionEditor, { name: nome, ...extra });
   expect(status).toBe(200);
   expect(body.error).toBeUndefined();
   return body.id!;
@@ -195,7 +195,7 @@ afterAll(async () => {
 describe('POST /v1/management/flows', () => {
   it('Create a draft flow with a name-derived shortName and audit the creation', async () => {
     const nome = `Atendimento ${randomUUID().slice(0, 6)}`;
-    const { status, body } = await create(sessionEditor, { nome });
+    const { status, body } = await create(sessionEditor, { name: nome });
     expect(status).toBe(200);
     expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
 
@@ -205,8 +205,8 @@ describe('POST /v1/management/flows', () => {
       tipo: 'fluxo',
       estado: 'rascunho',
       short_name: nome.toLowerCase().replace(/\s+/g, '-'),
-      descricao: null,
-      imagem_url: null,
+      description: null,
+      imageUrl: null,
       tenant_id: a.tenantId,
     });
 
@@ -216,7 +216,7 @@ describe('POST /v1/management/flows', () => {
   });
 
   it('Create a router through the flow form with a different type', async () => {
-    const id = await criado(`Roteador ${randomUUID().slice(0, 6)}`, { tipo: 'roteador' });
+    const id = await criado(`Roteador ${randomUUID().slice(0, 6)}`, { type: 'roteador' });
     expect((await lineOfFlow(id))?.tipo).toBe('roteador');
   });
 
@@ -232,18 +232,18 @@ describe('POST /v1/management/flows', () => {
     const nome = `Repetido ${randomUUID().slice(0, 6)}`;
     await criado(nome);
 
-    const curto = await create(sessionEditor, { nome: 'A' });
+    const curto = await create(sessionEditor, { name: 'A' });
     expect(curto.status).toBe(200);
-    expect(curto.body).toEqual({ erro: RECADOS.tamanho });
+    expect(curto.body).toEqual({ error: RECADOS.tamanho });
 
-    const longo = await create(sessionEditor, { nome: 'A'.repeat(31) });
-    expect(longo.body).toEqual({ erro: RECADOS.tamanho });
+    const longo = await create(sessionEditor, { name: 'A'.repeat(31) });
+    expect(longo.body).toEqual({ error: RECADOS.tamanho });
 
-    const numero = await create(sessionEditor, { nome: '1 Fluxo' });
-    expect(numero.body).toEqual({ erro: RECADOS.comecoInvalido });
+    const numero = await create(sessionEditor, { name: '1 Fluxo' });
+    expect(numero.body).toEqual({ error: RECADOS.comecoInvalido });
 
-    const repetido = await create(sessionEditor, { nome });
-    expect(repetido.body).toEqual({ erro: RECADOS.nomeEmUso });
+    const repetido = await create(sessionEditor, { name: nome });
+    expect(repetido.body).toEqual({ error: RECADOS.nomeEmUso });
 
     const { rows } = await a.dono.execute<{ n: string }>(sql`
       select count(*)::text as n from fluxo
@@ -254,9 +254,9 @@ describe('POST /v1/management/flows', () => {
 
   it('Reject flow creation without `automacao.fluxo.editar` using the screen message and save nothing', async () => {
     const nome = `Proibido ${randomUUID().slice(0, 6)}`;
-    const { status, body } = await create(sessionWithoutAuthority, { nome });
+    const { status, body } = await create(sessionWithoutAuthority, { name: nome });
     expect(status).toBe(200);
-    expect(body).toEqual({ erro: RECADOS.semPermissao });
+    expect(body).toEqual({ error: RECADOS.withoutPermission });
     const { rows } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from fluxo where nome = ${nome}`,
     );
@@ -282,10 +282,10 @@ describe('POST /v1/management/flows', () => {
   });
 
   it('Detect flow images from bytes and ignore mislabeled nonimages', async () => {
-    const comFoto = await criado(`Com foto ${randomUUID().slice(0, 6)}`, { imagem: PNG });
+    const comFoto = await criado(`Com foto ${randomUUID().slice(0, 6)}`, { image: PNG });
     expect((await lineOfFlow(comFoto))?.imageUrl).toBe(PNG);
 
-    const semFoto = await criado(`Sem foto ${randomUUID().slice(0, 6)}`, { imagem: NOT_IMAGE });
+    const semFoto = await criado(`Sem foto ${randomUUID().slice(0, 6)}`, { image: NOT_IMAGE });
     expect((await lineOfFlow(semFoto))?.imageUrl).toBeNull();
   });
 });
@@ -296,15 +296,15 @@ describe('PATCH /v1/management/flows/:id', () => {
     const id = await criado(`Antes ${marca}`);
 
     const { status, corpo } = await editar(sessionEditor, id, {
-      nome: `Depois ${marca}`,
-      descricao: '  Atende o suporte de primeiro nível.  ',
+      name: `Depois ${marca}`,
+      description: '  Atende o suporte de primeiro nível.  ',
     });
     expect(status).toBe(200);
     expect(corpo).toEqual({
       id,
-      nome: `Depois ${marca}`,
-      descricao: 'Atende o suporte de primeiro nível.',
-      imagemUrl: null,
+      name: `Depois ${marca}`,
+      description: 'Atende o suporte de primeiro nível.',
+      imageUrl: null,
       shortName: `depois-${marca}`,
     });
 
@@ -330,11 +330,11 @@ describe('PATCH /v1/management/flows/:id', () => {
 
   it('campo ausente não mexe; nada mudado não grava nem registra', async () => {
     const id = await criado(`Quieto ${randomUUID().slice(0, 6)}`);
-    await editar(sessionEditor, id, { descricao: 'Uma descrição' });
+    await editar(sessionEditor, id, { description: 'Uma descrição' });
 
-    const soNome = await editar(sessionEditor, id, { nome: (await lineOfFlow(id))!.nome });
+    const soNome = await editar(sessionEditor, id, { name: (await lineOfFlow(id))!.nome });
     expect(soNome.status).toBe(200);
-    expect(soNome.corpo['descricao']).toBe('Uma descrição');
+    expect(soNome.corpo['description']).toBe('Uma descrição');
 
     const empty = await editar(sessionEditor, id, {});
     expect(empty.status).toBe(200);
@@ -344,19 +344,19 @@ describe('PATCH /v1/management/flows/:id', () => {
 
   it('Store empty descriptions as null and reject lengths of one or over 160 characters', async () => {
     const id = await criado(`Descrito ${randomUUID().slice(0, 6)}`);
-    await editar(sessionEditor, id, { descricao: 'Tem descrição' });
+    await editar(sessionEditor, id, { description: 'Tem descrição' });
 
-    const apagada = await editar(sessionEditor, id, { descricao: '' });
+    const apagada = await editar(sessionEditor, id, { description: '' });
     expect(apagada.status).toBe(200);
-    expect(apagada.corpo['descricao']).toBeNull();
+    expect(apagada.corpo['description']).toBeNull();
     expect((await lineOfFlow(id))?.description).toBeNull();
 
     for (const invalida of ['x', 'a'.repeat(161)]) {
-      const { status, corpo } = await editar(sessionEditor, id, { descricao: invalida });
+      const { status, corpo } = await editar(sessionEditor, id, { description: invalida });
       expect(status).toBe(400);
       expect((corpo['error'] as { code: string }).code).toBe('description_size');
     }
-    const noLimite = await editar(sessionEditor, id, { descricao: 'a'.repeat(160) });
+    const noLimite = await editar(sessionEditor, id, { description: 'a'.repeat(160) });
     expect(noLimite.status).toBe(200);
   });
 
@@ -365,38 +365,38 @@ describe('PATCH /v1/management/flows/:id', () => {
     const id = await criado(`Um ${marca}`);
     const outro = await criado(`Dois ${marca}`);
 
-    const curto = await editar(sessionEditor, id, { nome: 'A' });
+    const curto = await editar(sessionEditor, id, { name: 'A' });
     expect(curto.status).toBe(400);
     expect((curto.corpo['error'] as { code: string }).code).toBe('name_size');
 
-    const numero = await editar(sessionEditor, id, { nome: '9 vidas' });
+    const numero = await editar(sessionEditor, id, { name: '9 vidas' });
     expect(numero.status).toBe(400);
     expect((numero.corpo['error'] as { code: string }).code).toBe('name_start');
 
-    const emUso = await editar(sessionEditor, id, { nome: `Dois ${marca}` });
+    const emUso = await editar(sessionEditor, id, { name: `Dois ${marca}` });
     expect(emUso.status).toBe(409);
     expect((emUso.corpo['error'] as { code: string }).code).toBe('name_in_use');
 
     // // Its own name isn't a conflict with itself.
-    const mesmo = await editar(sessionEditor, id, { nome: `Um ${marca}` });
+    const mesmo = await editar(sessionEditor, id, { name: `Um ${marca}` });
     expect(mesmo.status).toBe(200);
 
     // Arquivado, o outro libera o nome.
     expect((await excluir(sessionAdmin, outro)).status).toBe(204);
-    const liberado = await editar(sessionEditor, id, { nome: `Dois ${marca}` });
+    const liberado = await editar(sessionEditor, id, { name: `Dois ${marca}` });
     expect(liberado.status).toBe(200);
   });
 
   it('Remove images with `null`, replace them with `data:`, and reject nonimages', async () => {
-    const id = await criado(`Retrato ${randomUUID().slice(0, 6)}`, { imagem: PNG });
+    const id = await criado(`Retrato ${randomUUID().slice(0, 6)}`, { image: PNG });
 
     const tirada = await editar(sessionEditor, id, { imagem: null });
     expect(tirada.status).toBe(200);
-    expect(tirada.corpo['imagemUrl']).toBeNull();
+    expect(tirada.corpo['imageUrl']).toBeNull();
 
     const posta = await editar(sessionEditor, id, { imagem: PNG });
     expect(posta.status).toBe(200);
-    expect(posta.corpo['imagemUrl']).toBe(PNG);
+    expect(posta.corpo['imageUrl']).toBe(PNG);
 
     const falsa = await editar(sessionEditor, id, { imagem: NOT_IMAGE });
     expect(falsa.status).toBe(400);
@@ -407,14 +407,14 @@ describe('PATCH /v1/management/flows/:id', () => {
   it('Return 403 without permission and 404 for invalid or cross-tenant flow IDs', async () => {
     const id = await criado(`Guardado ${randomUUID().slice(0, 6)}`);
 
-    const semPoder = await editar(sessionWithoutAuthority, id, { nome: 'Invasor' });
+    const semPoder = await editar(sessionWithoutAuthority, id, { name: 'Invasor' });
     expect(semPoder.status).toBe(403);
     expect((semPoder.corpo['error'] as { code: string }).code).toBe('without_permission');
 
-    const outroTenant = await editar(sessionOfOtherTenant, id, { nome: 'Vizinho' });
+    const outroTenant = await editar(sessionOfOtherTenant, id, { name: 'Vizinho' });
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await editar(sessionEditor, 'nao-e-uuid', { nome: 'Tanto faz' });
+    const malformado = await editar(sessionEditor, 'nao-e-uuid', { name: 'Tanto faz' });
     expect(malformado.status).toBe(404);
 
     expect((await lineOfFlow(id))?.nome).toContain('Guardado');
@@ -428,10 +428,10 @@ describe('DELETE /v1/management/flows/:id', () => {
     const editor = await excluir(sessionEditor, id);
     expect(editor.status).toBe(403);
     const corpo = (await editor.json()) as {
-      error: { code: string; detalhe: { permission: string } };
+      error: { code: string; detalhe: { permissao: string } };
     };
     expect(corpo.error.code).toBe('without_permission');
-    expect(corpo.error.detalhe.permission).toBe('automacao.fluxo.excluir');
+    expect(corpo.error.detalhe.permissao).toBe('automacao.fluxo.excluir');
     expect((await lineOfFlow(id))?.estado).toBe('rascunho');
 
     expect((await excluir(sessionOfOtherTenant, id)).status).toBe(404);
@@ -458,7 +458,7 @@ describe('DELETE /v1/management/flows/:id', () => {
     );
     expect(versions[0]?.n).toBe('1');
 
-    const grade = await fetch(`${api.url}/v1/management/flows?busca=${encodeURIComponent(nome)}`, {
+    const grade = await fetch(`${api.url}/v1/management/flows?search=${encodeURIComponent(nome)}`, {
       headers: comCookie(sessionAdmin),
     });
     const { flows } = (await grade.json()) as { flows: { id: string }[] };
@@ -473,10 +473,10 @@ describe('DELETE /v1/management/flows/:id', () => {
 
     // // Deleted means "doesn't exist": deleting again and editing both return 404.
     expect((await excluir(sessionAdmin, id)).status).toBe(404);
-    expect((await editar(sessionEditor, id, { nome: 'Ressuscitado' })).status).toBe(404);
+    expect((await editar(sessionEditor, id, { name: 'Ressuscitado' })).status).toBe(404);
 
     // // And the name became free again for a new contact.
-    const novo = await create(sessionEditor, { nome });
+    const novo = await create(sessionEditor, { name: nome });
     expect(novo.body.error).toBeUndefined();
     expect(novo.body.id).not.toBe(id);
   });

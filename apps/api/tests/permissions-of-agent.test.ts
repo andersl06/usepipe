@@ -105,7 +105,7 @@ function comCookie(token: string): Record<string, string> {
 
 type Linha = {
   code: string;
-  grupo: string;
+  group: string;
   description: string;
   dosPapeis: boolean;
   override: boolean | null;
@@ -113,14 +113,14 @@ type Linha = {
   parcial: boolean;
 };
 type Resposta = {
-  agents?: { id: string; nome: string; email: string }[];
+  agents?: { id: string; name: string; email: string }[];
   permissions?: Linha[];
   error?: unknown;
 };
 
 async function ler(session: string, ids: string[]) {
   const resposta = await fetch(
-    `${api.url}/v1/management/agents/permissions?atendentes=${ids.join(',')}`,
+    `${api.url}/v1/management/agents/permissions?agents=${ids.join(',')}`,
     { headers: comCookie(session) },
   );
   return { status: resposta.status, corpo: (await resposta.json()) as Resposta };
@@ -217,7 +217,7 @@ describe('GET /v1/management/agents/permissions', () => {
   });
 
   it('Reject a permission request with no agents rather than returning an empty list', async () => {
-    const resposta = await fetch(`${api.url}/v1/management/agents/permissions?atendentes=`, {
+    const resposta = await fetch(`${api.url}/v1/management/agents/permissions?agents=`, {
       headers: comCookie(sessionManager),
     });
     expect(resposta.status).toBe(400);
@@ -264,7 +264,7 @@ describe('PATCH /v1/management/agents/permissions', () => {
       fetch(`${api.url}/v1/management/rules/priority`, {
         method: 'POST',
         headers: comCookie(sessionAgent),
-        body: JSON.stringify({ nome: `Regra ${randomUUID().slice(0, 6)}`, nivel: 'alta' }),
+        body: JSON.stringify({ name: `Regra ${randomUUID().slice(0, 6)}`, level: 'alta' }),
       });
 
     expect((await create()).status).toBe(403);

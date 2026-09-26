@@ -73,7 +73,7 @@ describe('Register tracked links and generate short codes', () => {
   it('cadastra o link e gera o código curto', async () => {
     const resposta = await comCookie(`/v1/management/flows/${flowId}/links-tracked`, {
       method: 'POST',
-      body: JSON.stringify({ nome: 'Anúncio de setembro', destino: 'https://exemplo.com/promo' }),
+      body: JSON.stringify({ name: 'Anúncio de setembro', destination: 'https://exemplo.com/promo' }),
     });
     expect(resposta.status).toBe(201);
     const corpo = (await resposta.json()) as {
@@ -90,7 +90,7 @@ describe('Register tracked links and generate short codes', () => {
   it('Reject an empty tracked-link name', async () => {
     const resposta = await comCookie(`/v1/management/flows/${flowId}/links-tracked`, {
       method: 'POST',
-      body: JSON.stringify({ nome: '   ', destino: 'https://exemplo.com' }),
+      body: JSON.stringify({ name: '   ', destination: 'https://exemplo.com' }),
     });
     expect(resposta.status).toBe(400);
   });
@@ -98,7 +98,7 @@ describe('Register tracked links and generate short codes', () => {
   it('Reject tracked-link destinations that do not use HTTPS', async () => {
     const resposta = await comCookie(`/v1/management/flows/${flowId}/links-tracked`, {
       method: 'POST',
-      body: JSON.stringify({ nome: 'x', destino: 'http://exemplo.com' }),
+      body: JSON.stringify({ name: 'x', destination: 'http://exemplo.com' }),
     });
     expect(resposta.status).toBe(400);
     expect(((await resposta.json()) as { error: { code: string } }).error.code).toBe(
@@ -109,13 +109,13 @@ describe('Register tracked links and generate short codes', () => {
   it('Reject tracked-link destinations on localhost or private networks', async () => {
     const local = await comCookie(`/v1/management/flows/${flowId}/links-tracked`, {
       method: 'POST',
-      body: JSON.stringify({ nome: 'x', destino: 'https://localhost/x' }),
+      body: JSON.stringify({ name: 'x', destination: 'https://localhost/x' }),
     });
     expect(local.status).toBe(400);
 
     const privado = await comCookie(`/v1/management/flows/${flowId}/links-tracked`, {
       method: 'POST',
-      body: JSON.stringify({ nome: 'x', destino: 'https://192.168.0.5/x' }),
+      body: JSON.stringify({ name: 'x', destination: 'https://192.168.0.5/x' }),
     });
     expect(privado.status).toBe(400);
     expect(((await privado.json()) as { error: { code: string } }).error.code).toBe(
@@ -145,7 +145,7 @@ describe('Redirect public tracked links and count clicks', () => {
   beforeAll(async () => {
     const resposta = await comCookie(`/v1/management/flows/${flowId}/links-tracked`, {
       method: 'POST',
-      body: JSON.stringify({ nome: 'Redirecionamento', destination }),
+      body: JSON.stringify({ name: 'Redirecionamento', destination }),
     });
     codigo = ((await resposta.json()) as { code: string }).code;
   });
@@ -230,9 +230,9 @@ describe('Reject active messages without a contact phone or contact ID', () => {
     const resposta = await comCookie('/v1/messages-active', {
       method: 'POST',
       body: JSON.stringify({
-        canal_id: cenario.channelId,
+        channelId: cenario.channelId,
         template_id: templateId,
-        contatos: [{ nome: 'sem telefone nem id' }],
+        contacts: [{ name: 'sem telefone nem id' }],
       }),
     });
     expect(resposta.status).toBe(400);
@@ -248,9 +248,9 @@ describe('Reject active messages without a contact phone or contact ID', () => {
       const resposta = await comCookie('/v1/messages-active', {
         method: 'POST',
         body: JSON.stringify({
-          canal_id: cenario.channelId,
+          channelId: cenario.channelId,
           template_id: templateId,
-          contatos: [{ telefone: '+5511988880001' }],
+          contacts: [{ phone: '+5511988880001' }],
         }),
       });
       expect(resposta.status).toBe(409);

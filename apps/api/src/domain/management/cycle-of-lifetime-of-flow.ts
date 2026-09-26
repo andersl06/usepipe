@@ -233,7 +233,13 @@ export async function editFlow(
 
   const [gravado] = await tx
     .update(flow)
-    .set({ ...depois, atualizadoEm: new Date() })
+    .set({
+      nome: depois.nome,
+      descricao: depois.descricao,
+      imageUrl: depois.imagemUrl,
+      shortName: depois.shortName,
+      atualizadoEm: new Date(),
+    })
     .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)))
     .returning({
       id: flow.id,

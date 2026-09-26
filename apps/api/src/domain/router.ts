@@ -111,7 +111,7 @@ export async function redirectInRouter(
     persistent: boolean;
     expirationMin: number | null;
   }>(sql`
-    select servico_id, principal, persistente, expiracao_min from roteador_servico
+    select servico_id as "serviceId", principal, persistente as "persistent", expiracao_min as "expirationMin" from roteador_servico
      where roteador_id = ${pedido.routerId} and nome = ${pedido.service}
   `);
   const destination = rows[0];

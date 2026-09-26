@@ -108,7 +108,7 @@ async function newChannel(
     insert into canal (tenant_id, tipo, nome, ativo, config)
     values (
       ${cenario.tenantId}, ${extra.type ?? 'whatsapp_cloud'}, ${`Canal ${marca}`},
-      ${extra.active ?? true}, ${JSON.stringify({ number: extra.number ?? `+55119${marca.slice(0, 7)}` })}::jsonb
+      ${extra.active ?? true}, ${JSON.stringify({ numero: extra.number ?? `+55119${marca.slice(0, 7)}` })}::jsonb
     )
     returning id
   `);
@@ -136,7 +136,7 @@ const detalhe = (r: { body: Record<string, unknown> }) =>
   (r.body['error'] as { detalhe?: Record<string, unknown> } | undefined)?.detalhe ?? {};
 
 const ligar = (sessao: string, flowId: string, channelId: string) =>
-  chamar(sessao, 'PUT', `/v1/management/flows/${flowId}/channel`, { channelId });
+  chamar(sessao, 'PUT', `/v1/management/flows/${flowId}/channel`, { canalId: channelId });
 const desligar = (sessao: string, fluxoId: string) =>
   chamar(sessao, 'DELETE', `/v1/management/flows/${fluxoId}/channel`);
 const readChannel = (sessao: string, fluxoId: string) =>
@@ -144,7 +144,7 @@ const readChannel = (sessao: string, fluxoId: string) =>
 
 async function channelOfDatabase(fluxoId: string): Promise<string | null> {
   const { rows } = await a.dono.execute<{ channelId: string | null }>(
-    sql`select canal_id from fluxo where id = ${fluxoId}::uuid`,
+    sql`select canal_id as "channelId" from fluxo where id = ${fluxoId}::uuid`,
   );
   return rows[0]?.channelId ?? null;
 }
@@ -198,23 +198,23 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     expect(log.at(-1)).toMatchObject({
       acao: 'alterou',
       antes: { canalId: null },
-      depois: { channelId, canalTipo: 'whatsapp_cloud' },
+      depois: { canalId: channelId, canalTipo: 'whatsapp_cloud' },
     });
 
     const lido = await readChannel(sessionEditor, flowId);
     expect(lido.status).toBe(200);
-    expect(lido.body['canal']).toMatchObject({ id: channelId, flowId });
+    expect(lido.body['channel']).toMatchObject({ id: channelId, flowId });
     const disponiveis = lido.body['disponiveis'] as { id: string; flowId: string | null }[];
     expect(disponiveis.find((c) => c.id === channelId)?.flowId).toBe(flowId);
 
     const contact = await chamar(sessionEditor, 'GET', `/v1/management/flows/${flowId}`);
-    expect(contact.body['contato']).toMatchObject({
-      channelId,
+    expect(contact.body['contact']).toMatchObject({
+      canalId: channelId,
       canalTipo: 'whatsapp_cloud',
       canalAtivo: true,
       canalNumero: '+5511900000001',
     });
-    expect((contact.body['contato'] as { channelName: string }).channelName).toMatch(/^Canal /);
+    expect((contact.body['contact'] as { canalNome: string }).canalNome).toMatch(/^Canal /);
 
     // // Connecting the same channel again isn't an error and doesn't create a record.
     expect((await ligar(sessionEditor, flowId, channelId)).status).toBe(200);
@@ -229,7 +229,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
 
     const recusa = await ligar(sessionEditor, segundo, canalId);
     expect(recusa.status).toBe(409);
-    expect(codigo(recusa)).toBe('numero_em_uso');
+    expect(codigo(recusa)).toBe('number_in_use');
     expect((recusa.body['error'] as { message: string }).message).toBe(
       'Ops… Este número já está em uso. Para ativar o número neste bot, remova do anterior e tente novamente.',
     );
@@ -261,7 +261,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
 
     const recusa = await ligar(sessionEditor, fluxoId, instagram);
     expect(recusa.status).toBe(409);
-    expect(codigo(recusa)).toBe('fluxo_ja_tem_canal');
+    expect(codigo(recusa)).toBe('flow_already_has_channel');
     expect(detalhe(recusa)['canalId']).toBe(whatsapp);
     expect(await channelOfDatabase(fluxoId)).toBe(whatsapp);
   });
@@ -271,7 +271,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     const desligado = await newChannel(a, { active: false });
     const inativo = await ligar(sessionEditor, fluxoId, desligado);
     expect(inativo.status).toBe(409);
-    expect(codigo(inativo)).toBe('canal_inativo');
+    expect(codigo(inativo)).toBe('channel_inactive');
 
     const channelOfB = await newChannel(b);
     expect((await ligar(sessionEditor, fluxoId, channelOfB)).status).toBe(404);
@@ -293,7 +293,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
 
     const semPoder = await ligar(sessionWithoutAuthority, fluxoId, canalId);
     expect(semPoder.status).toBe(403);
-    expect(codigo(semPoder)).toBe('sem_permissao');
+    expect(codigo(semPoder)).toBe('without_permission');
     expect((await desligar(sessionWithoutAuthority, fluxoId)).status).toBe(403);
 
     await a.dono.execute(sql`
@@ -317,10 +317,10 @@ describe('DELETE /v1/management/flows/:id/channel', () => {
 
     expect((await desligar(sessionEditor, fluxoId)).status).toBe(204);
     expect(await channelOfDatabase(fluxoId)).toBeNull();
-    const { rows } = await a.dono.execute<{ active: boolean }>(
+    const { rows } = await a.dono.execute<{ ativo: boolean }>(
       sql`select ativo from canal where id = ${canalId}::uuid`,
     );
-    expect(rows[0]?.active).toBe(true);
+    expect(rows[0]?.ativo).toBe(true);
 
     const log = await auditoriaDe(fluxoId);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou', antes: { canalId }, depois: { canalId: null } });
@@ -329,7 +329,7 @@ describe('DELETE /v1/management/flows/:id/channel', () => {
     expect(await auditoriaDe(fluxoId)).toHaveLength(log.length);
 
     const lido = await readChannel(sessionEditor, fluxoId);
-    expect(lido.body['canal']).toBeNull();
+    expect(lido.body['channel']).toBeNull();
   });
 });
 
@@ -344,15 +344,15 @@ describe('Connect a new channel to a bot using `fluxo_id`', () => {
       phone_number_id: numeroId,
       access_token: `manual-${numeroId}`,
       app_secret: appSecret,
-      nome: 'Número do bot',
-      fluxo_id: fluxoId,
+      name: 'Número do bot',
+      flowId: fluxoId,
     });
     expect(criado.status).toBe(201);
     const canalId = criado.body['id'] as string;
     expect(await channelOfDatabase(fluxoId)).toBe(canalId);
 
     const lido = await readChannel(sessionEditor, fluxoId);
-    expect(lido.body['canal']).toMatchObject({ id: canalId, tipo: 'whatsapp_cloud', nome: 'Número do bot', fluxoId });
+    expect(lido.body['channel']).toMatchObject({ id: canalId, tipo: 'whatsapp_cloud', nome: 'Número do bot', flowId: fluxoId });
   });
 
   it('Reject missing bot permission, an occupied bot, or a malformed flow before creating a channel', async () => {
@@ -363,7 +363,7 @@ describe('Connect a new channel to a bot using `fluxo_id`', () => {
       phone_number_id: numeroId,
       access_token: `manual-${numeroId}`,
       app_secret: appSecret,
-      fluxo_id: fluxoId,
+      flowId: fluxoId,
     };
     const contar = async () => {
       const { rows } = await a.dono.execute<{ n: string }>(
@@ -376,14 +376,14 @@ describe('Connect a new channel to a bot using `fluxo_id`', () => {
     expect(await contar()).toBe(0);
 
     expect(
-      (await chamar(sessionEditor, 'POST', '/v1/channels/whatsapp/manual', { ...corpo, fluxo_id: 'nao-e-uuid' })).status,
+      (await chamar(sessionEditor, 'POST', '/v1/channels/whatsapp/manual', { ...corpo, flowId: 'nao-e-uuid' })).status,
     ).toBe(404);
     expect(await contar()).toBe(0);
 
     await ligar(sessionEditor, fluxoId, await newChannel(a));
     const cheio = await chamar(sessionEditor, 'POST', '/v1/channels/whatsapp/manual', corpo);
     expect(cheio.status).toBe(409);
-    expect(codigo(cheio)).toBe('fluxo_ja_tem_canal');
+    expect(codigo(cheio)).toBe('flow_already_has_channel');
     expect(await contar()).toBe(0);
   });
 });
@@ -435,7 +435,7 @@ describe('Route messages from a connected phone number to its router bot', () =>
     });
     expect(resposta.status).toBe(200);
 
-    const { rows } = await a.dono.execute<{ content: string }>(sql`
+    const { rows } = await a.dono.execute<{ conteudo: string }>(sql`
       select m.conteudo from mensagem m
         join conversa c on c.id = m.conversa_id
         join contato ct on ct.id = c.contato_id
@@ -443,14 +443,14 @@ describe('Route messages from a connected phone number to its router bot', () =>
          and m.autor_tipo = 'bot'
        order by m.criada_em desc limit 1
     `);
-    expect(rows[0]?.content).toBe('Roteador: olá!');
+    expect(rows[0]?.conteudo).toBe('Roteador: olá!');
 
-    const { rows: position } = await a.dono.execute<{ serviceId: string }>(sql`
+    const { rows: position } = await a.dono.execute<{ servico_id: string }>(sql`
       select p.servico_id from posicao_no_roteador p
         join contato ct on ct.id = p.contato_id
        where p.roteador_id = ${routerId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
     `);
-    expect(position[0]?.serviceId).toBe(principal.flowId);
+    expect(position[0]?.servico_id).toBe(principal.flowId);
 
     // // Once the router is disconnected from the number, the next new conversation no longer goes through it.
     expect((await desligar(sessionEditor, routerId)).status).toBe(204);
@@ -473,7 +473,7 @@ describe('reconexão manual do mesmo número', () => {
       phone_number_id: numeroId,
       access_token: `manual-${numeroId}`,
       app_secret: appSecret,
-      fluxo_id: fluxoId,
+      flowId: fluxoId,
     };
     const criado = await chamar(sessionEditor, 'POST', '/v1/channels/whatsapp/manual', corpo);
     expect(criado.status).toBe(201);
@@ -483,10 +483,10 @@ describe('reconexão manual do mesmo número', () => {
      * Without `canal_id`: this is the dead end the owner ran into — the number already belongs to a channel. Outside the bot, `canal.gerenciar` is in charge, hence the separate session.
      */
     const sessionOfChannel = await openSession(a, await pessoaCom(a, ['canal.gerenciar']));
-    const { fluxo_id: _semBot, ...semBot } = corpo;
+    const { flowId: _semBot, ...semBot } = corpo;
     const repetido = await chamar(sessionOfChannel, 'POST', '/v1/channels/whatsapp/manual', semBot);
     expect(repetido.status).toBe(422);
-    expect(codigo(repetido)).toBe('configuracao_invalida');
+    expect(codigo(repetido)).toBe('configuration_invalid');
 
     /*
      * The Meta double matches token to number, so the test token is the same one; what proves the swap is the new App Secret stored on the channel.
@@ -507,7 +507,7 @@ describe('reconexão manual do mesmo número', () => {
     expect(Number(rows[0]!.n)).toBe(1);
 
     const { rows: guardado } = await a.dono.execute<{ secret: string }>(
-      sql`select config->>'appSecret' as segredo from canal where id = ${canalId}::uuid`,
+      sql`select config->>'appSecret' as secret from canal where id = ${canalId}::uuid`,
     );
     /* Encrypted in the database: what matters is that it CHANGED, not the plaintext value. */
     expect(guardado[0]!.secret).toBeTruthy();

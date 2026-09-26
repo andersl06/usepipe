@@ -190,7 +190,7 @@ async function findOrCreateByPhone(
   // `acharOuCriarContato` usa no caminho de entrada. Divergir aqui criaria um contato
   const identificador = telefone.replace(/^\+/, '');
   const { rows } = await tx.execute<{ contactId: string }>(sql`
-    select contato_id from contato_identidade
+    select contato_id as "contactId" from contato_identidade
      where canal_tipo = ${canal.type} and identificador = ${identificador} limit 1
   `);
   const existente = rows[0]?.contactId;
@@ -228,7 +228,7 @@ async function openConversationOfTrigger(
   contactId: string,
 ): Promise<string> {
   const { rows: inboxes } = await tx.execute<{ id: string; queueDefaultId: string | null }>(
-    sql`select id, fila_padrao_id from inbox where canal_id = ${pedido.channelId} order by criado_em limit 1`,
+    sql`select id, fila_padrao_id as "queueDefaultId" from inbox where canal_id = ${pedido.channelId} order by criado_em limit 1`,
   );
   const inbox = inboxes[0];
   if (!inbox) throw PipeError.conflito('channel_without_inbox', 'O canal não tem inbox configurada.');

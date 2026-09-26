@@ -302,7 +302,7 @@ export class ConversationsController {
       },
       { conversationId: id, etiquetaIds: corpo.etiqueta_ids ?? (corpo.etiqueta_id ? [corpo.etiqueta_id] : undefined) },
     );
-    return { estado: r.state, reasonClosure: r.reason };
+    return { state: r.state, reasonClosure: r.reason };
   }
 
   /**
@@ -345,8 +345,8 @@ export class ConversationsController {
     );
     return {
       ofConversationId: r.ofConversationId,
-      para_conversa_id: r.forConversationId,
-      estado: r.state,
+      forConversationId: r.forConversationId,
+      state: r.state,
     };
   }
 
@@ -366,7 +366,7 @@ export class ConversationsController {
       },
       id,
     );
-    return { estado: r.state, pausado_seg: r.pausadoSeg };
+    return { state: r.state, pausado_seg: r.pausadoSeg };
   }
 }
 

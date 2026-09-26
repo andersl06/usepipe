@@ -181,7 +181,7 @@ const rotas: Rota[] = [
     async ({ session }) => {
       const data = await noTenant(session.tenantId, async (tx) => {
         const { rows: state } = await tx.execute<{ state: string }>(sql`
-          select estado from status_atendente where usuario_id = ${session.userId}::uuid limit 1
+          select estado as "state" from status_atendente where usuario_id = ${session.userId}::uuid limit 1
         `);
         const { rows: queues } = await tx.execute<{ nome: string }>(sql`
           select f.nome from fila f

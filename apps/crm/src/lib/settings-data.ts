@@ -724,7 +724,7 @@ export async function listarCamposPersonalizados(): Promise<CampoPersonalizado[]
 
     // A single scan, with `lead.customizados`'s GIN index doing the work.
     const { rows } = await tx.execute<{ key: string; n: number }>(sql`
-      select chave, count(*)::int as n
+      select chave as "key", count(*)::int as n
         from lead, lateral jsonb_object_keys(customizados) as chave
        where excluido_em is null
        group by chave

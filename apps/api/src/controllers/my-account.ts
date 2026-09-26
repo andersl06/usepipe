@@ -233,7 +233,7 @@ export class MyAccountController {
       onboarding_concluido_em: Date | string | null;
       personal: boolean;
     }>(sql`
-      select t.id as tenant_id, t.nome, t.slug, t.plano, t.onboarding_concluido_em,
+      select t.id as tenant_id, t.nome as "name", t.slug, t.plano as "plan", t.onboarding_concluido_em,
              not exists (
                select 1 from dominio_tenant d
                 where d.tenant_id = t.id and d.verificado_em is not null

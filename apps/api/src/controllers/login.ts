@@ -363,7 +363,7 @@ export class MeController {
       // inside this transaction can unset `pipe.tenant_id` and run a query without
       // tenant.
       const { rows: permissions } = await tx.execute<{ code: string }>(sql`
-        select codigo from (
+        select codigo as "code" from (
           select distinct pp.permissao_codigo as codigo
             from usuario_papel up
             join papel_permissao pp on pp.papel_id = up.papel_id

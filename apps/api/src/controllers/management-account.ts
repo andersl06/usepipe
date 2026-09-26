@@ -33,7 +33,7 @@ import {
  */
 async function permissionsOf(tx: TransactionPipe, userId: string): Promise<string[]> {
   const { rows } = await tx.execute<{ code: string }>(sql`
-    select distinct pp.permissao_codigo as codigo
+    select distinct pp.permissao_codigo as code
       from usuario_papel up
       join papel_permissao pp on pp.papel_id = up.papel_id
      where up.usuario_id = ${userId}::uuid
