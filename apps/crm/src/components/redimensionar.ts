@@ -19,11 +19,11 @@
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
 
-/** Abaixo de 72px o rótulo do cabeçalho já não cabe, e a coluna vira um traço. */
+/** Below 72px the header label no longer fits, and the column becomes a sliver. */
 const MINIMA = 72;
-/** Acima de 640px a coluna empurra todas as outras para fora da tela. */
+/** Above 640px the column pushes all the others off screen. */
 const MAXIMA = 640;
-/** Quanto uma seta do teclado move. Múltiplo da régua de espaço. */
+/** How much one arrow key press moves. A multiple of the spacing scale. */
 const PASSO = 16;
 
 export type Larguras = Record<string, number>;
@@ -55,29 +55,29 @@ interface Arraste {
 }
 
 /**
- * Larguras de coluna redimensionáveis, persistidas por navegador.
+ * Resizable column widths, persisted per browser.
  *
- * `chaveDeArmazenamento` separa a memória de uma tabela da de outra: a lista de
- * leads e a de contas têm colunas de nomes diferentes, e misturar as duas faria
- * uma herdar a largura da outra.
+ * `chaveDeArmazenamento` keeps one table's memory separate from another's: the
+ * leads list and the accounts list have differently named columns, and mixing
+ * the two would make one inherit the other's width.
  */
 export function useLarguras(storageKey: string, defaults: Larguras) {
   const [ajustadas, setAjustadas] = useState<Larguras>({});
   /**
-   * O arraste em curso vive numa referência, não em estado.
+   * The drag in progress lives in a ref, not in state.
    *
-   * Estado só chega ao manipulador na renderização seguinte. Se o navegador
-   * entregar o `pointermove` no mesmo passo do `pointerdown` (acontece com
-   * ponteiro rápido, e acontece sempre em teste sintético), o manipulador ainda
-   * enxerga `null` e o primeiro movimento do arraste é perdido. A referência
-   * está escrita antes de a função retornar.
+   * State only reaches the handler on the next render. If the browser delivers
+   * `pointermove` in the same tick as `pointerdown` (happens with a fast pointer,
+   * and always happens in a synthetic test), the handler would still see `null`
+   * and the drag's first movement would be lost. The ref is written before the
+   * function returns.
    */
   const arraste = useRef<Arraste | null>(null);
-  /** Só para a classe do cabeçalho. Este pode ser estado: é pintura. */
+  /** Only for the header's class. This one can be state: it's just paint. */
   const [columnInArraste, setColumnInArraste] = useState<string | null>(null);
 
-  // Só depois de montar: o servidor não tem `localStorage`, e ler durante a
-  // renderização faria os dois desenharem larguras diferentes.
+  // Only after mounting: the server has no `localStorage`, and reading during the
+  // render would make the two sides draw different widths.
   useEffect(() => setAjustadas(ler(storageKey)), [storageKey]);
 
   const largura = useCallback(
@@ -91,7 +91,7 @@ export function useLarguras(storageKey: string, defaults: Larguras) {
       try {
         localStorage.setItem(storageKey, JSON.stringify(proximas));
       } catch {
-        // Armazenamento bloqueado: a largura vale para esta sessão e some depois.
+        // Storage blocked: the width is only good for this session and disappears afterward.
       }
     },
     [storageKey],
@@ -125,9 +125,9 @@ export function useLarguras(storageKey: string, defaults: Larguras) {
   }
 
   /**
-   * O mesmo ajuste pelo teclado. Alça que só responde ao mouse é alça que
-   * metade do time não alcança, e a régua de 16px chega em qualquer largura
-   * útil em poucos toques.
+   * The same adjustment via keyboard. A handle that only responds to the mouse is
+   * a handle half the team can't reach, and the 16px increment reaches any useful
+   * width in a few taps.
    */
   function aoTeclar(column: string) {
     return (evento: React.KeyboardEvent) => {
@@ -139,11 +139,11 @@ export function useLarguras(storageKey: string, defaults: Larguras) {
     };
   }
 
-  /** Volta a coluna ao padrão. É o duplo clique na alça, como em toda planilha. */
+  /** Resets the column to the default. It's the double-click on the handle, like in any spreadsheet. */
   function toRestore(column: string) {
     return () => {
-      // Apagar a chave, e não gravar o padrão por cima: assim a coluna volta a
-      // seguir o padrão da tela se ele mudar num deploy futuro.
+      // Deleting the key, not writing the default over it: that way the column goes back to
+      // following the screen's default if it changes in a future deploy.
       const resto = Object.fromEntries(
         Object.entries(ajustadas).filter(([key]) => key !== column),
       );

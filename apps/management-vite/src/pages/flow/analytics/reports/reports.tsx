@@ -3,11 +3,7 @@ import type { ReportCustom } from '@pipe/core/analytics';
 import { PageHeader } from '../pecas';
 
 /**
- * Relatórios Personalizados — o componente `customReports` do módulo
- * `analyticsComponents` (template 47754, controlador `bi`).
- *
- * Dois estados, os dois do template: a lista de `bds-paper.cards` e, sem
- * relatório, o `bds-typo.no-content-found` "Nenhum relatório encontrado :(".
+ * Custom Reports — the `customReports` component from the `analyticsComponents` module (template 47754, controller `bi`). Two states, both from the template: the `bds-paper.cards` list, and, with no report, the `bds-typo.no-content-found` "Nenhum relatório encontrado :(".
  */
 export function ReportsCustom({
   reports,
@@ -20,20 +16,21 @@ export function ReportsCustom({
 }) {
   return (
     <>
-      {/* `page-header-title` + `helper-title`/`helper-body`/`helper-doc`, SEM
-          `helper-confirm` — por isso não há ícone de ajuda. */}
+      {/*
+ * `page-header-title` + `helper-title`/`helper-body`/`helper-doc`, WITHOUT `helper-confirm` — that's why there's no help icon.
+ */}
       <PageHeader
         titulo="Relatórios personalizados"
         extra={
           <>
-            {/* `<search-input class="flex mr3">`: a lupa de 32 e o campo, que
-                nasce com largura 0 e só abre ao focar. O `<label>` faz o clique
-                na lupa focar o campo, que é o `focusInput()` deles. */}
+            {/*
+ * `<search-input class="flex mr3">`: the 32px magnifying glass and the field, which starts at width 0 and only opens on focus. The `<label>` makes clicking the glass focus the field, which is their `focusInput()`.
+ */}
             <label className="rl-busca">
               <IconeSearch tamanho={32} className="rl-busca-lupa" />
               <input type="text" placeholder="Buscar relatórios" />
             </label>
-            {/* `goToReport()` abre o editor de relatório, que não existe aqui. */}
+            {/* `goToReport()` opens the report editor, which doesn't exist here. */}
             <span className="rl-criar">
               <button type="button" className="an-bp-btn" disabled>
                 Criar relatório
@@ -59,15 +56,16 @@ export function ReportsCustom({
               <p className="an-t12 rl-rotulo">Última modificação</p>
               <p className="an-t14 rl-valor">{reportData(r.modificadoEm, agora, fuso)}</p>
             </div>
-            {/* `.card-icons.card-icons--hidden.w-10`: editar e excluir, só
-                para o dono, e só aparecem com o cursor sobre o cartão. */}
+            {/*
+ * `.card-icons.card-icons--hidden.w-10`: edit and delete, only for the owner, and only appear on hover over the card.
+ */}
             <div className="rl-icones">
               {r.souDono ? (
                 <>
                   <span className="rl-icone" title="Editar">
                     <IconePortal nome="editar" tamanho={18} />
                   </span>
-                  {/* `confirmDelete()` abre o modal de confirmação. */}
+                  {/* `confirmDelete()` opens the confirmation modal. */}
                   <a className="rl-icone" title="Remover" href={`#excluir-${r.id}`}>
                     <IconePortal nome="lixeira" tamanho={18} />
                   </a>
@@ -77,8 +75,9 @@ export function ReportsCustom({
           </div>
         ))}
 
-        {/* Fora da fileira: o `.cards` é `white-space: nowrap`, e o modal do
-            `ModalService` nasce no `body`, não dentro do cartão. */}
+        {/*
+ * Outside the row: `.cards` is `white-space: nowrap`, and the `ModalService` modal is born in the `body`, not inside the card.
+ */}
         {reports
           .filter((r) => r.souDono)
           .map((r) => (
@@ -94,8 +93,7 @@ export function ReportsCustom({
 }
 
 /**
- * `handleReport()`: modificado HOJE mostra `moment(...).fromNow()`; outro dia,
- * `DD/MM/YYYY - HH:mm`; sem data, `N/A`. O "hoje" é o do fuso da conta.
+ * `handleReport()`: modified TODAY shows `moment(...).fromNow()`; another day, `DD/MM/YYYY - HH:mm`; no date, `N/A`. "Today" is in the account's timezone.
  */
 export function reportData(quando: Date | null, agora: Date, fuso: string): string {
   if (!quando) return 'N/A';
@@ -125,10 +123,7 @@ function haQuanto(segundos: number): string {
 }
 
 /**
- * O modal genérico do `ModalService` (`Rw`, template 84817) com os textos de
- * `reports.modal`: `modal-toolbar` com o `close`, título fs-32, corpo, e os
- * botões "Não" (secundário) e "Sim". Excluir grava — e aqui não há relatório
- * para excluir —, então o "Sim" leva o selo.
+ * The generic `ModalService` modal (`Rw`, template 84817) with the `reports.modal` texts: `modal-toolbar` with the `close`, fs-32 title, body, and the "Não" (secondary) and "Sim" buttons. Deleting writes to the database — and here there's no report to delete —, so the "Sim" button gets the "coming soon" badge.
  */
 function ConfirmarExclusao({ id }: { id: string }) {
   return (

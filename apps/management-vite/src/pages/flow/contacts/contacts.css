@@ -1,7 +1,9 @@
-/* Contatos — disposição copiada do portal.css da origem (`#users-content-view`,
-   `.static-sidebar`, `.card--mini-card.user-card`, `.details-container`,
-   `#user-detail-sidebar`) e conferida na cópia com a régua (janela 1280×780,
-   topo de 136px). Toda cor sai dos tokens `--p-*` / `--g-*` do Pipe. */
+/*
+ * Contacts — layout copied from the source's `portal.css` (`#users-content-view`,
+ *    `.static-sidebar`, `.card--mini-card.user-card`, `.details-container`,
+ *    `#user-detail-sidebar`) and checked against the copy with the ruler (1280×780
+ *    window, 136px top). Every color comes from Pipe's `--p-*` / `--g-*` tokens.
+ */
 
 /* ------------------------------------------------------------ lista */
 .ct-listagem {
@@ -13,7 +15,7 @@
   font-size: 16px;
 }
 
-/* `.static-sidebar.absolute.w-25.min-h-100`: sombra 0 0 24px, superfície 1. */
+/* `.static-sidebar.absolute.w-25.min-h-100`: shadow 0 0 24px, surface 1. */
 .ct-filtros {
   position: absolute;
   top: 0;
@@ -26,8 +28,10 @@
   box-shadow: var(--p-sombra-2);
   z-index: 1;
 }
-/* `.static-sidebar__header`: fundo escuro, padding 20px 30px; título fs-20 e
-   botão primário de 40px na largura toda (medido 260×40 em 320 de lateral). */
+/*
+ * `.static-sidebar__header`: dark background, padding 20px 30px; fs-20 title and
+ *    a full-width 40px primary button (measured 260×40 at 320 sidebar width).
+ */
 .ct-filtros-cabeca {
   padding: 20px 30px;
   background: var(--p-superficie-4);
@@ -67,8 +71,10 @@
   position: relative;
   padding: 0 20px;
 }
-/* `.bp-btn--dashed.h3-1.w-90.ml3.mb4`: 60px de altura, 90% de largura,
-   tracejado de 2px na cor primária, raio 3px, 14px/600. */
+/*
+ * `.bp-btn--dashed.h3-1.w-90.ml3.mb4`: 60px tall, 90% wide, 2px dashed in the
+ *    primary color, 3px radius, 14px/600.
+ */
 .ct-adicionar-filtro {
   width: 90%;
   height: 60px;
@@ -94,8 +100,10 @@
   padding-bottom: 40px;
 }
 
-/* `page-header`: `.container` com margem 0 5%, `.full-initial-section` com
-   margem e padding de 15px e linha inferior, conteúdo de 42px, h1 fs-24. */
+/*
+ * `page-header`: `.container` with 0 5% margin, `.full-initial-section` with
+ *    15px margin and padding and a bottom line, 42px content, h1 fs-24.
+ */
 .ct-cabeca-secao {
   margin: 15px 5%;
   padding: 15px 0;
@@ -126,7 +134,7 @@
   flex: 1 1 0;
   margin-left: 40px;
 }
-/* O `bds-tooltip` da origem ocupa 130px e centraliza o botão de 40px. */
+/* The source's `bds-tooltip` takes up 130px and centers the 40px button. */
 .ct-dica {
   display: flex;
   align-items: center;
@@ -175,8 +183,10 @@
   line-height: 21px;
   text-align: left;
 }
-/* `.bp-daterange-inputs`: 384×38, borda de 1px, raio 8px, padding 0 6px;
-   ícone em caixa de 25px com raio 5px; duas caixas de 160×36 e o `~`. */
+/*
+ * `.bp-daterange-inputs`: 384×38, 1px border, 8px radius, padding 0 6px;
+ *    icon in a 25px box with 5px radius; two 160×36 boxes and the `~`.
+ */
 .ct-periodo {
   display: flex;
   align-items: center;
@@ -220,8 +230,10 @@
 .ct-cartoes {
   margin-top: 20px;
 }
-/* `card.card--mini-card.user-card`: 20px 50px 20px 60px, margem inferior 10px,
-   superfície 1, raio 8px; `.card-content` em fileira centrada, 14px/16px. */
+/*
+ * `card.card--mini-card.user-card`: 20px 50px 20px 60px, 10px bottom margin,
+ *    surface 1, 8px radius; `.card-content` in a centered row, 14px/16px.
+ */
 .ct-usuario {
   display: flex;
   align-items: center;
@@ -249,7 +261,7 @@
   width: 10%;
   padding: 0 10px;
 }
-/* `bds-avatar` padrão: círculo de 56px com ícone de pessoa. */
+/* Standard `bds-avatar`: a 56px circle with a person icon. */
 .ct-avatar {
   display: grid;
   place-items: center;
@@ -313,7 +325,7 @@
   width: 5%;
   padding-left: 40px;
 }
-/* `.newtab-icon`: só aparece com o cursor sobre o cartão. */
+/* `.newtab-icon`: only appears with the cursor over the card. */
 .ct-nova-aba {
   display: grid;
   place-items: center;
@@ -429,8 +441,10 @@
     height: 50vh;
   }
 }
-/* `card.ph4.w-40.mr3.user-info-card` e `.tickets-history.ph4.w-60.mr3`: os
-   40/60 são do espaço que sobra depois das margens de 24px. */
+/*
+ * `card.ph4.w-40.mr3.user-info-card` and `.tickets-history.ph4.w-60.mr3`: the
+ *    40/60 comes from the space left over after the 24px margins.
+ */
 .ct-informacoes,
 .ct-tickets {
   height: 100%;
@@ -481,7 +495,7 @@
   width: 100%;
   margin-top: 20px;
 }
-.ct-linha--primeira {
+.ct-linha--first {
   margin-top: 40px;
 }
 .ct-linha--centro {
@@ -497,7 +511,7 @@
   text-align: left;
   overflow-wrap: anywhere;
 }
-/* `bp-fs-6` = 14px; `f4` = 12.5px — a origem mistura os dois no mesmo cartão. */
+/* `bp-fs-6` = 14px; `f4` = 12.5px — the source mixes both in the same card. */
 .ct-fs-6 {
   font-size: 14px;
   line-height: 21px;
@@ -561,7 +575,7 @@
   font-size: 14px;
   line-height: 21px;
 }
-/* `.user-info input`: borda e texto fantasma, largura máxima 60%. */
+/* `.user-info input`: ghost border and text, 60% max width. */
 .ct-entrada,
 .ct-selecao {
   width: 70%;
@@ -593,8 +607,10 @@
   font-size: 13px;
 }
 
-/* `.tickets-header`: fs-16 negrito, `bds-typo` em linha — só a margem
-   horizontal de 15px conta; a lista começa 24px abaixo do topo do cartão. */
+/*
+ * `.tickets-header`: bold fs-16, `bds-typo` inline — only the 15px horizontal
+ *    margin counts; the list starts 24px below the card's top.
+ */
 .ct-tickets-titulo {
   display: block;
   margin: 0 15px;
@@ -602,7 +618,7 @@
   font-weight: 700;
   line-height: 24px;
 }
-/* `expandable-item`: superfície 3 nas ímpares, 1 nas pares. */
+/* `expandable-item`: surface 3 on odd ones, 1 on even. */
 .ct-ticket {
   display: flex;
   flex-direction: column;
@@ -641,9 +657,12 @@
   padding-left: 20px;
   color: var(--p-conteudo-desabilitado);
 }
-/* `width: 70%` da origem parte de um cartão mais largo; aqui isso não sobra
-   espaço para data + hora + id sem colar. `flex: 1` toma o espaço livre da
-   fileira e o `wrap` evita a data grudar no id quando ainda não bastar. */
+/*
+ * The source's `width: 70%` starts from a wider card; here that leaves no room
+ *    for date + time + id without touching. `flex: 1` takes the row's free space
+ *    and `wrap` keeps the date from sticking to the id when there still isn't
+ *    enough.
+ */
 .ct-ticket-dados {
   display: flex;
   flex: 1;
@@ -667,7 +686,7 @@
 .ct-ticket-acoes .ct-botao-icone {
   color: inherit;
 }
-/* `.item-body`: superfície 3; `li` 6px 0, rótulo `pl6 ml3 w-40 fw5`, valor `pl5 w-50`. */
+/* `.item-body`: surface 3; `li` 6px 0, label `pl6 ml3 w-40 fw5`, value `pl5 w-50`. */
 .ct-ticket-corpo {
   width: 100%;
   margin: 0;
@@ -705,7 +724,7 @@
   text-align: center;
 }
 
-/* `#user-detail-sidebar`: fixo à direita, 445px, superfície 2. */
+/* `#user-detail-sidebar`: fixed to the right, 445px, surface 2. */
 .ct-historico {
   position: fixed;
   top: var(--g-topo-h);
@@ -729,8 +748,10 @@
   font-size: 16px;
   font-weight: 500;
 }
-/* `.messages`: 8px 50px 0, rolagem própria; a coluna invertida deixa a
-   mensagem mais recente visível ao abrir, como o `goToMostRecentMessage`. */
+/*
+ * `.messages`: 8px 50px 0, its own scroll; the reversed column keeps the most
+ *    recent message visible on open, like `goToMostRecentMessage`.
+ */
 .ct-mensagens {
   display: flex;
   flex-direction: column-reverse;
@@ -769,8 +790,10 @@
   background: var(--p-superficie-3);
   color: var(--p-conteudo);
 }
-/* `.bubble`: 10px 16px, 16px/20px, borda de 1px fantasma, raio 13px com o
-   canto de 2px virado para quem falou. */
+/*
+ * `.bubble`: 10px 16px, 16px/20px, 1px ghost border, 13px radius with a 2px
+ *    corner turned toward whoever spoke.
+ */
 .ct-balao {
   max-width: 90%;
   margin-bottom: 5px;

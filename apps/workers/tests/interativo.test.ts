@@ -20,7 +20,7 @@ describe('Turn flow questions into interactive messages', () => {
     expect(conteudoDaPergunta({ texto: 'Oi', opcoes: ['a'.repeat(21)] }, ligado)).toBeNull();
     expect(conteudoDaPergunta({ texto: 'Oi', opcoes: ['Sim', 'Sim'] }, ligado)).toBeNull();
     expect(conteudoDaPergunta({ texto: '  ', opcoes: ['Sim'] }, ligado)).toBeNull();
-    // 21 caracteres não cabem em botão, mas cabem em linha de lista (24) — só quando vira lista.
+    // A 21-character option cannot fit a button but can fit a list row (24); only when rendered as a list.
     const quatro = ['a'.repeat(22), 'b', 'c', 'd'];
     expect(conteudoDaPergunta({ texto: 'Oi', opcoes: quatro }, ligado)).toMatchObject({ formato: 'lista' });
   });

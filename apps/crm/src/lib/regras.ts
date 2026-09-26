@@ -4,10 +4,10 @@ import { faixaScore, queue, regraScore, scoreLead } from '@pipe/db/schema';
 import { consultar } from './database';
 
 /**
- * Regras de score, em leitura.
+ * Score rules, read-only.
  *
- * A edição fica para a fase seguinte; a leitura não pode faltar, porque é ela que
- * transforma o número numa regra que alguém escreveu — e não num mistério herdado.
+ * Editing is for the next phase; reading can't be missing, because it's what
+ * turns the number into a rule someone wrote — not an inherited mystery.
  */
 
 export interface LinhaRegra {
@@ -17,7 +17,7 @@ export interface LinhaRegra {
   pontos: number;
   active: boolean;
   condition: Expressao;
-  /** Quantos leads esta regra afetou, contando o cálculo mais recente de cada um. */
+  /** How many leads this rule affected, counting each one's most recent calculation. */
   leadsAfetados: number;
 }
 
@@ -46,9 +46,10 @@ export async function listarRegras(): Promise<LinhaRegra[]> {
       .orderBy(desc(regraScore.versao), desc(regraScore.pontos), asc(regraScore.nome));
 
     /**
-     * "Quantos leads esta regra afetou" só faz sentido sobre o cálculo vigente de
-     * cada lead: somar todos os `score_lead` contaria três vezes o lead recalculado
-     * três vezes. Daí o `distinct on (lead_id)` antes de abrir a explicação.
+     * "How many leads this rule affected" only makes sense over each lead's current
+     * calculation: summing every `score_lead` would count a lead recalculated three
+     * times three times over. Hence `distinct on (lead_id)` before opening the
+     * explanation.
      */
     const count = await tx.execute<{ regra: string; n: number }>(sql`
       with vigente as (
@@ -116,7 +117,7 @@ const ROTULO_OPERADOR: Record<string, string> = {
   nao_existe: 'está vazio',
 };
 
-/** A condição em português, para o gestor ler a regra sem abrir o JSON. */
+/** The condition in Portuguese, so the manager can read the rule without opening the JSON. */
 export function conditionInText(expressao: Expressao): string {
   if ('combinador' in expressao) {
     const junction = expressao.combinador === 'e' ? ' e ' : ' ou ';

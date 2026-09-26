@@ -5,22 +5,13 @@ import { ContactBarras, useContact } from '../contact';
 import { TelaDeEquipe } from './tela';
 
 /**
- * `/team` do contato (LEIA.md, captura 1) — agora com o RBAC POR FLUXO que a
- * origem pressupõe (migração 0035).
+ * `/team` for the contact (LEIA.md, capture 1) — now with the PER-FLOW RBAC the origin assumes (migration 0035).
  *
- * Antes esta tela lia `/contrato/membros`: sem `fluxo_membro`, todo mundo com
- * acesso à conta tinha acesso a todos os fluxos, e o subconjunto por contato
- * era o conjunto inteiro. Agora a lista é a de `GET
- * /v1/gestao/fluxos/:id/equipe`, que é a equipe DESTE contato — o que
- * `TeamController._loadMembers()` faz na origem, por bot.
+ * Before, this screen read `/contrato/membros`: without `fluxo_membro`, anyone with account access had access to every flow, and the per-contact subset was the whole set. Now the list is `GET /v1/gestao/fluxos/:id/equipe`'s, which is THIS contact's team — what `TeamController._loadMembers()` does in the origin, per bot.
  *
- * Quem pode ver e quem pode mexer é decidido no servidor
- * (`dominio/gestao/equipe-do-fluxo.ts`): 403 vira o mesmo aviso de antes, em
- * vez de uma lista vazia que leria como "não há ninguém aqui".
+ * Who can view and who can change is decided on the server (`dominio/gestao/equipe-do-fluxo.ts`): a 403 becomes the same notice as before, instead of an empty list that would read as "there's no one here".
  *
- * Sem `CascaDoModulo`: `cf-cabecalho`/`cf-container` (de `configuracoes.css`)
- * já centram em 80% sozinhos, do mesmo jeito que a `fx-coluna` do casco
- * comum — empilhar os dois apertaria o miolo a 64% (80% de 80%).
+ * No `CascaDoModulo`: `cf-cabecalho`/`cf-container` (from `configuracoes.css`) already center at 80% on their own, the same way the common shell's `fx-coluna` does — stacking both would squeeze the body to 64% (80% of 80%).
  */
 export function TeamPage() {
   const { contact } = useContact();

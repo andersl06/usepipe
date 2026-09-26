@@ -1,22 +1,22 @@
-/* ==================================================== Visão Geral (`visao-geral/`)
+/*
+ * ==================================================== Overview (`visao-geral/`)
+ *
+ *    `generalDashboard`, template 7780 from `portal.js`, and the `#general-dashboard`, `.general-card-*`, `.counter-child-card`, `analytics-chart`, `.no-content-found` and `.general-info` rules from `portal.css`.
+ *
+ *    The color mapping:
+ *      #f6f6f6 `--color-surface-1` (`.card`)               → `--surface`
+ *      #e0e0e0 `--color-surface-2` (`.card`'s shadow)     → `--surface-2`
+ *      #282828 `--color-content-default` (titles, numbers) → `--ink`
+ *      #738192 `.bp-c-rooftop` (filter band)          → `--ink-3`
+ *      #a8bfc4 (`.no-content-found`)                        → `--ink-3`
+ *      #505f79 / #3a4a65 (`.general-info` title / body)  → `--ink-2` / `--ink`
+ *      the chart's two lines (Google Charts color)    → `--p-marca` / `--p-alerta-conteudo`
+ *    ==========================================================================
+ */
 
-   `generalDashboard`, template 7780 do `portal.js`, e as regras
-   `#general-dashboard`, `.general-card-*`, `.counter-child-card`,
-   `analytics-chart`, `.no-content-found` e `.general-info` da `portal.css`.
-
-   A tinta:
-     #f6f6f6 `--color-surface-1` (`.card`)               → `--surface`
-     #e0e0e0 `--color-surface-2` (sombra do `.card`)     → `--surface-2`
-     #282828 `--color-content-default` (títulos, números) → `--ink`
-     #738192 `.bp-c-rooftop` (faixa de filtros)          → `--ink-3`
-     #a8bfc4 (`.no-content-found`)                        → `--ink-3`
-     #505f79 / #3a4a65 (`.general-info` título / corpo)  → `--ink-2` / `--ink`
-     as duas linhas do gráfico (cor do Google Charts)    → `--p-marca` / `--p-alerta-conteudo`
-   ========================================================================== */
-
-/* `<custom-title>`: `div.flex.flex-items-center` com o `bds-typo fs-32
-   extra-bold` e, depois de um `&nbsp;`, outro `bds-typo fs-32` com o
-   `bds-icon info solid medium` (24). Os dois fs-32 levam os 22px de margem. */
+/*
+ * `<custom-title>`: `div.flex.flex-items-center` with the `bds-typo fs-32 extra-bold` and, after a `&nbsp;`, another `bds-typo fs-32` with `bds-icon info solid medium` (24). Both fs-32s carry the 22px margin.
+ */
 .vg-titulo {
   display: flex;
   align-items: center;
@@ -48,8 +48,10 @@
   margin-bottom: 10px;
 }
 
-/* `#dashboard-filters.bp-c-rooftop.flex.justify-between.z-5.relative`, e o
-   `.picker-view.mr2` do seletor: `flex: 1`, alinhado à direita, 5 à direita. */
+/*
+ * `#dashboard-filters.bp-c-rooftop.flex.justify-between.z-5.relative`, and the
+ *    `.picker-view.mr2` selector: `flex: 1`, right-aligned, 5 to the right.
+ */
 .vg-filtros {
   position: relative;
   z-index: 5;
@@ -75,9 +77,11 @@
   flex-wrap: nowrap;
 }
 
-/* `.card.z-2.ma0.pa4.flex1.mt4.mr2.ml2.card-content`: 20 em cima, 5 dos lados,
-   recheio 20, e `#general-dashboard .card-content` em coluna com
-   `space-between`. `.flex1` é `flex: 1.5`; `.flex3`, `flex: 3`. */
+/*
+ * `.card.z-2.ma0.pa4.flex1.mt4.mr2.ml2.card-content`: 20 on top, 5 on the sides,
+ *    20 padding, and `#general-dashboard .card-content` in a column with
+ *    `space-between`. `.flex1` is `flex: 1.5`; `.flex3`, `flex: 3`.
+ */
 .vg-cartao {
   position: relative;
   z-index: 2;
@@ -91,11 +95,11 @@
   box-shadow: 0 2px 12px 0 var(--surface-2);
 }
 
-.vg-cartao--usuarios {
+.vg-cartao--users {
   flex: 1.5;
 }
 
-.vg-cartao--mensagens {
+.vg-cartao--messages {
   flex: 3;
 }
 
@@ -155,8 +159,9 @@
   font-weight: 700;
 }
 
-/* `div.mr2.ml2` e `div.row.mr2.ml2`: 5 dos lados; `.row` põe 3 em cima e 9
-   embaixo, e o `analytics-chart` de dentro, `margin-top: 1.5rem`. */
+/*
+ * `div.mr2.ml2` and `div.row.mr2.ml2`: 5 on the sides; `.row` sets 3 on top and 9 at the bottom, and the `analytics-chart` inside, `margin-top: 1.5rem`.
+ */
 .vg-margem {
   margin: 0 5px;
 }
@@ -181,8 +186,9 @@
   font-size: 24px;
 }
 
-/* `.no-content-found`: 31 de altura, `padding: 80px 0`, cor #a8bfc4; o texto é
-   o `bds-typo fs-20` de dentro. */
+/*
+ * `.no-content-found`: 31 height, `padding: 80px 0`, color #a8bfc4; the text is the `bds-typo fs-20` inside.
+ */
 .vg-sem-conteudo {
   position: relative;
   display: flex;
@@ -248,8 +254,9 @@
   stroke: var(--p-alerta-conteudo);
 }
 
-/* O `chart type="list"`: a tabela do Google, cabeçalho em
-   `--color-content-default` (`.active-message-chart-list thead tr th`). */
+/*
+ * The `chart type="list"`: Google's table, header in `--color-content-default` (`.active-message-chart-list thead tr th`).
+ */
 .vg-lista {
   width: 100%;
   border-collapse: collapse;

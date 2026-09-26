@@ -3,15 +3,16 @@ import { test } from 'node:test';
 import { arranjar, moverVisivel, type Config } from '../src/components/colunas.tsx';
 
 /**
- * A régua do arranjo de colunas.
+ * The column-arrangement ruler.
  *
- * O que ela protege é o encontro entre duas listas que divergem sozinhas: a que
- * está guardada no navegador e a que a tela tem hoje. Coluna nova de um deploy,
- * coluna que o agrupamento tirou, coluna que sumiu de vez — as três já
- * quebraram tabela em produto que faz isso, e as três aparecem aqui.
+ * What it protects is the merge between two lists that drift apart on their
+ * own: the one stored in the browser and the one the screen has today. A new
+ * column from a deploy, a column grouping removed, a column gone for good — all
+ * three have already broken a table in a product that does this, and all
+ * three show up here.
  *
- * Nenhum teste toca React nem `localStorage`: `arranjar` e `moverVisivel` são
- * funções de lista, e é assim que se testa lista.
+ * No test touches React or `localStorage`: `arranjar` and `moverVisivel` are
+ * list functions, and that's how you test a list.
  */
 
 const CHAVES = ['lead', 'origem', 'score', 'faixa', 'proprietario'];
@@ -33,14 +34,14 @@ test('the pinned column is never hidden, even if someone edits storage directly'
 });
 
 test('a new column from a deploy is appended at the end, without pushing existing ones', () => {
-  // `faixa` e `proprietario` não existiam quando a pessoa arrumou a tabela.
+  // `faixa` and `proprietario` didn't exist when the person arranged the table.
   const guardada: Config = { order: ['score', 'origem'], ocultas: [] };
   const a = arranjar(CHAVES, guardada, 'lead');
   assert.deepEqual(a.visiveis, ['score', 'origem', 'faixa', 'proprietario']);
 });
 
 test('a column removed from the screen disappears from the arrangement without leaving a gap', () => {
-  // É o que acontece ao agrupar por origem: a coluna redundante sai da lista.
+  // It's what happens when grouping by source: the redundant column drops out of the list.
   const guardada: Config = { order: ['score', 'origem', 'faixa'], ocultas: ['faixa'] };
   const a = arranjar(['lead', 'score', 'proprietario'], guardada, 'lead');
   assert.deepEqual(a.todas, ['score', 'proprietario']);
@@ -68,8 +69,8 @@ test('moving up places the column before the one that occupied the destination',
 });
 
 test('moving returns the FULL order, with hidden columns anchored to their neighbor', () => {
-  // `score` está oculta entre `origem` e `faixa`. Mover `faixa` para o começo
-  // não pode fazer `score` desaparecer da ordem gravada.
+  // `score` is hidden between `origem` and `faixa`. Moving `faixa` to the front
+  // can't make `score` disappear from the saved order.
   const a = arranjar(CHAVES, { order: [], ocultas: ['score'] }, 'lead');
   assert.deepEqual(a.visiveis, ['origem', 'faixa', 'proprietario']);
   const nova = moverVisivel(a, 1, 0);

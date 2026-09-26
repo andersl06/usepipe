@@ -3,10 +3,7 @@ import { atualizarLeituras } from '../../../lib/actions';
 import type { CertificadoMtls } from '../../../lib/certificados';
 
 /**
- * As escritas da tela de Certificados, agora em `POST/DELETE
- * /v1/gestao/contrato/certificados*` (`apps/api/.../dominio/gestao/certificados.ts`).
- * A permissão (`conta.membros.escrever`) é conferida de novo na `api`; aqui só
- * se monta o pedido e se devolve o motivo, como em `../acoes.ts`.
+ * The Certificados screen's writes, now in `POST/DELETE /v1/gestao/contrato/certificados*` (`apps/api/.../dominio/gestao/certificados.ts`). The permission (`conta.membros.escrever`) is checked again in the `api`; here we only assemble the request and return the reason, as in `../acoes.ts`.
  */
 interface ResultadoSimples {
   ok: boolean;
@@ -14,9 +11,7 @@ interface ResultadoSimples {
 }
 
 /**
- * O que a origem manda no "Finalizar": `password` + `file` no upload e depois
- * `description` + `hosts` no `set` — aqui tudo num POST só. A senha e o
- * arquivo só passam por aqui; a `api` os guarda cifrados e nunca os devolve.
+ * What the source sends on "Finalizar": `password` + `file` on upload, then `description` + `hosts` on `set` — here it's all in a single POST. The password and the file only pass through here; the `api` stores them encrypted and never returns them.
  */
 export interface PedidoDeCertificado {
   description: string;
@@ -39,9 +34,7 @@ export async function cadastrarCertificado(
 }
 
 /**
- * O `erro.mensagem` do corpo da `api` ("A senha do certificado está
- * incorreta.", "O arquivo não é um .pfx válido…"): é o que a origem mostra no
- * toast em vez do status.
+ * The `erro.mensagem` from the `api`'s body ("A senha do certificado está incorreta.", "O arquivo não é um .pfx válido…"): it's what the source shows in the toast instead of the status.
  */
 function errorMotivo(e: unknown): string {
   if (e instanceof ApiError) {

@@ -35,15 +35,15 @@ interface Search {
 }
 
 /**
- * A listagem de leads.
+ * The leads listing.
  *
- * A tela é servidor: o recorte, a busca e a ordenação vivem na URL e viram
- * `where` e `order by`. Só o que exige o navegador (largura de coluna, seleção,
- * visão salva) desce para o cliente, e desce em componente separado.
+ * The screen is server-rendered: the slice, search, and sort all live in the URL
+ * and become `where` and `order by`. Only what the browser needs (column width,
+ * selection, saved view) goes down to the client, in a separate component.
  *
- * A ordenação NÃO acontece sobre as linhas já buscadas. A lista tem teto de 200,
- * e ordenar depois de buscar responderia "os 200 leads mais novos, dispostos por
- * score" quando a pergunta é "os 200 de maior score".
+ * Sorting does NOT happen over rows already fetched. The list caps at 200, and
+ * sorting after fetching would answer "the 200 newest leads, arranged by score"
+ * when the question is "the 200 highest-scoring leads".
  */
 export default async function PageLeads({ searchParams }: { searchParams: Promise<Search> }) {
   const params = await searchParams;
@@ -67,8 +67,8 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
       p.set('order', order);
       p.set('dir', direction);
     }
-    // O filtro entra por último, e por isso a visão salva o guarda: `consulta()`
-    // sem argumento é exatamente o endereço da tela como ela está agora.
+    // The filter comes in last, and that's why the saved view keeps it: `consulta()`
+    // with no argument is exactly the screen's address as it stands right now.
     return escreverFilters(p, withFilters).toString();
   };
 
@@ -96,9 +96,9 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
         </div>
 
         {/*
-          Agrupamento no lugar dos relatórios: "por proprietário" e "origem e campanha"
-          eram item de menu e são a mesma lista dobrada por uma coluna.
-        */}
+ * Grouping instead of reports: "by owner" and "source and campaign" used to be
+ * menu items, and they're the same list folded by one column.
+ */}
         <form className="tblhead" method="get" action="/leads">
           <input type="hidden" name="aba" value={aba} />
           {order !== 'nenhuma' ? (
@@ -107,9 +107,11 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
               <input type="hidden" name="dir" value={direction} />
             </>
           ) : null}
-          {/* O filtro sobrevive ao envio da busca. Sem estes campos, digitar no
-              campo de busca apagaria o filtro em silêncio — e o formulário GET
-              só manda o que ele mesmo carrega. */}
+          {/*
+ * The filter survives submitting the search. Without these fields, typing in the
+ * search box would silently erase the filter — and the GET form only sends what
+ * it itself carries.
+ */}
           {Object.entries(filters).map(([key, value]) => (
             <input key={key} type="hidden" name={`f.${key}`} value={value} />
           ))}
@@ -139,8 +141,10 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
             href={(proximos) => `/leads?${query({}, proximos)}`}
           />
           <ViewsSalvas queryCurrent={query()} />
-          {/* Atalho que ninguém descobre é atalho que ninguém usa: a régua fica
-              escrita ao lado da contagem, na mesma linha, sem ocupar tela. */}
+          {/*
+ * A shortcut nobody discovers is a shortcut nobody uses: the hint stays written
+ * next to the count, on the same line, without taking up screen space.
+ */}
           <span className="sub" style={{ marginLeft: 'auto' }}>
             {numero(linhas.length)} leads
             {linhas.length === LIMITE_LISTA ? ` · teto de ${LIMITE_LISTA}` : ''} ·{' '}

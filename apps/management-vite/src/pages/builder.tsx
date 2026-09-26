@@ -20,40 +20,11 @@ import { errorsLocal, juntarErrors } from './builder/validation';
 import './builder.css';
 
 /**
- * Builder — o construtor de fluxo, na disposição real do Builder de produção
- * (faixa de aviso, pílula de blocos, canvas escuro, rodapé com status/zoom,
- * botão de conversa), medida no DOM capturado em
- * `referencias-blip/builder/builder-fluxo__pagina.html` — ver o de-para em
- * `builder.css`. O editor mora em `./builder/`:
- *
- * - `modelo.ts`, `condicoes.ts`, `conteudo.ts`, `acoes-do-bloco.ts`: as
- *   funções puras sobre o mapa de blocos (criar, mover, ligar, editar);
- * - `estado.ts`: o redutor com desfazer/refazer; `use-editor.ts`: o estado
- *   ligado à `api`, com a gravação automática do rascunho;
- * - `canvas.tsx` + `no.tsx`: os blocos e as setas; `painel*.tsx`: a barra
- *   lateral do bloco (Conteúdo, Ações, Condições de saída).
- *
- * Por trás, o que a `api` já sabe fazer por fluxo (`/v1/gestao/fluxos/:id/
- * builder`): o `PUT` grava o desenho como rascunho (aqui, sozinho, um pouco
- * depois de cada mudança — o "Salvo" do rodapé), "Publicar fluxo" promove o
- * rascunho a versão publicada com os erros do motor listados bloco a bloco, e
- * o histórico lista as versões e restaura uma antiga como rascunho.
- *
- * Os controles da moldura sem nada por trás (Configuração, Biblioteca de
- * variáveis, Pesquisar, Gerenciamento de Filas, Conversa) continuam
- * `disabled`. Confirmações passam pelo `Modal` de `cadastros/_modal`, nunca
- * por `window.confirm`.
- *
- * Rota: `/fluxo/:id/builder` — DENTRO do contato, como na origem
- * (`/application/detail/<bot>/templates/builder`). Builder é escondido do
- * menu para roteador (`ESCONDIDOS_NO_ROTEADOR` em `fluxo/itens.ts`), e a `api`
- * responde 409 se alguém chegar pela URL — a tela mostra a frase dela.
+ * Builder layout follows captured production DOM (`referencias-blip/builder/builder-fluxo__pagina.html`; mapping in `builder.css`): notice strip, block-icon pill, dark canvas, status/zoom footer, conversation button. Pure `./builder/` modules `modelo.ts`, `condicoes.ts`, `conteudo.ts`, and `acoes-do-bloco.ts` edit the graph; `estado.ts` and `use-editor.ts` provide undo/redo and API-backed draft autosave; `canvas.tsx`, `no.tsx`, and `painel*.tsx` render graph and sidebar. Existing `/v1/gestao/fluxos/:id/builder` PUT saves a draft, Publish promotes it with per-block engine errors, history lists versions and restores an older one as draft. Unsupported frame controls remain disabled; confirmations use `Modal` from `cadastros/_modal`, never `window.confirm`. Route `/fluxo/:id/builder` stays inside the contact like source `/application/detail/<bot>/templates/builder`; `ESCONDIDOS_NO_ROTEADOR` in `fluxo/itens.ts` hides Builder for routers, and `api` returns 409 if opened by URL.
  */
 
 /**
- * Um botão da pílula lateral: `bds-button-icon variant="secondary"
- * size="short"` com o tooltip à direita. Desabilitado por padrão — o que não
- * tem nada por trás diz isso junto com o nome do controle.
+ * Sidebar-pill button matches `bds-button-icon variant="secondary" size="short"` with right tooltip. Disable controls without an implementation by default and explain that state beside the control name.
  */
 function BotaoDaBarra({
   rotulo,
@@ -68,7 +39,7 @@ function BotaoDaBarra({
   classe?: string;
   onClick?: () => void;
   desabilitado?: boolean;
-  /** O que dizer no tooltip quando está desligado — sem ele, "ainda não construído". */
+  /** When disabled, give a specific tooltip reason; otherwise say it is not built yet. */
   motivo?: string;
   ativo?: boolean;
   children: ReactNode;
@@ -121,7 +92,7 @@ export function PageBuilder() {
   const [publicarAberto, setPublicarAberto] = useState(false);
   const [publicando, setPublicando] = useState(false);
   const [publicationError, publicationSetError] = useState<string | null>(null);
-  /** Os erros que o 409 de publicar trouxe — além dos que a gravação já conhece. */
+  /** Publish 409 can add errors to those already known from saving. */
   const [motorErrors, motorSetErrors] = useState<BlockError[]>([]);
 
   const podePublicar = eu.permissions.includes('automacao.fluxo.publicar');
@@ -130,8 +101,9 @@ export function PageBuilder() {
   const tituloDe = (id: string | null): string =>
     id === null ? 'Fluxo' : (state.mapa[id]?.$title ?? id);
 
-  /* A frase da `api` quando ela recusou a leitura: 409 do roteador, 403 sem
-     permissão. Não é "não encontrado" — a rota-pai já cuidou do 404. */
+  /*
+   * Show the `api` refusal message for read failures: 409 for router and 403 for missing permission. This is not Not found; the parent route handles 404.
+   */
   const readRecusa =
     read.error instanceof ApiError
       ? ((read.error.corpo as { error?: { message?: string } } | null)?.error?.message ??
@@ -147,9 +119,9 @@ export function PageBuilder() {
     if (!data || publicando) return;
     setPublicando(true);
     publicationSetError(null);
-    /* O que se publica é o que está na tela: se ainda não foi gravado (mudança
-       recente, ou o fluxo padrão de contato novo), grava primeiro — os dois
-       passos que a cópia da Blip dá em sequência ao clicar em publicar. */
+    /*
+     * Publish exactly what is on screen. Save first if changes are dirty or this is a new default flow; the Blip copy performs those two steps in order when publishing.
+     */
     if (state.sujo || data.origem !== 'rascunho') {
       const gravou = await editor.salvarAgora();
       if (!gravou) {
@@ -176,14 +148,14 @@ export function PageBuilder() {
   }
 
   const nadaParaPublicar = data?.origem === 'publicada' && !state.sujo;
-  /** O tooltip do botão de publicar enquanto ele está desligado. */
+  /** Explain why Publish is disabled in its tooltip. */
   function motivoDoPublicar(): string {
     if (!podePublicar) return 'você não tem a permissão de publicar fluxo';
     if (nadaParaPublicar) return `nada para publicar: a versão ${data?.versao?.versao ?? ''} já está no ar`;
     return readRecusa ?? 'carregando';
   }
 
-  /** O "Salvo" do rodapé, com o que está por trás. */
+  /** Footer Saved status includes its underlying persistence state. */
   function recordingStatus(): { icone: 'circuloOk' | 'atualizar' | 'alerta'; texto: string } {
     switch (recording.state) {
       case 'salvando':
@@ -300,10 +272,8 @@ export function PageBuilder() {
               global={state.global}
               onMudarGlobal={(global) => despachar({ tipo: 'aplicarGlobais', global })}
               onImport={(mapa, global) => {
-                // `aplicar`, não `carregar`: precisa marcar sujo pra gravar
-                // sozinho (como qualquer outra mudança) e entrar no
-                // desfazer — `carregar` é só pra sincronizar com o servidor,
-                // e deixaria o fluxo importado só na tela, nunca salvo.
+                // Use `aplicar`, not `carregar`: imported flow must become dirty for autosave and undo, like any edit.
+                // `carregar` only syncs server state and would leave an imported flow visible but unsaved.
                 despachar({ tipo: 'aplicar', mapa });
                 despachar({ tipo: 'aplicarGlobais', global });
                 setConfigAberto(false);
@@ -321,13 +291,9 @@ export function PageBuilder() {
             />
           ) : null}
 
-          {/* A pílula de ícones deles (`.builder-icon-button-list`), na ordem
-              do DOM capturado: Adicionar bloco, Builder Assistant, Publicar
-              fluxo, Configuração, Biblioteca de variáveis, Pesquisar,
-              Gerenciamento de Filas — todos `bds-button-icon variant="secondary"
-              size="short"`, com os tooltips literais. Builder Assistant cria
-              tarefas com IA (`$ctrl.createCopilotModal()`); sem provedor de IA
-              no motor do Pipe, fica desligado como os outros sem motor por trás. */}
+          {/*
+ * Source icon pill `.builder-icon-button-list` follows captured DOM order: Add block, Builder Assistant, Publish flow, Configuration, Variable library, Search, Queue management, each `bds-button-icon variant="secondary" size="short"` with literal tooltips. Builder Assistant calls `$ctrl.createCopilotModal()`; with no AI provider in Pipe's engine, disable it like other unsupported controls.
+ */}
           <div className="bl-barra">
             <BotaoDaBarra
               rotulo="Adicionar bloco"
@@ -402,10 +368,9 @@ export function PageBuilder() {
             </div>
           ) : null}
 
-          {/* O rodapé deles (`.builder-footer`): a pílula clara de status ("Salvo"
-              com o `checkball`); os três botões de ícone soltos (Desfazer, Refazer,
-              Tela Cheia) entre margens de 10px; o "100%" e o controle deslizante
-              de 100px (20% a 100%). */}
+          {/*
+ * Reference `.builder-footer` has a light status pill (Saved with `checkball`), three separate Undo/Redo/Fullscreen icons spaced by 10px, `100%`, and 100px slider from 20% to 100%.
+ */}
           <div className="bl-rodape">
             <div className={`bl-status${recording.state === 'erro' ? ' bl-status--erro' : ''}`}>
               {data ? (
@@ -496,8 +461,9 @@ export function PageBuilder() {
         </div>
       </div>
 
-      {/* Publicar: o `bds-modal` de confirmação, com a lista do motor quando
-          ele recusa — nunca `window.confirm`. */}
+      {/*
+ * Publish confirmation uses reference `bds-modal` and lists engine errors when refused; never use `window.confirm`.
+ */}
       <Modal aberto={publicarAberto} titulo="Publicar fluxo" onFechar={() => setPublicarAberto(false)}>
         {data ? (
           <>

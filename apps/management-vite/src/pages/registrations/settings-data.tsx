@@ -12,11 +12,7 @@ const ROTULO_SCOPE_TAG: Record<string, string> = {
 };
 
 /**
- * Dados: o vocabulário da operação.
- *
- * A coluna de usos existe porque etiqueta sem uso é o entulho que faz a lista
- * do encerramento crescer sem informar — e o supervisor só descobre isso
- * contando.
+ * Data: the operation's vocabulary. The usage column exists because a tag with no usage is the clutter that makes the closing-out list grow without informing anything — and the supervisor only finds out by counting.
  */
 export function PageData() {
   const { contact } = useContact();

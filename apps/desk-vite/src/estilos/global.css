@@ -1,28 +1,23 @@
-/* ==========================================================================
-   Pipe Desk — só o que é do Desk.
-
-   O token, o reset e os primitivos vivem em `@pipe/ui`, importado antes desta
-   folha no `main.tsx`.
-
-   O que esta folha desenha é a DISPOSIÇÃO da tela do atendente da referência,
-   medida na cópia que roda em `~/desk-clone` (http://127.0.0.1:8787, janela
-   1280×780) e conferida na folha compilada dela
-   (`~/desk-clone/fonte-original/app.css`). Cada bloco cita o seletor de lá de
-   onde a medida saiu — "medi aqui, deu tanto".
-
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. Nenhum valor de cor da
-   referência aparece aqui: tudo sai de `--p-*`, e onde a estrutura pede um
-   degrau que a paleta não nomeia, ele é DERIVADO com `color-mix`.
-
-   Mapa de tokens (README da cópia → `packages/ui/src/estilos/tokens.css`):
-     surface-0 → --p-superficie-0    content-default → --p-conteudo
-     surface-1 → --p-superficie-1    content-disable → --p-conteudo-desabilitado
-     surface-2 → --p-superficie-2    content-ghost   → --p-conteudo-fantasma
-     surface-3 → --p-superficie-3    content-bright  → --p-conteudo-claro
-     surface-4 → --p-superficie-4    primary         → --p-marca
-     system    → --p-info-fundo      warning         → --p-alerta-fundo
-     delete    → --p-erro-conteudo
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *    Pipe Desk — only what belongs to the Desk.
+ *
+ *    The token, reset and primitives live in `@pipe/ui`, imported before this sheet in `main.tsx`.
+ *
+ *    What this sheet draws is the LAYOUT of the reference agent screen, measured on the copy running at `~/desk-clone` (http://127.0.0.1:8787, 1280×780 window) and checked against its compiled sheet (`~/desk-clone/fonte-original/app.css`). Each block cites the selector the measurement came from — "measured here, got this".
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. No color value from the reference appears here: everything comes from `--p-*`, and where the structure calls for a step the palette doesn't name, it is DERIVED with `color-mix`.
+ *
+ *    Token map (copy's README → `packages/ui/src/estilos/tokens.css`):
+ *      surface-0 → --p-superficie-0    content-default → --p-conteudo
+ *      surface-1 → --p-superficie-1    content-disable → --p-conteudo-desabilitado
+ *      surface-2 → --p-superficie-2    content-ghost   → --p-conteudo-fantasma
+ *      surface-3 → --p-superficie-3    content-bright  → --p-conteudo-claro
+ *      surface-4 → --p-superficie-4    primary         → --p-marca
+ *      system    → --p-info-fundo      warning         → --p-alerta-fundo
+ *      delete    → --p-erro-conteudo
+ *    ==========================================================================
+ */
 
 :root {
   /* O trilho é escuro nos dois temas, como a barra da Gestão (`--g-barra-*`
@@ -35,21 +30,23 @@
   --d-trilho-vigor: color-mix(in srgb, var(--p-conteudo-claro) 8%, transparent);
   --d-trilho-cursor: color-mix(in srgb, var(--p-conteudo-claro) 8%, transparent);
 
-  /* Os degraus do trilho da lista: cursor 4% e selecionado 12%/16% de preto
-     sobre a superfície (`.chat-list-item:hover`, `.active`, `.active:hover`). */
+  /*
+   * The rail's list hover steps: 4% cursor and 12%/16% black on the selected item, over the surface (`.chat-list-item:hover`, `.active`, `.active:hover`).
+   */
   --d-tinta-4: color-mix(in srgb, var(--p-conteudo) 4%, transparent);
   --d-tinta-8: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
   --d-tinta-12: color-mix(in srgb, var(--p-conteudo) 12%, transparent);
   --d-tinta-16: color-mix(in srgb, var(--p-conteudo) 16%, transparent);
 
-  /* A sombra do `bds-paper elevation="static"` medida: 0 2px 8px -2px a 16%. */
+  /* The `bds-paper elevation="static"` shadow measured: 0 2px 8px -2px at 16%. */
   --d-sombra-papel: 0 2px 8px -2px rgba(17, 17, 17, 0.16);
 
-  /* A borda do campo (`bds-input .input`): preto a 20%. */
+  /* The field's border (`bds-input .input`): black at 20%. */
   --d-campo-linha: color-mix(in srgb, var(--p-conteudo) 20%, transparent);
 
-  /* A régua de tipo da referência é 24 / 20 / 16 / 14 / 12 / 10, com os pesos
-     400 / 600 / 700 (`bds-typo` fs-* e bold=semi-bold|bold). */
+  /*
+   * The reference's type scale is 24 / 20 / 16 / 14 / 12 / 10, with weights 400 / 600 / 700 (`bds-typo` fs-* and bold=semi-bold|bold).
+   */
   --d-peso-normal: 400;
   --d-peso-semi: 600;
   --d-peso-negrito: 700;
@@ -100,8 +97,9 @@ body {
   color: var(--p-conteudo-desabilitado);
 }
 
-/* A casca é de altura fixa com rolagem interna (`#app`/`#container`): o
-   contêiner das colunas não rola, cada coluna tem o seu rolador. */
+/*
+ * The shell has fixed height with internal scroll (`#app`/`#container`): the columns container doesn't scroll, each column has its own scroller.
+ */
 .dk-app {
   display: flex;
   height: 100dvh;
@@ -119,13 +117,10 @@ button {
   font-family: inherit;
 }
 
-/* ======================================================= o trilho (navbar)
-   `bds-navbar orientation="vertical" background-color="surface-4"`: 80px de
-   largura, altura cheia. Marca 40×40 a 16px do topo com 24px de folga
-   (`.blip-image`); itens de 40×40 com raio 8 e recuo 8 (`.menu-button`),
-   dentro de uma faixa com recuo lateral de 12 (`.navbar-menu-item`); passo de
-   48 entre itens (medido: 88, 136, 184…). Rodapé: ajuda, preferências e o
-   avatar de 32 com o selo de presença, a 16px do fundo. */
+/*
+ * ======================================================= the rail (navbar)
+ *    `bds-navbar orientation="vertical" background-color="surface-4"`: 80px wide, full height. 40×40 brand mark 16px from the top with 24px gap (`.blip-image`); 40×40 items with radius 8 and 8 inset (`.menu-button`), inside a strip with 12px side inset (`.navbar-menu-item`); 48px step between items (measured: 88, 136, 184…). Footer: help, preferences and the 32px avatar with the presence badge, 16px from the bottom.
+ */
 .dk-trilho {
   display: flex;
   flex-direction: column;
@@ -145,8 +140,9 @@ button {
   height: 40px;
   margin-bottom: 24px;
   cursor: pointer;
-  /* `bds-illustration` de 40×40 com o nosso símbolo a 76% da caixa — o
-     mesmo `background-size` que a cópia usa em `pipe/marca.css`. */
+  /*
+   * 40×40 `bds-illustration` with our symbol at 76% of the box — the same `background-size` the copy uses in `pipe/marca.css`.
+   */
   background: url('/pipe/simbolo-claro.svg') center / 76% auto no-repeat;
 }
 
@@ -157,7 +153,7 @@ button {
   gap: 8px;
   width: 100%;
   margin: 0;
-  /* O primeiro item fica a 88px do topo na cópia: 16 + 40 + 24 + 8. */
+  /* The first item sits 88px from the top in the copy: 16 + 40 + 24 + 8. */
   padding: 8px 0 0;
   list-style: none;
 }
@@ -204,9 +200,9 @@ button {
   display: block;
 }
 
-/* O avatar do rodapé: `bds-avatar size="extra-small"` (32px) com o selo
-   `.status-badge-profile` de 12px a `left: 22px; top: -2px`, borda de 2px na
-   cor do trilho. */
+/*
+ * The footer avatar: `bds-avatar size="extra-small"` (32px) with the `.status-badge-profile` badge at 12px, `left: 22px; top: -2px`, 2px border in the rail's color.
+ */
 .dk-trilho-avatar {
   position: relative;
   display: flex;
@@ -249,8 +245,9 @@ button {
   background: var(--p-erro-sobre-escuro);
 }
 
-/* O menu de status que abre no avatar (`bds-menu` da cópia): papel de raio 8
-   com sombra, itens de 40px (`.menu-action-item`). */
+/*
+ * The status menu that opens on the avatar (`bds-menu` from the copy): 8px-radius paper with shadow, 40px items (`.menu-action-item`).
+ */
 .dk-menu {
   position: absolute;
   z-index: 30;
@@ -297,8 +294,10 @@ button {
   color: var(--p-conteudo-desabilitado);
 }
 
-/* ===================================================== a coluna (sidenav)
-   `#container .sidenav { width: 25% }`, fundo em superfície 2. */
+/*
+ * ===================================================== the column (sidenav)
+ *    `#container .sidenav { width: 25% }`, background on surface 2.
+ */
 .dk-coluna {
   display: flex;
   flex-direction: column;
@@ -310,8 +309,9 @@ button {
   z-index: 2;
 }
 
-/* `.header-content { padding: 1rem; background: surface-1 }` — 76px de
-   altura: título 20/700 (entrelinha 20) e a linha "Lista ⌄" de 24px. */
+/*
+ * `.header-content { padding: 1rem; background: surface-1 }` — 76px tall: title 20/700 (20 line height) and the "Lista ⌄" line at 24px.
+ */
 .dk-coluna-cabecalho {
   padding: 16px;
   background: var(--p-superficie-1);
@@ -338,7 +338,7 @@ button {
   cursor: pointer;
 }
 
-/* `.view-mode-icon { top: 3px; position: relative; margin-left: 4px }`, ícone small (20px). */
+/* `.view-mode-icon { top: 3px; position: relative; margin-left: 4px }`, small icon (20px). */
 .dk-modo svg {
   position: relative;
   top: 3px;
@@ -347,8 +347,9 @@ button {
   margin-left: 4px;
 }
 
-/* `.sidenav-header`: piso de 111px, 117px entre 1112 e 1440, teto 160;
-   borda de 1px em superfície 3 em cima e embaixo; superfície 1. */
+/*
+ * `.sidenav-header`: 111px floor, 117px between 1112 and 1440, 160 ceiling; 1px border on surface 3 top and bottom; surface 1.
+ */
 .dk-estado {
   --dk-estado-min: 111px;
   display: flex;
@@ -380,8 +381,9 @@ button {
   justify-content: center;
 }
 
-/* `.waiting-tickets-container { gap: 8px }`: o número em fs-24 semi-bold na
-   cor de marca; "Cliente(s)" e "aguardando" em fs-16. */
+/*
+ * `.waiting-tickets-container { gap: 8px }`: the number in fs-24 semi-bold in brand color; "Cliente(s)" and "aguardando" in fs-16.
+ */
 .dk-aguardando {
   display: flex;
   align-items: center;
@@ -403,7 +405,7 @@ button {
   margin-top: 8px;
 }
 
-/* "Seu status é X": `bp-fs-5 tc` (16px) com o status na cor de marca. */
+/* "Seu status é X": `bp-fs-5 tc` (16px) with the status in brand color. */
 .dk-status-texto {
   font-size: 16px;
   line-height: 24px;
@@ -415,10 +417,10 @@ button {
   color: var(--p-marca);
 }
 
-/* ================================================================ botões
-   `bds-button variant="primary"`: 40px, recuo 0 16, raio 8, texto 14/700.
-   `variant="secondary"`: só a borda de 1px em conteúdo. `size="short"`: 32px.
-   `bds-button-icon size="short"`: 40×40, recuo 8, raio 8, ícone 24. */
+/*
+ * ================================================================ buttons
+ *    `bds-button variant="primary"`: 40px, 0 16 inset, radius 8, text 14/700. `variant="secondary"`: only the 1px border in content. `size="short"`: 32px. `bds-button-icon size="short"`: 40×40, 8 inset, radius 8, 24px icon.
+ */
 .dk-botao {
   display: inline-flex;
   align-items: center;
@@ -515,11 +517,10 @@ button {
   height: 20px;
 }
 
-/* ================================================================= busca
-   O bloco de busca custa 80px na coluna (`.list-content-with-search`). O
-   `bds-input`: 42px, borda de 1px a 20%, raio 8, recuo 8 4 8 12, lupa de 20
-   numa caixa de 24 e texto 14/22; o pai tem recuo de 8 em cima e nas laterais.
-   Placeholder: "Busque pelo nome ou telefone..." em conteúdo fantasma. */
+/*
+ * ================================================================= search
+ *    The search block takes 80px in the column (`.list-content-with-search`). `bds-input`: 42px, 1px border at 20%, radius 8, 8 4 8 12 inset, 20px magnifier in a 24px box and text 14/22; the parent has 8px inset on top and the sides. Placeholder: "Busque pelo nome ou telefone..." in ghost content.
+ */
 /* O bloco da busca tem 8px de margem acima (medido: 193 → 201) e 8 de recuo. */
 .dk-busca {
   margin-top: 8px;
@@ -575,12 +576,10 @@ button {
   color: var(--p-conteudo-fantasma);
 }
 
-/* ================================================================ fichas
-   `.header-chat-list { padding: 0 5px; margin-top: 8px }` numa faixa com
-   `ml2 mr2` (8px); `#filters-container { margin-top: 8px; gap: 2px }`,
-   40px de altura. Até 1441 a ficha vira um menu único (`show-below-large`:
-   `bds-chip-tag` outline de 32px com seta de 16 e texto 14); acima, a fila
-   de `bds-chip-clickable` (`show-above-large`). */
+/*
+ * ================================================================ chips
+ *    `.header-chat-list { padding: 0 5px; margin-top: 8px }` in a strip with `ml2 mr2` (8px); `#filters-container { margin-top: 8px; gap: 2px }`, 40px tall. Up to 1441 the chip row becomes a single menu (`show-below-large`: 32px outline `bds-chip-tag` with a 16px arrow and 14px text); above it, the `bds-chip-clickable` row (`show-above-large`).
+ */
 .dk-fichas {
   display: flex;
   align-items: center;
@@ -672,8 +671,10 @@ button {
   min-width: 160px;
 }
 
-/* ================================================================= lista
-   `<main class="pa2">` com recuo 0 8 32 (medido) e rolagem própria. */
+/*
+ * ================================================================= list
+ *    `<main class="pa2">` with 0 8 32 inset (measured) and its own scroll.
+ */
 .dk-lista {
   flex: 1 1 auto;
   min-height: 0;
@@ -684,8 +685,9 @@ button {
   scrollbar-color: var(--p-conteudo-fantasma) transparent;
 }
 
-/* O estado vazio da coluna: `.get-online-txt { text-align: center; padding:
-   50px }`, ícone `xxx-large` (72px) e a frase em fs-16. */
+/*
+ * The column's empty state: `.get-online-txt { text-align: center; padding: 50px }`, `xxx-large` icon (72px) and the phrase in fs-16.
+ */
 .dk-lista-vazia {
   padding: 50px;
   text-align: center;
@@ -701,10 +703,10 @@ button {
   color: var(--p-conteudo-fantasma);
 }
 
-/* ================================================== o cartão (chat-list-item)
-   `<article>` clicável: raio 8, recuo 8, borda 1px em superfície 3, fundo
-   superfície 1, 8px entre cartões. Cursor: +4% de preto; selecionado:
-   superfície 3 + 12%; selecionado com cursor: +16%. */
+/*
+ * ================================================== the card (chat-list-item)
+ *    Clickable `<article>`: radius 8, 8 inset, 1px border on surface 3, surface 1 background, 8px between cards. Cursor: +4% black; selected: surface 3 + 12%; selected with cursor: +16%.
+ */
 .dk-cartao {
   display: flex;
   flex-direction: column;
@@ -750,9 +752,9 @@ button {
   margin-bottom: 8px;
 }
 
-/* `.customer-avatar { width: 37px; height: 37px }` com o `bds-avatar
-   size="small"` (40px) dentro; o selo do canal (`.channel`) de 24×24, raio 6,
-   fundo branco, a −10px nos dois eixos, com o logo de 20 (`top: 2px`). */
+/*
+ * `.customer-avatar { width: 37px; height: 37px }` with the `bds-avatar size="small"` (40px) inside; the channel badge (`.channel`) at 24×24, radius 6, white background, -10px on both axes, with the 20px logo (`top: 2px`).
+ */
 .dk-cartao-rosto {
   position: relative;
   flex-shrink: 0;
@@ -824,8 +826,9 @@ button {
   align-items: flex-start;
 }
 
-/* Nome: `bds-typo fs-16 tag=h1`, 24px de entrelinha; negrito quando há não
-   lida (`bold="bold"`), regular quando não. */
+/*
+ * Name: `bds-typo fs-16 tag=h1`, 24px line height; bold when there's an unread one (`bold="bold"`), regular otherwise.
+ */
 .dk-cartao-nome {
   flex: 1 1 auto;
   min-width: 0;
@@ -843,7 +846,7 @@ button {
   font-weight: var(--d-peso-negrito);
 }
 
-/* Horário relativo: fs-12 em conteúdo desabilitado, ao lado do ícone de situação. */
+/* Relative time: fs-12 in disabled content, next to the status icon. */
 .dk-cartao-hora {
   display: flex;
   align-items: center;
@@ -865,7 +868,7 @@ button {
   display: block;
 }
 
-/* Prévia: `bds-typo fs-14 tag=p`, `.message-preview { line-height: 24px; color: content-disable }`. */
+/* Preview: `bds-typo fs-14 tag=p`, `.message-preview { line-height: 24px; color: content-disable }`. */
 .dk-cartao-previa {
   flex: 1 1 auto;
   min-width: 0;
@@ -878,7 +881,7 @@ button {
   text-overflow: ellipsis;
 }
 
-/* A terceira linha de alertas, alinhada à direita: fichas de 24px. */
+/* The third alert row, right-aligned: 24px chips. */
 .dk-cartao-alertas {
   display: flex;
   justify-content: flex-end;
@@ -887,8 +890,9 @@ button {
   gap: 4px;
 }
 
-/* `bds-chip-tag`: 24px, raio 4, texto 12; `color="system"` (info) e
-   `color="warning"` (alerta) — o par fundo pastel + conteúdo escuro. */
+/*
+ * `bds-chip-tag`: 24px, radius 4, text 12; `color="system"` (info) and `color="warning"` (alert) — the pastel background + dark content pair.
+ */
 .dk-chip {
   display: inline-flex;
   align-items: center;
@@ -929,7 +933,7 @@ button {
   border: 1px solid var(--p-conteudo-desabilitado);
 }
 
-/* O "×" do chip de etiqueta removível: herda a cor do chip, sem fundo. */
+/* The removable tag chip's "×": inherits the chip's color, no background. */
 .dk-chip-remover {
   display: inline-flex;
   align-items: center;
@@ -948,8 +952,9 @@ button {
   height: 16px;
 }
 
-/* A lista de opções do modal "Adicionar tags" e da faixa de etiquetas do
-   contato: uma caixa de seleção por etiqueta, em coluna. */
+/*
+ * The option list for the "Adicionar tags" modal and the contact's tag strip: one checkbox per tag, in a column.
+ */
 .dk-lista-de-etiquetas {
   display: flex;
   flex-direction: column;
@@ -976,7 +981,7 @@ button {
   margin: 8px 0;
 }
 
-/* `.badge-warning`: contador de não lidas, 24 de altura, mínimo 24, 12/700. */
+/* `.badge-warning`: unread counter, 24px tall, 24px minimum, 12/700. */
 .dk-contador {
   display: inline-flex;
   align-items: center;
@@ -993,10 +998,9 @@ button {
   line-height: 20px;
 }
 
-/* `.ticket-info`: linha de 1px em superfície 2 em cima, recuo 4 no topo, gap
-   8, entrelinha 24; ícone de info `x-small` (16px) num botão sem recuo;
-   "#N" em fs-12; "Fila:" fs-12 bold em conteúdo desabilitado + o nome; o
-   menu `⋮` de 24px aparece com o cursor (`.ticket-menu { opacity: 0 }`). */
+/*
+ * `.ticket-info`: 1px line on surface 2 on top, 4px top inset, 8 gap, 24 line height; `x-small` info icon (16px) in a button with no inset; "#N" in fs-12; "Fila:" fs-12 bold in disabled content + the name; the 24px `⋮` menu appears on hover (`.ticket-menu { opacity: 0 }`).
+ */
 .dk-cartao-info {
   display: flex;
   align-items: center;
@@ -1070,7 +1074,7 @@ button {
   visibility: visible;
 }
 
-/* O menu do cartão ancora no botão ⋮ e abre para a esquerda, por cima da lista. */
+/* The card menu anchors on the ⋮ button and opens to the left, above the list. */
 .dk-cartao-menu-caixa {
   position: relative;
   display: flex;
@@ -1083,7 +1087,7 @@ button {
   left: auto;
 }
 
-/* O alfinete da conversa fixada, na linha de alertas do cartão. */
+/* The pin for the pinned conversation, in the card's alert row. */
 .dk-cartao-fixada {
   display: inline-flex;
   align-items: center;
@@ -1101,7 +1105,7 @@ button {
   display: block;
 }
 
-/* Um ícone `x-small` na faixa (`.ticket-info-icon`), em conteúdo fantasma. */
+/* An `x-small` icon on the strip (`.ticket-info-icon`), in ghost content color. */
 .dk-cartao-info-icone {
   display: flex;
   color: var(--p-conteudo-fantasma);
@@ -1112,9 +1116,10 @@ button {
   height: 20px;
 }
 
-/* ======================================================== a conversa (pane-chat)
-   `.pane-chat { width: 50%; background: surface-2; border: 1px solid surface-3 }`.
-   Com o painel fechado, 75% até 1600 (`#container.drawer-hidden .pane-chat`). */
+/*
+ * ======================================================== the conversation (pane-chat)
+ *    `.pane-chat { width: 50%; background: surface-2; border: 1px solid surface-3 }`. With the panel closed, 75% up to 1600px (`#container.drawer-hidden .pane-chat`).
+ */
 .dk-conversa {
   position: relative;
   display: flex;
@@ -1128,8 +1133,9 @@ button {
   background: var(--p-superficie-2);
 }
 
-/* O estado sem conversa: ilustração (78×73, 32 de folga), título fs-20
-   semi-bold com 8 de folga (`.message-title`), e a linha em fs-16. */
+/*
+ * The no-conversation state: illustration (78×73, 32 gap), fs-20 semi-bold title with 8 gap (`.message-title`), and the line in fs-16.
+ */
 .dk-conversa-vazia {
   display: flex;
   flex-direction: column;
@@ -1165,8 +1171,9 @@ button {
   line-height: 24px;
 }
 
-/* "Buscando tickets": spinner de 64px (`bds-loading-spinner`) com 32 de folga
-   (`.spinner-container.mb4`) e o título fs-20 semi-bold. */
+/*
+ * "Buscando tickets": a 64px spinner (`bds-loading-spinner`) with 32 gap (`.spinner-container.mb4`) and the fs-20 semi-bold title.
+ */
 .dk-girando {
   width: 64px;
   height: 64px;
@@ -1190,12 +1197,10 @@ button {
   }
 }
 
-/* --------------------------------------------------------- o cabeçalho
-   `.pane-chat-header { background: surface-1 }`, `.chat-header { padding:
-   1.5rem }` — 24px em volta. Rosto `bds-avatar size="standard"` (56px);
-   nome em fs-16 semi-bold (`max-width: 265px`) e a linha "Ticket: #N · Bot:
-   · Fila:" em fs-12 com `column-gap: 5px`; à direita os botões de 40, com 8
-   entre eles; a linha de .5px em superfície 3 embaixo. */
+/*
+ * ----------------------------------------------------------- the header
+ *    `.pane-chat-header { background: surface-1 }`, `.chat-header { padding: 1.5rem }` — 24px all around. Face `bds-avatar size="standard"` (56px); name in fs-16 semi-bold (`max-width: 265px`) and the "Ticket: #N · Bot: · Fila:" line in fs-12 with `column-gap: 5px`; on the right the 40px buttons, 8px apart; the .5px line on surface 3 at the bottom.
+ */
 .dk-conversa-cabecalho {
   position: relative;
   flex-shrink: 0;
@@ -1272,8 +1277,9 @@ button {
   gap: 8px;
 }
 
-/* "Finalizar": acima de 1280 é `bds-button primary` com o ícone e o texto;
-   até 1280 só o ícone (`#close-ticket-button-icon`). */
+/*
+ * "Finalizar": above 1280 it's `bds-button primary` with icon and text; below 1280, icon only (`#close-ticket-button-icon`).
+ */
 .dk-finalizar-texto {
   display: none;
 }
@@ -1288,7 +1294,7 @@ button {
   }
 }
 
-/* O botão que abre e fecha o painel só existe na faixa média (`show-medium`, 950–1112). */
+/* The button that opens and closes the panel only exists in the medium band (`show-medium`, 950–1112). */
 #show-user-info {
   display: none;
 }
@@ -1305,9 +1311,9 @@ button {
   background: var(--p-superficie-3);
 }
 
-/* A faixa de etiquetas abaixo do cabeçalho (`.tags-container { height: 64px }`,
-   `pa3` = 16px): ícone tag + "Adicionar tags" fs-16 semi-bold, e as
-   etiquetas em fila (`.tags-scroll ml5 mr5`). */
+/*
+ * The tag strip below the header (`.tags-container { height: 64px }`, `pa3` = 16px): tag icon + "Adicionar tags" fs-16 semi-bold, and the tags in a row (`.tags-scroll ml5 mr5`).
+ */
 .dk-etiquetas {
   display: flex;
   align-items: center;
@@ -1344,8 +1350,9 @@ button {
   scrollbar-width: none;
 }
 
-/* A busca dentro da conversa (`.search-section`): superfície 1, recuo 16,
-   campo + botão fechar; absoluta sobre o corpo acima de 950. */
+/*
+ * The in-conversation search (`.search-section`): surface 1, 16px inset, field + close button; absolute over the body above 950px.
+ */
 .dk-busca-conversa {
   position: absolute;
   left: 0;
@@ -1375,9 +1382,10 @@ button {
   font-size: 16px;
 }
 
-/* ---------------------------------------------------------- o corpo
-   `.message-list--panechat .card-group-container { padding: 32px 24px }`
-   (40px 64px acima de 1600; 26px 16px até 480), rolagem própria. */
+/*
+ * ---------------------------------------------------------- the body
+ *    `.message-list--panechat .card-group-container { padding: 32px 24px }` (40px 64px above 1600; 26px 16px up to 480), its own scroll.
+ */
 .dk-conversa-corpo {
   position: relative;
   display: flex;
@@ -1411,9 +1419,9 @@ button {
   }
 }
 
-/* O grupo (`.blip-message-group .blip-card-group { margin-bottom: 20px }`),
-   com 35px de recuo do lado da entrada e 55px do lado da saída quando há
-   rosto (`.blip-container--with-photo`). */
+/*
+ * The group (`.blip-message-group .blip-card-group { margin-bottom: 20px }`), with 35px inset on the inbound side and 55px on the outbound side when there's a face (`.blip-container--with-photo`).
+ */
 .dk-grupo {
   position: relative;
   margin-bottom: 20px;
@@ -1425,8 +1433,9 @@ button {
   clear: both;
 }
 
-/* `.blip-container { margin-bottom: 10px }` não vale dentro do grupo: os
-   balões se costuram com os 5px do `.bubble`. */
+/*
+ * `.blip-container { margin-bottom: 10px }` doesn't apply inside the group: bubbles stitch together with the `.bubble`'s 5px.
+ */
 .dk-balao-caixa {
   position: relative;
   width: 100%;
@@ -1438,10 +1447,9 @@ button {
   clear: both;
 }
 
-/* `.blip-card .bubble`: máx 90%, entrelinha 20, fonte 16, borda 1px em
-   conteúdo fantasma, 5px embaixo; `.plain-text .bubble { padding: 10px 16px }`.
-   Entrada (`.left`): superfície 1 com conteúdo; saída (`.right`): o cinza do
-   texto (conteúdo) com a superfície 1 por cima. */
+/*
+ * `.blip-card .bubble`: max 90%, 20 line height, font 16, 1px border in ghost content, 5px at the bottom; `.plain-text .bubble { padding: 10px 16px }`. Inbound (`.left`): surface 1 with content; outbound (`.right`): the text's gray (content) with surface 1 on top.
+ */
 .dk-balao {
   position: relative;
   float: left;
@@ -1473,9 +1481,9 @@ button {
   color: var(--p-superficie-1);
 }
 
-/* Os cantos dentro do grupo (`.blip-card-group > :first-child … .bubble`):
-   o recorte de 2px mora embaixo, do lado de quem fala; nos demais o de cima
-   do mesmo lado também encolhe. */
+/*
+ * The corners inside the group (`.blip-card-group > :first-child … .bubble`): the 2px clip lives at the bottom, on the speaker's side; on the rest, the top one on the same side also shrinks.
+ */
 .dk-grupo-entrada .dk-balao-caixa:first-child .dk-balao {
   border-radius: 13px 13px 13px 2px;
 }
@@ -1492,9 +1500,9 @@ button {
   border-radius: 13px 2px 2px 13px;
 }
 
-/* Falha: o balão vai a 50% (`.failed-message .bubble.right { opacity: .5 }`)
-   e um ícone de 25×25 em vermelho fica a 10px do fundo, encostado na
-   direita, fora do balão (`.icon-message-failed`). */
+/*
+ * Failure: the bubble goes to 50% (`.failed-message .bubble.right { opacity: .5 }`) and a 25×25 red icon sits 10px from the bottom, flush right, outside the bubble (`.icon-message-failed`).
+ */
 .dk-grupo-saida .dk-balao-caixa[data-falhou='true'] .dk-balao {
   opacity: 0.5;
 }
@@ -1517,9 +1525,9 @@ button {
   height: 25px;
 }
 
-/* O horário do grupo (`.group-notification`): 10px/14px em conteúdo
-   desabilitado, do lado de quem fala; na saída, o sinal de entrega (20×15)
-   antes da hora. Dentro do grupo, o de cada balão some. */
+/*
+ * The group's timestamp (`.group-notification`): 10px/14px in disabled content, on the speaker's side; outbound, the delivery mark (20×15) comes before the time. Inside the group, each bubble's own timestamp disappears.
+ */
 .dk-grupo-hora {
   display: flex;
   align-items: center;
@@ -1543,10 +1551,9 @@ button {
   color: var(--p-info-conteudo);
 }
 
-/* A linha de mudança do ticket (`.ticket`): centrada, em conteúdo
-   desabilitado, 5px no topo; a frase (`.fancy`, entrelinha 1) entre duas
-   linhas de 1px em superfície 3 a 15px (`span:before/after`); e o título
-   "Ticket #N" em 20/500 com 10px de margem (`h3`). */
+/*
+ * The ticket-change line (`.ticket`): centered, in disabled content, 5px on top; the phrase (`.fancy`, line height 1) between two 1px lines on surface 3 at 15px (`span:before/after`); and the "Ticket #N" title at 20/500 with 10px margin (`h3`).
+ */
 .dk-ticket-linha {
   padding-top: 5px;
   overflow: hidden;
@@ -1592,8 +1599,9 @@ button {
   line-height: 23px;
 }
 
-/* A nota interna, no lugar dos balões: o mesmo "comentário" da referência
-   (`.comment`), centrado. */
+/*
+ * The internal note, in place of bubbles: the same "comment" as the reference (`.comment`), centered.
+ */
 .dk-nota {
   clear: both;
   margin: 0 auto 10px;
@@ -1632,12 +1640,10 @@ button {
   cursor: pointer;
 }
 
-/* -------------------------------------------------------- o compositor
-   `.pane-chat-message-input { padding: 0 24px }`; o `bds-paper`
-   `.pane-chat-message-input__container`: piso 150, teto 420, raio 8, borda
-   1px em superfície 3, fundo superfície 1, 8px embaixo, sombra estática.
-   Dentro: `.input-wrapper pa3 pb0` (16 16 0), o `textarea` de 4em a 11.5em
-   (16px), e `.action-buttons` de 56px com `mt3 ph3 pb3` (12 / 16 / 16). */
+/*
+ * -------------------------------------------------------- the composer
+ *    `.pane-chat-message-input { padding: 0 24px }`; the `bds-paper` `.pane-chat-message-input__container`: 150 floor, 420 ceiling, radius 8, 1px border on surface 3, surface 1 background, 8px at the bottom, static shadow. Inside: `.input-wrapper pa3 pb0` (16 16 0), the `textarea` from 4em to 11.5em (16px), and `.action-buttons` at 56px with `mt3 ph3 pb3` (12 / 16 / 16).
+ */
 .dk-compositor {
   flex-shrink: 0;
   width: 100%;
@@ -1668,7 +1674,7 @@ button {
 
 .dk-compositor-campo {
   flex-grow: 1;
-  /* 16 16 0 (`pa3 pb0`) mais os 4px que o textarea inline-block deixa embaixo (68 medidos para 64 de campo). */
+  /* 16 16 0 (`pa3 pb0`) plus the 4px the inline-block textarea leaves at the bottom (68 measured for a 64 field). */
   padding: 16px 16px 4px;
   overflow: hidden;
 }
@@ -1717,7 +1723,7 @@ button {
   margin-left: 8px;
 }
 
-/* Abaixo de 1112 o bloco vira linha: campo e ações lado a lado. */
+/* Below 1112 the block becomes a row: field and actions side by side. */
 @media (max-width: 1112px) {
   .dk-compositor-papel {
     min-height: 56px;
@@ -1745,8 +1751,9 @@ button {
   }
 }
 
-/* Quando a conversa não aceita texto livre, o compositor inteiro dá lugar a
-   um bloco centrado com uma linha e um botão (os quatro casos da referência). */
+/*
+ * When the conversation doesn't accept free text, the whole composer gives way to a centered block with one line and a button (the reference's four cases).
+ */
 .dk-compositor-fechado {
   display: flex;
   flex-direction: column;
@@ -1765,9 +1772,9 @@ button {
   line-height: 24px;
 }
 
-/* O painel de resposta pronta (`.custom-reply`) que abre acima do campo:
-   papel sobre o compositor, lista à esquerda e pré-visualização à direita
-   com "Pressione Enter para selecionar". */
+/*
+ * The canned-reply panel (`.custom-reply`) that opens above the field: paper surface over the composer, list on the left and preview on the right with "Pressione Enter para selecionar".
+ */
 .dk-respostas {
   position: absolute;
   left: 0;
@@ -1873,7 +1880,7 @@ button {
   font-size: 16px;
 }
 
-/* A área de soltar arquivo, sobre a conversa inteira (`.drop-container`). */
+/* The file-drop area, over the entire conversation (`.drop-container`). */
 .dk-soltar {
   position: absolute;
   inset: 0;
@@ -1899,11 +1906,10 @@ button {
   line-height: 40px;
 }
 
-/* ======================================================= o painel (drawer)
-   `#container .drawer { width: 25% }`, `.drawer { min-width: 260px }`,
-   superfície 2. `.drawer-heading`: 49px (57 até 1440), `ph3` (16px), título
-   fs-20 semi-bold. `.drawer-tabs { height: calc(100% - 58px) }` em superfície
-   1, com a faixa de abas de 54px; cada aba é um rolador. */
+/*
+ * ======================================================= the panel (drawer)
+ *    `#container .drawer { width: 25% }`, `.drawer { min-width: 260px }`, surface 2. `.drawer-heading`: 49px (57 up to 1440), `ph3` (16px), fs-20 semi-bold title. `.drawer-tabs { height: calc(100% - 58px) }` on surface 1, with a 54px tab strip; each tab is its own scroller.
+ */
 .dk-painel {
   display: flex;
   flex-direction: column;
@@ -1985,9 +1991,9 @@ button {
   background: var(--p-marca);
 }
 
-/* `.drawer__profile { padding: .5rem }` sobre superfície 2; dois `bds-paper`
-   de 50% (`.drawer__profile__paper { padding: 16px 24px }`, raio 16, sombra
-   estática), 8px entre eles. */
+/*
+ * `.drawer__profile { padding: .5rem }` over surface 2; two 50% `bds-paper` (`.drawer__profile__paper { padding: 16px 24px }`, radius 16, static shadow), 8px apart.
+ */
 .dk-painel-corpo {
   display: flex;
   flex-direction: column;
@@ -2024,8 +2030,9 @@ button {
   line-height: 24px;
 }
 
-/* `.profile-info-item { margin: 12px 0 4px }`: rótulo fs-12 semi-bold em
-   cima, valor em fs-16 embaixo, e o botão de copiar (24×28) à direita. */
+/*
+ * `.profile-info-item { margin: 12px 0 4px }`: fs-12 semi-bold label on top, fs-16 value below, and the copy button (24×28) on the right.
+ */
 .dk-campo-perfil {
   position: relative;
   margin: 12px 0 4px;
@@ -2070,9 +2077,9 @@ button {
   height: 24px;
 }
 
-/* Comentários (`.comment-section`): título, área que rola com o estado vazio
-   centrado (ícone + "Não há comentários sobre este usuário"), e o campo de
-   duas linhas "Escreva um comentário..." (`bds-input is-textarea rows=2`). */
+/*
+ * Comments (`.comment-section`): title, scrolling area with the centered empty state (icon + "Não há comentários sobre este usuário"), and the two-line "Escreva um comentário..." field (`bds-input is-textarea rows=2`).
+ */
 .dk-comentarios {
   display: flex;
   flex-direction: column;
@@ -2148,8 +2155,9 @@ button {
   color: var(--p-conteudo-fantasma);
 }
 
-/* A aba Histórico (`.drawer__history__paper { padding: 16px 24px }`): uma
-   sanfona por origem, cada linha com número, atendente e data. */
+/*
+ * The History tab (`.drawer__history__paper { padding: 16px 24px }`): an accordion per origin, each row with number, agent and date.
+ */
 .dk-historico-item {
   display: flex;
   flex-direction: column;
@@ -2167,8 +2175,9 @@ button {
   font-size: 12px;
 }
 
-/* O esqueleto do painel sem conversa (`.drawer > div.pa2 > img`): barras
-   cinzas nas posições da captura. */
+/*
+ * The no-conversation panel's skeleton (`.drawer > div.pa2 > img`): gray bars at the capture's positions.
+ */
 .dk-painel-esqueleto {
   padding: 8px;
 }
@@ -2187,8 +2196,10 @@ button {
   background: var(--d-tinta-8);
 }
 
-/* ======================================================== modais (bds-modal)
-   Véu a 50% de preto; o papel de 8px de raio com recuo de 32 e ações à direita. */
+/*
+ * ======================================================== modals (bds-modal)
+ *    50%-black veil; the 8px-radius paper with 32 inset and actions on the right.
+ */
 .dk-veu {
   position: fixed;
   inset: 0;
@@ -2251,9 +2262,10 @@ button {
   font-size: 14px;
 }
 
-/* ========================================================== responsivo
-   Até 1112 o painel some por trás e, aberto, sobrepõe a conversa (z 10);
-   até 950 as três colunas viram 100% e deslizam com `left: -100%`/`-200%`. */
+/*
+ * ========================================================== responsive
+ *    Up to 1112 the panel hides behind and, when open, overlaps the conversation (z 10); up to 950 the three columns become 100% and slide with `left: -100%`/`-200%`.
+ */
 @media (max-width: 1112px) {
   .dk-painel {
     position: absolute;
@@ -2299,7 +2311,7 @@ button {
   }
 }
 
-/* Com o painel fechado (até 1600), a conversa ocupa 75%. */
+/* With the panel closed (up to 1600), the conversation takes 75%. */
 @media (max-width: 1600px) {
   [data-painel='fechado'] .dk-conversa {
     flex-basis: 75%;
@@ -2311,7 +2323,7 @@ button {
   }
 }
 
-/* Utilidades curtas da referência que aparecem na estrutura (`hide-small`…). */
+/* Short reference utilities that show up in the markup (`hide-small`…). */
 .dk-so-leitor {
   position: absolute;
   width: 1px;
@@ -2324,12 +2336,10 @@ button {
   border: 0;
 }
 
-/* ================================================ o painel "Seu status"
-   `navbar-submenu` da referência (medido em `desk2/blip-menu-status.png`):
-   300px escuros ao lado do trilho, recuo 8 24, cabeçalho de 40 com a seta e
-   "Seu status" (gap 10); `user-info` centrado (avatar 56, nome 14/600,
-   e-mail 12); os status em botões de 56px (recuo 16, raio 8, gap 10) — o
-   em vigor com fundo a 8% e o check; "Desconectar" no rodapé. */
+/*
+ * ================================================ the "Seu status" panel
+ *    The reference's `navbar-submenu` (measured in `desk2/blip-menu-status.png`): 300px dark next to the rail, 8 24 inset, 40px header with the arrow and "Seu status" (gap 10); centered `user-info` (avatar 56, name 14/600, email 12); the statuses in 56px buttons (16 inset, radius 8, gap 10) — the active one with 8% background and the check; "Desconectar" at the footer.
+ */
 .dk-status-painel {
   display: flex;
   flex-direction: column;
@@ -2521,7 +2531,7 @@ button {
   font-family: 'DM Sans', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 
-  /* Os token da entrega. Ficam no escopo da tela de propósito. */
+  /* The delivery's tokens. They stay scoped to the purpose screen. */
   --pe-fundo: #f2f1ec;
   --pe-papel: #ffffff;
   --pe-campo: #fbfbf7;
@@ -2539,8 +2549,9 @@ button {
   color: var(--pe-conteudo);
 }
 
-/* O canvas do fundo. `pointer-events: none` porque ele cobre a tela inteira e
-   não pode roubar um clique do formulário. */
+/*
+ * The background canvas. `pointer-events: none` because it covers the whole screen and can't steal a click from the form.
+ */
 .entrar-fundo {
   position: absolute;
   inset: 0;
@@ -2549,8 +2560,9 @@ button {
   pointer-events: none;
 }
 
-/* `justify-content: flex-start`, e não `center`: o cartão fica à esquerda e o
-   feixe varre o canto oposto. Centralizar traria o cartão para cima do desenho. */
+/*
+ * `justify-content: flex-start`, not `center`: the card sits on the left and the beam sweeps the opposite corner. Centering would bring the card over the artwork.
+ */
 .entrar-palco {
   position: relative;
   display: flex;
@@ -2563,8 +2575,9 @@ button {
   box-sizing: border-box;
 }
 
-/* O cartão encostado à esquerda, a 120px da borda — a medida da tela de
-   origem. Centralizar traria o formulário para cima do feixe. */
+/*
+ * The card flush left, 120px from the border — the measurement from the source screen. Centering would bring the form over the beam.
+ */
 @media (min-width: 1000px) {
   .entrar-palco {
     padding-left: 120px;
@@ -2589,9 +2602,9 @@ button {
   margin-bottom: 32px;
 }
 
-/* A entrada não tem título escrito: a marca faz esse papel. O `h1` fica para
-   quem ouve a tela e some só para os olhos. (No convite o título É informação,
-   e lá ele continua visível.) */
+/*
+ * The sign-in screen has no written title: the brand plays that role. The `h1` is there for whoever listens to the screen and disappears only for the eyes. (In the invite screen the title IS information, and there it stays visible.)
+ */
 .entrar-titulo-oculto {
   position: absolute;
   width: 1px;
@@ -2604,8 +2617,9 @@ button {
   border: 0;
 }
 
-/* O motivo da recusa, com a saída da pessoa. Vem ANTES dos botões na ordem de
-   leitura: quem usa leitor de tela precisa do motivo antes da ação. */
+/*
+ * The rejection reason, with the person's exit. Comes BEFORE the buttons in reading order: someone using a screen reader needs the reason before the action.
+ */
 .entrar-alerta {
   margin-bottom: 22px;
   padding: 14px 16px;
@@ -2777,7 +2791,7 @@ button {
   text-decoration: none;
 }
 
-/* ---- o que o convite acrescenta ao mesmo cartão ---- */
+/* ---- what the invite adds to the same card ---- */
 
 .entrar-cartao h1 {
   margin: 0 0 10px;
@@ -2794,7 +2808,7 @@ button {
   color: var(--pe-apoio);
 }
 
-/* Os dados do convite: rótulo à esquerda, valor à direita. */
+/* The invitation data: label on the left, value on the right. */
 .entrar-dados {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -2811,7 +2825,7 @@ button {
   margin: 0;
   font-weight: 500;
   color: var(--pe-conteudo);
-  /* E-mail longo quebra em vez de esticar o cartão. */
+  /* Long email wraps instead of stretching the card. */
   overflow-wrap: anywhere;
 }
 
@@ -2822,16 +2836,12 @@ button {
   color: var(--pe-apoio);
 }
 
-/* A conta em vigor, no menu de quem está logado. Serve às três telas. */
+/* The active account, in the logged-in menu. Serves all three screens. */
 
-/* ============================================================ contatos
-   O MFE `desk-contact-history` medido em `~/desk-clone/clone/mfe-teste.html`
-   (1200 de largura): 300 / 600 / 300. Esquerda: bloco de 110 em superfície 1
-   (título 52 com recuo 16; busca 58 com recuo 8 e gap 8: campo de 42 e botão
-   de 40); a lista com recuo 8, o rótulo do grupo 14/700 num bloco de 37
-   (recuo 8), cartões de 62 (recuo 8, raio 8, borda 1 em superfície 3, fundo
-   superfície 1, gap 12): rosto 40 numa caixa de 44, nome 16/600/24,
-   "Última interação" 10/15, seta de 20. Selecionado: superfície 3. */
+/*
+ * ============================================================ contacts
+ *    The `desk-contact-history` MFE measured in `~/desk-clone/clone/mfe-teste.html` (1200 width): 300 / 600 / 300. Left: 110px block on surface 1 (52px title with 16 inset; 58px search with 8 inset and 8 gap: 42px field and 40px button); the list with 8 inset, the group label 14/700 in a 37px block (8 inset), 62px cards (8 inset, radius 8, 1px border on surface 3, surface 1 background, 12 gap): 40px face in a 44px box, name 16/600/24, "Última interação" 10/15, 20px arrow. Selected: surface 3.
+ */
 .dk-contatos {
   display: flex;
   flex: 1 1 auto;
@@ -2991,9 +3001,9 @@ button {
   line-height: 15px;
 }
 
-/* O meio: o estado vazio (ilustração 150×155, gap 16, título 16/700, texto
-   16/400 em 420 de largura) e o rodapé com o papel de 568 (recuo 0 16 32,
-   papel de 126 com gap 16, botão "Conversar novamente"). */
+/*
+ * The middle: the empty state (150×155 illustration, 16 gap, title 16/700, text 16/400 at 420 width) and the footer with a 568px paper (0 16 32 inset, 126px paper with 16 gap, "Conversar novamente" button).
+ */
 .dk-contatos-meio {
   position: relative;
   display: flex;
@@ -3070,7 +3080,7 @@ button {
   line-height: 21px;
 }
 
-/* A direita: as abas em cabeçalho de 56 (recuo 4 16), centradas, gap 32. */
+/* On the right: the tabs in a 56px header (4 16 inset), centered, 32 gap. */
 .dk-contatos-direita {
   display: flex;
   flex-direction: column;
@@ -3108,14 +3118,10 @@ button {
   background: var(--p-superficie-2);
 }
 
-/* ============================================================= métricas
-   A seção `metrics` de `~/desk-clone/clone/index.html` (foto
-   `desk2/blip-clone-metrics.png`): superfície 1, cabeçalho com gap 14 e recuo
-   14 24 sobre uma linha; título 19/700/24 e subtítulo 12; "Atualizar" 13 com
-   16 de margem; a barra `.seg` de botões de 13 (recuo 7 14, raio 8, o em vigor
-   em cromo escuro); corpo com recuo 18 24 32 e gap 24; `h3` 16/700 com 18
-   embaixo; rosca de 118 e grade 3×2 de cartões (superfície 2, raio 8, recuo
-   14 8, número 20/400, rótulo 12 com ponto de 8). */
+/*
+ * ============================================================= metrics
+ *    The clone's `metrics` section from `~/desk-clone/clone/index.html` (photo `desk2/blip-clone-metrics.png`): surface 1, header with 14 gap and 14 24 inset over a line; title 19/700/24 and subtitle 12; "Atualizar" at 13 with 16 margin; the `.seg` button bar at 13 (7 14 inset, radius 8, the active one in dark chrome); body with 18 24 32 inset and 24 gap; `h3` 16/700 with 18 below; a 118px ring and a 3×2 card grid (surface 2, radius 8, 14 8 inset, number 20/400, label 12 with an 8px dot).
+ */
 .dk-metricas {
   display: flex;
   flex-direction: column;
@@ -3292,7 +3298,7 @@ button {
   color: var(--p-conteudo-desabilitado);
 }
 
-/* A série diária: 110px de altura sobre a linha do eixo, barras em par. */
+/* The daily series: 110px tall over the axis line, bars in pairs. */
 .dk-eixo {
   position: relative;
   display: flex;
@@ -3350,13 +3356,10 @@ button {
   font-weight: var(--d-peso-normal);
 }
 
-/* ======================================================= mensagem ativa
-   A seção `active-msg` do clone (foto `desk2/blip-clone-active.png`):
-   cabeçalho com gap 12 e recuo 14 22 (título 17/400); o stepper entre duas
-   linhas com recuo 10 22 (passo 13, número em disco de 20 em cromo escuro,
-   linha de 1px); o aviso amarelo com borda esquerda de 3 (recuo 12 16, margem
-   14 22, 12/17); o corpo com gap 26 e recuo 4 22 22: formulário até 520 e o
-   painel de 500 (cabeçalho 12 14, corpo de 300 centrado). */
+/*
+ * ======================================================= active message
+ *    The clone's `active-msg` section (photo `desk2/blip-clone-active.png`): header with 12 gap and 14 22 inset (title 17/400); the stepper between two lines with 10 22 inset (step 13, 20px disc number in dark chrome, 1px line); the yellow warning with a 3px left border (12 16 inset, 14 22 margin, 12/17); the body with 26 gap and 4 22 22 inset: form up to 520 and a 500px panel (12 14 header, centered 300px body).
+ */
 .dk-ativa {
   display: flex;
   flex-direction: column;
@@ -3476,7 +3479,7 @@ button {
   font-size: 13px;
 }
 
-/* O campo com rótulo em cima (`.field`): borda, raio 8, recuo 8 12, 12 embaixo. */
+/* The field with the label on top (`.field`): border, radius 8, 8 12 inset, 12 at the bottom. */
 .dk-campo-flutuante {
   display: flex;
   flex-direction: column;
@@ -3636,11 +3639,10 @@ button {
   padding: 0 22px 20px;
 }
 
-/* ======================================================= ações em massa
-   A seção `bulk` do clone (foto `desk2/blip-clone-bulk.png`): recuo 20 26,
-   título 20/400 com 16 embaixo, cartão em superfície 1 (raio 8, recuo 22 30,
-   piso 560); a linha do chatbot com a ficha "Transferir"; as duas colunas
-   com gap 40 sobre uma linha (18 de recuo e margem); rádios com gap 60. */
+/*
+ * ======================================================= bulk actions
+ *    The clone's `bulk` section (photo `desk2/blip-clone-bulk.png`): 20 26 inset, title 20/400 with 16 below, surface-1 card (radius 8, 22 30 inset, 560 floor); the chatbot row with the "Transferir" record; the two columns with 40 gap over a line (18 inset and margin); radios with 60 gap.
+ */
 .dk-massa {
   display: flex;
   flex-direction: column;
@@ -3725,9 +3727,10 @@ button {
   margin-top: 20px;
 }
 
-/* ========================================================= preferências
-   Sem régua fotografada (o MFE não renderiza na cópia): lista de seções com
-   interruptores, no mesmo papel dos cartões do Desk. */
+/*
+ * ========================================================= preferences
+ *    No photographed ruler (the MFE doesn't render in the copy): a list of sections with toggles, on the same paper as the Desk's cards.
+ */
 .dk-prefs {
   flex: 1 1 auto;
   min-width: 0;

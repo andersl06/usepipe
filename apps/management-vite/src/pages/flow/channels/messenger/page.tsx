@@ -11,17 +11,9 @@ import { ChannelShell, type ChannelAba } from '../shell-of-channel';
 import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '../conexao';
 
 /**
- * O Messenger por dentro do BOT — `…channels/messenger`. A página atual da
- * origem é um micro-front que não está no bundle capturado
- * (`FICHA-conectar-canal-no-bot.md` §1.4 e §5); o que foi lido é o legado
- * `messengerDpr` (template 8080 + `MessengerOverviewTab.html`, 208152): título
- * "Messenger", aba "Visão Geral" com o ícone e o texto sobre a Página do
- * Facebook, e o modal de desconexão (`messenger.modals.disconnect`).
+ * Messenger inside the BOT — `…channels/messenger`. The source's current page is a micro-frontend not present in the captured bundle (`FICHA-conectar-canal-no-bot.md` §1.4 and §5); what was read is the legacy `messengerDpr` (template 8080 + `MessengerOverviewTab.html`, 208152): title "Messenger", "Visão Geral" tab with the icon and text about the Facebook Page, and the disconnect modal (`messenger.modals.disconnect`).
  *
- * O estado conectado NÃO foi capturado: aqui ele segue o desenho do Instagram
- * (chip com a Página + "Desconectar canal"), dito como decisão Pipe. A conexão
- * é a manual (`ConectarMessengerManual`, com `fluxoId`) e, decisão Pipe, a
- * escolha de uma Página que a conta já tem.
+ * The connected state was NOT captured: here it follows the Instagram layout (chip with the Page + "Desconectar canal"), stated as a Pipe decision. The connection is the manual one (`ConectarMessengerManual`, with `fluxoId`) and, Pipe decision, picking a Page the account already has.
  */
 
 const ABAS: readonly ChannelAba[] = [{ rotulo: 'Visão Geral', segment: '' }];

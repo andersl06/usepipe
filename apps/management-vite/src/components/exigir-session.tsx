@@ -2,13 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useSession } from '../context/session';
 
 /**
- * O portão das telas de produto — o que `exigirEu()` fazia no servidor do Next.
- *
- * Sem sessão vai para `/entrar` com o destino guardado; conta que ainda não
- * passou por "minha conta" vai para `/bem-vindo` (só a `api` sabe se o
- * onboarding fechou, e ela conta isso no `Eu`). Enquanto a primeira pergunta
- * não voltou, não desenha nada: mostrar a tela e depois tirá-la é pior que
- * um instante em branco.
+ * Product-screen guard replaces server-side Next `exigirEu()`. Without a session, redirect to `/entrar` while preserving destination. An account whose onboarding is incomplete goes to `/bem-vindo`; only the `api` knows completion and reports it in `Eu`. While the first session check is pending, show no protected screen to avoid a flash.
  */
 const ROTAS_DO_ONBOARDING = /^\/(bem-vindo|minha-conta|trocar-conta)(\/|$)/;
 

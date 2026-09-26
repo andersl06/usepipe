@@ -1,16 +1,10 @@
 import type { ChannelOfFlow } from '@pipe/contracts';
 
 /**
- * O canal DO BOT — regras PURAS do lado da tela (`fluxo/canais/**`), sem
- * `./api` de propósito, para `tests/canal-do-fluxo.test.ts` rodar sem
- * `import.meta.env`.
- *
- * A origem (`FICHA-conectar-canal-no-bot.md` §1) tem UMA página por canal
- * dentro do bot; o cartão da lista só decide entre "Conectar" e "Conectado" e
- * leva à mesma página. Aqui fica o que decide isso e o que a página oferece.
+ * Pure screen-side rules for this BOT's channel (`fluxo/canais/**`) avoid `./api` so `tests/canal-do-fluxo.test.ts` runs without `import.meta.env`. Reference `FICHA-conectar-canal-no-bot.md` Section 1 has one channel page inside the bot; list cards choose Connected or Connect and navigate to that same page. This module decides the card and page states.
  */
 
-/** Os canais que a Pipe tem página própria — os mesmos `tipo` de `canal.tipo`. */
+/** These are the channel kinds with dedicated Pipe pages, matching `tipo` in `canal.tipo`. */
 export type TipoOfChannelOfBot = 'whatsapp_cloud' | 'instagram' | 'messenger';
 
 /** O segmento da URL de cada canal: `/{tipo}/{id}/canais/{segmento}` (o `/whatsapp-embedded` da origem vira `/whatsapp`). */
@@ -25,11 +19,7 @@ export function channelRota(base: string, tipo: TipoOfChannelOfBot): string {
 }
 
 /**
- * O estado que a página do canal desenha para ESTE bot:
- * - `conectado`: o bot está com um canal ativo deste tipo (o `VERIFIED` da origem);
- * - `nao_conectado`: o bot não tem canal (o `LOGIN` da origem);
- * - `outro_canal`: o bot já está com um canal de OUTRO tipo — decisão Pipe,
- *   porque `fluxo.canal_id` é uma coluna só (na origem um bot tem vários).
+ * Channel state for THIS bot: `conectado` means an active channel of this kind (source `VERIFIED`); `nao_conectado` means none (source `LOGIN`); `outro_canal` means a different kind is already attached, a Pipe decision because `fluxo.canal_id` is a single column while the reference bot can have several.
  */
 export type ChannelInBotState =
   | { state: 'conectado'; channel: ChannelOfFlow }
@@ -46,7 +36,7 @@ export function channelInBotState(
   return { state: 'conectado', channel };
 }
 
-/** O cartão da lista: "Conectado" quando o bot está com um canal ATIVO deste tipo. */
+/** The list card says Connected only for an ACTIVE channel of this kind on the bot. */
 export function cardConnected(
   contact: { channelTipo: string | null; channelActive: boolean | null },
   tipo: string,
@@ -55,10 +45,7 @@ export function cardConnected(
 }
 
 /**
- * O que a etapa "Ativação do número" oferece (decisão Pipe — na origem o número
- * nasce no bot e não há lista): os canais ATIVOS deste tipo que estão livres
- * (sem bot vivo), e os que já estão com outro bot, para a tela dizer qual — a
- * origem manda "remover do anterior", e a tela aponta onde.
+ * Pipe's number-activation step differs from the reference, where the number starts attached to the bot. Offer active free channels of this kind and channels attached to another live bot so the screen can name that bot; the reference requires removal from the previous bot.
  */
 export function channelsForOferecer(
   disponiveis: readonly ChannelOfFlow[],
@@ -72,20 +59,18 @@ export function channelsForOferecer(
   };
 }
 
-/** O rótulo de um canal na lista: o número (ou `@usuário`, ou o id da Página) e, sem ele, o nome. */
+/** Show a channel's number, Instagram `@usuário`, or Page ID, falling back to its name. */
 export function channelRotulo(channel: Pick<ChannelOfFlow, 'nome' | 'numero'>): string {
   return channel.numero ? `${channel.numero} — ${channel.nome}` : channel.nome;
 }
 
-/** Só dígitos, para o `https://wa.me/{numero}` do "Testar no WhatsApp". */
+/** Use digits only for the Test on WhatsApp `https://wa.me/{numero}` URL. */
 export function numeroParaWaMe(numero: string | null): string {
   return (numero ?? '').replace(/\D/g, '');
 }
 
 /**
- * O botão "Desconectar {canal}" do modal de desconexão da origem só habilita
- * com o motivo preenchido E a concordância marcada (`class H`, portal.js
- * 120544: `disconnectButtonDisabled = !agreedChecked || !motiveInputValue`).
+ * Source Disconnect button requires both a reason and agreement (`class H`, portal.js 120544: `disconnectButtonDisabled = !agreedChecked || !motiveInputValue`).
  */
 export function podeConfirmarDesconexao(motivo: string, concordou: boolean): boolean {
   return concordou && motivo.trim().length > 0;

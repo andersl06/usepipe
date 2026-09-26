@@ -5,7 +5,7 @@ import { useRead } from '../../../../lib/query';
 import { gravarPerfilWhatsapp } from '../../../../lib/channels-gravar';
 import { CATEGORIAS_DO_PERFIL, LIMITES_DO_PERFIL, type PerfilVisivel } from '../../../../lib/channels';
 
-/** `data:image/…` — mesmo formato que a foto do fluxo usa para atravessar o JSON. */
+/** `data:image/…` — the same format the flow's photo uses to cross the JSON. */
 function lerComoDataUrl(file: File): Promise<string | null> {
   return new Promise((resolver) => {
     const leitor = new FileReader();
@@ -29,7 +29,7 @@ function rotuloDoStatusMeta(status: string | null): string {
   return rotulos[status] ?? status;
 }
 
-/** Acordeão 1: só leitura — a Blip exige aprovação da Meta para trocar; nós ainda não mandamos essa troca. */
+/** Accordion 1: read-only — Blip requires Meta approval to change it; we don't yet submit that change. */
 function DisplayAcordeaoName({ perfil }: { perfil: PerfilVisivel }) {
   return (
     <details className="cw-acordeao" open>
@@ -57,7 +57,7 @@ function DisplayAcordeaoName({ perfil }: { perfil: PerfilVisivel }) {
   );
 }
 
-/** Acordeão 2: recurso que a Blip tem e a Cloud API que consumimos hoje não expõe — desabilitado, "em breve". */
+/** Accordion 2: a feature Blip has that the Cloud API we consume today doesn't expose — disabled, "em breve" (coming soon). */
 function UserAcordeaoName() {
   return (
     <details className="cw-acordeao">
@@ -251,13 +251,9 @@ function PreViewPanel({ nome, perfil }: { nome: string; perfil: PerfilVisivel })
 }
 
 /**
- * Perfil da empresa — `FICHA-canal-whatsapp.md` §2. A tabela de campos ali
- * (endereço/e-mail) veio com os VALORES trocados na captura — bug de UI da
- * Blip, registrado e não copiado (§2, "Achado relevante"): aqui Endereço
- * comercial grava em `endereco`, E-mail de contato grava em `email`, sem troca.
+ * Company profile — `FICHA-canal-whatsapp.md` §2. The field table there (address/e-mail) came with SWAPPED VALUES in the capture — a Blip UI bug, recorded and not copied (§2, "Relevant finding"): here Endereço comercial writes to `endereco`, E-mail de contato writes to `email`, without the swap.
  *
- * O canal é o DO BOT (`useCanalWhatsapp`); a leitura do perfil pede
- * `canal.gerenciar` na `api` — sem ela, a `api` responde 403 e a aba diz isso.
+ * The channel is the BOT's (`useCanalWhatsapp`); reading the profile requires `canal.gerenciar` in the `api` — without it, the `api` returns 403 and the tab says so.
  */
 export function AbaPerfil() {
   const { channel, saude } = useChannelWhatsapp();

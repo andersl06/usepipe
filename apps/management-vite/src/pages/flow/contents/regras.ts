@@ -1,7 +1,5 @@
 /**
- * As regras do sidebar "Novo modelo de mensagem" — o controlador
- * `CreateMessageTemplateSidebarController` (`dD`) de portal.js, sem a tela.
- * Puras de propósito: `tests/conteudos-regras.test.ts` trava o que sai daqui.
+ * Rules for the "New message template" sidebar — the origin's `CreateMessageTemplateSidebarController` (`dD`) from portal.js, without the screen. Pure by design: `tests/conteudos-regras.test.ts` locks down what comes out of here.
  */
 
 /** `oD`: TEXT, IMAGE, DOCUMENT, VIDEO, PAYMENT, CAROUSEL — e `default` antes da escolha. */
@@ -20,9 +18,7 @@ export const CATEGORIAS = ['autenticacao', 'marketing', 'utilidade'] as const;
 export type Categoria = (typeof CATEGORIAS)[number];
 
 /**
- * As flags que o `$onInit` consulta (`checkFeatures`). No Pipe, o schema de
- * `template_mensagem` aceita cabeçalho de imagem/vídeo/documento e não modela
- * pagamento nem carrossel — é daí que saem os padrões.
+ * The flags `$onInit` checks (`checkFeatures`). In Pipe, the `template_mensagem` schema accepts an image/video/document header and does not model payment or carousel — that's where the defaults come from.
  */
 export interface TemplateFlags {
   media: boolean;
@@ -38,14 +34,12 @@ export const FLAGS_DO_PIPE: TemplateFlags = {
 };
 
 /**
- * O `menu-list` do template, linha a linha, com os `ng-if` de cada bloco:
+ * The template's `menu-list`, line by line, with each block's `ng-if`:
  *
- *   linha 1: text · image (isMediaMessageTemplateEnabled) · document (idem)
- *   linha 2: video (media && video) · payment (payment && isUtilityType) ·
- *            carousel (carousel)
+ *   row 1: text · image (isMediaMessageTemplateEnabled) · document (same)
+ *   row 2: video (media && video) · payment (payment && isUtilityType) · carousel (carousel)
  *
- * O bloco inteiro só existe com `messageTemplateType === 'default'`,
- * `!isAuthenticationType()` e `!isEmptyCategory()` — ver `mostrarEscolhaDeBloco`.
+ * The whole block only exists when `messageTemplateType === 'default'`, `!isAuthenticationType()`, and `!isEmptyCategory()` — see `mostrarEscolhaDeBloco`.
  */
 export function blocosDoMenu(
   categoria: Categoria | '',
@@ -60,7 +54,7 @@ export function blocosDoMenu(
   return linha2.length ? [linha1, linha2] : [linha1];
 }
 
-/** Compatibilidade: a lista achatada dos tipos que o menu oferece. */
+/** Compatibility: the flattened list of types the menu offers. */
 export function tiposDisponiveis(
   categoria: string,
   flags: TemplateFlags = { ...FLAGS_DO_PIPE, payment: true, carrossel: true },
@@ -85,7 +79,7 @@ export function mostrarVoltar(
   return tipo !== 'default' && translationsTotal <= 1 && categoria !== 'autenticacao';
 }
 
-/** `isTemplateNameInvalid`: `/^[a-z]([a-z0-9_])*$/` e até 512 caracteres. */
+/** `isTemplateNameInvalid`: `/^[a-z]([a-z0-9_])*$/` and up to 512 characters. */
 export function nameError(
   nome: string,
   existentes: readonly string[] = [],
@@ -101,7 +95,7 @@ export interface Translation {
   texto: string;
 }
 
-/** `areTranslationsValid` para os tipos que o Pipe modela (texto e mídia exigem idioma + texto). */
+/** `areTranslationsValid` for the types Pipe models (text and media require language + text). */
 export function translationsValid(
   tipo: TipoDeConteudo | 'default',
   categoria: Categoria | '',
@@ -112,7 +106,7 @@ export function translationsValid(
   return translations.every((t) => t.idioma && t.texto);
 }
 
-/** `invalidTranlationLanguages`: idioma repetido em outra tradução. */
+/** `invalidTranlationLanguages`: a language repeated in another translation. */
 export function idiomasRepetidos(translations: readonly Translation[]): string[] {
   const vistos = new Set<string>();
   const repetidos = new Set<string>();
@@ -124,7 +118,7 @@ export function idiomasRepetidos(translations: readonly Translation[]): string[]
   return [...repetidos];
 }
 
-/** `isMessageTemplateValid`: nome ok, categoria, traduções e idiomas. */
+/** `isMessageTemplateValid`: name ok, category, translations, and languages. */
 export function templateValid(data: {
   nome: string;
   categoria: Categoria | '';
@@ -142,8 +136,7 @@ export function templateValid(data: {
 }
 
 /**
- * O que a lista mostra (`messagetemplate.html`): sem canal WhatsApp é o
- * `unavailable-warning`; com canal e sem modelos, o `no-results`; senão a lista.
+ * What the list shows (`messagetemplate.html`): without a WhatsApp channel it's the `unavailable-warning`; with a channel and no templates, the `no-results`; otherwise the list.
  */
 export function listaState(temWhatsapp: boolean, totalDeModelos: number) {
   if (!temWhatsapp) return 'indisponivel' as const;

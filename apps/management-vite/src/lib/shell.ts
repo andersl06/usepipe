@@ -5,11 +5,7 @@ import { api } from './api';
 import { useRead } from './query';
 
 /**
- * A casca do portal: quem está logado, a conta em vigor e a lista do seletor.
- *
- * É o `CascaDoPortal` de `apps/gestao/src/lib/portal.ts`, montado no navegador
- * a partir do que a `api` já responde — `GET /v1/eu` (o contexto de sessão) e
- * `GET /v1/contas/minhas`. Nenhum endpoint novo.
+ * Portal shell combines the signed-in user, current account, and account-selector list. This is browser-mounted `CascaDoPortal` from `apps/gestao/src/lib/portal.ts`, built from existing `api` responses `GET /v1/eu` and `GET /v1/contas/minhas`; no new endpoint is needed.
  */
 export interface AccountInLista {
   tenantId: string;
@@ -30,7 +26,7 @@ export interface PortalShell {
 
 export function portalUseShell(): PortalShell {
   const eu = useEu();
-  // A lista do seletor não derruba a tela: sem ela, o seletor mostra só a conta em vigor.
+  // Failure to load account choices must not bring down the screen; show only the current account in the selector.
   const accounts = useRead<AccountInLista[]>('/v1/accounts/my', { staleTime: 5 * 60_000 });
   return {
     user: { nome: eu.user.nome, email: eu.user.email, avatarUrl: eu.user.avatarUrl },
@@ -41,9 +37,7 @@ export function portalUseShell(): PortalShell {
 }
 
 /**
- * Trocar de conta: `POST /v1/contas/trocar` emite o cookie novo direto no
- * navegador; depois a sessão é relida e a pessoa vai para o portal da conta
- * NOVA — o que ela quer ver depois de trocar é o que existe do outro lado.
+ * `POST /v1/contas/trocar` issues a new cookie to the browser. Then reread session state and navigate to the NEW account's Portal, where the person's new context is visible.
  */
 export function accountUseSwitch() {
   const { atualizar } = useSession();
@@ -60,7 +54,7 @@ export function accountUseSwitch() {
   });
 }
 
-/** Sair: encerra na `api`, esquece tudo que estava em cache e volta à entrada. */
+/** Sign out through `api`, clear cached data, and return to sign-in. */
 export function useSair() {
   const { sair } = useSession();
   const navegar = useNavigate();

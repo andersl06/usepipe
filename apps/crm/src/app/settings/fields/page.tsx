@@ -13,32 +13,31 @@ import { actionCreateField, acaoExcluirCampo, acaoRenomearCampo } from '../actio
 export const dynamic = 'force-dynamic';
 
 /**
- * Campos personalizados do lead.
+ * Custom fields for the lead.
  *
- * **O que o Twenty tem aqui e o Pipe não vai ter.** Lá, "Data model" deixa o
- * cliente criar OBJETO e CAMPO — o que significa `alter table` em tempo de
- * execução, num banco com RLS e migrations versionadas. O Pipe decidiu o
- * contrário na fundação, e está escrito no schema: *"campo customizado por
- * tenant vive aqui, com índice GIN — nunca `alter table` em runtime"*. O valor
- * mora em `lead.customizados`, que é `jsonb`.
+ * **What Twenty has here that Pipe won't.** There, "Data model" lets the customer create
+ * an OBJECT and a FIELD — which means running `alter table` at runtime, on a database
+ * with RLS and versioned migrations. Pipe decided the opposite at the foundation, and
+ * it's written into the schema: *"a tenant's custom field lives here, with a GIN
+ * index — never `alter table` at runtime"*. The value lives in `lead.customizados`,
+ * which is `jsonb`.
  *
- * Então o equivalente honesto não é "criar campo no banco": é **declarar a
- * chave**. É o que esta tela faz, em `dicionario_campo` — a mesma tabela que a
- * linguagem de consulta lê para decidir o que é consultável. Declarar aqui é o
- * que faz o campo existir para a busca, para a exportação e para quem for
- * preencher o formulário.
+ * So the honest equivalent isn't "create a field in the database": it's **declaring the
+ * key**. That's what this screen does, in `dicionario_campo` — the same table the
+ * query language reads to decide what's queryable. Declaring it here is what makes
+ * the field exist for search, for export, and for whoever fills out the form.
  *
- * Três consequências dessa decisão, todas visíveis na tela:
+ * Three consequences of this decision, all visible on the screen:
  *
- * - **O código não se edita.** Ele é a chave dentro do `jsonb` de cada lead;
- *   mudá-lo deixaria o valor gravado órfão na base inteira, em silêncio. Rótulo
- *   e descrição, sim.
- * - **"Preenchidos" conta leads de verdade**, varrendo `customizados`. É o
- *   número que impede excluir às cegas um campo que 400 leads usam — o
- *   equivalente ao "Mostly empty" do Twenty, ao contrário.
- * - **Excluir tira a definição, não o valor.** O que estiver gravado continua
- *   lá, e o log de auditoria guarda o código. Recadastrar o mesmo código faz o
- *   dado voltar a aparecer.
+ * - **The code isn't editable.** It's the key inside each lead's `jsonb`; changing it
+ *   would silently orphan the stored value across the entire database. Label and
+ *   description, yes.
+ * - **"Filled in" counts real leads**, scanning `customizados`. It's the number that stops
+ *   someone from blindly deleting a field that 400 leads use — the opposite of Twenty's
+ *   "Mostly empty".
+ * - **Deleting removes the definition, not the value.** Whatever was stored stays there,
+ *   and the audit log keeps the code. Re-registering the same code makes the data
+ *   reappear.
  */
 
 const ROTULO_DO_TIPO = new Map(TIPOS_DE_CAMPO.map((t) => [t.codigo as string, t.rotulo]));

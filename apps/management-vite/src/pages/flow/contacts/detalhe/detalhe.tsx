@@ -15,11 +15,9 @@ import {
 } from '../regras';
 import { InformationContact } from './editar';
 
-/* Estrutura do template `details-container` da origem (portal.js, estado
-   `auth.application.detail.users.user`): `.history-header` (voltar, avatar 56,
-   nome fs-24, recarregar, `.separator`), `.tickets-list-view` com o cartão
-   `.user-info-card` (40%) e `.tickets-history` (60%, `expandable-list`), e o
-   painel fixo `#user-detail-sidebar` (445px) com `.thread-header` e `.messages`. */
+/*
+ * Structure of the origin's `details-container` template (portal.js, state `auth.application.detail.users.user`): `.history-header` (back, 56px avatar, name fs-24, reload, `.separator`), `.tickets-list-view` with the `.user-info-card` card (40%) and `.tickets-history` (60%, `expandable-list`), and the fixed `#user-detail-sidebar` panel (445px) with `.thread-header` and `.messages`.
+ */
 export function BotDetalheContact() {
   const { contact: bot } = useContact();
   const id = bot.id;
@@ -106,7 +104,7 @@ export function BotDetalheContact() {
                             >
                               <IconePortal nome="conversa" tamanho={24} />
                             </Link>
-                            {/* ponytail: exportação do histórico do ticket ainda não tem backend. */}
+                            {/* ponytail: ticket history export still has no backend. */}
                             <span
                               className="ct-botao-icone ct-botao-icone--curto"
                               title="Baixar histórico"

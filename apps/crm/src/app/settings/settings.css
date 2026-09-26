@@ -1,26 +1,21 @@
-/* ==========================================================================
-   Pipe CRM — área de configurações.
-
-   Só existe aqui. `globais.css` continua sendo do trabalho do dia a dia; esta
-   folha entra pelo `layout.tsx` de `/configuracoes` e não alcança mais nada.
-
-   Como o resto do CRM, ela NÃO declara nenhuma cor própria: todo valor vem de
-   um token `--p-*` do `@pipe/ui`, com o nome de papel dele. Os `--c-*` daqui
-   são medidas, não tinta.
-
-   As medidas são do Twenty, lidas no fork em 07/09/2026 — a disposição é
-   deles, a tinta é nossa, o mesmo método da lateral em `globais.css`:
-
-   - conteúdo de configuração com **760px** de largura máxima, centrado
-     (`SETTINGS_CONTENT_MAX_WIDTH`);
-   - **32px** entre blocos, que é o `spacing[8]` deles e o nosso `--p-e-8`;
-   - **80px** de respiro no rodapé, para o último bloco não colar na dobra;
-   - linha de tabela de 32px, que a `Tabela` do `@pipe/ui` já entrega.
-
-   Uma medida é nossa e não deles: `--c-campo` a 420px. O Twenty deixa o campo
-   ocupar a largura inteira dos 760px, e um campo de 760px para digitar um nome
-   convida a linha de texto de 100 caracteres que ninguém consegue reler.
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *    Pipe CRM — settings area.
+ *
+ *    Only exists here. `globais.css` remains for everyday work; this sheet is loaded by the `/configuracoes` `layout.tsx` and reaches nothing else.
+ *
+ *    Like the rest of the CRM, it does NOT declare any color of its own: every value comes from a `--p-*` token in `@pipe/ui`, named by its role. The `--c-*` tokens here are measurements, not paint.
+ *
+ *    The measurements are from Twenty, read in the fork on 2026-09-07 — the layout is theirs, the paint is ours, the same method as the sidebar in `globais.css`:
+ *
+ *    - settings content with a **760px** max width, centered (`SETTINGS_CONTENT_MAX_WIDTH`);
+ *    - **32px** between blocks, which is their `spacing[8]` and our `--p-e-8`;
+ *    - **80px** of breathing room at the footer, so the last block doesn't stick to the fold;
+ *    - table row height of 32px, which the `@pipe/ui` `Tabela` already provides.
+ *
+ *    One measurement is ours, not theirs: `--c-campo` at 420px. Twenty lets the field take the full 760px width, and a 760px field for typing a name invites a 100-character text line that no one can re-read.
+ *    ==========================================================================
+ */
 
 .cfg {
   --c-conteudo: 760px;
@@ -35,7 +30,7 @@
   padding-bottom: var(--p-e-10);
 }
 
-/* ============================================================== cabeçalho */
+/* ============================================================== header */
 
 .cfg-cabecalho {
   display: flex;
@@ -58,8 +53,9 @@
   max-width: 62ch;
 }
 
-/* O caminho de volta vem antes do título no DOM: é o primeiro alvo do Tab de
-   quem entrou na seção errada. */
+/*
+ * The back link comes before the title in the DOM: it's the first Tab target for whoever entered the wrong section.
+ */
 .cfg-voltar {
   display: inline-flex;
   align-items: center;
@@ -78,7 +74,7 @@
   background: var(--p-superficie-2);
 }
 
-/* ================================================================= índice */
+/* ================================================================= index */
 
 .cfg-grupo {
   display: flex;
@@ -157,7 +153,7 @@
   font-size: var(--p-t-sm);
 }
 
-/* ============================================================= formulário */
+/* ============================================================= form */
 
 .cfg-form {
   display: flex;
@@ -165,8 +161,9 @@
   gap: var(--p-e-4);
 }
 
-/* Campos lado a lado (convidar, criar papel, criar campo). Quebra sozinho na
-   janela estreita: `wrap` mais uma base de 220px, sem media query. */
+/*
+ * Fields side by side (invite, create role, create field). Wraps on its own on narrow windows: `wrap` plus a 220px basis, no media query.
+ */
 .cfg-form-linha {
   flex-direction: row;
   flex-wrap: wrap;
@@ -191,7 +188,7 @@
   max-width: var(--c-campo);
 }
 
-/* O primeiro `<span>` do label é o rótulo; os seguintes são a explicação. */
+/* The first `<span>` in the label is the caption; the following ones are the explanation. */
 .cfg-campo > span:first-child {
   font-size: var(--p-t-sm);
   font-weight: var(--p-peso-medio);
@@ -232,8 +229,9 @@
   border: 1px solid var(--p-sucesso-linha);
 }
 
-/* O segredo que aparece uma vez. Fundo de alerta porque a janela é essa: sair
-   da tela sem copiar custa emitir outra chave. */
+/*
+ * The secret that appears once. Alert background because that's the situation: leaving the screen without copying costs having to issue another key.
+ */
 .cfg-segredo {
   display: flex;
   align-items: flex-end;
@@ -263,8 +261,9 @@
   font-size: var(--p-t-sm);
 }
 
-/* Formulário dentro de célula de tabela: sem quebra de linha própria, o botão
-   ao lado do controle. */
+/*
+ * Form inside a table cell: no line break of its own, the button next to the control.
+ */
 .cfg-linha-form {
   display: flex;
   align-items: center;
@@ -287,10 +286,9 @@
   background: var(--p-superficie-0);
 }
 
-/* `legend` dentro de `fieldset` com `display:flex` ou `grid` vira item do
-   contexto e senta ao lado do primeiro controle. As duas declarações abaixo o
-   devolvem à própria linha, sem tirá-lo do `fieldset` — que é o que dá o nome
-   acessível ao grupo inteiro. */
+/*
+ * `legend` inside `fieldset` with `display:flex` or `grid` becomes an item of that context and sits next to the first control. The two declarations below return it to its own line, without taking it out of the `fieldset` — which is what gives the whole group its accessible name.
+ */
 .cfg-temas > legend,
 .cfg-permissoes > legend {
   padding: 0 var(--p-e-1) var(--p-e-2);
@@ -307,9 +305,9 @@
   flex-wrap: wrap;
 }
 
-/* O rádio continua no DOM e continua focável — só sai da vista. Esconder com
-   `display:none` o tiraria da ordem de tabulação, que é o defeito clássico do
-   controle segmentado. */
+/*
+ * The radio stays in the DOM and stays focusable — it just leaves the view. Hiding it with `display:none` would remove it from the tab order, which is the classic flaw of the segmented control.
+ */
 .cfg-tema input {
   position: absolute;
   width: 1px;
@@ -341,13 +339,13 @@
   font-weight: var(--p-peso-medio);
 }
 
-/* O foco tem de aparecer no rótulo, já que o controle está fora da vista. */
+/* Focus has to appear on the label, since the control itself is out of view. */
 .cfg-tema input:focus-visible + span {
   outline: 2px solid var(--p-marca);
   outline-offset: 2px;
 }
 
-/* =========================================================== permissões */
+/* =========================================================== permissions */
 
 .cfg-permissoes {
   display: grid;
@@ -465,11 +463,10 @@
   color: var(--p-conteudo);
 }
 
-/* ==================================================== só para leitor de tela
-   O rótulo de um controle dentro de célula de tabela: a coluna já diz o que
-   é para quem vê, e quem ouve precisa saber de QUEM é a linha. `clip-path`
-   em vez de `display:none` porque o segundo tira o elemento da árvore de
-   acessibilidade junto. */
+/*
+ * ==================================================== screen-reader only
+ *    The label for a control inside a table cell: the column already says what it is for someone who can see, and someone listening needs to know WHOSE row it is. `clip-path` instead of `display:none` because the latter also removes the element from the accessibility tree.
+ */
 .cfg-oculto {
   position: absolute;
   width: 1px;

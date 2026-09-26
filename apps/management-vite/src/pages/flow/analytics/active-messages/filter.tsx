@@ -2,15 +2,7 @@ import { useState } from 'react';
 import { IconePortal } from '../../../../components/icones-portal';
 
 /**
- * O filtro de Mensagens ativas — `St` (analytics-main.js 33556), dicionário `gt`.
- *
- * É cliente por UMA razão visível: o "Aplicar" nasce desabilitado e só acende
- * quando algo muda (o `N`/`U()` do `Lx`: chip, data ou template). O resto é um
- * formulário GET comum — o período, as datas e o template vão na URL e a página
- * (servidor) lê de lá, que é o `K()` da origem.
- *
- * Não importa `lib/analise.ts` de propósito: aquele arquivo abre o banco. Os
- * rótulos e os limites de data chegam por prop.
+ * The Active Messages filter — `St` (analytics-main.js 33556), dictionary `gt`. It's client-side for ONE visible reason: "Aplicar" starts disabled and only lights up when something changes (the `N`/`U()` of `Lx`: chip, date, or template). The rest is a plain GET form — the period, dates, and template go in the URL, and the (server) page reads from there, which is the origin's `K()`. It deliberately does not import `lib/analise.ts`: that file opens the database. Labels and date limits arrive via prop.
  */
 export interface ActiveMessagesFilterValues {
   periodo: string;
@@ -54,7 +46,7 @@ export function Filter({
   const [nome, setNome] = useState(template);
   const personalizado = escolhido === 'custom';
 
-  /* `D()`: concluir o calendário vira período personalizado e apaga o chip. */
+  /* `D()`: finishing the calendar turns it into a custom period and clears the chip. */
   const mudarData = (campo: 'de' | 'ate', value: string) => {
     setDatas((d) => ({ ...d, [campo]: value }));
     setEscolhido('custom');
@@ -109,9 +101,9 @@ export function Filter({
           </div>
         </div>
 
-        {/* `.datepicker-wrapper`: rótulo fs-14 semi-bold e o `bds-datepicker
-            type-of-date="period"` — dois `bds-input` "De"/"Até" com o ícone
-            `calendar`. O calendário flutuante deles vira o seletor nativo. */}
+        {/*
+ * `.datepicker-wrapper`: fs-14 semi-bold label and the `bds-datepicker type-of-date="period"` — two "De"/"Até" `bds-input`s with the `calendar` icon. Their floating calendar becomes the native picker.
+ */}
         <div className="ma-coluna">
           <p className="ma-t14 ma-semi">Filtre por data</p>
           <div className="ma-datas">
@@ -141,8 +133,9 @@ export function Filter({
           </div>
         </div>
 
-        {/* `.autocomplete-wrapper`: o rótulo diz "campanha" porque o de template
-            está ligado (`y || v`); o de Campanha fica escondido pela flag. */}
+        {/*
+ * `.autocomplete-wrapper`: the label says "campanha" because the template one is enabled (`y || v`); the Campaign one is hidden by the flag.
+ */}
         <div className="ma-coluna">
           <p className="ma-t14 ma-semi">Filtre por campanha</p>
           <div className="ma-linha-chips ma-filtro-template">
@@ -167,7 +160,7 @@ export function Filter({
                   ))}
                 </datalist>
               </span>
-              {/* `.select__icon`: o `error` sólido só aparece com valor (`icon-hidden`). */}
+              {/* `.select__icon`: the solid `error` icon only appears with a value (`icon-hidden`). */}
               <span className="ma-campo-sufixo">
                 <IconePortal
                   nome="fechar-chip"

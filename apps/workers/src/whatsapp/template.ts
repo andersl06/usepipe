@@ -1,15 +1,5 @@
 /**
- * Montagem de parâmetro de template, com o **deslocamento por mídia no cabeçalho**.
- *
- * `referencias-blip/pesquisa/regras-blip.md` §1.4: quando o template tem imagem, vídeo ou
- * documento no cabeçalho, a mídia ocupa a posição **1** e toda variável do corpo
- * desliza +1 em relação à numeração declarada em `{{n}}`. Errar isso não dá erro:
- * o cliente recebe o nome dele no lugar do protocolo, e ninguém percebe.
- *
- * O Pipe guarda os valores por posição (é o formato que campanha, MCP e API usam).
- * A Cloud API, por outro lado, quer componentes separados — `header` com o parâmetro
- * dele, `body` com os dele. A tradução entre os dois é este arquivo, e é o único
- * lugar do produto onde a numeração é interpretada.
+ * Build template parameters with the MEDIA HEADER OFFSET. `referencias-blip/pesquisa/regras-blip.md` §1.4: when a template header contains an image, video, or document, media takes send position 1 and every body variable shifts by one from its declared `{{n}}` number. A wrong offset can silently send the client's name where a protocol number belongs. Pipe stores values by position, as campaigns, MCP, and API supply them; Cloud API expects separate `header` and `body` components. This file is the product's only interpretation of that numbering.
  */
 
 export type CabecalhoTemplate = 'nenhum' | 'texto' | 'imagem' | 'video' | 'documento';
@@ -20,14 +10,13 @@ export function headerHasMedia(cabecalho: CabecalhoTemplate): boolean {
   return HEADER_OF_MEDIA.includes(cabecalho);
 }
 
-/** Quantas posições a mídia consome antes do corpo: 1 quando há mídia, 0 quando não. */
+/** Number of positions media consumes before the body: one with media, zero otherwise. */
 export function offset(cabecalho: CabecalhoTemplate): number {
   return headerHasMedia(cabecalho) ? 1 : 0;
 }
 
 /**
- * Posição real de disparo da n-ésima variável do corpo (`{{n}}`, `n` começando em 1).
- * É a função que o resto do produto deve chamar em vez de somar 1 na mão.
+ * Actual send position of the body variable `n` (`{{n}}`, starting at 1). Call this instead of adding one manually elsewhere.
  */
 export function positionOfVariable(indiceNoCorpo: number, cabecalho: CabecalhoTemplate): number {
   return indiceNoCorpo + offset(cabecalho);
@@ -37,7 +26,7 @@ export interface TemplateParaEnvio {
   nome: string;
   idioma: string;
   cabecalhoTipo: CabecalhoTemplate;
-  /** Nomes das variáveis do corpo, na ordem de `{{1}}`, `{{2}}`, … */
+
   variables: readonly string[];
 }
 
@@ -72,11 +61,7 @@ const TIPO_DE_PARAMETRO: Readonly<Record<string, 'image' | 'video' | 'document'>
 };
 
 /**
- * Traduz o mapa posicional do Pipe para os componentes da Cloud API.
- *
- * `valores` é chaveado pela posição **de disparo** (com o deslocamento já aplicado),
- * que é como a campanha e o MCP recebem do cliente. Quem só tem os valores do corpo
- * usa `posicoesDoCorpo` para descobrir onde cada um vai.
+ * Translate Pipe's positional map into Cloud API components. `valores` is keyed by SEND position, with the offset already applied, as supplied to campaigns and MCP. Callers holding only body values use `posicoesDoCorpo` to find each send position.
  */
 export function assembleComponents(
   template: TemplateParaEnvio,
@@ -104,7 +89,7 @@ export function assembleComponents(
   return components;
 }
 
-/** Nome da variável do corpo por posição de disparo — o que a tela mostra ao operador. */
+
 export function positionsOfBody(template: TemplateParaEnvio): Map<number, string> {
   const mapa = new Map<number, string>();
   template.variables.forEach((nome, indice) => {

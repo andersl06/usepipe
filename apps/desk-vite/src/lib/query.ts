@@ -2,11 +2,7 @@ import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { api } from './api';
 
 /**
- * Uma leitura da `api` como estado de tela: carregando, erro, dado.
- *
- * É o TanStack Query da spec (`2026-09-07-arquitetura-de-front.md` §2) por
- * trás de um nome só. A chave é o caminho: duas telas que pedem a mesma coisa
- * dividem o cache, e invalidar é invalidar o caminho.
+ * Expose an `api` read as loading, error, and data screen state through TanStack Query, as specified in `2026-09-07-arquitetura-de-front.md` §2. The path is the cache key, so screens requesting the same path share data and invalidation targets that path.
  */
 export function useRead<T>(
   caminho: string | null,

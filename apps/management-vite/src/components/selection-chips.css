@@ -6,8 +6,9 @@
   src: url('/fonts/nunito-sans-latin.woff2') format('woff2');
 }
 
-/* Medidas conferidas no bundle bds-select-chips / bds-chip-clickable do ZIP
-   de referência. Seletores próprios evitam a interferência do input global. */
+/*
+ * Measurements checked against the `bds-select-chips` / `bds-chip-clickable` bundle from the reference ZIP. Own selectors avoid interference from the global input.
+ */
 .at-selecao-chips {
   position: relative;
   width: 100%;

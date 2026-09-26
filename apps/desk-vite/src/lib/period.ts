@@ -1,10 +1,5 @@
 /**
- * Os recortes da aba "Minhas métricas" — os cinco atalhos da referência mais
- * o intervalo à mão, limitado a 90 dias (`referencias-blip/pesquisa/blip-desk-analytics.md`
- * e a barra `.seg` de `~/desk-clone/clone/index.html#metrics`): "Hoje"
- * (padrão), "Ontem", "7 Dias", "30 dias", "90 dias", "Personalizado".
- *
- * Tudo é calculado no relógio de quem olha; a `api` só aplica o intervalo.
+ * `Minhas métricas` periods mirror the reference's five shortcuts plus a custom range capped at 90 days (`referencias-blip/pesquisa/blip-desk-analytics.md`, `.seg` in `~/desk-clone/clone/index.html#metrics`): `Hoje` (default), `Ontem`, `7 Dias`, `30 dias`, `90 dias`, `Personalizado`. Compute dates in the viewer's clock; the `api` only applies the resulting interval.
  */
 export type Atalho = 'hoje' | 'ontem' | '7-dias' | '30-dias' | '90-dias' | 'personalizado';
 
@@ -66,8 +61,7 @@ function diasAtras(dia: Date, n: number): Date {
 }
 
 /**
- * O intervalo à mão: começa no início do primeiro dia e termina no fim do
- * último; invertido, vira; maior que o teto, o início é puxado para caber.
+ * Custom range starts at the beginning of the first day and ends at the end of the last. Swap reversed dates; if longer than the cap, move the start forward to fit.
  */
 export function intervaloPersonalizado(de: Date, ate: Date): Intervalo {
   let inicio = inicioDoDia(de);
@@ -78,19 +72,19 @@ export function intervaloPersonalizado(de: Date, ate: Date): Intervalo {
   return { inicio, fim };
 }
 
-/** "dd/mm/aaaa" para a ficha "Desde …" do gráfico. */
+
 export function dataCurta(d: Date): string {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-/** "09/set" — o rótulo do eixo do gráfico diário. */
+
 export function diaCurto(iso: string): string {
   const d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
   const mes = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
   return `${String(d.getDate()).padStart(2, '0')}/${mes}`;
 }
 
-/** `00:00:00` para os tempos médios; `-` quando não há valor, como lá. */
+/** Format average durations as `00:00:00`, or `-` when no value exists, as in the reference. */
 export function timeMedio(segundos: number | null): string {
   if (segundos === null) return '-';
   const s = Math.max(0, Math.round(segundos));

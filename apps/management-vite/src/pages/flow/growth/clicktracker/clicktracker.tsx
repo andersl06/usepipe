@@ -1,15 +1,10 @@
 import { Illustration } from '@pipe/ui';
 import { IconePortal, LogoPortal } from '../../../../components/icones-portal';
 
-/* Painel do Click Tracker como o microfrontend `portal-fragment-click-tracker`
-   renderiza na rota `growth/clicktracker` (medido na cópia com a régua):
-   título fs-32 com dica, "Evento de conversão" + "Período analisado", papel do
-   evento com chip de edição e seletor De/Até, papel do token (faixa de status,
-   logo, "Token de acesso à Marketing API" / "Conectado", "Alterar token"),
-   separador, "Desempenho resumido de seus anúncios" com quatro indicadores e o
-   estado vazio "Nenhum dado encontrado". A tela "Eventos de otimização" é
-   outra rota da origem (`growth/conversation-settings/events`).
-   ponytail: nada aqui conecta conta externa nem dispara evento; é só visual. */
+/*
+ * The Click Tracker panel as the `portal-fragment-click-tracker` microfrontend renders it on the `growth/clicktracker` route (measured on the copy with a ruler): fs-32 title with a tooltip, "Evento de conversão" + "Período analisado", the event field with an edit chip and a From/To picker, the token field (status stripe, logo, "Token de acesso à Marketing API" / "Conectado", "Alterar token"), a divider, "Desempenho resumido de seus anúncios" with four indicators, and the empty state "Nenhum dado encontrado". The "Eventos de otimização" screen is another origin route (`growth/conversation-settings/events`).
+ * ponytail: nothing here connects an external account or fires an event; it's visual only.
+ */
 
 const INDICADORES = [
   { rotulo: 'Total de anúncios', valor: '0', rodape: null, alerta: false },

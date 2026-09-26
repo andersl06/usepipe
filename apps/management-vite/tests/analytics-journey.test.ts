@@ -3,10 +3,7 @@ import { test } from 'node:test';
 import { desenharSankey, sufixoDoRotulo } from '../src/pages/flow/analytics/journey/sankey.ts';
 
 /**
- * O rótulo dos nós da Jornada dos Contatos — `SankeyService.getLabelSufix` da
- * origem. Tem dois ramos (quem chegou / quem saiu) e um terceiro que devolve a
- * contagem crua; o do nó de partida é o que some numa refatoração, porque
- * ninguém chega nele.
+ * The Contact Journey nodes' label — the source's `SankeyService.getLabelSufix`. It has two branches (who arrived / who left) and a third that returns the raw count; the starting node's is the one that disappears in a refactor, because nobody arrives at it.
  */
 
 const arestas = [
@@ -26,8 +23,9 @@ test('nó de partida: quem saiu sobre todos da etapa seguinte', () => {
 });
 
 test('a negative step returns the next step\'s raw count', () => {
-  /* Ninguém chega no nó de partida, então `r` vira a soma da etapa `i + 1` —
-     a 0, que não tem aresta. É o que a origem mostra, e não uma porcentagem. */
+  /*
+   * Nobody reaches the starting node, so `r` becomes the sum of step `i + 1` — step 0, which has no edge. That's what the source shows, not a percentage.
+   */
   assert.equal(sufixoDoRotulo('Início [0]', -1, arestas), '0');
 });
 

@@ -2,17 +2,7 @@ import { createDatabase, comTenant } from '@pipe/db';
 import type { DatabasePipe, TransactionPipe } from '@pipe/db';
 
 /**
- * Dois pools, dois papéis.
- *
- * O papel da aplicação (`DATABASE_URL_APP`) é o único que toca dado de negócio, e
- * sempre dentro de `comTenant`. O papel dono (`DATABASE_URL`) serve para **uma** coisa
- * no worker: descobrir de qual tenant é cada linha de fila. `outbox_mensagem` e
- * `entrega_webhook` são varridos por todos os tenants ao mesmo tempo, e a política de
- * RLS — que é escrita sobre `pipe.tenant_id` — não tem como devolver linha antes de
- * haver tenant em vigor. É a mesma lacuna já registrada na migration `0001_rls`.
- *
- * A regra que sustenta o isolamento continua valendo: nada além do `select` de
- * reivindicação roda com o papel dono.
+ * Two pools and roles. Only the app role (`DATABASE_URL_APP`) accesses business data, always inside `comTenant`. The owner role (`DATABASE_URL`) has one worker use: identify the tenant of each queued row. `outbox_mensagem` and `entrega_webhook` span all tenants, and RLS on `pipe.tenant_id` cannot return rows before a tenant is set. Migration `0001_rls` records this exception. Isolation still requires that no query except the claim `select` uses the owner role.
  */
 
 const URL_APP =
@@ -33,10 +23,7 @@ export function databaseOwner(): DatabasePipe {
 }
 
 /**
- * Roda o trabalho com `pipe.tenant_id` fixado.
- *
- * Dentro do callback as consultas vão **em série**. `Promise.all` aqui derruba o
- * `set_config` da transação e a consulta passa a rodar sem tenant — ver o README.
+ * Run work with `pipe.tenant_id` set. Queries in the callback must run in series. `Promise.all` disrupts the transaction's `set_config` and can leave a query running without a tenant; see README.
  */
 export function noTenant<T>(tenantId: string, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> {
   return comTenant(databaseApp(), tenantId, fn);

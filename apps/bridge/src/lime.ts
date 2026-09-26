@@ -1,14 +1,5 @@
 /**
- * Os envelopes do protocolo LIME, do jeito que a tela da Blip espera receber.
- *
- * A cópia não fala REST: ela manda comandos `{ id, method, to, uri }` e lê
- * `{ status, type, resource }`. O `type` não é enfeite — a tela escolhe o
- * componente pelo content type (`application/vnd.iris.ticket+json` monta cartão de
- * atendimento; `application/vnd.lime.collection+json` monta lista). Responder com
- * o tipo errado faz a tela montar a coisa errada, ou nada.
- *
- * Os nomes e os valores aqui são os que o cliente lê; por isso ficam em inglês,
- * como no protocolo. O resto do arquivo é nosso e fica em português.
+ * LIME protocol envelopes as expected by the Blip screen. The copy does not use REST: it sends `{ id, method, to, uri }` commands and reads `{ status, type, resource }`. `type` determines the screen component: `application/vnd.iris.ticket+json` builds a ticket card and `application/vnd.lime.collection+json` builds a list. The wrong type displays the wrong component or nothing. Names and values here are protocol fields consumed by the client, so preserve their spelling.
  */
 
 export const TIPO_COLLECTION = 'application/vnd.lime.collection+json';
@@ -37,9 +28,7 @@ export function ok(recurso: unknown, tipo?: string): RespostaLime {
 }
 
 /**
- * Coleção no formato do protocolo. `total` é o total da CONSULTA, não da página:
- * a tela usa esse número no contador ("3 clientes aguardando"), e mandar o tamanho
- * da página faz o contador mentir assim que a lista passar de uma página.
+ * A protocol collection's `total` is the query total, not page size. The screen uses it for its counter ("3 clientes aguardando"); using page size becomes false after the first page.
  */
 export function collection(itens: unknown[], tipoItem?: string, total?: number): RespostaLime {
   return ok(
@@ -57,9 +46,7 @@ export function empty(tipoItem?: string): RespostaLime {
 }
 
 /**
- * Recurso ausente. O código 67 é o que a Blip devolve, e as telas tratam ele de
- * propósito: o Builder, por exemplo, lê 67 como "ainda não existe fluxo salvo" e
- * segue para o caminho de criar um. Trocar por 404 genérico quebraria esse desvio.
+ * Missing resource. Code 67 is Blip's response, and screens handle it intentionally: Builder treats 67 as "no saved flow yet" and creates one. A generic 404 would break that path.
  */
 export function ausente(): RespostaLime {
   return { status: 'failure', reason: { code: 67, description: 'The requested resource was not found' } };

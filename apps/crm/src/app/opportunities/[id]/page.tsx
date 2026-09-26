@@ -14,20 +14,20 @@ import { data, desde, money, numero } from '../../../lib/format';
 export const dynamic = 'force-dynamic';
 
 /**
- * A ficha da oportunidade, na mesma estrutura das outras três.
+ * The opportunity record, in the same structure as the other three.
  *
- * A oportunidade não tinha ficha: ela existia só como cartão no quadro, e o
- * cartão levava ao lead. Isso fazia a negociação não ter endereço próprio — não
- * dava para colar no chat "esta negociação", só "o lead desta negociação".
+ * The opportunity had no record: it only existed as a card on the board, and the
+ * card led to the lead. That meant the deal had no address of its own — you
+ * couldn't paste "this deal" into chat, only "this deal's lead".
  *
- * O conteúdo pesado é o que a negociação tem de próprio:
+ * The heavy content is what belongs to the deal itself:
  *
- * - **Histórico** é a linha do tempo do lead que a originou. `atividade` não
- *   tem coluna de oportunidade, e inventar uma agora seria construir a tela
- *   antes do dado — o histórico da negociação É o histórico daquele lead.
- * - **Na conta** são as outras oportunidades da mesma conta, que é a pergunta
- *   que aparece toda vez que alguém abre uma: "já estamos negociando outra
- *   coisa com eles?".
+ * - **History** is the timeline of the lead that originated it. `atividade` has no
+ *   opportunity column, and inventing one now would mean building the screen
+ *   before the data — the deal's history IS that lead's history.
+ * - **On the account** are the account's other opportunities, which is the
+ *   question that comes up every time someone opens one: "are we already
+ *   negotiating something else with them?".
  */
 
 const ABAS = [
@@ -96,10 +96,10 @@ function OpportunityDestaque({
       etiquetas={
         <>
           {/*
-            Duas etiquetas podem ter cor, e só duas: a perda, que é o estado
-            terminal ruim, e o fechamento vencido, que é o que alguém resolve
-            hoje. Fase é categoria, e categoria é neutra.
-          */}
+ * Two badges can have color, and only two: the loss, which is the bad terminal
+ * state, and an overdue close date, which is what someone needs to act on today.
+ * Stage is a category, and categories are neutral.
+ */}
           {ficha.fechadaEm ? (
             ficha.ganha ? (
               <Etiqueta>Ganha</Etiqueta>
@@ -201,10 +201,10 @@ export default async function PageOpportunity({
           </div>
 
           {/*
-            O fechamento em seção própria: previsto, realizado e motivo da perda
-            são a mesma conversa, e é a conversa que decide se a negociação
-            continua no funil.
-          */}
+ * Closing gets its own section: expected date, actual date, and loss reason are
+ * the same conversation, and it's that conversation that decides whether the deal
+ * stays in the funnel.
+ */}
           <div className="tblwrap">
             <Section titulo="Fechamento">
               <div className="campos">

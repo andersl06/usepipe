@@ -3,19 +3,9 @@ import type { Mapa } from './model';
 import { lerDesenho } from './model';
 
 /**
- * "Exportar fluxo" / "Importar fluxo" do editor da Blip — não é botão solto
- * na pílula, é a aba "Versões" do painel "Configuração" (`portal.js`,
- * `BuilderConfigurationVersionsView.html`: `$ctrl.exportFlow()` baixa
- * `{flow, globalActions}` como `.json`; `$ctrl.importFlow()` lê um `.json`
- * igual, valida e troca o rascunho, com um aviso de confirmação antes).
+ * "Exportar fluxo" / "Importar fluxo" from the Blip editor — not a standalone button on the pill, it's the "Versões" tab of the "Configuração" panel (`portal.js`, `BuilderConfigurationVersionsView.html`: `$ctrl.exportFlow()` downloads `{flow, globalActions}` as `.json`; `$ctrl.importFlow()` reads a matching `.json`, validates it and swaps the draft, with a confirmation warning first).
  *
- * O formato batido é o mesmo dos dois lados: `DesenhoDoBuilder` (`{fluxo,
- * globais}`) É `{flow, globalActions}` com os nomes traduzidos — por isso dá
- * pra exportar daqui e reabrir no editor da Blip, e vice-versa. A validação
- * de arquivo reaproveita `ehExportDoEditor` de `@pipe/core` (o mesmo guard
- * que o motor usa pra saber se um JSON é um export do editor) e o próprio
- * `lerDesenho` (a mesma leitura do carregamento normal, então um bloco sem
- * posição também ganha lugar na grade).
+ * The format matches on both sides: `DesenhoDoBuilder` (`{fluxo, globais}`) IS `{flow, globalActions}` with translated names — which is why you can export from here and reopen it in the Blip editor, and vice versa. File validation reuses `ehExportDoEditor` from `@pipe/core` (the same guard the engine uses to know whether a JSON is an editor export) and `lerDesenho` itself (the same read used for normal loading, so a block without a position also gets a spot on the grid).
  */
 
 export const MESSAGES_OF_IMPORT = {
@@ -35,7 +25,7 @@ export function exportText(mapa: Mapa, global: Record<string, unknown>): string 
   return JSON.stringify({ flow, globalActions: global }, null, 2);
 }
 
-/** `${shortName}.json` — sem caracteres que quebrem o nome do arquivo. */
+/** `${shortName}.json` — without characters that would break the file name. */
 export function nameOfFileOfExport(flowName: string): string {
   const seguro = flowName
     .trim()
@@ -46,10 +36,7 @@ export function nameOfFileOfExport(flowName: string): string {
 }
 
 /**
- * Lê e valida o `.json` importado; devolve o mapa e as ações globais prontos
- * pro chamador aplicar. Não é `despachar({tipo:'carregar'})` — isso marcaria
- * sujo:false e o fluxo importado nunca seria salvo (ver `builder.tsx`, que usa
- * `aplicar`/`aplicarGlobais`, os mesmos gestos de qualquer edição).
+ * Reads and validates the imported `.json`; returns the map and global actions ready for the caller to apply. It isn't `despachar({tipo:'carregar'})` — that would mark sujo:false and the imported flow would never be saved (see `builder.tsx`, which uses `aplicar`/`aplicarGlobais`, the same gestures as any edit).
  */
 export function validateImport(texto: string): ImportResult {
   let json: unknown;

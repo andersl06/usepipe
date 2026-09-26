@@ -1,15 +1,5 @@
 /**
- * Validação de mídia antes de chamar a Meta.
- *
- * Fonte: `referencias-blip/pesquisa/regras-blip.md` §1.6 (política de upload de mídia da Blip).
- * A pesquisa marca a lista de formatos com ⚠️ — ela já mudou uma vez — então isto é
- * o **padrão documentado**, não uma constante fechada: `validarMidia` aceita uma
- * política por parâmetro, e o dia em que a lista virar configuração por tenant é só
- * ler a linha do banco e passar aqui.
- *
- * Tamanho: a Blip documenta 100 MB para documento e 16 MB para vídeo e áudio. Para
- * imagem **não há número documentado**, e a regra do levantamento é não estimar —
- * então imagem passa sem teto de tamanho, com o formato ainda sendo verificado.
+ * Validate media before calling Meta. Source: `referencias-blip/pesquisa/regras-blip.md` §1.6, Blip's media-upload policy. Research marks the format list ⚠️ because it changed before. It is a documented DEFAULT, not a fixed invariant: `validarMidia` accepts a policy parameter, so a future per-tenant list can be read from the database. Blip documents 100 MB for documents and 16 MB for video and audio. There is NO documented image size; do not guess one. Images have no size ceiling here, but their format is still validated.
  */
 
 export type TypeMedia = 'imagem' | 'audio' | 'video' | 'documento';
@@ -98,7 +88,7 @@ export interface FailsMedia {
   texto: string;
 }
 
-/** `null` quando a mídia passa. Nunca lança: quem chama grava a falha na mensagem. */
+/** Return `null` for accepted media. Never throw: the caller records failure on the message. */
 export function validateMedia(
   media: Media,
   politica: PolicyMedia = POLICY_MEDIA_DEFAULT,

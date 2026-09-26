@@ -1,20 +1,7 @@
 import { useState } from 'react';
 
 /**
- * O botão de copiar do cartão de resumo — o ícone com tooltip "Copiar" que fica
- * ao lado do endereço e do ID na tela deles.
- *
- * É o ÚNICO pedaço de cliente desta rota; o resto do painel é Server Component.
- * A área de transferência só existe no navegador.
- *
- * Aqui ele é PALAVRA e não ícone: não há desenho de "copiar" nem em
- * `icones-portal.tsx` nem no `@pipe/ui`, e um ícone emprestado de outro
- * significado (um visto, um prédio) diria a coisa errada. A palavra é a mesma
- * do tooltip deles.
- *
- * Quando `navigator.clipboard` não existe (http sem TLS, navegador antigo) o
- * clique não faz nada — e por isso o valor ao lado é texto de verdade,
- * selecionável, e não um atributo escondido.
+ * The copy button on the summary card — the icon with a "Copiar" tooltip that sits next to the address and the ID on their screen. It's the ONLY client piece on this route; the rest of the panel is a Server Component. The clipboard only exists in the browser. Here it's a WORD, not an icon: there's no "copy" icon in either `icones-portal.tsx` or `@pipe/ui`, and borrowing an icon with a different meaning (a checkmark, a building) would say the wrong thing. The word matches their tooltip. When `navigator.clipboard` doesn't exist (HTTP without TLS, an old browser) the click does nothing — which is why the value next to it is real, selectable text, not a hidden attribute.
  */
 export function BotaoCopiar({ value, oQue }: { value: string; oQue: string }) {
   const [copiado, setCopiado] = useState(false);

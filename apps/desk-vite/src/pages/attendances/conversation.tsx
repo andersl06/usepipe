@@ -18,16 +18,7 @@ import { Composer } from './composer';
 import { CardClosureTicket, avisarTicketFinalizado } from '@pipe/ui';
 
 /**
- * O painel da conversa — `.pane-chat` da referência
- * (`~/desk-clone/capturas/parciais/header-conversa.html`, `thread.html`,
- * `composer.html`): cabeçalho com rosto, nome e "Ticket: · Bot: · Fila:", as
- * ações (ligação, pesquisar, transferir, Finalizar, ⋮) e o botão que abre e
- * fecha o painel do contato; a faixa de etiquetas; a busca na conversa; a
- * thread; o compositor.
- *
- * Transferir e Finalizar abrem os modais de lá (`transfer-modal-content`,
- * `close-modal-container`) e chamam `POST /v1/conversas/:id/transferir` e
- * `/encerrar`; a espera vai em `/espera` pelo menu ⋮ ("Modo de Espera").
+ * Reference conversation panel `.pane-chat` (`~/desk-clone/capturas/parciais/header-conversa.html`, `thread.html`, `composer.html`): header with avatar, name, ticket/bot/queue, call/search/transfer/finish/menu controls and contact-panel toggle; then tags, conversation search, thread, and composer. Transfer and Finish use source modals `transfer-modal-content` and `close-modal-container`, calling `POST /v1/conversas/:id/transferir` and `/encerrar`; menu `Modo de Espera` calls `/espera`.
  */
 export function Conversation({
   aberta,
@@ -57,8 +48,7 @@ export function Conversation({
   const numero = numeroDoTicket(conversation.id);
 
   /**
-   * Tirar uma etiqueta da conversa ABERTA — `DELETE /v1/conversas/:id/etiquetas/:etiquetaId`.
-   * Não encerra nada: é o gesto `ADD_TAGS` da origem, que é separado do `CLOSE_TICKET`.
+   * Remove a tag from the open conversation through `DELETE /v1/conversas/:id/etiquetas/:etiquetaId`. This does not close the ticket: source `ADD_TAGS` is separate from `CLOSE_TICKET`.
    */
   async function removerEtiqueta(etiquetaId: string) {
     setError(null);
@@ -128,7 +118,7 @@ export function Conversation({
             </div>
           </div>
           <div className="dk-conversa-acoes">
-            {/* ponytail: "Ligação Ativa" depende do MFE de chamadas; o botão fica onde a referência o põe. */}
+            {/* Ponytail: `Ligação Ativa` depends on the calling MFE; keep the button where the reference places it. */}
             <button
               type="button"
               className="dk-botao dk-botao-fantasma"
@@ -386,11 +376,7 @@ export function Conversation({
 }
 
 /**
- * "Adicionar tags" da conversa ABERTA — o `ModalType.ADD_TAGS` da origem, que
- * é separado do `CLOSE_TICKET` (`blip-desk-regras-tecnicas.md` §1.8): marca e
- * desmarca sem encerrar. Cada clique já grava (`POST`/`DELETE
- * /v1/conversas/:id/etiquetas`), e a etiqueta marcada aqui aparece pré-marcada
- * no modal de Finalizar, porque as duas moram na mesma `conversa_etiqueta`.
+ * `Adicionar tags` on the open conversation mirrors source `ModalType.ADD_TAGS`, separate from `CLOSE_TICKET` (`blip-desk-regras-tecnicas.md` §1.8). Toggle tags without closing: each click persists through `POST`/`DELETE /v1/conversas/:id/etiquetas`. Tags selected here are preselected in Finish because both use `conversa_etiqueta`.
  */
 function ModalEtiquetas({
   conversationId,
@@ -467,10 +453,7 @@ function ModalEtiquetas({
 }
 
 /**
- * "Transferir atendimento do Ticket #N" (`transfer-modal-content.html`):
- * dois rádios, Fila e Atendente, e um seletor; "Cancelar" / "Transferir
- * ticket". A regra de lá (e a nossa, `packages/core/src/conversa/maquina.ts`):
- * a transferência encerra este ticket e abre outro.
+ * `Transferir atendimento do Ticket #N` (`transfer-modal-content.html`) offers Queue and Agent radio choices, a selector, and `Cancelar` / `Transferir ticket`. As in the reference and `packages/core/src/conversa/maquina.ts`, transfer closes this ticket and opens another.
  */
 function ModalTransferir({
   conversationId,
@@ -596,9 +579,7 @@ function ModalTransferir({
 }
 
 /**
- * "Finalizar atendimento do Ticket #N" (`close-modal-container.js`): as
- * frases de confirmação, o campo "Adicionar tags" e "Cancelar" / "Finalizar
- * ticket". A etiqueta é obrigatória na `api` (`POST /encerrar`).
+ * `Finalizar atendimento do Ticket #N` (`close-modal-container.js`) includes confirmation text, `Adicionar tags`, and `Cancelar` / `Finalizar ticket`. The `api` requires a tag for `POST /encerrar`.
  */
 function ModalFinalizar({
   conversationId,
@@ -656,18 +637,14 @@ function ModalFinalizar({
   );
 }
 
-/** As filas do tenant, para o seletor de transferência (`GET /v1/desk/filas`). */
+
 function useQueues(): { id: string; nome: string }[] {
   const read = useRead<{ queues: { id: string; nome: string }[] }>('/v1/desk/queues');
   return read.data?.queues ?? [];
 }
 
 /**
- * "Exportar ticket" — sem backend novo: a thread inteira já está carregada na
- * tela (`itens`), então a transcrição sai de um `.txt` montado aqui e baixado
- * pelo navegador. É a versão simples do "baixar transcrição" da referência
- * (`blip-desk-funcoes.md` §7) — sem e-mail assíncrono para o recorte de 90
- * dias a 5 anos, que é conversa de gestor, não do atendente numa tela.
+ * `Exportar ticket` needs no new backend: all thread `itens` are already loaded, so build a `.txt` transcript and download it in the browser. This is the simple version of reference transcript download (`blip-desk-funcoes.md` §7), without asynchronous email for a 90-day-to-5-year manager report outside this agent screen.
  */
 function exportarTranscription(numero: string, nome: string, itens: ItemOfConversation[]): void {
   const linhas = itens.map((item) => {

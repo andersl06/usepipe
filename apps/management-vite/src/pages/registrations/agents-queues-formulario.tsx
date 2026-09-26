@@ -5,42 +5,33 @@ import { salvarQueue } from '../../lib/actions';
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
- * O modal "Criar nova fila" — a FORMA é a da origem, e ela é mínima
- * (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.2, extraída do
- * `bds-modal` que `queue-management.html` traz no DOM com `open="false"`):
+ * The "Criar nova fila" modal — the FORM matches the source, and it's minimal (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.2, extracted from the `bds-modal` that `queue-management.html` carries in the DOM with `open="false"`):
  *
- *   título  "Criar nova fila"
- *   texto   "Dê um nome para essa fila de atendimento"
- *   campo   placeholder "Nome da fila"
- *   ajuda   "Use apenas letras, números, hifens (-) e sublinhados (_)"
- *   botões  "Cancelar"  "Salvar"  (o segundo desabilitado até haver nome)
+ *   title    "Criar nova fila"
+ *   text     "Dê um nome para essa fila de atendimento"
+ *   field    placeholder "Nome da fila"
+ *   hint     "Use apenas letras, números, hifens (-) e sublinhados (_)"
+ *   buttons  "Cancelar"  "Salvar"  (the second disabled until there's a name)
  *
- * **Um campo só, e os outros quatro foram para a página de edição.** Este
- * formulário tinha cor, capacidade padrão, ordem, horário e "ativa" na mesma
- * caixa — cinco campos que a origem não pede aqui. Eles não sumiram: moram em
- * "Dados da fila", na página `atendentes/filas/:id/editar`, que é onde a
- * origem também põe o que é configuração da fila. O que continua indo junto na
- * criação são os PADRÕES (capacidade 5, ordem 0, ativa), em campo escondido,
- * porque `criarFila` cobra `capacidadePadrao` entre 1 e 200 e uma fila nasce
- * ligada.
+ * **Only one field, and the other four went to the edit page.** This form used to have color, default capacity, order, schedule, and "ativa" in the same box — five fields the source doesn't ask for here. They didn't disappear: they live in "Dados da fila", on the `atendentes/filas/:id/editar` page, which is also where the source puts queue configuration. What still travels along at creation are the DEFAULTS (capacity 5, order 0, active), in a hidden field, because `criarFila` requires `capacidadePadrao` between 1 and 200 and a queue is born active.
  *
- * A ajuda sobre caracteres é literal da origem. Nós não recusamos nome com
- * acento (`nomeDeFilaConferido` só exige não-vazio), então ela é orientação e
- * não promessa de validação — está dita assim de propósito.
+ * The character hint is literal from the source. We don't reject names with accents (`nomeDeFilaConferido` only requires non-empty), so it's guidance, not a promise of validation — stated that way on purpose.
  */
 export function FormularioQueue({
   aoSalvar,
 }: {
-  /** Fecha o modal quando o salvamento dá certo. */
+  /** Closes the modal when the save succeeds. */
   aoSalvar?: () => void;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
-  /* Controlado só para o "Salvar" nascer desabilitado, como o `save-button`
-     da origem — não para guardar o valor, que o `FormData` já leva. */
+  /*
+   * Controlled only so "Salvar" starts disabled, like the source's `save-button` — not to hold the value, which `FormData` already carries.
+   */
   const [nome, setNome] = useState('');
   const [resultado, enviar, enviando] = useActionState(salvarQueue, { ok: true });
-  /* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`: o
-     valor inicial do `useActionState` não é uma confirmação de envio. */
+  /*
+   * See the equivalent comment in `regras-atendimento-formulario.tsx`: `useActionState`'s initial value isn't a submission confirmation.
+   */
   const stateInitial = useRef(resultado);
 
   useEffect(() => {
@@ -68,8 +59,9 @@ export function FormularioQueue({
       </label>
       <p className="note">Use apenas letras, números, hifens (-) e sublinhados (_)</p>
 
-      {/* Os padrões da fila nova. Editáveis em "Dados da fila", na página de
-          edição — aqui só existem porque `criarFila` cobra a capacidade. */}
+      {/*
+ * The new queue's defaults. Editable in "Dados da fila", on the edit page — they only exist here because `criarFila` requires the capacity.
+ */}
       <input type="hidden" name="capacidadePadrao" value={5} />
       <input type="hidden" name="ordem" value={0} />
       <input type="hidden" name="ativa" value="on" />

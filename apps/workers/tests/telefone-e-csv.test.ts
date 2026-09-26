@@ -4,9 +4,7 @@ import { CsvMalformado, escreverCsv, lerCsv } from '../src/csv.js';
 import { keyOfColumn } from '../src/import-of-contacts.js';
 
 /**
- * O normalizador de telefone (porte do Chatwoot) e o leitor de CSV, sem banco.
- * Os casos do Brasil vêm de `brazil_phone_normalizer_spec.rb` e de
- * `phone_number_normalization_service_spec.rb`.
+ * Test Chatwoot-ported phone normalization and CSV reading without a database. Brazilian cases come from `brazil_phone_normalizer_spec.rb` and `phone_number_normalization_service_spec.rb`.
  */
 
 describe('nono dígito do Brasil (brazil_phone_normalizer)', () => {

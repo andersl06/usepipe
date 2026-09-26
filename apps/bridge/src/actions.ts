@@ -6,29 +6,22 @@ import { noTenant } from './database.js';
 import type { Session } from './rotas.js';
 
 /**
- * O que o atendente FAZ na tela: assumir, responder, transferir e encerrar.
- *
- * Nada aqui reimplementa regra. Cada ação chama a função de domínio que a `apps/api`
- * já usa, com a mesma máquina de estados, os mesmos eventos e os mesmos limites. A
- * ponte só traduz o vocabulário da tela para o do Pipe.
- *
- * **Assumir é transferir para si.** Parece atalho, mas é o contrário: assumir tem as
- * mesmas regras de transferência (estado válido, fila, capacidade), e escrever um
- * caminho próprio seria duplicar a máquina de estados só para economizar uma linha.
+ * Screen actions include claiming, replying, transferring, and closing. Each calls the domain function already used by `apps/api`, with the same state machine, events, and limits. The bridge only translates screen vocabulary into Pipe's. Claiming is a transfer to oneself in terms of rules: valid state, queue, and capacity. A separate path would duplicate the state machine just to save one line.
  */
 
-/** O ator de uma ação vinda da tela: o atendente logado, agindo por si. */
+/** The actor for a screen action is the signed-in agent acting on their own behalf. */
 function ator(session: Session, exigirAssignment: boolean) {
   return { tenantId: session.tenantId, atendenteId: session.userId, exigirAssignment };
 }
 
 export async function assumir(session: Session, conversationId: string): Promise<void> {
-  /* Assumir NÃO é transferir para si: transferência encerra a conversa e abre outra
-     (é o modelo da plataforma de origem). Ver `dominio/assumir.ts`. */
+  /*
+   * Claiming is NOT transferring to oneself: a transfer closes this conversation and opens another, following the source platform's model. See `dominio/assumir.ts`.
+   */
   await assumeConversation({ tenantId: session.tenantId, agentId: session.userId }, conversationId);
 }
 
-/** Pega o próximo da fila: o mais antigo entre as filas de quem está pedindo. */
+/** Claim the oldest conversation among the requester's queues. */
 export async function assumirProximo(session: Session): Promise<string | null> {
   const id = await noTenant(session.tenantId, async (tx) => {
     const { rows } = await tx.execute<{ id: string }>(sql`
@@ -48,9 +41,7 @@ export async function assumirProximo(session: Session): Promise<string | null> {
 }
 
 /**
- * A tela manda a mensagem para uma IDENTIDADE (`5531988887777@wa.gw.msging.net`),
- * não para uma conversa — é assim que o protocolo dela funciona. Aqui a identidade
- * vira conversa: a aberta daquele telefone.
+ * The screen sends a message to an IDENTITY (`5531988887777@wa.gw.msging.net`), not a conversation; that is how its protocol works. Resolve this identity to the open conversation for that phone number.
  */
 export async function identityConversation(
   session: Session,
@@ -81,8 +72,9 @@ export async function responder(
     atendenteId: session.userId,
     texto,
   });
-  /* `dentroDaJanela` sobe junto porque fora da janela de 24h a Meta só entrega
-     template: a tela precisa saber disso para avisar quem escreveu. */
+  /*
+   * Return `dentroDaJanela` too: outside the 24-hour window Meta delivers only templates, and the screen must warn the sender.
+   */
   return { messageId: enfileirada.id, windowDentro: enfileirada.insideOfWindow };
 }
 
@@ -102,13 +94,7 @@ export async function transferirForQueue(
 }
 
 /**
- * Encerrar exige etiqueta — conversa fechada sem motivo é relatório que não explica
- * nada depois, e a regra já valia na tela de origem.
- *
- * A tela manda os nomes das etiquetas escolhidas. Se vier vazia, usamos a primeira
- * do cliente; se o cliente ainda não tem nenhuma, criamos "Encerrado pelo atendente"
- * — nascer sem etiqueta é comum em empresa nova, e travar o encerramento por isso
- * seria pior do que registrar um motivo genérico.
+ * Closing requires a tag: a closed conversation without a reason makes later reports meaningless, and the source screen already enforced this. The screen sends selected tag names. Use the first supplied tag if it exists; otherwise use the client's first conversation tag. If the client has none, create the supplied name or "Encerrado pelo atendente" when no name was supplied. New companies commonly have no tags, and blocking closure would be worse than recording a generic reason.
  */
 export async function encerrar(
   session: Session,

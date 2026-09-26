@@ -6,21 +6,7 @@ import { FundoPipe } from '../fundo-pipe';
 import './boas-vindas.css';
 
 /**
- * A tela de boas-vindas: a conta acabou de nascer no login, e esta tela é o
- * aviso disso.
- *
- * A disposição é a da plataforma de origem, lida no template dela
- * (`#welcome-screen`): marca no alto à esquerda, texto centrado na altura numa
- * coluna de 40%, botão alinhado à direita com seta, e a arte ocupando os 55% da
- * direita — que some abaixo de 1286px.
- *
- * É portão de uma vez só, como lá: quem já concluiu o onboarding não volta para
- * cá nem digitando o endereço. Sem isso a tela vira um anúncio permanente de uma
- * coisa que já aconteceu.
- *
- * Nada para preencher aqui, também como lá. O formulário é o passo seguinte, e
- * juntar os dois faria a primeira tela de quem acabou de entrar ser um
- * formulário de oito campos.
+ * Welcome screen announces that the account was just created at login. Reference `#welcome-screen` places brand upper-left, centered text in a 40% column, right-aligned arrow button, and artwork in the right 55%, hidden below 1286px. Like the reference, this is a one-time gate: completed onboarding cannot revisit it even by URL. Keep forms on the next step so first entry is not an eight-field form.
  */
 export function PageWelcome() {
   const read = useRead<AccountInVigor>('/v1/account');
@@ -31,9 +17,9 @@ export function PageWelcome() {
 
   return (
     <main className="bv">
-      {/* O feixe cobre a JANELA INTEIRA, e não uma coluna: na origem a coluna da
-          direita é uma ilustração, e a nossa arte é o fundo. Recortá-lo numa
-          caixa deixava metade da tela em branco. */}
+      {/*
+ * Let the beam cover the whole window rather than one column: the reference right column is an illustration, while our artwork is the background; boxing it left half the screen blank.
+ */}
       <div className="bv-fundo" aria-hidden>
         <FundoPipe />
       </div>
@@ -65,7 +51,7 @@ export function PageWelcome() {
   );
 }
 
-/** A seta do botão deles (`arrow="true"`), no nosso traço. */
+/** Use our stroke for the reference button arrow (`arrow="true"`). */
 function Seta() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden focusable="false">

@@ -1,6 +1,6 @@
 import { Link } from '../components/link';
 
-/** O 404 do aplicativo: o Next tinha o dele por padrão; aqui é uma tela nossa, curta. */
+/** The app's 404: Next had its own by default; here it's our own short screen. */
 export function NaoEncontrado() {
   return (
     <main className="pt-conteudo fx-miolo">

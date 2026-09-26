@@ -19,10 +19,9 @@ function ouNulo(value: string): string | null {
   return limpo === '' ? null : limpo;
 }
 
-/* Cartão `.user-info-card` do template `details-container`: cabeçalho
-   "Informações" + lápis (`notes`), linhas rótulo 30% / valor 70% (`mt4`),
-   ID do contato com dica, e "Extras" (`mt5`) com as chaves do JSON.
-   `PATCH /v1/contatos/:id` — `gravar.ts`. */
+/*
+ * `.user-info-card` card from the `details-container` template: "Informações" header + pencil (`notes`), label 30% / value 70% rows (`mt4`), contact ID with a tooltip, and "Extras" (`mt5`) with the JSON keys. `PATCH /v1/contatos/:id` — `gravar.ts`.
+ */
 export function InformationContact(props: Properties) {
   const [editando, setEditando] = useState(false);
   const [aviso, setAviso] = useState('');
@@ -107,8 +106,8 @@ export function InformationContact(props: Properties) {
           </div>
           <form id="ct-formulario-edicao" onSubmit={(evento) => void salvar(evento)}>
             {editando ? (
-              // ponytail: sem coluna própria para "usuário de teste" no schema do
-              // contato; a caixa fica visual, como já estava, até existir onde gravar.
+              // ponytail: no dedicated column for "test user" in the
+              // contact schema; the checkbox stays visual, as before, until there's somewhere to store it.
               <label className="ct-caixa-teste">
                 <input type="checkbox" />
                 <span>Usuário de teste</span>

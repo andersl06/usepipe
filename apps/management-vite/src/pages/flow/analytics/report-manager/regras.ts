@@ -1,6 +1,6 @@
 export const INTERVALOS_RAPIDOS = [7, 30, 60, 90] as const;
 
-/** Mesma conta do Data Extractor (`differenceInDays`), com no máximo 90 dias. */
+/** Same calculation as the Data Extractor (`differenceInDays`), capped at 90 days. */
 export function periodDias(inicio: string, fim: string): number | null {
   const a = Date.parse(`${inicio}T00:00:00Z`);
   const b = Date.parse(`${fim}T00:00:00Z`);

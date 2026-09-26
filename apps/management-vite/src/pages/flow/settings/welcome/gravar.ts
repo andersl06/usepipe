@@ -4,8 +4,7 @@ import { motivoDe } from '../basic/gravar';
 import type { ConfigurationOfWelcome } from '@pipe/contracts';
 
 /**
- * `GET/PATCH /v1/gestao/fluxos/:id/boas-vindas`. A regra mora na `api`
- * (`dominio/gestao/configuracao-do-fluxo.ts`); aqui só a recusa vira texto.
+ * `GET/PATCH /v1/gestao/fluxos/:id/boas-vindas`. The rule lives in the `api` (`dominio/gestao/configuracao-do-fluxo.ts`); here only the rejection becomes text.
  */
 
 export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string };

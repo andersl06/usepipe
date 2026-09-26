@@ -6,28 +6,7 @@ import { excluirMembers, reenviarInvitation, switchRole } from '../actions';
 import type { ResultadoDoReenvio } from '../actions';
 
 /**
- * A tabela de Membros do contrato, na mecânica da origem.
- *
- * O componente `TenantMembers` deles (`main.e8593b01.chunk.js`, o minificado
- * `$t`) é uma tabela de SELEÇÃO: nada acontece linha a linha. Marca-se um ou
- * vários, e aí aparecem no canto do cabeçalho os dois menus que agem sobre o
- * bloco inteiro — trocar o papel e excluir. Cada medida está comentada em
- * `contrato.css`; aqui ficam só as regras.
- *
- * As quatro que mudam o comportamento, todas copiadas:
- *
- * 1. **Você não aparece na sua própria lista** (`e.userIdentity !== o.identity`
- *    no filtro deles). Quem quiser sair usa "Deixar contrato", não esta tela.
- * 2. **A coluna de marcar só existe para quem pode escrever** (`canSelect:
- *    canEdit`), e com ela somem os dois menus — quem só lê vê a lista e nada mais.
- * 3. **Os menus só aparecem com alguém marcado** (`selectedItems.length > 0`).
- * 4. **"Aplicar" fica travado até um papel ser escolhido** (`disabled: undefined
- *    === selectedRole`).
- *
- * Isto é cliente porque a origem é: marcar, ordenar e buscar são estado de tela,
- * e sem JavaScript não haveria como mostrar "3 selecionado(s)". As ESCRITAS
- * continuam sendo Server Actions que conferem a permissão de novo no servidor
- * (`../acoes.ts`) — a tela esconder o menu é desenho, não é controle de acesso.
+ * The contract Members table, following the source's mechanics. Their `TenantMembers` component (`main.e8593b01.chunk.js`, minified as `$t`) is a SELECTION table: nothing happens row by row. You select one or several, and then two menus appear in the header corner that act on the whole block — change the role and delete. Every measurement is commented in `contrato.css`; here only the rules remain. The four that change behavior, all copied: 1. **You don't appear in your own list** (their filter, `e.userIdentity !== o.identity`). Anyone who wants to leave uses "Deixar contrato", not this screen. 2. **The selection column only exists for those who can write** (`canSelect: canEdit`), and with it both menus disappear — read-only users see just the list and nothing else. 3. **The menus only appear once something is selected** (`selectedItems.length > 0`). 4. **"Aplicar" stays disabled until a role is chosen** (`disabled: undefined === selectedRole`). This is client-side because the source is: selecting, sorting and searching are screen state, and without JavaScript there'd be no way to show "3 selecionado(s)". The WRITES remain Server Actions that re-check the permission on the server (`../acoes.ts`) — the screen hiding the menu is a design choice, not access control.
  */
 
 export interface MemberLinha {
@@ -35,14 +14,14 @@ export interface MemberLinha {
   tipo: 'usuario' | 'convite';
   nome: string;
   email: string;
-  /** O rótulo do papel de conta — "Admin", "Pode editar", "Pode visualizar". */
+  /** The account role label — "Admin", "Pode editar", "Pode visualizar". */
   role: string;
 }
 
-/** Um dos três papéis de conta, já com o que a tela mostra dele. */
+/** One of the three account roles, already with what the screen shows for it. */
 export interface RoleOption {
   id: string;
-  /** `admin`, `member` ou `guest` — o nome no banco, que é o que a API casa. */
+  /** `admin`, `member` or `guest` — the DB name, which is what the API matches. */
   roleId: string;
   rotulo: string;
   description: string;
@@ -50,7 +29,7 @@ export interface RoleOption {
   classe: string;
 }
 
-/** Os textos da tela, em pt-BR, como no dicionário `Wt.pt` da origem. */
+/** The screen's texts, in pt-BR, like the source's `Wt.pt` dictionary. */
 const TEXTO = {
   nome: 'Nome',
   email: 'Email',
@@ -63,8 +42,9 @@ const TEXTO = {
   excluir: 'Excluir',
   mensagemDeExclusao: 'Tem certeza que deseja excluir esse(s) membro(s)?',
   pendente: 'Pendente',
-  /* `j.pt.emptyMessage` da tabela genérica e `aa.pt.emptyMessage` da aba de
-     pendentes; as abas são o `ca.pt`. */
+  /*
+   * `j.pt.emptyMessage` from the generic table and `aa.pt.emptyMessage` from the pending tab; the tabs are `ca.pt`.
+   */
   semDados: 'Não há dados',
   semPendentes: 'Não há solicitações pendentes',
   abaMembros: 'Membros do contrato',
@@ -82,14 +62,15 @@ const COLUNAS: { campo: Campo; rotulo: string }[] = [
 
 function value(linha: MemberLinha, campo: Campo): string {
   if (campo === 'nome') {
-    /* `"".concat(fullName, " (", pendingInvitation, ")")` — o convidado que
-       ainda não entrou carrega o estado no próprio nome, e por isso ele também
-       entra na busca e na ordenação. */
+    /*
+     * `"".concat(fullName, " (", pendingInvitation, ")")` — an invitee who hasn't joined yet carries that state in their own name, which is why they're also included in search and sorting.
+     */
     return linha.tipo === 'convite' ? `${linha.nome} (${TEXTO.pendente})` : linha.nome;
   }
   if (campo === 'email') return linha.email;
-  /* `roleId: content[roleId]` — a célula mostra o RÓTULO do papel ("Admin",
-     "Pode editar", "Pode visualizar"), nunca o `roleId` cru. */
+  /*
+   * `roleId: content[roleId]` — the cell shows the role's LABEL ("Admin", "Pode editar", "Pode visualizar"), never the raw `roleId`.
+   */
   return linha.role;
 }
 
@@ -108,8 +89,9 @@ export function MembersTabela({
   const [marcados, definirMarcados] = useState<readonly string[]>([]);
   const [menu, abrirMenu] = useState<'papel' | 'excluir' | null>(null);
   const [roleEscolhido, escolherRole] = useState<RoleOption | null>(null);
-  /* O resultado de "Reenviar" (`../acoes.ts`): sem entrega de e-mail no Pipe, o
-     link novo só existe aqui, e sai da tela ao fechar — nunca vai para a URL. */
+  /*
+   * The "Reenviar" result (`../acoes.ts`): with no email delivery in Pipe, the new link only exists here, and leaves the screen on close — it never goes into the URL.
+   */
   const [reenviando, definirReenviando] = useState<string | null>(null);
   const [reenvio, definirReenvio] = useState<(ResultadoDoReenvio & { id: string }) | null>(null);
 
@@ -152,8 +134,9 @@ export function MembersTabela({
 
   return (
     <div className="mb-membros">
-      {/* `BlipSearch`: a lupa é um botão, e o campo nasce com largura zero e
-          cresce para 200px ao ganhar o foco. Fecha ao perder. */}
+      {/*
+ * `BlipSearch`: the magnifying glass is a button, and the field starts at zero width and grows to 200px on focus. Closes on blur.
+ */}
       <div className={`mb-busca${searchAberta || search ? ' mb-busca--aberta' : ''}`}>
         <button type="button" onClick={() => abrirSearch(true)} aria-label="Buscar membro">
           <IconeSearch tamanho={20} />
@@ -197,17 +180,15 @@ export function MembersTabela({
                   }
                 >
                   {column.rotulo}
-                  {/* Falta na nossa folha o `arrow-up` da origem. Este é o
-                      `arrow-down` DELA virado — mesmo traço, outro sentido —,
-                      e não um desenho novo. */}
+                  {/*
+ * Our icon set is missing their `arrow-up`. This is THEIR `arrow-down` flipped — same stroke, opposite direction —, not a new icon.
+ */}
                   <IconePortal
                     nome="baixo"
                     tamanho={16}
-                    className={`mb-seta${order?.campo === column.campo ? ' mb-seta--firme' : ''}${
-                      order?.campo === column.campo && order.sentido === 'asc'
-                        ? ' mb-seta--sobe'
-                        : ''
-                    }`}
+                    className={`mb-seta${order?.campo === column.campo ? ' mb-seta--firme' : ''}${order?.campo === column.campo && order.sentido === 'asc'
+                                            ? ' mb-seta--sobe'
+                                            : ''}`}
                   />
                 </button>
               </th>
@@ -254,8 +235,9 @@ export function MembersTabela({
                       escolhido={roleEscolhido}
                       escolher={escolherRole}
                     />
-                    {/* A descrição do papel escolhido, como na origem: ela vive
-                        AQUI, embaixo do seletor, e não numa legenda no pé. */}
+                    {/*
+ * The description of the chosen role, as in the source: it lives HERE, below the selector, not in a caption at the bottom.
+ */}
                     <p className="mb-descricao">{roleEscolhido?.description ?? ''}</p>
                   </Menu>
 
@@ -313,17 +295,18 @@ export function MembersTabela({
                   </td>
                 ) : null}
                 {COLUNAS.map((column) => (
-                  /* `title={n[a.key]}`: a célula não quebra e corta com
-                     reticências, então o valor inteiro fica no atributo. */
+                  /*
+                   * `title={n[a.key]}`: the cell doesn't wrap and truncates with an ellipsis, so the full value goes in the attribute.
+                   */
                   <td key={column.campo} title={value(linha, column.campo)}>
                     <span>{value(linha, column.campo)}</span>
                   </td>
                 ))}
                 {podeEscrever ? (
                   <td className="mb-col-acoes">
-                    {/* Só o convite pendente reenvia: o usuário já entrou, não há
-                        o que reenviar para ele. Não é bulk — cada convite tem o
-                        próprio e-mail e o próprio link novo. */}
+                    {/*
+ * Only a pending invite can be resent: the user already joined, so there's nothing to resend for them. It's not bulk — each invite has its own email and its own new link.
+ */}
                     {linha.tipo === 'convite' ? (
                       <button
                         type="button"
@@ -348,10 +331,7 @@ export function MembersTabela({
 }
 
 /**
- * O que "Reenviar" mostra: o mesmo painel de link único do convite recém-criado
- * (`convidar.tsx`), porque é a mesma falta — sem entrega de e-mail, alguém
- * precisa copiar o link à mão. Falha vem da API (`ResultadoDoReenvio.erro`),
- * como convite já vencido por outra aba enquanto esta ainda mostrava a linha.
+ * What "Reenviar" shows: the same single-link panel as a freshly created invite (`convidar.tsx`), because it's the same gap — with no email delivery, someone has to copy the link by hand. Failures come from the API (`ResultadoDoReenvio.erro`), like an invite already expired by another tab while this one still showed the row.
  */
 function InvitationReenvio({
   resultado,
@@ -407,8 +387,7 @@ function InvitationReenvio({
 }
 
 /**
- * O `Checkbox` da tabela deles: o `input` fica escondido e quem aparece é a
- * caixinha com o "✓". Aqui o `input` continua no foco e no leitor de tela.
+ * Their table `Checkbox`: the `input` is hidden and what shows is a small box with a "✓". Here the `input` stays in focus and in the screen reader.
  */
 function Marca({
   marcado,
@@ -428,11 +407,7 @@ function Marca({
 }
 
 /**
- * O `BlipSelect` do menu Editar: rótulo "Papel" dentro da borda, vazio "Escolha
- * o papel", e a lista abaixo do campo com o nome de cada papel. É parente da
- * lista de Permissão do convite (mesmo teclado: ↑↓, Enter, Esc), mas o desenho
- * é outro — lá é o `bds-select` novo, com ícone e descrição por opção —, por
- * isso são dois componentes. O valor vai no `papelId` escondido.
+ * The Edit menu's `BlipSelect`: label "Papel" inside the border, empty state "Escolha o papel", and the list below the field with each role's name. It's a sibling of the invite's Permission list (same keyboard: ↑↓, Enter, Esc), but the design differs — that one is the new `bds-select`, with an icon and description per option —, so they're two separate components. The value goes into the hidden `papelId`.
  */
 function RoleEscolha({
   papeis,
@@ -541,15 +516,13 @@ function RoleEscolha({
   );
 }
 
-/** A chave da linha: o `userIdentity` deles, que aqui precisa dizer de qual tabela veio. */
+/** The row key: their `userIdentity`, which here needs to say which table it came from. */
 function key(linha: { tipo: string; id: string }): string {
   return `${linha.tipo}:${linha.id}`;
 }
 
 /**
- * O `BlipDropdownButton`: um botão, uma capa que fecha ao clique e um cartão
- * com o conteúdo em cima, uma régua, e o rodapé em `flex-row-reverse` — por
- * isso o "Cancelar" é escrito depois do "Aplicar" e aparece à esquerda dele.
+ * The `BlipDropdownButton`: a button, a backdrop that closes on click, and a card with the content on top, a divider, and the footer in `flex-row-reverse` — which is why "Cancelar" is written after "Aplicar" and appears to its left.
  */
 function Menu({
   aberto,
@@ -565,7 +538,7 @@ function Menu({
   aberto: boolean;
   alternar: () => void;
   rotulo: string;
-  /** Na origem o gatilho é só o ícone (`edit`/`trash`, cor `desk`); a palavra vira o nome acessível. */
+  /** In the source the trigger is icon-only (`edit`/`trash`, `desk` color); here the word becomes the accessible name. */
   icone: NomeDeIconePortal;
   acao: (data: FormData) => void;
   aoEnviar: () => void;
@@ -613,10 +586,7 @@ function LinhaVazia({ colunas, texto }: { colunas: number; texto: string }) {
 }
 
 /**
- * O `#tab-nav` deles: "Membros do contrato" e "Pendentes", as duas para quem
- * lê membros. Pendentes é de quem PEDIU para entrar (`PendingTenant`) — porta
- * que o Pipe não tem —, então abre sempre no vazio da origem, sem o badge de
- * contagem, que lá só aparece com alguém na fila.
+ * Their `#tab-nav`: "Membros do contrato" and "Pendentes", both for anyone who can read members. Pendentes is for whoever REQUESTED to join (`PendingTenant`) — a door Pipe doesn't have —, so it always opens empty, matching the source, without the count badge, which there only appears once someone is in the queue.
  */
 export function MembersAbas({
   podeEscrever,
@@ -667,8 +637,9 @@ export function MembersAbas({
         className="mb-aba-conteudo"
         hidden={aba !== 'pendentes'}
       >
-        {/* `TenantPendingMembers`: a mesma tabela, sem busca, com Nome e Email;
-            sem linha, nem a marcação do cabeçalho aparece. */}
+        {/*
+ * `TenantPendingMembers`: the same table, without search, with Nome and Email; no row, not even the header checkbox appears.
+ */}
         <div className="mb-membros">
           <table className="mb-tabela">
             <thead>

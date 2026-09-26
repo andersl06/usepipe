@@ -58,9 +58,7 @@ const STATES_OF_AGENT = [
 ] as const;
 
 /**
- * O ícone "Atualizar tela" do cabeçalho da página — `bds-button icon="refresh"
- * variant="secondary"` com o glifo de 24 (`dom/monitoring.html`). Invalida a
- * leitura da `api` e a tela refaz a consulta.
+ * The page header's "Atualizar tela" icon — `bds-button icon="refresh" variant="secondary"` with the 24 glyph (`dom/monitoring.html`). Invalidates the `api` read and the screen redoes the query.
  */
 function BotaoAtualizar() {
   const queue = useQueryClient();
@@ -78,10 +76,7 @@ function BotaoAtualizar() {
 }
 
 /**
- * O cartão de métrica deles: `bds-paper pa4 bg-surface-1` com o título
- * `fs-14 semi-bold` e NADA MAIS no topo — os ícones de atualizar/expandir
- * moram só no cabeçalho da página (nenhum `bds-button` dentro dos quatro
- * `bds-paper` em `dom/monitoring.html`; a ficha dizia o contrário, o DOM não).
+ * Their metric card: `bds-paper pa4 bg-surface-1` with an `fs-14 semi-bold` title and NOTHING ELSE at the top — the refresh/expand icons live only in the page header (no `bds-button` inside any of the four `bds-paper` in `dom/monitoring.html`; the reference doc said otherwise, the DOM didn't).
  */
 function CardMetric({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
@@ -95,10 +90,7 @@ function CardMetric({ titulo, children }: { titulo: string; children: ReactNode 
 }
 
 /**
- * Recarrega a leitura a cada 30 segundos, em silêncio. Não é um controle da
- * tela deles — é o ponto de extensão do realtime, registrado desde a entrega
- * anterior — então não ganha ícone nem texto próprio: só mantém o painel
- * fresco enquanto o supervisor olha.
+ * Silently reloads the read every 30 seconds. It isn't a control from their screen — it's the realtime extension point, in place since the previous delivery — so it gets no icon or text of its own: it just keeps the panel fresh while the supervisor is looking.
  */
 function useRecargaSilenciosa(segundos: number) {
   const queue = useQueryClient();
@@ -112,8 +104,7 @@ function useRecargaSilenciosa(segundos: number) {
 }
 
 /**
- * "Expandir tela": o segundo ícone do cabeçalho, ao lado de "Atualizar tela"
- * (`bds-button icon="screen-full"`, `data-testid="fullscreen-change-to-enable"`).
+ * "Expandir tela": the header's second icon, next to "Atualizar tela" (`bds-button icon="screen-full"`, `data-testid="fullscreen-change-to-enable"`).
  */
 function ButtonExpandirPage({
   cheia,
@@ -265,28 +256,13 @@ function MonitoringCarregando() {
 }
 
 /**
- * Monitoramento — a mesma disposição da tela deles, lida em
- * `referencias-blip/portal/dom/monitoring.html` (e confirmada na captura real,
- * `desk/desk-monitoria__pagina.html`): cabeçalho com "Atualizar tela" e
- * "Expandir tela", DUAS faixas "Filtros rápidos:" (a de cima só com "Filas";
- * a de baixo com "Atendentes", "Contato" e "Status do atendente"), grade de
- * cartões 62%/38% em duas linhas, e o cartão "Monitoramento detalhado" com
- * busca, abas, tabela e paginação.
+ * Monitoring — the same layout as their screen, read from `referencias-blip/portal/dom/monitoring.html` (and confirmed against the real capture, `desk/desk-monitoria__pagina.html`): header with "Atualizar tela" and "Expandir tela", TWO "Filtros rápidos:" strips (the top one with only "Filas"; the bottom one with "Atendentes", "Contato" and "Status do atendente"), a 62%/38% card grid across two rows, and the "Monitoramento detalhado" card with search, tabs, table and pagination.
  *
- * Cada cartão é título 14/600 e uma fila de colunas centradas: número 24/400,
- * rótulo 12/400 com o ícone de informação ao lado. "Atendimentos em tempo
- * real" divide as colunas em dois grupos, `w-30` (a fila) e `w-70` (o
- * atendimento), com o fio vertical entre eles. Os TEXTOS dos rótulos e das
- * dicas são os deles, literais.
+ * Each card is a 14/600 title and a row of centered columns: number 24/400, label 12/400 with the info icon beside it. "Atendimentos em tempo real" splits its columns into two groups, `w-30` (the queue) and `w-70` (the attendance), with a vertical rule between them. The label and tooltip TEXTS are theirs, literal.
  *
- * O que NÃO copiamos é a tinta. Eles pintam de azul os dois números que dizem
- * como está a operação agora; nós pintamos os mesmos dois de moss. "Perdidos"
- * e "Abandonados" saem na tinta de erro, como o `color-delete` deles.
+ * What we did NOT copy is the color. They paint the two numbers that describe the operation right now in blue; we paint the same two in moss. "Perdidos" and "Abandonados" come out in the error color, like their `color-delete`.
  *
- * A fórmula de cada número (spec de métricas) e a população ("entre 6 na
- * fila") continuam existindo — dentro do balão do ícone de informação. Na
- * tela deles o cartão não tem terceira linha sob o rótulo, e a régua desta
- * rodada é a forma deles; a informação nossa não some, muda de lugar.
+ * Each number's formula (metrics spec) and its population ("entre 6 na fila") still exist — inside the info icon's tooltip. On their screen the card has no third line under the label, and this round's ruler is their shape; our information doesn't disappear, it just moves.
  */
 export function PageMonitoring() {
   const { contact } = useContact();
@@ -310,8 +286,9 @@ export function PageMonitoring() {
   }, [filtrosKey, queueAgent]);
 
   const crus = Object.fromEntries(search.entries()) as Search;
-  /* O que veio da URL, já conferido: id que não é UUID vira "sem filtro" em vez
-     de virar 500 no `::uuid` do Postgres. */
+  /*
+   * Value from the URL, already checked: an id that isn't a UUID becomes "no filter" instead of a 500 from Postgres's `::uuid` cast.
+   */
   const params: Search = {
     ...crus,
     queue: filterIds(queueAgent.queue).join(','),
@@ -373,8 +350,9 @@ export function PageMonitoring() {
         </div>
       </div>
 
-      {/* A faixa "Filtros rápidos:", com o próprio botão "Filtros" no fim —
-          é ali que ele mora nesta tela, não no cabeçalho. */}
+      {/*
+ * The "Filtros rápidos:" strip, with its own "Filtros" button at the end — that's where it lives on this screen, not in the header.
+ */}
       <SOperationFilter
         atual={params}
         toAbrirPanel={() => abrirPanel('fila')}

@@ -1,15 +1,12 @@
-/* ============================== Growth › Log (`/growth/messages/log`)
+/*
+ * ============================== Growth › Log (`/growth/messages/log`)
+ *
+ *    Structure from portal.js's module 4842 and portal.css's `.message-history*` rules, measured in the copy's DOM (1280 window). The header is the `<page-header>` (`cabecalho-de-pagina.css`, from Integrations). Color by `fluxo.css`'s map: #f6f6f6 paper → `--p-superficie-0`; #282828 → `--p-conteudo`; #595959 → `--p-conteudo-desabilitado`; primary (Id, magnifier) → `--p-marca-forte`; #fde99b (warning chip) → `--p-alerta-fundo`; the `elevation="primary"` shadow (`0 6px 16px -4px rgba(0,0,0,.16)`) → `--p-sombra-2`. The font is Pipe's.
+ */
 
-   Estrutura do módulo 4842 de portal.js e regras `.message-history*` de
-   portal.css, medidas no DOM da cópia (janela 1280). O cabeçalho é o
-   `<page-header>` (`cabecalho-de-pagina.css`, de Integrações). Tinta pelo mapa
-   de `fluxo.css`: #f6f6f6 papel → `--p-superficie-0`; #282828 → `--p-conteudo`;
-   #595959 → `--p-conteudo-desabilitado`; primária (Id, lupa) → `--p-marca-forte`;
-   #fde99b (chip de aviso) → `--p-alerta-fundo`; a sombra `elevation="primary"`
-   (`0 6px 16px -4px rgba(0,0,0,.16)`) → `--p-sombra-2`. Fonte é a do Pipe. */
-
-/* `.message-history-header custom-content { gap: 20px }` — `custom-content`
-   é `display: flex; justify-content: flex-end` com `items-center`. */
+/*
+ * `.message-history-header custom-content { gap: 20px }` — `custom-content` is `display: flex; justify-content: flex-end` with `items-center`.
+ */
 .lg-custom {
   display: flex;
   flex: 1;
@@ -35,8 +32,9 @@
   align-items: stretch;
 }
 
-/* `bds-input.u-full-width` sem rótulo: 54 de altura, `padding: 8px 4px 8px 12px`,
-   borda de 1px, raio 8, texto 14 com altura de linha 22 em 36 de altura. */
+/*
+ * `bds-input.u-full-width` with no label: 54 tall, `padding: 8px 4px 8px 12px`, 1px border, radius 8, 14px text with 22 line height at 36 height.
+ */
 .lg-campo {
   display: flex;
   flex: 1;
@@ -72,9 +70,9 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* `bds-button-icon icon="search" size="short"` (primária): 40 de altura,
-   `padding: 8px`, raio 8, `margin-left: 8px`; o `button { min-width: 8.125rem }`
-   global do portal dá os 130 de largura. */
+/*
+ * `bds-button-icon icon="search" size="short"` (primary): 40 tall, `padding: 8px`, radius 8, `margin-left: 8px`; the portal's global `button { min-width: 8.125rem }` gives the 130 width.
+ */
 .lg-busca-botao {
   display: flex;
   flex: none;
@@ -96,9 +94,9 @@
   background: var(--p-marca);
 }
 
-/* Filtro por período/direção/tipo (item 4 da tarefa) — a origem só tinha a
-   busca por texto acima; estes campos entram no MESMO `<form method="get">`
-   para não perder o que já estava filtrado ao trocar um campo por vez. */
+/*
+ * Filter by period/direction/type (task item 4) — the source only had the text search above; these fields go into the SAME `<form method="get">` so switching one field at a time doesn't lose what was already filtered.
+ */
 .lg-filtros {
   display: flex;
   flex-wrap: wrap;
@@ -126,7 +124,7 @@
   font: inherit;
 }
 
-/* "Carregar mais": paginação por cursor no lugar do `take: 30` fixo da origem. */
+/* "Carregar mais": cursor-based pagination instead of the source's fixed `take: 30`. */
 .lg-mais {
   display: flex;
   justify-content: center;
@@ -148,15 +146,16 @@
   cursor: default;
 }
 
-/* `<div class="container relative message-history">` — começa logo abaixo
-   dos 15px de margem do cabeçalho. */
+/*
+ * `<div class="container relative message-history">` — starts right below the header's 15px margin.
+ */
 .lg-historico {
   position: relative;
 }
 
-/* `bds-chip-tag color="warning" icon="warning"`: 24 de altura, `padding: 0 4px`,
-   raio 12, ícone `x-small` (16) e texto `fs-12` negrito com altura de linha 18
-   (`no-wrap`); o host leva `margin-bottom: 20px`. */
+/*
+ * `bds-chip-tag color="warning" icon="warning"`: 24px tall, `padding: 0 4px`, radius 12, `x-small` icon (16) and bold `fs-12` text with 18 line height (`no-wrap`); the host gets `margin-bottom: 20px`.
+ */
 .lg-chip {
   display: inline-flex;
   align-items: center;
@@ -194,11 +193,9 @@
   margin: 3px 0 9px;
 }
 
-/* `bds-paper elevation="primary" style="padding:16px" class="mb4"`: raio 16,
-   `margin-bottom: 1.25rem`. Dentro, `bds-typo tag="p" variant="fs-12"` (12px,
-   altura de linha 18, sem margem), `strong` 12 negrito, `pre` 12px
-   monoespaçada com `white-space: pre-wrap; word-wrap: break-word;
-   margin-bottom: 0`. O `a` do Id é a primária, sem sublinhado. */
+/*
+ * `bds-paper elevation="primary" style="padding:16px" class="mb4"`: radius 16, `margin-bottom: 1.25rem`. Inside, `bds-typo tag="p" variant="fs-12"` (12px, 18 line height, no margin), bold 12px `strong`, 12px monospace `pre` with `white-space: pre-wrap; word-wrap: break-word; margin-bottom: 0`. The Id's `a` is the primary color, no underline.
+ */
 .lg-papel {
   display: block;
   box-sizing: border-box;
@@ -234,9 +231,9 @@
   cursor: pointer;
 }
 
-/* `.message-history .no-logs-found { margin-bottom: .75rem }` e `.no-logs-found
-   bds-typo { color: var(--color-content-disable) }`; o `h4` de `fs-16` tem
-   altura de linha 24 e a descrição `fs-14` tem 21. */
+/*
+ * `.message-history .no-logs-found { margin-bottom: .75rem }` and `.no-logs-found bds-typo { color: var(--color-content-disable) }`; the `fs-16` `h4` has 24 line height and the `fs-14` description has 21.
+ */
 .lg-vazio {
   margin-bottom: 12px;
 }

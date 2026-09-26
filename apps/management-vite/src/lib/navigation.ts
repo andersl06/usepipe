@@ -2,14 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, type NavigateFunction } from 'react-router-dom';
 
 /**
- * Navegação fora de componente — o `redirect()` das Server Actions, agora no
- * navegador.
- *
- * As ações de formulário são funções de módulo (para o `useActionState` e o
- * `<form action>` continuarem como estavam), e função de módulo não tem hook.
- * O `App` registra o `navigate` do roteador uma vez, e `irPara` usa o último
- * registrado. Antes do registro (ou fora do roteador) cai no `location`, que
- * chega ao mesmo lugar recarregando a página.
+ * Module-level navigation replaces former Server Action `redirect()` in the browser. Form actions remain module functions for `useActionState` and `<form action>`, so they cannot use a hook. `App` registers router `navigate` once; `irPara` uses the latest registration, falling back to `location` outside the router or before registration, with a page reload.
  */
 let navegar: NavigateFunction | null = null;
 
@@ -19,7 +12,7 @@ export function irPara(url: string, options: { substituir?: boolean } = {}): voi
   else window.location.assign(url);
 }
 
-/** Põe o `navigate` do roteador à disposição de `irPara`. Uma vez, no `App`. */
+
 export function useRegistrarNavigation(): void {
   const navigate = useNavigate();
   useEffect(() => {

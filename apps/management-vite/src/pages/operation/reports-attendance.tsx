@@ -27,14 +27,12 @@ interface Search {
   ate?: string;
   queue?: string;
   agent?: string;
-  /** Aba do detalhamento por Atendentes/Filas/Tags — só client-side, não vai à API. */
+  /** Breakdown tab for Atendentes/Filas/Tags — client-side only, never sent to the API. */
   aba?: string;
 }
 
 /**
- * As três abas deles sobre a mesma tabela — `bds-tab-item label="Atendentes|
- * Filas|Tags"` em `desk-relatorio-atendimento__pagina.html`. A aba mora na
- * querystring, como todo filtro desta tela.
+ * Their three tabs over the same table — `bds-tab-item label="Atendentes|Filas|Tags"` in `desk-relatorio-atendimento__pagina.html`. The tab lives in the querystring, like every filter on this screen.
  */
 const ABAS_BREAKDOWN = [
   { chave: 'atendentes', rotulo: 'Atendentes', eixo: 'Atendente' },
@@ -48,15 +46,9 @@ function abaValida(v: string | undefined): AbaBreakdown {
 }
 
 /**
- * As colunas da tabela deles, na ordem e no texto exato (`bds-table-th` de
- * `desk-relatorio-atendimento__pagina.html`): o eixo, "Tickets finalizados",
- * "Tempo médio da 1ª resposta", "Tempo médio de espera", "Tempo médio de
- * resposta", "Tempo médio de atendimento", "Atingimento SLA".
+ * Their table columns, in order and exact text (`bds-table-th` from `desk-relatorio-atendimento__pagina.html`): the axis, "Tickets finalizados", "Tempo médio da 1ª resposta", "Tempo médio de espera", "Tempo médio de resposta", "Tempo médio de atendimento", "Atingimento SLA".
  *
- * "Atingimento SLA" ainda não tem consulta nossa — fica com travessão em vez
- * de sumir. As médias carregam a contagem descartada no `title` da célula
- * (a régua de métricas exige o denominador; a tela deles não o mostra, então
- * ele vai para onde não muda a forma).
+ * "Atingimento SLA" doesn't have our query yet — it gets an em dash instead of disappearing. The averages carry the discarded count in the cell's `title` (the metrics ruler requires the denominator; their screen doesn't show it, so it goes where it doesn't change the shape).
  */
 const COLUNAS = [
   'Tickets finalizados',
@@ -79,14 +71,14 @@ function linhaEmCelulas(l: LinhaDeQuebra): string[] {
   ];
 }
 
-/** O `bds-button-icon icon="download"` de cada aba: baixa a tabela visível em CSV. */
+/** Each tab's `bds-button-icon icon="download"`: downloads the visible table as CSV. */
 function baixarCsv(nome: string, eixo: string, linhas: LinhaDeQuebra[]) {
   const escapar = (v: string) => `"${v.replace(/"/g, '""')}"`;
   const corpo = [[eixo, ...COLUNAS], ...linhas.map(linhaEmCelulas)]
     .map((l) => l.map(escapar).join(';'))
     .join('\n');
-  // BOM por código de caractere, não literal na fonte: o Excel só reconhece UTF-8
-  // num CSV com o BOM na frente, e o caractere colado direto é "espaço irregular"
+  // BOM by character code, not literal in the source: Excel only recognizes UTF-8
+  // in a CSV with the BOM up front, and a directly pasted character is "irregular whitespace"
   // para o eslint (`no-irregular-whitespace`).
   const bom = String.fromCharCode(0xfeff);
   const url = URL.createObjectURL(new Blob([bom + corpo], { type: 'text/csv;charset=utf-8' }));
@@ -152,30 +144,20 @@ function TabelaDeQuebra({ eixo, linhas }: { eixo: string; linhas: LinhaDeQuebra[
 }
 
 /**
- * Relatório de atendimento — a tela deles, bloco a bloco, lida em
- * `referencias-blip/desk/desk-relatorio-atendimento__pagina.html`:
+ * Attendance report — their screen, block by block, read from `referencias-blip/desk/desk-relatorio-atendimento__pagina.html`:
  *
- * 1. cabeçalho "Relatório de atendimento" com "Gerenciador de Relatórios" à
- *    direita (`bds-button variant="secondary" arrow`);
- * 2. faixa "Filtros rápidos:" com "Atendentes" e "Filas", e à direita o
- *    período em botão fantasma ("Últimos 7 dias") e "Filtros";
- * 3. cartão "Indicadores de SLA" (título 20/700 + ícone de informação);
- * 4. linha com "Tempo máximo" (2 métricas) e "Status dos tickets" (5);
- * 5. cartão "Tempo médio" (5 métricas);
- * 6. cartão "Tickets Abertos x Fechados" (gráfico);
- * 7. cartão com as abas Atendentes/Filas/Tags sobre a mesma tabela, cada uma
- *    com o botão de baixar, e a nota sobre os filtros;
- * 8. cartão "Disponibilidade de atendentes".
+ * 1. "Relatório de atendimento" header with "Gerenciador de Relatórios" on the right (`bds-button variant="secondary" arrow`);
+ * 2. "Filtros rápidos:" strip with "Atendentes" and "Filas", and on the right the period as a ghost button ("Últimos 7 dias") and "Filtros";
+ * 3. "Indicadores de SLA" card (20/700 title + info icon);
+ * 4. row with "Tempo máximo" (2 metrics) and "Status dos tickets" (5);
+ * 5. "Tempo médio" card (5 metrics);
+ * 6. "Tickets Abertos x Fechados" card (chart);
+ * 7. card with the Atendentes/Filas/Tags tabs over the same table, each with a download button, and the note about the filters;
+ * 8. "Disponibilidade de atendentes" card.
  *
- * Os cartões de métrica são os MESMOS do Monitoramento (`bds-paper pa4` com
- * título 14/600 e colunas 24/400 sobre 12/400) — não o bloco-com-cartões da
- * Satisfação. Todo rótulo, título e dica é o texto deles, literal.
+ * The metric cards are the SAME ones from Monitoramento (`bds-paper pa4` with a 14/600 title and 24/400 columns over 12/400) — not the card-within-a-block from Satisfação. Every label, title and tooltip is their text, literal.
  *
- * Onde a nossa consulta não tem o dado — pico do período, SLA agregado,
- * "Abertos", o gráfico e a disponibilidade — o lugar fica com o vazio
- * honesto ("—" ou "Dados insuficientes"), nunca com número inventado. A
- * fórmula da spec de métricas e a contagem descartada continuam no balão do
- * ícone de informação e no `title` da célula.
+ * Wherever our query doesn't have the data — period peak, aggregated SLA, "Abertos", the chart and availability — the spot gets the honest empty state ("—" or "Dados insuficientes"), never a made-up number. The metrics-spec formula and the discarded count still live in the info icon's tooltip and in the cell's `title`.
  */
 export function PageAttendance() {
   const { contact } = useContact();
@@ -183,8 +165,9 @@ export function PageAttendance() {
   const manager = `${contactBase(contact.tipo, contact.id)}/analise/gerenciador-de-relatorios`;
   const [search] = useSearchParams();
   const crus = Object.fromEntries(search.entries()) as Search;
-  /* Conferido na entrada: id torto e data torta viram "sem filtro". Sem isso,
-     um link colado com `?fila=abc` derruba o relatório inteiro em 500. */
+  /*
+   * Checked on the way in: a malformed id or malformed date becomes "no filter". Without this, a pasted link with `?fila=abc` would take down the whole report with a 500.
+   */
   const params: Search = {
     queue: uuidOuNada(crus.queue),
     agent: uuidOuNada(crus.agent),
@@ -297,10 +280,10 @@ export function PageAttendance() {
         </PanelField>
       </PanelFilters>
 
-      {/* ------------------------------------------------------------ bloco 1
-          "Indicadores de SLA": gráfico de área deles. SLA agregado por
-          período ainda não tem consulta própria aqui — o vazio é o texto
-          literal do vazio deles. */}
+      {/*
+ * ------------------------------------------------------------ block 1
+ * "Indicadores de SLA": their area chart. Aggregated SLA per period doesn't have its own query here yet — the empty state is their literal empty-state text.
+ */}
       <section className="card">
         <h3 className="grande">
           Indicadores de SLA
@@ -315,10 +298,10 @@ export function PageAttendance() {
         </div>
       </section>
 
-      {/* ------------------------------------------------------------ bloco 2
-          "Tempo máximo" e "Status dos tickets", lado a lado. Hoje só
-          calculamos MÉDIA; o PICO do período é consulta que falta, e
-          "Abertos" (tickets abertos no período) também. */}
+      {/*
+ * ------------------------------------------------------------ block 2
+ * "Tempo máximo" and "Status dos tickets", side by side. Today we only compute the AVERAGE; the period's PEAK is a missing query, and so is "Abertos" (tickets opened in the period).
+ */}
       <div className="rel-linha">
         <section className="card estreito">
           <div className="card-cabecalho">
@@ -380,9 +363,10 @@ export function PageAttendance() {
         </section>
       </div>
 
-      {/* ------------------------------------------------------------ bloco 3
-          "Tempo médio" — as cinco métricas, com o texto exato do cartão
-          deles em cada rótulo. */}
+      {/*
+ * ------------------------------------------------------------ block 3
+ * "Tempo médio" — the five metrics, with their card's exact text in each label.
+ */}
       <section className="card">
         <div className="card-cabecalho">
           <h3>Tempo médio</h3>
@@ -424,9 +408,10 @@ export function PageAttendance() {
         </div>
       </section>
 
-      {/* ------------------------------------------------------------ bloco 4
-          "Tickets Abertos x Fechados": a série diária deles. Sem consulta
-          por dia aqui — o lugar fica, vazio. */}
+      {/*
+ * ------------------------------------------------------------ block 4
+ * "Tickets Abertos x Fechados": their daily series. No per-day query here — the slot stays, empty.
+ */}
       <section className="card">
         <div className="card-cabecalho">
           <h3>
@@ -443,10 +428,10 @@ export function PageAttendance() {
         </div>
       </section>
 
-      {/* ------------------------------------------------------------ bloco 5
-          As três abas deles sobre a MESMA tabela, cada uma com o botão de
-          baixar encostado à direita (`bds-button-icon icon="download"
-          class="ml-a"`). */}
+      {/*
+ * ------------------------------------------------------------ block 5
+ * Their three tabs over the SAME table, each with a download button flush to the right (`bds-button-icon icon="download" class="ml-a"`).
+ */}
       <section className="tblwrap">
         <div className="rel-aba-cabecalho">
           <div className="tabs" role="tablist">
@@ -472,10 +457,10 @@ export function PageAttendance() {
         </p>
       </section>
 
-      {/* ------------------------------------------------------------ bloco 6
-          "Disponibilidade de atendentes" (Atendente, Online, Em pausa,
-          Invisível, Tempo total). É tempo em status por período — consulta
-          que ainda não existe aqui; a tabela fica com o vazio. */}
+      {/*
+ * ------------------------------------------------------------ block 6
+ * "Disponibilidade de atendentes" (Atendente, Online, Em pausa, Invisível, Tempo total). It's time-in-status per period — a query that doesn't exist here yet; the table stays empty.
+ */}
       <section className="tblwrap">
         <div className="rel-aba-cabecalho">
           <div className="card-cabecalho" style={{ marginBottom: 0, flex: 1 }}>

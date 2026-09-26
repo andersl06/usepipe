@@ -4,12 +4,9 @@ import { contactBase, useContact } from '../contact';
 import { IconePortal, type NomeDeIconePortal } from '../../../components/icones-portal';
 
 /**
- * A lateral de Configurações — `<bds-grid padding="2"><bds-nav-tree-group
- * collapse="single">` com um `<bds-nav-tree icon text secondary-text>` por
- * item (portal.js, template do estado `auth.application.detail.configurations`).
+ * The Settings sidebar — `<bds-grid padding="2"><bds-nav-tree-group collapse="single">` with one `<bds-nav-tree icon text secondary-text>` per item (portal.js, template for the `auth.application.detail.configurations` state).
  *
- * Os cinco itens, na ordem e com o texto do pacote pt-BR
- * (`modules.application.detail.configs.*` e `.persistentMenu.*`):
+ * The five items, in order and with the pt-BR package text (`modules.application.detail.configs.*` and `.persistentMenu.*`):
  *
  *   settings-general     configs.basic / basicSubtitle
  *   robot-2              configs.welcome.title / subtitle
@@ -17,8 +14,7 @@ import { IconePortal, type NomeDeIconePortal } from '../../../components/icones-
  *   plugin               configs.apiKey / apiKeySubtitle      → /apikey
  *   sso                  configs.keys.title / subtitle        → /keys
  *
- * O sexto (`xml`, "Mime Types permitidos") só aparece com
- * `isMimeTypeManagementEnable`, que a régua não tem ligado — não entra.
+ * The sixth (`xml`, "Mime Types permitidos") only appears with `isMimeTypeManagementEnable`, which the ruler doesn't have turned on — it doesn't show up.
  */
 const ITENS: {
   icone: NomeDeIconePortal;
@@ -60,7 +56,7 @@ const ITENS: {
 
 export function NavigationSettings({ id }: { id: string }) {
   const caminho = useLocation().pathname;
-  /* O prefixo sai do tipo do contato: roteador e fluxo têm árvores separadas. */
+  /* The prefix comes from the contact's type: router and flow have separate trees. */
   const base = contactBase(useContact().contact.tipo, id);
   return (
     <aside className="cf-lateral">

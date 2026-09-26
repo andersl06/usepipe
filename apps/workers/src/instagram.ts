@@ -1,15 +1,7 @@
 import { WhatsAppError } from './whatsapp/cliente.js';
 
 /**
- * Saída pelo Instagram (Direct). Reconstruído de chatwoot/chatwoot (MIT),
- * app/services/instagram/send_on_instagram_service.rb (`POST /{ig-user-id}/messages`
- * no `graph.instagram.com`, corpo `{recipient:{id}, message:{text}|{attachment}}`).
- *
- * A falha usa o `ErroWhatsApp` de propósito: é a classe que a entrega entende
- * (`permanente` decide entre repetir e desistir), não um erro "do WhatsApp".
- *
- * Mesma escolha do cliente do WhatsApp: `PIPE_WHATSAPP_CLIENTE=real` fala com a Meta,
- * qualquer outro valor usa o dublê.
+ * Instagram Direct outbound adapter, reconstructed from chatwoot/chatwoot (MIT), `app/services/instagram/send_on_instagram_service.rb`: `POST /{ig-user-id}/messages` on `graph.instagram.com` with `{recipient:{id}, message:{text}|{attachment}}`. Failures intentionally use `ErroWhatsApp`, the delivery class whose `permanente` flag decides retry versus stopping; it is not a WhatsApp-only error. As with WhatsApp, `PIPE_WHATSAPP_CLIENTE=real` calls Meta and any other value uses the test double.
  */
 
 export interface CredentialsInstagram {
@@ -37,7 +29,7 @@ export interface ClienteInstagram {
 
 const BASE = process.env['INSTAGRAM_API_BASE'] ?? 'https://graph.instagram.com';
 
-/** Tipo do Pipe → `attachment.type` do Instagram. Conferir com token real: `file` para documento. */
+/** Map Pipe type to Instagram `attachment.type`. Confirm `file` for documents with a real token. */
 const ATTACHMENT = { imagem: 'image', audio: 'audio', video: 'video', documento: 'file' } as const;
 
 export class ClienteInstagramReal implements ClienteInstagram {
@@ -51,8 +43,8 @@ export class ClienteInstagramReal implements ClienteInstagram {
       c.tipo === 'texto' ? { text: c.texto } : { attachment: { type: ATTACHMENT[c.tipo], payload: { url: c.link } } };
     const idProvedor = await this.postar(pedido, message);
 
-    // O Direct não tem legenda em anexo: vai como segunda mensagem. Falhar aqui NÃO
-    // devolve erro — repetir reenviaria a mídia que já chegou. Fica no log.
+    // Direct has no attachment caption: send it as a second message. A failure here must NOT
+    // return an error, since retry would resend delivered media; log it instead.
     if (c.tipo !== 'texto' && c.legenda?.trim()) {
       await this.postar(pedido, { text: c.legenda }).catch((error: Error) =>
         console.error(`[instagram] a legenda de ${idProvedor} não foi: ${error.message}`),
@@ -78,8 +70,8 @@ export class ClienteInstagramReal implements ClienteInstagram {
       error?: { code?: number; message?: string };
     };
     if (!resposta.ok || data.error) {
-      // 4xx é permanente (fora da janela de 24h, usuário que bloqueou, token vencido);
-      // 429 e 5xx voltam ao outbox. A mensagem da Meta não carrega o token: vai no header.
+      // Treat 4xx as permanent (outside the 24-hour window, blocked user, expired token),
+      // while 429 and 5xx return to the outbox. The Meta message omits the token; it is in the header.
       const permanente = resposta.status >= 400 && resposta.status < 500 && resposta.status !== 429;
       throw new WhatsAppError(
         String(data.error?.code ?? resposta.status),
@@ -92,7 +84,7 @@ export class ClienteInstagramReal implements ClienteInstagram {
   }
 }
 
-/** Dublê: devolve `mid` sequencial e registra a chamada, sem token. */
+/** Test double: return sequential `mid` values and record calls without a token. */
 export class ClienteInstagramDuble implements ClienteInstagram {
   readonly nome = 'duble' as const;
   readonly chamadas: { para: string; tipo: string; igUserId: string; idProvedor: string | null }[] = [];

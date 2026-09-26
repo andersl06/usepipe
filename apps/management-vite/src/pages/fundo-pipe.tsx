@@ -1,29 +1,19 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * O fundo da tela de entrada: um feixe de ~10.800 partículas desenhado em
- * `<canvas>` pelo próprio navegador. Sem GIF, sem vídeo, sem imagem — a
- * primeira tela do produto deixa de ter custo de rede (o fundo de referência
- * pesava 14,6 MB; este pesa o que pesa este arquivo).
+ * The sign-in screen's background: a beam of ~10,800 particles drawn on a `<canvas>` by the browser itself. No GIF, no video, no image — the product's first screen no longer has network cost (the reference background weighed 14.6 MB; this one weighs whatever this file weighs).
  *
- * O desenho é a curva da marca ampliada até virar paisagem: um arco único com
- * o centro FORA do quadro, no canto inferior direito, em três camadas de
- * densidade decrescente — aresta viva, corpo difuso e névoa. O quadrante
- * superior esquerdo, onde ficam o cartão e o bloco da marca, fica vazio de
- * propósito: fundo não disputa leitura com formulário.
+ * The drawing is the brand curve enlarged into a landscape: a single arc with its center OUTSIDE the frame, in the bottom-right corner, in three layers of decreasing density — live edge, diffuse body and haze. The top-left quadrant, where the card and brand block sit, is deliberately empty: the background doesn't compete with the form for attention.
  *
- * **Não tem emenda porque não tem laço.** Nada se repete e nada reinicia: a
- * posição de cada partícula é função contínua do tempo. É o defeito que
- * qualquer GIF de fundo tem e que ninguém consegue esconder.
+ * **There's no seam because there's no loop.** Nothing repeats and nothing restarts: each particle's position is a continuous function of time. That's the flaw every background GIF has and that nobody can hide.
  *
- * Com `prefers-reduced-motion` ele desenha UM quadro e para — não há imagem
- * parada para baixar, é o mesmo código sem o relógio.
+ * With `prefers-reduced-motion` it draws ONE frame and stops — there's no still image to download, it's the same code without the clock.
  */
 
-/** Centro do arco, em fração da caixa, e o raio em fração da diagonal. */
+/** Arc center, as a fraction of the box, and the radius as a fraction of the diagonal. */
 const CENTRO = { x: 0.829, y: 1.347, R: 0.6 };
 
-/** As três camadas, da aresta para dentro. `op` é a faixa de opacidade. */
+/** The three layers, from the edge inward. `op` is the opacity range. */
 const BANDAS = [
   { r0: 0.982, r1: 1.0, n: 3400, esc: 0.8, op: [0.38, 0.72] },
   { r0: 0.855, r1: 0.982, n: 4800, esc: 1.15, op: [0.12, 0.38] },
@@ -41,9 +31,7 @@ type Particula = {
 };
 
 /**
- * As partículas nascem de um gerador com semente FIXA: o mesmo desenho em toda
- * máquina e em toda recarga. Fundo que muda de forma a cada visita é ruído, e
- * ainda impede comparar duas capturas de tela.
+ * Particles are born from a generator with a FIXED seed: the same drawing on every machine and every reload. A background that changes shape on every visit is noise, and it also prevents comparing two screenshots.
  */
 function create(largura: number, altura: number): Particula[] {
   const R = Math.hypot(largura, altura) * CENTRO.R;
@@ -56,13 +44,13 @@ function create(largura: number, altura: number): Particula[] {
 
   for (const b of BANDAS) {
     for (let i = 0; i < b.n; i++) {
-      // `1 - rnd^0.7` adensa junto da aresta: é o que dá a linha viva.
+      // `1 - rnd^0.7` thickens near the edge: that's what gives the live line.
       const t = 1 - Math.pow(rnd(), 0.7);
       const fade = 0.15 + t * 0.85;
       pontos.push({
         r: (b.r0 + (b.r1 - b.r0) * t) * R,
         a: -3.05 + rnd() * 2.0,
-        // Cada partícula tem velocidade própria, e as de fora são mais lentas:
+        // Each particle has its own speed, and the outer ones are slower:
         // o feixe cisalha devagar em vez de girar em bloco.
         v: -(0.0099 + rnd() * 0.0118) * (1 - t * 0.4),
         tam: 0.6 + rnd() * b.esc,
@@ -95,7 +83,7 @@ export function FundoPipe() {
       const cy = CENTRO.y * altura;
       ctx.clearRect(0, 0, largura, altura);
 
-      // Massa clara difusa no canto, para o cartão não flutuar sobre creme chapado.
+      // Diffuse light patch in the corner, so the card doesn't float over flat cream.
       const brilho = ctx.createRadialGradient(
         largura * 0.78,
         altura * 0.86,
@@ -127,7 +115,7 @@ export function FundoPipe() {
       const a = canvas!.clientHeight;
       if (!l || !a) return;
       // Teto de 2 no `devicePixelRatio`: em tela 3x seriam 4x os pixels para
-      // ganho que ninguém vê em ponto de 1 px.
+      // gain nobody notices at the 1px point.
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas!.width = Math.round(l * dpr);
       canvas!.height = Math.round(a * dpr);

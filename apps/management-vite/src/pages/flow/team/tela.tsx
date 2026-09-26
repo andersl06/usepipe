@@ -23,8 +23,9 @@ interface ResultadoSimples {
   codigo?: string;
 }
 
-/** O mesmo formato de `contrato/membros/convidar.tsx` — o `emailValidation`
-    do blip-ds é um formato, não uma consulta. */
+/**
+ * Same format as `contrato/membros/convidar.tsx` — blip-ds's `emailValidation` is a format check, not a lookup.
+ */
 const FORMAT_OF_EMAIL = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
 
 /** O `{ erro: { codigo, mensagem } }` da `api` virado em `ResultadoSimples`. */
@@ -48,21 +49,13 @@ async function gravar(chamada: Promise<unknown>): Promise<ResultadoSimples> {
 }
 
 /**
- * As três ações da linha, agora POR FLUXO — `POST/PATCH/DELETE
- * /v1/gestao/fluxos/:id/equipe` (controlador `gestao-equipe.ts`). Antes da
- * migração 0035 elas mexiam no papel de CONTA (`/contrato/membros/papel` e
- * `/excluir`), porque o Pipe não tinha RBAC por fluxo: tirar alguém daqui
- * tirava do contrato inteiro. Agora tira só deste contato, que é o que a
- * origem sempre fez (`TeamController`, tudo por bot).
+ * The row's three actions, now PER FLOW — `POST/PATCH/DELETE /v1/gestao/fluxos/:id/equipe` (`gestao-equipe.ts` controller). Before migration 0035 they acted on the ACCOUNT role (`/contrato/membros/papel` and `/excluir`), because Pipe had no per-flow RBAC: removing someone here removed them from the whole tenant. Now it removes them only from this contact, which is what the origin always did (`TeamController`, everything per bot).
  */
 const caminho = (flowId: string, alvo?: string) =>
   `/v1/management/flows/${flowId}/equipe${alvo ? `/${alvo}` : ''}`;
 
 /**
- * O `rzslider` "Permissão" do modal de adição da origem
- * (`rz-slider-model="$ctrl.permissionsValue"`), com as mesmas quatro paradas.
- * Um `<input type="range">` de verdade por baixo dá arraste e teclado sem
- * reimplementar o comportamento nativo.
+ * The origin's "Permissão" `rzslider` (`rz-slider-model="$ctrl.permissionsValue"`), with the same four stops. A real `<input type="range">` underneath gives dragging and keyboard support without reimplementing native behavior.
  */
 function PermissionControle({
   role,
@@ -110,14 +103,9 @@ function PermissionControle({
 }
 
 /**
- * A lista de permissões granulares do EDITAR — o `PermissionsList.html` da
- * origem: cabeçalho "Funcionalidades | Sem permissão | Visualizar | Ver e
- * editar" (cada coluna com o `info` e o tooltip), e uma linha por recurso com
- * três rádios.
+ * The EDIT page's granular permissions list — the origin's `PermissionsList.html`: header "Funcionalidades | Sem permissão | Visualizar | Ver e editar" (each column with its `info` and tooltip), and one row per resource with three radios.
  *
- * A regra é a de lá, inteira: o nível de cima marca os rádios
- * (`selectAllPermissions()`) e só "Personalizado" solta cada linha para a mão
- * (`checkStatus()`). Os RECURSOS vêm do servidor, na ordem do template deles.
+ * The rule is theirs entirely: the top-level radio marks the row radios (`selectAllPermissions()`) and only "Personalizado" frees each row for manual control (`checkStatus()`). The RESOURCES come from the server, in their template's order.
  */
 export function PermissionsLista({
   recursos,
@@ -162,7 +150,7 @@ export function PermissionsLista({
                       name={`${nomeDoGrupo}-${recurso.key}`}
                       checked={nivel === column.nivel}
                       onChange={() => toSwitch(recurso.key, column.nivel)}
-                      /* Fora de "Personalizado" o traço manda, como na origem. */
+                      /* Outside "Personalizado" the slider is in charge, as in the origin. */
                       disabled={!editavel}
                       aria-label={`${recurso.titulo}: ${column.rotulo}`}
                     />
@@ -178,30 +166,17 @@ export function PermissionsLista({
 }
 
 /**
- * O `add-user-modal` da origem — DOM capturado com ele ABERTO em
- * `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`:
+ * The origin's `add-user-modal` — DOM captured with it OPEN in `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`:
  *
- *   toolbar    só o `icon-close` no canto;
- *   cabeça     bloco CENTRADO (`.row.mh6.tc.mt3`): h1 "Adicionar pessoa" e o
- *              subtítulo "Adicione e defina as permissões de uma nova pessoa
- *              para sua equipe";
- *   e-mail     `material-input` EDITÁVEL: rótulo pequeno em cima, traço
- *              embaixo, sem caixa;
- *   permissão  rótulo "Permissão" à esquerda e o `rzslider` com as legendas do
- *              adicionar;
- *   rodapé     `.modal-footer` CENTRADO: `Cancelar` (texto) e `Salvar`
- *              (`bp-btn--bot`), que nasce desabilitado
- *              (`ng-disabled="$ctrl.userForm.$invalid"`) até o e-mail valer.
+ *   toolbar    only the `icon-close` in the corner;
+ *   header     CENTERED block (`.row.mh6.tc.mt3`): h1 "Adicionar pessoa" and the subtitle "Adicione e defina as permissões de uma nova pessoa para sua equipe";
+ *   email      EDITABLE `material-input`: small label on top, underline below, no box;
+ *   permission "Permissão" label on the left and the `rzslider` with the same stops as add;
+ *   footer     CENTERED `.modal-footer`: `Cancelar` (text) and `Salvar` (`bp-btn--bot`), which starts disabled (`ng-disabled="$ctrl.userForm.$invalid"`) until the email is valid.
  *
- * Em "Customizado", a origem chama `addCustomUser()`: o CTA vira "Continuar"
- * e só então navega para a página separada `/team/edit`, onde fica a matriz.
+ * On "Customizado", the origin calls `addCustomUser()`: the CTA becomes "Continuar" and only then navigates to the separate `/team/edit` page, where the matrix lives.
  *
- * O CONVITE é o que a origem confessa e nós repetimos de outro jeito: lá,
- * `confirmAddUser` convida para o tenant como `guest` quem ainda não está nele
- * e avisa "Essa pessoa não faz parte do contrato…". Aqui a `api` recusa com
- * essa mesma frase (`pessoa_fora_do_contrato`) e o modal oferece o convite —
- * `POST /v1/convites`, o mesmo de `/contrato/membros`, que devolve o link para
- * copiar porque o Pipe não manda e-mail.
+ * THE INVITE is what the origin admits and we repeat a different way: there, `confirmAddUser` invites whoever isn't in the tenant yet as a `guest` and warns "Essa pessoa não faz parte do contrato…". Here the `api` rejects with that same phrase (`pessoa_fora_do_contrato`) and the modal offers the invite — `POST /v1/convites`, the same one from `/contrato/membros`, which returns the link to copy because Pipe doesn't send email.
  */
 function ModalDeAdicionar({
   flowId,
@@ -217,7 +192,7 @@ function ModalDeAdicionar({
   const [role, setRole] = useState<RoleInFlow>('visualizar');
   const [enviando, setEnviando] = useState(false);
   const [aviso, setAviso] = useState('');
-  /** Aparece quando a `api` diz que a pessoa não está no contrato. */
+  /** Shows up when the `api` says the person isn't in the tenant. */
   const [convidar, setConvidar] = useState(false);
   const [linkCriado, setLinkCriado] = useState<{ email: string; url: string } | null>(null);
   const [copiado, setCopiado] = useState(false);
@@ -248,7 +223,7 @@ function ModalDeAdicionar({
     }
   }
 
-  /** O `guest` de `confirmAddUser`: entrar no contrato é pré-requisito, não o gesto. */
+  /** The `guest` from `confirmAddUser`: joining the tenant is a prerequisite, not the action itself. */
   async function convidarForContract() {
     setEnviando(true);
     try {
@@ -370,28 +345,16 @@ function ModalDeAdicionar({
 }
 
 /**
- * `/team` do contato — a mesma tela em `/fluxo/:id/equipe` e
- * `/roteador/:id/equipe`, porque na origem ela é um estado de
- * `auth.application.detail` e vale para chatbot e roteador igual.
+ * `/team` for the contact — the same screen at `/fluxo/:id/equipe` and `/roteador/:id/equipe`, because in the origin it's a state of `auth.application.detail` and applies equally to chatbot and router.
  *
- * A estrutura é a do template da origem (`portal.js`, o `<page-header
- * class="team-header">` seguido de `.container.mb-5 > .row.team-cards`, e o
- * mesmo DOM renderizado em `referencias-blip/canais/roteador/roteador-team__pagina.html`):
+ * The structure follows the origin's template (`portal.js`, the `<page-header class="team-header">` followed by `.container.mb-5 > .row.team-cards`, the same DOM captured in `referencias-blip/canais/roteador/roteador-team__pagina.html`):
  *
- *   cabeçalho  h1 "Equipe" à esquerda; à direita a busca
- *              ("Pesquisar por nome ou e-mail", ícone `avatar-user`, 260px) e
- *              DEPOIS o botão "Adicionar Membro" — nessa ordem;
- *   subtítulo  "Adicione pessoas para a sua equipe e dê permissões para
- *              alterarem o Chatbot." (`additional-info`), abaixo do traço;
- *   lista      um `card--mini-card` por membro: avatar (5%) · "Membro" + nome
- *              (25%) · divisória · "E-mail" + e-mail (20%) · divisória ·
- *              selo do papel (10%) · divisória · editar/excluir (5%);
- *   vazio      "Nenhum membro encontrado =(" (`.no-content-found`).
+ *   header    h1 "Equipe" on the left; on the right, the search ("Pesquisar por nome ou e-mail", `avatar-user` icon, 260px) and THEN the "Adicionar Membro" button — in that order;
+ *   subtitle  "Adicione pessoas para a sua equipe e dê permissões para alterarem o Chatbot." (`additional-info`), below the divider;
+ *   list      one `card--mini-card` per member: avatar (5%) · "Membro" + name (25%) · divider · "E-mail" + email (20%) · divider · role badge (10%) · divider · edit/delete (5%);
+ *   empty     "Nenhum membro encontrado =(" (`.no-content-found`).
  *
- * A lista é a de `GET /v1/gestao/fluxos/:id/equipe` — a equipe DESTE contato,
- * como `TeamController._loadMembers()` cruza `getUsersAccounts` com
- * `getApplicationUsersPermissions`, tudo por bot. Antes da migração 0035 ela
- * era a lista de `/contrato/membros` inteira, porque não havia RBAC por fluxo.
+ * The list is `GET /v1/gestao/fluxos/:id/equipe`'s — THIS contact's team, the way `TeamController._loadMembers()` joins `getUsersAccounts` with `getApplicationUsersPermissions`, all per bot. Before migration 0035 it was the entire `/contrato/membros` list, because there was no per-flow RBAC.
  */
 export function TelaDeEquipe({
   flowId,
@@ -435,7 +398,7 @@ export function TelaDeEquipe({
               />
             </label>
             {podeGerir ? (
-              /* `addUser()` da origem — botão "Adicionar Membro" do cabeçalho. */
+              /* The origin's `addUser()` — the header's "Adicionar Membro" button. */
               <BotaoBds icone="mais" onClick={() => setAdicionando(true)}>
                 Adicionar Membro
               </BotaoBds>
@@ -453,8 +416,9 @@ export function TelaDeEquipe({
             className={podeGerir ? 'cf-equipe-link cf-equipe-link--clicavel' : 'cf-equipe-link'}
             role={podeGerir ? 'link' : undefined}
             tabIndex={podeGerir ? 0 : undefined}
-            /* `editUser(user)` da origem: o cartão inteiro (`<a class="no-decoration">`)
-               e o ícone de lápis abrem a MESMA edição. */
+            /*
+             * The origin's `editUser(user)`: the whole card (`<a class="no-decoration">`) and the pencil icon open the SAME edit view.
+             */
             onClick={podeGerir ? () => navegar(`editar/${member.userId}`) : undefined}
             onKeyDown={
               podeGerir
@@ -477,9 +441,7 @@ export function TelaDeEquipe({
                 </div>
                 <div className="cf-equipe-divisor" />
                 <div
-                  className={`cf-equipe-secao cf-equipe-secao--corta ${
-                    member.roleInFlow === 'admin' ? 'cf-equipe-w20' : 'cf-equipe-w40'
-                  }`}
+                  className={`cf-equipe-secao cf-equipe-secao--corta ${member.roleInFlow === 'admin' ? 'cf-equipe-w20' : 'cf-equipe-w40'}`}
                 >
                   <span className="cf-equipe-rotulo">E-mail</span>
                   <span className="cf-equipe-valor" title={member.email}>

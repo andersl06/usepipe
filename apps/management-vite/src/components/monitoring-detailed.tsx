@@ -18,28 +18,11 @@ import { useRead } from '../lib/query';
 import { ModalFinalizarMonitoring } from './modal-finalizar-monitoring';
 
 /**
- * Monitoramento detalhado: o cartão do fim da tela deles.
- *
- * Disposição copiada: o título à esquerda e o CAMPO DE BUSCA à direita, dentro
- * do cartão; abaixo as abas; abaixo a tabela, com a coluna de Ações no fim;
- * abaixo o rodapé de paginação — as cinco peças do cartão em
- * `FICHA-monitoring.md` §2.5.
- *
- * A aba e a busca vivem na querystring, como o filtro — assim a recarga
- * periódica não joga o supervisor de volta para a primeira aba nem apaga o que
- * ele digitou a cada 30 segundos. A PÁGINA da tabela é de cliente e não entra
- * na URL: a consulta já trouxe tudo numa transação só.
- *
- * Severidade colore a linha inteira, não só o texto: a lição do `blip-dash`
- * registrada no §3 do desenho.
+ * Detailed Monitoring follows the reference final card (`FICHA-monitoring.md` §2.5): title left and search inside at right, then tabs, table with Actions last, and pagination footer. Keep tab and search in the query string with the filter so a 30-second refresh does not reset the supervisor's view. Keep table page in client state because one transaction already loaded all rows. Color the entire severity row, not just text, following the `blip-dash` lesson in Section 3.
  */
 
 /*
- * Os rótulos das abas são os DELES, literais, lidos em `FICHA-monitoring.md`
- * §4. A quinta aba se chama "Tags" lá, e agora se chama "Tags" aqui também —
- * a chave interna continua `etiquetas`, que é o nome do domínio inteiro, mas o
- * TEXTO na tela é o texto deles: a régua desta entrega não admite "aproximado"
- * em rótulo visível.
+ * Tab labels are literal reference copy (`FICHA-monitoring.md` §4); the fifth is `Tags`, while the internal key remains `etiquetas`. Visible labels must match the captured screen exactly.
  */
 const ABAS = [
   { chave: 'atribuido', rotulo: 'Atribuído/Em andamento' },
@@ -73,7 +56,7 @@ function durationMonitoring(segundos: number | null | undefined): string {
   return dias > 0 ? `${dias}d ${horario}` : horario;
 }
 
-/** `transfer` da Blip é exclusivo desta coluna; fica local para não tocar nos ícones da barra lateral. */
+/** Blip `transfer` is used only in this column; keep it local rather than touching sidebar icons. */
 function IconeTransferir() {
   return (
     <svg className="mon-icone-transferir" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -94,17 +77,7 @@ function querystring(filter: Filter, aba: string): URLSearchParams {
 }
 
 /**
- * Severidade da linha, em três degraus e nesta ordem de precedência.
- *
- * O terceiro degrau é regra deles, e estava faltando: **a linha fica destacada
- * enquanto o contato aguarda a 1ª resposta do atendente**
- * (`blip-gestao-funcoes.md` §1). É o único destaque da tela que não vem de SLA,
- * e existe porque a espera pela primeira resposta é a que o cliente sente e a
- * que a régua de SLA às vezes ainda considera dentro do prazo.
- *
- * O SLA estourado ganha do resto porque já passou do prazo; o alerta e a espera
- * pela 1ª resposta dividem o mesmo degrau amarelo, e ter os dois na mesma cor é
- * de propósito — os dois pedem a mesma coisa do supervisor.
+ * Row severity has three precedence levels. The previously missing third level highlights a contact awaiting an agent's first response (`blip-gestao-funcoes.md` Section 1), the only highlight unrelated to SLA. First-response wait matters to the customer even when SLA may still be within time. Breached SLA wins because the deadline passed; SLA warning and first-response wait share yellow deliberately because both need the same supervisor action.
  */
 function classeDaLinha(linha: LinhaConversationAberta): string | undefined {
   if (linha.sla.state === 'estourado') return 'critico';
@@ -114,17 +87,7 @@ function classeDaLinha(linha: LinhaConversationAberta): string | undefined {
 }
 
 /**
- * A prioridade nasce NEUTRA, como toda etiqueta de categoria. Só os dois
- * degraus de cima recebem tinta, porque só eles mudam o que o supervisor faz
- * agora; pintar os cinco níveis transformaria a coluna num carrossel e tiraria
- * o significado do vermelho no resto da tela.
- *
- * Máxima é erro e Alta é alerta — a distância entre as duas é o ponto de existir
- * um degrau acima de "alta". Os três de baixo, inclusive a ausência, ficam
- * neutros.
- *
- * O rótulo sai de `ROTULOS_PRIORIDADE`, e não de um mapa local: a régua tem um
- * dono só, que é quem também define a ordem da fila.
+ * Priority starts neutral like other category labels. Color only the top two levels that change a supervisor's immediate action; coloring all five would weaken red elsewhere. Maximum uses error color and High alert color, while the three lower levels, including absence, stay neutral. Get labels from `ROTULOS_PRIORIDADE`, the single source also defining queue order.
  */
 function PillPriority({ nivel }: { nivel: string }) {
   const rotulo = ROTULOS_PRIORITY[nivel as NivelPriority] ?? nivel;
@@ -133,16 +96,13 @@ function PillPriority({ nivel }: { nivel: string }) {
 }
 
 /**
- * O estado vazio deles, literal e de UMA linha: "Dados insuficientes",
- * centrado no corpo da tabela (`FICHA-monitoring.md` §6,
- * `desk-grid-tabled-paginated-empty-*`). Sem explicação e sem botão — o que
- * o nosso acrescentava era texto que a tela deles não tem.
+ * Reference empty state is literally one centered line, `Dados insuficientes` (`FICHA-monitoring.md` §6, `desk-grid-tabled-paginated-empty-*`), without our former explanation or button.
  */
 function WithoutData() {
   return <div className="vazio-linha">Dados insuficientes</div>;
 }
 
-/** O atalho para abrir a conversa no app do atendente, igual nas duas tabelas. */
+
 function TicketActions({
   linha,
   catalogos,
@@ -292,9 +252,7 @@ function MonitoringModal({
 }
 
 /**
- * A ação da linha de atendente: abre a aba "Atribuído/Em andamento" já
- * filtrada por ele. É a mesma coluna de Ações que a ficha lista para esta
- * aba — sem inventar dado novo, só reaproveitando o filtro que a tela já tem.
+ * The agent-row action opens `Atribuído/Em andamento` already filtered by that agent. This is the reference Actions column behavior using an existing filter, not new data.
  */
 function ActionVerConversations({ filter, agentId }: { filter: Filter; agentId: string }) {
   return (
@@ -312,27 +270,11 @@ function ActionVerConversations({ filter, agentId }: { filter: Filter; agentId: 
 }
 
 /**
- * As duas abas de conversa têm COLUNAS DIFERENTES, e isso é regra deles, não
- * economia nossa (`blip-gestao-funcoes.md` §1).
- *
- * Uma tabela só para as duas era a nossa divergência mais cara: na aba
- * "Aguardando atendimento" nenhum ticket tem atendente, então as colunas
- * Atendente, 1ª resposta e Atendimento saíam com travessão em TODA linha, e
- * três colunas mortas empurravam para fora da tela a única que importa ali —
- * a prioridade, que é o que decide quem sai da fila primeiro.
- *
- * A coluna de Ações é nossa em ambas, e vale nas duas: eles também deixam o
- * gestor abrir a conversa de um ticket que ainda está na fila.
+ * Conversation tabs have different columns by source rule (`blip-gestao-funcoes.md` §1). In `Aguardando atendimento`, no ticket has an agent; reusing assigned-ticket columns would fill Agent, First response, and Attendance with dashes and push the important priority column offscreen. Keep Actions on both tabs because managers can also open a queued ticket in the reference.
  */
 
 /**
- * Atribuído / em andamento — na ordem de coluna deles, `FICHA-monitoring.md`
- * §4: os dois tempos, depois o tempo de atendimento, o ticket, e só então quem
- * é e onde está.
- *
- * **O indicador de SLA mora DENTRO da coluna de atendimento**, e não numa
- * coluna própria. É onde ele fica na tela deles, e faz sentido: SLA é um juízo
- * sobre aquele tempo, não um dado ao lado dele.
+ * For `Atribuído/Em andamento`, follow reference column order (`FICHA-monitoring.md` §4): two response times, attendance duration, ticket, then person and location. Put the SLA indicator INSIDE the attendance-time column, since SLA judges that duration rather than adding a separate datum.
  */
 function TabelaAtribuidas({
   linhas,
@@ -372,10 +314,9 @@ function TabelaAtribuidas({
                 {l.firstRespostaCorrendo ? ' ⟳' : ''}
               </td>
               <td className="tempo-sla">
-                {/* Enquanto não houve 1ª resposta não existe tempo de
-                    atendimento para medir, e o vazio deles não é travessão: é
-                    "Aguardando...". Travessão diz "não se aplica"; "Aguardando"
-                    diz "o cronômetro ainda não começou", que é o caso. */}
+                {/*
+ * Before the first response, attendance time cannot be measured. Show reference `Aguardando...`, not a dash: a dash means not applicable, while waiting means the timer has not begun.
+ */}
                 {l.attendanceSeg === null ? (
                   <span className="g-vazio-espera">Aguardando...</span>
                 ) : (
@@ -402,9 +343,7 @@ function TabelaAtribuidas({
 }
 
 /**
- * Aguardando atendimento — as colunas deles, nesta ordem: tempo na fila,
- * PRIORIDADE, ticket, contato, fila. Nada de atendente, porque por definição
- * não há.
+ * Waiting for attendance follows reference column order: queue wait, priority, ticket, contact, queue. There is no agent by definition.
  */
 function TabelaAguardando({
   linhas,
@@ -457,11 +396,7 @@ function TabelaAguardando({
 }
 
 /**
- * Atendentes — as colunas da ficha. "Tempo médio de resposta" e "Tempo médio
- * de atendimento" saem travessão: a consulta de carga por atendente
- * (`CargaAtendente`) não traz média nenhuma, só contagem e limite. Inventar um
- * número ali seria pior do que o travessão — é a régua do trabalho: dado que a
- * API não tem fica vazio, honesto, e registrado no relato desta entrega.
+ * The Agent tab shows dashes for average response and attendance times: `CargaAtendente` supplies counts and limits, not averages. Inventing a value would be worse than leaving the missing API datum visibly empty; this gap is recorded in the delivery report.
  */
 function TabelaAgents({
   agents,
@@ -503,10 +438,7 @@ function TabelaAgents({
 }
 
 /**
- * Filas — idem: "maior espera" que já tínhamos NÃO é "tempo médio de espera",
- * e as duas não são a mesma métrica — mostrar o máximo sob o rótulo de média
- * seria o número que inventa, não o número que falta. As três colunas de
- * média ficam honestamente vazias até a consulta trazer o dado certo.
+ * Queue maximum wait is not average wait. Leave all three average columns empty until the query returns actual averages; never label a maximum as a mean.
  */
 function TabelaQueues({ queues }: { queues: Monitoring['queues'] }) {
   const pg = usePage(queues);
@@ -547,10 +479,7 @@ function TabelaQueues({ queues }: { queues: Monitoring['queues'] }) {
 }
 
 /**
- * Tags — a ficha pede "Tickets finalizados", e o que a consulta de etiquetas
- * traz é `abertas` (conversas ABERTAS com a tag), uma métrica diferente. Trocar
- * o rótulo para caber no dado que já temos seria a mesma mentira ao contrário;
- * o travessão fica até existir uma consulta de encerradas por etiqueta.
+ * The Tags sheet asks for finished tickets, but the tag query returns `abertas`, open conversations with that tag. Do not relabel a different metric to fit available data; show a dash until closed-by-tag data exists.
  */
 function TabelaTags({ etiquetas }: { etiquetas: Monitoring['etiquetas'] }) {
   const pg = usePage(etiquetas);
@@ -660,13 +589,15 @@ export function MonitoringDetailed({
   const termo = search.trim().toLowerCase();
   const contact = (filter.contact ?? '').trim().toLowerCase();
 
-  /* Estado do atendente por id: `carga` já traz o estado de cada um, então o
-     filtro "Status do atendente" do painel não custa consulta nova. */
+  /*
+   * `carga` already includes each agent's status, so the `Status do atendente` filter needs no extra request.
+   */
   const stateByAgent = new Map(monitoring.carga.map((a) => [a.id, a.state]));
 
   const casa = (l: LinhaConversationAberta) => {
-    /* A busca do cartão é PELO NÚMERO DO TICKET, e só — é onde ela mora na
-       tela deles. "Contato" tem campo próprio na faixa de filtros. */
+    /*
+     * Search inside this card uses the ticket number only; Contact has its own field in the filter strip.
+     */
     if (termo && !l.ticket.toLowerCase().includes(termo)) return false;
     if (contact && !l.contactName.toLowerCase().includes(contact)) return false;
     if (filter.status) {
@@ -677,8 +608,9 @@ export function MonitoringDetailed({
   };
 
   const atribuidas = monitoring.abertas.filter((l) => l.agentId !== null).filter(casa);
-  /* A fila de espera sai ORDENADA POR PRIORIDADE; a lista de atribuídas fica na
-     ordem de criação que a consulta já devolve. Ver `ordenarFilaDeEspera`. */
+  /*
+   * Sort the waiting queue by priority through `ordenarFilaDeEspera`; leave assigned conversations in the creation order returned by the query.
+   */
   const aguardando = esperaOrdenarQueue(
     monitoring.abertas.filter((l) => l.agentId === null).filter(casa),
   );
@@ -693,8 +625,9 @@ export function MonitoringDetailed({
       <div className="tblhead">
         <h3>Monitoramento detalhado</h3>
 
-        {/* A busca da Blip mora AQUI, dentro do cartão, e não na faixa de
-            filtros. Ela procura pelo número do ticket. */}
+        {/*
+ * Blip places ticket-number search here inside the card, not in the filter strip.
+ */}
         <form className="tbl-busca" method="get">
           {[...querystring(filter, aba)]
             .filter(([key]) => key !== 'busca')

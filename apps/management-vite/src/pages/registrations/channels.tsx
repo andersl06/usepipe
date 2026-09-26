@@ -3,25 +3,11 @@ import { IconePortal } from '../../components/icones-portal';
 import { Icone } from '@pipe/ui';
 
 /**
- * Canais de atendimento — `attendance/desk/channels` da origem
- * (`referencias-blip/fichas/FICHA-channels.md`, foto `07` em
- * `referencias-blip/canais/`): título sem subtítulo nem botão, e uma GRADE
- * fixa de 4 cartões (`bds-paper` de 242×292), cada um com ícone, título 16/700,
- * subtítulo 14/400 e um botão no pé — "Conectado" (terciário, com o
- * `checkball`) ou "Conectar" (primário, com a seta).
+ * Attendance channels — the source's `attendance/desk/channels` (`referencias-blip/fichas/FICHA-channels.md`, photo `07` in `referencias-blip/canais/`): a title with no subtitle or button, and a fixed GRID of 4 cards (`bds-paper`, 242×292), each with an icon, 16/700 title, 14/400 subtitle, and a button at the bottom — "Conectado" (tertiary, with the `checkball`) or "Conectar" (primary, with the arrow).
  *
- * É a lista de INTEGRAÇÕES DE ATENDIMENTO do Desk (quem recebe os tickets), não
- * a configuração dos canais de conversa: WhatsApp, Instagram e Messenger são
- * conectados e configurados DENTRO DO BOT, em `/{tipo}/{id}/canais/*`
- * (`FICHA-conectar-canal-no-bot.md` §4.1). O que morava aqui — os cartões de
- * conectar WhatsApp/Instagram/Messenger, "Detalhes" e "Desconectar" — se mudou
- * para lá; ficou só o que é desta tela.
+ * This is the Desk's list of ATTENDANCE INTEGRATIONS (who receives the tickets), not conversation-channel configuration: WhatsApp, Instagram, and Messenger are connected and configured INSIDE THE BOT, at `/{tipo}/{id}/canais/*` (`FICHA-conectar-canal-no-bot.md` §4.1). What used to live here — the cards for connecting WhatsApp/Instagram/Messenger, "Detalhes", and "Desconectar" — moved there; only what belongs to this screen stayed.
  *
- * Pipe Desk é o Desk da Pipe, sempre conectado. Salesforce, Salesforce MIAW e
- * Canal Personalizado são integrações que a Pipe não tem: os cartões ficam,
- * com o botão da origem sem destino (`aria-disabled`), em vez de fingir um
- * fluxo de conexão que a captura também não abriu (foto `07`: "não foram
- * clicados").
+ * Pipe Desk is Pipe's own Desk, always connected. Salesforce, Salesforce MIAW, and Canal Personalizado are integrations Pipe doesn't have: the cards stay, with the source's button pointing nowhere (`aria-disabled`), instead of faking a connection flow that the capture never opened either (photo `07`: "not clicked").
  */
 
 type CatalogoCard = {

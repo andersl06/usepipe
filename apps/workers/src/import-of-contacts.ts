@@ -6,41 +6,13 @@ import { assembleContact, saveContact } from './manager-of-contacts.js';
 import type { ParametersOfContact } from './manager-of-contacts.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/jobs/data_import_job.rb
- *
- * O trabalho pesado da importação de contatos, fora da API: ela só grava o
- * arquivo e enfileira; quem lê o CSV, deduplica e grava é este job, no processo
- * dos workers. Arquivo grande não segura requisição nenhuma.
- *
- * Mesmos passos do original:
- *
- * 1. marca `executando` (`status: :processing`);
- * 2. lê o CSV com cabeçalho — aspas malformadas marcam `falhou` e param tudo;
- * 3. monta cada linha pelo gerenciador de contatos: válida é gravada, inválida
- *    vai para as rejeitadas com o motivo numa coluna `erros` no fim;
- * 4. marca `concluida` com o total, os aceitos e os rejeitados;
- * 5. guarda o CSV das rejeitadas (`failed_records`), que é o relatório que a
- *    tela oferece para baixar.
- *
- * Em lotes de mil linhas (o `batch_size: 1000` do `Contact.import`), cada lote
- * na sua transação: o progresso aparece na tela enquanto roda, e um erro de banco
- * no meio perde só o lote corrente — o que já entrou fica, e reimportar o mesmo
- * arquivo não duplica, porque o gerenciador acha quem já existe.
- *
- * O job carrega só `tenantId` e `importacaoId`, e tudo roda no `comTenant` DAQUELE
- * tenant: um id de importação de outro cliente simplesmente não é encontrado.
- *
- * De fora, e registrado: o original também aplica etiquetas (`labels`) ao
- * contato. O Pipe não tem etiqueta de contato — a coluna, se vier, vira atributo.
- * E o aviso por e-mail ao administrador não existe: não há e-mail transacional
- * (item 7 do `o-que-falta.md`); a tela mostra o estado.
+ * Ported from chatwoot/chatwoot (MIT), `app/jobs/data_import_job.rb`. API stores the file and enqueues the job; workers read CSV, deduplicate, and write contacts so large files do not hold an HTTP request. Follow the source steps: set `executando` (`status: :processing`); read headed CSV, marking `falhou` and stopping on malformed quotes; validate and write good rows while appending invalid ones and reasons in `erros`; set `concluida` with totals; save rejected rows as `failed_records` for download. Process batches of 1,000 (`Contact.import`'s `batch_size: 1000`), each in its own transaction. Progress is visible while running; a database error loses only the current batch, and rerun deduplicates accepted rows. The job carries only `tenantId` and `importacaoId`; all reads occur in that tenant's `comTenant`, so another tenant's import ID is invisible. Known differences: source `labels` become an attribute because Pipe has no contact tag, and no admin email is sent because there is no transactional email (`o-que-falta.md` item 7); the screen shows status.
  */
 
 export const TAMANHO_DO_LOTE = 1_000;
 
 /**
- * Os nomes de coluna que o original reconhece, e os apelidos em português que o
- * Pipe acrescenta — ninguém exporta planilha com `phone_number` no cabeçalho.
+ * Recognize the source column names and Pipe's Portuguese aliases; users do not export spreadsheets headed `phone_number`.
  */
 const APELIDOS: Readonly<Record<string, string>> = {
   phone_number: 'phone_number',
@@ -128,8 +100,8 @@ export async function processarImport(job: JobImport): Promise<ResultOfImport> {
     for (let inicio = 0; inicio < tabela.linhas.length; inicio += TAMANHO_DO_LOTE) {
       const lote = tabela.linhas.slice(inicio, inicio + TAMANHO_DO_LOTE);
       await noTenant(job.tenantId, async (tx) => {
-        // Em série: a linha seguinte precisa ver o contato que a anterior criou,
-        // senão duas linhas do mesmo telefone viram dois contatos.
+        // Run rows serially so the next row sees a contact created by the previous one,
+        // preventing duplicate contacts for repeated phone numbers.
         for (const linha of lote) {
           const contact = await assembleContact(tx, paraParametros(chaves, linha));
           if (contact.errors.length === 0) {

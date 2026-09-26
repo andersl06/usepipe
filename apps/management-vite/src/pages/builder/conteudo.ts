@@ -3,23 +3,7 @@ import type { Block, EditorInbound, ItemDeConteudo, InboundValidation } from './
 import { ROTULO_OF_INBOUND, card, gerarId, newInbound } from './model';
 
 /**
- * A aba "Conteúdo" do bloco: a sequência de cartões que o editor da Blip
- * desenha como uma conversa — as falas do robô à esquerda, a "Entrada do
- * usuário" à direita — sobre os `$contentActions` do bloco.
- *
- * O que a tela oferece é o que o canal do Pipe manda hoje
- * (`CONTEUDOS_SUPORTADOS` em `packages/core/src/fluxo/editor.ts`): "Texto"
- * (`text/plain`) e os dois `application/vnd.lime.select+json` — "Menu" (sem
- * `scope`) e "Quick reply" (`scope: "immediate"`, como o editor grava). Os outros
- * tipos do menu do editor (Imagem, Áudio, Vídeo, Documento, Figurinha,
- * Carrossel, Conteúdo HTTP, Conteúdo dinâmico, Pesquisa, localização, Web
- * link, Solicitar ligação) não entram: o motor os recusa ao publicar como
- * `conteudo:<mime>` não suportado. "Digitando" (`chatstate`) roda sem efeito
- * — carregado de um fluxo importado, aparece; não se cria.
- *
- * Limites literais do editor: 25 conteúdos por bloco ("Limite de 25 conteúdos
- * atingido"); menu com até 10 opções de 24 caracteres; quick reply com até 3
- * opções de 20 caracteres (os avisos do WhatsApp na aba).
+ * Block Content tab follows Blip's conversation-like `$contentActions` cards, robot utterances left and user input right. Offer only Pipe channel `CONTEUDOS_SUPORTADOS` (`packages/core/src/fluxo/editor.ts`): text `text/plain` and two `application/vnd.lime.select+json` variants, Menu without `scope` and Quick reply with `scope: "immediate"`. Other Blip menu types (image, audio, video, document, sticker, carousel, HTTP, dynamic content, survey, location, web link, call request) are rejected on publish as unsupported `conteudo:<mime>`. Imported `chatstate` Typing appears but cannot be newly created and runs without effect. Limits match editor copy: 25 content items per block, menus up to 10 options of 24 characters, quick replies up to 3 options of 20 characters.
  */
 
 export const LIMITE_DE_CONTEUDOS = 25;
@@ -58,7 +42,7 @@ export const TIPO_TEXTO = 'text/plain';
 export const TIPO_SELECT = 'application/vnd.lime.select+json';
 export const TIPO_DIGITANDO = 'application/vnd.lime.chatstate+json';
 
-/** As regras de validação da entrada, com o rótulo do `bds-select` do editor. */
+/** The input validation rules, with the label of the editor's `bds-select`. */
 export const RULES_OF_VALIDATION = [
   { valor: 'text', rotulo: 'Texto' },
   { valor: 'number', rotulo: 'Número' },
@@ -67,7 +51,7 @@ export const RULES_OF_VALIDATION = [
   { valor: 'type', rotulo: 'Tipo' },
 ] as const;
 
-/** A "Instrução de validação" que o editor sugere por regra. */
+/** The "Instrução de validação" (validation instruction) the editor suggests per rule. */
 export const INSTRUCTION_DEFAULT: Record<string, string> = {
   text: 'Digite um texto',
   number: 'Digite um número válido',
@@ -101,7 +85,7 @@ function lerSelect(conteudo: unknown): { texto: string; options: MenuOption[]; i
   return { texto: texto(c.text), options, imediato: c.scope === 'immediate' };
 }
 
-/** Os `$contentActions` do bloco como cartões, na ordem em que o robô os manda. */
+/** Render block `$contentActions` as cards in robot-send order. */
 export function cardsOf(block: Block): Card[] {
   const cards: Card[] = [];
   (block.$contentActions ?? []).forEach((item, indice) => {
@@ -158,9 +142,7 @@ export function novoQuickReply(conteudo = '', options: MenuOption[] = [], id = g
 export type ResultadoDeConteudo = { ok: true; block: Block } | { ok: false; error: string };
 
 /**
- * Um cartão a mais, ANTES da entrada do usuário: a entrada é sempre o último
- * item — o motor manda as falas e só então espera (`converterEstado` põe o
- * `input` fora da lista de ações, mas a ordem dos cartões é o que a pessoa vê).
+ * Add content BEFORE user input: input remains last because the engine sends messages before waiting (`converterEstado` stores `input` outside the action list, while cards show the user's order).
  */
 export function adicionarConteudo(block: Block, item: ItemDeConteudo): ResultadoDeConteudo {
   const current = block.$contentActions ?? [];
@@ -182,7 +164,7 @@ export function removerConteudo(block: Block, indice: number): Block {
   return { ...block, $contentActions: (block.$contentActions ?? []).filter((_, i) => i !== indice) };
 }
 
-/** Sobe ou desce uma fala. A entrada não sai do fim. */
+/** Move a robot utterance up/down; user input stays last. */
 export function moverConteudo(block: Block, de: number, para: number): Block {
   const lista = [...(block.$contentActions ?? [])];
   if (de < 0 || de >= lista.length || para < 0 || para >= lista.length || de === para) return block;
@@ -216,7 +198,7 @@ export function definirTexto(block: Block, indice: number, conteudo: string): Bl
   return { ...block, $contentActions: lista };
 }
 
-/** O texto e as opções de um menu ou quick reply; o `scope` fica como está. */
+/** Change text and options of a menu or quick reply while preserving `scope`. */
 export function definirMenu(block: Block, indice: number, conteudo: string, options: MenuOption[]): Block {
   const lista = (block.$contentActions ?? []).map((item, i) => {
     if (i !== indice) return item;
@@ -228,13 +210,13 @@ export function definirMenu(block: Block, indice: number, conteudo: string, opti
   return { ...block, $contentActions: lista };
 }
 
-/** Troca a entrada do bloco (o item `input`). Sem entrada no bloco, nada muda. */
+/** Replace a block's `input`; do nothing when no input exists. */
 export function definirInbound(block: Block, inbound: EditorInbound): Block {
   const lista = (block.$contentActions ?? []).map((item) => (item.input ? { ...item, input: inbound } : item));
   return { ...block, $contentActions: lista };
 }
 
-/** "Aguardar resposta" liga a espera; "Não aguardar" é `bypass`. Sem entrada, cria uma. */
+/** Aguardar resposta enables waiting; Não aguardar maps to `bypass`. Create an input if none exists. */
 export function definirEspera(block: Block, aguardar: boolean): Block {
   const inbound = (block.$contentActions ?? []).find((c) => c.input)?.input;
   if (inbound) return definirInbound(block, { ...inbound, bypass: !aguardar });
@@ -244,7 +226,7 @@ export function definirEspera(block: Block, aguardar: boolean): Block {
   return r.ok ? r.block : block;
 }
 
-/** A validação com a regra trocada: a instrução vem preenchida como no editor. */
+/** Return validation with a substituted rule and prefilled instruction, as the editor does. */
 export function validationWithRule(atual: InboundValidation | null | undefined, regra: string): InboundValidation {
   return {
     rule: regra,
@@ -254,7 +236,7 @@ export function validationWithRule(atual: InboundValidation | null | undefined, 
   };
 }
 
-/** Os erros do conteúdo do bloco, na frase do painel. */
+/** Show block-content errors in panel wording. */
 export function contentErrors(block: Block): string[] {
   const errors: string[] = [];
   for (const c of cardsOf(block)) {

@@ -9,12 +9,7 @@ import { Modal, ModalConfirmation } from './_modal';
 import { FormularioRegraSla } from './regras-sla-formulario';
 
 /**
- * A sigla que a coluna "Metas" deles usa para cada alvo (`dom/sla-policy.html`:
- * "TME, TMR1, TMA" — tempo médio de espera, tempo médio da 1ª resposta,
- * tempo médio de atendimento; `FICHA-sla-policy.md` §8). O nosso alvo é um
- * só por regra, então a coluna traz uma sigla; o prazo e o alerta vão no
- * `title` da célula, que é onde cabem sem abrir coluna que a tela deles não
- * tem.
+ * The acronym their "Metas" column uses for each target (`dom/sla-policy.html`: "TME, TMR1, TMA" — average wait time, average first-response time, average handling time; `FICHA-sla-policy.md` §8). Our target is a single one per rule, so the column shows one acronym; the deadline and the alert go in the cell's `title`, which is where they fit without opening a column their screen doesn't have.
  */
 const SIGLA_DO_ALVO: Record<string, string> = {
   espera_fila: 'TME',
@@ -24,33 +19,10 @@ const SIGLA_DO_ALVO: Record<string, string> = {
 };
 
 /**
- * Regras ├ SLA — `attendance/desk/sla-policy` da origem, medido em
- * `referencias-blip/fichas/FICHA-sla-policy.md` e conferido na foto
- * `fotos/original-sla-policy.png`.
- *
- * Esqueleto igual ao deles (§2): cabeçalho, busca sozinha embaixo ("Buscar
- * regras de SLA", §3), lista de cartões e rodapé de paginação (§5). O cartão
- * tem QUATRO colunas — "Regras de SLA", "Metas", "Filas atribuídas" e o selo
- * "Padrão" sem rótulo (§4) — e nada mais na linha além das ações.
- *
- * Divergências de DADO, não de layout:
- * - **Uma meta por regra.** Lá uma política combina vários alvos ("TME,
- *   TMR1"); aqui `regra_sla.alvo` é um valor só. A coluna traz a sigla do
- *   alvo, e o prazo/alerta ficam no `title`.
- * - **"Padrão" vem do escopo.** O que a origem chama de política padrão é,
- *   aqui, a regra de escopo `tenant` — a que `escolherRegra` usa como
- *   respaldo. O selo é essa regra, não um bit novo.
- * - **"Filas atribuídas"** é no máximo uma fila (ou toda a operação):
- *   `escopoTipo`/`escopoId` prendem a regra a um escopo só.
- *
- * `TODO(escrita)` removido: `PATCH`/`POST`/`DELETE` de verdade em
- * `/v1/gestao/configuracoes/regras` (item 2 da tarefa de cadastros do
- * Atendimento) — "Criar regra" e os ícones "Editar"/"Excluir" do cartão
- * (§5) entram, ligados como `regras-atendimento.tsx`: interruptor +
- * `ModalConfirmacao` para excluir, nunca `window.confirm`.
+ * Regras ├ SLA — the source's `attendance/desk/sla-policy`, measured in `referencias-blip/fichas/FICHA-sla-policy.md` and checked against the `fotos/original-sla-policy.png` screenshot. Same skeleton as theirs (§2): header, search alone below ("Buscar regras de SLA", §3), card list, and the pagination footer (§5). The card has FOUR columns — "Regras de SLA", "Metas", "Filas atribuídas" and the unlabeled "Padrão" badge (§4) — and nothing else on the row besides the actions. DATA divergences, not layout ones: - **One target per rule.** There, one policy combines several targets ("TME, TMR1"); here `regra_sla.alvo` is a single value. The column shows the target's acronym, and the deadline/alert go in the `title`. - **"Padrão" comes from scope.** What the source calls the default policy is, here, the `tenant`-scope rule — the one `escolherRegra` uses as fallback. The badge is that rule, not a new flag. - **"Filas atribuídas"** is at most one queue (or the whole operation): `escopoTipo`/`escopoId` tie the rule to a single scope. `TODO(escrita)` removed: real `PATCH`/`POST`/`DELETE` on `/v1/gestao/configuracoes/regras` (item 2 of the Attendance registration task) — "Criar regra" and the card's "Editar"/"Excluir" icons (§5) are wired up the same way as `regras-atendimento.tsx`: toggle + `ModalConfirmacao` for delete, never `window.confirm`.
  */
 
-/** Switch + editar/excluir — o slot `acao` do cartão-linha. */
+/** Switch + edit/delete — the row-card's `acao` slot. */
 function RuleSlaActions({
   regra,
   onEditar,

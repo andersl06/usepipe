@@ -3,25 +3,17 @@ import { WhatsAppError } from './cliente.js';
 import { assembleComponents, ParametroMissingError } from './template.js';
 
 /**
- * Dublê da Cloud API.
- *
- * Não é mock de teste: é o modo de operação enquanto não há WABA. Ele simula o que
- * a Meta faz de verdade — aceita a mensagem, devolve um `wamid`, e **depois** manda
- * os status por webhook. Quem consome o status é o mesmo endpoint que a Meta usaria,
- * então o caminho exercitado é o de produção, não um atalho.
- *
- * Também monta os componentes do template antes de "aceitar": é isso que faz o erro
- * de deslocamento de parâmetro aparecer no dublê, e não só em produção.
+ * Cloud API double. It is the operating mode while there is no WABA, not merely a test mock. It simulates Meta accepting a message, returning a `wamid`, and LATER sending status webhooks. The same endpoint used in production consumes those statuses, so the tested path is real. It also builds template components before accepting, exposing shifted-parameter errors in the double instead of only in production.
  */
 
 export interface ConfigurationDuble {
   /** Atraso artificial por envio, em milissegundos. */
   atrasoMs: number;
-  /** Destinatários que sempre falham. Serve para exercitar o caminho de erro. */
+  /** Recipients that always fail, to exercise the error path. */
   falharPara: string[];
-  /** A falha simulada é permanente (não repete) ou temporária (volta ao outbox). */
+
   falhaPermanente: boolean;
-  /** Código e texto da falha simulada. */
+
   codigoDeFalha: string;
   textoDeFalha: string;
 }
@@ -69,12 +61,12 @@ export class ClienteWhatsAppDuble implements ClienteWhatsApp {
     this.configuration = { ...this.configuration, ...parcial };
   }
 
-  /** Chamadas realmente feitas. É o que prova que a Meta **não** foi chamada. */
+  /** Actual calls made, proving that Meta was NOT called. */
   get chamadas(): readonly ChamadaDuble[] {
     return this.chamadasFeitas;
   }
 
-  /** Zera chamadas, status e sequência — entre cenários de teste. */
+
   reiniciar(): void {
     this.chamadasFeitas.length = 0;
     this.statusPendentes = [];
@@ -89,7 +81,7 @@ export class ClienteWhatsAppDuble implements ClienteWhatsApp {
     return saida;
   }
 
-  /** O cliente abriu a mensagem. A Meta só manda `read` quando isso acontece. */
+  /** The client opened the message; Meta sends `read` only then. */
   marcarLida(idProvedor: string): void {
     const original = this.chamadasFeitas.find((c) => c.idProvedor === idProvedor);
     if (!original) return;
@@ -110,8 +102,8 @@ export class ClienteWhatsAppDuble implements ClienteWhatsApp {
       await new Promise((resolver) => setTimeout(resolver, this.configuration.atrasoMs));
     }
 
-    // Monta o template mesmo sem enviar: parâmetro deslocado tem que falhar aqui,
-    // não silenciosamente do outro lado.
+    // Build the template even without sending: a shifted parameter must fail here,
+    // rather than silently on the far side.
     if (pedido.conteudo.tipo === 'template') {
       try {
         assembleComponents(pedido.conteudo.template, pedido.conteudo.values);
@@ -153,7 +145,7 @@ export class ClienteWhatsAppDuble implements ClienteWhatsApp {
     });
 
     // A Meta confirma em dois tempos: aceitou (`sent`) e chegou no aparelho
-    // (`delivered`). `read` só quando o cliente abre — ver `marcarLida`.
+    // (`delivered`). Emit `read` only when the client opens the message; see `marcarLida`.
     const agora = new Date();
     for (const status of ['sent', 'delivered'] as const) {
       this.statusPendentes.push({
@@ -169,10 +161,10 @@ export class ClienteWhatsAppDuble implements ClienteWhatsApp {
   }
 }
 
-/** Instância única: o teste e o worker precisam olhar o mesmo dublê. */
+/** Keep a single instance so tests and worker inspect the same double. */
 export const dubleWhatsApp = new ClienteWhatsAppDuble();
 
-/** Payload de webhook da Meta com um `statuses[]`, para postar no endpoint de entrada. */
+/** Meta webhook payload with one `statuses[]`, for posting to the inbound endpoint. */
 export function payloadDeStatus(status: StatusSimulado): unknown {
   return {
     object: 'whatsapp_business_account',

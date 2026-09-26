@@ -5,9 +5,7 @@ import { conectarManual, convidar, importContacts } from './actions';
 import type { ResultadoDaAcao } from './actions';
 
 /**
- * Os três formulários do assistente de implantação. Mesma forma dos cadastros
- * da Gestão: rótulo em `.sub`, campos em `.form-linha`, o botão no `.cl-acoes`,
- * e o envio que não apaga o que foi digitado quando o servidor recusa.
+ * The three onboarding wizard forms. Same shape as Gestão's forms: label in `.sub`, fields in `.form-linha`, the button in `.cl-acoes`, and submission that doesn't erase what was typed when the server refuses.
  */
 
 const INICIAL: ResultadoDaAcao = { ok: true };
@@ -18,7 +16,7 @@ function Resultado({ resultado }: { resultado: ResultadoDaAcao }) {
   return null;
 }
 
-/** Reaproveita o convite que já existe (`POST /v1/convites`). */
+/** Reuses the invite that already exists (`POST /v1/convites`). */
 export function FormularioInvitation() {
   const formulario = useRef<HTMLFormElement>(null);
   const [resultado, enviar, enviando] = useActionState(convidar, INICIAL);
@@ -96,7 +94,7 @@ export function FormularioImport() {
   );
 }
 
-/** A configuração manual (`manual_setup_service.rb`), para quem não passa pelo cadastro embutido. */
+/** Manual setup (`manual_setup_service.rb`), for whoever doesn't go through embedded signup. */
 export function FormularioManual() {
   const formulario = useRef<HTMLFormElement>(null);
   const [resultado, enviar, enviando] = useActionState(conectarManual, INICIAL);

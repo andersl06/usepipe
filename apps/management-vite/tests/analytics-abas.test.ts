@@ -8,12 +8,9 @@ import {
 } from '../src/pages/flow/analytics/abas.ts';
 
 /**
- * A fileira de abas da Análise (`/fluxo/{id}/analise`).
+ * The Analysis tab row (`/fluxo/{id}/analise`).
  *
- * O que trava aqui é o `ng-show` de cada aba, e em especial o `Zn()`: é a
- * única condição que não é uma flag direta — depende do CLUSTER, com recaída
- * em `default` — e é exatamente a que volta errada lendo só o nome das flags
- * (`is-showing-data-extractor-tab` diz "Golden,Doberman" e não decide nada).
+ * What gates this is each tab's `ng-show`, and especially `Zn()`: it's the only condition that isn't a direct flag — it depends on the CLUSTER, falling back to `default` — and it's exactly the one that comes back wrong if you only read the flag names (`is-showing-data-extractor-tab` says "Golden,Doberman" and decides nothing).
  */
 
 const visiveis = (flags = FLAGS_DA_CAPTURA, cluster = CLUSTER_DA_CAPTURA) =>

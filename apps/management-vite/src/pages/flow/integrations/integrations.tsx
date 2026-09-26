@@ -3,9 +3,9 @@ import { contactBase, useContact } from '../contact';
 import { IllustrationIntegration, type IllustrationName } from './illustrations';
 
 /**
- * A grade de Integrações — `auth.application.detail.integrations` da origem.
+ * The Integrations grid — the origin's `auth.application.detail.integrations`.
  *
- * Template (portal.js, módulo do controlador `IntegrationsController`):
+ * Template (portal.js, the `IntegrationsController` controller's module):
  *
  *   <div class="container"> <div class="row"> <div class="twelve columns">
  *     <div class="integrations-list">
@@ -18,14 +18,9 @@ import { IllustrationIntegration, type IllustrationName } from './illustrations'
  *       </div>
  *       … Botanalytics (height 57) … Webhook (height 57) …
  *
- * NÃO há título acima da grade: a página começa na lista. O texto do botão é
- * `utils.forms.connect` ("Conectar") e vira `utils.forms.connected`
- * ("Conectado", variante primária) quando `<X>.IsValid` é "true" na
- * configuração do bot (`checkWebhook`/`checkDashbot`/`checkBotanalytics`).
+ * There's NO title above the grid: the page starts at the list. The button text is `utils.forms.connect` ("Conectar") and becomes `utils.forms.connected` ("Conectado", primary variant) when `<X>.IsValid` is "true" in the bot's configuration (`checkWebhook`/`checkDashbot`/`checkBotanalytics`).
  *
- * ponytail: só o Webhook tem tela no Pipe. Dashbot e Botanalytics são
- * cartões visuais (a origem os manda para estados próprios que não existem
- * aqui) e nenhuma integração está ativa, então os três dizem "Conectar".
+ * ponytail: only Webhook has a screen in Pipe. Dashbot and Botanalytics are visual cards (the origin sends them to their own states, which don't exist here) and no integration is active, so all three say "Conectar".
  */
 const CARDS: readonly {
   id: string;

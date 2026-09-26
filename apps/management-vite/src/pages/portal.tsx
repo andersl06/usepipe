@@ -11,61 +11,48 @@ import { contactBase } from './flow/contact';
 
 export const dynamic = 'force-dynamic';
 
-/* Os dois destinos de fora do produto que o menu de ajuda da origem oferece
-   (`Blip Help` e `Blip Community`). Vazio = item não desenhado: link para
-   site que ainda não existe é pior do que menu com dois itens. */
+/*
+ * The two destinations outside the product that the source's help menu offers (`Blip Help` and `Blip Community`). Empty = item not drawn: a link to a site that doesn't exist yet is worse than a menu with two items.
+ */
 const URL_AJUDA = (import.meta.env['VITE_PIPE_AJUDA_URL'] as string | undefined) ?? '';
 
 type Flow = FlowOfPortal;
 
-/** O que a tela mostra: a casca (sessão) mais a grade (`GET /v1/gestao/fluxos`). */
+/** What the screen shows: the shell (session) plus the grid (`GET /v1/gestao/fluxos`). */
 type PortalData = PortalShell & GradeDoPortal;
 
 /**
- * Portal — a porta da plataforma, e a única tela do produto que muda de forma
- * conforme o que a conta tem dentro.
+ * Portal — the platform's front door, and the only screen in the product that changes shape depending on what the account has inside.
  *
- * Medido na tela ORIGINAL rodando (o portal deles servido local, rota
- * `auth.application.list`, janela de 1920) com `getBoundingClientRect` e
- * `getComputedStyle`, e no template do bundle deles para o que o mock da
- * conta de teste não acende.
+ * Measured on the ORIGINAL screen running (their portal served locally, route `auth.application.list`, 1920 window) with `getBoundingClientRect` and `getComputedStyle`, and against the template of their bundle for whatever the test account's mock doesn't light up.
  *
- * ═══ O QUE MUDA COM A QUANTIDADE DE CONTATOS ═══
+ * ═══ WHAT CHANGES WITH THE NUMBER OF CONTACTS ═══
  *
- * Conferido no DOM RENDERIZADO de `supernova.blip.ai/application` (conta com
- * onze bots) e nas respostas LIME do HAR da mesma sessão.
+ * Checked against the RENDERED DOM of `supernova.blip.ai/application` (an account with eleven bots) and the LIME responses from that same session's HAR.
  *
- * SEMPRE na tela, em qualquer estado:
- *   · as duas barras;
- *   · a FILEIRA DE CARTÕES DE AÇÃO (`action-card-container`), cuja condição
- *     na origem é `!isCarouselBannerEnabled || !canCreateChatBot` — nada a ver
- *     com a quantidade de contatos. Ela está lá com onze bots.
+ * ALWAYS on screen, in any state:
+ *   · both bars;
+ *   · the ACTION-CARD ROW (`action-card-container`), whose condition in the source is `!isCarouselBannerEnabled || !canCreateChatBot` — nothing to do with the number of contacts. It's there even with eleven bots.
  *
- * SÓ com NENHUM contato:
- *   · o bloco de boas-vindas (`welcome-banner`: `!applications.length &&
- *     tenant.id && canCreateChatBot`) — ilustração à esquerda, saudação com o
- *     nome da PESSOA, descrição e UM botão, a única saída de criação da tela.
+ * ONLY with NO contact at all:
+ *   · the welcome block (`welcome-banner`: `!applications.length && tenant.id && canCreateChatBot`) — illustration on the left, greeting with the PERSON's name, description and ONE button, the screen's only creation exit.
  *
- * SÓ com UM contato ou mais, o `<div id="applications"
- * ng-if="applications.length > 0">`:
- *   · o título "Fluxos e roteadores em {conta}" em `fs-24` negrito;
- *   · a grade — colunas fixas de 188, o que sobra vira espaço nas pontas, do
- *     contato MAIS NOVO para o mais antigo;
- *   · a paginação, que aparece mesmo com uma página só ("1-11 de 11",
- *     "Itens por página: [40,80,120]", "de 1 páginas").
+ * ONLY with one contact or more, the `<div id="applications" ng-if="applications.length > 0">`:
+ *   · the title "Fluxos e roteadores em {conta}" in bold `fs-24`;
+ *   · the grid — fixed 188 columns, with leftover space going to the edges, from the NEWEST contact to the oldest;
+ *   · pagination, which appears even with a single page ("1-11 de 11", "Itens por página: [40,80,120]", "de 1 páginas").
  *
- * ═══ MEDIDAS (original × nosso, em 1920) ═══
+ * ═══ MEASUREMENTS (original × ours, at 1920) ═══
  *
- *   barra escura       80 · barra clara 80, branca, recheio 40
- *   coluna             540 · 830 (≥852) · 1300 (≥1300), centrada
- *   boas-vindas        recheio 56, vão de 72, texto `flex: 1 0 200px`
- *   cartão de ação     `flex: 1 0 300px`, recheio 24, ícone com canto 8 a 24
- *   título de seção    20/700/20, régua de 1px, recuo 8, 24 depois
- *   cartão             188×196, canto 16, recheio 15, avatar 56, nome 50, etq 25
- *   grade              auto-fill de 188 com 24 de intervalo, nas pontas
+ *   dark bar           80 · light bar 80, white, 40 padding
+ *   column             540 · 830 (≥852) · 1300 (≥1300), centered
+ *   welcome            56 padding, 72 gap, text `flex: 1 0 200px`
+ *   action card        `flex: 1 0 300px`, 24 padding, icon with 8-to-24 corner
+ *   section title      20/700/20, 1px rule, 8 indent, 24 after
+ *   card               188×196, 16 corner, 15 padding, 56 avatar, 50 name, 25 tag
+ *   grid               188 auto-fill with 24 gap, at the edges
  *
- * A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA: nenhum hex deles entra, tudo sai
- * dos token `--p-*` e dos `--g-barra-*`. Os ícones e a marca são os nossos.
+ * THE LAYOUT IS THEIRS, THE PAINT IS OURS: none of their hex values go in, everything comes from the `--p-*` and `--g-barra-*` tokens. The icons and the brand are ours.
  */
 export function PagePortal() {
   const [search, setSearch] = useState('');
@@ -77,13 +64,14 @@ export function PagePortal() {
     setPage(1);
   }, []);
 
-  /* Busca, página e quantidade por página ficam em estado React. A URL visível
-     do portal permanece limpa; só a chamada à API recebe esses parâmetros. */
+  /*
+   * Search, page and items-per-page live in React state. The portal's visible URL stays clean; only the API call receives these parameters.
+   */
   const shell = portalUseShell();
   const grade = useRead<GradeDoPortal>(
     `/v1/management/flows?busca=${encodeURIComponent(search)}&pagina=${page}&porPagina=${byPage}`,
 );
-  /* Banco fora do ar não pode apagar a barra: a grade cai no estado vazio. */
+  /* The database being down can't wipe out the bar: the grid falls back to the empty state. */
   const data: PortalData = {
     ...shell,
     ...(grade.data ?? { flows: [], total: 0, encontrados: 0 }),
@@ -95,8 +83,9 @@ export function PagePortal() {
       </div>
     );
 
-  /* Vazio é a conta SEM NENHUM fluxo — não "a busca não achou nada". Confundir
-     os dois faz a tela de quem tem trinta fluxos virar tela de conta nova. */
+  /*
+   * Empty means the account has NO flow at all — not "the search found nothing". Confusing the two turns the screen for someone with thirty flows into the screen for a new account.
+   */
   const empty = data.total === 0;
 
   return (
@@ -106,20 +95,19 @@ export function PagePortal() {
 
       <main className="pt-conteudo">
         <div className="pt-coluna">
-          {/* O banner de boas-vindas só existe na conta SEM nenhum contato e
-              para quem pode criar — é o `welcome-banner` deles
-              (`!applications.length && tenant.id && canCreateChatBot`). */}
+          {/*
+ * The welcome banner only exists on accounts with NO contact at all and for whoever can create one — it's their `welcome-banner` (`!applications.length && tenant.id && canCreateChatBot`).
+ */}
           {empty && data.canCreate ? <BoasVindas data={data} /> : null}
 
-          {/* A fileira de cartões de ação NÃO é do estado vazio: no DOM da
-              conta com onze bots ela está lá, acima da lista. A condição dela
-              na origem é `!isCarouselBannerEnabled || !canCreateChatBot` — ou
-              seja, nada a ver com a quantidade de contatos. */}
+          {/*
+ * The action-card row is NOT part of the empty state: in the DOM of the eleven-bot account it's there, above the list. Its condition in the source is `!isCarouselBannerEnabled || !canCreateChatBot` — that is, nothing to do with the number of contacts.
+ */}
           <ActionCards />
 
-          {/* A seção da lista, o `<div id="applications"
-              ng-if="applications.length > 0">` deles: só existe quando a conta
-              tem contato, e é ela que some na conta nova. */}
+          {/*
+ * The list section, their `<div id="applications" ng-if="applications.length > 0">`: it only exists when the account has a contact, and it's the one that disappears on a new account.
+ */}
           {empty ? null : (
             <div id="applications">
               <div className="pt-secao">
@@ -155,13 +143,9 @@ export function PagePortal() {
 }
 
 /**
- * A paginação da origem (`bds-pagination` com `page-counter`, `number-items` e
- * `items-page`): contador de itens à esquerda, escolha de itens por página e as
- * páginas à direita.
+ * The source's pagination (`bds-pagination` with `page-counter`, `number-items` and `items-page`): item count on the left, items-per-page choice, and the pages on the right.
  *
- * A página e a quantidade por página ficam em estado React. A URL visível do
- * portal não recebe `pagina` nem `por`; esses valores existem apenas na chamada
- * para `GET /v1/gestao/fluxos`.
+ * The page and the items-per-page count live in React state. The portal's visible URL doesn't receive `pagina` or `por`; those values only exist in the call to `GET /v1/gestao/fluxos`.
  */
 function Pagination({
   page,
@@ -181,9 +165,9 @@ function Pagination({
   const firstItem = encontrados === 0 ? 0 : (page - 1) * tamanho + 1;
   const ultimoItem = Math.min(page * tamanho, encontrados);
 
-  /* Aparece SEMPRE, inclusive com uma página só: no DOM da conta de onze
-     bots a barra está lá, dizendo "1-11 de 11" e "de 1 páginas". Escondê-la
-     era invenção nossa. */
+  /*
+   * Always shows, even with a single page: in the DOM of the eleven-bot account the bar is there, saying "1-11 de 11" and "de 1 páginas". Hiding it was our own invention.
+   */
 
   return (
     <div className="pt-paginacao">
@@ -212,7 +196,7 @@ function Pagination({
 
       <nav className="pt-paginacao-direita" aria-label="Páginas">
 
-        {/* primeira página */}
+        {}
         <button
           type="button"
           className="pt-paginacao-icone"
@@ -223,7 +207,7 @@ function Pagination({
           «
         </button>
 
-        {/* página anterior */}
+        {}
         <button
           type="button"
           className="pt-paginacao-icone"
@@ -234,7 +218,7 @@ function Pagination({
           ‹
         </button>
 
-        {/* seletor da página atual */}
+        {}
         <Selection
           value={String(page)}
           aria-label="Página atual"
@@ -251,7 +235,7 @@ function Pagination({
           de {pages} páginas
         </span>
 
-        {/* próxima página */}
+        {}
         <button
           type="button"
           className="pt-paginacao-icone"
@@ -262,7 +246,7 @@ function Pagination({
           ›
         </button>
 
-        {/* última página */}
+        {}
         <button
           type="button"
           className="pt-paginacao-icone"
@@ -281,14 +265,9 @@ function Pagination({
 /* ======================================================= barra clara */
 
 /**
- * A segunda barra: 80px brancos logo abaixo da escura, com o conteúdo alinhado
- * à MESMA coluna do miolo. É ela que diz de qual conta é tudo que vem abaixo.
+ * The second bar: 80px white, right below the dark one, with its content aligned to the SAME column as the body. It's what tells you which account everything below belongs to.
  *
- * À direita, onde eles põem a busca (um campo de 32×36 na ponta da coluna),
- * vai a nossa busca — e ela só aparece quando há o que buscar. Debaixo do
- * título vai o ENDEREÇO da conta: na origem o portal de cada conta vive num
- * subdomínio, e é ali que a pessoa lê em qual conta está; a nossa URL não
- * carrega isso, então o slug precisa estar visível.
+ * On the right, where they put search (a 32×36 field at the column's edge), goes our search — and it only appears when there's something to search. Under the title goes the account's ADDRESS: in the source, each account's portal lives on its own subdomain, and that's where a person reads which account they're in; our URL doesn't carry that, so the slug needs to stay visible.
  */
 function SubBarra({
   data,
@@ -322,22 +301,20 @@ function SubBarra({
   return (
     <div className="pt-subbarra">
       <div className="pt-subbarra-conteudo">
-        {/* O título deles é uma FRASE, não o nome solto da conta:
-            `navbar.subheader.workspaceOf` = "Espaço de trabalho de {conta}",
-            num `bds-typo variant="fs-20" bold tag="h2"`. */}
+        {/*
+ * Their title is a SENTENCE, not the account's bare name: `navbar.subheader.workspaceOf` = "Espaço de trabalho de {conta}", in a `bds-typo variant="fs-20" bold tag="h2"`.
+ */}
         <h2 className="pt-subbarra-titulo">Espaço de trabalho de {data.tenant.nome}</h2>
 
-        {/* A ponta direita da barra clara deles (`action-icons`): a busca e,
-            quando `canCreateChatbot`, os DOIS botões de criar — "Criar
-            roteador" em terciário e "Criar fluxo" em primário. É daqui que se
-            cria, em qualquer estado da conta; o botão do banner de boas-vindas
-            é um atalho a mais, não o único caminho.
-
-            A busca aparece SEMPRE, inclusive na conta sem nenhum contato: na
-            origem ela está lá na conta vazia. */}
+        {/*
+ * The light bar's right edge in the source (`action-icons`): search and, when `canCreateChatbot`, the TWO create buttons — "Criar roteador" as tertiary and "Criar fluxo" as primary. This is where creation happens, in any account state; the welcome-banner button is one more shortcut, not the only path.
+ *
+ * Search ALWAYS appears, even on an account with no contact at all: in the source it's there even on the empty account.
+ */}
         <div className="pt-subbarra-acoes">
-          {/* A busca segue o comportamento da origem: o texto fica em estado local
-              e só atualiza a consulta depois de 700 ms sem digitação. */}
+          {/*
+ * Search follows the source's behavior: the text stays in local state and only updates the query 700ms after typing stops.
+ */}
           <div className={`pt-busca${searchAberta ? ' pt-busca-aberta' : ''}`} role="search">
             <button className="pt-busca-botao" type="button" onClick={abrirSearch} aria-label="Abrir busca">
               <IconeSearch tamanho={32} />
@@ -375,12 +352,9 @@ function SubBarra({
 /* ==================================================== estado 1: vazio */
 
 /**
- * O bloco de boas-vindas do estado 1, na medida deles: 56px de recheio, 72 de
- * vão entre a ilustração e o texto, e o texto com `flex: 1 0 200px`.
+ * State 1's welcome block, at their measurements: 56px padding, 72 gap between the illustration and the text, and the text with `flex: 1 0 200px`.
  *
- * A saudação usa o nome da PESSOA (na origem, `blipAccount.fullName`) e não o
- * da conta — é o único lugar da tela em que isso acontece, e é o que faz a
- * tela parecer dirigida a quem abriu.
+ * The greeting uses the PERSON's name (in the source, `blipAccount.fullName`) rather than the account's — it's the only place on the screen where that happens, and it's what makes the screen feel directed at whoever opened it.
  */
 function BoasVindas({ data }: { data: PortalData }) {
   const firstName = data.user.nome.trim().split(/\s+/)[0] ?? data.user.nome;
@@ -404,42 +378,32 @@ function BoasVindas({ data }: { data: PortalData }) {
   );
 }
 
-/* ================================================== cartões de ação */
+
 
 /**
- * A fileira de cartões de ação — o `action-card-container` deles.
+ * The action-card row — their `action-card-container`.
  *
- * ELA NÃO É DO ESTADO VAZIO. No DOM da conta com onze bots a fileira está lá,
- * entre a barra clara e a lista; a condição na origem é
- * `ng-if="!isCarouselBannerEnabled || !canCreateChatBot"`, que não olha a
- * quantidade de contatos. Escondê-la quando a conta tinha fluxo era invenção
- * nossa, e era a diferença mais visível entre as duas telas.
+ * IT IS NOT PART OF THE EMPTY STATE. In the DOM of the eleven-bot account the row is there, between the light bar and the list; the condition in the source is `ng-if="!isCarouselBannerEnabled || !canCreateChatBot"`, which doesn't look at the number of contacts. Hiding it when the account had a flow was our own invention, and it was the most visible difference between the two screens.
  *
- * Os quatro deles são de LEITURA — novidades, contrato, ajuda e comunidade —,
- * e nenhum cria nada: a única saída de criação vive no botão do banner de
- * boas-vindas. Os nossos "Criar fluxo" e "Criar roteador" saíram daqui por
- * isso.
+ * Their four are READ-ONLY — news, contract, help and community — and none of them creates anything: the only creation exit lives in the welcome-banner button. Our "Criar fluxo" and "Criar roteador" came out of here for that reason.
  *
- * "Novidades" fica de fora enquanto não houver o que mostrar. Ajuda e
- * comunidade são os dois sites de fora, e cada um só aparece quando o endereço
- * está configurado — cartão que leva a lugar nenhum é pior do que fileira
- * curta.
+ * "Novidades" stays out while there's nothing to show. Help and community are the two outside sites, and each only appears when its address is configured — a card that leads nowhere is worse than a short row.
  */
 function ActionCards() {
   return (
     <div className="pt-acoes">
-      {/* Os quatro deles, na mesma ordem: novidades, contrato, ajuda e
-          comunidade. A comunidade ainda está sendo feita e entra apagada. */}
+      {/*
+ * Their four, in the same order: news, contract, help and community. Community is still being built and comes in disabled/greyed out.
+ */}
       <ActionCard
         href="/updates"
         icone="novidades"
         rotulo="Novidades no Pipe"
         texto="O que mudou, o que chegou e o que está a caminho."
       />
-      {/* CONTRATO, e não "Minha conta": na origem são duas telas diferentes e o
-          \`onContractCardClick\` leva ao painel do contrato (o fragmento
-          \`tenant\`), não ao cadastro da pessoa. Estava apontando para o lugar
-          errado. */}
+      {/*
+ * CONTRATO (Contract), not "Minha conta" (My account): in the source these are two different screens and `onContractCardClick` leads to the contract panel (the `tenant` fragment), not to the person's profile. It was pointing to the wrong place.
+ */}
       <ActionCard
         href="/contract"
         icone="contrato"
@@ -486,7 +450,7 @@ function ActionCard({
   texto: string;
   /** Sai do aplicativo (ajuda, comunidade): abre em outra aba, como na origem. */
   externo?: boolean;
-  /** Ainda não existe: o cartão aparece apagado, com o selo, e não clica. */
+  /** Doesn't exist yet: the card shows up greyed out, with the badge, and doesn't click. */
   emObra?: boolean;
 }) {
   const miolo = (
@@ -526,33 +490,20 @@ function ActionCard({
 /* =============================================== estados 2 e 3: grade */
 
 /**
- * O que a etiqueta do cartão diz, por tipo.
+ * What the card's tag says, by type.
  *
- * O texto vem DEPOIS do ícone do tipo: no DOM renderizado de `supernova` o
- * `bds-chip-tag icon="builder-router"` (roteador) ou `icon="builder-new-state"`
- * (fluxo) desenha o `bds-icon` x-small no `chip_tag--icon` e a palavra no
- * `chip_tag--text` ao lado. Olhar só o template, sem o shadow root, esconde o
- * ícone — foi o engano de antes.
+ * The text comes AFTER the type icon: in `supernova`'s rendered DOM, `bds-chip-tag icon="builder-router"` (router) or `icon="builder-new-state"` (flow) draws the x-small `bds-icon` inside `chip_tag--icon` and the word inside `chip_tag--text` beside it. Looking only at the template, without the shadow root, hides the icon — that was the earlier mistake.
  */
 const ETIQUETA = { roteador: 'Roteador', flow: 'Fluxo' } as const;
 
 /**
- * O cartão, nos três andares de altura FIXA da tela deles — avatar de 56,
- * nome de 50 e etiqueta de 25 dentro de 188×196 com 15 de recheio. É isso que
- * impede o nome de duas linhas de empurrar a etiqueta para fora.
+ * The card, in their screen's three FIXED-height tiers — a 56 avatar, a 50 name and a 25 tag inside 188×196 with 15 padding. That's what keeps a two-line name from pushing the tag out.
  *
- * A etiqueta é onde fluxo e roteador se distinguem, exatamente como no
- * `ContactBody.html` deles (`template === 'builder'` vira "Fluxo",
- * `template === 'master'` vira "Roteador"). Não temos imagem de contato, então
- * o avatar é sempre a inicial.
+ * The tag is where flow and router are told apart, exactly like their `ContactBody.html` (`template === 'builder'` becomes "Fluxo", `template === 'master'` becomes "Roteador"). We have no contact image, so the avatar is always the initial.
  *
- * NÃO PUBLICADO é o ponto no canto do cartão, como na origem — `rascunho` é o
- * nosso nome para o mesmo estado. O ponto é desenhado no CSS, e o `title` do
- * cartão diz por extenso o que ele significa: cor sozinha não é informação.
+ * NÃO PUBLICADO (Unpublished) is the dot in the card's corner, like in the source — `rascunho` (draft) is our name for the same state. The dot is drawn in CSS, and the card's `title` spells out in full what it means: color alone isn't information.
  *
- * BLOQUEADO (cadeado, cartão apagado, clique morto) a origem usa para bot que o
- * contrato barrou. Não temos bloqueio por contrato, então não há o que desenhar
- * — está no relatório. `arquivado` nem chega aqui: sai na consulta.
+ * BLOQUEADO (Blocked) — padlock, greyed-out card, dead click — the source uses for a bot the contract has barred. We have no contract-based blocking, so there's nothing to draw — it's in the report. `arquivado` (archived) never even gets here: it's filtered out in the query.
  */
 function FlowCard({ flow }: { flow: Flow }) {
   const etq = flow.tipo === 'roteador' ? ETIQUETA.roteador : ETIQUETA.flow;
@@ -562,20 +513,17 @@ function FlowCard({ flow }: { flow: Flow }) {
   return (
     <Link
       className={naoPublicado ? 'pt-cartao pt-cartao-rascunho' : 'pt-cartao'}
-      /* O cartão abre a CASA do contato, e não o construtor: na origem o
-         `handleContactClick` vai para `/application/detail/{contato}/home`, e é
-         de lá que se escolhe Builder, Atendimento, Canais e o resto. Ir direto
-         para o construtor pulava a tela que reúne tudo — e, no roteador, levava
-         a um construtor que ele nem liga. */
+      /*
+       * The card opens the contact's HOME, not the builder: in the source, `handleContactClick` goes to `/application/detail/{contato}/home`, and that's where Builder, Atendimento, Canais and the rest get chosen from. Going straight to the builder skipped the screen that brings everything together — and, for a router, it led to a builder it doesn't even use.
+       */
       href={contactBase(flow.tipo, encodeURIComponent(flow.id))}
       title={naoPublicado ? `${flow.nome} — ainda não publicado` : flow.nome}
     >
-      {/* Com foto, ela ocupa o círculo; sem foto, entra o ícone do produto —
-          é o `ng-if="!contact.imageUri"` deles. Em nenhum dos dois casos
-          aparecem as iniciais do nome, que era o que tínhamos aqui.
-
-          `<img>` cru e não `next/image`: a foto é uma `data:` URI gravada na
-          própria linha, e o otimizador do Next não tem o que otimizar nela. */}
+      {/*
+ * With a photo, it fills the circle; without one, the product icon goes in — it's their `ng-if="!contact.imageUri"`. In neither case do the name's initials show up, which is what we used to have here.
+ *
+ * Plain `<img>`, not `next/image`: the photo is a `data:` URI stored right in the row, and Next's optimizer has nothing to optimize in it.
+ */}
       <span className="pt-cartao-av">
         {flow.imagemUrl ? (
           <img className="pt-cartao-foto" src={flow.imagemUrl} alt="" />
@@ -584,8 +532,9 @@ function FlowCard({ flow }: { flow: Flow }) {
         )}
       </span>
       <span className="pt-cartao-nome">{flow.nome}</span>
-      {/* O ícone é enfeite do lado da palavra, que continua visível e é o
-          que o leitor de tela lê. */}
+      {/*
+ * The icon is decoration next to the word, which stays visible and is what the screen reader reads.
+ */}
       <span className="pt-cartao-etq">
         <IconePortal nome={flow.tipo === 'roteador' ? 'roteador' : 'fluxo'} tamanho={16} />
         <span>{etq}</span>

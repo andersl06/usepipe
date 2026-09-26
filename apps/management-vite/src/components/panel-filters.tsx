@@ -5,19 +5,7 @@ import { PERIODOS, calcularPeriod, periodCurrent } from '../lib/periodos';
 import { Selection } from './selection';
 
 /**
- * Painel lateral "Filtros" — o `data-testid="saved-filters-sidebar"` deles,
- * medido em `referencias-blip/fichas/FICHA-monitoring.md` e `FICHA-history.md`:
- * fechado por padrão, título "Filtros", subtítulo fixo, duas abas ("Nova
- * consulta" / "Filtros salvos"), os campos da tela no meio, e um rodapé com o
- * switch de filtro salvo e os dois botões.
- *
- * "Filtros salvos" é ESTRUTURA sem FUNÇÃO: a aba existe porque existe na tela
- * deles, mas não temos onde guardar um filtro salvo ainda — o vazio da aba diz
- * isso, em vez de fingir uma lista. O switch do rodapé é a mesma honestidade:
- * aparece desabilitado, com o motivo no título.
- *
- * O formulário é GET puro, como toda consulta desta tela: aplicar fecha o
- * painel e navega, e o estado continua vivendo na URL.
+ * Reference Filter sidebar `data-testid="saved-filters-sidebar"` (`referencias-blip/fichas/FICHA-monitoring.md`, `FICHA-history.md`) starts closed, with title/subtitle, New query and Saved filters tabs, screen fields, saved-filter switch, and two footer buttons. Saved filters are structural only: no storage exists, so show an honest empty state; disable the footer switch with a reason. Apply uses a GET form, closes the panel, and navigates while state remains in the URL.
  */
 export function PanelFilters({
   aberto,
@@ -139,7 +127,7 @@ export function PanelFilters({
   );
 }
 
-/** Um campo do painel: rótulo em negrito, texto de apoio, e o controle. */
+
 export function PanelField({
   rotulo,
   apoio,
@@ -161,9 +149,7 @@ export function PanelField({
 }
 
 /**
- * O campo "Período" do painel — o `bds-select data-testid="period-filter-
- * select"` deles, igual no Histórico e nos dois Relatórios: os atalhos de
- * `PERIODOS` mais "Personalizado", e o par de datas que o atalho preenche.
+ * The Period filter matches reference `bds-select data-testid="period-filter-select"` in History and both Reports: `PERIODOS` shortcuts plus Custom, whose choice fills the date pair.
  */
 export function FieldPeriod({ de, ate, fuso }: { de: string; ate: string; fuso: string }) {
   return (

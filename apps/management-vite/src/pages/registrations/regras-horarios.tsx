@@ -5,17 +5,7 @@ import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { FormulariosDeHorario } from './regras-horarios-formulario';
 
 /**
- * Horários de atendimento.
- *
- * É a referência que falta para o SLA. `avaliarSla` do `@pipe/core` recebe o
- * expediente da fila e, sem ele, conta as 24 horas do dia: um prazo de duas
- * horas aberto às 17h50 de sexta estoura no sábado de manhã, sem ninguém ter
- * demorado nada. O comentário no topo de `lib/sla.ts` registra exatamente isso
- * — o relógio roda sem expediente porque não havia horário cadastrado.
- *
- * Os números da tela saem das mesmas funções do core que o SLA usa
- * (`dentroDoExpediente`, `proximaAbertura`, `intervalosUteis`): o que a tela
- * mostra é o que o cálculo enxerga, incluindo feriado e horário de verão.
+ * Business hours. It's the missing reference for SLA. `@pipe/core`'s `avaliarSla` receives the queue's business hours and, without it, counts all 24 hours of the day: a two-hour deadline opened at 5:50pm on a Friday breaches Saturday morning, without anyone having actually taken long at all. The comment at the top of `lib/sla.ts` records exactly this — the clock runs with no business hours because none had been registered. The screen's numbers come from the same core functions the SLA uses (`dentroDoExpediente`, `proximaAbertura`, `intervalosUteis`): what the screen shows is what the calculation sees, including holidays and daylight saving time.
  */
 export function PageHours() {
   const read = useRead<Horarios & { fuso: string }>('/v1/management/rules/schedules');
@@ -51,9 +41,9 @@ export function PageHours() {
             value: h.queues.length > 0 ? h.queues.join(', ') : 'Nenhuma',
           },
         ],
-        // A situação do cartão é o USO, não um interruptor: horário sem fila
-        // nenhuma não é erro de dado, é trabalho pela metade — cadastrado e
-        // nunca ligado. Sai em etiqueta de alerta, que é o que a lista já sabe
+        // The card's status is USAGE, not a toggle: a schedule with no queue at
+        // all isn't a data error, it's unfinished work — registered and
+        // never turned on. It shows as an alert tag, which is already what the list knows
         // fazer com `active: false`.
         situation:
           h.queues.length > 0

@@ -11,19 +11,7 @@ import './certificados.css';
 import { TelaDeCertificados } from './tela';
 
 /**
- * Certificados de autenticação — o cartão "Gerencie seus certificados mTLS" do
- * painel, que na origem abre a rota `/mtls` do fragmento (componente `zt`).
- *
- * A rota chama `certificados`, e não `mtls`, pelo mesmo motivo de `membros`
- * não chamar `panel`: o endereço é nosso e em português; o que se copia é a
- * tela.
- *
- * A guarda é a da origem — `Z.d(members)`, leitura de `tenant-members` —, que
- * aqui é `conta.membros.ler`, a mesma que o cartão já exige. Quem chega sem ela
- * volta para o painel.
- *
- * O contrato de dados, os textos e os modais estão em
- * `referencias-blip/pesquisa/blip-certificados-mtls.md`.
+ * Authentication certificates — the "Gerencie seus certificados mTLS" card on the panel, which at the source opens the fragment's `/mtls` route (component `zt`). The route is called `certificados`, not `mtls`, for the same reason `membros` isn't called `panel`: the address is ours, in Portuguese; what gets copied is the screen. The guard is the source's — `Z.d(members)`, a `tenant-members` read —, which here is `conta.membros.ler`, the same one the card already requires. Anyone arriving without it goes back to the panel. The data contract, the copy and the modals are in `referencias-blip/pesquisa/blip-certificados-mtls.md`.
  */
 export function CertificatesPage() {
   const eu = useEu();
@@ -43,8 +31,9 @@ export function CertificatesPage() {
       <BarraDoPortal data={shell} />
 
       <main className="pt-conteudo">
-        {/* `setHeaderContent({ redirect: "/", text: "Certificados MTLS de {0}" })`:
-            na origem quem desenha a seta e a frase é a barra do portal. */}
+        {/*
+ * `setHeaderContent({ redirect: "/", text: "Certificados MTLS de {0}" })`: at the source, the portal bar is what draws the back arrow and the phrase.
+ */}
         <div className="cm-cabecalho">
           <Link className="cm-voltar" href="/contract" aria-label="Voltar ao painel do contrato">
             <IconePortal nome="esquerda" tamanho={24} />

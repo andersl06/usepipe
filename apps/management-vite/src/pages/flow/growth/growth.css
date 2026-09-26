@@ -1,9 +1,9 @@
-/* Medidas de `active-campaign-main.js` e do MFE do ZIP 16: `ds`, `yo`, `Zz`,
-   `uc` e `Ny`. As cores de superfície, linha, conteúdo e marca viram tokens Pipe. */
-/* ==================== a casca: `section.main-section > ui-view` é `display:
-   flex` com a `<aside class="detail-aside fl">` (318px) e a
-   `section.main-detail-content` (o resto, 962 em 1280) lado a lado, na
-   largura toda, do fim da sub-barra (y=136) até o pé. */
+/*
+ * Measurements from `active-campaign-main.js` and the ZIP 16 MFE: `ds`, `yo`, `Zz`, `uc` and `Ny`. Surface, line, content and brand colors become Pipe tokens.
+ */
+/*
+ * ==================== the shell: `section.main-section > ui-view` is `display: flex` with the `<aside class="detail-aside fl">` (318px) and `section.main-detail-content` (the rest, 962 of 1280) side by side, full width, from the end of the sub-bar (y=136) to the bottom.
+ */
 .gr-casca {
   display: flex;
   align-items: stretch;
@@ -107,10 +107,9 @@
   cursor: default;
 }
 
-/* `.main-detail-content { background-color: var(--color-surface-2);
-   box-shadow: -2px 6px 6px 0 rgba(226,231,236,.96); display: flex;
-   flex-direction: column; overflow: hidden }`. O fundo segue sendo o
-   `--ground` que as telas de dentro já assumem. */
+/*
+ * `.main-detail-content { background-color: var(--color-surface-2); box-shadow: -2px 6px 6px 0 rgba(226,231,236,.96); display: flex; flex-direction: column; overflow: hidden }`. The background keeps being the `--ground` that the inner screens already assume.
+ */
 .gr-miolo {
   flex: 1;
   min-width: 0;
@@ -468,11 +467,9 @@
 .gr-vazio .gr-botao {
   margin-top: 16px;
 }
-/* Click Tracker — painel do microfrontend `portal-fragment-click-tracker` na
-   rota `growth/clicktracker`, medido na cópia com a régua (janela 1280×780):
-   página com 24px 8px, fileiras com 0 8px, `bds-grid.container` de 944px
-   centrado, colunas 8/4 e 3 com 0 8px, `bds-paper` com raio 16px. Toda cor
-   sai dos tokens `--p-*` / `--g-*` do Pipe. */
+/*
+ * Click Tracker — the `portal-fragment-click-tracker` microfrontend's panel on the `growth/clicktracker` route, measured in the copy with a ruler (1280×780 window): page with 24px 8px, rows with 0 8px, `bds-grid.container` at 944px centered, 8/4 and 3 columns with 0 8px, `bds-paper` with 16px radius. All color comes from Pipe's `--p-*` / `--g-*` tokens.
+ */
 .ck-pagina {
   padding: 24px 8px;
   color: var(--p-conteudo);
@@ -511,7 +508,7 @@
 .ck-col-3 {
   width: 25%;
 }
-/* Título `bds-typo fs-32 bold` (190×54) e a dica de 130×40 com o botão de ícone. */
+/* Title `bds-typo fs-32 bold` (190×54) and the 130×40 tooltip with the icon button. */
 .ck-titulo-linha {
   align-items: flex-start;
 }
@@ -540,7 +537,7 @@
 .ck-botao-icone:hover {
   background: var(--g-tinta-hover);
 }
-/* Rótulos "Evento de conversão" / "Período analisado": fs-14 + ícone de 20px. */
+/* Labels "Evento de conversão" / "Período analisado": fs-14 + 20px icon. */
 .ck-rotulo-linha {
   height: 56px;
   align-items: flex-start;
@@ -561,7 +558,7 @@
   background: var(--p-superficie-1);
   box-shadow: var(--g-sombra-cartao);
 }
-/* Papel do evento: 604×48, padding 12px; chip clicável 34×24 com lápis. */
+/* Event paper: 604×48, padding 12px; clickable chip 34×24 with a pencil. */
 .ck-evento-caixa {
   width: 100%;
   height: 61px;
@@ -592,8 +589,9 @@
   font-size: 14px;
   line-height: 16px;
 }
-/* `bds-datepicker` em período: grade 174px 174px com 16px; `bds-input` com
-   rótulo em negrito, 7px 4px 8px 12px, borda de 1px e raio 8px (61px). */
+/*
+ * `bds-datepicker` in range mode: 174px 174px grid with 16px; `bds-input` with bold label, 7px 4px 8px 12px, 1px border and 8px radius (61px).
+ */
 .ck-datas {
   display: grid;
   grid-template-columns: 174px 174px;
@@ -645,8 +643,9 @@
 .ck-data-texto:focus {
   outline: none;
 }
-/* Papel do token: margem 0 10px, 16px acima, padding 12px; faixa de status de
-   24px com raio 8px; fileira de 76px com logo de 64px, textos e botão fantasma. */
+/*
+ * Token paper: 0 10px margin, 16px above, 12px padding; 24px status strip with 8px radius; 76px row with 64px logo, texts and a ghost button.
+ */
 .ck-token-margem {
   width: 100%;
   margin: 0 10px;
@@ -745,8 +744,9 @@
   border-top: 1px solid var(--p-linha-media);
   background: var(--p-superficie-3);
 }
-/* Papel de desempenho: padding 12px, 17px abaixo; título fs-16 (32px),
-   subtítulo fs-14 (28px), indicadores 16px abaixo em quatro colunas. */
+/*
+ * Performance paper: 12px padding, 17px below; fs-16 title (32px), fs-14 subtitle (28px), indicators 16px below in four columns.
+ */
 .ck-desempenho {
   width: 100%;
   margin-bottom: 17px;
@@ -773,8 +773,9 @@
   display: flex;
   margin: 16px -8px 0;
 }
-/* Indicador: superfície 2, raio 12px, 157px; valor fs-32 extra-bold (46px),
-   rótulo fs-12 extra-bold (47px), filete de 2px e rodapé com 8px. */
+/*
+ * Indicator: surface 2, 12px radius, 157px; fs-32 extra-bold value (46px), fs-12 extra-bold label (47px), 2px rule and 8px footer.
+ */
 .ck-indicador {
   display: flex;
   flex-direction: column;
@@ -827,7 +828,7 @@
   width: 41%;
   text-align: right;
 }
-/* Estado vazio: margem 20px, ilustração 130×134 com 30px abaixo, título fs-24. */
+/* Empty state: 20px margin, 130×134 illustration with 30px below, fs-24 title. */
 .ck-vazio {
   margin: 20px;
   text-align: center;
@@ -850,13 +851,9 @@
   font-size: 16px;
   line-height: 25.6px;
 }
-/* Anúncios (Beta) — `growth/adsbuying` na origem, medido no DOM renderizado
-   de `referencias-blip/canais/roteador/roteador-anuncios__pagina.html`: um
-   `bds-paper` centralizado (`container xxs=8`, `margin: y-9`) com uma fileira
-   `justify-content: space-between; align-items: center` de no máximo 625px —
-   ilustração à esquerda, coluna de texto à direita (título fs-24 bold,
-   texto fs-14, botão alinhado à direita com `padding-top: 30px`). Não é um
-   cartão vertical centrado como antes: é horizontal, texto à esquerda. */
+/*
+ * Ads (Beta) — `growth/adsbuying` at the source, measured in the rendered DOM of `referencias-blip/canais/roteador/roteador-anuncios__pagina.html`: a centered `bds-paper` (`container xxs=8`, `margin: y-9`) with a `justify-content: space-between; align-items: center` row of at most 625px — illustration on the left, text column on the right (fs-24 bold title, fs-14 text, button right-aligned with `padding-top: 30px`). It's not a centered vertical card like before: it's horizontal, text on the left.
+ */
 .an-conexao {
   display: flex;
   align-items: center;
@@ -920,15 +917,9 @@
   }
 }
 
-/* Relatório de Pagamentos — `growth/activemessages/paymentsReport` na
-   origem: nenhum título de página (o `ui-view="content"` recebe o MFE
-   direto, sem `home-header-testid`), duas colunas lado a lado —
-   "Tráfego de mensagens" e "Pagamentos" —, cada uma com seus próprios
-   cartões (medido em `roteador-relatoriopagamentos__pagina.html`: flex-wrap,
-   gap 32, cada card com `border-radius: 12px; padding: 12px`). A origem
-   mostra números de demonstração fixos (384.302 mensagens etc.) que o Pipe
-   não reproduz — a régua aqui é a disposição, não o dado; por isso os
-   valores ficam em "—" e as barras não fabricam altura. */
+/*
+ * Payments Report — `growth/activemessages/paymentsReport` at the source: no page title (the `ui-view="content"` gets the MFE directly, without `home-header-testid`), two side-by-side columns — "Tráfego de mensagens" and "Pagamentos" — each with its own cards (measured in `roteador-relatoriopagamentos__pagina.html`: flex-wrap, gap 32, each card with `border-radius: 12px; padding: 12px`). The source shows fixed demo numbers (384,302 messages etc.) that Pipe doesn't reproduce — the reference here is the layout, not the data; that's why the values show as "—" and the bars don't fabricate a height.
+ */
 .pg-pagina {
   padding-top: 24px;
 }

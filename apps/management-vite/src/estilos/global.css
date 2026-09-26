@@ -1,35 +1,23 @@
-/* ==========================================================================
-   Pipe Gestão — só o que é da Gestão.
+/*
+ * ==========================================================================
+ *    Pipe Gestão — only what belongs to the Gestão.
+ *
+ *    The token, reset and primitives (.btn, .pill/.etiqueta, .card, .metric, .tblwrap, .tabs, table/th/td, .iconbtn, .vazio, .lbl, .mono, .sw, .note) live in `@pipe/ui`, imported before this sheet in the root layout.
+ *
+ *    What this sheet draws is the LAYOUT of Blip's Monitoring screen, measured from the capture and described in `referencias-blip/pesquisa/plataformas-referencia.md` §1: two dark bars on top, a 170px light sidebar with icon and group, a 2×2 grid, two filter strips, search inside the table card.
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. No Blip color value appears here: everything comes from `--p-*`, and where their structure calls for a step our palette doesn't name, it is DERIVED from a token with `color-mix`, never invented.
+ *    ==========================================================================
+ */
 
-   O token, o reset e os primitivos (.btn, .pill/.etiqueta, .card, .metric,
-   .tblwrap, .tabs, table/th/td, .iconbtn, .vazio, .lbl, .mono, .sw, .note)
-   vivem em `@pipe/ui`, importado antes desta folha no layout raiz.
-
-   O que esta folha desenha é a DISPOSIÇÃO da tela de Monitoramento da Blip,
-   medida na captura e descrita em `referencias-blip/pesquisa/plataformas-referencia.md`
-   §1: duas barras escuras no topo, lateral clara de 170px com ícone e grupo,
-   grade 2×2, duas faixas de filtro, busca dentro do cartão da tabela.
-
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. Nenhum valor de cor da Blip
-   aparece aqui: tudo sai de `--p-*`, e onde a estrutura deles pede um degrau
-   que a nossa paleta não nomeia, ele é DERIVADO de um token com `color-mix`,
-   nunca inventado.
-   ========================================================================== */
-
-/* ======================================== a superfície de trabalho é NEUTRA
-   Medido na cópia deles (`referencias-blip/pesquisa/sistema-visual-portal.md` §1): a área
-   atrás dos cartões é `rgb(237,237,237)` — cinza NEUTRO. O nosso creme de
-   marca (`#f2f1ec`) tem quase a mesma luminosidade, mas é quente: lado a lado
-   o deles lê "branco" e o nosso lê "bege". Era a primeira queixa do dono.
-
-   Aqui a matiz sai, a paleta fica: moss, terracota, ocre e sage continuam
-   exatamente como estão. As três superfícies claras passam a ser DERIVADAS da
-   nossa própria tinta de conteúdo contra o branco — nenhum hex novo, e o tema
-   escuro não é tocado (os blocos escuros do `@pipe/ui` têm especificidade
-   maior que este `:root`).
-
-   Vale para o aplicativo da Gestão inteiro, de propósito: o creme era o mesmo
-   em todas as telas, e a queixa também. */
+/*
+ * ======================================== the work surface is NEUTRAL
+ *    Measured on their live copy (`referencias-blip/pesquisa/sistema-visual-portal.md` §1): the area behind the cards is `rgb(237,237,237)` — NEUTRAL gray. Our brand cream (`#f2f1ec`) has almost the same luminosity, but it's warm: side by side theirs reads "white" and ours reads "beige". It was the owner's first complaint.
+ *
+ *    Here the hue goes, the palette stays: moss, terracotta, ochre and sage stay exactly as they are. The three light surfaces now DERIVE from our own content color against white — no new hex, and dark mode isn't touched (the `@pipe/ui` dark blocks have higher specificity than this `:root`).
+ *
+ *    Applies to the entire Gestão app, on purpose: the cream was the same on every screen, and so was the complaint.
+ */
 :root {
   --p-superficie-1: color-mix(in srgb, var(--p-conteudo) 7%, #fff);
   --p-superficie-2: color-mix(in srgb, var(--p-conteudo) 12%, #fff);
@@ -37,12 +25,9 @@
 }
 
 /*
- * Nomes antigos apontando para os token novos, para não reescrever cada
- * referência do CSS abaixo. Repare no que o mapeamento faz de propósito:
- * eram quatro matizes de destaque disputando a tela e sobra um. Terracota e
- * ocre deixam de ser cor de marca e viram os estados de erro e de alerta;
- * o azul deixa de ser cor. Nenhum tema é declarado aqui — os dois temas
- * chegam prontos do @pipe/ui.
+ * Old names pointing to the new tokens, so we don't have to rewrite every CSS reference below. Note what the mapping does on purpose:
+ *  * there used to be four accent hues competing for the screen, and one is left over. Terracotta and ochre stop being brand colors and become the error and alert states;
+ *  * blue stops being a color. No theme is declared here — both themes arrive ready from `@pipe/ui`.
  */
 :root {
   --ground: var(--p-superficie-1);
@@ -64,15 +49,12 @@
   --shadow: var(--p-sombra-1);
 }
 
-/* ==================================================== o cromo das barras
-   Duas barras escuras, como na tela deles, e ESCURAS NOS DOIS TEMAS: cromo
-   que inverte junto com o conteúdo deixa de ser cromo. No tema claro os dois
-   degraus saem da superfície contrastante (`--p-superficie-4`); no escuro,
-   das superfícies 1 e 2, que já são escuras. Nenhum hex novo.
-
-   `--g-barra-marca` é o moss legível sobre preto: no claro, a mistura do moss
-   com o seu próprio fundo suave; no escuro, o moss do tema, que já é claro.
-   É o papel que o azul cumpre na barra deles. */
+/*
+ * ==================================================== the bars' chrome
+ *    Two dark bars, like in their screen, and DARK IN BOTH THEMES: chrome that flips along with the content stops being chrome. In light mode the two steps come from the contrasting surface (`--p-superficie-4`); in dark mode, from surfaces 1 and 2, which are already dark. No new hex value.
+ *
+ *    `--g-barra-marca` is moss legible over black: in light mode, moss mixed with its own soft background; in dark mode, the theme's moss, which is already light. It's the role blue plays in their bar.
+ */
 :root {
   --g-barra-1: var(--p-superficie-4);
   --g-barra-2: color-mix(in srgb, var(--p-superficie-4) 91%, var(--p-conteudo-claro));
@@ -81,11 +63,9 @@
   --g-ponto-on: var(--p-sucesso-sobre-escuro);
   --g-ponto-off: var(--p-erro-sobre-escuro);
 
-  /* As medidas deles, sem desconto. Ver `blip-medidas-monitoramento.md` §1.
-     O critério antigo — "a tabela precisa caber na primeira dobra em
-     1440×900" — está REVOGADO: era ele que comprimia 136px de cromo em 84 e
-     262px de lateral em 170. Fidelidade ganha de densidade; se a tabela sair
-     da dobra, a pessoa rola, como rola na tela deles. */
+  /*
+   * Their measurements, no discount. See `blip-medidas-monitoramento.md` §1. The old rule — "the table has to fit above the fold at 1440×900" — is REVOKED: it's what compressed 136px of chrome down to 84 and 262px of sidebar down to 170. Fidelity wins over density; if the table falls below the fold, the person scrolls, just like they scroll on their screen.
+   */
   --g-barra-sup-h: 80px;
   --g-barra-inf-h: 56px;
   --g-topo-h: 136px;
@@ -93,14 +73,12 @@
   --g-lateral-recuo: 16px;
 }
 
-/* ============================================== a escala de fonte por papel
-   Tamanho e PESO são os deles, medidos no shadow DOM em
-   `blip-medidas-monitoramento.md` §5; o desenho da letra é o nosso IBM Plex.
-   Cinco degraus de tamanho (12, 14, 16, 20, 24) e quatro de peso (300, 400,
-   600, 700) resolvem a aplicação inteira.
-
-   Estes tokens são LOCAIS da Gestão de propósito: o `@pipe/ui` continua com a
-   régua 16/14/12 e os pesos 400/500/600 das outras telas. */
+/*
+ * ============================================== the font scale by role
+ *    Size and WEIGHT are theirs, measured in the shadow DOM in `blip-medidas-monitoramento.md` §5; the letterform is our own IBM Plex. Five size steps (12, 14, 16, 20, 24) and four weight steps (300, 400, 600, 700) cover the whole application.
+ *
+ *    These tokens are LOCAL to Gestão on purpose: `@pipe/ui` keeps the 16/14/12 ruler and the 400/500/600 weights for the other screens.
+ */
 :root {
   --g-cor-busca-blip: #8ca0b3;
   --g-peso-leve: 300;
@@ -108,38 +86,37 @@
   --g-peso-forte: 600;
   --g-peso-negrito: 700;
 
-  --g-t-titulo: 24px; /* título de tela, peso 400 */
-  --g-t-bloco: 16px; /* título de bloco de relatório, peso 700 */
-  --g-t-cartao: 14px; /* título de cartão de métrica, peso 600 */
-  --g-t-valor: 24px; /* valor de métrica no monitoramento, peso 400 */
-  --g-t-valor-rel: 20px; /* valor de métrica no relatório, peso 700 */
-  --g-t-rotulo: 12px; /* rótulo de métrica, peso 400 */
+  --g-t-titulo: 24px; /* screen title, weight 400 */
+  --g-t-bloco: 16px; /* report block title, weight 700 */
+  --g-t-cartao: 14px; /* metric card title, weight 600 */
+  --g-t-valor: 24px; /* metric value in monitoring, weight 400 */
+  --g-t-valor-rel: 20px; /* metric value in report, weight 700 */
+  --g-t-rotulo: 12px; /* metric label, weight 400 */
   --g-t-item: 14px; /* item de lateral, peso 600 (ativo 700) */
-  --g-t-modulo: 16px; /* módulo do topo, peso 300 */
-  --g-t-celula: 14px; /* célula de tabela, peso 400 */
-  --g-t-coluna: 14px; /* cabeçalho de coluna, peso 600 */
+  --g-t-modulo: 16px; /* top module, weight 300 */
+  --g-t-celula: 14px; /* table cell, weight 400 */
+  --g-t-coluna: 14px; /* column header, weight 600 */
   --g-t-aba: 16px; /* aba, peso 400 (ativa 700) */
 
   --g-lh-rotulo: 18px;
   --g-lh-cartao: 21px;
   --g-lh-bloco: 24px;
 
-  /* Geometria do cartão deles, com a NOSSA tinta na sombra. */
+  /* Their card's geometry, with OUR color in the shadow. */
   --g-r-cartao: 16px;
   --g-cartao-pad: 20px;
   --g-cartao-gap: 20px;
   --g-grade-gap: 10px;
   --g-sombra-cartao: 0 2px 8px -2px rgba(17, 17, 17, 0.16);
 
-  /* O `bds-paper bg-surface-1` deles mede `rgb(246,246,246)` na cópia viva
-     (`sistema-visual-portal.md` §1) — um degrau ABAIXO do branco e acima do
-     fundo de trabalho (237). Derivado da nossa tinta de conteúdo, como as
-     outras superfícies: 4% dá o mesmo degrau sem hex novo. É o fundo de TODO
-     cartão do módulo — métrica, tabela, cartão-linha, configuração. */
+  /*
+   * Their `bds-paper bg-surface-1` measures `rgb(246,246,246)` in the live copy (`sistema-visual-portal.md` §1) — one step BELOW white and above the working background (237). Derived from our content color, like the other surfaces: 4% gives the same step with no new hex. It's the background of EVERY card in the module — metric, table, row-card, settings.
+   */
   --g-cartao-fundo: color-mix(in srgb, var(--p-conteudo) 4%, #fff);
 
-  /* Realce do item ativo de lateral: onde eles põem 8% de preto, nós pomos o
-     fundo de estado ativo da marca. O papel é o mesmo, a tinta é nossa. */
+  /*
+   * Highlight of the active sidebar item: where they put 8% black, we put the brand's active-state background. The role is the same, the color is ours.
+   */
   --g-ativo-fundo: var(--p-marca-suave);
 }
 
@@ -169,21 +146,19 @@
   --g-barra-marca: var(--p-marca);
 }
 
-/* Derivados da tinta da barra: um só lugar, para não virarem cinco cinzas. */
+/* Derived from the bar's color: a single place, so they don't turn into five different grays. */
 :root {
   --g-barra-fraca: color-mix(in srgb, var(--g-barra-tinta) 64%, transparent);
   --g-barra-linha: color-mix(in srgb, var(--g-barra-tinta) 14%, transparent);
   --g-barra-hover: color-mix(in srgb, var(--g-barra-tinta) 11%, transparent);
 
-  /* CAMADA DE TINTA — a regra de estado do design system deles, lida na folha
-     dos componentes e registrada em `blip-gestao-medidas.md` §3.
-
-     Passagem do cursor e pressionado NÃO trocam a superfície: sobrepõem tinta
-     do conteúdo a 8% e a 16%. É por isso que o mesmo item se lê igual sobre o
-     branco do cartão, sobre o creme da página e sobre a linha de uma tabela —
-     uma troca de superfície escolhe um fundo e erra em todos os outros.
-
-     8% e 16% são os dois degraus deles, e são só dois. */
+  /*
+   * PAINT LAYER — their design system's state rule, read from the components sheet and recorded in `blip-gestao-medidas.md` §3.
+   *
+   *      Hover and pressed do NOT swap the surface: they overlay content color at 8% and 16%. That's why the same item reads the same over the card's white, over the page's cream and over a table row — swapping the surface picks one background and gets it wrong everywhere else.
+   *
+   *      8% and 16% are their two steps, and only two.
+   */
   --g-tinta-hover: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
   --g-tinta-pressao: color-mix(in srgb, var(--p-conteudo) 16%, transparent);
 }
@@ -194,11 +169,11 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: var(--p-e-3);
-  /* O avatar do contrato começa em x=32 na barra deles. */
+  /* The contract avatar starts at x=32 in their bar. */
   padding: 0 var(--p-e-8);
-  /* Sem `sticky`: as duas barras ficam onde estão porque a `.p-app` tem altura
-     fixa e elas são `flex: none`. O `z-index` fica, mas por outro motivo — é
-     ele que põe os menus suspensos das barras por cima do conteúdo. */
+  /*
+   * No `sticky`: the two bars stay put because `.p-app` has a fixed height and they're `flex: none`. `z-index` stays, but for another reason — it's what puts the bars' dropdown menus above the content.
+   */
   position: relative;
   color: var(--g-barra-tinta);
 }
@@ -210,21 +185,21 @@
   z-index: 31;
 }
 
-/* Barra do PRODUTO: canal, módulos e atalhos. */
+/* PRODUCT bar: channel, modules and shortcuts. */
 .g-barra-inf {
   height: var(--g-barra-inf-h);
   background: var(--g-barra-2);
   z-index: 30;
-  /* Sem FIO embaixo — o módulo ativo precisa dos 56px inteiros para o
-     sublinhado de 4px encostar no pé da barra —, mas com SOMBRA: a folha deles
-     põe uma de 12px de raio sob esta barra, e é ela que separa o cromo do
-     conteúdo quando a página rola por baixo. Um fio de 1px faria o sublinhado
-     do módulo ativo parecer que parou 1px antes do fim. */
+  /*
+   * No RULE at the bottom — the active module needs the full 56px for the 4px underline to touch the bottom of the bar —, but WITH a shadow: their sheet puts a 12px-radius one under this bar, and it's what separates the chrome from the content when the page scrolls underneath. A 1px rule would make the active module's underline look like it stopped 1px short of the end.
+   */
   box-shadow: 0 2px 12px color-mix(in srgb, var(--p-conteudo) 15%, transparent);
 }
 
-/* Nome e plano, duas linhas, encostados à esquerda.
-   Nome 16/700 com entrelinha 24; plano 12/400 com entrelinha 18. */
+/*
+ * Name and plan, two lines, flush left.
+ *    Name 16/700 with 24 line-height; plan 12/400 with 18 line-height.
+ */
 .g-tenant {
   display: flex;
   flex-direction: column;
@@ -255,8 +230,9 @@
   font-size: var(--p-t-md);
 }
 
-/* A marca no centro. O segundo traço do símbolo é `--p-marca`, que sobre
-   preto some: aqui ele recebe o moss legível da barra. */
+/*
+ * The brand mark in the center. The symbol's second stroke is `--p-marca`, which disappears over black: here it gets the bar's legible moss.
+ */
 .g-marca {
   --p-marca: var(--g-barra-marca);
   justify-self: center;
@@ -274,8 +250,9 @@
   white-space: nowrap;
 }
 
-/* Passo de 50px entre os botões de ícone da barra de cima: 40 de botão e 10
-   de respiro. */
+/*
+ * 50px step between the top bar's icon buttons: 40 for the button and 10 of breathing room.
+ */
 .g-barra-fim {
   justify-self: end;
   display: flex;
@@ -283,8 +260,9 @@
   gap: 10px;
 }
 
-/* Na barra de baixo os atalhos andam de 38 em 38: o ícone é solto, de 20×28,
-   sem a moldura de 40 da barra de cima. */
+/*
+ * In the bottom bar the shortcuts run 38 by 38: the icon is unboxed, 20×28, without the top bar's 40px frame.
+ */
 .g-barra-inf .g-barra-fim {
   gap: 18px;
 }
@@ -300,9 +278,9 @@
   color: var(--g-barra-tinta);
 }
 
-/* Botão de ícone da barra: sem borda e sem fundo, porque o fundo já é escuro.
-   40×40 é o que o botão de ícone deles mede — 8px de padding em volta de um
-   ícone de 24 — e o raio é o de 8px do padrão, não o do controle pequeno. */
+/*
+ * Bar icon button: no border and no background, because the background is already dark. 40×40 is what their icon button measures — 8px padding around a 24px icon — and the radius is the standard 8px, not the small control's.
+ */
 .g-iconbtn,
 .g-barra .iconbtn {
   width: 40px;
@@ -331,7 +309,7 @@
   color: var(--g-barra-tinta);
 }
 
-/* Selo de contagem do sino. Só aparece com aviso de verdade. */
+/* Bell notification count badge. Only appears with a real alert. */
 .g-selo {
   position: absolute;
   top: 3px;
@@ -349,9 +327,10 @@
   text-align: center;
 }
 
-/* ------------------------------------------------- menus das duas barras
-   `<details>` puro: abre no clique e no teclado, fecha no Esc, e não custa
-   uma linha de JavaScript. O painel é claro porque é conteúdo, não cromo. */
+/*
+ * ------------------------------------------------- menus of the two bars
+ *    Native `<details>`: opens on click and on keyboard, closes on Esc, and costs zero lines of JavaScript. The panel is light because it's content, not chrome.
+ */
 .g-menu {
   position: relative;
 }
@@ -369,8 +348,9 @@
   right: 0;
   top: calc(100% + 6px);
   z-index: 40;
-  /* 240px é a largura do menu suspenso do design system deles, e não um número
-     escolhido por caber. Ver `blip-gestao-medidas.md` §6. */
+  /*
+   * 240px is the width of their design system's dropdown menu, not a number picked to fit. See `blip-gestao-medidas.md` §6.
+   */
   width: 240px;
   padding: var(--p-e-3);
   background: var(--p-superficie-0);
@@ -410,7 +390,7 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* O canal, com a seta, à esquerda da barra de baixo. */
+/* The channel, with the arrow, to the left of the bottom bar. */
 .g-canal {
   justify-self: start;
   min-width: 0;
@@ -424,7 +404,7 @@
   border-radius: var(--p-r-md);
   cursor: pointer;
   font-size: var(--g-t-modulo);
-  /* 25,6px de entrelinha: é o 1,6 da barra deles, não o 1,5 herdado. */
+  /* 25.6px line-height: it's their bar's 1.6, not the inherited 1.5. */
   line-height: 1.6;
   font-weight: var(--g-peso-leve);
   color: var(--g-barra-tinta);
@@ -440,7 +420,7 @@
   text-overflow: ellipsis;
 }
 
-/* Ponto de status do canal, montado no vértice do ícone. */
+/* Channel status dot, mounted on the icon's vertex. */
 .g-canal-av {
   position: relative;
   display: flex;
@@ -474,11 +454,11 @@
   font-size: var(--p-t-md);
 }
 
-/* ------------------------------------------------ navegação de cima
-   Os módulos, centralizados na barra de baixo. O item ocupa a barra INTEIRA
-   (56px), tem 20px de padding de cada lado — o que deixa 40px entre rótulos
-   vizinhos — e o ativo é um sublinhado de 4px na largura toda do item.
-   O peso NÃO muda no ativo: só a tinta, que passa de fraca a plena. */
+/*
+ * ------------------------------------------------ top navigation
+ *    The modules, centered in the bottom bar. The item takes up the WHOLE bar (56px), has 20px of padding on each side — which leaves 40px between neighboring labels — and the active one is a 4px underline spanning the item's full width.
+ *    The weight does NOT change on active: only the ink, which goes from faint to full.
+ */
 .g-modulos {
   justify-self: center;
   display: flex;
@@ -512,11 +492,9 @@
   font-weight: var(--g-peso-leve);
 }
 
-/* O sublinhado do ativo ENTRA CRESCENDO: nasce em `left: 25%` com largura zero
-   e abre para a largura inteira em 0,3s. É o gesto da barra deles, e ele existe
-   para dizer que a barra reagiu ao clique enquanto o módulo novo ainda carrega.
-   A animação vale só na entrada — quem já chega com o módulo ativo vê o traço
-   pronto, porque o `@keyframes` roda uma vez. */
+/*
+ * The active underline GROWS IN: it's born at `left: 25%` with zero width and opens to full width in 0.3s. It's their bar's gesture, and it exists to say the bar reacted to the click while the new module is still loading. The animation only applies on entry — whoever arrives with the module already active sees the line already drawn, because the `@keyframes` runs once.
+ */
 .g-modulos > a[aria-current='page']::before {
   content: '';
   position: absolute;
@@ -539,17 +517,18 @@
   }
 }
 
-/* O "…" no fim da fileira, com o ícone de 24 que eles usam. O painel abre
-   alinhado à esquerda do botão, senão sairia da barra em tela estreita. */
+/*
+ * The "…" at the end of the row, with the 24px icon they use. The panel opens aligned to the button's left, otherwise it would spill out of the bar on a narrow screen.
+ */
 .g-mais {
   display: flex;
   align-items: center;
-  /* 10px, que é o recuo do "…" na fileira deles — não os 8 do nosso passo. */
+  /* 10px, which is the "…"'s indent in their row — not our usual 8px step. */
   margin-left: 10px;
 }
 
 .g-barra-inf .g-mais > summary {
-  /* O deles é ícone de 24, não os 20 dos atalhos da direita. */
+  /* Theirs is a 24px icon, not the 20px of the right-side shortcuts. */
   width: 24px;
   height: 24px;
   color: var(--g-barra-fraca);
@@ -577,40 +556,36 @@
   text-decoration: none;
 }
 
-/* ============================================================== lateral
-   262px, clara, com 16px de recuo dos dois lados. Item de 42px com ícone de
-   24 e 8px até o rótulo; grupo que abre pela seta à direita; subitem de 39px
-   recuado 37px, com barra vertical de 2px no ativo. Rodapé de 72px com o
-   atalho para o app do atendente.
-
-   Tudo medido em `blip-medidas-monitoramento.md` §3. O que muda é a tinta: o
-   realce do ativo, que lá é 8% de preto, aqui é o fundo de estado ativo da
-   marca; e o ícone e a barra, que lá são azuis, aqui são moss. */
+/*
+ * ============================================================== sidebar
+ *    262px, light, with 16px of indent on both sides. 42px item with a 24px icon and 8px to the label; a group that opens via the arrow on the right; 39px subitem indented 37px, with a 2px vertical bar when active. 72px footer with the shortcut to the agent app.
+ *
+ *    Everything measured in `blip-medidas-monitoramento.md` §3. What changes is the ink: the active highlight, which there is 8% black, here is the brand's active-state background; and the icon and bar, which there are blue, here are moss.
+ */
 .g-lateral {
   width: var(--g-lateral-w);
   flex: none;
   background: var(--p-superficie-0);
   border-right: 1px solid var(--p-linha);
   padding: var(--g-lateral-recuo);
-  /* Rola por si, dentro da caixa de altura fixa da `.p-app`. O `sticky` com
-     `height: calc(100vh - topo)` que estava aqui era a imitação disso enquanto
-     a página rolava — e imitação que sobra depois do original vira mistério. */
+  /*
+   * Scrolls on its own, inside `.p-app`'s fixed-height box. The `sticky` with `height: calc(100vh - topo)` that used to be here was an imitation of this while the page scrolled — and an imitation that outlives the original becomes a mystery.
+   */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 
-/* 8px entre itens e entre grupos, sem exceção. */
+/* 8px between items and between groups, no exceptions. */
 .g-lateral-itens {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-2);
 }
 
-/* O item tem MOLDURA de 1px, transparente em repouso. Ela é o que faz os
-   42px fecharem — 8 + 24 de ícone + 8 + 2 de moldura — e é ela que acende no
-   hover e no ativo, na tinta de 16%. Sem a moldura declarada, ligar a borda no
-   hover empurraria o conteúdo 1px e o item tremeria sob o cursor. */
+/*
+ * The item has a 1px BORDER, transparent at rest. It's what makes the 42px add up — 8 + 24 icon + 8 + 2 border — and it's what lights up on hover and when active, at 16% ink. Without the border declared, turning it on on hover would push the content 1px and the item would jitter under the cursor.
+ */
 .g-item {
   display: flex;
   align-items: center;
@@ -636,9 +611,9 @@
   color: var(--p-conteudo-desabilitado);
 }
 
-/* Hover e pressionado são CAMADA DE TINTA, não troca de superfície: 8% e
-   16% do conteúdo, os dois degraus deles. Ver o comentário de
-   `--g-tinta-hover` lá em cima. */
+/*
+ * Hover and pressed are an INK LAYER, not a surface swap: 8% and 16% of the content color, their two steps. See the `--g-tinta-hover` comment above.
+ */
 .g-item:hover {
   background: var(--g-tinta-hover);
   border-color: var(--g-tinta-pressao);
@@ -648,7 +623,7 @@
   background: var(--g-tinta-pressao);
 }
 
-/* Ativo: fundo de estado, moldura acesa, rótulo 700 e o ícone na cor de marca. */
+/* Active: state background, lit border, 700-weight label and brand-colored icon. */
 .g-item[aria-current='page'] {
   background: var(--g-ativo-fundo);
   border-color: var(--g-tinta-pressao);
@@ -659,7 +634,7 @@
   color: var(--p-marca);
 }
 
-/* O grupo aberto também recebe o realce, como na lateral deles. */
+/* The open group also gets the highlight, like in their sidebar. */
 .g-grupo[open] > .g-item {
   background: var(--g-ativo-fundo);
   border-color: var(--g-tinta-pressao);
@@ -670,20 +645,19 @@
   color: var(--p-marca);
 }
 
-/* O grupo não separa nada por conta própria: quem dá o respiro de 8px acima
-   do primeiro filho e abaixo do último é o contêiner dos filhos, com o seu
-   `padding: 8px 0`. Somar um `gap` aqui dobraria esse respiro para 16px. */
+/*
+ * The group doesn't add any spacing on its own: what gives the 8px of breathing room above the first child and below the last is the children container, with its own `padding: 8px 0`. Adding a `gap` here would double that spacing to 16px.
+ */
 .g-grupo {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-/* ---------------------------------------------- os filhos do grupo aberto
-   Recuo de 23px e a GUIA VERTICAL de 2px encostada na borda do recuo, indo do
-   topo do primeiro filho ao pé do último. Ela é tinta de 8% a 80% de
-   opacidade — presente, e discreta o bastante para a barra do item ativo
-   montar em cima dela sem disputa. */
+/*
+ * ---------------------------------------------- the open group's children
+ *    23px indent and the 2px VERTICAL GUIDE flush against the indent's edge, running from the top of the first child to the bottom of the last. It's ink at 8% to 80% opacity — present, and discreet enough for the active item's bar to sit on top of it without conflict.
+ */
 .g-grupo-filhos {
   position: relative;
   display: flex;
@@ -704,7 +678,7 @@
   opacity: 0.8;
 }
 
-/* A seta do grupo gira ao abrir — é o mesmo gesto da tela deles. */
+/* The group's arrow rotates on open — it's the same gesture as their screen. */
 .g-grupo > summary > svg:last-child {
   margin-left: auto;
   transition: transform var(--p-dur-rapida) ease;
@@ -714,15 +688,11 @@
   transform: rotate(180deg);
 }
 
-/* Subitem: 22px de padding à esquerda dentro do recuo de 23px do contêiner —
-   os 45px que põem o rótulo do filho 5px à direita do rótulo do pai, que fica
-   em 40px (8 de padding + 24 de ícone + 8 de gap).
-
-   A barra de 2px NÃO é exclusiva do ativo: ela existe sempre, encostada em
-   `left: 0` — exatamente sobre a guia do grupo —, transparente em repouso, na
-   tinta de 16% sob o cursor e na cor de marca no ativo. É o mesmo gesto de
-   três estados da lateral deles; ter só o estado ativo fazia o subitem sob o
-   cursor não dizer para onde ia. */
+/*
+ * Subitem: 22px of left padding inside the container's 23px indent — the 45px that puts the child's label 5px to the right of the parent's label, which sits at 40px (8 padding + 24 icon + 8 gap).
+ *
+ *    The 2px bar is NOT exclusive to the active state: it always exists, flush at `left: 0` — exactly over the group's guide —, transparent at rest, at 16% ink under the cursor and in the brand color when active. It's the same three-state gesture as their sidebar; having only the active state made the subitem under the cursor fail to say where it was going.
+ */
 .g-subitem {
   position: relative;
   display: flex;
@@ -745,9 +715,9 @@
   width: 2px;
   border-radius: var(--p-r-md);
   background: transparent;
-  /* Acende depressa e apaga devagar, como na deles: 0,3s para entrar e 0,8s
-     para sair. É o que impede a lateral de piscar quando o cursor atravessa
-     a lista para chegar no item de baixo. */
+  /*
+   * Lights up fast and fades out slow, like theirs: 0.3s in and 0.8s out. It's what keeps the sidebar from flickering when the cursor crosses the list to reach the item below.
+   */
   transition: background-color 0.8s ease;
 }
 
@@ -774,10 +744,9 @@
   transition-duration: var(--p-dur-normal);
 }
 
-/* Rodapé da lateral: 72px, 24px de padding, FIO EM CIMA e os dois extremos
-   afastados — a marca do outro app à esquerda, o ícone de "abre fora" à
-   direita. O fio e o `space-between` estavam faltando; sem eles o rodapé
-   flutuava colado no último item do menu e parecia mais um item da lista. */
+/*
+ * Sidebar footer: 72px, 24px padding, RULE ON TOP and the two ends pushed apart — the other app's brand mark on the left, the "opens externally" icon on the right. The rule and the `space-between` were missing; without them the footer floated stuck to the last menu item and looked like just another list item.
+ */
 .g-lateral-rodape {
   margin-top: auto;
   display: flex;
@@ -797,26 +766,23 @@
   color: var(--p-conteudo);
 }
 
-/* -------------------------------------------------------- cabeçalho de tela
-   O esqueleto vertical deles, medido: 32px de folga no topo, linha do título
-   de 40px dentro de um bloco de 73px, faixa de filtros de 56px, e 10px até o
-   primeiro cartão. O gap da coluna é 10px; os 23px de margem abaixo do título
-   completam os 33px que o bloco de 73 pede.
-
-   O critério de densidade que apertava isso está revogado — ver o comentário
-   dos token de barra lá em cima. */
-/* O padding lateral da área de conteúdo é PROPORCIONAL, não fixo: `32px 2%`.
-   Era isto que produzia os 28,47px medidos no DOM em 1707px de largura — 2% da
-   área que sobra depois da lateral. Fixar em 28px acertava aquela largura e
-   errava todas as outras. */
+/*
+ * -------------------------------------------------------- screen header
+ *    Their vertical skeleton, measured: 32px of top clearance, 40px title line inside a 73px block, 56px filter strip, and 10px to the first card. The column gap is 10px; the 23px margin below the title completes the 33px the 73px block calls for.
+ *
+ *    The density rule that used to tighten this has been revoked — see the bar-token comment above.
+ */
+/*
+ * The content area's side padding is PROPORTIONAL, not fixed: `32px 2%`. This is what produced the 28.47px measured in the DOM at 1707px width — 2% of the area left over after the sidebar. Fixing it at 28px got that one width right and every other one wrong.
+ */
 .p-conteudo {
   gap: var(--g-grade-gap);
   padding: var(--p-e-8) 2% var(--p-e-10);
 }
 
-/* E a área de conteúdo tem TETO: em tela muito larga ela para de crescer e
-   centraliza. É a regra deles, e existe porque uma tabela de 2400px de largura
-   não se lê — o olho perde a linha entre a primeira coluna e a última. */
+/*
+ * And the content area has a CEILING: on a very wide screen it stops growing and centers. It's their rule, and it exists because a 2400px-wide table can't be read — the eye loses the line between the first column and the last.
+ */
 @media (min-width: 1920px) {
   .p-conteudo {
     width: 90%;
@@ -839,8 +805,9 @@
   flex-wrap: wrap;
 }
 
-/* Título de tela: 24px com peso 400. Título deles não é negrito, e o nosso
-   também deixa de ser. */
+/*
+ * Screen title: 24px at weight 400. Their title isn't bold, and ours stops being bold too.
+ */
 .board-head h2 {
   margin: 0;
   font-size: var(--g-t-titulo);
@@ -855,16 +822,14 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* O botão "Criar X"/"Nova X" do cabeçalho — mesma posição do `.sub` (a única
-   coisa que ficava naquele canto até aqui), para as telas em que a Blip põe
-   um botão ali em vez de subtítulo (`FICHA-rules.md`, `FICHA-queue-
-   management.md`, `FICHA-personalizedbreaks.md`, `FICHA-replies.md`, todas
-   §2: cabeçalho sem subtítulo, com botão à direita). */
+/*
+ * The header's "Criar X"/"Nova X" button — same position as `.sub` (the only thing that used to sit in that corner until now), for the screens where Blip puts a button there instead of a subtitle (`FICHA-rules.md`, `FICHA-queue-management.md`, `FICHA-personalizedbreaks.md`, `FICHA-replies.md`, all §2: header with no subtitle, button on the right).
+ */
 .board-head .board-acao {
   margin-left: auto;
 }
 
-/* Os dois ícones da direita da linha do título: atualizar e tela cheia. */
+/* The two icons on the right of the title row: refresh and fullscreen. */
 .filters {
   margin-left: auto;
   display: flex;
@@ -873,7 +838,7 @@
   align-items: center;
 }
 
-/* Controle de texto sem moldura: o "Auto 30s" ao lado dos dois ícones. */
+/* Borderless text control: the "Auto 30s" next to the two icons. */
 .btn-sutil {
   font: inherit;
   font-size: var(--p-t-sm);
@@ -895,10 +860,10 @@
   font-weight: var(--p-peso-medio);
 }
 
-/* ================================================= faixas de filtro rápido
-   São DUAS na tela deles: uma acima da grade e outra entre a grade e a
-   tabela. Mesmo desenho nas duas — rótulo em caixa alta pequena, pílulas, e
-   o botão "Filtros" com funil encostado à direita. */
+/*
+ * ================================================= quick-filter strips
+ *    There are TWO in their screen: one above the grid and another between the grid and the table. Same design in both — small-caps label, pills, and the "Filtros" button with a funnel icon flush to the right.
+ */
 .faixa-filtros,
 .quickfilters {
   display: flex;
@@ -908,8 +873,9 @@
   flex-wrap: wrap;
 }
 
-/* "Filtros rápidos:" sai em 16/700, na caixa normal. Caixa alta com
-   espaçamento de letra era invenção nossa: eles não usam. */
+/*
+ * "Filtros rápidos:" comes out at 16/700, in normal case. Uppercase with letter-spacing was our own invention: they don't use it.
+ */
 .faixa-filtros > .lbl,
 .quickfilters .lbl {
   margin-right: 2px;
@@ -929,15 +895,12 @@
   gap: var(--p-e-2);
 }
 
-/* ====================================================== o botão, na medida deles
-   `referencias-blip/pesquisa/sistema-visual-portal.md` §3, medido em TODO botão das duas
-   telas: 40px de altura, raio 8, recuo lateral 16, 4px entre ícone e rótulo,
-   rótulo 14/700 na TINTA CHEIA e borda de 1px na tinta cheia também.
-
-   O nosso vinha de 79×30 com 12/500, borda a 17% e texto apagado — era daí a
-   impressão de miúdo. Três variantes, e a diferença entre elas é só tinta:
-   secundário (borda cheia), fantasma (borda transparente) e primário (fundo
-   de marca). */
+/*
+ * ====================================================== the button, at their measurement
+ *    `referencias-blip/pesquisa/sistema-visual-portal.md` §3, measured on EVERY button of both screens: 40px height, radius 8, 16px side indent, 4px between icon and label, label 14/700 at FULL INK and a 1px border also at full ink.
+ *
+ *    Ours used to be 79×30 with 12/500, a 17% border and faded text — that's what gave it the feel of being tiny. Three variants, and the difference between them is only ink: secondary (full border), ghost (transparent border) and primary (brand background).
+ */
 .btn {
   min-height: 40px;
   padding: 0 var(--p-e-3);
@@ -960,31 +923,31 @@
   color: var(--p-marca-conteudo);
 }
 
-/* A terceira variante deles, `bds-button variant="text"`: sem borda e sem
-   fundo, só o rótulo — é o "Últimos 30 dias" da faixa do Histórico e dos
-   Relatórios (`button 136x40 b=1px rgba(0,0,0,0)`, `sistema-visual-portal.md`
-   §3). O nosso o desenhava com a borda cheia do secundário. */
+/*
+ * Their third variant, `bds-button variant="text"`: no border and no background, just the label — it's the "Últimos 30 dias" in the History and Reports strip (`button 136x40 b=1px rgba(0,0,0,0)`, `sistema-visual-portal.md` §3). Ours used to draw it with the secondary's full border.
+ */
 .btn.fantasma {
   border-color: transparent;
 }
 
-/* `bds-button variant="outline" color="primary"`: a borda na cor de marca,
-   o rótulo na tinta de conteúdo — o "Redefinir filtros" do vazio do
-   Histórico (`button 135x40 b=1px rgb(74,93,35)`). */
+/*
+ * `bds-button variant="outline" color="primary"`: the border in the brand color, the label in content ink — the "Redefinir filtros" of the History's empty state (`button 135x40 b=1px rgb(74,93,35)`).
+ */
 .btn.contorno-marca {
   border-color: var(--p-marca);
 }
 
-/* O botão primário apagado continua primário: fundo de marca a 50%, como o
-   `button__primary--disabled{opacity:50%}` deles — não vira cinza. */
+/*
+ * The disabled primary button stays primary: brand background at 50%, like their `button__primary--disabled{opacity:50%}` — it doesn't turn gray.
+ */
 .btn.primario:disabled,
 .btn.primary:disabled {
   opacity: 0.5;
 }
 
-/* A largura mínima de 130px é das FAIXAS — é onde eles a aplicam, e é ela que
-   dá o ritmo de botões do mesmo tamanho um ao lado do outro. Fora daí o botão
-   só tem a altura e o rótulo, para não inchar formulário denso. */
+/*
+ * The 130px minimum width belongs to the STRIPS — that's where they apply it, and it's what gives the rhythm of same-size buttons side by side. Outside of that the button only has its height and label, so it doesn't bloat a dense form.
+ */
 .faixa-filtros .btn,
 .quickfilters .btn,
 .board-head .btn,
@@ -994,8 +957,9 @@
   justify-content: center;
 }
 
-/* Botão de ícone do cabeçalho e do canto do cartão: na tela deles é o GLIFO
-   SOLTO, sem moldura e sem fundo. A caixinha branca de 28px era nossa. */
+/*
+ * Header and card-corner icon button: on their screen it's the LOOSE GLYPH, no border and no background. The 28px white box was ours.
+ */
 .board-head .iconbtn {
   width: 40px;
   height: 40px;
@@ -1005,9 +969,9 @@
   border-radius: var(--p-r-md);
 }
 
-/* O glifo do "Atualizar tela"/"Expandir tela" é o `bds-icon size medium`
-   deles: 24px, não os 14 que o nosso desenhava (ver `dom/monitoring.html`,
-   `bds-icon__size--medium` dentro do `bds-button icon="refresh"`). */
+/*
+ * The "Atualizar tela"/"Expandir tela" glyph is their `bds-icon size medium`: 24px, not the 14 ours used to draw (see `dom/monitoring.html`, `bds-icon__size--medium` inside `bds-button icon="refresh"`).
+ */
 .board-head .iconbtn svg {
   width: 24px;
   height: 24px;
@@ -1017,19 +981,16 @@
   background: var(--p-superficie-2);
 }
 
-/* Os dois botões de ícone do cabeçalho andam com 8px entre si e encostados
-   na direita — `sc-dAbbOL` deles é `flex; gap: 8px`. */
+/*
+ * The header's two icon buttons sit 8px apart and flush right — their `sc-dAbbOL` is `flex; gap: 8px`.
+ */
 .board-head .filters {
   gap: var(--p-e-2);
 }
 
-/* Filtro rápido é BOTÃO, não campo. Na faixa deles cada um mostra o rótulo e
-   NADA MAIS — "Filas", "Atendentes", "Contato", "Status do atendente" —, na
-   mesma medida do botão comum (130×40, raio 8, 14/700, borda cheia). Aqui a
-   caixa de seleção continua existindo por dentro, porque é ela que aplica o
-   filtro sem uma linha de JavaScript, mas ela só aparece quando TEM valor:
-   vazia, a pílula é o botão deles. Com valor, acende em moss — é o papel que
-   o azul cumpre na tela deles, com a nossa tinta. */
+/*
+ * Quick filter is a BUTTON, not a field. On their strip each one shows the label and NOTHING ELSE — "Filas", "Atendentes", "Contato", "Status do atendente" —, at the same size as the regular button (130×40, radius 8, 14/700, full border). Here the select box still exists underneath, because it's what applies the filter with zero lines of JavaScript, but it only shows up when it HAS a value: empty, the pill is their button. With a value, it lights up in moss — that's the role blue plays on their screen, with our paint.
+ */
 .pilula {
   display: inline-flex;
   align-items: center;
@@ -1068,15 +1029,17 @@
   position: relative;
 }
 
-/* A caixa de seleção invisível levaria o anel de foco junto: quem o mostra é
-   a pílula. Sem isto o teclado percorreria a faixa sem sinal nenhum. */
+/*
+ * The invisible select box would take the focus ring along with it: what shows it is the pill. Without this, the keyboard would move through the row with no signal at all.
+ */
 .pilula:focus-within {
   outline: 2px solid var(--p-foco);
   outline-offset: 2px;
 }
 
-/* O valor escolhido, ao lado do rótulo — em 14/400, para o rótulo continuar
-   sendo o que se lê primeiro. */
+/*
+ * The chosen value, next to the label — at 14/400, so the label remains what's read first.
+ */
 .pilula-valor {
   font-weight: var(--g-peso-normal);
   white-space: nowrap;
@@ -1084,7 +1047,7 @@
   text-overflow: ellipsis;
 }
 
-/* A caixa de seleção cobre a pílula e não se vê: quem desenha é o rótulo. */
+/* The select box covers the pill and isn't visible: what draws it is the label. */
 .pilula-select {
   position: absolute;
   inset: 0;
@@ -1117,12 +1080,12 @@
   text-overflow: ellipsis;
 }
 
-/* `input[type=search]` no Chrome/Edge ignora `appearance: none` sem o
-   prefixo e desenha a própria caixa arredondada cinza por baixo — era o
-   "Contato" cinza e sem cara de pílula na captura. Some o cromo nativo:
-   moldura, ícone de lupa e "x" de limpar. */
-/* Vazio e sem foco, o campo não ocupa lugar: o rótulo fica centrado como nos
-   outros três botões da faixa. Clicar no rótulo foca o campo e ele abre. */
+/*
+ * `input[type=search]` in Chrome/Edge ignores `appearance: none` without the prefix and draws its own rounded gray box underneath — it showed up as gray "Contato" with no pill look in the capture. Removes the native chrome: border, magnifying-glass icon and clear "x".
+ */
+/*
+ * Empty and unfocused, the field takes no space: the label stays centered like the other three buttons in the row. Clicking the label focuses the field and it opens.
+ */
 .pilula { justify-content: center; }
 .pilula input[type='search']:placeholder-shown:not(:focus) {
   width: 0;
@@ -1150,19 +1113,18 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* `bds-select`: campo de 40px, seta e lista própria. O select nativo ficava
-   invisível nas pílulas e ainda entregava o menu antigo do navegador. */
+/*
+ * `bds-select`: 40px field, its own arrow and list. The native select was invisible in the pills and still delivered the browser's old menu.
+ */
 .selecao {
   position: relative;
   min-width: 0;
   display: block;
 }
 
-/* Dentro de uma pílula de filtro rápido o `Selecao` some como caixa: quem
-   desenha borda/altura/raio é só a `.pilula`. Do jeito que veio do Codex,
-   as duas caixas se empilhavam — a caixa branca do `.selecao-controle`
-   sobrava por dentro da borda preta da pílula (ver captura). Origem:
-   `bds-button` de filtro rápido é UMA caixa só, sem select embutido. */
+/*
+ * Inside a quick-filter pill the `Selecao` disappears as a box: only `.pilula` draws border/height/radius. The way it came from Codex, the two boxes stacked — the white box of `.selecao-controle` spilled inside the pill's black border (see capture). Source: quick-filter `bds-button` is a SINGLE box, with no embedded select.
+ */
 .selecao.pilula {
   display: inline-flex;
   align-items: center;
@@ -1272,18 +1234,19 @@
   opacity: 0.7;
 }
 
-/* ============================================================ a grade 2×2
-   Cartão largo à esquerda e estreito à direita, nas DUAS linhas, como na
-   tela deles. A separação entre "agora" e "hoje" que a spec de métricas
-   exige é feita pelas linhas da grade e pelos títulos dos cartões. */
+/*
+ * ============================================================ the 2×2 grid
+ *    Wide card on the left and narrow on the right, on BOTH rows, like their screen. The separation between "agora" and "hoje" that the metrics spec requires is done by the grid lines and the card titles.
+ */
 .mon {
   display: grid;
   grid-template-columns: minmax(0, 840fr) minmax(0, 515fr);
   gap: var(--g-grade-gap);
 }
 
-/* A TV não é só a mesma página ampliada: a referência troca o tema, preserva
-   apenas os indicadores e acrescenta a leitura horária. */
+/*
+ * TV mode isn't just the same page enlarged: the reference swaps the theme, keeps only the indicators and adds the hour reading.
+ */
 .mon-pagina-tv {
   position: fixed;
   inset: 0;
@@ -1375,10 +1338,10 @@
   margin-top: 6px;
 }
 
-/* ================================================== o cartão, na medida deles
-   Padding 20, raio 16, SEM borda, e a sombra `0 2px 8px -2px` — a geometria é
-   a deles, a tinta da sombra é a nossa. O título do cartão é 14/600 com 10px
-   até a primeira métrica. */
+/*
+ * ================================================== the card, sized like theirs
+ *    Padding 20, radius 16, NO border, and the shadow `0 2px 8px -2px` — the geometry is theirs, the shadow color is ours. The card title is 14/600 with 10px to the first metric.
+ */
 .card {
   padding: var(--g-cartao-pad);
   border: 0;
@@ -1395,10 +1358,9 @@
   margin-bottom: 10px;
 }
 
-/* O cartão de métrica deles tem SÓ o título no topo: os dois ícones de
-   "Atualizar tela"/"Expandir tela" ficam no cabeçalho da página, uma vez
-   (`dom/monitoring.html`: nenhum `bds-button` dentro dos quatro `bds-paper`).
-   O nosso punha os dois em cada cartão; a ficha estava errada, o DOM não. */
+/*
+ * Their metric card has ONLY the title at the top: the two "Atualizar tela"/"Expandir tela" icons live in the page header, once (`dom/monitoring.html`: no `bds-button` inside the four `bds-paper`). Ours put both in every card; the spec sheet was wrong, the DOM wasn't.
+ */
 .card-cabecalho {
   display: flex;
   align-items: center;
@@ -1412,9 +1374,9 @@
   line-height: var(--g-lh-cartao);
 }
 
-/* Coluna de leitura dos módulos SEM lateral. Sem isso o cartão ocupa os
-   1.650px da tela e a linha de texto passa de 200 caracteres, que o olho
-   perde na volta. Não vale para tela com tabela, que quer a largura toda. */
+/*
+ * Reading column for modules WITHOUT a sidebar. Without this the card takes up the screen's 1,650px and the text line goes past 200 characters, which the eye loses track of on the way back. Doesn't apply to a screen with a table, which wants the full width.
+ */
 .g-leitura {
   display: flex;
   flex-direction: column;
@@ -1422,18 +1384,18 @@
   max-width: 1000px;
 }
 
-/* A fila de métricas do cartão deles é `bds-grid gap="2" justify-content=
-   "space-between"` (`dom/monitoring.html`): as colunas se afastam até as
-   bordas, com 16px de respiro mínimo entre elas. Nada de partes iguais. */
+/*
+ * Their card's metric row is `bds-grid gap="2" justify-content="space-between"` (`dom/monitoring.html`): the columns spread out to the edges, with a minimum 16px gap between them. No equal parts.
+ */
 .metrics {
   display: flex;
   justify-content: space-between;
   gap: var(--p-e-4);
 }
 
-/* "Atendimentos em tempo real" tem DOIS grupos, `w-30` e `w-70` — as duas
-   métricas da fila de um lado e as três do atendimento do outro —, e o fio
-   vertical entre eles que a foto original mostra. */
+/*
+ * "Atendimentos em tempo real" has TWO groups, `w-30` and `w-70` — the two queue metrics on one side and the three attendance metrics on the other —, and the vertical rule between them that the original photo shows.
+ */
 .metrics-grupo {
   display: flex;
   justify-content: space-between;
@@ -1451,11 +1413,9 @@
   width: 70%;
 }
 
-/* A coluna é CENTRADA: número em cima, rótulo centrado embaixo com o ícone de
-   informação ao lado (`bds-typo fs-12 class="text-center"` + `bds-icon info
-   x-small` numa `bds-grid direction="row" gap="half" align-items="center"`).
-   A coluna se mede pelo número — "Na fila" ocupa 40px e o rótulo quebra em
-   duas linhas embaixo, como na tela deles. */
+/*
+ * The column is CENTERED: number on top, label centered below with the info icon next to it (`bds-typo fs-12 class="text-center"` + `bds-icon info x-small` in a `bds-grid direction="row" gap="half" align-items="center"`). The column is sized by the number — "Na fila" takes 40px and the label wraps to two lines below, like on their screen.
+ */
 .metric {
   display: flex;
   flex-direction: column;
@@ -1466,10 +1426,9 @@
   flex: 0 1 auto;
 }
 
-/* Valor 24/400 com entrelinha 24 — e NA FONTE DO CORPO, como o `bds-typo
-   fs-24` deles: a monoespaçada era o que mais afastava o número do original
-   ("305:42:59" em mono lia como terminal). Tabular-nums mantém o alinhamento
-   de dígito sem trocar de família. */
+/*
+ * Value at 24/400 with 24 line-height — and in the BODY FONT, like their `bds-typo fs-24`: monospace was what most set the number apart from the original ("305:42:59" in mono read like a terminal). Tabular-nums keeps digit alignment without switching family.
+ */
 .metric .v {
   font-family: var(--p-fonte);
   font-variant-numeric: tabular-nums;
@@ -1481,8 +1440,9 @@
   white-space: nowrap;
 }
 
-/* 10px até o rótulo; rótulo 12/400 com entrelinha 18, e o ícone de 16px
-   (`bds-icon size="x-small"`) a 4px dele (`gap="half"`). */
+/*
+ * 10px to the label; label 12/400 with 18 line-height, and the 16px icon (`bds-icon size="x-small"`) 4px from it (`gap="half"`).
+ */
 .metric .k {
   margin-top: 10px;
   display: flex;
@@ -1499,17 +1459,18 @@
   text-align: center;
 }
 
-/* O número de "Perdidos" e "Abandonados" sai na tinta de erro — é o
-   `color="var(--color-delete)"` do `bds-typo` deles, com a nossa tinta. */
+/*
+ * The "Perdidos" and "Abandonados" numbers use the error color — it's their `bds-typo`'s `color="var(--color-delete)"`, with our color.
+ */
 .metric.erro .v {
   color: var(--p-erro-conteudo);
 }
 
-/* ================================================ os pontos de status
-   O ponto colorido antes do rótulo, e é aqui que a cor de estado toca a
-   tela sem pedir ação — cabem na régua porque são sete pontos de 7px, e são
-   eles que deixam o supervisor achar "perdidos" sem ler os quatro rótulos.
-   NENHUM AZUL: sucesso, alerta, erro e o neutro dos nossos token. */
+/*
+ * ================================================ the status dots
+ *    The colored dot before the label, and this is where the status color touches the screen without asking for action — they fit on the ruler because they're seven 7px dots, and they're what lets the supervisor spot "perdidos" without reading the four labels.
+ *    NO BLUE: success, warning, error and our tokens' neutral.
+ */
 .sw.sucesso {
   background: var(--p-sucesso-conteudo);
 }
@@ -1526,20 +1487,19 @@
   background: var(--p-conteudo-fantasma);
 }
 
-/* ====================================== a explicação de cada métrica
-   O ícone de informação ao lado do rótulo, com a fórmula e a população que
-   saem de `docs/specs/2026-09-05-metricas-atendimento.md`. `<details>` puro:
-   abre no clique e no teclado, sem JavaScript. */
+/*
+ * ====================================== the explanation for each metric
+ *    The info icon next to the label, with the formula and the population that come from `docs/specs/2026-09-05-metricas-atendimento.md`. Plain `<details>`: opens on click and on keyboard, no JavaScript.
+ */
 .dica {
   display: inline-flex;
   position: relative;
   flex: none;
 }
 
-/* O ícone tem 16px (`bds-icon size="x-small"`), e o alvo não pode ter 16px:
-   é o controle que abre a definição da métrica, e ele aparece ao lado de todo
-   número da tela. O piso de 24 vem com margem negativa vertical para a linha
-   do rótulo (18px) não crescer. */
+/*
+ * The icon is 16px (`bds-icon size="x-small"`), and the target can't be 16px: it's the control that opens the metric's definition, and it appears next to every number on the screen. The 24px floor comes with a negative vertical margin so the label line (18px) doesn't grow.
+ */
 .dica > summary {
   display: inline-flex;
   align-items: center;
@@ -1579,16 +1539,18 @@
   line-height: 1.45;
 }
 
-/* Nas duas últimas colunas o balão abre para a esquerda, senão escapa do
-   cartão e some na borda da janela. */
+/*
+ * On the last two columns the tooltip opens to the left, otherwise it escapes the card and disappears past the window's edge.
+ */
 .metrics > .metric:nth-last-child(-n + 2) .dica-balao {
   left: auto;
   right: -10px;
 }
 
-/* ================================================ o cartão da tabela
-   Mesma geometria do cartão de métricas: padding 20, raio 16, sem borda e com
-   a sombra da casa. A tabela deles vive dentro do mesmo cartão. */
+/*
+ * ================================================ the table card
+ *    Same geometry as the metric card: padding 20, radius 16, no border and the house shadow. Their table lives inside the same card.
+ */
 .tblwrap {
   border: 0;
   border-radius: var(--g-r-cartao);
@@ -1598,9 +1560,9 @@
   overflow: visible;
 }
 
-/* A tabela mora DENTRO do cartão: moldura branca de raio 8 com borda
-   `1px rgba(0,0,0,.06)` dentro da moldura de 16 (`sistema-visual-portal.md`
-   §5). É o duplo raio que dá a profundidade. */
+/*
+ * The table lives INSIDE the card: white frame with an 8 radius and a `1px rgba(0,0,0,.06)` border inside the 16 frame (`sistema-visual-portal.md` §5). It's the double radius that gives the depth.
+ */
 .tblwrap .scroll {
   background: var(--p-superficie-0);
   border: 1px solid var(--p-linha);
@@ -1622,8 +1584,9 @@
   flex-wrap: nowrap;
 }
 
-/* "Monitoramento detalhado" é `bds-typo fs-20 bold` com `mr3` (10px) até a
-   busca. */
+/*
+ * "Monitoramento detalhado" is `bds-typo fs-20 bold` with `mr3` (10px) to the search.
+ */
 .tblhead h3 {
   margin-right: 10px;
   font-size: var(--g-t-valor-rel);
@@ -1632,8 +1595,9 @@
   white-space: nowrap;
 }
 
-/* Abas: faixa de 56px com 4px/16px de padding, item de 48px, texto 16/400 e
-   o ativo em 16/700 com o fio de 2px embaixo. */
+/*
+ * Tabs: 56px strip with 4px/16px padding, 48px item, 16/400 text and the active one at 16/700 with a 2px rule underneath.
+ */
 .tabs {
   padding: var(--p-e-1) var(--p-e-4);
   gap: 0;
@@ -1658,9 +1622,9 @@
   border-bottom-color: var(--p-marca);
 }
 
-/* Cabeçalho de coluna: 14/600 na caixa normal. A caixa alta com espaçamento
-   de letra era invenção nossa — a coluna deles tem o mesmo corpo da célula e
-   se separa só pelo peso. */
+/*
+ * Column header: 14/600 in normal case. Uppercase with letter spacing was our own invention — their column has the same body as the cell and separates only by weight.
+ */
 .tblwrap th {
   height: 64px;
   padding: 0 var(--p-e-2);
@@ -1674,8 +1638,9 @@
 }
 
 .tblwrap td {
-  /* A célula de tabela HTML soma 6px do conteúdo à altura declarada; 58px
-     produz a linha visual de 64px do `bds-table-row` da Blip. */
+  /*
+   * The HTML table cell adds 6px of content to the declared height; 58px produces Blip's `bds-table-row`'s visual 64px line.
+   */
   height: 58px;
   padding: 0 var(--p-e-2);
   font-size: var(--g-t-celula);
@@ -1690,10 +1655,9 @@
   padding-left: var(--p-e-4);
 }
 
-/* Estado vazio em três partes — título, explicação e saída —, na disposição
-   deles: empilhado e centralizado, com o botão embaixo. Dentro do cartão de
-   tabela ele mora na moldura branca da tabela, como o "Dados insuficientes"
-   deles (`desk-grid-tabled-paginated-empty-*`). */
+/*
+ * Empty state in three parts — title, explanation and exit —, in their layout: stacked and centered, with the button at the bottom. Inside the table card it lives in the table's white frame, like their "Dados insuficientes" (`desk-grid-tabled-paginated-empty-*`).
+ */
 .tblwrap .vazio {
   display: flex;
   flex-direction: column;
@@ -1705,10 +1669,9 @@
   border-radius: var(--p-r-md);
 }
 
-/* Título do vazio em 20/700 com 22px até a explicação, e a explicação em
-   16/400 na tinta de conteúdo — medido em "Nenhum resultado encontrado". O
-   nosso saía em 16/700 com o parágrafo em 14 apagado, e era o que fazia a
-   tela vazia parecer um aviso de rodapé. */
+/*
+ * Empty-state title at 20/700 with 22px to the explanation, and the explanation at 16/400 in content color — measured on "Nenhum resultado encontrado". Ours came out at 16/700 with the paragraph in a faded 14, and that's what made the empty screen look like a footer notice.
+ */
 .vazio b,
 .tblwrap .vazio b {
   font-size: var(--g-t-valor-rel);
@@ -1718,10 +1681,9 @@
   margin-bottom: 14px;
 }
 
-/* "Dados insuficientes" das abas do Monitoramento detalhado é UMA linha
-   centrada no corpo da tabela — sem explicação e sem botão (`FICHA-
-   monitoring.md` §6). Sai em 14/600, o corpo de célula com o peso de
-   cabeçalho, e sem a margem que o título de três partes carrega. */
+/*
+ * "Dados insuficientes" on the Monitoramento detalhado tabs is ONE line centered in the table body — no explanation and no button (`FICHA-monitoring.md` §6). It comes out at 14/600, the cell body with the header's weight, and without the margin the three-part title carries.
+ */
 .vazio-linha {
   display: flex;
   align-items: center;
@@ -1750,8 +1712,9 @@
   max-width: 44ch;
 }
 
-/* A legenda do destaque amarelo, sob a tabela: 12/700 na tinta cheia
-   (`sistema-visual-portal.md` §2, "legenda sob tabela"). */
+/*
+ * The yellow highlight's caption, under the table: 12/700 in full color (`sistema-visual-portal.md` §2, "legenda sob tabela").
+ */
 .tbl-legenda {
   margin: var(--p-e-3) 0 0;
   font-size: var(--g-t-rotulo);
@@ -1760,16 +1723,16 @@
   color: var(--p-conteudo);
 }
 
-/* "Aguardando..." no lugar do número que ainda não existe: é texto, não
-   medida, então sai da monoespaçada e da tinta cheia. */
+/*
+ * "Aguardando..." instead of a number that doesn't exist yet: it's text, not a measurement, so it drops the monospace and the full color.
+ */
 .g-vazio-espera {
   color: var(--p-conteudo-fantasma);
 }
 
-/* A coluna de tempo de atendimento carrega o indicador de SLA ao lado do
-   número, e não numa coluna própria — é onde ele mora na tela deles. O número
-   continua monoespaçado e tabular, porque ele ainda é uma coluna de tempo que
-   precisa alinhar de cima a baixo. */
+/*
+ * The attendance-time column carries the SLA indicator next to the number, not in its own column — that's where it lives on their screen. The number stays monospace and tabular, because it's still a time column that needs to align top to bottom.
+ */
 .tblwrap td.tempo-sla {
   display: flex;
   align-items: center;
@@ -1777,10 +1740,9 @@
   white-space: nowrap;
 }
 
-/* Célula de número na FONTE DO CORPO, com dígito tabular: a célula deles é
-   `bds-typo fs-14 regular` como qualquer outra — a monoespaçada era nossa, e
-   era o que mais afastava a tabela do original. Vale para as tabelas de
-   todo o módulo. */
+/*
+ * Number cell in the BODY FONT, with tabular digits: their cell is `bds-typo fs-14 regular` like any other — the monospace was ours, and it's what most set the table apart from the original. Applies to every table in the module.
+ */
 .tblwrap td.num,
 .tblwrap td.tempo-sla > .num,
 .cartao-rel.tabela td.num,
@@ -1790,8 +1752,9 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Ação de linha: glifo de 24 solto num alvo de 40, sem moldura
-   (`bds-button-icon size="short"`). */
+/*
+ * Row action: a loose 24 glyph in a 40 target, no frame (`bds-button-icon size="short"`).
+ */
 .tblwrap td.acts .iconbtn {
   width: 40px;
   height: 40px;
@@ -1810,18 +1773,19 @@
   background: var(--p-superficie-2);
 }
 
-/* ------------------------------------------------- busca dentro do cartão
-   Na tela deles a busca do "Monitoramento detalhado" mora dentro do cartão,
-   à direita do título — não na faixa de filtros. */
+/*
+ * ------------------------------------------------- search inside the card
+ *    On their screen the "Monitoramento detalhado" search lives inside the card, to the right of the title — not in the filter row.
+ */
 .tblhead .tbl-busca {
   margin-left: auto;
   flex: 1 1 auto;
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
-  /* 54px de altura e a faixa toda de largura: na tela deles a busca do cartão
-     mede `748x54`, não é um campinho encostado no título. Borda `1px
-     rgba(0,0,0,.2)` — a tinta a 20%, não a linha forte. */
+  /*
+   * 54px tall and the full width of the row: on their screen the card's search measures `748x54`, it's not a small field tucked against the title. Border `1px rgba(0,0,0,.2)` — 20% color, not a strong line.
+   */
   height: 54px;
   padding: 0 var(--p-e-4);
   border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
@@ -1830,7 +1794,7 @@
   color: var(--p-conteudo);
 }
 
-/* A lupa da busca é `bds-icon size="small"`: 20px. */
+/* The search magnifying glass is `bds-icon size="small"`: 20px. */
 .tblhead .tbl-busca svg {
   width: 20px;
   height: 20px;
@@ -1881,7 +1845,7 @@
   display: block;
 }
 
-/* Barra colorida só quando o número pede ação. */
+/* Colored bar only when the number calls for action. */
 .bar-row .fill.warn {
   background: var(--p-alerta-conteudo);
 }
@@ -1910,23 +1874,18 @@
   white-space: nowrap;
 }
 
-/* ================================================= o bloco de relatório
-   A estrutura de bloco das telas de Relatório deles, medida em
-   `blip-medidas-monitoramento.md` §6.2: um cartão que CONTÉM cartões.
-
-   Lá: página branca, bloco um degrau abaixo, cartão interno branco — três degraus,
-   com o bloco no meio. Aqui a página é o creme da marca, então o bloco desce
-   para o recesso (`--p-superficie-2`) e o cartão interno sobe para o branco
-   (`--p-superficie-0`). O que se copia é a RELAÇÃO — o bloco é a bandeja, o
-   cartão é o que está em cima dela — e não o sentido, que depende de qual é o
-   fundo de cada casa.
-
-   Título 16/700, 44px do topo do título ao topo do conteúdo, grade interna
-   com 20px nos dois eixos, e 20px entre blocos. */
+/*
+ * ================================================= the report block
+ *    Their Report screens' block structure, measured in `blip-medidas-monitoramento.md` §6.2: a card that CONTAINS cards.
+ *
+ *    There: white page, block one step below, inner card white — three steps, with the block in the middle. Here the page is the brand cream, so the block drops to the recess (`--p-superficie-2`) and the inner card rises to white (`--p-superficie-0`). What we copy is the RELATIONSHIP — the block is the tray, the card sits on top of it — not the meaning, which depends on what each app's background is.
+ *
+ *    Title 16/700, 44px from the top of the title to the top of the content, 20px inner grid on both axes, and 20px between blocks.
+ */
 .bloco-rel {
-  /* `bds-paper bg-color="surface-1"` de fora, `bg-color="surface-0"` dentro
-     (`desk-satisfacao__pagina.html`): o bloco é o cinza do cartão, o cartão
-     interno é branco. */
+  /*
+   * Their `bds-paper bg-color="surface-1"` outside, `bg-color="surface-0"` inside (`desk-satisfacao__pagina.html`): the block is the card's gray, the inner card is white.
+   */
   background: var(--g-cartao-fundo);
   padding: var(--g-cartao-pad);
   border-radius: var(--g-r-cartao);
@@ -1948,14 +1907,15 @@
   color: var(--p-conteudo);
 }
 
-/* O ícone de informação ao lado do título do bloco e do rótulo do cartão
-   (`bds-icon name="info" size="x-small"`, 16px, a 8px do texto — `mr2`). */
+/*
+ * The info icon next to the block title and the card label (`bds-icon name="info" size="x-small"`, 16px, 8px from the text — `mr2`).
+ */
 .bloco-rel > h3 .dica,
 .cartao-rel .r .dica {
   margin-left: 4px;
 }
 
-/* O intervalo do relatório fica ao lado do título do bloco, em 12/400. */
+/* The report's date range sits next to the block title, at 12/400. */
 .bloco-rel > h3 .sub {
   margin-left: var(--p-e-2);
   font-size: var(--g-t-rotulo);
@@ -1963,7 +1923,7 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* A nota de método fecha o bloco, depois do mesmo respiro de 20px. */
+/* The method note closes the block, after the same 20px gap. */
 .bloco-rel .note {
   margin: var(--g-cartao-gap) 0 0;
   border-top: 0;
@@ -1978,7 +1938,7 @@
   gap: var(--g-cartao-gap);
 }
 
-/* Cartão interno: mesma geometria do de fora, uma superfície acima. */
+/* Inner card: same geometry as the outer one, one surface up. */
 .cartao-rel {
   background: var(--p-superficie-0);
   padding: var(--g-cartao-pad);
@@ -1986,9 +1946,9 @@
   min-width: 0;
 }
 
-/* Métrica de relatório: rótulo 14/600 em cima, valor 20/700 embaixo, com
-   41px do topo de um ao topo do outro. É o oposto da métrica do
-   Monitoramento, onde o valor vem primeiro e é 24/400. */
+/*
+ * Report metric: label 14/600 on top, value 20/700 below, with 41px from the top of one to the top of the other. It's the opposite of the Monitoramento metric, where the value comes first and is 24/400.
+ */
 .cartao-rel .r {
   display: flex;
   align-items: center;
@@ -1999,8 +1959,9 @@
   color: var(--p-conteudo);
 }
 
-/* O valor é `bds-typo fs-20 bold tag="h4"`: 20/700 na fonte do corpo, não em
-   monoespaçada. */
+/*
+ * The value is `bds-typo fs-20 bold tag="h4"`: 20/700 in the body font, not monospace.
+ */
 .cartao-rel .v {
   display: block;
   margin-top: var(--g-cartao-gap);
@@ -2012,9 +1973,9 @@
   color: var(--p-conteudo);
 }
 
-/* O cartão interno que carrega um gráfico ou uma tabela deles tem 400px de
-   altura fixa (`bds-paper height="400px"`); enquanto o gráfico não existe, o
-   vazio ocupa a mesma caixa, para a página não encolher. */
+/*
+ * Their inner card that carries a chart or a table has a fixed 400px height (`bds-paper height="400px"`); while the chart doesn't exist yet, the empty state fills the same box, so the page doesn't shrink.
+ */
 .cartao-rel.alto {
   min-height: 400px;
   display: flex;
@@ -2026,8 +1987,9 @@
   justify-content: center;
 }
 
-/* Rótulo 16/700 do cartão interno de gráfico ("Satisfação geral",
-   "Comparativo de satisfação"). */
+/*
+ * 16/700 label for the inner chart card ("Satisfação geral", "Comparativo de satisfação").
+ */
 .cartao-rel > h4 {
   display: flex;
   align-items: center;
@@ -2043,8 +2005,9 @@
   margin-left: auto;
 }
 
-/* O `bds-select` Atendentes/Filas do "Comparativo de satisfação": 40px,
-   raio 8, borda na tinta a 20%. */
+/*
+ * The Atendentes/Filas `bds-select` for "Comparativo de satisfação": 40px, radius 8, border at 20% color.
+ */
 .cartao-rel > h4 select {
   height: 40px;
   min-width: 150px;
@@ -2066,9 +2029,9 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* O cartão interno que carrega uma tabela não repete o padding: a célula já
-   tem o dela, e 20px de cada lado empurrariam a primeira coluna para fora do
-   alinhamento das outras telas. */
+/*
+ * The inner card that carries a table doesn't repeat the padding: the cell already has its own, and 20px on each side would push the first column out of alignment with the other screens.
+ */
 .cartao-rel.tabela {
   padding: 0;
   overflow: hidden;
@@ -2101,28 +2064,26 @@
   padding-left: var(--p-e-4);
 }
 
-/* Cinco módulos mais o "…" pedem 522px no meio da barra, e o canal e os
-   atalhos pedem os outros dois terços. Abaixo de 1180 a fileira não cabe e
-   passa por cima do nome do canal — então fica só o módulo ABERTO, e os
-   outros quatro continuam a um clique no "…", que já os lista.
-   É o que eles fazem com as fichas do Desk na mesma situação. */
+/*
+ * Five modules plus the "…" need 522px in the middle of the bar, and the channel and shortcuts need the other two thirds. Below 1180 the row doesn't fit and overlaps the channel name — so only the OPEN module remains, and the other four stay one click away in the "…", which already lists them. It's what they do with the Desk cards in the same situation.
+ */
 @media (max-width: 1180px) {
   .g-modulos > a:not([aria-current='page']) {
     display: none;
   }
 }
 
-/* Abaixo de 1180 os quatro cartões de métrica do bloco não cabem em linha. */
+/* Below 1180 the block's four metric cards don't fit in a row. */
 @media (max-width: 1180px) {
   .bloco-rel-grade {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
 }
 
-/* --------------------------------------------------------------- responsivo
-   A lateral voltou para os 262px deles, então a grade desaba mais cedo:
-   abaixo de 1180 o cartão largo fica com menos do que as cinco métricas
-   pedem. */
+/*
+ * --------------------------------------------------------------- responsive
+ *    The sidebar went back to their 262px, so the grid collapses sooner: below 1180 the wide card has less than the five metrics need.
+ */
 @media (max-width: 1180px) {
   .mon {
     grid-template-columns: 1fr;
@@ -2137,8 +2098,9 @@
   }
 }
 
-/* Abaixo de 900px a lateral vira uma faixa: sticky de 262px numa tela dessas
-   come metade do conteúdo. */
+/*
+ * Below 900px the sidebar becomes a strip: a sticky 262px on a screen that size eats half the content.
+ */
 @media (max-width: 900px) {
   .g-lateral {
     position: static;
@@ -2153,10 +2115,11 @@
   }
 }
 
-/* ================================================== agrupamento da listagem
-   Cabeçalho de grupo e contagem. Vivem aqui e no CRM até o `@pipe/ui` ganhar
-   uma `Tabela` agrupada — dois consumidores é onde o token vira componente.
-   ========================================================================= */
+/*
+ * ================================================== list grouping
+ *    Group header and count. They live here and in the CRM until `@pipe/ui` gets a grouped `Tabela` — two consumers is where a token becomes a component.
+ *    =========================================================================
+ */
 tr.grupo th {
   background: var(--p-superficie-1);
   font-family: inherit;
@@ -2170,7 +2133,7 @@ tr.grupo th {
   text-align: left;
 }
 
-/* Contagem ao lado de um rótulo. Monoespaçada porque é número. */
+/* Count next to a label. Monospace because it's a number. */
 .qt {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
@@ -2178,40 +2141,27 @@ tr.grupo th {
   color: var(--p-conteudo-fantasma);
 }
 
-/* ================================================ o número que importa
-   Na captura da Blip, dois números da tela de monitoramento saem na cor de
-   marca deles — o que está na fila e o que está em atendimento — e todo o
-   resto fica em tinta escura. É o meio-termo entre colorir tudo (carrossel) e
-   não colorir nada (a tela perde a ênfase).
-
-   A regra: moss só nos números que respondem "como está a operação AGORA".
-   São dois, e continuam sendo dois. Média por atendente, tempo máximo e todo
-   número de "hoje" seguem neutros — hoje já aconteceu, e não há o que fazer
-   a respeito enquanto se olha.
-
-   Isto sobrescreve de propósito a nota do `@pipe/ui` ("número não é lugar de
-   cor de marca"), que continua valendo para as outras telas. */
+/*
+ * ================================================ the number that matters
+ *    In Blip's capture, two numbers on the monitoring screen come out in their brand color — the one in the queue and the one being attended — and everything else stays in dark ink. It's the middle ground between coloring everything (a carousel) and coloring nothing (the screen loses emphasis).
+ *
+ *    The rule: moss only on the numbers that answer "how is the operation doing RIGHT NOW". There are two, and they stay two. Average per agent, maximum time and every "today" number stay neutral — today has already happened, and there's nothing to do about it while looking at it.
+ *
+ *    This deliberately overrides the `@pipe/ui` note ("a number is not a place for brand color"), which still holds for the other screens.
+ */
 .metric.agora .v {
   color: var(--p-marca);
 }
 
-/* ==================================================== a lista de cartões
-   O idioma de lista da Blip, medido em `referencias-blip/pesquisa/blip-telas-atendimento.md`
-   §3: seis das oito telas do módulo Atendimento deles usam ESTE cartão, e
-   nenhuma usa tabela. Cartão de 88px, rótulo pequeno ACIMA do valor forte,
-   controles encostados à direita, e o cartão a UM DEGRAU de distância da
-   página — que é o que faz a lista ler como lista sem precisar de borda.
-
-   O degrau inverte de direção, e é de propósito. A página deles é branca e o
-   cartão é o cinza `surface-1`; a nossa é o creme da marca (`--p-superficie-1`
-   é o fundo da aplicação), então o cartão sobe para o branco
-   (`--p-superficie-0`). O que copiamos é a RELAÇÃO — um degrau de separação —
-   e não o sentido, que depende de qual é o fundo de cada casa.
-
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. Raio 16, padding 20, rótulo
-   12/400 e valor 16/700: a medida inteira é a deles. O que continua sendo
-   nosso é a cor e a monoespaçada dos números.
-   ========================================================================= */
+/*
+ * ==================================================== the card list
+ *    Blip's list idiom, measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` §3: six of their Atendimento module's eight screens use THIS card, and none use a table. An 88px card, small label ABOVE the strong value, controls flush right, and the card ONE STEP away from the page — which is what makes the list read as a list without needing a border.
+ *
+ *    The step reverses direction, and it's on purpose. Their page is white and the card is `surface-1` gray; ours is the brand cream (`--p-superficie-1` is the app's background), so the card rises to white (`--p-superficie-0`). What we copy is the RELATIONSHIP — one step of separation — not the meaning, which depends on what each app's background is.
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. Radius 16, padding 20, label 12/400 and value 16/700: the entire measurement is theirs. What stays ours is the color and the numbers' monospace.
+ *    =========================================================================
+ */
 .lista-cartoes {
   display: flex;
   flex-direction: column;
@@ -2225,22 +2175,25 @@ tr.grupo th {
   gap: var(--p-e-3);
   padding: var(--g-cartao-pad);
   border-radius: var(--g-r-cartao);
-  /* `bds-paper elevation="static" bg-surface-1` (`dom/sla-policy.html`,
-     `dom/rules.html`): o mesmo cinza-claro de todo cartão do módulo. */
+  /*
+   * `bds-paper elevation="static" bg-surface-1` (`dom/sla-policy.html`, `dom/rules.html`): the same light gray as every card in the module.
+   */
   background: var(--g-cartao-fundo);
   box-shadow: var(--g-sombra-cartao);
 }
 
-/* A conversa perdida é a que o supervisor precisa caçar: ganha um fio na
-   borda esquerda, e é o único lugar da lista onde cor entra sem ser pedida. */
+/*
+ * The missed conversation is the one the supervisor needs to hunt for: it gets a rule on the left border, and it's the only place in the list where color appears unprompted.
+ */
 .cartao-lista.critico {
   box-shadow:
     inset 3px 0 0 var(--p-erro-conteudo),
     var(--p-sombra-1);
 }
 
-/* Os campos, em partes iguais. Cada um carrega o próprio rótulo, e é isso
-   que permite jogar o `<thead>` fora. */
+/*
+ * The fields, in equal parts. Each one carries its own label, and that's what lets us drop the `<thead>`.
+ */
 .cl-campos {
   display: grid;
   grid-template-columns: repeat(var(--cl-colunas, 6), minmax(0, 1fr));
@@ -2256,8 +2209,9 @@ tr.grupo th {
   min-width: 0;
 }
 
-/* Rótulo: 12px, peso normal, acima. O oposto do cabeçalho de tabela, que é
-   caixa alta e distante. */
+/*
+ * Label: 12px, normal weight, above. The opposite of a table header, which is uppercase and distant.
+ */
 .cl-campo .r {
   font-size: var(--g-t-rotulo);
   font-weight: var(--g-peso-normal);
@@ -2268,7 +2222,7 @@ tr.grupo th {
   text-overflow: ellipsis;
 }
 
-/* Valor: 16/700 com entrelinha 24. É o que o olho pega primeiro. */
+/* Value: 16/700 with 24 line-height. It's what the eye catches first. */
 .cl-campo .v {
   font-size: var(--g-t-bloco);
   font-weight: var(--g-peso-negrito);
@@ -2279,8 +2233,9 @@ tr.grupo th {
   text-overflow: ellipsis;
 }
 
-/* Número do ticket sai um degrau menor e sem peso, como na tela deles: é
-   identificador, não é o dado que se lê. */
+/*
+ * The ticket number comes out one step smaller and without weight, like on their screen: it's an identifier, not the data you read.
+ */
 .cl-campo .v.id {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
@@ -2289,16 +2244,16 @@ tr.grupo th {
   color: var(--p-conteudo-desabilitado);
 }
 
-/* Duração e contagem, tabulares para alinhar o olho na coluna. */
+/* Duration and count, tabular so the eye lines up on the column. */
 .cl-campo .v.num {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
   font-size: var(--p-t-md);
 }
 
-/* As ações do cartão-linha deles: `bds-button-icon size="short"` (40×40, glifo
-   de 24, sem moldura) para editar e excluir, e o interruptor. Andam com 8px
-   entre si e SEM etiqueta de situação — o interruptor já diz. */
+/*
+ * Their row-card's actions: `bds-button-icon size="short"` (40×40, 24 glyph, no frame) for edit and delete, and the toggle. Spaced 8px apart and WITHOUT a status tag — the toggle already says it.
+ */
 .cl-acoes {
   display: flex;
   align-items: center;
@@ -2324,17 +2279,17 @@ tr.grupo th {
   background: var(--p-superficie-2);
 }
 
-/* O selo "Padrão" do cartão de SLA deles é um `bds-chip-tag` NA LINHA, na
-   quarta coluna do cartão (`dom/sla-policy.html`), não no rodapé. */
+/*
+ * Their SLA card's "Padrão" badge is a `bds-chip-tag` IN THE ROW, in the card's fourth column (`dom/sla-policy.html`), not in the footer.
+ */
 .cl-campo .etiqueta {
   align-self: flex-start;
   margin-top: 4px;
 }
 
-/* A segunda linha do cartão: é o recurso que o cartão de Horários deles usa
-   para a descrição — texto corrido 14/400, sem tira de etiquetas e sem fio.
-   Continua guardando o que não é coluna (condições da regra, atendentes da
-   fila), mas lê como descrição, e não como sete pílulas. */
+/*
+ * The card's second line: it's the feature their Horários card uses for the description — running 14/400 text, no tag strip and no rule. It still holds what isn't a column (rule conditions, queue agents), but reads as a description, not as seven pills.
+ */
 .cl-rodape {
   grid-column: 2 / -1;
   margin-top: var(--p-e-2);
@@ -2344,9 +2299,9 @@ tr.grupo th {
   color: var(--p-conteudo-desabilitado);
 }
 
-/* Caixa de seleção + avatar antes das colunas — o cartão de atendente
-   (`FICHA-atendentes-filas-pausas.md` §b.2: "caixa de seleção, avatar com as
-   iniciais"). Fica no primeiro `auto` de `.cartao-lista`, como o `.sw`. */
+/*
+ * Checkbox + avatar before the columns — the agent card (`FICHA-atendentes-filas-pausas.md` §b.2: "caixa de seleção, avatar com as iniciais"). Sits in `.cartao-lista`'s first `auto`, like `.sw`.
+ */
 .cl-selecao {
   display: flex;
   align-items: center;
@@ -2357,10 +2312,10 @@ tr.grupo th {
   content: ' · ';
 }
 
-/* ------------------------------------------- seleção múltipla e ação em massa
-   A barra fica ACIMA da lista, como na deles. A ação em massa só aparece com
-   seleção de verdade: botão que não faz nada é item desabilitado com outro
-   nome, e a régua da casa proíbe. */
+/*
+ * ------------------------------------------- multiple selection and bulk action
+ *    The bar sits ABOVE the list, like on theirs. The bulk action only appears with a real selection: a button that does nothing is a disabled item with another name, and the house rule forbids it.
+ */
 .barra-selecao {
   display: flex;
   align-items: center;
@@ -2387,9 +2342,9 @@ tr.grupo th {
   color: var(--p-conteudo-fantasma);
 }
 
-/* A caixa em si tem 16px, e a coluna da grade é `auto`: sem o piso abaixo, o
-   alvo de clique inteiro tinha 16×16 — abaixo dos 24px mínimos, e é este o
-   controle que escolhe o que vai para o CSV. O rótulo cresce, a caixa não. */
+/*
+ * The box itself is 16px, and the grid column is `auto`: without the floor below, the whole click target was 16×16 — below the 24px minimum, and this is the control that picks what goes into the CSV. The label grows, the box doesn't.
+ */
 .cl-sel {
   display: grid;
   place-items: center;
@@ -2407,12 +2362,13 @@ tr.grupo th {
   margin: 0;
 }
 
-/* ------------------------------------------------ busca no topo da tela
-   Sozinha na linha, à esquerda, logo abaixo do título — a mesma ordem das
-   telas de Regras, SLA e Atendentes deles. */
-/* `bds-input icon="search"` numa coluna `w-30` (`dom/queue-management.html`):
-   30% da largura, 54px de altura (296×54 na foto de Regras de SLA), raio 8,
-   borda na tinta a 20%, lupa de 20px a 8px do texto. Era 410×42. */
+/*
+ * ------------------------------------------------ search at the top of the screen
+ *    Alone on the line, to the left, right below the title — the same order as their Regras, SLA and Atendentes screens.
+ */
+/*
+ * `bds-input icon="search"` in a `w-30` column (`dom/queue-management.html`): 30% width, 54px tall (296×54 in the SLA Rules photo), radius 8, border at 20% color, 20px magnifying glass 8px from the text. It used to be 410×42.
+ */
 .busca-topo {
   display: flex;
   align-items: center;
@@ -2449,9 +2405,9 @@ tr.grupo th {
   color: var(--p-conteudo-fantasma);
 }
 
-/* Cabeçalho de grupo acima dos cartões dele. Faz na lista o papel que o
-   `tr.grupo` fazia na tabela: o agrupamento é a nossa resposta aos seis
-   itens de relatório que nunca viraram tela. */
+/*
+ * Group header above its cards. Plays the role in the list that `tr.grupo` played in the table: the grouping is our answer to the six report items that never became a screen.
+ */
 .grupo-cartoes {
   display: flex;
   align-items: center;
@@ -2467,10 +2423,9 @@ tr.grupo th {
   margin-top: 0;
 }
 
-/* Painel de conteúdo de "Modelos de mensagem" — `FICHA-message-template.md`
-   §2: o único cadastro em que o título repete DENTRO de um cartão, com a
-   linha "Filtrar por:" antes da busca. Raio 16 e sombra do mesmo cartão de
-   sempre (`--g-r-cartao`/`--g-sombra-cartao`), tinta nossa. */
+/*
+ * Content panel for "Modelos de mensagem" — `FICHA-message-template.md` §2: the only registry where the title repeats INSIDE a card, with the "Filtrar por:" line before the search. Radius 16 and the same card shadow as always (`--g-r-cartao`/`--g-sombra-cartao`), our color.
+ */
 .painel-modelos {
   display: flex;
   flex-direction: column;
@@ -2481,7 +2436,7 @@ tr.grupo th {
   box-shadow: var(--g-sombra-cartao);
 }
 
-/* O título repetido dentro do painel é `bds-typo variant="fs-20"` bold. */
+/* The title repeated inside the panel is `bds-typo variant="fs-20"` bold. */
 .painel-modelos > h3 {
   margin: 0;
   font-size: var(--g-t-valor-rel);
@@ -2490,8 +2445,9 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
-/* "Filtrar por:" em 14/700 na tinta cheia, os seletores de 40px ao lado e a
-   busca à direita ocupando 69% da linha (`FICHA-message-template.md` §3). */
+/*
+ * "Filtrar por:" at 14/700 in full color, the 40px selectors next to it and the search on the right taking up 69% of the line (`FICHA-message-template.md` §3).
+ */
 .filtrar-por {
   display: flex;
   align-items: center;
@@ -2521,35 +2477,35 @@ tr.grupo th {
   margin-left: auto;
 }
 
-/* Abaixo de 1180 os oito campos não cabem em linha; viram duas fileiras
-   antes de virar ilegíveis. */
+/*
+ * Below 1180 the eight fields don't fit in a row; they become two rows before turning unreadable.
+ */
 @media (max-width: 1180px) {
   .cl-campos {
     grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
   }
 }
 
-/* ============================ relatório de Atendimento (/relatorios/atendimento)
-   O denominador da métrica também entra DENTRO da célula da tabela de quebra:
-   por fila e por atendente a média sem o número de conversas descartadas engana
-   do mesmo jeito que engana no cartão. Na célula ele cola no valor, e volta para
-   a fonte de texto: monoespaçada de 10px em duas linhas de célula vira ruído. */
+/*
+ * ============================ Attendance report (/relatorios/atendimento)
+ *    The metric's denominator also goes INSIDE the breakdown table cell: per queue and per agent, the average without the number of discarded conversations is misleading in the same way it's misleading on the card. In the cell it sticks to the value, and reverts to the text font: 10px monospace across two cell lines becomes noise.
+ */
 .cartao-rel.tabela .den {
   margin-top: 2px;
   font-family: var(--p-fonte);
 }
 
-/* ============================== relatório de Satisfação (/relatorios/satisfacao)
-   A distribuição por classe entra como tabela DENTRO do mesmo bloco dos
-   cartões, e não em bloco próprio: média, taxa de resposta e distribuição são
-   a mesma pesquisa, e separá-las em blocos deixaria a média longe do seu
-   denominador. */
+/*
+ * ============================== Satisfaction report (/relatorios/satisfacao)
+ *    The per-class distribution goes in as a table INSIDE the same block as the cards, not its own block: average, response rate and distribution are the same survey, and splitting them into blocks would leave the average far from its denominator.
+ */
 .bloco-rel-grade + .cartao-rel {
   margin-top: var(--g-cartao-gap);
 }
 
-/* A linha da tabela tem altura fixa em toda a Gestão; a célula de comentário é
-   a única que precisa crescer, porque texto de cliente não cabe em régua. */
+/*
+ * The table row has a fixed height across all of Gestão; the comment cell is the only one that needs to grow, because customer text doesn't fit on a ruler.
+ */
 .cartao-rel.tabela td.comentario {
   height: auto;
   max-width: 520px;
@@ -2559,21 +2515,18 @@ tr.grupo th {
   color: var(--p-conteudo-desabilitado);
 }
 
-/* ================== formulários de cadastro (/atendentes/filas, /atendentes/pausas,
-   /regras/horarios)
-   O design system não tem "campo de formulário com rótulo" — `.cl-campo` é
-   rótulo acima de valor de LEITURA e `.lbl` é proibido em nome de campo pelo
-   comentário de `base.css`. A tela de respostas prontas resolveu isso com
-   estilo em linha; com três formulários e vinte campos, o estilo em linha
-   repetido vira ruído, então as quatro regras viram classe aqui. Nada de cor:
-   é só disposição. */
+/*
+ * ================== registration forms (/atendentes/filas, /atendentes/pausas,
+ *    /regras/horarios)
+ *    The design system doesn't have "a labeled form field" — `.cl-campo` is a label above a READ value and `.lbl` is forbidden on a field name by `base.css`'s own comment. The canned-responses screen solved this with inline styling; with three forms and twenty fields, repeated inline styling becomes noise, so the four rules become a class here. No color: it's layout only.
+ */
 .form-cadastro {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-3);
 }
 
-/* Campos que cabem lado a lado quebram sozinhos antes de espremer. */
+/* Fields that fit side by side wrap on their own before squeezing. */
 .form-linha {
   display: flex;
   flex-wrap: wrap;
@@ -2588,9 +2541,9 @@ tr.grupo th {
   min-width: 0;
 }
 
-/* Caixa de marcar com a explicação ao lado, e não abaixo de um rótulo de duas
-   palavras: `conta como produtivo` é a decisão que muda relatório, e ela só
-   fica compreensível com a frase inteira colada na caixa. */
+/*
+ * A checkbox with the explanation next to it, not below a two-word label: "conta como produtivo" is the decision that changes the report, and it's only understandable with the whole phrase glued to the checkbox.
+ */
 .form-caixa {
   display: flex;
   align-items: flex-start;
@@ -2602,9 +2555,9 @@ tr.grupo th {
   flex: none;
 }
 
-/* Linha simples de lista dentro de um `Cartao` — atendente vinculado à fila,
-   regra de priorização da fila (`atendentes-filas-edicao.tsx`). Mais leve que
-   `.cartao-lista`: aqui não há campos rotulados, só um texto e uma ação. */
+/*
+ * A simple list row inside a `Cartao` — agent linked to queue, the queue's prioritization rule (`atendentes-filas-edicao.tsx`). Lighter than `.cartao-lista`: here there are no labeled fields, just text and an action.
+ */
 .linha-lista {
   align-items: center;
   justify-content: space-between;
@@ -2633,10 +2586,9 @@ tr.grupo th {
   cursor: pointer;
 }
 
-/* "Selecionar todos" — a barra entre a busca e a lista de atendentes
-   (`FICHA-atendentes-filas-pausas.md` §b.2). As ações em lote (Editar/
-   Permissões) só aparecem com seleção — não são do material capturado, mas
-   sem elas a seleção múltipla não teria para onde ir. */
+/*
+ * "Selecionar todos" — the bar between the search and the agent list (`FICHA-atendentes-filas-pausas.md` §b.2). The bulk actions (Editar/Permissões) only appear with a selection — they're not from the captured material, but without them multiple selection would have nowhere to go.
+ */
 .selecionar-todos-barra {
   display: flex;
   align-items: center;
@@ -2660,9 +2612,9 @@ tr.grupo th {
   margin-left: auto;
 }
 
-/* O painel "Filtrar por: Filas" — ativador + painel suspenso ancorado nele
-   (`FICHA-atendentes-filas-pausas.md` §a.4: seletor múltiplo, "Limpar
-   seleção", "Cancelar"/"Aplicar"). */
+/*
+ * The "Filtrar por: Filas" panel — trigger + dropdown panel anchored to it (`FICHA-atendentes-filas-pausas.md` §a.4: multi-select, "Limpar seleção", "Cancelar"/"Aplicar").
+ */
 .filtro-filas {
   position: relative;
   display: flex;
@@ -2715,9 +2667,9 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
-/* A tira de quem está selecionado, em `atendentes-edicao.tsx` e
-   `atendentes-permissoes.tsx` — a prova visual de que "Editar 3 atendentes"
-   são estes três, e não uma promessa sem rosto. */
+/*
+ * The strip of who's selected, in `atendentes-edicao.tsx` and `atendentes-permissoes.tsx` — visual proof that "Editar 3 atendentes" means these three, not a faceless promise.
+ */
 .lista-selecionados {
   display: flex;
   flex-wrap: wrap;
@@ -2745,10 +2697,10 @@ tr.grupo th {
   background: var(--p-superficie-0);
 }
 
-/* ============================ a grade de canais (/preferencias/canais)
-   `FICHA-channels.md` §2: `bds-grid direction="row"` com quatro `bds-paper`
-   de 242×292 (medida do boot-log da captura). Cada cartão: ícone no topo,
-   título 16/700, subtítulo 14/400 e o botão no pé, encostado à direita. */
+/*
+ * ============================ the channels grid (/preferencias/canais)
+ *    `FICHA-channels.md` §2: `bds-grid direction="row"` with four `bds-paper` at 242×292 (measured from the capture's boot-log). Each card: icon on top, title 16/700, subtitle 14/400 and the button at the foot, flush right.
+ */
 .canais-grade {
   display: grid;
   grid-template-columns: repeat(auto-fill, 242px);
@@ -2798,15 +2750,12 @@ tr.grupo th {
   opacity: 0.5;
 }
 
-/* ================ o interruptor do cartão-linha (/regras/atendimento)
-   Medido em `blip-telas-cadastro.md` §2: o toggle liga e desliga o registro NA
-   LISTA, sem abrir formulário. É a única forma de controle que o cartão deles
-   tem além de lápis e lixeira, e a que carrega a decisão do dia a dia.
-
-   Aqui ele é um `<button role="switch">` dentro de um formulário de Server
-   Action: funciona sem JavaScript, tem foco e teclado de graça, e o estado
-   vive no `aria-checked` em vez de num atributo inventado. Nenhuma cor nova —
-   ligado é o moss da marca, desligado é a linha. */
+/*
+ * ================ the row-card switch (/regras/atendimento)
+ *    Measured in `blip-telas-cadastro.md` §2: the toggle turns the record on and off IN THE LIST, without opening a form. It's the only control their card has besides the pencil and the trash can, and the one that carries the day-to-day decision.
+ *
+ *    Here it's a `<button role="switch">` inside a Server Action form: it works without JavaScript, gets focus and keyboard for free, and the state lives in `aria-checked` instead of a made-up attribute. No new color — on is the brand moss, off is the line.
+ */
 .interruptor {
   display: inline-flex;
   align-items: center;
@@ -2837,10 +2786,9 @@ tr.grupo th {
   transform: translateX(16px);
 }
 
-/* O terceiro estado da tabela "Permissões" — uns dos atendentes selecionados
-   têm a permissão, outros não (`FICHA-atendentes-filas-pausas.md` §a.4: as
-   três descrições provam seleção múltipla). Meio caminho, cinza: nem ligado
-   nem desligado. */
+/*
+ * The "Permissões" table's third state — some of the selected agents have the permission, others don't (`FICHA-atendentes-filas-pausas.md` §a.4: the three descriptions prove multiple selection). Halfway, gray: neither on nor off.
+ */
 .interruptor[data-parcial='true'] {
   background: var(--p-linha-media);
 }
@@ -2849,15 +2797,12 @@ tr.grupo th {
   transform: translateX(8px);
 }
 
-/* ============== o cartão de configuração (/configuracoes/gerais)
-   `blip-telas-cadastro.md` §3, e a lacuna que o §7.3 do mesmo documento
-   registrava: título 20/700, explicação 14/400 logo abaixo, o interruptor da
-   seção à direita na altura do título, e o **Salvar do próprio cartão** no
-   canto inferior direito — a tela NÃO tem um Salvar geral.
-
-   O Salvar nasce desabilitado e só acorda quando alguma coisa muda: cartão sem
-   alteração não oferece ação. É a mesma régua que proíbe item de menu
-   desabilitado, aplicada ao botão. */
+/*
+ * ============== the settings card (/configuracoes/gerais)
+ *    `blip-telas-cadastro.md` §3, and the gap that the same document's §7.3 noted: title 20/700, explanation 14/400 right below, the section's toggle on the right at the title's height, and the card's own `Salvar` in the bottom-right corner — the screen does NOT have a general `Salvar`.
+ *
+ *    `Salvar` is born disabled and only wakes up when something changes: a card with no change offers no action. It's the same rule that forbids a disabled menu item, applied to the button.
+ */
 .cartao-config {
   display: flex;
   flex-direction: column;
@@ -2900,8 +2845,8 @@ tr.grupo th {
   color: var(--p-conteudo-desabilitado);
 }
 
-/* O rodapé do cartão: o Salvar dele, à direita, com a mensagem à esquerda. */
-/* Sem fio acima do Salvar: o `bds-paper` deles não tem divisória interna. */
+/* The card's footer: its own `Salvar`, on the right, with the message on the left. */
+/* No rule above `Salvar`: their `bds-paper` has no internal divider. */
 .cartao-config footer {
   display: flex;
   align-items: center;
@@ -2914,26 +2859,22 @@ tr.grupo th {
   margin-right: auto;
 }
 
-/* Seção desligada continua legível, mas o conteúdo dela sai de foco: o toggle
-   do cabeçalho é o que manda, e o corpo é consequência. */
+/*
+ * A turned-off section stays legible, but its content loses focus: the header toggle is what governs, and the body is a consequence.
+ */
 .cartao-config[data-ligado='false'] .cartao-config-corpo {
   opacity: 0.55;
 }
 
-/* ======================================================= tela de entrada
-
-   A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
-
-   Esta seção é a ENTREGA do desenho da tela de entrada, medida por medida:
-   cartão de 400px com canto de 20px, controles de 48px com canto de 12px, e o
-   bloco de 413x308 ao lado, que some abaixo de 1000px. O fundo vive em
-   `entrar/fundo-pipe.tsx` — um canvas que desenha o feixe de partículas; aqui
-   ele só ocupa a caixa.
-
-   Ela NÃO usa a escala do resto do aplicativo: a entrada tem tipografia e
-   espaço próprios (DM Sans, 15px de corpo), e forçar os token da plataforma
-   aqui desfaria o desenho. Os valores da entrega viram token locais no
-   `.entrar` abaixo, e nada fora desta seção os enxerga. */
+/*
+ * ======================================================= sign-in screen
+ *
+ *    The ONLY public screen of the application: `/entrar` and `/convite/<token>`.
+ *
+ *    This section is the DELIVERY of the sign-in screen design, measurement by measurement: a 400px card with a 20px corner, 48px controls with a 12px corner, and the 413x308 block beside it, which disappears below 1000px. The background lives in `entrar/fundo-pipe.tsx` — a canvas that draws the particle beam; here it only occupies the box.
+ *
+ *    It does NOT use the rest of the application's scale: the sign-in screen has its own typography and spacing (DM Sans, 15px body), and forcing the platform's tokens here would undo the design. The delivery's values become local tokens in `.entrar` below, and nothing outside this section sees them.
+ */
 
 .entrar {
   position: relative;
@@ -2943,7 +2884,7 @@ tr.grupo th {
   font-family: 'DM Sans', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 
-  /* Os token da entrega. Ficam no escopo da tela de propósito. */
+  /* The delivery's tokens. They stay scoped to the screen they're for. */
   --pe-fundo: #f2f1ec;
   --pe-papel: #ffffff;
   --pe-campo: #fbfbf7;
@@ -2961,8 +2902,9 @@ tr.grupo th {
   color: var(--pe-conteudo);
 }
 
-/* O canvas do fundo. `pointer-events: none` porque ele cobre a tela inteira e
-   não pode roubar um clique do formulário. */
+/*
+ * The background canvas. `pointer-events: none` because it covers the entire screen and must not steal a click from the form.
+ */
 .entrar-fundo {
   position: absolute;
   inset: 0;
@@ -2971,8 +2913,9 @@ tr.grupo th {
   pointer-events: none;
 }
 
-/* `justify-content: flex-start`, e não `center`: o cartão fica à esquerda e o
-   feixe varre o canto oposto. Centralizar traria o cartão para cima do desenho. */
+/*
+ * `justify-content: flex-start`, not `center`: the card sits on the left and the beam sweeps the opposite corner. Centering would bring the card on top of the drawing.
+ */
 .entrar-palco {
   position: relative;
   display: flex;
@@ -2985,8 +2928,9 @@ tr.grupo th {
   box-sizing: border-box;
 }
 
-/* O cartão encostado à esquerda, a 120px da borda — a medida da tela de
-   origem. Centralizar traria o formulário para cima do feixe. */
+/*
+ * The card flush left, 120px from the edge — the source screen's measurement. Centering would bring the form on top of the beam.
+ */
 @media (min-width: 1000px) {
   .entrar-palco {
     padding-left: 120px;
@@ -3011,9 +2955,9 @@ tr.grupo th {
   margin-bottom: 32px;
 }
 
-/* A entrada não tem título escrito: a marca faz esse papel. O `h1` fica para
-   quem ouve a tela e some só para os olhos. (No convite o título É informação,
-   e lá ele continua visível.) */
+/*
+ * The sign-in screen has no written title: the brand mark fills that role. The `h1` remains for screen-reader users and disappears only visually. (In the invitation screen the title IS information, and there it stays visible.)
+ */
 .entrar-titulo-oculto {
   position: absolute;
   width: 1px;
@@ -3026,8 +2970,9 @@ tr.grupo th {
   border: 0;
 }
 
-/* O motivo da recusa, com a saída da pessoa. Vem ANTES dos botões na ordem de
-   leitura: quem usa leitor de tela precisa do motivo antes da ação. */
+/*
+ * The rejection reason, with the person's exit. Comes BEFORE the buttons in reading order: someone using a screen reader needs the reason before the action.
+ */
 .entrar-alerta {
   margin-bottom: 22px;
   padding: 14px 16px;
@@ -3199,7 +3144,7 @@ tr.grupo th {
   text-decoration: none;
 }
 
-/* ---- o que o convite acrescenta ao mesmo cartão ---- */
+/* ---- what the invitation adds to the same card ---- */
 
 .entrar-cartao h1 {
   margin: 0 0 10px;
@@ -3216,7 +3161,7 @@ tr.grupo th {
   color: var(--pe-apoio);
 }
 
-/* Os dados do convite: rótulo à esquerda, valor à direita. */
+/* The invitation data: label on the left, value on the right. */
 .entrar-dados {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -3233,7 +3178,7 @@ tr.grupo th {
   margin: 0;
   font-weight: 500;
   color: var(--pe-conteudo);
-  /* E-mail longo quebra em vez de esticar o cartão. */
+  /* Long email wraps instead of stretching the card. */
   overflow-wrap: anywhere;
 }
 
@@ -3244,7 +3189,7 @@ tr.grupo th {
   color: var(--pe-apoio);
 }
 
-/* A conta em vigor, no menu de quem está logado. Serve às três telas. */
+/* The active account, in the logged-in menu. Serves all three screens. */
 .eu-bloco {
   display: flex;
   flex-direction: column;
@@ -3259,16 +3204,18 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
-/* `--p-conteudo-claro` é BRANCO no tema claro: dentro de um painel branco o
-   e-mail sumia. O tom certo para texto secundário é o desabilitado. */
+/*
+ * `--p-conteudo-claro` is WHITE in light mode: inside a white panel the email used to disappear. The right tone for secondary text is the disabled one.
+ */
 .eu-bloco span {
   font-size: var(--p-t-xs);
   color: var(--p-conteudo-desabilitado);
   overflow-wrap: anywhere;
 }
 
-/* No portal o bloco é o `bds-menu-exibition` deles: avatar À ESQUERDA, o nome
-   em 16 e o e-mail em 10 ao lado. */
+/*
+ * In the portal the block is their `bds-menu-exibition`: avatar ON THE LEFT, the name at 16 and the email at 10 next to it.
+ */
 .pt-eu .eu-bloco {
   flex-direction: row;
   align-items: center;
@@ -3303,20 +3250,14 @@ tr.grupo th {
   justify-content: center;
 }
 
-/* ====================================================== o anel de foco
-   Três controles da Gestão são um `<input>` sem moldura DENTRO de uma caixa
-   que tem a moldura: a pílula de filtro, a busca do cartão de tabela e a busca
-   do topo. Os três apagavam o anel do `<input>` com `outline: none` — e a
-   caixa de fora não repunha nada.
-
-   O resultado era um controle que recebe foco de teclado e NÃO MOSTRA que
-   recebeu: quem navega por Tab digitava às cegas. O `outline: none` continua,
-   porque um anel apertado em volta do texto dentro de uma caixa que já tem
-   borda fica feio e confuso — mas agora quem desenha o foco é a CAIXA, com o
-   mesmo anel de 2px em `--p-foco` da regra global.
-
-   `:focus-within` e não `:focus`: o foco está no filho, e é a caixa que
-   precisa acender. */
+/*
+ * ====================================================== the focus ring
+ *    Three Gestão controls are a borderless `<input>` INSIDE a box that has the border: the filter pill, the table-card search and the top search. All three erased the `<input>`'s ring with `outline: none` — and the outer box put nothing back.
+ *
+ *    The result was a control that receives keyboard focus and does NOT show that it received it: someone tabbing through typed blind. The `outline: none` stays, because a tight ring around the text inside a box that already has a border looks ugly and confusing — but now the BOX draws the focus, with the same 2px ring in `--p-foco` from the global rule.
+ *
+ *    `:focus-within` and not `:focus`: the focus is on the child, and it's the box that needs to light up.
+ */
 .pilula:focus-within,
 .tblhead .tbl-busca:focus-within,
 .busca-topo:focus-within {
@@ -3324,43 +3265,36 @@ tr.grupo th {
   outline-offset: 2px;
 }
 
-/* =========================================================== o portal (/portal)
-   Medido na tela ORIGINAL rodando (o portal deles servido local, rota
-   `auth.application.list`, janela de 1920), com `getBoundingClientRect` e
-   `getComputedStyle`. A primeira versão desta folha foi lida só no CSS deles e
-   errou o principal: a tela tem DUAS barras de 80px, não uma.
-
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA: os degraus escuros saem de
-   `--g-barra-*` (já derivados para o cromo da Gestão) e o resto dos `--p-*`.
-   Nenhum hex deles entra. */
+/*
+ * =========================================================== the portal (/portal)
+ *    Measured on the ORIGINAL screen running (their portal served locally, `auth.application.list` route, 1920 window), with `getBoundingClientRect` and `getComputedStyle`. This sheet's first version was read only from their CSS and got the main thing wrong: the screen has TWO 80px bars, not one.
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS: the dark steps come from `--g-barra-*` (already derived for Gestão's chrome) and the rest from `--p-*`. None of their hex values enter.
+ */
 .pt-app {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  /* O miolo deles é a superfície 2 (#ededed), um degrau abaixo do branco dos
-     cartões. Aqui é a nossa superfície 1 — mesma relação, tinta nossa. */
+  /*
+   * Their core is surface 2 (#ededed), one step below white cards. Here it's our surface 1 — same relationship, our paint.
+   */
   background: var(--ground);
 }
 
-/* ----------------------------------------------------- barra escura
-   Herda os 80px, o fundo E a grade de três colunas (`1fr auto 1fr`) de
-   `.g-barra` — a mesma que `estrutura-gestao.tsx` usa. É essa grade que
-   garante a coluna central (a marca) NUNCA ser invadida pelo cluster da
-   esquerda: cada um vive na própria faixa, em vez de a marca flutuar
-   `position: absolute` por cima de tudo (como era antes — e como um nome de
-   conta comprido empurrava "Início"/"Pipe Store" para debaixo dela). */
+/*
+ * ----------------------------------------------------- dark bar
+ *    Inherits the 80px, the background AND the three-column grid (`1fr auto 1fr`) from `.g-barra` — the same one `estrutura-gestao.tsx` uses. That grid is what guarantees the center column (the brand mark) is NEVER invaded by the left cluster: each one lives in its own track, instead of the mark floating via `position: absolute` over everything (as it was before — and as a long account name used to push "Início"/"Pipe Store" underneath it).
+ */
 .pt-barra {
-  /* Sem recuo À ESQUERDA: na barra deles o bloco da conta começa em x=0 e é
-     ELE que tem os 32px de recuo interno — o que faz o realce de passagem
-     encostar na borda da tela em vez de flutuar a 32px dela. */
+  /*
+   * No indent ON THE LEFT: on their bar the account block starts at x=0 and IT is what has the 32px internal indent — which makes the hover highlight touch the screen edge instead of floating 32px from it.
+   */
   padding: 0 var(--p-e-8) 0 0;
 }
 
-/* O cluster da esquerda (conta + divisória + links), inteiro na coluna
-   `1fr`: cresce com o nome da conta, mas `overflow: hidden` garante que ele
-   trunca em vez de vazar para a coluna central. Sem `gap`: o espaçamento
-   entre conta/divisória/links já é feito por cada peça (`margin-left` do
-   `.pt-links`, por exemplo). */
+/*
+ * The left cluster (account + divider + links), entirely in the `1fr` column: it grows with the account name, but `overflow: hidden` guarantees it truncates instead of leaking into the center column. No `gap`: the spacing between account/divider/links is already handled by each piece (`.pt-links`'s `margin-left`, for example).
+ */
 .pt-barra-inicio {
   display: flex;
   align-items: center;
@@ -3369,17 +3303,17 @@ tr.grupo th {
   overflow: hidden;
 }
 
-/* O seletor de conta: 285px de mínimo e CRESCE com o nome (na tela deles ele
-   media 409 com um nome longo). O teto de 40% é o que impede um nome enorme
-   de empurrar a marca para fora do centro. */
+/*
+ * The account selector: 285px minimum and GROWS with the name (on their screen it measured 409 with a long name). The 40% ceiling is what stops a huge name from pushing the mark off-center.
+ */
 .pt-conta {
   min-width: 285px;
   max-width: 40%;
 }
 
-/* Sem `gap` e sem recheio à direita: na `portal.css` deles o
-   `.group-buttom-contract` só tem `padding-left: 32px`, e cada distância
-   seguinte é de uma peça — o `pl3` do texto e o recheio da própria seta. */
+/*
+ * No `gap` and no right-side padding: in their `portal.css` the `.group-buttom-contract` only has `padding-left: 32px`, and every following distance comes from a piece — the text's `pl3` and the arrow's own padding.
+ */
 .pt-conta > summary {
   display: flex;
   align-items: center;
@@ -3394,9 +3328,9 @@ tr.grupo th {
   background: var(--g-barra-hover);
 }
 
-/* `.menu-contract .icon-contract-white`: o ícone escuro num círculo claro com
-   8 de recheio (40 no total), e não o ícone claro solto sobre a barra. As
-   tintas se invertem — o fundo é a tinta da barra, o traço é a barra. */
+/*
+ * `.menu-contract .icon-contract-white`: the dark icon in a light circle with 8 of padding (40 total), not the light icon loose on the bar. The colors invert — the background is the bar's ink, the stroke is the bar.
+ */
 .pt-conta-icone {
   flex: none;
   display: flex;
@@ -3406,7 +3340,7 @@ tr.grupo th {
   color: var(--g-barra-1);
 }
 
-/* O `flex flex-column pl3` deles: 0,625rem entre o círculo e o texto. */
+/* Their `flex flex-column pl3`: 0.625rem between the circle and the text. */
 .pt-conta-texto {
   display: flex;
   flex-direction: column;
@@ -3414,10 +3348,11 @@ tr.grupo th {
   padding-left: 0.625rem;
 }
 
-/* Nome 16/700 com entrelinha 24; plano 12/400 com entrelinha 18. Medidos. */
+/* Name 16/700 with 24 line-height; plan 12/400 with 18 line-height. Measured. */
 
-/* O `contractNamePanel` deles é fs-16 NEGRITO, e o tipo de conta fs-12
-   logo abaixo. */
+/*
+ * Their `contractNamePanel` is fs-16 BOLD, and the account type is fs-12 right below.
+ */
 .pt-conta-texto b {
   font-size: var(--g-t-bloco);
   font-weight: var(--g-peso-negrito);
@@ -3427,8 +3362,9 @@ tr.grupo th {
   text-overflow: ellipsis;
 }
 
-/* A inicial em maiúscula como no `first-letter-tenant` deles — sem reescrever
-   o dado, que chega do banco em minúsculas. */
+/*
+ * The capitalized initial, like their `first-letter-tenant` — without rewriting the data, which arrives from the database in lowercase.
+ */
 .pt-plano {
   font-size: var(--g-t-rotulo);
   line-height: var(--g-lh-rotulo);
@@ -3439,9 +3375,9 @@ tr.grupo th {
   text-transform: uppercase;
 }
 
-/* `.menu-contract .arrow-icon`: 1,8rem dos DOIS lados — é esse recheio, e não
-   o do resumo, que afasta a seta do texto e da divisória. E `.icon-white`
-   pinta a seta com a tinta cheia da barra, não com a fraca. */
+/*
+ * `.menu-contract .arrow-icon`: 1.8rem on BOTH sides — it's this padding, not the summary's, that separates the arrow from the text and the divider. And `.icon-white` paints the arrow with the bar's full ink, not the faded one.
+ */
 .pt-conta-seta {
   margin-left: auto;
   padding: 0 1.8rem;
@@ -3455,9 +3391,9 @@ tr.grupo th {
   width: 300px;
 }
 
-/* Os menus da ponta direita da barra são LISTAS DE ITENS, como os
-   `bds-menu-action` deles: ícone à esquerda, rótulo em 16, um por linha, o
-   item inteiro clicável e uma régua entre cada um. Nada de link azul solto. */
+/*
+ * The menus at the bar's right end are ITEM LISTS, like their `bds-menu-action`: icon on the left, label at 16, one per line, the whole item clickable and a rule between each one. No loose blue link.
+ */
 .pt-menu {
   width: 260px;
   padding: var(--p-e-1) 0;
@@ -3488,7 +3424,7 @@ tr.grupo th {
   text-decoration: none;
 }
 
-/* A régua entre itens — o `bds-menu-separation` deles. */
+/* The rule between items — their `bds-menu-separation`. */
 .pt-menu a + a,
 .pt-menu form {
   border-top: 1px solid var(--p-linha);
@@ -3499,8 +3435,9 @@ tr.grupo th {
   color: var(--ink-2);
 }
 
-/* O painel do sino: uma frase centrada, que é tudo o que o deles mostra
-   enquanto não há notificação. */
+/*
+ * The bell's panel: a centered sentence, which is all theirs shows while there's no notification.
+ */
 .pt-sino {
   width: 260px;
   text-align: center;
@@ -3512,15 +3449,16 @@ tr.grupo th {
   color: var(--ink-2);
 }
 
-/* O menu do seletor tem DOIS blocos, nesta ordem, e nada mais: o "Painel do
-   contrato" e a `tenant-list`. Os atalhos soltos que havia aqui saíram — o
-   menu deles não tem nenhum. */
+/*
+ * The selector's menu has TWO blocks, in this order, and nothing else: "Painel do contrato" and the `tenant-list`. The loose shortcuts that used to be here are gone — their menu has none.
+ */
 .pt-conta-menu {
   padding: var(--p-e-2) 0;
 }
 
-/* O primeiro item: ícone, "Painel da conta" em 16 e o nome da conta em vigor
-   logo abaixo, em 10 (o `contractNamePanel` deles). */
+/*
+ * The first item: icon, "Painel da conta" at 16 and the current account's name right below, at 10 (their `contractNamePanel`).
+ */
 .pt-painel {
   display: flex;
   align-items: center;
@@ -3547,8 +3485,9 @@ tr.grupo th {
   color: var(--ink-3);
 }
 
-/* A lista das OUTRAS contas. A conta em vigor não entra: ela é o título do
-   botão que abriu o menu. */
+/*
+ * The list of OTHER accounts. The current account isn't in it: it's the title of the button that opened the menu.
+ */
 .pt-contas {
   display: flex;
   flex-direction: column;
@@ -3558,8 +3497,9 @@ tr.grupo th {
   padding: var(--p-e-2) 0 0;
 }
 
-/* O tipo da conta, embaixo do nome, em 12: o plano quando é contrato e o
-   endereço quando é a conta pessoal. */
+/*
+ * The account type, below the name, at 12: the plan when it's a contract account and the address when it's the personal account.
+ */
 .pt-conta-tipo {
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-fantasma);
@@ -3590,27 +3530,28 @@ tr.grupo th {
   background: var(--p-superficie-2);
 }
 
-/* A conta em vigor não é clicável — trocar para onde já se está não é troca. */
+/* The current account isn't clickable — switching to where you already are isn't a switch. */
 .pt-contas button:disabled {
   cursor: default;
   background: var(--p-marca-suave);
 }
 
-/* O endereço da conta, em monoespaçada: é um identificador, não um nome. */
+/* The account's address, in monospace: it's an identifier, not a name. */
 .pt-slug {
   font-family: var(--p-fonte-mono);
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-fantasma);
 }
 
-/* A seta `arrow-down` que fecha o seletor de conta e o avatar. Tom mais fraco
-   que o texto, como na barra deles. */
+/*
+ * The `arrow-down` that closes the account selector and the avatar. A weaker tone than the text, like on their bar.
+ */
 .pt-seta {
   flex: none;
   color: var(--g-barra-fraca);
 }
 
-/* O avatar da ponta direita vem com a seta ao lado (`menu-user`). */
+/* The avatar at the right end comes with the arrow next to it (`menu-user`). */
 .pt-eu-menu > summary {
   display: flex;
   align-items: center;
@@ -3619,10 +3560,10 @@ tr.grupo th {
   padding: 0 var(--p-e-2);
 }
 
-/* ---------------------------------------------- o que está sendo feito
-   Item que existe na tela da origem e ainda não existe aqui: fica no lugar,
-   apagado e sem clique, com um selo que pisca — a fileira não encolhe e quem
-   procura descobre que vem aí. */
+/*
+ * ---------------------------------------------- what's being built
+ *    An item that exists on the source screen and doesn't exist here yet: it stays in place, muted and unclickable, with a badge that pulses — the row doesn't shrink, and whoever looks finds out it's coming.
+ */
 .pt-obra,
 .pt-links-obra {
   display: flex;
@@ -3646,8 +3587,9 @@ tr.grupo th {
   color: var(--ink);
 }
 
-/* O selo. A pulsação é o "carregando" pedido: diz que está em obra sem
-   precisar de texto longo. Quem pediu menos movimento na tela não vê nada. */
+/*
+ * The badge. The pulsing is the requested "loading" cue: it says work is in progress without needing long text. Whoever asked for less motion on screen sees nothing.
+ */
 .pt-obra-selo {
   flex: none;
   margin-left: var(--p-e-1);
@@ -3674,7 +3616,7 @@ tr.grupo th {
   }
 }
 
-/* O cartão em obra: mesmo desenho, sem levantar no passar do rato. */
+/* The in-progress card: same design, without lifting on mouse hover. */
 .pt-acao-obra {
   cursor: default;
   opacity: 0.55;
@@ -3686,7 +3628,7 @@ tr.grupo th {
   transform: none;
 }
 
-/* Divisória vertical: 2px por 40, logo depois do seletor. */
+/* Vertical divider: 2px by 40, right after the selector. */
 .pt-divisoria {
   flex: none;
   align-self: center;
@@ -3699,8 +3641,9 @@ tr.grupo th {
   margin-left: var(--p-e-6);
 }
 
-/* Os links: 16/700 e tinta fraca, como os `nav-items` deles. O primeiro
-   começa 20px depois da divisória. */
+/*
+ * The links: 16/700 and faded ink, like their `nav-items`. The first one starts 20px after the divider.
+ */
 .pt-links {
   display: flex;
   align-items: center;
@@ -3723,17 +3666,16 @@ tr.grupo th {
   color: var(--g-barra-tinta);
 }
 
-/* A marca na coluna central do grid — 80px de largura, a medida da
-   ilustração deles. Coluna `auto` própria: não precisa de `position:
-   absolute` nem de `z-index` para ficar por cima de nada, porque o cluster
-   da esquerda não tem como entrar nesta faixa (ver `.pt-barra-inicio`). */
+/*
+ * The brand mark in the grid's center column — 80px wide, their illustration's measurement. Its own `auto` column: it needs no `position: absolute` nor `z-index` to sit on top of anything, because the left cluster has no way into this band (see `.pt-barra-inicio`).
+ */
 .pt-marca {
   display: flex;
   justify-self: center;
   line-height: 0;
 }
 
-/* A proporção do arquivo é 420×190, então 80 de largura dão 36 de altura. */
+/* The file's aspect ratio is 420×190, so 80 of width gives 36 of height. */
 .pt-lockup {
   display: block;
   width: 80px;
@@ -3751,9 +3693,9 @@ tr.grupo th {
   flex: none;
 }
 
-/* A foto de quem está logada, quando a sessão traz uma. Mesmo diâmetro do
-   avatar de iniciais (32px), para a barra não pular entre uma pessoa que tem
-   foto e outra que não tem. */
+/*
+ * The photo of whoever is logged in, when the session brings one. Same diameter as the initials avatar (32px), so the bar doesn't jump between someone with a photo and someone without.
+ */
 .pt-foto {
   object-fit: cover;
 }
@@ -3764,10 +3706,10 @@ tr.grupo th {
   font-size: var(--p-t-md);
 }
 
-/* ------------------------------------------------------ barra clara
-   A segunda barra da tela deles: 80px, fundo branco, 40px de recheio, e o
-   conteúdo alinhado à MESMA coluna do miolo. É ela que diz de qual conta é
-   tudo o que vem abaixo — e era o que faltava na primeira versão. */
+/*
+ * ------------------------------------------------------ light bar
+ *    Their screen's second bar: 80px, white background, 40px padding, and content aligned to the SAME column as the core. It's the one that says which account everything below belongs to — and that's what was missing from the first version.
+ */
 .pt-subbarra {
   flex: none;
   height: 80px;
@@ -3786,11 +3728,9 @@ tr.grupo th {
   gap: 40px;
 }
 
-/* O título da barra clara é a FRASE "Espaço de trabalho de {conta}", num h2
-   de 20/700 — o `bds-typo variant="fs-20" bold tag="h2"` da `subtitle-tenant`
-   deles. Não há segunda linha: o endereço da conta que estava aqui não existe
-   na tela deles (lá o endereço é o próprio subdomínio, na barra do navegador),
-   e quem quer saber em que conta está lê o nome nesta frase. */
+/*
+ * The light bar's title is the PHRASE "Espaço de trabalho de {conta}", in an h2 at 20/700 — their `subtitle-tenant`'s `bds-typo variant="fs-20" bold tag="h2"`. There's no second line: the account address that used to be here doesn't exist on their screen (there the address is the subdomain itself, in the browser bar), and whoever wants to know which account they're in reads the name in this phrase.
+ */
 .pt-subbarra-titulo {
   min-width: 0;
   margin: 0;
@@ -3803,8 +3743,9 @@ tr.grupo th {
   text-overflow: ellipsis;
 }
 
-/* A ponta direita da barra clara: a busca e os dois botões de criar, na
-   ordem e no lugar das `action-icons` deles. */
+/*
+ * The light bar's right end: the search and the two create buttons, in the order and place of their `action-icons`.
+ */
 .pt-subbarra-acoes {
   flex: none;
   display: flex;
@@ -3819,16 +3760,16 @@ tr.grupo th {
   white-space: nowrap;
 }
 
-/* A busca deles NÃO tem caixa: é a lupa de 32×32 em cinza, solta, e o campo
-   ao lado sem contorno nenhum (`search-input-container`). A nossa estava dentro
-   de uma caixa com borda e fundo, e era a diferença que o dono apontou.
-
-   Aparece SEMPRE, inclusive na conta sem nenhum contato, que é o que a origem
-   faz. É um `<form method="get">`: o filtro é do servidor, e a tela continua
-   sem estado de cliente. */
-/* =========================================================
-   BUSCA DA SUBBARRA — réplica visual da BLiP
-   ========================================================= */
+/*
+ * Their search has NO box: it's a 32×32 gray magnifying glass, unboxed, and the field next to it with no outline at all (`search-input-container`). Ours used to be inside a box with a border and background, and that was the difference the owner pointed out.
+ *
+ *    It ALWAYS appears, including on an account with no contacts at all, which is what the source does. It's a `<form method="get">`: the filter is server-side, and the screen keeps no client state.
+ */
+/*
+ * =========================================================
+ *    SUBBAR SEARCH — visual replica of BLiP
+ *    =========================================================
+ */
 
 .pt-busca {
   flex: none;
@@ -3859,7 +3800,7 @@ tr.grupo th {
   cursor: pointer;
 }
 
-/* Mantém o SVG exatamente em 32x32 */
+/* Keeps the SVG at exactly 32x32 */
 .pt-busca-botao svg,
 .pt-busca svg {
   display: block;
@@ -3871,8 +3812,10 @@ tr.grupo th {
   color: #8ca0b3;
 }
 
-/* Campo da busca:
-   sem caixa, sem fundo, aparece ao lado da lupa */
+/*
+ * Search field:
+ *    no box, no background, appears next to the magnifying glass
+ */
 .pt-busca input {
   box-sizing: border-box;
 
@@ -3904,13 +3847,15 @@ tr.grupo th {
   -webkit-appearance: none;
 }
 
-/* Espaço entre lupa e input somente depois de abrir */
+/* Gap between the magnifying glass and the input only after opening */
 .pt-busca-aberta {
   gap: 8px;
 }
 
-/* Como seu React cria o input somente no clique,
-   fazemos o movimento de abertura via animação */
+/*
+ * Since React only creates the input on click,
+ *    we fake the opening motion with an animation
+ */
 .pt-busca-aberta input {
   width: 224px;
   opacity: 1;
@@ -3935,7 +3880,7 @@ tr.grupo th {
   opacity: 1;
 }
 
-/* A BLiP não transforma a busca numa caixa */
+/* BLiP doesn't turn the search into a box */
 .pt-busca input:focus {
   outline: none;
   border-bottom-color: #8ca0b3;
@@ -3957,9 +3902,9 @@ tr.grupo th {
   padding: 0 var(--p-e-4) var(--p-e-10);
 }
 
-/* Os degraus da coluna deles: 540, 830 a partir de 852 e 1300 a partir de
-   1300. `max-width` e não `width` para que a tela não role na horizontal
-   abaixo de 540px — que é onde o telefone vive. */
+/*
+ * Their column's breakpoints: 540, 830 from 852 and 1300 from 1300. `max-width` and not `width` so the screen doesn't scroll horizontally below 540px — which is where the phone lives.
+ */
 .pt-coluna {
   margin: 2.5rem auto 0;
   width: 100%;
@@ -3980,14 +3925,12 @@ tr.grupo th {
   }
 }
 
-/* ------------------------------------------- estado 1: boas-vindas
-   O `welcome-banner` deles, nas medidas da folha: 56 de recheio, 72 de vão
-   entre a ilustração e o texto, 24 de margem embaixo, e o texto com
-   `flex: 1 0 200px` — é ele que cresce, não a ilustração. O título ganha 8 de
-   margem e o botão, 16.
-
-   Este bloco só existe no estado 1. É a ausência dele — e a do título de
-   seção — que dá o ar de tela nova a uma conta sem nenhum contato. */
+/*
+ * ------------------------------------------- state 1: welcome
+ *    Their `welcome-banner`, at this sheet's measurements: 56 padding, 72 gap between illustration and text, 24 margin below, and the text with `flex: 1 0 200px` — it's what grows, not the illustration. The title gets 8 margin and the button, 16.
+ *
+ *    This block only exists in state 1. It's its absence — and the section title's — that gives the new-screen feel to an account with no contacts at all.
+ */
 .pt-boasvindas {
   display: flex;
   flex-wrap: wrap;
@@ -4033,12 +3976,10 @@ tr.grupo th {
   margin-top: var(--p-e-4);
 }
 
-/* --------------------------------------------- cartões de ação
-   O `action-card-container` deles: fileira que quebra, 24 de intervalo, e
-   cada cartão elástico a partir de 300 (`flex: 1 0 300px`). Com quatro
-   cartões isso dá dois por linha até ~1300 e quatro acima — que é o que a
-   tela deles faz. O cartão tem 24 de recheio e o ícone mora numa caixa de
-   canto 8, a 24 do texto. */
+/*
+ * --------------------------------------------- action cards
+ *    Their `action-card-container`: a wrapping row, 24 gap, and each card elastic from 300 (`flex: 1 0 300px`). With four cards that gives two per row up to ~1300 and four above — which is what their screen does. The card has 24 padding and the icon lives in a corner-8 box, 24 from the text.
+ */
 .pt-acoes {
   display: flex;
   flex-wrap: wrap;
@@ -4046,9 +3987,9 @@ tr.grupo th {
   margin-bottom: var(--p-e-6);
 }
 
-/* `flex: 1 0 300px` no cartão e `height: 100%` por dentro, como o
-   `.action-card` deles: a altura da fileira é a do cartão de texto mais longo,
-   e os outros esticam até ela. Altura fixa aqui seria invenção nossa. */
+/*
+ * `flex: 1 0 300px` on the card and `height: 100%` inside, like their `.action-card`: the row's height is that of the longest text card, and the others stretch to match. A fixed height here would be our own invention.
+ */
 .pt-acao {
   flex: 1 0 300px;
   display: flex;
@@ -4067,8 +4008,9 @@ tr.grupo th {
   transform: scale(1.02);
 }
 
-/* Onde eles põem o azul, vai o moss. A caixa do ícone é a deles: canto 8,
-   recheio 8, e 24 até o texto. */
+/*
+ * Where they put blue, we put moss. The icon box is theirs: corner 8, padding 8, and 24 to the text.
+ */
 .pt-acao-icone {
   flex: none;
   display: flex;
@@ -4098,15 +4040,12 @@ tr.grupo th {
   color: var(--ink-2);
 }
 
-/* ------------------------------------------------------ título da seção
-   `bds-typo variant="fs-24" bold` — 24px, e não os 20 que estavam aqui. É o
-   maior texto da tela, e é ele que abre a lista. A régua de 1px embaixo, com
-   8px de recuo antes e 24 depois; 40px separam a faixa de cima.
-
-   A ponta direita fica VAZIA: é onde a origem põe o botão "Mover chatbots",
-   escondido nesta conta pela flag `can-migrate-bots: false`. Não temos
-   migração entre contas, então não há o que desenhar ali — a contagem de
-   contatos que ocupava o lugar não existe na tela deles. */
+/*
+ * ------------------------------------------------------ section title
+ *    `bds-typo variant="fs-24" bold` — 24px, not the 20 that was here. It's the screen's largest text, and it's what opens the list. The 1px rule below, with 8px indent before and 24 after; 40px separate it from the band above.
+ *
+ *    The right end stays EMPTY: it's where the source puts the "Mover chatbots" button, hidden on this account by the `can-migrate-bots: false` flag. We don't have migration between accounts, so there's nothing to draw there — the contact count that occupied the spot doesn't exist on their screen.
+ */
 .pt-secao {
   margin: 2.5rem 0 var(--p-e-6);
   padding-bottom: var(--p-e-2);
@@ -4125,7 +4064,7 @@ tr.grupo th {
   color: var(--ink);
 }
 
-/* O "nada por aqui" deles é uma linha de texto, não uma cena. */
+/* Their "nothing here" is a line of text, not a whole scene. */
 .pt-nada {
   margin: 0;
   font-size: var(--p-t-md);
@@ -4156,7 +4095,7 @@ tr.grupo th {
   color: var(--ink);
 }
 
-/* Select 40 / página atual */
+/* Select 40 / current page */
 .pt-paginacao .selecao {
   width: 84px;
   flex: none;
@@ -4189,7 +4128,7 @@ tr.grupo th {
   color: var(--ink);
 }
 
-/* Primeira / anterior / próxima / última */
+/* First / previous / next / last */
 .pt-paginacao-icone {
   width: 40px;
   height: 40px;
@@ -4217,10 +4156,10 @@ tr.grupo th {
   pointer-events: none;
 }
 
-/* ------------------------------------------------------------- a grade
-   Colunas FIXAS de 188px com 24 de intervalo, distribuídas nas pontas: é
-   assim que a deles enche a linha sem esticar o cartão. Abaixo de 852 elas
-   passam a se distribuir por igual, que é a única mudança que eles fazem. */
+/*
+ * ------------------------------------------------------------- the grid
+ *    FIXED 188px columns with a 24 gap, distributed at the edges: that's how theirs fills the row without stretching the card. Below 852 they switch to equal distribution, which is the only change they make.
+ */
 .pt-grade {
   display: grid;
   grid-template-columns: repeat(auto-fill, 188px);
@@ -4235,9 +4174,9 @@ tr.grupo th {
   }
 }
 
-/* O cartão: 188×196, canto 16, recheio 15. Os três andares têm altura FIXA —
-   avatar de 56, nome de 50 e etiqueta de 25 — e é isso que impede o nome de
-   duas linhas de empurrar a etiqueta para fora. */
+/*
+ * The card: 188×196, corner 16, padding 15. The three tiers have a FIXED height — a 56 avatar, a 50 name and a 25 tag — and that's what stops a two-line name from pushing the tag out.
+ */
 .pt-cartao {
   width: 188px;
   height: 196px;
@@ -4260,9 +4199,9 @@ tr.grupo th {
   transform: scale(1.02);
 }
 
-/* Não publicado: o cartão deles ganha um ponto vermelho no canto superior
-   esquerdo (`.chatbot-item.notPublished:after`, 12px a 30px da borda). Aqui é
-   o mesmo ponto, na nossa tinta de erro sobre superfície clara. */
+/*
+ * Unpublished: their card gets a red dot in the top-left corner (`.chatbot-item.notPublished:after`, 12px at 30px from the edge). Here it's the same dot, in our error ink over a light surface.
+ */
 .pt-cartao-rascunho {
   position: relative;
 }
@@ -4278,8 +4217,9 @@ tr.grupo th {
   background: var(--p-erro-conteudo);
 }
 
-/* O andar de cima do cartão: 56 de lado. Sem foto, a origem põe ali o ícone
-   do produto num círculo claro (`round-avatar`), e não as iniciais do nome. */
+/*
+ * The card's top tier: 56 across. Without a photo, the source puts the product icon there in a light circle (`round-avatar`), not the name's initials.
+ */
 .pt-cartao-av {
   width: 56px;
   height: 56px;
@@ -4292,7 +4232,7 @@ tr.grupo th {
   color: var(--p-marca);
 }
 
-/* A foto enche o círculo de 56 sem deformar — recorta o que sobrar. */
+/* The photo fills the 56 circle without distorting — it crops whatever spills over. */
 .pt-cartao-foto {
   width: 100%;
   height: 100%;
@@ -4313,8 +4253,9 @@ tr.grupo th {
   overflow: hidden;
 }
 
-/* O `chip_tag` do `bds-chip-tag`: 24 de altura com a borda, 4 de recheio, o
-   ícone numa caixa de 16 e a palavra com 8 de cada lado (`chip_tag--text`). */
+/*
+ * The `chip_tag` from `bds-chip-tag`: 24 height with the border, 4 padding, the icon in a 16 box and the word with 8 on each side (`chip_tag--text`).
+ */
 .pt-cartao-etq {
   height: 24px;
   margin-top: 0.625rem;
@@ -4333,10 +4274,10 @@ tr.grupo th {
   margin: 0 var(--p-e-2);
 }
 
-/* ------------------------------------------------------- até ~400px
-   Abaixo de 852 a barra deles corta o recuo de 32 para 16 e esconde o que não
-   cabe. Aqui vale o mesmo: os links saem da barra — eles existem no menu da
-   conta —, a marca volta para o fluxo, e a faixa de abertura empilha. */
+/*
+ * ------------------------------------------------------- down to ~400px
+ *    Below 852 their bar cuts the 32 indent to 16 and hides what doesn't fit. Here the same applies: the links leave the bar — they exist in the account menu —, the mark returns to the flow, and the opening band stacks.
+ */
 @media (max-width: 851px) {
   .pt-barra {
     padding: 0 var(--p-e-4) 0 0;
@@ -4399,8 +4340,9 @@ tr.grupo th {
     margin-top: var(--p-e-6);
   }
 
-  /* O bloco de boas-vindas deles tem 56 de recheio e 72 de vão — no telefone
-     isso é meia tela de ar antes da primeira palavra. */
+  /*
+   * Their welcome block has 56 padding and 72 gap — on the phone that's half a screen of air before the first word.
+   */
   .pt-boasvindas {
     gap: var(--p-e-6);
     padding: var(--p-e-6);
@@ -4422,31 +4364,26 @@ tr.grupo th {
   }
 }
 
-/* No telefone a barra fica só com o seletor de conta e o avatar: tema e ajuda
-   moram no menu, e o nome do contrato precisa dos pixels mais do que eles. */
+/*
+ * On phone the bar keeps only the account selector and the avatar: theme and help live in the menu, and the contract name needs the pixels more than they do.
+ */
 @media (max-width: 560px) {
   .pt-barra-fim > :not(:last-child) {
     display: none;
   }
 }
 
-/* ============================================== os passos do onboarding
-
-   O cartão avulso das telas entre o login e o portal — hoje o aviso de
-   `/trocar-conta/sem-acesso`.
-
-   Ele herda o cartão da tela de entrada de propósito — mesma letra, mesma
-   medida de campo, mesmo canto. É a mesma pessoa, no mesmo minuto, e trocar a
-   linguagem visual entre "entrei" e "conte de que empresa você é" faria parecer
-   que ela caiu em outro produto. O fundo animado não vem junto: ali dentro já
-   há sessão, e o canvas do login é peça de porta de entrada.
-
-   `/minha-conta` saiu daqui: a disposição dela passou a ser a da plataforma de
-   origem, medida em `minha-conta/minha-conta.css`.
-
-   As cores saem dos token locais de `.entrada-passo`, gêmeos dos de `.entrar`
-   pela mesma razão: esta é a entrega de desenho da entrada, não a escala do
-   resto do aplicativo. */
+/*
+ * ============================================== the onboarding steps
+ *
+ *    The standalone card for screens between login and the portal — today the `/trocar-conta/sem-acesso` notice.
+ *
+ *    It inherits the sign-in screen's card on purpose — same typeface, same field size, same corner. It's the same person, in the same minute, and switching the visual language between "entrei" and "conte de que empresa você é" would make it feel like they landed on a different product. The animated background doesn't come with it: in there a session already exists, and the login canvas is a front-door piece.
+ *
+ *    `/minha-conta` moved out of here: its layout became that of the origin platform, measured in `minha-conta/minha-conta.css`.
+ *
+ *    The colors come from `.entrada-passo`'s own local tokens, twins of `.entrar`'s for the same reason: this is the sign-in area's design delivery, not the rest of the application's scale.
+ */
 
 .entrada-passo {
   min-height: 100dvh;
@@ -4486,8 +4423,9 @@ tr.grupo th {
     0 24px 60px -14px rgba(22, 21, 15, 0.2);
 }
 
-/* O formulário é mais alto que o aviso; largura maior evita a coluna de campos
-   virar uma fita estreita no meio de uma tela vazia. */
+/*
+ * The form is taller than the notice; a larger width keeps the field column from becoming a narrow ribbon in the middle of an empty screen.
+ */
 .entrada-passo-largo {
   width: 640px;
 }
@@ -4534,8 +4472,9 @@ tr.grupo th {
   margin-bottom: 24px;
 }
 
-/* As contas da pessoa dentro do menu do seletor. Botão, e não link: trocar de
-   conta emite sessão nova, e emissão de sessão não vai em GET. */
+/*
+ * The person's accounts inside the selector's menu. A button, not a link: switching accounts issues a new session, and session issuance doesn't belong on GET.
+ */
 .pt-contas {
   display: flex;
   flex-direction: column;
@@ -4572,20 +4511,19 @@ tr.grupo th {
   background: var(--p-superficie-3);
 }
 
-/* A conta em vigor fica desligada, e por isso não pode parecer apagada: ela é a
-   marcação de onde a pessoa está. */
+/*
+ * The active account is disabled, and because of that it can't look faded: it's the marker of where the person is.
+ */
 .pt-contas button:disabled {
   cursor: default;
   font-weight: var(--p-peso-forte);
   background: var(--p-marca-suave);
 }
 
-/* ================================================== painel lateral "Filtros"
-   O `data-testid="saved-filters-sidebar"` deles, fechado por padrão e medido em
-   `FICHA-monitoring.md` e `FICHA-history.md` §2: título, subtítulo fixo, duas
-   abas, os campos da consulta, e um rodapé com o switch de filtro salvo e os
-   dois botões. A largura de 420px vem do atributo `width` do
-   `bds-sidebar[data-testid="saved-filters-sidebar"]` na captura da Blip. */
+/*
+ * ================================================== "Filtros" side panel
+ *    Their `data-testid="saved-filters-sidebar"`, closed by default and measured in `FICHA-monitoring.md` and `FICHA-history.md` §2: title, fixed subtitle, two tabs, the query fields, and a footer with the saved-filter switch and the two buttons. The 420px width comes from the `width` attribute of `bds-sidebar[data-testid="saved-filters-sidebar"]` in the Blip capture.
+ */
 .painel-fundo {
   position: fixed;
   inset: 0;
@@ -4616,9 +4554,9 @@ tr.grupo th {
   padding: var(--p-e-6) var(--p-e-6) var(--p-e-4);
 }
 
-/* Título `fs-20 bold`, subtítulo `fs-14 regular`, abas `fs-16` (a ativa em
-   bold) e cada campo com rótulo `fs-14 bold` sobre apoio `fs-14 regular` —
-   tudo lido no `saved-filters-sidebar` de `dom/monitoring.html`. */
+/*
+ * Title `fs-20 bold`, subtitle `fs-14 regular`, tabs `fs-16` (the active one bold) and each field with a `fs-14 bold` label over `fs-14 regular` support — all read from the `saved-filters-sidebar` in `dom/monitoring.html`.
+ */
 .painel-cabecalho h3 {
   margin: 0;
   font-size: var(--g-t-valor-rel);
@@ -4719,7 +4657,7 @@ tr.grupo th {
   border-top: 1px solid var(--p-linha);
 }
 
-/* "Criar Filtro Salvo com estes parâmetros" é `fs-14 regular` na tinta cheia. */
+/* "Criar Filtro Salvo com estes parâmetros" is `fs-14 regular` at full ink. */
 .painel-sw {
   display: flex;
   align-items: center;
@@ -4742,16 +4680,13 @@ tr.grupo th {
   color: var(--p-conteudo-fantasma);
 }
 
-/* =========================================== paginação da tabela detalhada
-   O rodapé deles, `FICHA-monitoring.md` §5: "Resultados por página", o
-   contador "1-5 de 8", e os quatro botões de navegação. */
-/* O rodapé deles é texto de 14 na tinta cheia, com o seletor em 74×40 e os
-   quatro botões de navegação sem moldura, ESPALHADOS pela largura: na foto de
-   Regras de SLA (`fotos/original-sla-policy.png`, 1280 de largura) o rótulo
-   sai em x=270, o seletor em 431, o contador em 611, e as quatro setas com o
-   número da página entre elas ocupam de 727 a 1213 — metade direita da faixa,
-   com espaço igual entre elas. Sem fio em cima: a paginação é continuação da
-   lista, não rodapé de tabela. */
+/*
+ * =========================================== detailed table pagination
+ *    Their footer, `FICHA-monitoring.md` §5: "Resultados por página", the "1-5 de 8" counter, and the four navigation buttons.
+ */
+/*
+ * Their footer is 14pt text at full ink, with the selector at 74×40 and the four borderless navigation buttons SPREAD across the width: in the SLA Rules screenshot (`fotos/original-sla-policy.png`, 1280px wide) the label sits at x=270, the selector at 431, the counter at 611, and the four arrows with the page number between them span from 727 to 1213 — the right half of the strip, evenly spaced. No rule on top: pagination is a continuation of the list, not a table footer.
+ */
 .pg {
   display: flex;
   align-items: center;
@@ -4820,15 +4755,17 @@ tr.grupo th {
   margin-left: -9px;
 }
 
-/* O número da página atual, entre "anterior" e "próxima" (`bds-grid
-   margin="x-1"` com `bds-typo fs-14`). */
+/*
+ * The current page number, between "anterior" and "próxima" (`bds-grid margin="x-1"` with `bds-typo fs-14`).
+ */
 .pg-atual {
   min-width: 16px;
   text-align: center;
 }
 
-/* As duas datas do campo "Período" do painel, lado a lado — só aparecem
-   depois do dropdown, e só importam de fato em "Personalizado". */
+/*
+ * The panel's "Período" field's two dates, side by side — they only appear after the dropdown, and only really matter under "Personalizado".
+ */
 .painel-datas {
   display: flex;
   gap: var(--p-e-2);
@@ -4840,9 +4777,10 @@ tr.grupo th {
   min-width: 0;
 }
 
-/* =============================================== Histórico: área de resultados
-   O vazio deles OU a nossa lista, e o link "Termo de responsabilidade" no
-   canto inferior direito — `FICHA-history.md` §2.5. */
+/*
+ * =============================================== History: results area
+ *    Their empty state OR our list, and the "Termo de responsabilidade" link in the bottom-right corner — `FICHA-history.md` §2.5.
+ */
 .hist-resultados {
   display: flex;
   flex-direction: column;
@@ -4865,9 +4803,9 @@ tr.grupo th {
   text-decoration: underline;
 }
 
-/* "Agrupar por" — nosso, fora do painel de filtros de propósito (ver
-   comentário em `historico.tsx`). Mesma régua de altura das faixas de
-   filtro rápido, para não abrir uma terceira medida de linha na tela. */
+/*
+ * "Agrupar por" — ours, deliberately outside the filters panel (see the comment in `historico.tsx`). Same height ruler as the quick-filter strips, so as not to open a third line-height standard on the screen.
+ */
 .hist-agrupar {
   display: flex;
   align-items: center;
@@ -4895,12 +4833,10 @@ tr.grupo th {
   margin-left: auto;
 }
 
-/* ======================================================= modal de cadastro
-   O `bds-modal` que a Blip abre pelo botão "Criar X"/"Nova X" do cabeçalho —
-   confirmado (fechado, `open="false"`) em `FICHA-queue-management.md` §2.6,
-   `FICHA-personalizedbreaks.md` §2.3 e `FICHA-replies.md` §2.3. Centralizado,
-   ao contrário do `.painel-lateral` (que é o *filtro salvo*, outra peça,
-   grudada na direita) — por isso um par de classes novo, e não o mesmo. */
+/*
+ * ======================================================= creation modal
+ *    The `bds-modal` that Blip opens via the header's "Criar X"/"Nova X" button — confirmed (closed, `open="false"`) in `FICHA-queue-management.md` §2.6, `FICHA-personalizedbreaks.md` §2.3 and `FICHA-replies.md` §2.3. Centered, unlike `.painel-lateral` (which is the *saved filter*, a different piece, stuck to the right) — hence a new pair of classes, not the same one.
+ */
 .modal-fundo {
   position: fixed;
   inset: 0;
@@ -4944,12 +4880,13 @@ tr.grupo th {
   padding: 0;
 }
 
-/* ================================================== rodapé de paginação
-   O rodapé "Resultados por página" + "X-Y de Z" + setas, medido em
-   `FICHA-rules.md` e `FICHA-queue-management.md` §5 — paginação no
-   navegador, sobre a lista que a busca já filtrou. */
-/* Mesma régua da `.pg` acima (é o mesmo `pagination-and-search` deles em
-   `dom/rules.html`/`dom/sla-policy.html`): espalhado na largura, sem fio. */
+/*
+ * ================================================== pagination footer
+ *    The "Resultados por página" + "X-Y de Z" + arrows footer, measured in `FICHA-rules.md` and `FICHA-queue-management.md` §5 — pagination in the browser, over the list the search has already filtered.
+ */
+/*
+ * Same ruler as `.pg` above (it's their same `pagination-and-search` in `dom/rules.html`/`dom/sla-policy.html`): spread across the width, no rule.
+ */
 .rodape-paginacao {
   display: flex;
   align-items: center;
@@ -5011,7 +4948,7 @@ tr.grupo th {
   cursor: default;
 }
 
-/* O número da página é `bds-typo fs-14` sem peso — igual ao resto do rodapé. */
+/* The page number is `bds-typo fs-14` with no weight — same as the rest of the footer. */
 .rp-atual {
   min-width: 16px;
   text-align: center;

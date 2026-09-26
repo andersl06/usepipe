@@ -10,26 +10,26 @@ import { acaoSalvarPerfil } from '../actions';
 export const dynamic = 'force-dynamic';
 
 /**
- * Perfil da pessoa.
+ * The person's profile.
  *
- * No Twenty isto são DUAS telas: "Profile" (foto, nome, e-mail, senha, zona de
- * perigo) e "Experience" (tema, idioma, escala, formatos de data e número).
- * Aqui é uma, e a razão é contável: das treze coisas que as duas telas de lá
- * oferecem, o Pipe tem quatro. Uma tela com quatro controles e outra com um não
- * seriam duas telas — seriam uma tela e uma sala de espera.
+ * In Twenty this is TWO screens: "Profile" (photo, name, email, password, danger zone)
+ * and "Experience" (theme, language, density, date and number formats). Here it's
+ * one, and the reason is countable: of the thirteen things those two screens offer
+ * there, Pipe has four. A screen with four controls and another with one wouldn't be
+ * two screens — they'd be one screen and a waiting room.
  *
- * O que ficou de fora, e por quê:
+ * What was left out, and why:
  *
- * - **Sobrenome separado.** `usuario.nome` é um campo só, e quebrar em dois
- *   exigiria migration para resolver um problema que ninguém tem.
- * - **Trocar e-mail, trocar senha, excluir a conta, encerrar sessões.** Todas
- *   dependem da sessão do próprio CRM, que ainda não existe (`banco.ts` resolve
- *   tudo por variável de ambiente). Botão que não faz o que promete é pior do
- *   que botão ausente, e a regra do projeto é explícita: item que não funciona
- *   não aparece.
- * - **Escala da interface e formatos de data.** A régua de densidade é do design
- *   system e vale igual para os três aplicativos; deixá-la configurável por
- *   pessoa desfaz o que `packages/ui` existe para garantir.
+ * - **Separate last name.** `usuario.nome` is a single field, and splitting it in two
+ *   would require a migration to solve a problem nobody has.
+ * - **Change email, change password, delete the account, end sessions.** All of
+ *   these depend on the CRM's own session, which doesn't exist yet (`banco.ts`
+ *   resolves everything through an environment variable). A button that doesn't do
+ *   what it promises is worse than no button, and the project's rule is explicit: an
+ *   item that doesn't work doesn't appear.
+ * - **Interface density and date formats.** The density scale belongs to the design
+ *   system and applies equally to all three apps; making it configurable per person
+ *   would undo what `packages/ui` exists to guarantee.
  */
 export default async function PageProfile() {
   const pessoa = await userCurrent();

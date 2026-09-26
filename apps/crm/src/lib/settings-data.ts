@@ -47,26 +47,27 @@ import {
 } from './settings-comum';
 
 /**
- * A camada de dados da área de configurações. **Só banco.**
+ * The settings area's data layer. **Database only.**
  *
- * Nada aqui sabe que existe Next: não há `revalidatePath`, não há JSX, não há
- * `'use server'`. Quem chama é a server action em `app/configuracoes/acoes.ts`,
- * e é ela que revalida a rota depois. O motivo está no README, em "Quem fala com
- * o banco — a fronteira": `apps/crm` vai para o Vite e a `apps/api` passa a ser a
- * única porta do Postgres, e então virar endpoint precisa ser MOVER este arquivo,
- * não reescrevê-lo.
+ * Nothing here knows Next exists: no `revalidatePath`, no JSX, no
+ * `'use server'`. It's called by the server action in
+ * `app/configuracoes/acoes.ts`, which revalidates the route afterward. The
+ * reason is in the README, under "Who talks to the database — the boundary":
+ * `apps/crm` is moving to Vite and `apps/api` becomes the only door to
+ * Postgres, and then becoming an endpoint means MOVING this file, not
+ * rewriting it.
  *
- * Duas regras valem em todas as escritas daqui, sem exceção:
+ * Two rules hold for every write here, without exception:
  *
- * 1. **Toda escrita registra auditoria, na MESMA transação.** Configuração é a
- *    área em que "quem mudou o quê" mais importa — sobretudo membro e papel, que
- *    é mudar quem enxerga o quê. Log em transação separada mente quando a
- *    mudança é desfeita.
- * 2. **Consulta em série.** `Promise.all` dentro da transação derruba o
- *    `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
+ * 1. **Every write logs an audit entry, in the SAME transaction.** Settings is
+ *    the area where "who changed what" matters most — especially member and
+ *    role, which is changing who sees what. A log in a separate transaction
+ *    lies when the change gets rolled back.
+ * 2. **Sequential queries.** `Promise.all` inside the transaction drops
+ *    `pipe.tenant_id` and the query ends up running with no tenant (README).
  */
 
-/** Abre a transação já com o tenant fixado, e entrega o id junto para a auditoria. */
+/** Opens the transaction already with the tenant pinned, and hands back the id for the audit log too. */
 async function escrever<T>(fn: (tx: TransactionPipe, tenant: string) => Promise<T>): Promise<T> {
   const id = await tenantId();
   return consultar((tx) => fn(tx, id));
@@ -77,13 +78,14 @@ const OK: Resultado = { ok: true };
 /* ================================================================== perfil */
 
 /**
- * Quem está mexendo.
+ * Who's doing the changing.
  *
- * O CRM ainda não tem sessão própria — `banco.ts` resolve o tenant por variável
- * de ambiente, e aqui é a mesma história: `PIPE_USUARIO_ID` quando existe, senão
- * o primeiro usuário ativo do tenant. Não é o desenho final, e está escrito para
- * ser trocado numa linha quando `packages/autenticacao` chegar nesta tela: o
- * resto do arquivo só conhece o `Ator` que sai daqui.
+ * The CRM doesn't have its own session yet — `banco.ts` resolves the tenant
+ * through an environment variable, and it's the same story here:
+ * `PIPE_USUARIO_ID` when it exists, otherwise the tenant's first active user.
+ * It's not the final design, and it's written to be swapped in one line when
+ * `packages/autenticacao` reaches this screen: the rest of the file only knows
+ * the `Ator` that comes out of here.
  */
 export async function userCurrent(): Promise<Perfil> {
   const fixo = process.env['PIPE_USUARIO_ID'];
@@ -119,7 +121,7 @@ export async function userCurrent(): Promise<Perfil> {
   });
 }
 
-/** O ator das escritas desta tela. Sempre uma pessoa: aqui não há cron nem chave. */
+/** The actor for this screen's writes. Always a person: there's no cron and no key here. */
 export async function atorAtual(): Promise<Ator> {
   const pessoa = await userCurrent();
   return { type: 'usuario', id: pessoa.id };
@@ -158,7 +160,7 @@ export async function salvarPerfil(
   });
 }
 
-/* ====================================================== espaço de trabalho */
+/* ====================================================== workspace */
 
 export async function lerEspaco(): Promise<Espaco> {
   return consultar(async (tx) => {
@@ -249,9 +251,9 @@ export async function listMembers(): Promise<Member[]> {
       .leftJoin(role, eq(role.id, userRole.papelId))
       .orderBy(asc(user.nome), asc(role.nome));
 
-    // O `left join` devolve uma linha por papel, e o schema permite vários. A tela
-    // oferece UM papel (ver `definirPapel`), então aqui fica o primeiro em ordem
-    // alfabética — e nunca duas linhas para a mesma pessoa, que viraria chave
+    // The `left join` returns one row per role, and the schema allows several. The screen
+    // offers ONE role (see `definirPapel`), so here it's the first in alphabetical order —
+    // and never two rows for the same person, which would become a duplicate key
     // repetida na tabela e uma pessoa contada duas vezes.
     const byPessoa = new Map<string, Member>();
     for (const l of linhas) {
@@ -303,13 +305,14 @@ function novoToken(): { token: string; hash: string } {
 }
 
 /**
- * O link que a tela mostra uma vez, e a única forma de o convidado entrar.
+ * The link the screen shows once, and the only way for the invitee to sign in.
  *
- * `PIPE_URL_APP` é a base das TELAS (a Gestão, quando o convite é aceito lá).
- * O padrão era `http://localhost:3000`, que é a **api** — e a api não serve
- * `/convite/:token`: o convidado tomava 404 e o convite morria sem que ninguém
- * soubesse. Quando a variável não está posta, o destino honesto é ESTE
- * aplicativo, que tem a rota (`app/convite/[token]/page.tsx`).
+ * `PIPE_URL_APP` is the SCREENS' base (Gestão, when the invite is accepted
+ * there). The default used to be `http://localhost:3000`, which is the **api**
+ * — and the api doesn't serve `/convite/:token`: the invitee hit a 404 and the
+ * invite died without anyone knowing. When the variable isn't set, the honest
+ * destination is THIS app, which has the route
+ * (`app/convite/[token]/page.tsx`).
  */
 export function invitationUrl(token: string): string {
   const base = (
@@ -321,14 +324,16 @@ export function invitationUrl(token: string): string {
 }
 
 /**
- * Convidar.
+ * Invite.
  *
- * Convidar de novo INVALIDA o convite anterior — sem isso cada reenvio deixa mais
- * um link vivo e cancelar o acesso viraria caçar todos eles. É a mesma regra do
- * `criarConvite` da API, e o `expira_em = now()` é o que a implementa.
+ * Inviting again INVALIDATES the previous invite — without this every resend
+ * leaves one more live link, and revoking access would mean hunting down all
+ * of them. It's the same rule as the API's `criarConvite`, and
+ * `expira_em = now()` is what implements it.
  *
- * O token só existe nesta resposta: o banco guarda o hash, e a tela mostra o link
- * uma vez. Depois daqui ninguém o recupera, nem quem lê a tabela.
+ * The token only exists in this response: the database stores the hash, and
+ * the screen shows the link once. After this nobody recovers it, not even
+ * whoever reads the table.
  */
 export async function convidar(
   ator: Ator,
@@ -405,12 +410,13 @@ export async function cancelarInvitation(ator: Ator, id: string): Promise<Result
 }
 
 /**
- * Trocar o papel de alguém.
+ * Change someone's role.
  *
- * O Pipe permite vários papéis por usuário no schema, mas a tela oferece UM: dois
- * papéis somam permissão em silêncio, e "por que essa pessoa vê isso?" vira uma
- * pergunta sem resposta na tela. Quem precisar de soma cria um papel que a
- * descreva — que é a resposta honesta e é a que a auditoria consegue explicar.
+ * Pipe allows several roles per user in the schema, but the screen offers ONE:
+ * two roles add up permission silently, and "why does this person see this?"
+ * becomes a question with no answer on screen. Whoever needs a sum creates a
+ * role that describes it — which is the honest answer, and the one audit can
+ * explain.
  */
 export async function definirRole(
   ator: Ator,
@@ -454,11 +460,12 @@ export async function definirRole(
 }
 
 /**
- * Desativar em vez de excluir.
+ * Deactivate instead of delete.
  *
- * `usuario` é referenciado por conversa, avaliação, lead e log — apagar a linha
- * apagaria a autoria de tudo o que a pessoa fez. Desativar tira o acesso e mantém
- * a história, que é o que uma auditoria de contrato pede.
+ * `usuario` is referenced by conversation, evaluation, lead, and log — deleting
+ * the row would erase the authorship of everything the person did. Deactivating
+ * removes access and keeps the history, which is what a contract audit asks
+ * for.
  */
 export async function memberDefinirActive(
   ator: Ator,
@@ -493,7 +500,7 @@ export async function memberDefinirActive(
   });
 }
 
-/* ================================================== papéis e permissões */
+/* ================================================== roles and permissions */
 
 export async function listarPapeis(): Promise<RoleSummary[]> {
   return consultar(async (tx) => {
@@ -522,7 +529,7 @@ export async function listarPapeis(): Promise<RoleSummary[]> {
   });
 }
 
-/** O catálogo é global — vocabulário do produto, igual para todo cliente. */
+/** The catalog is global — product vocabulary, the same for every customer. */
 export async function permissionsListarCatalogo(): Promise<CatalogoPermission[]> {
   return consultar(async (tx) =>
     tx
@@ -601,14 +608,14 @@ export async function createRole(
 }
 
 /**
- * Gravar as permissões de um papel.
+ * Save a role's permissions.
  *
- * O log guarda o que ENTROU e o que SAIU, não a lista inteira dos dois lados:
- * quem lê a auditoria quer saber que `chave_api.gerenciar` foi concedida, não
- * reler as quarenta que continuaram iguais.
+ * The log keeps what came IN and what went OUT, not the whole list on both
+ * sides: whoever reads the audit log wants to know that `chave_api.gerenciar`
+ * was granted, not to reread the forty that stayed the same.
  *
- * Papel de sistema não é editável — é o do dia 1, e o cliente que quiser um
- * administrador diferente cria o dele.
+ * A system role isn't editable — it's from day one, and a customer who wants a
+ * different admin creates their own.
  */
 export async function roleSalvarPermissions(
   ator: Ator,
@@ -696,7 +703,7 @@ export async function excluirRole(ator: Ator, roleId: string): Promise<Resultado
 
 /* =================================================== campos personalizados */
 
-/** O objeto do dicionário que a tela de campos personalizados administra. */
+/** The dictionary object the custom-fields screen manages. */
 const OBJETO_LEAD = 'lead';
 
 export async function listarCamposPersonalizados(): Promise<CampoPersonalizado[]> {
@@ -715,7 +722,7 @@ export async function listarCamposPersonalizados(): Promise<CampoPersonalizado[]
 
     if (campos.length === 0) return [];
 
-    // Uma varredura só, com o índice GIN de `lead.customizados` fazendo o trabalho.
+    // A single scan, with `lead.customizados`'s GIN index doing the work.
     const { rows } = await tx.execute<{ key: string; n: number }>(sql`
       select chave, count(*)::int as n
         from lead, lateral jsonb_object_keys(customizados) as chave
@@ -774,11 +781,12 @@ export async function createFieldCustom(
 }
 
 /**
- * Renomear, nunca recodificar.
+ * Rename, never re-code.
  *
- * O `codigo` é a chave dentro do `jsonb` de cada lead: mudá-lo deixaria o valor
- * gravado órfão em toda a base, em silêncio. Rótulo e descrição são o que a tela
- * mostra, e é o que se corrige quando alguém digitou errado.
+ * `codigo` is the key inside each lead's `jsonb`: changing it would silently
+ * orphan the stored value across the entire database. Label and description
+ * are what the screen shows, and what gets corrected when someone typed it
+ * wrong.
  */
 export async function renomearCampoPersonalizado(
   ator: Ator,
@@ -810,11 +818,11 @@ export async function renomearCampoPersonalizado(
 }
 
 /**
- * Excluir o campo tira a DEFINIÇÃO, não o valor.
+ * Deleting the field removes the DEFINITION, not the value.
  *
- * O que estiver gravado em `lead.customizados` continua lá, e o log guarda o
- * código — sem isso, apagar a definição transformaria dado de cliente em lixo
- * sem nome. Recadastrar o mesmo código faz o valor voltar a aparecer.
+ * Whatever is stored in `lead.customizados` stays there, and the log keeps the
+ * code — without this, deleting the definition would turn customer data into
+ * nameless junk. Re-registering the same code makes the value reappear.
  */
 export async function excluirCampoPersonalizado(ator: Ator, id: string): Promise<Resultado> {
   return escrever(async (tx, tenantIdAtual) => {
@@ -869,13 +877,14 @@ export async function listarChaves(): Promise<ApiKey[]> {
 }
 
 /**
- * Emitir chave.
+ * Issue a key.
  *
- * O token é `pipe_<prefixo>_<segredo>`, o formato que `apps/api` autentica. O
- * banco fica com o prefixo em claro — é por ele que a API acha a linha, e é o que
- * a tela mostra para a pessoa reconhecer a chave — e com o `sha256` do segredo.
- * **O token completo só existe nesta resposta.** Quem perder pede outra: mostrar
- * de novo exigiria guardá-lo, e aí a tabela viraria a credencial.
+ * The token is `pipe_<prefix>_<secret>`, the format `apps/api` authenticates. The
+ * database keeps the prefix in the clear — it's how the API finds the row, and
+ * it's what the screen shows the person to recognize the key by — and the
+ * `sha256` of the secret. **The full token only exists in this response.**
+ * Whoever loses it asks for another: showing it again would require storing
+ * it, and then the table would become the credential.
  */
 export async function createKey(
   ator: Ator,
@@ -974,12 +983,13 @@ export async function listarWebhooks(): Promise<WebhookDeSaida[]> {
 }
 
 /**
- * Criar webhook.
+ * Create a webhook.
  *
- * O segredo do HMAC é gerado aqui e **cifrado em repouso** com o chaveiro de
- * `@pipe/db` — a mesma proteção do segredo de canal. Ele aparece uma vez, para
- * quem vai conferir a assinatura do outro lado; depois disso nem a tela o
- * recupera. `estaCifrado` já garante que ninguém grave texto claro por engano.
+ * The HMAC secret is generated here and **encrypted at rest** with
+ * `@pipe/db`'s keyring — the same protection as the channel secret. It shows up
+ * once, for whoever will check the signature on the other side; after that not
+ * even the screen recovers it. `estaCifrado` already guarantees nobody saves
+ * plaintext by mistake.
  */
 export async function createWebhook(
   ator: Ator,

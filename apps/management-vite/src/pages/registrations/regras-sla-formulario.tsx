@@ -6,17 +6,7 @@ import { ROTULO_ALVO, type QueueConfigured, type RegraSlaConfigurada } from '../
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
- * Cadastro de regra de SLA — item 2 da tarefa de cadastros do Atendimento.
- * Liga os botões da tela `regras-sla.tsx` (o `TODO(escrita)` de lá) na API
- * sem mudar o visual: mesmo `form-cadastro`/`Modal` de toda tela de cadastro.
- *
- * **Decisão Pipe — escopo só se escolhe ao CRIAR.** A leitura
- * (`carregarRegras`, `apps/api/.../configuracoes.ts`) devolve `escopoNome`
- * para exibição, não `escopoId` — não há como pré-selecionar a fila no
- * formulário de edição sem isso. Mudar escopo depois de criada é raro
- * (a regra nasce ligada a uma fila ou à operação inteira); quem precisar
- * troca de escopo exclui e recria, e a edição fica só com nome/alvo/
- * prazo/alerta — o que cobre o pedido da tarefa sem alargar a leitura.
+ * SLA rule registration — item 2 of the Attendance registration task. Wires up the buttons on the `regras-sla.tsx` screen (its `TODO(escrita)`) to the API without changing the visuals: the same `form-cadastro`/`Modal` as every registration screen. **Pipe decision — scope is only chosen on CREATE.** Reading (`carregarRegras`, `apps/api/.../configuracoes.ts`) returns `escopoNome` for display, not `escopoId` — there's no way to preselect the queue in the edit form without it. Changing scope after creation is rare (a rule is born tied to one queue or to the whole operation); anyone who needs a scope change deletes and recreates, and editing stays limited to name/target/deadline/alert — which covers the task's request without widening the read.
  */
 
 function pedidoDoFormulario(data: FormData): PedidoDeRegraSla {
@@ -39,7 +29,7 @@ function creationAction(_anterior: Resultado, data: FormData): Promise<Resultado
 }
 
 function editAction(id: string) {
-  // Edição não manda escopo — ver "Decisão Pipe" no topo do arquivo.
+  // Editing doesn't send scope — see "Decisão Pipe" at the top of the file.
   return async (_anterior: Resultado, data: FormData): Promise<Resultado> => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- descarta escopo de propósito
     const { scopeTipo, scopeId, ...pedido } = pedidoDoFormulario(data);

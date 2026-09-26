@@ -2,13 +2,7 @@ import { useMemo, useState } from 'react';
 import { Selection } from './selection';
 
 /**
- * Paginação do "Monitoramento detalhado" — o rodapé deles, medido na
- * `FICHA-monitoring.md` §5: "Resultados por página" com as opções exatas,
- * contador "1-5 de 8" e os quatro botões de navegação.
- *
- * É paginação DE CLIENTE, e de propósito: a consulta já traz todas as linhas
- * abertas numa transação só (`useLeitura`), então recortar a página aqui não
- * custa uma ida a mais ao servidor.
+ * Detailed Monitoring pagination follows `FICHA-monitoring.md` Section 5: exact Results-per-page options, `1-5 de 8` counter, and four navigation buttons. Keep it client-side because `useLeitura` already loads all open rows in one transaction; slicing locally needs no additional server request.
  */
 const OPTIONS_BY_PAGE = [5, 10, 15, 25, 50, 100, 250, 500] as const;
 
@@ -102,8 +96,9 @@ export function Pagination({ state, grade }: { state: StatePagination; grade?: s
         >
           <IconePagination tipo="anterior" />
         </button>
-        {/* O número da página atual entre as setas — `data-testid=
-            "current-page-test"` no rodapé deles. */}
+        {/*
+ * Show current page number between arrows, matching reference `data-testid="current-page-test"`.
+ */}
         <span className="pg-atual" aria-current="page" data-testid="current-page-test">
           {page}
         </span>

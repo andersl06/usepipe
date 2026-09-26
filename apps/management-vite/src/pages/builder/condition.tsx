@@ -23,11 +23,7 @@ import {
 } from './conditions';
 
 /**
- * A lista de condições de uma saída (ou de uma ação): o `condition-wrapper`
- * do editor — "Se" [fonte] [nome da variável] [comparação] [valores], uma
- * linha por condição, todas precisam casar (o motor avalia em sequência e
- * para na primeira falsa). Os valores são as "tags" do editor: Enter ou
- * vírgula acrescenta um; entre eles vale o operador OU/E.
+ * Reference `condition-wrapper` for an exit or action lists If, source, variable, comparison, values in each row. All conditions must match; the engine stops at the first false one. Enter or comma adds a value tag, with OR/AND between values.
  */
 
 export function ConditionsEditor({

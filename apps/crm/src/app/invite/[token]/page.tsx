@@ -3,18 +3,19 @@ import { Simbolo } from '@pipe/ui';
 import { inboundWithGoogleUrl, verInvitation } from '../../../lib/session';
 
 /**
- * O convite visto por quem ainda está do lado de fora.
+ * The invite as seen by someone still on the outside.
  *
- * Rota pública, como a de entrada — e pelo mesmo motivo da API não exigir
- * sessão em `GET /v1/convites/:token`: pedir a conta que o convite existe para
- * criar seria um ciclo.
+ * Public route, like the sign-in one — and for the same reason the API doesn't
+ * require a session on `GET /v1/convites/:token`: requiring the account the invite
+ * exists in to create it would be circular.
  *
- * Ela mostra o MÍNIMO que a API devolve: para quem é, com que papel, de que
- * empresa e até quando vale. Quem tem o link já sabe o e-mail; o resto da conta
- * não é assunto de quem ainda não entrou.
+ * It shows the MINIMUM the API returns: who it's for, with what role, from which
+ * company, and until when it's valid. Whoever has the link already knows the email;
+ * the rest of the account isn't the business of someone who hasn't joined yet.
  *
- * O botão manda para `/v1/auth/google?convite=<token>`, que é o caminho de quem
- * não tem domínio verificado: é o convite que decide o tenant, e não o domínio.
+ * The button sends them to `/v1/auth/google?convite=<token>`, which is the path for
+ * someone without a verified domain: it's the invite that decides the tenant, not
+ * the domain.
  */
 export const dynamic = 'force-dynamic';
 
@@ -73,8 +74,10 @@ export default async function PageInvitation({
         ) : (
           <>
             <h1 id="convite-titulo">Este convite não serve mais</h1>
-            {/* Vencido, já usado e inexistente dão a MESMA tela: separar
-                contaria a quem tem o link se aquele token um dia existiu. */}
+            {/*
+ * Expired, already used, and nonexistent all give the SAME screen: distinguishing
+ * between them would tell whoever has the link whether that token ever existed.
+ */}
             <p className="entrar-sub">
               Convite vale sete dias e uma vez só. Peça um novo a quem administra o Pipe na sua
               empresa.

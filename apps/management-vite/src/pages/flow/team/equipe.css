@@ -1,22 +1,22 @@
 /**
- * `/team` do contato (fluxo e roteador). Medidas tiradas do DOM renderizado da
- * origem (`referencias-blip/canais/roteador/roteador-team__pagina.html` e o
- * `portal.css` da mesma captura) — o cabeçalho já vem do `cf-*` de
- * `configuracoes.css` (`<page-header>`); aqui ficam a busca do
- * `custom-content`, a lista `.row.team-cards` e o `card--mini-card` de cada
- * membro.
+ * `/team` for the contact (flow and router). Measurements taken from the source's
+ *    rendered DOM (`referencias-blip/canais/roteador/roteador-team__pagina.html`
+ *    and the `portal.css` from the same capture) — the header already comes from
+ *    `configuracoes.css`'s `cf-*` (`<page-header>`); what's left here is the
+ *    `custom-content` search, the `.row.team-cards` list and each member's
+ *    `card--mini-card`.
  *
- * Régua da origem, medida a 1280×780:
- *   `.row.team-cards`        margin 3px 0 9px
- *   `.card--mini-card`       1024×103, padding 20px 50px 20px 60px,
- *                            margin 0 0 10px, raio 8, superfície de cartão
- *   `.card-content`          flex, space-between, 914×63, 14px/25.6
- *   `.card-section label`    bloco 12px/500, line-height 25.6, padding-bottom 6
- *   `.card-section span`     14px/400, line-height 22.4
- *   `.divider`               1×40, margin 0 15px
- *   `.tag-item`              90×26, raio de pílula, 14px negrito, centrado
- *   `.card-icons`            5%, 20px, space-evenly, filhos com margin-left 15
- *   `.no-content-found`      flex centrado, 20px/500, altura 31, padding 80 0
+ *    Source ruler, measured at 1280×780:
+ *      `.row.team-cards`        margin 3px 0 9px
+ *      `.card--mini-card`       1024×103, padding 20px 50px 20px 60px,
+ *                               margin 0 0 10px, radius 8, card surface
+ *      `.card-content`          flex, space-between, 914×63, 14px/25.6
+ *      `.card-section label`    block 12px/500, line-height 25.6, padding-bottom 6
+ *      `.card-section span`     14px/400, line-height 22.4
+ *      `.divider`               1×40, margin 0 15px
+ *      `.tag-item`              90×26, pill radius, 14px bold, centered
+ *      `.card-icons`            5%, 20px, space-evenly, children with margin-left 15
+ *      `.no-content-found`      centered flex, 20px/500, height 31, padding 80 0
  */
 
 /* ==================== `custom-content` do `<page-header>`
@@ -25,9 +25,11 @@
   display: flex;
   align-items: center;
 }
-/* `bds-input` do `.search-input-container`: 260×54, `padding: 8px 4px 8px 12px`,
-   borda 1px e raio 8, com o ícone `avatar-user` de 24 à esquerda. O `mr3`
-   (16px) separa a busca do botão. */
+/*
+ * `bds-input` from `.search-input-container`: 260×54, `padding: 8px 4px 8px 12px`,
+ *    1px border and 8 radius, with the 24px `avatar-user` icon on the left. The
+ *    `mr3` (16px) separates the search from the button.
+ */
 .cf-equipe-busca {
   display: flex;
   align-items: center;
@@ -57,12 +59,14 @@
 
 /* ==================== `<div class="row team-cards">` */
 .cf-equipe {
-  /* `margin: 3px 0 9px` da origem, sem perder o `margin: 0 auto` do
-     `.cf-container` que centra a coluna. */
+  /*
+   * The source's `margin: 3px 0 9px`, without losing `.cf-container`'s
+   *    `margin: 0 auto` that centers the column.
+   */
   margin: 3px auto 9px;
 }
 
-/* `<a class="no-decoration">` em volta do cartão inteiro (`editUser`). */
+/* `<a class="no-decoration">` wraps the whole card (`editUser`). */
 .cf-equipe-link {
   display: block;
   color: inherit;
@@ -148,8 +152,9 @@
   display: flex;
   justify-content: center;
 }
-/* Dois nomes de classe para passar por cima dos 26px do `.avatar` de
-   `@pipe/ui`, que tem a mesma especificidade. */
+/*
+ * Two class names to override `@pipe/ui`'s `.avatar` 26px, which has the same specificity.
+ */
 .cf-equipe-avatar-secao .cf-equipe-avatar {
   width: 40px;
   height: 40px;
@@ -165,11 +170,14 @@
   background: var(--p-superficie-3);
 }
 
-/* `bds-typo.tag-item` — o selo do papel: 90×26, raio de pílula, 14 negrito e
-   centrado. Na origem o texto é sempre "Admin", que cabe nos 90px da seção de
-   10%; o Pipe tem três papéis e "Pode visualizar" não cabe — por isso a seção
-   do selo cresce com o texto (os 10% viram piso) e o selo ganha 12px de
-   respiro dos lados. É a única medida desta linha que o nosso dado move. */
+/*
+ * `bds-typo.tag-item` — the role badge: 90×26, pill radius, 14 bold and
+ *    centered. In the source the text is always "Admin", which fits the section's
+ *    90px at 10%; Pipe has three roles and "Pode visualizar" doesn't fit — so the
+ *    badge's section grows with the text (the 10% becomes a floor) and the badge
+ *    gets 12px of breathing room on the sides. It's the only measurement in this
+ *    row that our data moves.
+ */
 .cf-equipe-selo {
   display: inline-block;
   min-width: 90px;
@@ -188,8 +196,10 @@
   min-width: 10%;
 }
 
-/* `.card-icons.card-icons--hidden`: só aparecem com o ponteiro (ou com o foco
-   do teclado) em cima do cartão. */
+/*
+ * `.card-icons.card-icons--hidden`: only appear with the pointer (or keyboard
+ *    focus) over the card.
+ */
 .cf-equipe-icones {
   display: flex;
   align-items: baseline;
@@ -235,16 +245,18 @@
   font-weight: var(--g-peso-forte);
 }
 
-/* ==================== O `add-user-modal`, capturado aberto em
-   `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`: cabeça
-   centrada, e-mail editável em traço, "Permissão" + `rzslider` e rodapé
-   centrado. A edição é a página estilizada no fim deste arquivo. */
+/*
+ * ==================== The `add-user-modal`, captured open in
+ *    `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`: centered head,
+ *    editable email in an underline, "Permissão" + `rzslider` and a centered
+ *    footer. The edit view is the styled page at the end of this file.
+ */
 .cf-equipe-modal {
   position: relative;
   padding-top: 40px;
 }
 
-/* `.row.mh6.tc.mt3 > .mh6.mb4-1`: h1 e subtítulo centrados, só no adicionar. */
+/* `.row.mh6.tc.mt3 > .mh6.mb4-1`: centered h1 and subtitle, add-only. */
 .cf-equipe-modal-cabeca {
   margin: 0 24px 20px;
   text-align: center;
@@ -253,7 +265,7 @@
   margin-bottom: 8px;
 }
 
-/* `.modal-footer` — centrado, com `Cancelar` texto-só e `Salvar` `bp-btn--bot`. */
+/* `.modal-footer` — centered, with text-only `Cancelar` and `bp-btn--bot` `Salvar`. */
 .cf-equipe-modal-rodape {
   display: flex;
   justify-content: center;
@@ -276,18 +288,22 @@
   outline-offset: 2px;
 }
 
-/* `<span class="body bp-c-rooftop fw5">` — o subtítulo abaixo do título.
-   Com `.cf-modal` na frente para passar por cima do `.cf-modal p`. */
+/*
+ * `<span class="body bp-c-rooftop fw5">` — the subtitle below the title.
+ *    With `.cf-modal` in front to override `.cf-modal p`.
+ */
 .cf-equipe-modal .cf-equipe-subtitulo {
   margin: 0;
   font-weight: var(--g-peso-forte);
   color: var(--p-conteudo-fantasma);
 }
 
-/* `material-input` do e-mail: rótulo pequeno em cima e traço embaixo, SEM
-   caixa — diferente do `cf-campo` (caixa fechada) do resto do Pipe, porque a
-   origem também não usa caixa aqui. Lá o input tem 35px, `padding: 8px 8px
-   8px 0` e o traço é `1px` na cor fantasma. */
+/*
+ * The email's `material-input`: small label on top and underline below, NO
+ *    box — unlike the rest of Pipe's `cf-campo` (closed box), because the source
+ *    doesn't use a box here either. There the input is 35px, `padding: 8px 8px
+ *    8px 0` and the underline is `1px` in the ghost color.
+ */
 .cf-equipe-campo-email {
   display: flex;
   flex-direction: column;
@@ -314,20 +330,25 @@
   outline: none;
   border-bottom-color: var(--p-marca);
 }
-/* `material-input input[readonly]` da origem: `border-bottom: none`. É o
-   e-mail do EDITAR — dado, não campo; fica o rótulo pequeno e o valor. */
-.cf-equipe-campo-email--leitura input {
+/*
+ * The source's `material-input input[readonly]`: `border-bottom: none`. It's
+ *    the EDIT view's email — data, not a field; only the small label and the
+ *    value remain.
+ */
+.cf-equipe-campo-email--read input {
   border-bottom: 0;
   cursor: default;
 }
-.cf-equipe-campo-email--leitura input:focus {
+.cf-equipe-campo-email--read input:focus {
   border-bottom: 0;
 }
 
-/* O `rzslider` "Permissão" do adicionar. A origem tem quatro paradas, como o
-   RBAC por contato da migration 0035. Régua: 4px, `margin: 9px 0
-   35px` dentro do `add-user-modal`, bolinha de 25px, legenda 14px em caixas
-   de 170px centradas na parada. */
+/*
+ * The add view's "Permissão" `rzslider`. The source has four stops, like the
+ *    per-contact RBAC from migration 0035. Ruler: 4px, `margin: 9px 0
+ *    35px` inside `add-user-modal`, 25px knob, 14px caption in 170px boxes
+ *    centered on each stop.
+ */
 .cf-equipe-permissao {
   margin-top: 32px;
 }
@@ -361,18 +382,20 @@
 .cf-equipe-slider-nivel:last-child {
   text-align: right;
 }
-.cf-equipe-slider-nivel--ativa {
+.cf-equipe-slider-nivel--active {
   color: var(--p-conteudo);
   font-weight: var(--g-peso-negrito);
 }
 
-/* ==================== A lista de permissões granulares (só no EDITAR) —
-   `PermissionsList.html` da origem dentro do `card` de "Permissões":
-   cabeçalho "Funcionalidades | Sem permissão | Visualizar | Ver e editar"
-   com `info` em cada coluna, `<hr>`, e uma linha por recurso com três
-   rádios (`.item-header` de 46px, `.w-70` para as colunas, `w-third` cada).
-   Os rádios acompanham o nível do traço e não se mexem à mão — o porquê
-   está em `permissoes.ts`. */
+/*
+ * ==================== The granular permissions list (EDIT view only) —
+ *    the source's `PermissionsList.html` inside the "Permissões" card:
+ *    header "Funcionalidades | Sem permissão | Visualizar | Ver e editar"
+ *    with an `info` in each column, `<hr>`, and one row per resource with three
+ *    radios (`.item-header` 46px, `.w-70` for the columns, `w-third` each).
+ *    The radios follow the underline's level and don't move by hand — the why
+ *    is in `permissoes.ts`.
+ */
 .cf-equipe-granular {
   margin-top: 32px;
   font-size: 14px;
@@ -433,9 +456,11 @@
   border-top: 1px solid var(--p-superficie-2);
 }
 
-/* `input[type=radio]` deles: 21px, aro de 1px na cor da marca, miolo
-   pintado quando marcado (`background-clip: content-box`). Desabilitado
-   porque é espelho do nível — mas sem apagar, senão lê como "quebrado". */
+/*
+ * Their `input[type=radio]`: 21px, 1px ring in the brand color, filled center
+ *    when checked (`background-clip: content-box`). Disabled because it mirrors
+ *    the level — but without dimming it, or it reads as "broken".
+ */
 .cf-equipe-radio {
   box-sizing: border-box;
   width: 21px;
@@ -459,10 +484,12 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* O link do convite criado — a origem manda e-mail de verdade e fecha o
-   modal (`$ctrl.addUser()`); o Pipe não manda e-mail (ver
-   `contrato/membros/convidar.tsx`), então "Salvar" troca o formulário por
-   este link pra copiar e mandar à mão. */
+/*
+ * The invite link once created — the source sends a real email and closes the
+ *    modal (`$ctrl.addUser()`); Pipe doesn't send email (see
+ *    `contrato/membros/convidar.tsx`), so "Salvar" swaps the form for this link
+ *    to copy and send by hand.
+ */
 .cf-equipe-link-criado {
   display: flex;
   align-items: center;
@@ -482,8 +509,10 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* ==================== `/team/edit` — PÁGINA, conforme o template 36419 do
-   portal.js da Blip: voltar/Salvar no cabeçalho, pessoa e cartão de permissões. */
+/*
+ * ==================== `/team/edit` — PAGE, following template 36419 from the
+ *    Blip `portal.js`: back/Save in the header, person and permissions card.
+ */
 .cf-equipe-editar-titulo,
 .cf-equipe-editar-pessoa,
 .cf-equipe-editar-nome,

@@ -14,11 +14,7 @@ import {
 } from './actions.js';
 
 /**
- * O roteador de comandos LIME.
- *
- * Desenho central: **rota que ainda não existe aqui devolve `null`**, e o laboratório
- * cai de volta no mock. É o que permite migrar a cópia comando a comando sem nunca
- * deixar a tela quebrada no meio do caminho.
+ * LIME command router. A route not implemented here returns `null`, letting the lab fall back to its mock. This allows command-by-command migration without breaking the copied screen.
  */
 
 export interface Session {
@@ -37,7 +33,7 @@ interface Context {
 
 type Manipulador = (ctx: Context) => Promise<RespostaLime>;
 
-/** Uma rota declara os métodos que aceita. O padrão é só leitura. */
+
 type Rota = [RegExp, Manipulador, string[]?];
 
 const COLUNAS = `
@@ -61,7 +57,7 @@ const DE = `
   left join usuario u on u.id = c.atendente_id
 `;
 
-/** Fila e atendimento em curso: é o que o Desk mostra na lista da esquerda. */
+
 const ABERTAS = `c.estado in ('na_fila','atribuida','em_atendimento','em_espera')`;
 
 async function conversationsAbertas(session: Session, limite = 100): Promise<LinhaConversation[]> {
@@ -76,13 +72,13 @@ async function conversationsAbertas(session: Session, limite = 100): Promise<Lin
   });
 }
 
-/* Todas as rotas com barra usam `new RegExp` com classe de caractere, e não literal
-   de expressão regular. Motivo prático: barra escapada não sobrevive às ferramentas
-   que editam este arquivo por script, e o arquivo já quebrou três vezes por isso. */
+/*
+ * Routes containing slashes use `new RegExp` with a character class, rather than regex literals. Escaped slashes did not survive the scripts editing this file and broke it three times.
+ */
 const ROTA_PING = new RegExp('^[/]ping');
 const ROTA_AGORA = new RegExp('^[/]now');
 const ROTA_RECIBO = new RegExp('^[/]receipt');
-/* Ancorada: sem isto ela casaria também com `/accounts/{email}`, que é outra coisa. */
+/* Anchor this route so it cannot also match `/accounts/{email}`, a different resource. */
 const ROTA_ACCOUNT = new RegExp('^[/]account(\\?|$)');
 const ROTA_INFO_AGENTE = new RegExp('^[/]agents[/]info');
 const ROTA_QUEUES = new RegExp('^[/]attendance-teams');
@@ -95,31 +91,33 @@ const ROTA_FLOW_RASCUNHO = new RegExp('^[/]buckets[/]blip_portal:builder_working
 const ROTA_ACTIONS_GLOBAL = new RegExp('^[/]buckets[/]blip_portal:builder_working_global_actions');
 const ROTA_FLOW_PUBLISHED = new RegExp('^[/]buckets[/]blip_portal:builder_published_flow');
 
-/* Ações do atendente. As URIs são as que a tela dispara, levantadas do bundle e
-   registradas em `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`. */
+/*
+ * Agent action URIs are observed screen calls from the bundle, recorded in `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`.
+ */
 const ROTA_ASSUMIR = new RegExp('^[/]tickets[/]claim');
 const ROTA_CONFIRMA = new RegExp('^[/]tickets[/][^/]+[/]confirm-received');
 const ROTA_ENCERRAR = new RegExp('^[/]tickets[/][^/]+[/]close');
 const ROTA_MUDAR_STATUS = new RegExp('^[/]tickets[/]change-status');
 const ROTA_TRANSFERIR = new RegExp('^[/]tickets[/][^/]+[/]transfer');
-/* Responder NÃO é comando: a tela usa `sendMessage` no cliente, e o laboratório
-   converte aquela chamada nesta URI, que é nossa. */
+/*
+ * Replying is not a command: the screen calls `sendMessage` on the client, and the lab converts that call to this bridge-specific URI.
+ */
 const ROTA_RESPONDER = new RegExp('^[/]pipe[/]responder');
 
 const rotas: Rota[] = [
-  /* ---- vida e relógio: a tela pergunta o tempo todo ---- */
+
   [ROTA_PING, async () => ok({})],
   [ROTA_AGORA, async () => ok({ now: new Date().toISOString() })],
   [ROTA_RECIBO, async () => ok({})],
 
-  /* ---- ações do atendente, antes das rotas de leitura de ticket ----
-     A ordem importa: `/tickets/{id}/close` também casa com o padrão de
-     `/tickets/{id}`, e quem chega primeiro responde. */
+  /*
+   * Place agent actions before ticket read routes: `/tickets/{id}/close` also matches `/tickets/{id}`, so the first matching handler wins.
+   */
   [
     ROTA_ASSUMIR,
     async ({ session }) => {
       const id = await assumirProximo(session);
-      // Sem ninguém na fila, a tela espera coleção vazia, não erro.
+      // When the queue is empty, the screen expects an empty collection rather than an error.
       return id ? ok({ id }, TIPO_TICKET) : collection([], TIPO_TICKET);
     },
     ['get', 'set'],
@@ -139,9 +137,9 @@ const rotas: Rota[] = [
     ROTA_MUDAR_STATUS,
     async ({ session, cmd }) => {
       const r = (cmd.resource ?? {}) as { id?: string; status?: string; tags?: string[] };
-      /* A tela usa este comando para encerrar (status começando em `Closed`) e para
-         outras mudanças que ainda não traduzimos. O que não for encerramento
-         responde vazio, em vez de virar operação errada no banco. */
+      /*
+       * The screen uses this command to close when status begins with `Closed`, and for other changes not yet translated. Return an empty response for non-close changes rather than performing the wrong database operation.
+       */
       if (!r.id || !String(r.status ?? '').startsWith('Closed')) return ok({});
       await encerrar(session, r.id, r.tags ?? []);
       return ok({});
@@ -153,7 +151,7 @@ const rotas: Rota[] = [
     async ({ session, path, cmd }) => {
       const id = path.split('/')[2] ?? '';
       const r = (cmd.resource ?? {}) as { team?: string; agentIdentity?: string };
-      // Transferir para pessoa específica ainda não: só para fila.
+      // Transfer to a specific agent is not supported yet; only queue transfer is.
       if (!r.team || r.team === 'DIRECT_TRANSFER') {
         return falha(4, 'transferência para atendente específico ainda não');
       }
@@ -167,8 +165,9 @@ const rotas: Rota[] = [
     async ({ session, cmd }) => {
       const r = (cmd.resource ?? {}) as { conversationId?: string; para?: string; texto?: string };
       if (!r.texto) return falha(5, 'faltou o texto');
-      /* A tela manda para uma identidade, não para uma conversa: quando vier assim,
-         resolvemos qual conversa aberta é daquele telefone. */
+      /*
+       * The screen addresses an identity, not a conversation; resolve its open conversation by phone number.
+       */
       const conversationId = r.conversationId ?? (r.para ? await identityConversation(session, r.para) : null);
       if (!conversationId) return falha(6, 'não achei conversa aberta para este contato');
       return ok(await responder(session, conversationId, r.texto));
@@ -176,7 +175,7 @@ const rotas: Rota[] = [
     ['set'],
   ],
 
-  /* ---- quem está logado ---- */
+
   [
     ROTA_ACCOUNT,
     async ({ session }) => {
@@ -190,8 +189,9 @@ const rotas: Rota[] = [
            where fa.usuario_id = ${session.userId}::uuid
            order by f.nome
         `);
-        /* A tela usa `isOwner` para liberar os itens de administração da barra.
-           Mandar `false` para quem é administrador some com metade da navbar. */
+        /*
+         * The screen uses `isOwner` to enable administration items in the sidebar. Returning `false` for an administrator hides half the navigation.
+         */
         const { rows: admin } = await tx.execute<{ existe: number }>(sql`
           select 1 as existe from usuario_papel up
             join papel p on p.id = up.papel_id
@@ -253,9 +253,9 @@ const rotas: Rota[] = [
     },
   ],
 
-  /* ---- a conversa aberta ----
-     O Desk pede `/tickets//messages` (com id vazio) num instante da abertura; o
-     original responde coleção vazia em vez de erro, e a tela segue. */
+  /*
+   * On opening a conversation, Desk briefly asks for `/tickets//messages` with an empty ID. The source returns an empty collection rather than an error, so the screen continues.
+   */
   [
     ROTA_MESSAGES,
     async ({ session, path }) => {
@@ -311,7 +311,7 @@ const rotas: Rota[] = [
     },
   ],
 
-  /* ---- Builder: o cliente desenhando o próprio fluxo ---- */
+
   [
     ROTA_FLOW_RASCUNHO,
     async ({ session, cmd }) => {
@@ -352,8 +352,9 @@ const rotas: Rota[] = [
       }
       const global = await loadGlobal(session);
       const r = await saveFlow(session, cmd.resource as Record<string, unknown>, global, true);
-      /* Publicar fluxo inválido não pode passar em silêncio: o motor recusaria
-         rodar, e quem clicou em publicar precisa saber. */
+      /*
+       * Do not silently publish an invalid flow: the engine would refuse to run it, and the person who published it needs the reason.
+       */
       if (r.validationError) return ok({ publicado: false, erro: r.validationError });
       return ok({ publicado: r.publicado, versao: r.versao });
     },
@@ -362,8 +363,7 @@ const rotas: Rota[] = [
 ];
 
 /**
- * Devolve `null` quando a ponte ainda não sabe responder — e aí o laboratório usa o
- * mock. Nunca devolve dado inventado no lugar.
+ * Return `null` when the bridge cannot answer yet, so the lab uses its mock. Never substitute fabricated data.
  */
 export async function despachar(cmd: ComandoLime, session: Session): Promise<RespostaLime | null> {
   const { caminho, query } = partirUri(cmd.uri);

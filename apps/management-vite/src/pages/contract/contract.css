@@ -1,37 +1,27 @@
-/* ==========================================================================
-   Painel do contrato (/contrato)
+/*
+ * ==========================================================================
+ *    Contract panel (/contrato)
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. Every number below was measured from the micro-frontend `{conta}.tenant.fragment.blip.ai` — from the `styled-components` embedded in `static/js/main.e8593b01.chunk.js` and the `static/css/main.7b59c603.chunk.css` sheet. The source selector sits next to each block: `st`, `Re`, `qe`, `ce`… are the components' minified names, and `bds-*` are pieces of their design system (blip-ds), whose measurements come from `49.ab489ac8.chunk.js` (paper, typo) and `vendor-…bds-icon….js` (icon).
+ *
+ *    Their type scale, to read the rest: `bds-typo` fs-24 = 24px/100%, fs-16 = 16px/150%, fs-14 = 14px/150%, fs-12 = 12px/150%; `bold` regular=400, semi-bold=600, bold=700. `bds-paper` = 16px radius, no border, with elevation-based shadow. `bds-icon` xx-large = 36px, medium = 24px, x-small = 16px. `bds-avatar` extra-large = 72px.
+ *
+ *    None of their hex values: everything comes from `--p-*`/`--g-*`. The color mapping:
+ *      color-surface-1 (paper background) → var(--surface)
+ *      color-surface-3 (header rule) → var(--surface-3)
+ *      paper elevation static → var(--p-sombra-1)
+ *      paper elevation primary/secondary → var(--p-sombra-2)
+ *      bg-color-system (icon box) → var(--p-marca-suave)
+ *      color-primary / -dark → var(--p-marca) / var(--p-marca-forte)
+ *      color-extend-reds-delete → var(--p-erro-conteudo)
+ *
+ *    What this sheet does NOT redesign are the two pieces the portal already has — `.pt-obra` and `.pt-obra-selo`, the work-in-progress item with the "em breve" badge —, reused as they are.
+ *    ==========================================================================
+ */
 
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. Cada número abaixo veio medido
-   do micro-frontend `{conta}.tenant.fragment.blip.ai` — dos
-   `styled-components` embutidos em `static/js/main.e8593b01.chunk.js` e da
-   folha `static/css/main.7b59c603.chunk.css`. O seletor de origem está ao
-   lado de cada bloco: `st`, `Re`, `qe`, `ce`… são os nomes minificados dos
-   componentes, e `bds-*` são as peças do design system deles (blip-ds), cujas
-   medidas saem do `49.ab489ac8.chunk.js` (paper, typo) e do
-   `vendor-…bds-icon….js` (ícone).
-
-   A régua de tipo deles, para ler o resto: `bds-typo` fs-24 = 24px/100%,
-   fs-16 = 16px/150%, fs-14 = 14px/150%, fs-12 = 12px/150%; `bold` regular=400,
-   semi-bold=600, bold=700. `bds-paper` = raio 16px, sem borda, com sombra por
-   elevação. `bds-icon` xx-large = 36px, medium = 24px, x-small = 16px.
-   `bds-avatar` extra-large = 72px.
-
-   Nenhum hex deles: tudo sai dos `--p-*`/`--g-*`. O de-para das tintas:
-     color-surface-1 (fundo do paper) → var(--surface)
-     color-surface-3 (régua do cabeçalho) → var(--surface-3)
-     paper elevation static → var(--p-sombra-1)
-     paper elevation primary/secondary → var(--p-sombra-2)
-     bg-color-system (caixa do ícone) → var(--p-marca-suave)
-     color-primary / -dark → var(--p-marca) / var(--p-marca-forte)
-     color-extend-reds-delete → var(--p-erro-conteudo)
-
-   O que esta folha NÃO redesenha são as duas peças que o portal já tem —
-   `.pt-obra` e `.pt-obra-selo`, o item em obra com o selo "em breve" —,
-   reaproveitadas como estão.
-   ========================================================================== */
-
-/* `st` = styled(Container): a grade da tela toda, e `nt.a`, o Container, que
-   é só `max-width: 1440px; margin: 0 auto`. */
+/*
+ * `st` = styled(Container): the whole screen's grid, and `nt.a`, the Container, which is just `max-width: 1440px; margin: 0 auto`.
+ */
 .ct-grade {
   display: grid;
   grid-template-areas: 'sidebar content';
@@ -41,13 +31,14 @@
   max-width: 1440px;
   margin: 0 auto;
   padding-top: var(--p-e-8); /* 32px */
-  /* 80px: o respiro do pé da tela deles. Não há token de 80; dois de 40 há. */
+  /* 80px: their screen's footer breathing room. There's no 80 token; there are two of 40. */
   padding-bottom: calc(var(--p-e-10) * 2);
   animation: ct-surge 0.5s ease-in 1;
 }
 
-/* `animation: fadeIn ease-in 0.5s; animation-iteration-count: 1` — o módulo 25
-   do bundle é só `from { opacity: 0 } to { opacity: 1 }`. */
+/*
+ * `animation: fadeIn ease-in 0.5s; animation-iteration-count: 1` — bundle module 25 is just `from { opacity: 0 } to { opacity: 1 }`.
+ */
 @keyframes ct-surge {
   from {
     opacity: 0;
@@ -63,8 +54,9 @@
   }
 }
 
-/* Abaixo do degrau de 852 do portal a grade vira uma coluna só: `1fr 3fr` num
-   telefone daria um cartão de resumo de 90px. */
+/*
+ * Below the portal's 852 breakpoint the grid becomes a single column: `1fr 3fr` on a phone would give a 90px summary card.
+ */
 @media (max-width: 851px) {
   .ct-grade {
     grid-template-areas: 'sidebar' 'content';
@@ -72,14 +64,15 @@
   }
 }
 
-/* A faixa horizontal: `Ve` é `grid-column: 1 / 3`, o cartão de resumo ocupando
-   as duas colunas quando não sobrou nenhum cartão nem seção de consumo. */
+/*
+ * The horizontal strip: `Ve` is `grid-column: 1 / 3`, the summary card spanning both columns when there's no other card left, nor a consumption section.
+ */
 .ct-grade--faixa {
   grid-template-areas: 'sidebar' 'content';
   grid-template-columns: 1fr;
 }
 
-/* ------------------------------------------------------- cartão de resumo */
+/* ------------------------------------------------------- summary card */
 
 /* `Fe` (grid-column: 1 / 2) + `bds-paper elevation="primary"` + `Re`
    (flex coluna, padding 24px). */
@@ -94,21 +87,23 @@
   box-shadow: var(--p-sombra-2); /* elevation="primary" */
 }
 
-/* `We`: em faixa o cartão deita — foto à esquerda, o resto à direita. */
+/* `We`: in a row the card lies flat — photo on the left, everything else on the right. */
 .ct-resumo--faixa {
   flex-direction: row;
 }
 
-/* A caixa da foto: `.avatar.placeholder` — `width: 92px` com o conteúdo
-   centrado (`tc`). A foto em si é `bds-avatar size="extra-large"`, 72px. */
+/*
+ * The photo box: `.avatar.placeholder` — `width: 92px` with centered content (`tc`). The photo itself is `bds-avatar size="extra-large"`, 72px.
+ */
 .ct-foto-caixa {
   flex: none;
   width: 92px;
   text-align: center;
 }
 
-/* Escrito com a caixa à frente para vencer o `.avatar` de 26px do `@pipe/ui`
-   sem `!important`: o componente `Avatar` entra com as duas classes. */
+/*
+ * Written with the box in front to beat `@pipe/ui`'s 26px `.avatar` without `!important`: the `Avatar` component comes in with both classes.
+ */
 .ct-foto-caixa .ct-foto {
   width: 72px;
   height: 72px;
@@ -117,7 +112,7 @@
   font-size: var(--p-t-titulo);
 }
 
-/* `He`: o corpo do cartão. Só ganha o recuo de 32 quando o cartão deita. */
+/* `He`: the card's body. Only gets the 32 indent when the card lies flat. */
 .ct-corpo {
   display: flex;
   flex-direction: column;
@@ -129,14 +124,14 @@
   padding-left: var(--p-e-8); /* 32px — `He` */
 }
 
-/* `qe`: cada bloco do cartão é `margin: 24px 0 8px 0`, e os rótulos e valores
-   de dentro se separam por 8. Entre blocos vizinhos as margens se fundem em
-   24, que é o vão deles. */
+/*
+ * `qe`: each card block is `margin: 24px 0 8px 0`, and the labels and values inside it are 8 apart. Between neighboring blocks the margins merge into 24, which is their gap.
+ */
 .ct-bloco {
   margin: var(--p-e-6) 0 var(--p-e-2);
 }
 
-/* O rótulo de cada bloco é `bds-typo variant="fs-14"`, peso normal. */
+/* Each block's label is `bds-typo variant="fs-14"`, normal weight. */
 .ct-rotulo,
 .ct-dados dt {
   display: block;
@@ -147,8 +142,9 @@
   color: var(--ink-2);
 }
 
-/* O nome do contrato é `bds-typo variant="fs-24"` — 24px com entrelinha de
-   100%, o maior texto do cartão. */
+/*
+ * The contract name is `bds-typo variant="fs-24"` — 24px with 100% line height, the card's largest text.
+ */
 .ct-nome {
   margin: 0;
   font-size: 24px;
@@ -158,9 +154,9 @@
   overflow-wrap: anywhere;
 }
 
-/* `_e`: o `{id}.blip.ai` deles — fileira de 8 de vão, alinhada pelo pé, na cor
-   da marca, que escurece ao passar o cursor. `bds-typo fs-14 bold`. O nosso
-   identificador de endereço é o slug da conta. */
+/*
+ * `_e`: their `{id}.blip.ai` — an 8-gap row, baseline-aligned, in brand color, which darkens on hover. `bds-typo fs-14 bold`. Our address identifier is the account slug.
+ */
 .ct-endereco {
   display: flex;
   align-items: flex-end;
@@ -184,9 +180,9 @@
   font-size: var(--p-t-sm);
 }
 
-/* O botão de copiar: palavra, não ícone (ver `copiar.tsx`). Na origem é o
-   `bds-icon name="copy"` de 24 dentro do `ze`; sem esse desenho no nosso
-   acervo, a palavra fica na mesma fileira e na mesma cor do valor. */
+/*
+ * The copy button: a word, not an icon (see `copiar.tsx`). In the source it's the 24px `bds-icon name="copy"` inside `ze`; without that drawing in our set, the word stays on the same row and in the same color as the value.
+ */
 .ct-copiar {
   flex: none;
   padding: 0 var(--p-e-1);
@@ -203,7 +199,7 @@
   color: var(--p-marca-forte);
 }
 
-/* `Ge` só existe no cartão deitado; em pé os pares são blocos empilhados. */
+/* `Ge` only exists on the card lying flat; upright the pairs are stacked blocks. */
 .ct-dados {
   margin: 0;
 }
@@ -241,9 +237,9 @@
   }
 }
 
-/* O ID é identificador, e identificador se lê em monoespaçada. Fica em 12 e
-   não nos 16 deles porque o nosso é um UUID de 36 caracteres: em 16
-   monoespaçado ele quebraria em três linhas na coluna estreita. */
+/*
+ * The ID is an identifier, and identifiers read in monospace. It's at 12, not their 16, because ours is a 36-character UUID: at their 16 monospace it would wrap into three lines in the narrow column.
+ */
 .ct-id {
   font-family: var(--p-fonte-mono);
   font-size: var(--p-t-sm);
@@ -251,8 +247,9 @@
   overflow-wrap: anywhere;
 }
 
-/* `xe` + `bds-typo fs-12 bold`: o "Deixar contrato" no pé, em vermelho e
-   sublinhado. Sem régua acima — na origem é só mais um bloco de 24. */
+/*
+ * `xe` + `bds-typo fs-12 bold`: "Deixar contrato" at the footer, in red and underlined. No rule above — in the source it's just one more 24 block.
+ */
 .ct-rodape {
   margin-top: var(--p-e-6);
   font-size: var(--p-t-sm); /* 12px */
@@ -265,17 +262,19 @@
   text-decoration: underline;
 }
 
-/* ------------------------------------------------------- grupos e cartões */
+/* ------------------------------------------------------- groups and cards */
 
-/* `it`: `grid-area: content`, e nada mais — o vão entre grupos vem das
-   margens do cabeçalho. */
+/*
+ * `it`: `grid-area: content`, and nothing else — the gap between groups comes from the header's margins.
+ */
 .ct-grupos {
   grid-area: content;
   min-width: 0;
 }
 
-/* O título de 24 semi-negrito. O que é cabeçalho de GRUPO (a régua, o recheio,
-   o vão de 48) mora no seletor de baixo, sob `.ct-secao`. */
+/*
+ * The 24 semi-bold title. What is the GROUP header (the rule, the padding, the 48 gap) lives in the selector below, under `.ct-secao`.
+ */
 .ct-titulo {
   display: flex;
   align-items: center;
@@ -287,9 +286,9 @@
   color: var(--ink);
 }
 
-/* `rt` + a classe `bb-color-surface` da folha deles:
-   `padding: 8px 0 16px 0; margin-bottom: 24px` mais
-   `border-bottom: 2px solid var(--color-surface-3)`. */
+/*
+ * `rt` + their sheet's `bb-color-surface` class: `padding: 8px 0 16px 0; margin-bottom: 24px` plus `border-bottom: 2px solid var(--color-surface-3)`.
+ */
 .ct-secao .ct-titulo {
   flex-grow: 0;
   gap: 0;
@@ -299,13 +298,14 @@
   line-height: 1;
 }
 
-/* `:not(:first-child) { margin-top: 48px }` do próprio cabeçalho: o segundo
-   grupo em diante respira 48 antes de começar. */
+/*
+ * The header's own `:not(:first-child) { margin-top: 48px }`: from the second group on, it breathes 48 before starting.
+ */
 .ct-secao:not(:first-child) .ct-titulo {
-  margin-top: calc(var(--p-e-6) * 2); /* 48px; não há token de 48 */
+  margin-top: calc(var(--p-e-6) * 2); /* 48px; there's no 48 token */
 }
 
-/* `& > bds-typo { margin-right: 8px }` — o vão entre o título e o ícone. */
+/* `& > bds-typo { margin-right: 8px }` — the gap between the title and the icon. */
 .ct-info {
   display: inline-flex;
   margin-left: var(--p-e-2);
@@ -320,8 +320,9 @@
   flex-wrap: wrap;
 }
 
-/* `ce` + `bds-paper`: largura FIXA de 312, recheio de 16, altura cheia da
-   fileira, e o sublinhado do título ao passar o cursor. */
+/*
+ * `ce` + `bds-paper`: FIXED width of 312, 16 padding, full row height, and the title underlines on hover.
+ */
 .ct-cartao {
   width: 312px;
   max-width: 100%;
@@ -337,16 +338,17 @@
   transition: box-shadow var(--p-dur-rapida) ease-in-out;
 }
 
-/* `onMouseEnter` troca a elevação de `static` para `secondary`, e o `ce` em si
-   sublinha o texto. */
+/*
+ * `onMouseEnter` swaps the elevation from `static` to `secondary`, and `ce` itself underlines the text.
+ */
 a.ct-cartao:hover {
   box-shadow: var(--p-sombra-2);
   text-decoration: underline;
 }
 
-/* O cartão em obra usa `.pt-obra` do portal pelo apagado e pelo cursor, mas a
-   caixa continua sendo a do cartão: sem isto o recheio do item de menu do
-   portal (8/12) venceria o do cartão (16). */
+/*
+ * The work-in-progress card uses the portal's `.pt-obra` for the muted look and the cursor, but the box stays the card's: without this, the portal menu item's padding (8/12) would beat the card's (16).
+ */
 .ct-cartao.pt-obra {
   display: flex;
   align-items: stretch;
@@ -355,8 +357,9 @@ a.ct-cartao:hover {
   font-weight: inherit;
 }
 
-/* `de`: 48 por 48, raio de 8, centrado na vertical do cartão, com o ícone
-   `size="xx-large"` (36) dentro. */
+/*
+ * `de`: 48 by 48, 8 radius, vertically centered in the card, with the `size="xx-large"` icon (36) inside.
+ */
 .ct-cartao-icone {
   flex: none;
   min-width: 48px;
@@ -379,7 +382,7 @@ a.ct-cartao:hover {
   min-width: 0;
 }
 
-/* `div.flex.row.justify-between`: o título à esquerda, a etiqueta à direita. */
+/* `div.flex.row.justify-between`: the title on the left, the tag on the right. */
 .ct-cartao-titulo {
   display: flex;
   flex-direction: row;
@@ -394,7 +397,7 @@ a.ct-cartao:hover {
   line-height: 1.5;
 }
 
-/* A descrição: `bds-typo fs-14 bold="regular"`. */
+/* The description: `bds-typo fs-14 bold="regular"`. */
 .ct-cartao-texto > span {
   font-size: var(--p-t-md); /* 14px */
   font-weight: var(--p-peso-normal);
@@ -402,14 +405,14 @@ a.ct-cartao:hover {
   color: var(--ink-2);
 }
 
-/* O rótulo do que esconderia o cartão no mundo real. Só na prévia. */
+/* The label for what would hide the card in the real world. Preview only. */
 .ct-cartao-texto .ct-porque {
   font-family: var(--p-fonte-mono);
   font-size: var(--p-t-xs);
   color: var(--ink-3);
 }
 
-/* ---------------------------------------------------------------- prévia */
+/* ---------------------------------------------------------------- preview */
 
 .ct-previa {
   display: flex;
@@ -428,9 +431,9 @@ a.ct-cartao:hover {
   color: inherit;
 }
 
-/* O recado de erro que volta das Server Actions (`?erro=`). Não tem par na
-   origem: lá a falha vira um toast (`BlipToastService`), que só existe com
-   JavaScript e some sozinho. */
+/*
+ * The error message that comes back from Server Actions (`?erro=`). It has no counterpart in the source: there the failure becomes a toast (`BlipToastService`), which only exists with JavaScript and disappears on its own.
+ */
 .ct-aviso {
   margin: 0 0 var(--p-e-4);
   padding: var(--p-e-3) var(--p-e-4);
@@ -440,25 +443,22 @@ a.ct-cartao:hover {
   font-size: var(--p-t-md);
 }
 
-/* ==========================================================================
-   Membros do contrato (/contrato/membros)
-
-   Outra folha de origem: esta tela é a rota `/panel` do mesmo fragmento, mas
-   desenhada com o blip-toolkit ANTIGO (as classes `bp-*`), e não com o `bds-*`
-   do painel. As medidas abaixo saem de
-   `static/css/main.7b59c603.chunk.css` (`.bp-card`, `.bp-table`, `.bp-btn`,
-   `.BlipSearch`, `.BlipDropdownButton`) e dos `styled-components` do
-   `main.e8593b01.chunk.js` (`da`, `_t`). O de-para de tinta desta parte:
-     .bp-card fundo #fff / sombra rgba(181,205,211,.29) → var(--surface) / var(--p-sombra-2)
-     .bp-table régua do cabeçalho #dee8ec               → var(--line)
-     .bp-table linha ímpar #fff / par #f5f8f9           → var(--surface) / var(--surface-2)
-     .bp-table linha marcada #d1e3fa                    → var(--p-marca-suave)
-     barra de rolagem #b9cbd3                           → var(--line-strong)
-     .BlipSearch risco #94a3ab / foco #b3d4ff           → var(--line-strong) / var(--p-marca)
-     .bp-btn--bot #3f7de8                               → var(--p-marca)
-     .bp-btn--delete #ff4c4c                            → var(--p-erro-conteudo)
-     .bp-divider-h #c9dfe4                              → var(--line)
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *    Contract members (/contrato/membros)
+ *
+ *    A different source sheet: this screen is the same fragment's `/panel` route, but built with the OLD blip-toolkit (the `bp-*` classes), not the panel's `bds-*`. The measurements below come from `static/css/main.7b59c603.chunk.css` (`.bp-card`, `.bp-table`, `.bp-btn`, `.BlipSearch`, `.BlipDropdownButton`) and from `main.e8593b01.chunk.js`'s `styled-components` (`da`, `_t`). This part's color mapping:
+ *      .bp-card background #fff / shadow rgba(181,205,211,.29) → var(--surface) / var(--p-sombra-2)
+ *      .bp-table header rule #dee8ec               → var(--line)
+ *      .bp-table odd row #fff / even #f5f8f9          → var(--surface) / var(--surface-2)
+ *      .bp-table marked row #d1e3fa                    → var(--p-marca-suave)
+ *      scrollbar #b9cbd3                          → var(--line-strong)
+ *      .BlipSearch line #94a3ab / focus #b3d4ff       → var(--line-strong) / var(--p-marca)
+ *      .bp-btn--bot #3f7de8                               → var(--p-marca)
+ *      .bp-btn--delete #ff4c4c                            → var(--p-erro-conteudo)
+ *      .bp-divider-h #c9dfe4                              → var(--line)
+ *    ==========================================================================
+ */
 
 /* `da`: a tela inteira. */
 .mb-tela {
@@ -466,10 +466,9 @@ a.ct-cartao:hover {
   margin: 10px auto;
 }
 
-/* O cabeçalho da origem não é da PÁGINA: o fragmento manda
-   `setHeaderContent({ redirect: "/", text: "Membros do contrato {nome}" })` e
-   quem desenha é a barra do portal. Sem esse canal na nossa barra, a mesma
-   dupla — a seta e a frase — fica no alto da página. */
+/*
+ * The source's header isn't the PAGE's: the fragment sends `setHeaderContent({ redirect: "/", text: "Membros do contrato {nome}" })` and the portal bar is what draws it. Without that channel in our bar, the same pair — the arrow and the phrase — stays at the top of the page.
+ */
 .mb-cabecalho {
   display: flex;
   align-items: center;
@@ -489,7 +488,7 @@ a.ct-cartao:hover {
   color: var(--ink);
 }
 
-/* `_t`: o quadro que embrulha o cartão, com o mesmo fadeIn do painel. */
+/* `_t`: the frame wrapping the card, with the same fadeIn as the panel. */
 .mb-quadro {
   padding: 2rem 0;
   animation: ct-surge 0.5s ease-in 1;
@@ -501,8 +500,9 @@ a.ct-cartao:hover {
   }
 }
 
-/* `.bp-card`. O `--left-arrow` é o bico do canto superior esquerdo: um
-   quadrado de .46875rem com duas bordas pintadas, girado -45°. */
+/*
+ * `.bp-card`. The `--left-arrow` is the top-left corner's notch: a .46875rem square with two painted borders, rotated -45°.
+ */
 .mb-cartao {
   position: relative;
   margin-top: 0.9375rem; /* 15px */
@@ -527,11 +527,9 @@ a.ct-cartao:hover {
   transform-origin: 0 0;
 }
 
-/* `new BlipTabs("tab-nav")` põe `.bp-tabs-container`: régua `thin solid #ccc`
-   (→ `--line`) sob as abas; cada `li` com `padding: 10px 20px`, `margin: 0 5px`
-   e `bottom: -1px`, para a marca da ativa cobrir a régua; texto 15px/600/1.5rem
-   na cor herdada. A ativa ganha `border-bottom: 4px` e a letra em #3f7de8
-   (→ `--p-marca`). */
+/*
+ * `new BlipTabs("tab-nav")` puts `.bp-tabs-container`: `thin solid #ccc` rule (→ `--line`) under the tabs; each `li` with `padding: 10px 20px`, `margin: 0 5px` and `bottom: -1px`, so the active mark covers the rule; 15px/600/1.5rem text in the inherited color. The active one gets `border-bottom: 4px` and the letter in #3f7de8 (→ `--p-marca`).
+ */
 .mb-abas-nav {
   display: flex;
   flex-wrap: nowrap;
@@ -582,14 +580,16 @@ a.ct-cartao:hover {
   color: var(--p-marca);
 }
 
-/* `.bp-tab-content`: `padding: 45px 10px 10px`, e uma regra mais abaixo na
-   mesma folha baixa o topo para 20px. */
+/*
+ * `.bp-tab-content`: `padding: 45px 10px 10px`, and a rule further down in the same sheet lowers the top to 20px.
+ */
 .mb-aba-conteudo {
   padding: 20px 10px 10px;
 }
 
-/* `TenantMembers`: `flex flex-column items-end` — a busca encosta na direita e
-   a tabela ocupa a largura toda. */
+/*
+ * `TenantMembers`: `flex flex-column items-end` — the search sits flush right and the table takes the full width.
+ */
 .mb-membros {
   display: flex;
   flex-direction: column;
@@ -598,8 +598,9 @@ a.ct-cartao:hover {
 
 /* --------------------------------------------------------------- a busca */
 
-/* `.BlipSearch`: o campo nasce com largura ZERO ao lado da lupa e cresce para
-   200px em meio segundo. Não há caixa nem rótulo — só o risco de baixo. */
+/*
+ * `.BlipSearch`: the field is born at ZERO width next to the magnifying glass and grows to 200px over half a second. There's no box or label — just the underline.
+ */
 .mb-busca {
   display: flex;
   align-items: center;
@@ -635,9 +636,9 @@ a.ct-cartao:hover {
 
 /* -------------------------------------------------------------- a tabela */
 
-/* `.bp-table.bp-table--scroll-y`: a tabela vira coluna de flex para que o
-   corpo role sozinho sob um cabeçalho parado. É por isso que `thead` e `tbody`
-   viram blocos e cada `tr` volta a ser `display: table`. */
+/*
+ * `.bp-table.bp-table--scroll-y`: the table becomes a flex column so the body scrolls on its own under a fixed header. That's why `thead` and `tbody` become blocks and each `tr` goes back to `display: table`.
+ */
 .mb-tabela {
   display: flex;
   flex-direction: column;
@@ -656,8 +657,9 @@ a.ct-cartao:hover {
   border-bottom: 0.125rem solid var(--line);
 }
 
-/* A largura da barra de rolagem descontada, para o cabeçalho não sair do prumo
-   das células quando o corpo rola. */
+/*
+ * The scrollbar width is discounted, so the header doesn't drift out of line with the cells when the body scrolls.
+ */
 .mb-tabela thead tr {
   width: calc(100% - 1.0625rem);
   margin-left: auto;
@@ -665,8 +667,9 @@ a.ct-cartao:hover {
   background: var(--surface);
 }
 
-/* O `th` do nosso `base.css` é um rótulo: mono, caixa alta e espaçado. Aqui
-   não: na origem o cabeçalho é a mesma letra do corpo, só mais pesada. */
+/*
+ * Our `base.css`'s `th` is a label: mono, uppercase and letter-spaced. Not here: in the source the header uses the same letter as the body, just heavier.
+ */
 .mb-tabela thead th {
   height: 3.75rem; /* 60px */
   padding: 1.25rem 0.625rem;
@@ -680,7 +683,7 @@ a.ct-cartao:hover {
   color: var(--ink);
 }
 
-/* `bodyHeight: "400px"` — a lista rola dentro do cartão em vez de esticá-lo. */
+/* `bodyHeight: "400px"` — the list scrolls inside the card instead of stretching it. */
 .mb-tabela tbody {
   flex: 1 1 auto;
   display: block;
@@ -728,9 +731,9 @@ a.ct-cartao:hover {
   padding-right: 1.5625rem;
 }
 
-/* `tr > * { white-space: nowrap; text-overflow: ellipsis; padding-right: 30px }`
-   — a célula NUNCA quebra: corta com reticências e o valor inteiro vai no
-   `title`. É o que mantém a altura de 47px estável com e-mail comprido. */
+/*
+ * `tr > * { white-space: nowrap; text-overflow: ellipsis; padding-right: 30px }` — the cell NEVER wraps: it truncates with an ellipsis and the full value goes in the `title`. That's what keeps the 47px height stable with a long email.
+ */
 .mb-tabela tr > * {
   overflow: hidden;
   white-space: nowrap;
@@ -750,24 +753,24 @@ a.ct-cartao:hover {
   background: var(--p-marca-suave);
 }
 
-/* `w4` do tachyons deles. A coluna de ações (`w5` = 16rem) não pode cortar: é
-   dela que os menus escapam. Cabe "N selecionado(s)" — a chave `selected` mora
-   no dicionário da própria tabela (`j.pt`) — e os dois gatilhos de 24px. */
+/*
+ * Their tachyons `w4`. The actions column (`w5` = 16rem) can't clip: the menus escape from it. It fits "N selecionado(s)" — the `selected` key lives in the table's own dictionary (`j.pt`) — and the two 24px triggers.
+ */
 .mb-col-marca {
   width: 8rem;
 }
 
-/* Com a tabela à frente para vencer o `tr > *` de cima, que corta com
-   `overflow: hidden` — é o `overflow: inherit !important` deles, sem o
-   `!important`. */
+/*
+ * With the table in front to beat the `tr > *` above, which clips with `overflow: hidden` — it's their `overflow: inherit !important`, without the `!important`.
+ */
 .mb-tabela .mb-col-acoes {
   width: 16rem;
   overflow: visible;
 }
 
-/* Sem linha para mostrar: `tr.bp-bg-offwhite.tc > td[colSpan] >
-   p.empty-message.pa5` — uma faixa de #dee8ec (→ `--surface-3`) com a frase
-   centrada e 4rem de folga. */
+/*
+ * No rows to show: `tr.bp-bg-offwhite.tc > td[colSpan] > p.empty-message.pa5` — a `#dee8ec` (→ `--surface-3`) band with the centered phrase and 4rem of breathing room.
+ */
 .mb-tabela tbody tr.mb-vazia {
   background: var(--surface-3);
 }
@@ -784,8 +787,9 @@ a.ct-cartao:hover {
   padding: 4rem;
 }
 
-/* A seta de ordenar só fica firme na coluna em vigor; nas outras ela existe
-   apagada e surge ao passar o cursor (`.sortArrow { opacity: 0 }`). */
+/*
+ * The sort arrow only stays solid on the active column; on the others it exists faded and appears on hover (`.sortArrow { opacity: 0 }`).
+ */
 .mb-ordenar {
   display: flex;
   flex-direction: row;
@@ -819,11 +823,11 @@ a.ct-cartao:hover {
   transform: rotate(180deg);
 }
 
-/* -------------------------------------------------- a seleção e os menus */
+/* -------------------------------------------------- the selection and the menus */
 
-/* `.selectedItems.flex.justify-around.items-center` — some quando não há nada
-   marcado. Fica INVISÍVEL em vez de sumir: a coluna já tem largura fixa, e
-   `display: none` faria o cabeçalho pular a cada primeira marcação. */
+/*
+ * `.selectedItems.flex.justify-around.items-center` — disappears when nothing is marked. Goes INVISIBLE instead of vanishing: the column already has a fixed width, and `display: none` would make the header jump on the first selection.
+ */
 .mb-selecao {
   display: flex;
   align-items: center;
@@ -834,8 +838,9 @@ a.ct-cartao:hover {
   visibility: hidden;
 }
 
-/* Só o contador: os parágrafos do menu moram dentro do mesmo bloco e precisam
-   quebrar linha. */
+/*
+ * Only the counter: the menu's paragraphs live inside the same block and need to wrap.
+ */
 .mb-selecao > p {
   margin: 0;
   white-space: nowrap;
@@ -847,7 +852,7 @@ a.ct-cartao:hover {
   margin-right: 0.5rem;
 }
 
-/* A capa que fecha o menu ao clique em qualquer lugar (`div.overlay.z-1`). */
+/* The overlay that closes the menu on a click anywhere (`div.overlay.z-1`). */
 .mb-capa {
   position: fixed;
   inset: 0;
@@ -858,12 +863,9 @@ a.ct-cartao:hover {
   cursor: default;
 }
 
-/* `div.bp-card.bp-card--right-arrow.pa0.z-2.absolute.w6` do `BlipDropdownButton`
-   (`Kt`): 24rem, `right: -1.5rem` e `padding: 15px` — o
-   `.BlipDropdownButton div.bp-card--right-arrow` vence o `pa0` da própria tag —,
-   com o `margin-top: .9375rem` e a sombra `0 4px 29px 6px rgba(181,205,211,.29)`
-   (→ `--p-sombra-2`) do `.bp-card`. O cartão mora dentro do `th`, então herda a
-   letra dele (.875rem/160%, peso 600): nada de peso próprio aqui. */
+/*
+ * `div.bp-card.bp-card--right-arrow.pa0.z-2.absolute.w6` from `BlipDropdownButton` (`Kt`): 24rem, `right: -1.5rem` and `padding: 15px` — `.BlipDropdownButton div.bp-card--right-arrow` beats the tag's own `pa0` —, with `margin-top: .9375rem` and the shadow `0 4px 29px 6px rgba(181,205,211,.29)` (→ `--p-sombra-2`) from `.bp-card`. The card lives inside the `th`, so it inherits its letter (.875rem/160%, weight 600): no weight of its own here.
+ */
 .mb-menu-cartao {
   position: absolute;
   right: -1.5rem;
@@ -880,8 +882,9 @@ a.ct-cartao:hover {
   cursor: default;
 }
 
-/* `.bp-card.bp-card--right-arrow:after`: o mesmo bico do cartão da tela, agora
-   a 2.5rem da DIREITA (`margin-right: -.46875rem`). */
+/*
+ * `.bp-card.bp-card--right-arrow:after`: the same tip as the screen's card, now 2.5rem from the RIGHT (`margin-right: -.46875rem`).
+ */
 .mb-menu-cartao::after {
   content: '';
   position: absolute;
@@ -906,8 +909,9 @@ a.ct-cartao:hover {
   margin: 0;
 }
 
-/* O número de marcados: `span.bp-c-blip-dark` (#0747a6 → `--p-marca`) no
-   Editar e `span.bp-c-delete` (#ff4c4c → `--p-erro-conteudo`) no Excluir. */
+/*
+ * The count of marked items: `span.bp-c-blip-dark` (#0747a6 → `--p-marca`) for Edit and `span.bp-c-delete` (#ff4c4c → `--p-erro-conteudo`) for Delete.
+ */
 .mb-numero {
   color: var(--p-marca);
 }
@@ -923,7 +927,7 @@ a.ct-cartao:hover {
   background: var(--line);
 }
 
-/* `pa2 flex flex-row-reverse`: o primeiro botão escrito fica à DIREITA. */
+/* `pa2 flex flex-row-reverse`: the first button written ends up on the RIGHT. */
 .mb-menu-rodape {
   display: flex;
   flex-direction: row-reverse;
@@ -988,9 +992,9 @@ a.ct-cartao:hover {
   color: var(--p-marca);
 }
 
-/* `input.blip-select__input.bp-c-rooftop`: .875rem, 1.1875rem de altura,
-   `margin-top: .125rem` e 20px livres para a seta; o `<input>` não herda o
-   peso do `th`. Placeholder #8ca0b3. */
+/*
+ * `input.blip-select__input.bp-c-rooftop`: .875rem, 1.1875rem height, `margin-top: .125rem` and 20px free for the arrow; the `<input>` doesn't inherit the `th`'s weight. Placeholder #8ca0b3.
+ */
 .mb-escolha-valor {
   display: block;
   height: 1.1875rem;
@@ -1023,9 +1027,9 @@ a.ct-cartao:hover {
   transform: rotate(180deg);
 }
 
-/* `.blip-select__options`: `top: 108%`, a largura do campo, fundo branco, borda
-   1px #c9dfe4, raio .5rem, sombra `0 .125rem .75rem 0 rgba(0,0,0,.1)`; a `ul`
-   rola a partir de 312px. */
+/*
+ * `.blip-select__options`: `top: 108%`, the field's width, white background, 1px #c9dfe4 border, .5rem radius, `0 .125rem .75rem 0 rgba(0,0,0,.1)` shadow; the `ul` scrolls starting at 312px.
+ */
 .mb-escolha-opcoes {
   position: absolute;
   top: 108%;
@@ -1053,9 +1057,9 @@ a.ct-cartao:hover {
     0 0 0 2px var(--p-foco);
 }
 
-/* `li.blip-select__option`: `padding: .5rem 1.0625rem`, #52636c (→ `--ink-2`);
-   hover, foco e escolhida em #f5f8f9 (→ `--surface-2`). Com o rótulo sozinho
-   na opção, o negrito e o azul (`:not(:only-child)`) não se aplicam. */
+/*
+ * `li.blip-select__option`: `padding: .5rem 1.0625rem`, #52636c (→ `--ink-2`); hover, focus and selected in #f5f8f9 (→ `--surface-2`). With only the label in the option, the bold and the blue (`:not(:only-child)`) don't apply.
+ */
 .mb-escolha-opcao {
   padding: 0.5rem 1.0625rem;
   color: var(--ink-2);
@@ -1063,15 +1067,14 @@ a.ct-cartao:hover {
   cursor: pointer;
 }
 
-.mb-escolha-opcao--ativa,
+.mb-escolha-opcao--active,
 .mb-escolha-opcao[aria-selected='true'] {
   background: var(--surface-2);
 }
 
-/* O `Checkbox` da tabela deles: `label.bp-input--check--wrapper` com o `input`
-   escondido e um `div.bp-input--checkbox` de 1.0625rem, raio .25rem, borda 1px
-   #3f7de8 (→ `--p-marca`) e um "✓" transparente; marcado, fundo da marca e o
-   "✓" em branco (→ `--p-marca-conteudo`), com `transition: all .5s`. */
+/*
+ * Their table's `Checkbox`: `label.bp-input--check--wrapper` with the `input` hidden and a `div.bp-input--checkbox` 1.0625rem, .25rem radius, 1px #3f7de8 border (→ `--p-marca`) and a transparent "✓"; checked, brand background and the "✓" in white (→ `--p-marca-conteudo`), with `transition: all .5s`.
+ */
 .mb-marca {
   position: relative;
   display: inline-flex;
@@ -1114,8 +1117,9 @@ a.ct-cartao:hover {
   outline-offset: 2px;
 }
 
-/* `mt3` — a descrição do papel escolhido. Guarda a altura mesmo vazia, para o
-   cartão não pular quando a escolha muda (na origem, um `<br/>` faz isso). */
+/*
+ * `mt3` — the description of the chosen role. Keeps its height even when empty, so the card doesn't jump when the choice changes (in the source, a `<br/>` does this).
+ */
 .mb-menu-corpo .mb-descricao {
   min-height: 1.4em;
   margin-top: 1rem;
@@ -1130,7 +1134,7 @@ a.ct-cartao:hover {
   color: var(--ink-2);
 }
 
-/* ------------------------------------------------------------- os botões */
+/* ------------------------------------------------------------- the buttons */
 
 /* `.bp-btn` */
 .mb-btn {
@@ -1155,10 +1159,9 @@ a.ct-cartao:hover {
   opacity: 0.5;
 }
 
-/* `.bp-btn--text-only`: sem fundo e sem largura mínima. É a forma dos dois
-   gatilhos do cabeçalho, que na origem são só um ícone (`edit` e `trash`) —
-   sem esses dois desenhos no nosso acervo, fica a palavra, como no "Copiar"
-   do cartão de resumo. */
+/*
+ * `.bp-btn--text-only`: no background and no minimum width. It's the shape of the header's two triggers, which in the source are icon-only (`edit` and `trash`) — without those two drawings in our set, the word stays, like "Copiar" on the summary card.
+ */
 .mb-btn--texto {
   min-width: 0;
   height: auto;
@@ -1168,23 +1171,23 @@ a.ct-cartao:hover {
   color: var(--p-marca);
 }
 
-/* `.bp-btn--text-only:disabled`: sem opacidade — a letra vai a #c9dfe4, a cor
-   da régua (→ `--line-strong`). Vence as cores abaixo pela especificidade. */
+/*
+ * `.bp-btn--text-only:disabled`: no opacity — the letter goes to #c9dfe4, the rule's color (→ `--line-strong`). Beats the colors below by specificity.
+ */
 .mb-btn--texto:disabled {
   opacity: 1;
   color: var(--line-strong);
 }
 
-/* Os dois gatilhos da seleção: só o ícone, na cor `desk` (→ `--ink-2`). */
+/* The selection's two triggers: icon only, in the `desk` color (→ `--ink-2`). */
 .mb-btn--icone {
   display: inline-flex;
   color: var(--ink-2);
 }
 
-/* Os três do rodapé dos menus. Na origem todos levam também
-   `bp-btn--text-only` (`bp-btn bp-btn--bot bp-btn--text-only`): a cor vai para
-   a LETRA, e nenhum deles tem fundo. Por isso só pintam o texto, e vêm depois
-   de `--texto` para vencer a cor dele. */
+/*
+ * The three at the menus' footer. In the source all of them also carry `bp-btn--text-only` (`bp-btn bp-btn--bot bp-btn--text-only`): the color goes to the LETTER, and none of them has a background. That's why they only paint the text, and come after `--texto` to beat its color.
+ */
 
 /* `.bp-btn--bot.bp-btn--text-only` */
 .mb-btn--marca {
@@ -1201,15 +1204,15 @@ a.ct-cartao:hover {
   color: var(--ink-2);
 }
 
-/* `.bp-btn--blip-dark`: o único botão CHEIO da tela, fundo escuro da marca. */
+/* `.bp-btn--blip-dark`: the only FULL button on the screen, dark brand background. */
 .mb-btn--escuro {
   background: var(--p-marca);
   color: var(--surface);
 }
 
-/* `bp-btn--small mt20` abaixo da tabela, à direita: `min-width: 120px`,
-   `margin-top: 20px`. O botão é irmão da tabela dentro do cartão, que não é
-   flex: quem o encosta na direita é o `margin-left: auto` de um bloco. */
+/*
+ * `bp-btn--small mt20` below the table, on the right: `min-width: 120px`, `margin-top: 20px`. The button is the table's sibling inside the card, which isn't flex: what pushes it to the right is a block's `margin-left: auto`.
+ */
 .mb-convidar {
   display: block;
   min-width: 120px;
@@ -1218,29 +1221,26 @@ a.ct-cartao:hover {
 
 /* ---------------------------------------------------------- o convite */
 
-/* O `#invite-answer-modal` do shell deles (template 632 do `portal.js`), feito
-   com o blip-ds NOVO. As utilidades saem do `portal.css` (lá `mb4` é 1.5rem e
-   `ph4` é 1.25rem — não é o tachyons de fábrica); os componentes, das folhas
-   do Stencil de `bds-input-chips`, `bds-select`, `bds-select-option`,
-   `bds-chip-clickable`, `bds-tooltip`, `bds-button` e `bds-icon`. O de-para:
-     bp-bg-white #fff / z-depth-3 0 2px 16px #c6d1de      → var(--surface) / var(--p-sombra-2)
-     .modal-overlay rgba(0,0,0,.6)                        → var(--ink) a 60%
-     .modal h1 #282828 · bp-c-rooftop #738192 · bp-c-cloud #8ca0b3
-                                                          → var(--ink) · var(--ink-2) · var(--ink-3)
-     bp-c-bot #3f7de8 · --color-primary #1e6bf1           → var(--p-marca)
-     --color-surface-1 #F6F6F6 · --color-surface-2 #E0E0E0 → var(--ground) · var(--surface-2)
-     --color-border-1 #B1B1B1                             → var(--p-linha-forte)
-     --color-info #80e3eb (anel do campo em foco)         → var(--p-marca-linha)
-     --color-delete #e60f0f · --color-error #f99f9f       → var(--p-erro-conteudo) · var(--p-erro-linha)
-     tooltip --color-content-default #454545              → var(--ink), letra var(--surface)
-     .warning-icon #f6a721                                → var(--p-alerta-conteudo)
-     guest rosa #F66689 · member âmbar #F9B42F · admin ciano #2CC3D5
-                                                          → var(--p-grafico-4) · var(--p-grafico-3) · var(--p-grafico-2) */
+/*
+ * Their shell's `#invite-answer-modal` (template 632 of `portal.js`), built with the NEW blip-ds. The utilities come from `portal.css` (there `mb4` is 1.5rem and `ph4` is 1.25rem — not the stock tachyons); the components, from the Stencil sheets of `bds-input-chips`, `bds-select`, `bds-select-option`, `bds-chip-clickable`, `bds-tooltip`, `bds-button` and `bds-icon`. The mapping:
+ *      bp-bg-white #fff / z-depth-3 0 2px 16px #c6d1de      → var(--surface) / var(--p-sombra-2)
+ *      .modal-overlay rgba(0,0,0,.6)                        → var(--ink) at 60%
+ *      .modal h1 #282828 · bp-c-rooftop #738192 · bp-c-cloud #8ca0b3
+ *                                                           → var(--ink) · var(--ink-2) · var(--ink-3)
+ *      bp-c-bot #3f7de8 · --color-primary #1e6bf1           → var(--p-marca)
+ *      --color-surface-1 #F6F6F6 · --color-surface-2 #E0E0E0 → var(--ground) · var(--surface-2)
+ *      --color-border-1 #B1B1B1                             → var(--p-linha-forte)
+ *      --color-info #80e3eb (focused field ring)          → var(--p-marca-linha)
+ *      --color-delete #e60f0f · --color-error #f99f9f       → var(--p-erro-conteudo) · var(--p-erro-linha)
+ *      tooltip --color-content-default #454545              → var(--ink), letter var(--surface)
+ *      .warning-icon #f6a721                                → var(--p-alerta-conteudo)
+ *      guest pink #F66689 · member amber #F9B42F · admin cyan #2CC3D5
+ *                                                           → var(--p-grafico-4) · var(--p-grafico-3) · var(--p-grafico-2)
+ */
 
-/* `.modal-dialog.modal-sm` sob `#invite-answer-modal`: `width: max-content`,
-   `min-height: 450px`, raio 8px e o conteúdo centrado na vertical; `ph4` dos
-   lados e `pb6` (5rem) embaixo. O `mh2` e o `layout-center-y` são o centro da
-   tela, que o `<dialog>` modal já dá. */
+/*
+ * `.modal-dialog.modal-sm` under `#invite-answer-modal`: `width: max-content`, `min-height: 450px`, 8px radius and content centered vertically; `ph4` on the sides and `pb6` (5rem) below. `mh2` and `layout-center-y` are the screen's center, which the modal `<dialog>` already gives.
+ */
 .mb-modal {
   box-sizing: border-box;
   width: max-content;
@@ -1265,8 +1265,9 @@ a.ct-cartao:hover {
   background: color-mix(in srgb, var(--ink) 60%, transparent);
 }
 
-/* `div.flex.mb4`: a ilustração (`img.mr4`) e os títulos encostados embaixo,
-   com `max-width: 380px`. */
+/*
+ * `div.flex.mb4`: the illustration (`img.mr4`) and the titles flush below, with `max-width: 380px`.
+ */
 .mb-convite-topo {
   display: flex;
   margin-bottom: 1.5rem;
@@ -1279,8 +1280,9 @@ a.ct-cartao:hover {
   max-width: 380px;
 }
 
-/* `h1.bp-fs-4.bp-fw-extra-bold.mb3`. A cor é a de `.modal h1`, que vence o
-   `bp-c-desk` da própria tag. */
+/*
+ * `h1.bp-fs-4.bp-fw-extra-bold.mb3`. The color is `.modal h1`'s, which beats the tag's own `bp-c-desk`.
+ */
 .mb-convite-titulos h1 {
   margin: 0 0 0.625rem;
   font-size: 1.25rem;
@@ -1295,7 +1297,7 @@ a.ct-cartao:hover {
   color: var(--ink-2);
 }
 
-/* `div.flex`: e-mails e permissão lado a lado. */
+/* `div.flex`: emails and permission side by side. */
 .mb-convite-campos {
   display: flex;
   align-items: flex-start;
@@ -1307,9 +1309,9 @@ a.ct-cartao:hover {
   min-width: 400px;
 }
 
-/* O `.input.input--label` do blip-ds: o rótulo mora DENTRO da borda.
-   `padding: 7px 4px 8px 12px`, fundo surface-1, borda 1px, raio 8px. O cursor
-   pinta a borda de primária; o foco (`--pressed`) soma um anel de 2px. */
+/*
+ * blip-ds's `.input.input--label`: the label lives INSIDE the border. `padding: 7px 4px 8px 12px`, surface-1 background, 1px border, 8px radius. The cursor paints the border primary; focus (`--pressed`) adds a 2px ring.
+ */
 .mb-campo {
   box-sizing: border-box;
   display: flex;
@@ -1337,17 +1339,17 @@ a.ct-cartao:hover {
   outline: none;
 }
 
-.mb-campo--erro,
-.mb-campo--erro:hover,
-.mb-campo--erro:focus-within {
+.mb-campo--error,
+.mb-campo--error:hover,
+.mb-campo--error:focus-within {
   border-color: var(--p-erro-conteudo);
 }
 
-.mb-campo--erro:focus-within {
+.mb-campo--error:focus-within {
   box-shadow: 0 0 0 2px var(--p-erro-linha);
 }
 
-/* `input__container__label`: `bds-typo fs-12 bold`, primária no foco. */
+/* `input__container__label`: `bds-typo fs-12 bold`, primary on focus. */
 .mb-campo-rotulo {
   font-size: 0.75rem;
   font-weight: 700;
@@ -1360,8 +1362,8 @@ a.ct-cartao:hover {
   color: var(--p-marca);
 }
 
-.mb-campo--erro .mb-campo-rotulo,
-.mb-campo--erro:focus-within .mb-campo-rotulo {
+.mb-campo--error .mb-campo-rotulo,
+.mb-campo--error:focus-within .mb-campo-rotulo {
   color: var(--p-erro-conteudo);
 }
 
@@ -1414,7 +1416,7 @@ a.ct-cartao:hover {
   white-space: nowrap;
 }
 
-/* `chip_clickable--close`: `error` sólido x-small (16px) a 50%. */
+/* `chip_clickable--close`: solid `error` x-small (16px) at 50%. */
 .mb-chip-fechar {
   display: flex;
   align-items: center;
@@ -1432,8 +1434,9 @@ a.ct-cartao:hover {
   outline: 2px solid var(--p-foco);
 }
 
-/* `input__message--danger`: `margin: 3.7px 2.5px`, ícone `error` x-small com
-   `padding: 2px 4px 0 0`, texto fs-12. */
+/*
+ * `input__message--danger`: `margin: 3.7px 2.5px`, x-small `error` icon with `padding: 2px 4px 0 0`, fs-12 text.
+ */
 .mb-campo-erro {
   display: flex;
   align-items: flex-start;
@@ -1449,17 +1452,18 @@ a.ct-cartao:hover {
   padding: 2px 4px 0 0;
 }
 
-/* `bds-select`, com `margin-left: 8px` neste modal. O host é `display: block`
-   num flex, então a largura é a do `<input>` nativo dele (sem `size`, cerca de
-   20 letras) — 12rem. */
+/*
+ * `bds-select`, with `margin-left: 8px` in this modal. The host is `display: block` inside a flex, so its width is its native `<input>`'s (no `size`, about 20 letters) — 12rem.
+ */
 .mb-select {
   position: relative;
   flex: 0 0 12rem;
   margin-left: 8px;
 }
 
-/* `.input--label` do select: `padding: 7px 4px 7px 12px`; a seta fica à
-   direita, no meio das duas linhas. */
+/*
+ * The select's `.input--label`: `padding: 7px 4px 7px 12px`; the arrow sits on the right, midway between the two lines.
+ */
 .mb-select-campo {
   flex-direction: row;
   align-items: center;
@@ -1515,9 +1519,9 @@ a.ct-cartao:hover {
     0 0 0 2px var(--p-foco);
 }
 
-/* `bds-select-option`: `padding: 8px 8px 8px 12px`, fundo surface-1, surface-2
-   no hover e no escolhido. `slot-align="flex-start"` sobe o ícone (small,
-   20px, `margin-right: 10px`). */
+/*
+ * `bds-select-option`: `padding: 8px 8px 8px 12px`, surface-1 background, surface-2 on hover and when selected. `slot-align="flex-start"` raises the icon (small, 20px, `margin-right: 10px`).
+ */
 .mb-opcao {
   display: flex;
   align-items: center;
@@ -1527,7 +1531,7 @@ a.ct-cartao:hover {
   user-select: none;
 }
 
-.mb-opcao--ativa,
+.mb-opcao--active,
 .mb-opcao[aria-selected='true'] {
   background: var(--surface-2);
 }
@@ -1543,8 +1547,9 @@ a.ct-cartao:hover {
   flex-direction: column;
 }
 
-/* `select-option__container--value`: `bds-typo fs-16 semi-bold`, primária
-   quando escolhido. */
+/*
+ * `select-option__container--value`: `bds-typo fs-16 semi-bold`, primary when selected.
+ */
 .mb-opcao-titulo {
   font-size: 1rem;
   font-weight: 600;
@@ -1595,7 +1600,7 @@ a.ct-cartao:hover {
   color: var(--ink-2);
 }
 
-/* O `<a>` do "clique aqui" e o "Copiar link": só a letra, na cor de link. */
+/* The "clique aqui" and "Copiar link" `<a>`: just the letter, in link color. */
 .mb-link {
   padding: 0;
   border: 0;
@@ -1653,9 +1658,9 @@ a.ct-cartao:hover {
   padding: 0 0.15625rem;
 }
 
-/* `bds-button`: medium tem 40px e `padding: 9px 16px`, short 32px e
-   `padding: 5px 16px`; raio 8px, texto `fs-14 bold`, ícone de 24px com 4px de
-   folga. O hover escurece 8% por cima (`--color-hover`); travado, 50%. */
+/*
+ * `bds-button`: medium is 40px and `padding: 9px 16px`, short 32px and `padding: 5px 16px`; 8px radius, `fs-14 bold` text, 24px icon with 4px gap. Hover darkens 8% on top (`--color-hover`); locked, 50%.
+ */
 .mb-botao {
   position: relative;
   box-sizing: border-box;
@@ -1727,9 +1732,9 @@ a.ct-cartao:hover {
   color: var(--ink-2);
 }
 
-/* A página de depois do envio — a única peça que não é deles (ver
-   `convidar.tsx`). Fica na forma da `pages.success`: tudo centrado, com o
-   `mt4` (1.5rem) entre as partes. */
+/*
+ * The post-submission page — the only piece that isn't theirs (see `convidar.tsx`). Follows the `pages.success` shape: everything centered, with `mt4` (1.5rem) between the parts.
+ */
 .mb-convite-feito {
   display: flex;
   flex-direction: column;
@@ -1778,7 +1783,7 @@ a.ct-cartao:hover {
   color: var(--p-erro-conteudo);
 }
 
-/* Os `min-width: 400px` deles não cabem num telefone: os campos empilham. */
+/* Their `min-width: 400px` doesn't fit on a phone: the fields stack. */
 @media (max-width: 720px) {
   .mb-convite-campos {
     flex-direction: column;
@@ -1802,8 +1807,9 @@ a.ct-cartao:hover {
   }
 }
 
-/* O recheio de 60 e as colunas de 8rem/16rem não cabem num telefone: o cartão
-   encolhe e as duas colunas de serviço passam a ocupar o mínimo. */
+/*
+ * The 60 padding and the 8rem/16rem columns don't fit on a phone: the card shrinks and the two service columns take the minimum.
+ */
 @media (max-width: 720px) {
   .mb-cartao {
     padding: var(--p-e-6) var(--p-e-4);

@@ -1,15 +1,19 @@
 /*
- * Ponto único de entrada do estilo do Pipe.
- * Os três aplicativos importam este arquivo e mais nada de token.
  *
- * A ordem importa: token antes de base, porque base lê os token.
+ *  * Pipe's single style entry point.
+ *  * The three apps import this file and nothing else token-related.
+ *  *
+ *  * The order matters: tokens before base, because base reads the tokens.
+ *  
  */
 @import './estilos/tokens.css';
 @import './estilos/base.css';
 
 /*
- * `.modal.close-modal` no portal da Blip: 656×432, ilustração na coluna
- * esquerda, texto e controle à direita, ações alinhadas ao canto inferior.
+ *
+ *  * `.modal.close-modal` in the Blip portal: 656×432, illustration in the left
+ *  * column, text and control on the right, actions aligned to the bottom corner.
+ *  
  */
 .pipe-encerramento-fundo { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: rgb(0 0 0 / 50%); }
 .pipe-encerramento { position: relative; display: flex; flex-direction: column; box-sizing: border-box; width: 656px; height: 432px; overflow: visible; border-radius: 8px; background: var(--p-superficie-0, #fff); color: var(--p-conteudo, #282828); }
@@ -17,7 +21,7 @@
 .pipe-encerramento-conteudo { position: relative; display: flex; width: 100%; height: 190px; margin-top: 54px; margin-left: 6px; }
 .pipe-encerramento-conteudo::before { position: absolute; z-index: 0; top: 0; bottom: 0; left: 0; width: 62%; border-radius: 8px 0 0 8px; background: color-mix(in srgb, var(--p-marca, #2c6e49) 12%, white); content: ''; }
 .pipe-encerramento-ilustracao { position: relative; z-index: 1; display: flex; width: 156px; height: 168px; margin-top: 25px; align-items: center; justify-content: center; color: var(--p-marca, #2c6e49); }
-/* Os paths do `sleepy` vêm do `blip-tokens@1.102.1` no ZIP local do Desk; só troquei a tinta pelo verde Pipe. */
+/* The `sleepy` paths come from `blip-tokens@1.102.1` in the Desk's local ZIP; I only swapped the ink for Pipe green. */
 .pipe-encerramento-ilustracao { background: url('./assets/encerramento-sleepy.svg') center / 100% 100% no-repeat; }
 .pipe-encerramento-detalhes { position: relative; z-index: 1; display: flex; width: 354px; flex-direction: column; padding: 30px 46px 0 0; }
 .pipe-encerramento-detalhes h2 { align-self: flex-start; width: 295px; margin: 0; padding-bottom: 5px; color: var(--p-conteudo, #282828); font-size: 20px; font-weight: 700; line-height: 28px; }

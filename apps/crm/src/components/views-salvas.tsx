@@ -4,21 +4,22 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 /**
- * Visões salvas da listagem.
+ * Saved views for the listing.
  *
- * O que o Twenty guarda numa tabela de `view`, nós guardamos na URL. Aba, busca,
- * agrupamento, coluna de ordenação e sentido já vivem inteiros na barra de
- * endereço, então uma visão salva é só um nome dado a uma consulta que já
- * existe. Isso tem três consequências boas e uma limitação honesta:
+ * What Twenty stores in a `view` table, we store in the URL. Tab, search,
+ * grouping, sort column and direction already live entirely in the address bar,
+ * so a saved view is just a name given to a query that already exists. That has
+ * three good consequences and one honest limitation:
  *
- * - a visão é compartilhável colando o endereço, sem salvar nada;
- * - voltar e avançar no navegador funcionam entre visões;
- * - não existe estado escondido que a URL não mostre.
+ * - the view is shareable by pasting the address, without saving anything;
+ * - the browser's back and forward work between views;
+ * - there's no hidden state that the URL doesn't show.
  *
- * A limitação: a lista de visões vive no `localStorage` deste navegador, então
- * não acompanha a pessoa entre máquinas nem é compartilhada com o time. Guardar
- * no banco exigiria uma tabela `visao`, que ainda não existe. Quando existir, só
- * este arquivo muda: a forma da visão (um nome e uma consulta) já é a definitiva.
+ * The limitation: the list of views lives in this browser's `localStorage`, so
+ * it doesn't follow the person between machines or get shared with the team.
+ * Storing it in the database would need a `visao` table, which doesn't exist
+ * yet. When it does, only this file changes: the view's shape (a name and a
+ * query) is already the final one.
  */
 
 const KEY = 'pipe.crm.leads.visoes';
@@ -42,8 +43,8 @@ function ler(): Visao[] {
         typeof (v as Visao).query === 'string',
     );
   } catch {
-    // Navegador com armazenamento bloqueado, ou conteúdo corrompido por uma
-    // versão anterior. Nenhuma visão é melhor do que uma tela que não abre.
+    // Browser with storage blocked, or content corrupted by a
+    // previous version. No saved view is better than a screen that doesn't open.
     return [];
   }
 }
@@ -52,14 +53,14 @@ function gravar(views: Visao[]) {
   try {
     localStorage.setItem(KEY, JSON.stringify(views));
   } catch {
-    // Sem armazenamento a visão vale só para esta sessão, e a tela segue.
+    // Without storage the view only lasts this session, and the screen still works.
   }
 }
 
 export function ViewsSalvas({ queryCurrent }: { queryCurrent: string }) {
   const router = useRouter();
   const [views, setViews] = useState<Visao[]>([]);
-  // O `localStorage` só existe depois de montar. Ler durante a renderização
+  // `localStorage` only exists after mounting. Reading during render
   // faria o servidor e o navegador desenharem coisas diferentes.
   useEffect(() => setViews(ler()), []);
 
@@ -95,9 +96,10 @@ export function ViewsSalvas({ queryCurrent }: { queryCurrent: string }) {
               if (escolhida) router.push(`/leads?${escolhida.query}`);
             }}
           >
-            {/* Sem visão escolhida é um estado real da tela, não um item morto:
-                é o que aparece quando a pessoa mexeu nos filtros depois de abrir
-                uma visão salva. */}
+            {/*
+ * No view chosen is a real screen state, not a dead item: it's what shows up
+ * when the person tweaked the filters after opening a saved view.
+ */}
             <option value="">{atual ? 'Escolha' : 'Nenhuma'}</option>
             {views.map((v) => (
               <option key={v.nome} value={v.nome}>

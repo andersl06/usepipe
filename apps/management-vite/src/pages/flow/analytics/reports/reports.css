@@ -1,20 +1,22 @@
-/* ============================ Relatórios Personalizados (`relatorios/`)
+/*
+ * ============================ Custom Reports (`relatorios/`)
+ *
+ *    `customReports`, template 47754 from `portal.js`, and the `#reports-id`, `.no-content-found` and `.search-input-container` rules from `portal.css`.
+ *
+ *    The color mapping:
+ *      #f6f6f6 `--color-surface-1` (`.cards`)          → `--surface`
+ *      `bds-paper elevation="Static"`                  → `--p-sombra-1`
+ *      #595959 `--color-content-disable` (`.label`)    → `--ink-2`
+ *      #282828 `--color-content-default` (`.description`, icons) → `--ink`
+ *      #a8bfc4 (`.no-content-found`)                    → `--ink-3`
+ *      #8ca0b3 (the magnifier)                                 → `--ink-3`
+ *      #1e6bf1 `--color-primary` (focused field's stroke) → `--p-marca`
+ *    ==========================================================================
+ */
 
-   `customReports`, template 47754 do `portal.js`, e as regras `#reports-id`,
-   `.no-content-found` e `.search-input-container` da `portal.css`.
-
-   A tinta:
-     #f6f6f6 `--color-surface-1` (`.cards`)          → `--surface`
-     `bds-paper elevation="Static"`                  → `--p-sombra-1`
-     #595959 `--color-content-disable` (`.label`)    → `--ink-2`
-     #282828 `--color-content-default` (`.description`, ícones) → `--ink`
-     #a8bfc4 (`.no-content-found`)                    → `--ink-3`
-     #8ca0b3 (a lupa)                                 → `--ink-3`
-     #1e6bf1 `--color-primary` (traço do campo em foco) → `--p-marca`
-   ========================================================================== */
-
-/* `.custom-header-content search-input { margin-right: .8rem }` — ganha do
-   `.mr3` pela especificidade — e `.search-input-container` é `flex` centrado. */
+/*
+ * `.custom-header-content search-input { margin-right: .8rem }` — wins over `.mr3` by specificity — and `.search-input-container` is centered `flex`.
+ */
 .rl-busca {
   display: flex;
   align-items: center;
@@ -27,8 +29,9 @@
   color: var(--ink-3);
 }
 
-/* `input[type=text]`: sem fundo e sem borda, 2.25rem de altura, largura 0 com
-   `transition: width .4s`; em foco, 200px, 10 à esquerda e traço de 2px. */
+/*
+ * `input[type=text]`: no background or border, 2.25rem height, 0 width with `transition: width .4s`; on focus, 200px, 10 on the left and a 2px line.
+ */
 .rl-busca input {
   box-sizing: border-box;
   width: 0;
@@ -58,9 +61,9 @@
   cursor: default;
 }
 
-/* `#reports-id .cards`: fundo da superfície 1, fileira com `space-between`,
-   5 embaixo, 25 de recheio, `white-space: nowrap`, largura cheia. O
-   `bds-paper` põe raio 16 e a sombra `Static`. */
+/*
+ * `#reports-id .cards`: surface-1 background, row with `space-between`, 5 at the bottom, 25 padding, `white-space: nowrap`, full width. `bds-paper` sets radius 16 and the `Static` shadow.
+ */
 .rl-cartao {
   display: flex;
   flex-direction: row;
@@ -76,8 +79,9 @@
   cursor: pointer;
 }
 
-/* `.w-25.truncate` e `.w-30.truncate`: o `#reports-id .truncate` fixa 250px e
-   corta com reticências — ganha da porcentagem. A data é `.w-25` sem corte. */
+/*
+ * `.w-25.truncate` and `.w-30.truncate`: `#reports-id .truncate` fixes 250px and truncates with an ellipsis — it wins over the percentage. The date is `.w-25` without truncation.
+ */
 .rl-coluna--nome,
 .rl-coluna--autor {
   width: 250px;
@@ -103,9 +107,9 @@
   color: var(--ink);
 }
 
-/* `.card-icons`: `flex`, centro, `space-between`, 35 de altura, 5 à esquerda e
-   5 de recheio; `--hidden` some (`opacity: 0; visibility: hidden`, .5s) até o
-   cursor passar pelo cartão, quando ganha `font-size: large` (18px). */
+/*
+ * `.card-icons`: `flex`, centered, `space-between`, 35 height, 5 left and 5 padding; `--hidden` disappears (`opacity: 0; visibility: hidden`, .5s) until the cursor passes over the card, when it gets `font-size: large` (18px).
+ */
 .rl-icones {
   display: flex;
   align-items: center;
@@ -126,8 +130,9 @@
   visibility: visible;
 }
 
-/* `bds-icon size="x-large"`: a caixa de 32; o desenho é o glifo `icon-edit` /
-   `icon-delete` no `font-size: large` do cartão em foco. */
+/*
+ * `bds-icon size="x-large"`: the 32 box; the drawing is the `icon-edit` / `icon-delete` glyph at the focused card's `font-size: large`.
+ */
 .rl-icone {
   display: flex;
   align-items: center;
@@ -137,9 +142,9 @@
   cursor: pointer;
 }
 
-/* `.no-content-found`: `flex` centrado, 31 de altura, `padding: 80px 0`,
-   `margin: auto`, largura cheia, cor #a8bfc4. O texto é o `bds-typo` de
-   dentro — fs-16 regular —, que não herda o `font-size` de 1.25rem do host. */
+/*
+ * `.no-content-found`: centered `flex`, 31 height, `padding: 80px 0`, `margin: auto`, full width, color #a8bfc4. The text is the `bds-typo` inside — fs-16 regular —, which doesn't inherit the host's 1.25rem `font-size`.
+ */
 .rl-vazio {
   position: relative;
   display: flex;
@@ -152,12 +157,11 @@
   color: var(--ink-3);
 }
 
-/* ------------------------------------ o modal de confirmação (84817)
-
-   `.modal-toolbar` com o `bds-icon close` encostado à direita; o título é
-   `bds-typo fs-32.mb5` (2.5rem no hospedeiro + os 22 do typo); o corpo,
-   `bds-typo.mh6.ph4` (5rem de margem e 1.25rem de recheio dos lados);
-   `.modal-footer` centraliza, com `padding-top: 9px`, e o "Não" tem `.mr3`. */
+/*
+ * ------------------------------------ the confirmation modal (84817)
+ *
+ *    `.modal-toolbar` with `bds-icon close` flush right; the title is `bds-typo fs-32.mb5` (2.5rem on the host + the typo's 22); the body, `bds-typo.mh6.ph4` (5rem margin and 1.25rem side padding); `.modal-footer` centers, with `padding-top: 9px`, and "Não" has `.mr3`.
+ */
 .rl-confirma-barra {
   display: flex;
   justify-content: flex-end;

@@ -6,28 +6,28 @@ import type { Resultado } from './search-tipos';
 export * from './search-tipos';
 
 /**
- * Busca global, a que alimenta o menu de comando.
+ * Global search, the one that feeds the command menu.
  *
- * O Twenty resolve navegação por busca, não por menu: você aperta Ctrl+K,
- * escreve o nome e chega no registro. É a diferença entre uma lista com filtro
- * e um produto que se opera pelo teclado — e é o motivo de a lateral deles
- * poder ser curta.
+ * Twenty solves navigation through search, not menus: you press Ctrl+K, type
+ * the name, and land on the record. It's the difference between a filtered
+ * list and a product operated by keyboard — and it's why their sidebar can be
+ * short.
  *
- * **Uma consulta por objeto, em série.** Não é `Promise.all`: dentro do
- * `consultar` a transação é uma conexão só, e paralelizar derruba o
- * `pipe.tenant_id` da sessão (README). O custo é irrelevante — são quatro
- * consultas com `limit 5` e índice.
+ * **One query per object, sequential.** Not `Promise.all`: inside `consultar`
+ * the transaction is a single connection, and parallelizing drops the
+ * session's `pipe.tenant_id` (README). The cost is irrelevant — it's four
+ * queries with `limit 5` and an index.
  *
- * O teto de 5 por objeto é do Twenty (`MaxSearchResults`), e existe pelo mesmo
- * motivo: quem busca quer chegar, não navegar. Vinte resultados numa lista de
- * comando é uma segunda lista para percorrer.
+ * The cap of 5 per object is Twenty's (`MaxSearchResults`), and it exists for
+ * the same reason: whoever searches wants to arrive, not browse. Twenty
+ * results in a command list is a second list to scroll through.
  */
 
 export const BY_OBJETO = 5;
 
 export async function buscar(termo: string): Promise<Resultado[]> {
   const limpo = termo.trim();
-  // Uma letra casa com meio banco e não ajuda ninguém a chegar em lugar nenhum.
+  // A single letter matches half the database and doesn't help anyone get anywhere.
   if (limpo.length < 2) return [];
 
   const padrao = `%${limpo}%`;
@@ -101,7 +101,7 @@ export async function buscar(termo: string): Promise<Resultado[]> {
   });
 }
 
-/** `and` que aceita indefinido sem reclamar, para condição opcional. */
+/** `and` that accepts undefined without complaining, for an optional condition. */
 function and0(...partes: (ReturnType<typeof sql> | undefined)[]) {
   const vivas = partes.filter(Boolean);
   return vivas.length === 1 ? vivas[0] : sql`${sql.join(vivas, sql` and `)}`;

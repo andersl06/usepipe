@@ -5,17 +5,9 @@ import { ehAttendance, positionOf } from './model';
 import { blockTags } from './tags-of-block';
 
 /**
- * O cartão de um bloco no canvas — o `builder-node.diagram-node` deles:
- * 175px de largura, raio 8, sombra `0 8px 16px`, texto centrado, o título em
- * 14/400 que vira 700 quando o bloco está selecionado ou em edição, o anel de
- * 4px em volta ao passar o mouse, e o ponto de saída (`.diagram-node-endpoint`,
- * 1em, meio da borda de baixo) que só aparece no hover e é de onde se arrasta
- * a ligação. As etiquetas embaixo (`builder-node-tags`) são as que o editor
- * põe sozinho: o tipo de cada ação do bloco e "UserInput" quando ele espera
- * resposta.
+ * The card for a block on the canvas — their `builder-node.diagram-node`: 175px wide, radius 8, `0 8px 16px` shadow, centered text, the title in 14/400 that becomes 700 when the block is selected or being edited, the 4px ring around it on hover, and the output dot (`.diagram-node-endpoint`, 1em, middle of the bottom edge) that only appears on hover and is where the link is dragged from. The tags underneath (`builder-node-tags`) are the ones the editor adds automatically: each block action's type and "UserInput" when it expects a reply.
  *
- * A tinta é a nossa: fundo de superfície, marca no bloco de Início (o
- * `#3f7de8` deles) e no anel, musgo no de atendimento, erro no inválido.
+ * The colors are ours: surface background, brand color on the Início block (their `#3f7de8`) and on the ring, moss on the attendance one, error on the invalid one.
  */
 
 export interface PropsDoNo {
@@ -23,7 +15,7 @@ export interface PropsDoNo {
   errors: string[];
   selecionado: boolean;
   editando: boolean;
-  /** Alvo possível da ligação que está sendo arrastada. */
+  /** Possible target of the link currently being dragged. */
   alvo: boolean;
   corresponde: boolean;
   onPointerDown: (e: PointerEventDeReact<HTMLDivElement>) => void;
@@ -31,7 +23,7 @@ export interface PropsDoNo {
   onContextMenu: (e: MouseEventDeReact<HTMLDivElement>) => void;
 }
 
-/** As etiquetas automáticas do editor: o tipo de cada ação, e "UserInput" se espera resposta. */
+/** The editor's automatic labels: each action's type, and "UserInput" if a reply is expected. */
 export type { BlockTag } from './tags-of-block';
 
 export function No({

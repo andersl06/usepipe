@@ -9,19 +9,14 @@ import { atualizarLeituras } from '../lib/actions';
 import { motivoDe, type Resultado } from '../lib/rest';
 
 /**
- * As escritas do Builder: `PUT /v1/gestao/fluxos/:id/builder` (o "salvar"),
- * `POST .../builder/publicar` (o botão "Publicar fluxo") e `POST
- * .../builder/versoes/:versao/restaurar` (o histórico). A regra mora na `api`
- * (`dominio/gestao/builder-do-fluxo.ts`); aqui a recusa vira texto para a tela,
- * e a lista de erros do motor — que vem no `detalhe.erros` do 409 de publicar —
- * é preservada, porque é ela que a tela pinta bloco a bloco.
+ * Builder writes use `PUT /v1/gestao/fluxos/:id/builder` to save, `POST .../builder/publicar` to publish, and `POST .../builder/versoes/:versao/restaurar` for history. `api` owns rules in `dominio/gestao/builder-do-fluxo.ts`; here turn refusals into screen text and expose per-block engine errors from `detalhe.erros` on 409.
  */
 
-/** Recusa que traz a lista do motor junto (publicar fluxo inválido). */
+/** A publish refusal carries engine errors as well as a message. */
 export type Recusa = { ok: false; error: string; errors: BlockError[] };
 export type ResultadoDoBuilder<T> = { ok: true; value: T } | Recusa;
 
-/** Os erros por bloco que a `api` põe no `detalhe` do 409, se vieram. */
+/** Extract per-block errors from `api` 409 `detalhe` when provided. */
 function errorsOf(error: unknown): BlockError[] {
   if (!(error instanceof ApiError)) return [];
   const corpo = error.corpo as { error?: { detalhe?: { errors?: unknown } } } | null;

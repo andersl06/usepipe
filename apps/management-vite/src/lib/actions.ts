@@ -8,14 +8,7 @@ export interface Resultado {
 }
 
 /**
- * Uma ação de formulário da Gestão, agora na `api`.
- *
- * Mesma assinatura que a Server Action tinha — `(anterior, FormData) =>
- * Resultado` —, então os formulários continuam com o `useActionState` e o
- * `envioQuePreserva` de sempre; só o import mudou. O `FormData` vira JSON
- * (chave repetida vira lista, como o `getAll` espera), vai para
- * `POST /v1/gestao/acoes/:nome`, e o `Resultado` volta. Deu certo: as
- * leituras em cache são invalidadas, que é o `revalidatePath` de antes.
+ * Gestao form actions now call `api` while keeping the old Server Action signature (formerly `revalidatePath` for refresh) `(anterior, FormData) => Resultado`, so forms retain `useActionState` and `envioQuePreserva`. Convert `FormData` to JSON, collecting repeated keys like `getAll`; post to `POST /v1/gestao/acoes/:nome`, return `Resultado`, and invalidate cached reads after success.
  */
 export function acaoRemota(nome: string) {
   return async (_anterior: Resultado, data: FormData): Promise<Resultado> => {
@@ -47,17 +40,17 @@ export const alternarRuleQueue = acaoRemota('alternarRegraFila');
 /* Atendentes */
 export const salvarQueue = acaoRemota('salvarFila');
 export const salvarMotivoPausa = acaoRemota('salvarMotivoPausa');
-/* Comunicação */
+
 export const salvarRespostaPronta = acaoRemota('salvarRespostaPronta');
-/* `salvarModelo` saiu: `comunicacao-modelos-formulario.tsx` cria modelo direto
-   em `POST /v1/canais/whatsapp/:id/modelos` (a Meta é a fonte agora, não mais
-   um `insert` local por `acoes/salvarModelo`). */
-/* Preferências */
+/*
+ * `salvarModelo` was removed: `comunicacao-modelos-formulario.tsx` creates templates directly through `POST /v1/canais/whatsapp/:id/modelos`. Meta is now the source, replacing local `insert` through `acoes/salvarModelo`.
+ */
+
 export const salvarIdentity = acaoRemota('salvarIdentidade');
 export const salvarPesquisa = acaoRemota('salvarPesquisa');
 export const closureSalvarTags = acaoRemota('salvarEtiquetasDeEncerramento');
 
-/** Deu certo: as leituras em cache são refeitas — o `revalidatePath` de antes. */
+/** After success, invalidate cached reads, replacing the former `revalidatePath` behavior. */
 export function atualizarLeituras(): void {
   void clienteDeConsultas.invalidateQueries({ queryKey: ['api'] });
 }

@@ -14,13 +14,7 @@ import { PagePreferences } from './pages/preferences/page';
 import { NaoEncontrado } from './pages/nao-encontrado';
 
 /**
- * As rotas do Desk — os MESMOS caminhos da referência (`~/desk-clone/README.md`,
- * "Telas replicadas"): `/` Atendimentos, `/chat` a conversa aberta,
- * `/activeMessage/send`, `/analytics`, `/contacts`, `/bulk-ticket`,
- * `/preferences`. `/chat/:id` leva o id para a conversa sobreviver ao F5.
- *
- * Só `/entrar` e `/convite/:token` são públicas. O resto fica atrás de
- * `ExigirSessao`.
+ * Desk routes mirror the reference (`~/desk-clone/README.md`, "Telas replicadas"): `/` attendance, `/chat` the open conversation, `/activeMessage/send`, `/analytics`, `/contacts`, `/bulk-ticket`, and `/preferences`. `/chat/:id` puts the conversation ID in the URL so it survives F5. Only `/entrar` and `/convite/:token` are public; `ExigirSessao` guards everything else.
  */
 export function App() {
   useRegistrarNavigation();

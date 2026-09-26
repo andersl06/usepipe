@@ -11,17 +11,17 @@ import {
 import { consultar, paraData } from './database';
 
 /**
- * Contatos.
+ * Contacts.
  *
- * O contato é a pessoa; o lead é a intenção dela de comprar. São coisas
- * diferentes e o Pipe guarda as duas separadas — o mesmo contato pode virar
- * lead duas vezes, e a conversa dele continua sendo uma só.
+ * A contact is the person; a lead is their intent to buy. They're different
+ * things and Pipe keeps them separate — the same contact can become a lead
+ * twice, and their conversation stays a single one.
  *
- * Por isso a ficha do contato mostra **as conversas** e **o lead**: é o que a
- * lista de leads não consegue mostrar, porque lá cada linha é uma intenção e
- * aqui cada linha é uma pessoa.
+ * That's why the contact record shows **the conversations** and **the lead**:
+ * it's what the leads list can't show, because there each row is an intent and
+ * here each row is a person.
  *
- * Tudo em série dentro do `consultar` (README).
+ * Everything sequential inside `consultar` (README).
  */
 
 export const LIMITE_LISTA = 200;

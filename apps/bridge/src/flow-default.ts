@@ -1,8 +1,4 @@
 /**
- * O fluxo padrão do Builder mora em `@pipe/core` (`fluxo/padrao.ts`) desde que a
- * tela do Builder da Gestão passou a servi-lo também (`GET /v1/gestao/fluxos/:id/
- * builder`). Este arquivo fica como reexportação para quem já importava daqui — o
- * teste `tests/fluxo-padrao.test.ts` inclusive, que continua provando que o padrão
- * é publicável sem mexer em nada.
+ * The Builder's default flow has lived in `@pipe/core` (`fluxo/padrao.ts`) since the Management Builder also began serving it (`GET /v1/gestao/fluxos/:id/builder`). This file remains a re-export for existing importers, including `tests/fluxo-padrao.test.ts`, which proves the default is publishable unchanged.
  */
 export { ACTIONS_GLOBAL_DEFAULT, FLOW_DEFAULT } from '@pipe/core';

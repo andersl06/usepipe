@@ -1,13 +1,5 @@
 /**
- * Ícones que as telas do Atendimento e do Builder pedem e o `@pipe/ui` ainda
- * não tem.
- *
- * Mesma origem e mesmas convenções do `Icone` do pacote: desenhos do Tabler
- * Icons (MIT, © Paweł Kuna), grade de 24, traço arredondado, sem preenchimento.
- * Ficam aqui, e não em `packages/ui`, porque a entrega não abre o pacote — a
- * regra de trabalho é escrever local na Gestão e relatar. Quando um segundo
- * aplicativo pedir os mesmos desenhos, o arquivo inteiro sobe para a fachada
- * `icones.tsx` do pacote sem mudar nenhuma chamada.
+ * Attendance and Builder icons absent from `@pipe/ui` use the same Tabler Icons source as `icones.tsx` and `Icone` conventions (MIT, Paweł Kuna): 24px rounded, unfilled strokes. Keep them local to Gestão rather than `packages/ui` until another app needs them; then move the whole file to the package facade without changing callers.
  */
 
 import type { SVGProps } from 'react';

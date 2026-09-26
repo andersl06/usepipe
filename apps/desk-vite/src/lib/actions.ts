@@ -1,7 +1,7 @@
 import { api } from './api';
 import { clienteDeConsultas } from './cliente-de-consultas';
 
-/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */
+
 export interface Resultado {
   ok: boolean;
   error?: string;
@@ -35,7 +35,7 @@ export function acaoRemota(nome: string) {
   };
 }
 
-/** A mesma ação, chamada com um objeto em vez de `FormData` — para botão sem formulário. */
+/** Invoke the same action with an object instead of `FormData`, for buttons without forms. */
 export async function executar(
   nome: string,
   campos: Record<string, string | string[]>,
@@ -50,12 +50,12 @@ export async function executar(
 /* Status do atendente (`apps/api/src/dominio/desk/acoes.ts`) */
 export const definirStatus = acaoRemota('definirStatus');
 export const cairByInactivity = acaoRemota('cairPorInatividade');
-/* Nota interna do compositor — é o "Comentário" do painel do contato. */
+/* Internal composer note maps to `Comentário` in the contact panel. */
 export const salvarNotaInterna = acaoRemota('salvarNotaInterna');
 export const transferirInBulk = acaoRemota('transferirEmMassa');
 /* A mensagem ativa vai direto por `POST /v1/mensagens-ativas` (ver paginas/mensagem-ativa/page.tsx). */
 
-/** Deu certo: as leituras em cache são refeitas — o `revalidatePath` de antes. */
+/** After success, invalidate cached reads; this replaces the former `revalidatePath` behavior. */
 export function atualizarLeituras(): void {
   void clienteDeConsultas.invalidateQueries({ queryKey: ['api'] });
 }

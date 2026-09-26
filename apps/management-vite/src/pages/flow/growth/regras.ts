@@ -27,9 +27,7 @@ export interface DestinationCsv {
 }
 
 /**
- * A planilha do disparo em massa: primeira linha é cabeçalho (descartada),
- * colunas seguintes são `telefone,nome,parametro1,parametro2,...` — nome e
- * parâmetros são opcionais. Linha sem telefone não vira destino.
+ * The bulk-dispatch spreadsheet: the first row is a header (discarded), the following columns are `telefone,nome,parametro1,parametro2,...` — name and parameters are optional. A row with no phone number doesn't become a recipient.
  */
 export function analisarCsv(texto: string): DestinationCsv[] {
   const linhas = texto

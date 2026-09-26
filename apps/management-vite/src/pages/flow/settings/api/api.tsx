@@ -2,13 +2,9 @@ import { useContact } from '../../contact';
 import { TelaDeConexao } from './tela';
 
 /**
- * `/configurations/apikey` — estado `auth.application.detail.configurations.apikey`
- * (portal.js, template do módulo 83981, controlador `iP`). O título e a frase
- * vêm de `modules.application.detail.templates.api.pageTitle/pageDescription`.
+ * `/configurations/apikey` — state `auth.application.detail.configurations.apikey` (portal.js, module 83981 template, `iP` controller). The title and text come from `modules.application.detail.templates.api.pageTitle/pageDescription`.
  *
- * Leitura e escrita reais via `GET/PUT /v1/gestao/fluxos/:id/conexao`
- * (`dominio/gestao/integracoes.ts`): identificador, endpoint, prefixo da
- * chave ativa e as duas URLs do formulário HTTP.
+ * Real read and write via `GET/PUT /v1/gestao/fluxos/:id/conexao` (`dominio/gestao/integracoes.ts`): identifier, endpoint, active key prefix and the two HTTP form URLs.
  */
 export function BotPageApi() {
   const { contact } = useContact();

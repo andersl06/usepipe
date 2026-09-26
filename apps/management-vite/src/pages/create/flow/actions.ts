@@ -3,19 +3,7 @@ import { irPara } from '../../../lib/navigation';
 import { RECADOS } from './regras';
 
 /**
- * Criar um fluxo: grava pela `api` e vai para a tela do contato recém-criado —
- * o `goToApplicationDetails()` da origem, que termina em
- * `auth.application.detail.home`. Com erro, volta ao passo do nome com o motivo
- * e o nome digitado na URL, como a tela já sabe mostrar.
- *
- * TODO(template): o campo oculto `template` (só presente quando a pessoa veio
- * de "Usar template", ver `casco.tsx` e `fluxo/page.tsx`) chega até aqui e não
- * é usado. Na origem, `MarketplaceTemplatesService.processTemplate` aplicaria
- * ao fluxo recém-criado o horário de atendimento, o transbordo humano, a
- * avaliação e a verificação de atendentes do `blip_deskCustomerService` — não
- * existe endpoint equivalente em `apps/api` hoje, e este arquivo não deve
- * inventar um contrato novo. Quando ele existir, é aqui que entra a segunda
- * chamada, depois de `resultado.id` sair da `gravarContato`.
+ * Create a flow: saves through the `api` and goes to the newly created contact's screen — the source's `goToApplicationDetails()`, which ends at `auth.application.detail.home`. On error, goes back to the name step with the reason and the typed name in the URL, as the screen already knows how to show. TODO(template): the hidden `template` field (only present when the person came from "Usar template", see `casco.tsx` and `fluxo/page.tsx`) reaches this far and isn't used. In the source, `MarketplaceTemplatesService.processTemplate` would apply the newly created flow's business hours, human handoff, evaluation, and agent-availability checks from `blip_deskCustomerService` — no equivalent endpoint exists in `apps/api` today, and this file shouldn't invent a new contract. When it exists, this is where the second call goes, after `resultado.id` comes out of `gravarContato`.
  */
 export async function createFlow(data: FormData): Promise<void> {
   const resultado = await saveContact(data, { tipo: 'fluxo', recados: RECADOS });

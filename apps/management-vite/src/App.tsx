@@ -84,26 +84,15 @@ import { PageNoAccess } from './pages/switch-account/no-access/page';
 import { PageBuilder } from './pages/builder';
 
 /**
- * As rotas-filhas do contato — o que `/fluxo/:id` e `/roteador/:id` desenham
- * embaixo do estado-pai (`RotaDoContato`).
- *
- * `/fluxo/:id/*` era, até aqui, TODA a árvore capturada de um roteador
- * (`auvpsegurosrouter`, `pipeprincipal`) — telas de roteador, moradas no
- * prefixo errado. Elas se mudaram para `/roteador/:id/*`; `/fluxo/:id/*`
- * continua de pé, apontando para as MESMAS telas, até o dia em que alguém
- * desenhar o que um FLUXO (chatbot) realmente mostra aqui. `RotaDoContato`
- * redireciona quem entra pelo prefixo que não bate com o tipo do contato —
- * por isso é seguro as duas rotas comparilharem esta mesma árvore agora.
+ * Contact child routes render beneath parent `RotaDoContato` at `/fluxo/:id` or `/roteador/:id`. Router reference screens formerly lived incorrectly under `/fluxo/:id/*` (`auvpsegurosrouter`, `pipeprincipal`) and moved to `/roteador/:id/*`. Keep `/fluxo/:id/*` on the same screens until the chatbot-specific view is designed. `RotaDoContato` redirects a prefix that disagrees with contact type, making shared child routes safe for now.
  */
 const contactRotas = (
   <>
     <Route index element={<ContactHome />} />
     <Route path="channels" element={<ChannelsPage />} />
-    {/* Cada canal tem a própria página DENTRO do bot, como
-        `application/detail/{bot}/channels/{canal}` da origem
-        (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1). As
-        abas do WhatsApp moravam em `atendimento/canais/whatsapp/:canalId`, no
-        módulo errado; o canal agora é o do bot, sem id na URL. */}
+    {/*
+ * Each channel has its own page within the bot, matching reference `application/detail/{bot}/channels/{canal}` (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1). WhatsApp tabs formerly lived in `atendimento/canais/whatsapp/:canalId`, the wrong module; the channel now belongs to the bot without an ID in the URL.
+ */}
     <Route path="channels/whatsapp" element={<ShellChannelWhatsapp />}>
       <Route index element={<AbaVisaoGeral />} />
       <Route path="profile" element={<AbaPerfil />} />
@@ -114,12 +103,9 @@ const contactRotas = (
     <Route path="channels/messenger" element={<PageChannelMessenger />} />
     <Route path="services" element={<ServicesPage />} />
 
-    {/* O módulo Atendimento — a `attendance/desk/*` da origem, dentro do
-        MESMO contato: barra do portal + barra do contato (item "Atendimento"
-        aceso) + a `desk-sidebar` própria, montada em `operacao/casca.tsx`.
-        Estas telas viviam soltas em `/monitoramento`, `/historico` etc. e
-        desenhavam um segundo portal — ver o mapa completo no relatório da
-        tarefa que fez a mudança. */}
+    {/*
+ * The Attendance module mirrors source `attendance/desk/*` inside the same contact: Portal bar, contact bar with Attendance selected, and its own `desk-sidebar` in `operacao/casca.tsx`. These screens formerly lived at separate paths such as `/monitoramento` and `/historico` with a second Portal shell; the original change report maps the move.
+ */}
     <Route path="attendance" element={<AttendanceShell />}>
       <Route index element={<Navigate to="monitoring" replace />} />
       <Route path="monitoring" element={<PageMonitoring />} />
@@ -130,14 +116,15 @@ const contactRotas = (
       <Route path="reports/effort" element={<PageEffort />} />
       <Route path="reports/satisfaction" element={<PageSatisfaction />} />
       <Route path="agents/management" element={<AgentsPageManagement />} />
-      {/* `/team/create` e `/team/edit` da origem — sem `:id`, a seleção viaja
-          em `?atendentes=` porque a edição é em lote (§a.1/§a.4 da ficha). */}
+      {/*
+ * Mirror source `/team/create` and `/team/edit` without `:id`; batch-edit selection travels in `?atendentes=` (reference sheet §a.1/§a.4).
+ */}
       <Route path="agents/management/add" element={<AgentPageEdit modo="adicionar" />} />
       <Route path="agents/management/edit" element={<AgentPageEdit modo="editar" />} />
       {/* `/team/permission` da origem. */}
       <Route path="agents/management/permissions" element={<AgentPagePermissions />} />
       <Route path="agents/queues" element={<PageQueues />} />
-      {/* `/queue-management/edit/:id` da origem — página própria, não modal. */}
+      {/* Mirror source `/queue-management/edit/:id` as a separate page, not a modal. */}
       <Route path="agents/queues/:queueId/edit" element={<QueuePageEdit />} />
       <Route path="agents/breaks" element={<PageBreaks />} />
       <Route path="communication/templates" element={<PageTemplates />} />
@@ -203,12 +190,7 @@ const contactRotas = (
 );
 
 /**
- * As rotas da Gestão — as mesmas URLs do aplicativo em Next, para link salvo
- * e histórico continuarem valendo. A árvore segue a da origem: o contato
- * (`/fluxo/:id` para chatbot, `/roteador/:id` para roteador) é o estado-pai,
- * e cada módulo pendura nele.
- *
- * Só `/entrar` é pública. O resto fica atrás de `ExigirSessao`.
+ * Gestão routes retain the same URLs as the former Next app so bookmarks and history keep working. The tree uses contact `/fluxo/:id` for chatbot or `/roteador/:id` for router as parent state, with modules below. Only `/entrar` is public; `ExigirSessao` guards the rest.
  */
 export function App() {
   useRegistrarNavigation();
@@ -235,20 +217,16 @@ export function App() {
         <Route path="/create/flow/:passo?" element={<PageCreateFlow />} />
         <Route path="/create/router/:passo?" element={<PageCreateRouter />} />
 
-        {/* Implantação — onboarding de CONTA, sem contato nenhum para
-            pendurar. Cromo próprio (`pt-app` + `BarraDoPortal`, como
-            "Novidades" e o Painel do contrato), montado dentro da própria
-            `page.tsx`. Builder e Growth, os outros dois módulos que
-            `EstruturaGestao` desenhava fora do contato, se mudaram para
-            dentro dele (abaixo); sem os dois, aquele casco de duas barras
-            ficou sem rota nenhuma e saiu. */}
+        {/*
+ * Implantação is account onboarding, with no contact to nest beneath. It renders its own `pt-app` and `BarraDoPortal` chrome in `page.tsx`, like Novidades and the contract panel. Builder and Growth moved inside the contact; after that, `EstruturaGestao` had no route requiring its two-bar shell and was removed.
+ */}
         <Route path="/deployment" element={<PageDeployment />} />
 
         <Route path="/flow/:id" element={<ContactRota />}>
           {contactRotas}
-          {/* Builder é escondido do menu do roteador (`ESCONDIDOS_NO_ROTEADOR`
-              em `fluxo/itens.ts`, a mesma regra da origem) — por isso a rota
-              só existe aqui, e não na árvore de `/roteador/:id` logo abaixo. */}
+          {/*
+ * Builder is hidden from the router menu by `ESCONDIDOS_NO_ROTEADOR` in `fluxo/itens.ts`, matching the reference, so this route exists only here and not below `/roteador/:id`.
+ */}
           <Route path="builder" element={<PageBuilder />} />
         </Route>
         <Route path="/router/:id" element={<ContactRota />}>

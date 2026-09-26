@@ -5,14 +5,7 @@ import { salvarRespostaPronta } from '../../lib/actions';
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
- * Cadastro de resposta pronta — só `escopo = 'empresa'` (ver comentário de
- * `lib/comunicacao.ts`). A pessoal o próprio atendente cria no Desk.
- *
- * Nenhuma classe de "campo de formulário com rótulo" existe hoje no design
- * system compartilhado — só `.cl-campo` (rótulo acima de VALOR DE LEITURA, do
- * cartão de lista) e `.lbl`, que o comentário de `base.css` proíbe usar em
- * nome de campo. Por isso o rótulo aqui é `.sub` (legenda pequena, já
- * existente) em vez de uma classe nova.
+ * Canned-reply registration — only `escopo = 'empresa'` (see the comment in `lib/comunicacao.ts`). Attendants create their personal ones in Desk. No "labeled form field" class exists yet in the shared design system — only `.cl-campo` (label above a READ-ONLY VALUE, from the list card) and `.lbl`, which the comment in `base.css` forbids using for a field name. So the label here is `.sub` (a small caption, already existing) instead of a new class.
  */
 export function FormularioRespostaPronta({ aoSalvar }: { aoSalvar?: () => void }) {
   const formRef = useRef<HTMLFormElement>(null);

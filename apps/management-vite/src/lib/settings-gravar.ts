@@ -3,11 +3,7 @@ import { atualizarLeituras } from './actions';
 import { motivoDe, type Resultado } from './rest';
 
 /**
- * Escrita de `regra_sla` (item 2) — `POST`/`PATCH`/`DELETE` de verdade em
- * `/v1/gestao/configuracoes/regras`, a tela `regras-sla.tsx` que só tinha
- * leitura (`TODO(escrita)` removido de lá). Arquivo À PARTE de
- * `configuracoes.ts`, no mesmo padrão de `cadastros.ts`/`cadastros-gravar.ts`:
- * lá ficam os TIPOS de leitura, aqui a chamada à `api`.
+ * Write `regra_sla` through real `POST`/`PATCH`/`DELETE` at `/v1/gestao/configuracoes/regras`; `regras-sla.tsx` was previously read-only (its `TODO(escrita)` was removed). Keep `api` calls here and reading types in `configuracoes.ts`, as with `cadastros.ts` and `cadastros-gravar.ts`.
  */
 
 export interface PedidoDeRegraSla {

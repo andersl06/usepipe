@@ -35,21 +35,13 @@ interface Search {
 }
 
 /**
- * Monitoria com IA — a lista de conversas avaliadas.
+ * AI Monitoring — the list of evaluated conversations.
  *
- * `packages/ai` avalia critério a critério, calcula a nota de forma
- * determinística e cita a mensagem que sustenta cada resposta. Até aqui isso
- * ficava só no banco: o produto pagava a chamada de modelo e o supervisor não
- * tinha onde ler.
+ * `packages/ai` scores criterion by criterion, computes the score deterministically, and cites the message backing each answer. Until now this only lived in the database: the product paid for the model call and the supervisor had nowhere to read it.
  *
- * A régua de métricas vale igual. A média das notas mostra **de quantas
- * avaliações ela saiu** e quantas ficaram de fora — rascunho e avaliação sem
- * nota são exatamente o tipo de exclusão que embeleza a média. E as avaliações
- * **zeradas por critério fatal** aparecem em coluna própria, porque uma média 82
- * com três zeros dentro não é a mesma operação que uma média 82 sem nenhum.
+ * The metrics ruler applies the same way. The score average shows **how many evaluations it came from** and how many were left out — a draft or a scoreless evaluation are exactly the kind of exclusion that flatters an average. And evaluations **zeroed by a fatal criterion** appear in their own column, because an average of 82 with three zeros inside is not the same operation as an average of 82 with none.
  *
- * População: avaliações CONCLUÍDAS dentro do período (`avaliada_em`), com o
- * cronômetro parado — a mesma separação de §3 que vale para os relatórios.
+ * Population: COMPLETED evaluations within the period (`avaliada_em`), with the clock stopped — the same split from §3 that applies to the reports.
  */
 export function PageQualityReview() {
   const { contact } = useContact();

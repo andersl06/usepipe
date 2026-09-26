@@ -3,16 +3,7 @@ import type { DiaDaVisaoGeral, VisaoGeral as DadosDaVisaoGeral } from '@pipe/cor
 import { PageHeader, Card, PeriodSeletor } from '../pecas';
 
 /**
- * Visão Geral — o componente `generalDashboard` do módulo `analyticsComponents`
- * (template 7780, controlador `ri`), com o `counterChildCard` (14085) e o
- * `analyticsChart` (1920).
- *
- * As flags do contexto que mexem aqui, todas ligadas: `analytics-messages-
- * general-info` (o ícone de ajuda do título), `active-messages-per-domain-table`
- * (o bloco "Mensagens ativas por canal") e `analytics-general-dashboard-
- * requests-for-user-quantity-enabled` (os contadores de usuários).
- * `general-dashboard-initial-period-one-day` está desligada: o período abre em
- * sete dias.
+ * Overview — the `generalDashboard` component from the `analyticsComponents` module (template 7780, controller `ri`), with the `counterChildCard` (14085) and the `analyticsChart` (1920). The context flags that affect this page, all enabled: `analytics-messages- general-info` (the title's help icon), `active-messages-per-domain-table` (the "Mensagens ativas por canal" block), and `analytics-general-dashboard-requests-for-user-quantity-enabled` (the user counters). `general-dashboard-initial-period-one-day` is disabled: the period opens at seven days.
  */
 export function VisaoGeral({
   data,
@@ -200,12 +191,12 @@ export function VisaoGeral({
   );
 }
 
-/** `formatNumbers()`: `toLocaleString()` com a vírgula trocada por ponto. */
+/** `formatNumbers()`: `toLocaleString()` with the comma swapped for a period. */
 function numero(n: number): string {
   return n.toLocaleString('en-US').replaceAll(',', '.');
 }
 
-/** `<counter-child-card>`: nome em negrito com a dica, e o valor em fs-20. */
+/** `<counter-child-card>`: bold name with the tooltip, and the value at fs-20. */
 function Contador({ nome, value, dica }: { nome: string; value: number; dica: string }) {
   return (
     <div className="vg-contador">
@@ -223,9 +214,7 @@ function Contador({ nome, value, dica }: { nome: string; value: number; dica: st
 type SerieKey = 'ativos' | 'engajados' | 'recebidas' | 'enviadas';
 
 /**
- * O `chart type="line"` do `analyticsChart`, que na origem é o `LineChart` do
- * Google Charts. Sem biblioteca: eixo, grade, duas linhas e a legenda à
- * direita, que é o padrão dele. Sem dia com dado, a frase `noEnoughData`.
+ * The `chart type="line"` from `analyticsChart`, which in the origin is the `LineChart` from Google Charts. No library: axis, grid, two lines, and the legend on the right, which is its default. With no day of data, the `noEnoughData` message.
  */
 function GraficoDeLinha({
   dias,
@@ -297,9 +286,7 @@ function GraficoDeLinha({
 }
 
 /**
- * O modal do `showOverviewModal()` (template 6411): `.modal` legado do portal,
- * `modal-dialog modal-sm`, a ilustração à esquerda (`Chevalet.svg`, que não
- * veio na captura — a coluna fica vazia) e o texto de `metrics.overviewHelp`.
+ * The `showOverviewModal()` modal (template 6411): the portal's legacy `.modal`, `modal-dialog modal-sm`, the illustration on the left (`Chevalet.svg`, which wasn't included in the capture — the column stays empty), and the text from `metrics.overviewHelp`.
  */
 function ModalDaVisaoGeral() {
   return (

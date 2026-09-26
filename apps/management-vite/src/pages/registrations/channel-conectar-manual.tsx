@@ -11,17 +11,9 @@ import {
 import { Modal } from './_modal';
 
 /**
- * O caminho manual de conectar WhatsApp/Instagram — sem aplicativo aprovado
- * na Meta, o cadastro embutido (`cadastro-embutido-whatsapp.tsx`) não é uma
- * opção para o cliente médio; este é o caminho principal agora
- * (`POST /v1/canais/{whatsapp,instagram}/manual`, `canais.ts`/
- * `canais-instagram.ts`).
+ * The manual path for connecting WhatsApp/Instagram — without an app approved by Meta, the embedded signup (`cadastro-embutido-whatsapp.tsx`) isn't an option for the average customer; this is the main path now (`POST /v1/canais/{whatsapp,instagram}/manual`, `canais.ts`/`canais-instagram.ts`).
  *
- * Os dois formulários de conexão (`configuracao-manual.ts`/`instagram/
- * canal.ts`) recusam com `ErroPipe` SEM `detalhe.campo` — diferente de perfil
- * e preferências, que apontam o campo. Por isso aqui o erro só cabe num
- * banner geral, não embaixo de um campo específico (achado de backend, não
- * corrigido: a tarefa pede só consumir).
+ * The two connection forms (`configuracao-manual.ts`/`instagram/canal.ts`) reject with `ErroPipe` WITHOUT `detalhe.campo` — unlike profile and preferences, which point to the field. So here the error only fits in a general banner, not under a specific field (a backend finding, not fixed here: the task only asks to consume it).
  */
 
 const column = { display: 'flex', flexDirection: 'column' as const, gap: 'var(--p-e-3)' };
@@ -42,7 +34,7 @@ function CampoComRotulo({
   obrigatorio?: boolean;
   desabilitado?: boolean;
   tipo?: string;
-  /** Na reconexão, WABA e número já são conhecidos: vêm preenchidos. */
+  /** On reconnection, WABA and the number are already known: they come prefilled. */
   valueInitial?: string | undefined;
 }) {
   return (
@@ -62,20 +54,15 @@ function CampoComRotulo({
 }
 
 /**
- * O que os três modais têm em comum, agora que moram na página do canal DO BOT
- * (`fluxo/canais/**`): `fluxoId` faz o canal nascer já ligado ao bot
- * (`fluxo_id` nas rotas de conexão), e o botão que abre o modal leva o rótulo
- * e a variante da tela que o hospeda.
+ * What the three modals have in common, now that they live on the channel's page INSIDE THE BOT (`fluxo/canais/**`): `fluxoId` makes the channel born already linked to the bot (`fluxo_id` in the connection routes), and the button that opens the modal carries the label and variant of the screen hosting it.
  */
 interface PropsDeConexaoManual<T> {
   flowId?: string;
   /**
-   * RECONECTAR este canal em vez de criar outro. O token do cliente expira, e na
-   * origem a saída é refazer a conexão no mesmo canal — não há desconectar no
-   * WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).
+   * RECONNECT this channel instead of creating another. The client token expires, and in the source the way out is to redo the connection on the same channel — there's no disconnect for WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).
    */
   channelId?: string;
-  /** Preenche o formulário com o que já se sabe do canal. */
+  /** Fills the form with what's already known about the channel. */
   values?: { wabaId?: string; numeroId?: string };
   rotulo?: string;
   variante?: VarianteDeBotao;

@@ -15,22 +15,13 @@ import { useContact } from '../flow/contact';
 import { attendanceBase } from './shell';
 
 /**
- * A ficha de uma avaliação.
+ * An evaluation's record sheet.
  *
- * É a tela que responde “por que 68?”. Cada critério mostra o que a IA
- * respondeu, quantos pontos aquilo valeu **na escala da nota final**, a
- * justificativa que ela escreveu e a **mensagem citada como evidência** —
- * resolvida para o texto de verdade, não para o rótulo `m7` que o modelo usou.
+ * It's the screen that answers "why 68?". Each criterion shows what the AI answered, how many points that was worth **on the final-score scale**, the justification it wrote, and the **message cited as evidence** — resolved to the actual text, not to the `m7` label the model used.
  *
- * A evidência é o que separa monitoria de opinião. `packages/ai` recusa a
- * avaliação quando a IA cita um trecho que não existe na transcrição, e recusa
- * critério não conforme sem evidência; aqui essa disciplina vira leitura: quem
- * discorda da nota tem onde apontar.
+ * Evidence is what separates monitoring from opinion. `packages/ai` refuses the evaluation when the AI cites a passage that doesn't exist in the transcript, and refuses a non-conforming criterion without evidence; here that discipline becomes readable: whoever disagrees with the score has something to point at.
  *
- * Os dois números do topo são propositalmente dois: a nota valendo e a nota
- * ANTES do critério fatal. Um zero por fatal com 84 pontos somados é um caso
- * diferente de um zero por atendimento ruim de ponta a ponta, e a diferença
- * decide se a conversa vira feedback ou vira plano de coach.
+ * The two numbers at the top are deliberately two: the score as it stands, and the score BEFORE the fatal criterion. A zero from a fatal criterion on top of 84 summed points is a different case from a zero from poor service start to finish, and that difference decides whether the conversation becomes feedback or a coaching plan.
  */
 
 function valueRotulo(tipo: string, value: string | null): string {

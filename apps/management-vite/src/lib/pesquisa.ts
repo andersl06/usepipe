@@ -1,16 +1,5 @@
 /**
- * A escala da pesquisa — §6 da spec de métricas.
- *
- * Existem dois modelos incompatíveis no mercado, e a Blip convive com os dois
- * sem unificar. O Pipe suporta os dois, mas exige que o tenant **escolha um por
- * pesquisa** e guarda a escala junto da resposta. Sem isso, um 4 de CSAT e um 4
- * de NPS acabam somados no mesmo gráfico.
- *
- * O tipo é que manda: a escala não é digitável na tela de configuração, é
- * consequência dele. Escala editável à mão é como aparece um "CSAT de 0 a 10"
- * que nenhum relatório sabe classificar.
- *
- * Módulo puro — é o cartão de configuração (`'use client'`) que o importa.
+ * Survey scale follows metrics spec Section 6. Blip uses two incompatible market models without merging them; Pipe supports both but requires one type per survey and stores the scale with each response. Otherwise CSAT 4 and NPS 4 could enter the same chart. Type determines scale; do not allow manual scale entry that could create a 0-to-10 CSAT no report can classify. Keep this pure for the `'use client'` configuration card.
  */
 
 export const TIPOS_DE_PESQUISA = ['csat', 'nps'] as const;
@@ -19,7 +8,7 @@ export type TipoDePesquisa = (typeof TIPOS_DE_PESQUISA)[number];
 export interface EscalaDePesquisa {
   min: number;
   max: number;
-  /** Fronteiras da §6, em texto, para a tela não repetir o número à mão. */
+  /** Expose metrics-spec Section 6 boundaries as text so the screen does not repeat numeric thresholds. */
   faixas: string;
 }
 
@@ -37,7 +26,7 @@ export function tipoDePesquisaValido(bruto: string): bruto is TipoDePesquisa {
   return (TIPOS_DE_PESQUISA as readonly string[]).includes(bruto);
 }
 
-/** Quando a pesquisa é disparada. O banco aceita texto livre; a tela, estes três. */
+/** The database allows free text for survey trigger; this screen offers exactly three choices. */
 export const DISPAROS_DE_PESQUISA = ['encerramento', 'primeira_resposta', 'manual'] as const;
 export type DisparoDePesquisa = (typeof DISPAROS_DE_PESQUISA)[number];
 
@@ -52,12 +41,7 @@ export function disparoValido(bruto: string): bruto is DisparoDePesquisa {
 }
 
 /**
- * A classe de uma nota, na escala do próprio tipo.
- *
- * Vive aqui, e não em `satisfacao.ts`, porque `satisfacao.ts` LÊ a classe que o
- * banco gravou junto da resposta — é o retrato histórico. Esta função é o que a
- * tela de configuração usa para mostrar, antes de salvar, o que cada nota vai
- * significar. Duas funções, dois momentos, e nenhuma reclassifica o passado.
+ * Classify a score within its type's scale for configuration preview. Keep this here, not `satisfacao.ts`: that report reads the class stored with historical responses, while this function shows what a new score WOULD mean before saving. Do not reclassify history.
  */
 export function classeDaNota(tipo: TipoDePesquisa, nota: number): string | null {
   const escala = ESCALA_BY_TIPO[tipo];

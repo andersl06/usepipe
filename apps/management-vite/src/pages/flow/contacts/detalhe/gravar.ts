@@ -3,9 +3,7 @@ import { atualizarLeituras } from '../../../../lib/actions';
 import { motivoDe } from '../../settings/basic/gravar';
 
 /**
- * `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`, `ControladorContatos.editar`).
- * `null` apaga o campo; `undefined` (omitido) não mexe. `atributos` é mescla: só as
- * chaves mandadas aqui (`city`, `gender`) mudam — as extras do contato continuam.
+ * `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`, `ControladorContatos.editar`). `null` clears the field; `undefined` (omitted) leaves it untouched. `atributos` is a merge: only the keys sent here (`city`, `gender`) change — the contact's extra keys are kept.
  */
 
 export interface ContactEdit {

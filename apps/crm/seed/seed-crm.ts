@@ -26,25 +26,24 @@ import {
 } from '@pipe/db/schema';
 
 /**
- * Semente do Pipe CRM.
+ * Pipe CRM seed.
  *
- * **Acrescenta, nunca varre.** Outros agentes semeiam o mesmo tenant `demo`, e apagar
- * o que não é seu já quebrou trabalho alheio neste projeto uma vez. Por isso cada
- * linha criada aqui tem identificador **derivado do nome** (sha1 de um namespace do
- * CRM), e a limpeza do começo apaga exatamente esses identificadores e mais nenhum:
- * rodar duas vezes não duplica, e não encosta em contato, conversa ou fila de
- * ninguém.
+ * **Appends, never sweeps.** Other agents seed the same `demo` tenant, and deleting what
+ * isn't yours has already broken someone else's work in this project once. That's why each
+ * row created here has an identifier **derived from a name** (sha1 of a CRM
+ * namespace), and the initial cleanup deletes exactly those identifiers and nothing else:
+ * running it twice doesn't duplicate, and it never touches anyone else's contact, conversation, or queue.
  *
- * Ela se apoia no que já existe — contatos e conversas da semente da Gestão, filas e
- * usuários da semente base — porque é assim que a promessa do produto aparece na
- * tela: a linha do tempo do lead traz o atendimento que já aconteceu.
+ * It builds on what already exists — contacts and conversations from the Gestão seed, queues and
+ * users from the base seed — because that's how the product's promise shows up on
+ * screen: the lead's timeline brings in attendance that really happened.
  *
- * Uso: `pnpm --filter @pipe/crm seed:crm`
+ * Usage: `pnpm --filter @pipe/crm seed:crm`
  */
 
 const NAMESPACE = 'pipe-crm:2026-09-05';
 
-/** UUID determinístico a partir de um nome. Mesmo nome, mesmo id, sempre. */
+/** Deterministic UUID from a name. Same name, same id, always. */
 function idDe(nome: string): string {
   const h = createHash('sha1').update(`${NAMESPACE}:${nome}`).digest();
   const b = Buffer.from(h.subarray(0, 16));
@@ -54,7 +53,7 @@ function idDe(nome: string): string {
   return `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20, 32)}`;
 }
 
-/** Gerador determinístico: rodar duas vezes dá exatamente a mesma base. */
+/** Deterministic generator: running it twice gives exactly the same base data. */
 function aleatorio(seed: number): () => number {
   let state = seed >>> 0;
   return () => {
@@ -73,7 +72,7 @@ const escolher = <T,>(lista: readonly T[]): T => lista[Math.floor(rnd() * lista.
 const sorteio = (p: number) => rnd() < p;
 const dias = (n: number) => n * 86_400_000;
 
-/* ------------------------------------------------------------------ catálogos */
+/* ------------------------------------------------------------------ catalogs */
 
 const VERSAO_REGRA = 4;
 
@@ -96,13 +95,13 @@ const CAMPANHAS: Record<string, string | null> = {
 };
 
 /**
- * Contas. A semente da Gestão cria contato e conversa, e a base deste CRM cria
- * lead e oportunidade — ninguém criava `conta`, e por isso a coluna `conta_id`
- * do lead vinha nula em toda linha. A tela de Contas nascia vazia, o que é a
- * pior maneira de descobrir que a tabela nunca foi preenchida.
+ * Accounts. The Gestão seed creates contact and conversation, and this CRM's base seed
+ * creates lead and opportunity — nobody was creating `conta`, which is why the lead's
+ * `conta_id` column came back null on every row. The Accounts screen was born empty, which
+ * is the worst way to find out a table was never populated.
  *
- * Nomes fictícios de propósito: é tenant de demonstração, e cliente real de
- * ninguém entra em semente que vai para o repositório.
+ * Fictitious names on purpose: this is a demo tenant, and nobody's real customer data
+ * goes into a seed that ships to the repository.
  */
 const ACCOUNTS = [
   { nome: 'Almeida Participações', dominio: 'almeidapar.com.br' },
@@ -121,7 +120,7 @@ const ACCOUNTS = [
   { nome: 'Salgado Indústria', dominio: 'salgadoind.com.br' },
 ] as const;
 
-/** CNPJ fictício e determinístico. Catorze dígitos, sem dígito verificador real. */
+/** Fake, deterministic CNPJ. Fourteen digits, no real check digit. */
 function cnpjDe(indice: number): string {
   const base = String(10_000_000 + indice * 137_911).padStart(8, '0');
   return `${base}0001${String(10 + indice).slice(0, 2)}`;
@@ -137,8 +136,8 @@ const PROBABILITY: Record<string, number> = {
 };
 
 /**
- * As regras da versão 4. Os pesos são os do mockup aprovado, e o corte em 60 é a
- * regra de negócio que já roda no webhook de hoje.
+ * Version 4 rules. The weights come from the approved mockup, and the cutoff at 60 is the
+ * business rule that already runs in today's webhook.
  */
 const REGRAS: { nome: string; pontos: number; condition: Expressao }[] = [
   {
@@ -216,7 +215,7 @@ const FAIXAS: { nome: string; minimo: number; maximo: number; queue: string | nu
     { nome: 'Closer', minimo: 60, maximo: 100, queue: 'Closer', estrategia: 'menor_carga' },
   ];
 
-/** As faixas no formato do motor: `maximo` do topo é aberto. */
+/** Bands in the engine's format: the top band's `maximo` is open-ended. */
 const FAIXAS_MOTOR: FaixaScore[] = FAIXAS.map((f, i) => ({
   nome: f.nome,
   minimo: f.minimo,
@@ -261,7 +260,7 @@ const PERGUNTAS_DIAGNOSTICO = [
   },
 ] as const;
 
-/** A versão 2 acrescenta duas perguntas — e o histórico da versão 1 continua legível. */
+/** Version 2 adds two more questions — and version 1's history stays readable. */
 const PERGUNTAS_DIAGNOSTICO_V2 = [
   ...PERGUNTAS_DIAGNOSTICO,
   {
@@ -352,8 +351,8 @@ async function seedCrm(db: DatabasePipe) {
   const queueByName = new Map(queues.map((f) => [f.nome, f.id]));
 
   /**
-   * Contatos que já conversaram vêm primeiro: é o que faz a linha do tempo do lead
-   * mostrar atendimento de verdade em vez de uma lista de notas inventadas.
+   * Contacts who have already talked come first: that's what makes the lead's timeline
+   * show real attendance instead of a list of made-up notes.
    */
   const withConversation = await db
     .selectDistinct({ id: contact.id, nome: contact.nome })
@@ -371,7 +370,7 @@ async function seedCrm(db: DatabasePipe) {
 
   const agora = new Date();
 
-  /* ---------------------------------------------------- limpeza do que é meu */
+  /* ---------------------------------------------------- cleanup of what's mine */
 
   const idsLead = withConversation.map((c) => idDe(`lead:${c.id}`));
   const idsOpportunity = withConversation.flatMap((c) => [
@@ -385,7 +384,7 @@ async function seedCrm(db: DatabasePipe) {
   const idsAccount = ACCOUNTS.map((c) => idDe(`conta:${c.nome}`));
   const idsClassification = withConversation.map((c) => idDe(`classificacao:${c.id}`));
 
-  // Ordem: oportunidade e lead antes do formulário, senão a resposta segura a versão.
+  // Order: opportunity and lead before the form, otherwise the response holds up the version.
   await db.delete(opportunity).where(inArray(opportunity.id, idsOpportunity));
   await db.delete(lead).where(inArray(lead.id, idsLead));
   await db.delete(formulario).where(inArray(formulario.id, idsFormulario));
@@ -395,9 +394,9 @@ async function seedCrm(db: DatabasePipe) {
   await db.delete(classificationConversation).where(inArray(classificationConversation.id, idsClassification));
 
   /*
-   * O contato é de outra semente: só o vínculo com a conta é meu, e é só ele
-   * que a limpeza desfaz. Solto o vínculo antes de apagar a conta, senão a
-   * chave estrangeira segura a linha.
+   * The contact belongs to another seed: only the link to the account is mine, and that's the
+   * only thing cleanup undoes. I release the link before deleting the account, otherwise the
+   * foreign key holds onto the row.
    */
   await db
     .update(contact)
@@ -458,7 +457,7 @@ async function seedCrm(db: DatabasePipe) {
     )
     .onConflictDoNothing();
 
-  /* --------------------------------------------------------------- formulários */
+  /* --------------------------------------------------------------- forms */
 
   const idDiagnostico = idDe('formulario:diagnostico');
   const idPlano = idDe('formulario:plano');
@@ -543,25 +542,25 @@ async function seedCrm(db: DatabasePipe) {
   const linhasClassification: (typeof classificationConversation.$inferInsert)[] = [];
 
   const tierByContact = new Map<string, string | null>();
-  /** Conta → contatos dela. Vira um `update` por conta, não sessenta. */
+  /** Account → its contacts. Turns into one `update` per account, not sixty. */
   const contactsByAccount = new Map<string, string[]>();
 
   for (const [indice, c] of withConversation.entries()) {
     const leadId = idDe(`lead:${c.id}`);
-    // Rodízio pelas contas: cada uma fica com três ou quatro contatos, que é o
-    // bastante para a ficha da conta ter mais de uma linha em cada bloco.
+    // Rotating through accounts: each one gets three or four contacts, which is
+    // enough for the account record to have more than one row in each block.
     const accountId = idsAccount[indice % idsAccount.length] as string;
     const accountContacts = contactsByAccount.get(accountId);
     if (accountContacts) accountContacts.push(c.id);
     else contactsByAccount.set(accountId, [c.id]);
-    // Metade entrou nos últimos dias e metade nos meses anteriores: sem isso o painel
-    // compara um mês cheio com um mês de cinco dias e a variação vira ruído.
+    // Half arrived in the last few days and half in previous months: without this the dashboard
+    // compares a full month against a five-day month and the variation turns into noise.
     const criadoEm = new Date(
       agora.getTime() - (sorteio(0.45) ? dias(entre(0, 4.5)) : dias(entre(5, 62))),
     );
     const origem = escolher(ORIGENS);
 
-    // O perfil é a fonte única: alimenta o score e as respostas do formulário.
+    // The profile is the single source: it feeds the score and the form answers.
     const patrimonio = escolher([120_000, 260_000, 320_000, 480_000, 640_000, 1_200_000]);
     const diagnosticoCompleto = sorteio(0.72);
     const interessePlano = sorteio(0.65) ? (sorteio(0.7) ? 'anual' : 'mensal') : null;
@@ -579,8 +578,8 @@ async function seedCrm(db: DatabasePipe) {
       whatsapp_confirmado: whatsappConfirmado,
     };
 
-    // Nem todo lead é pontuado: o que não respondeu nada fica sem score, e a ficha
-    // diz isso em vez de exibir zero — zero é um número, ausência de cálculo não é.
+    // Not every lead is scored: one that answered nothing has no score, and the record
+    // says so instead of showing zero — zero is a number, absence of a calculation isn't.
     const pontuado = diagnosticoCompleto || interessePlano !== null || sorteio(0.5);
     const resultado = pontuado
       ? calcularScore(regrasMotor, data, {
@@ -590,8 +589,8 @@ async function seedCrm(db: DatabasePipe) {
         })
       : null;
 
-    // Nunca antes da criação do lead nem no futuro: "dias na fase" é uma contagem, e
-    // contagem negativa é a maneira mais barata de perder a confiança na coluna.
+    // Never before the lead's creation nor in the future: "days in stage" is a count, and
+    // a negative count is the cheapest way to lose trust in the column.
     const faseDesde = new Date(
       Math.max(criadoEm.getTime(), agora.getTime() - dias(entre(0, 16))),
     );
@@ -616,7 +615,7 @@ async function seedCrm(db: DatabasePipe) {
           ? escolher(FASES)
           : escolher(['Novo', 'Qualificado'] as const);
 
-    // Lead da faixa de nutrição não tem dono: é exatamente a aba "sem proprietário".
+    // A lead in the nurture band has no owner: that's exactly the "unassigned" tab.
     const proprietario =
       resultado && resultado.faixa !== 'Nutrição' && sorteio(0.82) ? escolher(users) : null;
 
@@ -673,16 +672,16 @@ async function seedCrm(db: DatabasePipe) {
       });
     }
 
-    /* ------------------------------------------------ respostas de formulário */
+    /* ------------------------------------------------ form responses */
 
-    // Lead antigo respondeu a versão 1 do diagnóstico; lead recente, a versão 2.
+    // An old lead answered diagnostic version 1; a recent lead, version 2.
     const usaV2 = criadoEm.getTime() > agora.getTime() - dias(30);
     const versaoDiag = usaV2 ? versions[1]! : versions[0]!;
     const perguntasDiag = perguntasByVersion.get(versaoDiag.id) ?? [];
 
     const respondidoEm = new Date(criadoEm.getTime() + 1000 * entire(30, 900));
-    // Diagnóstico incompleto responde só as duas primeiras — e a regra dos 18 pontos
-    // não casa. É o que faz a explicação do score contar uma história verdadeira.
+    // An incomplete diagnostic only answers the first two — and the 18-point rule
+    // doesn't match. That's what makes the score's explanation tell a true story.
     const quantas = diagnosticoCompleto ? perguntasDiag.length : 2;
 
     for (const p of perguntasDiag.slice(0, quantas)) {
@@ -805,9 +804,9 @@ async function seedCrm(db: DatabasePipe) {
 
     /* ------------------------------------------------------ oportunidades */
 
-    // Só lead acima do corte vira oportunidade, que é a regra do funil de hoje.
+    // Only a lead above the cutoff becomes an opportunity, which is today's funnel rule.
     // Vira oportunidade quem o comercial de fato trabalha: da faixa Comercial para
-    // cima. Abaixo disso é nutrição, e nutrição não ocupa coluna do funil.
+    // top. Below that is nurture, and nurture doesn't occupy a funnel column.
     if ((resultado?.value ?? 0) >= 45 && status !== 'desqualificado') {
       const value = escolher([4788, 7200, 9600, 12_400, 18_000, 24_000, 36_000, 48_000]);
       const abertaEm = new Date(criadoEm.getTime() + dias(entre(1, 6)));
@@ -826,8 +825,8 @@ async function seedCrm(db: DatabasePipe) {
         criadoEm: new Date(Math.min(abertaEm.getTime(), agora.getTime())),
       });
 
-      // Um punhado já fechou neste mês: sem elas o cartão "fechado no mês" fica em
-      // zero e o painel não tem o que comparar.
+      // A handful have already closed this month: without them the "closed this month" card would sit
+      // at zero and the dashboard would have nothing to compare against.
       if (sorteio(0.28)) {
         const ganha = sorteio(0.7);
         const fechadaEm = new Date(agora.getTime() - dias(entre(0, 24)));
@@ -851,7 +850,7 @@ async function seedCrm(db: DatabasePipe) {
     }
   }
 
-  // Um `update` por conta, não um por contato: catorze consultas em vez de sessenta.
+  // One `update` per account, not one per contact: fourteen queries instead of sixty.
   for (const [accountId, ids] of contactsByAccount) {
     await db
       .update(contact)
@@ -871,10 +870,10 @@ async function seedCrm(db: DatabasePipe) {
   /* ------------------------------------- resumo do atendimento na linha do tempo */
 
   /**
-   * A promessa do produto é que o CRM se alimenta das conversas. Sem classificação,
-   * a linha do tempo mostra "houve um atendimento" e nada mais. Estas linhas são
-   * criadas com id próprio e `onConflictDoNothing`: se o worker de IA já classificou
-   * a conversa, a dele fica.
+   * The product's promise is that the CRM feeds off conversations. Without classification,
+   * the timeline just shows "there was an attendance" and nothing else. These rows are
+   * created with their own id and `onConflictDoNothing`: if the AI worker already classified
+   * the conversation, its version wins.
    */
   const conversationsForResumir = await db
     .select({ id: conversation.id, contatoId: conversation.contatoId, encerradaEm: conversation.encerradaEm })
@@ -894,7 +893,7 @@ async function seedCrm(db: DatabasePipe) {
 
   const vistos = new Set<string>();
   for (const cv of conversationsForResumir) {
-    // Uma conversa resumida por contato: o objetivo é a ficha, não o dataset da IA.
+    // One summarized conversation per contact: the goal is the record, not the AI's dataset.
     if (vistos.has(cv.contatoId)) continue;
     vistos.add(cv.contatoId);
     linhasClassification.push({
@@ -925,7 +924,7 @@ async function seedCrm(db: DatabasePipe) {
   };
 }
 
-/** `AAAA-MM-DD` para a coluna `date` de `fechamento_previsto`. */
+/** `YYYY-MM-DD` for the `date` column `fechamento_previsto`. */
 function dataIso(d: Date): string {
   return d.toISOString().slice(0, 10);
 }

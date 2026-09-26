@@ -18,11 +18,7 @@ import {
 } from './regras';
 
 /**
- * As variáveis do corpo, na ordem em que aparecem — mesma regra de
- * `variaveisDoTexto` em `dominio/whatsapp/modelos.ts` (o backend valida de
- * novo; isto só evita ida e volta para um erro que dá para ver aqui).
- * Duplicada de propósito, como em `comunicacao-modelos-formulario.tsx`: a
- * tela de cliente não precisa importar módulo do servidor.
+ * The body variables, in the order they appear — same rule as `variaveisDoTexto` in `dominio/whatsapp/modelos.ts` (the backend validates again; this only avoids a round trip for an error visible right here). Duplicated on purpose, as in `comunicacao-modelos-formulario.tsx`: the client screen shouldn't need to import a server module.
  */
 function textVariables(texto: string): string[] {
   const vistas: string[] = [];
@@ -32,7 +28,7 @@ function textVariables(texto: string): string[] {
   return vistas;
 }
 
-/* `messageTemplateSidebar.newTemplate.inputs.menuList.*` e o ícone de cada bloco. */
+/* `messageTemplateSidebar.newTemplate.inputs.menuList.*` and each block's icon. */
 const BLOCOS: Record<TipoDeConteudo, { rotulo: string; icone: NomeDeIconePortal; classe: string }> =
   {
     texto: { rotulo: 'Texto', icone: 'texto-mensagem', classe: 'ct-bloco-icone--texto' },
@@ -43,21 +39,21 @@ const BLOCOS: Record<TipoDeConteudo, { rotulo: string; icone: NomeDeIconePortal;
     carrossel: { rotulo: 'Carrossel', icone: 'carrossel', classe: 'ct-bloco-icone--carrossel' },
   };
 
-/* `messageTemplate.categories.*` para as três da `fillTemplateCategories`. */
+/* `messageTemplate.categories.*` for the three from `fillTemplateCategories`. */
 const ROTULO_CATEGORIA: Record<Categoria, string> = {
   autenticacao: 'Autenticação',
   marketing: 'Marketing',
   utilidade: 'Utilidade',
 };
 
-/* `messageTemplateLanguages.*` — o recorte que o Pipe já usa em `/comunicacao/modelos`. */
+/* `messageTemplateLanguages.*` — the same subset Pipe already uses in `/comunicacao/modelos`. */
 const IDIOMAS: [string, string][] = [
   ['pt_BR', 'Português (BR)'],
   ['en_US', 'Inglês (EUA)'],
   ['es', 'Espanhol'],
 ];
 
-/* `messageTemplate.status.*` — os quatro que `template_mensagem.status_meta` guarda (a lib fica no servidor; aqui só o rótulo). */
+/* `messageTemplate.status.*` — the four values `template_mensagem.status_meta` stores (the library stays on the server; here it's just the label). */
 const ROTULO_STATUS: Record<string, string> = {
   aprovado: 'Aprovado',
   pendente: 'Pendente',
@@ -80,7 +76,7 @@ const ATTACHMENT: Record<'imagem' | 'documento' | 'video', { link: string; compa
   video: { link: 'Link do vídeo', compat: 'Compatível com MP4 até 16MB' },
 };
 
-/** `/assets/img/contents/unavailable-message-template.svg` — o balão do WhatsApp em contorno, 110×110. */
+/** `/assets/img/contents/unavailable-message-template.svg` — the WhatsApp bubble outline, 110×110. */
 function BalaoIndisponivel() {
   return (
     <svg
@@ -100,13 +96,9 @@ function BalaoIndisponivel() {
 }
 
 /**
- * A `<aside class="detail-aside fl">` de Conteúdos: `<bds-grid class="sidebar-container"
- * direction="column">` com um `sidebar-item-container > a.sidebar-anchor >
- * bds-grid.sidebar-item` por entrada (título `fs-14` bold, subtítulo `fs-12`,
- * `bds-icon arrow-right` à direita; o ativo leva `.selected-sidebar-item`).
- * Textos de `modules.application.detail.contents.menu.*`.
+ * Conteúdos' `<aside class="detail-aside fl">`: `<bds-grid class="sidebar-container" direction="column">` with one `sidebar-item-container > a.sidebar-anchor > bds-grid.sidebar-item` per entry (title fs-14 bold, subtitle fs-12, `bds-icon arrow-right` on the right; the active one gets `.selected-sidebar-item`). Text from `modules.application.detail.contents.menu.*`.
  *
- * ponytail: "Recursos" (`contents.resource`) ainda não tem tela aqui; fica sem destino.
+ * ponytail: "Recursos" (`contents.resource`) still has no screen here; it's left without a destination.
  */
 function LateralDeConteudos() {
   const itens = [
@@ -155,7 +147,7 @@ interface TranslationInEdit extends Translation {
   buttons: string[];
   editando: boolean;
   rascunho: string;
-  /** Um exemplo por variável do corpo — a Meta exige para aprovar (`{{1}}` → exemplos['1']). */
+  /** One example per body variable — Meta requires it for approval (`{{1}}` → `exemplos['1']`). */
   exemplos: Record<string, string>;
 }
 
@@ -319,19 +311,9 @@ export function TelaDeConteudos({
 }
 
 /**
- * `openNewMessageSidebar()` → `SidebarContentService.showSidebar` com o
- * template do módulo 95559 (`#create-message-template-sidebar`, 37.5rem,
- * `.sidebar-header` + `.sidebar-body`): nome, categoria, uma tradução por
- * idioma (idioma + bloco escolhido no `menu-list` + cartão), "Adicionar
- * tradução" e o rodapé "Enviar para avaliação".
+ * `openNewMessageSidebar()` → `SidebarContentService.showSidebar` with module 95559's template (`#create-message-template-sidebar`, 37.5rem, `.sidebar-header` + `.sidebar-body`): name, category, one translation per language (language + block chosen in the `menu-list` + card), "Adicionar tradução", and the "Enviar para avaliação" footer.
  *
- * "Enviar para avaliação" chama `POST /v1/canais/whatsapp/:id/modelos`
- * (`criarModeloNaMeta`) — o MESMO caminho de `comunicacao-modelos-formulario.tsx`
- * em Cadastros — uma vez por idioma (a Meta versiona por (nome, idioma), não
- * por "modelo com traduções"). É o único bloco que esse endpoint aceita hoje:
- * cabeçalho de mídia pede a Resumable Upload API (`modelos.ts`, ponytail
- * registrado lá) e Autenticação tem componentes próprios da Meta, não texto
- * livre — os dois casos ficam com o aviso explicando, sem tentar enviar.
+ * "Enviar para avaliação" calls `POST /v1/canais/whatsapp/:id/modelos` (`criarModeloNaMeta`) — the SAME path as `comunicacao-modelos-formulario.tsx` in Cadastros — once per language (Meta versions by (name, language), not by "template with translations"). It's the only block this endpoint accepts today: a media header needs the Resumable Upload API (`modelos.ts`, ponytail logged there), and Autenticação has Meta-specific components, not free text — both cases get the explanatory notice instead of attempting to send.
  */
 function NewTemplateSidebar({
   channelId,
@@ -648,11 +630,7 @@ function NewTemplateSidebar({
 }
 
 /**
- * `<message-template-card>` (`.mt-card`): fora da edição, o placeholder
- * "Insira aqui o conteúdo da mensagem" (ou a prévia do texto); em edição, o
- * `textarea` de 3 linhas, a barra "+ variável" e os botões redondos de
- * confirmar/fechar no canto. Os ícones de negrito/itálico/tachado são da
- * fonte `blip-toolkit` e não existem aqui (só o "+ variável").
+ * `<message-template-card>` (`.mt-card`): outside edit mode, the placeholder "Insira aqui o conteúdo da mensagem" (or the text preview); in edit mode, a 3-line `textarea`, the "+ variável" bar, and the round confirm/close buttons in the corner. The bold/italic/strikethrough icons come from the `blip-toolkit` font and don't exist here (only "+ variável").
  */
 function TextCard({
   translation,
@@ -738,10 +716,7 @@ function TextCard({
 }
 
 /**
- * A Meta só aprova um modelo com variável se cada uma vier com um exemplo de
- * preenchimento — não tem tela equivalente na origem (lá isso é passo do
- * `saveMessageTemplate`, sem componente próprio); aqui é o mínimo para
- * `POST /v1/canais/whatsapp/:id/modelos` aceitar o "Enviar para avaliação".
+ * Meta only approves a template with a variable if each one ships with a fill-in example — there's no equivalent screen in the origin (there it's a step of `saveMessageTemplate`, with no component of its own); here it's the minimum for `POST /v1/canais/whatsapp/:id/modelos` to accept "Enviar para avaliação".
  */
 function VariableExemplos({
   translation,
@@ -772,12 +747,8 @@ function VariableExemplos({
 }
 
 /**
- * `<message-template-buttons>`: `.menu-buttons-list` com "Botões de ação" e
- * "Respostas rápidas"; nas respostas rápidas, um campo "Texto do botão" por
- * botão (até 3, 20 caracteres) e "Adicionar outro botão". Os ícones
- * `CallToAction`/`QuickReply` são da fonte `blip-toolkit` (não existem aqui).
- * ponytail: os botões de ação (telefone, link, dados do contato) ficam só na
- * escolha; o Pipe ainda não modela botões no `template_mensagem`.
+ * `<message-template-buttons>`: `.menu-buttons-list` with "Botões de ação" and "Respostas rápidas"; under quick replies, one "Texto do botão" field per button (up to 3, 20 characters) and "Adicionar outro botão". The `CallToAction`/`QuickReply` icons come from the `blip-toolkit` font (not present here).
+ * ponytail: action buttons (phone, link, contact data) stay choice-only; Pipe doesn't model buttons in `template_mensagem` yet.
  */
 function TemplateButtons({
   buttons,
@@ -863,11 +834,7 @@ function TemplateButtons({
 }
 
 /**
- * `<message-template-attachment-card>` (`.mt-card__attachtment`, 25vw): fora
- * da edição, a área do anexo e "Clique aqui para editar o conteúdo do seu
- * modelo de mensagem"; em edição, o link do anexo (`attachment.<tipo>.link` +
- * compatibilidade), o texto e o rodapé (`attachment.footer`, 60 caracteres).
- * `is-translation`: a tradução herda o anexo e não muda o link.
+ * `<message-template-attachment-card>` (`.mt-card__attachtment`, 25vw): outside edit mode, the attachment area and "Clique aqui para editar o conteúdo do seu modelo de mensagem"; in edit mode, the attachment link (`attachment.<tipo>.link` + compatibility), the text, and the footer (`attachment.footer`, 60 characters). `is-translation`: the translation inherits the attachment and doesn't change the link.
  */
 function AttachmentCard({
   tipo,

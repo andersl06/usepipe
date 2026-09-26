@@ -5,18 +5,18 @@ import { caminhoInterno, descobrirInbound, inboundWithGoogleUrl, urlNaApi } from
 import { FundoPipe } from './fundo-pipe';
 
 /**
- * A tela de entrada — a primeira coisa que um cliente vê, e a ÚNICA rota
- * pública deste aplicativo. É a mesma de `apps/gestao/src/app/entrar`, com a
- * descoberta feita do navegador (o Vite faz o proxy em desenvolvimento; em
- * produção a origem deste app está em `PIPE_ORIGENS`).
+ * The sign-in screen — the first thing a customer sees, and the ONLY public route
+ * of this application. Same as `apps/gestao/src/app/entrar`, with discovery done
+ * from the browser (Vite proxies it in development; in production this app's
+ * origin is in `PIPE_ORIGENS`).
  *
- * Duas regras a moldam:
+ * Two rules shape it:
  *
- * 1. **Nada de tenant aqui.** Quem chega nesta tela não está logado, então ela
- *    não sabe (e não pode contar) qual empresa usa o Pipe.
- * 2. **Cada recusa tem uma SAÍDA, não um "não autorizado".** Os sete códigos de
- *    `RECUSAS_DE_ENTRADA` chegam em `?erro=` e cada um manda a pessoa para um
- *    lugar diferente.
+ * 1. **No tenant here.** Whoever lands on this screen isn't signed in yet, so it
+ *    doesn't know (and can't reveal) which company uses Pipe.
+ * 2. **Every rejection has an EXIT, not a "not authorized".** The seven codes in
+ *    `RECUSAS_DE_ENTRADA` arrive as `?erro=` and each one sends the person to a
+ *    different place.
  */
 const RECUSAS: Record<RefusesOfInbound, { titulo: string; saida: string }> = {
   domain_public: {

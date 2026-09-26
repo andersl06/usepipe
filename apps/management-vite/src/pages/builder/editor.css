@@ -1,14 +1,11 @@
-/* ==========================================================================
-   Builder — o EDITOR (canvas, nós, setas, painel do bloco).
-
-   A moldura está em `paginas/builder.css`; aqui é o que vive dentro dela. As
-   medidas são as anotadas nos componentes, tiradas do `portal.css` e do DOM do
-   Builder de produção (`referencias-blip/builder/`): nó de 175px, raio 8,
-   sombra `0 8px 16px`, título 14/400 que vira 700 quando selecionado, anel de
-   4px no hover, ponto de saída de 1em no meio da borda de baixo, e o painel
-   lateral de 360px. A tinta é a nossa.
-
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *    Builder — the EDITOR (canvas, nodes, arrows, block panel).
+ *
+ *    The frame is in `paginas/builder.css`; this is what lives inside it. The measurements are the ones noted on the components, taken from `portal.css` and the production Builder's DOM (`referencias-blip/builder/`): 175px node, radius 8, `0 8px 16px` shadow, 14/400 title that becomes 700 when selected, 4px ring on hover, 1em output dot in the middle of the bottom border, and a 360px side panel. The paint is our own.
+ *
+ *    ==========================================================================
+ */
 
 .bl-canvas {
   position: relative;
@@ -21,14 +18,14 @@
   cursor: grabbing;
 }
 
-/* A cena é o plano que desloca e amplia; os nós moram em coordenada dela. */
+/* The scene is the plane that pans and zooms; the nodes live in its coordinate space. */
 .bl-cena {
   position: absolute;
   inset: 0;
   transform-origin: 0 0;
 }
 
-/* ------------------------------------------------------------------ o nó */
+/* ------------------------------------------------------------------ the node */
 
 .bl-no {
   position: absolute;
@@ -74,7 +71,7 @@
 .bl-no--alvo {
   box-shadow: 0 0 0 4px var(--p-marca, #4a5d23);
 }
-.bl-no--fora-da-busca {
+.bl-no--outside-search {
   opacity: 0.2;
 }
 .bl-canvas--pesquisando .bl-setas {
@@ -83,16 +80,17 @@
 .bl-canvas--pesquisando .bl-no-saida {
   visibility: hidden;
 }
-/* Início é o bloco de entrada do fluxo; atendimento é o transbordo para gente. */
+/* `Início` is the flow's entry block; `atendimento` is the handoff to a human. */
 .bl-no--inicio {
   background: var(--p-marca, #4a5d23);
 }
-.bl-no--atendimento {
-  /* A captura não destaca atendimento em laranja: é um estado do fluxo, não
-     um alerta. Mantemos a marca Pipe no lugar do azul da referência. */
+.bl-no--attendance {
+  /*
+   * The capture doesn't highlight `atendimento` in orange: it's a flow state, not an alert. We keep the Pipe brand color instead of the reference's blue.
+   */
   background: #393939;
 }
-.bl-no--erro {
+.bl-no--error {
   border: 1px solid var(--p-erro-conteudo, #c4442e);
 }
 
@@ -154,7 +152,7 @@
   color: var(--p-erro-conteudo, #c4442e);
 }
 
-/* O ponto de onde se arrasta a ligação: só aparece com o mouse em cima. */
+/* The point from which the connection is dragged: only appears with the mouse over it. */
 .bl-no-saida {
   position: absolute;
   bottom: -8px;
@@ -343,9 +341,7 @@
 /* --------------------------------------------------------- o painel do bloco */
 
 /*
- * `height: 100%`, e não só `flex: 1`: o pai (`.bl-corpo`, em `builder.css`) é
- * bloco, não caixa flexível, então `flex: 1` não dá altura nenhuma — o editor
- * e o canvas nasciam com 0 de altura e os blocos ficavam fora da área pintada.
+ * `height: 100%`, and not just `flex: 1`: the parent (`.bl-corpo`, in `builder.css`) is a block, not a flex box, so `flex: 1` gives no height at all — the editor and canvas used to start at 0 height and the blocks ended up outside the painted area.
  */
 .bl-editor {
   position: absolute;
@@ -368,9 +364,9 @@
   box-shadow: 0 2px 8px -2px rgb(0 0 0 / 16%);
   overflow: hidden;
 }
-/* A Biblioteca de variáveis é o único painel à ESQUERDA na origem
-   (`library-sidebar`, `position-left`) — os outros (bloco, Configuração) são
-   `position-right`. */
+/*
+ * The Variables Library is the only panel on the LEFT in the origin (`library-sidebar`, `position-left`) — the others (block, Settings) are `position-right`.
+ */
 .bl-painel--esquerda {
   right: auto;
   left: 0;
@@ -391,10 +387,10 @@
   min-height: 40px;
   padding: 16px 20px;
 }
-.bl-painel--configuracao .bl-painel-cabecalho {
+.bl-painel--settings .bl-painel-cabecalho {
   padding: 24px 32px 0;
 }
-.bl-painel--configuracao .bl-painel-titulo {
+.bl-painel--settings .bl-painel-titulo {
   height: auto;
   padding: 0;
   border: 0;
@@ -553,8 +549,9 @@
   padding: 8px 10px;
   border: 1px solid #3a3a3a;
   border-radius: 8px;
-  /* `.builder-sidebar-tabs .bp-input-wrapper`: surface-1, não o branco
-     aplicado pela rodada escura. */
+  /*
+   * `.builder-sidebar-tabs .bp-input-wrapper`: surface-1, not the white applied by the dark-mode pass.
+   */
   background: #282828;
   color: #f6f6f6;
   font: inherit;
@@ -583,7 +580,7 @@
   color: var(--p-erro-conteudo, #c4442e);
 }
 
-/* ------------------------------------------------ saídas, condições e ações */
+/* ------------------------------------------------ outputs, conditions and actions */
 
 .bl-saida,
 .bl-acao,
@@ -612,11 +609,12 @@
 .bl-saida--padrao {
   border-style: dashed;
 }
-/* O estado de erro do cartão (saída, ação ou condição inválida) — pintava a
-   classe mas faltava a regra, então nenhum cartão inválido se destacava. */
-.bl-saida--erro,
-.bl-acao--erro,
-.bl-condicao--erro {
+/*
+ * The card's error state (invalid output, action or condition) — the class was applied but the rule was missing, so no invalid card stood out.
+ */
+.bl-saida--error,
+.bl-acao--error,
+.bl-condicao--error {
   border-color: var(--p-erro-conteudo, #c4442e);
 }
 .bl-saida-cabecalho,
@@ -695,8 +693,9 @@
 }
 .bl-adicionar-condicao::before { transform: translateX(-68px); }
 .bl-adicionar-condicao::after { transform: translateX(68px); }
-/* O "OU"/"E" entre valores: largura própria, sem esticar pela linha (a classe
-   existia sem regra nenhuma, então o `Selecao` crescia como os campos ao lado). */
+/*
+ * The "OU"/"E" between values: its own width, without stretching across the row (the class existed with no rule at all, so `Selecao` grew like the fields next to it).
+ */
 .bl-condicao-operador {
   flex: none;
   width: 90px;
@@ -795,7 +794,7 @@
 .bl-condicao:hover > .bl-remover,
 .bl-condicao:focus-within > .bl-remover { opacity: 1; }
 
-/* A prévia da conversa dentro do painel de conteúdo. */
+/* The conversation preview inside the content panel. */
 .bl-conversa-conteudo {
   display: flex;
   flex-direction: column;
@@ -834,9 +833,9 @@
 .bl-cartao--apagado {
   opacity: 0.6;
 }
-/* Duas opções de rádio lado a lado — a classe existia sem `display`/`gap`,
-   então "Aguardar resposta" e "Não aguardar" ficavam coladas, sem espaço
-   entre o fim de um rótulo e o início do outro. */
+/*
+ * Two radio options side by side — the class existed without `display`/`gap`, so "Aguardar resposta" and "Não aguardar" ended up stuck together, with no space between the end of one label and the start of the other.
+ */
 .bl-escolha {
   display: flex;
   flex-wrap: wrap;
@@ -862,7 +861,7 @@
   transform: translateX(-50%);
 }
 
-/* ------------------------------------------------- biblioteca de variáveis */
+/* ------------------------------------------------- variables library */
 
 .bl-variaveis-vazio {
   margin-top: 12px;
@@ -894,7 +893,7 @@
   word-break: break-all;
 }
 
-/* ------------------------------------------------- configuração: versões */
+/* ------------------------------------------------- settings: versions */
 
 .bl-versoes-acoes {
   display: flex;
@@ -931,5 +930,6 @@
   white-space: nowrap;
 }
 
-/* A captura 03 do Builder aberto é a referência de composição desta rota:
-   painel claro, cartões brancos e condição inválida marcada em vermelho. */
+/*
+ * Builder-open capture 03 is this route's composition reference: light panel, white cards and an invalid condition marked in red.
+ */

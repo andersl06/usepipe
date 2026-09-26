@@ -7,50 +7,51 @@ import type { Proprietario } from '../lib/leads-visao';
 import { IconeCrm } from './icones-crm';
 
 /**
- * O campo que se edita no lugar. É o `record-inline-cell` do Twenty, escrito do
- * zero — `twenty-front` é AGPL e não entra aqui. O que se copiou é medida e
- * comportamento, lidos em
+ * The field that's edited in place. It's Twenty's `record-inline-cell`, written
+ * from scratch — `twenty-front` is AGPL and doesn't go in here. What was copied
+ * is measurement and behavior, read from
  * `object-record/record-inline-cell/components/RecordInlineCell*.tsx`:
  *
- * - **Nada de formulário.** Clicar no valor troca o texto por um campo no mesmo
- *   lugar, e o resto da tela não se mexe. A folga de 4px que o valor já tem em
- *   volta (a deles, `spacing[1]`) é compensada por margem negativa: sem isso o
- *   texto anda 4px ao virar editável, e campo que pula ao ser tocado é o que
- *   faz alguém desconfiar de que gravou errado.
- * - **O lápis só existe no hover**, e some quando o campo está vazio — porque
- *   campo vazio já é convite a clicar, e o ícone só ocuparia largura.
- * - **Enter e sair do campo gravam; Esc desiste.** É o contrato deles, e é o que
- *   qualquer planilha faz.
+ * - **No form.** Clicking the value swaps the text for a field in the same spot,
+ *   and the rest of the screen doesn't move. The 4px gap the value already has
+ *   around it (theirs, `spacing[1]`) is offset with a negative margin: without
+ *   that the text shifts 4px when it becomes editable, and a field that jumps
+ *   when touched is what makes someone doubt it saved correctly.
+ * - **The pencil icon only shows on hover**, and disappears when the field is
+ *   empty — because an empty field is already an invitation to click, and the
+ *   icon would only take up width.
+ * - **Enter and leaving the field save; Esc discards.** That's their contract,
+ *   and it's what any spreadsheet does.
  *
- * O que **não** copiamos: eles abrem o editor num portal flutuante ancorado com
- * `floating-ui`, para caber o seletor de data e o de relação por cima da lateral
- * estreita. Aqui os campos são texto e uma seleção nativa, que cabem na largura
- * da própria linha. Um portal para um `<input>` de 24px seria 200 linhas para
- * resolver um problema que não temos — e o `<select>` nativo já abre por cima
- * de tudo sozinho.
+ * What we **didn't** copy: they open the editor in a floating portal anchored
+ * with `floating-ui`, to fit the date picker and the relation picker over the
+ * narrow sidebar. Here the fields are text and a native select, which fit
+ * within the row's own width. A portal for a 24px `<input>` would be 200 lines
+ * to solve a problem we don't have — and the native `<select>` already opens
+ * over everything on its own.
  *
- * **O valor mostrado é sempre o que o servidor confirmou.** Enquanto grava, a
- * célula mostra o novo (senão parece travada); se falhar, ela **volta ao valor
- * anterior** e diz por quê. É a regra do produto: nunca afirmar sucesso sobre
- * uma linha que não mudou.
+ * **The displayed value is always what the server confirmed.** While saving,
+ * the cell shows the new one (otherwise it looks stuck); if it fails, it
+ * **reverts to the previous value** and says why. It's the product's rule:
+ * never claim success on a row that didn't change.
  */
 
 interface Props {
   leadId: string;
   campo: KeyField;
-  /** O valor gravado. Para seleção é o id; o rótulo sai de `opcoes`. */
+  /** The saved value. For a selection it's the id; the label comes from `opcoes`. */
   value: string | null;
-  /** Só para `tipo: 'selecao'`. Vazio na lista significa "sem proprietário". */
+  /** Only for `tipo: 'selecao'`. Empty in the list means "no owner". */
   options?: Proprietario[];
-  /** O que aparece quando não há valor. Padrão: o rótulo do campo. */
+  /** What shows when there's no value. Default: the field's label. */
   empty?: string;
   /**
-   * Como desenhar o valor em repouso.
+   * How to draw the value at rest.
    *
-   * Existe por causa da listagem: lá `origem` é uma etiqueta, e trocá-la por
-   * texto cru ao tornar a célula editável seria perder informação de forma para
-   * ganhar edição. É o que o `record-table-cell` do Twenty faz — o display da
-   * célula continua sendo o do campo, e só a edição é comum.
+   * It exists because of the listing: there, `origem` is a badge, and swapping it
+   * for raw text when making the cell editable would trade formatting information
+   * for editability. It's what Twenty's `record-table-cell` does — the cell's
+   * display stays the field's own, and only the editing part is shared.
    */
   pintar?: (texto: string) => ReactNode;
 }
@@ -63,13 +64,15 @@ export function CelulaInline({ leadId, campo, value, options = [], empty, pintar
   const [error, setError] = useState<string | null>(null);
   const [emCurso, iniciar] = useTransition();
   const campoRef = useRef<HTMLInputElement | HTMLSelectElement | null>(null);
-  /** Trava o `blur` quando é o Esc que está fechando: senão ele grava o que a
-   *  pessoa acabou de mandar descartar. */
+  /**
+   * Locks out `blur` when it's Esc that's closing: otherwise it would save what
+   * the person just told it to discard.
+   */
   const desistindo = useRef(false);
 
-  // A ficha é servidor: depois do `revalidatePath` ela volta com o valor novo, e
-  // é ele que vale. Sem isto, editar, sair e voltar mostraria o estado local
-  // velho até um recarregamento completo.
+  // The record is server-rendered: after `revalidatePath` it comes back with the new value, and
+  // that's the one that counts. Without this, editing, leaving and coming back would show the old
+  // local state until a full reload.
   useEffect(() => setGravado(value), [value]);
 
   useEffect(() => {
@@ -105,7 +108,7 @@ export function CelulaInline({ leadId, campo, value, options = [], empty, pintar
       return;
     }
 
-    // A mesma recusa do servidor, antes da viagem: e-mail sem arroba não
+    // The same rejection the server does, before the round trip: an email without an @ doesn't
     // precisa de ida e volta para ser recusado.
     const queixa = recusar(campo, novo);
     if (queixa) {
@@ -139,7 +142,7 @@ export function CelulaInline({ leadId, campo, value, options = [], empty, pintar
           e.preventDefault();
           fechar();
         }
-        // Num `<select>` o Enter já fecha a lista; deixar o `blur` gravar evita
+        // In a `<select>` Enter already closes the list; letting `blur` save avoids
         // gravar duas vezes o mesmo valor.
         if (e.key === 'Enter' && e.currentTarget instanceof HTMLInputElement) {
           e.preventDefault();

@@ -1,67 +1,60 @@
-/* ==========================================================================
-   Builder (/builder) — a MOLDURA, não o editor.
+/*
+ * ==========================================================================
+ *    Builder (/builder) — the FRAME, not the editor.
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS (same rule as the data dictionary, `fluxo/analise/dicionario-de-dados/dicionario.css`). Source: rendered DOM of the production Builder (`auvpescolaprd`), captured in `referencias-blip/builder/builder-fluxo__pagina.html`, and the same package's `portal.css` (`referencias-blip/builder/zip19/supernova.blip.ai/portal.css`) for the measurements the DOM alone doesn't give (color, radius, shadow).
+ *
+ *    What came from there, and where it went:
+ *      .builder-container (bg #141414, radial grid #242424 1px/16px,
+ *        height: calc(100vh - 136px))       → .bl-corpo (local bg, same grid,
+ *                                               height via flex, not calc:
+ *                                               our `.p-app` is already the
+ *                                               fixed box — see the note below)
+ *      .builder-icon-button-list (fixed pill, left 1rem, top 50%,
+ *        radius 16, padding 8, gap 4, bg surface-2, shadow 16px 0 56px 16px)
+ *                                            → .bl-barra (same pill, same
+ *                                               position, six 40px buttons)
+ *      .builder-footer (flex, left/bottom 1rem, LOOSE pieces)
+ *                                            → .bl-rodape (same position)
+ *      .builder-saving-state (bg surface-1, radius 8, padding 10px 20px, gap 8)
+ *                                            → .bl-status ("Salvo" + checkball)
+ *      .mh3 with three bds-button-icon (undo, redo, screen-full)
+ *                                            → .bl-controles (no pill)
+ *      .zoom-container (60px width) / .zoom-display (1rem, mr 15px) /
+ *        .rzslider (100px, 3px bar, 18px thumb)
+ *                                            → .bl-zoom / .bl-zoom-valor /
+ *                                               .bl-zoom-trilho
+ *      .default-node (bg #3f7de8 — their `Início` block, blue)
+ *                                            → does NOT exist here: there is
+ *                                               no block at all today (see
+ *                                               builder.tsx). When there is one,
+ *                                               the highlight tone is
+ *                                               `var(--p-marca)`, not blue.
+ *      bds-banner variant="system" (white strip, x-button, link) — the text
+ *        there was about their client's BSUID/Meta, specific to them; OUR
+ *        strip has our own notice (the Builder has no editor). Same structure:
+ *        dismissible strip, with a link and an X.
+ *
+ *    The color mapping:
+ *      #141414 (canvas background)      → --bl-fundo (fixed hex: it's the
+ *                                           flow screen's "dark studio",
+ *                                           the same in both themes, like
+ *                                           Gestão's bar)
+ *      #242424 (grid dot)                → --bl-grade
+ *      color-surface-2 / #ededed (pill)  → var(--surface-2)
+ *      color-content-default / #282828   → var(--ink)
+ *      #c9dfe4 (zoom text)                → var(--ink-3) (ghost tone; over a
+ *                                           dark background it doesn't need
+ *                                           their ice-blue)
+ *      shadow 16px/56px rgba(0,0,0,.45)  → var(--p-sombra-2)
+ *      #3f7de8 (`Início` block)          → var(--p-marca) — our own highlight
+ *                                           tone, not their blue
+ *    ==========================================================================
+ */
 
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA (mesma regra do dicionário de
-   dados, `fluxo/analise/dicionario-de-dados/dicionario.css`). Fonte: DOM
-   renderizado do Builder de produção (`auvpescolaprd`), capturado em
-   `referencias-blip/builder/builder-fluxo__pagina.html`, e o `portal.css`
-   do mesmo pacote (`referencias-blip/builder/zip19/supernova.blip.ai/
-   portal.css`) para as medidas que o DOM sozinho não dá (cor, raio, sombra).
-
-   O que saiu de lá, e para onde foi:
-     .builder-container (bg #141414, grade radial #242424 1px/16px,
-       height: calc(100vh - 136px))       → .bl-corpo (bg local, mesma grade,
-                                              altura por flex, não por calc:
-                                              o `.p-app` de cá já é a caixa
-                                              fixa — ver a nota abaixo)
-     .builder-icon-button-list (pílula fixa, esquerda 1rem, topo 50%,
-       raio 16, padding 8, gap 4, bg surface-2, sombra 16px 0 56px 16px)
-                                           → .bl-barra (mesma pílula, mesma
-                                              posição, seis botões de 40)
-     .builder-footer (flex, esquerda/baixo 1rem, peças SOLTAS)
-                                           → .bl-rodape (mesma posição)
-     .builder-saving-state (bg surface-1, raio 8, padding 10px 20px, gap 8)
-                                           → .bl-status ("Salvo" + checkball)
-     .mh3 com três bds-button-icon (undo, redo, screen-full)
-                                           → .bl-controles (sem pílula)
-     .zoom-container (60px de largura) / .zoom-display (1rem, mr 15px) /
-       .rzslider (100px, barra 3px, ponteiro 18px)
-                                           → .bl-zoom / .bl-zoom-valor /
-                                              .bl-zoom-trilho
-     .default-node (bg #3f7de8 — o bloco de Início, azul deles)
-                                           → NÃO existe aqui: não há bloco
-                                              nenhum hoje (ver builder.tsx).
-                                              Quando houver, o tom de destaque
-                                              é `var(--p-marca)`, não o azul.
-     bds-banner variant="system" (faixa branca, botão-x, link) — o texto de
-       lá era sobre BSUID/Meta, específico do cliente deles; a NOSSA faixa
-       tem o nosso aviso (o Builder não tem editor). Estrutura igual: faixa
-       dispensável, com link e X.
-
-   O de-para de cor:
-     #141414 (fundo do canvas)         → --bl-fundo (hex fixo: é o "estúdio
-                                          escuro" da tela de fluxo, igual nos
-                                          dois temas, como a barra da Gestão)
-     #242424 (ponto da grade)          → --bl-grade
-     color-surface-2 / #ededed (pílula)→ var(--surface-2)
-     color-content-default / #282828  → var(--ink)
-     #c9dfe4 (texto do zoom)           → var(--ink-3) (fantasma, sobre fundo
-                                          escuro não precisa do azul-gelo deles)
-     sombra 16px/56px rgba(0,0,0,.45)  → var(--p-sombra-2)
-     #3f7de8 (bloco de início)         → var(--p-marca) — nosso tom de
-                                          destaque, não o azul deles
-   ========================================================================== */
-
-/* Esta tela não lê relatório, é canvas — sem padding, sem rolar sozinha (quem
-   rola, se um dia houver flow grande, é o canvas). `/builder` morava fora do
-   contato, dentro do casco de duas barras de `estrutura-gestao.tsx`, e mexer
-   em `App.tsx` para tirar a rota daquele casco estava fora do escopo — a
-   saída de então era neutralizar o padding do `.p-conteudo` ancestral só
-   quando ele tinha a tela do Builder dentro, com `.p-conteudo:has(> .bl-tela)`.
-   Agora que o Builder mora em `/fluxo/:id/builder`, `.bl-tela` é filha direta
-   de `.pt-app` (a MESMA casca de `fluxo/growth/casca.tsx`, via
-   `BarrasDoContato` em `builder.tsx`) — sem `.p-conteudo` ancestral nenhum
-   para neutralizar. O `:has()` saiu daqui. */
+/*
+ * This screen doesn't read like a report, it's a canvas — no padding, no scrolling on its own (if a big flow ever exists, the canvas is what scrolls). `/builder` used to live outside the contact area, inside `estrutura-gestao.tsx`'s two-bar shell, and touching `App.tsx` to pull the route out of that shell was out of scope — the workaround back then was to neutralize the ancestor `.p-conteudo`'s padding only when it had the Builder screen inside it, with `.p-conteudo:has(> .bl-tela)`. Now that the Builder lives at `/fluxo/:id/builder`, `.bl-tela` is a direct child of `.pt-app` (the SAME shell as `fluxo/growth/casca.tsx`, via `BarrasDoContato` in `builder.tsx`) — with no ancestor `.p-conteudo` left to neutralize. The `:has()` is gone from here.
+ */
 .bl-tela {
   flex: 1;
   min-height: 0;
@@ -212,16 +205,13 @@
   color: color-mix(in srgb, var(--p-conteudo-claro, #fff) 70%, transparent);
 }
 
-/* --------------------------------------------------------- a barra lateral
-   (`.builder-icon-button-list` deles: pílula fixa, meio da altura, raio 16,
-   sombra grande — item único: "Adicionar bloco". Aqui os dois botões que o
-   DOM capturado confirma sempre presentes: adicionar bloco e pesquisar. Os
-   outros da lista deles (Agente, Pagamento, Catálogo, AI Answers…) são
-   opções de plano — não são chrome, são o editor que não existe aqui.) */
-/* `.builder-icon-button-list` literal: `padding: 8px; gap: 4px; border-radius:
-   16px; left: 1rem; top: 50%; box-shadow: 16px 0 56px 16px rgba(0,0,0,.45)`.
-   A sombra é a deles porque é forma (e sobre o canvas escuro a tinta preta é
-   a única que existe). */
+/*
+ * --------------------------------------------------------- the sidebar
+ *    (their `.builder-icon-button-list`: fixed pill, mid-height, radius 16, large shadow — a single item: "Adicionar bloco". Here the two buttons the captured DOM confirms are always present: add block and search. The rest of their list (Agent, Payment, Catalog, AI Answers…) are plan-tier options — they aren't chrome, they're the editor that doesn't exist here.)
+ */
+/*
+ * `.builder-icon-button-list` literally: `padding: 8px; gap: 4px; border-radius: 16px; left: 1rem; top: 50%; box-shadow: 16px 0 56px 16px rgba(0,0,0,.45)`. The shadow is theirs because it's shape (and over the dark canvas black ink is the only one that exists).
+ */
 .bl-barra {
   position: absolute;
   left: 1rem;
@@ -237,8 +227,9 @@
   box-shadow: 16px 0 56px 16px rgba(0, 0, 0, 0.45);
 }
 
-/* `bds-button-icon size="short"`: alvo de 40 com o glifo de 24, sem
-   moldura, raio 8. `#builder-button-add-new-block { min-height: 40px }`. */
+/*
+ * `bds-button-icon size="short"`: a 40px target with a 24px glyph, no border, radius 8. `#builder-button-add-new-block { min-height: 40px }`.
+ */
 .bl-icone-botao {
   width: 40px;
   height: 40px;
@@ -256,9 +247,9 @@
   cursor: not-allowed;
 }
 
-/* O único botão da pílula com algo por trás hoje: "Publicar fluxo". Ligado,
-   ele deixa de parecer desligado — opacidade cheia, cursor de mão, e o
-   `hover` da `bds-button-icon secondary` (fundo um tom abaixo). */
+/*
+ * The only button in the pill with anything behind it today: "Publicar fluxo". Enabled, it stops looking disabled — full opacity, hand cursor, and `bds-button-icon secondary`'s `hover` (background one shade down).
+ */
 .bl-icone-botao--vivo {
   cursor: pointer;
   opacity: 1;
@@ -273,19 +264,20 @@
   color: #fff;
 }
 
-/* ------------------------------------------------------- os erros do motor
-   A segunda faixa, quando o motor recusaria o fluxo: mesma forma da faixa de
-   aviso (`bds-banner`), com o tom de erro — fundo pastel, conteúdo escuro,
-   como toda etiqueta de estado do produto. */
-/* Os tokens de erro do pacote de UI (`tokens.css`): fundo pastel, linha e
-   conteúdo escuro — o mesmo par da `Etiqueta tom="erro"`. */
-.bl-aviso--erro {
+/*
+ * ------------------------------------------------------- the engine's errors
+ *    The second strip, for when the engine would reject the flow: same shape as the notice strip (`bds-banner`), with the error tone — pastel background, dark content, like every status tag in the product.
+ */
+/*
+ * The UI package's error tokens (`tokens.css`): pastel background, dark rule and content — the same pair as `Etiqueta tom="erro"`.
+ */
+.bl-aviso--error {
   background: var(--p-erro-fundo);
   border-bottom-color: var(--p-erro-linha);
   color: var(--p-erro-conteudo);
 }
 
-.bl-aviso--erro svg {
+.bl-aviso--error svg {
   vertical-align: -3px;
   margin-right: 4px;
 }
@@ -301,7 +293,7 @@
   margin-top: 2px;
 }
 
-.bl-aviso--erro .bl-erros {
+.bl-aviso--error .bl-erros {
   color: inherit;
 }
 
@@ -309,12 +301,10 @@
   margin-bottom: var(--p-e-3);
 }
 
-/* ------------------------------------------------------------- os blocos
-   A camada dos cartões, na posição em que o editor da Blip os deixou
-   (`$position.top/left`, em px do canvas deles). Só leitura: o cartão é a
-   cara do `.default-node` deles — fundo claro, raio 8, sombra — sem arrastar
-   nem ligar. O de Início leva a marca (`--p-marca`, e não o azul deles) na
-   borda esquerda; o de atendimento, o musgo. */
+/*
+ * ------------------------------------------------------------- the blocks
+ *    The cards' layer, at the position Blip's editor left them in (`$position.top/left`, in px from their canvas). Read-only: the card is the face of their `.default-node` — light background, radius 8, shadow — no dragging or connecting. The `Início` one carries the brand color (`--p-marca`, not their blue) on the left border; the `atendimento` one, moss.
+ */
 .bl-blocos {
   position: absolute;
   inset: 0;
@@ -337,11 +327,11 @@
   border-left-color: var(--p-marca);
 }
 
-.bl-bloco--atendimento {
+.bl-bloco--attendance {
   border-left-color: var(--moss);
 }
 
-.bl-bloco--erro {
+.bl-bloco--error {
   border-left-color: var(--p-erro-sobre-escuro);
   outline: 1px solid var(--p-erro-linha);
 }
@@ -370,15 +360,16 @@
   font-style: italic;
 }
 
-/* O recado do rodapé (salvou, publicou, falhou), à direita da pílula. */
+/* The footer's message (saved, published, failed), to the right of the pill. */
 .bl-recado {
   margin-left: 10px;
   max-width: 48ch;
 }
 
-/* --------------------------------------------------------- o histórico
-   A lista do modal: uma linha por versão, com a etiqueta de estado e o
-   "Restaurar" à direita. */
+/*
+ * --------------------------------------------------------- the history
+ *    The modal's list: one row per version, with the status tag and "Restaurar" on the right.
+ */
 .bl-versoes {
   list-style: none;
   margin: 0 0 var(--p-e-3);
@@ -439,9 +430,10 @@
   min-width: 0;
 }
 
-/* ------------------------------------------------------------- o rodapé
-   `.builder-footer { bottom: 1rem; left: 1rem }`, `flex items-center`, e as
-   três peças SOLTAS sobre o canvas — só a de "Salvo" tem fundo. */
+/*
+ * ------------------------------------------------------------- the footer
+ *    `.builder-footer { bottom: 1rem; left: 1rem }`, `flex items-center`, and the three LOOSE pieces over the canvas — only the "Salvo" one has a background.
+ */
 
 .bl-rodape {
   position: absolute;
@@ -467,7 +459,7 @@
   line-height: 1.5;
 }
 
-/* O `mh3` deles: 10px de cada lado, e os botões de ícone soltos, sem pílula. */
+/* Their `mh3`: 10px on each side, and the icon buttons loose, without a pill. */
 .bl-controles {
   display: flex;
   align-items: center;
@@ -478,9 +470,9 @@
   color: var(--p-conteudo-claro, #fff);
 }
 
-/* `.zoom-container { width: 60px }` + `.zoom-display { font-size: 1rem;
-   margin: 0 15px 0 0; color: #c9dfe4 }` e o `rzslider` de 100px com barra de
-   3px e ponteiro de 18px. A tinta do texto e do ponteiro é a nossa clara. */
+/*
+ * `.zoom-container { width: 60px }` + `.zoom-display { font-size: 1rem; margin: 0 15px 0 0; color: #c9dfe4 }` and the 100px `rzslider` with a 3px bar and an 18px thumb. The text and thumb color is our own light tone.
+ */
 .bl-zoom {
   display: flex;
   align-items: center;
@@ -509,8 +501,9 @@
   background: var(--moss);
 }
 
-/* O range nativo por cima da trilha, invisível — só o polegar (o "ponteiro"
-   de 18px do `rzslider` deles) aparece, com prefixo próprio em cada motor. */
+/*
+ * The native range input on top of the track, invisible — only the thumb (their `rzslider`'s 18px "ponteiro") shows, with its own vendor prefix on each engine.
+ */
 .bl-zoom-controle {
   position: absolute;
   inset: 0;
@@ -554,7 +547,7 @@
   box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.45);
 }
 
-/* --------------------------------------------------------- o botão redondo */
+/* --------------------------------------------------------- the round button */
 
 .bl-conversa {
   position: absolute;

@@ -5,12 +5,7 @@ import { TelaDeConteudos } from './tela';
 import './conteudos.css';
 
 /**
- * `/contents/messagetemplate` — estado `auth.application.detail.contents.messageTemplate`.
- * A casca de `contents` põe a `<aside class="detail-aside fl">` (397px, com os
- * dois cartões de navegação) ao lado do `#main-content-area`, como em
- * Configurações. A lista lê `template_mensagem` do canal do fluxo
- * (`lib/comunicacao.ts`); sem canal WhatsApp a origem mostra o
- * `unavailable-warning` (`isWhatsAppActive()`), e aqui é o mesmo critério.
+ * `/contents/messagetemplate` — state `auth.application.detail.contents.messageTemplate`. The `contents` shell places the `<aside class="detail-aside fl">` (397px, with the two navigation cards) next to `#main-content-area`, as in Configurações. The list reads `template_mensagem` from the flow's channel (`lib/comunicacao.ts`); without a WhatsApp channel the origin shows the `unavailable-warning` (`isWhatsAppActive()`), and here the same criterion applies.
  */
 export function PageContents() {
   const { contact } = useContact();

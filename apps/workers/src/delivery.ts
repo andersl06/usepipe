@@ -17,11 +17,7 @@ import type { TypeMedia } from './whatsapp/media.js';
 import type { CabecalhoTemplate } from './whatsapp/template.js';
 
 /**
- * Fila de entrega: drena `outbox_mensagem` e entrega de verdade.
- *
- * A chamada à Meta acontece **fora** da transação. Segurar uma conexão do pool
- * durante um HTTP que pode levar segundos é o jeito mais rápido de esgotar o pool
- * num pico. São três passos: reivindica (papel dono), lê e envia, grava.
+ * Delivery queue drains `outbox_mensagem` and sends messages. Call Meta OUTSIDE the transaction: holding a pool connection during an HTTP call that may take seconds could exhaust the pool under load. Steps: claim with the owner role, read and send, then write the result.
  */
 
 export const MAX_TENTATIVAS = Number(process.env['PIPE_ENTREGA_MAX_TENTATIVAS'] ?? 5);
@@ -29,15 +25,14 @@ export const ESPERA_BASE_MS = Number(process.env['PIPE_ENTREGA_ESPERA_BASE_MS'] 
 export const ESPERA_TETO_MS = Number(process.env['PIPE_ENTREGA_ESPERA_TETO_MS'] ?? 15 * 60_000);
 
 /**
- * Espera crescente com um pouco de sorteio. Sem o sorteio, mil mensagens que
- * falharam juntas voltam juntas e batem na Meta no mesmo segundo de novo.
+ * Use increasing backoff with jitter. Without jitter, a thousand messages failing together retry together and hit Meta again in the same second.
  */
 export function esperaMs(tentativas: number, sortear: () => number = Math.random): number {
   const crescente = Math.min(ESPERA_TETO_MS, ESPERA_BASE_MS * 2 ** Math.max(0, tentativas - 1));
   return Math.round(crescente * (0.8 + sortear() * 0.4));
 }
 
-/** `type` e não `interface`: só o alias ganha índice implícito, que `execute<T>` exige. */
+/** Use `type`, not `interface`: only the alias gets the implicit index signature required by `execute<T>`. */
 type Reivindicada = {
   id: string;
   tenant_id: string;
@@ -76,8 +71,7 @@ export interface OptionsDelivery {
   /** Quantas linhas reivindicar por rodada. */
   lote?: number;
   /**
-   * Valores posicionais de template, por id de mensagem, vindos do job da fila.
-   * O banco ainda não tem coluna para guardá-los — ver `parametros_perdidos`.
+   * Positional template values, keyed by message ID, come from the queue job. The database has no column for them yet; see `parametros_perdidos`.
    */
   parametros?: Map<string, Record<string, string>>;
 }
@@ -90,14 +84,13 @@ const TYPES_OF_MEDIA: Readonly<Record<string, TypeMedia>> = {
 };
 
 /**
- * Uma rodada da fila de entrega. Devolve o que aconteceu com cada mensagem — é o que
- * o teste de ponta a ponta inspeciona e o que o log de produção registra.
+ * Process one delivery queue sweep and return each message result for end-to-end tests and production logs.
  */
 export async function processarOutbox(options: OptionsDelivery = {}): Promise<ResultDelivery[]> {
   const lote = options.lote ?? 20;
 
-  // Reivindicação atômica: `skip locked` deixa dois workers dividirem a fila sem que
-  // os dois peguem a mesma linha. Roda com o papel dono porque varre todos os tenants.
+  // Atomic claim: `skip locked` lets two workers split the queue without
+  // so two workers cannot claim the same row. Use the owner role to scan all tenants.
   const { rows: reivindicadas } = await databaseOwner().execute<Reivindicada>(sql`
     update outbox_mensagem
        set estado = 'enviando', atualizado_em = now()
@@ -113,7 +106,7 @@ export async function processarOutbox(options: OptionsDelivery = {}): Promise<Re
   `);
 
   const resultados: ResultDelivery[] = [];
-  // Em série de propósito: cada item abre a própria transação com tenant fixado.
+  // Intentionally serial: each item opens its own transaction with a fixed tenant.
   for (const linha of reivindicadas) {
     resultados.push(await entregarUma(linha, options.parametros?.get(linha.mensagem_id)));
   }
@@ -202,13 +195,7 @@ async function entregarUma(
 type Preparado = { pedido: PedidoEnvio } | { erro: { codigo: string; texto: string } };
 
 /**
- * O Instagram manda para o IGSID (`contato_identidade`), nunca para telefone, e só
- * texto e mídia por URL — template é coisa do WhatsApp.
- *
- * Decisão Pipe: a janela de 24h do Direct (7 dias com a tag HUMAN_AGENT) NÃO é
- * conferida aqui nem no `@pipe/core` — o core trata canal que não é WhatsApp como sem
- * janela (`canalDoCore` em `apps/api/src/dominio/envio.ts`). Fora da janela, a Meta
- * recusa com 4xx e a mensagem fica `falhou` com o motivo dela.
+ * Instagram sends to the IGSID (`contato_identidade`), never a phone number, and supports text and URL media, not WhatsApp templates. Pipe intentionally does not enforce Direct's 24-hour window (or 7 days with HUMAN_AGENT) here or in `@pipe/core`: `canalDoCore` in `apps/api/src/dominio/envio.ts` treats non-WhatsApp channels as without a window. Outside the window Meta returns 4xx and the message becomes `falhou` with Meta's reason.
  */
 function prepararEnvioInstagram(
   linha: LinhaDeEnvio,
@@ -217,7 +204,7 @@ function prepararEnvioInstagram(
     return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem conta do Instagram neste canal.' } };
   }
   // O canal do Instagram SEMPRE grava o token cifrado (`dominio/instagram/canal.ts`).
-  // ponytail: chaveiro relido a cada envio; guardar em memória se aparecer no perfil.
+  // The keyring is reread on every send; cache it if profiling shows this matters.
   let config: Record<string, unknown>;
   try {
     config = decifrarConfig(linha.canal_config ?? {}, keyringOfAmbiente());
@@ -262,11 +249,7 @@ function prepararEnvioMessenger(linha: LinhaDeEnvio): { messenger: PedidoMesseng
 }
 
 /**
- * Monta o pedido e recusa antes de gastar chamada.
- *
- * Formato e tamanho de mídia (`regras-blip.md` §1.6) e deslocamento de parâmetro de
- * template (§1.4) são verificados aqui: mídia em formato recusado **nunca** chega a
- * chamar a Meta, e o atendente lê o motivo em vez de um código da Meta.
+ * Build the request and reject invalid media before a network call. Check media format and size (`regras-blip.md` §1.6) and template parameter offset (§1.4) here. Unsupported media must never reach Meta; the agent sees a reason instead of a Meta code.
  */
 function prepararEnvio(
   linha: LinhaDeEnvio,
@@ -301,9 +284,9 @@ function montarConteudo(
     if (!texto) {
       return { erro: { codigo: 'texto_vazio', texto: 'Mensagem de texto sem conteúdo.' } };
     }
-    // Pergunta do fluxo: botões ou lista quando o canal permite; senão o texto numerado.
+    // For a flow question, use buttons or a list if the channel allows it; otherwise numbered text.
     const pergunta = linha.dados?.['pergunta'] as PerguntaOfFlow | undefined;
-    // Só no WhatsApp: o Instagram tem quick reply próprio, ainda não ligado — sai texto.
+    // Only on WhatsApp: Instagram has its own quick reply, not connected yet, so send text.
     const interativo = pergunta && linha.canal_tipo === 'whatsapp_cloud'
       ? conteudoDaPergunta(pergunta, preferencesInteractiveOf(linha.canal_config))
       : null;
@@ -351,8 +334,8 @@ function montarConteudo(
     const variables = readVariables(linha.template_variaveis);
     const values = parametros ?? {};
     const cabecalho = (linha.template_cabecalho ?? 'nenhum') as CabecalhoTemplate;
-    // Sem coluna jsonb em `mensagem`, os valores só existem no job da fila. Se o job
-    // se perdeu, falha alto em vez de mandar o template com o parâmetro trocado.
+    // There is no JSONB column on `mensagem`; template values exist only in the queue job. If that job
+    // is lost, fail loudly instead of sending a template with misplaced parameters.
     if (variables.length > 0 && Object.keys(values).length === 0) {
       return {
         erro: {
@@ -390,7 +373,7 @@ function readVariables(value: unknown): string[] {
   return value.map((v) => String(v));
 }
 
-/** A identidade do canal manda; telefone é o fallback de quem nunca escreveu. */
+/** Channel identity takes precedence; phone number is the fallback for a contact who has never messaged. */
 function destinatario(linha: LinhaDeEnvio): string | null {
   const bruto = linha.identificador ?? linha.telefone_e164;
   if (!bruto) return null;
@@ -398,9 +381,9 @@ function destinatario(linha: LinhaDeEnvio): string | null {
 }
 
 export function credentialsOf(cru: Record<string, unknown> | null): CredentialsChannel | null {
-  // O `config` vem do banco com o token CIFRADO (`cifrarConfig` na criação do canal).
-  // Sem decifrar, o `Bearer` sairia com o `pipev1…` e a Meta recusaria todo envio —
-  // o dublê não percebe. O chaveiro só é exigido quando há o que decifrar.
+  // Database `config` contains the ENCRYPTED token (`cifrarConfig` when creating the channel).
+  // Without decryption, `Bearer` would contain `pipev1…` and Meta would reject every send;
+  // the test double would miss this. Require the keyring only when decryption is needed.
   const config =
     cru && Object.values(cru).some((v) => typeof v === 'string' && estaCifrado(v))
       ? decifrarConfig(cru, keyringOfAmbiente())
@@ -417,7 +400,7 @@ export function credentialsOf(cru: Record<string, unknown> | null): CredentialsC
   };
 }
 
-/** `anexo.chave_storage` é chave no storage de objetos; a base pública é configuração. */
+/** `anexo.chave_storage` is an object-storage key; the public base URL is configuration. */
 function urlOfMedia(key: string): string {
   if (/^https?:\/\//i.test(key)) return key;
   const base = (process.env['PIPE_STORAGE_URL_BASE'] ?? 'http://localhost:9000/pipe').replace(
@@ -457,7 +440,7 @@ async function reagendar(
 ): Promise<ResultDelivery> {
   const espera = esperaMs(tentativas);
   await noTenant(linha.tenant_id, async (tx) => {
-    // A mensagem volta a `pendente`: para o atendente ela ainda está a caminho.
+    // Return the message to `pendente`: to the agent it is still on its way.
     await tx.execute(sql`
       update mensagem set estado_entrega = 'pendente' where id = ${linha.mensagem_id}
     `);

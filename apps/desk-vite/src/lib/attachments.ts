@@ -18,10 +18,10 @@
 export const MAX_FILES_BY_ENVIO = 10;
 /** `MAX_ATTACHMENT_SIZE` = 100 MB — `MAX_BYTES_POR_ARQUIVO`. */
 export const MAX_BYTES_BY_FILE = 104_857_600;
-/** 16 MB para áudio e vídeo — `MAX_BYTES_AUDIO_VIDEO`; a Meta recusa acima disso. */
+/** 16 MB for audio and video (`MAX_BYTES_AUDIO_VIDEO`); Meta rejects larger files. */
 export const MAX_BYTES_AUDIO_VIDEO = 16_777_216;
 
-/** O que a tela precisa saber de um arquivo — o `File` do navegador, sem o corpo. */
+
 export interface LoteFile {
   name: string;
   type: string;
@@ -39,8 +39,7 @@ function mb(bytes: number): string {
 }
 
 /**
- * O motivo de recusar o lote, ou `null` quando ele pode subir. Sempre cita o
- * arquivo: com dez na seleção, "grande demais" sem nome não ajuda ninguém.
+ * Return the reason the batch is rejected, or `null` when it can upload. Name the failing file so the error remains useful when many files were selected.
  */
 export function recusaDoLote(arquivos: readonly LoteFile[]): string | null {
   if (arquivos.length === 0) return 'Escolha ao menos um arquivo.';

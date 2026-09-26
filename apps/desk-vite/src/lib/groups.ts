@@ -1,9 +1,7 @@
 import type { ItemOfConversation } from '@pipe/contracts';
 
 /**
- * O agrupamento da thread — a regra dos `.blip-message-group` da referência:
- * mensagens seguidas do mesmo lado formam um grupo, com um horário só (o do
- * último balão); uma nota interna quebra o grupo e fica sozinha.
+ * Group consecutive messages on the same side like reference `.blip-message-group`, showing only the last bubble's time. An internal note interrupts the group and stands alone.
  */
 export type Message = Extract<ItemOfConversation, { genero: 'mensagem' }>;
 export type Nota = Extract<ItemOfConversation, { genero: 'nota' }>;
@@ -30,9 +28,7 @@ export function agrupar(itens: readonly ItemOfConversation[]): Grupo[] {
 }
 
 /**
- * O sinal de entrega abaixo do grupo de saída: o do ÚLTIMO balão. Os nomes
- * são os `estado_entrega` do domínio; a referência mostra relógio para
- * pendente, um check para enviada, dois para entregue e dois azuis para lida.
+ * Show delivery state below an outgoing group using its last bubble. Domain values are `estado_entrega`; the reference shows a clock for pending, one check for sent, two for delivered, and two blue checks for read.
  */
 export type DeliverySignal = 'relogio' | 'check' | 'duplo-check' | 'lida' | 'erro' | null;
 

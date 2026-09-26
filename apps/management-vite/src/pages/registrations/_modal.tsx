@@ -2,15 +2,9 @@ import type { ReactNode } from 'react';
 import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
 
 /**
- * Modal centralizado, para o botão "Criar X"/"Nova X" do cabeçalho de cada
- * tela de cadastro — o `bds-modal` que a Blip abre ali (`FICHA-queue-
- * management.md` §2.6, `FICHA-personalizedbreaks.md` §2.3, `FICHA-
- * replies.md` §2.3): título, corpo com o formulário, e um "x" para fechar.
+ * Centered modal, for the "Criar X"/"Nova X" button in each registration screen's header — the `bds-modal` Blip opens there (`FICHA-queue-management.md` §2.6, `FICHA-personalizedbreaks.md` §2.3, `FICHA-replies.md` §2.3): title, body with the form, and an "x" to close.
  *
- * O conteúdo do formulário em si não está no material (a captura sempre
- * pegou o modal fechado, `open="false"`), então aqui dentro a liberdade é
- * total — só a existência do modal, no lugar do formulário solto na página,
- * é o que os DOMs capturados confirmam.
+ * The form's actual content isn't in the material (the capture always caught the modal closed, `open="false"`), so inside here we have full freedom — only the modal's existence, in place of a standalone form on the page, is what the captured DOMs confirm.
  */
 export function Modal({
   aberto,
@@ -44,11 +38,7 @@ export function Modal({
 }
 
 /**
- * Confirmação de gesto destrutivo, dentro do `Modal` acima — no lugar do
- * `window.confirm`/`window.alert` que `atendentes-filas.tsx` usa hoje
- * (comentário lá: "provisório"). Tarefa de cadastros do Atendimento, itens
- * 1 e 2: toda exclusão nova (regra de atendimento, regra de SLA) passa por
- * aqui, não pelo diálogo nativo do navegador.
+ * Destructive-action confirmation, inside the `Modal` above — replacing `window.confirm`/`window.alert`, which is what this component was built to remove from cadastros screens (Atendimento cadastros task, items 1 and 2). Every new deletion (attendance rule, SLA rule) goes through here instead of the browser's native dialog — and `atendentes-filas.tsx` has since migrated to it too; no screen in this module still calls `window.confirm`/`window.alert`.
  */
 export function ModalConfirmation({
   aberto,
@@ -63,7 +53,7 @@ export function ModalConfirmation({
   aberto: boolean;
   titulo: string;
   message: ReactNode;
-  /** Motivo da recusa, se a última tentativa falhou — a mesma mensagem que iria para `window.alert`. */
+  /** The rejection reason, if the last attempt failed — the same message that would have gone to `window.alert`. */
   error?: string | null;
   confirmando?: boolean;
   rotuloConfirmar?: string;

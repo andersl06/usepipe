@@ -2,20 +2,10 @@ import type { AcaoDoEditor, Block, Mapa } from './model';
 import { fieldValue } from './actions-of-block';
 
 /**
- * A "Biblioteca de variáveis" do editor (`$ctrl.openVarLib()`, painel à
- * esquerda com as abas "Variáveis do sistema" e "Variáveis do usuário",
- * estrutura completa achada em `portal.js`). Lá, as duas listas vêm de um
- * serviço da conta; aqui não existe esse serviço — então:
+ * The editor's "Biblioteca de variáveis" (`$ctrl.openVarLib()`, left-side panel with the "Variáveis do sistema" and "Variáveis do usuário" tabs, full structure found in `portal.js`). There, both lists come from an account-level service; here that service doesn't exist — so:
  *
- * - "Variáveis do usuário" é o que ESTE fluxo de fato referencia: o nome de
- *   toda `SetVariable`/`DeleteVariable` (bloco ou ação global), toda variável
- *   de `context` numa condição, e a variável de cada "Entrada do usuário" —
- *   dado real do desenho, não um cadastro à parte;
- * - "Variáveis do sistema" é a lista fixa das fontes com provedor no motor do
- *   Pipe (`FONTES_SUPORTADAS` de `@pipe/core/fluxo/contexto.ts`), com os
- *   nomes de propriedade que o motor realmente lê (`provedorDeEntrada`,
- *   `provedorDeContato`, etc.) — não é a lista de sistema da Blip (`bucket`,
- *   `resource`, `tunnel`… não têm provedor aqui e ficariam mentindo).
+ * - "Variáveis do usuário" is what THIS flow actually references: the name of every `SetVariable`/`DeleteVariable` (block or global action), every `context` variable in a condition, and the variable of each "Entrada do usuário" — real data from the drawing, not a separate registry;
+ * - "Variáveis do sistema" is the fixed list of sources with a provider in the Pipe engine (`FONTES_SUPORTADAS` from `@pipe/core/fluxo/contexto.ts`), with the property names the engine actually reads (`provedorDeEntrada`, `provedorDeContato`, etc.) — not Blip's system list (`bucket`, `resource`, `tunnel`… have no provider here and would be lying).
  */
 
 export interface SistemaVariable {
@@ -63,7 +53,7 @@ function blockAcrescentar(block: Block, nomes: Set<string>): void {
   }
 }
 
-/** Toda variável de `context` que este fluxo cria ou lê, em ordem alfabética. */
+/** Every `context` variable this flow creates or reads, in alphabetical order. */
 export function userVariables(mapa: Mapa, global: Record<string, unknown>): string[] {
   const nomes = new Set<string>();
   for (const block of Object.values(mapa)) blockAcrescentar(block, nomes);
@@ -73,7 +63,7 @@ export function userVariables(mapa: Mapa, global: Record<string, unknown>): stri
   return [...nomes].sort((a, b) => a.localeCompare(b));
 }
 
-/** O filtro de busca de cada aba do painel: sem acento, sem caixa. */
+/** The search filter for each panel tab: no accents, case-insensitive. */
 function normalizar(texto: string): string {
   return texto
     .normalize('NFD')

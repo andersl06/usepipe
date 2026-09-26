@@ -5,23 +5,24 @@ import { caminhoInterno, inboundWithGoogleUrl } from '../../lib/session';
 import { continuar } from './actions';
 
 /**
- * A tela de entrada — a primeira coisa que um cliente vê, e a ÚNICA rota
- * pública deste aplicativo.
+ * The sign-in screen — the first thing a customer sees, and the ONLY public route in
+ * this app.
  *
- * Duas regras a moldam:
+ * Two rules shape it:
  *
- * 1. **Nada de tenant aqui.** Quem chega nesta tela não está logado, então ela
- *    não sabe (e não pode contar) qual empresa usa o Pipe. Por isso o nome da
- *    conta não aparece, e por isso a descoberta por e-mail responde igual para
- *    domínio conhecido e desconhecido — a simetria é da API, e a tela não a
- *    quebra mostrando o que "achou".
- * 2. **Cada recusa tem uma SAÍDA, não um "não autorizado".** Os sete códigos de
- *    `RECUSAS_DE_ENTRADA` chegam em `?erro=` e cada um manda a pessoa para um
- *    lugar diferente: pedir convite, falar com quem contratou, entrar pelo
- *    provedor da empresa. Genérico aqui é a pessoa desistindo.
+ * 1. **No tenant here.** Whoever lands on this screen isn't logged in, so it doesn't
+ *    know (and can't reveal) which company uses Pipe. That's why the account name
+ *    doesn't appear, and why email discovery answers the same way for a known
+ *    domain and an unknown one — the symmetry comes from the API, and the screen
+ *    doesn't break it by showing what it "found".
+ * 2. **Every refusal has an EXIT, not a "not authorized".** The seven
+ *    `RECUSAS_DE_ENTRADA` codes arrive as `?erro=` and each one sends the person
+ *    somewhere different: ask for an invite, talk to whoever bought the plan, sign
+ *    in through the company's provider. Generic here means the person gives up.
  *
- * Sem sessão e sem banco: só `fetch` na API, e por isso ela abre com o Postgres
- * fora do ar — que é exatamente quando alguém precisa entrar para ver o que houve.
+ * No session and no database: only a `fetch` to the API, and that's exactly why it
+ * still opens with Postgres down — which is exactly when someone needs to sign in
+ * to see what happened.
  */
 export const dynamic = 'force-dynamic';
 
@@ -31,10 +32,10 @@ export const metadata: Metadata = {
 };
 
 /**
- * Os sete códigos do contrato, cada um com o que aconteceu e o que fazer.
+ * The contract's seven codes, each with what happened and what to do about it.
  *
- * `Record<RecusaDeEntrada, …>` de propósito: se a API acrescentar um código, o
- * `tsc` quebra AQUI, e não em produção com um erro em branco na cara do cliente.
+ * `Record<RecusaDeEntrada, …>` on purpose: if the API adds a code, `tsc` breaks HERE,
+ * not in production with a blank error in the customer's face.
  */
 const RECUSAS: Record<RefusesOfInbound, { titulo: string; saida: string }> = {
   domain_public: {
@@ -75,11 +76,12 @@ const RECUSAS: Record<RefusesOfInbound, { titulo: string; saida: string }> = {
 };
 
 /**
- * O que a descoberta por e-mail devolve para a tela quando não roteia.
+ * What email discovery returns to the screen when it doesn't route anywhere.
  *
- * A chave é o `metodo` que volta da API, e ele é `google` — não `senha`. Com a
- * chave errada o `AVISOS[...]` dava `undefined`, e "Continuar" recarregava a
- * tela idêntica, sem uma palavra: um botão que, para quem usa, não fazia nada.
+ * The key is the `metodo` that comes back from the API, and it's `google` — not
+ * `senha`. With the wrong key, `AVISOS[...]` used to return `undefined`, and
+ * "Continue" would reload the exact same screen without a word: a button that,
+ * from the user's side, did nothing.
  */
 const AVISOS: Record<string, { titulo: string; saida: string }> = {
   google: {
@@ -129,8 +131,10 @@ export default async function PageLogin({
         <h1 id="entrar-titulo">Entrar</h1>
         <p className="entrar-sub">Leads, oportunidades e o funil, alimentados pelas conversas.</p>
 
-        {/* Em ordem de leitura ANTES dos botões, e com título próprio: quem usa
-            leitor de tela precisa do motivo antes da ação, não depois dela. */}
+        {/*
+ * In reading order BEFORE the buttons, with its own heading: someone using a screen
+ * reader needs the reason before the action, not after it.
+ */}
         {alerta ? (
           <div className="entrar-alerta" role="alert">
             <h2>{alerta.titulo}</h2>
@@ -138,8 +142,10 @@ export default async function PageLogin({
           </div>
         ) : null}
 
-        {/* Link, e não botão: entrar com o Google é navegação de topo para outra
-            origem. Um `fetch` daqui esbarraria no CORS e não traria o cookie. */}
+        {/*
+ * A link, not a button: signing in with Google is a top-level navigation to another
+ * origin. A `fetch` here would run into CORS and wouldn't bring back the cookie.
+ */}
         <a className="btn primario entrar-google" href={inboundWithGoogleUrl({ destination })}>
           Entrar com Google
         </a>

@@ -1,20 +1,9 @@
 /**
- * Rastreador de cliques (Growth) — os tipos e a regra pura de
- * `GET`/`POST /v1/gestao/fluxos/:fluxoId/links-rastreados`
- * (`apps/api/src/dominio/rastreador-de-cliques.ts`, testado em
- * `apps/api/tests/growth.test.ts`).
+ * Click tracker (Growth) — the types and the pure rule for `GET`/`POST /v1/gestao/fluxos/:fluxoId/links-rastreados` (`apps/api/src/dominio/rastreador-de-cliques.ts`, tested in `apps/api/tests/growth.test.ts`).
  *
- * NÃO é o `growth/clicktracker` que já existe (`clicktracker/clicktracker.tsx`)
- * — aquele é a medição de anúncios Click-to-WhatsApp da Meta, sem link nenhum
- * para cadastrar; o comentário no topo do domínio confirma a distinção. Esta é
- * uma tela irmã, nova, sem tela equivalente na Blip para medir a régua visual
- * — a forma segue a dos outros itens do menu Growth (`mensagens-ativas`,
- * `pagamentos`), não uma ficha capturada.
+ * NOT the existing `growth/clicktracker` (`clicktracker/clicktracker.tsx`) — that one measures Meta's Click-to-WhatsApp ad performance, with no link to register at all; the comment at the top of the domain confirms the distinction. This is a sibling screen, new, with no equivalent Blip screen to measure against for the visual ruler — its shape follows the other Growth menu items (`mensagens-ativas`, `pagamentos`), not a captured reference.
  *
- * Arquivo À PARTE de `gravar.ts` (que importa `./api`, que lê
- * `import.meta.env` e quebra fora do Vite) — mesma separação de
- * `cadastros.ts`/`cadastros-gravar.ts` e `regras.ts`/`disparo.ts`: aqui só o
- * que `node --test` consegue importar puro.
+ * A SEPARATE file from `gravar.ts` (which imports `./api`, which reads `import.meta.env` and breaks outside Vite) — the same split as `cadastros.ts`/`cadastros-gravar.ts` and `regras.ts`/`disparo.ts`: here only what `node --test` can import cleanly.
  */
 
 export interface LinkRastreado {
@@ -33,11 +22,7 @@ export type Resultado<T> =
   | { ok: false; error: string; campo?: 'nome' | 'destino' };
 
 /**
- * O corpo do erro (`{erro:{codigo,mensagem}}`) deste endpoint não manda
- * `detalhe.campo` — só o `codigo` diz qual campo é (`criarLinkRastreado` em
- * `dominio/rastreador-de-cliques.ts` e `confirmarUrlSegura` em
- * `dominio/gestao/integracoes.ts`). Mapeado aqui, não lá: mudar de campo é
- * mudar de tela, não de domínio.
+ * This endpoint's error body (`{erro:{codigo,mensagem}}`) doesn't send `detalhe.campo` — only the `codigo` says which field it is (`criarLinkRastreado` in `dominio/rastreador-de-cliques.ts` and `confirmarUrlSegura` in `dominio/gestao/integracoes.ts`). Mapped here, not there: changing a field is a screen change, not a domain change.
  */
 export function fieldOfErrorOfLink(codigo: string): 'nome' | 'destino' | undefined {
   if (codigo === 'name_required') return 'nome';

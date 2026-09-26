@@ -3,9 +3,7 @@ import { atualizarLeituras } from '../../lib/actions';
 import { irPara } from '../../lib/navigation';
 
 /**
- * As ações do painel de Membros — as mesmas de antes, do navegador. A permissão
- * `conta.membros.escrever` é conferida na `api`, na gravação; aqui só se monta
- * o pedido e se volta com o motivo na URL, como a tela já sabe mostrar.
+ * The Members panel's actions — the same ones as before, from the browser app. The `conta.membros.escrever` permission is checked in the `api`, on write; here we only assemble the request and come back with the reason in the URL, the way the screen already knows how to display.
  */
 interface ResultadoSimples {
   ok: boolean;
@@ -50,9 +48,7 @@ export interface ResultadoDoReenvio {
 }
 
 /**
- * Reenvia um convite pendente: mesmo e-mail, mesmo papel, link novo — o de
- * antes para de funcionar (`POST /v1/convites/:id/reenviar`). Como o Pipe não
- * entrega e-mail, o link volta na resposta para a tela mostrar de novo.
+ * Resends a pending invite: same email, same role, new link — the old one stops working (`POST /v1/convites/:id/reenviar`). Since Pipe doesn't deliver email, the link comes back in the response for the screen to show again.
  */
 export async function reenviarInvitation(invitationId: string): Promise<ResultadoDoReenvio> {
   const resposta = await chamarApi(`/v1/convites/${invitationId}/reenviar`, { method: 'POST' });
@@ -78,8 +74,9 @@ export async function convidarMembers(
   if (!role) return { links: [], errors: ['Escolha a permissão de quem está sendo convidado.'] };
   if (emails.length === 0) return { links: [], errors: ['Informe ao menos um e-mail.'] };
   const resultado: InvitationResult = { links: [], errors: [] };
-  /* Em série, e não em `Promise.all`: são poucos e-mails, e a ordem da lista
-     de links fica igual à ordem em que a pessoa digitou. */
+  /*
+   * In series, not with `Promise.all`: it's few emails, and the order of the links list stays the same as the order the person typed them in.
+   */
   for (const email of emails) {
     const resposta = await chamarApi('/v1/convites', {
       method: 'POST',

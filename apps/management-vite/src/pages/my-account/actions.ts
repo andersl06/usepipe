@@ -5,9 +5,7 @@ import type { AccountInVigor } from '../../lib/account';
 import { conferir } from './regras';
 
 /**
- * Salvar "minha conta" — a Server Action de antes, agora do navegador:
- * `PATCH /v1/conta` com o cookie que já vai sozinho, e a volta para o portal
- * (ou para a mesma tela com o motivo e o campo recusado na URL).
+ * Save "my account" — the former Server Action, now from the browser: `PATCH /v1/conta` with the cookie that already travels on its own, and the return to the portal (or to the same screen with the reason and refused field in the URL).
  */
 export async function salvarAccount(data: FormData): Promise<void> {
   const corpo = {
@@ -22,8 +20,9 @@ export async function salvarAccount(data: FormData): Promise<void> {
     idioma: String(data.get('idioma') ?? '').trim(),
     fuso: String(data.get('fuso') ?? '').trim(),
   };
-  /* As listas válidas vêm da `api`, e não de uma cópia daqui: lista duplicada é
-     lista que envelhece do lado errado. */
+  /*
+   * Valid lists come from the `api`, not from a local copy: a duplicated list is a list that goes stale on the wrong side.
+   */
   const account = await api.get<AccountInVigor>('/v1/account').catch(() => null);
   const recusa = conferir({
     ...corpo,
@@ -39,7 +38,7 @@ export async function salvarAccount(data: FormData): Promise<void> {
   });
   if (!resposta.ok) return voltarWithError(await motivoDaFalha(resposta));
   atualizarLeituras();
-  /* A sessão (`Eu`) muda: o onboarding fechou. O `ExigirSessao` relê no portal. */
+  /* The session (`Eu`) changes: onboarding closed. `ExigirSessao` re-reads it on the portal. */
   window.location.assign('/portal');
 }
 

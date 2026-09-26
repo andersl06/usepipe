@@ -37,8 +37,7 @@ function escalaDe(grupo: GroupSatisfaction): string {
 }
 
 /**
- * As três abas de "Detalhamento das pesquisas" deles — `bds-tab-item label=
- * "Geral|Filas|Atendentes"` em `desk-satisfacao__pagina.html`.
+ * Their three "Detalhamento das pesquisas" tabs — `bds-tab-item label="Geral|Filas|Atendentes"` in `desk-satisfacao__pagina.html`.
  */
 const ABAS = [
   { chave: 'geral', rotulo: 'Geral' },
@@ -51,7 +50,7 @@ function abaValida(v: string | undefined): Aba {
   return ABAS.some((a) => a.chave === v) ? (v as Aba) : 'geral';
 }
 
-/** Rótulo de métrica do cartão interno: 14/600 com o ícone de informação ao lado. */
+/** Internal card's metric label: 14/600 with the info icon beside it. */
 function Rotulo({ texto, dica }: { texto: string; dica: string }) {
   return (
     <span className="r">
@@ -62,27 +61,14 @@ function Rotulo({ texto, dica }: { texto: string; dica: string }) {
 }
 
 /**
- * Relatório de satisfação — a tela deles, bloco a bloco, lida em
- * `referencias-blip/desk/desk-satisfacao__pagina.html`:
+ * Satisfaction report — their screen, block by block, read from `referencias-blip/desk/desk-satisfacao__pagina.html`:
  *
- * 1. cabeçalho "Relatório de satisfação"; à direita o período em botão
- *    fantasma ("Últimos 30 dias") e "Filtros";
- * 2. bloco "Dados gerais" (`bds-paper bg-surface-1 mt4 pa4`, título 16/700 +
- *    ícone) com quatro cartões brancos (`bg-surface-0 pa4`: rótulo 14/600 +
- *    ícone, valor 20/700): "Média geral de satisfação", "Total de tickets
- *    fechados", "Total de respostas", "Taxa de resposta"; e embaixo dois
- *    cartões brancos de 400px, "Satisfação geral" (pizza) e "Comparativo de
- *    satisfação" (barras, com o seletor Atendentes/Filas);
- * 3. bloco "Análise do período" com um cartão de 400px (série);
- * 4. bloco "Detalhamento das pesquisas" com as abas Geral/Filas/Atendentes.
+ * 1. "Relatório de satisfação" header; on the right the period as a ghost button ("Últimos 30 dias") and "Filtros";
+ * 2. "Dados gerais" block (`bds-paper bg-surface-1 mt4 pa4`, 16/700 title + icon) with four white cards (`bg-surface-0 pa4`: 14/600 label + icon, 20/700 value): "Média geral de satisfação", "Total de tickets fechados", "Total de respostas", "Taxa de resposta"; and below two 400px white cards, "Satisfação geral" (pie) and "Comparativo de satisfação" (bars, with the Atendentes/Filas selector);
+ * 3. "Análise do período" block with a 400px card (series);
+ * 4. "Detalhamento das pesquisas" block with the Geral/Filas/Atendentes tabs.
  *
- * Todo título, rótulo e coluna é o texto deles, literal. A escala de cada
- * pesquisa continua decidindo tudo (§6 da spec de métricas): com mais de uma
- * escala no período a "Média geral" não existe e sai "—", com as médias por
- * escala no balão do ícone. A distribuição por classe — o dado atrás da
- * pizza deles — entra no cartão "Satisfação geral" como tabela; o
- * comparativo por atendente/fila e a série por dia não têm consulta nossa e
- * ficam com o vazio honesto.
+ * Every title, label and column is their text, literal. Each survey's scale still decides everything (§6 of the metrics spec): with more than one scale in the period, "Média geral" doesn't exist and shows "—", with per-scale averages in the icon's tooltip. The distribution by class — the data behind their pie chart — goes into the "Satisfação geral" card as a table; the per-attendant/queue comparison and the daily series don't have our query and get the honest empty state.
  */
 export function PageSatisfaction() {
   const { contact } = useContact();
@@ -316,8 +302,9 @@ export function PageSatisfaction() {
                       <td>—</td>
                       <td>—</td>
                       <td>—</td>
-                      {/* A nota anda com a escala no `title`: um 4 solto não
-                          diz se é quase o teto ou um detrator. */}
+                      {/*
+ * The score travels with its scale in the `title`: a bare 4 doesn't say whether it's near the ceiling or a detractor.
+ */}
                       <td className="num" title={`${rotuloDoTipo(c.tipo)}, escala ${numero(c.escalaMin)} a ${numero(c.escalaMax)}`}>
                         {numero(c.nota)}
                       </td>

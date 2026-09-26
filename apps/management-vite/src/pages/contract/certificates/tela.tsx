@@ -15,26 +15,10 @@ import { cadastrarCertificado, excluirCertificado, excluirHostDoCertificado } fr
 import type { PedidoDeCertificado } from './actions';
 
 /**
- * A tela de Certificados de autenticação, na mecânica do `zt` deles
- * (`main.e8593b01.chunk.js`): dois `bds-paper` empilhados — o de apresentação
- * (`xt`) e o da listagem (`Pt`) — e quatro janelas: o cadastro em três passos
- * (`bds-modal#certificate-modal`), os hosts do certificado
- * (`bds-modal#hosts-modal`) e os dois avisos de exclusão
- * (`bds-alert#remove-certificate-alert` e `#remove-host-alert`).
- *
- * É cliente porque a origem é: abrir janela, andar no passo a passo e marcar
- * qual certificado está em mão são estado de tela. As medidas estão em
- * `certificados.css`; aqui ficam os textos e as regras.
- *
- * Toda escrita cai em `./acoes.ts` (`POST/DELETE
- * /v1/gestao/contrato/certificados*`), que confere a permissão no servidor e
- * volta com o motivo — mostrado no lugar do toast deles. O `.pfx` e a senha
- * vão de verdade no "Finalizar" (data URL + senha no JSON): a `api` lê o
- * arquivo, tira validade e impressão digital, guarda os dois cifrados e
- * calcula o status que a coluna mostra (`etiquetaDoStatus`).
+ * The authentication Certificados screen, following the mechanics of their `zt` (`main.e8593b01.chunk.js`): two stacked `bds-paper`s — the presentation one (`xt`) and the listing one (`Pt`) — and four modals: the three-step registration (`bds-modal#certificate-modal`), the certificate's hosts (`bds-modal#hosts-modal`), and the two delete warnings (`bds-alert#remove-certificate-alert` and `#remove-host-alert`). It's client-side because the source is: opening a modal, moving through the steps, and tracking which certificate is in hand are screen state. The measurements are in `certificados.css`; here are the copy and the rules. Every write falls through to `./acoes.ts` (`POST/DELETE /v1/gestao/contrato/certificados*`), which checks the permission on the server and returns the reason — shown in place of their toast. The `.pfx` and the password really do go out on "Finalizar" (data URL + password in the JSON): the `api` reads the file, extracts validity and fingerprint, stores both encrypted, and computes the status the column shows (`etiquetaDoStatus`).
  */
 
-/** Os textos da tela, em pt-BR, dos dicionários `Et`, `Ct`, `ut`, `Dt`, `Mt` e `Tt`. */
+/** The screen's texts, in pt-BR, from the `Et`, `Ct`, `ut`, `Dt`, `Mt` and `Tt` dictionaries. */
 const TEXTO = {
   apresentacao: {
     titulo: 'Criptografia ponta a ponta',
@@ -91,7 +75,7 @@ interface Entradas {
   hosts: HostDigitado[];
 }
 
-/** O `j` do `zt`: o formulário em branco, com um campo de URL. */
+/** The `j` of `zt`: the blank form, with one URL field. */
 const EMPTY: Entradas = {
   file: null,
   senha: '',
@@ -157,10 +141,10 @@ export function TelaDeCertificados({
         return;
       }
       alertaDeHost.current?.close();
-      // "Se o certificado fica sem host, o modal de hosts fecha e a lista
-      // recarrega depois de 1s" — o `excluirHostDoCertificado` do domínio já
-      // apaga o certificado junto quando era o último; aqui só se fecha a
-      // janela de hosts se ele não existir mais na lista recarregada.
+      // "If the certificate ends up without a host, the hosts modal closes and the list
+      // reloads after 1s" — the domain's `excluirHostDoCertificado` already
+      // deletes the certificate too when it was the last one; here we only close the
+      // hosts window if it no longer exists in the reloaded list.
       if ((certificado?.hosts.length ?? 0) <= 1) hostsWindow.current?.close();
     } finally {
       marcarEnviando(false);
@@ -169,11 +153,12 @@ export function TelaDeCertificados({
 
   return (
     <div id="certificates" className="cm-grade">
-      {/* `xt`: o paper de apresentação. */}
+      {/* `xt`: the presentation paper. */}
       <section className="cm-papel">
         <div className="cm-apresentacao">
-          {/* A `bds-illustration type="spots" name="lock-2"` da origem fica de
-              fora: não foi capturada e não temos uma. */}
+          {/*
+ * Their `bds-illustration type="spots" name="lock-2"` is left out: it wasn't captured and we don't have one.
+ */}
           <div className="cm-apresentacao-texto">
             <div className="cm-cabeca">
               <h2 className="cm-t24 cm-t24--margem">{TEXTO.apresentacao.titulo}</h2>
@@ -210,8 +195,9 @@ export function TelaDeCertificados({
             <p className="cm-t16">{TEXTO.lista.subtitulo}</p>
           </div>
 
-          {/* Sem certificado a tabela fica só com o cabeçalho: a origem não
-              tem mensagem de lista vazia. */}
+          {/*
+ * With no certificates the table shows only the header: the source has no empty-list message.
+ */}
           <Tabela id="certificates-table" colunas={TEXTO.lista.colunas}>
             {certificados.map((c) => {
               return (
@@ -221,8 +207,9 @@ export function TelaDeCertificados({
                   </td>
                   <td>{expirationData(c.expiraEm)}</td>
                   <td>
-                    {/* `bds-chip-tag` pelo `status` — o chip calculado da origem,
-                        com a impressão digital e o sujeito na dica. */}
+                    {/*
+ * `bds-chip-tag` by `status` — the source's computed chip, with the fingerprint and subject in the tooltip.
+ */}
                     <Etiqueta certificado={c} />
                   </td>
                   <td className="cm-col-acoes">
@@ -260,8 +247,9 @@ export function TelaDeCertificados({
             aoDeletar={deletarCertificado}
           />
 
-          {/* `bds-modal#hosts-modal title="Hosts do certificado"`: no web
-              component o `title` é o atributo do HTML — dica, não cabeçalho. */}
+          {/*
+ * `bds-modal#hosts-modal title="Hosts do certificado"`: in the web component, `title` is the HTML attribute — a tooltip, not a header.
+ */}
           <dialog
             ref={hostsWindow}
             id="hosts-modal"
@@ -316,7 +304,7 @@ export function TelaDeCertificados({
   );
 }
 
-/* ---------------------------------------------------------------- peças */
+/* ---------------------------------------------------------------- pieces */
 
 function Tabela({
   id,
@@ -346,8 +334,7 @@ function Tabela({
 }
 
 /**
- * `bds-chip-tag` da coluna Status: `success`/`disabled`/`default` conforme
- * `etiquetaDoStatus`. A dica traz o que a `api` leu do `.pfx`.
+ * `bds-chip-tag` for the Status column: `success`/`disabled`/`default` per `etiquetaDoStatus`. The tooltip carries what the `api` read from the `.pfx`.
  */
 function Etiqueta({ certificado }: { certificado: CertificadoMtls }) {
   const { texto, classe } = etiquetaDoStatus(certificado.status);
@@ -382,7 +369,7 @@ function BotaoDeIcone({
   );
 }
 
-/** O `close-button` do `bds-modal`: ícone `close` (medium, 24), o nosso `fechar`. */
+/** The `bds-modal`'s `close-button`: the `close` icon (medium, 24), our `fechar`. */
 function FecharWindow({ window }: { window: RefObject<HTMLDialogElement | null> }) {
   return (
     <button
@@ -439,8 +426,7 @@ function Alerta({
 }
 
 /**
- * O toast deles (`Object(m.g)({ type, message })`). `popover` para ficar por
- * cima até de uma janela aberta, como o toast fica; some sozinho.
+ * Their toast (`Object(m.g)({ type, message })`). `popover` so it stays on top even over an open modal, the way their toast does; disappears on its own.
  */
 function Aviso({ texto, aoSumir }: { texto: string | null; aoSumir: () => void }) {
   const caixa = useRef<HTMLDivElement>(null);
@@ -466,16 +452,7 @@ function Aviso({ texto, aoSumir }: { texto: string | null; aoSumir: () => void }
 /* ------------------------------------------------------------- cadastro */
 
 /**
- * O `yt`: o `bds-stepper` com três passos, a caixa rolável de 40×18rem e a
- * fileira de botões. "Próximo" só destrava com o passo atual preenchido; o
- * arquivo só é conferido em "Finalizar", como lá.
- *
- * **O que muda da origem**: lá o passo 1 destrava só com o nome do arquivo e
- * a senha errada aparece no "Finalizar"; aqui a senha também é exigida para
- * avançar, porque a `api` recusa o cadastro sem ela — errar a senha continua
- * sendo o toast do "Finalizar" ("A senha do certificado está incorreta.").
- * O que vai para `POST /v1/gestao/contrato/certificados`: arquivo (data URL),
- * senha, descrição e hosts.
+ * The `yt`: the `bds-stepper` with three steps, the 40×18rem scrollable box and the button row. "Próximo" only unlocks once the current step is filled in; the file is only checked at "Finalizar", same as there. **What changes from the source**: there, step 1 unlocks with just the filename, and the wrong password shows up at "Finalizar"; here the password is also required to advance, because the `api` refuses the registration without it — getting the password wrong is still the "Finalizar" toast ("A senha do certificado está incorreta."). What goes to `POST /v1/gestao/contrato/certificados`: file (data URL), password, description and hosts.
  */
 function Registration({
   window,
@@ -522,8 +499,8 @@ function Registration({
       senha: entradas.senha,
       file,
     });
-    // Sucesso: formulário limpo, volta ao passo 1 e fecha — falha: a origem
-    // mostra o toast e deixa a janela aberta (`aoAvisar` já cuidou do toast).
+    // Success: form cleared, back to step 1, and closes — failure: the source
+    // shows the toast and leaves the window open (`aoAvisar` already handled the toast).
     if (gravou) {
       preencher(EMPTY);
       marcarTocado(false);
@@ -540,11 +517,9 @@ function Registration({
         {PASSOS.map((rotulo, i) => (
           <li
             key={rotulo}
-            className={`cm-passo${i === passo ? ' cm-passo--ativo' : ''}${
-              i < passo ? ' cm-passo--feito' : ''
-            }`}
+            className={`cm-passo${i === passo ? ' cm-passo--ativo' : ''}${i < passo ? ' cm-passo--feito' : ''}`}
           >
-            {/* O concluído troca o número pelo `bds-icon name="true"` (medium): o nosso `concluido`. */}
+            {/* Completed swaps the number for the `bds-icon name="true"` (medium): our `concluido`. */}
             <span className="cm-passo-bola">
               {i < passo ? <IconePortal nome="concluido" tamanho={24} /> : i + 1}
             </span>
@@ -712,7 +687,7 @@ function Registration({
   );
 }
 
-/** `bds-input`: o rótulo em cima, dentro da mesma borda, e a mensagem embaixo. */
+/** `bds-input`: the label on top, inside the same border, and the message below. */
 function Campo({
   rotulo,
   value,
@@ -747,7 +722,7 @@ function Campo({
       </label>
       {error ? (
         <p className="cm-campo-erro">
-          {/* `bds-icon name="error" size="x-small"`: o nosso `fechar-chip` é o `error`. */}
+          {/* `bds-icon name="error" size="x-small"`: our `fechar-chip` is their `error`. */}
           <IconePortal nome="fechar-chip" tamanho={16} />
           {error}
         </p>

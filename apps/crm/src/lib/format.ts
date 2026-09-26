@@ -1,4 +1,4 @@
-/** Formatação da tela. Mesma régua da Gestão, para as três telas lerem igual. */
+/** Screen formatting. Same ruler as Gestão, so the three screens read alike. */
 
 export function numero(value: number | null | undefined, casas = 0): string {
   if (value === null || value === undefined || Number.isNaN(value)) return '—';
@@ -22,7 +22,7 @@ export function money(value: number | null | undefined): string {
   });
 }
 
-/** Soma de coluna do funil: `R$ 812 mil` cabe onde `R$ 812.400` não cabe. */
+/** Funnel column sum: `R$ 812k` fits where `R$ 812,400` doesn't. */
 export function moneyCurto(value: number | null | undefined): string {
   if (value === null || value === undefined || Number.isNaN(value)) return '—';
   if (Math.abs(value) >= 1_000_000) return `R$ ${numero(value / 1_000_000, 1)} mi`;
@@ -51,7 +51,7 @@ export function data(instante: Date | null | undefined, fuso: string): string {
   });
 }
 
-/** "há 4 min", "há 3 h", "ontem", "27/08" — a coluna de última atividade da listagem. */
+/** "4 min ago", "3 h ago", "yesterday", "08/27" — the listing's last-activity column. */
 export function desde(instante: Date | null | undefined, fuso: string, agora = new Date()): string {
   if (!instante) return '—';
   const seg = Math.max(0, Math.round((agora.getTime() - instante.getTime()) / 1000));
@@ -65,10 +65,10 @@ export function desde(instante: Date | null | undefined, fuso: string, agora = n
 }
 
 /**
- * CPF ou CNPJ com máscara. O documento é guardado em `text` sem pontuação —
- * o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa —, então
- * a máscara é da tela e não do banco. Documento com tamanho fora do esperado
- * sai como veio, em vez de sair picado errado.
+ * CPF or CNPJ, masked. The document is stored in `text` with no punctuation —
+ * 2026's alphanumeric CNPJ breaks a numeric column and a fixed mask — so the
+ * mask belongs to the screen, not the database. A document of an unexpected
+ * length comes out as it came in, instead of coming out chopped up wrong.
  */
 export function document(value: string | null | undefined): string {
   if (!value) return '—';
@@ -78,16 +78,16 @@ export function document(value: string | null | undefined): string {
   return value;
 }
 
-/** Pontos da explicação do score: sinal explícito, porque a regra pode tirar ponto. */
+/** Points in the score explanation: explicit sign, because a rule can subtract points. */
 export function pontos(value: number): string {
   return value >= 0 ? `+${value}` : `−${Math.abs(value)}`;
 }
 
 /*
- * Não há `classeDaFaixa` aqui, e a ausência é a decisão: faixa de score é
- * categoria, não estado. Ela diz para onde o lead foi roteado, não que alguém
- * precise agir — e categoria usa a `Etiqueta` neutra do `@pipe/ui`, como fase,
- * origem e fila. A função existia para escolher entre verde e ocre, o que
- * pintava uma coluna inteira da lista e disputava atenção com as duas que
- * realmente pedem ação: dias na fase e desqualificação.
+ * There's no `classeDaFaixa` here, and the absence is the decision: a score band
+ * is a category, not a state. It says where the lead got routed, not that
+ * someone needs to act — and a category uses `@pipe/ui`'s neutral `Etiqueta`,
+ * like stage, source, and queue. The function used to choose between green and
+ * ochre, which painted a whole list column and competed for attention with the
+ * two that actually call for action: days in stage and disqualification.
  */

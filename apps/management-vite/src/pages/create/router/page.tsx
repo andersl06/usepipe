@@ -10,40 +10,43 @@ import '../create.css';
 import './create-router.css';
 
 /**
- * Criar roteador — cópia do fluxo `auth.application.create.router` do portal
- * deles, lido no bundle `portal.js` (`25.204.0-v0.43.1`).
+ * Create router — a copy of their portal's `auth.application.create.router` flow,
+ * read from the `portal.js` bundle (`25.204.0-v0.43.1`).
  *
- * ═══ O FLUXO TEM DOIS PASSOS, E SÓ ═══
+ * ═══ THE FLOW HAS TWO STEPS, AND ONLY TWO ═══
  *
- * Na origem são dois estados do `ui-router` sob o mesmo `<form>`:
+ * In the source these are two `ui-router` states under the same `<form>`:
  *
  *   `auth.application.create.router` → `/application/create/router`
- *     O convite. Sobretítulo "Criar roteador", uma imagem à esquerda, e à
- *     direita o título "Como funciona o roteador", a descrição, o link "Quero
- *     saber mais" e UM botão. O botão chama `selectTemplate('master')`, que
- *     guarda o template e faz `$state.go('^.name', 'master')`.
+ *     The invitation. Overline "Criar roteador", an image on the left, and on the
+ *     right the title "Como funciona o roteador", the description, the "Quero
+ *     saber mais" link, and ONE button. The button calls `selectTemplate('master')`,
+ *     which stores the template and does `$state.go('^.name', 'master')`.
  *
  *   `auth.application.create.name` → `/application/create/name/master`
- *     O nome. Mesmo sobretítulo, título "Dê um nome ao seu roteador", o seletor
- *     de imagem, o campo de nome com contador, e dois botões: "Voltar" e
+ *     The name. Same overline, title "Dê um nome ao seu roteador", the image
+ *     picker, the name field with a counter, and two buttons: "Voltar" and
  *     "Criar roteador" (`type="submit"`).
  *
- * Aqui os dois passos são a MESMA rota, separados por `?passo=nome`. É Server
- * Component: dois passos sem estado de cliente são duas renderizações, e o
- * botão do primeiro passo é um link, como o `ui-sref` deles é um link.
+ * Here the two steps are the SAME route, separated by `?passo=nome`. It's a Server
+ * Component: two steps with no client state are two renders, and the first step's
+ * button is a link, just as their `ui-sref` is a link.
  *
- * ═══ O QUE O ROTEADOR PULA, E O FLUXO NÃO ═══
+ * ═══ WHAT THE ROUTER SKIPS, AND THE FLOW DOESN'T ═══
  *
- * `selectTemplate('master')` sai DIRETO para o passo do nome. A tela irmã,
- * `/criar/fluxo`, entra antes no marketplace (`auth.application.create.marketplace`)
- * para escolher o modelo. É a única diferença de PASSOS entre as duas.
+ * `selectTemplate('master')` goes DIRECTLY to the name step. The sibling screen,
+ * `/criar/fluxo`, first enters the marketplace
+ * (`auth.application.create.marketplace`) to choose a template. It's the only
+ * difference in STEPS between the two.
  *
- * O casco e o passo do nome, por serem os mesmos das duas, vivem em
- * `../casco.tsx` — na origem eles são literalmente o mesmo template.
+ * The shell and the name step, being the same for both, live in `../casco.tsx` —
+ * in the source they're literally the same template.
  */
-/* Vazio = item não desenhado, a mesma regra do `URL_AJUDA` do portal: link para
-   página que ainda não existe é pior do que um convite a menos. Na origem é
-   `createApplication.router.learnMoreUrl`, um artigo do help deles. */
+/*
+ * Empty = item not rendered, the same rule as the portal's `URL_AJUDA`: a link to
+ * a page that doesn't exist yet is worse than one invitation fewer. In the source
+ * it's `createApplication.router.learnMoreUrl`, an article from their help center.
+ */
 const URL_SABER_MAIS = (import.meta.env['VITE_PIPE_AJUDA_ROTEADOR_URL'] as string | undefined) ?? '';
 
 export function PageCreateRouter() {
@@ -55,9 +58,11 @@ export function PageCreateRouter() {
     nome: search.get('nome') ?? undefined,
   };
 
-  /* `canCreateChatbot` deles é conferido no `$onInit` do controlador, ANTES de
-     desenhar qualquer passo: quem não pode cai em `$state.go(getReturnState())`,
-     que é a lista de contatos. Aqui, `/portal`. */
+  /*
+   * Their `canCreateChatbot` is checked in the controller's `$onInit`, BEFORE
+   * rendering any step: whoever can't do it falls into
+   * `$state.go(getReturnState())`, which is the contact list. Here, `/portal`.
+   */
   if (!shell.canCreate) return <Navigate to="/portal" replace />;
 
   return (
@@ -83,31 +88,36 @@ export function PageCreateRouter() {
 /**
  * `#create-application-router-step`.
  *
- * Não é `<form>`: na origem o `<form>` é do casco e envolve os dois passos,
- * mas o único controle deste é um botão que muda de estado. Aqui ele é link, e
- * um formulário sem campo nem envio seria cromo.
+ * Not a `<form>`: in the source the `<form>` belongs to the shell and wraps both
+ * steps, but this one's only control is a button that changes state. Here it's a
+ * link, and a form with no field and no submission would be chrome for its own
+ * sake.
  *
- * Fileira de duas colunas com 2.5rem de vão, 52.5rem no total: a imagem à
- * esquerda (40% da largura, no máximo 18.75rem) e o texto à direita (no máximo
- * 27.5rem). O botão fecha a coluna da direita — não é centrado na tela.
+ * Two-column row with a 2.5rem gap, 52.5rem total: the image on the left (40% of
+ * the width, at most 18.75rem) and the text on the right (at most 27.5rem). The
+ * button closes off the right column — it isn't centered on the screen.
  */
 function InvitationPasso() {
   return (
     <div className="cr-forma">
-      {/* `.tagline-title-container`: coluna, vão de 1rem, centrada. O
-          sobretítulo é o MESMO texto do botão que trouxe a pessoa até aqui
-          (`createApplication.taglineRouter`) — é ele que diz, nos dois passos,
-          que o que está sendo criado é um roteador e não um fluxo. */}
+      {/*
+ * `.tagline-title-container`: column, 1rem gap, centered. The overline is the SAME
+ * text as the button that brought the person here
+ * (`createApplication.taglineRouter`) — it's what tells them, in both steps, that
+ * what's being created is a router and not a flow.
+ */}
       <div className="cr-titulos">
         <h4 className="cr-tagline">{ROTULOS.tagline}</h4>
       </div>
 
       <div className="cr-convite">
-        {/* Lá é `<img src="/assets/img/templates/router.svg">`, um desenho do
-            conceito. Não temos ilustração de roteador (as quatro do `@pipe/ui`
-            são estados vazios), então o lugar é ocupado pelo ícone `roteador`
-            — o MESMO desenho do botão que trouxe a pessoa e da etiqueta do
-            cartão no portal, ampliado. Está no relatório. */}
+        {/*
+ * There it's `<img src="/assets/img/templates/router.svg">`, a drawing of the
+ * concept. We don't have a router illustration (the four from `@pipe/ui` are empty
+ * states), so the spot is filled by the `roteador` icon — the SAME artwork as the
+ * button that brought the person here and the card label on the portal, enlarged.
+ * It's in the report.
+ */}
         <div className="cr-convite-desenho" aria-hidden="true">
           <IconePortal nome="roteador" tamanho={128} />
         </div>
@@ -118,17 +128,21 @@ function InvitationPasso() {
 
           {URL_SABER_MAIS ? (
             <a className="cr-saber-mais" href={URL_SABER_MAIS} target="_blank" rel="noreferrer">
-              {/* `bds-icon name="external-file"` na origem. `icones-portal.tsx`
-                  não tem esse desenho; `externo` do `icones-gestao.tsx` é o
-                  mesmo gesto — a folha com a seta que sai. */}
+              {/*
+ * `bds-icon name="external-file"` in the source. `icones-portal.tsx` has no
+ * matching artwork; `externo` from `icones-gestao.tsx` is the same gesture — the
+ * sheet with the arrow pointing out.
+ */}
               <IconeManagement nome="externo" tamanho={16} />
               {ROTULOS.saberMais}
             </a>
           ) : null}
 
-          {/* O `<bds-button ng-click="$ctrl.selectTemplate('master')">` deles,
-              com o texto da tagline. Aqui é link porque o passo seguinte é
-              outra renderização, e não outro estado na memória do navegador. */}
+          {/*
+ * Their `<bds-button ng-click="$ctrl.selectTemplate('master')">`, with the tagline
+ * text. Here it's a link because the next step is another render, not another
+ * state in the browser's memory.
+ */}
           <Link className="btn primario cr-botao" href="/create/router/name">
             {ROTULOS.tagline}
           </Link>

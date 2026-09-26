@@ -12,33 +12,18 @@ import { FormularioQueue } from './agents-queues-formulario';
 import { Modal, ModalConfirmation } from './_modal';
 
 /**
- * Filas de atendimento — a lista.
+ * Queues — the list.
  *
- * Esqueleto e textos medidos em `referencias-blip/portal/dom/
- * FICHA-atendentes-filas-pausas.md` §b.1: cabeçalho "Filas de atendimento" com
- * "Nova fila" à direita e sem subtítulo, busca "Buscar fila" sozinha na linha
- * abaixo, cartão-linha de 86px com DUAS colunas — "Fila de atendimento" e
- * "Atendentes atribuídos" — e, à direita, interruptor + "Editar" + "Excluir".
- * Rodapé "Resultados por página" com as opções da origem.
+ * Skeleton and copy measured in `referencias-blip/portal/dom/FICHA-atendentes-filas-pausas.md` §b.1: header "Filas de atendimento" with "Nova fila" on the right and no subtitle, search "Buscar fila" alone on the line below, an 86px row card with TWO columns — "Fila de atendimento" and "Atendentes atribuídos" — and, on the right, toggle + "Editar" + "Excluir". Footer "Resultados por página" with the source's options.
  *
- * **O que saiu do cartão, e por quê.** Ele carregava um rodapé com cor,
- * capacidade padrão, ordem, horário, teto simultâneo e a lista de atendentes
- * habilitados — seis linhas de informação que a origem não põe aqui (§d.1 da
- * ficha: "Rodapé do cartão: não existe"). Tudo isso mudou de casa para a
- * página de edição da fila, que é onde a origem também põe o que é
- * configuração. O cartão voltou a ser o cartão.
+ * **What left the card, and why.** It used to carry a footer with color, default capacity, order, schedule, simultaneous cap, and the list of enabled attendants — six lines of information the source doesn't put here (ficha §d.1: "Card footer: doesn't exist"). All of that moved to the queue's edit page, which is also where the source puts configuration. The card went back to being just a card.
  *
- * **"Editar" abre PÁGINA, não modal.** É o que o dono cobrou, e é o que o
- * roteador da origem diz: `attendance.desk.queueManagement.edit` tem
- * `url:"/edit/:id"` (§a.1 da ficha). Aqui: `atendentes/filas/:id/editar`.
+ * **"Editar" opens a PAGE, not a modal.** That's what the owner asked for, and what the source's router says: `attendance.desk.queueManagement.edit` has `url:"/edit/:id"` (ficha §a.1). Here: `atendentes/filas/:id/editar`.
  *
- * Toggle e exclusão continuam no cartão (`PATCH`/`DELETE` em
- * `/v1/gestao/atendentes/filas/:id`), com a confirmação em `ModalConfirmacao`
- * — nunca `window.confirm`/`window.alert`. A recusa do toggle vira `Etiqueta`
- * acima da lista, porque não há modal aberto onde ela pudesse morar.
+ * Toggle and deletion stay on the card (`PATCH`/`DELETE` on `/v1/gestao/atendentes/filas/:id`), confirmed via `ModalConfirmacao` — never `window.confirm`/`window.alert`. A toggle rejection becomes an `Etiqueta` above the list, since there's no open modal for it to live in.
  */
 
-/** O interruptor + editar/excluir do cartão-linha — o slot `acao` de `lista-regras.tsx`. */
+/** The row card's toggle + edit/delete — the `acao` slot of `lista-regras.tsx`. */
 function QueueActions({
   queue,
   onErrorAlternar,

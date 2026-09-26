@@ -8,15 +8,9 @@ import {
 } from '../src/pages/flow/itens';
 
 /**
- * A fileira da barra do contato (`/fluxo/{id}`).
+ * The contact bar's row (`/fluxo/{id}`).
  *
- * O que este arquivo trava é a única decisão da tela: o que o ROTEADOR mostra e
- * o FLUXO não, e vice-versa. Na origem isso sai de dois lugares distantes um do
- * outro — `getTemplateSetupItem()` (que prepende "Serviços" para `master`) e o
- * `hideInTemplate` do mapa de claims (que esconde `builder` e `desk` no mesmo
- * `master`) —, e é exatamente o tipo de regra que volta errada numa refatoração
- * silenciosa: a tela continua carregando, só passa a oferecer ao roteador um
- * construtor que ele não tem.
+ * What this file locks down is the screen's only decision: what the ROUTER shows and the FLOW doesn't, and vice versa. In the source this comes from two places far apart from each other — `getTemplateSetupItem()` (which prepends "Serviços" for `master`) and the claims map's `hideInTemplate` (which hides `builder` and `desk` in that same `master`) — and it's exactly the kind of rule that comes back wrong in a silent refactor: the screen keeps loading, it just starts offering the router a builder it doesn't have.
  */
 
 const ID = '5b6843ae-b4f8-4bc0-bce2-e32318043297';
@@ -71,8 +65,9 @@ test('the router offers neither Builder nor Attendance', () => {
 
 test('the router opens with "Services", the template\'s item', () => {
   assert.equal(itensDoMenu('roteador', ID)[0]?.rotulo, 'Serviços');
-  /* E o fluxo não tem item de template nenhum: o `switch` da origem não tem
-     caso para `builder`. */
+  /*
+   * And the flow has no template item at all: the source's `switch` has no case for `builder`.
+   */
   assert.equal(itensDoMenu('fluxo', ID)[0]?.rotulo, 'Builder');
 });
 
@@ -105,8 +100,9 @@ test('the rest of the row is the same in both, and in the same order', () => {
 });
 
 test('the five visible ones are the order measured in the source', () => {
-  /* `application-detail-pipeprincipal-configurations-basic.html` (builder) e
-     `roteador-team__pagina.html` (master), a fonte dos dois. */
+  /*
+   * `application-detail-pipeprincipal-configurations-basic.html` (builder) and `roteador-team__pagina.html` (master), the source of both.
+   */
   const rotulos = (tipo: 'fluxo' | 'roteador') =>
     itensDoMenu(tipo, ID)
       .slice(0, LIMITE_VISIVEL)
@@ -116,16 +112,15 @@ test('the five visible ones are the order measured in the source', () => {
 });
 
 test('sobra item para o "…" nos dois tipos', () => {
-  /* Se um dia a fileira couber inteira em cinco, o "…" some da tela — e é isso
-     que o desenho espera. O teste existe para avisar quando isso mudar. */
+  /*
+   * If the row ever fits entirely in five, the "…" disappears from the screen — and that's what the design expects. The test exists to flag it when that changes.
+   */
   assert.ok(itensDoMenu('fluxo', ID).length > LIMITE_VISIVEL);
   assert.ok(itensDoMenu('roteador', ID).length > LIMITE_VISIVEL);
 });
 
 /*
- * O passo 2 da origem (`getUpdatedMenus()`): a fileira peneirada pelas
- * permissões DA PESSOA naquele bot. Sem o argumento nada muda — é o que os
- * testes acima travam, e é o que todo tenant que nunca abriu a Equipe vê.
+ * The source's step 2 (`getUpdatedMenus()`): the row sieved by THIS PERSON's permissions on that bot. Without the argument nothing changes — that's what the tests above lock down, and it's what every tenant that never opened Team sees.
  */
 const SO_ISSO = (permissoes: Record<string, 'nenhum' | 'ler' | 'escrever'>) => ({
   papelNoFluxo: 'personalizado' as const,
@@ -151,7 +146,7 @@ test('"No permission" disappears from the bar, and the destination stays the sam
 });
 
 test('"Conteúdos" is the `resources` entry on the permission list, not `contents`', () => {
-  /* É a única chave em que as duas listas da origem discordam de nome. */
+  /* It's the only key on which the source's two lists disagree by name. */
   assert.deepEqual(
     itensDoMenu('fluxo', ID, SO_ISSO({ resources: 'ler' })).map((i) => i.rotulo),
     ['Conteúdos'],
@@ -160,15 +155,17 @@ test('"Conteúdos" is the `resources` entry on the permission list, not `content
 });
 
 test('whoever edits the flow through the ACCOUNT still sees the entire row', () => {
-  /* O outro lado do duplo portão: a permissão de conta não é peneirada pela
-     do fluxo, senão a 0035 tiraria acesso de quem já tinha. */
+  /*
+   * The other side of the double gate: account permission isn't sieved by the flow's permission, otherwise 0035 would strip access from people who already had it.
+   */
   const account = { papelNoFluxo: null, permissoes: {}, editaByAccount: true };
   assert.deepEqual(itensDoMenu('fluxo', ID, account), itensDoMenu('fluxo', ID));
 });
 
 test('the router template\'s item does not go through the permission sieve', () => {
-  /* `getTemplateSetupItem()` roda ANTES de `getUpdatedMenus()` e não é do
-     catálogo: "Serviços" fica mesmo quando a pessoa não tem recurso nenhum. */
+  /*
+   * `getTemplateSetupItem()` runs BEFORE `getUpdatedMenus()` and isn't from the catalog: "Serviços" stays even when the person has no resource at all.
+   */
   const itens = itensDoMenu('roteador', ID, SO_ISSO({}));
   assert.deepEqual(
     itens.map((i) => i.rotulo),

@@ -21,9 +21,7 @@ import '../settings/settings.css';
 import './equipe.css';
 
 /**
- * A página `auth.application.detail.team.edit` da Blip. O bundle prova
- * `url:"/team/edit"`, `back-button="auth.application.detail.team"` e o botão
- * Salvar no cabeçalho; por isso a edição não volta a ser modal.
+ * Blip's `auth.application.detail.team.edit` page. The bundle shows `url:"/team/edit"`, `back-button="auth.application.detail.team"`, and the Save button in the header; that's why editing doesn't go back to being a modal.
  */
 export function EditMemberPage() {
   const { contact } = useContact();

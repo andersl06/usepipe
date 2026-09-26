@@ -3,14 +3,7 @@ import { atualizarLeituras } from './actions';
 import { motivoDe, type Resultado } from './rest';
 
 /**
- * Escrita de respostas prontas — `PATCH`/`DELETE` de verdade em
- * `/v1/gestao/comunicacao/respostas-prontas/:id`, diferente de `acoes.ts`
- * (que só tem `salvarRespostaPronta`, a criação).
- *
- * Arquivo À PARTE de `comunicacao.ts`, que é módulo PURO: `tests/comunicacao.test.ts`
- * importa `cabecalhoTemMidia`/`deslocamentoDoCabecalho` de lá com `node --test`,
- * sem Vite — e `./api` lê `import.meta.env`, que não existe fora dele. Foi
- * exatamente isso que quebrou o teste na primeira versão desta função.
+ * Write real ready-reply `PATCH`/`DELETE` at `/v1/gestao/comunicacao/respostas-prontas/:id`, unlike `acoes.ts` which only has creator `salvarRespostaPronta`. Keep this separate from pure `comunicacao.ts`: `tests/comunicacao.test.ts` imports `cabecalhoTemMidia` and `deslocamentoDoCabecalho` under `node --test` without Vite, whereas `./api` reads `import.meta.env`.
  */
 
 /** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */

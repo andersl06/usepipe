@@ -1,31 +1,32 @@
 /**
- * As regras do nome do contato — as MESMAS para o roteador e para o fluxo.
+ * The contact-name rules — the SAME for router and flow.
  *
- * Este arquivo nasceu dentro de `roteador/regras.ts` e saiu de lá quando a tela
- * de criar fluxo chegou. A mudança não é arrumação: na origem as duas telas são
- * literalmente o MESMO template.
+ * This file was born inside `roteador/regras.ts` and moved out when the create-flow
+ * screen arrived. The split isn't tidying: in the source the two screens are
+ * literally the SAME template.
  *
- * O passo do nome é o módulo 96904, um só, e o que muda entre roteador e fluxo
- * são três `ng-if="$ctrl.template != 'master'"` trocando rótulo — o sobretítulo,
- * o título e o nome do campo. `required`, `ng-minlength="2"`, `ng-maxlength="30"`,
- * o `accept` do arquivo e o saneamento a cada tecla são os mesmos bytes para os
- * dois. Do lado do servidor, `validateApplicationName` é chamada de dentro de
- * `prepareApplicationData`, que roda para TODO template.
+ * The name step is module 96904, a single one, and what changes between router and
+ * flow are three `ng-if="$ctrl.template != 'master'"` swapping labels — the
+ * overline, the title, and the field name. `required`, `ng-minlength="2"`,
+ * `ng-maxlength="30"`, the file `accept`, and the per-keystroke sanitization are the
+ * same bytes for both. Server-side, `validateApplicationName` is called from inside
+ * `prepareApplicationData`, which runs for EVERY template.
  *
- * Ou seja: regra de nome que divergisse entre as duas telas seria invenção
- * nossa. Por isso ela mora aqui, e cada tela só traz as próprias PALAVRAS.
+ * In other words: a name rule that diverged between the two screens would be our
+ * own invention. That's why it lives here, and each screen only brings its own
+ * WORDS.
  *
- * As peças do bundle do portal da origem (`portal.js`, `25.204.0-v0.43.1`):
+ * The pieces from the source portal bundle (`portal.js`, `25.204.0-v0.43.1`):
  *
- * - `CreateApplicationController` (módulo 18502) — o saneamento em tempo real
- *   (`validateSpecialCharacter`) e os dois portões do envio;
- * - o template do passo do nome (módulo 96904) — os atributos do `<input>`;
- * - `CreateApplicationService.validateApplicationName` — `/(^[a-zA-Z])/`, a
- *   única regra que o servidor deles confere sozinho.
+ * - `CreateApplicationController` (module 18502) — the real-time sanitization
+ *   (`validateSpecialCharacter`) and the two submission gates;
+ * - the name-step template (module 96904) — the `<input>` attributes;
+ * - `CreateApplicationService.validateApplicationName` — `/(^[a-zA-Z])/`, the
+ *   only rule their server checks by itself.
  *
- * Existe em arquivo, e não dentro da tela, porque precisa valer DUAS vezes: o
- * navegador barra (`required`, `minlength`, `maxlength`) e a Server Action barra
- * de novo, para quem mandar o POST por fora.
+ * It exists as its own file, not inside the screen, because it must hold TWICE: the
+ * browser blocks it (`required`, `minlength`, `maxlength`) and the Server Action
+ * blocks it again, for anyone who posts outside the browser.
  */
 
 /** Os tamanhos do campo de nome, direto dos atributos do `<input>` deles. */
@@ -35,20 +36,20 @@ export const TAMANHO = {
 } as const;
 
 /**
- * O seletor de imagem do passo do nome — o `<upload-button>` deles.
+ * The image picker for the name step — their `<upload-button>`.
  *
- * Os tipos são os do template (módulo 96904), literais:
+ * The types are the template's (module 96904), literal:
  *   `accept="'.gif, .png, .jpeg, .jpg'"`
  *   `ng-mime-type="image/png, image/jpg, image/jpeg, image/gif"`
- * `.jpg` e `.jpeg` são o MESMO MIME (`image/jpeg`), então a lista de tipos
- * reais tem TRÊS itens e a de extensões tem quatro.
+ * `.jpg` and `.jpeg` are the SAME MIME type (`image/jpeg`), so the real-type list
+ * has THREE items while the extension list has four.
  *
- * `maxBytes` é NOSSO, e a origem não tem correspondente: lá a foto vai para o
- * media store e a coluna guarda só a URL. Aqui ela é gravada como data URI na
- * própria coluna (ver `acoes.ts` de cada tela), então o teto protege a linha.
- * 256 KB de arquivo viram ~350 KB de texto em base64 — folgado para um avatar
- * que a tela desenha com 150px de diâmetro, e pequeno o bastante para a linha
- * continuar uma linha.
+ * `maxBytes` is OURS, with no counterpart in the source: there the photo goes to
+ * the media store and the column only holds the URL. Here it's stored as a data
+ * URI in the column itself (see each screen's `acoes.ts`), so the cap protects the
+ * row. A 256 KB file becomes ~350 KB of base64 text — generous for an avatar the
+ * screen draws at 150px diameter, and small enough for the row to stay a single
+ * row.
  */
 export const IMAGE = {
   /** O `accept` do `<input type="file">`, igual ao deles. */
@@ -74,7 +75,7 @@ const ASSINATURAS: readonly (readonly [string, readonly number[]])[] = [
   ['image/gif', [0x47, 0x49, 0x46, 0x38]],
 ] as const;
 
-/** O MIME que os bytes revelam, ou `null` quando não é nenhum dos três. */
+/** The MIME type revealed by the bytes, or `null` when it's none of the three. */
 export function imageTipoReal(data: Uint8Array): string | null {
   for (const [mime, bytes] of ASSINATURAS) {
     if (data.length < bytes.length) continue;
@@ -84,63 +85,64 @@ export function imageTipoReal(data: Uint8Array): string | null {
 }
 
 /**
- * O saneamento que a origem aplica a CADA TECLA (`ng-change` chamando
- * `validateSpecialCharacter`, que passa o valor pelo regex abaixo e reescreve
- * o campo).
+ * The sanitization the source applies on EVERY KEYSTROKE (`ng-change` calling
+ * `validateSpecialCharacter`, which runs the value through the regex below and
+ * rewrites the field).
  *
- * A classe permitida é literalmente `a-zA-Z0-9[]()_ -` — ou seja, sem acento.
- * "Fluxo Padrão" vira "Fluxo Padro" enquanto a pessoa digita, e não há aviso
- * nenhum. Não é regra de negócio: é o filtro caindo sobre um alfabeto que não é
- * o do idioma da tela. Copiamos o filtro porque ele protege o `shortName` (ver
- * `nomeCurto` abaixo), mas ACRESCENTAMOS as letras acentuadas do português —
- * copiar defeito não é copiar disposição.
+ * The allowed character class is literally `a-zA-Z0-9[]()_ -` — that is, no
+ * accents. "Fluxo Padrão" becomes "Fluxo Padro" as the person types, with no
+ * warning at all. It isn't a business rule: it's the filter falling on an alphabet
+ * that isn't the screen's language. We copy the filter because it protects
+ * `shortName` (see `nomeCurto` below), but we ADD the accented Portuguese
+ * letters — copying a defect isn't copying an intent.
  */
 const PROIBIDOS = /[^a-zA-ZÀ-ÿ0-9[\]() _-]/g;
 
 /**
- * A primeira letra tem de ser LETRA.
+ * The first character must be a LETTER.
  *
- * `validateApplicationName` deles: `if (!/(^[a-zA-Z])/.exec(e)) throw …`. O
- * porquê está na linha anterior do serviço — `shortName = name.toLowerCase()`,
- * e o `shortName` é o identificador do contato na plataforma. Identificador que
- * começa com dígito ou com `(` não vira endereço.
+ * Their `validateApplicationName`: `if (!/(^[a-zA-Z])/.exec(e)) throw …`. The why
+ * is in the previous line of their service — `shortName = name.toLowerCase()`, and
+ * `shortName` is the contact's identifier on the platform. An identifier starting
+ * with a digit or with `(` doesn't become a valid address.
  */
 const COMECA_COM_LETRA = /^[a-zA-ZÀ-ÿ]/;
 
-/** Tira do nome tudo o que a origem tira, a cada tecla. */
+/** Strips from the name everything the source strips, on every keystroke. */
 export function limparNome(bruto: string): string {
   return bruto.replace(PROIBIDOS, '');
 }
 
 /**
- * O `shortName` da origem: `application.shortName = application.name.toLowerCase()`.
+ * The source's `shortName`: `application.shortName = application.name.toLowerCase()`.
  *
- * Divergência anotada: lá isso deixa espaços dentro do identificador (o nome
- * "Meu Fluxo" viraria `meu fluxo`), e nenhum dos `shortName` que vimos em conta
- * real tem espaço — sinal de que quem limpa é o serviço do outro lado, que não
- * temos. Aqui os espaços viram hífen antes de gravar, para o identificador ser
- * sempre utilizável num endereço.
+ * Noted divergence: there this leaves spaces inside the identifier (the name
+ * "Meu Fluxo" would become `meu fluxo`), and none of the `shortName` values we've
+ * seen on a real account has a space — a sign that the cleanup happens in the
+ * other side's service, which we don't have. Here spaces become hyphens before
+ * saving, so the identifier is always usable in a URL.
  *
- * Desde a migração `0020` ele É GRAVADO, na coluna `fluxo.short_name`. SEM
- * índice único: quem garante nome sem repetição continua sendo o `select` da
- * Server Action, sobre `nome`. Um índice aqui faria "Meu Bot" e "meu-bot"
- * colidirem, que é regra nova e não é cópia de nada.
+ * Since migration `0020` it IS PERSISTED, in column `fluxo.short_name`. WITHOUT a
+ * unique index: what guarantees a non-duplicate name is still the Server Action's
+ * `select` over `nome`. An index here would make "Meu Bot" and "meu-bot" collide,
+ * which is a new rule and not a copy of anything.
  */
 export function nomeCurto(nome: string): string {
   return limparNome(nome).trim().toLowerCase().replace(/\s+/g, '-');
 }
 
-/** O que a Server Action devolve quando recusa. */
+/** What the Server Action returns when it refuses. */
 export interface Recusa {
   motivo: string;
 }
 
 /**
- * As duas frases que `conferir` pode devolver.
+ * The two phrases `conferir` can return.
  *
- * Vêm de fora porque são a ÚNICA parte da regra que muda entre as telas: a
- * origem tem `errorMsg.invalidName` escrita com a palavra "fluxo" e a tela do
- * roteador troca para "roteador". A regra é a mesma; o substantivo não.
+ * They come from outside because they're the ONLY part of the rule that changes
+ * between screens: the source has `errorMsg.invalidName` written with the word
+ * "fluxo" and the router screen swaps it for "roteador". The rule is the same; the
+ * noun isn't.
  */
 export interface RecadosDoNome {
   tamanho: string;
@@ -148,14 +150,15 @@ export interface RecadosDoNome {
 }
 
 /**
- * Confere o nome — na MESMA ordem da origem.
+ * Validates the name — in the SAME order as the source.
  *
- * Lá são dois portões em sequência: o formulário (`validApplicationFormErrors`,
- * que só olha `required`/`minlength`/`maxlength`) e, depois do clique, o
- * serviço (`validateApplicationName`). Por isso tamanho vem antes de começo.
+ * There it's two gates in sequence: the form (`validApplicationFormErrors`, which
+ * only checks `required`/`minlength`/`maxlength`) and, after the click, the service
+ * (`validateApplicationName`). That's why length comes before the starting
+ * character.
  *
- * Devolve a PRIMEIRA recusa: o `checkFormValidity` deles também para no
- * primeiro campo inválido.
+ * Returns the FIRST rejection: their `checkFormValidity` also stops at the first
+ * invalid field.
  */
 export function conferir(nome: string, recados: RecadosDoNome): Recusa | null {
   const limpo = limparNome(nome).trim();

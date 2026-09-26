@@ -6,23 +6,11 @@ import { salvarBoasVindas } from './gravar';
 const TEXTO_BOTAO_MAX = 20;
 
 /**
- * `/configurations/welcome` (LEIA.md, Rodada 2, captura 5): o estado real
- * observado no roteador é o interruptor **Desligado** — nesse estado a
- * origem não desenha NADA além do título e do switch (nem o rótulo do
- * formulário chega a existir no DOM). É esse comportamento que a tela
- * reproduz: o formulário (Mensagem de saudação + texto do botão "Começar")
- * só nasce quando alguém liga o interruptor.
+ * `/configurations/welcome` (LEIA.md, Round 2, capture 5): the real state observed on the router is the switch **Off** — in that state the source draws NOTHING besides the title and the switch (not even the form's label exists in the DOM). That's the behavior the screen reproduces: the form (Mensagem de saudação + "Começar" button text) only appears once someone turns the switch on.
  *
- * Os dois campos internos não foram vistos ligados na captura (a régua não
- * ativou o roteador de produção para não alterar o estado dele) — os nomes
- * vêm da descrição do próprio item de menu ("Defina a Mensagem de Saudação e
- * o botão Começar", `referencias-blip/pesquisa/blip-portal-telas.md` §6) e do enunciado
- * da tarefa.
+ * The two inner fields weren't seen turned on in the capture (the ruler didn't activate the production router, to avoid changing its state) — the names come from the menu item's own description ("Defina a Mensagem de Saudação e o botão Começar", `referencias-blip/pesquisa/blip-portal-telas.md` §6) and from the task's statement.
  *
- * Duas escritas, pela mesma razão de UX: DESLIGAR o interruptor grava na
- * hora (não há formulário para ele submeter, e apagar sem aviso o que já
- * estava escrito seria pior); LIGAR só revela o formulário — quem ativa
- * ainda precisa escrever a mensagem e o texto do botão e clicar Salvar.
+ * Two writes, for the same UX reason: turning the switch OFF saves immediately (there's no form for it to submit, and silently erasing what was already written would be worse); turning it ON only reveals the form — whoever enables it still needs to write the message and button text and click Save.
  */
 export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: ConfigurationOfWelcome }) {
   const [ativo, setAtivo] = useState(inicial.ativo);

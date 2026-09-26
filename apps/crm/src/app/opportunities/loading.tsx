@@ -2,11 +2,11 @@ import { LoadingNotice } from '../../components/esqueleto';
 import { FASES } from '../../lib/funil';
 
 /**
- * O esqueleto do quadro: as mesmas colunas, com cartões de altura fixa.
+ * The board's skeleton: the same columns, with fixed-height cards.
  *
- * As fases são catálogo, não dado do banco, então o esqueleto já sabe quantas
- * colunas desenhar. É a diferença entre a tela aparecer inteira de uma vez e
- * ela nascer com uma coluna e crescer para cinco.
+ * Stages are a catalog, not database data, so the skeleton already knows how
+ * many columns to draw. That's the difference between the screen appearing whole
+ * at once and being born with one column and growing to five.
  */
 export default function CarregandoQuadro() {
   return (
@@ -27,8 +27,10 @@ export default function CarregandoQuadro() {
               <header>
                 <span className="barra" style={{ width: '60%' }} />
               </header>
-              {/* Menos cartões nas colunas do fim: é a forma de um funil, e um
-                  esqueleto retangular anuncia uma tela que não vai aparecer. */}
+              {/*
+ * Fewer cards in the end columns: that's the shape of a funnel, and a
+ * rectangular skeleton advertises a screen that isn't coming.
+ */}
               {Array.from({ length: Math.max(1, 4 - i) }, (_, c) => (
                 <div className="opp esqueleto-cartao" key={c}>
                   <span className="barra" style={{ width: '78%' }} />

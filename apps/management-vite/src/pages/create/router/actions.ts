@@ -3,9 +3,9 @@ import { irPara } from '../../../lib/navigation';
 import { RECADOS } from './regras';
 
 /**
- * Criar um roteador: grava pela `api` e vai para a tela do contato recém-criado
- * — o `goToApplicationDetails()` da origem. Com erro, volta ao passo do nome
- * com o motivo e o nome digitado na URL.
+ * Create a router: saves through the `api` and goes to the newly created contact's
+ * screen — the source's `goToApplicationDetails()`. On error, goes back to the
+ * name step with the reason and the typed name in the URL.
  */
 export async function createRouter(data: FormData): Promise<void> {
   const resultado = await saveContact(data, { tipo: 'roteador', recados: RECADOS });

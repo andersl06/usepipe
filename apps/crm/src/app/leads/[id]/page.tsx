@@ -22,28 +22,29 @@ import { data, dataHora, desde, document, numero, pontos } from '../../../lib/fo
 export const dynamic = 'force-dynamic';
 
 /**
- * A ficha do lead, na estrutura que o Twenty usa e nós não usávamos.
+ * The lead record, in the structure Twenty uses and we didn't.
  *
- * O que a leitura deles mudou aqui, em ordem de importância:
+ * What reading their approach changed here, in order of importance:
  *
- * 1. **Cabeçalho de destaque.** Antes o nome era um `h2` com quatro etiquetas
- *    soltas ao lado. Agora é uma faixa de identidade (avatar, nome, estado) mais
- *    uma tira dos campos que decidem o que fazer com este lead: proprietário,
- *    score, fase, dias parado e origem. É o "highlight panel" do Salesforce e a
- *    "identifier bar" do Twenty, que chegaram ao mesmo desenho sem se falarem.
- * 2. **Abas internas.** Score, Formulários e Linha do tempo eram três blocos
- *    empilhados numa coluna de rolagem infinita. Viraram abas, e a aba vive na
- *    URL: a ficha aberta na linha do tempo é um endereço que se cola no chat.
- * 3. **Coluna lateral fixa** com os campos em seções que abrem e fecham, em vez
- *    de três caixas de altura igual disputando atenção com o painel do score.
+ * 1. **Highlight header.** The name used to be an `h2` with four loose badges next
+ *    to it. Now it's an identity strip (avatar, name, state) plus a row of fields
+ *    that decide what to do with this lead: owner, score, stage, days stalled, and
+ *    source. It's Salesforce's "highlight panel" and Twenty's "identifier bar",
+ *    which arrived at the same design without talking to each other.
+ * 2. **Internal tabs.** Score, Forms, and Timeline used to be three blocks stacked
+ *    in an infinitely scrolling column. They became tabs, and the tab lives in the
+ *    URL: a record opened on the timeline is an address you can paste into chat.
+ * 3. **Fixed sidebar column** with fields in sections that expand and collapse,
+ *    instead of three equal-height boxes competing for attention with the score
+ *    panel.
  *
- * O que NÃO copiamos, de propósito: eles fixam a primeira aba ("Home") como
- * coluna lateral e deixam o resto em abas. Nós fixamos os DADOS na lateral e
- * pomos o SCORE como primeira aba, porque a explicação do score é o que este
- * produto tem e o deles não — ela não pode ser a aba que ninguém abre.
+ * What we deliberately did NOT copy: they pin the first tab ("Home") as the sidebar
+ * and leave the rest as tabs. We pin the DATA in the sidebar and put the SCORE as
+ * the first tab, because explaining the score is what this product has and theirs
+ * doesn't — it can't be the tab nobody opens.
  *
- * As abas são links, não estado de cliente. A ficha inteira continua sendo
- * servidor: sem JavaScript, ela funciona igual.
+ * The tabs are links, not client state. The whole record is still server-rendered:
+ * without JavaScript, it works the same.
  */
 
 const ABAS = [
@@ -58,7 +59,7 @@ function abaValida(value: string | undefined): AbaFicha {
   return (ABAS.find((a) => a.key === value)?.key ?? 'score') as AbaFicha;
 }
 
-/** O destaque do lead, montado sobre a peça comum das três fichas. */
+/** The lead's highlight, built on top of the piece shared by all three records. */
 function DestaqueDoLead({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
   const parado = ficha.diasNaFase !== null && ficha.diasNaFase >= 7;
   const desqualificado = ficha.status === 'desqualificado';
@@ -71,11 +72,11 @@ function DestaqueDoLead({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
       etiquetas={
         <>
           {/*
-            O estado em etiquetas, e só duas podem ter cor: a desqualificação,
-            que é o único estado terminal, e a parada de mais de sete dias, que é
-            o que alguém resolve hoje. Fase e faixa são categoria, e categoria é
-            neutra.
-          */}
+ * State shown as badges, and only two can have color: disqualification, the only
+ * terminal state, and being stalled for more than seven days, which is what someone
+ * needs to act on today. Stage and band are categories, and categories are
+ * neutral.
+ */}
           {desqualificado ? (
             <Etiqueta tom="erro">{ROTULO_STATUS['desqualificado']}</Etiqueta>
           ) : (
@@ -128,12 +129,12 @@ export default async function PageFicha({
   if (!ficha) notFound();
 
   const fuso = await fusoDoTenant();
-  // Quem pode receber o lead. Vem aqui e não dentro da célula porque a lista é
-  // a mesma para os cinco campos da lateral, e uma consulta serve os cinco.
+  // Who can receive the lead. It's fetched here and not inside the cell because the list is
+  // the same for all five sidebar fields, and one query serves all five.
   const proprietarios = await listarProprietarios();
   const agora = new Date();
-  // UTM e campo customizado dividem a mesma seção, e o prefixo é o que os
-  // mantém distinguíveis sem duas caixas para dizer a mesma coisa.
+  // UTM and custom fields share the same section, and the prefix is what keeps
+  // them distinguishable without two boxes saying the same thing.
   const atributos = {
     ...ficha.customizados,
     ...Object.fromEntries(Object.entries(ficha.utm).map(([k, v]) => [`utm ${k}`, v])),
@@ -151,23 +152,23 @@ export default async function PageFicha({
 
       <div className="ficha">
         {/*
-          A lateral fixa: os dados que descrevem o lead. Ficam sempre visíveis
-          porque é o que a pessoa consulta enquanto lê qualquer uma das abas.
-        */}
+ * The fixed sidebar: the data describing the lead. It stays visible at all times
+ * because it's what the person checks while reading any of the tabs.
+ */}
         <aside className="coluna">
           <div className="tblwrap">
             {/*
-              A lateral é onde se EDITA, como no Twenty: os campos simples
-              trocam de valor no lugar, sem formulário e sem sair da página. A
-              tira do cabeçalho continua sendo resumo — é a divisão que o
-              Salesforce e o Twenty fazem, e repetir o campo nos dois lugares é
-              deles também: um repete para ler de relance, o outro para mexer.
-
-              Documento, "criado em" e "fase desde" ficam de fora: o primeiro
-              precisa de validação de CPF/CNPJ que ainda não existe, e os dois
-              últimos são carimbo do sistema — data que a pessoa digita é data
-              que deixa de significar quando a coisa aconteceu.
-            */}
+ * The sidebar is where you EDIT, like in Twenty: simple fields swap their value in
+ * place, with no form and without leaving the page. The header strip stays a
+ * summary — it's the same split Salesforce and Twenty both make, and repeating the
+ * field in both places is their pattern too: one repeats it for a quick read, the
+ * other for editing.
+ *
+ * Document, "created at", and "in stage since" are left out: the first needs
+ * CPF/CNPJ validation that doesn't exist yet, and the other two are system
+ * timestamps — a date the person types in is a date that stops meaning when the
+ * thing actually happened.
+ */}
             <Section titulo="Dados">
               <div className="campos">
                 <Campo
@@ -245,13 +246,13 @@ export default async function PageFicha({
 }
 
 /**
- * O painel que explica o número. Regra por regra, quanto entrou e quanto saiu,
- * com a versão da regra e a hora do cálculo, lido de `score_lead.explicacao` e
- * não recalculado na tela.
+ * The panel that explains the number. Rule by rule, how much was added and how much
+ * was subtracted, with the rule's version and the time it was calculated, read from
+ * `score_lead.explicacao` and not recalculated on screen.
  *
- * É a única tela do CRM em que a cor não indica ação e continua valendo: aqui o
- * verde e o vermelho SÃO a informação, e é a tela que justifica o produto. Por
- * isso é a primeira aba, e não a última.
+ * It's the only screen in the CRM where color doesn't indicate an action and is
+ * still meaningful: here green and red ARE the information, and it's the screen
+ * that justifies the product. That's why it's the first tab, not the last.
  */
 function PanelScore({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
   if (!ficha.score) {
@@ -309,8 +310,8 @@ function PanelScore({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
 }
 
 /**
- * Respostas de formulário, por formulário e por versão. Nunca como colunas
- * soltas: é a decisão que evita os 304 campos customizados do Lead de hoje.
+ * Form responses, by form and by version. Never as loose columns: that's the
+ * decision that avoids today's 304 custom fields on the Lead.
  */
 function Formularios({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
   if (ficha.formularios.length === 0) {

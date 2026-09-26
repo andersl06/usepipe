@@ -3,15 +3,7 @@ import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
 import { createTemplateInChannel } from '../../lib/channels-gravar';
 
 /**
- * Duplica, de propósito, os catálogos de `lib/comunicacao.ts` em vez de
- * importar de lá — comentário histórico deste arquivo. Continua valendo: são
- * poucas linhas, e a tela de cliente não precisa arrastar o módulo do servidor
- * mesmo que ele hoje esteja puro.
- *
- * A CATEGORIA aqui só tem Utilidade/Marketing — `montarModelo`
- * (`apps/api/src/dominio/whatsapp/modelos.ts`) recusa Autenticação na
- * criação ("tem componentes próprios, não é texto livre"); ela só aparece
- * depois de SINCRONIZADA da Meta, na lista acima deste formulário.
+ * Deliberately duplicates the catalogs from `lib/comunicacao.ts` instead of importing them — a historical note for this file. Still holds: it's a few lines, and the client screen doesn't need to drag in the server module even though it's pure today. The CATEGORY here only has Utilidade/Marketing — `montarModelo` (`apps/api/src/dominio/whatsapp/modelos.ts`) refuses Autenticação at creation time ("has its own components, isn't free text"); it only appears after being SYNCED from Meta, in the list above this form.
  */
 const CATEGORIAS = ['utilidade', 'marketing'] as const;
 const ROTULO_CATEGORIA: Record<(typeof CATEGORIAS)[number], string> = {
@@ -20,11 +12,7 @@ const ROTULO_CATEGORIA: Record<(typeof CATEGORIAS)[number], string> = {
 };
 
 /**
- * Cabeçalho na CRIAÇÃO só tem texto ou nenhum — mídia pede um arquivo de
- * exemplo (Resumable Upload API) que este formulário não coleta ainda
- * (ponytail já registrado em `modelos.ts`: "criar só com cabeçalho de texto
- * ou sem cabeçalho"). Cabeçalho de mídia continua aparecendo na LISTA de
- * modelos sincronizados — só não é uma opção aqui.
+ * Header at CREATION only has text or none — media requires a sample file (Resumable Upload API) that this form doesn't collect yet (ponytail already logged in `modelos.ts`: "create with text header only or no header"). Media header still appears in the LIST of synced templates — it just isn't an option here.
  */
 const CABECALHOS = ['nenhum', 'texto'] as const;
 type Cabecalho = (typeof CABECALHOS)[number];
@@ -33,7 +21,7 @@ const ROTULO_CABECALHO: Record<Cabecalho, string> = { nenhum: 'Sem cabeçalho', 
 const CABECALHO_TEXTO_MAX = 60;
 const CORPO_MAX = 1024;
 
-/** As variáveis do corpo, na ordem em que aparecem — mesma regra de `variaveisDoTexto` na `api`. */
+/** The body variables, in the order they appear — same rule as `variaveisDoTexto` in the `api`. */
 function textVariables(texto: string): string[] {
   const vistas: string[] = [];
   for (const achado of texto.matchAll(/\{\{\s*(\w+)\s*\}\}/g)) {
@@ -102,7 +90,7 @@ export function FormularioTemplate({ channels }: { channels: { id: string; nome:
     limpar();
   }
 
-  // Corpo mudou: exemplos de variável que sumiram não servem mais de nada guardados.
+  // Body changed: variable examples that disappeared no longer serve any purpose once stored.
   useEffect(() => {
     setExemplos((atual) => {
       const novo: Record<string, string> = {};

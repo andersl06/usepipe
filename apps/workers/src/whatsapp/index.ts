@@ -12,9 +12,7 @@ export * from './template.js';
 let escolhido: ClienteWhatsApp | null = null;
 
 /**
- * `PIPE_WHATSAPP_CLIENTE=real` liga a Cloud API; qualquer outro valor (ou nenhum)
- * usa o dublê. O padrão é o dublê porque hoje não há WABA: com credencial ausente,
- * o cliente real só produziria erro de autenticação em série.
+ * `PIPE_WHATSAPP_CLIENTE=real` enables Cloud API; any other or absent value selects the double. Without a WABA, the double is the default to avoid repeated authentication failures from the real client.
  */
 export function clienteWhatsApp(): ClienteWhatsApp {
   escolhido ??=
@@ -22,7 +20,7 @@ export function clienteWhatsApp(): ClienteWhatsApp {
   return escolhido;
 }
 
-/** Troca o cliente em tempo de execução. Existe para teste e para o modo de ensaio. */
+/** Replace the client at runtime for tests and rehearsal mode. */
 export function definirClienteWhatsApp(cliente: ClienteWhatsApp | null): void {
   escolhido = cliente;
 }

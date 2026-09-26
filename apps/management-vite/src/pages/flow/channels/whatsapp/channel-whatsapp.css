@@ -1,6 +1,8 @@
-/* O WhatsApp por dentro do bot — as abas "Perfil da empresa", "Configurações"
-   e "Configurações de alerta" (`FICHA-canal-whatsapp.md` §2–§4). A moldura
-   (cabeçalho, papel, abas) é a de `../canal-do-bot.css`. */
+/*
+ * WhatsApp inside the bot — the tabs "Perfil da empresa", "Configurações"
+ *    and "Configurações de alerta" (`FICHA-canal-whatsapp.md` §2–§4). The frame
+ *    (header, paper, tabs) is `../canal-do-bot.css`'s.
+ */
 
 /* ---------------------------------------------------- Perfil da empresa */
 
@@ -97,7 +99,7 @@
   background: var(--p-linha);
 }
 
-/* --------------------------------------------------------- Configurações */
+/* --------------------------------------------------------- Settings */
 
 .cw-linha-config {
   display: flex;

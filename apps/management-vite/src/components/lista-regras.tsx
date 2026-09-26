@@ -5,8 +5,7 @@ import { Selection } from './selection';
 const TAMANHOS_OF_PAGE = [5, 10, 15, 25, 50, 100, 250, 500] as const;
 
 /**
- * A busca isolada abaixo do cabeçalho — `bds-input icon="search"` numa coluna
- * `w-30`: 30% de largura, 54px, lupa de 20 (`dom/rules.html`).
+ * Search sits alone below the header as reference `bds-input icon="search"` in a `w-30` column: 30% width, 54px high, 20px search icon (`dom/rules.html`).
  */
 function SearchTopo({
   search,
@@ -31,9 +30,9 @@ function SearchTopo({
   );
 }
 
-/** Os quatro ícones de navegação do rodapé — `FICHA-rules.md`/`FICHA-queue-
- * management.md` §5 (`arrow-first`, `arrow-left`, `arrow-right`, `arrow-last`).
- * Não existem em `@pipe/ui` nem valem a pena lá: só este rodapé os usa. */
+/**
+ * Footer navigation uses `arrow-first`, `arrow-left`, `arrow-right`, `arrow-last` from `FICHA-rules.md` and `FICHA-queue-management.md` Section 5. Keep these four single-use icons local instead of adding them to `@pipe/ui`.
+ */
 function PageSeta({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
   const caminhos: Record<typeof tipo, string> = {
     primeira: 'M11 7l-5 5l5 5M17 7l-5 5l5 5',
@@ -49,11 +48,7 @@ function PageSeta({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultim
 }
 
 /**
- * Rodapé "Resultados por página" — o mesmo das duas telas que o material
- * capturou com paginação (`FICHA-rules.md` e `FICHA-queue-management.md`,
- * ambas §2.5/§5): select de tamanho, contador "X-Y de Z" e as quatro setas.
- * Pagina no navegador, sobre a lista já filtrada pela busca — não há acordo
- * com o servidor, os dados já estão todos carregados.
+ * `Resultados por página` footer mirrors the two captured paginated screens (`FICHA-rules.md`, `FICHA-queue-management.md`, Sections 2.5 and 5): size select, `X-Y de Z` count, and four arrows. Paginate the already-filtered complete list in the browser; no server pagination contract is needed.
  */
 function PaginationRodape({
   total,
@@ -69,8 +64,7 @@ function PaginationRodape({
   toMudarPage: (p: number) => void;
   aoMudarTamanho: (t: number) => void;
   /**
-   * `personalizedbreaks` NÃO tem `pagination-and-search-results-select`
-   * (`FICHA-atendentes-filas-pausas.md` §b.3/§c) — só contador e setas.
+   * Reference `personalizedbreaks` has no `pagination-and-search-results-select` (`FICHA-atendentes-filas-pausas.md` §b.3/§c), only a count and arrows.
    */
   ocultarTamanho?: boolean;
 }) {
@@ -117,62 +111,35 @@ function PaginationRodape({
 }
 
 /**
- * Regras como LISTA DE CARTÕES, com a busca no topo.
- *
- * Segue o esqueleto medido em `referencias-blip/pesquisa/blip-telas-atendimento.md` §4 e
- * §5.3: linha do título, busca sozinha na linha logo abaixo, e a lista de
- * cartões. Rótulo pequeno acima do valor forte, situação encostada à direita.
- *
- * **O interruptor por linha, e por que ele demorou.** No cartão deles há criar,
- * editar, excluir e um interruptor. O nosso nasceu só com a situação em
- * etiqueta, porque mexer em configuração sem log de auditoria com autor, valor
- * anterior e horário é passivo — e a auditoria não existia. Ela existe agora
- * (`lib/auditoria.ts`), então o interruptor entrou no `.cl-acoes`, como o
- * comentário anterior previa, sem mexer em mais nada: quem tem `acao` mostra o
- * controle, quem não tem continua com a etiqueta sozinha.
- *
- * A busca, essa sim, funciona: filtra as duas listas já carregadas, no
- * navegador, sem ida ao servidor.
+ * Rules follow card/search layout measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` Sections 4 and 5.3: title, search below, cards with small labels above strong values and state at right. Reference cards allow create/edit/delete and per-row switches. Ours initially showed only a state chip because changing configuration without an audit log of actor, prior value, and time was unsafe. Now `lib/auditoria.ts` provides that log, so `.cl-acoes` can show the supplied `acao` switch; records without it retain their state chip. Search filters both already-loaded lists in the browser.
  */
 
 export interface CardRule {
   id: string;
-  /** `titulo` é o que o cursor mostra; sem ele, o próprio valor (para o truncado). */
+  /** `titulo` supplies the cursor tooltip; otherwise show the value, especially when truncated. */
   campos: { rotulo: string; value: string; classe?: string; titulo?: string }[];
   situation: string;
   active: boolean;
   /**
-   * O `bds-chip-tag` NA LINHA do cartão — o "Padrão" da regra de SLA deles,
-   * que ocupa uma quarta coluna sem rótulo (`dom/sla-policy.html`), e não o
-   * rodapé.
+   * Reference SLA-rule `bds-chip-tag` for `Padrão` belongs in the card row's unlabeled fourth column (`dom/sla-policy.html`), not the footer.
    */
   selo?: string;
-  /** Tudo que a busca varre, já em minúsculas. */
+
   procura: string;
   /**
-   * Cor do próprio registro, já como `var(--p-…)` — nunca hex. Ocupa a primeira
-   * coluna do cartão, que nasceu vazia justamente para isto. Só a fila usa: cor
-   * ali é dado do cliente, não estado, e por isso não vira etiqueta colorida.
+   * Use record color as `var(--p-…)`, never a hex literal, in the card's first column. Only queues use it: color there is customer data, not state, so it must not become a colored status chip.
    */
   cor?: string | null;
   /**
-   * Tira do pé do cartão, para a lista que pertence ao registro — os atendentes
-   * de uma fila, as filas de um horário. Fica no `.cl-rodape` porque o
-   * `.cl-campos` é grade de valor único e uma lista dentro dele vira truncagem.
+   * Put related lists, such as a queue's agents or a schedule's queues, in `.cl-rodape`. The single-value `.cl-campos` grid would truncate a nested list.
    */
   rodape?: readonly string[];
   /**
-   * Controle do registro, à direita, ao lado da situação — o interruptor do
-   * cartão-linha deles. Vem pronto de fora porque é ele que carrega a Server
-   * Action, e esta lista é componente de cliente: montar o formulário aqui
-   * arrastaria a ação para o pacote do navegador.
+   * Put the record control at right beside state, matching the reference row-card switch. Supply it from outside because it carries a Server Action; constructing the form in this client component would pull that action into the browser bundle.
    */
   acao?: React.ReactNode;
   /**
-   * Slot antes das colunas — a caixa de seleção + avatar do cartão de
-   * atendente (`FICHA-atendentes-filas-pausas.md` §b.2: "caixa de seleção,
-   * avatar com as iniciais"). `undefined` mantém o `<span>` de sempre (a
-   * faixa de cor da fila, quando existe, ou vazio).
+   * Slot before fields for the agent card's checkbox and avatar (`FICHA-atendentes-filas-pausas.md` §b.2). `undefined` retains the usual `<span>`, either queue-color stripe or empty space.
    */
   esquerda?: React.ReactNode;
 }
@@ -181,21 +148,14 @@ export interface RulesSection {
   titulo: string;
   empty: string;
   /**
-   * A segunda linha do vazio de página deles ("Crie respostas para agilizar
-   * seus atendimentos" sob "Você ainda não criou respostas prontas",
-   * `FICHA-replies.md` §6). Sem ela, o vazio é uma frase só.
+   * Reference page-empty second line is `Crie respostas para agilizar seus atendimentos` under `Você ainda não criou respostas prontas` (`FICHA-replies.md` §6); without it the empty state is only one sentence.
    */
   emptyDescription?: string;
   cards: CardRule[];
 }
 
 /**
- * O cartão-linha deles: as colunas de rótulo 12/400 sobre valor 16/700, o
- * selo na linha quando existe, e à direita SÓ as ações (`bds-button-icon`
- * de editar/excluir e o `bds-switch`) — nenhuma etiqueta "Ativa" ao lado:
- * o interruptor já diz o estado. Sem interruptor (SLA, filas, pausas), a
- * situação só aparece quando o registro está desligado — o que é dado, e
- * não decoração.
+ * Reference row-card has 12/400 labels above 16/700 values, an inline badge when needed, and only edit/delete `bds-button-icon` and `bds-switch` actions at right. Do not add an `Ativa` chip beside a switch that already conveys state. Without a switch (SLA, queues, pauses), show state only when disabled, where it conveys data rather than decoration.
  */
 function Card({ card }: { card: CardRule }) {
   const colunas = card.campos.length + (card.selo ? 1 : 0);
@@ -249,36 +209,26 @@ export function ListaRegras({
   pageOcultarTamanho = false,
 }: {
   sections: readonly RulesSection[];
-  /** A lista serve outras telas além de Regras; o texto da busca é o único ponto de variação. */
+  /** Search text is the only variation because this list also serves screens beyond Rules. */
   placeholder?: string;
   /**
-   * Blip não repete o título da seção acima da lista de cartões (o cartão
-   * vem direto depois da busca) — só esconde aqui, e só quem pede, porque
-   * telas com mais de uma seção (horários, por exemplo) ainda precisam do
-   * rótulo para separar os grupos.
+   * Blip does not repeat a section title above a card list after search. Hide it only when requested; multi-section screens such as schedules still need labels to distinguish groups.
    */
   sectionOcultarHeader?: boolean;
   /**
-   * O rodapé "Resultados por página" que o material capturou em `rules` e
-   * em `queue-management` (únicas duas fichas com paginação confirmada). Só
-   * funciona com uma seção — as telas que o pedem têm uma só.
+   * The `Resultados por página` footer appears in captured `rules` and `queue-management` screens, the only two with confirmed pagination. It works only with one section, as both callers have.
    */
   paginar?: boolean;
   pageInitialTamanho?: number;
   /**
-   * `personalizedbreaks` não tem busca nem filtro nenhum no material
-   * (`FICHA-personalizedbreaks.md` §3) — a lista vem direto depois do
-   * cabeçalho. A busca continua ligada por padrão para as telas que a Blip
-   * mostra com ela.
+   * Reference `personalizedbreaks` has neither search nor filters (`FICHA-personalizedbreaks.md` §3); its list follows the header directly. Keep search enabled by default for screens that show it.
    */
   ocultarSearch?: boolean;
   /**
-   * Controles que dividem a linha com a busca — o "Filtrar por:" com os
-   * seletores de "Modelos de mensagens" (`FICHA-message-template.md` §3), à
-   * esquerda da busca, que ali ocupa 69% da linha.
+   * Controls sharing the search row represent reference `Filtrar por:` selectors for `Modelos de mensagens` (`FICHA-message-template.md` §3), to the left of search, which occupies 69% of that row.
    */
   filters?: ReactNode;
-  /** Ver `RodapeDePaginacao.ocultarTamanho` — só a tela de Pausas pede isto. */
+
   pageOcultarTamanho?: boolean;
 }) {
   const [search, setSearch] = useState('');
@@ -301,8 +251,7 @@ export function ListaRegras({
   const totalPages = Math.max(1, Math.ceil(totalItens / tamanho));
   const pageCurrent = Math.min(page, totalPages);
 
-  // Busca ou tamanho de página novos voltam para a página 1 — senão a pessoa
-  // filtra para 3 itens estando na página 4 e vê uma lista vazia por engano.
+  // Reset to page 1 when search or page size changes, so filtering to three items from page 4 does not misleadingly show an empty list.
   useEffect(() => {
     setPage(1);
   }, [search, tamanho]);
@@ -332,9 +281,9 @@ export function ListaRegras({
       )}
 
       {nenhuma && search.trim() ? (
-        /* Vazio de BUSCA, com o texto do vazio de busca deles ("Nenhum
-           resultado encontrado", `dom/history.html`) e a saída junto: sem
-           o botão, a única forma de voltar à lista é apagar o texto na mão. */
+        /*
+         * For empty search results, use reference `Nenhum resultado encontrado` (`dom/history.html`) and provide a way back; without the button, users would have to erase the query manually.
+         */
         <div className="vazio">
           <b>Nenhum resultado encontrado</b>
           <p>
@@ -355,8 +304,9 @@ export function ListaRegras({
               </div>
             )}
             {section.cards.length === 0 ? (
-              /* O vazio de página deles: título 20/700 e, quando existe, a
-                 descrição em 16/400 embaixo. */
+              /*
+               * Reference page-empty state has a 20/700 title and, when present, a 16/400 description below.
+               */
               <div className="vazio">
                 <b>{section.empty}</b>
                 {section.emptyDescription ? <p>{section.emptyDescription}</p> : null}

@@ -20,7 +20,7 @@ function corDaEtiqueta(rotulo: string, corDaOrigem?: unknown): string {
   return cor;
 }
 
-/** Etiquetas do card, na mesma ordem do Builder: tags, ações e entrada. */
+/** Block card labels, in the same order as the Builder: tags, actions, and input. */
 export function blockTags(block: Block): BlockTag[] {
   const tipos = new Map<string, string>();
   for (const tag of block.$tags ?? []) {

@@ -2,20 +2,20 @@ import { KEY_TEMA } from '../../lib/settings-comum';
 import './settings.css';
 
 /**
- * O invólucro da área de configurações.
+ * The settings area's wrapper.
  *
- * Faz duas coisas, e nenhuma delas é navegação: a lateral já vem de
- * `AreaConfiguracoes`, montada em `componentes/estrutura-crm.tsx`.
+ * It does two things, and neither is navigation: the sidebar already comes from
+ * `AreaConfiguracoes`, assembled in `componentes/estrutura-crm.tsx`.
  *
- * 1. Carrega a folha de estilo da área, que é local e só existe aqui.
- * 2. Escreve o tema salvo no `<html>` **antes** de a página pintar. Sem isto,
- *    quem escolheu escuro veria um lampejo branco a cada carregamento — o CSS
- *    do tema depende do atributo, e o atributo só existiria depois do React
- *    hidratar. É o mesmo truque que todo alternador de tema usa, e é a única
- *    razão de haver um `<script>` inline no projeto.
+ * 1. Loads the area's stylesheet, which is local and only exists here.
+ * 2. Writes the saved theme onto `<html>` **before** the page paints. Without this,
+ *    anyone who picked dark mode would see a white flash on every load — the theme's
+ *    CSS depends on the attribute, and the attribute would only exist after React
+ *    hydrates. It's the same trick every theme switcher uses, and it's the only
+ *    reason there's an inline `<script>` in the project.
  *
- * O `try` não é decoração: `localStorage` lança em janela anônima com cookies
- * bloqueados, e um erro aqui derrubaria a página inteira antes do primeiro pixel.
+ * The `try` isn't decoration: `localStorage` throws in a private window with cookies
+ * blocked, and an error here would take down the whole page before the first pixel.
  */
 const APLICAR_TEMA = `try{var t=localStorage.getItem(${JSON.stringify(KEY_TEMA)});if(t==='claro'||t==='escuro'){document.documentElement.dataset.tema=t}}catch(e){}`;
 

@@ -7,7 +7,7 @@ import { TelaDeServicos } from './tela';
 import '../integrations/header-of-page.css';
 import './servicos.css';
 
-/** Serviços do roteador: equivalente à configuração `master.services`. */
+/** Roteador services: equivalent to the `master.services` setting. */
 export function ServicesPage() {
   const { contact } = useContact();
   const shell = portalUseShell();

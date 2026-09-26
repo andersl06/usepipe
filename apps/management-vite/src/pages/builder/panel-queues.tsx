@@ -4,9 +4,7 @@ import { IconePortal } from '../../components/icones-portal';
 import { attendanceBase } from '../operation/shell';
 
 /**
- * Atalho do Builder ao cadastro real de filas. A listagem, criação, edição,
- * ativação e exclusão já existem em PaginaFilas e nas rotas de gestão; manter
- * o formulário aqui duplicaria regras de cadastro e validação.
+ * A Builder shortcut to the real queue registry. Listing, creation, editing, activation, and deletion already exist in PaginaFilas and the management routes; keeping the form here would duplicate registration and validation rules.
  */
 export function QueuesPanel({
   contactTipo,

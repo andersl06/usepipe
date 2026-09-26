@@ -4,84 +4,50 @@ import { IconePortal } from '../../components/icones-portal';
 import { IMAGE, TAMANHO } from './regras-de-nome';
 
 /**
- * As duas peças que o roteador e o fluxo têm IGUAIS — porque na origem elas são
- * o mesmo arquivo, e não duas telas parecidas.
- *
- * ═══ O CASCO (módulo 30189) ═══
- *
- * `auth.application.create` é um estado ABSTRATO: ele desenha o casco e os
- * estados-filhos só preenchem o miolo. O casco é
- * `<bds-theme-provider theme="dark">` envolvendo
- * `#create-application-container`, um `.full-screen-container` de fundo escuro.
- * A barra do portal SOME. Sobram quatro peças, nesta ordem:
- *
- *   1. o "x" (`bds-icon name="close" size="xxx-large"`), absoluto à direita —
- *      a única saída da tela, e Esc faz o mesmo;
- *   2. a marca centrada, 5rem de largura (`logoCenter` é o padrão, e só o
- *      estado `aiagent` o desliga);
- *   3. o `<form>`, que cresce e carrega o passo — aqui são os `children`;
- *   4. o rodapé "Precisa de ajuda…", que aparece em todos os passos das duas
- *      telas (`showFooter` só é falso no `aiagent`).
- *
- * ═══ O PASSO DO NOME (módulo 96904) ═══
- *
- * Um template só, para as duas telas. O que muda são três
- * `ng-if="$ctrl.template != 'master'"` trocando palavra: o sobretítulo, o
- * título e o rótulo do campo. O resto — o círculo da foto, o campo com rótulo
- * flutuante, o contador, os dois botões nas pontas — é byte a byte o mesmo.
- *
- * ═══ O QUE NÃO COPIAMOS, E POR QUÊ ═══
- *
- * Esc para fechar (`$document.on('keydown', 27 → close())`), a
- * pré-visualização da foto escolhida (`<img class="uploaded-img">`) e o contador
- * vivo do campo (`<span counter-for=… ng-maxlength="30">30</span>`, que começa
- * em 30 e desce): as três são estado de cliente, e estas telas não têm nenhum.
- * O "x" continua levando para `/portal`, a foto continua sendo escolhida,
- * enviada e gravada, e o limite continua valendo pelo `maxLength` e pela Server
- * Action. O que falta é só a conferência antes de enviar.
+ * The two pieces the router and flow share IDENTICALLY — because in the source they're the same file, not two similar screens. ═══ THE SHELL (module 30189) ═══ `auth.application.create` is an ABSTRACT state: it draws the shell, and the child states only fill in the middle. The shell is a `<bds-theme-provider theme="dark">` wrapping `#create-application-container`, a dark-background `.full-screen-container`. The portal bar DISAPPEARS. Four pieces remain, in this order: 1. the "x" (`bds-icon name="close" size="xxx-large"`), absolute on the right — the screen's only exit, and Esc does the same; 2. the centered logo, 5rem wide (`logoCenter` is the default, and only the `aiagent` state turns it off); 3. the `<form>`, which grows and carries the step — here these are the `children`; 4. the "Precisa de ajuda…" footer, which appears on every step of both screens (`showFooter` is only false in `aiagent`). ═══ THE NAME STEP (module 96904) ═══ A single template for both screens. What changes are three `ng-if="$ctrl.template != 'master'"` swapping a word: the subtitle, the title and the field label. The rest — the photo circle, the field with the floating label, the counter, the two end-to-end buttons — is byte for byte the same. ═══ WHAT WE DIDN'T COPY, AND WHY ═══ Esc to close (`$document.on('keydown', 27 → close())`), the preview of the chosen photo (`<img class="uploaded-img">`), and the field's live counter (`<span counter-for=… ng-maxlength="30">30</span>`, which starts at 30 and counts down): all three are client state, and these screens have none. The "x" still leads to `/portal`, the photo is still chosen, uploaded and saved, and the limit is still enforced by `maxLength` and by the Server Action. All that's missing is the check before submitting.
  */
 
-/* Os destinos de fora do rodapé. Vazio = item não desenhado, a mesma regra do
-   `URL_AJUDA` do portal: link para página que ainda não existe é pior do que um
-   convite a menos. Na origem é `createApplication.needHelpUrl`, a página de
-   contato comercial deles. */
+/*
+ * The footer's external destinations. Empty = item not drawn, the same rule as the portal's `URL_AJUDA`: a link to a page that doesn't exist yet is worse than one fewer invite. In the source it's `createApplication.needHelpUrl`, their sales contact page.
+ */
 const URL_BUDGET = (import.meta.env['VITE_PIPE_ORCAMENTO_URL'] as string | undefined) ?? '';
 
-/* Sem página de orçamento, o pedido vira e-mail para o suporte — o MESMO
-   endereço que o menu do "?" do portal usa. O rodapé não some: ele é parte do
-   casco na origem, e escondê-lo porque falta uma variável de ambiente tirava da
-   tela um pedaço que existe. */
+/*
+ * With no quote page, the request becomes an email to support — the SAME address the portal's "?" menu uses. The footer doesn't disappear: it's part of the shell in the source, and hiding it because an environment variable is missing would remove a piece of the screen that exists.
+ */
 const DESTINATION_BUDGET = URL_BUDGET || 'mailto:suporte@usepipe.ai';
 
-/** `createApplication.needHelp` e `createApplication.requestAQuote` — as duas
-    frases do rodapé são as mesmas nas duas telas, sem variante por template. */
+/**
+ * `createApplication.needHelp` and `createApplication.requestAQuote` — the footer's two phrases are the same on both screens, with no per-template variant.
+ */
 const RODAPE = {
   precisaDeAjuda: 'Precisa de ajuda para desenvolver o contato inteligente da sua empresa?',
   pecaOrcamento: 'Solicite um orçamento',
 } as const;
 
-/** O casco de tela cheia: o "x", a marca, o miolo e o rodapé. */
+/** The full-screen shell: the "x", the logo, the middle, and the footer. */
 export function CreationCasco({ children }: { children: React.ReactNode }) {
   return (
     <div className="cr-tela">
-      {/* O `close-icon` deles: 40px (`size="xxx-large"`), absoluto à direita,
-          a 3rem da borda. `close()` termina em
-          `$state.go('auth.application.list')` — aqui, `/portal`. */}
+      {/*
+ * Their `close-icon`: 40px (`size="xxx-large"`), absolute on the right, 3rem from the edge. `close()` ends at `$state.go('auth.application.list')` — here, `/portal`.
+ */}
       <Link className="cr-fechar" href="/portal" aria-label="Fechar">
         <Icone nome="x" tamanho={40} />
       </Link>
 
-      {/* A `.logo-image` centrada: 5rem de largura. O lockup é o mesmo
-          `.pt-lockup` da barra do portal, que já mede 80px e já é pintado com
-          a tinta do cromo. */}
+      {/*
+ * The centered `.logo-image`: 5rem wide. The lockup is the same `.pt-lockup` from the portal bar, which is already 80px and already painted with the chrome's ink.
+ */}
       <Link className="cr-marca" href="/portal" aria-label="Pipe">
         <span className="pt-lockup" role="img" aria-label="Pipe" />
       </Link>
 
       {children}
 
-      {/* `.create-application-footer`: régua em cima, 1.5rem de recheio,
-          54rem de largura, e o pedido de orçamento em negrito. */}
+      {/*
+ * `.create-application-footer`: a divider on top, 1.5rem padding, 54rem wide, and the quote request in bold.
+ */}
       <footer className="cr-rodape">
         <span>{RODAPE.precisaDeAjuda} </span>
         <a
@@ -97,25 +63,22 @@ export function CreationCasco({ children }: { children: React.ReactNode }) {
 
 /** As palavras que o passo do nome troca entre as duas telas. */
 export interface RotulosDoPassoDoNome {
-  /** `taglineRouter` ou `tagline` — serve de sobretítulo E de texto do botão. */
+  /** `taglineRouter` or `tagline` — used as both the subtitle and the button text. */
   tagline: string;
   /** `name.titleRouter` ou `name.titleScratch`. */
   tituloDoNome: string;
   /** `name.nameRouter` ou `name.name`. */
   rotuloDoNome: string;
-  /** `modules.ui.uploadButton.title`. Igual nas duas, mas mora no `ROTULOS`
-      de cada tela porque é a lista de palavras da tela. */
+  /**
+   * `modules.ui.uploadButton.title`. The same in both, but lives in each screen's `ROTULOS` because that's the screen's word list.
+   */
   definirImage: string;
   /** `name.back`. */
   voltar: string;
 }
 
 /**
- * `#create-application-name-step`.
- *
- * Coluna centrada: o seletor de imagem 5rem abaixo do título, o campo de 28rem
- * com o rótulo flutuante e, 3rem abaixo, os dois botões nas pontas ("Voltar" à
- * esquerda com seta, e o de criar à direita).
+ * `#create-application-name-step`. A centered column: the image picker 5rem below the title, the 28rem field with the floating label and, 3rem below, the two buttons at the ends ("Voltar" on the left with an arrow, and the create button on the right).
  */
 export function PassoDoNome({
   acao,
@@ -132,10 +95,9 @@ export function PassoDoNome({
   errorTitulo: string;
   error?: string;
   nome?: string;
-  /** Campos que o passo anterior precisa repassar pelo POST — hoje só o
-      `template` do marketplace do fluxo, para o retorno com erro lembrar de
-      onde a pessoa veio. Sem correspondente na origem: lá o template mora no
-      estado do `ui-router`, não no formulário. */
+  /**
+   * Fields the previous step needs to forward via POST — today only the flow marketplace's `template`, so an error return remembers where the person came from. No counterpart in the source: there the template lives in `ui-router` state, not in the form.
+   */
   camposOcultos?: Record<string, string>;
 }) {
   return (
@@ -152,10 +114,9 @@ export function PassoDoNome({
             ))
           : null}
 
-        {/* O aviso da origem é um `BlipToastService.show('danger', …)` — caixa
-            flutuante com título e mensagem. Aqui ele é fixo acima do seletor:
-            sem cliente, aviso que some sozinho não some, e aviso que não some
-            flutuando tapa o formulário. O título é o mesmo. */}
+        {/*
+ * The source's warning is a `BlipToastService.show('danger', …)` — a floating box with a title and message. Here it's fixed above the picker: with no client, a warning that disappears on its own doesn't disappear, and a warning that stays floating would cover the form. The title is the same.
+ */}
         {error ? (
           <p className="cr-aviso" role="alert">
             <b>{errorTitulo}</b>
@@ -163,10 +124,9 @@ export function PassoDoNome({
           </p>
         ) : null}
 
-        {/* O `<upload-button>` deles: círculo de 150px, tracejado enquanto não
-            há arquivo, com o `input[type=file]` cobrindo tudo por baixo. É
-            OPCIONAL de verdade — `uploadApplicationImageSafely` engole o erro e
-            segue —, e as Server Actions fazem o mesmo. */}
+        {/*
+ * Their `<upload-button>`: a 150px circle, dashed while there's no file, with the `input[type=file]` covering everything underneath. It's genuinely OPTIONAL — `uploadApplicationImageSafely` swallows the error and moves on —, and the Server Actions do the same.
+ */}
         <label className="cr-foto">
           <input type="file" name="imagem" accept={IMAGE.aceitos.join(',')} />
           <span>{rotulos.definirImage}</span>
@@ -177,9 +137,9 @@ export function PassoDoNome({
             id="nome"
             name="nome"
             type="text"
-            /* O espaço é o que faz `:placeholder-shown` valer: é ele que diz ao
-               CSS que o campo está vazio, e é o que põe o rótulo flutuante de
-               pé sem uma linha de JavaScript. */
+            /*
+             * The space is what makes `:placeholder-shown` work: it's what tells CSS the field is empty, and what makes the floating label stand up without a line of JavaScript.
+             */
             placeholder=" "
             required
             minLength={TAMANHO.nomeMin}
@@ -190,17 +150,15 @@ export function PassoDoNome({
           <label htmlFor="nome">{rotulos.rotuloDoNome}</label>
         </div>
 
-        {/* O contador `30` que desce a cada tecla vira este recado fixo: diz o
-            mesmo limite sem depender de estado de cliente. */}
+        {/*
+ * The `30` counter that counts down with every keystroke becomes this fixed note: it states the same limit without depending on client state.
+ */}
         <p className="cr-recado">Até {TAMANHO.nomeMax} caracteres.</p>
 
         <div className="cr-acoes">
-          {/* `backFromNameStep()` volta ao estado ANTERIOR guardado
-              (`$ctrl.beforeNameStep`), que é o passo de onde a pessoa veio — o
-              convite no roteador, o marketplace no fluxo. O padrão do `$watch`
-              deles, quando não há anterior, é justamente
-              `auth.application.create.marketplace`.
-              `bds-button variant="secondary" icon="arrow-left"`. */}
+          {/*
+ * `backFromNameStep()` returns to the PREVIOUS saved state (`$ctrl.beforeNameStep`), which is the step the person came from — the invite in the router, the marketplace in the flow. Their `$watch` default, when there's no previous state, is exactly `auth.application.create.marketplace`. `bds-button variant="secondary" icon="arrow-left"`.
+ */}
           <Link className="btn cr-botao" href={voltarPara}>
             <IconePortal nome="esquerda" tamanho={20} />
             {rotulos.voltar}

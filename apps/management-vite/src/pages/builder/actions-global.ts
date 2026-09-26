@@ -3,20 +3,7 @@ import { ACTIONS_LIMIT, ROTULOS_OF_ACTIONS } from './actions-of-block';
 import type { ActionsLista } from './actions-of-block';
 
 /**
- * A aba "Ações Globais" do painel "Configuração" (`portal.js`:
- * `builder-configurations.globalActions.title`, componente `<actions
- * state="$ctrl.globalActions">`) — as MESMAS duas listas de um bloco
- * (`$enteringCustomActions`/`$leavingCustomActions`), só que do fluxo
- * inteiro: `editor.ts` confirma que `globalActions.$enteringCustomActions`/
- * `$leavingCustomActions` viram "as ações globais de entrada e de saída do
- * fluxo" na conversão pro formato publicado — não é enfeite, o motor as
- * executa.
- *
- * O catálogo de tipos, os rótulos e a validação de cada ação são os MESMOS
- * de `acoes-do-bloco.ts` (`novaAcao`, `tipoDeAcao`, `valorDoCampo`,
- * `comCampo`, `comTitulo`, `comCondicoes`, `errosDaAcao` — todos operam sobre
- * a ação, não sobre o bloco). Só o CRUD da lista muda: aqui é `globais`
- * (`Record<string, unknown>`), não um `Bloco` com `id`.
+ * Global Actions in Configuration (`portal.js` `builder-configurations.globalActions.title`, `<actions state="$ctrl.globalActions">`) use the same `$enteringCustomActions` and `$leavingCustomActions` lists as a block, but for the whole flow. `editor.ts` confirms `globalActions.$enteringCustomActions` and `$leavingCustomActions` become executed flow-wide actions in published form. Reuse `acoes-do-bloco.ts` catalog, labels, and validation (`novaAcao`, `tipoDeAcao`, `valorDoCampo`, `comCampo`, `comTitulo`, `comCondicoes`, `errosDaAcao`); only list CRUD changes to `globais` (`Record<string, unknown>`) rather than `Bloco` with `id`.
  */
 
 export interface ActionsGlobal {

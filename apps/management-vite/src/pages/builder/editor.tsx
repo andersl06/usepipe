@@ -27,17 +27,9 @@ import './editor.css';
 import './panel-block.css';
 
 /**
- * O editor em si, dentro do canvas escuro da moldura: os blocos e as setas
- * (`Canvas`), a barra lateral do bloco aberto (`PainelDoBloco`), o papel "NOVO
- * BLOCO" ao lado da pílula, e os dois avisos — o toast de recusa ("Limite de
- * 25 condições de saída atingidos"…) e a confirmação de excluir, que aqui é
- * `ModalConfirmacao` e não o `window.confirm` (o editor da Blip exclui sem
- * perguntar e conta com o desfazer; o Pipe tem o desfazer E pergunta).
+ * The editor itself, inside the frame's dark canvas: the blocks and arrows (`Canvas`), the sidebar of the open block (`PainelDoBloco`), the "NOVO BLOCO" sheet next to the pill, and the two warnings — the rejection toast ("Limite de 25 condições de saída atingidos"…) and the delete confirmation, which here is `ModalConfirmacao` and not `window.confirm` (the Blip editor deletes without asking and relies on undo; Pipe has undo AND asks).
  *
- * O desenho vive no redutor de `estado.ts`, que chega por `estado`/`despachar`;
- * cada gesto vira um mapa novo pelas funções de `modelo.ts` e um `aplicar`.
- * Os erros por bloco são a soma dos da tela (`errosLocais`) com os que a
- * `api` devolveu (`errosDaApi`) e os do 409 de publicar (`errosDoMotor`).
+ * The drawing lives in the `estado.ts` reducer, reached through `estado`/`despachar`; each gesture becomes a new map via the `modelo.ts` functions and an `aplicar`. Per-block errors are the sum of the screen's (`errosLocais`) with the ones the `api` returned (`errosDaApi`) and the ones from the 409 on publish (`errosDoMotor`).
  */
 
 export function Editor({
@@ -71,8 +63,9 @@ export function Editor({
   const [aviso, setAviso] = useState<string | null>(null);
   const area = useRef<HTMLDivElement>(null);
 
-  /* Os painéis de Configuração e Filas ocupam o mesmo lado que o painel do
-     bloco; abrir um deles fecha o editor de bloco para não sobrepor conteúdo. */
+  /*
+   * The Configuração and Filas panels occupy the same side as the block panel; opening one of them closes the block editor so it doesn't overlap content.
+   */
   useEffect(() => {
     if (panelExternoAberto) setEditando(null);
   }, [panelExternoAberto]);

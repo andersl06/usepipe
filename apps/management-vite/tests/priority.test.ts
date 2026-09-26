@@ -4,15 +4,12 @@ import { NIVEIS_PRIORITY, pesoPriority } from '@pipe/core/conversation';
 import { esperaOrdenarQueue } from '../src/lib/monitoring';
 
 /**
- * A régua de prioridade e a ordem da fila de espera.
+ * The priority ruler and the waiting-queue order.
  *
- * O teste que importa é o terceiro: **`baixa` fura a frente de
- * `sem_prioridade`**. É a regra que motivou o quinto degrau, e é a que quebra
- * silenciosamente se alguém reordenar `NIVEIS_PRIORIDADE` ou reintroduzir um
- * mapa paralelo de pesos.
+ * The test that matters is the third: **`baixa` cuts ahead of `sem_prioridade`**. It's the rule that motivated the fifth step, and it's the one that breaks silently if someone reorders `NIVEIS_PRIORIDADE` or reintroduces a parallel weight map.
  */
 
-/** Linha mínima para a ordenação: é só o que ela lê. */
+/** Minimal row for the ordering: it's all it reads. */
 function linha(nome: string, priority: string, minuto: number) {
   return {
     nome,
@@ -33,8 +30,8 @@ test('a régua tem cinco degraus, e o índice é o peso', () => {
 });
 
 test('nível desconhecido cai no FIM, não no meio', () => {
-  // O defeito antigo mandava o desconhecido para o peso de "média", o que dava
-  // prioridade de graça a lixo de dado.
+  // The old defect sent unknown values to the "média" weight, which handed
+  // free priority to garbage data.
   assert.ok(pesoPriority('urgentissima') > pesoPriority('sem_prioridade'));
 });
 

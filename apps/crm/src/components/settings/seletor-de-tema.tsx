@@ -5,27 +5,27 @@ import { Icone } from '@pipe/ui';
 import { KEY_TEMA, TEMAS, temaValido, type Tema } from '../../lib/settings-comum';
 
 /**
- * O seletor de tema.
+ * The theme selector.
  *
- * O Pipe já tinha os dois temas em `packages/ui/src/estilos/tokens.css` desde o
- * começo, com três blocos: o claro em `:root`, o escuro por preferência do
- * sistema (`@media (prefers-color-scheme: dark)`, restrito a
- * `:root:not([data-tema='claro'])`) e o escuro por escolha
- * (`:root[data-tema='escuro']`). Faltava só quem escrevesse o atributo. É este
- * arquivo.
+ * Pipe already had both themes in `packages/ui/src/estilos/tokens.css` from the
+ * start, in three blocks: light in `:root`, dark by system preference
+ * (`@media (prefers-color-scheme: dark)`, scoped to
+ * `:root:not([data-tema='claro'])`) and dark by choice
+ * (`:root[data-tema='escuro']`). All that was missing was something to write the
+ * attribute. That's this file.
  *
- * Por isso os três modos, e não dois: **`sistema` é a ausência do atributo**, e
- * é ela que devolve a decisão ao sistema operacional. Um alternador de dois
- * estados não conseguiria voltar para lá.
+ * That's why there are three modes, not two: **`sistema` is the absence of the
+ * attribute**, and it's what hands the decision back to the operating system. A
+ * two-state switch couldn't get back there.
  *
- * Guarda no `localStorage` porque tema é preferência de APARELHO — a mesma
- * pessoa quer escuro no notebook à noite e claro no monitor da mesa. Guardar no
- * `usuario` obrigaria a escolher uma das duas pela pessoa.
+ * It's stored in `localStorage` because theme is a DEVICE preference — the same
+ * person wants dark on their laptop at night and light on their desk monitor.
+ * Storing it on `usuario` would force picking one of the two for the person.
  *
- * Acessibilidade: são `<input type="radio">` de verdade dentro de um
- * `<fieldset>` com `<legend>`. Setas navegam, espaço escolhe e o leitor de tela
- * anuncia "3 de 3" sem uma linha de `aria-` — que é sempre melhor do que
- * reimplementar um grupo de rádio com `div` e `role`.
+ * Accessibility: these are real `<input type="radio">` inside a `<fieldset>`
+ * with a `<legend>`. Arrow keys navigate, space selects, and the screen reader
+ * announces "3 of 3" without a single `aria-` line — which is always better than
+ * reimplementing a radio group with `div` and `role`.
  */
 
 const ROTULOS: Record<Tema, { texto: string; icone: 'sol' | 'lua' | 'engrenagem' }> = {
@@ -34,7 +34,7 @@ const ROTULOS: Record<Tema, { texto: string; icone: 'sol' | 'lua' | 'engrenagem'
   escuro: { texto: 'Escuro', icone: 'lua' },
 };
 
-/** Escrever o atributo é tudo o que o tema precisa: o CSS faz o resto. */
+/** Writing the attribute is all the theme needs: the CSS does the rest. */
 function aplicar(tema: Tema) {
   const raiz = document.documentElement;
   if (tema === 'sistema') delete raiz.dataset['tema'];
@@ -42,8 +42,8 @@ function aplicar(tema: Tema) {
 }
 
 export function SeletorDeTema() {
-  // Nasce em `sistema` porque o servidor não conhece o `localStorage`: qualquer
-  // outro palpite daria hidratação divergente e um piscar de tema errado.
+  // Starts at `sistema` because the server doesn't know `localStorage`: any
+  // other guess would cause a hydration mismatch and a flash of the wrong theme.
   const [tema, setTema] = useState<Tema>('sistema');
 
   useEffect(() => {

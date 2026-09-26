@@ -4,22 +4,22 @@ import { useEffect } from 'react';
 import { Illustration } from '@pipe/ui';
 
 /**
- * A tela de erro do CRM inteiro. Cobre todas as rotas filhas, que é o que o
- * Next faz com um `error.tsx` na raiz do `app/`.
+ * The error screen for the whole CRM. It covers all child routes, which is what Next
+ * does with an `error.tsx` at the root of `app/`.
  *
- * Três coisas, e nenhuma a mais:
+ * Three things, and nothing more:
  *
- * 1. **O que aconteceu, em português.** "Algo deu errado" não ajuda ninguém;
- *    "a consulta ao banco não respondeu" diz para quem chamar.
- * 2. **Um botão que tenta de novo.** `reset()` remonta o segmento sem recarregar
- *    a página inteira — a maior parte dos erros aqui é conexão que caiu, e
- *    tentar de novo resolve.
- * 3. **O identificador do erro**, quando o Next dá um (`digest`). É o que liga a
- *    tela ao registro do servidor sem pedir para a pessoa descrever o que viu.
+ * 1. **What happened, in Portuguese.** "Something went wrong" doesn't help anyone;
+ *    "the database query didn't respond" tells you who to call.
+ * 2. **A retry button.** `reset()` remounts the segment without reloading the whole
+ *    page — most errors here are a dropped connection, and retrying fixes it.
+ * 3. **The error identifier**, when Next provides one (`digest`). It's what links
+ *    the screen to the server log without asking the person to describe what they
+ *    saw.
  *
- * A mensagem crua do erro NÃO aparece: em produção o Next já a substitui por um
- * texto genérico, e em desenvolvimento ela vai para o console, que é onde se
- * lê rastro de pilha.
+ * The raw error message does NOT show: in production Next already replaces it with a
+ * generic text, and in development it goes to the console, which is where you read
+ * the stack trace.
  */
 export default function CrmError({
   error,

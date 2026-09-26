@@ -4,14 +4,10 @@ import { motivoDe, type Resultado } from './rest';
 import { queueDesvincularAgent, vincularAgentInQueue } from './registrations-gravar';
 
 /**
- * Escrita das telas de atendente — permissões, edição em lote e "Excluir".
- *
- * À parte de `cadastros.ts`/`atendentes.ts`, que são módulos PUROS: este
- * importa `./api`, que lê `import.meta.env` e quebra fora do Vite (foi o que
- * aconteceu com `comunicacao.ts` até a escrita ganhar arquivo próprio).
+ * Keep agent-screen writes (permissions, bulk edit, Excluir) separate from pure `cadastros.ts` and `atendentes.ts`. This module imports `./api`, whose `import.meta.env` dependency breaks tests outside Vite, as happened to `comunicacao.ts` before its writes moved out.
  */
 
-/** Uma linha da tabela "Tipo de permissão" × "Status" da origem. */
+/** One row of the reference Permission type by Status table. */
 export interface PermissionLinha {
   codigo: string;
   grupo: string;
@@ -19,7 +15,7 @@ export interface PermissionLinha {
   dosPapeis: boolean;
   override: boolean | null;
   ligada: boolean;
-  /** Uns dos selecionados têm, outros não — só com seleção múltipla. */
+  /** Mixed state means some selected agents have this permission and others do not; possible only with multiple selection. */
   parcial: boolean;
 }
 
@@ -28,13 +24,13 @@ export interface AgentPermissions {
   permissions: PermissionLinha[];
 }
 
-/** O caminho da leitura — os ids vão na busca, como na rota sem `:id` da origem. */
+/** Build the read path with IDs in the query, matching the reference edit route without `:id`. */
 export function permissionsCaminho(ids: readonly string[]): string | null {
   if (ids.length === 0) return null;
   return `/v1/management/agents/permissions?atendentes=${ids.join(',')}`;
 }
 
-/** "Salvar alterações": manda só o que a tela MEXEU. */
+/** Save only fields changed on the screen for `Salvar alterações`. */
 export async function salvarPermissions(
   userIds: readonly string[],
   permissions: Record<string, boolean>,
@@ -52,15 +48,7 @@ export async function salvarPermissions(
 }
 
 /**
- * A edição em lote da origem ("Editar N atendentes", com "preencha pelo menos
- * um dos campos"): põe os selecionados numa fila e/ou dá a eles um número
- * próprio de tickets simultâneos.
- *
- * Não há rota de "editar atendente" — e não precisa: no Pipe o teto de
- * conversas simultâneas nasce da PARTICIPAÇÃO em fila
- * (`fila_atendente.capacidade_override` sobre `fila.capacidade_padrao`), então
- * os dois campos são a mesma gravação, `POST /filas/:id/atendentes`. Quem já
- * está na fila tem a capacidade trocada; quem não está, entra.
+ * Reference bulk edit (`Editar N atendentes`, requiring at least one field) assigns selected agents to a queue and/or sets an individual concurrent-ticket limit. Pipe has no separate edit-agent route: concurrency comes from queue membership (`fila_atendente.capacidade_override` over `fila.capacidade_padrao`), so both fields write through `POST /filas/:id/atendentes`. Existing members get an updated capacity; others join.
  */
 export async function aplicarInSelection(
   userIds: readonly string[],
@@ -75,14 +63,7 @@ export async function aplicarInSelection(
 }
 
 /**
- * O "Excluir" da linha de atendente.
- *
- * **Divergência registrada.** Na origem esse ícone tira a pessoa da equipe de
- * atendimento. No Pipe não existe "equipe de atendimento" como cadastro: a
- * lista é a de `usuario` do tenant, e quem recebe conversa é quem está em
- * FILA. Então "Excluir" aqui é exatamente isso — a pessoa sai de todas as
- * filas e deixa de receber conversa, continuando com a conta. Apagar o usuário
- * seria destruir histórico de conversa, e não é o que o ícone promete.
+ * Recorded difference from the reference: its Excluir icon removes a person from the attendance team. Pipe has no such team record; tenant `usuario` is the account, and only queue members receive conversations. Here Excluir removes the agent from all queues while retaining the account and conversation history. Deleting the user would destroy history and exceed what the icon promises.
  */
 export async function removeFromAllQueues(
   agentId: string,
@@ -95,7 +76,7 @@ export async function removeFromAllQueues(
   return { ok: true, value: undefined };
 }
 
-/* ------------------------------------------- regras de priorização da fila */
+
 
 export interface RequestOfRuleOfPriority {
   nome: string;

@@ -4,25 +4,7 @@ import type { TransactionPipe } from '@pipe/db';
 import { FORMAT_E164, candidatosDoTelefone, paraE164 } from '@pipe/core';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/data_import/contact_manager.rb,
- * com as validações de `phone_number` e `email` de app/models/contact.rb.
- *
- * Uma linha do CSV vira um contato: acha o existente por identificador, e-mail
- * ou telefone, nessa ordem; se achou, MESCLA (o que veio na linha ganha, o resto
- * fica); se não, monta um novo. Depois valida. É assim que a importação
- * deduplica — reimportar a mesma planilha não cria ninguém de novo, atualiza.
- *
- * Todas as consultas rodam dentro do `comTenant` da importação: a busca pelo
- * existente só enxerga contato daquele cliente, e é a RLS que garante isso.
- *
- * Acréscimos do Pipe:
- * - o telefone é normalizado para E.164 com o nono dígito (`paraE164`), e o
- *   existente é achado por qualquer das duas formas do número
- *   (`candidatosDoTelefone`, o mesmo casamento que o Chatwoot faz no webhook);
- * - contato sem telefone e sem e-mail é recusado — a mesma regra de
- *   `POST /v1/contatos` do Pipe: sem identificador, não recebe mensagem;
- * - quem tem telefone ganha `contato_identidade` de WhatsApp, para a primeira
- *   mensagem dele cair nesta ficha e não abrir uma nova.
+ * Ported from chatwoot/chatwoot (MIT), `app/services/data_import/contact_manager.rb`, with `phone_number` and `email` validations from `app/models/contact.rb`. For each CSV row, find an existing contact by identifier, email, then phone; merge supplied values if found, otherwise create one, then validate. Reimporting updates rather than duplicates. All queries run inside the import's `comTenant`; RLS limits matches to that client. Pipe additions: normalize phone to E.164 with the ninth digit (`paraE164`) and match both number forms (`candidatosDoTelefone`, as in the Chatwoot webhook); reject a contact lacking phone and email, matching Pipe's `POST /v1/contatos` rule; create a WhatsApp `contato_identidade` for a phone contact so its first message reaches this record instead of making a new one.
  */
 
 /** As colunas que o original reconhece. O resto da linha vira atributo. */
@@ -77,7 +59,7 @@ async function aContact(tx: TransactionPipe, condition: SQL): Promise<ContactAss
   };
 }
 
-/** Todas as formas do mesmo número, com `+`. */
+
 function formasDoTelefone(e164: string): string[] {
   return candidatosDoTelefone(e164.slice(1)).map((d) => `+${d}`);
 }
@@ -97,7 +79,7 @@ async function acharExistente(
   }
   const telefone = paraE164(params['phone_number']);
   if (telefone && FORMAT_E164.test(telefone)) {
-    // A forma exata ganha quando as duas existem (o `prefers the normalized format` do spec).
+    // Prefer the exact form when both exist (the spec's `prefers the normalized format`).
     const { rows } = await tx.execute<{ id: string }>(sql`
       select id from contato
        where excluido_em is null and telefone_e164 in (${lista(formasDoTelefone(telefone))})
@@ -133,7 +115,7 @@ export async function assembleContact(
   };
 
   // `find_or_initialize_contact` e `update_contact_with_merged_attributes`: o
-  // que veio na linha sobrescreve; o que não veio fica como estava.
+  // A field supplied by this row overwrites the old value; an absent field stays unchanged.
   if (params['email']) contact.email = params['email'];
   if (params['phone_number']) contact.telefone = paraE164(params['phone_number']);
   atualizarAtributos(params, contact);
@@ -142,7 +124,7 @@ export async function assembleContact(
   return contact;
 }
 
-/** As validações do `Contact`, com as frases do pt_BR do Chatwoot. */
+/** Apply `Contact` validations with Chatwoot's pt_BR messages. */
 async function validar(tx: TransactionPipe, contato: ContactAssembled): Promise<string[]> {
   const errors: string[] = [];
   if (!contato.telefone && !contato.email) {
@@ -155,7 +137,7 @@ async function validar(tx: TransactionPipe, contato: ContactAssembled): Promise<
   }
   if (errors.length > 0) return errors;
 
-  // `uniqueness: { scope: [:account_id] }` — o outro contato que já tem este dado.
+  // `uniqueness: { scope: [:account_id] }` means another contact already has this value.
   const outro = contato.id ? sql`id <> ${contato.id}::uuid` : sql`true`;
   if (contato.telefone) {
     const { rows } = await tx.execute<{ id: string }>(sql`
@@ -177,7 +159,7 @@ async function validar(tx: TransactionPipe, contato: ContactAssembled): Promise<
   return errors;
 }
 
-/** O `Contact.import` de uma linha já validada. Devolve o id. */
+/** Implement `Contact.import` for one validated row and return its ID. */
 export async function saveContact(
   tx: TransactionPipe,
   tenantId: string,
@@ -205,8 +187,8 @@ export async function saveContact(
   }
 
   if (contato.telefone) {
-    // O `wa_id` é o número sem o `+`. `do nothing`: se o WhatsApp já trouxe esta
-    // pessoa, a identidade existe e continua apontando para quem ela aponta.
+    // `wa_id` is the number without `+`. With `do nothing`, an identity created by WhatsApp
+    // continues to point to the same contact rather than being reassigned.
     await tx.execute(sql`
       insert into contato_identidade (tenant_id, contato_id, canal_tipo, identificador)
       values (${tenantId}::uuid, ${id}::uuid, 'whatsapp_cloud', ${contato.telefone.slice(1)})

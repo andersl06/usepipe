@@ -1,11 +1,11 @@
 import { LoadingNotice, EsqueletoDeTabela } from '../../components/esqueleto';
 
 /**
- * O que aparece enquanto a lista carrega. O cabeçalho da página é o mesmo da
- * tela pronta, de propósito: o título não pisca, e só a tabela troca.
+ * What shows while the list loads. The page header is the same as the finished
+ * screen's, on purpose: the title doesn't flash, and only the table swaps.
  *
- * Nove colunas porque nove é o que a lista sem agrupamento mostra — o
- * esqueleto tem de ter a largura da tabela que vem, senão a tela salta.
+ * Nine columns because nine is what the ungrouped list shows — the skeleton has
+ * to have the width of the table that's coming, otherwise the screen jumps.
  */
 export default function CarregandoLeads() {
   return (

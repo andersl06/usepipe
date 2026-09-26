@@ -3,9 +3,7 @@ import { cifrarConfig, keyringOfAmbiente } from '@pipe/db';
 import { credentialsOf } from '../src/delivery.js';
 
 /**
- * O canal grava o token CIFRADO (`cifrarConfig`). O worker tem de decifrar antes
- * de montar o `Bearer` — o dublê do WhatsApp não percebe token cifrado, e sem este
- * teste o envio real quebraria em silêncio.
+ * The channel stores an ENCRYPTED token (`cifrarConfig`). The worker must decrypt it before building `Bearer`; the WhatsApp double does not detect an encrypted token, so real delivery would otherwise fail silently.
  */
 describe('Resolve channel credentials from encrypted configuration', () => {
   it('Decrypt the channel token before sending a request to Meta', () => {

@@ -3,20 +3,12 @@ import Link from '../../../../components/link';
 import { IconePortal } from '../../../../components/icones-portal';
 
 /**
- * As páginas do Dicionário de dados, uma função por página da origem, com o
- * texto pt EXATO dos dicionários embutidos no `analytics-main.js` (o `pt:` de
- * cada `translate`). A única troca de texto é "Blip" → "Pipe", onde a marca
- * aparece para quem lê.
- *
- * As peças comuns levam o nome do styled-component de onde saíram (`UN`, `VN`,
- * `CN`…), porque é por esse nome que se acha a medida no bundle. O `font-size`
- * que cada uma herda importa: texto solto dentro de um `VN` herda o fs-14 do
- * `bds-typo`; solto fora dele, o 16 da página. Ver `dicionario.css`.
+ * The Data Dictionary pages, one function per page from the origin, with the EXACT pt-BR text from the dictionaries embedded in `analytics-main.js` (the `pt:` of each `translate`). The only text swap is "Blip" → "Pipe", wherever the brand name is visible to the reader. The common pieces carry the name of the styled-component they came from (`UN`, `VN`, `CN`…), because that name is how the measurement is found in the bundle. The `font-size` each one inherits matters: loose text inside a `VN` inherits the `bds-typo`'s fs-14; loose outside it, the page's 16. See `dicionario.css`.
  */
 
-/* ------------------------------------------------------------ peças comuns */
+/* ------------------------------------------------------------ common pieces */
 
-/** `lN`: "Atualizado em", fs-10 fantasma, encostado à direita. */
+/** `lN`: "Atualizado em", fs-10 ghost, flush right. */
 function Atualizado({ data }: { data: string }) {
   return <p className="dd-data">{data}</p>;
 }
@@ -26,7 +18,7 @@ function Titulo({ children }: { children: ReactNode }) {
   return <h2 className="dd-t24">{children}</h2>;
 }
 
-/** `ZN`: título de relatório anexo, na primária (`#1E6BF1` na origem). */
+/** `ZN`: attached-report title, in the primary color (`#1E6BF1` in the origin). */
 function TituloMarca({ children, fs20 }: { children: ReactNode; fs20?: boolean }) {
   return <h3 className={`${fs20 ? 'dd-t20' : 'dd-t24'} dd-marca`}>{children}</h3>;
 }
@@ -36,19 +28,18 @@ function Block({ children }: { children: ReactNode }) {
   return <div className="dd-bloco">{children}</div>;
 }
 
-/** `VN`: `bds-typo` em bloco, 5 embaixo. Sem `variant`, a origem cai no fs-16. */
+/** `VN`: block `bds-typo`, 5 margin-bottom. Without `variant`, the origin falls back to fs-16. */
 function Texto({ children, fs16 }: { children: ReactNode; fs16?: boolean }) {
   return <div className={`dd-texto${fs16 ? ' dd-p16' : ''}`}>{children}</div>;
 }
 
-/** `CN`: linha flexível, 5 embaixo. */
+/** `CN`: flex row, 5 margin-bottom. */
 function Linha({ children }: { children: ReactNode }) {
   return <div className="dd-linha">{children}</div>;
 }
 
 /**
- * `ON`: o trecho em destaque, sem quebra. Com `variant="fs-14" bold` é o negrito;
- * chamado sem nada (`SU`, `VU`) é fs-16 regular — `solto`.
+ * `ON`: the highlighted, non-wrapping span. With `variant="fs-14" bold` it's the bold style; called with nothing (`SU`, `VU`) it's fs-16 regular — `solto`.
  */
 function Destaque({ children, solto }: { children: ReactNode; solto?: boolean }) {
   return <span className={`dd-destaque${solto ? ' dd-destaque--solto' : ''}`}>{children}</span>;
@@ -64,7 +55,7 @@ function Importante({ titulo = 'Importante' }: { titulo?: string }) {
   );
 }
 
-/** O link de suporte da origem vai para `support.blip.ai`: fica o texto, sem destino. */
+/** The origin's support link points to `support.blip.ai`: only the text stays here, without a destination. */
 function LinkWithoutDestination({ children }: { children: ReactNode }) {
   return <span className="dd-link">{children}</span>;
 }
@@ -117,7 +108,7 @@ function ListaDeItens({ itens }: { itens: readonly ReactNode[] }) {
   );
 }
 
-/** `jN` + `IN`: passo a passo com ícone ou print ao lado. */
+/** `jN` + `IN`: step by step with an icon or screenshot alongside. */
 function Passos({ itens }: { itens: readonly ReactNode[] }) {
   return (
     <ListaNumerada
@@ -130,7 +121,7 @@ function Passos({ itens }: { itens: readonly ReactNode[] }) {
   );
 }
 
-/** `dU`: o círculo escuro com o ícone do Builder. */
+/** `dU`: the dark circle with the Builder icon. */
 function Circulo({ nome }: { nome: 'painel' | 'aprender' }) {
   return (
     <span className="dd-circulo">
@@ -144,7 +135,7 @@ function Divisor() {
   return <hr className="dd-divisor" />;
 }
 
-/** `FN`/`xU`: o indicador de comparação de exemplo, "-5%" com seta para baixo. */
+/** `FN`/`xU`: the example comparison indicator, "-5%" with a down arrow. */
 function IndicadorDeExemplo({ solto }: { solto?: boolean }) {
   return (
     <span className={`dd-indicador${solto ? ' dd-indicador--solto' : ''}`}>
@@ -155,8 +146,7 @@ function IndicadorDeExemplo({ solto }: { solto?: boolean }) {
 }
 
 /**
- * Os prints do Builder que o `gU` embute como PNG (164×19 e 88×19). Não vão os
- * PNGs: o desenho é refeito no mesmo tamanho, com a nossa tinta.
+ * The Builder screenshots that `gU` embeds as PNG (164×19 and 88×19). The PNGs are not included: the drawing is redone at the same size, with our own styling.
  */
 function PrintTracking() {
   return (
@@ -176,14 +166,12 @@ function PrintChatbot() {
   );
 }
 
-/** Marca, dentro de uma célula-objeto, o `important` que vira etiqueta. */
+/** Marks, inside an object-cell, the `important` key that becomes a tag/badge. */
 const IMPORTANTE = Symbol('importante');
 type Celula = string | readonly (string | typeof IMPORTANTE)[];
 
 /**
- * `iU`: cabeçalho fantasma, 10 de recheio, primeira coluna com 20%, linhas
- * ímpares em surface-2 e a primeira célula em negrito. Célula-objeto vira um
- * parágrafo por chave (`aU`), e a chave `important` vira a etiqueta.
+ * `iU`: ghost header, 10 padding, first column at 20%, odd rows in surface-2, and the first cell in bold. An object-cell becomes one paragraph per key (`aU`), and the `important` key becomes the tag/badge.
  */
 function Tabela({
   cabecalho,
@@ -229,7 +217,7 @@ function Tabela({
 const COLUNAS = ['Nome da coluna', 'Descrição'] as const;
 const METRIC_DEFINITION_FORMULA = ['Métrica', 'Definição', 'Fórmula'] as const;
 
-/** `WU`/`AU`/`PU`/`JU`/`uV`/`lV`/`iV`/`hV`: título azul, uma linha e a tabela. */
+/** `WU`/`AU`/`PU`/`JU`/`uV`/`lV`/`iV`/`hV`: blue title, one line, and the table. */
 function ReportAttachment({
   titulo,
   texto,
@@ -252,7 +240,7 @@ function ReportAttachment({
 
 /* ------------------------------------------------------------- Sobre dados */
 
-/** `zN` (dicionário `cN`). */
+/** `zN` (dictionary `cN`). */
 export function AboutData() {
   return (
     <>
@@ -290,7 +278,7 @@ export function AboutData() {
 
 /* --------------------------------------------------------------- Dashboard */
 
-/** `vU` (dicionário `bU`): a página da própria seção. */
+/** `vU` (dictionary `bU`): the section's own page. */
 function Dashboard() {
   return (
     <>
@@ -317,7 +305,7 @@ function Dashboard() {
   );
 }
 
-/** `SU` (dicionário `yU`). */
+/** `SU` (dictionary `yU`). */
 function DataFilter() {
   return (
     <>
@@ -383,7 +371,7 @@ function DataFilter() {
   );
 }
 
-/** `JN` (dicionário `PN`). */
+/** `JN` (dictionary `PN`). */
 function ComparisonIndicador() {
   return (
     <>
@@ -404,7 +392,7 @@ function ComparisonIndicador() {
           </span>
         </Linha>
         <Linha>
-          {/* `DN`: a mesma caixa do indicador, vazia, para alinhar o exemplo. */}
+          {/* `DN`: the same indicator box, empty, to align the example. */}
           <span className="dd-indicador dd-indicador--vazio" />
           <span className="dd-rotulo">
             <span className="dd-p14 dd-forte">Exemplo:</span>
@@ -420,7 +408,7 @@ function ComparisonIndicador() {
   );
 }
 
-/** `lU` (dicionário `sU`). */
+/** `lU` (dictionary `sU`). */
 function Contacts() {
   return (
     <>
@@ -488,12 +476,12 @@ function Contacts() {
   );
 }
 
-/** `DU` (dicionário `CU`). */
+/** `DU` (dictionary `CU`). */
 function Recorrencia() {
   const exemplo = (rotulo: string, texto: string, itens: readonly string[]) => (
     <Texto>
       <Linha>
-        {/* `MU`: rótulo entre 83 e 100 de largura. */}
+        {/* `MU`: label between 83 and 100 width. */}
         <span className="dd-exemplo-rotulo">{rotulo}</span>
         <span className="dd-descricao">
           <Texto>
@@ -576,7 +564,7 @@ function Recorrencia() {
   );
 }
 
-/** `VU` (dicionário `UU`). */
+/** `VU` (dictionary `UU`). */
 function Messages() {
   return (
     <>
@@ -644,7 +632,7 @@ function Messages() {
   );
 }
 
-/** `gU` (dicionário `hU`). */
+/** `gU` (dictionary `hU`). */
 function FlowConversacional() {
   return (
     <>
@@ -765,9 +753,7 @@ function FlowConversacional() {
 }
 
 /**
- * `NU` → `wU` (dicionário `RU`): a página que a origem já escreve como lista de
- * seções tipadas (`text`, `attentionText`, `chip`, `orderedList`, `table`,
- * `unorderedList`), empilhadas num `bds-grid direction="column" gap="2"`.
+ * `NU` → `wU` (dictionary `RU`): the page that the origin already writes as a list of typed sections (`text`, `attentionText`, `chip`, `orderedList`, `table`, `unorderedList`), stacked in a `bds-grid direction="column" gap="2"`.
  */
 function ListaDeBlocos() {
   return (
@@ -990,7 +976,7 @@ function ListaDeBlocos() {
   );
 }
 
-/** `_U` (dicionário `EU`). Da segunda resposta em diante o `VN` vai sem `variant`: fs-16. */
+/** `_U` (dictionary `EU`). From the second answer onward, `VN` goes without `variant`: fs-16. */
 function PerguntasFrequentes() {
   const rest: readonly [string, string][] = [
     [
@@ -1039,9 +1025,9 @@ function PerguntasFrequentes() {
   );
 }
 
-/* ------------------------------------------------ Gerenciador de Relatórios */
 
-/** `KU` (dicionário `$U`). */
+
+/** `KU` (dictionary `$U`). */
 function ReportsManager() {
   const somente = (tipo: string) => [tipo, '-', '✔️', '-'] as const;
   const todos = (tipo: string) => [tipo, '✔️', '✔️', '✔️'] as const;
@@ -1129,7 +1115,7 @@ function ReportsManager() {
   );
 }
 
-/* As nove métricas que se repetem nas abas do Notifications Summary (`IU`). */
+/* The nine metrics repeated across the Notifications Summary tabs (`IU`). */
 const METRICS_OF_NOTIFICATION: readonly (readonly Celula[])[] = [
   ['Enviadas', 'Quantidade de mensagens enviadas/disparadas pelos bots.'],
   ['Falhas', 'Quantidade de mensagens que tiveram alguma indicação de falha no envio.'],
@@ -1151,7 +1137,7 @@ const METRICS_OF_NOTIFICATION: readonly (readonly Celula[])[] = [
   ],
 ];
 
-/** `ZU` (dicionário `OU`) + `WU` + `AU`. */
+/** `ZU` (dictionary `OU`) + `WU` + `AU`. */
 function ActiveMessages() {
   return (
     <>
@@ -1359,7 +1345,7 @@ function ActiveMessages() {
   );
 }
 
-/** `XU` (dicionário `qU`). */
+/** `XU` (dictionary `qU`). */
 function EventsTracking() {
   return (
     <>
@@ -1407,7 +1393,7 @@ function EventsTracking() {
   );
 }
 
-/** `GU` (dicionário `BU`) + `QU` + `JU` + `PU`. */
+/** `GU` (dictionary `BU`) + `QU` + `JU` + `PU`. */
 function ChatbotMetrics() {
   const ABAS_USERS: readonly (readonly Celula[])[] = [
     ['Ano_Mes', 'Ano-Mês em que os dados foram coletados.'],
@@ -1508,7 +1494,7 @@ function ChatbotMetrics() {
     ],
   ];
 
-  /** Cada aba do `QU`: fio, título fs-20 e a tabela. */
+  /** Each `QU` tab: divider line, fs-20 title, and the table. */
   const aba = (titulo: string, linhas: readonly (readonly Celula[])[]) => (
     <>
       <Texto>
@@ -1776,7 +1762,7 @@ const TEMPOS_DE_STATUS: readonly (readonly Celula[])[] = [
   ],
 ];
 
-/** `pV` (dicionário `rV`) + `uV` + `lV` + `iV` + `hV`. */
+/** `pV` (dictionary `rV`) + `uV` + `lV` + `iV` + `hV`. */
 function AgentsStatus() {
   const AGENT = ['AgentIdentity', 'Identificador/E-mail do atendente.'] as const;
   return (
@@ -1880,7 +1866,7 @@ function AgentsStatus() {
   );
 }
 
-/** `oV`/`tV`: título, texto, "Importante" e a tabela. */
+/** `oV`/`tV`: title, text, "Importante" and the table. */
 function AttendanceReport({
   titulo,
   texto,
@@ -1922,7 +1908,7 @@ const ORIGINAL_OF_ROUTER: readonly (readonly Celula[])[] = [
   ],
 ];
 
-/** `oV` (dicionário `nV`). */
+/** `oV` (dictionary `nV`). */
 function AttendanceMetrics() {
   return (
     <AttendanceReport
@@ -1979,7 +1965,7 @@ function AttendanceMetrics() {
   );
 }
 
-/** `tV` (dicionário `eV`). */
+/** `tV` (dictionary `eV`). */
 function AttendanceHistory() {
   return (
     <AttendanceReport
@@ -2018,8 +2004,7 @@ function AttendanceHistory() {
 }
 
 /**
- * A página de cada chave de `path`. Subseção e seção dividem o espaço de nomes
- * porque na origem também dividem (`selectedSubSection` é um só).
+ * The page for each `path` key. Subsection and section share the namespace because the origin also shares it (`selectedSubSection` is a single value).
  */
 export const PAGES: Readonly<Record<string, () => JSX.Element>> = {
   aboutData: AboutData,

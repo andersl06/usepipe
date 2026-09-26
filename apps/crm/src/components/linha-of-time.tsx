@@ -4,33 +4,37 @@ import type { TimeItemLinha } from '../lib/leads';
 import { desde, dataHora } from '../lib/format';
 
 /**
- * A linha do tempo do lead.
+ * The lead's timeline.
  *
- * Três coisas vieram da leitura do Twenty, e cada uma resolve um problema que a
- * versão anterior tinha:
+ * Three things came from reading Twenty, and each solves a problem the previous
+ * version had:
  *
- * 1. **Agrupamento por mês.** Quarenta eventos numa lista corrida não têm
- *    referência de tempo nenhuma. O separador de mês dá a régua, e o ano só
- *    aparece quando muda, porque repetir "2026" doze vezes não informa nada.
- * 2. **Trilho vertical ligando os ícones.** É o que faz a coluna ser lida como
- *    uma sequência em vez de uma pilha de linhas soltas. A linha para no último
- *    evento do mês, senão ela aponta para um vazio.
- * 3. **Hora relativa à direita, absoluta no `title`.** "há 3 dias" é o que a
- *    pessoa quer saber; a data exata é o que ela confere uma vez a cada vinte.
+ * 1. **Grouping by month.** Forty events in one running list have no sense of
+ *    time at all. The month divider gives that reference, and the year only
+ *    shows up when it changes, because repeating "2026" twelve times says
+ *    nothing.
+ * 2. **A vertical rail connecting the icons.** It's what makes the column read
+ *    as a sequence instead of a stack of loose lines. The rail stops at the
+ *    month's last event, otherwise it points at emptiness.
+ * 3. **Relative time on the right, absolute in the `title`.** "3 days ago" is
+ *    what the person wants to know; the exact date is what they check once in
+ *    twenty times.
  *
- * O que não copiamos: o diff campo a campo dos eventos de alteração. Ele
- * pressupõe um registro de auditoria por campo que não existe no nosso
- * `atividade`, e inventar um agora seria construir a tela antes do dado.
+ * What we didn't copy: the field-by-field diff for change events. It assumes a
+ * per-field audit record that doesn't exist in our `atividade`, and inventing
+ * one now would mean building the screen before the data.
  *
- * A medida do trilho é 26px, que é a mesma deles, por uma razão que não é
- * imitação: é o menor valor em que um ícone de 16px cabe centrado com folga
- * visível dos dois lados na nossa régua de 4px.
+ * The rail's measurement is 26px, the same as theirs, for a reason that isn't
+ * imitation: it's the smallest value where a 16px icon fits centered with
+ * visible slack on both sides on our 4px scale.
  */
 
 const RAIL = 26;
 
-/** Tipo de evento para desenho. O que não casa fica no relógio, que é honesto:
- *  aconteceu, tem hora, e não sabemos dizer mais do que isso. */
+/**
+ * Event type for rendering. Whatever doesn't match falls back to the clock,
+ * which is honest: it happened, it has a time, and we can't say more than that.
+ */
 const ICONE: Record<string, NomeDeIcone | NomeDeIconeCrm> = {
   Nota: 'nota',
   Ligação: 'telefone',
@@ -59,15 +63,15 @@ interface Mes {
 }
 
 /**
- * Dobra por mês, preservando a ordem (mais recente primeiro).
+ * Folds by month, preserving order (most recent first).
  *
- * O agrupamento usa uma chave estável (ano e mês), e o título é decidido
- * depois. Agrupar pelo próprio título dá o defeito de o ano sair do rótulo no
- * segundo evento e abrir um grupo "Setembro" logo abaixo de outro "Setembro de
- * 2026", com os mesmos eventos partidos ao meio.
+ * The grouping uses a stable key (year and month), and the title is decided
+ * afterward. Grouping by the title itself has the flaw that the year drops out
+ * of the label on the second event and opens a "September" group right below
+ * another "September 2026", with the same events split in half.
  *
- * O ano só aparece quando muda em relação ao grupo anterior: repetir "2026"
- * doze vezes não informa nada.
+ * The year only shows up when it changes relative to the previous group:
+ * repeating "2026" twelve times says nothing.
  */
 function byMes(itens: TimeItemLinha[], fuso: string): Mes[] {
   const groups: { ano: number; mes: string; itens: TimeItemLinha[] }[] = [];
@@ -122,8 +126,10 @@ export function TimeLinha({
                   <span className="slot">
                     <IconeDoEvento tipo={item.tipo} />
                   </span>
-                  {/* O trilho para no último do mês: linha que continua abaixo
-                      do último evento aponta para um lugar que não existe. */}
+                  {/*
+ * The rail stops at the last one of the month: a line that continues below the
+ * last event points at a place that doesn't exist.
+ */}
                   {i < mes.itens.length - 1 ? <span className="fio" /> : null}
                 </div>
                 <div className="corpo">

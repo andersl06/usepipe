@@ -8,22 +8,12 @@ import { createLinkTracked } from './gravar';
 import type { LinkRastreado, Resultado } from './data';
 
 /**
- * Growth › Links rastreados — tela irmã do `growth/clicktracker` que já
- * existe (aquele é a medição de anúncios Click-to-WhatsApp da Meta; este é o
- * link curto com contagem de clique de verdade, backend em
- * `apps/api/src/dominio/rastreador-de-cliques.ts`, já testado). Sem ficha da
- * Blip para medir — a origem não tem esta tela —, então a forma segue a dos
- * outros itens do menu (`mensagens-ativas/tela.tsx`, `pagamentos.tsx`):
- * `gr-container`/`gr-cabeca`/`gr-lista`/`gr-tabela-rolagem` e o modal de
- * criação em `gr-sobreposicao`/`gr-modal`.
+ * Growth › Links rastreados — a sibling screen to the existing `growth/clicktracker` (that one measures Meta's Click-to-WhatsApp ad performance; this one is the short link with real click counting, backed by `apps/api/src/dominio/rastreador-de-cliques.ts`, already tested). No Blip reference for this screen — the origin doesn't have it —, so its shape follows the other menu items (`mensagens-ativas/tela.tsx`, `pagamentos.tsx`): `gr-container`/`gr-cabeca`/`gr-lista`/`gr-tabela-rolagem` and the creation modal in `gr-sobreposicao`/`gr-modal`.
  *
- * Sem filtro de período na tela (a leitura aceita `?desde=&ate=`, mas nada no
- * pedido pede um seletor de datas aqui) — "Cliques" é sempre o total; se um
- * dia precisar do corte por período, é um `<input type="date">` a mais nesta
- * mesma leitura.
+ * No period filter on the screen (the read endpoint accepts `?desde=&ate=`, but nothing in the request calls for a date picker here) — "Cliques" is always the total; if a period cut is ever needed, it's one more `<input type="date">` on this same read.
  */
 
-/** Copia o link curto para a área de transferência — mesma ideia (palavra, não ícone) de `paginas/contrato/copiar.tsx`. */
+/** Copies the short link to the clipboard — same idea (word, not icon) as `paginas/contrato/copiar.tsx`. */
 function BotaoCopiarLink({ url, nome }: { url: string; nome: string }) {
   const [copiado, setCopiado] = useState(false);
   return (

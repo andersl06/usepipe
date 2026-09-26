@@ -1,21 +1,7 @@
 import { memo } from 'react';
 
 /**
- * Histórico como LISTA DE CARTÕES, e não como tabela.
- *
- * É a diferença mais funda entre a tela deles e a nossa, medida em
- * `referencias-blip/pesquisa/blip-telas-atendimento.md` §3 e §5.2: seis das oito telas do
- * módulo Atendimento da Blip usam este cartão, e nenhuma usa tabela. Com dez
- * colunas, a tabela obriga a ler o cabeçalho e descer o olho; o cartão traz o
- * rótulo colado no valor e sobrevive a qualquer largura de tela.
- *
- * A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA: barra de seleção acima da lista,
- * rótulo pequeno acima do valor forte. A cor sai dos `--p-*`, e nenhum hex
- * deles entra aqui.
- *
- * A seleção é controlada pela página (`PaginaHistorico`): a exportação em CSV
- * precisa saber se há seleção para acender, e mora fora deste componente.
- * Aqui ficam "Selecionar todos" e a contagem dos cartões visíveis.
+ * Render History as cards rather than a ten-column table, as measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` Sections 3 and 5.2: six of eight Blip Attendance screens use cards and none use a table. A card keeps labels beside values across widths. Match their layout (selection bar above; small label over strong value) with our `--p-*` colors, not their hex values. `PaginaHistorico` owns selection because CSV export outside this component depends on it; this component owns Select all and the visible-card count.
  */
 
 export interface CardHistory {
@@ -50,15 +36,11 @@ function Campo({ rotulo, value, classe }: { rotulo: string; value: string; class
   );
 }
 
-/** As oito colunas do cartão, fora do componente para não virar objeto novo a cada render. */
+
 const OITO_COLUNAS = { '--cl-colunas': 8 } as React.CSSProperties;
 
 /**
- * O cartão é memoizado, e isso não é otimização prematura: são 200 conversas
- * no teto da consulta, cada uma com oito campos. Sem `memo`, marcar UMA caixa
- * de seleção reconstruía os 200 cartões, e a tela congelava por dezenas de
- * segundos — medido, não suposto. Com `memo` e um `aoAlternar` estável, marcar
- * uma caixa redesenha um cartão só.
+ * Memoizing the card is measured necessity, not speculative optimization: a query can return 200 conversations with eight fields each; without `memo`, checking one box rebuilt all 200 cards and froze the screen for tens of seconds. With `memo` and stable `aoAlternar`, only one card rerenders.
  */
 const Card = memo(function Cartao({
   card,
@@ -116,7 +98,7 @@ export function ListaHistory({
   aoAlternarTodos,
 }: {
   groups: readonly CardsGroup[];
-  /** A lista única, sem repetição por grupo — quem manda no "selecionar todos". */
+  /** Keep one deduplicated list for Select all, rather than repeating cards in each group. */
   todos: readonly CardHistory[];
   marcados: ReadonlySet<string>;
   aoAlternar: (id: string) => void;

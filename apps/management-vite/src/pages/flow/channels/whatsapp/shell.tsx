@@ -9,29 +9,17 @@ import { ChannelShell, type ChannelAba } from '../shell-of-channel';
 import './channel-whatsapp.css';
 
 /**
- * O WhatsApp por dentro do BOT — `/application/detail/{bot}/channels/whatsapp-embedded`
- * (`FICHA-conectar-canal-no-bot.md` §1.2–1.3, template 79961): seta "‹" para
- * a lista de canais, título "WhatsApp", e as abas Visão Geral | Perfil da
- * empresa | Configurações | Configurações de alerta | Ambiente de testes, com
- * "Documentação" à direita.
+ * WhatsApp inside the BOT — `/application/detail/{bot}/channels/whatsapp-embedded` (`FICHA-conectar-canal-no-bot.md` §1.2–1.3, template 79961): "‹" back arrow to the channel list, title "WhatsApp", and the tabs Visão Geral | Perfil da empresa | Configurações | Configurações de alerta | Ambiente de testes, with "Documentação" on the right.
  *
- * As duas abas do meio só existem com o número conectado
- * (`ng-show="currentActivationStep === VERIFIED"`) — foto `08` da ficha do
- * canal. "Ambiente de testes" a Pipe ainda não tem por dentro.
+ * The two middle tabs only exist with the number connected (`ng-show="currentActivationStep === VERIFIED"`) — photo `08` from the channel's ficha. "Ambiente de testes" Pipe doesn't have internally yet.
  *
- * Estas abas moravam em `cadastros/canal-whatsapp/**`, no módulo Atendimento,
- * com o canal escolhido pela URL (`/canais/whatsapp/:canalId`). Na origem o
- * canal é DO BOT: a página é uma só por bot, e o canal vem de
- * `GET /v1/gestao/fluxos/:id/canal`. O que as abas de perfil, configurações e
- * alerta precisam além disso — a saúde do número na Meta — continua vindo de
- * `/v1/canais/whatsapp` (que pede `canal.gerenciar`; sem ela, a Visão Geral
- * desenha com o que o bot sabe e as outras abas dizem o que houve).
+ * These tabs used to live under `cadastros/canal-whatsapp/**`, in the Attendance module, with the channel chosen by the URL (`/canais/whatsapp/:canalId`). In the source the channel belongs TO THE BOT: there's one page per bot, and the channel comes from `GET /v1/gestao/fluxos/:id/canal`. What the profile, settings and alert tabs need beyond that — the number's health on Meta — still comes from `/v1/canais/whatsapp` (which requires `canal.gerenciar`; without it, Visão Geral draws with what the bot knows and the other tabs say what happened).
  */
 
 export interface ChannelWhatsappContext {
   flowId: string;
   channel: ChannelOfFlow;
-  /** O canal como `/v1/canais/whatsapp` o vê (estado na Meta, qualidade…); nulo se a leitura não veio. */
+  /** The channel as `/v1/canais/whatsapp` sees it (state on Meta, quality…); null if the read hasn't come back. */
   saude: ChannelWhatsAppVisivel | null;
 }
 
@@ -47,7 +35,7 @@ const ABAS: readonly ChannelAba[] = [
   { rotulo: 'Ambiente de testes', segment: 'testes', emBreve: true },
 ];
 
-/** O que a Visão Geral recebe quando NÃO há canal: a tela decide o passo. */
+/** What Visão Geral receives when there's NO channel: the screen decides the step. */
 export interface ContextWithoutChannel {
   flowId: string;
   situation: ChannelInBotState;
@@ -59,7 +47,7 @@ export function ShellChannelWhatsapp() {
   const read = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
   const situation = read.data ? channelInBotState(read.data.channel, 'whatsapp_cloud') : null;
   const conectado = situation?.state === 'conectado';
-  /* A saúde só interessa conectado; 403 (sem `canal.gerenciar`) não é falha da página. */
+  /* Health only matters when connected; 403 (without `canal.gerenciar`) isn't a page failure. */
   const saudes = useRead<{ channels: ChannelWhatsAppVisivel[] }>(conectado ? '/v1/channels/whatsapp' : null, {
     retry: false,
   });

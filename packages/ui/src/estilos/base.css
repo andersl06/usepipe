@@ -1,26 +1,27 @@
-/* ==========================================================================
-   Pipe — base compartilhada dos três aplicativos.
-
-   Antes desta folha, `apps/desk`, `apps/gestao` e `apps/crm` tinham cada um a
-   sua cópia: 48,5 KB somados, com as linhas 1–688 do CRM idênticas byte a byte
-   às da Gestão. Tokens triplicados divergem — e divergiram.
-
-   O que muda de comportamento em relação àquelas cópias, e por quê:
-
-   - `th` deixa de ser monoespaçada. Passa a ser caixa alta na família do
-     corpo, 12px/600 — que é exatamente o que o Salesforce faz. A monoespaçada
-     fica em dois lugares e só dois: número tabular (`.num`) e rótulo de seção
-     (`.lbl`).
-   - `.etiqueta` (a antiga `.pill`) nasce NEUTRA e é o único componente de
-     etiqueta do Pipe, com variante clicável. Fila, canal, origem e fase não
-     têm cor. Cor de estado é `.etiqueta.erro` / `.alerta` / `.sucesso` /
-     `.info`, e só entra no que exige ação.
-   - O corpo passa de 13px para 14px, e a régua inteira para 16/14/12 (+10),
-     que é a medida na Blip. A linha de tabela acompanha: 34px → 36px.
-   - Raio: 8px em tudo, 5px em controle pequeno, pílula em avatar e etiqueta
-     redonda. Três valores, e os dois últimos são exceção com propósito.
-   - Borda usa `--p-linha`, que é tinta translúcida. Ver o topo de tokens.css.
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *    Pipe — base shared by the three apps.
+ *
+ *    Before this sheet, `apps/desk`, `apps/gestao` and `apps/crm` each had their own
+ *    copy: 48.5 KB combined, with lines 1-688 of the CRM byte-for-byte identical to
+ *    Gestão's. Triplicated tokens drift apart — and they had.
+ *
+ *    What changes in behavior from those copies, and why:
+ *
+ *    - `th` stops being monospace. It becomes uppercase in the body family,
+ *      12px/600 — which is exactly what Salesforce does. Monospace stays in two
+ *      places, and only two: tabular numbers (`.num`) and section labels (`.lbl`).
+ *    - `.etiqueta` (the former `.pill`) is born NEUTRAL and is Pipe's only tag
+ *      component, with a clickable variant. Queue, channel, source and phase have
+ *      no color. Status color is `.etiqueta.erro` / `.alerta` / `.sucesso` /
+ *      `.info`, and only appears on what demands action.
+ *    - The body goes from 13px to 14px, and the whole scale to 16/14/12 (+10),
+ *      which is the measurement from Blip. The table row follows: 34px to 36px.
+ *    - Radius: 8px everywhere, 5px on small controls, pill on avatar and round
+ *      tag. Three values, and the last two are exceptions with a purpose.
+ *    - Border uses `--p-linha`, which is translucent ink. See the top of tokens.css.
+ *    ==========================================================================
+ */
 
 *,
 *::before,
@@ -48,8 +49,10 @@ a {
   color: inherit;
 }
 
-/* O anel de foco usa `--p-foco`, e NUNCA `--p-marca`. Ver o comentário do token:
-   anel na cor da marca faz o teclado e o mouse dizerem a mesma coisa. */
+/*
+ * The focus ring uses `--p-foco`, and NEVER `--p-marca`. See the token's comment:
+ *    a ring in the brand color makes the keyboard and the mouse say the same thing.
+ */
 :focus-visible {
   outline: 2px solid var(--p-foco);
   outline-offset: 2px;
@@ -67,19 +70,23 @@ a {
 
 /* --------------------------------------------------------------- tipografia */
 
-/* Número. Tabular, para coluna alinhar. Primeiro dos DOIS papéis da
-   monoespaçada, e o principal. */
+/*
+ * Number. Tabular, so columns align. First of the monospace's TWO roles, and
+ *    the main one.
+ */
 .mono,
 .num {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
 }
 
-/* Rótulo de SEÇÃO — o segundo papel da monoespaçada, e o último. São poucos
-   por tela: o título miúdo que abre um grupo. Nunca nome de fase, de fila, de
-   origem nem de campo; esses são texto corrente na família do corpo.
-   Cabeçalho de coluna (`th`) fica de fora de propósito: são muitos por tela,
-   e mono em todos foi parte do ruído que o dono reprovou. */
+/*
+ * SECTION label — the monospace's second role, and its last. There are few
+ *    per screen: the small title that opens a group. Never a phase name, queue
+ *    name, source or field; those are running text in the body family.
+ *    Column header (`th`) is deliberately excluded: there are many per screen,
+ *    and mono on all of them was part of the noise the owner rejected.
+ */
 .lbl {
   font-family: var(--p-fonte-mono);
   font-size: var(--p-rotulo-tamanho);
@@ -94,25 +101,29 @@ a {
   color: var(--p-conteudo-fantasma);
 }
 
-/* ================================================================ estrutura
-   Navegação de módulo no TOPO, horizontal. Lateral só com o contexto do
-   módulo aberto, e curta. É o que Salesforce e Blip fazem: no Salesforce a
-   tela de lista não tem lateral nenhuma (medido: zero elementos encostados à
-   esquerda com mais de 300px de altura).
-   ========================================================================= */
+/*
+ * ================================================================ structure
+ *    Module navigation at the TOP, horizontal. Sidebar only with the open
+ *    module's context, and short. It's what Salesforce and Blip do: in
+ *    Salesforce the list screen has no sidebar at all (measured: zero elements
+ *    flush to the left taller than 300px).
+ *    =========================================================================
+ */
 
-/* A CAIXA QUE NÃO ROLA.
-   Altura fixa e `overflow: hidden`: quem rola é a lateral e o conteúdo, cada um
-   por si, e o topo fica onde está por LAYOUT, não por `position: sticky`.
-
-   É o modelo da casca deles, lido no pacote do módulo de Atendimento
-   (`referencias-blip/pesquisa/blip-gestao-medidas.md` §8.7.2): caixa externa de altura fixa,
-   lateral e conteúdo irmãos. Antes daqui a página inteira rolava e o topo era
-   grudado — parecido de longe, diferente de perto: cromo grudado repinta na
-   rolagem, e a lateral disputava a barra de rolagem da página.
-
-   `100dvh` e não `100vh`: em navegador de celular a barra do navegador entra e
-   sai, e `vh` congela na altura maior, cortando o pé da tela. */
+/*
+ * THE BOX THAT DOESN'T SCROLL.
+ *    Fixed height and `overflow: hidden`: the sidebar and the content scroll, each
+ *    on its own, and the top stays where it is by LAYOUT, not by `position: sticky`.
+ *
+ *    It's their shell's model, read from the Attendance module's package
+ *    (`referencias-blip/pesquisa/blip-gestao-medidas.md` §8.7.2): fixed-height outer
+ *    box, sidebar and content as siblings. Before this, the whole page scrolled and
+ *    the top was stuck — similar from afar, different up close: stuck chrome
+ *    repaints on scroll, and the sidebar fought the page's own scrollbar.
+ *
+ *    `100dvh` and not `100vh`: on a phone browser the address bar comes and goes,
+ *    and `vh` freezes at the taller height, cutting off the bottom of the screen.
+ */
 .p-app {
   height: 100dvh;
   overflow: hidden;
@@ -157,7 +168,7 @@ a {
   white-space: nowrap;
 }
 
-/* Navegação horizontal de módulos. Poucos itens, e todos funcionam. */
+/* Horizontal navigation of modules. Few items, and all of them work. */
 .p-modulos {
   display: flex;
   align-items: center;
@@ -192,7 +203,7 @@ a {
   font-weight: var(--p-peso-medio);
 }
 
-/* Tudo daqui para a direita: ações da conta, não do trabalho. */
+/* Everything from here to the right: account actions, not work actions. */
 .p-topo-fim {
   margin-left: auto;
   display: flex;
@@ -209,18 +220,22 @@ a {
   min-width: 0;
 }
 
-/* Lateral CONTEXTUAL: só os itens do módulo aberto. Curta por regra —
-   se passar de meia dúzia de itens, o módulo está grande demais. */
+/*
+ * CONTEXTUAL sidebar: only the items of the open module. Short by rule —
+ *    if it goes over half a dozen items, the module is too big.
+ */
 .p-lateral {
   width: var(--p-largura-lateral);
   flex: none;
   background: var(--p-superficie-2);
   border-right: 1px solid var(--p-linha);
   padding: var(--p-e-3) var(--p-e-2);
-  /* Rola por si. O `sticky` com `max-height` que estava aqui era a imitação do
-     mesmo efeito enquanto a página inteira rolava; com a caixa de altura fixa
-     ele virou enfeite, e enfeite que ninguém entende é o que sobra num arquivo
-     por anos. */
+  /*
+   * Scrolls on its own. The `sticky` with `max-height` that used to be here was
+   *      imitating the same effect while the whole page scrolled; with the fixed-height
+   *      box it became decoration, and decoration nobody understands is what lingers
+   *      in a file for years.
+   */
   overflow-y: auto;
 }
 
@@ -248,7 +263,7 @@ a {
   font-weight: var(--p-peso-medio);
 }
 
-/* O ROLADOR. É este elemento, e só ele, que rola no corpo da aplicação. */
+/* THE SCROLLER. This element, and only this one, scrolls in the application body. */
 .p-conteudo {
   flex: 1;
   min-width: 0;
@@ -260,7 +275,7 @@ a {
   gap: var(--p-e-4);
 }
 
-/* Cabeçalho de tela. Cada tela tem UMA coisa principal; este é o rótulo dela. */
+/* Screen header. Every screen has ONE main thing; this is its label. */
 .p-cabecalho {
   display: flex;
   align-items: center;
@@ -335,11 +350,13 @@ a {
   background: var(--p-erro-fundo);
 }
 
-/* OBSOLETO: use `<Etiqueta aoClicar={...} ativa={...}>`.
-   O recorte salvo de lista virou responsabilidade da etiqueta clicável, que é
-   o componente único de etiqueta do produto. Duas formas de desenhar a mesma
-   coisa é como o conjunto volta a ficar inconsistente.
-   Fica só enquanto os três aplicativos migram. */
+/*
+ * DEPRECATED: use `<Etiqueta aoClicar={...} ativa={...}>`.
+ *    The saved list filter chip became the responsibility of the clickable tag,
+ *    which is the product's single tag component. Two ways to draw the same
+ *    thing is how the set becomes inconsistent again.
+ *    Stays only while the three apps migrate.
+ */
 .btn.chip {
   border-radius: var(--p-r-pilula);
   padding: 5px 12px;
@@ -351,7 +368,7 @@ a {
   color: var(--p-marca-forte);
 }
 
-/* Controle pequeno: raio de 5px, a primeira das duas exceções ao raio padrão. */
+/* Small control: 5px radius, the first of the two exceptions to the standard radius. */
 .iconbtn {
   width: 28px;
   height: 28px;
@@ -381,17 +398,20 @@ a {
   height: var(--p-icone-md);
 }
 
-/* ========================================================== etiqueta
-   Componente de PRIMEIRA CLASSE, e o único do Pipe. Nem Chatwoot nem Twenty
-   têm um genérico, e é por isso que cada tela reimplementa o seu e fica
-   inconsistente. Aqui um só serve etiqueta de fila, faixa de score, status de
-   SLA e conceito de avaliação. Referência de forma: `bds-chip-clickable` da
-   Blip, que empacota a etiqueta junto com a sua versão clicável.
-
-   NASCE NEUTRA. Fila, canal, origem e fase não recebem cor: categoria não é
-   estado, e quando tudo é colorido nada é. Cor só entra quando o que a
-   etiqueta diz exige uma ação, e aí ela é um dos quatro estados — sempre o
-   PAR de fundo pastel com conteúdo escuro, nunca texto saturado solto. */
+/*
+ * ========================================================== tag
+ *    A FIRST-CLASS component, and Pipe's only one. Neither Chatwoot nor Twenty
+ *    has a generic one, which is why every screen reimplements its own and ends
+ *    up inconsistent. Here a single one serves queue tags, score bands, SLA
+ *    status and review concepts. Shape reference: Blip's `bds-chip-clickable`,
+ *    which packages the tag together with its clickable version.
+ *
+ *    BORN NEUTRAL. Queue, channel, source and phase get no color: category isn't
+ *    status, and when everything is colored nothing is. Color only enters when
+ *    what the tag says demands an action, and then it's one of four states —
+ *    always the PAIR of a pastel background with dark content, never loose
+ *    saturated text.
+ */
 .etiqueta,
 .pill {
   font-size: var(--p-t-sm);
@@ -439,17 +459,21 @@ a {
   color: var(--p-info-conteudo);
 }
 
-/* Pílula. Só para contagem redonda e para o que acompanha avatar. O resto da
-   interface usa o raio de controle. */
+/*
+ * Pill. Only for round counts and for what accompanies an avatar. The rest of
+ *    the interface uses the control radius.
+ */
 .etiqueta.redonda {
   border-radius: var(--p-r-pilula);
   padding: 1px 10px;
 }
 
-/* Versão clicável: recorte salvo de lista, filtro que liga e desliga, valor
-   que navega. É `<button>` de verdade, então já vem com teclado e foco. O
-   estado ligado é o único lugar onde a cor de marca toca uma etiqueta, e ela
-   toca porque ali a etiqueta virou ação. */
+/*
+ * Clickable version: saved list filter, an on/off filter, a value that
+ *    navigates. It's a real `<button>`, so it already comes with keyboard and
+ *    focus support. The active state is the only place where the brand color
+ *    touches a tag, and it touches because there the tag became an action.
+ */
 button.etiqueta {
   font-family: inherit;
   cursor: pointer;
@@ -473,9 +497,11 @@ button.etiqueta.info:hover {
   filter: brightness(0.97);
 }
 
-/* As antigas variantes coloridas de fila/canal/informação passam a ser
-   neutras. Os seletores continuam existindo para não quebrar marcação
-   espalhada; o que muda é que deixaram de pintar. */
+/*
+ * The old colored queue/channel/info variants become neutral. The selectors
+ *    still exist so they don't break markup scattered elsewhere; what changes is
+ *    that they no longer paint.
+ */
 .pill.q,
 .pill.ch,
 .pill.info {
@@ -500,14 +526,17 @@ button.etiqueta.info:hover {
   color: var(--p-conteudo-fantasma);
 }
 
-/* A BORDA do campo em foco continua na marca — ela não é o anel, é o realce do
-   campo, e some sob o anel de `--p-foco` que a regra global desenha por cima. */
+/*
+ * The focused field's BORDER stays in the brand color — it isn't the ring, it's
+ *    the field's highlight, and it disappears under the `--p-foco` ring that the
+ *    global rule draws on top.
+ */
 .campo:focus-visible,
 .seletor:focus-visible {
   border-color: var(--p-marca);
 }
 
-/* ---------------------------------------------------------------- cartão */
+/* ---------------------------------------------------------------- card */
 .card {
   background: var(--p-superficie-0);
   border: 1px solid var(--p-linha);
@@ -524,7 +553,7 @@ button.etiqueta.info:hover {
   font-weight: var(--p-peso-forte);
 }
 
-/* Número de destaque. Monoespaçada porque é número. */
+/* Highlight number. Monospace because it's a number. */
 .metric {
   display: flex;
   flex-direction: column;
@@ -546,15 +575,17 @@ button.etiqueta.info:hover {
   color: var(--p-conteudo-desabilitado);
 }
 
-/* O denominador ao lado de toda média — decisão da spec de métricas. */
+/* The denominator next to every average — a decision from the metrics spec. */
 .metric .den {
   font-family: var(--p-fonte-mono);
   font-size: var(--p-t-xs);
   color: var(--p-conteudo-fantasma);
 }
 
-/* Um número só fica colorido quando pede ação. `accent` some de propósito:
-   número não é lugar de cor de marca. */
+/*
+ * A number is only colored when it calls for action. `accent` disappears on
+ *    purpose: a number isn't a place for brand color.
+ */
 .metric.warn .v {
   color: var(--p-alerta-conteudo);
 }
@@ -645,8 +676,10 @@ table {
   font-size: var(--p-t-md);
 }
 
-/* Cabeçalho de coluna: caixa alta na família do CORPO, não monoespaçada.
-   São muitos por tela; mono em todos foi parte do ruído. Ver `.lbl`. */
+/*
+ * Column header: uppercase in the BODY family, not monospace. There are many
+ *    per screen; mono on all of them was part of the noise. See `.lbl`.
+ */
 th {
   text-align: left;
   padding: var(--p-e-1) var(--p-celula-x);
@@ -689,7 +722,7 @@ td.acts {
   gap: var(--p-e-1);
 }
 
-/* Severidade na linha inteira, não só no texto. */
+/* Severity on the whole row, not just the text. */
 tr.grave td {
   background: var(--p-alerta-fundo);
 }
@@ -698,9 +731,11 @@ tr.critico td {
   background: var(--p-erro-fundo);
 }
 
-/* ---------------------------------------------------------- estado vazio
-   Ilustração desenhada, nunca foto. É o que a Blip empacota como
-   `bds-illustration`: um componente, não uma imagem solta. */
+/*
+ * ---------------------------------------------------------- empty state
+ *    A drawn illustration, never a photo. It's what Blip packages as
+ *    `bds-illustration`: a component, not a loose image.
+ */
 .vazio {
   padding: var(--p-e-8) var(--p-e-4);
   font-size: var(--p-t-md);
@@ -719,8 +754,11 @@ tr.critico td {
   font-weight: var(--p-peso-medio);
 }
 
-/* A ilustração herda `currentColor` no traço neutro e usa a paleta estendida
-   no acento — é o outro lugar, além do gráfico, onde ela pode aparecer. */
+/*
+ * The illustration inherits `currentColor` in its neutral stroke and uses the
+ *    extended palette in the accent — it's the other place, besides the chart,
+ *    where it's allowed to appear.
+ */
 .ilustracao {
   color: var(--p-linha-forte);
   margin-bottom: var(--p-e-2);
@@ -743,8 +781,10 @@ tr.critico td {
   }
 }
 
-/* ------------------------------------------------------------------ barra
-   Barra de dado. Usa `--p-dado`, o matiz cercado: gráfico pode, cromo não. */
+/*
+ * ------------------------------------------------------------------ bar
+ *    Data bar. Uses `--p-dado`, the walled-off hue: charts may, chrome may not.
+ */
 .trilho {
   height: 7px;
   border-radius: var(--p-r-sm);
@@ -769,8 +809,10 @@ tr.critico td {
   background: var(--p-erro-conteudo);
 }
 
-/* ----------------------------------------------------------------- avatar
-   Pílula: a segunda e última exceção ao raio padrão. */
+/*
+ * ----------------------------------------------------------------- avatar
+ *    Pill: the second and last exception to the standard radius.
+ */
 .avatar {
   width: 26px;
   height: 26px;
@@ -801,11 +843,13 @@ dialog::backdrop {
   background: rgba(17, 17, 17, 0.42);
 }
 
-/* =========================================================== configurações
-   Tela própria, atrás da engrenagem. No Salesforce a configuração troca de
-   DOMÍNIO, corta a navegação de topo de 7 itens para 3 e só então cria um
-   lateral. Aqui: rota própria, lateral própria, e um caminho de volta claro.
-   ========================================================================= */
+/*
+ * =========================================================== settings
+ *    Its own screen, behind the gear icon. In Salesforce, settings switches
+ *    DOMAIN, cuts the 7-item top navigation down to 3 and only then creates a
+ *    sidebar. Here: its own route, its own sidebar, and a clear way back.
+ *    =========================================================================
+ */
 
 .p-config-topo {
   display: flex;
@@ -845,10 +889,12 @@ dialog::backdrop {
 
 /* --------------------------------------------------------------- responsivo */
 @media (max-width: 860px) {
-  /* No estreito a lateral vira uma fileira em cima do conteúdo, e aí a caixa de
-     altura fixa atrapalha: duas áreas de rolagem empilhadas dentro de uma tela
-     de celular deixam cada uma com meia tela. Volta a rolagem de PÁGINA, que é
-     o que se espera no telefone. */
+  /*
+   * On narrow screens the sidebar becomes a row above the content, and that's
+   *      where the fixed-height box gets in the way: two stacked scroll areas inside
+   *      a phone screen leave each with half a screen. PAGE scrolling comes back,
+   *      which is what's expected on a phone.
+   */
   .p-app {
     height: auto;
     min-height: 100dvh;

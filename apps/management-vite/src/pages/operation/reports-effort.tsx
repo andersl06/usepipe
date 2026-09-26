@@ -22,8 +22,9 @@ export function PageEffort() {
   const base = attendanceBase(contact.tipo, contact.id);
   const [search] = useSearchParams();
   const crus = Object.fromEntries(search.entries()) as Search;
-  /* Data torta vira "sem filtro": `?de=abc` chegava ao `::date` do Postgres e
-     derrubava a tela inteira em 500. */
+  /*
+   * Malformed date becomes "no filter": `?de=abc` used to reach Postgres's `::date` cast and take down the whole screen with a 500.
+   */
   const params: Search = { de: dataOuNada(crus.de), ate: dataOuNada(crus.ate) };
   const q = new URLSearchParams();
   if (params.de) q.set('de', params.de);
@@ -43,8 +44,9 @@ export function PageEffort() {
         </span>
       </div>
 
-      {/* Faixa de filtros de 56px, no lugar e na ordem da faixa deles:
-          rótulo e controles à esquerda, período e ação à direita. */}
+      {/*
+ * 56px filter strip, in the place and order of their strip: label and controls on the left, period and action on the right.
+ */}
       <form className="quickfilters" method="get" action={`${base}/reports/effort`}>
         <span className="lbl">Filtros rápidos:</span>
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
@@ -56,12 +58,10 @@ export function PageEffort() {
         </div>
       </form>
 
-      {/* ------------------------------------------------------ bloco 1
-          A estrutura de bloco dos relatórios deles, medida em
-          `referencias-blip/pesquisa/blip-medidas-monitoramento.md` §6: um cartão que
-          CONTÉM cartões. O rótulo vem em cima em 14/600 e o valor embaixo em
-          20/700 — o oposto do cartão de Monitoramento, onde o valor vem
-          primeiro e é 24/400. */}
+      {/*
+ * ------------------------------------------------------------ block 1
+ * Their reports' block structure, measured in `referencias-blip/pesquisa/blip-medidas-monitoramento.md` §6: a card that CONTAINS cards. The label comes on top in 14/600 and the value below in 20/700 — the opposite of the Monitoramento card, where the value comes first and is 24/400.
+ */}
       <section className="bloco-rel">
         <h3>Total do período</h3>
         <div className="bloco-rel-grade" style={{ '--rel-colunas': 3 } as React.CSSProperties}>

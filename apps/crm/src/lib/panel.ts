@@ -3,10 +3,10 @@ import { lead, opportunity } from '@pipe/db/schema';
 import { consultar, type Window } from './database';
 
 /**
- * Indicadores do painel — os mesmos cinco cartões do mockup aprovado.
+ * Dashboard indicators — the same five cards from the approved mockup.
  *
- * Toda média mostra o denominador: a taxa de qualificação sem o total de leads é o
- * número que melhora justamente quando entram menos leads.
+ * Every average shows its denominator: a qualification rate with no total lead
+ * count is the number that improves exactly when fewer leads come in.
  */
 export interface Indicadores {
   leadsNoMes: number;
@@ -89,7 +89,7 @@ export async function carregarIndicadores(mes: Window, mesAnterior: Window): Pro
   });
 }
 
-/** Volume por origem no mês, que é a leitura que o gestor faz logo depois do total. */
+/** Volume by source for the month, which is the reading a manager does right after the total. */
 export async function leadsByOrigem(mes: Window): Promise<{ origem: string; n: number }[]> {
   return consultar(async (tx) => {
     const linhas = await tx
@@ -102,7 +102,7 @@ export async function leadsByOrigem(mes: Window): Promise<{ origem: string; n: n
   });
 }
 
-/** Leads por fase, com quantos estão parados há mais de 7 dias — o que custa dinheiro. */
+/** Leads by stage, with how many have been stalled for more than 7 days — which costs money. */
 export async function leadsByFase(): Promise<{ fase: string; n: number; parados: number }[]> {
   return consultar(async (tx) => {
     const linhas = await tx

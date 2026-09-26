@@ -21,16 +21,16 @@ import {
 } from '../src/lib/settings-comum.ts';
 
 /**
- * A régua da área de configurações.
+ * The settings area's ruler.
  *
- * Tudo aqui roda nos dois lados: no navegador para não fazer uma viagem à toa, e
- * no servidor porque a server action é um endereço HTTP e qualquer um alcança.
- * Um teste só, sem framework — `node --import tsx --test`, o mesmo padrão de
- * `campos-editaveis.test.ts`.
+ * Everything here runs on both sides: in the browser to avoid a wasted round
+ * trip, and on the server because the server action is an HTTP address and
+ * anyone can reach it. A single test, no framework — `node --import tsx --test`,
+ * the same pattern as `campos-editaveis.test.ts`.
  *
- * O que ele protege, em ordem de estrago: um código de campo que estraga a chave
- * do `jsonb`, uma URL de webhook em texto claro, e as duas listas copiadas de
- * `apps/api` divergindo em silêncio.
+ * What it protects, in order of damage: a field code that corrupts the
+ * `jsonb` key, a webhook URL in plaintext, and the two lists copied from
+ * `apps/api` drifting silently.
  */
 
 test('tema: só os três, e nada mais', () => {
@@ -60,7 +60,7 @@ test('nome obrigatório, com teto', () => {
   assert.equal(recusarNome('Pipe'), null);
   assert.ok(recusarNome(null));
   assert.ok(recusarNome('x'.repeat(121)));
-  // A queixa nomeia o campo: "O nome do papel", não "O nome".
+  // The complaint names the field: "The role's name", not "The name".
   assert.match(recusarNome(null, 'O nome do papel') ?? '', /papel/);
 });
 
@@ -69,12 +69,12 @@ test('webhook exige https; logo aceita http mas nunca javascript:', () => {
   assert.ok(recusarUrl('http://exemplo.com.br/pipe', { exigirHttps: true }));
 
   assert.equal(recusarUrl('http://exemplo.com.br/logo.png'), null);
-  // O vetor clássico de `<img src>`: nem `javascript:` nem `data:` são URL de imagem.
+  // The classic `<img src>` vector: neither `javascript:` nor `data:` are image URLs.
   assert.ok(recusarUrl('javascript:alert(1)'));
   assert.ok(recusarUrl('data:image/svg+xml;base64,AAAA'));
   assert.ok(recusarUrl('exemplo.com.br'));
 
-  // Campo opcional em branco não é erro; obrigatório em branco é.
+  // A blank optional field isn't an error; a blank required one is.
   assert.equal(recusarUrl(null, { obrigatoria: false }), null);
   assert.ok(recusarUrl(null));
 });
@@ -83,12 +83,12 @@ test('the field code is derived from the label without accents or spaces, and st
   assert.equal(sugerirCodigo('Faturamento anual'), 'faturamento_anual');
   assert.equal(sugerirCodigo('Nº de funcionários'), 'n_de_funcionarios');
   assert.equal(sugerirCodigo('  Região / UF  '), 'regiao_uf');
-  // Começar por dígito é o caso que a regra recusa, e o prefixo é o que salva.
+  // Starting with a digit is the case the rule rejects, and the prefix is what saves it.
   assert.equal(sugerirCodigo('2026 meta'), 'campo_2026_meta');
   assert.ok(sugerirCodigo('x'.repeat(80)).length <= 40);
 
   // O que sai de `sugerirCodigo` sempre passa em `recusarCodigoDeCampo`: se um
-  // dia deixar de passar, é este assert que conta.
+  // should ever stop passing, this is the assert that catches it.
   for (const rotulo of ['Faturamento anual', 'Nº de funcionários', '2026 meta', 'Região / UF']) {
     assert.equal(recusarCodigoDeCampo(sugerirCodigo(rotulo)), null, rotulo);
   }
@@ -129,12 +129,13 @@ test('timezone is validated against the runtime\'s timezone database', () => {
 });
 
 /**
- * As duas listas abaixo são cópias de `apps/api`, porque `apps/crm` não depende
- * dele. Cópia sem guarda diverge: a API ganha um evento, a tela de webhooks não
- * o oferece, e ninguém descobre até alguém perguntar por que não chega nada.
+ * The two lists below are copies of `apps/api`'s, because `apps/crm` doesn't
+ * depend on it. An unguarded copy drifts: the API gets a new event, the
+ * webhooks screen doesn't offer it, and nobody finds out until someone asks
+ * why nothing arrives.
  *
- * Lê o arquivo como TEXTO em vez de importar de propósito — importar criaria a
- * dependência que a cópia existe para evitar.
+ * Reads the file as TEXT instead of importing it on purpose — importing would
+ * create the dependency the copy exists to avoid.
  */
 function listaInFile(caminho: string, constante: string): string[] {
   const fonte = readFileSync(join(import.meta.dirname, '..', '..', '..', caminho), 'utf8');

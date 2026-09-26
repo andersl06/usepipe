@@ -12,7 +12,7 @@ import type { DisparoDestination, LimitesDeDisparo, RespostaDoDisparo } from './
 type Etapa = 1 | 2 | 3 | 4;
 
 export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
-  /* O "Atualizar" da origem recarrega a tela; aqui invalida a leitura do Growth. */
+  /* The origin's "Atualizar" reloads the screen; here it invalidates the Growth read. */
   const queue = useQueryClient();
   const [atualizando, iniciarUpdate] = useTransition();
   const [create, setCreate] = useState(false);
@@ -36,8 +36,9 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
   const [tipoCampanha, setTipoCampanha] = useState('todos');
   const quantityFile = contactsFile.length;
 
-  /* GET /v1/mensagens-ativas/limites — o teto de contatos por disparo, para a
-     tela não repetir número mágico (`ControladorMensagensAtivas.limites`). */
+  /*
+   * GET /v1/mensagens-ativas/limites — the contact cap per dispatch, so the screen doesn't repeat a magic number (`ControladorMensagensAtivas.limites`).
+   */
   const limites = useRead<LimitesDeDisparo>('/v1/messages-active/limits');
   const maxContacts = limites.data?.maxContactsByTrigger ?? 15;
 

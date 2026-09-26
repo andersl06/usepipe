@@ -9,18 +9,7 @@ import { Conversation } from './conversation';
 import { Panel } from './panel';
 
 /**
- * A tela de Atendimentos — `/` e `/chat/:id` — nas três colunas da
- * referência: `.sidenav` (25%), `.pane-chat` (50%), `.drawer` (25%).
- *
- * A fila (`GET /v1/desk/fila`) é recarregada a cada 15 s — o
- * `POLLING_INTERVAL` do settings.json de lá — e a conversa aberta
- * (`GET /v1/desk/conversas/:id`) também. O relógio `agora` avança a cada
- * segundo para os horários relativos e os cronômetros.
- *
- * Os estados do meio, na ordem da função de desenho `pane-chat` de lá:
- * "Buscando tickets" enquanto a fila não veio; "Fique online para atender"
- * com o motivo quando está invisível/em pausa e sem tickets; "Tudo pronto
- * para atender" sem conversa escolhida; e a conversa.
+ * Attendance screen at `/` and `/chat/:id` follows three reference columns: `.sidenav` (25%), `.pane-chat` (50%), `.drawer` (25%). Poll `GET /v1/desk/fila` and `GET /v1/desk/conversas/:id` every 15s, matching source `POLLING_INTERVAL` in settings.json. Advance `agora` every second for relative times and timers. Center states follow source `pane-chat`: `Buscando tickets` before queue load; `Fique online para atender` with a reason when invisible/paused without tickets; `Tudo pronto para atender` without selection; then the conversation.
  */
 const POLLING_INTERVAL = 15_000;
 

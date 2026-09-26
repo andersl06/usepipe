@@ -4,21 +4,7 @@ import type { Block, SaidaDoEditor } from './model';
 import { LIMITE_DE_SAIDAS, MESSAGES, gerarId, withoutDestination } from './model';
 
 /**
- * As condições — das saídas do bloco e das ações — com o vocabulário do
- * motor (`packages/core/src/fluxo/condicao.ts`) e os rótulos literais da aba
- * "Condições de saída" do editor da Blip (`builder-tabs-outputs` no pacote de
- * tradução pt-BR: `sources`, `comparisons`, `and`/`or`).
- *
- * O que o motor entende, e só isso, entra no seletor: fonte `input`
- * ("Resposta do usuário") e `context` ("Variável"); as treze comparações de
- * `COMPARACOES`, na ordem do enum; o operador `or`/`and` entre os valores.
- * `intent` e `entity` existem no editor da Blip mas o Pipe não tem provedor
- * de IA — uma condição dessas carregada de um fluxo importado aparece como
- * está, com o aviso, e não se cria outra.
- *
- * A ordem das saídas é a ordem de avaliação: o motor toma a primeira que casa
- * (`FlowManager.ProcessOutputsAsync`, portado em `gerenciador.ts`), e a saída
- * padrão só depois de todas. Por isso a lista tem "subir/descer".
+ * Block-exit and action conditions use engine vocabulary (`packages/core/src/fluxo/condicao.ts`) and literal Blip Exit conditions tab labels (`builder-tabs-outputs`, pt-BR `sources`, `comparisons`, `and`/`or`). Offer only supported `input` and `context` sources, 13 `COMPARACOES` in enum order, and `or`/`and` among values. Blip `intent`/`entity` lack a Pipe AI provider: show an imported condition with a warning but do not offer creation. Exit order is evaluation order; the engine takes the first match (`FlowManager.ProcessOutputsAsync` ported in `gerenciador.ts`), then default. Provide up/down controls.
  */
 
 export const FONTES_DA_TELA = [
@@ -26,7 +12,7 @@ export const FONTES_DA_TELA = [
   { valor: 'context', rotulo: 'Variável' },
 ] as const;
 
-/** Rótulo de qualquer fonte, inclusive as que a tela não oferece. */
+/** Label any source, including ones the screen does not offer. */
 export const ROTULO_DA_FONTE: Record<string, string> = {
   input: 'Resposta do usuário',
   context: 'Variável',
@@ -78,7 +64,7 @@ export const ROTULOS_DAS_SAIDAS = {
   naoPreenchida: 'Definição de saída não preenchida',
 } as const;
 
-/** A comparação lida como o motor lê: sem diferenciar maiúscula, `equals` por padrão. */
+/** Read comparison as the engine does: case-insensitively, defaulting to `equals`. */
 export function comparisonOf(c: ConditionBlip): Comparison {
   const bruta = (c.comparison ?? 'equals').toLowerCase();
   return COMPARISONS.find((x) => x.toLowerCase() === bruta) ?? 'equals';
@@ -86,19 +72,19 @@ export function comparisonOf(c: ConditionBlip): Comparison {
 
 export const fonteDe = (c: ConditionBlip): string => (c.source ?? 'input').toLowerCase();
 
-/** A condição que o "+" cria: resposta do usuário igual a… (o padrão do motor). */
+/** New condition defaults to user response equals, matching the engine. */
 export function newCondition(): ConditionBlip {
   return { source: 'input', comparison: 'equals', values: [] };
 }
 
-/** Trocar a comparação limpa os valores quando ela deixa de precisar deles. */
+/** Changing comparison clears values when that comparison no longer needs them. */
 export function withComparison(c: ConditionBlip, comparison: Comparison): ConditionBlip {
   return ehUnaria(comparison)
     ? { ...c, comparison: comparison, values: [] }
     : { ...c, comparison: comparison, values: c.values ?? [] };
 }
 
-/** Trocar a fonte tira o nome de variável quando ele deixa de fazer sentido. */
+/** Changing the source clears a variable name that no longer applies. */
 export function comFonte(c: ConditionBlip, fonte: string): ConditionBlip {
   const resto: ConditionBlip = { ...c, source: fonte };
   delete resto.variable;
@@ -107,7 +93,7 @@ export function comFonte(c: ConditionBlip, fonte: string): ConditionBlip {
   return resto;
 }
 
-/** Um valor a mais na lista (o Enter do campo de valores). Repetido ou vazio não entra. */
+/** Add one value on Enter; ignore duplicates and blanks. */
 export function addValue(c: ConditionBlip, value: string): ConditionBlip {
   const texto = value.trim();
   const current = c.values ?? [];
@@ -120,7 +106,7 @@ export function removerValue(c: ConditionBlip, indice: number): ConditionBlip {
   return { ...c, values: current.filter((_, i) => i !== indice) };
 }
 
-/** A frase de `validarCondicao` do motor, ou nada quando a condição está boa. */
+/** Return `validarCondicao` engine wording or nothing when valid. */
 export function conditionError(c: ConditionBlip): string | null {
   try {
     validateCondition(c);
@@ -131,15 +117,15 @@ export function conditionError(c: ConditionBlip): string | null {
   }
 }
 
-/** O motor não tem provedor de IA: intenção e entidade nunca casam no Pipe. */
+/** Pipe's engine has no AI provider, so intent and entity conditions can never match. */
 export const fonteSemSuporte = (c: ConditionBlip): boolean => {
   const fonte = fonteDe(c);
   return fonte === 'intent' || fonte === 'entity';
 };
 
-/* ------------------------------------------------------------- as saídas */
 
-/** "+ Adicionar condição de saída": uma saída nova, sem destino e com uma condição vazia. */
+
+/** Add an exit with no destination and one empty condition. */
 export function novaSaida(id = gerarId()): SaidaDoEditor {
   return { $id: id, typeOfStateId: 'state', conditions: [newCondition()], $invalid: false };
 }
@@ -157,7 +143,7 @@ export function removerSaida(block: Block, indice: number): Block {
   return { ...block, $conditionOutputs: saidas.filter((_, i) => i !== indice) };
 }
 
-/** Sobe ou desce uma saída na ordem de avaliação. Fora da lista, nada muda. */
+/** Move an exit up/down in evaluation order; out-of-range positions do nothing. */
 export function moverSaida(block: Block, de: number, para: number): Block {
   const saidas = [...(block.$conditionOutputs ?? [])];
   if (de < 0 || de >= saidas.length || para < 0 || para >= saidas.length || de === para) return block;
@@ -186,7 +172,7 @@ export function definirSaidaPadrao(block: Block, destination: string): Block {
   return { ...block, $defaultOutput: destination ? { stateId: destination, $invalid: false } : null };
 }
 
-/** Os erros de uma saída, na frase que o painel mostra. */
+/** Show exit errors using panel wording. */
 export function outputErrors(saida: SaidaDoEditor, existe: (id: string) => boolean): string[] {
   const errors: string[] = [];
   if (!saida.stateId && !saida.$isDeskOutput) errors.push(ROTULOS_DAS_SAIDAS.naoPreenchida);

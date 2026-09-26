@@ -686,9 +686,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" integrity="sha512-ZDSPMa/JM1D+7kdg2x3BsruQ6T/JpJo3jWDWkCZsP+5yVyp1KfESqLI+7RqB5k24F7p2cV7i2YHh/890y6P6Sw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="/assets/site.js" defer></script>
 <script>
-/* Gerador de link do WhatsApp. Tudo no navegador: nenhum dado sai daqui.
-   O link wa.me exige o número no formato internacional, só com dígitos, e a
-   mensagem codificada para URL. As duas conversões acontecem a cada tecla. */
+/*
+ * WhatsApp link generator. Everything in the browser: no data leaves here.
+ *    The wa.me link requires the number in international format, digits only, and the
+ *    message URL-encoded. Both conversions happen on every keystroke.
+ */
 (function () {
   "use strict";
 
@@ -723,8 +725,10 @@
     return elDdi.value;
   }
 
-  /* Formata o número brasileiro enquanto a pessoa digita, para ela conferir o
-     que preencheu. Fora do Brasil o formato varia demais, então fica cru. */
+  /*
+   * Formats the Brazilian number as the person types, so they can check what
+   *      they entered. Outside Brazil the format varies too much, so it stays raw.
+   */
   function mascara(d, ddi) {
     if (ddi !== "55") return d;
     if (d.length <= 2) return d.length ? "(" + d : d;

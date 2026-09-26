@@ -4,11 +4,9 @@ import { COLUNAS_CSV, celulaCsv, montarCsv } from '../src/lib/csv-history.ts';
 import type { CardHistory } from '../src/components/lista-history.tsx';
 
 /**
- * O CSV que o gestor exporta do Histórico.
+ * The CSV the manager exports from History.
  *
- * É o formato mais fácil de quebrar em silêncio do repositório: o arquivo abre,
- * o Excel não reclama, e as colunas estão trocadas porque um nome de contato
- * tinha ponto e vírgula. Ninguém descobre até alguém somar a coluna errada.
+ * It's the repository's easiest format to break silently: the file opens, Excel doesn't complain, and the columns are swapped because a contact name had a semicolon. Nobody notices until someone sums the wrong column.
  */
 
 const card = (parcial: Partial<CardHistory> = {}): CardHistory => ({
@@ -28,14 +26,15 @@ const card = (parcial: Partial<CardHistory> = {}): CardHistory => ({
   ...parcial,
 });
 
-/** Linhas do arquivo, já sem o BOM e sem a quebra final. */
+/** File lines, already stripped of the BOM and the trailing line break. */
 function linhasDe(csv: string): string[] {
   return csv.slice(1).trimEnd().split('\r\n');
 }
 
 test('the file starts with a BOM', () => {
-  /* Sem o BOM, o Excel em português abre o arquivo em latin-1 e todo nome
-     acentuado vira lixo — "Conceição" some da planilha inteira. */
+  /*
+   * Without the BOM, Excel in Portuguese opens the file as latin-1 and every accented name turns into garbage — "Conceição" disappears from the whole spreadsheet.
+   */
   assert.ok(montarCsv([card()]).startsWith('﻿'));
 });
 
@@ -46,15 +45,16 @@ test('the header carries the ten columns, in order', () => {
 });
 
 test('with no conversation, only the header comes out', () => {
-  /* Recorte vazio não pode gerar arquivo vazio: o gestor precisa ver as colunas
-     e concluir que o filtro é que não achou nada. */
+  /*
+   * An empty slice must not produce an empty file: the manager needs to see the columns and conclude the filter simply found nothing.
+   */
   assert.equal(linhasDe(montarCsv([])).length, 1);
 });
 
 test('a semicolon inside the field does not open a new column', () => {
-  /* O separador é `;` porque é o separador de lista do Excel em português. Sem
-     as aspas, "Silva; Souza" empurra todas as colunas seguintes uma casa para a
-     direita e o tempo de atendimento aparece na coluna de situação. */
+  /*
+   * The separator is `;` because it's Excel's Portuguese-locale list separator. Without quoting, "Silva; Souza" would push every following column one slot to the right, and the handling time would land in the status column.
+   */
   const [, linha] = linhasDe(montarCsv([card({ contact: 'Silva; Souza' })]));
   assert.ok(linha!.includes('"Silva; Souza"'));
   assert.equal(linha!.split('";"').length, COLUNAS_CSV.length);
@@ -67,12 +67,12 @@ test('quotes in the value come out doubled', () => {
 });
 
 test('quebra de linha dentro do campo continua presa em um campo só', () => {
-  /* Nome de contato colado do WhatsApp vem com `\n`. Fora das aspas, ele vira
-     uma linha nova no arquivo e a exportação passa a ter mais linhas do que
-     conversas. */
+  /*
+   * A contact name pasted from WhatsApp comes with `\n`. Outside quotes, it turns into a new line in the file, and the export ends up with more lines than conversations.
+   */
   const csv = montarCsv([card({ contact: 'Ana\nSouza' })]);
   assert.ok(csv.includes('"Ana\nSouza"'));
-  // Só o `\r\n` separa registro; o `\n` solto fica dentro do campo.
+  // Only `\r\n` separates a record; a lone `\n` stays inside the field.
   assert.equal(linhasDe(csv).length, 2);
 });
 

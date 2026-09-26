@@ -26,15 +26,9 @@ function validateLogFilters(value: unknown): LogFilterValues | null {
 const FILTROS_VAZIOS: LogFilterValues = { busca: '', de: '', ate: '', direcao: '', tipo: '' };
 
 /**
- * Growth › Log — `auth.application.detail.growth.messages.log` da origem
- * (template do módulo 4842 em portal.js, controlador `MessagesController`).
+ * Growth › Log — the source's `auth.application.detail.growth.messages.log` (module 4842 template in portal.js, `MessagesController` controller).
  *
- * A origem só tinha busca por texto (`MessageService.getMessages(application,
- * { take: 30, contentFilter: search })`). Esta tela fecha o que a tarefa pediu
- * a mais: filtro por período, direção e tipo, e paginação por cursor no lugar
- * do "as últimas 30" — `GET /v1/gestao/fluxos/:id/analise/log`
- * (`controladores/gestao-analise.ts`, mesmo formato de página de
- * `GET /v1/conversas/:id/mensagens`).
+ * The source only had text search (`MessageService.getMessages(application, { take: 30, contentFilter: search })`). This screen closes what the task asked for beyond that: filter by period, direction and type, and cursor pagination instead of "the last 30" — `GET /v1/gestao/fluxos/:id/analise/log` (`controladores/gestao-analise.ts`, same page format as `GET /v1/conversas/:id/mensagens`).
  */
 interface LinhaDoLog {
   id: string;
@@ -82,8 +76,8 @@ export function PageLog() {
     { staleTime: 0 },
   );
 
-  // A primeira página vem do cache de leitura (react-query); as demais são
-  // pedidas à mão e só se acumulam por cima dela — trocar o filtro reseta.
+  // The first page comes from the read cache (react-query); the rest are
+  // fetched by hand and only stack on top of it — changing the filter resets it.
   const [extras, setExtras] = useState<LinhaDoLog[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [temMais, setTemMais] = useState(false);

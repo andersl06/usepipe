@@ -27,16 +27,9 @@ import {
 import type { Card, MenuOption } from './conteudo';
 
 /**
- * A aba "Conteúdo" do editor: a conversa do bloco em cartões — as falas do
- * robô à esquerda (Texto, Menu, Quick reply), a "Entrada do usuário" à direita
- * — e o "+" que oferece os tipos. Cada cartão edita no lugar; a entrada abre
- * o painel dela: "Salvar resposta em variável" (com o campo "Variável"),
- * "Validar a entrada do usuário" ("Tipo de validação", "Expressão regular",
- * "Instrução de validação") e a escolha entre "Aguardar resposta" e "Não
- * aguardar".
+ * The editor's "Conteúdo" tab: the block's conversation as cards — the bot's messages on the left (Texto, Menu, Quick reply), the "Entrada do usuário" on the right — and the "+" that offers the types. Each card edits in place; the input opens its own panel: "Salvar resposta em variável" (with the "Variável" field), "Validar a entrada do usuário" ("Tipo de validação", "Expressão regular", "Instrução de validação"), and the choice between "Aguardar resposta" and "Não aguardar".
  *
- * No bloco de atendimento a aba se chama "Atendimento" e só tem a entrada,
- * que espera o fim do atendimento — nada a editar além da variável.
+ * On the attendance block the tab is called "Atendimento" and only has the input, which waits for the attendance to end — nothing to edit besides the variable.
  */
 
 export function ContentPanel({
@@ -239,7 +232,7 @@ function ContentCard({
 }: {
   card: Card;
   block: Block;
-  /** Início e atendimento: a entrada não sai nem se troca por "Não aguardar". */
+  /** Início and attendance: the input can't be removed nor swapped for "Não aguardar". */
   fixo: boolean;
   first: boolean;
   ultimo: boolean;

@@ -17,18 +17,11 @@ import { ConditionsEditor } from './condition';
 import { CabecalhoInfo } from './cabecalho-info';
 
 /**
- * A aba "Condições de saída" do editor: o texto de abertura ("Defina as regras
- * e o bloco para o qual o usuário será direcionado"), um cartão por saída
- * (`output-card-container`: fundo de superfície 2, raio 10) com as condições e
- * o "Ir para", o "+ Adicionar condição de saída" e, por fim, a "Saída padrão"
- * com o aviso de que a seta dela não é exibida.
+ * The editor's "Condições de saída" tab: the opening text ("Defina as regras e o bloco para o qual o usuário será direcionado"), one card per output (`output-card-container`: surface-2 background, radius 10) with the conditions and the "Ir para", the "+ Adicionar condição de saída", and finally the "Saída padrão" with the notice that its arrow isn't shown.
  *
- * A ordem dos cartões é a ordem em que o motor avalia — a primeira que casa
- * vence — e por isso cada cartão tem subir/descer.
+ * The cards' order is the order the engine evaluates them in — the first match wins — which is why each card has move up/down.
  *
- * No bloco de atendimento (`desk:`), as quatro saídas que o editor criou são
- * as "Saídas de atendimento": condição fixa (o `Ticket` encerrado, ou o
- * encaminhamento que falhou), e só o destino se escolhe.
+ * On the attendance block (`desk:`), the four outputs the editor created are the "Saídas de atendimento": a fixed condition (the closed `Ticket`, or the forwarding that failed), with only the destination to choose.
  */
 
 function rotuloOfOutputOfAttendance(saida: SaidaDoEditor): string {
@@ -49,7 +42,7 @@ export function OutputsPanel({
   onAviso: (texto: string) => void;
 }) {
   const saidas = block.$conditionOutputs ?? [];
-  // O editor permite laço (`allowLoopback`): o próprio bloco também é destino.
+  // The editor allows a loopback (`allowLoopback`): the block itself can also be a destination.
   const destinos = Object.values(mapa);
   const existe = (id: string): boolean => id in mapa;
   const attendance = ehAttendance(block.id);

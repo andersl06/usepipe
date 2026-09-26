@@ -14,21 +14,22 @@ import { actionExcluirRole, actionSalvarPermissions } from '../../actions';
 export const dynamic = 'force-dynamic';
 
 /**
- * Um papel, permissão por permissão.
+ * A role, permission by permission.
  *
- * O agrupamento é o do próprio catálogo (`permissao.grupo`), não uma taxonomia
- * nova: o banco já sabe que `conversa.transferir` é de conversa, e inventar
- * outra separação aqui criaria duas verdades sobre a mesma coisa.
+ * The grouping follows the catalog itself (`permissao.grupo`), not some new taxonomy:
+ * the database already knows `conversa.transferir` belongs to conversation, and
+ * inventing another split here would create two truths about the same thing.
  *
- * A caixa de seleção é `<input type="checkbox">` de verdade, com `<label>` em
- * volta: teclado, `aria-checked` e o estado lido em voz alta vêm de graça, e o
- * `name="permissao"` repetido é o que faz o `FormData` chegar como lista no
- * servidor. Reimplementar isso com `div` e `role="checkbox"` é trabalho para
- * ficar com menos.
+ * The checkbox is a real `<input type="checkbox">`, wrapped in a `<label>`: keyboard
+ * support, `aria-checked`, and the state read aloud come for free, and the repeated
+ * `name="permissao"` is what makes `FormData` arrive as a list on the server.
+ * Reimplementing this with a `div` and `role="checkbox"` is work that leaves you
+ * with less.
  *
- * A zona de perigo é o padrão do Twenty, com uma diferença: aqui o botão só
- * arma depois do primeiro clique, e recusa quando ainda há gente com o papel.
- * Excluir papel com membro dentro é tirar acesso de alguém sem dizer de quem.
+ * The danger zone follows Twenty's pattern, with one difference: here the button only
+ * arms after the first click, and refuses when there are still people with the role.
+ * Deleting a role that still has members in it takes away someone's access without
+ * saying whose.
  */
 
 const NOME_DO_GRUPO: Record<string, string> = {

@@ -25,22 +25,22 @@ import {
 import { ehUuid, sugerirCodigo, type Resultado } from '../../lib/settings-comum';
 
 /**
- * As ações de escrita da área de configurações.
+ * The settings area's write actions.
  *
- * Esta camada é fina de propósito, e a fronteira que ela guarda está no README
- * ("Quem fala com o banco"): aqui mora o que é do Next — ler o `FormData`,
- * revalidar a rota —, e nada mais. A consulta e a auditoria vivem em
- * `lib/configuracoes-dados.ts`, que não sabe que o Next existe. Quando o CRM for
- * para o Vite e a `apps/api` virar a única porta do Postgres, este arquivo é o
- * que se joga fora; o outro se move.
+ * This layer is thin on purpose, and the boundary it guards is in the README ("Who talks
+ * to the database"): what lives here is Next-specific — reading `FormData`,
+ * revalidating the route — and nothing else. Querying and auditing live in
+ * `lib/configuracoes-dados.ts`, which doesn't know Next exists. When the CRM moves
+ * to Vite and `apps/api` becomes the only door to Postgres, this file is the
+ * one that gets thrown away; the other one moves.
  *
- * Toda ação tem a assinatura de `useActionState`: recebe o resultado anterior e
- * o `FormData`, devolve o novo resultado. É o que faz o formulário funcionar
- * **sem JavaScript** e ainda assim mostrar a queixa em português na tela.
+ * Every action has the `useActionState` signature: it receives the previous result and
+ * the `FormData`, and returns the new result. That's what makes the form work
+ * **without JavaScript** and still show the complaint in Portuguese on screen.
  *
- * O `id` que chega do navegador nunca é confiado: passa por `ehUuid` antes de
- * virar `where`. É a mesma regra de `app/leads/acoes.ts` — entrada de cliente
- * não define valor de escrita.
+ * The `id` that arrives from the browser is never trusted: it passes through `ehUuid` before
+ * becoming a `where` clause. It's the same rule as `app/leads/acoes.ts` — client input
+ * never determines a write value.
  */
 
 type Acao = (anterior: Resultado | null, data: FormData) => Promise<Resultado>;
@@ -76,7 +76,7 @@ export const acaoSalvarPerfil: Acao = async (_anterior, data) => {
   return resultado;
 };
 
-/* ------------------------------------------------------ espaço de trabalho */
+/* ------------------------------------------------------ workspace */
 
 export const acaoSalvarEspaco: Acao = async (_anterior, data) => {
   const resultado = await salvarEspaco(await atorAtual(), {
@@ -131,7 +131,7 @@ export const actionAlternarMember: Acao = async (_anterior, data) => {
   return resultado;
 };
 
-/* ------------------------------------------------------ papéis e permissões */
+/* ------------------------------------------------------ roles and permissions */
 
 export const actionCreateRole: Acao = async (_anterior, data) => {
   const resultado = await createRole(await atorAtual(), {
@@ -163,7 +163,7 @@ export const actionExcluirRole: Acao = async (_anterior, data) => {
   if (!resultado.ok) return resultado;
 
   // A tela de onde o clique veio deixou de existir. Ficar nela mostraria um
-  // papel que já não está no banco até alguém navegar por conta própria.
+  // role that's no longer in the database, until someone navigates away on their own.
   recarregar('/settings/roles');
   redirect('/settings/roles');
 };
@@ -172,7 +172,7 @@ export const actionExcluirRole: Acao = async (_anterior, data) => {
 
 export const actionCreateField: Acao = async (_anterior, data) => {
   const rotulo = texto(data, 'rotulo');
-  // Código em branco vira o rótulo em forma de chave: ninguém precisa aprender a
+  // A blank code turns into the label written as a key: nobody needs to learn the
   // regra do `jsonb` para cadastrar um campo, e quem quiser mandar continua podendo.
   const codigo = texto(data, 'codigo').trim() || sugerirCodigo(rotulo);
 

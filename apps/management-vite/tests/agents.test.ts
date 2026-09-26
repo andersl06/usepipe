@@ -10,13 +10,9 @@ import {
 } from '../src/lib/agents.ts';
 
 /**
- * As contas da tela "Gestão de atendentes", medida em
- * `referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §b.2.
+ * The accounts for the "Gestão de atendentes" (Attendant Management) screen, measured in `referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §b.2.
  *
- * O que vale provar: a busca varre nome E e-mail (o placeholder da origem é
- * "Buscar por nome ou e-mail", e buscar só no nome faz a pessoa digitar o
- * e-mail que está na tela e não achar nada), o filtro de fila é OU (uma fila
- * marcada basta), e as três variantes de descrição da página de permissões.
+ * What's worth proving: search sweeps both name AND email (the source's placeholder is "Buscar por nome ou e-mail", and searching only the name makes someone type the email that's on screen and find nothing), the queue filter is OR (one checked queue is enough), and the three variants of the permissions page's description.
  */
 
 function pessoa(

@@ -15,22 +15,7 @@ import { CardConfig } from '../../components/card-config';
 import { closureSalvarTags, salvarIdentity, salvarPesquisa } from '../../lib/actions';
 
 /**
- * Preferências ├ Configurações gerais.
- *
- * A segunda lacuna que `estrutura-gestao.tsx` registrava. A disposição é a do
- * §3 de `blip-telas-cadastro.md`: um cartão por configuração, empilhados com 20
- * de gap, título 20/700 sobre explicação 14/400, interruptor da seção à direita
- * e **Salvar próprio de cada cartão** — não existe Salvar da tela.
- *
- * Três configurações, e as três mexem em coluna que já existe. Nenhuma
- * preferência foi inventada para preencher a tela: configuração que não muda
- * comportamento é item desabilitado com outro nome.
- *
- * O que a tela de Dados continua fazendo é o RETRATO (etiquetas com contagem de
- * uso, canais). O que muda é decidido aqui, e cada mudança grava autor, valor
- * anterior e horário em `log_auditoria` — foi essa a condição registrada em
- * `lib/configuracoes.ts` para que edição de configuração deixasse de ser
- * passivo.
+ * Preferências ├ General settings. The second gap that `estrutura-gestao.tsx` used to log. The layout follows §3 of `blip-telas-cadastro.md`: one card per setting, stacked with a 20 gap, title 20/700 over a 14/400 explanation, the section's toggle on the right, and **each card saves itself** — there's no screen-level Save. Three settings, and all three touch a column that already exists. No preference was invented just to fill the screen: a setting that doesn't change behavior is a disabled item under another name. The Data screen keeps doing the SNAPSHOT (tags with usage counts, channels). What changes gets decided here, and every change records author, previous value and timestamp in `log_auditoria` — that was the condition logged in `lib/configuracoes.ts` for setting edits to stop being passive.
  */
 export function PageSettingsGeneral() {
   const read = useRead<SettingsGeneral>('/v1/management/settings/general');
@@ -43,12 +28,12 @@ export function PageSettingsGeneral() {
 
   return (
     <>
-      {/* `FICHA-general-settings.md` §1: sem subtítulo — só o título. */}
+      {/* `FICHA-general-settings.md` §1: no subtitle — title only. */}
       <div className="board-head">
         <h2>Configurações gerais</h2>
       </div>
 
-      {/* ----------------------------------------------------------- cartão 1 */}
+      {/* ----------------------------------------------------------- card 1 */}
       <CardConfig
         titulo="Identidade da operação"
         explanation={
@@ -84,7 +69,7 @@ export function PageSettingsGeneral() {
         </div>
       </CardConfig>
 
-      {/* ----------------------------------------------------------- cartão 2 */}
+      {/* ----------------------------------------------------------- card 2 */}
       <CardConfig
         titulo="Pesquisa de satisfação"
         explanation={
@@ -149,7 +134,7 @@ export function PageSettingsGeneral() {
         </p>
       </CardConfig>
 
-      {/* ----------------------------------------------------------- cartão 3 */}
+      {/* ----------------------------------------------------------- card 3 */}
       <CardConfig
         titulo="Etiqueta no encerramento"
         explanation={

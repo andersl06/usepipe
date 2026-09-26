@@ -1,29 +1,19 @@
 import type { LevelInFlow, RoleInFlow, PermissionsInFlow } from '@pipe/contracts';
 
 /**
- * O vocabulário da Equipe — a barra do modal de adicionar e a matriz da página
- * de editar —, agora com dado de verdade atrás.
+ * The Team vocabulary — the add-member modal's bar and the edit page's matrix —, now backed by real data.
  *
- * Até a migração 0035 esta tela era ESPELHO do papel de CONTA: o Pipe não tinha
- * RBAC por fluxo, então os rádios vinham da matriz da 0021 e nasciam
- * desabilitados. Agora existe `fluxo_membro`, e a lista é o que ela guarda —
- * a estrutura de linhas e colunas continua a mesma, só parou de ser enfeite.
+ * Until migration 0035 this screen MIRRORED the ACCOUNT role: Pipe had no per-flow RBAC, so the radios came from migration 0021's matrix and were born disabled. Now `fluxo_membro` exists, and the list is what it stores — the row/column layout stays the same, it just stopped being decorative.
  *
- * Duas coisas vêm da origem e não se inventam aqui:
+ * Two things come from the origin and aren't invented here:
  *
- *   níveis    os três rádios do `PermissionsList.html`: `none` (0), `read` (1)
- *             e `readWrite` (3), rotulados "Sem permissão" / "Visualizar" /
- *             "Ver e editar", cada um com o seu `info`;
- *   paradas   as quatro do `rzslider` (`team.addUserModal.slider`):
- *             "Visualizar · Customizado · Visualizar e editar · Admin". A
- *             edição usa outro controle, um `custom-select` com cinco opções.
+ *   levels    the three radios from `PermissionsList.html`: `none` (0), `read` (1), and `readWrite` (3), labeled "Sem permissão" / "Visualizar" / "Ver e editar", each with its own `info`;
+ *   stops     the four from the `rzslider` (`team.addUserModal.slider`): "Visualizar · Customizado · Visualizar e editar · Admin". The edit page uses a different control, a `custom-select` with five options.
  *
- * Os RECURSOS (as linhas) não moram aqui: vêm de `GET .../equipe`, na ordem do
- * template da origem, porque quem decide o catálogo é o servidor
- * (`dominio/gestao/equipe-do-fluxo.ts`) — a tela só desenha.
+ * The RESOURCES (the rows) don't live here: they come from `GET .../equipe`, in the origin template's order, because the server decides the catalog (`dominio/gestao/equipe-do-fluxo.ts`) — the screen only renders it.
  */
 
-/** As três colunas, na ordem da origem, com o tooltip de cada uma. */
+/** The three columns, in the origin's order, each with its own tooltip. */
 export const COLUNAS_DE_NIVEL: readonly { nivel: LevelInFlow; rotulo: string; dica: string }[] = [
   {
     nivel: 'nenhum',
@@ -53,11 +43,11 @@ export const ROLES_OF_FLOW: readonly {
   { role: 'admin', adicionar: 'Admin' },
 ];
 
-/** A Blip troca o CTA ao preparar a passagem do cadastro curto para `/team/edit`. */
+/** Blip swaps the CTA when preparing the handoff from the short signup form to `/team/edit`. */
 export const acaoDeAdicionar = (role: RoleInFlow) =>
   role === 'personalizado' ? 'Continuar' : 'Salvar';
 
-/** O seletor da PÁGINA de editar tem uma opção a mais que a barra de adicionar. */
+/** The edit PAGE's selector has one more option than the add-member bar. */
 export type EditNivel = 'nenhum' | RoleInFlow;
 
 export const NIVEIS_OF_EDIT: readonly { value: EditNivel; rotulo: string }[] = [
@@ -69,10 +59,7 @@ export const NIVEIS_OF_EDIT: readonly { value: EditNivel; rotulo: string }[] = [
 ];
 
 /**
- * `selectAllPermissions()` da origem, do lado da tela: mover o traço MARCA os
- * rádios. É a mesma regra de `permissoesDoPapel` na `api` — aqui para a lista
- * acompanhar o traço antes de salvar, lá para o banco nunca contradizer o que
- * a pessoa viu.
+ * The origin's `selectAllPermissions()`, on the screen side: moving the slider MARKS the radios. It's the same rule as `permissoesDoPapel` in the `api` — here so the list follows the slider before saving, there so the database never contradicts what the person saw.
  */
 export function rolePermissions(
   role: RoleInFlow,
@@ -92,8 +79,7 @@ export function rolePermissions(
 }
 
 /**
- * O `permissionSelect` de `/team/edit` na Blip é derivado da matriz:
- * tudo 0 = none, tudo 1 = read, tudo 3 = readWrite; mistura = custom.
+ * Blip's `/team/edit` `permissionSelect` is derived from the matrix: all 0 = none, all 1 = read, all 3 = readWrite; mixed = custom.
  */
 export function editNivel(
   role: RoleInFlow,

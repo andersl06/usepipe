@@ -8,10 +8,7 @@ import {
 } from '../src/lib/pesquisa.ts';
 
 /**
- * §6 da spec de métricas: CSAT e NPS são escalas incompatíveis, e a fronteira
- * de cada classe é diferente. Um 4 é promotor no CSAT e detrator no NPS — é
- * exatamente esse par que o teste protege, porque trocar as duas fronteiras
- * inverte o sinal do relatório inteiro sem quebrar nada.
+ * §6 of the metrics spec: CSAT and NPS are incompatible scales, and each class's boundary differs. A 4 is a promoter on CSAT and a detractor on NPS — this is exactly the pair the test protects, because swapping the two boundaries flips the whole report's signal without anything breaking.
  */
 
 test('a escala sai do tipo, não do formulário', () => {

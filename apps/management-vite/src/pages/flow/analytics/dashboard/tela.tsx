@@ -18,21 +18,23 @@ import { contactBase } from '../../contact';
 import { PeriodCustom } from './period-custom';
 
 /**
- * O miolo do Dashboard — o `iN` do `portal-fragment-analytics`
- * (`analytics-main.js`, linha ~59539), que o portal monta com
+ * The Dashboard core — the `iN` of `portal-fragment-analytics`
+ * (`analytics-main.js`, line ~59539), which the portal mounts with
  * `<analytics-mfe page="dashboard">`.
  *
- * Só recebe props: é o que deixa desenhar o estado preenchido sem banco. A
- * ordem das seções é a do `iN`, com as flags do roteador de teste (LaunchDarkly):
- * Contatos · Recorrência (`is-displaying-recurrence-section`) · Mensagens ·
- * Canais (`is-displaying-dashboard-analytics-channel-section`) · Fluxo
- * conversacional (`is-displaying-conversational-flow-section`) · Lista de blocos
- * (`is-displaying-block-listing-section`). O botão "Download" do topo está
- * DESLIGADO lá (`is-displaying-analytics-dashboard-download-button` = false), e
- * por isso não existe aqui.
+ * Only receives props: that's what lets it render the filled-in state without a
+ * database. Section order matches `iN`, with the test router's flags
+ * (LaunchDarkly): Contatos · Recorrência
+ * (`is-displaying-recurrence-section`) · Mensagens · Canais
+ * (`is-displaying-dashboard-analytics-channel-section`) · Fluxo conversacional
+ * (`is-displaying-conversational-flow-section`) · Lista de blocos
+ * (`is-displaying-block-listing-section`). The top "Download" button is OFF there
+ * (`is-displaying-analytics-dashboard-download-button` = false), which is why it
+ * doesn't exist here.
  *
- * Os gráficos da origem são chart.js; aqui são SVG + CSS, o mínimo que refaz o
- * desenho (`GraficoDeLinhas`, `BarrasDeParticipacao`), sem dependência nova.
+ * The source's charts are chart.js; here they're SVG + CSS, the minimum that
+ * recreates the look (`GraficoDeLinhas`, `BarrasDeParticipacao`), without a new
+ * dependency.
  */
 
 export interface PropsDoDashboard {
@@ -41,7 +43,10 @@ export interface PropsDoDashboard {
   intervalo: Intervalo;
   hoje: string;
   data: DashboardData;
-  /** A barra lateral aberta (`isDisplayingContactsSidebar`), com a lista já lida. */
+  /**
+   * Whether the sidebar is open (`isDisplayingContactsSidebar`), with the list
+   * already loaded.
+   */
   lista: { tipo: 'interacao' | 'rejeicao'; nomes: string[] } | null;
   /**
    * Período em React state (D-30, `std/nav-contract.md` §Gestão): os chips e
@@ -52,7 +57,7 @@ export interface PropsDoDashboard {
   aoMudarPeriodo?: (period: Period, custom?: { de: string; ate: string }) => void;
 }
 
-/** O que a URL carrega entre um clique e outro: o período. */
+/** What the URL carries between one click and the next: the period. */
 function query(p: PropsDoDashboard, extra: Record<string, string> = {}): string {
   const q = new URLSearchParams({ periodo: p.period });
   if (p.period === 'custom') {
@@ -73,7 +78,7 @@ export function TelaDoDashboard(p: PropsDoDashboard) {
 
       {/* `tN`: min 1024, max 1377, 85% da largura, 30px em cima e embaixo. */}
       <div className="da-miolo">
-        {/* `nN`: título à esquerda, `aN` (botões, gap 12) à direita. */}
+        {/* `nN`: title on the left, `aN` (buttons, 12 gap) on the right. */}
         <div className="da-cabecalho">
           <div>
             <h1 className="da-t32 da-negrito da-margem">Dashboard</h1>
@@ -109,10 +114,10 @@ interface Comparison {
 /* =============================================================== o filtro */
 
 /**
- * `xT` (o `ST` do `iN`): a faixa clara de largura cheia, com sombra embaixo e
- * cantos de baixo arredondados (`bT`). O chip ativo é `color="default"`, os
- * outros `outline`; tamanho `tall` (40px). A segunda fileira é da flag
- * `is-displaying-dashboard-fixed-period-chips`.
+ * `xT` (the `ST` of `iN`): the full-width light strip, with a shadow underneath and
+ * rounded bottom corners (`bT`). The active chip is `color="default"`, the others
+ * `outline`; size `tall` (40px). The second row is behind the
+ * `is-displaying-dashboard-fixed-period-chips` flag.
  */
 function PeriodFilter(p: PropsDoDashboard) {
   const chip = (nome: keyof typeof ROTULO_OF_PERIOD) => (
@@ -133,7 +138,7 @@ function PeriodFilter(p: PropsDoDashboard) {
   return (
     <div className="da-filtro">
       <div className="da-filtro-miolo">
-        {/* `mT`: rótulo fs-20 bold e a dica `info` sólida. */}
+        {/* `mT`: fs-20 bold label and the solid `info` tooltip icon. */}
         <div className="da-filtro-rotulo">
           <span className="da-t20 da-negrito">Selecione o período</span>
           <Dica
@@ -161,11 +166,11 @@ function PeriodFilter(p: PropsDoDashboard) {
   );
 }
 
-/* ============================================================ as peças */
+
 
 type Position = 'bottom-center' | 'left-center' | 'left-bottom' | 'top-right';
 
-/** `bds-tooltip`: balão escuro de raio 8 e recheio 8, texto fs-12, seta de 6px. */
+/** `bds-tooltip`: dark balloon, 8 radius and 8 padding, fs-12 text, 6px arrow. */
 function Dica({
   texto,
   position,
@@ -186,8 +191,8 @@ function Dica({
 }
 
 /**
- * `XS`, o indicador de comparação: seta + variação inteira com sinal. Sem
- * número ("-") não tem seta. `semDica` é o `hideTooltip` da tabela de canais.
+ * `XS`, the comparison indicator: arrow + whole-number signed variation. No number
+ * ("-") means no arrow. `semDica` is the channel table's `hideTooltip`.
  */
 function Indicador({
   value,
@@ -218,7 +223,10 @@ function Indicador({
   );
 }
 
-/** `kE`: título fs-24 bold (com a margem de 22px do typo) e a dica `info` sólida. */
+/**
+ * `kE`: fs-24 bold title (with the typo's 22px margin) and the solid `info`
+ * tooltip icon.
+ */
 function SectionTitulo({
   children,
   dica,
@@ -243,10 +251,11 @@ function SectionTitulo({
 }
 
 /**
- * `wS`: o botão só de ícone que baixa o CSV da seção, com a dica à esquerda.
- * ponytail: o Pipe não gera esses CSVs; o botão tem a cara e o estado da origem
- * (travado quando não há dado), sem ação — quando houver, é um route handler
- * nesta pasta com a mesma consulta de `lib/analise.ts`.
+ * `wS`: the icon-only button that downloads the section's CSV, with the tooltip on
+ * the left.
+ * ponytail: Pipe doesn't generate these CSVs; the button has the source's look and
+ * state (locked when there's no data), with no action — when it exists, it's a
+ * route handler in this folder using the same query as `lib/analise.ts`.
  */
 function BotaoCsv({ travado, dica }: { travado: boolean; dica: string }) {
   return (
@@ -265,7 +274,10 @@ function BotaoCsv({ travado, dica }: { travado: boolean; dica: string }) {
   );
 }
 
-/** `mE`: o vazio da seção — ícone de 80, título fs-16 bold, texto fs-14 semi-bold. */
+/**
+ * `mE`: the section's empty state — 80px icon, fs-16 bold title, fs-14 semi-bold
+ * text.
+ */
 function WithoutData({
   icone,
   titulo,
@@ -291,18 +303,18 @@ const WITHOUT_CONVERSATIONS = {
 };
 const WITHOUT_INFORMATION = 'Não há informações para baixar.';
 
-/* =========================================================== gráficos */
 
-/** Os tiques do eixo de valor: a mesma régua do chart.js que Mensagens ativas usa. */
+
+/** The value axis ticks: the same chart.js scale that Mensagens ativas uses. */
 const escala = (maximo: number) => escalaDoEixo(maximo).tiques;
 
 /**
- * `n_`: o gráfico de linhas das seções Contatos e Mensagens — legenda embaixo
- * com bolinha de 7px, sem grade, eixo a partir de zero, linha de 3px sem ponto
- * (`pointRadius: 0`), título bold 14 alinhado à esquerda quando há.
+ * `n_`: the line chart for the Contatos and Mensagens sections — legend below with
+ * a 7px dot, no gridlines, axis starting at zero, 3px line with no point
+ * (`pointRadius: 0`), bold 14 title left-aligned when present.
  *
- * ponytail: o chart.js gira o rótulo do eixo x antes de pular; aqui ele só
- * pula (no máximo 8 rótulos), sem girar.
+ * ponytail: chart.js rotates the x-axis label before skipping; here it only skips
+ * (at most 8 labels), without rotating.
  */
 function GraficoDeLinhas({
   titulo,
@@ -369,9 +381,9 @@ function Legenda({ itens }: { itens: { rotulo: string; cor: string }[] }) {
 }
 
 /**
- * `QT`: duas barras deitadas numa categoria só, raio 8, o valor em "%"
- * (`Math.round(100 * v)`) em 24px à direita da ponta, e a folga direita que
- * cresce de 50 a 80px com o maior valor (`PT`).
+ * `QT`: two horizontal bars in a single category, 8 radius, the value in "%"
+ * (`Math.round(100 * v)`) at 24px to the right of the tip, and the right-side gap
+ * growing from 50 to 80px with the largest value (`PT`).
  */
 function ParticipationBarras({
   barras,
@@ -403,10 +415,10 @@ function ParticipationBarras({
 /* =========================================================== Contatos */
 
 /**
- * `I_`. Com `is-using-contacts-section-identity-quantity-route` ligada, os
- * totais vêm das rotas de quantidade (`engaged-identity-quantity` e
- * `active-identity-quantity`), e as taxas saem deles: interação = com
- * interação ÷ total; rejeição = 1 − interação.
+ * `I_`. With `is-using-contacts-section-identity-quantity-route` on, the totals
+ * come from the quantity routes (`engaged-identity-quantity` and
+ * `active-identity-quantity`), and the rates are derived from them: interaction =
+ * engaged ÷ total; bounce = 1 − interaction.
  */
 function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
   const { contacts } = p.data;
@@ -429,12 +441,12 @@ function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
             Acompanhe as métricas relativas aos contatos que conversaram com o seu chatbot.
           </p>
         </div>
-        {/* `isDisabled: A` — e o `A` do `iN` nunca sai de `false`. */}
+        {/* `isDisabled: A` — and `iN`'s `A` never leaves `false`. */}
         <BotaoCsv travado={false} dica="Baixar dados de Contatos em csv." />
       </div>
 
       <div className="da-contatos-corpo">
-        {/* `O_` 30% (`#paperCard`): o cartão escuro do total e dois claros. */}
+        {/* `O_` 30% (`#paperCard`): the dark total card and two light ones. */}
         <div className="da-coluna" style={{ width: '30%' }}>
           <div className="da-papel da-cartao-escuro">
             <span className="da-t14 da-negrito">Total de contatos únicos</span>
@@ -506,7 +518,10 @@ function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
   );
 }
 
-/** `c_`: número fs-24 extra-bold com o indicador escuro e a dica; rótulo fs-12 embaixo. */
+/**
+ * `c_`: fs-24 extra-bold number with the dark indicator and tooltip; fs-12 label
+ * underneath.
+ */
 function CardClaro(props: {
   titulo: string;
   dica: string;
@@ -532,9 +547,9 @@ function CardClaro(props: {
 }
 
 /**
- * `__`: o cartão com fio colorido embaixo do número. Com
- * `is-displaying-list-contacts-button`, o `external-file` abre a barra lateral
- * — travado (`not-allowed`) quando não há contato.
+ * `__`: the card with a colored line under the number. With
+ * `is-displaying-list-contacts-button`, `external-file` opens the sidebar —
+ * locked (`not-allowed`) when there's no contact.
  */
 function CardStriped(props: {
   p?: PropsDoDashboard;
@@ -590,9 +605,9 @@ function CardStriped(props: {
   );
 }
 
-/* ========================================================= Recorrência */
 
-/** `BR`: dois `DR` à esquerda e a tabela `DT` dos mais recorrentes à direita. */
+
+/** `BR`: two `DR` on the left and the `DT` table of most recurrent on the right. */
 function SectionRecorrencia(p: PropsDoDashboard & { cmp: Comparison }) {
   const { recorrencia, contacts } = p.data;
   const taxa = contacts.total.atual ? recorrencia.contacts.atual / contacts.total.atual : undefined;
@@ -647,7 +662,7 @@ function SectionRecorrencia(p: PropsDoDashboard & { cmp: Comparison }) {
   );
 }
 
-/** `DR`: papel surface-3, título sem margem, descrição fs-16 e o número fs-24. */
+/** `DR`: surface-3 card, title with no margin, fs-16 description, and fs-24 number. */
 function CardAzul(props: {
   titulo: string;
   texto: string;
@@ -671,11 +686,11 @@ function CardAzul(props: {
 }
 
 /**
- * `DT`: o papel com título, descrição, botão de CSV e a tabela numerada ("1º"
- * num círculo de 32px). A tabela rola dentro de `altura` (150px por padrão,
- * 288px nas listas de blocos). `abrir` é a coluna do `external-file` do
- * `onItemClick` — na origem abre o contato no módulo Contatos, que o Pipe não
- * tem: o ícone fica, sem destino.
+ * `DT`: the card with title, description, CSV button, and the numbered table ("1º"
+ * in a 32px circle). The table scrolls within `altura` (150px by default, 288px in
+ * block listings). `abrir` is the `external-file` column from `onItemClick` — in
+ * the source it opens the contact in the Contacts module, which Pipe doesn't have:
+ * the icon stays, with no destination.
  */
 function Ranking(props: {
   titulo: string;
@@ -755,14 +770,14 @@ function Ranking(props: {
 
 /* =========================================================== Mensagens */
 
-/** `xR`: barras de participação 20% · cartões 25% · linhas 30% · médias 25%. */
+/** `xR`: participation bars 20% · cards 25% · lines 30% · averages 25%. */
 function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
   const { messages, contacts } = p.data;
   const enviadas = messages.enviadas.atual;
   const recebidas = messages.recebidas.atual;
   const total = enviadas + recebidas;
   const totalAntes = messages.enviadas.anterior + messages.recebidas.anterior;
-  /* `AS()`: fração da parte no total, zero quando não há total. */
+  /* `AS()`: the part's fraction of the total, zero when there's no total. */
   const parte = (v: number) => (v === 0 ? 0 : v / total);
   const media = (v: number, c: number) => (c ? v / c : 0);
   const mediaRec = media(recebidas, contacts.withInteraction.atual);
@@ -872,7 +887,10 @@ function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
   );
 }
 
-/** `iR`: o círculo de 32px com `message-sent`/`message-received`, rótulo fs-12 e número fs-20. */
+/**
+ * `iR`: the 32px circle with `message-sent`/`message-received`, fs-12 label, and
+ * fs-20 number.
+ */
 function MessageMetric(props: {
   tipo: 'enviada' | 'recebida';
   titulo: string;
@@ -908,11 +926,11 @@ function MessageMetric(props: {
 /* ============================================================== Canais */
 
 /**
- * `OE`. A linha do canal e a de "Totais" são o `zE` e o `PE` do `iN`; o Pipe
- * liga UM canal por contato, então as duas trazem os mesmos números. Sem
- * contato no período a origem recebe a lista vazia e desenha o vazio.
- * "Mensagens ativas enviadas" é "-": o bot do Pipe não manda mensagem ativa
- * (ver `carregarMensagensAtivas`).
+ * `OE`. The channel row and the "Totais" row are `iN`'s `zE` and `PE`; Pipe
+ * connects ONE channel per contact, so both bring the same numbers. With no
+ * contact in the period the source gets an empty list and renders the empty state.
+ * "Mensagens ativas enviadas" is "-": Pipe's bot doesn't send active messages (see
+ * `carregarMensagensAtivas`).
  */
 function SectionChannels(p: PropsDoDashboard & { cmp: Comparison }) {
   const { contacts, recorrencia, channel } = p.data;
@@ -997,10 +1015,10 @@ function SectionChannels(p: PropsDoDashboard & { cmp: Comparison }) {
 /* ================================================ Fluxo conversacional */
 
 /**
- * `Yw`. O `isDisabled` que decide o vazio é o `Z` do `iN`: verdadeiro quando
- * TODO número da resposta é zero (`PR`) — aí a origem diz que os dados "estão
- * sendo processados". Botão de CSV desligado pela flag
- * `is-displaying-dashboard-csv-download-conversional-flow-button`.
+ * `Yw`. The `isDisabled` that decides the empty state is `iN`'s `Z`: true when
+ * EVERY number in the response is zero (`PR`) — in that case the source says the
+ * data "estão sendo processados". CSV button turned off by the
+ * `is-displaying-dashboard-csv-download-conversional-flow-button` flag.
  */
 function SectionFlow(p: PropsDoDashboard & { cmp: Comparison }) {
   const { flow } = p.data;
@@ -1071,7 +1089,7 @@ function SectionFlow(p: PropsDoDashboard & { cmp: Comparison }) {
             cmp={p.cmp}
             values={[
               { texto: 'Taxa de contatos em exceção', value: '-' },
-              /* Sem `variacao`: o `Vw` só desenha o indicador quando ela existe. */
+              /* No `variacao`: `Vw` only draws the indicator when it exists. */
               { texto: 'Total de contatos em exceção', value: '-' },
             ]}
           />
@@ -1081,7 +1099,7 @@ function SectionFlow(p: PropsDoDashboard & { cmp: Comparison }) {
   );
 }
 
-/** `Vw`: 139px de altura, fio de 2px na cor da métrica, valores lado a lado. */
+/** `Vw`: 139px tall, 2px line in the metric's color, values side by side. */
 function ColumnsCard(props: {
   titulo: string;
   cor: string;
@@ -1119,10 +1137,11 @@ function ColumnsCard(props: {
 /* ================================================================ Blocos */
 
 /**
- * `WT`: as duas listas lado a lado (`bds-grid gap="2"`), 288px de rolagem. O
- * "Clique aqui" abre o Dicionário de Dados em outra aba, no item "Lista de
- * blocos" — a URL da origem é `/analytics/dataDictionary?path=dashboard:listOfBlocks`.
- * No roteador o nome do bloco é texto; no fluxo, link para o Builder.
+ * `WT`: the two side-by-side lists (`bds-grid gap="2"`), 288px of scroll. "Clique
+ * aqui" opens the Data Dictionary in another tab, at the "Lista de blocos" item —
+ * the source's URL is
+ * `/analytics/dataDictionary?path=dashboard:listOfBlocks`. In the router the block
+ * name is plain text; in the flow, a link to the Builder.
  */
 function SectionBlocks(p: PropsDoDashboard) {
   const dictionary = `${contactBase(p.data.router ? 'roteador' : 'fluxo', p.id)}/analise/dicionario-de-dados?path=dashboard:listOfBlocks`;
@@ -1187,13 +1206,13 @@ function SectionBlocks(p: PropsDoDashboard) {
 /* ============================================================ a barra lateral */
 
 /**
- * `uw`: o véu de tela cheia com a coluna de 416px encostada à direita —
- * cabeçalho escuro "Número de Contatos" com o fechar, a faixa surface-3 com o
- * título do cartão, "v1 (v2 contatos)" e "Exportar lista", e a lista rolável.
- * Fechar é voltar à URL sem `contatos`.
+ * `uw`: the full-screen veil with the 416px column against the right edge — dark
+ * header "Número de Contatos" with the close button, the surface-3 strip with the
+ * card's title, "v1 (v2 contatos)" and "Exportar lista", and the scrollable list.
+ * Closing means going back to the URL without `contatos`.
  *
- * ponytail: lá o `top` do véu é medido por JavaScript abaixo da barra do
- * portal; aqui ele cobre a tela desde o topo.
+ * ponytail: there the veil's `top` is measured by JavaScript below the portal bar;
+ * here it covers the screen from the top.
  */
 function ContactsBarra(p: PropsDoDashboard & { lista: NonNullable<PropsDoDashboard['lista']> }) {
   const { contacts } = p.data;

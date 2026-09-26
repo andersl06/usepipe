@@ -1,25 +1,26 @@
 /**
- * O vocabulário e as réguas da área de configurações.
+ * The settings area's vocabulary and rulers.
  *
- * Este arquivo é PURO: nenhum import de `pg`, de `@pipe/db` nem de `next`. É por
- * isso que o componente de cliente (`'use client'`) pode importar daqui sem
- * arrastar o driver do Postgres para dentro do pacote do navegador, e é por isso
- * que o teste roda sem banco.
+ * This file is PURE: no import of `pg`, `@pipe/db`, or `next`. That's why the
+ * client component (`'use client'`) can import from here without dragging the
+ * Postgres driver into the browser package, and why the test runs without a
+ * database.
  *
- * Toda função de recusa devolve **a queixa em português** ou `null`. A tela mostra
- * a queixa direto; a server action chama a mesma função antes de gravar, porque
- * validação de navegador é conveniência e a do servidor é a que conta.
+ * Every rejection function returns **the complaint in Portuguese** or `null`.
+ * The screen shows the complaint directly; the server action calls the same
+ * function before saving, because browser validation is a convenience and the
+ * server's is what counts.
  */
 
 /* ------------------------------------------------------------------ tema */
 
 /**
- * Os três modos. `sistema` não é um tema: é a ausência de escolha, e é o que
- * deixa o `@media (prefers-color-scheme: dark)` de `tokens.css` decidir.
+ * The three modes. `sistema` isn't a theme: it's the absence of a choice, and
+ * it's what lets `tokens.css`'s `@media (prefers-color-scheme: dark)` decide.
  *
- * O valor vive no navegador de propósito. Tema é preferência de aparelho — a
- * mesma pessoa quer escuro no notebook à noite e claro no monitor da mesa —, e
- * `usuario` não tem coluna para isso nem deveria ter.
+ * The value lives in the browser on purpose. Theme is a device preference —
+ * the same person wants dark on their laptop at night and light on their desk
+ * monitor — and `usuario` has no column for that, nor should it.
  */
 export const TEMAS = ['sistema', 'claro', 'escuro'] as const;
 export type Tema = (typeof TEMAS)[number];
@@ -38,13 +39,13 @@ export function ehUuid(value: unknown): value is string {
   return typeof value === 'string' && UUID.test(value);
 }
 
-/** Espaço nas pontas some; em branco vira `null`, que é o que apaga o campo. */
+/** Leading/trailing space disappears; blank becomes `null`, which is what clears the field. */
 export function normalizar(bruto: string | null | undefined): string | null {
   const limpo = (bruto ?? '').trim();
   return limpo === '' ? null : limpo;
 }
 
-/** Nome de pessoa, de espaço, de papel: obrigatório e com teto. */
+/** Person, workspace, or role name: required and capped. */
 export function recusarNome(value: string | null, oQue = 'O nome'): string | null {
   if (value === null) return `${oQue} não pode ficar em branco.`;
   if (value.length > 120) return `${oQue} passa de 120 caracteres.`;
@@ -53,7 +54,7 @@ export function recusarNome(value: string | null, oQue = 'O nome'): string | nul
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-/** Minúsculo e sem espaço: e-mail é chave, e `Ana@X.com` e `ana@x.com` são a mesma. */
+/** Lowercase and no spaces: email is a key, and `Ana@X.com` and `ana@x.com` are the same one. */
 export function normalizarEmail(bruto: string | null | undefined): string | null {
   const limpo = (bruto ?? '').trim().toLowerCase();
   return limpo === '' ? null : limpo;
@@ -67,12 +68,13 @@ export function recusarEmail(value: string | null): string | null {
 }
 
 /**
- * URL de imagem e de webhook.
+ * Image and webhook URLs.
  *
- * `https` é exigido no webhook porque o corpo assinado sai da nossa rede com
- * dado de cliente dentro; em `http` a assinatura protege contra adulteração e
- * não protege contra leitura. No logo, `http` passa — é imagem pública — mas
- * `javascript:` e `data:` não, que é o vetor clássico de `<img src>`.
+ * `https` is required on the webhook because the signed body leaves our network
+ * with customer data inside; over `http` the signature protects against
+ * tampering but not against reading. On the logo, `http` is allowed — it's a
+ * public image — but `javascript:` and `data:` aren't, which is the classic
+ * `<img src>` vector.
  */
 export function recusarUrl(
   value: string | null,
@@ -97,13 +99,14 @@ export function recusarUrl(
 /* -------------------------------------------------- campo personalizado */
 
 /**
- * Os tipos que o campo personalizado do lead aceita.
+ * The types the lead's custom field accepts.
  *
- * A lista é curta de propósito. No Twenty o usuário cria objeto e campo de vinte
- * tipos; aqui o schema é fixo e o valor mora em `lead.customizados`, que é
- * `jsonb`. Cinco tipos cobrem o que um formulário de lead coleta, e cada um tem
- * uma representação óbvia em JSON — que é a condição para a linguagem de
- * consulta (`dicionario_campo`) continuar sabendo o que fazer com o valor.
+ * The list is short on purpose. In Twenty the user creates an object and a
+ * field out of twenty types; here the schema is fixed and the value lives in
+ * `lead.customizados`, which is `jsonb`. Five types cover what a lead form
+ * collects, and each has an obvious JSON representation — which is the
+ * condition for the query language (`dicionario_campo`) to keep knowing what
+ * to do with the value.
  */
 export const TIPOS_DE_CAMPO = [
   { codigo: 'texto', rotulo: 'Texto' },
@@ -122,12 +125,13 @@ export function tipoDeCampoValido(value: unknown): value is TipoDeCampo {
 const CODIGO_DE_CAMPO = /^[a-z][a-z0-9_]{1,39}$/;
 
 /**
- * O código é a CHAVE dentro do `jsonb`, e por isso não é livre.
+ * The code is the KEY inside the `jsonb`, and that's why it isn't free-form.
  *
- * Acento, espaço e maiúscula viram três grafias da mesma ideia dentro do mesmo
- * objeto — e a consulta passa a depender de qual delas quem cadastrou usou. O
- * `sugerirCodigo` transforma o rótulo digitado numa chave aceitável, para que
- * ninguém precise aprender a regra para cadastrar um campo.
+ * Accent, space, and capitalization would turn into three spellings of the
+ * same idea inside the same object — and the query would start depending on
+ * which one whoever registered it used. `sugerirCodigo` turns the typed label
+ * into an acceptable key, so nobody needs to learn the rule to register a
+ * field.
  */
 export function sugerirCodigo(rotulo: string): string {
   const sem = rotulo
@@ -151,12 +155,12 @@ export function recusarCodigoDeCampo(value: string | null): string | null {
 /* ------------------------------------------------------------ chave de API */
 
 /**
- * O catálogo de escopos, o mesmo de `apps/api/src/autenticacao.ts`.
+ * The scope catalog, the same one in `apps/api/src/autenticacao.ts`.
  *
- * Está repetido aqui, e não importado, porque `apps/crm` não depende de
- * `apps/api` — um aplicativo importar o outro é o começo do monólito que o
- * `pnpm-workspace` existe para evitar. Quando a lista mudar lá, muda aqui; o
- * teste de baixo é o que faz a divergência aparecer.
+ * It's repeated here, not imported, because `apps/crm` doesn't depend on
+ * `apps/api` — one app importing the other is the start of the monolith
+ * `pnpm-workspace` exists to prevent. When the list changes there, it changes
+ * here; the test below is what surfaces the drift.
  */
 export const CATALOGO_OF_SCOPES = [
   { codigo: 'conversas:ler', rotulo: 'Ler conversas' },
@@ -178,9 +182,9 @@ export function scopesValid(codigos: readonly string[]): string[] {
 /* -------------------------------------------------------------- webhook */
 
 /**
- * Os eventos que `apps/api/src/webhooks-saida.ts` emite. Mesma razão da lista de
- * escopos para estar repetida aqui: assinar um evento que ninguém emite é um
- * webhook que nunca dispara e ninguém entende por quê.
+ * The events `apps/api/src/webhooks-saida.ts` emits. Same reason as the scope
+ * list for being duplicated here: subscribing to an event nobody emits is a
+ * webhook that never fires and nobody understands why.
  */
 export const CATALOGO_DE_EVENTOS = [
   'conversa.criada',
@@ -203,9 +207,9 @@ export function eventosValidos(eventos: readonly string[]): string[] {
 /* ----------------------------------------------------------------- fuso */
 
 /**
- * O fuso é validado contra o banco de fusos do próprio runtime, não contra uma
- * lista escrita à mão: lista à mão envelhece a cada mudança de horário de verão
- * e passa a recusar um fuso que existe.
+ * The timezone is validated against the runtime's own timezone database, not
+ * against a hand-written list: a hand-written list ages with every
+ * daylight-saving change and starts rejecting a timezone that exists.
  */
 export function fusoValido(value: string): boolean {
   try {
@@ -284,7 +288,10 @@ export interface CampoPersonalizado {
   rotulo: string;
   tipo: string;
   description: string | null;
-  /** Quantos leads têm valor gravado nesta chave. É o que impede excluir às cegas. */
+  /**
+   * How many leads have a value saved under this key. It's what stops someone
+   * from blindly deleting it.
+   */
   preenchidos: number;
 }
 
@@ -308,7 +315,7 @@ export interface WebhookDeSaida {
   entregas: { pendentes: number; falhas: number };
 }
 
-/** O que a tela devolve de toda escrita. `erro` já vem em português. */
+/** What the screen gets back from every write. `erro` already comes in Portuguese. */
 export interface Resultado {
   ok: boolean;
   error?: string;

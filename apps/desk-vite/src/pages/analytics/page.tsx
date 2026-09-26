@@ -16,20 +16,7 @@ import {
 } from '../../lib/period';
 
 /**
- * "Minhas métricas: {nome}" — `/analytics`. A estrutura é a da tela do clone
- * (`~/desk-clone/clone/index.html`, seção `metrics`, foto
- * `desk2/blip-clone-metrics.png`): cabeçalho com seta, avatar extra-large,
- * título 19/700 + subtítulo 12, "Atualizar" e a barra de períodos; o corpo
- * com "Visão Geral de Tickets" (rosca + seis cartões), "Total de tickets de
- * atendimento" (série diária com a ficha "Desde dd/mm/aaaa") e "Médias de
- * métricas de atendimento" (três tempos).
- *
- * A coluna "blip copilot" da referência é marketing do produto deles e fica
- * de fora — nenhuma menção visível a eles.
- *
- * Os dados vêm de `GET /v1/desk/metricas?inicio=&fim=`, sempre do próprio
- * atendente. "Transferidos" e "Perdidos" chegam `null` (o domínio ainda não
- * guarda) e aparecem como traço, não como zero.
+ * `Minhas métricas: {nome}` at `/analytics` follows the reference metrics screen (`~/desk-clone/clone/index.html`, metrics section; `desk2/blip-clone-metrics.png`): header and period bar, six-card ticket overview with donut, daily ticket series, and three average durations. Omit the reference `blip copilot` marketing column. Data comes from `GET /v1/desk/metricas?inicio=&fim=` for the current agent. `Transferidos` and `Perdidos` arrive as `null` because the domain does not store them yet; show a dash, not zero.
  */
 export function PageMetrics() {
   const eu = useEu();
@@ -179,7 +166,7 @@ export function PageMetrics() {
   );
 }
 
-/** A rosca de seis fatias da referência: 118px, traço 5.5 numa caixa de 42. */
+/** Reference six-segment donut: 118px, 5.5 stroke, in a 42px box. */
 function Rosca({
   cards,
   total,

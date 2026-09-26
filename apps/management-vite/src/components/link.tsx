@@ -2,14 +2,7 @@ import { Link as LinkDoRoteador, type LinkProps } from 'react-router-dom';
 import type { ReactNode } from 'react';
 
 /**
- * O `<Link>` das telas, com `href` — a MESMA assinatura que o `next/link` tinha.
- *
- * Existe para a migração ser "trocar o import", e não reescrever cada `<Link
- * href>` das telas medidas da Blip. É só o nome do atributo: por baixo é o
- * `Link` do React Router, com navegação de cliente e sem recarregar a página.
- *
- * `href` externo (`http…`, `mailto:`) vira `<a>` comum: o roteador não tem o
- * que fazer com ele.
+ * Screen `<Link>` with `href` preserves the former `next/link` signature so migrated Blip-measured screens change only their import. It delegates client navigation to React Router. External `href` values such as `http…` and `mailto:` use a plain `<a>`.
  */
 export function Link({
   href,

@@ -12,7 +12,7 @@ import {
 import { LIMITE_DE_CHAVES, errorToCreate, marcarPadrao, noLimite, podeExcluir } from '../regras';
 import { createKey, revogarKey, type KeyListed } from './gravar';
 
-/** `/assets/img/ballons.svg` — os dois balões da ajuda, na tinta da marca suave. */
+/** `/assets/img/ballons.svg` — the two help balloons, in the brand's soft ink. */
 function Bubbles() {
   return (
     <svg
@@ -37,7 +37,7 @@ function Bubbles() {
   );
 }
 
-/** A data em pt-BR, para o "Data de criação" da origem. */
+/** The date in pt-BR, for the source's "Data de criação". */
 function formatarData(iso: string): string {
   return new Intl.DateTimeFormat('pt-BR', {
     dateStyle: 'short',
@@ -92,11 +92,7 @@ function KeyModal({ token, onFechar }: { token: string; onFechar: () => void }) 
 }
 
 /**
- * O miolo de `/configurations/keys` (template do módulo 76179), agora real:
- * `GET/POST /v1/gestao/fluxos/:id/chaves` e `DELETE .../chaves/:chaveId`
- * (que revoga — `dominio/gestao/integracoes.ts`). O token em claro
- * (`pipe_<prefixo>_<segredo>`) só existe na resposta do `POST`; a lista
- * seguinte já vem só com o prefixo.
+ * The guts of `/configurations/keys` (module 76179 template), now real: `GET/POST /v1/gestao/fluxos/:id/chaves` and `DELETE .../chaves/:chaveId` (which revokes — `dominio/gestao/integracoes.ts`). The plaintext token (`pipe_<prefixo>_<segredo>`) only exists in the `POST` response; the following list already comes with just the prefix.
  */
 export function TelaDeChaves({ flowId }: { flowId: string }) {
   const caminho = `/v1/management/flows/${flowId}/keys`;

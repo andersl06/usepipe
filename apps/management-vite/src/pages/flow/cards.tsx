@@ -5,20 +5,13 @@ import { contactBase } from './contact';
 import { numeroDaHome, pilhaDaEquipe, type Extensao, type Member, type Metrics } from './itens';
 
 /**
- * Os cartões da home do contato — as áreas de `.chatbot-home-content`
- * (template `application.home`, módulo 77021 de `portal.js`).
+ * The contact home's cards — the `.chatbot-home-content` areas (template `application.home`, module 77021 of `portal.js`).
  *
- * Cada cartão recebe o dado por prop e aplica a MESMA condição do template de
- * origem para decidir o que aparece. A página passa o que o Pipe tem hoje;
- * quando não tem, passa vazio, e é a regra da origem que esconde ou troca o
- * estado — não uma decisão nossa.
+ * Each card receives its data via prop and applies the SAME condition as the source template to decide what shows. The page passes what Pipe has today; when it doesn't have it, it passes empty, and it's the source's rule that hides or swaps the state — not a decision of ours.
  */
 
 /**
- * `<bds-button size="short" variant="tertiary">`, ou o bloco apagado com o selo
- * "em breve" quando o destino ainda não existe aqui. `alto` é o
- * `size="standard"` (40px) do botão da loja, e `seta` é o `arrow` do
- * `bds-button`: um `arrow-right` outline depois do rótulo.
+ * `<bds-button size="short" variant="tertiary">`, or the greyed-out block with the "em breve" badge when the destination doesn't exist here yet. `alto` is the store button's `size="standard"` (40px), and `seta` is the `bds-button`'s `arrow`: an outline `arrow-right` after the label.
  */
 function Botao({
   href,
@@ -53,13 +46,10 @@ function Botao({
   );
 }
 
-/* --------------------------------------------------------------- extensões */
+/* --------------------------------------------------------------- extensions */
 
 /**
- * `ng-if="isBlipStoreHomeBotPluginsRecommendationServicePageEnabled &&
- * extensions.length > 0 && !showAiCard"`. Na captura a flag está ligada e a loja
- * devolveu duas extensões — a origem desenha esta coluna para o roteador. Aqui
- * não há loja: a lista chega vazia e a coluna some, como lá sem recomendação.
+ * `ng-if="isBlipStoreHomeBotPluginsRecommendationServicePageEnabled && extensions.length > 0 && !showAiCard"`. In the capture the flag is on and the store returned two extensions — the source draws this column for the router. Here there's no store: the list arrives empty and the column disappears, same as there with no recommendation.
  */
 export function CardExtensions({ extensions }: { extensions: readonly Extensao[] }) {
   if (extensions.length === 0) return null;
@@ -73,8 +63,9 @@ export function CardExtensions({ extensions }: { extensions: readonly Extensao[]
             </div>
           </div>
           <div className="fx-extensoes-botao">
-            {/* "Ir para Blip Store" com o nome da nossa loja, que na barra do
-                topo também está em obra. */}
+            {/*
+ * "Ir para Blip Store" with our store's name, which is also under construction in the top bar.
+ */}
             <Botao href={null} alto seta>
               Ir para Pipe Store
             </Botao>
@@ -110,13 +101,9 @@ export function CardExtensions({ extensions }: { extensions: readonly Extensao[]
 /* ------------------------------------------------------------------ canais */
 
 /**
- * A fileira de logos, na ordem do template. `blip-chat` e `email` NÃO têm
- * `ng-if` — aparecem sempre; os outros dependem de
- * `ChannelsService.activationStatuses`. Messenger, Telegram, Workplace, Apple e
- * Google ficam de fora porque o Pipe não tem esses tipos: nunca estariam ativos.
+ * The channel-logo row, in template order. `blip-chat` and `email` do NOT have `ng-if` — they always show; the others depend on `ChannelsService.activationStatuses`. Messenger, Telegram, Workplace, Apple and Google stay out because Pipe doesn't have those channel types: they could never be active.
  *
- * `logo: null` é a vaga do `blip-chat`, que é a marca da Blip e não entra: no
- * lugar vai o símbolo do Pipe, que é a marca do nosso widget de site.
+ * `logo: null` is `blip-chat`'s slot, which is Blip's brand and doesn't belong here: in its place goes the Pipe symbol, our site widget's brand.
  */
 const LOGOS_OF_CHANNEL = [
   { tipo: 'widget', nome: 'Site', logo: null, sempre: true },
@@ -125,7 +112,7 @@ const LOGOS_OF_CHANNEL = [
   { tipo: 'email', nome: 'E-mail', logo: 'email', sempre: true }, // `mailgun`
 ] as const;
 
-/** `ng-if="!showAiCard"` — sem o cartão de IA (flag desligada), é este. */
+/** `ng-if="!showAiCard"` — without the AI card (flag off), this is it. */
 export function CardChannels({
   ativos,
   id,
@@ -143,7 +130,7 @@ export function CardChannels({
           <h2 className="fx-h4">Canais</h2>
         </div>
         <div className="fx-faixa-sub">
-          {/* Cada vaga é um `bds-icon type="logo" size="large"` (28px). */}
+          {/* Each slot is a `bds-icon type="logo" size="large"` (28px). */}
           <div className="fx-canais-logos">
             {logos.map((l) => (
               <span
@@ -173,12 +160,9 @@ export function CardChannels({
 /* ------------------------------------------------------------------ equipe */
 
 /**
- * Dois estados, pelo `teamMembers.length`: mais de um vira a `avatar-array
- * limit="8"`; um ou nenhum vira a frase de convite.
+ * Two states, based on `teamMembers.length`: more than one becomes the `avatar-array limit="8"`; one or none becomes the invite phrase.
  *
- * "Adicionar equipe" leva a `auth.application.detail.team`, a equipe DO
- * CONTATO. O RBAC daqui é por conta — falta a tabela que liga pessoa a contato,
- * e até lá a página passa a lista vazia e o botão fica em obra.
+ * "Adicionar equipe" leads to `auth.application.detail.team`, the CONTACT's team. RBAC here is per-account — the table linking a person to a contact is missing, and until then the page passes an empty list and the button stays under construction.
  */
 export function CardTeam({ members }: { members: readonly Member[] }) {
   return (
@@ -219,14 +203,10 @@ export function CardTeam({ members }: { members: readonly Member[] }) {
   );
 }
 
-/* ------------------------------------------------------------- preferências */
+/* ------------------------------------------------------------- preferences */
 
 /**
- * Cultura e Fuso horário são `bds-autocomplete` com `ng-disabled="!hasEditPermission"`,
- * e Plano é `bds-input disabled="true"` com o valor no `placeholder`. Aqui não há
- * permissão de edição — cultura e fuso são da conta e se editam em Minha conta —,
- * então os três chegam desabilitados e o "Aplicar alterações" (que só existe com
- * `hasEditPermission`) não entra.
+ * Cultura and Fuso horário are `bds-autocomplete` with `ng-disabled="!hasEditPermission"`, and Plano is `bds-input disabled="true"` with the value in the `placeholder`. Here there's no edit permission — culture and timezone belong to the account and are edited in Minha conta —, so all three arrive disabled and "Aplicar alterações" (which only exists with `hasEditPermission`) doesn't show up.
  */
 export function CardPreferences({ fuso, plano }: { fuso: string; plano: string }) {
   return (
@@ -252,20 +232,17 @@ function Campo({ rotulo, value, dica }: { rotulo: string; value: string; dica?: 
   );
 }
 
-/* ---------------------------------------------------------------- métricas */
+/* ---------------------------------------------------------------- metrics */
 
 /**
- * `ng-if="nUsers != 0 && !isHidingHomeMetrics"`. `null` é o nosso
- * `isHidingHomeMetrics`: não há fonte de contagem por contato — e na captura a
- * flag `is-hiding-home-metrics` está LIGADA, então a origem também não desenha
- * este cartão para o roteador.
+ * `ng-if="nUsers != 0 && !isHidingHomeMetrics"`. `null` is our `isHidingHomeMetrics`: there's no per-contact count source — and in the capture the `is-hiding-home-metrics` flag is ON, so the source doesn't draw this card for the router either.
  */
 export function CardMetrics({ metrics, base }: { metrics: Metrics | null; base: string }) {
   if (!metrics || metrics.users === 0) return null;
   return (
     <div className="fx-area-metricas">
       <section className="fx-papel fx-metricas">
-        {/* `team` é o mesmo desenho que o portal já usa como `comunidade`. */}
+        {/* `team` is the same design the portal already uses as `comunidade`. */}
         <Metrica
           icone="comunidade"
           rotulo="Usuários"
@@ -293,9 +270,7 @@ export function CardMetrics({ metrics, base }: { metrics: Metrics | null; base: 
 }
 
 /**
- * Uma coluna: ícone `size="brand"`, rótulo com a dica `info` (tema solid), o
- * número em `fs-32` e o "Ver mais", que só aparece no hover. O de Usuários vai à
- * tela de contatos, que não existe aqui; os de mensagens vão à análise.
+ * One column: `size="brand"` icon, label with the `info` tooltip (solid theme), the number in `fs-32` and "Ver mais", which only shows on hover. The Users one goes to the contacts screen, which doesn't exist here; the message ones go to analytics.
  */
 function Metrica({
   icone,

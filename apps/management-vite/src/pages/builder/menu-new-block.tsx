@@ -1,14 +1,7 @@
 import { IconePortal } from '../../components/icones-portal';
 
 /**
- * O papel "NOVO BLOCO" que o "Adicionar bloco" da pílula abre
- * (`#builder-command-buttons-add`): título em caixa alta 16/semi-bold com o
- * "x" à direita, um fio, e uma lista de `bds-button variant="secondary"
- * full-width justify-content="space-between"` — ícone à esquerda, nome à
- * direita. Do menu deles só entram os dois blocos que o motor do Pipe roda:
- * "Padrão" (`builder-new-state`) e "Humano" (`agent`). Agente, Pagamento,
- * Componentes exclusivos, Catálogo, AI Answers, Biblioteca de blocos e
- * Subfluxo são recursos de plano da Blip sem motor por trás aqui.
+ * The "NOVO BLOCO" sheet that the pill's "Adicionar bloco" opens (`#builder-command-buttons-add`): uppercase 16/semi-bold title with the "x" on the right, a divider, and a list of `bds-button variant="secondary" full-width justify-content="space-between"` — icon on the left, name on the right. Of their menu, only the two blocks the Pipe engine runs make it in: "Padrão" (`builder-new-state`) and "Humano" (`agent`). Agente, Pagamento, Componentes exclusivos, Catálogo, AI Answers, Biblioteca de blocos, and Subfluxo are Blip plan features with no engine behind them here.
  */
 
 export function MenuNewBlock({

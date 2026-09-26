@@ -3,20 +3,23 @@ import type { ReactNode } from 'react';
 import { Avatar } from '@pipe/ui';
 
 /**
- * As peças da ficha, usadas pelas três: lead, conta e contato.
+ * The record's building blocks, used by all three: lead, account, and contact.
  *
- * A forma foi medida no Twenty (`record-show`) e no Salesforce, que chegaram ao
- * mesmo desenho sem se falarem: uma faixa de identidade no topo, uma tira curta
- * dos campos que decidem o que fazer, uma coluna lateral com o resto dos dados
- * em seções que abrem e fecham, e abas para o conteúdo pesado.
+ * The shape was measured in Twenty (`record-show`) and in Salesforce, which
+ * arrived at the same design without talking to each other: an identity strip
+ * at the top, a short row of the fields that decide what to do, a sidebar
+ * column with the rest of the data in sections that open and close, and tabs for
+ * the heavy content.
  *
- * Elas moravam dentro de `leads/[id]/page.tsx`, e a conta e o contato eram duas
- * telas mais pobres por não as terem. Estão aqui pela razão de sempre: três
- * cópias do mesmo cabeçalho viram três cabeçalhos diferentes no terceiro mês.
+ * They used to live inside `leads/[id]/page.tsx`, and the account and the
+ * contact were two poorer screens for not having them. They're here for the
+ * usual reason: three copies of the same header become three different headers
+ * by the third month.
  *
- * Tudo aqui é componente de SERVIDOR. Nenhuma peça guarda estado, e a aba vive
- * na URL — a ficha inteira funciona sem JavaScript, e é o que permite colar no
- * chat o endereço de uma ficha já aberta na aba certa.
+ * Everything here is a SERVER component. No piece holds state, and the tab
+ * lives in the URL — the whole record works without JavaScript, which is what
+ * lets you paste into chat the address of a record already open on the right
+ * tab.
  */
 
 export function Campo({ k, v }: { k: string; v: ReactNode }) {
@@ -29,11 +32,11 @@ export function Campo({ k, v }: { k: string; v: ReactNode }) {
 }
 
 /**
- * Uma seção da coluna lateral, que abre e fecha.
+ * A sidebar column section that opens and closes.
  *
- * `<details>` nativo: o navegador já sabe abrir, fechar, responder ao teclado e
- * contar para o leitor de tela. Escrever isso em React seria trocar zero linha
- * por trinta e perder o comportamento de busca na página.
+ * Native `<details>`: the browser already knows how to open, close, respond to
+ * the keyboard, and announce to a screen reader. Writing this in React would be
+ * trading zero lines for thirty and losing in-page search behavior.
  */
 export function Section({
   titulo,
@@ -57,17 +60,17 @@ export function Section({
 export interface CampoPrincipal {
   rotulo: string;
   value: ReactNode;
-  /** A segunda linha, em tom menor: "há 12 dias", o nome da campanha, a faixa. */
+  /** The second line, in a lighter tone: "12 days ago", the campaign name, the band. */
   nota?: ReactNode;
-  /** Número em monoespaçada tabular. Para valor e contagem, não para texto. */
+  /** Tabular monospaced number. For values and counts, not for text. */
   numerico?: boolean;
 }
 
 /**
- * O cabeçalho de destaque: identidade em cima, campos principais embaixo.
+ * The highlight header: identity on top, main fields below.
  *
- * **Cinco campos principais, no máximo** — é a régua do destaque do Salesforce,
- * e mais do que isso deixa de ser destaque. As três fichas obedecem a mesma.
+ * **Five main fields, at most** — that's Salesforce's highlight rule, and more
+ * than that stops being a highlight. All three records follow the same one.
  */
 export function Destaque({
   trilha,
@@ -78,9 +81,9 @@ export function Destaque({
 }: {
   trilha: { href: string; rotulo: string };
   nome: string;
-  /** As etiquetas de estado, à direita do nome. Cor só no que exige ação. */
+  /** The state badges, to the right of the name. Color only on what demands action. */
   etiquetas?: ReactNode;
-  /** O carimbo discreto do fim da linha: "criado há 3 dias". */
+  /** The quiet stamp at the end of the row: "created 3 days ago". */
   nota?: ReactNode;
   main: readonly CampoPrincipal[];
 }) {
@@ -117,14 +120,14 @@ export function Destaque({
 export interface AbaDaFicha {
   key: string;
   rotulo: string;
-  /** `null` esconde a contagem. Zero é contagem, e zero é informação. */
+  /** `null` hides the count. Zero is a count, and zero is information. */
   count?: number | null;
 }
 
 /**
- * As abas do conteúdo. São LINKS, não estado de cliente: a aba vive na URL, o
- * botão de voltar do navegador desfaz a troca, e a ficha continua sendo
- * servidor inteiro.
+ * The content tabs. They are LINKS, not client state: the tab lives in the URL,
+ * the browser's back button undoes the switch, and the record stays fully
+ * server-rendered.
  */
 export function AbasDaFicha({
   base,
@@ -132,11 +135,11 @@ export function AbasDaFicha({
   abas,
   formatar,
 }: {
-  /** O endereço da ficha, sem parâmetro. A aba entra como `?aba=`. */
+  /** The record's address, with no parameter. The tab comes in as `?aba=`. */
   base: string;
   aba: string;
   abas: readonly AbaDaFicha[];
-  /** Como escrever o número. A tela passa o `numero` do formato local. */
+  /** How to write the number. The screen passes the `numero` in the local format. */
   formatar: (n: number) => string;
 }) {
   return (
@@ -160,11 +163,11 @@ export function AbasDaFicha({
 }
 
 /**
- * A seção de atributos personalizados da lateral.
+ * The sidebar's custom-attributes section.
  *
- * As três tabelas guardam `atributos` em JSONB — é a decisão do modelo que evita
- * os 304 campos customizados do Lead do Salesforce de hoje. Como a forma é a
- * mesma nas três, a seção também é.
+ * All three tables store `atributos` in JSONB — it's the data-model decision
+ * that avoids today's 304 custom fields on Salesforce's Lead. Since the shape is
+ * the same across the three, so is this section.
  */
 export function SectionAtributos({
   atributos,

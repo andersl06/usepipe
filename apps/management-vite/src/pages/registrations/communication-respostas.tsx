@@ -7,7 +7,7 @@ import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { FormularioRespostaPronta } from './communication-respostas-formulario';
 import { Modal, ModalConfirmation } from './_modal';
 
-/** O switch + o "Excluir" do cartão-linha — `PATCH`/`DELETE` em `.../respostas-prontas/:id`. */
+/** The switch and the "Excluir" on the row card — `PATCH`/`DELETE` on `.../respostas-prontas/:id`. */
 function RespostaActions({
   resposta,
   onErrorAlternar,
@@ -42,23 +42,7 @@ function RespostaActions({
 }
 
 /**
- * Respostas prontas — as da empresa. As pessoais o atendente cria e organiza
- * sozinho no Desk (§5 de `docs/specs/2026-09-05-desk-requisitos.md`), então não
- * entram nesta tela de gestão.
- *
- * `FICHA-replies.md` foi capturada com a lista vazia — o material só confirma
- * cabeçalho com "Criar categoria" à direita (§2.1) e o texto do estado vazio
- * (§6); não há coluna nem linha com dado real para copiar. Um desalinhamento
- * de fundo que a ficha não resolve: a Blip organiza respostas em
- * CATEGORIAS (cria a categoria primeiro, a resposta mora dentro dela); o
- * nosso cadastro é uma lista achatada, sem categoria — mudar isso é desenho
- * de dado novo (tabela/API), fora do que esta tela sozinha decide. Por isso
- * o botão do cabeçalho aqui diz "Nova resposta pronta" (o que a tela faz de
- * verdade) e não "Criar categoria".
- *
- * Reaproveita `ListaRegras`, o mesmo cartão-de-lista com busca da tela de
- * Regras — o cartão já resolve busca, agrupamento e estado vazio sem
- * reescrever nada disso aqui.
+ * Canned replies — the company's ones. Personal ones are created and organized by the attendant alone in Desk (§5 of `docs/specs/2026-09-05-desk-requisitos.md`), so they don't appear on this management screen. `FICHA-replies.md` was captured with an empty list — the material only confirms the header with "Criar categoria" on the right (§2.1) and the empty-state text (§6); there's no column or row with real data to copy. A structural mismatch the ficha doesn't resolve: Blip organizes replies into CATEGORIES (you create the category first, the reply lives inside it); our registration is a flat list, with no category — changing that is new-data design (table/API), beyond what this screen alone decides. That's why the header button here reads "Nova resposta pronta" (what the screen actually does) instead of "Criar categoria". Reuses `ListaRegras`, the same search-enabled list card from the Rules screen — the card already handles search, grouping and empty state without rewriting any of that here.
  */
 export function PageCannedResponses() {
   const [modalAberto, setModalAberto] = useState(false);
@@ -83,10 +67,9 @@ export function PageCannedResponses() {
   const sections: RulesSection[] = [
     {
       titulo: 'Respostas prontas',
-      /* Texto literal do estado vazio deles — `FICHA-replies.md` §6, a única
-         parte do material que não é sujeita ao desalinhamento de categorias
-         descrito acima: o texto não fala de categoria nem de #, então copia
-         sem ressalva. */
+      /*
+       * Their literal empty-state text — `FICHA-replies.md` §6, the only part of the material not subject to the category mismatch described above: the text doesn't mention category or #, so it's copied without caveat.
+       */
       empty: 'Você ainda não criou respostas prontas',
       emptyDescription: 'Crie respostas para agilizar seus atendimentos',
       cards: respostas.map((r) => ({

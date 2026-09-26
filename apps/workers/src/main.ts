@@ -9,11 +9,7 @@ import { processarImport } from './import-of-contacts.js';
 import { clienteWhatsApp } from './whatsapp/index.js';
 
 /**
- * Processo dos workers.
- *
- * Duas filas: entrega de mensagem e agregação diária. A entrega tem dois gatilhos —
- * o job que a `api` publica ao enfileirar, e uma varredura periódica que existe
- * porque a fila pode perder job e o outbox não pode perder mensagem.
+ * Worker process. Three queues handle message delivery, daily aggregation, and contact import. Delivery has two triggers: a job published by `api` when enqueuing, and a periodic sweep because a queue can lose a job while the outbox must retain the message.
  */
 
 const conexao = new IORedis(conexaoRedis().url, { maxRetriesPerRequest: null });
@@ -49,8 +45,8 @@ const aggregation = new Worker(
   { connection: conexao, concurrency: 1 },
 );
 
-// Uma importação por vez: é a fila `low` do Chatwoot, e duas planilhas grandes em
-// paralelo disputariam o banco com a entrega de mensagem.
+// Run one import at a time, like Chatwoot's `low` queue: two large spreadsheets
+// in parallel would contend with message delivery for the database.
 const importJob = new Worker<JobImport>(
   QUEUE_IMPORT,
   async (job) => {
@@ -62,8 +58,8 @@ const importJob = new Worker<JobImport>(
 );
 
 async function up(): Promise<void> {
-  // Varredura de segurança da entrega: recupera o que a fila deixou cair e o que
-  // está esperando a próxima tentativa do backoff.
+  // Delivery recovery sweep picks up jobs lost by the queue and messages
+  // waiting for the next backoff attempt.
   await queueDelivery.upsertJobScheduler(
     'sweep-outbox',
     { every: Number(process.env['PIPE_ENTREGA_VARREDURA_MS'] ?? 15_000) },

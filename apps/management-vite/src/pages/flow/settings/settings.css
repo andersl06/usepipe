@@ -1,33 +1,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
 
-/* ============================== Configurações do contato
+/*
+ * ============================== Contact settings
+ *
+ *    Copy of `auth.application.detail.configurations.*` from their portal, measured
+ *    on the copy's rendered DOM (1280×780 window, `docs/capturas/regua.md`) and
+ *    checked against `portal.css` / blip-ds (`bds-nav-tree`, `bds-paper`,
+ *    `bds-input`, `bds-button`, `bds-button-icon`). Each block carries the source
+ *    selector and the measured number.
+ *
+ *    ═══ THE PAINT IS OURS ═══ (the mappings `fluxo.css` already fixed)
+ *      #ededed `--color-surface-2` (core floor)              → `--ground`
+ *      #f6f6f6 `--color-surface-1` (bds-paper)                → `--p-superficie-0`
+ *      #e0e0e0 `--color-surface-2` (input-clipboard)          → `--p-superficie-2`
+ *      #cfcfcf `--color-surface-3` (divider, switch off)      → `--p-superficie-3`
+ *      #282828 `--color-content-default`                       → `--p-conteudo`
+ *      #738192 (title's `<small>`)                             → `--p-conteudo-fantasma`
+ *      rgba(0,0,0,.2) `--color-border-1` (bds-input)          → `--p-linha-media`
+ *      #bebebe (1px dotted between sidebar items)              → `--p-linha-forte`
+ *      `--color-primary` (button, copy)                       → Pipe's moss
+ *      #fff → #f2fcff (sidebar gradient)                      → surface 0 → info background
+ *      0 2px 8px -2px rgba(0,0,0,.16) (bds-paper)             → `--g-sombra-cartao`
+ */
 
-   Cópia de `auth.application.detail.configurations.*` do portal deles, medida
-   no DOM renderizado da cópia (janela 1280×780, `docs/capturas/regua.md`) e
-   conferida em `portal.css` / blip-ds (`bds-nav-tree`, `bds-paper`,
-   `bds-input`, `bds-button`, `bds-button-icon`). Cada bloco traz o seletor
-   de origem e o número medido.
-
-   ═══ A TINTA É A NOSSA ═══ (as correspondências que `fluxo.css` já fixou)
-     #ededed `--color-surface-2` (chão do miolo)         → `--ground`
-     #f6f6f6 `--color-surface-1` (bds-paper)             → `--p-superficie-0`
-     #e0e0e0 `--color-surface-2` (input-clipboard)       → `--p-superficie-2`
-     #cfcfcf `--color-surface-3` (divisória, switch off) → `--p-superficie-3`
-     #282828 `--color-content-default`                   → `--p-conteudo`
-     #738192 (`<small>` do título)                       → `--p-conteudo-fantasma`
-     rgba(0,0,0,.2) `--color-border-1` (bds-input)       → `--p-linha-media`
-     #bebebe (1px dotted entre itens da lateral)         → `--p-linha-forte`
-     `--color-primary` (botão, cópia)                   → musgo do Pipe
-     #fff → #f2fcff (degradê da lateral)                 → superfície 0 → info-fundo
-     0 2px 8px -2px rgba(0,0,0,.16) (bds-paper)          → `--g-sombra-cartao` */
-
-/* ==================== a casca: `#main-section.pa0` é `display:flex` com a
-   `<aside class="detail-aside fl">` (309px) e o `#main-content-area` lado a
-   lado, na largura toda. A `fx-coluna` do casco compartilhado centra em 80%
-   (90% entre 550 e 749, 100% com 20px de recuo abaixo): aqui se desfaz esse
-   recuo com o mesmo degrau, sem tocar o casco. */
+/*
+ * -------------------- the shell: `#main-section.pa0` is `display:flex` with the
+ *    `<aside class="detail-aside fl">` (309px) and `#main-content-area` side by
+ *    side, at full width. The shared shell's `fx-coluna` centers at 80% (90%
+ *    between 550 and 749, 100% with a 20px indent below): here that indent is
+ *    undone with the same step, without touching the shell.
+ */
 .cf-casca {
-  /* Estrutura da Blip, identidade do Pipe: a marca musgo é herdada do tema. */
+  /* Blip's structure, Pipe's identity: the moss brand color is inherited from the theme. */
   --p-conteudo: #282828;
   --p-conteudo-desabilitado: #595959;
   --p-conteudo-fantasma: #8c8c8c;
@@ -62,8 +66,10 @@
   }
 }
 
-/* `.detail-aside`: `background-image: linear-gradient(180deg,#fff,#f2fcff)`,
-   `width: auto` — na prática 309px = 12 + 285 + 12 (`<bds-grid padding="2">`). */
+/*
+ * `.detail-aside`: `background-image: linear-gradient(180deg,#fff,#f2fcff)`,
+ *    `width: auto` — in practice 309px = 12 + 285 + 12 (`<bds-grid padding="2">`).
+ */
 .cf-lateral {
   flex: none;
   box-sizing: border-box;
@@ -76,9 +82,11 @@
   );
 }
 
-/* `bds-nav-tree` › `.nav_main`: `display:flex; gap:8px; align-items:center;
-   padding:8px; border-radius:8px; border:1px solid transparent` — 277×86.
-   `:hover` pinta 8% de conteúdo e a borda `--color-pressed` (16%). */
+/*
+ * `bds-nav-tree` › `.nav_main`: `display:flex; gap:8px; align-items:center;
+ *    padding:8px; border-radius:8px; border:1px solid transparent` — 277×86.
+ *    `:hover` tints 8% of content and the border `--color-pressed` (16%).
+ */
 .cf-arvore-linha {
   display: flex;
   align-items: center;
@@ -114,8 +122,10 @@
   flex: none;
   color: var(--p-conteudo);
 }
-/* `.nav_main_text`: coluna com `gap: 2px`; título `fs-14` semi-bold (22px de
-   linha) e subtítulo `fs-12` (22px de linha, 2 linhas = 44px). */
+/*
+ * `.nav_main_text`: column with `gap: 2px`; title `fs-14` semi-bold (22px line
+ *    height) and subtitle `fs-12` (22px line height, 2 lines = 44px).
+ */
 .cf-arvore-texto {
   display: flex;
   flex-direction: column;
@@ -143,9 +153,11 @@
   padding-top: 4px; /* margem colapsaria com os 9px da divisa */
 }
 
-/* `#main-content-area.main-detail-content`: `flex-direction: column`,
-   `background-color: var(--color-surface-2)`, `box-shadow: -2px 6px 6px 0
-   rgba(226,231,236,.96)`, `overflow: hidden`. `.blip-ui-content` é a coluna. */
+/*
+ * `#main-content-area.main-detail-content`: `flex-direction: column`,
+ *    `background-color: var(--color-surface-2)`, `box-shadow: -2px 6px 6px 0
+ *    rgba(226,231,236,.96)`, `overflow: hidden`. `.blip-ui-content` is the column.
+ */
 .cf-miolo {
   flex: 1;
   min-width: 0;
@@ -260,7 +272,7 @@
   line-height: 1.6;
   color: var(--p-conteudo);
 }
-/* `<div class="flex">` com o texto (`.w-100`) e o `<switch>` à direita. */
+/* `<div class="flex">` with the text (`.w-100`) and the `<switch>` on the right. */
 .cf-conexao-topo {
   display: flex;
   align-items: flex-start;
@@ -273,8 +285,10 @@
   margin: 0 0 30px;
 }
 
-/* `<switch>`: `label` 43×26, raio 36, fundo #cfcfcf, bolinha 22×22 em (2,2);
-   `margin-bottom: -3px`. Ligado: fundo da marca, bolinha à direita. */
+/*
+ * `<switch>`: `label` 43×26, radius 36, background #cfcfcf, knob 22×22 at (2,2);
+ *    `margin-bottom: -3px`. On: brand background, knob on the right.
+ */
 .cf-interruptor {
   flex: none;
   position: relative;
@@ -326,8 +340,10 @@
   transform: translateX(14px);
 }
 
-/* `<div class="flex"> <div class="mr6 w-50">…`: duas colunas de 50% com
-   `margin-right: 5rem` (80px); `.mt4` empilha o segundo campo a 20px. */
+/*
+ * `<div class="flex"> <div class="mr6 w-50">…`: two 50% columns with
+ *    `margin-right: 5rem` (80px); `.mt4` stacks the second field 20px below.
+ */
 .cf-duas-colunas {
   display: flex;
 }
@@ -347,9 +363,11 @@
   line-height: 16px;
 }
 
-/* `.input-clipboard-container`: pílula (`border-radius: 100px`) de superfície 2,
-   `padding: 5px 20px`, 14px, cor da marca; `input` transparente, 700, 85% de
-   largura, `margin-right: 10px`; `.icon-copy` 16px. Mede 32px de altura. */
+/*
+ * `.input-clipboard-container`: pill (`border-radius: 100px`) on surface 2,
+ *    `padding: 5px 20px`, 14px, brand color; transparent `input`, 700 weight, 85%
+ *    width, `margin-right: 10px`; `.icon-copy` 16px. Measures 32px tall.
+ */
 .cf-copiavel {
   display: flex;
   justify-content: space-between;
@@ -407,9 +425,11 @@
   width: 10%;
 }
 
-/* `<bds-input>` › `.input.input--label`: `display:flex; align-items:center;
-   gap:8px; padding: 7px 4px 8px 12px; border: 1px solid rgba(0,0,0,.2);
-   border-radius: 8px`. Rótulo `fs-12` 700 (18px) + 2px + campo de 36px. */
+/*
+ * `<bds-input>` › `.input.input--label`: `display:flex; align-items:center;
+ *    gap:8px; padding: 7px 4px 8px 12px; border: 1px solid rgba(0,0,0,.2);
+ *    border-radius: 8px`. Label `fs-12` 700 (18px) + 2px + 36px field.
+ */
 .cf-campo {
   display: flex;
   flex-direction: column;
@@ -442,8 +462,10 @@
   font-weight: var(--g-peso-negrito);
   line-height: 18px;
 }
-/* `<span counter-for>` (`material-input`): caracteres que ainda cabem
-   (`maxLength - valor.length`), não os já digitados. */
+/*
+ * `<span counter-for>` (`material-input`): characters still available
+ *    (`maxLength - valor.length`), not the ones already typed.
+ */
 .cf-campo-contador {
   flex: none;
   font-size: 12px;
@@ -474,7 +496,7 @@
 .cf-campo input::placeholder {
   color: var(--p-conteudo-fantasma);
 }
-/* `bds-textarea`: a mesma caixa, com altura livre em vez do input de 36px. */
+/* `bds-textarea`: the same box, with free height instead of the 36px input. */
 .cf-campo textarea {
   width: 100%;
   min-height: 72px;
@@ -493,8 +515,10 @@
 .cf-campo textarea::placeholder {
   color: var(--p-conteudo-fantasma);
 }
-/* O mesmo campo, com um `<select>` nativo dentro em vez de `input`/`textarea`
-   — o seletor de papel do editar linha a linha da Equipe. */
+/*
+ * The same field, with a native `<select>` inside instead of `input`/`textarea`
+ *    — the role selector from the Team page's row-by-row edit.
+ */
 .cf-campo select {
   width: 100%;
   height: 36px;
@@ -563,8 +587,10 @@
   justify-content: flex-end;
 }
 
-/* `.row.mt4` + `.three.columns.offset-by-nine` + `.bp-btn.fr`: `margin: 20px 0
-   9px`, botão encostado à direita. */
+/*
+ * `.row.mt4` + `.three.columns.offset-by-nine` + `.bp-btn.fr`: `margin: 20px 0
+ *    9px`, button flush right.
+ */
 .cf-form-http-rodape {
   display: flex;
   justify-content: flex-end;
@@ -709,7 +735,7 @@
 .cf-chaves-ajuda-dados .cf-botao {
   align-self: flex-start;
 }
-/* `<img src="/assets/img/ballons.svg">`: 111×139 à direita. */
+/* `<img src="/assets/img/ballons.svg">`: 111×139 on the right. */
 .cf-baloes {
   flex: none;
   width: 111px;
@@ -789,14 +815,14 @@
   background: var(--p-marca-suave);
   color: var(--p-marca-forte);
 }
-.cf-selo--erro {
+.cf-selo--error {
   background: var(--p-erro-fundo);
   color: var(--p-erro-conteudo);
 }
-.cf-modal--chave {
+.cf-modal--key {
   width: min(100%, 560px);
 }
-.cf-modal--chave h2 {
+.cf-modal--key h2 {
   margin-bottom: 24px;
   font-size: 24px;
   font-weight: var(--g-peso-normal);
@@ -826,10 +852,10 @@
   margin-bottom: 8px;
   font-size: 12px;
 }
-.cf-modal--chave .cf-rotulo-campo {
+.cf-modal--key .cf-rotulo-campo {
   display: none;
 }
-.cf-modal--chave .cf-modal-acoes {
+.cf-modal--key .cf-modal-acoes {
   justify-content: center;
   margin-top: 28px;
 }
@@ -868,9 +894,11 @@
   line-height: 18px;
   color: var(--p-erro-conteudo);
 }
-/* "Configuração salva com sucesso." — o toast de sucesso deles, mesma medida
-   do `.cf-aviso`, tinta de sucesso. Era só de `basicas/`; agora é de toda
-   `configuracoes/` (boas-vindas e menu persistente também salvam). */
+/*
+ * "Configuração salva com sucesso." — their success toast, same size as
+ *    `.cf-aviso`, success color. Used to be only in `basicas/`; now it's for all of
+ *    `configuracoes/` (Welcome and Persistent Menu save too now).
+ */
 .cf-basicas-sucesso {
   margin: 8px 0 0;
   font-size: 12px;
@@ -878,7 +906,7 @@
   color: var(--p-sucesso-conteudo);
 }
 
-/* O modal de confirmação (`ModalService.showModal`). */
+/* The confirmation modal (`ModalService.showModal`). */
 .cf-sobreposicao {
   position: fixed;
   z-index: 50;

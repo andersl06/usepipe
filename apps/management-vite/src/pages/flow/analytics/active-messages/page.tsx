@@ -89,8 +89,9 @@ export function ActiveMessagesPage() {
   return (
     <div className="ma-tela">
       <div className="ma-topo">
-        {/* `Ix` › `jx` › `Ax` (título) e `Zx` (o "Atualizar" secundário com
-            `refresh`). Atualizar reenvia o filtro como está — é o `te()` → `K()`. */}
+        {/*
+ * `Ix` › `jx` › `Ax` (title) and `Zx` (the secondary "Atualizar" button with `refresh`). Atualizar resubmits the filter as-is — that's `te()` → `K()`.
+ */}
         <div className="ma-cabeca">
           <h1 className="ma-titulo">Mensagens ativas</h1>
           <div className="ma-acoes">

@@ -9,7 +9,7 @@ import { urlDaApi } from './api';
  */
 const DESTINATION_DEFAULT = '/';
 
-/** Só caminho interno vale como destino: `//outro.site` não é "para onde voltar". */
+/** Only an internal path is a valid return destination; `//outro.site` must not become a redirect target. */
 export function caminhoInterno(destination: string | undefined | null): string {
   return destination && destination.startsWith('/') && !destination.startsWith('//') ? destination : DESTINATION_DEFAULT;
 }
@@ -19,7 +19,7 @@ function origemDesteApp(): string {
   return window.location.origin;
 }
 
-/** O botão "Entrar com Google". Com `convite`, entra aceitando o convite. */
+/** Build the `Entrar com Google` URL; when `convite` is present, sign in while accepting the invitation. */
 export function inboundWithGoogleUrl(options: { destination?: string; invitation?: string } = {}): string {
   const url = new URL(urlDaApi('/v1/auth/google'), window.location.origin);
   if (options.invitation) url.searchParams.set('invite', options.invitation);
@@ -28,7 +28,7 @@ export function inboundWithGoogleUrl(options: { destination?: string; invitation
   return url.toString();
 }
 
-/** `irPara` vem da descoberta como caminho; aqui ele ganha a base e a origem. */
+/** Discovery supplies `irPara` as a path; add the API base and browser origin here. */
 export function urlNaApi(caminho: string, destination?: string): string {
   const url = new URL(urlDaApi(caminho), window.location.origin);
   url.searchParams.set('returnTo', caminhoInterno(destination));
@@ -39,8 +39,7 @@ export function urlNaApi(caminho: string, destination?: string): string {
 export type InboundDescoberta = RespostaDaDescoberta | { metodo: 'invalido' | 'falha' };
 
 /**
- * Por onde este e-mail entra. A API responde igual para e-mail conhecido e
- * desconhecido, de propósito — só domínio verificado com SSO ativo devolve `sso`.
+ * Discover how this email signs in. The API deliberately answers identically for known and unknown addresses; only a verified domain with active SSO returns `sso`.
  */
 export async function descobrirInbound(email: string): Promise<InboundDescoberta> {
   let resposta: Response;

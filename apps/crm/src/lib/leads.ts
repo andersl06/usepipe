@@ -22,22 +22,24 @@ import {
 } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria, type TransactionPipe } from '@pipe/db';
 import { atorDoCrm, consultar, paraData, paraNumero, tenantId } from './database';
-// Só o tipo, e de um arquivo sem banco: é o mesmo catálogo que a célula inline
-// lê no navegador, e é ele que fecha a lista de colunas graváveis.
+// Just the type, and from a database-free file: it's the same catalog the inline cell
+// reads in the browser, and it's what closes the list of writable columns.
 import type { KeyField } from './campos-editaveis';
 
 /**
- * Leads: a listagem e a ficha.
+ * Leads: the listing and the record.
  *
- * Tudo em série dentro do `consultar` — `Promise.all` dentro da transação derruba o
- * `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
+ * Everything sequential inside `consultar` — `Promise.all` in the transaction
+ * drops `pipe.tenant_id` and the query ends up running with no tenant
+ * (README).
  */
 
 /*
- * Rótulo, recorte, agrupamento e ordenação moram em `leads-visao.ts`, que não
- * importa banco nenhum. É de lá que o componente de cliente da listagem lê:
- * importar deste arquivo arrastaria o driver do Postgres para o navegador.
- * Aqui eles são reexportados, para que a tela continue tendo um endereço só.
+ * Label, slice, grouping, and sorting live in `leads-visao.ts`, which imports no
+ * database at all. That's what the listing's client component reads from:
+ * importing from this file would drag the Postgres driver into the browser.
+ * They're re-exported here, so the screen still has a single address to
+ * import from.
  */
 export {
   ABAS,
@@ -72,8 +74,8 @@ export type {
   Proprietario,
 } from './leads-visao';
 
-// Reexportar não traz o nome para o escopo deste arquivo, e as consultas abaixo
-// usam quase todos. Por isso a segunda linha, que parece redundante e não é.
+// Re-exporting doesn't bring the name into this file's scope, and the queries below
+// use nearly all of it. Hence the second line, which looks redundant and isn't.
 import { filterValid, LIMITE_LISTA, ROTULO_ACTIVITY, WITHOUT_VALUE } from './leads-visao';
 import type {
   Aba,
@@ -85,7 +87,7 @@ import type {
   Proprietario,
 } from './leads-visao';
 
-/** Nome da fila por faixa, da versão mais recente de `faixa_score`. */
+/** Queue name by band, from the most recent version of `faixa_score`. */
 async function queuesByTier(tx: Parameters<Parameters<typeof consultar>[0]>[0]) {
   const linhas = await tx
     .select({ nome: faixaScore.nome, versao: faixaScore.versao, fila: queue.nome })
@@ -93,15 +95,15 @@ async function queuesByTier(tx: Parameters<Parameters<typeof consultar>[0]>[0]) 
     .leftJoin(queue, eq(queue.id, faixaScore.filaId))
     .orderBy(faixaScore.versao);
   const mapa = new Map<string, string | null>();
-  // Ordenado por versão crescente: a última escrita vence, que é a versão mais nova.
+  // Sorted by ascending version: the last write wins, which is the newest version.
   for (const l of linhas) mapa.set(l.nome, l.fila);
   return mapa;
 }
 
 /**
- * Nome de coluna da tela para coluna do Postgres. A lista de nomes ordenáveis
- * mora em `leads-visao.ts`, porque a tela precisa dela; a tradução mora aqui,
- * porque precisa do esquema.
+ * Screen column name to Postgres column. The list of sortable names lives in
+ * `leads-visao.ts`, because the screen needs it; the translation lives here,
+ * because it needs the schema.
  */
 const COLUMN_SQL = {
   lead: contact.nome,
@@ -110,8 +112,10 @@ const COLUMN_SQL = {
   faixa: lead.faixaAtual,
   proprietario: user.nome,
   fase: lead.fase,
-  /** Mais dias na fase é `fase_desde` mais antigo. O sentido inverte, e o
-   *  `desc` da coluna vira `asc` da data, resolvido em `ordenacaoSql`. */
+  /**
+   * More days in stage is an older `fase_desde`. The direction inverts, and the
+   * column's `desc` becomes the date's `asc`, resolved in `ordenacaoSql`.
+   */
   dias: lead.faseDesde,
 } as const;
 
@@ -121,14 +125,14 @@ export interface ListaDeLeads {
 }
 
 /**
- * A cláusula `order by`, com três cuidados que a versão ingênua não tem:
+ * The `order by` clause, with three cares the naive version doesn't have:
  *
- * - **Nulo por último, sempre.** Lead sem score no topo da lista ordenada por
- *   score é a primeira coisa que alguém reclama. `nulls last` nos dois sentidos.
- * - **Dias na fase inverte.** "Mais dias" é `fase_desde` mais antigo, então o
- *   `desc` da coluna é `asc` da data.
- * - **Desempate estável.** Sem um segundo critério, dois leads de score 60
- *   trocam de lugar entre recargas, e a lista pisca sem nada ter mudado.
+ * - **Null always last.** A scoreless lead at the top of a list sorted by score
+ *   is the first thing anyone complains about. `nulls last` in both directions.
+ * - **Days in stage inverts.** "More days" is an older `fase_desde`, so the
+ *   column's `desc` is the date's `asc`.
+ * - **Stable tiebreak.** Without a second criterion, two leads with score 60
+ *   swap places between reloads, and the list flickers with nothing having changed.
  */
 function sortingSql(order: Order, direction: Direction) {
   const recente = desc(lead.criadoEm);
@@ -143,16 +147,16 @@ function sortingSql(order: Order, direction: Direction) {
 }
 
 /**
- * A coluna do Postgres que cada filtro interroga, e o que "em branco" significa
- * em cada uma.
+ * The Postgres column each filter queries, and what "blank" means for each one.
  *
- * O nome da coluna **não vem da tela**: `chave` é do catálogo fechado de
- * `FILTRAVEIS`, e é este mapa que decide onde a comparação cai. Só o VALOR vem
- * de fora, e ele entra como parâmetro do driver, nunca concatenado.
+ * The column name **doesn't come from the screen**: `chave` is from the closed
+ * `FILTRAVEIS` catalog, and it's this map that decides where the comparison
+ * lands. Only the VALUE comes from outside, and it goes in as a driver
+ * parameter, never concatenated.
  *
- * `proprietario` compara pelo nome, e não pelo id, porque é o nome que a tela
- * mostra e é dele que o menu de valores é feito. Trocar por id exigiria o menu
- * carregar id e nome só para esconder um dos dois.
+ * `proprietario` compares by name, not by id, because the name is what the
+ * screen shows and the value menu is built from it. Switching to id would
+ * require the menu to load id and name just to hide one of the two.
  */
 function filterCondition(key: FilterKey, value: string) {
   const empty = value === WITHOUT_VALUE;
@@ -163,14 +167,14 @@ function filterCondition(key: FilterKey, value: string) {
 }
 
 /**
- * Os valores que cada coluna filtrável tem hoje, para o menu de filtro.
+ * The values each filterable column has today, for the filter menu.
  *
- * Sai do banco, e não das 200 linhas já carregadas: a lista com teto mostraria
- * só as origens que couberam, e filtrar por uma origem que existe mas não
- * apareceu seria impossível pela tela.
+ * Comes from the database, not from the 200 already-loaded rows: the capped
+ * list would only show the sources that made the cut, and filtering by a
+ * source that exists but didn't show up would be impossible from the screen.
  *
- * Em série dentro do mesmo `consultar` (README), e com teto por coluna: um menu
- * de trezentas origens não é um menu, é uma segunda listagem.
+ * Sequential inside the same `consultar` (README), and capped per column: a
+ * menu of three hundred sources isn't a menu, it's a second listing.
  */
 const TETO_OF_OPTIONS = 40;
 
@@ -183,7 +187,7 @@ export async function filterOptions(): Promise<Record<FilterKey, string[]>> {
         .where(and(isNull(lead.excluidoEm), sql`${column} is not null`))
         .orderBy(column)
         .limit(TETO_OF_OPTIONS);
-      // O `is not null` já está no `where`; o filtro aqui é só para o tipo.
+      // The `is not null` is already in the `where`; the filter here is just for the type.
       return linhas.map((l) => String(l.v)).filter((v) => v !== 'null');
     };
 
@@ -203,17 +207,19 @@ export async function filterOptions(): Promise<Record<FilterKey, string[]>> {
 }
 
 /**
- * Lista e contagem das abas na **mesma** transação. Eram duas, mais a do fuso: três
- * transações e três conexões do pool para desenhar uma tela. Dentro daqui as
- * consultas continuam em série, que é obrigatório (README).
+ * List and count of the tabs in the **same** transaction. There used to be two,
+ * plus the timezone one: three transactions and three pool connections to draw
+ * one screen. Inside here the queries stay sequential, which is mandatory
+ * (README).
  *
- * O filtro entra no `where`, e não sobre as linhas já buscadas, pelo mesmo
- * motivo da ordenação: com teto de 200, filtrar depois responderia "dos 200
- * mais novos, os da origem X" quando a pergunta é "os 200 leads da origem X".
+ * The filter goes into the `where`, not over the already-fetched rows, for the
+ * same reason as the sort: with a 200 cap, filtering afterward would answer
+ * "of the 200 newest, the ones from source X" when the question is "the 200
+ * leads from source X".
  *
- * As contagens das abas, essas, **ignoram o filtro de propósito**: elas dizem
- * quantos leads existem em cada recorte, e um número que muda conforme o filtro
- * não serve para escolher para qual recorte ir.
+ * The tab counts, though, **ignore the filter on purpose**: they say how many
+ * leads exist in each slice, and a number that changes with the filter isn't
+ * useful for choosing which slice to go to.
  */
 export async function carregarListaDeLeads(
   aba: Aba,
@@ -255,8 +261,8 @@ export async function carregarListaDeLeads(
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
         proprietario: user.nome,
-        // O id, e não só o nome: a célula editável da listagem grava o id, e
-        // nome muda sem que a atribuição mude junto.
+        // The id, not just the name: the listing's editable cell saves the id, and
+        // a name change doesn't change the assignment along with it.
         proprietarioId: lead.proprietarioId,
         status: lead.status,
         fase: lead.fase,
@@ -340,7 +346,7 @@ async function ultimaActivityByLead(
     .where(inArray(activity.leadId, ids))
     .orderBy(activity.ocorridaEm);
 
-  // Ordenado crescente: a última escrita por lead é a atividade mais recente.
+  // Sorted ascending: the last write per lead is the most recent activity.
   for (const l of linhas) {
     const em = paraData(l.em);
     if (l.leadId && em) mapa.set(l.leadId, { em, tipo: ROTULO_ACTIVITY[l.tipo] ?? l.tipo });
@@ -360,7 +366,7 @@ export interface ScoreExplicado {
   versaoRegra: number;
   calculadoEm: Date | null;
   itens: RegraExplicada[];
-  /** Da faixa vigente: é ela que decide fila e proprietário. */
+  /** From the current band: it's what decides queue and owner. */
   queue: string | null;
   corte: number | null;
 }
@@ -404,7 +410,7 @@ export interface Ficha {
   faseDesde: Date | null;
   diasNaFase: number | null;
   proprietario: string | null;
-  /** O id, e não só o nome: a seleção inline grava id, porque nome muda. */
+  /** The id, not just the name: inline selection saves the id, because the name changes. */
   proprietarioId: string | null;
   criadoEm: Date | null;
   etiquetas: { nome: string; cor: string | null }[];
@@ -511,12 +517,13 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
 }
 
 /**
- * O painel que explica o número.
+ * The panel that explains the number.
  *
- * `score_lead.explicacao` guarda `{regra, versao, pontos}` — o identificador da regra,
- * não o nome dela, porque o nome muda e o histórico não pode mudar junto. O nome vem
- * do join com `regra_score`; regra apagada aparece como "regra removida" em vez de
- * sumir da conta, senão a soma dos itens deixaria de bater com o total.
+ * `score_lead.explicacao` stores `{regra, versao, pontos}` — the rule's
+ * identifier, not its name, because the name changes and the history can't
+ * change along with it. The name comes from the join with `regra_score`; a
+ * deleted rule shows up as "rule removed" instead of vanishing from the
+ * account, otherwise the sum of the items would stop matching the total.
  */
 async function carregarScore(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
@@ -574,8 +581,8 @@ async function carregarScore(
 }
 
 /**
- * Respostas de formulário agrupadas por formulário e versão — nunca como colunas
- * soltas na ficha. É a decisão que evita os 304 campos customizados do Lead de hoje.
+ * Form responses grouped by form and version — never as loose columns on the
+ * record. It's the decision that avoids today's 304 custom fields on the Lead.
  */
 async function carregarRespostas(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
@@ -621,14 +628,15 @@ async function carregarRespostas(
 }
 
 /**
- * Atividades e conversas na mesma linha do tempo. A conversa entra com o resumo do
- * atendimento quando a monitoria já classificou — é a promessa do produto: o CRM se
- * alimenta das conversas, e o vendedor lê o que aconteceu sem abrir o Desk.
+ * Activities and conversations in the same timeline. The conversation comes in
+ * with the attendance summary once monitoring has already classified it — it's
+ * the product's promise: the CRM feeds off conversations, and the salesperson
+ * reads what happened without opening the Desk.
  *
- * Exportada porque a ficha da oportunidade mostra a mesma linha: o histórico de
- * uma negociação É o histórico do lead que a originou, e `atividade` não tem
- * coluna de oportunidade. Recebe a `tx` de quem chama, então continua cabendo
- * na transação da ficha que a pediu.
+ * Exported because the opportunity record shows the same timeline: a deal's
+ * history IS the history of the lead that originated it, and `atividade` has no
+ * opportunity column. Receives the caller's `tx`, so it still fits inside the
+ * record's transaction that requested it.
  */
 export async function timeCarregarLinha(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
@@ -695,9 +703,9 @@ export async function timeCarregarLinha(
   return itens.sort((a, b) => b.em.getTime() - a.em.getTime()).slice(0, 40);
 }
 
-/* ------------------------------------------------------- ações em massa */
+/* ------------------------------------------------------- bulk actions */
 
-/** Quem pode receber um lead: usuário ativo do tenant, em ordem alfabética. */
+/** Who can receive a lead: an active user of the tenant, in alphabetical order. */
 export async function listarProprietarios(): Promise<Proprietario[]> {
   return consultar(async (tx) =>
     tx
@@ -709,14 +717,14 @@ export async function listarProprietarios(): Promise<Proprietario[]> {
 }
 
 /**
- * Passar N leads para um proprietário.
+ * Move N leads to an owner.
  *
- * O `where` repete `excluido_em is null` mesmo com os ids vindo de uma lista que
- * a tela acabou de desenhar: entre desenhar e clicar cabe uma exclusão, e a
- * escrita é a última chance de recusá-la.
+ * The `where` repeats `excluido_em is null` even though the ids come from a list
+ * the screen just rendered: between rendering and clicking there's room for a
+ * deletion, and the write is the last chance to reject it.
  *
- * Devolve quantas linhas mudaram — é o que a tela precisa para dizer "3 de 4",
- * em vez de afirmar sucesso sobre linhas que não existem mais.
+ * Returns how many rows changed — it's what the screen needs to say "3 of 4",
+ * instead of claiming success on rows that no longer exist.
  */
 export async function atribuirProprietario(ids: string[], proprietarioId: string): Promise<number> {
   if (ids.length === 0) return 0;
@@ -731,11 +739,12 @@ export async function atribuirProprietario(ids: string[], proprietarioId: string
 }
 
 /**
- * Desqualificar N leads.
+ * Disqualify N leads.
  *
- * Lead já convertido não volta atrás: virou oportunidade, e desqualificar o que
- * já virou receita é o tipo de escrita em massa que ninguém desfaz. Ele é
- * excluído do `where`, e a contagem devolvida mostra a diferença.
+ * A lead that's already converted doesn't go back: it became an opportunity,
+ * and disqualifying something that's already revenue is the kind of bulk write
+ * nobody undoes. It's excluded from the `where`, and the returned count shows
+ * the difference.
  */
 export async function desqualificarLeads(ids: string[]): Promise<number> {
   if (ids.length === 0) return 0;
@@ -762,29 +771,31 @@ export async function desqualificarLeads(ids: string[]): Promise<number> {
 /* ------------------------------------------------ escrita de campo da ficha */
 
 /**
- * Gravar um campo da ficha, o que a célula inline faz a cada Enter.
+ * Save a record field, what the inline cell does on every Enter.
  *
- * Três cuidados que a versão ingênua não tem:
+ * Three cares the naive version doesn't have:
  *
- * - **A coluna nunca vem da tela.** `campo` é chave do catálogo fechado de
- *   `campos-editaveis.ts`, e é o `switch` daqui que decide qual coluna recebe a
- *   escrita. Não existe caminho em que um nome vindo do navegador vire coluna.
- * - **E-mail e telefone moram em `contato`, não em `lead`.** A ficha junta os
- *   dois numa tela só; a escrita tem de separar de novo — e um lead sem contato
- *   simplesmente não tem onde guardar e-mail, por isso ele recusa em vez de
- *   inventar um contato.
- * - **`excluido_em is null` no `where`**, pelo mesmo motivo da ação em massa:
- *   entre desenhar a ficha e clicar no campo cabe uma exclusão, e a escrita é a
- *   última chance de recusá-la.
+ * - **The column never comes from the screen.** `campo` is a key from
+ *   `campos-editaveis.ts`'s closed catalog, and it's the `switch` here that
+ *   decides which column receives the write. There's no path where a name
+ *   coming from the browser becomes a column.
+ * - **Email and phone live in `contato`, not in `lead`.** The record joins the
+ *   two into a single screen; the write has to split them again — and a lead
+ *   with no contact simply has nowhere to store an email, so it rejects
+ *   instead of inventing a contact.
+ * - **`excluido_em is null` in the `where`**, for the same reason as the bulk
+ *   action: between rendering the record and clicking the field there's room
+ *   for a deletion, and the write is the last chance to reject it.
  *
- * Devolve `false` quando nenhuma linha mudou. É o que faz a tela **restaurar o
- * valor anterior** em vez de afirmar que gravou o que não gravou.
+ * Returns `false` when no row changed. That's what makes the screen **restore
+ * the previous value** instead of claiming it saved what it didn't.
  *
- * **A auditoria é gravada na MESMA transação** (`registrarAuditoria` do
- * `@pipe/db`): log em transação separada some quando a mudança falha e sobra
- * quando ela é desfeita, e nos dois casos passa a mentir. O `antes` sai de uma
- * leitura feita aqui dentro, não do que a tela mandou — a tela pode estar
- * mostrando um valor de dois minutos atrás.
+ * **The audit entry is written in the SAME transaction**
+ * (`registrarAuditoria` from `@pipe/db`): a log in a separate transaction
+ * disappears when the change fails and lingers when it's rolled back, and in
+ * both cases it ends up lying. The `antes` (before) value comes from a read
+ * done right here, not from what the screen sent — the screen could be showing
+ * a value from two minutes ago.
  */
 export async function atualizarCampoDoLead(
   id: string,
@@ -845,20 +856,20 @@ export async function atualizarCampoDoLead(
       .returning({ id: contact.id });
     if (mudadas.length === 0) return false;
 
-    // O objeto do log é `contato`, e não `lead`: é a linha que mudou de verdade,
-    // e quem for ler o log procura pela tabela que tem o dado.
+    // The log's object is `contato`, not `lead`: it's the row that actually changed,
+    // and whoever reads the log looks for the table that has the data.
     await anotar(tx, tid, 'contato', dono.contatoId, antes, { ...antes, ...mudanca });
     return true;
   });
 }
 
 /**
- * Registra a alteração, só com o que de fato mudou.
+ * Logs the change, with only what actually changed.
  *
- * Gravar todo o objeto dos dois lados incha a tabela e esconde a mudança, que é
- * o que `diferenca` existe para evitar. E quando nada mudou não há linha
- * nenhuma: a escrita de um valor igual ao que já estava lá é um clique, não um
- * evento.
+ * Saving the whole object on both sides bloats the table and hides the change,
+ * which is what `diferenca` exists to prevent. And when nothing changed there's
+ * no row at all: writing a value equal to what was already there is a click,
+ * not an event.
  */
 async function anotar(
   tx: TransactionPipe,

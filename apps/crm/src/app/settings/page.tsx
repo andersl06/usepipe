@@ -2,14 +2,15 @@ import Link from 'next/link';
 import { GROUPS } from '../../components/settings/cabecalho';
 
 /**
- * O índice das configurações.
+ * The settings index.
  *
- * Era um `redirect` para a primeira seção, e isso fazia sentido enquanto havia
- * duas: com nove, a engrenagem precisa abrir num lugar que diga o que existe.
+ * It used to be a `redirect` to the first section, and that made sense back when there
+ * were two: with nine, the gear icon needs to open somewhere that says what exists.
  *
- * Cada item traz uma linha do que a seção faz. É o que um menu de 28px não
- * consegue dizer, e é a diferença entre a pessoa procurar "onde muda o fuso" no
- * menu inteiro e ler "fuso horário" na descrição do espaço de trabalho.
+ * Each item carries one line about what the section does. That's what a 28px menu
+ * can't say, and it's the difference between someone hunting for "where do I change
+ * the timezone" through the whole menu versus reading "timezone" in the workspace's
+ * description.
  */
 export default function PageSettings() {
   return (

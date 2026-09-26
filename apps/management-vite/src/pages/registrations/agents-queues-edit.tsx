@@ -17,28 +17,15 @@ import { attendanceBase } from '../operation/shell';
 import { ModalConfirmation } from './_modal';
 
 /**
- * Edição de fila — PÁGINA PRÓPRIA, não modal.
+ * Editing a queue — its OWN PAGE, not a modal.
  *
- * `attendance.desk.queueManagement.edit` da origem é `url:"/edit/:id"`
- * (`FICHA-atendentes-filas-pausas.md` §a.1) — é o que o dono cobrou. A
- * anatomia é a do §a.3: três seções na ordem **Atendentes → Regras de
- * Priorização → Tags**, com os textos literais do `i18n.js`.
+ * The source's `attendance.desk.queueManagement.edit` is `url:"/edit/:id"` (`FICHA-atendentes-filas-pausas.md` §a.1) — what the owner asked for. The anatomy follows §a.3: three sections in the order **Atendentes → Regras de Priorização → Tags**, with the literal text from `i18n.js`.
  *
- * **Tags ficou de fora.** A origem tem "Gerenciar tags da fila", mas no Pipe
- * `etiqueta` é por TENANT, sem vínculo com fila (§e.7 da ficha) — fazer esse
- * vínculo é migração + domínio + rota + consumo no Desk, e está registrado
- * como pendência, não inventado aqui.
+ * **Tags was left out.** The source has "Gerenciar tags da fila", but in Pipe `etiqueta` is per TENANT, with no link to a queue (§e.7 of the ficha) — building that link is migration + domain + route + Desk consumption, and it's logged as a pending item, not invented here.
  *
- * **"Adicionar atendente" NAVEGA, não abre formulário aqui.** A origem prova
- * isso com o próprio texto do vazio (`noAttendantsBody`: "ao clicar em
- * Adicionar atendente, um direcionamento será feito para a página Equipe de
- * atendimento"). No Pipe, vincular quem entra na fila é a MESMA gravação de
- * "Editar atendente" em lote (`POST .../filas/:id/atendentes`) — por isso o
- * botão manda para `atendentes/gestao`, e não para um seletor nesta página.
+ * **"Adicionar atendente" NAVIGATES, it doesn't open a form here.** The source proves this with the empty-state text itself (`noAttendantsBody`: "clicking Adicionar atendente redirects to the Equipe de atendimento page"). In Pipe, linking someone into the queue is the SAME save as batch "Editar atendente" (`POST .../filas/:id/atendentes`) — which is why the button goes to `atendentes/gestao`, not to a picker on this page.
  *
- * **"Dados da fila" é seção só nossa**, sem sub-rota na origem: cor, ordem,
- * capacidade padrão, horário e o interruptor "Ativa" migraram do modal de
- * criação para cá (`atendentes-filas-formulario.tsx` já documentava isso).
+ * **"Dados da fila" is a section that's ours alone**, with no sub-route in the source: color, order, default capacity, schedule, and the "Ativa" toggle moved here from the creation modal (`atendentes-filas-formulario.tsx` already documented this).
  */
 export function QueuePageEdit() {
   const { queueId } = useParams<{ queueId: string }>();
@@ -311,7 +298,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
   );
 }
 
-/* ------------------------------------------------- regras de priorização */
+/* ------------------------------------------------- priority rules */
 
 function PrioritySectionRules({
   queue,

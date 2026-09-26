@@ -98,7 +98,7 @@ test('Ctrl+Z disappears while a block is being dragged, so the drag\'s undo is n
   const mapa = { bloco: newBlock({}, { top: 0, left: 0 }, 'bloco') };
   const carregado = reduzir(stateInitial(), { tipo: 'carregar', mapa, global: {} });
 
-  // Primeiro arrasto, completo — um passo de verdade no histórico.
+  // First drag, complete — a real step in the history.
   const firstMovement = reduzir(carregado, {
     tipo: 'mover',
     mapa: moverBlock(mapa, 'bloco', { top: 10, left: 10 }),
@@ -106,7 +106,7 @@ test('Ctrl+Z disappears while a block is being dragged, so the drag\'s undo is n
   const firstSolto = reduzir(firstMovement, { tipo: 'soltar' });
   assert.equal(firstSolto.passado.length, 1);
 
-  // Segundo arrasto em curso — Ctrl+Z no meio dele não faz nada.
+  // Second drag in progress — Ctrl+Z in the middle of it does nothing.
   const duranteArrasto = reduzir(firstSolto, {
     tipo: 'mover',
     mapa: moverBlock(firstSolto.mapa, 'bloco', { top: 30, left: 40 }),
@@ -115,7 +115,7 @@ test('Ctrl+Z disappears while a block is being dragged, so the drag\'s undo is n
   assert.equal(desfeitoNoMeio, duranteArrasto);
 
   // Soltar depois do Ctrl+Z ignorado empilha certo o passo do segundo arrasto —
-  // sem a trava, aqui o mapa voltaria pra (0,0) com um passado corrompido.
+  // without the guard, the map here would snap back to (0,0) with a corrupted past.
   const segundoSolto = reduzir(desfeitoNoMeio, { tipo: 'soltar' });
   assert.equal(segundoSolto.passado.length, 2);
   assert.deepEqual(positionOf(segundoSolto.mapa.bloco!), { top: 30, left: 40 });

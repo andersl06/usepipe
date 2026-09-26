@@ -10,15 +10,9 @@ const ERRORS_OF_RASCUNHO_OF_OUTPUT = new Set([
 ]);
 
 /**
- * O que a TELA sabe apontar antes de mandar ao servidor — o `$invalid` do
- * editor da Blip, bloco a bloco: campo obrigatório vazio, saída sem destino,
- * condição sem valores, variável com nome inválido. É a primeira das duas
- * listas que o cartão do bloco pinta; a segunda vem da `api` (`errosDoFluxo`
- * do motor: raiz sem entrada, laço sem entrada, destino inexistente), depois
- * de cada salvar e no 409 de publicar.
+ * What the SCREEN can flag before sending to the server — the Blip editor's `$invalid`, block by block: required field empty, output without a destination, condition without values, variable with an invalid name. It's the first of the two lists the block's card paints; the second comes from the `api` (the engine's `errosDoFluxo`: root without an input, loop without an input, nonexistent destination), after each save and on the 409 from publishing.
  *
- * As frases são as do painel e as do motor — nunca dois textos para o mesmo
- * problema, e por isso `juntarErros` tira o repetido.
+ * The wording is the panel's and the engine's — never two texts for the same problem, which is why `juntarErros` removes duplicates.
  */
 
 export const LIMITE_DO_TITULO = 50;
@@ -34,7 +28,7 @@ export function blockErrors(block: Block, mapa: Mapa): string[] {
   const existe = (id: string): boolean => id in mapa;
   for (const saida of block.$conditionOutputs ?? []) {
     for (const e of outputErrors(saida, existe)) {
-      // O Builder mantém o rascunho incompleto no cartão, sem o promover ao alerta do fluxo.
+      // The Builder keeps the incomplete draft on the card, without promoting it to the flow's alert.
       if (!ERRORS_OF_RASCUNHO_OF_OUTPUT.has(e)) anotar(e);
     }
   }
@@ -44,7 +38,7 @@ export function blockErrors(block: Block, mapa: Mapa): string[] {
   }
   for (const acao of [...(block.$enteringCustomActions ?? []), ...(block.$leavingCustomActions ?? [])]) {
     for (const e of actionErrors(acao)) {
-      // A extração do Builder marca a URL no cartão ProcessHttp, sem promovê-la ao alerta do fluxo.
+      // The Builder's extraction flags the URL on the ProcessHttp card, without promoting it to the flow's alert.
       if (acao.type === 'ProcessHttp' && e === 'URL: campo obrigatório.') continue;
       anotar(e);
     }

@@ -4,15 +4,15 @@ import { buscar } from '../lib/search';
 import type { Resultado } from '../lib/search';
 
 /**
- * A busca do menu de comando, chamada a cada tecla.
+ * The command menu's search, called on every keystroke.
  *
- * Server action e não rota: o menu é o único consumidor, e uma rota exigiria
- * autenticar de novo o que a sessão já resolveu. Quando o front virar Vite isto
- * vira endpoint na `api` — está registrado em
+ * Server action, not a route: the menu is its only consumer, and a route would require
+ * re-authenticating what the session has already resolved. When the front end moves to Vite
+ * this becomes an endpoint in the `api` — it's tracked in
  * `docs/specs/2026-09-07-arquitetura-de-front.md`.
  *
- * Nunca lança: o menu de comando não pode derrubar a tela em que a pessoa está.
- * Falha vira lista vazia, e a pessoa fecha e continua o que fazia.
+ * Never throws: the command menu can't take down the screen the person is on.
+ * A failure becomes an empty list, and the person closes it and keeps doing what they were doing.
  */
 export async function buscarGlobal(termo: string): Promise<Resultado[]> {
   try {

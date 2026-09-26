@@ -9,18 +9,7 @@ import { duration, numero } from '../../lib/format';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 
 /**
- * Regras: o que decide o SLA e a capacidade de cada fila.
- *
- * É a resposta para a pergunta que a coluna SLA do monitoramento levantava e
- * não respondia: "estourou o quê, contra qual prazo?".
- *
- * Eram duas tabelas. Viraram duas listas de cartões, que é o que a Blip faz
- * nas telas de Regras, SLA e Horários — medido em
- * `referencias-blip/pesquisa/blip-telas-atendimento.md` §5.3 a §5.5. A ordem da tela é a
- * deles: título, busca sozinha na linha, lista.
- *
- * Somente leitura por enquanto — ver o comentário de `lib/configuracoes.ts` e a
- * divergência registrada no §6 da pesquisa.
+ * Rules: what decides each queue's SLA and capacity. It's the answer to the question the monitoring screen's SLA column used to raise without answering: "breached what, against which deadline?". There used to be two tables. They became two card lists, which is what Blip does on the Rules, SLA and Hours screens — measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` §5.3 through §5.5. The screen's order is theirs: title, search alone on its own line, list. Read-only for now — see the comment in `lib/configuracoes.ts` and the divergence logged in §6 of the research.
  */
 export function PageRules() {
   const read = useRead<{ queues: QueueConfigured[]; regras: RegraSlaConfigurada[] }>(

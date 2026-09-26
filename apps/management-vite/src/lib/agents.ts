@@ -1,16 +1,7 @@
 import type { AgentRegistered } from './registrations';
 
 /**
- * As contas da tela "Gestão de atendentes" — busca, filtro por fila e o texto
- * da descrição da página de permissões.
- *
- * Módulo PURO, sem `./api` e sem JSX, pelo mesmo motivo que `cadastros.ts`:
- * é o que deixa `tests/atendentes.test.ts` rodar com `node --test` + `tsx`,
- * fora do Vite.
- *
- * A forma vem de `FICHA-atendentes-filas-pausas.md` §b.2: a origem tem UMA
- * busca ("Buscar por nome ou e-mail") e UM filtro ("Filtrar por: Filas", com
- * seleção múltipla, "Limpar seleção"/"Cancelar"/"Aplicar"). Nenhum outro.
+ * Keep agent search, queue filter, and permission-page description in a pure module like `cadastros.ts` without `./api` or JSX, so `tests/atendentes.test.ts` runs with `node --test` and `tsx` outside Vite. Reference `FICHA-atendentes-filas-pausas.md` Section b.2 has one name/email search and one multi-select queue filter with clear/cancel/apply, nothing else.
  */
 
 export interface AgentsFilter {
@@ -23,8 +14,7 @@ export interface AgentsFilter {
 export const FILTER_EMPTY: AgentsFilter = { search: '', queues: [] };
 
 /**
- * Busca em nome E e-mail, como o placeholder promete — buscar só no nome faria
- * a pessoa digitar o e-mail que está na tela e não achar nada.
+ * Search both name and email as the placeholder promises; searching only names would fail on an email visibly listed on screen.
  */
 export function filterAgents(
   agents: readonly AgentRegistered[],
@@ -34,17 +24,16 @@ export function filterAgents(
   const queues = new Set(filter.queues);
   return agents.filter((a) => {
     if (alvo && !`${a.nome} ${a.email}`.toLowerCase().includes(alvo)) return false;
-    /* Uma fila marcada basta: quem está em Suporte aparece no filtro de
-       Suporte mesmo estando também em Financeiro. */
+    /*
+     * One matched queue is enough: an agent in both Support and Finance appears under Support.
+     */
     if (queues.size > 0 && !a.queues.some((f) => queues.has(f))) return false;
     return true;
   });
 }
 
 /**
- * As filas que o painel de filtro oferece — as que os atendentes carregam,
- * sem repetição e em ordem. Sai da própria lista porque o painel da origem
- * não tem "todas as filas do tenant", tem as que a lista mostra.
+ * Offer only queues carried by listed agents, deduplicated and sorted. The reference filter lists queues represented on screen, not every tenant queue.
  */
 export function agentsQueues(agents: readonly AgentRegistered[]): string[] {
   const nomes = new Set<string>();
@@ -53,17 +42,14 @@ export function agentsQueues(agents: readonly AgentRegistered[]): string[] {
 }
 
 /**
- * A coluna "Filas" do cartão, no formato da captura: `Default,Suporte` —
- * vírgula, sem espaço, sem etiqueta (`team.html` linha 628).
+ * Format the card's Queue field like captured `team.html` line 628: `Default,Suporte`, comma without spaces or chips.
  */
 export function queuesInCard(queues: readonly string[]): string {
   return queues.length === 0 ? '—' : queues.join(',');
 }
 
 /**
- * A descrição da página de permissões, nas TRÊS variantes da origem
- * (`singleMemberDescription`, `coupleMembersDescription`,
- * `multiplesMembersDescription` — §a.4 da ficha).
+ * Permission-page description has the source's three variants: `singleMemberDescription`, `coupleMembersDescription`, `multiplesMembersDescription` (reference sheet Section a.4).
  */
 export function permissionsDescription(nomes: readonly string[]): string {
   const [first, segundo] = nomes;
@@ -73,7 +59,7 @@ export function permissionsDescription(nomes: readonly string[]): string {
   return `Configure as permissões de ${first} e outros ${nomes.length - 1} atendentes`;
 }
 
-/** O título da página de edição em lote: "Editar 3 atendentes" / "Editar 1 atendente". */
+
 export function editTitulo(quantity: number): string {
   return `Editar ${quantity} atendente${quantity === 1 ? '' : 's'}`;
 }

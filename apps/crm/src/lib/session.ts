@@ -1,71 +1,77 @@
 import type { Eu } from '@pipe/contracts';
 
 /**
- * A fronteira com a `api` para tudo que é entrada: quem está logado, por onde
- * esta empresa entra, e para quem é um convite.
+ * The boundary with the `api` for everything sign-in related: who's logged in,
+ * how this company signs in, and who an invite is for.
  *
- * Nada aqui sabe de tela — nem JSX, nem `revalidatePath`, nem cookie lido do
- * ambiente do Next. O cookie chega como TEXTO, por parâmetro, e é isso que
- * mantém o arquivo mudável de lugar sem virar reescrita quando a tela migrar
- * para o Vite (README, "Quem fala com o banco").
+ * Nothing here knows about the screen — no JSX, no `revalidatePath`, no cookie
+ * read from the Next environment. The cookie arrives as TEXT, as a parameter,
+ * and that's what keeps the file movable without becoming a rewrite when the
+ * screen migrates to Vite (README, "Who talks to the database").
  *
- * Todo endpoint usado aqui já existe: `GET /v1/eu`, `POST /v1/auth/sair`,
- * `POST /v1/auth/descobrir`, `GET /v1/convites/:token` e os dois pontos de
- * partida do login (`/v1/auth/google` e `/v1/auth/sso/:slug`). Nada foi
- * inventado, e nada é reimplementado.
+ * Every endpoint used here already exists: `GET /v1/eu`, `POST /v1/auth/sair`,
+ * `POST /v1/auth/descobrir`, `GET /v1/convites/:token`, and the two sign-in
+ * entry points (`/v1/auth/google` and `/v1/auth/sso/:slug`). Nothing was
+ * invented, and nothing is reimplemented.
  */
 
-/** A API vista por ESTE servidor. Atrás de proxy é o nome interno do serviço. */
-/* 3000, e não 3100: a `api` mora na 3000 — a 3100 é a Gestão. O padrão errado
-   aqui é meia hora atrás de um login que "não faz nada", porque `GET /v1/eu`
-   bate num front que não serve a rota e volta 404. É o mesmo valor que a
-   Gestão e o Desk já usam. */
+/** The API as seen by THIS server. Behind the proxy it's the service's internal name. */
+/*
+ * 3000, not 3100: the `api` lives on 3000 — 3100 is Gestão. The wrong default
+ * here is half an hour behind a login that "does nothing", because
+ * `GET /v1/eu` hits a front end that doesn't serve the route and comes back
+ * 404. It's the same value Gestão and Desk already use.
+ */
 const URL_API = (process.env['PIPE_URL_API'] ?? 'http://localhost:3000').replace(/\/$/, '');
 
 /**
- * A mesma API vista pelo NAVEGADOR.
+ * The same API as seen by the BROWSER.
  *
- * Entrar com o Google é navegação de topo: o link sai no HTML e o navegador vai
- * sozinho, sem passar por este servidor. Se a base fosse a interna, o botão
- * apontaria para um nome que só existe dentro da rede do Docker. Em
- * desenvolvimento as duas são a mesma, e por isso uma cai na outra.
+ * Signing in with Google is a top-level navigation: the link goes out in the
+ * HTML and the browser goes on its own, without passing through this server. If
+ * the base were the internal one, the button would point at a name that only
+ * exists inside the Docker network. In development the two are the same, which
+ * is why one falls back to the other.
  */
 const URL_API_PUBLICA = (process.env['PIPE_URL_API_PUBLICA'] ?? URL_API).replace(/\/$/, '');
 
 /**
- * ESTE aplicativo, visto pelo navegador.
+ * THIS app, as seen by the browser.
  *
- * Vai na ida do login como `?origem=`, e é o que faz a volta cair aqui e não no
- * front de outro módulo: a API atende os três e não tem como adivinhar de qual
- * deles a pessoa saiu. Do lado de lá só é aceita origem que esteja em
- * `PIPE_ORIGENS` — a mesma lista fechada do CORS.
+ * Goes out on the way into login as `?origem=`, and it's what makes the return
+ * land here and not on another module's front end: the API serves all three
+ * and has no way to guess which one the person left from. On the API side,
+ * only an origin that's in `PIPE_ORIGENS` is accepted — the same closed CORS
+ * list.
  */
 const ORIGEM_DESTE_APP = (
   process.env['PIPE_URL_ESTE_APP'] ?? 'http://localhost:3300'
 ).replace(/\/$/, '');
 
-/** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */
+/** The session cookie the API issues. `HttpOnly`; the screen only passes it along. */
 export const COOKIE_SESSION = 'pipe_session';
 
-/** O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela.
+/**
+ * What `POST /v1/auth/descobrir` returns, plus the screen's two failure modes.
  *
- * Os dois primeiros são o contrato (`MetodoDeEntrada` em
- * `packages/contracts/src/sessao.ts`): `sso` manda ao IdP da empresa, `google`
- * é o caminho de todo o resto. Os outros dois nunca vêm da API — são o que
- * ESTA tela precisa dizer quando não houve resposta para rotear.
+ * The first two are the contract (`MetodoDeEntrada` in
+ * `packages/contracts/src/sessao.ts`): `sso` sends to the company's IdP,
+ * `google` is the path for everyone else. The other two never come from the
+ * API — they're what THIS screen needs to say when there was no response to
+ * route on.
  */
 export interface InboundDescoberta {
   metodo: 'sso' | 'google' | 'invalido' | 'falha';
-  /** Caminho na API, quando `sso`. Falta só a base pública. */
+  /** API path, when `sso`. Only missing the public base. */
   irPara?: string;
 }
 
-/** O mínimo que `GET /v1/convites/:token` mostra a quem ainda está do lado de fora. */
+/** The minimum `GET /v1/convites/:token` shows to someone still on the outside. */
 export interface InvitationVisivel {
   email: string;
   role: string;
   tenant: { nome: string; slug: string };
-  /** ISO-8601, como sai da API. Quem formata é a tela. */
+  /** ISO-8601, as it comes from the API. The screen is what formats it. */
   expiraEm: string;
 }
 
@@ -74,8 +80,8 @@ function sessionHeader(cookie: string): HeadersInit {
 }
 
 /**
- * Quem está logado. `null` quando não há sessão — e isso NÃO é erro: a tela de
- * entrada é pública e chega aqui sem cookie o tempo todo.
+ * Who's logged in. `null` when there's no session — and that is NOT an error:
+ * the sign-in screen is public and reaches here with no cookie all the time.
  */
 export async function buscarEu(cookie: string): Promise<Eu | null> {
   const resposta = await fetch(`${URL_API}/v1/eu`, {
@@ -87,14 +93,17 @@ export async function buscarEu(cookie: string): Promise<Eu | null> {
 }
 
 /**
- * Encerra a sessão do lado da API. Sair duas vezes não é erro lá, e não é aqui.
+ * Ends the session on the API side. Signing out twice isn't an error there, and
+ * isn't one here either.
  *
- * Engole a falha de rede de propósito: quem clicou em Sair vai ter o cookie
- * apagado deste navegador de qualquer jeito, e travar a saída porque a API não
- * respondeu deixaria a pessoa logada na tela — que é o pior dos dois.
+ * Swallows a network failure on purpose: whoever clicked Sign out will get
+ * their cookie deleted from this browser regardless, and blocking sign-out
+ * because the API didn't respond would leave the person logged in on screen —
+ * which is the worse of the two outcomes.
  *
- * ponytail: a sessão sobreviveria no banco até vencer sozinha. Se um dia isso
- * importar, a saída é uma fila de revogação, não um `throw` aqui.
+ * ponytail: the session would survive in the database until it expires on its
+ * own. If that ever matters, sign-out becomes a revocation queue, not a
+ * `throw` here.
  */
 export async function encerrarSession(cookie: string): Promise<void> {
   try {
@@ -104,16 +113,17 @@ export async function encerrarSession(cookie: string): Promise<void> {
       cache: 'no-store',
     });
   } catch {
-    /* sem rede, o cookie local já resolve o que a pessoa pediu */
+    /* without a network call, the local cookie already answers what the person asked */
   }
 }
 
 /**
- * Por onde este e-mail entra.
+ * How this email signs in.
  *
- * A API responde igual para e-mail conhecido e desconhecido, de propósito — só
- * domínio verificado com SSO ativo devolve `sso`. Não há o que a tela possa
- * deduzir daqui sobre quem é cliente do Pipe, e é assim que tem de ser.
+ * The API answers the same way for a known and an unknown email, on purpose —
+ * only a verified domain with SSO active returns `sso`. There's nothing the
+ * screen can deduce from this about who is a Pipe customer, and that's how it
+ * has to be.
  */
 export async function descobrirInbound(email: string): Promise<InboundDescoberta> {
   let resposta: Response;
@@ -127,16 +137,16 @@ export async function descobrirInbound(email: string): Promise<InboundDescoberta
   } catch {
     return { metodo: 'falha' };
   }
-  // 400 é sempre `email_invalido` nesta rota — a única validação que ela faz.
+  // 400 is always `email_invalido` on this route — the only validation it does.
   if (resposta.status === 400) return { metodo: 'invalido' };
   if (!resposta.ok) return { metodo: 'falha' };
   return (await resposta.json()) as InboundDescoberta;
 }
 
 /**
- * Para quem é o convite. `null` cobre vencido, já usado e inexistente: para
- * quem está do lado de fora os três são a mesma coisa — peça outro — e separar
- * contaria se aquele token um dia existiu.
+ * Who the invite is for. `null` covers expired, already used, and nonexistent:
+ * from the outside all three are the same thing — ask for another — and
+ * telling them apart would reveal whether that token ever existed.
  */
 export async function verInvitation(token: string): Promise<InvitationVisivel | null> {
   const resposta = await fetch(`${URL_API}/v1/convites/${encodeURIComponent(token)}`, {
@@ -148,15 +158,15 @@ export async function verInvitation(token: string): Promise<InvitationVisivel | 
 }
 
 /**
- * O destino é sempre CAMINHO INTERNO. `//outro.site` num redirecionamento é
- * phishing usando o nosso domínio de trampolim; a API confere de novo do lado
- * dela, e conferir dos dois lados custa uma linha.
+ * The destination is always an INTERNAL PATH. `//outro.site` in a redirect is
+ * phishing using our domain as a springboard; the API checks again on its own
+ * side, and checking on both sides costs one line.
  */
 export function caminhoInterno(destination: string | undefined | null): string {
   return destination && destination.startsWith('/') && !destination.startsWith('//') ? destination : '/';
 }
 
-/** O botão "Entrar com Google". Com `convite`, entra aceitando o convite. */
+/** The "Sign in with Google" button. With `convite`, it signs in accepting the invite. */
 export function inboundWithGoogleUrl(options: { destination?: string; invitation?: string } = {}): string {
   const url = new URL(`${URL_API_PUBLICA}/v1/auth/google`);
   if (options.invitation) url.searchParams.set('invite', options.invitation);
@@ -165,7 +175,7 @@ export function inboundWithGoogleUrl(options: { destination?: string; invitation
   return url.toString();
 }
 
-/** `irPara` vem da descoberta como caminho; aqui ele ganha a base pública. */
+/** `irPara` comes from discovery as a path; here it gets the public base. */
 export function urlNaApi(caminho: string, destination?: string): string {
   const url = new URL(`${URL_API_PUBLICA}${caminho}`);
   url.searchParams.set('returnTo', caminhoInterno(destination));

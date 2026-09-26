@@ -8,15 +8,15 @@ import { acaoSalvarEspaco } from '../actions';
 export const dynamic = 'force-dynamic';
 
 /**
- * A lista de fusos vem do runtime, não de uma constante nossa.
+ * The timezone list comes from the runtime, not from a constant of ours.
  *
- * Lista escrita à mão envelhece a cada país que muda de horário de verão, e o
- * jeito de descobrir é um relatório sair com uma hora de diferença. `Intl` já
- * carrega o banco de fusos do sistema; usar outra fonte seria manter uma cópia
- * pior da mesma coisa.
+ * A hand-written list ages every time a country changes its daylight-saving rules, and the
+ * way you find out is a report coming out an hour off. `Intl` already carries the
+ * system's timezone database; using another source would just mean keeping a worse
+ * copy of the same thing.
  *
- * O `catch` cobre runtime antigo sem `supportedValuesOf`: sem a lista, o que
- * resta é o fuso atual, e o campo continua salvável.
+ * The `catch` covers older runtimes without `supportedValuesOf`: without the list, all
+ * that's left is the current timezone, and the field stays savable.
  */
 function fusosConhecidos(atual: string): string[] {
   try {
@@ -34,18 +34,18 @@ const PLANOS: Record<string, string> = {
 };
 
 /**
- * Espaço de trabalho.
+ * Workspace.
  *
- * É o "General" do Twenty, com a mesma ordem: imagem, nome, domínio, e a zona de
- * perigo por último. A zona de perigo **não veio**: "excluir o espaço de
- * trabalho" num produto multi-tenant com RLS apaga o cliente inteiro em cascata,
- * e isso é operação de contrato, não botão de tela — quem cancela fala com
- * alguém, e o `tenant.ativo` é o que desliga.
+ * This is Twenty's "General", in the same order: image, name, domain, and the danger
+ * zone last. The danger zone **wasn't included**: "delete the workspace" in a
+ * multi-tenant product with RLS cascades into deleting the whole customer, and that's
+ * a contract operation, not a screen button — whoever cancels talks to a person, and
+ * `tenant.ativo` is what turns it off.
  *
- * O domínio é leitura. Ele existe para descobrir o tenant a partir do login
- * (`identidade.ts`) e só vale VERIFICADO, por registro TXT no DNS: um campo de
- * texto aqui deixaria qualquer administrador reivindicar `@banco.com.br` e
- * receber, no dia seguinte, quem tentasse entrar com aquele endereço.
+ * The domain is read-only. It exists to discover the tenant from the login
+ * (`identidade.ts`), and it's only valid once VERIFIED, via a DNS TXT record: a
+ * free-text field here would let any admin claim `@banco.com.br` and, the next
+ * day, receive anyone who tried to log in with that address.
  */
 export default async function PageWorkspace() {
   const espaco = await lerEspaco();

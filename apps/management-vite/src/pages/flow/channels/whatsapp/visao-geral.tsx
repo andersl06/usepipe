@@ -10,36 +10,18 @@ import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '
 import type { ChannelWhatsappContext, ContextWithoutChannel } from './shell';
 
 /**
- * Visão Geral do WhatsApp — o `bds-tab-panel group="content-tab-0"` do
- * template 79961, que troca o parcial pelo passo de ativação
- * (`FICHA-conectar-canal-no-bot.md` §2):
+ * WhatsApp Overview — the `bds-tab-panel group="content-tab-0"` of template 79961, which swaps the partial for the activation step (`FICHA-conectar-canal-no-bot.md` §2):
  *
- * - `VERIFIED` → `WhatsAppVerified.html` (foto `01`): "Seu chatbot está
- *   conectado ao número:", o chip verde, os dois parágrafos e "Testar no
- *   WhatsApp";
- * - `LOGIN` → `WhatsAppStart.html`: o ícone, `welcome.instructions` e
- *   "Vamos lá!" (botão com seta, à direita);
- * - `FACEBOOK_CONNECTION` → `WhatsAppFacebookConnectionStep.html`: "Conecte o
- *   Pipe ao Facebook" (a marca é a tinta), os dois parágrafos, "Voltar" e
- *   "Conectar-se ao Facebook" (o cadastro embutido da Meta, que só funciona
- *   com aplicativo aprovado — `cadastro-embutido-whatsapp.tsx`);
- * - `SELECT_PHONE` → `WhatsAppSelectedNumber.html`, usada aqui para escolher
- *   um número que a conta já tem (`EscolherCanalExistente`, decisão Pipe).
+ * - `VERIFIED` → `WhatsAppVerified.html` (photo `01`): "Seu chatbot está conectado ao número:", the green chip, the two paragraphs and "Testar no WhatsApp";
+ * - `LOGIN` → `WhatsAppStart.html`: the icon, `welcome.instructions` and "Vamos lá!" (button with arrow, on the right);
+ * - `FACEBOOK_CONNECTION` → `WhatsAppFacebookConnectionStep.html`: "Conecte o Pipe ao Facebook" (the brand is the only thing that's ours), the two paragraphs, "Voltar" and "Conectar-se ao Facebook" (Meta's embedded signup, which only works with an approved app — `cadastro-embutido-whatsapp.tsx`);
+ * - `SELECT_PHONE` → `WhatsAppSelectedNumber.html`, used here to pick a number the account already has (`EscolherCanalExistente`, Pipe decision).
  *
- * Os passos `AWAIT_CONTAINER`, `ASK_PIN`, `PHONE_NOT_FOUND` e os dois de
- * bloqueio comercial não existem na Pipe: o cliente é dono do WABA dele e o
- * número não passa por container nem por saldo (FICHA §4.6).
+ * The `AWAIT_CONTAINER`, `ASK_PIN`, `PHONE_NOT_FOUND` steps and the two commercial-block steps don't exist on Pipe: the customer owns their WABA and the number doesn't go through a container or a balance check (FICHA §4.6).
  *
- * "Reconectar número" é a nossa porta para o token vencido: na origem o token é
- * da plataforma e a reconexão refaz o cadastro embutido no MESMO canal; aqui o
- * token é do cliente e expira, e sem esta porta trocá-lo virava um beco —
- * desconectar e cadastrar de novo esbarra no próprio número.
+ * "Reconectar número" is our door for the expired token: in the source the token belongs to the platform and reconnecting redoes the embedded signup on the SAME channel; here the token belongs to the customer and expires, and without this door, swapping it became a dead end — disconnecting and re-registering runs into the same number.
  *
- * Acréscimos Pipe, ditos como tais: "Conectar manualmente" ao lado do botão
- * do Facebook (o caminho de quem não tem app aprovado na Meta) e "Desconectar
- * canal" no estado conectado — o WhatsApp atual da origem não tem esse botão
- * (FICHA §4.5), mas sem ele não há como "remover do anterior" para trocar de
- * bot. Só desliga DO BOT: o número continua conectado à Meta.
+ * Pipe additions, stated as such: "Conectar manualmente" next to the Facebook button (the path for whoever doesn't have an app approved on Meta) and "Desconectar canal" in the connected state — the source's current WhatsApp has no such button (FICHA §4.5), but without it there's no way to "remove from the previous one" to switch bots. It only disconnects FROM THE BOT: the number stays connected to Meta.
  */
 
 type Passo = 'inicio' | 'conexao' | 'escolher';
@@ -206,8 +188,9 @@ function NaoConectado({ flowId, situation, disponiveis }: ContextWithoutChannel)
             prefix={<LogoDoFacebook />}
           />
         </div>
-        {/* Acréscimos Pipe: sem aplicativo aprovado na Meta, o caminho é o manual; e o
-            número que a conta já tem pode ser escolhido em vez de cadastrado de novo. */}
+        {/*
+ * Pipe additions: without an app approved on Meta, the path is the manual one; and a number the account already has can be chosen instead of registered again.
+ */}
         <div className="cb-acoes-entre" style={{ width: '100%' }}>
           <ConectarWhatsappManual flowId={flowId} rotulo="Conectar manualmente" />
           {temNumeroLivre ? (
@@ -224,7 +207,7 @@ function NaoConectado({ flowId, situation, disponiveis }: ContextWithoutChannel)
   );
 }
 
-/** O `icon-left="facebook" type-icon="logo"` do botão da origem. */
+/** The source button's `icon-left="facebook" type-icon="logo"`. */
 function LogoDoFacebook() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">

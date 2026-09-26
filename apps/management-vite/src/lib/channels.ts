@@ -1,10 +1,5 @@
 /**
- * Canais WhatsApp/Instagram — tipos e regras PURAS do lado da tela.
- *
- * Espelha os tipos de `apps/api/src/controladores/canais.ts` e
- * `canais-instagram.ts` (não importa de lá: são pacotes diferentes, e aquele
- * lado carrega Postgres). Arquivo sem `./api` de propósito — só tipo e função
- * pura, testável por `tests/canais.test.ts` sem tocar em `import.meta.env`.
+ * Pure screen-side WhatsApp/Instagram channel types and rules mirror `apps/api/src/controladores/canais.ts` and `canais-instagram.ts` without importing backend Postgres code. Omit `./api` intentionally so `tests/canais.test.ts` can run without Vite or `import.meta.env`.
  */
 
 export interface ChannelWhatsAppVisivel {
@@ -75,7 +70,7 @@ export interface ChannelInstagramVisivel {
 }
 export interface ChannelMessengerVisivel { id: string; nome: string; ativo: boolean; pageId: string | null; state: 'conectado' | 'desligado'; webhookUrl: string; criadoEm: string }
 
-/** Mesmos limites de `apps/api/src/dominio/whatsapp/perfil.ts` — só para o contador da tela. */
+/** Use the same profile limits as `apps/api/src/dominio/whatsapp/perfil.ts` for screen counters only. */
 export const LIMITES_DO_PERFIL = {
   endereco: 256,
   descricao: 512,
@@ -85,10 +80,7 @@ export const LIMITES_DO_PERFIL = {
 } as const;
 
 /**
- * O `vertical` do WhatsApp Business Profile — lista pública da Cloud API
- * (Meta), não inventada aqui. `categoria` do perfil só aceita um destes
- * códigos; o backend confere só o FORMATO (`/^[A-Z_]{2,40}$/`), quem confere o
- * valor de verdade é a Meta.
+ * WhatsApp Business Profile `vertical` codes come from Meta's public Cloud API list, not invented locally. Profile `categoria` accepts those codes; backend checks only syntax (`/^[A-Z_]{2,40}$/`), while Meta validates the actual value.
  */
 export const CATEGORIAS_DO_PERFIL: readonly { value: string; rotulo: string }[] = [
   { value: 'UNDECIDED', rotulo: 'Não decidido' },
@@ -112,7 +104,7 @@ export const CATEGORIAS_DO_PERFIL: readonly { value: string; rotulo: string }[] 
   { value: 'NOT_A_BIZ', rotulo: 'Não é uma empresa' },
 ];
 
-/** O `motivo` de `indisponivel`, em português — mesmos códigos do domínio da `api`. */
+/** Keep the `motivo` of `indisponivel` in Portuguese, using the same domain codes as `api`. */
 const ROTULO_MOTIVO: Readonly<Record<string, string>> = {
   reautorizacao_pendente: 'Aguardando reautorização do WhatsApp.',
   sem_token: 'Canal sem token de acesso: reconecte.',
@@ -126,8 +118,7 @@ export function rotuloDoMotivo(motivo: string | null): string {
 }
 
 /**
- * "Insira os e-mails separados por vírgula" (ficha §4) → lista. Aceita
- * vírgula OU quebra de linha, tira espaço, tira vazio, tira repetido.
+ * Convert reference `Insira os e-mails separados por vírgula` (sheet Section 4) to a list. Accept commas or newlines, trim whitespace, drop empty values and duplicates.
  */
 export function textoParaEmails(texto: string): string[] {
   const vistos = new Set<string>();
@@ -141,12 +132,12 @@ export function textoParaEmails(texto: string): string[] {
   return saida;
 }
 
-/** O caminho de volta: lista → texto separado por vírgula, para o campo. */
+/** Convert email list back to comma-separated field text. */
 export function emailsParaTexto(emails: readonly string[]): string {
   return emails.join(', ');
 }
 
-/** Sites do perfil: um por linha no campo, lista para a API (até `LIMITES_DO_PERFIL.sites`). */
+/** Parse profile sites one per field line into an API list, capped at `LIMITES_DO_PERFIL.sites`. */
 export function textoParaSites(texto: string): string[] {
   const vistos = new Set<string>();
   const saida: string[] = [];

@@ -4,10 +4,11 @@ import { revalidatePath } from 'next/cache';
 import { faseValida, moverParaFase } from '../../lib/funil';
 
 /**
- * Mover a oportunidade de fase pelo arraste.
+ * Move the opportunity to a stage by dragging.
  *
- * A fase chega do navegador, então é validada contra o catálogo antes de virar
- * escrita: entrada de cliente não define valor de coluna, nem sendo texto livre.
+ * The stage comes from the browser, so it's validated against the catalog before
+ * becoming a write: client input never determines a column value, not even as
+ * free text.
  */
 export async function moverOpportunity(id: string, fase: string): Promise<void> {
   if (!faseValida(fase)) throw new Error(`fase desconhecida: ${fase}`);

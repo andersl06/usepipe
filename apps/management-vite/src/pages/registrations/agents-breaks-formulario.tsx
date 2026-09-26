@@ -5,17 +5,9 @@ import { salvarMotivoPausa } from '../../lib/actions';
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
- * Conteúdo do modal "Criar nova pausa personalizada" — a forma é a literal da
- * origem (`FICHA-atendentes-filas-pausas.md` §a.5/§c): campo **"Nome da
- * pausa"** (`maxlength="30"`), campo **"Duração em minutos"** (`type="number"
- * max="999" maxlength="3"`, valor inicial `0`), botões **"Cancelar"** e
- * **"Criar"**. Sem descrição — a origem abre o modal direto no formulário.
+ * Content of the "Criar nova pausa personalizada" modal — the form is literally the source's (`FICHA-atendentes-filas-pausas.md` §a.5/§c): **"Nome da pausa"** field (`maxlength="30"`), **"Duração em minutos"** field (`type="number" max="999" maxlength="3"`, initial value `0`), **"Cancelar"** and **"Criar"** buttons. No description — the source opens the modal straight into the form.
  *
- * **"Conta como produtivo" é campo só nosso**, sem par na origem: decide se o
- * tempo desta pausa entra no relatório de esforço como trabalho (treinamento,
- * reunião) ou como tempo fora (almoço, café). Sem ele o relatório não sabe
- * separar as duas coisas — por isso fica, compacto, abaixo dos dois campos
- * literais, e não no lugar de nenhum deles.
+ * **"Conta como produtivo" is a field that's ours alone**, with no counterpart in the source: it decides whether this break's time counts toward the effort report as work (training, meetings) or as time off (lunch, coffee). Without it the report can't tell the two apart — so it stays, compact, below the two literal fields, and not in place of either.
  */
 export function FormularioMotivoPausa({ aoSalvar }: { aoSalvar?: () => void }) {
   const formRef = useRef<HTMLFormElement>(null);

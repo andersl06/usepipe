@@ -2,13 +2,9 @@ import { useContact } from '../../contact';
 import { TelaDeChaves } from './tela';
 
 /**
- * `/configurations/keys` — estado `auth.application.detail.configurations.accessToken`
- * (portal.js, template do módulo 76179, controlador `lP`). Só existe com
- * `isTokenManagementEnable`; sem a flag a origem manda para a lista de bots.
+ * `/configurations/keys` — state `auth.application.detail.configurations.accessToken` (portal.js, module 76179 template, `lP` controller). Only exists with `isTokenManagementEnable`; without the flag the source sends you to the bot list.
  *
- * No Pipe a chave é do FLUXO (`chave_api.fluxo_id`, migração 0032): a tabela
- * sempre foi da conta, e a tela virou real emitindo/revogando uma chave por
- * fluxo — `GET/POST/DELETE /v1/gestao/fluxos/:id/chaves`.
+ * On Pipe the key belongs to the FLOW (`chave_api.fluxo_id`, migration 0032): the table always belonged to the account, and the screen became real, issuing/revoking one key per flow — `GET/POST/DELETE /v1/gestao/fluxos/:id/chaves`.
  */
 export function BotPageKeys() {
   const { contact } = useContact();

@@ -8,12 +8,9 @@ import {
 } from '../src/lib/nota-evaluation.ts';
 
 /**
- * Critério fatal zera a avaliação inteira. Errar aqui é dar zero a quem não
- * merece — ou esconder o zero de quem merece —, e nos dois casos o número vira
- * decisão sobre gente.
+ * A fatal criterion zeroes out the whole evaluation. Getting this wrong means giving a zero to someone who doesn't deserve it — or hiding the zero from someone who does — and in both cases the number becomes a decision about a person.
  *
- * Os tetos são cópia de `packages/ai/src/avaliacao/tipos.ts`, e o teste existe
- * também para gritar se um dia divergirem.
+ * The caps are copied from `packages/ai/src/avaliacao/tipos.ts`, and the test also exists to flag it if they ever diverge.
  */
 
 test('os tetos continuam sendo os do formulário: escala 5, nota 10', () => {
@@ -37,7 +34,7 @@ test('scale and score become a fraction of their own ceiling', () => {
   assert.equal(fractionAnswered('escala', '4'), 0.8);
   assert.equal(fractionAnswered('nota', '10'), 1);
   assert.equal(fractionAnswered('nota', '7'), 0.7);
-  // Vírgula é o separador decimal que o modelo devolve escrevendo em português.
+  // Comma is the decimal separator the model returns when writing in Portuguese.
   assert.equal(fractionAnswered('nota', '7,5'), 0.75);
 });
 
@@ -51,8 +48,8 @@ test('fatal only fails with a known fraction below the maximum', () => {
   assert.equal(fatalReprovado('conforme', true, 'nao_conforme'), true);
   assert.equal(fatalReprovado('escala', true, '4'), true);
   assert.equal(fatalReprovado('escala', true, '5'), false);
-  // Critério não respondido é formulário incompleto, não atendente reprovado.
+  // An unanswered criterion means an incomplete form, not a failed agent.
   assert.equal(fatalReprovado('conforme', true, null), false);
-  // E critério que não é fatal nunca reprova, por pior que seja a resposta.
+  // And a non-fatal criterion never fails the evaluation, no matter how bad the answer.
   assert.equal(fatalReprovado('conforme', false, 'nao_conforme'), false);
 });

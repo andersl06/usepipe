@@ -25,40 +25,41 @@ import { useLarguras } from './redimensionar';
 import { ControleDeColunas, useColunas } from './colunas';
 
 /**
- * A lista de leads: ordenação por coluna, coluna redimensionável, seleção
- * múltipla e ação em massa.
+ * The leads list: column sorting, resizable columns, multiple selection, and
+ * bulk actions.
  *
- * As quatro coisas foram lidas do Twenty e escritas do zero — `twenty-front` é
- * AGPL e não entra aqui. O que a leitura ensinou, e que a nossa versão anterior
- * não tinha:
+ * All four were read from Twenty and written from scratch — `twenty-front` is
+ * AGPL and doesn't go in here. What the reading taught us, which our previous
+ * version didn't have:
  *
- * - **A ordenação vive na URL**, não no componente. Uma lista ordenada é um
- *   endereço que se cola no chat, e o botão de voltar do navegador desfaz a
- *   ordenação como desfaz qualquer outra coisa. É também o que permite ordenar
- *   no banco, que é onde a ordenação de uma lista com teto tem de acontecer.
- * - **A largura da coluna é do usuário**, e sobrevive ao recarregamento.
- * - **A seleção não desenha uma sexta coluna vazia**: a caixa mora na primeira
- *   célula, aparece no hover, e fica visível quando marcada.
- * - **A ação em massa é uma barra que só existe com algo selecionado.** Uma
- *   barra permanente com botões apagados é exatamente o que este produto não faz.
+ * - **Sorting lives in the URL**, not in the component. A sorted list is an
+ *   address you can paste into chat, and the browser's back button undoes the
+ *   sort like it undoes anything else. It's also what lets sorting happen in
+ *   the database, which is where sorting a capped list has to happen.
+ * - **Column width belongs to the user**, and survives a reload.
+ * - **Selection doesn't draw an empty sixth column**: the checkbox lives in the
+ *   first cell, shows on hover, and stays visible when checked.
+ * - **The bulk-action bar only exists with something selected.** A permanent bar
+ *   with grayed-out buttons is exactly what this product doesn't do.
  *
- * O que não copiamos deles: a coluna congelada à esquerda e a linha de "novo
- * registro" no fim da tabela. A primeira só paga a pena com mais colunas do que
- * temos; a segunda pressupõe criação inline, que ainda não existe aqui.
+ * What we didn't copy from them: the column frozen to the left, and the
+ * "new record" row at the end of the table. The first only pays off with more
+ * columns than we have; the second assumes inline creation, which doesn't exist
+ * here yet.
  */
 
 /**
- * Os atalhos da listagem.
+ * The listing's shortcuts.
  *
- * `j`/`k` e as setas são os deles, lidos em
- * `record-table/hooks/useRecordTableRowFocusHotkeys.ts` — eles casam `ArrowDown`
- * com `j` e `ArrowUp` com `k` no mesmo gancho, que é a convenção de terminal
- * que o Gmail e o GitHub também usam. `/` para a busca e `Enter` para abrir são
- * a mesma família.
+ * `j`/`k` and the arrows are theirs, read from
+ * `record-table/hooks/useRecordTableRowFocusHotkeys.ts` — they pair `ArrowDown`
+ * with `j` and `ArrowUp` with `k` on the same hook, which is the terminal
+ * convention Gmail and GitHub also use. `/` for search and `Enter` to open are
+ * the same family.
  *
- * O ouvinte é um só, no documento, e sai fora quando o foco está dentro de um
- * campo de texto: quem está digitando "j" na busca quer a letra, não a linha
- * seguinte. `/` é a única exceção que se ganha, e só de fora de um campo.
+ * The listener is a single one, on the document, and steps aside when focus is
+ * inside a text field: someone typing "j" into search wants the letter, not the
+ * next row. `/` is the one exception it gets, and only from outside a field.
  */
 function ehCampoDeTexto(alvo: EventTarget | null): boolean {
   if (!(alvo instanceof HTMLElement)) return false;
@@ -66,9 +67,11 @@ function ehCampoDeTexto(alvo: EventTarget | null): boolean {
   return ['INPUT', 'SELECT', 'TEXTAREA'].includes(alvo.tagName);
 }
 
-/** O que a célula sabe além da própria linha. Um objeto, e não três argumentos
- *  posicionais: a terceira coluna que precisar de mais um dado não muda a
- *  assinatura das outras nove. */
+/**
+ * What the cell knows besides its own row. One object, not three positional
+ * arguments: the third column that needs one more piece of data doesn't change
+ * the other nine's signature.
+ */
 interface Context {
   timezone: string;
   now: Date;
@@ -78,24 +81,24 @@ interface Context {
 interface ColumnLead {
   key: string;
   rotulo: string;
-  /** Alinha à direita e usa monoespaçada tabular. Para número, não para texto. */
+  /** Right-aligned, tabular monospaced. For numbers, not text. */
   numerica?: boolean;
-  /** Largura de partida, em px. O usuário muda e a mudança fica guardada. */
+  /** Starting width, in px. The user changes it and the change is remembered. */
   largura: number;
   celula: (l: LinhaLead, ctx: Context) => ReactNode;
 }
 
 /**
- * As colunas, numa lista só: o cabeçalho e a linha saem da mesma definição,
- * então não há como uma existir sem a outra.
+ * The columns, in a single list: the header and the row come from the same
+ * definition, so there's no way for one to exist without the other.
  *
- * Categoria vira etiqueta neutra: origem, faixa, fila e fase são o mesmo tipo
- * de coisa (um nome que classifica) e têm a mesma forma, a do pacote. Nenhuma
- * delas recebe cor: categoria não é estado.
+ * Categories become neutral badges: source, band, queue, and stage are the same
+ * kind of thing (a name that classifies) and share the same shape, the
+ * package's. None of them get color: a category isn't a state.
  *
- * Cor entra em duas células e em nenhuma outra: o lead parado há mais de sete
- * dias, que é o que custa dinheiro, e o lead desqualificado, que é o único
- * estado terminal.
+ * Color shows up in exactly two cells and nowhere else: a lead stalled for more
+ * than seven days, which is what costs money, and a disqualified lead, which is
+ * the only terminal state.
  */
 const COLUNAS: readonly ColumnLead[] = [
   {
@@ -108,8 +111,8 @@ const COLUNAS: readonly ColumnLead[] = [
     key: 'origem',
     rotulo: 'Origem',
     largura: 132,
-    // Editável na própria lista. A etiqueta continua sendo a forma em repouso —
-    // é o `record-table-cell` deles: o display é o do campo, só a edição é comum.
+    // Editable right in the list. The badge stays the display-at-rest shape —
+    // it's their `record-table-cell`: the display stays the field's own, only the editing is shared.
     celula: (l) => (
       <CelulaInline
         leadId={l.id}
@@ -143,8 +146,8 @@ const COLUNAS: readonly ColumnLead[] = [
     key: 'proprietario',
     rotulo: 'Proprietário',
     largura: 160,
-    // A troca de dono na própria lista, que é o motivo mais comum de alguém
-    // abrir a ficha. A ação em massa continua servindo para muitos de uma vez.
+    // Swapping the owner right in the list, which is the most common reason someone
+    // opens the record. The bulk action still serves selecting many at once.
     celula: (l, ctx) => (
       <CelulaInline
         leadId={l.id}
@@ -197,8 +200,8 @@ const DEFAULTS = Object.fromEntries(COLUNAS.map((c) => [c.key, c.largura]));
 const ROTULOS = Object.fromEntries(COLUNAS.map((c) => [c.key, c.rotulo]));
 
 /**
- * A coluna que não se oculta nem se move. É o `labelIdentifier` do Twenty: a
- * que diz quem é a linha, e a única que leva à ficha.
+ * The column that doesn't hide or move. It's Twenty's `labelIdentifier`: the one
+ * that says who the row is, and the only one that leads to the record.
  */
 const COLUMN_FIXA = 'lead';
 
@@ -213,7 +216,7 @@ interface Props {
   direction: Direction;
   filters: SFilter;
   proprietarios: Proprietario[];
-  /** Quantas linhas vieram, para o rodapé da seleção falar em números reais. */
+  /** How many rows came back, so the selection footer can talk in real numbers. */
   total: number;
 }
 
@@ -231,18 +234,19 @@ export function ListaDeLeads({
   total,
 }: Props) {
   const [marcados, setMarcados] = useState<Set<string>>(new Set());
-  /** Onde começa o intervalo do Shift: a última linha marcada sem ele. */
+  /** Where the Shift range starts: the last row marked without it. */
   const [ancora, setAncora] = useState<number | null>(null);
   const [recado, setRecado] = useState<string | null>(null);
   const [emCurso, iniciar] = useTransition();
   const larguras = useLarguras('pipe.crm.leads.larguras', DEFAULTS);
-  /** A linha sob o cursor do teclado. `null` é "ninguém", que é o estado inicial. */
+  /** The row under the keyboard cursor. `null` is "nobody", the initial state. */
   const [focada, setFocada] = useState<number | null>(null);
   const tabela = useRef<HTMLTableElement | null>(null);
   const router = useRouter();
 
-  // A coluna que o cabeçalho do grupo já está dizendo sai da tabela: repeti-la
-  // em cada linha é gastar largura para dizer o que acabou de ser dito.
+  // The column the group header is already stating drops out of the table:
+  // repeating it
+  // on every row would spend width to say what was just said.
   const disponiveis = useMemo(() => {
     const redundante = groupingColumn(by);
     return redundante ? COLUNAS.filter((c) => c.key !== redundante) : COLUNAS;
@@ -259,9 +263,9 @@ export function ListaDeLeads({
     COLUMN_FIXA,
   );
 
-  // A fixa vem primeiro sempre, e o resto na ordem que a pessoa arrumou. O
-  // `<colgroup>`, o cabeçalho e a linha saem daqui, então não há como um
-  // desandar em relação ao outro.
+  // The fixed one always comes first, and the rest in the order the person arranged. The
+  // `<colgroup>`, the header and the row all come from here, so there's no way for one
+  // to drift out of sync with the other.
   const colunas = useMemo(() => {
     const byKey = new Map(disponiveis.map((c) => [c.key, c]));
     return [COLUMN_FIXA, ...arranjo.visiveis]
@@ -270,15 +274,17 @@ export function ListaDeLeads({
   }, [disponiveis, arranjo.visiveis]);
 
   const todos = useMemo(() => groups.flatMap((g) => g.linhas), [groups]);
-  /** Posição de cada lead na lista achatada, para o intervalo do Shift saber
-   *  contar através da fronteira dos grupos. */
+  /**
+   * Each lead's position in the flattened list, so the Shift range knows how to
+   * count across group boundaries.
+   */
   const position = useMemo(() => new Map(todos.map((l, i) => [l.id, i])), [todos]);
   const todosMarcados = todos.length > 0 && marcados.size === todos.length;
 
   /**
-   * Um ouvinte só, no documento. Ele registra de novo a cada movimento porque
-   * `Enter` precisa saber onde o cursor está agora — e trocar um `addEventListener`
-   * por tecla apertada custa menos do que a `ref` que evitaria isso.
+   * A single listener, on the document. It re-registers on every move because
+   * `Enter` needs to know where the cursor is right now — and swapping an
+   * `addEventListener` per keystroke costs less than the `ref` that would avoid it.
    */
   useEffect(() => {
     function aoTeclar(e: KeyboardEvent) {
@@ -302,12 +308,12 @@ export function ListaDeLeads({
       if (desce || sobe) {
         e.preventDefault();
         setFocada((atual) => {
-          // Sem cursor ainda: `j` começa na primeira, `k` na última. É o que
-          // faz o primeiro toque fazer algo visível em vez de nada.
+          // No cursor yet: `j` starts on the first row, `k` on the last. That's what
+          // makes the first tap do something visible instead of nothing.
           if (atual === null) return desce ? 0 : todos.length - 1;
           const proximo = atual + (desce ? 1 : -1);
-          // Sem dar a volta: a lista tem começo e fim, e passar do fim para o
-          // começo sem avisar é como se perde o lugar numa lista de 200.
+          // No wrapping around: the list has a start and an end, and going past the end to the
+          // start without warning is how you lose your place in a list of 200.
           return Math.min(Math.max(proximo, 0), todos.length - 1);
         });
         return;
@@ -328,8 +334,8 @@ export function ListaDeLeads({
     return () => document.removeEventListener('keydown', aoTeclar);
   }, [todos, focada, router]);
 
-  // A linha focada entra na tela sozinha. `block: 'nearest'` rola o mínimo:
-  // com `'center'` a lista dá um pulo a cada tecla e o olho perde o lugar.
+  // The focused row scrolls into view on its own. `block: 'nearest'` scrolls the minimum:
+  // with `'center'` the list jumps on every keystroke and the eye loses its place.
   useEffect(() => {
     if (focada === null) return;
     const alvo = todos[focada];
@@ -339,16 +345,16 @@ export function ListaDeLeads({
       ?.scrollIntoView({ block: 'nearest' });
   }, [focada, todos]);
 
-  // Trocar de recorte, de busca ou de ordenação refaz a lista: um cursor
-  // apontando para a posição 12 da lista antiga não aponta para nada.
+  // Changing the slice, the search, or the sort rebuilds the list: a cursor
+  // pointing at position 12 of the old list points at nothing.
   useEffect(() => setFocada(null), [todos]);
 
   /**
-   * Marcar de um a outro com Shift, como em qualquer lista de arquivos.
+   * Mark from one row to another with Shift, like in any file list.
    *
-   * `ancora` é a última linha marcada sem Shift. Marcar quinze leads em
-   * sequência com quinze cliques é o tipo de trabalho que faz alguém desistir
-   * da ação em massa e fazer um por um na ficha.
+   * `ancora` is the last row marked without Shift. Marking fifteen leads in a row
+   * with fifteen clicks is the kind of work that makes someone give up on the
+   * bulk action and do them one by one in the record.
    */
   function alternar(id: string, indice: number, comShift: boolean) {
     setRecado(null);
@@ -357,7 +363,7 @@ export function ListaDeLeads({
       if (comShift && ancora !== null) {
         const de = Math.min(ancora, indice);
         const ate = Math.max(ancora, indice);
-        // O intervalo inteiro recebe o estado OPOSTO ao da linha clicada, que é
+        // The whole range gets the OPPOSITE state of the clicked row, which is
         // o que o Explorer e o Finder fazem: o clique manda, o resto acompanha.
         const ligar = !proximo.has(id);
         for (const l of todos.slice(de, ate + 1)) {
@@ -378,8 +384,10 @@ export function ListaDeLeads({
     setMarcados(todosMarcados ? new Set() : new Set(todos.map((l) => l.id)));
   }
 
-  /** Endereço desta mesma lista com um parâmetro trocado. `comFiltros` só muda
-   *  quando a saída é justamente largar o filtro. */
+  /**
+   * This same list's address with one parameter swapped. `comFiltros` only
+   * changes when the whole point is dropping the filter.
+   */
   function endereco(extra: Record<string, string | null>, withFilters: SFilter = filters) {
     const p = new URLSearchParams({ aba });
     if (search) p.set('q', search);
@@ -388,7 +396,7 @@ export function ListaDeLeads({
       p.set('order', order);
       p.set('dir', direction);
     }
-    // O filtro acompanha: 'Limpar a busca' que apagasse o filtro junto mandaria
+    // The filter follows along: a "Clear search" that also erased the filter would send
     // a pessoa procurar o lead sumido no lugar errado.
     escreverFilters(p, withFilters);
     for (const [key, value] of Object.entries(extra)) {
@@ -399,10 +407,10 @@ export function ListaDeLeads({
   }
 
   /**
-   * Clicar no cabeçalho: a coluna que ainda não ordena entra no seu sentido
-   * natural, a que já ordena inverte, e a que já inverteu volta ao padrão da
-   * tela. Três cliques fecham o ciclo, e o terceiro é a única forma de desfazer
-   * sem mexer na barra de endereço.
+   * Clicking the header: a column that isn't sorting yet enters in its natural
+   * direction, one that's already sorting flips, and one that already flipped
+   * goes back to the screen's default. Three clicks close the cycle, and the
+   * third is the only way to undo without touching the address bar.
    */
   function sorting(key: string) {
     if (order !== key) return endereco({ order: key, dir: directionInitial(key) });
@@ -424,11 +432,11 @@ export function ListaDeLeads({
     });
   }
 
-  // O vazio tem QUATRO causas e quatro saídas, que o Twenty separa e nós não
-  // separávamos: a busca que não achou, o filtro que não casou, o recorte que
-  // não tem ninguém, e a base realmente vazia. Um texto só para os quatro manda
-  // a pessoa procurar o problema no lugar errado — e o filtro é o caso mais
-  // traiçoeiro, porque ele fica ativo entre visitas dentro da mesma visão.
+  // The empty state has FOUR causes and four exits, which Twenty separates and we didn't
+  // used to: the search that found nothing, the filter that matched nothing, the slice that
+  // has nobody in it, and a truly empty base. One text for all four sends
+  // the person looking for the problem in the wrong place — and the filter is the most
+  // treacherous case, because it stays active between visits within the same view.
   if (total === 0) {
     const filtrado = Object.keys(filters).length > 0;
     if (filtrado && !search) {
@@ -490,9 +498,11 @@ export function ListaDeLeads({
         </p>
       ) : null}
 
-      {/* Encostado à direita, logo acima da tabela que ele governa. O Twenty
-          põe o mesmo controle no fim da barra de visão, pela mesma razão: é
-          ajuste, não filtro, e ajuste não disputa espaço com a busca. */}
+      {/*
+ * Pinned to the right, right above the table it governs. Twenty puts the same
+ * control at the end of the view bar, for the same reason: it's an adjustment,
+ * not a filter, and an adjustment doesn't compete for space with search.
+ */}
       <div className="barra-lista">
         <ControleDeColunas
           rotulos={ROTULOS}
@@ -513,8 +523,10 @@ export function ListaDeLeads({
             {colunas.map((c) => (
               <col key={c.key} style={{ width: `${larguras.largura(c.key)}px` }} />
             ))}
-            {/* Coluna de sobra. Sem ela o navegador estica as outras para
-                preencher a tela larga, e a largura arrastada deixa de valer. */}
+            {/*
+ * Spare column. Without it the browser stretches the others to fill a wide
+ * screen, and the dragged width stops holding.
+ */}
             <col />
           </colgroup>
 
@@ -593,11 +605,10 @@ export function ListaDeLeads({
                 >
                   <td className="sel">
                     {/*
-                      A marcação vem do `click`, não do `change`: só o clique
-                      carrega o `shiftKey`, e é ele que dá o intervalo. A barra
-                      de espaço no teclado também dispara `click`, com Shift
-                      falso, então o caminho do teclado continua inteiro.
-                    */}
+ * The mark comes from `click`, not `change`: only the click carries
+ * `shiftKey`, and that's what gives the range. The spacebar on the keyboard
+ * also fires `click`, with Shift false, so the keyboard path stays whole.
+ */}
                     <input
                       type="checkbox"
                       checked={marcados.has(l.id)}
@@ -641,13 +652,13 @@ export function ListaDeLeads({
 }
 
 /**
- * A barra de ação em massa. Existe só quando há seleção, e some quando a
- * seleção some: é a regra de "item que não funciona não aparece" aplicada a uma
- * barra inteira em vez de a um botão.
+ * The bulk-action bar. It only exists when there's a selection, and disappears
+ * when the selection does: it's the "an item that doesn't work doesn't appear"
+ * rule applied to a whole bar instead of one button.
  *
- * Fica presa embaixo e centrada, longe da tabela que a pessoa está lendo e
- * perto do polegar de quem usa laptop. Desqualificar pede confirmação porque
- * escreve num campo de estado terminal e não tem desfazer.
+ * It stays pinned at the bottom and centered, away from the table the person is
+ * reading and close to the thumb on a laptop. Disqualifying asks for
+ * confirmation because it writes to a terminal-state field with no undo.
  */
 function BarraInBulk({
   quantos,
@@ -687,8 +698,10 @@ function BarraInBulk({
               </option>
             ))}
           </select>
-          {/* O botão só existe depois que alguém foi escolhido. Botão apagado
-              esperando um seletor é a forma mais comum de item morto. */}
+          {/*
+ * The button only exists once someone has been picked. A grayed-out button
+ * waiting for a selector is the most common shape of a dead item.
+ */}
           {dono ? (
             <button
               type="button"

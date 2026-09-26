@@ -10,9 +10,7 @@ import {
 import type { LinhaConversation, LinhaMessage } from '../src/translation.js';
 
 /**
- * A tradução é a parte da ponte que erra em silêncio: um campo com nome trocado não
- * quebra nada, só faz a tela mostrar o dado errado do cliente. Por isso cada
- * mapeamento tem teste.
+ * Bridge translation can fail silently: a wrong field name does not crash, but can show incorrect client data. Test every mapping for that reason.
  */
 
 function conversation(sobre: Partial<LinhaConversation> = {}): LinhaConversation {
@@ -122,7 +120,7 @@ describe('message -> document', () => {
     const doBot = { ...base, direcao: 'saida', autor_tipo: 'bot' };
     expect(asDocument(ofAgent)!['messageEmitter']).toBe('Human');
     expect(asDocument(doBot)!['messageEmitter']).toBe('Bot');
-    // Recebida não carrega emissor: com ele, a tela rotulava o cliente como robô.
+    // An inbound message has no emitter; including one made the screen label the client as a bot.
     expect(asDocument(base)!['messageEmitter']).toBeUndefined();
   });
 });
@@ -134,7 +132,7 @@ describe('agent account', () => {
       ['Suporte'],
     );
     expect(account['status']).toBe('Online');
-    // Sem papel de administrador, a barra lateral não mostra os itens de gestão.
+    // Without an admin role, the sidebar hides management items.
     expect(account['isOwner']).toBe(false);
     const admin = asAccount(
       { id: 'u1', nome: 'Ana', email: 'ana@demo.pipe.app', state: 'online', ehAdministrador: true },

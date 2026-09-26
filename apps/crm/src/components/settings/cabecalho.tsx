@@ -2,19 +2,19 @@ import Link from 'next/link';
 import { Icone } from '@pipe/ui';
 
 /**
- * O índice da área de configurações, e o cabeçalho que toda seção usa.
+ * The settings area's index, and the header every section uses.
  *
- * **Por que existe um índice e não só a lateral.** A lateral de configuração é
- * montada em `componentes/estrutura-crm.tsx`, que pertence a outra frente de
- * trabalho neste momento. Enquanto as seções novas não entram naquela lista, o
- * índice em `/configuracoes` é o que as torna alcançáveis — e continua útil
- * depois, porque ele descreve o que cada seção faz, coisa que um item de menu de
- * 28px não consegue.
+ * **Why there's an index and not just the sidebar.** The settings sidebar is
+ * assembled in `componentes/estrutura-crm.tsx`, which belongs to another
+ * workstream right now. While the new sections aren't in that list yet, the
+ * index at `/configuracoes` is what makes them reachable — and it stays useful
+ * afterward too, because it describes what each section does, something a 28px
+ * menu item can't.
  *
- * Os grupos são os do Twenty, medidos em `useSettingsNavigationItems`: o que é
- * da PESSOA em cima, o que é do ESPAÇO no meio, o que é de desenvolvedor por
- * último. A diferença é o grupo do CRM, que lá não existe porque lá o CRM é o
- * produto inteiro.
+ * The groups are Twenty's, measured in `useSettingsNavigationItems`: what
+ * belongs to the PERSON on top, what belongs to the WORKSPACE in the middle,
+ * what belongs to developers last. The difference is the CRM group, which
+ * doesn't exist there because there the CRM is the whole product.
  */
 
 export type Section = {
@@ -87,19 +87,20 @@ export const GROUPS: readonly { rotulo: string; sections: readonly Section[] }[]
 ];
 
 /**
- * Cabeçalho de seção: o caminho de volta, o título e uma linha do que a tela faz.
+ * Section header: the way back, the title, and one line about what the screen
+ * does.
  *
- * O caminho de volta vem primeiro na ordem do DOM, e não flutuando ao lado do
- * título, porque é o primeiro alvo do `Tab` — quem entrou na seção errada sai
- * dela sem atravessar o formulário inteiro.
+ * The way back comes first in DOM order, not floating next to the title,
+ * because it's the first `Tab` target — whoever entered the wrong section
+ * leaves it without crossing the whole form.
  */
 /**
- * Um bloco dentro da seção: título, uma linha de explicação, conteúdo.
+ * A block inside the section: title, one line of explanation, content.
  *
- * É a `Section` + `H2Title` do Twenty, medida no fork: título, descrição em
- * cinza e 32px até o bloco seguinte. O `aria-labelledby` liga o `<section>` ao
- * próprio título, que é o que faz a navegação por regiões do leitor de tela
- * listar "Foto e nome" em vez de "seção".
+ * It's Twenty's `Section` + `H2Title`, measured in the fork: title, gray
+ * description, and 32px to the next block. `aria-labelledby` links the
+ * `<section>` to its own title, which is what makes region navigation in a
+ * screen reader list "Photo and name" instead of "section".
  */
 export function Block({
   titulo,

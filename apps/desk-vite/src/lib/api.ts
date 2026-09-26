@@ -1,25 +1,16 @@
 /**
- * O cliente HTTP da Gestão: `fetch` para a `api` NestJS, sempre com o cookie.
- *
- * É a fronteira do README ("Quem fala com o banco"): o front não abre conexão,
- * ele PEDE. Toda chamada vai para `/v1/...` na mesma origem — em
- * desenvolvimento o Vite faz o proxy para a `api` (3010); em produção os dois
- * vivem sob o mesmo domínio-pai e o cookie atravessa por `Domain`.
- *
- * O que sai daqui é o tipo de `@pipe/contracts` ou o tipo declarado pelo
- * endpoint da `api`. Nada é reimplementado; nada é adivinhado.
+ * Desk HTTP client for the NestJS `api`: browser `fetch` sends the session cookie. The front end requests data; it does not connect to the database (README's "Quem fala com o banco" boundary). Calls use `/v1/...` through `VITE_URL_API` when configured, otherwise the current origin; Vite proxies development requests to `api`; in production the front and API share a parent domain and the cookie crosses via `Domain`. Return types come from `@pipe/contracts` or the endpoint contract rather than being guessed here.
  */
 
 const BASE = (import.meta.env['VITE_URL_API'] as string | undefined)?.replace(/\/$/, '') ?? '';
 
-/** URL absoluta de um caminho da `api` — para navegação de topo (login) e para o `fetch`. */
+/** Build an `api` URL from the configured base, or a same-origin path when no base is configured, for top-level login navigation and `fetch`. */
 export function urlDaApi(caminho: string): string {
   return `${BASE}${caminho}`;
 }
 
 /**
- * Uma resposta que a API deu e que não é sucesso. Diferente de rede fora do ar:
- * 401/403 dizem que a sessão acabou de verdade; `TypeError` do fetch não diz nada.
+ * A non-successful API response differs from a network outage: server 401/403 can prove the session ended, while a `fetch` `TypeError` cannot.
  */
 export class ApiError extends Error {
   constructor(
@@ -48,7 +39,7 @@ export async function pedir<T>(caminho: string, init: RequestInit = {}): Promise
     try {
       corpo = await resposta.json();
     } catch {
-      /* corpo vazio ou não-JSON: o status já diz o bastante */
+      /* An empty or non-JSON body is acceptable here; the status already identifies the failure. */
     }
     const message =
       corpo && typeof corpo === 'object' && 'mensagem' in corpo
@@ -81,14 +72,13 @@ export const api = {
 };
 
 /**
- * Uma chamada à `api` no formato cru do `fetch` — para quem precisa ler o
- * `Response` (status, corpo em texto, CSV). O cookie vai sozinho.
+ * Raw `fetch`-style `api` call for callers that need the `Response` status, text body, or CSV. The browser includes the cookie.
  */
 export function chamarApi(caminho: string, init: RequestInit = {}): Promise<Response> {
   return fetch(urlDaApi(caminho), { ...init, credentials: 'include' });
 }
 
-/** O `erro.mensagem` que a `api` põe no corpo, ou o status. */
+
 export async function motivoDaFalha(resposta: Response): Promise<string> {
   try {
     const corpo = (await resposta.json()) as { error?: { message?: string } };

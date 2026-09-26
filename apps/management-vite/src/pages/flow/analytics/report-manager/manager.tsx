@@ -2,7 +2,7 @@ import { useContact } from '../../contact';
 import { ReportsManager } from './tela';
 import './manager.css';
 
-/** `auth.application.detail.analytics.reportManager` — o "hoje" é o do fuso da conta. */
+/** `auth.application.detail.analytics.reportManager` — "today" is in the account's timezone. */
 export function ManagerPage() {
   const { contact, fuso } = useContact();
   const hoje = new Intl.DateTimeFormat('en-CA', { timeZone: fuso }).format(new Date());

@@ -3,7 +3,7 @@ import type { ConfigurationOfMenuPersistent } from '@pipe/contracts';
 import { BotaoBds, BotaoDeIcone, PageHeader, CampoBds, Role } from '../pecas';
 import { salvarMenuPersistente } from './gravar';
 
-/** `Você poderá adicionar até 3 itens que disparam um comando.` (LEIA.md, Rodada 2, captura 6). */
+/** `Você poderá adicionar até 3 itens que disparam um comando.` (LEIA.md, Round 2, capture 6). */
 const MAXIMO_DE_ITENS = 3;
 
 interface ItemDoMenu {
@@ -23,17 +23,9 @@ function itensInitials(inicial: ConfigurationOfMenuPersistent): ItemDoMenu[] {
 }
 
 /**
- * `/configurations/persistentMenu` (LEIA.md, Rodada 2, captura 6): 3 linhas em
- * acordeão (ícone "+" fechado), cada uma com **Texto** e **Link**; o Salvar
- * chega `disabled` na origem porque este roteador não está conectado ao
- * Messenger — é essa condição real que `canalCompativel` verifica, não um
- * estado inventado.
+ * `/configurations/persistentMenu` (LEIA.md, Round 2, capture 6): 3 accordion rows (closed "+" icon), each with **Texto** and **Link**; the Salvar button arrives `disabled` in the source because this router isn't connected to Messenger — that's the real condition `canalCompativel` checks, not an invented state.
  *
- * O segundo bloqueio da origem ("Antes de salvar... preencher a tela de
- * boas-vindas") agora é real: `boasVindasPreenchida` vem de
- * `GET /v1/gestao/fluxos/:id/menu-persistente`, e a `api` recusa o PATCH do
- * mesmo jeito se as duas condições não valerem — a tela só reflete o mesmo
- * motivo com antecedência.
+ * The source's second block ("Antes de salvar... preencher a tela de boas-vindas") is now real: `boasVindasPreenchida` comes from `GET /v1/gestao/fluxos/:id/menu-persistente`, and the `api` refuses the PATCH the same way if both conditions don't hold — the screen just reflects the same reason ahead of time.
  */
 export function TelaDeMenuPersistente({
   id,

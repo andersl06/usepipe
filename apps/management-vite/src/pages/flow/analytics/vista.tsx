@@ -4,11 +4,7 @@ import type { ReactNode } from 'react';
 import type { Aba } from './abas';
 
 /**
- * `#analytics-tabs-view`: a `bds-tabs` e o painel da aba aberta.
- *
- * É cliente só por um motivo — saber qual aba está aberta. Na origem é o
- * `tabData[aba].active` que `initilizeTabs()` tira de `$state.current.url`;
- * aqui é o caminho. O layout não enxerga o caminho, por isso a peça é esta.
+ * `#analytics-tabs-view`: the `bds-tabs` and the open tab's panel. It's client-side for just one reason — knowing which tab is open. In the origin it's `tabData[aba].active`, which `initilizeTabs()` derives from `$state.current.url`; here it's the path. The layout can't see the path, which is why this piece exists.
  */
 export function AnalyticsVista({
   base,
@@ -28,9 +24,9 @@ export function AnalyticsVista({
 
   return (
     <div id="analytics-tabs-view" className="an-vista">
-      {/* `bds-tabs` renderiza: botão ← num contêiner de 40px, o cabeçalho com as
-          abas, botão → noutro de 40px. Os dois botões só aparecem quando as
-          abas não cabem (`handleHeaderResize`); os contêineres ficam sempre. */}
+      {/*
+ * `bds-tabs` renders: a ← button in a 40px container, the header with the tabs, a → button in another 40px container. Both buttons only appear when the tabs don't fit (`handleHeaderResize`); the containers always stay.
+ */}
       <nav className="an-abas" aria-label="Abas da análise">
         <div className="an-abas-seta" />
         <div className="an-abas-cabeca">
@@ -56,8 +52,9 @@ export function AnalyticsVista({
         <div className="an-abas-seta" />
       </nav>
 
-      {/* `.tabs-content bds-tab-panel:not(#dashboardContent) { padding: 50px 0 0 }` —
-          o Dashboard é o único painel sem o recuo que desvia da fileira fixa. */}
+      {/*
+ * `.tabs-content bds-tab-panel:not(#dashboardContent) { padding: 50px 0 0 }` — the Dashboard is the only panel without the padding that clears the fixed row.
+ */}
       <div
         className={aberta?.key === 'dashboard' ? 'an-painel an-painel--dashboard' : 'an-painel'}
       >

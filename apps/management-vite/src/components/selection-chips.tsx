@@ -3,7 +3,7 @@ import './selection-chips.css';
 
 type Option = { id: string; nome: string };
 
-/** Geometria do bds-select-chips e chip-clickable da referência do Atendimento. */
+/** Match the geometry of reference Attendance `bds-select-chips` and `chip-clickable`. */
 export function SelectionChips({
   name,
   rotulo,

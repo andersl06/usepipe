@@ -1,31 +1,16 @@
 /**
- * As PALAVRAS da tela "criar fluxo" — e só elas.
- *
- * A mecânica do nome (tamanho, saneamento, `shortName`, tipos de imagem) mora
- * em `../regras-de-nome.ts`, compartilhada com a tela de criar roteador: na
- * origem as duas usam o MESMO template do passo do nome (módulo 96904), e o que
- * muda entre elas são três `ng-if="$ctrl.template != 'master'"` trocando
- * rótulo. Conferido: o `required`, o `ng-minlength="2"`, o `ng-maxlength="30"`,
- * o `accept` do arquivo e o `/(^[a-zA-Z])/` do servidor valem igual.
- *
- * Os rótulos são do arquivo de tradução deles (chave `createApplication`, bloco
- * `pt-BR`), copiados palavra por palavra. Aqui não houve NENHUMA troca: as
- * frases da origem já falam de "fluxo", porque esta é a tela para a qual elas
- * foram escritas — é a do roteador que reescreve as compartilhadas.
+ * The WORDS for the "criar fluxo" screen — and only them. The name mechanics (length, sanitization, `shortName`, image types) live in `../regras-de-nome.ts`, shared with the create-router screen: in the source both use the SAME name-step template (module 96904), and what changes between them are three `ng-if="$ctrl.template != 'master'"` swapping a label. Checked: `required`, `ng-minlength="2"`, `ng-maxlength="30"`, the file's `accept`, and the server's `/(^[a-zA-Z])/` all hold equally. The labels come from their translation file (key `createApplication`, `pt-BR` block), copied word for word. There was NO change here: the source's sentences already talk about "fluxo", because this is the screen they were written for — it's the router's screen that rewrites the shared ones.
  */
 
 import { TAMANHO } from '../regras-de-nome';
 
 /**
- * `selectTemplate('blip_deskCustomerService')` — o único template que o
- * marketplace oferece hoje (o outro cartão é "Construir do zero", sem
- * template). Confirmado na captura de 17/09/2026
- * (`referencias-blip/builder/criar-fluxo/`): `/application/create/name/{isto}`.
+ * `selectTemplate('blip_deskCustomerService')` — the only template the marketplace offers today (the other card is "Construir do zero", with no template). Confirmed in the 09/17/2026 capture (`referencias-blip/builder/criar-fluxo/`): `/application/create/name/{isto}`.
  */
 export const TEMPLATE_PADRAO = 'blip_deskCustomerService';
 
 export const ROTULOS = {
-  /** `createApplication.tagline` — serve de sobretítulo E de botão de envio. */
+  /** `createApplication.tagline` — serves as both subtitle and submit button text. */
   tagline: 'Criar fluxo',
 
   /* ------------------------------------------- o passo do marketplace */
@@ -45,25 +30,19 @@ export const ROTULOS = {
   doZeroDescricao:
     'Construa um fluxo desde o início e faça todas as configurações manualmente. Recomendado para quem já tem experiência com o Pipe.',
 
-  /* --------------------------------------- o passo de apresentação do template
-     `auth.application.create.test` — `#create-application-test-step`. Só existe
-     para quem clicou "Usar template"; "Construir do zero" pula direto para o
-     passo do nome. */
+  /*
+   * --------------------------------------- the template presentation step `auth.application.create.test` — `#create-application-test-step`. Only exists for whoever clicked "Usar template"; "Construir do zero" skips straight to the name step.
+   */
 
   /** `createApplication.test.subtitle` */
   apresentacaoSubtitulo: 'Modelo de fluxo pré-configurado',
   /**
-   * `createApplication.test.description` — mais longa que a do cartão do
-   * marketplace (`usarTemplateDescricao`); só aparece nesta tela.
+   * `createApplication.test.description` — longer than the marketplace card's (`usarTemplateDescricao`); only appears on this screen.
    */
   apresentacaoDescricao:
     'Ótimo ponto de partida para construir o seu contato inteligente profissional. Funcionalidades pré-configuradas e atendimento humano para você começar a usar e poupar tempo no desenvolvimento.',
   /**
-   * As quatro linhas da lista de funcionalidades do `blip_deskCustomerService`,
-   * na ordem capturada. É o que o modelo promete pré-configurar — não o que
-   * esta tela aplica: `MarketplaceTemplatesService.processTemplate` (horário de
-   * atendimento, transbordo, avaliação, atendentes disponíveis) não existe do
-   * nosso lado. Ver TODO em `acoes.ts`.
+   * The four lines of the `blip_deskCustomerService` feature list, in the captured order. This is what the model promises to pre-configure — not what this screen applies: `MarketplaceTemplatesService.processTemplate` (business hours, handoff, evaluation, agent availability) doesn't exist on our side. See the TODO in `acoes.ts`.
    */
   funcionalidades: [
     'Verificação do horário de atendimento',
@@ -77,22 +56,16 @@ export const ROTULOS = {
   /* ------------------------------------------------ o passo do nome */
 
   /**
-   * `createApplication.name.titleScratch`.
-   *
-   * Repare que NÃO é "Dê um nome ao SEU fluxo": o `getProvideANameText` cai no
-   * `default` para `builder` e essa chave é escrita sem o possessivo. A do
-   * roteador (`titleRouter`) tem o "seu". Copiamos as duas como estão.
+   * `createApplication.name.titleScratch`. Note it's NOT "Dê um nome ao SEU fluxo": `getProvideANameText` falls back to `default` for `builder`, and that key is written without the possessive. The router's (`titleRouter`) has the "seu". We copied both as they are.
    */
   tituloDoNome: 'Dê um nome ao fluxo',
   /**
-   * `createApplication.name.titleTemplate` — só para quem veio do
-   * `blip_deskCustomerService` (o "Usar template"); `tituloDoNome` continua
-   * valendo para "Construir do zero".
+   * `createApplication.name.titleTemplate` — only for whoever came from `blip_deskCustomerService` ("Usar template"); `tituloDoNome` still applies to "Construir do zero".
    */
   tituloDoNomeComTemplate: 'Dê um nome ao fluxo pré-configurado',
   /** `createApplication.name.name` */
   rotuloDoNome: 'Nome do fluxo',
-  /** `modules.ui.uploadButton.title` — o rótulo dentro do círculo tracejado. */
+  /** `modules.ui.uploadButton.title` — the label inside the dashed circle. */
   definirImage: 'Definir imagem',
   /** `createApplication.name.back` */
   voltar: 'Voltar',
@@ -100,24 +73,18 @@ export const ROTULOS = {
 
 /** `createApplication.errorMsg.*`, um por um — aqui sem nenhuma reescrita. */
 export const RECADOS = {
-  /** `errorMsg.title` — o título do aviso vermelho deles. */
+  /** `errorMsg.title` — the title of their red warning. */
   titulo: 'Ops... algo estranho aconteceu...',
   /**
-   * `errorMsg.invalidName`.
-   *
-   * Na origem esta frase NUNCA aparece: `validateApplicationName` lança com
-   * passo `DataValidation`, e o controlador traduz `DataValidation` para
-   * `errorMsg.2` ("Este nome não é válido."), que não diz o que fazer. Usamos a
-   * frase que explica a regra; a vaga fica sem uso, como lá.
+   * `errorMsg.invalidName`. In the source this phrase NEVER appears: `validateApplicationName` throws with the `DataValidation` step, and the controller translates `DataValidation` to `errorMsg.2` ("Este nome não é válido."), which doesn't say what to do. We use the phrase that explains the rule; the slot goes unused, as it does there.
    */
   comecoInvalido: 'O nome de seu fluxo não pode começar com números ou caracteres especiais.',
   /** Derivado de `ng-minlength="2"` / `ng-maxlength="30"`. */
   tamanho: `O nome do fluxo precisa ter entre ${TAMANHO.nomeMin} e ${TAMANHO.nomeMax} caracteres.`,
   /**
-   * `errorMsg.1` — "Experimente usar outro nome" é literal, e é a pista de que
-   * o nome é único: o `shortName` sai dele, e dois iguais colidem no serviço.
+   * `errorMsg.1` — "Experimente usar outro nome" is literal, and it's the clue that the name is unique: the `shortName` comes from it, and two matching ones collide in the service.
    */
   nomeEmUso: 'Houve um erro na criação do seu fluxo. Experimente usar outro nome.',
-  /** Nossa, sem correspondente: lá a permissão some o botão antes de chegar aqui. */
+  /** Ours, with no counterpart: there the permission hides the button before it gets here. */
   withoutPermission: 'Você não tem permissão para criar fluxos nesta conta.',
 } as const;

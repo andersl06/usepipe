@@ -1,16 +1,7 @@
 import { NIVEIS_ATRIBUIVEIS, ROTULOS_PRIORITY, type NivelPriority } from '@pipe/core/conversation';
 
 /**
- * As regras de priorização como a seção "Regras de Priorização" da página de
- * edição de fila precisa delas (`FICHA-atendentes-filas-pausas.md` §a.3).
- *
- * A rota `GET /v1/gestao/regras/prioridade` devolve as regras do tenant
- * INTEIRO — `regra_prioridade` tem `escopo_tipo` (`tenant`|`fila`) e
- * `escopo_id`. A seção da fila mostra as do escopo `fila` cujo `escopoId` é
- * esta fila; as de escopo `tenant` valem para todas e não são desta seção.
- *
- * Módulo PURO (sem `./api`, sem JSX): é o que deixa
- * `tests/regras-prioridade.test.ts` rodar com `node --test` + `tsx`.
+ * Priority rules supply the queue-edit section from `FICHA-atendentes-filas-pausas.md` Section a.3. `GET /v1/gestao/regras/prioridade` returns the whole tenant: `regra_prioridade` has `escopo_tipo` (`tenant` or `fila`) and `escopo_id`. Show only rules with `fila` scope and this queue's `escopoId`; tenant rules apply here too but are not edited in this section. Keep this pure (no `./api` or JSX) so `tests/regras-prioridade.test.ts` runs with `node --test` and `tsx`.
  */
 
 export interface PriorityRule {
@@ -25,12 +16,12 @@ export interface PriorityRule {
 
 export { NIVEIS_ATRIBUIVEIS };
 
-/** O degrau em português — `ROTULOS_PRIORIDADE` do core, sem mapa paralelo. */
+/** Use core `ROTULOS_PRIORIDADE` for Portuguese priority labels instead of a parallel map. */
 export function rotuloDoNivel(nivel: string): string {
   return ROTULOS_PRIORITY[nivel as NivelPriority] ?? nivel;
 }
 
-/** Só as regras desta fila, na ordem em que a API já as devolve (por nome). */
+/** Keep rules for this queue in the API's existing name order. */
 export function queueRules(
   regras: readonly PriorityRule[],
   queueId: string,
@@ -38,7 +29,7 @@ export function queueRules(
   return regras.filter((r) => r.scopeType === 'fila' && r.scopeId === queueId);
 }
 
-/** As do tenant — valem para esta fila também, mas não se editam aqui. */
+/** Tenant-scoped rules apply to this queue too but cannot be edited here. */
 export function regrasDoTenant(regras: readonly PriorityRule[]): PriorityRule[] {
   return regras.filter((r) => r.scopeType === 'tenant');
 }

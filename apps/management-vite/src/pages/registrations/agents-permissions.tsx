@@ -12,20 +12,11 @@ import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
 
 /**
- * `/team/permission` da origem — PÁGINA PRÓPRIA, não modal
- * (`FICHA-atendentes-filas-pausas.md` §a.1/§a.4: "a parte de permissões
- * também [abre página]", cobrança literal do dono).
+ * The source's `/team/permission` — its OWN PAGE, not a modal (`FICHA-atendentes-filas-pausas.md` §a.1/§a.4: "the permissions part also [opens a page]", a literal owner requirement).
  *
- * Forma literal: título "Permissões", a descrição de `descricaoDasPermissoes`
- * nas três variantes, a seção "Permissões disponíveis" com a tabela de duas
- * colunas — "Tipo de permissão" / "Status" — e "Salvar alterações".
+ * Literal form: title "Permissões", the `descricaoDasPermissoes` copy in its three variants, the "Permissões disponíveis" section with the two-column table — "Tipo de permissão" / "Status" — and "Salvar alterações".
  *
- * **O conteúdo das linhas é nosso.** A origem lista dez capacidades do Blip
- * Desk; aqui é o catálogo de permissões do Pipe
- * (`apps/api/src/dominio/gestao/permissoes-do-atendente.ts`), que é o que as
- * rotas de verdade conferem. `usuario_permissao` (migração 0046) é a exceção
- * por pessoa sobre o papel — ver o comentário daquele arquivo para a conta
- * completa.
+ * **The row content is ours.** The source lists ten Blip Desk capabilities; here it's Pipe's permission catalog (`apps/api/src/dominio/gestao/permissoes-do-atendente.ts`), which is what the actual routes check. `usuario_permissao` (migration 0046) is the per-person exception over the role — see that file's comment for the full account.
  */
 export function AgentPagePermissions() {
   const [params] = useSearchParams();

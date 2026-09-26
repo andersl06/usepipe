@@ -11,16 +11,9 @@ import { ActionsPanel } from './panel-actions';
 import { OutputsPanel } from './panel-outputs';
 
 /**
- * A barra lateral do bloco — o `sidebar-content-component.builder-sidebar`
- * deles: colada à direita a 1rem, com raio de 1rem e altura `calc(100% -
- * 2rem)`, 28.75rem de largura. No topo, o título do bloco num campo de texto
- * (`#builder-sidebar-title`, `maxlength="50"`, placeholder "Nome do bloco",
- * só leitura no bloco de Início) e o "x"; um fio; e o `bds-tab-group` com as
- * três abas: "Conteúdo" (no bloco de atendimento, "Atendimento"),
- * "Condições de saída" e "Ações".
+ * The block's sidebar — their `sidebar-content-component.builder-sidebar`: docked to the right at 1rem, with a 1rem radius and `calc(100% - 2rem)` height, 28.75rem wide. At the top, the block's title in a text field (`#builder-sidebar-title`, `maxlength="50"`, placeholder "Nome do bloco", read-only on the Início block) and the "x"; a divider; and the `bds-tab-group` with the three tabs: "Conteúdo" (on the attendance block, "Atendimento"), "Condições de saída", and "Ações".
  *
- * Tudo o que se edita aqui vira `onMudar(bloco)` — o bloco inteiro, novo —
- * e é o `aplicar` do redutor, um passo de desfazer por gesto.
+ * Everything edited here becomes `onMudar(bloco)` — the whole, new block — and it's the reducer's `aplicar`, one undo step per gesture.
  */
 
 type Aba = 'conteudo' | 'acoes' | 'saidas';
@@ -60,7 +53,7 @@ export function BlockPanel({
 }: {
   block: Block;
   mapa: Mapa;
-  /** Os erros do bloco (da tela e do motor), para a faixa do topo. */
+  /** The block's errors (from the screen and the engine), for the top banner. */
   errors: string[];
   onMudar: (block: Block) => void;
   onFechar: () => void;

@@ -9,13 +9,7 @@ import {
 } from '@pipe/core/analytics';
 
 /**
- * O miolo de Mensagens ativas — a coluna de cartões e gráficos do `Lx`
- * (analytics-main.js 56300). Recebe o dado pronto por prop: é o que deixa a
- * mesma marcação desenhar o vazio e o preenchido.
- *
- * A origem desenha os gráficos com chart.js + chartjs-plugin-datalabels. Aqui
- * não entra biblioteca: é CSS e um SVG de linha, com os padrões do chart.js que
- * aparecem na tela (tique 12px, linha de 3px, grade a 10%).
+ * The Active Messages body — the column of cards and charts from `Lx` (analytics-main.js 56300). Receives the data ready via prop: that's what lets the same markup render both the empty and the filled states. The origin draws the charts with chart.js + chartjs-plugin-datalabels. No library is used here: it's CSS and a line SVG, with the chart.js defaults that show on screen (12px ticks, 3px line, 10% grid).
  */
 export function ActiveMessagesMiolo({
   data,
@@ -24,8 +18,9 @@ export function ActiveMessagesMiolo({
   data: ActiveMessagesData;
   intervalo: Intervalo;
 }) {
-  /* `ne()`: a soma das linhas de `/active-messages/status` (`read` é
-     `consumed`, `replied` é `response`). */
+  /*
+   * `ne()`: the sum of the `/active-messages/status` rows (`read` is `consumed`, `replied` is `response`).
+   */
   const t = data.status.reduce(
     (s, d) => ({
       enviadas: s.enviadas + d.enviadas,
@@ -81,7 +76,7 @@ function Dica({ texto }: { texto: string }) {
 
 /* ------------------------------------------------------------- `Mt` e `Ft` */
 
-/** `Ct`: rótulo e dica de cada contagem. */
+/** `Ct`: label and tooltip for each count. */
 const CONTAGENS = {
   enviadas: ['Enviadas', 'Todas as mensagens enviadas à audiência'],
   recebidas: ['Recebidas', 'Todas as mensagens entregues com sucesso'],
@@ -91,7 +86,7 @@ const CONTAGENS = {
 } as const;
 
 function Numeros({ t }: { t: Totals }) {
-  /* `Ft`: ícone, fundo, número cru (a origem não formata aqui) e rótulo. */
+  /* `Ft`: icon, background, raw number (the origin doesn't format here), and label. */
   const card = (
     key: 'recebidas' | 'lidas' | 'respondidas' | 'falhas',
     icone: NomeDeIconePortal,
@@ -144,7 +139,7 @@ function Numeros({ t }: { t: Totals }) {
 /* ------------------------------------------------------------------ `fc` */
 
 function Funil({ t }: { t: Totals }) {
-  /* `D()`: tudo em porcentagem das enviadas; sem envio, tudo zero. */
+  /* `D()`: everything as a percentage of sent; with no sends, everything is zero. */
   const pct = (v: number) => (t.enviadas === 0 ? 0 : Math.round((v / t.enviadas) * 100));
   const barras = [
     ['Enviadas', t.enviadas === 0 ? 0 : 100, 'ma-fundo-enviadas'],
@@ -209,7 +204,7 @@ const SERIES = [
 ] as const;
 
 function Conversions({ data, intervalo }: { data: ActiveMessagesData; intervalo: Intervalo }) {
-  /* `b()`: um ponto por dia do período, zero onde não houve envio. */
+  /* `b()`: one point per day in the period, zero where nothing was sent. */
   const byDia = new Map(data.status.map((s) => [s.dia, s]));
   const dias = diasDoIntervalo(intervalo).map((d) => ({
     dia: d,
@@ -218,9 +213,9 @@ function Conversions({ data, intervalo }: { data: ActiveMessagesData; intervalo:
     falhas: byDia.get(d)?.falhas ?? 0,
   }));
 
-  /* `bds-paper style={{ flex: 1 }}` › `bds-paper` › `bds-grid gap="2" padding="2"`:
-     o papel dentro do papel é deles, e a sombra sai dobrada. O título e a
-     descrição pedem `lineHeight="none"`, que não pega (ver `.ma-taxa-titulo`). */
+  /*
+   * `bds-paper style={{ flex: 1 }}` › `bds-paper` › `bds-grid gap="2" padding="2"`: the paper-inside-paper is theirs, and the shadow doubles up. The title and description ask for `lineHeight="none"`, which doesn't take (see `.ma-taxa-titulo`).
+   */
   return (
     <div className="ma-papel ma-flex1">
       <div className="ma-papel ma-conversoes">
@@ -250,7 +245,7 @@ function Conversions({ data, intervalo }: { data: ActiveMessagesData; intervalo:
   );
 }
 
-/** `f()` + as `options` de um dia só: três barras, sem eixo nem grade. */
+/** `f()` + the single-day `options`: three bars, no axis or grid. */
 function BarrasDoDia({ dia }: { dia?: { enviadas: number; respondidas: number; falhas: number } }) {
   const values = SERIES.map(([key]) => dia?.[key] ?? 0);
   const { topo } = escala(Math.max(...values));
@@ -272,8 +267,7 @@ function BarrasDoDia({ dia }: { dia?: { enviadas: number; respondidas: number; f
 }
 
 /**
- * `m()` + as `options` de período: três linhas, cada uma na PRÓPRIA escala
- * (`y`, `y1`, `y2`, as duas últimas escondidas) e só a de enviadas com eixo.
+ * `m()` + the period `options`: three lines, each on its OWN scale (`y`, `y1`, `y2`, the last two hidden), and only the "sent" line has an axis.
  */
 function Linhas({
   dias,
@@ -282,7 +276,7 @@ function Linhas({
 }) {
   const { topo, tiques } = escala(Math.max(...dias.map((d) => d.enviadas)));
   const x = (i: number) => (dias.length > 1 ? (i / (dias.length - 1)) * 100 : 50);
-  /* O chart.js pula rótulo que não cabe (`autoSkip`); aqui, um a cada N. */
+  /* chart.js skips labels that don't fit (`autoSkip`); here, one every N. */
   const pulo = Math.ceil(dias.length / 12);
 
   return (
@@ -389,7 +383,7 @@ function Taxas({ t }: { t: Totals }) {
 /* ------------------------------------------------------------------ `_c` */
 
 function Picos({ horas }: { horas: number[] }) {
-  /* Zero é desenhado como 0,5 (a barra mínima) e o eixo vai a 50 no mínimo. */
+  /* Zero is drawn as 0.5 (the minimum bar) and the axis goes to at least 50. */
   const values = Array.from({ length: 24 }, (_, h) => horas[h] || 0.5);
   const { topo } = escala(Math.max(50, ...values));
 

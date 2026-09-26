@@ -9,8 +9,7 @@ import {
 } from '../src/lib/channels.ts';
 
 /**
- * O campo "Insira os e-mails separados por vírgula" (Configurações de alerta,
- * ficha §4) — ida e volta entre o texto do campo e a lista que a API espera.
+ * The "Insira os e-mails separados por vírgula" (Enter emails separated by commas) field (Configurações de alerta, ficha §4) — round-trip between the field's text and the list the API expects.
  */
 
 test('textToEmails splits by comma, trims spaces and lowercases', () => {

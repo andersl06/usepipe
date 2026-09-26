@@ -1,34 +1,34 @@
-/* ============================== a Análise do contato (`/fluxo/{id}/analise`)
-
-   Cópia de `auth.application.detail.analytics` do portal deles:
-
-     `portal.js` módulo 95760   o template `#analytics-tabs-view`;
-     `portal.css`               `#analytics-tabs-view`, `.tabs-header`,
-                                `.tabs-content`, `bds-tab-panel`;
-     `bds-tabs_entry_js` e      `.bds-tabs`, `.bds-tab` (o `style` do Stencil
-     `bds-tab_entry_js`         dentro do JS, sem shadow DOM).
-
-   Esta folha é da CASCA e das peças que mais de uma aba usa (o `page-header`, o
-   `card`, o seletor de período, o modal). O que é de uma aba só mora na folha
-   da pasta dela.
-
-   ═══ A TINTA É A NOSSA ═══
-
-     #ededed `--color-surface-2` (`#analytics-tabs-view`)  → `--ground`
-     #fff (`.tabs-header`)                                 → `--p-superficie-0`
-     rgba(0,4,10,.15) (sombra da fileira)                  → `--p-conteudo` a 15%
-     #595959 `--color-content-disable` (aba)               → `--ink-2`
-     #282828 `--color-content-default` (aba ativa, texto)  → `--ink`
-     #0096fa `--color-brand` (traço da aba ativa)          → `--p-marca`
-     #f6f6f6 `--color-surface-1` (`card`, modal)           → `--surface`
-     #e0e0e0 `--color-surface-2` (sombra do `card`)        → `--surface-2`
-     #738192 `.bp-c-rooftop`                               → `--ink-3`
-     #d2dfe6 (borda do seletor de período)                 → `--p-linha-media`
-     #e8f2ff / #3f7de8 (caixa e ícone do calendário)       → `--p-marca-suave` / `--p-marca`
-     #3f7de8 / #1f67e4 `.bp-btn--bot` (e hover)            → `--p-marca` / `--p-marca-forte`
-     #c9dfe4 `.bp-btn--bot:disabled`                       → `--p-linha-media`
-     rgba(0,0,0,.7) (fundo do modal)                       → `--p-conteudo` a 70%
-   ========================================================================== */
+/*
+ * ============================== the contact's Analysis (`/fluxo/{id}/analise`)
+ *
+ *   A copy of their portal's `auth.application.detail.analytics`:
+ *
+ *     `portal.js` module 95760   the `#analytics-tabs-view` template;
+ *     `portal.css`               `#analytics-tabs-view`, `.tabs-header`,
+ *                                `.tabs-content`, `bds-tab-panel`;
+ *     `bds-tabs_entry_js` and    `.bds-tabs`, `.bds-tab` (Stencil's `style`
+ *     `bds-tab_entry_js`         inside the JS, with no shadow DOM).
+ *
+ *   This sheet is the SHELL and the pieces more than one tab uses (the `page-header`, the `card`, the period selector, the modal). What belongs to a single tab lives in its own folder's sheet.
+ *
+ *   ═══ THE PAINT IS OURS ═══
+ *
+ *     #ededed `--color-surface-2` (`#analytics-tabs-view`)  → `--ground`
+ *     #fff (`.tabs-header`)                                 → `--p-superficie-0`
+ *     rgba(0,4,10,.15) (row shadow)                         → `--p-conteudo` at 15%
+ *     #595959 `--color-content-disable` (tab)                → `--ink-2`
+ *     #282828 `--color-content-default` (active tab, text)   → `--ink`
+ *     #0096fa `--color-brand` (active tab's rule)             → `--p-marca`
+ *     #f6f6f6 `--color-surface-1` (`card`, modal)             → `--surface`
+ *     #e0e0e0 `--color-surface-2` (`card` shadow)             → `--surface-2`
+ *     #738192 `.bp-c-rooftop`                                 → `--ink-3`
+ *     #d2dfe6 (period selector border)                        → `--p-linha-media`
+ *     #e8f2ff / #3f7de8 (calendar box and icon)               → `--p-marca-suave` / `--p-marca`
+ *     #3f7de8 / #1f67e4 `.bp-btn--bot` (and hover)             → `--p-marca` / `--p-marca-forte`
+ *     #c9dfe4 `.bp-btn--bot:disabled`                         → `--p-linha-media`
+ *     rgba(0,0,0,.7) (modal background)                       → `--p-conteudo` at 70%
+ *   ==========================================================================
+ */
 
 /* `#main-content-area`: `.pa0`, `position: relative`, `flex` — ocupa o resto. */
 .an-miolo {
@@ -44,18 +44,13 @@
   background: var(--ground);
 }
 
-/* ---------------------------------------------------- a fileira (`bds-tabs`)
-
-   `.bds-tabs`: `width: 100%`, `display: flex`, `z-index: 1100`, `box-sizing:
-   border-box`, `flex-shrink: 0`, `flex-direction: row`, `align-items: center`,
-   `height: 48px`, `padding: 0 10px`; `--center` (o `align` padrão) centraliza.
-
-   `#analytics-tabs-view .tabs-header` ganha dela: `height: auto`,
-   `padding-top: 10px`, `position: fixed`, fundo branco e a sombra. O `fixed`
-   vai com `top` = fundo da barra de cima (`handlePosition` +
-   `ResizeObserver`), então a fileira acompanha a barra e cobre o painel — é por
-   isso que os painéis descem 50px. Aqui ela é `absolute` no topo da vista: fica
-   no mesmo lugar em relação à barra e cobre o painel do mesmo jeito. */
+/*
+ * ---------------------------------------------------- the row (`bds-tabs`)
+ *
+ *   `.bds-tabs`: `width: 100%`, `display: flex`, `z-index: 1100`, `box-sizing: border-box`, `flex-shrink: 0`, `flex-direction: row`, `align-items: center`, `height: 48px`, `padding: 0 10px`; `--center` (the default `align`) centers it.
+ *
+ *   `#analytics-tabs-view .tabs-header` overrides it: `height: auto`, `padding-top: 10px`, `position: fixed`, white background and the shadow. The `fixed` goes with `top` = the bottom of the top bar (`handlePosition` + `ResizeObserver`), so the row follows the bar and covers the panel — that's why the panels drop 50px. Here it's `absolute` at the top of the view: it stays in the same place relative to the bar and covers the panel the same way.
+ */
 .an-abas {
   position: absolute;
   top: 0;
@@ -109,7 +104,7 @@
   cursor: pointer;
 }
 
-/* `ng-hide` é `display: none`, e a regra acima pisaria no `hidden`. */
+/* `ng-hide` is `display: none`, and the rule above would step on `hidden`. */
 .an-aba[hidden] {
   display: none;
 }
@@ -123,9 +118,10 @@
   color: var(--ink);
 }
 
-/* `.bds-tab--selected`: a animação `selectFade` de .75s, `forwards`, que leva o
-   traço de transparente à cor da marca e o texto para `--color-content-default`. */
-.an-aba--ativa {
+/*
+ * `.bds-tab--selected`: the `selectFade` animation, .75s, `forwards`, that takes the rule from transparent to the brand color and the text to `--color-content-default`.
+ */
+.an-aba--active {
   animation: an-aba-acende 0.75s forwards;
 }
 
@@ -141,15 +137,16 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .an-aba--ativa {
+  .an-aba--active {
     animation: none;
     border-bottom-color: var(--p-marca);
     color: var(--ink);
   }
 }
 
-/* `.bds-tab__text { min-width: 90px; max-width: 270px }` com o
-   `bds-typo variant="fs-16"` dentro: 16px/150%, `bold` só na ativa. */
+/*
+ * `.bds-tab__text { min-width: 90px; max-width: 270px }` with `bds-typo variant="fs-16"` inside: 16px/150%, `bold` only on the active one.
+ */
 .an-aba-texto {
   min-width: 90px;
   max-width: 270px;
@@ -158,11 +155,11 @@
   line-height: 1.5;
 }
 
-.an-aba--ativa .an-aba-texto {
+.an-aba--active .an-aba-texto {
   font-weight: 700;
 }
 
-/* A aba cuja tela não existe aqui: no lugar, apagada, com o selo. */
+/* The tab whose screen doesn't exist here: in its place, faded, with the badge. */
 .an-aba--obra {
   gap: var(--p-e-2);
   opacity: 0.55;
@@ -191,13 +188,11 @@
   padding: 0;
 }
 
-/* ======================================== `<page-header>` (`pecas.tsx`)
-
-   `.full-initial-section`: `border-bottom: 1px solid var(--color-surface-3)`,
-   `margin: .9375rem 0`, `padding: .9375rem 0` — 15 e 15.
-   `.full-initial-section .page-header-content { height: 2.625rem }` (42) e
-   `.row { margin-top: .1875rem }` (3) com o `.mb0`. O `.container` de dentro é
-   o `fx-coluna` que `fluxo.css` já mediu. */
+/*
+ * ======================================== `<page-header>` (`pecas.tsx`)
+ *
+ *   `.full-initial-section`: `border-bottom: 1px solid var(--color-surface-3)`, `margin: .9375rem 0`, `padding: .9375rem 0` — 15 and 15. `.full-initial-section .page-header-content { height: 2.625rem }` (42) and `.row { margin-top: .1875rem }` (3) with `.mb0`. The `.container` inside is the `fx-coluna` that `fluxo.css` already measured.
+ */
 .an-cabecalho-secao {
   margin: 15px 0;
   padding: 15px 0;
@@ -217,8 +212,9 @@
   width: 100%;
 }
 
-/* `.full-initial-section h1`: 1.5rem, peso 400, `--color-content-default`;
-   `.mv0.mr2.lh-solid`: sem margem vertical, 5 à direita, entrelinha 1. */
+/*
+ * `.full-initial-section h1`: 1.5rem, weight 400, `--color-content-default`; `.mv0.mr2.lh-solid`: no vertical margin, 5 on the right, solid line height.
+ */
 .an-h1 {
   margin: 0 5px 0 0;
   font-size: 24px;
@@ -227,8 +223,9 @@
   color: var(--ink);
 }
 
-/* `.custom-header-content.flex.items-center.justify-end.ml5.tr.w-100`, e o
-   `custom-content` dentro dela também é `flex` com `justify-content: flex-end`. */
+/*
+ * `.custom-header-content.flex.items-center.justify-end.ml5.tr.w-100`, and the `custom-content` inside it is also `flex` with `justify-content: flex-end`.
+ */
 .an-cabecalho-extra {
   display: flex;
   align-items: center;
@@ -238,12 +235,11 @@
   text-align: right;
 }
 
-/* ================================ `bds-typo` — a régua que as abas usam
-
-   `fs-12/14/16` = 12/14/16px com entrelinha 150%; `fs-20/24/32` = 20/24/32px
-   com 100%. `margin` vem ligada por padrão e só fs-20, fs-24 e fs-32 têm
-   margem: 22px embaixo. Cor do `:host`: `--color-content-default`. Peso:
-   regular 400, semi-bold 600, bold 700, extra-bold 800. */
+/*
+ * ================================ `bds-typo` — the ruler the tabs use
+ *
+ *   `fs-12/14/16` = 12/14/16px with 150% line height; `fs-20/24/32` = 20/24/32px with 100%. `margin` is off by default and only fs-20, fs-24 and fs-32 have a margin: 22px below. `:host` color: `--color-content-default`. Weight: regular 400, semi-bold 600, bold 700, extra-bold 800.
+ */
 .an-t12 {
   margin: 0;
   font-size: 12px;
@@ -315,15 +311,11 @@
   background: var(--p-marca-forte);
 }
 
-/* ============================================ `<card>` (`Cartao` em `pecas.tsx`)
-
-   `card`: fundo `--color-surface-1`, raio 8, sombra `0 2px 12px 0
-   var(--color-surface-2)`, `display: block`, `margin: .5625rem 0` (9),
-   `z-index: 1`. `card .card-header { padding: .9375rem .9375rem 0 }`,
-   `.card-title` negrito, sem margem, à esquerda; `card .card-content
-   { padding: .9375rem }`. Dentro do `analytics-chart`, o cabeçalho é `flex`, o
-   título ocupa 90% e o conteúdo perde o recheio de cima; o `icon-info` fica
-   invisível até o cursor passar. */
+/*
+ * ============================================ `<card>` (`Cartao` in `pecas.tsx`)
+ *
+ *   `card`: `--color-surface-1` background, radius 8, shadow `0 2px 12px 0 var(--color-surface-2)`, `display: block`, `margin: .5625rem 0` (9), `z-index: 1`. `card .card-header { padding: .9375rem .9375rem 0 }`, `.card-title` bold, no margin, left-aligned; `card .card-content { padding: .9375rem }`. Inside `analytics-chart`, the header is `flex`, the title takes 90% and the content loses its top padding; `icon-info` stays invisible until the cursor passes over it.
+ */
 .an-card {
   position: relative;
   z-index: 1;
@@ -343,7 +335,7 @@
 .an-card-titulo {
   display: flex;
   align-items: center;
-  gap: 10px; /* o `.mr3` do título quando há dica */
+  gap: 10px; /* the title's `.mr3` when there's a tooltip */
   width: 90%;
   margin: 0;
   font-size: 16px;
@@ -431,12 +423,9 @@
   text-align: center;
 }
 
-/* `.bp-daterange-dropdown`: raio 8, sombra `0 0 10px rgba(96,123,153,.4)`,
-   `margin-top: .125rem`, `absolute`, `z-index: 10`, encostado à direita dentro
-   de `.small-datepicker-input`, fundo `--color-surface-1`. O miolo
-   (`.bp-daterange-datepicker`) tem `padding: .625rem`; os botões,
-   `margin: 1.5rem .75rem .75rem`, 1.875rem de altura, raio 8,
-   `padding: .375rem .75rem`. */
+/*
+ * `.bp-daterange-dropdown`: radius 8, shadow `0 0 10px rgba(96,123,153,.4)`, `margin-top: .125rem`, `absolute`, `z-index: 10`, flush right inside `.small-datepicker-input`, `--color-surface-1` background. The core (`.bp-daterange-datepicker`) has `padding: .625rem`; the buttons, `margin: 1.5rem .75rem .75rem`, 1.875rem height, radius 8, `padding: .375rem .75rem`.
+ */
 .an-periodo-painel {
   position: absolute;
   right: 0;
@@ -492,12 +481,11 @@
   color: var(--p-marca-conteudo);
 }
 
-/* ==================================================== `bds-button`
-
-   `size="standard"` vira `medium` (`setSize`): 40 de altura, `padding: 0 16px`,
-   raio 8, borda 1px, 4 entre ícone e texto, rótulo fs-14 negrito.
-   `variant="secondary"`: sem fundo, texto na tinta de conteúdo. Desligado:
-   `opacity: 50%; pointer-events: none`. */
+/*
+ * ==================================================== `bds-button`
+ *
+ *   `size="standard"` becomes `medium` (`setSize`): 40 height, `padding: 0 16px`, radius 8, 1px border, 4 between icon and text, `fs-14` bold label. `variant="secondary"`: no background, text in content ink. Disabled: `opacity: 50%; pointer-events: none`.
+ */
 .an-bds-btn {
   display: inline-flex;
   align-items: center;
@@ -537,19 +525,15 @@
   background: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
 }
 
-/* ============================================================ os modais
-
-   Dois modelos na origem, e as abas usam os dois:
-   - o `.modal` legado do portal (`ModalService`): véu `rgba(0,0,0,.7)`;
-     `.modal > .modal-dialog` com fundo `--color-surface-1`, raio 3, sombra
-     `0 2px 20px 0 #252525`, `max-height: 80%`, rolagem, `padding: 1.875rem`;
-     `.modal-sm` = 690 de largura, até 80%. `.modal-footer`: `flex`,
-     `padding-top: 9px`.
-   - o `bds-modal`: `.outzone` preto a 70%, `.modal` de 592×368, raio 8,
-     `padding: 32px`, coluna com `space-between`, e as duas sombras de elevação.
-
-   Abrem pelo `:target` (o ícone é um link para o `id` do modal) e fecham com
-   um link para `#`: sem JavaScript, como o resto da tela. */
+/*
+ * ============================================================ the modals
+ *
+ *   Two models in the source, and the tabs use both:
+ *   - the portal's legacy `.modal` (`ModalService`): `rgba(0,0,0,.7)` veil; `.modal > .modal-dialog` with `--color-surface-1` background, radius 3, shadow `0 2px 20px 0 #252525`, `max-height: 80%`, scroll, `padding: 1.875rem`; `.modal-sm` = 690 wide, up to 80%. `.modal-footer`: `flex`, `padding-top: 9px`.
+ *   - `bds-modal`: `.outzone` black at 70%, 592×368 `.modal`, radius 8, `padding: 32px`, column with `space-between`, and the two elevation shadows.
+ *
+ *   They open via `:target` (the icon is a link to the modal's `id`) and close with a link to `#`: no JavaScript, like the rest of the screen.
+ */
 .an-modal {
   position: fixed;
   inset: 0;

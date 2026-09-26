@@ -1,84 +1,97 @@
-/* ==========================================================================
-   Pipe — camada de token. Fonte única dos três aplicativos.
-
-   Adaptado de twenty-ui (MIT) — https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeLight.ts
-   O que veio de lá é a arquitetura de tema: papel constante, valor trocado por
-   bloco de tema, e nenhum componente sabendo que tema existe. Os valores são
-   os do Pipe (docs/marca/MARCA.md).
-
-   Estrutura de token copiada do método da Blip, medido no bundle real do Blip
-   Desk (referencias-blip/pesquisa/blip-design-system.md): 31 tokens de cor na aplicação
-   inteira, organizados por PAPEL e nunca por matiz.
-
-   Cinco regras que este arquivo existe para impor:
-
-   1. CINCO SUPERFÍCIES e QUATRO DEGRAUS DE CONTEÚDO. O fundo é branco e
-      cinza; o texto é preto e cinza. Toda a tela sai daqui.
-
-   2. UMA COR DE MARCA (moss). Ela pinta ação primária e estado ativo, e nada
-      mais. Foi espalhar verde, terracota, ocre e azul ao mesmo tempo em
-      etiqueta, número, borda e barra que fez a tela parecer um carrossel.
-
-   3. ESTADO É PAR: fundo pastel com conteúdo escuro por cima. Nunca cor
-      saturada em texto corrido. Quatro estados, e só quatro.
-
-   4. A PALETA ESTENDIDA É CERCADA. Terracota, ocre, azul e sage vivem em
-      `--p-grafico-*` e só podem aparecer em gráfico e ilustração. Nenhum
-      cromo, nenhuma etiqueta, nenhuma borda, nenhum ícone.
-
-   5. ESCALA TIPOGRÁFICA EM PX, nunca rem. Lição registrada no blip-dash:
-      token de fonte em rem depende do `font-size` da raiz, e ancorar a raiz
-      encolhe junto todo o espaçamento.
-
-   Borda é TINTA TRANSLÚCIDA, não hex opaco. Uma borda opaca escolhe um fundo
-   e briga com todos os outros: sobre uma linha de severidade, uma grade opaca
-   cruza a cor do estado.
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *    Pipe — token layer. Single source for the three apps.
+ *
+ *    Adapted from twenty-ui (MIT) — https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeLight.ts
+ *    What came from there is the theme architecture: constant role, value
+ *    swapped per theme block, and no component knowing a theme exists. The
+ *    values are Pipe's own (docs/marca/MARCA.md).
+ *
+ *    Token structure copied from Blip's method, measured in Blip Desk's real
+ *    bundle (referencias-blip/pesquisa/blip-design-system.md): 31 color tokens
+ *    across the whole application, organized by ROLE and never by hue.
+ *
+ *    Five rules this file exists to enforce:
+ *
+ *    1. FIVE SURFACES and FOUR CONTENT STEPS. The background is white and gray;
+ *       the text is black and gray. The entire screen comes from here.
+ *
+ *    2. ONE BRAND COLOR (moss). It paints the primary action and the active
+ *       state, and nothing else. Spreading green, terracotta, ochre and blue at
+ *       once across tags, numbers, borders and bars is what made the screen
+ *       look like a carousel.
+ *
+ *    3. STATUS IS A PAIR: pastel background with dark content on top. Never
+ *       saturated color in running text. Four states, and only four.
+ *
+ *    4. THE EXTENDED PALETTE IS FENCED. Terracotta, ochre, blue and sage live in
+ *       `--p-grafico-*` and may only appear in charts and illustrations. No
+ *       chrome, no tag, no border, no icon.
+ *
+ *    5. TYPE SCALE IN PX, never rem. A lesson recorded in blip-dash: a font
+ *       token in rem depends on the root's `font-size`, and anchoring the root
+ *       shrinks all the spacing along with it.
+ *
+ *    Border is TRANSLUCENT INK, not opaque hex. An opaque border picks one
+ *    background and fights every other one: over a severity line, an opaque
+ *    grid crosses the status color.
+ *    ==========================================================================
+ */
 
 :root {
   color-scheme: light;
 
-  /* ======================================================== superfície
-     Cinco degraus, do claro ao escuro, na mesma ordem da Blip
-     (surface-0..4). O creme da marca é o degrau 1, o fundo da aplicação;
-     cartão é branco, para que a cor que aparecer em cima seja lida como
-     informação. */
-  --p-superficie-0: #ffffff; /* cartão, campo, tabela */
-  --p-superficie-1: #f2f1ec; /* fundo da aplicação (creme da marca) */
+  /*
+   * ======================================================== surface
+   *      Five steps, from light to dark, in the same order as Blip
+   *      (surface-0..4). The brand's cream is step 1, the application background;
+   *      the card is white, so that any color appearing on top of it reads as
+   *      information.
+   */
+  --p-superficie-0: #ffffff; /* card, field, table */
+  --p-superficie-1: #f2f1ec; /* application background (brand cream) */
   --p-superficie-2: #e9e7df; /* recesso: lateral, hover, etiqueta neutra */
-  --p-superficie-3: #dedbd0; /* pressionado, trilho, divisória sólida */
-  --p-superficie-4: #16150f; /* superfície contrastante: dica, sobreposição */
+  --p-superficie-3: #dedbd0; /* pressed, rail, solid divider */
+  --p-superficie-4: #16150f; /* contrasting surface: tooltip, overlay */
 
-  /* ========================================================== conteúdo
-     Quatro degraus, na ordem da Blip (default / disable / ghost / bright).
-     Mais do que quatro não se distingue em texto de 14px. */
-  --p-conteudo: #16150f; /* texto corrente, título */
-  --p-conteudo-desabilitado: #55544d; /* apoio, controle sem ação disponível */
-  --p-conteudo-fantasma: #83817a; /* rótulo, marca d'água, texto de dica */
-  --p-conteudo-claro: #ffffff; /* texto sobre a superfície 4 */
+  /*
+   * ========================================================== content
+   *      Four steps, in Blip's order (default / disable / ghost / bright). More
+   *      than four isn't distinguishable in 14px text.
+   */
+  --p-conteudo: #16150f; /* running text, title */
+  --p-conteudo-desabilitado: #55544d; /* support, control with no action available */
+  --p-conteudo-fantasma: #83817a; /* label, watermark, tooltip text */
+  --p-conteudo-claro: #ffffff; /* text over surface 4 */
 
-  /* ============================================================= linha
-     Tinta translúcida em três forças. Ver a nota do topo. */
+  /*
+   * ============================================================= line
+   *      Translucent ink in three strengths. See the note at the top.
+   */
   --p-linha: rgba(17, 17, 17, 0.1);
   --p-linha-media: rgba(17, 17, 17, 0.17);
   --p-linha-forte: rgba(17, 17, 17, 0.28);
 
-  /* ============================================================= marca
-     UMA cor. Quatro papéis do mesmo matiz, não quatro matizes.
-     Pode: ação primária, estado ativo de navegação, anel de foco, borda de
-     campo em foco. Não pode: rótulo, número, título, barra de gráfico,
-     etiqueta de fila, canal, origem ou fase, ícone decorativo. */
+  /*
+   * ============================================================= brand
+   *      ONE color. Four roles of the same hue, not four hues.
+   *      May: primary action, active navigation state, focus ring, focused field
+   *      border. May not: label, number, title, chart bar, queue/channel/source/
+   *      phase tag, decorative icon.
+   */
   --p-marca: #4a5d23;
   --p-marca-forte: #3d4d1c; /* passagem do cursor e pressionado */
   --p-marca-suave: #eaeedd; /* fundo do estado ativo */
   --p-marca-linha: rgba(74, 93, 35, 0.34);
   --p-marca-conteudo: #ffffff; /* texto por cima da marca */
 
-  /* ============================================================ estado
-     Cada estado é um PAR de fundo pastel com conteúdo escuro, mais a linha
-     que os une. As três variáveis viajam juntas, senão viram duas cores
-     diferentes em dois arquivos.
-     Reservados ao que exige AÇÃO. Meta de ocupação: ~1% da tela. */
+  /*
+   * ============================================================ status
+   *      Each status is a PAIR of a pastel background with dark content, plus the
+   *      line that ties them together. The three variables travel together, or
+   *      they become two different colors in two different files.
+   *      Reserved for what demands ACTION. Occupancy target: ~1% of the screen.
+   */
   --p-erro-fundo: #f8e4df;
   --p-erro-linha: rgba(156, 47, 29, 0.32);
   --p-erro-conteudo: #9c2f1d;
@@ -95,35 +108,41 @@
   --p-info-linha: rgba(46, 74, 93, 0.3);
   --p-info-conteudo: #2e4a5d;
 
-  /* ============================================================== foco
-     UMA cor, com UM papel, e é o único token da folha que não pode ser
-     reaproveitado para mais nada.
-
-     Ela existe porque o anel de foco estava em `--p-marca` — a mesma cor do
-     item ativo de navegação, da borda de campo em foco e da ação primária.
-     Com isso o teclado e o mouse diziam a mesma coisa: quem percorria a
-     lateral por Tab via o anel na cor que já marcava onde ele estava, e
-     deixava de saber qual dos dois era qual.
-
-     Foco de teclado não pode dividir cor com nada, senão para de ser sinal.
-     É a única cor do design system da Blip com papel único, e pela mesma
-     razão. Violeta porque nenhum outro papel do Pipe usa violeta — nem a
-     marca, nem os quatro estados, nem a paleta de gráfico. */
+  /*
+   * ============================================================== focus
+   *    ONE color, with ONE role, and it's the only token in this sheet that can't
+   *    be reused for anything else.
+   *
+   *    It exists because the focus ring used to be `--p-marca` — the same color as
+   *    the active navigation item, the focused field border and the primary
+   *    action. That made the keyboard and the mouse say the same thing: whoever
+   *    tabbed through the sidebar saw the ring in the color that already marked
+   *    where they were, and lost track of which of the two was which.
+   *
+   *    Keyboard focus can't share a color with anything else, or it stops being a
+   *    signal. It's Blip's design system's only color with a single role, for the
+   *    same reason. Violet because no other Pipe role uses violet — not the
+   *    brand, not the four states, not the chart palette.
+   */
   --p-foco: #7a3ea8;
 
-  /* Tinta de estado para CROMO ESCURO — a barra da Gestão é escura nos dois
-     temas, e a tinta de estado do tema claro (verde e terracota fechados) não
-     se lê ali. Nenhuma cor nova: são os mesmos valores do tema escuro, porque
-     o caso é o mesmo, conteúdo claro sobre fundo escuro. No tema escuro o par
-     aponta para a própria tinta de estado, que já é este valor. */
+  /*
+   * Status ink for DARK CHROME — Gestão's bar is dark in both themes, and the
+   *      light theme's status ink (closed green and terracotta) doesn't read there.
+   *      No new color: they're the same dark-theme values, because it's the same
+   *      case, light content over dark background. In dark mode the pair points to
+   *      the status ink itself, which is already this value.
+   */
   --p-sucesso-sobre-escuro: #7ac58d;
   --p-erro-sobre-escuro: #e4816d;
 
-  /* ================================================= paleta estendida
-     EXCLUSIVA DE GRÁFICO E ILUSTRAÇÃO. Nenhuma destas entra em cromo,
-     etiqueta, borda, ícone ou texto de interface. É a `extended` da Blip:
-     existe, mas vive cercada.
-     A ordem é a ordem das séries de um gráfico. */
+  /*
+   * ================================================= extended palette
+   *      CHART AND ILLUSTRATION EXCLUSIVE. None of these enter chrome, tags,
+   *      borders, icons or interface text. It's Blip's `extended`: it exists, but
+   *      lives fenced in.
+   *      The order is the order of a chart's series.
+   */
   --p-grafico-1: #8a9a5b; /* sage */
   --p-grafico-2: #2e4a5d; /* azul profundo */
   --p-grafico-3: #c08a2e; /* ocre */
@@ -131,25 +150,31 @@
   --p-grafico-5: #1f3a2e; /* verde escuro */
   --p-grafico-trilho: #e5e3da; /* fundo de barra */
 
-  /* ======================================================= tipografia
-     Uma família no corpo. A monoespaçada é recurso de NÚMERO — tabular,
-     alinha coluna — e de rótulo de seção. Nunca de nome de fase, fila,
-     origem ou campo. */
+  /*
+   * ======================================================= typography
+   *      One family in the body. Monospace is a NUMBER resource — tabular,
+   *      aligns columns — and a section-label resource. Never a phase, queue,
+   *      source or field name.
+   */
   --p-fonte: 'IBM Plex Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
   --p-fonte-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
 
-  /* TRÊS degraus carregam a aplicação inteira: 16, 14 e 12. É a régua medida
-     na Blip, onde os três somam 109 das 117 ocorrências de tamanho. O de 10
-     serve só ao verdadeiramente secundário. Em px, nunca em rem. */
-  --p-t-lg: 16px; /* corpo destacado, título de cartão */
-  --p-t-md: 14px; /* corpo, tabela, campo, botão */
-  --p-t-sm: 12px; /* rótulo, apoio, etiqueta */
-  --p-t-xs: 10px; /* verdadeiramente secundário, e nada mais */
+  /*
+   * THREE steps carry the entire application: 16, 14 and 12. It's the scale
+   *      measured in Blip, where the three add up to 109 of 117 size occurrences.
+   *      The 10 serves only what's truly secondary. In px, never in rem.
+   */
+  --p-t-lg: 16px; /* highlighted body, card title */
+  --p-t-md: 14px; /* body, table, field, button */
+  --p-t-sm: 12px; /* label, support, tag */
+  --p-t-xs: 10px; /* truly secondary, and nothing else */
 
-  /* Duas exceções contadas a dedo, nomeadas pelo papel para que continuem
-     sendo exceção e não virem dois degraus a mais na régua. */
+  /*
+   * Two exceptions, counted on one hand, named by role so they stay exceptions
+   *      and don't become two more steps on the scale.
+   */
   --p-t-titulo: 20px; /* a coisa principal da tela */
-  --p-t-numero: 28px; /* métrica de cartão, em monoespaçada tabular */
+  --p-t-numero: 28px; /* card metric, in tabular monospace */
 
   --p-peso-normal: 400;
   --p-peso-medio: 500;
@@ -158,13 +183,15 @@
   --p-altura-linha: 1.5;
   --p-altura-linha-curta: 1.2;
 
-  /* Rótulo de seção e cabeçalho de coluna: caixa alta, 12px/600. */
+  /* Section label and column header: uppercase, 12px/600. */
   --p-rotulo-tamanho: 12px;
   --p-rotulo-peso: 600;
   --p-rotulo-espaco: 0.06em;
 
-  /* ================================================ espaço (base 4px)
-     Múltiplo de 4, no formato do `spacing()` do twenty-ui. */
+  /*
+   * ================================================ space (4px base)
+   *      Multiple of 4, in the shape of twenty-ui's `spacing()`.
+   */
   --p-e-1: 4px;
   --p-e-2: 8px;
   --p-e-3: 12px;
@@ -174,29 +201,35 @@
   --p-e-8: 32px;
   --p-e-10: 40px;
 
-  /* ============================================================== raio
-     Um raio domina e as outras duas são exceção com propósito. Na Blip o de
-     8px aparece 48 vezes, o de 5px 26 e a pílula 22. */
-  --p-r-md: 8px; /* padrão: cartão, caixa, botão, campo, tabela */
-  --p-r-sm: 5px; /* controle pequeno: botão de ícone, caixa de seleção */
+  /*
+   * ============================================================== radius
+   *    One radius dominates and the other two are exceptions with a purpose. In
+   *    Blip the 8px one appears 48 times, the 5px one 26, and the pill 22.
+   */
+  --p-r-md: 8px; /* default: card, box, button, field, table */
+  --p-r-sm: 5px; /* small control: icon button, checkbox */
   --p-r-pilula: 999px; /* avatar e etiqueta redonda */
 
-  /* ============================================================ sombra
-     Duas elevações. Tinta translúcida, como nas três referências. */
+  /*
+   * ============================================================ shadow
+   *      Two elevations. Translucent ink, like in the three references.
+   */
   --p-sombra-1: 0 1px 2px rgba(17, 17, 17, 0.05);
   --p-sombra-2: 0 2px 4px rgba(17, 17, 17, 0.06), 0 8px 24px -12px rgba(17, 17, 17, 0.16);
 
-  /* ========================================================= transição */
+  /* ========================================================= transition */
   --p-dur-instantanea: 75ms;
   --p-dur-rapida: 150ms;
   --p-dur-normal: 300ms;
 
-  /* ========================================================= densidade
-     Variável de layout com nome de papel, não número solto no CSS — é o que
-     a Blip faz com `--sidenav-header-min-height`. Valor que aparece em dois
-     lugares vira token, senão vira dois valores diferentes.
-     Com corpo de 14px a linha de tabela passa de 34px para 36px: 14 × 1,4 de
-     entrelinha mais 8px de folga em cima e embaixo. */
+  /*
+   * ========================================================= density
+   *      A layout variable named by role, not a loose number in CSS — it's what
+   *      Blip does with `--sidenav-header-min-height`. A value that appears in two
+   *      places becomes a token, or it becomes two different values.
+   *      With a 14px body the table row goes from 34px to 36px: 14 × 1.4 line
+   *      height plus 8px of breathing room on top and bottom.
+   */
   --p-altura-topo: 48px;
   --p-altura-linha-tabela: 36px;
   --p-celula-y: 8px;
@@ -209,14 +242,16 @@
   --p-icone-traco: 1.75;
 }
 
-/* ==========================================================================
-   Tema escuro. Os PAPÉIS não mudam — só o degrau para onde apontam. Nenhum
-   componente sabe que tema existe.
-
-   Os dois blocos abaixo são idênticos de propósito: o primeiro atende quem
-   nunca escolheu (preferência do sistema), o segundo atende a escolha
-   explícita. Sem os dois, o alternador só funciona num sentido.
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *    Dark theme. ROLES don't change — only the step they point to changes. No
+ *    component knows a theme exists.
+ *
+ *    The two blocks below are identical on purpose: the first serves whoever
+ *    never chose (system preference), the second serves an explicit choice.
+ *    Without both, the toggle only works one way.
+ *    ==========================================================================
+ */
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema='claro']) {
@@ -259,11 +294,13 @@
     --p-info-linha: rgba(126, 173, 199, 0.34);
     --p-info-conteudo: #7eadc7;
 
-    /* Violeta clara: o mesmo papel único, agora legível sobre fundo escuro. */
+    /* Light violet: the same single role, now legible over a dark background. */
     --p-foco: #c98ef0;
 
-    /* No escuro é a própria tinta de estado: mesmo valor, dito de novo para o
-       verificador enxergar o par. */
+    /*
+     * In dark mode it's the status ink itself: same value, stated again so the
+     *          checker sees the pair.
+     */
     --p-sucesso-sobre-escuro: var(--p-sucesso-conteudo);
     --p-erro-sobre-escuro: var(--p-erro-conteudo);
 
@@ -335,16 +372,18 @@
   --p-sombra-2: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
 }
 
-/* ==========================================================================
-   PONTE DE MIGRAÇÃO — nomes antigos, apontando para os novos.
-
-   Existe só enquanto `apps/desk`, `apps/gestao` e `apps/crm` ainda escrevem
-   os nomes da primeira versão do pacote. A tabela de renomeação está em
-   `docs/specs/2026-09-05-design-system.md`, seção 6.
-
-   Apague este bloco inteiro quando `grep -r -- '--p-tinta\|--p-fundo\|--p-destaque\|--p-dado' apps/`
-   não devolver nada. Nenhum código novo deve usar os nomes daqui.
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *    MIGRATION BRIDGE — old names, pointing to the new ones.
+ *
+ *    Exists only while `apps/desk`, `apps/gestao` and `apps/crm` still write the
+ *    names from the package's first version. The rename table is in
+ *    `docs/specs/2026-09-05-design-system.md`, section 6.
+ *
+ *    Delete this whole block when `grep -r -- '--p-tinta\|--p-fundo\|--p-destaque\|--p-dado' apps/`
+ *    returns nothing. No new code should use the names in here.
+ *    ==========================================================================
+ */
 
 :root,
 :root[data-tema='escuro'] {

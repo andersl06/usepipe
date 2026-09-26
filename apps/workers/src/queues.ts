@@ -1,13 +1,9 @@
 /**
- * Nomes de fila e conexão, num lugar só.
- *
- * A fila é o transporte, não a verdade (modelo de dados §9): o que precisa
- * sobreviver a reinício tem linha em `outbox_mensagem`, `entrega_webhook` ou
- * `execucao_workflow`. Perder um job atrasa; não perde mensagem.
+ * Queue names and connection live together. A queue transports work; the durable record is in `outbox_mensagem`, `entrega_webhook`, or `execucao_workflow` (data model §9). Losing a job delays processing but does not lose a message.
  */
 
 // O BullMQ recusa `:` no nome da fila — ele usa o caractere como separador de chave
-// no Redis. Daí o hífen.
+// in Redis; hence the hyphen.
 export const QUEUE_INBOUND = 'pipe-inbound';
 export const QUEUE_DELIVERY = 'pipe-delivery';
 export const QUEUE_AGGREGATION = 'pipe-aggregation';
@@ -17,7 +13,7 @@ export const QUEUE_SLA = 'pipe-sla';
 export const QUEUE_PROCESS_HTTP = 'pipe-process-http';
 
 export interface JobDelivery {
-  /** Só um empurrão: o worker varre o outbox de qualquer jeito. */
+  /** Only a nudge: the worker sweeps the outbox regardless. */
   messageId?: string;
   /** Valores posicionais do template — ver `parametros_perdidos` em `entrega.ts`. */
   parametros?: Record<string, string>;
@@ -29,13 +25,7 @@ export interface JobInbound {
 }
 
 /**
- * Baixar a mídia de um anexo recebido (`chave_storage = 'meta:<media_id>'` ou a URL
- * do CDN do Instagram) para o nosso storage.
- *
- * Quem CONSOME é a `api`, não os workers — mesma razão do espelho no CRM: quem fala
- * com a Meta para baixar mídia de um canal é quem já decifra o token dele
- * (`dominio/midia.ts`). O job carrega só os identificadores; o worker relê o anexo
- * (e o canal dele) dentro do `comTenant` daquele tenant.
+ * Download received attachment media (`chave_storage = 'meta:<media_id>'` or Instagram CDN URL) into our storage. `api`, not workers, consumes this job because it already decrypts the channel token for Meta downloads (`dominio/midia.ts`), as with CRM mirroring. The job carries identifiers only; the consumer rereads attachment and channel inside that tenant's `comTenant`.
  */
 export interface JobMedia {
   tenantId: string;
@@ -43,11 +33,7 @@ export interface JobMedia {
 }
 
 /**
- * Checar o SLA de uma conversa (`apps/api/src/dominio/gestao/sla-motor.ts`).
- *
- * Mesmo desenho do download de mídia: quem CONSOME é a `api` (é lá que mora a regra
- * de SLA e a ação de elevar prioridade/notificar), e o job leva só os dois ids — o
- * worker relê a conversa e as regras do tenant dentro do `noTenant` dela.
+ * Check conversation SLA (`apps/api/src/dominio/gestao/sla-motor.ts`). As with media downloads, `api` consumes this job because SLA rules and the priority/notification action live there. The job carries two IDs; the consumer rereads conversation and tenant rules inside its `noTenant`.
  */
 export interface JobSla {
   tenantId: string;
@@ -60,15 +46,7 @@ export interface JobProcessHttp {
 }
 
 /**
- * Espelhar um contato no CRM do cliente.
- *
- * Quem CONSOME esta fila é a `api`, não os workers — mesma razão da `pipe-entrada`:
- * quem fala com o CRM é a `api`, e a regra de domínio mora lá. Os workers só rodam a
- * varredura que reenfileira o que ficou para trás.
- *
- * O job carrega só os identificadores. O worker relê o contato dentro do `comTenant`
- * daquele tenant, e é isso que impede um `contatoId` de outro cliente de virar
- * escrita no CRM errado — sem tenant em vigor, a consulta não retorna linha.
+ * Mirror a contact into the client CRM. `api`, not the workers, consumes this queue, as with `pipe-entrada`: the API talks to CRM and owns the domain rule. The API consumer also runs the sweep that requeues missed work. The job carries identifiers only. The consumer rereads the contact inside that tenant's `comTenant`; a `contatoId` from another client cannot write to the wrong CRM because the query returns no row without the correct tenant.
  */
 export interface JobMirrorCrm {
   tenantId: string;
@@ -76,10 +54,7 @@ export interface JobMirrorCrm {
 }
 
 /**
- * Sincronizar o dicionário de dados de um tenant com os metadados do CRM dele.
- *
- * Mesmo desenho do espelho: quem CONSOME é a `api` (quem fala com o CRM), o job leva só
- * o `tenantId`, e a sincronização relê a configuração dentro do `comTenant` dele.
+ * Synchronize a tenant's data dictionary from its CRM metadata. As with mirroring, `api` consumes the job because it talks to CRM. The job carries only `tenantId`; synchronization rereads configuration inside that tenant's `comTenant`.
  */
 export const QUEUE_DICTIONARY_CRM = 'pipe-crm-dictionary';
 
@@ -92,11 +67,7 @@ export function conexaoRedis(): { url: string } {
 }
 
 /**
- * Importar contatos de um CSV (`importacao-de-contatos.ts`).
- *
- * Quem consome são os workers: é trabalho só de banco, longo, e não fala com
- * serviço externo. O arquivo não viaja no job — mora em `importacao_arquivo` —,
- * e o job leva só os dois ids; o processamento relê tudo no `comTenant` do tenant.
+ * Import contacts from CSV (`importacao-de-contatos.ts`). Workers consume this long database-only job. The file stays in `importacao_arquivo`, not in the job; the job carries two IDs and processing rereads data inside the tenant's `comTenant`.
  */
 export const QUEUE_IMPORT = 'pipe-import';
 

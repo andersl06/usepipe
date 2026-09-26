@@ -4,11 +4,7 @@ import { useContact } from '../../contact';
 import { TelaDeMenuPersistente } from './tela';
 
 /**
- * `/configurations/persistentMenu`. O canal compatível é o Messenger — o
- * mesmo `canalTipo`/`canalAtivo` que `fluxo/canais/canais.tsx` já lê do
- * contato (`GET /v1/gestao/fluxos/:id`), sem inventar um estado à parte. Os
- * itens e a trava de "boas-vindas preenchida" vêm de
- * `GET /v1/gestao/fluxos/:id/menu-persistente`.
+ * `/configurations/persistentMenu`. The compatible channel is Messenger — the same `canalTipo`/`canalAtivo` that `fluxo/canais/canais.tsx` already reads from the contact (`GET /v1/gestao/fluxos/:id`), without inventing a separate state. The items and the "boas-vindas filled in" lock come from `GET /v1/gestao/fluxos/:id/menu-persistente`.
  */
 export function PersistentMenuPage() {
   const { contact } = useContact();

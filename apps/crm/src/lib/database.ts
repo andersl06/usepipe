@@ -8,19 +8,21 @@ import type { Eu } from '@pipe/contracts';
 import { COOKIE_SESSION, buscarEu } from './session';
 
 /**
- * Conexão única do Pipe CRM. Mesma camada da Gestão, de propósito: as três telas
- * falam com o banco do mesmo jeito, e quem aprendeu uma já conhece a outra.
+ * Pipe CRM's single connection. Same layer as Gestão, on purpose: all three
+ * screens talk to the database the same way, and whoever learned one already
+ * knows the other.
  *
- * O app usa o papel `pipe_app`, que não tem `bypassrls`: toda consulta passa por
- * `comTenant`, que fixa `pipe.tenant_id` na transação. Sem isso a RLS devolve zero
- * linha — e é assim que tem de ser.
+ * The app uses the `pipe_app` role, which has no `bypassrls`: every query goes
+ * through `comTenant`, which pins `pipe.tenant_id` for the transaction. Without
+ * this, RLS returns zero rows — and that's how it has to be.
  *
- * O pool vive num global porque o `next dev` recarrega o módulo a cada mudança de
- * arquivo, e um pool novo por recarga esgota as conexões do Postgres.
+ * The pool lives in a global because `next dev` reloads the module on every
+ * file change, and a new pool per reload exhausts Postgres's connections.
  *
- * **Nunca use `Promise.all` dentro do `fn`.** Consultas em paralelo na mesma conexão
- * caem no caminho depreciado do driver `pg` e o `set_config('pipe.tenant_id')` some.
- * O resultado não é erro: é consulta rodando sem tenant. Aqui é tudo em série.
+ * **Never use `Promise.all` inside `fn`.** Parallel queries on the same
+ * connection fall into the `pg` driver's deprecated path and
+ * `set_config('pipe.tenant_id')` disappears. The result isn't an error: it's a
+ * query running with no tenant. Everything here runs sequentially.
  */
 const globalComPool = globalThis as unknown as {
   pipeCrmDatabase?: DatabasePipe;
@@ -35,11 +37,11 @@ export function database(): DatabasePipe {
 }
 
 /**
- * Quem está logado, pelo cookie.
+ * Who's logged in, from the cookie.
  *
- * `cache` do React porque numa mesma renderização a lateral, a página e cada
- * consulta perguntam a mesma coisa — e `GET /v1/eu` é ida à rede. O cache vale
- * por requisição, nunca entre requisições.
+ * React's `cache` because within the same render the sidebar, the page, and
+ * every query ask the same question — and `GET /v1/eu` is a network round trip.
+ * The cache lasts one request, never across requests.
  */
 const carregarEu = cache(async (): Promise<Eu | null> => {
   const cookie = (await cookies()).get(COOKIE_SESSION);
@@ -47,16 +49,17 @@ const carregarEu = cache(async (): Promise<Eu | null> => {
   return buscarEu(`${COOKIE_SESSION}=${cookie.value}`);
 });
 
-/** Quem está logado, ou `null`. Para quem sabe lidar com a ausência. */
+/** Who's logged in, or `null`. For whoever knows how to handle the absence. */
 export async function euAtual(): Promise<Eu | null> {
   return carregarEu();
 }
 
 /**
- * Quem está logado, ou a tela de entrada.
+ * Who's logged in, or the sign-in screen.
  *
- * Cobre o cookie vencido e o forjado, que o middleware não pega: ele só confere
- * se o cookie EXISTE, e quem diz se ele vale é a `api`.
+ * Covers the expired and the forged cookie, which the middleware doesn't catch:
+ * it only checks whether the cookie EXISTS, and it's the `api` that says whether
+ * it's valid.
  */
 export async function exigirEu(): Promise<Eu> {
   const eu = await carregarEu();
@@ -64,23 +67,26 @@ export async function exigirEu(): Promise<Eu> {
   return eu;
 }
 
-/** Qual tenant esta requisição atende: o de quem está logado, e nenhum outro. */
+/**
+ * Which tenant this request serves: the one for whoever is logged in, and no
+ * other.
+ */
 export async function tenantId(): Promise<string> {
   return (await exigirEu()).tenant.id;
 }
 
-/** Açúcar: abre a transação já com o tenant desta instância fixado. */
+/** Sugar: opens the transaction already with this instance's tenant pinned. */
 export async function consultar<T>(fn: (tx: TransactionPipe) => Promise<T>): Promise<T> {
   return comTenant(database(), await tenantId(), fn);
 }
 
 /**
- * O fuso do tenant, para o "mês" dos indicadores não ser o fuso do servidor.
+ * The tenant's timezone, so the indicators' "month" isn't the server's timezone.
  *
- * O cache de processo SAIU junto com o tenant fixo: guardado num global, ele
- * era o fuso do primeiro cliente que abrisse a tela servindo a todos os
- * seguintes. `cache` do React põe o limite certo — uma consulta por
- * requisição, e nada atravessando requisições.
+ * The process-level cache LEFT along with the fixed tenant: stored in a global,
+ * it used to be whichever client opened the screen first, serving everyone
+ * after. React's `cache` sets the right boundary — one query per request, and
+ * nothing crossing between requests.
  */
 export const fusoDoTenant = cache(async (): Promise<string> => {
   return consultar(async (tx) => {
@@ -90,12 +96,12 @@ export const fusoDoTenant = cache(async (): Promise<string> => {
 });
 
 /**
- * Quem assina o que o CRM grava, no log de auditoria.
+ * Who signs what the CRM writes, in the audit log.
  *
- * Era `sistema` porque não havia sessão: registrar uma pessoa que não se sabia
- * qual era seria mentira. Agora há sessão, e o log diz quem — que é a única
- * razão de alguém abrir a auditoria depois. Mesma decisão, mesmo motivo, que a
- * Gestão tomou em `atorDaGestao`.
+ * It used to be `sistema` because there was no session — logging a person you
+ * couldn't identify would be a lie. Now there's a session, and the log says
+ * who — which is the only reason anyone opens the audit log afterward. Same
+ * decision, same reason, that Gestão made in `atorDaGestao`.
  */
 export async function atorDoCrm(): Promise<Ator> {
   const eu = await exigirEu();
@@ -108,8 +114,9 @@ export interface Window {
 }
 
 /**
- * Mês corrente no fuso do tenant. A conta é do Postgres porque é ele que conhece o
- * banco de fusos — reimplementar horário de verão em JavaScript custa um dia inteiro.
+ * The tenant's current month, in its timezone. The calculation is Postgres's
+ * because it's the one that knows the timezone database — reimplementing
+ * daylight saving in JavaScript costs a whole day.
  */
 export async function mesWindow(fuso: string, mesesAtras = 0): Promise<Window> {
   return consultar(async (tx) => {
@@ -135,7 +142,10 @@ export function paraData(value: unknown): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-/** `numeric` também volta como texto, e dinheiro nunca deve virar float sem querer. */
+/**
+ * `numeric` also comes back as text, and money should never accidentally turn
+ * into a float.
+ */
 export function paraNumero(value: unknown): number | null {
   if (value === null || value === undefined) return null;
   const n = typeof value === 'number' ? value : Number(String(value));

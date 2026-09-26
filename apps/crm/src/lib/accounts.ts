@@ -3,18 +3,20 @@ import { account, contact, lead, opportunity, user } from '@pipe/db/schema';
 import { consultar, paraData, paraNumero } from './database';
 
 /**
- * Contas.
+ * Accounts.
  *
- * A conta estava fora do menu porque não tinha tela, e não tinha tela porque
- * ninguém tinha decidido o que ela mostra. Mostra duas coisas, e é o que a
- * empresa pergunta quando abre uma: **quem eu conheço lá dentro** e **quanto
- * dinheiro está em jogo**. Contatos e oportunidades, nessa ordem.
+ * The account was out of the menu because it had no screen, and it had no
+ * screen because nobody had decided what it shows. It shows two things, and
+ * that's what a company asks when you open one: **who do I know inside it**
+ * and **how much money is at stake**. Contacts and opportunities, in that
+ * order.
  *
- * Tudo em série dentro do `consultar` — `Promise.all` dentro da transação
- * derruba o `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
+ * Everything sequential inside `consultar` — `Promise.all` inside the
+ * transaction drops `pipe.tenant_id` and the query ends up running with no
+ * tenant (README).
  */
 
-/** A listagem é tela de trabalho, não de exportação. Mesmo teto da de leads. */
+/** The listing is a work screen, not an export screen. Same cap as the leads one. */
 export const LIMITE_LISTA = 200;
 
 export interface LinhaAccount {
@@ -52,8 +54,8 @@ export async function listAccounts(search = ''): Promise<LinhaAccount[]> {
       .orderBy(asc(account.nome))
       .limit(LIMITE_LISTA);
 
-    // Três agregações separadas em vez de subconsulta por linha: o banco lê
-    // cada tabela uma vez, e a junção acontece aqui, sobre catorze contas.
+    // Three separate aggregations instead of a per-row subquery: the database reads
+    // each table once, and the join happens here, over fourteen accounts.
     const byContact = await tx
       .select({ contaId: contact.accountId, n: sql<number>`count(*)::int` })
       .from(contact)
@@ -152,9 +154,9 @@ export async function loadAccount(id: string): Promise<FichaAccount | null> {
     if (!cabeca) return null;
 
     /*
-     * O contato traz o lead dele junto: quem abre a conta quer saber com quem
-     * falar E o quanto esse alguém já avançou. Duas telas para responder isso
-     * seriam uma a mais.
+     * The contact brings its lead along: whoever opens the account wants to know
+     * who to talk to AND how far that person has gotten. Two screens to answer
+     * that would be one too many.
      */
     const contacts = await tx
       .select({
@@ -186,7 +188,7 @@ export async function loadAccount(id: string): Promise<FichaAccount | null> {
       .from(opportunity)
       .leftJoin(user, eq(user.id, opportunity.proprietarioId))
       .where(eq(opportunity.contaId, id))
-      // Aberta primeiro: é o que ainda dá para mexer.
+      // Open first: it's what can still be acted on.
       .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor));
 
     const linhas: AccountOpportunity[] = opportunities.map((o) => ({

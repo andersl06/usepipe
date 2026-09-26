@@ -11,11 +11,9 @@ import type { LinhaHistory } from '../src/lib/history.ts';
 import { ticketDe } from '../src/lib/monitoring.ts';
 
 /**
- * O agrupamento do Histórico e o número do ticket.
+ * History's grouping and the ticket number.
  *
- * Os dois são lidos por gente: o agrupamento decide quantas conversas o gestor
- * atribui a cada fila, e o ticket é o que o atendente dita no telefone. Nenhum
- * dos dois toca banco.
+ * Both are read by people: grouping decides how many conversations the manager attributes to each queue, and the ticket is what the agent dictates over the phone. Neither one touches the database.
  */
 
 const linha = (parcial: Partial<LinhaHistory> = {}): LinhaHistory => ({
@@ -34,9 +32,9 @@ const linha = (parcial: Partial<LinhaHistory> = {}): LinhaHistory => ({
 });
 
 test('grouping from the URL falls back to "none" when it is not in the catalog', () => {
-  /* O valor chega de `searchParams`, ou seja, de qualquer um que digite na
-     barra de endereço. Sem esta peneira, um valor estranho passaria adiante e
-     `agruparHistorico` devolveria a lista dobrada por uma chave inexistente. */
+  /*
+   * The value arrives from `searchParams`, meaning from anyone who types into the address bar. Without this filter, a stray value would pass through and `agruparHistorico` would return the list duplicated under a nonexistent key.
+   */
   assert.equal(groupingValid('fila'), 'fila');
   assert.equal(groupingValid(undefined), 'nenhum');
   assert.equal(groupingValid(''), 'nenhum');
@@ -54,9 +52,9 @@ test('with no grouping, a single group comes out with the entire list', () => {
 });
 
 test('by queue, whoever has no queue gets its own group instead of disappearing', () => {
-  /* Conversa perdida na fila raiz tem `filaNome` nulo. Se ela não virar grupo,
-     a soma dos grupos fica menor que o total e o gestor conclui que o dia teve
-     menos conversa do que teve. */
+  /*
+   * A conversation lost at the root queue has a null `filaNome`. If it doesn't become its own group, the groups' sum falls short of the total, and the manager concludes the day had fewer conversations than it actually did.
+   */
   const groups = agruparHistory(
     [linha({ queueName: 'Suporte' }), linha({ id: 'b', queueName: null })],
     'fila',
@@ -69,7 +67,7 @@ test('by queue, whoever has no queue gets its own group instead of disappearing'
 });
 
 test('the groups come out from largest to smallest', () => {
-  /* A ordem é a resposta da tela: o primeiro grupo é onde o volume está. */
+  /* The order is the screen's answer: the first group is where the volume is. */
   const groups = agruparHistory(
     [
       linha({ agentName: 'Ana' }),
@@ -88,8 +86,9 @@ test('the groups come out from largest to smallest', () => {
 });
 
 test('o desfecho vira rótulo em português, e o desconhecido passa cru', () => {
-  /* Rótulo é o que o gestor lê. Um status novo no banco não pode fazer o grupo
-     desaparecer — ele aparece com o nome técnico, que é feio mas visível. */
+  /*
+   * The label is what the manager reads. A new status in the database must not make the group disappear — it shows up under its technical name, which is ugly but visible.
+   */
   const groups = agruparHistory(
     [linha({ status: 'abandonada' }), linha({ id: 'b', status: null })],
     'status',
@@ -99,9 +98,9 @@ test('o desfecho vira rótulo em português, e o desconhecido passa cru', () => 
 });
 
 test('by tag, the conversation enters every tag it has', () => {
-  /* De propósito a soma dos grupos passa do total: a pergunta é "quantas
-     conversas encostaram nesta etiqueta", não "como reparto o total". Se
-     alguém "consertar" isso, a contagem por etiqueta passa a subnotificar. */
+  /*
+   * By design the groups' sum exceeds the total: the question is "how many conversations touched this tag", not "how do I split the total". If someone "fixes" this, the per-tag count starts undercounting.
+   */
   const groups = agruparHistory(
     [linha({ etiquetas: ['Elogio', 'Reclamação'] }), linha({ id: 'b', etiquetas: [] })],
     'etiqueta',
@@ -114,7 +113,7 @@ test('by tag, the conversation enters every tag it has', () => {
 });
 
 test('agrupar não mexe na lista que recebeu', () => {
-  /* A mesma lista alimenta a exportação em CSV logo depois. */
+  /* The same list feeds the CSV export right after. */
   const linhas = [linha(), linha({ id: 'b' })];
   agruparHistory(linhas, 'fila');
   assert.equal(linhas.length, 2);
@@ -136,8 +135,9 @@ test('selecionar todos considera somente resultados visíveis', () => {
 });
 
 test('o ticket sai dos últimos seis do uuid, em maiúsculas e sem hífen', () => {
-  /* É o número que o atendente lê em voz alta e o gestor cola na busca. Se a
-     regra mudar, os tickets já ditados deixam de achar a conversa. */
+  /*
+   * It's the number the agent reads aloud and the manager pastes into search. If the rule changes, already-dictated tickets stop finding the conversation.
+   */
   assert.equal(ticketDe('0191f3aa-77e2-7a1b-9c3d-0000000abc12'), '#0ABC12');
   assert.equal(ticketDe('----------------------------ABCDEF'), '#ABCDEF');
 });

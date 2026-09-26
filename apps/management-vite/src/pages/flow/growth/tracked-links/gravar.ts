@@ -3,10 +3,7 @@ import { atualizarLeituras } from '../../../../lib/actions';
 import { fieldOfErrorOfLink, type LinkRastreado, type Resultado } from './data';
 
 /**
- * A escrita de verdade do rastreador de cliques — `POST
- * /v1/gestao/fluxos/:fluxoId/links-rastreados`. Tipos e a regra de campo do
- * erro moram em `dados.ts` (módulo puro); aqui só o que precisa de `./api`.
- * Mesmo formato de `mensagens-ativas/disparo.ts`.
+ * The real write for the click tracker — `POST /v1/gestao/fluxos/:fluxoId/links-rastreados`. Types and the error-field rule live in `dados.ts` (a pure module); here only what needs `./api`. Same format as `mensagens-ativas/disparo.ts`.
  */
 function falha<T>(error: unknown, padrao: string): Resultado<T> {
   if (error instanceof ApiError) {

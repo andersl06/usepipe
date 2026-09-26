@@ -4,8 +4,7 @@ import { montarPassos } from '../src/lib/passos-of-deployment.ts';
 import type { DeploymentSignals } from '../src/lib/passos-of-deployment.ts';
 
 /**
- * Os passos do assistente de implantação, a partir dos sinais do banco. Cada
- * passo está feito quando o que ele pede existe — nunca por clique.
+ * The deployment wizard's steps, derived from the database signals. Each step is done when what it requires exists — never by a click.
  */
 
 const NADA: DeploymentSignals = {

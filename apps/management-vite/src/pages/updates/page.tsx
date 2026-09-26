@@ -23,22 +23,13 @@ function validateUpdatesFilter(value: unknown): UpdatesFilter | null {
 }
 
 /**
- * Novidades — o "Novidades na Blip" do portal deles, com o desenho do blog do
- * Barboo.
+ * Novidades — the source's "Novidades na Blip" in the portal, with the Barboo blog's design.
  *
- * DUAS RÉGUAS, e é de propósito. O LUGAR é o deles: o cartão do portal abre uma
- * tela pendurada na barra escura, e é só isso que a `ui-view` mostra. O DESENHO
- * é o do blog do Barboo, escolhido pelo dono — sobretítulo, título grande,
- * subtítulo, a busca e o filtro em pílula, um cartão grande em destaque e a
- * grade abaixo.
+ * TWO RULERS, on purpose. The LOCATION is theirs: the portal card opens a screen hung on the dark bar, and that's all the `ui-view` shows. The DESIGN is Barboo blog's, chosen by the owner — eyebrow, big title, subtitle, the search and pill filter, one big featured card and the grid below.
  *
- * O que a origem faz e nós NÃO fazemos: eles embutem o blog num `<iframe>` de
- * 100%×100%. Aqui a lista é nossa, servida do próprio aplicativo — quadro de
- * site de fora não tem a nossa tipografia, não responde ao nosso tema e pode
- * recusar enframe a qualquer momento.
+ * What the source does and we DON'T: they embed the blog in a 100%×100% `<iframe>`. Here the list is ours, served from the app itself — an outside site's frame doesn't have our typography, doesn't respond to our theme, and can refuse to be framed at any time.
  *
- * Busca e filtro são `<form method="get">`: a lista é do servidor, e a URL fica
- * compartilhável. Nenhum estado de cliente nesta tela.
+ * Search and filter are `<form method="get">`: the list comes from the server, and the URL stays shareable. No client state on this screen.
  */
 export function PageUpdates() {
   const shell = portalUseShell();
@@ -61,8 +52,9 @@ export function PageUpdates() {
     return combinaCategoria && combinaSearch;
   });
 
-  /* O cartão grande só existe na lista inteira: filtrada, destacar o primeiro
-     resultado seria dar peso a um acaso da busca. */
+  /*
+   * The big card only exists in the full list: filtered, highlighting the first result would give weight to a search coincidence.
+   */
   const filtrando = Boolean(search || (categoria && categoria !== CATEGORIAS[0]));
   const destaque = filtrando ? null : (achados.find((n) => n.destaque) ?? achados[0] ?? null);
   const rest = destaque ? achados.filter((n) => n !== destaque) : achados;
@@ -153,12 +145,9 @@ export function PageUpdates() {
 }
 
 /**
- * O cartão do blog deles: a faixa da capa com a etiqueta da categoria por cima,
- * e o corpo branco com título, resumo, a linha de data e o "Ler artigo →".
+ * Their blog's card: the cover strip with the category tag on top, and the white body with title, summary, the date line and "Ler artigo →".
  *
- * A capa é uma FAIXA DE COR, e não uma foto: não temos banco de imagem, e uma
- * foto de banco genérica em cima de um aviso de versão mente sobre o conteúdo.
- * A cor vem da categoria, então a grade continua legível de longe.
+ * The cover is a COLOR STRIP, not a photo: we don't have an image bank, and a generic stock photo on top of a version announcement misrepresents the content. The color comes from the category, so the grid stays readable from a distance.
  */
 function Card({
   update,
@@ -199,7 +188,7 @@ function Card({
   );
 }
 
-/** "20 de julho de 2026" — o formato que o blog usa, em caixa alta pelo CSS. */
+/** "20 de julho de 2026" — the format the blog uses, in uppercase via CSS. */
 function byExtenso(iso: string): string {
   const [ano, mes, dia] = iso.split('-').map(Number);
   const meses = [

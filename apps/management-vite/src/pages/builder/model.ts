@@ -3,34 +3,17 @@ import { VARIABLE_OF_FORWARDING } from '@pipe/core';
 import type { DesenhoDoBuilder } from '@pipe/contracts';
 
 /**
- * O desenho do Builder como a TELA o segura: o mapa de blocos no formato do
- * editor da Blip (`{ <id>: estado }` com `$contentActions`, `$conditionOutputs`,
- * `$defaultOutput`…), que é o que `GET /v1/gestao/fluxos/:id/builder` devolve e o
- * que `PUT` recebe de volta — o `ExportDoEditor` de `@pipe/core`, com `flow`
- * chamado de `fluxo` e `globalActions` de `globais` (`DesenhoDoBuilder`).
+ * The Builder's drawing as the SCREEN holds it: the block map in the Blip editor's format (`{ <id>: estado }` with `$contentActions`, `$conditionOutputs`, `$defaultOutput`…), which is what `GET /v1/gestao/fluxos/:id/builder` returns and what `PUT` receives back — the `ExportDoEditor` from `@pipe/core`, with `flow` called `fluxo` and `globalActions` called `globais` (`DesenhoDoBuilder`).
  *
- * Tudo aqui é função pura sobre esse mapa: criar, renomear, mover, duplicar,
- * excluir bloco; ligar e desligar dois blocos; e montar o que vai no `PUT`. Os
- * componentes só chamam e guardam o resultado. Nada muda o mapa recebido —
- * cada gesto devolve um mapa novo, que é o que o desfazer/refazer empilha.
+ * Everything here is a pure function over that map: create, rename, move, duplicate, delete a block; link and unlink two blocks; and assemble what goes in the `PUT`. Components only call these and store the result. Nothing mutates the received map — every gesture returns a new map, which is what undo/redo stacks.
  *
- * As regras copiadas do editor da Blip (`portal.js`, `BuilderStateService` e
- * os `bind` do jsPlumb em `setConectionsListeners`):
- * - bloco novo nasce com uma "Entrada do usuário" (sem bypass), título "Novo
- *   bloco" e saída padrão para o bloco `fallback` (quando existe);
- * - o bloco "Humano" é o `desk:<uuid>` versão 3.0.0: `ForwardToDesk` na
- *   entrada, `LeavingFromDesk` depois da troca de estado, a entrada espera
- *   `desk_forwardToDeskState_status = Success` e as três "Saídas de
- *   atendimento" nascem sem destino;
- * - arrastar da saída de um bloco a outro cria UMA condição de saída nova
- *   (sem condição) para o destino; já existe uma para o mesmo destino → nada
- *   (o editor apaga a seta repetida); 25 é o limite;
- * - apagar a seta apaga a PRIMEIRA condição de saída para aquele destino —
- *   nas "Saídas de atendimento" só o destino é esvaziado, a saída fica;
- * - a saída padrão não é desenhada ("A seta que liga os blocos não será
- *   exibida");
- * - Início (raiz), `fallback` e `end` não se excluem ("Não é possível
- *   deletar este estado").
+ * The rules copied from the Blip editor (`portal.js`, `BuilderStateService`, and the jsPlumb `bind`s in `setConectionsListeners`):
+ * - a new block is born with a "Entrada do usuário" (no bypass), title "Novo bloco", and a default output to the `fallback` block (when one exists);
+ * - the "Humano" block is `desk:<uuid>` version 3.0.0: `ForwardToDesk` on entry, `LeavingFromDesk` after the state change, the entry waits for `desk_forwardToDeskState_status = Success`, and the three "Saídas de atendimento" are born without a destination;
+ * - dragging from one block's output to another creates ONE new output condition (no condition) targeting the destination; if one already exists for the same destination → nothing happens (the editor deletes the repeated arrow); 25 is the limit;
+ * - deleting the arrow removes the FIRST output condition to that destination — on "Saídas de atendimento" only the destination is cleared, the output stays;
+ * - the default output isn't drawn ("The arrow linking blocks will not be displayed");
+ * - Início (root), `fallback`, and `end` can't be deleted ("It's not possible to delete this state").
  */
 
 /* ----------------------------------------------------------------- tipos */
@@ -99,7 +82,7 @@ export interface Position {
   left: number;
 }
 
-/** Uma seta do canvas: de um bloco a outro. */
+/** An arrow on the canvas: from one block to another. */
 export interface Aresta {
   de: string;
   para: string;
@@ -122,10 +105,10 @@ export const MESSAGES = {
   fimNaoLiga: "Um bloco de 'Fim' não se conecta com um próximo bloco. Ele deve ser sempre o último.",
 } as const;
 
-/** O `Ticket` que o Desk devolve ao bloco de atendimento quando o atendimento acaba. */
+/** The `Ticket` that Desk returns to the attendance block when the attendance ends. */
 const TIPO_DO_TICKET = 'application/vnd.iris.ticket+json';
 
-/** As três "Saídas de atendimento" do bloco `desk:`, na ordem do editor. */
+/** The three "Saídas de atendimento" (attendance outputs) of the `desk:` block, in the editor's order. */
 export const OUTPUTS_OF_ATTENDANCE = [
   { status: 'ClosedAttendant', rotulo: 'ticket finalizado pelo atendente' },
   { status: 'ClosedClient', rotulo: 'ticket finalizado pelo cliente' },
@@ -160,7 +143,7 @@ export function positionAsText(position: Position): { top: string; left: string 
   };
 }
 
-/** A raiz do desenho, se houver uma só. */
+/** The root of the drawing, if there is exactly one. */
 export function raizDe(mapa: Mapa): Block | null {
   const raizes = Object.values(mapa).filter((b) => b.root);
   return raizes.length === 1 ? raizes[0]! : null;
@@ -173,18 +156,14 @@ export function inboundOf(block: Block): EditorInbound | null {
 
 /* ---------------------------------------------------------- ler e montar */
 
-/** O que veio do `GET`, com a garantia de que cada bloco carrega o próprio id. */
+/** What came from the `GET`, with the guarantee that every block carries its own id. */
 /**
- * Onde o primeiro bloco sem posição cai, e o passo entre eles. O `left` começa
- * longe da borda porque a barra de ferramentas do canvas mora lá — bloco em 40
- * nasce escondido atrás dela.
+ * Where the first block without a position lands, and the spacing between them. `left` starts far from the edge because the canvas toolbar lives there — a block at 40 would be born hidden behind it.
  */
 const ARRANJO = { left: 160, top: 96, passoX: 300, passoY: 180, porLinha: 4 } as const;
 
 /**
- * Fluxo que nunca passou por este editor (importado, ou publicado por outro
- * caminho) vem com `$position` vazio em todo bloco, e todos nasceriam empilhados
- * no mesmo ponto. Quem não tem posição ganha uma, em grade, na ordem do mapa.
+ * A flow that never went through this editor (imported, or published some other way) arrives with `$position` empty on every block, and they'd all be born stacked at the same point. Whoever has no position gets one, in a grid, in map order.
  */
 function arranjarWithoutPosition(mapa: Mapa): void {
   const withoutPosition = Object.values(mapa).filter((b) => !b.$position?.top && !b.$position?.left);
@@ -209,10 +188,7 @@ export function lerDesenho(desenho: DesenhoDoBuilder): Mapa {
 }
 
 /**
- * O que vai no `PUT /v1/gestao/fluxos/:id/builder`: o mapa de blocos como
- * está — o formato do editor É o que a `api` guarda em `bloco.conteudo.original`
- * — mais as ações globais. Só a chave do mapa é conferida contra o `id`, para
- * um bloco renomeado por fora nunca sair com dois nomes.
+ * What goes in the `PUT /v1/gestao/fluxos/:id/builder`: the block map as it stands — the editor's format IS what the `api` stores in `bloco.conteudo.original` — plus the global actions. Only the map's key is checked against the `id`, so a block renamed from outside never goes out under two names.
  */
 export function montarDesenho(mapa: Mapa, global: Record<string, unknown>): DesenhoDoBuilder {
   const flow: Record<string, unknown> = {};
@@ -222,7 +198,7 @@ export function montarDesenho(mapa: Mapa, global: Record<string, unknown>): Dese
 
 /* ------------------------------------------------------------- os blocos */
 
-/** O cartão que o editor desenha para uma fala ou uma entrada. */
+/** The card the editor draws for a message or an input. */
 export function card(id: string, tipo: string, conteudo: unknown, lado: 'left' | 'right') {
   return {
     document: { id, type: tipo, content: conteudo },
@@ -233,7 +209,7 @@ export function card(id: string, tipo: string, conteudo: unknown, lado: 'left' |
   };
 }
 
-/** A "Entrada do usuário" que todo bloco novo traz. */
+/** The "Entrada do usuário" (user input) every new block comes with. */
 export function newInbound(id = gerarId()): ItemDeConteudo {
   return {
     input: {
@@ -265,12 +241,12 @@ function esqueleto(id: string, titulo: string, position: Position): Block {
   };
 }
 
-/** A saída padrão de bloco novo: `fallback`, como no editor — se houver um. */
+/** The default output of a new block: `fallback`, like in the editor — if one exists. */
 function saidaPadraoInicial(mapa: Mapa): Block['$defaultOutput'] {
   return mapa[ID_DO_FALLBACK] ? { stateId: ID_DO_FALLBACK, $invalid: false } : null;
 }
 
-/** "Padrão" do menu NOVO BLOCO (`createContentState`). */
+/** "Padrão" from the NOVO BLOCO menu (`createContentState`). */
 export function newBlock(mapa: Mapa, position: Position, id = gerarId()): Block {
   return {
     ...esqueleto(id, TITULO_PADRAO, position),
@@ -313,7 +289,7 @@ export function attendanceNewBlock(mapa: Mapa, position: Position, id = gerarId(
       { $id: `${id}-leaving`, type: 'LeavingFromDesk', settings: {}, conditions: [] },
     ],
     $conditionOutputs: attendanceOutputs,
-    // Encerrado o atendimento, a conversa volta a este mesmo bloco por padrão.
+    // Once the attendance ends, the conversation returns to this same block by default.
     $defaultOutput: { stateId: codigo, $invalid: false },
   };
 }
@@ -334,12 +310,12 @@ export function moverBlock(mapa: Mapa, id: string, position: Position): Mapa {
   return { ...mapa, [id]: { ...block, $position: positionAsText(position) } };
 }
 
-/** Troca o bloco inteiro — é o que o painel faz ao editar conteúdo, ações e saídas. */
+/** Replaces the whole block — what the panel does when editing content, actions, and outputs. */
 export function substituirBlock(mapa: Mapa, block: Block): Mapa {
   return { ...mapa, [block.id]: block };
 }
 
-/** "Duplicar" do menu de contexto: cópia com id novo, "[Cópia]" no título, 20px ao lado. */
+/** "Duplicar" from the context menu: a copy with a new id, "[Cópia]" in the title, 20px to the side. */
 function blockCopia(origem: Block, position: Position, novoId = gerarId()): Block {
   const copia = copiar(origem);
   copia.id = ehAttendance(origem.id) ? `${PREFIX_OF_ATTENDANCE}${novoId}` : novoId;
@@ -381,13 +357,13 @@ export function copiedTextBlock(texto: string): Block | null {
   }
 }
 
-/** "Colar" cria uma cópia na posição do clique e nunca sobrescreve o original. */
+/** "Colar" (paste) creates a copy at the click position and never overwrites the original. */
 export function colarBlock(mapa: Mapa, origem: Block, position: Position, novoId = gerarId()): Mapa {
   const copia = blockCopia(origem, position, novoId);
   return { ...mapa, [copia.id]: copia };
 }
 
-/** Início, Exceções e Fim não saem — como no editor. */
+/** Início, Exceções, and Fim can't be removed — same as in the editor. */
 export function podeExcluir(mapa: Mapa, id: string): boolean {
   const block = mapa[id];
   if (!block) return false;
@@ -395,8 +371,7 @@ export function podeExcluir(mapa: Mapa, id: string): boolean {
 }
 
 /**
- * Exclui o bloco e o que apontava para ele: condição de saída comum some,
- * "Saída de atendimento" fica sem destino, saída padrão fica vazia.
+ * Deletes the block and whatever pointed to it: a regular output condition disappears, a "Saída de atendimento" is left without a destination, the default output becomes empty.
  */
 export function excluirBlock(mapa: Mapa, id: string): Mapa {
   if (!podeExcluir(mapa, id)) return mapa;
@@ -410,14 +385,14 @@ export function excluirBlock(mapa: Mapa, id: string): Mapa {
 
 /* -------------------------------------------------------------- as setas */
 
-/** A saída sem o destino — o que o editor faz com uma "Saída de atendimento" desligada. */
+/** The output without its destination — what the editor does with a disabled "Saída de atendimento". */
 export function withoutDestination(saida: SaidaDoEditor): SaidaDoEditor {
   const resto = { ...saida };
   delete resto.stateId;
   return resto;
 }
 
-/** As setas a desenhar: uma por par (origem, destino), só de saída com destino existente. */
+/** The arrows to draw: one per (source, destination) pair, only outputs whose destination exists. */
 export function arestasDe(mapa: Mapa): Aresta[] {
   const vistas = new Set<string>();
   const arestas: Aresta[] = [];
@@ -435,7 +410,7 @@ export function arestasDe(mapa: Mapa): Aresta[] {
 
 export type ConnectionResult = { ok: true; mapa: Mapa } | { ok: false; error: string };
 
-/** Arrastou da saída de `de` até `para`: nasce uma condição de saída nova para `para`. */
+/** Dragged from `de`'s output to `para`: a new output condition is born targeting `para`. */
 export function ligar(mapa: Mapa, de: string, para: string, id = gerarId()): ConnectionResult {
   const origem = mapa[de];
   if (!origem || !mapa[para]) return { ok: false, error: 'Bloco não encontrado.' };
@@ -454,9 +429,7 @@ export function ligar(mapa: Mapa, de: string, para: string, id = gerarId()): Con
 }
 
 /**
- * A primeira saída de `bloco` para `alvo` perde a ligação: saída de atendimento
- * fica sem destino, as outras somem. Com `tudo`, TODAS as saídas para `alvo`
- * (é o que excluir o bloco de destino precisa).
+ * The first output from `bloco` to `alvo` loses its link: an attendance output is left without a destination, the others disappear. With `tudo`, ALL outputs to `alvo` (what deleting the destination block needs).
  */
 function desligarDe(block: Block, alvo: string, tudo: boolean): Block {
   const saidas = block.$conditionOutputs ?? [];
@@ -479,7 +452,7 @@ function desligarDe(block: Block, alvo: string, tudo: boolean): Block {
   };
 }
 
-/** Apagou a seta de `de` para `para`. */
+/** Deleted the arrow from `de` to `para`. */
 export function desligar(mapa: Mapa, de: string, para: string): Mapa {
   const origem = mapa[de];
   if (!origem) return mapa;

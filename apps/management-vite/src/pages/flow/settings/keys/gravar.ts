@@ -3,11 +3,7 @@ import { atualizarLeituras } from '../../../../lib/actions';
 import { motivoDe } from '../basic/gravar';
 
 /**
- * As duas escritas de "Chaves de acesso": `POST` e `DELETE` (que REVOGA, não
- * apaga — `dominio/gestao/integracoes.ts`) em
- * `/v1/gestao/fluxos/:id/chaves`. O nome da rota é `chaves`/`chaveId`; a tela
- * usa "excluir" porque é a palavra da origem (`deleteKey`), mas o gesto por
- * baixo é revogação.
+ * The two writes for "Chaves de acesso": `POST` and `DELETE` (which REVOKES, not deletes — `dominio/gestao/integracoes.ts`) at `/v1/gestao/fluxos/:id/chaves`. The route's name is `chaves`/`chaveId`; the screen says "excluir" because that's the source's word (`deleteKey`), but the actual action underneath is revocation.
  */
 export interface KeyListed {
   id: string;
@@ -20,7 +16,7 @@ export interface KeyListed {
   requisitante: string | null;
 }
 
-/** Só existe na resposta da criação — depois disso, nunca mais volta em claro. */
+/** Only exists in the creation response — after that, it never comes back in the clear again. */
 export interface KeyCreated extends KeyListed {
   token: string;
 }

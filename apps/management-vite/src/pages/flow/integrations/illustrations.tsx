@@ -1,20 +1,14 @@
 /**
- * As ilustrações dos cartões de Integrações — os `<img src="/assets/img/integrations/*.svg">`
- * da origem (módulo de template das integrações em portal.js), copiados dos arquivos
- * de asset da captura por `gerar-ilustracoes.mjs` (scratchpad), sem redesenho.
+ * The Integrations cards' illustrations — the origin's `<img src="/assets/img/integrations/*.svg">` (the integrations template module in portal.js), copied from the capture's asset files by `gerar-ilustracoes.mjs` (scratchpad), with no redesign.
  *
- * Dashbot e Botanalytics são marcas de terceiros e ficam com as cores como vieram —
- * o mesmo critério dos logos de canal em `componentes/icones-portal.tsx`. O Webhook
- * é desenho da própria origem: o traço vira `currentColor` e o realce vira a
- * tinta de marca do Pipe.
+ * Dashbot and Botanalytics are third-party brands and keep their colors as-is — the same rule as the channel logos in `componentes/icones-portal.tsx`. Webhook is the origin's own artwork: its stroke becomes `currentColor` and its highlight becomes Pipe's brand color.
  *
- * Fica LOCAL nesta pasta pela regra de trabalho (escrever local e relatar); quando
- * outra tela pedir as mesmas figuras, sobe para `componentes/`.
+ * Stays LOCAL to this folder per the working rule (write locally and report); when another screen needs the same figures, it moves up to `componentes/`.
  */
 import type { SVGProps } from 'react';
 
 const FIGURAS = {
-  /** `dashbot.svg` — no cartão vai com `height="67"` e `class="mb0"`. */
+  /** `dashbot.svg` — on the card it's `height="67"` and `class="mb0"`. */
   dashbot: {
     viewBox: '0 0 72 72',
     filhos: (
@@ -98,7 +92,7 @@ const FIGURAS = {
       </>
     ),
   },
-  /** `webhook.svg` — `height="57"` no cartão e 72×72 na página do Webhook. */
+  /** `webhook.svg` — `height="57"` on the card and 72×72 on the Webhook page. */
   webhook: {
     viewBox: '0 0 72 72',
     filhos: (

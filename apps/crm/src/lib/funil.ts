@@ -4,11 +4,12 @@ import { consultar, paraData, paraNumero } from './database';
 import { timeCarregarLinha, type TimeItemLinha } from './leads';
 
 /**
- * Funil de oportunidades.
+ * Opportunity funnel.
  *
- * As fases são catálogo do produto e não coluna do banco (`oportunidade.fase` é
- * texto): trocar a ordem ou o nome de uma fase é configuração de tenant, não
- * migration. Enquanto a tela de configuração não existe, o catálogo vive aqui.
+ * Stages are the product's catalog, not a database column (`oportunidade.fase`
+ * is text): reordering or renaming a stage is tenant configuration, not a
+ * migration. While the settings screen doesn't exist yet, the catalog lives
+ * here.
  */
 export const FASES = ['Novo', 'Qualificado', 'Reunião', 'Proposta', 'Fechamento'] as const;
 export type Fase = (typeof FASES)[number];
@@ -103,9 +104,9 @@ export async function carregarFunil(): Promise<Funil> {
 }
 
 /**
- * Arrastar entre fases. A probabilidade acompanha a fase porque é dela que sai o
- * valor ponderado do painel — deixar a probabilidade parada faria o painel discordar
- * do quadro que o vendedor acabou de mexer.
+ * Dragging between stages. Probability follows the stage because that's what
+ * the dashboard's weighted value comes from — leaving probability unchanged
+ * would make the dashboard disagree with the board the salesperson just moved.
  */
 const PROBABILITY_BY_FASE: Record<Fase, number> = {
   Novo: 10,
@@ -115,17 +116,19 @@ const PROBABILITY_BY_FASE: Record<Fase, number> = {
   Fechamento: 85,
 };
 
-/* ======================================================= listagem e ficha
+/*
+ * ======================================================= listing and record
  *
- * O quadro responde "como está o funil"; a listagem responde "quais são", que é
- * outra pergunta e precisava de outra tela. É a mesma divisão do Twenty entre
- * visão kanban e visão tabela do mesmo objeto — os dados são os mesmos, e o que
- * muda é a forma. Por isso as duas moram no mesmo endereço, com `?vista=`: uma
- * visão de tela não merece uma rota.
+ * The board answers "how is the funnel doing"; the listing answers "which ones
+ * are there", which is a different question and needed a different screen.
+ * It's the same split Twenty makes between a kanban view and a table view of
+ * the same object — the data is the same, what changes is the shape. That's
+ * why the two live at the same address, with `?vista=`: a screen view doesn't
+ * deserve its own route.
  *
- * A diferença que importa: o quadro só mostra oportunidade ABERTA, porque
- * arrastar uma fechada não faz sentido. A listagem mostra as fechadas também —
- * é ela que responde "o que ganhamos este mês".
+ * The difference that matters: the board only shows OPEN opportunities,
+ * because dragging a closed one makes no sense. The listing shows the closed
+ * ones too — it's the one that answers "what did we win this month".
  */
 
 export const SITUATIONS = [
@@ -141,7 +144,7 @@ export function situationValid(value: string | undefined): Situation {
   return (SITUATIONS.find((s) => s.chave === value)?.chave ?? 'abertas') as Situation;
 }
 
-/** A listagem é tela de trabalho, não de exportação. Mesmo teto das outras. */
+/** The listing is a work screen, not an export screen. Same cap as the others. */
 export const LIMITE_LISTA = 200;
 
 export interface LinhaOpportunity {
@@ -197,7 +200,7 @@ export async function listOpportunities(
       .leftJoin(account, eq(account.id, opportunity.contaId))
       .leftJoin(user, eq(user.id, opportunity.proprietarioId))
       .where(situationRecorte(situation) ? and(situationRecorte(situation), filter) : filter)
-      // Aberta primeiro, e dentro disso a de maior valor: é o que ainda dá para
+      // Open first, and within that the highest value: it's what can still
       // mexer, na ordem em que se mexe.
       .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor))
       .limit(LIMITE_LISTA);
@@ -215,12 +218,12 @@ export interface FichaOpportunity extends LinhaOpportunity {
   moeda: string;
   motivoPerda: string | null;
   criadoEm: Date | null;
-  /** O score do lead que originou a negociação, quando ele existe. */
+  /** The score of the lead that originated the deal, when one exists. */
   score: number | null;
   faixa: string | null;
-  /** As outras da mesma conta: o contexto comercial de quem já está negociando. */
+  /** The account's other deals: the commercial context for whoever is already negotiating. */
   irmas: LinhaOpportunity[];
-  /** O histórico do lead, que é o histórico da negociação. */
+  /** The lead's history, which is the deal's history. */
   timeLinha: TimeItemLinha[];
 }
 
@@ -256,8 +259,8 @@ export async function loadOpportunity(id: string): Promise<FichaOpportunity | nu
 
     if (!cabeca) return null;
 
-    // Em série, nunca em paralelo: `Promise.all` aqui dentro derruba o
-    // `pipe.tenant_id` da transação (README).
+    // Sequentially, never in parallel: `Promise.all` in here drops the
+    // transaction's `pipe.tenant_id` (README).
     const irmas = cabeca.accountId
       ? await tx
           .select({

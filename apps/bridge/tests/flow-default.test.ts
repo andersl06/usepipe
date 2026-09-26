@@ -3,11 +3,7 @@ import { converterDoEditor, validateFlow } from '@pipe/core';
 import { ACTIONS_GLOBAL_DEFAULT, FLOW_DEFAULT } from '../src/flow-default.js';
 
 /**
- * O fluxo padrão é a primeira coisa que o cliente vê no Builder. Se ele não for
- * publicável, a primeira ação de quem entrou no produto é tomar um erro.
- *
- * Este teste existe porque isso aconteceu: a versão anterior não esperava entrada, e
- * o motor recusou publicar com "O estado raiz precisa esperar uma entrada".
+ * The default flow is the first thing a client sees in Builder. If it cannot be published, their first action fails. This test records a previous failure: the old version did not wait for input and the engine rejected publication with "O estado raiz precisa esperar uma entrada".
  */
 
 describe('Builder\'s default flow', () => {
@@ -26,7 +22,7 @@ describe('Builder\'s default flow', () => {
   });
 
   it('overflow uses the prefix the engine recognizes', () => {
-    // `desk:` é o que faz o motor tratar o bloco como atendimento humano.
+    // The `desk:` prefix makes the engine treat a block as human attendance.
     expect(Object.keys(FLOW_DEFAULT).some((id) => id.startsWith('desk:'))).toBe(true);
   });
 

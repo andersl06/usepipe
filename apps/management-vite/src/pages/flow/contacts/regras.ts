@@ -1,6 +1,6 @@
-/* Regras de interface da tela de Contatos, copiadas do controlador da origem
-   (`portal.js`, módulo `users`): contagem aproximada, período padrão do
-   seletor, formatação de data e o lado de cada balão do histórico. */
+/*
+ * Contacts screen interface rules, copied from the origin's controller (`portal.js`, `users` module): approximate count, the picker's default period, date formatting, and which side each history bubble sits on.
+ */
 
 /** `{{ $ctrl.totalItems }} Contatos Aproximadamente` / `1 Contato` / `0 Contato`. */
 export function countRotulo(total: number): string {
@@ -8,7 +8,7 @@ export function countRotulo(total: number): string {
   return `${total} Contato`;
 }
 
-/** `getFormatedLastInteraction`: `toLocaleString(idioma, {ano, mês, dia, hora, minuto})`. */
+/** `getFormatedLastInteraction`: `toLocaleString(locale, {year, month, day, hour, minute})`. */
 export function formatarUltimaInteraction(data: Date | null | undefined): string {
   if (!data) return '-';
   return data.toLocaleString('pt-BR', {
@@ -28,13 +28,13 @@ export function diaEHora(data: Date): { dia: string; hora: string } {
   };
 }
 
-/** Carimbo do balão do histórico: `16/09/2026 - 13:26`. */
+/** History bubble timestamp: `16/09/2026 - 13:26`. */
 export function messageCarimbo(data: Date): string {
   const { dia, hora } = diaEHora(data);
   return `${dia} - ${hora}`;
 }
 
-/** Texto do seletor de período: `09 set, 2026 - 00:00`. */
+/** Period picker text: `09 set, 2026 - 00:00`. */
 export function formatPeriodLimit(data: Date): string {
   const dia = String(data.getDate()).padStart(2, '0');
   const mes = data.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
@@ -42,7 +42,7 @@ export function formatPeriodLimit(data: Date): string {
   return `${dia} ${mes}, ${data.getFullYear()} - ${hora}`;
 }
 
-/** Período padrão da origem: últimos 7 dias, do início do dia inicial ao fim do dia atual. */
+/** Origin's default period: last 7 days, from the start of the first day to the end of the current day. */
 export function periodDefault(hoje: Date): { inicio: Date; fim: Date } {
   const inicio = new Date(hoje);
   inicio.setDate(inicio.getDate() - 7);
@@ -52,7 +52,7 @@ export function periodDefault(hoje: Date): { inicio: Date; fim: Date } {
   return { inicio, fim };
 }
 
-/** Na origem o contato fica à direita (`.right`) e o bot/atendente à esquerda, com foto. */
+/** In the origin the contact sits on the right (`.right`) and the bot/agent on the left, with a photo. */
 export function messageLado(direction: string): 'direita' | 'esquerda' {
   return direction === 'entrada' ? 'direita' : 'esquerda';
 }
@@ -79,7 +79,7 @@ export function channelRotulo(tipo: string, nome: string): string {
   return rotulos[tipo] ?? nome;
 }
 
-/** Ao abrir o detalhe, o ticket ativo é o da URL (`?ticketId`) ou o mais recente. */
+/** When opening the detail view, the active ticket is the one from the URL (`?ticketId`) or the most recent one. */
 export function ticketAtivo<T extends { id: string }>(
   tickets: T[],
   ticketId?: string,

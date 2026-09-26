@@ -1,45 +1,33 @@
-/* ==========================================================================
-   Dicionário de dados (/fluxo/[id]/analise/dicionario-de-dados)
-
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. A tela é a página
-   `dataDictionary` do `portal-fragment-analytics` (`cap6s/portalmfe/
-   analytics-main.js`): a moldura `iC` (`nC`, `oC`, `rC`, `aC`), o menu `HV`
-   (`LV`, `QV`, `ZV`, `AV`, `wV`, `SV`) e as peças das páginas (`lN`, `UN`,
-   `VN`, `CN`, `ON`, `iU`, `sN`, `dU`, `BN`…). Os componentes do blip-ds vêm
-   das folhas Stencil da mesma captura: `bds-typo`/`bds-paper`/`bds-grid` do
-   `bds-grid_5`, `bds-icon` do `bds-icon`, os quatro `bds-alert*`, e o
-   `bds-chip-tag color="outline"` da captura do Desk (`blip-calls-mfe`).
-
-   Régua de tipo (`typo__variant--*`): fs-10 = 10px/150%, fs-12 = 12px/150%,
-   fs-14 = 14px/150%, fs-16 = 16px/150%, fs-20 = 20px/100%, fs-24 = 24px/100%,
-   fs-32 = 32px/100%; regular 400, semi-bold 600, bold 700, extra-bold 800.
-   `typo margin` (padrão ligado) em fs-20/24/32 = 22px embaixo.
-   Ícones (`icon__size--*`): x-small 16, small 20, medium 24, x-large 32.
-
-   O `createGlobalStyle` do MFE (`cC`) zera `margin`, `padding` e `border` de
-   TUDO e põe `box-sizing: border-box`: é por isso que as listas cruas não têm
-   recuo e o círculo do `dU` sai com 16px. Aqui a mesma regra vai em `:where`,
-   sem especificidade, para as classes abaixo continuarem mandando.
-
-   O de-para das tintas:
-     color-content-default                      → var(--ink)
-     color-content-ghost (menu, data, th)       → var(--ink-3)
-     color-primary / color-brand / #1E6BF1      → var(--p-marca)
-     color-surface-1 (paper, alerta, etiqueta)  → var(--surface)
-     color-surface-2 (linha ímpar da tabela)    → var(--surface-2)
-     color-border-1 (etiqueta outline)          → --dd-borda-1 (tinta a 20%)
-     color-system (etiqueta default)            → var(--p-info-fundo)
-     color-error (cabeçalho do alerta)          → var(--p-erro-fundo)
-     #B9CBD3 (fio do menu) · #A5A5A5 (`BN`)     → var(--line-strong)
-     #b3d4ff (selo "Em Breve")                  → var(--p-info-fundo)
-     #202c44 / white (círculo do `dU`)          → var(--p-superficie-4) / var(--p-conteudo-claro)
-     red · #ff4c4c (avisos em vermelho)         → var(--p-erro-conteudo)
-     rolagem #f1f1f1 / #888 / #555              → var(--surface-2) / var(--ink-3) / var(--ink-2)
-     paper elevation static                     → var(--p-sombra-1)
-     sombra do alerta (shadow-0 + shadow-1)     → var(--p-sombra-2)
-     véu do alerta rgba(0,0,0,.7)               → --dd-veu (tinta a 70%)
-     color-hover do botão secundário            → --dd-passagem (tinta a 8%)
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *    Data Dictionary (/fluxo/[id]/analise/dicionario-de-dados)
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. The screen is the `dataDictionary` page from `portal-fragment-analytics` (`cap6s/portalmfe/analytics-main.js`): the `iC` frame (`nC`, `oC`, `rC`, `aC`), the `HV` menu (`LV`, `QV`, `ZV`, `AV`, `wV`, `SV`) and the page pieces (`lN`, `UN`, `VN`, `CN`, `ON`, `iU`, `sN`, `dU`, `BN`…). The blip-ds components come from the Stencil sheets in the same capture: `bds-typo`/`bds-paper`/`bds-grid` from `bds-grid_5`, `bds-icon` from `bds-icon`, the four `bds-alert*`, and the `bds-chip-tag color="outline"` from the Desk capture (`blip-calls-mfe`).
+ *
+ *    Type scale (`typo__variant--*`): fs-10 = 10px/150%, fs-12 = 12px/150%, fs-14 = 14px/150%, fs-16 = 16px/150%, fs-20 = 20px/100%, fs-24 = 24px/100%, fs-32 = 32px/100%; regular 400, semi-bold 600, bold 700, extra-bold 800. `typo margin` (on by default) at fs-20/24/32 = 22px at the bottom. Icons (`icon__size--*`): x-small 16, small 20, medium 24, x-large 32.
+ *
+ *    The MFE's `createGlobalStyle` (`cC`) zeroes `margin`, `padding` and `border` for EVERYTHING and sets `box-sizing: border-box`: that's why raw lists have no indent and `dU`'s circle comes out at 16px. Here the same rule goes under `:where`, with no specificity, so the classes below still take precedence.
+ *
+ *    The color mapping:
+ *      color-content-default                      → var(--ink)
+ *      color-content-ghost (menu, data, th)       → var(--ink-3)
+ *      color-primary / color-brand / #1E6BF1      → var(--p-marca)
+ *      color-surface-1 (paper, alert, tag)  → var(--surface)
+ *      color-surface-2 (odd table row)  → var(--surface-2)
+ *      color-border-1 (outline tag) → --dd-borda-1 (color at 20%)
+ *      color-system (default tag)            → var(--p-info-fundo)
+ *      color-error (alert header)            → var(--p-erro-fundo)
+ *      #B9CBD3 (menu rule) · #A5A5A5 (`BN`)     → var(--line-strong)
+ *      #b3d4ff ("Em Breve" badge)                  → var(--p-info-fundo)
+ *      #202c44 / white (`dU`'s circle)          → var(--p-superficie-4) / var(--p-conteudo-claro)
+ *      red · #ff4c4c (red warnings)               → var(--p-erro-conteudo)
+ *      scrollbar #f1f1f1 / #888 / #555              → var(--surface-2) / var(--ink-3) / var(--ink-2)
+ *      paper elevation static                     → var(--p-sombra-1)
+ *      alert shadow (shadow-0 + shadow-1)     → var(--p-sombra-2)
+ *      alert veil rgba(0,0,0,.7)               → --dd-veu (color at 70%)
+ *      secondary button color-hover            → --dd-passagem (color at 8%)
+ *    ==========================================================================
+ */
 
 .dd-pagina,
 .dd-alerta {
@@ -56,8 +44,9 @@
   box-sizing: border-box;
 }
 
-/* `nC` + `.dictionary-container { color: content-default }`. O texto solto
-   (fora de um `bds-typo`) herda da página: 16px, altura normal. */
+/*
+ * `nC` + `.dictionary-container { color: content-default }`. Loose text (outside a `bds-typo`) inherits from the page: 16px, normal height.
+ */
 .dd-pagina {
   box-sizing: border-box;
   width: 100%;
@@ -76,7 +65,7 @@
   margin: 0 auto;
 }
 
-/* `bds-typo variant="fs-32" bold` com a margem padrão de 22. */
+/* `bds-typo variant="fs-32" bold` with the default 22 margin. */
 .dd-titulo {
   margin-bottom: 22px;
   font-size: 2rem;
@@ -84,7 +73,7 @@
   line-height: 100%;
 }
 
-/* `rC` = `bds-paper` (raio 16, elevação static) com `padding: 10px`, em linha. */
+/* `rC` = `bds-paper` (radius 16, static elevation) with `padding: 10px`, inline. */
 .dd-papel {
   display: flex;
   flex-direction: row;
@@ -96,9 +85,9 @@
 
 /* ------------------------------------------------------------------ o menu */
 
-/* `LV width="350px"`: coluna, 5 em cima e embaixo. Sem `flex-shrink: 0` de
-   propósito: lá o menu encolhe junto com a área (`width: 100%`), até o
-   mínimo que o acordeão aguenta. */
+/*
+ * `LV width="350px"`: column, 5 on top and bottom. No `flex-shrink: 0` on purpose: there the menu shrinks along with the area (`width: 100%`), down to the minimum the accordion can take.
+ */
 .dd-menu {
   display: flex;
   flex-direction: column;
@@ -106,15 +95,16 @@
   padding: 5px 0;
 }
 
-/* `QV`: 8 em cima e embaixo e o fio à direita. */
+/* `QV`: 8 on top and bottom and the rule on the right. */
 .dd-menu-lista {
   height: 100%;
   padding: 8px 0;
   border-right: 1px solid var(--line-strong);
 }
 
-/* Cores do título: `open` na seção clicada, `active` no resto, fantasma no
-   inativo (`.accordion`, `.menu_item_single-content`, `.item_Title_menu-content`). */
+/*
+ * Title colors: `open` on the clicked section, `active` on the rest, ghost on the inactive one (`.accordion`, `.menu_item_single-content`, `.item_Title_menu-content`).
+ */
 .dd-aberto {
   color: var(--p-marca);
 }
@@ -182,9 +172,9 @@ a:hover > .dd-unico-linha > .dd-ativo {
   line-height: 16px;
 }
 
-/* `DV` (`details.accordion`): 8 à esquerda, 5 à direita, no mínimo 55 de
-   altura, 16px semi-bold. Lá o `details` é `display: flex`; o Chrome põe o
-   conteúdo num slot interno, e o que se vê é a pilha — que é o que vai aqui. */
+/*
+ * `DV` (`details.accordion`): 8 on the left, 5 on the right, minimum height 55, 16px semi-bold. There `details` is `display: flex`; Chrome puts the content in an internal slot, and what shows is the stack — which is what goes here.
+ */
 .dd-acordeao {
   display: flex;
   flex-direction: column;
@@ -197,8 +187,9 @@ a:hover > .dd-unico-linha > .dd-ativo {
   line-height: 24px;
 }
 
-/* `OV` (summary) + `IV`: 15 em cima e 10 embaixo (o `details summary` do `QV`
-   vence os 25 do `OV`), título e seta nas pontas. */
+/*
+ * `OV` (summary) + `IV`: 15 on top and 10 at the bottom (the `QV`'s `details summary` overrides `OV`'s 25), title and arrow at the ends.
+ */
 .dd-acordeao-cabeca {
   display: flex;
   flex-direction: row;
@@ -243,7 +234,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   padding-top: 15px;
 }
 
-/* `.item_Title_menu-circle`: 8 de mínimo e 8 à direita; a bolinha é a marca. */
+/* `.item_Title_menu-circle`: 8 minimum and 8 on the right; the dot is the brand color. */
 .dd-sub-marca {
   width: auto;
   min-width: 8px;
@@ -266,12 +257,11 @@ a:hover > .dd-unico-linha > .dd-ativo {
   line-height: 150%;
 }
 
-/* --------------------------------------------------------------- a área */
+/* --------------------------------------------------------------- the area */
 
-/* `aC`: 20 à esquerda, rola na vertical. A origem começa em `max-height: 560px`
-   e um `ResizeObserver` passa a igualar a altura do `rC` — na prática, a
-   altura do menu quando ele é mais alto que 560. `contain: size` tira a
-   página da conta da altura da linha, e o `min-height` devolve os 560. */
+/*
+ * `aC`: 20 on the left, scrolls vertically. The source starts at `max-height: 560px` and a `ResizeObserver` then matches `rC`'s height — in practice, the menu's height when it's taller than 560. `contain: size` removes the row's height from the page's calculation, and `min-height` restores the 560.
+ */
 .dd-area {
   width: 100%;
   min-height: 560px;
@@ -297,9 +287,9 @@ a:hover > .dd-unico-linha > .dd-ativo {
   background: var(--ink-2);
 }
 
-/* -------------------------------------------------------------- as peças */
+/* -------------------------------------------------------------- the pieces */
 
-/* `lN`: `bds-grid xxs=12` à direita, fantasma, `bds-typo fs-10`. */
+/* `lN`: `bds-grid xxs=12` on the right, ghost, `bds-typo fs-10`. */
 .dd-data {
   display: flex;
   align-items: flex-end;
@@ -356,7 +346,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   padding-bottom: 20px;
 }
 
-/* `VN`: fs-14 por padrão (`dd-p16` quando a origem não passa `variant`). */
+/* `VN`: fs-14 by default (`dd-p16` when the source doesn't pass a `variant`). */
 .dd-texto {
   display: block;
   align-self: flex-start;
@@ -366,7 +356,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   line-height: 150%;
 }
 
-/* `CN` (o último da vírgula, `gN`). */
+/* `CN` (the last after the comma, `gN`). */
 .dd-linha {
   display: flex;
   flex-direction: row;
@@ -375,7 +365,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   margin-bottom: 5px;
 }
 
-/* `ON`: flex sem quebra; com `fs-14 bold`, e solto (sem variante) em fs-16. */
+/* `ON`: flex without wrapping; with `fs-14 bold`, and loose (no variant) at fs-16. */
 .dd-destaque {
   display: flex;
   padding-right: 3px;
@@ -391,8 +381,9 @@ a:hover > .dd-unico-linha > .dd-ativo {
   font-weight: 400;
 }
 
-/* `sN` = `bds-chip-tag color="outline" icon="warning"`: 24 de altura, raio 12,
-   4 de lado, ícone de 16 e a palavra fs-12 bold com 8 de cada lado. */
+/*
+ * `sN` = `bds-chip-tag color="outline" icon="warning"`: 24 height, radius 12, 4 side padding, 16 icon, and the fs-12 bold word with 8 on each side.
+ */
 .dd-etiqueta {
   display: inline-flex;
   align-items: center;
@@ -444,7 +435,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   width: 100%;
 }
 
-/* `jN`: item alinhado ao centro; link, círculo e print com 5 de cada lado. */
+/* `jN`: item centered; link, circle and print with 5 on each side. */
 .dd-passo {
   display: flex;
   align-items: center;
@@ -456,8 +447,9 @@ a:hover > .dd-unico-linha > .dd-ativo {
   margin: 0 5px;
 }
 
-/* `dU` (`uU`): 14 de largura com 8 de recheio em `border-box` — o recheio
-   ganha, e o círculo fica com 16, com o ícone small (20) transbordando. */
+/*
+ * `dU` (`uU`): 14 wide with 8 padding in `border-box` — the padding wins, and the circle ends up at 16, with the small icon (20) overflowing.
+ */
 .dd-circulo {
   display: flex;
   flex: none;
@@ -486,8 +478,9 @@ a:hover > .dd-unico-linha > .dd-ativo {
   opacity: 0.5;
 }
 
-/* `FN` (`bds-paper` com `padding: 3px`, mínimo 40, até 20 de altura) — o `DN` é
-   a mesma caixa sem papel. `xU` troca o mínimo por máximo de 40. */
+/*
+ * `FN` (`bds-paper` with `padding: 3px`, minimum 40, up to 20 height) — `DN` is the same box without paper. `xU` swaps the minimum for a maximum of 40.
+ */
 .dd-indicador {
   display: flex;
   flex: none;
@@ -505,7 +498,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   line-height: 150%;
 }
 
-.dd-indicador--vazio {
+.dd-indicador--empty {
   box-shadow: none;
 }
 
@@ -518,7 +511,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   font-weight: 400;
 }
 
-/* `HN`: até 180, encostado à direita, 10 de folga. */
+/* `HN`: up to 180, flush right, 10 gap. */
 .dd-rotulo {
   display: flex;
   align-self: flex-start;
@@ -528,7 +521,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   padding-right: 10px;
 }
 
-/* `MN` (o último da vírgula, `yN`). */
+/* `MN` (the last after the comma, `yN`). */
 .dd-descricao {
   display: flex;
   align-self: flex-end;
@@ -537,7 +530,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   font-weight: 400;
 }
 
-/* `MU`: o rótulo dos exemplos da Recorrência, entre 83 e 100. */
+/* `MU`: the Recurrence examples' label, between 83 and 100. */
 .dd-exemplo-rotulo {
   display: flex;
   align-self: flex-start;
@@ -550,7 +543,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   line-height: 150%;
 }
 
-/* `mU`: o `warning` do "Atenção" do Fluxo conversacional, em vermelho. */
+/* `mU`: the "warning" from the Conversational Flow's "Atenção", in red. */
 .dd-atencao {
   display: inline-flex;
   margin: 0 2px 0 5px;
@@ -569,8 +562,9 @@ a:hover > .dd-unico-linha > .dd-ativo {
   vertical-align: middle;
 }
 
-/* `iU`: `table` sem borda com 15 embaixo; o espaçamento de 2px entre células é
-   o do navegador, que o reset global não toca. */
+/*
+ * `iU`: borderless `table` with 15 at the bottom; the 2px gap between cells is the browser's, untouched by the global reset.
+ */
 .dd-tabela {
   width: 100%;
   padding-bottom: 15px;
@@ -578,10 +572,9 @@ a:hover > .dd-unico-linha > .dd-ativo {
   border-spacing: 2px;
 }
 
-/* `oU`/`rU`: 10 de recheio, primeira coluna com 20%. O resto desfaz o `th`/`td`
-   sem classe de `packages/ui/estilos/base.css` (caixa alta, `nowrap`, altura
-   fixa, fio embaixo, fundo e cor próprios), que lá não existe: o `th` da origem
-   é texto cru da página (16px, negrito do navegador) e o `td` herda a linha. */
+/*
+ * `oU`/`rU`: 10 padding, first column at 20%. The rest undoes `th`/`td` without a class from `packages/ui/estilos/base.css` (uppercase, `nowrap`, fixed height, bottom rule, its own background and color), which doesn't exist there: the source's `th` is raw page text (16px, browser bold) and the `td` inherits the line.
+ */
 .dd-tabela th,
 .dd-tabela td {
   height: auto;
@@ -621,14 +614,14 @@ a:hover > .dd-unico-linha > .dd-ativo {
   background: var(--surface-2);
 }
 
-/* `bds-typo fs-14`, bold na primeira célula. */
+/* `bds-typo fs-14`, bold in the first cell. */
 .dd-celula {
   display: block;
   font-size: 0.875rem;
   line-height: 150%;
 }
 
-/* `aU`: cada chave da célula-objeto vira um parágrafo com 15 embaixo. */
+/* `aU`: each object-cell key becomes a paragraph with 15 at the bottom. */
 .dd-celula-paragrafo {
   display: flex;
   align-self: flex-start;
@@ -645,7 +638,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   gap: 16px;
 }
 
-/* `attentionText`: `bds-typo tag="span"` (fs-16) com o ícone e o texto fs-14. */
+/* `attentionText`: `bds-typo tag="span"` (fs-16) with the icon and the fs-14 text. */
 .dd-atencao-texto {
   font-size: 1rem;
   line-height: 150%;
@@ -673,7 +666,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   white-space: nowrap;
 }
 
-/* 164×19: seta, "TRACKING AUTOMÁTICO" e o interruptor ligado. */
+/* 164×19: arrow, "TRACKING AUTOMÁTICO" and the switch turned on. */
 .dd-print--tracking {
   gap: 3px;
   width: 164px;
@@ -714,8 +707,9 @@ a:hover > .dd-unico-linha > .dd-ativo {
 
 /* -------------------------------------------------------------- o alerta */
 
-/* `.alert__dialog`: véu a 70% na tela inteira; a caixa a 48 do topo. O
-   `display` só entra aberto — fechado, quem esconde é o próprio `popover`. */
+/*
+ * `.alert__dialog`: 70% veil over the whole screen; the box 48 from the top. `display` only enters open — closed, the `popover` itself hides it.
+ */
 .dd-alerta:popover-open {
   display: block;
   position: fixed;
@@ -732,7 +726,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   font-family: var(--p-fonte);
 }
 
-/* `.alert__dialog .alert`: até 424, raio 8, surface-1, sombra secondary. */
+/* `.alert__dialog .alert`: up to 424, radius 8, surface-1, secondary shadow. */
 .dd-alerta-caixa {
   position: relative;
   max-width: 424px;
@@ -743,7 +737,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   box-shadow: var(--p-sombra-2);
 }
 
-/* `.alert__header--error`: 64 de mínimo, 12/16, ícone x-large e título fs-16 bold. */
+/* `.alert__header--error`: 64 minimum, 12/16, x-large icon and fs-16 bold title. */
 .dd-alerta-cabeca {
   display: flex;
   align-items: center;
@@ -774,7 +768,7 @@ a:hover > .dd-unico-linha > .dd-ativo {
   line-height: 150%;
 }
 
-/* `.alert__actions`: à direita, 12/16. */
+/* `.alert__actions`: right-aligned, 12/16. */
 .dd-alerta-acoes {
   display: flex;
   align-items: center;

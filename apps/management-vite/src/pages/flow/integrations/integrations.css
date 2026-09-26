@@ -1,27 +1,25 @@
-/* ============================== Integrações (`/integrations`) e Webhook
+/*
+ * ============================== Integrations (`/integrations`) and Webhook
+ *
+ *    Structure and measurements come from `portal.css` and the templates embedded in `portal.js` (`.integrations-list` grid, `card--square` card, Webhook's module 29045, `oauth-form` 75264, `custom-headers`), checked against the copy's DOM (1280 window). The color follows `fluxo.css`'s map:
+ *
+ *      #f6f6f6 `--color-surface-1` (card/paper)                 → `--p-superficie-0`
+ *      #282828 `--color-content-default` (title, button)        → `--p-conteudo`
+ *      #595959 `--color-content-disable` (description)          → `--p-conteudo-desabilitado`
+ *      #8c8c8c `--color-content-ghost`                           → `--p-conteudo-fantasma`
+ *      rgba(0,0,0,.2) `--color-border-1` (field border)         → `--p-linha-media`
+ *      primary (active tab, Save, dashed button)                 → `--p-marca-forte`
+ *      #fde99b (warning band)                                    → `--p-alerta-fundo`
+ *      0 2px 8px -2px rgba(0,0,0,.16) (paper)                    → `--g-sombra-cartao`
+ *
+ *    None of their hex enters; the font is Pipe's.
+ */
 
-   Estrutura e medida vêm de `portal.css` e dos templates embutidos em
-   `portal.js` (grade `.integrations-list`, cartão `card--square`, módulo 29045
-   do Webhook, `oauth-form` 75264, `custom-headers`), conferidas no DOM da cópia
-   (janela 1280). A tinta segue o mapa de `fluxo.css`:
-
-     #f6f6f6 `--color-surface-1` (cartão/papel)          → `--p-superficie-0`
-     #282828 `--color-content-default` (título, botão)   → `--p-conteudo`
-     #595959 `--color-content-disable` (descrição)       → `--p-conteudo-desabilitado`
-     #8c8c8c `--color-content-ghost`                     → `--p-conteudo-fantasma`
-     rgba(0,0,0,.2) `--color-border-1` (borda de campo)  → `--p-linha-media`
-     primária (aba ativa, Salvar, botão tracejado)       → `--p-marca-forte`
-     #fde99b (faixa de aviso)                            → `--p-alerta-fundo`
-     0 2px 8px -2px rgba(0,0,0,.16) (papel)              → `--g-sombra-cartao`
-
-   Nenhum hex deles entra; a fonte é a do Pipe. */
-
-/* ------------------------------------------------ a grade de cartões
-
-   `.integrations-list { display: grid; justify-content: center; margin-right:
-   -20px; margin-top: 0; max-width: 1097px }` com colunas por largura de tela
-   (4 ≥ 1220, 3 entre 1000 e 1220, 2 entre 500 e 1000, 1 abaixo). A lista
-   começa 15px abaixo da barra do contato. */
+/*
+ * ------------------------------------------------ the card grid
+ *
+ *    `.integrations-list { display: grid; justify-content: center; margin-right: -20px; margin-top: 0; max-width: 1097px }` with columns by screen width (4 ≥ 1220, 3 between 1000 and 1220, 2 between 500 and 1000, 1 below). The list starts 15px below the contact bar.
+ */
 .ig-lista {
   display: grid;
   justify-content: center;
@@ -60,10 +58,9 @@
   text-align: center;
 }
 
-/* `card.card--with-hover.card--square`: `display: inline-flex; flex-direction:
-   column; height: 234px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px
-   rgba(0,0,0,.15); margin: .5625rem 0` e `.card-content { padding: .9375rem }`.
-   Em `[ng-click]:hover` a origem faz `transform: scale(1.03)` e sobe a sombra. */
+/*
+ * `card.card--with-hover.card--square`: `display: inline-flex; flex-direction: column; height: 234px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.15); margin: .5625rem 0` and `.card-content { padding: .9375rem }`. On `[ng-click]:hover` the source does `transform: scale(1.03)` and raises the shadow.
+ */
 .ig-cartao {
   display: inline-flex;
   flex-direction: column;
@@ -93,9 +90,9 @@ a.ig-cartao:hover {
   cursor: default;
 }
 
-/* `img` em linha, `height="57"` (Dashbot `67` com `.mb0`); `.integrations-list
-   .integration-item img:not(.mb0) { margin-bottom: .625rem }` — medido, o texto
-   começa 16px abaixo da figura (10 de margem + a descida da linha). */
+/*
+ * Inline `img`, `height="57"` (Dashbot `67` with `.mb0`); `.integrations-list .integration-item img:not(.mb0) { margin-bottom: .625rem }` — measured, the text starts 16px below the figure (10px margin + line descent).
+ */
 .ig-figura {
   flex: none;
   margin-bottom: 16px;
@@ -142,13 +139,11 @@ a.ig-cartao:hover {
   width: 100%;
 }
 
-/* ------------------------------------------------ `bds-button` (size medium)
-
-   `button.button__size--medium`: 40px de altura, `padding: 0 16px`, raio 8,
-   borda de 1px, `gap: 4px`, texto `fs-14` negrito. O `button { min-width:
-   8.125rem }` global do portal alcança o botão (build sem shadow DOM), e é por
-   isso que "Conectar", "+ Adicionar" e "Salvar" medem 130 de largura mínima.
-   `tertiary` e `ghost` são contornados na cor do conteúdo; `primary` é cheio. */
+/*
+ * ------------------------------------------------ `bds-button` (size medium)
+ *
+ *    `button.button__size--medium`: 40px tall, `padding: 0 16px`, radius 8, 1px border, `gap: 4px`, bold `fs-14` text. The portal's global `button { min-width: 8.125rem }` reaches the button (build without shadow DOM), which is why "Conectar", "+ Adicionar" and "Salvar" measure 130 minimum width. `tertiary` and `ghost` are outlined in the content color; `primary` is filled.
+ */
 .ig-botao {
   display: inline-flex;
   align-items: center;
@@ -190,8 +185,9 @@ a.ig-cartao:hover {
   cursor: not-allowed;
 }
 
-/* `bds-button-icon variant="secondary" size="short"`: 40px, `padding: 8px`,
-   raio 8, sem fundo; o mesmo `min-width` global de 130px alcança o botão. */
+/*
+ * `bds-button-icon variant="secondary" size="short"`: 40px, `padding: 8px`, radius 8, no background; the same global 130px `min-width` reaches the button.
+ */
 .ig-botao-icone {
   display: flex;
   align-items: center;
@@ -211,12 +207,12 @@ a.ig-cartao:hover {
   background: var(--g-tinta-hover);
 }
 
-/* ------------------------------------------------ o papel do Webhook
-
-   `bds-paper.integration-card`: raio 16, sombra `0 2px 8px -2px rgba(0,0,0,.16)`,
-   `margin: 8px auto auto`, 80% da tela (= a coluna). Dentro, `bds-grid
-   padding="3"` é 24px. */
-/* O `<bds-grid>` de fora é flex: assim a margem de 8px do papel não colapsa na do cabeçalho. */
+/*
+ * ------------------------------------------------ the Webhook paper
+ *
+ *    `bds-paper.integration-card`: radius 16, shadow `0 2px 8px -2px rgba(0,0,0,.16)`, `margin: 8px auto auto`, 80% of the screen (= the column). Inside, `bds-grid padding="3"` is 24px.
+ */
+/* The outer `<bds-grid>` is flex: that way the paper's 8px margin doesn't collapse into the header's. */
 .ig-grade {
   display: flex;
 }
@@ -246,9 +242,9 @@ a.ig-cartao:hover {
   gap: 24px;
 }
 
-/* `bds-tabs` (`padding: 0 10px`) com `bds-tab` de 48px, `margin-right: 32px`,
-   `border-bottom: 2px solid` (só a selecionada leva a primária), texto
-   `fs-16` negrito quando selecionada e regular nas outras. */
+/*
+ * `bds-tabs` (`padding: 0 10px`) with 48px `bds-tab`, `margin-right: 32px`, `border-bottom: 2px solid` (only the selected one gets the primary color), bold `fs-16` text when selected and regular on the others.
+ */
 .ig-abas {
   display: flex;
   flex-direction: row;
@@ -315,9 +311,9 @@ a.ig-cartao:hover {
   line-height: 160%;
 }
 
-/* `bds-banner variant="warning" context="inside"`: `.banner__holder { padding:
-   8px 16px; border-radius: 8px }`, ícone `warning` de 24 e texto de 16 com
-   altura de linha 24, sobre o amarelo de aviso. */
+/*
+ * `bds-banner variant="warning" context="inside"`: `.banner__holder { padding: 8px 16px; border-radius: 8px }`, 24px `warning` icon and 16px text with 24 line height, over the warning yellow.
+ */
 .ig-faixa-alerta {
   display: flex;
   align-items: center;
@@ -375,12 +371,11 @@ a.ig-cartao:hover {
   margin-right: 8px;
 }
 
-/* ------------------------------------------------ `bds-input`
-
-   `.input { display: flex; align-items: center; gap: 8px; padding: 8px 4px 8px
-   12px; border: 1px solid var(--color-border-1); border-radius: 8px }` (7px em
-   cima quando há rótulo); `label` 12px negrito com 2px abaixo; `input` 14px com
-   altura de linha 22 e 36 de altura. Com rótulo o campo mede 73; sem, 54. */
+/*
+ * ------------------------------------------------ `bds-input`
+ *
+ *    `.input { display: flex; align-items: center; gap: 8px; padding: 8px 4px 8px 12px; border: 1px solid var(--color-border-1); border-radius: 8px }` (7px on top when there's a label); `label` 12px bold with 2px below; `input` 14px with 22 line height and 36 height. With a label the field measures 73; without, 54.
+ */
 .ig-campo {
   position: relative;
   display: flex;
@@ -408,7 +403,7 @@ a.ig-cartao:hover {
   border-color: var(--p-marca-forte);
 }
 
-.ig-campo--erro .ig-campo-caixa {
+.ig-campo--error .ig-campo-caixa {
   border-color: var(--p-erro-conteudo);
 }
 
@@ -462,7 +457,7 @@ a.ig-cartao:hover {
   color: var(--p-erro-conteudo);
 }
 
-/* O ícone à direita do campo (olho da senha, seta do seletor). */
+/* The icon to the right of the field (password eye, selector arrow). */
 .ig-campo-icone {
   display: flex;
   flex: none;
@@ -477,11 +472,11 @@ a.ig-cartao:hover {
   cursor: pointer;
 }
 
-/* ------------------------------------------------ `expandable-content.advanced-settings.pv3`
-
-   Host `padding: 10px 0`; `.item-header { padding: 10px 5px; display: flex }`
-   com a seta em `.mr3.mt2` (10px à direita, 5px acima) e o texto
-   `.bp-fs-6`; `item-body { margin: 10px 0 }` e, aberto, sem recuo. */
+/*
+ * ------------------------------------------------ `expandable-content.advanced-settings.pv3`
+ *
+ *    Host `padding: 10px 0`; `.item-header { padding: 10px 5px; display: flex }` with the arrow at `.mr3.mt2` (10px to the right, 5px above) and the `.bp-fs-6` text; `item-body { margin: 10px 0 }` and, open, no indent.
+ */
 .ig-avancado {
   display: flex;
   flex-direction: column;
@@ -515,11 +510,11 @@ a.ig-cartao:hover {
   margin: 10px 0;
 }
 
-/* ------------------------------------------------ `bds-select-chips.url-input-field.mb3`
-
-   ponytail: o chunk do `bds-select-chips` não veio na captura; a caixa segue
-   o `bds-input` e as fichas o `bds-chip-clickable` do blip-ds (32px, raio 16,
-   fundo `surface-2`, texto 14 negrito). Pede conferência na origem. */
+/*
+ * ------------------------------------------------ `bds-select-chips.url-input-field.mb3`
+ *
+ *    ponytail: the `bds-select-chips` chunk wasn't in the capture; the box follows `bds-input` and the chips follow blip-ds's `bds-chip-clickable` (32px, radius 16, `surface-2` background, bold 14px text). Needs checking against the source.
+ */
 .ig-chips {
   margin-bottom: 10px;
 }
@@ -601,9 +596,9 @@ a.ig-cartao:hover {
   color: var(--p-conteudo-fantasma);
 }
 
-/* `bds-select-chips` de escolha (Tipos de envio) e de tipo de autenticação
-   (rádio): ficha clicável, mesma altura/raio de `.ig-chip`, mas com o
-   controle nativo por trás em vez de um "x". */
+/*
+ * `bds-select-chips` for choice (Tipos de envio) and for auth type (radio): clickable chip, same height/radius as `.ig-chip`, but with the native control behind it instead of an "x".
+ */
 .ig-chip-checkbox {
   display: inline-flex;
   align-items: center;
@@ -631,19 +626,19 @@ a.ig-cartao:hover {
   cursor: inherit;
 }
 
-/* ------------------------------------------------ OAuth
-
-   `<div class="flex flex-column items-left">` com o título em `.mb3` e a
-   fileira `bds-switch size="short" class="pv2"` + `bds-typo.pv2.ph4` (altura
-   28, 14px). O host curto mede 32×34: 5px de folga acima e abaixo do trilho
-   de 18 mais os 6px do `label`. */
+/*
+ * ------------------------------------------------ OAuth
+ *
+ *    `<div class="flex flex-column items-left">` with the title in `.mb3` and the `bds-switch size="short" class="pv2"` + `bds-typo.pv2.ph4` row (height 28, 14px). The short host measures 32×34: 5px of slack above and below the 18px track plus the `label`'s 6px.
+ */
 .ig-autenticacao {
   display: flex;
   flex-direction: column;
 }
 
-/* Fileira `bds-switch` + rótulo — o wrapper não pode se chamar `ig-interruptor`
-   (a classe do PRÓPRIO `<Interruptor>`, com posição/tamanho fixos, colidiria). */
+/*
+ * Row `bds-switch` + label — the wrapper can't be called `ig-interruptor` (the class of the `<Interruptor>` component ITSELF, with fixed position/size, would collide).
+ */
 .ig-interruptor-linha {
   display: flex;
   align-items: center;
@@ -660,8 +655,9 @@ a.ig-cartao:hover {
   color: var(--p-conteudo);
 }
 
-/* `oauth-form` (módulo 75264): `.pv3 > .w-100.mv3 > p.bp-fs-6` (14px, 24 abaixo)
-   e duas fileiras `.flex.mb5` (40 abaixo) com `.w-40 / .w-10 / .w-40`. */
+/*
+ * `oauth-form` (module 75264): `.pv3 > .w-100.mv3 > p.bp-fs-6` (14px, 24 below) and two `.flex.mb5` rows (40 below) with `.w-40 / .w-10 / .w-40`.
+ */
 .ig-oauth {
   padding: 10px 0;
 }
@@ -695,12 +691,11 @@ a.ig-cartao:hover {
   width: 60%;
 }
 
-/* ------------------------------------------------ `custom-headers`
-
-   `<div class="flex mv5"> <div class="w-60">` título em `.mb3`, fileiras
-   `bds-input` (`padding: .1em .2em .1em 0`) + `bds-button-icon icon="trash"`
-   e o `button.bp-btn--dashed` de 60px, largura total, borda tracejada de 2px
-   na primária, raio 3, texto 14 negrito. */
+/*
+ * ------------------------------------------------ `custom-headers`
+ *
+ *    `<div class="flex mv5"> <div class="w-60">` title in `.mb3`, `bds-input` rows (`padding: .1em .2em .1em 0`) + `bds-button-icon icon="trash"` and the 60px `button.bp-btn--dashed`, full width, 2px dashed border in the primary color, radius 3, bold 14px text.
+ */
 .ig-cabecalhos {
   display: flex;
   margin: 40px 0;
@@ -752,7 +747,7 @@ a.ig-cartao:hover {
   color: var(--p-erro-conteudo);
 }
 
-/* O painel "Webhook criado. Copie o segredo agora" — some depois de "Já copiei". */
+/* The "Webhook criado. Copie o segredo agora" panel — disappears after "Já copiei". */
 .ig-segredo-gerado {
   padding: 16px;
   margin-bottom: 20px;
@@ -760,12 +755,12 @@ a.ig-cartao:hover {
   background: var(--p-superficie-1, var(--p-superficie-2));
 }
 
-/* Espaço extra acima do bloco de cabeçalhos, dentro de "Configurações avançadas". */
+/* Extra space above the headers block, inside "Configurações avançadas". */
 .ig-cabecalhos-bloco {
   margin-top: 24px;
 }
 
-/* Os webhooks já criados, abaixo do formulário "Novo webhook". */
+/* The webhooks already created, below the "Novo webhook" form. */
 .ig-lista-webhooks {
   margin: 24px 0 0;
   padding: 0;

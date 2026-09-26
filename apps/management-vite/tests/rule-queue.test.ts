@@ -10,13 +10,9 @@ import {
 } from '../src/lib/rule-queue.ts';
 
 /**
- * A regra de entrada — §8 da spec de métricas.
+ * The entry rule — §8 of the metrics spec.
  *
- * O que decide aqui é para qual fila a conversa cai, e errar significa mandar
- * o cliente para a equipe errada em silêncio: regra que não casa não dá erro.
- * Por isso o teste cobre as duas decisões que a spec toma contra a Blip — a
- * ORDEM de avaliação e a COMPOSIÇÃO com E/OU — e não os operadores, que são do
- * `@pipe/core` e já têm teste lá.
+ * What this decides is which queue the conversation falls into, and getting it wrong means silently routing the customer to the wrong team: a rule that doesn't match produces no error. That's why the test covers the two decisions the spec makes against Blip's — evaluation ORDER and AND/OR COMPOSITION — and not the operators, which belong to `@pipe/core` and already have their own test there.
  */
 
 const regra = (parcial: Partial<QueueRule> = {}): QueueRule => ({
@@ -102,7 +98,7 @@ test('the contact\'s extra field is read via a dotted path', () => {
   const extra = regra({
     conditions: [{ campo: 'contato.atributos.plano', operador: 'igual', value: 'Ouro' }],
   });
-  // Caixa e acento não contam: a normalização é a do `@pipe/core`.
+  // Case and accent don't count: normalization is `@pipe/core`'s.
   assert.ok(destinationQueue([extra], context));
 });
 

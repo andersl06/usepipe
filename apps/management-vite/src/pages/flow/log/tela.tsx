@@ -22,7 +22,7 @@ const TIPOS: [string, string][] = [
 ];
 
 /**
- * O template do Log (módulo 4842 de portal.js), tal qual:
+ * The Log template (portal.js module 4842), as-is:
  *
  *   <page-header page-title="modules.application.detail.messages.title" class="message-history-header">
  *     <custom-content class="u-full-width items-center">
@@ -50,21 +50,11 @@ const TIPOS: [string, string][] = [
  *       <div class="no-logs-found"> <bds-typo tag="h4" margin="false" variant="fs-16"> …history.noMessages
  *       <bds-typo tag="p" variant="fs-14"> …history.noMessagesDescription
  *
- * Textos pt-BR: "Log", "Ativar", "Funcionalidade desabilitada. " + "Novas
- * mensagens e notificações trafegadas não aparecerão aqui.", "Pesquise por
- * qualquer termo para filtrar as mensagens...", "Aguardando a primeira
- * mensagem", "Aqui você poderá visualizar todas as mensagens enviadas e
- * recebidas, assim como informações de quem as enviou. Você pode aproveitar
- * este tempo para ficar disponível em outros canais e alcançar mais
- * clientes.", "Nenhum resultado encontrado".
+ * pt-BR texts (captured verbatim): "Log", "Ativar", "Funcionalidade desabilitada. " + "Novas mensagens e notificações trafegadas não aparecerão aqui.", "Pesquise por qualquer termo para filtrar as mensagens...", "Aguardando a primeira mensagem", "Aqui você poderá visualizar todas as mensagens enviadas e recebidas, assim como informações de quem as enviou. Você pode aproveitar este tempo para ficar disponível em outros canais e alcançar mais clientes.", "Nenhum resultado encontrado".
  *
- * As duas feature flags (`search-logs`, `show-message-logs-switch`) estão
- * ligadas na conta capturada, então busca e interruptor aparecem.
+ * Both feature flags (`search-logs`, `show-message-logs-switch`) are on on the captured account, so search and the toggle both show.
  *
- * ponytail: `/log-configurations` (ligar/desligar a coleta) não existe na
- * API do Pipe. O interruptor é local: começa desligado — o mesmo estado da
- * origem sem configuração — e só esconde o aviso amarelo. O "Id" abre, na
- * origem, o modal de notificações da mensagem; aqui é só o link.
+ * ponytail: `/log-configurations` (turning collection on/off) doesn't exist in the Pipe API. The toggle is local: it starts off — the same state as the source with no configuration — and only hides the yellow warning. "Id" opens, in the source, the message notifications modal; here it's just the link.
  */
 export interface LogMessage {
   id: string;
@@ -97,7 +87,7 @@ export function TelaDoLog({
   aoAplicarFiltro,
 }: {
   search: string;
-  /** Filtro por período, direção e tipo — item 4 da tarefa: a origem só tinha busca. */
+  /** Filter by period, direction and type — task item 4: the source only had search. */
   de?: string;
   ate?: string;
   direction?: string;

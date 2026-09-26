@@ -18,27 +18,11 @@ import {
 } from './gravar';
 
 /**
- * A tela do Webhook — `auth.application.detail.integrations.webhook`
- * (portal.js, módulo 29045): abas "Visão Geral"/"Configurações", o cartão
- * `bds-paper`, a lista de URLs com "+ Adicionar"/"Salvar" no rodapé,
- * "Configurações avançadas (Opcional)" com Tipos de envio, autenticação
- * (switch + OAuth 2.0/Básica) e cabeçalhos customizados
- * (`referencias-blip/pesquisa/blip-integracoes-webhook.md`).
+ * The Webhook screen — `auth.application.detail.integrations.webhook` (portal.js, module 29045): "Visão Geral"/"Configurações" tabs, the `bds-paper` card, the URL list with "+ Adicionar"/"Salvar" in the footer, "Configurações avançadas (Opcional)" with dispatch types, authentication (switch + OAuth 2.0/Básica), and custom headers (`referencias-blip/pesquisa/blip-integracoes-webhook.md`).
  *
- * A origem grava UM webhook com várias URLs, todas com a MESMA configuração;
- * o Pipe grava em `webhook_saida` (`apis.md` §5.5) o inverso — várias LINHAS,
- * cada uma com sua própria URL, eventos, autenticação e cabeçalhos. A tela
- * concilia os dois: o formulário "Novo webhook" é o da origem (lista de
- * URLs com `adicionarUrl`/`removerUrl`/`urlValida` de `regras.ts`, uma
- * "Configurações avançadas" só), e "Salvar" cria UM `webhook_saida` por URL
- * preenchida, todos com a mesma configuração — a lista de URLs da origem
- * virando a lista de linhas do Pipe.
+ * The origin saves ONE webhook with several URLs, all with the SAME configuration; Pipe saves the opposite in `webhook_saida` (`apis.md` §5.5) — several ROWS, each with its own URL, events, authentication, and headers. The screen reconciles both: the "Novo webhook" form is the origin's (URL list with `adicionarUrl`/`removerUrl`/`urlValida` from `regras.ts`, a single "Configurações avançadas"), and "Salvar" creates ONE `webhook_saida` per filled URL, all with the same configuration — the origin's URL list becoming Pipe's row list.
  *
- * ponytail: eventos/autenticação/cabeçalhos de um webhook JÁ CRIADO só se
- * editam recriando (excluir + criar de novo); não há edição inline dessas
- * três coisas por linha — a tela original também não tinha edição de URL/
- * eventos pós-criação, só ativar/desativar, testar e excluir. Adicionar
- * edição completa por linha, se pedirem.
+ * ponytail: events/authentication/headers for an ALREADY-CREATED webhook can only be edited by recreating it (delete + create again); there's no inline editing of those three things per row — the original screen also had no post-creation editing of URL/events, only enable/disable, test, and delete. Add full per-row editing if it's requested.
  */
 
 const EVENTOS_ROTULOS: Record<string, string> = {

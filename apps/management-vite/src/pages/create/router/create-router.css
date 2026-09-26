@@ -1,11 +1,10 @@
-/* ============================ criar roteador (/criar/roteador)
-
-   Só o que é DESTA tela: o passo do convite, o módulo 22046 do `portal.js`
-   (`25.204.0-v0.43.1`) — `#create-application-router-step`.
-
-   O casco (o "x", a marca, o rodapé) e o passo do nome estão em `../criar.css`,
-   porque na origem eles são o mesmo template para o roteador e para o fluxo. A
-   página importa as duas folhas, nesta ordem. O prefixo `cr-` é de "criar". */
+/*
+ * ============================ create router (/criar/roteador)
+ *
+ *   Only what belongs to THIS screen: the invite step, `portal.js`'s module 22046 (`25.204.0-v0.43.1`) — `#create-application-router-step`.
+ *
+ *   The shell (the "x", the brand, the footer) and the name step are in `../criar.css`, because in the source they're the same template for the router and the flow. The page imports both sheets, in this order. The `cr-` prefix is from "criar" (create).
+ */
 
 /* `#create-application-router-step { flex flex-column items-center }` e
    `.router-step-content`:
@@ -21,11 +20,10 @@
   width: 100%;
 }
 
-/* `.router-step-content img { max-width: 18.75rem; width: 40% }`.
-   Lá é `/assets/img/templates/router.svg`, um desenho do conceito; o nosso
-   miolo é o ícone `roteador` — o MESMO desenho do botão que trouxe a pessoa e
-   da etiqueta do cartão no portal —, então a caixa guarda a proporção e o
-   ícone se ajusta a ela. */
+/*
+ * `.router-step-content img { max-width: 18.75rem; width: 40% }`.
+ *   There it's `/assets/img/templates/router.svg`, a concept drawing; our core is the `roteador` icon — the SAME artwork as the button that brought the person here and the portal card's label —, so the box keeps the proportion and the icon adjusts to it.
+ */
 .cr-convite-desenho {
   flex: 0 0 40%;
   max-width: 18.75rem;
@@ -59,8 +57,9 @@
   line-height: var(--p-altura-linha);
 }
 
-/* `.router-step-description a { gap: .5rem; margin-top: 1rem; margin-bottom: 3rem }`
-   e `class="flex"` no template — ícone e texto lado a lado. */
+/*
+ * `.router-step-description a { gap: .5rem; margin-top: 1rem; margin-bottom: 3rem }` and `class="flex"` in the template — icon and text side by side.
+ */
 .cr-saber-mais {
   display: flex;
   align-items: center;
@@ -71,16 +70,17 @@
   color: var(--cr-marca);
 }
 
-/* Sem o link de saber mais, os 3rem que ele carregava até o botão sumiriam
-   junto e o botão colaria na descrição. */
+/*
+ * Without the learn-more link, the 3rem it used to carry down to the button would disappear too and the button would stick to the description.
+ */
 .cr-convite-texto p + .btn.cr-botao {
   margin-top: 3rem;
 }
 
-/* --------------------------------------------------------- estreito
-   A fileira de duas colunas do convite não cabe: vira uma coluna só, com o
-   desenho em cima, que é o arranjo que a própria origem assume quando a
-   `.router-step-content` de 52.5rem não cabe na janela. */
+/*
+ * --------------------------------------------------------- narrow
+ *   The invite's two-column row doesn't fit: it becomes a single column, with the artwork on top, which is the arrangement the source itself takes when its 52.5rem `.router-step-content` doesn't fit the window.
+ */
 @media (max-width: 56rem) {
   .cr-convite {
     flex-direction: column;

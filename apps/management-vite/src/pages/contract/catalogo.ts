@@ -1,44 +1,10 @@
 import type { NomeDeIconePortal } from '../../components/icones-portal';
 
 /**
- * O catálogo de cartões do Painel do contrato — um registro por cartão, como na
- * origem.
- *
- * Lá cada cartão é um objeto com `group`, `option`, `icon`, `accessPermission`,
- * `featureToggle`, `metrics`, `path` e `additionalCheck`
- * (`referencias-blip/pesquisa/blip-painel-do-contrato.md` §"Os cartões, os três grupos"), e
- * a tela é o resultado de rodar o funil sobre essa lista. Aqui é a mesma ideia
- * com os campos que a NOSSA base sustenta: sem `featureToggle` e sem `metrics`,
- * porque não temos LaunchDarkly nem assinatura com métricas — e inventar os dois
- * para copiar um funil seria inventar produto.
- *
- * **A conferência é o par chave+verbo**, como a matriz deles: `accessPermission`
- * é a chave (`tenant-members`) e a conferência é o verbo (`read`/`write`). O
- * código de permissão que a pessoa precisa ter é a junção dos dois —
- * `conta.membros` + `ler` = `conta.membros.ler` —, e é assim que as onze
- * permissões criadas na migração `0019_permissoes_da_conta` se ligam à tela.
- *
- * ## O que ficou de fora, e por quê
- *
- * Nenhum cartão foi inventado e nenhum foi copiado por enfeite. Ficaram fora os
- * que, na origem, só existem quando há flag ou plano — coisas que não temos:
- *
- * - **Atendentes** (`/agent`): depende da métrica `Agent` da assinatura.
- * - **Base de conhecimento** (`/knowledge-base`): conferência `b` — write **e**
- *   plano de agente pago ou em trial. Sem plano de agente, `b` é sempre falso.
- * - **Pipeline** (`/pipeline`): conferência `c` — read **e** (flag
- *   `pipeline-enable` **ou** plano de agente). Sem flag e sem plano, sempre falso.
- * - **O grupo inteiro "Acompanhamento do plano"** (sete cartões de consumo):
- *   todos pedem `tenant-billing` MAIS uma flag `billing-*` MAIS uma métrica da
- *   assinatura, e a seção só é desenhada quando sobra mais de um cartão.
- *
- * Os que ficaram e têm `flagNaOrigem` são os que a origem esconde por flag mas
- * que já têm uma permissão de verdade guardando a porta: a flag some da regra
- * (não temos nenhuma), a permissão continua valendo, e o nome da flag fica
- * registrado no campo — é o que o modo demonstração mostra ao lado do cartão.
+ * The Contract Panel's card catalog — one record per card, like at the source. There each card is an object with `group`, `option`, `icon`, `accessPermission`, `featureToggle`, `metrics`, `path` and `additionalCheck` (`referencias-blip/pesquisa/blip-painel-do-contrato.md` §"Os cartões, os três grupos"), and the screen is the result of running the funnel over that list. Here it's the same idea with the fields OUR base supports: no `featureToggle` and no `metrics`, because we have no LaunchDarkly and no subscription with metrics — and inventing both just to copy a funnel would mean inventing a product. **The check is the key+verb pair**, like their matrix: `accessPermission` is the key (`tenant-members`) and the check is the verb (`read`/`write`). The permission code the person needs is the join of the two — `conta.membros` + `ler` = `conta.membros.ler` —, and that's how the eleven permissions created in migration `0019_permissoes_da_conta` connect to the screen. ## What was left out, and why No card was invented, and none was copied for decoration. Left out are the ones that, at the source, only exist behind a flag or a plan — things we don't have: - **Atendentes** (`/agent`): depends on the subscription's `Agent` metric. - **Base de conhecimento** (`/knowledge-base`): check `b` — write **and** a paid or trial agent plan. Without an agent plan, `b` is always false. - **Pipeline** (`/pipeline`): check `c` — read **and** (the `pipeline-enable` flag **or** an agent plan). Without the flag and without the plan, always false. - **The entire "Acompanhamento do plano" group** (seven consumption cards): all require `tenant-billing` PLUS a `billing-*` flag PLUS a subscription metric, and the section only renders when more than one card remains. The ones that stayed and carry `flagNaOrigem` are the ones the source hides behind a flag but that already have a real permission guarding the door: the flag disappears from the rule (we have none), the permission still applies, and the flag's name stays recorded in the field — that's what demo mode shows next to the card.
  */
 
-/** Os grupos que sobraram, com o título e o tooltip da origem. */
+/** The groups left over, with the source's title and tooltip. */
 export const GROUPS = [
   {
     id: 'configuracoes',
@@ -63,16 +29,15 @@ export interface ContractCard {
   titulo: string;
   description: string;
   icone: NomeDeIconePortal;
-  /** A chave da matriz, sem o verbo. O `accessPermission` deles. */
+  /** The matrix key, without the verb. Their `accessPermission`. */
   key: string;
   conferencia: Conferencia;
   rota: string;
   /**
-   * `false` enquanto a rota não existe. O cartão continua na tela, apagado e
-   * com o selo "em breve" — é o que o portal já faz com o que está em obra.
+   * `false` while the route doesn't exist yet. The card stays on screen, dimmed, with the "coming soon" badge — the same thing the portal already does with what's under construction.
    */
   pronto: boolean;
-  /** A flag que, na origem, esconderia este cartão. Só o modo demonstração mostra. */
+  /** The flag that, at the source, would hide this card. Only demo mode shows it. */
   flagNaOrigem?: string;
 }
 
@@ -107,7 +72,7 @@ export const CATALOGO: readonly ContractCard[] = [
     grupo: 'configuracoes',
     titulo: 'Grupos de acesso',
     description: 'Adicione, edite e remova grupos de acesso ao contrato',
-    /* `team` na origem, e o nosso `comunidade` É o `team` deles. */
+    /* `team` at the source, and our `comunidade` IS their `team`. */
     icone: 'comunidade',
     key: 'conta.grupos_acesso',
     conferencia: 'ler',
@@ -118,15 +83,17 @@ export const CATALOGO: readonly ContractCard[] = [
   {
     id: 'chamadas',
     grupo: 'funcionalidades',
-    /* "Blip Calls" na origem. O nome da plataforma deles sai da nossa tela — a
-       régua é copiar a disposição e a regra, nunca a marca. */
+    /*
+     * "Blip Calls" at the source. Their platform's name doesn't appear on our screen — the rule is to copy the layout and the logic, never the brand.
+     */
     titulo: 'Chamadas',
     description: 'Gerencie os bots que terão acesso ao recurso de ligações',
-    /* `robot`, como no `yc` do `main.e8593b01.chunk.js` — e não o `blip-chat`
-       (`bot`), que é o ícone do cartão de contato do portal. */
+    /*
+     * `robot`, like the `yc` in `main.e8593b01.chunk.js` — and not `blip-chat` (`bot`), which is the icon for the portal's contact card.
+     */
     icone: 'robo',
     key: 'conta.membros',
-    /* O único cartão que pede ESCRITA, como na origem (conferência `e`). */
+    /* The only card that requires WRITE, like at the source (check `e`). */
     conferencia: 'escrever',
     rota: '/contrato/chamadas',
     pronto: false,
@@ -134,29 +101,20 @@ export const CATALOGO: readonly ContractCard[] = [
   },
 ];
 
-/** O código de permissão que o cartão exige: chave + verbo. */
+/** The permission code the card requires: key + verb. */
 export function permissionRequired(card: ContractCard): string {
   return `${card.key}.${card.conferencia}`;
 }
 
 export interface FilterOptions {
   /**
-   * Modo demonstração (`?demo=1`): devolve o catálogo INTEIRO, para quem ainda
-   * não tem papel nem plano entender a tela antes de ela existir de verdade.
-   *
-   * **É SÓ VISUAL.** Nenhuma escrita passa por aqui: as Server Actions de
-   * `acoes.ts` conferem a permissão de verdade em `Eu.permissoes`, sempre, e não
-   * leem esta opção nem a URL. Ver o comentário no topo daquele arquivo.
+   * Demo mode (`?demo=1`): returns the ENTIRE catalog, so someone with no role or plan yet can understand the screen before it really exists for them. **DISPLAY ONLY.** No write goes through here: the Server Actions in `acoes.ts` always check the real permission in `Eu.permissoes`, and never read this flag or the URL. See the comment at the top of that file.
    */
   demo?: boolean;
 }
 
 /**
- * Os cartões que esta pessoa vê.
- *
- * Função pura de propósito — recebe a lista de permissões e devolve a lista de
- * cartões, sem tocar em sessão, banco nem URL. É o funil deles reduzido ao que
- * sobra sem flag e sem assinatura: um `hasPermission` por cartão.
+ * The cards this person sees. Deliberately a pure function — takes the permission list and returns the card list, without touching session, database or URL. It's their funnel reduced to what's left with no flag and no subscription: one `hasPermission` per card.
  */
 export function cardsVisiveis(
   permissions: readonly string[],
@@ -166,19 +124,11 @@ export function cardsVisiveis(
   return CATALOGO.filter((card) => permissions.includes(permissionRequired(card)));
 }
 
-/** Os `roleId` da origem, que no banco são o nome dos três papéis de conta (0021). */
+/** The source's `roleId` values, which in our database are the names of the three account roles (0021). */
 export type AccountRole = 'guest' | 'member' | 'admin';
 
 /**
- * Os três papéis da tela de membros deles, pelo `roleId`: rótulo, descrição
- * oficial em pt-BR (i18n `inviteMemberModal`), ícone e cor da opção no convite
- * (`roleOptions`: `eye-open`, `edit`, `avatar-user`). Ver
- * `blip-painel-do-contrato.md` §"A matriz de papéis" e
- * `blip-gestao-regras-tecnicas.md` §8.2.
- *
- * Desde a migração 0021 o papel de conta É a faixa — não há mais o que calcular
- * a partir de permissão. A ordem das chaves é a da origem (`TenantRole`: guest,
- * member, admin), e é a ordem das listas.
+ * The three roles on their Members screen, by `roleId`: label, official pt-BR description (i18n `inviteMemberModal`), icon and invite-option color (`roleOptions`: `eye-open`, `edit`, `avatar-user`). See `blip-painel-do-contrato.md` §"A matriz de papéis" and `blip-gestao-regras-tecnicas.md` §8.2. Since migration 0021 the account role IS the tier — there's nothing left to compute from permissions. The key order is the source's (`TenantRole`: guest, member, admin), and it's the order of the lists.
  */
 export const PAPEIS_DA_ORIGEM: Readonly<
   Record<
@@ -211,10 +161,7 @@ export function accountEhRole(nome: string | null | undefined): nome is AccountR
 }
 
 /**
- * Os cartões repartidos por grupo, na ordem dos grupos.
- *
- * Grupo sem nenhum cartão NÃO entra: na origem, seção vazia não rende cabeçalho
- * nem grade — o `guest` não vê um título de "Configurações gerais" sobre o nada.
+ * Cards split by group, in group order. A group with no cards at all is left out: at the source, an empty section renders no header and no grid — `guest` doesn't see a "Configurações gerais" title over nothing.
  */
 export function byGroup(
   cards: readonly ContractCard[],
@@ -225,20 +172,14 @@ export function byGroup(
   })).filter((section) => section.cards.length > 0);
 }
 
-/** Uma linha marcada na tela de Membros: de qual tabela veio e qual é o id. */
+/** A checked row on the Members screen: which table it came from and what its id is. */
 export interface MemberAlvo {
   tipo: 'usuario' | 'convite';
   id: string;
 }
 
 /**
- * Lê os alvos que a tabela de Membros manda no formulário.
- *
- * Cada linha marcada chega como `usuario:<id>` ou `convite:<id>` — o nosso
- * `userIdentity`, que na origem é uma chave só porque lá membro e convidado
- * moram na mesma tabela. **Vem do navegador**, então tudo o que não casa com os
- * dois prefixos conhecidos é descartado aqui, antes de virar consulta: o que
- * sobra é usado para escolher QUAL função de escrita chamar.
+ * Reads the targets the Members table sends in the form. Each checked row arrives as `usuario:<id>` or `convite:<id>` — our `userIdentity`, which at the source is a single key only because there member and invitee live in the same table. **Comes from the browser**, so anything that doesn't match the two known prefixes is discarded here, before it becomes a query: what's left is used to decide WHICH write function to call.
  */
 export function readMemberTargets(values: readonly string[]): MemberAlvo[] {
   const lidos: MemberAlvo[] = [];

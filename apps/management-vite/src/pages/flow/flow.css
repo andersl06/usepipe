@@ -1,60 +1,52 @@
-/* ============================== a tela do contato (`/fluxo/{id}`)
+/*
+ * ============================== the contact screen (`/fluxo/{id}`)
+ *
+ *    Copy of `auth.application.detail.home` from their portal, measured rule by rule in the `supernova.blip.ai/portal.css` sheet and in the templates embedded in `portal.js`:
+ *
+ *      module 57475  the detail shell (`<aside class="detail-aside fl">` +
+ *                    `<section id="main-content-area" class="main-detail-content
+ *                    min-vh-flex pa0 flex relative u-full-width">`);
+ *      module 80688  the contact bar (`.subheader-nav-div.flex.items-center.
+ *                    justify-between.ph5`);
+ *      module 79829  the section row (`<ul class="main-subheader ma0 flex
+ *                    items-center">` + the `.subheader-more-items`);
+ *      module 77021  the core (`.container` > header > `<hr/>` >
+ *                    `.chatbot-home-content`).
+ *
+ *    Each block below carries the SOURCE SELECTOR and the measured number. Only what belongs to THIS screen lives here; the shell (`pt-app`, `pt-conteudo`, `pt-obra`) and the bar pieces (`g-menu`, `g-painel`, `g-ponto`) come from `globais.css`.
+ *
+ *    ═══ THE PAINT IS OURS ═══
+ *
+ *    None of their hex enters. The dark bar comes from the `--g-barra-*` tokens, the rest from `--p-*`. The mappings the rest of the project has already fixed:
+ *
+ *      #282828 `--color-content-default` (bar background)      → `--g-barra-2`
+ *      #c9dfe4 (bar's muted label)                              → `--g-barra-fraca`
+ *      #fff    (bar's active label)                              → `--g-barra-tinta`
+ *      #3f7de8 (active underline)                                → `--g-barra-marca`
+ *      #21cc79 / #ff4c4c (status dot)                            → `--g-ponto-on/off`
+ *      #ededed `--color-surface-2` (core floor)                  → `--ground` (pt-app)
+ *      #fff    `--color-surface-0` (card)                        → `--p-superficie-0`
+ *      #202c44 (card title)                                      → `--p-conteudo`
+ *      #505f79 (card body)                                       → `--p-conteudo-desabilitado`
+ *      #94a3ab `.bp-c-silver` (Id, "Criado em")                 → `--p-conteudo-fantasma`
+ *      #e1e1e1 (`<hr/>`)                                          → `--p-linha`
+ *      #ff4c4c `.bp-c-delete` ("Deixar projeto")                → `--p-erro-conteudo`
+ *      #3f7de8 / #1e6bf1 (button, "Ver mais", price)            → `--p-marca-forte`
+ *      #b3d4ff (metric icon)                                      → `--p-marca-suave`
+ *      #8ca0b3 (divider between metrics)                          → `--p-linha-media`
+ *      rgba(0,0,0,.2) `--color-border-1` (field border)          → `--p-linha-media`
+ *      `--color-surface-1/2/3` (stack, extension)                → `--p-superficie-1/2/3`
+ *      #282828 `--color-content-default` (extension name)         → `--p-conteudo`
+ *
+ *    There's no `:root` alias like in `criar.css`: no `--p-*` is re-pointed inside the bar here, so there's no variable cycle to open.
+ */
 
-   Cópia de `auth.application.detail.home` do portal deles, medida regra por
-   regra na folha `supernova.blip.ai/portal.css` e nos templates embutidos no
-   `portal.js`:
-
-     módulo 57475  o casco do detalhe (`<aside class="detail-aside fl">` +
-                   `<section id="main-content-area" class="main-detail-content
-                   min-vh-flex pa0 flex relative u-full-width">`);
-     módulo 80688  a barra do contato (`.subheader-nav-div.flex.items-center.
-                   justify-between.ph5`);
-     módulo 79829  a fileira de seções (`<ul class="main-subheader ma0 flex
-                   items-center">` + o `.subheader-more-items`);
-     módulo 77021  o miolo (`.container` > cabeçalho > `<hr/>` >
-                   `.chatbot-home-content`).
-
-   Cada bloco abaixo traz o SELETOR DE ORIGEM e o número medido. Só o que é
-   DESTA tela mora aqui; o casco (`pt-app`, `pt-conteudo`, `pt-obra`) e as peças
-   de barra (`g-menu`, `g-painel`, `g-ponto`) vêm de `globais.css`.
-
-   ═══ A TINTA É A NOSSA ═══
-
-   Nenhum hex deles entra. A barra escura sai dos `--g-barra-*`, o resto dos
-   `--p-*`. As correspondências que o resto do projeto já fixou:
-
-     #282828 `--color-content-default` (fundo da barra)   → `--g-barra-2`
-     #c9dfe4 (rótulo apagado da barra)                    → `--g-barra-fraca`
-     #fff    (rótulo ativo da barra)                      → `--g-barra-tinta`
-     #3f7de8 (sublinhado do ativo)                        → `--g-barra-marca`
-     #21cc79 / #ff4c4c (ponto de status)                  → `--g-ponto-on/off`
-     #ededed `--color-surface-2` (chão do miolo)          → `--ground` (pt-app)
-     #fff    `--color-surface-0` (cartão)                 → `--p-superficie-0`
-     #202c44 (título de cartão)                           → `--p-conteudo`
-     #505f79 (corpo de cartão)                            → `--p-conteudo-desabilitado`
-     #94a3ab `.bp-c-silver` (Id, "Criado em")             → `--p-conteudo-fantasma`
-     #e1e1e1 (`<hr/>`)                                    → `--p-linha`
-     #ff4c4c `.bp-c-delete` ("Deixar projeto")            → `--p-erro-conteudo`
-     #3f7de8 / #1e6bf1 (botão, "Ver mais", preço)         → `--p-marca-forte`
-     #b3d4ff (ícone de métrica)                           → `--p-marca-suave`
-     #8ca0b3 (divisória entre métricas)                   → `--p-linha-media`
-     rgba(0,0,0,.2) `--color-border-1` (borda de campo)  → `--p-linha-media`
-     `--color-surface-1/2/3` (pilha, extensão)          → `--p-superficie-1/2/3`
-     #282828 `--color-content-default` (nome de extensão) → `--p-conteudo`
-
-   Não há alias no `:root` como em `criar.css`: aqui nenhum `--p-*` é
-   reapontado dentro da barra, então não há ciclo de variável para abrir. */
-
-/* ======================================== a barra do contato (`.subheader-nav`)
-
-   `.subheader-nav`: `background: var(--color-content-default)`,
-   `box-shadow: 0 2px 12px rgba(96,123,153,.15)`, `font-size: 1rem`,
-   `font-weight: 400`, `display: block`, `width: 100%`, `position: relative`.
-   `.subheader-nav-div`: `flex items-center justify-between ph5` — e `.ph5` é
-   `padding-left/right: 2.5rem`, ou seja 40px, NÃO os 32 da barra de baixo da
-   Gestão.
-   `.subheader-nav .bot-header-details` tem `min-height: 55px`, e o `a` da
-   fileira tem `line-height: 3.5rem` — é isso que dá os 56px da barra. */
+/*
+ * ======================================== the contact bar (`.subheader-nav`)
+ *
+ *    `.subheader-nav`: `background: var(--color-content-default)`, `box-shadow: 0 2px 12px rgba(96,123,153,.15)`, `font-size: 1rem`, `font-weight: 400`, `display: block`, `width: 100%`, `position: relative`. `.subheader-nav-div`: `flex items-center justify-between ph5` — and `.ph5` is `padding-left/right: 2.5rem`, i.e. 40px, NOT the 32 of Gestão's bottom bar.
+ *    `.subheader-nav .bot-header-details` has `min-height: 55px`, and the row's `a` has `line-height: 3.5rem` — that's what gives the bar its 56px.
+ */
 .fx-subbarra {
   flex: none;
   display: flex;
@@ -80,10 +72,9 @@
   flex: none;
 }
 
-/* `<div class="relative pointer">` com o avatar `.icon.icon-sm.icon-avatar.round`
-   — `.icon.icon-sm` mede 2.25rem, 36px (o `icon-l` de 72 é o do miolo). O ponto
-   de status é `.u-status-on--medium` (13px, borda de 2) em `right: -3px; top: 0`,
-   que é exatamente o `.g-ponto` de `globais.css`. */
+/*
+ * `<div class="relative pointer">` with the `.icon.icon-sm.icon-avatar.round` avatar — `.icon.icon-sm` measures 2.25rem, 36px (the 72px `icon-l` is the core's). The status dot is `.u-status-on--medium` (13px, 2px border) at `right: -3px; top: 0`, exactly `globais.css`'s `.g-ponto`.
+ */
 .fx-av {
   position: relative;
   display: flex;
@@ -99,9 +90,9 @@
   font-size: var(--p-t-md);
 }
 
-/* O `<dropdown-item>` do nome: `.bot-name.fw3` com `margin-left: 15px` e a
-   `bds-icon name="arrow-down" size="small"` logo depois. `.fw3` é peso 300 —
-   o nome é LEVE, não normal. */
+/*
+ * The `<dropdown-item>` for the name: `.bot-name.fw3` with `margin-left: 15px` and a `bds-icon name="arrow-down" size="small"` right after. `.fw3` is weight 300 — the name is LIGHT, not normal.
+ */
 .fx-contato-menu > summary {
   display: flex;
   align-items: center;
@@ -130,7 +121,7 @@
 
 .fx-contato-menu > summary svg {
   flex: none;
-  /* `.arrow-icon.transition-0-3s`: a seta gira meia volta quando abre. */
+  /* `.arrow-icon.transition-0-3s`: the arrow rotates half a turn when it opens. */
   transition: transform var(--p-dur-normal) ease;
 }
 
@@ -138,13 +129,13 @@
   transform: rotate(180deg);
 }
 
-/* `.subheader-nav .bot-header-details .dropdown-wrapper`: `width: 160px`,
-   `max-width: 200px`, `padding: 0`; a `<ul class="no-style ma0 ph4">` põe os
-   20px de recuo (`.ph4` = 1.25rem). O painel abre à direita do botão
-   (`dropdown-item .dropdown-item-content { right: -.5rem }`). */
+/*
+ * `.subheader-nav .bot-header-details .dropdown-wrapper`: `width: 160px`, `max-width: 200px`, `padding: 0`; the `<ul class="no-style ma0 ph4">` gives the 20px indent (`.ph4` = 1.25rem). The panel opens to the right of the button (`dropdown-item .dropdown-item-content { right: -.5rem }`).
+ */
 .fx-contato-menu .g-painel {
-  /* Lá é `width: 160px` fixo; aqui o selo "em breve" não cabe em 160, então o
-     painel cresce até o `max-width: 200px` que a regra deles já permite. */
+  /*
+   * There it's a fixed `width: 160px`; here the "coming soon" badge doesn't fit in 160, so the panel grows up to the `max-width: 200px` that their own rule already allows.
+   */
   width: max-content;
   min-width: 160px;
   max-width: 200px;
@@ -154,21 +145,20 @@
   gap: var(--p-e-2);
 }
 
-/* `dropdown-item a { color: #52636c }`, hover `#3f7de8`. Aqui o link do painel
-   já é `--p-marca-forte` por `globais.css`; só o destrutivo muda de tinta. */
+/*
+ * `dropdown-item a { color: #52636c }`, hover `#3f7de8`. Here the panel link is already `--p-marca-forte` via `globais.css`; only the destructive one changes color.
+ */
 .fx-contato-menu .g-painel .fx-sair {
   color: var(--p-erro-conteudo); /* `.bp-c-delete` */
 }
 
-/* =========================== a fileira de seções (`.main-subheader`, mód. 79829)
-
-   `.subheader-nav .main-subheader > li > a`: `color: #c9dfe4`, `display: block`,
-   `font-weight: 300`, `line-height: 3.5rem` (56px, a barra inteira),
-   `padding: 0 20px`. Sem `gap` — o vão entre dois rótulos são os 20+20 de
-   padding. Ativo e hover: `color: #fff`.
-
-   É a MESMA receita da fileira de módulos do portal (`.g-modulos`), porque na
-   origem as duas barras são a mesma peça vista em dois estados. */
+/*
+ * =========================== the section row (`.main-subheader`, module 79829)
+ *
+ *    `.subheader-nav .main-subheader > li > a`: `color: #c9dfe4`, `display: block`, `font-weight: 300`, `line-height: 3.5rem` (56px, the whole bar), `padding: 0 20px`. No `gap` — the gap between two labels is the 20+20 of padding. Active and hover: `color: #fff`.
+ *
+ *    It's the SAME recipe as the portal's module row (`.g-modulos`), because at the source both bars are the same piece seen in two states.
+ */
 .fx-menu {
   display: flex;
   align-items: stretch;
@@ -193,10 +183,9 @@ a.fx-item:hover {
   color: var(--g-barra-tinta); /* #fff */
 }
 
-/* O ativo: `li.active > a { color: #fff }` e o `a:before` de 4px na cor da
-   marca, `bottom: 0`, `left: 0`, `width: 100%` (parado, é `left: 25%;
-   width: 0`, com `transition: .3s`). Na `home` nenhum item acende; na Análise
-   acende "Análise" — o `sidenav-menu-item` testa `$state.includes(sref)`. */
+/*
+ * The active one: `li.active > a { color: #fff }` and the `a:before` of 4px in the brand color, `bottom: 0`, `left: 0`, `width: 100%` (at rest, it's `left: 25%; width: 0`, with `transition: .3s`). On `home` no item lights up; on Analytics "Análise" lights up — the `sidenav-menu-item` tests `$state.includes(sref)`.
+ */
 .fx-item--ativo {
   position: relative;
   color: var(--g-barra-tinta);
@@ -218,8 +207,9 @@ a.fx-item:hover {
   white-space: nowrap;
 }
 
-/* `.subheader-nav .subheader-more-items { padding-left: 10px }` e o ícone
-   `more-options-horizontal` dentro de um `div.h-100.flex.items-center`. */
+/*
+ * `.subheader-nav .subheader-more-items { padding-left: 10px }` and the `more-options-horizontal` icon inside a `div.h-100.flex.items-center`.
+ */
 .fx-mais {
   position: relative;
   display: flex;
@@ -238,21 +228,13 @@ a.fx-item:hover {
   color: var(--g-barra-tinta);
 }
 
-/* O painel é o `dropdown-item` genérico do portal, com `align="center"` e
-   `min-width="max-content"`:
-   `.dropdown-item-content { background: #f6f6f6; border-radius: 8px;
-   box-shadow: 0 1px 6px rgba(0,60,128,.14), 0 2px 32px rgba(70,67,103,.1);
-   margin-top: 5px; padding: 10px 0 }`, `.dropdown-direction-bottom { top: 130% }`,
-   `.dropdown-align-center { transform: translateX(-50%) }`. Medido na cópia:
-   o painel começa 12px abaixo do botão de 24px (130% de 24 + 5); como o
-   `.fx-mais` ocupa a barra inteira, a conta parte do centro dela. A setinha
-   é o `:before` de 17×17 girado 45° com `border-radius: 6px 0`. O fundo é a
-   superfície dos cartões (na origem `#f6f6f6` sobre página branca; aqui a
-   página é a superfície 1 e o cartão a 0 — mantém-se o contraste, não o hex). */
+/*
+ * The panel is the portal's generic `dropdown-item`, with `align="center"` and `min-width="max-content"`: `.dropdown-item-content { background: #f6f6f6; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,60,128,.14), 0 2px 32px rgba(70,67,103,.1); margin-top: 5px; padding: 10px 0 }`, `.dropdown-direction-bottom { top: 130% }`, `.dropdown-align-center { transform: translateX(-50%) }`. Measured in the copy: the panel starts 12px below the 24px button (130% of 24 + 5); since `.fx-mais` spans the whole bar, the math starts from its center. The little arrow is the `:before`, 17×17 rotated 45° with `border-radius: 6px 0`. The background is the cards' surface (at the source `#f6f6f6` over a white page; here the page is surface 1 and the card is 0 — the contrast is kept, not the hex).
+ */
 .fx-mais .g-painel {
   top: calc(50% + 12px + 12px);
   right: auto;
-  left: calc(50% + 5px); /* o centro do botão, descontado o padding-left */
+  left: calc(50% + 5px); /* the center of the button, minus the padding-left */
   transform: translateX(-50%);
   width: max-content; /* `dropdown-item min-width="max-content"` */
   min-width: 50px;
@@ -275,11 +257,9 @@ a.fx-item:hover {
   transform: rotate(45deg);
 }
 
-/* Cada linha: `.subheader-nav .main-subheader .dropdown-item-content ul li
-   { padding: 0 20px }` com o `margin-bottom` de 10px do `li` global (o último
-   zera), e o link `{ color: #52636c; font-size: 1rem; font-weight: 300;
-   display: block }` — 26px de altura medidos na cópia. O apagado (em obra)
-   usa a MESMA linha, só com a opacidade de `pt-links-obra`. */
+/*
+ * Each row: `.subheader-nav .main-subheader .dropdown-item-content ul li { padding: 0 20px }` with the global `li`'s 10px `margin-bottom` (the last one zeroes it), and the link `{ color: #52636c; font-size: 1rem; font-weight: 300; display: block }` — 26px height measured in the copy. The muted one (in progress) uses the SAME row, just with `pt-links-obra`'s opacity.
+ */
 .fx-mais .g-painel > a,
 .fx-mais .g-painel > .pt-obra {
   position: relative;
@@ -310,30 +290,29 @@ a.fx-item:hover {
   cursor: default;
 }
 
-/* ================================ os atalhos da direita (`.action-icons`)
-
-   `.subheader-nav .action-icons li`: `display: inline-block; margin-left: 18px`.
-   Estão dentro de um `<bds-grid gap="1">`, mas quem manda no vão é o
-   `margin-left` de cada item. */
+/*
+ * ================================ the right-side shortcuts (`.action-icons`)
+ *
+ *    `.subheader-nav .action-icons li`: `display: inline-block; margin-left: 18px`. They're inside a `<bds-grid gap="1">`, but what governs the gap is each item's `margin-left`.
+ */
 .fx-icones {
   display: flex;
   align-items: center;
   flex: none;
 }
 
-/* `.subheader-nav .action-icons li i { color: #c9dfe4; font-size: 1.25rem }` —
-   o glifo tem avanço de 1em, então a vaga é 20×20; `[class^=icon-]:before`
-   traz `line-height: 1` e `vertical-align: middle`. */
+/*
+ * `.subheader-nav .action-icons li i { color: #c9dfe4; font-size: 1.25rem }` — the glyph has a 1em advance, so the slot is 20×20; `[class^=icon-]:before` brings `line-height: 1` and `vertical-align: middle`.
+ */
 .fx-icone {
   display: flex;
   margin-left: 18px;
   color: var(--g-barra-fraca);
 }
 
-/* `.subheader-nav .action-icons li a:hover i { color: #d2dfe6 }` e
-   `li a.active i { color: #3f7de8 }` — o `active` é o `ui-sref-active` do
-   estado (Integrações acende em `/integrations/**`, Configurações em
-   `/configurations/**`), na mesma tinta do sublinhado da fileira. */
+/*
+ * `.subheader-nav .action-icons li a:hover i { color: #d2dfe6 }` and `li a.active i { color: #3f7de8 }` — the `active` is the `ui-sref-active` of the state (Integrations lights up on `/integrations/**`, Settings on `/configurations/**`), in the same color as the row's underline.
+ */
 a.fx-icone:hover {
   color: var(--g-barra-tinta);
 }
@@ -343,7 +322,7 @@ a.fx-icone--ativo:hover {
   color: var(--g-barra-marca);
 }
 
-/* O selo encosta no último ícone com o recuo que o `pt-obra-selo` já tem. */
+/* The badge sits against the last icon with the same indent `pt-obra-selo` already has. */
 .fx-icones.pt-links-obra {
   gap: 0;
   padding: 0;
@@ -355,24 +334,20 @@ a.fx-icone--ativo:hover {
   }
 }
 
-/* ============================= o miolo (`#main-content-area`, mód. 57475)
-
-   `<section id="main-content-area" class="main-detail-content min-vh-flex pa0
-   flex relative u-full-width">`. `.pa0` é `padding: 0` — a coluna do miolo se
-   vira sozinha, o casco não recua nada. `.main-detail-content` traz
-   `background-color: var(--color-surface-2)`, que aqui é o `--ground` que
-   `.pt-app` já pinta.
-
-   A `<aside class="detail-aside fl">` fica VAZIA na `home`: quem a preenche são
-   Atendimento, Configurações e IA. Sem lateral, sem abas — por isso não há
-   regra de `aside` nesta folha. */
+/*
+ * ============================= the core (`#main-content-area`, module 57475)
+ *
+ *    `<section id="main-content-area" class="main-detail-content min-vh-flex pa0 flex relative u-full-width">`. `.pa0` is `padding: 0` — the core column manages its own indent, the shell adds none. `.main-detail-content` brings `background-color: var(--color-surface-2)`, which here is the `--ground` that `.pt-app` already paints.
+ *
+ *    The `<aside class="detail-aside fl">` stays EMPTY on `home`: Attendance, Settings and AI are what fill it. No sidebar, no tabs — that's why there's no `aside` rule in this sheet.
+ */
 .fx-miolo {
   padding: 0;
 }
 
-/* `<div class="container">` (Skeleton): `margin: 0 auto`, `padding: 0 20px`,
-   `width: 100%`; a partir de 550px vira `width: 90%` sem padding, e a partir
-   de 750px `width: 80%`. NÃO há `max-width` — a coluna acompanha a tela. */
+/*
+ * `<div class="container">` (Skeleton): `margin: 0 auto`, `padding: 0 20px`, `width: 100%`; from 550px it becomes `width: 90%` with no padding, and from 750px `width: 80%`. There's NO `max-width` — the column follows the screen.
+ */
 .fx-coluna {
   box-sizing: border-box;
   width: 100%;
@@ -394,7 +369,7 @@ a.fx-icone--ativo:hover {
   }
 }
 
-/* `<div class="flex flex-row justify-between mt5">` — `.mt5` é 2.5rem, 40px. */
+/* `<div class="flex flex-row justify-between mt5">` — `.mt5` is 2.5rem, 40px. */
 .fx-cabecalho {
   display: flex;
   flex-direction: row;
@@ -420,8 +395,9 @@ a.fx-icone--ativo:hover {
   font-size: var(--p-t-xl);
 }
 
-/* `<div class="flex flex-column ml3">` — `.ml3` é .625rem, 10px. E o nome e o
-   "Id:" trazem OUTRO `ml3` cada um, então o texto fica a 20px da foto. */
+/*
+ * `<div class="flex flex-column ml3">` — `.ml3` is .625rem, 10px. And the name and "Id:" each bring ANOTHER `ml3`, so the text ends up 20px from the photo.
+ */
 .fx-titulos {
   display: flex;
   flex-direction: column;
@@ -429,8 +405,9 @@ a.fx-icone--ativo:hover {
   min-width: 0;
 }
 
-/* `<bds-typo variant="fs-20" bold="bold" class="ml3 mb2">`: 20px, peso 700,
-   `line-height: 100%`, 10px de recuo e 5px (`.mb2`) até o "Id:". */
+/*
+ * `<bds-typo variant="fs-20" bold="bold" class="ml3 mb2">`: 20px, weight 700, `line-height: 100%`, 10px indent and 5px (`.mb2`) down to "Id:".
+ */
 .fx-nome {
   margin: 0 0 5px 10px;
   font-size: var(--p-t-xl); /* 20px */
@@ -439,16 +416,18 @@ a.fx-icone--ativo:hover {
   color: var(--p-conteudo);
 }
 
-/* `<span class="bp-c-silver bp-fs-6 flex flex-row"><span class="ml3 pr1">`:
-   `.bp-fs-6` é .875rem (14px) e `.bp-c-silver` é o cinza de apoio. */
+/*
+ * `<span class="bp-c-silver bp-fs-6 flex flex-row"><span class="ml3 pr1">`: `.bp-fs-6` is .875rem (14px) and `.bp-c-silver` is the supporting gray.
+ */
 .fx-id {
   margin: 0 0 0 10px;
-  font-size: 14px; /* `.bp-fs-6` — não há token `--p-t-*` de 14 no miolo claro */
+  font-size: 14px; /* `.bp-fs-6` — there's no `--p-t-*` token for 14 in the light core */
   color: var(--p-conteudo-fantasma);
 }
 
-/* `<div class="self-end bp-c-silver bp-fs-6">`: encostado no PÉ da linha, não
-   no topo — é por isso que "Criado em" fica na altura do "Id:". */
+/*
+ * `<div class="self-end bp-c-silver bp-fs-6">`: flush against the BOTTOM of the line, not the top — that's why "Criado em" sits at the same height as "Id:".
+ */
 .fx-criado {
   align-self: flex-end;
   margin: 0;
@@ -457,36 +436,31 @@ a.fx-icone--ativo:hover {
   white-space: nowrap;
 }
 
-/* `.pr1` é .15625rem — 2,5px. */
+/* `.pr1` is .15625rem — 2.5px. */
 .fx-criado span {
   padding-right: 2.5px;
 }
 
-/* `hr`: `border-width: 0; border-top: 1px solid #e1e1e1`, e a última regra da
-   folha deixa `margin-top: .9375rem` (15px) e `margin-bottom: 1.125rem` (18px). */
+/*
+ * `hr`: `border-width: 0; border-top: 1px solid #e1e1e1`, and the sheet's last rule leaves `margin-top: .9375rem` (15px) and `margin-bottom: 1.125rem` (18px).
+ */
 .fx-fio {
   border: 0;
   border-top: 1px solid var(--p-linha);
   margin: 15px 0 18px;
 }
 
-/* ============================== a grade (`.chatbot-home-content`, mód. 77021)
-
-   `display: grid; gap: 0 .8rem; grid-template-columns: repeat(3, 1fr);
-   grid-template-rows: repeat(3, auto); padding-bottom: 2.5rem`, com a coluna de
-   extensões (a Blip Store) ocupando as três primeiras linhas da esquerda. Sem
-   ela, a folha deles troca as áreas por faixas de largura inteira —
-   `:not(:has(.chatbot-home-content-extensions-area))`.
-
-   Os cortes de 62em e 48em vão como estão. Eles trocam colunas e áreas da regra
-   base; a variante sem extensões tem especificidade maior e continua mandando
-   nas áreas abaixo deles também, igual lá.
-
-   A variante `:has(.chatbot-home-content-ai-area)` não entrou: o cartão de IA
-   depende da flag `new-onboarding-custom-ai`, desligada para o roteador
-   capturado — a origem não desenha esse estado aqui.
-
-   `.chatbot-home-content bds-typo { color: #505f79 }` — todo texto de corpo. */
+/*
+ * ============================== the grid (`.chatbot-home-content`, module 77021)
+ *
+ *    `display: grid; gap: 0 .8rem; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, auto); padding-bottom: 2.5rem`, with the extensions column (the Blip Store) taking the first three rows on the left. Without it, their sheet swaps the areas for full-width bands — `:not(:has(.chatbot-home-content-extensions-area))`.
+ *
+ *    The 62em and 48em breakpoints go as they are. They swap columns and areas in the base rule; the variant without extensions has higher specificity and keeps controlling the areas below it too, just like there.
+ *
+ *    The `:has(.chatbot-home-content-ai-area)` variant wasn't included: the AI card depends on the `new-onboarding-custom-ai` flag, off for the captured router — the source doesn't render that state here.
+ *
+ *    `.chatbot-home-content bds-typo { color: #505f79 }` — all body text.
+ */
 .fx-grade {
   display: grid;
   gap: 0 0.8rem;
@@ -529,7 +503,7 @@ a.fx-icone--ativo:hover {
   }
 }
 
-/* Cada `*-area` leva `margin-bottom: .8rem` — o `gap` só vale entre colunas. */
+/* Each `*-area` gets `margin-bottom: .8rem` — the `gap` only applies between columns. */
 .fx-area-extensoes {
   grid-area: extensoes;
   margin-bottom: 0.8rem;
@@ -556,12 +530,11 @@ a.fx-icone--ativo:hover {
   margin-bottom: 0.8rem;
 }
 
-/* ================================================= o cartão (`<bds-paper>`)
-
-   O `:host` do `bds-paper`: `display: block; border-radius: 16px`, fundo
-   `--color-surface-0` e elevação `static` (`0 2px 8px -2px
-   var(--color-shadow-1)`) — o `--g-r-cartao` e o `--g-sombra-cartao` de
-   `globais.css`. E `.chatbot-home-content bds-paper { height: 100% }`. */
+/*
+ * ================================================= the card (`<bds-paper>`)
+ *
+ *    The `:host` of `bds-paper`: `display: block; border-radius: 16px`, background `--color-surface-0` and `static` elevation (`0 2px 8px -2px var(--color-shadow-1)`) — the `--g-r-cartao` and `--g-sombra-cartao` from `globais.css`. And `.chatbot-home-content bds-paper { height: 100% }`.
+ */
 .fx-papel {
   display: block;
   box-sizing: border-box;
@@ -581,16 +554,14 @@ a.fx-icone--ativo:hover {
   color: var(--p-conteudo);
 }
 
-/* `.mb1` do título de Equipe: .15625rem. */
+/* Equipe title's `.mb1`: .15625rem. */
 .fx-mb1 {
   margin-bottom: 0.15625rem;
 }
 
-/* `<bds-button size="short" variant="tertiary">`: 32px, raio 8,
-   `padding: 0 16px`, `gap: 4px`. Nesta versão do blip-ds o terciário é
-   CONTORNADO: fundo transparente, borda de 1px e texto na primária
-   (`.button__color--primary.button__variant--tertiary`). O hover é a primária
-   a 8% por cima (`:hover::before`). */
+/*
+ * `<bds-button size="short" variant="tertiary">`: 32px, radius 8, `padding: 0 16px`, `gap: 4px`. In this version of blip-ds the tertiary is OUTLINED: transparent background, 1px border and text in the primary color (`.button__color--primary.button__variant--tertiary`). The hover is the primary color at 8% on top (`:hover::before`).
+ */
 .fx-botao {
   display: inline-flex;
   align-items: center;
@@ -612,21 +583,22 @@ a.fx-botao:hover {
   background: var(--p-marca-suave);
 }
 
-/* O bloco em obra herda de `pt-links-obra` a tinta da BARRA; aqui é miolo claro. */
+/* The in-progress block inherits the BAR's color from `pt-links-obra`; here it's the light core. */
 .fx-botao.pt-links-obra {
   padding: 0 16px;
   color: var(--p-marca-forte);
 }
 
-/* `size="standard"` — o botão da loja. */
+/* `size="standard"` — the store's button. */
 .fx-botao-alto {
   height: 40px;
 }
 
-/* ---------------------------------- Canais e Equipe: a faixa em LINHA
-
-   `__container { display: flex; flex-direction: row; justify-content:
-   space-between; min-height: 82px }` — título de um lado, conteúdo do outro. */
+/*
+ * ---------------------------------- Channels and Team: the ROW layout
+ *
+ *    `__container { display: flex; flex-direction: row; justify-content: space-between; min-height: 82px }` — title on one side, content on the other.
+ */
 .fx-faixa {
   display: flex;
   flex-direction: row;
@@ -657,10 +629,9 @@ a.fx-botao:hover {
   margin-right: 15px;
 }
 
-/* `div.flex.items-center.mt1.__icons { margin-left: -.25rem; margin-right: 5px }`
-   (`.mt1` = .15625rem). Cada vaga é um `bds-icon type="logo" size="large"`:
-   28×28, sem vão entre um e outro. A cor é a do próprio logo; só o `email`, que
-   é desenho da Blip na primária dela, pinta com a nossa marca. */
+/*
+ * `div.flex.items-center.mt1.__icons { margin-left: -.25rem; margin-right: 5px }` (`.mt1` = .15625rem). Each slot is a `bds-icon type="logo" size="large"`: 28×28, no gap between one and the next. The color is the logo's own; only `email`, which is Blip's own artwork in its primary color, is painted with our brand color.
+ */
 .fx-canais-logos {
   display: flex;
   align-items: center;
@@ -674,8 +645,9 @@ a.fx-botao:hover {
   color: var(--p-marca-forte);
 }
 
-/* `__description-container { align-content: center; height: 100%; margin: 0 15px }`
-   e `__description`: `fs-12` (150%) cortado em UMA linha com reticências. */
+/*
+ * `__description-container { align-content: center; height: 100%; margin: 0 15px }` and `__description`: `fs-12` (150%) clipped to ONE line with an ellipsis.
+ */
 .fx-faixa-descricao {
   align-content: center;
   height: 100%;
@@ -694,12 +666,11 @@ a.fx-botao:hover {
   line-height: 150%;
 }
 
-/* ---------------------------------- a pilha da equipe (`avatar-array`)
-
-   `__avatar-container.overflow-hidden`: `position: relative; height: 100%;
-   min-height: 2rem; min-width: 55px; margin-top: 17px; margin-right: 5px`. Os
-   avatares são absolutos, então a caixa fica nos 55px mínimos e corta o resto:
-   na escala de .55 cabem dois e meio. É o desenho da origem. */
+/*
+ * ---------------------------------- the team stack (`avatar-array`)
+ *
+ *    `__avatar-container.overflow-hidden`: `position: relative; height: 100%; min-height: 2rem; min-width: 55px; margin-top: 17px; margin-right: 5px`. The avatars are absolute, so the box stays at its 55px minimum and clips the rest: at .55 scale, two and a half fit. It's the source's own design.
+ */
 .fx-pilha-caixa {
   position: relative;
   overflow: hidden;
@@ -748,11 +719,11 @@ a.fx-botao:hover {
   font-size: var(--p-t-xl);
 }
 
-/* ---------------------------------------- Preferências: o cartão em COLUNA
-
-   `div.flex.flex-column.justify-between.w-100.h-100.__container
-   { gap: 1rem; padding: 20px 15px 15px }` e `__inputs { display: flex;
-   flex-wrap: wrap; gap: 1rem }`, cada campo em `flex: 1 1 10rem`. */
+/*
+ * ---------------------------------------- Preferences: the card in COLUMN layout
+ *
+ *    `div.flex.flex-column.justify-between.w-100.h-100.__container { gap: 1rem; padding: 20px 15px 15px }` and `__inputs { display: flex; flex-wrap: wrap; gap: 1rem }`, each field at `flex: 1 1 10rem`.
+ */
 .fx-preferencias {
   display: flex;
   flex-direction: column;
@@ -767,11 +738,9 @@ a.fx-botao:hover {
   gap: 1rem;
 }
 
-/* `bds-input`/`bds-autocomplete` com `label`: `.input--state-primary { border:
-   1px solid var(--color-border-1); border-radius: 8px }`, `.input--label
-   { padding: 7px 4px 8px 12px }`, rótulo `fs-12` e texto em .875rem com
-   `line-height: 22px`. Os três chegam desabilitados, e `.input--state-disabled`
-   é `opacity: 50%; cursor: not-allowed`. Sem fundo: o campo é o papel. */
+/*
+ * `bds-input`/`bds-autocomplete` with `label`: `.input--state-primary { border: 1px solid var(--color-border-1); border-radius: 8px }`, `.input--label { padding: 7px 4px 8px 12px }`, label at `fs-12` and text at .875rem with `line-height: 22px`. All three arrive disabled, and `.input--state-disabled` is `opacity: 50%; cursor: not-allowed`. No background: the field is the paper.
+ */
 .fx-campo {
   flex: 1 1 10rem;
   display: flex;
@@ -798,8 +767,9 @@ a.fx-botao:hover {
   overflow-wrap: anywhere;
 }
 
-/* Plano é `placeholder`, não valor: tinta de dica. E vem do banco em caixa
-   baixa (`essencial`), enquanto a barra do topo o mostra capitalizado. */
+/*
+ * The plan is a `placeholder`, not a value: hint color. And it comes from the database in lowercase (`essencial`), while the top bar shows it capitalized.
+ */
 .fx-campo-dica {
   color: var(--p-conteudo-fantasma);
 }
@@ -808,12 +778,11 @@ a.fx-botao:hover {
   text-transform: uppercase;
 }
 
-/* ---------------------------------------- Métricas (`__metrics-area`)
-
-   `__container { display: flex; align-items: stretch; justify-content:
-   space-between; padding: 1.5rem }`; cada item `flex: 1; padding-right: 1rem;
-   position: relative`, e do segundo em diante `border-left: 1px solid #8ca0b3;
-   padding-left: 2rem`. */
+/*
+ * ---------------------------------------- Metrics (`__metrics-area`)
+ *
+ *    `__container { display: flex; align-items: stretch; justify-content: space-between; padding: 1.5rem }`; each item `flex: 1; padding-right: 1rem; position: relative`, and from the second one on `border-left: 1px solid #8ca0b3; padding-left: 2rem`.
+ */
 .fx-metricas {
   display: flex;
   align-items: stretch;
@@ -849,7 +818,7 @@ a.fx-botao:hover {
   flex-direction: column;
 }
 
-/* Rótulo `fs-16` (150%) e a dica `info` `x-small` com `.ml2.self-end`. */
+/* Label `fs-16` (150%) and the `info` `x-small` tooltip with `.ml2.self-end`. */
 .fx-metrica-rotulo {
   display: flex;
   align-items: center;
@@ -870,8 +839,9 @@ a.fx-botao:hover {
   line-height: 100%;
 }
 
-/* `__item__link`: `fs-12` negrito, `position: absolute; bottom: 0; right: 1rem;
-   visibility: hidden`, e visível no hover do item. Tinta #3f7de8. */
+/*
+ * `__item__link`: bold `fs-12`, `position: absolute; bottom: 0; right: 1rem; visibility: hidden`, visible on the item's hover. Color #3f7de8.
+ */
 .fx-metrica-link {
   position: absolute;
   right: 1rem;
@@ -919,7 +889,7 @@ a.fx-botao:hover {
   }
 }
 
-/* ---------------------------------------- Extensões (`__extensions-area`) */
+/* ---------------------------------------- Extensions (`__extensions-area`) */
 
 /* `__container-bds-paper { min-height: 190px }`; `__container { display: flex;
    align-items: center; justify-content: space-between; padding: 20px 0 5px }`. */
@@ -934,8 +904,9 @@ a.fx-botao:hover {
   padding: 20px 0 5px;
 }
 
-/* `__title-container { margin-left: 20px }` e `__title-box { display:
-   inline-block; height: 10px }` — a caixa de 10px com o título de 20px dentro. */
+/*
+ * `__title-container { margin-left: 20px }` and `__title-box { display: inline-block; height: 10px }` — the 10px box with the 20px title inside.
+ */
 .fx-extensoes-titulo {
   margin-left: 20px;
 }
@@ -966,9 +937,9 @@ a.fx-botao:hover {
   margin: 10px 15px 5px;
 }
 
-/* `__card-container`: `inline-flex` em coluna, `min-width: 170px;
-   max-height: 96px`, fundo `surface-1`, borda de 1px `surface-2`, raio 8; no
-   hover o fundo vira `surface-2` e o cartão sobe 4px. */
+/*
+ * `__card-container`: `inline-flex` in a column, `min-width: 170px; max-height: 96px`, `surface-1` background, 1px `surface-2` border, radius 8; on hover the background becomes `surface-2` and the card lifts 4px.
+ */
 .fx-extensao {
   display: inline-flex;
   flex-direction: column;
@@ -1045,8 +1016,9 @@ a.fx-botao:hover {
   line-height: 150%;
 }
 
-/* `__card-footer-text { display: inline-block; margin-top: 3px }` e o texto
-   `fs-12` negrito na primária. */
+/*
+ * `__card-footer-text { display: inline-block; margin-top: 3px }` and the `fs-12` bold text in the primary color.
+ */
 .fx-extensao-preco {
   display: inline-block;
   margin-top: 3px;

@@ -11,21 +11,11 @@ import { ChannelShell, type ChannelAba } from '../shell-of-channel';
 import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '../conexao';
 
 /**
- * O Instagram por dentro do BOT — `…channels/instagram` (template 230473,
- * `FICHA-conectar-canal-no-bot.md` §1.4 e §3.3): título "Instagram", abas
- * "Visão Geral" e "Configurações" (a segunda a Pipe não tem por dentro),
- * "Documentação" à direita.
+ * Instagram inside the BOT — `…channels/instagram` (template 230473, `FICHA-conectar-canal-no-bot.md` §1.4 and §3.3): title "Instagram", tabs "Visão Geral" and "Configurações" (the latter Pipe doesn't have internally), "Documentação" on the right.
  *
- * Visão Geral desconectada (`InstagramOverviewDisconnectedView.html`): o
- * ícone, a descrição em negrito, o aviso da permissão de administrador e
- * "Iniciar conexão" (botão com seta, à direita). Na origem ele abre os passos
- * do login do Facebook (`InstagramSteps.html`); a Pipe só tem o caminho
- * manual, então o botão abre o modal manual, e "Usar uma conta já conectada"
- * (decisão Pipe) oferece as contas que a conta já tem.
+ * Disconnected Overview (`InstagramOverviewDisconnectedView.html`): the icon, the bold description, the admin-permission notice and "Iniciar conexão" (button with arrow, on the right). In the source it opens the Facebook login steps (`InstagramSteps.html`); Pipe only has the manual path, so the button opens the manual modal, and "Usar uma conta já conectada" (Pipe decision) offers the accounts the account already has.
  *
- * Conectada (`InstagramOverviewConnectedView.html`): "Seu chatbot está
- * conectado à conta:", o chip `@usuário`, a descrição e "Desconectar canal"
- * (`variant="delete"`, à direita) com o modal de motivo + concordância.
+ * Connected (`InstagramOverviewConnectedView.html`): "Seu chatbot está conectado à conta:", the `@username` chip, the description and "Desconectar canal" (`variant="delete"`, on the right) with the reason + agreement modal.
  */
 
 const ABAS: readonly ChannelAba[] = [

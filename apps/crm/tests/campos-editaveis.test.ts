@@ -8,22 +8,22 @@ import {
 } from '../src/lib/campos-editaveis.ts';
 
 /**
- * A régua da edição inline.
+ * The inline-edit ruler.
  *
- * `recusar` e `campoValido` rodam nos dois lados: no navegador para não fazer
- * uma viagem à toa, e no servidor porque a server action é um endereço HTTP e
- * qualquer um alcança. Um teste só, sem framework — `node --import tsx --test`,
- * com o `tsx` que o aplicativo já tem.
+ * `recusar` and `campoValido` run on both sides: in the browser to avoid a
+ * wasted round trip, and on the server because the server action is an HTTP
+ * address and anyone can reach it. A single test, no framework —
+ * `node --import tsx --test`, with the `tsx` the app already has.
  *
- * O que ele protege: a lista branca não pode aceitar nome de coluna qualquer, e
- * campo em branco tem de virar `null` e não string vazia — é `null` que apaga o
- * proprietário, e `''` gravaria um id vazio na chave estrangeira.
+ * What it protects: the allowlist can't accept just any column name, and a
+ * blank field has to become `null` and not an empty string — it's `null` that
+ * clears the owner, and `''` would write an empty id into the foreign key.
  */
 
 test('a lista branca só aceita o que está no catálogo', () => {
   assert.ok(campoValido('email'));
   assert.ok(campoValido('proprietario'));
-  // Os que a escrita NÃO pode alcançar, e que existem como coluna no banco.
+  // The ones the write CANNOT reach, and that exist as a column in the database.
   for (const fora of ['status', 'score_atual', 'tenant_id', 'excluido_em', 'toString', '']) {
     assert.equal(campoValido(fora), false, `${fora} não pode passar`);
   }

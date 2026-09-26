@@ -10,16 +10,16 @@ import {
 import { campoValido, normalizar, recusar } from '../../lib/campos-editaveis';
 
 /**
- * As ações em massa da listagem.
+ * The listing's bulk actions.
  *
- * Toda entrada vem do navegador e é tratada como tal: os ids passam por um
- * filtro de UUID antes de virar `in (...)`, e o proprietário é conferido contra
- * a lista de usuários ativos do tenant. Não é paranoia — é a mesma regra que
- * `moverOportunidade` já segue para a fase: **entrada de cliente não define
- * valor de escrita**.
+ * All input comes from the browser and is treated as such: ids pass through a UUID
+ * filter before becoming an `in (...)`, and the owner is checked against the
+ * tenant's list of active users. It's not paranoia — it's the same rule
+ * `moverOportunidade` already follows for stage: **client input never determines a
+ * write value**.
  *
- * O teto de 200 é o mesmo da listagem. Ninguém seleciona mais do que a tela
- * mostra, então um pedido com 5.000 ids não veio da tela.
+ * The cap of 200 matches the listing. Nobody selects more than the screen shows, so
+ * a request with 5,000 ids didn't come from the screen.
  */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -62,30 +62,30 @@ export async function desqualificarInBulk(ids: string[]): Promise<ResultInBulk> 
   return { mudadas, pedidas: limpos.length };
 }
 
-/* ------------------------------------------------ edição de campo na ficha */
+/* ------------------------------------------------ record field editing */
 
 export interface ResultadoCampo {
   ok: boolean;
-  /** O valor que **ficou gravado**. A tela mostra este, nunca o que foi digitado. */
+  /** The value that **actually got saved**. The screen shows this one, never what was typed. */
   value: string | null;
-  /** Só quando `ok` é falso, e sempre em português: vai direto para a tela. */
+  /** Only when `ok` is false, and always in Portuguese: it goes straight to the screen. */
   error?: string;
 }
 
 /**
- * Gravar um campo da ficha a partir da célula inline.
+ * Save a record field from the inline cell.
  *
- * A célula já recusou o e-mail sem arroba antes de chegar aqui, e aqui recusa
- * de novo — a validação do navegador é conveniência, a do servidor é a que
- * conta, porque esta função é um endereço HTTP e qualquer um alcança.
+ * The cell already rejected an email without an @ before this was reached, and it's
+ * rejected again here — browser validation is a convenience, server validation is
+ * what counts, because this function is an HTTP address and anyone can reach it.
  *
- * O `proprietario` é conferido contra a lista de usuários ativos pelo mesmo
- * motivo de `atribuirEmMassa`: **entrada de cliente não define valor de
- * escrita**. Vazio é apagar o proprietário, que é uma operação legítima.
+ * The `proprietario` is checked against the tenant's list of active users for the
+ * same reason as `atribuirEmMassa`: **client input never determines a write
+ * value**. Empty means clearing the owner, which is a legitimate operation.
  *
- * Devolve sempre o valor que ficou no banco. Quando não deu, devolve o valor
- * anterior junto com a queixa, e é isso que faz a tela voltar ao que era em vez
- * de ficar mostrando um dado que não existe.
+ * Always returns the value that ended up in the database. When it fails, it
+ * returns the previous value along with the complaint, and that's what makes the
+ * screen go back to how it was instead of showing data that doesn't exist.
  */
 export async function salvarCampoDoLead(
   leadId: string,

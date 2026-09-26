@@ -12,26 +12,7 @@ import { cardsVisiveis, permissionRequired, byGroup, type ContractCard } from '.
 import './contract.css';
 
 /**
- * Painel do contrato — a tela que o cartão "Acompanhe seu contrato" do portal
- * abre.
- *
- * A régua é `referencias-blip/pesquisa/blip-painel-do-contrato.md`, a pesquisa do
- * micro-frontend `{conta}.tenant.fragment.blip.ai`. A DISPOSIÇÃO É A DELES: o
- * cartão de resumo numa coluna estreita à esquerda, os grupos de cartões numa
- * coluna larga à direita, grade de `1fr 3fr` com 32 de vão.
- *
- * **O que muda a tela é o PAPEL**, como lá. A diferença é de onde o papel vem:
- * eles têm três chumbados no front (`admin`/`member`/`guest`) e uma matriz
- * literal no código; nós temos RBAC de verdade no banco, e a matriz virou onze
- * permissões (`conta.*`, migração `0019_permissoes_da_conta`). O funil ficou de
- * um passo só — `hasPermission` por cartão — porque os outros dois passos deles
- * são flag do LaunchDarkly e métrica de assinatura, e não temos nenhum dos dois.
- * O que ficou de fora por isso está listado no cabeçalho de `catalogo.ts`.
- *
- * O cromo é o do PORTAL (`pt-app` + `BarraDoPortal`), como em "Novidades": na
- * origem este painel roda num iframe dentro do portal, com a barra escura
- * inteira por cima. Por isso `/contrato` está na lista de casco próprio de
- * `estrutura-gestao.tsx`.
+ * Contract panel — the screen the portal's "Acompanhe seu contrato" card opens. The reference is `referencias-blip/pesquisa/blip-painel-do-contrato.md`, research on the `{conta}.tenant.fragment.blip.ai` micro-frontend. THE LAYOUT IS THEIRS: the summary card in a narrow column on the left, the card groups in a wide column on the right, a `1fr 3fr` grid with a 32 gap. **What changes the screen is the ROLE**, as there. The difference is where the role comes from: they have three hardcoded in the front end (`admin`/`member`/`guest`) and a literal matrix in the code; we have real RBAC in the database, and the matrix became eleven permissions (`conta.*`, migration `0019_permissoes_da_conta`). The funnel became a single step — `hasPermission` per card — because their other two steps are a LaunchDarkly flag and a subscription metric, and we have neither. What was left out because of that is listed in `catalogo.ts`'s header. The chrome is the PORTAL's (`pt-app` + `BarraDoPortal`), as in "Novidades": in the source this panel runs in an iframe inside the portal, with the full dark bar on top. That's why `/contrato` is in `estrutura-gestao.tsx`'s own-shell list.
  */
 export function ContractPage() {
   const eu = useEu();
@@ -42,9 +23,9 @@ export function ContractPage() {
   if (!read.data) return null;
   const resumo = read.data;
 
-  /* O modo demonstração é SÓ isto: um `?demo=1` na URL que faz o filtro devolver
-     o catálogo inteiro. Não mexe em sessão, não vira cookie, não chega a
-     nenhuma Server Action — ver o cabeçalho de `acoes.ts`. */
+  /*
+   * Demo mode is ONLY this: a `?demo=1` in the URL that makes the filter return the whole catalog. It doesn't touch the session, doesn't become a cookie, and never reaches any Server Action — see the header of `acoes.ts`.
+   */
   const demo = parametros.demo === '1';
   const sections = byGroup(cardsVisiveis(eu.permissions, { demo }));
   const podeEditarResumo = eu.permissions.includes('conta.resumo.escrever');
@@ -56,9 +37,9 @@ export function ContractPage() {
       {demo ? <DemoTier /> : null}
 
       <main className="pt-conteudo">
-        {/* Sem nenhum grupo o cartão de resumo deita e ocupa a largura toda —
-            é o `horizontal` deles (`Ve`, `grid-column: 1 / 3`), o estado do
-            `guest`. */}
+        {/*
+ * With no groups, the summary card lies flat and takes the full width — it's their `horizontal` state (`Ve`, `grid-column: 1 / 3`), the `guest` state.
+ */}
         <div className={sections.length === 0 ? 'ct-grade ct-grade--faixa' : 'ct-grade'}>
           <SummaryCard
             resumo={resumo}
@@ -68,9 +49,9 @@ export function ContractPage() {
 
           <div className="ct-grupos">
             {sections.length === 0 ? (
-              /* O estado do `guest` deles: só o cartão de resumo, e nada mais.
-                 Uma linha de texto explicando, em vez de um branco que parece
-                 tela quebrada. */
+              /*
+               * Their `guest` state: just the summary card, and nothing else. A line of explanatory text, instead of a blank that looks like a broken screen.
+               */
               <p className="pt-nada">
                 Você tem acesso de leitura a este contrato. As configurações do contrato ficam com
                 quem administra a conta.
@@ -80,11 +61,9 @@ export function ContractPage() {
                 <section key={grupo.id} className="ct-secao">
                   <h2 className="ct-titulo">
                     {grupo.titulo}
-                    {/* O ícone de informação com tooltip que eles põem ao lado
-                        de cada título de grupo — `bds-icon name="info"
-                        theme="solid"` sem `size`, e o padrão do componente é
-                        `medium`, 24. `title` nativo: o tooltip deles não faz
-                        nada que o do navegador não faça. */}
+                    {/*
+ * The info icon with tooltip they place next to each group title — `bds-icon name="info" theme="solid"` with no `size`, and the component's default is `medium`, 24. A native `title`: their tooltip doesn't do anything the browser's own doesn't already do.
+ */}
                     <span className="ct-info" title={grupo.tooltip} aria-label={grupo.tooltip}>
                       <IconePortal nome="informacao" tamanho={24} />
                     </span>
@@ -110,7 +89,7 @@ export function ContractPage() {
   );
 }
 
-/* ------------------------------------------------------------ demonstração */
+/* ------------------------------------------------------------ demonstration */
 
 function DemoTier() {
   return (
@@ -122,7 +101,7 @@ function DemoTier() {
   );
 }
 
-/* --------------------------------------------------------- cartão de resumo */
+/* --------------------------------------------------------- summary card */
 
 /** A data como eles escrevem: `13.09.2026`. */
 function dataComPontos(instante: string | null, fuso: string): string {
@@ -148,11 +127,9 @@ function SummaryCard({
 }) {
   return (
     <aside className={faixa ? 'ct-resumo ct-resumo--faixa' : 'ct-resumo'}>
-      {/* A foto do contrato, na caixa de 92 deles (`.avatar.placeholder`) com o
-          avatar de 72 (`bds-avatar size="extra-large"`) centrado dentro.
-          Editável pela mesma regra do nome — e o lugar onde se edita já existe:
-          "Minha conta". Refazer o formulário aqui daria dois caminhos para a
-          mesma gravação. */}
+      {/*
+ * The contract's photo, in their 92px box (`.avatar.placeholder`) with the 72px avatar (`bds-avatar size="extra-large"`) centered inside. Editable under the same rule as the name — and the place where it's edited already exists: "Minha conta". Rebuilding the form here would create two paths to the same write.
+ */}
       <div className="ct-foto-caixa">
         {resumo.logoUrl ? (
           <img className="ct-foto" src={resumo.logoUrl} alt="" width={72} height={72} />
@@ -161,16 +138,18 @@ function SummaryCard({
         )}
       </div>
 
-      {/* `He`: tudo o que não é a foto. Existe para que o cartão deitado possa
-          recuar o corpo em 32 sem mexer no cartão em pé. */}
+      {/*
+ * `He`: everything that isn't the photo. Exists so the horizontal card can indent the body by 32 without touching the vertical card.
+ */}
       <div className="ct-corpo">
         <div className="ct-bloco">
-          {/* O rótulo "Nome do contrato" que eles põem acima do nome. */}
+          {/* The "Nome do contrato" label they place above the name. */}
           <span className="ct-rotulo">Nome do contrato</span>
           <h1 className="ct-nome">{resumo.nome}</h1>
 
-          {/* O `{id}.blip.ai` deles, em negrito com botão de copiar. O nosso
-              identificador de endereço é o slug da conta. */}
+          {/*
+ * Their `{id}.blip.ai`, bold with a copy button. Our address identifier is the account slug.
+ */}
           <p className="ct-endereco">
             <b>{resumo.slug}</b>
             <BotaoCopiar value={resumo.slug} oQue="o endereço do contrato" />
@@ -199,7 +178,7 @@ function SummaryCard({
             <dd>{dataComPontos(resumo.criadoEm, resumo.fuso)}</dd>
           </div>
 
-          {/* "Chatbots" e "Membros" só aparecem quando há — é o `ng-if` deles. */}
+          {/* "Chatbots" and "Membros" only appear when present — it's their `ng-if`. */}
           {resumo.flows > 0 ? (
             <div className="ct-bloco">
               <dt>Fluxos e roteadores</dt>
@@ -215,11 +194,9 @@ function SummaryCard({
           ) : null}
         </dl>
 
-        {/* "Deixar contrato" fica no pé do cartão, como lá. Apagado porque sair
-            de verdade é mais do que apagar um vínculo: na origem a tela primeiro
-            pergunta ao servidor se a pessoa é admin ÚNICA de algum chatbot e
-            bloqueia se for, depois encerra a sessão e joga em outro contrato. Os
-            dois passos são da `api`, e ela ainda não tem essa porta. */}
+        {/*
+ * "Deixar contrato" sits at the bottom of the card, as there. Grayed out because actually leaving is more than deleting a link: in the source the screen first asks the server whether the person is the ONLY admin of any chatbot and blocks if so, then ends the session and drops them into another contract. Both steps belong to the `api`, which doesn't have that endpoint yet.
+ */}
         <div className="ct-rodape">
           <span className="pt-obra">
             Deixar contrato
@@ -231,7 +208,7 @@ function SummaryCard({
   );
 }
 
-/* ----------------------------------------------------------------- cartões */
+/* ----------------------------------------------------------------- cards */
 
 function Card({
   card,
@@ -242,9 +219,9 @@ function Card({
   demo: boolean;
   temPermission: boolean;
 }) {
-  /* Na prévia, o rótulo do que esconderia o cartão no mundo real: a permissão
-     que falta e, quando havia uma na origem, a flag. É o que o painel serve
-     para explicar. */
+  /*
+   * In the preview, the label for whatever would hide the card in the real world: the missing permission and, when the source had one, the flag. That's what the panel exists to explain.
+   */
   const whyItWouldDisappear = demo
     ? [temPermission ? null : `exige ${permissionRequired(card)}`, card.flagNaOrigem]
         .filter((p) => p !== null && p !== undefined)
@@ -253,13 +230,14 @@ function Card({
 
   const miolo = (
     <>
-      {/* `de`: caixa de 48 com o ícone `size="xx-large"` (36) dentro. */}
+      {/* `de`: a 48px box with the `size="xx-large"` (36) icon inside. */}
       <span className="ct-cartao-icone">
         <IconePortal nome={card.icone} tamanho={36} />
       </span>
       <span className="ct-cartao-texto">
-        {/* A fileira `flex row justify-between` deles: título à esquerda,
-            etiqueta encostada na direita. */}
+        {/*
+ * Their `flex row justify-between` row: title on the left, tag flush right.
+ */}
         <span className="ct-cartao-titulo">
           <b>{card.titulo}</b>
           {card.pronto ? null : <span className="pt-obra-selo">em breve</span>}
@@ -270,9 +248,9 @@ function Card({
     </>
   );
 
-  /* Cartão cuja rota ainda não existe fica no lugar, apagado e com o selo — é
-     o que o portal já faz com o que está em obra (`pt-obra`), e some-lo
-     esconderia que o produto o tem. */
+  /*
+   * A card whose route doesn't exist yet stays in place, grayed out and badged — that's what the portal already does with anything under construction (`pt-obra`), and removing it would hide that the product has it.
+   */
   if (!card.pronto) {
     return <div className="ct-cartao pt-obra">{miolo}</div>;
   }

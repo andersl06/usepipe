@@ -8,15 +8,9 @@ import { emailsParaTexto, textoParaEmails, type ChannelPreferences } from '../..
 import { Interruptor } from '../../integrations/interruptor';
 
 /**
- * Configurações de alerta — `FICHA-canal-whatsapp.md` §4: o switch liga/
- * desliga na hora, como em Configurações; o campo de e-mails (texto livre,
- * "separados por vírgula") tem "Salvar" próprio — diferente do switch, digitar
- * e perder foco não é o momento de gravar.
+ * Alert settings — `FICHA-canal-whatsapp.md` §4: the switch turns on/off immediately, like in Settings; the e-mail field (free text, "separados por vírgula") has its own "Salvar" — unlike the switch, typing and losing focus isn't the moment to save.
  *
- * A aba aparece também SEM número (foto `08` da ficha do canal), mas a origem
- * não mostra o que ela faz nesse estado (`FICHA-conectar-canal-no-bot.md`
- * §5). Aqui, sem canal, os controles ficam desabilitados — a forma, sem
- * inventar o comportamento.
+ * The tab also appears WITHOUT a number (photo `08` from the channel's ficha), but the source doesn't show what it does in that state (`FICHA-conectar-canal-no-bot.md` §5). Here, without a channel, the controls come disabled — the shape, without inventing the behavior.
  */
 export function AbaAlerta() {
   const context = useOutletContext<ChannelWhatsappContext | ContextWithoutChannel>();

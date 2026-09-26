@@ -44,9 +44,9 @@ export function TelaDeServicos({
   podeEditar: boolean;
 }) {
   /**
-   * `null` = fechado
-   * `'novo'` = adicionar
-   * senão, o id do serviço em edição
+   * `null` = closed
+   * `'novo'` = adding
+   * otherwise, the id of the service being edited
    */
   const [aberto, setAberto] = useState<string | null>(null);
 
@@ -200,7 +200,7 @@ export function TelaDeServicos({
           >
             <h2>{titulo}</h2>
 
-        {/* NOME DO SERVIÇO */}
+        {}
         <div className="sv-campo">
           <div className="sv-input">
             <div className="sv-input-container">
@@ -360,7 +360,7 @@ export function TelaDeServicos({
               </label>
             ) : null}
 
-            {/* EXPIRAÇÃO */}
+            {}
         {campos.mostrarExpiracao ? (
           <div className="sv-campo sv-campo-expiracao">
             <div className="sv-input">

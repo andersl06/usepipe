@@ -8,16 +8,7 @@ import { IconeDesk, type NomeDeIconeDesk } from './icones-desk';
 import { Avatar } from './avatar';
 
 /**
- * O trilho vertical da referência (`~/desk-clone/templates/navbar.html` +
- * `navbar-menu-item.html` + `navbar-avatar.html`): marca no topo, cinco
- * destinos, e no rodapé ajuda, preferências e o avatar com o selo de
- * presença. A ordem e os ícones são os do README da cópia (`message-talk`,
- * `paperplane`, `monitoring`, `contact`, `ticket`; `question`,
- * `settings-general`). Os textos dos tooltips são os `$t(name)` de lá.
- *
- * O clique no avatar abre o painel "Seu status" (`profile-side-menu`), que
- * entra ao lado do trilho com 300px e empurra as colunas — é como a cópia
- * faz, medido em `desk2/blip-menu-status.png`.
+ * Reference vertical rail (`~/desk-clone/templates/navbar.html`, `navbar-menu-item.html`, `navbar-avatar.html`): brand at the top; five destinations; help, preferences, and presence avatar at the bottom. Order and icons follow the clone README (`message-talk`, `paperplane`, `monitoring`, `contact`, `ticket`; `question`, `settings-general`), and tooltips use its `$t(name)` labels. Clicking the avatar opens `profile-side-menu` beside the rail at 300px, pushing the columns as measured in `desk2/blip-menu-status.png`.
  */
 const DESTINOS: { para: string; icone: NomeDeIconeDesk; rotulo: string }[] = [
   { para: '/', icone: 'atendimentos', rotulo: 'Atendimentos' },
@@ -27,7 +18,7 @@ const DESTINOS: { para: string; icone: NomeDeIconeDesk; rotulo: string }[] = [
   { para: '/bulk-ticket', icone: 'acoes-em-massa', rotulo: 'Ações em massa' },
 ];
 
-/** Os rótulos de status do menu do avatar (`{"online":"Online","pause":"Em pausa","invisible":"Invisível"}`). */
+
 export const ROTULOS_DE_STATUS: Record<StateAgent, string> = {
   online: 'Online',
   pausa: 'Em pausa',
@@ -68,7 +59,7 @@ export function Rail({
         </ul>
         <ul className="dk-trilho-itens dk-trilho-rodape">
           <li className="dk-trilho-item">
-            {/* ponytail: a ajuda da referência abre a central deles; aqui aponta para o suporte do Pipe. */}
+            {/* The reference help link opens Blip's help center; this one goes to Pipe support. */}
             <a
               className="dk-trilho-botao"
               href="mailto:suporte@usepipe.com.br"
@@ -116,11 +107,7 @@ export function Rail({
 }
 
 /**
- * O painel "Seu status" (`profile-side-menu`): cabeçalho com seta de voltar
- * (`.sidebar-header`, 40px, gap 10), `user-info` (avatar 56, nome 14/600,
- * e-mail 12), os três status (`.change-status-button`: 56px, recuo 16, raio 8,
- * o em vigor com fundo a 8% e o check), e "Desconectar" no rodapé.
- * "Em pausa" abre a lista de motivos (`personalized-breaks-select`).
+ * `profile-side-menu` follows the reference: back-arrow header (`.sidebar-header`, 40px, gap 10), `user-info` (56px avatar, name 14/600, email 12), and three statuses (`.change-status-button`: 56px, 16px inset, 8px radius, with 8% background and a check on the active one). Place `Desconectar` in the footer. `Em pausa` opens `personalized-breaks-select`.
  */
 function StatusPanel({
   state,

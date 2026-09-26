@@ -7,26 +7,28 @@ import { ROTULO_DO_TIPO, type Resultado, type TipoDeResultado } from '../lib/sea
 import { buscarGlobal } from '../app/actions-search';
 
 /**
- * O menu de comando, medido no `command-menu` do `twenty-front`.
+ * The command menu, measured against `twenty-front`'s `command-menu`.
  *
- * É a funcionalidade que mais define o Twenty: você não navega até o registro,
- * você chama pelo nome. `Ctrl+K` (`meta+k` no Mac) — os mesmos atalhos do
- * `useCommandMenuHotKeys` deles — e é por isso que a lateral pode ser curta.
+ * It's the feature that defines Twenty the most: you don't navigate to the
+ * record, you call it by name. `Ctrl+K` (`meta+k` on Mac) — the same shortcuts as
+ * their `useCommandMenuHotKeys` — and that's why the sidebar can stay short.
  *
- * **Painel à direita, altura inteira**, como o deles (`height: 100%; top: 0`),
- * e não caixa flutuante no meio: o painel deixa a tela de trás visível, e quem
- * busca costuma estar comparando com o que já está vendo.
+ * **Panel on the right, full height**, like theirs (`height: 100%; top: 0`), and
+ * not a floating box in the middle: the panel leaves the screen behind it
+ * visible, and whoever is searching is usually comparing against what they're
+ * already seeing.
  *
- * Três coisas que fazem a diferença entre um campo de busca e um menu de
- * comando, e todas vieram da leitura deles:
+ * Three things that make the difference between a search field and a command
+ * menu, and all of them came from reading theirs:
  *
- * 1. **O teclado resolve tudo.** Setas percorrem, Enter abre, Esc fecha. A mão
- *    não sai do teclado, que é o ponto.
- * 2. **A busca é adiada em 150 ms.** Sem isso, cada tecla vira uma consulta, e
- *    quem digita rápido dispara oito para ler a última.
- * 3. **Resposta fora de ordem é descartada.** A consulta de "an" pode chegar
- *    depois da de "anderson" e sobrescrever o resultado certo com o velho — é o
- *    defeito clássico de busca-enquanto-digita, e o contador de pedido resolve.
+ * 1. **The keyboard resolves everything.** Arrows move through it, Enter
+ *    opens, Esc closes. The hand never leaves the keyboard, which is the point.
+ * 2. **The search is debounced by 150ms.** Without this, every keystroke
+ *    becomes a query, and a fast typist fires eight to read the last one.
+ * 3. **An out-of-order response is discarded.** The query for "an" can arrive
+ *    after the one for "anderson" and overwrite the right result with the old
+ *    one — it's the classic search-as-you-type defect, and the request counter
+ *    fixes it.
  */
 
 const ATRASO_MS = 150;
@@ -38,7 +40,7 @@ export function MenuDeComando() {
   const [carregando, setCarregando] = useState(false);
   const [indice, setIndice] = useState(0);
   const campo = useRef<HTMLInputElement>(null);
-  /** Só a resposta do pedido mais recente vale. Ver o item 3 do cabeçalho. */
+  /** Only the most recent request's response counts. See item 3 of the header. */
   const pedido = useRef(0);
   const router = useRouter();
 
@@ -49,7 +51,7 @@ export function MenuDeComando() {
     setIndice(0);
   }, []);
 
-  // Ctrl+K / ⌘K abre; o mesmo atalho fecha, que é o que se espera de um alternador.
+  // Ctrl+K / ⌘K opens; the same shortcut closes, which is what you'd expect from a toggle.
   useEffect(() => {
     function aoTeclar(evento: KeyboardEvent) {
       if ((evento.ctrlKey || evento.metaKey) && evento.key.toLowerCase() === 'k') {
@@ -78,7 +80,7 @@ export function MenuDeComando() {
     const meu = ++pedido.current;
     const relogio = setTimeout(async () => {
       const achados = await buscarGlobal(limpo);
-      // Chegou tarde: outra busca já saiu depois desta. Descarta.
+      // Arrived late: another search already came back after this one. Discard.
       if (meu !== pedido.current) return;
       setResultados(achados);
       setIndice(0);
@@ -88,7 +90,7 @@ export function MenuDeComando() {
     return () => clearTimeout(relogio);
   }, [termo, aberto]);
 
-  /** Agrupado por objeto, na ordem fixa do rótulo — a mesma da lateral. */
+  /** Grouped by object, in the label's fixed order — the same one the sidebar uses. */
   const groups = useMemo(() => {
     const mapa = new Map<TipoDeResultado, Resultado[]>();
     for (const r of resultados) {
@@ -117,7 +119,7 @@ export function MenuDeComando() {
 
     if (evento.key === 'ArrowDown') {
       evento.preventDefault();
-      // Circular: chegar no fim e continuar volta ao começo, em vez de travar.
+      // Circular: reaching the end and continuing wraps back to the start, instead of stopping.
       setIndice((i) => (i + 1) % resultados.length);
     } else if (evento.key === 'ArrowUp') {
       evento.preventDefault();
@@ -135,9 +137,11 @@ export function MenuDeComando() {
 
   return (
     <>
-      {/* O véu fecha ao clique, e não tem tinta: o painel já separa o que é
-          menu do que é tela, e escurecer tudo esconderia o que a pessoa quer
-          comparar. */}
+      {/*
+ * The overlay closes on click, and has no tint: the panel already separates
+ * what's menu from what's screen, and darkening everything would hide what the
+ * person wants to compare.
+ */}
       <div className="c-cmd-veu" onClick={fechar} aria-hidden="true" />
 
       <div className="c-cmd" role="dialog" aria-modal="true" aria-label="Buscar">

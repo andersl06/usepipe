@@ -6,43 +6,20 @@ import { excluirFlow, salvarBasicas } from './gravar';
 import './basicas.css';
 
 /**
- * `/configurations/basic` ("Editar Fluxo"), medida na cópia rodável
- * (`docs/capturas/regua.md`, `/application/detail/pipeprincipal/configurations/basic`,
- * DOM lido com Playwright — `referencias-blip/portal/configurations-basic` só
- * tem a casca do SPA, sem conteúdo renderizado, então não serviu de fonte):
+ * `/configurations/basic` ("Editar Fluxo"), measured in the runnable copy (`docs/capturas/regua.md`, `/application/detail/pipeprincipal/configurations/basic`, DOM read with Playwright — `referencias-blip/portal/configurations-basic` only has the SPA shell, with no rendered content, so it wasn't a usable source):
  *
- *   h1 "Editar Fluxo" (sem subtítulo — a origem também não tem um aqui)
- *   ── divisória (CabecalhoDaPagina já desenha) ──
+ *   h1 "Editar Fluxo" (no subtitle — the source doesn't have one here either)
+ *   ── divider (CabecalhoDaPagina already draws it) ──
  *   h2 "Informações básicas"
- *   campo "Nome do fluxo" — obrigatório, 2-30 caracteres, contador (o que
- *     FALTA: `30 - valor.length`, não o que já foi digitado)
- *   campo "Descrição" — opcional, 2-160 quando preenchida, mesmo contador
- *   campo "Imagem do avatar (Opcional)" — área de arraste/clique com prévia
- *     e botão de remover
- *   "Salvar" (canto direito) — `ng-disabled="$ctrl.applicationForm.$invalid
- *     || $ctrl.channelForm.$pristine"`: desligado enquanto nada mudou ou
- *     enquanto o formulário está inválido
- *   "Clique aqui para acessar as configurações avançadas" + "Excluir fluxo"
- *     (mesma linha, extremos opostos) — o botão é `ng-disabled="!$ctrl.canDeleteBot"`
+ *   "Nome do fluxo" field — required, 2-30 characters, counter (what's MISSING: `30 - valor.length`, not what's already typed)
+ *   "Descrição" field — optional, 2-160 when filled, same counter
+ *   "Imagem do avatar (Opcional)" field — drag/click area with preview and remove button
+ *   "Salvar" (top right) — `ng-disabled="$ctrl.applicationForm.$invalid || $ctrl.channelForm.$pristine"`: disabled while nothing changed or while the form is invalid
+ *   "Clique aqui para acessar as configurações avançadas" + "Excluir fluxo" (same line, opposite ends) — the button is `ng-disabled="!$ctrl.canDeleteBot"`
  *
- * "Nome do fluxo" e "Descrição" NÃO usam `<CampoBds>` (a caixa com borda de
- * `pecas.tsx`): no DOM real esta tela é a única de Configurações que ainda
- * usa `<material-input>` (AngularJS), não `<bds-input>` — `apikey`, `keys`,
- * `boasvindas` e `menu-persistente` são todas `bds-input` (conferido nos
- * DOMs de cada uma). O `material-input` é um campo de LINHA: rótulo que sobe
- * para cima quando preenchido (senão fica como placeholder), sublinhado sob
- * toda a largura e o `<span counter-for>` na ponta direita da mesma linha —
- * daí `CampoDeLinha`, só aqui.
+ * "Nome do fluxo" and "Descrição" do NOT use `<CampoBds>` (the bordered box from `pecas.tsx`): in the real DOM this screen is the only one in Settings that still uses `<material-input>` (AngularJS), not `<bds-input>` — `apikey`, `keys`, `boasvindas` and `menu-persistente` are all `bds-input` (checked in each one's DOM). `material-input` is a LINE field: label that rises above when filled (otherwise it's a placeholder), underline across the full width and the `<span counter-for>` at the right edge of the same line — hence `CampoDeLinha`, only here.
  *
- * As escritas: "Salvar" é `PATCH /v1/gestao/fluxos/:id` e "Excluir fluxo" é
- * `DELETE /v1/gestao/fluxos/:id`, depois do modal de confirmação
- * (`openDeleteApplicationModal()` → `deleteChatBotModal*` do pacote pt-BR:
- * título "Quer mesmo excluir <shortName>?", o corpo, a caixa "Estou ciente…"
- * que destrava o botão, "Voltar" e o botão de excluir). As frases são as do
- * pacote; "chatbot" vira "fluxo", como o próprio botão da tela já faz
- * (`deleteChatbot: "Excluir fluxo"`). O corpo deles diz "de forma
- * permanente"; aqui a exclusão arquiva (ver `ciclo-de-vida-do-fluxo.ts` na
- * `api`), e a frase não promete o que não faz.
+ * The writes: "Salvar" is `PATCH /v1/gestao/fluxos/:id` and "Excluir fluxo" is `DELETE /v1/gestao/fluxos/:id`, after the confirmation modal (`openDeleteApplicationModal()` → `deleteChatBotModal*` from the pt-BR package: title "Quer mesmo excluir <shortName>?", the body, the "Estou ciente…" box that unlocks the button, "Voltar" and the delete button). The phrasing is the package's; "chatbot" becomes "fluxo", as the screen's own button already does (`deleteChatbot: "Excluir fluxo"`). Their body says "de forma permanente" (permanently); here deletion archives (see `ciclo-de-vida-do-fluxo.ts` in the `api`), and the phrase doesn't promise what it doesn't do.
  */
 function CampoDeLinha({
   id,
@@ -102,7 +79,7 @@ function CampoDeLinha({
   );
 }
 
-/** `ng-minlength="2"` / `ng-maxlength="30"` do nome; `2` / `160` da descrição. */
+/** The name's `ng-minlength="2"` / `ng-maxlength="30"`; `2` / `160` for the description. */
 const NOME = { min: 2, max: 30 } as const;
 const DESCRIPTION = { min: 2, max: 160 } as const;
 
@@ -128,13 +105,14 @@ export function SettingsBasicTela({
   description: string;
   imageUrl: string | null;
   shortName: string | null;
-  /** `canDeleteBot` deles: só quem tem `automacao.fluxo.excluir`. */
+  /** Their `canDeleteBot`: only whoever has `automacao.fluxo.excluir`. */
   podeExcluir: boolean;
 }) {
   const [nomeEditado, setNomeEditado] = useState(nome);
   const [description, setDescription] = useState(descriptionInitial);
-  /* O que a prévia mostra (a URL gravada ou a do arquivo escolhido) e o
-     arquivo em si — `undefined` é "a foto não foi mexida". */
+  /*
+   * What the preview shows (the saved URL or the chosen file's) and the file itself — `undefined` means "the photo hasn't been touched".
+   */
   const [image, setImage] = useState(imageUrl);
   const [file, setFile] = useState<File | null | undefined>(undefined);
   const [aviso, setAviso] = useState('');
@@ -145,7 +123,7 @@ export function SettingsBasicTela({
   const [removendo, setRemovendo] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  /* A URL de objeto da prévia é liberada quando troca ou quando a tela sai. */
+  /* The preview's object URL is released when it changes or when the screen unmounts. */
   useEffect(() => {
     if (!image?.startsWith('blob:')) return;
     return () => URL.revokeObjectURL(image);
@@ -174,8 +152,9 @@ export function SettingsBasicTela({
       setAviso(resultado.error);
       return;
     }
-    /* O que voltou é o que ficou gravado: o nome saneado pela `api`, a foto
-       como `data:`. A partir daqui é o novo "sem mudança". */
+    /*
+     * What came back is what got saved: the name sanitized by the `api`, the photo as `data:`. From here on, this is the new "no change" baseline.
+     */
     setNomeEditado(resultado.value.nome);
     setDescription(resultado.value.description ?? '');
     setImage(resultado.value.imageUrl);
@@ -193,7 +172,7 @@ export function SettingsBasicTela({
       setAviso(resultado.error);
       return;
     }
-    /* Lá, depois de excluir, `$state.go` para a lista de chatbots. Aqui, o portal. */
+    /* There, after deleting, `$state.go` goes to the chatbot list. Here, the portal. */
     irPara('/portal', { substituir: true });
   }
 
@@ -242,8 +221,9 @@ export function SettingsBasicTela({
                     aria-label="Remover imagem"
                     onClick={() => {
                       setImage(null);
-                      /* Tirar a foto gravada é `imagem: null`; desfazer a
-                         escolha de um arquivo novo é só voltar ao que estava. */
+                      /*
+                       * Removing the saved photo is `imagem: null`; undoing the choice of a new file is just going back to what it was.
+                       */
                       setFile(imageUrl ? null : undefined);
                       if (fileRef.current) fileRef.current.value = '';
                     }}
@@ -308,7 +288,7 @@ export function SettingsBasicTela({
             </button>{' '}
             para acessar as configurações avançadas
           </p>
-          {/* `deleteChatbotPermissionDenied` no título do botão desligado. */}
+          {/* Their `deleteChatbotPermissionDenied` in the disabled button's title. */}
           <BotaoBds
             variante="perigo"
             disabled={!podeExcluir}
@@ -360,7 +340,7 @@ export function SettingsBasicTela({
               <BotaoBds variante="secondary" onClick={() => setExcluindo(false)}>
                 Voltar
               </BotaoBds>
-              {/* `deleteChatBotModalToolTip` enquanto a caixa não está marcada. */}
+              {/* Their `deleteChatBotModalToolTip` while the checkbox isn't checked. */}
               <BotaoBds
                 variante="perigo"
                 disabled={!ciente || removendo}

@@ -9,18 +9,10 @@ import type { ConversationEvents, ClosedBy, EventAttendance, TipoEvento } from '
 import { databaseOwner, noTenant } from './database.js';
 
 /**
- * Fila de agregação: fecha `metrica_diaria` do dia anterior.
- *
- * Toda métrica sai de `evento_atendimento`, nunca de campo mutável da conversa —
- * é o que permite recalcular o passado quando a definição de uma métrica muda
- * (modelo de dados §4). Por isso a rotina é **idempotente**: rodar de novo para o
- * mesmo dia sobrescreve a linha em vez de somar em cima.
- *
- * A matemática vive em `@pipe/core` e não é reescrita aqui. Este arquivo só traduz
- * linha de banco em `ConversaEventos` e resultado de métrica em coluna.
+ * Aggregation queue closes the previous day's `metrica_diaria`. Every metric derives from `evento_atendimento`, never a mutable conversation field, so historical data can be recalculated when a metric definition changes (data model §4). The routine is idempotent: rerunning a day overwrites its row instead of adding to it. The math lives in `@pipe/core`; this file only maps database rows to `ConversaEventos` and metric results to columns.
  */
 
-/** Fuso do tenant decide onde o dia começa. Relatório em UTC mente para o cliente. */
+/** The tenant time zone determines the start of a day; a UTC report would mislead the client. */
 const FUSO_PADRAO = process.env['PIPE_FUSO_PADRAO'] ?? 'America/Sao_Paulo';
 
 export interface SummaryAggregation {
@@ -52,8 +44,7 @@ type LinhaEvento = {
 };
 
 /**
- * Agrega o dia para todos os tenants ativos. Roda de madrugada, uma vez por dia.
- * O `select` de tenants usa o papel dono; toda leitura de negócio, o da aplicação.
+ * Aggregate the previous day for all active tenants each night. The owner role runs the `select` of tenants; the app role reads business data.
  */
 export async function agregarDiaAnterior(agora: Date = new Date()): Promise<SummaryAggregation[]> {
   const { rows: tenants } = await databaseOwner().execute<{ id: string; fuso: string }>(
@@ -61,7 +52,7 @@ export async function agregarDiaAnterior(agora: Date = new Date()): Promise<Summ
   );
 
   const resumos: SummaryAggregation[] = [];
-  // Em série: cada tenant abre a própria transação.
+  // Run serially: each tenant opens its own transaction.
   for (const tenant of tenants) {
     const dia = diaAnterior(agora, tenant.fuso || FUSO_PADRAO);
     resumos.push(await agregarDia(tenant.id, dia, tenant.fuso || FUSO_PADRAO));
@@ -101,7 +92,7 @@ export async function agregarDia(
     const byConversation = agruparByConversation(eventos);
     const linhas = montarLinhas(byConversation, mensagens);
 
-    // Em série (nunca `Promise.all` dentro da transação — ver README).
+    // Run in series; never use `Promise.all` inside this transaction (see README).
     for (const linha of linhas) {
       await tx.execute(sql`
         insert into metrica_diaria (
@@ -232,8 +223,8 @@ function montarLinhas(
     }
 
     for (const [dimensaoId, grupo] of groups) {
-      // Sem dimensão não há linha: `metrica_diaria_uk` inclui `dimensao_id`, e no
-      // Postgres dois NULL são distintos num índice único — a linha "sem fila" seria
+      // Without a dimension there is no row: `metrica_diaria_uk` includes `dimensao_id`, and
+      // Postgres treats two NULLs as distinct in a unique index; a row without a queue would
       // inserida de novo a cada reprocessamento em vez de ser sobrescrita.
       if (dimensaoId === null) continue;
       const eventos = grupo.map((g) => g.conversation);
@@ -261,8 +252,8 @@ function montarLinhas(
         conversationsAbandonadas: closures.abandonada,
         messagesInbound: count('entrada'),
         messagesOutput: count('saida'),
-        // Soma e denominador viajam juntos: a média é feita na hora de exibir,
-        // porque média de médias entre dias mente (spec de métricas §5).
+        // Keep the sum and denominator together; calculate the average when displaying it,
+        // because averaging daily averages is misleading (metrics spec §5).
         waitQueueSeg: Math.round(queue.soma),
         waitQueueN: queue.population,
         firstResponseSeg: Math.round(first.soma),

@@ -5,15 +5,11 @@ import type { AccountInLista } from '../../../lib/shell';
 import '../../welcome/boas-vindas.css';
 
 /**
- * "Você faz parte de X?" — o endereço é de uma conta em que a pessoa não tem
- * acesso.
+ * "Are you part of X?" — the address belongs to an account the person doesn't have access to.
  *
- * É a saída da plataforma de origem para o mesmo caso, e a razão dela é que
- * negar seco manda embora quem só precisava de um convite.
+ * It's the source platform's way out for the same case, and the reason is that a flat denial sends away someone who just needed an invite.
  *
- * **A conta pode até não existir, e a tela é a MESMA de propósito.** Dizer
- * "essa conta existe, mas não é sua" conta a qualquer curioso que empresa usa o
- * Pipe — é a mesma simetria que a descoberta por e-mail já mantém na entrada.
+ * **The account might not even exist, and the screen is the SAME on purpose.** Saying "this account exists, but it's not yours" tells any curious visitor which companies use Pipe — the same symmetry that email discovery already keeps at sign-in.
  */
 export function PageNoAccess() {
   const [search] = useSearchParams();

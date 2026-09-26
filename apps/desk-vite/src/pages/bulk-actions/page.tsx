@@ -7,16 +7,7 @@ import { numeroDoTicket } from '../../lib/channel';
 import { displayName } from '../../lib/order';
 
 /**
- * "Ações em Massa" — `/bulk-ticket`, a transferência em lote da referência
- * (`~/desk-clone/clone/index.html`, seção `bulk`, foto
- * `desk2/blip-clone-bulk.png`): título 20/400, cartão com o campo "Chatbot"
- * e a ficha "Transferir"; à esquerda "Selecionar todos" e a lista dos
- * atendimentos abertos (ou "Nenhum atendimento aberto para transferir.");
- * à direita "Transferir para:", os rádios Fila / Atendente e os dois
- * seletores; "Cancelar" / "Transferir" no rodapé.
- *
- * A ação `transferirEmMassa` repete `transferirConversa` por ticket — a
- * mesma regra da referência (transferir encerra e abre outro).
+ * `Ações em Massa` at `/bulk-ticket` follows the reference bulk transfer screen (`~/desk-clone/clone/index.html`, bulk section; `desk2/blip-clone-bulk.png`): 20/400 title, `Chatbot` card and `Transferir` chip, select-all and open-ticket list on the left (or `Nenhum atendimento aberto para transferir.`), queue/agent destination choices on the right, and `Cancelar`/`Transferir` below. `transferirEmMassa` repeats `transferirConversa` per ticket; as in the reference, transferring closes one ticket and opens another.
  */
 export function PageBulkActions() {
   const navegar = useNavigate();
@@ -67,7 +58,7 @@ export function PageBulkActions() {
           <div className="dk-campo-flutuante" style={{ width: 420 }}>
             <span>Chatbot</span>
             <b>
-              {/* ponytail: um chatbot por conta na referência; aqui a conta inteira. */}Todos os
+              {/* Ponytail: the reference has one chatbot per account; this screen currently uses the whole account. */}Todos os
               canais
             </b>
           </div>

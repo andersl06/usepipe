@@ -11,11 +11,9 @@ import {
   channelRotulo,
 } from './regras';
 
-/* Estrutura do template `users-content-view` da origem (portal.js, módulo 2753):
-   lateral `.static-sidebar` com cabeçalho escuro (Filtros + Aplicar) e corpo com o
-   `user-dimension` (botão tracejado "+ Adicionar filtros"); à direita `page-header`
-   (Contatos + recarregar), `#contacts-filter` (contagem + `blip-daterange-picker`)
-   e a lista de `card.card--mini-card.user-card`. */
+/*
+ * Structure of the origin's `users-content-view` template (portal.js, module 2753): sidebar `.static-sidebar` with a dark header (Filters + Apply) and a body with the `user-dimension` (dashed "+ Adicionar filtros" button); on the right, `page-header` (Contatos + reload), `#contacts-filter` (count + `blip-daterange-picker`), and the list of `card.card--mini-card.user-card`.
+ */
 export function BotListaContacts() {
   const { contact: bot } = useContact();
   const id = bot.id;
@@ -28,7 +26,7 @@ export function BotListaContacts() {
       <aside className="ct-filtros">
         <header className="ct-filtros-cabeca">
           <span className="ct-filtros-titulo">Filtros</span>
-          {/* ponytail: filtros por dimensão não têm backend; o botão nasce desabilitado como na origem. */}
+          {/* ponytail: dimension filters have no backend; the button starts disabled, as in the origin. */}
           <button className="ct-aplicar" type="button" disabled>
             Aplicar
           </button>
@@ -69,7 +67,7 @@ export function BotListaContacts() {
             <div className="ct-contagem">
               <span>{countRotulo(contacts.length)}</span>
             </div>
-            {/* ponytail: o seletor de período é só visual; o filtro por data não tem backend. */}
+            {/* ponytail: the period picker is visual only; date filtering has no backend. */}
             <div className="ct-periodo" aria-label="Período">
               <span className="ct-periodo-icone">
                 <IconePortal nome="calendario" tamanho={21} />

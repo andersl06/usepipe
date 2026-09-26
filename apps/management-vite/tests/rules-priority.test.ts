@@ -8,13 +8,9 @@ import {
 } from '../src/lib/rules-priority.ts';
 
 /**
- * O recorte da seção "Regras de Priorização" da página de edição de fila
- * (`FICHA-atendentes-filas-pausas.md` §a.3).
+ * The "Regras de Priorização" section slice from the queue-edit page (`FICHA-atendentes-filas-pausas.md` §a.3).
  *
- * `GET /v1/gestao/regras/prioridade` devolve o tenant inteiro; a seção da fila
- * mostra só `escopoTipo === 'fila'` com `escopoId` desta fila. Sem este
- * recorte, editar a fila "Suporte" listaria as regras da "Financeiro" — e a
- * exclusão ali apagaria a regra da outra fila.
+ * `GET /v1/gestao/regras/prioridade` returns the whole tenant; the queue section shows only `escopoTipo === 'fila'` with this queue's `escopoId`. Without this slice, editing the "Suporte" queue would list "Financeiro"'s rules — and deleting one there would delete the other queue's rule.
  */
 
 function regra(
@@ -56,6 +52,6 @@ test('a tenant-scoped rule does not appear in the queue\'s section', () => {
 test('o degrau sai em português, pelo rótulo do core', () => {
   assert.equal(rotuloDoNivel('maxima'), 'Máxima');
   assert.equal(rotuloDoNivel('baixa'), 'Baixa');
-  /* Nível que o banco tenha e o core não conheça sai cru, em vez de sumir. */
+  /* A level the database has and core doesn't recognize passes through raw, instead of disappearing. */
   assert.equal(rotuloDoNivel('inventada'), 'inventada');
 });

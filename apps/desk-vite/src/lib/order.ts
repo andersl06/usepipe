@@ -2,19 +2,12 @@ import type { ConversationOfList, TypeChannelDatabase } from '@pipe/contracts';
 import { channelTemWindow, windowAberta as janelaAbertaDoCore } from '@pipe/core';
 
 /**
- * As regras puras da coluna de atendimentos: as fichas de filtro, a busca, a
- * ordem da lista e a janela de 24 horas. Nenhuma lê o relógio sozinha — quem
- * chama passa o `agora`, e é isso que as deixa testáveis.
- *
- * Os NOMES são os da referência (`~/desk-clone/templates/chat-list.html`: as
- * fichas `all-tickets-chip`, `unread-tickets-chip`, `standby-tickets-chip`,
- * `inactive-tickets-chip`), e a ordem padrão é a preferência `sortChatsBy:
- * 'lastMessageDate'` de `/agents/preferences` (`docs/desk-store.md`).
+ * Pure attendance-column rules cover filter chips, search, ordering, and the 24-hour window. Callers pass `agora` instead of these functions reading the clock, which makes them testable. Names mirror `~/desk-clone/templates/chat-list.html` (`all-tickets-chip`, `unread-tickets-chip`, `standby-tickets-chip`, `inactive-tickets-chip`); default ordering mirrors `sortChatsBy: 'lastMessageDate'` in `/agents/preferences` (`docs/desk-store.md`).
  */
 
 export type Filter = 'todos' | 'nao-lidos' | 'em-espera' | 'inativos';
 
-/** Rótulo de cada ficha, com a contagem entre parênteses como lá ("Todos (3)"). */
+
 export const ROTULOS_OF_FILTER: Record<Filter, string> = {
   todos: 'Todos',
   'nao-lidos': 'Não lidos',
@@ -24,15 +17,12 @@ export const ROTULOS_OF_FILTER: Record<Filter, string> = {
 
 export const FILTERS: readonly Filter[] = ['todos', 'nao-lidos', 'em-espera', 'inativos'];
 
-/** Milissegundos de uma hora; a janela livre do WhatsApp é de 24 delas. */
+
 const HORA_MS = 3_600_000;
 const WINDOW_HORAS = 24;
 
 /**
- * "Não lida" no nosso domínio: a última palavra foi do contato, OU o atendente
- * marcou à mão pelo menu do cartão (`naoLidaEm`, o `UNREAD` da origem). Não
- * guardamos a CONTAGEM de não lidas (só quem falou por último), então a ficha e
- * o negrito do cartão saem daqui.
+ * A conversation is `Não lida` when the contact sent the latest message or the agent marked it manually through the card menu (`naoLidaEm`, source `UNREAD`). We do not store an unread count, only who spoke last; the chip and card bolding derive from this rule.
  */
 export function naoLida(c: ConversationOfList): boolean {
   return c.lastMessageFrom === 'contato' || c.naoLidaEm !== null;
@@ -48,19 +38,14 @@ export function emEspera(c: ConversationOfList): boolean {
 }
 
 /**
- * "Inativo" é a conversa cuja janela de 24 h já fechou: o contato sumiu e o
- * atendente só volta a falar por template. É o mais próximo do `inactive` da
- * referência que o nosso domínio distingue.
+ * `Inativo` means the conversation's 24-hour window has closed: the contact stopped replying and the agent can only resume via a template. This is the closest domain state to the reference `inactive`.
  */
 export function inativa(c: ConversationOfList, agora: Date): boolean {
   return !windowAberta(c.janelaExpiraEm, c.canalTipo, agora);
 }
 
 /**
- * A conversa aceita texto livre? A regra é a de `@pipe/core` (`janela/janela.ts`),
- * a mesma que a `api` aplica ao enviar: canal sem janela (e-mail, chat) está
- * sempre aberto; WhatsApp sem `janelaExpiraEm` (o contato nunca falou) está
- * fechado. Instagram segue o WhatsApp.
+ * Free-text eligibility follows `@pipe/core` (`janela/janela.ts`) and the `api` send rule: channels without a window (email, chat) are always open; WhatsApp without `janelaExpiraEm` means the contact never spoke and is closed. Instagram follows WhatsApp.
  */
 export function windowAberta(
   windowExpiraIn: string | null,
@@ -72,7 +57,7 @@ export function windowAberta(
   return janelaAbertaDoCore(windowExpiraIn ? new Date(windowExpiraIn) : null, agora);
 }
 
-/** Quanto falta da janela, em horas cheias (para o aviso); `null` se já fechou ou não há janela. */
+/** Return whole hours remaining in the window for the warning; return `null` after closure or when there is no window. */
 export function horasRestantes(windowExpiraIn: string | null, agora: Date): number | null {
   if (!windowExpiraIn) return null;
   const restante = new Date(windowExpiraIn).getTime() - agora.getTime();
@@ -97,7 +82,7 @@ export function aplicarFilter(
   }
 }
 
-/** A contagem de cada ficha, sobre a lista INTEIRA (a ficha diz quantos há, não quantos aparecem). */
+/** Count each filter chip over the full list, since the chip reports all matching items rather than only visible ones. */
 export function contagens(
   conversations: readonly ConversationOfList[],
   agora: Date,
@@ -110,15 +95,13 @@ export function contagens(
   };
 }
 
-/** Só dígitos — para comparar telefone digitado com `+55…` guardado. */
+
 function digitos(texto: string): string {
   return texto.replace(/\D/g, '');
 }
 
 /**
- * A busca da coluna: "Busque pelo nome ou telefone..." (placeholder da
- * referência). Nome sem acento e sem caixa; telefone por dígitos, para
- * `(31) 99471` achar `+5531994714471`.
+ * Search list-column contacts by name without accents or case, and by phone digits, so `(31) 99471` matches stored `+5531994714471`. Reference placeholder: `Busque pelo nome ou telefone...`.
  */
 export function buscar(conversations: readonly ConversationOfList[], termo: string): ConversationOfList[] {
   const t = termo.trim();
@@ -140,13 +123,7 @@ function semAcento(texto: string): string {
 export type Order = 'ultima-mensagem' | 'abertura';
 
 /**
- * A ordem da lista. `ultima-mensagem` ("Ver novas mensagens no topo") é o
- * padrão da preferência de lá; `abertura` ("Ver mensagens por ordem de
- * abertura do ticket") é a outra. Conversa sem mensagem usa a abertura.
- *
- * As FIXADAS vêm antes de tudo, entre si na ordem em que foram fixadas (a mais
- * recente por cima) — é o `pinnedTickets` / `notPinnedTickets` da lista da
- * origem (`blip-desk-regras-tecnicas.md` §6.2: "mantém fixados no topo").
+ * List ordering: `ultima-mensagem` is the reference default (`Ver novas mensagens no topo`); `abertura` is the other option (`Ver mensagens por ordem de abertura do ticket`). For a conversation without messages, use its opening time. Pinned conversations always precede others and are ordered by pin time, most recent first, as the source `pinnedTickets` / `notPinnedTickets` lists do (`blip-desk-regras-tecnicas.md` §6.2: `mantém fixados no topo`).
  */
 export function ordenar(conversations: readonly ConversationOfList[], order: Order): ConversationOfList[] {
   const instante = (c: ConversationOfList) =>
@@ -166,9 +143,7 @@ export function ordenar(conversations: readonly ConversationOfList[], order: Ord
 }
 
 /**
- * Nome de exibição do contato — a cadeia de recurso da referência
- * (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): nome → telefone → e-mail → o que
- * houver antes do `@`. Nunca fica em branco.
+ * Reference contact display fallback (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): name, then phone, then email, then the part before `@`. Never return blank.
  */
 export function displayName(c: {
   contactName: string | null;
@@ -182,7 +157,7 @@ export function displayName(c: {
   return (c.contactId ?? '').split('@')[0] ?? '';
 }
 
-/** `+5531994714471` → `+55 31 99471-4471`; o que não for BR de 13 dígitos volta como veio. */
+/** Format `+5531994714471` as `+55 31 99471-4471`; return non-Brazilian or non-13-digit input unchanged. */
 export function telefoneInternacional(e164: string): string {
   const d = digitos(e164);
   if (d.length === 13 && d.startsWith('55')) {

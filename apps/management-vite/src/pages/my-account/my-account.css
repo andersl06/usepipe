@@ -1,45 +1,47 @@
-/* ======================================= a tela "Minha conta" (/minha-conta)
-
-   Cópia da tela de conta da plataforma de origem (`#blip-account-page`), MEDIDA
-   no DOM dela — a página servida offline e lida com `getBoundingClientRect` e
-   `getComputedStyle`, não deduzida do CSS. A tela inteira, e não só o campo:
-   é o cromo em volta que faz a pessoa reconhecer a tela.
-
-     barra superior   80px de altura, recuo 0 55px, marca à esquerda, risco
-                      vertical de 1px, itens em 12/800 CAIXA ALTA com recuo
-                      0 8px; à direita avatar de 24px, nome 13/500 e "Sair"
-                      em 9/800 sublinhado, embaixo
-     lateral          300px, recuo 64px, avatar de 84px redondo, nome 18px
-                      truncado, régua de 1px com margem 32px, e os pares
-                      rótulo 12/lh18 sobre valor 14/lh21, com 16px entre eles
-     conteúdo         recuo 32px 128px 0
-     cabeçalho        recuo 0 64px 16px, título 24/600 à esquerda, botão
-                      160×42 (raio 8, 14/600) à direita, régua de 1px embaixo
-     área             recuo 32px 64px
-     cartão           1002px de largura, recuo interno 40px 60px
-     abas             régua de 1px embaixo; item com recuo 10px 20px e margem
-                      lateral de 5px (o primeiro sem), texto 15/600, e a ativa
-                      com traço de 4px embaixo
-     painel da aba    60% do cartão (mín. 240px), recuo 45px 10px 10px
-     coluna           UMA coluna de 509px — não duas
-     campo            47px de altura, borda 1px, raio 8px, recuo 5px 10px
-     intervalo        8px entre um campo e o seguinte
-     rótulo           12px/600, entrelinha 16px, DENTRO da caixa, sobre o valor
-     valor            14px/400, entrelinha 19px
-     erro             12px abaixo do campo, com anel de 2px na caixa
-     foco             sombra 0 2px 12px e borda clara
-     termos           12/600, entrelinha 28, recuo 0 8px, abaixo do cartão
-
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA: as medidas acima vieram régua a
-   régua da origem; cor, letra, marca e ícone saem dos nossos token. Boa parte
-   já caía em cima de token que existiam (`--p-r-md` é 8px, `--p-t-sm` é 12px,
-   `--p-t-md` é 14px, `--g-barra-sup-h` é 80px), o que é sinal de que a régua
-   já estava certa — o que faltava era a tela em volta do formulário.
-
-   Uma divergência consciente: o cartão tem o nosso raio de cartão, e não o
-   canto vivo (raio 0) deles. Está no relatório.
-
-   Tema: só o claro. Nenhuma regra `prefers-color-scheme` nesta folha. */
+/*
+ * ======================================= the "Minha conta" screen (/minha-conta)
+ *
+ *    Copy of the source platform's account screen (`#blip-account-page`), MEASURED
+ *    on its DOM — the page served offline and read with `getBoundingClientRect`
+ *    and `getComputedStyle`, not inferred from CSS. The whole screen, not just the
+ *    field: it's the chrome around it that makes someone recognize the screen.
+ *
+ *      top bar          80px height, 0 55px padding, brand on the left, 1px
+ *                       vertical rule, items in 12/800 UPPERCASE with 0 8px
+ *                       padding; on the right a 24px avatar, name 13/500 and "Sair"
+ *                       in 9/800 underlined, below
+ *      sidebar          300px, 64px padding, 84px round avatar, 18px truncated
+ *                       name, 1px rule with 32px margin, and the pairs
+ *                       label 12/lh18 over value 14/lh21, with 16px between them
+ *      content          padding 32px 128px 0
+ *      header           padding 0 64px 16px, title 24/600 on the left, button
+ *                       160×42 (radius 8, 14/600) on the right, 1px rule below
+ *      area             padding 32px 64px
+ *      card             1002px wide, internal padding 40px 60px
+ *      tabs             1px rule below; item with 10px 20px padding and 5px side
+ *                       margin (the first without), text 15/600, and the active
+ *                       one with a 4px stripe below
+ *      tab panel        60% of the card (min. 240px), padding 45px 10px 10px
+ *      column           ONE 509px column — not two
+ *      field            47px height, 1px border, 8px radius, 5px 10px padding
+ *      gap              8px between one field and the next
+ *      label            12px/600, 16px line height, INSIDE the box, above the value
+ *      value            14px/400, 19px line height
+ *      error            12px below the field, with a 2px ring on the box
+ *      focus            0 2px 12px shadow and light border
+ *      terms            12/600, 28 line height, 0 8px padding, below the card
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS: the measurements above came ruler by
+ *    ruler from the source; color, typeface, brand and icon come from our tokens.
+ *    Most of it already matched tokens that existed (`--p-r-md` is 8px, `--p-t-sm`
+ *    is 12px, `--p-t-md` is 14px, `--g-barra-sup-h` is 80px), which is a sign the
+ *    ruler was already right — what was missing was the screen around the form.
+ *
+ *    One conscious divergence: the card has our card radius, not their sharp
+ *    corner (radius 0). It's in the report.
+ *
+ *    Theme: light only. No `prefers-color-scheme` rule in this sheet.
+ */
 
 .conta-pagina {
   display: flex;
@@ -70,9 +72,9 @@
   align-items: center;
 }
 
-/* O lockup entra como MÁSCARA e não como `<img>`: o arquivo é tinta escura com
-   o traço moss, desenhado para fundo claro, e sobre a barra preta ele some. A
-   máscara o pinta com a tinta da barra — o mesmo recurso do portal. */
+/*
+ * The lockup comes in as a MASK, not an `<img>`: the file is dark ink with the moss stroke, designed for a light background, and it disappears over the black bar. The mask paints it with the bar's ink — the same technique as the portal.
+ */
 .conta-barra-marca {
   display: block;
   width: 80px;
@@ -83,8 +85,9 @@
   mask: url('/pipe/lockup.svg') center / contain no-repeat;
 }
 
-/* O risco vertical entre a marca e os itens: 1px por 43px, a altura do bloco
-   de conteúdo da barra deles. */
+/*
+ * The vertical rule between the brand and the items: 1px by 43px, the height of their bar's content block.
+ */
 .conta-barra-risco {
   width: 1px;
   height: 43px;
@@ -107,13 +110,14 @@
   color: var(--g-barra-tinta);
 }
 
-/* O item atual é o único aceso. Na origem ele é o claro entre os apagados, e é
-   só isso que diz em que tela a pessoa está. */
+/*
+ * The current item is the only lit one. In the source it's the light one among the dimmed ones, and that's the only thing that tells which screen someone is on.
+ */
 .conta-barra nav a[aria-current='page'] {
   color: var(--g-barra-tinta);
 }
 
-/* Item indisponível: apagado e sem cursor de link — o "Desk" deles. */
+/* Unavailable item: dimmed and without a link cursor — their "Desk". */
 .conta-barra nav span {
   color: var(--p-conteudo-desabilitado);
 }
@@ -137,9 +141,9 @@
   line-height: 19.5px;
 }
 
-/* "Sair" é um botão de formulário, e não um link: encerrar sessão muda estado,
-   e mudança de estado não vai em GET. A tinta é a do link porque é assim que a
-   origem o mostra — pequeno, sublinhado, embaixo do nome. */
+/*
+ * "Sair" is a form button, not a link: ending the session changes state, and a state change doesn't belong in a GET. The color is the link's because that's how the source shows it — small, underlined, below the name.
+ */
 .conta-barra-eu button {
   padding: 0;
   border: 0;
@@ -178,8 +182,9 @@
   font-weight: var(--p-peso-forte);
 }
 
-/* O nome é truncado com reticências, e não quebrado em duas linhas: a lateral
-   deles tem 172px úteis, e nome comprido em duas linhas empurra tudo. */
+/*
+ * The name is truncated with an ellipsis, not wrapped onto two lines: their sidebar has 172px of usable width, and a long two-line name pushes everything down.
+ */
 .conta-lateral-nome {
   margin: 0 0 16px;
   font-size: 18px;
@@ -219,7 +224,7 @@
   margin-bottom: 0;
 }
 
-/* ---------------------------------------------------------- o conteúdo */
+/* ---------------------------------------------------------- the content */
 
 .conta-conteudo {
   flex: 1;
@@ -249,7 +254,7 @@
   background: var(--p-linha);
 }
 
-/* Botão do cabeçalho: a medida é a deles (160×42); a cor é a nossa marca. */
+/* Header button: the size is theirs (160×42); the color is our brand. */
 .conta-botao {
   flex: none;
   min-width: 160px;
@@ -270,10 +275,9 @@
   background: var(--p-marca-forte);
 }
 
-/* Botão cinza enquanto houver campo inválido. É o portão da origem
-   (`checkFormValidity`, que nasce com `submitButton.disabled = true`) escrito
-   em CSS: num Server Component não há JavaScript nosso para observar os campos.
-   O `novalidate` NÃO entra — se o CSS não pegar, o navegador ainda barra. */
+/*
+ * Gray button while any field is invalid. It's the source's gate (`checkFormValidity`, which starts with `submitButton.disabled = true`) written in CSS: a Server Component has no JavaScript of ours to watch the fields. `novalidate` does NOT apply — if the CSS misses it, the browser still blocks it.
+ */
 .conta-pagina:has(.conta-form :invalid) .conta-botao {
   background: var(--p-superficie-3);
   color: var(--p-conteudo-desabilitado);
@@ -293,12 +297,11 @@
   box-shadow: var(--p-sombra-2);
 }
 
-/* ------------------------------------------------------------- as abas
-
-   Sem JavaScript: dois botões de rádio escondidos comandam qual painel
-   aparece. Os dois painéis ficam no DOM, e é por isso que um Salvar só grava
-   perfil E preferências — trocar de aba por link recarregaria a página e
-   jogaria fora o que a pessoa digitou no outro painel. */
+/*
+ * ------------------------------------------------------------- the tabs
+ *
+ *    No JavaScript: two hidden radio buttons control which panel shows. Both panels stay in the DOM, which is why a single Save writes both profile AND preferences — switching tabs via a link would reload the page and throw away whatever the person typed in the other panel.
+ */
 
 .conta-abas {
   display: flex;
@@ -308,8 +311,9 @@
   border-bottom: 1px solid var(--p-linha-media);
 }
 
-/* O item desce 1px para que o traço da aba ativa cubra a régua da lista, e não
-   se empilhe em cima dela — é o `bottom: -1px` deles. */
+/*
+ * The item drops 1px so the active tab's stripe covers the list's rule, instead of stacking on top of it — it's their `bottom: -1px`.
+ */
 .conta-abas li {
   position: relative;
   bottom: -1px;
@@ -370,8 +374,9 @@
   margin: 0;
 }
 
-/* Aviso de falha do servidor. Fica acima da coluna e não substitui a marcação
-   do campo: a mensagem diz O QUE deu errado, o anel diz ONDE. */
+/*
+ * Server failure notice. Sits above the column and doesn't replace the field's marking: the message says WHAT went wrong, the ring says WHERE.
+ */
 .conta-aviso {
   margin: 0 0 var(--p-e-4);
   padding: var(--p-e-3) var(--p-e-4);
@@ -383,8 +388,9 @@
   line-height: var(--p-altura-linha);
 }
 
-/* O rótulo mora DENTRO da caixa, acima do valor — é o desenho de campo da
-   origem, e é o que faz a caixa ter 47px e não 40. */
+/*
+ * The label lives INSIDE the box, above the value — it's the source's field design, and it's what makes the box 47px instead of 40.
+ */
 .conta-campo {
   display: block;
   box-sizing: border-box;
@@ -405,7 +411,7 @@
   color: var(--p-conteudo);
 }
 
-/* Marca de obrigatório. É o ` *` que a origem cola no rótulo. */
+/* Required marker. It's the ` *` that the source appends to the label. */
 .conta-campo > span[data-obrigatorio]::after {
   content: ' *';
 }
@@ -431,8 +437,9 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* A seta do seletor é nossa (a deles é um `bds-icon`), mas fica onde a deles
-   fica: encostada na direita, no meio da caixa. */
+/*
+ * The selector's arrow is ours (theirs is a `bds-icon`), but it sits where theirs sits: flush right, centered in the box.
+ */
 .conta-campo:has(select) {
   position: relative;
 }
@@ -455,8 +462,9 @@
   box-shadow: 0 2px 12px rgba(17, 17, 17, 0.1);
 }
 
-/* Campo desligado continua legível: ele MOSTRA o e-mail de quem entrou, e um
-   cinza apagado aqui pareceria defeito, não campo travado. */
+/*
+ * A disabled field stays legible: it SHOWS the signed-in person's email, and a dimmed gray here would look like a bug, not a locked field.
+ */
 .conta-campo:has(input:disabled) {
   background: var(--p-superficie-2);
 }
@@ -467,11 +475,9 @@
   -webkit-text-fill-color: var(--p-conteudo-desabilitado);
 }
 
-/* Erro: anel de 2px na caixa e recado de 12px embaixo, como na origem.
-   `:user-invalid` e não `:invalid` porque campo ainda não tocado não está
-   errado — abrir a tela com tudo em vermelho é o erro clássico da validação
-   nativa. `data-erro` é o mesmo estado vindo do servidor, quando o navegador
-   foi contornado. */
+/*
+ * Error: 2px ring on the box and a 12px note below, like the source. `:user-invalid` instead of `:invalid` because an untouched field isn't wrong yet — opening the screen with everything in red is the classic native-validation mistake. `data-erro` is the same state coming from the server, when the browser was bypassed.
+ */
 .conta-campo:has(:user-invalid),
 .conta-campo[data-erro] {
   border-color: var(--p-erro-linha);
@@ -507,8 +513,9 @@
   accent-color: var(--p-marca);
 }
 
-/* A linha de termos fica FORA do cartão, entre ele e o rodapé da área — é onde
-   a origem a põe, e é o que dá ao botão "Salvar alterações" o seu contrato. */
+/*
+ * The terms line sits OUTSIDE the card, between it and the area's footer — it's where the source puts it, and it's what gives the "Salvar alterações" button its anchor.
+ */
 .conta-termos {
   margin: var(--p-e-6) 0 0;
   padding: 0 8px;
@@ -523,11 +530,11 @@
   color: var(--p-marca);
 }
 
-/* ----------------------------------------------------------- estreito
-
-   A régua de 480px é a da origem: abaixo dela somem a lateral e o cabeçalho, e
-   o recuo de painel vira recuo de telefone. A nossa entra antes (900px) porque
-   300px de lateral mais 256px de recuo não cabem num tablet. */
+/*
+ * ----------------------------------------------------------- narrow
+ *
+ *    The 480px breakpoint is the source's: below it the sidebar and header disappear, and panel padding becomes phone padding. Ours kicks in earlier (900px) because 300px of sidebar plus 256px of padding don't fit a tablet.
+ */
 @media (max-width: 900px) {
   .conta-lateral {
     display: none;

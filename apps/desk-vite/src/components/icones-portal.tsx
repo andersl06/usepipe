@@ -1,21 +1,7 @@
 import type { SVGProps } from 'react';
 
 /**
- * Os ícones do PORTAL, no desenho da origem.
- *
- * Por que não os do `@pipe/ui`: os nossos são do Tabler — grade de 24, traço de
- * 1,75 e miolo vazado. Os da barra do portal da Blip são CHEIOS (`fill`, sem
- * traço), e a diferença salta aos olhos lado a lado — foi a queixa do dono, que
- * pediu a barra "igual". Então esta folha guarda o desenho deles, medido no DOM
- * renderizado de `supernova.blip.ai` (ver `referencias-blip/pesquisa/blip-portal-contrato.md`),
- * com o nome que a gente usa à esquerda e o nome de lá no comentário.
- *
- * Fica LOCAL na Gestão, e não em `packages/ui`: a regra de trabalho é escrever
- * local e relatar; quando um segundo aplicativo pedir os mesmos desenhos, o
- * arquivo sobe para a fachada do pacote sem mudar nenhuma chamada.
- *
- * `parOuImpar` é o `fill-rule="evenodd"` de alguns deles — sem isso o desenho
- * fecha os vazados e vira um borrão.
+ * Portal icons follow the source design. `@pipe/ui` uses 24px Tabler outlines with 1.75px strokes, while the Blip Portal rail uses filled icons; this visible difference prompted the owner's request to match it. These local paths were measured in the rendered DOM at `supernova.blip.ai` (see `referencias-blip/pesquisa/blip-portal-contrato.md`); local names appear on the left and source names in comments. Keep them local to Gestão until another app needs them, then move them to the package facade without changing callers. `parOuImpar` implements `fill-rule="evenodd"` so enclosed gaps do not fill in.
  */
 
 const DESENHOS = {
@@ -687,14 +673,7 @@ const DESENHOS = {
 export type NomeDeIconePortal = keyof typeof DESENHOS;
 
 /**
- * Os LOGOS de canal — o `bds-icon type="logo"` da origem (`asset-logo-<nome>`
- * do blip-ds), numa grade de 80. Diferente dos ícones, logo tem cor própria e
- * gradiente: vai o desenho inteiro, com as cores como vieram, porque são as
- * marcas do WhatsApp e do Instagram, não tinta da Blip.
- *
- * A exceção é `email`, que é desenho da própria Blip pintado com a primária
- * dela (#1E6BF1): essa cor vira `currentColor` e quem pinta é a nossa folha.
- * O `blip-chat` NÃO entra — é a marca da Blip.
+ * Channel logos match the reference `bds-icon type="logo"` (`asset-logo-<nome>` from blip-ds) on an 80px grid. Unlike UI icons, the WhatsApp and Instagram logos retain their own colors and gradients. The `email` logo is Blip artwork in its primary #1E6BF1, replaced with `currentColor` so our stylesheet controls it. Exclude `blip-chat`, which is Blip branding.
  */
 const LOGOS = {
   /** `asset-logo-whatsapp` */
@@ -804,9 +783,7 @@ export function IconePortal({
 }
 
 /**
- * A lupa da barra clara é a ÚNICA que não vem do jogo de 24: na origem ela é um
- * `<icon name="Search" width="32" height="32">` numa grade de 72, desenhado à
- * parte do design system. Copiada como está para o traço não engordar.
+ * The light rail's search icon is the only one outside the 24px set. The reference uses `<icon name="Search" width="32" height="32">` on a 72px grid, drawn separately from the design system. Copy it as drawn so the stroke does not thicken.
  */
 export function IconeSearch({ tamanho = 32, ...resto }: { tamanho?: number } & SVGProps<SVGSVGElement>) {
   return (

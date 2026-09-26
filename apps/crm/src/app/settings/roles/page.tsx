@@ -10,17 +10,18 @@ import { actionCreateRole } from '../actions';
 export const dynamic = 'force-dynamic';
 
 /**
- * Papéis.
+ * Roles.
  *
- * O catálogo de permissões já existia em `permissao` e `papel_permissao` desde a
- * fundação, com 47 capacidades nomeadas e cinco papéis do dia 1 — e nenhuma tela
- * o mostrava. Esta é a tela.
+ * The permission catalog already existed in `permissao` and `papel_permissao` since day
+ * one, with 47 named capabilities and five day-one roles — and no screen showed it.
+ * This is that screen.
  *
- * **Papel de sistema não é editável**, e aparece com cadeado. É a mesma decisão
- * do Twenty (`isEditable: false`) e pela mesma razão: os cinco do dia 1 são o
- * contrato que a semente garante, e um cliente que remova `conversa.responder`
- * do `atendente` quebra o Desk de todo mundo dele sem saber por quê. Quem precisa
- * de outra combinação cria um papel próprio, que é o que este bloco oferece.
+ * **System roles aren't editable**, and show up with a lock icon. It's the same
+ * decision Twenty made (`isEditable: false`) and for the same reason: the five
+ * day-one roles are the contract the seed guarantees, and a customer who removes
+ * `conversa.responder` from `atendente` breaks their whole Desk without knowing
+ * why. Whoever needs a different combination creates their own role, which is what
+ * this block offers.
  */
 
 const COLUNAS: readonly Column<RoleSummary>[] = [

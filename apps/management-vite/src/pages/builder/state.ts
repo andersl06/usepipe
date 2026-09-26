@@ -1,21 +1,11 @@
 import type { Mapa } from './model';
 
 /**
- * O estado do editor e o desfazer/refazer — os dois botões do rodapé deles
- * ("Desfazer (Ctrl+z)", "Refazer (Ctrl+Shift+z)"), que a moldura já desenhava
- * desligados.
+ * The editor's state and undo/redo — its two footer buttons ("Desfazer (Ctrl+z)", "Refazer (Ctrl+Shift+z)"), which the frame already rendered disabled.
  *
- * É um redutor puro sobre o mapa de blocos: todo gesto que muda o desenho
- * chega como `aplicar` com o mapa novo (as funções de `modelo.ts`,
- * `condicoes.ts`, `conteudo.ts` e `acoes-do-bloco.ts` já devolvem o mapa ou o
- * bloco pronto), o mapa anterior vai para a pilha do passado, e o futuro é
- * apagado. `mover` é a exceção: enquanto o bloco é arrastado o mapa muda a
- * cada pixel, e só o `soltar` grava um passo — senão o Ctrl+Z desfaria o
- * arrasto pixel a pixel.
+ * It's a pure reducer over the block map: every gesture that changes the drawing arrives as `aplicar` with the new map (the functions in `modelo.ts`, `condicoes.ts`, `conteudo.ts` and `acoes-do-bloco.ts` already return the ready map or block), the previous map goes to the past stack, and the future is cleared. `mover` is the exception: while the block is being dragged the map changes on every pixel, and only `soltar` records a step — otherwise Ctrl+Z would undo the drag pixel by pixel.
  *
- * `sujo` é o que o "Salvo" do rodapé lê: liga em qualquer mudança e só desliga
- * em `salvo`, com o mapa que foi gravado — mudança que chegou enquanto o `PUT`
- * estava no ar continua suja.
+ * `sujo` is what the footer's "Salvo" reads: it turns on with any change and only turns off on `salvo`, with the map that was saved — a change that arrived while the `PUT` was in flight stays dirty.
  */
 
 export const HISTORY_LIMIT = 50;
@@ -25,10 +15,10 @@ export interface EditorState {
   global: Record<string, unknown>;
   passado: Mapa[];
   futuro: Mapa[];
-  /** O mapa antes do arrasto em curso, para o `soltar` gravar um passo só. */
+  /** The map before the drag in progress, so `soltar` records a single step. */
   antesDoArrasto: Mapa | null;
   sujo: boolean;
-  /** O último mapa gravado — para `salvo` saber se o que voltou ainda é o atual. */
+  /** The last saved map — so `salvo` can tell whether what came back is still current. */
   gravado: Mapa | null;
 }
 
@@ -40,9 +30,9 @@ export type GestoDoEditor =
   | { tipo: 'desfazer' }
   | { tipo: 'refazer' }
   | { tipo: 'salvo'; mapa: Mapa }
-  /** As ações globais (aba "Ações Globais" da Configuração) — fora da pilha de
-   * desfazer/refazer, que só guarda `Mapa` (ver `passado`/`futuro`); Ctrl+Z
-   * continua desfazendo só o desenho, como antes desta aba existir. */
+  /**
+   * Global actions ("Ações Globais" tab of Configuração) — outside the undo/redo stack, which only stores `Mapa` (see `passado`/`futuro`); Ctrl+Z keeps undoing only the drawing, as it did before this tab existed.
+   */
   | { tipo: 'aplicarGlobais'; global: Record<string, unknown> };
 
 export function stateInitial(): EditorState {
@@ -71,10 +61,10 @@ export function reduzir(state: EditorState, gesto: GestoDoEditor): EditorState {
       return { ...state, passado, futuro: [], antesDoArrasto: null };
     }
     case 'desfazer': {
-      // Um arrasto em curso ainda não virou passo do histórico (só `soltar` o
+      // A drag in progress hasn't become a history step yet (only `soltar`
       // empilha) — desfazer agora trocaria o mapa por baixo do arrasto e o
       // `soltar` seguinte empilharia o `antesDoArrasto` velho por cima, perdendo
-      // o desfazer. Ctrl+Z some enquanto o botão do mouse está apertado.
+      // undo. Ctrl+Z disappears while the mouse button is held down.
       if (state.antesDoArrasto) return state;
       const anterior = state.passado[state.passado.length - 1];
       if (!anterior) return state;

@@ -1,20 +1,24 @@
-/* ============================== Atendimento (módulo do contato)
-
-
-
-   O casco de duas colunas do módulo — `desk-sidebar` + conteúdo — é a MESMA
-
-   conta de `configuracoes/casca.tsx` (`.cf-casca`/`.cf-miolo`): a `fx-coluna`
-
-   do casco compartilhado centra o miolo em 80%; aqui se desfaz esse recuo
-
-   para a lateral abrir na borda, sem tocar o casco. A lateral em si
-
-   (`.g-lateral`, `.g-item`, `.g-grupo`, `.g-subitem`) já mora em
-
-   `estilos/globais.css` — é a mesma da extinta `estrutura-gestao.tsx`, porque
-
-   é a mesma `desk-sidebar` da origem; só o casco em volta mudou. */
+/*
+ * ============================== Attendance (contact module)
+ *
+ *
+ *
+ *    The module's two-column shell — `desk-sidebar` + content — is the SAME
+ *
+ *    setup as `configuracoes/casca.tsx` (`.cf-casca`/`.cf-miolo`): the shared
+ *
+ *    shell's `fx-coluna` centers the core at 80%; here that indent is undone
+ *
+ *    so the sidebar opens flush with the edge, without touching the shell. The
+ *
+ *    sidebar itself
+ *
+ *    (`.g-lateral`, `.g-item`, `.g-grupo`, `.g-subitem`) already lives in
+ *
+ *    `estilos/globais.css` — it's the same one from the retired `estrutura-gestao.tsx`, because
+ *
+ *    it's the same source `desk-sidebar`; only the shell around it changed.
+ */
 
 .at-casca {
 
@@ -72,7 +76,7 @@
 
 
 
-/* Geometria da lista de Histórico; cartões com etiquetas podem crescer. */
+/* History list geometry; cards with tags can grow. */
 
 .hist-resultados .lista-cartoes {
 
@@ -160,7 +164,7 @@
 
 
 
-/* Filtros rápidos exclusivos do Atendimento: uma caixa por pílula. */
+/* Quick filters exclusive to Attendance: one box per pill. */
 
 .at-filtro {
 
@@ -200,7 +204,7 @@
 
 
 
-/* O esqueleto usa a grade, os cartões e os controles da leitura pronta. */
+/* The skeleton uses the grid, cards and controls of the already-loaded view. */
 
 .mon-carregando .mon > .card {
 
@@ -302,19 +306,21 @@
 
 
 
-/* ============================== Estado vazio dentro de cartão de métrica
-
-   `.tblwrap .vazio` já existe em `estilos/globais.css` para o cartão de
-
-   tabela do Monitoramento; os relatórios deste módulo usam o MESMO vazio de
-
-   três partes dentro de `.cartao-rel`, para os blocos onde a Blip mostra uma
-
-   métrica (SLA, disponibilidade, comparativo por atendente) que ainda não
-
-   temos consulta própria — em vez de sumir com o bloco, ele fica e diz por
-
-   quê. */
+/*
+ * ============================== Empty state inside a metric card
+ *
+ *    `.tblwrap .vazio` already exists in `estilos/globais.css` for the
+ *
+ *    Monitoring module's table card; this module's reports use the SAME three-part
+ *
+ *    empty state inside `.cartao-rel`, for the blocks where Blip shows a
+ *
+ *    metric (SLA, availability, per-agent comparison) that we don't yet
+ *
+ *    have our own query for — instead of the block disappearing, it stays and says
+ *
+ *    why.
+ */
 
 .cartao-rel .vazio,
 
@@ -334,11 +340,13 @@
 
 
 
-/* O vazio de bloco de relatório deles é UMA frase, `bds-typo fs-14
-
-   semi-bold`, centrada sob a ilustração ("Não foram encontradas métricas de
-
-   SLA no período informado", `desk-relatorio-atendimento__pagina.html`). */
+/*
+ * Their report-block empty state is ONE sentence, `bds-typo fs-14
+ *
+ *    semi-bold`, centered under the illustration ("Não foram encontradas métricas de
+ *
+ *    SLA no período informado", `desk-relatorio-atendimento__pagina.html`).
+ */
 
 .cartao-rel .vazio b,
 
@@ -376,17 +384,19 @@
 
 
 
-/* ============================== Relatório de atendimento: os cartões planos
-
-   Lá os blocos "Tempo máximo", "Status dos tickets" e "Tempo médio" são o
-
-   MESMO `bds-paper pa4 bg-surface-1` do Monitoramento, com título 14/600 e a
-
-   fila de métricas 24/400 sobre rótulo 12/400 — não o bloco-com-cartões da
-
-   Satisfação. Os três primeiros dividem uma linha (`flex justify-between`),
-
-   o largo com `width: 100%` e os outros dois com a largura do conteúdo. */
+/*
+ * ============================== Attendance report: the flat cards
+ *
+ *    There, the "Tempo máximo", "Status dos tickets" and "Tempo médio" blocks are the
+ *
+ *    SAME `bds-paper pa4 bg-surface-1` as Monitoring, with a 14/600 title and the
+ *
+ *    24/400 metrics row over a 12/400 label — not Satisfaction's block-with-cards.
+ *
+ *    The first three share one line (`flex justify-between`), the wide one with
+ *
+ *    `width: 100%` and the other two at content width.
+ */
 
 .rel-linha {
 
@@ -418,7 +428,7 @@
 
 
 
-/* Título 20/700 com o ícone de informação ao lado ("Indicadores de SLA"). */
+/* Title 20/700 with the info icon beside it ("Indicadores de SLA"). */
 
 .card > h3.grande {
 
@@ -446,9 +456,11 @@
 
 
 
-/* Cabeçalho de aba com o botão de baixar CSV encostado à direita
-
-   (`bds-button-icon icon="download" class="ml-a"`). */
+/*
+ * Tab header with the CSV download button flush right
+ *
+ *    (`bds-button-icon icon="download" class="ml-a"`).
+ */
 
 .rel-aba-cabecalho {
 
@@ -476,11 +488,13 @@
 
 
 
-/* A nota sob a tabela de atendentes ("Os filtros de Canais, Atendentes,
-
-   Filas e Tags não se aplicam à tabela abaixo."): ícone de informação e
-
-   texto 14/400, com 10px entre eles (`ml3`). */
+/*
+ * The note under the agents table ("Os filtros de Canais, Atendentes,
+ *
+ *    Filas e Tags não se aplicam à tabela abaixo."): info icon and
+ *
+ *    14/400 text, with 10px between them (`ml3`).
+ */
 
 .rel-nota {
 
@@ -504,9 +518,11 @@
 
 
 
-/* O texto "Últimos 7 dias" da faixa de filtros é o botão FANTASMA deles
-
-   (`bds-button variant="text"`), e o intervalo por extenso vai no `title`. */
+/*
+ * The "Últimos 7 dias" text in the filter strip is their GHOST button
+ *
+ *    (`bds-button variant="text"`), and the full date range goes in the `title`.
+ */
 
 .rel-periodo {
 
@@ -516,9 +532,11 @@
 
 
 
-/* Ações por ticket do Monitoramento: o menu fica ancorado na linha e os
-
-   diálogos usam o mesmo papel compacto das ações do Desk. */
+/*
+ * Per-ticket actions in Monitoring: the menu stays anchored to the row and the
+ *
+ *    dialogs use the same compact paper as the Desk's actions.
+ */
 
 .mon-acoes {
 
@@ -706,9 +724,11 @@
 
 
 
-/* Painel de conversa à direita: mesma largura do `bds-sidebar` de monitoramento
-
-   da Blip (420px), mas com a tinta e os componentes Pipe. */
+/*
+ * Conversation panel on the right: same width as Blip's monitoring `bds-sidebar`
+ *
+ *    (420px), but with Pipe's paint and components.
+ */
 
 .mon-previa {
 
@@ -974,15 +994,17 @@
 
 
 
-/* -------------------------------------------------------------------------
-
-   Monitoramento detalhado — contrato visual do BDS (Blip)
-
-   Mantemos estas regras escopadas: os outros grids da operação continuam com
-
-   a régua antiga, enquanto este cartão usa as medidas do componente original.
-
---------------------------------------------------------------------------- */
+/*
+ * -------------------------------------------------------------------------
+ *
+ *    Detailed monitoring — BDS (Blip) visual contract
+ *
+ *    We keep these rules scoped: the operation module's other grids keep the
+ *
+ *    old ruler, while this card uses the original component's measurements.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 .mon-detalhado {
 
@@ -1044,7 +1066,7 @@
 .mon-detalhado .tbl-busca {
   box-sizing: border-box;
 
-  /* Na Blip o campo é compacto e NÃO cresce para ocupar a linha. */
+  /* In Blip the field is compact and does NOT grow to fill the line. */
   flex: 0 0 252px;
   width: 252px;
   max-width: 252px;
@@ -1062,24 +1084,25 @@
   border: 1px solid rgba(0, 0, 0, .20);
   border-radius: 8px;
 
-  /* O bds-input usa a mesma superfície do cartão nesta tela. */
+  /* The bds-input uses the same surface as the card on this screen. */
   background: transparent;
 
   color: #282828;
   transition: border-color .18s ease, box-shadow .18s ease;
 }
 
-/* O seletor global `.tblhead .tbl-busca` define a superfície do campo para
-   outras tabelas. No BDS o `.input` não pinta o interior: ele herda a
-   superfície do cartão. A especificidade extra mantém este campo transparente
-   mesmo quando a folha global é carregada depois desta. */
+/*
+ * The global `.tblhead .tbl-busca` selector sets the field's surface for other tables. In the BDS, `.input` doesn't paint its interior: it inherits the card's surface. The extra specificity keeps this field transparent even when the global sheet loads after this one.
+ */
 .mon-detalhado .tblhead .tbl-busca {
   background: transparent;
   background-color: transparent;
 }
 
-/* Lupa da Blip:
-   glifo 20x20 dentro de uma pequena superfície cinza 28x28. */
+/*
+ * Blip's magnifying glass:
+ *    a 20x20 glyph inside a small 28x28 gray surface.
+ */
 .mon-detalhado .tbl-busca svg {
   box-sizing: content-box;
   display: block;
@@ -1096,7 +1119,7 @@
   fill: currentColor;
 }
 
-/* Apenas o campo visível; não toca nos inputs hidden da querystring. */
+/* Only the visible field; doesn't touch the querystring's hidden inputs. */
 .mon-detalhado .tbl-busca input:not([type="hidden"]) {
   box-sizing: border-box;
 
@@ -1137,7 +1160,7 @@
   display: none;
 }
 
-/* Estado de foco sem alterar tamanho/posição do componente. */
+/* Focus state without changing the component's size/position. */
 .mon-detalhado .tbl-busca:focus-within {
   border-color: var(--mon-blue);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--mon-blue) 16%, transparent);

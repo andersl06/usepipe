@@ -7,19 +7,16 @@ import { useRead } from '../../lib/query';
 import { ICONES_OF_CONTACT, LIMITE_VISIVEL, itensDoMenu, type ItemDoMenu } from './itens';
 
 /**
- * A barra do CONTATO — a `subheader-detail` da origem (módulo 80688).
+ * The CONTACT bar — the source's `subheader-detail` (module 80688).
  *
- * Mora fora de `page.tsx` porque na origem ela é do estado-pai
- * `auth.application.detail`: a `home` e a Análise (`/analise`) desenham a
- * MESMA barra, e a segunda só acende o item dela.
+ * Lives outside `page.tsx` because in the source it belongs to the parent state `auth.application.detail`: `home` and the Analysis (`/analise`) screens draw the SAME bar, and the latter only highlights its own item.
  */
 
-/** O `id` vem da URL, e URL é texto de fora: sem isto o Postgres recusa o uuid. */
+/** The `id` comes from the URL, and a URL is untrusted external input: without this, Postgres rejects the uuid. */
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * O contato e o canal dele — o que `GET /v1/gestao/fluxos/:id` responde
- * (`ContatoDoFluxo` na `api`). A consulta mudou de lado; a forma é a mesma.
+ * The contact and its channel — what `GET /v1/gestao/fluxos/:id` returns (`ContatoDoFluxo` in the `api`). The query moved sides; the shape stays the same.
  */
 export interface Contact {
   id: string;
@@ -34,18 +31,16 @@ export interface Contact {
   channelName: string | null;
   channelTipo: string | null;
   channelActive: boolean | null;
-  /** O número (WhatsApp), o `@usuário` (Instagram) ou o id da Página (Messenger). */
+  /** The number (WhatsApp), the `@username` (Instagram), or the Page id (Messenger). */
   channelNumero: string | null;
 }
 
 export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: string }) {
   const tipo = contact.tipo === 'roteador' ? 'roteador' : 'fluxo';
   const base = `/${tipo === 'roteador' ? 'router' : 'flow'}/${contact.id}`;
-  /* O passo 2 da origem (`getUpdatedMenus()`): a barra só mostra o que a pessoa
-     pode ver NESTE contato. Enquanto a resposta não chega, `undefined` deixa a
-     fileira inteira — piscar a barra completa e depois encolher é pior do que o
-     quadro curto de atraso, e quem não pode entrar continua recebendo 403 na
-     tela de destino, que é onde a permissão vale de verdade. */
+  /*
+   * Step 2 of the source (`getUpdatedMenus()`): the bar only shows what the person can see in THIS contact. While the response hasn't arrived, `undefined` hides the whole row — flashing the full bar and then shrinking it is worse than the brief delay window, and anyone without access still gets a 403 on the destination screen, which is where the permission actually applies.
+   */
   const minhas = useRead<MyPermissionsInFlow>(`/v1/management/flows/${contact.id}/team/i`);
   const itens = itensDoMenu(tipo, contact.id, minhas.data);
   const visiveis = itens.slice(0, LIMITE_VISIVEL);
@@ -53,9 +48,9 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
 
   return (
     <>
-      {/* A `subheader-detail` deles: a barra do CONTATO, escura, logo abaixo da
-          barra da conta. É ela que diz "você está dentro de um contato agora" —
-          no portal, este degrau é a barra clara com a busca. */}
+      {/*
+ * Their `subheader-detail`: the CONTACT bar, dark, right below the account bar. It's what says "you're inside a contact now" — in the portal, this step is the light bar with search.
+ */}
       <div className="fx-subbarra">
         <div className="fx-contato">
           <span className="fx-av">
@@ -64,19 +59,18 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
             ) : (
               <Avatar nome={contact.nome} />
             )}
-            {/* O `u-status-on/off` deles, no vértice do avatar. Lá o sinal é
-                `application.status` (online/offline); aqui é `estado`, que é o
-                mais perto que temos: publicado atende, rascunho ainda não. */}
+            {/*
+ * Their `u-status-on/off`, at the avatar's corner. There the signal is `application.status` (online/offline); here it's `estado`, the closest we have: published serves, draft doesn't yet.
+ */}
             <i
               className={contact.state === 'publicado' ? 'g-ponto g-ponto-on' : 'g-ponto'}
               title={contact.state === 'publicado' ? 'Publicado' : 'Rascunho'}
             />
           </span>
 
-          {/* O `<dropdown-item>` do nome: nome + `arrow-down`, e um painel de
-              160px com "Home", "Configuração" e "Deixar projeto" (esta em
-              vermelho, a `bp-c-delete` deles). Só a primeira tem destino —
-              "Home" é a tela do contato, que é para onde o `ui-sref` dela aponta. */}
+          {/*
+ * The name `<dropdown-item>`: name + `arrow-down`, and a 160px panel with "Home", "Configuração" and "Deixar projeto" (the latter in red, their `bp-c-delete`). Only the first has a destination — "Home" is the contact's screen, which is where its `ui-sref` points.
+ */}
           <details className="g-menu fx-contato-menu">
             <summary>
               <span className="fx-contato-nome">{contact.nome}</span>
@@ -101,8 +95,9 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
             <ItemDaBarra key={item.rotulo} item={item} ativo={item.rotulo === ativo} />
           ))}
 
-          {/* O "…" da origem só existe quando SOBRA item, e mostra o que sobrou.
-              Mesma regra da fileira de módulos de `estrutura-gestao.tsx`. */}
+          {/*
+ * The origin's "…" only exists when items OVERFLOW, and shows what overflowed. Same rule as the module row in `estrutura-gestao.tsx`.
+ */}
           {excedentes.length > 0 ? (
             <details className="g-menu fx-mais">
               <summary className="g-iconbtn" title="Mais seções" aria-label="Mais seções">
@@ -126,8 +121,9 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
           ) : null}
         </nav>
 
-        {/* `subheader-icons`: Integrações, Configurações e Equipe navegam para as
-            telas do contato; só Testar ainda permanece em breve. */}
+        {/*
+ * `subheader-icons`: Integrações, Configurações, and Equipe navigate to the contact's screens; only Testar still remains "coming soon".
+ */}
         <div className="fx-icones">
           {ICONES_OF_CONTACT.map((item) =>
             item.href ? (
@@ -154,7 +150,7 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
   );
 }
 
-/** Um item da fileira: link quando a tela existe, bloco apagado quando não. */
+/** A row item: a link when the screen exists, a grayed-out block when it doesn't. */
 function ItemDaBarra({ item, ativo }: { item: ItemDoMenu; ativo: boolean }) {
   if (item.href) {
     return (

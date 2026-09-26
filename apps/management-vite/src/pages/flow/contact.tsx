@@ -9,9 +9,7 @@ import { ContactBarra, UUID, type Contact } from './barra-of-contact';
 import './flow.css';
 
 /**
- * O prefixo da URL do contato, conforme o tipo — `roteador` para o que a
- * origem chama `master`, `fluxo` para o resto (`builder`). É a MESMA
- * distinção de `itens.ts`, aqui do lado de quem monta o caminho, não o menu.
+ * The contact's URL prefix, based on type — `roteador` for what the source calls `master`, `fluxo` for the rest (`builder`). It's the SAME distinction as `itens.ts`, here on the side that builds the path rather than the menu.
  */
 export function contactPrefix(tipo: string): 'router' | 'flow' {
   return tipo === 'roteador' ? 'router' : 'flow';
@@ -22,20 +20,18 @@ export function contactBase(tipo: string, id: string): string {
 }
 
 /**
- * O contato (o `fluxo`) que TODAS as telas de `/fluxo/:id/**` desenham, lido
- * uma vez em `GET /v1/gestao/fluxos/:id` e entregue às filhas pelo contexto da
- * rota — o `auth.application.detail` da origem, que é o estado-pai de todas.
+ * The contact (the `fluxo`) that ALL `/fluxo/:id/**` screens render, read once via `GET /v1/gestao/fluxos/:id` and handed to the children through route context — the origin's `auth.application.detail`, the parent state for all of them.
  *
- * `criadoEm` chega como texto (JSON); quem mostra data converte.
+ * `criadoEm` arrives as text (JSON); whoever displays the date converts it.
  */
 export interface ContactLoaded {
   contact: Omit<Contact, 'criadoEm'> & { criadoEm: string | null };
   fuso: string;
 }
 
-/* Contexto do React, e não o `useOutletContext` do roteador: este só alcança
-   a filha direta, e as cascas de módulo (Contatos, Growth, Configurações)
-   têm um `<Outlet>` no meio do caminho. */
+/*
+ * React Context, not the router's `useOutletContext`: that one only reaches the direct child, and the module shells (Contatos, Growth, Configurações) have an `<Outlet>` in between.
+ */
 const ContactContext = createContext<ContactLoaded | undefined>(undefined);
 
 export function useContact(): ContactLoaded {
@@ -45,15 +41,9 @@ export function useContact(): ContactLoaded {
 }
 
 /**
- * A rota-pai: valida o `id`, carrega o contato e só então desenha a filha.
- * Fora do padrão de uuid ou sem contato no tenant é 404 — como o `notFound()`
- * que cada `page.tsx` fazia.
+ * The parent route: validates the `id`, loads the contact, and only then renders the child. Anything outside uuid format, or with no contact in the tenant, is a 404 — like the `notFound()` each `page.tsx` used to do.
  *
- * `/fluxo/:id` e `/roteador/:id` desenham a MESMA árvore (App.tsx monta as
- * duas sobre as mesmas rotas-filhas); quem entra pelo prefixo errado para o
- * tipo do contato é redirecionado aqui, uma vez só, para o prefixo certo —
- * preservando o resto do caminho, a busca e o hash. É a rede de segurança
- * para link antigo, favorito ou o link que uma tela ainda não ajustada gera.
+ * `/fluxo/:id` and `/roteador/:id` render the SAME tree (App.tsx mounts both over the same child routes); whoever enters through the wrong prefix for the contact's type gets redirected here, once, to the right prefix — preserving the rest of the path, the query string, and the hash. It's the safety net for an old link, a bookmark, or a link a not-yet-updated screen still generates.
  */
 export function ContactRota() {
   const { id = '' } = useParams();
@@ -82,8 +72,7 @@ export function ContactRota() {
 }
 
 /**
- * A casca comum dos módulos do contato: barra do portal, barra do contato e o
- * miolo com a `fx-coluna` — o `CascaDoModulo` de antes, agora sem consulta.
+ * The contact modules' common shell: portal bar, contact bar, and the body with `fx-coluna` — the former `CascaDoModulo`, now without a query.
  */
 export function ModuloShell({ ativo, children }: { ativo?: string; children: ReactNode }) {
   const { contact } = useContact();
@@ -99,7 +88,7 @@ export function ModuloShell({ ativo, children }: { ativo?: string; children: Rea
   );
 }
 
-/** As duas barras sem o miolo padronizado — para as telas que desenham o próprio `main`. */
+/** The two bars without the standardized content area — for screens that draw their own `main`. */
 export function ContactBarras({ ativo }: { ativo?: string }) {
   const { contact } = useContact();
   const shell = portalUseShell();
@@ -115,7 +104,7 @@ function contactWithData(contact: ContactLoaded['contact']): Contact {
   return { ...contact, criadoEm: contact.criadoEm ? new Date(contact.criadoEm) : null };
 }
 
-/** A `api` respondeu erro que não é 404: dizer o que houve vale mais que a tela em branco. */
+/** The `api` returned an error other than 404: showing what happened is worth more than a blank screen. */
 export function ReadFalha({ error }: { error: Error }) {
   return (
     <div className="pt-app">

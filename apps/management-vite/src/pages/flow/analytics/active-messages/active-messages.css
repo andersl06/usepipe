@@ -1,45 +1,36 @@
-/* ==========================================================================
-   Análise › Mensagens ativas (/fluxo/[id]/analise/mensagens-ativas)
-
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. A tela é o `page="activeMessages"`
-   do `portal-fragment-analytics` (`scratchpad/cap6s/portalmfe/analytics-main.js`):
-   `Lx` (56300) e os filhos `St` (filtro, 33556), `Mt`/`Ft` (números, 33870),
-   `fc` (funil), `Dl` (conversões), `Wl` (taxas), `_c` (picos) e `bc` (falhas),
-   entre 43453 e 44990. Cada um traz a própria folha num `<style>` — as medidas
-   abaixo saem dali. As peças do blip-ds saem das folhas Stencil capturadas:
-   `bdscss/chipClickableCss.css`, `bdscss/tooltipCss.css`, `bdscss/buttonCss.css`,
-   o `bds-grid_5` da cap6s (typo, paper, grid), o `bds-icon` da cap6s (tamanhos),
-   o `bds-autocomplete` da cap4 e o `bds-datepicker` do blip-ds do Desk.
-
-   Régua de tipo (`bds-typo`): fs-12 = 12px/150%, fs-14 = 14px/150%, fs-16 =
-   16px/150%, fs-20 = 20px/100%, fs-24 = 24px/100%, fs-32 = 32px/100%, fs-40 =
-   40px/100%; `margin` (padrão ligado) põe 22px embaixo de fs-20/24/32.
-   Grade (`bds-grid`): gap/padding "1" = 8px, "2" = 16px.
-
-   O de-para das tintas:
-     color-content-default #282828/#454545       → var(--ink)
-     color-content-disable #454545/#636363        → var(--ink-2)
-     color-content-ghost #8c8c8c · rgb(100,100,100) dos eixos → var(--ink-3) · var(--ink-2)
-     color-surface-1 #F6F6F6 (fundo do chip outline, do campo) → var(--ground)
-     bds-paper (sem fundo próprio)                → var(--surface), como em certificados.css
-     paper elevation static                       → var(--p-sombra-1)
-     rgba(0,0,0,.2) · color-border-1              → --ma-borda (tinta a 20%)
-     rgba(0,0,0,.1) (grade do chart.js, linha do meio dos picos) → var(--line)
-     color-system #B2DFFD (chip ativo)            → var(--p-info-fundo)
-     color-primary #1e6bf1 (botão primário, link, foco do campo) → var(--p-marca)
-     color-hover 8%                               → var(--g-tinta-hover)
-     tooltip content-default / surface-1          → var(--ink) / var(--surface)
-     As cinco séries (`Mt`, `fc`), pastéis sobre branco:
-       enviadas #fd9bdc (rosa)                    → --ma-enviadas (grafico-3 a 45%)
-       recebidas rgb(128,227,235) (color-info)     → --ma-recebidas (grafico-1 a 45%)
-       lidas rgba(25,104,240,.6) (extended-blue)   → --ma-lidas (grafico-2 a 60%)
-       respondidas rgb(132,235,188) (success)      → --ma-respondidas (grafico-5 a 35%)
-       falharam rgb(249,159,159) (color-error)     → --ma-falharam (grafico-4 a 40%)
-     Conversões (`Dl`), linha cheia e barra a 65%:
-       rgba(0,150,250) · rgba(53,222,144) · rgba(249,159,159)
-                                                  → grafico-2 · grafico-1 · grafico-4
-     Picos de resposta `vc` #0096fa               → var(--p-grafico-2)
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *    Analytics › Active messages (/fluxo/[id]/analise/mensagens-ativas)
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. The screen is `page="activeMessages"` from `portal-fragment-analytics` (`scratchpad/cap6s/portalmfe/analytics-main.js`): `Lx` (56300) and its children `St` (filter, 33556), `Mt`/`Ft` (numbers, 33870), `fc` (funnel), `Dl` (conversions), `Wl` (rates), `_c` (peaks) and `bc` (failures), between 43453 and 44990. Each one carries its own sheet in a `<style>` — the measurements below come from there. The blip-ds pieces come from the captured Stencil sheets: `bdscss/chipClickableCss.css`, `bdscss/tooltipCss.css`, `bdscss/buttonCss.css`, the `bds-grid_5` from cap6s (typo, paper, grid), the `bds-icon` from cap6s (sizes), the `bds-autocomplete` from cap4 and the Desk's `bds-datepicker` from blip-ds.
+ *
+ *    Type scale (`bds-typo`): fs-12 = 12px/150%, fs-14 = 14px/150%, fs-16 = 16px/150%, fs-20 = 20px/100%, fs-24 = 24px/100%, fs-32 = 32px/100%, fs-40 = 40px/100%; `margin` (on by default) adds 22px at the bottom of fs-20/24/32. Grid (`bds-grid`): gap/padding "1" = 8px, "2" = 16px.
+ *
+ *    The color mapping:
+ *      color-content-default #282828/#454545       → var(--ink)
+ *      color-content-disable #454545/#636363        → var(--ink-2)
+ *      color-content-ghost #8c8c8c · rgb(100,100,100) axes → var(--ink-3) · var(--ink-2)
+ *      color-surface-1 #F6F6F6 (outline chip and field background) → var(--ground)
+ *      bds-paper (no background of its own)                → var(--surface), as in certificados.css
+ *      paper elevation static                → var(--p-sombra-1)
+ *      rgba(0,0,0,.2) · color-border-1              → --ma-borda (color at 20%)
+ *      rgba(0,0,0,.1) (chart.js grid, peaks' middle line) → var(--line)
+ *      color-system #B2DFFD (active chip)            → var(--p-info-fundo)
+ *      color-primary #1e6bf1 (primary button, link, field focus) → var(--p-marca)
+ *      color-hover 8%                               → var(--g-tinta-hover)
+ *      tooltip content-default / surface-1          → var(--ink) / var(--surface)
+ *      The five series (`Mt`, `fc`), pastels on white:
+ *        sent #fd9bdc (pink)                    → --ma-enviadas (grafico-3 at 45%)
+ *        received rgb(128,227,235) (color-info)     → --ma-recebidas (grafico-1 at 45%)
+ *        read rgba(25,104,240,.6) (extended-blue)   → --ma-lidas (grafico-2 at 60%)
+ *        replied rgb(132,235,188) (success)      → --ma-respondidas (grafico-5 at 35%)
+ *        failed rgb(249,159,159) (color-error)     → --ma-falharam (grafico-4 at 40%)
+ *      Conversions (`Dl`), solid line and bar at 65%:
+ *        rgba(0,150,250) · rgba(53,222,144) · rgba(249,159,159)
+ *                                                     → grafico-2 · grafico-1 · grafico-4
+ *      Response peaks `vc` #0096fa               → var(--p-grafico-2)
+ *    ==========================================================================
+ */
 
 .ma-tela {
   --ma-borda: color-mix(in srgb, var(--ink) 20%, transparent);
@@ -62,13 +53,14 @@
   box-sizing: border-box;
 }
 
-/* Especificidade zero de propósito: a margem de typo das classes vence. */
+/* Zero specificity on purpose: the classes' typo margin wins. */
 :where(.ma-tela) :where(p, h1, h4) {
   margin: 0;
 }
 
-/* `.active-messages-charts-container`: os recuos laterais por faixa de tela.
-   A ordem das regras é a deles — a última que casa vence. */
+/*
+ * `.active-messages-charts-container`: the side indents per screen band. The rule order is theirs — the last one that matches wins.
+ */
 @media (max-width: 2560px) {
   .ma-tela {
     padding: 40px 328px 0;
@@ -127,14 +119,14 @@
   margin-bottom: 22px !important;
 }
 
-/* ------------------------------------------------------------ cabeçalho */
+/* ------------------------------------------------------------ header */
 
 /* `Ox { padding-bottom: 24px }` */
 .ma-topo {
   padding-bottom: 24px;
 }
 
-/* `Ix`: título de um lado, botão do outro, 16 embaixo. */
+/* `Ix`: title on one side, button on the other, 16 at the bottom. */
 .ma-cabeca {
   display: flex;
   flex-direction: row;
@@ -143,7 +135,7 @@
   padding-bottom: 16px;
 }
 
-/* `Xe variant="fs-32" bold="bold"`, com a margem de typo ligada. */
+/* `Xe variant="fs-32" bold="bold"`, with typo margin on. */
 .ma-titulo {
   font-size: 32px;
   font-weight: 700;
@@ -158,9 +150,9 @@
   gap: 12px;
 }
 
-/* `bds-button`: raio 8, 16 de lado, 40 de altura (`standard`, e `large` é o
-   `tall` legado — os dois dão 40), rótulo `bds-typo fs-14 bold` lh 100%, ícone
-   24 com 4 à direita. */
+/*
+ * `bds-button`: radius 8, 16 side padding, 40 height (`standard`, and `large` is the legacy `tall` — both give 40), label `bds-typo fs-14 bold` lh 100%, 24 icon with 4 on the right.
+ */
 .ma-botao {
   display: inline-flex;
   align-items: center;
@@ -179,7 +171,7 @@
   transition: all 0.5s;
 }
 
-/* `button__secondary`: sem fundo, tinta de conteúdo. */
+/* `button__secondary`: no background, content color. */
 .ma-botao-secundario {
   background: transparent;
   color: var(--ink);
@@ -209,9 +201,9 @@
   padding-bottom: 16px;
 }
 
-/* `.active-messages-filter-wrapper { width: 100%; max-height: 72px; margin: 0 }`.
-   O teto de 72 é deles e as duas fileiras de chip passam dele: a sobra invade
-   o recuo de baixo, como lá. */
+/*
+ * `.active-messages-filter-wrapper { width: 100%; max-height: 72px; margin: 0 }`. The 72 ceiling is theirs and the two chip rows go over it: the overflow invades the bottom indent, same as there.
+ */
 .ma-filtro {
   width: 100%;
   max-height: 72px;
@@ -253,9 +245,9 @@
   align-items: center;
 }
 
-/* `bds-chip-clickable size="standard"`: 32 de altura, raio 16, `padding: 2px
-   4px`; `outline` com borda e fundo surface-1, `default` com a cor de sistema.
-   O rádio fica por baixo: é ele que leva o período no GET. */
+/*
+ * `bds-chip-clickable size="standard"`: 32 height, radius 16, `padding: 2px 4px`; `outline` with border and surface-1 background, `default` with the system color. The radio sits underneath: it's what carries the period in the GET.
+ */
 .ma-chip {
   position: relative;
   display: flex;
@@ -308,8 +300,9 @@
   max-width: 608px;
 }
 
-/* `bds-input` com rótulo (`.input.input--label`): `padding: 7px 4px 8px 12px`,
-   borda 20%, raio 8; primária no cursor, anel de 2px no foco. */
+/*
+ * `bds-input` with label (`.input.input--label`): `padding: 7px 4px 8px 12px`, 20% border, radius 8; primary color on the cursor, 2px ring on focus.
+ */
 .ma-campo {
   display: flex;
   flex-direction: row;
@@ -329,8 +322,9 @@
   box-shadow: 0 0 0 2px var(--p-marca-linha);
 }
 
-/* `input__icon input__icon--large`: `padding: 4px`, fundo de passagem 8% com
-   raio 8 (`::before`), ícone `medium` (24). */
+/*
+ * `input__icon input__icon--large`: `padding: 4px`, 8% transition background with radius 8 (`::before`), `medium` icon (24).
+ */
 .ma-campo-icone {
   display: flex;
   margin-right: 8px;
@@ -343,7 +337,7 @@
   color: var(--p-marca);
 }
 
-/* `input__container`: rótulo `bds-typo fs-12 bold` em cima do texto. */
+/* `input__container`: label `bds-typo fs-12 bold` above the text. */
 .ma-campo-miolo {
   display: flex;
   flex-direction: column;
@@ -361,8 +355,9 @@
   color: var(--p-marca);
 }
 
-/* `input__container__text`: sem borda nem fundo, `.875rem/150%`, cursor
-   primário, placeholder fantasma. */
+/*
+ * `input__container__text`: no border or background, `.875rem/150%`, primary cursor, ghost placeholder.
+ */
 .ma-campo input {
   width: 100%;
   margin: 0;
@@ -381,8 +376,9 @@
   opacity: 1;
 }
 
-/* `.select__icon { color: ghost; display: flex }`, `bds-icon { margin-left:
-   10px }` — o `error` sólido (só com valor) e a seta. */
+/*
+ * `.select__icon { color: ghost; display: flex }`, `bds-icon { margin-left: 10px }` — the solid `error` (only with a value) and the arrow.
+ */
 .ma-campo-sufixo {
   display: flex;
   color: var(--ink-3);
@@ -425,7 +421,7 @@
   flex: 1;
 }
 
-/* ------------------------------------------------------------ números (`Mt`) */
+/* ------------------------------------------------------------ numbers (`Mt`) */
 
 /* `.big-numbers { flex: 1 1 50%; padding: 16px 0 16px 16px }` */
 .ma-numeros {
@@ -470,7 +466,7 @@
   justify-content: space-between;
 }
 
-/* `::part(bds-typo__text) { line-height: 40px }` e `28px` do título. */
+/* `::part(bds-typo__text) { line-height: 40px }` and `28px` for the title. */
 .ma-enviadas-numero {
   font-size: 40px;
   font-weight: 700;
@@ -546,8 +542,9 @@
 
 /* ------------------------------------------------------------ dica (`bds-tooltip`) */
 
-/* `.tooltip__wrapper` + `.tooltip__tip`: raio 8, recheio 8, até 320 de
-   largura, seta de 6; `top-right` sobe 10 e encosta à direita com 15%. */
+/*
+ * `.tooltip__wrapper` + `.tooltip__tip`: radius 8, 8 padding, up to 320 wide, 6 arrow; `top-right` rises 10 and sits flush right at 15%.
+ */
 .ma-dica {
   position: relative;
   display: inline-flex;
@@ -609,8 +606,9 @@
   flex-direction: column;
 }
 
-/* `__title { margin-bottom: 0 }` no host não tira a margem de typo de dentro:
-   é o `__description { margin-top: -22px }` que a devolve. */
+/*
+ * `__title { margin-bottom: 0 }` on the host doesn't remove the typo margin inside: it's `__description { margin-top: -22px }` that gives it back.
+ */
 .ma-titulo-grafico {
   font-size: 20px;
   font-weight: 700;
@@ -625,8 +623,9 @@
   color: var(--ink-2);
 }
 
-/* `.conversion-funnel__chart { height: 218px }`; o chart.js com `indexAxis: y`,
-   `layout.padding.right: 50` e as categorias com `bar/categoryPercentage .95`. */
+/*
+ * `.conversion-funnel__chart { height: 218px }`; chart.js with `indexAxis: y`, `layout.padding.right: 50` and the categories with `bar/categoryPercentage .95`.
+ */
 .ma-funil-grafico {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -635,8 +634,9 @@
   padding-right: 50px;
 }
 
-/* Tique do eixo y: 12px, `rgb(100,100,100)`, `crossAlign: far` (colado à
-   esquerda) e os 3px de recuo padrão do chart.js. */
+/*
+ * Y-axis tick: 12px, `rgb(100,100,100)`, `crossAlign: far` (flush left) and chart.js's default 3px indent.
+ */
 .ma-funil-rotulo {
   display: flex;
   align-items: center;
@@ -658,7 +658,7 @@
 /* `datalabels`: `anchor/align: end`, `padding.left: 5` sobre o `offset` 4,
    14px bold, `content-disable`. */
 .ma-funil-valor {
-  /* Solto do fluxo: a barra mede contra a área inteira, como no canvas. */
+  /* Out of flow: the bar measures against the whole area, like on the canvas. */
   position: absolute;
   padding-left: 9px;
   font-size: 14px;
@@ -668,7 +668,7 @@
   white-space: nowrap;
 }
 
-/* ------------------------------------------------------------ conversões (`Dl`) */
+/* ------------------------------------------------------------ conversions (`Dl`) */
 
 .ma-conversoes {
   display: flex;
@@ -685,7 +685,7 @@
   overflow: hidden;
 }
 
-/* Área do gráfico: eixo y | plotagem, e embaixo o eixo x. */
+/* Chart area: y axis | plot, and the x axis at the bottom. */
 .ma-area {
   position: relative;
   display: grid;
@@ -693,11 +693,11 @@
   grid-template-rows: 1fr auto;
   flex: 1;
   min-height: 0;
-  /* O chart.js reserva meio rótulo à direita para o último dia caber. */
+  /* chart.js reserves half a label on the right so the last day fits. */
   padding-right: 16px;
 }
 
-/* Eixo y do chart.js: tique 12px à esquerda, 8 de folga até a área. */
+/* chart.js y axis: 12px tick on the left, 8 gap to the plot area. */
 .ma-eixo-y {
   position: relative;
   min-width: 32px;
@@ -747,8 +747,9 @@
   white-space: nowrap;
 }
 
-/* As barras do dia único (`f()`): três categorias, sem eixos nem grade, raio 8
-   e sem borda (o `f()` não define `borderWidth`, e o padrão da barra é 0). */
+/*
+ * The single-day bars (`f()`): three categories, no axes or grid, radius 8 and no border (`f()` doesn't set `borderWidth`, and the bar's default is 0).
+ */
 .ma-barras {
   display: grid;
   grid-auto-flow: column;
@@ -851,9 +852,9 @@
   flex-direction: column;
   justify-content: space-between;
 }
-/* `fs-16 bold` e `fs-14 regular`. O `lineHeight="double"/"simple"` do código
-   não pega: o `bds-typo` é criado por string no React, que põe `lineheight`
-   como atributo, e o Stencil só lê `line-height`. Vale a altura da variante. */
+/*
+ * `fs-16 bold` and `fs-14 regular`. The code's `lineHeight="double"/"simple"` doesn't take effect: `bds-typo` is created as a string in React, which sets `lineheight` as an attribute, and Stencil only reads `line-height`. Use the variant's height instead.
+ */
 .ma-taxa-titulo {
   font-size: 16px;
   font-weight: 700;
@@ -871,7 +872,7 @@
 
 /* ------------------------------------------------------------ picos (`_c`) */
 
-/* `.response-peaks-container { padding: 16px }`; cabeça de 50 com 12 embaixo. */
+/* `.response-peaks-container { padding: 16px }`; 50 head with 12 at the bottom. */
 .ma-picos {
   padding: 16px;
 }
@@ -895,8 +896,9 @@
   grid-template-columns: repeat(24, 1fr);
   align-items: end;
 }
-/* A grade do x fica no meio de cada categoria (`grid.offset: false`) e a do y
-   é só a linha do meio da escala. */
+/*
+ * The x grid sits in the middle of each category (`grid.offset: false`) and the y grid is only the scale's middle line.
+ */
 .ma-picos-area::before {
   content: '';
   position: absolute;
@@ -911,7 +913,7 @@
   height: 100%;
   background: linear-gradient(var(--line), var(--line)) center / 1px 100% no-repeat;
 }
-/* 95% × 95%, raio 8 só em cima, borda 1,5 na mesma cor. */
+/* 95% × 95%, radius 8 only on top, 1.5 border in the same color. */
 .ma-picos-coluna span {
   width: 90.25%;
   border-radius: 8px 8px 0 0;
@@ -944,8 +946,9 @@
   padding: 16px;
 }
 
-/* O `bds-typo fs-20 bold` embrulha o de fs-14: sem `bold` próprio, o de dentro
-   herda o negrito do de fora — a descrição sai em negrito, como lá. */
+/*
+ * `bds-typo fs-20 bold` wraps the fs-14 one: without its own `bold`, the inner one inherits the outer's bold — the description comes out bold, same as there.
+ */
 .ma-falhas-titulo {
   margin-bottom: 22px;
   font-size: 20px;
@@ -972,9 +975,9 @@
   overflow-y: auto;
 }
 
-/* `bds-table style={{ width: 100%, tableLayout: fixed }}`; linhas e células
-   com as medidas já tiradas em `certificados.css` (64 de altura, 8 de lado e 16
-   nas pontas). Os `th`/`td` globais de `@pipe/ui` são da tabela densa: zerados. */
+/*
+ * `bds-table style={{ width: 100%, tableLayout: fixed }}`; rows and cells with the measurements already taken from `certificados.css` (64 height, 8 side and 16 at the ends). `@pipe/ui`'s global `th`/`td` are for the dense table: zeroed out.
+ */
 .ma-tabela {
   width: 100%;
   table-layout: fixed;

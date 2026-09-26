@@ -1,28 +1,19 @@
 import type { Position } from './model';
 
 /**
- * A geometria das setas: o conector "Flowchart" do jsPlumb com que o editor da
- * Blip liga os blocos (`JsPlumbService.createInstance`: `Connector:
- * "Flowchart"`, âncora `Continuous`, seta de 10 na ponta, traço de 2px).
+ * The arrows' geometry: the jsPlumb "Flowchart" connector the Blip editor uses to link blocks (`JsPlumbService.createInstance`: `Connector: "Flowchart"`, `Continuous` anchor, 10px arrowhead, 2px stroke).
  *
- * "Continuous" escolhe a face de cada bloco que olha para o outro; o
- * "Flowchart" sai reto dessa face por um toco de 30px, dobra em ângulo reto
- * até a metade do caminho e chega reto pelo toco do outro lado — é o `M -0.5 0
- * L 30.5 0 … L 278 10` capturado no DOM. Aqui o mesmo desenho, em SVG nosso.
+ * "Continuous" picks the face of each block that looks toward the other; "Flowchart" leaves that face straight for a 30px stub, turns at a right angle to the midpoint of the path, and arrives straight through the other side's stub — it's the `M -0.5 0 L 30.5 0 … L 278 10` captured from the DOM. Here, the same drawing, in our own SVG.
  */
 
-/** As medidas do cartão deles: 175px de largura (`.diagram-node`). A altura é medida no DOM. */
+/** Their card's measurements: 175px wide (`.diagram-node`). Height is measured from the DOM. */
 export const LARGURA_OF_BLOCK = 175;
 export const ALTURA_DEFAULT_OF_BLOCK = 76;
 export const TOCO = 30;
 export const PONTA = 10;
 
 /**
- * Abaixo disto, pressionar-e-soltar conta como clique, não arrasto — nem move
- * o bloco nem completa uma ligação. Sem esse piso, clicar (sem soltar fora)
- * no ponto de saída de um bloco criava sozinho um laço do bloco para ele
- * mesmo, porque `elementFromPoint` no instante do clique ainda está sobre o
- * próprio bloco de onde a saída saiu.
+ * Below this, press-and-release counts as a click, not a drag — it neither moves the block nor completes a link. Without this floor, clicking (without releasing outside) on a block's output point would create a loop from the block to itself on its own, because `elementFromPoint` at the instant of the click is still over the very block the output came from.
  */
 export const LIMIAR_DE_ARRASTO = 2;
 
@@ -42,9 +33,9 @@ export interface Ponto {
   y: number;
 }
 
-/** O alvo do conector é a caixa do bloco no plano do canvas, não o elemento
- * sob o cursor. Assim a captura do ponteiro e SVGs sobrepostos não fazem o
- * destino desaparecer no `pointerup`. */
+/**
+ * The connector's target is the block's box on the canvas plane, not the element under the cursor. This way pointer capture and overlapping SVGs don't make the destination disappear on `pointerup`.
+ */
 export function caixaContemPonto(caixa: Caixa, ponto: Ponto): boolean {
   return (
     ponto.x >= caixa.left &&
@@ -56,7 +47,7 @@ export function caixaContemPonto(caixa: Caixa, ponto: Ponto): boolean {
 
 const centro = (c: Caixa): Ponto => ({ x: c.left + c.largura / 2, y: c.top + c.altura / 2 });
 
-/** As faces que se olham: mais horizontal → direita/esquerda; senão baixo/cima. */
+/** The faces that face each other: more horizontal → right/left; otherwise bottom/top. */
 export function facesEntre(de: Caixa, para: Caixa): { de: Face; para: Face } {
   const a = centro(de);
   const b = centro(para);
@@ -116,7 +107,7 @@ export function caminhoDaSeta(de: Caixa, para: Caixa): { d: string; fim: Ponto; 
   return { d, fim, faceDoFim: faces.para };
 }
 
-/** A ponta de seta de 10px do jsPlumb, apontando para dentro do bloco de destino. */
+/** jsPlumb's 10px arrowhead, pointing into the destination block. */
 export function pontaDaSeta(fim: Ponto, face: Face): string {
   const base = afastar(fim, face, PONTA);
   const lado = PONTA / 2;
@@ -125,12 +116,12 @@ export function pontaDaSeta(fim: Ponto, face: Face): string {
   return `M ${fim.x} ${fim.y} L ${a.x} ${a.y} L ${b.x} ${b.y} Z`;
 }
 
-/** Uma reta provisória enquanto a pessoa arrasta da saída até soltar. */
+/** A provisional line while the person drags from the output until releasing. */
 export function caminhoProvisorio(de: Ponto, ate: Ponto): string {
   return `M ${de.x} ${de.y} L ${ate.x} ${ate.y}`;
 }
 
-/** Onde o "Adicionar bloco" põe o bloco novo: no meio do que se vê, arredondado à grade de 16. */
+/** Where "Adicionar bloco" places the new block: in the middle of what's visible, rounded to the 16 grid. */
 export function positionInCentro(
   window: { largura: number; altura: number },
   offset: Position,
@@ -145,7 +136,7 @@ export function positionInCentro(
   };
 }
 
-/** O zoom do editor: de 20% a 100%, e a roda com Ctrl anda de 10 em 10. */
+/** The editor's zoom: 20% to 100%, and the wheel with Ctrl moves in steps of 10. */
 export const ZOOM_MINIMO = 20;
 export const ZOOM_MAXIMO = 100;
 export const PASSO_DO_ZOOM = 10;

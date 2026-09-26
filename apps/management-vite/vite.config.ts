@@ -3,16 +3,11 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 
 /**
- * Pipe Gestão como SPA — o desenho de `docs/specs/2026-09-07-arquitetura-de-front.md`:
- * Vite com SWC, front estático, e a `api` NestJS como a única porta para o banco.
+ * Pipe Gestão as an SPA — the design from `docs/specs/2026-09-07-arquitetura-de-front.md`: Vite with SWC, a static front, and the NestJS `api` as the only gateway to the database.
  *
- * Em desenvolvimento o `/v1` é proxy para a `api` (3010), para o cookie
- * `pipe_sessao` (HttpOnly) ir e voltar na MESMA origem — sem CORS e sem token
- * no navegador. Em produção os dois vivem sob `.usepipe.com.br` e o cookie
- * atravessa por `Domain`, como a spec descreve.
+ * In development `/v1` is proxied to the `api` (3010), so the `pipe_sessao` (HttpOnly) cookie can travel back and forth on the SAME origin — no CORS, no token in the browser. In production both live under `.usepipe.com.br` and the cookie crosses via `Domain`, as the spec describes.
  *
- * `@pipe/ui` é consumido como fonte, sem passo de build — o mesmo arranjo que
- * o Next fazia com `transpilePackages`.
+ * `@pipe/ui` is consumed as source, with no build step — the same arrangement the Next app used with `transpilePackages`.
  */
 export default defineConfig({
   plugins: [react()],

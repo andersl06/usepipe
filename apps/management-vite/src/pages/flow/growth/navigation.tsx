@@ -3,26 +3,16 @@ import { useLocation } from 'react-router-dom';
 import { contactBase, useContact } from '../contact';
 
 /**
- * A lateral do Growth — `<aside class="detail-aside fl"><nav class="sidenav">
- * <sidenav-menu><ol><sidenav-menu-item>` (portal.js, estado
- * `auth.application.detail.growth`). Cada item é `li.relative > a` com
- * `span.sidebar-title` e `span.sidebar-subtitle`; o ativo é
- * `$state.includes(sref)` — acende também nas telas de dentro.
+ * The Growth sidebar — `<aside class="detail-aside fl"><nav class="sidenav"><sidenav-menu><ol><sidenav-menu-item>` (portal.js, state `auth.application.detail.growth`). Each item is `li.relative > a` with `span.sidebar-title` and `span.sidebar-subtitle`; the active one is `$state.includes(sref)` — it also lights up on the screens inside it.
  *
- * Os quatro primeiros itens, na ordem e com o texto do pacote pt-BR
- * (`modules.application.detail.growth.*`):
+ * The first four items, in order and with the pt-BR bundle's text (`modules.application.detail.growth.*`):
  *
  *   activeMessages                 "Mensagens ativas"           → mensagens-ativas
  *   clicktracker                   "Click Tracker" / subtitle   → clicktracker
  *   adsbuying  (badge "Beta")      "Anúncios" / subtitle        → anuncios
  *   activeMessages.paymentsReport  "Relatório de Pagamentos" / subtitle → pagamentos
  *
- * O quinto, "Links rastreados", NÃO existe na origem — item 3 da tarefa de
- * cadastros do Atendimento: link curto com contagem de clique de verdade
- * (`links-rastreados/links-rastreados.tsx`), backend próprio e testado, sem
- * relação com o "Click Tracker" acima (aquele é a medição de anúncios
- * Click-to-WhatsApp da Meta). Entra no fim da lista, sem badge, com texto
- * nosso — não há frase da Blip para copiar aqui.
+ * The fifth, "Links rastreados", does NOT exist in the origin — item 3 of the Attendance registrations task: a short link with real click counting (`links-rastreados/links-rastreados.tsx`), its own tested backend, unrelated to the "Click Tracker" above (that one measures Meta's Click-to-WhatsApp ad performance). It goes at the end of the list, with no badge, with our own text — there's no Blip copy to reuse here.
  */
 const ITENS: { titulo: string; description: string | null; beta?: true; rota: string | null }[] = [
   { titulo: 'Mensagens ativas', description: null, rota: 'active-messages' },

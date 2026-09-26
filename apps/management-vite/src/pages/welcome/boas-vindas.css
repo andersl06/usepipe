@@ -1,36 +1,31 @@
-/* ===================================== a tela de boas-vindas (/bem-vindo)
-
-   Cópia da tela de boas-vindas da plataforma de origem (`#welcome-screen`),
-   medida no CSS e no template dela:
-
-     tela          ocupa a janela inteira (min-height 100vh, min-width 100vw)
-     container     1366px no máximo, centrado, recuo de 64px (o `ph5` deles)
-     colunas       40% para o texto, 55% para a arte
-     marca         no alto da coluna de texto, com 64px de respiro (`pv5`)
-     bloco         centrado na altura da coluna (`h-75`), botão à direita
-     título        28px, parágrafo 16px (o `bp-fs-3` e o `bp-fs-5` deles)
-     quebra        abaixo de 1286px a coluna da arte some e o texto ocupa tudo
-
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. Onde eles põem uma ilustração,
-   nós deixamos o feixe passar: a arte do Pipe é o fundo, e ele cobre a janela
-   inteira como na tela de entrada — é a mesma peça, e quem acabou de entrar
-   reconhece.
-
-   A folha é própria e não entra em `globais.css` porque esta tela não usa o
-   cromo do aplicativo. */
+/*
+ * ===================================== the welcome screen (/bem-vindo)
+ *
+ *    A copy of the origin platform's welcome screen (`#welcome-screen`), measured from its CSS and template:
+ *
+ *      screen        fills the whole window (min-height 100vh, min-width 100vw)
+ *      container     1366px max, centered, 64px indent (their `ph5`)
+ *      columns       40% for the text, 55% for the art
+ *      brand         at the top of the text column, with 64px of breathing room (`pv5`)
+ *      block         centered on the column's height (`h-75`), button on the right
+ *      title         28px, paragraph 16px (their `bp-fs-3` and `bp-fs-5`)
+ *      break         below 1286px the art column disappears and the text takes the full width
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. Where they put an illustration, we let the beam show through: Pipe's art is the background, and it covers the whole window like on the sign-in screen — it's the same piece, and whoever just signed in recognizes it.
+ *
+ *    The sheet is its own and doesn't go in `globais.css` because this screen doesn't use the application's chrome.
+ */
 
 .bv {
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
 
-  /* Paleta PRÓPRIA, e clara sempre.
-
-     O feixe do fundo é desenhado com cor fixa — moss sobre creme, o mesmo da
-     tela de entrada. Com os token do tema, quem está no escuro ganhava um fundo
-     escuro por baixo de um desenho claro: a tela partia em duas, com uma
-     mancha clara onde o canvas pinta e preto no resto. Estas telas de porta
-     (entrada, boas-vindas) não seguem o tema por isso. */
+  /*
+   * OUR OWN palette, and always light.
+   *
+   *      The background beam is drawn with a fixed color — moss over cream, the same as the sign-in screen. With theme tokens, whoever was in dark mode got a dark background under a light drawing: the screen split in two, with a light patch where the canvas paints and black everywhere else. That's why these front-door screens (sign-in, welcome) don't follow the theme.
+   */
   --bv-fundo: #f2f1ec;
   --bv-papel: #ffffff;
   --bv-conteudo: #16150f;
@@ -42,7 +37,7 @@
   color: var(--bv-conteudo);
 }
 
-/* O fundo, atrás de tudo e sem roubar clique. */
+/* The background, behind everything and without stealing clicks. */
 .bv-fundo {
   position: absolute;
   inset: 0;
@@ -63,11 +58,11 @@
   box-sizing: border-box;
 }
 
-/* Marca, título, texto e botão são UM bloco, centrado na altura.
-
-   Na origem a marca fica no alto e o texto no meio, porque a coluna da direita
-   tem uma ilustração que equilibra a tela. Sem ela, aquele arranjo deixa a
-   marca sozinha lá em cima e o texto solto no meio — foi o que aconteceu. */
+/*
+ * Brand, title, text and button are ONE block, centered vertically.
+ *
+ *    In the origin the brand sits at the top and the text in the middle, because the right column has an illustration that balances the screen. Without it, that arrangement leaves the brand alone up top and the text floating in the middle — which is what happened.
+ */
 .bv-texto {
   display: flex;
   flex-direction: column;
@@ -75,9 +70,9 @@
   max-width: 620px;
 }
 
-/* `width: auto` e `align-self` explícitos: a folha base dá `width: 100%` a
-   imagem, e aí o SVG se encaixa centralizado na caixa inteira — a marca ficava
-   deslocada para o meio, longe da coluna do texto. */
+/*
+ * Explicit `width: auto` and `align-self`: the base sheet gives the image `width: 100%`, and then the SVG fits centered in the whole box — the brand mark ended up shifted to the middle, far from the text column.
+ */
 .bv-marca {
   display: block;
   align-self: flex-start;
@@ -94,8 +89,9 @@
 
 .bv-miolo h1 {
   margin: 0 0 4px;
-  /* A origem usa 1,25rem (o `bp-fs-3` dela). Subimos dois degraus a pedido: a
-     tela deles é vista em janela menor, e em 1920 aquele tamanho some. */
+  /*
+   * The origin uses 1.25rem (its `bp-fs-3`). We went up two steps on request: their screen is viewed in a smaller window, and at 1920 that size disappears.
+   */
   font-size: 36px;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -105,15 +101,16 @@
 
 .bv-miolo p {
   margin: 0;
-  /* 1rem na origem; 19px aqui, pela mesma razão do título. */
+  /* 1rem in the origin; 19px here, for the same reason as the title. */
   font-size: 19px;
   line-height: 1.55;
   max-width: 560px;
   color: var(--bv-apoio);
 }
 
-/* O botão alinhado com o texto, e não na borda da coluna: com o bloco inteiro
-   junto, empurrá-lo para a direita é o que deixava a tela desencontrada. */
+/*
+ * The button aligned with the text, not at the column's edge: with the whole block together, pushing it to the right is what made the screen feel disjointed.
+ */
 .bv-acao {
   display: flex;
   justify-content: flex-start;
@@ -124,7 +121,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  /* `size="standard"` na origem é 40px; aqui acompanha a escala do texto. */
+  /* `size="standard"` in the origin is 40px; here it follows the text scale. */
   height: 56px;
   padding: 0 32px;
   border-radius: 12px;
@@ -140,8 +137,9 @@
   background: var(--bv-marca-forte);
 }
 
-/* O endereço da conta, que na origem vira o subdomínio do portal. Aparece aqui
-   porque é a primeira vez que a pessoa o vê — e ele saiu do e-mail dela. */
+/*
+ * The account's address, which in the origin becomes the portal's subdomain. It appears here because it's the first time the person sees it — and it came from their email.
+ */
 .bv-endereco {
   font-size: 17px;
 }
@@ -151,7 +149,7 @@
   color: var(--bv-conteudo);
 }
 
-/* Na quebra deles a coluna da arte some e o texto ocupa a largura inteira. */
+/* At their breakpoint the art column disappears and the text takes the full width. */
 @media (max-width: 720px) {
   .bv-container {
     padding: 32px 24px;

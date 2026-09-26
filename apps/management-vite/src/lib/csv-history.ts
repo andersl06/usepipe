@@ -1,18 +1,10 @@
 import type { CardHistory } from '../components/lista-history';
 
 /**
- * O CSV da ação em massa do Histórico.
- *
- * Mora fora do componente porque escapar campo é lógica, não desenho, e
- * lógica precisa de uma verificação que roda:
- *
- *     pnpm --filter @pipe/gestao test
- *
- * Separador é ponto e vírgula, e não vírgula: no Excel em português é o
- * separador de lista, e com vírgula a planilha abre tudo numa coluna só.
+ * History bulk-action CSV escaping lives outside the component because it is logic that must be runnable under `pnpm --filter @pipe/gestao test`. Use semicolon, not comma: Portuguese Excel uses it as list separator, otherwise all data opens in one column.
  */
 
-/** Os rótulos das colunas, na ordem em que saem no arquivo. */
+
 export const COLUNAS_CSV = [
   'Ticket',
   'Encerrada',
@@ -42,9 +34,7 @@ function valuesOf(c: CardHistory): string[] {
 }
 
 /**
- * Campo sempre entre aspas, com aspas de dentro dobradas. É o mínimo que
- * sobrevive a nome de contato com ponto e vírgula, com aspas ou com quebra de
- * linha — e nome de contato tem os três.
+ * Always quote each CSV field and double embedded quotes, so contact names containing semicolons, quotes, or newlines survive.
  */
 export function celulaCsv(value: string): string {
   return `"${value.replace(/"/g, '""')}"`;
@@ -55,6 +45,6 @@ export function montarCsv(cards: readonly CardHistory[]): string {
     COLUNAS_CSV.map(celulaCsv).join(';'),
     ...cards.map((c) => valuesOf(c).map(celulaCsv).join(';')),
   ];
-  // O BOM na frente é o que faz o Excel em português abrir o acento certo.
+  // Prefix BOM so Portuguese Excel decodes accented characters correctly.
   return `\uFEFF${linhas.join('\r\n')}\r\n`;
 }

@@ -1,47 +1,45 @@
 /**
- * O menu da barra do contato — o `subheader-menu` da origem.
+ * The contact bar menu — the source's `subheader-menu`.
  *
- * Puro de propósito: é a ÚNICA regra desta tela que decide alguma coisa, e é a
- * regra que separa roteador de fluxo. O teste `tests/fluxo-detalhe.test.ts`
- * trava o que sai daqui.
+ * Pure by design: it's the ONLY rule on this screen that decides anything, and it's the rule that separates roteador from fluxo. The `tests/fluxo-detalhe.test.ts` test locks down what comes out of here.
  *
- * ═══ COMO A ORIGEM MONTA ESTA FILEIRA ═══
+ * ═══ HOW THE SOURCE BUILDS THIS ROW ═══
  *
- * São três peneiras em sequência, e só a terceira olha o tipo do contato:
+ * Three sieves in sequence, and only the third looks at the contact type:
  *
- *  1. `SubheaderDetailController.getTemplateSetupItem()` — se o contato é de um
- *     template, ele PREPENDE um item. Para `master` o item é
+ *  1. `SubheaderDetailController.getTemplateSetupItem()` — if the contact is from a
+ *     template, it PREPENDS an item. For `master` the item is
  *     `{ title: 'master.services', sref: 'auth.application.detail.master' }`,
- *     que em pt-BR é **"Serviços"**. Para `builder` não há item nenhum: o
- *     `switch` não tem caso para ele.
- *  2. `getUpdatedMenus()` — filtra o catálogo pelas permissões DA PESSOA
- *     (`applicationUserPermissionModel`) e preserva sua ordem no bundle. O item
- *     `ai` foi removido do catálogo Pipe conforme o escopo visual solicitado.
- *  3. `subheaderMenu.checkPermissions()` — filtra pelo TEMPLATE, usando o mapa
- *     de claims (módulo 62673 do bundle), onde cada claim traz `hideInTemplate`.
- *     Para `master` só duas entradas escondem: `desk` (claim 106, e os vinte e
- *     tantos `desk-*` filhos) e `builder` (claim 114). Tudo o mais fica.
+ *     which in pt-BR is **"Serviços"**. For `builder` there is no item at all: the
+ *     `switch` has no case for it.
+ *  2. `getUpdatedMenus()` — filters the catalog by the PERSON's permissions
+ *     (`applicationUserPermissionModel`) and preserves their order in the bundle. The
+ *     `ai` item was removed from the Pipe catalog per the requested visual scope.
+ *  3. `subheaderMenu.checkPermissions()` — filters by TEMPLATE, using the claims
+ *     map (bundle module 62673), where each claim carries `hideInTemplate`.
+ *     For `master` only two entries are hidden: `desk` (claim 106, and its twenty-odd
+ *     `desk-*` children) and `builder` (claim 114). Everything else stays.
  *
- * É a MESMA regra que já está comentada em `criar/roteador/acoes.ts`, vista do
- * outro lado: `activateApplicationFeatures` só liga construtor e atendimento
- * `if (template === Builder || Pipeline)` — o roteador não liga nenhum dos
- * dois, e por isso a barra dele também não mostra nenhum dos dois.
+ * It's the SAME rule already documented in `criar/roteador/acoes.ts`, seen from the
+ * other side: `activateApplicationFeatures` only turns on builder and attendance
+ * `if (template === Builder || Pipeline)` — the roteador turns on neither of the
+ * two, and that's why its bar doesn't show either of them either.
  *
- * O corte de 5 visíveis + "…" é `createVisibleMenu()`, e é por CONTAGEM, não
- * por largura — o mesmo que `estrutura-gestao.tsx` já registrou para a barra de
- * módulos.
+ * The cutoff of 5 visible + "…" is `createVisibleMenu()`, and it's by COUNT, not
+ * by width — the same as `estrutura-gestao.tsx` already recorded for the module
+ * bar.
  */
 
 import type { MyPermissionsInFlow } from '@pipe/contracts';
 import type { NomeDeIconePortal } from '../../components/icones-portal';
 
-/** `fluxo` e `roteador` são o `builder` e o `master` da origem. */
+/** `fluxo` and `roteador` are the source's `builder` and `master`. */
 export type ContactTipo = 'fluxo' | 'roteador';
 
 export interface ItemDoMenu {
-  /** O rótulo exato da origem, em pt-BR. */
+  /** The source's exact label, in pt-BR. */
   rotulo: string;
-  /** Para onde vai — nulo quando a tela ainda não existe aqui. */
+  /** Where it goes — null when the screen doesn't exist here yet. */
   href: string | null;
 }
 
@@ -49,25 +47,17 @@ export interface ItemDoMenu {
 export const LIMITE_VISIVEL = 5;
 
 /*
- * O catálogo, na ordem das chaves da origem, com os rótulos pt-BR do pacote de
- * tradução (`modules.application.detail.*`) e o destino que NÓS temos.
+ * The catalog, in the source's key order, with the pt-BR labels from the translation package (`modules.application.detail.*`) and the destination WE have.
  *
- * `href: null` não é lacuna escondida: vira bloco apagado com o selo "em breve"
- * na tela, que é o combinado para o que a origem mostra e nós ainda não temos.
+ * `href: null` isn't a hidden gap: it becomes a grayed-out block with the "coming soon" badge on screen, which is the agreed treatment for what the source shows and we don't have yet.
  */
 /*
- * A ORDEM É A DA ORIGEM, medida em `roteador-team__pagina.html` (master) e
- * `application-detail-pipeprincipal-configurations-basic.html` (builder):
- * visível é Builder · Atendimento · Análise · Growth · Canais (fluxo) e
- * Serviços · Análise · Growth · Canais · Contatos (roteador, com Builder e
- * Atendimento escondidos por `ESCONDIDOS_NO_ROTEADOR`). Canais e Análise
- * vinham antes de Growth aqui — por isso a barra mostrava Contatos como
- * sexto item disfarçado de quinto, e Growth ficava só no "...".
+ * THE ORDER IS THE SOURCE'S, measured in `roteador-team__pagina.html` (master) and `application-detail-pipeprincipal-configurations-basic.html` (builder): visible is Builder · Atendimento · Análise · Growth · Canais (fluxo) and Serviços · Análise · Growth · Canais · Contatos (roteador, with Builder and Atendimento hidden by `ESCONDIDOS_NO_ROTEADOR`). Canais and Análise used to come before Growth here — which made the bar show Contatos as a disguised sixth item posing as fifth, and Growth ended up stuck in the "...".
  */
 const CATALOGO = [
   { key: 'builder', rotulo: 'Builder', href: '/builder' },
   { key: 'desk', rotulo: 'Atendimento', href: '/monitoring' },
-  /* A Análise é DO contato: o destino depende do `id` e sai de `itensDoMenu`. */
+  /* Análise belongs to the contact: the destination depends on `id` and comes from `itensDoMenu`. */
   { key: 'analysis', rotulo: 'Análise', href: null },
   { key: 'growth', rotulo: 'Growth', href: null },
   { key: 'channels', rotulo: 'Canais', href: null },
@@ -81,28 +71,16 @@ const CATALOGO = [
 const HIDDEN_IN_ROUTER: readonly string[] = ['builder', 'desk'];
 
 /**
- * A chave do CATÁLOGO → o recurso do `PermissionsList.html`, onde as duas
- * listas da origem discordam de nome. São as mesmas chaves em quase tudo
- * (`builder`, `desk`, `analysis`, `growth`, `channels`, `users`,
- * `logMessages`, `payments`): só "Conteúdos" é `contents` no menu e
- * `resources` na lista de permissões.
+ * The CATALOG key → the resource in `PermissionsList.html`, where the source's two lists disagree on naming. They share almost every key (`builder`, `desk`, `analysis`, `growth`, `channels`, `users`, `logMessages`, `payments`): only "Conteúdos" is `contents` in the menu and `resources` in the permissions list.
  */
 const RECURSO_DO_ITEM: Readonly<Record<string, string>> = { contents: 'resources' };
 
 /**
- * A fileira inteira, na ordem da origem. Quem desenha fatia em `LIMITE_VISIVEL`.
+ * The whole row, in the source's order. Whoever renders it slices at `LIMITE_VISIVEL`.
  *
- * `permissoes` é o passo 2 da origem (`getUpdatedMenus()`): o catálogo peneirado
- * pelas permissões DA PESSOA naquele bot (`applicationUserPermissionModel`),
- * ANTES do filtro por template (passo 3, `ESCONDIDOS_NO_ROTEADOR`) — nessa
- * ordem, como lá. Um item com `nenhum` some da barra: "O usuário não vê este
- * menu nem acessa seu conteúdo" é o texto do próprio rádio zero.
+ * `permissoes` is the source's step 2 (`getUpdatedMenus()`): the catalog sieved by the PERSON's permissions on that bot (`applicationUserPermissionModel`), BEFORE the template filter (step 3, `ESCONDIDOS_NO_ROTEADOR`) — in that order, as there. An item with `nenhum` disappears from the bar: "The user doesn't see this menu or access its content" is the zero-permission radio's own text.
  *
- * Sem o argumento (ou com `editaPelaConta`), nada é peneirado: quem tem
- * `automacao.fluxo.editar` na conta continua enxergando tudo, que é como o
- * Pipe funcionava antes da 0035 e é o outro lado do duplo portão de
- * `exigirPermissaoNoFluxo`. Quem não é membro e não tem a permissão de conta
- * também não chega até aqui — a casca do contato já recusou.
+ * Without the argument (or with `editaPelaConta`), nothing is sieved: whoever has `automacao.fluxo.editar` on the account keeps seeing everything, which is how Pipe worked before 0035 and is the other side of `exigirPermissaoNoFluxo`'s double gate. Whoever isn't a member and doesn't have the account permission also never reaches this point — the contact shell already refused.
  */
 export function itensDoMenu(
   tipo: ContactTipo,
@@ -141,21 +119,18 @@ export function itensDoMenu(
                         : item.href,
     }));
 
-  /* `getTemplateSetupItem()`: o item do template vem na FRENTE de tudo. Só o
-     roteador tem um entre os dois tipos que existem aqui. */
+  /*
+   * `getTemplateSetupItem()`: the template item goes at the FRONT of everything. Only the roteador has one among the two types that exist here.
+   */
   if (tipo === 'roteador') itens.unshift({ rotulo: 'Serviços', href: `${base}/services` });
 
   return itens;
 }
 
 /**
- * Os ícones da ponta direita — o `menuIcons` da origem, catálogo `V`, e depois
- * o `<li class="item-lab">` do template `subheaderIcons`, que vem sempre.
+ * The right-edge icons — the source's `menuIcons`, catalog `V`, followed by the `<li class="item-lab">` from the `subheaderIcons` template, which always shows.
  *
- * Eles NÃO passam pelo filtro de template: `checkPermissions()` só roda no
- * `subheaderMenu`, e o roteador mostra os quatro iguaizinhos ao fluxo. Nenhum
- * tem tela aqui ainda — "Configurações" é do CONTATO, e não a da conta que já
- * existe em `/configuracoes`.
+ * They do NOT go through the template filter: `checkPermissions()` only runs on `subheaderMenu`, and the roteador shows the same four icons as fluxo. None of them has a screen here yet — "Configurações" belongs to the CONTACT, not the account settings that already exists at `/configuracoes`.
  */
 export const ICONES_OF_CONTACT: readonly (ItemDoMenu & { icone: NomeDeIconePortal })[] = [
   /* `getIcons(sref)`: `icon-integration`, `icon-config`, `icon-team-1`. */
@@ -166,7 +141,7 @@ export const ICONES_OF_CONTACT: readonly (ItemDoMenu & { icone: NomeDeIconePorta
   { rotulo: 'Testar', href: null, icone: 'testar' },
 ];
 
-/* ------------------------------------------------ os dados dos cartões da home */
+/* ------------------------------------------------ home card data */
 
 /** Um membro da equipe do contato, como `loadTeamMembers()` o monta. */
 export interface Member {
@@ -174,14 +149,14 @@ export interface Member {
   fotoUrl: string | null;
 }
 
-/** As três contagens do cartão de métricas, desde a criação do contato. */
+/** The metrics card's three counts, since the contact was created. */
 export interface Metrics {
   users: number;
   recebidas: number;
   enviadas: number;
 }
 
-/** Uma extensão recomendada — um item do `store/recommendations` da origem. */
+/** A recommended extension — an item from the source's `store/recommendations`. */
 export interface Extensao {
   id: string;
   nome: string;
@@ -191,10 +166,7 @@ export interface Extensao {
 }
 
 /**
- * A pilha de avatares da equipe — o corte de `HomeController.loadTeamMembers()`:
- * com mais de 7 pessoas, ficam as 7 primeiras e entra um oitavo "avatar" sem
- * foto com o nome `+ N`, e o N para em 9. O `letter-avatar` tira as iniciais
- * dele e desenha "+N".
+ * The team avatar stack — `HomeController.loadTeamMembers()`'s cutoff: with more than 7 people, the first 7 stay and an eighth photo-less "avatar" enters with the name `+ N`, and N caps at 9. `letter-avatar` takes its initials and draws "+N".
  */
 export function pilhaDaEquipe(members: readonly Member[]): Member[] {
   if (members.length <= 7) return [...members];
@@ -203,9 +175,7 @@ export function pilhaDaEquipe(members: readonly Member[]): Member[] {
 }
 
 /**
- * O `HomeController.processNumber()` da origem, com o mesmo arredondamento para
- * baixo e o mesmo `split('0')[0]` — que transforma 10,5 milhões em "+1M". É o
- * número que a origem mostra, então é o nosso.
+ * The source's `HomeController.processNumber()`, with the same round-down and the same `split('0')[0]` — which turns 10.5 million into "+1M". It's the number the source shows, so it's ours.
  */
 export function numeroDaHome(n: number): string {
   const faixas: [number, string][] = [

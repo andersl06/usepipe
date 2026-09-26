@@ -9,26 +9,27 @@ import {
 } from '../lib/leads-visao';
 
 /**
- * O filtro por coluna da listagem.
+ * The listing's per-column filter.
  *
- * A forma é a do Twenty (`object-filter-dropdown`): um botão que abre a lista
- * de CAMPOS, e o campo escolhido abre a lista de VALORES. Dois passos, e não um
- * formulário com quatro seletores — porque quase sempre se filtra por uma
- * coluna só, e um formulário cobraria a atenção das outras três a cada uso.
+ * The shape is Twenty's (`object-filter-dropdown`): a button that opens the list
+ * of FIELDS, and the chosen field opens the list of VALUES. Two steps, not one
+ * form with four selects — because you almost always filter by a single column,
+ * and a form would demand attention from the other three every time.
  *
- * O filtro escolhido vira **chip**, ao lado do botão, e o chip é o botão de
- * remover. É deles também, e é o que faz um filtro ativo ser visível de longe:
- * lista filtrada sem sinal na tela é a origem de "o lead sumiu do CRM".
+ * The chosen filter becomes a **chip**, next to the button, and the chip is the
+ * remove button. That's theirs too, and it's what makes an active filter
+ * visible from a distance: a filtered list with no on-screen signal is where
+ * "the lead disappeared from the CRM" comes from.
  *
- * **Sem JavaScript nenhum.** `<details>` nativo abre o menu, e cada valor é um
- * link para a mesma listagem com um parâmetro a mais. A consequência é a que
- * interessa: o filtro está na URL, então a **visão salva o guarda de graça** —
- * salvar uma visão continua sendo dar nome a uma consulta que já existe.
+ * **No JavaScript at all.** A native `<details>` opens the menu, and each value
+ * is a link to the same listing with one more parameter. The consequence is the
+ * one that matters: the filter is in the URL, so **the saved view keeps it for
+ * free** — saving a view is still just naming a query that already exists.
  *
- * O que não copiamos: os operadores deles (contém, começa com, está vazio, é
- * um de). Aqui é igualdade, mais "em branco". Texto livre já é a busca do lado
- * de cá, e um menu de operadores para quatro colunas categóricas seria três
- * cliques para responder o que um resolve.
+ * What we didn't copy: their operators (contains, starts with, is empty, is one
+ * of). Here it's equality, plus "blank". Free text is already the search on
+ * this side, and an operator menu for four categorical columns would be three
+ * clicks to answer what one click already answers.
  */
 export function Filter({
   filters,
@@ -37,7 +38,7 @@ export function Filter({
 }: {
   filters: SFilter;
   options: Record<FilterKey, string[]>;
-  /** O endereço desta mesma listagem com outro conjunto de filtros. */
+  /** This same listing's address with a different set of filters. */
   href: (proximos: SFilter) => string;
 }) {
   const ativos = FILTRAVEIS.filter((f) => filters[f.key] !== undefined);
@@ -52,8 +53,8 @@ export function Filter({
         <div className="menu-painel">
           {FILTRAVEIS.map((f) => {
             // "Em branco" entra sempre, mesmo que nenhuma linha esteja em
-            // branco agora: é a pergunta "quem ficou sem dono?", e ela não pode
-            // depender de já haver alguém sem dono para poder ser feita.
+            // blank right now: it's the question "who's left without an owner?", and it can't
+            // depend on there already being an unowned one for it to be doable.
             const values = [...options[f.key], WITHOUT_VALUE];
             return (
               <details key={f.key}>

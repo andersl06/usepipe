@@ -5,39 +5,18 @@ import { gerarId } from './model';
 import { conditionError } from './conditions';
 
 /**
- * As ações de entrada e de saída do bloco — a aba "Ações" do editor da Blip
- * ("Ações de Entrada" / "Ações de Saída", `builder-tabs-actions`), restrita ao
- * que o motor do Pipe EXECUTA (`PROVEDOR_PADRAO` em `packages/core/src/fluxo/
- * acoes.ts`).
- *
- * Do provedor, o que entra no menu "ADICIONAR FERRAMENTAS" do editor:
- * - `SetVariable` → "Definir variável" (Manipular);
- * - `DeleteVariable` → "Excluir variável" (Manipular — o editor da Blip não a
- *   oferece no menu, mas o motor a executa; o rótulo é nosso);
- * - `TrackEvent` → "Registrar eventos" (Manipular), painel "Registro de eventos";
- * - `Redirect` → "Redirecionar para serviço" (Executar), painel "Redirecionar a
- *   um serviço".
- *
- * Também executadas, mas NÃO oferecidas: `SendMessage` e `SendRawMessage` são
- * conteúdo do bloco (aba "Conteúdo"), não ação; `ForwardToDesk`,
- * `LeavingFromDesk` e `CreateTicket` são o miolo do bloco "Humano" — o editor
- * as cria com o bloco e esconde a aba ("o bot não deve interferir nas ações de
- * entrada e saída"). Tudo o que o motor não executa (`ExecuteScript`,
- * `MergeContact`…) aparece só para leitura quando veio num
- * fluxo importado, com a marca "Não executada no Pipe", e pode ser excluído.
- *
- * Limite do editor: 15 ações por lista ("Limite de 15 ações atingidos").
+ * Block enter/leave actions follow Blip editor Actions tab (`builder-tabs-actions`) but offer only what Pipe's `PROVEDOR_PADRAO` executes (`packages/core/src/fluxo/acoes.ts`). Add Tools offers `SetVariable`, `DeleteVariable` (Pipe label; absent from Blip's menu), `TrackEvent`, and `Redirect` with their Manipulate/Execute groups. `SendMessage`/`SendRawMessage` belong to block Content; `ForwardToDesk`, `LeavingFromDesk`, `CreateTicket` belong to Human and are created with it, hiding its Actions tab. Unsupported imported actions such as `ExecuteScript` or `MergeContact` remain readable and removable but marked Not executed in Pipe. Limit each action list to 15.
  */
 
 export const ACTIONS_LIMIT = 15;
 
 export interface CampoDaAcao {
-  /** A chave em `settings` — com ponto para chave aninhada (`context.type`). */
+  /** A `settings` key may use a dot for nested keys, such as `context.type`. */
   key: string;
   rotulo: string;
   ajuda?: string;
   obrigatorio?: boolean;
-  /** `texto` é uma linha; `longo` é área de texto. */
+  /** `texto` is one line; `longo` uses a textarea. */
   tipo?: 'texto' | 'longo' | 'json' | 'cabecalhos';
   /** Valores fechados usam o mesmo seletor do Builder. */
   options?: readonly string[];
@@ -47,7 +26,7 @@ export interface TipoDeAcao {
   tipo: string;
   /** O nome no menu "ADICIONAR FERRAMENTAS". */
   rotulo: string;
-  /** O título do painel da ação. */
+
   titulo: string;
   grupo: 'Executar' | 'Manipular';
   info?: string;
@@ -147,7 +126,7 @@ export const ROTULOS_OF_ACTIONS = {
   doSistema: 'Ação do bloco de atendimento',
 } as const;
 
-/** Ações que o motor executa e que são do bloco "Humano", não da pessoa. */
+/** System-run actions belong to the Human block, not the person. */
 export const ACTIONS_OF_SISTEMA = new Set(['ForwardToDesk', 'LeavingFromDesk', 'CreateTicket']);
 
 export const tipoDeAcao = (tipo: string): TipoDeAcao | undefined =>
@@ -155,12 +134,12 @@ export const tipoDeAcao = (tipo: string): TipoDeAcao | undefined =>
 
 export const rotuloDaAcao = (tipo: string): string => tipoDeAcao(tipo)?.titulo ?? tipo;
 
-/** O motor não a executa: em tempo de execução, lança e a conversa cai na fila. */
+/** The engine does not execute this action: it throws at runtime and the conversation falls into the queue. */
 export const acaoSemSuporte = (acao: AcaoDoEditor): boolean => !PROVEDOR_PADRAO.has(acao.type);
 
 export const acaoDoSistema = (acao: AcaoDoEditor): boolean => ACTIONS_OF_SISTEMA.has(acao.type);
 
-/** A ação como o "+" a cria: sem título, configurações vazias, sem condição. */
+/** Create an action like the plus button: no title, empty settings, no condition. */
 export function novaAcao(tipo: string, id = gerarId()): AcaoDoEditor {
   return {
     $id: id,
@@ -174,7 +153,7 @@ export function novaAcao(tipo: string, id = gerarId()): AcaoDoEditor {
 
 const partes = (key: string): string[] => key.split('.');
 
-/** Lê `settings.a.b` — o Newtonsoft casa chave sem diferenciar maiúscula, e a tela também. */
+/** Read `settings.a.b` case-insensitively because Newtonsoft matches keys without regard to case, and the screen must agree. */
 export function fieldValue(acao: AcaoDoEditor, key: string): string {
   let atual: unknown = acao.settings ?? {};
   for (const parte of partes(key)) {
@@ -187,7 +166,7 @@ export function fieldValue(acao: AcaoDoEditor, key: string): string {
   return typeof atual === 'string' ? atual : JSON.stringify(atual);
 }
 
-/** Grava `settings.a.b`; texto vazio apaga a chave. */
+/** Write `settings.a.b`; empty text deletes the key. */
 export function comCampo(acao: AcaoDoEditor, key: string, value: string): AcaoDoEditor {
   const settings = JSON.parse(JSON.stringify(acao.settings ?? {})) as Record<string, unknown>;
   const caminho = partes(key);
@@ -200,7 +179,7 @@ export function comCampo(acao: AcaoDoEditor, key: string, value: string): AcaoDo
   const ultima = caminho[caminho.length - 1]!;
   if (value === '') delete atual[ultima];
   else atual[ultima] = value;
-  // Objeto aninhado que ficou vazio some junto (`context: {}` não é contexto).
+  // Remove an empty nested object too; `context: {}` is not meaningful context.
   for (const parte of caminho.slice(0, -1)) {
     const filho = settings[parte];
     if (filho && typeof filho === 'object' && Object.keys(filho).length === 0)
@@ -209,7 +188,7 @@ export function comCampo(acao: AcaoDoEditor, key: string, value: string): AcaoDo
   return { ...acao, settings };
 }
 
-/** Cabeçalhos precisam continuar objeto no fluxo; texto inválido fica visível para a validação. */
+/** Flow headers must stay objects; leave invalid text visible for validation instead of silently discarding it. */
 export function comCampoJson(acao: AcaoDoEditor, key: string, value: string): AcaoDoEditor {
   if (!value.trim()) return comCampo(acao, key, '');
   try {
@@ -218,7 +197,7 @@ export function comCampoJson(acao: AcaoDoEditor, key: string, value: string): Ac
       return withValue(acao, key, json);
     }
   } catch {
-    // A validação abaixo aponta o campo sem apagar o texto digitado.
+    // Point to the invalid field without erasing what the user typed.
   }
   return comCampo(acao, key, value);
 }
@@ -228,7 +207,7 @@ export interface CabecalhoHttp {
   value: string;
 }
 
-/** O fluxo guarda cabeçalhos como objeto; o Builder os edita em pares chave/valor. */
+/** Flow stores headers as an object; Builder edits them as key/value pairs. */
 export function cabecalhosDoCampo(acao: AcaoDoEditor, key: string): CabecalhoHttp[] {
   const bruto = acao.settings?.[key];
   if (!bruto || typeof bruto !== 'object' || Array.isArray(bruto)) return [];
@@ -256,7 +235,7 @@ export function withConditions(acao: AcaoDoEditor, conditions: ConditionBlip[]):
   return { ...acao, conditions: conditions };
 }
 
-/** O que falta na ação, nas frases do painel. Ação que o motor não executa não é conferida. */
+/** Return missing action fields in panel wording; skip validation for actions the engine cannot execute. */
 export function actionErrors(acao: AcaoDoEditor): string[] {
   const errors: string[] = [];
   const tipo = tipoDeAcao(acao.type);
@@ -298,7 +277,7 @@ export function adicionarAcao(
   return { ok: true, block: { ...block, [lista]: [...current, acao] } };
 }
 
-/** Cola uma seleção inteira ou não altera nada; cópias nunca compartilham settings/ids. */
+/** Paste a full selection atomically or change nothing; copies must not share settings objects or IDs. */
 export function colarActions(
   block: Block,
   lista: ActionsLista,
@@ -334,7 +313,7 @@ export function removerAcao(block: Block, lista: ActionsLista, indice: number): 
   return { ...block, [lista]: current.filter((_, i) => i !== indice) };
 }
 
-/** Sobe ou desce uma ação — elas rodam na ordem da lista. */
+/** Move an action up/down in execution order. */
 export function moverAcao(block: Block, lista: ActionsLista, de: number, para: number): Block {
   const current = [...(block[lista] ?? [])];
   if (de < 0 || de >= current.length || para < 0 || para >= current.length || de === para)

@@ -1,18 +1,7 @@
 import type { SVGProps } from 'react';
 
 /**
- * Os ícones do DESK, no desenho da origem.
- *
- * O mesmo arranjo de `icones-portal.tsx` (copiado da Gestão), com os ícones que a
- * tela do atendente pede e o portal não tinha: são os `bds-icon` do design system
- * da referência, extraídos do pacote de ícones que a cópia em `~/desk-clone`
- * carrega (`desk-local/static/js/58.*.js`, chaves `asset-icon-<nome>-<tema>`).
- * Nada desenhado à mão: o nome que a gente usa fica à esquerda, o de lá no
- * comentário. Gerado por `gerar-icones-desk.mjs` (rascunho); para acrescentar um
- * ícone, acrescenta-se ao mapa `QUERO` de lá e roda-se de novo.
- *
- * Todos são traçados como preenchimento (`fill: currentColor`): quem pinta é a
- * folha, pelos tokens `--p-*`.
+ * Desk icons follow the source design. Like `icones-portal.tsx`, this file adds the agent-screen icons missing from the Portal. These are reference `bds-icon` assets extracted from the package loaded by `~/desk-clone` (`desk-local/static/js/58.*.js`, keys `asset-icon-<nome>-<tema>`), not hand-drawn. Local names appear on the left and source names in comments. The draft `gerar-icones-desk.mjs` regenerates them after adding an icon to `QUERO`. All paths use `fill: currentColor`; stylesheet `--p-*` tokens supply their color.
  */
 const DESENHOS = {
   /** `message-talk` (outline) */

@@ -16,13 +16,13 @@ import { data, dataHora, desde, document, numero } from '../../../lib/format';
 export const dynamic = 'force-dynamic';
 
 /**
- * A ficha do contato, na mesma estrutura da ficha do lead.
+ * The contact record, in the same structure as the lead record.
  *
- * A diferença entre as duas é o que o modelo diz: **o contato é a pessoa, o
- * lead é a intenção dela de comprar.** A pessoa continua a mesma quando a
- * intenção some, e é por isso que a aba do lead pode estar vazia sem que a
- * ficha esteja. O destaque diz quem é a pessoa; as abas dizem o que aconteceu
- * com ela — conversa de um lado, intenção de compra do outro.
+ * The difference between the two is what the data model says: **the contact is the
+ * person, the lead is their intent to buy.** The person stays the same when the
+ * intent disappears, which is why the lead tab can be empty without the record
+ * itself being empty. The highlight says who the person is; the tabs say what
+ * happened to them — conversation on one side, buying intent on the other.
  */
 
 const ROTULO_STATE: Record<string, string> = {
@@ -53,8 +53,8 @@ function ContactDestaque({ ficha, fuso }: { ficha: FichaContact; fuso: string })
       nome={ficha.nome}
       nota={ficha.criadoEm ? `conhecido ${desde(ficha.criadoEm, fuso)}` : undefined}
       etiquetas={
-        // A única cor possível aqui é a desqualificação do lead, que é o estado
-        // terminal. A pessoa não tem estado: ela existe.
+        // The only possible color here is the lead's disqualification, which is the
+        // terminal state. The person has no state: they simply exist.
         ficha.leadId === null ? null : desqualificado ? (
           <Etiqueta tom="erro">{ROTULO_STATUS['desqualificado']}</Etiqueta>
         ) : (
@@ -146,9 +146,9 @@ export default async function PageContact({
             />
 
             {/*
-              As conversas. É a promessa do produto do lado do contato: quem abre
-              a pessoa vê o que já foi atendido sem precisar do Desk.
-            */}
+ * The conversations. This is the product's promise on the contact side: whoever opens
+ * the person sees what's already been handled without needing the Desk.
+ */}
             {aba === 'conversas' ? (
               ficha.conversations.length === 0 ? (
                 <div className="vazio">Esta pessoa nunca conversou com o atendimento.</div>

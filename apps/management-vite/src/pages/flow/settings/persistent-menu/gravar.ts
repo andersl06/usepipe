@@ -4,9 +4,7 @@ import { motivoDe } from '../basic/gravar';
 import type { ConfigurationOfMenuPersistent, ItemDoMenuPersistente } from '@pipe/contracts';
 
 /**
- * `GET/PATCH /v1/gestao/fluxos/:id/menu-persistente`. A regra (canal
- * Messenger, boas-vindas preenchida, até 3 itens) mora na `api`
- * (`dominio/gestao/configuracao-do-fluxo.ts`); aqui só a recusa vira texto.
+ * `GET/PATCH /v1/gestao/fluxos/:id/menu-persistente`. The rule (Messenger channel, boas-vindas filled in, up to 3 items) lives in the `api` (`dominio/gestao/configuracao-do-fluxo.ts`); here only the rejection becomes text.
  */
 
 export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string };

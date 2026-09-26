@@ -3,11 +3,7 @@ import { atualizarLeituras } from '../../../../lib/actions';
 import { IMAGE } from '../../../create/regras-de-nome';
 
 /**
- * As duas escritas de "Editar Fluxo": `PATCH /v1/gestao/fluxos/:id` (o
- * "Salvar") e `DELETE /v1/gestao/fluxos/:id` (o "Excluir fluxo"). A regra
- * mora na `api` (`dominio/gestao/ciclo-de-vida-do-fluxo.ts`); aqui a foto vira
- * `data:` para atravessar o JSON, como em `criar/gravar.ts`, e a recusa vira
- * texto para a tela.
+ * The two writes for "Editar Fluxo": `PATCH /v1/gestao/fluxos/:id` ("Salvar") and `DELETE /v1/gestao/fluxos/:id` ("Excluir fluxo"). The rule lives in the `api` (`dominio/gestao/ciclo-de-vida-do-fluxo.ts`); here the photo becomes `data:` to cross the JSON, as in `criar/gravar.ts`, and the rejection becomes text for the screen.
  */
 
 /** O que o PATCH devolve (`FluxoGravado` na `api`). */
@@ -22,7 +18,7 @@ export interface FlowSaved {
 export interface EditBasic {
   nome: string;
   description: string;
-  /** `File` novo troca a foto; `null` tira; `undefined` deixa como está. */
+  /** A new `File` replaces the photo; `null` removes it; `undefined` leaves it as is. */
   image: File | null | undefined;
 }
 
@@ -47,7 +43,7 @@ export async function salvarBasicas(
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {
-    /* `onAdvancedConfigurationError` deles, para quando a `api` não disse o motivo. */
+    /* Their `onAdvancedConfigurationError`, for when the `api` didn't say why. */
     return { ok: false, error: motivoDe(error, 'Ocorreu um erro ao salvar a configuração') };
   }
 }
@@ -63,7 +59,7 @@ export async function excluirFlow(id: string): Promise<Resultado<void>> {
   }
 }
 
-/** O `erro.mensagem` que a `api` põe no corpo (`ErroPipe`), ou o texto padrão. */
+/** The `erro.mensagem` the `api` puts in the body (`ErroPipe`), or the default text. */
 export function motivoDe(error: unknown, padrao: string): string {
   if (error instanceof ApiError) {
     const corpo = error.corpo as { error?: { message?: unknown } } | null;
@@ -73,7 +69,7 @@ export function motivoDe(error: unknown, padrao: string): string {
   return padrao;
 }
 
-/** O arquivo em `data:`. `null` quando não é arquivo, está vazio ou passou do teto. */
+/** The file as `data:`. `null` when it isn't a file, is empty, or exceeds the cap. */
 function readImage(file: File | null): Promise<string | null> {
   if (!(file instanceof File) || file.size === 0 || file.size > IMAGE.maxBytes) {
     return Promise.resolve(null);

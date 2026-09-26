@@ -1,29 +1,29 @@
 /**
- * A fileira de abas da Análise — a regra, sem desenho.
+ * The Analysis tab row — the rule, with no rendering.
  *
- * Pura de propósito, como `../itens.ts`: é a única decisão da casca, e o teste
- * `tests/analise-abas.test.ts` trava o que sai daqui.
+ * Deliberately pure, like `../itens.ts`: it's the shell's only decision, and the
+ * `tests/analise-abas.test.ts` test locks down what comes out of here.
  *
- * ═══ DE ONDE SAI ═══
+ * ═══ WHERE IT COMES FROM ═══
  *
- * O template `#analytics-tabs-view` (módulo 95760 do `portal.js`) lista oito
- * `bds-tab` na ordem abaixo. Três não têm condição nenhuma (Dashboard,
- * Relatórios Personalizados, Jornada dos Contatos); as outras cinco têm
- * `ng-show` ligado ao controlador `ra`, que as preenche em `checkFeatures()`:
+ * The `#analytics-tabs-view` template (module 95760 of `portal.js`) lists eight
+ * `bds-tab` in the order below. Three have no condition at all (Dashboard,
+ * Relatórios Personalizados, Jornada dos Contatos); the other five have `ng-show`
+ * wired to the `ra` controller, which fills them in `checkFeatures()`:
  *
  *   isDisplayingActiveMessagesTab ← flag `is-displaying-analytics-active-messages-tab`
  *   isDisplayingOverviewTab       ← flag `is-displaying-analytics-overview-tab`
- *   isShowingDataExtractor        ← `Zn()` (ver `mostraGerenciador`)
+ *   isShowingDataExtractor        ← `Zn()` (see `mostraGerenciador`)
  *   isShowingDataDictionary       ← flag `is-showing-data-dictionary`
  *   isShowingGoodData             ← flag `is-showing-gooddata`
  *
- * E `isShowAnalyticsSuite` (flag `blip-analytics-suite-visibility`) só decide
- * se o `analytics-redirect-modal` abre ao clicar em "Mensagens ativas".
+ * And `isShowAnalyticsSuite` (flag `blip-analytics-suite-visibility`) only decides
+ * whether the `analytics-redirect-modal` opens on clicking "Mensagens ativas".
  *
- * `is-displaying-analytics-tabs` NÃO é lida por ninguém no `portal.js` (zero
- * ocorrências da string). O `isDisplayingAnalyticsTabs` que aparece nos
- * controladores de relatório é `!isHidingAnalyticsTabs()` — a flag
- * `is-hiding-analytics-tabs`, que está `false`.
+ * `is-displaying-analytics-tabs` is NOT read by anyone in `portal.js` (zero
+ * occurrences of the string). The `isDisplayingAnalyticsTabs` that appears in the
+ * report controllers is `!isHidingAnalyticsTabs()` — the `is-hiding-analytics-tabs`
+ * flag, which is `false`.
  */
 
 export interface AnalyticsFlags {
@@ -37,11 +37,11 @@ export interface AnalyticsFlags {
 }
 
 /**
- * Os valores do contexto do roteador na captura (LaunchDarkly, contexto multi
- * do bot `supernovaroteador`, contrato `supernova`).
+ * The router context values captured for the snapshot (LaunchDarkly, the
+ * `supernovaroteador` bot's multi-context, `supernova` contract).
  *
- * ponytail: fixos. Aqui não há serviço de flag; o dia em que houver, esta
- * constante vira a leitura dele, e a regra abaixo não muda.
+ * ponytail: fixed values. There's no flag service here; the day there is, this
+ * constant becomes its reading, and the rule below doesn't change.
  */
 export const FLAGS_DA_CAPTURA: AnalyticsFlags = {
   abaActiveMessages: true,
@@ -60,14 +60,14 @@ export const FLAGS_DA_CAPTURA: AnalyticsFlags = {
 export const CLUSTER_DA_CAPTURA = 'Beagle';
 
 /**
- * `Zn()`, módulo `analytics`:
+ * `Zn()`, `analytics` module:
  *
  *     const e = await ve.ak.dataExtractorShowTab(), i = $n.D_.toLowerCase();
  *     return e[i in e ? i : "default"].isEnabled
  *
- * `$n.D_` é `defaultClusterName`. As flags `is-showing-data-extractor-tab`
- * (`{"clusters":"Golden,Doberman"}`) e `show-data-extractor-tab` também
- * existem no contexto, mas quem decide a aba é SÓ esta.
+ * `$n.D_` is `defaultClusterName`. The flags `is-showing-data-extractor-tab`
+ * (`{"clusters":"Golden,Doberman"}`) and `show-data-extractor-tab` also exist in
+ * the context, but only this one decides the tab.
  */
 export function mostraManager(
   byCluster: AnalyticsFlags['managerByCluster'],
@@ -89,22 +89,24 @@ export type AbaKey =
 
 export interface Aba {
   key: AbaKey;
-  /** `analyticsTabs.*` do pacote pt-BR, com a caixa da origem. */
+  /** `analyticsTabs.*` from the pt-BR package, with the source's casing. */
   rotulo: string;
-  /** Segmento da rota; nulo quando a tela não existe aqui (vira "em breve"). */
+  /** Route segment; null when the screen doesn't exist here (shows as "coming soon"). */
   segment: string | null;
   /**
-   * O `ng-show`. Aba escondida CONTINUA na fileira, com `hidden` — é o que
-   * `ng-hide` faz, e importa: o `.bds-tab:not(:last-child)` conta a escondida,
-   * então com o GoodData fora a última visível ainda leva os 32px à direita.
+   * The `ng-show`. A hidden tab STAYS in the row, with `hidden` — that's what
+   * `ng-hide` does, and it matters: `.bds-tab:not(:last-child)` counts the hidden
+   * one, so with GoodData out, the last visible tab still gets the 32px on the
+   * right.
    */
   visivel: boolean;
 }
 
 /*
- * A ordem é a do template. O Gerenciador é um `<iframe>` de outro aplicativo
- * (`DATA_EXTRACTOR_FRAME_URL`); o ZIP 9 trouxe esse aplicativo e ele vive na
- * rota filha `gerenciador-de-relatorios`. GoodData não aparece no contrato.
+ * The order matches the template. The Manager is an `<iframe>` from another
+ * application (`DATA_EXTRACTOR_FRAME_URL`); ZIP 9 brought that application in, and
+ * it lives at the child route `gerenciador-de-relatorios`. GoodData doesn't appear
+ * in the contract.
  */
 const CATALOGO: readonly (Omit<Aba, 'visivel'> & {
   mostra: (f: AnalyticsFlags, cluster: string) => boolean;

@@ -7,8 +7,7 @@ import { api } from '../lib/api';
 import { useRead } from '../lib/query';
 
 /**
- * O menu do monitoramento mantém a rota de operação da Gestão, mas usa o mesmo
- * cartão do Desk: a Blip mostra um único `close-modal` nos dois pontos.
+ * The Monitoring menu keeps the Gestão operation route but reuses Desk's closing card because Blip shows one `close-modal` in both places.
  */
 export function ModalFinalizarMonitoring({
   linha,

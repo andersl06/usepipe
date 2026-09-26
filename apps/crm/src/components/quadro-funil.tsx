@@ -7,31 +7,33 @@ import { Etiqueta, Seletor } from '@pipe/ui';
 import { moneyCurto, numero } from '../lib/format';
 
 /**
- * Quadro do funil, com arraste entre fases.
+ * Funnel board, with drag between stages.
  *
- * O arraste usa a API nativa de drag and drop do navegador — nenhuma biblioteca.
- * Quem não arrasta usa o seletor de fase dentro do cartão, que é a mesma ação por
- * teclado: quadro sem alternativa acessível é quadro que exclui parte do time.
+ * Dragging uses the browser's native drag-and-drop API — no library. Whoever
+ * doesn't drag uses the stage selector inside the card, which is the same
+ * action via keyboard: a board with no accessible alternative is a board that
+ * excludes part of the team.
  *
- * O cartão chega com o valor já formatado *e* o número cru: o formatado é o que
- * aparece, o cru é o que soma o total da coluna enquanto o servidor não responde.
+ * The card arrives with the value already formatted *and* the raw number: the
+ * formatted one is what shows, the raw one is what sums the column's total
+ * while the server hasn't answered yet.
  *
- * O que a leitura do quadro do Twenty mudou aqui:
+ * What reading Twenty's board changed here:
  *
- * - **Cabeçalho de coluna grudado no topo.** Com dezesseis cartões, rolar a
- *   coluna fazia o nome da fase e o total saírem da tela, e o quadro virava uma
- *   lista de cartões sem colunas.
- * - **O seletor de fase só aparece no hover ou no foco.** Eles usam a mesma
- *   técnica (largura máxima animada, não `display:none`) e pela mesma razão: um
- *   controle repetido em cada cartão é ruído em repouso. Como o gatilho inclui
- *   `:focus-within`, o caminho do teclado continua inteiro.
- * - **Coluna vazia diz que está vazia.** Antes era um retângulo em branco, que
- *   se lê como "ainda carregando" e não como "não há nada aqui".
+ * - **Column header pinned to the top.** With sixteen cards, scrolling the
+ *   column pushed the stage name and total off screen, and the board turned
+ *   into a list of cards with no columns.
+ * - **The stage selector only shows on hover or focus.** They use the same
+ *   technique (animated max-width, not `display:none`) and for the same reason:
+ *   a control repeated on every card is noise at rest. Since the trigger
+ *   includes `:focus-within`, the keyboard path stays whole.
+ * - **An empty column says it's empty.** It used to be a blank rectangle, which
+ *   reads as "still loading" and not as "there's nothing here".
  *
- * O que NÃO copiamos: o indicador de inserção entre cartões. Ele promete uma
- * ordem dentro da coluna, e a nossa oportunidade não guarda posição — a coluna
- * é ordenada por valor pelo servidor. Desenhar o indicador seria prometer um
- * controle que a escrita não tem.
+ * What we did NOT copy: the insertion indicator between cards. It promises an
+ * order within the column, and our opportunity doesn't store a position — the
+ * column is sorted by value on the server. Drawing the indicator would promise
+ * a control the write doesn't have.
  */
 
 export interface CardView {
@@ -41,7 +43,7 @@ export interface CardView {
   value: string;
   detalhe: string;
   fase: string;
-  /** Dias de atraso do fechamento previsto, ou `null` quando não venceu. */
+  /** Days late on the expected close date, or `null` when it hasn't passed. */
   diasVencido: number | null;
 }
 
@@ -94,9 +96,9 @@ export function QuadroFunil({ fases, cards }: Props) {
             }}
           >
             {/*
-              O total fica no topo, não no rodapé do mockup: com dezesseis cartões na
-              coluna, o número do rodapé nasce fora da tela e ninguém o vê.
-            */}
+ * The total stays at the top, not at the bottom like the mockup: with sixteen
+ * cards in the column, a bottom number is born off-screen and nobody sees it.
+ */}
             <header>
               <span className="fase">{fase}</span>
               <span className="c" title={`${numero(daFase.length)} oportunidades, ${moneyCurto(total)} em jogo`}>
@@ -121,18 +123,20 @@ export function QuadroFunil({ fases, cards }: Props) {
                 onDragEnd={() => setArrastando(null)}
               >
                 <b>
-                  {/* O cartão leva à ficha da PRÓPRIA oportunidade, e não mais à do
-                      lead: a negociação agora tem endereço, e é o dela que se cola
-                      no chat quando alguém pergunta por esta negociação. */}
+                  {/*
+ * The card leads to the opportunity's OWN record now, not the lead's anymore:
+ * the deal now has an address, and it's that address that gets pasted into chat
+ * when someone asks about this deal.
+ */}
                   <Link href={`/opportunities/${c.id}`}>{c.nome}</Link>
                 </b>
                 <span className="val">{c.value}</span>
                 <span className="ow">{c.detalhe}</span>
                 {/*
-                  A única cor do quadro. Fechamento previsto no passado com a
-                  oportunidade ainda aberta é a coisa que alguém resolve hoje —
-                  ou fecha, ou remarca. Tudo o mais aqui é categoria.
-                */}
+ * The board's only color. An expected close date in the past on an opportunity
+ * that's still open is the thing someone needs to act on today — either close
+ * it or reschedule it. Everything else here is a category.
+ */}
                 {c.diasVencido !== null ? (
                   <span>
                     <Etiqueta tom="alerta">
@@ -141,11 +145,11 @@ export function QuadroFunil({ fases, cards }: Props) {
                   </span>
                 ) : null}
                 {/*
-                  O seletor é a alternativa de teclado ao arraste, e é ele que
-                  faz o quadro não excluir metade do time. Fica recolhido em
-                  repouso e abre no hover ou no foco: recolhido por altura
-                  animada, nunca por `display:none`, senão o foco não o alcança.
-                */}
+ * The selector is the keyboard alternative to dragging, and it's what keeps the
+ * board from excluding half the team. It stays collapsed at rest and opens on
+ * hover or focus: collapsed via animated height, never via `display:none`, or
+ * focus couldn't reach it.
+ */}
                 <div className="acao">
                   <Seletor
                     value={c.fase}

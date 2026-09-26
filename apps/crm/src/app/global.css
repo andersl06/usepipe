@@ -1,31 +1,22 @@
-/* ==========================================================================
-   Pipe CRM — só o que é do CRM.
+/*
+ * ==========================================================================
+ *    Pipe CRM — only what belongs to the CRM.
+ *
+ *    Tokens, resets and primitives (.btn, .etiqueta, .card, .tblwrap, .tblhead, .tabs, table/th/td, .iconbtn, .vazio, .lbl, .num, .p-cabecalho) live in `@pipe/ui`, imported before this sheet in the root layout.
+ *
+ *    This sheet does NOT declare **any** color of its own and no longer uses the bridge of old names (`--ground`, `--ink`, `--moss`, `--terracotta`, ...): every value here comes from a package token, named by its role.
+ *
+ *    Two rules this sheet exists to enforce, which it was breaking:
+ *
+ *    - One family in the body. `'IBM Plex Mono'` used to be hand-written in thirteen rules, several of them in text that isn't a number (phase name, field label, count next to a label). Now it's only where there is a tabular number, and always via `var(--p-fonte-mono)`.
+ *    - Color is for what demands action. The green of the positive point and the red of the negative stay on the score panel, because there color IS the information. Outside of it, whatever paints is the status: stalled lead, overdue closing, disqualified lead.
+ *    ==========================================================================
+ */
 
-   Token, reset e primitivos (.btn, .etiqueta, .card, .tblwrap, .tblhead,
-   .tabs, table/th/td, .iconbtn, .vazio, .lbl, .num, .p-cabecalho) vivem em
-   `@pipe/ui`, importado antes desta folha no layout raiz.
-
-   Esta folha não declara **nenhuma** cor própria e não usa mais a ponte de
-   nomes antigos (`--ground`, `--ink`, `--moss`, `--terracotta`, ...): todo
-   valor daqui vem de um token do pacote, com o nome de papel dele.
-
-   Duas regras que esta folha existe para obedecer, e que ela quebrava:
-
-   - Uma família no corpo. `'IBM Plex Mono'` aparecia escrito à mão em treze
-     regras, várias delas em texto que não é número (nome de fase, rótulo de
-     campo, contagem ao lado de rótulo). Ficou só onde há número tabular, e
-     sempre por `var(--p-fonte-mono)`.
-   - Cor é para o que exige ação. O verde do ponto positivo e o vermelho do
-     negativo continuam no painel do score, porque ali a cor é a informação.
-     Fora dali, quem pinta é o estado: lead parado, fechamento vencido,
-     lead desqualificado.
-   ========================================================================== */
-
-/* ==================================================== bloco com cabeçalho
-   `.tblwrap` do pacote dá a caixa (borda, raio, recorte, superfície). O que
-   falta é a divisória do cabeçalho, e é só isso que mora aqui. Antes eram
-   quatro caixas locais quase iguais — `.bloco-card`, `.funnel`, `.explain` e
-   `.destaque` — com três raios diferentes entre elas. */
+/*
+ * ==================================================== block with header
+ *    The package's `.tblwrap` gives the box (border, radius, clipping, surface). What's missing is the header divider, and that's all that lives here. There used to be four nearly identical local boxes — `.bloco-card`, `.funnel`, `.explain` and `.destaque` — with three different radii among them.
+ */
 .tblwrap > header {
   display: flex;
   align-items: baseline;
@@ -99,23 +90,14 @@
   white-space: nowrap;
 }
 
-/* ============================================================== o funil
-   O quadro rola por dentro, nos dois eixos, e é essa a mudança que faz o
-   cabeçalho de fase grudar: `position: sticky` se orienta pelo ancestral que
-   rola, e enquanto quem rolava era a PÁGINA o cabeçalho da coluna não tinha a
-   que se agarrar. É a mesma decisão do quadro do Twenty, que também dá uma
-   região de rolagem própria ao board.
-
-   O ganho não é só o cabeçalho: a linha de resumo (39 oportunidades,
-   R$ 669 mil) para de sair da tela quando alguém desce numa coluna de
-   dezesseis cartões, e ela é a razão de a tela existir.
-
-   O teto de altura é o único número arbitrário desta folha: 19rem é o cromo
-   acima do quadro (barra do aplicativo, título, resumo e cabeçalho do cartão)
-   medido nesta tela. Se essa faixa mudar, este valor muda junto — não há como
-   derivá-lo em CSS sem tornar `.p-conteudo` uma grade de altura fixa, e essa
-   folha é do pacote. `min-height` segura o caso da janela baixa, em que o
-   cálculo daria uma faixa menor que um cartão. */
+/*
+ * ============================================================== the funnel
+ *    The board scrolls internally, on both axes, and that change is what makes the phase header stick: `position: sticky` orients itself by the scrolling ancestor, and while the PAGE was what scrolled the column header had nothing to cling to. It's the same decision as Twenty's board, which also gives the board its own scroll region.
+ *
+ *    The gain isn't just the header: the summary line (39 deals, R$ 669k) stops leaving the screen when someone scrolls down a column of sixteen cards, and that line is the reason the screen exists.
+ *
+ *    The height ceiling is the only arbitrary number in this sheet: 19rem is the chrome above the board (app bar, title, summary and card header) measured on this screen. If that band changes, this value changes with it — there's no way to derive it in CSS without turning `.p-conteudo` into a fixed-height grid, and that sheet belongs to the package. `min-height` covers the short-window case, where the calculation would give a band smaller than one card.
+ */
 .lanes {
   display: flex;
   gap: 1px;
@@ -127,8 +109,9 @@
   overscroll-behavior: contain;
 }
 
-/* Sem folga no topo: ela é do cabeçalho grudado, senão sobra uma faixa de
-   fundo da coluna acima dele por onde os cartões passam à mostra. */
+/*
+ * No gap at the top: it belongs to the stuck header, otherwise a strip of the column's background above it would show through as cards pass.
+ */
 .lane {
   background: var(--p-superficie-1);
   min-width: 186px;
@@ -139,20 +122,20 @@
   gap: var(--p-e-2);
 }
 
-/* O alvo do arraste precisa se anunciar, senão o vendedor solta o cartão no
-   vazio. É estado ativo de uma ação em curso: é onde a marca pode entrar. */
+/*
+ * The drop target needs to announce itself, or the salesperson drops the card into the void. It's the active state of an action in progress: it's where the brand color can enter.
+ */
 .lane.alvo {
   background: var(--p-marca-suave);
   outline: 2px dashed var(--p-marca);
   outline-offset: -4px;
 }
 
-/* O cabeçalho gruda ao rolar. Com dezesseis cartões na coluna, o nome da fase
-   e o total saíam da tela e o quadro virava uma lista de cartões sem colunas.
-
-   `top: 0` porque quem rola é `.lanes`, que já começa abaixo de toda a barra
-   do aplicativo. O `z-index` fica em 2: acima dos cartões da própria coluna e
-   bem abaixo da barra do aplicativo, que está em 20. */
+/*
+ * The header sticks while scrolling. With sixteen cards in the column, the phase name and the total used to scroll off screen and the board turned into a list of cards with no columns.
+ *
+ *    `top: 0` because the scrolling ancestor is `.lanes`, which already starts below the entire app bar. `z-index` is set to 2: above the column's own cards and well below the app bar, which is at 20.
+ */
 .lane header {
   position: sticky;
   top: 0;
@@ -165,7 +148,7 @@
   border-bottom: 1px solid var(--p-linha);
 }
 
-/* Nome de fase é nome, não rótulo de seção: família do corpo, caixa normal. */
+/* Phase name is a name, not a section label: body family, normal case. */
 .lane header .fase {
   font-size: var(--p-t-md);
   font-weight: var(--p-peso-forte);
@@ -181,8 +164,9 @@
   cursor: help;
 }
 
-/* Coluna vazia diz que está vazia. Retângulo em branco se lê como carregando,
-   e não como nada aqui. */
+/*
+ * Empty column says it's empty. A blank rectangle reads as loading, not as nothing here.
+ */
 .lane-vazia {
   margin: var(--p-e-2) 0;
   font-size: var(--p-t-sm);
@@ -228,11 +212,10 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* O seletor de fase, recolhido em repouso.
-   Recolhe por altura e opacidade, NUNCA por `display:none` nem `visibility`:
-   o elemento precisa continuar no fluxo de foco, senão o Tab pula o único
-   caminho de teclado que o quadro tem. `:focus-within` na coluna é o que traz
-   ele de volta quando o foco chega. */
+/*
+ * The phase selector, collapsed at rest.
+ *    Collapses by height and opacity, NEVER by `display:none` or `visibility`: the element needs to stay in the focus flow, or Tab skips the board's only keyboard path. `:focus-within` on the column is what brings it back when focus arrives.
+ */
 .opp .acao {
   max-height: 0;
   opacity: 0;
@@ -248,9 +231,9 @@
   opacity: 1;
 }
 
-/* Quem pediu menos movimento recebe o seletor sempre visível: a alternativa
-   seria um controle que aparece sem transição, piscando a cada passada do
-   ponteiro. */
+/*
+ * Whoever asked for reduced motion gets the selector always visible: the alternative would be a control that appears without a transition, flashing on every pointer pass.
+ */
 @media (prefers-reduced-motion: reduce) {
   .opp .acao {
     max-height: 40px;
@@ -259,11 +242,10 @@
   }
 }
 
-/* ================================================ o painel que explica o score
-   A ÚNICA tela do CRM em que a cor não indica ação, e ela fica: aqui o verde
-   e o vermelho SÃO a informação — que regra somou e que regra tirou. É a tela
-   que justifica o produto, e sem os dois sinais ela vira uma lista de números
-   sem direção. Cor de sucesso e de erro do pacote, não hex solto. */
+/*
+ * ================================================ the panel that explains the score
+ *    The ONLY CRM screen where color doesn't indicate an action, and it stays: here green and red ARE the information — which rule added and which subtracted. It's the screen that justifies the product, and without both signals it becomes a list of numbers without direction. Success and error color from the package, not a loose hex.
+ */
 .rules {
   list-style: none;
   margin: 0;
@@ -313,8 +295,9 @@
   color: var(--p-erro-conteudo);
 }
 
-/* O total. O número não é colorido: ele é o assunto, e o assunto não precisa
-   de cor para ser encontrado — precisa de tamanho. */
+/*
+ * The total. The number isn't colored: it's the subject, and the subject doesn't need color to be found — it needs size.
+ */
 .tot {
   display: flex;
   align-items: center;
@@ -367,8 +350,9 @@
   border-bottom: 0;
 }
 
-/* Rótulo de campo na família do corpo e em caixa normal. A monoespaçada em
-   caixa alta é assinatura da marca, mas repetida em toda linha vira barulho. */
+/*
+ * Field label in the body family and normal case. Uppercase monospace is the brand's signature, but repeated on every line it becomes noise.
+ */
 .campos .k {
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-fantasma);
@@ -383,21 +367,20 @@
   overflow-wrap: anywhere;
 }
 
-/* =========================================== célula que se edita no lugar
-   O `record-inline-cell` do Twenty, medido no fork em
-   `RecordInlineCellDisplayMode.tsx` e `RecordInlineCellEditMode.tsx`:
-
-     folga lateral do valor      4px   (spacing[1], multiplicador 4px)
-     folga vertical do valor     2px
-     altura mínima em leitura   16px
-     altura do campo em edição  24px
-     raio da caixa               4px   (radius.sm; o nosso --p-r-sm é 5px)
-     ícone do botão de editar   16px
-     folga entre valor e ícone   4px
-
-   A folga lateral vem com margem negativa do mesmo tamanho: sem ela o texto
-   anda 4px ao virar editável, e campo que pula ao ser tocado é o que faz
-   alguém desconfiar de que gravou errado. */
+/*
+ * =========================================== cell that edits in place
+ *    Twenty's `record-inline-cell`, measured in the fork's `RecordInlineCellDisplayMode.tsx` and `RecordInlineCellEditMode.tsx`:
+ *
+ *      value side padding      4px   (spacing[1], 4px multiplier)
+ *      value vertical padding   2px
+ *      minimum read height     16px
+ *      edit-mode field height  24px
+ *      box radius               4px   (radius.sm; our --p-r-sm is 5px)
+ *      edit-button icon        16px
+ *      gap between value/icon   4px
+ *
+ *    The side padding comes with a negative margin of the same size: without it the text shifts 4px when it becomes editable, and a field that jumps when touched is what makes someone doubt whether it saved correctly.
+ */
 .inline {
   display: inline-flex;
   align-items: center;
@@ -433,15 +416,16 @@
   outline-offset: 1px;
 }
 
-/* Campo vazio: mostra o próprio rótulo em tinta fantasma, que é o
-   "Empty" deles. Convite a clicar sem precisar de ícone nenhum. */
+/*
+ * Empty field: shows the label itself in ghost ink, which is their "Empty". An invitation to click without needing any icon.
+ */
 .inline .ver.sem {
   color: var(--p-conteudo-fantasma);
 }
 
-/* O lápis só aparece no hover da linha. Ele ocupa lugar o tempo todo
-   (`visibility`, não `display`) para o valor não encolher quando o ponteiro
-   entra — o mesmo motivo da margem negativa acima. */
+/*
+ * The pencil only appears on row hover. It occupies space at all times (`visibility`, not `display`) so the value doesn't shrink when the pointer enters — same reason as the negative margin above.
+ */
 .inline .lapis {
   display: flex;
   align-items: center;
@@ -456,14 +440,12 @@
   visibility: visible;
 }
 
-/* A mesma célula dentro da listagem. Duas diferenças, e só duas:
-   - a célula da tabela já tem recuo próprio, então o campo de edição ocupa a
-     largura toda dela em vez de a do valor;
-   - a queixa não pode quebrar a linha da tabela em duas alturas diferentes, e
-     por isso ela vira dica sobre a célula seguinte em vez de empurrar a linha.
-   O resto (o lápis no hover, o Enter que grava, o Esc que desiste) é o mesmo
-   comportamento da ficha, e é de propósito: quem aprendeu num lugar já sabe o
-   outro. */
+/*
+ * The same cell within the listing. Two differences, only two:
+ *    - the table cell already has its own indent, so the edit field takes its full width instead of the value's;
+ *    - the error can't break the table row into two different heights, so it becomes a tooltip on the next cell instead of pushing the row.
+ *    The rest (the hover pencil, Enter to save, Esc to cancel) is the same behavior as the record page, and it's intentional: whoever learned it in one place already knows the other.
+ */
 .listagem .inline {
   position: relative;
   width: 100%;
@@ -481,13 +463,14 @@
   white-space: normal;
 }
 
-/* A célula que hospeda edição não pode recortar o `<select>` nem a dica. */
+/* The cell hosting the edit can't clip the `<select>` or the tooltip. */
 .listagem td:has(.inline) {
   overflow: visible;
 }
 
-/* Gravando: o valor novo já está na tela, e a opacidade diz que ainda não
-   voltou do servidor. Não é bloqueio — só um aviso de que está em curso. */
+/*
+ * Saving: the new value is already on screen, and the opacity says it hasn't come back from the server yet. It's not a lock — just a notice that it's in progress.
+ */
 .inline.gravando .ver {
   opacity: 0.55;
 }
@@ -505,9 +488,9 @@
   outline: none;
 }
 
-/* A queixa quebra a linha e fica embaixo, em vermelho. Enquanto ela está na
-   tela, o valor ao lado já voltou a ser o anterior: a mensagem explica uma
-   coisa que a pessoa consegue ver. */
+/*
+ * The error breaks the line and sits below, in red. While it's on screen, the value next to it has already reverted to the previous one: the message explains something the person can see.
+ */
 .inline .queixa {
   flex-basis: 100%;
   font-size: var(--p-t-sm);
@@ -521,7 +504,7 @@
   padding: var(--p-e-3) var(--p-e-4);
 }
 
-/* Respostas de formulário: agrupadas por formulário e versão, nunca soltas. */
+/* Form responses: grouped by form and version, never loose. */
 .form-versao {
   border-bottom: 1px solid var(--p-linha);
 }
@@ -561,11 +544,10 @@
   color: var(--p-conteudo);
 }
 
-/* ================================================ painel: a linha de resumo
-   Sem caixa, sem borda, tipografia menor que a do funil. É legenda, não
-   assunto: quando cinco cartões têm o peso do funil, o olho não sabe onde
-   começar. A variação contra o mês anterior vem com sinal, não com cor —
-   um mês pior não é um erro que alguém resolva clicando. */
+/*
+ * ================================================ panel: the summary line
+ *    No box, no border, smaller typography than the funnel's. It's a caption, not the subject: when five cards carry the funnel's weight, the eye doesn't know where to start. The variation against the previous month comes with a sign, not a color — a worse month isn't a mistake for someone to fix by clicking.
+ */
 .resumo {
   display: flex;
   flex-wrap: wrap;
@@ -660,13 +642,13 @@
   align-items: start;
 }
 
-/* =========================================================== lista: agrupamento
-   O cabeçalho do grupo é a resposta: quando a lista está dobrada por uma
-   coluna, essa coluna sai da tabela — repeti-la em cada linha é dizer a mesma
-   coisa duas vezes e roubar largura de quem ainda tem algo a dizer. */
-/* O rótulo do seletor de agrupamento. Nome próprio, e não `.campo`: `.campo` é
-   o primitivo de entrada do pacote, e usá-lo num `<label>` dava a ele borda e
-   fundo de caixa de texto. */
+/*
+ * =========================================================== list: grouping
+ *    The group header is the answer: when the list is grouped by a column, that column leaves the table — repeating it on every row says the same thing twice and steals width from whoever still has something to say.
+ */
+/*
+ * The grouping selector's label. Its own name, not `.campo`: `.campo` is the package's input primitive, and using it on a `<label>` gave it a text-box border and background.
+ */
 .agrupador {
   display: flex;
   align-items: center;
@@ -688,7 +670,7 @@ tr.grupo th {
   border-top: 1px solid var(--p-linha);
 }
 
-/* Contagem ao lado de um rótulo. Monoespaçada porque é número. */
+/* Count next to a label. Monospace because it's a number. */
 .qt {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
@@ -696,23 +678,24 @@ tr.grupo th {
   color: var(--p-conteudo-fantasma);
 }
 
-/* ============================================================= texto de tela
-   `code` é o único lugar da interface com monoespaçada que não é número: é
-   comando de terminal literal, e o elemento nativo já diz isso ao leitor de
-   tela. Não existe uma classe `.mono` para tentar a sorte com o resto. */
+/*
+ * ============================================================= screen text
+ *    `code` is the only place in the interface with monospace that isn't a number: it's a literal terminal command, and the native element already tells the screen reader that. There's no `.mono` class to try its luck with the rest.
+ */
 code {
   font-family: var(--p-fonte-mono);
   font-size: var(--p-t-sm);
 }
 
-/* Primeira coluna de tabela: o nome do registro é o que se procura na varredura. */
+/* First table column: the record's name is what you search for while scanning. */
 .forte {
   color: var(--p-conteudo);
   font-weight: var(--p-peso-medio);
 }
 
-/* Condição de regra em português. Quebra linha e tem teto de largura, senão
-   uma condição composta empurra as outras seis colunas para a rolagem. */
+/*
+ * Rule condition in Portuguese. Wraps and has a max width, otherwise a compound condition pushes the other six columns into scrolling.
+ */
 .condicao {
   display: inline-block;
   white-space: normal;
@@ -725,13 +708,12 @@ code {
   }
 }
 
-/* ================================================ esqueleto de carregamento
-   A tabela com a altura certa antes do dado chegar, para a tela não pular
-   quando ele chega. O pulso é lento (1,4s) e de baixo contraste: animação de
-   espera que chama atenção compete com o conteúdo que está prestes a entrar.
-
-   `.barra` é o único desenho aqui — a estrutura reaproveita `table`, `td` e
-   `.campos`, que já têm a densidade certa. */
+/*
+ * ================================================ loading skeleton
+ *    The table at the right height before the data arrives, so the screen doesn't jump when it does. The pulse is slow (1.4s) and low-contrast: a waiting animation that grabs attention competes with the content about to arrive.
+ *
+ *    `.barra` is the only shape drawn here — the structure reuses `table`, `td` and `.campos`, which already have the right density.
+ */
 .barra {
   display: block;
   height: 9px;
@@ -750,25 +732,28 @@ code {
   }
 }
 
-/* Quem pediu menos movimento no sistema não recebe o pulso. A barra continua
-   lá — é ela que segura a altura da tela — só parada. */
+/*
+ * Whoever asked for reduced motion in the system doesn't get the pulse. The bar stays — it's what holds the screen's height — just still.
+ */
 @media (prefers-reduced-motion: reduce) {
   .barra {
     animation: none;
   }
 }
 
-/* ================================================================ erro e vazio
-   O botão dentro do bloco de estado. Sem isto ele herda o `align-items:center`
-   do `.vazio` e estica na largura toda. */
+/*
+ * ================================================================ error and empty
+ *    The button inside the state block. Without this it inherits `align-items:center` from `.vazio` and stretches to full width.
+ */
 .acoes-erro {
   display: flex;
   gap: var(--p-e-2);
   margin-top: var(--p-e-2);
 }
 
-/* Texto só para leitor de tela. O esqueleto é `aria-hidden`, então alguém
-   precisa dizer em voz alta que a tela está carregando. */
+/*
+ * Screen-reader-only text. The skeleton is `aria-hidden`, so something needs to announce out loud that the screen is loading.
+ */
 .sr {
   position: absolute;
   width: 1px;
@@ -781,15 +766,12 @@ code {
   border: 0;
 }
 
-/* ==================================================== a lista de registros
-   Ordenação por coluna, coluna redimensionável e seleção múltipla. A leitura
-   do Twenty deu a mecânica; as medidas continuam sendo as nossas (linha de
-   36px, célula 8px/12px, cabeçalho em caixa alta na família do corpo).
-
-   `table-layout: fixed` é obrigatório: sem ele o navegador ignora a largura
-   do `<col>` e negocia sozinho, e a coluna arrastada volta ao lugar. Com ele,
-   a última coluna do `<colgroup>` fica sem largura declarada e absorve a
-   sobra da tela larga, para que as outras mantenham o valor arrastado. */
+/*
+ * ==================================================== the record list
+ *    Column sorting, resizable columns and multiple selection. Reading Twenty gave the mechanics; the measurements remain ours (36px row, 8px/12px cell, uppercase header in the body family).
+ *
+ *    `table-layout: fixed` is mandatory: without it the browser ignores the `<col>` width and negotiates on its own, and the dragged column returns to its place. With it, the last column of the `<colgroup>` is left without a declared width and absorbs the leftover space on wide screens, so the others keep their dragged value.
+ */
 .listagem {
   table-layout: fixed;
   min-width: 100%;
@@ -800,7 +782,7 @@ code {
   text-overflow: ellipsis;
 }
 
-/* ----------------------------------------------------- cabeçalho que ordena */
+/* ----------------------------------------------------- sortable header */
 .listagem th {
   position: relative;
 }
@@ -817,8 +799,9 @@ code {
   color: var(--p-conteudo);
 }
 
-/* A seta reserva a própria largura mesmo vazia: sem isso o rótulo desliza
-   para o lado a cada clique, e a coluna parece piscar. */
+/*
+ * The arrow reserves its own width even when empty: without this the label slides sideways on every click, and the column seems to flicker.
+ */
 .listagem th .seta {
   display: inline-block;
   min-width: 9px;
@@ -830,9 +813,10 @@ code {
   color: var(--p-conteudo);
 }
 
-/* --------------------------------------------------------- alça de arraste
-   Alvo de 9px encostado na divisa da coluna, com 1px visível. Alvo estreito
-   demais é alça que ninguém pega; larga demais rouba o clique do rótulo. */
+/*
+ * --------------------------------------------------------- drag handle
+ *    A 9px target flush against the column border, with 1px visible. Too narrow a target is a handle no one can grab; too wide steals the label's click.
+ */
 .listagem th .redim {
   position: absolute;
   top: 0;
@@ -866,17 +850,17 @@ code {
   outline: none;
 }
 
-/* Enquanto arrasta, a coluna inteira se anuncia: sem isso a pessoa perde de
-   vista qual coluna está mudando quando o cursor sai do cabeçalho. */
+/*
+ * While dragging, the whole column announces itself: without this the person loses track of which column is changing when the cursor leaves the header.
+ */
 .listagem th.arrastando {
   background: var(--p-superficie-1);
 }
 
-/* -------------------------------------------------------- seleção múltipla
-   32px é a largura da coluna de caixa no Twenty, e cai bem na nossa linha de
-   36px. A caixa some no repouso e volta no hover ou quando marcada: uma
-   coluna de caixas vazias é a primeira coisa que o olho tem de aprender a
-   ignorar numa lista. */
+/*
+ * -------------------------------------------------------- multiple selection
+ *    32px is the checkbox column's width in Twenty, and it fits well with our 36px row. The checkbox disappears at rest and returns on hover or when checked: a column of empty checkboxes is the first thing the eye has to learn to ignore in a list.
+ */
 .listagem .sel {
   width: 32px;
   padding-left: var(--p-e-3);
@@ -907,23 +891,18 @@ code {
   background: var(--p-superficie-1);
 }
 
-/* A linha marcada usa a marca em versão suave. É estado ativo de uma ação em
-   curso, que é onde a cor de marca pode entrar. */
+/*
+ * The marked row uses the brand color in a soft version. It's the active state of an ongoing action, which is where the brand color can enter.
+ */
 .listagem tbody tr.marcada td {
   background: var(--p-marca-suave);
 }
 
-/* A linha sob o cursor do teclado (`j`/`k`). A forma é a deles, medida em
-   `record-table-row/components/RecordTableRowDiv.tsx`: fundo mais escuro que o
-   repouso, mais um fio de 1px embaixo em linha média. Um fio, e não contorno
-   inteiro, porque a tabela já tem linhas horizontais — o realce engrossa a que
-   já existe em vez de desenhar uma caixa nova.
-
-   A cor é que muda: eles usam a marca (`accent.quaternary`), nós usamos
-   superfície. Marca aqui colidiria com a linha MARCADA, que já é marca suave, e
-   as duas coisas precisam ser distinguíveis — uma é onde o olho está, a outra é
-   um compromisso que a pessoa assumiu. O fio embaixo é o que sobrevive quando
-   as duas coincidem. */
+/*
+ * The row under keyboard focus (`j`/`k`). The shape is theirs, measured in `record-table-row/components/RecordTableRowDiv.tsx`: a darker background than at rest, plus a 1px rule at the bottom in the medium line. A single rule, not a full outline, because the table already has horizontal lines — the highlight thickens the one that already exists instead of drawing a new box.
+ *
+ *    The color is what changes: they use the brand color (`accent.quaternary`), we use surface. Brand color here would collide with the MARKED row, which is already a soft brand color, and the two need to be distinguishable — one is where the eye is, the other is a commitment the person has made. The bottom rule is what survives when the two coincide.
+ */
 .listagem tbody tr.focada td {
   background: var(--p-superficie-2);
   box-shadow: inset 0 -1px 0 var(--p-linha-media);
@@ -933,9 +912,10 @@ code {
   background: var(--p-marca-suave);
 }
 
-/* --------------------------------------------- a barra de ação em massa
-   Só existe quando há seleção. Presa embaixo e centrada, longe do texto que
-   a pessoa está lendo. */
+/*
+ * --------------------------------------------- the bulk action bar
+ *    Only exists when there's a selection. Stuck at the bottom and centered, away from the text the person is reading.
+ */
 .em-massa {
   position: fixed;
   left: 50%;
@@ -961,8 +941,9 @@ code {
   margin-right: var(--p-e-1);
 }
 
-/* O resultado da ação em massa. Fica acima da tabela porque é resposta a uma
-   coisa que a pessoa acabou de fazer, e resposta abaixo da dobra não é lida. */
+/*
+ * The bulk action result. Sits above the table because it's a response to something the person just did, and a response below the fold isn't read.
+ */
 .recado {
   margin: 0 0 var(--p-e-2);
   padding: var(--p-e-2) var(--p-e-4);
@@ -972,7 +953,7 @@ code {
   border-bottom: 1px solid var(--p-linha);
 }
 
-/* ------------------------------------------------------------ visões salvas */
+/* ------------------------------------------------------------ saved views */
 .visoes {
   display: flex;
   align-items: center;
@@ -988,11 +969,10 @@ code {
   white-space: nowrap;
 }
 
-/* ------------------------------------------------------- filtro por coluna
-   O menu de dois passos do Twenty (campo → valor), com as medidas do painel
-   de campos deles: 200px de largura, item de 32px, 4px de recuo lateral.
-   `<details>` nativo abre e fecha, e cada valor é um link — a tela inteira do
-   filtro não tem uma linha de JavaScript. */
+/*
+ * ------------------------------------------------------- column filter
+ *    Twenty's two-step menu (field → value), with the measurements from their fields panel: 200px width, 32px item, 4px side indent. Native `<details>` opens and closes, and each value is a link — the whole filter screen has zero lines of JavaScript.
+ */
 .filtros {
   display: flex;
   align-items: center;
@@ -1071,14 +1051,15 @@ code {
   color: var(--p-conteudo);
 }
 
-/* O valor já escolhido. A marca aqui é estado ativo, que é onde ela pode. */
+/* The already-selected value. The brand color here is the active state, which is where it's allowed to appear. */
 .menu-painel li a[aria-current='true'] {
   background: var(--p-marca-suave);
   color: var(--p-marca-forte);
 }
 
-/* O chip do filtro ativo é o próprio botão de remover: um alvo, uma ação, e
-   nenhum "x" de 8px pedindo pontaria. */
+/*
+ * The active filter chip is itself the remove button: one target, one action, and no 8px "x" asking for precision aim.
+ */
 .filtro-chip {
   display: inline-flex;
   align-items: center;
@@ -1097,13 +1078,12 @@ code {
   background: var(--p-superficie-3);
 }
 
-/* ------------------------------------------------- painel de colunas
-   As medidas são do Twenty, do dropdown de campos: painel de 200px
-   (`GenericDropdownContentWidth.Medium`), item de 32px, 4px de recuo lateral,
-   8px entre alça, rótulo e botão, e raio concêntrico — o do item é o do painel
-   menos o recuo, que é a fórmula deles escrita nos nossos tokens.
-
-   A barra existe só para encostar o botão à direita, acima da tabela. */
+/*
+ * ------------------------------------------------- columns panel
+ *    The measurements are from Twenty's fields dropdown: a 200px panel (`GenericDropdownContentWidth.Medium`), a 32px item, 4px side indent, 8px between handle, label and button, and a concentric radius — the item's is the panel's minus the indent, which is their formula written in our tokens.
+ *
+ *    The bar exists only to push the button to the right, above the table.
+ */
 .barra-lista {
   display: flex;
   justify-content: flex-end;
@@ -1163,9 +1143,9 @@ code {
   white-space: nowrap;
 }
 
-/* A coluna que não se move nem se oculta. Tom apagado e alça sem cursor de
-   arraste: o item continua na lista para dizer que ela É a primeira, e não
-   promete um movimento que não acontece. */
+/*
+ * The column that doesn't move or hide. Muted tone and a drag handle without the drag cursor: the item stays in the list to say it IS the first, without promising a movement that won't happen.
+ */
 .colunas-painel li.travada {
   color: var(--p-conteudo-fantasma);
 }
@@ -1197,8 +1177,9 @@ code {
   outline-offset: 1px;
 }
 
-/* O olho só aparece no item sob o cursor ou com foco dentro — a mesma regra do
-   lápis da célula inline. Uma coluna de ícones em repouso é ruído. */
+/*
+ * The eye icon only appears on the item under the cursor or with focus inside — the same rule as the inline cell's pencil. A column of icons at rest is noise.
+ */
 .colunas-painel .olho {
   display: grid;
   place-items: center;
@@ -1217,8 +1198,9 @@ code {
   opacity: 1;
 }
 
-/* O item sendo arrastado fica apagado, e o que vai receber ganha um fio em
-   cima: dois sinais diferentes para as duas pontas do movimento. */
+/*
+ * The item being dragged turns muted, and the one about to receive it gets a rule on top: two different signals for the two ends of the movement.
+ */
 .colunas-painel li.pegada {
   opacity: 0.45;
 }
@@ -1232,13 +1214,12 @@ code {
   margin-top: var(--p-e-1);
 }
 
-/* ================================================== cabeçalho de destaque
-   A faixa de identidade e a tira de campos principais. O Salesforce chama de
-   "highlight panel" e o Twenty de "identifier bar"; os dois chegaram ao mesmo
-   desenho sem se falarem, o que faz disto regra e não gosto.
-
-   Sem caixa e sem borda de cartão: o destaque é a primeira coisa da tela, e a
-   primeira coisa da tela não precisa de moldura para ser encontrada. */
+/*
+ * ================================================== highlight header
+ *    The identity band and the strip of main fields. Salesforce calls it the "highlight panel" and Twenty the "identifier bar"; the two arrived at the same design without talking to each other, which makes this a rule and not a preference.
+ *
+ *    No box and no card border: the highlight is the first thing on the screen, and the first thing on the screen doesn't need a frame to be found.
+ */
 .destaque {
   display: flex;
   flex-direction: column;
@@ -1284,10 +1265,9 @@ code {
   white-space: nowrap;
 }
 
-/* A tira. Cinco campos, no máximo: é a régua do destaque do Salesforce, e
-   passar disso é deixar de ser destaque. Rótulo em cima, valor embaixo, ao
-   contrário da lateral — aqui a leitura é horizontal e o rótulo precisa sair
-   da frente do número. */
+/*
+ * The strip. Five fields, at most: it's Salesforce's rule for the highlight, and going over that stops being a highlight. Label on top, value below, unlike the sidebar — here the reading is horizontal and the label needs to get out of the number's way.
+ */
 .destaque .principais {
   display: flex;
   flex-wrap: wrap;
@@ -1319,8 +1299,9 @@ code {
   gap: var(--p-e-2);
 }
 
-/* O score é número, e número usa a monoespaçada tabular. É o único valor da
-   tira que a recebe. */
+/*
+ * The score is a number, and numbers use tabular monospace. It's the only value in the strip that gets it.
+ */
 .destaque dd.n {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
@@ -1328,8 +1309,9 @@ code {
   font-weight: var(--p-peso-forte);
 }
 
-/* O complemento do valor: a faixa ao lado do score, os dias ao lado da fase.
-   Menor e apagado, porque é qualificação e não o dado. */
+/*
+ * The value's complement: the range next to the score, the days next to the phase. Smaller and muted, because it's context, not the data.
+ */
 .destaque dd em {
   font-style: normal;
   font-family: var(--p-fonte);
@@ -1338,10 +1320,10 @@ code {
   color: var(--p-conteudo-fantasma);
 }
 
-/* ================================================ seção que abre e fecha
-   `<details>` nativo. O navegador já sabe abrir, fechar, responder ao teclado
-   e contar para o leitor de tela; reescrever isso em React seria trocar zero
-   linha por trinta e perder a busca na página. */
+/*
+ * ================================================ section that opens and closes
+ *    Native `<details>`. The browser already knows how to open, close, respond to the keyboard and announce it to screen readers; rewriting this in React would trade zero lines for thirty and lose in-page search.
+ */
 .secao > summary {
   display: flex;
   align-items: center;
@@ -1365,8 +1347,9 @@ code {
   font-weight: var(--p-peso-forte);
 }
 
-/* A seta, desenhada em CSS. Um chevron de 5px que gira ao abrir: um SVG só
-   para isto seria uma requisição a mais por um triângulo. */
+/*
+ * The arrow, drawn in CSS. A 5px chevron that rotates on open: an SVG just for this would be one more request for a triangle.
+ */
 .secao > summary::after {
   content: '';
   margin-left: auto;
@@ -1386,9 +1369,10 @@ code {
   background: var(--p-superficie-1);
 }
 
-/* ========================================================= linha do tempo
-   Trilho de 26px com o ícone do tipo e um fio ligando um evento ao seguinte.
-   É o que faz a coluna ser lida como sequência em vez de pilha de linhas. */
+/*
+ * ========================================================= timeline
+ *    A 26px rail with the event-type icon and a line connecting one event to the next. It's what makes the column read as a sequence instead of a stack of rows.
+ */
 .tempo section {
   padding: var(--p-e-3) var(--p-e-4) 0;
 }
@@ -1397,7 +1381,7 @@ code {
   padding-bottom: var(--p-e-4);
 }
 
-/* Separador de mês: o nome à esquerda e uma régua ocupando o resto da linha. */
+/* Month separator: the name on the left and a rule filling the rest of the line. */
 .tempo h4 {
   display: flex;
   align-items: center;
@@ -1447,8 +1431,9 @@ code {
   color: var(--p-conteudo-fantasma);
 }
 
-/* O fio usa a linha MÉDIA, não a fina. A fina desaparece com 2px de largura
-   no tema escuro, e um trilho invisível é o mesmo que não ter trilho. */
+/*
+ * The rule uses the MEDIUM line, not the thin one. The thin one disappears at 2px width in dark mode, and an invisible rail is the same as having no rail.
+ */
 .tempo .fio {
   width: 2px;
   flex: 1;
@@ -1482,9 +1467,9 @@ code {
   color: var(--p-conteudo-fantasma);
 }
 
-/* A hora relativa fica à direita, e a absoluta no `title`. "há 3 dias" é o
-   que a pessoa quer saber; a data exata é o que ela confere uma vez a cada
-   vinte. */
+/*
+ * The relative time sits on the right, and the absolute one is in the `title`. "há 3 dias" is what the person wants to know; the exact date is what they check once every twenty times.
+ */
 .tempo .quando {
   margin-left: auto;
   font-size: var(--p-t-sm);
@@ -1493,7 +1478,7 @@ code {
   cursor: help;
 }
 
-/* O resumo do atendimento entra recuado: é texto de máquina, não do vendedor. */
+/* The attendance summary is indented: it's machine-generated text, not the salesperson's own. */
 .tempo .resumo {
   margin: var(--p-e-1) 0 0;
   font-size: var(--p-t-sm);
@@ -1504,18 +1489,18 @@ code {
   border-radius: 0 var(--p-r-sm) var(--p-r-sm) 0;
 }
 
-/* A contagem ao lado do rótulo da aba precisa de um respiro. O primitivo do
-   pacote não declara `gap` no link, e sem ele "Score" e "5" encostam. Local
-   até o pacote abrir; é uma linha que sobe junto quando abrir. */
+/*
+ * The count next to the tab label needs some breathing room. The package's primitive doesn't declare `gap` on the link, and without it "Score" and "5" touch. Local until the package adds it; it's a line that goes away when it does.
+ */
 .tabs a {
   display: inline-flex;
   align-items: baseline;
   gap: var(--p-e-1);
 }
 
-/* O cartão do esqueleto do quadro. Herda a caixa do `.opp` e troca só o que o
-   arraste dava: o cursor e o hover, que não existem em algo que ainda não é
-   um cartão. */
+/*
+ * The board skeleton's card. Inherits `.opp`'s box and only swaps what dragging added: the cursor and the hover, which don't exist on something that isn't a card yet.
+ */
 .esqueleto-cartao {
   cursor: default;
   gap: var(--p-e-2);
@@ -1527,31 +1512,28 @@ code {
   border-color: var(--p-linha);
 }
 
-/* ================================================= o casco do Twenty
-   Medido no código de `twenty-front` e `twenty-ui` do fork, em 07/09/2026.
-
-   A DISPOSIÇÃO É DELES, A TINTA É NOSSA — o mesmo método que a Gestão e o
-   Desk usam com a Blip, agora aplicado ao Twenty.
-
-   O que muda em relação ao que estava aqui: sai o cromo de duas barras do
-   Lightning e entra a LATERAL. No Twenty a navegação é uma coluna à esquerda,
-   redimensionável, e não há barra de abas no topo — a tela de trabalho começa
-   no alto da janela e usa a altura inteira. Numa listagem de 60 leads isso é
-   uma linha e meia a mais por dobra, e é a razão de eles terem escolhido
-   assim.
-
-   Medidas, do código deles:
-   - largura da lateral: 220px (mínimo 180, máximo 350)
-   - item: altura 28px (`spacing[7]`), padding 4px, raio 8px
-   - título de seção: mesma altura de 28px, com o mesmo padding
-   - régua de espaço: múltiplo de 4 — a mesma nossa
-   - raio: 2 / 4 / 8 / 16 / 20 / 999
-   - tipografia: 0.625 / 0.85 / 0.92 / 1 / 1.23rem, pesos 400, 500 e 600 */
+/*
+ * ================================================= the Twenty shell
+ *    Measured in `twenty-front` and `twenty-ui`'s code from the fork, on 2026-09-07.
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS — the same method Gestão and Desk use with Blip, now applied to Twenty.
+ *
+ *    What changes from what was here before: out goes the two-bar Lightning chrome, in comes the SIDEBAR. In Twenty navigation is a resizable left column, and there's no tab bar on top — the work screen starts at the top of the window and uses the full height. On a 60-lead listing that's a line and a half more per fold, and it's why they chose it that way.
+ *
+ *    Measurements, from their code:
+ *    - sidebar width: 220px (min 180, max 350)
+ *    - item: height 28px (`spacing[7]`), padding 4px, radius 8px
+ *    - section title: same 28px height, with the same padding
+ *    - spacing scale: multiple of 4 — same as ours
+ *    - radius: 2 / 4 / 8 / 16 / 20 / 999
+ *    - typography: 0.625 / 0.85 / 0.92 / 1 / 1.23rem, weights 400, 500 and 600
+ */
 :root {
   --c-lateral-w: 220px;
   --c-item-h: 28px;
-  /* O raio do Twenty é 8px, o mesmo da casa — o 4px do Lightning saiu junto
-     com o cromo dele. */
+  /*
+   * Twenty's radius is 8px, same as ours — Lightning's 4px left along with its chrome.
+   */
   --c-r: 8px;
   --c-r-sm: 4px;
 }
@@ -1561,8 +1543,9 @@ code {
   min-height: 100vh;
 }
 
-/* A lateral. Fundo um degrau acima da página, sem sombra e sem borda forte:
-   no Twenty a separação é de superfície, não de linha. */
+/*
+ * The sidebar. Background one step above the page, no shadow and no strong border: in Twenty the separation is surface-based, not a line.
+ */
 .c-lateral {
   width: var(--c-lateral-w);
   flex: none;
@@ -1578,9 +1561,9 @@ code {
   overflow-y: auto;
 }
 
-/* O cabeçalho da lateral: marca e o atalho de configuração. Onde eles põem o
-   seletor de espaço de trabalho, nós pomos o nome do produto — o Pipe resolve
-   o tenant pelo login, e trocar de espaço não é um gesto que exista aqui. */
+/*
+ * The sidebar header: brand and the settings shortcut. Where they put the workspace switcher, we put the product name — Pipe resolves the tenant at login, and switching workspaces isn't a gesture that exists here.
+ */
 .c-lateral-topo {
   display: flex;
   align-items: center;
@@ -1601,8 +1584,9 @@ code {
   margin-left: auto;
 }
 
-/* Título de seção: 28px de altura, caixa alta, e a cor mais apagada da escala.
-   É rótulo, não item — não clica e não compete com o que está embaixo. */
+/*
+ * Section title: 28px height, uppercase, and the scale's most muted color. It's a label, not an item — it doesn't click and doesn't compete with what's below it.
+ */
 .c-secao {
   display: flex;
   align-items: center;
@@ -1616,8 +1600,9 @@ code {
   letter-spacing: var(--p-rotulo-espaco);
 }
 
-/* O item. 28px, ícone à esquerda, raio 8, e o realce do ativo é FUNDO — não
-   sublinhado, que era o do Lightning. */
+/*
+ * The item. 28px, icon on the left, radius 8, and the active highlight is BACKGROUND — not an underline, which was Lightning's.
+ */
 .c-item {
   display: flex;
   align-items: center;
@@ -1652,7 +1637,7 @@ code {
   color: var(--p-marca);
 }
 
-/* A contagem à direita do item, quando existe. Tabular para não dançar. */
+/* The count to the right of the item, when it exists. Tabular so it doesn't jiggle. */
 .c-item .c-conta {
   margin-left: auto;
   font-family: var(--p-fonte-mono);
@@ -1677,14 +1662,14 @@ code {
   color: var(--p-conteudo);
 }
 
-/* O rodapé da lateral fica colado embaixo, como o deles. */
+/* The sidebar's footer sits stuck at the bottom, like theirs. */
 .c-lateral-rodape {
   margin-top: auto;
   padding-top: var(--p-e-2);
   border-top: 1px solid var(--p-linha);
 }
 
-/* A área de trabalho. Sem barra em cima: começa no alto da janela. */
+/* The work area. No bar on top: it starts at the top of the window. */
 .c-conteudo {
   flex: 1;
   min-width: 0;
@@ -1692,9 +1677,10 @@ code {
   background: var(--p-superficie-0);
 }
 
-/* ------------------------------------------------------ densidade do Twenty
-   Linha de 32px e célula de 0.92rem. Mais apertada que a do Lightning (35px /
-   13px) porque a tela ganhou a altura que as duas barras ocupavam. */
+/*
+ * ------------------------------------------------------ Twenty density
+ *    32px row and 0.92rem cell. Tighter than Lightning's (35px / 13px) because the screen gained the height the two bars used to occupy.
+ */
 .tblwrap,
 .card {
   border-radius: var(--c-r);
@@ -1714,20 +1700,19 @@ table th {
   color: var(--p-conteudo-fantasma);
 }
 
-/* ============================================== o menu de comando (Ctrl+K)
-   Medido no `command-menu` do `twenty-front`. É a funcionalidade que mais
-   define o produto deles: você não navega até o registro, chama pelo nome — e
-   é por isso que a lateral pode ser curta.
-
-   **Painel à direita, altura inteira** (`height: 100%; top: 0`), como o deles,
-   e não caixa flutuante no meio. O painel deixa a tela de trás visível, e quem
-   busca costuma estar comparando com o que já está vendo. */
+/*
+ * ============================================== the command menu (Ctrl+K)
+ *    Measured in `twenty-front`'s `command-menu`. It's the feature that most defines their product: you don't navigate to the record, you call it by name — and that's why the sidebar can be short.
+ *
+ *    **Panel on the right, full height** (`height: 100%; top: 0`), like theirs, not a floating box in the middle. The panel leaves the screen behind it visible, and whoever is searching is usually comparing with what they're already looking at.
+ */
 .c-cmd-veu {
   position: fixed;
   inset: 0;
   z-index: 40;
-  /* Sem tinta: o painel já separa menu de tela, e escurecer tudo esconderia
-     justamente o que a pessoa quer comparar. */
+  /*
+   * No tint: the panel already separates the menu from the screen, and darkening everything would hide exactly what the person wants to compare.
+   */
 }
 
 .c-cmd {
@@ -1770,9 +1755,9 @@ table th {
   color: var(--p-conteudo-fantasma);
 }
 
-/* A mesma tecla desenhada nos dois lugares que anunciam atalho: o menu de
-   comando e a régua da listagem. Um desenho só, senão a mesma tecla vira duas
-   coisas diferentes na mesma tela. */
+/*
+ * The same key drawn in both places that announce a shortcut: the command menu and the listing's ruler. One drawing only, or the same key becomes two different things on the same screen.
+ */
 .c-cmd kbd,
 .tblhead kbd {
   padding: 2px 6px;
@@ -1807,8 +1792,9 @@ table th {
   letter-spacing: var(--p-rotulo-espaco);
 }
 
-/* O item é `button` e não `a` de propósito: a navegação é do roteador, e um
-   link aqui dispararia recarga completa ao ser clicado com o botão do meio. */
+/*
+ * The item is a `button` and not an `a` on purpose: navigation belongs to the router, and a link here would trigger a full page reload when middle-clicked.
+ */
 .c-cmd-item {
   display: flex;
   flex-direction: column;
@@ -1835,24 +1821,21 @@ table th {
   color: var(--p-conteudo-fantasma);
 }
 
-/* O realce segue o TECLADO, não o cursor — por isso é classe e não `:hover`.
-   O `onMouseEnter` do componente move o índice, então os dois concordam. */
+/*
+ * The highlight follows the KEYBOARD, not the cursor — that's why it's a class and not `:hover`. The component's `onMouseEnter` moves the index, so the two stay in sync.
+ */
 .c-cmd-atual {
   background: var(--p-superficie-2);
 }
 
-/* ============================================ mais medidas do Twenty
-   Segunda passada, com o que ficou de fora da primeira. Todas lidas no
-   código do fork em 07/09/2026.
-
-   **Etiqueta** (`Tag.module.scss`): altura 20px (`spacing-5`), padding
-   0 8px, raio 4px (`sm-round`), gap 4px, e SEM BORDA — a separação é o
-   fundo. A nossa tinha borda de 1px e padding vertical, o que a deixava
-   2px mais alta e visualmente mais pesada que a deles.
-
-   Divergência anotada: eles usam fonte de 1rem numa altura de 20px. Com
-   o IBM Plex, que é mais largo que o Inter, 16px em 20px estoura. Fica
-   12px, que é o nosso `--p-t-sm`. Medida deles, letra nossa. */
+/*
+ * ============================================ more Twenty measurements
+ *    Second pass, covering what the first left out. All read from the fork's code on 2026-09-07.
+ *
+ *    **Tag** (`Tag.module.scss`): height 20px (`spacing-5`), padding 0 8px, radius 4px (`sm-round`), gap 4px, and NO BORDER — the separation is the background. Ours had a 1px border and vertical padding, which made it 2px taller and visually heavier than theirs.
+ *
+ *    Noted divergence: they use a 1rem font at a 20px height. With IBM Plex, which is wider than Inter, 16px at 20px overflows. We keep 12px, which is our `--p-t-sm`. Their measurement, our typeface.
+ */
 .c-conteudo .etiqueta,
 .c-conteudo .pill {
   height: 20px;
@@ -1863,10 +1846,9 @@ table th {
   line-height: 1;
 }
 
-/* **Cabeçalho de página** (`PageHeader.tsx` + `PageBarMinHeight.ts`):
-   altura mínima 32px, padding 12px, gap 8px, título em `font.size.lg`.
-   O nosso `board-head` tinha 40px e margem de 23px — mais alto e mais
-   solto que o deles. */
+/*
+ * **Page header** (`PageHeader.tsx` + `PageBarMinHeight.ts`): minimum height 32px, padding 12px, gap 8px, title in `font.size.lg`. Our `board-head` was 40px with a 23px margin — taller and looser than theirs.
+ */
 .c-conteudo .board-head {
   min-height: 32px;
   gap: var(--p-e-2);
@@ -1879,16 +1861,16 @@ table th {
   letter-spacing: -0.01em;
 }
 
-/* **Coluna da caixa de seleção**: 28px, do
-   `RecordTableColumnCheckboxWidth.ts`. Estava em 32. */
+/*
+ * **Checkbox column**: 28px, from `RecordTableColumnCheckboxWidth.ts`. It was at 32.
+ */
 .c-conteudo .listagem .sel {
   width: 28px;
 }
 
-/* **A tabela do Twenty não tem moldura.** O `tblwrap` do pacote põe
-   borda e raio em volta, e no Twenty a lista encosta na área de
-   conteúdo: o que separa uma linha da outra é o fio de 1px, e nada
-   mais. Cartão em volta de lista é peso visual sem informação. */
+/*
+ * **Twenty's table has no frame.** The package's `tblwrap` puts a border and radius around it, and in Twenty the list sits flush against the content area: what separates one row from the next is the 1px rule, nothing else. A card around a list is visual weight without information.
+ */
 .c-conteudo .tblwrap {
   border: 0;
   border-radius: 0;
@@ -1900,15 +1882,15 @@ table th {
   border-bottom: 1px solid var(--p-linha);
 }
 
-/* ======================================================= tela de entrada
-
-   A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
-
-   Sem cromo de propósito — quem chega aqui não tem sessão, então não há barra,
-   trilho nem lateral para pintar, e não há nome de cliente para mostrar. Um
-   cartão centrado, na largura de leitura, e nada mais.
-
-   Toda cor sai de token, como em todo o resto: nenhum literal entra aqui. */
+/*
+ * ======================================================= sign-in screen
+ *
+ *    The ONLY public screen of the application: `/entrar` and `/convite/<token>`.
+ *
+ *    No chrome on purpose — whoever lands here has no session, so there's no bar, rail or sidebar to paint, and no tenant name to show. A card centered at reading width, and nothing else.
+ *
+ *    Every color comes from a token, like everywhere else: no literal value enters here.
+ */
 
 .entrar {
   min-height: 100dvh;
@@ -1920,8 +1902,9 @@ table th {
 
 .entrar-cartao {
   width: 100%;
-  /* 26rem é a largura de um formulário de uma coluna: mais do que isso e o
-     rótulo perde o campo de vista no fim da linha. */
+  /*
+   * 26rem is the width of a single-column form: any more and the label loses sight of the field at the end of the line.
+   */
   max-width: 26rem;
   display: flex;
   flex-direction: column;
@@ -1960,8 +1943,9 @@ table th {
   color: var(--p-conteudo-claro);
 }
 
-/* O motivo da recusa, com a saída da pessoa. Vem ANTES dos botões na ordem de
-   leitura: quem usa leitor de tela precisa do motivo antes da ação. */
+/*
+ * The rejection reason, with the person's exit. Comes BEFORE the buttons in reading order: someone using a screen reader needs the reason before the action.
+ */
 .entrar-alerta {
   display: flex;
   flex-direction: column;
@@ -1986,7 +1970,7 @@ table th {
   line-height: var(--p-altura-linha);
 }
 
-/* Ação principal da tela: largura cheia, e não divide a linha com ninguém. */
+/* Screen's main action: full width, doesn't share the line with anything else. */
 .entrar-google {
   width: 100%;
   justify-content: center;
@@ -2033,7 +2017,7 @@ table th {
   justify-content: center;
 }
 
-/* Os dados do convite: rótulo à esquerda, valor à direita. */
+/* The invitation data: label on the left, value on the right. */
 .entrar-dados {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -2050,7 +2034,7 @@ table th {
   margin: 0;
   font-weight: var(--p-peso-medio);
   color: var(--p-conteudo);
-  /* E-mail longo quebra em vez de esticar o cartão. */
+  /* Long email wraps instead of stretching the card. */
   overflow-wrap: anywhere;
 }
 
@@ -2061,7 +2045,7 @@ table th {
   color: var(--p-conteudo-fantasma);
 }
 
-/* A conta em vigor, no menu de quem está logado. Serve às três telas. */
+/* The active account, in the logged-in menu. Serves all three screens. */
 .eu-bloco {
   display: flex;
   flex-direction: column;
@@ -2091,8 +2075,9 @@ table th {
   justify-content: center;
 }
 
-/* A conta em vigor, no pé da lateral. `margin-top: auto` empurra para baixo
-   sem precisar que a lateral saiba a altura do resto. */
+/*
+ * The active account, at the bottom of the sidebar. `margin-top: auto` pushes it down without the sidebar needing to know the height of the rest.
+ */
 .c-lateral-eu {
   margin-top: auto;
   display: flex;

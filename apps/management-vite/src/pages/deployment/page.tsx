@@ -12,27 +12,13 @@ import { ConectarWhatsApp } from '../../components/registration-embedded-whatsap
 import { FormularioInvitation, FormularioImport, FormularioManual } from './formularios';
 
 /**
- * Implantação — do contrato à primeira conversa atendida, sem implantação manual.
+ * Implantação — from contract to first attended conversation, with no manual rollout.
  *
- * O roteiro é o do onboarding do Chatwoot (`onboarding/Index.vue` e
- * `InboxSetup.vue`): uma saudação, a lista do que falta e, para cada passo que
- * não tem tela própria, a seção que o resolve ali mesmo — a linha de canal com o
- * botão "Conectar" é a `ChannelRow.vue` de lá. A disposição é a da Gestão:
- * cabeçalho de quadro, cartão-linha e cartão de configuração, com a tinta Pipe.
+ * The script follows Chatwoot's onboarding (`onboarding/Index.vue` and `InboxSetup.vue`): a greeting, the list of what's missing and, for each step without its own screen, the section that resolves it right there — the channel row with the "Conectar" button is their `ChannelRow.vue`. The layout is Gestão's: board header, row card and settings card, in Pipe's colors.
  *
- * Cada passo é lido do banco (`passos-da-implantacao.ts`): está feito quando o
- * que ele pede existe, e não quando alguém clicou em "continuar".
+ * Each step is read from the database (`passos-da-implantacao.ts`): it's done when what it asks for exists, not when someone clicked "continue".
  *
- * O cromo é o do PORTAL (`pt-app` + `BarraDoPortal`), como em "Novidades" e no
- * Painel do contrato: esta tela é onboarding de CONTA, não de um fluxo ou
- * roteador — não há contato nenhum para pendurar a barra do contato aqui, e
- * empurrar a pessoa para dentro de um contato que talvez nem exista ainda
- * seria inventar contexto que a tela não tem. Até esta entrega ela vivia sob
- * `EstruturaGestao` (duas barras escuras, a de cima igual a esta e a de baixo
- * com o seletor de módulo) — mas Builder e Growth, os dois módulos que
- * ocupavam aquela barra, se mudaram para dentro do contato, e sem eles a
- * barra de baixo desenhava uma fileira vazia. Uma barra só, a mesma de sempre,
- * é a moldura honesta para uma tela que não tem módulo nenhum.
+ * The chrome is the PORTAL's (`pt-app` + `BarraDoPortal`), as in "Novidades" and the contract Panel: this screen is ACCOUNT onboarding, not a fluxo or roteador — there's no contact here to hang the contact bar on, and pushing the person into a contact that may not even exist yet would be inventing context the screen doesn't have. Before this delivery it lived under `EstruturaGestao` (two dark bars, the top one the same as this and the bottom one with the module selector) — but Builder and Growth, the two modules that occupied that bar, moved inside the contact, and without them the bottom bar drew an empty row. A single bar, the usual one, is the honest frame for a screen that has no module at all.
  */
 
 const URL_DESK =

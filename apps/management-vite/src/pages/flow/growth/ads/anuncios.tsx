@@ -2,29 +2,11 @@ import { useState } from 'react';
 import { Illustration } from '@pipe/ui';
 
 /**
- * Growth › Anúncios (Beta) — `growth/adsbuying` na origem. Refeito por foto
- * (dono reclamou que a primeira versão "ficou totalmente diferente"): a
- * origem não abre no clone de 8790 (o MFE `ads-buying` fica com a tela em
- * branco — mock sem conta de Marketing API) nem o HTML capturado renderiza
- * com CSS fora do domínio da Blip, então a régua aqui é o DOM renderizado
- * salvo em `referencias-blip/canais/roteador/roteador-anuncios__pagina.html`
- * (medido: `bds-paper` centralizado, `container xxs=8`, `margin: y-9`,
- * fileira `justify-content: space-between; align-items: center` de até
- * 625px — ilustração à esquerda, texto à direita, botão alinhado à direita
- * com `padding-top: 30px`) — não um cartão vertical centrado como antes.
+ * Growth › Anúncios (Beta) — `growth/adsbuying` in the origin. Rebuilt from a photo (the owner complained the first version "came out totally different"): the origin doesn't open in the 8790 clone (the `ads-buying` MFE shows a blank screen — a mock with no Marketing API account) and the captured HTML doesn't render outside Blip's domain, so the ruler here is the rendered DOM saved at `referencias-blip/canais/roteador/roteador-anuncios__pagina.html` (measured: centered `bds-paper`, `container xxs=8`, `margin: y-9`, a `justify-content: space-between; align-items: center` row up to 625px — illustration on the left, text on the right, button right-aligned with `padding-top: 30px`) — not a centered vertical card like before.
  *
- * Título e texto batem com o que está na origem (`typo-account-connection-title`
- * e o parágrafo logo abaixo). O ícone é NOSSO: a origem usa
- * `bds-illustration name="notification-1"`, aqui é `Ilustracao nome="vazio"`
- * do design system do Pipe — mesma função (ilustração de estado inicial), sem
- * copiar o desenho deles.
+ * Title and copy match the origin (`typo-account-connection-title` and the paragraph right below). The icon is OURS: the origin uses `bds-illustration name="notification-1"`, here it's `Ilustracao nome="vazio"` from Pipe's design system — same role (initial-state illustration), without copying their artwork.
  *
- * O Pipe não tem conta de Marketing API nem OAuth com o Facebook — nada disso
- * existe ainda. Em vez de simular a conexão (ou inventar um contrato que a
- * `api` não tem), o botão abre o mesmo aviso controlado de
- * `configuracoes/api/tela.tsx`: diz que a integração não está disponível, sem
- * fingir um clique que "funciona". TODO: quando existir a chave de Marketing
- * API do Pipe, trocar o aviso por `lib/growth.ts#conectarFacebook` de verdade.
+ * Pipe has no Marketing API account and no Facebook OAuth — none of that exists yet. Instead of simulating the connection (or inventing a contract the `api` doesn't have), the button opens the same controlled notice from `configuracoes/api/tela.tsx`: it says the integration isn't available, without faking a click that "works". TODO: once Pipe's Marketing API key exists, replace the notice with the real `lib/growth.ts#conectarFacebook`.
  */
 export default function PageAds() {
   const [aviso, setAviso] = useState('');

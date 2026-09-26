@@ -2,10 +2,7 @@ import { api, ApiError } from '../../../../lib/api';
 import { atualizarLeituras } from '../../../../lib/actions';
 
 /**
- * `POST /v1/mensagens-ativas` — a escrita que faltava ligar na tela (o resto,
- * `GET .../growth`, já lê dado real). Mesmo formato de `Resultado<T>` de
- * `configuracoes/basicas/gravar.ts`: `ok`/`valor` ou `ok`/`erro` em texto pronto
- * para o `aviso` da tela.
+ * `POST /v1/mensagens-ativas` — the write that was missing to wire up the screen (the rest, `GET .../growth`, already reads real data). Same `Resultado<T>` format as `configuracoes/basicas/gravar.ts`: `ok`/`valor` or `ok`/`erro` with text ready for the screen's `aviso`.
  */
 
 export interface DisparoDestination {
@@ -53,7 +50,7 @@ export async function dispararActiveMessages(pedido: {
   }
 }
 
-/** O `erro.mensagem` que a `api` põe no corpo (`ErroPipe`), ou o texto padrão. */
+/** The `erro.mensagem` the `api` puts in the body (`ErroPipe`), or the default text. */
 export function motivoDe(error: unknown, padrao: string): string {
   if (error instanceof ApiError) {
     const corpo = error.corpo as { error?: { message?: unknown } } | null;
@@ -63,7 +60,7 @@ export function motivoDe(error: unknown, padrao: string): string {
   return padrao;
 }
 
-/** `MotivoDeRecusa` de `dominio/mensagem-ativa.ts`, em português de tela. */
+/** `MotivoDeRecusa` from `dominio/mensagem-ativa.ts`, in screen-facing Portuguese. */
 const ROTULOS_DE_RECUSA: Record<string, string> = {
   numero_invalido: 'Número de telefone inválido',
   ja_em_atendimento: 'Este contato já está em atendimento',

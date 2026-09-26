@@ -5,16 +5,15 @@ import { numero, pontos } from '../../../lib/format';
 export const dynamic = 'force-dynamic';
 
 /**
- * As colunas da tabela de regras.
+ * The scoring rules table's columns.
  *
- * Duas coisas que saíram daqui: a condição não é mais monoespaçada (ela é
- * texto em português, não número, e a mono só serve coluna que precisa
- * alinhar) e o peso negativo não é mais vermelho (uma regra que tira ponto não
- * é uma falha — o sinal já diz o que ela faz).
+ * Two things were dropped here: the condition is no longer monospaced (it's Portuguese
+ * text, not a number, and monospace only serves columns that need to align) and a
+ * negative weight is no longer red (a rule that subtracts points isn't a failure — the
+ * sign already says what it does).
  *
- * "Ativa" também deixou de ser verde: dez regras ativas pintavam dez etiquetas
- * verdes, e o verde deixava de querer dizer alguma coisa. As duas são neutras,
- * e a palavra basta.
+ * "Active" also stopped being green: ten active rules painted ten green badges, and
+ * green stopped meaning anything. Both are neutral now, and the word is enough.
  */
 const COLUNAS: readonly Column<LinhaRegra>[] = [
   { key: 'nome', rotulo: 'Regra', celula: (r) => <span className="forte">{r.nome}</span> },

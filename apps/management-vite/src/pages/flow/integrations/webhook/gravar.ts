@@ -3,13 +3,9 @@ import { atualizarLeituras } from '../../../../lib/actions';
 import { motivoDe } from '../../settings/basic/gravar';
 
 /**
- * CRUD de `webhook_saida` — `dominio/gestao/integracoes.ts`. É da CONTA, não
- * do fluxo (ver o comentário lá): a rota é `/v1/gestao/webhooks`, sem `:id`
- * de fluxo, mesmo a tela vivendo sob `fluxo/:id/integracoes/webhook`.
+ * CRUD for `webhook_saida` — `dominio/gestao/integracoes.ts`. It belongs to the ACCOUNT, not the flow (see the comment there): the route is `/v1/gestao/webhooks`, with no flow `:id`, even though the screen lives under `fluxo/:id/integracoes/webhook`.
  *
- * "Configurações de autenticação" e "Cabeçalhos customizados" (migration
- * 0036): `autenticacao.senha`/`autenticacao.clientSecret` só existem no
- * PEDIDO de criação/edição — a resposta nunca os devolve (nem cifrados).
+ * "Configurações de autenticação" and "Cabeçalhos customizados" (migration 0036): `autenticacao.senha`/`autenticacao.clientSecret` only exist in the creation/edit REQUEST — the response never returns them (not even encrypted).
  */
 export const TIPOS_AUTHENTICATION = ['nenhuma', 'basica', 'oauth2_client_credentials'] as const;
 export type TipoAuthentication = (typeof TIPOS_AUTHENTICATION)[number];
@@ -21,7 +17,7 @@ export interface AuthenticationVisivel {
   clientId: string | null;
 }
 
-/** O que a tela ENVIA — os campos de segredo só aqui, nunca na resposta. */
+/** What the screen SENDS — the secret fields only live here, never in the response. */
 export interface AuthenticationInbound {
   tipo: TipoAuthentication;
   user?: string;
@@ -47,7 +43,7 @@ export interface WebhookListado {
 }
 
 export interface WebhookCriado extends WebhookListado {
-  /** Só existe na resposta da criação — o banco guarda o segredo para assinar, a tela não. */
+  /** Only exists in the creation response — the database keeps the secret for signing, the screen doesn't. */
   secret: string;
 }
 
@@ -55,7 +51,7 @@ export interface TestResult {
   ok: boolean;
   status?: number;
   error?: string;
-  /** Prévia curta do corpo da resposta — "mostra a resposta (status e corpo curto)". */
+  /** Short preview of the response body — "shows the response (status and a short body)". */
   corpo?: string;
 }
 

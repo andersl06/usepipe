@@ -20,7 +20,7 @@ describe('Validate media types and sizes against Blip rules ?1.6', () => {
     { nome: 'pdf de 101 MB estoura', midia: { tipo: 'documento', mime: 'application/pdf', bytes: 101 * MB }, erro: 'midia_grande_demais' },
     { nome: 'vídeo de 17 MB estoura', midia: { tipo: 'video', mime: 'video/mp4', bytes: 17 * MB }, erro: 'midia_grande_demais' },
     { nome: 'áudio de 15 MB passa', midia: { tipo: 'audio', mime: 'audio/ogg', bytes: 15 * MB }, erro: null },
-    // Imagem não tem teto documentado na Blip, e a regra do levantamento é não estimar.
+    // Blip documents no image size ceiling, and the research rule is not to guess one.
     { nome: 'imagem grande passa por falta de limite documentado', midia: { tipo: 'imagem', mime: 'image/png', bytes: 500 * MB }, erro: null },
   ] as const;
 
@@ -103,8 +103,8 @@ describe('Shift body parameter positions when a template has header media', () =
   });
 
   it('Reject unshifted parameter numbers when header media occupies position one', () => {
-    // Este é o erro que a pesquisa descreve: o operador numera 1 e 2, a mídia rouba
-    // o 1, e o cliente recebe o protocolo no lugar do nome. Aqui vira exceção.
+    // This is the documented error: the operator numbers body values 1 and 2, but media takes
+    // position 1, so the client could receive a protocol number instead of a name. Here it throws.
     expect(() => assembleComponents(withMedia, { '1': 'Ana', '2': 'A-42' })).toThrow(
       ParametroMissingError,
     );

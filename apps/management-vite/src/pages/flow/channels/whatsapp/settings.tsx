@@ -7,10 +7,7 @@ import type { ChannelPreferences } from '../../../../lib/channels';
 import { Interruptor } from '../../integrations/interruptor';
 
 /**
- * Configurações — `FICHA-canal-whatsapp.md` §3: Quick reply e Menu, cada um
- * um `bds-switch` que "parece persistir a alteração diretamente" — sem botão
- * de salvar, o toggle já grava (`gravarPreferenciasWhatsapp`). O canal é o do
- * bot (`useCanalWhatsapp`).
+ * Settings — `FICHA-canal-whatsapp.md` §3: Quick reply and Menu, each a `bds-switch` that "seems to persist the change directly" — with no save button, the toggle already writes (`gravarPreferenciasWhatsapp`). The channel is the bot's (`useCanalWhatsapp`).
  */
 export function AbaSettings() {
   const { channel } = useChannelWhatsapp();

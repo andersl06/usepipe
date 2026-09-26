@@ -16,32 +16,10 @@ interface QueueRules {
 }
 
 /**
- * Regras ├ Atendimento — a regra de entrada.
- *
- * Esqueleto medido em `FICHA-rules.md` §2: cabeçalho com "Criar nova regra"
- * à direita (sem subtítulo), busca sozinha embaixo, cartão-linha com só
- * "Nome da Regra"/"Fila" como coluna (§4) e o rodapé de paginação (§2.5). O
- * cartão-linha em si — rótulo 12/400 sobre valor 16/700, interruptor que liga
- * e desliga o registro na própria lista — é o mesmo de sempre.
- *
- * O combinador, a ordem de avaliação e o aviso de regra inalcançável não são
- * coluna na ficha (ela só documenta "Nome da Regra" e "Fila"), mas continuam
- * decisivos para prever o que a regra faz — por isso ficam no rodapé do
- * cartão (`descreverRegra`/avisos), que é anotação por linha, não uma coluna
- * nova nem um bloco novo na página. "Criar nova regra" abre modal — a Blip
- * não mostra o formulário na página, ele mora dentro do modal fechado que o
- * material capturou para as telas irmãs (`FICHA-queue-management.md` §2.6).
- *
- * Editar/excluir (item 1, segunda parte) entraram: o ícone "Editar" reabre o
- * mesmo modal, com `FormularioRegraFila` em modo edição; o ícone "Excluir"
- * pede confirmação em `ModalConfirmacao` — nunca `window.confirm`, que é o
- * padrão provisório que `atendentes-filas.tsx` ainda usa (comentário lá
- * mesmo diz isso). REORDENAR é as duas setas do rodapé: cada clique troca a
- * regra de posição com a vizinha e manda um `PATCH` por regra cuja `ordem`
- * mudou — sem endpoint próprio (decisão registrada em `cadastros.ts`).
+ * Regras ├ Atendimento — the entry rule. Skeleton measured in `FICHA-rules.md` §2: header with "Criar nova regra" on the right (no subtitle), search alone below, row-card with only "Nome da Regra"/"Fila" as columns (§4), and the pagination footer (§2.5). The row-card itself — label 12/400 over value 16/700, a toggle that enables/disables the record right in the list — is the same one as always. The combinator, the evaluation order, and the unreachable-rule warning aren't columns in the ficha (it only documents "Nome da Regra" and "Fila"), but they remain decisive for predicting what the rule does — so they live in the card's footer (`descreverRegra`/warnings), which is a per-row annotation, not a new column or a new block on the page. "Criar nova regra" opens a modal — Blip doesn't show the form on the page, it lives inside the closed modal the material captured for the sibling screens (`FICHA-queue-management.md` §2.6). Edit/delete (item 1, second part) were added: the "Editar" icon reopens the same modal with `FormularioRegraFila` in edit mode; the "Excluir" icon asks for confirmation via `ModalConfirmacao` — never `window.confirm`, which is the provisional pattern `atendentes-filas.tsx` still uses (the comment there says so itself). REORDER is the two footer arrows: each click swaps the rule's position with its neighbor and sends one `PATCH` per rule whose `ordem` changed — no dedicated endpoint (decision logged in `cadastros.ts`).
  */
 
-/** O interruptor do cartão. Formulário de um botão: não há nada digitado a preservar. */
+/** The card's toggle. A one-button form: there's nothing typed to preserve. */
 function Interruptor({ id, active, nome }: { id: string; active: boolean; nome: string }) {
   return (
     <form action={(data: FormData) => void alternarRuleQueue({ ok: true }, data)}>
@@ -60,7 +38,7 @@ function Interruptor({ id, active, nome }: { id: string; active: boolean; nome: 
   );
 }
 
-/** Switch + setas de reordenar + editar/excluir — o slot `acao` do cartão-linha. */
+/** Switch + reorder arrows + edit/delete — the row-card's `acao` slot. */
 function RuleActions({
   regra,
   first,
@@ -109,11 +87,11 @@ export function AttendancePageRules() {
   const { regras, queues, defaults } = read.data;
   const mortas = new Set(regrasInalcancaveis(regras));
 
-  // `regras` já vem ordenada por `ordem`/id (mesma ordem que `ordenarRegras`
-  // aplica no motor) — trocar de posição na lista é trocar de posição de
-  // avaliação. Renumera sequencialmente em vez de só trocar `ordem` entre as
-  // duas: se as duas empatarem (o padrão de toda regra nova é `ordem: 0`),
-  // trocar valores iguais não move nada.
+  // `regras` already comes sorted by `ordem`/id (the same order that `ordenarRegras`
+  // applies to the engine) — moving position in the list means moving position of
+  // evaluation. Renumbers sequentially instead of just swapping `ordem` between the
+  // two: if both tie (every new rule's default is `ordem: 0`),
+  // swapping equal values moves nothing.
   async function mover(id: string, direction: -1 | 1) {
     const i = regras.findIndex((r) => r.id === id);
     const j = i + direction;
@@ -196,8 +174,9 @@ export function AttendancePageRules() {
 
       {errorReordenar ? <Etiqueta tom="erro">{errorReordenar}</Etiqueta> : null}
 
-      {/* "Resultados por página" nasce em 5, como o `bds-select value="5"` do
-          rodapé deles (`dom/rules.html`). */}
+      {/*
+ * "Resultados por página" starts at 5, like the `bds-select value="5"` in their footer (`dom/rules.html`).
+ */}
       <ListaRegras
         sections={sections}
         placeholder="Buscar regras de atendimento"

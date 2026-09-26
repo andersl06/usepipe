@@ -12,24 +12,11 @@ import { flowDesligarChannel, ligarChannelToFlow } from '../../../lib/channels-g
 import { Modal } from '../../registrations/_modal';
 
 /**
- * As peças de conexão/desconexão que as três páginas de canal dividem.
+ * The connect/disconnect pieces the three channel pages share.
  *
- * `EscolherCanalExistente` é a etapa "Ativação do número" da origem
- * (`WhatsAppSelectedNumber.html`: título, "Escolha qual dos números válidos…",
- * o select "Escolher número", "Ativar número"), usada aqui para o que a origem
- * não precisa ter: na Blip o número nasce no bot; na Pipe o canal é uma linha
- * própria (`canal`) e pode existir sem bot — criado pela tela antiga de
- * Atendimento, ou desligado de um bot. Decisão Pipe, registrada na FICHA §5.
- * A regra "um bot por número" aparece no próprio select: o número que está
- * com outro bot vem desabilitado dizendo qual — a origem manda "remover do
- * anterior", a tela aponta onde.
+ * `EscolherCanalExistente` is the source's "Ativação do número" step (`WhatsAppSelectedNumber.html`: title, "Escolha qual dos números válidos…", the "Escolher número" select, "Ativar número"), used here for something the source doesn't need: on Blip the number is born on the bot; on Pipe the channel is its own row (`canal`) and can exist without a bot — created by the old Attendance screen, or detached from a bot. Pipe decision, recorded in FICHA §5. The "one bot per number" rule shows up in the select itself: a number already tied to another bot appears disabled, naming which one — the source says to "remover do anterior" (remove from the previous one); the screen points to where.
  *
- * `ModalDesconectar` é o modal do Instagram/Messenger da origem (`class H`,
- * portal.js 120544; textos em `instagram.modals.disconnect` /
- * `messenger.modals.disconnect`): descrição, motivo obrigatório, checkbox de
- * concordância, "Voltar" / "Desconectar {canal}". O WhatsApp atual da origem
- * não tem esse modal (FICHA §4.5); os textos usados são os de
- * `whatsapp.overview.deprecated.modal.disconnect`, os únicos que existem.
+ * `ModalDesconectar` is the source's Instagram/Messenger modal (`class H`, portal.js 120544; text in `instagram.modals.disconnect` / `messenger.modals.disconnect`): description, mandatory reason, agreement checkbox, "Voltar" / "Desconectar {canal}". The source's current WhatsApp has no such modal (FICHA §4.5); the text used comes from `whatsapp.overview.deprecated.modal.disconnect`, the only one that exists.
  */
 
 interface TextosDaEscolha {
@@ -48,7 +35,7 @@ const ESCOLHA: Readonly<Record<TipoOfChannelOfBot, TextosDaEscolha>> = {
     ativar: 'Ativar número',
     naoEncontrou: 'Não encontrou seu número?',
   },
-  /* Sem prova na origem para os dois abaixo — a mesma etapa, trocando o substantivo. */
+  /* No evidence in the source for the two below — the same step, swapping the noun. */
   instagram: {
     titulo: 'Ativação da conta',
     instruction: 'Escolha qual das contas de Instagram conectadas você deseja ativar.',
@@ -74,7 +61,7 @@ export function EscolherChannelExistente({
   flowId: string;
   tipo: TipoOfChannelOfBot;
   disponiveis: readonly ChannelOfFlow[];
-  /** "Volte e cadastre agora." — leva de volta à etapa de conexão. */
+  /** "Volte e cadastre agora." — takes you back to the connection step. */
   onVoltar: () => void;
 }) {
   const textos = ESCOLHA[tipo];
@@ -250,9 +237,7 @@ export function ModalDesconectar({
 /* ----------------------------------------------------- Outro canal no bot */
 
 /**
- * Decisão Pipe (FICHA §5): `fluxo.canal_id` é uma coluna só, então o bot que
- * já está com um canal de outro tipo não conecta este sem desligar aquele. A
- * origem não tem esta situação — lá um bot tem vários canais.
+ * Pipe decision (FICHA §5): `fluxo.canal_id` is a single column, so a bot already holding a channel of another type can't connect this one without disconnecting that one first. The source doesn't have this situation — there, one bot can have several channels.
  */
 export function OtherChannelNotice({ channel, rotulo }: { channel: ChannelOfFlow; rotulo: string }) {
   return (

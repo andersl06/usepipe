@@ -7,27 +7,11 @@ import { ModuloShell, contactBase, useContact } from '../flow/contact';
 import './attendance.css';
 
 /**
- * O módulo Atendimento — o que a origem desenha em
- * `/application/detail/<bot>/attendance/desk/<tela>`: a MESMA moldura de
- * todas as telas do contato (`CascaDoModulo`: barra do portal + barra do
- * contato) mais a `desk-sidebar` própria deste módulo.
+ * The Atendimento module — what the source draws at `/application/detail/<bot>/attendance/desk/<tela>`: the SAME frame as every contact screen (`CascaDoModulo`: portal bar + contact bar) plus this module's own `desk-sidebar`.
  *
- * Estas telas viviam soltas na raiz (`/monitoramento`, `/historico`, …) e
- * desenhavam um SEGUNDO portal, com cabeçalho e lateral próprios
- * (`estrutura-gestao.tsx`) — o "dois portais" que este módulo fecha. A
- * `desk-sidebar` é a MESMA lateral de sempre (`.g-lateral`/`.g-item`/
- * `.g-grupo`, medida em `blip-medidas-monitoramento.md` §3): só o casco em
- * volta mudou, do portal para o contato.
+ * These screens used to live loose at the root (`/monitoramento`, `/historico`, …) and drew a SECOND portal, with its own header and sidebar (`estrutura-gestao.tsx`) — the "two portals" this module closes. The `desk-sidebar` is the SAME sidebar as always (`.g-lateral`/`.g-item`/`.g-grupo`, measured in `blip-medidas-monitoramento.md` §3): only the shell around it changed, from the portal to the contact.
  *
- * Grupos e itens, na ordem e nomes medidos no DOM (`referencias-blip/portal/dom/
- * monitoring.html`, `data-testid="menu-tree-sidebar-group-*"`):
- * Relatórios (Reports), Comunicação (Messaging), Regras (Rules), Atendentes
- * (Agents), Preferências (Settings, "Configurações" na origem — o nome Pipe
- * já usado por `configuracoes-gerais.tsx`/`-dados.tsx` fica). "Esforço por
- * atendente" e "Monitoria com IA" não aparecem nesta captura (conta/plano sem
- * o recurso ligado) mas já são tela nossa — entram no grupo Relatórios, ao
- * lado de Atendimento e Satisfação. "Calls" e "Vendas" (Reports) não têm tela
- * aqui — não temos telefonia nem funil de vendas — e por isso não entram.
+ * Groups and items, in the order and names measured on the DOM (`referencias-blip/portal/dom/monitoring.html`, `data-testid="menu-tree-sidebar-group-*"`): Relatórios (Reports), Comunicação (Messaging), Regras (Rules), Atendentes (Agents), Preferências (Settings, "Configurações" in the source — the Pipe name already used by `configuracoes-gerais.tsx`/`-dados.tsx` stays). "Esforço por atendente" and "Monitoria com IA" don't appear in this capture (account/plan without the feature enabled) but are already our own screen — they enter the Relatórios group, next to Atendimento and Satisfação. "Calls" and "Vendas" (Reports) have no screen here — we don't have telephony or a sales funnel — so they don't enter.
  */
 
 type ItemLateral = { rotulo: string; rota: string; icone: NomeDeIconePortal };
@@ -148,10 +132,7 @@ function NavigationAttendance({ base, caminho }: { base: string; caminho: string
 }
 
 /**
- * A rota-pai do módulo: `CascaDoModulo` traz a barra do portal e a barra do
- * contato (com "Atendimento" aceso, ver `itens.ts`); aqui só entra a
- * `desk-sidebar` ao lado do `<Outlet>`, fora do recuo de 80% que `fx-coluna`
- * aplica às telas de coluna única (mesma saída de `configuracoes/casca.tsx`).
+ * The module's parent route: `CascaDoModulo` brings the portal bar and the contact bar (with "Atendimento" lit, see `itens.ts`); here only the `desk-sidebar` enters next to the `<Outlet>`, outside the 80% indent that `fx-coluna` applies to single-column screens (same output as `configuracoes/casca.tsx`).
  */
 export function AttendanceShell() {
   const { contact } = useContact();

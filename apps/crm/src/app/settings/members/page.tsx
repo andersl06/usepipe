@@ -15,23 +15,23 @@ import { actionAlternarMember, actionCancelarInvitation, acaoConvidar, actionDef
 export const dynamic = 'force-dynamic';
 
 /**
- * Membros.
+ * Members.
  *
- * No Twenty são três abas — Team, Invite, Roles. Aqui são três blocos na mesma
- * tela, porque a nossa lista cabe: uma aba que esconde um formulário de duas
- * caixas custa mais um clique do que informa.
+ * In Twenty this is three tabs — Team, Invite, Roles. Here it's three blocks on the same
+ * screen, because our list fits: a tab that hides a two-field form costs an extra click
+ * without adding information.
  *
- * A diferença que importa em relação ao Twenty é o que acontece ao tirar alguém:
- * lá o membro sai do espaço; aqui ele é **desativado**. `usuario` é referenciado
- * por conversa, avaliação, lead e log de auditoria — apagar a linha apagaria a
- * autoria de tudo o que a pessoa fez, que é exatamente o que uma auditoria de
- * contrato vai procurar.
+ * The difference that matters compared to Twenty is what happens when you remove someone:
+ * there, the member leaves the workspace; here they're **deactivated**. `usuario` is
+ * referenced by conversation, evaluation, lead, and audit log — deleting the row would
+ * erase the authorship of everything the person did, which is exactly what a contract
+ * audit would go looking for.
  *
- * Três coisas que o Twenty tem aqui e não vieram: convite por link público
- * (convite é para UM endereço, e link que qualquer um usa é o oposto disso),
- * reenviar convite (convidar de novo já invalida o anterior e emite outro) e
- * papéis de agente e de chave de API, que no Pipe não existem — chave carrega
- * escopo, não papel.
+ * Three things Twenty has here that didn't make it in: invite via public link (an
+ * invite is for ONE address, and a link anyone can use is the opposite of that),
+ * resend invite (inviting again already invalidates the previous one and issues
+ * another), and agent roles and API-key roles, which don't exist in Pipe — a key
+ * carries a scope, not a role.
  */
 
 function colunasDaEquipe(euId: string, papeis: RoleSummary[], fuso: string): readonly Column<Member>[] {
@@ -130,8 +130,8 @@ function colunasDeConvites(fuso: string): readonly Column<InvitationPendente>[] 
 }
 
 export default async function PageMembers() {
-  // Em série, nunca em `Promise.all`: cada uma abre a sua transação com o tenant
-  // fixado, e paralelizar aqui é o caminho conhecido para perder `pipe.tenant_id`.
+  // Sequentially, never in `Promise.all`: each one opens its own transaction with the tenant
+  // pinned, and parallelizing here is the known way to lose `pipe.tenant_id`.
   const eu = await userCurrent();
   const espaco = await lerEspaco();
   const members = await listMembers();

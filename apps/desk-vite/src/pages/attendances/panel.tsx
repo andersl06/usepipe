@@ -10,18 +10,7 @@ import { dataAbreviada } from '../../lib/format';
 import { displayName } from '../../lib/order';
 
 /**
- * O painel do contato — `.drawer` da referência
- * (`~/desk-clone/capturas/parciais/drawer.html`): cabeçalho "Dados do
- * Contato", as abas Informações / Histórico / Comentários (a "Falar com
- * gestor" de lá é o chat interno com o gestor, que não existe no Pipe), e em
- * cada aba uma pilha de `bds-paper` sobre o fundo recuado.
- *
- * Informações: cartão "Informações" com Nome, Id, E-mail, Telefone, Documento
- * e "Extras" (os atributos crus, chave → valor, como lá), cada campo com o
- * botão de copiar; e o cartão "Comentários" com o estado vazio "Não há
- * comentários sobre este usuário" e o campo "Escreva um comentário...".
- * Os comentários são as notas internas da conversa
- * (`itens` de gênero `nota`), gravadas por `salvarNotaInterna`.
+ * Reference contact `.drawer` (`~/desk-clone/capturas/parciais/drawer.html`) has `Dados do Contato` and `Informações`, `Histórico`, `Comentários` tabs with `bds-paper` stacks. Source `Falar com gestor` is manager chat, absent in Pipe. Information includes name, ID, email, phone, document, raw key/value extras, and copy buttons. `Comentários` shows an empty state or entry field; these are internal conversation notes (`itens` of kind `nota`) saved through `salvarNotaInterna`.
  */
 type Aba = 'informacoes' | 'historico' | 'comentarios';
 
@@ -31,7 +20,7 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
   const { openContact } = useDeskSelection();
   const conversationId = aberta?.conversation.id ?? null;
 
-  // Trocar de ticket sai do modo de edição: senão o formulário de um contato fica
+  // Leave edit mode when switching tickets, so one contact's form cannot remain open over another contact's data.
   // aberto por cima dos dados de outro.
   useEffect(() => setEditandoContact(false), [conversationId]);
 
@@ -185,7 +174,7 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
   );
 }
 
-/** `.profile-info-item`: rótulo em cima, valor embaixo e o botão de copiar. */
+
 function Campo({ rotulo, value, link }: { rotulo: string; value: string | null; link?: string }) {
   const [copiado, setCopiado] = useState(false);
   const texto = value ?? '';
@@ -219,10 +208,7 @@ function Campo({ rotulo, value, link }: { rotulo: string; value: string | null; 
 }
 
 /**
- * O "Editar" do painel — `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`),
- * já testado e com permissão própria (`contato.editar`). A tela só manda o que
- * mudou; campo vazio manda string vazia, que a API grava como está (ela é quem
- * decide o que é "apagar" vs. "não mexeu").
+ * Contact-panel `Editar` calls `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`), already tested and guarded by `contato.editar`. Send only changed fields; an empty field sends an empty string, which the API stores as given. The API distinguishes clearing a field from leaving it untouched.
  */
 function ContactEdit({
   conversation,
@@ -297,11 +283,7 @@ function ContactEdit({
 }
 
 /**
- * As etiquetas do CONTATO — `contato_etiqueta`, que até aqui não tinha rota nem
- * tela. O catálogo vem de `GET /v1/etiquetas?escopo=contato` (as de escopo
- * `contato` e `ambos`); aplicar e remover vão por `POST`/`DELETE
- * /v1/contatos/:id/etiquetas`, com a mesma permissão de editar a ficha
- * (`contato.editar`) — a etiqueta do contato é dado do contato.
+ * Contact tags live in `contato_etiqueta`, previously without a route or screen. Fetch the catalog from `GET /v1/etiquetas?escopo=contato` (scopes `contato` and `ambos`); apply/remove via `POST`/`DELETE /v1/contatos/:id/etiquetas` under contact-edit permission `contato.editar`. A contact tag is contact data.
  */
 function ContactTags({
   contactId,

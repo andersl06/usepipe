@@ -1,12 +1,5 @@
 /**
- * As preferências do atendente — as chaves de `/agents/preferences` da
- * referência (`~/desk-clone/docs/desk-store.md`: `enableBrowserNotification`,
- * `enableTicketOnQueueAlert`, `enableReceivedMessageAlert`,
- * `enableAlertWithDeskActive`, `enableSpellChecker`, `sortChatsBy`,
- * `keepAgentOnline`), com os padrões que o mock da cópia responde.
- *
- * Vivem no navegador (`localStorage`, `desk.pref.<chave>`): são da máquina,
- * não da pessoa. Quem lê é `lerPreferencias`, sempre com o padrão por baixo.
+ * Agent preferences mirror reference `/agents/preferences` keys and mock defaults (`~/desk-clone/docs/desk-store.md`: `enableBrowserNotification`, `enableTicketOnQueueAlert`, `enableReceivedMessageAlert`, `enableAlertWithDeskActive`, `enableSpellChecker`, `sortChatsBy`, `keepAgentOnline`). They live in browser `localStorage` under `desk.pref.<chave>`, so they belong to this machine rather than the person. `lerPreferencias` applies defaults when reading.
  */
 export interface Preferences {
   navegadorNotifications: boolean;

@@ -7,20 +7,11 @@ import { lerDesenho, montarDesenho } from './model';
 import type { Mapa } from './model';
 
 /**
- * O estado do editor ligado à `api`: carrega o desenho que o `GET` trouxe,
- * grava sozinho um pouco depois de cada mudança (o `debouncedSave` do editor
- * da Blip, que é o que faz o "Salvo" do rodapé existir) e guarda os erros
- * bloco a bloco que o `PUT` devolve.
+ * The editor's state wired to the `api`: loads the drawing the `GET` brought, saves itself automatically a bit after each change (the Blip editor's `debouncedSave`, which is what makes the footer's "Salvo" exist), and stores the per-block errors the `PUT` returns.
  *
- * O desenho local NÃO é sobrescrito quando a leitura em cache é refeita
- * depois de um salvar — senão cada gravação apagaria o que a pessoa digitou
- * enquanto o `PUT` estava no ar. Ele só é recarregado do servidor quando a
- * tela pede (`recarregarQuando`, depois de restaurar uma versão), e só quando
- * a leitura já traz a versão esperada.
+ * The local drawing is NOT overwritten when the cached read is redone after a save — otherwise every save would erase what the person typed while the `PUT` was in flight. It's only reloaded from the server when the screen asks for it (`recarregarQuando`, after restoring a version), and only once the read already brings the expected version.
  *
- * Duas gravações nunca correm ao mesmo tempo: a segunda espera a primeira e,
- * se um pedido mais novo já ficou agendado, a antiga desiste — o que chega ao
- * servidor é sempre o mapa mais recente, uma vez.
+ * Two saves never run at the same time: the second waits for the first, and if a newer request has already been scheduled, the old one gives up — what reaches the server is always the most recent map, once.
  */
 
 export const ESPERA_PARA_GRAVAR_MS = 1500;
@@ -38,11 +29,11 @@ export interface EditorDoBuilder {
   state: EditorState;
   despachar: (gesto: GestoDoEditor) => void;
   recording: RecordingSituation;
-  /** Os erros que a `api` apontou no último salvar (ou na leitura). */
+  /** The errors the `api` flagged on the last save (or on read). */
   apiErrors: BlockError[];
-  /** Grava agora o que está na tela; devolve se deu certo. */
+  /** Saves what's on screen right now; returns whether it succeeded. */
   salvarAgora: () => Promise<boolean>;
-  /** Depois de restaurar: recarrega quando a leitura trouxer esta versão. */
+  /** After restoring: reload when the read brings back this version. */
   recarregarQuando: (versaoId: string, atualizadoEm: string | null) => void;
   carregado: boolean;
 }
@@ -56,7 +47,7 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
   const ultimoPedido = useRef(0);
   const emCurso = useRef<Promise<boolean>>(Promise.resolve(true));
 
-  /* Carrega do servidor: na primeira leitura, e quando a versão esperada chegar. */
+  /* Loads from the server: on the first read, and when the expected version arrives. */
   useEffect(() => {
     if (!data || esperando === null) return;
     if (esperando !== 'inicial' && versionKey(data) !== esperando) return;
@@ -84,7 +75,7 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
     [flowId],
   );
 
-  /* A gravação automática: um pouco depois da última mudança. */
+  /* Autosave: a little while after the last change. */
   useEffect(() => {
     if (!state.sujo || !carregado) return;
     setRecording((g) => (g.state === 'salvando' ? g : { state: 'pendente' }));

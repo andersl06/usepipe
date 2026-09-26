@@ -18,26 +18,7 @@ import {
 import type { Caixa, Ponto } from './setas';
 
 /**
- * O canvas do Builder — o `#canvas.grabbable` deles com o `#diagramContainer`
- * escalado por dentro: os blocos em posição absoluta, as setas em SVG por
- * trás, arrastar o fundo desloca a cena ("grab to pan"), Ctrl+roda muda o
- * zoom de 10 em 10 (20% a 100%, como o `rzslider` do rodapé).
- *
- * Os gestos, todos por Pointer Events com captura (funcionam com mouse, caneta
- * e toque, e não perdem o rastro quando o ponteiro sai do elemento):
- * - arrastar um bloco o move (`onMover` a cada movimento, `onSoltar` no fim —
- *   é o `soltar` do redutor, um passo só de desfazer);
- * - clicar sem arrastar seleciona e abre o painel (`onAbrir`), como o clique
- *   no `builder-node` deles abre a barra lateral;
- * - arrastar do ponto de saída até outro bloco chama `onLigar(de, para)`;
- *   soltar fora de um bloco não faz nada (o jsPlumb some com a seta solta);
- * - clicar numa seta a seleciona (fica na cor da marca); Delete apaga
- *   (`onDesligar`), que é o `bind("click")` + `keydown Delete` deles;
- * - botão direito no bloco abre o menu de contexto do editor: Duplicar,
- *   Copiar Id, Excluir — e o bloco de Início não tem menu, como lá.
- *
- * A altura de cada bloco é medida no DOM depois de renderizar (o texto do
- * título e as etiquetas mudam a altura), porque a seta sai da face certa.
+ * Builder canvas mirrors reference `#canvas.grabbable` with scaled `#diagramContainer`: absolute blocks, SVG arrows behind, background drag to pan, Ctrl+wheel zoom by 10 from 20% to 100% like footer `rzslider`. Captured Pointer Events support mouse/pen/touch and keep drags outside elements. Block drag calls `onMover` repeatedly and `onSoltar` once for one `soltar` reducer step for undo; a click calls `onAbrir` like source `builder-node`. Drag from an output to another block calls `onLigar(de, para)`; dropping outside does nothing. Clicking an arrow selects it; Delete calls `onDesligar`, mirroring source `bind("click")` and `keydown Delete`. Right-click opens Duplicate/Copy ID/Delete except on Start. Measure card height after render so arrows leave the proper face as labels and titles change it.
  */
 
 export interface PropsDoCanvas {
@@ -104,7 +85,7 @@ export function Canvas({
   const [copiedBlock, setCopiedBlock] = useState<Block | null>(null);
   const escala = zoom / 100;
 
-  /* A altura real de cada cartão, para a seta sair da face certa. */
+  /* Measure each card's actual height so its arrow leaves the correct edge. */
   useLayoutEffect(() => {
     const raiz = fundo.current;
     if (!raiz) return;
@@ -118,7 +99,7 @@ export function Canvas({
     if (mudou || Object.keys(medidas).length !== Object.keys(alturas).length) setAlturas(medidas);
   });
 
-  /* Delete apaga a seta selecionada — e o bloco selecionado, quando ele pode sair. */
+  /* Delete removes the selected arrow, or the selected block when that block may be removed. */
   useEffect(() => {
     const aoTeclar = (e: KeyboardEvent): void => {
       if (e.key !== 'Delete' && e.key !== 'Backspace') return;
@@ -153,7 +134,7 @@ export function Canvas({
     };
   }, [menu]);
 
-  /** Do ponteiro (tela) para o canvas (coordenadas do desenho, sem zoom). */
+  /** Convert pointer screen coordinates to unzoomed canvas coordinates. */
   function pontoDoCanvas(e: { clientX: number; clientY: number }): Ponto {
     const caixa = fundo.current?.getBoundingClientRect();
     return {
@@ -168,8 +149,9 @@ export function Canvas({
     return { ...position, largura: LARGURA_OF_BLOCK, altura: alturas[id] ?? ALTURA_DEFAULT_OF_BLOCK };
   }
 
-  /** O bloco sob o ponteiro, no plano do canvas. `elementFromPoint` falha
-   * durante a captura do ponteiro em alguns navegadores e com setas por cima. */
+  /**
+   * Find the block under the pointer in canvas coordinates; `elementFromPoint` can fail during pointer capture or with arrows overlaid.
+   */
   function blockSob(e: { clientX: number; clientY: number }): string | null {
     const ponto = pontoDoCanvas(e);
     const ids = Object.keys(mapa);
@@ -250,7 +232,7 @@ export function Canvas({
         onAbrir(arrasto.id);
       }
     } else if (arrasto.tipo === 'ligacao') {
-      // Sem arrasto de verdade, é clique no ponto de saída — não cria laço do
+      // Without real dragging, this is a click on the output point; do not create a self-loop merely from the click.
       // bloco para ele mesmo sozinho (ver `houveArrasto` em `setas.ts`).
       const alvo = arrasto.moveu ? blockSob(e) : null;
       if (alvo) onLigar(arrasto.de, alvo);
@@ -309,7 +291,7 @@ export function Canvas({
     try {
       block = copiedTextBlock(await navigator.clipboard.readText()) ?? block;
     } catch {
-      // A cópia feita neste Builder continua disponível mesmo sem permissão de leitura do navegador.
+      // A Builder copy remains available even if the browser clipboard permission is denied.
     }
     setMenu(null);
     if (!block) {

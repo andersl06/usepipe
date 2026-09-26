@@ -1,20 +1,5 @@
 /**
- * Ler e escrever CSV, com o comportamento do `CSV.new(io, headers: true)` do Ruby
- * que o `DataImportJob` do Chatwoot usa (ver `importacao-de-contatos.ts`):
- *
- * - campo entre aspas pode ter separador e quebra de linha; `""` é uma aspa;
- * - aspas malformadas são ERRO (`CsvMalformado`, o `CSV::MalformedCSVError` de
- *   lá), e a importação inteira falha em vez de importar meia linha errada;
- * - o BOM do UTF-8 do começo sai (`delete_prefix("\xEF\xBB\xBF")`).
- *
- * Escrito aqui, e não trazido de biblioteca, porque não há leitor de CSV no
- * monorepo e são quarenta linhas — uma dependência nova mexeria no lockfile que
- * três frentes compartilham.
- *
- * Acréscimos do Pipe ao comportamento do Ruby:
- * - o separador é detectado na linha de cabeçalho (`;` ou `,`): o Excel em
- *   português salva com ponto e vírgula, e o Chatwoot só aceita vírgula;
- * - linha inteira em branco é pulada, em vez de virar contato vazio.
+ * Read and write CSV with Ruby `CSV.new(io, headers: true)` behavior used by Chatwoot's `DataImportJob` (see `importacao-de-contatos.ts`). Quoted fields may contain separators or newlines; `""` denotes a quote. Malformed quoting raises `CsvMalformado` (the source's `CSV::MalformedCSVError`) so the whole import fails rather than importing a partial bad row. Strip an initial UTF-8 BOM (`delete_prefix("\xEF\xBB\xBF")`). This small reader avoids adding a shared lockfile dependency. Pipe extensions: detect `;` or `,` from the header because Portuguese Excel uses semicolons while Chatwoot accepts commas; skip fully blank rows rather than creating empty contacts.
  */
 
 export class CsvMalformado extends Error {
@@ -96,7 +81,7 @@ export function lerCsv(bruto: string): TabelaCsv {
   return { cabecalhos, linhas };
 }
 
-/** `CSV.generate`: aspas só onde precisa. Vírgula como separador, como o original. */
+/** Match `CSV.generate`: quote fields only when needed and use commas as in the source. */
 export function escreverCsv(registros: readonly (readonly string[])[]): string {
   const campo = (value: string) =>
     /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;

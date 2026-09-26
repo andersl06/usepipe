@@ -11,19 +11,7 @@ import type { ListaContact } from '../../lib/contacts';
 import { aplicarParametros } from '../../lib/template';
 
 /**
- * "Enviar mensagem ativa" — `/activeMessage/send`, o stepper 1-2-3 da
- * referência (`~/desk-clone/clone/index.html`, seção `active-msg`, foto
- * `desk2/blip-clone-active.png`): cabeçalho com seta, título e "Ajuda na
- * busca"; os três passos "Selecionar contato", "Escolher modelo", "Revisar
- * conteúdo"; o aviso de privacidade; o formulário à esquerda ("Selecionar
- * contato existente" / "Adicionar novo contato", "Novo contato", os campos
- * "Adicionar contato por", "Salvar contato no chatbot", "Telefone", "Nome do
- * contato" e "Adicionar") e o painel "Contatos selecionados 0/15" à direita;
- * "Cancelar" / "Continuar" embaixo. Os textos são os do MFE
- * `desk-active-message` (`referencias-blip/pesquisa/blip-desk-vocabulario.md`).
- *
- * O envio vai para `POST /v1/mensagens-ativas` (canal, modelo, contatos), que
- * já existe na `api`; "chatbot" da referência é o nosso canal.
+ * `Enviar mensagem ativa` at `/activeMessage/send` follows the reference three-step flow (`~/desk-clone/clone/index.html`, active-msg section; `desk2/blip-clone-active.png`): select contact, choose template, review content; show privacy notice, contact form and selected-contacts panel (0/15), then `Cancelar` / `Continuar`. Copy comes from MFE `desk-active-message` (`referencias-blip/pesquisa/blip-desk-vocabulario.md`). Send channel, template, and contacts to existing `api` endpoint `POST /v1/mensagens-ativas`; reference `chatbot` corresponds to our channel.
  */
 const MAX_CONTACTS = 15;
 
@@ -67,7 +55,7 @@ export function PageActiveMessage() {
   const contactInitial = useRead<{
     contact: { id: string; nome: string | null; telefone: string | null };
   }>(parametros.get('contact') ? `/v1/desk/contacts/${parametros.get('contact')}` : null);
-  /* Vindo de "Conversar novamente" (Contatos), o contato já entra selecionado. */
+  /* When arriving from `Conversar novamente` in Contacts, preselect that contact. */
   useEffect(() => {
     const c = contactInitial.data?.contact;
     if (c)

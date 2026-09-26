@@ -7,16 +7,7 @@ import type { HorarioParaEscolher } from '../../lib/registrations';
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
- * Cadastro de horário, em três formulários.
- *
- * Um só formulário de "semana inteira" teria de reenviar as sete linhas a cada
- * correção — e como não há `update` nesta tela (a auditoria de configuração
- * ainda não existe), reenviar viraria horário duplicado. Então: cria-se o
- * horário, e depois acrescenta-se faixa e feriado um a um.
- *
- * Data e hora são `<input type="date">` e `<input type="time">` do navegador:
- * calendário, teclado e formato local vêm de graça, e nenhuma biblioteca entra
- * na tela por causa disso.
+ * Schedule registration, in three forms. A single "whole week" form would have to resend all seven rows on every correction — and since there's no `update` on this screen yet (configuration auditing doesn't exist yet), resending would turn into a duplicated schedule. So: the schedule is created, then a time range and a holiday are added one at a time. Date and time are the browser's `<input type="date">` and `<input type="time">`: calendar, keyboard and local format come for free, and no library gets pulled into the screen for this.
  */
 
 function FormularioNovoHorario() {

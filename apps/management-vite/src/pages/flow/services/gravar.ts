@@ -4,9 +4,7 @@ import { atualizarLeituras } from '../../../lib/actions';
 import { motivoDe, type Resultado } from '../settings/basic/gravar';
 
 /**
- * As escritas de Serviços: `POST`, `PATCH` e `DELETE` em
- * `/v1/gestao/fluxos/:id/servicos`. A regra mora na `api`
- * (`dominio/gestao/servicos-do-roteador.ts`); a recusa volta como texto.
+ * Services writes: `POST`, `PATCH` and `DELETE` on `/v1/gestao/fluxos/:id/servicos`. The rule lives in the `api` (`dominio/gestao/servicos-do-roteador.ts`); a refusal comes back as text.
  */
 
 export async function salvarService(

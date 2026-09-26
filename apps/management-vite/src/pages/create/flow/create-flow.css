@@ -1,12 +1,10 @@
-/* ================================ criar fluxo (/criar/fluxo)
-
-   Só o que é DESTA tela: o passo do marketplace, o módulo 92466 do `portal.js`
-   (`25.204.0-v0.43.1`) — `#create-application-marketplace-step`.
-
-   O casco (o "x", a marca, o rodapé) e o passo do nome estão em `../criar.css`,
-   porque na origem eles são o mesmo template para o fluxo e para o roteador. A
-   página importa as duas folhas, nesta ordem. O prefixo `cf-` é desta tela;
-   `cr-` é o compartilhado. */
+/*
+ * ================================ create flow (/criar/fluxo)
+ *
+ *   Only what belongs to THIS screen: the marketplace step, `portal.js`'s module 92466 (`25.204.0-v0.43.1`) — `#create-application-marketplace-step`.
+ *
+ *   The shell (the "x", the brand, the footer) and the name step are in `../criar.css`, because in the source they're the same template for the flow and the router. The page imports both sheets, in this order. The `cf-` prefix belongs to this screen; `cr-` is shared.
+ */
 
 /* `.marketplace-step-options { gap: 2.5rem; margin-top: 3.5rem }` mais o
    `flex justify-center flex-wrap` do template. */
@@ -18,14 +16,15 @@
   margin-top: 3.5rem;
 }
 
-/* `.option-card` — um `<bds-paper>`:
-     `background-color: hsla(0,0%,100%,.07)`  →  7% de tinta sobre o fundo
-     `box-shadow: 0 .25rem 1rem rgba(10,15,26,.3)`
-     `gap: .75rem · padding: 3.75rem 1.5rem · width: 20rem`
-   mais o `flex flex-column items-center pointer relative` do template.
-
-   O `border-radius` vem do `bds-paper`, que é o cartão padrão deles — o nosso
-   `--p-r-md` é o mesmo papel. */
+/*
+ * `.option-card` — a `<bds-paper>`:
+ *     `background-color: hsla(0,0%,100%,.07)`  →  7% ink over the background
+ *     `box-shadow: 0 .25rem 1rem rgba(10,15,26,.3)`
+ *     `gap: .75rem · padding: 3.75rem 1.5rem · width: 20rem`
+ *   plus the template's `flex flex-column items-center pointer relative`.
+ *
+ *   The `border-radius` comes from `bds-paper`, their default card — our `--p-r-md` is the same paper.
+ */
 .cf-cartao {
   position: relative;
   display: flex;
@@ -40,8 +39,9 @@
   box-shadow: 0 0.25rem 1rem color-mix(in srgb, var(--cr-fundo) 60%, transparent);
   color: var(--cr-tinta);
   text-align: center;
-  /* O cartão é um <a>: sem isto o navegador sublinha título e descrição
-     inteiros. O bds-paper deles não é link, então não herda sublinhado. */
+  /*
+   * The card is an `<a>`: without this the browser underlines the whole title and description. Their `bds-paper` isn't a link, so it doesn't inherit an underline.
+   */
   text-decoration: none;
   cursor: pointer;
 }
@@ -73,17 +73,14 @@
   line-height: var(--p-altura-linha);
 }
 
-/* `bds-chip-tag color="success"`, e a regra que o pendura meio a meio sobre a
-   borda de cima do cartão:
-     `left: 50%; position: absolute; top: -.75rem; transform: translateX(-50%)`.
-
-   A tinta de sucesso do tema escuro deles; a nossa é o par "sobre escuro" que o
-   `@pipe/ui` já tem, pelo mesmo motivo do `--cr-erro` em `../criar.css`.
-
-   Nome `cf-selo-recomendado`, não `cf-selo`: essa classe já existe em
-   `configuracoes.css` para o selo de papel da Equipe/Chaves — mesmo nome,
-   CSS global sem módulo, a ordem de import decidia qual regra vencia e
-   jogava o selo de papel pra fora da linha (position: absolute daqui). */
+/*
+ * `bds-chip-tag color="success"`, and the rule that hangs it halfway over the card's top border:
+ *     `left: 50%; position: absolute; top: -.75rem; transform: translateX(-50%)`.
+ *
+ *   Their dark theme's success ink; ours is the "on dark" pair `@pipe/ui` already has, for the same reason as `--cr-erro` in `../criar.css`.
+ *
+ *   Named `cf-selo-recomendado`, not `cf-selo`: that class already exists in `configuracoes.css` for the Team/Keys paper badge — same name, global CSS with no module scoping, the import order decided which rule won and threw the paper badge out of line (this `position: absolute`).
+ */
 .cf-selo-recomendado {
   position: absolute;
   left: 50%;
@@ -98,11 +95,10 @@
   font-weight: var(--p-peso-forte);
 }
 
-/* ============================ passo 2: apresentação do template
-   `#create-application-test-step` — `auth.application.create.test`. Não temos
-   as medidas em pixel desta tela (só o marketplace foi capturado renderizado);
-   a disposição abaixo é a mesma coluna centrada dos outros passos, com a
-   descrição e a lista de funcionalidades por cima dos botões de `.cr-acoes`. */
+/*
+ * ============================ step 2: template presentation
+ *   `#create-application-test-step` — `auth.application.create.test`. We don't have this screen's pixel measurements (only the marketplace was captured rendered); the layout below is the same centered column as the other steps, with the description and the feature list above the `.cr-acoes` buttons.
+ */
 .cf-apresentacao {
   display: flex;
   flex-direction: column;
@@ -124,9 +120,9 @@
   color: var(--cr-fraca);
 }
 
-/* A lista das quatro funcionalidades pré-configuradas. Sem correspondente
-   medido na origem: o `bds-icon` de cada linha é substituído pelo `IconePortal`
-   mais próximo (ver `ICONES_DAS_FUNCIONALIDADES` em `page.tsx`). */
+/*
+ * The list of four pre-configured features. No measured counterpart in the source: each row's `bds-icon` is replaced by the closest `IconePortal` (see `ICONES_DAS_FUNCIONALIDADES` in `page.tsx`).
+ */
 .cf-lista {
   display: flex;
   flex-direction: column;
@@ -149,9 +145,10 @@
   color: var(--cr-marca);
 }
 
-/* --------------------------------------------------------- estreito
-   O `flex-wrap` do template já empilha os dois cartões sozinho; o que falta é
-   a folga de cima, que a 3.5rem cola no título quando a fileira vira coluna. */
+/*
+ * --------------------------------------------------------- narrow
+ *   The template's `flex-wrap` already stacks the two cards on its own; what's missing is the top gap, which sticks the 3.5rem to the title when the row becomes a column.
+ */
 @media (max-width: 46rem) {
   .cf-opcoes {
     margin-top: 2.5rem;

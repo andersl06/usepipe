@@ -1,38 +1,32 @@
-/* ==========================================================================
-   Análise do contato · Dashboard (/fluxo/[id]/analise/dashboard)
-
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. A régua é o `iN` do
-   `portal-fragment-analytics` (`cap6s/portalmfe/analytics-main.js`): o CSS
-   dele é styled-components (`Rt.default.div(_t([...]))`) mais um `<style>`
-   por componente, e os `bds-*` vêm das folhas do Stencil (`bds-grid_5` para
-   typo/paper, `bdscss/` para botão, chip e dica).
-
-   Régua de tipo (`typo__variant--fs-*`): fs-10 = 10px/150%, fs-12 = 12/150%,
-   fs-14 = 14/150%, fs-16 = 16/150%, fs-20 = 20/100%, fs-24 = 24/100%,
-   fs-32 = 32/100%. Pesos: regular 400, semi-bold 600, bold 700, extra-bold
-   800. `typo margin` (o padrão do `bds-typo`) em fs-20/24/32 = 22px embaixo.
-   `bds-paper`: raio 16, sombra `static` (0 2px 8px -2px).
-
-   O de-para das tintas:
-     color-surface-1 #F6F6F6 (papéis, faixa do filtro)     → var(--surface)
-     color-surface-2 #EDEDED (cartão escuro, listrado)     → var(--surface-2)
-     color-surface-3 #E3E3E3 (`DR`, faixa da lateral)      → var(--surface-3)
-     color-surface-4 #141414 (cabeçalho da lateral)        → var(--p-superficie-4)
-     color-content-default / -disable / -ghost             → var(--ink) / var(--ink-2) / var(--ink-3)
-     color-primary #1E6BF1 · bp-c-bot #3F7DE8 (link)       → var(--p-marca)
-     color-system #B2DFFD (chip ativo, círculo do "1º")    → var(--p-info-fundo)
-     color-border-1 #B1B1B1 (chip outline, botão terciário) → var(--p-linha-forte)
-     sombra 0 2px 8px -2px rgba(0,0,0,.16) do paper        → var(--p-sombra-1)
-     sombra da faixa rgba(7,71,166,.12)                    → var(--ink) a 12%
-     tooltip color-content-default #454545                 → var(--ink), letra var(--surface)
-     #666666 / #A3A3A3 (títulos do vazio)                  → var(--ink-2) / var(--ink-3)
-     #505F79 (explicação de Mensagens) · #8CA0B3 (cabeça dos canais) → var(--ink-2) · var(--ink-3)
-     véu da lateral rgba(235,235,235,.5)                   → var(--surface-3) a 50%
-     paleta estendida dos gráficos e fios:
-       extended_ocean #00D3E4 → var(--p-grafico-2)   extended_blue #1968F0 → var(--p-grafico-1)
-       extended_pink #FB4BC1 → var(--p-grafico-4)    extended_yellow #FBCF23 → var(--p-grafico-3)
-       extended_gray #666666 → var(--ink-2)          datalabel #292929 → var(--ink)
-   ========================================================================== */
+/*
+ * ==========================================================================
+ *   Contact Analysis · Dashboard (/fluxo/[id]/analise/dashboard)
+ *
+ *   THE LAYOUT IS THEIRS, THE PAINT IS OURS. The ruler is the `iN` from `portal-fragment-analytics` (`cap6s/portalmfe/analytics-main.js`): its CSS is styled-components (`Rt.default.div(_t([...]))`) plus a `<style>` per component, and the `bds-*` come from Stencil's sheets (`bds-grid_5` for type/paper, `bdscss/` for button, chip and tooltip).
+ *
+ *   Type ruler (`typo__variant--fs-*`): fs-10 = 10px/150%, fs-12 = 12/150%, fs-14 = 14/150%, fs-16 = 16/150%, fs-20 = 20/100%, fs-24 = 24/100%, fs-32 = 32/100%. Weights: regular 400, semi-bold 600, bold 700, extra-bold 800. `typo margin` (`bds-typo`'s default) at fs-20/24/32 = 22px below. `bds-paper`: radius 16, `static` shadow (0 2px 8px -2px).
+ *
+ *   The ink mapping:
+ *     color-surface-1 #F6F6F6 (papers, filter strip)        → var(--surface)
+ *     color-surface-2 #EDEDED (dark card, striped)          → var(--surface-2)
+ *     color-surface-3 #E3E3E3 (`DR`, sidebar strip)          → var(--surface-3)
+ *     color-surface-4 #141414 (sidebar header)               → var(--p-superficie-4)
+ *     color-content-default / -disable / -ghost             → var(--ink) / var(--ink-2) / var(--ink-3)
+ *     color-primary #1E6BF1 · bp-c-bot #3F7DE8 (link)        → var(--p-marca)
+ *     color-system #B2DFFD (active chip, "1st" circle)      → var(--p-info-fundo)
+ *     color-border-1 #B1B1B1 (chip outline, tertiary button) → var(--p-linha-forte)
+ *     paper shadow 0 2px 8px -2px rgba(0,0,0,.16)            → var(--p-sombra-1)
+ *     strip shadow rgba(7,71,166,.12)                        → var(--ink) at 12%
+ *     tooltip color-content-default #454545                  → var(--ink), letter var(--surface)
+ *     #666666 / #A3A3A3 (empty-state titles)                 → var(--ink-2) / var(--ink-3)
+ *     #505F79 (Messages explanation) · #8CA0B3 (channels head) → var(--ink-2) · var(--ink-3)
+ *     sidebar veil rgba(235,235,235,.5)                       → var(--surface-3) at 50%
+ *     charts' extended palette and lines:
+ *       extended_ocean #00D3E4 → var(--p-grafico-2)   extended_blue #1968F0 → var(--p-grafico-1)
+ *       extended_pink #FB4BC1 → var(--p-grafico-4)    extended_yellow #FBCF23 → var(--p-grafico-3)
+ *       extended_gray #666666 → var(--ink-2)          datalabel #292929 → var(--ink)
+ *   ==========================================================================
+ */
 
 .da-raiz {
   --da-sombra-faixa: color-mix(in srgb, var(--ink) 12%, transparent);
@@ -50,7 +44,7 @@
   box-sizing: border-box;
 }
 
-/* `bds-typo`: sem margem própria; a de 22px só vem com `margin` em fs-20+. */
+/* `bds-typo`: no margin of its own; the 22px only comes with `margin` at fs-20+. */
 .da-raiz p,
 .da-raiz h1,
 .da-raiz h2 {
@@ -135,7 +129,7 @@
   box-shadow: 0 10px 16px var(--da-sombra-faixa);
 }
 
-/* `pT`: 90% até 1366, `space-around`, 24px em cima e embaixo. */
+/* `pT`: 90% up to 1366, `space-around`, 24px on top and below. */
 .da-filtro-miolo {
   display: flex;
   flex-direction: row;
@@ -147,7 +141,7 @@
   padding: 24px 0;
 }
 
-/* `mT`: 38px de altura; o ícone com 5px à esquerda; 150px abaixo de 1300. */
+/* `mT`: 38px tall; the icon with 5px on the left; 150px below 1300. */
 .da-filtro-rotulo {
   display: flex;
   flex-direction: row;
@@ -165,7 +159,7 @@
   }
 }
 
-/* `fT` (40%, `row-gap: 0.65vw`, 10 à direita) e `gT` (`column-gap: 0.65vw`). */
+/* `fT` (40%, `row-gap: 0.65vw`, 10 on the right) and `gT` (`column-gap: 0.65vw`). */
 .da-filtro-chips {
   display: flex;
   flex-direction: column;
@@ -225,8 +219,9 @@
   white-space: nowrap;
 }
 
-/* `eT` + `tT.date-info` (32px, raio 10, recheio 3, 8 à direita, borda
-   surface-2) + `oT.info-date` (5px 10px) + `nT` (sem borda, 16px, 5 à esquerda). */
+/*
+ * `eT` + `tT.date-info` (32px, radius 10, 3 padding, 8 on the right, surface-2 border) + `oT.info-date` (5px 10px) + `nT` (no border, 16px, 5 on the left).
+ */
 .da-datas {
   display: flex;
   flex-direction: row;
@@ -260,7 +255,7 @@
   font-size: 16px;
 }
 
-/* `::-webkit-calendar-picker-indicator`: 4 à esquerda, raio 6, recheio 4. */
+/* `::-webkit-calendar-picker-indicator`: 4 on the left, radius 6, 4 padding. */
 .da-data input::-webkit-calendar-picker-indicator {
   margin-left: 4px;
   padding: 4px;
@@ -268,10 +263,11 @@
   background-color: var(--surface);
 }
 
-/* ============================================================== botões */
+/* ============================================================== buttons */
 
-/* `bds-button` `standard`: 40px, `padding: 9px 16px`, raio 8, `fs-14 bold`,
-   ícone de 24 com 4px de folga; hover escurece 8%; travado a 50%. */
+/*
+ * `bds-button` `standard`: 40px, `padding: 9px 16px`, radius 8, `fs-14 bold`, 24px icon with 4px gap; hover darkens 8%; disabled at 50%.
+ */
 .da-botao {
   position: relative;
   display: inline-flex;
@@ -324,7 +320,7 @@
   color: var(--surface);
 }
 
-/* `_S`: o botão só de ícone do CSV (`font-weight: 700`). */
+/* `_S`: the CSV's icon-only button (`font-weight: 700`). */
 .da-botao--so-icone svg {
   margin-right: 0;
 }
@@ -438,7 +434,7 @@
   top: 60%;
 }
 
-/* ================================================== indicador de comparação */
+/* ================================================== comparison indicator */
 
 /* `JS`: 20px, raio 3, recheio 2, `inline-flex`; 50px de largura, menos no
    transparente. Claro = surface-1, escuro = surface-2. */
@@ -485,7 +481,7 @@
   padding-bottom: 16px;
 }
 
-/* `vE` + `yE`: título e o `info` sólido com 5px à esquerda. */
+/* `vE` + `yE`: title and the solid `info` with 5px on the left. */
 .da-titulo {
   display: flex;
   flex-direction: row;
@@ -496,7 +492,7 @@
   box-sizing: content-box;
 }
 
-/* `F_`/`CE`/`bR`/`Pw`: cabeça da seção, título à esquerda e CSV à direita. */
+/* `F_`/`CE`/`bR`/`Pw`: section header, title on the left and CSV on the right. */
 .da-secao-cabeca {
   display: flex;
   flex-direction: row;
@@ -521,8 +517,9 @@
   padding: 10px;
 }
 
-/* `mE`: coluna centrada; ícone de 80 com 7 em cima, título 16 em cima,
-   texto 12 em cima e 32 dos lados. */
+/*
+ * `mE`: centered column; 80px icon with 7 on top, 16 title on top, 12 text on top and 32 on the sides.
+ */
 .da-vazio {
   display: flex;
   flex-direction: column;
@@ -616,8 +613,9 @@
   width: 100%;
 }
 
-/* `v_.stripedCard`: `padding: 16px 8px 16px 16px`, raio 8, `margin: 8px 0`,
-   até 275, surface-2. */
+/*
+ * `v_.stripedCard`: `padding: 16px 8px 16px 16px`, radius 8, `margin: 8px 0`, up to 275, surface-2.
+ */
 .da-listrado {
   display: flex;
   flex-direction: row;
@@ -681,7 +679,7 @@
   border-color: var(--p-grafico-1);
 }
 
-/* `E_`: o `external-file` small; travado é `not-allowed`. */
+/* `E_`: the small `external-file`; disabled is `not-allowed`. */
 .da-abrir {
   display: inline-flex;
   color: var(--ink);
@@ -692,7 +690,7 @@
   cursor: not-allowed;
 }
 
-/* ============================================================ gráficos */
+/* ============================================================ charts */
 
 .da-cor-oceano {
   color: var(--p-grafico-2);
@@ -704,8 +702,9 @@
   color: var(--ink-2);
 }
 
-/* A altura da coluna na origem é a dos três cartões ao lado (~240px de área
-   de desenho); com menos, os 11 tiques do chart.js se atropelam. */
+/*
+ * The source column's height is that of the three cards beside it (~240px drawing area); with less, chart.js's 11 ticks collide.
+ */
 .da-linhas {
   display: flex;
   flex-direction: column;
@@ -713,7 +712,7 @@
   min-height: 260px;
 }
 
-/* `plugins.title`: bold 14, alinhado ao começo, 10 em cima e embaixo. */
+/* `plugins.title`: bold 14, aligned to the start, 10 on top and bottom. */
 .da-linhas-titulo {
   padding: 10px 0;
   font-size: 14px;
@@ -727,7 +726,7 @@
   padding-bottom: 20px;
 }
 
-/* Tiques do chart.js: 12px, cor padrão #666, 3px de folga até o eixo. */
+/* chart.js ticks: 12px, default color #666, 3px gap to the axis. */
 .da-eixo-y {
   position: relative;
   width: 28px;
@@ -748,9 +747,9 @@
   flex: 1;
 }
 
-/* Absoluto: sem isso o `viewBox` quadrado dá altura própria ao desenho e
-   estica a seção. O canvas do chart.js (`maintainAspectRatio: false`) só
-   ocupa a altura que a coluna já tem. */
+/*
+ * Absolute: without this the square `viewBox` gives the drawing its own height and stretches the section. chart.js's canvas (`maintainAspectRatio: false`) only takes the height the column already has.
+ */
 .da-plot svg {
   position: absolute;
   inset: 0;
@@ -784,7 +783,7 @@
   white-space: nowrap;
 }
 
-/* `legend` embaixo: `usePointStyle` círculo 7×7, 10 de recheio, 12px #666. */
+/* `legend` at the bottom: `usePointStyle` circle 7×7, 10 padding, 12px #666. */
 .da-legenda {
   display: flex;
   flex-wrap: wrap;
@@ -844,7 +843,7 @@
   background: currentColor;
 }
 
-/* datalabels: 24px "bolder" à direita da ponta, cor #292929. */
+/* datalabels: 24px "bolder" to the right of the tip, color #292929. */
 .da-barra-valor {
   color: var(--ink);
   font-size: 24px;
@@ -852,7 +851,7 @@
   white-space: pre;
 }
 
-/* ========================================================= Recorrência */
+/* ========================================================= Recurrence */
 
 /* `AR`: linha, gap 16, 16 embaixo; `ZR`: duas colunas de 50% com gap 16. */
 .da-recorrencia {
@@ -941,7 +940,7 @@
   padding: 10px;
 }
 
-/* `gS`/`kS`/`xS`/`bS`: a cabeça é uma tabela fixa, o corpo rola sozinho. */
+/* `gS`/`kS`/`xS`/`bS`: the head is a fixed table, the body scrolls on its own. */
 .da-ranking-tabela {
   width: 100%;
   border-collapse: separate;
@@ -971,8 +970,9 @@
   margin-bottom: 12px;
 }
 
-/* O `table` global do Pipe põe caixa-alta e fio em cada linha; os `vS`/`yS`
-   da origem não têm nem um nem outro. */
+/*
+ * The Pipe global `table` sets uppercase and a rule on every row; the source's `vS`/`yS` have neither.
+ */
 .da-ranking-tabela th,
 .da-ranking-tabela td {
   padding: 0;
@@ -987,7 +987,7 @@
   white-space: nowrap;
 }
 
-/* `fS.color-circle`: 32px, redondo, 14 à esquerda, fundo `system`. */
+/* `fS.color-circle`: 32px, round, 14 on the left, `system` background. */
 .da-posicao {
   display: flex;
   justify-content: center;
@@ -1019,7 +1019,7 @@
   padding: 10px;
 }
 
-/* `yR`: coluna `space-evenly`, 10 à direita menos na última. */
+/* `yR`: `space-evenly` column, 10 on the right except the last. */
 .da-mensagens-coluna {
   display: flex;
   flex-direction: column;
@@ -1062,7 +1062,7 @@
   padding: 0 10px;
 }
 
-/* `aR`: o número encostado à direita. */
+/* `aR`: the number flush right. */
 .da-metrica-valor {
   display: flex;
   flex-direction: row;
@@ -1107,8 +1107,9 @@
   vertical-align: baseline;
 }
 
-/* Mesmo reset das tabelas de ranking: o `th`/`td` global do Pipe põe
-   caixa-alta, fio e recheio que o `FS`/`tE` da origem não têm. */
+/*
+ * Same reset as the ranking tables: the Pipe global `th`/`td` adds uppercase, a rule and padding that the source's `FS`/`tE` don't have.
+ */
 .da-canais-tabela th,
 .da-canais-tabela td {
   padding: 0;
@@ -1141,7 +1142,7 @@
   background: var(--surface-2);
 }
 
-/* `tr:last-child` (os "Totais") e a primeira célula de cada linha em negrito. */
+/* `tr:last-child` (the "Totais") and the first cell of each row in bold. */
 .da-canais-tabela tbody tr:last-child {
   font-weight: 700;
 }
@@ -1237,7 +1238,7 @@
 
 /* ====================================================== a barra lateral */
 
-/* `X_#sidebar-overlay`: véu fixo de tela cheia, coluna encostada à direita. */
+/* `X_#sidebar-overlay`: a fixed full-screen veil, column flush right. */
 .da-veu {
   position: fixed;
   top: 0;
@@ -1295,7 +1296,7 @@
   color: var(--ink);
 }
 
-/* `ow`: metade, 5% à esquerda, centrada. */
+/* `ow`: half, 5% on the left, centered. */
 .da-lateral-sub-coluna {
   display: flex;
   flex-direction: column;
@@ -1304,7 +1305,7 @@
   padding-left: 5%;
 }
 
-/* `nw` (5% em cima) + `aw` (2% à esquerda). */
+/* `nw` (5% on top) + `aw` (2% on the left). */
 .da-lateral-sub-titulo {
   display: flex;
   flex-direction: row;
@@ -1315,7 +1316,7 @@
   padding-left: 2%;
 }
 
-/* `iw`: 1% à esquerda, 4% em cima. */
+/* `iw`: 1% on the left, 4% on top. */
 .da-lateral-sub-dado {
   padding-top: 4%;
   padding-left: 1%;
@@ -1330,7 +1331,7 @@
   overflow-y: auto;
 }
 
-/* `cw`: 52px, 94%, 8 embaixo, 3% à esquerda; no hover 54px, 96% e 2%. */
+/* `cw`: 52px, 94%, 8 below, 3% on the left; on hover 54px, 96% and 2%. */
 .da-lateral-item {
   display: flex;
   flex-direction: row;

@@ -4,29 +4,16 @@ import { useRead } from '../../../../lib/query';
 import { salvarConexao, type FlowConexao } from './gravar';
 
 /**
- * O miolo de `/configurations/apikey`, cartão por cartão como no template
- * (portal.js, módulo 83981):
+ * The guts of `/configurations/apikey`, card by card as in the template (portal.js, module 83981):
  *
  *   bds-paper.ph5.pv4.mb3  usingBuilder  (h1 + p + switch)
- *   bds-paper.ph5.pv4.mb3  usingSdk      (h1 + small + p + switch; campos
- *                          wsEndpoint/tcpEndpoint | identifier em input-clipboard)
- *   bds-paper.ph5.pv4.mb3  usingHttp     (h1 + small + p + switch; form#httpForm
- *                          com urlReceiveMessages/urlReceiveNotifications,
- *                          bds-paper OAuth 2.0 e o "Salvar")
- *   bds-paper.ph5.pv4.mb3  httpEndpoints (sendMessagesUrl/sendNotificationsUrl |
- *                          sendCommandsUrl)
+ *   bds-paper.ph5.pv4.mb3  usingSdk      (h1 + small + p + switch; wsEndpoint/tcpEndpoint fields | identifier in input-clipboard)
+ *   bds-paper.ph5.pv4.mb3  usingHttp     (h1 + small + p + switch; form#httpForm with urlReceiveMessages/urlReceiveNotifications, OAuth 2.0 bds-paper and the "Salvar")
+ *   bds-paper.ph5.pv4.mb3  httpEndpoints (sendMessagesUrl/sendNotificationsUrl | sendCommandsUrl)
  *
- * O que virou REAL (`GET/PUT /v1/gestao/fluxos/:id/conexao`,
- * `dominio/gestao/integracoes.ts`): o identificador (sempre foi), o
- * endpoint da `api`, o prefixo da chave ativa do fluxo (nunca o segredo — a
- * tela de "Chaves de acesso" é quem emite) e as duas URLs do formulário
- * HTTP, que viram `webhook_saida`.
+ * What became REAL (`GET/PUT /v1/gestao/fluxos/:id/conexao`, `dominio/gestao/integracoes.ts`): the identifier (always was), the `api`'s endpoint, the flow's active key prefix (never the secret — the "Chaves de acesso" screen is what issues it) and the two HTTP form URLs, which become `webhook_saida`.
  *
- * ponytail: `wsEndpoint`/`tcpEndpoint` (SDK) e os "Endpoints HTTP" de baixo
- * (sendMessagesUrl/sendNotificationsUrl/sendCommandsUrl) exigiriam um
- * servidor de SDK e rotas de envio que o Pipe não tem — ficam vazios, como
- * antes. OAuth 2.0 do cartão HTTP também: campo visual, sem gravação (a
- * origem também não resolve `isCheckedOAuth` no mock).
+ * ponytail: `wsEndpoint`/`tcpEndpoint` (SDK) and the "Endpoints HTTP" below (sendMessagesUrl/sendNotificationsUrl/sendCommandsUrl) would require an SDK server and send routes that Pipe doesn't have — they stay empty, as before. Same for the HTTP card's OAuth 2.0: a visual field, no write (the source doesn't resolve `isCheckedOAuth` in the mock either).
  */
 export function TelaDeConexao({ flowId }: { flowId: string }) {
   const caminho = `/v1/management/flows/${flowId}/connection`;
@@ -43,8 +30,9 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
   const [salvando, setSalvando] = useState(false);
   const [sujo, setSujo] = useState(false);
 
-  /* Preenche com o que veio do banco — só enquanto a pessoa não mexeu, para
-     não sobrescrever o que ela está digitando quando a leitura revalida. */
+  /*
+   * Fills with what came from the database — only while the person hasn't touched it, so as not to overwrite what they're typing when the read revalidates.
+   */
   useEffect(() => {
     if (!data || sujo) return;
     setUrlMessages(data.urlMessages ?? '');

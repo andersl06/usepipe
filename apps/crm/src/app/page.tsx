@@ -8,11 +8,12 @@ import { money, moneyCurto, numero, percentual } from '../lib/format';
 export const dynamic = 'force-dynamic';
 
 /**
- * Variação contra o mês anterior. Só aparece quando há base de comparação.
+ * Variation against the previous month. Only shows up when there's a basis for
+ * comparison.
  *
- * Vem com sinal e sem cor: um mês pior que o anterior não é um erro que
- * alguém resolva clicando, e pintar de vermelho o que a pessoa não pode
- * consertar é o que gasta a cor antes da hora.
+ * It comes with a sign and no color: a worse month than the last one isn't an
+ * error someone fixes by clicking, and painting red something the person can't
+ * fix is what burns out the color before it matters.
  */
 function Variation({ atual, anterior }: { atual: number; anterior: number }) {
   if (anterior === 0) return null;
@@ -51,10 +52,10 @@ export default async function PagePanel() {
       </div>
 
       {/*
-        Os indicadores são a legenda do mês, não o assunto: uma linha só, tipografia
-        menor, sem caixa. Quando cinco cartões têm o mesmo peso do funil, o olho não
-        sabe onde começar.
-      */}
+ * The indicators are the month's caption, not the main subject: a single line,
+ * smaller type, no box. When five cards carry the same visual weight as the
+ * funnel, the eye doesn't know where to start.
+ */}
       <div className="resumo">
         <div>
           <b>{numero(ind.leadsNoMes)}</b>
@@ -88,7 +89,10 @@ export default async function PagePanel() {
         </div>
       </div>
 
-      {/* O assunto da tela: como está o mês. Ocupa a largura porque é o que se lê primeiro. */}
+      {/*
+ * The screen's subject: how the month is going. It takes the full width because
+ * it's what gets read first.
+ */}
       <div className="tblwrap">
         <header>
           <h3>Funil de oportunidades</h3>
@@ -168,10 +172,10 @@ export default async function PagePanel() {
                       <>
                         {' '}
                         {/*
-                          A única cor deste cartão. Lead parado é o que custa dinheiro
-                          e é o que alguém resolve clicando — o resto da linha é
-                          contagem, e contagem não pede ação.
-                        */}
+ * This card's only color. A stalled lead is what costs money and is what
+ * someone fixes by clicking — the rest of the row is a count, and a count
+ * doesn't call for action.
+ */}
                         <Link href="/leads?tab=parados">
                           <Etiqueta tom="alerta">{numero(f.parados)} parados</Etiqueta>
                         </Link>

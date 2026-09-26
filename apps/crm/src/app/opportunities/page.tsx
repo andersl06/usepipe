@@ -16,19 +16,21 @@ import { data, money, numero } from '../../lib/format';
 export const dynamic = 'force-dynamic';
 
 /**
- * Oportunidades: o mesmo objeto em duas visões.
+ * Opportunities: the same object in two views.
  *
- * O quadro responde **como está o funil**; a tabela responde **quais são**. São
- * perguntas diferentes, e o Twenty resolve as duas no mesmo endereço trocando o
- * tipo de visão — é o que fazemos com `?vista=`. Uma visão de tela não merece
- * uma rota própria: o endereço é do objeto, não do desenho.
+ * The board answers **how the funnel looks**; the table answers **which ones
+ * there are**. They're different questions, and Twenty solves both at the same
+ * address by swapping the view type — that's what we do with `?vista=`. A screen
+ * view doesn't deserve its own route: the address belongs to the object, not to
+ * the layout.
  *
- * Duas diferenças de conteúdo entre elas, e as duas são deliberadas:
+ * Two content differences between them, and both are deliberate:
  *
- * - **O quadro só mostra oportunidade aberta.** Arrastar uma fechada não faz
- *   sentido, e uma coluna com o histórico inteiro deixaria de caber na tela.
- * - **A tabela mostra as fechadas**, em recortes. É ela que responde "o que
- *   ganhamos" e "o que perdemos, e por quê" — que é a pergunta do fim do mês.
+ * - **The board only shows open opportunities.** Dragging a closed one makes no
+ *   sense, and a column with the entire history would stop fitting on screen.
+ * - **The table shows the closed ones**, in slices. It's the one that answers
+ *   "what did we win" and "what did we lose, and why" — which is the
+ *   end-of-month question.
  */
 
 type Vista = 'quadro' | 'tabela';
@@ -62,8 +64,8 @@ function colunasDaTabela(hoje: Date, fuso: string): readonly Column<LinhaOpportu
     {
       key: 'situacao',
       rotulo: 'Situação',
-      // A única cor da tabela: o fechamento que venceu numa oportunidade que
-      // continua aberta. É o que exige ação hoje; o resto é categoria.
+      // The table's only color: an overdue close date on an opportunity that
+      // is still open. It's what demands action today; everything else is a category.
       celula: (o) => {
         if (o.fechadaEm) {
           return (
@@ -109,8 +111,11 @@ export default async function PageOpportunities({
         </span>
       </div>
 
-      {/* Os números são do funil ABERTO nas duas visões, de propósito: eles
-          respondem "quanto está em jogo agora", e o que já fechou não está. */}
+      {/*
+ * The numbers are for the OPEN funnel in both views, on purpose: they answer
+ * "how much is at stake right now", and what's already closed isn't part of
+ * that.
+ */}
       <div className="resumo">
         <div>
           <b>{numero(funil.quantityGeneral)}</b>
@@ -167,8 +172,8 @@ function QuadroDoFunil({ funil }: { funil: Awaited<ReturnType<typeof carregarFun
         .filter((p) => p !== null)
         .join(' · '),
       fase: column.fase,
-      // Fechamento no passado numa oportunidade que continua aberta: é a única
-      // coisa do quadro que exige ação, e é a única que recebe cor.
+      // An overdue close date on an opportunity that's still open: it's the only
+      // thing on the board that demands action, and it's the only one that gets color.
       diasVencido:
         c.closingPrevisto && c.closingPrevisto < hoje
           ? Math.floor((hoje.getTime() - c.closingPrevisto.getTime()) / 86_400_000)
@@ -178,10 +183,11 @@ function QuadroDoFunil({ funil }: { funil: Awaited<ReturnType<typeof carregarFun
 
   if (funil.quantityGeneral === 0) {
     /*
-      O vazio do quadro falava em `pnpm seed:crm`, que é comando de quem constrói
-      o produto e não de quem o usa. Aqui ele diz de onde vem uma oportunidade,
-      que é a única coisa útil quando não há nenhuma.
-    */
+     * The board's empty state used to mention `pnpm seed:crm`, which is a command
+     * for whoever builds the product, not whoever uses it. Here it says where an
+     * opportunity comes from, which is the only useful thing to say when there are
+     * none.
+     */
     return (
       <EmptyState titulo="Nenhuma oportunidade aberta." illustration="concluido">
         <span>

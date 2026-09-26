@@ -6,20 +6,11 @@ import '../integrations/header-of-page.css';
 import './channels.css';
 
 /**
- * Canais do contato — `auth.application.detail.channels` da captura 8.
+ * Contact channels — `auth.application.detail.channels` from capture 8.
  *
- * A fonte é o template do módulo 27679 de `portal.js` (linha 80819) e as
- * regras `.channels-list` de `portal.css`. Lá, cada cartão é um `<card
- * ng-click="$ctrl.goToState('…channels.<canal>')">` — o clique é no CARTÃO
- * inteiro, e "Conectar"/"Conectado" no rodapé só mudam de aparência: os dois
- * levam à MESMA página do canal, dentro do bot
- * (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1.1).
+ * The source is the module 27679 template of `portal.js` (line 80819) and the `.channels-list` rules from `portal.css`. There, each card is a `<card ng-click="$ctrl.goToState('…channels.<canal>')">` — the click targets the WHOLE CARD, and "Conectar"/"Conectado" in the footer only change appearance: both lead to the SAME channel page, inside the bot (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1.1).
  *
- * Aqui: WhatsApp, Messenger e Instagram (os canais que a Pipe tem) são links
- * para `/{tipo}/{id}/canais/{whatsapp,messenger,instagram}`. A origem mantém
- * Pipe Chat e E-mail sempre "Conectado"; RCS, Telegram e Apple têm página lá e
- * não têm aqui, então ficam com o rodapé de estado sem levar a lugar nenhum
- * (`aria-disabled`), em vez de fingir uma integração.
+ * Here: WhatsApp, Messenger and Instagram (the channels Pipe has) are links to `/{tipo}/{id}/canais/{whatsapp,messenger,instagram}`. The source keeps Pipe Chat and E-mail always "Conectado"; RCS, Telegram and Apple have a page there but not here, so they keep the state footer without leading anywhere (`aria-disabled`), instead of faking an integration.
  */
 type Logo =
   'pipe' | 'whatsapp' | 'messenger' | 'instagram' | 'google' | 'telegram' | 'apple' | 'email';
@@ -29,7 +20,7 @@ type TelaChannel = {
   logo: Logo;
   sempre?: boolean;
   novo?: boolean;
-  /** Tem página própria no bot: o cartão navega. */
+  /** Has its own page inside the bot: the card navigates. */
   page?: TipoOfChannelOfBot;
 };
 
@@ -157,5 +148,5 @@ function ChannelLogo({ nome }: { nome: Logo }) {
   );
 }
 
-/** O logo do canal, para as páginas de cada canal reutilizarem o mesmo desenho da lista. */
+/** The channel logo, so each channel's page can reuse the same artwork as the list. */
 export { ChannelLogo };

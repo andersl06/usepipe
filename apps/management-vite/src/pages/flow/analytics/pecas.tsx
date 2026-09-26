@@ -2,21 +2,11 @@ import type { ReactNode } from 'react';
 import { IconePortal } from '../../../components/icones-portal';
 
 /**
- * As peças que mais de uma aba da Análise usa. Sem estado e sem dado: recebem
- * tudo por prop, para o print preenchido sair do mesmo componente.
+ * The pieces shared by more than one Analytics tab. No state and no data of their own: everything arrives via prop, so the filled-in render comes from the same component.
  */
 
 /**
- * `<page-header>` — a diretiva `blipComponents.pageHeader`:
- *
- *   div.container > div.full-initial-section >
- *     div.row.flex.page-header-content.items-center.mb0 >
- *       div.flex.items-center.w-100 > (custom-title | h1.mv0.mr2.lh-solid)
- *       div.custom-header-content.flex.items-center.justify-end.ml5.tr.w-100
- *
- * O ícone de ajuda e o `<page-help>` só existem com `helperTitle`,
- * `helperBody` E `helperConfirm`; nenhuma das três abas passa o terceiro, então
- * nenhum dos dois aparece.
+ * `<page-header>` — the `blipComponents.pageHeader` directive: div.container > div.full-initial-section > div.row.flex.page-header-content.items-center.mb0 > div.flex.items-center.w-100 > (custom-title | h1.mv0.mr2.lh-solid) div.custom-header-content.flex.items-center.justify-end.ml5.tr.w-100 The help icon and the `<page-help>` only exist with `helperTitle`, `helperBody`, AND `helperConfirm`; none of the three tabs pass the third one, so neither shows up.
  */
 export function PageHeader({
   id,
@@ -49,9 +39,7 @@ export function PageHeader({
 }
 
 /**
- * O mês abreviado do `_setDateOnInput()`. Na origem sai do `DateHelper.months`
- * em inglês, porque o template não passa `months`; aqui, por decisão do dono
- * do produto, sai em português e minúsculo. O formato é o deles.
+ * The abbreviated month from `_setDateOnInput()`. In the origin it comes from `DateHelper.months` in English, because the template doesn't pass `months`; here, by the product owner's decision, it comes out in Portuguese and lowercase. The format is theirs.
  */
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
@@ -62,13 +50,7 @@ export function dataDoSeletor(iso: string): string {
 }
 
 /**
- * `<blip-daterange-picker>`: a caixa com o ícone de calendário e as duas datas
- * separadas por "~"; ao abrir, o `bp-daterange-dropdown` com os calendários e
- * os botões Cancelar e Aplicar.
- *
- * Os dois calendários de mês da origem viraram dois `<input type="date">`
- * dentro da mesma moldura: o que muda é só o miolo do painel, e o formulário
- * manda `de` e `ate` pela URL. "Cancelar" recarrega a tela como estava.
+ * `<blip-daterange-picker>`: the box with the calendar icon and the two dates separated by "~"; on open, the `bp-daterange-dropdown` with the calendars and the Cancelar/Aplicar buttons. The origin's two month calendars became two `<input type="date">` inside the same frame: only the panel's inner content changes, and the form sends `de` and `ate` via the URL. "Cancelar" reloads the screen as it was.
  */
 export function PeriodSeletor({
   de,
@@ -140,9 +122,7 @@ export function PeriodSeletor({
 }
 
 /**
- * `<card>` — `blipComponents.card`: sem `item-title`, só o `div.card-content`;
- * com título, o `div.card-header` antes (o `p.card-title` e o `i.icon-info`
- * que só aparece com o cursor sobre o cartão).
+ * `<card>` — `blipComponents.card`: without `item-title`, just the `div.card-content`; with a title, the `div.card-header` comes first (the `p.card-title` and the `i.icon-info` that only shows up on hover over the card).
  */
 export function Card({
   id,
@@ -176,7 +156,7 @@ export function Card({
   );
 }
 
-/* ---------------------------------------------------------- o período na URL */
+/* ---------------------------------------------------------- the period in the URL */
 
 const DIA = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -185,7 +165,7 @@ export function hojeNoFuso(fuso: string, agora = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: fuso }).format(agora);
 }
 
-/** `moment().add(n, 'days')` sobre uma data sem hora. */
+/** `moment().add(n, 'days')` over a date without time. */
 export function somarDias(dia: string, n: number): string {
   const d = new Date(`${dia}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
@@ -193,8 +173,7 @@ export function somarDias(dia: string, n: number): string {
 }
 
 /**
- * `de` e `ate` vêm da URL, que é texto de fora: só passam no formato de dia e
- * em ordem; senão, vale o período padrão da tela.
+ * `de` and `ate` come from the URL, which is untrusted external text: they only pass through in day format and in order; otherwise, the screen's default period applies.
  */
 export function urlPeriod(
   search: Record<string, string | string[] | undefined>,

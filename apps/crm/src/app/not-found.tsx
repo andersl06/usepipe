@@ -2,11 +2,11 @@ import Link from 'next/link';
 import { Illustration } from '@pipe/ui';
 
 /**
- * Registro que não existe, ou endereço que ninguém serve.
+ * A record that doesn't exist, or an address nobody serves.
  *
- * Um caminho de volta, não dois: a lista de leads é de onde se chega a quase
- * tudo neste CRM, e oferecer cinco links aqui é transformar uma parede numa
- * segunda navegação.
+ * One way back, not two: the leads list is where you reach almost everything in
+ * this CRM, and offering five links here would turn a wall into a second
+ * navigation.
  */
 export default function NaoEncontrado() {
   return (

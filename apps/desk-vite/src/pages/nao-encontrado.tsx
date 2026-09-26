@@ -1,6 +1,6 @@
 import { Link } from '../components/link';
 
-/** O `/not-found` da referência, curto: a rota não existe. */
+/** Reference `/not-found` is brief: the route does not exist. */
 export function NaoEncontrado() {
   return (
     <main className="dk-conversa dk-conversa-vazia" style={{ flexBasis: '100%', width: '100%' }}>

@@ -33,16 +33,9 @@ import { ConditionsEditor } from './condition';
 let actionsCopied: AcaoDoEditor[] = [];
 
 /**
- * A aba "Ações" do editor: as duas listas — "Ações de Entrada" ("Inclua ações
- * que serão executadas antes do envio do primeiro conteúdo") e "Ações de
- * Saída" ("…após o envio do último conteúdo ou resposta do usuário") — cada
- * uma com o botão "Adicionar ação de entrada/saída" que abre o menu
- * "ADICIONAR FERRAMENTAS" agrupado (Executar, Manipular), e cada ação como um
- * cartão que se expande para editar: "Nome da ação", os campos do tipo e a
- * "Condição para executar a ação".
+ * The editor's "Ações" tab: the two lists — "Ações de Entrada" ("Inclua ações que serão executadas antes do envio do primeiro conteúdo") and "Ações de Saída" ("…após o envio do último conteúdo ou resposta do usuário") — each with an "Adicionar ação de entrada/saída" button that opens the grouped "ADICIONAR FERRAMENTAS" menu (Executar, Manipular), and each action as a card that expands for editing: "Nome da ação", the type's fields, and the "Condição para executar a ação".
  *
- * No bloco de atendimento a aba só mostra o aviso do editor: "o bot não deve
- * interferir nas ações de entrada e saída".
+ * On the attendance block the tab only shows the editor's warning: "o bot não deve interferir nas ações de entrada e saída" (the bot must not interfere with entry and exit actions).
  */
 
 export function ActionsPanel({
@@ -276,7 +269,7 @@ function ListaOfActionsOfBlock({
   );
 }
 
-/** Exportado: o painel de Ações Globais (`painel-configuracao.tsx`) reaproveita o mesmo cartão. */
+/** Exported: the Global Actions panel (`painel-configuracao.tsx`) reuses the same card. */
 export function ActionCard({
   acao,
   aberta,

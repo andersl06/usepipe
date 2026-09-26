@@ -1,29 +1,27 @@
 /**
- * As PALAVRAS da tela "criar roteador" — e só elas.
+ * The WORDS of the "create router" screen — and only them.
  *
- * A mecânica do nome (tamanho, saneamento, `shortName`, tipos de imagem) mora
- * em `../regras-de-nome.ts`, compartilhada com a tela de criar fluxo: na origem
- * as duas usam o mesmo template do passo do nome (módulo 96904), e o que muda
- * entre elas são três `ng-if="$ctrl.template != 'master'"` trocando rótulo.
+ * The name mechanics (length, sanitization, `shortName`, image types) live in
+ * `../regras-de-nome.ts`, shared with the create-flow screen: in the source both
+ * use the same name-step template (module 96904), and what changes between them
+ * are three `ng-if="$ctrl.template != 'master'"` swapping labels.
  *
- * Os rótulos abaixo são os do arquivo de tradução deles (chave
- * `createApplication`, bloco `pt-BR`), copiados palavra por palavra. Onde
- * mudamos, está anotado.
+ * The labels below are from their translation file (key `createApplication`,
+ * `pt-BR` block), copied word for word. Where we changed something, it's noted.
  */
 
 import { TAMANHO } from '../regras-de-nome';
 
 /**
- * Os rótulos, com a chave da origem ao lado. Nada aqui é escrito por nós.
+ * The labels, with the source key alongside. Nothing here is written by us.
  *
- * A única troca sistemática: onde a chave é compartilhada com a criação de
- * fluxo e o texto diz "fluxo" mesmo estando na tela do roteador, escrevemos
- * "roteador". É o caso de `errorMsg.1` e de `errorMsg.invalidName` — a tela
- * deles mostra "Houve um erro na criação do seu FLUXO" para quem acabou de
- * clicar em "Criar roteador".
+ * The one systematic change: where the key is shared with flow creation and the
+ * text says "fluxo" while on the router screen, we write "roteador". That's the
+ * case for `errorMsg.1` and `errorMsg.invalidName` — their screen shows "Houve um
+ * erro na criação do seu FLUXO" to someone who just clicked "Criar roteador".
  */
 export const ROTULOS = {
-  /** `createApplication.taglineRouter` — serve de sobretítulo E de botão. */
+  /** `createApplication.taglineRouter` — serves as both overline AND button. */
   tagline: 'Criar roteador',
   /** `createApplication.router.title` */
   comoFunciona: 'Como funciona o roteador',
@@ -36,7 +34,7 @@ export const ROTULOS = {
   tituloDoNome: 'Dê um nome ao seu roteador',
   /** `createApplication.name.nameRouter` */
   rotuloDoNome: 'Nome do roteador',
-  /** `modules.ui.uploadButton.title` — o rótulo dentro do círculo tracejado. */
+  /** `modules.ui.uploadButton.title` — the label inside the dashed circle. */
   definirImage: 'Definir imagem',
   /** `createApplication.name.back` */
   voltar: 'Voltar',
@@ -44,24 +42,29 @@ export const ROTULOS = {
 
 /** `createApplication.errorMsg.*`, um por um. */
 export const RECADOS = {
-  /** `errorMsg.title` — o título do aviso vermelho deles. */
+  /** `errorMsg.title` — the title of their red warning. */
   titulo: 'Ops... algo estranho aconteceu...',
   /**
    * `errorMsg.invalidName`.
    *
-   * Na origem esta frase NUNCA aparece nesta tela: `validateApplicationName`
-   * lança com passo `DataValidation`, e o controlador traduz `DataValidation`
-   * para `errorMsg.2` ("Este nome não é válido."), que não diz o que fazer.
-   * Usamos a frase que explica a regra; a vaga fica sem uso, como lá.
+   * In the source this phrase NEVER appears on this screen: `validateApplicationName`
+   * throws with step `DataValidation`, and the controller translates `DataValidation`
+   * to `errorMsg.2` ("Este nome não é válido."), which doesn't say what to do. We use
+   * the phrase that explains the rule; the unused slot stays unused, as it does
+   * there.
    */
   comecoInvalido: 'O nome do seu roteador não pode começar com números ou caracteres especiais.',
   /** Derivado de `ng-minlength="2"` / `ng-maxlength="30"`. */
   tamanho: `O nome do roteador precisa ter entre ${TAMANHO.nomeMin} e ${TAMANHO.nomeMax} caracteres.`,
   /**
-   * `errorMsg.1` — "Experimente usar outro nome" é literal, e é a pista de que
-   * o nome é único: o `shortName` sai dele, e dois iguais colidem no serviço.
+   * `errorMsg.1` — "Experimente usar outro nome" is literal, and it's the hint that
+   * the name is unique: `shortName` is derived from it, and two identical ones
+   * collide in the service.
    */
   nomeEmUso: 'Houve um erro na criação do seu roteador. Experimente usar outro nome.',
-  /** Nossa, sem correspondente: lá a permissão some o botão antes de chegar aqui. */
+  /**
+   * Ours, with no counterpart: there the permission check hides the button before
+   * reaching this point.
+   */
   withoutPermission: 'Você não tem permissão para criar roteadores nesta conta.',
 } as const;

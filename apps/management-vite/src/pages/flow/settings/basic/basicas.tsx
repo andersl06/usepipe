@@ -3,16 +3,9 @@ import { useContact } from '../../contact';
 import { SettingsBasicTela } from './tela';
 
 /**
- * `/configurations/basic` — estado `auth.application.detail.configurations.basic`
- * (título real "Editar Fluxo", confirmado na cópia rodável, `docs/capturas/regua.md`:
- * `/application/detail/pipeprincipal/configurations/basic`). É a PRIMEIRA aba da
- * lateral de Configurações (`../navegacao.tsx`), e até aqui era o único item sem
- * `rota` (`rota: null`) — este arquivo fecha essa lacuna.
+ * `/configurations/basic` — state `auth.application.detail.configurations.basic` (real title "Editar Fluxo", confirmed in the runnable copy, `docs/capturas/regua.md`: `/application/detail/pipeprincipal/configurations/basic`). It's the FIRST tab of the Settings sidebar (`../navegacao.tsx`), and until now was the only item without a `rota` (`rota: null`) — this file closes that gap.
  *
- * Nome, descrição e imagem vêm de `useContato` (o mesmo `GET /v1/gestao/fluxos/:id`
- * que a barra do contato já lê). `podeExcluir` é o `canDeleteBot` deles: a
- * permissão `automacao.fluxo.excluir`, que só o admin tem — a `api` confere de
- * novo no `DELETE`, porque botão desligado não é porta trancada.
+ * Name, description and image come from `useContato` (the same `GET /v1/gestao/fluxos/:id` the contact bar already reads). `podeExcluir` is their `canDeleteBot`: the `automacao.fluxo.excluir` permission, which only admins have — the `api` checks it again on `DELETE`, because a disabled button isn't a locked door.
  */
 export function SettingsBasicPage() {
   const { contact } = useContact();

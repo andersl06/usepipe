@@ -1,18 +1,21 @@
 /**
- * Esqueleto de carregamento.
+ * Loading skeleton.
  *
- * O Twenty desenha a linha antes de ter o dado — a tabela já está lá, com a
- * altura certa, e o conteúdo entra por cima. É melhor que um giro no meio da
- * tela por um motivo medível: a página não pula de altura quando o dado chega,
- * e quem está lendo o cabeçalho não perde o lugar.
+ * Twenty draws the row before it has the data — the table is already there, at
+ * the right height, and the content drops in on top. It's better than a spinner
+ * in the middle of the screen for a measurable reason: the page doesn't jump in
+ * height when the data arrives, and whoever is reading the header doesn't lose
+ * their place.
  *
- * A largura de cada barra varia de propósito. Barra toda do mesmo tamanho lê
- * como grade, não como texto, e o olho passa a esperar uma tabela vazia em vez
- * de uma tabela carregando.
+ * Each bar's width varies on purpose. A bar that's all the same size reads like
+ * a grid, not like text, and the eye starts expecting an empty table instead of
+ * a loading one.
  */
 
-/** Larguras em porcentagem, cíclicas. Nada de aleatório: servidor e cliente
- *  precisam desenhar a mesma coisa, senão a hidratação reclama. */
+/**
+ * Widths in percentage, cyclical. Nothing random: server and client need to
+ * draw the exact same thing, or hydration complains.
+ */
 const LARGURAS = [72, 46, 58, 38, 64, 50, 80, 42];
 
 export function EsqueletoDeTabela({
@@ -44,7 +47,7 @@ export function EsqueletoDeTabela({
   );
 }
 
-/** O esqueleto de um bloco de campos da ficha — rótulo curto, valor longo. */
+/** The skeleton for a block of record fields — short label, long value. */
 export function EsqueletoDeCampos({ linhas = 6 }: { linhas?: number }) {
   return (
     <div className="campos" aria-hidden="true">
@@ -63,9 +66,9 @@ export function EsqueletoDeCampos({ linhas = 6 }: { linhas?: number }) {
 }
 
 /**
- * O aviso de carregamento para quem usa leitor de tela. O esqueleto é
- * `aria-hidden` — uma tabela de barras vazias lida em voz alta é ruído — então
- * alguém precisa dizer que a tela está trabalhando.
+ * The loading notice for screen reader users. The skeleton is `aria-hidden` — a
+ * table of empty bars read aloud is noise — so someone needs to say the screen
+ * is working.
  */
 export function LoadingNotice({ children }: { children: React.ReactNode }) {
   return (

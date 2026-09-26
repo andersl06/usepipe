@@ -13,14 +13,10 @@ import {
 } from '@pipe/core/analytics';
 
 /**
- * As regras da Análise do contato que a origem esconde no navegador
- * (`analytics-main.js`): o intervalo de cada chip (`xT`/`St`), o período de
- * comparação (`ft`), o texto do período (`IS`) e da dica (`XS`), e o `WS` que
- * formata todo número. Voltam erradas em silêncio — a tela carrega, só mostra
- * outro dia ou "0%" onde era "-".
+ * The Contact Analysis rules the source hides in the browser (`analytics-main.js`): each chip's interval (`xT`/`St`), the comparison period (`ft`), the period text (`IS`) and the tooltip's (`XS`), and the `WS` that formats every number. They come back wrong silently — the screen loads, it just shows another day or "0%" where it used to show "-".
  */
 
-/* 13/09/2026 é um domingo. */
+/* 09/13/2026 is a Sunday. */
 const HOJE = '2026-09-13';
 
 test('"Últimos 7 dias" é D-7 a D-1, sem hoje', () => {
@@ -44,7 +40,7 @@ test('semana anterior é domingo a sábado; a atual começa no domingo', () => {
     inicio: '2026-09-13',
     fim: '2026-09-16',
   });
-  /* No domingo a "semana atual" é só hoje. */
+  /* On Sunday, the "current week" is just today. */
   assert.deepEqual(periodInterval('currentWeek', HOJE), { inicio: HOJE, fim: HOJE });
 });
 
@@ -112,7 +108,7 @@ test('period label and the comparison hint', () => {
     comparison({ inicio: '2026-09-06', fim: '2026-09-12' }, HOJE).dica,
     'Em comparação com o período de 30 de agosto de 2026 a 05 de setembro de 2026.',
   );
-  /* O anterior de 60 dias começa antes de 90 dias atrás: some o número. */
+  /* The 60-day-ago previous period starts before 90 days ago: the number disappears. */
   const longe = comparison({ inicio: '2026-07-01', fim: '2026-08-29' }, HOJE);
   assert.equal(longe.foraDoAlcance, true);
 });
@@ -126,7 +122,7 @@ test('WS: absoluto, percentual, padrão e sinal', () => {
   assert.equal(formatar(0.12345, { percentual: true }), '12,35%');
   assert.equal(formatar(0.5, { percentual: true, casas: 0, sinal: true }), '+50%');
   assert.equal(formatar(-0.25, { percentual: true, casas: 0, sinal: true }), '-25%');
-  /* Arredondou para zero: vira o padrão, não "0%". */
+  /* Rounded down to zero: becomes the default, not "0%". */
   assert.equal(formatar(0.001, { percentual: true, casas: 0, sinal: true }), '-');
   assert.equal(formatar(Infinity, { percentual: true }), '-');
 });
@@ -138,7 +134,7 @@ test('eixo do chart.js 3.9.1: zero é 0 a 1, e o passo é o niceNum sem arredond
   });
   assert.deepEqual(escalaDoEixo(37).tiques, [0, 5, 10, 15, 20, 25, 30, 35, 40]);
   assert.equal(escalaDoEixo(650).topo, 700);
-  /* 12/10 = 1,2 → passo 2 (a regra antiga, que arredonda antes, dava 1 e 13 tiques). */
+  /* 12/10 = 1.2 → step 2 (the old rule, which rounds first, gave 1 and 13 ticks). */
   assert.deepEqual(escalaDoEixo(12).tiques, [0, 2, 4, 6, 8, 10, 12]);
 });
 

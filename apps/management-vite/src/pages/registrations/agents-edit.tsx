@@ -10,22 +10,11 @@ import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
 
 /**
- * `/team/create` e `/team/edit` da origem — as DUAS páginas próprias que
- * `modal.addAgent`/`modal.editAgent` nomeiam (`FICHA-atendentes-filas-
- * pausas.md` §a.1/§a.4). Sem `:id` na URL: a seleção viaja em `?atendentes=`,
- * porque a edição é EM LOTE — as três variantes de `editDropdown.title`
- * ("Editar 1 atendente" / "Editar N atendentes") só existem para isso.
+ * The source's `/team/create` and `/team/edit` — the TWO dedicated pages `modal.addAgent`/`modal.editAgent` name (`FICHA-atendentes-filas-pausas.md` §a.1/§a.4). No `:id` in the URL: the selection travels in `?atendentes=`, because editing is done IN BULK — the three variants of `editDropdown.title` ("Editar 1 atendente" / "Editar N atendentes") only exist for that.
  *
- * **"Adicionar atendente" não tem formulário aqui, e isso é dito, não
- * escondido.** No Pipe não existe criação solta de conta: quem entra recebe
- * convite (`/convite/:token`). Inventar um formulário que não grava nada
- * seria pior do que admitir a lacuna.
+ * **"Adicionar atendente" has no form here, and that's stated, not hidden.** Pipe has no standalone account creation: whoever joins gets an invite (`/convite/:token`). Inventing a form that saves nothing would be worse than admitting the gap.
  *
- * **Os campos do lote são os que o Pipe tem.** A origem pede "Equipe" e
- * "Fila" como dois conceitos separados (`team`/`queue` no `i18n.js`); no
- * Pipe só existe FILA — o teto de conversas simultâneas nasce da
- * participação nela (`aplicarNaSelecao`, `lib/atendentes-gravar.ts`), não de
- * um cadastro de atendente à parte. "Equipe"/`teamsPlaceholder` ficou fora.
+ * **The batch fields are the ones Pipe has.** The source asks for "Equipe" and "Fila" as two separate concepts (`team`/`queue` in `i18n.js`); Pipe only has QUEUE — the simultaneous-conversation cap comes from being in it (`aplicarNaSelecao`, `lib/atendentes-gravar.ts`), not from a separate attendant registry. "Equipe"/`teamsPlaceholder` was left out.
  */
 export function AgentPageEdit({ modo }: { modo: 'editar' | 'adicionar' }) {
   const [params] = useSearchParams();

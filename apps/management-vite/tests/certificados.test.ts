@@ -9,12 +9,9 @@ import {
 } from '../src/lib/certificados.ts';
 
 /**
- * As regras da tela de Certificados de autenticação, copiadas do `Pt` e do
- * `yt` do fragmento deles. Errar qualquer uma não quebra a tela: ela deixa
- * passar para o passo seguinte quem não devia, ou mostra a data errada.
+ * The Authentication Certificates screen's rules, copied from their `Pt` and `yt` fragment. Getting any of them wrong doesn't break the screen: it lets someone through to the next step who shouldn't be, or shows the wrong date.
  *
- * O `status` é calculado pela `api` a partir do `.pfx` (`valido`/`expirado`,
- * e `sem_arquivo` para o cadastro antigo); aqui só se escolhe o chip.
+ * The `status` is computed by the `api` from the `.pfx` (`valido`/`expirado`, and `sem_arquivo` for the old record); here we only pick the chip.
  */
 
 test('expiration is shown as day/month/year, counted in UTC', () => {
@@ -54,7 +51,7 @@ test('the file must be a .pfx up to 10MB', () => {
     'O arquivo deve ter no máximo 10MB',
   );
   assert.equal(problemaInFile({ type: 'application/x-pkcs12', size: 1024 }), null);
-  // Navegador que não declara o tipo do .pfx: vale a extensão.
+  // Browser that doesn't declare the .pfx's type: fall back to the extension.
   assert.equal(problemaInFile({ name: 'cliente.pfx', type: '', size: 1024 }), null);
   assert.equal(
     problemaInFile({ name: 'cliente.txt', type: '', size: 1024 }),

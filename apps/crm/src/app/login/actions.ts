@@ -11,14 +11,14 @@ import {
 } from '../../lib/session';
 
 /**
- * As duas ações da entrada: descobrir por onde este e-mail entra, e sair.
+ * The two sign-in actions: discover how this email signs in, and sign out.
  *
- * A chamada à API não mora aqui — mora em `src/lib/sessao.ts`, e este arquivo é
- * só a casca do formulário: lê `FormData`, mexe no cookie e redireciona.
+ * The API call doesn't live here — it lives in `src/lib/sessao.ts`, and this file is
+ * just the form's shell: it reads `FormData`, touches the cookie, and redirects.
  *
- * A descoberta acontece no SERVIDOR, e não no navegador, por um motivo prático:
- * `PIPE_ORIGENS` é lista fechada e as origens das três telas não estão nela.
- * Um `fetch` do navegador para `/v1/auth/descobrir` morreria no CORS.
+ * Discovery happens on the SERVER, not in the browser, for a practical reason:
+ * `PIPE_ORIGENS` is a closed list and the three screens' origins aren't on it. A
+ * browser `fetch` to `/v1/auth/descobrir` would die on CORS.
  */
 
 /** O e-mail decide o caminho: IdP da empresa, ou o Google. */
@@ -31,8 +31,8 @@ export async function continuar(data: FormData): Promise<void> {
     redirect(urlNaApi(inbound.irPara, destination));
   }
 
-  // Sem SSO, a pessoa volta para a mesma tela com o motivo e o e-mail já
-  // digitado. Mandar de volta em branco é fazer quem errou o domínio começar
+  // Without SSO, the person goes back to the same screen with the reason and the email already
+  // typed in. Sending them back to a blank screen would make whoever got the domain wrong start over
   // do zero.
   const volta = new URLSearchParams({ method: inbound.metodo, email });
   if (destination !== '/') volta.set('destino', destination);
@@ -40,12 +40,12 @@ export async function continuar(data: FormData): Promise<void> {
 }
 
 /**
- * Sair: encerra a sessão na API e apaga o cookie deste navegador.
+ * Sign out: ends the session on the API and deletes this browser's cookie.
  *
- * O cookie é apagado AQUI, e não pelo `Set-Cookie` que a API devolve: aquela
- * resposta chegou a este servidor, não ao navegador. O `Domain` tem de ser o
- * mesmo com que ele foi emitido — sem isso o navegador guarda um segundo
- * cookie vazio, o original continua valendo, e a pessoa "sai" sem sair.
+ * The cookie is deleted HERE, not via the `Set-Cookie` the API returns: that response
+ * reached this server, not the browser. The `Domain` has to match the one it was
+ * issued with — without that the browser keeps a second, empty cookie, the original
+ * one stays valid, and the person "signs out" without actually signing out.
  */
 export async function sair(): Promise<void> {
   const pote = await cookies();

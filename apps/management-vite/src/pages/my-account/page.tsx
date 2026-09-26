@@ -11,31 +11,17 @@ import { Selection } from '../../components/selection';
 import './my-account.css';
 
 /**
- * "Minha conta": os dados da empresa, as preferências, e o passo que fecha o
- * onboarding.
+ * "Minha conta": the company data, the preferences, and the step that closes onboarding.
  *
- * A TELA INTEIRA é a da plataforma de origem, medida no DOM dela e anotada em
- * `minha-conta.css`: barra superior escura, lateral escura com o retrato de
- * quem entrou, cabeçalho com o Salvar à direita, cartão com duas abas, coluna
- * única de campos com o rótulo dentro da caixa, e a linha de termos embaixo.
- * Só a tinta, a letra, a marca e os ícones são nossos.
+ * The ENTIRE screen is the source platform's, measured on its DOM and noted in `minha-conta.css`: dark top bar, dark sidebar with the signed-in person's portrait, header with Save on the right, card with two tabs, single column of fields with the label inside the box, and the terms line at the bottom. Only the colors, typeface, brand and icons are ours.
  *
- * O cromo é PRÓPRIO desta página (como no portal): `/minha-conta` está fora do
- * casco da Gestão em `estrutura-gestao.tsx`, porque aqui a conta pode ainda não
- * ter canal, fila nem atendente — a lateral do produto mostraria uma operação
- * vazia para quem ainda nem disse de que empresa é.
+ * The chrome is THIS page's OWN (like the portal's): `/minha-conta` sits outside Gestão's shell in `estrutura-gestao.tsx`, because here the account may not yet have a channel, queue or agent — the product's sidebar would show an empty operation to someone who hasn't even said what company they're from yet.
  *
- * As regras dos campos são as do `lib/AccountIndex.js` deles: nome (6 a 250,
- * obrigatório), e-mail (só leitura), telefone (obrigatório), site (obrigatório,
- * com regex), tamanho da empresa em FAIXA, cidade, estado, país, aceite de
- * contato — e, na segunda aba, idioma e fuso.
+ * The field rules are their `lib/AccountIndex.js`'s: name (6 to 250, required), email (read-only), phone (required), site (required, with regex), company size as a RANGE, city, state, country, contact consent — and, on the second tab, language and timezone.
  *
- * Uma diferença consciente, no relatório: estado é lista das 27 UFs e país é
- * texto. Lá cidade vem do Google Places e estado/país chegam travados,
- * preenchidos pelo serviço; aqui isso custaria uma chave de API e uma
- * dependência de rede na primeira tela de quem acabou de entrar.
+ * One conscious difference, noted in the report: state is a list of the 27 Brazilian states and country is free text. There, city comes from Google Places and state/country arrive locked, filled by the service; here that would cost an API key and a network dependency on the first screen of someone who just signed up.
  */
-/** As 27 unidades da federação, na ordem do alfabeto. */
+/** The 27 Brazilian states, in alphabetical order. */
 const ESTADOS = [
   'AC',
   'AL',
@@ -80,8 +66,9 @@ export function PageMyAccount() {
   const account = read.data;
 
   const firstVez = account.onboardingConcluidoEm === null;
-  /* O campo que o servidor recusou volta marcado. `data-erro` só existe quando
-     há um, e é ele que acende o anel vermelho na caixa certa. */
+  /*
+   * The field the server refused comes back marked. `data-erro` only exists when there is one, and it's what lights up the red ring on the right box.
+   */
   const recusado = (nome: string) => (parametros.campo === nome ? '' : undefined);
 
   return (
@@ -96,8 +83,9 @@ export function PageMyAccount() {
               Minha conta
             </a>
             <Link href="/portal">Portal</Link>
-            {/* O Desk ainda não tem tela nossa. Apagado, e não escondido: é o
-                que a origem faz, e some-lo esconderia que o produto o tem. */}
+            {/*
+ * Desk doesn't have our screen yet. Grayed out, not hidden: that's what the source does, and hiding it would conceal that the product has it.
+ */}
             <span aria-disabled="true">Desk</span>
           </nav>
         </div>
@@ -106,8 +94,9 @@ export function PageMyAccount() {
           <Avatar nome={eu.user.nome} />
           <span className="conta-barra-eu">
             <b>{eu.user.nome}</b>
-            {/* Sair encerra sessão, e encerrar sessão muda estado: vai em POST,
-                nunca num link. */}
+            {/*
+ * Signing out ends the session, and ending a session changes state: it goes through POST, never through a link.
+ */}
             <form
               onSubmit={(evento) => {
                 evento.preventDefault();
@@ -137,7 +126,7 @@ export function PageMyAccount() {
           <hr />
         </aside>
 
-        {/* --------------------------------------------------- o conteúdo */}
+        {/* --------------------------------------------------- content */}
         <main className="conta-conteudo">
           <form id="conta-form" action={salvarAccount} className="conta-form">
             <div className="conta-cabecalho">
@@ -182,8 +171,9 @@ export function PageMyAccount() {
                   </label>
                   <p className="conta-recado">{RECADOS.nome}</p>
 
-                  {/* Só leitura, como na origem: e-mail é a chave da entrada, e
-                      trocá-lo aqui trocaria de pessoa, não de dado. */}
+                  {/*
+ * Read-only, as in the source: email is the sign-in key, and changing it here would change the person, not the data.
+ */}
                   <label className="conta-campo">
                     <span>Seu e-mail</span>
                     <input type="email" value={eu.user.email} readOnly disabled />
@@ -272,7 +262,7 @@ export function PageMyAccount() {
                   </label>
                 </div>
 
-                {/* ------------------------------------- aba: preferências */}
+                {/* ------------------------------------- tab: preferences */}
                 <div className="conta-painel conta-painel-preferencias">
                   <label className="conta-campo" data-erro={recusado('idioma')}>
                     <span>Idioma</span>
@@ -286,9 +276,9 @@ export function PageMyAccount() {
                   </label>
                   <p className="conta-recado">{RECADOS.idioma}</p>
 
-                  {/* O fuso decide o que é "hoje" em todo cartão e todo
-                      relatório: trocá-lo redesenha o corte do dia, não só o
-                      rótulo da hora. */}
+                  {/*
+ * The timezone decides what "today" means on every card and every report: changing it redraws where the day cuts off, not just the time label.
+ */}
                   <label className="conta-campo" data-erro={recusado('fuso')}>
                     <span>Fuso horário</span>
                     <Selection name="fuso" defaultValue={account.fuso} aria-label="Fuso horário">
@@ -302,9 +292,9 @@ export function PageMyAccount() {
                   <p className="conta-recado">{RECADOS.fuso}</p>
                 </div>
 
-                {/* Dentro do cartão e abaixo dos dois painéis, como na origem:
-                    é o contrato do botão "Salvar alterações", e vale para as
-                    duas abas. */}
+                {/*
+ * Inside the card and below both panels, as in the source: it's the "Save changes" button's contract, and it applies to both tabs.
+ */}
                 <p className="conta-termos">
                   Ao clicar em salvar alterações, eu aceito os{' '}
                   <a href="https://pipe.com.br/termos" target="_blank" rel="noreferrer">

@@ -5,8 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { clienteDeConsultas } from './lib/cliente-de-consultas';
 import { App } from './App';
 import { SessionProvider } from './context/session';
-// A ordem importa: o token e a base do design system entram antes da folha do
-// aplicativo, para que a folha local sobrescreva a base e nunca o contrário.
+// Import tokens and design-system base before the app stylesheet so local rules override the base.
 import '@pipe/ui/estilos.css';
 import './estilos/global.css';
 

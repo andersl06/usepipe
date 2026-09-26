@@ -12,9 +12,7 @@ import {
 } from '../src/lib/channel-of-flow.ts';
 
 /**
- * O canal DO BOT (`fluxo/canais/**`): o que o cartão da lista decide, o que a
- * página do canal desenha, e o que a etapa "Ativação do número" oferece —
- * `referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1 e §4.
+ * The bot's channel (`fluxo/canais/**`): what the list card decides, what the channel page draws, and what the "Ativação do número" step offers — `referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1 and §4.
  */
 
 const BOT = '5b6843ae-b4f8-4bc0-bce2-e32318043297';
@@ -53,7 +51,7 @@ test('the channel page: connected, not connected, or the bot already has ANOTHER
   assert.deepEqual(channelInBotState(wa, 'whatsapp_cloud'), { estado: 'conectado', canal: wa });
   assert.deepEqual(channelInBotState(wa, 'instagram'), { estado: 'outro_canal', canal: wa });
 
-  // Canal desligado ligado ao bot: a página oferece conectar de novo, não finge conectado.
+  // Channel disconnected but linked to the bot: the page offers to reconnect, it doesn't pretend to be connected.
   const desligado = channel({ ativo: false, flowId: BOT });
   assert.deepEqual(channelInBotState(desligado, 'whatsapp_cloud'), { estado: 'nao_conectado' });
 });

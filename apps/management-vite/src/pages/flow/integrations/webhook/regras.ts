@@ -1,19 +1,16 @@
 /**
- * As regras do formulário do Webhook — o que o controlador `WebhookController`
- * da origem (portal.js) decide, sem a tela por perto, para o teste travar.
+ * The Webhook form's rules — what the origin's `WebhookController` (portal.js) decides, with no screen nearby, so the test locks it down.
  *
  *   addUrl():      `this.urls.length >= 10 || (this.urls = this.urls.concat([""]))`
- *   removeUrl(i):  tira a linha `i`; com zero linhas a integração é desativada
- *   isUrlValid(e): tamanho ≤ 512, casa a regex de HTTPS e não repete na lista
- *   handleSwitchBehavior(): o interruptor "Ativar" fica desabilitado quando
- *                  alguma URL é inválida ou a primeira está vazia
- *   shouldDisableSave(): alguma URL inválida (os outros ramos dependem de
- *                  feature flags de tipos de envio e cabeçalhos)
+ *   removeUrl(i):  removes row `i`; with zero rows the integration is disabled
+ *   isUrlValid(e): length ≤ 512, matches the HTTPS regex, and isn't repeated in the list
+ *   handleSwitchBehavior(): the "Ativar" switch stays disabled when any URL is invalid or the first one is empty
+ *   shouldDisableSave(): any invalid URL (the other branches depend on feature flags for dispatch types and headers)
  */
 
 export const LIMITE_URLS = 10;
 
-/** A regex da origem (`VY`), tal qual: só HTTPS, host com TLD de 2 a 5 letras. */
+/** The origin's regex (`VY`), verbatim: HTTPS only, host with a 2-to-5-letter TLD. */
 const URL_HTTPS =
   /^(https:\/\/)[a-z0-9]+[a-z0-9-]*([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?/;
 
@@ -32,7 +29,7 @@ export function urlValida(url: string, urls: readonly string[]): boolean {
   return tamanhoOk && formatOk && unica;
 }
 
-/** `validateUrls()` no carregamento: linha vazia conta como válida até ser tocada. */
+/** `validateUrls()` on load: an empty row counts as valid until it's touched. */
 export function validarUrls(urls: readonly string[]): boolean[] {
   return urls.map((url) => url === '' || urlValida(url, urls));
 }

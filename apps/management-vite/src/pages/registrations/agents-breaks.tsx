@@ -9,31 +9,18 @@ import { FormularioMotivoPausa } from './agents-breaks-formulario';
 import { Modal, ModalConfirmation } from './_modal';
 
 /**
- * Só "Excluir" — a origem não tem interruptor nem editar nesta linha, e não
- * tem "Resultados por página" no rodapé (`FICHA-atendentes-filas-pausas.md`
- * §a.5 e §b.3: "Não há ícone de editar, não há interruptor" / "apenas as
- * setas + o número da página + o contador"). `alternarMotivoPausa`
- * (`cadastros-gravar.ts`) fica sem uso nesta tela por isso — não foi apagado
- * porque a rota `PATCH .../pausas/:id` continua válida e testada.
+ * Only "Excluir" — the source has no toggle or edit on this row, and no "Resultados por página" in the footer (`FICHA-atendentes-filas-pausas.md` §a.5 and §b.3: "There's no edit icon, no toggle" / "just the arrows + page number + counter"). `alternarMotivoPausa` (`cadastros-gravar.ts`) goes unused on this screen for that reason — it wasn't deleted because the `PATCH .../pausas/:id` route is still valid and tested.
  */
 function MotivoActions({ motivo, onExcluir }: { motivo: MotivoDePausa; onExcluir: () => void }) {
   return <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.nome}`} onClick={onExcluir} />;
 }
 
 /**
- * Pausas personalizadas — a lista.
+ * Custom breaks — the list.
  *
- * Esqueleto e textos medidos em `FICHA-atendentes-filas-pausas.md` §b.3/§c:
- * cabeçalho "Pausas personalizadas" com "Nova Pausa" (P maiúsculo) à direita,
- * sem busca, cartão com só "Nome da pausa"/"Duração" como colunas e à direita
- * só "Excluir", rodapé com apenas contador + setas (sem "Resultados por
- * página" — `ocultarTamanhoDePagina` em `ListaRegras`).
+ * Skeleton and copy measured in `FICHA-atendentes-filas-pausas.md` §b.3/§c: header "Pausas personalizadas" with "Nova Pausa" (capital P) on the right, no search, a card with only "Nome da pausa"/"Duração" as columns and only "Excluir" on the right, a footer with just a counter + arrows (no "Resultados por página" — `ocultarTamanhoDePagina` in `ListaRegras`).
  *
- * **O que saiu do cartão.** O rodapé de uso real (conta como, nº de pausas,
- * média, contra a sugerida) não existe na origem (§d.3: "tirar"). O par
- * `semMotivo`/`abertas` que dava esse contexto fica só no `title` do
- * cabeçalho — informação que não aparece como texto na tela, então não
- * compete com a forma literal.
+ * **What left the card.** The real-usage footer (counts as, number of breaks, average vs. suggested) doesn't exist in the source (§d.3: "remove"). The `semMotivo`/`abertas` pair that gave that context now lives only in the header's `title` — information that doesn't appear as visible text, so it doesn't compete with the literal form.
  */
 export function PageBreaks() {
   const [modalAberto, setModalAberto] = useState(false);

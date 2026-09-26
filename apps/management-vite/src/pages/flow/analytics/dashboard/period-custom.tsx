@@ -1,16 +1,19 @@
 import { useState } from 'react';
 
 /**
- * O "De / Até" do filtro do Dashboard — o `aT` da origem (`analytics-main.js`
- * ~58160). É a ÚNICA parte cliente da aba, porque a regra dele é de campo:
+ * The Dashboard filter's "From / To" — the source's `aT`
+ * (`analytics-main.js` ~58160). It's the ONLY client-side part of the tab, because
+ * its rule is field-level:
  *
- * - escolher o "De" apaga o "Até" (`f(e, wc)` zera o fim);
- * - o "Até" não aceita data antes do "De" (`min` do segundo campo);
- * - nada antes de 90 dias atrás nem depois de hoje (`st(90)` e `rT`);
- * - o teclado não digita (`onKeyDown: preventDefault`), só o calendário;
- * - "Aplicar" fica travado até os dois estarem preenchidos (`g()`).
+ * - picking "From" clears "To" (`f(e, wc)` resets the end);
+ * - "To" doesn't accept a date before "From" (the second field's `min`);
+ * - nothing before 90 days ago or after today (`st(90)` and `rT`);
+ * - the keyboard doesn't type into it (`onKeyDown: preventDefault`), only the
+ *   calendar picker does;
+ * - "Aplicar" stays locked until both are filled (`g()`).
  *
- * Aplicar é um GET com `periodo=custom`: a página relê o período da URL.
+ * Applying is a GET with `periodo=custom`: the page re-reads the period from the
+ * URL.
  */
 export function PeriodCustom({
   hoje,
@@ -41,7 +44,7 @@ export function PeriodCustom({
       }}
     >
       <input type="hidden" name="periodo" value="custom" />
-      {/* `tT.date-info`: a caixa de 32px com borda surface-2 e as duas `oT`. */}
+      {/* `tT.date-info`: the 32px box with surface-2 border and the two `oT`. */}
       <div className="da-datas-caixa">
         <label className="da-data">
           <span className="da-t16 da-negrito">De</span>

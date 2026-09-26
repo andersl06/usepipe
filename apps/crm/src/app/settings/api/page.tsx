@@ -24,29 +24,29 @@ import {
 export const dynamic = 'force-dynamic';
 
 /**
- * Chaves de API e webhooks de saída.
+ * API keys and outgoing webhooks.
  *
- * É o "MCP & APIs" do Twenty, com o que o Pipe realmente tem atrás. As duas
- * metades desta tela já existiam no produto e não tinham porta: `chave_api`
- * autentica a REST desde o começo (`apps/api/src/autenticacao.ts`) e
- * `webhook_saida` é emitido a cada evento (`apps/api/src/webhooks-saida.ts`).
- * Faltava o lugar de emitir uma e assinar o outro sem `psql`.
+ * This is Twenty's "MCP & APIs", with what Pipe actually has behind it. Both halves of
+ * this screen already existed in the product with no way to reach them: `chave_api`
+ * has authenticated the REST API since the start (`apps/api/src/autenticacao.ts`) and
+ * `webhook_saida` is emitted on every event (`apps/api/src/webhooks-saida.ts`).
+ * What was missing was a place to issue one and sign the other without `psql`.
  *
- * O que muda em relação ao Twenty, e por quê:
+ * What changes compared to Twenty, and why:
  *
- * - **A chave carrega ESCOPO, não papel.** Lá a chave recebe um role de usuário.
- *   Aqui `chave_api.escopos` é a régua que `apps/api` confere por rota, e papel
- *   é de gente. Emprestar papel de pessoa a um programa é o caminho para uma
- *   integração de leitura ganhar permissão de excluir contato.
- * - **Não há regenerar.** Regenerar é revogar e emitir, com um nome que sugere
- *   que a chave antiga continua valendo por um tempo. Revogue e emita outra: são
- *   dois cliques e nenhuma ambiguidade sobre o que ainda funciona.
- * - **O webhook tem liga-desliga.** Lá o webhook existe ou é apagado. Aqui
- *   `webhook_saida.ativo` já existia, e desligar durante uma manutenção do outro
- *   lado é melhor do que apagar e recadastrar com um segredo novo.
- * - **O segredo do webhook é nosso e é obrigatório.** No Twenty ele é opcional;
- *   aqui a coluna é `not null` e a assinatura inclui o timestamp
- *   (`sha256=HMAC(segredo, "<timestamp>.<corpo>")`), que é o que fecha o replay.
+ * - **The key carries a SCOPE, not a role.** There, the key receives a user's role. Here
+ *   `chave_api.escopos` is the ruler `apps/api` checks per route, and a role belongs to
+ *   a person. Lending a person's role to a program is the path for a read-only
+ *   integration to gain permission to delete a contact.
+ * - **There's no regenerate.** Regenerating is revoke-and-issue, under a name that suggests
+ *   the old key keeps working for a while. Revoke it and issue another: two clicks and
+ *   no ambiguity about what still works.
+ * - **The webhook has an on/off switch.** There, a webhook either exists or is deleted. Here
+ *   `webhook_saida.ativo` already existed, and turning it off during maintenance on the other
+ *   side is better than deleting and re-registering with a new secret.
+ * - **The webhook secret is ours and mandatory.** In Twenty it's optional;
+ *   here the column is `not null` and the signature includes the timestamp
+ *   (`sha256=HMAC(secret, "<timestamp>.<body>")`), which is what closes off replay.
  */
 
 function colunasDeChaves(fuso: string): readonly Column<ApiKey>[] {

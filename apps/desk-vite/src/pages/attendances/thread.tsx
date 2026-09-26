@@ -6,15 +6,7 @@ import { agrupar, deliverySignal, type Message } from '../../lib/groups';
 import { numeroDoTicket } from '../../lib/channel';
 
 /**
- * A thread — o `message-list--panechat` da referência
- * (`~/desk-clone/capturas/parciais/thread.html`): `.card-group-container`
- * com `.blip-message-group > .blip-card-group.left|right`, cada balão num
- * `.blip-card` e o horário do grupo (`.group-notification`) embaixo, do lado
- * de quem fala — na saída, com o sinal de entrega antes da hora. A linha de
- * abertura do ticket (`.ticket .fancy` + `h3`) vem antes das mensagens.
- *
- * O botão "voltar ao fim" aparece quando a rolagem está a mais de 150px do
- * fim (`MINIMUM_SCROLL_DISTANCE` do settings.json de lá).
+ * Reference thread `message-list--panechat` (`~/desk-clone/capturas/parciais/thread.html`) groups `.blip-card` bubbles in `.card-group-container` with `.blip-message-group > .blip-card-group.left|right`, with `.group-notification` time on the speaker's side and delivery signal before time for outgoing groups. Put ticket-opening `.ticket .fancy` and `h3` before messages. Show the return-to-bottom button beyond 150px from the bottom (source settings.json `MINIMUM_SCROLL_DISTANCE`).
  */
 export function Thread({
   conversationId,
@@ -33,7 +25,7 @@ export function Thread({
   const [longeDoFim, setLongeDoFim] = useState(false);
   const groups = agrupar(itens);
 
-  /* Começa no fim (`startBottom`) e volta ao fim a cada mensagem nova. */
+  /* Start at the bottom (`startBottom`) and scroll back to the bottom after each new message. */
   useEffect(() => {
     const el = rolador.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -141,7 +133,7 @@ function BubblesGroup({
   );
 }
 
-/** O miolo do balão: texto (`plain-text`), ou o tipo por extenso quando é mídia. */
+
 function Conteudo({ message }: { message: Message }) {
   if (message.tipo === 'texto' || message.tipo === 'template' || !message.tipo) {
     return <div>{message.conteudo ?? ''}</div>;

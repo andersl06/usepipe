@@ -22,20 +22,12 @@ import {
 } from './import-exportar';
 
 /**
- * O painel "Configuração" (`$ctrl.editConfig()`, ícone `settings-builder`) —
- * na origem tem 3 abas (`portal.js`: "Variáveis", "Versões", "Ações
- * Globais"). Aqui só as duas com motor por trás:
+ * The "Configuração" panel (`$ctrl.editConfig()`, `settings-builder` icon) — the source has 3 tabs (`portal.js`: "Variáveis", "Versões", "Ações Globais"). Here only the two with an engine behind them:
  *
- * - "Ações Globais": as mesmas duas listas de um bloco
- *   (`$enteringCustomActions`/`$leavingCustomActions`), só que do fluxo
- *   inteiro — o motor as roda de verdade (`editor.ts` de `@pipe/core`).
- * - "Versões" (que na origem é onde "Importar"/"Exportar" moram, não um
- *   botão solto): baixa/lê o mesmo `{flow, globalActions}` que a Blip usa.
+ * - "Ações Globais": the same two lists as a block (`$enteringCustomActions`/`$leavingCustomActions`), but for the whole flow — the engine actually runs them (`editor.ts` from `@pipe/core`).
+ * - "Versões" (which in the source is where "Importar"/"Exportar" live, not a standalone button): downloads/reads the same `{flow, globalActions}` Blip uses.
  *
- * A aba "Variáveis" da origem (expiração de estado, timeout de ação, score
- * mínimo de IA, contexto do dono do túnel…) é configuração do motor da Blip
- * que o motor do Pipe não tem — não construída, para não fingir um controle
- * que não faz nada.
+ * The source's "Variáveis" tab (state expiration, action timeout, minimum AI score, tunnel owner context…) is Blip engine configuration that the Pipe engine doesn't have — not built, so as not to fake a control that does nothing.
  */
 
 type Aba = 'acoes' | 'versoes';

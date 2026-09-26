@@ -2,10 +2,7 @@ import { IconeDesk } from './icones-desk';
 import { initials } from '../lib/format';
 
 /**
- * O `bds-avatar` da referência: disco na cor "system" com as iniciais quando
- * há `name`, ou o ícone de pessoa quando não há (o cartão da lista passa só
- * a foto, então mostra o ícone; o cabeçalho e o trilho passam o nome).
- * Tamanhos: `extra-small` 32, `small` 40, `standard` 56.
+ * Reference `bds-avatar`: a system-colored circle with initials when `name` is supplied, or a person icon otherwise (list cards provide only the photo; the header and rail provide the name). Sizes: `extra-small` 32, `small` 40, `standard` 56.
  */
 export function Avatar({
   nome,

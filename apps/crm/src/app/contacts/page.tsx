@@ -7,13 +7,13 @@ import { desde, numero } from '../../lib/format';
 export const dynamic = 'force-dynamic';
 
 /**
- * Lista de contatos, no mesmo padrão da de leads e da de contas.
+ * Contact list, following the same pattern as leads and accounts.
  *
- * Contato é pessoa; lead é a intenção dela de comprar. A lista mostra a pessoa
- * e diz se existe um lead ligado a ela — é o que a lista de leads não pode
- * mostrar, porque lá cada linha é uma intenção.
+ * A contact is a person; a lead is their intent to buy. The list shows the person
+ * and says whether a lead is linked to them — something the lead list can't show,
+ * because there each row is an intent.
  *
- * Sem cor: um contato não tem estado que exija ação.
+ * No color: a contact has no state that demands action.
  */
 function colunas(fuso: string, agora: Date): readonly Column<LinhaContact>[] {
   return [

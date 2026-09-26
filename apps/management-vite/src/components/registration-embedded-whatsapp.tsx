@@ -4,26 +4,7 @@ import type { VarianteDeBotao } from '@pipe/ui';
 import { concluirRegistrationEmbedded, iniciarRegistrationEmbedded } from '../pages/deployment/actions';
 
 /**
- * Portado de chatwoot/chatwoot (MIT):
- * - app/javascript/dashboard/composables/useWhatsappEmbeddedSignup.js;
- * - app/javascript/dashboard/routes/dashboard/settings/inbox/channels/whatsapp/utils.js
- *   (carregar o SDK, `FB.login`, classificar o evento `WA_EMBEDDED_SIGNUP`);
- * - o `connectWhatsapp` de .../onboarding/inbox-setup/useChannelConnect.js.
- *
- * O popup do cadastro embutido pelo `FB.login` do SDK, com `config_id`,
- * `response_type: 'code'` e `override_default_response_type`. O `code` chega
- * pela resposta do login e os identificadores da WABA chegam por `postMessage`,
- * em ordem que não é garantida — por isso as duas coisas são esperadas e só se
- * segue com as duas na mão.
- *
- * Diferença registrada: a Blip abre o diálogo por redirecionamento
- * (`/dialog/oauth?...&state=`) com `state` aleatório. O Pipe segue o Chatwoot no
- * fluxo e acrescenta o `state` do lado de fora do popup: ele sai da `api` antes
- * de o popup abrir (`iniciarCadastroEmbutido`) e volta junto com o `code`.
- *
- * Acréscimo do Pipe: sem aplicativo aprovado na Meta (`modo: 'duble'`), o botão
- * não abre popup — gera credenciais de ensaio e percorre o resto do caminho de
- * verdade, contra o dublê da `api`.
+ * Ported from chatwoot/chatwoot (MIT): `app/javascript/dashboard/composables/useWhatsappEmbeddedSignup.js`, `app/javascript/dashboard/routes/dashboard/settings/inbox/channels/whatsapp/utils.js` (SDK load, `FB.login`, `WA_EMBEDDED_SIGNUP` event classification), and `connectWhatsapp` in `.../onboarding/inbox-setup/useChannelConnect.js`. The SDK opens embedded signup via `FB.login` with `config_id`, `response_type: 'code'`, and `override_default_response_type`. Login returns `code`; `postMessage` returns WABA identifiers, in no guaranteed order, so wait for both. Unlike Blip's redirect to `/dialog/oauth?...&state=` with random `state`, Pipe follows Chatwoot and gets `state` from `api` via `iniciarCadastroEmbutido` before opening the popup, returning it with `code`. Without a Meta-approved app (`modo: 'duble'`), generate test credentials instead of opening the popup, then run the rest against the `api` double.
  */
 
 interface RespostaDoLogin {
@@ -82,14 +63,14 @@ interface EmpresaData {
   business_id?: string;
 }
 
-/** `isValidBusinessData`: só o `waba_id` é garantido (a coexistência manda só ele). */
+/** `isValidBusinessData` requires only `waba_id`, the sole field guaranteed by coexistence. */
 function empresaValidData(data: unknown): data is EmpresaData {
   return Boolean(data && typeof data === 'object' && (data as EmpresaData).waba_id);
 }
 
 const EVENTO_DE_COEXISTENCIA = 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING';
 const EVENTOS_DE_FIM = ['FINISH', EVENTO_DE_COEXISTENCIA];
-/** Terminam o fluxo sem um número da Cloud API com que se possa criar canal. */
+/** These events end the flow without a Cloud API number usable to create a channel. */
 const EVENTOS_SEM_SUPORTE = [
   'FINISH_ONLY_WABA',
   'FINISH_OBO_MIGRATION',
@@ -104,9 +85,7 @@ type Classification =
   | { tipo: 'ignorar' };
 
 /**
- * `classifySignupEvent`. A v4 escreve `ERROR` onde a v3 escrevia `error`, e
- * também reporta falha como `CANCEL` com `error_message` — um `CANCEL` puro é a
- * pessoa desistindo, e os dois não podem ser lidos como a mesma coisa.
+ * `classifySignupEvent`: v4 emits `ERROR` where v3 emitted `error`; it can also report failure as `CANCEL` with `error_message`. Plain `CANCEL` means the person abandoned signup, so these must not be conflated.
  */
 function classificarEvento(data: { event?: unknown; error_message?: string }): Classification {
   const evento = data.event;
@@ -124,7 +103,7 @@ function classificarEvento(data: { event?: unknown; error_message?: string }): C
   return { tipo: 'ignorar' };
 }
 
-/** `createMessageHandler`: só mensagem do Facebook, e só do tipo do cadastro embutido. */
+/** `createMessageHandler` accepts only Facebook messages of the embedded-signup type. */
 function createTratador(
   aoReceber: (data: { event?: unknown; error_message?: string; data?: unknown }) => void,
 ): (evento: MessageEvent) => void {
@@ -141,7 +120,7 @@ function createTratador(
         aoReceber(data as { event?: unknown; error_message?: string; data?: unknown });
       }
     } catch {
-      // Mensagem que não é JSON, ou não é nossa.
+      // Ignore non-JSON messages or messages unrelated to this signup.
     }
   };
 }
@@ -178,8 +157,7 @@ interface Credentials {
 }
 
 /**
- * `runEmbeddedSignup`: `null` quando a pessoa fecha o popup; rejeita em erro do
- * SDK, erro do cadastro e fim sem número utilizável.
+ * `runEmbeddedSignup` returns `null` when the popup closes; it rejects SDK errors, signup errors, and completion without a usable phone number.
  */
 function executarRegistration(
   appId: string,
@@ -195,7 +173,7 @@ function executarRegistration(
     const tratador = createTratador((data) => {
       const resultado = classificarEvento(data);
       if (resultado.tipo === 'fim') {
-        // Fica o primeiro evento terminal: um FINISH de coexistência ganha de um FINISH comum que chegue depois.
+        // Keep the first terminal event: a coexistence FINISH takes precedence over a later ordinary FINISH.
         if (empresa) return;
         if (!empresaValidData(data.data)) {
           encerrar(() => rejeitar(new Error('A Meta devolveu os dados da empresa incompletos.')));
@@ -245,7 +223,7 @@ function executarRegistration(
         seguirSePronto();
       } catch (error) {
         const message = (error as Error).message;
-        // Fechar o popup não é erro: é a pessoa desistindo.
+        // Closing the popup is cancellation by the person, not an error.
         if (message === 'Login cancelado') encerrar(() => resolver(null));
         else encerrar(() => rejeitar(error as Error));
       }
@@ -264,9 +242,7 @@ function ensaioCredentials(): Credentials {
 }
 
 /**
- * O botão "Conectar" da linha de canal (`ChannelRow.vue`) com o
- * `connectWhatsapp`: pede o `state`, abre o popup, entrega o `code` e diz o que
- * aconteceu ali mesmo, sem trocar de tela.
+ * Reference `ChannelRow.vue` Connect button uses `connectWhatsapp`: request `state`, open the popup, hand off `code`, and report the result in place without navigation.
  */
 export function ConectarWhatsApp({
   channelId,
@@ -278,12 +254,12 @@ export function ConectarWhatsApp({
   onConectado,
 }: {
   channelId?: string;
-  /** Conexão de dentro do bot (`fluxo/canais/whatsapp`): o canal nasce ligado a ele. */
+  /** When connecting inside the bot (`fluxo/canais/whatsapp`), create the channel already linked to that bot. */
   flowId?: string;
   rotulo?: string;
   variante?: VarianteDeBotao;
   className?: string;
-  /** O que vem antes do rótulo — o logo do Facebook do botão `variant="facebook"` da origem. */
+  /** Prefix the label with the reference `variant="facebook"` button's Facebook logo. */
   prefix?: ReactNode;
   onConectado?: () => void;
 }) {

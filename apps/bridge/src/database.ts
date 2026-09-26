@@ -2,12 +2,7 @@ import { createDatabase, comTenant, closeDatabase as fecharPool } from '@pipe/db
 import type { DatabasePipe, TransactionPipe } from '@pipe/db';
 
 /**
- * Duas conexões, dois papéis — a mesma divisão da `apps/api`.
- *
- * Tudo que é dado de negócio passa por `noTenant`, com `pipe.tenant_id` fixado e a
- * RLS valendo. O papel dono existe para UMA coisa: resolver a sessão do cookie, que
- * é justamente o que precisa acontecer **antes** de haver tenant em vigor. Nenhuma
- * outra consulta usa o papel dono.
+ * Two connections and roles, as in `apps/api`. All business data goes through `noTenant`, with `pipe.tenant_id` fixed and RLS active. The owner role has one purpose: resolving the cookie session before a tenant is established. No other query uses it.
  */
 
 const URL_APP =
@@ -28,9 +23,7 @@ export function databaseDono(): DatabasePipe {
 }
 
 /**
- * Roda o trabalho com o tenant fixado. Dentro do callback as consultas vão **em
- * série**: `Promise.all` aqui derruba o `set_config` da transação e a consulta passa
- * a rodar sem tenant. É a mesma armadilha registrada na `apps/api`.
+ * Run work with the tenant fixed. Queries inside the callback must run in series: `Promise.all` disrupts the transaction's `set_config`, allowing a query to run without a tenant. This is the same trap documented in `apps/api`.
  */
 export function noTenant<T>(tenantId: string, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> {
   return comTenant(databaseApp(), tenantId, fn);

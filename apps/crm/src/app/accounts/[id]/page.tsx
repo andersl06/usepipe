@@ -20,18 +20,18 @@ import { data, desde, money, document, numero } from '../../../lib/format';
 export const dynamic = 'force-dynamic';
 
 /**
- * A ficha da conta, na mesma estrutura da ficha do lead.
+ * The account record, in the same structure as the lead record.
  *
- * Ela era a tela mais pobre do CRM: um cabeçalho de página comum, uma tira de
- * quatro números e duas tabelas empilhadas. Agora tem o que a do lead tem, pelas
- * mesmas razões — cabeçalho de destaque, lateral com os dados em seções, e abas
- * para o conteúdo pesado. As peças vêm de `componentes/ficha.tsx`, então as três
- * fichas não têm como divergir.
+ * It used to be the CRM's poorest screen: a plain page header, a strip of four
+ * numbers, and two stacked tables. Now it has what the lead's record has, for the
+ * same reasons — a highlight header, a sidebar with the data in sections, and tabs
+ * for the heavy content. The pieces come from `componentes/ficha.tsx`, so the three
+ * records can't drift apart.
  *
- * A divisão de conteúdo segue o que `lib/contas.ts` já dizia que a conta
- * responde: **quem eu conheço lá dentro** e **quanto dinheiro está em jogo**. A
- * lateral responde a primeira em lista curta, sempre visível; as abas respondem
- * as duas em tabela cheia.
+ * The content split follows what `lib/contas.ts` already said the account answers:
+ * **who do I know inside it** and **how much money is at stake**. The sidebar
+ * answers the first in a short, always-visible list; the tabs answer both in full
+ * tables.
  */
 
 const ABAS = [
@@ -68,9 +68,10 @@ const COLUMNS_CONTACT: readonly Column<AccountContact>[] = [
 ];
 
 /**
- * A oportunidade fechada não sai da lista: ela é o histórico da conta, e é o
- * que responde "já compraram alguma vez". A única cor da tela é o fechamento
- * vencido de uma oportunidade que continua aberta — o resto é categoria.
+ * A closed opportunity doesn't leave the list: it's the account's history, and it's
+ * what answers "have they ever bought before". The only color on the screen is an
+ * overdue close date on an opportunity that's still open — everything else is a
+ * category.
  */
 function columnsOpportunity(hoje: Date, fuso: string): readonly Column<AccountOpportunity>[] {
   return [
@@ -116,8 +117,8 @@ function AccountDestaque({ ficha, fuso }: { ficha: FichaAccount; fuso: string })
       trilha={{ href: '/accounts', rotulo: 'Contas' }}
       nome={ficha.nome}
       nota={ficha.criadoEm ? `aberta ${desde(ficha.criadoEm, fuso)}` : undefined}
-      // Domínio é categoria, e categoria é neutra. A conta não tem estado
-      // terminal nem prazo, então nenhuma etiqueta dela recebe cor.
+      // Domain is a category, and categories are neutral. The account has no state
+      // that's terminal or has a deadline, so none of its badges get color.
       etiquetas={ficha.domain ? <Etiqueta>{ficha.domain}</Etiqueta> : null}
       main={[
         { rotulo: 'Proprietário', value: ficha.proprietario ?? 'sem proprietário' },
@@ -170,10 +171,10 @@ export default async function PageAccount({
           </div>
 
           {/*
-            A lista curta de quem falar. Fica na lateral, e não só na aba, porque
-            é o que a pessoa consulta ENQUANTO lê as oportunidades: o nome de
-            quem assina do outro lado não pode exigir uma troca de aba.
-          */}
+ * The short list of who to talk to. It's in the sidebar, not just in a tab, because
+ * it's what the person checks WHILE reading the opportunities: the name of whoever
+ * signs on the other side shouldn't require switching tabs.
+ */}
           <div className="tblwrap">
             <Section titulo="Quem falar" aberta={ficha.contacts.length > 0}>
               {ficha.contacts.length === 0 ? (

@@ -9,17 +9,13 @@ import { assembleComponents, ParametroMissingError } from './template.js';
 import { ROTULO_DA_LISTA } from './interativo.js';
 
 /**
- * Cliente da Cloud API da Meta.
- *
- * `POST https://graph.facebook.com/<versao>/<phone_number_id>/messages`.
- * Nunca foi exercitado contra uma WABA real — não temos uma. O que ele tem de
- * confiável é a classificação de erro, que é o que decide entre repetir e desistir.
+ * Meta Cloud API client. `POST https://graph.facebook.com/<versao>/<phone_number_id>/messages`. This has never been exercised with a real WABA. Error classification, which determines retry or stop, is the behavior verified here.
  */
 
 const VERSAO_PADRAO = 'v21.0';
 const BASE = process.env['WHATSAPP_API_BASE'] ?? 'https://graph.facebook.com';
 
-/** Nome do campo de conteúdo na Cloud API, por tipo do Pipe. */
+
 const FIELD_OF_MEDIA = {
   imagem: 'image',
   audio: 'audio',
@@ -28,10 +24,7 @@ const FIELD_OF_MEDIA = {
 } as const;
 
 /**
- * Códigos que não melhoram com repetição: número inválido, template inexistente,
- * fora da janela, sem permissão. Repetir esses só queima tentativa e atrasa o aviso
- * ao atendente. O resto (limite de taxa, indisponibilidade) volta para o outbox.
- * Fonte: catálogo de erro da Cloud API; a lista é configuração, não dogma.
+ * These error codes do not improve on retry: invalid number, missing template, expired window, or missing permission. Retrying only consumes attempts and delays notifying the agent. Rate limits and outages return to the outbox. Source: Cloud API error catalog; keep the set configurable, not dogmatic.
  */
 const PERMANENTES = new Set([
   '100', // parâmetro inválido
@@ -82,7 +75,7 @@ export class ClienteWhatsAppReal implements ClienteWhatsApp {
         body: JSON.stringify(corpo),
       });
     } catch (erro) {
-      // Rede caiu: temporário por definição.
+      // Network failure is temporary by definition.
       throw new WhatsAppError('rede', `Não alcançou a Meta: ${(erro as Error).message}`, false);
     }
 
@@ -94,7 +87,7 @@ export class ClienteWhatsAppReal implements ClienteWhatsApp {
         data.error?.error_data?.details ??
         data.error?.message ??
         `A Meta respondeu ${resposta.status}.`;
-      // 4xx sem código conhecido também é permanente: repetir devolve o mesmo 4xx.
+      // An unknown-code 4xx is also permanent; retry would produce the same 4xx.
       const permanente =
         PERMANENTES.has(codigo) || (resposta.status >= 400 && resposta.status < 500 && resposta.status !== 429);
       throw new WhatsAppError(codigo, texto, permanente);
@@ -129,7 +122,7 @@ export function montarCorpo(pedido: PedidoEnvio): Record<string, unknown> {
   }
 
   if (conteudo.tipo === 'interativo') {
-    // O `id` é a posição (1, 2, …); a resposta chega com o `title`, que é o que o fluxo casa.
+    // `id` is the 1-based position; the response carries `title`, which the flow matches.
     const action =
       conteudo.format === 'botoes'
         ? {
@@ -158,7 +151,7 @@ export function montarCorpo(pedido: PedidoEnvio): Record<string, unknown> {
 
 function media(conteudo: ContentMedia): Record<string, string> {
   const corpo: Record<string, string> = { link: conteudo.link };
-  // Áudio é o único que não aceita legenda na Cloud API.
+  // Audio is the only Cloud API media type that does not accept a caption.
   if (conteudo.legenda && conteudo.tipo !== 'audio') corpo['caption'] = conteudo.legenda;
   if (conteudo.nameFile && conteudo.tipo === 'documento') corpo['filename'] = conteudo.nameFile;
   return corpo;

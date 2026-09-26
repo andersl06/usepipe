@@ -12,23 +12,7 @@ import { agruparContacts, type ListaContact, type ContactsOrder } from '../../li
 import { Thread } from '../attendances/thread';
 
 /**
- * A aba Contatos — o MFE `desk-contact-history` da referência, medido rodando
- * sobre o mock em `~/desk-clone/clone/mfe-teste.html` (fotos
- * `desk2/blip-contacts-1200.png` e `blip-contatos-aberto.png`): três colunas
- * de 300 / 600 / 300.
- *
- * Esquerda: bloco de 110px em superfície 1 ("Contatos" 20/700 num recuo de
- * 16, e a busca "Pesquisar contato" com o botão de ordenação ao lado, recuo 8),
- * e a lista agrupada por letra (ou por data) com cartões de 62px.
- * Meio: o estado vazio ("Explore conversas anteriores" / "Selecione um contato
- * na lista ao lado e escolha um ticket para acessar abrir seu histórico"), e,
- * com contato escolhido, o cartão "Inicie uma nova conversa com este contato
- * enviando uma mensagem ativa." + "Conversar novamente"; com ticket escolhido,
- * a transcrição.
- * Direita: as abas "Histórico" e "Contato" (cabeçalho de 56, centrado, gap 32).
- *
- * Os dados vêm de `GET /v1/desk/contatos?busca=`, `/contatos/:id` e
- * `/tickets/:id`. Tudo de leitura, como lá.
+ * Contacts tab follows reference MFE `desk-contact-history`, measured on the mock in `~/desk-clone/clone/mfe-teste.html` (`desk2/blip-contacts-1200.png`, `blip-contatos-aberto.png`): 300/600/300 columns. Left has 110px heading/search/sort and grouped 62px contact cards. Center shows an empty prompt, then new-conversation card, or ticket transcript. Right has `Histórico` and `Contato` tabs. Read only through `GET /v1/desk/contatos?busca=`, `/contatos/:id`, and `/tickets/:id`, as in the reference.
  */
 export function PageContacts() {
   const { contact: selectedContact, openContact } = useDeskSelection();
@@ -340,7 +324,7 @@ interface ContactFicha {
   atributos: Record<string, unknown>;
 }
 
-/** Quando falta valor a tela escreve a falta, como lá ("Nenhum telefone cadastrado"). */
+
 function ContactField({
   rotulo,
   value,
@@ -358,7 +342,7 @@ function ContactField({
   );
 }
 
-/** "dd/mm/aaaa, HH:mm" — o formato da linha "Última interação" do MFE. */
+/** Use `dd/mm/aaaa, HH:mm` for MFE `Última interação`. */
 function dataCurta(d: Date): string {
   return d.toLocaleString('pt-BR', {
     day: '2-digit',
@@ -369,7 +353,7 @@ function dataCurta(d: Date): string {
   });
 }
 
-/** As situações de encerramento por extenso, as que o domínio distingue. */
+
 function situation(h: ConversationOfHistory): string {
   switch (h.estado) {
     case 'encerrada':

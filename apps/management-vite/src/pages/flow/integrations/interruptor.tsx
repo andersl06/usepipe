@@ -1,16 +1,9 @@
 import './interruptor.css';
 
 /**
- * O `bds-switch` da origem: `<label class="switch switch--size-standard">
- * <input type="checkbox"> <span class="slider round"></span> </label>`.
- * Medido na cópia: trilho 42×24 (padrão) e 32×18 (`size="short"`), raio 34,
- * bolinha branca de 18/12 a 3px da borda, deslocando o próprio diâmetro
- * quando ligado. Desligado o trilho é `--color-content-ghost`, ligado é a
- * primária. O host `bds-switch` mede 42×32: 2px acima e 6px abaixo do trilho
- * (é o `margin-bottom: .375rem` do `label` global).
+ * The origin's `bds-switch`: `<label class="switch switch--size-standard"> <input type="checkbox"> <span class="slider round"></span> </label>`. Measured on the copy: 42×24 track (default) and 32×18 (`size="short"`), 34 radius, 18/12 white knob 3px from the edge, sliding its own diameter when on. Off, the track is `--color-content-ghost`; on, it's the primary color. The `bds-switch` host measures 42×32: 2px above and 6px below the track (the global `label`'s `margin-bottom: .375rem`).
  *
- * Serve o Webhook (Integrações) e o Log (Growth); por isso mora aqui e não
- * dentro de uma tela. Sem estado próprio: quem liga é quem chama.
+ * Serves both Webhook (Integrações) and Log (Growth); that's why it lives here and not inside one screen. No state of its own: whoever calls it controls the toggle.
  */
 export function Interruptor({
   id,

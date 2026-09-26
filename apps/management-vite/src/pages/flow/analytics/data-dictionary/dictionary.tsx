@@ -5,29 +5,32 @@ import { PAGES, AboutData } from './pages';
 import './dictionary.css';
 
 /**
- * Dicionário de dados da Análise do contato — a página `dataDictionary` do
- * `portal-fragment-analytics`, que o portal monta com
+ * Data Dictionary for the contact's Analysis — the `dataDictionary` page of
+ * `portal-fragment-analytics`, which the portal mounts with
  * `<analytics-mfe page="dataDictionary" params="…">`.
  *
- * A régua é `cap6s/portalmfe/analytics-main.js`: o componente `iC` (a moldura),
- * o `HV` (o menu), o provedor `bV` (o estado) e uma função por página (`zN`,
- * `SU`, `lU`… ver `paginas.tsx`). Nada aqui lê banco: o dicionário da origem é
- * texto fixo no próprio bundle.
+ * The reference is `cap6s/portalmfe/analytics-main.js`: the `iC` component (the
+ * frame), the `HV` (the menu), the `bV` provider (the state), and one function per
+ * page (`zN`, `SU`, `lU`… see `paginas.tsx`). Nothing here reads a database: the
+ * source's dictionary is fixed text in the bundle itself.
  *
- * ═══ O ESTADO MORA NA URL, COMO LÁ ═══
+ * ═══ STATE LIVES IN THE URL, AS IT DOES THERE ═══
  *
- * O `bV` lê `params` no formato `secao:subsecao` — é o `?path=dashboard:listOfBlocks`
- * que o Dashboard da origem monta no link "Clique aqui" (`WT`, linha ~58787).
- * Aqui o mesmo `path` vira `searchParams`, e cada clique do menu é um link: sem
- * JavaScript de cliente. As chaves são as DELES, para o link do Dashboard valer.
+ * Their `bV` reads `params` in the `secao:subsecao` format — it's the
+ * `?path=dashboard:listOfBlocks` that the source's Dashboard builds in the "Clique
+ * aqui" link (`WT`, line ~58787). Here the same `path` becomes `searchParams`, and
+ * each menu click is a link: no client-side JavaScript. The keys are THEIRS, so
+ * the Dashboard's link still works.
  *
- * Duas divergências de comportamento, ambas por não ter estado de cliente:
- * - `?path=dashboard` sem subseção abre a página "Dashboard" (`vU`). Lá, ENTRAR
- *   pela URL assim deixa a página "Sobre dados" com o acordeão aberto; CLICAR na
- *   seção é que troca a página. Seguimos o clique, que é o caminho normal.
- * - Clicar de novo numa seção aberta, lá, fecha o acordeão mantendo a página
- *   (`handleSectionClick` alterna `selectedSection`). Aqui o link reabre.
- *   ponytail: sem estado de "fechado" na URL; entra um parâmetro se alguém sentir falta.
+ * Two behavior divergences, both from having no client state:
+ * - `?path=dashboard` with no subsection opens the "Dashboard" page (`vU`). There,
+ *   ENTERING via the URL this way leaves the "Sobre dados" page with the accordion
+ *   open; CLICKING the section is what switches pages. We follow the click, which
+ *   is the normal path.
+ * - Clicking again on an open section, there, closes the accordion while keeping
+ *   the page (`handleSectionClick` toggles `selectedSection`). Here the link
+ *   reopens it.
+ *   ponytail: no "closed" state in the URL; add a parameter if anyone misses it.
  */
 interface Item {
   key: string;
@@ -41,14 +44,14 @@ interface Section {
   titulo: string;
   /** `active` do `ZV`/`AV`: inativa ganha o selo "Em Breve" (`SV`). */
   active: boolean;
-  /** Presente = acordeão (`AV`); ausente = item único (`ZV`). */
+  /** Present = accordion (`AV`); absent = single item (`ZV`). */
   itens?: readonly Item[];
 }
 
 /*
- * O menu `HV`, na ordem do JSX, com os rótulos pt de `BV` (seções) e
- * `TV.menuOne` (subseções). "Lista de blocos" existe porque a flag
- * `is-displaying-block-listing-section` do roteador é `true` (`hidden: !a`).
+ * The `HV` menu, in JSX order, with the pt labels from `BV` (sections) and
+ * `TV.menuOne` (subsections). "Lista de blocos" exists because the router's
+ * `is-displaying-block-listing-section` flag is `true` (`hidden: !a`).
  */
 const SECTIONS: readonly Section[] = [
   { key: 'aboutData', titulo: 'Sobre dados', active: true },
@@ -86,13 +89,13 @@ const SECTIONS: readonly Section[] = [
   },
 ];
 
-/** O `id` do alerta único; os itens inativos o abrem por `popovertarget`. */
+/** The single alert's `id`; inactive items open it via `popovertarget`. */
 const ALERTA = 'dd-alerta';
 
 export function DictionaryPage() {
   const [search] = useSearchParams();
   const [pedida, subPedida] = (search.get('path') ?? '').split(':');
-  /* O `mV` do `bV`: sem `path` (ou com lixo), a seção é "Sobre dados". */
+  /* `bV`'s `mV`: with no `path` (or with garbage), the section is "Sobre dados". */
   const section = SECTIONS.find((s) => s.active && s.key === pedida) ?? SECTIONS[0]!;
   const item = section.itens?.find((i) => i.ativo && i.key === subPedida);
   const Page = PAGES[item?.key ?? section.key] ?? AboutData;
@@ -104,8 +107,10 @@ export function DictionaryPage() {
         {/* `bds-grid xxs=12` > `bds-typo fs-32 bold` (margem de typo fs-32: 22). */}
         <h1 className="dd-titulo">Dicionário de Dados</h1>
 
-        {/* `rC`: o `bds-paper` com recheio de 10, menu à esquerda e a página ao
-            lado (`aC`). */}
+        {/*
+ * `rC`: the `bds-paper` with 10 padding, menu on the left and the page alongside
+ * (`aC`).
+ */}
         <div className="dd-papel">
           <nav className="dd-menu" aria-label="Dicionário de dados">
             <div className="dd-menu-lista">
@@ -135,17 +140,21 @@ export function DictionaryPage() {
   );
 }
 
-/* ------------------------------------------------------------------ peças */
 
-/** A classe de cor do título: `open` (primária) na seção clicada, `active` no resto. */
+
+/**
+ * The title's color class: `open` (primary) on the clicked section, `active` on
+ * the rest.
+ */
 function corDoTitulo(active: boolean, aberta: boolean) {
   if (!active) return '';
   return aberta ? 'dd-aberto' : 'dd-ativo';
 }
 
 /**
- * `ZV` — item de uma linha só: "Sobre dados" e os três "Em Breve". O ativo navega
- * (`handleSectionClick`); o inativo abre o alerta (`r(e => !e)`).
+ * `ZV` — a single-line item: "Sobre dados" and the three "Em Breve" ones. The
+ * active one navigates (`handleSectionClick`); the inactive one opens the alert
+ * (`r(e => !e)`).
  */
 function ItemUnico({ section, aberta }: { section: Section; aberta: boolean }) {
   const miolo = (
@@ -170,9 +179,9 @@ function ItemUnico({ section, aberta }: { section: Section; aberta: boolean }) {
 }
 
 /**
- * `AV` — o acordeão (`details.accordion` na origem). Fechado, o `max-height: 50px`
- * do `QV` só deixa o sumário à mostra; aqui fechado simplesmente não desenha os
- * itens. A seta é `arrow-down` aberto e `arrow-right` fechado (`WV`).
+ * `AV` — the accordion (`details.accordion` in the source). Closed, the `QV`'s
+ * `max-height: 50px` only leaves the summary visible; here closed simply doesn't
+ * render the items. The arrow is `arrow-down` open and `arrow-right` closed (`WV`).
  */
 function Acordeao({
   section,
@@ -228,9 +237,10 @@ function Acordeao({
 }
 
 /**
- * O `bds-alert` do `jV` (em `ZV` e em `AV`): cabeçalho `variant="error"` com o
- * ícone `error`, o texto, e "Fechar" como botão secundário. Na origem é estado de
- * React; aqui é `popover` nativo — abre e fecha sem JavaScript nosso.
+ * The `bds-alert` from `jV` (in `ZV` and in `AV`): `variant="error"` header with
+ * the `error` icon, the text, and "Fechar" as a secondary button. In the source
+ * it's React state; here it's a native `popover` — opens and closes with no
+ * JavaScript of ours.
  */
 function Alerta() {
   return (

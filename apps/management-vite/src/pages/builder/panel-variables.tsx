@@ -10,17 +10,9 @@ import {
 } from './variables';
 
 /**
- * A "Biblioteca de variáveis" (`$ctrl.openVarLib()`, ícone `library`) — painel
- * à ESQUERDA na origem (`library-sidebar`, `position-left`), diferente do
- * painel do bloco (`position-right`). Duas abas, `bds-tab-group`:
- * "Variáveis do sistema" e "Variáveis do usuário", cada uma com busca e uma
- * lista com botão de copiar por item — estrutura confirmada em `portal.js`
- * (`BuilderVariablesLibrary`).
+ * The "Biblioteca de variáveis" (`$ctrl.openVarLib()`, `library` icon) — a panel on the LEFT in the source (`library-sidebar`, `position-left`), unlike the block panel (`position-right`). Two tabs, `bds-tab-group`: "Variáveis do sistema" and "Variáveis do usuário", each with search and a list with a copy button per item — structure confirmed in `portal.js` (`BuilderVariablesLibrary`).
  *
- * Sem o cadastro de variáveis da conta que a origem usa, "do usuário" aqui é
- * o que ESTE fluxo de fato referencia (`variaveisDoUsuario`, dado real do
- * desenho) e "do sistema" é a lista fixa das fontes com provedor no motor do
- * Pipe (`VARIAVEIS_DO_SISTEMA`, de `variaveis.ts` — ver o porquê lá).
+ * Without the account's variable registry that the source uses, "do usuário" here is what THIS flow actually references (`variaveisDoUsuario`, real data from the drawing) and "do sistema" is the fixed list of sources with a provider in the Pipe engine (`VARIAVEIS_DO_SISTEMA`, from `variaveis.ts` — see the reasoning there).
  */
 
 type Aba = 'sistema' | 'usuario';

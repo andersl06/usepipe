@@ -9,22 +9,7 @@ import { cronometro, horarioRelativo } from '../../lib/format';
 import { fixada, naoLida, displayName } from '../../lib/order';
 
 /**
- * O cartão da lista — o `<article class="chat-list-item">` da referência
- * (`~/desk-clone/capturas/parciais/card-lista.html` e
- * `templates/chat-list-item.html`), na mesma ordem:
- *
- * seção de cima (`.ticket-content`): coluna do rosto (avatar `small` com o
- * selo do canal por cima) e coluna do texto em três linhas — nome + horário
- * relativo (+ ícone de situação), prévia da última mensagem + a linha de
- * alertas (ficha "Novo", cronômetro do modo de espera, não lidas);
- * seção de baixo (`.ticket-info`): ícone de info, "#N", "Fila: x" e o menu ⋮.
- *
- * Nome e prévia engrossam quando há não lida (`bold="bold"`).
- *
- * O menu ⋮ é o `TicketMenuOptions` da origem (`PIN`/`UNPIN`, `UNREAD`/`READ`,
- * `blip-desk-regras-tecnicas.md` §1.8): fixar no topo e marcar como não lida,
- * por atendente, em `POST /v1/desk/acoes/fixar` e `/marcarNaoLida`. O
- * "Modo de Espera" continua no menu da conversa aberta.
+ * Reference `<article class="chat-list-item">` list card (`~/desk-clone/capturas/parciais/card-lista.html`, `templates/chat-list-item.html`): upper `.ticket-content` has a `small` avatar and channel badge, name and relative time, message preview, and alert line; lower `.ticket-info` has info icon, `#N`, queue name, and ⋮ menu. Name and preview use `bold="bold"` when unread. The source `TicketMenuOptions` (`PIN`/`UNPIN`, `UNREAD`/`READ`, `blip-desk-regras-tecnicas.md` §1.8) pins and marks unread per agent via `POST /v1/desk/acoes/fixar` and `/marcarNaoLida`. `Modo de Espera` stays in the open-conversation menu.
  */
 export function Card({
   conversation,
@@ -37,7 +22,7 @@ export function Card({
   selecionada: boolean;
   agora: Date;
   aoAbrir: (id: string) => void;
-  /** Recusa de uma ação do menu — a coluna mostra o texto, sem `alert`. */
+
   aoFalhar?: (error: string) => void;
 }) {
   const [menu, setMenu] = useState(false);
@@ -182,7 +167,7 @@ export function Card({
   );
 }
 
-/** A prévia (`message-preview`): o texto, ou o tipo por extenso quando é mídia. */
+
 function previa(c: ConversationOfList): string {
   if (c.lastMessageType && c.lastMessageType !== 'texto') {
     const tipos: Record<string, string> = {

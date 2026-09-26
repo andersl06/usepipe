@@ -1,20 +1,22 @@
-/* ================================================ a tela "Novidades" (/novidades)
-
-   O LUGAR é o do portal deles: o cartão "Novidades" abre uma tela pendurada na
-   barra escura, e a `ui-view` mostra só isso.
-
-   O DESENHO é o do blog do Barboo, medido na página:
-     · sobretítulo curto em maiúsculas, bem acima do título
-     · título grande, duas linhas, peso forte
-     · subtítulo em cinza, largura curta
-     · busca e filtro em PÍLULA (raio total), com contorno de 1px e fundo branco
-     · um cartão grande em destaque: capa larga, etiqueta da categoria por cima
-       dela no canto de baixo, corpo branco com chip "Destaque", título, resumo,
-       a linha cinza de data · tempo de leitura, e "Ler mais →"
-     · abaixo, a grade dos demais, no mesmo cartão sem o chip
-
-   A TINTA É A NOSSA: nenhum hex do blog entra. O laranja deles vira o moss dos
-   nossos token; o cinza deles vira a nossa escala de conteúdo. */
+/*
+ * ================================================ the "Novidades" screen (/novidades)
+ *
+ *    The PLACEMENT is their portal's: the "Novidades" card opens a screen hanging off
+ *    the dark bar, and the `ui-view` shows only that.
+ *
+ *    The DESIGN is Barbo's blog, measured on the page:
+ *      · short uppercase eyebrow, well above the title
+ *      · large title, two lines, bold weight
+ *      · gray subtitle, short width
+ *      · search and filter as PILLS (full radius), 1px outline and white background
+ *      · one large featured card: wide cover, category tag over it in the bottom
+ *        corner, white body with a "Destaque" chip, title, summary,
+ *        the gray date · reading-time line, and "Ler mais →"
+ *      · below, the grid of the rest, on the same card without the chip
+ *
+ *    THE PAINT IS OURS: no hex from the blog enters. Their orange becomes our
+ *    tokens' moss; their gray becomes our content scale.
+ */
 
 .nv-conteudo {
   flex: 1;
@@ -23,8 +25,9 @@
   padding: 0 var(--p-e-4) var(--p-e-10);
 }
 
-/* A coluna do blog é estreita — texto longo em linha larga não se lê. O teto
-   acompanha o degrau maior da coluna do portal para as duas telas alinharem. */
+/*
+ * The blog column is narrow — long text on a wide line doesn't read well. The ceiling follows the portal column's larger breakpoint so the two screens line up.
+ */
 .nv-coluna {
   margin: 2.5rem auto 0;
   width: 100%;
@@ -57,9 +60,10 @@
   color: var(--ink-2);
 }
 
-/* ------------------------------------------------------ busca e filtro
-   As duas pílulas do blog: 48 de altura, raio total, contorno de 1px e fundo
-   branco. Lado a lado no desktop, empilhadas quando não cabem. */
+/*
+ * ------------------------------------------------------ search and filter
+ *    The blog's two pills: 48 height, full radius, 1px outline and white background. Side by side on desktop, stacked when they don't fit.
+ */
 .nv-filtros {
   display: flex;
   flex-wrap: wrap;
@@ -97,7 +101,7 @@
   font-size: var(--p-t-md);
 }
 
-/* A seta é desenhada por nós, então a nativa do `select` sai. */
+/* The arrow is drawn by us, so the native `select` arrow goes. */
 .nv-campo-lista select {
   appearance: none;
   cursor: pointer;
@@ -115,7 +119,7 @@
   color: var(--ink-2);
 }
 
-/* ------------------------------------------------------------- cartões */
+/* ------------------------------------------------------------- cards */
 .nv-cartao {
   display: flex;
   flex-direction: column;
@@ -129,9 +133,9 @@
   margin-bottom: var(--p-e-8);
 }
 
-/* A capa. Faixa de cor, e não foto: não temos banco de imagem, e foto genérica
-   em cima de um aviso de versão mente sobre o conteúdo. A etiqueta da categoria
-   fica por cima dela, no canto de baixo, como no blog. */
+/*
+ * The cover. A color band, not a photo: we have no image library, and a generic photo over a release note lies about the content. The category tag sits over it, in the bottom corner, like the blog.
+ */
 .nv-capa {
   position: relative;
   height: 140px;
@@ -168,7 +172,7 @@
   padding: var(--p-e-5);
 }
 
-/* O chip "Destaque" do blog, em cima do título do cartão grande. */
+/* The blog's "Destaque" chip, above the large card's title. */
 .nv-destaque {
   display: inline-block;
   margin-bottom: var(--p-e-3);
@@ -202,7 +206,7 @@
   color: var(--ink-2);
 }
 
-/* A linha cinza de data e tempo de leitura, em maiúsculas e miúda. */
+/* The gray date and reading-time line, in small uppercase. */
 .nv-meta {
   margin: var(--p-e-4) 0 0;
   font-size: var(--p-t-xs);
@@ -224,7 +228,7 @@
   text-decoration: underline;
 }
 
-/* A grade dos demais: duas colunas quando cabem, uma quando não. */
+/* The grid of the rest: two columns when they fit, one when they don't. */
 .nv-grade {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));

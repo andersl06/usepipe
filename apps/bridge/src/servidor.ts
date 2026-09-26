@@ -8,19 +8,11 @@ import { falha } from './lime.js';
 import type { ComandoLime } from './lime.js';
 
 /**
- * A ponte: um endereço só, que recebe comando LIME e responde com dado do Pipe.
- *
- * Por que HTTP e não WebSocket: a cópia já foi desligada do WebSocket da Blip pelo
- * laboratório — `boot-mock.js` monta um cliente falso cujo `processCommand` devolve
- * promessa. Uma chamada HTTP encaixa nesse ponto sem tocar no bundle deles.
+ * The bridge exposes one address for LIME commands and returns Pipe data. HTTP fits the lab's existing seam: `boot-mock.js` already disconnected the copy from Blip WebSocket and constructs a fake client whose `processCommand` returns a promise. An HTTP call works there without changing the copied bundle.
  */
 
 /**
- * Autenticação de laboratório, e só.
- *
- * A cópia não tem login. Enquanto a tela for a cópia, o acesso é por rede fechada e
- * a ponte confia numa chave de ambiente. **Isto não vai para a internet**: no dia em
- * que a tela for nossa, quem manda é a sessão que a `apps/api` já emite.
+ * Lab authentication only. The copy has no login; while it remains a copy, access is restricted to a closed network and the bridge trusts an environment key. THIS MUST NOT BE EXPOSED TO THE INTERNET. When the screen is ours, use the session issued by `apps/api`.
  */
 function sessionConfigured(): { tenantId: string; email: string } {
   const tenantId = process.env['PIPE_PONTE_TENANT_ID'];
@@ -56,9 +48,9 @@ export async function startBridge(porta = Number(process.env['PORT'] ?? 3020)): 
   const app = express();
   app.use(express.json({ limit: '1mb' }));
 
-  /* A cópia roda em 127.0.0.1:8787 (Desk) e :8790 (Gestão). A lista vem do
-     ambiente e nunca é curinga: mesmo em laboratório, curinga com credencial é
-     hábito que viaja para produção. */
+  /*
+   * The copy runs at 127.0.0.1:8787 (Desk) and :8790 (Management). Allowed origins come from the environment and are never wildcarded: even in a lab, wildcard origins with credentials create a dangerous production habit.
+   */
   const origens = (process.env['PIPE_PONTE_ORIGENS'] ?? 'http://127.0.0.1:8787,http://127.0.0.1:8790')
     .split(',')
     .map((o) => o.trim())
@@ -80,9 +72,7 @@ export async function startBridge(porta = Number(process.env['PORT'] ?? 3020)): 
   });
 
   /**
-   * O comando chega exatamente como a tela o montou. A resposta `204` é o combinado
-   * com o laboratório: "não sei responder, use o mock". Erro de verdade volta como
-   * falha LIME, para a tela tratar como ela já sabe tratar.
+   * The command arrives exactly as the screen built it. HTTP `204` is the lab convention for "cannot answer; use the mock". Real errors return a LIME failure for the screen's existing error handling.
    */
   app.post('/comandos', (req, res) => {
     const cmd = req.body as ComandoLime;

@@ -8,20 +8,7 @@ import { windowAberta } from '../../lib/order';
 import { numeroDoTicket } from '../../lib/channel';
 
 /**
- * O compositor — `.pane-chat-message-input` da referência
- * (`~/desk-clone/capturas/parciais/composer.html`): um `bds-paper` com o
- * `textarea` ("Escreva uma mensagem...") em cima e a faixa de ações embaixo:
- * à esquerda resposta pronta (`ab`), anexo, emoji; à direita o áudio como
- * PRIMÁRIO, que vira o botão de enviar quando há texto.
- *
- * Quando a conversa não aceita texto livre, o compositor inteiro dá lugar a um
- * bloco centrado com uma linha e um botão — os casos do i18n de lá:
- * `standbyInputLock`, `clientClosed`, `clientClosedInactivity`,
- * `attendantClosed`; e a janela de 24h fechada
- * (`failedMaxTimeChannelInterval`), que aqui abre o envio de modelo.
- *
- * Enviar vai para `POST /v1/conversas/:id/mensagens` (texto, anexo ou template).
- * A nota interna não passa por aqui: é o "Comentário" do painel do contato.
+ * Reference composer `.pane-chat-message-input` (`~/desk-clone/capturas/parciais/composer.html`): `bds-paper` holds the message textarea above a reply, attachment, emoji, and audio/action row; audio is primary until text turns it into Send. When free text is unavailable, replace the composer with a centered message and button for `standbyInputLock`, `clientClosed`, `clientClosedInactivity`, `attendantClosed`, or closed 24-hour window (`failedMaxTimeChannelInterval`, which opens template sending here). Send text, attachment, or template through `POST /v1/conversas/:id/mensagens`. Internal notes use contact-panel `Comentário` instead.
  */
 export function Composer({
   conversation,
@@ -41,7 +28,7 @@ export function Composer({
   const [error, setError] = useState<string | null>(null);
   const [panelRespostas, setPanelRespostas] = useState(false);
   const [templateAberto, setTemplateAberto] = useState(false);
-  /** A resposta pronta escolhida, para o relatório de esforço — some se o texto for editado. */
+  /** Track the selected quick reply for effort reporting; clear its ID if the text is edited. */
   const [respostaProntaId, setRespostaProntaId] = useState<string | null>(null);
   const campo = useRef<HTMLTextAreaElement>(null);
   const file = useRef<HTMLInputElement>(null);
@@ -54,7 +41,7 @@ export function Composer({
     campo.current?.focus();
   }, [conversation.id]);
 
-  /* O piso e o teto do campo (4em a 11.5em): cresce com o texto. */
+
   useEffect(() => {
     const el = campo.current;
     if (!el) return;
@@ -109,12 +96,7 @@ export function Composer({
   }
 
   /**
-   * Até 10 arquivos por envio, UMA mensagem por arquivo, em sequência — o modelo
-   * da origem (`SEND_MULT_FILE`, `mediaLinkDocuments`: um media-link por arquivo,
-   * `blip-desk-regras-tecnicas.md` §3.3). O lote é tudo ou nada: se um arquivo
-   * não passa (quantidade, tamanho, tipo — na tela ou no `POST /v1/anexos`),
-   * nenhuma mensagem sai, e o erro diz qual foi. Só depois de TODOS subirem é que
-   * `POST /v1/conversas/:id/mensagens/anexos` cria as mensagens, na ordem.
+   * Allow up to 10 files per send, one message per file in order, following source `SEND_MULT_FILE`/`mediaLinkDocuments` (`blip-desk-regras-tecnicas.md` §3.3). The batch is all-or-nothing: if count, size, or type validation fails in the screen or `POST /v1/anexos`, send no messages and name the failing file. Only after every upload succeeds does `POST /v1/conversas/:id/mensagens/anexos` create messages in order.
    */
   async function anexar(lista: FileList | null) {
     const arquivos = Array.from(lista ?? []);
@@ -264,7 +246,7 @@ export function Composer({
                 <IconeDesk nome="enviar" />
               </button>
             ) : (
-              /* ponytail: gravação de áudio depende do MediaRecorder + anexo; o botão fica primário como lá. */
+              /* Ponytail: audio recording requires `MediaRecorder` and attachment upload; the button remains primary as in the reference. */
               <button
                 type="button"
                 className="dk-botao-icone dk-primario"
@@ -284,7 +266,7 @@ export function Composer({
   );
 }
 
-/** O bloco que substitui o compositor (piso de 150px, uma linha e um botão). */
+
 function Fechado({
   titulo,
   description,
@@ -314,10 +296,7 @@ function Fechado({
 }
 
 /**
- * O painel de respostas prontas (`.custom-reply`): lista à esquerda,
- * pré-visualização à direita ("Pré-visualização" / "Pressione Enter para
- * selecionar"); sem resultado, "Não há título de resposta pronta que
- * contenha este texto.". Filtra pelo título com o que está no campo.
+ * Reference quick-reply panel `.custom-reply`: list on the left, preview on the right (`Pré-visualização` / `Pressione Enter para selecionar`). Show `Não há título de resposta pronta que contenha este texto.` when none match; filter titles by the entered text.
  */
 function RespostasPanel({
   respostas,
@@ -392,9 +371,7 @@ function RespostasPanel({
 }
 
 /**
- * O envio de modelo (template aprovado) quando a janela fechou: escolhe o
- * modelo, preenche as variáveis na ordem `{{1}}`, `{{2}}`… e envia por
- * `POST /v1/conversas/:id/mensagens` com `template_id` e `parametros`.
+ * When the window has closed, choose an approved template, fill `{{1}}`, `{{2}}` and later variables in order, and send through `POST /v1/conversas/:id/mensagens` with `template_id` and `parametros`.
  */
 function TemplateModal({
   conversation,

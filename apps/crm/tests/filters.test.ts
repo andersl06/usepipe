@@ -9,16 +9,17 @@ import {
 } from '../src/lib/leads-visao.ts';
 
 /**
- * A régua do filtro por coluna.
+ * The per-column filter ruler.
  *
- * O filtro é o único parâmetro da listagem que vem com nome VARIÁVEL na URL, e
- * é por isso que ele precisa de teste: `aba` e `dir` só podem estar certos ou
- * ausentes, mas `f.qualquercoisa` é o que alguém digita na barra de endereço.
+ * The filter is the listing's only parameter that comes with a VARIABLE name
+ * in the URL, and that's why it needs a test: `aba` and `dir` can only be right
+ * or absent, but `f.anything` is whatever someone types into the address bar.
  *
- * O que se protege aqui:
- *   1. só coluna do catálogo vira filtro — nome de coluna não vem da tela;
- *   2. ida e volta pela URL não perde nem inventa filtro, que é o que faz a
- *      visão salva continuar valendo depois de compartilhada.
+ * What's protected here:
+ *   1. only a catalog column becomes a filter — the column name doesn't come
+ *      from the screen;
+ *   2. a round trip through the URL neither loses nor invents a filter, which
+ *      is what keeps a saved view valid after being shared.
  */
 
 test('só as colunas do catálogo filtram', () => {

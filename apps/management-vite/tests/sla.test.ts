@@ -4,12 +4,9 @@ import type { Marcos } from '@pipe/core';
 import { conversationAvaliarSla, type RegraSlaCarregada } from '../src/lib/sla.ts';
 
 /**
- * A pastilha de SLA do monitoramento detalhado.
+ * The SLA pill in detailed monitoring.
  *
- * A conta é do `@pipe/core`; o que mora aqui é a escolha da regra aplicável e a
- * tradução para o rótulo da tela. As duas coisas decidem se o supervisor vê
- * "ESTOUROU" e vai atrás da conversa, ou vê "—" e passa direto. Nenhuma delas
- * toca banco: recebem as regras já carregadas.
+ * The calculation belongs to `@pipe/core`; what lives here is choosing the applicable rule and translating it into the screen's label. Both decide whether the supervisor sees "ESTOUROU" and goes after the conversation, or sees "—" and moves on. Neither touches the database: they receive the rules already loaded.
  */
 
 const T0 = new Date('2026-09-07T12:00:00Z');
@@ -38,30 +35,32 @@ const marcos = (parcial: Partial<Marcos> = {}): Marcos => ({
 });
 
 test('with no active rule the pill disappears, and never becomes "WITHIN"', () => {
-  /* "DENTRO" sem regra configurada seria mentira: afirma que o prazo está sendo
-     cumprido quando não existe prazo. O travessão é o que faz o gestor
-     perceber que falta cadastrar a regra. */
+  /*
+   * "DENTRO" without a configured rule would be a lie: it claims the deadline is being met when no deadline exists. The em dash is what makes the manager notice a rule still needs to be registered.
+   */
   const pill = conversationAvaliarSla([], marcos(), 'fila-1', depois(10));
   assert.equal(pill.state, 'without_rule');
   assert.equal(pill.rotulo, '—');
 });
 
 test('the queue rule beats the tenant rule', () => {
-  /* A específica é a que o gestor configurou de propósito. Se a do tenant
-     ganhasse, a fila de urgência herdaria o prazo frouxo do padrão. */
+  /*
+   * The specific rule is the one the manager configured on purpose. If the tenant's won instead, the urgent queue would inherit the default's loose deadline.
+   */
   const regras = [
     regra({ id: 'tenant', prazoSeg: 3600, alertaSeg: null }),
     regra({ id: 'fila', scopeType: 'fila', scopeId: 'fila-1', prazoSeg: 60, alertaSeg: null }),
   ];
   // 120s: dentro do prazo do tenant (3600) e fora do prazo da fila (60).
   assert.equal(conversationAvaliarSla(regras, marcos(), 'fila-1', depois(120)).state, 'exceeded');
-  // Outra fila não é alcançada pela regra específica e cai no padrão do tenant.
+  // Another queue isn't reached by the specific rule and falls back to the tenant default.
   assert.equal(conversationAvaliarSla(regras, marcos(), 'fila-2', depois(120)).state, 'inside');
 });
 
 test('a conversation with no queue falls back to the tenant rule, not to "no rule"', () => {
-  /* Conversa ainda na raiz tem `filaId` nulo — é justamente a que corre risco
-     de ficar esquecida, e é a que mais precisa do relógio. */
+  /*
+   * A conversation still at the root has a null `filaId` — it's precisely the one at risk of being forgotten, and the one that most needs the clock.
+   */
   const pill = conversationAvaliarSla([regra({ alertaSeg: null })], marcos(), null, depois(400));
   assert.equal(pill.state, 'exceeded');
 });
@@ -71,15 +70,16 @@ test('alerta, dentro e estourado seguem os limiares configurados', () => {
   const em = (s: number) => conversationAvaliarSla(regras, marcos(), null, depois(s)).state;
   assert.equal(em(10), 'inside');
   assert.equal(em(239), 'inside');
-  // O limiar é inclusivo: exatamente no alerta já alerta.
+  // The threshold is inclusive: exactly at the alert point, it already alerts.
   assert.equal(em(240), 'alert');
   assert.equal(em(299), 'alert');
   assert.equal(em(300), 'exceeded');
 });
 
 test('estouro anuncia quantos segundos passaram do prazo', () => {
-  /* É o número que ordena a fila do que precisa de atenção primeiro. Sem ele,
-     "ESTOUROU" há 10 segundos e há duas horas parecem a mesma coisa. */
+  /*
+   * It's the number that orders the queue of what needs attention first. Without it, "ESTOUROU" 10 seconds ago and two hours ago look the same.
+   */
   const pill = conversationAvaliarSla([regra({ prazoSeg: 300 })], marcos(), null, depois(500));
   assert.equal(pill.state, 'exceeded');
   assert.equal(pill.excedidoSeg, 200);
@@ -91,9 +91,9 @@ test('sem estouro não há excedido para mostrar', () => {
 });
 
 test('responder depois do prazo continua sendo estouro', () => {
-  /* O relatório de SLA existe para contar o que falhou. Se responder tarde
-     apagasse o estouro, bastaria responder atrasado para o indicador ficar
-     limpo — e o estouro sumiria exatamente nos casos que importam. */
+  /*
+   * The SLA report exists to count what failed. If answering late erased the breach, answering late would be enough to keep the indicator clean — and the breach would disappear exactly in the cases that matter.
+   */
   const pill = conversationAvaliarSla(
     [regra({ prazoSeg: 300 })],
     marcos({ firstRespostaIn: depois(500) }),
@@ -104,8 +104,9 @@ test('responder depois do prazo continua sendo estouro', () => {
 });
 
 test('responder dentro do prazo fecha a pastilha em "CUMPRIDO"', () => {
-  /* Cumprido é estado final: o relógio para. Sem isso a conversa antiga
-     estouraria mais tarde só porque o tempo continuou passando. */
+  /*
+   * Fulfilled is a final state: the clock stops. Without this, an old conversation would blow its deadline later just because time kept passing.
+   */
   const pill = conversationAvaliarSla(
     [regra({ prazoSeg: 300 })],
     marcos({ firstRespostaIn: depois(60) }),
@@ -117,8 +118,9 @@ test('responder dentro do prazo fecha a pastilha em "CUMPRIDO"', () => {
 });
 
 test('alvo sem marco de início não vira pastilha', () => {
-  /* `tempo_resposta` só começa quando existe mensagem do cliente sem resposta.
-     Sem esse marco, contar o tempo desde a criação inventaria estouro. */
+  /*
+   * `tempo_resposta` only starts once there's an unanswered client message. Without that marker, counting time since creation would fabricate a breach.
+   */
   const pill = conversationAvaliarSla(
     [regra({ alvo: 'tempo_resposta' })],
     marcos(),

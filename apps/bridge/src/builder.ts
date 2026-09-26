@@ -9,50 +9,16 @@ import { noTenant } from './database.js';
 import type { Session } from './rotas.js';
 
 /**
- * O Builder salvando e publicando de verdade.
- *
- * A tela do cliente é a cópia da Blip, e o Builder dela guarda o desenho em dois
- * baldes: o mapa de estados (`builder_working_flow`) e as ações globais
- * (`builder_working_global_actions`). Publicar é gravar o fluxo compilado dentro da
- * "Application". Aqui esses baldes passam a ser o banco do Pipe — pelo MESMO
- * domínio que a tela do Builder da Gestão usa (`apps/api/src/dominio/gestao/
- * builder-do-fluxo.ts`): um rascunho por fluxo, gravado por cima a cada salvar;
- * publicar promove o rascunho e arquiva a versão anterior.
- *
- * ## Qual fluxo
- *
- * A cópia abre o Builder "do bot", e o bot é a conexão: nenhum comando LIME dela
- * carrega o id do fluxo — os buckets são `blip_portal:builder_working_flow`, sem
- * qualificador, e a ponte roda para UM tenant (`PIPE_PONTE_TENANT_ID`). Então a
- * ponte também edita UM fluxo, escolhido assim:
- *
- * 1. `PIPE_PONTE_FLUXO_ID`, quando definido — o id de um fluxo (tipo `fluxo`,
- *    não arquivado) do tenant, para apontar a cópia para o contato que se quer
- *    editar;
- * 2. senão, o fluxo chamado `Fluxo do Builder`, criado na primeira vez — o
- *    comportamento de antes, para o laboratório continuar funcionando sem
- *    configuração nova.
- *
- * Trocar isso por fluxo-por-sessão exigiria o laboratório mandar o id do bot em
- * cada comando (a cópia não manda), e fica para quando a tela for nossa — que é a
- * tela da Gestão, já ligada nas rotas por fluxo.
- *
- * ## Permissão
- *
- * O domínio confere `automacao.fluxo.editar` para ler e salvar e
- * `automacao.fluxo.publicar` para publicar, como faz para a Gestão. A pessoa que
- * a cópia representa (`PIPE_PONTE_EMAIL`) precisa tê-las — o administrador do
- * tenant tem as duas. Sem elas a resposta é a falha LIME com a frase do domínio,
- * e não um desenho que parece salvo e não está.
+ * The Builder saves and publishes a real flow. The client screen is a Blip copy; its Builder keeps the design in two buckets, state map (`builder_working_flow`) and global actions (`builder_working_global_actions`). Publishing stores the compiled flow in the "Application". Here those buckets become Pipe database records through the SAME domain used by the Management Builder (`apps/api/src/dominio/gestao/builder-do-fluxo.ts`): one draft per flow, overwritten on each save; publishing promotes the draft and archives the previous version. The copy opens the Builder for a bot, and the bot is the connection: its LIME commands contain no flow ID. Buckets such as `blip_portal:builder_working_flow` have no qualifier, and the bridge runs for ONE tenant (`PIPE_PONTE_TENANT_ID`). Therefore it edits ONE flow. If `PIPE_PONTE_FLUXO_ID` is set, require a non-archived flow of type `fluxo` in this tenant and fail if it is invalid. If it is unset, reuse or create `Fluxo do Builder`. A per-session flow would require the lab copy to send a bot ID on every command; it does not. The Management screen already uses per-flow routes. The domain checks `automacao.fluxo.editar` for reading and saving and `automacao.fluxo.publicar` for publishing, as for Management. The person represented by the copy (`PIPE_PONTE_EMAIL`) needs those permissions; a tenant admin has both. Without permission return a LIME failure with the domain message, not a design that only appears saved.
  */
 
-/** O fluxo de reserva, quando `PIPE_PONTE_FLUXO_ID` não aponta para um. */
+/** Fallback flow when `PIPE_PONTE_FLUXO_ID` does not select one. */
 const NAME_OF_FLOW = 'Fluxo do Builder';
 
-/** Uma vez por processo: o fluxo não muda enquanto a ponte roda. */
+/** Resolve once per process: the flow does not change while the bridge runs. */
 let flowIdResolved: string | null = null;
 
-/** O id do fluxo que a cópia edita — resolvendo (e criando, se preciso) na primeira chamada. */
+/** Resolve the flow ID edited by the copy, creating the flow on first use if needed. */
 export async function bridgeFlow(session: Session): Promise<string> {
   if (flowIdResolved) return flowIdResolved;
   flowIdResolved = await noTenant(session.tenantId, async (tx) => {
@@ -87,9 +53,7 @@ export async function bridgeFlow(session: Session): Promise<string> {
 }
 
 /**
- * Devolve o mapa do editor — o rascunho, a publicada, ou o fluxo padrão quando o
- * cliente ainda não desenhou nada (o domínio já devolve o padrão; e um rascunho
- * gravado vazio também abre com o padrão, para a tela nunca abrir em branco).
+ * Return the editor map: draft, published version, or default flow if no design exists. The domain supplies the default; even an empty saved draft opens with it so the screen never starts blank.
  */
 export async function carregarRascunho(session: Session): Promise<Record<string, unknown> | null> {
   const flowId = await bridgeFlow(session);
@@ -112,15 +76,12 @@ export interface RecordingResult {
   versao: number;
   publicado: boolean;
   naoSuportado: Record<string, number>;
-  /** O fluxo foi gravado, mas o motor recusaria rodar — e por isso não publicou. */
+  /** The flow was saved but the engine would refuse to run it, so it was not published. */
   validationError: string | null;
 }
 
 /**
- * Grava o desenho do cliente. `publicar: false` deixa em rascunho — é o "salvar"
- * do Builder, que acontece a cada alteração; `true` é o botão de publicar, e só
- * então o motor passa a executar o fluxo novo. Inválido grava e não publica: a
- * frase do motor volta em `erroDeValidacao`, para a tela mostrar.
+ * Save the client's design. `publicar: false` leaves a draft, matching the Builder's save on each change; `true` publishes and only then does the engine execute the new flow. Invalid input is saved but not published; return the engine's reason in `erroDeValidacao` for the screen to display.
  */
 export async function saveFlow(
   session: Session,

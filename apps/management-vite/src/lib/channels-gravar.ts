@@ -12,11 +12,7 @@ import type {
 } from './channels';
 
 /**
- * As escritas de `/v1/canais/whatsapp` e `/v1/canais/instagram` — mesmo
- * formato de `paginas/fluxo/configuracoes/basicas/gravar.ts`: `Resultado<T>`
- * com `erro` em texto para a tela, e `campo` quando a `api` aponta qual (a
- * tarefa pede: `{erro:{codigo,mensagem,detalhe?:{campo}}}` → mensagem no
- * campo certo).
+ * WhatsApp and Instagram channel writes at `/v1/canais/whatsapp` and `/v1/canais/instagram` mirror `paginas/fluxo/configuracoes/basicas/gravar.ts`: `Resultado<T>` carries displayable `erro` and optional `campo` when `api` identifies the field (expected `{erro:{codigo,mensagem,detalhe?:{campo}}}`).
  */
 export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string; campo?: string };
 
@@ -44,7 +40,7 @@ export interface ConexaoManualWhatsApp {
   nome?: string;
   /** Conexão feita de dentro do bot: o canal nasce ligado a ele (`fluxo_id`). */
   flowId?: string;
-  /** Reconexão: troca a credencial DESTE canal em vez de criar outro. */
+  /** Reconnection replaces THIS channel's credential instead of creating another channel. */
   channelId?: string;
 }
 
@@ -79,7 +75,7 @@ export async function conectarWhatsappManual(
 
 /* -------------------------------------------------------- O canal do bot */
 
-/** "Ativar número": `PUT /v1/gestao/fluxos/:id/canal` — o canal passa a ser deste bot. */
+/** `Ativar número`: `PUT /v1/gestao/fluxos/:id/canal` assigns the channel to this bot. */
 export async function ligarChannelToFlow(flowId: string, channelId: string): Promise<Resultado<ChannelOfFlow>> {
   try {
     const value = await api.put<ChannelOfFlow>(`/v1/management/flows/${flowId}/channel`, { channelId });
@@ -90,7 +86,7 @@ export async function ligarChannelToFlow(flowId: string, channelId: string): Pro
   }
 }
 
-/** "Desconectar canal": `DELETE /v1/gestao/fluxos/:id/canal`. O canal em si continua conectado à Meta. */
+/** `Desconectar canal`: `DELETE /v1/gestao/fluxos/:id/canal` detaches the channel from this bot while the channel itself remains connected to Meta. */
 export async function flowDesligarChannel(flowId: string, motivo: string): Promise<Resultado<void>> {
   try {
     await pedir<void>(`/v1/management/flows/${flowId}/channel`, {

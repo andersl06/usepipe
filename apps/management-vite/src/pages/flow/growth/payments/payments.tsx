@@ -2,33 +2,13 @@ import { Illustration } from '@pipe/ui';
 import { IconePortal } from '../../../../components/icones-portal';
 
 /**
- * Growth › Relatório de Pagamentos — `growth/activemessages/paymentsReport`
- * na origem. Refeito por foto (dono reclamou que a primeira versão "ficou
- * totalmente diferente"): a origem não abre no clone de 8790 nem o HTML
- * capturado renderiza fora do domínio da Blip (o MFE `active-campaign-mfe`
- * embute React com classes Tailwind), então a régua aqui é o DOM renderizado
- * salvo em `referencias-blip/canais/roteador/roteador-relatoriopagamentos__pagina.html`.
+ * Growth › Relatório de Pagamentos — `growth/activemessages/paymentsReport` in the origin. Rebuilt from a photo (the owner complained the first version "came out totally different"): the origin doesn't open in the 8790 clone, and the captured HTML doesn't render outside Blip's domain (the `active-campaign-mfe` MFE embeds React with Tailwind classes), so the ruler here is the rendered DOM saved at `referencias-blip/canais/roteador/roteador-relatoriopagamentos__pagina.html`.
  *
- * Duas descobertas que mudam a estrutura da versão anterior:
- * 1. **Não existe título de página.** O `ui-view="content"` recebe o MFE
- *    direto — sem `home-header-testid`, sem `<h1>`. O nome "Relatório de
- *    Pagamentos" só aparece no item da lateral (`navegacao.tsx`). Por isso
- *    esta versão não tem `<h1>` — a antiga tinha um que a origem não tem.
- * 2. **É um layout de duas colunas lado a lado**, não três seções
- *    empilhadas: "Tráfego de mensagens" à esquerda (dois cartões de métrica
- *    + um cartão de gráfico com a legenda das 4 formas de pagamento) e
- *    "Pagamentos" à direita (dois cartões de resumo lado a lado + o Top 5
- *    embaixo). Medido: `gap: 32`, cartões com `border-radius: 12px;
- *    padding: 12px`.
+ * Two findings that change the previous version's structure:
+ * 1. **There's no page title.** `ui-view="content"` receives the MFE directly — no `home-header-testid`, no `<h1>`. The name "Relatório de Pagamentos" only shows up in the sidebar item (`navegacao.tsx`). That's why this version has no `<h1>` — the old one had one the origin doesn't.
+ * 2. **It's a two-column side-by-side layout**, not three stacked sections: "Tráfego de mensagens" on the left (two metric cards + one chart card with the legend for the 4 payment methods) and "Pagamentos" on the right (two summary cards side by side + the Top 5 below). Measured: `gap: 32`, cards with `border-radius: 12px; padding: 12px`.
  *
- * A origem mostra números de demonstração fixos (384.302 mensagens, R$ 91
- * milhões, Top 5 de produtos de moda) — dado de exemplo do PRODUTO Blip, não
- * do roteador capturado. O Pipe não tem cobrança por mensagem ativa (PIX,
- * cartão, boleto, link) nem para valer nem de mentira: em vez de copiar os
- * números de demonstração (que pareceriam reais e não são), cada valor fica
- * em "—" e as barras não fabricam altura — a disposição é a mesma, o dado é
- * honesto. TODO: quando existir a integração de cobrança, trocar por
- * `lib/growth.ts#relatorioDePagamentos`.
+ * The origin shows fixed demo numbers (384,302 messages, R$ 91 million, a Top 5 of fashion products) — sample data for the Blip PRODUCT, not from the captured router. Pipe has no billing for active messages (PIX, card, boleto, link), for real or as a mock: instead of copying the demo numbers (which would look real but aren't), every value shows "—" and the bars don't fake a height — the layout is the same, the data is honest. TODO: once billing integration exists, swap in `lib/growth.ts#relatorioDePagamentos`.
  */
 const FORMAS_OF_PAYMENT = [
   { rotulo: 'PIX', cor: 'var(--p-grafico-1)' },

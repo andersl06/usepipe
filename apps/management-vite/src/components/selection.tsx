@@ -30,9 +30,7 @@ function optionsOf(children: ReactNode): Option[] {
 }
 
 /**
- * Um único select da Gestão, com a caixa e a lista do `bds-select` da Blip.
- * O input hidden preserva `name` e o envio GET/POST dos formulários existentes;
- * o evento continua expondo `.target.value`, como o select nativo substituído.
+ * Provide one Gestao select matching Blip `bds-select` box and list. Its hidden input preserves `name` for existing GET/POST forms, while its event still exposes `.target.value` like the native select it replaces.
  */
 export function Selection({
   children,

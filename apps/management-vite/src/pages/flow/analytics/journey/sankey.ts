@@ -1,13 +1,7 @@
 import type { ArestaDaJornada, TipoDeAresta } from '@pipe/core/analytics';
 
 /**
- * O diagrama da Jornada sem biblioteca. Na origem é o `Sankey` do Google Charts
- * (`sankeyDiagram`, controlador `Oe`) com as opções `Ci`: nó de 15 de largura,
- * 30 entre nós, `iterations: 0` — ou seja, SEM reordenar para cruzar menos: os
- * nós ficam na ordem em que as arestas chegam. É essa ordem que dá para
- * reproduzir em SVG puro, e é o que se faz aqui.
- *
- * Puro de propósito: `tests/analise-jornada.test.ts` trava o rótulo.
+ * The Journey diagram without a library. In the origin it's the `Sankey` from Google Charts (`sankeyDiagram`, controller `Oe`) with the `Ci` options: 15 node width, 30 between nodes, `iterations: 0` — i.e., NO reordering to reduce crossings: nodes stay in the order their edges arrive. That order is what can be reproduced in plain SVG, which is what's done here. Deliberately pure: `tests/analise-jornada.test.ts` locks the label.
  */
 
 /** `getEdgeOrder()`: dentro da etapa, `Regular` em cima, `Other` no meio, `End` embaixo. */
@@ -17,10 +11,7 @@ const ORDER: Record<TipoDeAresta, number> = { regular: 0, outros: 1, saida: 2 };
 const soma = (arestas: ArestaDaJornada[]) => arestas.reduce((t, a) => t + a.quantity, 0);
 
 /**
- * `SankeyService.getLabelSufix(nome, i)`: a fatia do nó na etapa `i` — quem
- * CHEGOU nele sobre todos que chegaram na etapa; para o nó de partida, quem
- * SAIU dele sobre todos que saíram. Com `i < 0` ou etapa vazia, devolve a
- * contagem crua.
+ * `SankeyService.getLabelSufix(nome, i)`: the node's share at step `i` — those who ARRIVED at it over everyone who arrived at that step; for the starting node, those who LEFT it over everyone who left. With `i < 0` or an empty step, it returns the raw count.
  */
 export function sufixoDoRotulo(nome: string, i: number, arestas: ArestaDaJornada[]): string {
   let s = soma(arestas.filter((a) => a.para === nome));
@@ -64,8 +55,9 @@ export function desenharSankey(
 
   type Acumulado = { nome: string; column: number; tipo: TipoDeAresta; entra: number; sai: number };
   const nos = new Map<string, Acumulado>();
-  /* `loadNodeColors()` empurra a origem SEM tipo e o destino COM tipo, e fica
-     com a primeira aparição: nó que já nasceu como origem é `Regular`. */
+  /*
+   * `loadNodeColors()` pushes the source WITHOUT a type and the destination WITH a type, keeping the first occurrence: a node that was already born as a source is `Regular`.
+   */
   const no = (nome: string, column: number, tipo: TipoDeAresta) => {
     const achado = nos.get(nome);
     if (achado) return achado;
@@ -82,7 +74,7 @@ export function desenharSankey(
   const colunas = lista.reduce((m, n) => Math.max(m, n.column + 1), 0);
   const value = (n: Acumulado) => Math.max(n.entra, n.sai);
 
-  /* A escala é a da coluna mais cheia: ela ocupa a altura toda. */
+  /* The scale is set by the fullest column: it occupies the entire height. */
   let escala = Infinity;
   for (let c = 0; c < colunas; c++) {
     const ofColumn = lista.filter((n) => n.column === c);
@@ -130,7 +122,7 @@ export function desenharSankey(
   return { nos: desenhados, faixas, colunas };
 }
 
-/** `getTooltipSufix()`: a fatia desta aresta entre as que saem do mesmo nó. */
+/** `getTooltipSufix()`: this edge's share among all edges leaving the same node. */
 function sufixoDaDica(aresta: ArestaDaJornada, arestas: ArestaDaJornada[]): string {
   const n = soma(arestas.filter((a) => a.de === aresta.de));
   return n ? `${((aresta.quantity / n) * 100).toFixed(2)}%` : '';

@@ -10,23 +10,18 @@ import {
 } from '../src/pages/contract/catalogo';
 
 /**
- * O filtro de cartões do Painel do contrato.
+ * The Contract Panel's card filter.
  *
- * É a regra que decide o que cada papel vê, e errá-la não quebra a tela: ela
- * abre, bonita, mostrando a quem não pode um caminho para o que não é dele —
- * que é o defeito que ninguém vê em homologação e que aparece na primeira
- * auditoria de contrato.
+ * It's the rule that decides what each role sees, and getting it wrong doesn't break the screen: it opens, looking fine, showing whoever can't access it a path to something that isn't theirs — which is the kind of defect nobody sees in staging and that shows up in the first contract audit.
  *
- * O funil da origem tem três passos (flag, métrica, permissão); o nosso tem um
- * só, porque não temos flag nem assinatura. O que este teste trava é esse passo
- * e o portão do modo demonstração — que mostra tudo e não pode, por isso mesmo,
- * escapar para nenhuma escrita.
+ * The source's funnel has three steps (flag, metric, permission); ours has just one, because we have neither a flag nor a subscription. What this test pins down is that one step, plus the demo-mode gate — which shows everything and, for that very reason, must never leak into any write.
  */
 
 test('with no account permission at all, no card appears', () => {
   assert.deepEqual(cardsVisiveis([]), []);
-  /* O `guest` deles: lê o resumo e o espaço de trabalho, e vê zero cartões —
-     o único cartão de workspace da origem exige ESCRITA. */
+  /*
+   * Their `guest`: reads the summary and the workspace, and sees zero cards — the source's only workspace card requires WRITE.
+   */
   assert.deepEqual(cardsVisiveis(['conta.resumo.ler', 'conta.workspace.ler']), []);
 });
 
@@ -37,7 +32,7 @@ test('each card shows the permission it requires, and only that one', () => {
     assert.ok(vistos.includes(card.id), `${card.id} deveria aparecer com ${codigo}`);
   }
 
-  // Ler membro não dá o cartão que pede ESCREVER membro (a conferência `e` deles).
+  // Reading members doesn't grant the card that requires WRITING members (their `e` check).
   const readOnly = cardsVisiveis(['conta.membros.ler']).map((c) => c.id);
   assert.ok(readOnly.includes('membros'));
   assert.ok(!readOnly.includes('chamadas'));
@@ -46,7 +41,7 @@ test('each card shows the permission it requires, and only that one', () => {
 test('demo mode shows the entire catalog, even with no permission at all', () => {
   const previa = cardsVisiveis([], { demo: true });
   assert.equal(previa.length, CATALOGO.length);
-  // E continua sendo só desenho: o cartão que ainda não tem rota segue "em breve".
+  // And it's still just a mockup: the card that has no route yet still shows "em breve" (coming soon).
   assert.ok(previa.some((c) => !c.pronto));
 });
 
@@ -67,16 +62,14 @@ test('attendance role is not account role, and a raw name never becomes a label'
   for (const nome of ['administrador', 'gestor', 'supervisor', 'atendente', 'avaliador', '', null]) {
     assert.ok(!accountEhRole(nome), `${nome} não é papel de conta`);
   }
-  // `toString` existe em todo objeto; não pode passar por papel.
+  // `toString` exists on every object; it must not pass as a role.
   assert.ok(!accountEhRole('toString'));
 });
 
 /**
- * A leitura dos alvos da tela de Membros.
+ * Reading the Members screen's targets.
  *
- * É um portão de confiança: o que chega são strings do navegador, e é delas que
- * sai a decisão de mexer em `usuario` ou em `convite`. Um prefixo desconhecido
- * que passasse daqui viraria consulta com id de outra tabela.
+ * It's a trust boundary: what comes in are browser strings, and they decide whether to touch `usuario` or `convite`. An unknown prefix that slipped through here would turn into a query with another table's id.
  */
 test('only targets with a known prefix and a filled-in id pass', () => {
   assert.deepEqual(readMemberTargets(['usuario:u1', 'convite:c1']), [
@@ -84,9 +77,9 @@ test('only targets with a known prefix and a filled-in id pass', () => {
     { tipo: 'convite', id: 'c1' },
   ]);
 
-  // Prefixo que não existe, sem prefixo, id vazio e só espaço: nada disso passa.
+  // A prefix that doesn't exist, no prefix, an empty id, and just whitespace: none of it gets through.
   assert.deepEqual(readMemberTargets(['papel:p1', 'u1', 'usuario:', 'convite:   ', '']), []);
 
-  // O id pode ter dois-pontos; só o PRIMEIRO separa.
+  // The id may contain colons; only the FIRST one splits it from the prefix.
   assert.deepEqual(readMemberTargets(['usuario:a:b']), [{ tipo: 'usuario', id: 'a:b' }]);
 });

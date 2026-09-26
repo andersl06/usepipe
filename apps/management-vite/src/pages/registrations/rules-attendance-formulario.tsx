@@ -14,19 +14,10 @@ import type { QueueForEscolher, QueueRegisteredRule } from '../../lib/registrati
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
- * Cadastro da regra de entrada.
- *
- * As condições são linhas repetidas de `campo` / `operador` / `valor`: o
- * `FormData` devolve campos de mesmo nome como lista, e a ação lê as três em
- * paralelo. Linha em branco é ignorada — o formulário nasce com uma e a pessoa
- * acrescenta as que quiser.
- *
- * O envio passa por `envioQuePreserva` porque este é o formulário mais caro de
- * redigitar da Gestão: erro de validação com o `action` nativo do React 19
- * apagaria o nome, a fila, o combinador e todas as condições de uma vez.
+ * Entry rule registration. Conditions are repeated rows of `campo` / `operador` / `valor`: `FormData` returns fields with the same name as a list, and the action reads all three in parallel. A blank row is ignored — the form starts with one and the person adds as many as needed. Submission goes through `envioQuePreserva` because this is the most expensive form to retype in Gestão: a validation error with React 19's native `action` would wipe out the name, the queue, the combinator and every condition at once.
  */
 
-/** Campo extra do contato: a chave é livre, e o prefixo é o que o motor entende. */
+/** Extra contact field: the key is free-form, and the prefix is what the engine understands. */
 const EXTRA = '__extra__';
 
 interface ConditionInitial {
@@ -40,7 +31,7 @@ function ConditionLinha({
   inicial,
 }: {
   desabilitado: boolean;
-  /** Preenche a linha ao editar uma regra existente — ausente é "linha em branco" (criação). */
+  /** Fills the row when editing an existing rule — absent means "blank row" (creation). */
   inicial?: ConditionInitial;
 }) {
   const campoInicialEhFixo = !inicial || (CAMPOS_DE_REGRA as readonly string[]).includes(inicial.campo);
@@ -67,8 +58,9 @@ function ConditionLinha({
       {campo === EXTRA ? (
         <label className="form-campo" style={{ flexBasis: '200px' }}>
           <span className="sub">Chave do campo extra</span>
-          {/* O `name` é o mesmo `campo` da lista: o que muda é só como o valor
-              é montado. A ação recebe `contato.atributos.plano` dos dois jeitos. */}
+          {/*
+ * The `name` is the same `campo` as in the list: only how the value gets assembled changes. The action receives `contato.atributos.plano` either way.
+ */}
           <Campo
             name="campo"
             defaultValue={keyExtraInitial}
@@ -114,7 +106,7 @@ function editAction(id: string) {
         operador: (operadores[i] ?? 'contem') as OperadorDeRegra,
         value: values[i] ?? '',
       }))
-      // Linha em branco não entra — mesmo filtro de `salvarRegraFila` (ação de criação).
+      // A blank row isn't included — same filter as `salvarRegraFila` (create action).
       .filter((c) => c.campo || c.value);
 
     const resultado = await editRuleQueue(id, {
@@ -136,28 +128,25 @@ export function FormularioRuleQueue({
   queues: readonly QueueForEscolher[];
   /** Presente = editar esta regra (`PATCH`); ausente = criar (mesmo de sempre). */
   regraExistente?: QueueRegisteredRule;
-  /** Fecha o modal quando o salvamento dá certo — sem isso a pessoa fica
-      olhando para o próprio formulário limpo, sem saber se funcionou. */
+  /**
+   * Closes the modal once saving succeeds — without this the person is left staring at their own blank form, not knowing if it worked.
+   */
   aoSalvar?: () => void;
 }) {
   const editando = regraExistente !== undefined;
   const formRef = useRef<HTMLFormElement>(null);
   const [linhas, setLinhas] = useState(regraExistente?.conditions.length ?? 1);
-  /* O `reset()` do formulário não desfaz o estado do seletor de campo, que é
-     controlado. Trocar a geração remonta as linhas zeradas — é o mesmo efeito,
-     com uma linha em vez de um `useImperativeHandle` por linha. */
+  /*
+   * The form's `reset()` doesn't undo the field-selector state, which is controlled. Changing the generation remounts the zeroed-out rows — same effect, with one line instead of a `useImperativeHandle` per row.
+   */
   const [generation, setGeneration] = useState(0);
   const [resultado, enviar, enviando] = useActionState(
     regraExistente ? editAction(regraExistente.id) : salvarRuleQueue,
     { ok: true },
   );
-  /* `useActionState` nasce com `{ ok: true }` — o valor inicial, não uma
-     confirmação de envio. Sem esta guarda, o efeito abaixo achava que acabou
-     de salvar assim que o formulário monta (dentro do modal, por exemplo) e
-     fechava tudo na hora, antes de a pessoa digitar qualquer coisa. Compara
-     por identidade, e não por uma `ref` de "já montou": o `useEffect` do
-     StrictMode roda invoke→cleanup→invoke uma vez a mais em desenvolvimento,
-     e uma `ref` de booleano vira verdadeira cedo demais nesse replay. */
+  /*
+   * `useActionState` starts with `{ ok: true }` — the initial value, not a submission confirmation. Without this guard, the effect below would think saving had just finished as soon as the form mounts (inside the modal, for instance) and would close everything immediately, before the person typed anything. Compares by identity, not a "just mounted" `ref`: StrictMode's `useEffect` runs invoke→cleanup→invoke one extra time in development, and a boolean `ref` turns true too early in that replay.
+   */
   const stateInitial = useRef(resultado);
 
   useEffect(() => {
@@ -180,9 +169,9 @@ export function FormularioRuleQueue({
       <form
         ref={formRef}
         onSubmit={envioQuePreserva((data) => {
-          // O campo extra vai para o servidor com o prefixo que o motor lê.
+          // The extra field goes to the server with the prefix the engine reads.
           // Montar aqui evita um `name` diferente por tipo de linha, que faria
-          // as três listas paralelas ficarem com tamanhos diferentes.
+          // the three parallel lists ending up with different lengths.
           const campos = data.getAll('campo').map((v) => String(v));
           data.delete('campo');
           for (const c of campos) {

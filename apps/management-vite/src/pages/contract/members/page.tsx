@@ -12,29 +12,7 @@ import { ConvidarMembers } from './convidar';
 import { MembersAbas, MembersTabela } from './tabela';
 
 /**
- * Membros — o cartão "Adicione e exclua membros do contrato" do painel, que na
- * origem abre a rota `/panel` do fragmento.
- *
- * Quem entra aqui precisa de `conta.membros.ler`, e a conferência é a DE
- * VERDADE: o `?demo=1` do painel é só desenho e não abre porta nenhuma. Quem
- * chegar sem a permissão volta para o painel.
- *
- * O contrato de dados da origem está em `referencias-blip/pesquisa/blip-membros-do-contrato.md`.
- * A casca é a de lá: a seta de voltar e "Membros do contrato {nome}" no alto
- * (`setHeaderContent({ redirect: "/", text: … })`), e abaixo um cartão só, com a
- * tabela de seleção dentro. O que o painel chama de descrição do cartão
- * ("Adicione e exclua membros do contrato") **não** se repete aqui: lá também
- * não se repete.
- *
- * Os papéis são os três DA CONTA (migração 0021) e aparecem com os rótulos
- * deles — "Admin", "Pode editar", "Pode visualizar" —, nunca com o nome do
- * banco. Gestor, supervisor, atendente e avaliador são de atendimento e não
- * entram aqui: na origem eles são dados por contato.
- *
- * **Convidar** fica abaixo da tabela, à direita, só para quem escreve — como o
- * `bp-btn--blip-dark` deles. Quem grava é a `api` (`POST /v1/convites`), e o
- * link volta pelo estado do modal, nunca pela URL (ver `convidarMembros`). Os
- * convites emitidos aparecem na lista com "(Pendente)", como na origem.
+ * Members — the panel's "Adicione e exclua membros do contrato" card, which in the source opens the fragment's `/panel` route. Anyone getting here needs `conta.membros.ler`, and the check is the REAL one: the panel's `?demo=1` is purely cosmetic and opens no door. Anyone arriving without the permission is sent back to the panel. The source data contract is at `referencias-blip/pesquisa/blip-membros-do-contrato.md`. The shell matches theirs: the back arrow and "Membros do contrato {nome}" at the top (`setHeaderContent({ redirect: "/", text: … })`), and below it a single card with the selection table inside. What the panel calls the card's description ("Adicione e exclua membros do contrato") **is not** repeated here: it isn't repeated there either. The roles are the three ACCOUNT roles (migration 0021) and appear with their labels — "Admin", "Pode editar", "Pode visualizar" —, never the DB name. Manager, supervisor, agent and evaluator belong to attendance and don't appear here: in the source they're per-contact data. **Convidar** sits below the table, on the right, only for those who can write — like their `bp-btn--blip-dark`. The `api` (`POST /v1/convites`) is what saves, and the link comes back through the modal's state, never through the URL (see `convidarMembros`). Issued invites show up in the list as "(Pendente)", as in the source.
  */
 export function MembersPage() {
   const eu = useEu();
@@ -53,7 +31,7 @@ export function MembersPage() {
 
   const podeEscrever = eu.permissions.includes('conta.membros.escrever');
 
-  /* Na ordem da origem (guest, member, admin), que é a ordem das chaves do mapa. */
+  /* In the source order (guest, member, admin), which is the order of the map's keys. */
   const order = Object.keys(PAPEIS_DA_ORIGEM);
   const roleOptions = papeis
     .flatMap((p) =>
@@ -86,9 +64,9 @@ export function MembersPage() {
                 <MembersTabela
                   podeEscrever={podeEscrever}
                   papeis={roleOptions}
-                  /* Você não entra na sua própria lista — é o filtro deles
-                     (`userIdentity !== loggedUser.identity`). Quem quer sair usa
-                     "Deixar contrato", no cartão de resumo do painel. */
+                  /*
+                   * You don't appear in your own list — it's their filter (`userIdentity !== loggedUser.identity`). Anyone who wants to leave uses "Deixar contrato", on the panel's summary card.
+                   */
                   members={members
                     .filter((m) => !(m.tipo === 'usuario' && m.id === eu.user.id))
                     .map((m) => ({

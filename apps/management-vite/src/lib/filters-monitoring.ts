@@ -1,4 +1,4 @@
-/** Aceita links antigos (um id), valores repetidos e listas separadas por vírgula. */
+/** Accept legacy links with one ID, repeated values, or comma-separated lists. */
 export function filterIds(value: string | readonly string[] | undefined): string[] {
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return [...new Set((typeof value === 'string' ? [value] : value ?? [])
@@ -13,7 +13,7 @@ export function urlForLimparFilters(
   return preservarQueue && atual.queue ? `${base}?queue=${encodeURIComponent(atual.queue)}` : base;
 }
 
-/** Copia a query inteira: abas, busca e parâmetros futuros continuam no link. */
+/** Copy the whole query so tabs, search, and future parameters remain in the link. */
 export function parametrosWithFilters(
   current: URLSearchParams,
   changes: Readonly<Record<string, string | readonly string[] | undefined>>,

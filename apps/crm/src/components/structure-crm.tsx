@@ -14,35 +14,34 @@ import { MenuDeComando } from './menu-de-comando';
 import { sair } from '../app/login/actions';
 
 /**
- * Estrutura do CRM, em dois modos.
+ * CRM structure, in two modes.
  *
- * **Trabalho**: cabeçalho horizontal com os cinco objetos que a pessoa usa no
- * dia. Sem lateral: a tela de lista não precisa de uma, e o Salesforce mostra
- * isso (medido: zero elementos encostados à esquerda com mais de 300px de
- * altura).
+ * **Work**: a horizontal header with the five objects the person uses day to
+ * day. No sidebar: the list screen doesn't need one, and Salesforce shows that
+ * (measured: zero elements pinned to the left with more than 300px of height).
  *
- * Contas e Contatos voltaram ao menu quando ganharam tela. Estavam fora pela
- * regra de que item que não funciona não aparece — que continua valendo, e é
- * por isso que a volta deles exigiu construir as duas listas antes.
+ * Accounts and Contacts came back to the menu once they got a screen. They were
+ * out under the rule that an item that doesn't work doesn't appear — which
+ * still holds, and it's why bringing them back required building both lists
+ * first.
  *
- * **Configuração**: atrás da engrenagem, em tela própria, com lateral própria
- * e um caminho de volta claro. É o corte que o Salesforce faz ao sair para
- * `salesforce-setup.com`, na escala que faz sentido para nós. O que se
- * configura uma vez para de disputar espaço com o que se usa todo dia.
+ * **Settings**: behind the gear icon, on its own screen, with its own sidebar
+ * and a clear way back. It's the same split Salesforce makes when it leaves for
+ * `salesforce-setup.com`, at the scale that makes sense for us. What gets
+ * configured once stops competing for space with what gets used every day.
  *
- * A lateral de configuração só lista o que abre. Os outros seis assuntos que
- * vão morar aqui (formulários, origens e UTM, motivos de desqualificação,
- * campos personalizados, importação, deduplicação) entram quando tiverem tela:
- * um menu de configuração com seis links mortos é o mesmo problema mudado de
- * lugar.
+ * The settings sidebar only lists what actually opens. The other six topics
+ * that will live here (forms, sources and UTM, disqualification reasons, custom
+ * fields, import, deduplication) come in once they have a screen: a settings
+ * menu with six dead links is the same problem in a different place.
  */
 
 /**
- * A lateral da área de configuração, na ordem dos grupos do Twenty: o que é da
- * PESSOA primeiro, o que é da EMPRESA depois, e o que se liga a fora por último.
+ * The settings sidebar, in Twenty's group order: what belongs to the PERSON
+ * first, what belongs to the COMPANY next, and what connects outward last.
  *
- * Cada item abre tela que existe — a régua contra item apagado vale aqui como
- * vale nas barras da Gestão.
+ * Every item opens a screen that exists — the rule against dead items holds
+ * here the same way it holds in Gestão's bars.
  */
 const SETTINGS: readonly NavigationItem[] = [
   { rotulo: 'Perfil', href: '/settings/profile' },
@@ -55,7 +54,7 @@ const SETTINGS: readonly NavigationItem[] = [
   { rotulo: 'Chaves e webhooks', href: '/settings/api' },
 ];
 
-/** Quem está logado. `null` nas duas rotas públicas, e só nelas. */
+/** Whoever's logged in. `null` on both public routes, and only there. */
 export interface UserInLateral {
   nome: string;
   email: string;
@@ -63,8 +62,8 @@ export interface UserInLateral {
 }
 
 /**
- * As duas rotas públicas do produto. Elas não têm lateral: quem chega nelas não
- * está logado, e a lateral inteira é navegação de dado de tenant.
+ * The product's two public routes. They have no sidebar: whoever lands on them
+ * isn't logged in, and the whole sidebar is tenant-data navigation.
  */
 const PUBLICO = /^\/(login|invite)(\/|$)/;
 
@@ -96,35 +95,38 @@ export function StructureCrm({
     <div className="c-app">
       <LateralCrm caminho={caminho} user={user} />
       <main className="c-conteudo">{children}</main>
-      {/* Fora do <main> de propósito: o menu de comando não é de uma tela, é
-          do aplicativo inteiro — ele alcança a pessoa onde ela estiver. */}
+      {/*
+ * Outside the `<main>` on purpose: the command menu doesn't belong to one
+ * screen, it belongs to the whole app — it reaches the person wherever they
+ * are.
+ */}
       <MenuDeComando />
     </div>
   );
 }
 
 /**
- * A lateral do Twenty, medida no código de `twenty-front` em 07/09/2026.
+ * Twenty's sidebar, measured against `twenty-front`'s code on 09/07/2026.
  *
- * A DISPOSIÇÃO É DELES, A TINTA É NOSSA — o mesmo método da Gestão e do Desk
- * com a Blip. O que se copia aqui:
+ * THE LAYOUT IS THEIRS, THE PAINT IS OURS — the same method as Gestão and Desk
+ * used with Blip. What gets copied here:
  *
- * - **navegação em coluna à esquerda, de 220px**, e nenhuma barra no topo. A
- *   tela de trabalho começa no alto da janela e usa a altura inteira; numa
- *   listagem de 60 leads isso é uma linha e meia a mais por dobra.
- * - **item de 28px** com ícone à esquerda, raio 8 e realce por FUNDO, não por
- *   sublinhado — o sublinhado era do Lightning e saiu junto com as barras.
- * - **seções nomeadas em caixa alta**, que agrupam objetos em vez de empilhar
- *   tudo numa lista só.
- * - **contagem à direita do item**, que é o que faz a lateral informar em vez
- *   de só navegar.
+ * - **left-column navigation, 220px wide**, and no top bar. The work screen
+ *   starts at the top of the window and uses the full height; in a 60-lead
+ *   listing that's a row and a half more per screenful.
+ * - **28px items** with a left icon, 8px radius, and highlight by BACKGROUND, not
+ *   underline — the underline was Lightning's and left along with the bars.
+ * - **uppercase named sections**, which group objects instead of stacking
+ *   everything into one single list.
+ * - **a count to the right of the item**, which is what makes the sidebar inform
+ *   instead of just navigate.
  *
- * Onde eles põem o seletor de espaço de trabalho, nós pomos o nome do produto:
- * o Pipe resolve o tenant pelo login, e trocar de espaço não é um gesto que
- * exista aqui.
+ * Where they put the workspace switcher, we put the product name: Pipe resolves
+ * the tenant from the login, and switching workspaces isn't a gesture that
+ * exists here.
  */
 
-/** Seção da lateral: um rótulo e os objetos embaixo dele. */
+/** A sidebar section: a label and the objects under it. */
 type SectionLateral = { rotulo: string; itens: readonly ItemLateralCrm[] };
 type ItemLateralCrm = { rotulo: string; href: string; icone: NomeDeIcone };
 
@@ -185,9 +187,11 @@ function LateralCrm({
         </div>
       ))}
 
-      {/* No RODAPÉ da lateral, e não no topo: quem está logado é referência,
-          não navegação — e o topo é do produto. É o mesmo lugar em que o
-          Twenty põe a conta. */}
+      {/*
+ * In the FOOTER of the sidebar, not the top: whoever's logged in is a
+ * reference, not navigation — and the top belongs to the product. It's the same
+ * spot where Twenty puts the account.
+ */}
       {user ? (
         <div className="c-lateral-eu">
           <div className="eu-bloco">

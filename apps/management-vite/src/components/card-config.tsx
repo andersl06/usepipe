@@ -4,22 +4,7 @@ import { Botao, Etiqueta } from '@pipe/ui';
 import { envioQuePreserva } from './envio-de-formulario';
 
 /**
- * O cartão de configuração — `blip-telas-cadastro.md` §3.
- *
- * Título 20/700, explicação 14/400 logo abaixo, interruptor da seção à direita
- * na altura do título, e o conteúdo embaixo. O **Salvar é do cartão**, no canto
- * inferior direito: a tela de Configurações gerais deles não tem botão Salvar
- * geral, e cada cartão nasce com o seu desabilitado.
- *
- * "Cartão sem alteração não oferece ação" é a régua da casa aplicada ao botão —
- * a mesma que proíbe item de menu desabilitado. Aqui o botão desabilitado é
- * INFORMAÇÃO: ele diz "não há nada para salvar", que é diferente de "você não
- * pode salvar". Por isso ele existe apagado em vez de sumir: um botão que
- * aparece e desaparece faz o rodapé do cartão pular a cada tecla.
- *
- * A sujeira é rastreada no `onChange` do formulário inteiro, e não campo a
- * campo. É um `onChange` contra N estados controlados, e o React já borbulha
- * o evento de qualquer campo até o `<form>`.
+ * Configuration card follows `blip-telas-cadastro.md` Section 3: 20/700 title, 14/400 description, section switch aligned right, and content below. Save belongs to each card's lower-right corner; reference General Settings has no global Save, and each card starts with Save disabled. A disabled Save communicates no changes, unlike a disabled menu destination; keep it visible so the footer does not jump as the user types. Track dirty state on the whole `<form>` element's `onChange`, relying on React event bubbling instead of N controlled states.
  */
 
 export interface CardResult {
@@ -28,7 +13,7 @@ export interface CardResult {
 }
 
 export interface SectionInterruptor {
-  /** Nome do campo enviado. Só vai no `FormData` quando ligado, como caixa de marcar. */
+  /** Form field name is included in `FormData` only when the switch is on, like a checkbox. */
   name: string;
   rotulo: string;
   ligado: boolean;
@@ -47,7 +32,7 @@ export function CardConfig({
   acao: (anterior: CardResult, data: FormData) => Promise<CardResult>;
   interruptor?: SectionInterruptor;
   children: ReactNode;
-  /** Texto à esquerda do Salvar: o que este cartão decide, em uma linha. */
+  /** Text to the left of Save states in one line what this card controls. */
   rodape?: ReactNode;
 }) {
   const [resultado, enviar, enviando] = useActionState(acao, { ok: true });
@@ -91,9 +76,9 @@ export function CardConfig({
             >
               <span className="interruptor-bolinha" />
             </button>
-            {/* O `FormData` não enxerga estado do React: o valor precisa estar
-                num campo de verdade. Marcado quando ligado, ausente quando
-                desligado — a ação lê `dados.get(name) !== null`. */}
+            {/*
+ * React state is invisible to `FormData`; provide a real hidden input only when the switch is on. The action tests `dados.get(name) !== null`.
+ */}
             {ligado ? <input type="hidden" name={interruptor.name} value="1" /> : null}
           </>
         ) : null}

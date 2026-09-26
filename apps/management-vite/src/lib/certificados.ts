@@ -1,14 +1,5 @@
 /**
- * Certificados de autenticação (mTLS) do contrato — o que a tela
- * `/contrato/certificados` lê, e as regras dela.
- *
- * Na origem tudo é comando LIME para `postmaster@mtls.blip.ai`, que sobe o
- * `.pfx` com a senha para o serviço deles e extrai validade/status sozinho
- * (`referencias-blip/pesquisa/blip-certificados-mtls.md`). O Pipe faz o mesmo:
- * `POST /v1/gestao/contrato/certificados` leva o arquivo (base64) e a senha, a
- * `api` lê o `.pfx` (`apps/api/.../dominio/gestao/pfx.ts`), guarda os dois
- * cifrados e devolve validade, impressão digital, emissor, sujeito e status —
- * e os apresenta quando chama os hosts cadastrados (`dominio/mtls.ts`).
+ * Contract mTLS certificates for `/contrato/certificados`. The reference sends a password-protected `.pfx` to `postmaster@mtls.blip.ai` through LIME commands and derives expiry/status (`referencias-blip/pesquisa/blip-certificados-mtls.md`). Pipe sends base64 file and password to `POST /v1/gestao/contrato/certificados`; `api` parses the `.pfx` (`apps/api/.../dominio/gestao/pfx.ts`), stores file and password encrypted, returns expiry/fingerprint/issuer/subject/status, and uses them for registered hosts (`dominio/mtls.ts`).
  */
 
 /** Um host do certificado — o `{ host_id, host }` de `hosts` na origem. */
@@ -18,13 +9,11 @@ export interface HostDoCertificado {
 }
 
 /**
- * O `status` do item da origem (`valid` | `invalid` | `underValidation`), com
- * nome pelo motivo. `sem_arquivo` é o que foi cadastrado à mão antes de a
- * `api` guardar o `.pfx` — não autentica nada.
+ * Map reference `status` values `valid`, `invalid`, `underValidation` to named reasons. `sem_arquivo` means a manual legacy entry before `api` stored `.pfx`; it authenticates nothing.
  */
 export type StatusDoCertificado = 'valido' | 'expirado' | 'sem_arquivo';
 
-/** O item de `GET /v1/gestao/contrato/certificados`, com os nomes em português. Nunca traz o arquivo nem a senha. */
+/** `GET /v1/gestao/contrato/certificados` returns Portuguese field names but never returns file or password. */
 export interface CertificadoMtls {
   id: string;
   description: string;
@@ -39,9 +28,7 @@ export interface CertificadoMtls {
 }
 
 /**
- * O `bds-chip-tag` da coluna Status (`Pt`): `valid` → `success` "Válido";
- * `invalid` → `disabled` "Inválido"; o resto → `default` "Em validação". Aqui
- * o motivo vai no texto, porque a `api` o sabe.
+ * Reference Status-column `bds-chip-tag` (`Pt`) maps `valid` to `success` and `Válido`, `invalid` to `disabled` and `Inválido`, otherwise `default` and `Em validação`. Include the reason in text because `api` knows it.
  */
 export function etiquetaDoStatus(status: StatusDoCertificado): {
   texto: string;
@@ -52,7 +39,7 @@ export function etiquetaDoStatus(status: StatusDoCertificado): {
   return { texto: 'Sem arquivo', classe: 'padrao' };
 }
 
-/** A expiração como eles escrevem: `wt.a(data, "pt-BR")`, dia/mês/ano em UTC. */
+/** Format expiry like reference `wt.a(data, "pt-BR")`: day/month/year in UTC. */
 export function expirationData(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR', {
     year: 'numeric',
@@ -62,16 +49,14 @@ export function expirationData(iso: string): string {
   });
 }
 
-/** Um campo de URL do passo "Informações do certificado". */
+
 export interface HostDigitado {
   host: string;
   valido: boolean;
 }
 
 /**
- * O `o` do `vt` deles: a URL não pode repetir uma das que já estão na lista e
- * precisa ser HTTPS com domínio. A lista comparada é a de ANTES da digitação,
- * como lá.
+ * Reference `o` in `vt` rejects a URL already in the prior list and requires an HTTPS domain. Compare against the list from before this input, as the reference does.
  */
 export function hostValido(value: string, hostsCurrent: readonly HostDigitado[]): boolean {
   return (
@@ -80,18 +65,13 @@ export function hostValido(value: string, hostsCurrent: readonly HostDigitado[])
   );
 }
 
-/** O `ht` deles: descrição preenchida e toda URL preenchida e válida. */
+/** Reference `ht` requires description and every URL to be filled and valid. */
 export function informationCompletas(description: string, hosts: readonly HostDigitado[]): boolean {
   return hosts.every((h) => h.valido && h.host !== '') && description !== '';
 }
 
 /**
- * A conferência do arquivo ao clicar "Finalizar" — a função de três ramos do
- * `h` do `yt`. Devolve a frase do toast deles, ou `null` quando o arquivo passa.
- *
- * O tipo `application/x-pkcs12` é o que o navegador declara para `.pfx` no
- * Windows; em outros sistemas ele vem vazio, e aí vale a extensão — a `api`
- * confere os bytes de qualquer jeito.
+ * On Finalizar, validate the file through the reference `h` function's three branches in `yt`; return its toast text or `null` on success. Windows reports `.pfx` as `application/x-pkcs12`, while other browsers may leave MIME empty, so accept extension there; `api` still checks bytes.
  */
 export function problemaInFile(
   file: { name?: string; type: string; size: number } | null,
@@ -107,7 +87,7 @@ export function problemaInFile(
   return null;
 }
 
-/** O `.pfx` como data URL (`data:…;base64,…`) — o corpo que a `api` aceita. */
+/** Encode the `.pfx` as `data:…;base64,…`, the body accepted by `api`. */
 export function readFileAsDataUrl(file: Blob): Promise<string> {
   return new Promise((resolver, rejeitar) => {
     const leitor = new FileReader();

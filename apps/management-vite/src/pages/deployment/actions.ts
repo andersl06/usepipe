@@ -2,9 +2,7 @@ import { chamarApi, motivoDaFalha } from '../../lib/api';
 import { atualizarLeituras } from '../../lib/actions';
 
 /**
- * As ações da Implantação — as mesmas Server Actions de antes, agora chamando
- * a `api` do navegador. O cookie vai sozinho; `revalidatePath` virou
- * `atualizarLeituras`.
+ * Implantação's actions — the same Server Actions as before, now calling the browser's `api`. The cookie goes along on its own; `revalidatePath` became `atualizarLeituras`.
  */
 export interface ResultadoDaAcao {
   ok: boolean;
@@ -50,7 +48,7 @@ export async function iniciarRegistrationEmbedded(): Promise<RegistrationStart> 
   return { ok: true, ...((await resposta.json()) as Omit<RegistrationStart, 'ok'>) };
 }
 
-/** O último: o código do Facebook vira canal na `api`. */
+/** The last one: the Facebook code becomes a channel in the `api`. */
 export async function concluirRegistrationEmbedded(
   credentials: RegistrationCredentials,
 ): Promise<ResultadoDaAcao> {

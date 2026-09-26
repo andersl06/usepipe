@@ -1,24 +1,20 @@
 /**
- * As novidades do produto — o nosso registro de mudanças, em linguagem de quem
- * usa e não de quem escreve código.
+ * The product's news — our changelog, in the language of whoever uses it, not whoever writes code.
  *
- * Mora num arquivo, e não no banco: a lista muda quando a gente publica uma
- * versão, e versão já passa por revisão de código. Um CMS aqui seria uma segunda
- * porta de publicação para manter, com um item por mês entrando por ela.
- * Quando a frequência justificar, isto vira tabela sem mudar a tela.
+ * It lives in a file, not the database: the list changes when we ship a version, and a version already goes through code review. A CMS here would be a second publishing door to maintain, with one item a month going through it. When the frequency justifies it, this becomes a table without changing the screen.
  */
 
 export interface Update {
-  /** O trecho que vai na URL quando cada novidade ganhar página própria. */
+  /** The slug that goes in the URL once each news item gets its own page. */
   id: string;
   categoria: string;
   titulo: string;
   resumo: string;
-  /** ISO, só a data. O fuso não importa num aviso de versão. */
+  /** ISO, date only. Timezone doesn't matter for a version announcement. */
   data: string;
   /** Minutos de leitura, arredondados para cima. */
   read: number;
-  /** A primeira da lista vira o cartão grande, como no blog do Barboo. */
+  /** The first in the list becomes the big card, like Barboo's blog. */
   destaque?: boolean;
 }
 

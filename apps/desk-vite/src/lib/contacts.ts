@@ -1,9 +1,5 @@
 /**
- * As regras puras da aba Contatos — a ordenação e o agrupamento da
- * referência (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): "Ordem alfabética"
- * (padrão) agrupa pela primeira letra do nome, com os sem-nome num grupo `#`
- * sempre no fim; "Última interação" agrupa pela data da última mensagem, da
- * mais recente para a mais antiga.
+ * Pure Contacts-tab sorting and grouping from `referencias-blip/pesquisa/blip-desk-medidas.md` §11. `Ordem alfabética` (default) groups by the first letter of the name, always putting unnamed contacts in `#` last; `Última interação` groups by the latest message date, newest first.
  */
 export interface ListaContact {
   id: string;
@@ -61,7 +57,6 @@ export function agruparContacts(
   }
   const saida = [...groups.entries()].map(([rotulo, lista]) => ({ rotulo, contacts: lista }));
   if (order === 'alfabetica') {
-    // O grupo `#` sempre por último, como lá.
     saida.sort((a, b) => (a.rotulo === '#' ? 1 : b.rotulo === '#' ? -1 : 0));
   }
   return saida;

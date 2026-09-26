@@ -38,17 +38,15 @@ interface Search {
   agent?: string;
   etiqueta?: string;
   agrupar?: string;
-  /* Os dois campos abaixo não existem na consulta ao servidor: a API de
-     histórico não filtra por eles (`FiltroHistorico` só tem fila/atendente/
-     etiqueta). Filtram as linhas já carregadas, no navegador — ver `casa()`. */
+  /*
+   * The two fields below don't exist in the server query: the history API doesn't filter by them (`FiltroHistorico` only has queue/agent/tag). They filter the already-loaded rows, in the browser — see `casa()`.
+   */
   ticket?: string;
   contact?: string;
 }
 
 /**
- * Finalizada é o desfecho normal e fica neutra: era verde em cada linha da
- * lista, e o verde repetido deixa de significar. Perdida e abandonada seguem
- * coloridas, porque são as duas que o supervisor precisa caçar.
+ * Finalizada (Completed) is the normal outcome and stays neutral: every list row used to be green, and repeated green stops meaning anything. Perdida (Lost) and abandonada (Abandoned) stay colored, since those are the two the supervisor needs to hunt down.
  */
 const ROTULO_STATUS: Record<string, { texto: string; classe: string }> = {
   perdida: { texto: 'Perdida', classe: 'etiqueta erro' },
@@ -67,7 +65,7 @@ function baixarCsv(cards: readonly CardHistory[]) {
   URL.revokeObjectURL(url);
 }
 
-/** Campos que o formulário do painel não mostra mas precisa carregar, senão some ao aplicar. */
+/** Fields the panel form doesn't display but must still be loaded, or they disappear once the filter is applied. */
 function CamposEscondidos({ atual, exceto }: { atual: Search; exceto: readonly string[] }) {
   const pares: [string, string | undefined][] = [
     ['de', atual.de],
@@ -91,18 +89,9 @@ function CamposEscondidos({ atual, exceto }: { atual: Search; exceto: readonly s
 }
 
 /**
- * Histórico — a mesma disposição da tela deles, medida em
- * `referencias-blip/fichas/FICHA-history.md`: cabeçalho com a ação de exportar
- * CSV disponível, faixa "Filtros rápidos:" com os três atalhos e o período à
- * direita, painel lateral de filtros fechado por padrão, e a área de
- * resultados — vazia com o texto e a ilustração deles, ou a nossa LISTA DE
- * CARTÕES quando há conversa.
+ * History — the same layout as their screen, measured in `referencias-blip/fichas/FICHA-history.md`: header with the CSV export action available, "Filtros rápidos:" strip with the three shortcuts and the period on the right, filter side panel closed by default, and the results area — empty with their text and illustration, or our CARD LIST when there is a conversation.
  *
- * A lista de cartões continua sendo nossa: seis das oito telas do módulo
- * Atendimento da Blip usam cartão, e nenhuma usa tabela — o material não
- * chegou a capturar esta tela com resultado, então a régua "IGUAL" não tem o
- * que comparar aqui, e a decisão registrada em `blip-telas-atendimento.md`
- * §3/§5.2 continua de pé.
+ * The card list stays ours: six of the eight screens in Blip's Atendimento module use cards, and none uses a table — the material never got around to capturing this screen with results, so the "IGUAL" (same) ruler has nothing to compare here, and the decision recorded in `blip-telas-atendimento.md` §3/§5.2 still stands.
  */
 export function PageHistory() {
   const { contact } = useContact();
@@ -137,23 +126,24 @@ export function PageHistory() {
     [],
   );
 
-  /* Todo hook precisa rodar em toda renderização, inclusive na primeira, antes
-     da consulta voltar — por isso o `useMemo` entra ANTES do `if` que decide
-     se há dado para desenhar, e não depois dele. */
+  /*
+   * Every hook needs to run on every render, including the first, before the query returns — that's why `useMemo` comes BEFORE the `if` that decides whether there's data to draw, not after it.
+   */
   const data = read.data;
   const by = groupingValid(params.agrupar);
 
-  /* Os dois filtros de cliente: a API não tem `?ticket=` nem `?contato=`, mas
-     as linhas já trazem `ticket` e `contatoNome` — filtrar aqui não custa uma
-     ida a mais ao servidor, e não inventa dado que a consulta não devolveu. */
+  /*
+   * The two client-side filters: the API has neither `?ticket=` nor `?contato=`, but the rows already carry `ticket` and `contatoNome` — filtering here costs no extra round trip to the server, and doesn't invent data the query didn't return.
+   */
   const idsDosTickets = (params.ticket ?? '')
     .split(/[\s,]+/)
     .map((t) => t.trim().toLowerCase())
     .filter(Boolean);
   const contactFetched = (params.contact ?? '').trim().toLowerCase();
 
-  /* Tudo atravessa para o cartão já formatado: nenhuma Date e nenhum nulo
-     passam para lá, e o formato do fuso do tenant fica decidido de um lado só. */
+  /*
+   * Everything crosses over to the card already formatted: no Date and no null passes through, and the tenant's timezone formatting gets decided in one place.
+   */
   const inCard = (fuso: string) =>
     (l: LinhaHistory): CardHistory => {
       const status = l.status ? ROTULO_STATUS[l.status] : undefined;
@@ -186,7 +176,7 @@ export function PageHistory() {
       if (contactFetched && !l.contactName.toLowerCase().includes(contactFetched)) return false;
       return true;
     });
-    // Dependências reais: as duas strings da URL, não os arrays derivados
+    // Real dependencies: the two URL strings, not the arrays derived
     // delas (novos a cada render).
   }, [data, params.ticket, params.contact]);
 
@@ -198,8 +188,9 @@ export function PageHistory() {
     }));
   }, [data, linhas, by]);
 
-  /* A lista única, sem repetir por grupo: quem manda no "selecionar todos", no
-     CSV e no botão do cabeçalho. */
+  /*
+   * The single list, not repeated per group: it's what drives "select all", the CSV and the header button.
+   */
   const todos = useMemo(() => {
     const vistos = new Map<string, CardHistory>();
     for (const g of groups) for (const c of g.cards) vistos.set(c.id, c);
@@ -235,12 +226,12 @@ export function PageHistory() {
       </div>
     );
   }
-  /* Padrão (na `api`): os últimos trinta dias, incluindo hoje. */
+  /* Default (in the `api`): the last thirty days, including today. */
   const { fuso, de, ate, catalogos, truncado } = data;
 
-  /* Período sempre existe; fila, atendente, etiqueta, ticket e contato são o
-     recorte opcional. A distinção decide a frase do estado vazio do servidor
-     (truncamento) — o texto da tela em si é fixo, como na deles. */
+  /*
+   * Period always exists; queue, agent, tag, ticket and contact are the optional filter. The distinction decides the server's empty-state phrase (truncation) — the screen's own text is fixed, like theirs.
+   */
   const temFilter = Boolean(
     params.queue || params.agent || params.etiqueta || params.ticket || params.contact,
   );
@@ -251,7 +242,7 @@ export function PageHistory() {
       <div className="board-head">
         <h2>Histórico</h2>
         <div className="filters">
-          {/* A ação disponível baixa o CSV das conversas selecionadas. */}
+          {/* The available action downloads the CSV of the selected conversations. */}
           <button
             type="button"
             className="btn primario"
@@ -264,9 +255,9 @@ export function PageHistory() {
         </div>
       </div>
 
-      {/* "Filtros rápidos:", os três atalhos deles e o período à direita —
-          `FICHA-history.md` §2.2. Cada atalho abre o mesmo painel; nenhum é
-          consulta própria. */}
+      {/*
+ * "Filtros rápidos:", their three shortcuts and the period on the right — `FICHA-history.md` §2.2. Each shortcut opens the same panel; none is its own query.
+ */}
       <div className="quickfilters">
         <span className="lbl">Filtros rápidos:</span>
         <button
@@ -298,9 +289,9 @@ export function PageHistory() {
         </button>
 
         <div className="faixa-fim">
-          {/* "Últimos 30 dias" é `bds-button variant="text"`: sem borda, só o
-              rótulo (`dom/history.html`). O funil é `bds-icon size="small"`,
-              20px. */}
+          {/*
+ * "Últimos 30 dias" is `bds-button variant="text"`: no border, just the label (`dom/history.html`). The funnel is `bds-icon size="small"`, 20px.
+ */}
           <button type="button" className="btn fantasma" onClick={() => setPanelAberto(true)}>
             {periodRotulo(periodCurrent(de, ate, fuso))}
           </button>
@@ -377,31 +368,30 @@ export function PageHistory() {
         </PanelField>
       </PanelFilters>
 
-      {/* "Área de resultados", `FICHA-history.md` §2: o vazio deles OU a nossa
-          lista, e o link "Termo de responsabilidade" no canto — ele mora
-          nesta área nos DOIS estados, porque é onde a captura o registrou
-          (a captura deles está vazia, e o link está lá mesmo assim). */}
+      {/*
+ * "Área de resultados", `FICHA-history.md` §2: their empty state OR our list, and the "Termo de responsabilidade" link in the corner — it lives in this area in BOTH states, because that's where the capture recorded it (their capture is empty, and the link is there anyway).
+ */}
       <div className="hist-resultados">
         {linhas.length === 0 ? (
-          /* O texto é o deles, literal — `FICHA-history.md` §6. */
+          /* The text is theirs, literal — `FICHA-history.md` §6. */
           <EmptyState titulo="Nenhum resultado encontrado" illustration="busca">
             <p>
               Não encontramos nenhum resultado a partir da pesquisa realizada.
               <br />
               Que tal refazer a sua busca?
             </p>
-            {/* `bds-button variant="outline" color="primary" class="mt4"`: a
-                borda na cor de marca (`button 135x40 b=1px rgb(74,93,35)`
-                na cópia viva), 20px abaixo do texto. */}
+            {/*
+ * `bds-button variant="outline" color="primary" class="mt4"`: the border in brand color (`button 135x40 b=1px rgb(74,93,35)` in the live copy), 20px below the text.
+ */}
             <a href={limparFilters} className="btn contorno-marca">
               Redefinir filtros
             </a>
           </EmptyState>
         ) : (
           <>
-            {/* "Agrupar por" é nosso, não deles — a resposta aos seis itens de
-                relatório que nunca viraram tela (`historico.ts`). Fica FORA do
-                painel de propósito: o painel só tem os campos que a ficha lista. */}
+            {/*
+ * "Agrupar por" is ours, not theirs — the answer to the six report items that never became a screen (`historico.ts`). It sits OUTSIDE the panel on purpose: the panel only has the fields the ficha lists.
+ */}
             <form method="get" action={`${base}/history`} className="hist-agrupar">
               <CamposEscondidos atual={params} exceto={['agrupar']} />
               <label className="lbl" htmlFor="agrupar">

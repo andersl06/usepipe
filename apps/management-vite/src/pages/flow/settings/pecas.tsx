@@ -2,14 +2,11 @@ import { useState, type HTMLInputTypeAttribute, type ReactNode } from 'react';
 import { IconePortal, type NomeDeIconePortal } from '../../../components/icones-portal';
 
 /**
- * As peças que as telas de Configurações repetem, cada uma com o nome do
- * componente da origem no comentário. Só o DESENHO deles: a tinta é a nossa.
+ * The pieces the Settings screens repeat, each with the source component's name in the comment. Only their LAYOUT: the paint is ours.
  */
 
 /**
- * `<page-header>` (blipComponents.pageHeader): `.container > .full-initial-section
- * > .row.flex.page-header-content.items-center.mb0`. Título à esquerda (h1 ou
- * `custom-title`), `custom-content` à direita, e embaixo a `additional-info`.
+ * `<page-header>` (blipComponents.pageHeader): `.container > .full-initial-section > .row.flex.page-header-content.items-center.mb0`. Title on the left (h1 or `custom-title`), `custom-content` on the right, and `additional-info` below.
  */
 export function PageHeader({
   titulo,
@@ -35,15 +32,13 @@ export function PageHeader({
   );
 }
 
-/** `<bds-paper elevation="static">` — cartão de superfície 1, raio 16, sombra fixa. */
+/** `<bds-paper elevation="static">` — surface-1 card, 16 radius, fixed shadow. */
 export function Role({ className, children }: { className?: string; children: ReactNode }) {
   return <section className={className ? `cf-papel ${className}` : 'cf-papel'}>{children}</section>;
 }
 
 /**
- * `<switch>` (blipComponents.switch): `<label>` 43×26 com raio 36 e a bolinha
- * 22×22; `disabled` quando já é a conexão ativa (`disabled="$ctrl.isBuilderActive"`).
- * `curto` é o `<bds-switch size="short">` do bloco OAuth (37×31 com `pa1`).
+ * `<switch>` (blipComponents.switch): 43×26 `<label>` with 36 radius and the 22×22 dot; `disabled` when it's already the active connection (`disabled="$ctrl.isBuilderActive"`). `curto` is the OAuth block's `<bds-switch size="short">` (37×31 with `pa1`).
  */
 export function Interruptor({
   ligado,
@@ -80,9 +75,7 @@ export function Interruptor({
 }
 
 /**
- * `<input-clipboard>` (blipComponents.inputClipboard): `.input-clipboard-container`
- * — pílula de superfície 2 com `<input readonly>` em negrito na cor da marca e
- * o botão `.icon-copy` de 16px à direita.
+ * `<input-clipboard>` (blipComponents.inputClipboard): `.input-clipboard-container` — surface-2 pill with a bold, brand-colored `<input readonly>` and the 16px `.icon-copy` button on the right.
  */
 export function CampoCopiavel({
   rotulo,
@@ -115,13 +108,9 @@ export function CampoCopiavel({
 }
 
 /**
- * `<bds-input>` / `<bds-input-password>` do blip-ds: caixa de borda 1px e raio
- * 8 (`padding: 7px 4px 8px 12px`) com o rótulo (12px/700) DENTRO, em cima do
- * campo de 36px. `senha` acrescenta o olho do `bds-input-password`.
+ * blip-ds's `<bds-input>` / `<bds-input-password>`: 1px border box with 8 radius (`padding: 7px 4px 8px 12px`) with the label (12px/700) INSIDE, above the 36px field. `senha` adds `bds-input-password`'s eye icon.
  *
- * `contador`: o `<span counter-for>` de `material-input` (origem) — mostra
- * quanto FALTA, não quanto já foi digitado (`maxLength - valor.length`), como
- * em `/configurations/basic` ("Nome do fluxo": 30 - 16 = "14").
+ * `contador`: `material-input`'s (source) `<span counter-for>` — shows how much is LEFT, not how much has been typed (`maxLength - valor.length`), as in `/configurations/basic` ("Nome do fluxo": 30 - 16 = "14").
  */
 export function CampoBds({
   id,
@@ -148,7 +137,7 @@ export function CampoBds({
   obrigatorio?: boolean;
   maxLength?: number;
   contador?: boolean;
-  /** `bds-textarea`: mesma caixa do `bds-input`, só que com `<textarea>` dentro. */
+  /** `bds-textarea`: same box as `bds-input`, just with a `<textarea>` inside. */
   linhas?: number;
 }) {
   const [senhaVisivel, setSenhaVisivel] = useState(false);
@@ -204,13 +193,7 @@ export function CampoBds({
 }
 
 /**
- * `<bds-button>`: 40px de altura, raio 8, `padding: 0 16px`, texto 14/700 e
- * `gap: 4px` até o ícone de 24. `primary` pinta com a marca; `secondary` é só
- * texto; `tertiary` tem borda 1px de conteúdo (é o "Ok" da ajuda das chaves);
- * `bot` é o `.bp-btn.bp-btn--bot.bp-btn--small` antigo (42px, raio 3) do
- * "Salvar" do formulário HTTP. `perigo` é o `.bp-btn--delete` ("Excluir
- * fluxo", "Excluir chave") — texto/borda na tinta de erro, sem fundo sólido
- * novo pra não inventar par de contraste que a régua não tem.
+ * `<bds-button>`: 40px tall, 8 radius, `padding: 0 16px`, 14/700 text and `gap: 4px` to the 24px icon. `primary` paints with the brand; `secondary` is text only; `tertiary` has a 1px content-colored border (it's the keys help's "Ok"); `bot` is the old `.bp-btn.bp-btn--bot.bp-btn--small` (42px, 3 radius) from the HTTP form's "Salvar". `perigo` is the `.bp-btn--delete` ("Excluir fluxo", "Excluir chave") — text/border in the error ink, no new solid background so as not to invent a contrast pairing the ruler doesn't have.
  */
 export function BotaoBds({
   variante = 'primary',
@@ -230,7 +213,7 @@ export function BotaoBds({
   );
 }
 
-/** `<bds-button-icon variant="secondary" size="short">`: 40×40, raio 8, ícone de 24. */
+/** `<bds-button-icon variant="secondary" size="short">`: 40×40, 8 radius, 24px icon. */
 export function BotaoDeIcone({
   icone,
   rotulo,

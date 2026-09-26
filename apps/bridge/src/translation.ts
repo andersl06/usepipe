@@ -1,15 +1,10 @@
 /**
- * Tradução: linha do Pipe → objeto que a tela da Blip sabe desenhar.
- *
- * Regra que vale para o arquivo inteiro: **não inventar campo**. Onde a Blip tem um
- * conceito que o Pipe não tem, ou o campo sai de fora (e fica anotado aqui), ou não
- * sai. Preencher com palpite é pior do que não preencher: a tela mostra o palpite
- * como se fosse dado do cliente.
+ * Translate Pipe records into objects the Blip screen can render. Never invent fields: when Blip has a concept Pipe lacks, either omit the field and document it here or omit the entire value. A guessed value would appear on screen as genuine client data.
  */
 
 import type { StateConversation } from '@pipe/core';
 
-/** Estados do Pipe → `status` que o Desk lê para separar fila de atendimento. */
+/** Map Pipe states to the `status` values Desk uses to distinguish queued from active conversations. */
 const STATUS_BY_STATE: Record<StateConversation, string> = {
   na_fila: 'Waiting',
   atribuida: 'Open',
@@ -18,13 +13,13 @@ const STATUS_BY_STATE: Record<StateConversation, string> = {
   encerrada: 'Closed',
 };
 
-/** `entrada` é o cliente falando; `saida` é a empresa. `interna` não é conversa. */
+/** `entrada` means the client speaking and `saida` the company speaking. `interna` is not a conversation message. */
 const DIRECTION_BLIP: Record<string, string> = {
   entrada: 'received',
   saida: 'sent',
 };
 
-/** Tipo do Pipe → content type, que é como a Blip decide o componente da bolha. */
+/** Map Pipe message type to content type, which Blip uses to choose the bubble component. */
 const TIPO_BLIP: Record<string, string> = {
   texto: 'text/plain',
   imagem: 'image/jpeg',
@@ -79,10 +74,7 @@ export function iso(v: string | Date | null | undefined): string | null {
 }
 
 /**
- * Identidade no formato da Blip: o `@` do e-mail vira `%40` e o domínio da
- * plataforma entra no fim. A tela usa isso como chave de comparação ("este ticket é
- * meu?"), então precisa ser estável e única por pessoa — o e-mail serve às duas
- * coisas.
+ * Blip identity format: encode the email's `@` as `%40` and append the platform domain. The screen compares identities ("is this ticket mine?"), so the value must be stable and unique per person; email provides both.
  */
 export function identity(email: string | null | undefined, domain = 'pipe.local'): string {
   if (!email) return `desconhecido@${domain}`;
@@ -90,15 +82,7 @@ export function identity(email: string | null | undefined, domain = 'pipe.local'
 }
 
 /**
- * O Desk mostra "#" do atendimento e deixa buscar por ele. O Pipe **não tem** número
- * sequencial por tenant: a conversa é identificada por UUID.
- *
- * Enquanto a decisão não é tomada, o número sai do próprio UUID — determinístico,
- * estável e único dentro do tenant na prática. Não é sequencial de verdade: não
- * cresce com o tempo e não serve para dizer "atendimento nº 4 do dia".
- *
- * A saída definitiva é uma coluna `numero` com sequência por tenant, gravada na
- * criação da conversa. Está registrado em `docs/specs/2026-09-12-ponte-lime.md`.
+ * Desk displays a conversation number prefixed with "#" and allows searching by it. Pipe has no per-tenant sequential number; conversations use UUIDs. Until that decision is made, derive the number from the UUID: deterministic, stable, and practically unique within a tenant. It is not truly sequential and cannot mean "ticket number 4 today". The intended solution is a `numero` column with a per-tenant sequence, set when the conversation is created; see `docs/specs/2026-09-12-ponte-lime.md`.
  */
 export function numeroVisivel(id: string): number {
   const hex = id.replace(/-/g, '').slice(0, 8);
@@ -111,7 +95,7 @@ export function comoTicket(linha: LinhaConversation, domain?: string): Record<st
   return {
     id: linha.id,
     sequentialId: numeroVisivel(linha.id),
-    // Sem roteador no Pipe: o "dono" do atendimento é o canal por onde ele entrou.
+    // Pipe has no router here; the conversation owner is the channel through which it arrived.
     ownerIdentity: `${linha.channelTipo ?? 'canal'}@pipe.local`,
     customerIdentity: telefone ? `${telefone.replace('+', '')}@wa.gw.msging.net` : linha.contactId,
     customerName: linha.contactName ?? 'Sem nome',
@@ -132,10 +116,9 @@ export function comoTicket(linha: LinhaConversation, domain?: string): Record<st
     lastMessageSort: linha.ultimaMessageIn ? new Date(iso(linha.ultimaMessageIn)!).getTime() : 0,
     unreadMessages: Number(linha.nao_lidas ?? 0),
     isNew: linha.state === 'na_fila',
-    /* Os três abaixo o Pipe não tem, e ainda assim precisam existir: a lista do
-       Desk lê esses campos ao montar cada cartão, e um deles faltando derruba a
-       lista inteira — foi o que aconteceu ao ligar a ponte. Valor neutro, nunca
-       inventado. */
+    /*
+     * Pipe lacks the three following fields, but Desk's list requires them to build each card; omitting one crashed the whole list when the bridge was connected. Use neutral values, never fabricated ones.
+     */
     customerEmail: null,
     standbyModeStart: null,
     sequentialSuffix: '',
@@ -148,8 +131,8 @@ export function comoTicket(linha: LinhaConversation, domain?: string): Record<st
       email: null,
       photoUri: '',
       extras: {
-        // A prioridade do Pipe tem cinco degraus e a Blip não usa o mesmo
-        // vocabulário. Em vez de traduzir por aproximação, ela viaja como está.
+        // Pipe has five priority levels, and Blip does not use the same
+        // vocabulary. Keep the Pipe value rather than guessing a translation.
         prioridadePipe: linha.priority,
         canal: linha.channelTipo ?? '',
         fila: linha.queueName ?? '',
@@ -159,9 +142,7 @@ export function comoTicket(linha: LinhaConversation, domain?: string): Record<st
 }
 
 /**
- * Mensagem → documento LIME. A mensagem **interna** (nota entre atendentes) fica de
- * fora: na Blip ela não é mensagem da conversa, é outro recurso. Entregá-la aqui
- * faria a nota aparecer como se tivesse ido para o cliente.
+ * Map a message to a LIME document. Exclude INTERNAL messages (notes between agents): in Blip they are a separate resource, not conversation messages. Including one here would make it appear to have been sent to the client.
  */
 export function asDocument(linha: LinhaMessage): Record<string, unknown> | null {
   const direction = DIRECTION_BLIP[linha.direction];
@@ -172,9 +153,9 @@ export function asDocument(linha: LinhaMessage): Record<string, unknown> | null 
     type: TIPO_BLIP[linha.tipo] ?? 'text/plain',
     content: linha.conteudo ?? '',
     date: iso(linha.criada_em),
-    /* `messageEmitter` só existe para o que SAIU: ele diz se quem falou foi gente ou
-       o robô. Em mensagem recebida o campo não tem sentido, e mandá-lo fazia a tela
-       rotular a fala do próprio cliente como "Bot". */
+    /*
+     * `messageEmitter` applies only to outbound messages: it identifies a human or bot sender. It is meaningless for inbound messages; including it made the screen label the client's own message "Bot".
+     */
     ...(direction === 'sent'
       ? { messageEmitter: linha.autor_tipo === 'atendente' ? 'Human' : 'Bot' }
       : {}),
@@ -190,11 +171,11 @@ export type LinhaAgent = {
   nome: string | null;
   email: string;
   state?: string | null;
-  /** `isOwner` no vocabulário da tela: libera os itens de administração da barra. */
+  /** `isOwner` in the screen's vocabulary enables administration items in the sidebar. */
   ehAdministrador?: boolean;
 }
 
-/** O `/account` do Desk. Sem `status` a tela quebra em `status.toLowerCase()`. */
+/** Desk's `/account` response needs `status`; without it the screen fails at `status.toLowerCase()`. */
 export function asAccount(
   user: LinhaAgent,
   queues: string[],

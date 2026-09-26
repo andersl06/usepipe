@@ -3,12 +3,12 @@ import { atualizarLeituras } from '../../lib/actions';
 import { IMAGE, type RecadosDoNome } from './regras-de-nome';
 
 /**
- * Criar um contato (fluxo ou roteador): `POST /v1/gestao/fluxos`.
+ * Create a contact (flow or router): `POST /v1/gestao/fluxos`.
  *
- * A validação de nome, a permissão e a leitura da foto pelos bytes ficam na
- * `api` (`gestao-fluxo.ts` → `dominio/gestao/ciclo-de-vida-do-fluxo.ts`), com
- * as regras de `regras-de-nome.ts`. Aqui a foto só vira `data:` para
- * atravessar o JSON — e nem vai se já passou do teto.
+ * Name validation, permission checks, and reading the photo by its bytes live in
+ * the `api` (`gestao-fluxo.ts` → `dominio/gestao/ciclo-de-vida-do-fluxo.ts`), with
+ * the rules from `regras-de-nome.ts`. Here the photo only becomes a `data:` URI
+ * to cross the JSON boundary — and doesn't even go if it's already past the cap.
  */
 export type Resultado = { id: string; error?: undefined } | { id?: undefined; error: string };
 
@@ -37,7 +37,7 @@ export async function saveContact(
 }
 
 async function readImage(campo: FormDataEntryValue | null): Promise<string | null> {
-  /* Campo vazio chega como um `File` de zero byte, e não como `null`. */
+  /* An empty field arrives as a zero-byte `File`, not as `null`. */
   if (!(campo instanceof File) || campo.size === 0) return null;
   if (campo.size > IMAGE.maxBytes) return null;
   return new Promise((resolver) => {

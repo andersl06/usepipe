@@ -13,7 +13,7 @@ import react from '@vitejs/plugin-react-swc';
  * `@pipe/ui` é consumido como fonte, sem passo de build.
  */
 export default defineConfig({
-  /* Na VPS o Desk vive em `/desk`, para compartilhar a sessão da Gestão. */
+  /* On the VPS Desk lives under `/desk` to share the Gest?o session. */
   base: process.env['VITE_BASE'] || '/',
   plugins: [react()],
   resolve: {

@@ -1,20 +1,7 @@
 import { IconeManagement } from './icones-management';
 
 /**
- * Métrica de cartão — a coluna deles, lida em `referencias-blip/portal/dom/
- * monitoring.html`: número em cima (`bds-typo variant="fs-24"`), e embaixo a
- * linha do rótulo (`bds-typo variant="fs-12" class="text-center"`) com o
- * ícone de informação de 16px ao lado (`bds-icon name="info" size="x-small"`
- * numa `bds-grid direction="row" gap="half"`). Tudo centrado na coluna.
- *
- * O ícone de informação é `<details>` puro: abre no clique e no teclado, fecha
- * no `Esc` do navegador, e não custa uma linha de JavaScript. A dica de
- * `title=""` do HTML foi descartada de propósito — ela não abre com teclado.
- *
- * O TEXTO da dica é o `tooltip-text` deles, literal. O que é nosso — a
- * fórmula da spec de métricas e o denominador ("entre 6 na fila") — continua
- * existindo, mas DENTRO do balão: na tela deles o cartão não tem uma terceira
- * linha sob o rótulo, e a régua desta rodada é a forma deles.
+ * Reference metric card in `referencias-blip/portal/dom/monitoring.html` centers `bds-typo variant="fs-24"` value over `bds-typo variant="fs-12" class="text-center"` label with a 16px `bds-icon name="info" size="x-small"` in `bds-grid direction="row" gap="half"`. Use native `<details>` for keyboard/click access and Esc close without JavaScript; reject HTML `title=""` because it is not keyboard accessible. Keep literal source `tooltip-text` as the first line; put our spec formula and denominator inside the popup, not as a third card line.
  */
 export function Metrica({
   value,
@@ -29,11 +16,11 @@ export function Metrica({
   rotulo: string;
   /** O `tooltip-text` deles, palavra por palavra. */
   dica: string;
-  /** Fórmula e população, da nossa spec — segunda linha do balão. */
+  /** Formula and population from our spec are the tooltip's second line. */
   formula?: string;
-  /** População do número ("entre 6 na fila") — terceira linha do balão. */
+  /** Denominator, such as `entre 6 na fila`, is the tooltip's third line. */
   denominador?: string;
-  /** Cor de marca só nos dois números que respondem "como está a operação agora". */
+  /** Brand color applies only to the two numbers answering how the operation is doing now. */
   destaque?: boolean;
   /** Tinta de erro: "Perdidos" e "Abandonados", como o `color-delete` deles. */
   tom?: 'erro';

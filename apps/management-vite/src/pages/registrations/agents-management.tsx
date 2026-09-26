@@ -12,28 +12,14 @@ import { attendanceBase } from '../operation/shell';
 import { ModalConfirmation } from './_modal';
 
 /**
- * Gestão de atendentes — a lista.
+ * Attendant management — the list.
  *
- * Esqueleto e textos medidos em `FICHA-atendentes-filas-pausas.md` §b.2/§a.4:
- * cabeçalho "Gestão de atendentes" com "Adicionar atendentes" à direita,
- * busca "Buscar por nome ou e-mail" + "Filtrar por: Filas", barra
- * "Selecionar todos", cartão com caixa de seleção + avatar + quatro campos
- * (Atendente/E-mail/Filas/Tickets simultâneos) e, à direita, Editar/
- * Permissões/Excluir.
+ * Skeleton and copy measured in `FICHA-atendentes-filas-pausas.md` §b.2/§a.4: header "Gestão de atendentes" with "Adicionar atendentes" on the right, search "Buscar por nome ou e-mail" + "Filtrar por: Filas", a "Selecionar todos" bar, a card with checkbox + avatar + four fields (Atendente/E-mail/Filas/Tickets simultâneos) and, on the right, Editar/Permissões/Excluir.
  *
- * **"Selecionar todos" e o que ele seleciona.** A origem pagina no
- * SERVIDOR (§e.6 da ficha); a nossa lista já vem inteira e pagina no
- * cliente, dentro de `ListaRegras`, que não expõe a fatia visível de fora.
- * `alternarTodos` marca/desmarca o conjunto FILTRADO inteiro (busca de fila +
- * texto), não só a página à vista — é a simplificação honesta enquanto a
- * paginação continuar sendo só de exibição.
- * ponytail: seleciona o filtrado inteiro, não a página; ajustar se
- * `ListaRegras` passar a expor a fatia visível.
+ * **"Selecionar todos" and what it selects.** The source paginates on the SERVER (ficha §e.6); our list already arrives whole and paginates on the client, inside `ListaRegras`, which doesn't expose the visible slice from outside. `alternarTodos` marks/unmarks the entire FILTERED set (queue search + text), not just the visible page — the honest simplification while pagination stays display-only.
+ * ponytail: selects the whole filtered set, not the page; adjust if `ListaRegras` starts exposing the visible slice.
  *
- * **"Excluir" tira de todas as filas** — não apaga o usuário
- * (`tirarDeTodasAsFilas`, `lib/atendentes-gravar.ts`: no Pipe não existe
- * "equipe de atendimento" como cadastro à parte; quem recebe conversa é quem
- * está em fila).
+ * **"Excluir" removes from all queues** — it doesn't delete the user (`tirarDeTodasAsFilas`, `lib/atendentes-gravar.ts`: Pipe has no "attendance team" as a separate registry; whoever receives a conversation is whoever is in a queue).
  */
 export function AgentsPageManagement() {
   const navegar = useNavigate();
@@ -118,9 +104,9 @@ export function AgentsPageManagement() {
           },
         ],
         situation: a.ativo ? 'Ativo' : 'Desativado',
-        /* A origem não tem coluna de status (§d.2 da ficha: "voltar para 4
-           colunas") — `ativa` só decidiria o selo de `Cartao`, e como as três
-           ações sempre existem aqui, ele nunca aparece de qualquer forma. */
+        /*
+         * The source has no status column (ficha §d.2: "go back to 4 columns") — `ativa` would only decide `Cartao`'s badge, and since the three actions always exist here, it never shows up anyway.
+         */
         active: a.ativo,
         acao: (
           <>
@@ -205,10 +191,7 @@ export function AgentsPageManagement() {
 }
 
 /**
- * "Filtrar por: Filas" — painel suspenso ancorado no controle
- * (`FICHA-atendentes-filas-pausas.md` §a.4: seletor "Selecione a(s) fila(s)",
- * "Limpar seleção", "Cancelar", "Aplicar"). A escolha só vale para a lista
- * depois de "Aplicar" — cancelar ou fechar sem aplicar não muda nada.
+ * "Filtrar por: Filas" — a dropdown panel anchored to the control (`FICHA-atendentes-filas-pausas.md` §a.4: "Selecione a(s) fila(s)" picker, "Limpar seleção", "Cancelar", "Aplicar"). The choice only takes effect on the list after "Aplicar" — cancelling or closing without applying changes nothing.
  */
 function QueuesFilter({
   options,

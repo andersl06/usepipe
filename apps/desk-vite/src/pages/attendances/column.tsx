@@ -16,21 +16,7 @@ import { ROTULOS_DE_STATUS } from '../../components/rail';
 import { Card } from './card';
 
 /**
- * A coluna de atendimentos — o `.sidenav` da referência
- * (`~/desk-clone/templates/sidenav.html`, `sidenav-header.html`,
- * `chat-list.html`), de cima para baixo:
- *
- * 1. `.header-content`: "Atendimentos" (h1 20/700) e o seletor "Lista ⌄";
- * 2. `.sidenav-header`: Online → "N Clientes aguardando" + "Atender";
- *    outros → "Seu status é X" + "Ficar Online" (pausa: motivo + cronômetro);
- * 3. a busca ("Busque pelo nome ou telefone...");
- * 4. `.header-chat-list`: a ficha "Todos (N)" (menu até 1441, fila acima),
- *    o botão de pasta e "Reclassificar";
- * 5. a lista de cartões, ou o estado vazio.
- *
- * Os textos são os do i18n de lá (`thereCustumer`, `customers`, `waiting`,
- * `answerCustomer`, `currentStatus`, `getOnline`, `getOnlineToAtend`,
- * `noOpenTickets`, `allTickets`…).
+ * Attendance column follows reference `.sidenav` (`~/desk-clone/templates/sidenav.html`, `sidenav-header.html`, `chat-list.html`): `.header-content` title and list selector; `.sidenav-header` status-dependent waiting count and answer button or current status and online button; name/phone search; `.header-chat-list` all-count chip, folder button, and reclassification; then cards or empty state. Reference labels come from its i18n keys `thereCustumer`, `customers`, `waiting`, `answerCustomer`, `currentStatus`, `getOnline`, `getOnlineToAtend`, `noOpenTickets`, `allTickets`.
  */
 export function Column({
   queue,
@@ -78,9 +64,7 @@ export function Column({
   }
 
   /**
-   * Abrir a conversa tira a marca manual de "não lida" — a ficha "Não lidas" da
-   * origem "remove o ticket automaticamente assim que ele é aberto/lido"
-   * (`blip-desk-funcoes.md` §1). A recusa não trava a abertura.
+   * Opening a conversation clears its manual `Não lida` mark, as the source unread chip automatically removes an opened/read ticket (`blip-desk-funcoes.md` §1). A failure to clear the mark does not block opening.
    */
   function abrir(id: string) {
     aoAbrir(id);
@@ -115,7 +99,7 @@ export function Column({
                 <IconeDesk nome="lista" tamanho={20} />
                 <b>Lista</b>
               </button>
-              {/* ponytail: o modo Quadro (kanban) da referência não tem tela na cópia; fica listado, sem destino. */}
+              {/* Ponytail: the reference's Kanban `Quadro` mode has no screen in this copy, so keep it listed without a destination. */}
               <button
                 type="button"
                 role="menuitemradio"
@@ -212,7 +196,7 @@ export function Column({
               </button>
             ))}
           </div>
-          {/* ponytail: pastas de tickets não existem no Pipe; o botão fica onde a referência o põe. */}
+          {/* Ponytail: Pipe has no ticket folders; keep the button in the reference position. */}
           <button
             type="button"
             className="dk-botao-icone"
@@ -224,7 +208,7 @@ export function Column({
           </button>
         </div>
         <div className="dk-fichas-direita">
-          {/* ponytail: "Reclassificar os tickets com inteligência artificial" depende do @pipe/ai. */}
+          {/* Ponytail: `Reclassificar os tickets com inteligência artificial` depends on `@pipe/ai`. */}
           <button
             type="button"
             className="dk-botao dk-botao-secundario dk-botao-curto"
@@ -265,10 +249,7 @@ export function Column({
 }
 
 /**
- * O miolo do `.sidenav-header`, um por status (função de desenho `lzgT` do
- * pacote da referência): Online mostra a contagem e "Atender"; Invisível e
- * Offline mostram "Seu status é X" e "Ficar Online"; Em pausa mostra o motivo
- * e o cronômetro (`AgentPauseTimer`).
+ * Render `.sidenav-header` by agent status, matching reference renderer `lzgT`: Online shows waiting count and `Atender`; Invisible and Offline show current status and `Ficar Online`; Pause shows reason and `AgentPauseTimer`.
  */
 function AgentState({
   state,

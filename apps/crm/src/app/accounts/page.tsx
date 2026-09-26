@@ -6,11 +6,11 @@ import { moneyCurto, document, numero } from '../../lib/format';
 export const dynamic = 'force-dynamic';
 
 /**
- * Lista de contas, no mesmo padrão da lista de leads: uma caixa, uma busca, e
- * a tabela do pacote.
+ * Account list, following the same pattern as the lead list: a box, a search field,
+ * and the package's table.
  *
- * Nenhuma cor. Uma conta não tem estado que exija ação — o que exige ação está
- * dentro dela, nas oportunidades e nos leads, e é para lá que a linha leva.
+ * No color. An account has no state that demands action — what demands action is
+ * inside it, in the opportunities and leads, and that's where the row leads.
  */
 const COLUNAS: readonly Column<LinhaAccount>[] = [
   {
