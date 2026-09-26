@@ -60,7 +60,7 @@ test('copies a block to the clipboard and pastes a copy at the chosen position',
 test('toggles an edge on and off without duplicating the output\'s condition', () => {
   const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
   const destination = newBlock({ origem }, { top: 0, left: 200 }, 'destino');
-  const mapa = { origem, destination };
+  const mapa = { origem, destino: destination };
   const ligado = ligar(mapa, 'origem', 'destino', 'saida');
 
   assert.equal(ligado.ok, true);

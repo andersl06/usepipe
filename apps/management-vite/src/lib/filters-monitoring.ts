@@ -7,10 +7,10 @@ export function filterIds(value: string | readonly string[] | undefined): string
 
 export function urlForClearFilters(
   base: string,
-  atual: { queue?: string },
-  preserveQueue = false,
+  _atual: { queue?: string },
+  _preserveQueue = false,
 ): string {
-  return preserveQueue && atual.queue ? `${base}?queue=${encodeURIComponent(atual.queue)}` : base;
+  return base;
 }
 
 /** Copy the whole query so tabs, search, and future parameters remain in the link. */

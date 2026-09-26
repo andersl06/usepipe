@@ -56,7 +56,7 @@ export function conversationEvaluateSla(
     cumpridoEm,
   });
 
-  if (r.state === 'exceeded') {
+  if (r.state === 'estourado') {
     return {
       state: 'estourado',
       rotulo: 'ESTOUROU',
@@ -64,6 +64,6 @@ export function conversationEvaluateSla(
     };
   }
   if (r.cumprido) return { state: 'cumprido', rotulo: 'CUMPRIDO', excedidoSeg: null };
-  if (r.state === 'alert') return { state: 'alerta', rotulo: 'ALERTA', excedidoSeg: null };
+  if (r.state === 'alerta') return { state: 'alerta', rotulo: 'ALERTA', excedidoSeg: null };
   return { state: 'dentro', rotulo: 'DENTRO', excedidoSeg: null };
 }

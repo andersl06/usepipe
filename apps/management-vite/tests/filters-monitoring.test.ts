@@ -19,27 +19,27 @@ test('clearing filters stays on the current bot\'s monitoring', () => {
   );
 });
 
-test('clearing the list preserves the operation\'s queue filter', () => {
+test('clearing the list leaves remembered queue out of the URL', () => {
   assert.equal(
     urlForClearFilters('/fluxo/bot-1/atendimento/monitoramento', { queue: 'fila-1' }, true),
-    '/fluxo/bot-1/atendimento/monitoramento?queue=fila-1',
+    '/fluxo/bot-1/atendimento/monitoramento',
   );
 });
 
-test('applying one chip preserves the other parameters, including search and tab', () => {
-  const current = new URLSearchParams('fila=f1&agent=a1&contato=Ana&status=online&aba=espera&busca=123&extra=x');
-  const proximos = parametersWithFilters(current, { atendente: 'a2' });
-  assert.equal(proximos.get('atendente'), 'a2');
-  for (const key of ['fila', 'contato', 'status', 'aba', 'busca', 'extra']) {
+test('applying a URL filter preserves search, tab and future parameters', () => {
+  const current = new URLSearchParams('contato=Ana&status=online&aba=espera&busca=123&extra=x');
+  const proximos = parametersWithFilters(current, { contato: 'Bia' });
+  assert.equal(proximos.get('contato'), 'Bia');
+  for (const key of ['status', 'aba', 'busca', 'extra']) {
     assert.equal(proximos.get(key), current.get(key));
   }
-  assert.equal(current.get('atendente'), 'a1');
+  assert.equal(current.get('contato'), 'Ana');
 });
 
 test('clearing only the current filter preserves the others', () => {
-  const proximos = parametersWithFilters(new URLSearchParams('fila=f1&contact=Ana&aba=atribuido&busca=456'), { contato: '' });
+  const proximos = parametersWithFilters(new URLSearchParams('status=online&contato=Ana&aba=atribuido&busca=456'), { contato: '' });
   assert.equal(proximos.has('contato'), false);
-  assert.equal(proximos.toString(), 'fila=f1&aba=atribuido&search=456');
+  assert.equal(proximos.toString(), 'status=online&aba=atribuido&busca=456');
 });
 
 test('applying multiple values keeps repeats where the query allows it', () => {
