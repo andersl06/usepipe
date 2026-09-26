@@ -204,6 +204,7 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 01.1 to break down)
 
 ### Phase 2: Fechar o Builder
@@ -222,28 +223,64 @@ Plans:
 **Plans**: 22 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 02-01-PLAN.md — Investigação: catálogo de conteúdo da referência (D-18)
 - [ ] 02-02-PLAN.md — Investigação: ações, scripts e biblioteca de funções (D-19..D-22)
 - [ ] 02-03-PLAN.md — Investigação: pesquisa de satisfação e tags (D-06..D-13)
 - [ ] 02-04-PLAN.md — Investigação: painéis, seletor, setas e visual (D-14..D-17, D-23, D-29..D-33)
 - [ ] 02-05-PLAN.md — Wave técnica do motor: ProcessHttp (D-25..D-28)
 - [ ] 02-06-PLAN.md — Caracterização de arestasDe() e copiar/colar (D-17, D-29.1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 02-07-PLAN.md — Snapshot congelado + capturas pendentes + PORTÃO DO DONO (D-01..D-05)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 02-08-PLAN.md — Tema escuro, tokens --p-builder-marca-*, paleta de $tags, ícones (D-11, D-13, D-30..D-33)
-- [ ] 02-09-PLAN.md — Seletor de destino com busca + validação de setas com fluxos reais (D-23, D-29)
 - [ ] 02-10-PLAN.md — Conteúdo: slot mídia ponta a ponta
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 02-09-PLAN.md — Seletor de destino com busca + validação de setas com fluxos reais (D-23, D-29)
 - [ ] 02-11-PLAN.md — Satisfação: schema, motor, etiquetas no ticket, endpoint de consulta (D-06..D-12)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 02-12-PLAN.md — Satisfação e etiquetas no editor do Builder
-- [ ] 02-13-PLAN.md — Versões (exportar versão antiga) e painel de Filas (D-15, D-16)
 - [ ] 02-14-PLAN.md — Ações: slot contexto ponta a ponta
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 02-13-PLAN.md — Versões (exportar versão antiga) e painel de Filas (D-15, D-16)
 - [ ] 02-15-PLAN.md — Conteúdo: slot interativo ponta a ponta
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 02-16-PLAN.md — Ações: ExecuteScript/V2 com sandbox aprovado (D-21)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 02-17-PLAN.md — Biblioteca de funções: persistência, API e motor (D-22)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 02-18-PLAN.md — Biblioteca de funções: painel e busca no Builder
 - [ ] 02-19-PLAN.md — Conteúdo: slot dinâmico (HTTP/Dinâmico) e fechamento do catálogo
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
 - [ ] 02-20-PLAN.md — Ações de plataforma nativas + dependências externas registradas (D-20, D-24)
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
 - [ ] 02-21-PLAN.md — Painel de Teste com Debug (D-14)
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
 - [ ] 02-22-PLAN.md — Regressão final, verificação visual e portão final do dono
+
 **UI hint**: yes
 
 ### Phase 3: Validar e fechar superfícies atuais
