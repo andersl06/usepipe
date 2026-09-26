@@ -139,12 +139,12 @@ async function regraSlaViva(tx: TransactionPipe, tid: string, id: string): Promi
   const [atual] = await tx
     .select({
       id: regraSla.id,
-      nome: regraSla.nome,
-      alvo: regraSla.alvo,
-      prazoSeg: regraSla.prazoSeg,
-      alertaSeg: regraSla.alertaSeg,
-      escopoTipo: regraSla.escopoTipo,
-      escopoId: regraSla.escopoId,
+      name: regraSla.nome,
+      target: regraSla.alvo,
+      deadlineSeg: regraSla.prazoSeg,
+      alertSeg: regraSla.alertaSeg,
+      scopeType: regraSla.escopoTipo,
+      scopeId: regraSla.escopoId,
       ativa: regraSla.ativa,
     })
     .from(regraSla)
@@ -173,7 +173,7 @@ export async function createRuleSla(
 
   const [criada] = await tx
     .insert(regraSla)
-    .values({ tenantId: tid, nome, alvo, prazoSeg, alertaSeg, escopoTipo: scopeType, escopoId: scopeId, active })
+    .values({ tenantId: tid, nome, alvo, prazoSeg, alertaSeg, escopoTipo: scopeType, escopoId: scopeId, ativa: active })
     .returning({ id: regraSla.id });
   if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de SLA.');
 
@@ -249,12 +249,12 @@ export async function editarRegraSla(
     .where(and(eq(regraSla.tenantId, tid), eq(regraSla.id, id)))
     .returning({
       id: regraSla.id,
-      nome: regraSla.nome,
-      alvo: regraSla.alvo,
-      prazoSeg: regraSla.prazoSeg,
-      alertaSeg: regraSla.alertaSeg,
-      escopoTipo: regraSla.escopoTipo,
-      escopoId: regraSla.escopoId,
+      name: regraSla.nome,
+      target: regraSla.alvo,
+      deadlineSeg: regraSla.prazoSeg,
+      alertSeg: regraSla.alertaSeg,
+      scopeType: regraSla.escopoTipo,
+      scopeId: regraSla.escopoId,
       ativa: regraSla.ativa,
     });
   if (!gravada) throw PipeError.naoEncontrado('regra de SLA');
