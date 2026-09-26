@@ -1,7 +1,7 @@
 import { api } from './api';
 import { clienteDeConsultas } from './cliente-de-consultas';
 
-/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */
+
 export interface Resultado {
   ok: boolean;
   error?: string;

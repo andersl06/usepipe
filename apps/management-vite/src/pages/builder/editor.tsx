@@ -27,9 +27,9 @@ import './editor.css';
 import './panel-block.css';
 
 /**
- * The editor itself, inside the frame's dark canvas: the blocks and arrows (`Canvas`), the sidebar of the open block (`PainelDoBloco`), the "NOVO BLOCO" sheet next to the pill, and the two warnings — the rejection toast ("Limite de 25 condições de saída atingidos"…) and the delete confirmation, which here is `ModalConfirmacao` and not `window.confirm` (the Blip editor deletes without asking and relies on undo; Pipe has undo AND asks).
+ * The editor itself, inside the frame's dark canvas: the blocks and arrows (`Canvas`), the sidebar of the open block (`BlockPanel`), the "NOVO BLOCO" sheet next to the pill, and the two warnings — the rejection toast ("Limite de 25 condições de saída atingidos"…) and the delete confirmation, which here is `ModalConfirmation` and not `window.confirm` (the Blip editor deletes without asking and relies on undo; Pipe has undo AND asks).
  *
- * The drawing lives in the `estado.ts` reducer, reached through `estado`/`despachar`; each gesture becomes a new map via the `modelo.ts` functions and an `aplicar`. Per-block errors are the sum of the screen's (`errosLocais`) with the ones the `api` returned (`errosDaApi`) and the ones from the 409 on publish (`errosDoMotor`).
+ * The drawing lives in the `estado.ts` reducer, reached through `state`/`despachar`; each gesture becomes a new map via the `modelo.ts` functions and an `aplicar`. Per-block errors are the sum of the screen's (`errorsLocal`) with the ones the `api` returned (`apiErrors`) and the ones from the 409 on publish (`errosDoMotor`).
  */
 
 export function Editor({

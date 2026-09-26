@@ -92,8 +92,8 @@ export function SOperationFilter({ atual, toOpenPanel, panelOpen, aoLimparQueue 
 }
 
 /**
- * A faixa inferior recorta somente a lista detalhada. `atendente` (D-30)
- * limpa via `aoLimparAgent` (state); `contato`/`status` continuam na query
+ * A faixa inferior recorta somente a lista detalhada. `agent` (D-30)
+ * limpa via `aoLimparAgent` (state); `contact`/`status` continuam na query
  * string desta tela (NEEDS VALIDATION, fora do D-30).
  */
 export function SListFilter({ atual, toOpenPanel, panelOpen, aoLimparAgent }: {

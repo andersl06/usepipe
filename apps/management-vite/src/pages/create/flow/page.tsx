@@ -86,7 +86,7 @@ function PassoDoMarketplace() {
  */}
         <Link className="cf-card" href="/create/flow/name">
           {/*
- * `bds-icon name="file-empty-file" size="brand"` — the blank sheet. `icones-portal.tsx` doesn't have that icon; `fluxo` (`builder-new-state`, the builder's empty block) is the same gesture and the SAME icon as the button that brought the person here.
+ * `bds-icon name="file-empty-file" size="brand"` — the blank sheet. `icones-portal.tsx` doesn't have that icon; `flow` (`builder-new-state`, the builder's empty block) is the same gesture and the SAME icon as the button that brought the person here.
  */}
           <IconePortal nome="fluxo" tamanho={48} />
           <h3>{ROTULOS.doZero}</h3>

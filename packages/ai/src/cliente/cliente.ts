@@ -37,7 +37,7 @@ export interface RespostaIa<T> {
 export type ChamadaEstruturada = <T>(pedido: PedidoIa<T>) => Promise<RespostaIa<T>>;
 
 /**
- * Low effort by default, based on case-sync measurements: increasing the reasoning budget worsened classification accuracy, while zero effort matched or improved it. Callers needing more can pass `esforco` in the request.
+ * Low effort by default, based on case-sync measurements: increasing the reasoning budget worsened classification accuracy, while zero effort matched or improved it. Callers needing more can pass `effort` in the request.
  */
 export const EFFORT_DEFAULT: Effort = 'low';
 

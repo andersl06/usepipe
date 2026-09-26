@@ -11,10 +11,10 @@ import type { ReactNode, SVGProps } from 'react';
 /**
  * Each scene corresponds to a real Pipe empty state:
  *
- * - `vazio`: a list has nothing yet; an empty pipe.
+ * - `empty`: a list has nothing yet; an empty pipe.
  * - `busca`: a filter found nothing; a lens over the pipe.
  * - `concluido`: the queue is cleared; the one empty state that is good news.
- * - `erro`: the screen failed to load; a broken pipe.
+ * - `error`: the screen failed to load; a broken pipe.
  */
 export type IllustrationName = 'vazio' | 'busca' | 'concluido' | 'erro';
 

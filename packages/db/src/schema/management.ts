@@ -32,7 +32,7 @@ import { conversation, queue } from './conversations.js';
  */
 
 /**
- * Immutable and monthly partitioned by `em`; the primary key includes the partition key as with `mensagem`.
+ * Immutable and monthly partitioned by `em`; the primary key includes the partition key as with `message`.
  */
 export const eventAttendance = pgTable(
   'evento_atendimento',

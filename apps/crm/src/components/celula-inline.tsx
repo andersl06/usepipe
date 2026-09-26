@@ -39,7 +39,7 @@ import { IconeCrm } from './icones-crm';
 interface Props {
   leadId: string;
   campo: KeyField;
-  /** The saved value. For a selection it's the id; the label comes from `opcoes`. */
+  /** The saved value. For a selection it's the id; the label comes from `options`. */
   value: string | null;
   /** Only for `tipo: 'selecao'`. Empty in the list means "no owner". */
   options?: Proprietario[];

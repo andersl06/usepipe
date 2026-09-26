@@ -111,7 +111,7 @@ export interface ConditionOfRuleQueue {
   value: string;
 }
 
-/** Only supplied fields change; when supplied, `condicoes` replaces all previous conditions. */
+/** Only supplied fields change; when supplied, `conditions` replaces all previous conditions. */
 export interface RequestOfEditOfRuleQueue {
   nome?: string;
   order?: number;

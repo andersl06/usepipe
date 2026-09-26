@@ -1,5 +1,5 @@
 /**
- * Agent preferences mirror reference `/agents/preferences` keys and mock defaults (`~/desk-clone/docs/desk-store.md`: `enableBrowserNotification`, `enableTicketOnQueueAlert`, `enableReceivedMessageAlert`, `enableAlertWithDeskActive`, `enableSpellChecker`, `sortChatsBy`, `keepAgentOnline`). They live in browser `localStorage` under `desk.pref.<chave>`, so they belong to this machine rather than the person. `lerPreferencias` applies defaults when reading.
+ * Agent preferences mirror reference `/agents/preferences` keys and mock defaults (`~/desk-clone/docs/desk-store.md`: `enableBrowserNotification`, `enableTicketOnQueueAlert`, `enableReceivedMessageAlert`, `enableAlertWithDeskActive`, `enableSpellChecker`, `sortChatsBy`, `keepAgentOnline`). They live in browser `localStorage` under `desk.pref.<chave>`, so they belong to this machine rather than the person. `readPreferences` applies defaults when reading.
  */
 export interface Preferences {
   browserNotifications: boolean;

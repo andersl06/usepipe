@@ -2,7 +2,7 @@ import { api, ApiError } from '../../../../lib/api';
 import { atualizarLeituras } from '../../../../lib/actions';
 
 /**
- * `POST /v1/mensagens-ativas` — the write that was missing to wire up the screen (the rest, `GET .../growth`, already reads real data). Same `Resultado<T>` format as `configuracoes/basicas/gravar.ts`: `ok`/`valor` or `ok`/`erro` with text ready for the screen's `aviso`.
+ * `POST /v1/mensagens-ativas` — the write that was missing to wire up the screen (the rest, `GET .../growth`, already reads real data). Same `Resultado<T>` format as `configuracoes/basicas/gravar.ts`: `ok`/`value` or `ok`/`error` with text ready for the screen's `aviso`.
  */
 
 export interface TriggerDestination {

@@ -80,7 +80,7 @@ export interface ResultadoCampo {
  * what counts, because this function is an HTTP address and anyone can reach it.
  *
  * The `proprietario` is checked against the tenant's list of active users for the
- * same reason as `atribuirEmMassa`: **client input never determines a write
+ * same reason as `assignInBulk`: **client input never determines a write
  * value**. Empty means clearing the owner, which is a legitimate operation.
  *
  * Always returns the value that ended up in the database. When it fails, it

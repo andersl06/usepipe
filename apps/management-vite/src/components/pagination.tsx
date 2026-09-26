@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Selection } from './selection';
 
 /**
- * Detailed Monitoring pagination follows `FICHA-monitoring.md` Section 5: exact Results-per-page options, `1-5 de 8` counter, and four navigation buttons. Keep it client-side because `useLeitura` already loads all open rows in one transaction; slicing locally needs no additional server request.
+ * Detailed Monitoring pagination follows `FICHA-monitoring.md` Section 5: exact Results-per-page options, `1-5 de 8` counter, and four navigation buttons. Keep it client-side because `useRead` already loads all open rows in one transaction; slicing locally needs no additional server request.
  */
 const OPTIONS_BY_PAGE = [5, 10, 15, 25, 50, 100, 250, 500] as const;
 

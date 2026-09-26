@@ -19,7 +19,7 @@ function origemDesteApp(): string {
   return window.location.origin;
 }
 
-/** Build the `Entrar com Google` URL; when `convite` is present, sign in while accepting the invitation. */
+/** Build the `Entrar com Google` URL; when `invitation` is present, sign in while accepting the invitation. */
 export function inboundWithGoogleUrl(options: { destination?: string; invitation?: string } = {}): string {
   const url = new URL(urlDaApi('/v1/auth/google'), window.location.origin);
   if (options.invitation) url.searchParams.set('invite', options.invitation);

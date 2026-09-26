@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { fieldOfErrorOfLink } from '../src/pages/flow/growth/tracked-links/data.ts';
 
 /**
- * `campoDoErroDeLink` decides under which form field (name/destination) the screen shows the rejection from `POST /v1/gestao/fluxos/:fluxoId/links-rastreados` — this endpoint's error body doesn't send `detalhe.campo`, only `codigo` (see `dominio/rastreador-de-cliques.ts` and `dominio/gestao/integracoes.ts::confirmarUrlSegura`).
+ * `fieldOfErrorOfLink` decides under which form field (name/destination) the screen shows the rejection from `POST /v1/gestao/fluxos/:fluxoId/links-rastreados` — this endpoint's error body doesn't send `detalhe.campo`, only `codigo` (see `dominio/rastreador-de-cliques.ts` and `dominio/gestao/integracoes.ts::confirmarUrlSegura`).
  */
 
 test('fieldForLinkError: name_required goes to the name field', () => {

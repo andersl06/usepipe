@@ -114,7 +114,7 @@ const COLUMN_SQL = {
   fase: lead.fase,
   /**
    * More days in stage is an older `fase_desde`. The direction inverts, and the
-   * column's `desc` becomes the date's `asc`, resolved in `ordenacaoSql`.
+   * column's `desc` becomes the date's `asc`, resolved in `sortingSql`.
    */
   dias: lead.faseDesde,
 } as const;

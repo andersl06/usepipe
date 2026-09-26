@@ -53,7 +53,7 @@ test('with no grouping, a single group comes out with the entire list', () => {
 
 test('by queue, whoever has no queue gets its own group instead of disappearing', () => {
   /*
-   * A conversation lost at the root queue has a null `filaNome`. If it doesn't become its own group, the groups' sum falls short of the total, and the manager concludes the day had fewer conversations than it actually did.
+   * A conversation lost at the root queue has a null `queueName`. If it doesn't become its own group, the groups' sum falls short of the total, and the manager concludes the day had fewer conversations than it actually did.
    */
   const groups = groupHistory(
     [linha({ queueName: 'Suporte' }), linha({ id: 'b', queueName: null })],

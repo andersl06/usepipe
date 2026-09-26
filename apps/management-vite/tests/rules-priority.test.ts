@@ -10,7 +10,7 @@ import {
 /**
  * The "Regras de Priorização" section slice from the queue-edit page (`FICHA-atendentes-filas-pausas.md` §a.3).
  *
- * `GET /v1/gestao/regras/prioridade` returns the whole tenant; the queue section shows only `escopoTipo === 'fila'` with this queue's `escopoId`. Without this slice, editing the "Suporte" queue would list "Financeiro"'s rules — and deleting one there would delete the other queue's rule.
+ * `GET /v1/gestao/regras/prioridade` returns the whole tenant; the queue section shows only `escopoTipo === 'fila'` with this queue's `scopeId`. Without this slice, editing the "Suporte" queue would list "Financeiro"'s rules — and deleting one there would delete the other queue's rule.
  */
 
 function regra(

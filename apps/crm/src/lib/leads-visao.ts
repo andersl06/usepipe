@@ -203,7 +203,7 @@ export const FILTRAVEIS = [
 
 export type FilterKey = (typeof FILTRAVEIS)[number]['key'];
 
-/** Coluna filtrada → valor exigido. `SEM_VALOR` pede as linhas em branco. */
+/** Coluna filtrada → valor exigido. `WITHOUT_VALUE` pede as linhas em branco. */
 export type SFilter = Partial<Record<FilterKey, string>>;
 
 /**

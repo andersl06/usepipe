@@ -14,7 +14,7 @@ import type { QueueForChoose, QueueRegisteredRule } from '../../lib/registration
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
- * Entry rule registration. Conditions are repeated rows of `campo` / `operador` / `valor`: `FormData` returns fields with the same name as a list, and the action reads all three in parallel. A blank row is ignored — the form starts with one and the person adds as many as needed. Submission goes through `envioQuePreserva` because this is the most expensive form to retype in Gestão: a validation error with React 19's native `action` would wipe out the name, the queue, the combinator and every condition at once.
+ * Entry rule registration. Conditions are repeated rows of `campo` / `operador` / `value`: `FormData` returns fields with the same name as a list, and the action reads all three in parallel. A blank row is ignored — the form starts with one and the person adds as many as needed. Submission goes through `envioQuePreserva` because this is the most expensive form to retype in Gestão: a validation error with React 19's native `action` would wipe out the name, the queue, the combinator and every condition at once.
  */
 
 /** Extra contact field: the key is free-form, and the prefix is what the engine understands. */

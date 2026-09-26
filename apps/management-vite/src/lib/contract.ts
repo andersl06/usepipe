@@ -39,7 +39,7 @@ export interface ContractMember {
   /**
    * De qual tabela veio a linha. Na origem há uma só (`tenant-user`), e o
    * `userStatus` distingue `Accepted` de `PendingUser`; aqui quem já entrou é
-   * `usuario` e quem foi chamado e ainda não veio é `convite` — é a mesma
+   * `user` e quem foi chamado e ainda não veio é `invitation` — é a mesma
    * distinção, com o dado guardado em dois lugares.
    */
   tipo: 'usuario' | 'convite';

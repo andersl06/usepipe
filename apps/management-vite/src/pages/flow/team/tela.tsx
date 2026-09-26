@@ -52,7 +52,9 @@ async function gravar(chamada: Promise<unknown>): Promise<ResultadoSimples> {
  * The row's three actions, now PER FLOW — `POST/PATCH/DELETE /v1/gestao/fluxos/:id/equipe` (`gestao-equipe.ts` controller). Before migration 0035 they acted on the ACCOUNT role (`/contrato/membros/papel` and `/excluir`), because Pipe had no per-flow RBAC: removing someone here removed them from the whole tenant. Now it removes them only from this contact, which is what the origin always did (`TeamController`, everything per bot).
  */
 const caminho = (flowId: string, alvo?: string) =>
-  `/v1/management/flows/${flowId}/equipe${alvo ? `/${alvo}` : ''}`;
+  alvo
+    ? `/v1/management/flows/${flowId}/team/${alvo}`
+    : `/v1/management/flows/${flowId}/team`;
 
 /**
  * The origin's "Permissão" `rzslider` (`rz-slider-model="$ctrl.permissionsValue"`), with the same four stops. A real `<input type="range">` underneath gives dragging and keyboard support without reimplementing native behavior.

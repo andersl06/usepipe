@@ -20,8 +20,8 @@ import { attendanceBase } from './shell';
 /**
  * Fila e atendente do monitoramento (D-30, `std/nav-contract.md` §Gestão):
  * moram em React state, não na query string; o último valor válido é
- * lembrado por conta/usuário em `localStorage`. `contato`/`status`/`aba`/
- * `busca` continuam na query — a decisão do gate 2 não os cobre (NEEDS
+ * lembrado por conta/usuário em `localStorage`. `contact`/`status`/`aba`/
+ * `search` continuam na query — a decisão do gate 2 não os cobre (NEEDS
  * VALIDATION na tabela por tela).
  */
 interface QueueAgentFilters {

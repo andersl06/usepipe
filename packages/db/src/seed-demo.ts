@@ -31,7 +31,7 @@ import { ensureRoleOfAccount } from './seed.js';
  *
  * It deletes and recreates records matching its known email and name lists, so rerunning `pnpm seed:demo` resets the demo. The cleanup queries do not include `tenantId`, so matching data in another tenant could also be affected; confirm this at slice time.
  *
- * Messages stay in the current month because `mensagem` is monthly partitioned and migrations create partitions from their migration month.
+ * Messages stay in the current month because `message` is monthly partitioned and migrations create partitions from their migration month.
  */
 
 const SLUG_DEMO = 'demo';

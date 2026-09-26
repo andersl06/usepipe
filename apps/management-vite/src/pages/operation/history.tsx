@@ -39,7 +39,7 @@ interface Search {
   etiqueta?: string;
   agrupar?: string;
   /*
-   * The two fields below don't exist in the server query: the history API doesn't filter by them (`FiltroHistorico` only has queue/agent/tag). They filter the already-loaded rows, in the browser — see `casa()`.
+   * The two fields below don't exist in the server query: the history API doesn't filter by them (`HistoryFilter` only has queue/agent/tag). They filter the already-loaded rows, in the browser — see `casa()`.
    */
   ticket?: string;
   contact?: string;

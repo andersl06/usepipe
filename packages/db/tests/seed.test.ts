@@ -8,7 +8,7 @@ import { ensureRoleOfAccount, seed } from '../src/seed.js';
 import { URL_DONO } from './ajuda.js';
 
 /**
- * `semear` and `garantirPapelDeConta` assign every seeded user an ACCOUNT role (the "exactly one" rule from migration 0021). Repeated runs neither duplicate roles nor replace a manually assigned one. This fixed the gap that left the contract Members screen empty in the demo tenant.
+ * `seed` and `garantirPapelDeConta` assign every seeded user an ACCOUNT role (the "exactly one" rule from migration 0021). Repeated runs neither duplicate roles nor replace a manually assigned one. This fixed the gap that left the contract Members screen empty in the demo tenant.
  */
 
 let dono: DatabasePipe;

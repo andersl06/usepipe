@@ -6,7 +6,7 @@
  * - MODULES AT THE TOP, HORIZONTALLY. Salesforce was measured with a 40px bar containing seven items and `temSidebar: false` on the list screen, which has no sidebar. Blip places Builder / Atendimento / Análise / Growth / Canais at the top.
  * - SIDEBAR ONLY FOR THE OPEN MODULE'S CONTEXT, and short. `LateralContexto` renders nothing with fewer than two items: a one-item sidebar is framing without purpose.
  * - SETTINGS ON A SEPARATE SCREEN, behind the gear. Salesforce changes domain, reduces seven navigation items to three, and only then adds a 250px sidebar.
- * - NONFUNCTIONAL ITEMS DO NOT APPEAR. `ItemDeNavegacao` has no disabled state deliberately: this prevents Management from returning to 32 menu items with 29 disabled.
+ * - NONFUNCTIONAL ITEMS DO NOT APPEAR. `NavigationItem` has no disabled state deliberately: this prevents Management from returning to 32 menu items with 29 disabled.
  */
 
 import type { ComponentType, ReactNode } from 'react';

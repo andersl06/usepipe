@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import type { DatabasePipe } from './cliente.js';
 
 /**
- * `mensagem` and `evento_atendimento` grow without bound and are queried by period, so both are partitioned monthly. This routine creates the next partition before it is needed; missing partitions cause inserts to fail at the worst time. It runs as table owner, like migrations, because it creates tables.
+ * `message` and `evento_atendimento` grow without bound and are queried by period, so both are partitioned monthly. This routine creates the next partition before it is needed; missing partitions cause inserts to fail at the worst time. It runs as table owner, like migrations, because it creates tables.
  */
 export const TABELAS_PARTICIONADAS = ['mensagem', 'evento_atendimento'] as const;
 

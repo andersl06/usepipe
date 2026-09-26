@@ -5,7 +5,7 @@ import { api } from './api';
 import { useRead } from './query';
 
 /**
- * Portal shell combines the signed-in user, current account, and account-selector list. This is browser-mounted `CascaDoPortal` from `apps/gestao/src/lib/portal.ts`, built from existing `api` responses `GET /v1/eu` and `GET /v1/contas/minhas`; no new endpoint is needed.
+ * Portal shell combines the signed-in user, current account, and account-selector list. This is browser-mounted `PortalShell` from `apps/gestao/src/lib/portal.ts`, built from existing `api` responses `GET /v1/eu` and `GET /v1/contas/minhas`; no new endpoint is needed.
  */
 export interface AccountInList {
   tenantId: string;

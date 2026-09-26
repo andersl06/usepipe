@@ -121,7 +121,7 @@ export const evaluation = pgTable(
 );
 
 /**
- * `evidencia_mensagem_id` identifies the quoted passage supporting the score. It has no foreign key because `mensagem` is partitioned and unique on (id, criada_em).
+ * `evidencia_mensagem_id` identifies the quoted passage supporting the score. It has no foreign key because `message` is partitioned and unique on (id, criada_em).
  */
 export const responseEvaluation = pgTable(
   'resposta_avaliacao',

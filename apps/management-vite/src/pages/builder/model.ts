@@ -3,7 +3,7 @@ import { VARIABLE_OF_FORWARDING } from '@pipe/core';
 import type { DesenhoDoBuilder } from '@pipe/contracts';
 
 /**
- * The Builder's drawing as the SCREEN holds it: the block map in the Blip editor's format (`{ <id>: estado }` with `$contentActions`, `$conditionOutputs`, `$defaultOutput`…), which is what `GET /v1/gestao/fluxos/:id/builder` returns and what `PUT` receives back — the `ExportDoEditor` from `@pipe/core`, with `flow` called `fluxo` and `globalActions` called `globais` (`DesenhoDoBuilder`).
+ * The Builder's drawing as the SCREEN holds it: the block map in the Blip editor's format (`{ <id>: estado }` with `$contentActions`, `$conditionOutputs`, `$defaultOutput`…), which is what `GET /v1/gestao/fluxos/:id/builder` returns and what `PUT` receives back — the `ExportDoEditor` from `@pipe/core`, with `flow` called `flow` and `globalActions` called `globais` (`DesenhoDoBuilder`).
  *
  * Everything here is a pure function over that map: create, rename, move, duplicate, delete a block; link and unlink two blocks; and assemble what goes in the `PUT`. Components only call these and store the result. Nothing mutates the received map — every gesture returns a new map, which is what undo/redo stacks.
  *

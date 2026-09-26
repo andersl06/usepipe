@@ -20,7 +20,7 @@ import { KEY_THEME, TEMAS, temaValido, type Tema } from '../../lib/settings-comu
  *
  * It's stored in `localStorage` because theme is a DEVICE preference — the same
  * person wants dark on their laptop at night and light on their desk monitor.
- * Storing it on `usuario` would force picking one of the two for the person.
+ * Storing it on `user` would force picking one of the two for the person.
  *
  * Accessibility: these are real `<input type="radio">` inside a `<fieldset>`
  * with a `<legend>`. Arrow keys navigate, space selects, and the screen reader

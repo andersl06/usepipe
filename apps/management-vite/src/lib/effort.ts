@@ -1,4 +1,4 @@
-/** Um intervalo em instantes (a `Janela` da api). */
+/** Um intervalo em instantes (a `Window` da api). */
 export interface Window {
   inicio: string;
   fim: string;

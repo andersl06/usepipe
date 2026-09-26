@@ -114,7 +114,7 @@ function InvitationStep() {
         {/*
  * There it's `<img src="/assets/img/templates/router.svg">`, a drawing of the
  * concept. We don't have a router illustration (the four from `@pipe/ui` are empty
- * states), so the spot is filled by the `roteador` icon — the SAME artwork as the
+ * states), so the spot is filled by the `router` icon — the SAME artwork as the
  * button that brought the person here and the card label on the portal, enlarged.
  * It's in the report.
  */}

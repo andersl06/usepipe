@@ -33,7 +33,7 @@
 import type { MyPermissionsInFlow } from '@pipe/contracts';
 import type { NomeDeIconePortal } from '../../components/icones-portal';
 
-/** `fluxo` and `roteador` are the source's `builder` and `master`. */
+/** `flow` and `router` are the source's `builder` and `master`. */
 export type ContactType = 'fluxo' | 'roteador';
 
 export interface ItemDoMenu {
@@ -52,7 +52,7 @@ export const LIMITE_VISIVEL = 5;
  * `href: null` isn't a hidden gap: it becomes a grayed-out block with the "coming soon" badge on screen, which is the agreed treatment for what the source shows and we don't have yet.
  */
 /*
- * THE ORDER IS THE SOURCE'S, measured in `roteador-team__pagina.html` (master) and `application-detail-pipeprincipal-configurations-basic.html` (builder): visible is Builder · Atendimento · Análise · Growth · Canais (fluxo) and Serviços · Análise · Growth · Canais · Contatos (roteador, with Builder and Atendimento hidden by `ESCONDIDOS_NO_ROTEADOR`). Canais and Análise used to come before Growth here — which made the bar show Contatos as a disguised sixth item posing as fifth, and Growth ended up stuck in the "...".
+ * THE ORDER IS THE SOURCE'S, measured in `roteador-team__pagina.html` (master) and `application-detail-pipeprincipal-configurations-basic.html` (builder): visible is Builder · Atendimento · Análise · Growth · Canais (fluxo) and Serviços · Análise · Growth · Canais · Contatos (roteador, with Builder and Atendimento hidden by `HIDDEN_IN_ROUTER`). Canais and Análise used to come before Growth here — which made the bar show Contatos as a disguised sixth item posing as fifth, and Growth ended up stuck in the "...".
  */
 const CATALOGO = [
   { key: 'builder', rotulo: 'Builder', href: '/builder' },
@@ -78,7 +78,7 @@ const RECURSO_DO_ITEM: Readonly<Record<string, string>> = { contents: 'resources
 /**
  * The whole row, in the source's order. Whoever renders it slices at `LIMITE_VISIVEL`.
  *
- * `permissoes` is the source's step 2 (`getUpdatedMenus()`): the catalog sieved by the PERSON's permissions on that bot (`applicationUserPermissionModel`), BEFORE the template filter (step 3, `ESCONDIDOS_NO_ROTEADOR`) — in that order, as there. An item with `nenhum` disappears from the bar: "The user doesn't see this menu or access its content" is the zero-permission radio's own text.
+ * `permissions` is the source's step 2 (`getUpdatedMenus()`): the catalog sieved by the PERSON's permissions on that bot (`applicationUserPermissionModel`), BEFORE the template filter (step 3, `HIDDEN_IN_ROUTER`) — in that order, as there. An item with `nenhum` disappears from the bar: "The user doesn't see this menu or access its content" is the zero-permission radio's own text.
  *
  * Without the argument (or with `editaPelaConta`), nothing is sieved: whoever has `automacao.fluxo.editar` on the account keeps seeing everything, which is how Pipe worked before 0035 and is the other side of `exigirPermissaoNoFluxo`'s double gate. Whoever isn't a member and doesn't have the account permission also never reaches this point — the contact shell already refused.
  */

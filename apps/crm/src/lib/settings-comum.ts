@@ -20,7 +20,7 @@
  *
  * The value lives in the browser on purpose. Theme is a device preference —
  * the same person wants dark on their laptop at night and light on their desk
- * monitor — and `usuario` has no column for that, nor should it.
+ * monitor — and `user` has no column for that, nor should it.
  */
 export const TEMAS = ['sistema', 'claro', 'escuro'] as const;
 export type Tema = (typeof TEMAS)[number];

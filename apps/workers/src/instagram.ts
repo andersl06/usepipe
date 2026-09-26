@@ -1,7 +1,7 @@
 import { WhatsAppError } from './whatsapp/cliente.js';
 
 /**
- * Instagram Direct outbound adapter, reconstructed from chatwoot/chatwoot (MIT), `app/services/instagram/send_on_instagram_service.rb`: `POST /{ig-user-id}/messages` on `graph.instagram.com` with `{recipient:{id}, message:{text}|{attachment}}`. Failures intentionally use `ErroWhatsApp`, the delivery class whose `permanente` flag decides retry versus stopping; it is not a WhatsApp-only error. As with WhatsApp, `PIPE_WHATSAPP_CLIENTE=real` calls Meta and any other value uses the test double.
+ * Instagram Direct outbound adapter, reconstructed from chatwoot/chatwoot (MIT), `app/services/instagram/send_on_instagram_service.rb`: `POST /{ig-user-id}/messages` on `graph.instagram.com` with `{recipient:{id}, message:{text}|{attachment}}`. Failures intentionally use `WhatsAppError`, the delivery class whose `permanente` flag decides retry versus stopping; it is not a WhatsApp-only error. As with WhatsApp, `PIPE_WHATSAPP_CLIENTE=real` calls Meta and any other value uses the test double.
  */
 
 export interface CredentialsInstagram {

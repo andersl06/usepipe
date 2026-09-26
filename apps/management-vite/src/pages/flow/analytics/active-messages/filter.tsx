@@ -28,7 +28,7 @@ export function Filter({
   de: string;
   ate: string;
   template: string;
-  /** `/active-messages/template-names`: as opções do autocomplete. */
+  /** `/active-messages/template-names`: the autocomplete's options. */
   templates: string[];
   /** `endDateLimit` (hoje) e `startDateLimit` (hoje − 186), em `AAAA-MM-DD`. */
   hoje: string;

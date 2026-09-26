@@ -166,7 +166,7 @@ export function caminhoInterno(destination: string | undefined | null): string {
   return destination && destination.startsWith('/') && !destination.startsWith('//') ? destination : '/';
 }
 
-/** The "Sign in with Google" button. With `convite`, it signs in accepting the invite. */
+/** The "Sign in with Google" button. With `invitation`, it signs in accepting the invite. */
 export function inboundWithGoogleUrl(options: { destination?: string; invitation?: string } = {}): string {
   const url = new URL(`${URL_API_PUBLICA}/v1/auth/google`);
   if (options.invitation) url.searchParams.set('invite', options.invitation);
