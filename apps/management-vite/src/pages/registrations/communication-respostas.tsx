@@ -92,13 +92,13 @@ export function PageCannedResponses() {
       cards: respostas.map((r) => ({
         id: r.id,
         campos: [
-          { rotulo: 'Atalho', valor: `#${r.atalho}` },
-          { rotulo: 'Título', valor: r.titulo },
-          { rotulo: 'Fila / canal', valor: r.categoria ?? '—' },
-          { rotulo: 'Corpo', valor: r.corpo },
+          { rotulo: 'Atalho', value: `#${r.atalho}` },
+          { rotulo: 'Título', value: r.titulo },
+          { rotulo: 'Fila / canal', value: r.categoria ?? '—' },
+          { rotulo: 'Corpo', value: r.corpo },
         ],
-        situacao: r.active ? 'Ativa' : 'Desativada',
-        ativa: r.active,
+        situation: r.active ? 'Ativa' : 'Desativada',
+        active: r.active,
         acao: (
           <RespostaActions
             resposta={r}

@@ -32,8 +32,8 @@ const regra = (parcial: Partial<QueueRule> = {}): QueueRule => ({
 });
 
 const context = {
-  mensagem: 'Preciso da segunda via do BOLETO',
-  contato: { nome: 'Ana Maria', email: 'ana@empresa.com.br', atributos: { plano: 'ouro' } },
+  message: 'Preciso da segunda via do BOLETO',
+  contact: { nome: 'Ana Maria', email: 'ana@empresa.com.br', atributos: { plano: 'ouro' } },
 };
 
 test('the first matching rule wins, and the order is the one on the screen', () => {

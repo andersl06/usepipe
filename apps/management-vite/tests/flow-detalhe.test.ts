@@ -127,10 +127,10 @@ test('sobra item para o "…" nos dois tipos', () => {
  * permissões DA PESSOA naquele bot. Sem o argumento nada muda — é o que os
  * testes acima travam, e é o que todo tenant que nunca abriu a Equipe vê.
  */
-const SO_ISSO = (permissions: Record<string, 'nenhum' | 'ler' | 'escrever'>) => ({
+const SO_ISSO = (permissoes: Record<string, 'nenhum' | 'ler' | 'escrever'>) => ({
   papelNoFluxo: 'personalizado' as const,
-  permissions,
-  editaPelaConta: false,
+  permissoes,
+  editaByAccount: false,
 });
 
 test('the flow\'s permissions hide what the person cannot see', () => {
@@ -162,7 +162,7 @@ test('"Conteúdos" is the `resources` entry on the permission list, not `content
 test('whoever edits the flow through the ACCOUNT still sees the entire row', () => {
   /* O outro lado do duplo portão: a permissão de conta não é peneirada pela
      do fluxo, senão a 0035 tiraria acesso de quem já tinha. */
-  const account = { papelNoFluxo: null, permissoes: {}, editaPelaConta: true };
+  const account = { papelNoFluxo: null, permissoes: {}, editaByAccount: true };
   assert.deepEqual(itensDoMenu('fluxo', ID, account), itensDoMenu('fluxo', ID));
 });
 

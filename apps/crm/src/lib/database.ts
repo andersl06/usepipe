@@ -99,7 +99,7 @@ export const fusoDoTenant = cache(async (): Promise<string> => {
  */
 export async function atorDoCrm(): Promise<Ator> {
   const eu = await exigirEu();
-  return { tipo: 'usuario', id: eu.user.id };
+  return { type: 'usuario', id: eu.user.id };
 }
 
 export interface Window {

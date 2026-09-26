@@ -42,8 +42,8 @@ export const DISPAROS_DE_PESQUISA = ['encerramento', 'primeira_resposta', 'manua
 export type DisparoDePesquisa = (typeof DISPAROS_DE_PESQUISA)[number];
 
 export const ROTULO_DISPARO: Record<DisparoDePesquisa, string> = {
-  closure: 'Ao encerrar a conversa',
-  firstResponse: 'Depois da primeira resposta',
+  encerramento: 'Ao encerrar a conversa',
+  primeira_resposta: 'Depois da primeira resposta',
   manual: 'Só quando o atendente pedir',
 };
 

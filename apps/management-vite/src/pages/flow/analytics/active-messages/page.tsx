@@ -7,7 +7,7 @@ import {
   type ActiveMessagesData,
   type Intervalo,
   type Period,
-} from '@pipe/core/analise';
+} from '@pipe/core/analytics';
 import { IconePortal } from '../../../../components/icones-portal';
 import { useRead } from '../../../../lib/query';
 import { filterStorageKey, loadFilters, saveFilters } from '../../../../lib/filter-memory';

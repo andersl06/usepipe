@@ -23,7 +23,7 @@ const DESTINOS: { para: string; icone: NomeDeIconeDesk; rotulo: string }[] = [
   { para: '/', icone: 'atendimentos', rotulo: 'Atendimentos' },
   { para: '/activeMessage/send', icone: 'mensagens-ativas', rotulo: 'Mensagens ativas' },
   { para: '/analytics', icone: 'metricas', rotulo: 'Métricas de atendimento' },
-  { para: '/contacts', icone: 'contacts', rotulo: 'Contatos' },
+  { para: '/contacts', icone: 'contatos', rotulo: 'Contatos' },
   { para: '/bulk-ticket', icone: 'acoes-em-massa', rotulo: 'Ações em massa' },
 ];
 

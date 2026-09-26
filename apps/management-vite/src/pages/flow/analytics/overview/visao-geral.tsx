@@ -1,5 +1,5 @@
 import { IconePortal } from '../../../../components/icones-portal';
-import type { DiaDaVisaoGeral, VisaoGeral as DadosDaVisaoGeral } from '@pipe/core/analise';
+import type { DiaDaVisaoGeral, VisaoGeral as DadosDaVisaoGeral } from '@pipe/core/analytics';
 import { PageHeader, Card, PeriodSeletor } from '../pecas';
 
 /**

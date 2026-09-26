@@ -87,7 +87,7 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
   /* A gravação automática: um pouco depois da última mudança. */
   useEffect(() => {
     if (!state.sujo || !carregado) return;
-    setRecording((g) => (g.state === 'salvando' ? g : { state: 'pending' }));
+    setRecording((g) => (g.state === 'salvando' ? g : { state: 'pendente' }));
     const pedido = ++ultimoPedido.current;
     const { mapa, global } = state;
     const temporizador = setTimeout(() => {

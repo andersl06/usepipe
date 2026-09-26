@@ -78,7 +78,7 @@ test('sending only unlocks with name, category, block and complete translations'
     nome: 'promo',
     categoria: 'marketing' as const,
     tipo: 'texto' as const,
-    traducoes: [{ idioma: 'pt_BR', texto: 'Olá' }],
+    translations: [{ idioma: 'pt_BR', texto: 'Olá' }],
   };
   assert.equal(templateValid(base), true);
   assert.equal(templateValid({ ...base, tipo: 'default' }), false);

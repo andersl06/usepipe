@@ -173,7 +173,7 @@ export default async function PagePanel() {
                           contagem, e contagem não pede ação.
                         */}
                         <Link href="/leads?tab=parados">
-                          <Etiqueta tom="alert">{numero(f.parados)} parados</Etiqueta>
+                          <Etiqueta tom="alerta">{numero(f.parados)} parados</Etiqueta>
                         </Link>
                       </>
                     ) : null}

@@ -24,7 +24,7 @@ test('expiration is shown as day/month/year, counted in UTC', () => {
 test('the status chip: valid -> success, expired -> disabled, no file -> default', () => {
   assert.deepEqual(etiquetaDoStatus('valido'), { texto: 'Válido', classe: 'sucesso' });
   assert.deepEqual(etiquetaDoStatus('expirado'), { texto: 'Expirado', classe: 'desabilitado' });
-  assert.deepEqual(etiquetaDoStatus('without_file'), { texto: 'Sem arquivo', classe: 'padrao' });
+  assert.deepEqual(etiquetaDoStatus('sem_arquivo'), { texto: 'Sem arquivo', classe: 'padrao' });
 });
 
 test('the URL must be HTTPS with a domain and cannot repeat', () => {

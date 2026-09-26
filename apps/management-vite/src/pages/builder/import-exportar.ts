@@ -60,7 +60,7 @@ export function validateImport(texto: string): ImportResult {
   }
   if (!ehExportDoEditor(json)) return { ok: false, error: MESSAGES_OF_IMPORT.arquivoInvalido };
   const global = (json.globalActions as Record<string, unknown> | null) ?? {};
-  const mapa = lerDesenho({ flow: json.flow, global });
+  const mapa = lerDesenho({ flow: json.flow, globals: global });
   if (!Object.values(mapa).some((block) => block.root)) {
     return { ok: false, error: MESSAGES_OF_IMPORT.semRaiz };
   }

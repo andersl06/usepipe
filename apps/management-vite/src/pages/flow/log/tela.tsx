@@ -207,7 +207,7 @@ export function TelaDoLog({
         {!ativo ? (
           <div className="lg-chip" role="status">
             <span className="lg-chip-icone">
-              <IconePortal nome="alert" tamanho={16} />
+              <IconePortal nome="alerta" tamanho={16} />
             </span>
             <p>
               Funcionalidade desabilitada. Novas mensagens e notificações trafegadas não aparecerão

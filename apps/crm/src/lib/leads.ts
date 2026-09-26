@@ -298,14 +298,14 @@ export async function carregarListaDeLeads(
         origem: l.origem,
         score: l.score,
         faixa: l.faixa,
-        fila: l.faixa ? (queues.get(l.faixa) ?? null) : null,
+        queue: l.faixa ? (queues.get(l.faixa) ?? null) : null,
         proprietario: l.proprietario,
         proprietarioId: l.proprietarioId,
         status: l.status,
         fase: l.fase,
         diasNaFase: desdeFase ? Math.floor((agora - desdeFase.getTime()) / 86_400_000) : null,
-        ultimaAtividade: ult?.em ?? null,
-        ultimaAtividadeTipo: ult?.tipo ?? null,
+        ultimaActivity: ult?.em ?? null,
+        ultimaActivityTipo: ult?.tipo ?? null,
       };
     });
 
@@ -445,9 +445,9 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
         nome: contact.nome,
         email: contact.email,
         telefone: contact.telefoneE164,
-        documento: contact.document,
-        contaId: lead.contaId,
-        contaNome: account.nome,
+        document: contact.document,
+        accountId: lead.contaId,
+        accountName: account.nome,
         origem: lead.origem,
         campanha: lead.campanha,
         utm: lead.utm,
@@ -488,9 +488,9 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
       nome: cabeca.nome ?? 'Lead sem contato',
       email: cabeca.email,
       telefone: cabeca.telefone,
-      documento: cabeca.documento,
-      contaId: cabeca.contaId,
-      contaNome: cabeca.contaNome,
+      document: cabeca.document,
+      accountId: cabeca.accountId,
+      accountName: cabeca.accountName,
       origem: cabeca.origem,
       campanha: cabeca.campanha,
       utm: (cabeca.utm ?? {}) as Record<string, unknown>,
@@ -589,11 +589,11 @@ async function carregarRespostas(
       pergunta: formularioPergunta.rotulo,
       ordem: formularioPergunta.ordem,
       tipo: formularioPergunta.tipo,
-      valorTexto: respostaFormulario.valorTexto,
-      valorNum: respostaFormulario.valorNum,
-      valorData: respostaFormulario.valorData,
-      valorBool: respostaFormulario.valorBool,
-      valorJson: respostaFormulario.valorJson,
+      valueText: respostaFormulario.valorTexto,
+      valueNum: respostaFormulario.valorNum,
+      valueData: respostaFormulario.valorData,
+      valueBool: respostaFormulario.valorBool,
+      valueJson: respostaFormulario.valorJson,
       criadoEm: respostaFormulario.criadoEm,
     })
     .from(respostaFormulario)
@@ -701,7 +701,7 @@ export async function timeCarregarLinha(
 export async function listarProprietarios(): Promise<Proprietario[]> {
   return consultar(async (tx) =>
     tx
-      .select({ id: user.id, nome: user.nome })
+      .select({ id: user.id, name: user.nome })
       .from(user)
       .where(eq(user.ativo, true))
       .orderBy(user.nome),

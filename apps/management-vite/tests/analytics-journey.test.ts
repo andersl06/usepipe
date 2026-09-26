@@ -10,10 +10,10 @@ import { desenharSankey, sufixoDoRotulo } from '../src/pages/flow/analytics/jour
  */
 
 const arestas = [
-  { de: 'Início [0]', para: 'Menu [1]', passo: 1, quantidade: 80, tipo: 'regular' as const },
-  { de: 'Início [0]', para: 'Saída [1]', passo: 1, quantidade: 20, tipo: 'saida' as const },
-  { de: 'Menu [1]', para: 'Boleto [2]', passo: 2, quantidade: 60, tipo: 'regular' as const },
-  { de: 'Menu [1]', para: 'Saída [2]', passo: 2, quantidade: 20, tipo: 'saida' as const },
+  { de: 'Início [0]', para: 'Menu [1]', passo: 1, quantity: 80, tipo: 'regular' as const },
+  { de: 'Início [0]', para: 'Saída [1]', passo: 1, quantity: 20, tipo: 'saida' as const },
+  { de: 'Menu [1]', para: 'Boleto [2]', passo: 2, quantity: 60, tipo: 'regular' as const },
+  { de: 'Menu [1]', para: 'Saída [2]', passo: 2, quantity: 20, tipo: 'saida' as const },
 ];
 
 test('nó que recebe: quem chegou sobre todos da etapa', () => {

@@ -143,8 +143,8 @@ export function TelaDoWebhook({ base }: { base: string }) {
     creationSetNotice('');
     const authentication = authenticationForEnvio();
     const cabecalhosPreenchidos = cabecalhos
-      .map((c) => ({ chave: c.key.trim(), valor: c.value }))
-      .filter((c) => c.chave !== '');
+      .map((c) => ({ key: c.key.trim(), value: c.value }))
+      .filter((c) => c.key !== '');
 
     const criados: { url: string; secret: string }[] = [];
     for (const url of urlsPreenchidas) {
@@ -246,7 +246,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                   </p>
                   {!algumAtivo && !isLoading ? (
                     <div className="ig-faixa-alerta" role="status">
-                      <IconePortal nome="alert" tamanho={24} />
+                      <IconePortal nome="alerta" tamanho={24} />
                       <p className="ig-typo-16">
                         Esta integração precisa ser configurada antes de ser ativada.
                       </p>

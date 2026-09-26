@@ -192,7 +192,7 @@ export function PageAttendance() {
     ate: dataOuNada(crus.ate),
   };
   const q = new URLSearchParams();
-  for (const key of ['fila', 'atendente', 'de', 'ate'] as const) {
+  for (const key of ['queue', 'agent', 'de', 'ate'] as const) {
     if (params[key]) q.set(key, params[key] as string);
   }
   const read = useRead<RespostaOfReportOfAttendance>(

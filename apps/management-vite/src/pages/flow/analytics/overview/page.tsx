@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { VisaoGeral as DadosDaVisaoGeral } from '@pipe/core/analise';
+import type { VisaoGeral as DadosDaVisaoGeral } from '@pipe/core/analytics';
 import { useRead } from '../../../../lib/query';
 import { filterStorageKey, loadFilters, saveFilters } from '../../../../lib/filter-memory';
 import { useEu } from '../../../../context/session';

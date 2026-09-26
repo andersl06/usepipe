@@ -68,7 +68,7 @@ export function ViewsSalvas({ queryCurrent }: { queryCurrent: string }) {
   function salvar() {
     const nome = window.prompt('Nome desta visão')?.trim();
     if (!nome) return;
-    const proximas = [...views.filter((v) => v.nome !== nome), { nome, consulta: queryCurrent }];
+    const proximas = [...views.filter((v) => v.nome !== nome), { nome, query: queryCurrent }];
     proximas.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
     setViews(proximas);
     gravar(proximas);

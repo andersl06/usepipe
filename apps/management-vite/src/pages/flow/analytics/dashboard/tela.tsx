@@ -13,7 +13,7 @@ import {
   type DashboardData,
   type Intervalo,
   type Period,
-} from '@pipe/core/analise';
+} from '@pipe/core/analytics';
 import { contactBase } from '../../contact';
 import { PeriodCustom } from './period-custom';
 

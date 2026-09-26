@@ -37,7 +37,7 @@ test('grouping from the URL falls back to "none" when it is not in the catalog',
   /* O valor chega de `searchParams`, ou seja, de qualquer um que digite na
      barra de endereço. Sem esta peneira, um valor estranho passaria adiante e
      `agruparHistorico` devolveria a lista dobrada por uma chave inexistente. */
-  assert.equal(groupingValid('fila'), 'queue');
+  assert.equal(groupingValid('fila'), 'fila');
   assert.equal(groupingValid(undefined), 'nenhum');
   assert.equal(groupingValid(''), 'nenhum');
   assert.equal(groupingValid('atendente; drop'), 'nenhum');
@@ -59,7 +59,7 @@ test('by queue, whoever has no queue gets its own group instead of disappearing'
      menos conversa do que teve. */
   const groups = agruparHistory(
     [linha({ queueName: 'Suporte' }), linha({ id: 'b', queueName: null })],
-    'queue',
+    'fila',
   );
   assert.deepEqual(groups.map((g) => g.titulo).sort(), ['Sem fila', 'Suporte']);
   assert.equal(
@@ -76,7 +76,7 @@ test('the groups come out from largest to smallest', () => {
       linha({ id: 'b', agentName: 'Bia' }),
       linha({ id: 'c', agentName: 'Bia' }),
     ],
-    'agent',
+    'atendente',
   );
   assert.deepEqual(
     groups.map((g) => [g.titulo, g.linhas.length]),
@@ -116,7 +116,7 @@ test('by tag, the conversation enters every tag it has', () => {
 test('agrupar não mexe na lista que recebeu', () => {
   /* A mesma lista alimenta a exportação em CSV logo depois. */
   const linhas = [linha(), linha({ id: 'b' })];
-  agruparHistory(linhas, 'queue');
+  agruparHistory(linhas, 'fila');
   assert.equal(linhas.length, 2);
 });
 

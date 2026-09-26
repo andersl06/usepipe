@@ -32,7 +32,7 @@ export const ROTULOS_DO_CONTEUDO = {
   texto: 'Texto',
   menu: 'Menu',
   quickReply: 'Quick reply',
-  inbound: ROTULO_OF_INBOUND,
+  entrada: ROTULO_OF_INBOUND,
   digitando: 'Digitando',
   dinamico: 'Conteúdo dinâmico',
   limite: 'Limite de 25 conteúdos atingido',

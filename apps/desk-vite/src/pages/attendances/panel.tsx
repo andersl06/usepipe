@@ -112,7 +112,7 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
                       Editar
                     </button>
                   </h3>
-                  <Campo rotulo="Nome:" value={displayName(conversation)} />
+                  <Campo rotulo="Nome:" value={displayName({ ...conversation, contactTelefone: conversation.contactPhone })} />
                   <Campo rotulo="Id:" value={conversation.contactId} />
                   <Campo
                     rotulo="E-mail:"

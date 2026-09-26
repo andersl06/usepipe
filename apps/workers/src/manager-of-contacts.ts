@@ -35,9 +35,9 @@ export type ParametersOfContact = Record<string, string>;
 
 export interface ContactAssembled {
   id: string | null;
-  name: string | null;
+  nome: string | null;
   email: string | null;
-  phone: string | null;
+  telefone: string | null;
   atributos: Record<string, unknown>;
   errors: string[];
 }
@@ -45,9 +45,9 @@ export interface ContactAssembled {
 type LineContact = {
   [column: string]: unknown;
   id: string;
-  name: string | null;
+  nome: string | null;
   email: string | null;
-  phoneE164: string | null;
+  telefone_e164: string | null;
   atributos: Record<string, unknown> | null;
 };
 

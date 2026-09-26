@@ -135,7 +135,7 @@ export default async function PageWorkspace() {
             {espaco.dominios.map((d) => (
               <li key={d.domain}>
                 <span className="mono">{d.domain}</span>
-                <Etiqueta tom={d.verificado ? 'sucesso' : 'alert'}>
+                <Etiqueta tom={d.verificado ? 'sucesso' : 'alerta'}>
                   {d.verificado ? 'Verificado' : 'Aguardando verificação'}
                 </Etiqueta>
               </li>

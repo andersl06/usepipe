@@ -23,7 +23,7 @@ export interface Resultado {
 /** Rótulo de cada grupo, na ordem em que o menu os mostra. */
 export const ROTULO_DO_TIPO: Record<TipoDeResultado, string> = {
   lead: 'Leads',
-  opportunity: 'Oportunidades',
-  account: 'Contas',
-  contact: 'Contatos',
+  oportunidade: 'Oportunidades',
+  conta: 'Contas',
+  contato: 'Contatos',
 };
