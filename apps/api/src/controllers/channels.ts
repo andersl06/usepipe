@@ -93,7 +93,7 @@ export class ChannelsController {
   ): Promise<ChannelWhatsAppVisible & { message?: string }> {
     const sessao = sessionOf(requisicao);
     // Reautorização é do canal, não do bot: o `fluxo_id` só vale para canal novo.
-    const fluxoId = corpo.canal_id ? undefined : flowIdOfBody(corpo);
+    const fluxoId = corpo.canal_id ? undefined : flowIdOfBody({ flowId: corpo.fluxo_id });
     await permitidoConectar(sessao.tenantId, sessao.userId, fluxoId);
     checkState(corpo.state, sessao.tenantId, sessao.userId);
     validarParametros({ code: corpo.code, wabaId: corpo.waba_id });
@@ -253,7 +253,7 @@ export class ChannelsController {
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Param('nome') nome: string,
-  ): Promise<{ removidos: number }> {
+  ): Promise<{ removed: number }> {
     const sessao = sessionOf(requisicao);
     await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
     return deleteTemplateInMeta(sessao.tenantId, sessao.userId, id, nome);

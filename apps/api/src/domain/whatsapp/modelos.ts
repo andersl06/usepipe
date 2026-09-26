@@ -155,12 +155,12 @@ export function comoLocal(template: TemplateOfMeta): TemplateLocal | null {
     (categoria === 'autenticacao' ? textOfAuthentication(doCorpo?.add_security_recommendation === true) : '');
   const cabecalho = components.find((c) => c.type === 'HEADER');
   return {
-    nome: template.name,
+    name: template.name,
     idioma: template.language,
-    categoria,
+    category: categoria,
     statusMeta: STATUS[template.status ?? ''] ?? 'pendente',
-    corpo,
-    cabecalhoTipo: cabecalho ? (CABECALHO_DA_META[cabecalho.format ?? ''] ?? 'nenhum') : 'nenhum',
+    body: corpo,
+    headerType: cabecalho ? (CABECALHO_DA_META[cabecalho.format ?? ''] ?? 'nenhum') : 'nenhum',
     quantasVariables: variablesOfText(corpo).length,
   };
 }
@@ -537,6 +537,6 @@ export async function deleteTemplateInMeta(
         antes: { nome },
       });
     }
-    return { removidos: rows.length };
+    return { removed: rows.length };
   });
 }

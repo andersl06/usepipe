@@ -30,7 +30,7 @@ export class InstagramChannelsController {
   async manual(
     @Req() requisicao: RequestWithSession,
     @Body() corpo: { access_token?: string; app_secret?: string; name?: string; flowId?: string },
-  ): Promise<ChannelInstagramVisible & Omit<ConexaoInstagram, 'canal'>> {
+  ): Promise<ChannelInstagramVisible & Omit<ConexaoInstagram, 'channel'>> {
     const sessao = sessionOf(requisicao);
     const flowId = flowIdOfBody(corpo);
     await permitidoConectar(sessao.tenantId, sessao.userId, flowId);
