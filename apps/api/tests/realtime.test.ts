@@ -73,7 +73,7 @@ interface Cliente {
 }
 
 /** Connects, subscribes to the subjects and waits for the server's confirmation. */
-async function conectar(token: string, assuntos: string[] = ['conversa', 'fila', 'atendente']) {
+async function conectar(token: string, assuntos: string[] = ['conversation', 'queue', 'agent']) {
   const ws = new WebSocket(urlWs, {
     headers: { cookie: `${NOME_DO_COOKIE}=${token}`, origin: 'http://localhost:3200' },
   });
@@ -85,10 +85,10 @@ async function conectar(token: string, assuntos: string[] = ['conversa', 'fila',
   });
   const inscrito = new Promise<void>((resolve) => {
     ws.on('message', (cru) => {
-      const q = JSON.parse(String(cru)) as { type?: string };
-      if (q.type === 'inscrito') resolve();
+      const q = JSON.parse(String(cru)) as { tipo?: string };
+      if (q.tipo === 'inscrito') resolve();
       // The contract's `ping` is not an event; it does not pollute what the test inspects.
-      else if (q.type !== 'ping') recebidos.push(q);
+      else if (q.tipo !== 'ping') recebidos.push(q);
     });
   });
   ws.send(JSON.stringify({ assuntos }));
@@ -142,7 +142,7 @@ describe('Authenticate WebSocket connections', () => {
 
 describe('Confirm requested topic subscriptions', () => {
   it('confirma os assuntos pedidos', async () => {
-    const cliente = await conectar(await openSession(cenario), ['conversa']);
+    const cliente = await conectar(await openSession(cenario), ['conversation']);
     // The confirmation was already awaited in `conectar`.
     expect(connectionsLive(cenario.tenantId)).toBeGreaterThan(0);
     cliente.fechar();
@@ -157,17 +157,17 @@ describe('Confirm requested topic subscriptions', () => {
     });
     abertos.push(ws);
     await new Promise<void>((resolve) => ws.once('open', () => resolve()));
-    const resposta = new Promise<{ type: string; reason?: string }>((resolve) => {
+    const resposta = new Promise<{ tipo: string; motivo?: string }>((resolve) => {
       ws.on('message', (cru) => {
-        const q = JSON.parse(String(cru)) as { type: string; reason?: string };
-        if (q.type !== 'ping') resolve(q);
+        const q = JSON.parse(String(cru)) as { tipo: string; motivo?: string };
+        if (q.tipo !== 'ping') resolve(q);
       });
     });
     ws.send(JSON.stringify({ assuntos: ['banco_de_dados_inteiro'] }));
 
     const q = await resposta;
-    expect(q.type).toBe('recusado');
-    expect(q.reason).toBe('assunto_desconhecido');
+    expect(q.tipo).toBe('recusado');
+    expect(q.motivo).toBe('assunto_desconhecido');
     ws.close();
   });
 
@@ -182,8 +182,8 @@ describe('Confirm requested topic subscriptions', () => {
     const recebidos: unknown[] = [];
     await new Promise<void>((resolve) => ws.once('open', () => resolve()));
     ws.on('message', (cru) => {
-      const q = JSON.parse(String(cru)) as { type?: string };
-      if (q.type !== 'ping') recebidos.push(q);
+      const q = JSON.parse(String(cru)) as { tipo?: string };
+      if (q.tipo !== 'ping') recebidos.push(q);
     });
 
     await publicar(cenario.tenantId, evento('conversation', randomUUID()));
@@ -203,7 +203,7 @@ describe('Isolate real-time events by tenant', () => {
     await esperar(cliente);
 
     expect(cliente.recebidos).toEqual([
-      { assunto: 'conversa', id: conversationId, em: expect.any(String) },
+      { assunto: 'conversation', id: conversationId, em: expect.any(String) },
     ]);
     cliente.fechar();
   });
@@ -250,21 +250,21 @@ describe('Isolate real-time events by tenant', () => {
   });
 
   it('Deliver only events for subscribed topics', async () => {
-    const cliente = await conectar(await openSession(cenario), ['fila']);
+    const cliente = await conectar(await openSession(cenario), ['queue']);
 
     await publicar(cenario.tenantId, evento('conversation', randomUUID()));
     await publicar(cenario.tenantId, evento('queue'));
     await esperar(cliente);
     await new Promise((r) => setTimeout(r, 200));
 
-    expect(cliente.recebidos).toEqual([{ assunto: 'fila', em: expect.any(String) }]);
+    expect(cliente.recebidos).toEqual([{ assunto: 'queue', em: expect.any(String) }]);
     cliente.fechar();
   });
 });
 
 describe('o evento diz O QUE mudou, nunca O QUE É', () => {
   it('o payload tem só assunto, id e hora — nada do registro', async () => {
-    const cliente = await conectar(await openSession(cenario), ['conversa']);
+    const cliente = await conectar(await openSession(cenario), ['conversation']);
     const conversaId = randomUUID();
 
     await publicar(cenario.tenantId, evento('conversation', conversaId));
@@ -273,7 +273,7 @@ describe('o evento diz O QUE mudou, nunca O QUE É', () => {
     const recebido = cliente.recebidos[0] as Record<string, unknown>;
     expect(Object.keys(recebido).sort()).toEqual(['assunto', 'em', 'id']);
     // `usuarioId` is internal addressing and must never leak to the client.
-    expect(recebido['usuarioId']).toBeUndefined();
+    expect(recebido['userId']).toBeUndefined();
     cliente.fechar();
   });
 });
@@ -303,13 +303,13 @@ describe('queda', () => {
     });
     abertos.push(ws);
     await new Promise<void>((resolve) => ws.once('open', () => resolve()));
-    const ping = await new Promise<{ type: string }>((resolve) => {
+    const ping = await new Promise<{ tipo: string }>((resolve) => {
       ws.on('message', (cru) => {
-        const q = JSON.parse(String(cru)) as { type: string };
-        if (q.type === 'ping') resolve(q);
+        const q = JSON.parse(String(cru)) as { tipo: string };
+        if (q.tipo === 'ping') resolve(q);
       });
     });
-    expect(ping.type).toBe('ping');
+    expect(ping.tipo).toBe('ping');
     ws.close();
   });
 });
