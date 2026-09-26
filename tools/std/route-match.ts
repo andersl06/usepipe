@@ -181,7 +181,7 @@ export function compareRoutes(
     guards: route.guards.map((guard) => ({
       name: translate ? (symbolRenames.get(guard.name) ?? guard.name) : guard.name,
       args: guard.args.map((argument) =>
-        translate && !persisted.has(argument) ? replaceSymbols(argument, symbolRenames) : argument,
+        translate && !persisted.has(unquote(argument)) ? replaceSymbols(argument, symbolRenames) : argument,
       ),
     })),
   });
@@ -359,6 +359,10 @@ function pathContainsFragment(routePath: string, fragment: string): boolean {
 
 function segments(value: string): string[] {
   return value.split('/').filter(Boolean);
+}
+
+function unquote(value: string): string {
+  return value.replace(/^['"`]/, '').replace(/['"`]$/, '');
 }
 
 function replaceSymbols(value: string, renames: Map<string, string>): string {
