@@ -68,15 +68,19 @@ Qualquer medida de tela ainda não capturada (painel de Teste, painel de Filas e
 | Heading (painel/aba) | 16px (`--p-t-lg`) | 500 (`--p-peso-medio`) | 1.2 |
 | Display (título de página) | 20px (`--p-t-titulo`) | 600 (`--p-peso-forte`) | 1.2 |
 
-**Exceção documentada — título do nó no canvas:** 14px/400 (`--p-t-md`/`--p-peso-normal`), passando a 700 quando o bloco está selecionado. 700 não existe na escala de dois pesos (`--p-peso-medio`/`--p-peso-forte`) do resto do produto — é medição direta do DOM da Blip preservada por paridade visual (D-30) e já documentada no cabeçalho de `editor.css`. Não generalizar esse terceiro peso para fora do título do nó.
+4 tamanhos confirmados para esta fase: 12 (Label), 14 (Body), 16 (Heading), 20 (Display). `--p-t-numero` (28px, monoespaçada tabular) existe na régua do produto mas não tem uso confirmado nesta fase — a menção anterior a "painel de Teste, se vier a existir" era especulativa; esse tamanho só volta a este contrato quando D-14 confirmar que a tela usa número de destaque.
 
-Número/métrica (ex.: contagem em painel de Teste, se vier a existir): 28px (`--p-t-numero`), monoespaçada tabular, mesmo padrão do resto do produto.
+**Os três pesos (400/500/600) não são uma declaração nova desta fase — são a convenção já aprovada em todo o produto**, documentada em `docs/specs/2026-09-05-design-system.md` §3.6 "Régua tipográfica" (tabela "Pesos — 400 / 500 / 600") e implementada em `packages/ui/src/estilos/tokens.css:154-156` (`--p-peso-normal`, `--p-peso-medio`, `--p-peso-forte`). Este UI-SPEC reutiliza essa régua existente em vez de inventar uma nova para o Builder.
+
+**Exceção documentada — título do nó no canvas:** 14px/400 (`--p-t-md`/`--p-peso-normal`), passando a 700 quando o bloco está selecionado. 700 não existe na régua de três pesos (`--p-peso-normal`/`--p-peso-medio`/`--p-peso-forte`) do resto do produto — é medição direta do DOM da Blip preservada por paridade visual (D-30) e já documentada no cabeçalho de `editor.css`. Não generalizar esse quarto peso para fora do título do nó.
 
 ---
 
 ## Color
 
 O Builder é **sempre escuro**, independente do alternador de tema do resto do produto (D-31 — "o builder não é claro, é tudo escuro"). O contêiner raiz do Builder deve forçar o escopo escuro (mecanismo já existente em `tokens.css`: seletor `:root[data-tema='escuro']`), não seguir `prefers-color-scheme` nem a preferência salva do usuário para o resto do app.
+
+**Âncora visual do canvas:** com um bloco selecionado, o anel de marca do nó (`--p-builder-marca-anel`, `box-shadow: 0 0 0 4px`) é o ponto focal da tela — todo o resto (demais nós, painel lateral, fundo) fica em tokens de superfície neutros para não competir com ele. No estado vazio (fluxo novo, sem blocos), o foco passa para o texto do empty state ("Comece pelo primeiro bloco" — ver Copywriting), que ocupa o centro do canvas.
 
 | Role | Value (tema escuro, tokens existentes) | Usage |
 |------|-------|-------|
