@@ -2,7 +2,7 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import {
   NIVEIS_PRIORITY,
   avaliarSla,
-  alvoFulfillment,
+  targetFulfillment,
   inicioDoAlvo,
   type MarcosSla,
   type NivelPriority,
@@ -128,7 +128,7 @@ async function processarRegra(
   const marcos: MarcosSla = {
     criadaEm: c.criadaEm,
     atribuidaEm: c.assignedAt,
-    firstRespostaIn: c.firstResponseAt,
+    firstResponseIn: c.firstResponseAt,
     encerradaEm: c.closedAt,
     // For `resposta` (`tempo_resposta`), count only while the customer's message
     // is last. Once the agent or bot answers, this target has no remaining start time.
@@ -151,7 +151,7 @@ async function processarRegra(
     return;
   }
 
-  const cumpridoEm = alvoFulfillment(regra.target, marcos);
+  const cumpridoEm = targetFulfillment(regra.target, marcos);
   const encerrouAntes = marcos.encerradaEm !== null && marcos.encerradaEm.getTime() < agora.getTime();
   // The clock stops at `encerradaEm`; see the Pipe decision at the top of this file.
   const fimEfetivo = encerrouAntes ? (marcos.encerradaEm as Date) : agora;
@@ -243,7 +243,7 @@ async function processarRegra(
 /**
  * Check one conversation's SLA, called by each `pipe-sla` queue job or directly for each pending conversation in memory mode. Run entirely inside `noTenant`: RLS controls what `carregarRegrasSla` can see and provides the same tenant isolation as the rest of the `api`.
  */
-export async function checarSlaOfConversation(
+export async function checkSlaOfConversation(
   tenantId: string,
   conversationId: string,
   agora = new Date(),

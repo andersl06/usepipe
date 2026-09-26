@@ -21,7 +21,7 @@ export interface RegraSla {
   prazoSeg: number;
   /** Limiar de alerta, em segundos decorridos. `null` desliga o alerta. */
   alertaSeg?: number | null;
-  scopeTipo?: ScopeSla;
+  scopeType?: ScopeSla;
   scopeId?: string | null;
   active?: boolean;
 }
@@ -92,7 +92,7 @@ export function avaliarSla(inbound: InboundSla): ResultadoSla {
 export interface MarcosSla {
   criadaEm: Date | null;
   atribuidaEm: Date | null;
-  firstRespostaIn: Date | null;
+  firstResponseIn: Date | null;
   encerradaEm: Date | null;
   /** Most recent unanswered customer message, the start for `tempo_resposta`. */
   aguardandoRespostaDesde?: Date | null;
@@ -115,10 +115,10 @@ export function inicioDoAlvo(alvo: AlvoSla, marcos: MarcosSla): Date | null {
 }
 
 
-export function alvoFulfillment(alvo: AlvoSla, marcos: MarcosSla): Date | null {
+export function targetFulfillment(alvo: AlvoSla, marcos: MarcosSla): Date | null {
   switch (alvo) {
     case 'primeira_resposta':
-      return marcos.firstRespostaIn;
+      return marcos.firstResponseIn;
     case 'encerramento':
       return marcos.encerradaEm;
     case 'tempo_resposta':

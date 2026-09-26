@@ -10,7 +10,7 @@ export interface NormalizadorDeTelefone {
   /** `variants`: stored forms of this contact, canonical first. */
   variantes(waid: string): string[];
   /** `contact_candidates`: received form first so an exact match wins. */
-  contactCandidatos(waid: string): string[];
+  contactCandidates(waid: string): string[];
 }
 
 const TAMANHO_DO_DDI = 2;
@@ -37,7 +37,7 @@ export class NormalizadorBrasil implements NormalizadorDeTelefone {
     return [...new Set(antigo ? [normalizado, antigo] : [normalizado])];
   }
 
-  contactCandidatos(waid: string): string[] {
+  contactCandidates(waid: string): string[] {
     return [...new Set([waid, ...this.variantes(waid)])];
   }
 
@@ -63,7 +63,7 @@ function normalizadorDoPais(digitos: string): NormalizadorDeTelefone | null {
 /** `phone_number_candidates`: with no normalizer for the country, return only the input form. */
 export function candidatosDoTelefone(digitos: string): string[] {
   const normalizador = normalizadorDoPais(digitos);
-  return normalizador ? normalizador.contactCandidatos(digitos) : [digitos];
+  return normalizador ? normalizador.contactCandidates(digitos) : [digitos];
 }
 
 export function normalizarWaid(digitos: string): string {

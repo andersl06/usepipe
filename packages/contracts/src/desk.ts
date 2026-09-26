@@ -102,7 +102,7 @@ export interface ConversationOpen {
   contactPhone: string | null;
   contactEmail: string | null;
   contactDocument: string | null;
-  contactAtributos: Record<string, unknown>;
+  contactAttributes: Record<string, unknown>;
   resumo: string | null;
   resumoEm: string | null;
   summaryTemplate: string | null;

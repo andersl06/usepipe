@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { createDatabase, comTenant, keyringOfAmbiente, decifrarConfig } from '@pipe/db';
+import { createDatabase, comTenant, keyringOfEnvironment, decifrarConfig } from '@pipe/db';
 import type { DatabasePipe, Keyring, TransactionPipe } from '@pipe/db';
 
 /**
@@ -46,7 +46,7 @@ const cacheOfChannel = new Map<string, ChannelResolved>();
 let keyringSaved: Keyring | null = null;
 
 export function keyring(): Keyring {
-  keyringSaved ??= keyringOfAmbiente();
+  keyringSaved ??= keyringOfEnvironment();
   return keyringSaved;
 }
 
@@ -117,7 +117,7 @@ export async function resolveChannelByIdentifier(
   };
 }
 
-export function esquecerChannel(channelId?: string): void {
+export function forgetChannel(channelId?: string): void {
   if (channelId) cacheOfChannel.delete(channelId);
   else cacheOfChannel.clear();
 }
@@ -127,5 +127,5 @@ export async function fecharBancos(): Promise<void> {
   if (dono) await dono.$client.end();
   app = null;
   dono = null;
-  esquecerChannel();
+  forgetChannel();
 }

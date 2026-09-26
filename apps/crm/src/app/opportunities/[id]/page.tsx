@@ -6,8 +6,8 @@ import { TimeLinha } from '../../../components/linha-of-time';
 import { fusoDoTenant } from '../../../lib/database';
 import {
   loadOpportunity,
-  type FichaOpportunity,
-  type LinhaOpportunity,
+  type OpportunityRecord,
+  type OpportunityRow,
 } from '../../../lib/funil';
 import { data, desde, money, numero } from '../../../lib/format';
 
@@ -41,7 +41,7 @@ function abaValida(value: string | undefined): AbaOpportunity {
   return (ABAS.find((a) => a.key === value)?.key ?? 'historico') as AbaOpportunity;
 }
 
-function colunasIrmas(hoje: Date, fuso: string): readonly Column<LinhaOpportunity>[] {
+function colunasIrmas(hoje: Date, fuso: string): readonly Column<OpportunityRow>[] {
   return [
     {
       key: 'nome',
@@ -61,11 +61,11 @@ function colunasIrmas(hoje: Date, fuso: string): readonly Column<LinhaOpportunit
             </Etiqueta>
           );
         }
-        if (o.closingPrevisto && o.closingPrevisto < hoje) {
-          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
+        if (o.closingExpected && o.closingExpected < hoje) {
+          return <Etiqueta tom="alerta">venceu em {data(o.closingExpected, fuso)}</Etiqueta>;
         }
-        return o.closingPrevisto ? (
-          <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
+        return o.closingExpected ? (
+          <Etiqueta>fecha em {data(o.closingExpected, fuso)}</Etiqueta>
         ) : (
           '—'
         );
@@ -79,14 +79,14 @@ function OpportunityDestaque({
   fuso,
   hoje,
 }: {
-  ficha: FichaOpportunity;
+  ficha: OpportunityRecord;
   fuso: string;
   hoje: Date;
 }) {
   const vencida =
     ficha.fechadaEm === null &&
-    ficha.closingPrevisto !== null &&
-    ficha.closingPrevisto < hoje;
+    ficha.closingExpected !== null &&
+    ficha.closingExpected < hoje;
 
   return (
     <Destaque
@@ -109,8 +109,8 @@ function OpportunityDestaque({
           ) : (
             <Etiqueta>{ficha.fase}</Etiqueta>
           )}
-          {vencida && ficha.closingPrevisto ? (
-            <Etiqueta tom="alerta">venceu em {data(ficha.closingPrevisto, fuso)}</Etiqueta>
+          {vencida && ficha.closingExpected ? (
+            <Etiqueta tom="alerta">venceu em {data(ficha.closingExpected, fuso)}</Etiqueta>
           ) : null}
         </>
       }
@@ -208,7 +208,7 @@ export default async function PageOpportunity({
           <div className="tblwrap">
             <Section titulo="Fechamento">
               <div className="campos">
-                <Campo k="Previsto" v={data(ficha.closingPrevisto, fuso)} />
+                <Campo k="Previsto" v={data(ficha.closingExpected, fuso)} />
                 <Campo
                   k="Fechada em"
                   v={ficha.fechadaEm ? data(ficha.fechadaEm, fuso) : 'em aberto'}
@@ -239,7 +239,7 @@ export default async function PageOpportunity({
               base={`/opportunities/${ficha.id}`}
               aba={aba}
               abas={[
-                { ...ABAS[0], count: ficha.timeLinha.length },
+                { ...ABAS[0], count: ficha.timeRow.length },
                 { ...ABAS[1], count: ficha.irmas.length },
               ]}
               formatar={numero}
@@ -255,7 +255,7 @@ export default async function PageOpportunity({
                   </span>
                 </div>
               ) : (
-                <TimeLinha itens={ficha.timeLinha} fuso={fuso} agora={hoje} />
+                <TimeLinha itens={ficha.timeRow} fuso={fuso} agora={hoje} />
               )
             ) : null}
 

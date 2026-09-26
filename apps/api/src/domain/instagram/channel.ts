@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { cifrarConfig, decifrarConfig, registrarAuditoria } from '@pipe/db';
-import { databaseOwner, keyring, esquecerChannel, noTenant } from '../../database.js';
+import { databaseOwner, keyring, forgetChannel, noTenant } from '../../database.js';
 import { PipeError } from '../../errors.js';
 import { codigoDoPostgres } from '../dominios.js';
 import { novoVerifyToken, texto } from '../whatsapp/channel.js';
@@ -102,7 +102,7 @@ export async function atualizarConfigInstagram(
        where id = ${channel.id}::uuid
     `);
   });
-  esquecerChannel(channel.id);
+  forgetChannel(channel.id);
   return { ...channel, config };
 }
 
@@ -250,7 +250,7 @@ export async function conectarInstagramManual(pedido: {
     if (codigoDoPostgres(erro) === '23505') throw accountInUse();
     throw erro;
   }
-  esquecerChannel(channelId);
+  forgetChannel(channelId);
 
   const webhook = { url: urlDoWebhookInstagram(channelId), verifyToken: configNova.verifyToken };
   let errorOfWebhook: string | null = null;
@@ -298,6 +298,6 @@ export async function desconectarInstagram(
     });
     return gravado;
   });
-  esquecerChannel(canalId);
+  forgetChannel(canalId);
   return visivel(linha);
 }

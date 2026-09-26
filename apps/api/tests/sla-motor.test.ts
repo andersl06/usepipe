@@ -9,10 +9,10 @@ process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 
 const { montarCenario } = await import('./ajuda.js');
-const { checarSlaOfConversation, rulesWinningByTarget } = await import(
+const { checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation, rulesWinningByTarget } = await import(
   '../src/domain/management/sla-motor.js'
 );
-const { ordenarQueueOfWait } = await import('../src/domain/management/monitoring.js');
+const { sortQueueOfWaitordenarQueueOfWaitsortQueueOfWait } = await import('../src/domain/management/monitoring.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
@@ -188,7 +188,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     const criadaEm = new Date(agora0.getTime() - 400_000); // 400s atrás: já passou do alerta (300s), não do prazo (600s)
     const conversationId = await createConversation(a, { criadaEm, atribuidaEm: criadaEm });
 
-    await checarSlaOfConversation(a.tenantId, conversationId, agora0);
+    await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, agora0);
     let linha = await slaConversationOf(a, conversationId);
     expect(linha?.state).toBe('alertado');
     expect(linha?.alertadoEm).not.toBeNull();
@@ -197,14 +197,14 @@ describe('Check conversation SLA alerts and breaches', () => {
 
     // Idempotency: running it again at the SAME instant does not duplicate the event or change the timestamp.
     const alertadoEmAntes = linha!.alertadoEm;
-    await checarSlaOfConversation(a.tenantId, conversationId, agora0);
+    await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, agora0);
     linha = await slaConversationOf(a, conversationId);
     expect(linha?.alertadoEm).toEqual(alertadoEmAntes);
     expect(await contarEventos(a, conversationId, 'sla_alertado')).toBe(1);
 
     // O tempo passa e o prazo estoura (400s + 300s = 700s > 600s do prazo).
     const agora1 = new Date(agora0.getTime() + 300_000);
-    await checarSlaOfConversation(a.tenantId, conversationId, agora1);
+    await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, agora1);
     linha = await slaConversationOf(a, conversationId);
     expect(linha?.state).toBe('estourado');
     expect(linha?.estouradoEm).not.toBeNull();
@@ -212,7 +212,7 @@ describe('Check conversation SLA alerts and breaches', () => {
 
     // Idempotency of the breach: running it again neither duplicates nor regresses the state.
     const estouradoEmAntes = linha!.estouradoEm;
-    await checarSlaOfConversation(a.tenantId, conversationId, new Date(agora1.getTime() + 60_000));
+    await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, new Date(agora1.getTime() + 60_000));
     linha = await slaConversationOf(a, conversationId);
     expect(linha?.state).toBe('estourado');
     expect(linha?.estouradoEm).toEqual(estouradoEmAntes);
@@ -227,7 +227,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     const encerradaEm = new Date(criadaEm.getTime() + 50_000);
     const conversaId = await createConversation(a, { criadaEm, atribuidaEm: criadaEm, encerradaEm });
 
-    await checarSlaOfConversation(a.tenantId, conversaId, agora);
+    await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversaId, agora);
 
     expect(await contarEventos(a, conversaId, 'sla_alertado')).toBe(0);
     expect(await contarEventos(a, conversaId, 'sla_estourado')).toBe(0);
@@ -249,9 +249,9 @@ describe('Check conversation SLA alerts and breaches', () => {
     const criadaEm = new Date(agora.getTime() - 200_000); // já passou do alerta (100s)
     const conversaId = await createConversation(a, { criadaEm, atribuidaEm: criadaEm });
 
-    await checarSlaOfConversation(a.tenantId, conversaId, agora);
-    await checarSlaOfConversation(a.tenantId, conversaId, new Date(agora.getTime() + 5_000));
-    await checarSlaOfConversation(a.tenantId, conversaId, new Date(agora.getTime() + 10_000));
+    await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversaId, agora);
+    await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversaId, new Date(agora.getTime() + 5_000));
+    await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversaId, new Date(agora.getTime() + 10_000));
 
     expect(await contarEntregas(a, 'sla.alertou')).toBe(1);
   });
@@ -278,9 +278,9 @@ describe('Check conversation SLA alerts and breaches', () => {
       { id: conversationB, prioridade: 'media', marcos: { criadaEm: criadaB } },
     ];
     // Antes: `media` (B) vence `baixa` (A) — B primeiro.
-    expect(ordenarQueueOfWait(linhaAntes).map((l) => l.id)).toEqual([conversationB, conversationA]);
+    expect(sortQueueOfWaitordenarQueueOfWaitsortQueueOfWait(linhaAntes).map((l) => l.id)).toEqual([conversationB, conversationA]);
 
-    await checarSlaOfConversation(a.tenantId, conversationA, agora);
+    await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationA, agora);
 
     expect(await priorityOf(a, conversationA)).toBe('media');
     const linhaDepois = [
@@ -288,7 +288,7 @@ describe('Check conversation SLA alerts and breaches', () => {
       { id: conversationB, prioridade: await priorityOf(a, conversationB), marcos: { criadaEm: criadaB } },
     ];
     // Afterwards: A and B tie at `media`; the tiebreaker is the OLDER one — A wins now.
-    expect(ordenarQueueOfWait(linhaDepois).map((l) => l.id)).toEqual([conversationA, conversationB]);
+    expect(sortQueueOfWaitordenarQueueOfWaitsortQueueOfWait(linhaDepois).map((l) => l.id)).toEqual([conversationA, conversationB]);
   });
 });
 
@@ -306,7 +306,7 @@ describe('Isolate conversation SLA checks by tenant', () => {
       const criadaEm = new Date(agora.getTime() - 100_000);
       const conversationWithoutRule = await createConversation(semRegra, { criadaEm, atribuidaEm: criadaEm });
 
-      await checarSlaOfConversation(semRegra.tenantId, conversationWithoutRule, agora);
+      await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(semRegra.tenantId, conversationWithoutRule, agora);
 
       // With no rule registered in THIS tenant: nothing changes, no row in `sla_conversa`.
       expect(await slaConversationOf(semRegra, conversationWithoutRule)).toBeNull();

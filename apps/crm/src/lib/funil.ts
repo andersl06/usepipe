@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import { account, lead, opportunity, user } from '@pipe/db/schema';
 import { consultar, paraData, paraNumero } from './database';
-import { timeCarregarLinha, type TimeItemLinha } from './leads';
+import { timeLoadRow, type TimeItemRow } from './leads';
 
 /**
  * Opportunity funnel.
@@ -27,10 +27,10 @@ export interface CardOpportunity {
   accountName: string | null;
   leadId: string | null;
   score: number | null;
-  closingPrevisto: Date | null;
+  closingExpected: Date | null;
 }
 
-export interface ColumnFunil {
+export interface ColumnFunnel {
   fase: string;
   cards: CardOpportunity[];
   total: number;
@@ -38,7 +38,7 @@ export interface ColumnFunil {
 }
 
 export interface Funil {
-  colunas: ColumnFunil[];
+  colunas: ColumnFunnel[];
   totalGeral: number;
   quantityGeneral: number;
   ponderadoGeral: number;
@@ -67,7 +67,7 @@ export async function carregarFunil(): Promise<Funil> {
       .orderBy(asc(opportunity.nome)),
   );
 
-  const colunas: ColumnFunil[] = FASES.map((fase) => ({
+  const colunas: ColumnFunnel[] = FASES.map((fase) => ({
     fase,
     cards: [],
     total: 0,
@@ -88,7 +88,7 @@ export async function carregarFunil(): Promise<Funil> {
       accountName: l.contaNome,
       leadId: l.leadId,
       score: l.score,
-      closingPrevisto: paraData(l.fechamentoPrevisto),
+      closingExpected: paraData(l.fechamentoPrevisto),
     });
     column.total += value ?? 0;
     column.quantity += 1;
@@ -108,7 +108,7 @@ export async function carregarFunil(): Promise<Funil> {
  * the dashboard's weighted value comes from — leaving probability unchanged
  * would make the dashboard disagree with the board the salesperson just moved.
  */
-const PROBABILITY_BY_FASE: Record<Fase, number> = {
+const PROBABILITY_BY_STAGE: Record<Fase, number> = {
   Novo: 10,
   Qualificado: 25,
   Reunião: 45,
@@ -147,7 +147,7 @@ export function situationValid(value: string | undefined): Situation {
 /** The listing is a work screen, not an export screen. Same cap as the others. */
 export const LIMITE_LISTA = 200;
 
-export interface LinhaOpportunity {
+export interface OpportunityRow {
   id: string;
   nome: string;
   accountId: string | null;
@@ -157,12 +157,12 @@ export interface LinhaOpportunity {
   value: number | null;
   probability: number | null;
   proprietario: string | null;
-  closingPrevisto: Date | null;
+  closingExpected: Date | null;
   fechadaEm: Date | null;
   ganha: boolean | null;
 }
 
-function situationRecorte(situation: Situation) {
+function situationSlice(situation: Situation) {
   if (situation === 'abertas') return isNull(opportunity.fechadaEm);
   if (situation === 'ganhas') return and(isNotNull(opportunity.fechadaEm), eq(opportunity.ganha, true));
   if (situation === 'perdidas')
@@ -173,7 +173,7 @@ function situationRecorte(situation: Situation) {
 export async function listOpportunities(
   situation: Situation = 'abertas',
   search = '',
-): Promise<LinhaOpportunity[]> {
+): Promise<OpportunityRow[]> {
   return consultar(async (tx) => {
     const termo = search.trim();
     const filter = termo
@@ -199,7 +199,7 @@ export async function listOpportunities(
       .from(opportunity)
       .leftJoin(account, eq(account.id, opportunity.contaId))
       .leftJoin(user, eq(user.id, opportunity.proprietarioId))
-      .where(situationRecorte(situation) ? and(situationRecorte(situation), filter) : filter)
+      .where(situationSlice(situation) ? and(situationSlice(situation), filter) : filter)
       // Open first, and within that the highest value: it's what can still
       // mexer, na ordem em que se mexe.
       .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor))
@@ -214,7 +214,7 @@ export async function listOpportunities(
   });
 }
 
-export interface FichaOpportunity extends LinhaOpportunity {
+export interface OpportunityRecord extends OpportunityRow {
   moeda: string;
   motivoPerda: string | null;
   criadoEm: Date | null;
@@ -222,12 +222,12 @@ export interface FichaOpportunity extends LinhaOpportunity {
   score: number | null;
   faixa: string | null;
   /** The account's other deals: the commercial context for whoever is already negotiating. */
-  irmas: LinhaOpportunity[];
+  irmas: OpportunityRow[];
   /** The lead's history, which is the deal's history. */
-  timeLinha: TimeItemLinha[];
+  timeRow: TimeItemRow[];
 }
 
-export async function loadOpportunity(id: string): Promise<FichaOpportunity | null> {
+export async function loadOpportunity(id: string): Promise<OpportunityRecord | null> {
   return consultar(async (tx) => {
     const [cabeca] = await tx
       .select({
@@ -284,8 +284,8 @@ export async function loadOpportunity(id: string): Promise<FichaOpportunity | nu
           .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor))
       : [];
 
-    const timeLinha = cabeca.leadId
-      ? await timeCarregarLinha(tx, cabeca.leadId, cabeca.contatoId)
+    const timeRow = cabeca.leadId
+      ? await timeLoadRow(tx, cabeca.leadId, cabeca.contatoId)
       : [];
 
     return {
@@ -300,7 +300,7 @@ export async function loadOpportunity(id: string): Promise<FichaOpportunity | nu
         closingPrevisto: paraData(o.closingPrevisto),
         fechadaEm: paraData(o.fechadaEm),
       })),
-      timeLinha,
+      timeRow,
     };
   });
 }
@@ -311,7 +311,7 @@ export async function moverParaFase(opportunityId: string, fase: Fase): Promise<
       .update(opportunity)
       .set({
         fase,
-        probabilidade: PROBABILITY_BY_FASE[fase],
+        probabilidade: PROBABILITY_BY_STAGE[fase],
         atualizadoEm: sql`now()`,
       })
       .where(and(eq(opportunity.id, opportunityId), isNull(opportunity.fechadaEm)));

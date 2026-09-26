@@ -23,7 +23,7 @@ export function tokenElegivel(config: Record<string, unknown>, agora = new Date(
   return null;
 }
 
-export async function renovarTokenOfChannel(
+export async function renewTokenOfChannel(
   channel: ChannelInstagram,
   agora = new Date(),
 ): Promise<ResultOfRenewal> {
@@ -67,7 +67,7 @@ export async function renovarTokensInstagram(agora = new Date()): Promise<Record
     try {
       const channel = await readChannelInstagram(linha.tenant_id, linha.id);
       if (channel.config['reautorizacaoPendente'] === true) continue;
-      resumo[await renovarTokenOfChannel(channel, agora)] += 1;
+      resumo[await renewTokenOfChannel(channel, agora)] += 1;
     } catch (erro) {
       console.error(`[instagram] a renovação do canal ${linha.id} falhou: ${(erro as Error).message}`);
     }

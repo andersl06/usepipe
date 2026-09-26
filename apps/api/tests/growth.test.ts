@@ -11,7 +11,7 @@ process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
-const { esquecerChannel } = await import('../src/database.js');
+const { forgetChannelesquecerChannelforgetChannel } = await import('../src/database.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -203,11 +203,11 @@ describe('Redirect public tracked links and count clicks', () => {
     const cliquesGeral = (
       (await geral.json()) as { data: { code: string; cliques: number }[] }
     ).data.find((item) => item.codigo === codigo)?.cliques;
-    const cliquesOfPeriod = (
+    const clicksOfPeriod = (
       (await ofPeriod.json()) as { data: { code: string; cliques: number }[] }
     ).data.find((item) => item.codigo === codigo)?.cliques;
 
-    expect(cliquesGeral).toBeGreaterThanOrEqual((cliquesOfPeriod ?? 0) + 1);
+    expect(cliquesGeral).toBeGreaterThanOrEqual((clicksOfPeriod ?? 0) + 1);
   });
 
   it('Rate-limit repeated clicks from one IP with 429', async () => {
@@ -242,7 +242,7 @@ describe('Reject active messages without a contact phone or contact ID', () => {
 
   it('Reject active-message sends through a disabled channel', async () => {
     await cenario.dono.execute(sql`update canal set ativo = false where id = ${cenario.channelId}::uuid`);
-    esquecerChannel(cenario.channelId); // `resolverCanal` guarda em memória; sem isto o teste veria o cache antigo.
+    forgetChannelesquecerChannelforgetChannel(cenario.channelId); // `resolverCanal` guarda em memória; sem isto o teste veria o cache antigo.
     try {
       const resposta = await comCookie('/v1/messages-active', {
         method: 'POST',
@@ -258,7 +258,7 @@ describe('Reject active messages without a contact phone or contact ID', () => {
       );
     } finally {
       await cenario.dono.execute(sql`update canal set ativo = true where id = ${cenario.channelId}::uuid`);
-      esquecerChannel(cenario.channelId);
+      forgetChannelesquecerChannelforgetChannel(cenario.channelId);
     }
   });
 

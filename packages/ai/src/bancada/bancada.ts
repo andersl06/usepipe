@@ -39,7 +39,7 @@ export interface CasoMedido {
   notaHumana: number;
   notaIa: number;
   desvioNota: number;
-  criteriosEqual: number;
+  criteriaEqual: number;
   criteriosTotal: number;
   confianca: number;
 }
@@ -58,8 +58,8 @@ export interface ResultadoBancada {
   /** Mean absolute difference between AI and human scores, on the form's scale. */
   desvioMedioNota: number;
   /** Criteria from worst to best; the prompt review list. */
-  byCriterio: DesvioCriterio[];
-  byCaso: CasoMedido[];
+  byCriterion: DesvioCriterio[];
+  byCase: CasoMedido[];
   consumo: Consumo[];
 }
 
@@ -108,7 +108,7 @@ export async function rodarBancada(options: OptionsWorkbench): Promise<Resultado
   const avaliar = options.avaliar ?? avaliadorPadrao(options);
 
   const falhas: FalhaBancada[] = [];
-  const byCaso: CasoMedido[] = [];
+  const byCase: CasoMedido[] = [];
   const consumos: Consumo[] = [];
   const acumulado = new Map<
     string,
@@ -134,7 +134,7 @@ export async function rodarBancada(options: OptionsWorkbench): Promise<Resultado
       const pontosIa = new Map(ia.respostas.map((r) => [r.criterioId, r]));
       const pontosHumano = new Map(humano.respostas.map((r) => [r.criterioId, r]));
 
-      let equalInCaso = 0;
+      let equalInCase = 0;
       let totalNoCaso = 0;
 
       for (const { criterio } of criteriosDoFormulario(caso.formulario)) {
@@ -146,7 +146,7 @@ export async function rodarBancada(options: OptionsWorkbench): Promise<Resultado
         totalNoCaso++;
         comparadas++;
         if (igual) {
-          equalInCaso++;
+          equalInCase++;
           equal++;
         }
 
@@ -167,11 +167,11 @@ export async function rodarBancada(options: OptionsWorkbench): Promise<Resultado
         notaHumana: humano.nota,
         notaIa: ia.nota,
         desvioNota: arredondar(Math.abs(ia.nota - humano.nota), 2),
-        criteriosEqual: equalInCaso,
+        criteriaEqual: equalInCase,
         criteriosTotal: totalNoCaso,
         confianca: ia.confianca,
       };
-      byCaso.push(medido);
+      byCase.push(medido);
       consumos.push(ia.consumo);
       options.aoTerminarCaso?.(caso.id, medido);
     } catch (error) {
@@ -180,7 +180,7 @@ export async function rodarBancada(options: OptionsWorkbench): Promise<Resultado
     }
   }
 
-  const byCriterio = [...acumulado.entries()]
+  const byCriterion = [...acumulado.entries()]
     .map(([criterioId, l]) => ({
       criterioId,
       nome: l.nome,
@@ -192,12 +192,12 @@ export async function rodarBancada(options: OptionsWorkbench): Promise<Resultado
     .sort((a, b) => a.acuracia - b.acuracia || b.desvioMedioPontos - a.desvioMedioPontos);
 
   return {
-    casos: byCaso.length,
+    casos: byCase.length,
     falhas,
     acuraciaGeral: comparadas > 0 ? arredondar(equal / comparadas) : 0,
-    desvioMedioNota: arredondar(media(byCaso.map((c) => c.desvioNota)), 2),
-    byCriterio,
-    byCaso,
+    desvioMedioNota: arredondar(media(byCase.map((c) => c.desvioNota)), 2),
+    byCriterion,
+    byCase,
     consumo: somarConsumo(consumos),
   };
 }

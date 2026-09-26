@@ -22,7 +22,7 @@ const REPORT = join(
   '.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/reports/baseline-jsonb-keys.json',
 );
 
-export interface InboundOfManifesto {
+export interface InboundOfManifest {
   file: string;
   group: string;
   table: string;
@@ -138,11 +138,11 @@ function nomesDoCodigoAtual(): Set<string> {
   return todos;
 }
 
-function carregarManifesto(): InboundOfManifesto[] {
-  return JSON.parse(readFileSync(MANIFESTO, 'utf8')) as InboundOfManifesto[];
+function carregarManifesto(): InboundOfManifest[] {
+  return JSON.parse(readFileSync(MANIFESTO, 'utf8')) as InboundOfManifest[];
 }
 
-function chavesDaFixture(inbound: InboundOfManifesto): string[] {
+function chavesDaFixture(inbound: InboundOfManifest): string[] {
   const caminho = join(RAIZ, 'apps/api/tests/fixtures/jsonb', inbound.file);
   const registros = JSON.parse(readFileSync(caminho, 'utf8')) as Record<string, unknown>[];
   const campo = inbound.field ?? 'value';

@@ -5,7 +5,7 @@ import type {
   RespostaEnvio,
 } from './cliente.js';
 import { WhatsAppError } from './cliente.js';
-import { assembleComponents, ParametroMissingError } from './template.js';
+import { assembleComponents, ParameterMissingError } from './template.js';
 import { ROTULO_DA_LISTA } from './interativo.js';
 
 /**
@@ -58,7 +58,7 @@ export class ClienteWhatsAppReal implements ClienteWhatsApp {
     try {
       corpo = montarCorpo(pedido);
     } catch (error) {
-      if (error instanceof ParametroMissingError) {
+      if (error instanceof ParameterMissingError) {
         throw new WhatsAppError(error.codigo, error.message, true);
       }
       throw error;

@@ -42,7 +42,7 @@ export default async function PagePanel() {
   });
   const taxa = ind.leadsNoMes > 0 ? ind.qualificadosNoMes / ind.leadsNoMes : null;
   const maiorOrigem = origens.reduce((m, o) => Math.max(m, o.n), 0);
-  const maiorColumn = funil.colunas.reduce((m, c) => Math.max(m, c.total), 0);
+  const longestColumn = funil.colunas.reduce((m, c) => Math.max(m, c.total), 0);
 
   return (
     <>
@@ -111,7 +111,7 @@ export default async function PagePanel() {
                 <span
                   className="fill"
                   style={{
-                    width: `${maiorColumn > 0 ? Math.round((c.total / maiorColumn) * 100) : 0}%`,
+                    width: `${longestColumn > 0 ? Math.round((c.total / longestColumn) * 100) : 0}%`,
                   }}
                 />
               </span>

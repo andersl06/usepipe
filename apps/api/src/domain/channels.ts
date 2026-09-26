@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import { esquecerChannel, noTenant, resolveChannel } from '../database.js';
+import { forgetChannel, noTenant, resolveChannel } from '../database.js';
 import { PipeError } from '../errors.js';
 import { readChannelWhatsApp, texto, urlDoWebhook } from './whatsapp/channel.js';
 import { desmontarWebhook } from './whatsapp/teardown-of-webhook.js';
@@ -149,7 +149,7 @@ export async function desconectarWhatsApp(
     return gravado;
   });
 
-  esquecerChannel(canalId);
+  forgetChannel(canalId);
   return visivel(linha);
 }
 

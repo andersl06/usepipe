@@ -20,7 +20,7 @@ import {
 import type { DesafioDeLogin, OptionsOfCookie, PessoaDoGoogle } from '@pipe/authentication';
 import type { Eu, OriginOfSession, Plano, RefusesOfInbound } from '@pipe/contracts';
 import { databaseApp, databaseOwner, noTenant } from '../database.js';
-import { aceitarInvitation } from '../domain/convites.js';
+import { acceptInvitation } from '../domain/convites.js';
 import {
   registrationOfAccountEnabled,
   buildAccountOfLogin,
@@ -182,7 +182,7 @@ async function loginByInvitation(
   pessoa: PessoaDoGoogle,
   context: { ip?: string; agente?: string },
 ): Promise<InboundByInvitation> {
-  const aceito = await aceitarInvitation(token, pessoa, context);
+  const aceito = await acceptInvitation(token, pessoa, context);
   if (!aceito.session) throw new Error('convite aceito sem abrir sessão');
   return aceito.session;
 }

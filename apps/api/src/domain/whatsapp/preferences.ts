@@ -5,7 +5,7 @@ import { atualizarChannel, readChannelWhatsApp } from './channel.js';
 import type { ChannelWhatsApp } from './channel.js';
 
 // The worker owns the rule because it assembles the message; reexport it here.
-export { formatOfPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/workers/whatsapp';
+export { formatOfQuestion, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/workers/whatsapp';
 
 /**
  * Blip WhatsApp channel Settings and Alert Settings (`referencias-blip/fichas/FICHA-canal-whatsapp.md` §§3–4) are Pipe choices in channel `config`, not Meta fields. Quick replies use buttons for at most three choices and numbered text for four or more. Menus use lists for at most ten choices and text otherwise. Template recategorization alerts go to configured emails, or all administrators when empty. Both switches default on as observed in Blip.

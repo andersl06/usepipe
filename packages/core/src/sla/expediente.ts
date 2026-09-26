@@ -11,7 +11,7 @@ export interface FaixaExpediente {
   fim: string;
 }
 
-export interface ExceptionExpediente {
+export interface ExceptionWorkingHours {
   /** `AAAA-MM-DD` no fuso do tenant. */
   data: string;
   fechado: boolean;
@@ -24,7 +24,7 @@ export interface HourAttendance {
   /** Identificador IANA, por exemplo `America/Sao_Paulo`. */
   fuso: string;
   faixas: readonly FaixaExpediente[];
-  exceptions?: readonly ExceptionExpediente[];
+  exceptions?: readonly ExceptionWorkingHours[];
 }
 
 export interface Intervalo {
@@ -43,7 +43,7 @@ const MS_DIA = 86_400_000;
 /** Scan horizon prevents a schedule with no open interval from looping forever. */
 export const SWEEP_DAYS_LIMIT = 366;
 
-interface PartesLocal {
+interface PartsLocal {
   ano: number;
   mes: number;
   dia: number;
@@ -72,7 +72,7 @@ function formatador(fuso: string): Intl.DateTimeFormat {
 }
 
 /** Split an instant into calendar components in the tenant timezone. */
-export function partesNoFuso(instante: Date, fuso: string): PartesLocal {
+export function partesNoFuso(instante: Date, fuso: string): PartsLocal {
   const partes = formatador(fuso).formatToParts(instante);
   const mapa: Record<string, string> = {};
   for (const parte of partes) {
@@ -125,7 +125,7 @@ export function minutosDoRelogio(relogio: string): number {
   return horas * 60 + minutos;
 }
 
-function diaKey(ano: number, mes: number, dia: number): string {
+function dayKey(ano: number, mes: number, dia: number): string {
   const mm = String(mes).padStart(2, '0');
   const dd = String(dia).padStart(2, '0');
   return `${ano}-${mm}-${dd}`;
@@ -158,7 +158,7 @@ export function faixasDoDia(
   mes: number,
   dia: number,
 ): { de: number; ate: number }[] {
-  const exception = horario.exceptions?.find((e) => e.data === diaKey(ano, mes, dia));
+  const exception = horario.exceptions?.find((e) => e.data === dayKey(ano, mes, dia));
   if (exception) {
     if (exception.fechado) return [];
     if (exception.inicio && exception.fim) {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  avaliarCondition,
+  evaluateCondition,
   avaliarExpressao,
   calcularScore,
   valueTier,
@@ -108,7 +108,7 @@ describe('condition operators', () => {
     vazio: '',
   };
 
-  const casos: { nome: string; condition: Parameters<typeof avaliarCondition>[0]; esperado: boolean }[] = [
+  const casos: { nome: string; condition: Parameters<typeof evaluateCondition>[0]; esperado: boolean }[] = [
     { nome: 'igual com acento e caixa diferentes', condition: { campo: 'nome', operador: 'igual', valor: 'ana maria' }, esperado: true },
     { nome: 'diferente', condition: { campo: 'nome', operador: 'diferente', valor: 'joão' }, esperado: true },
     { nome: 'contém em texto', condition: { campo: 'nome', operador: 'contem', valor: 'maria' }, esperado: true },
@@ -130,7 +130,7 @@ describe('condition operators', () => {
 
   for (const caso of casos) {
     it(caso.nome, () => {
-      expect(avaliarCondition(caso.condition, data)).toBe(caso.esperado);
+      expect(evaluateCondition(caso.condition, data)).toBe(caso.esperado);
     });
   }
 });

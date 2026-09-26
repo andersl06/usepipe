@@ -44,7 +44,7 @@ async function resumirCom(
   const texto = prompt.montar({
     transcription: options.transcription.texto,
     truncada: options.transcription.truncada,
-    messagesOmitidas: options.transcription.messagesOmitidas,
+    messagesOmitted: options.transcription.messagesOmitidas,
     maxPalavras: options.maxPalavras,
     context: options.context,
   });
@@ -68,6 +68,6 @@ export function resumirAbertura(options: OptionsSummary): Promise<ResultadoResum
 }
 
 /** Current events for the lead timeline. */
-export function resumirClosure(options: OptionsSummary): Promise<ResultadoResumo> {
+export function summarizeClosure(options: OptionsSummary): Promise<ResultadoResumo> {
   return resumirCom(PROMPT_SUMMARY_CLOSURE, 'resumo_encerramento', options);
 }

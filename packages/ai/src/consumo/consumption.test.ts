@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  TemplateWithoutPrecoError,
+  TemplateWithoutPriceError,
   TEMPLATE_DEFAULT,
   PRECOS,
   arredondarCentavos,
@@ -33,7 +33,7 @@ describe('custo', () => {
   });
 
   it('throws for a model without a price instead of returning zero cost', () => {
-    expect(() => calcularCusto('modelo-inventado', 1_000, 1_000)).toThrow(TemplateWithoutPrecoError);
+    expect(() => calcularCusto('modelo-inventado', 1_000, 1_000)).toThrow(TemplateWithoutPriceError);
   });
 });
 

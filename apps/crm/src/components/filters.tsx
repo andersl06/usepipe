@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Icone } from '@pipe/ui';
 import {
   FILTRAVEIS,
-  filterRotulo,
+  filterLabel,
   WITHOUT_VALUE,
   type FilterKey,
   type SFilter,
@@ -89,9 +89,9 @@ export function Filter({
             key={f.key}
             className="filter-chip"
             href={href(semEste)}
-            title={`Tirar o filtro ${filterRotulo(f.key, value)}`}
+            title={`Tirar o filtro ${filterLabel(f.key, value)}`}
           >
-            {filterRotulo(f.key, value)}
+            {filterLabel(f.key, value)}
             <span aria-hidden="true">×</span>
           </Link>
         );

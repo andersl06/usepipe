@@ -43,7 +43,7 @@ export interface ComponentCloudApi {
   parameters: ParametroCloudApi[];
 }
 
-export class ParametroMissingError extends Error {
+export class ParameterMissingError extends Error {
   readonly codigo = 'template_parametro_faltando' as const;
   readonly position: number;
 
@@ -71,9 +71,9 @@ export function assembleComponents(
 
   if (headerHasMedia(template.cabecalhoTipo)) {
     const link = values['1'];
-    if (!link) throw new ParametroMissingError(1, `mídia do cabeçalho (${template.cabecalhoTipo})`);
+    if (!link) throw new ParameterMissingError(1, `mídia do cabeçalho (${template.cabecalhoTipo})`);
     const tipo = TIPO_DE_PARAMETRO[template.cabecalhoTipo];
-    if (!tipo) throw new ParametroMissingError(1, 'cabeçalho de mídia desconhecido');
+    if (!tipo) throw new ParameterMissingError(1, 'cabeçalho de mídia desconhecido');
     components.push({ type: 'header', parameters: [{ type: tipo, [tipo]: { link } }] });
   }
 
@@ -81,7 +81,7 @@ export function assembleComponents(
   template.variables.forEach((nome, indice) => {
     const position = positionOfVariable(indice + 1, template.cabecalhoTipo);
     const value = values[String(position)];
-    if (value === undefined) throw new ParametroMissingError(position, nome);
+    if (value === undefined) throw new ParameterMissingError(position, nome);
     doCorpo.push({ type: 'text', text: value });
   });
   if (doCorpo.length > 0) components.push({ type: 'body', parameters: doCorpo });

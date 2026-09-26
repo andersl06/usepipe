@@ -114,7 +114,7 @@ function DestaqueDoLead({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
   );
 }
 
-export default async function PageFicha({
+export default async function PageRecord({
   params,
   searchParams,
 }: {
@@ -143,7 +143,7 @@ export default async function PageFicha({
   const count: Record<AbaFicha, number | null> = {
     score: ficha.score?.itens.length ?? null,
     formularios: ficha.formularios.length,
-    tempo: ficha.timeLinha.length,
+    tempo: ficha.timeRow.length,
   };
 
   return (
@@ -236,7 +236,7 @@ export default async function PageFicha({
             {aba === 'score' ? <PanelScore ficha={ficha} fuso={fuso} /> : null}
             {aba === 'formularios' ? <Formularios ficha={ficha} fuso={fuso} /> : null}
             {aba === 'tempo' ? (
-              <TimeLinha itens={ficha.timeLinha} fuso={fuso} agora={agora} />
+              <TimeLinha itens={ficha.timeRow} fuso={fuso} agora={agora} />
             ) : null}
           </div>
         </div>

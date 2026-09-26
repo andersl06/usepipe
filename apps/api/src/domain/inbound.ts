@@ -26,7 +26,7 @@ import {
   loadRulesOfPriorityActive,
   type ContextOfPriority,
 } from './management/priority-engine.js';
-import { aplicarEventsOfTemplate } from './whatsapp/events-of-template.js';
+import { applyEventsOfTemplate } from './whatsapp/events-of-template.js';
 import { flowPublishedOfChannel, rodarFlowInInbound } from './flow.js';
 import { payloadDoInstagram, valuesOfInstagram } from './instagram/inbound.js';
 import { payloadDoMessenger, valuesOfMessenger } from './messenger/inbound.js';
@@ -169,7 +169,7 @@ export async function processarPayload(
   }
 
   // Template status and category events are not conversations; exclude them from the message summary.
-  const modelos = channel.type === 'whatsapp_cloud' ? await aplicarEventsOfTemplate(channel, payload) : 0;
+  const modelos = channel.type === 'whatsapp_cloud' ? await applyEventsOfTemplate(channel, payload) : 0;
 
   if (resumo.messagesRecebidas > 0 || resumo.statusAplicados > 0 || modelos > 0) {
     drenarEmSegundoPlano(channel.tenantId);

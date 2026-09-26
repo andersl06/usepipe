@@ -14,7 +14,7 @@ import {
   tipoDoMime,
 } from '@pipe/storage';
 import type { Storage } from '@pipe/storage';
-import { keyringOfAmbiente } from '@pipe/db';
+import { keyringOfEnvironment } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 
@@ -38,7 +38,7 @@ export function useStorage(novo: Storage | null): void {
  * Use the existing keyring that protects Meta tokens to sign links, avoiding another key to rotate and another place a secret could leak.
  */
 function secretOfLink(): string {
-  const keyring = keyringOfAmbiente();
+  const keyring = keyringOfEnvironment();
   const chave = keyring.chaves.get(keyring.atual);
   if (!chave) throw new Error('chaveiro sem a chave atual: link de anexo não pode ser assinado');
   return chave.toString('base64');

@@ -6,7 +6,7 @@ import {
   dentroDoExpediente,
   faixasDoDia,
   inicioDoAlvo,
-  alvoFulfillment,
+  targetFulfillment,
   minutosDoRelogio,
   proximaAbertura,
   segundosUteisEntre,
@@ -328,7 +328,7 @@ describe('start and fulfillment per target', () => {
 
   it('first response counts from assignment', () => {
     expect(inicioDoAlvo('primeira_resposta', marcos)).toEqual(marcos.atribuidaEm);
-    expect(alvoFulfillment('primeira_resposta', marcos)).toEqual(marcos.firstRespostaIn);
+    expect(targetFulfillment('primeira_resposta', marcos)).toEqual(marcos.firstRespostaIn);
   });
 
   it('with no assignment, the first response counts from creation', () => {
@@ -342,6 +342,6 @@ describe('start and fulfillment per target', () => {
 
   it('closure counts from creation', () => {
     expect(inicioDoAlvo('encerramento', marcos)).toEqual(marcos.criadaEm);
-    expect(alvoFulfillment('encerramento', marcos)).toEqual(marcos.encerradaEm);
+    expect(targetFulfillment('encerramento', marcos)).toEqual(marcos.encerradaEm);
   });
 });

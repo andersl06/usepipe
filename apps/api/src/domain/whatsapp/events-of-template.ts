@@ -97,7 +97,7 @@ export function emailOfRecategorization(alerta: AlertOfRecategorization, canalNo
 }
 
 /** Return the number of changed models; ignore unknown local models until synchronization imports them. */
-export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload: unknown): Promise<number> {
+export async function applyEventsOfTemplate(channel: ChannelResolved, payload: unknown): Promise<number> {
   let aplicados = 0;
   for (const { field, value } of mudancasOfTemplate(payload)) {
     const nome = value?.message_template_name;

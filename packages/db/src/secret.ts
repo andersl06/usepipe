@@ -34,7 +34,7 @@ export interface Keyring {
 /**
  * Read the keyring from the environment and fail loudly. A missing production key is a deployment error; continuing would write tokens in plaintext while appearing to encrypt them.
  */
-export function keyringOfAmbiente(env: NodeJS.ProcessEnv = process.env): Keyring {
+export function keyringOfEnvironment(env: NodeJS.ProcessEnv = process.env): Keyring {
   const cru = env['PIPE_CHAVES_SEGREDO'];
   if (!cru) throw new SecretError('PIPE_CHAVES_SEGREDO não está definida.');
 

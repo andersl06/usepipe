@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { transitionDeliveryAllowed } from '@pipe/core';
-import { keyringOfAmbiente, decifrarConfig, estaCifrado } from '@pipe/db';
+import { keyringOfEnvironment, decifrarConfig, estaCifrado } from '@pipe/db';
 import type { StateDelivery } from '@pipe/core';
 import { databaseOwner, noTenant } from './database.js';
 import { clienteInstagram } from './instagram.js';
@@ -11,7 +11,7 @@ import { clienteWhatsApp } from './whatsapp/index.js';
 import { WhatsAppError } from './whatsapp/cliente.js';
 import type { Conteudo, CredentialsChannel, PedidoEnvio } from './whatsapp/cliente.js';
 import { conteudoDaPergunta, preferencesInteractiveOf } from './whatsapp/interativo.js';
-import type { PerguntaOfFlow } from './whatsapp/interativo.js';
+import type { QuestionOfFlow } from './whatsapp/interativo.js';
 import { validateMedia } from './whatsapp/media.js';
 import type { TypeMedia } from './whatsapp/media.js';
 import type { CabecalhoTemplate } from './whatsapp/template.js';
@@ -207,7 +207,7 @@ function prepararEnvioInstagram(
   // The keyring is reread on every send; cache it if profiling shows this matters.
   let config: Record<string, unknown>;
   try {
-    config = decifrarConfig(linha.canal_config ?? {}, keyringOfAmbiente());
+    config = decifrarConfig(linha.canal_config ?? {}, keyringOfEnvironment());
   } catch (erro) {
     return { erro: { codigo: 'canal_sem_credencial', texto: `O token do canal não decifrou: ${(erro as Error).message}` } };
   }
@@ -241,7 +241,7 @@ function prepararEnvioInstagram(
 
 function prepararEnvioMessenger(linha: LinhaDeEnvio): { messenger: PedidoMessenger } | { erro: { codigo: string; texto: string } } {
   if (!linha.identificador) return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem PSID neste canal.' } };
-  let config: Record<string, unknown>; try { config = decifrarConfig(linha.canal_config ?? {}, keyringOfAmbiente()); } catch { return { erro: { codigo: 'canal_sem_credencial', texto: 'O token do canal não decifrou.' } }; }
+  let config: Record<string, unknown>; try { config = decifrarConfig(linha.canal_config ?? {}, keyringOfEnvironment()); } catch { return { erro: { codigo: 'canal_sem_credencial', texto: 'O token do canal não decifrou.' } }; }
   if (typeof config['tokenAcesso'] !== 'string' || !config['tokenAcesso']) return { erro: { codigo: 'canal_sem_credencial', texto: 'O canal não tem token de acesso.' } };
   const conteudo = montarConteudo(linha, undefined); if ('erro' in conteudo) return conteudo; const c = conteudo.conteudo;
   if (c.tipo === 'template' || c.tipo === 'interativo') return { erro: { codigo: 'tipo_nao_suportado', texto: 'O Messenger não envia template.' } };
@@ -285,7 +285,7 @@ function montarConteudo(
       return { erro: { codigo: 'texto_vazio', texto: 'Mensagem de texto sem conteúdo.' } };
     }
     // For a flow question, use buttons or a list if the channel allows it; otherwise numbered text.
-    const pergunta = linha.dados?.['pergunta'] as PerguntaOfFlow | undefined;
+    const pergunta = linha.dados?.['pergunta'] as QuestionOfFlow | undefined;
     // Only on WhatsApp: Instagram has its own quick reply, not connected yet, so send text.
     const interativo = pergunta && linha.canal_tipo === 'whatsapp_cloud'
       ? conteudoDaPergunta(pergunta, preferencesInteractiveOf(linha.canal_config))
@@ -386,7 +386,7 @@ export function credentialsOf(cru: Record<string, unknown> | null): CredentialsC
   // the test double would miss this. Require the keyring only when decryption is needed.
   const config =
     cru && Object.values(cru).some((v) => typeof v === 'string' && estaCifrado(v))
-      ? decifrarConfig(cru, keyringOfAmbiente())
+      ? decifrarConfig(cru, keyringOfEnvironment())
       : cru;
   const phoneNumberId =
     (config?.['phoneNumberId'] as string | undefined) ?? process.env['WHATSAPP_PHONE_NUMBER_ID'];

@@ -48,7 +48,7 @@ export function templateConfigured(): string {
   return process.env['PIPE_IA_MODELO']?.trim() || TEMPLATE_DEFAULT;
 }
 
-export interface OptionsRetentativa {
+export interface OptionsRetry {
   /** Total de tentativas, incluindo a primeira. */
   tentativas?: number;
   /** Espera da primeira retentativa, em ms. Dobra a cada rodada. */
@@ -57,7 +57,7 @@ export interface OptionsRetentativa {
   dormir?: (ms: number) => Promise<void>;
 }
 
-const trueDormir = (ms: number) => new Promise<void>((ok) => setTimeout(ok, ms));
+const trueSleep = (ms: number) => new Promise<void>((ok) => setTimeout(ok, ms));
 
 /**
  * Retry network failures or rate limits; do not retry our request errors, bad keys, or nonexistent models, because that wastes money and delays diagnosis. Use HTTP status rather than SDK error classes, which may change across versions: 408, 409, 429, and 5xx are retryable.
@@ -89,11 +89,11 @@ export function esperaDaTentativa(
 /** Repete `tarefa` enquanto o erro for de rede ou limite de taxa. */
 export async function comRetentativa<T>(
   tarefa: () => Promise<T>,
-  options: OptionsRetentativa = {},
+  options: OptionsRetry = {},
 ): Promise<T> {
   const tentativas = options.tentativas ?? 4;
   const esperaBaseMs = options.esperaBaseMs ?? 500;
-  const dormir = options.dormir ?? trueDormir;
+  const dormir = options.dormir ?? trueSleep;
 
   let ultimo: unknown;
   for (let i = 0; i < tentativas; i++) {
@@ -118,7 +118,7 @@ function cliente(): Anthropic {
 /**
  * Real API call. Refusal, truncation at `max_tokens`, and schema-invalid content fail explicitly; none is guessed into a result.
  */
-export function createCall(options: OptionsRetentativa = {}): ChamadaEstruturada {
+export function createCall(options: OptionsRetry = {}): ChamadaEstruturada {
   return async function chamar<T>(pedido: PedidoIa<T>): Promise<RespostaIa<T>> {
     const template = pedido.template ?? templateConfigured();
 

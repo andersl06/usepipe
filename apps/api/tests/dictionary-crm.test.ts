@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 9).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { cifrar, keyringOfAmbiente } = await import('@pipe/db');
+const { cifrar, keyringOfEnvironmentkeyringOfAmbientekeyringOfEnvironment } = await import('@pipe/db');
 const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { readDictionary, lerMetadados, syncDictionary } = await import(
   '../src/domain/dictionary-crm.js'
@@ -156,7 +156,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
     for (const c of [a, b]) {
       await c.dono.execute(sql`
         update tenant set twenty_url = ${`https://crm-${c.tenantId.slice(0, 8)}.teste`},
-                          twenty_chave = ${cifrar('k', keyringOfAmbiente())}
+                          twenty_chave = ${cifrar('k', keyringOfEnvironmentkeyringOfAmbientekeyringOfEnvironment())}
          where id = ${c.tenantId}
       `);
     }

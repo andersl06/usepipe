@@ -12,7 +12,7 @@ import {
   agrupar,
   carregarListaDeLeads,
   directionValid,
-  escreverFilters,
+  writeFilters,
   readFilters,
   LIMITE_LISTA,
   listarProprietarios,
@@ -69,7 +69,7 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
     }
     // The filter comes in last, and that's why the saved view keeps it: `consulta()`
     // with no argument is exactly the screen's address as it stands right now.
-    return escreverFilters(p, withFilters).toString();
+    return writeFilters(p, withFilters).toString();
   };
 
   return (

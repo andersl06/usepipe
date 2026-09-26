@@ -9,7 +9,7 @@ import {
   listOpportunities,
   SITUATIONS,
   situationValid,
-  type LinhaOpportunity,
+  type OpportunityRow,
 } from '../../lib/funil';
 import { data, money, numero } from '../../lib/format';
 
@@ -39,7 +39,7 @@ function vistaValida(value: string | undefined): Vista {
   return value === 'tabela' ? 'tabela' : 'quadro';
 }
 
-function colunasDaTabela(hoje: Date, fuso: string): readonly Column<LinhaOpportunity>[] {
+function colunasDaTabela(hoje: Date, fuso: string): readonly Column<OpportunityRow>[] {
   return [
     {
       key: 'nome',
@@ -74,11 +74,11 @@ function colunasDaTabela(hoje: Date, fuso: string): readonly Column<LinhaOpportu
             </Etiqueta>
           );
         }
-        if (o.closingPrevisto && o.closingPrevisto < hoje) {
-          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
+        if (o.closingExpected && o.closingExpected < hoje) {
+          return <Etiqueta tom="alerta">venceu em {data(o.closingExpected, fuso)}</Etiqueta>;
         }
-        return o.closingPrevisto ? (
-          <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
+        return o.closingExpected ? (
+          <Etiqueta>fecha em {data(o.closingExpected, fuso)}</Etiqueta>
         ) : (
           '—'
         );
@@ -175,8 +175,8 @@ function QuadroDoFunil({ funil }: { funil: Awaited<ReturnType<typeof carregarFun
       // An overdue close date on an opportunity that's still open: it's the only
       // thing on the board that demands action, and it's the only one that gets color.
       diasVencido:
-        c.closingPrevisto && c.closingPrevisto < hoje
-          ? Math.floor((hoje.getTime() - c.closingPrevisto.getTime()) / 86_400_000)
+        c.closingExpected && c.closingExpected < hoje
+          ? Math.floor((hoje.getTime() - c.closingExpected.getTime()) / 86_400_000)
           : null,
     })),
   );

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { POLICY_MEDIA_DEFAULT, validateMedia } from '../src/whatsapp/media.js';
 import {
-  ParametroMissingError,
+  ParameterMissingError,
   assembleComponents,
   positionOfVariable,
   positionsOfBody,
@@ -106,7 +106,7 @@ describe('Shift body parameter positions when a template has header media', () =
     // This is the documented error: the operator numbers body values 1 and 2, but media takes
     // position 1, so the client could receive a protocol number instead of a name. Here it throws.
     expect(() => assembleComponents(withMedia, { '1': 'Ana', '2': 'A-42' })).toThrow(
-      ParametroMissingError,
+      ParameterMissingError,
     );
   });
 });

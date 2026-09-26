@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  escreverFilters,
+  writeFilters,
   filterValid,
   readFilters,
-  filterRotulo,
+  filterLabel,
   WITHOUT_VALUE,
 } from '../src/lib/leads-visao.ts';
 
@@ -48,18 +48,18 @@ test('repeated parameter: the first one counts, the rest do not become a second 
 
 test('a round trip through the URL preserves the filter, including one with a blank value', () => {
   const filters = { origem: 'Indicação', proprietario: WITHOUT_VALUE };
-  const p = escreverFilters(new URLSearchParams({ tab: 'todos' }), filters);
+  const p = writeFilters(new URLSearchParams({ tab: 'todos' }), filters);
   assert.equal(p.get('aba'), 'todos', 'o resto da consulta não pode ser atropelado');
   assert.deepEqual(readFilters(Object.fromEntries(p)), filters);
 });
 
 test('removing a filter deletes its parameter instead of leaving it empty in the URL', () => {
-  const p = escreverFilters(new URLSearchParams('aba=todos&f.origem=Indica%C3%A7%C3%A3o'), {});
+  const p = writeFilters(new URLSearchParams('aba=todos&f.origem=Indica%C3%A7%C3%A3o'), {});
   assert.equal(p.has('f.origem'), false);
   assert.equal(p.toString(), 'aba=todos');
 });
 
 test('the chip shows the column and value, and a blank value is labeled in plain language', () => {
-  assert.equal(filterRotulo('origem', 'Indicação'), 'Origem: Indicação');
-  assert.equal(filterRotulo('proprietario', WITHOUT_VALUE), 'Proprietário: em branco');
+  assert.equal(filterLabel('origem', 'Indicação'), 'Origem: Indicação');
+  assert.equal(filterLabel('proprietario', WITHOUT_VALUE), 'Proprietário: em branco');
 });

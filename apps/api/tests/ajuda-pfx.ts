@@ -173,8 +173,8 @@ export function generatePfxOfTest(options: {
     cipher: 'aes-256-cbc',
     passphrase: options.senha,
   });
-  const sacoOfKey = seq(oid(OID.pkcs8ShroudedKeyBag), ctx0(keyEncrypted));
-  const contentOfKey = seq(oid(OID.data), ctx0(octetos(seq(sacoOfKey))));
+  const bagOfKey = seq(oid(OID.pkcs8ShroudedKeyBag), ctx0(keyEncrypted));
+  const contentOfKey = seq(oid(OID.data), ctx0(octetos(seq(bagOfKey))));
 
   // O certificado: certBag dentro de um encryptedData PBES2.
   const sacoDoCertificado = seq(

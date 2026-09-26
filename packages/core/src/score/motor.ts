@@ -24,12 +24,12 @@ export interface Condition {
   valor?: unknown;
 }
 
-export interface ConditionComposta {
+export interface ConditionCompound {
   combinador: 'e' | 'ou';
-  condicoes: readonly (Condition | ConditionComposta)[];
+  condicoes: readonly (Condition | ConditionCompound)[];
 }
 
-export type Expressao = Condition | ConditionComposta;
+export type Expressao = Condition | ConditionCompound;
 
 export interface RegraScore {
   id: string;
@@ -71,7 +71,7 @@ export interface OptionsScore {
 
 export type DataLead = Readonly<Record<string, unknown>>;
 
-function ehComposta(expressao: Expressao): expressao is ConditionComposta {
+function ehComposta(expressao: Expressao): expressao is ConditionCompound {
   return 'combinador' in expressao;
 }
 
@@ -114,7 +114,7 @@ function equal(a: unknown, b: unknown): boolean {
 }
 
 
-export function avaliarCondition(condition: Condition, data: DataLead): boolean {
+export function evaluateCondition(condition: Condition, data: DataLead): boolean {
   const atual = lerCampo(data, condition.campo);
   const esperado = condition.valor;
 
@@ -132,7 +132,7 @@ export function avaliarCondition(condition: Condition, data: DataLead): boolean 
       if (atual === undefined || atual === null) return false;
       return normalizarTexto(atual).includes(normalizarTexto(esperado));
     case 'nao_contem':
-      return !avaliarCondition({ ...condition, operador: 'contem' }, data);
+      return !evaluateCondition({ ...condition, operador: 'contem' }, data);
     case 'em':
       return Array.isArray(esperado) && esperado.some((item) => equal(atual, item));
     case 'nao_em':
@@ -156,7 +156,7 @@ export function avaliarCondition(condition: Condition, data: DataLead): boolean 
 
 
 export function avaliarExpressao(expressao: Expressao, data: DataLead): boolean {
-  if (!ehComposta(expressao)) return avaliarCondition(expressao, data);
+  if (!ehComposta(expressao)) return evaluateCondition(expressao, data);
   if (expressao.condicoes.length === 0) return false;
   return expressao.combinador === 'e'
     ? expressao.condicoes.every((c) => avaliarExpressao(c, data))

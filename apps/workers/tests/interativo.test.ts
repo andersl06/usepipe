@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { conteudoDaPergunta, formatOfPergunta, preferencesInteractiveOf } from '../src/whatsapp/interativo.js';
+import { conteudoDaPergunta, formatOfQuestion, preferencesInteractiveOf } from '../src/whatsapp/interativo.js';
 import { montarCorpo } from '../src/whatsapp/real.js';
 
 const ligado = { quickReply: true, menu: true };
@@ -7,11 +7,11 @@ const credentials = { phoneNumberId: '1', tokenAcesso: 't' };
 
 describe('Turn flow questions into interactive messages', () => {
   it('Choose buttons for up to three options, a list for up to ten, and text otherwise', () => {
-    expect(formatOfPergunta(3, ligado)).toBe('botoes');
-    expect(formatOfPergunta(4, ligado)).toBe('lista');
-    expect(formatOfPergunta(11, ligado)).toBe('texto');
-    expect(formatOfPergunta(2, { quickReply: false, menu: true })).toBe('lista');
-    expect(formatOfPergunta(2, { quickReply: false, menu: false })).toBe('texto');
+    expect(formatOfQuestion(3, ligado)).toBe('botoes');
+    expect(formatOfQuestion(4, ligado)).toBe('lista');
+    expect(formatOfQuestion(11, ligado)).toBe('texto');
+    expect(formatOfQuestion(2, { quickReply: false, menu: true })).toBe('lista');
+    expect(formatOfQuestion(2, { quickReply: false, menu: false })).toBe('texto');
     expect(preferencesInteractiveOf(null)).toEqual(ligado);
     expect(preferencesInteractiveOf({ preferencias: { menu: false } })).toEqual({ quickReply: true, menu: false });
   });

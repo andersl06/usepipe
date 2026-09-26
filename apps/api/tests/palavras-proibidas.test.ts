@@ -31,7 +31,7 @@ let api: ApiNoAr;
 /** Has `tenant.configurar` — the General Settings permission, reused here. */
 let sessionManager: string;
 /** People from tenant A with no permission at all. */
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 /** A valid session, but from another tenant — proves the tenant comes from the session, never from the URL. */
 let sessionOfOtherTenant: string;
 /** Scenario A's agent, who is the one replying. */
@@ -129,7 +129,7 @@ async function newConversation(cenario: Cenario, contactId: string): Promise<str
   return rows[0]!.id;
 }
 
-async function contarMessages(cenario: Cenario, conversationId: string): Promise<number> {
+async function countMessages(cenario: Cenario, conversationId: string): Promise<number> {
   const { rows } = await cenario.dono.execute<{ n: number }>(sql`
     select count(*)::int as n from mensagem where conversa_id = ${conversationId}::uuid
   `);
@@ -152,7 +152,7 @@ beforeAll(async () => {
 
   api = await upApi(0);
   sessionManager = await openSession(a, gestor);
-  sessionWithoutPoder = await openSession(a, semPoder);
+  sessionWithoutAuthority = await openSession(a, semPoder);
   sessionOfOtherTenant = await openSession(b, gestorDoB);
   sessionAgentA = await openSession(a, a.agentId);
   sessionAgentB = await openSession(b, b.agentId);
@@ -247,7 +247,7 @@ describe(`POST ${CAMINHO}`, () => {
   });
 
   it('Return 403 without `tenant.configurar` and 401 without a session', async () => {
-    const semPoder = await createWord(sessionWithoutPoder);
+    const semPoder = await createWord(sessionWithoutAuthority);
     expect(semPoder.status).toBe(403);
     expect(semPoder.corpo.erro.code).toBe('without_permission');
     expect(semPoder.corpo.erro.detalhe.permissao).toBe('tenant.configurar');
@@ -308,7 +308,7 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
   it('sem tenant.configurar é 403; de outro tenant é 404; id malformado é 404', async () => {
     const { corpo: criada } = await createWord(sessionManager);
 
-    const semPoder = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionWithoutPoder, { ativo: false });
+    const semPoder = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionWithoutAuthority, { ativo: false });
     expect(semPoder.status).toBe(403);
 
     const outroTenant = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionOfOtherTenant, {
@@ -339,7 +339,7 @@ describe(`DELETE ${CAMINHO}/:id`, () => {
 
     const semPoder = await fetch(`${api.url}${CAMINHO}/${criada.id}`, {
       method: 'DELETE',
-      headers: comCookie(sessionWithoutPoder),
+      headers: comCookie(sessionWithoutAuthority),
     });
     expect(semPoder.status).toBe(403);
 
@@ -385,7 +385,7 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
     expect(recusada.corpo.erro.message).toContain(`"${palavra}"`);
     expect(recusada.corpo.erro.detalhe.palavras).toEqual([palavra]);
     // Neither the message nor the outbox was written: the rejection happens BEFORE writing.
-    expect(await contarMessages(a, conversationA)).toBe(0);
+    expect(await countMessages(a, conversationA)).toBe(0);
 
     // Phrase: a substring of the whole text, with extra spaces and different case.
     const recusadaFrase = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
@@ -399,7 +399,7 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
       texto: 'Olá, tudo bem? Segue o boleto.',
     });
     expect(limpa.status).toBe(201);
-    expect(await contarMessages(a, conversationA)).toBe(1);
+    expect(await countMessages(a, conversationA)).toBe(1);
 
     // Once disabled, the word stops blocking — and the cache was invalidated by the PATCH.
     const desativada = await pedir('PATCH', `${CAMINHO}/${criadaPalavra.id}`, sessionManager, {
@@ -424,7 +424,7 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
       texto: `${palavra} e ${frase}`,
     });
     expect(doB.status).toBe(201);
-    expect(await contarMessages(b, conversationB)).toBe(1);
+    expect(await countMessages(b, conversationB)).toBe(1);
   });
 
   it('Filter attachment captions while allowing system messages from API keys', async () => {

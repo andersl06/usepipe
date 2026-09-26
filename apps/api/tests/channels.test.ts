@@ -15,9 +15,9 @@ process.env['WHATSAPP_APP_SECRET'] = 'segredo-do-app-da-meta';
 delete process.env['WHATSAPP_API_VERSAO'];
 
 const { createDatabase, decifrar, estaCifrado, closeDatabase, migrate, seed } = await import('@pipe/db');
-const { keyring, esquecerChannel, fecharBancos, resolveChannel } = await import('../src/database.js');
+const { keyring, forgetChannelesquecerChannelforgetChannel, fecharBancos, resolveChannel } = await import('../src/database.js');
 const { processarPayload } = await import('../src/domain/inbound.js');
-const { aplicarEventsOfTemplate } = await import('../src/domain/whatsapp/events-of-template.js');
+const { applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate } = await import('../src/domain/whatsapp/events-of-template.js');
 const { PipeError } = await import('../src/errors.js');
 const { desconectarWhatsApp, listChannelsWhatsApp, urlDoWebhook } = await import(
   '../src/domain/channels.js'
@@ -34,7 +34,7 @@ const { writeProfileOfChannel, readProfileOfChannel } = await import('../src/dom
 const { createTemplateInMeta, deleteTemplateInMeta, sincronizarModelos } = await import(
   '../src/domain/whatsapp/modelos.js'
 );
-const { formatOfPergunta, writePreferences, readPreferences } = await import(
+const { formatOfQuestion, writePreferences, readPreferences } = await import(
   '../src/domain/whatsapp/preferences.js'
 );
 const { buscarInfoDoNumero } = await import('../src/domain/whatsapp/info-do-numero.js');
@@ -125,7 +125,7 @@ afterAll(async () => {
 beforeEach(() => {
   definirFabricaGraph(null);
   ClienteGraphDuble.reiniciar();
-  esquecerChannel();
+  forgetChannelesquecerChannelforgetChannel();
 });
 
 afterEach(() => {
@@ -935,13 +935,13 @@ describe('Read and update channel and alert preferences', () => {
 
   it('Choose buttons for up to three options, a list for up to ten, and text otherwise', () => {
     const ligado = { quickReply: true, menu: true };
-    expect(formatOfPergunta(3, ligado)).toBe('botoes');
-    expect(formatOfPergunta(4, ligado)).toBe('lista');
-    expect(formatOfPergunta(10, ligado)).toBe('lista');
-    expect(formatOfPergunta(11, ligado)).toBe('texto');
-    expect(formatOfPergunta(2, { quickReply: false, menu: true })).toBe('lista');
-    expect(formatOfPergunta(2, { quickReply: false, menu: false })).toBe('texto');
-    expect(formatOfPergunta(0, ligado)).toBe('texto');
+    expect(formatOfQuestion(3, ligado)).toBe('botoes');
+    expect(formatOfQuestion(4, ligado)).toBe('lista');
+    expect(formatOfQuestion(10, ligado)).toBe('lista');
+    expect(formatOfQuestion(11, ligado)).toBe('texto');
+    expect(formatOfQuestion(2, { quickReply: false, menu: true })).toBe('lista');
+    expect(formatOfQuestion(2, { quickReply: false, menu: false })).toBe('texto');
+    expect(formatOfQuestion(0, ligado)).toBe('texto');
   });
 });
 
@@ -971,7 +971,7 @@ describe('Update template status and category from webhooks', () => {
       ),
     ).toMatchObject({ mensagensRecebidas: 0 });
     expect(
-      await aplicarEventsOfTemplate(
+      await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(
         resolvido,
         evento('template_category_update', {
           message_template_name: 'lembrete',
@@ -982,7 +982,7 @@ describe('Update template status and category from webhooks', () => {
       ),
     ).toBe(1);
     expect(
-      await aplicarEventsOfTemplate(
+      await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(
         resolvido,
         evento('message_template_status_update', {
           event: 'REJECTED',

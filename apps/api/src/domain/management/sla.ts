@@ -1,5 +1,5 @@
 import { and, asc, eq } from 'drizzle-orm';
-import { avaliarSla, alvoFulfillment, inicioDoAlvo, type AlvoSla, type Marcos } from '@pipe/core';
+import { avaliarSla, targetFulfillment, inicioDoAlvo, type AlvoSla, type Marcos } from '@pipe/core';
 import { regraSla } from '@pipe/db/schema';
 import type { TransactionPipe } from '@pipe/db';
 
@@ -95,7 +95,7 @@ export function avaliarSlaOfConversation(
   const inicio = inicioDoAlvo(regra.target, marcos);
   if (!inicio) return SEM_REGRA;
 
-  const cumpridoEm = alvoFulfillment(regra.target, marcos);
+  const cumpridoEm = targetFulfillment(regra.target, marcos);
   const r = avaliarSla({
     regra: { prazoSeg: regra.deadlineSeg, alertaSeg: regra.alertSeg },
     inicio,

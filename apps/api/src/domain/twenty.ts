@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { keyringOfAmbiente, decifrar, estaCifrado } from '@pipe/db';
+import { keyringOfEnvironment, decifrar, estaCifrado } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
 
 /**
@@ -41,7 +41,7 @@ export async function configDoTenant(
   const bruta = linha.twenty_chave;
   // Tolera chave em texto puro para o ambiente de desenvolvimento, do mesmo jeito
   // Accept plaintext CRM keys in development, as `decifrarConfig` does for Meta tokens; production supplies an encrypted key.
-  const key = estaCifrado(bruta) ? decifrar(bruta, keyringOfAmbiente()) : bruta;
+  const key = estaCifrado(bruta) ? decifrar(bruta, keyringOfEnvironment()) : bruta;
   return { url: linha.twenty_url.replace(/\/$/, ''), key };
 }
 
@@ -157,7 +157,7 @@ const CAMPOS_PESSOA = 'id pipeContatoId';
 /**
  * Create or update the matching Twenty `person` and return its ID. Look up `pipeContatoId` before creating to avoid duplicates when CRM creation succeeds but the Pipe transaction fails before saving the ID; the next run adopts the orphaned CRM record.
  */
-export async function espelharContact(
+export async function mirrorContact(
   config: ConfigTwenty,
   contact: ContactForEspelhar,
   buscar: typeof fetch = fetch,

@@ -26,7 +26,7 @@ import { executarProcessHttp } from './domain/flow.js';
 import { renovarTokensInstagram } from './domain/instagram/renewal.js';
 import { contactsWithoutMirror, syncContact } from './domain/mirror-crm.js';
 import { baixarMediaOfAttachment, midiasPendentes } from './domain/media.js';
-import { checarSlaOfConversation, conversationsForChecarSla } from './domain/management/sla-motor.js';
+import { checkSlaOfConversation, conversationsForChecarSla } from './domain/management/sla-motor.js';
 import { QUEUE_IMPORT, processarImport } from '@pipe/workers';
 import type { JobImport } from '@pipe/workers';
 
@@ -298,7 +298,7 @@ export function consumeCheckSla(): void {
         return pendentes.length;
       }
       const dados = job.data as JobSla;
-      await checarSlaOfConversation(dados.tenantId, dados.conversationId);
+      await checkSlaOfConversation(dados.tenantId, dados.conversationId);
     },
     {
       connection: redis(),
@@ -322,7 +322,7 @@ export async function scheduleSweepSla(): Promise<void> {
       void (async () => {
         try {
           for (const p of await conversationsForChecarSla()) {
-            await checarSlaOfConversation(p.tenantId, p.conversationId);
+            await checkSlaOfConversation(p.tenantId, p.conversationId);
           }
         } catch (erro) {
           console.error(`[sla] varredura em memória falhou: ${(erro as Error).message}`);

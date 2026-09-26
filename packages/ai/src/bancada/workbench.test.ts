@@ -120,7 +120,7 @@ describe('bancada', () => {
     expect(r.falhas).toEqual([]);
     expect(r.acuraciaGeral).toBe(1);
     expect(r.desvioMedioNota).toBe(0);
-    for (const c of r.byCriterio) expect(c.acuracia).toBe(1);
+    for (const c of r.byCriterion) expect(c.acuracia).toBe(1);
   });
 
   it('measures deviation per criterion, not just the total', async () => {
@@ -130,13 +130,13 @@ describe('bancada', () => {
       avaliar: avaliadorQueResponde({ 'troca-sem-prazo': { 'c-prazo': 'conforme' } }),
     });
 
-    const prazo = r.byCriterio.find((c) => c.criterioId === 'c-prazo')!;
+    const prazo = r.byCriterion.find((c) => c.criterioId === 'c-prazo')!;
     expect(prazo.n).toBe(casos.length);
     expect(prazo.acertos).toBe(casos.length - 1);
     expect(prazo.acuracia).toBeCloseTo((casos.length - 1) / casos.length, 4);
     expect(prazo.desvioMedioPontos).toBeGreaterThan(0);
 
-    const greeting = r.byCriterio.find((c) => c.criterioId === 'c-saudacao')!;
+    const greeting = r.byCriterion.find((c) => c.criterioId === 'c-saudacao')!;
     expect(greeting.acuracia).toBe(1);
     expect(greeting.desvioMedioPontos).toBe(0);
 
@@ -156,9 +156,9 @@ describe('bancada', () => {
       }),
     });
 
-    const acuracias = r.byCriterio.map((c) => c.acuracia);
+    const acuracias = r.byCriterion.map((c) => c.acuracia);
     expect([...acuracias].sort((a, b) => a - b)).toEqual(acuracias);
-    expect(r.byCriterio[0]!.criterioId).toBe('c-clareza');
+    expect(r.byCriterion[0]!.criterioId).toBe('c-clareza');
   });
 
   it('desvio da nota acompanha a diferença real, inclusive quando o fatal zera', async () => {
@@ -168,7 +168,7 @@ describe('bancada', () => {
       casos,
       avaliar: avaliadorQueResponde({ 'dado-de-terceiro': { 'c-dados': 'conforme' } }),
     });
-    const caso = r.byCaso.find((c) => c.casoId === 'dado-de-terceiro')!;
+    const caso = r.byCase.find((c) => c.casoId === 'dado-de-terceiro')!;
     expect(caso.notaHumana).toBe(0);
     expect(caso.notaIa).toBeGreaterThan(80);
     expect(caso.desvioNota).toBe(caso.notaIa);
@@ -189,7 +189,7 @@ describe('bancada', () => {
     expect(r.casos).toBe(casos.length - 1);
     // A failed case neither improves nor worsens accuracy: it is excluded from the calculation but reported.
     expect(r.acuraciaGeral).toBe(1);
-    expect(r.byCriterio[0]!.n).toBe(casos.length - 1);
+    expect(r.byCriterion[0]!.n).toBe(casos.length - 1);
   });
 
   it('sums consumption across all cases, per model', async () => {

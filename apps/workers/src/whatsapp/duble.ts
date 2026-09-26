@@ -1,12 +1,12 @@
 import type { ClienteWhatsApp, PedidoEnvio, RespostaEnvio } from './cliente.js';
 import { WhatsAppError } from './cliente.js';
-import { assembleComponents, ParametroMissingError } from './template.js';
+import { assembleComponents, ParameterMissingError } from './template.js';
 
 /**
  * Cloud API double. It is the operating mode while there is no WABA, not merely a test mock. It simulates Meta accepting a message, returning a `wamid`, and LATER sending status webhooks. The same endpoint used in production consumes those statuses, so the tested path is real. It also builds template components before accepting, exposing shifted-parameter errors in the double instead of only in production.
  */
 
-export interface ConfigurationDuble {
+export interface ConfigurationDouble {
   /** Atraso artificial por envio, em milissegundos. */
   atrasoMs: number;
   /** Recipients that always fail, to exercise the error path. */
@@ -34,7 +34,7 @@ export interface StatusSimulado {
   em: Date;
 }
 
-function daEnv(): ConfigurationDuble {
+function daEnv(): ConfigurationDouble {
   return {
     atrasoMs: Number(process.env['PIPE_WHATSAPP_DUBLE_ATRASO_MS'] ?? 0),
     falharPara: (process.env['PIPE_WHATSAPP_DUBLE_FALHAR_PARA'] ?? '')
@@ -52,12 +52,12 @@ function daEnv(): ConfigurationDuble {
 export class ClienteWhatsAppDuble implements ClienteWhatsApp {
   readonly nome = 'duble' as const;
 
-  private configuration: ConfigurationDuble = daEnv();
+  private configuration: ConfigurationDouble = daEnv();
   private sequencia = 0;
   private readonly chamadasFeitas: ChamadaDuble[] = [];
   private statusPendentes: StatusSimulado[] = [];
 
-  configurar(parcial: Partial<ConfigurationDuble>): void {
+  configurar(parcial: Partial<ConfigurationDouble>): void {
     this.configuration = { ...this.configuration, ...parcial };
   }
 
@@ -108,7 +108,7 @@ export class ClienteWhatsAppDuble implements ClienteWhatsApp {
       try {
         assembleComponents(pedido.conteudo.template, pedido.conteudo.values);
       } catch (error) {
-        if (error instanceof ParametroMissingError) {
+        if (error instanceof ParameterMissingError) {
           this.chamadasFeitas.push({
             para: pedido.para,
             tipo: pedido.conteudo.tipo,

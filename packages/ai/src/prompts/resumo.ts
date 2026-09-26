@@ -7,7 +7,7 @@ import type { Prompt } from './tipos.js';
 export interface InboundSummary {
   transcription: string;
   truncada: boolean;
-  messagesOmitidas: number;
+  messagesOmitted: number;
   /** Teto de palavras do resumo. */
   maxPalavras?: number;
   /** Queue, product, or other context that helps the model situate the conversation. */
@@ -27,7 +27,7 @@ Regras que valem sempre:
 
 function avisoDeCorte(inbound: InboundSummary): string {
   return inbound.truncada
-    ? `\n\nAviso: ${inbound.messagesOmitidas} mensagens do meio da conversa foram omitidas por tamanho. O início e o fim estão inteiros.`
+    ? `\n\nAviso: ${inbound.messagesOmitted} mensagens do meio da conversa foram omitidas por tamanho. O início e o fim estão inteiros.`
     : '';
 }
 

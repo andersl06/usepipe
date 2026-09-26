@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { cifrarConfig, decifrarConfig } from '@pipe/db';
-import { databaseOwner, keyring, esquecerChannel, noTenant } from '../../database.js';
+import { databaseOwner, keyring, forgetChannel, noTenant } from '../../database.js';
 import { PipeError } from '../../errors.js';
 
 /**
@@ -88,7 +88,7 @@ export async function atualizarChannel(
        where id = ${canal.id}::uuid
     `);
   });
-  esquecerChannel(canal.id);
+  forgetChannel(canal.id);
   return {
     ...canal,
     config,

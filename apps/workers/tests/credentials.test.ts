@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cifrarConfig, keyringOfAmbiente } from '@pipe/db';
+import { cifrarConfig, keyringOfEnvironment } from '@pipe/db';
 import { credentialsOf } from '../src/delivery.js';
 
 /**
@@ -9,7 +9,7 @@ describe('Resolve channel credentials from encrypted configuration', () => {
   it('Decrypt the channel token before sending a request to Meta', () => {
     process.env['PIPE_CHAVES_SEGREDO'] = `teste:${Buffer.alloc(32, 9).toString('base64')}`;
     process.env['PIPE_CHAVE_SEGREDO_ATUAL'] = 'teste';
-    const config = cifrarConfig({ phoneNumberId: '123', tokenAcesso: 'token-de-verdade' }, keyringOfAmbiente());
+    const config = cifrarConfig({ phoneNumberId: '123', tokenAcesso: 'token-de-verdade' }, keyringOfEnvironment());
     expect(config['tokenAcesso']).not.toBe('token-de-verdade');
     expect(credentialsOf(config)).toMatchObject({ phoneNumberId: '123', tokenAcesso: 'token-de-verdade' });
   });

@@ -24,7 +24,7 @@ let a: Cenario;
 let api: ApiNoAr;
 let agentId: string;
 let sessionAgent: string;
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 let colegaId: string;
 let sessionColleague: string;
 let labelConversation: string;
@@ -138,7 +138,7 @@ beforeAll(async () => {
   api = await upApi(0);
   agentId = await pessoaCom(a, ['conversa.etiquetar', 'contato.editar']);
   sessionAgent = await openSession(a, agentId);
-  sessionWithoutPoder = await openSession(a, await pessoaCom(a, []));
+  sessionWithoutAuthority = await openSession(a, await pessoaCom(a, []));
   colegaId = await pessoaCom(a, ['conversa.etiquetar']);
   sessionColleague = await openSession(a, colegaId);
   labelConversation = await createLabel('conversation');
@@ -268,7 +268,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
     const semPoder = await chamar(
       'POST',
       `/v1/conversations/${conversationId}/labels`,
-      comCookie(sessionWithoutPoder),
+      comCookie(sessionWithoutAuthority),
       { etiqueta_id: labelConversation },
     );
     expect(semPoder.status).toBe(403);

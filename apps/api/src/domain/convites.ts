@@ -275,7 +275,7 @@ export interface InvitationAccepted {
 /**
  * Accept an invitation by creating the tenant user, granting the role, and consuming the token. Optional `pessoa` separates two paths. Without `pessoa` (`POST /v1/convites/:token/aceitar`), create the user now; they sign in through Google later if their domain is verified, following the third question in `entrada.ts`. With `pessoa` (Google callback carrying `?convite=`), link the external account and open a session here; this is the path offered to someone without a verified domain. `for update` enforces single use: two concurrent clicks must not both read "not accepted" and proceed.
  */
-export async function aceitarInvitation(
+export async function acceptInvitation(
   tokenCru: string,
   pessoa?: PessoaDoGoogle,
   context: { ip?: string; agente?: string } = {},

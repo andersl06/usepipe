@@ -8,9 +8,9 @@ import { assignInBulk, desqualificarInBulk } from '../app/leads/actions';
 import { CelulaInline } from './celula-inline';
 import {
   groupingColumn,
-  columnOrdenavel,
+  columnSortable,
   directionInitial,
-  escreverFilters,
+  writeFilters,
   ROTULO_STATUS,
   type Grouping,
   type Direction,
@@ -190,8 +190,8 @@ const COLUNAS: readonly ColumnLead[] = [
     rotulo: 'Última atividade',
     largura: 190,
     celula: (l, ctx) =>
-      l.ultimaActivity
-        ? `${l.ultimaActivityTipo ?? 'atividade'} · ${desde(l.ultimaActivity, ctx.timezone, ctx.now)}`
+      l.lastActivity
+        ? `${l.lastActivityType ?? 'atividade'} · ${desde(l.lastActivity, ctx.timezone, ctx.now)}`
         : '—',
   },
 ];
@@ -398,7 +398,7 @@ export function ListaDeLeads({
     }
     // The filter follows along: a "Clear search" that also erased the filter would send
     // a pessoa procurar o lead sumido no lugar errado.
-    escreverFilters(p, withFilters);
+    writeFilters(p, withFilters);
     for (const [key, value] of Object.entries(extra)) {
       if (value === null) p.delete(key);
       else p.set(key, value);
@@ -551,7 +551,7 @@ export function ListaDeLeads({
                     aria-sort={active ? (direction === 'asc' ? 'ascending' : 'descending') : undefined}
                     className={larguras.columnInArraste === c.key ? 'arrastando' : undefined}
                   >
-                    {columnOrdenavel(c.key) ? (
+                    {columnSortable(c.key) ? (
                       <Link href={sorting(c.key)} className="ord" scroll={false}>
                         {c.rotulo}
                         <span className="seta" aria-hidden="true">

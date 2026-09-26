@@ -16,7 +16,7 @@ process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/callba
 
 const { NOME_DO_COOKIE, createToken, hashDoToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
-const { aceitarInvitation, createInvitation, readInvitation } = await import('../src/domain/convites.js');
+const { acceptInvitationaceitarInvitationacceptInvitation, createInvitation, readInvitation } = await import('../src/domain/convites.js');
 const { normalizeDomain, logDomain, checkDomain } =
   await import('../src/domain/dominios.js');
 const { asLogin, provisionCustomer } = await import('../src/provision.js');
@@ -41,11 +41,11 @@ let api: ApiNoAr;
 /** The session of whoever administers tenant A: has `conta.membros.escrever` and `tenant.configurar`. */
 let sessionAdmin: string;
 /** The session of someone who only handles attendance: proves the permission is really checked. */
-let sessionWithoutPoder: string;
+let sessionWithoutAuthority: string;
 
 const PERMISSIONS_OF_ADMIN = ['conta.membros.escrever', 'usuario.gerenciar', 'tenant.configurar'];
 
-async function seedPapeis(
+async function seedRoles(
   cenario: Cenario,
   nome: string,
   permissions: string[],
@@ -101,20 +101,20 @@ beforeAll(async () => {
   a = await montarCenario(`conv-${randomUUID().slice(0, 8)}`);
   b = await montarCenario(`conv-${randomUUID().slice(0, 8)}`);
 
-  const roleAdmin = await seedPapeis(a, 'Administrador e2e', PERMISSIONS_OF_ADMIN);
+  const roleAdmin = await seedRoles(a, 'Administrador e2e', PERMISSIONS_OF_ADMIN);
   await a.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
     values (${a.tenantId}, ${a.agentId}, ${roleAdmin})
   `);
   // // The ACCOUNT role the invites will use, one per tenant — plus one
   // // attendance role in A, which the invite has to refuse.
-  await seedPapeis(a, 'guest', ['conta.resumo.ler'], 'conta');
-  await seedPapeis(b, 'guest', ['conta.resumo.ler'], 'conta');
-  await seedPapeis(a, 'atendente', ['conversa.ver']);
+  await seedRoles(a, 'guest', ['conta.resumo.ler'], 'conta');
+  await seedRoles(b, 'guest', ['conta.resumo.ler'], 'conta');
+  await seedRoles(a, 'atendente', ['conversa.ver']);
 
   api = await upApi(0);
   sessionAdmin = await openSession(a);
-  sessionWithoutPoder = await openSession(b);
+  sessionWithoutAuthority = await openSession(b);
 }, 180_000);
 
 /** Tenants born from the provisioning command, for cleanup to take away. */
@@ -214,7 +214,7 @@ describe('POST /v1/convites', () => {
   it('Return 403 without `conta.membros.escrever` even with an active session', async () => {
     const resposta = await fetch(`${api.url}/v1/convites`, {
       method: 'POST',
-      headers: comCookie(sessionWithoutPoder),
+      headers: comCookie(sessionWithoutAuthority),
       body: JSON.stringify({ email: 'y@cliente.teste', role: 'guest' }),
     });
     expect(resposta.status).toBe(403);
@@ -337,7 +337,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
     const email = `daniela.${randomUUID().slice(0, 6)}@outrocliente.teste`;
     const convite = await createInvitation(b.tenantId, { email, papel: 'guest' });
 
-    const aceito = await aceitarInvitation(convite.token);
+    const aceito = await acceptInvitationaceitarInvitationacceptInvitation(convite.token);
     expect(aceito.tenantId).toBe(b.tenantId);
 
     const { rows } = await a.dono.execute<{ tenant_id: string }>(
@@ -351,7 +351,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
     const token = await convidar(email);
     const pessoa = pessoaDoGoogle(email);
 
-    const aceito = await aceitarInvitation(token, pessoa, { ip: '10.0.0.9' });
+    const aceito = await acceptInvitationaceitarInvitationacceptInvitation(token, pessoa, { ip: '10.0.0.9' });
     expect(aceito.session).toBeDefined();
 
     // // The session is genuinely valid: it's the same cookie the screens use.
@@ -372,7 +372,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
   it('Reject an invitation when a different Google account logs in', async () => {
     const token = await convidar(`fabiana.${randomUUID().slice(0, 6)}@cliente.teste`);
     await expect(
-      aceitarInvitation(token, pessoaDoGoogle('intrusa@cliente.teste')),
+      acceptInvitationaceitarInvitationacceptInvitation(token, pessoaDoGoogle('intrusa@cliente.teste')),
     ).rejects.toMatchObject({ codigo: 'convite_de_outro_email' });
   });
 });
@@ -479,7 +479,7 @@ describe('POST /v1/dominios', () => {
   it('Return 403 without `tenant.configurar` permission', async () => {
     const resposta = await fetch(`${api.url}/v1/dominios`, {
       method: 'POST',
-      headers: comCookie(sessionWithoutPoder),
+      headers: comCookie(sessionWithoutAuthority),
       body: JSON.stringify({ domain: 'qualquer.teste' }),
     });
     expect(resposta.status).toBe(403);

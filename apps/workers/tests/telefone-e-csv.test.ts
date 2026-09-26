@@ -11,7 +11,7 @@ describe('nono dígito do Brasil (brazil_phone_normalizer)', () => {
   const br = new NormalizadorBrasil();
 
   it('Leave incomplete phone numbers unchanged', () => {
-    expect(br.contactCandidatos('55')).toEqual(['55']);
+    expect(br.contactCandidates('55')).toEqual(['55']);
   });
 
   it('celular antigo de oito dígitos ganha o 9', () => {

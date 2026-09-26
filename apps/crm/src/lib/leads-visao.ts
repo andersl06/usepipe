@@ -14,7 +14,7 @@
  */
 
 /** The raw type becomes a label here: `mudanca_fase` isn't screen text. */
-export const ROTULO_ACTIVITY: Record<string, string> = {
+export const LABEL_ACTIVITY: Record<string, string> = {
   nota: 'Nota',
   connection: 'Ligação',
   reuniao: 'Reunião',
@@ -64,8 +64,8 @@ export interface LinhaLead {
   status: string;
   fase: string | null;
   diasNaFase: number | null;
-  ultimaActivity: Date | null;
-  ultimaActivityTipo: string | null;
+  lastActivity: Date | null;
+  lastActivityType: string | null;
 }
 
 export interface Proprietario {
@@ -173,7 +173,7 @@ export function directionValid(value: string | undefined): Direction {
   return value === 'asc' ? 'asc' : 'desc';
 }
 
-export function columnOrdenavel(key: string): boolean {
+export function columnSortable(key: string): boolean {
   return ORDENAVEIS.some((o) => o === key);
 }
 
@@ -235,7 +235,7 @@ export function readFilters(params: Record<string, string | string[] | undefined
 }
 
 /** Writes the filters back into a query, in the same format they're read in. */
-export function escreverFilters(p: URLSearchParams, filters: SFilter): URLSearchParams {
+export function writeFilters(p: URLSearchParams, filters: SFilter): URLSearchParams {
   for (const { key } of FILTRAVEIS) {
     const value = filters[key];
     if (value === undefined) p.delete(`f.${key}`);
@@ -245,7 +245,7 @@ export function escreverFilters(p: URLSearchParams, filters: SFilter): URLSearch
 }
 
 /** The chip's text: "Source: Meta Ad", or "Source: no source". */
-export function filterRotulo(key: FilterKey, value: string): string {
+export function filterLabel(key: FilterKey, value: string): string {
   const rotulo = FILTRAVEIS.find((f) => f.key === key)?.rotulo ?? key;
   return `${rotulo}: ${value === WITHOUT_VALUE ? 'em branco' : value}`;
 }

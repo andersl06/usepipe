@@ -1,6 +1,6 @@
 import { Icone, type NomeDeIcone } from '@pipe/ui';
 import { IconeCrm, type NomeDeIconeCrm } from './icones-crm';
-import type { TimeItemLinha } from '../lib/leads';
+import type { TimeItemRow } from '../lib/leads';
 import { desde, dataHora } from '../lib/format';
 
 /**
@@ -59,7 +59,7 @@ function IconeDoEvento({ tipo }: { tipo: string }) {
 
 interface Mes {
   titulo: string;
-  itens: TimeItemLinha[];
+  itens: TimeItemRow[];
 }
 
 /**
@@ -73,8 +73,8 @@ interface Mes {
  * The year only shows up when it changes relative to the previous group:
  * repeating "2026" twelve times says nothing.
  */
-function byMes(itens: TimeItemLinha[], fuso: string): Mes[] {
-  const groups: { ano: number; mes: string; itens: TimeItemLinha[] }[] = [];
+function byMes(itens: TimeItemRow[], fuso: string): Mes[] {
+  const groups: { ano: number; mes: string; itens: TimeItemRow[] }[] = [];
 
   for (const item of itens) {
     const partes = new Intl.DateTimeFormat('pt-BR', {
@@ -104,7 +104,7 @@ export function TimeLinha({
   fuso,
   agora,
 }: {
-  itens: TimeItemLinha[];
+  itens: TimeItemRow[];
   fuso: string;
   agora: Date;
 }) {

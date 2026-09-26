@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import type { JobMirrorCrm } from '@pipe/workers';
 import { databaseOwner, noTenant } from '../database.js';
-import { configDoTenant, espelharContact } from './twenty.js';
+import { configDoTenant, mirrorContact } from './twenty.js';
 import type { ContactForEspelhar } from './twenty.js';
 
 /**
@@ -61,7 +61,7 @@ export async function syncContact(
   // Call the network OUTSIDE the transaction: a database connection
   // held while waiting for a slow client CRM is unavailable to everyone else.
   // outros. O `PIPE_TWENTY_TIMEOUT_MS` protege o worker; isto protege o pool.
-  const pessoaId = await espelharContact(preparo.config, preparo.contact, buscar);
+  const pessoaId = await mirrorContact(preparo.config, preparo.contact, buscar);
 
   if (pessoaId !== preparo.contact.twentyPessoaId) {
     await noTenant(tenantId, async (tx) => {

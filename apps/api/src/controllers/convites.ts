@@ -3,7 +3,7 @@ import type { InvitationVisible } from '@pipe/contracts';
 import { noTenant } from '../database.js';
 import { WithSession, exigirPermission, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
-import { aceitarInvitation, createInvitation, readInvitation, resendInvitation } from '../domain/convites.js';
+import { acceptInvitation, createInvitation, readInvitation, resendInvitation } from '../domain/convites.js';
 import { logDomain, checkDomain } from '../domain/dominios.js';
 
 /**
@@ -82,7 +82,7 @@ export class InvitationsController {
   @Post(':token/aceitar')
   @HttpCode(200)
   async aceitar(@Param('token') token: string): Promise<Record<string, unknown>> {
-    const aceito = await aceitarInvitation(token);
+    const aceito = await acceptInvitation(token);
     return {
       usuarioId: aceito.userId,
       email: aceito.email,

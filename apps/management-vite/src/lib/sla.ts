@@ -1,4 +1,4 @@
-import { avaliarSla, alvoFulfillment, inicioDoAlvo, type AlvoSla, type Marcos } from '@pipe/core';
+import { avaliarSla, targetFulfillment, inicioDoAlvo, type AlvoSla, type Marcos } from '@pipe/core';
 
 /**
  * Detailed Monitoring SLA uses `@pipe/core` `avaliarSla` (metrics spec Section 11); this module selects the applicable rule and maps the result to screen text. Ponytail: the clock currently ignores working hours because `horario_atendimento` is not seeded, so no queue has a schedule to honor. `avaliarSla` already accepts hours; pass the queue schedule when available.
@@ -48,7 +48,7 @@ export function conversationAvaliarSla(
   const inicio = inicioDoAlvo(regra.alvo, marcos);
   if (!inicio) return SEM_REGRA;
 
-  const cumpridoEm = alvoFulfillment(regra.alvo, marcos);
+  const cumpridoEm = targetFulfillment(regra.alvo, marcos);
   const r = avaliarSla({
     regra: { prazoSeg: regra.prazoSeg, alertaSeg: regra.alertaSeg },
     inicio,

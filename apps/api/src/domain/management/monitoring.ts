@@ -349,7 +349,7 @@ export interface MonitoringFilter {
  * continua em ordem de criação: lá o ticket já tem dono, e prioridade não muda
  * mais quem atende.
  */
-export function ordenarQueueOfWait<
+export function sortQueueOfWait<
   T extends { priority: string; marcos: { criadaEm: Date | null } },
 >(linhas: readonly T[]): T[] {
   return [...linhas].sort((a, b) => {

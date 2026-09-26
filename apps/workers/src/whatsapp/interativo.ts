@@ -18,12 +18,12 @@ export interface PreferencesInteractive {
 }
 
 /** O que o fluxo guarda em `mensagem.dados.pergunta`. */
-export interface PerguntaOfFlow {
+export interface QuestionOfFlow {
   texto: string;
   opcoes: string[];
 }
 
-export function formatOfPergunta(
+export function formatOfQuestion(
   options: number,
   preferences: PreferencesInteractive,
 ): 'botoes' | 'lista' | 'texto' {
@@ -41,10 +41,10 @@ export function preferencesInteractiveOf(config: Record<string, unknown> | null)
 
 /** Return `null` to send text if the format is disabled, an option is too long, or the body is empty or too large. */
 export function conteudoDaPergunta(
-  pergunta: PerguntaOfFlow,
+  pergunta: QuestionOfFlow,
   preferencias: PreferencesInteractive,
 ): Conteudo | null {
-  const format = formatOfPergunta(pergunta.opcoes.length, preferencias);
+  const format = formatOfQuestion(pergunta.opcoes.length, preferencias);
   if (format === 'texto') return null;
   const texto = pergunta.texto.trim();
   if (!texto || texto.length > CORPO_MAX) return null;

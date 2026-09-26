@@ -346,9 +346,9 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     // --- template: template_mensagem.variaveis ---
     // No call to Meta's Graph API; it reproduces the SAME deterministic transformation as
     // apps/api/src/dominio/whatsapp/modelos.ts:207 (`Array.from({length:n}, (_,i)=>...)`).
-    const quantasVariables = 2;
+    const howManyVariables = 2;
     const variablesDefault = Array.from(
-      { length: quantasVariables },
+      { length: howManyVariables },
       (_, i) => `Variável ${i + 1}`,
     );
     const { rows: templateRows } = await cenario.dono.execute<{ id: string; variables: unknown }>(sql`

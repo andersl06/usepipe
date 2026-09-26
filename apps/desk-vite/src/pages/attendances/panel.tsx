@@ -112,10 +112,10 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
                   <Campo rotulo="Documento:" value={conversation.contactDocument} />
                 </>
               )}
-              {!editandoContact && Object.keys(conversation.contactAtributos).length > 0 ? (
+              {!editandoContact && Object.keys(conversation.contactAttributes).length > 0 ? (
                 <>
                   <h3 className="dk-paper-title">Extras</h3>
-                  {Object.entries(conversation.contactAtributos).map(([key, value]) => (
+                  {Object.entries(conversation.contactAttributes).map(([key, value]) => (
                     <Campo
                       key={key}
                       rotulo={`${key}:`}

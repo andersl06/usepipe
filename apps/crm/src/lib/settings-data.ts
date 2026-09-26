@@ -2,7 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { and, asc, eq, isNull, sql } from 'drizzle-orm';
 import {
   cifrar,
-  keyringOfAmbiente,
+  keyringOfEnvironment,
   diferenca,
   registrarAuditoria,
   type Ator,
@@ -1005,7 +1005,7 @@ export async function createWebhook(
   const secret = randomBytes(32).toString('base64url');
   let cifrado: string;
   try {
-    cifrado = cifrar(secret, keyringOfAmbiente());
+    cifrado = cifrar(secret, keyringOfEnvironment());
   } catch {
     return {
       ok: false,

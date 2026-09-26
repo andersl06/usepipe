@@ -9,13 +9,13 @@ import { z } from 'zod';
 import { FormatIaError } from '../cliente/errors.js';
 import type { CasoReferencia } from './bancada.js';
 
-const EsquemaAttachment = z.object({
+const SchemaAttachment = z.object({
   nomeArquivo: z.string().nullish(),
   duracaoSeg: z.number().nullish(),
   transcricao: z.string().nullish(),
 });
 
-const EsquemaMessage = z.object({
+const SchemaMessage = z.object({
   id: z.string(),
   criadaEm: z.string(),
   direcao: z.enum(['entrada', 'saida', 'interna']),
@@ -23,7 +23,7 @@ const EsquemaMessage = z.object({
   autorNome: z.string().nullish(),
   tipo: z.enum(['texto', 'imagem', 'audio', 'video', 'documento', 'localizacao', 'template']),
   conteudo: z.string().nullish(),
-  anexo: EsquemaAttachment.nullish(),
+  anexo: SchemaAttachment.nullish(),
 });
 
 const EsquemaCriterio = z.object({
@@ -55,7 +55,7 @@ const EsquemaCaso = z.object({
   id: z.string(),
   descricao: z.string().optional(),
   contexto: z.string().nullish(),
-  mensagens: z.array(EsquemaMessage).min(1),
+  mensagens: z.array(SchemaMessage).min(1),
   formulario: EsquemaFormulario,
   gabarito: z.array(z.object({ criterioId: z.string(), valor: z.string() })).min(1),
 });

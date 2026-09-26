@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   FIELDS_SECRETOS_OF_CHANNEL,
   SecretError,
-  keyringOfAmbiente,
+  keyringOfEnvironment,
   cifrar,
   cifrarConfig,
   decifrar,
@@ -14,8 +14,8 @@ import {
 const keyA = randomBytes(32).toString('base64');
 const keyB = randomBytes(32).toString('base64');
 
-function keyring(atual = 'k1'): ReturnType<typeof keyringOfAmbiente> {
-  return keyringOfAmbiente({
+function keyring(atual = 'k1'): ReturnType<typeof keyringOfEnvironment> {
+  return keyringOfEnvironment({
     PIPE_CHAVES_SEGREDO: `k1:${keyA},k2:${keyB}`,
     PIPE_CHAVE_SEGREDO_ATUAL: atual,
   } as NodeJS.ProcessEnv);
@@ -61,7 +61,7 @@ describe('Encrypt and decrypt channel secrets', () => {
 
   it('Name the missing key when decrypting with an incomplete keyring', () => {
     const pacote = cifrar('x', keyring('k1'));
-    const soK2 = keyringOfAmbiente({
+    const soK2 = keyringOfEnvironment({
       PIPE_CHAVES_SEGREDO: `k2:${keyB}`,
       PIPE_CHAVE_SEGREDO_ATUAL: 'k2',
     } as NodeJS.ProcessEnv);
@@ -111,13 +111,13 @@ describe('Encrypt and decrypt channel secrets', () => {
 
   it('Reject an incorrectly sized key while loading the environment', () => {
     expect(() =>
-      keyringOfAmbiente({
+      keyringOfEnvironment({
         PIPE_CHAVES_SEGREDO: `curta:${Buffer.alloc(16).toString('base64')}`,
       } as NodeJS.ProcessEnv),
     ).toThrow(/32 bytes/);
   });
 
   it('Reject missing encryption keys before storing plaintext', () => {
-    expect(() => keyringOfAmbiente({} as NodeJS.ProcessEnv)).toThrow(/PIPE_CHAVES_SEGREDO/);
+    expect(() => keyringOfEnvironment({} as NodeJS.ProcessEnv)).toThrow(/PIPE_CHAVES_SEGREDO/);
   });
 });

@@ -172,7 +172,7 @@ export async function loadConversation(
     contactPhone: r.phoneE164,
     contactEmail: r.email,
     contactDocument: r.document,
-    contactAtributos: r.atributos ?? {},
+    contactAttributes: r.atributos ?? {},
     resumo: r.summary,
     resumoEm: isoOuNulo(r.resumo_em),
     summaryTemplate: r.summaryTemplate,

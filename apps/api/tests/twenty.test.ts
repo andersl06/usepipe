@@ -8,12 +8,12 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 9).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { cifrar, keyringOfAmbiente } = await import('@pipe/db');
+const { cifrar, keyringOfEnvironmentkeyringOfAmbientekeyringOfEnvironment } = await import('@pipe/db');
 const {
   TwentyError,
   chamar,
   configDoTenant,
-  espelharContact,
+  mirrorContactespelharContactmirrorContact,
   linkDaPessoa,
   partirNome,
   partirTelefone,
@@ -126,7 +126,7 @@ describe('Mirror contacts to the CRM without creating duplicates', () => {
       { data: { updatePerson: { id: 'orfao-1', pipeContatoId: contact.id } } },
     ]);
 
-    const id = await espelharContact(CONFIG, contact, buscar);
+    const id = await mirrorContactespelharContactmirrorContact(CONFIG, contact, buscar);
 
     expect(id).toBe('orfao-1');
     // Achou pelo pipeContatoId e ATUALIZOU. Se criasse, viraria duplicata.
@@ -139,7 +139,7 @@ describe('Mirror contacts to the CRM without creating duplicates', () => {
       { data: { createPerson: { id: 'nova-1', pipeContatoId: contact.id } } },
     ]);
 
-    const id = await espelharContact(CONFIG, contact, buscar);
+    const id = await mirrorContactespelharContactmirrorContact(CONFIG, contact, buscar);
 
     expect(id).toBe('nova-1');
     expect(String(chamadas[1]?.body['query'])).toContain('createPerson');
@@ -152,7 +152,7 @@ describe('Mirror contacts to the CRM without creating duplicates', () => {
       { data: { createPerson: { id: 'x', pipeContatoId: 'de-outro-cliente' } } },
     ]);
 
-    const erro = await espelharContact(CONFIG, contact, buscar).catch((e: unknown) => e);
+    const erro = await mirrorContactespelharContactmirrorContact(CONFIG, contact, buscar).catch((e: unknown) => e);
 
     expect(erro).toBeInstanceOf(TwentyError);
     expect((erro as InstanceType<typeof TwentyError>).permanente).toBe(true);
@@ -194,7 +194,7 @@ describe('Load CRM configuration per tenant with fail-closed behavior', () => {
   });
 
   it('Decrypt the CRM key while keeping it encrypted in the database', async () => {
-    const cifrada = cifrar('chave-secreta-do-crm', keyringOfAmbiente());
+    const cifrada = cifrar('chave-secreta-do-crm', keyringOfEnvironmentkeyringOfAmbientekeyringOfEnvironment());
     await definir('https://crm.cliente.teste/', cifrada);
 
     const { rows } = await cenario.dono.execute<{ twenty_chave: string }>(
@@ -220,7 +220,7 @@ describe('Load CRM configuration per tenant with fail-closed behavior', () => {
   });
 
   it('Store the CRM-returned ID on the contact', async () => {
-    await definir('https://crm.cliente.teste', cifrar('k', keyringOfAmbiente()));
+    await definir('https://crm.cliente.teste', cifrar('k', keyringOfEnvironmentkeyringOfAmbientekeyringOfEnvironment()));
     const contatoId = await seedContact(cenario);
 
     const { buscar } = fetchFalso([
@@ -238,7 +238,7 @@ describe('Load CRM configuration per tenant with fail-closed behavior', () => {
   });
 
   it('Do not write another tenant\'s contact to the CRM', async () => {
-    await definir('https://crm.cliente.teste', cifrar('k', keyringOfAmbiente()));
+    await definir('https://crm.cliente.teste', cifrar('k', keyringOfEnvironmentkeyringOfAmbientekeyringOfEnvironment()));
 
     // An id that does not exist in this tenant has the same outcome as one from another customer:
     // RLS returns no row, and the mirror does not happen.

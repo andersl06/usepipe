@@ -3,27 +3,27 @@
  */
 
 /** Model price in dollars per million tokens. */
-export interface PrecoTemplate {
-  inboundUsdByMilhao: number;
-  outputUsdByMilhao: number;
+export interface PriceTemplate {
+  inboundUsdByMillion: number;
+  outputUsdByMillion: number;
 }
 
 /**
  * Anthropic API prices for the first set of models, as of 2026-06. Prices live here instead of an environment variable so billing errors are caught by tests rather than in production.
  */
-export const PRECOS: Readonly<Record<string, PrecoTemplate>> = {
-  'claude-sonnet-5': { inboundUsdByMilhao: 2, outputUsdByMilhao: 10 },
-  'claude-opus-5': { inboundUsdByMilhao: 5, outputUsdByMilhao: 25 },
-  'claude-opus-4-8': { inboundUsdByMilhao: 5, outputUsdByMilhao: 25 },
-  'claude-sonnet-4-6': { inboundUsdByMilhao: 3, outputUsdByMilhao: 15 },
-  'claude-haiku-4-5': { inboundUsdByMilhao: 1, outputUsdByMilhao: 5 },
-  'claude-fable-5-1': { inboundUsdByMilhao: 10, outputUsdByMilhao: 50 },
+export const PRECOS: Readonly<Record<string, PriceTemplate>> = {
+  'claude-sonnet-5': { inboundUsdByMillion: 2, outputUsdByMillion: 10 },
+  'claude-opus-5': { inboundUsdByMillion: 5, outputUsdByMillion: 25 },
+  'claude-opus-4-8': { inboundUsdByMillion: 5, outputUsdByMillion: 25 },
+  'claude-sonnet-4-6': { inboundUsdByMillion: 3, outputUsdByMillion: 15 },
+  'claude-haiku-4-5': { inboundUsdByMillion: 1, outputUsdByMillion: 5 },
+  'claude-fable-5-1': { inboundUsdByMillion: 10, outputUsdByMillion: 50 },
 };
 
 /** Package default model, configurable through `PIPE_IA_MODELO`. */
 export const TEMPLATE_DEFAULT = 'claude-sonnet-5';
 
-export class TemplateWithoutPrecoError extends Error {
+export class TemplateWithoutPriceError extends Error {
   constructor(readonly template: string) {
     super(
       `Modelo "${template}" não tem preço na tabela de \`PRECOS\`. ` +
@@ -46,10 +46,10 @@ export interface Consumo {
 /** Cost in US cents, without rounding. */
 export function calcularCusto(template: string, tokensInbound: number, tokensSaida: number): number {
   const preco = PRECOS[template];
-  if (!preco) throw new TemplateWithoutPrecoError(template);
+  if (!preco) throw new TemplateWithoutPriceError(template);
   const usd =
-    (tokensInbound / 1_000_000) * preco.inboundUsdByMilhao +
-    (tokensSaida / 1_000_000) * preco.outputUsdByMilhao;
+    (tokensInbound / 1_000_000) * preco.inboundUsdByMillion +
+    (tokensSaida / 1_000_000) * preco.outputUsdByMillion;
   return usd * 100;
 }
 

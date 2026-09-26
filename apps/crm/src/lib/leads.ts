@@ -48,18 +48,18 @@ export {
   groupingValid,
   agrupar,
   groupingColumn,
-  columnOrdenavel,
+  columnSortable,
   directionInitial,
   directionValid,
-  escreverFilters,
+  writeFilters,
   FILTRAVEIS,
   filterValid,
   readFilters,
   LIMITE_LISTA,
   orderValid,
-  ROTULO_ACTIVITY,
+  LABEL_ACTIVITY,
   ROTULO_STATUS,
-  filterRotulo,
+  filterLabel,
   WITHOUT_VALUE,
 } from './leads-visao';
 export type {
@@ -76,7 +76,7 @@ export type {
 
 // Re-exporting doesn't bring the name into this file's scope, and the queries below
 // use nearly all of it. Hence the second line, which looks redundant and isn't.
-import { filterValid, LIMITE_LISTA, ROTULO_ACTIVITY, WITHOUT_VALUE } from './leads-visao';
+import { filterValid, LIMITE_LISTA, LABEL_ACTIVITY, WITHOUT_VALUE } from './leads-visao';
 import type {
   Aba,
   FilterKey,
@@ -176,7 +176,7 @@ function filterCondition(key: FilterKey, value: string) {
  * Sequential inside the same `consultar` (README), and capped per column: a
  * menu of three hundred sources isn't a menu, it's a second listing.
  */
-const TETO_OF_OPTIONS = 40;
+const CEILING_OF_OPTIONS = 40;
 
 export async function filterOptions(): Promise<Record<FilterKey, string[]>> {
   return consultar(async (tx) => {
@@ -186,7 +186,7 @@ export async function filterOptions(): Promise<Record<FilterKey, string[]>> {
         .from(lead)
         .where(and(isNull(lead.excluidoEm), sql`${column} is not null`))
         .orderBy(column)
-        .limit(TETO_OF_OPTIONS);
+        .limit(CEILING_OF_OPTIONS);
       // The `is not null` is already in the `where`; the filter here is just for the type.
       return linhas.map((l) => String(l.v)).filter((v) => v !== 'null');
     };
@@ -200,7 +200,7 @@ export async function filterOptions(): Promise<Record<FilterKey, string[]>> {
       .innerJoin(user, eq(user.id, lead.proprietarioId))
       .where(isNull(lead.excluidoEm))
       .orderBy(user.nome)
-      .limit(TETO_OF_OPTIONS);
+      .limit(CEILING_OF_OPTIONS);
 
     return { origem, faixa, fase, proprietario: donos.map((d) => d.v) };
   });
@@ -276,7 +276,7 @@ export async function carregarListaDeLeads(
       .limit(LIMITE_LISTA);
 
     const queues = await queuesByTier(tx);
-    const ultimas = await ultimaActivityByLead(
+    const ultimas = await lastActivityByLead(
       tx,
       cru.map((l) => l.id),
     );
@@ -329,7 +329,7 @@ export async function carregarListaDeLeads(
   });
 }
 
-async function ultimaActivityByLead(
+async function lastActivityByLead(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
   ids: string[],
 ): Promise<Map<string, { em: Date; tipo: string }>> {
@@ -349,7 +349,7 @@ async function ultimaActivityByLead(
   // Sorted ascending: the last write per lead is the most recent activity.
   for (const l of linhas) {
     const em = paraData(l.em);
-    if (l.leadId && em) mapa.set(l.leadId, { em, tipo: ROTULO_ACTIVITY[l.tipo] ?? l.tipo });
+    if (l.leadId && em) mapa.set(l.leadId, { em, tipo: LABEL_ACTIVITY[l.tipo] ?? l.tipo });
   }
   return mapa;
 }
@@ -377,14 +377,14 @@ export interface RespostaExibida {
   value: string;
 }
 
-export interface BlockRespostas {
+export interface BlockResponses {
   formulario: string;
   versao: number;
   respondidoEm: Date | null;
   respostas: RespostaExibida[];
 }
 
-export interface TimeItemLinha {
+export interface TimeItemRow {
   id: string;
   tipo: string;
   titulo: string;
@@ -415,8 +415,8 @@ export interface Ficha {
   criadoEm: Date | null;
   etiquetas: { nome: string; cor: string | null }[];
   score: ScoreExplicado | null;
-  formularios: BlockRespostas[];
-  timeLinha: TimeItemLinha[];
+  formularios: BlockResponses[];
+  timeRow: TimeItemRow[];
 }
 
 function textoDaResposta(r: {
@@ -485,7 +485,7 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
 
     const score = await carregarScore(tx, id);
     const formularios = await carregarRespostas(tx, id);
-    const timeLinha = await timeCarregarLinha(tx, id, cabeca.contatoId);
+    const timeRow = await timeLoadRow(tx, id, cabeca.contatoId);
 
     const desdeFase = paraData(cabeca.faseDesde);
 
@@ -511,7 +511,7 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
       etiquetas,
       score,
       formularios,
-      timeLinha,
+      timeRow,
     };
   });
 }
@@ -587,7 +587,7 @@ async function carregarScore(
 async function carregarRespostas(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
   leadId: string,
-): Promise<BlockRespostas[]> {
+): Promise<BlockResponses[]> {
   const linhas = await tx
     .select({
       formulario: formulario.nome,
@@ -610,7 +610,7 @@ async function carregarRespostas(
     .where(eq(respostaFormulario.leadId, leadId))
     .orderBy(formulario.nome, formularioVersao.versao, formularioPergunta.ordem);
 
-  const blocos = new Map<string, BlockRespostas>();
+  const blocos = new Map<string, BlockResponses>();
   for (const l of linhas) {
     let block = blocos.get(l.versaoId);
     if (!block) {
@@ -638,11 +638,11 @@ async function carregarRespostas(
  * opportunity column. Receives the caller's `tx`, so it still fits inside the
  * record's transaction that requested it.
  */
-export async function timeCarregarLinha(
+export async function timeLoadRow(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
   leadId: string,
   contactId: string | null,
-): Promise<TimeItemLinha[]> {
+): Promise<TimeItemRow[]> {
   const activities = await tx
     .select({
       id: activity.id,
@@ -658,10 +658,10 @@ export async function timeCarregarLinha(
     .orderBy(desc(activity.ocorridaEm))
     .limit(50);
 
-  const itens: TimeItemLinha[] = activities.map((a) => ({
+  const itens: TimeItemRow[] = activities.map((a) => ({
     id: a.id,
-    tipo: ROTULO_ACTIVITY[a.tipo] ?? a.tipo,
-    titulo: a.resumo ?? (ROTULO_ACTIVITY[a.tipo] ?? a.tipo),
+    tipo: LABEL_ACTIVITY[a.tipo] ?? a.tipo,
+    titulo: a.resumo ?? (LABEL_ACTIVITY[a.tipo] ?? a.tipo),
     corpo: a.corpo,
     autor: a.autor,
     em: paraData(a.em) ?? new Date(0),
