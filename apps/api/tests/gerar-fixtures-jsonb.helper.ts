@@ -268,7 +268,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
       acumular('outbox-webhook-payload.json', { id: e.id, value: e.payload });
     }
 
-    // --- crm: contato.atributos (POST /v1/contatos de verdade, chave escopo contatos:escrever) ---
+    // --- crm: contato.atributos (POST /v1/contacts de verdade, chave escopo contatos:escrever) ---
     const responseContact = await fetch(`${api.url}/v1/contacts`, {
       method: 'POST',
       headers: {
@@ -283,7 +283,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     });
     if (!responseContact.ok) {
       throw new Error(
-        `POST /v1/contatos falhou: ${responseContact.status} ${await responseContact.text()}`,
+        `POST /v1/contacts falhou: ${responseContact.status} ${await responseContact.text()}`,
       );
     }
     const contactCreated = (await responseContact.json()) as { id: string; atributos: unknown };
