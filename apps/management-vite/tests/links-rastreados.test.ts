@@ -6,12 +6,12 @@ import { fieldOfErrorOfLink } from '../src/pages/flow/growth/tracked-links/data.
  * `campoDoErroDeLink` decides under which form field (name/destination) the screen shows the rejection from `POST /v1/gestao/fluxos/:fluxoId/links-rastreados` — this endpoint's error body doesn't send `detalhe.campo`, only `codigo` (see `dominio/rastreador-de-cliques.ts` and `dominio/gestao/integracoes.ts::confirmarUrlSegura`).
  */
 
-test('fieldForLinkError: nome_obrigatorio goes to the name field', () => {
-  assert.equal(fieldOfErrorOfLink('nome_obrigatorio'), 'nome');
+test('fieldForLinkError: name_required goes to the name field', () => {
+  assert.equal(fieldOfErrorOfLink('name_required'), 'nome');
 });
 
 test('fieldForLinkError: the four URL codes go to the destination field', () => {
-  for (const codigo of ['destino_obrigatorio', 'url_invalida', 'url_precisa_https', 'url_proibida']) {
+  for (const codigo of ['destination_required', 'url_invalid', 'url_needs_https', 'url_forbidden']) {
     assert.equal(fieldOfErrorOfLink(codigo), 'destino');
   }
 });

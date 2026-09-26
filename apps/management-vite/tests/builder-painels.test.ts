@@ -72,7 +72,7 @@ test('ProcessHttp edits headers in pairs and keeps the flow\'s object', () => {
     [{ key: 'authorization', value: 'Bearer {{token}}' }],
   );
   assert.deepEqual(valida.settings?.headers, { authorization: 'Bearer {{token}}' });
-  assert.deepEqual(cabecalhosDoCampo(valida, 'headers'), [{ chave: 'authorization', valor: 'Bearer {{token}}' }]);
+  assert.deepEqual(cabecalhosDoCampo(valida, 'headers'), [{ key: 'authorization', value: 'Bearer {{token}}' }]);
   assert.deepEqual(actionErrors(valida), []);
 
   const withoutKey = comCabecalhos(valida, 'headers', [{ key: '', value: 'ignorado' }]);
@@ -179,12 +179,12 @@ test('exportFileName sanitizes the flow\'s name and is never empty', () => {
 
 test('validateImport rejects text that is not JSON', () => {
   const r = validateImport('{ isso não é json');
-  assert.deepEqual(r, { ok: false, erro: MESSAGES_OF_IMPORT.arquivoInvalido });
+  assert.deepEqual(r, { ok: false, error: MESSAGES_OF_IMPORT.arquivoInvalido });
 });
 
 test('validateImport rejects JSON that does not match the editor\'s export format', () => {
   const r = validateImport(JSON.stringify({ nada: 'a ver' }));
-  assert.deepEqual(r, { ok: false, erro: MESSAGES_OF_IMPORT.arquivoInvalido });
+  assert.deepEqual(r, { ok: false, error: MESSAGES_OF_IMPORT.arquivoInvalido });
 });
 
 test('validateImport rejects a flow with no root block', () => {
@@ -193,7 +193,7 @@ test('validateImport rejects a flow with no root block', () => {
     globalActions: {},
   };
   const r = validateImport(JSON.stringify(semRaiz));
-  assert.deepEqual(r, { ok: false, erro: MESSAGES_OF_IMPORT.semRaiz });
+  assert.deepEqual(r, { ok: false, error: MESSAGES_OF_IMPORT.semRaiz });
 });
 
 test('validateImport accepts a valid export and returns the map ready to load', () => {
@@ -231,7 +231,7 @@ test('addGlobalAction rejects past the limit of 15, same as block actions', () =
     })),
   };
   const r = adicionarAcaoGlobal(cheias, '$enteringCustomActions', { type: 'SetVariable' });
-  assert.deepEqual(r, { ok: false, erro: LABELS_OF_ACTIONS.limite });
+  assert.deepEqual(r, { ok: false, error: LABELS_OF_ACTIONS.limite });
 });
 
 test('substituirAcaoGlobal troca só o índice pedido', () => {

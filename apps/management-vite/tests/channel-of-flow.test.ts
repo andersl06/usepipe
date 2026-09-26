@@ -45,15 +45,15 @@ test('"Connected" on the card is the bot with an ACTIVE channel of that type; di
 });
 
 test('the channel page: connected, not connected, or the bot already has ANOTHER channel (Pipe\'s decision)', () => {
-  assert.deepEqual(channelInBotState(null, 'whatsapp_cloud'), { estado: 'nao_conectado' });
+  assert.deepEqual(channelInBotState(null, 'whatsapp_cloud'), { state: 'nao_conectado' });
 
   const wa = channel({ flowId: BOT });
-  assert.deepEqual(channelInBotState(wa, 'whatsapp_cloud'), { estado: 'conectado', canal: wa });
-  assert.deepEqual(channelInBotState(wa, 'instagram'), { estado: 'outro_canal', canal: wa });
+  assert.deepEqual(channelInBotState(wa, 'whatsapp_cloud'), { state: 'conectado', channel: wa });
+  assert.deepEqual(channelInBotState(wa, 'instagram'), { state: 'outro_canal', channel: wa });
 
   // Channel disconnected but linked to the bot: the page offers to reconnect, it doesn't pretend to be connected.
   const desligado = channel({ ativo: false, flowId: BOT });
-  assert.deepEqual(channelInBotState(desligado, 'whatsapp_cloud'), { estado: 'nao_conectado' });
+  assert.deepEqual(channelInBotState(desligado, 'whatsapp_cloud'), { state: 'nao_conectado' });
 });
 
 test('"Number activation": only active channels of that type; free on one side, in use by another bot on the other', () => {
