@@ -219,7 +219,31 @@ Plans:
   4. Atendente tem painéis de Gerenciamento de Filas e de Teste com paridade funcional, além de copiar/colar bloco e exportar versão antiga
   5. As setas do canvas do Builder representam corretamente toda ligação salva, com teste cobrindo `arestasDe()`
 
-**Plans**: TBD
+**Plans**: 22 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Investigação: catálogo de conteúdo da referência (D-18)
+- [ ] 02-02-PLAN.md — Investigação: ações, scripts e biblioteca de funções (D-19..D-22)
+- [ ] 02-03-PLAN.md — Investigação: pesquisa de satisfação e tags (D-06..D-13)
+- [ ] 02-04-PLAN.md — Investigação: painéis, seletor, setas e visual (D-14..D-17, D-23, D-29..D-33)
+- [ ] 02-05-PLAN.md — Wave técnica do motor: ProcessHttp (D-25..D-28)
+- [ ] 02-06-PLAN.md — Caracterização de arestasDe() e copiar/colar (D-17, D-29.1)
+- [ ] 02-07-PLAN.md — Snapshot congelado + capturas pendentes + PORTÃO DO DONO (D-01..D-05)
+- [ ] 02-08-PLAN.md — Tema escuro, tokens --p-builder-marca-*, paleta de $tags, ícones (D-11, D-13, D-30..D-33)
+- [ ] 02-09-PLAN.md — Seletor de destino com busca + validação de setas com fluxos reais (D-23, D-29)
+- [ ] 02-10-PLAN.md — Conteúdo: slot mídia ponta a ponta
+- [ ] 02-11-PLAN.md — Satisfação: schema, motor, etiquetas no ticket, endpoint de consulta (D-06..D-12)
+- [ ] 02-12-PLAN.md — Satisfação e etiquetas no editor do Builder
+- [ ] 02-13-PLAN.md — Versões (exportar versão antiga) e painel de Filas (D-15, D-16)
+- [ ] 02-14-PLAN.md — Ações: slot contexto ponta a ponta
+- [ ] 02-15-PLAN.md — Conteúdo: slot interativo ponta a ponta
+- [ ] 02-16-PLAN.md — Ações: ExecuteScript/V2 com sandbox aprovado (D-21)
+- [ ] 02-17-PLAN.md — Biblioteca de funções: persistência, API e motor (D-22)
+- [ ] 02-18-PLAN.md — Biblioteca de funções: painel e busca no Builder
+- [ ] 02-19-PLAN.md — Conteúdo: slot dinâmico (HTTP/Dinâmico) e fechamento do catálogo
+- [ ] 02-20-PLAN.md — Ações de plataforma nativas + dependências externas registradas (D-20, D-24)
+- [ ] 02-21-PLAN.md — Painel de Teste com Debug (D-14)
+- [ ] 02-22-PLAN.md — Regressão final, verificação visual e portão final do dono
 **UI hint**: yes
 
 ### Phase 3: Validar e fechar superfícies atuais
