@@ -263,7 +263,7 @@ const rotas: Rota[] = [
       if (!id) return collection([], TYPE_DOCUMENT);
       const linhas = await noTenant(session.tenantId, async (tx) => {
         const { rows } = await tx.execute<MessageRow>(sql`
-          select id, criada_em, direcao, autor_tipo, tipo, conteudo
+          select id, criada_em, direcao as direction, autor_tipo, tipo, conteudo
             from mensagem
            where conversa_id = ${id}::uuid
            order by criada_em
