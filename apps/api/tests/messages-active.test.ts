@@ -212,7 +212,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     };
     expect(corpo.enviadas).toBe(2);
     expect(corpo.refused).toBe(1);
-    expect(corpo.data.find((d) => !d.enviada)?.motivo).toBe('numero_invalido');
+    expect(corpo.data.find((d) => !d.enviada)?.reason).toBe('numero_invalido');
   });
 
   it('Reject contacts already in an active ticket with error 1602', async () => {

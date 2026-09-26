@@ -85,7 +85,7 @@ async function chamar(
     headers: cabecalhos,
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
   });
-  return { status: resposta.status, corpo: (await resposta.json()) as Record<string, unknown> };
+  return { status: resposta.status, body: (await resposta.json()) as Record<string, unknown> };
 }
 
 async function createLabel(scope: 'conversa' | 'contato' | 'ambos'): Promise<string> {

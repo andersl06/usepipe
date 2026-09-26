@@ -42,7 +42,7 @@ let B: Quem;
 let api: Awaited<ReturnType<typeof upApi>>;
 
 async function tenantComAdmin(nome: string): Promise<Quem> {
-  const { tenantId } = await seed(dono, { nome: `ig ${nome}`, slug: `ig-${nome}` });
+  const { tenantId } = await seed(dono, { name: `ig ${nome}`, slug: `ig-${nome}` });
   const { rows } = await dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${tenantId}::uuid, 'Admin', ${`admin-${nome}@ig.pipe.app`}) returning id

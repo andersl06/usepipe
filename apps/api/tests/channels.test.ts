@@ -499,7 +499,7 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/perfil)', () =>
     const depois = await writeProfileOfChannel(A.tenantId, A.adminId, canal.id, {
       about: '  Atendimento de seg a sex  ',
       sites: ['https://pipe.app'],
-      categoria: 'PROF_SERVICES',
+      category: 'PROF_SERVICES',
       foto: PNG,
     });
     expect(depois).toMatchObject({
@@ -583,7 +583,7 @@ describe('Synchronize, create, and delete Meta message templates', () => {
     const canal = await conectar(A, { codigo: `modelos-${S}` });
     const criado = await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
       name: 'boas_vindas',
-      categoria: 'utilidade',
+      category: 'utilidade',
       cabecalho: 'Olá {{1}}',
       exemploDoCabecalho: 'Ana',
       corpo: 'Seu protocolo é {{1}} e vence em {{2}}.',
@@ -683,7 +683,7 @@ describe('Create templates with image, video, and document headers', () => {
     ClienteGraphDuble.reiniciar();
     const criado = await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
       name: 'oferta_com_foto',
-      categoria: 'marketing',
+      category: 'marketing',
       headerMedia: JPEG,
       corpo: 'Oferta para {{1}}.',
       exemplos: ['Ana'],
@@ -749,7 +749,7 @@ describe('Create templates with image, video, and document headers', () => {
     const criar = (p: object) =>
       createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
         name: 'recusado',
-        categoria: 'marketing',
+        category: 'marketing',
         corpo: 'Oi.',
         ...p,
       });
@@ -803,7 +803,7 @@ describe('Build Meta authentication templates with their fixed components', () =
     ClienteGraphDuble.reiniciar();
     const criado = await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
       name: 'codigo_de_acesso',
-      categoria: 'autenticacao',
+      category: 'autenticacao',
       authentication: { expiraEmMinutos: 10, textoDoBotao: 'Copiar' },
     });
     expect(criado.statusMeta).toBe('pendente');
@@ -836,7 +836,7 @@ describe('Build Meta authentication templates with their fixed components', () =
   it('Default to security advice and a copy-code button without a footer, and preserve the category on sync', async () => {
     const canal = await conectar(A, { codigo: `modelos-auth-padrao-${S}` });
     ClienteGraphDuble.reiniciar();
-    await createTemplateInMeta(A.tenantId, A.adminId, canal.id, { name: 'otp', categoria: 'autenticacao' });
+    await createTemplateInMeta(A.tenantId, A.adminId, canal.id, { name: 'otp', category: 'autenticacao' });
     const enviado = ClienteGraphDuble.modelos.get(canal.wabaId!)![0]!;
     expect(enviado.components).toEqual([
       { type: 'BODY', add_security_recommendation: true },
@@ -846,7 +846,7 @@ describe('Build Meta authentication templates with their fixed components', () =
     // // Off: the field doesn't go out, and the local copy is left without the security phrase.
     await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
       name: 'otp_seco',
-      categoria: 'autenticacao',
+      category: 'autenticacao',
       authentication: { recommendationOfSecurity: false },
     });
     const seco = ClienteGraphDuble.modelos.get(canal.wabaId!)!.find((m) => m.name === 'otp_seco')!;
@@ -876,7 +876,7 @@ describe('Build Meta authentication templates with their fixed components', () =
     const canal = await conectar(A, { codigo: `modelos-auth-recusa-${S}` });
     ClienteGraphDuble.reiniciar();
     const criar = (p: object) =>
-      createTemplateInMeta(A.tenantId, A.adminId, canal.id, { name: 'otp', categoria: 'autenticacao', ...p });
+      createTemplateInMeta(A.tenantId, A.adminId, canal.id, { name: 'otp', category: 'autenticacao', ...p });
 
     await expect(criar({ corpo: 'Seu código é {{1}}' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
     await expect(criar({ cabecalho: 'Código' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
@@ -955,7 +955,7 @@ describe('Update template status and category from webhooks', () => {
     const canal = await conectar(A, { codigo: `eventos-${S}` });
     await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
       name: 'lembrete',
-      categoria: 'utilidade',
+      category: 'utilidade',
       corpo: 'Oi',
     });
     const resolvido = (await resolveChannel(canal.id))!;

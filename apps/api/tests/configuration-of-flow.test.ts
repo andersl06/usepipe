@@ -89,7 +89,7 @@ async function chamar(
     ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }),
   });
   const texto = await resposta.text();
-  return { status: resposta.status, corpo: texto ? (JSON.parse(texto) as Record<string, unknown>) : {} };
+  return { status: resposta.status, body: texto ? (JSON.parse(texto) as Record<string, unknown>) : {} };
 }
 
 async function auditoriaDe(objetoTipo: string, id: string) {
@@ -128,14 +128,14 @@ afterAll(async () => {
 describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
   it('Start with the welcome message disabled and no message or button text', async () => {
     const id = await newFlow(a);
-    const { status, corpo } = await chamar(sessionEditor, 'GET', `${id}/boas-vindas`);
+    const { status, body } = await chamar(sessionEditor, 'GET', `${id}/boas-vindas`);
     expect(status).toBe(200);
     expect(corpo).toEqual({ ativo: false, mensagem: '', textoBotao: 'Começar' });
   });
 
   it('Enable the welcome message with button text and audit the change', async () => {
     const id = await newFlow(a);
-    const { status, corpo } = await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
+    const { status, body } = await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
       ativo: true,
       mensagem: 'Olá! Seja bem-vindo.',
       textoBotao: 'Começar agora',
@@ -206,7 +206,7 @@ describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
 describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
   it('Start with an empty persistent menu and no completed welcome message', async () => {
     const id = await newFlow(a);
-    const { status, corpo } = await chamar(sessionEditor, 'GET', `${id}/menu-persistente`);
+    const { status, body } = await chamar(sessionEditor, 'GET', `${id}/menu-persistente`);
     expect(status).toBe(200);
     expect(corpo).toEqual({ itens: [], boasVindasPreenchida: false });
   });
@@ -218,7 +218,7 @@ describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
       mensagem: 'Oi',
       textoBotao: 'Começar',
     });
-    const { corpo } = await chamar(sessionEditor, 'GET', `${id}/menu-persistente`);
+    const { body } = await chamar(sessionEditor, 'GET', `${id}/menu-persistente`);
     expect(corpo['boasVindasPreenchida']).toBe(true);
   });
 
@@ -229,7 +229,7 @@ describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
       mensagem: 'Oi',
       textoBotao: 'Começar',
     });
-    const { status, corpo } = await chamar(sessionEditor, 'PATCH', `${id}/menu-persistente`, {
+    const { status, body } = await chamar(sessionEditor, 'PATCH', `${id}/menu-persistente`, {
       itens: [{ texto: 'Falar com atendente', link: 'atendimento' }],
     });
     expect(status).toBe(400);
@@ -238,7 +238,7 @@ describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
 
   it('Check `automacao.fluxo.editar` before channel and welcome validation', async () => {
     const id = await newFlow(a);
-    const { status, corpo } = await chamar(sessionWithoutAuthority, 'PATCH', `${id}/menu-persistente`, {
+    const { status, body } = await chamar(sessionWithoutAuthority, 'PATCH', `${id}/menu-persistente`, {
       itens: [],
     });
     expect(status).toBe(403);

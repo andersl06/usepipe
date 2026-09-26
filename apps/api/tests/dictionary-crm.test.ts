@@ -103,7 +103,7 @@ describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', ()
       'messageCampaign',
     ]);
     // // The second page was requested with the cursor the first one returned.
-    expect(chamadas[3]?.corpo.variables['depois']).toBe('cursor-da-pagina-2');
+    expect(chamadas[3]?.body.variables['depois']).toBe('cursor-da-pagina-2');
     expect(meta.customApplicationId).toBe(APP_DO_CLIENTE);
     expect(meta.objetos[0]?.fields.map((c) => c.name)).toContain('pipeContatoId');
   });

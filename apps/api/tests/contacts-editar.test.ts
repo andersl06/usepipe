@@ -139,7 +139,7 @@ afterAll(async () => {
 
 describe('PATCH /v1/contacts/:id', () => {
   it('edita nome, e-mail e telefone, e registra só o que mudou', async () => {
-    const id = await newContact(a, { nome: 'Ana', telefone: '+5511900000001' });
+    const id = await newContact(a, { name: 'Ana', telefone: '+5511900000001' });
     const { status, corpo } = await editar(sessionEditor, id, {
       nome: 'Ana Ribeiro',
       email: 'ana@exemplo.com',
@@ -159,7 +159,7 @@ describe('PATCH /v1/contacts/:id', () => {
   });
 
   it('null apaga o campo; campo ausente não mexe', async () => {
-    const id = await newContact(a, { nome: 'Bia', email: 'bia@exemplo.com' });
+    const id = await newContact(a, { name: 'Bia', email: 'bia@exemplo.com' });
     const { status, corpo } = await editar(sessionEditor, id, { email: null });
     expect(status).toBe(200);
     expect(corpo['email']).toBeNull();
@@ -181,8 +181,8 @@ describe('PATCH /v1/contacts/:id', () => {
   });
 
   it('Reject a phone number already used by another contact in the tenant', async () => {
-    await newContact(a, { telefone: '+5511900000002' });
-    const id = await newContact(a, { telefone: '+5511900000003' });
+    await newContact(a, { phone: '+5511900000002' });
+    const id = await newContact(a, { phone: '+5511900000003' });
     const { status, corpo } = await editar(sessionEditor, id, { telefone_e164: '+5511900000002' });
     expect(status).toBe(409);
     expect(corpo).toMatchObject({ erro: { codigo: 'contato_telefone_em_uso' } });

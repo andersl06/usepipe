@@ -55,7 +55,7 @@ describe('Exercise Messenger with the database, webhook, and worker', () => {
   const controller = new MessengerChannelsController();
 
   async function tenant(nome: string) {
-    const { tenantId } = await seed(dono, { nome: `messenger ${nome}`, slug: `messenger-${nome}` });
+    const { tenantId } = await seed(dono, { name: `messenger ${nome}`, slug: `messenger-${nome}` });
     const { rows } = await dono.execute<{ id: string }>(sql`
       insert into usuario (tenant_id, nome, email) values (${tenantId}::uuid, 'Admin', ${`admin-${nome}@pipe.app`}) returning id
     `);

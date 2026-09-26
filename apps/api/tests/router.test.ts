@@ -100,11 +100,11 @@ async function chamar(
     ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }),
   });
   const texto = await resposta.text();
-  return { status: resposta.status, corpo: texto ? (JSON.parse(texto) as Record<string, unknown>) : {} };
+  return { status: resposta.status, body: texto ? (JSON.parse(texto) as Record<string, unknown>) : {} };
 }
 
 const codigo = (r: { body: Record<string, unknown> }) =>
-  (r.body['erro'] as { code?: string } | undefined)?.codigo;
+  (r.body['erro'] as { code?: string } | undefined)?.code;
 
 beforeAll(async () => {
   a = await montarCenario(`rt-${randomUUID().slice(0, 8)}`);
@@ -126,7 +126,7 @@ afterAll(async () => {
 describe('/v1/management/flows/:id/services', () => {
   it('cadastra o principal e os filhos, e o GET preenche `filhos`', async () => {
     const router = await newFlow(a, 'roteador');
-    const principal = await newFlow(a, 'fluxo', { estado: 'publicado' });
+    const principal = await newFlow(a, 'fluxo', { state: 'publicado' });
     const suporte = await newFlow(a, 'fluxo');
 
     const empty = await chamar(sessionEditor, 'GET', `${router}/servicos`);
@@ -183,7 +183,7 @@ describe('/v1/management/flows/:id/services', () => {
     const f2 = await newFlow(a, 'fluxo');
     const f3 = await newFlow(a, 'fluxo');
     const otherRouter = await newFlow(a, 'roteador');
-    const archived = await newFlow(a, 'fluxo', { estado: 'arquivado' });
+    const archived = await newFlow(a, 'fluxo', { state: 'arquivado' });
     const doOutroTenant = await newFlow(b, 'fluxo');
     const post = (corpo: Record<string, unknown>) =>
       chamar(sessionEditor, 'POST', `${roteador}/servicos`, {
@@ -335,7 +335,7 @@ describe('/v1/management/flows/:id/services', () => {
     const { rows } = await a.dono.execute<{ name: string }>(
       sql`select nome from roteador_servico where id = ${id}::uuid`,
     );
-    expect(rows[0]?.nome).toBe('Principal');
+    expect(rows[0]?.name).toBe('Principal');
   });
 });
 
@@ -469,7 +469,7 @@ describe('Route conversations through services', () => {
       update fluxo set usa_contexto_do_roteador = true
        where id in (${principalId}::uuid, ${vendasId}::uuid)
     `);
-    routerId = await newFlow(a, 'roteador', { estado: 'publicado', channelId: a.channelId });
+    routerId = await newFlow(a, 'roteador', { state: 'publicado', channelId: a.channelId });
     await a.dono.execute(sql`
       insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal, persistente, expiracao_min)
       values
@@ -513,7 +513,7 @@ describe('Route conversations through services', () => {
          and m.autor_tipo = 'bot'
        order by m.criada_em desc limit 1
     `);
-    return rows[0]?.conteudo;
+    return rows[0]?.content;
   }
 
   type Position = {
@@ -662,7 +662,7 @@ describe('Route conversations through services', () => {
     `);
     await closeConversation(
       { tenantId: a.tenantId, agentId: a.agentId, requireAssignment: true },
-      { conversationId: conversa.id, etiquetaId: etiquetas[0]!.id },
+      { conversationId: conversa.id, etiquetaIds: etiquetas[0]!.id },
     );
 
     await falar(FABIO, 'voltei');

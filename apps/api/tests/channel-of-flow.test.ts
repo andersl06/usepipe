@@ -126,11 +126,11 @@ async function chamar(
     ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }),
   });
   const texto = await resposta.text();
-  return { status: resposta.status, corpo: texto ? (JSON.parse(texto) as Record<string, unknown>) : {} };
+  return { status: resposta.status, body: texto ? (JSON.parse(texto) as Record<string, unknown>) : {} };
 }
 
 const codigo = (r: { body: Record<string, unknown> }) =>
-  (r.body['erro'] as { code?: string } | undefined)?.codigo;
+  (r.body['erro'] as { code?: string } | undefined)?.code;
 const detalhe = (r: { body: Record<string, unknown> }) =>
   (r.body['erro'] as { detalhe?: Record<string, unknown> } | undefined)?.detalhe ?? {};
 
@@ -145,7 +145,7 @@ async function channelOfDatabase(fluxoId: string): Promise<string | null> {
   const { rows } = await a.dono.execute<{ channelId: string | null }>(
     sql`select canal_id from fluxo where id = ${fluxoId}::uuid`,
   );
-  return rows[0]?.canal_id ?? null;
+  return rows[0]?.channelId ?? null;
 }
 
 async function auditoriaDe(fluxoId: string) {
@@ -238,7 +238,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     // // The second one's screen sees the channel as "in use by the first."
     const lido = await readChannel(sessionEditor, segundo);
     const disponiveis = lido.body['disponiveis'] as { id: string; flowId: string | null }[];
-    expect(disponiveis.find((c) => c.id === canalId)?.fluxoId).toBe(first);
+    expect(disponiveis.find((c) => c.id === canalId)?.flowId).toBe(first);
 
     // // Switching bots means: disconnect on the old one, connect on the new one.
     expect((await desligar(sessionEditor, first)).status).toBe(204);
@@ -255,7 +255,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
   it('Return 409 and identify the existing channel when connecting a second channel to one bot', async () => {
     const fluxoId = await newFlow(a, 'fluxo');
     const whatsapp = await newChannel(a);
-    const instagram = await newChannel(a, { tipo: 'instagram' });
+    const instagram = await newChannel(a, { type: 'instagram' });
     expect((await ligar(sessionEditor, fluxoId, whatsapp)).status).toBe(200);
 
     const recusa = await ligar(sessionEditor, fluxoId, instagram);
@@ -267,7 +267,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
 
   it('Return 409 for an inactive channel and 404 for invalid or cross-tenant IDs', async () => {
     const fluxoId = await newFlow(a, 'fluxo');
-    const desligado = await newChannel(a, { ativo: false });
+    const desligado = await newChannel(a, { active: false });
     const inativo = await ligar(sessionEditor, fluxoId, desligado);
     expect(inativo.status).toBe(409);
     expect(codigo(inativo)).toBe('canal_inativo');
@@ -319,7 +319,7 @@ describe('DELETE /v1/management/flows/:id/channel', () => {
     const { rows } = await a.dono.execute<{ active: boolean }>(
       sql`select ativo from canal where id = ${canalId}::uuid`,
     );
-    expect(rows[0]?.ativo).toBe(true);
+    expect(rows[0]?.active).toBe(true);
 
     const log = await auditoriaDe(fluxoId);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou', antes: { canalId }, depois: { canalId: null } });
@@ -442,7 +442,7 @@ describe('Route messages from a connected phone number to its router bot', () =>
          and m.autor_tipo = 'bot'
        order by m.criada_em desc limit 1
     `);
-    expect(rows[0]?.conteudo).toBe('Roteador: olá!');
+    expect(rows[0]?.content).toBe('Roteador: olá!');
 
     const { rows: position } = await a.dono.execute<{ serviceId: string }>(sql`
       select p.servico_id from posicao_no_roteador p

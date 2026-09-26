@@ -110,7 +110,7 @@ async function slaConversationOf(
     estourado_em: Date | null;
   }>(sql`select estado, alertado_em, estourado_em from sla_conversa where conversa_id = ${conversationId}::uuid`);
   const r = rows[0];
-  return r ? { state: r.state, alertadoEm: r.alertado_em, estouradoEm: r.estourado_em } : null;
+  return r ? { state: r.state, alertedAt: r.alertado_em, estouradoEm: r.estourado_em } : null;
 }
 
 async function contarEventos(cenario: Cenario, conversaId: string, tipo: string): Promise<number> {
@@ -183,7 +183,7 @@ describe('Check conversation SLA alerts and breaches', () => {
   });
 
   it('alerta no limiar certo, estourado no prazo certo, e idempotente nos dois', async () => {
-    await createRuleSla(a, { target: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
+    await createRuleSla(a, { target: 'primeira_resposta', deadlineSeg: 600, alertaSeg: 300 });
     const agora0 = new Date();
     const criadaEm = new Date(agora0.getTime() - 400_000); // 400s atrás: já passou do alerta (300s), não do prazo (600s)
     const conversationId = await createConversation(a, { criadaEm, assignedAt: criadaEm });
@@ -191,15 +191,15 @@ describe('Check conversation SLA alerts and breaches', () => {
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, agora0);
     let linha = await slaConversationOf(a, conversationId);
     expect(linha?.state).toBe('alertado');
-    expect(linha?.alertadoEm).not.toBeNull();
-    expect(linha?.estouradoEm).toBeNull();
+    expect(linha?.alertedAt).not.toBeNull();
+    expect(linha?.exceededAt).toBeNull();
     expect(await contarEventos(a, conversationId, 'sla_alertado')).toBe(1);
 
     // Idempotency: running it again at the SAME instant does not duplicate the event or change the timestamp.
     const alertadoEmAntes = linha!.alertedAt;
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, agora0);
     linha = await slaConversationOf(a, conversationId);
-    expect(linha?.alertadoEm).toEqual(alertadoEmAntes);
+    expect(linha?.alertedAt).toEqual(alertadoEmAntes);
     expect(await contarEventos(a, conversationId, 'sla_alertado')).toBe(1);
 
     // O tempo passa e o prazo estoura (400s + 300s = 700s > 600s do prazo).
@@ -207,7 +207,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, agora1);
     linha = await slaConversationOf(a, conversationId);
     expect(linha?.state).toBe('estourado');
-    expect(linha?.estouradoEm).not.toBeNull();
+    expect(linha?.exceededAt).not.toBeNull();
     expect(await contarEventos(a, conversationId, 'sla_estourado')).toBe(1);
 
     // Idempotency of the breach: running it again neither duplicates nor regresses the state.
@@ -215,17 +215,17 @@ describe('Check conversation SLA alerts and breaches', () => {
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, new Date(agora1.getTime() + 60_000));
     linha = await slaConversationOf(a, conversationId);
     expect(linha?.state).toBe('estourado');
-    expect(linha?.estouradoEm).toEqual(estouradoEmAntes);
+    expect(linha?.exceededAt).toEqual(estouradoEmAntes);
     expect(await contarEventos(a, conversationId, 'sla_estourado')).toBe(1);
   });
 
   it('Send no SLA alert or breach for a conversation closed before either deadline', async () => {
-    await createRuleSla(a, { target: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
+    await createRuleSla(a, { target: 'primeira_resposta', deadlineSeg: 600, alertaSeg: 300 });
     const agora = new Date();
     const criadaEm = new Date(agora.getTime() - 100_000);
     // Encerrou 50s depois de criada — MUITO antes do alerta (300s) e do prazo (600s).
     const encerradaEm = new Date(criadaEm.getTime() + 50_000);
-    const conversaId = await createConversation(a, { criadaEm, assignedAt: criadaEm, encerradaEm });
+    const conversaId = await createConversation(a, { criadaEm, assignedAt: criadaEm, closedAt: encerradaEm });
 
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversaId, agora);
 
@@ -241,7 +241,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     await createWebhook(a, ['sla.alertou']);
     await createRuleSla(a, {
       target: 'primeira_resposta',
-      prazoSeg: 600,
+      deadlineSeg: 600,
       alertaSeg: 100,
       acaoAlerta: { tipo: 'notificar_supervisor' },
     });
@@ -261,7 +261,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     // alvo `encerramento` do `@pipe/core` (`ALVO_DO_BANCO`).
     await createRuleSla(a, {
       target: 'resolucao',
-      prazoSeg: 60,
+      deadlineSeg: 60,
       alertaSeg: null,
       acaoEstouro: { tipo: 'elevar_prioridade' },
     });
@@ -299,7 +299,7 @@ describe('Isolate conversation SLA checks by tenant', () => {
     const semRegra = await montarCenario(`sla-sem-regra-${randomUUID().slice(0, 8)}`);
     try {
       // A rule registered ONLY in tenant B.
-      await createRuleSla(b, { target: 'primeira_resposta', prazoSeg: 10, alertaSeg: 5 });
+      await createRuleSla(b, { target: 'primeira_resposta', deadlineSeg: 10, alertaSeg: 5 });
 
       const agora = new Date();
       // It would easily breach IF B's rule applied to this tenant.

@@ -41,9 +41,9 @@ function nodeAt(node: ts.Node, start: number): ts.Node {
 function hasProperty(type: ts.Type | undefined, name: string): boolean {
   return !!type && !!checker.getPropertyOfType(type, name);
 }
-function proposedOld(name: string, type: ts.Type | undefined): string | undefined {
-  const matches = [...(oldByNew.get(name) ?? []), ...(newByOld.get(name) ?? [])]
-    .filter(other => hasProperty(type, other));
+function proposedOld(name: string, type: ts.Type | undefined, message = ''): string | undefined {
+  const matches = [...new Set([...(oldByNew.get(name) ?? []), ...(newByOld.get(name) ?? [])])]
+    .filter(other => hasProperty(type, other) || new RegExp(`\\b${other}\\??\\s*:`).test(message));
   return matches.length === 1 ? matches[0] : undefined;
 }
 function add(file: ts.SourceFile, start: number, end: number, replacement: string, why: string) {
@@ -114,7 +114,7 @@ for (const d of diagnostics) {
     }
   }
   if (d.code === 2339 || d.code === 2353) {
-    const old = proposedOld(id.text, targetType(id));
+    const old = proposedOld(id.text, targetType(id), msg);
     if (old) {
       const parent = id.parent;
       const replacement = ts.isShorthandPropertyAssignment(parent) && parent.name === id

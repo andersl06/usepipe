@@ -220,7 +220,7 @@ describe('espera', () => {
       select dados from evento_atendimento
        where conversa_id = ${id}::uuid and tipo = 'espera_encerrada' limit 1
     `);
-    expect(rows[0]?.dados['pausado_seg']).toBeGreaterThanOrEqual(29);
+    expect(rows[0]?.data['pausado_seg']).toBeGreaterThanOrEqual(29);
   });
 
   it('Record both wait transitions and accumulated waiting time on the conversation', async () => {

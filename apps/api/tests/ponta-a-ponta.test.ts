@@ -139,7 +139,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
       select direcao, conteudo from mensagem
        where conversa_id = ${conversationId}::uuid and direcao = 'entrada' limit 1
     `);
-    expect(message?.conteudo).toBe('Bom dia, preciso da segunda via');
+    expect(message?.content).toBe('Bom dia, preciso da segunda via');
   });
 
   it('Do not duplicate a message when Meta redelivers the same event', async () => {
@@ -179,7 +179,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     const outbox = await umaLinha<{ state: string; tentativas: number }>(
       sql`select estado, tentativas from outbox_mensagem where mensagem_id = ${messageOutputId}::uuid`,
     );
-    expect(outbox?.estado).toBe('pendente');
+    expect(outbox?.state).toBe('pendente');
     expect(Number(outbox?.tentativas)).toBe(0);
   });
 
@@ -193,8 +193,8 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     const mensagem = await umaLinha<{ stateDelivery: string; idProvider: string | null }>(
       sql`select estado_entrega, id_provedor from mensagem where id = ${messageOutputId}::uuid`,
     );
-    expect(mensagem?.estado_entrega).toBe('enviada');
-    expect(mensagem?.id_provedor).toMatch(/^wamid\.DUBLE/);
+    expect(mensagem?.stateDelivery).toBe('enviada');
+    expect(mensagem?.idProvider).toMatch(/^wamid\.DUBLE/);
   });
 
   it('Update a message to delivered when its delivery webhook arrives', async () => {
@@ -203,13 +203,13 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     const mensagem = await umaLinha<{ stateDelivery: string; entregueAt: string | null }>(
       sql`select estado_entrega, entregue_em from mensagem where id = ${messageOutputId}::uuid`,
     );
-    expect(mensagem?.estado_entrega).toBe('entregue');
-    expect(mensagem?.entregue_em).not.toBeNull();
+    expect(mensagem?.stateDelivery).toBe('entregue');
+    expect(mensagem?.entregueAt).not.toBeNull();
 
     const outbox = await umaLinha<{ state: string }>(
       sql`select estado from outbox_mensagem where mensagem_id = ${messageOutputId}::uuid`,
     );
-    expect(outbox?.estado).toBe('entregue');
+    expect(outbox?.state).toBe('entregue');
   });
 
   it('Update a message to read when its read-status webhook arrives', async () => {
@@ -217,7 +217,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
       await umaLinha<{ idProvider: string }>(
         sql`select id_provedor from mensagem where id = ${messageOutputId}::uuid`,
       )
-    )?.id_provedor;
+    )?.idProvider;
     expect(idProvedor).toBeTruthy();
 
     dubleWhatsApp.marcarLida(idProvedor!);
@@ -226,8 +226,8 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     const mensagem = await umaLinha<{ stateDelivery: string; lidaAt: string | null }>(
       sql`select estado_entrega, lida_em from mensagem where id = ${messageOutputId}::uuid`,
     );
-    expect(mensagem?.estado_entrega).toBe('lida');
-    expect(mensagem?.lida_em).not.toBeNull();
+    expect(mensagem?.stateDelivery).toBe('lida');
+    expect(mensagem?.lidaAt).not.toBeNull();
   });
 
   it('Do not regress message state when status webhooks arrive out of order', async () => {
@@ -250,7 +250,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     const mensagem = await umaLinha<{ stateDelivery: string }>(
       sql`select estado_entrega from mensagem where id = ${messageOutputId}::uuid`,
     );
-    expect(mensagem?.estado_entrega).toBe('lida');
+    expect(mensagem?.stateDelivery).toBe('lida');
   });
 
   it('List conversations and messages through REST with cursor pagination', async () => {
@@ -274,7 +274,7 @@ describe('caminho da falha', () => {
   let conversaId: string;
 
   beforeAll(async () => {
-    await postarWebhook(payloadOfMessage('5521955554444', 'segue o arquivo', { nome: 'Bruno' }));
+    await postarWebhook(payloadOfMessage('5521955554444', 'segue o arquivo', { name: 'Bruno' }));
     const conversa = await umaLinha<{ id: string }>(sql`
       select c.id from conversa c
         join contato ct on ct.id = c.contato_id
@@ -319,7 +319,7 @@ describe('caminho da falha', () => {
       errorCode: string;
       errorText: string;
     }>(sql`select estado_entrega, erro_codigo, erro_texto from mensagem where id = ${criada.id}::uuid`);
-    expect(mensagem?.estado_entrega).toBe('falhou');
+    expect(mensagem?.stateDelivery).toBe('falhou');
     expect(mensagem?.errorCode).toBe('midia_formato_recusado');
     // The text is what the Desk shows on screen: it must be readable, not a code.
     expect(mensagem?.errorText).toContain('application/x-msdownload');
@@ -328,7 +328,7 @@ describe('caminho da falha', () => {
     const outbox = await umaLinha<{ state: string; lastError: string }>(
       sql`select estado, ultimo_erro from outbox_mensagem where mensagem_id = ${criada.id}::uuid`,
     );
-    expect(outbox?.estado).toBe('falhou');
+    expect(outbox?.state).toBe('falhou');
     expect(outbox?.lastError).toContain('midia_formato_recusado');
   });
 
@@ -348,7 +348,7 @@ describe('caminho da falha', () => {
     const corpo = (await resposta.json()) as {
       error: { code: string; message: string; detalhe: { modo: string } };
     };
-    expect(corpo.error.codigo).toBe('janela_fechada');
+    expect(corpo.error.code).toBe('janela_fechada');
     expect(corpo.error.message).toContain('template aprovado pela Meta');
     expect(corpo.error.detalhe.modo).toBe('somente_template');
     expect(dubleWhatsApp.chamadas.length).toBe(chamadasAntes);
@@ -411,7 +411,7 @@ describe('Authenticate API requests with an API key', () => {
     const resposta = await comApi('/v1/conversations', {}, cenario.tokenWithoutScope);
     expect(resposta.status).toBe(403);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('without_scope');
+    expect(corpo.error.code).toBe('without_scope');
 
     // The same key can read the queue, because it holds that scope.
     expect((await comApi('/v1/queues', {}, cenario.tokenWithoutScope)).status).toBe(200);

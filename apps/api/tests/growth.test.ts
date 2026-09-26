@@ -117,7 +117,7 @@ describe('Register tracked links and generate short codes', () => {
       body: JSON.stringify({ nome: 'x', destino: 'https://192.168.0.5/x' }),
     });
     expect(privado.status).toBe(400);
-    expect(((await privado.json()) as { error: { code: string } }).error.codigo).toBe(
+    expect(((await privado.json()) as { error: { code: string } }).error.code).toBe(
       'url_forbidden',
     );
   });
@@ -235,7 +235,7 @@ describe('Reject active messages without a contact phone or contact ID', () => {
       }),
     });
     expect(resposta.status).toBe(400);
-    expect(((await resposta.json()) as { error: { code: string } }).error.codigo).toBe(
+    expect(((await resposta.json()) as { error: { code: string } }).error.code).toBe(
       'destination_invalid',
     );
   });
@@ -253,7 +253,7 @@ describe('Reject active messages without a contact phone or contact ID', () => {
         }),
       });
       expect(resposta.status).toBe(409);
-      expect(((await resposta.json()) as { error: { code: string } }).error.codigo).toBe(
+      expect(((await resposta.json()) as { error: { code: string } }).error.code).toBe(
         'channel_inactive',
       );
     } finally {
@@ -272,7 +272,7 @@ describe('Reject active messages without a contact phone or contact ID', () => {
       headers: { authorization: `Bearer ${cenario.tokenWithoutScope}` },
     });
     expect(withoutScope.status).toBe(403);
-    expect(((await withoutScope.json()) as { error: { code: string } }).error.codigo).toBe(
+    expect(((await withoutScope.json()) as { error: { code: string } }).error.code).toBe(
       'without_scope',
     );
   });

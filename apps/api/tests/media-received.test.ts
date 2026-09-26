@@ -56,7 +56,7 @@ afterEach(() => {
 });
 
 async function novoTenant(sufixo: string): Promise<string> {
-  const { tenantId } = await seed(dono, { nome: `midia ${sufixo}`, slug: `midia-${sufixo}` });
+  const { tenantId } = await seed(dono, { name: `midia ${sufixo}`, slug: `midia-${sufixo}` });
   return tenantId;
 }
 

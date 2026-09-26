@@ -167,7 +167,7 @@ describe('Transfer a conversation to a queue', () => {
     const antiga = await newConversation();
 
     const r = await transferir(antiga, { para_fila_id: otherQueueId });
-    const { para_conversa_id } = (await r.json()) as { forConversationId: string };
+    const { forConversationId } = (await r.json()) as { forConversationId: string };
     const nova = await conversation(para_conversa_id);
 
     expect(nova.priority).toBe('alta');
@@ -197,7 +197,7 @@ describe('Transfer a conversation to a queue', () => {
   it('Record `criada` and `transferida_fila` on a queue transfer', async () => {
     const antiga = await newConversation();
     const r = await transferir(antiga, { para_fila_id: otherQueueId });
-    const { para_conversa_id } = (await r.json()) as { forConversationId: string };
+    const { forConversationId } = (await r.json()) as { forConversationId: string };
 
     const eventos = await eventosDe(para_conversa_id);
     expect(eventos).toContain('criada');

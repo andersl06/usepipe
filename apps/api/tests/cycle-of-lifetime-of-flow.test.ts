@@ -142,12 +142,12 @@ async function create(
     headers: comCookie(session),
     body: JSON.stringify({ recados: RECADOS, type: 'fluxo', ...corpo }),
   });
-  return { status: resposta.status, corpo: (await resposta.json()) as ResponseOfCreation };
+  return { status: resposta.status, body: (await resposta.json()) as ResponseOfCreation };
 }
 
 /** Creates and returns the id, or fails the test — for scenarios that need a ready flow. */
 async function criado(nome: string, extra: Record<string, unknown> = {}): Promise<string> {
-  const { status, corpo } = await create(sessionEditor, { nome, ...extra });
+  const { status, body } = await create(sessionEditor, { nome, ...extra });
   expect(status).toBe(200);
   expect(corpo.error).toBeUndefined();
   return corpo.id!;
@@ -194,7 +194,7 @@ afterAll(async () => {
 describe('POST /v1/management/flows', () => {
   it('Create a draft flow with a name-derived shortName and audit the creation', async () => {
     const nome = `Atendimento ${randomUUID().slice(0, 6)}`;
-    const { status, corpo } = await create(sessionEditor, { nome });
+    const { status, body } = await create(sessionEditor, { nome });
     expect(status).toBe(200);
     expect(corpo.id).toMatch(/^[0-9a-f-]{36}$/);
 
@@ -253,7 +253,7 @@ describe('POST /v1/management/flows', () => {
 
   it('Reject flow creation without `automacao.fluxo.editar` using the screen message and save nothing', async () => {
     const nome = `Proibido ${randomUUID().slice(0, 6)}`;
-    const { status, corpo } = await create(sessionWithoutAuthority, { nome });
+    const { status, body } = await create(sessionWithoutAuthority, { nome });
     expect(status).toBe(200);
     expect(corpo).toEqual({ erro: RECADOS.semPermissao });
     const { rows } = await a.dono.execute<{ n: string }>(
@@ -277,7 +277,7 @@ describe('POST /v1/management/flows', () => {
     });
     expect(semRecados.status).toBe(400);
     const corpo = (await semRecados.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('messages_missing');
+    expect(corpo.error.code).toBe('messages_missing');
   });
 
   it('Detect flow images from bytes and ignore mislabeled nonimages', async () => {
@@ -429,7 +429,7 @@ describe('DELETE /v1/management/flows/:id', () => {
     const corpo = (await editor.json()) as {
       error: { code: string; detalhe: { permission: string } };
     };
-    expect(corpo.error.codigo).toBe('without_permission');
+    expect(corpo.error.code).toBe('without_permission');
     expect(corpo.error.detalhe.permission).toBe('automacao.fluxo.excluir');
     expect((await lineOfFlow(id))?.state).toBe('rascunho');
 

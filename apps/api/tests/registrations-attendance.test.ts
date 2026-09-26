@@ -96,7 +96,7 @@ async function pedir(
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
   });
   const texto = await resposta.text();
-  return { status: resposta.status, corpo: texto ? JSON.parse(texto) : undefined };
+  return { status: resposta.status, body: texto ? JSON.parse(texto) : undefined };
 }
 
 beforeAll(async () => {
@@ -156,7 +156,7 @@ async function createQueue(sessao: string, corpo: Record<string, unknown>) {
 describe('POST /v1/management/agents/queues', () => {
   it('Create a queue and record it in the audit log', async () => {
     const nome = `Cobrança ${randomUUID().slice(0, 6)}`;
-    const { status, corpo } = await createQueue(sessionManager, { nome, capacidadePadrao: 8, ordem: 2 });
+    const { status, body } = await createQueue(sessionManager, { nome, capacidadePadrao: 8, ordem: 2 });
     expect(status).toBe(201);
     expect(corpo.id).toMatch(/^[0-9a-f-]{36}$/);
 
@@ -208,10 +208,10 @@ describe('POST /v1/management/agents/queues', () => {
 
 describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar', () => {
   it('Update a queue\'s name, capacity, order, and color and audit only changes', async () => {
-    const { corpo: criada } = await createQueue(sessionManager, { nome: `Antes ${randomUUID().slice(0, 6)}` });
+    const { body: criada } = await createQueue(sessionManager, { nome: `Antes ${randomUUID().slice(0, 6)}` });
     const novoNome = `Depois ${randomUUID().slice(0, 6)}`;
 
-    const { status, corpo } = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionManager, {
+    const { status, body } = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionManager, {
       nome: novoNome,
       capacidadePadrao: 12,
     });
@@ -225,7 +225,7 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
   });
 
   it('Toggle a queue with PATCH using `ativa`', async () => {
-    const { corpo: criada } = await createQueue(sessionManager, {});
+    const { body: criada } = await createQueue(sessionManager, {});
     const desativada = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionManager, {
       ativa: false,
     });
@@ -234,7 +234,7 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
   });
 
   it('nada mudado não grava nem registra', async () => {
-    const { corpo: criada } = await createQueue(sessionManager, {});
+    const { body: criada } = await createQueue(sessionManager, {});
     const antes = await auditoriaDe('fila', criada.id);
     const empty = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionManager, {});
     expect(empty.status).toBe(200);
@@ -242,7 +242,7 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
   });
 
   it('Return 403 without `fila.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
-    const { corpo: criada } = await createQueue(sessionManager, {});
+    const { body: criada } = await createQueue(sessionManager, {});
 
     const semPoder = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionWithoutAuthority, {
       nome: 'Invasor',
@@ -266,7 +266,7 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
 
 describe('DELETE /v1/management/agents/queues/:id', () => {
   it('Delete a queue with 204 and record the action in the audit log', async () => {
-    const { corpo: criada } = await createQueue(sessionManager, {});
+    const { body: criada } = await createQueue(sessionManager, {});
     const resposta = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
@@ -283,7 +283,7 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
   });
 
   it('Return 409 when deleting a queue with an open conversation', async () => {
-    const { corpo: criada } = await createQueue(sessionManager, {});
+    const { body: criada } = await createQueue(sessionManager, {});
     const { rows: contacts } = await a.dono.execute<{ id: string }>(
       sql`insert into contato (tenant_id, nome) values (${a.tenantId}, 'Cliente teste') returning id`,
     );
@@ -309,12 +309,12 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
     });
     expect(resposta.status).toBe(409);
     const corpo = (await resposta.json()) as { error: { code: string; message: string } };
-    expect(corpo.error.codigo).toBe('queue_default_of_inbox');
+    expect(corpo.error.code).toBe('queue_default_of_inbox');
     expect(corpo.error.message).toContain('caixa de entrada');
   });
 
   it('Return 409 when deleting a queue used by an inbound routing rule', async () => {
-    const { corpo: criada } = await createQueue(sessionManager, {});
+    const { body: criada } = await createQueue(sessionManager, {});
     await a.dono.execute(sql`
       insert into regra_fila (tenant_id, nome, fila_destino_id, ordem)
       values (${a.tenantId}, ${`Regra ${randomUUID().slice(0, 6)}`}, ${criada.id}::uuid, 0)
@@ -326,11 +326,11 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
     });
     expect(resposta.status).toBe(409);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('queue_used_in_rule');
+    expect(corpo.error.code).toBe('queue_used_in_rule');
   });
 
   it('Return 403 without `fila.gerenciar` and 404 for another tenant\'s queue', async () => {
-    const { corpo: criada } = await createQueue(sessionManager, {});
+    const { body: criada } = await createQueue(sessionManager, {});
 
     const semPoder = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
       method: 'DELETE',
@@ -348,7 +348,7 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
 
 describe('Assign and unassign agents from a queue', () => {
   it('Assign an agent to a queue and update the override on reassignment', async () => {
-    const { corpo: criada } = await createQueue(sessionManager, {});
+    const { body: criada } = await createQueue(sessionManager, {});
     const vinculo = await pedir(
       'POST',
       `/v1/management/agents/queues/${criada.id}/agents`,
@@ -378,7 +378,7 @@ describe('Assign and unassign agents from a queue', () => {
   });
 
   it('Return 404 for a missing agent or queue', async () => {
-    const { corpo: criada } = await createQueue(sessionManager, {});
+    const { body: criada } = await createQueue(sessionManager, {});
     const withoutAgent = await pedir(
       'POST',
       `/v1/management/agents/queues/${criada.id}/agents`,
@@ -433,7 +433,7 @@ async function createResponse(sessao: string, corpo: Record<string, unknown> = {
 
 describe('POST /v1/management/communication/responses-ready', () => {
   it('cria e registra no log', async () => {
-    const { status, corpo } = await createResponse(sessionManager);
+    const { status, body } = await createResponse(sessionManager);
     expect(status).toBe(201);
     const log = await auditoriaDe('resposta_pronta', corpo.id);
     expect(log).toHaveLength(1);
@@ -465,7 +465,7 @@ describe('POST /v1/management/communication/responses-ready', () => {
 
 describe('PATCH e DELETE /v1/management/communication/responses-ready/:id', () => {
   it('Edit a saved response\'s body and category and toggle its active state', async () => {
-    const { corpo: criada } = await createResponse(sessionManager);
+    const { body: criada } = await createResponse(sessionManager);
     const editada = await pedir(
       'PATCH',
       `/v1/management/communication/responses-ready/${criada.id}`,
@@ -477,7 +477,7 @@ describe('PATCH e DELETE /v1/management/communication/responses-ready/:id', () =
   });
 
   it('exclui (204); de outro tenant é 404; id malformado é 404', async () => {
-    const { corpo: criada } = await createResponse(sessionManager);
+    const { body: criada } = await createResponse(sessionManager);
 
     const outroTenant = await fetch(
       `${api.url}/v1/management/communication/responses-ready/${criada.id}`,
@@ -517,7 +517,7 @@ async function createPause(sessao: string, corpo: Record<string, unknown> = {}) 
 
 describe('POST /v1/management/agents/pauses', () => {
   it('cria e registra no log', async () => {
-    const { status, corpo } = await createPause(sessionManager, { duracaoSugeridaMin: 15 });
+    const { status, body } = await createPause(sessionManager, { duracaoSugeridaMin: 15 });
     expect(status).toBe(201);
     const log = await auditoriaDe('motivo_pausa', corpo.id);
     expect(log[0]).toMatchObject({ acao: 'criou', depois: { duracaoSugeridaMin: 15 } });
@@ -547,7 +547,7 @@ describe('POST /v1/management/agents/pauses', () => {
 
 describe('PATCH e DELETE /v1/management/agents/pauses/:id', () => {
   it('Toggle a pause reason and edit whether it counts as productive time', async () => {
-    const { corpo: criada } = await createPause(sessionManager);
+    const { body: criada } = await createPause(sessionManager);
     const editada = await pedir('PATCH', `/v1/management/agents/pauses/${criada.id}`, sessionManager, {
       ativo: false,
       contaComoProdutivo: true,
@@ -557,7 +557,7 @@ describe('PATCH e DELETE /v1/management/agents/pauses/:id', () => {
   });
 
   it('Delete a pause reason without affecting historical pauses', async () => {
-    const { corpo: criada } = await createPause(sessionManager);
+    const { body: criada } = await createPause(sessionManager);
     const resposta = await fetch(`${api.url}/v1/management/agents/pauses/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
@@ -595,7 +595,7 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
   it('Rename and reorder a queue routing rule through PATCH, change its combiner, and audit only changed fields', async () => {
     const { id } = await createRuleQueueSql(a.queueId, 0);
     const novoNome = `Depois ${randomUUID().slice(0, 6)}`;
-    const { status, corpo } = await pedir(
+    const { status, body } = await pedir(
       'PATCH',
       `/v1/management/rules/attendance/${id}`,
       sessionManager,
@@ -611,7 +611,7 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
 
   it('Replace all rule condicoes when `conditions` is supplied', async () => {
     const { id } = await createRuleQueueSql(a.queueId);
-    const { status, corpo } = await pedir(
+    const { status, body } = await pedir(
       'PATCH',
       `/v1/management/rules/attendance/${id}`,
       sessionManager,
@@ -727,7 +727,7 @@ async function createRuleSla(sessao: string, corpo: Record<string, unknown> = {}
 
 describe('POST /v1/management/settings/rules', () => {
   it('cria e registra no log de auditoria', async () => {
-    const { status, corpo } = await createRuleSla(sessionManager, { alertaSeg: 300 });
+    const { status, body } = await createRuleSla(sessionManager, { alertaSeg: 300 });
     expect(status).toBe(201);
     const log = await auditoriaDe('regra_sla', corpo.id);
     expect(log).toHaveLength(1);
@@ -780,7 +780,7 @@ describe('POST /v1/management/settings/rules', () => {
 
 describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
   it('edita prazo e alerta juntos, e registra só o que mudou', async () => {
-    const { corpo: criada } = await createRuleSla(sessionManager, { prazoSeg: 600, alertaSeg: 300 });
+    const { body: criada } = await createRuleSla(sessionManager, { prazoSeg: 600, alertaSeg: 300 });
     const editada = await pedir(
       'PATCH',
       `/v1/management/settings/rules/${criada.id}`,
@@ -792,7 +792,7 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
   });
 
   it('encolher o prazo abaixo do alerta já cadastrado sem mandar o novo alerta é 400', async () => {
-    const { corpo: criada } = await createRuleSla(sessionManager, { prazoSeg: 600, alertaSeg: 500 });
+    const { body: criada } = await createRuleSla(sessionManager, { prazoSeg: 600, alertaSeg: 500 });
     const resposta = await pedir(
       'PATCH',
       `/v1/management/settings/rules/${criada.id}`,
@@ -804,7 +804,7 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
   });
 
   it('Return 403 without `regra.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
-    const { corpo: criada } = await createRuleSla(sessionManager);
+    const { body: criada } = await createRuleSla(sessionManager);
 
     const semPoder = await pedir(
       'PATCH',
@@ -829,7 +829,7 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
   });
 
   it('Delete an SLA rule with 204 and return 404 for cross-tenant or malformed IDs', async () => {
-    const { corpo: criada } = await createRuleSla(sessionManager);
+    const { body: criada } = await createRuleSla(sessionManager);
 
     const outroTenant = await fetch(`${api.url}/v1/management/settings/rules/${criada.id}`, {
       method: 'DELETE',
@@ -856,7 +856,7 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
   });
 
   it('Return 409 when deleting an SLA rule active on an open conversation', async () => {
-    const { corpo: criada } = await createRuleSla(sessionManager);
+    const { body: criada } = await createRuleSla(sessionManager);
     const { rows: contatos } = await a.dono.execute<{ id: string }>(
       sql`insert into contato (tenant_id, nome) values (${a.tenantId}, 'Cliente SLA') returning id`,
     );
@@ -876,7 +876,7 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
     });
     expect(resposta.status).toBe(409);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('rule_with_sla_running');
+    expect(corpo.error.code).toBe('rule_with_sla_running');
   });
 });
 
@@ -926,7 +926,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
   it('edita início/fim e registra só o que mudou', async () => {
     const horarioId = await createScheduleSql();
     const id = await createRangeSql(horarioId, 1, '09:00', '18:00');
-    const { status, corpo } = await pedir(
+    const { status, body } = await pedir(
       'PATCH',
       `/v1/management/rules/schedules/ranges/${id}`,
       sessionManager,
@@ -1004,7 +1004,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
   it('edita motivo e data', async () => {
     const horarioId = await createScheduleSql();
     const id = await createExceptionSql(horarioId, '2026-12-25', true);
-    const { status, corpo } = await pedir(
+    const { status, body } = await pedir(
       'PATCH',
       `/v1/management/rules/schedules/exceptions/${id}`,
       sessionManager,
@@ -1108,7 +1108,7 @@ async function createRulePriority(session: string, corpo: Record<string, unknown
 
 describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
   it('cria, lista e registra no log', async () => {
-    const { status, corpo } = await createRulePriority(sessionManager);
+    const { status, body } = await createRulePriority(sessionManager);
     expect(status).toBe(201);
     const log = await auditoriaDe('regra_prioridade', corpo.id);
     expect(log[0]).toMatchObject({ acao: 'criou' });
@@ -1144,7 +1144,7 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
   });
 
   it('Edit a priority rule\'s level and condition and audit only changes', async () => {
-    const { corpo: criada } = await createRulePriority(sessionManager);
+    const { body: criada } = await createRulePriority(sessionManager);
     const editada = await pedir(
       'PATCH',
       `/v1/management/rules/priority/${criada.id}`,
@@ -1156,7 +1156,7 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
   });
 
   it('Return 403 without `regra.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
-    const { corpo: criada } = await createRulePriority(sessionManager);
+    const { body: criada } = await createRulePriority(sessionManager);
 
     const semPoder = await pedir(
       'PATCH',
@@ -1182,7 +1182,7 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
   });
 
   it('Delete a schedule exception with 204', async () => {
-    const { corpo: criada } = await createRulePriority(sessionManager);
+    const { body: criada } = await createRulePriority(sessionManager);
     const resposta = await fetch(`${api.url}/v1/management/rules/priority/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),

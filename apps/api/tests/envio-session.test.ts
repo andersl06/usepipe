@@ -271,7 +271,7 @@ describe('Retry failed message sends', () => {
     const { rows: outbox } = await cenario.dono.execute<{ state: string }>(
       sql`select estado from outbox_mensagem where mensagem_id = ${mensagemId}::uuid`,
     );
-    expect(outbox[0]?.estado).toBe('pendente');
+    expect(outbox[0]?.state).toBe('pendente');
   });
 
   it('Reject retries for messages that are not failed', async () => {
@@ -285,7 +285,7 @@ describe('Retry failed message sends', () => {
     `);
     const resposta = await reenviar(conversaId, rows[0]!.id);
     expect(resposta.status).toBe(409);
-    expect(((await resposta.json()) as { error: { code: string } }).error.codigo).toBe(
+    expect(((await resposta.json()) as { error: { code: string } }).error.code).toBe(
       'message_not_failed',
     );
   });

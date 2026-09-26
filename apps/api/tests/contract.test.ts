@@ -128,7 +128,7 @@ async function pedir(
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
   });
   const texto = await resposta.text();
-  return { status: resposta.status, corpo: texto ? JSON.parse(texto) : undefined };
+  return { status: resposta.status, body: texto ? JSON.parse(texto) : undefined };
 }
 
 let a: Cenario;
@@ -181,7 +181,7 @@ afterAll(async () => {
 
 describe('GET /v1/management/contract/members', () => {
   it('List each member\'s role and reject users without conta.membros.ler', async () => {
-    const { status, corpo } = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
+    const { status, body } = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
     expect(status).toBe(200);
     const member = corpo.membros.find((m: Corpo) => m.id === userMemberId);
     expect(member).toMatchObject({ tipo: 'usuario', papelNome: 'member' });

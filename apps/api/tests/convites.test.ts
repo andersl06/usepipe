@@ -190,7 +190,7 @@ describe('POST /v1/convites', () => {
     });
     expect(resposta.status).toBe(400);
     const corpo = (await resposta.json()) as { error: { code: string; message: string } };
-    expect(corpo.error.codigo).toBe('role_of_attendance');
+    expect(corpo.error.code).toBe('role_of_attendance');
     expect(corpo.error.message).toContain('admin, member ou guest');
 
     const { rows } = await a.dono.execute<{ n: string }>(
@@ -219,7 +219,7 @@ describe('POST /v1/convites', () => {
     });
     expect(resposta.status).toBe(403);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('without_permission');
+    expect(corpo.error.code).toBe('without_permission');
   });
 
   it('Return 401 without a session', async () => {
@@ -274,7 +274,7 @@ describe('GET /v1/convites/:token', () => {
     const resposta = await fetch(`${api.url}/v1/convites/${token}`);
     expect(resposta.status).toBe(410);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('invitation_expired');
+    expect(corpo.error.code).toBe('invitation_expired');
   });
 });
 
@@ -302,13 +302,13 @@ describe('POST /v1/convites/:token/aceitar', () => {
        where u.id = ${corpo.userId}::uuid
     `);
     expect(rows[0]?.tenant_id).toBe(a.tenantId);
-    expect(rows[0]?.papel).toBe('guest');
+    expect(rows[0]?.role).toBe('guest');
 
     // // Single use: a second click on the same link doesn't create a second user.
     const repetido = await fetch(`${api.url}/v1/convites/${token}/aceitar`, { method: 'POST' });
     expect(repetido.status).toBe(410);
     const error = (await repetido.json()) as { error: { code: string } };
-    expect(error.error.codigo).toBe('invitation_used');
+    expect(error.error.code).toBe('invitation_used');
 
     const { rows: quantos } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from usuario where email = ${email}`,
@@ -455,7 +455,7 @@ describe('POST /v1/dominios', () => {
       });
       expect(resposta.status).toBe(400);
       const corpo = (await resposta.json()) as { error: { code: string } };
-      expect(corpo.error.codigo).toBe('domain_public');
+      expect(corpo.error.code).toBe('domain_public');
     }
   });
 
@@ -544,7 +544,7 @@ describe('Provision a customer tenant', () => {
     return provisionCustomer({
       name: `Acme ${marca}`,
       slug,
-      plano: 'operacao',
+      plan: 'operacao',
       admin: `dono@acme-${marca}.teste`,
       ...extra,
     });
@@ -612,7 +612,7 @@ describe('Provision a customer tenant', () => {
       provisionCustomer({
         name: 'Outra empresa, mesmo slug',
         slug: cliente.slug,
-        plano: 'essencial',
+        plan: 'essencial',
         admin: 'outro@outraempresa.teste',
       }),
     ).rejects.toMatchObject({ codigo: 'slug_em_uso' });

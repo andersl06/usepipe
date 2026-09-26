@@ -247,7 +247,7 @@ describe('Authenticate through the tenant identity provider', () => {
     const { rows } = await cenario.dono.execute<{ origin: string }>(
       sql`select origem from sessao where usuario_id = ${ana}::uuid order by criado_em desc limit 1`,
     );
-    expect(rows[0]?.origem).toBe('sso');
+    expect(rows[0]?.origin).toBe('sso');
   });
 
   it('recusa quem o IdP não confirmou o e-mail — é o caminho de escalada', async () => {

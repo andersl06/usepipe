@@ -125,7 +125,7 @@ describe('Monitor conversations across queues and agents', () => {
     }
     const unica = await pedir(gestor, 'GET', `/v1/management/monitoring?fila=${fila2}`);
     const corpo = await unica.json() as { data: { opens: { id: string }[] } };
-    expect(corpo.data.abertas.map(c => c.id)).toEqual([segunda]);
+    expect(corpo.data.opens.map(c => c.id)).toEqual([segunda]);
   });
 
   it('lê a prévia, grava nota e deixa auditoria', async () => {
@@ -136,7 +136,7 @@ describe('Monitor conversations across queues and agents', () => {
 
     expect((await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${id}/notes`, { texto: 'Acompanhar este atendimento.' })).status).toBe(201);
     const { rows: notas } = await a.dono.execute<{ body: string }>(sql`select corpo from nota_interna where conversa_id = ${id}::uuid`);
-    expect(notas[0]?.corpo).toBe('Acompanhar este atendimento.');
+    expect(notas[0]?.body).toBe('Acompanhar este atendimento.');
     const { rows: log } = await a.dono.execute<{ depois: { acao: string } }>(sql`
       select depois from log_auditoria where objeto_tipo = 'conversa' and objeto_id = ${id}::uuid order by em desc limit 1
     `);

@@ -158,7 +158,7 @@ describe('Manage flow access keys', () => {
         select hash, fluxo_id from chave_api where id = ${corpo.id}::uuid
       `)
     ).rows[0];
-    expect(linha?.fluxo_id).toBe(flowId);
+    expect(linha?.flowId).toBe(flowId);
     // The database stores the sha256 HASH, not the plaintext secret that came in the token.
     expect(linha?.hash).toMatch(/^[0-9a-f]{64}$/);
     expect(linha?.hash).not.toBe(corpo.token.split('_')[2]);
@@ -193,7 +193,7 @@ describe('Manage flow access keys', () => {
       nome: 'Quarta',
     });
     expect(quarta.status).toBe(400);
-    expect((quarta.body as { error: { code: string } }).error.codigo).toBe('limit_of_keys');
+    expect((quarta.body as { error: { code: string } }).error.code).toBe('limit_of_keys');
   });
 
   it('Return 403 without `chave_api.gerenciar` and 404 for invalid or cross-tenant IDs', async () => {
@@ -346,14 +346,14 @@ describe('Send outgoing webhooks for integrations', () => {
       eventos: [],
     });
     expect(semEventos.status).toBe(400);
-    expect((semEventos.body as { error: { code: string } }).error.codigo).toBe('events_missing');
+    expect((semEventos.body as { error: { code: string } }).error.code).toBe('events_missing');
 
     const eventoInvalido = await post(`/v1/management/webhooks`, sessionComplete, {
       url: 'https://exemplo.pipe.app/hook',
       eventos: ['isto.nao.existe'],
     });
     expect(eventoInvalido.status).toBe(400);
-    expect((eventoInvalido.body as { error: { code: string } }).error.codigo).toBe('event_invalid');
+    expect((eventoInvalido.body as { error: { code: string } }).error.code).toBe('event_invalid');
 
     const http = await post(`/v1/management/webhooks`, sessionComplete, {
       url: 'http://exemplo.pipe.app/hook',
@@ -392,12 +392,12 @@ describe('Send outgoing webhooks for integrations', () => {
       active: false,
     });
     expect(desativado.status).toBe(200);
-    expect(desativado.body.ativo).toBe(false);
+    expect(desativado.body.active).toBe(false);
 
     const ativado = await patch<{ active: boolean }>(`/v1/management/webhooks/${id}`, sessionComplete, {
       active: true,
     });
-    expect(ativado.body.ativo).toBe(true);
+    expect(ativado.body.active).toBe(true);
 
     const log = await a.dono.execute<{ acao: string }>(sql`
       select acao from log_auditoria
@@ -462,7 +462,7 @@ describe('Send outgoing webhooks for integrations', () => {
     );
     expect(falhou.status).toBe(200);
     expect(falhou.body.ok).toBe(false);
-    expect(falhou.body.erro).toContain('falha de rede simulada');
+    expect(falhou.body.error).toContain('falha de rede simulada');
 
     const entregas = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from entrega_webhook where webhook_id = ${id}::uuid`,
@@ -541,7 +541,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
     );
     expect(test.status).toBe(200);
     expect(test.body.ok).toBe(true);
-    expect(test.body.corpo).toBe('recebido');
+    expect(test.body.body).toBe('recebido');
     const cabecalhos = chamadas[0]?.[1]?.headers as Record<string, string>;
     expect(cabecalhos['authorization']).toBe(
       `Basic ${Buffer.from('robo:segredo-123').toString('base64')}`,
@@ -633,7 +633,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       cabecalhos: [{ chave: 'Content-Type', valor: 'text/plain' }],
     });
     expect(reservado.status).toBe(400);
-    expect((reservado.body as { error: { code: string } }).error.codigo).toBe('header_reserved');
+    expect((reservado.body as { error: { code: string } }).error.code).toBe('header_reserved');
 
     const repetido = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/repetido-${randomUUID().slice(0, 8)}`,
@@ -644,7 +644,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       ],
     });
     expect(repetido.status).toBe(400);
-    expect((repetido.body as { error: { code: string } }).error.codigo).toBe('header_repeated');
+    expect((repetido.body as { error: { code: string } }).error.code).toBe('header_repeated');
 
     const semSenha = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/incompleta-${randomUUID().slice(0, 8)}`,
@@ -652,7 +652,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       autenticacao: { tipo: 'basica', usuario: 'robo' },
     });
     expect(semSenha.status).toBe(400);
-    expect((semSenha.body as { error: { code: string } }).error.codigo).toBe('authentication_incomplete');
+    expect((semSenha.body as { error: { code: string } }).error.code).toBe('authentication_incomplete');
 
     const oauthSsrf = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/oauth-ssrf-${randomUUID().slice(0, 8)}`,

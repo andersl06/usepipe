@@ -113,12 +113,12 @@ async function pedir(
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
   });
   const texto = await resposta.text();
-  return { status: resposta.status, corpo: texto ? (JSON.parse(texto) as Corpo) : {} };
+  return { status: resposta.status, body: texto ? (JSON.parse(texto) as Corpo) : {} };
 }
 
 /** Cria o contato pela rota de criar e devolve o id. */
 async function criado(nome: string, tipo: 'fluxo' | 'roteador' = 'fluxo'): Promise<string> {
-  const { status, corpo } = await pedir(sessionEditor, 'POST', '/v1/management/flows', {
+  const { status, body } = await pedir(sessionEditor, 'POST', '/v1/management/flows', {
     recados: RECADOS,
     nome,
     tipo,
@@ -287,7 +287,7 @@ afterAll(async () => {
 describe('GET /v1/management/flows/:id/builder', () => {
   it('Open a new flow with a publishable default and no saved draft', async () => {
     const id = await criado(`Novo ${randomUUID().slice(0, 6)}`);
-    const { status, corpo } = await builder(sessionEditor, id);
+    const { status, body } = await builder(sessionEditor, id);
     expect(status).toBe(200);
     expect(corpo).toMatchObject({ fluxoId: id, origem: 'padrao', versao: null, publicada: null });
     expect(corpo['erros']).toEqual([]);
@@ -307,7 +307,7 @@ describe('GET /v1/management/flows/:id/builder', () => {
       await versions(sessionPublisher, id),
       await restore(sessionPublisher, id, 1),
     ];
-    for (const { status, corpo } of respostas) {
+    for (const { status, body } of respostas) {
       expect(status).toBe(409);
       expect(corpo['erro']['code']).toBe('roteador_sem_builder');
       expect(corpo['erro']['message']).toContain('Roteador não tem Builder');
@@ -363,7 +363,7 @@ describe('PUT /v1/management/flows/:id/builder', () => {
     const { rows } = await a.dono.execute<{ state: string }>(
       sql`select estado from fluxo where id = ${id}::uuid`,
     );
-    expect(rows[0]?.estado).toBe('rascunho');
+    expect(rows[0]?.state).toBe('rascunho');
   });
 
   it('Save an invalid design while returning engine errors per block', async () => {
@@ -383,7 +383,7 @@ describe('PUT /v1/management/flows/:id/builder', () => {
       globais: {},
     };
 
-    const { status, corpo } = await salvar(sessionEditor, id, quebrado);
+    const { status, body } = await salvar(sessionEditor, id, quebrado);
     expect(status).toBe(200);
     expect(corpo['versao']).toMatchObject({ versao: 1, estado: 'rascunho', blocos: 1 });
     const errors = corpo['erros'] as { block: string | null; message: string }[];
@@ -415,7 +415,7 @@ describe('PUT /v1/management/flows/:id/builder', () => {
 
   it('Do not save a draft without `automacao.fluxo.editar`', async () => {
     const id = await criado(`Trancado ${randomUUID().slice(0, 6)}`);
-    const { status, corpo } = await salvar(sessionWithoutAuthority, id, desenho('x'));
+    const { status, body } = await salvar(sessionWithoutAuthority, id, desenho('x'));
     expect(status).toBe(403);
     expect(corpo['erro']['code']).toBe('sem_permissao');
     expect(await versionsInDatabase(id)).toHaveLength(0);
@@ -445,7 +445,7 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
     const { rows: flows } = await a.dono.execute<{ state: string }>(
       sql`select estado from fluxo where id = ${id}::uuid`,
     );
-    expect(flows[0]?.estado).toBe('publicado');
+    expect(flows[0]?.state).toBe('publicado');
 
     // // With no draft, the Builder opens the published version.
     const aberto = await builder(sessionEditor, id);
@@ -539,7 +539,7 @@ describe('POST /v1/management/flows/:id/builder/versions/:versao/restore', () =>
     await salvar(sessionEditor, id, desenho('segunda'));
     await publicar(sessionPublisher, id);
 
-    const { status, corpo } = await restore(sessionEditor, id, 1);
+    const { status, body } = await restore(sessionEditor, id, 1);
     expect(status).toBe(200);
     expect(corpo['versao']).toMatchObject({ versao: 3, estado: 'rascunho', blocos: 3 });
     expect(corpo['erros']).toEqual([]);

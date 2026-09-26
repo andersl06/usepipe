@@ -102,7 +102,7 @@ async function pedir(
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
   });
   const texto = await resposta.text();
-  return { status: resposta.status, corpo: texto ? JSON.parse(texto) : undefined };
+  return { status: resposta.status, body: texto ? JSON.parse(texto) : undefined };
 }
 
 async function createContact(cenario: Cenario): Promise<string> {
@@ -221,7 +221,7 @@ describe('encontrarPalavrasProibidas — a régua de §3.4', () => {
 describe(`POST ${CAMINHO}`, () => {
   it('cria (201), registra no log e aparece na lista', async () => {
     const termo = `Golpe ${randomUUID().slice(0, 6)}`;
-    const { status, corpo } = await createWord(sessionManager, { termo });
+    const { status, body } = await createWord(sessionManager, { termo });
     expect(status).toBe(201);
     expect(corpo.id).toMatch(/^[0-9a-f-]{36}$/);
 
@@ -261,7 +261,7 @@ describe(`POST ${CAMINHO}`, () => {
   });
 
   it('a lista de um tenant não aparece para o outro', async () => {
-    const { corpo: criada } = await createWord(sessionManager);
+    const { body: criada } = await createWord(sessionManager);
     const doOutro = await pedir('GET', CAMINHO, sessionOfOtherTenant);
     expect(doOutro.status).toBe(200);
     expect((doOutro.body as { id: string }[]).some((p) => p.id === criada.id)).toBe(false);
@@ -270,9 +270,9 @@ describe(`POST ${CAMINHO}`, () => {
 
 describe(`PATCH ${CAMINHO}/:id`, () => {
   it('edita o termo e desativa, registrando só o que mudou', async () => {
-    const { corpo: criada } = await createWord(sessionManager);
+    const { body: criada } = await createWord(sessionManager);
     const novoTermo = `Fraude ${randomUUID().slice(0, 6)}`;
-    const { status, corpo } = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionManager, {
+    const { status, body } = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionManager, {
       termo: novoTermo,
       ativo: false,
     });
@@ -284,7 +284,7 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
   });
 
   it('nada mudado não grava nem registra', async () => {
-    const { corpo: criada } = await createWord(sessionManager);
+    const { body: criada } = await createWord(sessionManager);
     const antes = await auditoriaDe(criada.id);
     const vazio = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionManager, {});
     expect(vazio.status).toBe(200);
@@ -292,8 +292,8 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
   });
 
   it('renomear para um termo que já existe é 409', async () => {
-    const { corpo: first } = await createWord(sessionManager);
-    const { corpo: segunda } = await createWord(sessionManager);
+    const { body: first } = await createWord(sessionManager);
+    const { body: segunda } = await createWord(sessionManager);
     const lista = await pedir('GET', CAMINHO, sessionManager);
     const termOfFirst = (lista.body as { id: string; term: string }[]).find(
       (p) => p.id === first.id,
@@ -306,7 +306,7 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
   });
 
   it('sem tenant.configurar é 403; de outro tenant é 404; id malformado é 404', async () => {
-    const { corpo: criada } = await createWord(sessionManager);
+    const { body: criada } = await createWord(sessionManager);
 
     const semPoder = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionWithoutAuthority, { ativo: false });
     expect(semPoder.status).toBe(403);
@@ -323,7 +323,7 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
 
 describe(`DELETE ${CAMINHO}/:id`, () => {
   it('Delete and audit banned terms, returning 404 for invalid or cross-tenant IDs', async () => {
-    const { corpo: criada } = await createWord(sessionManager);
+    const { body: criada } = await createWord(sessionManager);
 
     const outroTenant = await fetch(`${api.url}${CAMINHO}/${criada.id}`, {
       method: 'DELETE',
@@ -372,7 +372,7 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
     const marca = randomUUID().slice(0, 6);
     const palavra = `idiota${marca}`;
     const frase = `boleto falso ${marca}`;
-    const { corpo: criadaPalavra } = await createWord(sessionManager, { termo: palavra });
+    const { body: criadaPalavra } = await createWord(sessionManager, { termo: palavra });
     expect((await createWord(sessionManager, { termo: frase })).status).toBe(201);
 
     // A standalone word, with different accent and case, inside a token that CONTAINS it.
