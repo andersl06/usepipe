@@ -179,7 +179,7 @@ export async function closeConversation(
   // Depois do commit. A conversa mudou e saiu da fila do atendente.
   await publicar(ator.tenantId, evento('conversation', pedido.conversationId));
   await publicar(ator.tenantId, evento('queue'));
-  return { estado: 'encerrada', motivo: resultado.motivo };
+  return { state: 'encerrada', reason: resultado.motivo };
 }
 
 export interface EsperaAlternada {
@@ -222,7 +222,7 @@ export async function alternarEspera(
         conversa_id: conversation.id,
         estado: 'em_espera',
       });
-      return { estado: destination, pausadoSeg: 0 };
+      return { state: destination, pausadoSeg: 0 };
     }
 
     const inicio = comoData(conversation.em_espera_desde);
@@ -245,7 +245,7 @@ export async function alternarEspera(
       conversa_id: conversation.id,
       estado: 'em_atendimento',
     });
-    return { estado: destination, pausadoSeg };
+    return { state: destination, pausadoSeg };
   });
 
   // Depois do commit, como em toda ação de domínio. Ver `tempo-real.ts`.
@@ -463,13 +463,13 @@ export async function transferConversation(
       de_conversa_id: conversa.id,
     });
 
-    return { deConversaId: conversa.id, paraConversaId: novaId, estado: stateNew };
+    return { ofConversationId: conversa.id, forConversationId: novaId, state: stateNew };
   });
 
   drenarEmSegundoPlano(ator.tenantId);
   // Duas conversas mudaram: a que encerrou e a que nasceu no destino.
-  await publicar(ator.tenantId, evento('conversation', resultado.deConversaId));
-  await publicar(ator.tenantId, evento('conversation', resultado.paraConversaId));
+  await publicar(ator.tenantId, evento('conversation', resultado.ofConversationId));
+  await publicar(ator.tenantId, evento('conversation', resultado.forConversationId));
   await publicar(ator.tenantId, evento('queue'));
   return resultado;
 }
