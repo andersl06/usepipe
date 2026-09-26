@@ -428,10 +428,10 @@ describe('DELETE /v1/management/flows/:id', () => {
     const editor = await excluir(sessionEditor, id);
     expect(editor.status).toBe(403);
     const corpo = (await editor.json()) as {
-      error: { code: string; detalhe: { permissao: string } };
+      error: { code: string; detalhe: { permission: string } };
     };
     expect(corpo.error.code).toBe('without_permission');
-    expect(corpo.error.detalhe.permissao).toBe('automacao.fluxo.excluir');
+    expect(corpo.error.detalhe.permission).toBe('automacao.fluxo.excluir');
     expect((await lineOfFlow(id))?.estado).toBe('rascunho');
 
     expect((await excluir(sessionOfOtherTenant, id)).status).toBe(404);

@@ -107,7 +107,7 @@ describe('disparo', () => {
     const { data } = (await r.json()) as { data: { mensagem_id: string }[] };
 
     const { rows } = await cenario.dono.execute<{ state: string }>(
-      sql`select estado from outbox_mensagem where mensagem_id = ${data[0]!.mensagem_id}::uuid`,
+      sql`select estado as "state" from outbox_mensagem where mensagem_id = ${data[0]!.mensagem_id}::uuid`,
     );
     expect(rows[0]?.state).toBe('pendente');
   });
@@ -125,7 +125,7 @@ describe('disparo', () => {
     expect(rows[0]!.state).toBe('em_atendimento');
 
     const { rows: ev } = await cenario.dono.execute<{ data: Record<string, string> }>(sql`
-      select dados from evento_atendimento
+      select dados as "data" from evento_atendimento
        where conversa_id = ${data[0]!.conversa_id}::uuid and tipo = 'criada' limit 1
     `);
     expect(ev[0]?.data['origem']).toBe('mensagem_ativa');
@@ -136,7 +136,7 @@ describe('disparo', () => {
     const { data } = (await r.json()) as { data: { conversa_id: string }[] };
 
     const { rows } = await cenario.dono.execute<{ windowExpiresAt: Date | null }>(
-      sql`select janela_expira_em from conversa where id = ${data[0]!.conversa_id}::uuid`,
+      sql`select janela_expira_em as "windowExpiresAt" from conversa where id = ${data[0]!.conversa_id}::uuid`,
     );
     expect(rows[0]!.windowExpiresAt).toBeNull();
   });
@@ -149,7 +149,7 @@ describe('disparo', () => {
     const { data } = (await r.json()) as { data: { conversa_id: string }[] };
 
     const { rows } = await cenario.dono.execute<{ firstResponseAt: Date | null }>(
-      sql`select primeira_resposta_em from conversa where id = ${data[0]!.conversa_id}::uuid`,
+      sql`select primeira_resposta_em as "firstResponseAt" from conversa where id = ${data[0]!.conversa_id}::uuid`,
     );
     expect(rows[0]!.firstResponseAt).toBeNull();
 
@@ -186,7 +186,7 @@ describe('disparo', () => {
     const { data } = (await r.json()) as { data: { mensagem_id: string }[] };
 
     const { rows } = await cenario.dono.execute<{ content: string }>(sql`
-      select conteudo from mensagem where id in
+      select conteudo as "content" from mensagem where id in
         (${data[0]!.mensagem_id}::uuid, ${data[1]!.mensagem_id}::uuid)
       order by conteudo
     `);

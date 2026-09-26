@@ -117,7 +117,7 @@ describe('Send Desk replies with a session cookie', () => {
     await enviar(conversaId, { texto: 'Oi' }, { cookie: cookieOfAgent });
 
     const { rows } = await cenario.dono.execute<{ autor_tipo: string; authorId: string }>(sql`
-      select autor_tipo, autor_id from mensagem where conversa_id = ${conversaId}::uuid limit 1
+      select autor_tipo, autor_id as "authorId" from mensagem where conversa_id = ${conversaId}::uuid limit 1
     `);
     expect(rows[0]?.autor_tipo).toBe('atendente');
     expect(rows[0]?.authorId).toBe(cenario.agentId);
@@ -128,13 +128,13 @@ describe('Send Desk replies with a session cookie', () => {
 
     const resposta = await enviar(
       conversaId,
-      { texto: 'Tentando me passar por outro', atendente_id: otherAgentId },
+      { texto: 'Tentando me passar por outro', agentId: otherAgentId },
       { cookie: cookieOfAgent },
     );
 
     expect(resposta.status).toBe(201);
     const { rows } = await cenario.dono.execute<{ authorId: string }>(sql`
-      select autor_id from mensagem where conversa_id = ${conversaId}::uuid limit 1
+      select autor_id as "authorId" from mensagem where conversa_id = ${conversaId}::uuid limit 1
     `);
     expect(rows[0]?.authorId).toBe(cenario.agentId);
     expect(rows[0]?.authorId).not.toBe(otherAgentId);
@@ -146,7 +146,7 @@ describe('Send Desk replies with a session cookie', () => {
     await enviar(conversaId, { texto: 'Primeira resposta' }, { cookie: cookieOfAgent });
 
     const { rows } = await cenario.dono.execute<{ type: string }>(sql`
-      select tipo from evento_atendimento where conversa_id = ${conversaId}::uuid order by tipo
+      select tipo as "type" from evento_atendimento where conversa_id = ${conversaId}::uuid order by tipo
     `);
     const tipos = rows.map((r) => r.type);
     expect(tipos).toContain('mensagem_saida');
@@ -225,7 +225,7 @@ describe('Retry failed message sends', () => {
       tentativas: number;
       proxima_tentativa_em: Date | null;
     }>(sql`
-      select estado, tentativas, proxima_tentativa_em from outbox_mensagem
+      select estado as "state", tentativas, proxima_tentativa_em from outbox_mensagem
        where mensagem_id = ${messageId}::uuid
     `);
     // This is exactly what the screen used to fail to do: it touched only `mensagem`, and the
@@ -247,7 +247,8 @@ describe('Retry failed message sends', () => {
       errorCode: string | null;
       entregueAt: Date | null;
     }>(sql`
-      select estado_entrega, erro_codigo, entregue_em from mensagem where id = ${mensagemId}::uuid
+      select estado_entrega as "stateDelivery", erro_codigo as "errorCode", entregue_em as "entregueAt"
+        from mensagem where id = ${mensagemId}::uuid
     `);
     expect(rows[0]!.stateDelivery).toBe('pendente');
     expect(rows[0]!.errorCode).toBeNull();
@@ -270,7 +271,7 @@ describe('Retry failed message sends', () => {
     expect((await reenviar(conversaId, mensagemId)).status).toBe(201);
 
     const { rows: outbox } = await cenario.dono.execute<{ state: string }>(
-      sql`select estado from outbox_mensagem where mensagem_id = ${mensagemId}::uuid`,
+      sql`select estado as "state" from outbox_mensagem where mensagem_id = ${mensagemId}::uuid`,
     );
     expect(outbox[0]?.state).toBe('pendente');
   });
@@ -325,14 +326,14 @@ describe('Preserve API-key behavior on the same send route', () => {
     // because an integration has no owner. That is why this request succeeds where the cookie was rejected.
     const resposta = await enviar(
       conversaId,
-      { texto: 'Da integração', atendente_id: otherAgentId },
+      { texto: 'Da integração', agentId: otherAgentId },
       { token: cenario.token },
     );
 
     expect(resposta.status).toBe(201);
     expect(await contarOutbox(conversaId)).toBe(1);
     const { rows } = await cenario.dono.execute<{ authorId: string }>(sql`
-      select autor_id from mensagem where conversa_id = ${conversaId}::uuid limit 1
+      select autor_id as "authorId" from mensagem where conversa_id = ${conversaId}::uuid limit 1
     `);
     expect(rows[0]?.authorId).toBe(otherAgentId);
   });

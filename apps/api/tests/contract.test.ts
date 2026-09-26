@@ -239,7 +239,7 @@ describe('convidar, reenviar e revogar', () => {
     });
     expect(semPoder.status).toBe(403);
     expect(semPoder.body.error.code).toBe('without_permission');
-    expect(semPoder.body.error.detalhe.permissao).toBe('conta.membros.escrever');
+    expect(semPoder.body.error.detalhe.permission).toBe('conta.membros.escrever');
   });
 
   it('Return 404 when resending another tenant\'s invitation', async () => {
@@ -534,7 +534,7 @@ describe('Manage mTLS authentication certificates', () => {
       pedidoDeCertificado(),
     );
     expect(resultado.status).toBe(403);
-    expect(resultado.body.error.detalhe.permissao).toBe('conta.membros.escrever');
+    expect(resultado.body.error.detalhe.permission).toBe('conta.membros.escrever');
   });
 
   it('Return 403 when listing certificates without conta.membros.ler', async () => {
@@ -626,8 +626,8 @@ describe('mTLS na saída (webhooks)', () => {
     fingirRede();
 
     const resultados = await entregarPendentes(a.tenantId);
-    expect(resultados.find((r) => r.id === first)).toEqual({ id: first, estado: 'entregue' });
-    expect(resultados.find((r) => r.id === segunda)).toEqual({ id: segunda, estado: 'entregue' });
+    expect(resultados.find((r) => r.id === first)).toEqual({ id: first, state: 'entregue' });
+    expect(resultados.find((r) => r.id === segunda)).toEqual({ id: segunda, state: 'entregue' });
 
     expect(chamadasFetch).toHaveLength(0);
     expect(chamadasHttps).toHaveLength(2);
@@ -656,7 +656,7 @@ describe('mTLS na saída (webhooks)', () => {
     fingirRede();
 
     const resultados = await entregarPendentes(a.tenantId);
-    expect(resultados.find((r) => r.id === deliveryId)).toEqual({ id: deliveryId, estado: 'entregue' });
+    expect(resultados.find((r) => r.id === deliveryId)).toEqual({ id: deliveryId, state: 'entregue' });
     expect(chamadasFetch).toEqual([url]);
     expect(chamadasHttps).toHaveLength(0);
   });
@@ -667,7 +667,7 @@ describe('mTLS na saída (webhooks)', () => {
     fingirRede();
 
     const resultados = await entregarPendentes(b.tenantId);
-    expect(resultados.find((r) => r.id === entregaId)).toEqual({ id: entregaId, estado: 'entregue' });
+    expect(resultados.find((r) => r.id === entregaId)).toEqual({ id: entregaId, state: 'entregue' });
     expect(chamadasFetch).toEqual([url]);
     expect(chamadasHttps).toHaveLength(0);
   });
@@ -685,7 +685,7 @@ describe('mTLS na saída (webhooks)', () => {
     fingirRede();
 
     const resultados = await entregarPendentes(a.tenantId);
-    expect(resultados.find((r) => r.id === entregaId)).toEqual({ id: entregaId, estado: 'entregue' });
+    expect(resultados.find((r) => r.id === entregaId)).toEqual({ id: entregaId, state: 'entregue' });
     expect(chamadasFetch).toEqual([url]);
     expect(chamadasHttps).toHaveLength(0);
   });

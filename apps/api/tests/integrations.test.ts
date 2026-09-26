@@ -146,17 +146,17 @@ describe('Manage flow access keys', () => {
   it('Show a flow access token only at creation and its prefix in later lists', async () => {
     const { status, body: corpo } = await post<{
       id: string;
-      nome: string;
+      name: string;
       prefix: string;
       token: string;
-    }>(`/v1/management/flows/${flowId}/keys`, sessionComplete, { nome: 'Integração CRM' });
+    }>(`/v1/management/flows/${flowId}/keys`, sessionComplete, { name: 'Integração CRM' });
     expect(status).toBe(201);
     expect(corpo.token).toMatch(/^pipe_[0-9a-f]{12}_[0-9a-f]{48}$/);
     expect(corpo.prefix).toBe(corpo.token.split('_')[1]);
 
     const linha = (
       await a.dono.execute<{ hash: string; flowId: string }>(sql`
-        select hash, fluxo_id from chave_api where id = ${corpo.id}::uuid
+        select hash, fluxo_id as "flowId" from chave_api where id = ${corpo.id}::uuid
       `)
     ).rows[0];
     expect(linha?.flowId).toBe(flowId);
@@ -173,25 +173,25 @@ describe('Manage flow access keys', () => {
     expect(criada).toBeDefined();
     expect(criada).not.toHaveProperty('token');
     expect(criada).not.toHaveProperty('hash');
-    expect(criada?.['prefixo']).toBe(corpo.prefix);
+    expect(criada?.['prefix']).toBe(corpo.prefix);
   });
 
   it('sem nome é 400; no limite de 3 chaves vivas, a quarta é 400', async () => {
     const flowOfLimit = await createFlow(a, `Limite ${randomUUID().slice(0, 6)}`);
     const semNome = await post(`/v1/management/flows/${flowOfLimit}/keys`, sessionComplete, {
-      nome: '   ',
+      name: '   ',
     });
     expect(semNome.status).toBe(400);
     expect((semNome.body as { error: { code: string } }).error.code).toBe('name_missing');
 
     for (let i = 0; i < 3; i += 1) {
       const criada = await post(`/v1/management/flows/${flowOfLimit}/keys`, sessionComplete, {
-        nome: `Chave ${i}`,
+        name: `Chave ${i}`,
       });
       expect(criada.status).toBe(201);
     }
     const quarta = await post(`/v1/management/flows/${flowOfLimit}/keys`, sessionComplete, {
-      nome: 'Quarta',
+      name: 'Quarta',
     });
     expect(quarta.status).toBe(400);
     expect((quarta.body as { error: { code: string } }).error.code).toBe('limit_of_keys');
@@ -199,7 +199,7 @@ describe('Manage flow access keys', () => {
 
   it('Return 403 without `chave_api.gerenciar` and 404 for invalid or cross-tenant IDs', async () => {
     const semPoder = await post(`/v1/management/flows/${flowId}/keys`, sessionWithoutAuthority, {
-      nome: 'Proibida',
+      name: 'Proibida',
     });
     expect(semPoder.status).toBe(403);
     expect((semPoder.body as { error: { detalhe: { permission: string } } }).error.detalhe.permission).toBe(
@@ -207,7 +207,7 @@ describe('Manage flow access keys', () => {
     );
 
     const outroTenant = await post(`/v1/management/flows/${flowId}/keys`, sessionOfOtherTenant, {
-      nome: 'Vizinho',
+      name: 'Vizinho',
     });
     expect(outroTenant.status).toBe(404);
 
@@ -217,7 +217,7 @@ describe('Manage flow access keys', () => {
 
   it('Revoke access keys idempotently and reject cross-tenant or unauthorized requests', async () => {
     const criada = await post<{ id: string }>(`/v1/management/flows/${flowId}/keys`, sessionComplete, {
-      nome: `A revogar ${randomUUID().slice(0, 6)}`,
+      name: `A revogar ${randomUUID().slice(0, 6)}`,
     });
     expect(criada.status).toBe(201);
     const keyId = criada.body.id;
@@ -255,7 +255,7 @@ describe('Manage flow access keys', () => {
     expect(visiveis.body.some((key) => key.id === keyId)).toBe(false);
 
     const nova = await post(`/v1/management/flows/${flowId}/keys`, sessionComplete, {
-      nome: 'Depois de revogar',
+      name: 'Depois de revogar',
     });
     expect(nova.status).toBe(201);
   });
@@ -289,41 +289,41 @@ describe('Read flow connection details', () => {
       'https://192.168.1.1/webhook',
     ]) {
       const resposta = await put(`/v1/management/flows/${conexaoFluxo}/connection`, sessionComplete, {
-        urlMensagens: urlProibida,
+        urlMessages: urlProibida,
       });
       expect(resposta.status, urlProibida).toBe(400);
     }
 
-    const salva = await put<{ urlMensagens: string | null }>(
+    const salva = await put<{ urlMessages: string | null }>(
       `/v1/management/flows/${conexaoFluxo}/connection`,
       sessionComplete,
-      { urlMensagens: 'https://exemplo.pipe.app/mensagens' },
+      { urlMessages: 'https://exemplo.pipe.app/mensagens' },
     );
     expect(salva.status).toBe(200);
-    expect(salva.body.urlMensagens).toBe('https://exemplo.pipe.app/mensagens');
+    expect(salva.body.urlMessages).toBe('https://exemplo.pipe.app/mensagens');
 
-    const relida = await get<{ urlMensagens: string | null }>(
+    const relida = await get<{ urlMessages: string | null }>(
       `/v1/management/flows/${conexaoFluxo}/connection`,
       sessionOnlyEditor,
     );
-    expect(relida.body.urlMensagens).toBe('https://exemplo.pipe.app/mensagens');
+    expect(relida.body.urlMessages).toBe('https://exemplo.pipe.app/mensagens');
 
-    const apagada = await put<{ urlMensagens: string | null }>(
+    const apagada = await put<{ urlMessages: string | null }>(
       `/v1/management/flows/${conexaoFluxo}/connection`,
       sessionComplete,
-      { urlMensagens: null },
+      { urlMessages: null },
     );
     expect(apagada.status).toBe(200);
-    expect(apagada.body.urlMensagens).toBeNull();
+    expect(apagada.body.urlMessages).toBeNull();
   });
 
   it('Require `automacao.integracao.gerenciar` to save a flow connection, even for flow editors', async () => {
     const conexaoFluxo = await createFlow(a, `Sem integração ${randomUUID().slice(0, 6)}`);
     const resposta = await put(`/v1/management/flows/${conexaoFluxo}/connection`, sessionOnlyEditor, {
-      urlMensagens: 'https://exemplo.pipe.app/mensagens',
+      urlMessages: 'https://exemplo.pipe.app/mensagens',
     });
     expect(resposta.status).toBe(403);
-    expect((resposta.body as { error: { detalhe: { permissao: string } } }).error.detalhe.permissao).toBe(
+    expect((resposta.body as { error: { detalhe: { permission: string } } }).error.detalhe.permission).toBe(
       'automacao.integracao.gerenciar',
     );
   });
@@ -379,7 +379,7 @@ describe('Send outgoing webhooks for integrations', () => {
     const lista = await get<Array<Record<string, unknown>>>(`/v1/management/webhooks`, sessionComplete);
     const linha = lista.body.find((w) => w['id'] === criado.body.id);
     expect(linha).not.toHaveProperty('segredo');
-    expect(linha?.['ativo']).toBe(true);
+    expect(linha?.['active']).toBe(true);
   });
 
   it('Audit webhook activation and deletion and remove deleted rows', async () => {
@@ -501,21 +501,21 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       {
         url: `https://exemplo.pipe.app/basica-${randomUUID().slice(0, 8)}`,
         eventos: ['mensagem.criada'],
-        autenticacao: { tipo: 'basica', usuario: 'robo', senha: 'segredo-123' },
+        authentication: { tipo: 'basica', usuario: 'robo', senha: 'segredo-123' },
       },
     );
     expect(criado.status).toBe(201);
     expect(criado.body.authentication).toEqual({
-      tipo: 'basica',
-      usuario: 'robo',
-      urlAutorizacao: null,
+      type: 'basica',
+      user: 'robo',
+      urlAuthorization: null,
       clientId: null,
     });
     const id = criado.body.id;
 
     const linha = (
       await a.dono.execute<{ authenticationPassword: string }>(
-        sql`select autenticacao_senha from webhook_saida where id = ${id}::uuid`,
+        sql`select autenticacao_senha as "authenticationPassword" from webhook_saida where id = ${id}::uuid`,
       )
     ).rows[0];
     expect(linha?.authenticationPassword).toMatch(/^pipev1\./);
@@ -554,7 +554,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
     const criado = await post<{ id: string }>(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/oauth-destino-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
-      autenticacao: {
+      authentication: {
         tipo: 'oauth2_client_credentials',
         urlAutorizacao: urlToken,
         clientId: 'cliente-abc',
@@ -650,7 +650,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
     const semSenha = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/incompleta-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
-      autenticacao: { tipo: 'basica', usuario: 'robo' },
+      authentication: { tipo: 'basica', usuario: 'robo' },
     });
     expect(semSenha.status).toBe(400);
     expect((semSenha.body as { error: { code: string } }).error.code).toBe('authentication_incomplete');
@@ -658,7 +658,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
     const oauthSsrf = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/oauth-ssrf-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
-      autenticacao: {
+      authentication: {
         tipo: 'oauth2_client_credentials',
         urlAutorizacao: 'http://169.254.169.254/token',
         clientId: 'x',
@@ -672,25 +672,25 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
     const criado = await post<{ id: string }>(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/editar-auth-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
-      autenticacao: { tipo: 'basica', usuario: 'robo', senha: 'senha-1' },
+      authentication: { tipo: 'basica', usuario: 'robo', senha: 'senha-1' },
     });
     const id = criado.body.id;
 
-    const editado = await patch<{ autenticacao: Record<string, unknown> }>(
+    const editado = await patch<{ authentication: Record<string, unknown> }>(
       `/v1/management/webhooks/${id}`,
       sessionComplete,
-      { autenticacao: { tipo: 'nenhuma' } },
+      { authentication: { tipo: 'nenhuma' } },
     );
     expect(editado.status).toBe(200);
-    expect(editado.body.autenticacao).toEqual({
-      tipo: 'nenhuma',
-      usuario: null,
-      urlAutorizacao: null,
+    expect(editado.body.authentication).toEqual({
+      type: 'nenhuma',
+      user: null,
+      urlAuthorization: null,
       clientId: null,
     });
 
     const outroTenant = await patch(`/v1/management/webhooks/${id}`, sessionOfOtherTenant, {
-      autenticacao: { tipo: 'nenhuma' },
+      authentication: { tipo: 'nenhuma' },
     });
     expect(outroTenant.status).toBe(404);
   });

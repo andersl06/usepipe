@@ -206,9 +206,10 @@ export async function entregarPendentes(
          limit ${lote}
          for update skip locked
       )
-      select e.id, w.url, w.segredo, e.payload, e.tentativas,
-             w.tipo_autenticacao, w.autenticacao_usuario, w.autenticacao_senha,
-             w.oauth2_url_autorizacao, w.oauth2_client_id, w.oauth2_client_secret,
+      select e.id, w.url, w.segredo as "secret", e.payload, e.tentativas,
+             w.tipo_autenticacao as "typeAuthentication", w.autenticacao_usuario as "authenticationUser",
+             w.autenticacao_senha as "authenticationPassword",
+             w.oauth2_url_autorizacao as "oauth2UrlAuthorization", w.oauth2_client_id, w.oauth2_client_secret,
              w.cabecalhos
         from entrega_webhook e
         join webhook_saida w on w.id = e.webhook_id

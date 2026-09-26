@@ -176,7 +176,7 @@ export async function applyEventsOfTemplate(channel: ChannelResolved, payload: u
         }
       }
       const { rows: channels } = await tx.execute<{ name: string }>(
-        sql`select nome from canal where id = ${channel.id}::uuid limit 1`,
+        sql`select nome as "name" from canal where id = ${channel.id}::uuid limit 1`,
       );
       return { mudados: rows.length, alertas, channelName: channels[0]?.name ?? 'WhatsApp' };
     });

@@ -245,7 +245,7 @@ describe('Authenticate through the tenant identity provider', () => {
     expect(inbound.userId).toBe(ana);
 
     const { rows } = await cenario.dono.execute<{ origin: string }>(
-      sql`select origem from sessao where usuario_id = ${ana}::uuid order by criado_em desc limit 1`,
+      sql`select origem as "origin" from sessao where usuario_id = ${ana}::uuid order by criado_em desc limit 1`,
     );
     expect(rows[0]?.origin).toBe('sso');
   });

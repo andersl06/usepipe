@@ -203,7 +203,7 @@ export async function createCertificate(
     values (${tenantId}::uuid, ${description}, ${expiraEm}::date, ${read.impressaoDigital},
             ${read.emissor}, ${read.sujeito}, ${fileEncrypted}, ${senhaCifrada},
             ${ator.id ?? null})
-    returning id, criado_em, (expira_em < current_date) as expirado
+    returning id, criado_em as "createdAt", (expira_em < current_date) as expirado
   `);
   const novo = rows[0]!;
 

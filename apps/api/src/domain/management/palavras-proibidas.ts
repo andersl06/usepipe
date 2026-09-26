@@ -223,18 +223,19 @@ export async function editarPalavraProibida(
   const atual = await palavraViva(tx, tid, id);
   await requirePermission(tx, usuarioId, WORD_FORBIDDEN_MANAGE);
 
-  // Leave the type unannotated: the inferred literal satisfies `Record<string, unknown>` in `diferenca`.
-  const antes = { ...atual };
-  const depois = { ...antes };
+  const novoTermo = pedido.term !== undefined ? termoConferido(pedido.term) : atual.term;
+  const novoAtivo = pedido.active !== undefined ? pedido.active : atual.active;
 
-  if (pedido.term !== undefined) depois.term = termoConferido(pedido.term);
-  if (pedido.active !== undefined) depois.active = pedido.active;
-
-  const mudanca = diferenca(antes, depois);
+  // Diff on the DB column names, not the English row-type properties: `log_auditoria.antes`/`depois`
+  // is persisted jsonb and keeps the source's `termo`/`ativo` naming, same as `createWordForbidden` below.
+  const mudanca = diferenca(
+    { termo: atual.term, ativo: atual.active },
+    { termo: novoTermo, ativo: novoAtivo },
+  );
   if (Object.keys(mudanca.depois).length === 0) return atual;
 
-  if (depois.term !== antes.term) {
-    const conflito = await termoEmUso(tx, tid, depois.term, id);
+  if (novoTermo !== atual.term) {
+    const conflito = await termoEmUso(tx, tid, novoTermo, id);
     if (conflito) {
       throw PipeError.conflito('term_in_use', `"${conflito}" já está na lista de palavras proibidas.`);
     }
@@ -242,7 +243,7 @@ export async function editarPalavraProibida(
 
   const [gravada] = await tx
     .update(palavraProibida)
-    .set({ termo: depois.term, ativo: depois.active, atualizadoEm: new Date() })
+    .set({ termo: novoTermo, ativo: novoAtivo, atualizadoEm: new Date() })
     .where(and(eq(palavraProibida.tenantId, tid), eq(palavraProibida.id, id)))
     .returning(COLUNAS);
   if (!gravada) throw PipeError.naoEncontrado('palavra proibida');

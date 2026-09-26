@@ -38,7 +38,7 @@ export class PipeError extends Error {
   /** Companion to `semEscopo` for logged-in people: scope belongs to API keys, permission to people. */
   static withoutPermission(codigo: string): PipeError {
     return new PipeError(403, 'without_permission', `Você não tem a permissão "${codigo}".`, {
-      permissao: codigo,
+      permission: codigo,
     });
   }
 

@@ -196,7 +196,7 @@ describe('POST /v1/management/agents/queues', () => {
     const semPoder = await createQueue(sessionWithoutAuthority, {});
     expect(semPoder.status).toBe(403);
     expect(semPoder.body.error.code).toBe('without_permission');
-    expect(semPoder.body.error.detalhe.permissao).toBe('fila.gerenciar');
+    expect(semPoder.body.error.detalhe.permission).toBe('fila.gerenciar');
 
     const withoutSession = await fetch(`${api.url}/v1/management/agents/queues`, {
       method: 'POST',
@@ -460,7 +460,7 @@ describe('POST /v1/management/communication/responses-ready', () => {
   it('Return 403 without `resposta_pronta.gerenciar` even with `fila.gerenciar`', async () => {
     const resposta = await createResponse(sessionOnlyQueues);
     expect(resposta.status).toBe(403);
-    expect(resposta.body.error.detalhe.permissao).toBe('resposta_pronta.gerenciar');
+    expect(resposta.body.error.detalhe.permission).toBe('resposta_pronta.gerenciar');
   });
 });
 
@@ -542,7 +542,7 @@ describe('POST /v1/management/agents/pauses', () => {
   it('Return 403 without `pausa.gerenciar`', async () => {
     const resposta = await createPause(sessionOnlyQueues);
     expect(resposta.status).toBe(403);
-    expect(resposta.body.error.detalhe.permissao).toBe('pausa.gerenciar');
+    expect(resposta.body.error.detalhe.permission).toBe('pausa.gerenciar');
   });
 });
 
@@ -661,7 +661,7 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
       name: 'Invasor',
     });
     expect(semPoder.status).toBe(403);
-    expect(semPoder.body.error.detalhe.permissao).toBe('regra.gerenciar');
+    expect(semPoder.body.error.detalhe.permission).toBe('regra.gerenciar');
 
     const outroTenant = await pedir(
       'PATCH',
@@ -775,7 +775,7 @@ describe('POST /v1/management/settings/rules', () => {
   it('Return 403 when creating an SLA rule without `regra.gerenciar` permission', async () => {
     const resposta = await createRuleSla(sessionOnlyQueues);
     expect(resposta.status).toBe(403);
-    expect(resposta.body.error.detalhe.permissao).toBe('regra.gerenciar');
+    expect(resposta.body.error.detalhe.permission).toBe('regra.gerenciar');
   });
 });
 
@@ -969,7 +969,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
       start: '08:00',
     });
     expect(semPoder.status).toBe(403);
-    expect(semPoder.body.error.detalhe.permissao).toBe('horario.gerenciar');
+    expect(semPoder.body.error.detalhe.permission).toBe('horario.gerenciar');
 
     const outroTenant = await pedir(
       'PATCH',
@@ -1166,7 +1166,7 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
       { level: 'baixa' },
     );
     expect(semPoder.status).toBe(403);
-    expect(semPoder.body.error.detalhe.permissao).toBe('regra.gerenciar');
+    expect(semPoder.body.error.detalhe.permission).toBe('regra.gerenciar');
 
     const outroTenant = await pedir(
       'PATCH',

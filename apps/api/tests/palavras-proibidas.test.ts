@@ -140,7 +140,7 @@ async function countMessages(cenario: Cenario, conversationId: string): Promise<
 const CAMINHO = '/v1/management/settings/words-forbidden';
 
 async function createWord(sessao: string, corpo: Record<string, unknown> = {}) {
-  return pedir('POST', CAMINHO, sessao, { termo: `termo-${randomUUID().slice(0, 8)}`, ...corpo });
+  return pedir('POST', CAMINHO, sessao, { term: `termo-${randomUUID().slice(0, 8)}`, ...corpo });
 }
 
 beforeAll(async () => {
@@ -222,7 +222,7 @@ describe('encontrarPalavrasProibidas — a régua de §3.4', () => {
 describe(`POST ${CAMINHO}`, () => {
   it('cria (201), registra no log e aparece na lista', async () => {
     const termo = `Golpe ${randomUUID().slice(0, 6)}`;
-    const { status, body } = await createWord(sessionManager, { termo });
+    const { status, body } = await createWord(sessionManager, { term: termo });
     expect(status).toBe(201);
     expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
 
@@ -236,13 +236,13 @@ describe(`POST ${CAMINHO}`, () => {
   });
 
   it('Reject empty banned terms and accent- or case-insensitive duplicates', async () => {
-    const empty = await createWord(sessionManager, { termo: '   ' });
+    const empty = await createWord(sessionManager, { term: '   ' });
     expect(empty.status).toBe(400);
     expect(empty.body.error.code).toBe('term_required');
 
     const marca = randomUUID().slice(0, 6);
-    expect((await createWord(sessionManager, { termo: `Açúcar ${marca}` })).status).toBe(201);
-    const repetido = await createWord(sessionManager, { termo: `ACUCAR ${marca}` });
+    expect((await createWord(sessionManager, { term: `Açúcar ${marca}` })).status).toBe(201);
+    const repetido = await createWord(sessionManager, { term: `ACUCAR ${marca}` });
     expect(repetido.status).toBe(409);
     expect(repetido.body.error.code).toBe('term_in_use');
   });
@@ -251,7 +251,7 @@ describe(`POST ${CAMINHO}`, () => {
     const semPoder = await createWord(sessionWithoutAuthority);
     expect(semPoder.status).toBe(403);
     expect(semPoder.body.error.code).toBe('without_permission');
-    expect(semPoder.body.error.detalhe.permissao).toBe('tenant.configurar');
+    expect(semPoder.body.error.detalhe.permission).toBe('tenant.configurar');
 
     const withoutSession = await fetch(`${api.url}${CAMINHO}`, {
       method: 'POST',
@@ -274,11 +274,11 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
     const { body: criada } = await createWord(sessionManager);
     const novoTermo = `Fraude ${randomUUID().slice(0, 6)}`;
     const { status, body } = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionManager, {
-      termo: novoTermo,
-      ativo: false,
+      term: novoTermo,
+      active: false,
     });
     expect(status).toBe(200);
-    expect(body).toMatchObject({ id: criada.id, termo: novoTermo, ativo: false });
+    expect(body).toMatchObject({ id: criada.id, term: novoTermo, active: false });
 
     const log = await auditoriaDe(criada.id);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou', depois: { termo: novoTermo, ativo: false } });
@@ -300,7 +300,7 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
       (p) => p.id === first.id,
     )!.term;
     const repetido = await pedir('PATCH', `${CAMINHO}/${segunda.id}`, sessionManager, {
-      termo: termOfFirst.toUpperCase(),
+      term: termOfFirst.toUpperCase(),
     });
     expect(repetido.status).toBe(409);
     expect(repetido.body.error.code).toBe('term_in_use');
@@ -309,15 +309,15 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
   it('sem tenant.configurar é 403; de outro tenant é 404; id malformado é 404', async () => {
     const { body: criada } = await createWord(sessionManager);
 
-    const semPoder = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionWithoutAuthority, { ativo: false });
+    const semPoder = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionWithoutAuthority, { active: false });
     expect(semPoder.status).toBe(403);
 
     const outroTenant = await pedir('PATCH', `${CAMINHO}/${criada.id}`, sessionOfOtherTenant, {
-      ativo: false,
+      active: false,
     });
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await pedir('PATCH', `${CAMINHO}/nao-e-uuid`, sessionManager, { ativo: false });
+    const malformado = await pedir('PATCH', `${CAMINHO}/nao-e-uuid`, sessionManager, { active: false });
     expect(malformado.status).toBe(404);
   });
 });
@@ -373,8 +373,8 @@ describe('POST /v1/conversations/:id/messages — a lista barra o envio do atend
     const marca = randomUUID().slice(0, 6);
     const palavra = `idiota${marca}`;
     const frase = `boleto falso ${marca}`;
-    const { body: criadaPalavra } = await createWord(sessionManager, { termo: palavra });
-    expect((await createWord(sessionManager, { termo: frase })).status).toBe(201);
+    const { body: criadaPalavra } = await createWord(sessionManager, { term: palavra });
+    expect((await createWord(sessionManager, { term: frase })).status).toBe(201);
 
     // A standalone word, with different accent and case, inside a token that CONTAINS it.
     const conversationA = await newConversation(a, contactA);
@@ -404,7 +404,7 @@ describe('POST /v1/conversations/:id/messages — a lista barra o envio do atend
 
     // Once disabled, the word stops blocking — and the cache was invalidated by the PATCH.
     const desativada = await pedir('PATCH', `${CAMINHO}/${criadaPalavra.id}`, sessionManager, {
-      ativo: false,
+      active: false,
     });
     expect(desativada.status).toBe(200);
     const liberada = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
@@ -413,7 +413,7 @@ describe('POST /v1/conversations/:id/messages — a lista barra o envio do atend
     expect(liberada.status).toBe(201);
 
     // Reativada, volta a barrar.
-    await pedir('PATCH', `${CAMINHO}/${criadaPalavra.id}`, sessionManager, { ativo: true });
+    await pedir('PATCH', `${CAMINHO}/${criadaPalavra.id}`, sessionManager, { active: true });
     const deNovo = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
       texto: `${palavra}`,
     });
@@ -431,7 +431,7 @@ describe('POST /v1/conversations/:id/messages — a lista barra o envio do atend
   it('Filter attachment captions while allowing system messages from API keys', async () => {
     const marca = randomUUID().slice(0, 6);
     const palavra = `golpe${marca}`;
-    expect((await createWord(sessionManager, { termo: palavra })).status).toBe(201);
+    expect((await createWord(sessionManager, { term: palavra })).status).toBe(201);
 
     const conversaA = await newConversation(a, contactA);
     // An API key with no `atendente_id`: it is a system message — the source's filter
@@ -447,7 +447,7 @@ describe('POST /v1/conversations/:id/messages — a lista barra o envio do atend
     const byAgent = await fetch(`${api.url}/v1/conversations/${conversaA}/messages`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${a.token}` },
-      body: JSON.stringify({ texto: `isso é ${palavra}`, atendente_id: a.agentId }),
+      body: JSON.stringify({ texto: `isso é ${palavra}`, agentId: a.agentId }),
     });
     expect(byAgent.status).toBe(400);
     expect(((await byAgent.json()) as { error: { code: string } }).error.code).toBe(

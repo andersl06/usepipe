@@ -695,7 +695,7 @@ export interface ResultOfTest {
   status?: number;
   error?: string;
   /** Os primeiros caracteres da resposta — "mostra a resposta (status e corpo curto)". */
-  corpo?: string;
+  body?: string;
 }
 
 /** Truncate test-response previews; never show or log the complete body. */
@@ -751,12 +751,12 @@ export async function testarWebhook(
       .catch(() => '')
       .then((texto) => texto.slice(0, LIMIT_BODY_OF_TEST));
     return resposta.ok
-      ? { ok: true, status: resposta.status, corpo: corpoDaResposta }
+      ? { ok: true, status: resposta.status, body: corpoDaResposta }
       : {
           ok: false,
           status: resposta.status,
           error: `HTTP ${resposta.status}`,
-          corpo: corpoDaResposta,
+          body: corpoDaResposta,
         };
   } catch (falha) {
     return { ok: false, error: (falha as Error).message };

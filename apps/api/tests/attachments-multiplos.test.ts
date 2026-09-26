@@ -120,7 +120,7 @@ async function enviarLote(
   corpo: unknown,
   cabecalhos: Record<string, string> = withKey(),
 ): Promise<{ status: number; corpo: Record<string, unknown> }> {
-  const resposta = await fetch(`${api.url}/v1/conversations/${conversationId}/messages/anexos`, {
+  const resposta = await fetch(`${api.url}/v1/conversations/${conversationId}/messages/attachments`, {
     method: 'POST',
     headers: cabecalhos,
     body: JSON.stringify(corpo),
@@ -136,14 +136,15 @@ async function messagesOf(conversaId: string) {
     content: string | null;
     stateDelivery: string;
   }>(sql`
-    select id, tipo, anexo_id, conteudo, estado_entrega from mensagem
+    select id, tipo as "type", anexo_id as "attachmentId", conteudo as "content",
+           estado_entrega as "stateDelivery" from mensagem
      where conversa_id = ${conversaId}::uuid and direcao = 'saida'
      order by criada_em asc, id asc
   `);
   return rows;
 }
 
-describe('POST /v1/conversations/:id/messages/anexos', () => {
+describe('POST /v1/conversations/:id/messages/attachments', () => {
   it('Create one message per file in order with the correct MIME-derived type', async () => {
     const conversationId = await createConversation(cenario.agentId);
     const foto = await up(PNG, 'image/png', 'foto.png');
@@ -151,11 +152,11 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     const outra = await up(PNG, 'image/png', 'outra.png');
 
     const { status, corpo } = await enviarLote(conversationId, {
-      anexo_ids: [foto, contract, outra],
+      attachmentIds: [foto, contract, outra],
       texto: 'Segue o material',
     });
     expect(status).toBe(201);
-    const messages = corpo['mensagens'] as { id: string; stateDelivery: string }[];
+    const messages = corpo['messages'] as { id: string; stateDelivery: string }[];
     expect(messages).toHaveLength(3);
     expect(messages.every((m) => m.stateDelivery === 'pendente')).toBe(true);
 
@@ -174,7 +175,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     expect(Number(outbox[0]?.n)).toBe(3);
 
     const { rows: conversation } = await cenario.dono.execute<{ state: string }>(
-      sql`select estado from conversa where id = ${conversationId}::uuid`,
+      sql`select estado as "state" from conversa where id = ${conversationId}::uuid`,
     );
     expect(conversation[0]?.state).toBe('em_atendimento');
   });
@@ -185,7 +186,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     for (let i = 0; i <= MAX_FILES_BY_MESSAGE; i += 1) {
       ids.push(await up(PNG, 'image/png', `f${i}.png`));
     }
-    const { status, corpo } = await enviarLote(conversaId, { anexo_ids: ids });
+    const { status, corpo } = await enviarLote(conversaId, { attachmentIds: ids });
     expect(status).toBe(400);
     expect((corpo['error'] as { code: string }).code).toBe('attachments_excessive');
     expect(await messagesOf(conversaId)).toHaveLength(0);
@@ -195,7 +196,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     const conversaId = await createConversation(cenario.agentId);
     const ok1 = await up(PNG, 'image/png', 'a.png');
     const ok2 = await up(PNG, 'image/png', 'b.png');
-    const { status } = await enviarLote(conversaId, { anexo_ids: [ok1, randomUUID(), ok2] });
+    const { status } = await enviarLote(conversaId, { attachmentIds: [ok1, randomUUID(), ok2] });
     expect(status).toBe(404);
     expect(await messagesOf(conversaId)).toHaveLength(0);
   });
@@ -209,7 +210,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     await cenario.dono.execute(sql`
       update anexo set bytes = ${MAX_BYTES_BY_FILE + 1} where id = ${grande}::uuid
     `);
-    const { status, corpo } = await enviarLote(conversaId, { anexo_ids: [ok, grande] });
+    const { status, corpo } = await enviarLote(conversaId, { attachmentIds: [ok, grande] });
     expect(status).toBe(400);
     const error = corpo['error'] as { code: string; message: string };
     expect(error.code).toBe('file_large_excessive');
@@ -220,15 +221,15 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
   it('Return 400 when `anexo_ids` is absent or empty', async () => {
     const conversaId = await createConversation(cenario.agentId);
     expect((await enviarLote(conversaId, {})).status).toBe(400);
-    expect((await enviarLote(conversaId, { anexo_ids: [] })).status).toBe(400);
-    expect((await enviarLote(conversaId, { anexo_ids: 'x' })).status).toBe(400);
+    expect((await enviarLote(conversaId, { attachmentIds: [] })).status).toBe(400);
+    expect((await enviarLote(conversaId, { attachmentIds: 'x' })).status).toBe(400);
   });
 
   it('Return 409 without sending attachments after the 24-hour window closes', async () => {
     const conversaId = await createConversation(cenario.agentId, 'fechada');
     const a1 = await up(PNG, 'image/png', 'a.png');
     const a2 = await up(PNG, 'image/png', 'b.png');
-    const { status, corpo } = await enviarLote(conversaId, { anexo_ids: [a1, a2] });
+    const { status, corpo } = await enviarLote(conversaId, { attachmentIds: [a1, a2] });
     expect(status).toBe(409);
     expect((corpo['error'] as { code: string }).code).toBe('janela_fechada');
     expect(await messagesOf(conversaId)).toHaveLength(0);
@@ -238,18 +239,18 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     const minha = await createConversation(cenario.agentId);
     const a1 = await up(PNG, 'image/png', 'a.png');
     const a2 = await up(PNG, 'image/png', 'b.png');
-    const ok = await enviarLote(minha, { anexo_ids: [a1, a2] }, comCookie());
+    const ok = await enviarLote(minha, { attachmentIds: [a1, a2] }, comCookie());
     expect(ok.status).toBe(201);
     const gravadas = await messagesOf(minha);
     expect(gravadas).toHaveLength(2);
 
     const { rows } = await cenario.dono.execute<{ authorId: string | null }>(
-      sql`select autor_id from mensagem where id = ${gravadas[0]!.id}::uuid`,
+      sql`select autor_id as "authorId" from mensagem where id = ${gravadas[0]!.id}::uuid`,
     );
     expect(rows[0]?.authorId).toBe(cenario.agentId);
 
     const doColega = await createConversation(colegaId);
-    const recusa = await enviarLote(doColega, { anexo_ids: [a1] }, comCookie());
+    const recusa = await enviarLote(doColega, { attachmentIds: [a1] }, comCookie());
     expect(recusa.status).toBe(403);
     expect(await messagesOf(doColega)).toHaveLength(0);
   });
@@ -257,8 +258,8 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
   it('Send a repeated attachment only once within a batch', async () => {
     const conversaId = await createConversation(cenario.agentId);
     const a1 = await up(PNG, 'image/png', 'a.png');
-    const { status, corpo } = await enviarLote(conversaId, { anexo_ids: [a1, a1] });
+    const { status, corpo } = await enviarLote(conversaId, { attachmentIds: [a1, a1] });
     expect(status).toBe(201);
-    expect(corpo['mensagens']).toHaveLength(1);
+    expect(corpo['messages']).toHaveLength(1);
   });
 });
