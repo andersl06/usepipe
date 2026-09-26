@@ -24,9 +24,7 @@
   "acoes": [
     { "tipo": "ExecuteScript", "slot": "acoes-script", "classificacao": "reproduzivel" },
     { "tipo": "ExecuteScriptV2", "slot": "acoes-script", "classificacao": "reproduzivel" },
-    { "tipo": "SendMessage", "slot": "ja-suportada", "classificacao": "reproduzivel" },
     { "tipo": "SendMessageFromHttp", "slot": "acoes-contexto", "classificacao": "reproduzivel" },
-    { "tipo": "SendRawMessage", "slot": "ja-suportada", "classificacao": "reproduzivel" },
     { "tipo": "SendCommand", "slot": "acoes-plataforma", "classificacao": "externa" },
     { "tipo": "ProcessCommand", "slot": "acoes-plataforma", "classificacao": "externa" },
     { "tipo": "TrackEvent", "slot": "ja-suportada", "classificacao": "reproduzivel" },
@@ -36,7 +34,6 @@
     { "tipo": "SetVariable", "slot": "ja-suportada", "classificacao": "reproduzivel" },
     { "tipo": "SetBucket", "slot": "acoes-plataforma", "classificacao": "externa" },
     { "tipo": "Redirect", "slot": "ja-suportada", "classificacao": "reproduzivel" },
-    { "tipo": "CreateTicket", "slot": "ja-suportada", "classificacao": "reproduzivel" },
     { "tipo": "DeleteVariable", "slot": "ja-suportada", "classificacao": "reproduzivel" },
     { "tipo": "ProcessContentAssistant", "slot": "acoes-plataforma", "classificacao": "externa" },
     { "tipo": "TrackContactsJourney", "slot": "acoes-plataforma", "classificacao": "reproduzivel" },
