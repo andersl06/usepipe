@@ -238,7 +238,7 @@ async function gravar(
     tenantId,
     codigo: o.nameSingular,
     rotulo: o.labelSingular,
-    descricao: o.description ?? null,
+    description: o.description ?? null,
     twentyId: o.id,
     namePlural: o.namePlural ?? null,
     labelPlural: o.labelPlural ?? null,

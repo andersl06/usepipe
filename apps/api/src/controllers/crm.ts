@@ -2,7 +2,6 @@ import { Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { noTenant } from '../database.js';
 import { readDictionary } from '../domain/dictionary-crm.js';
-import type { ObjectOfDictionary } from '../domain/dictionary-crm.js';
 import { configDoTenant, lerFicha, linkDaPessoa } from '../domain/twenty.js';
 import { enqueueDictionaryCrm } from '../queues.js';
 import { WithSession, sessionOf } from '../session.js';
@@ -32,9 +31,14 @@ export class CrmController {
   @WithSession()
   async dictionary(
     @Req() request: RequestWithSession,
-  ): Promise<{ objetos: ObjectOfDictionary[] }> {
+  ) {
     const session = sessionOf(request);
-    return { objetos: await noTenant(session.tenantId, readDictionary) };
+    const objetos = await noTenant(session.tenantId, readDictionary);
+    return { objetos: objetos.map(({ codigo, campos, ...objeto }) => ({
+      ...objeto,
+      code: codigo,
+      campos: campos.map(({ codigo: fieldCode, ...campo }) => ({ ...campo, code: fieldCode })),
+    })) };
   }
 
   /** Request synchronization after an admin creates a field in the CRM. */

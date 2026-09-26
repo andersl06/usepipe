@@ -25,9 +25,9 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
  * A REAL response from the Metadata API, captured from a local Twenty 2.39 and trimmed down — see `_origem` inside the file. The variations below (removed field, old version) branch from it.
  */
 interface Fixture {
-  introspection: { data: { o: { fields: { name: string }[] }; f: { fields: { name: string }[] } } };
+  introspeccao: { data: { o: { fields: { name: string }[] }; f: { fields: { name: string }[] } } };
   workspace: unknown;
-  pages: {
+  paginas: {
     data: { objects: { pageInfo: unknown; edges: { node: NoGravado }[] } };
   }[];
 }
@@ -51,15 +51,15 @@ function copia<T>(x: T): T {
   return structuredClone(x);
 }
 
-/** The responses, in the order the client asks for them: introspection, workspace, pages. */
+/** The responses, in the order the client asks for them: introspeccao, workspace, pages. */
 function respostas(f: Fixture = FIXTURE): unknown[] {
-  return [f.introspection, f.workspace, ...f.pages];
+  return [f.introspeccao, f.workspace, ...f.paginas];
 }
 
 /** The same fixture, missing a field and an object — what "went missing" from the CRM. */
 function semAlgo(objetoRemovido: string, campoRemovido: [string, string]): Fixture {
   const f = copia(FIXTURE);
-  for (const p of f.pages) {
+  for (const p of f.paginas) {
     p.data.objects.edges = p.data.objects.edges.filter((e) => e.node.nameSingular !== objetoRemovido);
     for (const { node } of p.data.objects.edges) {
       if (node.nameSingular === campoRemovido[0]) {
@@ -122,10 +122,10 @@ describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', ()
     // // A synthetic variant of the write: swaps applicationId for isCustom, as the old schema was.
     // // There's no old instance running to write against for real.
     const f = copia(FIXTURE);
-    for (const t of [f.introspection.data.o, f.introspection.data.f]) {
+    for (const t of [f.introspeccao.data.o, f.introspeccao.data.f]) {
       t.fields = t.fields.map((c) => (c.name === 'applicationId' ? { name: 'isCustom' } : c));
     }
-    for (const p of f.pages) {
+    for (const p of f.paginas) {
       for (const { node } of p.data.objects.edges) {
         node.isCustom = node.applicationId === APP_DO_CLIENTE;
         delete node.applicationId;
@@ -135,7 +135,7 @@ describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', ()
         }
       }
     }
-    const { buscar, chamadas } = fetchFalso([f.introspection, ...f.pages]);
+    const { buscar, chamadas } = fetchFalso([f.introspeccao, ...f.paginas]);
 
     const meta = await lerMetadados(CONFIG, buscar);
 
@@ -176,7 +176,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
     const r = await syncDictionary(a.tenantId, fetchFalso(respostas()).buscar);
 
     expect(r).toMatchObject({
-      estado: 'sincronizado',
+      state: 'sincronizado',
       objetos: 4,
       doCliente: { objetos: 0, campos: 2 },
       removidos: { objetos: 0, campos: 0 },
@@ -202,7 +202,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
     });
 
     // // SELECT options exactly as they came.
-    const gravado = FIXTURE.pages[1]!.data.objects.edges[0]!.node.fieldsList.find(
+    const gravado = FIXTURE.paginas[1]!.data.objects.edges[0]!.node.fieldsList.find(
       (c) => c.name === 'stage',
     );
     expect(gravado?.options).toBeInstanceOf(Array);
@@ -241,7 +241,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
       fetchFalso(respostas(semAlgo('opportunity', ['person', 'pipeContatoId']))).buscar,
     );
 
-    const fieldsOfOpportunity = FIXTURE.pages[1]!.data.objects.edges[0]!.node.fieldsList.length;
+    const fieldsOfOpportunity = FIXTURE.paginas[1]!.data.objects.edges[0]!.node.fieldsList.length;
     expect(r).toMatchObject({ removidos: { objetos: 1, campos: 1 + fieldsOfOpportunity } });
     expect(await contar(a)).toEqual(antes);
 
@@ -286,7 +286,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
   it('Skip tenants without a CRM without calling the provider or failing', async () => {
     const c = await montarCenario(`dic-c-${randomUUID().slice(0, 8)}`);
     try {
-      expect(await syncDictionary(c.tenantId, naoChame)).toEqual({ estado: 'sem_crm' });
+      expect(await syncDictionary(c.tenantId, naoChame)).toEqual({ state: 'sem_crm' });
     } finally {
       await c.encerrar();
     }
@@ -294,7 +294,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
 
   it('Preserve the dictionary when the CRM returns no objects', async () => {
     const empty = copia(FIXTURE);
-    empty.pages = [
+    empty.paginas = [
       { data: { objects: { pageInfo: { hasNextPage: false, endCursor: null }, edges: [] } } },
     ];
     const error = await syncDictionary(b.tenantId, fetchFalso(respostas(empty)).buscar).catch(
