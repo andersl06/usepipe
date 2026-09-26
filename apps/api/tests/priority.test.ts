@@ -126,7 +126,7 @@ describe('Evaluate priority when a conversation enters a queue', () => {
 
   async function priorityOfPhone(telefone: string): Promise<string> {
     const { rows } = await cenario.dono.execute<{ priority: string }>(sql`
-      select c.prioridade
+      select c.prioridade as priority
         from conversa c
         join contato ct on ct.id = c.contato_id
        where ct.telefone_e164 = ${telefone}
