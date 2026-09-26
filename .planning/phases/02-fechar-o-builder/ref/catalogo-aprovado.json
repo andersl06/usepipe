@@ -1,6 +1,7 @@
 {
   "congeladoEm": "2026-09-26",
-  "aprovado": false,
+  "aprovado": true,
+  "aprovadoPeloDonoEm": "2026-09-26",
   "conteudos": [
     { "nome": "Figurinha", "mime": "application/vnd.lime.media-link+json", "slot": "conteudo-midia", "classificacao": "reproduzivel" },
     { "nome": "Áudio", "mime": "application/vnd.lime.media-link+json", "slot": "conteudo-midia", "classificacao": "reproduzivel" },
