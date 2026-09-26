@@ -32,8 +32,8 @@ export async function windowOfDatas(
   ate: string,
 ): Promise<InstantesWindow> {
   const r = await tx.execute<{ start: Date; end: Date }>(
-    sql`select (${de}::date)::timestamp at time zone ${fuso} as inicio,
-               ((${ate}::date + 1)::timestamp) at time zone ${fuso} as fim`,
+    sql`select (${de}::date)::timestamp at time zone ${fuso} as start,
+               ((${ate}::date + 1)::timestamp) at time zone ${fuso} as "end"`,
   );
   const linha = r.rows[0];
   if (!linha) throw new Error('período inválido');

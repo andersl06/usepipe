@@ -35,7 +35,7 @@ async function carregar(
   permissionOfSupervisor?: string,
 ): Promise<LineConversation> {
   const { rows } = await tx.execute<LineConversation>(sql`
-    select id, estado, fila_id, atendente_id, em_espera_desde
+    select id, estado as state, fila_id as "queueId", atendente_id as "agentId", em_espera_desde
       from conversa where id = ${conversaId}::uuid limit 1
   `);
   const conversa = rows[0];
@@ -91,7 +91,7 @@ export async function closeConversation(
     const etiquetaIds = [...new Set(pedido.etiquetaIds ?? (pedido.etiquetaIds ? [pedido.etiquetaIds] : []))];
     const { rows: etiquetas } = etiquetaIds.length
       ? await tx.execute<{ id: string; name: string; requiredInClosure: boolean }>(sql`
-          select id, nome, obrigatoria_no_encerramento from etiqueta
+          select id, nome as name, obrigatoria_no_encerramento as "requiredInClosure" from etiqueta
            where id in (${sql.join(etiquetaIds.map((id) => sql`${id}::uuid`), sql`, `)})
         `)
       : { rows: [] as { id: string; name: string; obrigatoria_no_encerramento: boolean }[] };

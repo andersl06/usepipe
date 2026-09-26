@@ -143,7 +143,7 @@ function url(caminho: string): string {
 describe('Aggregate seeded data for the analytics dashboard', () => {
   it('Count contacts and messages in the requested period', async () => {
     const r = await fetch(
-      url(`/v1/management/flows/${flowId}/analytics/dashboard?period=custom&from=${DIA_1}&to=${DIA_1}`),
+      url(`/v1/management/flows/${flowId}/analytics/dashboard?periodo=custom&from=${DIA_1}&to=${DIA_1}`),
       { headers: cabecalho(cookie) },
     );
     expect(r.status).toBe(200);
@@ -168,7 +168,7 @@ describe('Aggregate seeded data for the analytics dashboard', () => {
     const semDado = iso(new Date(HOJE.getTime() - 3 * 24 * 60 * 60 * 1000));
     const r = await fetch(
       url(
-        `/v1/management/flows/${flowId}/analytics/dashboard?period=custom&from=${semDado}&to=${semDado}`,
+        `/v1/management/flows/${flowId}/analytics/dashboard?periodo=custom&from=${semDado}&to=${semDado}`,
       ),
       { headers: cabecalho(cookie) },
     );

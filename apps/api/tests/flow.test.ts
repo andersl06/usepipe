@@ -127,10 +127,10 @@ describe('bot com o dublê do WhatsApp', () => {
     expect(
       dubleWhatsApp.chamadas.slice(antes).some((c) => c.para === ANA && c.tipo === 'texto'),
     ).toBe(true);
-    const { rows } = await cenario.dono.execute<{ stateDelivery: string }>(sql`
+    const { rows } = await cenario.dono.execute<{ estado_entrega: string }>(sql`
       select estado_entrega from mensagem where conversa_id = ${conversation.id}::uuid and autor_tipo = 'bot'
     `);
-    expect(rows.map((r) => r.stateDelivery)).toEqual(['enviada']);
+    expect(rows.map((r) => r.estado_entrega)).toEqual(['enviada']);
   });
 
   it('Use a customer reply as a variable in the bot menu', async () => {
@@ -212,7 +212,7 @@ describe('bot com o dublê do WhatsApp', () => {
     `);
     await closeConversation(
       { tenantId: cenario.tenantId, agentId: cenario.agentId, exigirAssignment: true },
-      { conversaId: conversa.id, etiquetaId: etiquetas[0]!.id },
+      { conversationId: conversa.id, etiquetaIds: [etiquetas[0]!.id] },
     );
 
     await falar(ANA, 'oi de novo');

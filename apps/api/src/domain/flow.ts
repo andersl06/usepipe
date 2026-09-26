@@ -194,7 +194,8 @@ export async function rodarFlowInInbound(
 
   // `for update`: duas mensagens do mesmo cliente ao mesmo tempo andam uma de cada vez.
   const { rows: executions } = await tx.execute<LineExecution>(sql`
-    select e.id, e.fluxo_versao_id, v.fluxo_id, e.contexto from execucao_fluxo e
+    select e.id, e.fluxo_versao_id as "flowVersionId", v.fluxo_id as "flowId",
+           e.contexto as context from execucao_fluxo e
       join fluxo_versao v on v.id = e.fluxo_versao_id
      where e.conversa_id = ${conversation.id}
      order by e.iniciada_em desc
@@ -250,7 +251,8 @@ export async function rodarFlowInInbound(
         ${e.tenantId}, ${publicado.versaoId}, ${conversation.id}, ${e.contactId}, 'executando',
         ${JSON.stringify(anteriores[0]?.contexto ?? {})}::jsonb
       )
-      returning id, fluxo_versao_id, ${publicado.flowId}::uuid as fluxo_id, contexto
+      returning id, fluxo_versao_id as "flowVersionId",
+                ${publicado.flowId}::uuid as "flowId", contexto as context
     `);
     execution = criada[0]!;
   } else if (execution.flowVersionId !== publicado.versaoId) {
