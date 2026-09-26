@@ -182,6 +182,29 @@ export async function processInbound(
     let atual: StateTrace = { stateId: state.id, actions: [] };
     rastro.estados.push(atual);
 
+    // Resuming a ProcessHttp suspended in the restored state's own entering actions: state
+    // entering actions only run once, right after a transition (below, inside the loop), so a
+    // resume that restores an already-current state must finish them here before the loop falls
+    // through to that state's content/output actions.
+    if (
+      cursorPendente &&
+      !cursorPendente.consumido &&
+      cursorPendente.lista === 'entrada' &&
+      cursorPendente.estadoId === state.id
+    ) {
+      await processActions(
+        context,
+        state.inputActions,
+        state,
+        provedor,
+        configuration,
+        atual.actions,
+        'entrada',
+        state.id,
+        cursorPendente,
+      );
+    }
+
     do {
       try {
         if (Date.now() > prazo) {

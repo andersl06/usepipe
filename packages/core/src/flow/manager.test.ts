@@ -135,6 +135,118 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(variables.status).toBe('200');
   });
 
+  it('ProcessHttp in flow-level entering actions ($enteringCustomActions, global): suspends and resumes without repeating the earlier action', async () => {
+    const enviados: string[] = [];
+    const flow: FlowBlip = {
+      id: FLOW_ID,
+      inputActions: [enviar('a'), {
+        type: 'ProcessHttp',
+        settings: { uri: 'https://cliente.test/global', responseStatusVariable: 'status' },
+      }, enviar('b')],
+      states: [{ id: 'root', root: true, input: {}, outputs: [] }],
+    };
+    const variables: Record<string, string> = {};
+    const base = {
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
+      variables,
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send(m: OutputMessage) { enviados.push(String(m.conteudo)); },
+        async forwardForAttendance() { return { id: 'atd-1', status: 'Open' }; },
+        async registerEvent() {},
+        async callHttp() { return { status: 200, corpo: '{}' }; },
+        async suspendHttp(pedido: unknown, cursor: unknown): Promise<never> {
+          throw new SuspensaoDeProcessHttp(pedido as never, cursor as never);
+        },
+      },
+    } satisfies Context;
+
+    await expect(processInbound(base)).rejects.toMatchObject({
+      pedido: { url: 'https://cliente.test/global' },
+      cursor: { lista: 'entrada', estadoId: null, indice: 1 },
+    });
+    expect(enviados).toEqual(['a']);
+
+    await processInbound({
+      ...base,
+      inboundContext: new Map(),
+      services: {
+        ...base.services,
+        async suspendHttp() { throw new Error('não deveria suspender de novo'); },
+      },
+    }, {
+      retomarProcessHttp: {
+        lista: 'entrada', estadoId: null, indice: 1,
+        resposta: { status: 200, corpo: '{}' },
+      },
+    });
+    expect(enviados).toEqual(['a', 'b']);
+    expect(variables.status).toBe('200');
+  });
+
+  it('ProcessHttp in a state\'s entering actions ($enteringCustomActions): resumes and sends the action after it exactly once', async () => {
+    const enviados: string[] = [];
+    const flow: FlowBlip = {
+      id: FLOW_ID,
+      states: [
+        raiz([{ stateId: 'ping' }]),
+        {
+          id: 'ping',
+          input: {},
+          inputActions: [enviar('antes'), {
+            type: 'ProcessHttp',
+            settings: { uri: 'https://cliente.test/ping', responseStatusVariable: 'status' },
+          }, enviar('depois')],
+          outputs: [],
+        },
+      ],
+    };
+    const variables: Record<string, string> = {};
+    const base = {
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
+      variables,
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send(m: OutputMessage) { enviados.push(String(m.conteudo)); },
+        async forwardForAttendance() { return { id: 'atd-1', status: 'Open' }; },
+        async registerEvent() {},
+        async callHttp() { return { status: 200, corpo: '{}' }; },
+        async suspendHttp(pedido: unknown, cursor: unknown): Promise<never> {
+          throw new SuspensaoDeProcessHttp(pedido as never, cursor as never);
+        },
+      },
+    } satisfies Context;
+
+    await expect(processInbound(base)).rejects.toMatchObject({
+      pedido: { url: 'https://cliente.test/ping' },
+      cursor: { lista: 'entrada', estadoId: 'ping', indice: 1 },
+    });
+    expect(enviados).toEqual(['antes']);
+    expect(variables[KEY_STATE]).toBe('ping');
+
+    await processInbound({
+      ...base,
+      inboundContext: new Map(),
+      services: {
+        ...base.services,
+        async suspendHttp() { throw new Error('não deveria suspender de novo'); },
+      },
+    }, {
+      retomarProcessHttp: {
+        lista: 'entrada', estadoId: 'ping', indice: 1,
+        resposta: { status: 200, corpo: '{}' },
+      },
+    });
+    expect(enviados).toEqual(['antes', 'depois']);
+    expect(variables.status).toBe('200');
+  });
+
   it('with no condition it changes state, sends the message, and with no output it clears the state', async () => {
     const r = await rodar(
       [raiz([{ stateId: 'ping' }]), { id: 'ping', inputActions: [enviar('Pong!')] }],
