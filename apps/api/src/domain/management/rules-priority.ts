@@ -144,7 +144,7 @@ function linha(r: {
   scopeType: string;
   scopeId: string | null;
   condition: unknown;
-  active: boolean;
+  ativa: boolean;
 }): RulePriorityWritten {
   return { ...r, condition: (r.condition ?? {}) as Record<string, unknown> };
 }
@@ -153,11 +153,11 @@ export async function loadRulesOfPriority(tx: TransactionPipe): Promise<RulePrio
   const regras = await tx
     .select({
       id: rulePriority.id,
-      nome: rulePriority.nome,
-      nivel: rulePriority.nivel,
-      escopoTipo: rulePriority.scopeType,
-      escopoId: rulePriority.scopeId,
-      condicao: rulePriority.condition,
+      name: rulePriority.nome,
+      level: rulePriority.nivel,
+      scopeType: rulePriority.scopeType,
+      scopeId: rulePriority.scopeId,
+      condition: rulePriority.condition,
       ativa: rulePriority.ativa,
     })
     .from(rulePriority)
@@ -169,11 +169,11 @@ async function rulePriorityViva(tx: TransactionPipe, tid: string, id: string): P
   const [atual] = await tx
     .select({
       id: rulePriority.id,
-      nome: rulePriority.nome,
-      nivel: rulePriority.nivel,
-      escopoTipo: rulePriority.scopeType,
-      escopoId: rulePriority.scopeId,
-      condicao: rulePriority.condition,
+      name: rulePriority.nome,
+      level: rulePriority.nivel,
+      scopeType: rulePriority.scopeType,
+      scopeId: rulePriority.scopeId,
+      condition: rulePriority.condition,
       ativa: rulePriority.ativa,
     })
     .from(rulePriority)
@@ -201,7 +201,7 @@ export async function createRulePriority(
 
   const [criada] = await tx
     .insert(rulePriority)
-    .values({ tenantId: tid, nome, nivel, escopoTipo: scopeType, escopoId: scopeId, condition, active })
+    .values({ tenantId: tid, nome, nivel, scopeType, scopeId, condition, ativa: active })
     .returning({ id: rulePriority.id });
   if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de prioridade.');
 
@@ -264,11 +264,11 @@ export async function editarRulePriority(
     .where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.id, id)))
     .returning({
       id: rulePriority.id,
-      nome: rulePriority.nome,
-      nivel: rulePriority.nivel,
-      escopoTipo: rulePriority.scopeType,
-      escopoId: rulePriority.scopeId,
-      condicao: rulePriority.condition,
+      name: rulePriority.nome,
+      level: rulePriority.nivel,
+      scopeType: rulePriority.scopeType,
+      scopeId: rulePriority.scopeId,
+      condition: rulePriority.condition,
       ativa: rulePriority.ativa,
     });
   if (!gravada) throw PipeError.naoEncontrado('regra de prioridade');

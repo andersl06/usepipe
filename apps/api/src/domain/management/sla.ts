@@ -49,13 +49,13 @@ export async function carregarRegrasSla(tx: TransactionPipe): Promise<RegraSlaCa
   const linhas = await tx
     .select({
       id: regraSla.id,
-      nome: regraSla.nome,
+      name: regraSla.nome,
       alvo: regraSla.alvo,
-      prazoSeg: regraSla.prazoSeg,
-      alertaSeg: regraSla.alertaSeg,
-      escopoTipo: regraSla.escopoTipo,
-      escopoId: regraSla.escopoId,
-      acaoAlerta: regraSla.acaoAlerta,
+      deadlineSeg: regraSla.prazoSeg,
+      alertSeg: regraSla.alertaSeg,
+      scopeType: regraSla.escopoTipo,
+      scopeId: regraSla.escopoId,
+      acaoAlert: regraSla.acaoAlerta,
       acaoEstouro: regraSla.acaoEstouro,
     })
     .from(regraSla)
@@ -63,13 +63,14 @@ export async function carregarRegrasSla(tx: TransactionPipe): Promise<RegraSlaCa
     .orderBy(asc(regraSla.nome));
 
   return linhas.flatMap((l) => {
-    const alvo = TARGET_OF_DATABASE[l.alvo] ?? null;
-    if (!alvo) return [];
+    const target = TARGET_OF_DATABASE[l.alvo] ?? null;
+    if (!target) return [];
+    const { alvo: _alvo, ...resto } = l;
     return [
       {
-        ...l,
-        alvo,
-        acaoAlerta: (l.acaoAlerta ?? {}) as Record<string, unknown>,
+        ...resto,
+        target,
+        acaoAlert: (l.acaoAlert ?? {}) as Record<string, unknown>,
         acaoEstouro: (l.acaoEstouro ?? {}) as Record<string, unknown>,
       },
     ];
@@ -110,7 +111,7 @@ export function avaliarSlaOfConversation(
     cumpridoEm,
   });
 
-  if (r.state === 'exceeded') {
+  if (r.state === 'estourado') {
     return {
       state: 'exceeded',
       rotulo: 'ESTOUROU',
@@ -118,6 +119,6 @@ export function avaliarSlaOfConversation(
     };
   }
   if (r.cumprido) return { state: 'cumprido', rotulo: 'CUMPRIDO', excedidoSeg: null };
-  if (r.state === 'alert') return { state: 'alert', rotulo: 'ALERTA', excedidoSeg: null };
+  if (r.state === 'alerta') return { state: 'alert', rotulo: 'ALERTA', excedidoSeg: null };
   return { state: 'inside', rotulo: 'DENTRO', excedidoSeg: null };
 }

@@ -16,8 +16,8 @@
       "default": "./dist/domain/flow.js"
     },
     "./domain/management/flow-builder": {
-      "types": "./dist/domain/management/builder-do-fluxo.d.ts",
-      "default": "./dist/domain/management/builder-do-fluxo.js"
+      "types": "./dist/domain/management/builder-of-flow.d.ts",
+      "default": "./dist/domain/management/builder-of-flow.js"
     },
     "./domain/conversation": {
       "types": "./dist/domain/conversation.d.ts",
