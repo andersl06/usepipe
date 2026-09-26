@@ -177,7 +177,7 @@ export async function carregarDashboard(
         total: par((m) => m.soma?.total),
         byDia: agora.porDia.map((d) => ({
           dia: d.dia,
-          comInteracao: d.com_interacao,
+          withInteraction: d.com_interacao,
           total: d.total,
         })),
       },
@@ -261,7 +261,7 @@ export async function loadListOfContacts(
  */
 export async function loadMessagesActive(
   _tx: TransactionPipe,
-  unusedFlowId: string,
+  _flowId: string,
   _intervalo: Intervalo,
   _template: string | null,
 ): Promise<ActiveMessagesData> {
@@ -348,7 +348,7 @@ export async function carregarVisaoGeral(
         recebidas: n(d.recebidas),
         enviadas: n(d.enviadas),
       })),
-      activeByChannel: channels.map((d) => ({ canal: String(d.canal), total: n(d.total) })),
+      activeByChannel: channels.map((d) => ({ channel: String(d.canal), total: n(d.total) })),
     };
   }
 }
@@ -409,7 +409,7 @@ export async function carregarJornada(
       de: String(r.de),
       para: String(r.para),
       passo: Number(r.passo),
-      quantidade: Number(r.quantidade),
+      quantity: Number(r.quantidade),
       tipo: r.saida ? 'saida' : 'regular',
     }));
   }
@@ -491,8 +491,9 @@ export async function loadLogOfMessages(
     contact: string | null;
     channel: string;
   }>(sql`
-    select m.id, m.criada_em, m.direcao, m.tipo, m.conteudo, m.dados as metadata,
-           coalesce(ct.nome, ct.telefone_e164) as contato, ca.nome as canal
+    select m.id, m.criada_em, m.direcao as direction, m.tipo as type, m.conteudo as content,
+           m.dados as metadata,
+           coalesce(ct.nome, ct.telefone_e164) as contact, ca.nome as channel
       from mensagem m
       join conversa cv on cv.id = m.conversa_id
       join contato ct on ct.id = cv.contato_id
@@ -514,9 +515,9 @@ export async function loadLogOfMessages(
     data: page.data.map((linha) => ({
       id: linha.id,
       criadaEm: new Date(linha.criada_em).toISOString(),
-      direcao: linha.direction,
-      tipo: linha.type,
-      conteudo: linha.content,
+      direction: linha.direction,
+      type: linha.type,
+      content: linha.content,
       metadata: linha.metadata,
       de: linha.direction === 'entrada' ? linha.contact : linha.channel,
       para: linha.direction === 'entrada' ? linha.channel : linha.contact,
