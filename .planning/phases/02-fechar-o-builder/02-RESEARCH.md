@@ -128,23 +128,23 @@ Há também um bug de canvas suspeito e não coberto por teste (`arestasDe()`, `
 
 ## Owner Questions
 
-1. **Pesquisa de satisfação: replicar o modelo nativo do Portal Blip (1-5, só PT-BR, retenção 3 meses), o modelo alternativo, ou unificar os dois?**
+1. **Pesquisa de satisfação: replicar o modelo nativo do Portal Blip (1-5, só PT-BR, retenção 3 meses), o modelo alternativo, ou unificar os dois?** (RESOLVIDO — D-06)
    Levantado em 15/09, nunca fechado (`PROJECT-HANDOFF.md`, "Próximas frentes" item 6). Sem essa decisão, BUILDER-03 não pode ser especificado com precisão.
    **Recomendação:** decidir pelo modelo nativo do Portal (1-5, retenção 3 meses) como MVP — é o caminho de menor esforço e o único com evidência documentada suficiente (`referencias-blip/pesquisa/*` menciona satisfação em vários pontos); tratar "o modelo alternativo" como extensão futura fora da Phase 2 se o dono não tiver preferência forte.
 
-2. **O painel de "Teste" precisa de canal de teste real ligado ao motor (como o SDK BlipChat da Blip), ou basta uma simulação local dentro do Builder?**
+2. **O painel de "Teste" precisa de canal de teste real ligado ao motor (como o SDK BlipChat da Blip), ou basta uma simulação local dentro do Builder?** (RESOLVIDO — D-14: decidir após investigar a referência; execução no servidor em 02-21)
    `PROJECT.md` já registra que "a Blip usa um bot real via SDK BlipChat... o Pipe não tem canal de teste no motor e não há spec detalhada ainda" — isto é potencialmente um item de esforço muito maior que o resto da Phase 2 (exigiria um canal/adaptador novo no motor).
    **Recomendação:** escopar BUILDER-04 "Teste" como uma simulação local (executa o fluxo em memória contra o motor real de `packages/core`, sem canal externo) para a Phase 2, e registrar canal de teste real como item futuro — evita que um requisito pequeno na frase vire o maior item da fase.
 
-3. **A "paleta de tags completa nas saídas de atendimento humano" deve usar a tabela `etiqueta` (a mesma do encerramento de ticket) ou os `bloco.$tags` livres que já existem no Builder?**
+3. **A "paleta de tags completa nas saídas de atendimento humano" deve usar a tabela `etiqueta` (a mesma do encerramento de ticket) ou os `bloco.$tags` livres que já existem no Builder?** (RESOLVIDO — D-11, D-12)
    Hoje são dois sistemas de tag sem relação (ver seção "Saídas de atendimento humano" acima). A frase do requisito ("paleta completa") sugere a tabela `etiqueta` real, não os rótulos livres por bloco.
    **Recomendação:** usar a tabela `etiqueta` (consistência com encerramento de ticket, sem duplicar CRUD) — condicionar as saídas de atendimento humano na etiqueta selecionada no encerramento, análogo a `EncerrarConversaInput.etiqueta_ids`.
 
-4. **Os dois achados do `ProcessHttp` (duplicate-key na retomada, sem varredura em BullMQ) entram no escopo da Phase 2, ou ficam para depois, mesmo sendo bugs de produção de alta severidade que afetam o bloco editável pelo Builder?**
+4. **Os dois achados do `ProcessHttp` (duplicate-key na retomada, sem varredura em BullMQ) entram no escopo da Phase 2, ou ficam para depois, mesmo sendo bugs de produção de alta severidade que afetam o bloco editável pelo Builder?** (RESOLVIDO — D-25, D-26, D-27, D-28)
    São bugs em `apps/api/src/dominio/fluxo.ts` (motor/domínio), não em código de tela do Builder — tecnicamente fora do que BUILDER-01..05 pedem, mas o `ProcessHttp` é a única ação com editor completo hoje e o dono já os tem diagnosticados e prontos para fix (opção A recomendada, é um `if` sem migração de schema).
    **Recomendação:** tratar como uma wave própria e pequena dentro da Phase 2 (ou uma phase decimal 2.1 inserida), já que o diagnóstico está pronto e o fix é de baixo risco — não deixá-los acumular como dívida silenciosa em produção enquanto o resto do Builder evolui.
 
-5. **Vale investir esforço de plano em "corrigir" `arestasDe()` antes de ter um caso reproduzido, ou o item da Phase 2 deve ser só "escrever o teste que caracteriza o comportamento atual" e reabrir como bug separado se o teste revelar um problema real?**
+5. **Vale investir esforço de plano em "corrigir" `arestasDe()` antes de ter um caso reproduzido, ou o item da Phase 2 deve ser só "escrever o teste que caracteriza o comportamento atual" e reabrir como bug separado se o teste revelar um problema real?** (RESOLVIDO — D-29)
    Esta pesquisa não encontrou um campo concreto de "ligação real guardada fora de `$conditionOutputs`" além do `$defaultOutput` (que já está correto por design, conforme evidência Blip). O item do roadmap pode estar descrevendo um risco teórico, não um bug confirmado.
    **Recomendação:** especificar BUILDER-05 como "escrever teste de caracterização para `arestasDe()` cobrindo `$conditionOutputs`, `$defaultOutput` (sem seta) e todo campo de destino hoje conhecido; se o teste passar sem achar gap, fechar o item como validado, não como 'corrigido'" — evita gastar wave inteira caçando um bug fantasma.
 
