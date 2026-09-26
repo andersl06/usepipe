@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 1 context gathered
-last_updated: "2026-09-25T17:00:25.153Z"
+stopped_at: Phase 2 context gathered
+last_updated: "2026-09-26T13:00:10.455Z"
 last_activity: 2026-09-25 — portão 2 fechado (01-12, tag std-slice-0-end); aplicação única do mapa em curso (D-49)
 progress:
   total_phases: 9
   completed_phases: 0
-  total_plans: 41
-  completed_plans: 9
+  total_plans: 49
+  completed_plans: 16
   percent: 0
 ---
 
@@ -106,6 +106,6 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 
 ## Session Continuity
 
-Last session: 2026-09-24T19:40:43.988Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/01-CONTEXT.md
+Last session: 2026-09-26T13:00:10.389Z
+Stopped at: Phase 2 context gathered
+Resume file: .planning/phases/02-fechar-o-builder/02-CONTEXT.md
