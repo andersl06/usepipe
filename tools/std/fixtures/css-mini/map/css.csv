@@ -1,0 +1,6 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+CSS-001,css,1,css-class,dk-conversa-vazia,dk-empty-conversation,apps/front/src/estilos.css:1,,no,,,approved,sonnet,
+CSS-002,css,1,css-var,--cor-fundo,--background-color,apps/front/src/estilos.css:9,,no,,,approved,sonnet,
+CSS-003,css,1,data-attr,data-painel,data-panel,apps/front/src/componente.tsx:1,,no,,,approved,sonnet,
+CSS-004,css,1,data-attr,data-painel=aberto,data-panel=open,apps/front/src/componente.tsx:1,,no,,,approved,sonnet,
+CSS-005,css,1,data-attr,data-nao-lida,data-unread,apps/front/src/componente.tsx:1,,no,,,approved,sonnet,
