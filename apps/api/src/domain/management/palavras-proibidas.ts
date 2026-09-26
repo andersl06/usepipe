@@ -173,8 +173,8 @@ export interface RequestOfEditOfWordForbidden {
 
 const COLUNAS = {
   id: palavraProibida.id,
-  termo: palavraProibida.termo,
-  ativo: palavraProibida.ativo,
+  term: palavraProibida.termo,
+  active: palavraProibida.ativo,
 };
 
 export async function carregarPalavrasProibidas(
