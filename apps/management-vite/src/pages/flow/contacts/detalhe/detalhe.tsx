@@ -162,7 +162,7 @@ export function BotDetalheContact() {
             const lado = messageLado(message.direction);
             return (
               <div
-                className={`ct-mensagem ct-mensagem--${lado}`}
+                className={`ct-message ct-message--${lado === 'direita' ? 'right' : 'left'}`}
                 key={`${message.id}-${message.criadaEm}`}
               >
                 {lado === 'esquerda' ? (

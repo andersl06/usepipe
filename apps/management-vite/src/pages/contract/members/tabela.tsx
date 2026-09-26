@@ -137,7 +137,7 @@ export function MembersTabela({
       {/*
  * `BlipSearch`: the magnifying glass is a button, and the field starts at zero width and grows to 200px on focus. Closes on blur.
  */}
-      <div className={`mb-busca${searchAberta || search ? ' mb-busca--aberta' : ''}`}>
+      <div className={`mb-search${searchAberta || search ? ' mb-search--open' : ''}`}>
         <button type="button" onClick={() => abrirSearch(true)} aria-label="Buscar membro">
           <IconeSearch tamanho={20} />
         </button>
@@ -196,7 +196,7 @@ export function MembersTabela({
 
             {podeEscrever ? (
               <th className="mb-col-actions">
-                <div className={`mb-selecao${marcadosVisiveis.length > 0 ? '' : ' mb-oculto'}`}>
+                <div className={`mb-selection${marcadosVisiveis.length > 0 ? '' : ' mb-oculto'}`}>
                   <p>{marcadosVisiveis.length} selecionado(s)</p>
 
                   <Menu
@@ -477,7 +477,7 @@ function RoleEscolha({
           <span className="mb-escolha-rotulo" id={`${id}-rotulo`}>
             {TEXTO.papel}
           </span>
-          <span className={`mb-escolha-valor${escolhido ? '' : ' mb-escolha-vazio'}`}>
+          <span className={`mb-choice-value${escolhido ? '' : ' mb-choice-empty'}`}>
             {escolhido?.rotulo ?? TEXTO.escolhaOPapel}
           </span>
           <IconePortal nome="baixo" tamanho={20} className="mb-escolha-seta" />
@@ -501,7 +501,7 @@ function RoleEscolha({
                 id={`${id}-opcao-${i}`}
                 role="option"
                 aria-selected={p.id === escolhido?.id}
-                className={`mb-escolha-opcao${i === active ? ' mb-escolha-opcao--ativa' : ''}`}
+                className={`mb-choice-option${i === active ? ' mb-choice-option--active' : ''}`}
                 onMouseDown={(e) => e.preventDefault()}
                 onMouseEnter={() => definirActive(i)}
                 onClick={() => pegar(p)}

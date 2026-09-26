@@ -113,7 +113,7 @@ export function TimeLinha({
   }
 
   return (
-    <div className="time" style={{ ['--trilho' as string]: `${RAIL}px` }}>
+    <div className="time" style={{ ['--rail' as string]: `${RAIL}px` }}>
       {byMes(itens, fuso).map((mes) => (
         <section key={mes.titulo}>
           <h4>

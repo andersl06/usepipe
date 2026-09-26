@@ -168,7 +168,7 @@ export function OutputsPanel({
           return (
             <section
               key={saida.$id ?? i}
-              className={`bl-saida${fixa ? ' bl-saida--atendimento' : ''}${errors.length > 0 ? ' bl-saida--erro' : ''}`}
+              className={`bl-saida${fixa ? ' bl-output--attendance' : ''}${errors.length > 0 ? ' bl-output--error' : ''}`}
             >
               <header className="bl-saida-cabecalho">
                 <b>

@@ -26,7 +26,7 @@ const fontes = [
   base,
   readFileSync(join(aqui, 'src/tema.ts'), 'utf8'),
   readFileSync(join(aqui, 'src/icones.tsx'), 'utf8'),
-  readFileSync(join(aqui, 'src/ilustracoes.tsx'), 'utf8'),
+  readFileSync(join(aqui, 'src/illustrations.tsx'), 'utf8'),
 ].join('\n');
 
 /** Nomes de token declarados em qualquer bloco de tokens.css, ponte inclusa. */
@@ -37,7 +37,7 @@ const definidos = new Set([...tokens.matchAll(/^\s*(--p-[a-z0-9-]+)\s*:/gm)].map
  * cá: o apelido antigo não pode fazer a régua parecer maior do que ela é.
  * Quando a ponte for apagada, os dois conjuntos voltam a ser o mesmo.
  */
-const withoutBridge = tokens.slice(0, tokens.indexOf('PONTE DE MIGRAÇÃO'));
+const withoutBridge = tokens.slice(0, tokens.indexOf('MIGRATION BRIDGE'));
 const proprios = new Set([...withoutBridge.matchAll(/^\s*(--p-[a-z0-9-]+)\s*:/gm)].map((m) => m[1]));
 
 /* 1 — nada usa o que não existe. ------------------------------------------ */
@@ -51,7 +51,7 @@ const preferencia = tokens.slice(
   tokens.indexOf('@media (prefers-color-scheme: dark)'),
   tokens.indexOf(":root[data-tema='escuro']"),
 );
-const explicito = tokens.slice(tokens.indexOf(":root[data-tema='escuro']"), tokens.indexOf('PONTE DE MIGRAÇÃO'));
+const explicito = tokens.slice(tokens.indexOf(":root[data-tema='escuro']"), tokens.indexOf('MIGRATION BRIDGE'));
 
 /** Cor = tem hex ou rgba no valor. Tamanho e duração não mudam com o tema. */
 const coresClaras = [...claro.matchAll(/^\s*(--p-[a-z0-9-]+)\s*:\s*(#|rgba)/gm)].map((m) => m[1]);
@@ -74,12 +74,16 @@ assert.equal(contar(/^--p-conteudo(-|$)/), 4, 'são quatro degraus de conteúdo'
 assert.equal(contar(/^--p-r-/), 3, 'são três raios: padrão, controle e pílula');
 assert.equal(contar(/^--p-t-(lg|md|sm|xs)$/), 4, 'a régua de texto tem 16, 14, 12 e 10');
 
-for (const state of ['erro', 'alerta', 'sucesso', 'info']) {
-  for (const parte of ['fundo', 'linha', 'conteudo']) {
-    assert.ok(
-      proprios.has(`--p-${state}-${parte}`),
-      `estado é um par com linha: falta --p-${state}-${parte}`,
-    );
+/* Only erro has an approved rename; the other state tokens remain in Portuguese. */
+const triosDeEstado = [
+  ['--p-error-background', '--p-error-line', '--p-error-content'],
+  ['--p-alerta-fundo', '--p-alerta-linha', '--p-alerta-conteudo'],
+  ['--p-sucesso-fundo', '--p-sucesso-linha', '--p-sucesso-conteudo'],
+  ['--p-info-fundo', '--p-info-linha', '--p-info-conteudo'],
+];
+for (const trio of triosDeEstado) {
+  for (const nome of trio) {
+    assert.ok(proprios.has(nome), `estado é um par com linha: falta ${nome}`);
   }
 }
 
@@ -89,7 +93,7 @@ for (const state of ['erro', 'alerta', 'sucesso', 'info']) {
    cromo, e cromo não recebe matiz da paleta estendida. Este é o teste que
    pega o erro que o dono reprovou antes de ele chegar na tela. */
 const cromo =
-  base.slice(0, base.indexOf('------ barra')) + base.slice(base.indexOf('----- avatar'));
+  base.slice(0, base.indexOf('------ bar')) + base.slice(base.indexOf('----- avatar'));
 const grafico = [...cromo.matchAll(/var\((--p-grafico-\d)\)/g)].map((m) => m[1]);
 assert.deepEqual(
   grafico,

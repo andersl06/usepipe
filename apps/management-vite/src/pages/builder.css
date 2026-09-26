@@ -271,13 +271,13 @@
 /*
  * The UI package's error tokens (`tokens.css`): pastel background, dark rule and content — the same pair as `Etiqueta tom="erro"`.
  */
-.bl-aviso--error {
+.bl-notice--error {
   background: var(--p-error-background);
   border-bottom-color: var(--p-error-line);
   color: var(--p-error-content);
 }
 
-.bl-aviso--error svg {
+.bl-notice--error svg {
   vertical-align: -3px;
   margin-right: 4px;
 }
@@ -293,7 +293,7 @@
   margin-top: 2px;
 }
 
-.bl-aviso--error .bl-errors {
+.bl-notice--error .bl-errors {
   color: inherit;
 }
 
@@ -327,11 +327,11 @@
   border-left-color: var(--p-marca);
 }
 
-.bl-bloco--attendance {
+.bl-block--attendance {
   border-left-color: var(--moss);
 }
 
-.bl-bloco--error {
+.bl-block--error {
   border-left-color: var(--p-error-on-dark);
   outline: 1px solid var(--p-error-line);
 }

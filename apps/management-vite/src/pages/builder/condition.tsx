@@ -97,7 +97,7 @@ function ConditionLinha({
   }
 
   return (
-    <div className={`bl-condicao${error ? ' bl-condicao--erro' : ''}`}>
+    <div className={`bl-condition${error ? ' bl-condition--error' : ''}`}>
       <div className="bl-condition-line bl-condition-fields">
         <span className="bl-condition-if">{first ? ROTULOS_DAS_SAIDAS.se : 'e'}</span>
         {semSuporte ? (

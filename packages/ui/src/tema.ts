@@ -61,9 +61,9 @@ export const TEMA = {
    */
   estado: {
     erro: {
-      fundo: 'var(--p-erro-fundo)',
-      linha: 'var(--p-erro-linha)',
-      conteudo: 'var(--p-erro-conteudo)',
+      fundo: 'var(--p-error-background)',
+      linha: 'var(--p-error-line)',
+      conteudo: 'var(--p-error-content)',
     },
     alerta: {
       fundo: 'var(--p-alerta-fundo)',
@@ -99,7 +99,7 @@ export const TEMA = {
       'var(--p-grafico-4)',
       'var(--p-grafico-5)',
     ],
-    trilho: 'var(--p-grafico-trilho)',
+    trilho: 'var(--p-chart-rail)',
   },
 
   fonte: {

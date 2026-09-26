@@ -645,7 +645,7 @@
 .ct-block-icon--text {
   color: var(--p-marca);
 }
-.ct-bloco-icone--image {
+.ct-block-icon--image {
   color: var(--p-alerta-conteudo);
 }
 .ct-block-icon--pdf {
@@ -904,16 +904,16 @@
  *    surface-2 background, `border-radius: 12px 12px 0 0`, `min-height: 140px`;
  *    `__title span { color: #607b99; font-size: 1rem; font-weight: 700 }`.
  */
-.ct-cartao--attachment {
+.ct-card--attachment {
   width: 25vw;
   min-width: 260px;
   padding: 0;
   overflow: hidden;
 }
-.ct-cartao--attachment-inactive {
+.ct-card--attachment-inactive {
   cursor: pointer;
 }
-.ct-cartao--attachment.ct-cartao--edit {
+.ct-card--attachment.ct-card--edit {
   padding: 10px 16px;
 }
 .ct-attachment-body {
@@ -1037,7 +1037,7 @@
     width: 45%;
   }
   .ct-card,
-  .ct-cartao--attachment {
+  .ct-card--attachment {
     width: 100%;
     min-width: 0;
   }

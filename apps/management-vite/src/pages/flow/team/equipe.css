@@ -335,11 +335,11 @@
  *    the EDIT view's email — data, not a field; only the small label and the
  *    value remain.
  */
-.cf-equipe-campo-email--read input {
+.cf-team-field-email--read input {
   border-bottom: 0;
   cursor: default;
 }
-.cf-equipe-campo-email--read input:focus {
+.cf-team-field-email--read input:focus {
   border-bottom: 0;
 }
 
@@ -382,7 +382,7 @@
 .cf-equipe-slider-nivel:last-child {
   text-align: right;
 }
-.cf-equipe-slider-nivel--active {
+.cf-team-slider-level--active {
   color: var(--p-conteudo);
   font-weight: var(--g-peso-negrito);
 }

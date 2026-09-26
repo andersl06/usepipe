@@ -40,12 +40,12 @@ export function No({
   const position = positionOf(block);
   const classes = ['bl-no'];
   if (block.root) classes.push('bl-no--inicio');
-  if (ehAttendance(block.id)) classes.push('bl-no--atendimento');
-  if (errors.length > 0) classes.push('bl-no--erro');
+  if (ehAttendance(block.id)) classes.push('bl-node--attendance');
+  if (errors.length > 0) classes.push('bl-node--error');
   if (selecionado) classes.push('bl-no--selecionado');
   if (editando) classes.push('bl-no--editando');
   if (alvo) classes.push('bl-no--alvo');
-  if (!corresponde) classes.push('bl-no--fora-da-busca');
+  if (!corresponde) classes.push('bl-node--outside-search');
   const etiquetas = blockTags(block);
   return (
     <div

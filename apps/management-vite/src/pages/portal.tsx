@@ -315,7 +315,7 @@ function SubBarra({
           {/*
  * Search follows the source's behavior: the text stays in local state and only updates the query 700ms after typing stops.
  */}
-          <div className={`pt-busca${searchAberta ? ' pt-busca-aberta' : ''}`} role="search">
+          <div className={`pt-search${searchAberta ? ' pt-search-open' : ''}`} role="search">
             <button className="pt-search-button" type="button" onClick={abrirSearch} aria-label="Abrir busca">
               <IconeSearch tamanho={32} />
             </button>

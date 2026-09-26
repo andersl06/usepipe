@@ -1067,7 +1067,7 @@ a.ct-card:hover {
   cursor: pointer;
 }
 
-.mb-escolha-opcao--active,
+.mb-choice-option--active,
 .mb-choice-option[aria-selected='true'] {
   background: var(--surface-2);
 }
@@ -1339,13 +1339,13 @@ a.ct-card:hover {
   outline: none;
 }
 
-.mb-campo--error,
-.mb-campo--error:hover,
-.mb-campo--error:focus-within {
+.mb-field--error,
+.mb-field--error:hover,
+.mb-field--error:focus-within {
   border-color: var(--p-error-content);
 }
 
-.mb-campo--error:focus-within {
+.mb-field--error:focus-within {
   box-shadow: 0 0 0 2px var(--p-error-line);
 }
 
@@ -1362,8 +1362,8 @@ a.ct-card:hover {
   color: var(--p-marca);
 }
 
-.mb-campo--error .mb-campo-rotulo,
-.mb-campo--error:focus-within .mb-campo-rotulo {
+.mb-field--error .mb-campo-rotulo,
+.mb-field--error:focus-within .mb-campo-rotulo {
   color: var(--p-error-content);
 }
 
@@ -1531,7 +1531,7 @@ a.ct-card:hover {
   user-select: none;
 }
 
-.mb-opcao--active,
+.mb-option--active,
 .mb-option[aria-selected='true'] {
   background: var(--surface-2);
 }

@@ -32,7 +32,7 @@ function textVariables(texto: string): string[] {
 const BLOCOS: Record<TipoDeConteudo, { rotulo: string; icone: NomeDeIconePortal; classe: string }> =
   {
     texto: { rotulo: 'Texto', icone: 'texto-mensagem', classe: 'ct-bloco-icone--texto' },
-    imagem: { rotulo: 'Imagem', icone: 'arquivo-imagem', classe: 'ct-bloco-icone--imagem' },
+    imagem: { rotulo: 'Imagem', icone: 'arquivo-imagem', classe: 'ct-block-icon--image' },
     documento: { rotulo: 'Documento', icone: 'arquivo-pdf', classe: 'ct-bloco-icone--pdf' },
     video: { rotulo: 'Vídeo', icone: 'video', classe: 'ct-bloco-icone--video' },
     pagamento: { rotulo: 'Pagamento', icone: 'pix', classe: 'ct-bloco-icone--pix' },

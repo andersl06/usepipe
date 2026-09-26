@@ -815,7 +815,7 @@
   background: var(--p-marca-suave);
   color: var(--p-marca-forte);
 }
-.cf-selo--error {
+.cf-badge--error {
   background: var(--p-error-background);
   color: var(--p-error-content);
 }

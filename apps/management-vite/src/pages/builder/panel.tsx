@@ -193,7 +193,7 @@ export function BlockPanel({
           </button>
         ))}
       </div>
-      <div className={`bl-painel-corpo bl-painel-corpo--${aba}`}>
+      <div className={`bl-panel-body bl-panel-body--${aba === 'saidas' ? 'outputs' : aba}`}>
         {aba === 'conteudo' ? (
           <ContentPanel block={block} onMudar={onMudar} onAviso={onAviso} />
         ) : null}

@@ -95,11 +95,11 @@
   box-shadow: 0 2px 12px 0 var(--surface-2);
 }
 
-.vg-cartao--users {
+.vg-card--users {
   flex: 1.5;
 }
 
-.vg-cartao--messages {
+.vg-card--messages {
   flex: 3;
 }
 

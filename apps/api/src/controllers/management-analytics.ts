@@ -130,7 +130,7 @@ export class ManagementAnalyticsController {
       const data = await carregarDashboard(tx, id, intervalo, fuso);
       if (!data) return null;
       const nomes = tipo ? await loadListOfContacts(tx, id, intervalo, fuso, tipo) : null;
-      const lista: RespostaDoDashboard['lista'] = tipo && nomes ? { tipo, nomes } : null;
+      const lista: RespostaDoDashboard['lista'] = tipo && nomes ? { type: tipo, nomes } : null;
       return { period, intervalo, hoje, data, lista };
     });
     if (!resposta) throw PipeError.naoEncontrado('fluxo');
@@ -206,7 +206,7 @@ export class ManagementAnalyticsController {
         ate,
         min: somarDias(hoje, -30),
         max: somarDias(hoje, 1),
-        roteador: contact.tipo === 'roteador',
+        router: contact.tipo === 'roteador',
       };
     });
     if (!resposta) throw PipeError.naoEncontrado('fluxo');
@@ -222,7 +222,7 @@ export class ManagementAnalyticsController {
     const sessao = sessionOf(requisicao);
     uuidOu404(id);
     return noTenant(sessao.tenantId, async (tx) => ({
-      relatorios: await loadReports(tx),
+      reports: await loadReports(tx),
       fuso: await fusoDoTenant(tx),
     }));
   }

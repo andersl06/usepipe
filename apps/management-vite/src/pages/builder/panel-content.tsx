@@ -91,7 +91,7 @@ export function ContentPanel({
           ? cards.map((c) => (
               <div
                 key={c.indice}
-                className={`bl-previa-linha${c.tipo === 'entrada' ? ' bl-previa-linha--entrada' : ''}`}
+                className={`bl-previa-linha${c.tipo === 'entrada' ? ' bl-preview-line--inbound' : ''}`}
               >
                 <button
                   type="button"

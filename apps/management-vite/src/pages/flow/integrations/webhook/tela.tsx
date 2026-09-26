@@ -643,7 +643,7 @@ function Campo({
     <div
       className={[
         'ig-campo',
-        error ? 'ig-campo--erro' : '',
+        error ? 'ig-field--error' : '',
         somenteRead ? 'ig-campo--desabilitado' : '',
         className ?? '',
       ]

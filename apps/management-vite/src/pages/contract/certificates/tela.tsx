@@ -709,7 +709,7 @@ function Campo({
 }) {
   return (
     <div className="cm-campo-bloco">
-      <label className={`cm-campo${error ? ' cm-campo--erro' : ''}`}>
+      <label className={`cm-campo${error ? ' cm-field--error' : ''}`}>
         <b>{rotulo}</b>
         <input
           type={tipo}

@@ -403,7 +403,7 @@ a.ig-card:hover {
   border-color: var(--p-marca-forte);
 }
 
-.ig-campo--error .ig-campo-caixa {
+.ig-field--error .ig-campo-caixa {
   border-color: var(--p-error-content);
 }
 

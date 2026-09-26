@@ -71,7 +71,7 @@
 .bl-no--alvo {
   box-shadow: 0 0 0 4px var(--p-marca, #4a5d23);
 }
-.bl-no--outside-search {
+.bl-node--outside-search {
   opacity: 0.2;
 }
 .bl-canvas--pesquisando .bl-setas {
@@ -84,13 +84,13 @@
 .bl-no--inicio {
   background: var(--p-marca, #4a5d23);
 }
-.bl-no--attendance {
+.bl-node--attendance {
   /*
    * The capture doesn't highlight `atendimento` in orange: it's a flow state, not an alert. We keep the Pipe brand color instead of the reference's blue.
    */
   background: #393939;
 }
-.bl-no--error {
+.bl-node--error {
   border: 1px solid var(--p-error-content, #c4442e);
 }
 
@@ -387,10 +387,10 @@
   min-height: 40px;
   padding: 16px 20px;
 }
-.bl-painel--settings .bl-panel-header {
+.bl-panel--settings .bl-panel-header {
   padding: 24px 32px 0;
 }
-.bl-painel--settings .bl-panel-title {
+.bl-panel--settings .bl-panel-title {
   height: auto;
   padding: 0;
   border: 0;
@@ -612,9 +612,9 @@
 /*
  * The card's error state (invalid output, action or condition) — the class was applied but the rule was missing, so no invalid card stood out.
  */
-.bl-saida--error,
-.bl-acao--error,
-.bl-condicao--error {
+.bl-output--error,
+.bl-action--error,
+.bl-condition--error {
   border-color: var(--p-error-content, #c4442e);
 }
 .bl-saida-cabecalho,

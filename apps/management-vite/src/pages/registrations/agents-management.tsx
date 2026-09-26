@@ -155,7 +155,7 @@ export function AgentsPageManagement() {
       </div>
 
       {errorExclusao ? (
-        <p className="sub" style={{ color: 'var(--p-erro-conteudo)' }}>
+        <p className="sub" style={{ color: 'var(--p-error-content)' }}>
           {errorExclusao}
         </p>
       ) : null}

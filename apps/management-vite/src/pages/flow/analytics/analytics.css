@@ -121,7 +121,7 @@
 /*
  * `.bds-tab--selected`: the `selectFade` animation, .75s, `forwards`, that takes the rule from transparent to the brand color and the text to `--color-content-default`.
  */
-.an-aba--active {
+.an-tab--active {
   animation: an-aba-acende 0.75s forwards;
 }
 
@@ -137,7 +137,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .an-aba--active {
+  .an-tab--active {
     animation: none;
     border-bottom-color: var(--p-marca);
     color: var(--ink);
@@ -155,7 +155,7 @@
   line-height: 1.5;
 }
 
-.an-aba--active .an-aba-texto {
+.an-tab--active .an-aba-texto {
   font-weight: 700;
 }
 

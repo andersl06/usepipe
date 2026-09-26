@@ -760,17 +760,17 @@
 }
 
 /* `--state-danger`: border and label in error ink. */
-.cm-campo--error,
-.cm-campo--error:hover,
-.cm-campo--error:focus-within {
+.cm-field--error,
+.cm-field--error:hover,
+.cm-field--error:focus-within {
   border-color: var(--p-error-content);
 }
 
-.cm-campo--error:focus-within {
+.cm-field--error:focus-within {
   box-shadow: 0 0 0 2px var(--p-error-background);
 }
 
-.cm-campo--error b {
+.cm-field--error b {
   color: var(--p-error-content);
 }
 

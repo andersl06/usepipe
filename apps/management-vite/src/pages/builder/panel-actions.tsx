@@ -316,7 +316,7 @@ export function ActionCard({
   const editavel = !!tipo && !doSistema;
   return (
     <article
-      className={`bl-acao${errors.length > 0 ? ' bl-acao--erro' : ''}${aberta ? ' bl-acao--aberta' : ''}`}
+      className={`bl-acao${errors.length > 0 ? ' bl-action--error' : ''}${aberta ? ' bl-acao--aberta' : ''}`}
       onDragOver={onSoltar ? (e) => e.preventDefault() : undefined}
       onDrop={
         onSoltar

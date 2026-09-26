@@ -213,7 +213,7 @@ export function ConvidarMembers({
               <div className="mb-invitation-fields">
                 <div className="mb-chips-block">
                   <div
-                    className={`mb-campo${invalido ? ' mb-campo--erro' : ''}`}
+                    className={`mb-campo${invalido ? ' mb-field--error' : ''}`}
                     onClick={() => campoDeTexto.current?.focus()}
                   >
                     <label className="mb-campo-rotulo" htmlFor={`${id}-email`}>
@@ -285,7 +285,7 @@ export function ConvidarMembers({
                       <span className="mb-campo-rotulo" id={`${id}-rotulo-papel`}>
                         Permissão
                       </span>
-                      <span className={`mb-select-valor${role ? '' : ' mb-select-vazio'}`}>
+                      <span className={`mb-select-value${role ? '' : ' mb-select-empty'}`}>
                         {role?.rotulo ?? 'Selecione'}
                       </span>
                     </span>
@@ -310,7 +310,7 @@ export function ConvidarMembers({
                           id={`${id}-opcao-${i}`}
                           role="option"
                           aria-selected={p.id === roleId}
-                          className={`mb-opcao${i === active ? ' mb-opcao--ativa' : ''}`}
+                          className={`mb-option${i === active ? ' mb-option--active' : ''}`}
                           onMouseDown={(e) => e.preventDefault()}
                           onMouseEnter={() => definirActive(i)}
                           onClick={() => escolher(p)}

@@ -48,7 +48,7 @@ export function PageMetrics() {
     { rotulo: 'Fechados', value: m?.situations.fechados ?? null, cor: 'var(--p-grafico-2)' },
     { rotulo: 'Abandonados', value: m?.situations.abandonados ?? null, cor: 'var(--p-grafico-3)' },
     { rotulo: 'Finalizados', value: m?.situations.finalizados ?? null, cor: 'var(--p-grafico-4)' },
-    { rotulo: 'Perdidos', value: m?.situations.perdidos ?? null, cor: 'var(--p-erro-conteudo)' },
+    { rotulo: 'Perdidos', value: m?.situations.perdidos ?? null, cor: 'var(--p-error-content)' },
   ];
   const total = cards.reduce((s, c) => s + (c.value ?? 0), 0);
 
