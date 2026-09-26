@@ -5,7 +5,7 @@ import { atualizarChannel, readChannelWhatsApp } from './channel.js';
 import type { ChannelWhatsApp } from './channel.js';
 
 // A régua mora no worker, que é quem monta a mensagem; aqui só se reexporta.
-export { formatoDaPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/workers/whatsapp';
+export { formatOfPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/workers/whatsapp';
 
 /**
  * As abas "Configurações" e "Configurações de alerta" do canal WhatsApp na Blip
@@ -35,7 +35,7 @@ export function preferencesOf(channel: { config: Record<string, unknown> }): Pre
     quickReply: guardado.quickReply ?? true,
     menu: guardado.menu ?? true,
     alertRecategorization: {
-      active: guardado.alertRecategorization?.ativo ?? true,
+      active: guardado.alertRecategorization?.active ?? true,
       emails: guardado.alertRecategorization?.emails ?? [],
     },
   };
@@ -74,7 +74,7 @@ export function aplicarPedido(atual: PreferencesOfChannel, pedido: RequestOfPref
     quickReply: booleano(pedido.quickReply, 'quickReply') ?? atual.quickReply,
     menu: booleano(pedido.menu, 'menu') ?? atual.menu,
     alertRecategorization: {
-      active: booleano(alerta?.ativo, 'ativo') ?? atual.alertRecategorization.active,
+      active: booleano(alerta?.active, 'ativo') ?? atual.alertRecategorization.active,
       emails: alerta?.emails === undefined ? atual.alertRecategorization.emails : emailsDe(alerta.emails),
     },
   };
