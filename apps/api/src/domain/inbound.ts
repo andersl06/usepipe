@@ -328,7 +328,7 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
       conversationId: string;
       stateDelivery: StateDelivery | null;
     }>(sql`
-      select id, conversa_id, estado_entrega from mensagem
+      select id, conversa_id as "conversationId", estado_entrega as "stateDelivery" from mensagem
        where id_provedor = ${idProvedor} limit 1
     `);
     const message = rows[0];

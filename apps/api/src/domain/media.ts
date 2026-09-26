@@ -74,8 +74,8 @@ type FalhaPermanente = { errorPermanent: string };
 export async function downloadMediaOfAttachment(tenantId: string, attachmentId: string): Promise<ResultadoDownload> {
   const linha = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<LineAttachment>(sql`
-      select a.id, a.chave_storage, a.mime, a.nome_original, a.checksum,
-             a.download_tentativas, ca.tipo as canal_tipo, ca.config as canal_config
+      select a.id, a.chave_storage as "keyStorage", a.mime, a.nome_original, a.checksum,
+             a.download_tentativas, ca.tipo as "channelType", ca.config as "channelConfig"
         from anexo a
         left join canal ca on ca.id = a.canal_id
        where a.id = ${attachmentId}::uuid and a.bytes = 0

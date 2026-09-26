@@ -103,7 +103,7 @@ type LineAttachment = {
 
 async function lineAttachment(id: string): Promise<LineAttachment> {
   const { rows } = await dono.execute<LineAttachment>(sql`
-    select chave_storage, mime, bytes, checksum, download_tentativas, download_erro,
+    select chave_storage as "keyStorage", mime, bytes, checksum, download_tentativas, download_erro as "downloadError",
            download_proxima_tentativa_em
       from anexo where id = ${id}::uuid
   `);
@@ -173,7 +173,7 @@ describe('Download WhatsApp media with one Bearer token, verify sha256, and dete
     });
 
     const resultado = await downloadMediaOfAttachment(tenantId, attachmentId);
-    expect(resultado).toEqual({ estado: 'baixado' });
+    expect(resultado).toEqual({ state: 'baixado' });
 
     // As DUAS chamadas — metadado e bytes — levam o Bearer do canal.
     expect(pedidos).toHaveLength(2);
@@ -204,7 +204,7 @@ describe('Instagram: baixa direto da URL do CDN, sem token', () => {
     });
 
     const resultado = await downloadMediaOfAttachment(tenantId, anexoId);
-    expect(resultado).toEqual({ estado: 'baixado' });
+    expect(resultado).toEqual({ state: 'baixado' });
     expect(urlPedida).toBe(URL_INSTAGRAM);
     expect(auth).toBeNull();
 
@@ -230,7 +230,7 @@ describe('sha256 divergente', () => {
     });
 
     const resultado = await downloadMediaOfAttachment(tenantId, anexoId);
-    expect(resultado).toMatchObject({ estado: 'falhou' });
+    expect(resultado).toMatchObject({ state: 'falhou' });
     if (resultado.state === 'falhou') expect(resultado.motivo).toContain('sha256');
 
     const linha = await lineAttachment(anexoId);
@@ -255,7 +255,7 @@ describe('host fora da lista', () => {
     });
 
     const resultado = await downloadMediaOfAttachment(tenantId, anexoId);
-    expect(resultado).toMatchObject({ estado: 'falhou' });
+    expect(resultado).toMatchObject({ state: 'falhou' });
     if (resultado.state === 'falhou') expect(resultado.motivo).toContain('fora da lista');
     expect(chamou).toBe(false);
 
@@ -278,7 +278,7 @@ describe('tamanho acima do limite', () => {
     defineSearchOfMedia(async () => respostaBytes(grande));
 
     const resultado = await downloadMediaOfAttachment(tenantId, anexoId);
-    expect(resultado).toMatchObject({ estado: 'falhou' });
+    expect(resultado).toMatchObject({ state: 'falhou' });
     if (resultado.state === 'falhou') expect(resultado.motivo).toContain('limite');
 
     const linha = await lineAttachment(anexoId);
@@ -298,14 +298,14 @@ describe('falha temporária', () => {
 
     for (let tentativa = 1; tentativa < MAX_TENTATIVAS_DOWNLOAD; tentativa += 1) {
       const resultado = await downloadMediaOfAttachment(tenantId, anexoId);
-      expect(resultado).toEqual({ estado: 'reagendado' });
+      expect(resultado).toEqual({ state: 'reagendado' });
       const linha = await lineAttachment(anexoId);
       expect(linha.download_tentativas).toBe(tentativa);
       expect(linha.download_proxima_tentativa_em).not.toBeNull();
     }
 
     const final = await downloadMediaOfAttachment(tenantId, anexoId);
-    expect(final).toMatchObject({ estado: 'falhou' });
+    expect(final).toMatchObject({ state: 'falhou' });
     if (final.state === 'falhou') expect(final.motivo).toContain('desistiu');
 
     const linha = await lineAttachment(anexoId);
@@ -327,11 +327,11 @@ describe('idempotência', () => {
       return respostaBytes(JPEG);
     });
 
-    expect(await downloadMediaOfAttachment(tenantId, anexoId)).toEqual({ estado: 'baixado' });
+    expect(await downloadMediaOfAttachment(tenantId, anexoId)).toEqual({ state: 'baixado' });
     expect(chamadas).toBe(1);
 
     // Second call — the queue's push and the sweep can overlap.
-    expect(await downloadMediaOfAttachment(tenantId, anexoId)).toEqual({ estado: 'ignorado' });
+    expect(await downloadMediaOfAttachment(tenantId, anexoId)).toEqual({ state: 'ignorado' });
     expect(chamadas).toBe(1);
   });
 });
@@ -350,7 +350,7 @@ describe('Isolate downloaded media by tenant', () => {
     });
 
     const resultado = await downloadMediaOfAttachment(tenantB, anexoId);
-    expect(resultado).toEqual({ estado: 'ignorado' });
+    expect(resultado).toEqual({ state: 'ignorado' });
     expect(chamou).toBe(false);
 
     const linha = await lineAttachment(anexoId);
