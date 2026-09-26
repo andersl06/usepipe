@@ -56,13 +56,13 @@ export async function listContacts(search = ''): Promise<ContactRow[]> {
         email: contact.email,
         telefone: contact.telefoneE164,
         accountId: contact.accountId,
-        accountName: account.nome,
+        accountName: account.name,
         leadId: lead.id,
         faixa: lead.faixaAtual,
       })
       .from(contact)
       .leftJoin(account, eq(account.id, contact.accountId))
-      .leftJoin(lead, and(eq(lead.contatoId, contact.id), isNull(lead.excluidoEm)))
+      .leftJoin(lead, and(eq(lead.contactId, contact.id), isNull(lead.excluidoEm)))
       .where(and(isNull(contact.excluidoEm), filter))
       .orderBy(asc(contact.nome))
       .limit(LIMITE_LISTA);
@@ -139,7 +139,7 @@ export async function loadContact(id: string): Promise<ContactRecord | null> {
         telefone: contact.telefoneE164,
         document: contact.document,
         accountId: contact.accountId,
-        accountName: account.nome,
+        accountName: account.name,
         criadoEm: contact.criadoEm,
         atributos: contact.atributos,
         leadId: lead.id,
@@ -147,12 +147,12 @@ export async function loadContact(id: string): Promise<ContactRecord | null> {
         leadFase: lead.fase,
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
-        origem: lead.origem,
+        origem: lead.origin,
         proprietario: user.nome,
       })
       .from(contact)
       .leftJoin(account, eq(account.id, contact.accountId))
-      .leftJoin(lead, and(eq(lead.contatoId, contact.id), isNull(lead.excluidoEm)))
+      .leftJoin(lead, and(eq(lead.contactId, contact.id), isNull(lead.excluidoEm)))
       .leftJoin(user, eq(user.id, lead.proprietarioId))
       .where(and(eq(contact.id, id), isNull(contact.excluidoEm)))
       .limit(1);

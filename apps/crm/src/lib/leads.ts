@@ -90,10 +90,10 @@ import type {
 /** Queue name by band, from the most recent version of `faixa_score`. */
 async function queuesByTier(tx: Parameters<Parameters<typeof consultar>[0]>[0]) {
   const linhas = await tx
-    .select({ nome: faixaScore.nome, versao: faixaScore.versao, fila: queue.nome })
+    .select({ nome: faixaScore.name, versao: faixaScore.version, fila: queue.nome })
     .from(faixaScore)
-    .leftJoin(queue, eq(queue.id, faixaScore.filaId))
-    .orderBy(faixaScore.versao);
+    .leftJoin(queue, eq(queue.id, faixaScore.queueId))
+    .orderBy(faixaScore.version);
   const mapa = new Map<string, string | null>();
   // Sorted by ascending version: the last write wins, which is the newest version.
   for (const l of linhas) mapa.set(l.nome, l.fila);
@@ -107,7 +107,7 @@ async function queuesByTier(tx: Parameters<Parameters<typeof consultar>[0]>[0]) 
  */
 const COLUMN_SQL = {
   lead: contact.nome,
-  origem: lead.origem,
+  origem: lead.origin,
   score: lead.scoreAtual,
   faixa: lead.faixaAtual,
   proprietario: user.nome,
@@ -160,7 +160,7 @@ function sortingSql(order: Order, direction: Direction) {
  */
 function filterCondition(key: FilterKey, value: string) {
   const empty = value === WITHOUT_VALUE;
-  if (key === 'origem') return empty ? isNull(lead.origem) : eq(lead.origem, value);
+  if (key === 'origem') return empty ? isNull(lead.origin) : eq(lead.origin, value);
   if (key === 'faixa') return empty ? isNull(lead.faixaAtual) : eq(lead.faixaAtual, value);
   if (key === 'fase') return empty ? isNull(lead.fase) : eq(lead.fase, value);
   return empty ? isNull(lead.proprietarioId) : eq(user.nome, value);
@@ -191,7 +191,7 @@ export async function filterOptions(): Promise<Record<FilterKey, string[]>> {
       return linhas.map((l) => String(l.v)).filter((v) => v !== 'null');
     };
 
-    const origem = await distintos(lead.origem);
+    const origem = await distintos(lead.origin);
     const faixa = await distintos(lead.faixaAtual);
     const fase = await distintos(lead.fase);
     const donos = await tx
@@ -257,7 +257,7 @@ export async function carregarListaDeLeads(
       .select({
         id: lead.id,
         nome: contact.nome,
-        origem: lead.origem,
+        origem: lead.origin,
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
         proprietario: user.nome,
@@ -269,7 +269,7 @@ export async function carregarListaDeLeads(
         faseDesde: lead.faseDesde,
       })
       .from(lead)
-      .leftJoin(contact, eq(contact.id, lead.contatoId))
+      .leftJoin(contact, eq(contact.id, lead.contactId))
       .leftJoin(user, eq(user.id, lead.proprietarioId))
       .where(and(isNull(lead.excluidoEm), recorte, filterSearch, ...conditions))
       .orderBy(...sortingSql(order, direction))
@@ -339,7 +339,7 @@ async function lastActivityByLead(
   const linhas = await tx
     .select({
       leadId: activity.leadId,
-      tipo: activity.tipo,
+      tipo: activity.type,
       em: activity.ocorridaEm,
     })
     .from(activity)
@@ -447,14 +447,14 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
     const [cabeca] = await tx
       .select({
         id: lead.id,
-        contatoId: lead.contatoId,
+        contatoId: lead.contactId,
         nome: contact.nome,
         email: contact.email,
         telefone: contact.telefoneE164,
         document: contact.document,
         accountId: lead.contaId,
-        accountName: account.nome,
-        origem: lead.origem,
+        accountName: account.name,
+        origem: lead.origin,
         campanha: lead.campanha,
         utm: lead.utm,
         customizados: lead.customizados,
@@ -466,7 +466,7 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
         criadoEm: lead.criadoEm,
       })
       .from(lead)
-      .leftJoin(contact, eq(contact.id, lead.contatoId))
+      .leftJoin(contact, eq(contact.id, lead.contactId))
       .leftJoin(account, eq(account.id, lead.contaId))
       .leftJoin(user, eq(user.id, lead.proprietarioId))
       .where(and(eq(lead.id, id), isNull(lead.excluidoEm)))
@@ -531,10 +531,10 @@ async function carregarScore(
 ): Promise<ScoreExplicado | null> {
   const [linha] = await tx
     .select({
-      valor: scoreLead.valor,
+      valor: scoreLead.value,
       faixa: scoreLead.faixa,
       versaoRegra: scoreLead.versaoRegra,
-      explicacao: scoreLead.explicacao,
+      explicacao: scoreLead.explanation,
       calculadoEm: scoreLead.calculadoEm,
     })
     .from(scoreLead)
@@ -550,7 +550,7 @@ async function carregarScore(
   const nomes = new Map<string, string>();
   if (ids.length > 0) {
     const regras = await tx
-      .select({ id: regraScore.id, nome: regraScore.nome })
+      .select({ id: regraScore.id, nome: regraScore.name })
       .from(regraScore)
       .where(inArray(regraScore.id, ids));
     for (const r of regras) nomes.set(r.id, r.nome);
@@ -562,8 +562,8 @@ async function carregarScore(
     const [f] = await tx
       .select({ fila: queue.nome, minimo: faixaScore.minimo })
       .from(faixaScore)
-      .leftJoin(queue, eq(queue.id, faixaScore.filaId))
-      .where(and(eq(faixaScore.nome, linha.faixa), eq(faixaScore.versao, linha.versaoRegra)))
+      .leftJoin(queue, eq(queue.id, faixaScore.queueId))
+      .where(and(eq(faixaScore.name, linha.faixa), eq(faixaScore.version, linha.versaoRegra)))
       .limit(1);
     tierQueue = f?.fila ?? null;
     corte = f?.minimo ?? null;
@@ -590,25 +590,25 @@ async function carregarRespostas(
 ): Promise<BlockResponses[]> {
   const linhas = await tx
     .select({
-      formulario: formulario.nome,
-      versao: formularioVersao.versao,
+      formulario: formulario.name,
+      versao: formularioVersao.version,
       versaoId: formularioVersao.id,
       pergunta: formularioPergunta.rotulo,
-      ordem: formularioPergunta.ordem,
-      tipo: formularioPergunta.tipo,
-      valueText: respostaFormulario.valorTexto,
-      valueNum: respostaFormulario.valorNum,
-      valueData: respostaFormulario.valorData,
-      valueBool: respostaFormulario.valorBool,
-      valueJson: respostaFormulario.valorJson,
+      ordem: formularioPergunta.order,
+      tipo: formularioPergunta.type,
+      valueText: respostaFormulario.valueText,
+      valueNum: respostaFormulario.valueNumber,
+      valueData: respostaFormulario.valueData,
+      valueBool: respostaFormulario.valueBoolean,
+      valueJson: respostaFormulario.valueJson,
       criadoEm: respostaFormulario.criadoEm,
     })
     .from(respostaFormulario)
     .innerJoin(formularioVersao, eq(formularioVersao.id, respostaFormulario.versaoId))
-    .innerJoin(formulario, eq(formulario.id, formularioVersao.formularioId))
+    .innerJoin(formulario, eq(formulario.id, formularioVersao.formId))
     .innerJoin(formularioPergunta, eq(formularioPergunta.id, respostaFormulario.perguntaId))
     .where(eq(respostaFormulario.leadId, leadId))
-    .orderBy(formulario.nome, formularioVersao.versao, formularioPergunta.ordem);
+    .orderBy(formulario.name, formularioVersao.version, formularioPergunta.order);
 
   const blocos = new Map<string, BlockResponses>();
   for (const l of linhas) {
@@ -646,14 +646,14 @@ export async function timeLoadRow(
   const activities = await tx
     .select({
       id: activity.id,
-      tipo: activity.tipo,
-      resumo: activity.resumo,
-      corpo: activity.corpo,
+      tipo: activity.type,
+      resumo: activity.summary,
+      corpo: activity.body,
       autor: user.nome,
       em: activity.ocorridaEm,
     })
     .from(activity)
-    .leftJoin(user, eq(user.id, activity.usuarioId))
+    .leftJoin(user, eq(user.id, activity.userId))
     .where(eq(activity.leadId, leadId))
     .orderBy(desc(activity.ocorridaEm))
     .limit(50);
@@ -808,7 +808,7 @@ export async function atualizarCampoDoLead(
     if (campo === 'origem' || campo === 'campanha' || campo === 'proprietario') {
       const [antes] = await tx
         .select({
-          origem: lead.origem,
+          origem: lead.origin,
           campanha: lead.campanha,
           proprietarioId: lead.proprietarioId,
         })
@@ -835,7 +835,7 @@ export async function atualizarCampoDoLead(
     }
 
     const [dono] = await tx
-      .select({ contatoId: lead.contatoId })
+      .select({ contatoId: lead.contactId })
       .from(lead)
       .where(and(eq(lead.id, id), isNull(lead.excluidoEm)))
       .limit(1);

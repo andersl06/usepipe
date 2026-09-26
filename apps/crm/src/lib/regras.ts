@@ -36,14 +36,14 @@ export async function listarRegras(): Promise<LinhaRegra[]> {
     const regras = await tx
       .select({
         id: regraScore.id,
-        nome: regraScore.nome,
-        versao: regraScore.versao,
+        nome: regraScore.name,
+        versao: regraScore.version,
         pontos: regraScore.pontos,
-        active: regraScore.ativa,
-        condition: regraScore.condicao,
+        active: regraScore.active,
+        condition: regraScore.condition,
       })
       .from(regraScore)
-      .orderBy(desc(regraScore.versao), desc(regraScore.pontos), asc(regraScore.nome));
+      .orderBy(desc(regraScore.version), desc(regraScore.pontos), asc(regraScore.name));
 
     /**
      * "How many leads this rule affected" only makes sense over each lead's current
@@ -53,7 +53,7 @@ export async function listarRegras(): Promise<LinhaRegra[]> {
      */
     const count = await tx.execute<{ regra: string; n: number }>(sql`
       with vigente as (
-        select distinct on (${scoreLead.leadId}) ${scoreLead.leadId}, ${scoreLead.explicacao}
+        select distinct on (${scoreLead.leadId}) ${scoreLead.leadId}, ${scoreLead.explanation}
           from ${scoreLead}
          order by ${scoreLead.leadId}, ${scoreLead.calculadoEm} desc
       )
@@ -79,16 +79,16 @@ export async function listarFaixas(): Promise<LinhaFaixa[]> {
   return consultar(async (tx) => {
     const faixas = await tx
       .select({
-        nome: faixaScore.nome,
-        versao: faixaScore.versao,
+        nome: faixaScore.name,
+        versao: faixaScore.version,
         minimo: faixaScore.minimo,
         maximo: faixaScore.maximo,
         queue: queue.nome,
         estrategiaProprietario: faixaScore.estrategiaProprietario,
       })
       .from(faixaScore)
-      .leftJoin(queue, eq(queue.id, faixaScore.filaId))
-      .orderBy(desc(faixaScore.versao), desc(faixaScore.minimo));
+      .leftJoin(queue, eq(queue.id, faixaScore.queueId))
+      .orderBy(desc(faixaScore.version), desc(faixaScore.minimo));
 
     const byTier = await tx
       .select({ faixa: scoreLead.faixa, n: sql<number>`count(distinct ${scoreLead.leadId})::int` })

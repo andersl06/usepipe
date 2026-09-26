@@ -41,7 +41,7 @@ export async function buscar(termo: string): Promise<Resultado[]> {
         fase: lead.fase,
       })
       .from(lead)
-      .innerJoin(contact, sql`${contact.id} = ${lead.contatoId}`)
+      .innerJoin(contact, sql`${contact.id} = ${lead.contactId}`)
       .where(
         and0(
           sql`${lead.excluidoEm} is null`,
@@ -51,15 +51,15 @@ export async function buscar(termo: string): Promise<Resultado[]> {
       .limit(BY_OBJECT);
 
     const opportunities = await tx
-      .select({ id: opportunity.id, nome: opportunity.nome, fase: opportunity.fase })
+      .select({ id: opportunity.id, nome: opportunity.name, fase: opportunity.fase })
       .from(opportunity)
-      .where(ilike(opportunity.nome, padrao))
+      .where(ilike(opportunity.name, padrao))
       .limit(BY_OBJECT);
 
     const accounts = await tx
-      .select({ id: account.id, nome: account.nome, dominio: account.dominio })
+      .select({ id: account.id, nome: account.name, dominio: account.domain })
       .from(account)
-      .where(or(ilike(account.nome, padrao), ilike(account.dominio, padrao)))
+      .where(or(ilike(account.name, padrao), ilike(account.domain, padrao)))
       .limit(BY_OBJECT);
 
     const contacts = await tx
