@@ -603,6 +603,121 @@ O que existe é um **bloco de Builder separado**, "Agente de IA" `[BLIP-UI]`/`[B
 
 ---
 
+## Scripts (D-21)
+
+Documentação de `ExecuteScript` (legado) e `ExecuteScriptV2` lado a lado, para a recomendação de sandbox.
+
+| Dimensão | ExecuteScript (V1) | ExecuteScriptV2 |
+|---|---|---|
+| Engine | Jint (interpretado) `[BLIP-SDK]` | V8/ClearScript `[BLIP-SDK]` |
+| Versão ECMAScript | ES5/ES6 parcial (limite do Jint) — versão exata PENDENTE-CAPTURA #4 | ECMAScript moderno (V8), com `async`/`await` real (`promises awaitadas`) `[BLIP-SDK]` |
+| Limite de tempo | **timeout 5 s** `[BLIP-SDK]` | **timeout 10 s** `[BLIP-SDK]` |
+| Limite de operações/memória | recursão máx. 50, **máx. 1000 statements**, memória 100 MB `[BLIP-SDK]` | heap 100 MB, `AllowReflection=false` (sem acesso a APIs .NET internas) `[BLIP-SDK]` |
+| APIs expostas | contexto da conversa via `InputVariables`/`OutputVariable`; sem `fetch` documentado | `request` (com `request.fetchAsync`, HTTP assíncrono), `time`, `context`, `botTimeZone` `[BLIP-SDK]` — assinaturas exatas PENDENTE-CAPTURA #4 |
+| Acesso a variáveis de entrada/saída | `InputVariables[]` recebidas como parâmetro da função `run`; `OutputVariable` único | idem V1 |
+| HTTP/fetch | não documentado no SDK para V1 (a ação irmã `ProcessHttp`/`SendMessageFromHttp` cobre chamada externa) | `request.fetchAsync` nativo dentro do script `[BLIP-SDK]` |
+| Tratamento de erro | `continueOnError` (bool) no envelope comum — fluxo prossegue mesmo com erro se marcado `[BLIP-UI]` | mesmo `continueOnError`, mais `CaptureExceptions`+`ExceptionVariable` (captura o erro numa variável específica em vez de abortar) `[BLIP-SDK]` |
+| Timezone | `LocalTimeZoneEnabled` (bool) — liga fuso do bot no script `[BLIP-SDK]` | `botTimeZone` como função nativa exposta ao script `[BLIP-SDK]` |
+| Tipo de retorno | valor de `OutputVariable`, serializado como o motor serializa qualquer variável de contexto (string ou JSON) | idem |
+| Fonte | `catalogo-gatilhos-acoes.md` §2.2; bundle de tradução (`executeScript`) | `catalogo-gatilhos-acoes.md` §2.2; bundle de tradução (`executeScriptV2`) |
+
+### Recomendação de sandbox para o portão
+
+`[DECISÃO]` Comparação dos três mecanismos citados no contexto da fase, mais o próprio precedente das duas engines da Blip:
+
+| Mecanismo | Isolamento | Suporte ao ECMAScript exigido | Limite de tempo/memória | Pacote npm necessário? |
+|---|---|---|---|---|
+| QuickJS em WebAssembly | Alto — motor JS completo compilado para WASM, roda fora do processo Node principal em memória própria; sem acesso a `fs`/`net`/`process` do host por padrão | ES2020+ (QuickJS é atualizado, cobre `async`/`await`, cobre o que `ExecuteScriptV2` pede) | Configurável por chamada (timeout via `setInterruptHandler`, memória via limite do módulo WASM) — dá para reproduzir os dois perfis (5s/1000 statements do V1 e 10s/heap 100MB do V2) com o mesmo motor | **Sim** — nenhum pacote QuickJS-WASM já está instalado no monorepo hoje (a confirmar contra `package.json` no momento da implementação; se `quickjs-emscripten` ou equivalente ainda não estiver em nenhum `package.json`, é instalação nova) |
+| `isolated-vm` | Alto — V8 isolate separado, com heap limitado nativamente (`new ivm.Isolate({ memoryLimit })`) e `cpu`/`wall` timeout por execução | ECMAScript moderno completo (é V8 de verdade — o mais próximo do `ExecuteScriptV2` original) | Nativo ao mecanismo: `memoryLimit` (MB) e timeout por `script.run(context, { timeout })` — mapeiam 1:1 nos dois perfis da Blip | **Sim** — módulo nativo (binding C++), não está instalado hoje; exige binário compilado por plataforma (risco operacional a mais que QuickJS-WASM, que é portátil) |
+| Processo filho Node com `--max-old-space-size` e `vm` sem globais | Médio — isola por processo do SO (mais pesado que os dois acima), mas `vm` do Node **não é sandbox de segurança** documentado (é possível escapar via `constructor.constructor` sem globais extras cuidadosamente removidos) | ECMAScript completo (é o próprio V8 do Node) | `--max-old-space-size` limita heap do processo inteiro, não por execução de script — corte é grosseiro (mata o processo, não só a execução); timeout via `setTimeout`+`kill` do processo filho | **Não** — `child_process`/`vm` são módulos nativos do Node, sem instalação adicional |
+| **Recomendado: `isolated-vm`** | — | — | — | — |
+
+**Justificativa:** dos três, é o único que reproduz com fidelidade os dois perfis documentados da Blip
+(timeout + limite de memória **por execução**, não por processo inteiro) usando o mesmo motor V8 que
+`ExecuteScriptV2` já usa na origem (ClearScript também é V8) — menor risco de uma função que passa no V8
+da Blip falhar por incompatibilidade de sintaxe no Pipe. O processo filho com `vm` é descartado por não
+ser sandbox de segurança de verdade (thread de execução compartilha processo do host, escapes conhecidos
+existem) — inadequado para código de terceiro em produção. QuickJS-WASM é a alternativa mais portátil (sem
+binário nativo por plataforma) e fica como plano B se `isolated-vm` mostrar problema de instalação/build
+na VPS de produção do Pipe durante a implementação.
+
+**Exige pacote npm:** `isolated-vm` — não confirmado como já instalado no monorepo nesta investigação;
+task de implementação (fora deste plano) deve conferir `package.json`/`pnpm-lock.yaml` primeiro e, se
+ausente, disparar o checkpoint de legitimidade de pacote (plano `02-16`, per `deviation_rules` Rule 3)
+antes de instalar.
+
+---
+
+## Biblioteca de funções (D-22)
+
+**Onde vive:** funcionalidade do **motor de conversa** (`fluxo`), acionada pela ação `ExecuteBlipFunction`
+documentada acima. `[BLIP-UI]` confirma pela própria tela: "Selecione uma função criada na Biblioteca de
+funções ou crie uma nova para ser utilizada como uma ação" — a Biblioteca é um recurso do **bot** (não do
+tenant inteiro nem de um workflow isolado), pesquisável (`search`: "Pesquisar função") e com estado vazio
+próprio ("Crie sua primeira função" / "Você ainda não tem funções na sua biblioteca").
+
+**Criação, persistência, versionamento/edição, parâmetros, retorno, escopo:** o bundle de tradução
+consultado não expõe o formulário de **criação** da função em si (só o painel que a **consome** como ação
+— `executeBlipFunction`) — versionamento, assinatura de parâmetros/retorno e regras de edição da função
+ficam PENDENTE-CAPTURA #7. `[INFER]`, pelo padrão da Blip para "código reutilizável" (`ExecuteScriptV2`
+usa o mesmo motor de script — V8/ClearScript), a Biblioteca de funções provavelmente compartilha o mesmo
+runtime de `ExecuteScriptV2` (script nomeado e parametrizado, chamável de múltiplos pontos do fluxo), mas
+isso **não foi confirmado literalmente** nesta investigação.
+
+**Como o Builder chama:** só pela ação `ExecuteBlipFunction` (ver seção própria acima) — o menu de ações
+do Builder oferece "Função da biblioteca" como um tipo de ação a mais, ao lado de `ExecuteScript`/
+`ExecuteScriptV2`, não como uma aba separada do editor de bloco.
+
+**Relação com `ExecuteScriptV2`:** ambos rodam código JavaScript no motor; a diferença é que
+`ExecuteScriptV2` é **inline** (o código mora dentro da ação, no fluxo) e a função da Biblioteca é
+**nomeada e reutilizável** entre fluxos/blocos diferentes do mesmo bot, criada uma vez e referenciada por
+`functionId` (`chamar_funcao`/`LOGIC_FUNCTION`, `catalogo-gatilhos-acoes.md` §4.4) — mesma lição registrada
+em §1.7 do catálogo para o Twenty: **"peça que depende de recurso lateral (função, agente) não se cria em
+bloco — criar em duas etapas."**
+
+**Declaração explícita (D-22):** `packages/db/src/schema/automacao.ts:443-454` (`TIPOS_ACAO`, incluindo
+`'funcao'`) é o **motor de workflow** (`gatilho`→`acao`, sem interlocutor, execução linear) — **uma
+máquina diferente** do motor de conversa (`fluxo`→`bloco`→`transicao`) que o Builder edita, conforme
+`catalogo-gatilhos-acoes.md` §0 ("três peças distintas que costumam ser confundidas"). A Biblioteca de
+funções de BUILDER-02 **não reaproveita** essa `funcao` de workflow — precisa de uma tabela própria do
+motor de conversa (nome de trabalho: `funcao_do_fluxo` ou equivalente, a decidir na implementação),
+seguindo o padrão de busca sem acento/caixa já existente (`variaveis.ts:76-97`, `normalizar`/
+`filtrarVariaveis`) para o seletor "Pesquisar função" do painel de ação.
+
+**Fonte:** bundle de tradução (chaves `executeBlipFunction`, `manageList` — bloco vizinho no mesmo
+grupo de tradução); `catalogo-gatilhos-acoes.md` §0, §1.7, §4.4; `packages/db/src/schema/automacao.ts:443-454`;
+`apps/gestao-vite/src/paginas/builder/variaveis.ts:76-97`.
+
+---
+
+## Resumo
+
+| Ação | Classificação proposta | Slot proposto | Bloqueado por captura |
+|---|---|---|---|
+| ExecuteScript | reproduzível no Pipe | acoes-script | não |
+| ExecuteScriptV2 | reproduzível no Pipe | acoes-script | não |
+| SendMessage | já suportada (conteúdo) | ja-suportada | não |
+| SendMessageFromHttp | reproduzível no Pipe | acoes-contexto | sim — PENDENTE-CAPTURA #5 (rótulos/campos exatos do editor) |
+| SendRawMessage | já suportada (fallback de import) | ja-suportada | não |
+| SendCommand | dependência externa impossível de reproduzir (parcial — equivalente nativo cobre o subconjunto conhecido) | acoes-plataforma | sim — PENDENTE-CAPTURA #5 (rótulos exatos) |
+| ProcessCommand | dependência externa impossível de reproduzir (parcial — mesmo raciocínio de SendCommand) | acoes-plataforma | não |
+| TrackEvent | já suportada | ja-suportada | não |
+| ProcessHttp | já suportada (gap: campo OAuth 2.0 não coberto) | ja-suportada | não |
+| ManageList | dependência externa impossível de reproduzir (equivalente nativo viável, ver D-20) | acoes-plataforma | não |
+| MergeContact | reproduzível no Pipe (mapeia para `contato` existente) | acoes-contexto | não |
+| SetVariable | já suportada (gap conhecido: `Expiration` não lido) | ja-suportada | não |
+| SetBucket | dependência externa impossível de reproduzir (equivalente nativo viável, ver D-20) | acoes-plataforma | não |
+| Redirect | já suportada | ja-suportada | não |
+| CreateTicket | já suportada | ja-suportada | não |
+| DeleteVariable | já suportada | ja-suportada | sim — PENDENTE-CAPTURA #6 (confirmar visibilidade no menu da Blip real) |
+| ProcessContentAssistant | dependência externa impossível de reproduzir (equivalente nativo viável, ver D-20) | acoes-plataforma | não |
+| TrackContactsJourney | reproduzível no Pipe (schema já existe; falta só tela de Analytics, fase futura) | acoes-plataforma | não |
+| ExecuteTemplate | reproduzível no Pipe | acoes-funcoes | não |
+| ExecuteBlipFunction | reproduzível no Pipe (depende da Biblioteca de funções, D-22) | acoes-funcoes | sim — PENDENTE-CAPTURA #7 (ciclo de vida da função: criação, versionamento, import/export) |
+| Agente de IA (bloco) | fora do escopo de BUILDER-01..05 explícito — achado de investigação, não pré-aprovado | acoes-contexto | sim — PENDENTE-CAPTURA #1/#2/#3 |
+
+---
+
 ## Capturas pendentes (D-03)
 
 1. **Ícones de cada ação** no menu "ADICIONAR FERRAMENTAS" do Builder — não encontrados nos bundles de tradução (só texto, sem asset/nome de ícone associado por ação). Exige captura visual do Builder ao vivo (login do dono) ou leitura do DOM em modo aberto com o menu expandido.
@@ -611,3 +726,5 @@ O que existe é um **bloco de Builder separado**, "Agente de IA" `[BLIP-UI]`/`[B
 4. **Assinaturas exatas das funções nativas do `ExecuteScriptV2`** (`request.fetchAsync`, `time`, `context`, `botTimeZone`) e versão ECMAScript exata suportada pelo Jint do `ExecuteScript` — listadas em `catalogo-gatilhos-acoes.md` §8 como não lidas linha a linha; exige leitura adicional do SDK público (`takenet/blip-sdk-csharp`) ou captura de um script real em produção na Blip.
 5. **Rótulos exatos do editor** de `SendMessageFromHttp`, `SendCommand` e `SetBucket` — sem chave própria encontrada no bundle de tradução pt-BR/es/en consultado; podem estar em outro arquivo de bundle, ter editor reaproveitado de outra ação, ou nunca terem UI dedicada na versão atual da Blip. Exige captura do Builder ao vivo tentando adicionar cada uma dessas ações.
 6. **Visibilidade de `DeleteVariable` no menu real da Blip** — o próprio código do Pipe já registra a suspeita ("o editor da Blip não a oferece no menu, mas o motor a executa"); confirmar contra o Builder ao vivo se a ação aparece no "ADICIONAR FERRAMENTAS" ou só é alcançável via fluxo importado que já a contém.
+7. **Ciclo de vida completo da Biblioteca de funções** (D-22): tela de criação/edição da função em si (fora do painel que a consome como ação), versionamento, assinatura de parâmetros/retorno, e se a função é exportada junto do fluxo ou é recurso separado do bot. O bundle de tradução consultado só cobre o painel consumidor (`executeBlipFunction`), não o CRUD da função.
+8. **JSON exportado real de um fluxo com as ações não suportadas hoje** — confirmaria o camelCase exato de cada campo de `settings` (os JSONs deste documento são `[INFER]` a partir dos nomes de campo do SDK C#, não confirmados contra um export real). Mesma lacuna já registrada em `catalogo-gatilhos-acoes.md` §8.
