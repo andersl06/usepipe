@@ -74,7 +74,7 @@ interface Cliente {
 /** Connects, subscribes to the subjects and waits for the server's confirmation. */
 async function conectar(token: string, assuntos: string[] = ['conversa', 'fila', 'atendente']) {
   const ws = new WebSocket(urlWs, {
-    headers: { cookie: `pipe_session=${token}`, origin: 'http://localhost:3200' },
+    headers: { cookie: `${NOME_DO_COOKIE}=${token}`, origin: 'http://localhost:3200' },
   });
   abertos.push(ws);
   const recebidos: unknown[] = [];
@@ -112,7 +112,7 @@ describe('Authenticate WebSocket connections', () => {
 
   it('cookie forjado, 401', async () => {
     const ws = new WebSocket(urlWs, {
-      headers: { cookie: `pipe_session=${createToken().token}`, origin: 'http://localhost:3200' },
+      headers: { cookie: `${NOME_DO_COOKIE}=${createToken().token}`, origin: 'http://localhost:3200' },
     });
     const erro = await new Promise<Error>((resolve) => ws.once('error', resolve));
     expect(String(erro.message)).toContain('401');
@@ -123,7 +123,7 @@ describe('Authenticate WebSocket connections', () => {
     // the victim's cookie: cross-site WebSocket hijacking.
     const token = await openSession(cenario);
     const ws = new WebSocket(urlWs, {
-      headers: { cookie: `pipe_session=${token}`, origin: 'https://site-do-mal.example' },
+      headers: { cookie: `${NOME_DO_COOKIE}=${token}`, origin: 'https://site-do-mal.example' },
     });
     const erro = await new Promise<Error>((resolve) => ws.once('error', resolve));
     expect(String(erro.message)).toContain('403');
@@ -132,7 +132,7 @@ describe('Authenticate WebSocket connections', () => {
   it('caminho errado, 404', async () => {
     const token = await openSession(cenario);
     const ws = new WebSocket(`${api.url.replace('http://', 'ws://')}/v1/outra-coisa`, {
-      headers: { cookie: `pipe_session=${token}`, origin: 'http://localhost:3200' },
+      headers: { cookie: `${NOME_DO_COOKIE}=${token}`, origin: 'http://localhost:3200' },
     });
     const erro = await new Promise<Error>((resolve) => ws.once('error', resolve));
     expect(String(erro.message)).toContain('404');
@@ -150,7 +150,7 @@ describe('Confirm requested topic subscriptions', () => {
   it('recusa assunto que não existe', async () => {
     const ws = new WebSocket(urlWs, {
       headers: {
-        cookie: `pipe_session=${await openSession(cenario)}`,
+        cookie: `${NOME_DO_COOKIE}=${await openSession(cenario)}`,
         origin: 'http://localhost:3200',
       },
     });
@@ -173,7 +173,7 @@ describe('Confirm requested topic subscriptions', () => {
   it('Deliver no events before a subscription', async () => {
     const ws = new WebSocket(urlWs, {
       headers: {
-        cookie: `pipe_session=${await openSession(cenario)}`,
+        cookie: `${NOME_DO_COOKIE}=${await openSession(cenario)}`,
         origin: 'http://localhost:3200',
       },
     });
@@ -296,7 +296,7 @@ describe('queda', () => {
   it('Send the contract `ping` so the screen can detect a live connection', async () => {
     const ws = new WebSocket(urlWs, {
       headers: {
-        cookie: `pipe_session=${await openSession(cenario)}`,
+        cookie: `${NOME_DO_COOKIE}=${await openSession(cenario)}`,
         origin: 'http://localhost:3200',
       },
     });

@@ -14,14 +14,14 @@ process.env['PIPE_URL_API'] = 'https://api.teste';
 
 const { createDatabase, estaCifrado, closeDatabase, migrate, seed } = await import('@pipe/db');
 const { dubleInstagram, processarOutbox } = await import('@pipe/workers');
-const { forgetChannelesquecerChannelforgetChannel } = await import('../src/database.js');
+const { forgetChannel } = await import('../src/database.js');
 const { upApi } = await import('../src/servidor.js');
 const { sendMessage } = await import('../src/domain/envio.js');
 const { ClienteGraphInstagramDuble, ClienteGraphInstagramReal, definirFabricaGraphInstagram } = await import(
   '../src/domain/instagram/cliente-graph.js'
 );
 const { atualizarConfigInstagram, readChannelInstagram } = await import('../src/domain/instagram/channel.js');
-const { renewTokenOfChannelrenovarTokenOfChannelrenewTokenOfChannel } = await import('../src/domain/instagram/renewal.js');
+const { renewTokenOfChannel } = await import('../src/domain/instagram/renewal.js');
 const { InstagramChannelsController } = await import('../src/controllers/channels-instagram.js');
 import type { RequestWithSession } from '../src/session.js';
 
@@ -95,7 +95,7 @@ function postar(channelId: string, payload: unknown, secret = SECRET): Promise<R
 
 beforeAll(async () => {
   await migrate(URL_DONO);
-  dono = createDatabase({ url: URL_DONO, maxConexoes: 2 });
+  dono = createDatabase({ url: URL_DONO, maxConnections: 2 });
   A = await tenantComAdmin(`a-${S}`);
   B = await tenantComAdmin(`b-${S}`);
   api = await upApi(0);
@@ -112,7 +112,7 @@ beforeEach(() => {
   definirFabricaGraphInstagram(null);
   ClienteGraphInstagramDuble.reiniciar();
   dubleInstagram.reiniciar();
-  forgetChannelesquecerChannelforgetChannel();
+  forgetChannel();
 });
 
 describe('conexão manual (POST /v1/channels/instagram/manual)', () => {
@@ -310,14 +310,14 @@ describe('Handle Instagram inbound and outbound webhooks', () => {
 
   it('Renew encrypted tokens after 24 hours and mark rejected renewals for reauthorization', async () => {
     let channel = await readChannelInstagram(A.tenantId, channelId);
-    expect(await renewTokenOfChannelrenovarTokenOfChannelrenewTokenOfChannel(channel)).toBe('cedo_demais');
+    expect(await renewTokenOfChannel(channel)).toBe('cedo_demais');
     expect(ClienteGraphInstagramDuble.chamadas.filter((c) => c.acao === 'renovar')).toHaveLength(0);
 
     const antigo = String(channel.config['tokenAcesso']);
     channel = await atualizarConfigInstagram(channel, {
       tokenRenovadoEm: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
     });
-    expect(await renewTokenOfChannelrenovarTokenOfChannelrenewTokenOfChannel(channel)).toBe('renovado');
+    expect(await renewTokenOfChannel(channel)).toBe('renovado');
     channel = await readChannelInstagram(A.tenantId, channelId);
     expect(channel.config['tokenAcesso']).not.toBe(antigo);
     expect(Date.parse(String(channel.config['tokenExpiraEm']))).toBeGreaterThan(Date.now() + 59 * 24 * 3600 * 1000);
@@ -328,7 +328,7 @@ describe('Handle Instagram inbound and outbound webhooks', () => {
       tokenAcesso: `expirado-${S}`,
       tokenRenovadoEm: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
     });
-    expect(await renewTokenOfChannelrenovarTokenOfChannelrenewTokenOfChannel(channel)).toBe('recusado');
+    expect(await renewTokenOfChannel(channel)).toBe('recusado');
     const { channels } = await controller.listar(request(A));
     expect(channels.find((c) => c.id === channelId)).toMatchObject({ estado: 'indisponivel', motivo: 'reautorizacao_pendente' });
   });

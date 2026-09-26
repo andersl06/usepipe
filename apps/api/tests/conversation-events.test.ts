@@ -89,7 +89,7 @@ async function newConversation(
 function chamar(caminho: string, corpo?: unknown): Promise<Response> {
   return fetch(`${api.url}${caminho}`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
+    headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
     body: JSON.stringify(corpo ?? {}),
   });
 }

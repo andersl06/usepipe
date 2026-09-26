@@ -29,7 +29,7 @@ const objetos = new Map<string, Uint8Array>();
 
 beforeAll(async () => {
   await migrate(process.env['DATABASE_URL']);
-  dono = createDatabase({ url: process.env['DATABASE_URL']!, maxConexoes: 3 });
+  dono = createDatabase({ url: process.env['DATABASE_URL']!, maxConnections: 3 });
   useStorage({
     guardar: async (key, data) => {
       objetos.set(key, data);

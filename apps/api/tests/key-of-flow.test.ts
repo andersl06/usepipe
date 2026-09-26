@@ -86,7 +86,7 @@ async function createFlow(cenario: Cenario, nome: string): Promise<string> {
 }
 
 function comCookie(token: string): Record<string, string> {
-  return { cookie: `pipe_session=${token}`, 'content-type': 'application/json' };
+  return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
 function withKey(token: string): Record<string, string> {

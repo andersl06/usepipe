@@ -87,7 +87,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
 }
 
 function comCookie(token: string): Record<string, string> {
-  return { cookie: `pipe_session=${token}`, 'content-type': 'application/json' };
+  return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
 /** A "fake" PNG that's a real PNG to whoever reads the bytes: the signature and nothing else. */
@@ -101,9 +101,9 @@ const NOT_IMAGE = `data:image/png;base64,${Buffer.from('isto não é uma imagem'
 )}`;
 
 type LineOfFlow = {
-  name: string;
-  type: string;
-  state: string;
+  nome: string;
+  tipo: string;
+  estado: string;
   short_name: string | null;
   description: string | null;
   imageUrl: string | null;

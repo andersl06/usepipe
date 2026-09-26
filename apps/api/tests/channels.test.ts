@@ -15,9 +15,9 @@ process.env['WHATSAPP_APP_SECRET'] = 'segredo-do-app-da-meta';
 delete process.env['WHATSAPP_API_VERSAO'];
 
 const { createDatabase, decifrar, estaCifrado, closeDatabase, migrate, seed } = await import('@pipe/db');
-const { keyring, forgetChannelesquecerChannelforgetChannel, fecharBancos, resolveChannel } = await import('../src/database.js');
+const { keyring, forgetChannel, fecharBancos, resolveChannel } = await import('../src/database.js');
 const { processarPayload } = await import('../src/domain/inbound.js');
-const { applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate } = await import('../src/domain/whatsapp/events-of-template.js');
+const { applyEventsOfTemplate } = await import('../src/domain/whatsapp/events-of-template.js');
 const { PipeError } = await import('../src/errors.js');
 const { desconectarWhatsApp, listChannelsWhatsApp, urlDoWebhook } = await import(
   '../src/domain/channels.js'
@@ -110,7 +110,7 @@ function conectar(quem: { tenantId: string; adminId: string }, extra: Record<str
 
 beforeAll(async () => {
   await migrate(URL_DONO);
-  dono = createDatabase({ url: URL_DONO, maxConexoes: 2 });
+  dono = createDatabase({ url: URL_DONO, maxConnections: 2 });
   A = await tenantComAdmin(`a-${S}`);
   B = await tenantComAdmin(`b-${S}`);
 }, 180_000);
@@ -125,7 +125,7 @@ afterAll(async () => {
 beforeEach(() => {
   definirFabricaGraph(null);
   ClienteGraphDuble.reiniciar();
-  forgetChannelesquecerChannelforgetChannel();
+  forgetChannel();
 });
 
 afterEach(() => {
@@ -971,7 +971,7 @@ describe('Update template status and category from webhooks', () => {
       ),
     ).toMatchObject({ mensagensRecebidas: 0 });
     expect(
-      await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(
+      await applyEventsOfTemplate(
         resolvido,
         evento('template_category_update', {
           message_template_name: 'lembrete',
@@ -982,7 +982,7 @@ describe('Update template status and category from webhooks', () => {
       ),
     ).toBe(1);
     expect(
-      await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(
+      await applyEventsOfTemplate(
         resolvido,
         evento('message_template_status_update', {
           event: 'REJECTED',

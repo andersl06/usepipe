@@ -16,7 +16,7 @@ process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/callba
 
 const { NOME_DO_COOKIE, createToken, hashDoToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
-const { acceptInvitationaceitarInvitationacceptInvitation, createInvitation, readInvitation } = await import('../src/domain/convites.js');
+const { acceptInvitation, createInvitation, readInvitation } = await import('../src/domain/convites.js');
 const { normalizeDomain, logDomain, checkDomain } =
   await import('../src/domain/dominios.js');
 const { asLogin, provisionCustomer } = await import('../src/provision.js');
@@ -83,7 +83,7 @@ async function openSession(cenario: Cenario): Promise<string> {
 }
 
 function comCookie(token: string): Record<string, string> {
-  return { cookie: `pipe_session=${token}`, 'content-type': 'application/json' };
+  return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
 function pessoaDoGoogle(email: string, sujeito = randomUUID()) {
@@ -337,7 +337,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
     const email = `daniela.${randomUUID().slice(0, 6)}@outrocliente.teste`;
     const convite = await createInvitation(b.tenantId, { email, role: 'guest' });
 
-    const aceito = await acceptInvitationaceitarInvitationacceptInvitation(convite.token);
+    const aceito = await acceptInvitation(convite.token);
     expect(aceito.tenantId).toBe(b.tenantId);
 
     const { rows } = await a.dono.execute<{ tenant_id: string }>(
@@ -351,7 +351,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
     const token = await convidar(email);
     const pessoa = pessoaDoGoogle(email);
 
-    const aceito = await acceptInvitationaceitarInvitationacceptInvitation(token, pessoa, { ip: '10.0.0.9' });
+    const aceito = await acceptInvitation(token, pessoa, { ip: '10.0.0.9' });
     expect(aceito.session).toBeDefined();
 
     // // The session is genuinely valid: it's the same cookie the screens use.
@@ -372,7 +372,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
   it('Reject an invitation when a different Google account logs in', async () => {
     const token = await convidar(`fabiana.${randomUUID().slice(0, 6)}@cliente.teste`);
     await expect(
-      acceptInvitationaceitarInvitationacceptInvitation(token, pessoaDoGoogle('intrusa@cliente.teste')),
+      acceptInvitation(token, pessoaDoGoogle('intrusa@cliente.teste')),
     ).rejects.toMatchObject({ codigo: 'convite_de_outro_email' });
   });
 });

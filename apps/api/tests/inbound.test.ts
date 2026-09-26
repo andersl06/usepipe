@@ -86,7 +86,7 @@ async function openSession(durationMs?: number): Promise<string> {
 }
 
 function comCookie(token: string | undefined): Record<string, string> {
-  return token ? { cookie: `pipe_session=${token}` } : {};
+  return token ? { cookie: `${NOME_DO_COOKIE}=${token}` } : {};
 }
 
 beforeAll(async () => {

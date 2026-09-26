@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 9).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { cifrar, keyringOfEnvironmentkeyringOfAmbientekeyringOfEnvironment } = await import('@pipe/db');
+const { cifrar, keyringOfEnvironment } = await import('@pipe/db');
 const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { readDictionary, lerMetadados, syncDictionary } = await import(
   '../src/domain/dictionary-crm.js'
@@ -156,7 +156,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
     for (const c of [a, b]) {
       await c.dono.execute(sql`
         update tenant set twenty_url = ${`https://crm-${c.tenantId.slice(0, 8)}.teste`},
-                          twenty_chave = ${cifrar('k', keyringOfEnvironmentkeyringOfAmbientekeyringOfEnvironment())}
+                          twenty_chave = ${cifrar('k', keyringOfEnvironment())}
          where id = ${c.tenantId}
       `);
     }
@@ -315,7 +315,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
         values (${a.tenantId}, ${a.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
       `);
       const r = await fetch(`${api.url}/v1/crm/dictionary`, {
-        headers: { cookie: `pipe_session=${novo.token}` },
+        headers: { cookie: `${NOME_DO_COOKIE}=${novo.token}` },
       });
       expect(r.status).toBe(200);
       const corpo = (await r.json()) as {

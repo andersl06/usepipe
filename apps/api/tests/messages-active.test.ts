@@ -54,7 +54,7 @@ afterAll(async () => {
 function disparar(corpo: Record<string, unknown>): Promise<Response> {
   return fetch(`${api.url}/v1/messages-active`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
+    headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
     body: JSON.stringify({ canal_id: cenario.channelId, template_id: templateId, ...corpo }),
   });
 }
@@ -253,7 +253,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     expect((await disparar({ contatos: [] })).status).toBe(400);
     const semTemplate = await fetch(`${api.url}/v1/messages-active`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
+      headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
       body: JSON.stringify({ canal_id: cenario.channelId, contatos: [{ telefone: telefoneNovo() }] }),
     });
     expect(semTemplate.status).toBe(400);
@@ -269,7 +269,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     `);
     const resposta = await fetch(`${api.url}/v1/messages-active`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
+      headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
       body: JSON.stringify({
         canal_id: cenario.channelId,
         template_id: rows[0]!.id,
@@ -284,7 +284,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     try {
       const resposta = await fetch(`${api.url}/v1/messages-active`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
+        headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
         body: JSON.stringify({
           canal_id: outro.channelId,
           template_id: templateId,
@@ -304,7 +304,7 @@ describe('List sends from the last 72 hours with delivery status', () => {
     await disparar({ contatos: [{ telefone }], parametros: ['x'] });
 
     const resposta = await fetch(`${api.url}/v1/messages-active`, {
-      headers: { cookie: `pipe_session=${cookie}` },
+      headers: { cookie: `${NOME_DO_COOKIE}=${cookie}` },
     });
 
     expect(resposta.status).toBe(200);
@@ -320,7 +320,7 @@ describe('List sends from the last 72 hours with delivery status', () => {
 
   it('devolve os limites em vigor, para a tela não repetir número mágico', async () => {
     const resposta = await fetch(`${api.url}/v1/messages-active/limits`, {
-      headers: { cookie: `pipe_session=${cookie}` },
+      headers: { cookie: `${NOME_DO_COOKIE}=${cookie}` },
     });
     const corpo = (await resposta.json()) as { maxContactsByTrigger: number };
     expect(corpo.maxContactsByTrigger).toBe(15);

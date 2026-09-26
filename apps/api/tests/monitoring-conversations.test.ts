@@ -57,7 +57,7 @@ async function session(cenario: Cenario, userId: string): Promise<string> {
   return token.token;
 }
 
-const cabecalho = (token: string) => ({ cookie: `pipe_session=${token}`, 'content-type': 'application/json' });
+const cabecalho = (token: string) => ({ cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' });
 
 async function conversation(cenario = a): Promise<string> {
   const sufixo = randomUUID().slice(0, 8);

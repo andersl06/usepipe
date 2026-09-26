@@ -79,7 +79,7 @@ function withKey(): Record<string, string> {
 }
 
 function comCookie(): Record<string, string> {
-  return { cookie: `pipe_session=${sessionAgent}`, 'content-type': 'application/json' };
+  return { cookie: `${NOME_DO_COOKIE}=${sessionAgent}`, 'content-type': 'application/json' };
 }
 
 async function up(dados: Buffer, mime: string, nome: string): Promise<string> {

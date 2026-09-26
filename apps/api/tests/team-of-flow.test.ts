@@ -89,7 +89,7 @@ async function openSession(cenario: Cenario, usuarioId: string): Promise<string>
 }
 
 function comCookie(token: string): Record<string, string> {
-  return { cookie: `pipe_session=${token}`, 'content-type': 'application/json' };
+  return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
 async function createFlowInDatabase(cenario: Cenario, nome: string): Promise<string> {

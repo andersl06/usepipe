@@ -11,7 +11,7 @@ process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
-const { forgetChannelesquecerChannelforgetChannel } = await import('../src/database.js');
+const { forgetChannel } = await import('../src/database.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -62,7 +62,7 @@ function comCookie(caminho: string, init: RequestInit = {}): Promise<Response> {
     ...init,
     headers: {
       'content-type': 'application/json',
-      cookie: `pipe_session=${cookie}`,
+      cookie: `${NOME_DO_COOKIE}=${cookie}`,
       ...(init.headers ?? {}),
     },
   });
@@ -242,7 +242,7 @@ describe('Reject active messages without a contact phone or contact ID', () => {
 
   it('Reject active-message sends through a disabled channel', async () => {
     await cenario.dono.execute(sql`update canal set ativo = false where id = ${cenario.channelId}::uuid`);
-    forgetChannelesquecerChannelforgetChannel(cenario.channelId); // `resolverCanal` guarda em memória; sem isto o teste veria o cache antigo.
+    forgetChannel(cenario.channelId); // `resolverCanal` guarda em memória; sem isto o teste veria o cache antigo.
     try {
       const resposta = await comCookie('/v1/messages-active', {
         method: 'POST',
@@ -258,7 +258,7 @@ describe('Reject active messages without a contact phone or contact ID', () => {
       );
     } finally {
       await cenario.dono.execute(sql`update canal set ativo = true where id = ${cenario.channelId}::uuid`);
-      forgetChannelesquecerChannelforgetChannel(cenario.channelId);
+      forgetChannel(cenario.channelId);
     }
   });
 

@@ -48,7 +48,7 @@ async function createCookieOfSession(c: Cenario): Promise<string> {
 }
 
 function cabecalho(token: string): Record<string, string> {
-  return { cookie: `pipe_session=${token}` };
+  return { cookie: `${NOME_DO_COOKIE}=${token}` };
 }
 
 beforeAll(async () => {

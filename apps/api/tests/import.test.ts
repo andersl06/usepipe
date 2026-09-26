@@ -75,7 +75,7 @@ function runImport(quem: { tenantId: string; adminId: string }, csv: string) {
 
 beforeAll(async () => {
   await migrate(URL_DONO);
-  dono = createDatabase({ url: URL_DONO, maxConexoes: 2 });
+  dono = createDatabase({ url: URL_DONO, maxConnections: 2 });
   A = await tenantComAdmin(`a-${S}`);
   B = await tenantComAdmin(`b-${S}`);
 }, 180_000);

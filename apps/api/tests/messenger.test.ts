@@ -90,7 +90,7 @@ describe('Exercise Messenger with the database, webhook, and worker', () => {
 
   beforeAll(async () => {
     await migrate(process.env['DATABASE_URL']!);
-    dono = createDatabase({ url: process.env['DATABASE_URL']!, maxConexoes: 2 });
+    dono = createDatabase({ url: process.env['DATABASE_URL']!, maxConnections: 2 });
     A = await tenant(`a-${sufixo}`); B = await tenant(`b-${sufixo}`); api = await upApi(0);
     const ligado = await conectar(A, `ok-${sufixo}`); channelId = ligado.id; pageId = ligado.paginaId!;
   }, 180_000);

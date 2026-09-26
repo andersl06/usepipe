@@ -78,7 +78,7 @@ function enviar(
   credencial: { cookie?: string; token?: string },
 ): Promise<Response> {
   const cabecalhos: Record<string, string> = { 'content-type': 'application/json' };
-  if (credencial.cookie) cabecalhos['cookie'] = `pipe_session=${credencial.cookie}`;
+  if (credencial.cookie) cabecalhos['cookie'] = `${NOME_DO_COOKIE}=${credencial.cookie}`;
   if (credencial.token) cabecalhos['authorization'] = `Bearer ${credencial.token}`;
   return fetch(`${api.url}/v1/conversations/${conversaId}/messages`, {
     method: 'POST',
@@ -208,7 +208,7 @@ describe('Retry failed message sends', () => {
   function reenviar(conversaId: string, messageId: string): Promise<Response> {
     return fetch(`${api.url}/v1/conversations/${conversaId}/messages/${messageId}/resend`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookieOfAgent}` },
+      headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookieOfAgent}` },
     });
   }
 
@@ -352,7 +352,7 @@ describe('Preserve API-key behavior on the same send route', () => {
       headers: {
         'content-type': 'application/json',
         authorization: 'Bearer pipe_lixo_lixo',
-        cookie: `pipe_session=${cookieOfAgent}`,
+        cookie: `${NOME_DO_COOKIE}=${cookieOfAgent}`,
       },
       body: JSON.stringify({ texto: 'x' }),
     });

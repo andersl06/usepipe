@@ -14,8 +14,8 @@ process.env['PIPE_URL_APP'] = 'http://telas.teste';
 const { RemetenteDuble, RemetenteHttp, definirRemetente, enviarEmailSemDerrubar, remetente } =
   await import('../src/domain/email.js');
 const { createInvitation, resendInvitation } = await import('../src/domain/convites.js');
-const { applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate } = await import('../src/domain/whatsapp/events-of-template.js');
-const { forgetChannelesquecerChannelforgetChannel, fecharBancos, resolveChannel } = await import('../src/database.js');
+const { applyEventsOfTemplate } = await import('../src/domain/whatsapp/events-of-template.js');
+const { forgetChannel, fecharBancos, resolveChannel } = await import('../src/database.js');
 const { montarCenario } = await import('./ajuda.js');
 import type { Email, RemetenteDeEmail } from '../src/domain/email.js';
 
@@ -86,7 +86,7 @@ async function configurarAlerta(ativo: boolean, emails: string[]): Promise<void>
     update canal set config = config || jsonb_build_object('preferencias', ${preferences}::jsonb)
      where id = ${cenario.channelId}::uuid
   `);
-  forgetChannelesquecerChannelforgetChannel(cenario.channelId);
+  forgetChannel(cenario.channelId);
 }
 
 /** The recategorization event as Meta sends it, for the scenario's template. */
@@ -277,7 +277,7 @@ describe('Send template recategorization alerts', () => {
     await configurarAlerta(true, ['ana@pipe.app', 'bia@pipe.app']);
     const channel = (await resolveChannel(cenario.channelId))!;
 
-    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(channel, recategorization(nome, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await applyEventsOfTemplate(channel, recategorization(nome, 'UTILITY', 'MARKETING'))).toBe(1);
     expect(await categoryOfTemplate(templateId)).toBe('marketing');
 
     expect(RemetenteDuble.enviados).toHaveLength(1);
@@ -288,7 +288,7 @@ describe('Send template recategorization alerts', () => {
     expect(enviado.texto).toContain('WhatsApp de teste');
 
     // // A template Pipe doesn't know doesn't fire anything.
-    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(channel, recategorization('nao_existe', 'UTILITY', 'MARKETING'))).toBe(0);
+    expect(await applyEventsOfTemplate(channel, recategorization('nao_existe', 'UTILITY', 'MARKETING'))).toBe(0);
     expect(RemetenteDuble.enviados).toHaveLength(1);
   });
 
@@ -300,7 +300,7 @@ describe('Send template recategorization alerts', () => {
     await configurarAlerta(false, ['ana@pipe.app']);
     const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await applyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'UTILITY', 'MARKETING'))).toBe(1);
     expect(await categoryOfTemplate(modeloId)).toBe('marketing');
     expect(RemetenteDuble.enviados).toHaveLength(0);
   });
@@ -315,7 +315,7 @@ describe('Send template recategorization alerts', () => {
     await configurarAlerta(true, []);
     const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'MARKETING', 'UTILITY'))).toBe(1);
+    expect(await applyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'MARKETING', 'UTILITY'))).toBe(1);
     expect(RemetenteDuble.enviados).toHaveLength(1);
     expect(RemetenteDuble.enviados[0]!.para).toContain(emailDoGestor);
     // // The scenario's agent doesn't manage the channel: doesn't make the list.
@@ -334,7 +334,7 @@ describe('Send template recategorization alerts', () => {
     await configurarAlerta(true, ['ana@pipe.app']);
     const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await applyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'UTILITY', 'MARKETING'))).toBe(1);
     expect(await categoryOfTemplate(modeloId)).toBe('marketing');
   });
 });

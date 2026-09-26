@@ -36,7 +36,7 @@ interface Cenario {
 }
 
 async function assembleContract(sufixo: string): Promise<Cenario> {
-  const dono = createDatabase({ url: URL_DONO, maxConexoes: 3 });
+  const dono = createDatabase({ url: URL_DONO, maxConnections: 3 });
   const semeado = await seed(dono, { name: `contrato ${sufixo}`, slug: `contrato-${sufixo}` });
   const { rows: papeis } = await dono.execute<{ id: string; name: 'admin' | 'member' | 'guest' }>(
     sql`select id, nome from papel where tenant_id = ${semeado.tenantId}::uuid and escopo = 'conta'`,
@@ -107,7 +107,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
 }
 
 function comCookie(token: string): Record<string, string> {
-  return { cookie: `pipe_session=${token}`, 'content-type': 'application/json' };
+  return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

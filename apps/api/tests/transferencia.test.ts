@@ -85,7 +85,7 @@ async function newConversation(
 function transferir(conversationId: string, corpo: Record<string, unknown>): Promise<Response> {
   return fetch(`${api.url}/v1/conversations/${conversationId}/transfer`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
+    headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
     body: JSON.stringify(corpo),
   });
 }
