@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 02 plan 07 paused at Task 3 checkpoint (PORTAO DO DONO, blocking decision)
-last_updated: "2026-09-26T15:21:55.166Z"
+stopped_at: Completed 02-07-PLAN.md (portao do dono fechado)
+last_updated: "2026-09-26T15:49:20.300Z"
 last_activity: 2026-09-26 -- Phase 02 execution started
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 71
-  completed_plans: 20
+  completed_plans: 21
   percent: 0
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-09-24)
 ## Current Position
 
 Phase: 02 (fechar-o-builder) — EXECUTING
-Plan: 1 of 22
+Plan: 2 of 22
 Status: Executing Phase 02
 Last activity: 2026-09-26 -- Phase 02 execution started
 
-Progress: [░░░░░░░░░░] 2%
+Progress: [███░░░░░░░] 30%
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 2%
 
 *Updated after each plan completion*
 | Phase 01 P01 | 45min | 2 tasks | 6 files |
+| Phase 02 P07 | 15min | 4 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,8 @@ Decisões completas em PROJECT.md (Key Decisions). Resumo relevante para o traba
 - Linguagem técnica migra de português para inglês (24/09/2026) — cobre também rotas/endpoints da API, não só front; substitui a regra "tudo em português"; texto visível ao usuário não muda; dados persistidos ficam fora do rename mecânico (Phase 1, STD-01..12). Convenção canônica exata ainda não definida — decisão semântica pendente do discuss-phase.
 - Critério de "Validated" redefinido (24/09/2026): implementado + funciona ponta a ponta + comparado com a referência (quando aplicável) + aprovado pelo dono — código/teste isolado não basta. A maior parte do que o ingest marcou como Validated foi reclassificada como Needs Validation em PROJECT.md; verificação formal é a Phase 3 (VALSURF-01..05).
 - [Phase 01]: 01-01: baseline code commit 57ca8d5; crm standalone EPERM accepted, gates use build --filter=!@pipe/crm + crm 'Compiled successfully'
+- [Phase 02]: Portão do dono (D-04) fechado 26/09/2026: dono aprovou classificação item a item e decisões de mecanismo (D-14, D-15, D-21, D-22, D-08.5/D-09, D-20) sem ajustes; itens EXCEDE CAPACIDADE (Carrossel, Solicitar ligação, TrackContactsJourney) aprovados como excedente, replanejar via /gsd:plan-phase 2 --gaps
+- [Phase 02]: Planos 02-08..02-22 seguem bloqueados pelo pré-flight gate da Phase 1 (tag std-apply-all-end ainda ausente), independente do portão do dono já fechado
 
 ### Pending Todos
 
@@ -90,6 +93,7 @@ Problemas conhecidos herdados de PROJECT-HANDOFF.md (24/09/2026) — nenhum reso
 - `master` está 2 commits atrás de `limpeza` — decidir quando mesclar (Phase 4, OPS-01).
 - Branches soltas sem uso recente (`codex/atendimento-blip`, `desk-visual-pipe`, `integracao`, vários `worktree-agent-*`) — candidatas a apagar (Phase 4, OPS-02).
 - Número de teste da Meta expira em 24h, sem versão permanente — reconexão é rotina diária até haver número próprio com usuário de sistema.
+- Planos de implementação 02-08..02-22 bloqueados: tag std-apply-all-end (fim da aplicação do mapa std/map da Phase 1) ainda não existe no repositório
 
 ## Deferred Items
 
@@ -106,6 +110,6 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 
 ## Session Continuity
 
-Last session: 2026-09-26T15:21:55.148Z
-Stopped at: Phase 02 plan 07 paused at Task 3 checkpoint (PORTAO DO DONO, blocking decision)
-Resume file: .planning/phases/02-fechar-o-builder/02-07-PLAN.md
+Last session: 2026-09-26T15:49:19.701Z
+Stopped at: Completed 02-07-PLAN.md (portao do dono fechado)
+Resume file: None

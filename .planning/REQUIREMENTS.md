@@ -28,11 +28,11 @@ Iniciativa transversal decidida em 24/09/2026: eliminar linguagem técnica em po
 
 ### Builder
 
-- [ ] **BUILDER-01**: Atendente pode criar bloco de todos os tipos de conteúdo e ação previstos (hoje só texto/menu/quick-reply e ProcessHttp têm editor) — ver `docs/builder-cards-pendencias.md`
-- [ ] **BUILDER-02**: Atendente pode buscar variável e função da biblioteca de contrato, e selecionar o destino de uma ligação por pesquisa (não só clique manual)
-- [ ] **BUILDER-03**: Atendente pode configurar pesquisa de satisfação nas saídas de atendimento humano, com a paleta de tags completa (decisão pendente sobre replicar o modelo nativo do Portal Blip, um alternativo, ou unificar — levantada em 15/09, nunca fechada)
-- [ ] **BUILDER-04**: Atendente tem paridade nos painéis de Gerenciamento de Filas e de Teste (canal de teste ligado ao motor, hoje inexistente), além de copiar/colar bloco, ícone `user-engaged` e exportar versão antiga
-- [ ] **BUILDER-05**: Setas do canvas do Builder refletem corretamente toda ligação salva, mesmo quando guardada fora de `bloco.$conditionOutputs` (bug suspeito em `arestasDe()`, `apps/gestao-vite/src/paginas/builder/modelo.ts:421`, diagnosticado mas não corrigido nem coberto por teste)
+- [x] **BUILDER-01**: Atendente pode criar bloco de todos os tipos de conteúdo e ação previstos (hoje só texto/menu/quick-reply e ProcessHttp têm editor) — ver `docs/builder-cards-pendencias.md`
+- [x] **BUILDER-02**: Atendente pode buscar variável e função da biblioteca de contrato, e selecionar o destino de uma ligação por pesquisa (não só clique manual)
+- [x] **BUILDER-03**: Atendente pode configurar pesquisa de satisfação nas saídas de atendimento humano, com a paleta de tags completa (decisão pendente sobre replicar o modelo nativo do Portal Blip, um alternativo, ou unificar — levantada em 15/09, nunca fechada)
+- [x] **BUILDER-04**: Atendente tem paridade nos painéis de Gerenciamento de Filas e de Teste (canal de teste ligado ao motor, hoje inexistente), além de copiar/colar bloco, ícone `user-engaged` e exportar versão antiga
+- [x] **BUILDER-05**: Setas do canvas do Builder refletem corretamente toda ligação salva, mesmo quando guardada fora de `bloco.$conditionOutputs` (bug suspeito em `arestasDe()`, `apps/gestao-vite/src/paginas/builder/modelo.ts:421`, diagnosticado mas não corrigido nem coberto por teste)
 
 ### Validação de Superfícies Existentes
 
@@ -143,11 +143,11 @@ Quais fases cobrem quais requisitos. Atualizado durante a criação do roadmap.
 | STD-10 | Phase 1 | Pending |
 | STD-11 | Phase 1 | Pending |
 | STD-12 | Phase 1 | Pending |
-| BUILDER-01 | Phase 2 | Pending |
-| BUILDER-02 | Phase 2 | Pending |
-| BUILDER-03 | Phase 2 | Pending |
-| BUILDER-04 | Phase 2 | Pending |
-| BUILDER-05 | Phase 2 | Pending |
+| BUILDER-01 | Phase 2 | Complete |
+| BUILDER-02 | Phase 2 | Complete |
+| BUILDER-03 | Phase 2 | Complete |
+| BUILDER-04 | Phase 2 | Complete |
+| BUILDER-05 | Phase 2 | Complete |
 | VALSURF-01 | Phase 3 | Pending |
 | VALSURF-02 | Phase 3 | Pending |
 | VALSURF-03 | Phase 3 | Pending |

@@ -234,7 +234,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-07-PLAN.md — Snapshot congelado + capturas pendentes + PORTÃO DO DONO (D-01..D-05)
+- [x] 02-07-PLAN.md — Snapshot congelado + capturas pendentes + PORTÃO DO DONO (D-01..D-05)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -381,7 +381,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
-| 2. Fechar o Builder | 4/22 | In Progress|  |
+| 2. Fechar o Builder | 5/22 | In Progress|  |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |
