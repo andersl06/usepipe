@@ -76,12 +76,12 @@ export class DeskController {
     // Em série, e não em `Promise.all`: a transação é uma conexão só, e disparar
     // em paralelo na mesma conexão derruba o `set_config` do tenant.
     return noTenant(sessao.tenantId, async (tx) => ({
-      conversas: await consultas.listConversations(tx, sessao.userId),
+      conversations: await consultas.listConversations(tx, sessao.userId),
       aguardando: await consultas.contarAguardando(tx, sessao.userId),
       status: await consultas.carregarStatus(tx, sessao.userId),
       motivos: await consultas.listarMotivosDePausa(tx),
       etiquetas: await consultas.listarEtiquetas(tx),
-      colleagues: await consultas.listarColegas(tx, sessao.userId),
+      colegas: await consultas.listarColegas(tx, sessao.userId),
       respostas: await consultas.listarRespostasProntas(tx, sessao.userId),
     }));
   }
@@ -99,11 +99,14 @@ export class DeskController {
       if (!conversa) return { aberta: null };
       return {
         aberta: {
-          conversa,
+          conversation: conversa,
           itens: await consultas.listItemsOfConversation(tx, conversa.id),
           templates: await consultas.listarTemplatesAprovados(tx, conversa.channelId),
-          etiquetasDaConversa: await consultas.listLabelsOfConversation(tx, conversa.id),
-          labelsOfContact: await listLabelsOfContact(tx, conversa.contactId),
+          conversationTags: await consultas.listLabelsOfConversation(tx, conversa.id),
+          contactTags: (await listLabelsOfContact(tx, conversa.contactId)).map((l) => ({
+            id: l.id,
+            nome: l.name,
+          })),
           history: await consultas.listHistoryOfContact(tx, conversa.contactId, conversa.id),
         },
       };
@@ -115,9 +118,9 @@ export class DeskController {
   @WithSession()
   queues(
     @Req() request: RequestWithSession,
-  ): Promise<{ queues: { id: string; nome: string }[] }> {
+  ): Promise<{ queues: { id: string; name: string }[] }> {
     const session = sessionOf(request);
-    return noTenant(session.tenantId, async (tx) => ({ filas: await consultas.listQueues(tx) }));
+    return noTenant(session.tenantId, async (tx) => ({ queues: await consultas.listQueues(tx) }));
   }
 
   /** A aba Contatos: a lista, com busca por nome ou telefone. */
@@ -129,7 +132,7 @@ export class DeskController {
   ): Promise<{ contacts: consultas.ContactOfList[] }> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => ({
-      contatos: await consultas.listContacts(tx, search ?? ''),
+      contacts: await consultas.listContacts(tx, search ?? ''),
     }));
   }
 
@@ -144,7 +147,7 @@ export class DeskController {
     return noTenant(sessao.tenantId, async (tx) => {
       const contato = await consultas.loadContact(tx, id);
       if (!contato) throw PipeError.naoEncontrado('contato');
-      return { contato, history: await consultas.listHistoryOfContact(tx, id, null) };
+      return { contact: contato, history: await consultas.listHistoryOfContact(tx, id, null) };
     });
   }
 
