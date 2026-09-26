@@ -96,7 +96,7 @@ describe('Upload attachments and return signed links', () => {
   it('recusa tipo fora da lista da Blip', async () => {
     const resposta = await up(Buffer.from([0x4d, 0x5a, 0x90]), 'application/x-msdownload', 'a.exe');
     expect(resposta.status).toBe(400);
-    expect(((await resposta.json()) as { erro: { codigo: string } }).erro.codigo).toBe(
+    expect(((await resposta.json()) as { error: { code: string } }).error.code).toBe(
       'type_not_accepted',
     );
   });
@@ -123,9 +123,9 @@ describe('Upload attachments and return signed links', () => {
     const resposta = await up(grande, 'audio/mpeg', 'longo.mp3');
 
     expect(resposta.status).toBe(400);
-    const corpo = (await resposta.json()) as { erro: { codigo: string; mensagem: string } };
-    expect(corpo.erro.codigo).toBe('file_large_excessive');
-    expect(corpo.erro.mensagem).toContain('16');
+    const corpo = (await resposta.json()) as { error: { code: string; message: string } };
+    expect(corpo.error.code).toBe('file_large_excessive');
+    expect(corpo.error.message).toContain('16');
   });
 
   it('sem credencial, 401', async () => {

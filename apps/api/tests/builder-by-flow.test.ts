@@ -125,7 +125,7 @@ async function criado(nome: string, tipo: 'fluxo' | 'roteador' = 'fluxo'): Promi
     tipo,
   });
   expect(status).toBe(200);
-  expect(body['erro']).toBeUndefined();
+  expect(body['error']).toBeUndefined();
   return body['id'] as string;
 }
 
@@ -310,8 +310,8 @@ describe('GET /v1/management/flows/:id/builder', () => {
     ];
     for (const { status, body } of respostas) {
       expect(status).toBe(409);
-      expect(body['erro']['code']).toBe('roteador_sem_builder');
-      expect(body['erro']['message']).toContain('Roteador não tem Builder');
+      expect(body['error']['code']).toBe('roteador_sem_builder');
+      expect(body['error']['message']).toContain('Roteador não tem Builder');
     }
   });
 
@@ -320,7 +320,7 @@ describe('GET /v1/management/flows/:id/builder', () => {
 
     const semPoder = await builder(sessionWithoutAuthority, id);
     expect(semPoder.status).toBe(403);
-    expect(semPoder.body['erro']).toMatchObject({
+    expect(semPoder.body['error']).toMatchObject({
       codigo: 'sem_permissao',
       detalhe: { permissao: 'automacao.fluxo.editar' },
     });
@@ -404,21 +404,21 @@ describe('PUT /v1/management/flows/:id/builder', () => {
     // // And publishing rejects with the list, without touching anything.
     const recusa = await publicar(sessionPublisher, id);
     expect(recusa.status).toBe(409);
-    expect(recusa.body['erro']['code']).toBe('fluxo_invalido');
-    expect(recusa.body['erro']['detalhe']['errors']).toEqual(errors);
+    expect(recusa.body['error']['code']).toBe('fluxo_invalido');
+    expect(recusa.body['error']['detalhe']['errors']).toEqual(errors);
     expect((await versionsInDatabase(id))[0]?.state).toBe('rascunho');
 
     // // A body that isn't the editor's map is 400, not 500.
     const torto = await salvar(sessionEditor, id, { fluxo: 'isto não é um mapa' });
     expect(torto.status).toBe(400);
-    expect(torto.body['erro']['code']).toBe('desenho_invalido');
+    expect(torto.body['error']['code']).toBe('desenho_invalido');
   });
 
   it('Do not save a draft without `automacao.fluxo.editar`', async () => {
     const id = await criado(`Trancado ${randomUUID().slice(0, 6)}`);
     const { status, body } = await salvar(sessionWithoutAuthority, id, desenho('x'));
     expect(status).toBe(403);
-    expect(body['erro']['code']).toBe('sem_permissao');
+    expect(body['error']['code']).toBe('sem_permissao');
     expect(await versionsInDatabase(id)).toHaveLength(0);
   });
 });
@@ -432,7 +432,7 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
     // // No draft, nothing to publish.
     const semRascunho = await publicar(sessionPublisher, id);
     expect(semRascunho.status).toBe(409);
-    expect(semRascunho.body['erro']['code']).toBe('sem_rascunho');
+    expect(semRascunho.body['error']['code']).toBe('sem_rascunho');
 
     await salvar(sessionEditor, id, desenho('Olá! Qual é o seu nome? (v1)'));
     const v1 = await publicar(sessionPublisher, id);
@@ -519,7 +519,7 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
 
     const editor = await publicar(sessionEditor, id);
     expect(editor.status).toBe(403);
-    expect(editor.body['erro']).toMatchObject({
+    expect(editor.body['error']).toMatchObject({
       codigo: 'sem_permissao',
       detalhe: { permissao: 'automacao.fluxo.publicar' },
     });

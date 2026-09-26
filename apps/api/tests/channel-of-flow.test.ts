@@ -131,9 +131,9 @@ async function chamar(
 }
 
 const codigo = (r: { body: Record<string, unknown> }) =>
-  (r.body['erro'] as { code?: string } | undefined)?.code;
+  (r.body['error'] as { code?: string } | undefined)?.code;
 const detalhe = (r: { body: Record<string, unknown> }) =>
-  (r.body['erro'] as { detalhe?: Record<string, unknown> } | undefined)?.detalhe ?? {};
+  (r.body['error'] as { detalhe?: Record<string, unknown> } | undefined)?.detalhe ?? {};
 
 const ligar = (sessao: string, flowId: string, channelId: string) =>
   chamar(sessao, 'PUT', `/v1/management/flows/${flowId}/channel`, { channelId });
@@ -230,7 +230,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     const recusa = await ligar(sessionEditor, segundo, canalId);
     expect(recusa.status).toBe(409);
     expect(codigo(recusa)).toBe('numero_em_uso');
-    expect((recusa.body['erro'] as { message: string }).message).toBe(
+    expect((recusa.body['error'] as { message: string }).message).toBe(
       'Ops… Este número já está em uso. Para ativar o número neste bot, remova do anterior e tente novamente.',
     );
     expect(detalhe(recusa)['fluxoId']).toBe(first);

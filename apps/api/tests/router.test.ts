@@ -105,7 +105,7 @@ async function chamar(
 }
 
 const codigo = (r: { body: Record<string, unknown> }) =>
-  (r.body['erro'] as { code?: string } | undefined)?.code;
+  (r.body['error'] as { code?: string } | undefined)?.code;
 
 beforeAll(async () => {
   a = await montarCenario(`rt-${randomUUID().slice(0, 8)}`);

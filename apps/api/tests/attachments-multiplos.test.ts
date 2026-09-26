@@ -187,7 +187,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     }
     const { status, corpo } = await enviarLote(conversaId, { anexo_ids: ids });
     expect(status).toBe(400);
-    expect((corpo['erro'] as { code: string }).code).toBe('attachments_excessive');
+    expect((corpo['error'] as { code: string }).code).toBe('attachments_excessive');
     expect(await messagesOf(conversaId)).toHaveLength(0);
   });
 
@@ -211,7 +211,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     `);
     const { status, corpo } = await enviarLote(conversaId, { anexo_ids: [ok, grande] });
     expect(status).toBe(400);
-    const error = corpo['erro'] as { code: string; message: string };
+    const error = corpo['error'] as { code: string; message: string };
     expect(error.code).toBe('file_large_excessive');
     expect(error.message).toContain('enorme.pdf');
     expect(await messagesOf(conversaId)).toHaveLength(0);
@@ -230,7 +230,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     const a2 = await up(PNG, 'image/png', 'b.png');
     const { status, corpo } = await enviarLote(conversaId, { anexo_ids: [a1, a2] });
     expect(status).toBe(409);
-    expect((corpo['erro'] as { code: string }).code).toBe('janela_fechada');
+    expect((corpo['error'] as { code: string }).code).toBe('janela_fechada');
     expect(await messagesOf(conversaId)).toHaveLength(0);
   });
 

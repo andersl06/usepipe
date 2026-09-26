@@ -253,7 +253,7 @@ describe('POST/DELETE /v1/conversations/:id/labels — a conversa aberta', () =>
       { etiqueta_id: labelContact },
     );
     expect(scopeWrong.status).toBe(400);
-    expect((scopeWrong.body['erro'] as { code: string }).code).toBe('label_of_other_scope');
+    expect((scopeWrong.body['error'] as { code: string }).code).toBe('label_of_other_scope');
 
     const inexistente = await chamar(
       'POST',
@@ -273,7 +273,7 @@ describe('POST/DELETE /v1/conversations/:id/labels — a conversa aberta', () =>
       { etiqueta_id: labelConversation },
     );
     expect(semPoder.status).toBe(403);
-    expect((semPoder.body['erro'] as { code: string }).code).toBe('without_permission');
+    expect((semPoder.body['error'] as { code: string }).code).toBe('without_permission');
 
     const deOutro = await chamar(
       'POST',
@@ -282,7 +282,7 @@ describe('POST/DELETE /v1/conversations/:id/labels — a conversa aberta', () =>
       { etiqueta_id: labelConversation },
     );
     expect(deOutro.status).toBe(403);
-    expect((deOutro.body['erro'] as { code: string }).code).toBe('conversation_of_other_agent');
+    expect((deOutro.body['error'] as { code: string }).code).toBe('conversation_of_other_agent');
 
     const { conversationId: encerrada } = await createConversation(agentId, 'encerrada');
     const fechada = await chamar(
@@ -376,7 +376,7 @@ describe('GET/POST/DELETE /v1/contacts/:id/etiquetas — o contato', () => {
       { etiqueta_id: labelConversation },
     );
     expect(escopoErrado.status).toBe(400);
-    expect((escopoErrado.body['erro'] as { code: string }).code).toBe('label_of_other_scope');
+    expect((escopoErrado.body['error'] as { code: string }).code).toBe('label_of_other_scope');
 
     const inexistente = await chamar(
       'POST',

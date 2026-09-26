@@ -354,7 +354,7 @@ describe('PATCH /v1/management/flows/:id', () => {
     for (const invalida of ['x', 'a'.repeat(161)]) {
       const { status, corpo } = await editar(sessionEditor, id, { descricao: invalida });
       expect(status).toBe(400);
-      expect((corpo['erro'] as { code: string }).code).toBe('description_size');
+      expect((corpo['error'] as { code: string }).code).toBe('description_size');
     }
     const noLimite = await editar(sessionEditor, id, { descricao: 'a'.repeat(160) });
     expect(noLimite.status).toBe(200);
@@ -367,15 +367,15 @@ describe('PATCH /v1/management/flows/:id', () => {
 
     const curto = await editar(sessionEditor, id, { nome: 'A' });
     expect(curto.status).toBe(400);
-    expect((curto.corpo['erro'] as { code: string }).code).toBe('name_size');
+    expect((curto.corpo['error'] as { code: string }).code).toBe('name_size');
 
     const numero = await editar(sessionEditor, id, { nome: '9 vidas' });
     expect(numero.status).toBe(400);
-    expect((numero.corpo['erro'] as { code: string }).code).toBe('name_start');
+    expect((numero.corpo['error'] as { code: string }).code).toBe('name_start');
 
     const emUso = await editar(sessionEditor, id, { nome: `Dois ${marca}` });
     expect(emUso.status).toBe(409);
-    expect((emUso.corpo['erro'] as { code: string }).code).toBe('name_in_use');
+    expect((emUso.corpo['error'] as { code: string }).code).toBe('name_in_use');
 
     // // Its own name isn't a conflict with itself.
     const mesmo = await editar(sessionEditor, id, { nome: `Um ${marca}` });
@@ -400,7 +400,7 @@ describe('PATCH /v1/management/flows/:id', () => {
 
     const falsa = await editar(sessionEditor, id, { imagem: NOT_IMAGE });
     expect(falsa.status).toBe(400);
-    expect((falsa.corpo['erro'] as { code: string }).code).toBe('image_invalid');
+    expect((falsa.corpo['error'] as { code: string }).code).toBe('image_invalid');
     expect((await lineOfFlow(id))?.imageUrl).toBe(PNG);
   });
 
@@ -409,7 +409,7 @@ describe('PATCH /v1/management/flows/:id', () => {
 
     const semPoder = await editar(sessionWithoutAuthority, id, { nome: 'Invasor' });
     expect(semPoder.status).toBe(403);
-    expect((semPoder.corpo['erro'] as { code: string }).code).toBe('without_permission');
+    expect((semPoder.corpo['error'] as { code: string }).code).toBe('without_permission');
 
     const outroTenant = await editar(sessionOfOtherTenant, id, { nome: 'Vizinho' });
     expect(outroTenant.status).toBe(404);

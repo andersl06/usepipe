@@ -238,8 +238,8 @@ describe('convidar, reenviar e revogar', () => {
       papel: 'guest',
     });
     expect(semPoder.status).toBe(403);
-    expect(semPoder.body.erro.code).toBe('without_permission');
-    expect(semPoder.body.erro.detalhe.permissao).toBe('conta.membros.escrever');
+    expect(semPoder.body.error.code).toBe('without_permission');
+    expect(semPoder.body.error.detalhe.permissao).toBe('conta.membros.escrever');
   });
 
   it('Return 404 when resending another tenant\'s invitation', async () => {
@@ -293,7 +293,7 @@ describe('o último administrador', () => {
       { papelId: umAdmin.papeis.member, alvos: [`usuario:${userUniqueAdminId}`] },
     );
     expect(resultado.body.ok).toBe(false);
-    expect(resultado.body.erro).toMatch(/último administrador/);
+    expect(resultado.body.error).toMatch(/último administrador/);
 
     // continua admin
     const lista = await pedir('GET', '/v1/management/contract/members', sessionUniqueAdmin);
@@ -310,7 +310,7 @@ describe('o último administrador', () => {
       { alvos: [`usuario:${userUniqueAdminId}`] },
     );
     expect(resultado.body.ok).toBe(false);
-    expect(resultado.body.erro).toMatch(/último administrador/);
+    expect(resultado.body.error).toMatch(/último administrador/);
 
     const lista = await pedir('GET', '/v1/management/contract/members', sessionUniqueAdmin);
     expect(lista.body.membros.some((m: Corpo) => m.id === userUniqueAdminId)).toBe(true);
@@ -394,7 +394,7 @@ describe('Manage mTLS authentication certificates', () => {
       ...pedidoDeCertificado({ description, senha: 'nao-e-essa' }),
     });
     expect(resultado.status).toBe(400);
-    expect(resultado.body.erro.code).toBe('password_incorrect');
+    expect(resultado.body.error.code).toBe('password_incorrect');
     expect(JSON.stringify(resultado.body)).not.toContain('nao-e-essa');
 
     const { rows } = await a.dono.execute<{ n: string }>(
@@ -408,13 +408,13 @@ describe('Manage mTLS authentication certificates', () => {
       ...pedidoDeCertificado({ arquivo: Buffer.from('isto não é um pfx').toString('base64') }),
     });
     expect(lixo.status).toBe(400);
-    expect(lixo.body.erro.code).toBe('pfx_invalid');
+    expect(lixo.body.error.code).toBe('pfx_invalid');
 
     const semSenha = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
       ...pedidoDeCertificado({ senha: '' }),
     });
     expect(semSenha.status).toBe(400);
-    expect(semSenha.body.erro.code).toBe('password_required');
+    expect(semSenha.body.error.code).toBe('password_required');
   });
 
   it('Encrypt stored certificate files and passwords without returning or auditing them', async () => {
@@ -466,7 +466,7 @@ describe('Manage mTLS authentication certificates', () => {
       ...pedidoDeCertificado({ hosts: ['ftp://nao-serve.com'] }),
     });
     expect(resultado.status).toBe(400);
-    expect(resultado.body.erro.code).toBe('host_invalid');
+    expect(resultado.body.error.code).toBe('host_invalid');
   });
 
   it('exclui o certificado', async () => {
@@ -534,7 +534,7 @@ describe('Manage mTLS authentication certificates', () => {
       pedidoDeCertificado(),
     );
     expect(resultado.status).toBe(403);
-    expect(resultado.body.erro.detalhe.permissao).toBe('conta.membros.escrever');
+    expect(resultado.body.error.detalhe.permissao).toBe('conta.membros.escrever');
   });
 
   it('Return 403 when listing certificates without conta.membros.ler', async () => {

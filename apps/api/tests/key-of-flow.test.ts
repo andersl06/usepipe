@@ -115,7 +115,7 @@ async function chamar(
 
 /** O erro estruturado de `erros.ts`: `{ erro: { codigo, mensagem, detalhe? } }`. */
 function errorOf(resposta: Resposta): { code: string; message: string; detalhe?: Record<string, unknown> } {
-  return resposta.body['erro'] as { code: string; message: string; detalhe?: Record<string, unknown> };
+  return resposta.body['error'] as { code: string; message: string; detalhe?: Record<string, unknown> };
 }
 
 /** Creates the flow key through the screen's ROUTE, and returns the `pipe_…` token. */

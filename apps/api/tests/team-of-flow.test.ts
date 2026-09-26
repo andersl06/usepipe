@@ -231,7 +231,7 @@ describe('POST /v1/management/flows/:id/team', () => {
     });
     expect(status).toBe(400);
     expect(corpo).toMatchObject({ erro: { codigo: 'pessoa_fora_do_contrato' } });
-    expect(String((corpo['erro'] as { message: string }).message)).toContain(
+    expect(String((corpo['error'] as { message: string }).message)).toContain(
       'não faz parte do contrato',
     );
   });

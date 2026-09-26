@@ -238,20 +238,20 @@ describe(`POST ${CAMINHO}`, () => {
   it('Reject empty banned terms and accent- or case-insensitive duplicates', async () => {
     const empty = await createWord(sessionManager, { termo: '   ' });
     expect(empty.status).toBe(400);
-    expect(empty.body.erro.code).toBe('term_required');
+    expect(empty.body.error.code).toBe('term_required');
 
     const marca = randomUUID().slice(0, 6);
     expect((await createWord(sessionManager, { termo: `Açúcar ${marca}` })).status).toBe(201);
     const repetido = await createWord(sessionManager, { termo: `ACUCAR ${marca}` });
     expect(repetido.status).toBe(409);
-    expect(repetido.body.erro.code).toBe('term_in_use');
+    expect(repetido.body.error.code).toBe('term_in_use');
   });
 
   it('Return 403 without `tenant.configurar` and 401 without a session', async () => {
     const semPoder = await createWord(sessionWithoutAuthority);
     expect(semPoder.status).toBe(403);
-    expect(semPoder.body.erro.code).toBe('without_permission');
-    expect(semPoder.body.erro.detalhe.permissao).toBe('tenant.configurar');
+    expect(semPoder.body.error.code).toBe('without_permission');
+    expect(semPoder.body.error.detalhe.permissao).toBe('tenant.configurar');
 
     const withoutSession = await fetch(`${api.url}${CAMINHO}`, {
       method: 'POST',
@@ -303,7 +303,7 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
       termo: termOfFirst.toUpperCase(),
     });
     expect(repetido.status).toBe(409);
-    expect(repetido.body.erro.code).toBe('term_in_use');
+    expect(repetido.body.error.code).toBe('term_in_use');
   });
 
   it('sem tenant.configurar é 403; de outro tenant é 404; id malformado é 404', async () => {
@@ -382,9 +382,9 @@ describe('POST /v1/conversations/:id/messages — a lista barra o envio do atend
       texto: `Vocês são uns IDIÓTA${marca}s!`,
     });
     expect(recusada.status).toBe(400);
-    expect(recusada.body.erro.code).toBe('word_forbidden');
-    expect(recusada.body.erro.message).toContain(`"${palavra}"`);
-    expect(recusada.body.erro.detalhe.palavras).toEqual([palavra]);
+    expect(recusada.body.error.code).toBe('word_forbidden');
+    expect(recusada.body.error.message).toContain(`"${palavra}"`);
+    expect(recusada.body.error.detalhe.palavras).toEqual([palavra]);
     // Neither the message nor the outbox was written: the rejection happens BEFORE writing.
     expect(await countMessages(a, conversationA)).toBe(0);
 
@@ -393,7 +393,7 @@ describe('POST /v1/conversations/:id/messages — a lista barra o envio do atend
       texto: `Mandei o Boleto   FALSO ${marca} ontem`,
     });
     expect(recusadaFrase.status).toBe(400);
-    expect(recusadaFrase.body.erro.detalhe.palavras).toEqual([frase]);
+    expect(recusadaFrase.body.error.detalhe.palavras).toEqual([frase]);
 
     // Texto limpo passa.
     const limpa = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
