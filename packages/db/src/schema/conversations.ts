@@ -64,7 +64,7 @@ export const channel = pgTable(
 );
 
 export const queue = pgTable(
-  'queue',
+  'fila',
   {
     id: id(),
     tenantId: refTenant(),
@@ -242,7 +242,7 @@ export const templateMessage = pgTable(
 export const AUTHORS_LAST_MESSAGE = ['contato', 'atendente', 'bot'] as const;
 
 export const conversation = pgTable(
-  'conversation',
+  'conversa',
   {
     id: id(),
     tenantId: refTenant(),
