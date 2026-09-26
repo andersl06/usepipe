@@ -113,8 +113,8 @@ async function avisarConvidado(invitation: InvitationCreated, tenantNome: string
 
 /** O nome do tenant em vigor, para o e-mail dizer onde a pessoa está entrando. */
 async function nomeDoTenant(tx: TransactionPipe): Promise<string> {
-  const { rows } = await tx.execute<{ name: string }>(sql`select nome from tenant limit 1`);
-  return rows[0]?.nome ?? 'Pipe';
+  const { rows } = await tx.execute<{ name: string }>(sql`select nome as name from tenant limit 1`);
+  return rows[0]?.name ?? 'Pipe';
 }
 
 /**
@@ -176,10 +176,10 @@ async function emitirInvitation(
   return {
     id: rows[0]!.id,
     email,
-    papel: nameOfRole,
+    role: nameOfRole,
     token: novo.token,
     url: urlOfInvitation(novo.token),
-    expiraEm: novo.expiraEm,
+    expiresAt: novo.expiraEm,
   };
 }
 
@@ -291,9 +291,9 @@ export async function readInvitation(tokenCru: string): Promise<InvitationVisibl
   const linha = await acharPeloToken(tokenCru);
   return {
     email: linha.email,
-    papel: linha.role,
+    role: linha.role,
     tenant: { name: linha.tenant_nome, slug: linha.slug },
-    expiraEm: new Date(linha.expira_em),
+    expiresAt: new Date(linha.expira_em),
   };
 }
 
@@ -382,8 +382,8 @@ export async function aceitarInvitation(
       tenantId: achado.tenant_id,
       userId,
       email: achado.email,
-      papel: achado.role,
-      tenant: { nome: achado.tenant_nome, slug: achado.slug },
+      role: achado.role,
+      tenant: { name: achado.tenant_nome, slug: achado.slug },
     };
     if (!pessoa) return comum;
 
@@ -448,9 +448,9 @@ async function connectAndLogin(
   // que exige SSO continua entrando pelo Google se alguém tiver um convite na
   // mão — é a porta dos fundos clássica, irmã do "esqueci minha senha".
   const { rows: politica } = await tx.execute<{ policy: string }>(
-    sql`select politica from conexao_sso where tenant_id = ${tenantId}::uuid limit 1`,
+    sql`select politica as policy from conexao_sso where tenant_id = ${tenantId}::uuid limit 1`,
   );
-  if (politica[0]?.politica === 'obrigatorio') {
+  if (politica[0]?.policy === 'obrigatorio') {
     throw new InboundRefused(
       'sso_obrigatorio',
       'Esta empresa entra pelo provedor de identidade dela. Use o link de SSO.',
@@ -465,5 +465,5 @@ async function connectAndLogin(
   `);
   await tx.execute(sql`update usuario set ultimo_acesso_em = now() where id = ${userId}::uuid`);
 
-  return { tenantId, userId, token: novo.token, expiraEm: novo.expiraEm };
+  return { tenantId, usuarioId: userId, token: novo.token, expiresAt: novo.expiraEm };
 }

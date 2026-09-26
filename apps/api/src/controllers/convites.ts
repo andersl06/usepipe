@@ -85,7 +85,7 @@ export class InvitationsController {
     return {
       email: convite.email,
       role: convite.role,
-      tenant: convite.tenant,
+      tenant: { nome: convite.tenant.name, slug: convite.tenant.slug },
       expiraEm: convite.expiresAt.toISOString(),
     };
   }
