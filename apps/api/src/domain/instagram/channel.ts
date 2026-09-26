@@ -82,7 +82,8 @@ export async function readChannelInstagram(tenantId: string, canalId: string): P
   if (!UUID.test(canalId)) throw PipeError.naoEncontrado('Canal');
   const linha = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<LineChannel>(sql`
-      select id, tenant_id, nome, ativo, numero_id, criado_em, config
+      select id, tenant_id, nome as name, ativo as active, numero_id,
+             criado_em as "createdAt", config
         from canal where id = ${canalId}::uuid and tipo = 'instagram' limit 1
     `);
     return rows[0] ?? null;
@@ -91,8 +92,8 @@ export async function readChannelInstagram(tenantId: string, canalId: string): P
   return {
     id: linha.id,
     tenantId: linha.tenant_id,
-    nome: linha.nome,
-    ativo: linha.ativo,
+    name: linha.name,
+    active: linha.active,
     igUserId: linha.numero_id ?? '',
     config: decifrarConfig(linha.config ?? {}, keyring()),
   };
@@ -121,15 +122,15 @@ function visivel(linha: LineChannel): ChannelInstagramVisible {
   const pendente = config['reautorizacaoPendente'] === true;
   return {
     id: linha.id,
-    name: linha.nome,
-    ativo: linha.ativo,
+    name: linha.name,
+    active: linha.active,
     igUserId: linha.numero_id,
     username: texto(config['username']),
-    state: !linha.ativo ? 'desligado' : pendente ? 'indisponivel' : 'conectado',
-    motivo: linha.ativo && pendente ? 'reautorizacao_pendente' : null,
-    tokenExpiraEm: texto(config['tokenExpiraEm']),
+    state: !linha.active ? 'desligado' : pendente ? 'indisponivel' : 'conectado',
+    motivo: linha.active && pendente ? 'reautorizacao_pendente' : null,
+    tokenExpiresAt: texto(config['tokenExpiraEm']),
     webhookUrl: urlDoWebhookInstagram(linha.id),
-    criadoEm: linha.criado_em instanceof Date ? linha.criado_em : new Date(linha.criado_em),
+    criadoEm: linha.createdAt instanceof Date ? linha.createdAt : new Date(linha.createdAt),
   };
 }
 
@@ -141,7 +142,7 @@ function visivel(linha: LineChannel): ChannelInstagramVisible {
 export async function listChannelsInstagram(tenantId: string): Promise<ChannelInstagramVisible[]> {
   return noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<LineChannel>(sql`
-      select id, tenant_id, nome, ativo, numero_id, criado_em, config
+      select id, tenant_id, nome as name, ativo as active, numero_id, criado_em as "createdAt", config
         from canal where tipo = 'instagram' order by criado_em
     `);
     return rows.map(visivel);
@@ -151,7 +152,7 @@ export async function listChannelsInstagram(tenantId: string): Promise<ChannelIn
 async function lerVisivel(tenantId: string, channelId: string): Promise<ChannelInstagramVisible> {
   const linha = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<LineChannel>(sql`
-      select id, tenant_id, nome, ativo, numero_id, criado_em, config
+      select id, tenant_id, nome as name, ativo as active, numero_id, criado_em as "createdAt", config
         from canal where id = ${channelId}::uuid and tipo = 'instagram' limit 1
     `);
     return rows[0] ?? null;
@@ -277,7 +278,7 @@ export async function conectarInstagramManual(pedido: {
     errorOfWebhook = (erro as Error).message;
     console.error(`[instagram] a assinatura do webhook do canal ${channelId} falhou: ${errorOfWebhook}`);
   }
-  return { channel: await lerVisivel(pedido.tenantId, channelId), errorOfWebhook, webhook };
+  return { channel: await lerVisivel(pedido.tenantId, channelId), webhookError: errorOfWebhook, webhook };
 }
 
 /**
@@ -303,7 +304,7 @@ export async function desconectarInstagram(
     const { rows } = await tx.execute<LineChannel>(sql`
       update canal set ativo = false, atualizado_em = now()
        where id = ${canalId}::uuid and tipo = 'instagram'
-      returning id, tenant_id, nome, ativo, numero_id, criado_em, config
+      returning id, tenant_id, nome as name, ativo as active, numero_id, criado_em as "createdAt", config
     `);
     const gravado = rows[0];
     if (!gravado) throw PipeError.naoEncontrado('Canal');
