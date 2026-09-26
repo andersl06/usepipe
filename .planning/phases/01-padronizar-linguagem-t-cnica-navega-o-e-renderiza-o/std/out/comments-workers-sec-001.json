@@ -1,0 +1,612 @@
+{
+  "items": [
+    {
+      "id": "workers-comment-502232a3",
+      "action": "translate",
+      "new_text": "Run work with `pipe.tenant_id` set. Queries in the callback must run in series. `Promise.all` disrupts the transaction's `set_config` and can leave a query running without a tenant; see README.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/banco.ts:35; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-52df730d",
+      "action": "translate",
+      "new_text": "Two pools and roles. Only the app role (`DATABASE_URL_APP`) accesses business data, always inside `comTenant`. The owner role (`DATABASE_URL`) has one worker use: identify the tenant of each queued row. `outbox_mensagem` and `entrega_webhook` span all tenants, and RLS on `pipe.tenant_id` cannot return rows before a tenant is set. Migration `0001_rls` records this exception. Isolation still requires that no query except the claim `select` uses the owner role.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/banco.ts:4; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-469d92c4",
+      "action": "translate",
+      "new_text": "so two workers cannot claim the same row. Use the owner role to scan all tenants.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/entrega.ts:100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-c6e9c881",
+      "action": "translate",
+      "new_text": "Intentionally serial: each item opens its own transaction with a fixed tenant.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/entrega.ts:116; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-5c6c18e5",
+      "action": "translate",
+      "new_text": "Delivery queue drains `outbox_mensagem` and sends messages. Call Meta OUTSIDE the transaction: holding a pool connection during an HTTP call that may take seconds could exhaust the pool under load. Steps: claim with the owner role, read and send, then write the result.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-041b0d39",
+      "action": "translate",
+      "new_text": "Instagram sends to the IGSID (`contato_identidade`), never a phone number, and supports text and URL media, not WhatsApp templates. Pipe intentionally does not enforce Direct's 24-hour window (or 7 days with HUMAN_AGENT) here or in `@pipe/core`: `canalDoCore` in `apps/api/src/dominio/envio.ts` treats non-WhatsApp channels as without a window. Outside the window Meta returns 4xx and the message becomes `falhou` with Meta's reason.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:204; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-1154921c",
+      "action": "translate",
+      "new_text": "The keyring is reread on every send; cache it if profiling shows this matters.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/entrega.ts:220; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-506b0399",
+      "action": "translate",
+      "new_text": "Build the request and reject invalid media before a network call. Check media format and size (`regras-blip.md` §1.6) and template parameter offset (§1.4) here. Unsupported media must never reach Meta; the agent sees a reason instead of a Meta code.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:264; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-101c3ae8",
+      "action": "translate",
+      "new_text": "For a flow question, use buttons or a list if the channel allows it; otherwise numbered text.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:304; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-a9537a93",
+      "action": "translate",
+      "new_text": "Only on WhatsApp: Instagram has its own quick reply, not connected yet, so send text.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:306; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-e810bdf4",
+      "action": "translate",
+      "new_text": "Use increasing backoff with jitter. Without jitter, a thousand messages failing together retry together and hit Meta again in the same second.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-8f83641e",
+      "action": "translate",
+      "new_text": "There is no JSONB column on `mensagem`; template values exist only in the queue job. If that job",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/entrega.ts:354; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-b304f64a",
+      "action": "translate",
+      "new_text": "is lost, fail loudly instead of sending a template with misplaced parameters.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/entrega.ts:355; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-ea862705",
+      "action": "translate",
+      "new_text": "Channel identity takes precedence; phone number is the fallback for a contact who has never messaged.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:393; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-bae7e9c7",
+      "action": "translate",
+      "new_text": "Use `type`, not `interface`: only the alias gets the implicit index signature required by `execute<T>`.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-f81736b9",
+      "action": "translate",
+      "new_text": "Database `config` contains the ENCRYPTED token (`cifrarConfig` when creating the channel).",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/entrega.ts:401; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-6b620e9a",
+      "action": "translate",
+      "new_text": "Without decryption, `Bearer` would contain `pipev1…` and Meta would reject every send;",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/entrega.ts:402; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-05d8258b",
+      "action": "translate",
+      "new_text": "the test double would miss this. Require the keyring only when decryption is needed.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/entrega.ts:403; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-be3eaf48",
+      "action": "translate",
+      "new_text": "`anexo.chave_storage` is an object-storage key; the public base URL is configuration.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:420; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-d4ca0013",
+      "action": "translate",
+      "new_text": "Return the message to `pendente`: to the agent it is still on its way.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:460; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-d6cff5f2",
+      "action": "translate",
+      "new_text": "Positional template values, keyed by message ID, come from the queue job. The database has no column for them yet; see `parametros_perdidos`.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/entrega.ts:78; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-3f869ec3",
+      "action": "translate",
+      "new_text": "Process one delivery queue sweep and return each message result for end-to-end tests and production logs.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/entrega.ts:92; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-1557737e",
+      "action": "translate",
+      "new_text": "Atomic claim: `skip locked` lets two workers split the queue without",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/entrega.ts:99; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-bd0f6dfe",
+      "action": "translate",
+      "new_text": "Queue names and connection live together. A queue transports work; the durable record is in `outbox_mensagem`, `entrega_webhook`, or `execucao_workflow` (data model §9). Losing a job delays processing but does not lose a message.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/filas.ts:1; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-228bf794",
+      "action": "translate",
+      "new_text": "in Redis; hence the hyphen.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/filas.ts:10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-3c920810",
+      "action": "translate",
+      "new_text": "Only a nudge: the worker sweeps the outbox regardless.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/filas.ts:20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-774e504d",
+      "action": "translate",
+      "new_text": "Download received attachment media (`chave_storage = 'meta:<media_id>'` or Instagram CDN URL) into our storage. `api`, not workers, consumes this job because it already decrypts the channel token for Meta downloads (`dominio/midia.ts`), as with CRM mirroring. The job carries identifiers only; the consumer rereads attachment and channel inside that tenant's `comTenant`.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/filas.ts:31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-42b4fbda",
+      "action": "translate",
+      "new_text": "Check conversation SLA (`apps/api/src/dominio/gestao/sla-motor.ts`). As with media downloads, `api` consumes this job because SLA rules and the priority/notification action live there. The job carries two IDs; the consumer rereads conversation and tenant rules inside its `noTenant`.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/filas.ts:45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-e4b2403c",
+      "action": "update",
+      "new_text": "Mirror a contact into the client CRM. `api`, not the workers, consumes this queue, as with `pipe-entrada`: the API talks to CRM and owns the domain rule. The API consumer also runs the sweep that requeues missed work. The job carries identifiers only. The consumer rereads the contact inside that tenant's `comTenant`; a `contatoId` from another client cannot write to the wrong CRM because the query returns no row without the correct tenant.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:173-207; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-4fed691f",
+      "action": "translate",
+      "new_text": "Synchronize a tenant's data dictionary from its CRM metadata. As with mirroring, `api` consumes the job because it talks to CRM. The job carries only `tenantId`; synchronization rereads configuration inside that tenant's `comTenant`.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/filas.ts:78; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-87d37c83",
+      "action": "translate",
+      "new_text": "Import contacts from CSV (`importacao-de-contatos.ts`). Workers consume this long database-only job. The file stays in `importacao_arquivo`, not in the job; the job carries two IDs and processing rereads data inside the tenant's `comTenant`.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/filas.ts:94; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-8ff08114",
+      "action": "translate",
+      "new_text": "Instagram Direct outbound adapter, reconstructed from chatwoot/chatwoot (MIT), `app/services/instagram/send_on_instagram_service.rb`: `POST /{ig-user-id}/messages` on `graph.instagram.com` with `{recipient:{id}, message:{text}|{attachment}}`. Failures intentionally use `ErroWhatsApp`, the delivery class whose `permanente` flag decides retry versus stopping; it is not a WhatsApp-only error. As with WhatsApp, `PIPE_WHATSAPP_CLIENTE=real` calls Meta and any other value uses the test double.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/instagram.ts:3; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-a42caa96",
+      "action": "translate",
+      "new_text": "Map Pipe type to Instagram `attachment.type`. Confirm `file` for documents with a real token.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/instagram.ts:40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-6a09f5a3",
+      "action": "translate",
+      "new_text": "Direct has no attachment caption: send it as a second message. A failure here must NOT",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/instagram.ts:54; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-37b53ee5",
+      "action": "translate",
+      "new_text": "return an error, since retry would resend delivered media; log it instead.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/instagram.ts:55; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-986a4fa6",
+      "action": "translate",
+      "new_text": "Treat 4xx as permanent (outside the 24-hour window, blocked user, expired token),",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/instagram.ts:81; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-34e90333",
+      "action": "translate",
+      "new_text": "while 429 and 5xx return to the outbox. The Meta message omits the token; it is in the header.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/instagram.ts:82; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-b75e710f",
+      "action": "translate",
+      "new_text": "Test double: return sequential `mid` values and record calls without a token.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/instagram.ts:95; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-87cc5d3e",
+      "action": "update",
+      "new_text": "Worker process. Three queues handle message delivery, daily aggregation, and contact import. Delivery has two triggers: a job published by `api` when enqueuing, and a periodic sweep because a queue can lose a job while the outbox must retain the message.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/main.ts:5-7,20-56,65-71; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-a897b4a5",
+      "action": "translate",
+      "new_text": "Run one import at a time, like Chatwoot's `low` queue: two large spreadsheets",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/main.ts:52; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-f53fb40c",
+      "action": "translate",
+      "new_text": "in parallel would contend with message delivery for the database.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/main.ts:53; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-834faddd",
+      "action": "translate",
+      "new_text": "Delivery recovery sweep picks up jobs lost by the queue and messages",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/main.ts:65; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-5fca2dfd",
+      "action": "translate",
+      "new_text": "waiting for the next backoff attempt.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/main.ts:66; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-01d86892",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/messenger.ts:6; false-positive URL string, not a comment; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-478ad942",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/cliente.ts:17; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-63d1c975",
+      "action": "translate",
+      "new_text": "System-user token, encrypted in `canal.config` (spec §6).",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/whatsapp/cliente.ts:19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-e6cb5114",
+      "action": "translate",
+      "new_text": "Default `v21.0`. Meta discontinues old versions, so this is configurable.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/cliente.ts:21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-176c5859",
+      "action": "translate",
+      "new_text": "WhatsApp outbound adapter. Two implementations share an interface because we have NO test WABA: `ClienteWhatsAppReal` calls Cloud API; `ClienteWhatsAppDuble` simulates delivery, delays, and failures to exercise the whole path. `PIPE_WHATSAPP_CLIENTE` selects one; without a WABA, the default is intentionally the double. Starting the real client without credentials would generate repeated authentication failures rather than useful signal.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/cliente.ts:3; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-805be2d9",
+      "action": "translate",
+      "new_text": "Public object-storage URL. Media is uploaded before sending (§4.3).",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/cliente.ts:32; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-e3ea42c8",
+      "action": "translate",
+      "new_text": "Template values by SEND position, after applying the media offset.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/cliente.ts:41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-ac30d026",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/cliente.ts:45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-211a48e1",
+      "action": "translate",
+      "new_text": "Recipient in E.164 without `+`, as Cloud API requires.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/cliente.ts:56; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-15059300",
+      "action": "translate",
+      "new_text": "`permanente` controls the outcome: a permanent failure stops retries and writes `erro_codigo`/`erro_texto` on the message; a temporary failure returns to the outbox with increasing delay. Confusing them wastes five attempts on a nonexistent number.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/cliente.ts:67; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-dac485ad",
+      "action": "translate",
+      "new_text": "Build the template even without sending: a shifted parameter must fail here,",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:113; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-c75baf7e",
+      "action": "translate",
+      "new_text": "rather than silently on the far side.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:114; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-0dfe144b",
+      "action": "translate",
+      "new_text": "(`delivered`). Emit `read` only when the client opens the message; see `marcarLida`.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:156; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-8be89bad",
+      "action": "translate",
+      "new_text": "Keep a single instance so tests and worker inspect the same double.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:172; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-e8d53b58",
+      "action": "translate",
+      "new_text": "Meta webhook payload with one `statuses[]`, for posting to the inbound endpoint.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:175; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-bd6b5da4",
+      "action": "translate",
+      "new_text": "Recipients that always fail, to exercise the error path.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-b530305e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-11142d30",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-e67ee7c6",
+      "action": "translate",
+      "new_text": "Cloud API double. It is the operating mode while there is no WABA, not merely a test mock. It simulates Meta accepting a message, returning a `wamid`, and LATER sending status webhooks. The same endpoint used in production consumes those statuses, so the tested path is real. It also builds template components before accepting, exposing shifted-parameter errors in the double instead of only in production.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-c063b782",
+      "action": "translate",
+      "new_text": "Actual calls made, proving that Meta was NOT called.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:72; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-37592908",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:77; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-300a8e38",
+      "action": "translate",
+      "new_text": "The client opened the message; Meta sends `read` only then.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/duble.ts:92; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-94da5b87",
+      "action": "translate",
+      "new_text": "`PIPE_WHATSAPP_CLIENTE=real` enables Cloud API; any other or absent value selects the double. Without a WABA, the double is the default to avoid repeated authentication failures from the real client.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/index.ts:14; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-4903f231",
+      "action": "translate",
+      "new_text": "Replace the client at runtime for tests and rehearsal mode.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/index.ts:25; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-a42ec08d",
+      "action": "translate",
+      "new_text": "Label for the button opening the list; Meta requires one of at most 20 characters.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/interativo.ts:23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-9263a945",
+      "action": "translate",
+      "new_text": "Represent a flow question (Blip `select`) as a WhatsApp interactive message. Follow the source channel's \"Configurações\" settings (`referencias-blip/fichas/FICHA-canal-whatsapp.md` §3): with quick reply enabled, up to three options become buttons; with menu enabled, up to ten become a list; otherwise use numbered text, also stored in `mensagem.conteudo` and shown by Desk. Cloud API limits: button title 20 characters, list-row title 24, body 1024. Do NOT truncate oversized options: clients would read a different answer than the flow expects. Fall back to text for the whole question.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/interativo.ts:3; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-b6667698",
+      "action": "translate",
+      "new_text": "Both switches default to enabled, matching the observed source state.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/interativo.ts:47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-5916ad70",
+      "action": "translate",
+      "new_text": "Return `null` to send text if the format is disabled, an option is too long, or the body is empty or too large.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/interativo.ts:53; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-02dc2ccd",
+      "action": "translate",
+      "new_text": "Meta rejects duplicate titles, and the answer would be ambiguous for the flow.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/interativo.ts:64; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-3f6e2f73",
+      "action": "translate",
+      "new_text": "Validate media before calling Meta. Source: `referencias-blip/pesquisa/regras-blip.md` §1.6, Blip's media-upload policy. Research marks the format list ⚠️ because it changed before. It is a documented DEFAULT, not a fixed invariant: `validarMidia` accepts a policy parameter, so a future per-tenant list can be read from the database. Blip documents 100 MB for documents and 16 MB for video and audio. There is NO documented image size; do not guess one. Images have no size ceiling here, but their format is still validated.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/midia.ts:1; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-b55665ea",
+      "action": "translate",
+      "new_text": "Return `null` for accepted media. Never throw: the caller records failure on the message.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/midia.ts:101; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-2b4cdfcd",
+      "action": "translate",
+      "new_text": "Meta Cloud API client. `POST https://graph.facebook.com/<versao>/<phone_number_id>/messages`. This has never been exercised with a real WABA. Error classification, which determines retry or stop, is the behavior verified here.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-f871ce5a",
+      "action": "translate",
+      "new_text": "`id` is the 1-based position; the response carries `title`, which the flow matches.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:132; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

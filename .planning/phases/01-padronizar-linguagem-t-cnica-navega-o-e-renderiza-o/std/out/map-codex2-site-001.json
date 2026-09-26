@@ -1,0 +1,84 @@
+{
+  "rows": [
+    {
+      "id": "site-dir-8254be5e",
+      "new": "apps/site/blog/frases-prontas-for-attendance-in-whatsapp",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "site-dir-91a8d4da",
+      "new": "apps/site/blog/message-automatica-and-of-ausencia-in-whatsapp",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "site-dir-ebe8dd8d",
+      "new": "apps/site/ferramentas/agendador-of-message-whatsapp",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "site-file-cd868ef9",
+      "new": "apps/site/assets/previa-management.png",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "site-symbol-d885a0aa",
+      "new": "buttons",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "site-symbol-7a07b610",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "site-symbol-1752497c",
+      "new": "byId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "site-symbol-5902df16",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "site-symbol-b4e6ab53",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "site-ts-local-cc379bbe",
+      "new": "inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    }
+  ]
+}

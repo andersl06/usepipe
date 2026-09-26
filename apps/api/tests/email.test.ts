@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_EMAIL_MODO'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
@@ -12,23 +12,19 @@ process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_URL_APP'] = 'http://telas.teste';
 
 const { RemetenteDuble, RemetenteHttp, definirRemetente, enviarEmailSemDerrubar, remetente } =
-  await import('../src/dominio/email.js');
-const { criarConvite, reenviarConvite } = await import('../src/dominio/convites.js');
-const { aplicarEventosDeModelo } = await import('../src/dominio/whatsapp/eventos-de-modelo.js');
-const { esquecerCanal, fecharBancos, resolverCanal } = await import('../src/banco.js');
+  await import('../src/domain/email.js');
+const { createInvitation, resendInvitation } = await import('../src/domain/convites.js');
+const { applyEventsOfTemplate } = await import('../src/domain/whatsapp/events-of-template.js');
+const { forgetChannel, fecharBancos, resolveChannel } = await import('../src/database.js');
 const { montarCenario } = await import('./ajuda.js');
-import type { Email, RemetenteDeEmail } from '../src/dominio/email.js';
+import type { Email, RemetenteDeEmail } from '../src/domain/email.js';
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
 /**
- * E-mail: o dublê registra, o convite dispara com o link, a recategorização
- * dispara para a lista do canal (e não dispara desligada), e a falha do
- * provedor NÃO derruba nenhuma das duas operações.
+ * Email: the double records it, the invite fires with the link, recategorization fires for the channel's list (and doesn't fire when disabled), and a provider failure does NOT bring down either operation.
  *
- * Sem servidor HTTP: `criarConvite` e `aplicarEventosDeModelo` são chamados
- * direto, como `convites.test.ts` e `canais.test.ts` já fazem. O remetente real
- * é exercitado com um `fetch` falso, para provar o contrato do POST sem rede.
+ * No HTTP server: `criarConvite` and `aplicarEventosDeModelo` are called directly, as `convites.test.ts` and `canais.test.ts` already do. The real sender is exercised with a fake `fetch`, to prove the POST's contract without a network.
  */
 
 let cenario: Cenario;
@@ -41,7 +37,7 @@ class RemetenteQueFalha implements RemetenteDeEmail {
   }
 }
 
-async function semearPapelDeConta(nome: string): Promise<void> {
+async function seedRoleOfAccount(nome: string): Promise<void> {
   await cenario.dono.execute(sql`
     insert into permissao (codigo, descricao, grupo)
     values ('conta.resumo.ler', 'conta.resumo.ler', 'teste') on conflict (codigo) do nothing
@@ -56,17 +52,17 @@ async function semearPapelDeConta(nome: string): Promise<void> {
   `);
 }
 
-/** Uma pessoa do tenant com a permissão dada — quem o alerta acha quando a lista está vazia. */
-async function pessoaCom(permissao: string, email: string): Promise<string> {
+/** A person on the tenant with the given permission — who the alert finds when the list is empty. */
+async function pessoaCom(permission: string, email: string): Promise<string> {
   const marca = randomUUID().slice(0, 8);
-  const { rows: usuarios } = await cenario.dono.execute<{ id: string }>(sql`
+  const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, ${`Pessoa ${marca}`}, ${email})
     returning id
   `);
   await cenario.dono.execute(sql`
     insert into permissao (codigo, descricao, grupo)
-    values (${permissao}, ${permissao}, 'teste') on conflict (codigo) do nothing
+    values (${permission}, ${permission}, 'teste') on conflict (codigo) do nothing
   `);
   const { rows: papeis } = await cenario.dono.execute<{ id: string }>(sql`
     insert into papel (tenant_id, nome, escopo)
@@ -74,27 +70,27 @@ async function pessoaCom(permissao: string, email: string): Promise<string> {
   `);
   await cenario.dono.execute(sql`
     insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
-    values (${cenario.tenantId}, ${papeis[0]!.id}, ${permissao})
+    values (${cenario.tenantId}, ${papeis[0]!.id}, ${permission})
   `);
   await cenario.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${cenario.tenantId}, ${usuarios[0]!.id}, ${papeis[0]!.id})
+    values (${cenario.tenantId}, ${users[0]!.id}, ${papeis[0]!.id})
   `);
-  return usuarios[0]!.id;
+  return users[0]!.id;
 }
 
-/** Grava a preferência de alerta no canal do cenário e limpa o cache de canal. */
-async function configurarAlerta(ativo: boolean, emails: string[]): Promise<void> {
-  const preferencias = JSON.stringify({ alertaRecategorizacao: { ativo, emails } });
+/** Writes the alert preference on the scenario's channel and clears the channel cache. */
+async function configurarAlerta(active: boolean, emails: string[]): Promise<void> {
+  const preferences = JSON.stringify({ alertRecategorization: { active, emails } });
   await cenario.dono.execute(sql`
-    update canal set config = config || jsonb_build_object('preferencias', ${preferencias}::jsonb)
-     where id = ${cenario.canalId}::uuid
+    update canal set config = config || jsonb_build_object('preferencias', ${preferences}::jsonb)
+     where id = ${cenario.channelId}::uuid
   `);
-  esquecerCanal(cenario.canalId);
+  forgetChannel(cenario.channelId);
 }
 
-/** O evento de recategorização como a Meta manda, para o modelo do cenário. */
-function recategorizacao(nome: string, de: string, para: string): unknown {
+/** The recategorization event as Meta sends it, for the scenario's template. */
+function recategorization(nome: string, de: string, para: string): unknown {
   return {
     object: 'whatsapp_business_account',
     entry: [
@@ -116,25 +112,25 @@ function recategorizacao(nome: string, de: string, para: string): unknown {
   };
 }
 
-async function criarModelo(nome: string, categoria: string): Promise<string> {
+async function createTemplate(nome: string, categoria: string): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into template_mensagem (tenant_id, canal_id, nome, idioma, categoria, status_meta, corpo)
-    values (${cenario.tenantId}, ${cenario.canalId}::uuid, ${nome}, 'pt_BR', ${categoria}, 'aprovado', 'Oi')
+    values (${cenario.tenantId}, ${cenario.channelId}::uuid, ${nome}, 'pt_BR', ${categoria}, 'aprovado', 'Oi')
     returning id
   `);
   return rows[0]!.id;
 }
 
-async function categoriaDoModelo(id: string): Promise<string> {
-  const { rows } = await cenario.dono.execute<{ categoria: string }>(
-    sql`select categoria from template_mensagem where id = ${id}::uuid`,
+async function categoryOfTemplate(id: string): Promise<string> {
+  const { rows } = await cenario.dono.execute<{ category: string }>(
+    sql`select categoria as "category" from template_mensagem where id = ${id}::uuid`,
   );
-  return rows[0]!.categoria;
+  return rows[0]!.category;
 }
 
 beforeAll(async () => {
   cenario = await montarCenario(`email-${randomUUID().slice(0, 8)}`);
-  await semearPapelDeConta('guest');
+  await seedRoleOfAccount('guest');
 }, 180_000);
 
 afterAll(async () => {
@@ -161,12 +157,12 @@ describe('o remetente', () => {
     expect(await enviarEmailSemDerrubar(email, 'teste')).toBe(true);
     expect(RemetenteDuble.enviados).toEqual([email]);
 
-    // Ninguém para avisar não é erro, e não registra nada.
+    // // Nobody to notify isn't an error, and nothing gets recorded.
     expect(await enviarEmailSemDerrubar({ ...email, para: [] }, 'teste')).toBe(false);
     expect(RemetenteDuble.enviados).toHaveLength(1);
   });
 
-  it('o real faz o POST no formato do provedor, com o token no cabeçalho — e sem credencial recusa antes', async () => {
+  it('POST provider-formatted emails with an authorization token and reject missing credentials', async () => {
     const chamadas: { url: string; init: RequestInit }[] = [];
     const buscarFalso = ((url: string, init: RequestInit) => {
       chamadas.push({ url, init });
@@ -183,7 +179,7 @@ describe('o remetente', () => {
       delete process.env['PIPE_EMAIL_REMETENTE'];
       await expect(
         new RemetenteHttp(buscarFalso).enviar({ para: ['x@y.z'], assunto: 'a', texto: 'b' }),
-      ).rejects.toMatchObject({ codigo: 'email_sem_credencial' });
+      ).rejects.toMatchObject({ codigo: 'email_without_credential' });
       expect(chamadas).toHaveLength(0);
 
       process.env['PIPE_EMAIL_TOKEN'] = 'token-de-teste-bem-comprido';
@@ -209,15 +205,15 @@ describe('o remetente', () => {
         html: '<p>Texto</p>',
       });
 
-      // Recusa do provedor vira erro com o status — e o token não vaza na mensagem.
+      // // A provider refusal becomes an error with the status — and the token doesn't leak into the message.
       const recusa = (() =>
         Promise.resolve(new Response('token-de-teste-bem-comprido invalido', { status: 401 }))) as unknown as typeof fetch;
       await expect(
         new RemetenteHttp(recusa).enviar({ para: ['x@y.z'], assunto: 'a', texto: 'b' }),
-      ).rejects.toMatchObject({ codigo: 'email_recusado', detalhe: { http: 401 } });
+      ).rejects.toMatchObject({ codigo: 'email_refused', detalhe: { http: 401 } });
       await new RemetenteHttp(recusa)
         .enviar({ para: ['x@y.z'], assunto: 'a', texto: 'b' })
-        .catch((erro: Error) => expect(erro.message).not.toContain('token-de-teste-bem-comprido'));
+        .catch((error: Error) => expect(error.message).not.toContain('token-de-teste-bem-comprido'));
     } finally {
       if (antes.token === undefined) delete process.env['PIPE_EMAIL_TOKEN'];
       else process.env['PIPE_EMAIL_TOKEN'] = antes.token;
@@ -229,40 +225,40 @@ describe('o remetente', () => {
   });
 });
 
-describe('convite', () => {
-  it('cria o convite e manda o link por e-mail — e o link continua na resposta', async () => {
+describe('Create and email invitations', () => {
+  it('Email the invitation link while also returning it in the response', async () => {
     const email = `ana.${randomUUID().slice(0, 6)}@cliente.teste`;
-    const convite = await criarConvite(cenario.tenantId, { email, papel: 'guest' });
-    expect(convite.url).toContain('http://telas.teste/convite/');
+    const invitation = await createInvitation(cenario.tenantId, { email, role: 'guest' });
+    expect(invitation.url).toContain('http://telas.teste/invite/');
 
     expect(RemetenteDuble.enviados).toHaveLength(1);
     const enviado = RemetenteDuble.enviados[0]!;
     expect(enviado.para).toEqual([email]);
     expect(enviado.assunto).toContain('Convite');
-    expect(enviado.texto).toContain(convite.url);
-    // Diz onde a pessoa está entrando e com que acesso.
+    expect(enviado.texto).toContain(invitation.url);
+    // // Says where the person is signing in and with what access.
     expect(enviado.texto).toContain(`e2e email-`);
     expect(enviado.texto).toContain('Pode visualizar');
   });
 
   it('reenviar manda o link NOVO, que é o que passa a valer', async () => {
     const email = `bia.${randomUUID().slice(0, 6)}@cliente.teste`;
-    const primeiro = await criarConvite(cenario.tenantId, { email, papel: 'guest' });
+    const first = await createInvitation(cenario.tenantId, { email, role: 'guest' });
     RemetenteDuble.reiniciar();
 
-    const segundo = await reenviarConvite(cenario.tenantId, primeiro.id);
-    expect(segundo.url).not.toBe(primeiro.url);
+    const segundo = await resendInvitation(cenario.tenantId, first.id);
+    expect(segundo.url).not.toBe(first.url);
     expect(RemetenteDuble.enviados).toHaveLength(1);
     expect(RemetenteDuble.enviados[0]!.para).toEqual([email]);
     expect(RemetenteDuble.enviados[0]!.texto).toContain(segundo.url);
-    expect(RemetenteDuble.enviados[0]!.texto).not.toContain(primeiro.url);
+    expect(RemetenteDuble.enviados[0]!.texto).not.toContain(first.url);
   });
 
-  it('o provedor fora do ar NÃO derruba o convite: ele existe e a resposta traz o link', async () => {
+  it('Preserve an invitation and return its link when the email provider is unavailable', async () => {
     definirRemetente(new RemetenteQueFalha());
     const email = `carla.${randomUUID().slice(0, 6)}@cliente.teste`;
-    const convite = await criarConvite(cenario.tenantId, { email, papel: 'guest' });
-    expect(convite.url).toContain('/convite/');
+    const convite = await createInvitation(cenario.tenantId, { email, role: 'guest' });
+    expect(convite.url).toContain('/invite/');
 
     const { rows } = await cenario.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from convite where email = ${email} and aceito_em is null`,
@@ -271,18 +267,18 @@ describe('convite', () => {
   });
 });
 
-describe('alerta de recategorização de modelo', () => {
-  it('dispara para os e-mails configurados no canal, um por modelo recategorizado', async () => {
-    const modeloId = await criarModelo(`lembrete_${randomUUID().slice(0, 6)}`, 'utilidade');
-    const { rows } = await cenario.dono.execute<{ nome: string }>(
-      sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
+describe('Send template recategorization alerts', () => {
+  it('Send one alert per recategorized template to channel-configured emails', async () => {
+    const templateId = await createTemplate(`lembrete_${randomUUID().slice(0, 6)}`, 'utilidade');
+    const { rows } = await cenario.dono.execute<{ name: string }>(
+      sql`select nome as "name" from template_mensagem where id = ${templateId}::uuid`,
     );
-    const nome = rows[0]!.nome;
+    const nome = rows[0]!.name;
     await configurarAlerta(true, ['ana@pipe.app', 'bia@pipe.app']);
-    const canal = (await resolverCanal(cenario.canalId))!;
+    const channel = (await resolveChannel(cenario.channelId))!;
 
-    expect(await aplicarEventosDeModelo(canal, recategorizacao(nome, 'UTILITY', 'MARKETING'))).toBe(1);
-    expect(await categoriaDoModelo(modeloId)).toBe('marketing');
+    expect(await applyEventsOfTemplate(channel, recategorization(nome, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await categoryOfTemplate(templateId)).toBe('marketing');
 
     expect(RemetenteDuble.enviados).toHaveLength(1);
     const enviado = RemetenteDuble.enviados[0]!;
@@ -291,54 +287,54 @@ describe('alerta de recategorização de modelo', () => {
     expect(enviado.assunto).toContain('Utilidade → Marketing');
     expect(enviado.texto).toContain('WhatsApp de teste');
 
-    // Modelo que o Pipe não conhece não dispara nada.
-    expect(await aplicarEventosDeModelo(canal, recategorizacao('nao_existe', 'UTILITY', 'MARKETING'))).toBe(0);
+    // // A template Pipe doesn't know doesn't fire anything.
+    expect(await applyEventsOfTemplate(channel, recategorization('nao_existe', 'UTILITY', 'MARKETING'))).toBe(0);
     expect(RemetenteDuble.enviados).toHaveLength(1);
   });
 
-  it('não dispara quando o alerta está desligado — mas o modelo muda do mesmo jeito', async () => {
-    const modeloId = await criarModelo(`aviso_${randomUUID().slice(0, 6)}`, 'utilidade');
-    const { rows } = await cenario.dono.execute<{ nome: string }>(
-      sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
+  it('Skip email alerts when disabled while still updating the template category', async () => {
+    const modeloId = await createTemplate(`aviso_${randomUUID().slice(0, 6)}`, 'utilidade');
+    const { rows } = await cenario.dono.execute<{ name: string }>(
+      sql`select nome as "name" from template_mensagem where id = ${modeloId}::uuid`,
     );
     await configurarAlerta(false, ['ana@pipe.app']);
-    const canal = (await resolverCanal(cenario.canalId))!;
+    const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await aplicarEventosDeModelo(canal, recategorizacao(rows[0]!.nome, 'UTILITY', 'MARKETING'))).toBe(1);
-    expect(await categoriaDoModelo(modeloId)).toBe('marketing');
+    expect(await applyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await categoryOfTemplate(modeloId)).toBe('marketing');
     expect(RemetenteDuble.enviados).toHaveLength(0);
   });
 
-  it('lista vazia = quem gerencia canal no tenant, como diz a tela da origem', async () => {
+  it('Send alerts to tenant channel managers when the recipient list is empty', async () => {
     const emailDoGestor = `gestor.${randomUUID().slice(0, 6)}@cliente.teste`;
     await pessoaCom('canal.gerenciar', emailDoGestor);
-    const modeloId = await criarModelo(`cobranca_${randomUUID().slice(0, 6)}`, 'marketing');
-    const { rows } = await cenario.dono.execute<{ nome: string }>(
-      sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
+    const modeloId = await createTemplate(`cobranca_${randomUUID().slice(0, 6)}`, 'marketing');
+    const { rows } = await cenario.dono.execute<{ name: string }>(
+      sql`select nome as "name" from template_mensagem where id = ${modeloId}::uuid`,
     );
     await configurarAlerta(true, []);
-    const canal = (await resolverCanal(cenario.canalId))!;
+    const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await aplicarEventosDeModelo(canal, recategorizacao(rows[0]!.nome, 'MARKETING', 'UTILITY'))).toBe(1);
+    expect(await applyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'MARKETING', 'UTILITY'))).toBe(1);
     expect(RemetenteDuble.enviados).toHaveLength(1);
     expect(RemetenteDuble.enviados[0]!.para).toContain(emailDoGestor);
-    // O atendente do cenário não gerencia canal: não entra na lista.
-    const { rows: atendente } = await cenario.dono.execute<{ email: string }>(
-      sql`select email from usuario where id = ${cenario.atendenteId}::uuid`,
+    // // The scenario's agent doesn't manage the channel: doesn't make the list.
+    const { rows: agent } = await cenario.dono.execute<{ email: string }>(
+      sql`select email from usuario where id = ${cenario.agentId}::uuid`,
     );
-    expect(RemetenteDuble.enviados[0]!.para).not.toContain(atendente[0]!.email);
+    expect(RemetenteDuble.enviados[0]!.para).not.toContain(agent[0]!.email);
   });
 
-  it('o provedor fora do ar NÃO derruba a recategorização', async () => {
+  it('Complete template recategorization even when the email provider is unavailable', async () => {
     definirRemetente(new RemetenteQueFalha());
-    const modeloId = await criarModelo(`falha_${randomUUID().slice(0, 6)}`, 'utilidade');
-    const { rows } = await cenario.dono.execute<{ nome: string }>(
-      sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
+    const modeloId = await createTemplate(`falha_${randomUUID().slice(0, 6)}`, 'utilidade');
+    const { rows } = await cenario.dono.execute<{ name: string }>(
+      sql`select nome as "name" from template_mensagem where id = ${modeloId}::uuid`,
     );
     await configurarAlerta(true, ['ana@pipe.app']);
-    const canal = (await resolverCanal(cenario.canalId))!;
+    const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await aplicarEventosDeModelo(canal, recategorizacao(rows[0]!.nome, 'UTILITY', 'MARKETING'))).toBe(1);
-    expect(await categoriaDoModelo(modeloId)).toBe('marketing');
+    expect(await applyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await categoryOfTemplate(modeloId)).toBe('marketing');
   });
 });

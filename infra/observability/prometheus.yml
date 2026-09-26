@@ -1,0 +1,52 @@
+# Coleta do degrau pequeno. Vale para o grande também, trocando os alvos fixos
+# por descoberta de serviço — as regras de alerta são as mesmas nos dois.
+
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+  external_labels:
+    ambiente: producao
+
+rule_files:
+  - /etc/prometheus/alertas.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+scrape_configs:
+  - job_name: pipe-api
+    # `/metrics` existe (apps/api/src/controladores/operacao.ts) e é daqui que saem
+    # `pipe_queue_depth`, `pipe_queue_oldest_item_age_seconds`,
+    # `pipe_message_delivery_total`, `pipe_migration_pending` e o histograma
+    # `http_request_duration_seconds` — ou seja, quase todos os alertas.
+    #
+    # A coleta é por dentro da rede, de um IP privado, e é por isso que ela passa
+    # sem `PIPE_METRICS_TOKEN`. Se um dia o token for definido, acrescente aqui:
+    #   authorization: { credentials: <token> }
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['api:3100']
+
+  # NÃO existe alvo `pipe-workers`. `apps/workers` não abre porta HTTP nenhuma
+  # (nenhum `createServer` no código) e o Dockerfile dele não tem EXPOSE. Um job
+  # apontando para `workers:9464` ficaria `up == 0` para sempre — e o alerta
+  # `WorkerParado`, que é `severidade: acorda`, tocaria o telefone toda noite
+  # desde o primeiro dia. Alerta que toca sem ação é como se ensina a ignorar
+  # todos os outros. Volta quando os workers expuserem métrica de verdade.
+
+  - job_name: traefik
+    static_configs:
+      - targets: ['traefik:8080']
+
+  - job_name: postgres
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  - job_name: no
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # O node-exporter lê /metricas via textfile collector: é por onde entram as
+  # métricas de backup e de teste de restauração escritas pelos scripts.

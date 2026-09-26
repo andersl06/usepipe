@@ -1,0 +1,484 @@
+{
+  "items": [
+    {
+      "id": "packages-contracts-comment-5710bdc9",
+      "action": "translate",
+      "new_text": "Desk screen contracts describe responses from `GET /v1/desk/…` rendered by the front end. Dates cross JSON as ISO 8601 text; the display converts them with `new Date(...)`, never the contract. This was the sole shape change in the Next Desk migration, where page and database shared a process and queries returned `Date`. These shapes follow queries in `apps/api/src/dominio/desk/*.ts`; changing a query column requires a matching contract change, surfaced by front-end `tsc`.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/desk.ts:1-11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-4623fc82",
+      "action": "translate",
+      "new_text": "Priority levels match `@pipe/core/conversa` (`NIVEIS_PRIORIDADE`) but are spelled out here because the contracts package imports no packages. All five literals match; front-end `tsc` catches divergence when indexing `ROTULOS_PRIORIDADE` with this type.",
+      "sensitivity": "architecture",
+      "evidence": "packages/contracts/src/desk.ts:14-19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-33e10acd",
+      "action": "translate",
+      "new_text": "Variable names in the order of `{{1}}`, `{{2}}`, etc. Without that order, the UI cannot resolve the body.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/desk.ts:151-154; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-50c27a24",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:171-171",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-24205784",
+      "action": "translate",
+      "new_text": "CONTACT tags (`contato_etiqueta`) shown and edited in the Contact Data panel. They stay separate from conversation tags because `etiqueta.escopo` gives them different scopes; neither scope inherits the other.",
+      "sensitivity": "architecture",
+      "evidence": "packages/contracts/src/desk.ts:177-181; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-a47bf295",
+      "action": "translate",
+      "new_text": "`GET /v1/desk/conversas/:id` returns `aberta: null` with HTTP 200 when the conversation does not exist or does not belong to this agent. The UI then returns to the queue without an open conversation, as the Next page did, without entering the cache error path.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/desk.ts:186-191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-bf1da7cd",
+      "action": "translate",
+      "new_text": "Agent who handled the ticket; null means it never left the bot.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:213-213",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-4e5221eb",
+      "action": "translate",
+      "new_text": "Agent who closed it; null with `encerradaEm` set means automatic closure.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:216-216",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-be5c84ab",
+      "action": "translate",
+      "new_text": "`GET /v1/desk/tickets/:id` reads an old ticket. It returns 404 when absent or hidden by tenant RLS. `status` is included because the rail shows it on every screen and the screen uses one API request.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/desk.ts:220-226; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-66b1acb6",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:234-234",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-7476ade1",
+      "action": "translate",
+      "new_text": "`null` means the domain does not yet store this, rather than zero.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:241-241",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-698a0c6b",
+      "action": "translate",
+      "new_text": "Seconds from arrival to the agent's first response.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:247-247",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-b2fddf65",
+      "action": "translate",
+      "new_text": "Seconds from opening until assignment to an agent.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:249-249",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-e5c50ea1",
+      "action": "translate",
+      "new_text": "Queue time plus time the conversation spent on hold, in seconds.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:251-251",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-8d219469",
+      "action": "translate",
+      "new_text": "`GET /v1/desk/metricas?inicio=&fim=` takes ISO 8601 bounds. The browser computes the interval in the viewer's clock (`lib/periodo.ts`), as the Next page formerly did on the server clock; the API only applies it. `status` travels with metrics because the rail displays it on every screen, allowing one API request per screen.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/desk.ts:267-274; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-52790540",
+      "action": "translate",
+      "new_text": "Link to this customer's CRM record, never the home page.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/desk.ts:285-285; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-405b2581",
+      "action": "translate",
+      "new_text": "Null means the agent has not answered this conversation yet; shown as the Unanswered card.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:31-31",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-50ef30e8",
+      "action": "translate",
+      "new_text": "When the hold started, used by the On Hold card timer.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:36-36",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-1bf4ada6",
+      "action": "translate",
+      "new_text": "This agent's own markers (`marcacao_conversa`, migration 0041): pinned at the top of the list and manually marked unread. Null means unmarked. They belong to the agent, not the conversation; a colleague receiving a transfer does not see them.",
+      "sensitivity": "architecture",
+      "evidence": "packages/contracts/src/desk.ts:44-48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-8a273c30",
+      "action": "translate",
+      "new_text": "`GET /v1/desk/fila` returns the agent queue and catalogs needed by its column: status, pause reasons, tags, colleagues, and canned responses. One request and transaction mirror the Next page. Search, card, ordering, and queue filtering stay in the browser (`lib/ordem.ts`) because they are pure rules over the full list.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/desk.ts:86-92; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-9809afc0",
+      "action": "translate",
+      "new_text": "Waiting customers: queued conversations in this agent's queues. The Answer button takes the oldest.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/desk.ts:95-95",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-344ce6f5",
+      "action": "translate",
+      "new_text": "`POST /v1/conversas/:id/encerrar` and the matching monitoring action. Blip accepts removable tag lists from `blip-tags`; the singular field remains for old Pipe clients during migration.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/encerramento.ts:1-5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-1a8b5497",
+      "action": "translate",
+      "new_text": "@deprecated Send `etiqueta_ids`, which accepts multiple tags or an empty list.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/encerramento.ts:8-8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-b5dd79e8",
+      "action": "translate",
+      "new_text": "WebSocket events say what changed, never what the record is. Clients receive that conversation X changed and refetch through the API under RLS. Sending records over the socket would create a second data path and a second place to get tenant isolation wrong; the API already has 90 policies and 21 tests. Small event payloads also let clients read the latest version rather than one already stale in transit.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/eventos.ts:1-12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-ff911c3d",
+      "action": "translate",
+      "new_text": "Conversation changed: new message, state, assignment, or window.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/eventos.ts:15-15",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-96031363",
+      "action": "translate",
+      "new_text": "Queue size or composition changed.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/eventos.ts:17-17",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-095872a8",
+      "action": "translate",
+      "new_text": "Agent status changed: online, paused, or invisible.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/eventos.ts:19-19",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-af6cfa5d",
+      "action": "translate",
+      "new_text": "Monitoring figures changed enough to warrant a redraw.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/eventos.ts:21-21",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-182c305c",
+      "action": "translate",
+      "new_text": "Changed record; omitted for aggregate subjects such as monitoring.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/eventos.ts:30-30",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-caea7556",
+      "action": "translate",
+      "new_text": "Server emission time in ISO 8601. Clients use it to discard out-of-order events: reconnection delivers accumulated events, and applying an old event after a new one would make the UI wrong.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/eventos.ts:32-38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-0bc7b551",
+      "action": "translate",
+      "new_text": "Client subscription request. `tenant_id` comes from the server session, never this request; accepting a client-supplied tenant would let subscribers choose whose events to receive.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/eventos.ts:42-47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-3f99eef4",
+      "action": "translate",
+      "new_text": "Specific IDs when a screen subscribes to one conversation rather than all.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/eventos.ts:50-50",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-6469cc12",
+      "action": "translate",
+      "new_text": "Channel control frames telling clients what happened.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/eventos.ts:54-54; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-ae2436f5",
+      "action": "translate",
+      "new_text": "Write-route contracts for the Attendance module registration screens: queues, canned responses, and custom pauses. Shapes follow `apps/api/src/dominio/gestao/cadastros.ts` and `apps/api/src/dominio/gestao/comunicacao.ts`; front-end `tsc` catches field divergence. Only request and response shapes live here. Read shapes (`FilaCadastrada`, `UsoDePausas`, `RespostaProntaListada`) remain manually duplicated in `apps/gestao-vite/src/lib/*`, as before this task.",
+      "sensitivity": "architecture",
+      "evidence": "packages/contracts/src/gestao-cadastros.ts:1-11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-b698ad07",
+      "action": "translate",
+      "new_text": "The four operators in `apps/api/src/dominio/gestao/regra-fila.ts`, manually duplicated like the rest of this file.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-cadastros.ts:105-105; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-1be36dc4",
+      "action": "translate",
+      "new_text": "Only supplied fields change; when supplied, `condicoes` replaces all previous conditions.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-cadastros.ts:114-114; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-087698f5",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-cadastros.ts:166-166",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-75492ed0",
+      "action": "translate",
+      "new_text": "Only supplied fields change; an absent field means leave it untouched, as with flow `PATCH`.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-cadastros.ts:24-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-2d545f47",
+      "action": "translate",
+      "new_text": "The contact's Team tab (`/fluxo/:id/equipe`) shows who can access this flow and at what permission, returned by `/v1/gestao/fluxos/:id/equipe`. Names mirror the source: per-resource levels are the three `PermissionsList.html` radio choices (`none` 0, `read` 1, `readWrite` 3), and role is one of four `rzslider` stops (`visualize`, `custom`, `edit`, `admin`). Full rules live in `apps/api/src/dominio/gestao/equipe-do-fluxo.ts` and migration 0035.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:1-10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-5bf4f153",
+      "action": "translate",
+      "new_text": "Three radio choices per row: `none` (0), `read` (1), and `readWrite` (3).",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:12-12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-c1e7a196",
+      "action": "translate",
+      "new_text": "Four stops of the Permission slider.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:15-15; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-9e6a8f3d",
+      "action": "translate",
+      "new_text": "Source resource to selected radio choice; absent key means `nenhum`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:18-18; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-490e2132",
+      "action": "translate",
+      "new_text": "One `PermissionsList.html` row: source key and its pt-BR title.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:21-21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-48c1428a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:27-27",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-c22e8917",
+      "action": "translate",
+      "new_text": "Whether the current viewer can add, edit, and remove members.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:42-42",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-13812712",
+      "action": "translate",
+      "new_text": "`null` when the person is not a member of this flow and access comes from the account.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:48-48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-9ed1dd8b",
+      "action": "translate",
+      "new_text": "Account permission that currently allows flow editing and grants full visibility.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:51-51; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-0fcb554f",
+      "action": "translate",
+      "new_text": "Only for `POST`: email of someone already on the contract.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:57-57; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-94f5a30e",
+      "action": "translate",
+      "new_text": "Read only when the role is `personalizado`; otherwise the level controls access.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/gestao-equipe.ts:60-60; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-9411c31b",
+      "action": "translate",
+      "new_text": "Management contact screens (`/fluxo/:id/**`) render responses from `GET /v1/gestao/fluxos/…`. Dates cross JSON as ISO 8601 text and are converted with `new Date(...)` at display time, never in the contract. Shapes follow queries in `apps/api/src/dominio/gestao-fluxo.ts`; front-end `tsc` catches changed columns.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:1-10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-955f6412",
+      "action": "translate",
+      "new_text": "`GET /v1/gestao/fluxos/:id/growth`: data belongs to the ACCOUNT, not the contact.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:174-174; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-a5875af3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:182-182",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-e18ebddd",
+      "action": "translate",
+      "new_text": "`GET /v1/gestao/fluxos/:id/conteudos`; without a WhatsApp channel, `modelos` is empty.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:197-197; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-16f71ddb",
+      "action": "translate",
+      "new_text": "Description in Edit Flow: optional there, nullable here.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:20-20",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-b8ad1c88",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:203-203",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-e0d18209",
+      "action": "translate",
+      "new_text": "A chatbot (a `fluxo`): either the router or the bot handling a service.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:205-205",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-31291ed4",
+      "action": "translate",
+      "new_text": "Router service (`roteador_servico`): its name and handling chatbot.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:214-214",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-af790249",
+      "action": "translate",
+      "new_text": "Link ID used by `PATCH` and `DELETE …/servicos/:servicoId`.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:216-216; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-5f157d07",
+      "action": "translate",
+      "new_text": "Service name used as the `Redirect` address.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:218-218; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-d8601240",
+      "action": "translate",
+      "new_text": "Whether this is the primary chatbot.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:220-220",
+      "notes": ""
+    }
+  ]
+}

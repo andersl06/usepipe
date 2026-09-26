@@ -1,0 +1,475 @@
+route_row_id,app,route,file,line,kind,snippet
+crm-front-route-07e0e538,crm,/configuracoes/api,apps/crm/src/app/configuracoes/acoes.ts,217,other,if (resultado.ok) recarregar('/configuracoes/api');
+crm-front-route-07e0e538,crm,/configuracoes/api,apps/crm/src/app/configuracoes/acoes.ts,226,other,if (resultado.ok) recarregar('/configuracoes/api');
+crm-front-route-07e0e538,crm,/configuracoes/api,apps/crm/src/app/configuracoes/acoes.ts,235,other,if (resultado.ok) recarregar('/configuracoes/api');
+crm-front-route-07e0e538,crm,/configuracoes/api,apps/crm/src/app/configuracoes/acoes.ts,248,other,if (resultado.ok) recarregar('/configuracoes/api');
+crm-front-route-07e0e538,crm,/configuracoes/api,apps/crm/src/app/configuracoes/acoes.ts,257,other,if (resultado.ok) recarregar('/configuracoes/api');
+crm-front-route-07e0e538,crm,/configuracoes/api,apps/crm/src/componentes/configuracoes/cabecalho.tsx,82,other,"href: '/configuracoes/api',"
+crm-front-route-07e0e538,crm,/configuracoes/api,apps/crm/src/componentes/estrutura-crm.tsx,55,other,"{ rotulo: 'Chaves e webhooks', href: '/configuracoes/api' },"
+crm-front-route-689e3425,crm,/configuracoes/campos,apps/crm/src/app/configuracoes/acoes.ts,185,other,if (resultado.ok) recarregar('/configuracoes/campos');
+crm-front-route-689e3425,crm,/configuracoes/campos,apps/crm/src/app/configuracoes/acoes.ts,197,other,if (resultado.ok) recarregar('/configuracoes/campos');
+crm-front-route-689e3425,crm,/configuracoes/campos,apps/crm/src/app/configuracoes/acoes.ts,206,other,if (resultado.ok) recarregar('/configuracoes/campos');
+crm-front-route-689e3425,crm,/configuracoes/campos,apps/crm/src/componentes/configuracoes/cabecalho.tsx,72,other,"href: '/configuracoes/campos',"
+crm-front-route-689e3425,crm,/configuracoes/campos,apps/crm/src/componentes/estrutura-crm.tsx,52,other,"{ rotulo: 'Campos personalizados', href: '/configuracoes/campos' },"
+crm-front-route-cbdcfd55,crm,/configuracoes/espaco,apps/crm/src/app/configuracoes/acoes.ts,87,other,if (resultado.ok) recarregar('/configuracoes/espaco');
+crm-front-route-cbdcfd55,crm,/configuracoes/espaco,apps/crm/src/app/configuracoes/perfil/page.tsx,124,link,"O fuso se muda em <Link href=""/configuracoes/espaco"">Espaço de trabalho</Link>."
+crm-front-route-cbdcfd55,crm,/configuracoes/espaco,apps/crm/src/componentes/configuracoes/cabecalho.tsx,42,other,"href: '/configuracoes/espaco',"
+crm-front-route-cbdcfd55,crm,/configuracoes/espaco,apps/crm/src/componentes/estrutura-crm.tsx,49,other,"{ rotulo: 'Espaço de trabalho', href: '/configuracoes/espaco' },"
+crm-front-route-a1049bf7,crm,/configuracoes/faixas,apps/crm/src/componentes/configuracoes/cabecalho.tsx,67,other,"href: '/configuracoes/faixas',"
+crm-front-route-a1049bf7,crm,/configuracoes/faixas,apps/crm/src/componentes/estrutura-crm.tsx,54,other,"{ rotulo: 'Faixas e roteamento', href: '/configuracoes/faixas' },"
+crm-front-route-2ea1e404,crm,/configuracoes/membros,apps/crm/src/app/configuracoes/acoes.ts,98,other,if (resultado.ok) recarregar('/configuracoes/membros');
+crm-front-route-2ea1e404,crm,/configuracoes/membros,apps/crm/src/app/configuracoes/acoes.ts,107,other,if (resultado.ok) recarregar('/configuracoes/membros');
+crm-front-route-2ea1e404,crm,/configuracoes/membros,apps/crm/src/app/configuracoes/acoes.ts,117,other,"if (resultado.ok) recarregar('/configuracoes/membros', '/configuracoes/papeis');"
+crm-front-route-2ea1e404,crm,/configuracoes/membros,apps/crm/src/app/configuracoes/acoes.ts,130,other,if (resultado.ok) recarregar('/configuracoes/membros');
+crm-front-route-2ea1e404,crm,/configuracoes/membros,apps/crm/src/componentes/configuracoes/cabecalho.tsx,47,other,"href: '/configuracoes/membros',"
+crm-front-route-2ea1e404,crm,/configuracoes/membros,apps/crm/src/componentes/estrutura-crm.tsx,50,other,"{ rotulo: 'Membros', href: '/configuracoes/membros' },"
+crm-front-route-ceb72bcd,crm,/configuracoes/papeis/:*,apps/crm/src/app/configuracoes/acoes.ts,154,other,"if (resultado.ok) recarregar(`/configuracoes/papeis/${papelId}`, '/configuracoes/papeis');"
+crm-front-route-ceb72bcd,crm,/configuracoes/papeis/:*,apps/crm/src/app/configuracoes/papeis/page.tsx,31,link,"<Link className=""cfg-link-forte"" href={`/configuracoes/papeis/${p.id}`}>"
+crm-front-route-b7d8a8d8,crm,/configuracoes/papeis,apps/crm/src/app/configuracoes/acoes.ts,117,other,"if (resultado.ok) recarregar('/configuracoes/membros', '/configuracoes/papeis');"
+crm-front-route-b7d8a8d8,crm,/configuracoes/papeis,apps/crm/src/app/configuracoes/acoes.ts,141,other,if (resultado.ok) recarregar('/configuracoes/papeis');
+crm-front-route-b7d8a8d8,crm,/configuracoes/papeis,apps/crm/src/app/configuracoes/acoes.ts,154,other,"if (resultado.ok) recarregar(`/configuracoes/papeis/${papelId}`, '/configuracoes/papeis');"
+crm-front-route-b7d8a8d8,crm,/configuracoes/papeis,apps/crm/src/app/configuracoes/acoes.ts,167,other,recarregar('/configuracoes/papeis');
+crm-front-route-b7d8a8d8,crm,/configuracoes/papeis,apps/crm/src/app/configuracoes/acoes.ts,168,redirect,redirect('/configuracoes/papeis');
+crm-front-route-b7d8a8d8,crm,/configuracoes/papeis,apps/crm/src/app/configuracoes/papeis/[id]/page.tsx,67,link,"<Link className=""cfg-voltar"" href=""/configuracoes/papeis"">"
+crm-front-route-b7d8a8d8,crm,/configuracoes/papeis,apps/crm/src/app/configuracoes/papeis/[id]/page.tsx,86,link,"<Link href=""/configuracoes/papeis"">crie um papel próprio</Link>."
+crm-front-route-b7d8a8d8,crm,/configuracoes/papeis,apps/crm/src/componentes/configuracoes/cabecalho.tsx,52,other,"href: '/configuracoes/papeis',"
+crm-front-route-b7d8a8d8,crm,/configuracoes/papeis,apps/crm/src/componentes/estrutura-crm.tsx,51,other,"{ rotulo: 'Papéis', href: '/configuracoes/papeis' },"
+crm-front-route-0d0c5e5b,crm,/configuracoes/perfil,apps/crm/src/app/configuracoes/acoes.ts,75,other,if (resultado.ok) recarregar('/configuracoes/perfil');
+crm-front-route-0d0c5e5b,crm,/configuracoes/perfil,apps/crm/src/componentes/configuracoes/cabecalho.tsx,32,other,"href: '/configuracoes/perfil',"
+crm-front-route-0d0c5e5b,crm,/configuracoes/perfil,apps/crm/src/componentes/estrutura-crm.tsx,48,other,"{ rotulo: 'Perfil', href: '/configuracoes/perfil' },"
+crm-front-route-4fdda532,crm,/configuracoes/regras-de-score,apps/crm/src/componentes/configuracoes/cabecalho.tsx,62,other,"href: '/configuracoes/regras-de-score',"
+crm-front-route-4fdda532,crm,/configuracoes/regras-de-score,apps/crm/src/componentes/estrutura-crm.tsx,53,other,"{ rotulo: 'Regras de score', href: '/configuracoes/regras-de-score' },"
+crm-front-route-ecefc767,crm,/configuracoes,apps/crm/src/app/configuracoes/configuracoes.css,5,other,folha entra pelo `layout.tsx` de `/configuracoes` e não alcança mais nada.
+crm-front-route-ecefc767,crm,/configuracoes,apps/crm/src/componentes/configuracoes/cabecalho.tsx,10,other,* índice em `/configuracoes` é o que as torna alcançáveis — e continua útil
+crm-front-route-ecefc767,crm,/configuracoes,apps/crm/src/componentes/configuracoes/cabecalho.tsx,131,link,"<Link className=""cfg-voltar"" href=""/configuracoes"">"
+crm-front-route-ecefc767,crm,/configuracoes,apps/crm/src/componentes/estrutura-crm.tsx,82,other,if (caminho.startsWith('/configuracoes')) {
+crm-front-route-ecefc767,crm,/configuracoes,apps/crm/src/componentes/estrutura-crm.tsx,163,href,"href=""/configuracoes"""
+crm-front-route-0736e905,crm,/configuracoes,apps/crm/src/app/configuracoes/configuracoes.css,5,other,folha entra pelo `layout.tsx` de `/configuracoes` e não alcança mais nada.
+crm-front-route-0736e905,crm,/configuracoes,apps/crm/src/componentes/configuracoes/cabecalho.tsx,10,other,* índice em `/configuracoes` é o que as torna alcançáveis — e continua útil
+crm-front-route-0736e905,crm,/configuracoes,apps/crm/src/componentes/configuracoes/cabecalho.tsx,131,link,"<Link className=""cfg-voltar"" href=""/configuracoes"">"
+crm-front-route-0736e905,crm,/configuracoes,apps/crm/src/componentes/estrutura-crm.tsx,82,other,if (caminho.startsWith('/configuracoes')) {
+crm-front-route-0736e905,crm,/configuracoes,apps/crm/src/componentes/estrutura-crm.tsx,163,href,"href=""/configuracoes"""
+crm-front-route-b15f7769,crm,/contas/:*,apps/crm/src/app/contas/[id]/page.tsx,203,other,base={`/contas/${ficha.id}`}
+crm-front-route-b15f7769,crm,/contas/:*,apps/crm/src/app/contas/page.tsx,19,link,"celula: (c) => <Link href={`/contas/${c.id}`}>{c.nome}</Link>,"
+crm-front-route-b15f7769,crm,/contas/:*,apps/crm/src/app/contatos/[id]/page.tsx,68,link,<Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+crm-front-route-b15f7769,crm,/contas/:*,apps/crm/src/app/contatos/[id]/page.tsx,120,link,<Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+crm-front-route-b15f7769,crm,/contas/:*,apps/crm/src/app/contatos/page.tsx,29,link,"c.contaId ? <Link href={`/contas/${c.contaId}`}>{c.contaNome}</Link> : '—',"
+crm-front-route-b15f7769,crm,/contas/:*,apps/crm/src/app/leads/[id]/page.tsx,106,link,<Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+crm-front-route-b15f7769,crm,/contas/:*,apps/crm/src/app/oportunidades/[id]/page.tsx,133,link,<Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+crm-front-route-b15f7769,crm,/contas/:*,apps/crm/src/app/oportunidades/[id]/page.tsx,173,link,<Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+crm-front-route-b15f7769,crm,/contas/:*,apps/crm/src/app/oportunidades/page.tsx,51,link,"o.contaId ? <Link href={`/contas/${o.contaId}`}>{o.contaNome}</Link> : '—',"
+crm-front-route-b15f7769,crm,/contas/:*,apps/crm/src/lib/busca.ts,91,other,"href: `/contas/${c.id}`,"
+crm-front-route-09f8e27a,crm,/contas,apps/crm/src/app/contas/[id]/page.tsx,116,other,"trilha={{ href: '/contas', rotulo: 'Contas' }}"
+crm-front-route-09f8e27a,crm,/contas,apps/crm/src/app/contas/page.tsx,63,other,"<form className=""tblhead"" method=""get"" action=""/contas"">"
+crm-front-route-09f8e27a,crm,/contas,apps/crm/src/componentes/estrutura-crm.tsx,143,other,"{ rotulo: 'Contas', href: '/contas', icone: 'pessoas' },"
+crm-front-route-b48d6eae,crm,/contatos/:*,apps/crm/src/app/contas/[id]/page.tsx,52,link,"celula: (c) => <Link href={`/contatos/${c.id}`}>{c.nome}</Link>,"
+crm-front-route-b48d6eae,crm,/contatos/:*,apps/crm/src/app/contas/[id]/page.tsx,187,link,v={<Link href={`/contatos/${c.id}`}>{c.nome}</Link>}
+crm-front-route-b48d6eae,crm,/contatos/:*,apps/crm/src/app/contatos/[id]/page.tsx,139,other,base={`/contatos/${ficha.id}`}
+crm-front-route-b48d6eae,crm,/contatos/:*,apps/crm/src/app/contatos/page.tsx,23,link,"celula: (c) => <Link href={`/contatos/${c.id}`}>{c.nome}</Link>,"
+crm-front-route-b48d6eae,crm,/contatos/:*,apps/crm/src/lib/busca.ts,98,other,"href: `/contatos/${c.id}`,"
+crm-front-route-214f19df,crm,/contatos,apps/crm/src/app/contatos/[id]/page.tsx,52,other,"trilha={{ href: '/contatos', rotulo: 'Contatos' }}"
+crm-front-route-214f19df,crm,/contatos,apps/crm/src/app/contatos/page.tsx,80,other,"<form className=""tblhead"" method=""get"" action=""/contatos"">"
+crm-front-route-214f19df,crm,/contatos,apps/crm/src/componentes/estrutura-crm.tsx,144,other,"{ rotulo: 'Contatos', href: '/contatos', icone: 'pessoa' },"
+crm-front-route-410a4d50,crm,/convite/:*,apps/crm/src/app/globais.css,1905,other,A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
+crm-front-route-410a4d50,crm,/convite/:*,apps/crm/src/lib/configuracoes-dados.ts,310,other,* `/convite/:token`: o convidado tomava 404 e o convite morria sem que ninguém
+crm-front-route-410a4d50,crm,/convite/:*,apps/gestao-vite/README.md,21,doc,"- Entrada: `/entrar`, `/convite/:token`"
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/app/convite/[token]/page.tsx,82,href,"<a className=""btn entrar-google"" href=""/entrar"">"
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/app/entrar/acoes.ts,39,redirect,redirect(`/entrar?${volta.toString()}`);
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/app/entrar/acoes.ts,66,redirect,redirect('/entrar');
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/app/globais.css,1905,other,A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/app/layout.tsx,31,other,/* `euAtual` e não `exigirEu`: este layout também embrulha `/entrar` e
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/app/layout.tsx,33,other,"para `/entrar` a partir do layout da própria `/entrar`, em círculo. */"
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/lib/banco.ts,63,redirect,if (!eu) redirect('/entrar');
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/middleware.ts,4,other,"* Sem cookie de sessão, a pessoa vai para `/entrar`. É a porta, e ela é uma só."
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/middleware.ts,12,other,"* do convite. Sem essa exceção, quem não tem sessão seria mandado para `/entrar`"
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/middleware.ts,13,other,"* e de lá para `/entrar`, para sempre."
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/middleware.ts,23,other,url.pathname = '/entrar';
+crm-front-route-525671ef,crm,/entrar,apps/crm/src/middleware.ts,33,other,* não têm para onde ser redirecionados — e mandá-los para `/entrar` quebraria a
+crm-front-route-525671ef,crm,/entrar,apps/gestao-vite/README.md,21,doc,"- Entrada: `/entrar`, `/convite/:token`"
+crm-front-route-571e090e,crm,/oportunidades/:*,apps/crm/src/app/contas/[id]/page.tsx,80,link,"celula: (o) => <Link href={`/oportunidades/${o.id}`}>{o.nome}</Link>,"
+crm-front-route-571e090e,crm,/oportunidades/:*,apps/crm/src/app/oportunidades/[id]/page.tsx,49,link,"celula: (o) => <Link href={`/oportunidades/${o.id}`}>{o.nome}</Link>,"
+crm-front-route-571e090e,crm,/oportunidades/:*,apps/crm/src/app/oportunidades/[id]/page.tsx,239,other,base={`/oportunidades/${ficha.id}`}
+crm-front-route-571e090e,crm,/oportunidades/:*,apps/crm/src/app/oportunidades/page.tsx,45,link,"celula: (o) => <Link href={`/oportunidades/${o.id}`}>{o.nome}</Link>,"
+crm-front-route-571e090e,crm,/oportunidades/:*,apps/crm/src/componentes/quadro-funil.tsx,127,link,<Link href={`/oportunidades/${c.id}`}>{c.nome}</Link>
+crm-front-route-34d9114c,crm,/oportunidades,apps/crm/src/app/oportunidades/[id]/page.tsx,93,other,"trilha={{ href: '/oportunidades', rotulo: 'Oportunidades' }}"
+crm-front-route-34d9114c,crm,/oportunidades,apps/crm/src/app/oportunidades/acoes.ts,15,other,revalidatePath('/oportunidades');
+crm-front-route-34d9114c,crm,/oportunidades,apps/crm/src/app/oportunidades/page.tsx,131,link,"<Link href=""/oportunidades"" role=""tab"" aria-current={vista === 'quadro' ? 'true' : undefined}>"
+crm-front-route-34d9114c,crm,/oportunidades,apps/crm/src/app/oportunidades/page.tsx,135,href,"href=""/oportunidades?vista=tabela"""
+crm-front-route-34d9114c,crm,/oportunidades,apps/crm/src/app/oportunidades/page.tsx,218,other,"<form className=""tblhead"" method=""get"" action=""/oportunidades"">"
+crm-front-route-34d9114c,crm,/oportunidades,apps/crm/src/app/oportunidades/page.tsx,250,link,"<Link className=""btn"" href={`/oportunidades?${semBusca}`}>"
+crm-front-route-34d9114c,crm,/oportunidades,apps/crm/src/app/page.tsx,98,link,"<Link href=""/oportunidades"" className=""btn"" style={{ marginLeft: 'auto' }}>"
+crm-front-route-34d9114c,crm,/oportunidades,apps/crm/src/componentes/estrutura-crm.tsx,137,other,"{ rotulo: 'Oportunidades', href: '/oportunidades', icone: 'grade' },"
+crm-front-route-34d9114c,crm,/oportunidades,apps/crm/src/lib/busca.ts,84,other,"href: `/oportunidades`,"
+desk-vite-front-route-564c8327,desk-vite,/convite/:*,apps/desk-vite/src/App.tsx,22,other,* Só `/entrar` e `/convite/:token` são públicas. O resto fica atrás de
+desk-vite-front-route-564c8327,desk-vite,/convite/:*,apps/desk-vite/src/estilos/globais.css,2501,other,A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
+desk-vite-front-route-564c8327,desk-vite,/convite/:*,apps/gestao-vite/README.md,21,doc,"- Entrada: `/entrar`, `/convite/:token`"
+desk-vite-front-route-6644331a,desk-vite,/entrar,apps/desk-vite/src/App.tsx,22,other,* Só `/entrar` e `/convite/:token` são públicas. O resto fica atrás de
+desk-vite-front-route-6644331a,desk-vite,/entrar,apps/desk-vite/src/componentes/exigir-sessao.tsx,9,other,* Sem sessão vai para `/entrar` com o destino guardado. Enquanto a primeira
+desk-vite-front-route-6644331a,desk-vite,/entrar,apps/desk-vite/src/componentes/exigir-sessao.tsx,25,redirect,return <Navigate to={`/entrar?destino=${encodeURIComponent(destino)}`} replace />;
+desk-vite-front-route-6644331a,desk-vite,/entrar,apps/desk-vite/src/estilos/globais.css,2501,other,A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
+desk-vite-front-route-6644331a,desk-vite,/entrar,apps/desk-vite/src/paginas/convite.tsx,77,href,"<a className=""entrar-google"" href=""/entrar"">"
+desk-vite-front-route-6644331a,desk-vite,/entrar,apps/gestao-vite/README.md,21,doc,"- Entrada: `/entrar`, `/convite/:token`"
+gestao-vite-front-route-19642932,gestao-vite,/contrato/certificados,apps/gestao-vite/src/lib/certificados.ts,3,other,"* `/contrato/certificados` lê, e as regras dela."
+gestao-vite-front-route-19642932,gestao-vite,/contrato/certificados,apps/gestao-vite/src/paginas/contrato/catalogo.ts,101,other,"rota: '/contrato/certificados',"
+gestao-vite-front-route-cd1cbc6a,gestao-vite,/contrato/membros,apps/gestao-vite/src/paginas/contrato/acoes.ts,16,other,irPara(`/contrato/membros?erro=${encodeURIComponent(erro)}`);
+gestao-vite-front-route-cd1cbc6a,gestao-vite,/contrato/membros,apps/gestao-vite/src/paginas/contrato/catalogo.ts,89,other,"rota: '/contrato/membros',"
+gestao-vite-front-route-cd1cbc6a,gestao-vite,/contrato/membros,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.tsx,11,other,"* Antes esta tela lia `/contrato/membros`: sem `fluxo_membro`, todo mundo com"
+gestao-vite-front-route-cd1cbc6a,gestao-vite,/contrato/membros,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,203,other,"* `POST /v1/convites`, o mesmo de `/contrato/membros`, que devolve o link para"
+gestao-vite-front-route-cd1cbc6a,gestao-vite,/contrato/membros,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,394,other,"* era a lista de `/contrato/membros` inteira, porque não havia RBAC por fluxo."
+gestao-vite-front-route-c617878f,gestao-vite,/contrato,apps/gestao-vite/README.md,22,doc,"- Portal e conta: `/portal`, `/novidades`, `/contrato` (+ membros, certificados),"
+gestao-vite-front-route-c617878f,gestao-vite,/contrato,apps/gestao-vite/src/componentes/barra-do-portal.tsx,70,link,"<Link className=""pt-painel"" href=""/contrato"">"
+gestao-vite-front-route-c617878f,gestao-vite,/contrato,apps/gestao-vite/src/lib/contrato.ts,2,other,* O que o Painel do contrato (`/contrato`) lê e grava.
+gestao-vite-front-route-c617878f,gestao-vite,/contrato,apps/gestao-vite/src/paginas/contrato/certificados/page.tsx,36,redirect,"if (!podeLer) return <Navigate to=""/contrato"" replace />;"
+gestao-vite-front-route-c617878f,gestao-vite,/contrato,apps/gestao-vite/src/paginas/contrato/certificados/page.tsx,49,link,"<Link className=""cm-voltar"" href=""/contrato"" aria-label=""Voltar ao painel do contrato"">"
+gestao-vite-front-route-c617878f,gestao-vite,/contrato,apps/gestao-vite/src/paginas/contrato/membros/page.tsx,49,redirect,"if (!podeLer) return <Navigate to=""/contrato"" replace />;"
+gestao-vite-front-route-c617878f,gestao-vite,/contrato,apps/gestao-vite/src/paginas/contrato/membros/page.tsx,71,link,"<Link className=""mb-voltar"" href=""/contrato"" aria-label=""Voltar ao painel do contrato"">"
+gestao-vite-front-route-c617878f,gestao-vite,/contrato,apps/gestao-vite/src/paginas/contrato/page.tsx,33,other,* inteira por cima. Por isso `/contrato` está na lista de casco próprio de
+gestao-vite-front-route-c617878f,gestao-vite,/contrato,apps/gestao-vite/src/paginas/contrato/page.tsx,120,link,"<Link href=""/contrato"">Sair da prévia</Link>"
+gestao-vite-front-route-c617878f,gestao-vite,/contrato,apps/gestao-vite/src/paginas/portal.tsx,444,href,"href=""/contrato"""
+gestao-vite-front-route-a23916e8,gestao-vite,/convite/:*,apps/gestao-vite/README.md,21,doc,"- Entrada: `/entrar`, `/convite/:token`"
+gestao-vite-front-route-a23916e8,gestao-vite,/convite/:*,apps/gestao-vite/src/estilos/globais.css,2925,other,A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
+gestao-vite-front-route-a23916e8,gestao-vite,/convite/:*,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,21,other,* convite (`/convite/:token`). Inventar um formulário que não grava nada
+gestao-vite-front-route-dd7de629,gestao-vite,/criar/fluxo,apps/gestao-vite/README.md,23,doc,"`/minha-conta`, `/bem-vindo`, `/trocar-conta/sem-acesso`, `/criar/fluxo`,"
+gestao-vite-front-route-dd7de629,gestao-vite,/criar/fluxo,apps/gestao-vite/src/paginas/criar/fluxo/acoes.ts,32,other,irPara(`/criar/fluxo?${busca}`);
+gestao-vite-front-route-dd7de629,gestao-vite,/criar/fluxo,apps/gestao-vite/src/paginas/criar/fluxo/page.tsx,83,other,voltarPara={veioDoTemplate ? `/criar/fluxo?passo=template` : '/criar/fluxo'}
+gestao-vite-front-route-dd7de629,gestao-vite,/criar/fluxo,apps/gestao-vite/src/paginas/criar/fluxo/page.tsx,130,link,"<Link className=""cf-cartao"" href=""/criar/fluxo?passo=template"">"
+gestao-vite-front-route-dd7de629,gestao-vite,/criar/fluxo,apps/gestao-vite/src/paginas/criar/fluxo/page.tsx,142,link,"<Link className=""cf-cartao"" href=""/criar/fluxo?passo=nome"">"
+gestao-vite-front-route-dd7de629,gestao-vite,/criar/fluxo,apps/gestao-vite/src/paginas/criar/fluxo/page.tsx,196,link,"<Link className=""btn cr-botao"" href=""/criar/fluxo"">"
+gestao-vite-front-route-dd7de629,gestao-vite,/criar/fluxo,apps/gestao-vite/src/paginas/criar/fluxo/page.tsx,202,href,href={`/criar/fluxo?passo=nome&template=${TEMPLATE_PADRAO}`}
+gestao-vite-front-route-dd7de629,gestao-vite,/criar/fluxo,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,38,other,"* `/criar/fluxo`, entra antes no marketplace (`auth.application.create.marketplace`)"
+gestao-vite-front-route-dd7de629,gestao-vite,/criar/fluxo,apps/gestao-vite/src/paginas/portal.tsx,363,link,"<Link className=""btn primario"" href=""/criar/fluxo"">"
+gestao-vite-front-route-eb643a60,gestao-vite,/criar/roteador,apps/gestao-vite/README.md,24,doc,`/criar/roteador`
+gestao-vite-front-route-eb643a60,gestao-vite,/criar/roteador,apps/gestao-vite/src/paginas/criar/roteador/acoes.ts,19,other,irPara(`/criar/roteador?${busca}`);
+gestao-vite-front-route-eb643a60,gestao-vite,/criar/roteador,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,68,other,"voltarPara=""/criar/roteador"""
+gestao-vite-front-route-eb643a60,gestao-vite,/criar/roteador,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,132,link,"<Link className=""btn primario cr-botao"" href=""/criar/roteador?passo=nome"">"
+gestao-vite-front-route-eb643a60,gestao-vite,/criar/roteador,apps/gestao-vite/src/paginas/portal.tsx,359,link,"<Link className=""btn"" href=""/criar/roteador"">"
+gestao-vite-front-route-c557ff05,gestao-vite,/entrar,apps/gestao-vite/README.md,21,doc,"- Entrada: `/entrar`, `/convite/:token`"
+gestao-vite-front-route-c557ff05,gestao-vite,/entrar,apps/gestao-vite/src/App.tsx,252,other,* Só `/entrar` é pública. O resto fica atrás de `ExigirSessao`.
+gestao-vite-front-route-c557ff05,gestao-vite,/entrar,apps/gestao-vite/src/componentes/exigir-sessao.tsx,7,other,* Sem sessão vai para `/entrar` com o destino guardado; conta que ainda não
+gestao-vite-front-route-c557ff05,gestao-vite,/entrar,apps/gestao-vite/src/componentes/exigir-sessao.tsx,21,redirect,return <Navigate to={`/entrar?destino=${encodeURIComponent(destino)}`} replace />;
+gestao-vite-front-route-c557ff05,gestao-vite,/entrar,apps/gestao-vite/src/estilos/globais.css,2925,other,A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
+gestao-vite-front-route-c557ff05,gestao-vite,/entrar,apps/gestao-vite/src/lib/casca.ts,71,other,"navegar('/entrar', { replace: true });"
+gestao-vite-front-route-c557ff05,gestao-vite,/entrar,apps/gestao-vite/src/paginas/bem-vindo/page.tsx,27,redirect,"if (leitura.error) return <Navigate to=""/entrar"" replace />;"
+gestao-vite-front-route-c557ff05,gestao-vite,/entrar,apps/gestao-vite/src/paginas/convite/page.tsx,77,href,"<a className=""entrar-google"" href=""/entrar"">"
+gestao-vite-front-route-c557ff05,gestao-vite,/entrar,apps/gestao-vite/src/paginas/minha-conta/page.tsx,78,redirect,"if (leitura.error) return <Navigate to=""/entrar"" replace />;"
+gestao-vite-front-route-2656f208,gestao-vite,/fluxo/:*/analise/dashboard,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.tsx,26,other,"`/v1/gestao/fluxos/${contato.id}/analise/dashboard?${q.toString()}`,"
+gestao-vite-front-route-11dd1d7e,gestao-vite,/fluxo/:*/analise/dicionario-de-dados,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,1113,other,"const dicionario = `${baseDoContato(p.dados.roteador ? 'roteador' : 'fluxo', p.id)}/analise/dicionario-de-dados?path=dashboard:listOfBlocks`;"
+gestao-vite-front-route-269d352b,gestao-vite,/fluxo/:*/analise/gerenciador-de-relatorios,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,183,other,"const gerenciador = `${baseDoContato(contato.tipo, contato.id)}/analise/gerenciador-de-relatorios`;"
+gestao-vite-front-route-d922cb9e,gestao-vite,/fluxo/:*/analise/jornada,apps/gestao-vite/src/paginas/fluxo/analise/jornada/pagina.tsx,35,other,"`/v1/gestao/fluxos/${contato.id}/analise/jornada?${q.toString()}`,"
+gestao-vite-front-route-d249f602,gestao-vite,/fluxo/:*/analise/mensagens-ativas,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx,47,other,"`/v1/gestao/fluxos/${contato.id}/analise/mensagens-ativas?${q.toString()}`,"
+gestao-vite-front-route-d67999e8,gestao-vite,/fluxo/:*/analise/relatorios,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/pagina.tsx,16,other,"`/v1/gestao/fluxos/${contato.id}/analise/relatorios`,"
+gestao-vite-front-route-2aac04c3,gestao-vite,/fluxo/:*/analise/visao-geral,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/pagina.tsx,30,other,"`/v1/gestao/fluxos/${contato.id}/analise/visao-geral?${q.toString()}`,"
+gestao-vite-front-route-62c64f71,gestao-vite,/fluxo/:*/analise,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,1,other,/* ============================== a Análise do contato (`/fluxo/{id}/analise`)
+gestao-vite-front-route-62c64f71,gestao-vite,/fluxo/:*/analise,apps/gestao-vite/src/paginas/fluxo/analise/casca.tsx,32,other,"base={`${baseDoContato(contato.tipo, id)}/analise`}"
+gestao-vite-front-route-62c64f71,gestao-vite,/fluxo/:*/analise,apps/gestao-vite/src/paginas/fluxo/itens.ts,130,other,? `${base}/analise`
+gestao-vite-front-route-62c64f71,gestao-vite,/fluxo/:*/analise,apps/gestao-vite/tests/analise-abas.test.ts,11,test,* A fileira de abas da Análise (`/fluxo/{id}/analise`).
+gestao-vite-front-route-62c64f71,gestao-vite,/fluxo/:*/analise,apps/gestao-vite/tests/fluxo-detalhe.test.ts,27,test,"assert.equal(analise?.href, `/${tipo}/${ID}/analise`);"
+gestao-vite-front-route-b08ee83a,gestao-vite,/fluxo/:*/atendimento/atendentes/filas/:*/editar,apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx,115,path-builder,onEditar={() => navegar(`${base}/atendentes/filas/${f.id}/editar`)}
+gestao-vite-front-route-319c3332,gestao-vite,/fluxo/:*/atendimento/atendentes/filas,apps/gestao-vite/src/lib/cadastros-gravar.ts,131,other,await api.delete(`/v1/gestao/atendentes/filas/${filaId}/atendentes/${atendenteId}`);
+gestao-vite-front-route-319c3332,gestao-vite,/fluxo/:*/atendimento/atendentes/filas,apps/gestao-vite/src/paginas/builder/painel-filas.tsx,36,path-builder,"onClick={() => navegar(`${baseDoAtendimento(tipoDoContato, contatoId)}/atendentes/filas`)}"
+gestao-vite-front-route-319c3332,gestao-vite,/fluxo/:*/atendimento/atendentes/filas,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx,63,path-builder,"<button type=""button"" className=""btn"" onClick={() => navegar(`${base}/atendentes/filas`)}>"
+gestao-vite-front-route-319c3332,gestao-vite,/fluxo/:*/atendimento/atendentes/filas,apps/gestao-vite/src/paginas/operacao/casca.tsx,74,other,"{ rotulo: 'Filas de atendimento', rota: 'atendentes/filas' },"
+gestao-vite-front-route-ce9c15c7,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao/adicionar,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx,149,path-builder,onClick={() => navegar(`${base}/atendentes/gestao/adicionar`)}
+gestao-vite-front-route-b3f21ac2,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao/editar,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx,76,other,"navegar(`${base}/atendentes/gestao/editar?atendentes=${ids.join(',')}`);"
+gestao-vite-front-route-fde88337,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao/permissoes,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx,80,other,"navegar(`${base}/atendentes/gestao/permissoes?atendentes=${ids.join(',')}`);"
+gestao-vite-front-route-2b517618,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/lib/cadastros-gravar.ts,131,other,await api.delete(`/v1/gestao/atendentes/filas/${filaId}/atendentes/${atendenteId}`);
+gestao-vite-front-route-2b517618,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,49,path-builder,"<button type=""button"" className=""btn"" onClick={() => navegar(`${base}/atendentes/gestao`)}>"
+gestao-vite-front-route-2b517618,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,78,path-builder,"<button type=""button"" className=""btn"" onClick={() => navegar(`${base}/atendentes/gestao`)}>"
+gestao-vite-front-route-2b517618,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,93,other,if (resultado.ok) navegar(`${base}/atendentes/gestao`);
+gestao-vite-front-route-2b517618,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,146,path-builder,"<Botao type=""button"" onClick={() => navegar(`${base}/atendentes/gestao`)} disabled={enviando}>"
+gestao-vite-front-route-2b517618,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx,234,path-builder,"<Botao variante=""primario"" onClick={() => navegar(`${base}/atendentes/gestao`)}>"
+gestao-vite-front-route-2b517618,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-permissoes.tsx,49,path-builder,"<button type=""button"" className=""btn"" onClick={() => navegar(`${base}/atendentes/gestao`)}>"
+gestao-vite-front-route-2b517618,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-permissoes.tsx,79,other,navegar(`${base}/atendentes/gestao`);
+gestao-vite-front-route-2b517618,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-permissoes.tsx,145,path-builder,"<Botao type=""button"" onClick={() => navegar(`${base}/atendentes/gestao`)} disabled={salvando}>"
+gestao-vite-front-route-2b517618,gestao-vite,/fluxo/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/operacao/casca.tsx,73,other,"{ rotulo: 'Gestão de atendentes', rota: 'atendentes/gestao' },"
+gestao-vite-front-route-6946b5f7,gestao-vite,/fluxo/:*/atendimento/atendentes/pausas,apps/gestao-vite/src/lib/cadastros-gravar.ts,131,other,await api.delete(`/v1/gestao/atendentes/filas/${filaId}/atendentes/${atendenteId}`);
+gestao-vite-front-route-6946b5f7,gestao-vite,/fluxo/:*/atendimento/atendentes/pausas,apps/gestao-vite/src/paginas/operacao/casca.tsx,75,other,"{ rotulo: 'Pausas personalizadas', rota: 'atendentes/pausas' },"
+gestao-vite-front-route-3ce679bc,gestao-vite,/fluxo/:*/atendimento/canais/whatsapp/:*/*,apps/gestao-vite/src/App.tsx,286,other,"`/{tipo}/:id/atendimento/*`, Builder em `/fluxo/:id/builder`,"
+gestao-vite-front-route-3ce679bc,gestao-vite,/fluxo/:*/atendimento/canais/whatsapp/:*/*,apps/gestao-vite/src/App.tsx,287,other,"Growth em `/{tipo}/:id/growth/*`, todas abaixo). Nenhuma carrega um"
+gestao-vite-front-route-3ce679bc,gestao-vite,/fluxo/:*/atendimento/canais/whatsapp/:*/*,apps/gestao-vite/src/componentes/estrutura-gestao.tsx,8,other,"* `/{tipo}/:id/atendimento/*`, casco em `paginas/operacao/casca.tsx`. Nesta"
+gestao-vite-front-route-3ce679bc,gestao-vite,/fluxo/:*/atendimento/canais/whatsapp/:*/*,apps/gestao-vite/src/paginas/fluxo/analise/casca.tsx,9,other,"* origem, `/application/detail/{shortName}/analytics/*`."
+gestao-vite-front-route-f8c425ad,gestao-vite,/fluxo/:*/atendimento/canais,apps/gestao-vite/src/paginas/cadastros/configuracoes-dados.tsx,77,link,<Link href={`${base}/canais`}>Ver os {numero(canais.length)} canais</Link> — com a caixa de
+gestao-vite-front-route-f8c425ad,gestao-vite,/fluxo/:*/atendimento/canais,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,65,link,"<Link className=""ph-voltar"" href={`${base}/canais`} aria-label=""Voltar"">"
+gestao-vite-front-route-f8c425ad,gestao-vite,/fluxo/:*/atendimento/canais,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,165,href,"<Botao href={`${baseDoContato(tipo, id)}/canais`}>Ver canais</Botao>"
+gestao-vite-front-route-f8c425ad,gestao-vite,/fluxo/:*/atendimento/canais,apps/gestao-vite/src/paginas/fluxo/itens.ts,132,other,? `${base}/canais`
+gestao-vite-front-route-f8c425ad,gestao-vite,/fluxo/:*/atendimento/canais,apps/gestao-vite/src/paginas/operacao/casca.tsx,84,other,"{ rotulo: 'Canais de atendimento', rota: 'canais' },"
+gestao-vite-front-route-f8c425ad,gestao-vite,/fluxo/:*/atendimento/canais,apps/gestao-vite/tests/fluxo-detalhe.test.ts,34,test,"assert.equal(canais?.href, `/${tipo}/${ID}/canais`);"
+gestao-vite-front-route-f8c425ad,gestao-vite,/fluxo/:*/atendimento/canais,apps/gestao-vite/tests/fluxo-detalhe.test.ts,147,test,"assert.equal(itens[0]?.href, `/fluxo/${ID}/canais`);"
+gestao-vite-front-route-deaaa7ca,gestao-vite,/fluxo/:*/atendimento/comunicacao/modelos,apps/gestao-vite/src/lib/canais-gravar.ts,177,other,"`/v1/canais/whatsapp/${id}/modelos`,"
+gestao-vite-front-route-deaaa7ca,gestao-vite,/fluxo/:*/atendimento/comunicacao/modelos,apps/gestao-vite/src/paginas/operacao/casca.tsx,57,other,"{ rotulo: 'Modelos de mensagens', rota: 'comunicacao/modelos' },"
+gestao-vite-front-route-ac3a982d,gestao-vite,/fluxo/:*/atendimento/comunicacao/respostas-prontas,apps/gestao-vite/src/paginas/operacao/casca.tsx,56,other,"{ rotulo: 'Respostas prontas', rota: 'comunicacao/respostas-prontas' },"
+gestao-vite-front-route-0a3675a8,gestao-vite,/fluxo/:*/atendimento/historico,apps/gestao-vite/src/paginas/operacao/casca.tsx,38,other,"{ rotulo: 'Histórico', rota: 'historico', icone: 'relogio' },"
+gestao-vite-front-route-0a3675a8,gestao-vite,/fluxo/:*/atendimento/historico,apps/gestao-vite/src/paginas/operacao/historico.tsx,247,other,const limparFiltros = `${base}/historico?de=${de}&ate=${ate}`;
+gestao-vite-front-route-0a3675a8,gestao-vite,/fluxo/:*/atendimento/historico,apps/gestao-vite/src/paginas/operacao/historico.tsx,317,other,acao={`${base}/historico`}
+gestao-vite-front-route-0a3675a8,gestao-vite,/fluxo/:*/atendimento/historico,apps/gestao-vite/src/paginas/operacao/historico.tsx,405,other,"<form method=""get"" action={`${base}/historico`} className=""hist-agrupar"">"
+gestao-vite-front-route-f3062b9c,gestao-vite,/fluxo/:*/atendimento/monitoramento,apps/gestao-vite/src/paginas/fluxo/itens.ts,128,other,? `${base}/atendimento/monitoramento`
+gestao-vite-front-route-f3062b9c,gestao-vite,/fluxo/:*/atendimento/monitoramento,apps/gestao-vite/src/paginas/operacao/casca.tsx,37,other,"{ rotulo: 'Monitoramento', rota: 'monitoramento', icone: 'monitoramento' },"
+gestao-vite-front-route-f3062b9c,gestao-vite,/fluxo/:*/atendimento/monitoramento,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx,272,other,"const base = `${baseDoAtendimento(contato.tipo, contato.id)}/monitoramento`;"
+gestao-vite-front-route-f3062b9c,gestao-vite,/fluxo/:*/atendimento/monitoramento,apps/gestao-vite/tests/filtros-monitoramento.test.ts,17,test,"urlParaLimparFiltros('/fluxo/bot-1/atendimento/monitoramento', { fila: 'fila-1' }),"
+gestao-vite-front-route-f3062b9c,gestao-vite,/fluxo/:*/atendimento/monitoramento,apps/gestao-vite/tests/filtros-monitoramento.test.ts,18,test,"'/fluxo/bot-1/atendimento/monitoramento',"
+gestao-vite-front-route-f3062b9c,gestao-vite,/fluxo/:*/atendimento/monitoramento,apps/gestao-vite/tests/filtros-monitoramento.test.ts,24,test,"urlParaLimparFiltros('/fluxo/bot-1/atendimento/monitoramento', { fila: 'fila-1' }, true),"
+gestao-vite-front-route-f3062b9c,gestao-vite,/fluxo/:*/atendimento/monitoramento,apps/gestao-vite/tests/filtros-monitoramento.test.ts,25,test,"'/fluxo/bot-1/atendimento/monitoramento?fila=fila-1',"
+gestao-vite-front-route-f3062b9c,gestao-vite,/fluxo/:*/atendimento/monitoramento,apps/gestao-vite/tests/fluxo-detalhe.test.ts,84,test,"assert.equal(atendimento?.href, `/fluxo/${ID}/atendimento/monitoramento`);"
+gestao-vite-front-route-6c6b1215,gestao-vite,/fluxo/:*/atendimento/monitoria/:*,apps/gestao-vite/src/paginas/operacao/monitoria.tsx,273,link,<Link href={`${base}/monitoria/${a.id}`}>Abrir</Link>
+gestao-vite-front-route-9bd5e6c0,gestao-vite,/fluxo/:*/atendimento/monitoria,apps/gestao-vite/src/paginas/operacao/casca.tsx,49,other,"{ rotulo: 'Monitoria com IA', rota: 'monitoria' },"
+gestao-vite-front-route-9bd5e6c0,gestao-vite,/fluxo/:*/atendimento/monitoria,apps/gestao-vite/src/paginas/operacao/monitoria-ficha.tsx,68,link,"<Link href={`${base}/monitoria`} className=""btn"">"
+gestao-vite-front-route-9bd5e6c0,gestao-vite,/fluxo/:*/atendimento/monitoria,apps/gestao-vite/src/paginas/operacao/monitoria.tsx,87,other,"<form className=""quickfilters"" method=""get"" action={`${base}/monitoria`}>"
+gestao-vite-front-route-9bd5e6c0,gestao-vite,/fluxo/:*/atendimento/monitoria,apps/gestao-vite/src/paginas/operacao/monitoria.tsx,118,href,"<a href={`${base}/monitoria`} className=""btn"">"
+gestao-vite-front-route-3dbbd6f3,gestao-vite,/fluxo/:*/atendimento/preferencias/dados,apps/gestao-vite/src/paginas/operacao/casca.tsx,83,other,"{ rotulo: 'Dados', rota: 'preferencias/dados' },"
+gestao-vite-front-route-d95e11ff,gestao-vite,/fluxo/:*/atendimento/preferencias/gerais,apps/gestao-vite/src/paginas/operacao/casca.tsx,82,other,"{ rotulo: 'Configurações gerais', rota: 'preferencias/gerais' },"
+gestao-vite-front-route-6e820b68,gestao-vite,/fluxo/:*/atendimento/regras/atendimento,apps/gestao-vite/src/paginas/operacao/casca.tsx,64,other,"{ rotulo: 'Atendimento', rota: 'regras/atendimento' },"
+gestao-vite-front-route-6e820b68,gestao-vite,/fluxo/:*/atendimento/regras/atendimento,apps/gestao-vite/src/paginas/operacao/casca.tsx,91,path-builder,"return `${baseDoContato(tipo, id)}/atendimento`;"
+gestao-vite-front-route-522fced0,gestao-vite,/fluxo/:*/atendimento/regras/horarios,apps/gestao-vite/src/paginas/operacao/casca.tsx,66,other,"{ rotulo: 'Horários', rota: 'regras/horarios' },"
+gestao-vite-front-route-75939efe,gestao-vite,/fluxo/:*/atendimento/regras/sla,apps/gestao-vite/src/paginas/operacao/casca.tsx,65,other,"{ rotulo: 'SLA', rota: 'regras/sla' },"
+gestao-vite-front-route-c13a6c21,gestao-vite,/fluxo/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,281,href,href={`${base}/atendimento/relatorios/atendimento`}
+gestao-vite-front-route-c13a6c21,gestao-vite,/fluxo/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,288,href,href={`${base}/atendimento/relatorios/atendimento`}
+gestao-vite-front-route-c13a6c21,gestao-vite,/fluxo/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/operacao/casca.tsx,46,other,"{ rotulo: 'Atendimento', rota: 'relatorios/atendimento' },"
+gestao-vite-front-route-c13a6c21,gestao-vite,/fluxo/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/operacao/casca.tsx,91,path-builder,"return `${baseDoContato(tipo, id)}/atendimento`;"
+gestao-vite-front-route-c13a6c21,gestao-vite,/fluxo/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,215,path-builder,return `${base}/relatorios/atendimento?${p}`;
+gestao-vite-front-route-c13a6c21,gestao-vite,/fluxo/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,273,other,acao={`${base}/relatorios/atendimento`}
+gestao-vite-front-route-c13a6c21,gestao-vite,/fluxo/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,274,other,limpar={temFiltro ? `${base}/relatorios/atendimento?de=${de}&ate=${ate}` : null}
+gestao-vite-front-route-558216fc,gestao-vite,/fluxo/:*/atendimento/relatorios/esforco,apps/gestao-vite/src/paginas/operacao/casca.tsx,48,other,"{ rotulo: 'Esforço por atendente', rota: 'relatorios/esforco' },"
+gestao-vite-front-route-558216fc,gestao-vite,/fluxo/:*/atendimento/relatorios/esforco,apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx,48,other,"<form className=""quickfilters"" method=""get"" action={`${base}/relatorios/esforco`}>"
+gestao-vite-front-route-6be2d969,gestao-vite,/fluxo/:*/atendimento/relatorios/satisfacao,apps/gestao-vite/src/paginas/operacao/casca.tsx,47,other,"{ rotulo: 'Satisfação', rota: 'relatorios/satisfacao' },"
+gestao-vite-front-route-6be2d969,gestao-vite,/fluxo/:*/atendimento/relatorios/satisfacao,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx,106,path-builder,return `${base}/relatorios/satisfacao?${p}`;
+gestao-vite-front-route-6be2d969,gestao-vite,/fluxo/:*/atendimento/relatorios/satisfacao,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx,140,other,acao={`${base}/relatorios/satisfacao`}
+gestao-vite-front-route-e0e40b23,gestao-vite,/fluxo/:*/atendimento,apps/gestao-vite/src/paginas/operacao/casca.tsx,91,path-builder,"return `${baseDoContato(tipo, id)}/atendimento`;"
+gestao-vite-front-route-ba5cc928,gestao-vite,/fluxo/:*/builder,apps/gestao-vite/src/App.tsx,218,other,"* mudaram para dentro dele — Builder para `/fluxo/:id/builder`, Growth para"
+gestao-vite-front-route-ba5cc928,gestao-vite,/fluxo/:*/builder,apps/gestao-vite/src/App.tsx,286,other,"`/{tipo}/:id/atendimento/*`, Builder em `/fluxo/:id/builder`,"
+gestao-vite-front-route-ba5cc928,gestao-vite,/fluxo/:*/builder,apps/gestao-vite/src/componentes/estrutura-gestao.tsx,9,other,"* entrega foi a vez de Builder (`/fluxo/:id/builder`, casco próprio em"
+gestao-vite-front-route-ba5cc928,gestao-vite,/fluxo/:*/builder,apps/gestao-vite/src/paginas/builder-gravar.ts,42,other,"const valor = await api.put<RascunhoGravado>(`/v1/gestao/fluxos/${id}/builder`, desenho);"
+gestao-vite-front-route-ba5cc928,gestao-vite,/fluxo/:*/builder,apps/gestao-vite/src/paginas/builder.css,61,other,"Agora que o Builder mora em `/fluxo/:id/builder`, `.bl-tela` é filha direta"
+gestao-vite-front-route-ba5cc928,gestao-vite,/fluxo/:*/builder,apps/gestao-vite/src/paginas/builder.tsx,47,other,"* Rota: `/fluxo/:id/builder` — DENTRO do contato, como na origem"
+gestao-vite-front-route-ba5cc928,gestao-vite,/fluxo/:*/builder,apps/gestao-vite/src/paginas/builder.tsx,104,other,const caminho = `/v1/gestao/fluxos/${contato.id}/builder`;
+gestao-vite-front-route-ba5cc928,gestao-vite,/fluxo/:*/builder,apps/gestao-vite/src/paginas/fluxo/itens.ts,126,other,? `${base}/builder`
+gestao-vite-front-route-795d22d2,gestao-vite,/fluxo/:*/canais/instagram,apps/gestao-vite/src/lib/canal-do-fluxo.ts,24,path-builder,return `${base}/canais/${SEGMENTO_DO_CANAL[tipo]}`;
+gestao-vite-front-route-795d22d2,gestao-vite,/fluxo/:*/canais/instagram,apps/gestao-vite/tests/canal-do-fluxo.test.ts,38,test,"assert.equal(rotaDoCanal(`/fluxo/${BOT}`, 'instagram'), `/fluxo/${BOT}/canais/instagram`);"
+gestao-vite-front-route-4ddb9a85,gestao-vite,/fluxo/:*/canais/messenger,apps/gestao-vite/src/lib/canal-do-fluxo.ts,24,path-builder,return `${base}/canais/${SEGMENTO_DO_CANAL[tipo]}`;
+gestao-vite-front-route-4ddb9a85,gestao-vite,/fluxo/:*/canais/messenger,apps/gestao-vite/tests/canal-do-fluxo.test.ts,39,test,"assert.equal(rotaDoCanal(`/fluxo/${BOT}`, 'messenger'), `/fluxo/${BOT}/canais/messenger`);"
+gestao-vite-front-route-bcbd25af,gestao-vite,/fluxo/:*/canais/whatsapp/alerta,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,46,other,"{ rotulo: 'Configurações de alerta', segmento: 'alerta' },"
+gestao-vite-front-route-0ac683e2,gestao-vite,/fluxo/:*/canais/whatsapp/configuracoes,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,45,other,"{ rotulo: 'Configurações', segmento: 'configuracoes', exigeConectado: true },"
+gestao-vite-front-route-e158bc94,gestao-vite,/fluxo/:*/canais/whatsapp/perfil,apps/gestao-vite/src/lib/canais-gravar.ts,122,other,"const valor = await api.patch<PerfilVisivel>(`/v1/canais/whatsapp/${id}/perfil`, pedido);"
+gestao-vite-front-route-e158bc94,gestao-vite,/fluxo/:*/canais/whatsapp/perfil,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,44,other,"{ rotulo: 'Perfil da empresa', segmento: 'perfil', exigeConectado: true },"
+gestao-vite-front-route-e158bc94,gestao-vite,/fluxo/:*/canais/whatsapp/perfil,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx,264,other,"const leitura = useLeitura<PerfilVisivel>(`/v1/canais/whatsapp/${canal.id}/perfil`, { retry: false });"
+gestao-vite-front-route-28dee5aa,gestao-vite,/fluxo/:*/canais/whatsapp,apps/gestao-vite/src/App.tsx,89,redirect,"return <Navigate to={`${baseDoContato(contato.tipo, contato.id)}/canais/whatsapp`} replace />;"
+gestao-vite-front-route-28dee5aa,gestao-vite,/fluxo/:*/canais/whatsapp,apps/gestao-vite/src/lib/canal-do-fluxo.ts,24,path-builder,return `${base}/canais/${SEGMENTO_DO_CANAL[tipo]}`;
+gestao-vite-front-route-28dee5aa,gestao-vite,/fluxo/:*/canais/whatsapp,apps/gestao-vite/tests/canal-do-fluxo.test.ts,37,test,"assert.equal(rotaDoCanal(`/roteador/${BOT}`, 'whatsapp_cloud'), `/roteador/${BOT}/canais/whatsapp`);"
+gestao-vite-front-route-94706d1d,gestao-vite,/fluxo/:*/canais,apps/gestao-vite/src/paginas/cadastros/configuracoes-dados.tsx,77,link,<Link href={`${base}/canais`}>Ver os {numero(canais.length)} canais</Link> — com a caixa de
+gestao-vite-front-route-94706d1d,gestao-vite,/fluxo/:*/canais,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,65,link,"<Link className=""ph-voltar"" href={`${base}/canais`} aria-label=""Voltar"">"
+gestao-vite-front-route-94706d1d,gestao-vite,/fluxo/:*/canais,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,165,href,"<Botao href={`${baseDoContato(tipo, id)}/canais`}>Ver canais</Botao>"
+gestao-vite-front-route-94706d1d,gestao-vite,/fluxo/:*/canais,apps/gestao-vite/src/paginas/fluxo/itens.ts,132,other,? `${base}/canais`
+gestao-vite-front-route-94706d1d,gestao-vite,/fluxo/:*/canais,apps/gestao-vite/tests/fluxo-detalhe.test.ts,34,test,"assert.equal(canais?.href, `/${tipo}/${ID}/canais`);"
+gestao-vite-front-route-94706d1d,gestao-vite,/fluxo/:*/canais,apps/gestao-vite/tests/fluxo-detalhe.test.ts,147,test,"assert.equal(itens[0]?.href, `/fluxo/${ID}/canais`);"
+gestao-vite-front-route-5b227c44,gestao-vite,/fluxo/:*/configuracoes/api,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,69,href,const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+gestao-vite-front-route-7e2bbefc,gestao-vite,/fluxo/:*/configuracoes/basicas,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,69,href,const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+gestao-vite-front-route-bc55aacf,gestao-vite,/fluxo/:*/configuracoes/boasvindas,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,69,href,const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+gestao-vite-front-route-191d8677,gestao-vite,/fluxo/:*/configuracoes/keys,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,69,href,const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+gestao-vite-front-route-c514dea9,gestao-vite,/fluxo/:*/configuracoes/menu-persistente,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/gravar.ts,20,other,"`/v1/gestao/fluxos/${id}/menu-persistente`,"
+gestao-vite-front-route-c514dea9,gestao-vite,/fluxo/:*/configuracoes/menu-persistente,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/menu-persistente.tsx,17,other,"`/v1/gestao/fluxos/${contato.id}/menu-persistente`,"
+gestao-vite-front-route-c514dea9,gestao-vite,/fluxo/:*/configuracoes/menu-persistente,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,69,href,const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+gestao-vite-front-route-5268aa22,gestao-vite,/fluxo/:*/contatos/:*,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx,31,other,"`/v1/gestao/fluxos/${id}/contatos/${contatoId}${ticketId ? `?ticketId=${encodeURIComponent(ticketId)}` : ''}`,"
+gestao-vite-front-route-5268aa22,gestao-vite,/fluxo/:*/contatos/:*,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx,103,href,href={`${base}/contatos/${contatoId}?ticketId=${ticket.id}`}
+gestao-vite-front-route-5268aa22,gestao-vite,/fluxo/:*/contatos/:*,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx,99,href,href={`${base}/contatos/${contato.id}`}
+gestao-vite-front-route-8c2557c5,gestao-vite,/fluxo/:*/contatos,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx,44,link,"<Link className=""ct-voltar"" href={`${base}/contatos`} aria-label=""Voltar"">"
+gestao-vite-front-route-8c2557c5,gestao-vite,/fluxo/:*/contatos,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx,23,other,const leitura = useLeitura<ContatoListado[]>(`/v1/gestao/fluxos/${id}/contatos`);
+gestao-vite-front-route-8c2557c5,gestao-vite,/fluxo/:*/contatos,apps/gestao-vite/src/paginas/fluxo/itens.ts,134,other,? `${base}/contatos`
+gestao-vite-front-route-8c2557c5,gestao-vite,/fluxo/:*/contatos,apps/gestao-vite/tests/fluxo-detalhe.test.ts,41,test,"assert.equal(itens.find((i) => i.rotulo === 'Contatos')?.href, `/${tipo}/${ID}/contatos`);"
+gestao-vite-front-route-1732c589,gestao-vite,/fluxo/:*/conteudos,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.tsx,18,other,"`/v1/gestao/fluxos/${contato.id}/conteudos`,"
+gestao-vite-front-route-1732c589,gestao-vite,/fluxo/:*/conteudos,apps/gestao-vite/src/paginas/fluxo/itens.ts,138,other,? `${base}/conteudos`
+gestao-vite-front-route-1732c589,gestao-vite,/fluxo/:*/conteudos,apps/gestao-vite/tests/fluxo-detalhe.test.ts,42,test,"assert.equal(itens.find((i) => i.rotulo === 'Conteúdos')?.href, `/${tipo}/${ID}/conteudos`);"
+gestao-vite-front-route-7f22f65b,gestao-vite,/fluxo/:*/equipe/editar/:*,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,238,other,navegar(`editar/${membro.usuarioId}`);
+gestao-vite-front-route-7f22f65b,gestao-vite,/fluxo/:*/equipe/editar/:*,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,458,path-builder,onClick={podeGerir ? () => navegar(`editar/${membro.usuarioId}`) : undefined}
+gestao-vite-front-route-7f22f65b,gestao-vite,/fluxo/:*/equipe/editar/:*,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,463,other,navegar(`editar/${membro.usuarioId}`);
+gestao-vite-front-route-7f22f65b,gestao-vite,/fluxo/:*/equipe/editar/:*,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,507,other,navegar(`editar/${membro.usuarioId}`);
+gestao-vite-front-route-f641970d,gestao-vite,/fluxo/:*/equipe,apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx,31,other,const leitura = useLeitura<EquipeDoFluxo>(`/v1/gestao/fluxos/${contato.id}/equipe`);
+gestao-vite-front-route-f641970d,gestao-vite,/fluxo/:*/equipe,apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx,108,other,navegar(`${base}/equipe`);
+gestao-vite-front-route-f641970d,gestao-vite,/fluxo/:*/equipe,apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx,124,path-builder,onClick={() => navegar(`${base}/equipe`)}
+gestao-vite-front-route-f641970d,gestao-vite,/fluxo/:*/equipe,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.tsx,27,other,const leitura = useLeitura<EquipeDoFluxo>(`/v1/gestao/fluxos/${contato.id}/equipe`);
+gestao-vite-front-route-f641970d,gestao-vite,/fluxo/:*/equipe,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,373,other,* `/team` do contato — a mesma tela em `/fluxo/:id/equipe` e
+gestao-vite-front-route-2aaebdf6,gestao-vite,/fluxo/:*/growth/anuncios,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,61,href,const href = item.rota ? `${base}/growth/${item.rota}` : null;
+gestao-vite-front-route-23ba6279,gestao-vite,/fluxo/:*/growth/clicktracker,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,61,href,const href = item.rota ? `${base}/growth/${item.rota}` : null;
+gestao-vite-front-route-8b37de7b,gestao-vite,/fluxo/:*/growth/links-rastreados,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/gravar.ts,32,other,"`/v1/gestao/fluxos/${fluxoId}/links-rastreados`,"
+gestao-vite-front-route-8b37de7b,gestao-vite,/fluxo/:*/growth/links-rastreados,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx,123,other,"`/v1/gestao/fluxos/${fluxoId}/links-rastreados`,"
+gestao-vite-front-route-8b37de7b,gestao-vite,/fluxo/:*/growth/links-rastreados,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,61,href,const href = item.rota ? `${base}/growth/${item.rota}` : null;
+gestao-vite-front-route-288785f2,gestao-vite,/fluxo/:*/growth/mensagens-ativas,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,61,href,const href = item.rota ? `${base}/growth/${item.rota}` : null;
+gestao-vite-front-route-288785f2,gestao-vite,/fluxo/:*/growth/mensagens-ativas,apps/gestao-vite/src/paginas/fluxo/itens.ts,136,other,? `${base}/growth/mensagens-ativas`
+gestao-vite-front-route-288785f2,gestao-vite,/fluxo/:*/growth/mensagens-ativas,apps/gestao-vite/tests/fluxo-detalhe.test.ts,51,test,"`/${tipo}/${ID}/growth/mensagens-ativas`,"
+gestao-vite-front-route-de42deb1,gestao-vite,/fluxo/:*/growth/pagamentos,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,61,href,const href = item.rota ? `${base}/growth/${item.rota}` : null;
+gestao-vite-front-route-da1b935a,gestao-vite,/fluxo/:*/growth,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/mensagens-ativas.tsx,9,other,const leitura = useLeitura<DadosDeGrowth>(`/v1/gestao/fluxos/${contato.id}/growth`);
+gestao-vite-front-route-0cdcbac5,gestao-vite,/fluxo/:*/integracoes/webhook,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.tsx,91,href,href={`${base}/integracoes/${cartao.rota}`}
+gestao-vite-front-route-89c917a7,gestao-vite,/fluxo/:*/integracoes,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx,203,link,"<Link className=""ph-voltar"" href={`${base}/integracoes`} aria-label=""Voltar"">"
+gestao-vite-front-route-751d74cb,gestao-vite,/fluxo/:*/log,apps/gestao-vite/src/paginas/fluxo/itens.ts,140,other,? `${base}/log`
+gestao-vite-front-route-751d74cb,gestao-vite,/fluxo/:*/log,apps/gestao-vite/tests/fluxo-detalhe.test.ts,53,test,"assert.equal(itens.find((i) => i.rotulo === 'Log')?.href, `/${tipo}/${ID}/log`);"
+gestao-vite-front-route-b3f48bb1,gestao-vite,/fluxo/:*/servicos,apps/gestao-vite/src/paginas/fluxo/itens.ts,146,other,"if (tipo === 'roteador') itens.unshift({ rotulo: 'Serviços', href: `${base}/servicos` });"
+gestao-vite-front-route-b3f48bb1,gestao-vite,/fluxo/:*/servicos,apps/gestao-vite/src/paginas/fluxo/servicos/gravar.ts,17,other,const caminho = `/v1/gestao/fluxos/${roteadorId}/servicos`;
+gestao-vite-front-route-b3f48bb1,gestao-vite,/fluxo/:*/servicos,apps/gestao-vite/src/paginas/fluxo/servicos/servicos.tsx,14,other,const leitura = useLeitura<DadosDeServicos>(`/v1/gestao/fluxos/${contato.id}/servicos`);
+gestao-vite-front-route-a81cc73e,gestao-vite,/fluxo/:*,apps/gestao-vite/src/App.tsx,93,other,* As rotas-filhas do contato — o que `/fluxo/:id` e `/roteador/:id` desenham
+gestao-vite-front-route-a81cc73e,gestao-vite,/fluxo/:*,apps/gestao-vite/src/App.tsx,249,other,"* (`/fluxo/:id` para chatbot, `/roteador/:id` para roteador) é o estado-pai,"
+gestao-vite-front-route-a81cc73e,gestao-vite,/fluxo/:*,apps/gestao-vite/src/paginas/criar/fluxo/acoes.ts,25,other,irPara(`/fluxo/${resultado.id}`);
+gestao-vite-front-route-a81cc73e,gestao-vite,/fluxo/:*,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,1,other,/* ============================== a Análise do contato (`/fluxo/{id}/analise`)
+gestao-vite-front-route-a81cc73e,gestao-vite,/fluxo/:*,apps/gestao-vite/src/paginas/fluxo/contato.tsx,52,other,* `/fluxo/:id` e `/roteador/:id` desenham a MESMA árvore (App.tsx monta as
+gestao-vite-front-route-a81cc73e,gestao-vite,/fluxo/:*,apps/gestao-vite/src/paginas/fluxo/fluxo.css,1,other,/* ============================== a tela do contato (`/fluxo/{id}`)
+gestao-vite-front-route-a81cc73e,gestao-vite,/fluxo/:*,apps/gestao-vite/tests/analise-abas.test.ts,11,test,* A fileira de abas da Análise (`/fluxo/{id}/analise`).
+gestao-vite-front-route-a81cc73e,gestao-vite,/fluxo/:*,apps/gestao-vite/tests/canal-do-fluxo.test.ts,38,test,"assert.equal(rotaDoCanal(`/fluxo/${BOT}`, 'instagram'), `/fluxo/${BOT}/canais/instagram`);"
+gestao-vite-front-route-a81cc73e,gestao-vite,/fluxo/:*,apps/gestao-vite/tests/canal-do-fluxo.test.ts,39,test,"assert.equal(rotaDoCanal(`/fluxo/${BOT}`, 'messenger'), `/fluxo/${BOT}/canais/messenger`);"
+gestao-vite-front-route-a81cc73e,gestao-vite,/fluxo/:*,apps/gestao-vite/tests/fluxo-detalhe.test.ts,11,test,* A fileira da barra do contato (`/fluxo/{id}`).
+gestao-vite-front-route-d4edda1c,gestao-vite,/minha-conta,apps/gestao-vite/README.md,23,doc,"`/minha-conta`, `/bem-vindo`, `/trocar-conta/sem-acesso`, `/criar/fluxo`,"
+gestao-vite-front-route-d4edda1c,gestao-vite,/minha-conta,apps/gestao-vite/src/componentes/barra-do-portal.tsx,218,link,"<Link href=""/minha-conta"">"
+gestao-vite-front-route-d4edda1c,gestao-vite,/minha-conta,apps/gestao-vite/src/componentes/barra-do-portal.tsx,222,link,"<Link href=""/minha-conta?aba=preferencias"">"
+gestao-vite-front-route-d4edda1c,gestao-vite,/minha-conta,apps/gestao-vite/src/estilos/globais.css,4444,other,`/minha-conta` saiu daqui: a disposição dela passou a ser a da plataforma de
+gestao-vite-front-route-d4edda1c,gestao-vite,/minha-conta,apps/gestao-vite/src/paginas/bem-vindo/page.tsx,56,link,"<Link href=""/minha-conta"">"
+gestao-vite-front-route-d4edda1c,gestao-vite,/minha-conta,apps/gestao-vite/src/paginas/contrato/page.tsx,182,link,"<Link className=""ct-editar"" href=""/minha-conta"">"
+gestao-vite-front-route-d4edda1c,gestao-vite,/minha-conta,apps/gestao-vite/src/paginas/minha-conta/acoes.ts,49,other,irPara(`/minha-conta?${busca}`);
+gestao-vite-front-route-d4edda1c,gestao-vite,/minha-conta,apps/gestao-vite/src/paginas/minha-conta/page.tsx,23,other,* O cromo é PRÓPRIO desta página (como no portal): `/minha-conta` está fora do
+gestao-vite-front-route-d4edda1c,gestao-vite,/minha-conta,apps/gestao-vite/src/paginas/minha-conta/page.tsx,95,href,"<a href=""/minha-conta"" aria-current=""page"">"
+gestao-vite-front-route-c08245e3,gestao-vite,/novidades,apps/gestao-vite/README.md,22,doc,"- Portal e conta: `/portal`, `/novidades`, `/contrato` (+ membros, certificados),"
+gestao-vite-front-route-c08245e3,gestao-vite,/novidades,apps/gestao-vite/src/paginas/novidades/page.tsx,62,other,"<form className=""nv-filtros"" method=""get"" action=""/novidades"" role=""search"">"
+gestao-vite-front-route-c08245e3,gestao-vite,/novidades,apps/gestao-vite/src/paginas/novidades/page.tsx,140,href,href={`/novidades?categoria=${encodeURIComponent(novidade.categoria)}`}
+gestao-vite-front-route-c08245e3,gestao-vite,/novidades,apps/gestao-vite/src/paginas/portal.tsx,434,href,"href=""/novidades"""
+gestao-vite-front-route-4924635e,gestao-vite,/roteador/:*/analise/dashboard,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.tsx,26,other,"`/v1/gestao/fluxos/${contato.id}/analise/dashboard?${q.toString()}`,"
+gestao-vite-front-route-523a4aed,gestao-vite,/roteador/:*/analise/dicionario-de-dados,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,1113,other,"const dicionario = `${baseDoContato(p.dados.roteador ? 'roteador' : 'fluxo', p.id)}/analise/dicionario-de-dados?path=dashboard:listOfBlocks`;"
+gestao-vite-front-route-29426c15,gestao-vite,/roteador/:*/analise/gerenciador-de-relatorios,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,183,other,"const gerenciador = `${baseDoContato(contato.tipo, contato.id)}/analise/gerenciador-de-relatorios`;"
+gestao-vite-front-route-ddd3f755,gestao-vite,/roteador/:*/analise/jornada,apps/gestao-vite/src/paginas/fluxo/analise/jornada/pagina.tsx,35,other,"`/v1/gestao/fluxos/${contato.id}/analise/jornada?${q.toString()}`,"
+gestao-vite-front-route-1434ae38,gestao-vite,/roteador/:*/analise/mensagens-ativas,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx,47,other,"`/v1/gestao/fluxos/${contato.id}/analise/mensagens-ativas?${q.toString()}`,"
+gestao-vite-front-route-e5da9ee2,gestao-vite,/roteador/:*/analise/relatorios,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/pagina.tsx,16,other,"`/v1/gestao/fluxos/${contato.id}/analise/relatorios`,"
+gestao-vite-front-route-eaeca783,gestao-vite,/roteador/:*/analise/visao-geral,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/pagina.tsx,30,other,"`/v1/gestao/fluxos/${contato.id}/analise/visao-geral?${q.toString()}`,"
+gestao-vite-front-route-97553ab9,gestao-vite,/roteador/:*/analise,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,1,other,/* ============================== a Análise do contato (`/fluxo/{id}/analise`)
+gestao-vite-front-route-97553ab9,gestao-vite,/roteador/:*/analise,apps/gestao-vite/src/paginas/fluxo/analise/casca.tsx,32,other,"base={`${baseDoContato(contato.tipo, id)}/analise`}"
+gestao-vite-front-route-97553ab9,gestao-vite,/roteador/:*/analise,apps/gestao-vite/src/paginas/fluxo/itens.ts,130,other,? `${base}/analise`
+gestao-vite-front-route-97553ab9,gestao-vite,/roteador/:*/analise,apps/gestao-vite/tests/analise-abas.test.ts,11,test,* A fileira de abas da Análise (`/fluxo/{id}/analise`).
+gestao-vite-front-route-97553ab9,gestao-vite,/roteador/:*/analise,apps/gestao-vite/tests/fluxo-detalhe.test.ts,27,test,"assert.equal(analise?.href, `/${tipo}/${ID}/analise`);"
+gestao-vite-front-route-a44478d7,gestao-vite,/roteador/:*/atendimento/atendentes/filas/:*/editar,apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx,115,path-builder,onEditar={() => navegar(`${base}/atendentes/filas/${f.id}/editar`)}
+gestao-vite-front-route-c14c9903,gestao-vite,/roteador/:*/atendimento/atendentes/filas,apps/gestao-vite/src/lib/cadastros-gravar.ts,131,other,await api.delete(`/v1/gestao/atendentes/filas/${filaId}/atendentes/${atendenteId}`);
+gestao-vite-front-route-c14c9903,gestao-vite,/roteador/:*/atendimento/atendentes/filas,apps/gestao-vite/src/paginas/builder/painel-filas.tsx,36,path-builder,"onClick={() => navegar(`${baseDoAtendimento(tipoDoContato, contatoId)}/atendentes/filas`)}"
+gestao-vite-front-route-c14c9903,gestao-vite,/roteador/:*/atendimento/atendentes/filas,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx,63,path-builder,"<button type=""button"" className=""btn"" onClick={() => navegar(`${base}/atendentes/filas`)}>"
+gestao-vite-front-route-c14c9903,gestao-vite,/roteador/:*/atendimento/atendentes/filas,apps/gestao-vite/src/paginas/operacao/casca.tsx,74,other,"{ rotulo: 'Filas de atendimento', rota: 'atendentes/filas' },"
+gestao-vite-front-route-1e278d9a,gestao-vite,/roteador/:*/atendimento/atendentes/gestao/adicionar,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx,149,path-builder,onClick={() => navegar(`${base}/atendentes/gestao/adicionar`)}
+gestao-vite-front-route-e84fa42d,gestao-vite,/roteador/:*/atendimento/atendentes/gestao/editar,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx,76,other,"navegar(`${base}/atendentes/gestao/editar?atendentes=${ids.join(',')}`);"
+gestao-vite-front-route-8fd89a92,gestao-vite,/roteador/:*/atendimento/atendentes/gestao/permissoes,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx,80,other,"navegar(`${base}/atendentes/gestao/permissoes?atendentes=${ids.join(',')}`);"
+gestao-vite-front-route-2594ca0b,gestao-vite,/roteador/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/lib/cadastros-gravar.ts,131,other,await api.delete(`/v1/gestao/atendentes/filas/${filaId}/atendentes/${atendenteId}`);
+gestao-vite-front-route-2594ca0b,gestao-vite,/roteador/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,49,path-builder,"<button type=""button"" className=""btn"" onClick={() => navegar(`${base}/atendentes/gestao`)}>"
+gestao-vite-front-route-2594ca0b,gestao-vite,/roteador/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,78,path-builder,"<button type=""button"" className=""btn"" onClick={() => navegar(`${base}/atendentes/gestao`)}>"
+gestao-vite-front-route-2594ca0b,gestao-vite,/roteador/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,93,other,if (resultado.ok) navegar(`${base}/atendentes/gestao`);
+gestao-vite-front-route-2594ca0b,gestao-vite,/roteador/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,146,path-builder,"<Botao type=""button"" onClick={() => navegar(`${base}/atendentes/gestao`)} disabled={enviando}>"
+gestao-vite-front-route-2594ca0b,gestao-vite,/roteador/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx,234,path-builder,"<Botao variante=""primario"" onClick={() => navegar(`${base}/atendentes/gestao`)}>"
+gestao-vite-front-route-2594ca0b,gestao-vite,/roteador/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-permissoes.tsx,49,path-builder,"<button type=""button"" className=""btn"" onClick={() => navegar(`${base}/atendentes/gestao`)}>"
+gestao-vite-front-route-2594ca0b,gestao-vite,/roteador/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-permissoes.tsx,79,other,navegar(`${base}/atendentes/gestao`);
+gestao-vite-front-route-2594ca0b,gestao-vite,/roteador/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/cadastros/atendentes-permissoes.tsx,145,path-builder,"<Botao type=""button"" onClick={() => navegar(`${base}/atendentes/gestao`)} disabled={salvando}>"
+gestao-vite-front-route-2594ca0b,gestao-vite,/roteador/:*/atendimento/atendentes/gestao,apps/gestao-vite/src/paginas/operacao/casca.tsx,73,other,"{ rotulo: 'Gestão de atendentes', rota: 'atendentes/gestao' },"
+gestao-vite-front-route-ceaa6205,gestao-vite,/roteador/:*/atendimento/atendentes/pausas,apps/gestao-vite/src/lib/cadastros-gravar.ts,131,other,await api.delete(`/v1/gestao/atendentes/filas/${filaId}/atendentes/${atendenteId}`);
+gestao-vite-front-route-ceaa6205,gestao-vite,/roteador/:*/atendimento/atendentes/pausas,apps/gestao-vite/src/paginas/operacao/casca.tsx,75,other,"{ rotulo: 'Pausas personalizadas', rota: 'atendentes/pausas' },"
+gestao-vite-front-route-4efe5d20,gestao-vite,/roteador/:*/atendimento/canais/whatsapp/:*/*,apps/gestao-vite/src/App.tsx,286,other,"`/{tipo}/:id/atendimento/*`, Builder em `/fluxo/:id/builder`,"
+gestao-vite-front-route-4efe5d20,gestao-vite,/roteador/:*/atendimento/canais/whatsapp/:*/*,apps/gestao-vite/src/App.tsx,287,other,"Growth em `/{tipo}/:id/growth/*`, todas abaixo). Nenhuma carrega um"
+gestao-vite-front-route-4efe5d20,gestao-vite,/roteador/:*/atendimento/canais/whatsapp/:*/*,apps/gestao-vite/src/componentes/estrutura-gestao.tsx,8,other,"* `/{tipo}/:id/atendimento/*`, casco em `paginas/operacao/casca.tsx`. Nesta"
+gestao-vite-front-route-4efe5d20,gestao-vite,/roteador/:*/atendimento/canais/whatsapp/:*/*,apps/gestao-vite/src/paginas/fluxo/analise/casca.tsx,9,other,"* origem, `/application/detail/{shortName}/analytics/*`."
+gestao-vite-front-route-2c989937,gestao-vite,/roteador/:*/atendimento/canais,apps/gestao-vite/src/paginas/cadastros/configuracoes-dados.tsx,77,link,<Link href={`${base}/canais`}>Ver os {numero(canais.length)} canais</Link> — com a caixa de
+gestao-vite-front-route-2c989937,gestao-vite,/roteador/:*/atendimento/canais,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,65,link,"<Link className=""ph-voltar"" href={`${base}/canais`} aria-label=""Voltar"">"
+gestao-vite-front-route-2c989937,gestao-vite,/roteador/:*/atendimento/canais,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,165,href,"<Botao href={`${baseDoContato(tipo, id)}/canais`}>Ver canais</Botao>"
+gestao-vite-front-route-2c989937,gestao-vite,/roteador/:*/atendimento/canais,apps/gestao-vite/src/paginas/fluxo/itens.ts,132,other,? `${base}/canais`
+gestao-vite-front-route-2c989937,gestao-vite,/roteador/:*/atendimento/canais,apps/gestao-vite/src/paginas/operacao/casca.tsx,84,other,"{ rotulo: 'Canais de atendimento', rota: 'canais' },"
+gestao-vite-front-route-2c989937,gestao-vite,/roteador/:*/atendimento/canais,apps/gestao-vite/tests/fluxo-detalhe.test.ts,34,test,"assert.equal(canais?.href, `/${tipo}/${ID}/canais`);"
+gestao-vite-front-route-2c989937,gestao-vite,/roteador/:*/atendimento/canais,apps/gestao-vite/tests/fluxo-detalhe.test.ts,147,test,"assert.equal(itens[0]?.href, `/fluxo/${ID}/canais`);"
+gestao-vite-front-route-95d5e27b,gestao-vite,/roteador/:*/atendimento/comunicacao/modelos,apps/gestao-vite/src/lib/canais-gravar.ts,177,other,"`/v1/canais/whatsapp/${id}/modelos`,"
+gestao-vite-front-route-95d5e27b,gestao-vite,/roteador/:*/atendimento/comunicacao/modelos,apps/gestao-vite/src/paginas/operacao/casca.tsx,57,other,"{ rotulo: 'Modelos de mensagens', rota: 'comunicacao/modelos' },"
+gestao-vite-front-route-31d280fd,gestao-vite,/roteador/:*/atendimento/comunicacao/respostas-prontas,apps/gestao-vite/src/paginas/operacao/casca.tsx,56,other,"{ rotulo: 'Respostas prontas', rota: 'comunicacao/respostas-prontas' },"
+gestao-vite-front-route-1f3b07cc,gestao-vite,/roteador/:*/atendimento/historico,apps/gestao-vite/src/paginas/operacao/casca.tsx,38,other,"{ rotulo: 'Histórico', rota: 'historico', icone: 'relogio' },"
+gestao-vite-front-route-1f3b07cc,gestao-vite,/roteador/:*/atendimento/historico,apps/gestao-vite/src/paginas/operacao/historico.tsx,247,other,const limparFiltros = `${base}/historico?de=${de}&ate=${ate}`;
+gestao-vite-front-route-1f3b07cc,gestao-vite,/roteador/:*/atendimento/historico,apps/gestao-vite/src/paginas/operacao/historico.tsx,317,other,acao={`${base}/historico`}
+gestao-vite-front-route-1f3b07cc,gestao-vite,/roteador/:*/atendimento/historico,apps/gestao-vite/src/paginas/operacao/historico.tsx,405,other,"<form method=""get"" action={`${base}/historico`} className=""hist-agrupar"">"
+gestao-vite-front-route-a33e562b,gestao-vite,/roteador/:*/atendimento/monitoramento,apps/gestao-vite/src/paginas/fluxo/itens.ts,128,other,? `${base}/atendimento/monitoramento`
+gestao-vite-front-route-a33e562b,gestao-vite,/roteador/:*/atendimento/monitoramento,apps/gestao-vite/src/paginas/operacao/casca.tsx,37,other,"{ rotulo: 'Monitoramento', rota: 'monitoramento', icone: 'monitoramento' },"
+gestao-vite-front-route-a33e562b,gestao-vite,/roteador/:*/atendimento/monitoramento,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx,272,other,"const base = `${baseDoAtendimento(contato.tipo, contato.id)}/monitoramento`;"
+gestao-vite-front-route-a33e562b,gestao-vite,/roteador/:*/atendimento/monitoramento,apps/gestao-vite/tests/fluxo-detalhe.test.ts,84,test,"assert.equal(atendimento?.href, `/fluxo/${ID}/atendimento/monitoramento`);"
+gestao-vite-front-route-98880f51,gestao-vite,/roteador/:*/atendimento/monitoria/:*,apps/gestao-vite/src/paginas/operacao/monitoria.tsx,273,link,<Link href={`${base}/monitoria/${a.id}`}>Abrir</Link>
+gestao-vite-front-route-4986e0e7,gestao-vite,/roteador/:*/atendimento/monitoria,apps/gestao-vite/src/paginas/operacao/casca.tsx,49,other,"{ rotulo: 'Monitoria com IA', rota: 'monitoria' },"
+gestao-vite-front-route-4986e0e7,gestao-vite,/roteador/:*/atendimento/monitoria,apps/gestao-vite/src/paginas/operacao/monitoria-ficha.tsx,68,link,"<Link href={`${base}/monitoria`} className=""btn"">"
+gestao-vite-front-route-4986e0e7,gestao-vite,/roteador/:*/atendimento/monitoria,apps/gestao-vite/src/paginas/operacao/monitoria.tsx,87,other,"<form className=""quickfilters"" method=""get"" action={`${base}/monitoria`}>"
+gestao-vite-front-route-4986e0e7,gestao-vite,/roteador/:*/atendimento/monitoria,apps/gestao-vite/src/paginas/operacao/monitoria.tsx,118,href,"<a href={`${base}/monitoria`} className=""btn"">"
+gestao-vite-front-route-3c434b64,gestao-vite,/roteador/:*/atendimento/preferencias/dados,apps/gestao-vite/src/paginas/operacao/casca.tsx,83,other,"{ rotulo: 'Dados', rota: 'preferencias/dados' },"
+gestao-vite-front-route-cb156232,gestao-vite,/roteador/:*/atendimento/preferencias/gerais,apps/gestao-vite/src/paginas/operacao/casca.tsx,82,other,"{ rotulo: 'Configurações gerais', rota: 'preferencias/gerais' },"
+gestao-vite-front-route-6f01d70a,gestao-vite,/roteador/:*/atendimento/regras/atendimento,apps/gestao-vite/src/paginas/operacao/casca.tsx,64,other,"{ rotulo: 'Atendimento', rota: 'regras/atendimento' },"
+gestao-vite-front-route-6f01d70a,gestao-vite,/roteador/:*/atendimento/regras/atendimento,apps/gestao-vite/src/paginas/operacao/casca.tsx,91,path-builder,"return `${baseDoContato(tipo, id)}/atendimento`;"
+gestao-vite-front-route-044c9633,gestao-vite,/roteador/:*/atendimento/regras/horarios,apps/gestao-vite/src/paginas/operacao/casca.tsx,66,other,"{ rotulo: 'Horários', rota: 'regras/horarios' },"
+gestao-vite-front-route-83bd98ef,gestao-vite,/roteador/:*/atendimento/regras/sla,apps/gestao-vite/src/paginas/operacao/casca.tsx,65,other,"{ rotulo: 'SLA', rota: 'regras/sla' },"
+gestao-vite-front-route-e08f42e2,gestao-vite,/roteador/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,281,href,href={`${base}/atendimento/relatorios/atendimento`}
+gestao-vite-front-route-e08f42e2,gestao-vite,/roteador/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,288,href,href={`${base}/atendimento/relatorios/atendimento`}
+gestao-vite-front-route-e08f42e2,gestao-vite,/roteador/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/operacao/casca.tsx,46,other,"{ rotulo: 'Atendimento', rota: 'relatorios/atendimento' },"
+gestao-vite-front-route-e08f42e2,gestao-vite,/roteador/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/operacao/casca.tsx,91,path-builder,"return `${baseDoContato(tipo, id)}/atendimento`;"
+gestao-vite-front-route-e08f42e2,gestao-vite,/roteador/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,215,path-builder,return `${base}/relatorios/atendimento?${p}`;
+gestao-vite-front-route-e08f42e2,gestao-vite,/roteador/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,273,other,acao={`${base}/relatorios/atendimento`}
+gestao-vite-front-route-e08f42e2,gestao-vite,/roteador/:*/atendimento/relatorios/atendimento,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,274,other,limpar={temFiltro ? `${base}/relatorios/atendimento?de=${de}&ate=${ate}` : null}
+gestao-vite-front-route-4b5de732,gestao-vite,/roteador/:*/atendimento/relatorios/esforco,apps/gestao-vite/src/paginas/operacao/casca.tsx,48,other,"{ rotulo: 'Esforço por atendente', rota: 'relatorios/esforco' },"
+gestao-vite-front-route-4b5de732,gestao-vite,/roteador/:*/atendimento/relatorios/esforco,apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx,48,other,"<form className=""quickfilters"" method=""get"" action={`${base}/relatorios/esforco`}>"
+gestao-vite-front-route-737a95ba,gestao-vite,/roteador/:*/atendimento/relatorios/satisfacao,apps/gestao-vite/src/paginas/operacao/casca.tsx,47,other,"{ rotulo: 'Satisfação', rota: 'relatorios/satisfacao' },"
+gestao-vite-front-route-737a95ba,gestao-vite,/roteador/:*/atendimento/relatorios/satisfacao,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx,106,path-builder,return `${base}/relatorios/satisfacao?${p}`;
+gestao-vite-front-route-737a95ba,gestao-vite,/roteador/:*/atendimento/relatorios/satisfacao,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx,140,other,acao={`${base}/relatorios/satisfacao`}
+gestao-vite-front-route-1ea7c851,gestao-vite,/roteador/:*/atendimento,apps/gestao-vite/src/paginas/operacao/casca.tsx,91,path-builder,"return `${baseDoContato(tipo, id)}/atendimento`;"
+gestao-vite-front-route-09b87e65,gestao-vite,/roteador/:*/canais/instagram,apps/gestao-vite/src/lib/canal-do-fluxo.ts,24,path-builder,return `${base}/canais/${SEGMENTO_DO_CANAL[tipo]}`;
+gestao-vite-front-route-09b87e65,gestao-vite,/roteador/:*/canais/instagram,apps/gestao-vite/tests/canal-do-fluxo.test.ts,38,test,"assert.equal(rotaDoCanal(`/fluxo/${BOT}`, 'instagram'), `/fluxo/${BOT}/canais/instagram`);"
+gestao-vite-front-route-a72e59d5,gestao-vite,/roteador/:*/canais/messenger,apps/gestao-vite/src/lib/canal-do-fluxo.ts,24,path-builder,return `${base}/canais/${SEGMENTO_DO_CANAL[tipo]}`;
+gestao-vite-front-route-a72e59d5,gestao-vite,/roteador/:*/canais/messenger,apps/gestao-vite/tests/canal-do-fluxo.test.ts,39,test,"assert.equal(rotaDoCanal(`/fluxo/${BOT}`, 'messenger'), `/fluxo/${BOT}/canais/messenger`);"
+gestao-vite-front-route-1612d260,gestao-vite,/roteador/:*/canais/whatsapp/alerta,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,46,other,"{ rotulo: 'Configurações de alerta', segmento: 'alerta' },"
+gestao-vite-front-route-53e7275d,gestao-vite,/roteador/:*/canais/whatsapp/configuracoes,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,45,other,"{ rotulo: 'Configurações', segmento: 'configuracoes', exigeConectado: true },"
+gestao-vite-front-route-ecbea139,gestao-vite,/roteador/:*/canais/whatsapp/perfil,apps/gestao-vite/src/lib/canais-gravar.ts,122,other,"const valor = await api.patch<PerfilVisivel>(`/v1/canais/whatsapp/${id}/perfil`, pedido);"
+gestao-vite-front-route-ecbea139,gestao-vite,/roteador/:*/canais/whatsapp/perfil,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,44,other,"{ rotulo: 'Perfil da empresa', segmento: 'perfil', exigeConectado: true },"
+gestao-vite-front-route-ecbea139,gestao-vite,/roteador/:*/canais/whatsapp/perfil,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx,264,other,"const leitura = useLeitura<PerfilVisivel>(`/v1/canais/whatsapp/${canal.id}/perfil`, { retry: false });"
+gestao-vite-front-route-c1c37b93,gestao-vite,/roteador/:*/canais/whatsapp,apps/gestao-vite/src/App.tsx,89,redirect,"return <Navigate to={`${baseDoContato(contato.tipo, contato.id)}/canais/whatsapp`} replace />;"
+gestao-vite-front-route-c1c37b93,gestao-vite,/roteador/:*/canais/whatsapp,apps/gestao-vite/src/lib/canal-do-fluxo.ts,24,path-builder,return `${base}/canais/${SEGMENTO_DO_CANAL[tipo]}`;
+gestao-vite-front-route-c1c37b93,gestao-vite,/roteador/:*/canais/whatsapp,apps/gestao-vite/tests/canal-do-fluxo.test.ts,37,test,"assert.equal(rotaDoCanal(`/roteador/${BOT}`, 'whatsapp_cloud'), `/roteador/${BOT}/canais/whatsapp`);"
+gestao-vite-front-route-2bbdeff1,gestao-vite,/roteador/:*/canais,apps/gestao-vite/src/paginas/cadastros/configuracoes-dados.tsx,77,link,<Link href={`${base}/canais`}>Ver os {numero(canais.length)} canais</Link> — com a caixa de
+gestao-vite-front-route-2bbdeff1,gestao-vite,/roteador/:*/canais,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,65,link,"<Link className=""ph-voltar"" href={`${base}/canais`} aria-label=""Voltar"">"
+gestao-vite-front-route-2bbdeff1,gestao-vite,/roteador/:*/canais,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,165,href,"<Botao href={`${baseDoContato(tipo, id)}/canais`}>Ver canais</Botao>"
+gestao-vite-front-route-2bbdeff1,gestao-vite,/roteador/:*/canais,apps/gestao-vite/src/paginas/fluxo/itens.ts,132,other,? `${base}/canais`
+gestao-vite-front-route-2bbdeff1,gestao-vite,/roteador/:*/canais,apps/gestao-vite/tests/fluxo-detalhe.test.ts,34,test,"assert.equal(canais?.href, `/${tipo}/${ID}/canais`);"
+gestao-vite-front-route-2bbdeff1,gestao-vite,/roteador/:*/canais,apps/gestao-vite/tests/fluxo-detalhe.test.ts,147,test,"assert.equal(itens[0]?.href, `/fluxo/${ID}/canais`);"
+gestao-vite-front-route-de2a7f5e,gestao-vite,/roteador/:*/configuracoes/api,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,69,href,const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+gestao-vite-front-route-3a11fb67,gestao-vite,/roteador/:*/configuracoes/basicas,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,69,href,const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+gestao-vite-front-route-3a7f187e,gestao-vite,/roteador/:*/configuracoes/boasvindas,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,69,href,const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+gestao-vite-front-route-16726db9,gestao-vite,/roteador/:*/configuracoes/keys,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,69,href,const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+gestao-vite-front-route-103261ba,gestao-vite,/roteador/:*/configuracoes/menu-persistente,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/gravar.ts,20,other,"`/v1/gestao/fluxos/${id}/menu-persistente`,"
+gestao-vite-front-route-103261ba,gestao-vite,/roteador/:*/configuracoes/menu-persistente,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/menu-persistente.tsx,17,other,"`/v1/gestao/fluxos/${contato.id}/menu-persistente`,"
+gestao-vite-front-route-103261ba,gestao-vite,/roteador/:*/configuracoes/menu-persistente,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,69,href,const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+gestao-vite-front-route-a1322a92,gestao-vite,/roteador/:*/contatos/:*,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx,31,other,"`/v1/gestao/fluxos/${id}/contatos/${contatoId}${ticketId ? `?ticketId=${encodeURIComponent(ticketId)}` : ''}`,"
+gestao-vite-front-route-a1322a92,gestao-vite,/roteador/:*/contatos/:*,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx,103,href,href={`${base}/contatos/${contatoId}?ticketId=${ticket.id}`}
+gestao-vite-front-route-a1322a92,gestao-vite,/roteador/:*/contatos/:*,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx,99,href,href={`${base}/contatos/${contato.id}`}
+gestao-vite-front-route-8206c8bc,gestao-vite,/roteador/:*/contatos,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx,44,link,"<Link className=""ct-voltar"" href={`${base}/contatos`} aria-label=""Voltar"">"
+gestao-vite-front-route-8206c8bc,gestao-vite,/roteador/:*/contatos,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx,23,other,const leitura = useLeitura<ContatoListado[]>(`/v1/gestao/fluxos/${id}/contatos`);
+gestao-vite-front-route-8206c8bc,gestao-vite,/roteador/:*/contatos,apps/gestao-vite/src/paginas/fluxo/itens.ts,134,other,? `${base}/contatos`
+gestao-vite-front-route-8206c8bc,gestao-vite,/roteador/:*/contatos,apps/gestao-vite/tests/fluxo-detalhe.test.ts,41,test,"assert.equal(itens.find((i) => i.rotulo === 'Contatos')?.href, `/${tipo}/${ID}/contatos`);"
+gestao-vite-front-route-78a12276,gestao-vite,/roteador/:*/conteudos,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.tsx,18,other,"`/v1/gestao/fluxos/${contato.id}/conteudos`,"
+gestao-vite-front-route-78a12276,gestao-vite,/roteador/:*/conteudos,apps/gestao-vite/src/paginas/fluxo/itens.ts,138,other,? `${base}/conteudos`
+gestao-vite-front-route-78a12276,gestao-vite,/roteador/:*/conteudos,apps/gestao-vite/tests/fluxo-detalhe.test.ts,42,test,"assert.equal(itens.find((i) => i.rotulo === 'Conteúdos')?.href, `/${tipo}/${ID}/conteudos`);"
+gestao-vite-front-route-eb329104,gestao-vite,/roteador/:*/equipe/editar/:*,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,238,other,navegar(`editar/${membro.usuarioId}`);
+gestao-vite-front-route-eb329104,gestao-vite,/roteador/:*/equipe/editar/:*,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,458,path-builder,onClick={podeGerir ? () => navegar(`editar/${membro.usuarioId}`) : undefined}
+gestao-vite-front-route-eb329104,gestao-vite,/roteador/:*/equipe/editar/:*,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,463,other,navegar(`editar/${membro.usuarioId}`);
+gestao-vite-front-route-eb329104,gestao-vite,/roteador/:*/equipe/editar/:*,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,507,other,navegar(`editar/${membro.usuarioId}`);
+gestao-vite-front-route-dfb94b9c,gestao-vite,/roteador/:*/equipe,apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx,31,other,const leitura = useLeitura<EquipeDoFluxo>(`/v1/gestao/fluxos/${contato.id}/equipe`);
+gestao-vite-front-route-dfb94b9c,gestao-vite,/roteador/:*/equipe,apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx,108,other,navegar(`${base}/equipe`);
+gestao-vite-front-route-dfb94b9c,gestao-vite,/roteador/:*/equipe,apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx,124,path-builder,onClick={() => navegar(`${base}/equipe`)}
+gestao-vite-front-route-dfb94b9c,gestao-vite,/roteador/:*/equipe,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.tsx,27,other,const leitura = useLeitura<EquipeDoFluxo>(`/v1/gestao/fluxos/${contato.id}/equipe`);
+gestao-vite-front-route-dfb94b9c,gestao-vite,/roteador/:*/equipe,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,374,other,"* `/roteador/:id/equipe`, porque na origem ela é um estado de"
+gestao-vite-front-route-3ec20943,gestao-vite,/roteador/:*/growth/anuncios,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,61,href,const href = item.rota ? `${base}/growth/${item.rota}` : null;
+gestao-vite-front-route-6ebf21a0,gestao-vite,/roteador/:*/growth/clicktracker,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,61,href,const href = item.rota ? `${base}/growth/${item.rota}` : null;
+gestao-vite-front-route-d748a382,gestao-vite,/roteador/:*/growth/links-rastreados,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/gravar.ts,32,other,"`/v1/gestao/fluxos/${fluxoId}/links-rastreados`,"
+gestao-vite-front-route-d748a382,gestao-vite,/roteador/:*/growth/links-rastreados,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx,123,other,"`/v1/gestao/fluxos/${fluxoId}/links-rastreados`,"
+gestao-vite-front-route-d748a382,gestao-vite,/roteador/:*/growth/links-rastreados,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,61,href,const href = item.rota ? `${base}/growth/${item.rota}` : null;
+gestao-vite-front-route-cdba8c28,gestao-vite,/roteador/:*/growth/mensagens-ativas,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,61,href,const href = item.rota ? `${base}/growth/${item.rota}` : null;
+gestao-vite-front-route-cdba8c28,gestao-vite,/roteador/:*/growth/mensagens-ativas,apps/gestao-vite/src/paginas/fluxo/itens.ts,136,other,? `${base}/growth/mensagens-ativas`
+gestao-vite-front-route-cdba8c28,gestao-vite,/roteador/:*/growth/mensagens-ativas,apps/gestao-vite/tests/fluxo-detalhe.test.ts,51,test,"`/${tipo}/${ID}/growth/mensagens-ativas`,"
+gestao-vite-front-route-124b8dea,gestao-vite,/roteador/:*/growth/pagamentos,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,61,href,const href = item.rota ? `${base}/growth/${item.rota}` : null;
+gestao-vite-front-route-0c3603f2,gestao-vite,/roteador/:*/growth,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/mensagens-ativas.tsx,9,other,const leitura = useLeitura<DadosDeGrowth>(`/v1/gestao/fluxos/${contato.id}/growth`);
+gestao-vite-front-route-06070382,gestao-vite,/roteador/:*/integracoes/webhook,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.tsx,91,href,href={`${base}/integracoes/${cartao.rota}`}
+gestao-vite-front-route-3c4b9f79,gestao-vite,/roteador/:*/integracoes,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx,203,link,"<Link className=""ph-voltar"" href={`${base}/integracoes`} aria-label=""Voltar"">"
+gestao-vite-front-route-caf87a6e,gestao-vite,/roteador/:*/log,apps/gestao-vite/src/paginas/fluxo/itens.ts,140,other,? `${base}/log`
+gestao-vite-front-route-caf87a6e,gestao-vite,/roteador/:*/log,apps/gestao-vite/tests/fluxo-detalhe.test.ts,53,test,"assert.equal(itens.find((i) => i.rotulo === 'Log')?.href, `/${tipo}/${ID}/log`);"
+gestao-vite-front-route-971c9df3,gestao-vite,/roteador/:*/servicos,apps/gestao-vite/src/paginas/fluxo/itens.ts,146,other,"if (tipo === 'roteador') itens.unshift({ rotulo: 'Serviços', href: `${base}/servicos` });"
+gestao-vite-front-route-971c9df3,gestao-vite,/roteador/:*/servicos,apps/gestao-vite/src/paginas/fluxo/servicos/gravar.ts,17,other,const caminho = `/v1/gestao/fluxos/${roteadorId}/servicos`;
+gestao-vite-front-route-971c9df3,gestao-vite,/roteador/:*/servicos,apps/gestao-vite/src/paginas/fluxo/servicos/servicos.tsx,14,other,const leitura = useLeitura<DadosDeServicos>(`/v1/gestao/fluxos/${contato.id}/servicos`);
+gestao-vite-front-route-b3501780,gestao-vite,/roteador/:*,apps/gestao-vite/src/App.tsx,93,other,* As rotas-filhas do contato — o que `/fluxo/:id` e `/roteador/:id` desenham
+gestao-vite-front-route-b3501780,gestao-vite,/roteador/:*,apps/gestao-vite/src/App.tsx,249,other,"* (`/fluxo/:id` para chatbot, `/roteador/:id` para roteador) é o estado-pai,"
+gestao-vite-front-route-b3501780,gestao-vite,/roteador/:*,apps/gestao-vite/src/App.tsx,299,other,"só existe aqui, e não na árvore de `/roteador/:id` logo abaixo. */}"
+gestao-vite-front-route-b3501780,gestao-vite,/roteador/:*,apps/gestao-vite/src/paginas/criar/roteador/acoes.ts,13,other,irPara(`/roteador/${resultado.id}`);
+gestao-vite-front-route-b3501780,gestao-vite,/roteador/:*,apps/gestao-vite/src/paginas/fluxo/contato.tsx,52,other,* `/fluxo/:id` e `/roteador/:id` desenham a MESMA árvore (App.tsx monta as
+gestao-vite-front-route-b3501780,gestao-vite,/roteador/:*,apps/gestao-vite/tests/canal-do-fluxo.test.ts,37,test,"assert.equal(rotaDoCanal(`/roteador/${BOT}`, 'whatsapp_cloud'), `/roteador/${BOT}/canais/whatsapp`);"
+gestao-vite-front-route-73b47fbf,gestao-vite,/trocar-conta/sem-acesso,apps/gestao-vite/README.md,23,doc,"`/minha-conta`, `/bem-vindo`, `/trocar-conta/sem-acesso`, `/criar/fluxo`,"
+gestao-vite-front-route-73b47fbf,gestao-vite,/trocar-conta/sem-acesso,apps/gestao-vite/src/estilos/globais.css,4436,other,`/trocar-conta/sem-acesso`.

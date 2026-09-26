@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "packages-core-comment-d259c5ae",
+      "action": "translate",
+      "new_text": "`DateTime.TryParseExact` allowing spaces for the formats above.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:517-517; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a2748943",
+      "action": "translate",
+      "new_text": "State left for the user; null means the next contact starts at the root.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:76-76; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-60f3fe00",
+      "action": "translate",
+      "new_text": "Chatbot flow engine ported from Blip `Take.Blip.Builder`; see root THIRD_PARTY_NOTICES.md. It reads Blip flows in published format without translation.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/index.ts:1-4; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b90b7e80",
+      "action": "translate",
+      "new_text": "Ported from takenet/blip-sdk-csharp (Apache-2.0), src/Take.Blip.Builder.UnitTests/Models/FlowTests.cs. Changes: xUnit/Shouldly to vitest; messages remain Portuguese.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/modelos.teste.ts:1-5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-bb57332f",
+      "action": "translate",
+      "new_text": "Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/Models/Flow.cs, State.cs, Input.cs, Output.cs, and Action.cs. Changes from C# to TypeScript: classes become interfaces over published Blip JSON with the SAME keys so the engine reads it without translation; `Validate()` becomes `validarFluxo`; messages remain Portuguese; `TraceSettings` and `BuilderConfiguration` are omitted.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/modelos.ts:1-8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-affb5b28",
+      "action": "translate",
+      "new_text": "`stateId` in `{{variavel}}` form: destination calculated at runtime.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/modelos.ts:102-102; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-5b6d47a2",
+      "action": "translate",
+      "new_text": "`Action`: `settings` is free JSON per type, corresponding to original `JRaw`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/modelos.ts:13-13; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-2b1493f8",
+      "action": "translate",
+      "new_text": "`Flow.Validate()` contract for a valid flow: exactly one root state; root awaits input and has no condition; unique IDs; every output destination exists or is `{{variável}}`; and no loop bypasses input.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/modelos.ts:147-151; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-ab14122b",
+      "action": "translate",
+      "new_text": "Is there a direct path without input back to `alvo`?",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/modelos.ts:178-178; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-8163043f",
+      "action": "translate",
+      "new_text": "As in the source, the second half tests ROOT input, not this state's input.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/modelos.ts:198-198; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-44b67cf2",
+      "action": "translate",
+      "new_text": "The root with bypass was already rejected above, so in practice only a state with no",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/modelos.ts:199-199; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-efe3775b",
+      "action": "translate",
+      "new_text": "input is checked.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/modelos.ts:200-200; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b7aeffe4",
+      "action": "translate",
+      "new_text": "`validarFluxo` error attached to its causing state, or null for a whole-flow error.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/modelos.ts:215-215; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-c1a6a50c",
+      "action": "translate",
+      "new_text": "Return ALL errors `validarFluxo` would report, each attached to its causing state so Builder marks the right block. `validarFluxo` stops at the first error to remain faithful to `Flow.Validate()`; the engine needs only that. The UI needs all missing pieces at once. Validate each state and output destination, then whole-flow conditions such as missing or duplicate root, duplicate ID, and loop without input. Messages match `validarFluxo` exactly; an empty list means validation would pass.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/modelos.ts:231-241; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d9fc799e",
+      "action": "translate",
+      "new_text": "Do not duplicate a `validarFluxo` error already listed for a state.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/modelos.ts:263-263; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-9d205735",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/fluxo/modelos.ts:37-37",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-e23c34ce",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/fluxo/modelos.ts:46-46",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-ed6b2d77",
+      "action": "translate",
+      "new_text": "`State` retains nonmodel fields (`name`, `$position`, `$tags`, etc.) on the object, like original `ExtensionData`; `{{state.name}}` reads them there.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/modelos.ts:53-56; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-f4830b36",
+      "action": "translate",
+      "new_text": "Model keys; remaining state fields are `ExtensionData`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/modelos.ts:70-70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-9a3bd1d0",
+      "action": "translate",
+      "new_text": "Default flow shown on first Builder open. It is the smallest useful flow: receive a message, tell the customer a human is coming, and queue the conversation; the company can add menus, hours, and branches later. It lives in `core` because both the Builder copy via the bridge and the Management Builder screen (`GET /v1/gestao/fluxos/:id/builder`) serve it. Both draw Blip EDITOR format (`{ <id>: estado }` with `$contentActions`); `converterDoEditor` converts it for the engine. Three engine rules matter: the root only waits for input, or publication fails (\"O estado raiz precisa esperar uma entrada\"); the root consumes the FIRST customer message, so bot speech belongs in the NEXT block. `ForwardToDesk`, not an ID prefix, calls `encaminharParaAtendimento` to queue the conversation (`apps/api/src/dominio/fluxo.ts`); the `desk:` prefix routes the closed `Ticket` back to that block and matches Blip rendering. The attendance block expects `desk_forwardToDeskState_status = Success` and defaults back to root after closure. This starting point is never stored; the first save persists the user's drawing.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/padrao.ts:1-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-7a939ab7",
+      "action": "translate",
+      "new_text": "`ForwardToDesk` runs BEFORE block content (`converterDoEditor`): the",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/padrao.ts:113-113; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b6dd3b14",
+      "action": "translate",
+      "new_text": "conversation enters the queue before the notice is sent inside it.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/padrao.ts:114-114; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-59618283",
+      "action": "translate",
+      "new_text": "After ticket closure, the next message restarts from the beginning.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/padrao.ts:134-134; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e3dec519",
+      "action": "translate",
+      "new_text": "Bot utterance in the format drawn in the editor's left bubble.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/padrao.ts:58-58; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6a9bace9",
+      "action": "translate",
+      "new_text": "Wait for a customer message, making the block publishable.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/padrao.ts:78-78; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-c6d53a33",
+      "action": "translate",
+      "new_text": "`@pipe/core` holds pure Pipe business rules: no database, HTTP, or implicit clock; callers pass the reference instant. A calculation error here becomes a wrong report number customers use for staffing decisions.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/index.ts:1-7; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-c31267ec",
+      "action": "translate",
+      "new_text": "`./analise` is intentionally absent from the barrel: its `Intervalo` means calendar days, while SLA `Intervalo` means instants. Import `@pipe/core/analise` explicitly.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/index.ts:19-20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-480ab78e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/janela/janela.teste.ts:137-137",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-5fac091c",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/janela/janela.teste.ts:20-20",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-9d256f53",
+      "action": "translate",
+      "new_text": "Boundary that decides whether the UI offers free text or a template.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/janela/janela.teste.ts:49-49; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e15dca9f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/janela/janela.teste.ts:71-71",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-d361f155",
+      "action": "translate",
+      "new_text": "WhatsApp 24-hour service window is a first-class concept (see `2026-09-05-pipe-design.md` §4.3), governing UI choice between free text and templates, billing category, and reporting measured from send time rather than calendar day. Per `referencias-blip/pesquisa/regras-blip.md` §1.1, it lasts 24 elapsed hours from the customer's latest message; outside it, only Meta-approved templates are allowed; each new customer message reopens it. Prices stay outside this code because Meta pricing changes often and is configured per category.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/janela/janela.ts:1-16; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d4775e07",
+      "action": "translate",
+      "new_text": "Billing-report category if the message is sent.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/janela/janela.ts:102-102; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b336e8c7",
+      "action": "translate",
+      "new_text": "Email and widget have no window, so `janela_expira_em` is null; the channel rule and UI remain the same.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/janela/janela.ts:107-110; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d44c08b7",
+      "action": "translate",
+      "new_text": "Classify outbound message cost. Meta charges templates by their own category even inside the service window; free text inside the window is `livre`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/janela/janela.ts:115-120; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-7280cd76",
+      "action": "translate",
+      "new_text": "Decide whether sending is allowed, what the UI should offer, and how cost is classified. Outside the window, replace free-text input with a template selector and an explicit reason, rather than failing only after send.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/janela/janela.ts:130-135; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-9d3b5671",
+      "action": "translate",
+      "new_text": "Expiry from the customer's latest message. Null input returns null: without a customer message there is no window.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/janela/janela.ts:40-43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-54989a37",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/janela/janela.ts:49-49",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-93a6d73e",
+      "action": "translate",
+      "new_text": "Window-open check is STRICT: at the exact expiry instant it is closed. Treating a tie as open would invite a Meta rejection after send, which the UI must prevent.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/janela/janela.ts:56-62; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-197341eb",
+      "action": "translate",
+      "new_text": "Conversation close to expiry, highlighted in the Desk list.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/janela/janela.ts:74-74; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-1a960460",
+      "action": "translate",
+      "new_text": "Required when `conteudo` is `template`.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/janela/janela.ts:90-90; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-811a6147",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/janela/janela.ts:98-98",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-8fc252ea",
+      "action": "translate",
+      "new_text": "Volume-weighted mean from metrics spec §5: total time divided by total conversations, never a mean of means, so busy days weigh more than quiet days. This matches `weightedAverageOrNull` in blip-dash and the effort measure.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/metricas/agregacao.ts:1-7; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-3a46a1f0",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/agregacao.ts:11-11",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-7d222f24",
+      "action": "translate",
+      "new_text": "Raw pairs of time sum and conversation count.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/agregacao.ts:27-27",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-43fbe775",
+      "action": "translate",
+      "new_text": "Mean of means is the trap this function exposes. Use it only in tests to compare against the weighted mean.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/agregacao.ts:40-43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-c0f11037",
+      "action": "translate",
+      "new_text": "Group by key and apply the metric per group, preserving its denominator.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/agregacao.ts:50-50; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-517edf68",
+      "action": "translate",
+      "new_text": "Sort keys deterministically so reports are stable across runs.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/agregacao.ts:66-66; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-9d850ed5",
+      "action": "translate",
+      "new_text": "Survey response rate from metrics spec §6 must appear beside the mean: a 4.85 score with 22% response is not equivalent to 4.85 with 90%.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/agregacao.ts:73-76; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-46130528",
+      "action": "translate",
+      "new_text": "Closure statuses from metrics spec §4. `atribuida_em` separates lost from abandoned: lost reflects capacity or queue issues, abandoned reflects handling. Keeping them separate makes the metric actionable.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/encerramento.ts:1-7; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a1499f67",
+      "action": "translate",
+      "new_text": "Sum of the three categories, called \"fechada\" in the spec.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/encerramento.ts:17-17; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-aabd691f",
+      "action": "translate",
+      "new_text": "Classify a conversation closure; return null while open. `atendente` or `transferencia` means finalized regardless of assignment, since a manager can also close in bulk from monitoring. `cliente` or `inatividade` means lost if never assigned, abandoned otherwise. Missing `encerradaPor` follows the assignment rule; unknown origin must not be optimistically labeled finalized.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/encerramento.ts:23-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-8b57125e",
+      "action": "translate",
+      "new_text": "Attendance events and five timestamps, per `2026-09-05-metricas-atendimento.md` §1 and `2026-09-05-modelo-de-dados.md` §4. Every metric derives from these events, never mutable conversation fields.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/eventos.ts:1-6; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a012e96d",
+      "action": "translate",
+      "new_text": "Pairs of customer messages and the next agent message in a conversation. A complete exchange is an inbound customer message followed later by an agent outbound message. Consecutive customer messages count as ONE exchange; its clock starts at the first, when the agent began owing a response.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/eventos.ts:142-149; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-4ed83169",
+      "action": "translate",
+      "new_text": "Conversation event list, the input unit for every metric.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/eventos.ts:41-41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-cb6b5f22",
+      "action": "translate",
+      "new_text": "Five timestamps from metrics spec §1.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/metricas/eventos.ts:47-47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-56abb58d",
+      "action": "translate",
+      "new_text": "Assignment count; reassignment records a new event rather than overwriting the first.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/eventos.ts:55-55; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-4b8b59ad",
+      "action": "translate",
+      "new_text": "Stable ordering by instant: events sharing a millisecond retain their",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/eventos.ts:60-60; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-7bf19be1",
+      "action": "translate",
+      "new_text": "write order, which is the order in which the `api` emitted them.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/eventos.ts:61-61; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-f90b39bd",
+      "action": "translate",
+      "new_text": "Derive five timestamps from conversation events. Where the spec leaves latitude: `criadaEm` uses `criada` or falls back to `enfileirada` so a queue-only conversation has a start; `atribuidaEm` is FIRST assignment; `primeiraRespostaEm` uses `primeira_resposta` or first `mensagem_saida` WITH `usuarioId` because bot output is not an agent response; `encerradaEm` is the LAST closure so a reopened conversation records its effective final close.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/eventos.ts:68-80; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-12486537",
+      "action": "translate",
+      "new_text": "Catalog of `evento_atendimento.tipo` from data-model §4.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/metricas/eventos.ts:8-8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-ade8046d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/metricas.teste.ts:164-164",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-01b3317f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/metricas.teste.ts:166-166",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-e1b80081",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/metricas.teste.ts:182-182",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-ddf0f379",
+      "action": "translate",
+      "new_text": "A response timestamp preceding assignment must not become a negative duration.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/metricas.teste.ts:241-241; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-ac83bfae",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/metricas.teste.ts:25-25",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-74dda5fa",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/metricas.teste.ts:259-259",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-1c11cae3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/metricas.teste.ts:342-342",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-f51ac765",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/metricas.teste.ts:354-354",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-10a99588",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/metricas.teste.ts:355-355",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-8352414c",
+      "action": "translate",
+      "new_text": "Three conversations with five timestamps set manually: C1 created 10:00, assigned 10:02:30, first response 10:03:30, closed 10:20; C2 created 10:00, assigned 10:10, first response 10:14, closed 10:30; C3 created 10:00, never assigned or answered, closed 10:05.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/metricas/metricas.teste.ts:39-45",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-94fad493",
+      "action": "translate",
+      "new_text": "Five time metrics from metrics spec §2 return `{ valor, populacao, excluidas, soma }`, always carrying the denominator. A negative interval signals inconsistent out-of-order events: exclude that conversation from the denominator and count it in `excluidas` rather than publishing a negative or forced-zero duration.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/tempos.ts:1-10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-1a3dc95c",
+      "action": "translate",
+      "new_text": "Handling time is `encerrada_em − primeira_resposta_em`, for closed conversations with a first agent response. Blip makes the figure look better by omitting unanswered conversations. Keep the same formula for comparability, but report `excluidas` beside it in the UI.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/metricas/tempos.ts:123-130; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-1941126c",
+      "action": "translate",
+      "new_text": "Response-time result also reports how many conversations supplied the intervals.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/tempos.ts:21-21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-9f912111",
+      "action": "translate",
+      "new_text": "Conversations with at least one complete exchange, the population in metrics spec §2.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/tempos.ts:23-23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-5c358883",
+      "action": "translate",
+      "new_text": "Queue time is `atribuida_em − criada_em`; population includes conversations that were assigned.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/tempos.ts:48-51; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-aa232a2d",
+      "action": "translate",
+      "new_text": "Time to first response is `primeira_resposta_em − atribuida_em`; population includes conversations answered by an agent. A response without a recorded assignment cannot enter this formula and counts as excluded, shown beside the mean per the declared §2 divergence.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/tempos.ts:58-65; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-909b2d6d",
+      "action": "translate",
+      "new_text": "Total customer wait: with an answer, `primeira_resposta_em − criada_em`; without one, `encerrada_em − criada_em`. Population is all conversations closed in the period. An open unanswered conversation has no wait end and is excluded.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/tempos.ts:72-79; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b77a16b2",
+      "action": "translate",
+      "new_text": "Response time averages intervals from customer message to next agent message. The spec calls the population conversations with at least one complete exchange, but the formula averages INTERVALS. To preserve §5 sum/count rather than a mean of means, `valor` divides by interval count; `conversasConsideradas` separately reports conversation count, while `excluidas` counts conversations without a complete exchange.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/metricas/tempos.ts:91-100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-344bc658",
+      "action": "translate",
+      "new_text": "Lead scoring engine per `2026-09-05-pipe-design.md` §4.2 and data-model §5. `regra_score` conditions, weights, versions, and active flags produce `score_lead` value, band, and `explicacao`. The `{regra, versao, pontos}` explanation answers why a lead scored 62 and supports full recalculation after a rule change without losing history. Determinism is required: evaluate rules in stable identifier order rather than database row order, so the same input always yields the same output.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/score/motor.ts:1-12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d353388e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/score/motor.ts:125-125",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-680d3e8c",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/score/motor.ts:166-166",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-e14d4c4f",
+      "action": "translate",
+      "new_text": "Find band for the score; bands are sorted by minimum and `maximo` is inclusive.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/score/motor.ts:175-175; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a312be02",
+      "action": "translate",
+      "new_text": "Calculate a lead score. Inactive rules are neither evaluated nor explained. Only matching rules appear in the explanation, answering why the score is 62. Sort explanation by `regra.id` so the same rule set yields identical JSON regardless of database row order.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/score/motor.ts:186-194; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6762a37b",
+      "action": "translate",
+      "new_text": "Rule version stamped on `score_lead`.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/score/motor.ts:69-69; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-1c53bd13",
+      "action": "translate",
+      "new_text": "Clamp score to a range when enabled; disabled by default because negative weights are valid.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/score/motor.ts:75-75; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-4a3746e4",
+      "action": "translate",
+      "new_text": "Version to stamp; defaults to the highest version among active rules.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/score/motor.ts:77-77; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-441c3012",
+      "action": "translate",
+      "new_text": "Read `campo` through a dotted path such as `contato.email` without a library.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/score/motor.ts:87-87; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-2f764a19",
+      "action": "translate",
+      "new_text": "Comparable text without accents, case differences, or edge spaces.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/score/motor.ts:97-97; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b35804bb",
+      "action": "translate",
+      "new_text": "Day-one bands mirror n8n webhook `kq4lU8aFv5CKNpvr`: scores of 60 or more go to closer, lower scores to Comercial.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/score/score.teste.ts:14-17; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e4be48d3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/score/score.teste.ts:237-237",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-9351fe38",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/score/score.teste.ts:259-259",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-bcb30294",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/score/score.teste.ts:52-52",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-dc5629f9",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/score/score.teste.ts:75-75",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-2338a918",
+      "action": "translate",
+      "new_text": "Service hours from metrics spec §10 and data-model §4 tables `horario_atendimento`, `horario_faixa`, and `horario_excecao`. Each queue uses the tenant timezone and holiday exceptions. A conversation arriving outside hours is queued with a marker, but its SLA clock starts at the next opening; otherwise every overnight arrival would breach SLA. Timezone conversion uses runtime `Intl.DateTimeFormat` with no date dependency.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:1-12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b9b7b27f",
+      "action": "translate",
+      "new_text": "Zero milliseconds on both sides so the offset is exact.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:106-106; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-97cead0f",
+      "action": "translate",
+      "new_text": "Absolute instant for a tenant-local date and time. Two passes estimate the offset, then correct it if the estimate crossed a daylight-saving transition.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:110-115; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-dcb3bebf",
+      "action": "translate",
+      "new_text": "Convert `HH:MM` to minutes since midnight; accept `24:00`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:129-129; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-dc544108",
+      "action": "translate",
+      "new_text": "0 is Sunday through 6 Saturday, matching `Date.prototype.getUTCDay`.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/sla/expediente.ts:15-15; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-afeb87b6",
+      "action": "translate",
+      "new_text": "Business-hour ranges for a local calendar day, in minutes from midnight. A date-specific exception overrides the weekly schedule, enabling holidays.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:164-167; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

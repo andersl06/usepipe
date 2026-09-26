@@ -1,0 +1,15 @@
+[
+  {
+    "id": "5d1c00bc-90fb-49db-b415-19f1fde1762b",
+    "antes": {
+      "nome": "Contato de exemplo",
+      "email": null,
+      "telefone_e164": "+55000000001"
+    },
+    "depois": {
+      "nome": "Contato Editado",
+      "email": "user1@example.com",
+      "telefone_e164": "+55000000001"
+    }
+  }
+]

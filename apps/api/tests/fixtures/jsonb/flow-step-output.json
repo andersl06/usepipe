@@ -1,0 +1,72 @@
+[
+  {
+    "id": "1df80f84-90e5-4a4e-a65c-dfe5e496442f",
+    "value": {
+      "acoes": [],
+      "proximo": "boas-vindas"
+    }
+  },
+  {
+    "id": "03e55d62-7dce-4daf-9d63-4bba32e66068",
+    "value": {
+      "acoes": [
+        {
+          "tipo": "TrackEvent"
+        },
+        {
+          "tipo": "SendMessage"
+        },
+        {
+          "tipo": "SendMessage"
+        }
+      ],
+      "eventos": [
+        {
+          "action": "boas-vindas",
+          "category": "fluxo"
+        }
+      ],
+      "proximo": null
+    }
+  },
+  {
+    "id": "9acefb79-21b6-4d13-89dd-3ef3e6af1597",
+    "value": {
+      "acoes": [],
+      "proximo": "menu"
+    }
+  },
+  {
+    "id": "65ca9f0d-2f26-4665-a2ad-2660ff1ec4fc",
+    "value": {
+      "acoes": [
+        {
+          "tipo": "SendMessage"
+        }
+      ],
+      "proximo": null
+    }
+  },
+  {
+    "id": "a7844f4c-8c09-4d58-b1f6-cede95fc3676",
+    "value": {
+      "acoes": [
+        {
+          "tipo": "SetVariable"
+        }
+      ],
+      "proximo": "desk:suporte"
+    }
+  },
+  {
+    "id": "b163fd2d-0f78-45d9-8d11-d2edd02609da",
+    "value": {
+      "acoes": [
+        {
+          "tipo": "ForwardToDesk"
+        }
+      ],
+      "proximo": null
+    }
+  }
+]

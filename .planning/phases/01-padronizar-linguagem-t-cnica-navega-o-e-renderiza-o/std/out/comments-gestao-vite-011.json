@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "gestao-vite-comment-0a9dba4d",
+      "action": "translate",
+      "new_text": "The `api` returned an error other than 404: showing what happened is worth more than a blank screen.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contato.tsx:118-118",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-fb8b6a63",
+      "action": "translate",
+      "new_text": "The contact (the `fluxo`) that ALL `/fluxo/:id/**` screens render, read once via `GET /v1/gestao/fluxos/:id` and handed to the children through route context — the origin's `auth.application.detail`, the parent state for all of them.\n\n`criadoEm` arrives as text (JSON); whoever displays the date converts it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contato.tsx:24-30",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a47987ed",
+      "action": "translate",
+      "new_text": "React Context, not the router's `useOutletContext`: that one only reaches the direct child, and the module shells (Contatos, Growth, Configurações) have an `<Outlet>` in between.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contato.tsx:36-38",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0a2d8555",
+      "action": "translate",
+      "new_text": "The parent route: validates the `id`, loads the contact, and only then renders the child. Anything outside uuid format, or with no contact in the tenant, is a 404 — like the `notFound()` each `page.tsx` used to do.\n\n`/fluxo/:id` and `/roteador/:id` render the SAME tree (App.tsx mounts both over the same child routes); whoever enters through the wrong prefix for the contact's type gets redirected here, once, to the right prefix — preserving the rest of the path, the query string, and the hash. It's the safety net for an old link, a bookmark, or a link a not-yet-updated screen still generates.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contato.tsx:47-57",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-22fb5fad",
+      "action": "translate",
+      "new_text": "The contact modules' common shell: portal bar, contact bar, and the body with `fx-coluna` — the former `CascaDoModulo`, now without a query.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contato.tsx:84-87",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-653e443e",
+      "action": "translate",
+      "new_text": "ponytail: ticket history export still has no backend.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx:109-109; verified against current source, still unwired",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f9d03528",
+      "action": "translate",
+      "new_text": "Structure of the origin's `details-container` template (portal.js, state `auth.application.detail.users.user`): `.history-header` (back, 56px avatar, name fs-24, reload, `.separator`), `.tickets-list-view` with the `.user-info-card` card (40%) and `.tickets-history` (60%, `expandable-list`), and the fixed `#user-detail-sidebar` panel (445px) with `.thread-header` and `.messages`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx:18-22",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-be7a9ca9",
+      "action": "translate",
+      "new_text": "ponytail: no dedicated column for \"test user\" in the",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:110-110; two-line comment split by scanner, continues at 20862f57; verified against current source, still unwired",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-20862f57",
+      "action": "translate",
+      "new_text": "contact schema; the checkbox stays visual, as before, until there's somewhere to store it.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:111-111; continuation of be7a9ca9",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d31e0e4a",
+      "action": "translate",
+      "new_text": "`.user-info-card` card from the `details-container` template: \"Informações\" header + pencil (`notes`), label 30% / value 70% rows (`mt4`), contact ID with a tooltip, and \"Extras\" (`mt5`) with the JSON keys. `PATCH /v1/contatos/:id` — `gravar.ts`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:22-25",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3b585de7",
+      "action": "translate",
+      "new_text": "`PATCH /v1/contatos/:id` (`controladores/catalogo.ts`, `ControladorContatos.editar`). `null` clears the field; `undefined` (omitted) leaves it untouched. `atributos` is a merge: only the keys sent here (`city`, `gender`) change — the contact's extra keys are kept.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/gravar.ts:5-9",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9024a673",
+      "action": "translate",
+      "new_text": "Structure of the origin's `users-content-view` template (portal.js, module 2753): sidebar `.static-sidebar` with a dark header (Filters + Apply) and a body with the `user-dimension` (dashed \"+ Adicionar filtros\" button); on the right, `page-header` (Contatos + reload), `#contacts-filter` (count + `blip-daterange-picker`), and the list of `card.card--mini-card.user-card`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx:14-18",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-df59f29a",
+      "action": "translate",
+      "new_text": "ponytail: dimension filters have no backend; the button starts disabled, as in the origin.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx:31-31",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d6c38649",
+      "action": "translate",
+      "new_text": "ponytail: the period picker is visual only; date filtering has no backend.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx:72-72",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f1dc9732",
+      "action": "translate",
+      "new_text": "Contacts screen interface rules, copied from the origin's controller (`portal.js`, `users` module): approximate count, the picker's default period, date formatting, and which side each history bubble sits on.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:1-3",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5d16903a",
+      "action": "translate",
+      "new_text": "`getFormatedLastInteraction`: `toLocaleString(locale, {year, month, day, hour, minute})`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:11-11",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d74bf1b4",
+      "action": "translate",
+      "new_text": "History bubble timestamp: `16/09/2026 - 13:26`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:31-31",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4019872a",
+      "action": "translate",
+      "new_text": "Period picker text: `09 set, 2026 - 00:00`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:37-37",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e6008aa9",
+      "action": "translate",
+      "new_text": "Origin's default period: last 7 days, from the start of the first day to the end of the current day.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:45-45",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-80898a2c",
+      "action": "translate",
+      "new_text": "In the origin the contact sits on the right (`.right`) and the bot/agent on the left, with a photo.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:55-55",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0a86cd5b",
+      "action": "translate",
+      "new_text": "When opening the detail view, the active ticket is the one from the URL (`?ticketId`) or the most recent one.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:82-82",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-cc30505a",
+      "action": "translate",
+      "new_text": "`/contents/messagetemplate` — state `auth.application.detail.contents.messageTemplate`. The `contents` shell places the `<aside class=\"detail-aside fl\">` (397px, with the two navigation cards) next to `#main-content-area`, as in Configurações. The list reads `template_mensagem` from the flow's channel (`lib/comunicacao.ts`); without a WhatsApp channel the origin shows the `unavailable-warning` (`isWhatsAppActive()`), and here the same criterion applies.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.tsx:7-14",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-12a1fb8c",
+      "action": "translate",
+      "new_text": "Rules for the \"New message template\" sidebar — the origin's `CreateMessageTemplateSidebarController` (`dD`) from portal.js, without the screen. Pure by design: `tests/conteudos-regras.test.ts` locks down what comes out of here.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:1-5",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4c41fb8d",
+      "action": "translate",
+      "new_text": "`areTranslationsValid` for the types Pipe models (text and media require language + text).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:104-104",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-54404cb2",
+      "action": "translate",
+      "new_text": "`invalidTranlationLanguages`: a language repeated in another translation.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:115-115",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-70dc82dc",
+      "action": "translate",
+      "new_text": "`isMessageTemplateValid`: name ok, category, translations, and languages.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:127-127",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a10da496",
+      "action": "translate",
+      "new_text": "What the list shows (`messagetemplate.html`): without a WhatsApp channel it's the `unavailable-warning`; with a channel and no templates, the `no-results`; otherwise the list.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:144-147",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7f939b59",
+      "action": "translate",
+      "new_text": "The flags `$onInit` checks (`checkFeatures`). In Pipe, the `template_mensagem` schema accepts an image/video/document header and does not model payment or carousel — that's where the defaults come from.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:22-26",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b4e40e70",
+      "action": "translate",
+      "new_text": "The template's `menu-list`, line by line, with each block's `ng-if`:\n\n  row 1: text · image (isMediaMessageTemplateEnabled) · document (same)\n  row 2: video (media && video) · payment (payment && isUtilityType) · carousel (carousel)\n\nThe whole block only exists when `messageTemplateType === 'default'`, `!isAuthenticationType()`, and `!isEmptyCategory()` — see `mostrarEscolhaDeBloco`.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:40-49",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5c5d2cc3",
+      "action": "translate",
+      "new_text": "Compatibility: the flattened list of types the menu offers.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:63-63",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-911f86a5",
+      "action": "translate",
+      "new_text": "`isTemplateNameInvalid`: `/^[a-z]([a-z0-9_])*$/` and up to 512 characters.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:88-88",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-09471395",
+      "action": "translate",
+      "new_text": "Conteúdos' `<aside class=\"detail-aside fl\">`: `<bds-grid class=\"sidebar-container\" direction=\"column\">` with one `sidebar-item-container > a.sidebar-anchor > bds-grid.sidebar-item` per entry (title fs-14 bold, subtitle fs-12, `bds-icon arrow-right` on the right; the active one gets `.selected-sidebar-item`). Text from `modules.application.detail.contents.menu.*`.\n\nponytail: \"Recursos\" (`contents.resource`) still has no screen here; it's left without a destination.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:102-110; verified ponytail note against current source, still no destination",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ac73dba3",
+      "action": "translate",
+      "new_text": "One example per body variable — Meta requires it for approval (`{{1}}` → `exemplos['1']`).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:158-158",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c98fb6dc",
+      "action": "translate",
+      "new_text": "The body variables, in the order they appear — same rule as `variaveisDoTexto` in `dominio/whatsapp/modelos.ts` (the backend validates again; this only avoids a round trip for an error visible right here). Duplicated on purpose, as in `comunicacao-modelos-formulario.tsx`: the client screen shouldn't need to import a server module.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:20-26",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-cd5e1cc6",
+      "action": "translate",
+      "new_text": "`openNewMessageSidebar()` → `SidebarContentService.showSidebar` with module 95559's template (`#create-message-template-sidebar`, 37.5rem, `.sidebar-header` + `.sidebar-body`): name, category, one translation per language (language + block chosen in the `menu-list` + card), \"Adicionar tradução\", and the \"Enviar para avaliação\" footer.\n\n\"Enviar para avaliação\" calls `POST /v1/canais/whatsapp/:id/modelos` (`criarModeloNaMeta`) — the SAME path as `comunicacao-modelos-formulario.tsx` in Cadastros — once per language (Meta versions by (name, language), not by \"template with translations\"). It's the only block this endpoint accepts today: a media header needs the Resumable Upload API (`modelos.ts`, ponytail logged there), and Autenticação has Meta-specific components, not free text — both cases get the explanatory notice instead of attempting to send.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:321-335",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ddefb4c4",
+      "action": "translate",
+      "new_text": "`messageTemplateSidebar.newTemplate.inputs.menuList.*` and each block's icon.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:35-35",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d87f1542",
+      "action": "translate",
+      "new_text": "`messageTemplate.categories.*` for the three from `fillTemplateCategories`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:46-46",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-eabff023",
+      "action": "translate",
+      "new_text": "`messageTemplateLanguages.*` — the same subset Pipe already uses in `/comunicacao/modelos`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:53-53",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-34e47cdb",
+      "action": "translate",
+      "new_text": "`messageTemplate.status.*` — the four values `template_mensagem.status_meta` stores (the library stays on the server; here it's just the label).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:60-60",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d7630dde",
+      "action": "translate",
+      "new_text": "`<message-template-card>` (`.mt-card`): outside edit mode, the placeholder \"Insira aqui o conteúdo da mensagem\" (or the text preview); in edit mode, a 3-line `textarea`, the \"+ variável\" bar, and the round confirm/close buttons in the corner. The bold/italic/strikethrough icons come from the `blip-toolkit` font and don't exist here (only \"+ variável\").",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:650-656",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-cf3bc033",
+      "action": "translate",
+      "new_text": "Meta only approves a template with a variable if each one ships with a fill-in example — there's no equivalent screen in the origin (there it's a step of `saveMessageTemplate`, with no component of its own); here it's the minimum for `POST /v1/canais/whatsapp/:id/modelos` to accept \"Enviar para avaliação\".",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:740-745",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c4ee11a8",
+      "action": "translate",
+      "new_text": "`<message-template-buttons>`: `.menu-buttons-list` with \"Botões de ação\" and \"Respostas rápidas\"; under quick replies, one \"Texto do botão\" field per button (up to 3, 20 characters) and \"Adicionar outro botão\". The `CallToAction`/`QuickReply` icons come from the `blip-toolkit` font (not present here).\nponytail: action buttons (phone, link, contact data) stay choice-only; Pipe doesn't model buttons in `template_mensagem` yet.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:774-781",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b8b13a58",
+      "action": "translate",
+      "new_text": "`/assets/img/contents/unavailable-message-template.svg` — the WhatsApp bubble outline, 110×110.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:83-83",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3a9e4a11",
+      "action": "translate",
+      "new_text": "`<message-template-attachment-card>` (`.mt-card__attachtment`, 25vw): outside edit mode, the attachment area and \"Clique aqui para editar o conteúdo do seu modelo de mensagem\"; in edit mode, the attachment link (`attachment.<tipo>.link` + compatibility), the text, and the footer (`attachment.footer`, 60 characters). `is-translation`: the translation inherits the attachment and doesn't change the link.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:865-871",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a8ea1de6",
+      "action": "translate",
+      "new_text": "Blip's `auth.application.detail.team.edit` page. The bundle shows `url:\"/team/edit\"`, `back-button=\"auth.application.detail.team\"`, and the Save button in the header; that's why editing doesn't go back to being a modal.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx:23-27",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0e5a75b3",
+      "action": "translate",
+      "new_text": "`/team` for the contact (LEIA.md, capture 1) — now with the PER-FLOW RBAC the origin assumes (migration 0035).\n\nBefore, this screen read `/contrato/membros`: without `fluxo_membro`, anyone with account access had access to every flow, and the per-contact subset was the whole set. Now the list is `GET /v1/gestao/fluxos/:id/equipe`'s, which is THIS contact's team — what `TeamController._loadMembers()` does in the origin, per bot.\n\nWho can view and who can change is decided on the server (`dominio/gestao/equipe-do-fluxo.ts`): a 403 becomes the same notice as before, instead of an empty list that would read as \"there's no one here\".\n\nNo `CascaDoModulo`: `cf-cabecalho`/`cf-container` (from `configuracoes.css`) already center at 80% on their own, the same way the common shell's `fx-coluna` does — stacking both would squeeze the body to 64% (80% of 80%).",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/equipe.tsx:7-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-3e767633",
+      "action": "translate",
+      "new_text": "The three columns, in the origin's order, each with its own tooltip.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:26-26",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2aaa8933",
+      "action": "translate",
+      "new_text": "The Team vocabulary — the add-member modal's bar and the edit page's matrix —, now backed by real data.\n\nUntil migration 0035 this screen MIRRORED the ACCOUNT role: Pipe had no per-flow RBAC, so the radios came from migration 0021's matrix and were born disabled. Now `fluxo_membro` exists, and the list is what it stores — the row/column layout stays the same, it just stopped being decorative.\n\nTwo things come from the origin and aren't invented here:\n\n  levels    the three radios from `PermissionsList.html`: `none` (0), `read` (1), and `readWrite` (3), labeled \"Sem permissão\" / \"Visualizar\" / \"Ver e editar\", each with its own `info`;\n  stops     the four from the `rzslider` (`team.addUserModal.slider`): \"Visualizar · Customizado · Visualizar e editar · Admin\". The edit page uses a different control, a `custom-select` with five options.\n\nThe RESOURCES (the rows) don't live here: they come from `GET .../equipe`, in the origin template's order, because the server decides the catalog (`dominio/gestao/equipe-do-fluxo.ts`) — the screen only renders it.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:3-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-12aae196",
+      "action": "translate",
+      "new_text": "Blip swaps the CTA when preparing the handoff from the short signup form to `/team/edit`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:56-56",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b9d59ed9",
+      "action": "translate",
+      "new_text": "The edit PAGE's selector has one more option than the add-member bar.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:60-60",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b0b813fa",
+      "action": "translate",
+      "new_text": "The origin's `selectAllPermissions()`, on the screen side: moving the slider MARKS the radios. It's the same rule as `permissoesDoPapel` in the `api` — here so the list follows the slider before saving, there so the database never contradicts what the person saw.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:71-76",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b2a1a502",
+      "action": "translate",
+      "new_text": "Blip's `/team/edit` `permissionSelect` is derived from the matrix: all 0 = none, all 1 = read, all 3 = readWrite; mixed = custom.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:94-97",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-edf18b05",
+      "action": "translate",
+      "new_text": "The EDIT page's granular permissions list — the origin's `PermissionsList.html`: header \"Funcionalidades | Sem permissão | Visualizar | Ver e editar\" (each column with its `info` and tooltip), and one row per resource with three radios.\n\nThe rule is theirs entirely: the top-level radio marks the row radios (`selectAllPermissions()`) and only \"Personalizado\" frees each row for manual control (`checkStatus()`). The RESOURCES come from the server, in their template's order.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:112-121",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-da437a1d",
+      "action": "translate",
+      "new_text": "Outside \"Personalizado\" the slider is in charge, as in the origin.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:165-165",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5cc1aa7f",
+      "action": "translate",
+      "new_text": "The origin's `add-user-modal` — DOM captured with it OPEN in `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`:\n\n  toolbar    only the `icon-close` in the corner;\n  header     CENTERED block (`.row.mh6.tc.mt3`): h1 \"Adicionar pessoa\" and the subtitle \"Adicione e defina as permissões de uma nova pessoa para sua equipe\";\n  email      EDITABLE `material-input`: small label on top, underline below, no box;\n  permission \"Permissão\" label on the left and the `rzslider` with the same stops as add;\n  footer     CENTERED `.modal-footer`: `Cancelar` (text) and `Salvar` (`bp-btn--bot`), which starts disabled (`ng-disabled=\"$ctrl.userForm.$invalid\"`) until the email is valid.\n\nOn \"Customizado\", the origin calls `addCustomUser()`: the CTA becomes \"Continuar\" and only then navigates to the separate `/team/edit` page, where the matrix lives.\n\nTHE INVITE is what the origin admits and we repeat a different way: there, `confirmAddUser` invites whoever isn't in the tenant yet as a `guest` and warns \"Essa pessoa não faz parte do contrato…\". Here the `api` rejects with that same phrase (`pessoa_fora_do_contrato`) and the modal offers the invite — `POST /v1/convites`, the same one from `/contrato/membros`, which returns the link to copy because Pipe doesn't send email.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:180-205",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6eedf49a",
+      "action": "translate",
+      "new_text": "Shows up when the `api` says the person isn't in the tenant.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:220-220",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-68156cfa",
+      "action": "translate",
+      "new_text": "The `guest` from `confirmAddUser`: joining the tenant is a prerequisite, not the action itself.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:251-251",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-28ef60cd",
+      "action": "translate",
+      "new_text": "Same format as `contrato/membros/convidar.tsx` — blip-ds's `emailValidation` is a format check, not a lookup.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:26-27",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4e7f8dec",
+      "action": "translate",
+      "new_text": "`/team` for the contact — the same screen at `/fluxo/:id/equipe` and `/roteador/:id/equipe`, because in the origin it's a state of `auth.application.detail` and applies equally to chatbot and router.\n\nThe structure follows the origin's template (`portal.js`, the `<page-header class=\"team-header\">` followed by `.container.mb-5 > .row.team-cards`, the same DOM captured in `referencias-blip/canais/roteador/roteador-team__pagina.html`):\n\n  header    h1 \"Equipe\" on the left; on the right, the search (\"Pesquisar por nome ou e-mail\", `avatar-user` icon, 260px) and THEN the \"Adicionar Membro\" button — in that order;\n  subtitle  \"Adicione pessoas para a sua equipe e dê permissões para alterarem o Chatbot.\" (`additional-info`), below the divider;\n  list      one `card--mini-card` per member: avatar (5%) · \"Membro\" + name (25%) · divider · \"E-mail\" + email (20%) · divider · role badge (10%) · divider · edit/delete (5%);\n  empty     \"Nenhum membro encontrado =(\" (`.no-content-found`).\n\nThe list is `GET /v1/gestao/fluxos/:id/equipe`'s — THIS contact's team, the way `TeamController._loadMembers()` joins `getUsersAccounts` with `getApplicationUsersPermissions`, all per bot. Before migration 0035 it was the entire `/contrato/membros` list, because there was no per-flow RBAC.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:372-395",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-88d7b4d5",
+      "action": "translate",
+      "new_text": "The origin's `addUser()` — the header's \"Adicionar Membro\" button.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:438-438",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0df9165f",
+      "action": "translate",
+      "new_text": "The origin's `editUser(user)`: the whole card (`<a class=\"no-decoration\">`) and the pencil icon open the SAME edit view.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:456-457",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2b9d9591",
+      "action": "translate",
+      "new_text": "The row's three actions, now PER FLOW — `POST/PATCH/DELETE /v1/gestao/fluxos/:id/equipe` (`gestao-equipe.ts` controller). Before migration 0035 they acted on the ACCOUNT role (`/contrato/membros/papel` and `/excluir`), because Pipe had no per-flow RBAC: removing someone here removed them from the whole tenant. Now it removes them only from this contact, which is what the origin always did (`TeamController`, everything per bot).",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:50-57",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d1029bad",
+      "action": "translate",
+      "new_text": "The origin's \"Permissão\" `rzslider` (`rz-slider-model=\"$ctrl.permissionsValue\"`), with the same four stops. A real `<input type=\"range\">` underneath gives dragging and keyboard support without reimplementing native behavior.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:61-66",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4bb554b7",
+      "action": "translate",
+      "new_text": "Growth › Anúncios (Beta) — `growth/adsbuying` in the origin. Rebuilt from a photo (the owner complained the first version \"came out totally different\"): the origin doesn't open in the 8790 clone (the `ads-buying` MFE shows a blank screen — a mock with no Marketing API account) and the captured HTML doesn't render outside Blip's domain, so the ruler here is the rendered DOM saved at `referencias-blip/canais/roteador/roteador-anuncios__pagina.html` (measured: centered `bds-paper`, `container xxs=8`, `margin: y-9`, a `justify-content: space-between; align-items: center` row up to 625px — illustration on the left, text on the right, button right-aligned with `padding-top: 30px`) — not a centered vertical card like before.\n\nTitle and copy match the origin (`typo-account-connection-title` and the paragraph right below). The icon is OURS: the origin uses `bds-illustration name=\"notification-1\"`, here it's `Ilustracao nome=\"vazio\"` from Pipe's design system — same role (initial-state illustration), without copying their artwork.\n\nPipe has no Marketing API account and no Facebook OAuth — none of that exists yet. Instead of simulating the connection (or inventing a contract the `api` doesn't have), the button opens the same controlled notice from `configuracoes/api/tela.tsx`: it says the integration isn't available, without faking a click that \"works\". TODO: once Pipe's Marketing API key exists, replace the notice with the real `lib/growth.ts#conectarFacebook`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/anuncios/anuncios.tsx:4-28; verified against current source",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-71f705f6",
+      "action": "translate",
+      "new_text": "`section.main-section > ui-view`: the sidebar and the body, side by side.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/casca.tsx:12-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b46b5c13",
+      "action": "translate",
+      "new_text": "The Click Tracker panel as the `portal-fragment-click-tracker` microfrontend renders it on the `growth/clicktracker` route (measured on the copy with a ruler): fs-32 title with a tooltip, \"Evento de conversão\" + \"Período analisado\", the event field with an edit chip and a From/To picker, the token field (status stripe, logo, \"Token de acesso à Marketing API\" / \"Conectado\", \"Alterar token\"), a divider, \"Desempenho resumido de seus anúncios\" with four indicators, and the empty state \"Nenhum dado encontrado\". The \"Eventos de otimização\" screen is another origin route (`growth/conversation-settings/events`).\nponytail: nothing here connects an external account or fires an event; it's visual only.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/clicktracker/clicktracker.tsx:4-12; verified against current source, still purely visual",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e90d70c6",
+      "action": "translate",
+      "new_text": "Click tracker (Growth) — the types and the pure rule for `GET`/`POST /v1/gestao/fluxos/:fluxoId/links-rastreados` (`apps/api/src/dominio/rastreador-de-cliques.ts`, tested in `apps/api/tests/growth.test.ts`).\n\nNOT the existing `growth/clicktracker` (`clicktracker/clicktracker.tsx`) — that one measures Meta's Click-to-WhatsApp ad performance, with no link to register at all; the comment at the top of the domain confirms the distinction. This is a sibling screen, new, with no equivalent Blip screen to measure against for the visual ruler — its shape follows the other Growth menu items (`mensagens-ativas`, `pagamentos`), not a captured reference.\n\nA SEPARATE file from `gravar.ts` (which imports `./api`, which reads `import.meta.env` and breaks outside Vite) — the same split as `cadastros.ts`/`cadastros-gravar.ts` and `regras.ts`/`disparo.ts`: here only what `node --test` can import cleanly.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/dados.ts:1-18",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-bd965574",
+      "action": "translate",
+      "new_text": "This endpoint's error body (`{erro:{codigo,mensagem}}`) doesn't send `detalhe.campo` — only the `codigo` says which field it is (`criarLinkRastreado` in `dominio/rastreador-de-cliques.ts` and `confirmarUrlSegura` in `dominio/gestao/integracoes.ts`). Mapped here, not there: changing a field is a screen change, not a domain change.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/dados.ts:35-41",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4c6f832f",
+      "action": "translate",
+      "new_text": "The real write for the click tracker — `POST /v1/gestao/fluxos/:fluxoId/links-rastreados`. Types and the error-field rule live in `dados.ts` (a pure module); here only what needs `./api`. Same format as `mensagens-ativas/disparo.ts`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/gravar.ts:5-10",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d0750394",
+      "action": "translate",
+      "new_text": "Growth › Links rastreados — a sibling screen to the existing `growth/clicktracker` (that one measures Meta's Click-to-WhatsApp ad performance; this one is the short link with real click counting, backed by `apps/api/src/dominio/rastreador-de-cliques.ts`, already tested). No Blip reference for this screen — the origin doesn't have it —, so its shape follows the other menu items (`mensagens-ativas/tela.tsx`, `pagamentos.tsx`): `gr-container`/`gr-cabeca`/`gr-lista`/`gr-tabela-rolagem` and the creation modal in `gr-sobreposicao`/`gr-modal`.\n\nNo period filter on the screen (the read endpoint accepts `?desde=&ate=`, but nothing in the request calls for a date picker here) — \"Cliques\" is always the total; if a period cut is ever needed, it's one more `<input type=\"date\">` on this same read.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx:10-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8e4b1918",
+      "action": "translate",
+      "new_text": "Copies the short link to the clipboard — same idea (word, not icon) as `paginas/contrato/copiar.tsx`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx:26-26",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-28afc206",
+      "action": "translate",
+      "new_text": "`POST /v1/mensagens-ativas` — the write that was missing to wire up the screen (the rest, `GET .../growth`, already reads real data). Same `Resultado<T>` format as `configuracoes/basicas/gravar.ts`: `ok`/`valor` or `ok`/`erro` with text ready for the screen's `aviso`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:4-9",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-19b94218",
+      "action": "translate",
+      "new_text": "The `erro.mensagem` the `api` puts in the body (`ErroPipe`), or the default text.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:56-56",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c8d122bd",
+      "action": "translate",
+      "new_text": "`MotivoDeRecusa` from `dominio/mensagem-ativa.ts`, in screen-facing Portuguese.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:66-66",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b2fa6718",
+      "action": "translate",
+      "new_text": "Growth › Mensagens ativas: the data is the account's, read from `/v1/gestao/fluxos/:id/growth`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/mensagens-ativas.tsx:6-6",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ac307630",
+      "action": "translate",
+      "new_text": "The origin's \"Atualizar\" reloads the screen; here it invalidates the Growth read.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx:15-15",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-87083109",
+      "action": "translate",
+      "new_text": "GET /v1/mensagens-ativas/limites — the contact cap per dispatch, so the screen doesn't repeat a magic number (`ControladorMensagensAtivas.limites`).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx:39-40",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-54924322",
+      "action": "translate",
+      "new_text": "The Growth sidebar — `<aside class=\"detail-aside fl\"><nav class=\"sidenav\"><sidenav-menu><ol><sidenav-menu-item>` (portal.js, state `auth.application.detail.growth`). Each item is `li.relative > a` with `span.sidebar-title` and `span.sidebar-subtitle`; the active one is `$state.includes(sref)` — it also lights up on the screens inside it.\n\nThe first four items, in order and with the pt-BR bundle's text (`modules.application.detail.growth.*`):\n\n  activeMessages                 \"Mensagens ativas\"           → mensagens-ativas\n  clicktracker                   \"Click Tracker\" / subtitle   → clicktracker\n  adsbuying  (badge \"Beta\")      \"Anúncios\" / subtitle        → anuncios\n  activeMessages.paymentsReport  \"Relatório de Pagamentos\" / subtitle → pagamentos\n\nThe fifth, \"Links rastreados\", does NOT exist in the origin — item 3 of the Attendance registrations task: a short link with real click counting (`links-rastreados/links-rastreados.tsx`), its own tested backend, unrelated to the \"Click Tracker\" above (that one measures Meta's Click-to-WhatsApp ad performance). It goes at the end of the list, with no badge, with our own text — there's no Blip copy to reuse here.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx:5-26",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6bc0c506",
+      "action": "translate",
+      "new_text": "Growth › Relatório de Pagamentos — `growth/activemessages/paymentsReport` in the origin. Rebuilt from a photo (the owner complained the first version \"came out totally different\"): the origin doesn't open in the 8790 clone, and the captured HTML doesn't render outside Blip's domain (the `active-campaign-mfe` MFE embeds React with Tailwind classes), so the ruler here is the rendered DOM saved at `referencias-blip/canais/roteador/roteador-relatoriopagamentos__pagina.html`.\n\nTwo findings that change the previous version's structure:\n1. **There's no page title.** `ui-view=\"content\"` receives the MFE directly — no `home-header-testid`, no `<h1>`. The name \"Relatório de Pagamentos\" only shows up in the sidebar item (`navegacao.tsx`). That's why this version has no `<h1>` — the old one had one the origin doesn't.\n2. **It's a two-column side-by-side layout**, not three stacked sections: \"Tráfego de mensagens\" on the left (two metric cards + one chart card with the legend for the 4 payment methods) and \"Pagamentos\" on the right (two summary cards side by side + the Top 5 below). Measured: `gap: 32`, cards with `border-radius: 12px; padding: 12px`.\n\nThe origin shows fixed demo numbers (384,302 messages, R$ 91 million, a Top 5 of fashion products) — sample data for the Blip PRODUCT, not from the captured router. Pipe has no billing for active messages (PIX, card, boleto, link), for real or as a mock: instead of copying the demo numbers (which would look real but aren't), every value shows \"—\" and the bars don't fake a height — the layout is the same, the data is honest. TODO: once billing integration exists, swap in `lib/growth.ts#relatorioDePagamentos`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/pagamentos/pagamentos.tsx:4-32; verified placeholder values against current source",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-70d569aa",
+      "action": "translate",
+      "new_text": "The bulk-dispatch spreadsheet: the first row is a header (discarded), the following columns are `telefone,nome,parametro1,parametro2,...` — name and parameters are optional. A row with no phone number doesn't become a recipient.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/growth/regras.ts:29-33",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8100f3aa",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/home.tsx:102-102; pure section divider, no semantic content",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9f55d3b5",
+      "action": "translate",
+      "new_text": "The contact screen — the origin's `auth.application.detail.home`, `/application/detail/{shortName}/home`.\n\nThis is where router creation ENDS: there, `goToApplicationDetails()` does `$state.go('auth.application.detail.home', { shortName })`, which is why `criar/roteador/acoes.ts` now redirects here.\n\nThe ruler is the `supernova.blip.ai/portal.js` bundle (25.203.0-v0.43.0) — the `application.home` template (module 77021) and the `HomeController` controller (module 84909) —, plus the `portal.css` sheet for the grid layout.\n\n═══ THE ROUTE USES `id`, AND THAT'S A DELIBERATE DIVERGENCE ═══\n\nThere the URL carries the `shortName`, the contact's key on the platform. Here the `fluxo.short_name` column exists (migration 0020) but is NOT unique — there's no index, and uniqueness is only checked against `nome` at creation. Routing by a field that can repeat means choosing, by the luck of `limit(1)`, which of two contacts the person opens. It stays on `id` until there's a unique index; `shortName` remains what the screen SHOWS, where the origin writes \"Id:\".\n\n═══ WHAT THE ORIGIN SHOWS THAT WE DON'T HAVE ═══\n\nIts body is a grid of up to five areas — Extensões, Canais, Equipe, Preferências, and Métricas. Each card (`cartoes.tsx`) receives its data by prop and applies the origin template's condition; this page passes what Pipe has, and empty for what it doesn't — and it's the origin's rule that decides what disappears.\n\nThe chrome is the PORTAL's (`pt-app` + `BarraDoPortal`), as in \"Novidades\" and the \"Painel do contrato\": in the origin this screen swaps the portal's light bar for the contact's DARK bar, but the top bar stays the same. That's why `/fluxo` joined the list of screens with their own shell in `estrutura-gestao.tsx`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/home.tsx:13-45",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2ffde84c",
+      "action": "translate",
+      "new_text": "`#main-content-area` is `pa0`: the inner `.container` is what adds the padding.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/home.tsx:54-54",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-62247f88",
+      "action": "translate",
+      "new_text": "The origin's header: photo on the left, name and \"Id:\" beside it, and the creation date flush right, on the same line.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/home.tsx:57-58",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-91782f21",
+      "action": "translate",
+      "new_text": "There the name is a `bds-input-editable` for whoever has claim 109 (`basicConfigurations`), and plain text otherwise. Here it's always text: renaming would write to the same place creation does, and that edit's Server Action doesn't exist yet.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/home.tsx:67-70",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4c10ae3b",
+      "action": "translate",
+      "new_text": "The order follows the template: extensions, channels, team, preferences, metrics — the grid positions them with `grid-area`. What Pipe doesn't have (store, per-contact team, per-contact count) is left empty.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/home.tsx:82-84",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-32da777e",
+      "action": "translate",
+      "new_text": "The Integrations cards' illustrations — the origin's `<img src=\"/assets/img/integrations/*.svg\">` (the integrations template module in portal.js), copied from the capture's asset files by `gerar-ilustracoes.mjs` (scratchpad), with no redesign.\n\nDashbot and Botanalytics are third-party brands and keep their colors as-is — the same rule as the channel logos in `componentes/icones-portal.tsx`. Webhook is the origin's own artwork: its stroke becomes `currentColor` and its highlight becomes Pipe's brand color.\n\nStays LOCAL to this folder per the working rule (write locally and report); when another screen needs the same figures, it moves up to `componentes/`.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx:1-13",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e8b87d49",
+      "action": "translate",
+      "new_text": "`webhook.svg` — `height=\"57\"` on the card and 72×72 on the Webhook page.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx:101-101",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6c5d8f8a",
+      "action": "translate",
+      "new_text": "`dashbot.svg` — on the card it's `height=\"67\"` and `class=\"mb0\"`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx:17-17",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-01de9587",
+      "action": "translate",
+      "new_text": "The Integrations grid — the origin's `auth.application.detail.integrations`.\n\nTemplate (portal.js, the `IntegrationsController` controller's module):\n\n  <div class=\"container\"> <div class=\"row\"> <div class=\"twelve columns\">\n    <div class=\"integrations-list\">\n      <div class=\"integration-item tc\">\n        <card class=\"tc card card--with-hover card--square\" id=\"dashbot-card-integration\">\n          <img src=\"/assets/img/integrations/dashbot.svg\" height=\"67\" class=\"mb0\"/>\n          <div class=\"integration-item-text\"> <h4>dashbot.title</h4> <small>dashbot.headline</small> </div>\n          <div class=\"integration-item-button\"> <bds-button variant=\"tertiary\">{{$ctrl.dashbotButtonText}}</bds-button> </div>\n        </card>\n      </div>\n      … Botanalytics (height 57) … Webhook (height 57) …\n\nThere's NO title above the grid: the page starts at the list. The button text is `utils.forms.connect` (\"Conectar\") and becomes `utils.forms.connected` (\"Conectado\", primary variant) when `<X>.IsValid` is \"true\" in the bot's configuration (`checkWebhook`/`checkDashbot`/`checkBotanalytics`).\n\nponytail: only Webhook has a screen in Pipe. Dashbot and Botanalytics are visual cards (the origin sends them to their own states, which don't exist here) and no integration is active, so all three say \"Conectar\".",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.tsx:5-29",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-54f1771a",
+      "action": "translate",
+      "new_text": "The origin's `bds-switch`: `<label class=\"switch switch--size-standard\"> <input type=\"checkbox\"> <span class=\"slider round\"></span> </label>`. Measured on the copy: 42×24 track (default) and 32×18 (`size=\"short\"`), 34 radius, 18/12 white knob 3px from the edge, sliding its own diameter when on. Off, the track is `--color-content-ghost`; on, it's the primary color. The `bds-switch` host measures 42×32: 2px above and 6px below the track (the global `label`'s `margin-bottom: .375rem`).\n\nServes both Webhook (Integrações) and Log (Growth); that's why it lives here and not inside one screen. No state of its own: whoever calls it controls the toggle.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/interruptor.tsx:3-14",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5d5e10ce",
+      "action": "translate",
+      "new_text": "What the screen SENDS — the secret fields only live here, never in the response.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:24-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5055ffc5",
+      "action": "translate",
+      "new_text": "CRUD for `webhook_saida` — `dominio/gestao/integracoes.ts`. It belongs to the ACCOUNT, not the flow (see the comment there): the route is `/v1/gestao/webhooks`, with no flow `:id`, even though the screen lives under `fluxo/:id/integracoes/webhook`.\n\n\"Configurações de autenticação\" and \"Cabeçalhos customizados\" (migration 0036): `autenticacao.senha`/`autenticacao.clientSecret` only exist in the creation/edit REQUEST — the response never returns them (not even encrypted).",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:5-13",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e0852556",
+      "action": "translate",
+      "new_text": "Only exists in the creation response — the database keeps the secret for signing, the screen doesn't.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:50-50",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6eebd9a1",
+      "action": "translate",
+      "new_text": "Short preview of the response body — \"shows the response (status and a short body)\".",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:58-58",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-060908cd",
+      "action": "translate",
+      "new_text": "The Webhook form's rules — what the origin's `WebhookController` (portal.js) decides, with no screen nearby, so the test locks it down.\n\n  addUrl():      `this.urls.length >= 10 || (this.urls = this.urls.concat([\"\"]))`\n  removeUrl(i):  removes row `i`; with zero rows the integration is disabled\n  isUrlValid(e): length ≤ 512, matches the HTTPS regex, and isn't repeated in the list\n  handleSwitchBehavior(): the \"Ativar\" switch stays disabled when any URL is invalid or the first one is empty\n  shouldDisableSave(): any invalid URL (the other branches depend on feature flags for dispatch types and headers)",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts:1-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-28cf31e5",
+      "action": "translate",
+      "new_text": "The origin's regex (`VY`), verbatim: HTTPS only, host with a 2-to-5-letter TLD.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts:16-16",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1afc4d40",
+      "action": "translate",
+      "new_text": "`validateUrls()` on load: an empty row counts as valid until it's touched.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts:35-35",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-39e6c11c",
+      "action": "translate",
+      "new_text": "The Webhook screen — `auth.application.detail.integrations.webhook` (portal.js, module 29045): \"Visão Geral\"/\"Configurações\" tabs, the `bds-paper` card, the URL list with \"+ Adicionar\"/\"Salvar\" in the footer, \"Configurações avançadas (Opcional)\" with dispatch types, authentication (switch + OAuth 2.0/Básica), and custom headers (`referencias-blip/pesquisa/blip-integracoes-webhook.md`).\n\nThe origin saves ONE webhook with several URLs, all with the SAME configuration; Pipe saves the opposite in `webhook_saida` (`apis.md` §5.5) — several ROWS, each with its own URL, events, authentication, and headers. The screen reconciles both: the \"Novo webhook\" form is the origin's (URL list with `adicionarUrl`/`removerUrl`/`urlValida` from `regras.ts`, a single \"Configurações avançadas\"), and \"Salvar\" creates ONE `webhook_saida` per filled URL, all with the same configuration — the origin's URL list becoming Pipe's row list.\n\nponytail: events/authentication/headers for an ALREADY-CREATED webhook can only be edited by recreating it (delete + create again); there's no inline editing of those three things per row — the original screen also had no post-creation editing of URL/events, only enable/disable, test, and delete. Add full per-row editing if it's requested.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx:20-42; verified ponytail note against current source",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a483b529",
+      "action": "translate",
+      "new_text": "The origin's `/integrations/webhook`: header with back button, toggle, and the tabs role.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/webhook.tsx:4-4",
+      "notes": "pre-triage D-40"
+    }
+  ]
+}

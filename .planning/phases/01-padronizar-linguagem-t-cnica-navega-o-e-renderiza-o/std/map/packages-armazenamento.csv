@@ -1,0 +1,9 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+packages-armazenamento-dir-b1a19995,packages-armazenamento,1,dir,packages/armazenamento/src,packages/storage/src,packages/armazenamento/src,0,no,,,applied,codex1,
+packages-armazenamento-dir-dba61104,packages-armazenamento,1,dir,packages/armazenamento/tests,packages/storage/tests,packages/armazenamento/tests,0,no,,,applied,codex1,
+packages-armazenamento-dir-5f919845,packages-armazenamento,1,dir,packages/armazenamento,packages/storage,packages/armazenamento,0,no,,,applied,codex1,
+packages-armazenamento-file-bd6b7b90,packages-armazenamento,1,file,armazenamento.test.ts,storage.test.ts,packages/armazenamento/tests/armazenamento.test.ts,0,no,,,applied,codex1,
+packages-armazenamento-dir-b1a19995,packages-armazenamento,1,dir,packages/armazenamento/src,packages/storage/src,packages/armazenamento/src,0,no,,,applied,codex1,
+packages-armazenamento-dir-dba61104,packages-armazenamento,1,dir,packages/armazenamento/tests,packages/storage/tests,packages/armazenamento/tests,0,no,,,applied,codex1,
+packages-armazenamento-dir-5f919845,packages-armazenamento,1,dir,packages/armazenamento,packages/storage,packages/armazenamento,0,no,,,applied,codex1,
+packages-armazenamento-file-bd6b7b90,packages-armazenamento,1,file,armazenamento.test.ts,storage.test.ts,packages/armazenamento/tests/armazenamento.test.ts,0,no,,,applied,codex1,

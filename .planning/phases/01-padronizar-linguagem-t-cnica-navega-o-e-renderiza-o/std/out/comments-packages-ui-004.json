@@ -1,0 +1,116 @@
+{
+  "items": [
+    {
+      "id": "packages-ui-comment-de81a87f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/tema.ts:157-157",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-269d79c3",
+      "action": "translate",
+      "new_text": "`espaco(2)` yields `'8px'`; `espaco(1, 2)` yields `'4px 8px'`.\n\nThis makes accidental spacing outside a multiple of 4 impossible, using the same approach as twenty-ui's `spacing()`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/tema.ts:161-166",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-adee1c39",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/tema.ts:173-173",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-c67880c0",
+      "action": "translate",
+      "new_text": "Four content steps, following Blip's order.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/ui/src/tema.ts:30-30",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-20f0fe77",
+      "action": "translate",
+      "new_text": "Three strengths of translucent ink; never an opaque hex value.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/tema.ts:38-38",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-ee03c6a0",
+      "action": "translate",
+      "new_text": "ONE brand color for primary actions, active state, and focus only. Never use it for labels, numbers, titles, or category tags.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/tema.ts:45-48",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-5bcbe161",
+      "action": "translate",
+      "new_text": "A state is a PAIR: pastel background, dark foreground, and the line connecting them. Never use colored content alone; all three variables travel together so two files cannot give the state two different colors.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/tema.ts:57-61",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-08df3d02",
+      "action": "translate",
+      "new_text": "EXTENDED PALETTE - ONLY FOR CHARTS AND ILLUSTRATIONS.\n\nTerracotta, ochre, deep blue, and sage live here only. None belongs in interface chrome, tags, borders, icons, or text. Spreading them across the interface made the screen look like a carousel.\n\nThe order of `serie` is the chart series order.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/tema.ts:85-93",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-bc0778cb",
+      "action": "translate",
+      "new_text": "Design-system check: `node verificar-tokens.mjs`.\n\nThis deliberately uses no framework: it is one check for this package's recurring failure, a token used without a definition or defined only in the light theme. `--sage` and `--online` disappeared from the first dark theme that way, unnoticed until the screen turned white.\n\nIt checks: (1) every used `var(--p-*)` is defined; (2) every light-theme color token is redefined in both dark-theme blocks (system preference and explicit choice); (3) counted rules remain at five surfaces, four content steps, four states with three variables each, three radii, and four text sizes.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/verificar-tokens.mjs:1-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-8c84f441",
+      "action": "translate",
+      "new_text": "The same token set without the migration bridge. Counted rules inspect only this set so old aliases cannot inflate the scale. Once the bridge is removed, both sets become identical again.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/verificar-tokens.mjs:35-39",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-13a54871",
+      "action": "translate",
+      "new_text": "1 - nothing uses an undefined token. ------------------------------------------",
+      "sensitivity": "other",
+      "evidence": "packages/ui/verificar-tokens.mjs:43-43",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-7d73fd77",
+      "action": "translate",
+      "new_text": "A color value contains hex or rgba; sizes and durations do not change with the theme.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/verificar-tokens.mjs:56-56",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-54af6113",
+      "action": "translate",
+      "new_text": "3 - enforce the counted rules. ------------------------------------------------",
+      "sensitivity": "other",
+      "evidence": "packages/ui/verificar-tokens.mjs:69-69",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-6333a2b4",
+      "action": "translate",
+      "new_text": "4 - keep the extended palette contained. --------------------------------\nIt is allowed in two places: the data bar (`.trilho`/`.fill`, which is a chart) and the illustration drawn with its own SVG. All other `base.css` styles are chrome, which must not receive extended-palette hues. This test catches the error previously rejected by the owner before it reaches the screen.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/verificar-tokens.mjs:86-90",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

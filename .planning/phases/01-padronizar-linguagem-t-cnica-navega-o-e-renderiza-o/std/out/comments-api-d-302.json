@@ -1,0 +1,644 @@
+{
+ "items": [
+  {
+   "id": "api-comment-6b0e51bd",
+   "action": "translate",
+   "new_text": "A reply presupposes a question. In a conversation opened by a dispatch, whoever started it",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/mensagens-ativas.test.ts:149; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-88476427",
+   "action": "translate",
+   "new_text": "was us; stamping `primeira_resposta` here would record a zero-second TMR and",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/mensagens-ativas.test.ts:150; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-4b4f23c2",
+   "action": "translate",
+   "new_text": "would flatter the average — exactly what the metrics spec forbids.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/mensagens-ativas.test.ts:151; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-b4674c66",
+   "action": "translate",
+   "new_text": "Closes it so as not to hit the \"already in service\" rejection.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/mensagens-ativas.test.ts:172; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-3665c600",
+   "action": "translate",
+   "new_text": "Active message: template dispatch to a list. The numbers checked here are Blip's own (`referencias-blip/pesquisa/blip-desk-mensagens-ativas.md`): a cap of 15 contacts, rejection for a contact already in service (their code 1602) and for an invalid number. What these tests protect above all is the rule that **the dispatch is not all-or-nothing**.",
+   "sensitivity": "meta-blip",
+   "evidence": "apps/api/tests/mensagens-ativas.test.ts:19-26; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-add7ab50",
+   "action": "translate",
+   "new_text": "A valid Brazilian phone number, unique per call.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/mensagens-ativas.test.ts:67; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d9f2e6b9",
+   "action": "translate",
+   "new_text": "Deliberately small: the \"gives up at the limit\" test does not need 5 rounds",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/midia-recebida.test.ts:10; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-b6cdbd91",
+   "action": "translate",
+   "new_text": "to prove the ruler.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/midia-recebida.test.ts:11; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f6bb0721",
+   "action": "translate",
+   "new_text": "\"ends with fbcdn.net.evil.com\" is not the same as \"ends with fbcdn.net\".",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/midia-recebida.test.ts:153; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-6e42f2eb",
+   "action": "translate",
+   "new_text": "Deliberately declared wrong: the bytes are PNG, not JPEG — the one who decides is",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/midia-recebida.test.ts:174; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-49d72018",
+   "action": "translate",
+   "new_text": "Downloading received media (`dominio/midia.ts`), directly — without going through the queue. `PIPE_FILAS=memoria` makes `enfileirarDownloadMidia` a no-op (the same rule as the CRM mirror: a queue that talks to an external service does not run inline in tests), so proving the real download means calling `baixarMidiaDoAnexo` directly — exactly what the queue consumer does in production. The fixtures are the minimum the function reads: a tenant, a channel (the token's source), and an attachment with `bytes = 0`. No inbox, queue or message is needed — since `0033_download_de_midia.sql`, `anexo.canal_id` points directly to the channel.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/midia-recebida.test.ts:19-30; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-cc148d35",
+   "action": "translate",
+   "new_text": "A permanent failure exhausts the ruler immediately — it does not keep rescheduling something that will never succeed.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/midia-recebida.test.ts:248; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-236fb92a",
+   "action": "translate",
+   "new_text": "Second call — the queue's push and the sweep can overlap.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/midia-recebida.test.ts:342; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-9e1db848",
+   "action": "translate",
+   "new_text": "In-memory storage: the test does not need disk to prove the rule.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/midia-recebida.test.ts:36; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f42b5131",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable, just as",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/midia-recebida.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-4049dfe1",
+   "action": "translate",
+   "new_text": "An open conversation, with its 24h window still open, assigned to the scenario's agent.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:127; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-96034fa9",
+   "action": "translate",
+   "new_text": "=========================================================================\nThe comparison ruler, without a database\n=========================================================================",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:192-194; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d9fbcad8",
+   "action": "translate",
+   "new_text": "`exactMatch = false` (the source's default): the term blocks any token that contains it.",
+   "sensitivity": "meta-blip",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:203; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-bc06ebfe",
+   "action": "translate",
+   "new_text": "The phrase matches even with different case and spacing.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:205; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-860538de",
+   "action": "translate",
+   "new_text": "Forbidden words — registration (`/v1/gestao/configuracoes/palavras-proibidas`) and the send-time rejection (`POST /v1/conversas/:id/mensagens`). Same pattern as `cadastros-atendimento.test.ts`: two tenants, cookie session, happy path, rejections, cross-tenant, permission. The send part follows `envio-sessao.test.ts`: the scenario's agent replies in a conversation that is theirs, and what is proved is that a message containing a listed term does NOT reach the outbox. The comparison ruler is the one in `blip-desk-regras-tecnicas.md` §3.4: a phrase is a substring of the text, a standalone word is a substring of the token, all accent- and case-insensitive (the source's intent, not its bug).",
+   "sensitivity": "meta-blip",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:24-36; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-254e8d34",
+   "action": "translate",
+   "new_text": "A standalone word, with different accent and case, inside a token that CONTAINS it.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:386; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-fe2f95b2",
+   "action": "translate",
+   "new_text": "Neither the message nor the outbox was written: the rejection happens BEFORE writing.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:395; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-2c566f79",
+   "action": "translate",
+   "new_text": "Phrase: a substring of the whole text, with extra spaces and different case.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:398; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-4f4df84c",
+   "action": "translate",
+   "new_text": "Has `tenant.configurar` — the General Settings permission, reused here.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:41; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-8fb205f0",
+   "action": "translate",
+   "new_text": "Once disabled, the word stops blocking — and the cache was invalidated by the PATCH.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:412; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-007eeb2d",
+   "action": "translate",
+   "new_text": "The list belongs to tenant A: an agent from tenant B sends the same word without being blocked.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:429; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-99deae51",
+   "action": "translate",
+   "new_text": "People from tenant A with no permission at all.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:43; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-ead37c99",
+   "action": "translate",
+   "new_text": "An API key with no `atendente_id`: it is a system message — the source's filter",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:444; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-3156720b",
+   "action": "translate",
+   "new_text": "belongs to the Desk, and the bot/integration does not go through it.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:445; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-afd78295",
+   "action": "translate",
+   "new_text": "A valid session, but from another tenant — proves the tenant comes from the session, never from the URL.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:45; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-4e5b3068",
+   "action": "translate",
+   "new_text": "Scenario A's agent, who is the one replying.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:47; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-897c2521",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/palavras-proibidas.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-ae9c853c",
+   "action": "translate",
+   "new_text": "The agent's \"Permissões\" screen — `GET`/`PATCH /v1/gestao/atendentes/permissoes`. The screen's shape follows the source product (`referencias-blip/portal/dom/FICHA-atendentes-filas-pausas.md` §a.4): its own page, a \"Permission type\" × \"Status\" table, multiple selection. What is worth proving here is the rule migration 0046 introduced, which runs through the entire API: effective = COALESCE(this person's override, union of their roles), and the safeguard that keeps the exceptions table from rotting into a stale copy of RBAC: **when the choice matches the role again, the row is DELETED.**",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:19-31; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-5b40474d",
+   "action": "translate",
+   "new_text": "The table is the AGENT's full catalog, not just what the person already has: a disabled row must still appear so it can be turned on. Anything management-level (report, rule, user) is excluded: it comes from the role.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:202-204; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-50c007bf",
+   "action": "translate",
+   "new_text": "Both have `conversa.ver`; only the first has `conversa.responder`.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:221; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-b754a079",
+   "action": "translate",
+   "new_text": "`regra.gerenciar` is what `POST /v1/gestao/regras/prioridade` requires.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:274; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-0a438d05",
+   "action": "translate",
+   "new_text": "`regra.gerenciar` is a management permission and the page does not grant it (it comes from the role); the exception is written directly into the table to prove `exigirPermissao` reads it.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:284-285; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-1dfba8b0",
+   "action": "translate",
+   "new_text": "`POST` without `@HttpCode` defaults to 201 in Nest — what matters here is that it is not 403.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:290; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-85148e1a",
+   "action": "translate",
+   "new_text": "`relatorio.ver` was already enabled in the previous test: requesting it again is a no-op, same state.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:344; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-5e2bf285",
+   "action": "translate",
+   "new_text": "Who can change other people's permissions (`usuario.gerenciar`).",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:36; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-b04269e7",
+   "action": "translate",
+   "new_text": "A regular agent: the target, who cannot promote themself.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:38; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-24b18760",
+   "action": "translate",
+   "new_text": "The catalog (`permissao`) is a GLOBAL table, and in production it is populated by `packages/db/src/semente.ts`, which the test does not run — only a few migrations seed loose codes. The codes this file uses are inserted here, the same way `pessoaCom` already did with its own.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:45-50; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-3166c741",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f3cbb1ef",
+   "action": "translate",
+   "new_text": "A new user in the tenant, with a role carrying these permissions.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/permissoes-do-atendente.test.ts:70; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-c5a25eea",
+   "action": "translate",
+   "new_text": "Load-based distribution: the queue's only online agent received the conversation.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:134; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-26ccd683",
+   "action": "translate",
+   "new_text": "The window opens for 24h starting from the customer's message.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:139; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-fcc8e5bc",
+   "action": "translate",
+   "new_text": "The point of this work: it is no longer created as `enviada`.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:180; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-9a159794",
+   "action": "translate",
+   "new_text": "The full path, with the double enabled: inbound webhook → conversation and message → reply through the API → outbox → worker delivers → `entregue` → read status → `lida`. And the failure path: media in a rejected format never reaches a call to Meta. Nothing here is a shortcut: the double stands in for the Cloud API, and the statuses it generates come back through the **same** signed webhook endpoint Meta would use.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:19-27; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-e5b7b1c8",
+   "action": "translate",
+   "new_text": "`delivered` arriving after `read` is routine on Meta's side. It must be discarded.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:246; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-2dbd0179",
+   "action": "translate",
+   "new_text": "The proof that validation happened before the call.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:320; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f02b4b5e",
+   "action": "translate",
+   "new_text": "The text is what the Desk shows on screen: it must be readable, not a code.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:330; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-a3fafd0a",
+   "action": "translate",
+   "new_text": "Running it again overwrites, never accumulates on top — this is what allows recalculating",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:393; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-afab6845",
+   "action": "translate",
+   "new_text": "past data when a metric's definition changes.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:394; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-cbf85e29",
+   "action": "translate",
+   "new_text": "The same key can read the queue, because it holds that scope.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:422; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-482f5084",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-120ed2dc",
+   "action": "translate",
+   "new_text": "Delivers the statuses the double accumulated, through the webhook, the way Meta would.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/ponta-a-ponta.test.ts:74; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-55c89eda",
+   "action": "translate",
+   "new_text": "A rule that exists ONLY in the `outro` tenant, matching any message (empty condition).",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/prioridade.test.ts:166; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-18f39cce",
+   "action": "translate",
+   "new_text": "The message arrives at the main tenant, which has no rule registered at all.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/prioridade.test.ts:172; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-590740b8",
+   "action": "translate",
+   "new_text": "The `regra_prioridade` engine (`dominio/gestao/prioridade-motor.ts`) — item 2 of the \"make what is only registered actually work\" task. `regras-prioridade.ts` already had the CRUD; until this file, nothing READ the table to decide an actual conversation's priority. Two layers of tests: 1. `avaliarPrioridade`/`ordenarRegrasDePrioridade` directly, without a database — the \"first match wins\" rule is pure, and proving it here is faster. 2. A real webhook (`falar`, the same pattern as `entrada-telefone.test.ts`) proving that `dominio/entrada.ts` wires up the engine when a conversation enters the queue.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/prioridade.test.ts:20-32; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-c31ea428",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/prioridade.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-47f433e9",
+   "action": "translate",
+   "new_text": "Registered AFTER the tenant's rule — Pipe's decision: a more specific scope",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/prioridade.test.ts:56; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-21fd65cb",
+   "action": "translate",
+   "new_text": "wins for being more specific, not for having been registered earlier.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/prioridade.test.ts:57; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-b4149a2d",
+   "action": "translate",
+   "new_text": "Outside the fila-vip, only the tenant's rule applies.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/prioridade.test.ts:61; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-c240d3c6",
+   "action": "translate",
+   "new_text": "Arrival order does not matter — only the creation date.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/prioridade.test.ts:68; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-736030b5",
+   "action": "translate",
+   "new_text": "Persistent ignores expiration.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:228; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-6cc3724a",
+   "action": "translate",
+   "new_text": "The router (Blip's `master`): its services through the screen (`/v1/gestao/fluxos/:id/servicos`) and a conversation passing through it. What is proved is what the source product decides: the Services form (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`) and the Master-State, the Redirect, and \"Use the Router's context\" (`referencias-blip/pesquisa/blip-api-schemas.md` §5.3-5.5).",
+   "sensitivity": "meta-blip",
+   "evidence": "apps/api/tests/roteador.test.ts:24-31; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-8358e7f5",
+   "action": "translate",
+   "new_text": "Support: WITHOUT the router's context, with expiration and human service.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:382; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-06c5ba8a",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-26497f75",
+   "action": "translate",
+   "new_text": "The bot's last reply to the contact, in any conversation.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:511; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-a95498e0",
+   "action": "translate",
+   "new_text": "The service starts at the root, and without the router's context it does not see `primeira`.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:562; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-93522b6f",
+   "action": "translate",
+   "new_text": "Resume: the next step continues at `pergunta`, in support.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:566; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-acd22865",
+   "action": "translate",
+   "new_text": "The same conversation: the main flow's execution ended, and support's is the live one.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:570; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-8d322f7b",
+   "action": "translate",
+   "new_text": "The main flow resumes from where it had stopped (`ir-suporte`), which leads to the menu.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:596; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-df221b83",
+   "action": "translate",
+   "new_text": "The main flow sets the router's context: what it stored is in the pair.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:610; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-5807f067",
+   "action": "translate",
+   "new_text": "At the root, \"voltar\" would go to `pergunta`; in `resposta`, it goes to `volta`.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:637; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-e8d8ae65",
+   "action": "translate",
+   "new_text": "`volta` redirected to the main flow by the service's name.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:645; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-5ac2d79e",
+   "action": "translate",
+   "new_text": "The customer talks to the agent: that is interaction, and it renews the service's deadline.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/roteador.test.ts:659; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-742a0e26",
+   "action": "translate",
+   "new_text": "`/saude` with the database down. Kept in a separate file on purpose: `banco.ts` holds the pool in a singleton read from the environment at module load, and Vitest isolates the module graph per file. Without this separation, pointing the database at nothing would contaminate the rest of the suite.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/saude.test.ts:15-21; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-782558b4",
+   "action": "translate",
+   "new_text": "Nothing listens on port 1: it simulates the database being down without needing to stop the",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/saude.test.ts:3; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-9a319c2a",
+   "action": "translate",
+   "new_text": "container. This must be decided BEFORE the import — `banco.ts` reads the URL on load.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/saude.test.ts:4; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  }
+ ]
+}

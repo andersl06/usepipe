@@ -1,4 +1,4 @@
 export * from './tipos.js';
 export * from './resumo.js';
-export * from './classificacao.js';
-export * from './avaliacao.js';
+export * from './classification.js';
+export * from './evaluation.js';

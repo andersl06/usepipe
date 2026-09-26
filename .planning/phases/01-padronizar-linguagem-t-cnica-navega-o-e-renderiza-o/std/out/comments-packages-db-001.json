@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "packages-db-comment-f514936f",
+      "action": "translate",
+      "new_text": "Difference between two states, containing only changed fields. Storing both full objects would bloat the table and hide changes: audit readers need to see capacity move from 5 to 8, not reread fifteen unchanged columns.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/auditoria.ts:113-119; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-b99f511a",
+      "action": "translate",
+      "new_text": "For audit logging, `null` and `undefined` represent the same absence: the driver returns",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/auditoria.ts:139-139; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-f5bee3a4",
+      "action": "translate",
+      "new_text": "`null` while the form sends `undefined`, which is not a change.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/auditoria.ts:140-140; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-748cec0c",
+      "action": "translate",
+      "new_text": "Actor type: a person, an API key, or the system itself.",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/auditoria.ts:22-22",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-829906c2",
+      "action": "translate",
+      "new_text": "Recorded actions use a closed list deliberately. Free text would put `update`, `atualizar`, `atualizou`, and `edit` in the same table and make the audit log unqueryable.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/auditoria.ts:26-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-2c6fc419",
+      "action": "translate",
+      "new_text": "Null for `sistema`: cron has no actor ID.",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/auditoria.ts:37-37",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-dc6e7c55",
+      "action": "translate",
+      "new_text": "Records who changed what. `log_auditoria` existed since the foundation but received no writes. A usability audit found Pipe registration screens could create records but not edit or delete them because specs said they were waiting for an audit log. That absence prevented even correcting a mistyped name. Record before and after values in the same transaction as the change: a separate log transaction can disappear when the change fails or remain when it rolls back. Either outcome makes the audit log lie, which is worse than no log because people trust it.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/auditoria.ts:4-20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-e0037783",
+      "action": "translate",
+      "new_text": "Fields never written to audit logs, even if present in the input. Support reads and contract audits export this log; logging secrets here would undo the database encryption applied by `segredo.ts` in a more visible place.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/auditoria.ts:54-60; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-c048d0b2",
+      "action": "update",
+      "new_text": "Write the audit event in the same transaction as the change. The function accepts `tx`, so rollback removes the log with the change. It also accepts a caller-supplied `tenantId` and writes it to SQL `tenant_id`; callers must use the transaction tenant or the event could be attributed to another tenant.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/auditoria.ts:86-94; packages/db/src/auditoria.ts:86-111; signature and insert use explicit tenantId",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a48ef0fb",
+      "action": "translate",
+      "new_text": "Enable SQL logging, useful for RLS tests that need to inspect the transaction.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/cliente.ts:11-11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-7e11fb1f",
+      "action": "translate",
+      "new_text": "Create the pool and Drizzle client. The `api` uses the application-role URL without `bypassrls`; migrations and seeds use the owner-role URL. Mixing them can make RLS appear active while queries actually bypass it.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/cliente.ts:15-19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-4c8734e8",
+      "action": "translate",
+      "new_text": "Ensure partitions for the current month and the next `mesesAFrente` months. Idempotent: a second call on the same day changes nothing.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/particoes.ts:30-33; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-591e18d0",
+      "action": "translate",
+      "new_text": "`mensagem` and `evento_atendimento` grow without bound and are queried by period, so both are partitioned monthly. This routine creates the next partition before it is needed; missing partitions cause inserts to fail at the worst time. It runs as table owner, like migrations, because it creates tables.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/particoes.ts:4-11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-8b7ae677",
+      "action": "translate",
+      "new_text": "The four stops of the source Team modal's \"Permissão\" slider, keyed by `team.addUserModal.slider`: `visualize`, `custom`, `edit`, `admin`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:103-106; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d08800ef",
+      "action": "translate",
+      "new_text": "Team for this contact: who may access this flow and at what permission. Migration 0035 explains why the source assigns permission to the BOT rather than the tenant and documents the `permissoes` shape from `PermissionsList.html` at `/team/team/edit`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:109-113; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-1e149212",
+      "action": "translate",
+      "new_text": "`{ builder: 'escrever', analysis: 'ler', … }`: source resource to selected radio choice.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:126-126; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-0d1d9987",
+      "action": "translate",
+      "new_text": "Who added this person; survives their deletion via `set null`.",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/schema/automacao.ts:131-131",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-fc5a82d2",
+      "action": "translate",
+      "new_text": "Router services mirror Blip `master.services`. Migration 0024 explains each column and why Pipe has no tunnel.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:142-145; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-74bdb969",
+      "action": "translate",
+      "new_text": "Service name used as the `Redirect` `content.address`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:157-157; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-1a145c36",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:160-160; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-70fe2574",
+      "action": "translate",
+      "new_text": "The source label \"Expiração do redirecionamento\", measured from the customer's last message.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:162-162; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-069e4adf",
+      "action": "translate",
+      "new_text": "Module 6 covers automation and extraction as three distinct parts: conversation flow builder, system workflow engine, and query language backed by the data dictionary.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/automacao.ts:17-21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a2e9c668",
+      "action": "translate",
+      "new_text": "Master-State tracks which router service holds the contact. Blip's \"túnel\" uses the (router, contact) pair; Pipe uses the real contact, unique within the tenant. See migration 0024.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:189-192; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-bd1dd04d",
+      "action": "translate",
+      "new_text": "Null means no expiry for a primary or persistent service.",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/schema/automacao.ts:208-208",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-6d77f613",
+      "action": "translate",
+      "new_text": "Router context shared by services with `usa_contexto_do_roteador`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/automacao.ts:210-210; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-779a4d89",
+      "action": "translate",
+      "new_text": "Pending Change-User-State: the service starts at `bloco_inicial` or at the root.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:214-214; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-5d9c7064",
+      "action": "translate",
+      "new_text": "Published versions stay separate from editable versions, following Blip.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:223-223; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-78232173",
+      "action": "translate",
+      "new_text": "Blip `Flow` global actions and `configuration`; migration 0014.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:236-236; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a5f09581",
+      "action": "translate",
+      "new_text": "Two roles for the same contact: its own conversation or routing other bots.",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/schema/automacao.ts:25-25",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-22f1cc88",
+      "action": "translate",
+      "new_text": "Source `ng-maxlength=\"160\"` on the \"Descrição\" field in \"Editar Fluxo\".",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:28-28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-ee24c5a9",
+      "action": "translate",
+      "new_text": "Blip `{{variável}}` destination resolved at runtime. Exactly one of the two destinations is set (migration 0014).",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:296-299; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-bc99058d",
+      "action": "translate",
+      "new_text": "Exit conditions are evaluated in this order; the first match wins.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/automacao.ts:304-304; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d86c9be3",
+      "action": "translate",
+      "new_text": "Variable map crosses the flow and survives handoff to a human agent, who receives what the bot already collected.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/automacao.ts:332-335; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-3bab5df8",
+      "action": "translate",
+      "new_text": "Migration 0040: Dashboard, Overview, Journey, and message Log filter through `fluxo_versao.fluxo_id`, joining via `fluxo_versao_id`. Without this index, that join scans all of `execucao_fluxo`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/automacao.ts:347-351; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-01bdee01",
+      "action": "translate",
+      "new_text": "The same Meta message becomes a step only once (migration 0014).",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:374-374; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-be8ce6fe",
+      "action": "translate",
+      "new_text": "Store the ProcessHttp cursor separately to retain every executed position.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/automacao.ts:383-383; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-29cbae1f",
+      "action": "translate",
+      "new_text": "`fluxo` or `roteador` matches the source platform's `template` values (`builder` and `master`) and labels the portal card. A router is the same bot without its own content: it references other bots and chooses the destination, so it is a column rather than a separate table.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:39-46; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-cd96fe30",
+      "action": "translate",
+      "new_text": "A workflow that fails silently is worse than no workflow.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/automacao.ts:479-479; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-11616044",
+      "action": "translate",
+      "new_text": "Contact photo URL, the source platform's `imageUri` used by the portal card avatar. It is genuinely optional: source upload runs inside `try/catch`, reports only to the console, and allows creation to continue. Migration 0020.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:48-54; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-e648e96e",
+      "action": "translate",
+      "new_text": "Structured query validated against the tenant data dictionary. Client input never becomes raw SQL, and the server imposes `tenant_id`.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/automacao.ts:526-529; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d2a2a1be",
+      "action": "translate",
+      "new_text": "Short identifier derived from the name (`name.toLowerCase()` in the source). It appears in source contact URLs (`/application/detail/{shortName}`) and requires names to begin with a letter. There is no unique index: uniqueness is still checked on `nome`. Migration 0020.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:56-62; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-dba0e221",
+      "action": "translate",
+      "new_text": "Mirror of tenant CRM (Twenty) `objectMetadata`; see migration 0015. `codigo` is `nameSingular` and `rotulo` is `labelSingular`; other columns use Twenty property names. A row with `twentyId` came from synchronization; without it, the local CRM declared it manually.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/automacao.ts:562-568; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-e94f987d",
+      "action": "translate",
+      "new_text": "Removed from Twenty; keep the row so a block referring to it reports the missing object.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/automacao.ts:586-586; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d9ee8a3a",
+      "action": "translate",
+      "new_text": "Operational data for the query language, not documentation: it defines allowed fields. Mirrors Twenty `fieldMetadata`: `codigo` is `name`, `rotulo` is `label`, and `tipo` is literal `type` (`TEXT`, `CURRENCY`, `RELATION`, etc.). `options`, `defaultValue`, `settings`, and `relation` retain the exact Metadata API format.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/automacao.ts:593-599; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-16dc5e7b",
+      "action": "translate",
+      "new_text": "Outbound webhook authentication mirrors the source \"Configurações de autenticação\" (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch and OAuth 2.0), plus Basic authentication requested here but absent from the source. Migration 0036.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:631-635; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-b8a81432",
+      "action": "translate",
+      "new_text": "Contact description is the source \"Editar Fluxo\" `description` at `/configurations/basic`. Optional because the source textarea has no `required`; when present it must have 2–160 characters (`ng-minlength=\"2\"`, `ng-maxlength=\"160\"`). The database `check` enforces the maximum; the `api` enforces the minimum. Migration 0022.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:64-72; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d831b1d0",
+      "action": "translate",
+      "new_text": "`nenhuma` (default), `basica`, or `oauth2_client_credentials`; migration 0036.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/automacao.ts:655-655; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-ea6d0ace",
+      "action": "translate",
+      "new_text": "Basic-auth username is not secret and remains readable.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/automacao.ts:657-657; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d269700a",
+      "action": "translate",
+      "new_text": "Basic-auth password is encrypted at rest by `@pipe/db/segredo`.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/automacao.ts:659-659; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a6a7ab05",
+      "action": "translate",
+      "new_text": "OAuth 2.0 `client_credentials` token URL is validated like the webhook URL: HTTPS and no private network.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/automacao.ts:661-661; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-6e9e3118",
+      "action": "translate",
+      "new_text": "OAuth 2.0 Client ID is not secret.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/automacao.ts:663-663; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-056a85e4",
+      "action": "translate",
+      "new_text": "Custom headers are `[{ chave, valor }]`. They never include reserved signing headers (`content-type`, `x-pipe-signature`, `x-pipe-timestamp`, `x-pipe-delivery`) or `authorization`. The write rule in `dominio/gestao/integracoes.ts` rejects these before storage, so this column needs no `check`.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/automacao.ts:667-673; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-0a608025",
+      "action": "translate",
+      "new_text": "Source \"Utilizar o contexto do Roteador\" (`builder:useTunnelOwnerContext`): as a router service, share variables for the (router, contact) pair with other services that enable this option. Otherwise variables belong only to this flow. Migration 0024.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:74-78; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-4168780b",
+      "action": "translate",
+      "new_text": "Contact settings without a separate home: currently \"Tela de Boas-vindas\" (`{ boasVindas: { ativo, mensagem, textoBotao } }`) and \"Menu Persistente\" (`{ menuPersistente: { itens: [{texto,link}] } }`) at `/configurations/welcome` and `/configurations/persistentMenu`. An absent key means never configured. One column suffices because each screen has few fields and no separate history, unlike versioned `fluxo_versao.global`; this is the current contact snapshot like `nome` and `descricao`. Migration 0031.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:80-90; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-b90e9b29",
+      "action": "translate",
+      "new_text": "Soft deletion only where history matters; otherwise delete the row.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/comum.ts:19-19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-46739511",
+      "action": "translate",
+      "new_text": "Money is never floating point; currency lives in a separate column.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/comum.ts:24-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-0088d272",
+      "action": "translate",
+      "new_text": "Use `text` plus `check` for enumerations, never native PostgreSQL `enum`: adding enum values can lock production migrations, and values will be added often.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/comum.ts:27-30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-40938bbc",
+      "action": "translate",
+      "new_text": "Data-model §1 conventions live in one place. A change here prevents a second table from using a different timestamp convention.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/comum.ts:5-8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a8526b2b",
+      "action": "translate",
+      "new_text": "Priority ordering lives in `@pipe/core/conversa`, not here. Importing this file brings `drizzle-orm/pg-core` and its driver into browser consumers. The agent app formerly kept a parallel weight map that diverged. Pure rules belong in the pure rules package; the schema imports them for constraints, never the reverse.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/comum.ts:54-62; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-1ec6c78d",
+      "action": "translate",
+      "new_text": "Data-model §4 closed catalog for `evento_atendimento.tipo`.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/comum.ts:65-65; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-973430f1",
+      "action": "translate",
+      "new_text": "Source channel for received media, populated only by the webhook (`dominio/entrada.ts`), never manual upload (`controladores/anexos.ts`). Download logic (`dominio/midia.ts`) uses it to select the Graph token. See `0033_download_de_midia.sql`.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/conversas.ts:140-145; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-0d4a866b",
+      "action": "translate",
+      "new_text": "`bytes = 0` with a reference `chave_storage` (`meta:` or URL) means not downloaded.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/conversas.ts:147-147; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-28c3fa8a",
+      "action": "translate",
+      "new_text": "CPF/CNPJ stays `text`: CNPJ becomes alphanumeric starting in 2026.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/conversas.ts:164-164; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-2553f275",
+      "action": "translate",
+      "new_text": "Conversations are personal data; data-subject deletion is supported from the start.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/conversas.ts:171-171; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-11f90880",
+      "action": "translate",
+      "new_text": "Corresponding Twenty `person` ID enables a direct Desk link to the customer record instead of the CRM home. Null until synchronization; while null, Desk shows no link. See `docs/specs/2026-09-07-integracao-twenty.md` §4.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/conversas.ts:173-179; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-e35c4b7e",
+      "action": "translate",
+      "new_text": "Created without a priority. A prioritization rule or human sets it; the old `media` default ordered the queue using a value nobody selected. See `NIVEIS_PRIORIDADE`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/conversas.ts:278-280; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-ea17fcef",
+      "action": "update",
+      "new_text": "Module 3 covers conversations. The initial channels were WhatsApp Cloud API, email, and site widget; `TIPOS_CANAL` now also includes Instagram and Messenger.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/conversas.ts:28-28; packages/db/src/schema/comum.ts:36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-2b21d069",
+      "action": "translate",
+      "new_text": "Supports automatic-close guard: do not close while an agent owes the next response.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/conversas.ts:291-291; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d9a54694",
+      "action": "translate",
+      "new_text": "WhatsApp 24-hour service window, recalculated for each inbound contact message. Null for channels without a window, such as email and widget.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/conversas.ts:293-296; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-c0530870",
+      "action": "translate",
+      "new_text": "No foreign key: `mensagem` is partitioned and its uniqueness is the pair (id, criada_em).",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/conversas.ts:298-298; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-fcd47b17",
+      "action": "translate",
+      "new_text": "Migration 0040: the flow message log (`carregarLogDeMensagens`) finds bot-channel conversations by `inbox_id` before descending to `mensagem`. Without this index, the lookup scans all of `conversa`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/conversas.ts:310-314; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-bcd0a0e3",
+      "action": "translate",
+      "new_text": "Monthly partitioning by `criada_em` requires a partitioned table's primary key to contain the partition key, hence (id, criada_em) rather than id alone.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/conversas.ts:331-334; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d9b08b6d",
+      "action": "translate",
+      "new_text": "When set, lets effort reports subtract text the agent did not type.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/conversas.ts:351-351; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-67133978",
+      "action": "translate",
+      "new_text": "Links a customer reply to the outbound send that prompted it, so reports measure the window from send time rather than calendar day.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/conversas.ts:368-371; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-b73b1e4a",
+      "action": "translate",
+      "new_text": "Meta token and SMTP password are encrypted at rest by `packages/db/src/segredo.ts` using a key outside the database (§6). Only fields in `CAMPOS_SECRETOS_DE_CANAL` are encrypted; the rest remain readable for diagnosis.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/conversas.ts:37-41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-77803b16",
+      "action": "translate",
+      "new_text": "Channel- or type-specific data that has no dedicated column. Positional template values must survive sending: if they existed only in the queue job, a lost job would also lose retry and audit capability. For Instagram, store conversation origin: direct message, story reply and reference, mention, or comment promoted to a private conversation with its publication link.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/conversas.ts:373-383; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-da7f20cc",
+      "action": "translate",
+      "new_text": "Every outbound message passes through this outbox with its own status and backoff retries. `mensagem_id` has no foreign key because `mensagem` is partitioned.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/conversas.ts:401-404; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-5af4a28e",
+      "action": "translate",
+      "new_text": "Webhook routing keys belong in columns rather than `config`. Meta template and account events cannot use per-customer URLs and all reach one route; the tenant must be resolved from payload (`entry[].id` is WABA, `metadata.phone_number_id` is the number). Payload resolution is a lookup, and unindexed jsonb lookup would scan. See `docs/specs/2026-09-07-webhook-por-cliente.md`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/conversas.ts:45-53; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-bfd26cb4",
+      "action": "translate",
+      "new_text": "Pinned and manually unread markers belong to each AGENT, not the conversation (migration 0041). They mirror source card menu PIN/UNPIN and UNREAD/READ (`TicketMenuOptions`). Null `fixada_em` means unpinned; null `nao_lida_em` means read. A row exists only while at least one marker is set (CHECK), and the domain deletes unmarked rows. The domain enforces a limit of 50 pinned conversations.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/conversas.ts:550-557; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-6adc7165",
+      "action": "update",
+      "new_text": "`numero_id` is deliberately globally unique, not tenant-scoped: two tenants cannot own one number. Its index is partial because only WhatsApp has this ID. `waba_id` has a partial nonunique lookup index, so the original claim that both IDs are unique is inaccurate.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/conversas.ts:62-67; packages/db/src/schema/conversas.ts:62-74; numeroId uniqueIndex vs wabaId index",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-6e1d000b",
+      "action": "translate",
+      "new_text": "References `horario_atendimento` in the Management module. The foreign key is created by migration `0003_chaves_cruzadas` to avoid circular imports between modules.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/conversas.ts:84-88; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a1204ae8",
+      "action": "translate",
+      "new_text": "Store each form response as a row with its form version. Changing a questionnaire then preserves readable history, including a March response after a September revision.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/crm.ts:156-159; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-2e9326cb",
+      "action": "translate",
+      "new_text": "Module 2, CRM, rests on two decisions: form questions are rows rather than columns (the referenced Salesforce Lead had 353 fields, 304 custom), and scoring is explainable, with each calculation stored as a new row rather than overwriting the previous score.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/crm.ts:19-23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-c2181385",
+      "action": "translate",
+      "new_text": "Each calculation creates a new row. `explicacao` stores the array of {regra, versão, pontos} behind the score, explaining why a lead scored 74 and allowing full recalculation when rules change without losing history.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/crm.ts:204-208; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d6e283cf",
+      "action": "translate",
+      "new_text": "The score band is the scoring engine's output and determines queue and owner.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/crm.ts:230-230; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-bbff4479",
+      "action": "translate",
+      "new_text": "Store CPF/CNPJ as `text`: alphanumeric CNPJ from 2026 breaks numeric columns and fixed masks.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/crm.ts:31-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-e57dadf0",
+      "action": "translate",
+      "new_text": "Storage key for the rejected-row report.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/crm.ts:331-331; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-ac1eb811",
+      "action": "translate",
+      "new_text": "Denormalized from `score_lead` because these two fields are filtered constantly.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/crm.ts:74-74; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-42fd5e12",
+      "action": "translate",
+      "new_text": "Tenant-specific custom fields live here with a GIN index, never runtime `alter table`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/crm.ts:79-79; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-c5a51691",
+      "action": "translate",
+      "new_text": "Forbidden words, migration 0042: an ACCOUNT-level list blocks agent sending (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` retains the entered spelling; domain logic in `apps/api/src/dominio/gestao/palavras-proibidas.ts` compares without accents or case.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/gestao.ts:255-260; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-ba08b62f",
+      "action": "translate",
+      "new_text": "Module 4, Management: derive every metric from `evento_atendimento`, never mutable conversation fields, so historical periods can be recalculated when metric definitions change.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/gestao.ts:30-34; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-fe87731e",
+      "action": "translate",
+      "new_text": "Store the scale alongside the score; otherwise CSAT 4 and NPS 4 would be added to the same chart when an account uses both models.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/gestao.ts:339-342; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-b09cb3df",
+      "action": "translate",
+      "new_text": "NPS values are `promotor`, `neutro`, `detrator`; CSAT values are `satisfeito`, `insatisfeito`.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/gestao.ts:357-357; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-c7d88b00",
+      "action": "translate",
+      "new_text": "Immutable and monthly partitioned by `em`; the primary key includes the partition key as with `mensagem`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/gestao.ts:36-39; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-0cb49eb7",
+      "action": "translate",
+      "new_text": "Store sums in seconds; divide by count at display time to compute averages.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/gestao.ts:80-80; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-5554642d",
+      "action": "translate",
+      "new_text": "Deterministic effort measure (spec §4.4): 200 written characters/minute, 1,000 read characters/minute, and audio at 1×. `chars_de_resposta_pronta` discounts text the agent did not type; without it, templates and canned responses inflate effort.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/gestao.ts:97-101; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-4f5dba2f",
+      "action": "translate",
+      "new_text": "Each customer has one Twenty instance and API key, per `docs/specs/2026-09-07-integracao-twenty.md` §5. CRM isolation is physical, with no default instance. Empty means no CRM and no integration, never a silent fallback that might send one tenant's data to another tenant's CRM. `twentyChave` is encrypted at rest with the Meta-token keyring (`PIPE_CHAVES_SEGREDO`). Unlike the Meta token, this key also grants read access to the entire tenant customer base.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:101-113; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-f15de131",
+      "action": "translate",
+      "new_text": "Details the person supplies in \"minha conta\" after login. All are nullable because self-service creates the account without them, and the welcome screen then requests them; requiring them before login would defeat self-service. `funcionarios` is a text range such as \"1 a 10\", as in the source.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/identidade.ts:116-123; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-9a431871",
+      "action": "translate",
+      "new_text": "Null means onboarding is incomplete, and Management routes to \"minha conta\".",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/identidade.ts:131-131; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-38ec1dcb",
+      "action": "translate",
+      "new_text": "Business tables reference the tenant through this helper. It lives in identity rather than `comum` to avoid an import cycle with the `tenant` table itself.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/identidade.ts:141-144; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

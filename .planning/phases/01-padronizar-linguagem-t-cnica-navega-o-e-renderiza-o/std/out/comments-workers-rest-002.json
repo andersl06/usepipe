@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "workers-comment-952ec678",
+      "action": "translate",
+      "new_text": "The channel stores an ENCRYPTED token (`cifrarConfig`). The worker must decrypt it before building `Bearer`; the WhatsApp double does not detect an encrypted token, so real delivery would otherwise fail silently.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/tests/credenciais.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-231e5f6e",
+      "action": "translate",
+      "new_text": "A 21-character option cannot fit a button but can fit a list row (24); only when rendered as a list.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/workers/tests/interativo.test.ts:23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-17e3ac49",
+      "action": "translate",
+      "new_text": "Test Chatwoot-ported phone normalization and CSV reading without a database. Brazilian cases come from `brazil_phone_normalizer_spec.rb` and `phone_number_normalization_service_spec.rb`.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/tests/telefone-e-csv.test.ts:6; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-9c464a04",
+      "action": "translate",
+      "new_text": "This is the documented error: the operator numbers body values 1 and 2, but media takes",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/workers/tests/whatsapp.test.ts:106; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-65f12424",
+      "action": "translate",
+      "new_text": "position 1, so the client could receive a protocol number instead of a name. Here it throws.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/workers/tests/whatsapp.test.ts:107; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-0097d688",
+      "action": "translate",
+      "new_text": "Blip documents no image size ceiling, and the research rule is not to guess one.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/workers/tests/whatsapp.test.ts:23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

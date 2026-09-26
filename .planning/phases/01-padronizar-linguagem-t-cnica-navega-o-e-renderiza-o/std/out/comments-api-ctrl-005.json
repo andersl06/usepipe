@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-cb217067",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-cadastros.ts:575-575",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-9b20ae68",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-cadastros.ts:577-590",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-3af26650",
+      "action": "translate",
+      "new_text": "Do not let someone remove their own membership: they would lose access on the next click, and the account could be left without an administrator.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-conta.ts:141-145; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b82d3b0e",
+      "action": "translate",
+      "new_text": "Authentication certificates (mTLS) use the same guard as Members (`conta.membros.ler`/`.escrever`). The source also places both screens behind `tenant-members` (`blip-certificados-mtls.md`).",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-conta.ts:171-180; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-89355d91",
+      "action": "update",
+      "new_text": "The contract panel and members in Management use a browser session. Contact creation (flow/router) moved to `gestao-fluxo.ts` with the rest of its lifecycle. Check permission here when writing: hiding a screen does not secure an endpoint. `permissoesDe` currently reads distinct role grants from `usuario_papel` and `papel_permissao`; unlike `GET /v1/eu`, it does not apply `usuario_permissao` overrides.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-conta.ts:31-47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-87b87f9b",
+      "action": "translate",
+      "new_text": "The contact's \"Equipe\" tab (`/fluxo/:id/equipe`) uses a browser session. Keep per-flow team logic in `dominio/gestao/equipe-do-fluxo.ts`, with a thin adapter like `gestao-builder.ts`. `GET :id/equipe` loads members, edit-modal resources and caller editability; `GET :id/equipe/eu` supplies `itensDoMenu`; `POST :id/equipe` adds someone already on the contract by email; `PATCH :id/equipe/:usuarioId` saves changes; `DELETE :id/equipe/:usuarioId` returns 204. The tenant comes from the session, never the URL, so another customer's flow looks absent (404). Invalid UUID `id` is rejected with 404 before Postgres can return 500.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/gestao-equipe.ts:20-36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-96283a67",
+      "action": "translate",
+      "new_text": "Copy `uuidOu404` from `gestao-fluxo.ts` rather than coupling this controller to that file; the three-line rule is the same.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/gestao-equipe.ts:39-44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f605fb2c",
+      "action": "translate",
+      "new_text": "No separate permission is needed: this response describes the caller and is always that caller's own data.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-equipe.ts:61-72; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f64da2d3",
+      "action": "translate",
+      "new_text": "The create screen in `apps/gestao-vite/src/paginas/criar/gravar.ts` supplies `recados` because those messages are the only rule component that differs between creating a flow and a router. The source phrase says \"fluxo\" and the router screen changes the noun (`regras-de-nome.ts`); the rule itself is shared.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:104-117; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-01f1de35",
+      "action": "translate",
+      "new_text": "Accept `data:image/...;base64,...` or nothing. File bytes determine the type, not the label.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:115-116; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-773ae127",
+      "action": "translate",
+      "new_text": "Success is `{ id }`; rejection is `{ erro }` with the screen's phrase, both with 200. The create screen expects this contract and carries `erro` back to the name step in the URL. This exception to this controller's `ErroPipe` pattern applies only to POST; PATCH and DELETE use status codes and `{ erro: { codigo, mensagem } }` like the rest of the `api`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:120-128; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-08e2f985",
+      "action": "translate",
+      "new_text": "`null` or empty clears the value; absence leaves it unchanged.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:130-135",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-dfdfa839",
+      "action": "translate",
+      "new_text": "`data:` replaces the image, `null` removes it, and absence leaves it unchanged.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:130-135",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-c02622c2",
+      "action": "translate",
+      "new_text": "Create a contact (flow or router). Permission, name, photo and uniqueness rules live in `ciclo-de-vida-do-fluxo.ts`; this adapter maps each rejection to the phrase requested by the screen.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:140-144; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-60aaa309",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:176-183",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-2e389c46",
+      "action": "translate",
+      "new_text": "JSON is external input. Treat a value other than a string, or `null` where it is allowed, as absent; absent means leave the field unchanged.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:186-197; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7640fa20",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:200-209",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-43828171",
+      "action": "translate",
+      "new_text": "Portal grid: an unlisted page size falls back to the first allowed size, and an invalid page becomes 1.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:212-246",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-165a5229",
+      "action": "translate",
+      "new_text": "The bot's channel is the source `channels/{canal}` page. The rules for one bot per number, refusing inactive channels and `channels.escrever` permission on the flow live in `dominio/gestao/canal-do-fluxo.ts`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:249-263; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9dd381d0",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:265-280",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-69fa2890",
+      "action": "translate",
+      "new_text": "Disconnect the channel from this bot, leaving the channel itself connected to Meta. Optional `motivo` comes from the source disconnect modal and is written to the log.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:283-299; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-71c4c89a",
+      "action": "translate",
+      "new_text": "Growth belongs to the account, not the contact; this route carries `id` only to share the adapter.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:409-418; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6030b067",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:436-445",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-ef9faf85",
+      "action": "translate",
+      "new_text": "Management contact screens (`/fluxo/:id/**`) use browser sessions. This was the first Next-to-Vite front-end migration (README, \"Quem fala com o banco\"): Next Server Component reads became one API route per read, with the same data and tenant from the session, never the URL. Contact creation, editing and deletion share this adapter through `POST`, `PATCH /:id` and `DELETE /:id`; rules live in `dominio/gestao/ciclo-de-vida-do-fluxo.ts`. `id` is `fluxo.id`; reject invalid UUIDs with 404 before Postgres can return 500.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:74-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fc413b80",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:92-96",
+      "notes": ""
+    }
+  ]
+}

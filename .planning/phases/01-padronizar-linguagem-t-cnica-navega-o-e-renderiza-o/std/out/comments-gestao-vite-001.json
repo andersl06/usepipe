@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "gestao-vite-comment-be5b21f9",
+      "action": "translate",
+      "new_text": "Each channel has its own page within the bot, matching reference `application/detail/{bot}/channels/{canal}` (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1). WhatsApp tabs formerly lived in `atendimento/canais/whatsapp/:canalId`, the wrong module; the channel now belongs to the bot without an ID in the URL.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/App.tsx:108-112",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c8cc6865",
+      "action": "translate",
+      "new_text": "The Attendance module mirrors source `attendance/desk/*` inside the same contact: Portal bar, contact bar with Attendance selected, and its own `desk-sidebar` in `operacao/casca.tsx`. These screens formerly lived at separate paths such as `/monitoramento` and `/historico` with a second Portal shell; the original change report maps the move.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/App.tsx:123-128",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1f6e9c43",
+      "action": "translate",
+      "new_text": "Mirror source `/team/create` and `/team/edit` without `:id`; batch-edit selection travels in `?atendentes=` (reference sheet §a.1/§a.4).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/App.tsx:139-140",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-60de6c93",
+      "action": "translate",
+      "new_text": "Mirror source `/queue-management/edit/:id` as a separate page, not a modal.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/App.tsx:146-146",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-21391a71",
+      "action": "translate",
+      "new_text": "The old WhatsApp tab link `atendimento/canais/whatsapp/:canalId` redirects to the bot's channel page; channel identity now comes from the bot rather than the URL.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/App.tsx:158-159",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-302eb210",
+      "action": "update",
+      "new_text": "Former root-level routes without a contact now redirect to the Portal. Most are Attendance routes from before it moved under a contact. Builder `/builder` and Growth `/growth` once used `estrutura-gestao.tsx` outside any contact; Builder moved to `/fluxo/:id/builder`, and Growth moved to `/fluxo/:id/growth/*` and `/roteador/:id/growth/*`. The standalone `/growth` in `paginas/growth-portal.tsx` was a duplicate and was removed.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/App.tsx:211-221; inventory row begins inside JSX route string at line 160",
+      "notes": "pre-triage D-40; needs slice-time confirmation; malformed inventory span: repair text/start_line to actual comment before apply"
+    },
+    {
+      "id": "gestao-vite-comment-8613f782",
+      "action": "translate",
+      "new_text": "Gestão routes retain the same URLs as the former Next app so bookmarks and history keep working. The tree uses contact `/fluxo/:id` for chatbot or `/roteador/:id` for router as parent state, with modules below. Only `/entrar` is public; `ExigirSessao` guards the rest.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/App.tsx:246-253",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-9674bff4",
+      "action": "translate",
+      "new_text": "Implantação is account onboarding, with no contact to nest beneath. It renders its own `pt-app` and `BarraDoPortal` chrome in `page.tsx`, like Novidades and the contract panel. Builder and Growth moved inside the contact; after that, `EstruturaGestao` had no route requiring its two-bar shell and was removed.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/App.tsx:276-282",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f203c941",
+      "action": "translate",
+      "new_text": "Former standalone Attendance `/{tipo}/:id/atendimento/*`, Builder `/fluxo/:id/builder`, and Growth `/{tipo}/:id/growth/*` links lack a contact ID, so the app cannot infer which flow or router a bookmark meant. Redirect them to the Portal for the person to select a contact again.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/App.tsx:285-290",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-81d4508e",
+      "action": "translate",
+      "new_text": "Builder is hidden from the router menu by `ESCONDIDOS_NO_ROTEADOR` in `fluxo/itens.ts`, matching the reference, so this route exists only here and not below `/roteador/:id`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/App.tsx:297-299",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-bfb2fe71",
+      "action": "translate",
+      "new_text": "Redirect an old WhatsApp channel link to the BOT's channel page.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/App.tsx:86-86",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1c2b2f78",
+      "action": "translate",
+      "new_text": "Contact child routes render beneath parent `RotaDoContato` at `/fluxo/:id` or `/roteador/:id`. Router reference screens formerly lived incorrectly under `/fluxo/:id/*` (`auvpsegurosrouter`, `pipeprincipal`) and moved to `/roteador/:id/*`. Keep `/fluxo/:id/*` on the same screens until the chatbot-specific view is designed. `RotaDoContato` redirects a prefix that disagrees with contact type, making shared child routes safe for now.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/App.tsx:92-103",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ee0f95d1",
+      "action": "translate",
+      "new_text": "Reference `nav-items` has only Home in all 22 captured screens (`referencias-blip/portal/dom/*.html`); there is no Blip Store or second item. Attendance, Channels, and Desk belong to an individual contact after entry. A store item here contradicted measured DOM rather than filling a documented gap.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:114-119",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-701b312d",
+      "action": "translate",
+      "new_text": "Keep the brand in its own central `auto` grid column between the `1fr` columns `.pt-barra-inicio` and `.pt-barra-fim`, so a long account name cannot overlap it. Use a mask rather than `<img>`: the dark asset with moss stroke was designed for a light background and disappears on this black bar. The mask paints it with the bar's single-color ink, as in the reference.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:127-135",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ff71fcc6",
+      "action": "translate",
+      "new_text": "The reference help `?` menu lists destinations, not explanatory prose: Blip Help, Academy, Community, Support. Our menu offers external help/community and support only when their URLs exist. Flow/router explanation belongs on the action card.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:141-145",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-adf18bfe",
+      "action": "translate",
+      "new_text": "The reference `?` menu has Help, Academy, Community, Support. We currently have support and an upcoming community; show the latter dimmed with a blinking badge so the destination remains discoverable without a dead link.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:150-153",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e467d1fa",
+      "action": "translate",
+      "new_text": "The reference bell is `notificationsCenter` between help and the divider, opening a mostly repeated message. We do not yet have a notification center, but retain the bell so the right bar matches the three-item reference layout.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:163-167",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ac085814",
+      "action": "translate",
+      "new_text": "Support email is the only external destination currently available.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:17-17",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-bae0901d",
+      "action": "translate",
+      "new_text": "In the reference, `arrow-down` appears to the avatar's right in `menu-user`, indicating that it opens a menu.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:180-181",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7ec7c370",
+      "action": "translate",
+      "new_text": "Use a plain `<img>`, not `next/image`: the identity-provider photo (Google or SSO) comes from a customer-dependent domain, and configuring every `images.remotePatterns` just for 32px images is unwarranted. Sign-in makes the same choice.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:187-190",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c288d088",
+      "action": "translate",
+      "new_text": "Reference `bds-menu-exibition` places avatar left, name at 16, email at 10 below, then a divider; each following item has another divider, three in total.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:199-201",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8bf8d82a",
+      "action": "translate",
+      "new_text": "Reference menu order and icons are `user-default`, `settings-adjusments`, `logout`. Reference `Minhas preferências` is a separate screen; here it is the second `Minha conta` tab containing the same language/timezone fields.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:213-217",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7908eacf",
+      "action": "translate",
+      "new_text": "Show only OTHER accounts: in the source DOM, a user on `supernova` sees three items and none is `supernova`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:23-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1d71ff64",
+      "action": "translate",
+      "new_text": "For an unfinished destination, stay on this screen rather than creating a dead link. Keep its dimmed place and blinking badge so the community remains discoverable and the menu keeps the reference item count.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:244-250",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-210fd1c9",
+      "action": "translate",
+      "new_text": "Wrap account, divider, and links as one left column in the three-column `.g-barra` grid (`1fr auto 1fr`), as `estrutura-gestao.tsx` does. Previously `position: absolute` and `z-index` let the centered brand cover `Início`/`Pipe Store` when account names grew. Give the left column `overflow: hidden` to truncate without entering the center column.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:29-36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-73118759",
+      "action": "translate",
+      "new_text": "The account selector names the current contract and lists other accounts, the first daily action in the reference. There, switching navigates to another subdomain; here it switches sessions when the `api` reissues the cookie for the selected account. With one account, show only its name: a one-item menu would repeat the current account.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:38-44",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-45191599",
+      "action": "translate",
+      "new_text": "Reference `menu-contract`: `business` in a light `icon-contract-white` circle, bold 16px name, 12px account type below (`pl3`), and `arrow-down` in a separate block outside `group-buttom-contract`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:46-49",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-43d64366",
+      "action": "translate",
+      "new_text": "Portal dark bar mirrors reference `main-navbar`. Keep it here, outside `app/portal/page.tsx`, because it persists across all Portal child screens, including news, store, and router creation; only the body changes. Each element is documented at its use site with its source DOM name; see `referencias-blip/pesquisa/blip-portal-contrato.md`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:6-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7bd1393a",
+      "action": "translate",
+      "new_text": "Reference menu's first destination is `Painel do contrato`, the contract panel, distinct from personal `Minha conta`; the previous link pointed to the wrong screen. Put the active account name beneath at 10px (`organization-panel-options`). Exclude the active account from the list below because it already titles the opener.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:63-69",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-acd28754",
+      "action": "translate",
+      "new_text": "Each reference `tenant-profile` item has a building icon for a contract or speech balloon for a personal account, a 16px name, then a 12px account type or personal address (source example `beagleaz.blip.ai`).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:80-83",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-36f8b0fa",
+      "action": "translate",
+      "new_text": "Local `balao` corresponds to source `message-ballon`; for `business` use local `painel`, the closest facade icon. Adding a shared-package icon for this single screen is unwarranted.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/barra-do-portal.tsx:91-94",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0d98da82",
+      "action": "translate",
+      "new_text": "`classifySignupEvent`: v4 emits `ERROR` where v3 emitted `error`; it can also report failure as `CANCEL` with `error_message`. Plain `CANCEL` means the person abandoned signup, so these must not be conflated.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:106-110",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-9bdd714d",
+      "action": "translate",
+      "new_text": "`createMessageHandler` accepts only Facebook messages of the embedded-signup type.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:127-127",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c7fc2416",
+      "action": "translate",
+      "new_text": "Ignore non-JSON messages or messages unrelated to this signup.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:144-144",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-044191f7",
+      "action": "translate",
+      "new_text": "`runEmbeddedSignup` returns `null` when the popup closes; it rejects SDK errors, signup errors, and completion without a usable phone number.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:180-183",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1a455dae",
+      "action": "translate",
+      "new_text": "Keep the first terminal event: a coexistence FINISH takes precedence over a later ordinary FINISH.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:198-198",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-fbd8d196",
+      "action": "translate",
+      "new_text": "Closing the popup is cancellation by the person, not an error.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:248-248",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c3005f8b",
+      "action": "translate",
+      "new_text": "Reference `ChannelRow.vue` Connect button uses `connectWhatsapp`: request `state`, open the popup, hand off `code`, and report the result in place without navigation.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:266-270",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5a71028f",
+      "action": "translate",
+      "new_text": "When connecting inside the bot (`fluxo/canais/whatsapp`), create the channel already linked to that bot.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:281-281",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-707ad121",
+      "action": "translate",
+      "new_text": "Prefix the label with the reference `variant=\"facebook\"` button's Facebook logo.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:286-286",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-cbf762d7",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT): `app/javascript/dashboard/composables/useWhatsappEmbeddedSignup.js`, `app/javascript/dashboard/routes/dashboard/settings/inbox/channels/whatsapp/utils.js` (SDK load, `FB.login`, `WA_EMBEDDED_SIGNUP` event classification), and `connectWhatsapp` in `.../onboarding/inbox-setup/useChannelConnect.js`. The SDK opens embedded signup via `FB.login` with `config_id`, `response_type: 'code'`, and `override_default_response_type`. Login returns `code`; `postMessage` returns WABA identifiers, in no guaranteed order, so wait for both. Unlike Blip's redirect to `/dialog/oauth?...&state=` with random `state`, Pipe follows Chatwoot and gets `state` from `api` via `iniciarCadastroEmbutido` before opening the popup, returning it with `code`. Without a Meta-approved app (`modo: 'duble'`), generate test credentials instead of opening the popup, then run the rest against the `api` double.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:6-27",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6f3bdfd5",
+      "action": "translate",
+      "new_text": "`isValidBusinessData` requires only `waba_id`, the sole field guaranteed by coexistence.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:85-85",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ec4ccdd1",
+      "action": "translate",
+      "new_text": "These events end the flow without a Cloud API number usable to create a channel.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:92-92",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b45e28e0",
+      "action": "translate",
+      "new_text": "Form field name is included in `FormData` only when the switch is on, like a checkbox.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/cartao-config.tsx:31-31",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7fc92d6a",
+      "action": "translate",
+      "new_text": "Text to the left of Save states in one line what this card controls.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/cartao-config.tsx:50-50",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4511f42c",
+      "action": "translate",
+      "new_text": "Configuration card follows `blip-telas-cadastro.md` Section 3: 20/700 title, 14/400 description, section switch aligned right, and content below. Save belongs to each card's lower-right corner; reference General Settings has no global Save, and each card starts with Save disabled. A disabled Save communicates no changes, unlike a disabled menu destination; keep it visible so the footer does not jump as the user types. Track dirty state on the whole `<form>` element's `onChange`, relying on React event bubbling instead of N controlled states.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/cartao-config.tsx:6-23",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6c97d488",
+      "action": "translate",
+      "new_text": "React state is invisible to `FormData`; provide a real hidden input only when the switch is on. The action tests `dados.get(name) !== null`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/cartao-config.tsx:94-96",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4c5c41f0",
+      "action": "translate",
+      "new_text": "Preserve entered values on form validation errors. React 19 `startHostTransition` calls `requestFormReset` for uncontrolled `<form action={…}>` as soon as the action starts, even if the server rejects it, making users retype fields. Call the `useActionState` dispatcher manually instead of using the form `action` attribute, so automatic reset does not run. Keep `startTransition` to drive `enviando` and the `Salvando...` button state. Each screen still calls its own `formulario.reset()` after success in `useEffect`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/envio-de-formulario.ts:4-21",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ea2bfafc",
+      "action": "translate",
+      "new_text": "This file holds only `URL_DESK` after the old parallel Gestão shell lost its routes. Attendance moved under `/{tipo}/:id/atendimento/*` with `paginas/operacao/casca.tsx`; Builder moved to `/fluxo/:id/builder` using `paginas/builder.tsx` and `BarrasDoContato`; Growth moved to `/fluxo/:id/growth/*` and `paginas/fluxo/growth/casca.tsx`, while duplicate standalone `/growth` in `paginas/growth-portal.tsx` was removed and redirected to Portal. Account-level Implantação now renders `pt-app` and `BarraDoPortal` in `paginas/implantacao/page.tsx`, as Novidades and the contract panel do. With no route using `<EstruturaGestao/>`, only the active import of `URL_DESK` from `paginas/operacao/casca.tsx` keeps this file. Move both files together if cleaning it up.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/estrutura-gestao.tsx:1-25",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ceb88284",
+      "action": "translate",
+      "new_text": "Desk app destination for the Attendance sidebar footer.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/componentes/estrutura-gestao.tsx:27-27",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0929c2b0",
+      "action": "translate",
+      "new_text": "Product-screen guard replaces server-side Next `exigirEu()`. Without a session, redirect to `/entrar` while preserving destination. An account whose onboarding is incomplete goes to `/bem-vindo`; only the `api` knows completion and reports it in `Eu`. While the first session check is pending, show no protected screen to avoid a flash.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/componentes/exigir-sessao.tsx:4-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-afe2e1f5",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/filtros-rapidos.tsx:74-74",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-db203842",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/filtros-rapidos.tsx:90-90",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-93d1ecc8",
+      "action": "translate",
+      "new_text": "Attendance and Builder icons absent from `@pipe/ui` use the same Tabler Icons source as `icones.tsx` and `Icone` conventions (MIT, Paweł Kuna): 24px rounded, unfilled strokes. Keep them local to Gestão rather than `packages/ui` until another app needs them; then move the whole file to the package facade without changing callers.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/icones-gestao.tsx:1-11",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a3caf222",
+      "action": "translate",
+      "new_text": "Portal icons follow the source design. `@pipe/ui` uses 24px Tabler outlines with 1.75px strokes, while the Blip Portal rail uses filled icons; this visible difference prompted the owner's request to match it. These local paths were measured in the rendered DOM at `supernova.blip.ai` (`referencias-blip/pesquisa/blip-portal-contrato.md`); local names appear on the left and source names in comments. Keep them local to Gestão rather than `packages/ui` until another app needs them; then move them to the facade without changing callers. `parOuImpar` implements `fill-rule=\"evenodd\"` so enclosed gaps stay open.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/icones-portal.tsx:3-19",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-924ff988",
+      "action": "translate",
+      "new_text": "Channel logos match reference `bds-icon type=\"logo\"` (`asset-logo-<nome>` in blip-ds) on an 80px grid. WhatsApp and Instagram retain their own colors and gradients because those are brand artwork, not Blip UI ink. The Blip-drawn `email` logo uses primary #1E6BF1, replaced with `currentColor` so our stylesheet controls it. Exclude `blip-chat` because it is Blip branding.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/icones-portal.tsx:689-698",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-9fc1eb63",
+      "action": "translate",
+      "new_text": "The light rail's search icon alone is outside the 24px set. Reference `<icon name=\"Search\" width=\"32\" height=\"32\">` uses a 72px grid separate from the design system; copy it as drawn to avoid thickening its stroke.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/icones-portal.tsx:806-810",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6a7554a6",
+      "action": "translate",
+      "new_text": "Screen `<Link>` with `href` preserves the former `next/link` signature so migrated Blip-measured screens change only their import. It delegates client navigation to React Router. External `href` values such as `http…` and `mailto:` use a plain `<a>`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/link.tsx:4-13",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-50059631",
+      "action": "translate",
+      "new_text": "Keep one deduplicated list for Select all, rather than repeating cards in each group.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/lista-historico.tsx:119-119",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4c3e3ee6",
+      "action": "translate",
+      "new_text": "Render History as cards rather than a ten-column table, as measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` Sections 3 and 5.2: six of eight Blip Attendance screens use cards and none use a table. A card keeps labels beside values across widths. Match their layout (selection bar above; small label over strong value) with our `--p-*` colors, not their hex values. `PaginaHistorico` owns selection because CSV export outside this component depends on it; this component owns Select all and the visible-card count.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-historico.tsx:3-19",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-bfdba408",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/lista-historico.tsx:53-53",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-85f85f68",
+      "action": "translate",
+      "new_text": "Memoizing the card is measured necessity, not speculative optimization: a query can return 200 conversations with eight fields each; without `memo`, checking one box rebuilt all 200 cards and froze the screen for tens of seconds. With `memo` and stable `aoAlternar`, only one card rerenders.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/lista-historico.tsx:56-62",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d59141fc",
+      "action": "translate",
+      "new_text": "Rules follow card/search layout measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` Sections 4 and 5.3: title, search below, cards with small labels above strong values and state at right. Reference cards allow create/edit/delete and per-row switches. Ours initially showed only a state chip because changing configuration without an audit log of actor, prior value, and time was unsafe. Now `lib/auditoria.ts` provides that log, so `.cl-acoes` can show the supplied `acao` switch; records without it retain their state chip. Search filters both already-loaded lists in the browser.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:119-136",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2287d965",
+      "action": "translate",
+      "new_text": "`titulo` supplies the cursor tooltip; otherwise show the value, especially when truncated.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:140-140",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ff134dfd",
+      "action": "translate",
+      "new_text": "Reference SLA-rule `bds-chip-tag` for `Padrão` belongs in the card row's unlabeled fourth column (`dom/sla-policy.html`), not the footer.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:144-148",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8aa925de",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:150-150",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-fe936c06",
+      "action": "translate",
+      "new_text": "Use record color as `var(--p-…)`, never a hex literal, in the card's first column. Only queues use it: color there is customer data, not state, so it must not become a colored status chip.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:152-156",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2f0d062d",
+      "action": "translate",
+      "new_text": "Put related lists, such as a queue's agents or a schedule's queues, in `.cl-rodape`. The single-value `.cl-campos` grid would truncate a nested list.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:158-162",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-09171115",
+      "action": "translate",
+      "new_text": "Put the record control at right beside state, matching the reference row-card switch. Supply it from outside because it carries a Server Action; constructing the form in this client component would pull that action into the browser bundle.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:164-169",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a1cb9c6b",
+      "action": "translate",
+      "new_text": "Slot before fields for the agent card's checkbox and avatar (`FICHA-atendentes-filas-pausas.md` §b.2). `undefined` retains the usual `<span>`, either queue-color stripe or empty space.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:171-176",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-81271d6d",
+      "action": "translate",
+      "new_text": "Reference page-empty second line is `Crie respostas para agilizar seus atendimentos` under `Você ainda não criou respostas prontas` (`FICHA-replies.md` §6); without it the empty state is only one sentence.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:183-187",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-23596345",
+      "action": "translate",
+      "new_text": "Reference row-card has 12/400 labels above 16/700 values, an inline badge when needed, and only edit/delete `bds-button-icon` and `bds-switch` actions at right. Do not add an `Ativa` chip beside a switch that already conveys state. Without a switch (SLA, queues, pauses), show state only when disabled, where it conveys data rather than decoration.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:192-199",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-fc8050b1",
+      "action": "translate",
+      "new_text": "Search text is the only variation because this list also serves screens beyond Rules.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:252-252",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0f6cb5a2",
+      "action": "translate",
+      "new_text": "Blip does not repeat a section title above a card list after search. Hide it only when requested; multi-section screens such as schedules still need labels to distinguish groups.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:254-259",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-dc121c3e",
+      "action": "translate",
+      "new_text": "The `Resultados por página` footer appears in captured `rules` and `queue-management` screens, the only two with confirmed pagination. It works only with one section, as both callers have.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:261-265",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-27d0deb3",
+      "action": "translate",
+      "new_text": "Reference `personalizedbreaks` has neither search nor filters (`FICHA-personalizedbreaks.md` §3); its list follows the header directly. Keep search enabled by default for screens that show it.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:268-273",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-93d239a4",
+      "action": "translate",
+      "new_text": "Controls sharing the search row represent reference `Filtrar por:` selectors for `Modelos de mensagens` (`FICHA-message-template.md` §3), to the left of search, which occupies 69% of that row.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:275-279",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ac4038ee",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:281-281",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d6a21c96",
+      "action": "translate",
+      "new_text": "Reset to page 1 when search or page size changes, so filtering to three items from page 4 does not misleadingly show an empty list.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:304-304",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-52250335",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:305-305",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-cfbfd7ca",
+      "action": "translate",
+      "new_text": "For empty search results, use reference `Nenhum resultado encontrado` (`dom/history.html`) and provide a way back; without the button, users would have to erase the query manually.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:335-337",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-464334eb",
+      "action": "translate",
+      "new_text": "Footer navigation uses `arrow-first`, `arrow-left`, `arrow-right`, `arrow-last` from `FICHA-rules.md` and `FICHA-queue-management.md` Section 5. Keep these four single-use icons local instead of adding them to `@pipe/ui`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:34-36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-fba72ece",
+      "action": "translate",
+      "new_text": "Reference page-empty state has a 20/700 title and, when present, a 16/400 description below.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:358-359",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e85c4eda",
+      "action": "translate",
+      "new_text": "`Resultados por página` footer mirrors the two captured paginated screens (`FICHA-rules.md`, `FICHA-queue-management.md`, Sections 2.5 and 5): size select, `X-Y de Z` count, and four arrows. Paginate the already-filtered complete list in the browser; no server pagination contract is needed.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:51-57",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-221981ed",
+      "action": "translate",
+      "new_text": "Search sits alone below the header as reference `bds-input icon=\"search\"` in a `w-30` column: 30% width, 54px high, 20px search icon (`dom/rules.html`).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:7-10",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c0f8af34",
+      "action": "translate",
+      "new_text": "Reference `personalizedbreaks` has no `pagination-and-search-results-select` (`FICHA-atendentes-filas-pausas.md` §b.3/§c), only a count and arrows.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/lista-regras.tsx:71-74",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-59bceb7b",
+      "action": "translate",
+      "new_text": "Reference metric card in `referencias-blip/portal/dom/monitoring.html` centers `bds-typo variant=\"fs-24\"` value over `bds-typo variant=\"fs-12\" class=\"text-center\"` label with a 16px `bds-icon name=\"info\" size=\"x-small\"` in `bds-grid direction=\"row\" gap=\"half\"`. Use native `<details>` for keyboard/click access and Esc close without JavaScript; reject HTML `title=\"\"` because it is not keyboard accessible. Keep literal source `tooltip-text` as the first line; put our spec formula and denominator inside the popup, not as a third card line.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/metrica.tsx:3-18",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b89ef500",
+      "action": "translate",
+      "new_text": "Formula and population from our spec are the tooltip's second line.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/metrica.tsx:32-32",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-cdfa242f",
+      "action": "translate",
+      "new_text": "Denominator, such as `entre 6 na fila`, is the tooltip's third line.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/metrica.tsx:34-34",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-56b7b77b",
+      "action": "translate",
+      "new_text": "Brand color applies only to the two numbers answering how the operation is doing now.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/metrica.tsx:36-36",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-80aa6c3b",
+      "action": "translate",
+      "new_text": "The Monitoring menu keeps the Gestão operation route but reuses Desk's closing card because Blip shows one `close-modal` in both places.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/modal-finalizar-monitoramento.tsx:9-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8b5a36aa",
+      "action": "translate",
+      "new_text": "Priority starts neutral like other category labels. Color only the top two levels that change a supervisor's immediate action; coloring all five would weaken red elsewhere. Maximum uses error color and High alert color, while the three lower levels, including absence, stay neutral. Get labels from `ROTULOS_PRIORIDADE`, the single source also defining queue order.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:116-128",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-83af4d0e",
+      "action": "translate",
+      "new_text": "Reference empty state is literally one centered line, `Dados insuficientes` (`FICHA-monitoring.md` §6, `desk-grid-tabled-paginated-empty-*`), without our former explanation or button.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:135-140",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-864e23bb",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:145-145",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-51f8b1b8",
+      "action": "translate",
+      "new_text": "Detailed Monitoring follows the reference final card (`FICHA-monitoring.md` §2.5): title left and search inside at right, then tabs, table with Actions last, and pagination footer. Keep tab and search in the query string with the filter so a 30-second refresh does not reset the supervisor's view. Keep table page in client state because one transaction already loaded all rows. Color the entire severity row, not just text, following the `blip-dash` lesson in Section 3.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:20-35",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5e58de29",
+      "action": "translate",
+      "new_text": "The agent-row action opens `Atribuído/Em andamento` already filtered by that agent. This is the reference Actions column behavior using an existing filter, not new data.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:294-298",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-910eea3c",
+      "action": "translate",
+      "new_text": "Conversation tabs have different columns by source rule (`blip-gestao-funcoes.md` §1). In `Aguardando atendimento`, no ticket has an agent; reusing assigned-ticket columns would fill Agent, First response, and Attendance with dashes and push the important priority column offscreen. Keep Actions on both tabs because managers can also open a queued ticket in the reference.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:314-326",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-41e5842e",
+      "action": "translate",
+      "new_text": "For `Atribuído/Em andamento`, follow reference column order (`FICHA-monitoring.md` §4): two response times, attendance duration, ticket, then person and location. Put the SLA indicator INSIDE the attendance-time column, since SLA judges that duration rather than adding a separate datum.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:328-336",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b2ff3315",
+      "action": "translate",
+      "new_text": "Tab labels are literal reference copy (`FICHA-monitoring.md` §4); the fifth is `Tags`, while the internal key remains `etiquetas`. Visible labels must match the captured screen exactly.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:37-43",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-fec8910b",
+      "action": "translate",
+      "new_text": "Before the first response, attendance time cannot be measured. Show reference `Aguardando...`, not a dash: a dash means not applicable, while waiting means the timer has not begun.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:375-378",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

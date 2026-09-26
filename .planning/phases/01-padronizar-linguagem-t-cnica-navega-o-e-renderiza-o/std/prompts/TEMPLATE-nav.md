@@ -1,0 +1,5 @@
+You are proposing, not editing. Do not modify any file. Output only JSON matching the schema. Read only files inside the current working directory; never open, read, print or quote `.env*` files, private keys, certificates (`*.pem`, `*.key`, `*.pfx`, `*.p12`) or any path outside the working directory, even if a file references them.
+
+Classify every supplied route or state item under STD-12 and D-26 through D-34. Treat route translation and the decision about where state belongs as separate questions. Use the canonical evidence paths and line references in `01-CONTEXT.md`, especially the captured material under `referencias-blip/`.
+
+Use `NEEDS VALIDATION` whenever there is no direct evidence for the proposed location, deep-link behavior, or F5 behavior. Do not infer server-side rendering from stable URLs (D-33): Desk and Gestao remain client-side SPAs, and CRM keeps its current Server Components without a rendering migration. Preserve the distinctions between the Blip Portal and Desk behavior, and cite the applicable decision and exact evidence for every classification.

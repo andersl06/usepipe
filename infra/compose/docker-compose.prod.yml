@@ -40,8 +40,8 @@ x-app: &app
 # `exit 0` em QUALQUER resposta HTTP, 500 inclusive: um front sem banco fica
 # "healthy" para sempre. Aqui a raiz é aceita só abaixo de 500. Não é `/saude`
 # — Next não tem uma —, mas já separa "o processo subiu" de "o processo
-# consegue renderizar". `gestao-vite` não usa isto: é estático, sem banco para
-# falhar, e o HEALTHCHECK da própria imagem (`apps/gestao-vite/Dockerfile`) já
+# consegue renderizar". `management-vite` não usa isto: é estático, sem banco para
+# falhar, e o HEALTHCHECK da própria imagem (`apps/management-vite/Dockerfile`) já
 # basta.
 x-saude-next: &saude-next
   test:
@@ -64,7 +64,7 @@ services:
       - --providers.docker=true
       # Sem isto, todo contêiner novo vira rota publicada por acidente.
       - --providers.docker.exposedbydefault=false
-      # `api`, `desk` e `crm` estão em DUAS redes (`gestao-vite` não: é estático,
+      # `api`, `desk` e `crm` estão em DUAS redes (`management-vite` não: é estático,
       # não fala com o Postgres, e vive só na `borda`). Sem esta linha o Traefik
       # escolhe um dos dois IPs sem critério estável nos que estão em duas — e
       # quando escolhe o da rede `dados`, onde ele não está, dá 502 que some e
@@ -106,7 +106,7 @@ services:
 
   api:
     <<: *app
-    # Construída por infra/construir-imagens.sh a partir de apps/api/Dockerfile.
+    # Construída por infra/build-images.sh a partir de apps/api/Dockerfile.
     image: ghcr.io/pipe/api:${PIPE_VERSAO}
     # `GET /saude` existe desde 07/09/2026 (apps/api/src/controladores/operacao.ts)
     # e devolve 503 quando o pool da aplicação não responde. O HEALTHCHECK da
@@ -175,13 +175,13 @@ services:
 
   # Gestão como SPA estática (Vite + nginx): não fala com o Postgres, não lê
   # `.env`, não tem `PIPE_URL_ESTE_APP` — a origem do próprio app já sai
-  # embutida no bundle (`VITE_URL_API`, assado por `construir-imagens.sh`), e
+  # embutida no bundle (`VITE_URL_API`, assado por `build-images.sh`), e
   # quem decide "para onde volto depois do login" é o navegador
   # (`window.location.origin`), não uma variável de servidor. Por isso está só
   # na rede `borda`, como o `site`, e não em `dados`.
-  gestao-vite:
+  management-vite:
     <<: *padrao
-    image: ghcr.io/pipe/gestao-vite:${PIPE_VERSAO}
+    image: ghcr.io/pipe/management-vite:${PIPE_VERSAO}
     networks: [borda]
     deploy:
       resources:
@@ -190,13 +190,13 @@ services:
           memory: 128m
     labels:
       - traefik.enable=true
-      - traefik.http.routers.gestao.rule=Host(`gestao.usepipe.com.br`)
-      - traefik.http.routers.gestao.entrypoints=websec
-      - traefik.http.routers.gestao.tls.certresolver=le
-      - traefik.http.services.gestao.loadbalancer.server.port=80
+      - traefik.http.routers.management.rule=Host(`gestao.usepipe.com.br`)
+      - traefik.http.routers.management.entrypoints=websec
+      - traefik.http.routers.management.tls.certresolver=le
+      - traefik.http.services.management.loadbalancer.server.port=80
 
   # O CRM que existe HOJE é `apps/crm`, Next 15, código nosso, dentro do monorepo —
-  # e é ele que esta imagem empacota (infra/construir-imagens.sh, apps/crm/Dockerfile).
+  # e é ele que esta imagem empacota (infra/build-images.sh, apps/crm/Dockerfile).
   #
   # O fork AGPLv3 do Twenty (docs/specs/2026-09-07-fork-do-twenty.md) ainda não tem
   # imagem publicada. Quando tiver, esta linha vira
@@ -393,8 +393,8 @@ services:
       # negócio já vive em metrica_diaria, no Postgres.
       - --storage.tsdb.retention.time=15d
     volumes:
-      - ../observabilidade/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ../observabilidade/alertas.yml:/etc/prometheus/alertas.yml:ro
+      - ../observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../observability/alertas.yml:/etc/prometheus/alertas.yml:ro
       - promdados:/prometheus
       - metricas:/metricas:ro
     networks: [borda, dados]
@@ -408,7 +408,7 @@ services:
     <<: *padrao
     image: prom/alertmanager:v0.28.0
     volumes:
-      - ../observabilidade/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ../observability/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     networks: [borda]
     deploy:
       resources:

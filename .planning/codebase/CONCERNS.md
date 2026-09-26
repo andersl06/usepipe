@@ -14,7 +14,7 @@ Fonte primária: exploração do repo + `PROJECT-HANDOFF.md` (24/09/2026, ramo `
 
 - Issue: `pnpm typecheck` (turbo, todos os pacotes) falha por `packages/core/src/fluxo/gerenciador.teste.ts:140` — `variaveis.status` não existe no tipo inferido.
 - Files: `packages/core/src/fluxo/gerenciador.teste.ts`
-- Impact: os typechecks por app (`pnpm -F @pipe/api typecheck`, `@pipe/gestao-vite`, `@pipe/desk-vite`) não cobrem `packages/core` isolado, então isso vinha passando "verde" em CI/local sem pegar o erro. Regressões em `packages/core` podem passar despercebidas.
+- Impact: os typechecks por app (`pnpm -F @pipe/api typecheck`, `@pipe/management-vite`, `@pipe/desk-vite`) não cobrem `packages/core` isolado, então isso vinha passando "verde" em CI/local sem pegar o erro. Regressões em `packages/core` podem passar despercebidas.
 - Fix approach: rodar `pnpm -F @pipe/core typecheck` para confirmar o erro, corrigir a inferência de tipo de `variaveis.status`, e considerar adicionar esse comando ao pipeline de CI/turbo para não repetir o ponto cego.
 
 **BullMQ jobId com `:` falha silenciosamente (já corrigido, documentar como armadilha):**

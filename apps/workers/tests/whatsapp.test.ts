@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { POLITICA_MIDIA_PADRAO, validarMidia } from '../src/whatsapp/midia.js';
+import { POLICY_MEDIA_DEFAULT, validateMedia } from '../src/whatsapp/media.js';
 import {
-  ParametroFaltandoErro,
-  montarComponentes,
-  posicaoDeVariavel,
-  posicoesDoCorpo,
+  ParameterMissingError,
+  assembleComponents,
+  positionOfVariable,
+  positionsOfBody,
 } from '../src/whatsapp/template.js';
-import { esperaMs } from '../src/entrega.js';
+import { esperaMs } from '../src/delivery.js';
 
 const MB = 1024 * 1024;
 
-describe('validação de mídia (regras-blip §1.6)', () => {
+describe('Validate media types and sizes against Blip rules ?1.6', () => {
   const casos = [
     { nome: 'jpeg passa', midia: { tipo: 'imagem', mime: 'image/jpeg', bytes: 900_000 }, erro: null },
     { nome: 'mime com charset passa', midia: { tipo: 'imagem', mime: 'image/png; charset=binary', bytes: 10 }, erro: null },
@@ -20,63 +20,63 @@ describe('validação de mídia (regras-blip §1.6)', () => {
     { nome: 'pdf de 101 MB estoura', midia: { tipo: 'documento', mime: 'application/pdf', bytes: 101 * MB }, erro: 'midia_grande_demais' },
     { nome: 'vídeo de 17 MB estoura', midia: { tipo: 'video', mime: 'video/mp4', bytes: 17 * MB }, erro: 'midia_grande_demais' },
     { nome: 'áudio de 15 MB passa', midia: { tipo: 'audio', mime: 'audio/ogg', bytes: 15 * MB }, erro: null },
-    // Imagem não tem teto documentado na Blip, e a regra do levantamento é não estimar.
+    // Blip documents no image size ceiling, and the research rule is not to guess one.
     { nome: 'imagem grande passa por falta de limite documentado', midia: { tipo: 'imagem', mime: 'image/png', bytes: 500 * MB }, erro: null },
   ] as const;
 
   for (const caso of casos) {
     it(caso.nome, () => {
-      const falha = validarMidia(caso.midia);
+      const falha = validateMedia(caso.midia);
       expect(falha?.codigo ?? null).toBe(caso.erro);
     });
   }
 
   it('a política é parâmetro, não constante fechada', () => {
     const restrita = {
-      formatos: { ...POLITICA_MIDIA_PADRAO.formatos, imagem: ['image/png'] },
-      tamanhoMaximoBytes: POLITICA_MIDIA_PADRAO.tamanhoMaximoBytes,
+      formatos: { ...POLICY_MEDIA_DEFAULT.formatos, imagem: ['image/png'] },
+      tamanhoMaximoBytes: POLICY_MEDIA_DEFAULT.tamanhoMaximoBytes,
     };
-    expect(validarMidia({ tipo: 'imagem', mime: 'image/jpeg', bytes: 1 }, restrita)?.codigo).toBe(
+    expect(validateMedia({ tipo: 'imagem', mime: 'image/jpeg', bytes: 1 }, restrita)?.codigo).toBe(
       'midia_formato_recusado',
     );
   });
 });
 
-describe('deslocamento de parâmetro por mídia no cabeçalho (regras-blip §1.4)', () => {
-  const semMidia = {
+describe('Shift body parameter positions when a template has header media', () => {
+  const withoutMedia = {
     nome: 'aviso',
     idioma: 'pt_BR',
     cabecalhoTipo: 'nenhum',
-    variaveis: ['nome', 'protocolo'],
+    variables: ['nome', 'protocolo'],
   } as const;
 
-  const comMidia = { ...semMidia, cabecalhoTipo: 'imagem' } as const;
+  const withMedia = { ...withoutMedia, cabecalhoTipo: 'imagem' } as const;
 
-  it('sem mídia, {{1}} é a posição 1', () => {
-    expect(posicaoDeVariavel(1, 'nenhum')).toBe(1);
-    expect(posicaoDeVariavel(2, 'nenhum')).toBe(2);
-    expect(posicaoDeVariavel(1, 'texto')).toBe(1);
+  it('Keep `{{1}}` at position one without header media', () => {
+    expect(positionOfVariable(1, 'nenhum')).toBe(1);
+    expect(positionOfVariable(2, 'nenhum')).toBe(2);
+    expect(positionOfVariable(1, 'texto')).toBe(1);
   });
 
-  it('com mídia no cabeçalho, tudo desliza +1', () => {
-    expect(posicaoDeVariavel(1, 'imagem')).toBe(2);
-    expect(posicaoDeVariavel(2, 'video')).toBe(3);
-    expect(posicaoDeVariavel(1, 'documento')).toBe(2);
+  it('Offset body parameter positions by one for a media header', () => {
+    expect(positionOfVariable(1, 'imagem')).toBe(2);
+    expect(positionOfVariable(2, 'video')).toBe(3);
+    expect(positionOfVariable(1, 'documento')).toBe(2);
   });
 
-  it('o mapa de posições mostra onde cada variável vai', () => {
-    expect([...posicoesDoCorpo(semMidia)]).toEqual([
+  it('Map each body variable to its expected parameter position', () => {
+    expect([...positionsOfBody(withoutMedia)]).toEqual([
       [1, 'nome'],
       [2, 'protocolo'],
     ]);
-    expect([...posicoesDoCorpo(comMidia)]).toEqual([
+    expect([...positionsOfBody(withMedia)]).toEqual([
       [2, 'nome'],
       [3, 'protocolo'],
     ]);
   });
 
-  it('monta os componentes sem mídia', () => {
-    expect(montarComponentes(semMidia, { '1': 'Ana', '2': 'A-42' })).toEqual([
+  it('Build template components without header media', () => {
+    expect(assembleComponents(withoutMedia, { '1': 'Ana', '2': 'A-42' })).toEqual([
       {
         type: 'body',
         parameters: [
@@ -87,9 +87,9 @@ describe('deslocamento de parâmetro por mídia no cabeçalho (regras-blip §1.4
     ]);
   });
 
-  it('monta os componentes com mídia na posição 1 e o corpo deslocado', () => {
+  it('Put header media in position one and shift body parameters', () => {
     expect(
-      montarComponentes(comMidia, { '1': 'https://cdn/x.png', '2': 'Ana', '3': 'A-42' }),
+      assembleComponents(withMedia, { '1': 'https://cdn/x.png', '2': 'Ana', '3': 'A-42' }),
     ).toEqual([
       { type: 'header', parameters: [{ type: 'image', image: { link: 'https://cdn/x.png' } }] },
       {
@@ -102,11 +102,11 @@ describe('deslocamento de parâmetro por mídia no cabeçalho (regras-blip §1.4
     ]);
   });
 
-  it('numerar como se não houvesse mídia falha alto, e não em silêncio', () => {
-    // Este é o erro que a pesquisa descreve: o operador numera 1 e 2, a mídia rouba
-    // o 1, e o cliente recebe o protocolo no lugar do nome. Aqui vira exceção.
-    expect(() => montarComponentes(comMidia, { '1': 'Ana', '2': 'A-42' })).toThrow(
-      ParametroFaltandoErro,
+  it('Reject unshifted parameter numbers when header media occupies position one', () => {
+    // This is the documented error: the operator numbers body values 1 and 2, but media takes
+    // position 1, so the client could receive a protocol number instead of a name. Here it throws.
+    expect(() => assembleComponents(withMedia, { '1': 'Ana', '2': 'A-42' })).toThrow(
+      ParameterMissingError,
     );
   });
 });

@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "gestao-vite-comment-255f1383",
+      "action": "translate",
+      "new_text": "The input validation rules, with the label of the editor's `bds-select`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:61",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-20eb0fbc",
+      "action": "translate",
+      "new_text": "The \"Instrução de validação\" (validation instruction) the editor suggests per rule.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:70",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6502bd93",
+      "action": "translate",
+      "new_text": "The editor itself, inside the frame's dark canvas: the blocks and arrows (`Canvas`), the sidebar of the open block (`PainelDoBloco`), the \"NOVO BLOCO\" sheet next to the pill, and the two warnings — the rejection toast (\"Limite de 25 condições de saída atingidos\"…) and the delete confirmation, which here is `ModalConfirmacao` and not `window.confirm` (the Blip editor deletes without asking and relies on undo; Pipe has undo AND asks).\n\nThe drawing lives in the `estado.ts` reducer, reached through `estado`/`despachar`; each gesture becomes a new map via the `modelo.ts` functions and an `aplicar`. Per-block errors are the sum of the screen's (`errosLocais`) with the ones the `api` returned (`errosDaApi`) and the ones from the 409 on publish (`errosDoMotor`).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/editor.tsx:29-41",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1b09b283",
+      "action": "translate",
+      "new_text": "The Configuração and Filas panels occupy the same side as the block panel; opening one of them closes the block editor so it doesn't overlap content.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/editor.tsx:74-75",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2052d54d",
+      "action": "translate",
+      "new_text": "The map before the drag in progress, so `soltar` records a single step.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/estado.ts:28",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0fe6f2f6",
+      "action": "translate",
+      "new_text": "The editor's state and undo/redo — its two footer buttons (\"Desfazer (Ctrl+z)\", \"Refazer (Ctrl+Shift+z)\"), which the frame already rendered disabled.\n\nIt's a pure reducer over the block map: every gesture that changes the drawing arrives as `aplicar` with the new map (the functions in `modelo.ts`, `condicoes.ts`, `conteudo.ts` and `acoes-do-bloco.ts` already return the ready map or block), the previous map goes to the past stack, and the future is cleared. `mover` is the exception: while the block is being dragged the map changes on every pixel, and only `soltar` records a step — otherwise Ctrl+Z would undo the drag pixel by pixel.\n\n`sujo` is what the footer's \"Salvo\" reads: it turns on with any change and only turns off on `salvo`, with the map that was saved — a change that arrived while the `PUT` was in flight stays dirty.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/estado.ts:3-19",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d29133e4",
+      "action": "translate",
+      "new_text": "The last saved map — so `salvo` can tell whether what came back is still current.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/estado.ts:31",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1dfaf059",
+      "action": "translate",
+      "new_text": "Global actions (\"Ações Globais\" tab of Configuração) — outside the undo/redo stack, which only stores `Mapa` (see `passado`/`futuro`); Ctrl+Z keeps undoing only the drawing, as it did before this tab existed.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/estado.ts:43-45",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5757e2a6",
+      "action": "translate",
+      "new_text": "A drag in progress hasn't become a history step yet (only `soltar`",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/estado.ts:74; fragment of a single 4-line comment spanning lines 74-77 (case 'desfazer' in reduzir()) — lines 75-76 are not present as separate items in this batch (likely extraction-tool artifact splitting one comment into two 'line' entries with the middle dropped); pairs with gestao-vite-comment-32d0be2b. Full meaning: \"A drag in progress hasn't yet become a history step (only `soltar` pushes it) — undoing now would swap the map out from under the drag, and the next `soltar` would push the old `antesDoArrasto` on top, losing the undo. Ctrl+Z disappears while the mouse button is held down.\" Flagging for slice-time merge/reconstruction.",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-32d0be2b",
+      "action": "translate",
+      "new_text": "undo. Ctrl+Z disappears while the mouse button is held down.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/estado.ts:77; second half of the same fragmented 4-line comment as gestao-vite-comment-5757e2a6 (lines 74-77) — see that item's evidence for the full reconstructed meaning and the flag for slice-time review.",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0ad1e261",
+      "action": "translate",
+      "new_text": "Block card labels, in the same order as the Builder: tags, actions, and input.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/etiquetas-do-bloco.ts:23",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-52219a1f",
+      "action": "translate",
+      "new_text": "`${shortName}.json` — without characters that would break the file name.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/importar-exportar.ts:38",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e5197803",
+      "action": "translate",
+      "new_text": "Reads and validates the imported `.json`; returns the map and global actions ready for the caller to apply. It isn't `despachar({tipo:'carregar'})` — that would mark sujo:false and the imported flow would never be saved (see `builder.tsx`, which uses `aplicar`/`aplicarGlobais`, the same gestures as any edit).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/importar-exportar.ts:48-53",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c87b325c",
+      "action": "translate",
+      "new_text": "\"Exportar fluxo\" / \"Importar fluxo\" from the Blip editor — not a standalone button on the pill, it's the \"Versões\" tab of the \"Configuração\" panel (`portal.js`, `BuilderConfigurationVersionsView.html`: `$ctrl.exportFlow()` downloads `{flow, globalActions}` as `.json`; `$ctrl.importFlow()` reads a matching `.json`, validates it and swaps the draft, with a confirmation warning first).\n\nThe format matches on both sides: `DesenhoDoBuilder` (`{fluxo, globais}`) IS `{flow, globalActions}` with translated names — which is why you can export from here and reopen it in the Blip editor, and vice versa. File validation reuses `ehExportDoEditor` from `@pipe/core` (the same guard the engine uses to know whether a JSON is an editor export) and `lerDesenho` itself (the same read used for normal loading, so a block without a position also gets a spot on the grid).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/importar-exportar.ts:5-19",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8b25eae5",
+      "action": "translate",
+      "new_text": "The \"NOVO BLOCO\" sheet that the pill's \"Adicionar bloco\" opens (`#builder-command-buttons-add`): uppercase 16/semi-bold title with the \"x\" on the right, a divider, and a list of `bds-button variant=\"secondary\" full-width justify-content=\"space-between\"` — icon on the left, name on the right. Of their menu, only the two blocks the Pipe engine runs make it in: \"Padrão\" (`builder-new-state`) and \"Humano\" (`agent`). Agente, Pagamento, Componentes exclusivos, Catálogo, AI Answers, Biblioteca de blocos, and Subfluxo are Blip plan features with no engine behind them here.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/menu-novo-bloco.tsx:3-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2c13790d",
+      "action": "translate",
+      "new_text": "An arrow on the canvas: from one block to another.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:102",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-21dfcb20",
+      "action": "translate",
+      "new_text": "The `Ticket` that Desk returns to the attendance block when the attendance ends.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:125",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1712a2b2",
+      "action": "translate",
+      "new_text": "The three \"Saídas de atendimento\" (attendance outputs) of the `desk:` block, in the editor's order.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:128",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-cf124379",
+      "action": "translate",
+      "new_text": "The root of the drawing, if there is exactly one.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:163",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4a70c7aa",
+      "action": "translate",
+      "new_text": "What came from the `GET`, with the guarantee that every block carries its own id.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:176",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c25f6249",
+      "action": "translate",
+      "new_text": "Where the first block without a position lands, and the spacing between them. `left` starts far from the edge because the canvas toolbar lives there — a block at 40 would be born hidden behind it.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:177-181",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6a75dfe2",
+      "action": "translate",
+      "new_text": "A flow that never went through this editor (imported, or published some other way) arrives with `$position` empty on every block, and they'd all be born stacked at the same point. Whoever has no position gets one, in a grid, in map order.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:184-188",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7573125c",
+      "action": "translate",
+      "new_text": "What goes in the `PUT /v1/gestao/fluxos/:id/builder`: the block map as it stands — the editor's format IS what the `api` stores in `bloco.conteudo.original` — plus the global actions. Only the map's key is checked against the `id`, so a block renamed from outside never goes out under two names.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:211-216",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-23c16e04",
+      "action": "translate",
+      "new_text": "The card the editor draws for a message or an input.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:225",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2089a32a",
+      "action": "translate",
+      "new_text": "The \"Entrada do usuário\" (user input) every new block comes with.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:236",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b484a917",
+      "action": "translate",
+      "new_text": "The default output of a new block: `fallback`, like in the editor — if one exists.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:268",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d3559662",
+      "action": "translate",
+      "new_text": "\"Padrão\" from the NOVO BLOCO menu (`createContentState`).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:273",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d02fdc5c",
+      "action": "translate",
+      "new_text": "Once the attendance ends, the conversation returns to this same block by default.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:316",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7c6ef721",
+      "action": "translate",
+      "new_text": "Replaces the whole block — what the panel does when editing content, actions, and outputs.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:337",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3e94d2ae",
+      "action": "translate",
+      "new_text": "\"Duplicar\" from the context menu: a copy with a new id, \"[Cópia]\" in the title, 20px to the side.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:342",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9b8b390e",
+      "action": "translate",
+      "new_text": "\"Colar\" (paste) creates a copy at the click position and never overwrites the original.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:384",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-20dd6544",
+      "action": "translate",
+      "new_text": "Início, Exceções, and Fim can't be removed — same as in the editor.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:390",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8d0e4efe",
+      "action": "translate",
+      "new_text": "Deletes the block and whatever pointed to it: a regular output condition disappears, a \"Saída de atendimento\" is left without a destination, the default output becomes empty.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:397-400",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-895b468a",
+      "action": "translate",
+      "new_text": "The output without its destination — what the editor does with a disabled \"Saída de atendimento\".",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:413",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d7c96a44",
+      "action": "translate",
+      "new_text": "The arrows to draw: one per (source, destination) pair, only outputs whose destination exists.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:420",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6929eed4",
+      "action": "translate",
+      "new_text": "Dragged from `de`'s output to `para`: a new output condition is born targeting `para`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:438",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4e6330b8",
+      "action": "translate",
+      "new_text": "The first output from `bloco` to `alvo` loses its link: an attendance output is left without a destination, the others disappear. With `tudo`, ALL outputs to `alvo` (what deleting the destination block needs).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:456-460",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0d6dd5fe",
+      "action": "translate",
+      "new_text": "Deleted the arrow from `de` to `para`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:482",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f5bbf913",
+      "action": "translate",
+      "new_text": "The Builder's drawing as the SCREEN holds it: the block map in the Blip editor's format (`{ <id>: estado }` with `$contentActions`, `$conditionOutputs`, `$defaultOutput`…), which is what `GET /v1/gestao/fluxos/:id/builder` returns and what `PUT` receives back — the `ExportDoEditor` from `@pipe/core`, with `flow` called `fluxo` and `globalActions` called `globais` (`DesenhoDoBuilder`).\n\nEverything here is a pure function over that map: create, rename, move, duplicate, delete a block; link and unlink two blocks; and assemble what goes in the `PUT`. Components only call these and store the result. Nothing mutates the received map — every gesture returns a new map, which is what undo/redo stacks.\n\nThe rules copied from the Blip editor (`portal.js`, `BuilderStateService`, and the jsPlumb `bind`s in `setConectionsListeners`):\n- a new block is born with a \"Entrada do usuário\" (no bypass), title \"Novo bloco\", and a default output to the `fallback` block (when one exists);\n- the \"Humano\" block is `desk:<uuid>` version 3.0.0: `ForwardToDesk` on entry, `LeavingFromDesk` after the state change, the entry waits for `desk_forwardToDeskState_status = Success`, and the three \"Saídas de atendimento\" are born without a destination;\n- dragging from one block's output to another creates ONE new output condition (no condition) targeting the destination; if one already exists for the same destination → nothing happens (the editor deletes the repeated arrow); 25 is the limit;\n- deleting the arrow removes the FIRST output condition to that destination — on \"Saídas de atendimento\" only the destination is cleared, the output stays;\n- the default output isn't drawn (\"The arrow linking blocks will not be displayed\");\n- Início (root), `fallback`, and `end` can't be deleted (\"It's not possible to delete this state\").",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/modelo.ts:5-34",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-dd40f532",
+      "action": "translate",
+      "new_text": "Possible target of the link currently being dragged.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/no.tsx:26",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8cc4a061",
+      "action": "translate",
+      "new_text": "The editor's automatic labels: each action's type, and \"UserInput\" if a reply is expected.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/no.tsx:34",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a82a09a7",
+      "action": "translate",
+      "new_text": "The card for a block on the canvas — their `builder-node.diagram-node`: 175px wide, radius 8, `0 8px 16px` shadow, centered text, the title in 14/400 that becomes 700 when the block is selected or being edited, the 4px ring around it on hover, and the output dot (`.diagram-node-endpoint`, 1em, middle of the bottom edge) that only appears on hover and is where the link is dragged from. The tags underneath (`builder-node-tags`) are the ones the editor adds automatically: each block action's type and \"UserInput\" when it expects a reply.\n\nThe colors are ours: surface background, brand color on the Início block (their `#3f7de8`) and on the ring, moss on the attendance one, error on the invalid one.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/no.tsx:7-19",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8e69d482",
+      "action": "translate",
+      "new_text": "Exported: the Global Actions panel (`painel-configuracao.tsx`) reuses the same card.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel-acoes.tsx:279",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-65bb7a44",
+      "action": "translate",
+      "new_text": "The editor's \"Ações\" tab: the two lists — \"Ações de Entrada\" (\"Inclua ações que serão executadas antes do envio do primeiro conteúdo\") and \"Ações de Saída\" (\"…após o envio do último conteúdo ou resposta do usuário\") — each with an \"Adicionar ação de entrada/saída\" button that opens the grouped \"ADICIONAR FERRAMENTAS\" menu (Executar, Manipular), and each action as a card that expands for editing: \"Nome da ação\", the type's fields, and the \"Condição para executar a ação\".\n\nOn the attendance block the tab only shows the editor's warning: \"o bot não deve interferir nas ações de entrada e saída\" (the bot must not interfere with entry and exit actions).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel-acoes.tsx:35-46",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4cc5f084",
+      "action": "translate",
+      "new_text": "The \"Configuração\" panel (`$ctrl.editConfig()`, `settings-builder` icon) — the source has 3 tabs (`portal.js`: \"Variáveis\", \"Versões\", \"Ações Globais\"). Here only the two with an engine behind them:\n\n- \"Ações Globais\": the same two lists as a block (`$enteringCustomActions`/`$leavingCustomActions`), but for the whole flow — the engine actually runs them (`editor.ts` from `@pipe/core`).\n- \"Versões\" (which in the source is where \"Importar\"/\"Exportar\" live, not a standalone button): downloads/reads the same `{flow, globalActions}` Blip uses.\n\nThe source's \"Variáveis\" tab (state expiration, action timeout, minimum AI score, tunnel owner context…) is Blip engine configuration that the Pipe engine doesn't have — not built, so as not to fake a control that does nothing.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:24-39",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-331ff51a",
+      "action": "translate",
+      "new_text": "Início and attendance: the input can't be removed nor swapped for \"Não aguardar\".",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel-conteudo.tsx:242",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-98e38122",
+      "action": "translate",
+      "new_text": "The editor's \"Conteúdo\" tab: the block's conversation as cards — the bot's messages on the left (Texto, Menu, Quick reply), the \"Entrada do usuário\" on the right — and the \"+\" that offers the types. Each card edits in place; the input opens its own panel: \"Salvar resposta em variável\" (with the \"Variável\" field), \"Validar a entrada do usuário\" (\"Tipo de validação\", \"Expressão regular\", \"Instrução de validação\"), and the choice between \"Aguardar resposta\" and \"Não aguardar\".\n\nOn the attendance block the tab is called \"Atendimento\" and only has the input, which waits for the attendance to end — nothing to edit besides the variable.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel-conteudo.tsx:29-40",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0334391b",
+      "action": "translate",
+      "new_text": "A Builder shortcut to the real queue registry. Listing, creation, editing, activation, and deletion already exist in PaginaFilas and the management routes; keeping the form here would duplicate registration and validation rules.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel-filas.tsx:6-10",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-036ae240",
+      "action": "translate",
+      "new_text": "The editor's \"Condições de saída\" tab: the opening text (\"Defina as regras e o bloco para o qual o usuário será direcionado\"), one card per output (`output-card-container`: surface-2 background, radius 10) with the conditions and the \"Ir para\", the \"+ Adicionar condição de saída\", and finally the \"Saída padrão\" with the notice that its arrow isn't shown.\n\nThe cards' order is the order the engine evaluates them in — the first match wins — which is why each card has move up/down.\n\nOn the attendance block (`desk:`), the four outputs the editor created are the \"Saídas de atendimento\": a fixed condition (the closed `Ticket`, or the forwarding that failed), with only the destination to choose.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel-saidas.tsx:19-32",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-70987098",
+      "action": "translate",
+      "new_text": "The editor allows a loopback (`allowLoopback`): the block itself can also be a destination.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel-saidas.tsx:52",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-17c9b08e",
+      "action": "translate",
+      "new_text": "The \"Biblioteca de variáveis\" (`$ctrl.openVarLib()`, `library` icon) — a panel on the LEFT in the source (`library-sidebar`, `position-left`), unlike the block panel (`position-right`). Two tabs, `bds-tab-group`: \"Variáveis do sistema\" and \"Variáveis do usuário\", each with search and a list with a copy button per item — structure confirmed in `portal.js` (`BuilderVariablesLibrary`).\n\nWithout the account's variable registry that the source uses, \"do usuário\" here is what THIS flow actually references (`variaveisDoUsuario`, real data from the drawing) and \"do sistema\" is the fixed list of sources with a provider in the Pipe engine (`VARIAVEIS_DO_SISTEMA`, from `variaveis.ts` — see the reasoning there).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel-variaveis.tsx:12-24",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d932e362",
+      "action": "translate",
+      "new_text": "The block's sidebar — their `sidebar-content-component.builder-sidebar`: docked to the right at 1rem, with a 1rem radius and `calc(100% - 2rem)` height, 28.75rem wide. At the top, the block's title in a text field (`#builder-sidebar-title`, `maxlength=\"50\"`, placeholder \"Nome do bloco\", read-only on the Início block) and the \"x\"; a divider; and the `bds-tab-group` with the three tabs: \"Conteúdo\" (on the attendance block, \"Atendimento\"), \"Condições de saída\", and \"Ações\".\n\nEverything edited here becomes `onMudar(bloco)` — the whole, new block — and it's the reducer's `aplicar`, one undo step per gesture.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel.tsx:13-24",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-97ead922",
+      "action": "translate",
+      "new_text": "The block's errors (from the screen and the engine), for the top banner.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/painel.tsx:63",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e1aad0ae",
+      "action": "translate",
+      "new_text": "jsPlumb's 10px arrowhead, pointing into the destination block.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/setas.ts:119",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-dc890df2",
+      "action": "translate",
+      "new_text": "A provisional line while the person drags from the output until releasing.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/setas.ts:128",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3950ae56",
+      "action": "translate",
+      "new_text": "Where \"Adicionar bloco\" places the new block: in the middle of what's visible, rounded to the 16 grid.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/setas.ts:133",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6183a2e4",
+      "action": "translate",
+      "new_text": "Their card's measurements: 175px wide (`.diagram-node`). Height is measured from the DOM.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/setas.ts:14",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c0cdc1d5",
+      "action": "translate",
+      "new_text": "The editor's zoom: 20% to 100%, and the wheel with Ctrl moves in steps of 10.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/setas.ts:148",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1ed87ef4",
+      "action": "translate",
+      "new_text": "Below this, press-and-release counts as a click, not a drag — it neither moves the block nor completes a link. Without this floor, clicking (without releasing outside) on a block's output point would create a loop from the block to itself on its own, because `elementFromPoint` at the instant of the click is still over the very block the output came from.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/setas.ts:20-26",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3f181483",
+      "action": "translate",
+      "new_text": "The arrows' geometry: the jsPlumb \"Flowchart\" connector the Blip editor uses to link blocks (`JsPlumbService.createInstance`: `Connector: \"Flowchart\"`, `Continuous` anchor, 10px arrowhead, 2px stroke).\n\n\"Continuous\" picks the face of each block that looks toward the other; \"Flowchart\" leaves that face straight for a 30px stub, turns at a right angle to the midpoint of the path, and arrives straight through the other side's stub — it's the `M -0.5 0 L 30.5 0 … L 278 10` captured from the DOM. Here, the same drawing, in our own SVG.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/setas.ts:3-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6065fa74",
+      "action": "translate",
+      "new_text": "The connector's target is the block's box on the canvas plane, not the element under the cursor. This way pointer capture and overlapping SVGs don't make the destination disappear on `pointerup`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/setas.ts:45-47",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-57136c1d",
+      "action": "translate",
+      "new_text": "The faces that face each other: more horizontal → right/left; otherwise bottom/top.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/setas.ts:59",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5bc9b90e",
+      "action": "translate",
+      "new_text": "The errors the `api` flagged on the last save (or on read).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/use-editor.ts:41",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b9b3d7e0",
+      "action": "translate",
+      "new_text": "Saves what's on screen right now; returns whether it succeeded.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/use-editor.ts:43",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-279db871",
+      "action": "translate",
+      "new_text": "After restoring: reload when the read brings back this version.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/use-editor.ts:45",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b372cd0d",
+      "action": "translate",
+      "new_text": "Loads from the server: on the first read, and when the expected version arrives.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/use-editor.ts:59",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a0bd16c1",
+      "action": "translate",
+      "new_text": "Autosave: a little while after the last change.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/use-editor.ts:87",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ba249159",
+      "action": "translate",
+      "new_text": "The editor's state wired to the `api`: loads the drawing the `GET` brought, saves itself automatically a bit after each change (the Blip editor's `debouncedSave`, which is what makes the footer's \"Salvo\" exist), and stores the per-block errors the `PUT` returns.\n\nThe local drawing is NOT overwritten when the cached read is redone after a save — otherwise every save would erase what the person typed while the `PUT` was in flight. It's only reloaded from the server when the screen asks for it (`recarregarQuando`, after restoring a version), and only once the read already brings the expected version.\n\nTwo saves never run at the same time: the second waits for the first, and if a newer request has already been scheduled, the old one gives up — what reaches the server is always the most recent map, once.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/use-editor.ts:9-24",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0450bacc",
+      "action": "translate",
+      "new_text": "What the SCREEN can flag before sending to the server — the Blip editor's `$invalid`, block by block: required field empty, output without a destination, condition without values, variable with an invalid name. It's the first of the two lists the block's card paints; the second comes from the `api` (the engine's `errosDoFluxo`: root without an input, loop without an input, nonexistent destination), after each save and on the 409 from publishing.\n\nThe wording is the panel's and the engine's — never two texts for the same problem, which is why `juntarErros` removes duplicates.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/validacao.ts:12-22",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-65bb7cf9",
+      "action": "translate",
+      "new_text": "The Builder keeps the incomplete draft on the card, without promoting it to the flow's alert.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/validacao.ts:37",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4a0c70db",
+      "action": "translate",
+      "new_text": "The Builder's extraction flags the URL on the ProcessHttp card, without promoting it to the flow's alert.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/validacao.ts:47",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9813eb39",
+      "action": "translate",
+      "new_text": "The editor's \"Biblioteca de variáveis\" (`$ctrl.openVarLib()`, left-side panel with the \"Variáveis do sistema\" and \"Variáveis do usuário\" tabs, full structure found in `portal.js`). There, both lists come from an account-level service; here that service doesn't exist — so:\n\n- \"Variáveis do usuário\" is what THIS flow actually references: the name of every `SetVariable`/`DeleteVariable` (block or global action), every `context` variable in a condition, and the variable of each \"Entrada do usuário\" — real data from the drawing, not a separate registry;\n- \"Variáveis do sistema\" is the fixed list of sources with a provider in the Pipe engine (`FONTES_SUPORTADAS` from `@pipe/core/fluxo/contexto.ts`), with the property names the engine actually reads (`provedorDeEntrada`, `provedorDeContato`, etc.) — not Blip's system list (`bucket`, `resource`, `tunnel`… have no provider here and would be lying).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/variaveis.ts:4-19",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ebe11860",
+      "action": "translate",
+      "new_text": "Every `context` variable this flow creates or reads, in alphabetical order.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/variaveis.ts:66",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ca6b8a63",
+      "action": "translate",
+      "new_text": "The search filter for each panel tab: no accents, case-insensitive.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/variaveis.ts:76",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a0fda240",
+      "action": "translate",
+      "new_text": "Centered modal, for the \"Criar X\"/\"Nova X\" button in each registration screen's header — the `bds-modal` Blip opens there (`FICHA-queue-management.md` §2.6, `FICHA-personalizedbreaks.md` §2.3, `FICHA-replies.md` §2.3): title, body with the form, and an \"x\" to close.\n\nThe form's actual content isn't in the material (the capture always caught the modal closed, `open=\"false\"`), so inside here we have full freedom — only the modal's existence, in place of a standalone form on the page, is what the captured DOMs confirm.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/_modal.tsx:4-14",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-66738c73",
+      "action": "update",
+      "new_text": "Destructive-action confirmation, inside the `Modal` above — replacing `window.confirm`/`window.alert`, which is what this component was built to remove from cadastros screens (Atendimento cadastros task, items 1 and 2). Every new deletion (attendance rule, SLA rule) goes through here instead of the browser's native dialog — and `atendentes-filas.tsx` has since migrated to it too; no screen in this module still calls `window.confirm`/`window.alert`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/_modal.tsx:46-52; the original comment's claim that atendentes-filas.tsx \"usa hoje\" (uses today) window.confirm/window.alert as a 'provisório' stopgap is stale — apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx:35-38 explicitly states it now uses ModalConfirmacao and 'nunca window.confirm/window.alert'; same for regras-atendimento.tsx:37 and regras-sla.tsx:50 (grep for window.confirm|window.alert across apps/gestao-vite/src found zero remaining call sites, only comments describing the replacement)",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-070e7e56",
+      "action": "translate",
+      "new_text": "The rejection reason, if the last attempt failed — the same message that would have gone to `window.alert`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/_modal.tsx:66",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1bc938b7",
+      "action": "translate",
+      "new_text": "The source's `/team/create` and `/team/edit` — the TWO dedicated pages `modal.addAgent`/`modal.editAgent` name (`FICHA-atendentes-filas-pausas.md` §a.1/§a.4). No `:id` in the URL: the selection travels in `?atendentes=`, because editing is done IN BULK — the three variants of `editDropdown.title` (\"Editar 1 atendente\" / \"Editar N atendentes\") only exist for that.\n\n**\"Adicionar atendente\" has no form here, and that's stated, not hidden.** Pipe has no standalone account creation: whoever joins gets an invite (`/convite/:token`). Inventing a form that saves nothing would be worse than admitting the gap.\n\n**The batch fields are the ones Pipe has.** The source asks for \"Equipe\" and \"Fila\" as two separate concepts (`team`/`queue` in `i18n.js`); Pipe only has QUEUE — the simultaneous-conversation cap comes from being in it (`aplicarNaSelecao`, `lib/atendentes-gravar.ts`), not from a separate attendant registry. \"Equipe\"/`teamsPlaceholder` was left out.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx:12-29",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a27739c7",
+      "action": "translate",
+      "new_text": "Editing a queue — its OWN PAGE, not a modal.\n\nThe source's `attendance.desk.queueManagement.edit` is `url:\"/edit/:id\"` (`FICHA-atendentes-filas-pausas.md` §a.1) — what the owner asked for. The anatomy follows §a.3: three sections in the order **Atendentes → Regras de Priorização → Tags**, with the literal text from `i18n.js`.\n\n**Tags was left out.** The source has \"Gerenciar tags da fila\", but in Pipe `etiqueta` is per TENANT, with no link to a queue (§e.7 of the ficha) — building that link is migration + domain + route + Desk consumption, and it's logged as a pending item, not invented here.\n\n**\"Adicionar atendente\" NAVIGATES, it doesn't open a form here.** The source proves this with the empty-state text itself (`noAttendantsBody`: \"clicking Adicionar atendente redirects to the Equipe de atendimento page\"). In Pipe, linking someone into the queue is the SAME save as batch \"Editar atendente\" (`POST .../filas/:id/atendentes`) — which is why the button goes to `atendentes/gestao`, not to a picker on this page.\n\n**\"Dados da fila\" is a section that's ours alone**, with no sub-route in the source: color, order, default capacity, schedule, and the \"Ativa\" toggle moved here from the creation modal (`atendentes-filas-formulario.tsx` already documented this).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx:19-42",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c11daa49",
+      "action": "translate",
+      "new_text": "------------------------------------------------- priority rules",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx:314",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-bb227430",
+      "action": "translate",
+      "new_text": "Closes the modal when the save succeeds.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx:34",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-11bce85e",
+      "action": "translate",
+      "new_text": "Controlled only so \"Salvar\" starts disabled, like the source's `save-button` — not to hold the value, which `FormData` already carries.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx:38-39",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e928c42d",
+      "action": "translate",
+      "new_text": "See the equivalent comment in `regras-atendimento-formulario.tsx`: `useActionState`'s initial value isn't a submission confirmation.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx:42-43",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9600a0fb",
+      "action": "translate",
+      "new_text": "The \"Criar nova fila\" modal — the FORM matches the source, and it's minimal (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.2, extracted from the `bds-modal` that `queue-management.html` carries in the DOM with `open=\"false\"`):\n\n  title    \"Criar nova fila\"\n  text     \"Dê um nome para essa fila de atendimento\"\n  field    placeholder \"Nome da fila\"\n  hint     \"Use apenas letras, números, hifens (-) e sublinhados (_)\"\n  buttons  \"Cancelar\"  \"Salvar\"  (the second disabled until there's a name)\n\n**Only one field, and the other four went to the edit page.** This form used to have color, default capacity, order, schedule, and \"ativa\" in the same box — five fields the source doesn't ask for here. They didn't disappear: they live in \"Dados da fila\", on the `atendentes/filas/:id/editar` page, which is also where the source puts queue configuration. What still travels along at creation are the DEFAULTS (capacity 5, order 0, active), in a hidden field, because `criarFila` requires `capacidadePadrao` between 1 and 200 and a queue is born active.\n\nThe character hint is literal from the source. We don't reject names with accents (`nomeDeFilaConferido` only requires non-empty), so it's guidance, not a promise of validation — stated that way on purpose.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx:7-30",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e77e37cd",
+      "action": "translate",
+      "new_text": "The new queue's defaults. Editable in \"Dados da fila\", on the edit page — they only exist here because `criarFila` requires the capacity.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx:71-72",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-cee9d643",
+      "action": "translate",
+      "new_text": "Queues — the list.\n\nSkeleton and copy measured in `referencias-blip/portal/dom/FICHA-atendentes-filas-pausas.md` §b.1: header \"Filas de atendimento\" with \"Nova fila\" on the right and no subtitle, search \"Buscar fila\" alone on the line below, an 86px row card with TWO columns — \"Fila de atendimento\" and \"Atendentes atribuídos\" — and, on the right, toggle + \"Editar\" + \"Excluir\". Footer \"Resultados por página\" with the source's options.\n\n**What left the card, and why.** It used to carry a footer with color, default capacity, order, schedule, simultaneous cap, and the list of enabled attendants — six lines of information the source doesn't put here (ficha §d.1: \"Card footer: doesn't exist\"). All of that moved to the queue's edit page, which is also where the source puts configuration. The card went back to being just a card.\n\n**\"Editar\" opens a PAGE, not a modal.** That's what the owner asked for, and what the source's router says: `attendance.desk.queueManagement.edit` has `url:\"/edit/:id\"` (ficha §a.1). Here: `atendentes/filas/:id/editar`.\n\nToggle and deletion stay on the card (`PATCH`/`DELETE` on `/v1/gestao/atendentes/filas/:id`), confirmed via `ModalConfirmacao` — never `window.confirm`/`window.alert`. A toggle rejection becomes an `Etiqueta` above the list, since there's no open modal for it to live in.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx:14-39",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5545789a",
+      "action": "translate",
+      "new_text": "The row card's toggle + edit/delete — the `acao` slot of `lista-regras.tsx`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx:41",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3f63c277",
+      "action": "translate",
+      "new_text": "The source has no status column (ficha §d.2: \"go back to 4 columns\") — `ativa` would only decide `Cartao`'s badge, and since the three actions always exist here, it never shows up anyway.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx:121-123",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4b0902e9",
+      "action": "translate",
+      "new_text": "Attendant management — the list.\n\nSkeleton and copy measured in `FICHA-atendentes-filas-pausas.md` §b.2/§a.4: header \"Gestão de atendentes\" with \"Adicionar atendentes\" on the right, search \"Buscar por nome ou e-mail\" + \"Filtrar por: Filas\", a \"Selecionar todos\" bar, a card with checkbox + avatar + four fields (Atendente/E-mail/Filas/Tickets simultâneos) and, on the right, Editar/Permissões/Excluir.\n\n**\"Selecionar todos\" and what it selects.** The source paginates on the SERVER (ficha §e.6); our list already arrives whole and paginates on the client, inside `ListaRegras`, which doesn't expose the visible slice from outside. `alternarTodos` marks/unmarks the entire FILTERED set (queue search + text), not just the visible page — the honest simplification while pagination stays display-only.\nponytail: selects the whole filtered set, not the page; adjust if `ListaRegras` starts exposing the visible slice.\n\n**\"Excluir\" removes from all queues** — it doesn't delete the user (`tirarDeTodasAsFilas`, `lib/atendentes-gravar.ts`: Pipe has no \"attendance team\" as a separate registry; whoever receives a conversation is whoever is in a queue).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx:14-37",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2cfdfd4e",
+      "action": "translate",
+      "new_text": "\"Filtrar por: Filas\" — a dropdown panel anchored to the control (`FICHA-atendentes-filas-pausas.md` §a.4: \"Selecione a(s) fila(s)\" picker, \"Limpar seleção\", \"Cancelar\", \"Aplicar\"). The choice only takes effect on the list after \"Aplicar\" — cancelling or closing without applying changes nothing.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx:207-212",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-481b6291",
+      "action": "translate",
+      "new_text": "See the equivalent comment in `regras-atendimento-formulario.tsx`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-pausas-formulario.tsx:23",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a00729d1",
+      "action": "translate",
+      "new_text": "Content of the \"Criar nova pausa personalizada\" modal — the form is literally the source's (`FICHA-atendentes-filas-pausas.md` §a.5/§c): **\"Nome da pausa\"** field (`maxlength=\"30\"`), **\"Duração em minutos\"** field (`type=\"number\" max=\"999\" maxlength=\"3\"`, initial value `0`), **\"Cancelar\"** and **\"Criar\"** buttons. No description — the source opens the modal straight into the form.\n\n**\"Conta como produtivo\" is a field that's ours alone**, with no counterpart in the source: it decides whether this break's time counts toward the effort report as work (training, meetings) or as time off (lunch, coffee). Without it the report can't tell the two apart — so it stays, compact, below the two literal fields, and not in place of either.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-pausas-formulario.tsx:7-19",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5da0db86",
+      "action": "translate",
+      "new_text": "Only \"Excluir\" — the source has no toggle or edit on this row, and no \"Resultados por página\" in the footer (`FICHA-atendentes-filas-pausas.md` §a.5 and §b.3: \"There's no edit icon, no toggle\" / \"just the arrows + page number + counter\"). `alternarMotivoPausa` (`cadastros-gravar.ts`) goes unused on this screen for that reason — it wasn't deleted because the `PATCH .../pausas/:id` route is still valid and tested.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-pausas.tsx:11-18",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-3be404f7",
+      "action": "translate",
+      "new_text": "Custom breaks — the list.\n\nSkeleton and copy measured in `FICHA-atendentes-filas-pausas.md` §b.3/§c: header \"Pausas personalizadas\" with \"Nova Pausa\" (capital P) on the right, no search, a card with only \"Nome da pausa\"/\"Duração\" as columns and only \"Excluir\" on the right, a footer with just a counter + arrows (no \"Resultados por página\" — `ocultarTamanhoDePagina` in `ListaRegras`).\n\n**What left the card.** The real-usage footer (counts as, number of breaks, average vs. suggested) doesn't exist in the source (§d.3: \"remove\"). The `semMotivo`/`abertas` pair that gave that context now lives only in the header's `title` — information that doesn't appear as visible text, so it doesn't compete with the literal form.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-pausas.tsx:23-37",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-357cbdaa",
+      "action": "translate",
+      "new_text": "The source's `/team/permission` — its OWN PAGE, not a modal (`FICHA-atendentes-filas-pausas.md` §a.1/§a.4: \"the permissions part also [opens a page]\", a literal owner requirement).\n\nLiteral form: title \"Permissões\", the `descricaoDasPermissoes` copy in its three variants, the \"Permissões disponíveis\" section with the two-column table — \"Tipo de permissão\" / \"Status\" — and \"Salvar alterações\".\n\n**The row content is ours.** The source lists ten Blip Desk capabilities; here it's Pipe's permission catalog (`apps/api/src/dominio/gestao/permissoes-do-atendente.ts`), which is what the actual routes check. `usuario_permissao` (migration 0046) is the per-person exception over the role — see that file's comment for the full account.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/atendentes-permissoes.tsx:14-29; also cites Blip Desk permission list and a FICHA reference, so meta-blip also applies — flagging as a dual-category judgment call (chose security since the content centers on the Pipe permission/authorization catalog that routes actually enforce)",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e264bcd7",
+      "action": "translate",
+      "new_text": "Attendance channels — the source's `attendance/desk/channels` (`referencias-blip/fichas/FICHA-channels.md`, photo `07` in `referencias-blip/canais/`): a title with no subtitle or button, and a fixed GRID of 4 cards (`bds-paper`, 242×292), each with an icon, 16/700 title, 14/400 subtitle, and a button at the bottom — \"Conectado\" (tertiary, with the `checkball`) or \"Conectar\" (primary, with the arrow).\n\nThis is the Desk's list of ATTENDANCE INTEGRATIONS (who receives the tickets), not conversation-channel configuration: WhatsApp, Instagram, and Messenger are connected and configured INSIDE THE BOT, at `/{tipo}/{id}/canais/*` (`FICHA-conectar-canal-no-bot.md` §4.1). What used to live here — the cards for connecting WhatsApp/Instagram/Messenger, \"Detalhes\", and \"Desconectar\" — moved there; only what belongs to this screen stayed.\n\nPipe Desk is Pipe's own Desk, always connected. Salesforce, Salesforce MIAW, and Canal Personalizado are integrations Pipe doesn't have: the cards stay, with the source's button pointing nowhere (`aria-disabled`), instead of faking a connection flow that the capture never opened either (photo `07`: \"not clicked\").",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/canais.tsx:5-25",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6eac61fe",
+      "action": "translate",
+      "new_text": "The manual path for connecting WhatsApp/Instagram — without an app approved by Meta, the embedded signup (`cadastro-embutido-whatsapp.tsx`) isn't an option for the average customer; this is the main path now (`POST /v1/canais/{whatsapp,instagram}/manual`, `canais.ts`/`canais-instagram.ts`).\n\nThe two connection forms (`configuracao-manual.ts`/`instagram/canal.ts`) reject with `ErroPipe` WITHOUT `detalhe.campo` — unlike profile and preferences, which point to the field. So here the error only fits in a general banner, not under a specific field (a backend finding, not fixed here: the task only asks to consume it).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:13-25",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-18798f92",
+      "action": "translate",
+      "new_text": "On reconnection, WABA and the number are already known: they come prefilled.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:45",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-43380bc9",
+      "action": "translate",
+      "new_text": "What the three modals have in common, now that they live on the channel's page INSIDE THE BOT (`fluxo/canais/**`): `fluxoId` makes the channel born already linked to the bot (`fluxo_id` in the connection routes), and the button that opens the modal carries the label and variant of the screen hosting it.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:64-69",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-396b3b52",
+      "action": "translate",
+      "new_text": "RECONNECT this channel instead of creating another. The client token expires, and in the source the way out is to redo the connection on the same channel — there's no disconnect for WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:72-76",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

@@ -1,0 +1,556 @@
+{
+  "items": [
+    {
+      "id": "api-comment-b404a520",
+      "action": "translate",
+      "new_text": "whether a message arrived. Count `entregue` once; `lida` must not count",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:384; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-753638be",
+      "action": "translate",
+      "new_text": "again, or each read would dilute failure-rate alert `EntregaFalhando`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:385; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b1a3aa97",
+      "action": "translate",
+      "new_text": "Future work: `canal` labels each WhatsApp number's own time series.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:387; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7e571442",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:401; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1b40a770",
+      "action": "translate",
+      "new_text": "Meta still sends older Brazilian numbers without the ninth digit, while the importer",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7186ee7d",
+      "action": "translate",
+      "new_text": "stores the canonical form with 9. Exact-only matching would create a new contact for",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:424; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0aceb65d",
+      "action": "translate",
+      "new_text": "someone already in the database. Candidate variants come from the Chatwoot port",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:425; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-acdde8fd",
+      "action": "translate",
+      "new_text": "(`phone_number_normalization_service`); prefer the received form if both exist.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:426; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9583f64b",
+      "action": "translate",
+      "new_text": "Populate phone only for WhatsApp; on Instagram the identifier is the account,",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:442; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cfe231e4",
+      "action": "translate",
+      "new_text": "CRM mirroring is queue work, and enqueue failure must not break",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:461; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6cfe40c8",
+      "action": "translate",
+      "new_text": "the conversation: `enfileirarEspelhoCrm` absorbs its own error, and a",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:462; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4b7eecd1",
+      "action": "translate",
+      "new_text": "five-minute sweep recovers missed jobs. See `dominio/espelho-crm.ts`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:463; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fdf1e8ca",
+      "action": "translate",
+      "new_text": "Created by this message; only a new conversation starts a flow.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:473; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fa446636",
+      "action": "translate",
+      "new_text": "With a bot, the conversation starts without a queue; it joins one only when the bot transfers it.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:508; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-75b798ec",
+      "action": "translate",
+      "new_text": "`criada` and `enfileirada` mark the start of ATTENDANCE and determine",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:518; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0a4b8b78",
+      "action": "translate",
+      "new_text": "queue time. Bot conversations receive them on handoff (`dominio/fluxo.ts`), not here.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:519; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-abc274e4",
+      "action": "translate",
+      "new_text": "The conversation has just entered the queue; this is the only point where",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:535; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cf70a131",
+      "action": "translate",
+      "new_text": "Without a bot, apply it HERE rather than on handoff (`fluxo.ts`), because there",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:537; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-356cfb2d",
+      "action": "translate",
+      "new_text": "Apply `regra_prioridade` to a conversation JUST entering a queue. With no active rule, leave `conversa.prioridade` at its column default `sem_prioridade`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:554; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6c60c2d2",
+      "action": "translate",
+      "new_text": "Meta provides only `media_id`; download follows through its media endpoint. Create an `anexo` row with the reference so the message is not orphaned. `bytes = 0` means not yet downloaded. Download is queue work (`dominio/midia.ts`), not webhook work, because Meta retries slow responses. Store `canal_id` here while the channel is known so download can get its token without joining `mensagem`/`conversa`/`inbox`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:591; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d9182104",
+      "action": "translate",
+      "new_text": "Without `media_id`, use the Instagram URL as the key. Meta's URL expires;",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:608; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-83e94d4e",
+      "action": "translate",
+      "new_text": "`dominio/midia.ts` copies it to durable storage.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:609; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f1d24f49",
+      "action": "translate",
+      "new_text": "Instagram media arrives by URL, not `media_id` (`instagram/entrada.ts`).",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:76; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0b3beb5f",
+      "action": "translate",
+      "new_text": "Agents reply only to their assigned conversations. An unowned queued conversation is also rejected:",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/envio.ts:128; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ed711150",
+      "action": "translate",
+      "new_text": "claiming a conversation records its own `atribuida` event, and silently assigning on send",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/envio.ts:129; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1d916a5a",
+      "action": "translate",
+      "new_text": "would cause TMR reports to miss that event.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/envio.ts:130; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-410131b9",
+      "action": "translate",
+      "new_text": "Keep the literal \"atender, solicite a transferência a…\": it explains what happened and what to do.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/envio.ts:136; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-190bca78",
+      "action": "translate",
+      "new_text": "API sends do not start as `enviada`, unlike the old Desk path. A message starts `pendente` with an `outbox_mensagem` row; a worker delivers it and state advances only after Meta confirms, as anticipated in `apps/desk/src/app/acoes.ts`. Evaluate the 24-hour window rule from `@pipe/core` BEFORE writing; outside the window, reject free text with an actionable reason rather than a later Meta error.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:15; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-dbef60e3",
+      "action": "translate",
+      "new_text": "Use an actionable Portuguese message because the agent reads it on screen.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/envio.ts:171; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2bc08f92",
+      "action": "translate",
+      "new_text": "The source (`blip-desk-regras-tecnicas.md` §3.4) rejects forbidden words before sending. Apply this to",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8214368d",
+      "action": "translate",
+      "new_text": "agent-authored free text, including attachment captions; templates and system/bot messages bypass the filter, as in the source.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:193; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e9224634",
+      "action": "translate",
+      "new_text": "Replying moves a conversation from `atribuida` or `em_espera`, the two transitions",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:225; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4b014555",
+      "action": "translate",
+      "new_text": "the state machine allows into `em_atendimento`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:226; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-91124f89",
+      "action": "translate",
+      "new_text": "A REPLY presupposes a question. Count `primeira_resposta` only after the client",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:231; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c74beaad",
+      "action": "translate",
+      "new_text": "has spoken in this conversation (`ultima_mensagem_em` set). For an active-message",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:232; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c5c1d537",
+      "action": "translate",
+      "new_text": "conversation we started first; counting that send as a first reply",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:233; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-497a7d28",
+      "action": "translate",
+      "new_text": "would manufacture a zero-second TMR, contrary to the metrics spec.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:235; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a764619b",
+      "action": "translate",
+      "new_text": "Enqueue and drain outside the transaction; neither may delay commit.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:289; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a833acf9",
+      "action": "translate",
+      "new_text": "Previously uploaded attachments from `POST /v1/anexos`, in send order.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:311; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d59fb1bb",
+      "action": "translate",
+      "new_text": "Optional caption goes on the FIRST message of the batch, as the source does with `text`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:313; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7a40a468",
+      "action": "translate",
+      "new_text": "Send several attachments as ONE operation but ONE message per file, serially. This follows the source LIME protocol: each `application/vnd.lime.media-link+json` carries ONE `uri` (`referencias-blip/pesquisa/blip-api-schemas.md`, \"media-link\"); the Desk `ModalType.SEND_MULT_FILE` builds `mediaLinkDocuments`, capped at `MAX_ATTACHMENT_COUNT = 10` (`blip-desk-regras-tecnicas.md` §3.3). Thus `mensagem.anexo_id` remains singular. Validate the WHOLE batch before sending the first: every attachment must exist in the tenant, have an accepted type and size, and total no more than 10. The source loop aborts on one oversized file (§3.3 step 6); sending half would leave the client and agent uncertain. Send each through `enviarMensagem` in series, retaining the same 24-hour window, outbox, and event rules. If the first is rejected, none are sent.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:320; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-67414ce7",
+      "action": "translate",
+      "new_text": "Agent signing the message. Absent means an integration sends as the system.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/envio.ts:33; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bea3e020",
+      "action": "translate",
+      "new_text": "`guardarAnexo` already rejected invalid files, but recheck each size",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:370; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e9ba733a",
+      "action": "translate",
+      "new_text": "so one oversized file rejects the entire batch and identifies the file.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:371; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-65ea3be4",
+      "action": "translate",
+      "new_text": "Body variable values in `{{1}}`, `{{2}}`, … order.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d6cf30e3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-66b350e6",
+      "action": "translate",
+      "new_text": "Retry a failed message. The screen used to set `mensagem` back to `pendente` but left `outbox_mensagem` as `falhou`; the worker claims by OUTBOX STATE (`where estado = 'pendente'`), so nothing was redelivered although the button said it was. Reset `tentativas` to zero because the user says the cause is fixed; keeping the old backoff could delay retry 15 minutes. Do NOT stamp `entregue_em` without Meta confirmation, since that would fabricate delivery evidence.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:413; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7c236619",
+      "action": "translate",
+      "new_text": "Public URL for template-header media; it occupies send position 1.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-69ae8715",
+      "action": "translate",
+      "new_text": "Insert the prepared reply in the SAME write as the message so it can feed effort reporting. The old screen stamped it in a second database call after send; when that call failed, the mark vanished without notice.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-53e2862c",
+      "action": "translate",
+      "new_text": "If no row was affected, the message is missing or no longer failed; a silent 200",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:440; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b0f1c262",
+      "action": "translate",
+      "new_text": "would make the button appear to have fixed delivery.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:441; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f0483f8f",
+      "action": "translate",
+      "new_text": "A failed message without an outbox row is the signature of the old defect: the screen",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:453; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7b347281",
+      "action": "translate",
+      "new_text": "stored the message but enqueued nothing. Recreating that row lets",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:454; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1c9fa213",
+      "action": "translate",
+      "new_text": "the retry button repair those legacy messages.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:455; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a4537bf1",
+      "action": "translate",
+      "new_text": "`{{1}}`, `{{2}}`, … in the template body; numbering here is BODY numbering.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:467; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ee5c0952",
+      "action": "translate",
+      "new_text": "Map body values to send positions with the media-header offset. The offset has ONE implementation in `@pipe/workers/whatsapp`; call it here rather than duplicating it.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:475; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a04f701a",
+      "action": "translate",
+      "new_text": "Require the conversation to be assigned to `atendenteId` for a PERSON in a browser: agents reply only to their own work. Disable this requirement for an integration, which has no owner and sends as the system. Keep the rule here, not in the controller, so every path through `enviarMensagem` obeys it; relying on the screen previously allowed messages without an outbox.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/envio.ts:51; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-aa15b0ba",
+      "action": "translate",
+      "new_text": "`@pipe/core` distinguishes channels with a window from those without. Instagram, email, and widget are in the second group, as in Desk.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:72; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b98c36a9",
+      "action": "translate",
+      "new_text": "Pipe currently treats Instagram as a channel WITHOUT a window, like widget. Direct",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:76; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-584ea703",
+      "action": "translate",
+      "new_text": "does have a 24-hour standard reply window, extended to seven days with HUMAN_AGENT;",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:77; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-891a2f30",
+      "action": "translate",
+      "new_text": "outside it Meta rejects sends and the worker records the failure on the message. A",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:78; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-706735aa",
+      "action": "translate",
+      "new_text": "dedicated Instagram window rule in `@pipe/core` remains a product decision.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/envio.ts:79; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7dbbce83",
+      "action": "translate",
+      "new_text": "A missing contact or tenant CRM is absence, not an error.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/espelho-crm.ts:20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1dadc812",
+      "action": "translate",
+      "new_text": "Read contact and configuration in one transaction with a fixed tenant, IN SERIES;",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/espelho-crm.ts:32; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-289616e9",
+      "action": "translate",
+      "new_text": "a cross-tenant CRM write is the worst place for a transaction-context failure.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/espelho-crm.ts:34; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5057a97f",
+      "action": "translate",
+      "new_text": "Mirror a Pipe contact as a `person` in that client's CRM (`docs/specs/2026-09-07-integracao-twenty.md` §§4–5). Pipe remains the contact source of truth; writes only flow outward. Three §5 isolation checks apply: read `configDoTenant` inside `comTenant` so RLS guards CRM URL and key; reread the contact in the job tenant's `comTenant` so another client's `contatoId` returns no row; and verify returned `pipeContatoId` in `espelharContato` before storing any ID.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/espelho-crm.ts:7; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ad156716",
+      "action": "translate",
+      "new_text": "Call the network OUTSIDE the transaction: a database connection",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/espelho-crm.ts:70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-aaa09733",
+      "action": "translate",
+      "new_text": "held while waiting for a slow client CRM is unavailable to everyone else.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/espelho-crm.ts:71; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6da8f4b3",
+      "action": "translate",
+      "new_text": "The recovery sweep requeues contacts that have no CRM mirror. The queue is a nudge; the sweep is the guarantee, as with outbox delivery. Without it, a lost job leaves a contact permanently without the CRM profile link agents use. The owner role scans all tenants because RLS cannot return rows before a tenant is set (migration `0001_rls`, `banco.ts`). ONLY this `select` uses that role; actual sync returns to `comTenant` in `sincronizarContato`. Include only tenants with CRM configured.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/espelho-crm.ts:87; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

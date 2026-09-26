@@ -4,53 +4,44 @@ import { NestFactory } from '@nestjs/core';
 import type { INestApplication } from '@nestjs/common';
 import type { Request } from 'express';
 import type { Server } from 'node:http';
-import { origemPermitida, origensPermitidas } from '@pipe/autenticacao';
+import { origemPermitida, origensPermitidas } from '@pipe/authentication';
 import { AppModulo } from './app.modulo.js';
-import { MAX_BYTES_POR_ARQUIVO } from '@pipe/armazenamento';
-import { fecharBancos } from './banco.js';
-import { FiltroDeErro } from './erros.js';
-import { ligarCanalDeEventos } from './eventos-ws.js';
-import { fecharTempoReal } from './tempo-real.js';
+import { MAX_BYTES_BY_FILE } from '@pipe/storage';
+import { fecharBancos } from './database.js';
+import { ErrorFilter } from './errors.js';
+import { connectChannelOfEvents } from './eventos-ws.js';
+import { closeRealtime } from './realtime.js';
 import {
-  agendarRenovacaoInstagram,
-  agendarVarreduraDicionarioCrm,
-  agendarVarreduraDownloadMidia,
-  agendarVarreduraEspelhoCrm,
-  agendarVarreduraSla,
-  agendarVarreduraProcessHttp,
-  consumirRenovacaoInstagram,
-  consumirChecagemSla,
-  consumirDicionarioCrm,
-  consumirDownloadMidia,
-  consumirEntrada,
+  scheduleRenewalInstagram,
+  scheduleSweepDictionaryCrm,
+  scheduleSweepDownloadMedia,
+  scheduleSweepMirrorCrm,
+  scheduleSweepSla,
+  scheduleSweepProcessHttp,
+  consumeRenewalInstagram,
+  consumeCheckSla,
+  consumeDictionaryCrm,
+  consumeDownloadMedia,
+  consumeInbound,
   consumirProcessHttp,
-  consumirEspelhoCrm,
-  fecharFilas,
-} from './filas.js';
-import { medirRequisicao } from './metricas.js';
+  consumeMirrorCrm,
+  closeQueues,
+} from './queues.js';
+import { measureRequest } from './metrics.js';
 
 /**
- * Sobe a aplicação Nest.
- *
- * O parser de JSON é montado à mão para guardar o **corpo cru** em `corpoCru`: a
- * assinatura `X-Hub-Signature-256` da Meta é sobre os bytes que chegaram, e
- * reserializar o objeto muda espaço e ordem de chave. Sem isso a assinatura nunca
- * bate e o webhook fica "misteriosamente" recusando tudo.
+ * Start Nest with a custom JSON parser that preserves raw request bytes in `corpoCru`. Meta signs those bytes with `X-Hub-Signature-256`; reserializing parsed JSON can change spacing or key order and make valid webhooks fail signature verification.
  */
-export async function criarAplicacao(): Promise<INestApplication> {
+export async function createApplication(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModulo, { bodyParser: false });
 
   /**
-   * CORS com credencial: a API mora em `api.usepipe.com.br` e as telas em `app.`,
-   * `gestao.` e `crm.`. A lista vem de `PIPE_ORIGENS` e **nunca é curinga** — com
-   * `credentials: true` o navegador recusa `*`, e mesmo que aceitasse seria abrir a
-   * API para qualquer site fazer requisição autenticada em nome de quem está logado.
+   * Credentialed CORS uses the closed `PIPE_ORIGENS` list for the API at `api.usepipe.com.br` and screens at `app.`, `gestao.`, and `crm.`. Never wildcard it: browsers reject `*` with `credentials: true`, and allowing arbitrary origins would expose authenticated requests from signed-in users.
    */
   const permitidas = origensPermitidas();
   app.enableCors({
-    origin: (origem: string | undefined, responder: (erro: Error | null, ok?: boolean) => void) => {
-      // Sem `Origin` é chamada que não veio de navegador (curl, o Prometheus, a
-      // integração do cliente). O CORS não a governa; a autenticação, sim.
+    origin: (origem: string | undefined, responder: (error: Error | null, ok?: boolean) => void) => {
+      // A request without `Origin` is not from a browser, for example curl, Prometheus, or a customer integration. CORS does not govern it; authentication still does.
       responder(null, origem === undefined || origemPermitida(origem, permitidas));
     },
     credentials: true,
@@ -59,68 +50,60 @@ export async function criarAplicacao(): Promise<INestApplication> {
     maxAge: 600,
   });
 
-  // Antes de tudo: o que não casa com rota nenhuma também precisa aparecer no gráfico.
-  app.use(medirRequisicao);
+  // Measure unmatched routes too so they appear in metrics.
+  app.use(measureRequest);
 
-  // Upload de anexo entra como corpo CRU, e só nesta rota.
+  // Accept raw attachment uploads only on this route.
   //
-  // Antes do `express.json` porque o parser que casa primeiro ganha, e escopado ao
-  // caminho porque o teto aqui é de 100 MB — aplicá-lo a tudo transformaria o webhook
+  // Register this parser before `express.json` because the first matching parser wins. Scope its 100 MB limit to the attachment route; applying it globally would expand the webhook's allowed body size.
   // da Meta numa porta para mandar 100 MB de JSON.
   //
-  // Corpo cru, e não multipart: `multipart/form-data` exigiria `multer`, e um upload
-  // de UM arquivo cabe inteiro em `POST` com `Content-Type` do próprio arquivo — que
-  // é, aliás, a forma do `PUT Object` do S3.
+  // Use one raw POST body with the file's own `Content-Type`, as S3 `PUT Object` does. Multipart would require `multer` for a single file. This avoids `multipart/form-data`.
   app.use(
-    '/v1/anexos',
-    express.raw({ type: () => true, limit: MAX_BYTES_POR_ARQUIVO }),
+    '/v1/attachments',
+    express.raw({ type: () => true, limit: MAX_BYTES_BY_FILE }),
   );
 
-  // Importação de contatos entra como TEXTO cru (o CSV), e só nesta rota — mesmo
-  // raciocínio do anexo: o teto de 20 MB daqui não pode valer para o webhook.
+  // Accept the contact-import CSV as raw text only on this route. Its 20 MB limit must not apply to webhooks.
   app.use(
-    '/v1/contatos/importacoes',
+    '/v1/contacts/imports',
     express.text({ type: () => true, limit: process.env['PIPE_LIMITE_IMPORTACAO'] ?? '20mb' }),
   );
 
   // A foto do perfil do WhatsApp vai em base64 no JSON: 5 MB viram ~6,7 MB. Teto
-  // próprio, só nesta rota, pelo mesmo motivo dos dois acima.
-  app.use('/v1/canais/whatsapp/:id/perfil', express.json({ limit: '8mb' }));
+  // A WhatsApp profile photo is base64 in JSON: 5 MB expands to about 6.7 MB. Give this route its own limit, as for attachment and import uploads.
+  app.use('/v1/channels/whatsapp/:id/profile', express.json({ limit: '8mb' }));
 
-  // O exemplo de mídia do cabeçalho do modelo de mensagem vai do mesmo jeito
-  // (base64 no JSON), e o tipo mais pesado é o documento: 100 MB viram ~134 MB.
-  // Teto próprio, só nesta rota — `lerMidiaDoCabecalho` recusa por tipo antes.
+  // Template header sample media is base64 in JSON. A 100 MB document grows to roughly 134 MB; give this route its own limit after `lerMidiaDoCabecalho` validates type.
   app.use(
-    '/v1/canais/whatsapp/:id/modelos',
+    '/v1/channels/whatsapp/:id/templates',
     express.json({ limit: process.env['PIPE_LIMITE_MODELO'] ?? '140mb' }),
   );
 
   // O desenho do Builder vai inteiro no `PUT` (o mapa do editor, com `$cardContent`
-  // de cada bloco): um fluxo de cliente passa fácil de 2 MB. Teto próprio, só aqui.
+  // Send the entire Builder graph in `PUT`, including each block's `$cardContent`. A customer flow can exceed 2 MB, so this route has its own limit.
   app.use(
-    '/v1/gestao/fluxos/:id/builder',
+    '/v1/management/flows/:id/builder',
     express.json({ limit: process.env['PIPE_LIMITE_BUILDER'] ?? '16mb' }),
   );
 
-  // O `.pfx` do certificado mTLS vai em base64 no JSON, junto da descrição, dos
-  // hosts e da SENHA — que por isso não pode ir em querystring nem cabeçalho,
-  // onde acabaria em log de proxy; é o que descarta o corpo cru de `/v1/anexos`
+  // Send the mTLS `.pfx`, description, hosts, and password as JSON body. Never use query strings or headers, which proxy logs may capture; this also rules out the raw body pattern used by `/v1/anexos`. A 10 MB certificate file limit (`gestao/certificados.ts`) expands to about 13.4 MB in base64.
   // aqui. Teto de 10 MB do arquivo (regra da origem, conferida de novo em
   // `gestao/certificados.ts`) vira ~13,4 MB de base64.
   app.use(
-    '/v1/gestao/contrato/certificados',
+    '/v1/management/contract/certificates',
     express.json({ limit: process.env['PIPE_LIMITE_CERTIFICADO'] ?? '15mb' }),
   );
 
   app.use(
     express.json({
       limit: process.env['PIPE_LIMITE_CORPO'] ?? '2mb',
-      verify: (requisicao, _resposta, corpo) => {
-        (requisicao as Request & { corpoCru?: Buffer }).corpoCru = Buffer.from(corpo);
+      verify: (request, _resposta, corpo) => {
+        (request as Request & { corpoCru?: Buffer }).corpoCru = Buffer.from(corpo);
       },
     }),
   );
-  app.useGlobalFilters(new FiltroDeErro());
+  app.useGlobalFilters(new ErrorFilter());
 
   return app;
 }
@@ -130,39 +113,36 @@ export interface ApiNoAr {
   fechar: () => Promise<void>;
 }
 
-/** Sobe e escuta. `porta = 0` deixa o sistema escolher — é o que o teste usa. */
-// 3000, e não 3100: a Gestão roda em 3100, o Desk em 3200 e o CRM em 3300. Com o
-// padrão antigo, quem subisse a api antes da Gestão tomava a porta dela, e a
-// Gestão morria em EADDRINUSE — que é o que acontecia nesta máquina.
-export async function subirApi(porta = Number(process.env['PORT'] ?? 3000)): Promise<ApiNoAr> {
-  const app = await criarAplicacao();
-  consumirEntrada();
+/** Start listening; port 0 lets the OS choose, as tests require. Tests pass `porta = 0`. */
+// Use 3000 rather than 3100: Management uses 3100, Desk 3200, and CRM 3300. The old API default could take Management's port first and make it fail with EADDRINUSE.
+export async function upApi(porta = Number(process.env['PORT'] ?? 3000)): Promise<ApiNoAr> {
+  const app = await createApplication();
+  consumeInbound();
   consumirProcessHttp();
-  await agendarVarreduraProcessHttp();
-  consumirEspelhoCrm();
-  await agendarVarreduraEspelhoCrm();
-  consumirDicionarioCrm();
-  await agendarVarreduraDicionarioCrm();
-  consumirDownloadMidia();
-  await agendarVarreduraDownloadMidia();
-  consumirChecagemSla();
-  await agendarVarreduraSla();
-  consumirRenovacaoInstagram();
-  await agendarRenovacaoInstagram();
+  await scheduleSweepProcessHttp();
+  consumeMirrorCrm();
+  await scheduleSweepMirrorCrm();
+  consumeDictionaryCrm();
+  await scheduleSweepDictionaryCrm();
+  consumeDownloadMedia();
+  await scheduleSweepDownloadMedia();
+  consumeCheckSla();
+  await scheduleSweepSla();
+  consumeRenewalInstagram();
+  await scheduleRenewalInstagram();
   await app.listen(porta);
-  // Depois do `listen`: o canal se pendura no `upgrade` do servidor HTTP que já está
-  // no ar, e não abre porta própria. Uma porta só para o Desk, a Gestão e o CRM.
-  const canal = ligarCanalDeEventos(app.getHttpServer() as Server);
+  // Attach realtime to the existing HTTP server's `upgrade` after `listen`; do not open another port. One API port serves Desk, Management, and CRM.
+  const channel = connectChannelOfEvents(app.getHttpServer() as Server);
   const url = (await app.getUrl()).replace('[::1]', '127.0.0.1');
   return {
     url,
     fechar: async () => {
       // O canal primeiro: socket vivo segura o `close` do servidor HTTP e o
-      // desligamento pendura até o timeout.
-      await canal.fechar();
-      await fecharTempoReal();
+      // Close the event channel first: a live socket keeps HTTP server `close` waiting and can stall shutdown until timeout.
+      await channel.fechar();
+      await closeRealtime();
       await app.close();
-      await fecharFilas();
+      await closeQueues();
       await fecharBancos();
     },
   };

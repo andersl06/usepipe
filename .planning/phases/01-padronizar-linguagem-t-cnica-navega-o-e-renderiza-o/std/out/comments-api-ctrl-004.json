@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-334a141a",
+      "action": "translate",
+      "new_text": "A live session may point to a user removed or deactivated between",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:425-427; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0b9daf25",
+      "action": "translate",
+      "new_text": "requests. Reject it rather than returning 500.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:425-427; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-dfd6e00d",
+      "action": "translate",
+      "new_text": "The cookie holds the challenge while awaiting the Google callback; a login lasts five minutes.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:46-48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e7eb5dbe",
+      "action": "translate",
+      "new_text": "Challenge cookie `Path`: it applies only to the two `/v1/auth` routes.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:50-51; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1fcbd321",
+      "action": "translate",
+      "new_text": "`Domain=.usepipe.com.br` lets a cookie issued by `api.usepipe.com.br` work across `app.`, `gestao.` and `crm.`. Leave Domain unset in development: `Domain=localhost` invalidates the cookie in several browsers, making login appear to do nothing.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:53-60; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6d53889c",
+      "action": "translate",
+      "new_text": "invalidates the cookie in several browsers, making login appear to do nothing.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:53-60; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a5cf51b8",
+      "action": "translate",
+      "new_text": "Identify which of the three applications initiated login. Three front ends have distinct origins but share one API; `PIPE_URL_APP` cannot be the correct return URL for all, so a CRM login would otherwise return to Management. Validate `?origem=` against `PIPE_ORIGENS`, the same closed CORS allowlist. Trusting the query value would create an open redirect: any site could send a person to Google and receive their signed-in return. An unlisted origin falls back to `PIPE_URL_APP`, preserving login.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:68-84; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fa7dae0b",
+      "action": "translate",
+      "new_text": "`PIPE_URL_ENTRADA` applies only when the initiating origin is unknown; overriding a",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:86-94; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6e8992e5",
+      "action": "translate",
+      "new_text": "`criarDesafio` already restricts destinations to internal paths. Check again here so a future caller constructing a challenge by hand cannot turn an absolute destination into an open redirect and use our domain for phishing.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:97-106; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-76c9a980",
+      "action": "translate",
+      "new_text": "Tenant tag catalog and application to open conversations and contacts. Three small resources share one file, as in `catalogo.ts`, because they expose the same `dominio/etiquetas.ts` rule through three URLs. Closure stays at `POST /v1/conversas/:id/encerrar` with required-tag policy. Conversation and contact tagging accept a key or session (`ChaveOuSessao`): an integration needs a key with scope; a signed-in person needs `conversa.etiquetar` or `contato.editar`, and must own the conversation.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/etiquetas.ts:18-28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e6eececc",
+      "action": "translate",
+      "new_text": "186 days is the `startDateLimit` set by `St` on `bds-datepicker`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/controladores/gestao-analise.ts:154-156; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6341133f",
+      "action": "translate",
+      "new_text": "Message Log (`Growth › Log` in the source): filter by period, direction and type, with cursor pagination (`?cursor=&limit=`, as in `GET /v1/conversas/:id/mensagens`). Ignore `direcao` or `tipo` values outside the allowlist rather than erroring, matching the lenient `contatos` handling in `dashboard()`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/gestao-analise.ts:230-270; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bfbfc562",
+      "action": "translate",
+      "new_text": "As in `jornada()`, RLS makes another tenant's flow nonexistent,",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-analise.ts:253-257; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bb13b7b7",
+      "action": "translate",
+      "new_text": "so a missing flow must return 404 rather than 200 with an empty list.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-analise.ts:253-257; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f63e5855",
+      "action": "translate",
+      "new_text": "Contact analytics (`/fluxo/:id/analise/**`) uses a browser session. Resolve the period here in the account's timezone, as Next pages did on the server: \"today\" is the tenant's day, not the viewer's browser day. Return the period actually used, since the request may fall back to a default, so the screen shows the correct chip.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/gestao-analise.ts:33-40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-96ae28c0",
+      "action": "translate",
+      "new_text": "Apply `moment().add(n, 'days')` semantics to a date without a time.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-analise.ts:49-53",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-6affed4d",
+      "action": "translate",
+      "new_text": "Use valid, ordered `?de=&ate=` values, or the screen default.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-analise.ts:56-65",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-f9c7d2af",
+      "action": "translate",
+      "new_text": "The `bds-datepicker` `startDateLimit`: 186 days ago.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/controladores/gestao-analise.ts:75-80; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c40783b2",
+      "action": "translate",
+      "new_text": "An out-of-pattern number becomes NaN, which the domain treats as \"version not found\".",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-builder.ts:100-105",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-6219ba9a",
+      "action": "translate",
+      "new_text": "The contact Builder (`/fluxo/:id/builder`) uses a browser session. It shares the HTTP adapter pattern of `gestao-fluxo.ts` but keeps the draft, publish and history lifecycle together here; the rules live in `dominio/gestao/builder-do-fluxo.ts`. `GET :id/builder` loads the design; `PUT :id/builder` saves a draft and returns per-block engine errors with 200 even when invalid; `POST :id/builder/publicar` publishes or returns 409 with `detalhe.erros`; `GET :id/builder/versoes` and `POST .../versoes/:versao/restaurar` handle versions. Routers return 409 on all these routes (`roteador_sem_builder`). The tenant comes from the session, never the URL; an invalid UUID `id` returns 404 before querying.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/gestao-builder.ts:20-35; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-738f6e22",
+      "action": "translate",
+      "new_text": "Run serially: both queries share one connection.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-cadastros.ts:119-119; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c5673e3b",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-cadastros.ts:273-273",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-4e461a98",
+      "action": "translate",
+      "new_text": "Reject a resource URL `id` outside UUID format with 404 before querying, as in `gestao-fluxo.ts`. URLs are untrusted text; Postgres would return a malformed-UUID 500 instead.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-cadastros.ts:33-41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f8fa43e6",
+      "action": "translate",
+      "new_text": "Management registrations for Rules, Attendants, Communication and Preferences use browser sessions for screen reads and form actions. The actions are Next Management Server Actions moved unchanged to `dominio/gestao/acoes/*`: the form sends JSON `{ campos }`, `Campos` exposes `get`/`getAll` like `FormData`, and returns the same `Resultado`, either `ok` or a reason shown beside the button. The action-name allowlist is closed: names outside the map return 404 and never reach `eval`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/gestao-cadastros.ts:43-55; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8e30185a",
+      "action": "translate",
+      "new_text": "Attendant permissions are a separate page in the source: `attendance.desk.team.permission`, with the \"Tipo de permissão\" × \"Status\" table and \"Salvar alterações\" (`FICHA-atendentes-filas-pausas.md` §a.4). Selection uses `?atendentes=id,id`; the source route also has no `:id` because the page handles several attendants at once.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/controladores/gestao-cadastros.ts:454-459; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

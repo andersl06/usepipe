@@ -1,0 +1,1412 @@
+{
+  "rows": [
+    {
+      "id": "ponte-dir-7bc5860a",
+      "new": "apps/bridge/src",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-dir-b6d73236",
+      "new": "apps/bridge/tests",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-dir-0fa1b576",
+      "new": "apps/bridge",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-file-6f5b570a",
+      "new": "apps/bridge/src/actions.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-file-f0f4b97d",
+      "new": "apps/bridge/src/database.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-file-cd34f5de",
+      "new": "apps/bridge/tests/flow-default.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-file-95be5a3f",
+      "new": "apps/bridge/src/flow-default.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-file-c6b38cd9",
+      "new": "apps/bridge/tests/translation.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-file-922cf9b0",
+      "new": "apps/bridge/src/translation.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-e77abe03",
+      "new": "databaseApp",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-3bd16114",
+      "new": "databaseDono",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-279f8bb7",
+      "new": "carregarGlobal",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-2df1541c",
+      "new": "collection",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-91a319d5",
+      "new": "withAgent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-0ba5c987",
+      "new": "comoAccount",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-037ecf6d",
+      "new": "comoDocument",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-0395ce55",
+      "new": "comoDocuments",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-a9166946",
+      "new": "account",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-3e1ef4b4",
+      "new": "Context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-b8a710f9",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-471c6d33",
+      "new": "identityConversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-97f49672",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-af80986c",
+      "new": "conversationsAbertas",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-130d70cd",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-6c4806c5",
+      "new": "DIRECTION_BLIP",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-920fda4e",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-d3a721d4",
+      "new": "ofAgent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-72cd561a",
+      "new": "validationError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-2cb0dcf6",
+      "new": "fecharDatabase",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-206ac460",
+      "new": "queueId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-2f585634",
+      "new": "queues",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-c48b586f",
+      "new": "bridgeFlow",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-2c55fc4f",
+      "new": "flowId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-53c1f0b4",
+      "new": "flowId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-4d9ce231",
+      "new": "flowId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-682ef010",
+      "new": "flowIdResolvido",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-afff9652",
+      "new": "global",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-b4644ba3",
+      "new": "global",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-f3430da4",
+      "new": "global",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-2097488d",
+      "new": "gravarFlow",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-d626ba3f",
+      "new": "identity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-d81decdd",
+      "new": "LinhaAgent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-af3489c6",
+      "new": "LinhaConversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-7f99182d",
+      "new": "LinhaMessage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-6be308b4",
+      "new": "inQueue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-6c6d2f74",
+      "new": "NAME_OF_FLOW",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-c69cee2e",
+      "new": "bridge",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-8e759772",
+      "new": "BridgeInAr",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-1e787da6",
+      "new": "resolverSession",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-fddc8eca",
+      "new": "RecordingResultado",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-0c5e73f0",
+      "new": "ROTA_ACTIONS_GLOBAL",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-74ff513c",
+      "new": "ROTA_ACCOUNT",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-d29e43cb",
+      "new": "ROTA_QUEUES",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-962a1dad",
+      "new": "ROTA_FLOW_PUBLICADO",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-3abb8ea1",
+      "new": "ROTA_FLOW_RASCUNHO",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-8414c192",
+      "new": "ROTA_MESSAGES",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-79cd5f94",
+      "new": "withoutState",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-6c7b5fa6",
+      "new": "Session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-85820021",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-7c699909",
+      "new": "sessionConfigurada",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-0209700e",
+      "new": "STATUS_AGENT_BLIP",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-1d3f41b9",
+      "new": "STATUS_BY_STATE",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-4cf549ea",
+      "new": "startBridge",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-832bf62b",
+      "new": "TIPO_COLLECTION",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-d2238a3a",
+      "new": "TIPO_DOCUMENT",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-8f82d5f5",
+      "new": "transferirForQueue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-50439c4b",
+      "new": "user",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-symbol-8d178f6a",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-06a9db22",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-e9f7806a",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-eee77053",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-a9cbaece",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-82a3ad03",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-116a9002",
+      "new": "domain",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-390b1059",
+      "new": "domain",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-d8cbe392",
+      "new": "domain",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-1c7c5448",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-13138a9a",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-e84df7b1",
+      "new": "exigirAssignment",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-839b1c84",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-0fe7ee43",
+      "new": "queues",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-75678e75",
+      "new": "queues",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-827366cf",
+      "new": "global",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-327aebcb",
+      "new": "identity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-8f5b8d74",
+      "new": "queueName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-8d9f1aca",
+      "new": "first",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-fc27c099",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-8271e329",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-c744ef83",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-9a5ffba7",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-065837d1",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-bcde3bcf",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-6184aaa0",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-43c6c7c8",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-caef8d6e",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-f7af1191",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-4b04012f",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-1316e787",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-032cd6fb",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-a95055b6",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-fcd1d79c",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-e7d32333",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-c4454d0a",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-e4094877",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-3d5a3165",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-b791f0c4",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-65e64023",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-8d694f7c",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-156f01ac",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-d39f3869",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-e90f8f7c",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-4154fad2",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-f34fb1e3",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-66af7f87",
+      "new": "session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-local-c070e8c7",
+      "new": "user",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-7e6949ca",
+      "new": "agentEmail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-29a74a54",
+      "new": "agentId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-6ee9997b",
+      "new": "agentName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-a83bf924",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-a61a1bb6",
+      "new": "channelTipo",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-49d6383e",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-f56e9416",
+      "new": "contactId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-b2580ba5",
+      "new": "contactName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-c0bec6ce",
+      "new": "contactTelefone",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-f121fc15",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-c2c85740",
+      "new": "windowDentro",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-0d092d64",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-bfac9758",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-92b2ff32",
+      "new": "validationError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-13138a9a",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-757f83fa",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-3c807cce",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-5d7ae90f",
+      "new": "queueId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-4370c670",
+      "new": "queueName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-44fae2b8",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-0d2ed809",
+      "new": "messageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-e512446b",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-1cca61e0",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-faa22d20",
+      "new": "priority",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-496c271b",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-ec30e549",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-e8a6914f",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-2e5ac77e",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-8fa1e67c",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-d0d09b3e",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-55b6196a",
+      "new": "ultimaMessageOf",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-3a89e7bd",
+      "new": "ultimaMessageIn",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-f514aa82",
+      "new": "ultimaMessageTexto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-ts-prop-2717cadb",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-ts-prop-71d0a2e1",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-literal-value-f6d77b01",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-literal-value-122b3f5f",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-literal-value-70a63870",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-literal-value-66ab6b01",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-literal-value-3d41f9bf",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-literal-value-32237a95",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-literal-value-23e43af9",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "ponte-app-d7fe49b5",
+      "new": "bridge",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-04",
+      "notes": ""
+    },
+    {
+      "id": "ponte-package-07e56c71",
+      "new": "@pipe/bridge",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-04",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-43af23af",
+      "new": "Pipe's priority travels as-is, without an approximate translation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-7373cd91",
+      "new": "the contact's last message is `received`; ours is `sent`",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-85f640c4",
+      "new": "agent account",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-77f6c619",
+      "new": "conversation -> ticket",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-5fe21244",
+      "new": "it really is the smallest useful flow: two blocks, no branching",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-bb3b0f57",
+      "new": "inbound becomes received and outbound becomes sent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-33e8e896",
+      "new": "Builder's default flow",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-a53e0d94",
+      "new": "identity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-37db211a",
+      "new": "carries name, phone and queue the way the screen reads them",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-c23bf19f",
+      "new": "message -> document",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-0da8a580",
+      "new": "queued becomes Waiting; in attendance becomes Open; closed becomes Closed",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-7ecbf46c",
+      "new": "an internal note never enters the customer's conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-a4ac0349",
+      "new": "the initial block waits for the customer's message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-e355f311",
+      "new": "overflow uses the prefix the engine recognizes",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-be4546be",
+      "new": "passes the engine's validation — meaning it can be published without changing anything",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-3263fc9b",
+      "new": "without an agent, `agentIdentity` is null — not a made-up identity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "ponte-test-title-363883d7",
+      "new": "translates state and never returns an empty status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    }
+  ]
+}

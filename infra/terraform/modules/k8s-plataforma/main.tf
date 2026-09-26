@@ -7,7 +7,7 @@
 #
 # Nada de `kubernetes_manifest` aqui: esse recurso exige cluster acessível já no
 # plan e quebra o pipeline no dia em que o cluster ainda não existe. CRD e
-# ClusterIssuer ficam em `infra/k8s/valores/` e são aplicados pelo Kustomize.
+# ClusterIssuer ficam em `infra/k8s/values/` e são aplicados pelo Kustomize.
 
 terraform {
   required_version = ">= 1.11"
@@ -49,7 +49,7 @@ resource "helm_release" "traefik" {
   chart            = "traefik"
   namespace        = "traefik"
   create_namespace = true
-  values           = [file("${path.root}/../../../k8s/valores/traefik-values.yaml")]
+  values           = [file("${path.root}/../../../k8s/values/traefik-values.yaml")]
 }
 
 # cert-manager em vez do ACME embutido do Traefik: no cluster há mais de uma
@@ -74,9 +74,9 @@ resource "helm_release" "monitoramento" {
   name             = "kube-prometheus-stack"
   repository       = "https://prometheus-community.github.io/helm-charts"
   chart            = "kube-prometheus-stack"
-  namespace        = "observabilidade"
+  namespace        = "observability"
   create_namespace = true
-  values           = [file("${path.root}/../../../k8s/valores/kube-prometheus-stack-values.yaml")]
+  values           = [file("${path.root}/../../../k8s/values/kube-prometheus-stack-values.yaml")]
 }
 
 output "namespace_app" { value = kubernetes_namespace.app.metadata[0].name }

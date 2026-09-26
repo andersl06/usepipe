@@ -1,47 +1,38 @@
 import { Route, Routes } from 'react-router-dom';
-import { AvisoEncerramento } from '@pipe/ui';
-import { ExigirSessao } from './componentes/exigir-sessao';
-import { Casca } from './componentes/casca';
-import { useRegistrarNavegacao } from './lib/navegacao';
-import { PaginaEntrar } from './paginas/entrar';
-import { PaginaConvite } from './paginas/convite';
-import { PaginaAtendimentos } from './paginas/atendimentos/page';
-import { PaginaContatos } from './paginas/contatos/page';
-import { PaginaMetricas } from './paginas/analytics/page';
-import { PaginaMensagemAtiva } from './paginas/mensagem-ativa/page';
-import { PaginaAcoesEmMassa } from './paginas/acoes-em-massa/page';
-import { PaginaPreferencias } from './paginas/preferencias/page';
-import { NaoEncontrado } from './paginas/nao-encontrado';
+import { ClosureNotice } from '@pipe/ui';
+import { RequireSession } from './components/exigir-session';
+import { Shell } from './components/shell';
+import { useRegisterNavigation } from './lib/navigation';
+import { PageLogin } from './pages/login';
+import { PageInvitation } from './pages/invitation';
+import { PageAttendances } from './pages/attendances/page';
+import { PageContacts } from './pages/contacts/page';
+import { PageMetrics } from './pages/analytics/page';
+import { PageActiveMessage } from './pages/active-message/page';
+import { PageBulkActions } from './pages/bulk-actions/page';
+import { PagePreferences } from './pages/preferences/page';
+import { NaoEncontrado } from './pages/nao-encontrado';
 
 /**
- * As rotas do Desk — os MESMOS caminhos da referência (`~/desk-clone/README.md`,
- * "Telas replicadas"): `/` Atendimentos, `/chat` a conversa aberta,
- * `/activeMessage/send`, `/analytics`, `/contacts`, `/bulk-ticket`,
- * `/preferences`. `/chat/:id` leva o id para a conversa sobreviver ao F5.
- *
- * Só `/entrar` e `/convite/:token` são públicas. O resto fica atrás de
- * `ExigirSessao`.
+ * Desk routes mirror the reference (`~/desk-clone/README.md`, "Telas replicadas"): `/` attendance, `/chat` the open conversation, `/activeMessage/send`, `/analytics`, `/contacts`, `/bulk-ticket`, and `/preferences`. `/chat/:id` puts the conversation ID in the URL so it survives F5. Only `/entrar` and `/convite/:token` are public; `ExigirSessao` guards everything else.
  */
 export function App() {
-  useRegistrarNavegacao();
+  useRegisterNavigation();
   return (
     <>
-    <AvisoEncerramento />
+    <ClosureNotice />
     <Routes>
-      <Route path="/entrar" element={<PaginaEntrar />} />
-      <Route path="/convite/:token" element={<PaginaConvite />} />
+      <Route path="/login" element={<PageLogin />} />
+      <Route path="/invite/:token" element={<PageInvitation />} />
 
-      <Route element={<ExigirSessao />}>
-        <Route element={<Casca />}>
-          <Route path="/" element={<PaginaAtendimentos />} />
-          <Route path="/chat" element={<PaginaAtendimentos />} />
-          <Route path="/chat/:id" element={<PaginaAtendimentos />} />
-          <Route path="/contacts" element={<PaginaContatos />} />
-          <Route path="/contacts/:id" element={<PaginaContatos />} />
-          <Route path="/analytics" element={<PaginaMetricas />} />
-          <Route path="/activeMessage/send" element={<PaginaMensagemAtiva />} />
-          <Route path="/bulk-ticket" element={<PaginaAcoesEmMassa />} />
-          <Route path="/preferences" element={<PaginaPreferencias />} />
+      <Route element={<RequireSession />}>
+        <Route element={<Shell />}>
+          <Route path="/" element={<PageAttendances />} />
+          <Route path="/contacts" element={<PageContacts />} />
+          <Route path="/analytics" element={<PageMetrics />} />
+          <Route path="/activeMessage/send" element={<PageActiveMessage />} />
+          <Route path="/bulk-ticket" element={<PageBulkActions />} />
+          <Route path="/preferences" element={<PagePreferences />} />
           <Route path="*" element={<NaoEncontrado />} />
         </Route>
       </Route>

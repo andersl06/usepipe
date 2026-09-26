@@ -1,0 +1,76 @@
+/*
+ * `bds-switch` (blip-ds, built with `sc-bds-switch` scope), measured in the copy: host 42×32, `label.switch` 42×24 with `margin-bottom: .375rem` (6px, from the global `label`) and 2px slack above; `.slider` 42×24, radius 34; `::before` 18×18 at `left: 3px; bottom: 3px`, translateX(18px) when checked. `size="short"`: 32×18, 12px dot, 14 offset. Color: off `--color-content-ghost` (#8c8c8c) → `--p-conteudo-fantasma`; on primary → `--p-marca-forte`; white dot → `--p-superficie-0`.
+ */
+.ig-interruptor {
+  display: inline-block;
+  position: relative;
+  width: 42px;
+  height: 24px;
+  margin: 2px 0 6px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.ig-interruptor input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.ig-switch-rail {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 34px;
+  background: var(--p-conteudo-fantasma);
+  transition: background-color 0.2s;
+}
+
+.ig-switch-rail::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  bottom: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--p-superficie-0);
+  transition: transform 0.2s;
+}
+
+.ig-interruptor input:checked + .ig-switch-rail {
+  background: var(--p-marca-forte);
+}
+
+.ig-interruptor input:checked + .ig-switch-rail::before {
+  transform: translateX(18px);
+}
+
+.ig-interruptor input:focus-visible + .ig-switch-rail {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+.ig-interruptor:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ig-interruptor--curto {
+  width: 32px;
+  height: 18px;
+  margin: 0;
+}
+
+.ig-interruptor--curto .ig-switch-rail::before {
+  width: 12px;
+  height: 12px;
+}
+
+.ig-interruptor--curto input:checked + .ig-switch-rail::before {
+  transform: translateX(14px);
+}

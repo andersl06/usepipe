@@ -56,7 +56,7 @@ last_mapped_at: 2026-09-24
 
 **Module system:** ESM only (`"type": "module"` in `package.json`). All relative imports use explicit `.js` extensions even in `.ts` source (e.g., `from '../erros.js'`), required by Node ESM resolution.
 
-**Monorepo:** pnpm workspaces + Turborepo (`pnpm-workspace.yaml`, `turbo.json`). Apps in `apps/*`, shared libraries in `packages/*` under the `@pipe/` scope (e.g., `@pipe/db`, `@pipe/armazenamento`, `@pipe/ai`).
+**Monorepo:** pnpm workspaces + Turborepo (`pnpm-workspace.yaml`, `turbo.json`). Apps in `apps/*`, shared libraries in `packages/*` under the `@pipe/` scope (e.g., `@pipe/db`, `@pipe/storage`, `@pipe/ai`).
 
 ## Import Organization
 

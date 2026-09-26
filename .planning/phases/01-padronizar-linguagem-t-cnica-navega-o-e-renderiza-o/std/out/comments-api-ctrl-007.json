@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-7dd4e6fa",
+      "action": "translate",
+      "new_text": "Use allowlists at both edges. A language the screen cannot render or a timezone Postgres does not recognize can silently break an entire report.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:222-225; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9c3988bb",
+      "action": "translate",
+      "new_text": "List the accounts associated with this email for the upper-left selector. Match by email rather than provider identity: someone invited to another customer's account appears even before signing in there with Google, matching the criterion used to link accounts on first sign-in.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:252-292; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f961b741",
+      "action": "translate",
+      "new_text": "Use the source's seven employee-size bands with its exact cutoffs: 1–4, 5–19, 20–49, 50–249, 250–999, 1,000–10,000 and above. Our former seven round-number bands did not align with its data or the market that reports in this format. Store a band rather than an exact count because headcount changes more often than its band.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:26-42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ad4e4c93",
+      "action": "translate",
+      "new_text": "Switch the current account by opening a new session for the destination and returning its cookie. Verify membership here using the email from the current session; an arbitrary `tenantId` in the request grants nothing. Keep the old session valid deliberately, since users switch back and invalidating another tab during a conversation would be worse.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:295-353; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f00198ba",
+      "action": "translate",
+      "new_text": "Accept both forms because the two screens have different inputs: the selector has the account ID, while an account address (subdomain) contains only its slug in the URL.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:312-315; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-49a625cc",
+      "action": "translate",
+      "new_text": "Without membership, respond \"does not exist\" rather than \"you cannot\": acknowledging that the",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:327-339; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-aa0b0cdd",
+      "action": "translate",
+      "new_text": "account exists would reveal to a curious caller which company uses Pipe.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:327-339; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8cd5622c",
+      "action": "translate",
+      "new_text": "Resolve an account ID from its address using the owner database because this lookup occurs before knowing whether the person has access. The route then decides access by email. A nonexistent slug returns empty, which the route treats as not found; the response does not distinguish a nonexistent account from one the caller cannot access.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:357-371; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-180360a9",
+      "action": "translate",
+      "new_text": "The signed-in person's email links that person's accounts.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:374-383; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6e16b0e7",
+      "action": "translate",
+      "new_text": "The source's three languages.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:44-45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4da162f6",
+      "action": "translate",
+      "new_text": "Brazilian timezones, ordered from most to least used. Use a closed list rather than all roughly 400 IANA names, which would make the screen hard to scan. Extend it when there is a customer elsewhere; the database already accepts any valid name.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:47-67; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-54f13d77",
+      "action": "translate",
+      "new_text": "The source screen's \"Preferências\" tab contains language and timezone. Both tenant columns already existed but no screen changed them. Timezone determines \"today\" in every report, so omitting it would leave the customer stuck with the provisioning default.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:81-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0995060b",
+      "action": "translate",
+      "new_text": "Null until the form has been saved once.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:90-91; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b6b0127f",
+      "action": "translate",
+      "new_text": "Control access to `/metrics`. An open endpoint exposes customer activity: request counts by route and queue depth reveal Pipe's commercial volume. With `PIPE_METRICS_TOKEN`, require `Authorization: Bearer <token>`; production Prometheus sends it through `authorization` in `scrape_config`. Without the token, allow only loopback or private networks for development and neighboring `docker compose` Prometheus. Behind Traefik, the visible proxy IP is private, so that fallback admits anyone who can reach the proxy. Production therefore requires the token.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/operacao.ts:14-28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1a7f9f93",
+      "action": "translate",
+      "new_text": "On dual-stack sockets, Node represents mapped IPv4 as `::ffff:10.0.0.3`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/operacao.ts:40-48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1c759434",
+      "action": "translate",
+      "new_text": "`fc00::/7` is unique-local and `fe80::/10` is link-local.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/operacao.ts:40-48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-959b41f7",
+      "action": "translate",
+      "new_text": "Return 503 only when the database is down, so the container leaves rotation. Redis",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/operacao.ts:53-59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e8767b0f",
+      "action": "translate",
+      "new_text": "failure degrades queue processing, not responses; bringing down everything would turn",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/operacao.ts:53-59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-376eba8f",
+      "action": "translate",
+      "new_text": "degraded service into a full outage.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/operacao.ts:53-59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-794fecad",
+      "action": "translate",
+      "new_text": "The orchestrator health check and Prometheus collection are deliberately unmarked by `@Escopos` or `@ComSessao`. Both routes are public at the guard layer; `/metrics` applies its own access check below.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/operacao.ts:8-12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-99d5fcbd",
+      "action": "translate",
+      "new_text": "`/v1/gestao/fluxos/:fluxoId/links-rastreados` creates and reads short click-tracking links. It has a separate controller from `gestao-fluxo.ts` and follows the `mensagens-ativas.ts` shape.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/rastreador-de-cliques.ts:13-17",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-6f06bba6",
+      "action": "translate",
+      "new_text": "`GET /l/:codigo` is the public click-tracking redirect. Deliberately omit `@ComSessao()` and `@Escopos(...)`: someone clicking an ad or message has neither a cookie nor an API key. This is public like the Meta webhook; see `sessao.ts` and its unmarked-route rule.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/redirecionamento.ts:6-11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-12494262",
+      "action": "translate",
+      "new_text": "Start a connection test with an existing session. The customer admin is already signed in by password or Google, and this test does not alter that session. Register this route before `sso/:slug`: Nest uses the first matching route, and `:slug` would otherwise match `testar`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:106-126; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f3a3e759",
+      "action": "translate",
+      "new_text": "`exigirAtiva: false` permits testing a draft connection, which is the purpose here.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:118-126; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5ce77508",
+      "action": "translate",
+      "new_text": "The customer IdP callback also precedes `sso/:slug` to avoid route capture. Resolve the tenant from the cookie, never the URL: `state` and the cookie together prove this callback belongs to the original request. Taking the tenant from the query would let whoever constructs the URL choose the customer to enter.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:129-153; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

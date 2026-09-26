@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-8b83c883",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-fluxo.ts:98-102",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-c59922bd",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/gestao-integracoes.ts:114-114; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7123a233",
+      "action": "translate",
+      "new_text": "Flow integration screens cover access keys, connection information and outbound webhooks. Rules live in `dominio/gestao/integracoes.ts`; this adapter handles sessions, URL UUID validation and body conversion as in `gestao-fluxo.ts`. `chaves` and `conexao` live under `/v1/gestao/fluxos/:id` because they belong to a flow. `webhooks` lives at `/v1/gestao/webhooks` because `webhook_saida` belongs to the account (see the domain comment); putting it under `:id` would imply a table column that does not exist.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/gestao-integracoes.ts:30-40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-577cfa51",
+      "action": "translate",
+      "new_text": "The screen says \"Excluir chave\", but the rule revokes by setting `revogada_em`; it never deletes the row.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/gestao-integracoes.ts:97-111; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3cc36404",
+      "action": "translate",
+      "new_text": "The two top bars contain channels and notices; account and person come from `GET /v1/eu`.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-operacao.ts:122-130",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-65377212",
+      "action": "translate",
+      "new_text": "A database outage must not remove the top bar: channels disappear, but the screen remains.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/gestao-operacao.ts:127-130; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-420faa81",
+      "action": "translate",
+      "new_text": "Satisfaction defaults to 30 days because completed surveys are rarer than conversations.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-operacao.ts:297-303",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-a81b4c5b",
+      "action": "translate",
+      "new_text": "Management operations (monitoring, history, reports and quality review) use browser sessions. Queries moved from Next Management to `dominio/gestao/*`; this adapter resolves timezone, window and filters as the server pages did. Filter IDs pass through `uuidOuNada` and dates through `dataOuNada`, so a pasted `?fila=abc` becomes no filter rather than a Postgres `::uuid` 500.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/gestao-operacao.ts:35-49; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-949bfc31",
+      "action": "translate",
+      "new_text": "Use the requested period or the last `dias` days, including today.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-operacao.ts:51-63",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-afef6bf5",
+      "action": "translate",
+      "new_text": "Only History counts 30 civil dates, including across timezone or DST changes.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-operacao.ts:65-78",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-b59a7c26",
+      "action": "translate",
+      "new_text": "Today in the account timezone, for the title.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/gestao-operacao.ts:81-85",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-eb854ce4",
+      "action": "translate",
+      "new_text": "HTTP adapter for contact import. The rule lives in `dominio/importacao-de-contatos.ts`; the worker performs the job. Upload CSV as a raw text body: `servidor.ts` installs the parser only on this route, with a 20 MB limit; pass the filename in `?nome=`. As with attachment uploads, one file fits in the request body without `multer`. Require `crm.importar` (\"Importar base de outro CRM\") for administrators and managers. The tenant comes from the session, never the body.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/importacoes.ts:14-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-13390489",
+      "action": "translate",
+      "new_text": "Download the rejected-row report with its `erros` column.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/importacoes.ts:64-76",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-0cf64226",
+      "action": "translate",
+      "new_text": "`/v1/mensagens-ativas` sends a template to a contact list. See `referencias-blip/pesquisa/blip-desk-mensagens-ativas.md` and `dominio/mensagem-ativa.ts`. The response has 207-like semantics with status 201 and a result per contact: one invalid number among fifteen does not reject the other fourteen. The screen needs to show exactly which contacts were accepted and rejected, matching the source behavior.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/controladores/mensagens-ativas.ts:15-23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fdc9be54",
+      "action": "translate",
+      "new_text": "Return the active limits so the screen does not duplicate magic numbers.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/mensagens-ativas.ts:34-42",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-9a1272c9",
+      "action": "translate",
+      "new_text": "The \"Status geral\" panel defaults to the last 72 hours, as in the source.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/controladores/mensagens-ativas.ts:45-54; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9e236ab7",
+      "action": "translate",
+      "new_text": "The owner role resolves the channel, so checking the tenant here is essential:",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/mensagens-ativas.ts:84-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cf37e44d",
+      "action": "translate",
+      "new_text": "without it, another customer's `canal_id` could send from that customer's number",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/mensagens-ativas.ts:84-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6c270a20",
+      "action": "translate",
+      "new_text": "using our credential.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/mensagens-ativas.ts:84-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-79482caa",
+      "action": "translate",
+      "new_text": "\"Minha conta\" and the account selector finish self-service onboarding. The source sequence is documented in `referencias-blip/pesquisa/onboarding-blip.md`: login creates an account, the welcome screen announces it, and this form completes it. While `onboardingConcluidoEm` is null, Management sends the person here instead of opening the portal. The selector exists because one email can administer several accounts; the source changes subdomain, while Pipe changes session. Deliberately query the owner database because listing those accounts crosses tenants; return only accounts where this email already has an active user.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:11-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ecf8f1e6",
+      "action": "translate",
+      "new_text": "The account for this session; the selector marks it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:137-144; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-38d01791",
+      "action": "translate",
+      "new_text": "A personal account is created at login without a verified domain. The source distinguishes a company contract (with ID) from a personal space (without ID), and the selector renders them differently. Here the evidence is a verified domain: a subscribing company publishes a DNS TXT record; someone who joined alone with their own email has not.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:145-153; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f525a025",
+      "action": "translate",
+      "new_text": "A value from the allowlist, or null when none was supplied. Reject a value outside the list.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:156-166; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ea4b2e6d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:178-195; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-66317bd5",
+      "action": "translate",
+      "new_text": "Save company data and complete onboarding. Saving sets `onboarding_concluido_em`; there is no separate finish button. In the source, the form's `POST /Account` is that step. Saving again does not reopen onboarding or reset the timestamp: the first save date measures how long the account took to become active.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/minha-conta.ts:197-204; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

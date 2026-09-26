@@ -1,6 +1,6 @@
-import { subirApi } from './servidor.js';
+import { upApi } from './servidor.js';
 
-const api = await subirApi();
+const api = await upApi();
 console.log(`[api] no ar em ${api.url}`);
 
 for (const sinal of ['SIGINT', 'SIGTERM'] as const) {

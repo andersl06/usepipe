@@ -34,7 +34,7 @@ comentário). `apps/api` (NestJS) é a ÚNICA porta para o Postgres; os fronts s
 falam com ela por HTTP; `apps/workers` é a exceção (fila e agregação).
 
 Front reescrito de Next.js para Vite (decisão de 07/09/2026): hoje só existem
-`apps/gestao-vite` e `apps/desk-vite` — não há mais `apps/gestao` nem
+`apps/management-vite` e `apps/desk-vite` — não há mais `apps/gestao` nem
 `apps/desk` no código (o `README.md` da raiz ainda cita os nomes antigos,
 desatualizado). `apps/crm` é Next.js próprio, na porta 3300, com rotas
 próprias (leads, oportunidades, contas). **Isso convive com uma integração
@@ -102,7 +102,7 @@ pendência de configuração do dono (Google OAuth).
 - **APIs:** controladores em `apps/api/src/controladores/*.ts`; contratos em
   `packages/contracts/src`.
 - **Variáveis de ambiente:** `.env.example` na raiz (67 variáveis).
-- **Testes:** `apps/api/tests`, `apps/gestao-vite/tests`, `apps/desk-vite/tests`
+- **Testes:** `apps/api/tests`, `apps/management-vite/tests`, `apps/desk-vite/tests`
   (padrão node --test + tsx no front, vitest na API).
 - **Pendências do Builder, levantadas ontem (23/09) pelo próprio dono**:
   `docs/builder-cards-pendencias.md` — a lista mais atual e precisa do que
@@ -194,7 +194,7 @@ teste no motor) ainda sem paridade real. Copiar/colar bloco, ícone
 `user-engaged` do nó de atendimento, e exportar versão antiga também faltam.
 
 **Possível bug não confirmado no Builder**: `arestasDe()`
-(`apps/gestao-vite/src/paginas/builder/modelo.ts:421`) só lê
+(`apps/management-vite/src/paginas/builder/modelo.ts:421`) só lê
 `bloco.$conditionOutputs` para desenhar as setas do canvas — se uma ligação
 real do fluxo estiver guardada em outro campo (ação de redirecionamento, saída
 padrão), a seta pode não aparecer sem que os dados estejam errados. Achado por
@@ -296,7 +296,7 @@ git). Ainda NÃO foi mesclada em `master` (só existe no ramo `limpeza`).
 - **`pnpm typecheck` na raiz (turbo, todos os pacotes) está QUEBRADO** por
   `packages/core/src/fluxo/gerenciador.teste.ts:140` —
   `variaveis.status` não existe no tipo inferido. Os typechecks por app
-  (`pnpm -F @pipe/api typecheck`, `@pipe/gestao-vite`, `@pipe/desk-vite`) NÃO
+  (`pnpm -F @pipe/api typecheck`, `@pipe/management-vite`, `@pipe/desk-vite`) NÃO
   cobrem `packages/core` isoladamente e por isso vinham passando "verdes" sem
   pegar isto — rodar `pnpm -F @pipe/core typecheck` para confirmar. Não
   corrigido nesta sessão (fora do escopo do handoff, que é só leitura).
@@ -317,7 +317,7 @@ git). Ainda NÃO foi mesclada em `master` (só existe no ramo `limpeza`).
 # Decisões importantes recuperadas das conversas
 
 - **12/09/2026, fim do dia**: o produto é o aplicativo próprio
-  (`apps/gestao-vite` e irmãos), não a cópia compilada da Blip — reverteu a
+  (`apps/management-vite` e irmãos), não a cópia compilada da Blip — reverteu a
   tentativa da manhã do mesmo dia de rodar a cópia com uma ponte (`apps/ponte`,
   LIME) por trás. A ponte continua existindo, mas não é mais o caminho do
   produto.

@@ -13,28 +13,28 @@ const navegador = await chromium.launch({ executablePath: homedir() + '/AppData/
   ignoreDefaultArgs: ['--disable-extensions'] });
 const ctx = await navegador.newContext({ viewport: { width: +largura, height: +altura }, deviceScaleFactor: 1 });
 if (cookie) {
-  const [nome, valor] = cookie.split('=');
-  await ctx.addCookies([{ name: nome, value: valor, url: new URL(url).origin }]);
+  const [nome, value] = cookie.split('=');
+  await ctx.addCookies([{ name: nome, value: value, url: new URL(url).origin }]);
 }
 /* LOCAL='chave=valor,chave2=valor2' grava no localStorage antes de a página carregar */
 if (process.env.LOCAL) {
   const pares = process.env.LOCAL.split(',').map((p) => p.split('='));
   await ctx.addInitScript((ps) => ps.forEach(([k, v]) => localStorage.setItem(k, v)), pares);
 }
-const pagina = await ctx.newPage();
-const erros = [];
-pagina.on('console', (m) => m.type() === 'error' && erros.push(m.text().slice(0, 200)));
-pagina.on('pageerror', (e) => erros.push('pageerror: ' + String(e.message ?? e).slice(0, 300)));
-await pagina.goto(url, { waitUntil: 'networkidle', timeout: 60000 }).catch((e) => console.log('goto:', e.message));
-await pagina.waitForTimeout(+(process.env.ESPERA ?? 2500));
+const page = await ctx.newPage();
+const errors = [];
+page.on('console', (m) => m.type() === 'error' && errors.push(m.text().slice(0, 200)));
+page.on('pageerror', (e) => errors.push('pageerror: ' + String(e.message ?? e).slice(0, 300)));
+await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 }).catch((e) => console.log('goto:', e.message));
+await page.waitForTimeout(+(process.env.ESPERA ?? 2500));
 if (process.env.CLIQUE) {
   for (const sel of process.env.CLIQUE.split('|')) {
-    await pagina.click(sel, { timeout: 5000 }).catch((e) => console.log('clique', sel, e.message.split('\n')[0]));
-    await pagina.waitForTimeout(800);
+    await page.click(sel, { timeout: 5000 }).catch((e) => console.log('clique', sel, e.message.split('\n')[0]));
+    await page.waitForTimeout(800);
   }
 }
 if (process.env.MEDIR) {
-  const medidas = await pagina.evaluate((sels) =>
+  const medidas = await page.evaluate((sels) =>
     sels.split('|').map((s) => {
       const el = document.querySelector(s);
       if (!el) return s + ': —';
@@ -45,6 +45,6 @@ if (process.env.MEDIR) {
   process.env.MEDIR);
   console.log(medidas.join('\n'));
 }
-await pagina.screenshot({ path: saida, fullPage: !!process.env.INTEIRA });
-console.log('foto:', saida, 'url final:', pagina.url(), erros.length ? '\nerros: ' + erros.slice(0, 5).join('\n') : '');
+await page.screenshot({ path: saida, fullPage: !!process.env.INTEIRA });
+console.log('foto:', saida, 'url final:', page.url(), errors.length ? '\nerros: ' + errors.slice(0, 5).join('\n') : '');
 await navegador.close();

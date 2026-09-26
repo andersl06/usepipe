@@ -1,0 +1,80 @@
+{
+  "@pipe/ai": {
+    "passed": 75,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/api": {
+    "passed": 654,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/armazenamento": {
+    "passed": 24,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/autenticacao": {
+    "passed": 41,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/core": {
+    "passed": 421,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/crm": {
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/db": {
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/desk-vite": {
+    "passed": 27,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/gestao-vite": {
+    "passed": 237,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/ponte": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/tempo-real": {
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/ui": {
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/workers": {
+    "passed": 42,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  }
+}

@@ -18,7 +18,7 @@ metadata:
 spec:
   podSelector:
     matchExpressions:
-      - { key: app, operator: In, values: [api, desk, gestao-vite] }
+      - { key: app, operator: In, values: [api, desk, management-vite] }
   policyTypes: [Ingress]
   ingress:
     - from:
@@ -26,7 +26,7 @@ spec:
             matchLabels: { kubernetes.io/metadata.name: traefik }
     - from:
         - namespaceSelector:
-            matchLabels: { kubernetes.io/metadata.name: observabilidade }
+            matchLabels: { kubernetes.io/metadata.name: observability }
       ports:
         - { port: 9464 }
 ---

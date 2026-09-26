@@ -1,0 +1,548 @@
+{
+  "items": [
+    {
+      "id": "api-comment-e2295f97",
+      "action": "translate",
+      "new_text": "Self-signed v1 certificate, `CN=<cn>`, with validity in UTCTime (`YYMMDDHHMMSSZ`).",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ajuda-pfx.ts:100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c79cad07",
+      "action": "translate",
+      "new_text": "A real `.pfx` (PKCS#12), built in the test — no binary file in the repository and no new dependency.\n\n`node:crypto` generates the RSA key and signs, but does not build an X.509 certificate or PKCS#12; both DERs are written by hand here, in the format that OpenSSL 3's `openssl pkcs12 -export` produces by default:\n\n- the key in `pkcs8ShroudedKeyBag`, inside a `data` — it's the `EncryptedPrivateKeyInfo` that Node itself exports (`export({ cipher: 'aes-256-cbc', passphrase })`);\n- the certificate in `certBag`, inside an `encryptedData` encrypted with PBES2 (PBKDF2-HMAC-SHA256 + AES-256-CBC), like the default `-certpbe`;\n- the HMAC-SHA256 MAC with the PKCS#12 derivation (`derivarChavePkcs12`, the same one `api` uses for the old PBEs).\n\nOpenSSL, inside `api`'s `tls.createSecureContext`, is what checks whether this is correct: if any byte were wrong, registration in the test would fail with `pfx_invalido`/`senha_incorreta`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ajuda-pfx.ts:13-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-401995ab",
+      "action": "translate",
+      "new_text": "The certificate's DER, to check the fingerprint `api` reads.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ajuda-pfx.ts:148; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-278488cd",
+      "action": "translate",
+      "new_text": "Generates a key plus self-signed certificate and wraps both in a `.pfx` with the password. `validoAte` in `YYYY-MM-DD` (up to 2049, per UTCTime).",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ajuda-pfx.ts:156-159; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7aa77c94",
+      "action": "translate",
+      "new_text": "// The key: the EncryptedPrivateKeyInfo that Node already knows how to write.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ajuda-pfx.ts:178; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-03a4c036",
+      "action": "translate",
+      "new_text": "// The MAC: HMAC-SHA256 over the AuthenticatedSafe, keyed by the PKCS#12 derivation (id 3).",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ajuda-pfx.ts:201; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-133057ae",
+      "action": "translate",
+      "new_text": "An inbound message payload, in the format Meta sends.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/ajuda.ts:120; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-20bda375",
+      "action": "translate",
+      "new_text": "A complete tenant, with a WhatsApp channel configured, a queue, an agent online and enabled in it, and two API keys — one with every scope and another with none, to prove the scope is actually checked.\n\nBuilt with the owner role: it's a seed, not a production path.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ajuda.ts:24-30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2a27d128",
+      "action": "translate",
+      "new_text": "// The journey: inbound -> b1 -> b2 -> outbound.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/analise.test.ts:116",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-d5e42e4d",
+      "action": "translate",
+      "new_text": "// DIA_1 messages (inside the period): two received, one sent.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/analise.test.ts:129",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-f2c064d9",
+      "action": "translate",
+      "new_text": "// A DIA_0 message (the day before, outside the period requested in the filter tests).",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/analise.test.ts:138",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-e7ee4915",
+      "action": "translate",
+      "new_text": "// Needs to fit inside the Dashboard's custom-period 90-day ceiling",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/analise.test.ts:177",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-e32a5aaf",
+      "action": "translate",
+      "new_text": "// on the \"today\" pattern, which HAS a seeded message and would mask the test.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/analise.test.ts:179",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-e22f99e8",
+      "action": "translate",
+      "new_text": "The contact's ANALYTICS — Dashboard, Overview, Journey and the message Log (`controladores/gestao-analise.ts`). Seeds a published flow, a conversation handled by it, and messages on two days, all through direct SQL (not through the real engine: the engine's end-to-end tests already live in `fluxo.test.ts`; what's proven here is the aggregated READ).\n\nDIA_1 (inside the requested period) and DIA_0 (one day before, outside it) — prove the period filter without depending on \"now.\" They need to stay close to the real today: `mensagem`/`evento_atendimento` are partitioned by month (`packages/db/src/particoes.ts`), and `migrar()` only creates the current month's partition and the next three — a fixed past date would fall outside any partition and the insert would fail with \"no partition found.\"",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/analise.test.ts:18-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f8cedcbd",
+      "action": "translate",
+      "new_text": "In the CLIENT'S TIMEZONE, not UTC: the API rejects a period that ends after \"today\" in the tenant's timezone (`intervaloDoPeriodo`, `custom` case) and falls on \"today.\" From 9 PM Brasília onward the UTC day has already turned, and the test asked for a period in the future — it passed in the morning and failed at night.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/analise.test.ts:33-38",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-8822d627",
+      "action": "translate",
+      "new_text": "A conversation with the 24h window open (or closed), assigned to `atendenteId`.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/anexos-multiplos.test.ts:100",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-f8522b27",
+      "action": "translate",
+      "new_text": "// In the order the response says they went out (the batch's order), not the clock's.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/anexos-multiplos.test.ts:166",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7f82e9dd",
+      "action": "translate",
+      "new_text": "// The caption goes on the FIRST one, only.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/anexos-multiplos.test.ts:171",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-a9eab6b2",
+      "action": "translate",
+      "new_text": "// The upload already blocks by size; to prove the per-file check in the BATCH, the",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/anexos-multiplos.test.ts:211; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-08cbb0ef",
+      "action": "translate",
+      "new_text": "// line is tampered with the owner role, as if it had come in through another path.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/anexos-multiplos.test.ts:212; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-05909241",
+      "action": "translate",
+      "new_text": "`POST /v1/conversas/:id/mensagens/anexos` — several files in one send (`enviarAnexos`, `dominio/envio.ts`; Desk audit, item 2).\n\nThe model follows the source: ONE message per file, in sequence, up to 10. What this file proves is \"all or nothing\": the whole batch is validated BEFORE the first message goes out — more than 10, a nonexistent attachment, a file over the type's ceiling, a closed window, or a conversation belonging to another agent leave NO message behind.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/anexos-multiplos.test.ts:22-31",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-e53d4406",
+      "action": "translate",
+      "new_text": "// The mistake the Blip Desk makes: it only validates the 100 MB and lets through what the",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/anexos.test.ts:116; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fc3a2bd8",
+      "action": "translate",
+      "new_text": "// No `authorization`, no `cookie`. This is the real case of the link that goes to Meta.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/anexos.test.ts:159; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bad2c46d",
+      "action": "translate",
+      "new_text": "// Swap the first digit for ANOTHER one. This used to be `replace(/assinatura=./,",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/anexos.test.ts:173; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4a85af8e",
+      "action": "translate",
+      "new_text": "// 'assinatura=0')`, which changed nothing when the digit was already `0` — the test",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/anexos.test.ts:174; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f18cd678",
+      "action": "translate",
+      "new_text": "// passed by luck in 15 of 16 runs.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/anexos.test.ts:175; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5130a11f",
+      "action": "translate",
+      "new_text": "In-memory storage: the test doesn't need disk to prove the rule.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/anexos.test.ts:22",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-74d84089",
+      "action": "translate",
+      "new_text": "// The link is absolute because it's Meta that downloads it. In the test the port is ephemeral, so",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/anexos.test.ts:41",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-387e3207",
+      "action": "translate",
+      "new_text": "// the public base becomes that of the server that just came up.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/anexos.test.ts:42",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-c7609f7d",
+      "action": "translate",
+      "new_text": "The raw body of responses: `any` like in `cadastros-atendimento.test.ts`, to navigate `corpo.erro.detalhe.erros` without a type per route.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:107-108",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-41466b84",
+      "action": "translate",
+      "new_text": "A design in the Blip editor's format, as the copy dictates: the root expects the first message, the next block asks for the name and waits, and the attendance one overflows. `texto` changes between versions so the test can see which version the engine ran.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:149-154",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-f48bbb40",
+      "action": "translate",
+      "new_text": "The text the `pergunta` block sends, read from the design the `api` returns.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:212",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7dd066bb",
+      "action": "translate",
+      "new_text": "The Builder's EDIT → SAVE DRAFT → PUBLISH cycle, PER FLOW (`/v1/gestao/fluxos/:id/builder`, `dominio/gestao/builder-do-fluxo.ts`).\n\nWhat's worth proving: a new flow opens with the default publishable flow; saving writes OVER the draft (one version, not one per keystroke) and returns the engine's errors block by block even while saving; publishing numbers the next version, archives the previous one, and rejects an invalid flow with the list; the engine (`fluxoPublicadoDoCanal`/`rodarFluxoNaEntrada`, via the webhook) starts using the new one while a conversation already with the bot keeps pointing to the old one — which wasn't deleted or changed; restoring brings an old version back as a draft without taking the published one down; and the gates: 403 without `automacao.fluxo.publicar`, 404 for another tenant, 409 at the router.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:23-36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-39e8d779",
+      "action": "translate",
+      "new_text": "// With nobody online: the transferred conversation stays IN THE QUEUE, with no agent.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:286",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7d1b1545",
+      "action": "translate",
+      "new_text": "// The flow itself stays a draft: saving doesn't publish.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:373",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-cbcc03b1",
+      "action": "translate",
+      "new_text": "// No entry at the root, and the exit points to a block that doesn't exist.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:388",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-5e69b7fc",
+      "action": "translate",
+      "new_text": "// The read returns the same errors — the screen opens already knowing what's missing.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:409",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-2b873c2e",
+      "action": "translate",
+      "new_text": "Who creates and edits, but doesn't publish.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bd004626",
+      "action": "translate",
+      "new_text": "// And publishing rejects with the list, without touching anything.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:414",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7b43b3f1",
+      "action": "translate",
+      "new_text": "// A body that isn't the editor's map is 400, not 500.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:421",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-da57ffd8",
+      "action": "translate",
+      "new_text": "Who also publishes.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c93dbe7c",
+      "action": "translate",
+      "new_text": "// The scenario's channel becomes this flow's: that's how the webhook reaches the engine.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:439",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-6044b912",
+      "action": "translate",
+      "new_text": "// No draft, nothing to publish.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:442",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-10b68ed0",
+      "action": "translate",
+      "new_text": "People from tenant A with no permission at all on the flow.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-74d440f6",
+      "action": "translate",
+      "new_text": "// With no draft, the Builder opens the published version.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:461",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-839e3f0b",
+      "action": "translate",
+      "new_text": "// The engine responds with v1, and Ana's conversation stays waiting for the name — in progress.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:467",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-853501c7",
+      "action": "translate",
+      "new_text": "Who can do everything in tenant B: proves the tenant comes from the session, never from the URL.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-01228e58",
+      "action": "translate",
+      "new_text": "// Saving again creates draft v2 (the published v1 is immutable), and publishing promotes it.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:474",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-d72c04a8",
+      "action": "translate",
+      "new_text": "// Ana's run stays on v1 — its version and blocks remain intact.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:491",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-335622b7",
+      "action": "translate",
+      "new_text": "// A new conversation belongs to v2: by the real engine, and by the query the engine uses.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:496",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-d7b84b11",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fd485e9c",
+      "action": "translate",
+      "new_text": "// The history lists both, newest to oldest.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:506",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-13873338",
+      "action": "translate",
+      "new_text": "// And it's on record who published what.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:515",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-d21b4b8b",
+      "action": "translate",
+      "new_text": "// The second one stays published: restoring doesn't publish.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:562",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-102aebea",
+      "action": "translate",
+      "new_text": "// A version that doesn't exist (or isn't a number) is 404.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:576; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5bfc5160",
+      "action": "translate",
+      "new_text": "// From another tenant, too.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/builder-por-fluxo.test.ts:579; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-da1a860d",
+      "action": "translate",
+      "new_text": "/* =========================================================================\n * Item 4 — basic CRUD for priority rule\n * ========================================================================= */",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:1103-1105",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-9de8c458",
+      "action": "translate",
+      "new_text": "The WRITE routes of the Attendance module (registrations) — items 1 to 3 of the task: queues (create/edit/delete/link/unlink agent), canned responses (create/edit/delete), and custom pauses (create/edit/delete).\n\nSame pattern as `ciclo-de-vida-do-fluxo.test.ts`: two tenants, cookie session, happy path, refusals, cross-tenant, permission. `ErroPipe` surfaces with a real status (400/403/404/409) — unlike the old `acoes/*` (`Resultado` at 200), because these are gestures with a security effect.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:19-29; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9f4382f6",
+      "action": "translate",
+      "new_text": "// A field that didn't change doesn't go into the record.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:229",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7899584b",
+      "action": "translate",
+      "new_text": "// `a.filaId` is `a.inboxId`'s default queue (built in `montarCenario`).",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:311",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-a8600687",
+      "action": "translate",
+      "new_text": "Has the three new/reused permissions — the test's \"manager.\"",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:34; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0dd765b7",
+      "action": "translate",
+      "new_text": "Only `fila.gerenciar` — to prove each route requires ITS OWN permission, not just any.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-09a7b4e9",
+      "action": "translate",
+      "new_text": "People from tenant A with no permission at all.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-02d1f2ea",
+      "action": "translate",
+      "new_text": "A valid session, but from another tenant — proves the tenant comes from the session, never from the URL.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-68a13af3",
+      "action": "translate",
+      "new_text": "// `a.atendenteId` is already in `a.filaId` (built in `montarCenario`).",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:406",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-893abd2e",
+      "action": "translate",
+      "new_text": "// Returns the link so it doesn't affect other tests in this file that depend on it.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:419",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-69041627",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c31d4209",
+      "action": "translate",
+      "new_text": "/* =========================================================================\n * Item 3 — edit/delete time-window and schedule exception\n * ========================================================================= */",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/cadastros-atendimento.test.ts:889-891",
+      "notes": ""
+    }
+  ]
+}

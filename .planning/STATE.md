@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-09-24T18:08:25.424Z"
-last_activity: "2026-09-24 — Roadmap revisado (2ª rodada): escopo da Phase 1 ampliado para toda a base técnica (não só rotas) com STD-10/11/12 e revisão de STD-07; nova Phase 3 \"Validar e fechar superfícies atuais\" (VALSURF-01..05) inserida entre Builder e CRM, após correção do critério de \"Validated\" (não basta código/teste existir — precisa de comparação com a referência e aprovação do dono). 6→8 fases no total. Ingest original de 22 documentos + PROJECT-HANDOFF.md permanece a base de PROJECT.md/REQUIREMENTS.md/STATE.md."
+status: executing
+stopped_at: Completed 02-07-PLAN.md (portao do dono fechado)
+last_updated: "2026-09-26T15:49:20.300Z"
+last_activity: 2026-09-26 -- Phase 02 execution started
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 0
-  total_plans: 41
-  completed_plans: 0
+  total_plans: 71
+  completed_plans: 21
   percent: 0
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-24)
 
 **Core value:** Atendimento multi-canal (WhatsApp/Instagram/Messenger) confiável e auditável, com CRM espelhado automaticamente e sem fricção para o atendente.
-**Current focus:** Phase 1 — Padronizar linguagem técnica, navegação e renderização (roadmap revisado, nenhuma fase iniciada)
+**Current focus:** Phase 02 — fechar-o-builder
 
 ## Current Position
 
-Phase: 0 of 8 (roadmap revisado, nenhuma fase iniciada)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-09-24 — Roadmap revisado (2ª rodada): escopo da Phase 1 ampliado para toda a base técnica (não só rotas) com STD-10/11/12 e revisão de STD-07; nova Phase 3 "Validar e fechar superfícies atuais" (VALSURF-01..05) inserida entre Builder e CRM, após correção do critério de "Validated" (não basta código/teste existir — precisa de comparação com a referência e aprovação do dono). 6→8 fases no total. Ingest original de 22 documentos + PROJECT-HANDOFF.md permanece a base de PROJECT.md/REQUIREMENTS.md/STATE.md.
+Phase: 02 (fechar-o-builder) — EXECUTING
+Plan: 2 of 22
+Status: Executing Phase 02
+Last activity: 2026-09-26 -- Phase 02 execution started
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███░░░░░░░] 30%
 
 ## Performance Metrics
 
@@ -52,8 +52,14 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01 P01 | 45min | 2 tasks | 6 files |
+| Phase 02 P07 | 15min | 4 tasks | 6 files |
 
 ## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 01.1 inserted after Phase 1: Subdomínio por tenant no padrão Blip (<tenant>.usepipe.ai/application, <tenant>.desk.usepipe.ai); pedido do dono durante o portão 1 da Phase 1
 
 ### Decisions
 
@@ -65,6 +71,9 @@ Decisões completas em PROJECT.md (Key Decisions). Resumo relevante para o traba
 - Fluxos são arquivados, nunca apagados de verdade (`execucao_fluxo.fluxo_versao_id` é `ON DELETE RESTRICT`).
 - Linguagem técnica migra de português para inglês (24/09/2026) — cobre também rotas/endpoints da API, não só front; substitui a regra "tudo em português"; texto visível ao usuário não muda; dados persistidos ficam fora do rename mecânico (Phase 1, STD-01..12). Convenção canônica exata ainda não definida — decisão semântica pendente do discuss-phase.
 - Critério de "Validated" redefinido (24/09/2026): implementado + funciona ponta a ponta + comparado com a referência (quando aplicável) + aprovado pelo dono — código/teste isolado não basta. A maior parte do que o ingest marcou como Validated foi reclassificada como Needs Validation em PROJECT.md; verificação formal é a Phase 3 (VALSURF-01..05).
+- [Phase 01]: 01-01: baseline code commit 57ca8d5; crm standalone EPERM accepted, gates use build --filter=!@pipe/crm + crm 'Compiled successfully'
+- [Phase 02]: Portão do dono (D-04) fechado 26/09/2026: dono aprovou classificação item a item e decisões de mecanismo (D-14, D-15, D-21, D-22, D-08.5/D-09, D-20) sem ajustes; itens EXCEDE CAPACIDADE (Carrossel, Solicitar ligação, TrackContactsJourney) aprovados como excedente, replanejar via /gsd:plan-phase 2 --gaps
+- [Phase 02]: Planos 02-08..02-22 seguem bloqueados pelo pré-flight gate da Phase 1 (tag std-apply-all-end ainda ausente), independente do portão do dono já fechado
 
 ### Pending Todos
 
@@ -84,6 +93,7 @@ Problemas conhecidos herdados de PROJECT-HANDOFF.md (24/09/2026) — nenhum reso
 - `master` está 2 commits atrás de `limpeza` — decidir quando mesclar (Phase 4, OPS-01).
 - Branches soltas sem uso recente (`codex/atendimento-blip`, `desk-visual-pipe`, `integracao`, vários `worktree-agent-*`) — candidatas a apagar (Phase 4, OPS-02).
 - Número de teste da Meta expira em 24h, sem versão permanente — reconexão é rotina diária até haver número próprio com usuário de sistema.
+- Planos de implementação 02-08..02-22 bloqueados: tag std-apply-all-end (fim da aplicação do mapa std/map da Phase 1) ainda não existe no repositório
 
 ## Deferred Items
 
@@ -100,6 +110,6 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 
 ## Session Continuity
 
-Last session: 2026-09-24T15:20:34.470Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/01-CONTEXT.md
+Last session: 2026-09-26T15:49:19.701Z
+Stopped at: Completed 02-07-PLAN.md (portao do dono fechado)
+Resume file: None

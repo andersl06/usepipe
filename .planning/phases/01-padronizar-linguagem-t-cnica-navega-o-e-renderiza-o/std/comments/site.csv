@@ -1,0 +1,37 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+site-comment-cba43031,site,apps/site/assets/site.js,1,4,block,0,"/* Pipe — comportamento do site.
+   Tema claro/escuro, menu no celular, entrada por rolagem, barra de progresso
+   de leitura, sumário do artigo, botões de copiar e filtro do blog.
+   Tudo opcional: cada bloco só roda se os elementos existirem na página. */",,,,,,
+site-comment-dd31aca1,site,apps/site/assets/site.js,11,14,block,5,"/* ---------------------------------------------------------------- tema
+     O claro é o padrão do site. O escuro só entra quando a pessoa clica no
+     botão, e a escolha fica salva no navegador. A preferência do sistema
+     operacional não decide nada aqui, de propósito. */",,,,,,
+site-comment-28586c12,site,apps/site/assets/site.js,116,116,block,0,/* --------------------------------------------------- sumário do artigo */,,,,,,
+site-comment-b3161abd,site,apps/site/assets/site.js,142,144,block,3,"/* ----------------------------------------------------- botões de copiar
+     data-copy pode ser o id do elemento cujo texto vai para a área de
+     transferência, ou o próprio texto quando vem em data-copy-text. */",,,,,,
+site-comment-6bc8fd78,site,apps/site/assets/site.js,166,168,block,8,"/* A API de área de transferência falha sem foco na aba, em http sem TLS e
+       em parte dos navegadores de celular. Quando ela recusa, o caminho antigo
+       com textarea e execCommand ainda funciona, então ele fica como reserva. */",,,,,,
+site-comment-18f06d97,site,apps/site/assets/site.js,191,193,block,4,"/* ------------------------------------------------- filtro do blog
+     Busca por texto e filtro por categoria, tudo sobre o HTML já entregue.
+     Sem JavaScript a lista aparece inteira, que é o estado correto. */",,,,,,
+site-comment-5603797a,site,apps/site/assets/site.js,215,216,block,2,"/* O primeiro post aparece no bloco de destaque enquanto ninguém filtra,
+           então o cartão dele na grade só entra quando o destaque some. */",,,,,,
+site-comment-75f41d83,site,apps/site/assets/site.js,239,246,block,11,"/* O ""Entrar"" leva ao aplicativo, que mora em outro domínio — `app.usepipe.ai`.
+
+   Em desenvolvimento esse endereço não existe, e o botão levaria a lugar nenhum
+   justo na hora de testar o caminho inteiro. Aqui ele é reescrito para a porta
+   local do aplicativo; em produção nada acontece, porque o host não é local.
+
+   Fica no site, e não no aplicativo, porque é o site quem conhece as duas
+   pontas — e sem isto o teste do fluxo começa com um link quebrado. */",,,,,,
+site-comment-54328a4b,site,apps/site/assets/site.js,35,38,block,9,"/* ------------------------------------------------ palavra que gira
+     Só troca qual palavra está visível. A largura da caixa já vem reservada
+     no CSS por uma cópia invisível da maior palavra, então o texto ao redor
+     não pula. Com movimento reduzido nada roda e fica a primeira palavra. */",,,,,,
+site-comment-50a1c336,site,apps/site/assets/site.js,78,81,block,5,"/* ------------------------------------------------- entrada por rolagem
+     O CSS só esconde os elementos quando a classe js-reveal está no <html>,
+     e quem coloca essa classe é este script. Com o JavaScript bloqueado a
+     página aparece inteira no primeiro quadro. */",,,,,,

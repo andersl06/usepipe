@@ -1,79 +1,76 @@
 import { sql } from 'drizzle-orm';
-import { criarBanco, fecharBanco } from '../src/cliente.js';
-import type { BancoPipe } from '../src/cliente.js';
-import { migrar } from '../src/migrar.js';
+import { createDatabase, closeDatabase } from '../src/cliente.js';
+import type { DatabasePipe } from '../src/cliente.js';
+import { migrate } from '../src/migrate.js';
 
 export const URL_DONO =
   process.env['DATABASE_URL'] ?? 'postgres://pipe:pipe@localhost:5433/pipe';
 
 /**
- * O papel da aplicação. É o único jeito honesto de testar RLS: com o papel dono a
- * política é ignorada e o teste passaria sem provar nada.
+ * The application role. RLS must be tested with this role: the table owner bypasses the policy, so an owner-role test could pass without proving isolation.
  */
 export const URL_APP =
   process.env['DATABASE_URL_APP'] ?? 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 
 export interface Cenario {
-  dono: BancoPipe;
-  app: BancoPipe;
+  dono: DatabasePipe;
+  app: DatabasePipe;
   tenantA: string;
   tenantB: string;
-  filaA: string;
-  filaB: string;
+  queueA: string;
+  queueB: string;
   encerrar: () => Promise<void>;
 }
 
 /**
- * Sobe o schema e semeia dois tenants com uma fila cada, usando o papel dono.
- * O `sufixo` mantém as execuções independentes quando o banco não é descartado.
+ * Migrate the schema and seed two tenants with one queue each using the owner role. `sufixo` keeps runs independent when the database is retained.
  */
 export async function montarCenario(sufixo: string): Promise<Cenario> {
-  await migrar(URL_DONO);
+  await migrate(URL_DONO);
 
-  const dono = criarBanco({ url: URL_DONO, maxConexoes: 2 });
-  const app = criarBanco({ url: URL_APP, maxConexoes: 4 });
+  const dono = createDatabase({ url: URL_DONO, maxConnections: 2 });
+  const app = createDatabase({ url: URL_APP, maxConnections: 4 });
 
-  const criar = async (slug: string, nomeFila: string) => {
+  const create = async (slug: string, nameQueue: string) => {
     const tenant = await dono.execute<{ id: string }>(
       sql`insert into tenant (nome, slug) values (${slug}, ${slug}) returning id`,
     );
     const tenantId = tenant.rows[0]?.id;
     if (!tenantId) throw new Error(`não criou o tenant ${slug}`);
-    const fila = await dono.execute<{ id: string }>(
-      sql`insert into fila (tenant_id, nome) values (${tenantId}, ${nomeFila}) returning id`,
+    const queue = await dono.execute<{ id: string }>(
+      sql`insert into fila (tenant_id, nome) values (${tenantId}, ${nameQueue}) returning id`,
     );
-    const filaId = fila.rows[0]?.id;
-    if (!filaId) throw new Error(`não criou a fila de ${slug}`);
-    return { tenantId, filaId };
+    const queueId = queue.rows[0]?.id;
+    if (!queueId) throw new Error(`não criou a fila de ${slug}`);
+    return { tenantId, queueId };
   };
 
-  const a = await criar(`rls-a-${sufixo}`, `Fila A ${sufixo}`);
-  const b = await criar(`rls-b-${sufixo}`, `Fila B ${sufixo}`);
+  const a = await create(`rls-a-${sufixo}`, `Fila A ${sufixo}`);
+  const b = await create(`rls-b-${sufixo}`, `Fila B ${sufixo}`);
 
   return {
     dono,
     app,
     tenantA: a.tenantId,
     tenantB: b.tenantId,
-    filaA: a.filaId,
-    filaB: b.filaId,
+    queueA: a.queueId,
+    queueB: b.queueId,
     encerrar: async () => {
       await dono.execute(
         sql`delete from tenant where id in (${a.tenantId}::uuid, ${b.tenantId}::uuid)`,
       );
-      await fecharBanco(app);
-      await fecharBanco(dono);
+      await closeDatabase(app);
+      await closeDatabase(dono);
     },
   };
 }
 
 /**
- * A consulta falhou fechada? Ou o `current_setting` lançou, ou a política filtrou
- * tudo. As duas formas são aceitáveis; devolver linha não é.
+ * Did the query fail closed? Either `current_setting` threw or the policy filtered every row. Both outcomes are acceptable; returning a row is not.
  */
-export async function falhouFechada(consulta: () => Promise<{ rows: unknown[] }>): Promise<boolean> {
+export async function falhouFechada(query: () => Promise<{ rows: unknown[] }>): Promise<boolean> {
   try {
-    const resultado = await consulta();
+    const resultado = await query();
     return resultado.rows.length === 0;
   } catch {
     return true;

@@ -1,0 +1,579 @@
+/**
+ * `/team` for the contact (flow and router). Measurements taken from the source's
+ *    rendered DOM (`referencias-blip/canais/roteador/roteador-team__pagina.html`
+ *    and the `portal.css` from the same capture) — the header already comes from
+ *    `configuracoes.css`'s `cf-*` (`<page-header>`); what's left here is the
+ *    `custom-content` search, the `.row.team-cards` list and each member's
+ *    `card--mini-card`.
+ *
+ *    Source ruler, measured at 1280×780:
+ *      `.row.team-cards`        margin 3px 0 9px
+ *      `.card--mini-card`       1024×103, padding 20px 50px 20px 60px,
+ *                               margin 0 0 10px, radius 8, card surface
+ *      `.card-content`          flex, space-between, 914×63, 14px/25.6
+ *      `.card-section label`    block 12px/500, line-height 25.6, padding-bottom 6
+ *      `.card-section span`     14px/400, line-height 22.4
+ *      `.divider`               1×40, margin 0 15px
+ *      `.tag-item`              90×26, pill radius, 14px bold, centered
+ *      `.card-icons`            5%, 20px, space-evenly, children with margin-left 15
+ *      `.no-content-found`      centered flex, 20px/500, height 31, padding 80 0
+ */
+
+/* ==================== `custom-content` do `<page-header>`
+   `<div class="search-input-container flex mr3">` + `<bds-button>`. */
+.cf-team-actions {
+  display: flex;
+  align-items: center;
+}
+/*
+ * `bds-input` from `.search-input-container`: 260×54, `padding: 8px 4px 8px 12px`,
+ *    1px border and 8 radius, with the 24px `avatar-user` icon on the left. The
+ *    `mr3` (16px) separates the search from the button.
+ */
+.cf-team-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  box-sizing: border-box;
+  width: 260px;
+  height: 54px;
+  margin-right: 16px;
+  padding: 8px 4px 8px 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  color: var(--p-conteudo-fantasma);
+}
+.cf-team-search input {
+  width: 100%;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: 14px;
+}
+.cf-team-search input:focus {
+  outline: none;
+}
+
+/* ==================== `<div class="row team-cards">` */
+.cf-equipe {
+  /*
+   * The source's `margin: 3px 0 9px`, without losing `.cf-container`'s
+   *    `margin: 0 auto` that centers the column.
+   */
+  margin: 3px auto 9px;
+}
+
+/* `<a class="no-decoration">` wraps the whole card (`editUser`). */
+.cf-equipe-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.cf-equipe-link--clicavel {
+  cursor: pointer;
+}
+
+/* `card.card--mini-card` */
+.cf-team-card {
+  box-sizing: border-box;
+  margin: 0 0 10px;
+  padding: 20px 50px 20px 60px;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  box-shadow: var(--g-shadow-card);
+  transition: box-shadow 0.3s ease-out;
+}
+.cf-team-card:hover {
+  box-shadow: 0 13px 20px 0 color-mix(in srgb, var(--p-conteudo) 12%, transparent);
+}
+
+/* `.card-content` */
+.cf-equipe-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 63px;
+  font-size: 14px;
+  line-height: 25.6px;
+}
+
+/* `.card-section` e `.card-section--no-overflow` */
+.cf-team-section {
+  white-space: nowrap;
+}
+.cf-team-section--clip {
+  display: table;
+  table-layout: fixed;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-team-section--clip > .cf-team-value {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-equipe-rotulo {
+  display: block;
+  margin: 0;
+  padding-bottom: 6px;
+  font-size: 12px;
+  font-weight: var(--g-peso-forte);
+  line-height: 25.6px;
+  color: var(--p-conteudo-fantasma);
+}
+.cf-team-value {
+  font-size: 14px;
+  line-height: 22.4px;
+  color: var(--p-conteudo);
+}
+
+/* As larguras do template (tachyons `w-5`, `w-25`, `w-20`, `w-10`). */
+.cf-equipe-w5 {
+  width: 5%;
+}
+.cf-equipe-w20 {
+  width: 20%;
+}
+.cf-equipe-w25 {
+  width: 25%;
+}
+.cf-equipe-w40 {
+  width: 40%;
+}
+
+/* `<div class="card-section w-5 flex justify-center"><avatar class="h3 w3">`:
+   a bolinha da origem tem 40×40. */
+.cf-team-avatar-section {
+  display: flex;
+  justify-content: center;
+}
+/*
+ * Two class names to override `@pipe/ui`'s `.avatar` 26px, which has the same specificity.
+ */
+.cf-team-avatar-section .cf-equipe-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+}
+
+/* `.divider` */
+.cf-equipe-divisor {
+  flex: none;
+  width: 1px;
+  min-height: 40px;
+  margin: 0 15px;
+  background: var(--p-superficie-3);
+}
+
+/*
+ * `bds-typo.tag-item` — the role badge: 90×26, pill radius, 14 bold and
+ *    centered. In the source the text is always "Admin", which fits the section's
+ *    90px at 10%; Pipe has three roles and "Pode visualizar" doesn't fit — so the
+ *    badge's section grows with the text (the 10% becomes a floor) and the badge
+ *    gets 12px of breathing room on the sides. It's the only measurement in this
+ *    row that our data moves.
+ */
+.cf-equipe-selo {
+  display: inline-block;
+  min-width: 90px;
+  padding: 0 12px;
+  border-radius: var(--p-r-pilula);
+  background: var(--p-info-fundo);
+  color: var(--p-info-conteudo);
+  font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 26px;
+  white-space: nowrap;
+  text-align: center;
+}
+.cf-team-section--badge {
+  flex: none;
+  min-width: 10%;
+}
+
+/*
+ * `.card-icons.card-icons--hidden`: only appear with the pointer (or keyboard
+ *    focus) over the card.
+ */
+.cf-equipe-icones {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-evenly;
+  color: var(--p-conteudo-fantasma);
+  font-size: 20px;
+}
+.cf-equipe-oculto {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s linear;
+}
+.cf-team-card:hover .cf-equipe-oculto,
+.cf-team-card:focus-within .cf-equipe-oculto {
+  opacity: 1;
+  visibility: visible;
+}
+.cf-equipe-icone {
+  display: inline-flex;
+  margin-left: 15px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.cf-equipe-icone:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+/* `.no-content-found` */
+.cf-team-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 31px;
+  margin: auto;
+  padding: 80px 0;
+  color: var(--p-conteudo-fantasma);
+  font-size: 20px;
+  font-weight: var(--g-peso-forte);
+}
+
+/*
+ * ==================== The `add-user-modal`, captured open in
+ *    `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`: centered head,
+ *    editable email in an underline, "Permissão" + `rzslider` and a centered
+ *    footer. The edit view is the styled page at the end of this file.
+ */
+.cf-equipe-modal {
+  position: relative;
+  padding-top: 40px;
+}
+
+/* `.row.mh6.tc.mt3 > .mh6.mb4-1`: centered h1 and subtitle, add-only. */
+.cf-equipe-modal-cabeca {
+  margin: 0 24px 20px;
+  text-align: center;
+}
+.cf-equipe-modal .cf-equipe-modal-cabeca h2 {
+  margin-bottom: 8px;
+}
+
+/* `.modal-footer` — centered, with text-only `Cancelar` and `bp-btn--bot` `Salvar`. */
+.cf-equipe-modal-rodape {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+.cf-equipe-fechar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo-fantasma);
+  cursor: pointer;
+}
+.cf-equipe-fechar:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+/*
+ * `<span class="body bp-c-rooftop fw5">` — the subtitle below the title.
+ *    With `.cf-modal` in front to override `.cf-modal p`.
+ */
+.cf-equipe-modal .cf-equipe-subtitulo {
+  margin: 0;
+  font-weight: var(--g-peso-forte);
+  color: var(--p-conteudo-fantasma);
+}
+
+/*
+ * The email's `material-input`: small label on top and underline below, NO
+ *    box — unlike the rest of Pipe's `cf-campo` (closed box), because the source
+ *    doesn't use a box here either. There the input is 35px, `padding: 8px 8px
+ *    8px 0` and the underline is `1px` in the ghost color.
+ */
+.cf-equipe-campo-email {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 20px 0;
+}
+.cf-equipe-campo-email span {
+  font-size: 12px;
+  font-weight: var(--g-peso-negrito);
+  color: var(--p-conteudo-fantasma);
+}
+.cf-equipe-campo-email input {
+  box-sizing: border-box;
+  height: 35px;
+  padding: 8px 8px 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--p-conteudo-fantasma);
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: 14px;
+}
+.cf-equipe-campo-email input:focus {
+  outline: none;
+  border-bottom-color: var(--p-marca);
+}
+/*
+ * The source's `material-input input[readonly]`: `border-bottom: none`. It's
+ *    the EDIT view's email — data, not a field; only the small label and the
+ *    value remain.
+ */
+.cf-team-field-email--read input {
+  border-bottom: 0;
+  cursor: default;
+}
+.cf-team-field-email--read input:focus {
+  border-bottom: 0;
+}
+
+/*
+ * The add view's "Permissão" `rzslider`. The source has four stops, like the
+ *    per-contact RBAC from migration 0035. Ruler: 4px, `margin: 9px 0
+ *    35px` inside `add-user-modal`, 25px knob, 14px caption in 170px boxes
+ *    centered on each stop.
+ */
+.cf-team-permission {
+  margin-top: 32px;
+}
+.cf-team-permission-label {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+  color: var(--p-conteudo);
+}
+.cf-equipe-slider {
+  width: 100%;
+  height: 25px;
+  margin: 0;
+  accent-color: var(--p-marca);
+}
+.cf-equipe-slider-niveis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--p-conteudo-fantasma);
+}
+.cf-equipe-slider-nivel {
+  flex: 1;
+  text-align: center;
+}
+.cf-equipe-slider-nivel:first-child {
+  text-align: left;
+}
+.cf-equipe-slider-nivel:last-child {
+  text-align: right;
+}
+.cf-team-slider-level--active {
+  color: var(--p-conteudo);
+  font-weight: var(--g-peso-negrito);
+}
+
+/*
+ * ==================== The granular permissions list (EDIT view only) —
+ *    the source's `PermissionsList.html` inside the "Permissões" card:
+ *    header "Funcionalidades | Sem permissão | Visualizar | Ver e editar"
+ *    with an `info` in each column, `<hr>`, and one row per resource with three
+ *    radios (`.item-header` 46px, `.w-70` for the columns, `w-third` each).
+ *    The radios follow the underline's level and don't move by hand — the why
+ *    is in `permissoes.ts`.
+ */
+.cf-equipe-granular {
+  margin-top: 32px;
+  font-size: 14px;
+}
+.cf-equipe-granular-cabecalho,
+.cf-equipe-granular-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 46px;
+  padding-left: 15px;
+}
+.cf-equipe-granular-cabecalho {
+  font-weight: var(--g-peso-forte);
+  color: var(--p-conteudo);
+}
+.cf-equipe-granular-recurso {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--g-peso-forte);
+  color: var(--p-conteudo);
+}
+.cf-equipe-granular-colunas {
+  display: flex;
+  flex: none;
+  width: 60%;
+}
+.cf-team-granular-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  line-height: normal;
+}
+.cf-equipe-granular-dica {
+  display: inline-flex;
+  flex: none;
+  color: var(--p-conteudo-fantasma);
+  cursor: help;
+}
+.cf-equipe-granular-traco {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--p-linha-media);
+}
+.cf-equipe-granular-lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cf-equipe-granular-linha + .cf-equipe-granular-linha {
+  border-top: 1px solid var(--p-superficie-2);
+}
+
+/*
+ * Their `input[type=radio]`: 21px, 1px ring in the brand color, filled center
+ *    when checked (`background-clip: content-box`). Disabled because it mirrors
+ *    the level — but without dimming it, or it reads as "broken".
+ */
+.cf-equipe-radio {
+  box-sizing: border-box;
+  width: 21px;
+  height: 21px;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid var(--p-marca);
+  border-radius: var(--p-r-pilula);
+  background: transparent;
+  background-clip: content-box;
+  appearance: none;
+  cursor: default;
+}
+.cf-equipe-radio:checked {
+  background-color: var(--p-marca);
+}
+.cf-equipe-radio:disabled {
+  opacity: 1;
+}
+.cf-equipe-radio-ausente {
+  color: var(--p-conteudo-fantasma);
+}
+
+/*
+ * The invite link once created — the source sends a real email and closes the
+ *    modal (`$ctrl.addUser()`); Pipe doesn't send email (see
+ *    `contrato/membros/convidar.tsx`), so "Salvar" swaps the form for this link
+ *    to copy and send by hand.
+ */
+.cf-equipe-link-criado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-1);
+}
+.cf-equipe-link-criado span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--p-conteudo-fantasma);
+}
+
+/*
+ * ==================== `/team/edit` — PAGE, following template 36419 from the
+ *    Blip `portal.js`: back/Save in the header, person and permissions card.
+ */
+.cf-equipe-editar-titulo,
+.cf-equipe-editar-pessoa,
+.cf-equipe-editar-nome,
+.cf-equipe-editar-controle {
+  display: flex;
+  align-items: center;
+}
+.cf-equipe-voltar {
+  display: inline-flex;
+  margin-right: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+.cf-equipe-voltar:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+.cf-equipe-editar {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 40px;
+}
+.cf-equipe-editar-pessoa {
+  gap: 40px;
+}
+.cf-equipe-editar-avatar.cf-equipe-editar-avatar {
+  width: 64px;
+  height: 64px;
+  font-size: 20px;
+}
+.cf-equipe-editar-pessoa > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cf-equipe-editar-nome {
+  gap: 24px;
+  margin-bottom: 8px;
+}
+.cf-equipe-editar-nome strong {
+  font-size: 24px;
+  font-weight: var(--g-peso-normal);
+}
+.cf-team-edit-card {
+  margin-top: 16px;
+  padding: 32px 48px;
+}
+.cf-equipe-editar-controle {
+  justify-content: space-between;
+}
+.cf-equipe-editar-controle h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: var(--g-peso-forte);
+}
+.cf-equipe-editar-controle .selection {
+  width: 240px;
+}
+.cf-equipe-editar .cf-equipe-granular {
+  margin-top: 40px;
+}

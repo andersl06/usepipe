@@ -1,0 +1,3795 @@
+/*
+ * ==========================================================================
+ *    Pipe Desk — only what belongs to the Desk.
+ *
+ *    The token, reset and primitives live in `@pipe/ui`, imported before this sheet in `main.tsx`.
+ *
+ *    What this sheet draws is the LAYOUT of the reference agent screen, measured on the copy running at `~/desk-clone` (http://127.0.0.1:8787, 1280×780 window) and checked against its compiled sheet (`~/desk-clone/fonte-original/app.css`). Each block cites the selector the measurement came from — "measured here, got this".
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS. No color value from the reference appears here: everything comes from `--p-*`, and where the structure calls for a step the palette doesn't name, it is DERIVED with `color-mix`.
+ *
+ *    Token map (copy's README → `packages/ui/src/estilos/tokens.css`):
+ *      surface-0 → --p-superficie-0    content-default → --p-conteudo
+ *      surface-1 → --p-superficie-1    content-disable → --p-conteudo-desabilitado
+ *      surface-2 → --p-superficie-2    content-ghost   → --p-conteudo-fantasma
+ *      surface-3 → --p-superficie-3    content-bright  → --p-conteudo-claro
+ *      surface-4 → --p-superficie-4    primary         → --p-marca
+ *      system    → --p-info-fundo      warning         → --p-alerta-fundo
+ *      delete    → --p-erro-conteudo
+ *    ==========================================================================
+ */
+
+:root {
+  /* O trilho é escuro nos dois temas, como a barra da Gestão (`--g-barra-*`
+     em `apps/management-vite`): cromo que inverte junto com o conteúdo deixa de
+     ser cromo. `--d-trilho-tinta` é o conteúdo claro; a passagem do cursor e o
+     item em vigor são a tinta clara a 8%, que é o que a cópia mede
+     (`.menu-selected` → rgba(255,255,255,.08) no tema escuro). */
+  --d-rail: var(--p-superficie-4);
+  --d-rail-ink: var(--p-conteudo-claro);
+  --d-rail-strength: color-mix(in srgb, var(--p-conteudo-claro) 8%, transparent);
+  --d-rail-cursor: color-mix(in srgb, var(--p-conteudo-claro) 8%, transparent);
+
+  /*
+   * The rail's list hover steps: 4% cursor and 12%/16% black on the selected item, over the surface (`.chat-list-item:hover`, `.active`, `.active:hover`).
+   */
+  --d-tinta-4: color-mix(in srgb, var(--p-conteudo) 4%, transparent);
+  --d-tinta-8: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+  --d-tinta-12: color-mix(in srgb, var(--p-conteudo) 12%, transparent);
+  --d-tinta-16: color-mix(in srgb, var(--p-conteudo) 16%, transparent);
+
+  /* The `bds-paper elevation="static"` shadow measured: 0 2px 8px -2px at 16%. */
+  --d-shadow-paper: 0 2px 8px -2px rgba(17, 17, 17, 0.16);
+
+  /* The field's border (`bds-input .input`): black at 20%. */
+  --d-campo-linha: color-mix(in srgb, var(--p-conteudo) 20%, transparent);
+
+  /*
+   * The reference's type scale is 24 / 20 / 16 / 14 / 12 / 10, with weights 400 / 600 / 700 (`bds-typo` fs-* and bold=semi-bold|bold).
+   */
+  --d-peso-normal: 400;
+  --d-peso-semi: 600;
+  --d-peso-negrito: 700;
+
+  /* As colunas: 25% / 50% / 25% (`#container .sidenav|.pane-chat|.drawer`),
+     trilho de 80px (medido; vem do componente web `bds-navbar`). */
+  --d-rail-w: 80px;
+  --d-drawer-min: 260px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    --d-shadow-paper: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+    --d-rail: var(--p-superficie-1);
+    --d-rail-ink: var(--p-conteudo);
+    --d-rail-strength: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+    --d-rail-cursor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+  }
+}
+
+:root[data-tema='escuro'] {
+  --d-shadow-paper: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  --d-rail: var(--p-superficie-1);
+  --d-rail-ink: var(--p-conteudo);
+  --d-rail-strength: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+  --d-rail-cursor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+}
+
+html,
+body,
+#raiz {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+  font-family: var(--p-fonte);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dk-loading-session {
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+  color: var(--p-conteudo-desabilitado);
+}
+
+/*
+ * The shell has fixed height with internal scroll (`#app`/`#container`): the columns container doesn't scroll, each column has its own scroller.
+ */
+.dk-app {
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.dk-container {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
+button {
+  font-family: inherit;
+}
+
+/*
+ * ======================================================= the rail (navbar)
+ *    `bds-navbar orientation="vertical" background-color="surface-4"`: 80px wide, full height. 40×40 brand mark 16px from the top with 24px gap (`.blip-image`); 40×40 items with radius 8 and 8 inset (`.menu-button`), inside a strip with 12px side inset (`.navbar-menu-item`); 48px step between items (measured: 88, 136, 184…). Footer: help, preferences and the 32px avatar with the presence badge, 16px from the bottom.
+ */
+.dk-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 var(--d-rail-w);
+  width: var(--d-rail-w);
+  height: 100%;
+  padding: 16px 8px;
+  box-sizing: border-box;
+  background: var(--d-rail);
+  color: var(--d-rail-ink);
+}
+
+.dk-rail-brand {
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  /*
+   * 40×40 `bds-illustration` with our symbol at 76% of the box — the same `background-size` the copy uses in `pipe/marca.css`.
+   */
+  background: url('/pipe/simbolo-claro.svg') center / 76% auto no-repeat;
+}
+
+.dk-rail-items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  /* The first item sits 88px from the top in the copy: 16 + 40 + 24 + 8. */
+  padding: 8px 0 0;
+  list-style: none;
+}
+
+.dk-rail-items.dk-rail-footer {
+  margin-top: auto;
+}
+
+.dk-rail-item {
+  width: 100%;
+  padding: 0 12px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+
+.dk-rail-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.dk-rail-button:hover {
+  background: var(--d-rail-cursor);
+}
+
+.dk-rail-button[aria-current='page'] {
+  background: var(--d-rail-strength);
+}
+
+.dk-rail-button svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+/*
+ * The footer avatar: `bds-avatar size="extra-small"` (32px) with the `.status-badge-profile` badge at 12px, `left: 22px; top: -2px`, 2px border in the rail's color.
+ */
+.dk-rail-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--p-marca-suave);
+  color: var(--p-marca);
+  font-size: 14px;
+  font-weight: var(--d-peso-normal);
+  cursor: pointer;
+}
+
+.dk-presenca {
+  position: absolute;
+  left: 22px;
+  top: -2px;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border: 2px solid var(--d-rail);
+  border-radius: 50%;
+  background: var(--p-conteudo-fantasma);
+}
+
+.dk-presenca[data-status='online'] {
+  background: var(--p-sucesso-sobre-escuro);
+}
+
+.dk-presenca[data-status='paused'] {
+  background: var(--p-alerta-conteudo);
+}
+
+.dk-presenca[data-status='offline'] {
+  background: var(--p-error-on-dark);
+}
+
+/*
+ * The status menu that opens on the avatar (`bds-menu` from the copy): 8px-radius paper with shadow, 40px items (`.menu-action-item`).
+ */
+.dk-menu {
+  position: absolute;
+  z-index: 30;
+  min-width: 220px;
+  padding: 8px 0;
+  background: var(--p-superficie-0);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--p-conteudo);
+}
+
+.dk-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% - 16px);
+  height: 40px;
+  margin: 0 8px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-menu-item:hover {
+  background: var(--p-superficie-2);
+}
+
+.dk-menu-item[aria-checked='true'] {
+  background: var(--p-superficie-2);
+  border: 1px solid var(--p-superficie-3);
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-menu-titulo {
+  padding: 8px 24px;
+  font-size: 12px;
+  font-weight: var(--d-peso-semi);
+  color: var(--p-conteudo-desabilitado);
+}
+
+/*
+ * ===================================================== the column (sidenav)
+ *    `#container .sidenav { width: 25% }`, background on surface 2.
+ */
+.dk-column {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 25%;
+  width: 25%;
+  min-width: 0;
+  height: 100%;
+  background: var(--p-superficie-2);
+  z-index: 2;
+}
+
+/*
+ * `.header-content { padding: 1rem; background: surface-1 }` — 76px tall: title 20/700 (20 line height) and the "Lista ⌄" line at 24px.
+ */
+.dk-column-header {
+  padding: 16px;
+  background: var(--p-superficie-1);
+}
+
+.dk-column-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 20px;
+}
+
+.dk-modo {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  line-height: 24px;
+  cursor: pointer;
+}
+
+/* `.view-mode-icon { top: 3px; position: relative; margin-left: 4px }`, small icon (20px). */
+.dk-modo svg {
+  position: relative;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  margin-left: 4px;
+}
+
+/*
+ * `.sidenav-header`: 111px floor, 117px between 1112 and 1440, 160 ceiling; 1px border on surface 3 top and bottom; surface 1.
+ */
+.dk-status {
+  --dk-status-min: 111px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--dk-status-min);
+  max-height: 160px;
+  border-top: 1px solid var(--p-superficie-3);
+  border-bottom: 1px solid var(--p-superficie-3);
+  background: var(--p-superficie-1);
+}
+
+@media (max-width: 1440px) {
+  .dk-status {
+    --dk-status-min: 117px;
+  }
+}
+
+@media (max-width: 1112px) {
+  .dk-status {
+    --dk-status-min: 111px;
+  }
+}
+
+.dk-status-core {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/*
+ * `.waiting-tickets-container { gap: 8px }`: the number in fs-24 semi-bold in brand color; "Cliente(s)" and "aguardando" in fs-16.
+ */
+.dk-aguardando {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 24px;
+}
+
+.dk-aguardando b {
+  font-size: 24px;
+  font-weight: var(--d-peso-semi);
+  color: var(--p-marca);
+}
+
+/* `.buttons-container { margin-top: .5rem; gap: 8px }` */
+.dk-status-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* "Seu status é X": `bp-fs-5 tc` (16px) with the status in brand color. */
+.dk-status-texto {
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+}
+
+.dk-status-texto b {
+  font-weight: var(--d-peso-normal);
+  color: var(--p-marca);
+}
+
+/*
+ * ================================================================ buttons
+ *    `bds-button variant="primary"`: 40px, 0 16 inset, radius 8, text 14/700. `variant="secondary"`: only the 1px border in content. `size="short"`: 32px. `bds-button-icon size="short"`: 40×40, 8 inset, radius 8, 24px icon.
+ */
+.dk-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 40px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+  font-size: 14px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dk-botao:hover {
+  background: var(--p-marca-forte);
+}
+
+.dk-botao:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.dk-botao-secundario {
+  background: transparent;
+  border-color: var(--p-conteudo);
+  color: var(--p-conteudo);
+}
+
+.dk-botao-secundario:hover {
+  background: var(--d-tinta-8);
+}
+
+.dk-botao-fantasma {
+  background: transparent;
+  color: var(--p-marca);
+}
+
+.dk-botao-fantasma:hover {
+  background: var(--d-tinta-8);
+}
+
+.dk-botao-curto {
+  height: 32px;
+}
+
+.dk-botao-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+
+.dk-botao-icone:hover {
+  background: var(--d-tinta-8);
+}
+
+.dk-botao-icone svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.dk-botao-icone.dk-primario {
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+}
+
+.dk-botao-icone.dk-primario:hover {
+  background: var(--p-marca-forte);
+}
+
+.dk-botao-icone.dk-pequeno {
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+}
+
+.dk-botao-icone.dk-pequeno svg {
+  width: 20px;
+  height: 20px;
+}
+
+/*
+ * ================================================================= search
+ *    The search block takes 80px in the column (`.list-content-with-search`). `bds-input`: 42px, 1px border at 20%, radius 8, 8 4 8 12 inset, 20px magnifier in a 24px box and text 14/22; the parent has 8px inset on top and the sides. Placeholder: "Busque pelo nome ou telefone..." in ghost content.
+ */
+/* O bloco da busca tem 8px de margem acima (medido: 193 → 201) e 8 de recuo. */
+.dk-search {
+  margin-top: 8px;
+  padding: 8px 8px 0;
+}
+
+.dk-campo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 8px 4px 8px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--d-campo-linha);
+  border-radius: 8px;
+  background: transparent;
+}
+
+.dk-campo:focus-within {
+  border-color: var(--p-marca);
+}
+
+.dk-campo-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  box-sizing: border-box;
+  color: var(--p-conteudo);
+}
+
+.dk-campo-icone svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dk-campo input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  outline: none;
+}
+
+.dk-campo input::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+
+/*
+ * ================================================================ chips
+ *    `.header-chat-list { padding: 0 5px; margin-top: 8px }` in a strip with `ml2 mr2` (8px); `#filters-container { margin-top: 8px; gap: 2px }`, 40px tall. Up to 1441 the chip row becomes a single menu (`show-below-large`: 32px outline `bds-chip-tag` with a 16px arrow and 14px text); above it, the `bds-chip-clickable` row (`show-above-large`).
+ */
+.dk-fichas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 8px 0;
+  padding: 0 5px;
+  background: var(--p-superficie-2);
+}
+
+.dk-fichas-esquerda {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 2px;
+  margin-top: 8px;
+  height: 40px;
+  padding-left: 4px;
+}
+
+.dk-fichas-direita {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-left: auto;
+  margin-top: 8px;
+}
+
+.dk-ficha-menu {
+  position: relative;
+}
+
+.dk-ficha {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  height: 32px;
+  padding: 0 8px 0 5px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-conteudo-desabilitado);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 21px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dk-ficha svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dk-ficha[aria-pressed='true'] {
+  background: var(--p-conteudo);
+  border-color: var(--p-conteudo);
+  color: var(--p-conteudo-claro);
+}
+
+.dk-cards-queue {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.dk-cards-queue .dk-ficha {
+  padding: 0 12px;
+}
+
+@media (min-width: 1442px) {
+  .dk-ficha-menu {
+    display: none;
+  }
+
+  .dk-cards-queue {
+    display: flex;
+  }
+}
+
+/* O menu da ficha (`.ticket-filter-menu`): branco, raio 8, sombra 0 2px 8px 10%. */
+.dk-ficha-menu .dk-menu {
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 160px;
+}
+
+/*
+ * ================================================================= list
+ *    `<main class="pa2">` with 0 8 32 inset (measured) and its own scroll.
+ */
+.dk-lista {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0 8px 32px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-conteudo-fantasma) transparent;
+}
+
+/*
+ * The column's empty state: `.get-online-txt { text-align: center; padding: 50px }`, `xxx-large` icon (72px) and the phrase in fs-16.
+ */
+.dk-lista-vazia {
+  padding: 50px;
+  text-align: center;
+  color: var(--p-conteudo);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.dk-lista-vazia svg {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 8px;
+  color: var(--p-conteudo-fantasma);
+}
+
+/*
+ * ================================================== the card (chat-list-item)
+ *    Clickable `<article>`: radius 8, 8 inset, 1px border on surface 3, surface 1 background, 8px between cards. Cursor: +4% black; selected: surface 3 + 12%; selected with cursor: +16%.
+ */
+.dk-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.5s ease-out;
+}
+
+.dk-card:not(:last-child) {
+  margin-bottom: 8px;
+}
+
+.dk-card:hover {
+  background: linear-gradient(var(--d-tinta-4), var(--d-tinta-4)), var(--p-superficie-1);
+}
+
+.dk-card[aria-current='true'] {
+  background: linear-gradient(var(--d-tinta-12), var(--d-tinta-12)), var(--p-superficie-3);
+}
+
+.dk-card[aria-current='true']:hover {
+  background: linear-gradient(var(--d-tinta-16), var(--d-tinta-16)), var(--p-superficie-3);
+}
+
+.dk-card:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+/* `.ticket-content { margin-bottom: 8px }` — o rosto e a coluna de texto
+   (`ml3 mr1` = 16px / 4px). */
+.dk-card-content {
+  display: flex;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+/*
+ * `.customer-avatar { width: 37px; height: 37px }` with the `bds-avatar size="small"` (40px) inside; the channel badge (`.channel`) at 24×24, radius 6, white background, -10px on both axes, with the 20px logo (`top: 2px`).
+ */
+.dk-card-face {
+  position: relative;
+  flex-shrink: 0;
+  /* `self-center` num flex em COLUNA: centra na horizontal, e fica no topo. */
+  align-self: flex-start;
+  width: 37px;
+  height: 37px;
+}
+
+.dk-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--p-marca-suave);
+  color: var(--p-marca);
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-avatar svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dk-avatar.dk-avatar-56 {
+  width: 56px;
+  height: 56px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+.dk-avatar.dk-avatar-apagado {
+  opacity: 0.5;
+}
+
+.dk-channel {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--p-superficie-0);
+}
+
+.dk-channel svg {
+  position: relative;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+}
+
+.dk-card-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 4px 0 16px;
+}
+
+.dk-card-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/*
+ * Name: `bds-typo fs-16 tag=h1`, 24px line height; bold when there's an unread one (`bold="bold"`), regular otherwise.
+ */
+.dk-card-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--d-peso-normal);
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dk-card[data-nao-lida='true'] .dk-card-name,
+.dk-card[data-nao-lida='true'] .dk-card-preview {
+  font-weight: var(--d-peso-negrito);
+}
+
+/* Relative time: fs-12 in disabled content, next to the status icon. */
+.dk-card-hour {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 24px;
+  color: var(--p-conteudo-desabilitado);
+  white-space: nowrap;
+}
+
+.dk-card-status {
+  margin-left: 8px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-card-status svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+/* Preview: `bds-typo fs-14 tag=p`, `.message-preview { line-height: 24px; color: content-disable }`. */
+.dk-card-preview {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--p-conteudo-desabilitado);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The third alert row, right-aligned: 24px chips. */
+.dk-card-alerts {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+/*
+ * `bds-chip-tag`: 24px, radius 4, text 12; `color="system"` (info) and `color="warning"` (alert) — the pastel background + dark content pair.
+ */
+.dk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.dk-chip svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dk-chip-info {
+  background: var(--p-info-fundo);
+  color: var(--p-info-conteudo);
+}
+
+.dk-chip-alerta {
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+}
+
+.dk-chip-error {
+  background: var(--p-error-background);
+  color: var(--p-error-content);
+}
+
+.dk-chip-contorno {
+  background: transparent;
+  border: 1px solid var(--p-conteudo-desabilitado);
+}
+
+/* The removable tag chip's "×": inherits the chip's color, no background. */
+.dk-chip-remover {
+  display: inline-flex;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-left: 2px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.dk-chip-remover svg {
+  width: 16px;
+  height: 16px;
+}
+
+/*
+ * The option list for the "Adicionar tags" modal and the contact's tag strip: one checkbox per tag, in a column.
+ */
+.dk-lista-de-etiquetas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  margin: 8px 0 16px;
+  overflow-y: auto;
+}
+
+.dk-option-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dk-contact-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+/* `.badge-warning`: unread counter, 24px tall, 24px minimum, 12/700. */
+.dk-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  min-width: 24px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: var(--p-error-content);
+  color: var(--p-conteudo-claro);
+  font-size: 12px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 20px;
+}
+
+/*
+ * `.ticket-info`: 1px line on surface 2 on top, 4px top inset, 8 gap, 24 line height; `x-small` info icon (16px) in a button with no inset; "#N" in fs-12; "Fila:" fs-12 bold in disabled content + the name; the 24px `⋮` menu appears on hover (`.ticket-menu { opacity: 0 }`).
+ */
+.dk-card-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--p-superficie-2);
+  line-height: 24px;
+  font-size: 12px;
+}
+
+.dk-card-info-button {
+  display: flex;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+
+.dk-card-info-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dk-card-number {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.dk-card-queue {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dk-card-queue b {
+  font-weight: var(--d-peso-negrito);
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-card-queue span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dk-card-menu {
+  height: 24px;
+  width: 0;
+  opacity: 0;
+  visibility: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo-desabilitado);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.dk-card:hover .dk-card-menu,
+.dk-card[aria-current='true'] .dk-card-menu,
+.dk-card-menu[aria-expanded='true'] {
+  width: 20px;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* The card menu anchors on the ⋮ button and opens to the left, above the list. */
+.dk-card-menu-box {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.dk-card-menu-list {
+  top: 24px;
+  right: 0;
+  left: auto;
+}
+
+/* The pin for the pinned conversation, in the card's alert row. */
+.dk-card-pinned {
+  display: inline-flex;
+  align-items: center;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-card-pinned svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dk-card-menu svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* An `x-small` icon on the strip (`.ticket-info-icon`), in ghost content color. */
+.dk-card-info-icon {
+  display: flex;
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-card-info-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/*
+ * ======================================================== the conversation (pane-chat)
+ *    `.pane-chat { width: 50%; background: surface-2; border: 1px solid surface-3 }`. With the panel closed, 75% up to 1600px (`#container.drawer-hidden .pane-chat`).
+ */
+.dk-conversation {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  width: 50%;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--p-superficie-3);
+  background: var(--p-superficie-2);
+}
+
+/*
+ * The no-conversation state: illustration (78×73, 32 gap), fs-20 semi-bold title with 8 gap (`.message-title`), and the line in fs-16.
+ */
+.dk-conversation-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.dk-conversation-empty .dk-illustration {
+  height: 73px;
+  width: 78px;
+  margin-bottom: 32px;
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-conversation-empty .dk-illustration svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dk-conversation-empty h1 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: var(--d-peso-semi);
+  line-height: 20px;
+}
+
+.dk-conversation-empty p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/*
+ * "Buscando tickets": a 64px spinner (`bds-loading-spinner`) with 32 gap (`.spinner-container.mb4`) and the fs-20 semi-bold title.
+ */
+.dk-girando {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 32px;
+  border: 6px solid var(--p-superficie-3);
+  border-top-color: var(--p-marca);
+  border-radius: 50%;
+  animation: dk-girar 1s linear infinite;
+}
+
+.dk-girando.dk-girando-pequeno {
+  width: 32px;
+  height: 32px;
+  border-width: 4px;
+  margin: 24px auto;
+}
+
+@keyframes dk-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*
+ * ----------------------------------------------------------- the header
+ *    `.pane-chat-header { background: surface-1 }`, `.chat-header { padding: 1.5rem }` — 24px all around. Face `bds-avatar size="standard"` (56px); name in fs-16 semi-bold (`max-width: 265px`) and the "Ticket: #N · Bot: · Fila:" line in fs-12 with `column-gap: 5px`; on the right the 40px buttons, 8px apart; the .5px line on surface 3 at the bottom.
+ */
+.dk-conversation-header {
+  position: relative;
+  flex-shrink: 0;
+  background: var(--p-superficie-1);
+}
+
+.dk-conversation-header-core {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+}
+
+.dk-conversation-contact {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.dk-conversation-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 8px;
+  user-select: none;
+}
+
+.dk-conversation-name {
+  display: block;
+  max-width: 265px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--d-peso-semi);
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dk-conversation-ticket {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 5px;
+  font-size: 12px;
+  line-height: 19px;
+}
+
+.dk-conversation-ticket span {
+  display: flex;
+  white-space: nowrap;
+}
+
+.dk-conversation-ticket b {
+  font-weight: var(--d-peso-semi);
+}
+
+.dk-conversation-ticket i {
+  margin-left: 4px;
+  font-style: normal;
+}
+
+@media (max-width: 1112px) {
+  .dk-conversation-ticket .dk-some-medio {
+    display: none;
+  }
+}
+
+.dk-conversation-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+/*
+ * "Finalizar": above 1280 it's `bds-button primary` with icon and text; below 1280, icon only (`#close-ticket-button-icon`).
+ */
+.dk-finalizar-texto {
+  display: none;
+}
+
+@media (min-width: 1281px) {
+  .dk-finalizar-texto {
+    display: inline-flex;
+  }
+
+  .dk-finalizar-icone {
+    display: none;
+  }
+}
+
+/* The button that opens and closes the panel only exists in the medium band (`show-medium`, 950–1112). */
+#show-user-info {
+  display: none;
+}
+
+@media (max-width: 1112px) {
+  #show-user-info {
+    display: inline-flex;
+  }
+}
+
+.dk-divisor {
+  height: 0.5px;
+  width: 100%;
+  background: var(--p-superficie-3);
+}
+
+/*
+ * The tag strip below the header (`.tags-container { height: 64px }`, `pa3` = 16px): tag icon + "Adicionar tags" fs-16 semi-bold, and the tags in a row (`.tags-scroll ml5 mr5`).
+ */
+.dk-etiquetas {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.dk-etiquetas-botao {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-size: 16px;
+  font-weight: var(--d-peso-semi);
+  cursor: pointer;
+}
+
+.dk-etiquetas-botao svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dk-queue-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 32px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+/*
+ * The in-conversation search (`.search-section`): surface 1, 16px inset, field + close button; absolute over the body above 950px.
+ */
+.dk-search-conversation {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--p-superficie-1);
+}
+
+.dk-search-conversation .dk-campo {
+  flex: 1 1 auto;
+  margin-right: 8px;
+  min-width: 20%;
+}
+
+.dk-search-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1 1 100%;
+  margin-top: 4px;
+  padding-bottom: 8px;
+  font-size: 16px;
+}
+
+/*
+ * ---------------------------------------------------------- the body
+ *    `.message-list--panechat .card-group-container { padding: 32px 24px }` (40px 64px above 1600; 26px 16px up to 480), its own scroll.
+ */
+.dk-conversation-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dk-thread {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-conteudo-fantasma) transparent;
+}
+
+.dk-thread-miolo {
+  padding: 32px 24px;
+  margin-bottom: 10px;
+}
+
+@media (min-width: 1600px) {
+  .dk-thread-miolo {
+    padding: 40px 64px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dk-thread-miolo {
+    padding: 26px 16px;
+  }
+}
+
+/*
+ * The group (`.blip-message-group .blip-card-group { margin-bottom: 20px }`), with 35px inset on the inbound side and 55px on the outbound side when there's a face (`.blip-container--with-photo`).
+ */
+.dk-grupo {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.dk-grupo::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+/*
+ * `.blip-container { margin-bottom: 10px }` doesn't apply inside the group: bubbles stitch together with the `.bubble`'s 5px.
+ */
+.dk-balao-caixa {
+  position: relative;
+  width: 100%;
+}
+
+.dk-balao-caixa::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+/*
+ * `.blip-card .bubble`: max 90%, 20 line height, font 16, 1px border in ghost content, 5px at the bottom; `.plain-text .bubble { padding: 10px 16px }`. Inbound (`.left`): surface 1 with content; outbound (`.right`): the text's gray (content) with surface 1 on top.
+ */
+.dk-balao {
+  position: relative;
+  float: left;
+  max-width: 90%;
+  margin-bottom: 5px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-conteudo-fantasma);
+  border-radius: 13px 13px 13px 2px;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+  font-size: 16px;
+  font-weight: var(--d-peso-normal);
+  line-height: 20px;
+  white-space: pre-line;
+  word-wrap: break-word;
+  text-align: left;
+}
+
+.dk-balao a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.dk-grupo-saida .dk-balao {
+  float: right;
+  border-radius: 13px 2px 13px 13px;
+  background: var(--p-conteudo);
+  color: var(--p-superficie-1);
+}
+
+/*
+ * The corners inside the group (`.blip-card-group > :first-child … .bubble`): the 2px clip lives at the bottom, on the speaker's side; on the rest, the top one on the same side also shrinks.
+ */
+.dk-group-inbound .dk-balao-caixa:first-child .dk-balao {
+  border-radius: 13px 13px 13px 2px;
+}
+
+.dk-group-inbound .dk-balao-caixa:not(:first-child) .dk-balao {
+  border-radius: 2px 13px 13px 2px;
+}
+
+.dk-grupo-saida .dk-balao-caixa:first-child .dk-balao {
+  border-radius: 13px 13px 2px 13px;
+}
+
+.dk-grupo-saida .dk-balao-caixa:not(:first-child) .dk-balao {
+  border-radius: 13px 2px 2px 13px;
+}
+
+/*
+ * Failure: the bubble goes to 50% (`.failed-message .bubble.right { opacity: .5 }`) and a 25×25 red icon sits 10px from the bottom, flush right, outside the bubble (`.icon-message-failed`).
+ */
+.dk-grupo-saida .dk-balao-caixa[data-falhou='true'] .dk-balao {
+  opacity: 0.5;
+}
+
+.dk-balao-falha {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-error-content);
+  cursor: pointer;
+}
+
+.dk-balao-falha svg {
+  width: 25px;
+  height: 25px;
+}
+
+/*
+ * The group's timestamp (`.group-notification`): 10px/14px in disabled content, on the speaker's side; outbound, the delivery mark (20×15) comes before the time. Inside the group, each bubble's own timestamp disappears.
+ */
+.dk-grupo-hora {
+  display: flex;
+  align-items: center;
+  clear: both;
+  font-size: 10px;
+  line-height: 14px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-grupo-saida .dk-grupo-hora {
+  justify-content: flex-end;
+}
+
+.dk-grupo-hora svg {
+  width: 20px;
+  height: 15px;
+  margin-right: 2px;
+}
+
+.dk-grupo-hora[data-delivery='read'] svg {
+  color: var(--p-info-conteudo);
+}
+
+/*
+ * The ticket-change line (`.ticket`): centered, in disabled content, 5px on top; the phrase (`.fancy`, line height 1) between two 1px lines on surface 3 at 15px (`span:before/after`); and the "Ticket #N" title at 20/500 with 10px margin (`h3`).
+ */
+.dk-ticket-linha {
+  padding-top: 5px;
+  overflow: hidden;
+  text-align: center;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-ticket-linha p {
+  margin: 0;
+  line-height: 1;
+  font-size: 16px;
+}
+
+.dk-ticket-linha p span {
+  display: inline-block;
+  position: relative;
+}
+
+.dk-ticket-linha p span::before,
+.dk-ticket-linha p span::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 600px;
+  height: 5px;
+  border-bottom: 1px solid var(--p-superficie-3);
+}
+
+.dk-ticket-linha p span::before {
+  right: 100%;
+  margin-right: 15px;
+}
+
+.dk-ticket-linha p span::after {
+  left: 100%;
+  margin-left: 15px;
+}
+
+.dk-ticket-linha h3 {
+  margin: 10px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 23px;
+}
+
+/*
+ * The internal note, in place of bubbles: the same "comment" as the reference (`.comment`), centered.
+ */
+.dk-nota {
+  clear: both;
+  margin: 0 auto 10px;
+  max-width: 90%;
+  padding: 10px 16px;
+  border-radius: 13px;
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+  font-size: 14px;
+  line-height: 20px;
+  text-align: left;
+}
+
+.dk-nota b {
+  display: block;
+  font-size: 12px;
+}
+
+/* "Voltar ao fim" (`.message-list .scroll-button`): 40×40, redondo, a 24px
+   do fundo e 5% da direita, sombra 0 1px 7px 10%. */
+.dk-voltar-fim {
+  position: absolute;
+  right: 5%;
+  bottom: 24px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 100%;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo-fantasma);
+  box-shadow: 0 1px 7px 0 rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+/*
+ * -------------------------------------------------------- the composer
+ *    `.pane-chat-message-input { padding: 0 24px }`; the `bds-paper` `.pane-chat-message-input__container`: 150 floor, 420 ceiling, radius 8, 1px border on surface 3, surface 1 background, 8px at the bottom, static shadow. Inside: `.input-wrapper pa3 pb0` (16 16 0), the `textarea` from 4em to 11.5em (16px), and `.action-buttons` at 56px with `mt3 ph3 pb3` (12 / 16 / 16).
+ */
+.dk-composer {
+  flex-shrink: 0;
+  width: 100%;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.dk-composer-paper {
+  position: relative;
+  width: 100%;
+  min-height: 150px;
+  max-height: 420px;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  box-shadow: var(--d-shadow-paper);
+}
+
+.dk-composer-core {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  margin-bottom: 4px;
+}
+
+.dk-composer-field {
+  flex-grow: 1;
+  /* 16 16 0 (`pa3 pb0`) plus the 4px the inline-block textarea leaves at the bottom (68 measured for a 64 field). */
+  padding: 16px 16px 4px;
+  overflow: hidden;
+}
+
+.dk-composer textarea {
+  display: block;
+  width: 100%;
+  height: 4em;
+  min-height: 4em;
+  max-height: 11.5em;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  resize: none;
+  overflow-y: auto;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-conteudo-fantasma) transparent;
+}
+
+.dk-composer textarea::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-composer textarea:focus {
+  outline: none;
+}
+
+.dk-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  margin-top: 12px;
+  padding: 0 16px 16px;
+  box-sizing: border-box;
+}
+
+.dk-composer-left {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+/* Below 1112 the block becomes a row: field and actions side by side. */
+@media (max-width: 1112px) {
+  .dk-composer-paper {
+    min-height: 56px;
+    max-height: 280px;
+  }
+
+  .dk-composer-core {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .dk-composer-field {
+    padding: 8px 0 8px 16px;
+  }
+
+  .dk-composer textarea {
+    height: 1.5em;
+    min-height: 1.5em;
+    max-height: 7em;
+  }
+
+  .dk-composer-actions {
+    margin-top: 0;
+    padding: 0 16px;
+  }
+}
+
+/*
+ * When the conversation doesn't accept free text, the whole composer gives way to a centered block with one line and a button (the reference's four cases).
+ */
+.dk-composer-closed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 150px;
+  margin-bottom: 8px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  text-align: center;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/*
+ * The canned-reply panel (`.custom-reply`) that opens above the field: paper surface over the composer, list on the left and preview on the right with "Pressione Enter para selecionar".
+ */
+.dk-respostas {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 5;
+  display: flex;
+  max-height: 320px;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  box-shadow: var(--d-shadow-paper);
+  overflow: hidden;
+}
+
+.dk-respostas-lista {
+  flex: 1 1 50%;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.dk-respostas-item {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-respostas-item[aria-selected='true'],
+.dk-respostas-item:hover {
+  background: var(--p-superficie-2);
+}
+
+.dk-respostas-item small {
+  display: block;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-respostas-previa {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 50%;
+  min-width: 0;
+  border-left: 1px solid var(--p-superficie-3);
+}
+
+.dk-respostas-previa-rotulo,
+.dk-respostas-previa-pe {
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+  text-align: right;
+}
+
+.dk-respostas-previa-pe {
+  text-align: center;
+}
+
+.dk-respostas-previa-corpo {
+  padding: 8px 16px;
+  font-size: 16px;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.dk-replies-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 32px;
+  font-size: 16px;
+}
+
+/* A janela de 24h fechada: o aviso do `bds-alert` de aviso dentro do compositor. */
+.dk-alerta {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.dk-alerta svg {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.dk-alerta b {
+  display: block;
+  font-size: 16px;
+}
+
+/* The file-drop area, over the entire conversation (`.drop-container`). */
+.dk-soltar {
+  position: absolute;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--p-superficie-1);
+  opacity: 0.9;
+}
+
+.dk-drop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 96%;
+  height: 95%;
+  border: 7px dashed var(--p-superficie-3);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 40px;
+}
+
+/*
+ * ======================================================= the panel (drawer)
+ *    `#container .drawer { width: 25% }`, `.drawer { min-width: 260px }`, surface 2. `.drawer-heading`: 49px (57 up to 1440), `ph3` (16px), fs-20 semi-bold title. `.drawer-tabs { height: calc(100% - 58px) }` on surface 1, with a 54px tab strip; each tab is its own scroller.
+ */
+.dk-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 25%;
+  width: 25%;
+  min-width: var(--d-drawer-min);
+  height: 100%;
+  background: var(--p-superficie-2);
+  z-index: 2;
+}
+
+.dk-panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  height: 49px;
+  padding: 0 16px;
+  background: var(--p-superficie-1);
+}
+
+@media (max-width: 1440px) {
+  .dk-panel-top {
+    height: 57px;
+  }
+}
+
+.dk-panel-top h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--d-peso-semi);
+  line-height: 20px;
+}
+
+.dk-abas {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: var(--p-superficie-1);
+}
+
+.dk-abas-lista {
+  display: flex;
+  flex-shrink: 0;
+  height: 54px;
+  margin: 0;
+  padding: 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--p-superficie-3);
+}
+
+.dk-aba {
+  position: relative;
+  flex-shrink: 0;
+  padding: 0 16px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 54px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dk-aba[aria-selected='true'] {
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-aba[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--p-marca);
+}
+
+/*
+ * `.drawer__profile { padding: .5rem }` over surface 2; two 50% `bds-paper` (`.drawer__profile__paper { padding: 16px 24px }`, radius 16, static shadow), 8px apart.
+ */
+.dk-panel-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px;
+  background: var(--p-superficie-2);
+  overflow-y: auto;
+}
+
+.dk-paper {
+  flex: 1 1 50%;
+  min-height: 0;
+  padding: 16px 24px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: var(--p-superficie-1);
+  box-shadow: var(--d-shadow-paper);
+  overflow-y: auto;
+}
+
+.dk-paper:first-child {
+  margin-bottom: 8px;
+}
+
+.dk-paper-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--d-peso-semi);
+  line-height: 24px;
+}
+
+/*
+ * `.profile-info-item { margin: 12px 0 4px }`: fs-12 semi-bold label on top, fs-16 value below, and the copy button (24×28) on the right.
+ */
+.dk-campo-perfil {
+  position: relative;
+  margin: 12px 0 4px;
+  padding-right: 28px;
+  font-size: 16px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.dk-campo-perfil b {
+  display: block;
+  font-size: 12px;
+  font-weight: var(--d-peso-semi);
+  line-height: 18px;
+}
+
+.dk-campo-perfil a {
+  color: var(--p-marca);
+}
+
+.dk-copiar {
+  position: absolute;
+  right: 0;
+  top: 18px;
+  width: 24px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+  opacity: 0;
+}
+
+.dk-campo-perfil:hover .dk-copiar,
+.dk-copiar:focus-visible {
+  opacity: 1;
+}
+
+.dk-copiar svg {
+  width: 24px;
+  height: 24px;
+}
+
+/*
+ * Comments (`.comment-section`): title, scrolling area with the centered empty state (icon + "Não há comentários sobre este usuário"), and the two-line "Escreva um comentário..." field (`bds-input is-textarea rows=2`).
+ */
+.dk-comentarios {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.dk-comentarios-lista {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.dk-comments-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.dk-comments-empty svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 0;
+}
+
+.dk-comentario {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--p-superficie-2);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.dk-comentario small {
+  display: block;
+  color: var(--p-conteudo-desabilitado);
+  font-size: 12px;
+}
+
+.dk-comentarios-campo {
+  padding-top: 8px;
+}
+
+.dk-campo-texto {
+  display: flex;
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--d-campo-linha);
+  border-radius: 8px;
+  background: transparent;
+}
+
+.dk-campo-texto textarea {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  resize: none;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  outline: none;
+}
+
+.dk-campo-texto textarea::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+
+/*
+ * The History tab (`.drawer__history__paper { padding: 16px 24px }`): an accordion per origin, each row with number, agent and date.
+ */
+.dk-history-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--p-superficie-2);
+  color: inherit;
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.dk-history-item small {
+  color: var(--p-conteudo-desabilitado);
+  font-size: 12px;
+}
+
+/*
+ * The no-conversation panel's skeleton (`.drawer > div.pa2 > img`): gray bars at the capture's positions.
+ */
+.dk-panel-skeleton {
+  padding: 8px;
+}
+
+.dk-esqueleto-barra {
+  height: 12px;
+  margin: 8px 0;
+  border-radius: 6px;
+  background: var(--d-tinta-12);
+}
+
+.dk-skeleton-paper {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--d-tinta-8);
+}
+
+/*
+ * ======================================================== modals (bds-modal)
+ *    50%-black veil; the 8px-radius paper with 32 inset and actions on the right.
+ */
+.dk-veu {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dk-modal {
+  width: 560px;
+  max-width: calc(100% - 32px);
+  max-height: calc(100% - 64px);
+  padding: 32px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  overflow-y: auto;
+}
+
+.dk-modal h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.dk-modal label {
+  display: block;
+  margin: 16px 0 4px;
+  font-size: 14px;
+  font-weight: var(--d-peso-semi);
+}
+
+.dk-modal select,
+.dk-modal input[type='text'] {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--d-campo-linha);
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.dk-error {
+  margin: 8px 0 0;
+  color: var(--p-error-content);
+  font-size: 14px;
+}
+
+/*
+ * ========================================================== responsive
+ *    Up to 1112 the panel hides behind and, when open, overlaps the conversation (z 10); up to 950 the three columns become 100% and slide with `left: -100%`/`-200%`.
+ */
+@media (max-width: 1112px) {
+  .dk-panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: -1;
+  }
+
+  [data-panel='open'] .dk-panel {
+    z-index: 10;
+  }
+}
+
+@media (max-width: 950px) {
+  .dk-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dk-column,
+  .dk-conversation,
+  .dk-panel {
+    position: relative;
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 100%;
+    left: 0;
+    transition: left 0.5s;
+    z-index: 1;
+  }
+
+  .dk-app[data-status='chat'] .dk-column,
+  .dk-app[data-status='chat'] .dk-conversation,
+  .dk-app[data-status='chat'] .dk-panel {
+    left: -100%;
+  }
+
+  .dk-app[data-status='drawer'] .dk-column,
+  .dk-app[data-status='drawer'] .dk-conversation,
+  .dk-app[data-status='drawer'] .dk-panel {
+    left: -200%;
+  }
+}
+
+/* With the panel closed (up to 1600), the conversation takes 75%. */
+@media (max-width: 1600px) {
+  [data-panel='closed'] .dk-conversation {
+    flex-basis: 75%;
+    width: 75%;
+  }
+
+  [data-panel='closed'] .dk-panel {
+    display: none;
+  }
+}
+
+/* Short reference utilities that show up in the markup (`hide-small`…). */
+.dk-so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+ * ================================================ the "Seu status" panel
+ *    The reference's `navbar-submenu` (measured in `desk2/blip-menu-status.png`): 300px dark next to the rail, 8 24 inset, 40px header with the arrow and "Seu status" (gap 10); centered `user-info` (avatar 56, name 14/600, email 12); the statuses in 56px buttons (16 inset, radius 8, gap 10) — the active one with 8% background and the check; "Desconectar" at the footer.
+ */
+.dk-status-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 300px;
+  width: 300px;
+  height: 100%;
+  padding: 24px 24px 8px;
+  box-sizing: border-box;
+  background: var(--d-rail);
+  color: var(--d-rail-ink);
+}
+
+.dk-status-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin-bottom: 32px;
+  font-size: 16px;
+}
+
+.dk-status-cabecalho .dk-botao-icone,
+.dk-status-pausas-titulo .dk-botao-icone {
+  color: inherit;
+}
+
+.dk-status-conteudo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.dk-status-eu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.dk-status-eu b {
+  font-size: 14px;
+  font-weight: var(--d-peso-semi);
+  line-height: 18px;
+}
+
+.dk-status-eu small {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-status-options {
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+}
+
+.dk-status-options li {
+  padding: 4px 0;
+}
+
+.dk-status-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 56px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-status-option:hover {
+  background: var(--d-rail-cursor);
+}
+
+.dk-status-option[aria-checked='true'] {
+  background: var(--d-rail-strength);
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-status-option svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dk-status-rotulo {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dk-status-ponto {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--p-superficie-3);
+}
+
+.dk-status-ponto[data-status='online'] {
+  background: var(--p-sucesso-sobre-escuro);
+}
+
+.dk-status-ponto[data-status='paused'] {
+  background: var(--p-alerta-conteudo);
+}
+
+.dk-status-pausas {
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--d-rail-strength);
+}
+
+.dk-status-pausas-titulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.dk-status-empty {
+  padding: 16px;
+  font-size: 14px;
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-status-sair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 56px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-status-sair span {
+  flex: 1 1 auto;
+}
+
+.dk-status-sair:hover {
+  background: var(--d-rail-cursor);
+}
+
+.dk-status-sair svg {
+  width: 24px;
+  height: 24px;
+}
+/* ======================================================= tela de entrada
+
+   A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
+   Copiada de `apps/management-vite/src/estilos/globais.css` — a tela de entrada do
+   Desk é a da Gestão, só o título muda.
+
+   Esta seção é a ENTREGA do desenho da tela de entrada, medida por medida:
+   cartão de 400px com canto de 20px, controles de 48px com canto de 12px, e o
+   bloco de 413x308 ao lado, que some abaixo de 1000px. O fundo vive em
+   `entrar/fundo-pipe.tsx` — um canvas que desenha o feixe de partículas; aqui
+   ele só ocupa a caixa.
+
+   Ela NÃO usa a escala do resto do aplicativo: a entrada tem tipografia e
+   espaço próprios (DM Sans, 15px de corpo), e forçar os token da plataforma
+   aqui desfaria o desenho. Os valores da entrega viram token locais no
+   `.entrar` abaixo, e nada fora desta seção os enxerga. */
+
+.login {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  font-family: 'DM Sans', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+
+  /* The delivery's tokens. They stay scoped to the purpose screen. */
+  --pe-fundo: #f2f1ec;
+  --pe-paper: #ffffff;
+  --pe-campo: #fbfbf7;
+  --pe-conteudo: #16150f;
+  --pe-rotulo: #3f3e36;
+  --pe-apoio: #6a695e;
+  --pe-marca-dagua: #9a9a8e;
+  --pe-linha: #dfdecf;
+  --pe-linha-forte: #c9c8b8;
+  --pe-linha-fina: #edece2;
+  --pe-marca: #4a5d23;
+  --pe-marca-forte: #3d4d1c;
+
+  background: var(--pe-fundo);
+  color: var(--pe-conteudo);
+}
+
+/*
+ * The background canvas. `pointer-events: none` because it covers the whole screen and can't steal a click from the form.
+ */
+.login-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/*
+ * `justify-content: flex-start`, not `center`: the card sits on the left and the beam sweeps the opposite corner. Centering would bring the card over the artwork.
+ */
+.login-stage {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 96px;
+  min-height: 100dvh;
+  padding: 48px 40px;
+  box-sizing: border-box;
+}
+
+/*
+ * The card flush left, 120px from the border — the measurement from the source screen. Centering would bring the form over the beam.
+ */
+@media (min-width: 1000px) {
+  .login-stage {
+    padding-left: 120px;
+  }
+}
+
+.login-card {
+  width: 560px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 48px 44px 36px;
+  background: var(--pe-paper);
+  border-radius: 22px;
+  box-shadow:
+    0 1px 2px rgba(22, 21, 15, 0.05),
+    0 24px 60px -14px rgba(22, 21, 15, 0.2);
+}
+
+.login-lockup {
+  display: block;
+  height: 44px;
+  margin-bottom: 32px;
+}
+
+/*
+ * The sign-in screen has no written title: the brand plays that role. The `h1` is there for whoever listens to the screen and disappears only for the eyes. (In the invite screen the title IS information, and there it stays visible.)
+ */
+.login-title-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+ * The rejection reason, with the person's exit. Comes BEFORE the buttons in reading order: someone using a screen reader needs the reason before the action.
+ */
+.login-alert {
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  background: var(--pe-campo);
+  border: 1px solid var(--pe-linha);
+  border-left: 3px solid var(--pe-marca);
+  border-radius: 12px;
+}
+
+.login-alert h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pe-conteudo);
+}
+
+.login-alert p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
+}
+
+.login-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  border: 1px solid var(--pe-linha);
+  border-radius: 14px;
+  background: var(--pe-paper);
+  color: var(--pe-conteudo);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.login-google:hover {
+  background: var(--pe-campo);
+  border-color: var(--pe-linha-forte);
+  color: var(--pe-conteudo);
+}
+
+.login-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.login-or span:not(.login-or-text) {
+  flex: 1;
+  height: 1px;
+  background: var(--pe-linha-fina);
+}
+
+.login-or-text {
+  font-size: 14px;
+  color: var(--pe-apoio);
+}
+
+.login-card label {
+  display: block;
+  margin: 0 0 7px 2px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pe-rotulo);
+}
+
+.login-card input[type='email'],
+.login-card input[type='password'],
+.login-card input[type='text'] {
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  padding: 0 18px;
+  border: 1px solid var(--pe-linha);
+  border-radius: 14px;
+  background: var(--pe-campo);
+  font: inherit;
+  font-size: 18px;
+  color: var(--pe-conteudo);
+  outline: none;
+}
+
+/* As margens do desenho: 16px depois do e-mail, 10px depois da senha (a
+   linha do "esqueci minha senha" vem logo abaixo dela). */
+.login-card input[type='email'] {
+  margin-bottom: 16px;
+}
+
+.login-card input[type='password'] {
+  margin-bottom: 10px;
+}
+
+.login-forgot {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 22px;
+  font-size: 14px;
+}
+
+.login-forgot a {
+  text-decoration: none;
+}
+
+.login-card input::placeholder {
+  color: var(--pe-marca-dagua);
+}
+
+.login-card input:focus {
+  border-color: var(--pe-marca);
+  background: var(--pe-paper);
+}
+
+.login-help {
+  margin: -12px 2px 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
+}
+
+.login-card button[type='submit'] {
+  width: 100%;
+  height: 60px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--pe-marca);
+  color: var(--pe-fundo);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.login-card button[type='submit']:hover {
+  background: var(--pe-marca-forte);
+}
+
+.login-foot {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--pe-linha-fina);
+  font-size: 14px;
+  color: var(--pe-apoio);
+}
+
+.login a {
+  color: var(--pe-marca);
+}
+
+.login a:hover {
+  color: var(--pe-marca-forte);
+}
+
+.login-foot a {
+  text-decoration: none;
+}
+
+/* ---- what the invite adds to the same card ---- */
+
+.login-card h1 {
+  margin: 0 0 10px;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--pe-conteudo);
+}
+
+.login-sub {
+  margin: 0 0 22px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
+}
+
+/* The invitation data: label on the left, value on the right. */
+.login-data {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 16px;
+  margin: 0 0 22px;
+  font-size: 14px;
+}
+
+.login-data dt {
+  color: var(--pe-apoio);
+}
+
+.login-data dd {
+  margin: 0;
+  font-weight: 500;
+  color: var(--pe-conteudo);
+  /* Long email wraps instead of stretching the card. */
+  overflow-wrap: anywhere;
+}
+
+.login-footer {
+  margin: 18px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
+}
+
+/* The active account, in the logged-in menu. Serves all three screens. */
+
+/*
+ * ============================================================ contacts
+ *    The `desk-contact-history` MFE measured in `~/desk-clone/clone/mfe-teste.html` (1200 width): 300 / 600 / 300. Left: 110px block on surface 1 (52px title with 16 inset; 58px search with 8 inset and 8 gap: 42px field and 40px button); the list with 8 inset, the group label 14/700 in a 37px block (8 inset), 62px cards (8 inset, radius 8, 1px border on surface 3, surface 1 background, 12 gap): 40px face in a 44px box, name 16/600/24, "Última interação" 10/15, 20px arrow. Selected: surface 3.
+ */
+.dk-contacts {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
+.dk-contacts-list {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 25%;
+  width: 25%;
+  min-width: 0;
+  background: var(--p-superficie-2);
+}
+
+.dk-contacts-top {
+  background: var(--p-superficie-1);
+}
+
+.dk-contacts-title {
+  padding: 16px;
+}
+
+.dk-contacts-title h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 20px;
+}
+
+.dk-contacts-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+.dk-contacts-search .dk-campo {
+  flex: 1 1 auto;
+}
+
+.dk-contacts-order {
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  width: 240px;
+  padding: 16px;
+}
+
+.dk-contacts-order-title {
+  padding: 8px 0 0;
+  margin-bottom: 24px;
+  font-size: 16px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 24px;
+}
+
+.dk-contacts-order-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 8px;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-contacts-order-item[aria-checked='true'] {
+  background: var(--p-superficie-3);
+}
+
+.dk-contacts-order-item span {
+  flex: 1 1 auto;
+}
+
+.dk-contacts-order-item svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dk-contacts-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.dk-contacts-group {
+  padding: 8px;
+  font-size: 14px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 21px;
+}
+
+.dk-contacts-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dk-contact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 62px;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-contact[aria-current='true'] {
+  background: var(--p-superficie-3);
+}
+
+.dk-contact-face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+}
+
+.dk-contact-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dk-contact-text b {
+  font-size: 16px;
+  font-weight: var(--d-peso-semi);
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dk-contact-text small {
+  font-size: 10px;
+  line-height: 15px;
+}
+
+/*
+ * The middle: the empty state (150×155 illustration, 16 gap, title 16/700, text 16/400 at 420 width) and the footer with a 568px paper (0 16 32 inset, 126px paper with 16 gap, "Conversar novamente" button).
+ */
+.dk-contacts-middle {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  min-width: 0;
+  background: var(--p-superficie-2);
+}
+
+.dk-contacts-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  gap: 16px;
+  text-align: center;
+}
+
+.dk-contacts-illustration {
+  width: 150px;
+  height: 155px;
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-contacts-illustration svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dk-contacts-empty-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 420px;
+  max-width: 100%;
+}
+
+.dk-contacts-empty-text h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 24px;
+}
+
+.dk-contacts-empty-text p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.dk-contacts-footer {
+  padding: 0 16px 32px;
+}
+
+.dk-contacts-footer-paper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 126px;
+  box-sizing: border-box;
+  padding: 24px;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  text-align: center;
+}
+
+.dk-contacts-footer-paper p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+/* On the right: the tabs in a 56px header (4 16 inset), centered, 32 gap. */
+.dk-contacts-right {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 25%;
+  width: 25%;
+  min-width: 0;
+  background: var(--p-superficie-2);
+}
+
+.dk-contacts-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  height: 56px;
+  padding: 4px 16px;
+  box-sizing: border-box;
+  background: var(--p-superficie-1);
+}
+
+.dk-contacts-tabs .dk-aba {
+  padding: 0;
+  line-height: 48px;
+}
+
+.dk-history-button {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--p-superficie-2);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-history-button[aria-current='true'] {
+  background: var(--p-superficie-2);
+}
+
+/*
+ * ============================================================= metrics
+ *    The clone's `metrics` section from `~/desk-clone/clone/index.html` (photo `desk2/blip-clone-metrics.png`): surface 1, header with 14 gap and 14 24 inset over a line; title 19/700/24 and subtitle 12; "Atualizar" at 13 with 16 margin; the `.seg` button bar at 13 (7 14 inset, radius 8, the active one in dark chrome); body with 18 24 32 inset and 24 gap; `h3` 16/700 with 18 below; a 118px ring and a 3×2 card grid (surface 2, radius 8, 14 8 inset, number 20/400, label 12 with an 8px dot).
+ */
+.dk-metrics {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  background: var(--p-superficie-1);
+  overflow-y: auto;
+}
+
+.dk-metrics-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--p-superficie-2);
+}
+
+.dk-metrics-top > svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dk-metrics-title {
+  font-size: 19px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 24px;
+}
+
+.dk-metrics-sub {
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-metrics-space {
+  flex: 1;
+}
+
+.dk-metrics-refresh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo-desabilitado);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dk-seg {
+  display: flex;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dk-seg button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 0;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dk-seg button + button {
+  border-left: 1px solid var(--p-superficie-3);
+}
+
+.dk-seg button[aria-checked='true'] {
+  background: var(--p-superficie-4);
+  color: var(--p-conteudo-claro);
+}
+
+.dk-metrics-dates {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 24px;
+  font-size: 13px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-metrics-dates input {
+  margin-left: 6px;
+  padding: 6px 8px;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.dk-metrics-body {
+  display: flex;
+  gap: 24px;
+  padding: 18px 24px 32px;
+}
+
+.dk-metrics-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.dk-metrics h3 {
+  margin: 0 0 18px;
+  font-size: 16px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-kpis {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.dk-kpi-grade {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  flex: 1;
+}
+
+.dk-kpi {
+  padding: 14px 8px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.dk-kpi b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 20px;
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-kpi span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-ponto {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dk-grafico-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 30px 0 8px;
+}
+
+.dk-ficha-cinza {
+  padding: 4px 12px;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 14px;
+  font-size: 11px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-grafico-max {
+  font-size: 11px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+/* The daily series: 110px tall over the axis line, bars in pairs. */
+.dk-eixo {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 110px;
+  border-bottom: 1px solid var(--p-superficie-3);
+}
+
+.dk-barra-dia {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  flex: 1 1 0;
+  height: 100%;
+}
+
+.dk-barra {
+  flex: 1 1 0;
+  min-height: 1px;
+  border-radius: 2px 2px 0 0;
+}
+
+.dk-barra-fechados {
+  background: var(--p-grafico-2);
+}
+
+.dk-barra-abertos {
+  background: var(--p-grafico-1);
+}
+
+.dk-eixo-rotulos {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-medias {
+  display: flex;
+  gap: 56px;
+  margin-top: 34px;
+}
+
+.dk-medias div span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-medias div b {
+  font-size: 15px;
+  font-weight: var(--d-peso-normal);
+}
+
+/*
+ * ======================================================= active message
+ *    The clone's `active-msg` section (photo `desk2/blip-clone-active.png`): header with 12 gap and 14 22 inset (title 17/400); the stepper between two lines with 10 22 inset (step 13, 20px disc number in dark chrome, 1px line); the yellow warning with a 3px left border (12 16 inset, 14 22 margin, 12/17); the body with 26 gap and 4 22 22 inset: form up to 520 and a 500px panel (12 14 header, centered 300px body).
+ */
+.dk-active {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  background: var(--p-superficie-1);
+  overflow-y: auto;
+}
+
+.dk-active-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+}
+
+.dk-active-top h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 17px;
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-top: 1px solid var(--p-superficie-2);
+  border-bottom: 1px solid var(--p-superficie-2);
+}
+
+.dk-stepper-passo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-stepper-passo[aria-current='step'] {
+  color: var(--p-conteudo);
+}
+
+.dk-stepper-numero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--p-superficie-4);
+  color: var(--p-conteudo-claro);
+  font-size: 11px;
+}
+
+.dk-stepper-linha {
+  flex: 1;
+  height: 1px;
+  background: var(--p-superficie-3);
+}
+
+.dk-alerta-aviso {
+  display: flex;
+  gap: 10px;
+  margin: 14px 22px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--p-alerta-conteudo);
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.dk-alerta-aviso svg {
+  flex-shrink: 0;
+}
+
+.dk-active-body {
+  display: flex;
+  justify-content: space-between;
+  gap: 26px;
+  padding: 4px 22px 22px;
+}
+
+.dk-active-form {
+  flex: 1;
+  max-width: 520px;
+}
+
+.dk-active-form h3 {
+  margin: 18px 0 6px;
+  font-size: 15px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-active-form > p {
+  margin: 0 0 16px;
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-active-radios {
+  display: flex;
+  gap: 36px;
+  margin-bottom: 6px;
+}
+
+.dk-active-radios label,
+.dk-bulk-radios label,
+.dk-bulk-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* The field with the label on top (`.field`): border, radius 8, 8 12 inset, 12 at the bottom. */
+.dk-campo-flutuante {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-linha-forte);
+  border-radius: 8px;
+}
+
+.dk-campo-flutuante > span {
+  font-size: 11px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-campo-flutuante > b {
+  font-size: 13px;
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-campo-flutuante select,
+.dk-campo-flutuante input {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.dk-campo-flutuante input::placeholder {
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-active-phone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.dk-active-phone small {
+  font-size: 9px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-active-phone input {
+  flex: 1;
+}
+
+.dk-active-help {
+  margin: -6px 0 12px;
+  font-size: 11px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-active-contacts,
+.dk-active-templates,
+.dk-active-selected {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.dk-active-contacts label,
+.dk-active-templates label,
+.dk-active-selected li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dk-active-contacts label:hover,
+.dk-active-templates label:hover {
+  background: var(--p-superficie-2);
+}
+
+.dk-active-contacts label span,
+.dk-active-templates label span,
+.dk-active-selected li span {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dk-active-contacts small,
+.dk-active-templates small,
+.dk-active-selected small {
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-active-side {
+  flex: 0 0 500px;
+  width: 500px;
+  max-width: 100%;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+}
+
+.dk-active-side-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--p-superficie-2);
+  font-size: 13px;
+}
+
+.dk-active-clear {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--p-conteudo-desabilitado);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dk-active-side-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 300px;
+  padding: 0 30px;
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+  text-align: center;
+}
+
+.dk-active-side-body .dk-active-selected {
+  width: 100%;
+  margin: 0;
+  color: var(--p-conteudo);
+  text-align: left;
+}
+
+.dk-active-box {
+  width: 78px;
+  height: 62px;
+  border: 2px dashed var(--p-linha-forte);
+  border-radius: 6px;
+}
+
+.dk-active-foot {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 22px 20px;
+}
+
+/*
+ * ======================================================= bulk actions
+ *    The clone's `bulk` section (photo `desk2/blip-clone-bulk.png`): 20 26 inset, title 20/400 with 16 below, surface-1 card (radius 8, 22 30 inset, 560 floor); the chatbot row with the "Transferir" record; the two columns with 40 gap over a line (18 inset and margin); radios with 60 gap.
+ */
+.dk-bulk {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 20px 26px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.dk-bulk h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-bulk-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 560px;
+  padding: 22px 30px;
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+}
+
+.dk-bulk-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.dk-bulk-columns {
+  display: flex;
+  flex: 1;
+  gap: 40px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--p-superficie-2);
+}
+
+.dk-bulk-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.dk-bulk-column h4 {
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-bulk-check {
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-bulk-list {
+  margin-top: 12px;
+}
+
+.dk-bulk-item {
+  display: block;
+  padding: 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dk-bulk-empty {
+  font-size: 13px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-bulk-radios {
+  display: flex;
+  gap: 60px;
+  margin-bottom: 20px;
+}
+
+.dk-bulk-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+/*
+ * ========================================================= preferences
+ *    No photographed ruler (the MFE doesn't render in the copy): a list of sections with toggles, on the same paper as the Desk's cards.
+ */
+.dk-prefs {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 20px 26px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.dk-prefs h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-prefs-section {
+  max-width: 720px;
+  margin-bottom: 16px;
+  padding: 16px 24px;
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+}
+
+.dk-prefs-section h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-prefs-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--p-superficie-2);
+  cursor: pointer;
+}
+
+.dk-prefs-item span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dk-prefs-item b {
+  font-size: 14px;
+  font-weight: var(--d-peso-semi);
+}
+
+.dk-prefs-item small {
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-prefs-item input {
+  width: 40px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--p-marca);
+  cursor: pointer;
+}

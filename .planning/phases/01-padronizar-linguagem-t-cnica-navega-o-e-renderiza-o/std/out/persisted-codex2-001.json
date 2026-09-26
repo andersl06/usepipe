@@ -1,0 +1,2212 @@
+{
+  "rows": [
+    {
+      "id": "crm-cookie-c60f36ce",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-38",
+      "notes": "Short-lived or session cookie at apps/crm/src/lib/sessao.ts:48; cutover rename"
+    },
+    {
+      "id": "crm-literal-value-8af421d4",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/lib/leads-visao.ts:163"
+    },
+    {
+      "id": "crm-literal-value-8b6e4e0f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "crm-literal-value-ec583835",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/app/oportunidades/[id]/page.tsx:35"
+    },
+    {
+      "id": "crm-literal-value-2f2faffa",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/lib/busca-tipos.ts:12"
+    },
+    {
+      "id": "crm-literal-value-88b34d83",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/lib/busca.ts:87"
+    },
+    {
+      "id": "crm-literal-value-717e06b7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "crm-literal-value-efb2fad3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/lib/busca-tipos.ts:12"
+    },
+    {
+      "id": "crm-literal-value-3a1a83c5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/lib/busca.ts:94"
+    },
+    {
+      "id": "crm-literal-value-c798058a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "crm-literal-value-4d82b684",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "crm-literal-value-e4fbfa3a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/app/contas/[id]/page.tsx:39"
+    },
+    {
+      "id": "crm-literal-value-d59e3e7c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "crm-literal-value-754b3bbd",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "crm-literal-value-8f0e5d64",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "crm-literal-value-2cd13918",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "crm-literal-value-064abd46",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "crm-literal-value-2e5bc53d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "crm-literal-value-f3343f6a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/app/contatos/[id]/page.tsx:37"
+    },
+    {
+      "id": "crm-literal-value-2d92fe30",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via apps/crm/semente/semente-crm.ts"
+    },
+    {
+      "id": "crm-literal-value-e0e1eebc",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/lib/leads-visao.ts:163"
+    },
+    {
+      "id": "crm-literal-value-d2cf818b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "crm-literal-value-357bf3d9",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/app/oportunidades/[id]/page.tsx:34"
+    },
+    {
+      "id": "crm-literal-value-f6235ce5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via apps/crm/semente/semente-crm.ts"
+    },
+    {
+      "id": "crm-literal-value-962cc6fc",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "crm-literal-value-0d265121",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "crm-literal-value-6e4194de",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "crm-literal-value-052ae0ff",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "crm-literal-value-ff57c41b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "crm-literal-value-1804af4e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/lib/leads-visao.ts:162"
+    },
+    {
+      "id": "crm-literal-value-96f76a6e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via apps/crm/semente/semente-crm.ts"
+    },
+    {
+      "id": "crm-literal-value-3e291847",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/lib/busca-tipos.ts:12"
+    },
+    {
+      "id": "crm-literal-value-4205a833",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/lib/busca.ts:80"
+    },
+    {
+      "id": "crm-literal-value-61d477a8",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/app/contas/[id]/page.tsx:38"
+    },
+    {
+      "id": "crm-literal-value-a495c604",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via apps/crm/semente/semente-crm.ts"
+    },
+    {
+      "id": "crm-literal-value-9a0fb671",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via apps/crm/semente/semente-crm.ts"
+    },
+    {
+      "id": "crm-literal-value-49235d5a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via apps/crm/semente/semente-crm.ts"
+    },
+    {
+      "id": "crm-literal-value-e874c6df",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via apps/crm/semente/semente-crm.ts"
+    },
+    {
+      "id": "crm-literal-value-d8dcd6c8",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via apps/crm/semente/semente-crm.ts"
+    },
+    {
+      "id": "crm-literal-value-39454999",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via apps/crm/semente/semente-crm.ts"
+    },
+    {
+      "id": "crm-literal-value-63c1e39d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres campo_customizado.tipo"
+    },
+    {
+      "id": "crm-literal-value-75fd81c7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres campo_customizado.tipo"
+    },
+    {
+      "id": "crm-literal-value-543535cc",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres campo_customizado.tipo"
+    },
+    {
+      "id": "crm-literal-value-aa329789",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/crm/src/app/leads/[id]/page.tsx:52"
+    },
+    {
+      "id": "crm-storage-key-6a668149",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "browser localStorage key pipe-tema at apps/crm/src/lib/configuracoes-comum.ts:27"
+    },
+    {
+      "id": "crm-storage-key-af5ac3b9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "browser localStorage key pipe.crm.leads.visoes at apps/crm/src/componentes/visoes-salvas.tsx:24"
+    },
+    {
+      "id": "desk-vite-literal-value-ad6f6513",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:140"
+    },
+    {
+      "id": "desk-vite-literal-value-0ee9e28f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:360"
+    },
+    {
+      "id": "desk-vite-literal-value-2f5dfffe",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:52"
+    },
+    {
+      "id": "desk-vite-literal-value-ed4e1e16",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/contatos.ts:16"
+    },
+    {
+      "id": "desk-vite-literal-value-fed55b03",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:501"
+    },
+    {
+      "id": "desk-vite-literal-value-8e521317",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:508"
+    },
+    {
+      "id": "desk-vite-literal-value-55a39ce5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/grupos.ts:37"
+    },
+    {
+      "id": "desk-vite-literal-value-be3cdeb5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/paginas/contatos/page.tsx:208"
+    },
+    {
+      "id": "desk-vite-literal-value-126474c7",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/grupos.ts:37"
+    },
+    {
+      "id": "desk-vite-literal-value-cda91316",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:15"
+    },
+    {
+      "id": "desk-vite-literal-value-b90ccbc5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "desk-vite-literal-value-636f90ad",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:318"
+    },
+    {
+      "id": "desk-vite-literal-value-ce55f20f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:447"
+    },
+    {
+      "id": "desk-vite-literal-value-009d6fb6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/grupos.ts:37"
+    },
+    {
+      "id": "desk-vite-literal-value-92b95d3c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/paginas/atendimentos/painel.tsx:26"
+    },
+    {
+      "id": "desk-vite-literal-value-36074fff",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/paginas/contatos/page.tsx:207"
+    },
+    {
+      "id": "desk-vite-literal-value-dd454795",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:15"
+    },
+    {
+      "id": "desk-vite-literal-value-df3e2f83",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:262"
+    },
+    {
+      "id": "desk-vite-literal-value-fee92108",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/paginas/atendimentos/painel.tsx:26"
+    },
+    {
+      "id": "desk-vite-literal-value-de010c82",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "desk-vite-literal-value-9ff23cf8",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/grupos.ts:37"
+    },
+    {
+      "id": "desk-vite-literal-value-88a97a78",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:153"
+    },
+    {
+      "id": "desk-vite-literal-value-5a188a73",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:161"
+    },
+    {
+      "id": "desk-vite-literal-value-4363f4aa",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:255"
+    },
+    {
+      "id": "desk-vite-literal-value-da74d51e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:397"
+    },
+    {
+      "id": "desk-vite-literal-value-eb1358e6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:389"
+    },
+    {
+      "id": "desk-vite-literal-value-1e7f9210",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:248"
+    },
+    {
+      "id": "desk-vite-literal-value-b9cd73d1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:27"
+    },
+    {
+      "id": "desk-vite-literal-value-caff777a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:15"
+    },
+    {
+      "id": "desk-vite-literal-value-4442ba92",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:623"
+    },
+    {
+      "id": "desk-vite-literal-value-ca37e84d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/grupos.ts:37"
+    },
+    {
+      "id": "desk-vite-literal-value-f2994050",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:481"
+    },
+    {
+      "id": "desk-vite-literal-value-b7a08661",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:406"
+    },
+    {
+      "id": "desk-vite-literal-value-cb14c739",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:494"
+    },
+    {
+      "id": "desk-vite-literal-value-2489b9dc",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:15"
+    },
+    {
+      "id": "desk-vite-literal-value-883a9d56",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/contatos.ts:16"
+    },
+    {
+      "id": "desk-vite-literal-value-18ee0efb",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/paginas/contatos/page.tsx:95"
+    },
+    {
+      "id": "desk-vite-literal-value-386c6af1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:140"
+    },
+    {
+      "id": "desk-vite-literal-value-a82d3502",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:561"
+    },
+    {
+      "id": "desk-vite-literal-value-7c1701e5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-25ebacca",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres bloco.conteudo jsonb action names"
+    },
+    {
+      "id": "gestao-vite-literal-value-4c126e43",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres bloco.conteudo jsonb action names"
+    },
+    {
+      "id": "gestao-vite-literal-value-84ff2d70",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:360"
+    },
+    {
+      "id": "gestao-vite-literal-value-a7f690b4",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:40"
+    },
+    {
+      "id": "gestao-vite-literal-value-1c474883",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:41"
+    },
+    {
+      "id": "gestao-vite-literal-value-922b8a9a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/builder/painel.tsx:26"
+    },
+    {
+      "id": "gestao-vite-literal-value-e82b6b9c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:82"
+    },
+    {
+      "id": "gestao-vite-literal-value-29838fe8",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres papel.escopo / conta role"
+    },
+    {
+      "id": "gestao-vite-literal-value-0c08781a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/sla.ts:24"
+    },
+    {
+      "id": "gestao-vite-literal-value-bf1d84f4",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:38"
+    },
+    {
+      "id": "gestao-vite-literal-value-f4e0e286",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:501"
+    },
+    {
+      "id": "gestao-vite-literal-value-cdbc38c1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:508"
+    },
+    {
+      "id": "gestao-vite-literal-value-cbeecb17",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/historico.ts:75"
+    },
+    {
+      "id": "gestao-vite-literal-value-12a0a660",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/historico.tsx:123"
+    },
+    {
+      "id": "gestao-vite-literal-value-5d9ae45b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/monitoria.tsx:68"
+    },
+    {
+      "id": "gestao-vite-literal-value-ab8e68bc",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:195"
+    },
+    {
+      "id": "gestao-vite-literal-value-78aafa51",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:47"
+    },
+    {
+      "id": "gestao-vite-literal-value-c32e3e43",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:40"
+    },
+    {
+      "id": "gestao-vite-literal-value-59529728",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:46"
+    },
+    {
+      "id": "gestao-vite-literal-value-b478d370",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220"
+    },
+    {
+      "id": "gestao-vite-literal-value-cdd7ffe9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-e477baf0",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / cabecalho_tipo; Meta template contract"
+    },
+    {
+      "id": "gestao-vite-literal-value-b33ef549",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-5b4679ab",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151"
+    },
+    {
+      "id": "gestao-vite-literal-value-1840068b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/contrato/catalogo.ts:44"
+    },
+    {
+      "id": "gestao-vite-literal-value-c4b27bce",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx:67"
+    },
+    {
+      "id": "gestao-vite-literal-value-5f93b1cb",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:85"
+    },
+    {
+      "id": "gestao-vite-literal-value-c41637d6",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "gestao-vite-literal-value-940064fa",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "gestao-vite-literal-value-062df6d7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "gestao-vite-literal-value-5bd43d51",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:40"
+    },
+    {
+      "id": "gestao-vite-literal-value-5a018951",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:40"
+    },
+    {
+      "id": "gestao-vite-literal-value-699c5fb9",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/sla.ts:24"
+    },
+    {
+      "id": "gestao-vite-literal-value-d8995ca4",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:81"
+    },
+    {
+      "id": "gestao-vite-literal-value-1cc79fc9",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:87"
+    },
+    {
+      "id": "gestao-vite-literal-value-f4591b71",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:86"
+    },
+    {
+      "id": "gestao-vite-literal-value-6e5a8e15",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/sla.ts:24"
+    },
+    {
+      "id": "gestao-vite-literal-value-eeb17678",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-ac8e5dab",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / cabecalho_tipo; Meta template contract"
+    },
+    {
+      "id": "gestao-vite-literal-value-c0da2c53",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres pesquisa.disparo"
+    },
+    {
+      "id": "gestao-vite-literal-value-d69fbd9c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220"
+    },
+    {
+      "id": "gestao-vite-literal-value-7f76bce8",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220"
+    },
+    {
+      "id": "gestao-vite-literal-value-1d399f15",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:318"
+    },
+    {
+      "id": "gestao-vite-literal-value-00af788b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:447"
+    },
+    {
+      "id": "gestao-vite-literal-value-4ffd9509",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/sla.ts:24"
+    },
+    {
+      "id": "gestao-vite-literal-value-509fbcb4",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:38"
+    },
+    {
+      "id": "gestao-vite-literal-value-b295ebb6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/historico.ts:74"
+    },
+    {
+      "id": "gestao-vite-literal-value-d304e659",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:40"
+    },
+    {
+      "id": "gestao-vite-literal-value-caac9ce2",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/historico.tsx:123"
+    },
+    {
+      "id": "gestao-vite-literal-value-c8dd3e59",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:195"
+    },
+    {
+      "id": "gestao-vite-literal-value-b1516f57",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:48"
+    },
+    {
+      "id": "gestao-vite-literal-value-b1e48146",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:41"
+    },
+    {
+      "id": "gestao-vite-literal-value-eef82d52",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:45"
+    },
+    {
+      "id": "gestao-vite-literal-value-e9d00b96",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-82b66aab",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-d430462a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-16e07902",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-90b80bdb",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-0eb9366e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-98fb0f43",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/contrato/catalogo.ts:49"
+    },
+    {
+      "id": "gestao-vite-literal-value-f0393a25",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:88"
+    },
+    {
+      "id": "gestao-vite-literal-value-452084b9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres papel.escopo / conta role"
+    },
+    {
+      "id": "gestao-vite-literal-value-fa80d9ab",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-02c1f0fd",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / cabecalho_tipo; Meta template contract"
+    },
+    {
+      "id": "gestao-vite-literal-value-591fd08a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:262"
+    },
+    {
+      "id": "gestao-vite-literal-value-bb530354",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-8d687139",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151"
+    },
+    {
+      "id": "gestao-vite-literal-value-9fbc5d6d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151"
+    },
+    {
+      "id": "gestao-vite-literal-value-b1c6be02",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres papel.escopo / conta role"
+    },
+    {
+      "id": "gestao-vite-literal-value-ba5ce69d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:630"
+    },
+    {
+      "id": "gestao-vite-literal-value-fd766d14",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:255"
+    },
+    {
+      "id": "gestao-vite-literal-value-8748d6bc",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:397"
+    },
+    {
+      "id": "gestao-vite-literal-value-e29a602a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:389"
+    },
+    {
+      "id": "gestao-vite-literal-value-12fbeb20",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:248"
+    },
+    {
+      "id": "gestao-vite-literal-value-97572f81",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "gestao-vite-literal-value-f7b4b985",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-1d28c9c7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_membro.permissoes"
+    },
+    {
+      "id": "gestao-vite-literal-value-bf95970a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:83"
+    },
+    {
+      "id": "gestao-vite-literal-value-2d10855e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / cabecalho_tipo; Meta template contract"
+    },
+    {
+      "id": "gestao-vite-literal-value-f95a2f88",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:74"
+    },
+    {
+      "id": "gestao-vite-literal-value-900ca87e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:38"
+    },
+    {
+      "id": "gestao-vite-literal-value-5a631786",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:623"
+    },
+    {
+      "id": "gestao-vite-literal-value-75d8fb3b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres pesquisa.disparo"
+    },
+    {
+      "id": "gestao-vite-literal-value-8cb09a3d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220"
+    },
+    {
+      "id": "gestao-vite-literal-value-db76edbb",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:84"
+    },
+    {
+      "id": "gestao-vite-literal-value-6becf727",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-6eb10a05",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-0f8d9b2e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-fbb18ce5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-57c8f669",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-6408e007",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo.tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-70a73d86",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/certificados.ts:25"
+    },
+    {
+      "id": "gestao-vite-literal-value-a20baa08",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/lib/sla.ts:24"
+    },
+    {
+      "id": "gestao-vite-literal-value-ae7dda28",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:494"
+    },
+    {
+      "id": "gestao-vite-literal-value-224f1e1a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151"
+    },
+    {
+      "id": "gestao-vite-literal-value-8b489a55",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/builder/painel-variaveis.tsx:26"
+    },
+    {
+      "id": "gestao-vite-literal-value-6d1fa97f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-a82c6689",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / tipo"
+    },
+    {
+      "id": "gestao-vite-literal-value-b7d72d75",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria / cabecalho_tipo; Meta template contract"
+    },
+    {
+      "id": "gestao-vite-literal-value-a592ddba",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:150"
+    },
+    {
+      "id": "gestao-vite-literal-value-55f020fa",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:41"
+    },
+    {
+      "id": "gestao-vite-literal-value-31b692e7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-97f0c791",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.autor_tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-628bd365",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-d4d65411",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.autor_tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-6baf699d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.autor_tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-f428f418",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-d166fa43",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.direcao"
+    },
+    {
+      "id": "packages-ai-literal-value-5d05bd51",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Anthropic API output_config.effort enum"
+    },
+    {
+      "id": "packages-ai-literal-value-b520fd72",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-6d6dcabc",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.direcao"
+    },
+    {
+      "id": "packages-ai-literal-value-2822a6a7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-d5f6d892",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Anthropic API output_config.effort enum"
+    },
+    {
+      "id": "packages-ai-literal-value-17d64dde",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Anthropic API output_config.effort enum"
+    },
+    {
+      "id": "packages-ai-literal-value-b1d52ace",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Anthropic API output_config.effort enum"
+    },
+    {
+      "id": "packages-ai-literal-value-e053d69a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.direcao"
+    },
+    {
+      "id": "packages-ai-literal-value-a7e7ae41",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.autor_tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-941a0e46",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-e6527b6f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-1d6d6fc5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-ai-literal-value-1cccb3f1",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Anthropic API output_config.effort enum"
+    },
+    {
+      "id": "packages-core-literal-value-a1863a13",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/metricas/encerramento.ts:11"
+    },
+    {
+      "id": "packages-core-literal-value-79d109aa",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/sla/regra.ts:19"
+    },
+    {
+      "id": "packages-core-literal-value-c8cb743c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.autor_tipo"
+    },
+    {
+      "id": "packages-core-literal-value-0b90719c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres evento_atendimento.dados.encerrada_por jsonb"
+    },
+    {
+      "id": "packages-core-literal-value-89acb8f2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.estado"
+    },
+    {
+      "id": "packages-core-literal-value-96a7b7e1",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-48ca29b5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria"
+    },
+    {
+      "id": "packages-core-literal-value-965a2419",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.autor_tipo"
+    },
+    {
+      "id": "packages-core-literal-value-ba1c1787",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres evento_atendimento.dados.encerrada_por jsonb"
+    },
+    {
+      "id": "packages-core-literal-value-8c0bb655",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.autor_tipo"
+    },
+    {
+      "id": "packages-core-literal-value-b0916e54",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres process_http_execucao.contexto jsonb"
+    },
+    {
+      "id": "packages-core-literal-value-8a30ebe5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/analise/index.ts:37"
+    },
+    {
+      "id": "packages-core-literal-value-a5e6eb52",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/sla/regra.ts:19"
+    },
+    {
+      "id": "packages-core-literal-value-4264cbba",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-7f38628b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.estado"
+    },
+    {
+      "id": "packages-core-literal-value-e68d16b7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.estado"
+    },
+    {
+      "id": "packages-core-literal-value-541fb63d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-7e59381e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.estado"
+    },
+    {
+      "id": "packages-core-literal-value-7f3e5b04",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/sla/regra.ts:18"
+    },
+    {
+      "id": "packages-core-literal-value-56901c47",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.direcao"
+    },
+    {
+      "id": "packages-core-literal-value-826bc472",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres process_http_execucao.contexto jsonb"
+    },
+    {
+      "id": "packages-core-literal-value-21e8e17e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.estado_entrega / outbox_mensagem.estado"
+    },
+    {
+      "id": "packages-core-literal-value-f848a7ea",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.estado_entrega / outbox_mensagem.estado"
+    },
+    {
+      "id": "packages-core-literal-value-eae71bd9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.estado_entrega / outbox_mensagem.estado"
+    },
+    {
+      "id": "packages-core-literal-value-a5647073",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/sla/regra.ts:19"
+    },
+    {
+      "id": "packages-core-literal-value-9ce3e15f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres regra_sla.escopo_tipo"
+    },
+    {
+      "id": "packages-core-literal-value-888e0975",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.estado_entrega / outbox_mensagem.estado"
+    },
+    {
+      "id": "packages-core-literal-value-903954f1",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres regra_sla.escopo_tipo"
+    },
+    {
+      "id": "packages-core-literal-value-5462dd38",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/metricas/encerramento.ts:11"
+    },
+    {
+      "id": "packages-core-literal-value-c5a64701",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/distribuicao/carga.ts:40"
+    },
+    {
+      "id": "packages-core-literal-value-cd435112",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-f14c283c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres evento_atendimento.dados.encerrada_por jsonb"
+    },
+    {
+      "id": "packages-core-literal-value-04d7fb6f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.direcao"
+    },
+    {
+      "id": "packages-core-literal-value-93f82566",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres status_atendente.estado"
+    },
+    {
+      "id": "packages-core-literal-value-521fab4c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/janela/janela.ts:94"
+    },
+    {
+      "id": "packages-core-literal-value-f807c743",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.estado_entrega / outbox_mensagem.estado"
+    },
+    {
+      "id": "packages-core-literal-value-9530c97a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-dbc464c6",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres evento_atendimento.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-1c37c5c5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres evento_atendimento.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-9ff496f2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.estado"
+    },
+    {
+      "id": "packages-core-literal-value-e8f442f4",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres status_atendente.estado"
+    },
+    {
+      "id": "packages-core-literal-value-8b0aff78",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres status_atendente.estado"
+    },
+    {
+      "id": "packages-core-literal-value-00d8642e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres status_atendente.estado"
+    },
+    {
+      "id": "packages-core-literal-value-1bb58a02",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.estado_entrega / outbox_mensagem.estado"
+    },
+    {
+      "id": "packages-core-literal-value-6c3fbcda",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/metricas/encerramento.ts:11"
+    },
+    {
+      "id": "packages-core-literal-value-e5e513ca",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres evento_atendimento.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-5a57ad2c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres regra_sla.alvo"
+    },
+    {
+      "id": "packages-core-literal-value-e9ef4d31",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres regra_sla.escopo_tipo"
+    },
+    {
+      "id": "packages-core-literal-value-75dda4c6",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.direcao"
+    },
+    {
+      "id": "packages-core-literal-value-d49b1b9e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres process_http_execucao.contexto jsonb"
+    },
+    {
+      "id": "packages-core-literal-value-2d28b411",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.prioridade"
+    },
+    {
+      "id": "packages-core-literal-value-2fef48a9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.autor_tipo"
+    },
+    {
+      "id": "packages-core-literal-value-0d694b60",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-3907e766",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/sla/regra.ts:18"
+    },
+    {
+      "id": "packages-core-literal-value-0607370b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/distribuicao/carga.ts:43"
+    },
+    {
+      "id": "packages-core-literal-value-6475dad8",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-f3c2a32a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres evento_atendimento.dados.encerrada_por jsonb"
+    },
+    {
+      "id": "packages-core-literal-value-554ab559",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres evento_atendimento.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-9a0bbc6a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/conversa/maquina.ts:190"
+    },
+    {
+      "id": "packages-core-literal-value-bbaca5dd",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/core/src/conversa/maquina.ts:51"
+    },
+    {
+      "id": "packages-core-literal-value-a9af4c42",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres template_mensagem.categoria"
+    },
+    {
+      "id": "packages-core-literal-value-2adc9451",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-51dfcd5f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "packages-core-literal-value-c2695c6a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "packages-ui-literal-value-89d10714",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/ui/src/ilustracoes.tsx:27"
+    },
+    {
+      "id": "packages-ui-literal-value-6e970524",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/ui/src/ilustracoes.tsx:27"
+    },
+    {
+      "id": "packages-ui-literal-value-5e09a977",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/ui/src/componentes/primitivos.tsx:90"
+    },
+    {
+      "id": "packages-ui-literal-value-e1ff4d09",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/ui/src/ilustracoes.tsx:27"
+    },
+    {
+      "id": "packages-ui-literal-value-f63d2bb1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/ui/src/ilustracoes.tsx:27"
+    }
+  ]
+}

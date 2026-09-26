@@ -1,32 +1,33 @@
 /**
- * O que a tela de leads sabe sem falar com o banco: rótulo, recorte,
- * agrupamento, ordenação e os tipos que atravessam a fronteira.
+ * What the leads screen knows without talking to the database: label, slice,
+ * grouping, sorting, and the types that cross the boundary.
  *
- * Este arquivo existe por uma razão mecânica, não estética. A listagem tem uma
- * parte que roda no navegador (largura de coluna, seleção, ação em massa), e um
- * componente de cliente que importasse `leads.ts` arrastaria o driver do
- * Postgres para dentro do pacote do navegador — que é exatamente o erro que o
- * empacotador acusa como `Can't resolve 'fs'`.
+ * This file exists for a mechanical reason, not an aesthetic one. The listing
+ * has a part that runs in the browser (column width, selection, bulk action),
+ * and a client component that imported `leads.ts` would drag the Postgres
+ * driver into the browser package — exactly the error the bundler flags as
+ * `Can't resolve 'fs'`.
  *
- * A regra: **nada aqui importa `@pipe/db` nem `./banco`.** O que precisa de
- * consulta mora em `leads.ts`, que importa daqui e reexporta o que a tela usa.
+ * The rule: **nothing here imports `@pipe/db` or `./banco`.** Whatever needs a
+ * query lives in `leads.ts`, which imports from here and re-exports what the
+ * screen uses.
  */
 
-/** O tipo cru vira rótulo aqui: `mudanca_fase` não é texto de tela. */
-export const ROTULO_ATIVIDADE: Record<string, string> = {
+/** The raw type becomes a label here: `mudanca_fase` isn't screen text. */
+export const LABEL_ACTIVITY: Record<string, string> = {
   nota: 'Nota',
-  ligacao: 'Ligação',
+  connection: 'Ligação',
   reuniao: 'Reunião',
   email: 'E-mail',
-  conversa: 'Conversa',
+  conversation: 'Conversa',
   tarefa: 'Tarefa',
   mudanca_fase: 'Mudança de fase',
 };
 
-/** O status cru vira rótulo aqui, uma vez só para a listagem e para a ficha. */
+/** The raw status becomes a label here, once, for both the listing and the record. */
 export const ROTULO_STATUS: Record<string, string> = {
   novo: 'Novo',
-  em_contato: 'Em contato',
+  inContact: 'Em contato',
   qualificado: 'Qualificado',
   convertido: 'Convertido',
   desqualificado: 'Desqualificado',
@@ -43,11 +44,11 @@ export const ABAS = [
 
 export type Aba = (typeof ABAS)[number]['chave'];
 
-export function abaValida(valor: string | undefined): Aba {
-  return (ABAS.find((a) => a.chave === valor)?.chave ?? 'todos') as Aba;
+export function abaValida(value: string | undefined): Aba {
+  return (ABAS.find((a) => a.chave === value)?.chave ?? 'todos') as Aba;
 }
 
-/** A listagem é tela de trabalho, não de exportação. */
+/** The listing is a work screen, not an export screen. */
 export const LIMITE_LISTA = 200;
 
 export interface LinhaLead {
@@ -56,28 +57,28 @@ export interface LinhaLead {
   origem: string | null;
   score: number | null;
   faixa: string | null;
-  fila: string | null;
+  queue: string | null;
   proprietario: string | null;
-  /** O id do dono. A listagem edita por id; o nome é só o que ela mostra. */
+  /** The owner's id. The listing edits by id; the name is only what it displays. */
   proprietarioId: string | null;
   status: string;
   fase: string | null;
   diasNaFase: number | null;
-  ultimaAtividade: Date | null;
-  ultimaAtividadeTipo: string | null;
+  lastActivity: Date | null;
+  lastActivityType: string | null;
 }
 
 export interface Proprietario {
   id: string;
-  nome: string;
+  name: string;
 }
 
 /**
- * Como agrupar a lista. É o que substitui os quatro relatórios que eram item de
- * menu: "por proprietário" e "origem e campanha" são a mesma lista, dobrada por
- * uma coluna. Relatório que é recorte de lista mora na lista.
+ * How to group the list. It's what replaces the four reports that used to be
+ * menu items: "by owner" and "source and campaign" are the same list, folded
+ * by one column. A report that's just a list slice belongs in the list.
  */
-export const AGRUPAMENTOS = [
+export const GROUPINGS = [
   { chave: 'nenhum', rotulo: 'Sem agrupamento' },
   { chave: 'proprietario', rotulo: 'Proprietário' },
   { chave: 'origem', rotulo: 'Origem' },
@@ -85,22 +86,22 @@ export const AGRUPAMENTOS = [
   { chave: 'faixa', rotulo: 'Faixa de score' },
 ] as const;
 
-export type Agrupamento = (typeof AGRUPAMENTOS)[number]['chave'];
+export type Grouping = (typeof GROUPINGS)[number]['chave'];
 
-export function agrupamentoValido(valor: string | undefined): Agrupamento {
-  return (AGRUPAMENTOS.find((a) => a.chave === valor)?.chave ?? 'nenhum') as Agrupamento;
+export function groupingValid(value: string | undefined): Grouping {
+  return (GROUPINGS.find((a) => a.chave === value)?.chave ?? 'nenhum') as Grouping;
 }
 
 /**
- * Qual coluna da tabela o cabeçalho do grupo já está dizendo.
+ * Which table column the group header is already stating.
  *
- * Lista agrupada por proprietário com uma coluna "Proprietário" repete o mesmo
- * nome em cada linha do grupo: é largura gasta para dizer o que o cabeçalho
- * acabou de dizer. As chaves do agrupamento e as das colunas são as mesmas de
- * propósito, e é o que mantém as duas listas casadas sem uma tabela de-para.
+ * A list grouped by owner with an "Owner" column repeats the same name on every
+ * row of the group: it's width spent saying what the header just said. The
+ * grouping keys and the column keys are the same on purpose, which is what
+ * keeps the two lists matched without a lookup table.
  */
-export function colunaDoAgrupamento(por: Agrupamento): string | null {
-  return por === 'nenhum' ? null : por;
+export function groupingColumn(by: Grouping): string | null {
+  return by === 'nenhum' ? null : by;
 }
 
 export interface Grupo {
@@ -108,46 +109,48 @@ export interface Grupo {
   linhas: LinhaLead[];
 }
 
-/** Dobra a lista pela coluna escolhida, preservando a ordem de dentro do grupo. */
-export function agrupar(linhas: LinhaLead[], por: Agrupamento): Grupo[] {
-  if (por === 'nenhum') return [{ titulo: '', linhas }];
-  const chaveDe = (l: LinhaLead) =>
-    por === 'proprietario'
+/** Folds the list by the chosen column, preserving the order within each group. */
+export function agrupar(linhas: LinhaLead[], by: Grouping): Grupo[] {
+  if (by === 'nenhum') return [{ titulo: '', linhas }];
+  const keyOf = (l: LinhaLead) =>
+    by === 'proprietario'
       ? (l.proprietario ?? 'Sem proprietário')
-      : por === 'origem'
+      : by === 'origem'
         ? (l.origem ?? 'Sem origem')
-        : por === 'fase'
+        : by === 'fase'
           ? (l.fase ?? 'Sem fase')
           : (l.faixa ?? 'Sem score');
 
   const mapa = new Map<string, LinhaLead[]>();
   for (const l of linhas) {
-    const chave = chaveDe(l);
-    const atual = mapa.get(chave);
+    const key = keyOf(l);
+    const atual = mapa.get(key);
     if (atual) atual.push(l);
-    else mapa.set(chave, [l]);
+    else mapa.set(key, [l]);
   }
   return [...mapa.entries()]
     .map(([titulo, dela]) => ({ titulo, linhas: dela }))
     .sort((a, b) => b.linhas.length - a.linhas.length);
 }
 
-/* ------------------------------------------------------------- ordenação
+/*
+ * ------------------------------------------------------------- sorting
  *
- * A ordenação acontece no BANCO, não na lista já carregada, e a diferença não
- * é de desempenho: é de resposta. A listagem tem teto de 200 linhas. Ordenar as
- * 200 já buscadas responde "os 200 leads mais novos, dispostos por score";
- * ordenar no banco responde "os 200 leads de maior score", que é a pergunta que
- * alguém faz ao clicar em Score.
+ * Sorting happens in the DATABASE, not on the already-loaded list, and the
+ * difference isn't performance: it's correctness. The listing caps at 200
+ * rows. Sorting the 200 already fetched answers "the 200 newest leads,
+ * arranged by score"; sorting in the database answers "the 200
+ * highest-scoring leads", which is the question someone is asking by clicking
+ * Score.
  *
- * `Fila` e `Última atividade` não entram: a primeira é derivada da faixa por um
- * mapa em memória e a segunda vem de uma segunda consulta. Ordenar por elas
- * exigiria mudar as duas para junção, e nenhuma responde nada que Faixa e Dias
- * na fase já não respondam. Coluna que não ordena simplesmente não vira link,
- * e não existe cabeçalho apagado aqui.
+ * `Fila` and `Última atividade` aren't included: the first is derived from the
+ * band through an in-memory map and the second comes from a second query.
+ * Sorting by them would require turning both into a join, and neither answers
+ * anything Band and Days in stage don't already answer. A column that doesn't
+ * sort simply doesn't become a link, and there's no grayed-out header here.
  *
- * Aqui ficam só os NOMES. A tradução de nome para coluna do Postgres mora em
- * `leads.ts`, porque é ela que precisa do esquema.
+ * Only the NAMES live here. Translating a name into a Postgres column lives in
+ * `leads.ts`, because that's what needs the schema.
  */
 export const ORDENAVEIS = [
   'lead',
@@ -159,97 +162,101 @@ export const ORDENAVEIS = [
   'dias',
 ] as const;
 
-export type Ordem = (typeof ORDENAVEIS)[number] | 'nenhuma';
-export type Direcao = 'asc' | 'desc';
+export type Order = (typeof ORDENAVEIS)[number] | 'nenhuma';
+export type Direction = 'asc' | 'desc';
 
-export function ordemValida(valor: string | undefined): Ordem {
-  return ORDENAVEIS.find((o) => o === valor) ?? 'nenhuma';
+export function orderValid(value: string | undefined): Order {
+  return ORDENAVEIS.find((o) => o === value) ?? 'nenhuma';
 }
 
-export function direcaoValida(valor: string | undefined): Direcao {
-  return valor === 'asc' ? 'asc' : 'desc';
+export function directionValid(value: string | undefined): Direction {
+  return value === 'asc' ? 'asc' : 'desc';
 }
 
-export function colunaOrdenavel(chave: string): boolean {
-  return ORDENAVEIS.some((o) => o === chave);
+export function columnSortable(key: string): boolean {
+  return ORDENAVEIS.some((o) => o === key);
 }
 
-/* --------------------------------------------------------- filtro por coluna
+/*
+ * --------------------------------------------------------- per-column filter
  *
- * O filtro vive na URL, como a ordenação e o agrupamento, e por isso **a visão
- * salva o guarda de graça**: a visão é um nome dado a uma consulta, e o filtro
- * já é parte dela. Foi a razão de ele não virar estado de componente.
+ * The filter lives in the URL, like sorting and grouping, and that's why **the
+ * saved view keeps it for free**: a view is a name given to a query, and the
+ * filter is already part of it. That's why it never became component state.
  *
- * O prefixo `f.` separa o filtro do resto dos parâmetros sem uma lista de nomes
- * reservados: `f.origem=Anúncio Meta` é filtro, `origem` não seria — e amanhã
- * uma coluna nova entra sem risco de colidir com `aba`, `q` ou `dir`.
+ * The `f.` prefix separates the filter from the rest of the parameters without
+ * a reserved-name list: `f.origem=Anúncio Meta` is a filter, `origem` wouldn't
+ * be — and tomorrow a new column can be added with no risk of colliding with
+ * `aba`, `q`, or `dir`.
  *
- * Quatro colunas, e são as categóricas. Score e Dias na fase pedem faixa ("de
- * 60 a 80"), que é outro controle e outra conversa; texto livre já é a busca.
- * Coluna que não filtra simplesmente não aparece no menu.
+ * Four columns, and they're the categorical ones. Score and Days in stage ask
+ * for a range ("60 to 80"), which is a different control and a different
+ * conversation; free text is already the search. A column that doesn't filter
+ * simply doesn't show up in the menu.
  */
 export const FILTRAVEIS = [
-  { chave: 'origem', rotulo: 'Origem' },
-  { chave: 'faixa', rotulo: 'Faixa de score' },
-  { chave: 'fase', rotulo: 'Fase' },
-  { chave: 'proprietario', rotulo: 'Proprietário' },
+  { key: 'origem', rotulo: 'Origem' },
+  { key: 'faixa', rotulo: 'Faixa de score' },
+  { key: 'fase', rotulo: 'Fase' },
+  { key: 'proprietario', rotulo: 'Proprietário' },
 ] as const;
 
-export type ChaveDeFiltro = (typeof FILTRAVEIS)[number]['chave'];
+export type FilterKey = (typeof FILTRAVEIS)[number]['key'];
 
-/** Coluna filtrada → valor exigido. `SEM_VALOR` pede as linhas em branco. */
-export type Filtros = Partial<Record<ChaveDeFiltro, string>>;
+/** Coluna filtrada → valor exigido. `WITHOUT_VALUE` pede as linhas em branco. */
+export type SFilter = Partial<Record<FilterKey, string>>;
 
 /**
- * O valor que representa "em branco".
+ * The value that represents "blank".
  *
- * Filtrar por "sem proprietário" é uma das perguntas mais feitas da tela, e uma
- * string vazia na URL some no caminho — `?f.proprietario=` volta como `''` em
- * alguns navegadores e como ausente em outros. Uma palavra explícita não some.
+ * Filtering by "no owner" is one of the screen's most common questions, and an
+ * empty string in the URL disappears along the way — `?f.proprietario=` comes
+ * back as `''` in some browsers and as absent in others. An explicit word
+ * doesn't disappear.
  */
-export const SEM_VALOR = '—';
+export const WITHOUT_VALUE = '—';
 
-export function filtroValido(chave: string): chave is ChaveDeFiltro {
-  return FILTRAVEIS.some((f) => f.chave === chave);
+export function filterValid(key: string): key is FilterKey {
+  return FILTRAVEIS.some((f) => f.key === key);
 }
 
-/** Lê os `f.*` do que veio na URL, jogando fora o que não é coluna filtrável. */
-export function lerFiltros(params: Record<string, string | string[] | undefined>): Filtros {
-  const saida: Filtros = {};
-  for (const [chave, valor] of Object.entries(params)) {
-    if (!chave.startsWith('f.')) continue;
-    const coluna = chave.slice(2);
-    // Um parâmetro repetido vira array; o primeiro vale, porque o filtro é de
-    // um valor só e dois valores para a mesma coluna é URL adulterada.
-    const texto = Array.isArray(valor) ? valor[0] : valor;
-    if (filtroValido(coluna) && texto !== undefined && texto !== '') saida[coluna] = texto;
+/** Reads the `f.*` params from the URL, discarding anything that isn't a filterable column. */
+export function readFilters(params: Record<string, string | string[] | undefined>): SFilter {
+  const saida: SFilter = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (!key.startsWith('f.')) continue;
+    const column = key.slice(2);
+    // A repeated parameter becomes an array; the first one counts, because the filter is for
+    // a single value, and two values for the same column is a tampered URL.
+    const texto = Array.isArray(value) ? value[0] : value;
+    if (filterValid(column) && texto !== undefined && texto !== '') saida[column] = texto;
   }
   return saida;
 }
 
-/** Escreve os filtros de volta numa consulta, no mesmo formato que se lê. */
-export function escreverFiltros(p: URLSearchParams, filtros: Filtros): URLSearchParams {
-  for (const { chave } of FILTRAVEIS) {
-    const valor = filtros[chave];
-    if (valor === undefined) p.delete(`f.${chave}`);
-    else p.set(`f.${chave}`, valor);
+/** Writes the filters back into a query, in the same format they're read in. */
+export function writeFilters(p: URLSearchParams, filters: SFilter): URLSearchParams {
+  for (const { key } of FILTRAVEIS) {
+    const value = filters[key];
+    if (value === undefined) p.delete(`f.${key}`);
+    else p.set(`f.${key}`, value);
   }
   return p;
 }
 
-/** O texto do chip: "Origem: Anúncio Meta", ou "Origem: sem origem". */
-export function rotuloDoFiltro(chave: ChaveDeFiltro, valor: string): string {
-  const rotulo = FILTRAVEIS.find((f) => f.chave === chave)?.rotulo ?? chave;
-  return `${rotulo}: ${valor === SEM_VALOR ? 'em branco' : valor}`;
+/** The chip's text: "Source: Meta Ad", or "Source: no source". */
+export function filterLabel(key: FilterKey, value: string): string {
+  const rotulo = FILTRAVEIS.find((f) => f.key === key)?.rotulo ?? key;
+  return `${rotulo}: ${value === WITHOUT_VALUE ? 'em branco' : value}`;
 }
 
 /**
- * Para que lado a coluna começa quando ninguém a ordenou ainda.
+ * Which direction a column starts in when nobody has sorted it yet.
  *
- * Número começa no maior (o score alto é o que interessa), texto começa no A.
- * Clicar em "Proprietário" e receber a lista do Z ao A é a coisa que faz a
- * pessoa clicar duas vezes em toda coluna nova.
+ * A number starts at the highest (a high score is what matters), text starts
+ * at A. Clicking "Owner" and getting the list from Z to A is what makes
+ * someone click every new column twice.
  */
-export function direcaoInicial(chave: string): Direcao {
-  return chave === 'score' || chave === 'dias' ? 'desc' : 'asc';
+export function directionInitial(key: string): Direction {
+  return key === 'score' || key === 'dias' ? 'desc' : 'asc';
 }

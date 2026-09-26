@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "gestao-vite-comment-456d11b4",
+      "action": "translate",
+      "new_text": "The contact bar menu — the source's `subheader-menu`.\n\nPure by design: it's the ONLY rule on this screen that decides anything, and it's the rule that separates roteador from fluxo. The `tests/fluxo-detalhe.test.ts` test locks down what comes out of here.\n\n═══ HOW THE SOURCE BUILDS THIS ROW ═══\n\nThree sieves in sequence, and only the third looks at the contact type:\n\n 1. `SubheaderDetailController.getTemplateSetupItem()` — if the contact is from a\n    template, it PREPENDS an item. For `master` the item is\n    `{ title: 'master.services', sref: 'auth.application.detail.master' }`,\n    which in pt-BR is **\"Serviços\"**. For `builder` there is no item at all: the\n    `switch` has no case for it.\n 2. `getUpdatedMenus()` — filters the catalog by the PERSON's permissions\n    (`applicationUserPermissionModel`) and preserves their order in the bundle. The\n    `ai` item was removed from the Pipe catalog per the requested visual scope.\n 3. `subheaderMenu.checkPermissions()` — filters by TEMPLATE, using the claims\n    map (bundle module 62673), where each claim carries `hideInTemplate`.\n    For `master` only two entries are hidden: `desk` (claim 106, and its twenty-odd\n    `desk-*` children) and `builder` (claim 114). Everything else stays.\n\nIt's the SAME rule already documented in `criar/roteador/acoes.ts`, seen from the\nother side: `activateApplicationFeatures` only turns on builder and attendance\n`if (template === Builder || Pipeline)` — the roteador turns on neither of the\ntwo, and that's why its bar doesn't show either of them either.\n\nThe cutoff of 5 visible + \"…\" is `createVisibleMenu()`, and it's by COUNT, not\nby width — the same as `estrutura-gestao.tsx` already recorded for the module\nbar.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:1-33",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4c358d6f",
+      "action": "translate",
+      "new_text": "`getTemplateSetupItem()`: the template item goes at the FRONT of everything. Only the roteador has one among the two types that exist here.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:144-145",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-fe814ebb",
+      "action": "translate",
+      "new_text": "The right-edge icons — the source's `menuIcons`, catalog `V`, followed by the `<li class=\"item-lab\">` from the `subheaderIcons` template, which always shows.\n\nThey do NOT go through the template filter: `checkPermissions()` only runs on `subheaderMenu`, and the roteador shows the same four icons as fluxo. None of them has a screen here yet — \"Configurações\" belongs to the CONTACT, not the account settings that already exists at `/configuracoes`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:151-159",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a22f96b7",
+      "action": "translate",
+      "new_text": "------------------------------------------------ home card data",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:169-169",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-eaae9228",
+      "action": "translate",
+      "new_text": "The metrics card's three counts, since the contact was created.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:177-177",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0ef4a63e",
+      "action": "translate",
+      "new_text": "A recommended extension — an item from the source's `store/recommendations`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:184-184",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-49a698f6",
+      "action": "translate",
+      "new_text": "The team avatar stack — `HomeController.loadTeamMembers()`'s cutoff: with more than 7 people, the first 7 stay and an eighth photo-less \"avatar\" enters with the name `+ N`, and N caps at 9. `letter-avatar` takes its initials and draws \"+N\".",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:193-198",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e4227fb2",
+      "action": "translate",
+      "new_text": "The source's `HomeController.processNumber()`, with the same round-down and the same `split('0')[0]` — which turns 10.5 million into \"+1M\". It's the number the source shows, so it's ours.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:205-209",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-68eeec69",
+      "action": "translate",
+      "new_text": "`fluxo` and `roteador` are the source's `builder` and `master`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:38-38",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-56b24dd8",
+      "action": "translate",
+      "new_text": "The source's exact label, in pt-BR.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:42-42",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9a8cf5a9",
+      "action": "translate",
+      "new_text": "Where it goes — null when the screen doesn't exist here yet.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:44-44",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-fbab2bf5",
+      "action": "translate",
+      "new_text": "The catalog, in the source's key order, with the pt-BR labels from the translation package (`modules.application.detail.*`) and the destination WE have.\n\n`href: null` isn't a hidden gap: it becomes a grayed-out block with the \"coming soon\" badge on screen, which is the agreed treatment for what the source shows and we don't have yet.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:51-57",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-fde46b9d",
+      "action": "translate",
+      "new_text": "THE ORDER IS THE SOURCE'S, measured in `roteador-team__pagina.html` (master) and `application-detail-pipeprincipal-configurations-basic.html` (builder): visible is Builder · Atendimento · Análise · Growth · Canais (fluxo) and Serviços · Análise · Growth · Canais · Contatos (roteador, with Builder and Atendimento hidden by `ESCONDIDOS_NO_ROTEADOR`). Canais and Análise used to come before Growth here — which made the bar show Contatos as a disguised sixth item posing as fifth, and Growth ended up stuck in the \"...\".",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:58-66",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5bc2b317",
+      "action": "translate",
+      "new_text": "Análise belongs to the contact: the destination depends on `id` and comes from `itensDoMenu`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:70-70",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4515f18e",
+      "action": "translate",
+      "new_text": "The CATALOG key → the resource in `PermissionsList.html`, where the source's two lists disagree on naming. They share almost every key (`builder`, `desk`, `analysis`, `growth`, `channels`, `users`, `logMessages`, `payments`): only \"Conteúdos\" is `contents` in the menu and `resources` in the permissions list.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:83-89",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-69122b81",
+      "action": "translate",
+      "new_text": "The whole row, in the source's order. Whoever renders it slices at `LIMITE_VISIVEL`.\n\n`permissoes` is the source's step 2 (`getUpdatedMenus()`): the catalog sieved by the PERSON's permissions on that bot (`applicationUserPermissionModel`), BEFORE the template filter (step 3, `ESCONDIDOS_NO_ROTEADOR`) — in that order, as there. An item with `nenhum` disappears from the bar: \"The user doesn't see this menu or access its content\" is the zero-permission radio's own text.\n\nWithout the argument (or with `editaPelaConta`), nothing is sieved: whoever has `automacao.fluxo.editar` on the account keeps seeing everything, which is how Pipe worked before 0035 and is the other side of `exigirPermissaoNoFluxo`'s double gate. Whoever isn't a member and doesn't have the account permission also never reaches this point — the contact shell already refused.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:92-106",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8ffdfd54",
+      "action": "translate",
+      "new_text": "Growth › Log — the source's `auth.application.detail.growth.messages.log` (module 4842 template in portal.js, `MessagesController` controller).\n\nThe source only had text search (`MessageService.getMessages(application, { take: 30, contentFilter: search })`). This screen closes what the task asked for beyond that: filter by period, direction and type, and cursor pagination instead of \"the last 30\" — `GET /v1/gestao/fluxos/:id/analise/log` (`controladores/gestao-analise.ts`, same page format as `GET /v1/conversas/:id/mensagens`).",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/log/log.tsx:10-20",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1bf6b693",
+      "action": "translate",
+      "new_text": "The first page comes from the read cache (react-query); the rest are",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/log/log.tsx:59-59; first half of a two-line comment continued at line 60 (next item)",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-76242a3f",
+      "action": "translate",
+      "new_text": "fetched by hand and only stack on top of it — changing the filter resets it.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/log/log.tsx:60-60; continues the comment from line 59 (previous item)",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8998c71c",
+      "action": "translate",
+      "new_text": "Selects and dates resend the SAME form (GET): that way no already-chosen filter disappears when another one changes. An empty `?de=` is harmless — the backend treats absent and empty the same way (`DIA.test('')` is false).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/log/tela.tsx:105-107",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-69b09a2f",
+      "action": "translate",
+      "new_text": "The Log template (portal.js module 4842), as-is:\n\n  <page-header page-title=\"modules.application.detail.messages.title\" class=\"message-history-header\">\n    <custom-content class=\"u-full-width items-center\">\n      <div class=\"twelve columns\" ng-if=\"($ctrl.search !== '' || $ctrl.messages.length !== 0) && $ctrl.searchLogsEnabled\">\n        <form id=\"messagesForm\" class=\"mb0\"> <div class=\"input-group flex\">\n          <bds-input class=\"u-full-width\" placeholder=\"…history.filterPlaceholder\"/>\n          <bds-button-icon icon=\"search\" type-icon=\"icon\" size=\"short\"/>\n      <bds-switch ng-if=\"$ctrl.switchLogsEnabled\" ng-checked=\"$ctrl.logsEnabled\"/>\n      <bds-typo tag=\"span\" variant=\"fs-16\" bold=\"bold\"> utils.forms.activate </bds-typo>\n    <additional-info></additional-info>\n  </page-header>\n  <div class=\"container relative message-history\">\n    <bds-chip-tag ng-show=\"$ctrl.switchLogsEnabled && !$ctrl.logsEnabled\" icon=\"warning\" color=\"warning\">\n      …disabledAlert.first …disabledAlert.second\n    <div class=\"row\" ng-if=\"$ctrl.messages.length > 0\"> <div ng-repeat=\"message in $ctrl.messages\">\n      <bds-paper elevation=\"primary\" style=\"padding:16px\" class=\"mb4\">\n        <bds-typo tag=\"p\" variant=\"fs-12\"> <strong>Date:</strong> {{storageDate | date:'yyyy-MM-dd HH:mm:ss'}}\n        <bds-typo tag=\"p\" variant=\"fs-12\" ng-if=\"message.id\"> <strong>Id:</strong><a ng-click=\"openMessageNotificationsModal\"> {{message.id}}</a>\n        … From / To / (Pp) / Type … <strong>Content:</strong> <pre>{{message.content}}</pre>\n        <div ng-if=\"message.metadata\"> <strong>Metadata:</strong> <pre>{{message.metadata}}</pre>\n    <div ng-if=\"$ctrl.search && $ctrl.messages.length === 0\" class=\"no-logs-found\">\n      <bds-grid justify-content=\"center\"> <bds-icon name=\"error\" theme=\"outline\" size=\"brand\"/>\n      <div class=\"row\"> <div class=\"twelve columns tc\"> <bds-typo tag=\"h4\" variant=\"fs-16\"> utils.misc.noSearchResults\n    <div ng-if=\"!$ctrl.search && $ctrl.messages.length === 0\">\n      <div class=\"no-logs-found\"> <bds-typo tag=\"h4\" margin=\"false\" variant=\"fs-16\"> …history.noMessages\n      <bds-typo tag=\"p\" variant=\"fs-14\"> …history.noMessagesDescription\n\npt-BR texts (captured verbatim): \"Log\", \"Ativar\", \"Funcionalidade desabilitada. \" + \"Novas mensagens e notificações trafegadas não aparecerão aqui.\", \"Pesquise por qualquer termo para filtrar as mensagens...\", \"Aguardando a primeira mensagem\", \"Aqui você poderá visualizar todas as mensagens enviadas e recebidas, assim como informações de quem as enviou. Você pode aproveitar este tempo para ficar disponível em outros canais e alcançar mais clientes.\", \"Nenhum resultado encontrado\".\n\nBoth feature flags (`search-logs`, `show-message-logs-switch`) are on on the captured account, so search and the toggle both show.\n\nponytail: `/log-configurations` (turning collection on/off) doesn't exist in the Pipe API. The toggle is local: it starts off — the same state as the source with no configuration — and only hides the yellow warning. \"Id\" opens, in the source, the message notifications modal; here it's just the link.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/log/tela.tsx:24-68; quoted pt-BR strings are literal source-platform text (D-17) and stay untranslated",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-99fbc27b",
+      "action": "translate",
+      "new_text": "Filter by period, direction and type — task item 4: the source only had search.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/log/tela.tsx:91-91",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9365c519",
+      "action": "translate",
+      "new_text": "Services writes: `POST`, `PATCH` and `DELETE` on `/v1/gestao/fluxos/:id/servicos`. The rule lives in the `api` (`dominio/gestao/servicos-do-roteador.ts`); a refusal comes back as text.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/servicos/gravar.ts:6-10",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f64af9c3",
+      "action": "translate",
+      "new_text": "The form as the screen stores it: all text and checkbox.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/servicos/regras.ts:11-11",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a85d9364",
+      "action": "translate",
+      "new_text": "The request that goes to the `api`: the hidden field doesn't go — it's the same rule the `api` (`servicos-do-roteador.ts`) has, which would ignore it too.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/servicos/regras.ts:20-23",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-eedf284a",
+      "action": "translate",
+      "new_text": "Principal hides persistence and expiration; persistent hides expiration.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/servicos/regras.ts:3-3",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f3559e96",
+      "action": "translate",
+      "new_text": "The \"Associate a chatbot\" search: by name, excluding what's already a service.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/servicos/regras.ts:37-37",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7d16c38a",
+      "action": "translate",
+      "new_text": "Roteador services: equivalent to the `master.services` setting.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/servicos/servicos.tsx:10-10",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-92ca5398",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/servicos/tela.tsx:203-203; pure section-label divider that only restates the visible field label (\"Crie um nome para seu serviço\") directly below it",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c1d8aa9b",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/servicos/tela.tsx:363-363; pure section-label divider that only restates the visible field label (\"Expiração do redirecionamento\") directly below it",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6c4fd2a8",
+      "action": "translate",
+      "new_text": "`null` = closed\n`'novo'` = adding\notherwise, the id of the service being edited",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/servicos/tela.tsx:46-50",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-091a8fb5",
+      "action": "translate",
+      "new_text": "gain nobody notices at the 1px point.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fundo-pipe.tsx:130-130; second line of a two-line comment starting at line 129 (\"Teto de 2 no devicePixelRatio...\"), which is outside this batch's range",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-48c35cc2",
+      "action": "translate",
+      "new_text": "Arc center, as a fraction of the box, and the radius as a fraction of the diagonal.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fundo-pipe.tsx:23-23",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a8189bac",
+      "action": "translate",
+      "new_text": "The three layers, from the edge inward. `op` is the opacity range.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fundo-pipe.tsx:26-26",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2218851d",
+      "action": "translate",
+      "new_text": "The sign-in screen's background: a beam of ~10,800 particles drawn on a `<canvas>` by the browser itself. No GIF, no video, no image — the product's first screen no longer has network cost (the reference background weighed 14.6 MB; this one weighs whatever this file weighs).\n\nThe drawing is the brand curve enlarged into a landscape: a single arc with its center OUTSIDE the frame, in the bottom-right corner, in three layers of decreasing density — live edge, diffuse body and haze. The top-left quadrant, where the card and brand block sit, is deliberately empty: the background doesn't compete with the form for attention.\n\n**There's no seam because there's no loop.** Nothing repeats and nothing restarts: each particle's position is a continuous function of time. That's the flaw every background GIF has and that nobody can hide.\n\nWith `prefers-reduced-motion` it draws ONE frame and stops — there's no still image to download, it's the same code without the clock.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fundo-pipe.tsx:3-21",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-3cc726b8",
+      "action": "translate",
+      "new_text": "Particles are born from a generator with a FIXED seed: the same drawing on every machine and every reload. A background that changes shape on every visit is noise, and it also prevents comparing two screenshots.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fundo-pipe.tsx:43-47",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d8a035e5",
+      "action": "translate",
+      "new_text": "`1 - rnd^0.7` thickens near the edge: that's what gives the live line.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fundo-pipe.tsx:59-59",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1e677020",
+      "action": "translate",
+      "new_text": "Each particle has its own speed, and the outer ones are slower:",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fundo-pipe.tsx:65-65",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2ca74568",
+      "action": "translate",
+      "new_text": "Diffuse light patch in the corner, so the card doesn't float over flat cream.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fundo-pipe.tsx:98-98",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-302257da",
+      "action": "translate",
+      "new_text": "Connection made from inside the bot: the channel is born linked to it (`fluxo_id`).",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/implantacao/acoes.ts:34-34",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-288ba720",
+      "action": "translate",
+      "new_text": "Implantação's actions — the same Server Actions as before, now calling the browser's `api`. The cookie goes along on its own; `revalidatePath` became `atualizarLeituras`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/implantacao/acoes.ts:4-8",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b7f0eca2",
+      "action": "translate",
+      "new_text": "The last one: the Facebook code becomes a channel in the `api`.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/implantacao/acoes.ts:53-53",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b68da3e7",
+      "action": "translate",
+      "new_text": "Reuses the invite that already exists (`POST /v1/convites`).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/implantacao/formularios.tsx:21-21",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2a05c735",
+      "action": "translate",
+      "new_text": "The three onboarding wizard forms. Same shape as Gestão's forms: label in `.sub`, fields in `.form-linha`, the button in `.cl-acoes`, and submission that doesn't erase what was typed when the server refuses.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/implantacao/formularios.tsx:7-11",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9b624523",
+      "action": "translate",
+      "new_text": "Manual setup (`manual_setup_service.rb`), for whoever doesn't go through embedded signup.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/implantacao/formularios.tsx:99-99",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-33e30f88",
+      "action": "translate",
+      "new_text": "Implantação — from contract to first attended conversation, with no manual rollout.\n\nThe script follows Chatwoot's onboarding (`onboarding/Index.vue` and `InboxSetup.vue`): a greeting, the list of what's missing and, for each step without its own screen, the section that resolves it right there — the channel row with the \"Conectar\" button is their `ChannelRow.vue`. The layout is Gestão's: board header, row card and settings card, in Pipe's colors.\n\nEach step is read from the database (`passos-da-implantacao.ts`): it's done when what it asks for exists, not when someone clicked \"continue\".\n\nThe chrome is the PORTAL's (`pt-app` + `BarraDoPortal`), as in \"Novidades\" and the contract Panel: this screen is ACCOUNT onboarding, not a fluxo or roteador — there's no contact here to hang the contact bar on, and pushing the person into a contact that may not even exist yet would be inventing context the screen doesn't have. Before this delivery it lived under `EstruturaGestao` (two dark bars, the top one the same as this and the bottom one with the module selector) — but Builder and Growth, the two modules that occupied that bar, moved inside the contact, and without them the bottom bar drew an empty row. A single bar, the usual one, is the honest frame for a screen that has no module at all.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/implantacao/page.tsx:14-36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6b724bf2",
+      "action": "translate",
+      "new_text": "Valid lists come from the `api`, not from a local copy: a duplicated list is a list that goes stale on the wrong side.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/acoes.ts:25-26",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-366dbd4a",
+      "action": "translate",
+      "new_text": "The session (`Eu`) changes: onboarding closed. `ExigirSessao` re-reads it on the portal.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/acoes.ts:42-42",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-00550697",
+      "action": "translate",
+      "new_text": "Save \"my account\" — the former Server Action, now from the browser: `PATCH /v1/conta` with the cookie that already travels on its own, and the return to the portal (or to the same screen with the reason and refused field in the URL).",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/acoes.ts:7-11",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a9b239c7",
+      "action": "translate",
+      "new_text": "Signing out ends the session, and ending a session changes state: it goes through POST, never through a link.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:109-110",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-fb34f65f",
+      "action": "translate",
+      "new_text": "\"Minha conta\": the company data, the preferences, and the step that closes onboarding.\n\nThe ENTIRE screen is the source platform's, measured on its DOM and noted in `minha-conta.css`: dark top bar, dark sidebar with the signed-in person's portrait, header with Save on the right, card with two tabs, single column of fields with the label inside the box, and the terms line at the bottom. Only the colors, typeface, brand and icons are ours.\n\nThe chrome is THIS page's OWN (like the portal's): `/minha-conta` sits outside Gestão's shell in `estrutura-gestao.tsx`, because here the account may not yet have a channel, queue or agent — the product's sidebar would show an empty operation to someone who hasn't even said what company they're from yet.\n\nThe field rules are their `lib/AccountIndex.js`'s: name (6 to 250, required), email (read-only), phone (required), site (required, with regex), company size as a RANGE, city, state, country, contact consent — and, on the second tab, language and timezone.\n\nOne conscious difference, noted in the report: state is a list of the 27 Brazilian states and country is free text. There, city comes from Google Places and state/country arrive locked, filled by the service; here that would cost an API key and a network dependency on the first screen of someone who just signed up.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:13-37",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c0de7105",
+      "action": "translate",
+      "new_text": "--------------------------------------------------- content",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:140-140",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-892557c7",
+      "action": "translate",
+      "new_text": "Read-only, as in the source: email is the sign-in key, and changing it here would change the person, not the data.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:185-186",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-72199fec",
+      "action": "translate",
+      "new_text": "------------------------------------- tab: preferences",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:275-275",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-566111b2",
+      "action": "translate",
+      "new_text": "The timezone decides what \"today\" means on every card and every report: changing it redraws where the day cuts off, not just the time label.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:289-291",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b0ae4916",
+      "action": "translate",
+      "new_text": "Inside the card and below both panels, as in the source: it's the \"Save changes\" button's contract, and it applies to both tabs.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:305-307",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-91296cfc",
+      "action": "translate",
+      "new_text": "The 27 Brazilian states, in alphabetical order.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:38-38",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9c664195",
+      "action": "translate",
+      "new_text": "The field the server refused comes back marked. `data-erro` only exists when there is one, and it's what lights up the red ring on the right box.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:83-84",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d46a238c",
+      "action": "translate",
+      "new_text": "Desk doesn't have our screen yet. Grayed out, not hidden: that's what the source does, and hiding it would conceal that the product has it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:99-100",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7f3025d8",
+      "action": "translate",
+      "new_text": "The account form's rules — the same on screen and on the server.\n\nThey live in a single file because they need to hold twice: the browser blocks (`required`, `minlength`, `pattern` attributes) and the server action blocks again, for whoever sends the POST from outside. A rule written twice is a rule that diverges at the first tweak.\n\nThe numbers come from the source platform's `lib/AccountIndex.js`, where each field is a `BlipInput` with `minLength`/`maxLength`/`required` declared.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:1-11",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e70cb909",
+      "action": "translate",
+      "new_text": "The source uses `libphonenumber.isPossible` with the account's locale. Without that library here, the ruler is the E.164 standard: 8 to 15 digits, a plus sign and separators as wanted. It blocks the empty field and the truncated number, which is what its validation catches in practice; it can't tell that 21 9 9999 9999 doesn't exist in Rio.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:102-106",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e0a240e2",
+      "action": "translate",
+      "new_text": "Closed lists: whoever sends text outside them is POSTing outside the screen. The `api` checks again, and all three lists come from there — a local copy of them would go stale on the wrong side.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:120-122",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ca2dda11",
+      "action": "translate",
+      "new_text": "Source sizes, with one noted exception.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:13-13",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a47cd722",
+      "action": "translate",
+      "new_text": "6 is the source's minimum. Its maximum there is 250, but our `api` truncates at 120 when saving (`texto(corpo['nome'], 120)`): accepting 250 here would save a truncated name without telling anyone. The smaller of the two wins until the `api` changes.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:15-17",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c90874d3",
+      "action": "translate",
+      "new_text": "The source's site regex, copied character for character.\n\nOne change: the classes gained `A-Z`. The original only accepts lowercase and has no `i` flag, so `Empresa.com.br` is refused there — a defect, not a rule, and copying a defect isn't copying intent.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:27-33",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c65e094e",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:35-35: this is the tail of the `PADRAO_DE_SITE` regex string literal (contains `http://`/`https://` sequences), not a real comment — scanner false positive; not a comment to translate or remove",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-512af051",
+      "action": "translate",
+      "new_text": "The source's three languages, with the name it gives each one.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:37-37",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b36b26e5",
+      "action": "translate",
+      "new_text": "Timezones, written as the source writes them: offset in parentheses and the city at the end. Whoever picks a timezone looks for the city, not the IANA name.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:44-47",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3d2ef042",
+      "action": "translate",
+      "new_text": "What the server action returns on refusal: the field and the reason.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:73-73",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6f54b1b4",
+      "action": "translate",
+      "new_text": "Checks whatever can be checked with what we have.\n\nReturns the FIRST refusal, as in the source: its `checkFormValidity` also stops at the first invalid field, and a screen that flags seven errors at once isn't more honest, just noisier.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/minha-conta/regras.ts:79-85",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b19b49e1",
+      "action": "translate",
+      "new_text": "The app's 404: Next had its own by default; here it's our own short screen.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/nao-encontrado.tsx:3-3",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-52f3d88c",
+      "action": "translate",
+      "new_text": "The product's news — our changelog, in the language of whoever uses it, not whoever writes code.\n\nIt lives in a file, not the database: the list changes when we ship a version, and a version already goes through code review. A CMS here would be a second publishing door to maintain, with one item a month going through it. When the frequency justifies it, this becomes a table without changing the screen.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/conteudo.ts:1-9",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-169c7910",
+      "action": "translate",
+      "new_text": "The slug that goes in the URL once each news item gets its own page.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/conteudo.ts:12-12",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-45301827",
+      "action": "translate",
+      "new_text": "ISO, date only. Timezone doesn't matter for a version announcement.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/conteudo.ts:17-17",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f52fbad3",
+      "action": "translate",
+      "new_text": "The first in the list becomes the big card, like Barboo's blog.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/conteudo.ts:21-21",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-550e86e2",
+      "action": "translate",
+      "new_text": "Novidades — the source's \"Novidades na Blip\" in the portal, with the Barboo blog's design.\n\nTWO RULERS, on purpose. The LOCATION is theirs: the portal card opens a screen hung on the dark bar, and that's all the `ui-view` shows. The DESIGN is Barboo blog's, chosen by the owner — eyebrow, big title, subtitle, the search and pill filter, one big featured card and the grid below.\n\nWhat the source does and we DON'T: they embed the blog in a 100%×100% `<iframe>`. Here the list is ours, served from the app itself — an outside site's frame doesn't have our typography, doesn't respond to our theme, and can refuse to be framed at any time.\n\nSearch and filter are `<form method=\"get\">`: the list comes from the server, and the URL stays shareable. No client state on this screen.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/page.tsx:10-27",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-31af731f",
+      "action": "translate",
+      "new_text": "Their blog's card: the cover strip with the category tag on top, and the white body with title, summary, the date line and \"Ler artigo →\".\n\nThe cover is a COLOR STRIP, not a photo: we don't have an image bank, and a generic stock photo on top of a version announcement misrepresents the content. The color comes from the category, so the grid stays readable from a distance.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/page.tsx:112-119",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b78351c2",
+      "action": "translate",
+      "new_text": "Each news item doesn't have its own page yet; the link goes to the list with the theme already filtered, which is the closest to useful without inventing a route.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/page.tsx:136-137",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-35b7d9d6",
+      "action": "translate",
+      "new_text": "\"20 de julho de 2026\" — the format the blog uses, in uppercase via CSS.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/page.tsx:149-149",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-42eb1c8a",
+      "action": "translate",
+      "new_text": "The first value of a URL parameter that can come repeated.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/page.tsx:169-169",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-294ce7e4",
+      "action": "translate",
+      "new_text": "The big card only exists in the full list: filtered, highlighting the first result would give weight to a search coincidence.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/page.tsx:43-44",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-308631a4",
+      "action": "translate",
+      "new_text": "No JavaScript: the filter applies on submit, like the portal's search.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/novidades/page.tsx:87-87",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b7fedf4f",
+      "action": "translate",
+      "new_text": "The module's parent route: `CascaDoModulo` brings the portal bar and the contact bar (with \"Atendimento\" lit, see `itens.ts`); here only the `desk-sidebar` enters next to the `<Outlet>`, outside the 80% indent that `fx-coluna` applies to single-column screens (same output as `configuracoes/casca.tsx`).",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/casca.tsx:150-155",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ddbca1f4",
+      "action": "translate",
+      "new_text": "`/{tipo}/{id}/atendimento` — the prefix every screen in this module hangs off.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/casca.tsx:89-89",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-034538f0",
+      "action": "translate",
+      "new_text": "The Atendimento module — what the source draws at `/application/detail/<bot>/attendance/desk/<tela>`: the SAME frame as every contact screen (`CascaDoModulo`: portal bar + contact bar) plus this module's own `desk-sidebar`.\n\nThese screens used to live loose at the root (`/monitoramento`, `/historico`, …) and drew a SECOND portal, with its own header and sidebar (`estrutura-gestao.tsx`) — the \"two portals\" this module closes. The `desk-sidebar` is the SAME sidebar as always (`.g-lateral`/`.g-item`/`.g-grupo`, measured in `blip-medidas-monitoramento.md` §3): only the shell around it changed, from the portal to the contact.\n\nGroups and items, in the order and names measured on the DOM (`referencias-blip/portal/dom/monitoring.html`, `data-testid=\"menu-tree-sidebar-group-*\"`): Relatórios (Reports), Comunicação (Messaging), Regras (Rules), Atendentes (Agents), Preferências (Settings, \"Configurações\" in the source — the Pipe name already used by `configuracoes-gerais.tsx`/`-dados.tsx` stays). \"Esforço por atendente\" and \"Monitoria com IA\" don't appear in this capture (account/plan without the feature enabled) but are already our own screen — they enter the Relatórios group, next to Atendimento and Satisfação. \"Calls\" and \"Vendas\" (Reports) have no screen here — we don't have telephony or a sales funnel — so they don't enter.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/casca.tsx:9-31; cites referencias-blip/portal/dom/monitoring.html and blip-medidas-monitoramento.md §3, kept in new_text per D-17",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-9e72447b",
+      "action": "translate",
+      "new_text": "Every hook needs to run on every render, including the first, before the query returns — that's why `useMemo` comes BEFORE the `if` that decides whether there's data to draw, not after it.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:140-142",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5f57b976",
+      "action": "translate",
+      "new_text": "The two client-side filters: the API has neither `?ticket=` nor `?contato=`, but the rows already carry `ticket` and `contatoNome` — filtering here costs no extra round trip to the server, and doesn't invent data the query didn't return.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:146-148",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-fc370741",
+      "action": "translate",
+      "new_text": "Everything crosses over to the card already formatted: no Date and no null passes through, and the tenant's timezone formatting gets decided in one place.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:155-156",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1e0d2639",
+      "action": "translate",
+      "new_text": "Real dependencies: the two URL strings, not the arrays derived",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:189-189; first line of a two-line comment continuing at line 190 (\"delas (novos a cada render).\"), which is outside this batch's range",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8c3239ad",
+      "action": "translate",
+      "new_text": "The single list, not repeated per group: it's what drives \"select all\", the CSV and the header button.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:201-202",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3a8570ee",
+      "action": "translate",
+      "new_text": "Default (in the `api`): the last thirty days, including today.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:238-238",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9da8b542",
+      "action": "translate",
+      "new_text": "Period always exists; queue, agent, tag, ticket and contact are the optional filter. The distinction decides the server's empty-state phrase (truncation) — the screen's own text is fixed, like theirs.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:241-243",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0b6b7ba1",
+      "action": "translate",
+      "new_text": "The available action downloads the CSV of the selected conversations.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:254-254",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-37bd1472",
+      "action": "translate",
+      "new_text": "\"Filtros rápidos:\", their three shortcuts and the period on the right — `FICHA-history.md` §2.2. Each shortcut opens the same panel; none is its own query.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:267-269; cites FICHA-history.md, kept in new_text per D-17",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b72732f8",
+      "action": "translate",
+      "new_text": "\"Últimos 30 dias\" is `bds-button variant=\"text\"`: no border, just the label (`dom/history.html`). The funnel is `bds-icon size=\"small\"`, 20px.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:301-303; cites dom/history.html capture, kept in new_text per D-17",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f5187df0",
+      "action": "translate",
+      "new_text": "\"Área de resultados\", `FICHA-history.md` §2: their empty state OR our list, and the \"Termo de responsabilidade\" link in the corner — it lives in this area in BOTH states, because that's where the capture recorded it (their capture is empty, and the link is there anyway).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:380-383; cites FICHA-history.md §2, kept in new_text per D-17",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b987fe87",
+      "action": "translate",
+      "new_text": "The text is theirs, literal — `FICHA-history.md` §6.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:386-386; cites FICHA-history.md §6, kept in new_text per D-17",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-022d2f8e",
+      "action": "translate",
+      "new_text": "`bds-button variant=\"outline\" color=\"primary\" class=\"mt4\"`: the border in brand color (`button 135x40 b=1px rgb(74,93,35)` in the live copy), 20px below the text.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:393-395",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4ca772ec",
+      "action": "translate",
+      "new_text": "\"Agrupar por\" is ours, not theirs — the answer to the six report items that never became a screen (`historico.ts`). It sits OUTSIDE the panel on purpose: the panel only has the fields the ficha lists.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:402-404; references the Blip \"ficha\" evidence document",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-bd5c306b",
+      "action": "translate",
+      "new_text": "The two fields below don't exist in the server query: the history API doesn't filter by them (`FiltroHistorico` only has queue/agent/tag). They filter the already-loaded rows, in the browser — see `casa()`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/operacao/historico.tsx:41-43",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

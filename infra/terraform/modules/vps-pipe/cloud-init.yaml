@@ -45,7 +45,7 @@ write_files:
       [Service]
       Type=oneshot
       WorkingDirectory=/opt/pipe/infra/compose
-      ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml --env-file /opt/pipe-dados/.env --profile tarefa run --rm backup /scripts/restaurar-teste.sh
+      ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml --env-file /opt/pipe-dados/.env --profile tarefa run --rm backup /scripts/restore-test.sh
   - path: /etc/systemd/system/pipe-restauracao-teste.timer
     content: |
       [Unit]
@@ -77,7 +77,7 @@ runcmd:
   - systemctl enable --now pipe-backup.timer pipe-restauracao-teste.timer
   # O que falta é manual, uma vez só, e está em docs/specs/2026-09-07-implantacao.md:
   # 1) colocar a chave age de deploy em /opt/pipe-dados/age.key (chmod 600)
-  # 2) rodar infra/compose/implantar.sh <versao>, que confere o que precisa estar
+  # 2) rodar infra/compose/bootstrap.sh <versao>, que confere o que precisa estar
   #    pronto, sobe a pilha na ordem certa e para com mensagem no que é seu.
   #
   # O `ufw` acima NÃO fecha porta publicada por contêiner: o Docker escreve direto

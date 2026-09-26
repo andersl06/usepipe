@@ -1,0 +1,436 @@
+{
+  "rows": [
+    {
+      "id": "css-data-attr-f8ff29a8",
+      "new": "data-block",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-40c09630",
+      "new": "data-search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-30ee0251",
+      "new": "data-category=attendance",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-fd869cf7",
+      "new": "data-category=automation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-a4e62fd0",
+      "new": "data-delivery=read",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-1b598273",
+      "new": "data-delivery",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-60c1c80d",
+      "new": "data-delivery",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-61894ced",
+      "new": "data-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-7e5ddd6a",
+      "new": "data-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-af289060",
+      "new": "data-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-34b9d376",
+      "new": "data-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-cf87f8b9",
+      "new": "data-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-810e43a0",
+      "new": "data-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-f9a56dd5",
+      "new": "data-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-5ce242a4",
+      "new": "data-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-d41a5368",
+      "new": "data-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-720c9b9b",
+      "new": "data-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-4f7bdfe0",
+      "new": "data-status=chat",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-433e822d",
+      "new": "data-status=chat",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-0ab82847",
+      "new": "data-status=chat",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-f1311f42",
+      "new": "data-status=drawer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-652fe944",
+      "new": "data-status=drawer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-f980e8ca",
+      "new": "data-status=drawer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-b3d41cad",
+      "new": "data-status=offline",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-d1561c65",
+      "new": "data-status=online",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-1fec1050",
+      "new": "data-status=online",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-c7dd2ebb",
+      "new": "data-status=paused",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-ce199f11",
+      "new": "data-status=paused",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-c98902fd",
+      "new": "data-status=paused",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-cda3e1c1",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-5640e879",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-22d7dcbd",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-511a981b",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-6ad7ca78",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-575f892a",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-75a46e09",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-8f380a3b",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-c361d333",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-4b4aaf55",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-c5f53da4",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-840e1f48",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-051aa034",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-ed1bd89b",
+      "new": "data-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-data-attr-bba6446d",
+      "new": "data-template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-80f6c553",
+      "new": "data-panel=open",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-data-attr-ca6a0f87",
+      "new": "data-panel=closed",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-data-attr-0007da75",
+      "new": "data-panel=closed",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-data-attr-6025851e",
+      "new": "data-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-data-attr-2b9c3b6b",
+      "new": "data-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-data-attr-20e0bf90",
+      "new": "data-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-data-attr-a397371c",
+      "new": "data-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-data-attr-95ab0444",
+      "new": "data-first",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-data-attr-d7541394",
+      "new": "KEEP",
+      "persisted": "no",
+      "category": "A",
+      "decision_ref": "",
+      "notes": "user-visible tooltip text stays PT (product text, phase boundary)"
+    },
+    {
+      "id": "css-data-attr-5295f597",
+      "new": "KEEP",
+      "persisted": "no",
+      "category": "A",
+      "decision_ref": "",
+      "notes": "user-visible tooltip text stays PT (product text, phase boundary)"
+    }
+  ]
+}

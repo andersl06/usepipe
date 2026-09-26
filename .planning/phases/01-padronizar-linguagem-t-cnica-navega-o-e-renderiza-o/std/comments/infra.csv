@@ -1,0 +1,94 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+infra-comment-29b67e3f,infra,scripts/foto.mjs,1,2,block,4,"/* Tira uma foto de uma URL com o Chromium do Playwright: node foto.mjs URL SAIDA [cookie] [largura] [altura]
+   Usa o playwright-core do cache do npx (não é dependência do projeto). */",,,,,,
+infra-comment-b39a1bde,infra,scripts/foto.mjs,12,12,line,2,// A política da empresa bloqueia o Chrome aberto com --disable-extensions.,,,,,,
+infra-comment-7ef5f3be,infra,scripts/foto.mjs,19,19,block,1,"/* LOCAL='chave=valor,chave2=valor2' grava no localStorage antes de a página carregar */",,,,,,
+infra-comment-d68dd716,infra,tools/std/gerar-fixtures-jsonb.ts,1,36,jsdoc,44,"/**
+ * Gera as fixtures jsonb (STD-06) SINTÉTICAS: nenhuma linha real de tenant de cliente é
+ * lida. Tudo roda dentro de UM tenant descartável, criado e apagado por este script
+ * (mesmo padrão de `apps/api/tests/ajuda.ts` `montarCenario`, que a suíte de teste já usa
+ * contra este mesmo banco local) — cria só o que é dele, nunca lê nem exporta linha de
+ * outro tenant.
+ *
+ * Decisão do dono (24/09/2026): dump de dado real do Postgres local foi recusado pelo
+ * classificador de permissão do agente (Sensitive-Source Provenance) e o dono decidiu não
+ * insistir — fixture passa a ser 100% sintética, produzida chamando o código de produção
+ * de verdade (o motor do fluxo, `emitir()`, o controlador de contatos, `registrarAuditoria`),
+ * nunca lida à mão. Isso é uma prova mais fraca que dado real: não cobre formato legado que
+ * só existe em documento já gravado por uma versão antiga do código — só formato que o
+ * código ATUAL ainda produz. Ver `01-34-SUMMARY.md` §Deviations / §Known limitations.
+ *
+ * `conta.atributos` fica de fora (decisão do dono): não existe hoje nenhum caminho de
+ * código que escreva essa coluna — nem controlador da `api`, nem `apps/crm`, nem semente.
+ * `lead.utm`/`lead.customizados` também não têm rota de escrita própria (só o script de
+ * semente do CRM, `apps/crm/semente/semente-crm.ts:625-654`, os grava) — a fixture aqui
+ * reproduz o MESMO formato desse script via insert direto (citado por linha), sem rodar a
+ * semente inteira. `template_mensagem.variaveis` só é gravada por `sincronizarModelos`
+ * (`apps/api/src/dominio/whatsapp/modelos.ts:187-217`), que fala com a Graph API da Meta
+ * por rede — reproduz a MESMA transformação determinística daquele arquivo
+ * (`Array.from({length}, (_, i) => \`Variável ${i + 1}\`)`) sem a chamada de rede.
+ *
+ * A parte que precisa de `drizzle-orm`/`@pipe/db`/código de domínio da `api` mora em
+ * `apps/api/tests/gerar-fixtures-jsonb.helper.ts` (não `tools/std/`): esses pacotes só
+ * estão instalados no `node_modules` da workspace `@pipe/api`, e a resolução de módulo do
+ * Node segue o caminho do ARQUIVO que importa, não o cwd — `tools/std` não os enxerga.
+ * Este arquivo só faz o bootstrap de variável de ambiente (tem de vir antes de qualquer
+ * import que as leia) e a redação antes de escrever em `apps/api/tests/fixtures/jsonb/`.
+ *
+ * Uso: `pnpm --filter @pipe/api exec tsx ../../tools/std/gerar-fixtures-jsonb.ts` (precisa
+ * do Docker com `pipe-postgres` no ar). Roda por cima do MESMO banco que os testes usam; a
+ * limpeza no fim apaga só o tenant que este script criou.
+ */",,,,,,
+infra-comment-7d6c8181,infra,tools/std/gerar-fixtures-jsonb.ts,42,42,line,0,// ProcessHttp em modo memória roda `executarProcessHttp` (chamada HTTP de verdade) em,,,,,,
+infra-comment-d33c63de,infra,tools/std/gerar-fixtures-jsonb.ts,43,43,line,3,"// linha por padrão. Aqui a fixture quer só a suspensão (entrada/contexto/pedido), sem",,,,,,
+infra-comment-b3762977,infra,tools/std/gerar-fixtures-jsonb.ts,44,44,line,1,// nenhum request saindo da máquina — por isso o job fica parado num array em memória,,,,,,
+infra-comment-04e1bf0f,infra,tools/std/gerar-fixtures-jsonb.ts,45,45,line,2,// (`PIPE_PROCESS_HTTP_EM_MEMORIA=1`) e a varredura que o consumiria é adiada bem além da,,,,,,
+infra-comment-2dd49b42,infra,tools/std/jsonb-keys.ts,159,159,line,3,// Mais de uma entrada do manifesto pode apontar para o MESMO arquivo (ex.:,,,,,,
+infra-comment-faad1a71,infra,tools/std/jsonb-keys.ts,160,160,line,3,"// flow-process-http.json tem uma entrada por coluna combinada, cada uma com seu",,,,,,
+infra-comment-5457ce30,infra,tools/std/jsonb-keys.ts,161,161,line,0,"// `field` e seu `opaque`) — as chaves de todas elas se juntam no relatório do arquivo,",,,,,,
+infra-comment-7bacf398,infra,tools/std/jsonb-keys.ts,162,162,line,2,// nunca uma sobrescreve a outra.,,,,,,
+infra-comment-117b75ba,infra,tools/std/jsonb-keys.ts,32,32,jsdoc,2,/** Campo do registro que guarda o valor desta coluna; `value` quando ausente. */,,,,,,
+infra-comment-b1eb694c,infra,tools/std/jsonb-keys.ts,38,42,jsdoc,5,"/**
+ * Junta os nomes de propriedade que ocorrem em `doc`, ignorando o que estiver sob um
+ * caminho opaco (a própria chave do caminho opaco continua entrando — só os FILHOS dela
+ * ficam de fora). Caminho opaco é `$.a.b.*`: filhos de `$.a.b`.
+ */",,,,,,
+infra-comment-4fa31c9a,infra,tools/std/jsonb-keys.ts,66,71,jsdoc,5,"/**
+ * Nomes de propriedade que aparecem em `raiz` (um `ts.SourceFile`, ou qualquer nó):
+ * membro de interface/type literal, chave de objeto literal (inclusive shorthand),
+ * nome de `acesso.propriedade` e chave string de `acesso['indice']`. Nome computado
+ * (`[expr]`) não entra: não dá para saber estaticamente o que é.
+ */",,,,,,
+infra-comment-25662009,infra,tools/std/jsonb-keys.ts,7,16,jsdoc,7,"/**
+ * Prova estática de STD-06 para jsonb: toda chave que o código lia numa fixture na
+ * baseline continua ocorrendo como nome de propriedade no código depois de uma fatia.
+ *
+ * `--baseline` grava, por fixture, quais chaves da fixture ocorrem HOJE como nome de
+ * propriedade em código rastreado (`present`) e quais não ocorrem (`legacy` — dado que
+ * o código nunca leu por aquele nome; nunca falha o `--check`). `--check` recalcula os
+ * nomes de propriedade do código e falha se alguma chave `present` da baseline sumiu —
+ * isso é o sinal de uma chave jsonb renomeada por engano junto do rename mecânico.
+ */",,,,,,
+infra-comment-09748ba5,infra,tools/std/jsonb-keys.ts,80,80,line,2,// `{ ['literal']: v }`: nome computado com literal dentro dá para resolver estático.,,,,,,
+infra-comment-dcbe1fad,infra,tools/std/move-files.ts,208,208,line,4,"// start-of-string, a slash, or a quote, and followed by end-of-string, a slash, a",,,,,,
+infra-comment-6be8db21,infra,tools/std/move-files.ts,209,209,line,2,"// quote, or a dot). Bare fragments like a directory's post-""/src/"" tail otherwise",,,,,,
+infra-comment-97ac2d76,infra,tools/std/move-files.ts,211,211,line,2,"// as a package.json ""description"" field (ponytail: regex boundary, not a full",,,,,,
+infra-comment-535d7b89,infra,tools/std/pt-detect.test.ts,33,33,line,2,"// Busca a conversa quando o id existe'), true);",,,,,,
+infra-comment-c35566b1,infra,tools/std/pt-detect.test.ts,35,35,line,1,"// não'), true);",,,,,,
+infra-comment-229ac26f,infra,tools/std/redacao.ts,17,17,jsdoc,3,"/** E.164 e afins: opcional `+`, 8 a 15 dígitos, nada mais (não pega uuid nem id numérico curto). */",,,,,,
+infra-comment-902b92e6,infra,tools/std/redacao.ts,26,26,line,2,// A chave já denuncia segredo: qualquer valor escalar vira REDACTED. Objeto/array,,,,,,
+infra-comment-06303de6,infra,tools/std/redacao.ts,27,27,line,2,// sob uma chave assim (ex.: `credenciais: {...}`) também é substituído inteiro.,,,,,,
+infra-comment-2df8d079,infra,tools/std/redacao.ts,4,12,jsdoc,8,"/**
+ * Redação recursiva de documentos jsonb antes de virarem fixture committada.
+ *
+ * Regra: qualquer valor sob uma CHAVE que pareça segredo vira `""REDACTED""`,
+ * independente do formato. Fora disso, string que parece e-mail ou telefone
+ * também é trocada — mesmo sem a chave dar pista (campo `contato.atributos`
+ * livre por tenant pode guardar e-mail sob qualquer nome). Nunca redige a
+ * própria CHAVE: o que o `jsonb-keys` verifica é justamente o nome dela.
+ */",,,,,,
+infra-comment-6bc3fdd4,infra,tools/std/redacao.ts,50,54,jsdoc,3,"/**
+ * Uso como CLI pelo `dump-jsonb-fixtures.sh`: lê um array de registros do stdin
+ * (`[{id, value}, ...]` ou `[{id, antes, depois}, ...]`, etc.) e redige todo
+ * campo que não seja `id`, escrevendo o array redigido no stdout.
+ */",,,,,,

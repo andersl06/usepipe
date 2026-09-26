@@ -83,9 +83,9 @@
   if (alvos.length && !reduzido && "IntersectionObserver" in window) {
     root.classList.add("js-reveal");
     var obs = new IntersectionObserver(function (entradas) {
-      entradas.forEach(function (entrada) {
-        if (!entrada.isIntersecting) return;
-        var el = entrada.target;
+      entradas.forEach(function (inbound) {
+        if (!inbound.isIntersecting) return;
+        var el = inbound.target;
         el.classList.add("scroll-reveal--visible");
         obs.unobserve(el);
         el.addEventListener("transitionend", function marcar() {
@@ -116,18 +116,18 @@
   /* --------------------------------------------------- sumário do artigo */
   var links = document.querySelectorAll("[data-toc] a");
   if (links.length && "IntersectionObserver" in window) {
-    var porId = {};
+    var byId = {};
     var titulos = [];
     links.forEach(function (a) {
       var id = a.getAttribute("href").slice(1);
       var alvo = document.getElementById(id);
       if (!alvo) return;
-      (porId[id] = porId[id] || []).push(a);
+      (byId[id] = byId[id] || []).push(a);
       titulos.push(alvo);
     });
     var ativar = function (id) {
       links.forEach(function (a) { a.classList.remove("is-active"); });
-      (porId[id] || []).forEach(function (a) { a.classList.add("is-active"); });
+      (byId[id] || []).forEach(function (a) { a.classList.add("is-active"); });
     };
     var espiao = new IntersectionObserver(function (entradas) {
       var visiveis = entradas
@@ -193,11 +193,11 @@
      Sem JavaScript a lista aparece inteira, que é o estado correto. */
   var explorer = document.querySelector("[data-explorer]");
   if (explorer) {
-    var busca = explorer.querySelector("[data-explorer-search]");
+    var search = explorer.querySelector("[data-explorer-search]");
     var chips = explorer.querySelectorAll("[data-explorer-cat]");
     var itens = explorer.querySelectorAll("[data-post]");
     var destaque = explorer.querySelector("[data-explorer-featured]");
-    var vazio = explorer.querySelector("[data-explorer-empty]");
+    var empty = explorer.querySelector("[data-explorer-empty]");
     var categoria = "";
 
     var normalizar = function (s) {
@@ -205,28 +205,28 @@
     };
 
     var filtrar = function () {
-      var q = normalizar(busca ? busca.value.trim() : "");
+      var q = normalizar(search ? search.value.trim() : "");
       var filtrando = q.length > 0 || categoria !== "";
       var achou = 0;
       itens.forEach(function (li) {
         var cat = li.getAttribute("data-cat") || "";
-        var texto = normalizar(li.getAttribute("data-busca") || li.textContent);
+        var texto = normalizar(li.getAttribute("data-search") || li.textContent);
         var ok = (categoria === "" || cat === categoria) && (q === "" || texto.indexOf(q) !== -1);
         /* O primeiro post aparece no bloco de destaque enquanto ninguém filtra,
            então o cartão dele na grade só entra quando o destaque some. */
-        if (!filtrando && li.hasAttribute("data-primeiro")) ok = false;
+        if (!filtrando && li.hasAttribute("data-first")) ok = false;
         li.hidden = !ok;
         if (ok) achou++;
       });
       if (destaque) destaque.hidden = filtrando;
-      if (vazio) vazio.hidden = achou > 0;
+      if (empty) empty.hidden = achou > 0;
     };
 
-    if (busca) busca.addEventListener("input", filtrar);
+    if (search) search.addEventListener("input", filtrar);
     chips.forEach(function (chip) {
       chip.addEventListener("click", function () {
-        var valor = chip.getAttribute("data-explorer-cat");
-        categoria = categoria === valor ? "" : valor;
+        var value = chip.getAttribute("data-explorer-cat");
+        categoria = categoria === value ? "" : value;
         chips.forEach(function (c) {
           c.setAttribute("aria-pressed", String(c.getAttribute("data-explorer-cat") === categoria));
         });
@@ -248,6 +248,6 @@
   var local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
   if (!local) return;
   var alvo = "http://localhost:3100/entrar";
-  var botoes = document.querySelectorAll("[data-entrar]");
-  for (var i = 0; i < botoes.length; i++) botoes[i].setAttribute("href", alvo);
+  var buttons = document.querySelectorAll("[data-entrar]");
+  for (var i = 0; i < buttons.length; i++) buttons[i].setAttribute("href", alvo);
 })();

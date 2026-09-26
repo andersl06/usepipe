@@ -1,0 +1,2420 @@
+{
+  "rows": [
+    {
+      "id": "packages-ai-dir-c30965c4",
+      "new": "packages/ai/src/evaluation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-dir-3fb27a89",
+      "new": "packages/ai/src/classification",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-dir-06e610bd",
+      "new": "packages/ai/src/transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-cab92a72",
+      "new": "packages/ai/src/evaluation/evaluation.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-540d7b7f",
+      "new": "packages/ai/src/evaluation/evaluation.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-8c0cdb7d",
+      "new": "packages/ai/src/prompts/evaluation.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-cc463769",
+      "new": "packages/ai/src/workbench/workbench.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-8494ea7f",
+      "new": "packages/ai/src/classification/classification.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-ab485c67",
+      "new": "packages/ai/src/prompts/classification.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-a3245d2f",
+      "new": "packages/ai/src/cliente/cliente.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-563c31d3",
+      "new": "packages/ai/src/consumption/consumption.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-a61e86bc",
+      "new": "packages/ai/src/cliente/errors.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-806b6a8e",
+      "new": "packages/ai/src/transcription/transcription.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-3718cc30",
+      "new": "packages/ai/src/transcription/transcription.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-file-06b1cb0e",
+      "new": "packages/ai/tsconfig.tests.json",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-5c88dc03",
+      "new": "AttachmentTranscription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-82eab594",
+      "new": "file",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-388a3900",
+      "new": "AutorMessage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-465bbad6",
+      "new": "avaliarConversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-51043f32",
+      "new": "blockIntents",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-d20229bd",
+      "new": "block",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-2783ddb7",
+      "new": "casarOption",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-21e77efd",
+      "new": "optionKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-2ee76fea",
+      "new": "classificarConversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-43e74b98",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-340faa89",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-ec1ba6fc",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-8d79e91a",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-4c6c1e11",
+      "new": "messageCorpo",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-05ec7a02",
+      "new": "createChamada",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-47bce473",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-061fde84",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-0cf7aaab",
+      "new": "DirectionMessage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-2854224e",
+      "new": "trueDormir",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-e3143b00",
+      "new": "duration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-1a4079d0",
+      "new": "InboundEvaluation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-a0dddeea",
+      "new": "InboundClassification",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-7862345c",
+      "new": "InboundSummary",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-1d7a1634",
+      "new": "ChamadaIaError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-cd1524ed",
+      "new": "apiError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-c9535888",
+      "new": "FormatIaError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-f0216ca8",
+      "new": "TemplateWithoutPrecoError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-76e6494b",
+      "new": "EFFORT_DEFAULT",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-508f6e16",
+      "new": "Effort",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-cfa9e9e6",
+      "new": "EsquemaAttachment",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-3f39841e",
+      "new": "EsquemaEvaluation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-e60fd4a6",
+      "new": "EsquemaClassification",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-dde470dd",
+      "new": "EsquemaMessage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-ffa9ba5f",
+      "new": "evidenciaMessageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-3831f6c0",
+      "new": "fatalReprovados",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-c4a722d6",
+      "new": "FRACTION_INICIO_DEFAULT",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-8f82ce62",
+      "new": "valueFraction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-aff1aee8",
+      "new": "fractionInicio",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-6df2ed54",
+      "new": "fraction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-664652ee",
+      "new": "fraction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-4f1bb709",
+      "new": "equalInCaso",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-40bbd928",
+      "new": "equal",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-fb9ec381",
+      "new": "intents",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-16cf94eb",
+      "new": "LinhaTranscription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-7e8f4864",
+      "new": "MAX_CARACTERES_BY_MESSAGE_DEFAULT",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-dc01abcc",
+      "new": "MAX_OPTIONS_DEFAULT",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-8b3b8e54",
+      "new": "maxByMessage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-c5f333c0",
+      "new": "messageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-6ed6c056",
+      "new": "MessageTranscription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-c8a47f9d",
+      "new": "mesmoValue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-41911835",
+      "new": "TEMPLATE_DEFAULT",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-227933b5",
+      "new": "templateConfigurado",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-04d4b886",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-b36387ca",
+      "new": "montarTranscription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-d2237984",
+      "new": "OptionTaxonomia",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-40663295",
+      "new": "OptionsEvaluation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-c7b2a982",
+      "new": "OptionsWorkbench",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-1489d848",
+      "new": "OptionsClassification",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-443ebb98",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-b3d88520",
+      "new": "OptionsSummary",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-23cf21e8",
+      "new": "OptionsRetentativa",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-077638c7",
+      "new": "OptionsTranscription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-47111b86",
+      "new": "budgetFim",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-d9cf9824",
+      "new": "budgetInicio",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-94bc0918",
+      "new": "partial",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-4480b866",
+      "new": "byCaso",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-aeb688f3",
+      "new": "byCriterio",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-9fcdc1ad",
+      "new": "byCriterio",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-2e3700da",
+      "new": "byId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-00d8f859",
+      "new": "byTemplate",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-17de46ae",
+      "new": "PrecoTemplate",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-a0acd816",
+      "new": "prepararOptions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-4f94caa9",
+      "new": "PROMPT_EVALUATION",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-d4e145d3",
+      "new": "PROMPT_CLASSIFICATION",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-2d6a8d60",
+      "new": "PROMPT_SUMMARY_CLOSURE",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-6b0b09db",
+      "new": "RespostaEvaluation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-b5a7445c",
+      "new": "ResultadoEvaluation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-ee36de89",
+      "new": "ResultadoClassification",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-85f0b7d7",
+      "new": "resumirClosure",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-8e9d094f",
+      "new": "OutputEvaluationIa",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-611ff493",
+      "new": "greeting",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-516128e4",
+      "new": "Sentiment",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-bf7721df",
+      "new": "SENTIMENTS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-a2ad9937",
+      "new": "TipoMessage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-a8d9d486",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-aae2f3a5",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-986da610",
+      "new": "Transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-5c37f4c4",
+      "new": "ValueConforme",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-0f0326d5",
+      "new": "VALUES_CONFORME",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-symbol-b525c6fb",
+      "new": "valuesAceitos",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-b3fa58ec",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-0b016256",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-c3945f79",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-64a171c6",
+      "new": "inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-77fa833e",
+      "new": "inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-f4de7c6f",
+      "new": "inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-b194158d",
+      "new": "inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-bc62a3cb",
+      "new": "inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-dfcc55a5",
+      "new": "inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-8842e0d0",
+      "new": "inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-57596d29",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-08ed7682",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-f199bf88",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-00fd4a35",
+      "new": "fraction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-6af52400",
+      "new": "feature",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-57b06aa8",
+      "new": "maxCaracteresByMessage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-4fb0d231",
+      "new": "maxOptions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-6394d650",
+      "new": "message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-913f08f9",
+      "new": "message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-789ddf11",
+      "new": "messages",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-4c290fb3",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-30517641",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-1df39491",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-f4975e5f",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-3587d366",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-d826baff",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-e560c33b",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-90faddf2",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-4e2782cf",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-c36dcceb",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-ffb20b85",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-143d83c4",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-12269e11",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-2b539e2a",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-b934f350",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-58404eb5",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-632c2405",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-4b9ae0d0",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-e390e1da",
+      "new": "tokensInbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-42a0f68d",
+      "new": "tokensInbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-65627242",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-4fd5cf58",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-378304ec",
+      "new": "values",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-2023cf96",
+      "new": "values",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-0253e981",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-fa6145e6",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-2ea4663e",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-local-c4e194b5",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-00d7337c",
+      "new": "attachment",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-27a0fb8d",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-cb5e3e72",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-7448fbf4",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-1e629252",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-6a792f03",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-14eb5fa6",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-caeb6230",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-d4cd7bd2",
+      "new": "criteriosEqual",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-4c98fd0e",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-1126384e",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-e2ba3121",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-ddcfa17e",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-71b3181c",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-8e0d917e",
+      "new": "durationSeg",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-ad950616",
+      "new": "inboundUsdByMilhao",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-0c8405f5",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-56353a8c",
+      "new": "effort",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-02c51256",
+      "new": "effort",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-ebc80d0c",
+      "new": "effort",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-767de3d5",
+      "new": "effort",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-e0b3dc21",
+      "new": "evidenciaMessageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-32cebfe8",
+      "new": "evidenciaMessageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-20005fde",
+      "new": "evidenciaMessageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-5a3fd53f",
+      "new": "evidenciaMessageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-6dd5c7d8",
+      "new": "fatalReprovados",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-58334ef2",
+      "new": "fatalReprovados",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-cf549424",
+      "new": "fractionInicio",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-8df9aee8",
+      "new": "fraction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-a006e500",
+      "new": "feature",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-6192ee07",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-095f1fe5",
+      "new": "intent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-b7e66a61",
+      "new": "intents",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-5e931029",
+      "new": "maxCaracteresByMessage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-dd758b1d",
+      "new": "maxOptions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-af5e2507",
+      "new": "maxOptions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-96727094",
+      "new": "messageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-bd7d470c",
+      "new": "messagesOmitidas",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-0f5cb635",
+      "new": "messagesOmitidas",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-4dad8774",
+      "new": "messagesOmitidas",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-5ef0d355",
+      "new": "messagesOmitidas",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-8e1e2e98",
+      "new": "messages",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-c209df8e",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-73d1ccdf",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-ee5aa02f",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-f07101a2",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-c9e6224d",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-75b5f43e",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-947904c7",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-5f735144",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-e072f27a",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-2972e8d4",
+      "new": "template",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-8ef91c37",
+      "new": "nameFile",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-1b19af58",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-014010be",
+      "new": "byCaso",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-6bf4a68f",
+      "new": "byCriterio",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-b31ab96b",
+      "new": "outputUsdByMilhao",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-fa3d4f60",
+      "new": "sentiment",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-cd2fa26e",
+      "new": "tokensInbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-0f3e3f4d",
+      "new": "totalMessages",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-4ef0ae03",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-23885959",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-03ed2c92",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-02fa8c56",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-e830807f",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-c137a6ab",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-971b8604",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-827d5ffd",
+      "new": "transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-f1a897b9",
+      "new": "user",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-dc1f2ea7",
+      "new": "user",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-14ed0e7f",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-c926fe2d",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-368acf8c",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-ts-prop-834693d8",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-literal-value-97f0c791",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-628bd365",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-d4d65411",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-6baf699d",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-f428f418",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-d166fa43",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-5d05bd51",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-b520fd72",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-6d6dcabc",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-2822a6a7",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-d5f6d892",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-17d64dde",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-b1d52ace",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-e053d69a",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-a7e7ae41",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-941a0e46",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-e6527b6f",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-1d6d6fc5",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-literal-value-1cccb3f1",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ai-subpath-export-2c2449a3",
+      "new": "./evaluation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-subpath-export-d6c7ea54",
+      "new": "./classification",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-subpath-export-9fcf3e0a",
+      "new": "./transcription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-script-9c2d183b",
+      "new": "test:watch",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-07",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-cc4d729c",
+      "new": "accepts an option without a subcategory",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-11a49d08",
+      "new": "the counts add up: start + end + omitted = total",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-e7e0ef58",
+      "new": "evaluateConversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-4fd844a1",
+      "new": "loads the cases from the file and converts timestamps into Date",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-76b7325a",
+      "new": "matches the option even when the model writes it differently",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-982e6212",
+      "new": "classifyConversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-4c266db9",
+      "new": "charges input and output at the model's rates",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-56fd689f",
+      "new": "charges more for the more expensive model",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-c6bdd934",
+      "new": "collapses line breaks so the transcript stays one line per message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-79578b1a",
+      "new": "a two-message conversation is never truncated, no matter how large",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-62a446eb",
+      "new": "message body",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-dfa95c9e",
+      "new": "trims a giant message individually, without overflowing the line",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-afbb15e9",
+      "new": "a failed fatal criterion zeros the score but keeps what it would have been worth",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-3bff1029",
+      "new": "a criterion with no answer is an error, never a silent zero",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-cfca9f64",
+      "new": "describes media with file name and caption",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-9bbd261a",
+      "new": "breaks ties alphabetically so the list stays stable across runs",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-a986af23",
+      "new": "gives up after the total number of attempts and propagates the original error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-6d8ae70e",
+      "new": "reports when even the audio duration is missing",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-0721db34",
+      "new": "our own error does not count: retrying only wastes money",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-98d10060",
+      "new": "an error not worth retrying surfaces on the first attempt",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-141f0cba",
+      "new": "throws for a model without a price instead of returning zero cost",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-c2af9cbe",
+      "new": "fraction of the value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-0afb9907",
+      "new": "stores the taxonomy label, not what the model typed",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-a7ac7f6a",
+      "new": "lists options in usage order and reports the transcript cutoff",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-70094106",
+      "new": "flags audio without a transcript instead of letting it turn into silence",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-6e0e7930",
+      "new": "measures deviation per criterion, not just the total",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-92a29a8b",
+      "new": "transcript assembly",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-24f13ce2",
+      "new": "does not let an empty message disappear",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-6e65bfea",
+      "new": "does not retry when it succeeds on the first try",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-accae527",
+      "new": "label normalization",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-69b9d420",
+      "new": "the \"third-party data\" answer key zeros the score via the fatal criterion",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-92f9e34e",
+      "new": "sorts from worst criterion to best: that is the queue of prompts to review",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-2034e61d",
+      "new": "sorts by time, numbers and indexes each line",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-ea0040fe",
+      "new": "sorts by actual usage, from most chosen to least",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-be62bd0b",
+      "new": "option preparation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-20a21f54",
+      "new": "preserves the start and end, where the information is",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-66bff05b",
+      "new": "classification prompt",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-8cdf2b89",
+      "new": "rejects evidence that does not exist in the transcript",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-7a0464dc",
+      "new": "rejects malformed JSON",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-f94fd94f",
+      "new": "rejects an option pruned from the list, even if it exists in the taxonomy",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-fe1716c5",
+      "new": "rejects a value outside the domain instead of guessing",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-80bd4ad2",
+      "new": "retries a network error until it succeeds",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-84ca14cf",
+      "new": "resolves the evidence label to the message id",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-3f78736f",
+      "new": "respects the character budget with headroom from the cutoff marker",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-95c43e9b",
+      "new": "only indexes what remains — an omitted message's label cannot be cited as evidence",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-f4f82ae2",
+      "new": "adds up to 25% of variation so everything does not resync in the same second",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-72dde7bc",
+      "new": "sums consumption across all cases, per model",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-f92fdebd",
+      "new": "sums per model and never mixes models in a single row",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-6685932d",
+      "new": "has the default model registered",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-683ab337",
+      "new": "truncation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-a9edec9a",
+      "new": "all not-applicable gives zero without dividing by zero",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ai-test-title-bbfbc9d2",
+      "new": "uses the name when there is one, and the role when there is not",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    }
+  ]
+}

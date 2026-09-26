@@ -1,0 +1,16 @@
+[
+  {
+    "id": "18ceff80-2407-4ffc-a9d0-7038a1b4a4aa",
+    "value": {
+      "data": {
+        "estado": "na_fila",
+        "origem": "gerar-fixtures-jsonb",
+        "conversa_id": "a2415adc-fa01-4693-b4d4-6eab69b01d98"
+      },
+      "event": "conversa.criada",
+      "tenant_id": "2faaf565-dd98-417f-9489-0aba1fb7d028",
+      "delivery_id": "6fa3f8e9-c4a1-4830-9c81-ccdd7f24c128",
+      "occurred_at": "2026-09-24T20:32:41.350Z"
+    }
+  }
+]

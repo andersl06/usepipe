@@ -555,14 +555,16 @@
 
 <script src="/assets/site.js" defer></script>
 <script>
-/* Calculadora de taxas do iFood.
-   O que sai em reais (ingredientes, embalagem, entrega) fica fixo; o que sai em
-   percentual (comissão, transação, imposto, cupom) incide sobre o preço. Daí as
-   duas contas:
-     lucro = P*(1 - com - tra - cup - imp) - custosFixos
-     preço = custosFixos / (1 - com - tra - cup - imp - margem)
-   Somar percentual sobre o custo, em vez de dividir, é o erro que faz o
-   restaurante trabalhar de graça. */
+/*
+ * iFood fee calculator.
+ *    What comes out in cash (ingredients, packaging, delivery) stays fixed; what
+ *    comes out as a percentage (commission, transaction, tax, coupon) applies to
+ *    the price. Hence the two equations:
+ *      lucro = P*(1 - com - tra - cup - imp) - custosFixos
+ *      preço = custosFixos / (1 - com - tra - cup - imp - margem)
+ *    Adding the percentage on top of cost, instead of dividing it out, is the
+ *    mistake that makes the restaurant work for free.
+ */
 (function () {
   "use strict";
 
@@ -589,9 +591,11 @@
   };
   var texto = function (id, v) { document.getElementById(id).textContent = v; };
 
-  /* Guarda o custo da entrega própria para devolver quando o usuário sai e
-     volta do plano com entrega do iFood. Sem isso o campo volta zerado e a
-     conta do canal próprio sai errada sem ninguém perceber. */
+  /*
+   * Stores the own-delivery cost to restore it when the user leaves and comes
+   *        back from the iFood-delivery plan. Without this the field resets to
+   *        zero and the own-channel math comes out wrong without anyone noticing.
+   */
   var custoEntregaPropria = el.entrega.value;
 
   function aplicarPlano() {
@@ -684,8 +688,10 @@
     texto("dMar", pct(margem));
     texto("dMes", pedidos > 0 ? moeda(lucro * pedidos) : "–");
 
-    /* Canal próprio: mesmo preço, mesmos custos, sem comissão e sem taxa de
-       transação do marketplace. A entrega continua sendo do restaurante. */
+    /*
+     * Own channel: same price, same costs, no commission and no marketplace
+     *          transaction fee. Delivery is still the restaurant's.
+     */
     var entProprio = el.plano.value === "entrega" ? num(custoEntregaPropria) : ent;
     var wTaxa = preco * pix;
     var wLucro = preco - wTaxa - custo - emb - entProprio - vImp;

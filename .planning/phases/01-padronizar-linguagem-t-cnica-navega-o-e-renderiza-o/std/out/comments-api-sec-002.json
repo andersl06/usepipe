@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-7ca804a5",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:53-56",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-cf8dbbb8",
+      "action": "translate",
+      "new_text": "Maximum metrics range: the screen's 90 days plus a little margin.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:58-59",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7a2bc26e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:71-86",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-833c53de",
+      "action": "translate",
+      "new_text": "Run serially rather than with `Promise.all`: the transaction uses one connection, and",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/desk.ts:76-86; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-73cb08da",
+      "action": "translate",
+      "new_text": "parallel queries on it can unset the tenant's `set_config`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/desk.ts:76-86; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-778ef7a8",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:89-110",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-c7c9e406",
+      "action": "translate",
+      "new_text": "Pipe's challenge combines the provider challenge with an invitation when login starts from one. The invitation token travels in the same cookie so it survives the Google round trip. Without it, the callback could not know the account was invited and would reject an unknown domain.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:108-116; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-195a1ccc",
+      "action": "translate",
+      "new_text": "The app that started login; the callback returns there.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:117-118; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1d37b721",
+      "action": "translate",
+      "new_text": "The tenant that initiated SSO determines which customer the person belongs to.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:119-120; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9209eff8",
+      "action": "translate",
+      "new_text": "Connection test: validate everything without creating a session.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:121-122; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c1a8566e",
+      "action": "translate",
+      "new_text": "Use `Lax`, not `Strict`: the Google callback is a top-level navigation from another",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:125-139; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-80dfa9cd",
+      "action": "translate",
+      "new_text": "site. With `Strict`, the cookie is omitted and login always fails.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:132-139; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6368b613",
+      "action": "translate",
+      "new_text": "The challenge cookie intentionally has no Pipe signature. It asserts nothing by itself: it is the counterpart to the `state`, `nonce` and PKCE values sent to Google, and verification checks that it matches the callback. Signing would only defend against a browser owner forging their own login, which they can already do. `HttpOnly` keeps scripts from reading the value.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:142-158; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2d577f65",
+      "action": "translate",
+      "new_text": "Inspect every cookie value with this name, not only the first. If `Domain` changed between releases, the browser can send both cookies with the old one first. That previously caused a silent login failure.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:150-163; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e6d718f4",
+      "action": "translate",
+      "new_text": "Unreadable value: try the next cookie.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:153-163; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e12d4f07",
+      "action": "translate",
+      "new_text": "Map the failure to a contract code the sign-in screen understands.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:166-184; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e162a67c",
+      "action": "translate",
+      "new_text": "A provider account already owned by another customer must look to the signer-in",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:168-172; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-56b7e951",
+      "action": "translate",
+      "new_text": "the same as having no invitation. More detail would reveal that this email exists in another Pipe customer account.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:168-172; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a37a8694",
+      "action": "translate",
+      "new_text": "An expired or used invitation, one for another email, or a Google account already",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:174-180; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2c2a135d",
+      "action": "translate",
+      "new_text": "owned by someone else all mean the invitation is unusable; request another.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:174-180; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-eaa6b11f",
+      "action": "translate",
+      "new_text": "`sem_convite` is the code the screen can explain.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:177-180; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1fdfb415",
+      "action": "translate",
+      "new_text": "Everything else, including a wrong `state`, failed code exchange or missing config,",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:181-184; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5631db96",
+      "action": "translate",
+      "new_text": "is our or the provider's problem. The user has one recourse: retry.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:181-184; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-78117f41",
+      "action": "translate",
+      "new_text": "Requested origin without a trailing slash; `baseDoApp` validates it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:192-195; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1bef3d00",
+      "action": "translate",
+      "new_text": "Accept the invitation with the Google identity and return the session. The `if` satisfies the type system, not a real branch: `aceitarConvite` always opens a session for a person. A 500 here would be preferable to redirecting as though login succeeded.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:198-214; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

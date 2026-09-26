@@ -42,43 +42,43 @@ Pipe já tem um núcleo grande construído e commitado (canais, monitoramento, e
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Create the phase branch, fix the only root typecheck failure, and record the green baseline that every later slice gate is compared against (D-21, ...
+- [x] 01-01-PLAN.md — Create the phase branch, fix the only root typecheck failure, and record the green baseline that every later slice gate is compared against (D-21, ...
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Build the PT detector and the STD-11 scanner, seed the A/B/C exceptions file, and record the baseline scan.
-- [ ] 01-03-PLAN.md — Build the route-consumer matcher (STD-03 proof, guard-preservation proof) and the DDL snapshot (STD-06/D-08 proof), run both on the baseline, and w...
-- [ ] 01-04-PLAN.md — Install ts-morph 28.0.0 and build the three map-driven rename tools plus the shared map library, proven on a fixture mini-monorepo.
-- [ ] 01-34-PLAN.md — Capture redacted jsonb fixtures from the pre-rename DB and add the jsonb-keys check and jsonb-compat test (goldens) that every slice gate runs (STD-06).
+- [x] 01-02-PLAN.md — Build the PT detector and the STD-11 scanner, seed the A/B/C exceptions file, and record the baseline scan.
+- [x] 01-03-PLAN.md — Build the route-consumer matcher (STD-03 proof, guard-preservation proof) and the DDL snapshot (STD-06/D-08 proof), run both on the baseline, and w...
+- [x] 01-04-PLAN.md — Install ts-morph 28.0.0 and build the three map-driven rename tools plus the shared map library, proven on a fixture mini-monorepo.
+- [x] 01-34-PLAN.md — Capture redacted jsonb fixtures from the pre-rename DB and add the jsonb-keys check and jsonb-compat test (goldens) that every slice gate runs (STD-06).
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-05-PLAN.md — Build the deterministic inventory extractor (with jsonb type reach and per-route dependents) and the slice gate, then run the gate on the baseline.
-- [ ] 01-06-PLAN.md — Codex wrapper, prompt chunker, schemas and templates.
+- [x] 01-05-PLAN.md — Build the deterministic inventory extractor (with jsonb type reach and per-route dependents) and the slice gate, then run the gate on the baseline.
+- [x] 01-06-PLAN.md — Codex wrapper, prompt chunker, schemas and templates.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-07-PLAN.md — Produce the navigation/rendering contract (STD-12), the per-screen URL-vs-state classification (STD-04) and the compatibility strategy (STD-05).
-- [ ] 01-38-PLAN.md — Merge Codex proposals, validate the map and apply reviewed comments with tests.
+- [x] 01-07-PLAN.md — Produce the navigation/rendering contract (STD-12), the per-screen URL-vs-state classification (STD-04) and the compatibility strategy (STD-05).
+- [x] 01-38-PLAN.md — Merge Codex proposals, validate the map and apply reviewed comments with tests.
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 01-08-PLAN.md — Run the deterministic inventory, then classify persisted items including jsonb-reached shapes (STD-06, D-09, D-11, D-40) so the map never contains a persisted name.
+- [x] 01-08-PLAN.md — Run the deterministic inventory, then classify persisted items including jsonb-reached shapes (STD-06, D-09, D-11, D-40) so the map never contains a persisted name.
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 01-09-PLAN.md — Propose the domain glossary and English naming convention, then stop for owner gate 1 (D-03).
-- [ ] 01-35-PLAN.md — Classify every API endpoint's wire contract for key-rename impact (D-09).
+- [x] 01-09-PLAN.md — Propose the domain glossary and English naming convention, then stop for owner gate 1 (D-03).
+- [x] 01-35-PLAN.md — Classify every API endpoint's wire contract for key-rename impact (D-09).
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 01-10-PLAN.md — Record the approved language rule in PROJECT.md (STD-08) and propose the old->new map for the backend and infra scopes (D-03 gate 2 input).
-- [ ] 01-11-PLAN.md — Propose the old->new map for front and flow-engine scopes: packages-core, packages-ai, packages-ui, desk-vite, gestao-vite, crm, ponte, site.
-- [ ] 01-36-PLAN.md — Propose and review the CSS map: classes, custom properties and data-* attributes (D-35).
+- [x] 01-10-PLAN.md — Record the approved language rule in PROJECT.md (STD-08) and propose the old->new map for the backend and infra scopes (D-03 gate 2 input).
+- [x] 01-11-PLAN.md — Propose the old->new map for front and flow-engine scopes: packages-core, packages-ai, packages-ui, desk-vite, gestao-vite, crm, ponte, site.
+- [x] 01-36-PLAN.md — Propose and review the CSS map: classes, custom properties and data-* attributes (D-35).
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 01-12-PLAN.md — Prepare and run owner gate 2 (D-03): prove the map is applicable, present a review packet, record approval, and close slice 0.
+- [x] 01-12-PLAN.md — Prepare and run owner gate 2 (D-03): prove the map is applicable, present a review packet, record approval, and close slice 0.
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
@@ -196,6 +196,17 @@ Plans:
 
 **Notas para o planejamento (roteamento de modelo)**: uso intencional de modelos diferentes por tipo de tarefa, conforme decisão do dono (24/09/2026). **Sonnet**: inventário e dependency analysis, definição da convenção canônica, mapa old→new, decisões semânticas de nomenclatura, classificação URL vs React state, análise de breaking changes, estratégia de compatibilidade, revisão final e validação de regressão. **Haiku** (só depois do mapa old→new aprovado): rename de arquivos/diretórios, imports, referências, links, navigate/redirect, endpoints já mapeados, testes, fixtures, funções/variáveis quando o nome novo já estiver definido, busca por referências antigas remanescentes. Haiku não inventa nomenclatura, não traduz semanticamente por conta própria, não decide arquitetura, URL vs React state, breaking changes, nem altera contrato persistido sem plano.
 
+### Phase 01.1: Subdomínio por tenant no padrão Blip (INSERTED)
+
+**Goal:** Cada cliente acessa o Pipe pelo próprio subdomínio, como na Blip: `<tenant>.usepipe.app/application` (Gestão/Portal) e `<tenant>.desk.usepipe.app` (Desk). Escopo: DNS e TLS curinga, resolução do tenant pelo host, cookie de sessão válido entre subdomínios, Traefik na VPS, redirects de login/convite/OAuth. Domínio: `usepipe.app` (ainda não comprado, D-43). As rotas já chegam no formato Blip pela Phase 1 e não assumem host fixo.
+**Requirements**: TBD
+**Depends on:** Phase 1
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 01.1 to break down)
+
 ### Phase 2: Fechar o Builder
 
 **Goal**: O Builder deixa de ser a maior lacuna conhecida do produto — atendente consegue montar e publicar um fluxo completo sem esbarrar em tipo de bloco, ligação ou pesquisa de satisfação sem editor.
@@ -209,7 +220,67 @@ Plans:
   4. Atendente tem painéis de Gerenciamento de Filas e de Teste com paridade funcional, além de copiar/colar bloco e exportar versão antiga
   5. As setas do canvas do Builder representam corretamente toda ligação salva, com teste cobrindo `arestasDe()`
 
-**Plans**: TBD
+**Plans**: 22 plans
+
+Plans:
+**Wave 1**
+
+- [x] 02-01-PLAN.md — Investigação: catálogo de conteúdo da referência (D-18)
+- [x] 02-02-PLAN.md — Investigação: ações, scripts e biblioteca de funções (D-19..D-22)
+- [x] 02-03-PLAN.md — Investigação: pesquisa de satisfação e tags (D-06..D-13)
+- [x] 02-04-PLAN.md — Investigação: painéis, seletor, setas e visual (D-14..D-17, D-23, D-29..D-33)
+- [ ] 02-05-PLAN.md — Wave técnica do motor: ProcessHttp (D-25..D-28)
+- [ ] 02-06-PLAN.md — Caracterização de arestasDe() e copiar/colar (D-17, D-29.1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 02-07-PLAN.md — Snapshot congelado + capturas pendentes + PORTÃO DO DONO (D-01..D-05)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 02-08-PLAN.md — Tema escuro, tokens --p-builder-marca-*, paleta de $tags, ícones (D-11, D-13, D-30..D-33)
+- [ ] 02-10-PLAN.md — Conteúdo: slot mídia ponta a ponta
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 02-09-PLAN.md — Seletor de destino com busca + validação de setas com fluxos reais (D-23, D-29)
+- [ ] 02-11-PLAN.md — Satisfação: schema, motor, etiquetas no ticket, endpoint de consulta (D-06..D-12)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 02-12-PLAN.md — Satisfação e etiquetas no editor do Builder
+- [ ] 02-14-PLAN.md — Ações: slot contexto ponta a ponta
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 02-13-PLAN.md — Versões (exportar versão antiga) e painel de Filas (D-15, D-16)
+- [ ] 02-15-PLAN.md — Conteúdo: slot interativo ponta a ponta
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 02-16-PLAN.md — Ações: ExecuteScript/V2 com sandbox aprovado (D-21)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 02-17-PLAN.md — Biblioteca de funções: persistência, API e motor (D-22)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [ ] 02-18-PLAN.md — Biblioteca de funções: painel e busca no Builder
+- [ ] 02-19-PLAN.md — Conteúdo: slot dinâmico (HTTP/Dinâmico) e fechamento do catálogo
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
+- [ ] 02-20-PLAN.md — Ações de plataforma nativas + dependências externas registradas (D-20, D-24)
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
+- [ ] 02-21-PLAN.md — Painel de Teste com Debug (D-14)
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
+- [ ] 02-22-PLAN.md — Regressão final, verificação visual e portão final do dono
+
 **UI hint**: yes
 
 ### Phase 3: Validar e fechar superfícies atuais
@@ -309,8 +380,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Padronizar linguagem técnica, navegação e renderização | 0/41 | Not started | - |
-| 2. Fechar o Builder | 0/TBD | Not started | - |
+| 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
+| 2. Fechar o Builder | 5/22 | In Progress|  |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |

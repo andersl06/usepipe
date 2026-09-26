@@ -1,24 +1,17 @@
 import type { TemplateParaEnvio } from './template.js';
 
 /**
- * O adaptador de saída para o WhatsApp.
- *
- * Duas implementações atrás da mesma interface porque **não temos WABA de teste**:
- * `ClienteWhatsAppReal` fala com a Cloud API; `ClienteWhatsAppDuble` simula entrega,
- * atraso e falha e é o que permite provar o caminho inteiro hoje. A escolha é por
- * `PIPE_WHATSAPP_CLIENTE`; sem WABA no ambiente, o padrão é o dublê, de propósito —
- * subir com o cliente real sem credencial só produziria falha de autenticação em
- * série, que é ruído, não sinal.
+ * WhatsApp outbound adapter. Two implementations share an interface because we have NO test WABA: `ClienteWhatsAppReal` calls Cloud API; `ClienteWhatsAppDuble` simulates delivery, delays, and failures to exercise the whole path. `PIPE_WHATSAPP_CLIENTE` selects one; without a WABA, the default is intentionally the double. Starting the real client without credentials would generate repeated authentication failures rather than useful signal.
  */
 
 export type TipoConteudo = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'template' | 'interativo';
 
-export interface CredenciaisCanal {
-  /** `WHATSAPP_PHONE_NUMBER_ID` — o número que envia. */
+export interface CredentialsChannel {
+
   phoneNumberId: string;
-  /** Token do usuário de sistema. Cifrado em `canal.config` (§6 da spec). */
-  tokenAcesso: string;
-  /** Padrão `v21.0`. A Meta descontinua versão antiga; por isso é configuração. */
+  /** System-user token, encrypted in `canal.config` (spec §6). */
+  tokenAccess: string;
+  /** Default `v21.0`. Meta discontinues old versions, so this is configurable. */
   apiVersao?: string | undefined;
 }
 
@@ -27,36 +20,36 @@ export interface ConteudoTexto {
   texto: string;
 }
 
-export interface ConteudoMidia {
+export interface ContentMedia {
   tipo: 'imagem' | 'audio' | 'video' | 'documento';
-  /** URL pública do storage de objetos. A mídia sobe antes do envio (§4.3). */
+  /** Public object-storage URL. Media is uploaded before sending (§4.3). */
   link: string;
   legenda?: string | undefined;
-  nomeArquivo?: string | undefined;
+  nameFile?: string | undefined;
 }
 
 export interface ConteudoTemplate {
   tipo: 'template';
   template: TemplateParaEnvio;
-  /** Valores por posição **de disparo**, com o deslocamento de mídia já aplicado. */
-  valores: Record<string, string>;
+  /** Template values by SEND position, after applying the media offset. */
+  values: Record<string, string>;
 }
 
-/** Pergunta do fluxo em botões ou lista. Ver `interativo.ts`. */
+
 export interface ConteudoInterativo {
   tipo: 'interativo';
-  formato: 'botoes' | 'lista';
+  format: 'botoes' | 'lista';
   texto: string;
-  opcoes: string[];
+  options: string[];
 }
 
-export type Conteudo = ConteudoTexto | ConteudoMidia | ConteudoTemplate | ConteudoInterativo;
+export type Conteudo = ConteudoTexto | ContentMedia | ConteudoTemplate | ConteudoInterativo;
 
 export interface PedidoEnvio {
-  /** Destinatário em E.164 sem o `+`, como a Cloud API exige. */
+  /** Recipient in E.164 without `+`, as Cloud API requires. */
   para: string;
   conteudo: Conteudo;
-  credenciais: CredenciaisCanal;
+  credentials: CredentialsChannel;
 }
 
 export interface RespostaEnvio {
@@ -65,16 +58,14 @@ export interface RespostaEnvio {
 }
 
 /**
- * `permanente` decide o destino: falha permanente para de tentar e grava
- * `erro_codigo`/`erro_texto` na mensagem; falha temporária volta ao outbox com espera
- * crescente. Confundir as duas é gastar 5 tentativas num número que não existe.
+ * `permanente` controls the outcome: a permanent failure stops retries and writes `erro_codigo`/`erro_texto` on the message; a temporary failure returns to the outbox with increasing delay. Confusing them wastes five attempts on a nonexistent number.
  */
-export class ErroWhatsApp extends Error {
+export class WhatsAppError extends Error {
   readonly codigo: string;
   readonly permanente: boolean;
 
-  constructor(codigo: string, mensagem: string, permanente: boolean) {
-    super(mensagem);
+  constructor(codigo: string, message: string, permanente: boolean) {
+    super(message);
     this.name = 'ErroWhatsApp';
     this.codigo = codigo;
     this.permanente = permanente;

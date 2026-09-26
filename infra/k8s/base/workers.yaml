@@ -59,7 +59,7 @@ spec:
     # antes de acreditar que ele está escalando.
     - type: External
       external:
-        metric: { name: pipe_fila_profundidade }
+        metric: { name: pipe_queue_depth }
         target:
           type: AverageValue
           averageValue: '200'

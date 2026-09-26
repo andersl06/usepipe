@@ -1,0 +1,972 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
+
+/*
+ * ============================== Contact settings
+ *
+ *    Copy of `auth.application.detail.configurations.*` from their portal, measured
+ *    on the copy's rendered DOM (1280×780 window, `docs/capturas/regua.md`) and
+ *    checked against `portal.css` / blip-ds (`bds-nav-tree`, `bds-paper`,
+ *    `bds-input`, `bds-button`, `bds-button-icon`). Each block carries the source
+ *    selector and the measured number.
+ *
+ *    ═══ THE PAINT IS OURS ═══ (the mappings `fluxo.css` already fixed)
+ *      #ededed `--color-surface-2` (core floor)              → `--ground`
+ *      #f6f6f6 `--color-surface-1` (bds-paper)                → `--p-superficie-0`
+ *      #e0e0e0 `--color-surface-2` (input-clipboard)          → `--p-superficie-2`
+ *      #cfcfcf `--color-surface-3` (divider, switch off)      → `--p-superficie-3`
+ *      #282828 `--color-content-default`                       → `--p-conteudo`
+ *      #738192 (title's `<small>`)                             → `--p-conteudo-fantasma`
+ *      rgba(0,0,0,.2) `--color-border-1` (bds-input)          → `--p-linha-media`
+ *      #bebebe (1px dotted between sidebar items)              → `--p-linha-forte`
+ *      `--color-primary` (button, copy)                       → Pipe's moss
+ *      #fff → #f2fcff (sidebar gradient)                      → surface 0 → info background
+ *      0 2px 8px -2px rgba(0,0,0,.16) (bds-paper)             → `--g-sombra-cartao`
+ */
+
+/*
+ * -------------------- the shell: `#main-section.pa0` is `display:flex` with the
+ *    `<aside class="detail-aside fl">` (309px) and `#main-content-area` side by
+ *    side, at full width. The shared shell's `fx-coluna` centers at 80% (90%
+ *    between 550 and 749, 100% with a 20px indent below): here that indent is
+ *    undone with the same step, without touching the shell.
+ */
+.cf-shell {
+  /* Blip's structure, Pipe's identity: the moss brand color is inherited from the theme. */
+  --p-conteudo: #282828;
+  --p-conteudo-desabilitado: #595959;
+  --p-conteudo-fantasma: #8c8c8c;
+  --p-linha: #e3e3e3;
+  --p-linha-media: rgb(0 0 0 / 20%);
+  --p-linha-forte: #bebebe;
+  --p-superficie-0: #fff;
+  --p-superficie-1: #f6f6f6;
+  --p-superficie-2: #e0e0e0;
+  --p-superficie-3: #cfcfcf;
+  --ground: #ededed;
+  --g-card-background: #f6f6f6;
+  --g-shadow-card: 0 2px 8px -2px rgb(0 0 0 / 16%);
+  display: flex;
+  align-items: stretch;
+  width: calc(100% + 40px);
+  min-height: calc(100dvh - var(--g-topo-h));
+  margin-left: -20px;
+  color: var(--p-conteudo);
+  font-family: 'Nunito Sans', Helvetica, sans-serif;
+}
+@media (min-width: 550px) {
+  .cf-shell {
+    width: 111.1112%;
+    margin-left: -5.5556%;
+  }
+}
+@media (min-width: 750px) {
+  .cf-shell {
+    width: 125%;
+    margin-left: -12.5%;
+  }
+}
+
+/*
+ * `.detail-aside`: `background-image: linear-gradient(180deg,#fff,#f2fcff)`,
+ *    `width: auto` — in practice 309px = 12 + 285 + 12 (`<bds-grid padding="2">`).
+ */
+.cf-lateral {
+  flex: none;
+  box-sizing: border-box;
+  width: 309px;
+  padding: 12px;
+  background-image: linear-gradient(
+    180deg,
+    var(--p-superficie-0),
+    color-mix(in srgb, var(--p-superficie-0) 70%, var(--p-marca-suave))
+  );
+}
+
+/*
+ * `bds-nav-tree` › `.nav_main`: `display:flex; gap:8px; align-items:center;
+ *    padding:8px; border-radius:8px; border:1px solid transparent` — 277×86.
+ *    `:hover` tints 8% of content and the border `--color-pressed` (16%).
+ */
+.cf-arvore-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--p-conteudo);
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.cf-arvore-linha:hover {
+  border-color: var(--g-tinta-pressao);
+  background: var(--g-tinta-hover);
+}
+.cf-arvore-linha:active {
+  background: var(--g-tinta-pressao);
+}
+.cf-arvore-linha[aria-current='page'] {
+  border-color: var(--g-tinta-pressao);
+  background: var(--g-tinta-hover);
+}
+.cf-arvore-linha[aria-current='page'] .cf-arvore-icone {
+  color: var(--p-marca);
+}
+.cf-arvore-linha:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+.cf-arvore-icone {
+  flex: none;
+  color: var(--p-conteudo);
+}
+/*
+ * `.nav_main_text`: column with `gap: 2px`; title `fs-14` semi-bold (22px line
+ *    height) and subtitle `fs-12` (22px line height, 2 lines = 44px).
+ */
+.cf-arvore-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.cf-arvore-titulo {
+  font-size: 14px;
+  font-weight: var(--g-peso-forte);
+  line-height: 22px;
+}
+.cf-tree-description {
+  font-size: 12px;
+  line-height: 22px;
+}
+/* `.accordion` (fechado): `margin: 9px 0; padding: 6px 0; border-bottom: 1px
+   dotted #bebebe` — 13px de altura; entre um item e outro sobram 4px do host. */
+.cf-arvore-divisa {
+  height: 0;
+  margin: 9px 0;
+  padding: 6px 0;
+  border-bottom: 1px dotted var(--p-linha-forte);
+}
+.cf-arvore-item + .cf-arvore-item {
+  padding-top: 4px; /* margem colapsaria com os 9px da divisa */
+}
+
+/*
+ * `#main-content-area.main-detail-content`: `flex-direction: column`,
+ *    `background-color: var(--color-surface-2)`, `box-shadow: -2px 6px 6px 0
+ *    rgba(226,231,236,.96)`, `overflow: hidden`. `.blip-ui-content` is the column.
+ */
+.cf-miolo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ground);
+  box-shadow: -2px 6px 6px 0 color-mix(in srgb, var(--p-linha) 60%, transparent);
+}
+.cf-conteudo {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* `.container` (Skeleton) dentro do miolo: 80% centrado (776 de 971). */
+.cf-cabecalho,
+.cf-container {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+@media (min-width: 550px) {
+  .cf-cabecalho,
+  .cf-container {
+    width: 90%;
+    padding: 0;
+  }
+}
+@media (min-width: 750px) {
+  .cf-cabecalho,
+  .cf-container {
+    width: 80%;
+  }
+}
+
+/* ==================== `<page-header>`
+   `.full-initial-section`: `margin: .9375rem 0; padding: .9375rem 0;
+   border-bottom: 1px solid var(--color-surface-3)`.
+   `.page-header-content`: `height: 2.625rem` (42px), `margin-top: 3px`, flex. */
+.cf-header-section {
+  margin: 15px 0;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--p-superficie-3);
+}
+.cf-cabecalho-linha {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  margin-top: 3px;
+}
+.cf-cabecalho-titulo {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+/* `.full-initial-section h1`: `font-size: 1.5rem; font-weight: 400`, `.mv0.mr2.lh-solid`. */
+.cf-cabecalho-titulo h1 {
+  margin: 0 5px 0 0;
+  font-size: 24px;
+  font-weight: var(--g-peso-normal);
+  line-height: 24px;
+  color: var(--p-conteudo);
+}
+/* `.custom-header-content.flex.items-center.justify-end.ml5.tr.w-100` */
+.cf-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  margin-left: 40px;
+  text-align: right;
+}
+/* `.page-header-additional-info > additional-info > p`: 16px/1.6, `margin-bottom: 24px`. */
+.cf-cabecalho-info p {
+  margin: 0 0 24px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--p-conteudo);
+}
+
+/* ==================== `<bds-paper elevation="static">` */
+.cf-paper {
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: var(--g-card-background);
+  box-shadow: var(--g-shadow-card);
+}
+/* `.ph5.pv4.mb3`: `padding: 20px 40px; margin-bottom: 10px`. */
+.cf-paper--connection {
+  margin-bottom: 10px;
+  padding: 20px 40px;
+}
+/* `bds-paper h1`: 24px/24px, peso 400, `margin: 0 0 30px`; `<small>` 12px apagado. */
+.cf-paper h1 {
+  margin: 0 0 30px;
+  font-size: 24px;
+  font-weight: var(--g-peso-normal);
+  line-height: 24px;
+  color: var(--p-conteudo);
+}
+.cf-paper h1 small {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--p-conteudo-fantasma);
+}
+/* `p.bp-fs-6`: 14px/1.6, `margin-bottom: 24px`. */
+.cf-paper p {
+  margin: 0 0 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--p-conteudo);
+}
+/* `<div class="flex">` with the text (`.w-100`) and the `<switch>` on the right. */
+.cf-conexao-topo {
+  display: flex;
+  align-items: flex-start;
+}
+.cf-conexao-texto {
+  width: 100%;
+  min-width: 0;
+}
+.cf-title-card {
+  margin: 0 0 30px;
+}
+
+/*
+ * `<switch>`: `label` 43×26, radius 36, background #cfcfcf, knob 22×22 at (2,2);
+ *    `margin-bottom: -3px`. On: brand background, knob on the right.
+ */
+.cf-interruptor {
+  flex: none;
+  position: relative;
+  box-sizing: border-box;
+  width: 43px;
+  height: 26px;
+  margin: 0 0 -3px 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 36px;
+  background: var(--p-superficie-3);
+  cursor: pointer;
+  transition: background var(--p-dur-rapida, 120ms);
+}
+.cf-interruptor-bolinha {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--p-superficie-0);
+  transition: transform var(--p-dur-rapida, 120ms);
+}
+.cf-interruptor--ligado {
+  background: var(--p-marca);
+}
+.cf-interruptor--ligado .cf-interruptor-bolinha {
+  transform: translateX(17px);
+}
+.cf-interruptor:disabled {
+  cursor: default;
+}
+.cf-interruptor:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+/* `<bds-switch size="short" class="pa1">`: 37×31 com 2.5px de recuo. */
+.cf-interruptor--curto {
+  width: 32px;
+  height: 18px;
+  margin: 0 2.5px;
+}
+.cf-interruptor--curto .cf-interruptor-bolinha {
+  width: 14px;
+  height: 14px;
+}
+.cf-interruptor--curto.cf-interruptor--ligado .cf-interruptor-bolinha {
+  transform: translateX(14px);
+}
+
+/*
+ * `<div class="flex"> <div class="mr6 w-50">…`: two 50% columns with
+ *    `margin-right: 5rem` (80px); `.mt4` stacks the second field 20px below.
+ */
+.cf-duas-colunas {
+  display: flex;
+}
+.cf-column-half {
+  width: 50%;
+  min-width: 0;
+  margin-right: 80px;
+}
+.cf-mt4 {
+  margin-top: 20px;
+}
+/* `.mb3.bp-fs-7.fw7`: 12px/700, `margin-bottom: 10px`. */
+.cf-rotulo-campo {
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 16px;
+}
+
+/*
+ * `.input-clipboard-container`: pill (`border-radius: 100px`) on surface 2,
+ *    `padding: 5px 20px`, 14px, brand color; transparent `input`, 700 weight, 85%
+ *    width, `margin-right: 10px`; `.icon-copy` 16px. Measures 32px tall.
+ */
+.cf-copiavel {
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 5px 20px;
+  border-radius: 100px;
+  background: var(--p-superficie-2);
+  color: var(--p-marca);
+  font-size: 14px;
+}
+.cf-copiavel input {
+  width: 85%;
+  height: 22px;
+  margin-right: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-marca);
+  font: inherit;
+  font-weight: var(--g-peso-negrito);
+  text-overflow: ellipsis;
+}
+.cf-copiavel input:focus {
+  outline: none;
+}
+.cf-copiavel-botao {
+  width: 16px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--p-marca);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==================== `#httpForm`: `margin-bottom: 25px`; `.flex.mb3` com
+   `.w-40` | `.w-10` | `.w-40`. */
+.cf-form-http {
+  margin: 0 0 25px;
+}
+.cf-linha-campos {
+  display: flex;
+  margin-bottom: 10px;
+}
+.cf-w-40 {
+  width: 40%;
+  min-width: 0;
+}
+.cf-w-10 {
+  width: 10%;
+}
+
+/*
+ * `<bds-input>` › `.input.input--label`: `display:flex; align-items:center;
+ *    gap:8px; padding: 7px 4px 8px 12px; border: 1px solid rgba(0,0,0,.2);
+ *    border-radius: 8px`. Label `fs-12` 700 (18px) + 2px + 36px field.
+ */
+.cf-campo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 7px 4px 8px 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  cursor: text;
+}
+.cf-campo:focus-within {
+  border-color: var(--p-marca);
+}
+.cf-campo--desabilitado {
+  color: var(--p-conteudo-fantasma);
+  cursor: default;
+}
+/* `label.input__container__label`: `fs-12` 700, 18px, `margin-bottom: 2px`. */
+.cf-campo-cabecalho {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.cf-campo-rotulo {
+  font-size: 12px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 18px;
+}
+/*
+ * `<span counter-for>` (`material-input`): characters still available
+ *    (`maxLength - valor.length`), not the ones already typed.
+ */
+.cf-campo-contador {
+  flex: none;
+  font-size: 12px;
+  color: var(--p-conteudo-fantasma);
+}
+/* `.input__container__wrapper`: o campo de 36px e, no `bds-input-password`, o olho. */
+.cf-campo-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.cf-campo input {
+  width: 100%;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+}
+.cf-campo input:focus {
+  outline: none;
+}
+.cf-campo input::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+/* `bds-textarea`: the same box, with free height instead of the 36px input. */
+.cf-campo textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 0;
+  border: 0;
+  resize: vertical;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+}
+.cf-campo textarea:focus {
+  outline: none;
+}
+.cf-campo textarea::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+/*
+ * The same field, with a native `<select>` inside instead of `input`/`textarea`
+ *    — the role selector from the Team page's row-by-row edit.
+ */
+.cf-campo select {
+  width: 100%;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+}
+.cf-campo select:focus {
+  outline: none;
+}
+.cf-campo-olho {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+.cf-campo-olho:focus-visible {
+  outline: 2px solid var(--p-marca);
+  outline-offset: 2px;
+}
+
+/* `bds-paper.w-100.ph5.pv3.mt4` do OAuth: `padding: 10px 40px; margin-top: 20px`. */
+.cf-paper--oauth {
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px 40px;
+}
+.cf-oauth {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+/* `.flex.flex-row.items-center.justify-between` — 56px: nome (16px/24, `mb3`) e legenda. */
+.cf-oauth-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cf-oauth-titulo {
+  display: flex;
+  flex-direction: column;
+}
+.cf-oauth-nome {
+  margin-bottom: 10px;
+  font-size: 16px;
+  line-height: 24px;
+}
+.cf-oauth-legenda {
+  font-size: 12px;
+  line-height: 22px;
+}
+/* `.w-100.mv3`: `margin: 10px 0`. */
+.cf-oauth-corpo {
+  margin: 10px 0;
+}
+.cf-oauth-rodape {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/*
+ * `.row.mt4` + `.three.columns.offset-by-nine` + `.bp-btn.fr`: `margin: 20px 0
+ *    9px`, button flush right.
+ */
+.cf-form-http-rodape {
+  display: flex;
+  justify-content: flex-end;
+  margin: 20px 0 9px;
+}
+
+/* ==================== `<bds-button>` (40px, raio 8, `padding: 0 16px`,
+   `gap: 4px`, 14px/700 com `line-height: 14px`) e `.bp-btn--bot.bp-btn--small`
+   (42px, raio 3, `padding: 0 20px`, 14px/600). */
+.cf-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cf-botao--primary {
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+}
+.cf-botao--primary:hover {
+  background: var(--p-marca-forte);
+}
+.cf-botao--secondary:hover,
+.cf-botao--tertiary:hover {
+  background: var(--g-tinta-hover);
+}
+.cf-botao--tertiary {
+  border-color: var(--p-conteudo);
+}
+.cf-botao--bot {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 3px;
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+  font-weight: var(--g-peso-forte);
+  line-height: 38px;
+}
+.cf-botao--perigo {
+  border-color: var(--p-error-content);
+  color: var(--p-error-content);
+}
+.cf-botao--perigo:hover {
+  background: var(--p-error-background);
+}
+.cf-botao:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.cf-botao:focus-visible,
+.cf-botao-icone:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+/* `<bds-button-icon variant="secondary" size="short">`: 40×40, raio 8, `padding: 8px`. */
+.cf-botao-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+.cf-botao-icone:hover {
+  background: var(--g-tinta-hover);
+}
+.cf-botao-icone:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ==================== Chaves de acesso
+   `custom-title > .flex`: h1 `fs-24` + `bds-button-icon` a 4px. */
+.cf-chaves-titulo {
+  display: flex;
+  align-items: center;
+}
+.cf-chaves-titulo h1 {
+  margin: 0;
+}
+.cf-chaves-titulo .cf-botao-icone {
+  margin-left: 4px;
+}
+/* `.token-container`: `display:flex; flex-direction:column; gap:12px`. */
+.cf-chaves {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* `bds-banner variant="warning"` do limite. */
+.cf-faixa-alerta {
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+  font-size: 14px;
+  line-height: 24px;
+}
+/* `.token-help`: `display:flex; padding:24px`; `.token-help-data` coluna com
+   `gap:12px; justify-content:space-between`; textos `fs-14` (21px). */
+.cf-chaves-ajuda {
+  display: flex;
+  padding: 24px;
+}
+.cf-keys-help-data {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: space-between;
+}
+.cf-chaves-ajuda-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cf-chaves-ajuda-texto p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+}
+.cf-keys-help-data .cf-botao {
+  align-self: flex-start;
+}
+/* `<img src="/assets/img/ballons.svg">`: 111×139 on the right. */
+.cf-bubbles {
+  flex: none;
+  width: 111px;
+  height: 139px;
+  color: var(--p-marca);
+}
+/* `.token-create`: `display:flex; justify-content:space-between; padding:24px`;
+   `.token-create-data` 50%; `.token-create-action` `gap: 12px`. */
+.cf-keys-create {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  width: 100%;
+  padding: 24px;
+}
+.cf-keys-create-data {
+  width: 50%;
+}
+.cf-keys-create-data .cf-campo {
+  width: 100%;
+}
+.cf-keys-create-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+/* `.token-card`: `align-items:center; display:flex; gap:32px; padding:24px`;
+   `.token-card-data` `flex:1; flex-wrap:wrap; gap:24px`; coluna `flex-basis:
+   calc(50% - 24px)`; `.token-card-chip` 75px. */
+.cf-key {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 24px;
+}
+.cf-key-data {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 0;
+}
+.cf-key-column {
+  display: flex;
+  flex-basis: calc(50% - 24px);
+  flex-direction: column;
+  min-width: 0;
+}
+.cf-key-column dt {
+  font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 22px;
+}
+.cf-key-column dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+  overflow-wrap: anywhere;
+}
+.cf-key-badge {
+  width: 75px;
+}
+.cf-key-actions {
+  display: flex;
+  align-items: center;
+}
+/* `<bds-chip-tag color="info">` */
+.cf-selo {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--p-r-pilula);
+  font-size: 12px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 18px;
+}
+.cf-selo--info {
+  background: var(--p-marca-suave);
+  color: var(--p-marca-forte);
+}
+.cf-badge--error {
+  background: var(--p-error-background);
+  color: var(--p-error-content);
+}
+.cf-modal--key {
+  width: min(100%, 560px);
+}
+.cf-modal--key h2 {
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: var(--g-peso-normal);
+}
+.cf-modal-aviso {
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  border: 1px solid var(--p-marca-linha);
+  border-left-width: 3px;
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+}
+.cf-modal-aviso ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.cf-modal-key-field + .cf-modal-key-field {
+  margin-top: 20px;
+}
+.cf-modal-key-field h3 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: var(--g-peso-normal);
+}
+.cf-modal-key-field p {
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+.cf-modal--key .cf-rotulo-campo {
+  display: none;
+}
+.cf-modal--key .cf-modal-actions {
+  justify-content: center;
+  margin-top: 28px;
+}
+
+/* ==================== Menu Persistente */
+.cf-menu-persistente {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cf-menu-persistente > p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--p-conteudo);
+}
+.cf-menu-aviso-boasvindas {
+  color: var(--p-conteudo-fantasma);
+}
+.cf-menu-item-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+}
+.cf-menu-item-corpo {
+  padding: 0 24px 24px;
+}
+
+/* Aviso controlado (`BlipToastService` warning/danger na origem). */
+.cf-aviso {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--p-error-content);
+}
+/*
+ * "Configuração salva com sucesso." — their success toast, same size as
+ *    `.cf-aviso`, success color. Used to be only in `basicas/`; now it's for all of
+ *    `configuracoes/` (Welcome and Persistent Menu save too now).
+ */
+.cf-basicas-sucesso {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--p-sucesso-conteudo);
+}
+
+/* The confirmation modal (`ModalService.showModal`). */
+.cf-overlay {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 40%);
+}
+.cf-modal {
+  box-sizing: border-box;
+  width: min(100%, 500px);
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+}
+.cf-modal h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: var(--g-peso-negrito);
+}
+.cf-modal p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 22px;
+}
+.cf-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 740px) {
+  .cf-shell {
+    flex-direction: column;
+  }
+  .cf-lateral {
+    width: 100%;
+  }
+  .cf-duas-colunas,
+  .cf-linha-campos,
+  .cf-keys-create,
+  .cf-key {
+    flex-direction: column;
+  }
+  .cf-column-half,
+  .cf-w-40,
+  .cf-keys-create-data {
+    width: 100%;
+    margin-right: 0;
+  }
+  .cf-column-half + .cf-column-half,
+  .cf-w-40 + .cf-w-10 + .cf-w-40,
+  .cf-keys-create-actions {
+    margin-top: 10px;
+  }
+  .cf-paper--connection,
+  .cf-paper--oauth {
+    padding: 20px;
+  }
+}

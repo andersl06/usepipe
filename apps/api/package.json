@@ -11,32 +11,32 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./dominio/fluxo": {
-      "types": "./dist/dominio/fluxo.d.ts",
-      "default": "./dist/dominio/fluxo.js"
+    "./domain/flow": {
+      "types": "./dist/domain/flow.d.ts",
+      "default": "./dist/domain/flow.js"
     },
-    "./dominio/gestao/builder-do-fluxo": {
-      "types": "./dist/dominio/gestao/builder-do-fluxo.d.ts",
-      "default": "./dist/dominio/gestao/builder-do-fluxo.js"
+    "./domain/management/flow-builder": {
+      "types": "./dist/domain/management/builder-of-flow.d.ts",
+      "default": "./dist/domain/management/builder-of-flow.js"
     },
-    "./dominio/conversa": {
-      "types": "./dist/dominio/conversa.d.ts",
-      "default": "./dist/dominio/conversa.js"
+    "./domain/conversation": {
+      "types": "./dist/domain/conversation.d.ts",
+      "default": "./dist/domain/conversation.js"
     },
-    "./dominio/envio": {
-      "types": "./dist/dominio/envio.d.ts",
-      "default": "./dist/dominio/envio.js"
+    "./domain/sending": {
+      "types": "./dist/domain/envio.d.ts",
+      "default": "./dist/domain/envio.js"
     },
-    "./dominio/assumir": {
-      "types": "./dist/dominio/assumir.d.ts",
-      "default": "./dist/dominio/assumir.js"
+    "./domain/assume": {
+      "types": "./dist/domain/assumir.d.ts",
+      "default": "./dist/domain/assumir.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/main.ts",
-    "provisionar": "tsx src/provisionar.ts",
-    "importar:fluxo": "tsx src/importar-fluxo.ts",
+    "provision": "tsx src/provision.ts",
+    "import:flow": "tsx src/import-flow.ts",
     "start": "node dist/main.js",
     "typecheck": "tsc -p tsconfig.test.json --noEmit",
     "lint": "eslint src tests",
@@ -46,8 +46,8 @@
     "@nestjs/common": "^11.1.6",
     "@nestjs/core": "^11.1.6",
     "@nestjs/platform-express": "^11.1.6",
-    "@pipe/armazenamento": "workspace:*",
-    "@pipe/autenticacao": "workspace:*",
+    "@pipe/storage": "workspace:*",
+    "@pipe/authentication": "workspace:*",
     "@pipe/contracts": "workspace:*",
     "@pipe/core": "workspace:*",
     "@pipe/db": "workspace:*",

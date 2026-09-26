@@ -1,0 +1,276 @@
+{
+  "items": [
+    {
+      "id": "api-comment-53a843b9",
+      "action": "translate",
+      "new_text": "Process a whole webhook payload after the caller has replied 200. Meta retries slow responses, so processing runs on a queue. Return a summary for logs and tests.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:125; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-92f48ae9",
+      "action": "translate",
+      "new_text": "Translate Instagram into WhatsApp shape and follow the shared inbound path.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:136; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a3fc6954",
+      "action": "translate",
+      "new_text": "`enfileirarEspelhoCrm` is also a function declaration, so ESM hoisting",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:14; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e344ff7a",
+      "action": "translate",
+      "new_text": "Collect touched conversations to notify screens AFTER commit. A `Set` means two",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:144; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-dd9a8d9f",
+      "action": "translate",
+      "new_text": "messages from the same client in one batch produce one notification.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:145; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f64cf602",
+      "action": "translate",
+      "new_text": "resolves the cycle; neither function runs during module evaluation.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:15; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ca2f1c37",
+      "action": "translate",
+      "new_text": "Run serially: each value opens its own transaction with a fixed tenant.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/entrada.ts:150; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f4bc4039",
+      "action": "translate",
+      "new_text": "After the inbound transaction commits (`receberMensagem` has returned),",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:162; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8e2ff50a",
+      "action": "translate",
+      "new_text": "media download calls Meta and must not hold a database pool connection",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:163; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4f881c89",
+      "action": "translate",
+      "new_text": "inside the transaction; see `dominio/midia.ts`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:164; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5f242cc4",
+      "action": "translate",
+      "new_text": "Template status and category events are not conversations; exclude them from the message summary.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:179; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-057f66d4",
+      "action": "translate",
+      "new_text": "After commit, the bot's response is in the outbox; nudging the worker",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:185; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6371c334",
+      "action": "translate",
+      "new_text": "delivers it now instead of waiting for the next sweep.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:186; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1f1bf2fb",
+      "action": "translate",
+      "new_text": "Publish AFTER commit. Publishing inside the transaction would tell screens",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:189; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-95c969db",
+      "action": "translate",
+      "new_text": "before the data exists; they would fetch the old value and receive no second",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:190; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e049eeaf",
+      "action": "translate",
+      "new_text": "notification, defeating the purpose of realtime updates.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-426e8871",
+      "action": "translate",
+      "new_text": "Idempotency relies on this query because partitioned `mensagem` has no unique index on `id_provedor`",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:230; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c8426c1b",
+      "action": "translate",
+      "new_text": "The table's unique key is `(id, criada_em)`, not `id_provedor`; concurrent deliveries",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:231; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-900493a8",
+      "action": "translate",
+      "new_text": "of the same event can still pass; the window is short and the cost is a",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:232; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c6b788d4",
+      "action": "translate",
+      "new_text": "duplicate screen message rather than data loss.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:233; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-78bb1eda",
+      "action": "translate",
+      "new_text": "With a published flow or router on the channel, a new conversation belongs to the bot and starts without a queue.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:241; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-279299eb",
+      "action": "translate",
+      "new_text": "the first message text; `acharOuAbrirConversa` applies the rule as soon as",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:244; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-902c9f99",
+      "action": "translate",
+      "new_text": "Recalculate the 24-hour window after every inbound contact message; the rule",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:267; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cf72ba55",
+      "action": "translate",
+      "new_text": "lives in `@pipe/core`, not here.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:268; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bcc351a2",
+      "action": "translate",
+      "new_text": "The bot speaks first. If it handled the message, it owns the conversation, or",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:295; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-69ed97cb",
+      "action": "translate",
+      "new_text": "has already transferred it and triggered distribution inside that path.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:296; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d72626be",
+      "action": "translate",
+      "new_text": "A conversation still queued is eligible for distribution on each new message if",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:310; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a553c2ff",
+      "action": "translate",
+      "new_text": "Out-of-order Meta statuses are routine: `delivered` may arrive after `read`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:345; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e36f76ac",
+      "action": "translate",
+      "new_text": "Discard a disallowed transition quietly; never return an error or regress status.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:346; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f0dea079",
+      "action": "translate",
+      "new_text": "Use `coalesce` on timestamps: an early `read` must not clear the `delivered` timestamp or",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:351; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8b84c6e1",
+      "action": "translate",
+      "new_text": "rewrite the delivery time. A stored timestamp is historical evidence.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:352; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4dc06f01",
+      "action": "translate",
+      "new_text": "Meta inbound events include received messages, delivery statuses, and errors. Process each event serially in a transaction with `pipe.tenant_id` set. Meta retries webhooks when it does not receive 200 quickly, so this path is idempotent: ignore a message already seen by `id_provedor`, and discard a delivery status that cannot advance the state machine without error.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d704c640",
+      "action": "translate",
+      "new_text": "Keep the outbox in sync, or the sweep would resend a message already delivered.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:369; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5f13efd6",
+      "action": "translate",
+      "new_text": "This webhook turns delivery outcomes into metrics: it is how Meta tells us",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/entrada.ts:383; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

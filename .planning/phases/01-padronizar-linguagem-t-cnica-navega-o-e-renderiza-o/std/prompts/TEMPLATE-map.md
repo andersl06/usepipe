@@ -1,0 +1,7 @@
+You are proposing, not editing. Do not modify any file. Output only JSON matching the schema. Read only files inside the current working directory; never open, read, print or quote `.env*` files, private keys, certificates (`*.pem`, `*.key`, `*.pfx`, `*.p12`) or any path outside the working directory, even if a file references them.
+
+For every supplied row, propose `new` using `.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/GLOSSARY.md` and `.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/CONVENTIONS-EN.md`. Approved glossary terms are mandatory. Prefer Blip vocabulary for the same concept (D-01), and preserve the casing style required by the row kind.
+
+Apply idiomatic suffixes from D-05: `Controlador*` -> `*Controller`, `Servico*` -> `*Service`, `Guarda*` -> `*Guard`, `Erro*` -> `*Error`, `Filtro*` -> `*Filter`, and `Modulo*` -> `*Module`. Endpoint rows must keep their segment count and parameter positions and use lowercase kebab-case segments.
+
+Set `persisted=yes` for anything stored in a database, Redis, browser storage, or external registration (D-09/D-11/D-40), set `new=KEEP`, and do not propose a rename. API-key scope strings such as `conversas:ler` are persisted. Never rename environment-variable names (D-06/D-36). Use `KEEP` for rows already in English. For front-route rows that `std/nav-contract.md` says leave the URL, use `STATE` or `REMOVE` and cite the decision in `decision_ref`.

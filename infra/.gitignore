@@ -12,4 +12,4 @@
 # Segredo em texto claro nesta árvore é defeito, não pressa.
 *.env
 !*.env.exemplo
-!segredos/*.enc.env
+!secrets/*.enc.env

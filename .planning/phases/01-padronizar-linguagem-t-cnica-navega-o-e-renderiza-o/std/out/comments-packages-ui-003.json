@@ -1,0 +1,132 @@
+{
+  "items": [
+    {
+      "id": "packages-ui-comment-571ebeff",
+      "action": "translate",
+      "new_text": "Empty-state illustration.\n\nBlip bundle measurements showed `bds-illustration` packaged as a component (`referencias-blip/pesquisa/blip-design-system.md`, section 4). An illustration is a component rather than a loose image, allowing Blip-style empty states without a photo. Photos age quickly in an operations product, add weight, and clash with dark mode.\n\nThe drawing follows the brand symbol's language: monoline, even stroke, rounded ends and curves, and intentional gaps between parts (docs/marca/MARCA.md). Each scene uses two colors: the neutral stroke inherits `currentColor` from `.ilustracao`, while the accent comes from the extended palette, allowed only in charts and illustrations.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/ui/src/ilustracoes.tsx:1-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-2c00428f",
+      "action": "translate",
+      "new_text": "Each scene corresponds to a real Pipe empty state:\n\n- `vazio`: a list has nothing yet; an empty pipe.\n- `busca`: a filter found nothing; a lens over the pipe.\n- `concluido`: the queue is cleared; the one empty state that is good news.\n- `erro`: the screen failed to load; a broken pipe.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/ilustracoes.tsx:19-26",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-0ab25639",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/ilustracoes.tsx:31-31",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-a84482ce",
+      "action": "translate",
+      "new_text": "A stroke of 6 on a 120-unit grid is half the brand symbol's 12-on-120 proportion because the illustration is larger than the logo.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/ilustracoes.tsx:35-36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-28ff67ba",
+      "action": "translate",
+      "new_text": "Alternative text. The illustration is decorative, but screen-reader users deserve a description.",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/ilustracoes.tsx:59-59",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-3242414b",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/ilustracoes.tsx:68-68",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-2a1af893",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/ilustracoes.tsx:77-77",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-c299b435",
+      "action": "translate",
+      "new_text": "The queue is empty. The accent uses the series' dark green, not the brand color: illustrations do not use brand paint.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/ilustracoes.tsx:87-88",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-b321e692",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/ilustracoes.tsx:97-97",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-36c4cb21",
+      "action": "translate",
+      "new_text": "Pipe design system: the single source of tokens and components for `apps/desk`, `apps/gestao`, and `apps/crm`.\n\nThis file does NOT import styles: each application imports `@pipe/ui/estilos.css` once in its root layout. Keeping them separate lets server code use the typed theme without pulling in CSS.\n\nThe decisions enforced by this package are in `docs/specs/2026-09-05-design-system.md`; brand identity remains in `docs/marca/MARCA.md`; supporting measurements are in `referencias-blip/pesquisa/visual-blip-salesforce.md` and `referencias-blip/pesquisa/blip-design-system.md`.\n\nIts public API enforces three rules that applications must not bypass by declaring their own colors:\n1. ONE brand color (moss) for primary actions and active state only.\n2. A state is a PAIR: pastel background with dark content, across four states.\n3. The extended palette (`TEMA.grafico`) is only for charts and illustrations.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/index.ts:1-21",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-59210c60",
+      "action": "translate",
+      "new_text": "Blip blocks confirmation until all required tags are selected.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/ui/src/regras-encerramento.ts:8-8",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-9ecc7350",
+      "action": "update",
+      "new_text": "Adapted from twenty-ui (MIT): https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeCommon.ts\n\nWe borrowed its SHAPE, not its values: a typed TypeScript theme object, `espaco()` as a 4px-multiple function, a radius scale, and centralized density tokens. Values are Pipe's (docs/marca/MARCA.md); role-based organization comes from Blip measurements (`referencias-blip/pesquisa/blip-design-system.md`).\n\nThis object mirrors `estilos/tokens.css` in typed form for code that needs a TypeScript value, such as layout calculations, canvas charts, and tests. CSS authors should use the custom property instead of importing this object.\n\nColors deliberately reference custom properties, so a component reading `TEMA.marca.cor` changes theme without knowing that themes exist.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/tema.ts:1-18; corrected symbol verified at packages/ui/src/tema.ts:49-50",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-cf2c2614",
+      "action": "translate",
+      "new_text": "Tabular numbers and section labels only; never stage, queue, or source names.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/tema.ts:107-107",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-0e2a953b",
+      "action": "translate",
+      "new_text": "Three sizes carry the application: 16, 14, and 12. Size 10 is reserved for truly secondary text. `titulo` and `numero` are role-named exceptions so they remain exceptions. Sizes are in px, never rem.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/tema.ts:109-113",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-98fda376",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/tema.ts:125-125",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-a1c5e3ad",
+      "action": "translate",
+      "new_text": "Density scale. See docs/specs/2026-09-05-design-system.md, section 5.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/tema.ts:143-143",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "screens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "app": { "type": "string" },
+          "route": { "type": "string" },
+          "state_item": { "type": "string" },
+          "current_location": { "type": "string", "enum": ["path", "query", "state", "router-state", "storage", "none"] },
+          "proposed": { "type": "string", "enum": ["path", "query", "react-state", "router-state", "storage", "NEEDS VALIDATION"] },
+          "deep_link": { "type": "string", "enum": ["yes", "no", "NEEDS VALIDATION"] },
+          "survives_f5": { "type": "string", "enum": ["yes", "no", "NEEDS VALIDATION"] },
+          "blip_evidence": { "type": "string" },
+          "decision_ref": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "required": ["app", "route", "state_item", "current_location", "proposed", "deep_link", "survives_f5", "blip_evidence", "decision_ref", "notes"]
+      }
+    }
+  },
+  "required": ["screens"]
+}

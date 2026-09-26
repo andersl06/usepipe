@@ -1,0 +1,292 @@
+{
+  "items": [
+    {
+      "id": "packages-db-comment-37f1fb42",
+      "action": "translate",
+      "new_text": "Open a transaction, set `pipe.tenant_id` for it, and run the work inside.\n\n`set_config(..., true)` is the parameterized form of `set local` from section 1 of the data model. SQL `set local` does not accept a parameter; concatenating the UUID into SQL would reopen the injection path RLS is meant to close. The setting is local to the transaction and cannot leak to the next borrower of the pooled connection.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/tenant.ts:23-30",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-9c65705d",
+      "action": "translate",
+      "new_text": "The tenant active in this transaction, for logging and assertions.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/tenant.ts:45-45",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-dfb30017",
+      "action": "translate",
+      "new_text": "Migrate the schema and seed two tenants with one queue each using the owner role. `sufixo` keeps runs independent when the database is retained.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/tests/ajuda.ts:26-29",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-72099975",
+      "action": "translate",
+      "new_text": "Did the query fail closed? Either `current_setting` threw or the policy filtered every row. Both outcomes are acceptable; returning a row is not.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/ajuda.ts:70-73",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d73e4212",
+      "action": "translate",
+      "new_text": "The application role. RLS must be tested with this role: the table owner bypasses the policy, so an owner-role test could pass without proving isolation.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/ajuda.ts:9-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-3f781639",
+      "action": "translate",
+      "new_text": "The driver returns `null` while the form sends `undefined`. Without this, every",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/tests/auditoria.test.ts:102-102",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-30a374de",
+      "action": "translate",
+      "new_text": "save would log a change to an empty field nobody touched.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/tests/auditoria.test.ts:103-103",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-3c02d82f",
+      "action": "update",
+      "new_text": "Logging a token would undo the encryption in `segredo.ts` in a more visible place.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/auditoria.test.ts:46-46; The next source line is a Portuguese continuation outside this inventory; confirm the adjacent line at slice time.",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-dd9d4d5d",
+      "action": "translate",
+      "new_text": "Support staff read the log, which also appears in contract audits. These tests ensure secrets never reach it and each record describes the change instead of repeating the entire object.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/auditoria.test.ts:5-9",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-3329b37f",
+      "action": "translate",
+      "new_text": "Log readers need to see that capacity changed from 5 to 8, not reread the",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/tests/auditoria.test.ts:91-91",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-66a4737c",
+      "action": "translate",
+      "new_text": "The RLS test proves behavior only against a real Postgres instance. If the instance in `docker-compose.yml` is down, this setup starts it and waits until it is healthy.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/tests/preparar.ts:24-27",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a740848d",
+      "action": "translate",
+      "new_text": "Encryption key for the test environment.\n\nChannel-secret encryption fails loudly without a keyring. In production, the API must fail to start rather than silently store Meta tokens in plaintext. The test key is deliberately fixed and public: it protects no test data, but enables the encryption path.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/preparar.ts:29-36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-fc17c3e8",
+      "action": "translate",
+      "new_text": "The four tests above exercise the policy on one table. The five below check its assumptions: if one fails, the earlier tests could pass without proving isolation.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:108-112",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-636a75d9",
+      "action": "translate",
+      "new_text": "Report the table names when this fails: a new table without a policy is the defect this",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:145-145",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-2fd2eb4a",
+      "action": "translate",
+      "new_text": "suite must catch when someone creates it.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:146-146",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-f5a1d810",
+      "action": "translate",
+      "new_text": "The planner promotes the scalar subquery form to an InitPlan.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/tests/rls.test.ts:169-169",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-f53f3ade",
+      "action": "translate",
+      "new_text": "Without it, the policy evaluates the function for every examined row, and",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/tests/rls.test.ts:170-170",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-0753e1bb",
+      "action": "translate",
+      "new_text": "scanning `mensagem` becomes expensive without an obvious warning.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/tests/rls.test.ts:171-171",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-3c6ceb6a",
+      "action": "translate",
+      "new_text": "Returning a connection with a dirty tenant setting to the pool would silently leak data:",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:184-184",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a90e657a",
+      "action": "translate",
+      "new_text": "Check the reverse direction too, so the filter cannot pass by row-order coincidence.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:34-34",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-78565a82",
+      "action": "translate",
+      "new_text": "Looking up the other tenant by ID also returns nothing: the policy filters the",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:41-41",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-447e542e",
+      "action": "translate",
+      "new_text": "row, not the query.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:42-42",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-7ad7c698",
+      "action": "translate",
+      "new_text": "Even the total is isolated: `count(*)` without a tenant must not return 2.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:58-58",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-c0dd9858",
+      "action": "translate",
+      "new_text": "Writes are isolated too: an insert without an active tenant must fail.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:65-65",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-3e2a606a",
+      "action": "update",
+      "new_text": "Foundation acceptance criterion: `tenant_isolado` must isolate rows, and a missing session setting must fail closed.\n\nThe policy checks run with `pipe_app`, which owns no tables and has no `bypassrls` privilege. The owner role would bypass RLS and could make the tests pass without proving isolation.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:7-13; Updated the stale count of three tests; the file now checks additional RLS assumptions.",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-22508ff1",
+      "action": "translate",
+      "new_text": "`set local` ends with the transaction. If it leaked, the pooled connection",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:77-77",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a20cd20b",
+      "action": "translate",
+      "new_text": "would carry tenant A into the next borrower's work.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:78-78",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-e272a584",
+      "action": "translate",
+      "new_text": "The next transaction, with another tenant, sees only its own rows.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:84-84",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-4b967972",
+      "action": "translate",
+      "new_text": "The policy also applies to writes: inserting a row stamped with another tenant",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:91-91",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-9d2a4c85",
+      "action": "translate",
+      "new_text": "is blocked by `with check`.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/rls.test.ts:92-92",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-4cae54e5",
+      "action": "translate",
+      "new_text": "If someone adds another channel secret but omits it from this list, the value",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/segredo.test.ts:107-107",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-64301e2d",
+      "action": "translate",
+      "new_text": "is stored in plaintext. This test is the reminder.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/segredo.test.ts:108-108",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-896aeb57",
+      "action": "translate",
+      "new_text": "These tests protect customer credentials: a Meta token lets someone send messages from the customer's number. A database dump is the threat this encryption addresses.",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/segredo.test.ts:24-28",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-650e2b08",
+      "action": "translate",
+      "new_text": "A random IV is used for each write. Otherwise identical values yield identical envelopes and",
+      "sensitivity": "security",
+      "evidence": "packages/db/tests/segredo.test.ts:38-38",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-77c1bc0a",
+      "action": "translate",
+      "new_text": "`semear` and `garantirPapelDeConta` assign every seeded user an ACCOUNT role (the \"exactly one\" rule from migration 0021). Repeated runs neither duplicate roles nor replace a manually assigned one. This fixed the gap that left the contract Members screen empty in the demo tenant.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/tests/semente.test.ts:10-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-79ec8af2",
+      "action": "translate",
+      "new_text": "Start the compose Postgres instance if it is not already running.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/vitest.config.ts:6-6",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+packages-autenticacao-dir-1b627fe7,packages-autenticacao,1,dir,packages/autenticacao/tests,packages/authentication/tests,packages/autenticacao/tests,0,no,,,applied,codex1,
+packages-autenticacao-dir-2891b1eb,packages-autenticacao,1,dir,packages/autenticacao/src,packages/authentication/src,packages/autenticacao/src,0,no,,,applied,codex1,
+packages-autenticacao-dir-90d0fa9d,packages-autenticacao,1,dir,packages/autenticacao,packages/authentication,packages/autenticacao,0,no,,,applied,codex1,
+packages-autenticacao-file-011ff922,packages-autenticacao,1,file,sessao.test.ts,session.test.ts,packages/autenticacao/tests/sessao.test.ts,0,no,,,applied,codex1,
+packages-autenticacao-file-cc61ebc0,packages-autenticacao,1,file,sessao.ts,src/session.ts,packages/autenticacao/src/sessao.ts,20,no,,,applied,codex1,
+packages-autenticacao-file-f8a13a8a,packages-autenticacao,1,file,entrada.ts,inbound.ts,packages/autenticacao/src/entrada.ts,18,no,,,applied,codex1,
+packages-autenticacao-dir-1b627fe7,packages-autenticacao,1,dir,packages/autenticacao/tests,packages/authentication/tests,packages/autenticacao/tests,0,no,,,applied,codex1,
+packages-autenticacao-dir-2891b1eb,packages-autenticacao,1,dir,packages/autenticacao/src,packages/authentication/src,packages/autenticacao/src,0,no,,,applied,codex1,
+packages-autenticacao-dir-90d0fa9d,packages-autenticacao,1,dir,packages/autenticacao,packages/authentication,packages/autenticacao,0,no,,,applied,codex1,
+packages-autenticacao-file-011ff922,packages-autenticacao,1,file,sessao.test.ts,session.test.ts,packages/autenticacao/tests/sessao.test.ts,0,no,,,applied,codex1,
+packages-autenticacao-file-cc61ebc0,packages-autenticacao,1,file,sessao.ts,src/session.ts,packages/autenticacao/src/sessao.ts,20,no,,,applied,codex1,
+packages-autenticacao-file-f8a13a8a,packages-autenticacao,1,file,entrada.ts,inbound.ts,packages/autenticacao/src/entrada.ts,18,no,,,applied,codex1,

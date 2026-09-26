@@ -1,0 +1,284 @@
+{
+  "items": [
+    {
+      "id": "packages-tempo-real-comment-1ec0952f",
+      "action": "translate",
+      "new_text": "Any server message - event or ping - postpones the death timeout.",
+      "sensitivity": "integration",
+      "evidence": "packages/tempo-real/src/index.ts:121-121",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-52cd39a0",
+      "action": "translate",
+      "new_text": "Do not wait for `onclose`: it may never fire on a half-dead socket.",
+      "sensitivity": "architecture",
+      "evidence": "packages/tempo-real/src/index.ts:125-125",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-31fa0af5",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/src/index.ts:129-129",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-f891c80e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/src/index.ts:137-137",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-9f6c1bf5",
+      "action": "translate",
+      "new_text": "**Resend the subscription on every reconnection.** The server keeps no state for",
+      "sensitivity": "integration",
+      "evidence": "packages/tempo-real/src/index.ts:162-162",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-f7b05baf",
+      "action": "translate",
+      "new_text": "disconnected clients: a new socket starts with no topics and receives nothing until this is sent.",
+      "sensitivity": "integration",
+      "evidence": "packages/tempo-real/src/index.ts:163-163",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-7d77dfab",
+      "action": "translate",
+      "new_text": "Control frames are not events: `ping`, `inscrito`, and `recusado` do not cause the",
+      "sensitivity": "integration",
+      "evidence": "packages/tempo-real/src/index.ts:177-177",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-b724940e",
+      "action": "translate",
+      "new_text": "`onerror` is usually followed by `onclose`; `aoCair` is idempotent because of",
+      "sensitivity": "architecture",
+      "evidence": "packages/tempo-real/src/index.ts:185-185",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-966c24eb",
+      "action": "translate",
+      "new_text": "Reconnect IMMEDIATELY when the browser reports that it can reconnect.\n\n**A hidden tab does NOT close the connection** - this decision changed during development. The original intent was to pause while the tab was hidden, until it became clear that an agent with Desk in a background tab is exactly the person who needs to hear about a new conversation. Visibility serves another purpose here: if the connection has ALREADY dropped and the user returns to the tab, they should not wait through 30 seconds of backoff while looking at a stale screen.",
+      "sensitivity": "architecture",
+      "evidence": "packages/tempo-real/src/index.ts:191-200",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-435650a4",
+      "action": "translate",
+      "new_text": "`credentials` is not configured here: the browser sends the session cookie in the",
+      "sensitivity": "security",
+      "evidence": "packages/tempo-real/src/index.ts:241-241",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-995bce3a",
+      "action": "translate",
+      "new_text": "same-parent-origin handshake, which is how the API authenticates the connection.",
+      "sensitivity": "security",
+      "evidence": "packages/tempo-real/src/index.ts:242-242",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-4b04a237",
+      "action": "translate",
+      "new_text": "The realtime channel client. **Written ONCE for all three frontends.**\n\n## The rule this package exists to protect\n\n**`aoEvento` REFETCHES. It never applies the payload.**\n\nAn event says WHAT changed - `{assunto, id, em}` - and nothing more. The receiver fetches the data from the API under RLS. This is not a byte-saving measure: it prevents the channel from becoming a second source of truth with a second place where tenant isolation can fail. The API is the primary source and has 90 RLS policies and tests.\n\n**If anyone proposes putting the record in the payload, reject it.** The benefit would be one fewer request; the cost would be tenant data leaving through an unaudited path and the screen displaying the value in transit instead of the current value. This was decided early in the project, is documented in `packages/contracts/src/eventos.ts`, and is repeated here because this is where the temptation arises.\n\n## Why a package instead of code copied into each frontend\n\nReconnection, backoff, subscription replay, and drop detection always diverge when copied - and silently, because the screen still opens. Desk previously had three copies of the priority rule, one of them wrong. Here there is one.\n\n```ts\nconst ligacao = ligar({\n  urlApi: 'http://localhost:3000',\n  assuntos: ['conversa', 'fila'],\n  aoEvento: (evento) => { if (evento.assunto === 'fila') rebuscarLista(); },\n});\n// when unmounting the screen:\nligacao.fechar();\n```",
+      "sensitivity": "security",
+      "evidence": "packages/tempo-real/src/index.ts:3-36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-2af759c5",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/src/index.ts:38-38",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-f642b692",
+      "action": "translate",
+      "new_text": "With no messages at all for this long, the connection is considered dead.\n\nThe server sends `{tipo:'ping'}` every 15 seconds (Blip's `CONNECTION_TEST_INTERVAL`). Two silent intervals are the threshold: one would cause false positives during an ordinary network stall, while three would leave the screen stale for almost a minute.\n\nThis exists because **dead sockets do not report their death**: TCP may remain open in the browser after the other side is gone, making the screen look alive but frozen - the defect realtime was meant to fix.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/tempo-real/src/index.ts:42-52",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-e4bed2ea",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/src/index.ts:57-57",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-4d4ceace",
+      "action": "translate",
+      "new_text": "Called for each event. **Refetch here; do not apply the payload** - see above.\nNever called for `ping`, which is a control frame rather than an event.",
+      "sensitivity": "security",
+      "evidence": "packages/tempo-real/src/index.ts:71-74",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-8625c7f7",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/src/index.ts:76-76",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-545e97e9",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/src/index.ts:78-78",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-569689cf",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/src/index.ts:84-84",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-c3e45370",
+      "action": "translate",
+      "new_text": "Delay before the next attempt: exponential with a cap and **+/-20% jitter**.\n\nJitter matters: when the API restarts, every browser disconnects at once. Without jitter, they all reconnect at once too, so a newly started API receives the entire herd immediately.",
+      "sensitivity": "architecture",
+      "evidence": "packages/tempo-real/src/index.ts:92-98",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-9940ba53",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:110-110",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-4069815c",
+      "action": "translate",
+      "new_text": "The server keeps no state for disconnected clients: a new socket starts with no topics.",
+      "sensitivity": "integration",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:147-147",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-b7f0b655",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:187-187",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-067163fb",
+      "action": "translate",
+      "new_text": "TCP may remain open in the browser after the other side has",
+      "sensitivity": "architecture",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:194-194",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-3b3c1606",
+      "action": "translate",
+      "new_text": "gone. Without this watchdog, the screen would look alive but frozen.",
+      "sensitivity": "architecture",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:195-195",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-76cc4030",
+      "action": "translate",
+      "new_text": "Advance just past 35 seconds, NOT 2 seconds: the first retry is scheduled",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:208-208",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-6ab2d919",
+      "action": "translate",
+      "new_text": "800-1200 ms after the drop (1-second backoff with +/-20% jitter), so advancing",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:209-209",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-247be79b",
+      "action": "translate",
+      "new_text": "by 2 seconds reaches beyond that retry and reads `ligando` or `caiu` depending on the draw. This test",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:210-210",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-eed33ee2",
+      "action": "translate",
+      "new_text": "passed in about half of runs, and I incorrectly reported one green run as a pass.",
+      "sensitivity": "architecture",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:211-211",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-f68d0b04",
+      "action": "translate",
+      "new_text": "`caiu` must also LAST long enough for the screen to show \"connection lost\" - that is",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:216-216",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-a8ee8314",
+      "action": "translate",
+      "new_text": "why `aoEstado` exists. 700 ms is below the backoff floor (800 ms).",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:217-217",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-72833af4",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:221-221",
+      "notes": ""
+    },
+    {
+      "id": "packages-tempo-real-comment-87fdeb85",
+      "action": "translate",
+      "new_text": "Reconnection is why this package exists: copied across three frontends, this logic silently diverges. These tests exercise it with a fake socket and Vitest fake timers - without network access or real waiting.",
+      "sensitivity": "architecture",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:5-9",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-a2c4fd70",
+      "action": "translate",
+      "new_text": "When the API restarts, all clients disconnect at once; without jitter they reconnect at the same",
+      "sensitivity": "architecture",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:74-74",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-tempo-real-comment-00a67ebb",
+      "action": "translate",
+      "new_text": "time as well.",
+      "sensitivity": "architecture",
+      "evidence": "packages/tempo-real/tests/tempo-real.test.ts:75-75",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

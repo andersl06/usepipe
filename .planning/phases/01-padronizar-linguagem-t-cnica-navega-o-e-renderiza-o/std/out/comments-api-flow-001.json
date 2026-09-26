@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "api-comment-fd294909",
+      "action": "translate",
+      "new_text": "`nome`, `nome-2`, `nome-3`… Return the first unused value.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:149; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-54503dfc",
+      "action": "translate",
+      "new_text": "Fifty accounts with the same name suggest another issue; the time suffix",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:158; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3984010a",
+      "action": "translate",
+      "new_text": "ensures sign-in remains available while that issue is investigated.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:159; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ce23aab1",
+      "action": "translate",
+      "new_text": "`validate_user`: check whether the email is already a user in any client. Use the owner role",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:177; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-97a04d98",
+      "action": "translate",
+      "new_text": "because this is a global question, and return only yes or no.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:178; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2b553c0b",
+      "action": "translate",
+      "new_text": "`name: user_full_name`: provisioning uses the email's local part.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:195; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-71b798ae",
+      "action": "translate",
+      "new_text": "`GlobalConfigService.account_signup_enabled?`: any value other than `false` enables signup.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fa5697b2",
+      "action": "translate",
+      "new_text": "Derive the workspace slug from the name, as Blip suggests in `/tenant-valid-id`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:52; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-35e523e7",
+      "action": "translate",
+      "new_text": "An account created AT SIGN-IN without an invitation or verified domain follows the source platform's self-service path: someone with no account receives one immediately, and supplies company details later in \"minha conta\". Unlike `construirConta`, a public email domain is allowed because personal trial accounts are common, and an email already used by another account is allowed because one person may manage several accounts. Since migration 0017, provider identity is unique per tenant, not globally. Provider-verified email remains mandatory and is checked earlier by `entrarComIdentidade` on every sign-in path. Add a suffix on slug collision: different people can have the same company name, and a later user's login must not fail for that reason.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:63; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cf5d5c82",
+      "action": "update",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), `app/builders/account_builder.rb`, and its `account_signup_enabled?` flag in `lib/global_config_service.rb`. `docs/specs/2026-09-07-implantacao.md` §6.1 chooses assisted sales: tenant creation uses the `provisionar` command, not a route. The Chatwoot flag keeps public signup disabled by default (`ENABLE_ACCOUNT_SIGNUP` defaults to `false` and the route returns 404, as `check_signup_enabled` does there); enabling it requires an owner decision. Before enabling it, Pipe still needs hCaptcha (`validate_captcha`), email confirmation before a session for this signup path, and per-IP rate limiting (Rack::Attack in Chatwoot). The gap recorded in `o-que-falta.md` item 7 has partly changed: Pipe now has an email sender for invitations (`apps/api/src/dominio/email.ts`), but this signup path does not confirm the address. An account created here remains inert: its admin can enter via Google only after Pipe verifies the domain or sends an invitation. Tenant, catalog, roles, and admin creation stay in `provisionarCliente`; this file only validates and calls it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:31-48,210-220; apps/api/src/dominio/email.ts:36-52; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0849f31b",
+      "action": "translate",
+      "new_text": "Use the company name for a corporate email and the person's name for a public email;",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:90; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1f8dbb1a",
+      "action": "translate",
+      "new_text": "both are provisional and \"minha conta\" can replace them.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:91; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4c3818e4",
+      "action": "translate",
+      "new_text": "Closing and pausing conversations belong in the domain, not the screen: events must not depend on the screen remembering them. Desk previously wrote state directly and recorded no `evento_atendimento`, leaving TMR, SLA, and effort reports blind to agent actions. Immutable `evento_atendimento` is the source of all metrics (data model §4); conversation state is a cache of those events. If they diverge, trust the event.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-eaa86aaa",
+      "action": "translate",
+      "new_text": "Close an open waiting interval before closing its conversation; otherwise the",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:127; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-990f9a9c",
+      "action": "translate",
+      "new_text": "paused interval remains open and disappears from effort reporting.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:128; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d1a0c263",
+      "action": "translate",
+      "new_text": "`encerradaPor` in `@pipe/core` identifies WHO removed the conversation from the screen, not the clicker's ID.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:161; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4693837a",
+      "action": "translate",
+      "new_text": "Waiting mode pauses a conversation without counting client inactivity. Waiting time has its own report column; it is excluded from SLA, not from the count.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e6b3418a",
+      "action": "translate",
+      "new_text": "Publish after commit, as for every domain action. See `tempo-real.ts`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:251; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bc970586",
+      "action": "translate",
+      "new_text": "Set exactly ONE destination. A queue sends the conversation back to a queue; an agent receives it directly.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:258; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-dcf921b3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/conversa.ts:265",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-a5b342fc",
+      "action": "translate",
+      "new_text": "Transfer a conversation to a queue or agent. A transfer is NOT a state transition: it closes the current conversation with `encerrada_por = transferencia` and opens another at the destination. `packages/core/src/conversa/maquina.ts` has no edge from `atribuida` back to `na_fila`, matching Blip's rule that the current ticket closes as transferred and a new one opens (`referencias-blip/pesquisa/blip-desk-funcoes.md` §3). The new conversation inherits the 24-hour window (`janela_expira_em` and the opening message) because the window belongs to the CONTACT, not the ticket; without it, the receiving agent could not send free text. It also inherits priority, as Blip does and as the issue requires, and the last message (`ultima_mensagem_em`/`_de`) so inactivity closing does not treat it as newly started. It does NOT inherit tags (also Blip's rule) or messages; the contact history joins both conversations on screen. The new conversation has `criada_em = agora` and `primeira_resposta_em` starts null: the receiving agent's TMR measures that agent, queue time starts again, and the `atribuicao` transfer report reconstructs the full client journey.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/conversa.ts:272; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6edf459f",
+      "action": "translate",
+      "new_text": "Requester context: null `atendenteId` denotes an integration, which does not own a conversation.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/conversa.ts:32; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-db539268",
+      "action": "translate",
+      "new_text": "Transferring ANOTHER agent's conversation is a supervisor action; that is why",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/conversa.ts:338; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ec953325",
+      "action": "translate",
+      "new_text": "`conversa.transferir` exists (data model §64). An agent transferring their",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/conversa.ts:339; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0a6ae091",
+      "action": "translate",
+      "new_text": "own conversation does not need it, as in Blip Desk where the action is on",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/conversa.ts:340; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3065e2d1",
+      "action": "translate",
+      "new_text": "the agent's own ticket header.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/conversa.ts:341; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8131e43d",
+      "action": "translate",
+      "new_text": "Require the conversation to be assigned to `atendenteId`; see `envio.ts`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/conversa.ts:36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5639edd1",
+      "action": "translate",
+      "new_text": "Close any open waiting period BEFORE closing the conversation, or the paused",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:366; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9b6aab01",
+      "action": "translate",
+      "new_text": "interval remains open and disappears from effort reporting.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:367; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-34d09969",
+      "action": "translate",
+      "new_text": "`encerrada_por = transferencia` distinguishes, in reports, a conversation that",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:398; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-98a2ee01",
+      "action": "translate",
+      "new_text": "ended from one that merely changed hands.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:399; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c488c49c",
+      "action": "translate",
+      "new_text": "A queue destination uses `transferida_fila`; for an agent the new conversation starts assigned.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:434; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-725c9365",
+      "action": "translate",
+      "new_text": "`atribuicao` links the two conversations so the transfer dashboard can",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:442; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-842e4e40",
+      "action": "translate",
+      "new_text": "reconstruct the client's journey after closure.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:443; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c3283ecd",
+      "action": "translate",
+      "new_text": "Two conversations changed: the closed one and the new one at the destination.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:470; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7947911f",
+      "action": "translate",
+      "new_text": "Convert a state-machine rejection to 409 without exposing `never` to the controller.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:68; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-678474f2",
+      "action": "translate",
+      "new_text": "Blip (`close-modal-container.js`) sends a collection and blocks closure only when policy requires tags; in Pipe, the tags selected in Management are that collection.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/conversa.ts:82; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a121bfa6",
+      "action": "translate",
+      "new_text": "Compatibility with clients still sending the old shape.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/conversa.ts:87; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-929dc0c5",
+      "action": "translate",
+      "new_text": "Email the invitation AFTER commit without failing the caller. Continue returning the link so the inviter can use it if email delivery fails.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/convites.ts:105; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a8c71a5f",
+      "action": "translate",
+      "new_text": "Current tenant name, used in the email to show which client the person joins.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/convites.ts:114",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-13748169",
+      "action": "translate",
+      "new_text": "Shared operation for `criarConvite` and `reenviarConvite` in the caller's SAME transaction: issue a new token, invalidate any open invitation to that email, and insert the row. Keeping this in one helper prevents the two paths from disagreeing on \"resend\": today it literally creates a new invitation, not a separate table or counter.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/convites.ts:120; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4bceea20",
+      "action": "translate",
+      "new_text": "otherwise resending leaves another live link, and revoking access would require",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:162; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1fa1c024",
+      "action": "translate",
+      "new_text": "finding every one of them.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:163; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2de75f0c",
+      "action": "translate",
+      "new_text": "Create an invitation. Look up the role by NAME (`admin`, `member`, `guest`), which is what the inviter knows, with `pipe.tenant_id` fixed so a role from another client cannot be selected. Accept only ACCOUNT roles (migration 0021), as in the source: invitation grants a contract role; supervisor and agent roles are assigned later per contact. The database also rejects the wrong scope through the composite FK on `convite.escopo`; checking here provides a useful error instead of an FK failure.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:186; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-11993df7",
+      "action": "translate",
+      "new_text": "Send email outside the transaction: delivery must not delay commit or roll it back on failure.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/convites.ts:210; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a72942c6",
+      "action": "translate",
+      "new_text": "Resend an open invitation to the same email and role with a new link that INVALIDATES the previous one (`emitirConvite`). Email the new link via `dominio/email.ts` and keep it in the response so the inviter can share it if email delivery fails.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:215; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-67ea2be4",
+      "action": "translate",
+      "new_text": "Find an invitation by token hash. Use the owner role, as for session resolution, because the tenant must be discovered BEFORE it can be set.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:257; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ca9c2cf2",
+      "action": "translate",
+      "new_text": "Seven days is the invitation lifetime, not the session lifetime; an unused recipient requests another.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ee739219",
+      "action": "translate",
+      "new_text": "An unknown token returns only 404; describing a guessed token as \"expired\"",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:275; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d6e1f4fc",
+      "action": "translate",
+      "new_text": "From here the requester HAS a valid token and should learn why it",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:279; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8fa5cc94",
+      "action": "translate",
+      "new_text": "no longer works, avoiding an opaque \"link does nothing\" support case.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:280; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3eaad36f",
+      "action": "translate",
+      "new_text": "Present only when the person already accepted while authenticated through Google.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:306; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e0af65af",
+      "action": "translate",
+      "new_text": "Accept an invitation by creating the tenant user, granting the role, and consuming the token. Optional `pessoa` separates two paths. Without `pessoa` (`POST /v1/convites/:token/aceitar`), create the user now; they sign in through Google later if their domain is verified, following the third question in `entrada.ts`. With `pessoa` (Google callback carrying `?convite=`), link the external account and open a session here; this is the path offered to someone without a verified domain. `for update` enforces single use: two concurrent clicks must not both read \"not accepted\" and proceed.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:310; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-13fe5f92",
+      "action": "translate",
+      "new_text": "An invitation targets ONE email. Signing in with another Google account must not let",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:333; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f28219de",
+      "action": "translate",
+      "new_text": "whoever received a forwarded link enter this client.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:334; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-323ca221",
+      "action": "translate",
+      "new_text": "Run in series, never `Promise.all`: parallel queries within the transaction disrupt",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:354; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5f25ccda",
+      "action": "translate",
+      "new_text": "`pipe.tenant_id` and may run without a tenant; see README.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:355; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-acac2b06",
+      "action": "translate",
+      "new_text": "The token exists only in this response; the database stores only its hash afterward.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3fc01fa6",
+      "action": "translate",
+      "new_text": "One account role per person (migration 0021 partial index). A returning",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:362; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-35028983",
+      "action": "translate",
+      "new_text": "inactive user invited again replaces the old account role with the",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:363; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f2095d7b",
+      "action": "translate",
+      "new_text": "invitation role while keeping attendance roles.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:364; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d3243e64",
+      "action": "translate",
+      "new_text": "Use `on conflict` because the invited email may belong to an inactive user. A returning person is the same user, and a second row would violate `(tenant_id, email)` anyway.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:395; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1f8a2d0f",
+      "action": "translate",
+      "new_text": "Link the invited user's Google account and open a session.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:415; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5ebdc5a4",
+      "action": "translate",
+      "new_text": "Fields exposed by `GET /v1/convites/:token` without a session.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b6e21ba3",
+      "action": "translate",
+      "new_text": "`identidade_externa` is unique per tenant on `(tenant_id, emissor, sujeito)`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c329821c",
+      "action": "translate",
+      "new_text": "If that identity already belongs to someone else in the tenant, the invitation must not",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:424; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a9395d10",
+      "action": "translate",
+      "new_text": "silently reassign it; fail clearly with the reason.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:425; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fab2ee69",
+      "action": "translate",
+      "new_text": "SSO research §6: enforce policy ON THE SERVER on every path",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:446; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a68e54c7",
+      "action": "translate",
+      "new_text": "that issues a session, including invitation links. Otherwise a tenant",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:447; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-12e158c0",
+      "action": "translate",
+      "new_text": "requiring SSO could still admit Google sign-in through an invitation",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:448; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0b4d28d7",
+      "action": "translate",
+      "new_text": "link: a classic back door, like a password-reset bypass.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:449; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e95a5264",
+      "action": "translate",
+      "new_text": "Provisional name until first sign-in provides the person's Google name.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/convites.ts:65",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-233aea83",
+      "action": "translate",
+      "new_text": "Screen label for each account role (`referencias-blip/pesquisa/blip-painel-do-contrato.md`).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/convites.ts:75; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ec0d7e83",
+      "action": "translate",
+      "new_text": "Invitation email contains the link, inviter's destination tenant, role, and expiry. Use plain text intentionally: it survives any email client and is what the test reads.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/convites.ts:82; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c849d467",
+      "action": "translate",
+      "new_text": "Invitation is the ONLY entry path for someone without a verified domain. `packages/autenticacao/src/entrada.ts` rejects people who were not invited: discovering a domain must not imply joining its client. This file records who invited whom. Three safeguards also used for sessions and API keys apply: store the hash, never the token, so reading `convite` cannot redeem links; expire links in seven days so forgotten inbox links do not become permanent credentials; and enforce single use with `select ... for update` on acceptance, not a read followed by an unprotected write that allows two concurrent uses.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/convites.ts:9; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-12b36f10",
+      "action": "translate",
+      "new_text": "The transaction already has its tenant fixed; `consultar` only names the block, as in Desk.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5cfa317e",
+      "action": "translate",
+      "new_text": "Internal notes are the former `modo === 'nota'` branch of `enviarMensagem`. A note is not a conversation message, is never sent to the client, and is outside the 24-hour window. It therefore never had a `/v1/conversas` route and is the only composer write remaining here. Free text and templates go directly from the browser to `POST /v1/conversas/:id/mensagens`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:127; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a55c0cfc",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:156",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-ea6f3a1c",
+      "action": "translate",
+      "new_text": "The \"full\" message matches source `code 23 / \"Agent ticket list is full.\"`, rendered in Portuguese.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:158; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-68c73d3c",
+      "action": "translate",
+      "new_text": "Desk Server Actions that WROTE directly to the database were moved from `apps/desk/src/app/acoes.ts` unchanged: agent status, inactivity logout, and internal notes. Sending, retrying, closing, and waiting already called `POST /v1/conversas/…` via Next `postNaApi`; now the browser calls it directly with the cookie. No new endpoints duplicate their rules, state transitions, or events. `tenantId` and `atendenteId` come from the SESSION (`sessaoDe` in the controller), never the body: accepting `usuarioId` from the body would let any signed-in person change a colleague's status.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:16; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c89ae20c",
+      "action": "translate",
+      "new_text": "The column's \"Atender\" action mirrors source `set /tickets/claim`: the agent claims the oldest conversation among their queues. It calls `assumirConversa` (`dominio/assumir.ts`) without choosing an ID, retaining the same guard (`where estado = 'na_fila'` with `skip locked` for competing claims), `atribuicao`, and event. Only Online agents may claim, as in the source. Capacity limits also apply: the source rejects `/tickets/claim` with `code 23 / \"Agent ticket list is full.\"` (`blip-desk-regras-tecnicas.md` §2.2–2.3). `@pipe/core` `motivoInelegivel` evaluates free capacity (`limite − ativas > 0`) and the cap on conversations lacking a first response, using `filasDoAtendente` like `distribuirConversa`; only queues with room enter the `UPDATE`. The check is atomic per agent: lock that agent's `status_atendente` row (`for update`) before counting active conversations, so simultaneous clicks run serially and the second sees the first claim. Conversation `skip locked` separately resolves competition between DIFFERENT agents.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:169; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-86cc6b9c",
+      "action": "translate",
+      "new_text": "`for update` serializes claims per agent as described above. Online agents",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:199; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f2238e52",
+      "action": "translate",
+      "new_text": "always have this row; it records that they are online.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:200; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0519ba55",
+      "action": "translate",
+      "new_text": "With no queue that has capacity, reject for the capacity limit rather than",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:218; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-aa70d2b4",
+      "action": "translate",
+      "new_text": "searching for a conversation the agent cannot receive. An agent in no queue",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:219; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-78f6fd4f",
+      "action": "translate",
+      "new_text": "can only claim an unqueued conversation, for which no configured queue limit applies.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:220; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-26a0464d",
+      "action": "translate",
+      "new_text": "An unqueued conversation (a direct transfer returned to waiting) is available",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:225; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-462b6024",
+      "action": "translate",
+      "new_text": "to any agent with capacity in some queue, or to an agent in no queue",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:226; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1f47d2ad",
+      "action": "translate",
+      "new_text": "where no queue limit applies.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:227; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a51318c4",
+      "action": "translate",
+      "new_text": "Nothing is available in queues with capacity. If people wait in a queue where",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:251; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6f5a4e2e",
+      "action": "translate",
+      "new_text": "the agent is full, report the capacity limit as the refusal reason.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:252; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ed3b3f41",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:283",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-5732ff39",
+      "action": "translate",
+      "new_text": "The source \"Ações em Massa\" screen transfers several tickets to a queue or agent. Call `transferirConversa` (`dominio/conversa.ts`) serially, one conversation and transaction at a time. Each transfer closes and opens a conversation and records its event. Return the transferred count and first refusal reason, if any.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:285; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0713538f",
+      "action": "translate",
+      "new_text": "A break requires a reason from the manager's list; without one, break time",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:51; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b7099263",
+      "action": "translate",
+      "new_text": "cannot feed a report, which is why it is required.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:52; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ebca0690",
+      "action": "translate",
+      "new_text": "the same minute twice in the occupancy report.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:67; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0378e03f",
+      "action": "translate",
+      "new_text": "Inactivity drops an agent from distribution after twenty minutes without screen activity. This follows the reference screen's ten-minute warning plus ten-minute grace period (`referencias-blip/pesquisa/blip-desk-medidas.md` §9). The browser counts time in `componentes/inatividade`; this action receives only the verdict. It is intentionally narrow and idempotent: it only moves offline and does nothing if already Offline. Otherwise an abandoned second tab could disconnect an agent actively using another tab. Close any open break too, as in `definirStatus`, or an endless break would count the same minute forever in occupancy reports.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/desk/acoes.ts:81; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-870bceb5",
+      "action": "translate",
+      "new_text": "Desk read queries were moved from `apps/desk/src/servidor/consultas.ts` with SQL unchanged. The transaction now comes from the controller's `noTenant` parameter and dates cross JSON as ISO. Handwritten SQL is deliberate: four- or five-table joins plus a `lateral` for each conversation's latest message would be longer and less clear in Drizzle. Writes still use the typed schema (`acoes.ts`). Every query runs under `noTenant` with `pipe.tenant_id` and RLS; none manually filters tenant because the database already does. Output types come from `@pipe/contracts` (`desk.ts`); `tsc` reports any front-end contract mismatch when columns change.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/desk/consultas.ts:22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a5c9f8cb",
+      "action": "translate",
+      "new_text": "Without a status row, the agent has not joined yet; the spec's default is Invisível.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/desk/consultas.ts:360",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-545b4d76",
+      "action": "translate",
+      "new_text": "Exclude the open conversation; `null` lists all, as on the Contacts tab.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/desk/consultas.ts:377",
+      "notes": ""
+    }
+  ]
+}

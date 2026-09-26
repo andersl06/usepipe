@@ -1,0 +1,565 @@
+/*
+ * ======================================= the "Minha conta" screen (/minha-conta)
+ *
+ *    Copy of the source platform's account screen (`#blip-account-page`), MEASURED
+ *    on its DOM — the page served offline and read with `getBoundingClientRect`
+ *    and `getComputedStyle`, not inferred from CSS. The whole screen, not just the
+ *    field: it's the chrome around it that makes someone recognize the screen.
+ *
+ *      top bar          80px height, 0 55px padding, brand on the left, 1px
+ *                       vertical rule, items in 12/800 UPPERCASE with 0 8px
+ *                       padding; on the right a 24px avatar, name 13/500 and "Sair"
+ *                       in 9/800 underlined, below
+ *      sidebar          300px, 64px padding, 84px round avatar, 18px truncated
+ *                       name, 1px rule with 32px margin, and the pairs
+ *                       label 12/lh18 over value 14/lh21, with 16px between them
+ *      content          padding 32px 128px 0
+ *      header           padding 0 64px 16px, title 24/600 on the left, button
+ *                       160×42 (radius 8, 14/600) on the right, 1px rule below
+ *      area             padding 32px 64px
+ *      card             1002px wide, internal padding 40px 60px
+ *      tabs             1px rule below; item with 10px 20px padding and 5px side
+ *                       margin (the first without), text 15/600, and the active
+ *                       one with a 4px stripe below
+ *      tab panel        60% of the card (min. 240px), padding 45px 10px 10px
+ *      column           ONE 509px column — not two
+ *      field            47px height, 1px border, 8px radius, 5px 10px padding
+ *      gap              8px between one field and the next
+ *      label            12px/600, 16px line height, INSIDE the box, above the value
+ *      value            14px/400, 19px line height
+ *      error            12px below the field, with a 2px ring on the box
+ *      focus            0 2px 12px shadow and light border
+ *      terms            12/600, 28 line height, 0 8px padding, below the card
+ *
+ *    THE LAYOUT IS THEIRS, THE PAINT IS OURS: the measurements above came ruler by
+ *    ruler from the source; color, typeface, brand and icon come from our tokens.
+ *    Most of it already matched tokens that existed (`--p-r-md` is 8px, `--p-t-sm`
+ *    is 12px, `--p-t-md` is 14px, `--g-barra-sup-h` is 80px), which is a sign the
+ *    ruler was already right — what was missing was the screen around the form.
+ *
+ *    One conscious divergence: the card has our card radius, not their sharp
+ *    corner (radius 0). It's in the report.
+ *
+ *    Theme: light only. No `prefers-color-scheme` rule in this sheet.
+ */
+
+.account-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+  font-family: var(--p-fonte);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ------------------------------------------------------ a barra superior */
+
+.account-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--g-barra-sup-h);
+  padding: 0 55px;
+  background: var(--g-barra-1);
+  color: var(--g-barra-tinta);
+}
+
+.account-bar-left,
+.account-bar-right {
+  display: flex;
+  align-items: center;
+}
+
+/*
+ * The lockup comes in as a MASK, not an `<img>`: the file is dark ink with the moss stroke, designed for a light background, and it disappears over the black bar. The mask paints it with the bar's ink — the same technique as the portal.
+ */
+.account-bar-brand {
+  display: block;
+  width: 80px;
+  height: 36px;
+  margin-right: 16px;
+  background: var(--g-barra-tinta);
+  -webkit-mask: url('/pipe/lockup.svg') center / contain no-repeat;
+  mask: url('/pipe/lockup.svg') center / contain no-repeat;
+}
+
+/*
+ * The vertical rule between the brand and the items: 1px by 43px, the height of their bar's content block.
+ */
+.account-bar-risk {
+  width: 1px;
+  height: 43px;
+  margin-right: 8px;
+  background: var(--g-barra-linha);
+}
+
+.account-bar nav a,
+.account-bar nav span {
+  display: inline-block;
+  padding: 0 8px;
+  font-size: var(--p-t-sm);
+  font-weight: 800;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--g-barra-fraca);
+}
+
+.account-bar nav a:hover {
+  color: var(--g-barra-tinta);
+}
+
+/*
+ * The current item is the only lit one. In the source it's the light one among the dimmed ones, and that's the only thing that tells which screen someone is on.
+ */
+.account-bar nav a[aria-current='page'] {
+  color: var(--g-barra-tinta);
+}
+
+/* Unavailable item: dimmed and without a link cursor — their "Desk". */
+.account-bar nav span {
+  color: var(--p-conteudo-desabilitado);
+}
+
+.account-bar-right .avatar {
+  width: 24px;
+  height: 24px;
+  margin-right: 9px;
+  font-size: var(--p-t-xs);
+}
+
+.account-bar-me {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.account-bar-me b {
+  font-size: 13px;
+  font-weight: var(--p-peso-medio);
+  line-height: 19.5px;
+}
+
+/*
+ * "Sair" is a form button, not a link: ending the session changes state, and a state change doesn't belong in a GET. The color is the link's because that's how the source shows it — small, underlined, below the name.
+ */
+.account-bar-me button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--g-barra-marca);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ----------------------------------------------------------- a lateral */
+
+.account-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.account-side {
+  flex: none;
+  box-sizing: border-box;
+  width: 300px;
+  padding: 64px;
+  background: var(--p-superficie-4);
+  color: var(--p-conteudo-claro);
+  text-align: center;
+}
+
+.account-side .avatar {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 25px;
+  font-size: var(--p-t-numero);
+  font-weight: var(--p-peso-forte);
+}
+
+/*
+ * The name is truncated with an ellipsis, not wrapped onto two lines: their sidebar has 172px of usable width, and a long two-line name pushes everything down.
+ */
+.account-side-name {
+  margin: 0 0 16px;
+  font-size: 18px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-side hr {
+  height: 1px;
+  margin: 32px 0;
+  border: 0;
+  background: var(--p-linha-forte);
+}
+
+.account-side-info {
+  text-align: left;
+}
+
+.account-side-info dt {
+  font-size: var(--p-t-sm);
+  line-height: 18px;
+  color: var(--p-conteudo-fantasma);
+}
+
+.account-side-info dd {
+  margin: 0 0 16px;
+  font-size: var(--p-t-md);
+  line-height: 21px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-side-info dd:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------- the content */
+
+.account-content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--p-e-8) 128px 0;
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-e-4);
+  padding: 0 64px var(--p-e-4);
+}
+
+.account-header h1 {
+  margin: 0;
+  font-size: var(--g-t-titulo);
+  font-weight: var(--p-peso-forte);
+  line-height: 1.2;
+}
+
+.account-ruler {
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--p-linha);
+}
+
+/* Header button: the size is theirs (160×42); the color is our brand. */
+.account-button {
+  flex: none;
+  min-width: 160px;
+  height: 42px;
+  padding: 0 var(--p-e-5);
+  border: 0;
+  border-radius: var(--p-r-md);
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+  font: inherit;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  cursor: pointer;
+  transition: background var(--p-dur-rapida) ease;
+}
+
+.account-button:hover {
+  background: var(--p-marca-forte);
+}
+
+/*
+ * Gray button while any field is invalid. It's the source's gate (`checkFormValidity`, which starts with `submitButton.disabled = true`) written in CSS: a Server Component has no JavaScript of ours to watch the fields. `novalidate` does NOT apply — if the CSS misses it, the browser still blocks it.
+ */
+.account-page:has(.account-form :invalid) .account-button {
+  background: var(--p-superficie-3);
+  color: var(--p-conteudo-desabilitado);
+  cursor: not-allowed;
+}
+
+.account-area {
+  padding: var(--p-e-8) 64px;
+}
+
+.account-card {
+  box-sizing: border-box;
+  max-width: 1002px;
+  padding: var(--p-e-10) 60px;
+  background: var(--p-superficie-0);
+  border-radius: var(--g-r-card);
+  box-shadow: var(--p-sombra-2);
+}
+
+/*
+ * ------------------------------------------------------------- the tabs
+ *
+ *    No JavaScript: two hidden radio buttons control which panel shows. Both panels stay in the DOM, which is why a single Save writes both profile AND preferences — switching tabs via a link would reload the page and throw away whatever the person typed in the other panel.
+ */
+
+.account-tabs {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--p-linha-media);
+}
+
+/*
+ * The item drops 1px so the active tab's stripe covers the list's rule, instead of stacking on top of it — it's their `bottom: -1px`.
+ */
+.account-tabs li {
+  position: relative;
+  bottom: -1px;
+  margin: 0 5px;
+  border-bottom: 4px solid transparent;
+}
+
+.account-tabs li:first-child {
+  margin-left: 0;
+}
+
+.account-tabs input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.account-tabs label {
+  display: block;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: var(--p-peso-forte);
+  line-height: 24px;
+  color: var(--p-conteudo);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.account-tabs li:has(input:checked) {
+  border-bottom-color: var(--p-marca);
+}
+
+.account-tabs li:has(input:checked) label {
+  color: var(--p-marca);
+}
+
+.account-tabs li:has(input:focus-visible) label {
+  outline: 2px solid var(--p-foco);
+  outline-offset: -2px;
+}
+
+.account-panel {
+  display: none;
+  box-sizing: border-box;
+  width: 60%;
+  min-width: 240px;
+  padding: 45px 10px 10px;
+}
+
+.account-card:has(#conta-aba-perfil:checked) .account-panel-profile,
+.account-card:has(#conta-aba-preferencias:checked) .account-panel-preferences {
+  display: block;
+}
+
+/* --------------------------------------------------------- os campos */
+
+.account-form {
+  margin: 0;
+}
+
+/*
+ * Server failure notice. Sits above the column and doesn't replace the field's marking: the message says WHAT went wrong, the ring says WHERE.
+ */
+.account-notice {
+  margin: 0 0 var(--p-e-4);
+  padding: var(--p-e-3) var(--p-e-4);
+  border: 1px solid var(--p-error-line);
+  border-radius: var(--p-r-md);
+  background: var(--p-error-background);
+  color: var(--p-error-content);
+  font-size: var(--p-t-md);
+  line-height: var(--p-altura-linha);
+}
+
+/*
+ * The label lives INSIDE the box, above the value — it's the source's field design, and it's what makes the box 47px instead of 40.
+ */
+.account-field {
+  display: block;
+  box-sizing: border-box;
+  height: 47px;
+  margin-bottom: var(--p-e-2);
+  padding: 5px 10px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+}
+
+.account-field > span {
+  display: block;
+  height: 16px;
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-forte);
+  line-height: 16px;
+  color: var(--p-conteudo);
+}
+
+/* Required marker. It's the ` *` that the source appends to the label. */
+.account-field > span[data-obrigatorio]::after {
+  content: ' *';
+}
+
+.account-field input,
+.account-field select {
+  display: block;
+  width: 100%;
+  height: 19px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-normal);
+  line-height: 19px;
+  color: var(--p-conteudo);
+  outline: none;
+  appearance: none;
+}
+
+.account-field input::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+
+/*
+ * The selector's arrow is ours (theirs is a `bds-icon`), but it sits where theirs sits: flush right, centered in the box.
+ */
+.account-field:has(select) {
+  position: relative;
+}
+
+.account-field:has(select)::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  bottom: 15px;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--p-conteudo-fantasma);
+  border-bottom: 1.5px solid var(--p-conteudo-fantasma);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.account-field:focus-within {
+  border-color: var(--p-marca-linha);
+  box-shadow: 0 2px 12px rgba(17, 17, 17, 0.1);
+}
+
+/*
+ * A disabled field stays legible: it SHOWS the signed-in person's email, and a dimmed gray here would look like a bug, not a locked field.
+ */
+.account-field:has(input:disabled) {
+  background: var(--p-superficie-2);
+}
+
+.account-field input:disabled {
+  color: var(--p-conteudo-desabilitado);
+  cursor: not-allowed;
+  -webkit-text-fill-color: var(--p-conteudo-desabilitado);
+}
+
+/*
+ * Error: 2px ring on the box and a 12px note below, like the source. `:user-invalid` instead of `:invalid` because an untouched field isn't wrong yet — opening the screen with everything in red is the classic native-validation mistake. `data-erro` is the same state coming from the server, when the browser was bypassed.
+ */
+.account-field:has(:user-invalid),
+.account-field[data-error] {
+  border-color: var(--p-error-line);
+  box-shadow: 0 0 1px 2px var(--p-error-content);
+}
+
+.account-note {
+  display: none;
+  margin: 0 0 var(--p-e-2);
+  font-size: var(--p-t-sm);
+  line-height: 18px;
+  color: var(--p-error-content);
+}
+
+.account-field:has(:user-invalid) + .account-note,
+.account-field[data-error] + .account-note {
+  display: block;
+}
+
+.account-acceptance {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: var(--p-e-4);
+  font-size: var(--p-t-md);
+  color: var(--p-conteudo);
+}
+
+.account-acceptance input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--p-marca);
+}
+
+/*
+ * The terms line sits OUTSIDE the card, between it and the area's footer — it's where the source puts it, and it's what gives the "Salvar alterações" button its anchor.
+ */
+.account-terms {
+  margin: var(--p-e-6) 0 0;
+  padding: 0 8px;
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-forte);
+  line-height: 28px;
+  color: var(--p-conteudo);
+}
+
+.account-terms a {
+  font-weight: 800;
+  color: var(--p-marca);
+}
+
+/*
+ * ----------------------------------------------------------- narrow
+ *
+ *    The 480px breakpoint is the source's: below it the sidebar and header disappear, and panel padding becomes phone padding. Ours kicks in earlier (900px) because 300px of sidebar plus 256px of padding don't fit a tablet.
+ */
+@media (max-width: 900px) {
+  .account-side {
+    display: none;
+  }
+
+  .account-content {
+    padding: var(--p-e-5) var(--p-e-4) 0;
+  }
+
+  .account-header,
+  .account-area {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .account-card {
+    padding: var(--p-e-6) var(--p-e-4);
+  }
+
+  .account-panel {
+    width: 100%;
+    padding: var(--p-e-6) 0 0;
+  }
+
+  .account-bar {
+    padding: 0 var(--p-e-4);
+  }
+}

@@ -2,7 +2,7 @@
 # Publicação de uma versão nova. Roda na VPS, como root, a partir de /opt/pipe.
 #
 # Este script é para a SEGUNDA publicação em diante. A primeira, do zero, é
-# `implantar.sh` — ela tem passos que só acontecem uma vez (papel do banco,
+# `bootstrap.sh` — ela tem passos que só acontecem uma vez (papel do banco,
 # stanza do backup, tenant, canal) e paradas para o que só o dono pode fazer.
 #
 # A ordem não é gosto: migration antes do código novo (§9 da spec), porque só
@@ -18,7 +18,7 @@ cd "$(dirname "$0")"
 # a chave age vive só na máquina, com dono root e modo 600.
 export SOPS_AGE_KEY_FILE=/opt/pipe-dados/age.key
 umask 077
-sops --decrypt segredos/producao.enc.env > /opt/pipe-dados/.env
+sops --decrypt secrets/production.enc.env > /opt/pipe-dados/.env
 # Depois do arquivo cifrado, de propósito: em `--env-file` vale a última
 # definição, então esta linha sobrescreve o PIPE_VERSAO que veio do SOPS.
 echo "PIPE_VERSAO=${VERSAO}" >> /opt/pipe-dados/.env

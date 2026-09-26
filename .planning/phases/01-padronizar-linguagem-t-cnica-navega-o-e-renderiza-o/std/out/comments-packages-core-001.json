@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "packages-core-comment-5fa126a7",
+      "action": "translate",
+      "new_text": "Contact Analytics Dashboard and active messages share pure period, formatting, scale, and type rules here. Queries live in the `api` (`dominio/gestao-analise.ts`); both screen and API import these rules. The source is `portal-fragment-analytics` (`analytics-main.js`), mounted as `<analytics-mfe page=\"…\">`. There, browser `Date` and `toLocaleString` compute periods and formatting, while sections request `/metrics/…` from `postmaster@analytics.msging.net`. Here those calculations are pure and covered by `tests/analise.test.ts`, while figures come from the database. Dates mean calendar days in the account timezone. The source sends the viewer-local date as `AAAA-MM-DDT00:00:00.000Z` via `ut()`; here it is `AAAA-MM-DD` text in the tenant timezone, and `Date.UTC` day arithmetic avoids daylight-saving errors.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:1-21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-db1117d8",
+      "action": "translate",
+      "new_text": "`ft()`: the equally long immediately preceding period used for comparison.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:124-124; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-aa9b3468",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/analise/index.ts:130-130",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-caec9359",
+      "action": "translate",
+      "new_text": "`rt()`: short `dd/mm` axis label.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:137-137; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-c863420d",
+      "action": "translate",
+      "new_text": "`IS()`: period label beside the title, e.g. \"13 de setembro de 2026 - 00h às 23h59\".",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:152-152; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-8946f827",
+      "action": "translate",
+      "new_text": "Comparison indicator hint from `XS()` and dictionary `QS`. `foraDoAlcance` mirrors `outOfRangeMessage`: if the previous period starts more than 90 days ago, the source changes the hint and clears the number to \"-\".",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:159-164; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-40e0fbe5",
+      "action": "translate",
+      "new_text": "The source `.replace(\"-\", pronome)` replaces only the FIRST hyphen.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:174-174; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-94f85a9e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/analise/index.ts:181-181",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-7e402bb2",
+      "action": "translate",
+      "new_text": "Source `WS()` formats every number on both screens. Absolute values below 100 round to two decimals and values from 100 to integers (`ZS`); missing values become `padrao`. Percentages accept a FRACTION and multiply by 100 (`jS`); zero becomes `padrao`, so an empty \"Taxa de rejeição\" is \"0%\" via `Tc` while empty comparison is \"-\". `sinal` prefixes positive percentages with \"+\" (`PS`).",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:183-191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-ee31a881",
+      "action": "translate",
+      "new_text": "Chart value-axis ticks match bundled chart.js 3.9.1 `generateTicks` and `niceNum` near line 34171: values ≤1, ≤2, ≤5, then 10. Step is `niceNum(maximum / 10)`; if rounded top exceeds ten intervals, recalculate it from that top. All zeros produce 0–1, matching `LinearScale` when `min === max`.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/analise/index.ts:211-217; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e4f7ec8b",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/analise/index.ts:23-23",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-98cf6add",
+      "action": "translate",
+      "new_text": "`BS()`: relative change from the previous value. Previous zero with current positive gives `Infinity`, displayed as \"-\" by `formatar`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:234-234; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-7d327efe",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/analise/index.ts:243-243",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-b2734172",
+      "action": "translate",
+      "new_text": "Channel name in the \"Canais\" table; source `IE` maps domain to name.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:252-252; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-7c64dceb",
+      "action": "translate",
+      "new_text": "`/metrics/messages`; averages are per contact WITH interaction.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:260-260; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-0b2a1c0f",
+      "action": "translate",
+      "new_text": "`yT`: second chip row, shown only with `is-displaying-dashboard-fixed-period-chips`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:27-27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-1623bfc6",
+      "action": "translate",
+      "new_text": "`/flowmetrics`; null `excecao` because Pipe has no exception block.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:271-271; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-c69f03dd",
+      "action": "translate",
+      "new_text": "`/blocks/fallback` and `/blocks/desk`: lists of at most ten blocks.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:273-273; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-f8be28cf",
+      "action": "translate",
+      "new_text": "Names assigned by source `IE` to its domains, by Pipe channel type.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:278-278; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d33235b6",
+      "action": "translate",
+      "new_text": "Source `0mn.io` is \"Blip Chat\"; the widget is this product's chat, here Pipe Chat.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:283-283; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-45a337aa",
+      "action": "translate",
+      "new_text": "One `/active-messages/status` row, with `sendDateTime` already reduced to a day.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:288-288; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d2a7f52b",
+      "action": "translate",
+      "new_text": "`/active-messages/template-names` autocomplete options.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:304-304; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-64a3cf0e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/analise/index.ts:309-309",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-a27b4096",
+      "action": "translate",
+      "new_text": "Types for contact Analytics Overview, Custom Reports, and Contact Journey (`app/fluxo/[id]/analise/`). In the source, all three use LIME commands to `postmaster@analytics.{domínio}`, and Journey also uses router Cassandra. Here available data comes from the database; unavailable data returns empty with `ponytail:`. Use one transaction per screen and SERIAL queries: `Promise.all` within `comTenant` clears `pipe.tenant_id` (see `implantacao.ts`).",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/analise/index.ts:311-321; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-dcda62ab",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/analise/index.ts:330-330",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-42fc0d4a",
+      "action": "translate",
+      "new_text": "Six counters in the two `general-dashboard` cards.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:332-332; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-9dce38b7",
+      "action": "translate",
+      "new_text": "`metrics.activeClients`: sent OR received a message in the period.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:334-334; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-3690d3bb",
+      "action": "translate",
+      "new_text": "`metrics.engagedClients`: SENT a message in the period.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:336-336; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-f70a9b3f",
+      "action": "translate",
+      "new_text": "One `AnalyticsReportsService.getMany` item after `handleReport`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:365-365; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-839207aa",
+      "action": "translate",
+      "new_text": "`owner.email === email da pessoa`: only the owner can see edit and delete.",
+      "sensitivity": "security",
+      "evidence": "packages/core/src/analise/index.ts:372-372; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-7612038b",
+      "action": "translate",
+      "new_text": "Portuguese labels of `sT` (Dashboard) and `gt` (active messages), identical on both screens.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:39-39; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d68bfdc1",
+      "action": "translate",
+      "new_text": "Today in the account timezone, corresponding to source `new Date()` without server timezone.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:65-65; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-8e511a6a",
+      "action": "translate",
+      "new_text": "URL `?periodo=`; unknown values fall back to source initial `vT.Today`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:70-70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-16d38f6b",
+      "action": "translate",
+      "new_text": "Chip intervals mirror `b()` and `v()` of `xT`, and `B()`/`z()` of active-message filter `St`. Preserve source quirks: \"Últimos 7 dias\" is D-7 through D-1, excluding today; \"Semana anterior\" is Sunday through Saturday (`ht()`); \"Semana atual\" starts Sunday (`dt()`). Custom periods cannot start more than `limiteDias` days back (90 on Dashboard via `st(90)` of `aT`, 186 on active messages via `St`) or extend beyond today; invalid bounds return null.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/analise/index.ts:76-85; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-f23a8b59",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/comum/tempo.ts:18-18",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-3104f5e5",
+      "action": "translate",
+      "new_text": "Stable identifier comparison by code point. `localeCompare` depends on locale and ICU, so it cannot break distribution ties when results must match across machines.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/comum/tempo.ts:23-28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-7ca408f9",
+      "action": "translate",
+      "new_text": "Seconds between instants; may be negative and callers decide how to handle it.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/comum/tempo.ts:8-8",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-21d2fb9d",
+      "action": "translate",
+      "new_text": "Types shared by all Pipe rules. Durations are integral or fractional seconds, never `interval` or milliseconds, matching data-model convention in `2026-09-05-modelo-de-dados.md` §1.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/comum/tipos.ts:1-7; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e03f6b96",
+      "action": "translate",
+      "new_text": "Mean in seconds, or null when population is zero; never zero merely because data is absent.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/comum/tipos.ts:22-22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-05c0625c",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/comum/tipos.ts:24-24",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-65b4c7a1",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/comum/tipos.ts:32-32",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-5c93275a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/comum/tipos.ts:42-42",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-a87d7acb",
+      "action": "translate",
+      "new_text": "Standard result for every metric shown in a screen or report. `populacao` is the effective denominator and `excluidas` counts excluded candidates; both are mandatory by product decision (metrics spec §2): \"métrica que esconde o próprio denominador não entra neste produto\". `soma` is redundant with `valor × populacao` but supports weighted averages across groups without accumulating floating-point rounding error (§5).",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/comum/tipos.ts:9-20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b55ae205",
+      "action": "translate",
+      "new_text": "All 25 combinations from the §8 diagram. True means the diagram has that edge; every other transition must be rejected.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/conversa.teste.ts:21-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b9b770b9",
+      "action": "translate",
+      "new_text": "Conversation state machine from data-model §8. Allowed states and transitions follow the diagram. A transfer is not a transition: it closes the current conversation with `encerrada_por = transferencia` and opens another at the destination (Blip rules §2.6, measured in production), so `atribuida` has no edge back to `na_fila`. Customer events must not force invalid states, avoiding the Blip community's \"ticket encerrado pelo usuário em fluxo humano\" bug.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/conversa/maquina.ts:1-21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-32883197",
+      "action": "translate",
+      "new_text": "Apply an event to the current state per product-design §4.3: unmapped events never change state; events mapping to the current state are idempotent, as webhook redelivery is normal; every other destination must pass the transition table or raise `TransicaoInvalidaError`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/maquina.ts:124-133; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6077b056",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/conversa/maquina.ts:147-147",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-0a0d6117",
+      "action": "translate",
+      "new_text": "Replay events from an initial state to recompute history; this is why events are immutable.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/maquina.ts:160-163; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-8e42a1fa",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/conversa/maquina.ts:175-175",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-6c018287",
+      "action": "translate",
+      "new_text": "Retry puts delivery back in the outbound queue; it never fails silently.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/maquina.ts:185-185; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-379fadd4",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/conversa/maquina.ts:40-40",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-3bf5afe6",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/conversa/maquina.ts:49-49",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-485e615a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/conversa/maquina.ts:70-70",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-4f6bf6f0",
+      "action": "translate",
+      "new_text": "Nonthrowing variant for the event consumer's hot path.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/maquina.ts:80-80; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-42bba512",
+      "action": "translate",
+      "new_text": "Destination state per event type; null means the event does not change state (customer message, SLA alert, evaluation, or queue transfer recorded as history).",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/maquina.ts:91-95; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-45794fcc",
+      "action": "translate",
+      "new_text": "Conversation priority scale and its waiting-queue order live here rather than in `@pipe/db`. The scale originated beside the database constraint in `schema/comum.ts`, but importing it from there would pull `drizzle-orm/pg-core` and the PostgreSQL driver into browser code. Desk instead kept a parallel three-level weight map that treated unknown priorities as `media`, wrongly ordering `maxima` and `sem_prioridade` as medium. This package holds pure rules without database or HTTP; `@pipe/db` imports the scale to build its constraint. See `referencias-blip/pesquisa/blip-gestao-medidas.md` §8.5.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/prioridade.ts:1-18; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-df2b97fb",
+      "action": "translate",
+      "new_text": "Five levels in precedence order; the array index is the weight and the first receives service first. `sem_prioridade` means priority is absent, not medium by default: even `baixa` precedes it. The old `media` default assigned an invented priority to every ticket. Array order is business meaning; inserting a level changes queue order. Use `pesoPrioridade`, never a parallel weight map.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/prioridade.ts:20-33; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-3d49abd3",
+      "action": "translate",
+      "new_text": "A prioritization rule may assign any level except absence. Assigning `sem_prioridade` would demote a ticket to the end without anyone requesting it.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/prioridade.ts:38-42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6649eb79",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/conversa/prioridade.ts:45-45",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-1770611b",
+      "action": "translate",
+      "new_text": "Sort weight: lower is served first. Unknown values go to the END rather than the middle; assigning them invented priority is the defect this function prevents.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/prioridade.ts:54-58; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-f968a1f6",
+      "action": "translate",
+      "new_text": "Each app keeps its own comparator deliberately: Management stores creation at `marcos.criadaEm`, Desk at `criadaEm`, and a shared generic function would cost more than three duplicated lines. The scale above must remain single. Tie-break by priority first, then oldest creation time; otherwise the queue behaves as a stack, serving the latest arrival first.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/conversa/prioridade.ts:64-73; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6a537bc4",
+      "action": "translate",
+      "new_text": "Distribute by actual load (metrics spec §7). An agent is eligible only when in the queue, online, and below `limite_simultaneo − ativas > 0`; an independent cap limits assigned conversations still awaiting the first response. Among eligible agents choose lowest weighted load, with agent-waiting conversations weighted above customer-waiting ones; then longest time since last assignment; then stable identifier order.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/distribuicao/carga.ts:1-15; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d88eed16",
+      "action": "translate",
+      "new_text": "Preference order between eligible agents. An agent who has never received a conversation (`ultimaAtribuicaoEm === null`) has waited longer than any previously assigned agent and wins the time tie-break.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/distribuicao/carga.ts:111-116; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a514bdfc",
+      "action": "translate",
+      "new_text": "Choose the agent for the next queued conversation and return rejected candidates with reasons, so \"nobody received it\" can be diagnosed in production.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/distribuicao/carga.ts:133-138; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-52a83e1c",
+      "action": "translate",
+      "new_text": "Data-model §3 `status_atendente.estado`; only `online` agents receive conversations.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/distribuicao/carga.ts:19-19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-f867641a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/carga.ts:25-25",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-24c2ecdb",
+      "action": "translate",
+      "new_text": "`fila_atendente.capacidade_override` or the queue/tenant default.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/distribuicao/carga.ts:27-27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-1cceefe8",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/carga.ts:29-29",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-32c50777",
+      "action": "translate",
+      "new_text": "Subset of `ativas` awaiting an agent response.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/carga.ts:31-31",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-6b6f22bd",
+      "action": "translate",
+      "new_text": "Assigned conversations with no first response yet.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/carga.ts:33-33",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-ec3e315d",
+      "action": "translate",
+      "new_text": "Most recent assignment time; null means never assigned.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/carga.ts:35-35",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-60aa4fd2",
+      "action": "translate",
+      "new_text": "Weight for a conversation awaiting the agent, default 2.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/carga.ts:49-49",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-0431daea",
+      "action": "translate",
+      "new_text": "Weight for a conversation awaiting the customer, default 1.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/carga.ts:51-51",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-2008b3cb",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/carga.ts:62-62",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-763fd8dd",
+      "action": "translate",
+      "new_text": "Agent weighted load. Clamp `aguardandoAtendente` to `ativas` so inconsistent data cannot make the other term negative.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/distribuicao/carga.ts:70-75; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-179aeb24",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/carga.ts:92-92",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-5386045d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/distribuicao.teste.ts:126-126",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-9d3e01be",
+      "action": "translate",
+      "new_text": "Idle agent load is 10; busy agent load is 12. Round-robin by fewer tickets would pick the busy agent (6 < 10); actual load picks the idle agent.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/distribuicao/distribuicao.teste.ts:157-157; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d6422040",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/distribuicao.teste.ts:39-39",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-f3585b37",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/distribuicao/distribuicao.teste.ts:89-89",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-7ef5dcc2",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/esforco.teste.ts:123-123",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-6dd43962",
+      "action": "translate",
+      "new_text": "Agent messages in minutes after 10:00: 0, 3, 8, 25, 30, 31, 60. Gaps are 3, 5, 17, 5, 1, 29 minutes; only gaps up to 10 count, giving 8 then 6 minutes and no later time. Session time is 14 minutes (840 seconds) across three blocks.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/esforco.teste.ts:174-180",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-5c47b96d",
+      "action": "translate",
+      "new_text": "Weighted mean: 9,600 ÷ 12 = 800 seconds. Mean of daily means would be (600 + 1,800) ÷ 2 = 1,200 seconds.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/esforco.teste.ts:264-264",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-26a3dbd2",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/esforco.teste.ts:38-38",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-c8403cb8",
+      "action": "translate",
+      "new_text": "Manual calculation: writing 400 message and 100 internal-note characters gives 500 × 60 ÷ 200 = 150 s; reading 2,000 characters gives 2,000 × 60 ÷ 1,000 = 120 s; listening to customer audio adds 45 s; 60,000 bytes of agent audio at 2,000 bytes/s adds 30 s. Total effort is 345 s. The 600-character canned response is excluded and would add 180 s if typed.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/esforco.teste.ts:86-94",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-b053b04a",
+      "action": "translate",
+      "new_text": "Deterministic ticket-effort measure from Annex B of `Relatorio_Capacidade_Capital_Escola_90dias.docx`, validated in production and collected by `~/digisac-esforco`, repeated in `2026-09-05-pipe-design.md` §4.4. This is arithmetic, not AI classification. Per-conversation seconds: agent-written characters ÷ 200 per minute; customer-read characters ÷ 1,000 per minute; received audio duration at 1×; recorded audio duration; and, without duration metadata, estimated Opus size at about 16 kbps or 2 KB/s. The original report assumes manually typed text, so canned-response content is excluded from effort and reported separately.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/esforco/regua.ts:1-18; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e0bf06bd",
+      "action": "translate",
+      "new_text": "Apply the measure to a conversation. Departures from the literal spec: agent-written internal notes (`direcao: 'interna'`) count as typing; bot and system messages produce no typing or reading effort; an agent's own outbound audio is speaking rather than listening.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/esforco/regua.ts:113-122; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-ef443a59",
+      "action": "translate",
+      "new_text": "Canned responses and templates were not manually typed, so exclude them from effort",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/esforco/regua.ts:147-147; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-81401bce",
+      "action": "translate",
+      "new_text": "and record them separately as required by the original report.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/esforco/regua.ts:148-148; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-aea686c5",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:166-166",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-3160c53a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:189-189",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-700dbfa6",
+      "action": "translate",
+      "new_text": "Opus audio at about 16 kbps means 16,000 bits/s ÷ 8 = 2,000 bytes/s. The report's \"2 KB/s\" is decimal, not 2 KiB.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/esforco/regua.ts:28-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6d3fae7d",
+      "action": "translate",
+      "new_text": "Duration in seconds from provider metadata; null when absent.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/esforco/regua.ts:46-46; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-88833691",
+      "action": "translate",
+      "new_text": "File size used to estimate duration when metadata is absent.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:48-48",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-5876d4d9",
+      "action": "translate",
+      "new_text": "Agent responsible for the message; bot messages have none.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:60-60",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-1a056842",
+      "action": "translate",
+      "new_text": "Set when content came from a canned response rather than manual typing.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:62-62",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-725d4bf6",
+      "action": "translate",
+      "new_text": "Characters manually typed by the agent, excluding canned responses.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:71-71",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-1c0babe4",
+      "action": "translate",
+      "new_text": "Canned-response characters, reported separately and excluded from effort.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:77-77",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-824dd6e1",
+      "action": "translate",
+      "new_text": "Total effort in seconds, excluding canned responses.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:79-79",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-42bc090f",
+      "action": "translate",
+      "new_text": "Effort that canned-response text would add if counted as typing.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:81-81",
+      "notes": ""
+    }
+  ]
+}

@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { diferenca, registrarAuditoria } from '../src/auditoria.js';
-import type { TransacaoPipe } from '../src/tenant.js';
+import type { TransactionPipe } from '../src/tenant.js';
 
 /**
- * O log é lido por gente do suporte e sai em auditoria de contrato. Estes
- * testes protegem duas coisas: que segredo nunca chegue lá, e que o registro
- * diga o que mudou em vez de repetir o objeto inteiro.
+ * Support staff read the log, which also appears in contract audits. These tests ensure secrets never reach it and each record describes the change instead of repeating the entire object.
  */
 describe('auditoria', () => {
   function txFalsa() {
@@ -16,14 +14,14 @@ describe('auditoria', () => {
           gravado.push(v);
         },
       }),
-    } as unknown as TransacaoPipe;
+    } as unknown as TransactionPipe;
     return { tx, gravado };
   }
 
   it('grava ator, ação e objeto', async () => {
     const { tx, gravado } = txFalsa();
     await registrarAuditoria(tx, 't-1', {
-      ator: { tipo: 'usuario', id: 'u-1', ip: '10.0.0.1' },
+      ator: { type: 'usuario', id: 'u-1', ip: '10.0.0.1' },
       acao: 'alterou',
       objetoTipo: 'fila',
       objetoId: 'f-1',
@@ -42,12 +40,12 @@ describe('auditoria', () => {
     });
   });
 
-  it('NUNCA registra segredo, mesmo quando vem no objeto', async () => {
-    // Gravar token no log desfaria, num lugar mais visível, a cifra que o
+  it('Never write secrets from an audit object to the log', async () => {
+    // Logging a token would undo the encryption in `segredo.ts` in a more visible place.
     // `segredo.ts` aplica no banco.
     const { tx, gravado } = txFalsa();
     await registrarAuditoria(tx, 't-1', {
-      ator: { tipo: 'usuario', id: 'u-1' },
+      ator: { type: 'usuario', id: 'u-1' },
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: 'c-1',
@@ -61,10 +59,10 @@ describe('auditoria', () => {
     expect(depois).not.toHaveProperty('config');
   });
 
-  it('sistema não tem id, e isso não é erro', async () => {
+  it('Record a system audit event without an actor ID', async () => {
     const { tx, gravado } = txFalsa();
     await registrarAuditoria(tx, 't-1', {
-      ator: { tipo: 'sistema' },
+      ator: { type: 'sistema' },
       acao: 'desativou',
       objetoTipo: 'canal',
       objetoId: 'c-1',
@@ -77,7 +75,7 @@ describe('auditoria', () => {
     const { tx, gravado } = txFalsa();
     const quando = new Date('2026-09-07T12:00:00Z');
     await registrarAuditoria(tx, 't-1', {
-      ator: { tipo: 'usuario', id: 'u-1' },
+      ator: { type: 'usuario', id: 'u-1' },
       acao: 'criou',
       objetoTipo: 'pausa',
       objetoId: 'p-1',
@@ -88,7 +86,7 @@ describe('auditoria', () => {
   });
 
   it('a diferença traz só o que mudou', () => {
-    // Quem lê o log quer saber que a capacidade foi de 5 para 8, não reler as
+    // Log readers need to see that capacity changed from 5 to 8, not reread the
     // quinze colunas que continuaram iguais.
     const d = diferenca(
       { nome: 'Comercial', capacidade: 5, ativa: true },
@@ -99,8 +97,8 @@ describe('auditoria', () => {
   });
 
   it('null e undefined são a mesma ausência, e não viram mudança falsa', () => {
-    // O driver devolve `null` e o formulário manda `undefined`. Sem isto, todo
-    // salvamento registraria mudança em campo vazio que ninguém tocou.
+    // The driver returns `null` while the form sends `undefined`. Without this, every
+    // save would log a change to an empty field nobody touched.
     const d = diferenca({ cor: null }, { cor: undefined });
     expect(d.antes).toEqual({});
     expect(d.depois).toEqual({});

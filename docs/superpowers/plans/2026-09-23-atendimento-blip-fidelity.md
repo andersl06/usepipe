@@ -21,11 +21,11 @@
 ### Task 1: Filtros rápidos e estados de Monitoramento
 
 **Files:**
-- Modify: `apps/gestao-vite/src/componentes/filtros-rapidos.tsx`
-- Modify: `apps/gestao-vite/src/lib/filtros-monitoramento.ts`
-- Modify: `apps/gestao-vite/src/paginas/operacao/monitoramento.tsx`
-- Modify: `apps/gestao-vite/src/paginas/operacao/atendimento.css`
-- Test: `apps/gestao-vite/tests/filtros-monitoramento.test.ts`
+- Modify: `apps/management-vite/src/componentes/filtros-rapidos.tsx`
+- Modify: `apps/management-vite/src/lib/filtros-monitoramento.ts`
+- Modify: `apps/management-vite/src/paginas/operacao/monitoramento.tsx`
+- Modify: `apps/management-vite/src/paginas/operacao/atendimento.css`
+- Test: `apps/management-vite/tests/filtros-monitoramento.test.ts`
 
 **Interfaces:**
 - Consumes: `Busca`, catálogos de filas/atendentes e query string existentes.
@@ -45,20 +45,20 @@ Substituir o retorno `null` por estado de carregamento com esqueleto estável e 
 
 - [ ] **Step 4: Executar testes da tarefa**
 
-Run: `pnpm --filter @pipe/gestao-vite test -- filtros-monitoramento.test.ts`
+Run: `pnpm --filter @pipe/management-vite test -- filtros-monitoramento.test.ts`
 Expected: PASS.
 
 ### Task 2: Coerência funcional e visual do Histórico
 
 **Files:**
-- Modify: `apps/gestao-vite/src/paginas/operacao/historico.tsx`
-- Modify: `apps/gestao-vite/src/componentes/lista-historico.tsx`
-- Modify: `apps/gestao-vite/src/lib/historico.ts`
-- Modify: `apps/gestao-vite/src/paginas/operacao/atendimento.css`
+- Modify: `apps/management-vite/src/paginas/operacao/historico.tsx`
+- Modify: `apps/management-vite/src/componentes/lista-historico.tsx`
+- Modify: `apps/management-vite/src/lib/historico.ts`
+- Modify: `apps/management-vite/src/paginas/operacao/atendimento.css`
 - Modify: `apps/api/src/controladores/gestao-operacao.ts`
 - Test: `apps/api/tests/historico.test.ts`
-- Test: `apps/gestao-vite/tests/historico.test.ts`
-- Test: `apps/gestao-vite/tests/csv-historico.test.ts`
+- Test: `apps/management-vite/tests/historico.test.ts`
+- Test: `apps/management-vite/tests/csv-historico.test.ts`
 
 **Interfaces:**
 - Consumes: consulta existente, `CartaoHistorico`, `montarCsv` e filtros da URL.
@@ -78,7 +78,7 @@ Cartões de 88 px, padding 20 px, raio 16 px, labels 12/400, values 16/700, pass
 
 - [ ] **Step 4: Executar testes da tarefa**
 
-Run: `pnpm --filter @pipe/api test -- historico.test.ts && pnpm --filter @pipe/gestao-vite test -- historico.test.ts csv-historico.test.ts`
+Run: `pnpm --filter @pipe/api test -- historico.test.ts && pnpm --filter @pipe/management-vite test -- historico.test.ts csv-historico.test.ts`
 Expected: PASS.
 
 ### Task 3: Validação visual e regressão
@@ -93,7 +93,7 @@ Expected: PASS.
 
 - [ ] **Step 1: Rodar testes, typecheck e build**
 
-Run: `pnpm --filter @pipe/gestao-vite test && pnpm --filter @pipe/gestao-vite typecheck && pnpm --filter @pipe/gestao-vite build`
+Run: `pnpm --filter @pipe/management-vite test && pnpm --filter @pipe/management-vite typecheck && pnpm --filter @pipe/management-vite build`
 Expected: PASS.
 
 - [ ] **Step 2: Validar com navegador real**

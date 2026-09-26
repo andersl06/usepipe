@@ -20,3 +20,5 @@ referencias-blip/
 
 # Worktrees locais de desenvolvimento.
 .worktrees/
+
+.dev-logs/

@@ -1,0 +1,316 @@
+/*
+ * ==================================================== Overview (`visao-geral/`)
+ *
+ *    `generalDashboard`, template 7780 from `portal.js`, and the `#general-dashboard`, `.general-card-*`, `.counter-child-card`, `analytics-chart`, `.no-content-found` and `.general-info` rules from `portal.css`.
+ *
+ *    The color mapping:
+ *      #f6f6f6 `--color-surface-1` (`.card`)               → `--surface`
+ *      #e0e0e0 `--color-surface-2` (`.card`'s shadow)     → `--surface-2`
+ *      #282828 `--color-content-default` (titles, numbers) → `--ink`
+ *      #738192 `.bp-c-rooftop` (filter band)          → `--ink-3`
+ *      #a8bfc4 (`.no-content-found`)                        → `--ink-3`
+ *      #505f79 / #3a4a65 (`.general-info` title / body)  → `--ink-2` / `--ink`
+ *      the chart's two lines (Google Charts color)    → `--p-marca` / `--p-alerta-conteudo`
+ *    ==========================================================================
+ */
+
+/*
+ * `<custom-title>`: `div.flex.flex-items-center` with the `bds-typo fs-32 extra-bold` and, after a `&nbsp;`, another `bds-typo fs-32` with `bds-icon info solid medium` (24). Both fs-32s carry the 22px margin.
+ */
+.vg-titulo {
+  display: flex;
+  align-items: center;
+}
+
+.vg-titulo-texto {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.vg-titulo-ajuda {
+  display: flex;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* `class="hydrated mh3"`: .625rem de cada lado. */
+.vg-botao {
+  margin: 0 10px;
+}
+
+.vg-exportar {
+  display: flex;
+  align-items: center;
+}
+
+/* `#general-dashboard { margin-bottom: 10px }` */
+.vg-panel {
+  margin-bottom: 10px;
+}
+
+/*
+ * `#dashboard-filters.bp-c-rooftop.flex.justify-between.z-5.relative`, and the
+ *    `.picker-view.mr2` selector: `flex: 1`, right-aligned, 5 to the right.
+ */
+.vg-filters {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  color: var(--ink-3);
+}
+
+.vg-filter-period {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 5px;
+}
+
+/* `div.flex.flex-wrap.z-2`, com `#general-dashboard .flex { flex-wrap: nowrap }`. */
+.vg-cards {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+/*
+ * `.card.z-2.ma0.pa4.flex1.mt4.mr2.ml2.card-content`: 20 on top, 5 on the sides,
+ *    20 padding, and `#general-dashboard .card-content` in a column with
+ *    `space-between`. `.flex1` is `flex: 1.5`; `.flex3`, `flex: 3`.
+ */
+.vg-card {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 20px 5px 0;
+  padding: 20px;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 2px 12px 0 var(--surface-2);
+}
+
+.vg-card--users {
+  flex: 1.5;
+}
+
+.vg-card--messages {
+  flex: 3;
+}
+
+.vg-card-header {
+  display: flex;
+  flex-direction: column;
+}
+
+/* `bds-typo fs-24 bold` e `fs-16 regular` com `.general-card-description
+   { line-height: 24px }`. */
+.vg-card-title {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.vg-card-description {
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--ink);
+}
+
+.vg-contadores {
+  display: flex;
+}
+
+/* `counter-child-card { flex: 1 }` e `.counter-child-card.ml2.mr2`: raio 8,
+   coluna com `space-between`, `height: 11vh`, 20 em cima, recheio 10. */
+.vg-contador {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 11vh;
+  margin: 20px 5px 0;
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--ink);
+}
+
+.vg-contador-nome {
+  display: flex;
+  align-items: center;
+}
+
+.vg-contador-nome p {
+  font-weight: 700;
+}
+
+/* `bds-icon info solid x-small` (16) com `.counter-child-card .icon
+   { margin-left: 5px }`. */
+.vg-contador-dica {
+  display: flex;
+  margin-left: 5px;
+}
+
+.vg-counter-value {
+  font-weight: 700;
+}
+
+/*
+ * `div.mr2.ml2` and `div.row.mr2.ml2`: 5 on the sides; `.row` sets 3 on top and 9 at the bottom, and the `analytics-chart` inside, `margin-top: 1.5rem`.
+ */
+.vg-margem {
+  margin: 0 5px;
+}
+
+.vg-linha {
+  margin: 3px 5px 9px;
+}
+
+.vg-grafico {
+  display: block;
+  width: 100%;
+  margin-top: 24px;
+}
+
+/* `.u-full-width.analytics-chart-card.tc` */
+.vg-chart-card {
+  text-align: center;
+}
+
+/* `.font-size-24px p { font-size: 24px !important }` */
+.vg-grafico--24 .an-card-titulo {
+  font-size: 24px;
+}
+
+/*
+ * `.no-content-found`: 31 height, `padding: 80px 0`, color #a8bfc4; the text is the `bds-typo fs-20` inside.
+ */
+.vg-sem-conteudo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 31px;
+  padding: 80px 0;
+  color: var(--ink-3);
+}
+
+/* `div.pa4 > chart`: recheio 20. */
+.vg-grafico-area {
+  padding: 20px;
+}
+
+.vg-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 250px;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.vg-linhas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.vg-grade {
+  stroke: var(--surface-3);
+  stroke-width: 1;
+}
+
+.vg-eixo {
+  font-size: 12px;
+  fill: var(--ink-2);
+}
+
+.vg-legenda {
+  font-size: 12px;
+  fill: var(--ink);
+}
+
+.vg-serie polyline {
+  fill: none;
+  stroke-width: 2;
+}
+
+.vg-serie line {
+  stroke-width: 2;
+}
+
+.vg-serie--0 polyline,
+.vg-serie--0 line {
+  stroke: var(--p-marca);
+}
+
+.vg-serie--1 polyline,
+.vg-serie--1 line {
+  stroke: var(--p-alerta-conteudo);
+}
+
+/*
+ * The `chart type="list"`: Google's table, header in `--color-content-default` (`.active-message-chart-list thead tr th`).
+ */
+.vg-lista {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: left;
+}
+
+.vg-lista th,
+.vg-lista td {
+  padding: 6px;
+  color: var(--ink);
+}
+
+.vg-lista th {
+  font-weight: 700;
+}
+
+/* ---------------------------------------------- o modal de ajuda (6411)
+
+   `h1.mb5.mt4-1` vazio (2.5rem embaixo), `div.mh1.ph1` (2.5 + 2.5 de cada
+   lado), `article.flex.mb1.general-info.tl` com as colunas do Skeleton:
+   `four columns` e `eight columns`. */
+.vg-ajuda {
+  display: flex;
+  margin: 40px 2.5px 2.5px;
+  padding: 0 2.5px;
+  text-align: left;
+}
+
+.vg-help-image {
+  width: 30.6666%;
+}
+
+.vg-ajuda-texto {
+  width: 65.3333%;
+  margin-left: 4%;
+}
+
+.vg-ajuda-titulo {
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.vg-ajuda-corpo {
+  color: var(--ink);
+}
+
+.vg-ajuda-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--p-marca);
+}
+
+.vg-ajuda-saiba {
+  font-weight: 700;
+}
