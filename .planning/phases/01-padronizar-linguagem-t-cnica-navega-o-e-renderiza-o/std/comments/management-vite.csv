@@ -722,7 +722,7 @@ gestao-vite-comment-55893fa4,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,10,19
  * `POST /v1/gestao/acoes/:nome`, e o `Resultado` volta. Deu certo: as
  * leituras em cache são invalidadas, que é o `revalidatePath` de antes.
  */",translate,"Gestao form actions now call `api` while keeping the old Server Action signature (formerly `revalidatePath` for refresh) `(anterior, FormData) => Resultado`, so forms retain `useActionState` and `envioQuePreserva`. Convert `FormData` to JSON, collecting repeated keys like `getAll`; post to `POST /v1/gestao/acoes/:nome`, return `Resultado`, and invalidate cached reads after success.",integration,apps/gestao-vite/src/lib/acoes.ts:10-19,,applied
-gestao-vite-comment-29bc05ed,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,4,4,jsdoc,3,"/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */",remove,,other,apps/gestao-vite/src/lib/acoes.ts:4-4,,proposed
+gestao-vite-comment-29bc05ed,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,4,4,jsdoc,3,"/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */",remove,,other,apps/gestao-vite/src/lib/acoes.ts:4-4,,applied
 gestao-vite-comment-36aa8871,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,50,50,block,0,/* Comunicação */,remove,,other,apps/gestao-vite/src/lib/acoes.ts:50-50,,applied
 gestao-vite-comment-0965660a,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,52,54,block,4,"/* `salvarModelo` saiu: `comunicacao-modelos-formulario.tsx` cria modelo direto
    em `POST /v1/canais/whatsapp/:id/modelos` (a Meta é a fonte agora, não mais
@@ -4506,7 +4506,7 @@ gestao-vite-comment-5dda171d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
 gestao-vite-comment-422af675,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,115,116,block,3,"/* `.autocomplete-wrapper`: o rótulo diz ""campanha"" porque o de template
             está ligado (`y || v`); o de Campanha fica escondido pela flag. */",translate,"`.autocomplete-wrapper`: the label says ""campanha"" because the template one is enabled (`y || v`); the Campaign one is hidden by the flag.",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:115-116,,applied
 gestao-vite-comment-d50d4ad2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,141,141,block,1,/* `.select__icon`: o `error` sólido só aparece com valor (`icon-hidden`). */,translate,`.select__icon`: the solid `error` icon only appears with a value (`icon-hidden`).,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:141-141,,applied
-gestao-vite-comment-96c28723,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,31,31,jsdoc,0,/** `/active-messages/template-names`: as opções do autocomplete. */,translate,`/active-messages/template-names`: the autocomplete's options.,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:31-31,,proposed
+gestao-vite-comment-96c28723,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,31,31,jsdoc,0,/** `/active-messages/template-names`: as opções do autocomplete. */,translate,`/active-messages/template-names`: the autocomplete's options.,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:31-31,,applied
 gestao-vite-comment-9cccdedf,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,4,14,jsdoc,5,"/**
  * O filtro de Mensagens ativas — `St` (analytics-main.js 33556), dicionário `gt`.
  *

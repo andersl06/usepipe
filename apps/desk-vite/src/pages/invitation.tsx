@@ -5,18 +5,7 @@ import { inboundWithGoogleUrl } from '../lib/inbound';
 import { FundoPipe } from './fundo-pipe';
 
 /**
- * O convite visto por quem ainda está do lado de fora.
- *
- * Rota pública, como a de entrada — e pelo mesmo motivo da API não exigir
- * sessão em `GET /v1/convites/:token`: pedir a conta que o convite existe para
- * criar seria um ciclo.
- *
- * Ela mostra o MÍNIMO que a API devolve: para quem é, com que papel, de que
- * empresa e até quando vale. Quem tem o link já sabe o e-mail; o resto da conta
- * não é assunto de quem ainda não entrou.
- *
- * O botão manda para `/v1/auth/google?convite=<token>`, que é o caminho de quem
- * não tem domínio verificado: é o convite que decide o tenant, e não o domínio.
+ * Invitation screen is public like sign-in: requiring a session for `GET /v1/convites/:token` would create a cycle for the account this invitation creates. Show only the API's minimal invite details: recipient, role, company, expiry. Possession of the link already reveals the email, not other account data. Continue through `/v1/auth/google?convite=<token>` for users without a verified domain; the invitation, not the domain, selects the tenant.
  */
 const DATA = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' });
 
@@ -68,8 +57,8 @@ export function PageInvitation() {
           ) : (
             <>
               <h1 id="convite-titulo">Este convite não serve mais</h1>
-              {/* Vencido, já usado e inexistente dão a MESMA tela: separar
-                contaria a quem tem o link se aquele token um dia existiu. */}
+              {/* Expired, used, and nonexistent invitations share the same screen so the link
+                  holder cannot learn whether a token ever existed. */}
               <p className="login-sub">
                 Convite vale sete dias e uma vez só. Peça um novo a quem administra o Pipe na sua
                 empresa.
