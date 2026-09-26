@@ -72,7 +72,7 @@ interface CorpoDeEnvio {
   parametros?: string[];
   attachmentId?: string;
   mediaUrl?: string;
-  atendente_id?: string;
+  agentId?: string;
   resposta_pronta_id?: string;
 }
 
@@ -227,9 +227,9 @@ export class ConversationsController {
     const enfileirada = await sendMessage({
       tenantId: ator.tenantId,
       conversationId: id,
-      agentId: ator.viaSession ? ator.userId : (corpo.atendente_id ?? null),
+      agentId: ator.viaSession ? ator.userId : (corpo.agentId ?? null),
       exigirAtribuicao: ator.viaSession,
-      ...(corpo.type ? { tipo: corpo.type } : {}),
+      ...(corpo.type ? { type: corpo.type } : {}),
       texto: corpo.texto ?? null,
       templateId: corpo.template_id ?? null,
       ...(corpo.parametros ? { parametros: corpo.parametros } : {}),

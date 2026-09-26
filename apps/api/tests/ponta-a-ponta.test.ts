@@ -296,7 +296,7 @@ describe('caminho da falha', () => {
     const resposta = await comApi(`/v1/conversations/${conversaId}/messages`, {
       method: 'POST',
       body: JSON.stringify({
-        tipo: 'documento',
+        type: 'documento',
         texto: 'segue o instalador',
         attachmentId: attachment!.id,
         agentId: cenario.agentId,
