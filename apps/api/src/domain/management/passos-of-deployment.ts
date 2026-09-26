@@ -60,7 +60,7 @@ function quantos(n: number, um: string, varios: string): string {
 
 function passoOfContacts(
   s: SignalsOfDeployment,
-): Omit<PassoOfDeployment, 'id' | 'titulo' | 'acao'> {
+): Omit<PassoOfDeployment, 'id' | 'title' | 'acao'> {
   const ultima = s.lastImport;
   if (!ultima) {
     return {
