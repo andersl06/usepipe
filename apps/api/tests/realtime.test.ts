@@ -12,7 +12,8 @@ process.env['PIPE_ORIGENS'] = 'http://localhost:3200';
 // A fast ping so the test does not wait 15 seconds for the control frame.
 process.env['PIPE_WS_PING_MS'] = '150';
 
-const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
+const { createToken } = await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 const { evento, publicar, connectionsLive } = await import('../src/realtime.js');

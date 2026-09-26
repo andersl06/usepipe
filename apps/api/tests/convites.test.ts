@@ -14,7 +14,8 @@ process.env['GOOGLE_CLIENTE_ID'] = 'cliente-de-teste.apps.googleusercontent.com'
 process.env['GOOGLE_CLIENTE_SEGREDO'] = 'segredo-de-teste';
 process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/callback';
 
-const { NOME_DO_COOKIE, createToken, hashDoToken } = await import('@pipe/authentication');
+const { createToken, hashDoToken } = await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { acceptInvitation, createInvitation, readInvitation } = await import('../src/domain/convites.js');
 const { normalizeDomain, logDomain, checkDomain } =

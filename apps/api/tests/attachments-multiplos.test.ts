@@ -10,7 +10,8 @@ process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
+const { createToken } = await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 const { useStorage } = await import('../src/domain/attachment.js');

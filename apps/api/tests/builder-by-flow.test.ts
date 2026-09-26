@@ -10,7 +10,8 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
+const { createToken } = await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { ID_DA_RAIZ_PADRAO, ID_OF_ATTENDANCE_DEFAULT } = await import('@pipe/core');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');

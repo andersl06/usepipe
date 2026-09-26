@@ -9,7 +9,8 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
+const { createToken } = await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -173,7 +174,7 @@ describe('GET /v1/etiquetas — o catálogo do tenant', () => {
   });
 });
 
-describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', () => {
+describe('POST/DELETE /v1/conversations/:id/labels — a conversa aberta', () => {
   it('aplica, é idempotente, remove, e cada gesto grava auditoria', async () => {
     const { conversationId } = await createConversation(agentId);
 

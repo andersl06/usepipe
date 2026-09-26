@@ -11,7 +11,8 @@ process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
+const { createToken } = await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { encontrarPalavrasProibidas, normalizarTermo } = await import(
   '../src/domain/management/palavras-proibidas.js'
@@ -367,7 +368,7 @@ describe(`DELETE ${CAMINHO}/:id`, () => {
  * A recusa no envio
  * ========================================================================= */
 
-describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do atendente', () => {
+describe('POST /v1/conversations/:id/messages — a lista barra o envio do atendente', () => {
   it('recusa (400) com a palavra encontrada, e nada é gravado; sem acento e sem caixa; palavra desativada não barra; outro tenant não é afetado', async () => {
     const marca = randomUUID().slice(0, 6);
     const palavra = `idiota${marca}`;

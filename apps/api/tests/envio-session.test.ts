@@ -8,7 +8,8 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 5).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
+const { createToken } = await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 

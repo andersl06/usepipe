@@ -15,7 +15,8 @@ process.env['PIPE_COOKIE_DOMINIO'] = '';
 // O `.pfx` e a senha do certificado mTLS entram cifrados (`segredo.ts`).
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 23).toString('base64')}`;
 
-const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
+const { createToken } = await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { createDatabase, closeDatabase, seed } = await import('@pipe/db');
 const { entregarPendentes } = await import('../src/webhooks-saida.js');

@@ -16,8 +16,9 @@ process.env['GOOGLE_CLIENTE_SEGREDO'] = 'segredo-de-teste';
 process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/callback';
 process.env['PIPE_METRICS_TOKEN'] = 'token-de-metricas';
 
-const { InboundRefused, LoginError, NOME_DO_COOKIE, createToken } =
+const { InboundRefused, LoginError, createToken } =
   await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { baseDoApp, codigoDaRecusa, destinationAbsolute, urlOfError } = await import(
   '../src/controllers/login.js',

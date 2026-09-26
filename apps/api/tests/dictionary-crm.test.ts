@@ -10,7 +10,8 @@ process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 9).toString('ba
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
 const { cifrar, keyringOfEnvironment } = await import('@pipe/db');
-const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
+const { createToken } = await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { readDictionary, lerMetadados, syncDictionary } = await import(
   '../src/domain/dictionary-crm.js'
 );
