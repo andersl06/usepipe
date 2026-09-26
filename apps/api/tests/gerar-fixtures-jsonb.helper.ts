@@ -357,7 +357,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
         ${cenario.tenantId}::uuid, ${cenario.channelId}::uuid, 'boas_vindas_exemplo', 'pt_BR', 'utilidade',
         'aprovado', 'Olá {{1}}, seu pedido {{2}} foi confirmado.', ${JSON.stringify(variablesDefault)}::jsonb
       )
-      returning id, variaveis
+      returning id, variaveis as "variables"
     `);
     for (const t of templateRows) {
       acumular('template-variables.json', { id: t.id, value: t.variables });

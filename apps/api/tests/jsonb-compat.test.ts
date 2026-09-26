@@ -301,11 +301,11 @@ describe('jsonb-compat: outbox', () => {
     }
 
     const pedido = capturado.find(
-      (p): p is { para: string; content: unknown } =>
+      (p): p is { para: string; conteudo: unknown } =>
         typeof p === 'object' && p !== null && (p as { para?: string }).para === '5511900000999',
     );
     expect(pedido).toBeDefined();
-    golden('outbox-delivery.json', { content: pedido!.content });
+    golden('outbox-delivery.json', { conteudo: pedido!.conteudo });
   });
 
   it('entrega_webhook.payload é lido pelo remetente de webhook de verdade, fetch mockado', async () => {

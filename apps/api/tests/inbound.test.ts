@@ -130,18 +130,18 @@ describe('GET /v1/eu', () => {
     expect(resposta.status).toBe(200);
 
     const eu = (await resposta.json()) as {
-      user: { id: string; name: string; email: string; avatarUrl: string | null };
-      tenant: { id: string; name: string; slug: string; plan: string };
+      user: { id: string; nome: string; email: string; avatarUrl: string | null };
+      tenant: { id: string; nome: string; slug: string; plano: string };
       permissions: string[];
-      origin: string;
+      origem: string;
     };
 
     expect(eu.user.id).toBe(cenario.agentId);
-    expect(eu.user.name).toBe('Ana Ribeiro');
+    expect(eu.user.nome).toBe('Ana Ribeiro');
     expect(eu.user.avatarUrl).toBeNull();
     expect(eu.tenant.id).toBe(cenario.tenantId);
-    expect(eu.tenant.plan).toBe('essencial');
-    expect(eu.origin).toBe('google');
+    expect(eu.tenant.plano).toBe('essencial');
+    expect(eu.origem).toBe('google');
 
     // // Union of both roles, without repeating `conversa.ver`.
     expect(eu.permissions).toEqual(PERMISSIONS);
@@ -236,7 +236,7 @@ describe('GET /v1/auth/google/callback', () => {
       headers: { cookie: 'pipe_challenge=nao-e-base64-de-json' },
     });
     expect(resposta.status).toBe(302);
-    expect(resposta.headers.get('location')).toContain('erro=falha_no_provedor');
+    expect(resposta.headers.get('location')).toContain('error=falha_no_provedor');
   });
 });
 
@@ -353,7 +353,7 @@ describe('a origem de quem começou o login', () => {
   it('origem da lista manda a volta para o aplicativo certo', () => {
     expect(destinationAbsolute('/leads', 'http://gestao.teste')).toBe('http://gestao.teste/leads');
     expect(urlOfError('without_invitation', 'http://gestao.teste')).toBe(
-      'http://gestao.teste/entrar?error=sem_convite',
+      'http://gestao.teste/entrar?error=without_invitation',
     );
   });
 

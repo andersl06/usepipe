@@ -136,7 +136,7 @@ describe('send evaluation', () => {
       motivo: null,
       restanteSeg: 50_400, // de 20:00 do dia 2 até 10:00 do dia 3 = 14 horas
       categoriaCobranca: 'livre',
-      dentroDaJanela: true,
+      withinWindow: true,
     });
   });
 

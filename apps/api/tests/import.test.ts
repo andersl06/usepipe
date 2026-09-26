@@ -219,7 +219,7 @@ describe('linhas inválidas', () => {
   });
 
   it('Reject an empty import file before saving anything', async () => {
-    await expect(runImport(A, '   \n')).rejects.toMatchObject({ codigo: 'arquivo_vazio', status: 422 });
+    await expect(runImport(A, '   \n')).rejects.toMatchObject({ codigo: 'file_empty', status: 422 });
   });
 });
 
@@ -262,7 +262,7 @@ describe('Check import-route permission against the database', () => {
     const agent = await userWith(A.tenantId, `atendente-${S}`, 'atendente');
     await expect(
       controller.import(request(A.tenantId, agent), 'nome,telefone\nX,11911112222\n', undefined),
-    ).rejects.toMatchObject({ codigo: 'sem_permissao', status: 403 });
+    ).rejects.toMatchObject({ codigo: 'without_permission', status: 403 });
   });
 
   it('administrador importa, e o corpo cru é o CSV', async () => {

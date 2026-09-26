@@ -66,13 +66,13 @@ describe('conversão de caracteres em segundos', () => {
 
 describe('audio duration', () => {
   const casos: { nome: string; attachment: unknown; esperado: number | null }[] = [
-    { nome: 'metadado presente manda', attachment: { duracaoSeg: 12, bytes: 999_999 }, esperado: 12 },
+    { nome: 'metadado presente manda', attachment: { durationSeg: 12, bytes: 999_999 }, esperado: 12 },
     { nome: 'sem metadado, estima por tamanho', attachment: { bytes: 30_000 }, esperado: 15 },
-    { nome: 'metadado zero é duração válida', attachment: { duracaoSeg: 0, bytes: 4000 }, esperado: 0 },
+    { nome: 'metadado zero é duração válida', attachment: { durationSeg: 0, bytes: 4000 }, esperado: 0 },
     { nome: 'sem metadado e sem tamanho', attachment: {}, esperado: null },
     { nome: 'tamanho zero não estima nada', attachment: { bytes: 0 }, esperado: null },
     { nome: 'anexo ausente', attachment: null, esperado: null },
-    { nome: 'duração negativa é ignorada e cai para o tamanho', attachment: { duracaoSeg: -3, bytes: 8000 }, esperado: 4 },
+    { nome: 'duração negativa é ignorada e cai para o tamanho', attachment: { durationSeg: -3, bytes: 8000 }, esperado: 4 },
   ];
 
   for (const caso of casos) {

@@ -15,7 +15,7 @@
     }
   ],
   "estadoFinalId": "boas-vindas",
-  "variaveis": {
+  "variables": {
     "nome": "Ana",
     "opcao": "2",
     "desk_forwardToDeskState_status": "Success",

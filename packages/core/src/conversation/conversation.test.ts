@@ -73,7 +73,7 @@ describe('transitar', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(TransitionInvalidError);
       const tipado = error as TransitionInvalidError;
-      expect(tipado.codigo).toBe('transition_invalid');
+      expect(tipado.codigo).toBe('transicao_invalida');
       expect(tipado.de).toBe('encerrada');
       expect(tipado.para).toBe('em_atendimento');
       expect(tipado.message).toContain('encerrada');
@@ -81,7 +81,7 @@ describe('transitar', () => {
   });
 
   it('the no-exception version returns the error in the result', () => {
-    expect(tentarTransitar('na_fila', 'atribuida')).toEqual({ ok: true, estado: 'atribuida' });
+    expect(tentarTransitar('na_fila', 'atribuida')).toEqual({ ok: true, state: 'atribuida' });
     const recusa = tentarTransitar('na_fila', 'em_espera');
     expect(recusa.ok).toBe(false);
     if (!recusa.ok) expect(recusa.error).toBeInstanceOf(TransitionInvalidError);
@@ -128,7 +128,7 @@ describe('aplicar evento', () => {
 
   for (const caso of caminhoFeliz) {
     it(`${caso.de} + ${caso.tipo} = ${caso.para}`, () => {
-      expect(aplicarEvento(caso.de, { tipo: caso.tipo })).toEqual({ estado: caso.para, mudou: true });
+      expect(aplicarEvento(caso.de, { tipo: caso.tipo })).toEqual({ state: caso.para, mudou: true });
     });
   }
 
@@ -141,11 +141,11 @@ describe('aplicar evento', () => {
 
   it('webhook redelivery is idempotent, it does not turn into an exception', () => {
     expect(aplicarEvento('encerrada', { tipo: 'encerrada' })).toEqual({
-      estado: 'encerrada',
+      state: 'encerrada',
       mudou: false,
     });
     expect(aplicarEvento('em_espera', { tipo: 'espera_iniciada' })).toEqual({
-      estado: 'em_espera',
+      state: 'em_espera',
       mudou: false,
     });
   });

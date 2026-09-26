@@ -381,7 +381,7 @@ async function processActions(
       if (flowAction.type === 'ProcessHttp' && context.services.suspendHttp) {
         context.inboundContext.set('process-http-cursor', {
           lista,
-          stateId,
+          estadoId: stateId,
           indice,
         });
       }

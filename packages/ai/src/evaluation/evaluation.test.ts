@@ -183,7 +183,7 @@ const conversation: MessageTranscription[] = [
 interface SaidaGravada {
   respostas: {
     criterioId: string;
-    value: string;
+    valor: string;
     justificativa: string;
     evidencia: string | null;
   }[];
@@ -194,9 +194,9 @@ interface SaidaGravada {
 function duble(saida: SaidaGravada): ChamadaEstruturada {
   return async () =>
     ({
-      dados: saida as never,
+      data: saida as never,
       consumo: consumoDe('claude-sonnet-5', 4_000, 500),
-      modelo: 'claude-sonnet-5',
+      template: 'claude-sonnet-5',
     }) as never;
 }
 
@@ -210,17 +210,17 @@ describe('evaluateConversation', () => {
       chamar: duble({
         confianca: 0.8,
         respostas: [
-          { criterioId: 'c1', value: 'conforme', justificativa: 'saudou', evidencia: 'm2' },
+          { criterioId: 'c1', valor: 'conforme', justificativa: 'saudou', evidencia: 'm2' },
           {
             criterioId: 'c2',
-            value: 'nao_conforme',
+            valor: 'nao_conforme',
             justificativa: 'não confirmou',
             evidencia: 'm2',
           },
-          { criterioId: 'c3', value: '5', justificativa: 'claro', evidencia: null },
+          { criterioId: 'c3', valor: '5', justificativa: 'claro', evidencia: null },
           {
             criterioId: 'c4',
-            value: 'conforme',
+            valor: 'conforme',
             justificativa: 'sem dado exposto',
             evidencia: null,
           },
@@ -244,10 +244,10 @@ describe('evaluateConversation', () => {
         chamar: duble({
           confianca: 0.9,
           respostas: [
-            { criterioId: 'c1', value: 'nao_conforme', justificativa: 'x', evidencia: 'm99' },
-            { criterioId: 'c2', value: 'conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c3', value: '5', justificativa: 'x', evidencia: null },
-            { criterioId: 'c4', value: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c1', valor: 'nao_conforme', justificativa: 'x', evidencia: 'm99' },
+            { criterioId: 'c2', valor: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c3', valor: '5', justificativa: 'x', evidencia: null },
+            { criterioId: 'c4', valor: 'conforme', justificativa: 'x', evidencia: null },
           ],
         }),
       }),
@@ -262,10 +262,10 @@ describe('evaluateConversation', () => {
         chamar: duble({
           confianca: 0.9,
           respostas: [
-            { criterioId: 'c1', value: 'nao_conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c2', value: 'conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c3', value: '5', justificativa: 'x', evidencia: null },
-            { criterioId: 'c4', value: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c1', valor: 'nao_conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c2', valor: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c3', valor: '5', justificativa: 'x', evidencia: null },
+            { criterioId: 'c4', valor: 'conforme', justificativa: 'x', evidencia: null },
           ],
         }),
       }),
@@ -280,10 +280,10 @@ describe('evaluateConversation', () => {
         chamar: duble({
           confianca: 0.9,
           respostas: [
-            { criterioId: 'c1', value: 'conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c2', value: 'conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c3', value: '2', justificativa: 'x', evidencia: null },
-            { criterioId: 'c4', value: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c1', valor: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c2', valor: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c3', valor: '2', justificativa: 'x', evidencia: null },
+            { criterioId: 'c4', valor: 'conforme', justificativa: 'x', evidencia: null },
           ],
         }),
       }),
@@ -298,7 +298,7 @@ describe('evaluateConversation', () => {
         chamar: duble({
           confianca: 0.9,
           respostas: [
-            { criterioId: 'c-inventado', value: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c-inventado', valor: 'conforme', justificativa: 'x', evidencia: null },
           ],
         }),
       }),
@@ -313,8 +313,8 @@ describe('evaluateConversation', () => {
         chamar: duble({
           confianca: 0.9,
           respostas: [
-            { criterioId: 'c1', value: 'conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c1', value: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c1', valor: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c1', valor: 'conforme', justificativa: 'x', evidencia: null },
           ],
         }),
       }),

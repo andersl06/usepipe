@@ -33,9 +33,9 @@ const transcription = buildTranscription([
 function duble(saida: Record<string, unknown>): ChamadaEstruturada {
   return async () =>
     ({
-      dados: saida as never,
+      data: saida as never,
       consumo: consumoDe('claude-sonnet-5', 3_000, 200),
-      modelo: 'claude-sonnet-5',
+      template: 'claude-sonnet-5',
     }) as never;
 }
 

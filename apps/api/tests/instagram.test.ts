@@ -127,7 +127,7 @@ describe('conexão manual (POST /v1/channels/instagram/manual)', () => {
     for (const [extra, message] of recusas) {
       await expect(conectar(A, `recusa-${S}`, extra)).rejects.toMatchObject({
         status: 422,
-        codigo: 'configuracao_invalida',
+        codigo: 'configuration_invalid',
         message: expect.stringContaining(message),
       });
     }
@@ -137,10 +137,10 @@ describe('conexão manual (POST /v1/channels/instagram/manual)', () => {
 
   it('Create a channel and inbox, encrypt secrets, subscribe the webhook, and return its credentials', async () => {
     const token = `ok-${S}`;
-    const feito = await conectar(A, token, { nome: 'Direct da loja' });
+    const feito = await conectar(A, token, { name: 'Direct da loja' });
     const igUserId = ClienteGraphInstagramDuble.idOfAccount(token);
 
-    expect(feito).toMatchObject({ nome: 'Direct da loja', estado: 'conectado', igUserId, erroDeWebhook: null });
+    expect(feito).toMatchObject({ name: 'Direct da loja', state: 'conectado', igUserId, webhookError: null });
     expect(feito.webhook.url).toBe(`https://api.teste/webhooks/instagram/${feito.id}`);
     expect(feito.webhook.verifyToken).toMatch(/^[0-9a-f]{32}$/);
     expect(ClienteGraphInstagramDuble.chamadas).toContainEqual({ acao: 'assinar', igUserId });
@@ -163,10 +163,10 @@ describe('conexão manual (POST /v1/channels/instagram/manual)', () => {
     const token = `unica-${S}`;
     await conectar(A, token);
     await expect(conectar(B, token)).rejects.toMatchObject({
-      codigo: 'configuracao_invalida',
+      codigo: 'configuration_invalid',
       message: 'Esta conta do Instagram já está conectada a outra caixa de entrada.',
     });
-    await expect(conectar(A, token)).rejects.toMatchObject({ codigo: 'configuracao_invalida' });
+    await expect(conectar(A, token)).rejects.toMatchObject({ codigo: 'configuration_invalid' });
     expect(await linhas(sql`select 1 from canal where tenant_id = ${B.tenantId}::uuid`)).toHaveLength(0);
   });
 
@@ -239,8 +239,8 @@ describe('Handle Instagram inbound and outbound webhooks', () => {
     expect((await postar(channelId, payload)).status).toBe(200);
     expect((await postar(channelId, payload)).status).toBe(200);
 
-    const msgs = await linhas<{ conteudo: string; direction: string; conversationId: string }>(
-      sql`select conteudo, direcao, conversa_id from mensagem where id_provedor = ${`mid-1-${S}`}`,
+    const msgs = await linhas<{ conteudo: string; direcao: string; conversationId: string }>(
+      sql`select conteudo, direcao, conversa_id as "conversationId" from mensagem where id_provedor = ${`mid-1-${S}`}`,
     );
     expect(msgs).toHaveLength(1);
     expect(msgs[0]).toMatchObject({ conteudo: 'Olá, quero um orçamento', direcao: 'entrada' });
@@ -253,7 +253,7 @@ describe('Handle Instagram inbound and outbound webhooks', () => {
     expect(contact).toEqual({ telefone_e164: null, canal_tipo: 'instagram' });
 
     const [conversation] = await linhas<{ channelId: string }>(sql`
-      select ib.canal_id from conversa c join inbox ib on ib.id = c.inbox_id where c.id = ${msgs[0]!.conversationId}::uuid
+      select ib.canal_id as "channelId" from conversa c join inbox ib on ib.id = c.inbox_id where c.id = ${msgs[0]!.conversationId}::uuid
     `);
     expect(conversation!.channelId).toBe(channelId);
   });
@@ -282,13 +282,13 @@ describe('Handle Instagram inbound and outbound webhooks', () => {
 
     const resultados = await processarOutbox();
     const meu = resultados.find((r) => r.messageId === enviada.id);
-    expect(meu).toMatchObject({ estado: 'enviada' });
+    expect(meu).toMatchObject({ state: 'enviada' });
     expect(dubleInstagram.chamadas).toContainEqual(
       expect.objectContaining({ para: IGSID, tipo: 'texto', igUserId }),
     );
 
     const [saida] = await linhas<{ idProvider: string; stateDelivery: string }>(
-      sql`select id_provedor, estado_entrega from mensagem where id = ${enviada.id}::uuid`,
+      sql`select id_provedor as "idProvider", estado_entrega as "stateDelivery" from mensagem where id = ${enviada.id}::uuid`,
     );
     expect(saida!.stateDelivery).toBe('enviada');
 
@@ -297,7 +297,7 @@ describe('Handle Instagram inbound and outbound webhooks', () => {
       entry: [{ id: igUserId, messaging: [{ sender: { id: IGSID }, recipient: { id: igUserId }, timestamp: Date.now(), read: { mid: saida!.idProvider } }] }],
     });
     const [lida] = await linhas<{ stateDelivery: string }>(
-      sql`select estado_entrega from mensagem where id = ${enviada.id}::uuid`,
+      sql`select estado_entrega as "stateDelivery" from mensagem where id = ${enviada.id}::uuid`,
     );
     expect(lida!.stateDelivery).toBe('lida');
   });
@@ -310,7 +310,7 @@ describe('Handle Instagram inbound and outbound webhooks', () => {
 
   it('Renew encrypted tokens after 24 hours and mark rejected renewals for reauthorization', async () => {
     let channel = await readChannelInstagram(A.tenantId, channelId);
-    expect(await renewTokenOfChannel(channel)).toBe('cedo_demais');
+    expect(await renewTokenOfChannel(channel)).toBe('early_excessive');
     expect(ClienteGraphInstagramDuble.chamadas.filter((c) => c.acao === 'renovar')).toHaveLength(0);
 
     const antigo = String(channel.config['tokenAcesso']);
@@ -328,9 +328,9 @@ describe('Handle Instagram inbound and outbound webhooks', () => {
       tokenAcesso: `expirado-${S}`,
       tokenRenovadoEm: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
     });
-    expect(await renewTokenOfChannel(channel)).toBe('recusado');
+    expect(await renewTokenOfChannel(channel)).toBe('refused');
     const { channels } = await controller.listar(request(A));
-    expect(channels.find((c) => c.id === channelId)).toMatchObject({ estado: 'indisponivel', motivo: 'reautorizacao_pendente' });
+    expect(channels.find((c) => c.id === channelId)).toMatchObject({ state: 'indisponivel', motivo: 'reautorizacao_pendente' });
   });
 
   it('Unsubscribe and disable on disconnect without deleting history, then allow reconnection', async () => {
@@ -343,6 +343,6 @@ describe('Handle Instagram inbound and outbound webhooks', () => {
     expect(r.status).toBe(409);
 
     const religado = await conectar(A, `webhook-${S}`);
-    expect(religado).toMatchObject({ id: channelId, estado: 'conectado' });
+    expect(religado).toMatchObject({ id: channelId, state: 'conectado' });
   });
 });

@@ -13,7 +13,7 @@ import {
 describe('tabela de preços', () => {
   it('has the default model registered', () => {
     expect(TEMPLATE_DEFAULT).toBe('claude-sonnet-5');
-    expect(PRECOS[TEMPLATE_DEFAULT]).toEqual({ entradaUsdPorMilhao: 2, saidaUsdPorMilhao: 10 });
+    expect(PRECOS[TEMPLATE_DEFAULT]).toEqual({ inboundUsdByMillion: 2, outputUsdByMillion: 10 });
   });
 });
 

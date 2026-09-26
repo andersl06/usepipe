@@ -619,7 +619,7 @@ describe('Redirect (router service)', () => {
     };
     await processInbound(context);
     expect(pedidos).toEqual([
-      { endereco: 'suporte', contexto: { type: 'text/plain', value: 'x' } },
+      { endereco: 'suporte', context: { type: 'text/plain', value: 'x' } },
     ]);
   });
 

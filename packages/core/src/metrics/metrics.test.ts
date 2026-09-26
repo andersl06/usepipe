@@ -241,7 +241,7 @@ describe('time metrics (§2)', () => {
   });
 
   it('an empty list returns null with zero population, never zero seconds', () => {
-    expect(timeInQueue([])).toEqual({ valor: null, populacao: 0, excluidas: 0, soma: 0 });
+    expect(timeInQueue([])).toEqual({ value: null, population: 0, excluidas: 0, soma: 0 });
   });
 });
 
@@ -358,10 +358,10 @@ describe('volume-weighted average (§5)', () => {
   });
 
   it('combinar nada devolve null, não zero', () => {
-    expect(mediaPonderada([])).toEqual({ valor: null, populacao: 0, excluidas: 0, soma: 0 });
+    expect(mediaPonderada([])).toEqual({ value: null, population: 0, excluidas: 0, soma: 0 });
     expect(mediaPonderada([resultado(0, 0, 4)])).toEqual({
-      valor: null,
-      populacao: 0,
+      value: null,
+      population: 0,
       excluidas: 4,
       soma: 0,
     });

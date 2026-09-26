@@ -348,9 +348,9 @@ export async function runFlowInInbound(
           ${cursor.estadoId ?? ''}, ${cursor.lista}, ${cursor.indice},
           ${JSON.stringify({
             id: e.message.id,
-            idProvider: e.message.idProvedor,
-            type: e.message.type,
-            content: e.message.content,
+            id_provedor: e.message.idProvedor,
+            tipo: e.message.type,
+            conteudo: e.message.content,
           })}::jsonb,
           ${JSON.stringify(variables)}::jsonb, ${JSON.stringify(pedido)}::jsonb, 'pendente'
         )

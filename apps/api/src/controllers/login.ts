@@ -242,7 +242,7 @@ export class LoginController {
     const desafio: ChallengeWithInvitation = {
       ...createChallenge(textoDaQuery(requisicao, 'returnTo') ?? '/'),
       ...(invitation ? { invitation } : {}),
-      ...(origem ? { origem } : {}),
+      ...(origem ? { origin: origem } : {}),
     };
     resposta.setHeader('set-cookie', cookieDoDesafio(desafio));
     resposta.redirect(302, urlOfAuthorization(config, desafio));
@@ -341,8 +341,8 @@ export class MeController {
 
     const encontrado = await noTenant(session.tenantId, async (tx) => {
       const { rows } = await tx.execute<LinhaEu>(sql`
-        select u.id, u.nome, u.email, u.avatar_url,
-               t.id as tenant_id, t.nome as tenant_nome, t.slug, t.plano,
+        select u.id, u.nome as name, u.email, u.avatar_url,
+               t.id as tenant_id, t.nome as tenant_nome, t.slug, t.plano as plan,
                t.onboarding_concluido_em
           from usuario u
           join tenant t on t.id = u.tenant_id

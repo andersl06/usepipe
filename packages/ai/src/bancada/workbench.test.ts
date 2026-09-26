@@ -185,7 +185,7 @@ describe('bancada', () => {
       },
     });
 
-    expect(r.falhas).toEqual([{ casoId: 'cliente-irritado', erro: 'modelo recusou' }]);
+    expect(r.falhas).toEqual([{ casoId: 'cliente-irritado', error: 'modelo recusou' }]);
     expect(r.casos).toBe(casos.length - 1);
     // A failed case neither improves nor worsens accuracy: it is excluded from the calculation but reported.
     expect(r.acuraciaGeral).toBe(1);
