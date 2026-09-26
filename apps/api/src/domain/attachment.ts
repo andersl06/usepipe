@@ -130,7 +130,7 @@ export function linkOfAttachment(attachmentId: string, agora = Date.now()): stri
     process.env['PIPE_URL_API'] ??
     'http://localhost:3000'
   ).replace(/\/$/, '');
-  return `${base}/v1/attachments/${attachmentId}?expira=${expira}&assinatura=${assinatura}`;
+  return `${base}/v1/attachments/${attachmentId}?expires=${expira}&signature=${assinatura}`;
 }
 
 export interface AttachmentForServe {
@@ -161,7 +161,7 @@ export async function readAttachmentSigned(
 
   const linha = await noTenant(dono.tenantId, async (tx) => {
     const { rows } = await tx.execute<{
-      keyStorage: string;
+      chave_storage: string;
       mime: string;
       nome_original: string | null;
     }>(sql`
@@ -172,11 +172,11 @@ export async function readAttachmentSigned(
   if (!linha) throw PipeError.naoEncontrado('Anexo');
 
   // Check again that the stored key lies within its tenant's prefix.
-  if (!keyOfTenant(linha.keyStorage, dono.tenantId)) {
+  if (!keyOfTenant(linha.chave_storage, dono.tenantId)) {
     throw PipeError.naoEncontrado('Anexo');
   }
 
-  const objeto = await storage().ler(linha.keyStorage);
+  const objeto = await storage().ler(linha.chave_storage);
   if (!objeto) throw PipeError.naoEncontrado('Anexo');
 
   return {

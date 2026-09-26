@@ -14,7 +14,7 @@ process.env['WHATSAPP_APP_ID'] = 'app-de-teste';
 process.env['WHATSAPP_APP_SECRET'] = 'segredo-do-app-da-meta';
 delete process.env['WHATSAPP_API_VERSAO'];
 
-const { createDatabasecriarBancocreateDatabase, decifrar, estaCifrado, closeDatabasefecharBancocloseDatabase, migratemigrarmigrate, seedsemearseed } = await import('@pipe/db');
+const { createDatabase, decifrar, estaCifrado, closeDatabase, migrate, seed } = await import('@pipe/db');
 const { keyring, esquecerChannel, fecharBancos, resolveChannel } = await import('../src/database.js');
 const { processarPayload } = await import('../src/domain/inbound.js');
 const { aplicarEventsOfTemplate } = await import('../src/domain/whatsapp/events-of-template.js');
@@ -34,7 +34,7 @@ const { writeProfileOfChannel, readProfileOfChannel } = await import('../src/dom
 const { createTemplateInMeta, deleteTemplateInMeta, sincronizarModelos } = await import(
   '../src/domain/whatsapp/modelos.js'
 );
-const { formatOfPerguntaformatoDaPerguntaformatOfPergunta, writePreferences, readPreferences } = await import(
+const { formatOfPergunta, writePreferences, readPreferences } = await import(
   '../src/domain/whatsapp/preferences.js'
 );
 const { buscarInfoDoNumero } = await import('../src/domain/whatsapp/info-do-numero.js');
@@ -53,14 +53,14 @@ const URL_DONO = process.env['DATABASE_URL']!;
 const S = randomUUID().slice(0, 8);
 const WABA = 'waba-duble-1';
 
-type Dono = ReturnType<typeof createDatabasecriarBancocreateDatabase>;
+type Dono = ReturnType<typeof createDatabase>;
 let dono: Dono;
 let A: { tenantId: string; adminId: string };
 let B: { tenantId: string; adminId: string };
 const controller = new ChannelsController();
 
 async function tenantComAdmin(nome: string): Promise<{ tenantId: string; adminId: string }> {
-  const { tenantId } = await seedsemearseed(dono, { name: `entrada ${nome}`, slug: `entrada-${nome}` });
+  const { tenantId } = await seed(dono, { name: `entrada ${nome}`, slug: `entrada-${nome}` });
   const { rows } = await dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${tenantId}::uuid, 'Admin', ${`admin-${nome}@entrada.pipe.app`})
@@ -109,8 +109,8 @@ function conectar(quem: { tenantId: string; adminId: string }, extra: Record<str
 }
 
 beforeAll(async () => {
-  await migratemigrarmigrate(URL_DONO);
-  dono = createDatabasecriarBancocreateDatabase({ url: URL_DONO, maxConexoes: 2 });
+  await migrate(URL_DONO);
+  dono = createDatabase({ url: URL_DONO, maxConexoes: 2 });
   A = await tenantComAdmin(`a-${S}`);
   B = await tenantComAdmin(`b-${S}`);
 }, 180_000);
@@ -118,7 +118,7 @@ beforeAll(async () => {
 afterAll(async () => {
   definirFabricaGraph(null);
   await dono.execute(sql`delete from tenant where id in (${A.tenantId}::uuid, ${B.tenantId}::uuid)`);
-  await closeDatabasefecharBancocloseDatabase(dono);
+  await closeDatabase(dono);
   await fecharBancos();
 });
 
@@ -935,13 +935,13 @@ describe('Read and update channel and alert preferences', () => {
 
   it('Choose buttons for up to three options, a list for up to ten, and text otherwise', () => {
     const ligado = { quickReply: true, menu: true };
-    expect(formatOfPerguntaformatoDaPerguntaformatOfPergunta(3, ligado)).toBe('botoes');
-    expect(formatOfPerguntaformatoDaPerguntaformatOfPergunta(4, ligado)).toBe('lista');
-    expect(formatOfPerguntaformatoDaPerguntaformatOfPergunta(10, ligado)).toBe('lista');
-    expect(formatOfPerguntaformatoDaPerguntaformatOfPergunta(11, ligado)).toBe('texto');
-    expect(formatOfPerguntaformatoDaPerguntaformatOfPergunta(2, { quickReply: false, menu: true })).toBe('lista');
-    expect(formatOfPerguntaformatoDaPerguntaformatOfPergunta(2, { quickReply: false, menu: false })).toBe('texto');
-    expect(formatOfPerguntaformatoDaPerguntaformatOfPergunta(0, ligado)).toBe('texto');
+    expect(formatOfPergunta(3, ligado)).toBe('botoes');
+    expect(formatOfPergunta(4, ligado)).toBe('lista');
+    expect(formatOfPergunta(10, ligado)).toBe('lista');
+    expect(formatOfPergunta(11, ligado)).toBe('texto');
+    expect(formatOfPergunta(2, { quickReply: false, menu: true })).toBe('lista');
+    expect(formatOfPergunta(2, { quickReply: false, menu: false })).toBe('texto');
+    expect(formatOfPergunta(0, ligado)).toBe('texto');
   });
 });
 

@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 17).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
+const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -30,10 +30,10 @@ beforeAll(async () => {
   cenario = await montarCenario(`transf-${randomUUID().slice(0, 8)}`);
   api = await upApi(0);
 
-  const novo = createTokencriarTokencreateToken();
+  const novo = createToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   cookie = novo.token;
 
@@ -85,7 +85,7 @@ async function newConversation(
 function transferir(conversationId: string, corpo: Record<string, unknown>): Promise<Response> {
   return fetch(`${api.url}/v1/conversations/${conversationId}/transfer`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
+    headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
     body: JSON.stringify(corpo),
   });
 }

@@ -14,7 +14,7 @@ process.env['GOOGLE_CLIENTE_ID'] = 'cliente-de-teste.apps.googleusercontent.com'
 process.env['GOOGLE_CLIENTE_SEGREDO'] = 'segredo-de-teste';
 process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/callback';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken, hashDoToken } = await import('@pipe/authentication');
+const { NOME_DO_COOKIE, createToken, hashDoToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { aceitarInvitation, createInvitation, readInvitation } = await import('../src/domain/convites.js');
 const { normalizeDomain, logDomain, checkDomain } =
@@ -74,16 +74,16 @@ async function seedPapeis(
 
 /** Writes a live session for the scenario's agent and returns the cookie's token. */
 async function openSession(cenario: Cenario): Promise<string> {
-  const novo = createTokencriarTokencreateToken();
+  const novo = createToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
 
 function comCookie(token: string): Record<string, string> {
-  return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
+  return { cookie: `pipe_session=${token}`, 'content-type': 'application/json' };
 }
 
 function pessoaDoGoogle(email: string, sujeito = randomUUID()) {

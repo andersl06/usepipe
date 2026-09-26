@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 7).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_URL_API'] = 'https://api.teste';
-const { createDatabasecriarBancocreateDatabase, estaCifrado, closeDatabasefecharBancocloseDatabase, migratemigrarmigrate, seedsemearseed } = await import('@pipe/db');
+const { createDatabase, estaCifrado, closeDatabase, migrate, seed } = await import('@pipe/db');
 const { dubleMessenger, processarOutbox } = await import('@pipe/workers');
 const { upApi } = await import('../src/servidor.js');
 const { sendMessage } = await import('../src/domain/envio.js');
@@ -46,7 +46,7 @@ describe('Messenger', () => {
 describe('Exercise Messenger with the database, webhook, and worker', () => {
   const secret = 'ab'.repeat(16);
   const sufixo = randomUUID().slice(0, 8);
-  let dono: ReturnType<typeof createDatabasecriarBancocreateDatabase>;
+  let dono: ReturnType<typeof createDatabase>;
   let api: Awaited<ReturnType<typeof upApi>>;
   let A: { tenantId: string; adminId: string };
   let B: { tenantId: string; adminId: string };
@@ -55,7 +55,7 @@ describe('Exercise Messenger with the database, webhook, and worker', () => {
   const controller = new MessengerChannelsController();
 
   async function tenant(nome: string) {
-    const { tenantId } = await seedsemearseed(dono, { nome: `messenger ${nome}`, slug: `messenger-${nome}` });
+    const { tenantId } = await seed(dono, { nome: `messenger ${nome}`, slug: `messenger-${nome}` });
     const { rows } = await dono.execute<{ id: string }>(sql`
       insert into usuario (tenant_id, nome, email) values (${tenantId}::uuid, 'Admin', ${`admin-${nome}@pipe.app`}) returning id
     `);
@@ -89,12 +89,12 @@ describe('Exercise Messenger with the database, webhook, and worker', () => {
   }
 
   beforeAll(async () => {
-    await migratemigrarmigrate(process.env['DATABASE_URL']!);
-    dono = createDatabasecriarBancocreateDatabase({ url: process.env['DATABASE_URL']!, maxConexoes: 2 });
+    await migrate(process.env['DATABASE_URL']!);
+    dono = createDatabase({ url: process.env['DATABASE_URL']!, maxConexoes: 2 });
     A = await tenant(`a-${sufixo}`); B = await tenant(`b-${sufixo}`); api = await upApi(0);
     const ligado = await conectar(A, `ok-${sufixo}`); channelId = ligado.id; pageId = ligado.paginaId!;
   }, 180_000);
-  afterAll(async () => { await api?.fechar(); await dono.execute(sql`delete from tenant where id in (${A.tenantId}::uuid, ${B.tenantId}::uuid)`); await closeDatabasefecharBancocloseDatabase(dono); });
+  afterAll(async () => { await api?.fechar(); await dono.execute(sql`delete from tenant where id in (${A.tenantId}::uuid, ${B.tenantId}::uuid)`); await closeDatabase(dono); });
   beforeEach(() => { ClienteGraphMessengerDuble.reiniciar(); dubleMessenger.reiniciar(); });
 
   it('Reject invalid tokens or App Secrets and encrypt valid credentials', async () => {

@@ -121,7 +121,7 @@ export function payloadOfMessage(
   texto: string,
   options: { id?: string; name?: string; at?: Date } = {},
 ): unknown {
-  const em = options.em ?? new Date();
+  const em = options.at ?? new Date();
   return {
     object: 'whatsapp_business_account',
     entry: [
@@ -133,7 +133,7 @@ export function payloadOfMessage(
             value: {
               messaging_product: 'whatsapp',
               metadata: { phone_number_id: PHONE_NUMBER_ID },
-              contacts: [{ profile: { name: options.nome ?? 'Cliente Teste' }, wa_id: de }],
+              contacts: [{ profile: { name: options.name ?? 'Cliente Teste' }, wa_id: de }],
               messages: [
                 {
                   from: de,

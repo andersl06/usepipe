@@ -11,7 +11,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 // to prove the ruler.
 process.env['PIPE_MIDIA_MAX_TENTATIVAS'] = '3';
 
-const { createDatabasecriarBancocreateDatabase, closeDatabasefecharBancocloseDatabase, migratemigrarmigrate, seedsemearseed } = await import('@pipe/db');
+const { createDatabase, closeDatabase, migrate, seed } = await import('@pipe/db');
 const { baixarMediaOfAttachment, defineBuscadorOfMedia, hostOfMediaAllowed, MAX_TENTATIVAS_DOWNLOAD } =
   await import('../src/domain/media.js');
 const { useStorage } = await import('../src/domain/attachment.js');
@@ -20,7 +20,7 @@ const { useStorage } = await import('../src/domain/attachment.js');
  * Downloading received media (`dominio/midia.ts`), directly — without going through the queue. `PIPE_FILAS=memoria` makes `enfileirarDownloadMidia` a no-op (the same rule as the CRM mirror: a queue that talks to an external service does not run inline in tests), so proving the real download means calling `baixarMidiaDoAnexo` directly — exactly what the queue consumer does in production. The fixtures are the minimum the function reads: a tenant, a channel (the token's source), and an attachment with `bytes = 0`. No inbox, queue or message is needed — since `0033_download_de_midia.sql`, `anexo.canal_id` points directly to the channel.
  */
 
-type Dono = ReturnType<typeof createDatabasecriarBancocreateDatabase>;
+type Dono = ReturnType<typeof createDatabase>;
 let dono: Dono;
 const S = randomUUID().slice(0, 8);
 
@@ -28,8 +28,8 @@ const S = randomUUID().slice(0, 8);
 const objetos = new Map<string, Uint8Array>();
 
 beforeAll(async () => {
-  await migratemigrarmigrate(process.env['DATABASE_URL']);
-  dono = createDatabasecriarBancocreateDatabase({ url: process.env['DATABASE_URL']!, maxConexoes: 3 });
+  await migrate(process.env['DATABASE_URL']);
+  dono = createDatabase({ url: process.env['DATABASE_URL']!, maxConexoes: 3 });
   useStorage({
     guardar: async (key, data) => {
       objetos.set(key, data);
@@ -48,7 +48,7 @@ beforeAll(async () => {
 afterAll(async () => {
   useStorage(null);
   defineBuscadorOfMedia(null);
-  await closeDatabasefecharBancocloseDatabase(dono);
+  await closeDatabase(dono);
 });
 
 afterEach(() => {
@@ -56,7 +56,7 @@ afterEach(() => {
 });
 
 async function novoTenant(sufixo: string): Promise<string> {
-  const { tenantId } = await seedsemearseed(dono, { nome: `midia ${sufixo}`, slug: `midia-${sufixo}` });
+  const { tenantId } = await seed(dono, { nome: `midia ${sufixo}`, slug: `midia-${sufixo}` });
   return tenantId;
 }
 

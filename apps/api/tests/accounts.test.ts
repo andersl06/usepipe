@@ -5,7 +5,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 
-const { createDatabasecriarBancocreateDatabase, closeDatabasefecharBancocloseDatabase, migratemigrarmigrate } = await import('@pipe/db');
+const { createDatabase, closeDatabase, migrate } = await import('@pipe/db');
 const { fecharBancos } = await import('../src/database.js');
 const { AccountsController } = await import('../src/controllers/accounts.js');
 const { registrationOfAccountEnabled, slugOfAccount } =
@@ -18,11 +18,11 @@ const { registrationOfAccountEnabled, slugOfAccount } =
 const URL_DONO = process.env['DATABASE_URL']!;
 const S = randomUUID().slice(0, 8);
 const controller = new AccountsController();
-let dono: ReturnType<typeof createDatabasecriarBancocreateDatabase>;
+let dono: ReturnType<typeof createDatabase>;
 
 beforeAll(async () => {
-  await migratemigrarmigrate(URL_DONO);
-  dono = createDatabasecriarBancocreateDatabase({ url: URL_DONO, maxConexoes: 1 });
+  await migrate(URL_DONO);
+  dono = createDatabase({ url: URL_DONO, maxConnections: 1 });
 }, 180_000);
 
 afterEach(() => {
@@ -31,7 +31,7 @@ afterEach(() => {
 
 afterAll(async () => {
   await dono.execute(sql`delete from tenant where slug like ${`%${S}%`}`);
-  await closeDatabasefecharBancocloseDatabase(dono);
+  await closeDatabase(dono);
   await fecharBancos();
 });
 
@@ -49,7 +49,7 @@ describe('Return 404 from POST /v1/accounts when signup is disabled by default (
   it('desligada, que é o padrão: 404, e nada é criado — é a venda assistida', async () => {
     await expect(
       controller.create({ account_name: `Acme ${S}`, email: `ana@acme-${S}.com.br` }),
-    ).rejects.toMatchObject({ status: 404, codigo: 'nao_encontrado' });
+    ).rejects.toMatchObject({ status: 404, codigo: 'not_found' });
     const { rows } = await dono.execute<{ n: string }>(
       sql`select count(*)::text as n from tenant where slug like ${`%${S}%`}`,
     );
@@ -59,7 +59,7 @@ describe('Return 404 from POST /v1/accounts when signup is disabled by default (
   it('Reject account signup without an account or person name when enabled', async () => {
     process.env['ENABLE_ACCOUNT_SIGNUP'] = 'true';
     await expect(controller.create({ email: `ana@acme-${S}.com.br` })).rejects.toMatchObject({
-      codigo: 'parametros_invalidos',
+      codigo: 'parameters_invalid',
     });
   });
 
@@ -72,7 +72,7 @@ describe('Return 404 from POST /v1/accounts when signup is disabled by default (
     });
     await expect(
       controller.create({ account_name: 'X', email: `ana.${S}@gmail.com` }),
-    ).rejects.toMatchObject({ codigo: 'dominio_bloqueado' });
+    ).rejects.toMatchObject({ codigo: 'domain_blocked' });
   });
 
   it('ligada: provisiona tenant e administrador, e o mesmo e-mail não entra de novo', async () => {

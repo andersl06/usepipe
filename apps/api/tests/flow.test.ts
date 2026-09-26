@@ -25,7 +25,7 @@ type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 const FIXTURE: unknown = JSON.parse(
   readFileSync(
-    new URL('../../../packages/core/src/fluxo/fixtures/editor-sintetico.json', import.meta.url),
+    new URL('../../../packages/core/src/flow/fixtures/editor-sintetico.json', import.meta.url),
     'utf8',
   ),
 );
@@ -42,7 +42,7 @@ async function publicar(json: unknown): Promise<void> {
   const r = await noTenant(cenario.tenantId, (tx) =>
     importFlowOfBlip(tx, {
       tenantId: cenario.tenantId,
-      nome: 'Atendimento',
+      name: 'Atendimento',
       channelId: cenario.channelId,
       json,
       publicar: true,

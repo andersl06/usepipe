@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 19).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
+const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -39,16 +39,16 @@ let contactId: string;
 let conversationId: string;
 
 async function createCookieOfSession(c: Cenario): Promise<string> {
-  const novo = createTokencriarTokencreateToken();
+  const novo = createToken();
   await c.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${c.tenantId}, ${c.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
+    values (${c.tenantId}, ${c.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
 
 function cabecalho(token: string): Record<string, string> {
-  return { cookie: `${NOME_DO_COOKIE}=${token}` };
+  return { cookie: `pipe_session=${token}` };
 }
 
 beforeAll(async () => {

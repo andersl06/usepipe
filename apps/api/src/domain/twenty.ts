@@ -32,13 +32,13 @@ export async function configDoTenant(
   tx: TransactionPipe,
   tenantId: string,
 ): Promise<ConfigTwenty | null> {
-  const { rows } = await tx.execute<{ twenty_url: string | null; twentyKey: string | null }>(
+  const { rows } = await tx.execute<{ twenty_url: string | null; twenty_chave: string | null }>(
     sql`select twenty_url, twenty_chave from tenant where id = ${tenantId}::uuid limit 1`,
   );
   const linha = rows[0];
-  if (!linha?.twenty_url || !linha.twentyKey) return null;
+  if (!linha?.twenty_url || !linha.twenty_chave) return null;
 
-  const bruta = linha.twentyKey;
+  const bruta = linha.twenty_chave;
   // Tolera chave em texto puro para o ambiente de desenvolvimento, do mesmo jeito
   // Accept plaintext CRM keys in development, as `decifrarConfig` does for Meta tokens; production supplies an encrypted key.
   const key = estaCifrado(bruta) ? decifrar(bruta, keyringOfAmbiente()) : bruta;
@@ -149,7 +149,7 @@ export interface ContactForEspelhar {
 
 interface NoPessoa {
   id: string;
-  pipeContactId: string | null;
+  pipeContatoId: string | null;
 }
 
 const CAMPOS_PESSOA = 'id pipeContatoId';
@@ -218,9 +218,9 @@ async function acharPessoa(
  * Third tenant-isolation check from spec §5: if the CRM response contains a `pipeContatoId` different from the originating contact, this tenant's URL points to another tenant's CRM instance despite a valid key. Abort without storing an ID.
  */
 function conferirDono(no: NoPessoa, contatoId: string, url: string): void {
-  if (no.pipeContactId !== contatoId) {
+  if (no.pipeContatoId !== contatoId) {
     throw new TwentyError(
-      `CRM em ${url} devolveu o contato ${no.pipeContactId ?? 'sem marca'} para o pedido de ${contatoId}: ` +
+      `CRM em ${url} devolveu o contato ${no.pipeContatoId ?? 'sem marca'} para o pedido de ${contatoId}: ` +
         'a URL deste tenant provavelmente aponta para a instância de outro cliente.',
       true,
     );

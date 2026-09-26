@@ -10,11 +10,11 @@ process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
+const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 const { useStorage } = await import('../src/domain/attachment.js');
-const { MAX_FILES_BY_MESSAGEMAX_ARQUIVOS_POR_MENSAGEMMAX_FILES_BY_MESSAGE, MAX_BYTES_BY_FILEMAX_BYTES_POR_ARQUIVOMAX_BYTES_BY_FILE } = await import('@pipe/storage');
+const { MAX_FILES_BY_MESSAGE, MAX_BYTES_BY_FILE } = await import('@pipe/storage');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -50,10 +50,10 @@ beforeAll(async () => {
   api = await upApi(0);
   process.env['PIPE_STORAGE_URL_BASE'] = api.url;
 
-  const novo = createTokencriarTokencreateToken();
+  const novo = createToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   sessionAgent = novo.token;
 
@@ -79,7 +79,7 @@ function withKey(): Record<string, string> {
 }
 
 function comCookie(): Record<string, string> {
-  return { cookie: `${NOME_DO_COOKIE}=${sessionAgent}`, 'content-type': 'application/json' };
+  return { cookie: `pipe_session=${sessionAgent}`, 'content-type': 'application/json' };
 }
 
 async function up(dados: Buffer, mime: string, nome: string): Promise<string> {
@@ -181,7 +181,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
   it('Reject a batch of more than ten files without sending any', async () => {
     const conversaId = await createConversation(cenario.agentId);
     const ids: string[] = [];
-    for (let i = 0; i <= MAX_FILES_BY_MESSAGEMAX_ARQUIVOS_POR_MENSAGEMMAX_FILES_BY_MESSAGE; i += 1) {
+    for (let i = 0; i <= MAX_FILES_BY_MESSAGE; i += 1) {
       ids.push(await up(PNG, 'image/png', `f${i}.png`));
     }
     const { status, corpo } = await enviarLote(conversaId, { anexo_ids: ids });
@@ -206,7 +206,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     // // The upload already blocks by size; to prove the per-file check in the BATCH, the
     // // line is tampered with the owner role, as if it had come in through another path.
     await cenario.dono.execute(sql`
-      update anexo set bytes = ${MAX_BYTES_BY_FILEMAX_BYTES_POR_ARQUIVOMAX_BYTES_BY_FILE + 1} where id = ${grande}::uuid
+      update anexo set bytes = ${MAX_BYTES_BY_FILE + 1} where id = ${grande}::uuid
     `);
     const { status, corpo } = await enviarLote(conversaId, { anexo_ids: [ok, grande] });
     expect(status).toBe(400);

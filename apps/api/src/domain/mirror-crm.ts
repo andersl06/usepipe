@@ -29,9 +29,9 @@ export async function syncContact(
 
     const { rows } = await tx.execute<{
       id: string;
-      name: string | null;
+      nome: string | null;
       email: string | null;
-      phoneE164: string | null;
+      telefone_e164: string | null;
       twenty_pessoa_id: string | null;
       empresa_twenty_id: string | null;
     }>(sql`
@@ -47,9 +47,9 @@ export async function syncContact(
 
     const contact: ContactForEspelhar = {
       id: linha.id,
-      name: linha.name,
+      name: linha.nome,
       email: linha.email,
-      telefoneE164: linha.phoneE164,
+      telefoneE164: linha.telefone_e164,
       twentyPessoaId: linha.twenty_pessoa_id,
       empresaTwentyId: linha.empresa_twenty_id,
     };

@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 5).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
+const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -29,10 +29,10 @@ beforeAll(async () => {
   cenario = await montarCenario(`envio-${randomUUID().slice(0, 8)}`);
   api = await upApi(0);
 
-  const novo = createTokencriarTokencreateToken();
+  const novo = createToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   cookieOfAgent = novo.token;
 
@@ -78,7 +78,7 @@ function enviar(
   credencial: { cookie?: string; token?: string },
 ): Promise<Response> {
   const cabecalhos: Record<string, string> = { 'content-type': 'application/json' };
-  if (credencial.cookie) cabecalhos['cookie'] = `${NOME_DO_COOKIE}=${credencial.cookie}`;
+  if (credencial.cookie) cabecalhos['cookie'] = `pipe_session=${credencial.cookie}`;
   if (credencial.token) cabecalhos['authorization'] = `Bearer ${credencial.token}`;
   return fetch(`${api.url}/v1/conversations/${conversaId}/messages`, {
     method: 'POST',
@@ -181,7 +181,7 @@ describe('Send Desk replies with a session cookie', () => {
 
   it('cookie forjado, 401', async () => {
     const conversaId = await newConversation(cenario.agentId);
-    const resposta = await enviar(conversaId, { texto: 'forjado' }, { cookie: createTokencriarTokencreateToken().token });
+    const resposta = await enviar(conversaId, { texto: 'forjado' }, { cookie: createToken().token });
     expect(resposta.status).toBe(401);
   });
 });
@@ -208,7 +208,7 @@ describe('Retry failed message sends', () => {
   function reenviar(conversaId: string, messageId: string): Promise<Response> {
     return fetch(`${api.url}/v1/conversations/${conversaId}/messages/${messageId}/resend`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookieOfAgent}` },
+      headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookieOfAgent}` },
     });
   }
 
@@ -352,7 +352,7 @@ describe('Preserve API-key behavior on the same send route', () => {
       headers: {
         'content-type': 'application/json',
         authorization: 'Bearer pipe_lixo_lixo',
-        cookie: `${NOME_DO_COOKIE}=${cookieOfAgent}`,
+        cookie: `pipe_session=${cookieOfAgent}`,
       },
       body: JSON.stringify({ texto: 'x' }),
     });

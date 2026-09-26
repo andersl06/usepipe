@@ -16,7 +16,7 @@ process.env['GOOGLE_CLIENTE_SEGREDO'] = 'segredo-de-teste';
 process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/callback';
 process.env['PIPE_METRICS_TOKEN'] = 'token-de-metricas';
 
-const { InboundRefusedEntradaRecusadaInboundRefused, LoginErrorLoginErroLoginError, NOME_DO_COOKIE, createTokencriarTokencreateToken } =
+const { InboundRefused, LoginError, NOME_DO_COOKIE, createToken } =
   await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { baseDoApp, codigoDaRecusa, destinationAbsolute, urlOfError } = await import(
@@ -76,17 +76,17 @@ async function seedIdentity(): Promise<void> {
 
 /** Writes a live session and returns the token that would go into the cookie. */
 async function openSession(durationMs?: number): Promise<string> {
-  const novo = createTokencriarTokencreateToken(durationMs);
+  const novo = createToken(durationMs);
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt},
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm},
             'google')
   `);
   return novo.token;
 }
 
 function comCookie(token: string | undefined): Record<string, string> {
-  return token ? { cookie: `${NOME_DO_COOKIE}=${token}` } : {};
+  return token ? { cookie: `pipe_session=${token}` } : {};
 }
 
 beforeAll(async () => {
@@ -247,19 +247,19 @@ describe('códigos de recusa', () => {
       'without_invitation',
       'user_inactive',
     ] as const) {
-      expect(codigoDaRecusa(new InboundRefusedEntradaRecusadaInboundRefused(codigo, 'motivo'))).toBe(codigo);
+      expect(codigoDaRecusa(new InboundRefused(codigo, 'motivo'))).toBe(codigo);
     }
   });
 
   it('e-mail não verificado pelo Google tem código próprio', () => {
-    expect(codigoDaRecusa(new LoginErrorLoginErroLoginError('email_nao_verificado', 'sem confirmação'))).toBe(
+    expect(codigoDaRecusa(new LoginError('email_nao_verificado', 'sem confirmação'))).toBe(
       'email_nao_verificado',
     );
   });
 
   it('tudo o mais vira falha_no_provedor', () => {
-    expect(codigoDaRecusa(new LoginErrorLoginErroLoginError('state_invalido', 'forjado'))).toBe('falha_no_provedor');
-    expect(codigoDaRecusa(new LoginErrorLoginErroLoginError('troca_falhou', 'timeout'))).toBe('falha_no_provedor');
+    expect(codigoDaRecusa(new LoginError('state_invalido', 'forjado'))).toBe('falha_no_provedor');
+    expect(codigoDaRecusa(new LoginError('troca_falhou', 'timeout'))).toBe('falha_no_provedor');
     expect(codigoDaRecusa(new Error('qualquer coisa'))).toBe('falha_no_provedor');
     expect(codigoDaRecusa(undefined)).toBe('falha_no_provedor');
   });

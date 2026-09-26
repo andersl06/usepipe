@@ -39,12 +39,12 @@ interface LinhaConexao {
   [column: string]: unknown;
   id: string;
   tenant_id: string;
-  provider: string;
-  issuer: string;
+  provedor: string;
+  emissor: string;
   cliente_id: string;
   config: Record<string, unknown> | null;
-  state: string;
-  policy: string;
+  estado: string;
+  politica: string;
   testada_em: string | null;
   ativada_em: string | null;
 }
@@ -58,11 +58,11 @@ export function ssoCallbackUrl(): string {
 function visivel(linha: LinhaConexao): ConexaoSsoVisivel {
   return {
     id: linha.id,
-    provider: linha.provider as ProvedorSso,
-    issuer: linha.issuer,
+    provider: linha.provedor as ProvedorSso,
+    issuer: linha.emissor,
     clientId: linha.cliente_id,
-    state: linha.state as StateConnection,
-    policy: linha.policy as PoliticaSso,
+    state: linha.estado as StateConnection,
+    policy: linha.politica as PoliticaSso,
     testadaEm: linha.testada_em ? new Date(linha.testada_em) : null,
     ativadaEm: linha.ativada_em ? new Date(linha.ativada_em) : null,
     callbackUrl: ssoCallbackUrl(),
@@ -250,7 +250,7 @@ export async function connectionForFlow(
 ): Promise<ConnectionForFlow> {
   const linha = await linhaDoTenant(tenantId);
   if (!linha) throw PipeError.naoEncontrado('Conexão de SSO');
-  if (options.exigirActive && linha.state !== 'ativa') {
+  if (options.exigirActive && linha.estado !== 'ativa') {
     throw PipeError.request('sso_inactive', 'O SSO desta conta ainda não foi ativado.');
   }
 
@@ -263,14 +263,14 @@ export async function connectionForFlow(
   return {
     tenantId,
     config: {
-      provedor: linha.provider as ProvedorSso,
-      emissor: linha.issuer,
+      provedor: linha.provedor as ProvedorSso,
+      emissor: linha.emissor,
       clienteId: linha.cliente_id,
       customerSecret: clienteSegredo,
       urlOfCallback: ssoCallbackUrl(),
-      ...(linha.provider === 'entra' ? { tenantsEntra: tenantsDoEntra(linha.issuer) } : {}),
+      ...(linha.provedor === 'entra' ? { tenantsEntra: tenantsDoEntra(linha.emissor) } : {}),
     },
-    descoberta: await descobrir(linha.issuer, buscar),
+    descoberta: await descobrir(linha.emissor, buscar),
   };
 }
 

@@ -12,7 +12,7 @@ process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 7).toString('ba
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_URL_API'] = 'https://api.teste';
 
-const { createDatabasecriarBancocreateDatabase, estaCifrado, closeDatabasefecharBancocloseDatabase, migratemigrarmigrate, seedsemearseed } = await import('@pipe/db');
+const { createDatabase, estaCifrado, closeDatabase, migrate, seed } = await import('@pipe/db');
 const { dubleInstagram, processarOutbox } = await import('@pipe/workers');
 const { esquecerChannel } = await import('../src/database.js');
 const { upApi } = await import('../src/servidor.js');
@@ -34,7 +34,7 @@ const S = randomUUID().slice(0, 8);
 const SECRET = 'ab'.repeat(16);
 const controller = new InstagramChannelsController();
 
-type Dono = ReturnType<typeof createDatabasecriarBancocreateDatabase>;
+type Dono = ReturnType<typeof createDatabase>;
 type Quem = { tenantId: string; adminId: string };
 let dono: Dono;
 let A: Quem;
@@ -42,7 +42,7 @@ let B: Quem;
 let api: Awaited<ReturnType<typeof upApi>>;
 
 async function tenantComAdmin(nome: string): Promise<Quem> {
-  const { tenantId } = await seedsemearseed(dono, { nome: `ig ${nome}`, slug: `ig-${nome}` });
+  const { tenantId } = await seed(dono, { nome: `ig ${nome}`, slug: `ig-${nome}` });
   const { rows } = await dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${tenantId}::uuid, 'Admin', ${`admin-${nome}@ig.pipe.app`}) returning id
@@ -94,8 +94,8 @@ function postar(channelId: string, payload: unknown, secret = SECRET): Promise<R
 }
 
 beforeAll(async () => {
-  await migratemigrarmigrate(URL_DONO);
-  dono = createDatabasecriarBancocreateDatabase({ url: URL_DONO, maxConexoes: 2 });
+  await migrate(URL_DONO);
+  dono = createDatabase({ url: URL_DONO, maxConexoes: 2 });
   A = await tenantComAdmin(`a-${S}`);
   B = await tenantComAdmin(`b-${S}`);
   api = await upApi(0);
@@ -105,7 +105,7 @@ afterAll(async () => {
   definirFabricaGraphInstagram(null);
   await api?.fechar();
   await dono.execute(sql`delete from tenant where id in (${A.tenantId}::uuid, ${B.tenantId}::uuid)`);
-  await closeDatabasefecharBancocloseDatabase(dono);
+  await closeDatabase(dono);
 });
 
 beforeEach(() => {

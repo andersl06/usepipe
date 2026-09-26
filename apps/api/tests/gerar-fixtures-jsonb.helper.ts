@@ -12,7 +12,7 @@ import { montarCenario, assinar, payloadOfMessage, APP_SECRET } from './ajuda.js
 const RAIZ = fileURLToPath(new URL('../../../', import.meta.url));
 
 const FIXTURE_FLOW: unknown = JSON.parse(
-  readFileSync(`${RAIZ}packages/core/src/fluxo/fixtures/editor-sintetico.json`, 'utf8'),
+  readFileSync(`${RAIZ}packages/core/src/flow/fixtures/editor-sintetico.json`, 'utf8'),
 );
 
 export type Registro = Record<string, unknown>;

@@ -9,8 +9,8 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 9).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { cifrar, keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente } = await import('@pipe/db');
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
+const { cifrar, keyringOfAmbiente } = await import('@pipe/db');
+const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { readDictionary, lerMetadados, syncDictionary } = await import(
   '../src/domain/dictionary-crm.js'
 );
@@ -156,7 +156,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
     for (const c of [a, b]) {
       await c.dono.execute(sql`
         update tenant set twenty_url = ${`https://crm-${c.tenantId.slice(0, 8)}.teste`},
-                          twenty_chave = ${cifrar('k', keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente())}
+                          twenty_chave = ${cifrar('k', keyringOfAmbiente())}
          where id = ${c.tenantId}
       `);
     }
@@ -309,13 +309,13 @@ describe('Synchronize the CRM dictionary in the database', () => {
       const withoutSession = await fetch(`${api.url}/v1/crm/dictionary`);
       expect(withoutSession.status).toBe(401);
 
-      const novo = createTokencriarTokencreateToken();
+      const novo = createToken();
       await a.dono.execute(sql`
         insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-        values (${a.tenantId}, ${a.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
+        values (${a.tenantId}, ${a.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
       `);
       const r = await fetch(`${api.url}/v1/crm/dictionary`, {
-        headers: { cookie: `${NOME_DO_COOKIE}=${novo.token}` },
+        headers: { cookie: `pipe_session=${novo.token}` },
       });
       expect(r.status).toBe(200);
       const corpo = (await r.json()) as {

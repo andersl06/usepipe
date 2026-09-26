@@ -15,9 +15,9 @@ process.env['PIPE_COOKIE_DOMINIO'] = '';
 // O `.pfx` e a senha do certificado mTLS entram cifrados (`segredo.ts`).
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 23).toString('base64')}`;
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
+const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
-const { createDatabasecriarBancocreateDatabase, closeDatabasefecharBancocloseDatabase, seedsemearseed } = await import('@pipe/db');
+const { createDatabase, closeDatabase, seed } = await import('@pipe/db');
 const { entregarPendentes } = await import('../src/webhooks-saida.js');
 
 const URL_DONO = process.env['DATABASE_URL']!;
@@ -29,15 +29,15 @@ const URL_DONO = process.env['DATABASE_URL']!;
  */
 
 interface Cenario {
-  dono: Awaited<ReturnType<typeof createDatabasecriarBancocreateDatabase>>;
+  dono: Awaited<ReturnType<typeof createDatabase>>;
   tenantId: string;
   papeis: Record<'admin' | 'member' | 'guest', string>;
   encerrar: () => Promise<void>;
 }
 
 async function assembleContract(sufixo: string): Promise<Cenario> {
-  const dono = createDatabasecriarBancocreateDatabase({ url: URL_DONO, maxConexoes: 3 });
-  const semeado = await seedsemearseed(dono, { name: `contrato ${sufixo}`, slug: `contrato-${sufixo}` });
+  const dono = createDatabase({ url: URL_DONO, maxConexoes: 3 });
+  const semeado = await seed(dono, { name: `contrato ${sufixo}`, slug: `contrato-${sufixo}` });
   const { rows: papeis } = await dono.execute<{ id: string; name: 'admin' | 'member' | 'guest' }>(
     sql`select id, nome from papel where tenant_id = ${semeado.tenantId}::uuid and escopo = 'conta'`,
   );
@@ -48,7 +48,7 @@ async function assembleContract(sufixo: string): Promise<Cenario> {
     papeis: byName,
     encerrar: async () => {
       await dono.execute(sql`delete from tenant where id = ${semeado.tenantId}::uuid`);
-      await closeDatabasefecharBancocloseDatabase(dono);
+      await closeDatabase(dono);
     },
   };
 }
@@ -98,16 +98,16 @@ async function userOperator(cenario: Cenario): Promise<string> {
 }
 
 async function openSession(cenario: Cenario, userId: string): Promise<string> {
-  const novo = createTokencriarTokencreateToken();
+  const novo = createToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}::uuid, ${userId}::uuid, ${novo.hash}, ${novo.expiresAt}, 'google')
+    values (${cenario.tenantId}::uuid, ${userId}::uuid, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
 
 function comCookie(token: string): Record<string, string> {
-  return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
+  return { cookie: `pipe_session=${token}`, 'content-type': 'application/json' };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

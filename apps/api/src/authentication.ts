@@ -87,9 +87,9 @@ export function contextOf(request: RequestAuthenticated): ContextOfKey {
 type LineKey = {
   id: string;
   tenant_id: string;
-  flowId: string | null;
+  fluxo_id: string | null;
   hash: string;
-  scopes: string[] | null;
+  escopos: string[] | null;
   expirada: boolean;
   revogada: boolean;
 };
@@ -203,8 +203,8 @@ export async function autenticar(cabecalho: string | undefined): Promise<Context
   return {
     tenantId: linha.tenant_id,
     keyId: linha.id,
-    escopos: linha.scopes ?? [],
-    flowId: linha.flowId,
+    escopos: linha.escopos ?? [],
+    flowId: linha.fluxo_id,
   };
 }
 

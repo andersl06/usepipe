@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 7).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { createDatabasecriarBancocreateDatabase, closeDatabasefecharBancocloseDatabase, migratemigrarmigrate, seedsemearseed } = await import('@pipe/db');
+const { createDatabase, closeDatabase, migrate, seed } = await import('@pipe/db');
 const { fecharBancos } = await import('../src/database.js');
 const workers = await import('@pipe/workers');
 const { createImport, lerFalhas, readImport } = await import(
@@ -25,13 +25,13 @@ import type { RequestWithSession } from '../src/session.js';
 const URL_DONO = process.env['DATABASE_URL']!;
 const S = randomUUID().slice(0, 8);
 
-type Dono = ReturnType<typeof createDatabasecriarBancocreateDatabase>;
+type Dono = ReturnType<typeof createDatabase>;
 let dono: Dono;
 let A: { tenantId: string; adminId: string };
 let B: { tenantId: string; adminId: string };
 
 async function tenantComAdmin(nome: string): Promise<{ tenantId: string; adminId: string }> {
-  const { tenantId } = await seedsemearseed(dono, { name: `importa ${nome}`, slug: `importa-${nome}` });
+  const { tenantId } = await seed(dono, { name: `importa ${nome}`, slug: `importa-${nome}` });
   const adminId = await userWith(tenantId, `admin-${nome}`, 'administrador');
   return { tenantId, adminId };
 }
@@ -74,15 +74,15 @@ function runImport(quem: { tenantId: string; adminId: string }, csv: string) {
 }
 
 beforeAll(async () => {
-  await migratemigrarmigrate(URL_DONO);
-  dono = createDatabasecriarBancocreateDatabase({ url: URL_DONO, maxConexoes: 2 });
+  await migrate(URL_DONO);
+  dono = createDatabase({ url: URL_DONO, maxConexoes: 2 });
   A = await tenantComAdmin(`a-${S}`);
   B = await tenantComAdmin(`b-${S}`);
 }, 180_000);
 
 afterAll(async () => {
   await dono.execute(sql`delete from tenant where id in (${A.tenantId}::uuid, ${B.tenantId}::uuid)`);
-  await closeDatabasefecharBancocloseDatabase(dono);
+  await closeDatabase(dono);
   await fecharBancos();
   await workers.fecharBancos();
 });

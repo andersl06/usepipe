@@ -60,8 +60,8 @@ export async function resolveChannel(canalId: string): Promise<ChannelResolved |
   const { rows } = await databaseOwner().execute<{
     id: string;
     tenant_id: string;
-    type: string;
-    active: boolean;
+    tipo: string;
+    ativo: boolean;
     config: Record<string, unknown> | null;
   }>(sql`select id, tenant_id, tipo, ativo, config from canal where id = ${canalId} limit 1`);
 
@@ -70,8 +70,8 @@ export async function resolveChannel(canalId: string): Promise<ChannelResolved |
   const channel: ChannelResolved = {
     id: linha.id,
     tenantId: linha.tenant_id,
-    type: linha.type,
-    active: linha.active,
+    type: linha.tipo,
+    active: linha.ativo,
     // Decrypt only once here; the rest of the code still reads
     // `config.tokenAcesso` como sempre leu. O segredo vive cifrado no banco e em
     // the plaintext only in the memory of code that needs it; see `packages/db/src/segredo.ts`.
@@ -93,8 +93,8 @@ export async function resolveChannelByIdentifier(
   const { rows } = await databaseOwner().execute<{
     id: string;
     tenant_id: string;
-    type: string;
-    active: boolean;
+    tipo: string;
+    ativo: boolean;
     config: Record<string, unknown> | null;
   }>(sql`
     select id, tenant_id, tipo, ativo, config
@@ -111,8 +111,8 @@ export async function resolveChannelByIdentifier(
   return {
     id: linha.id,
     tenantId: linha.tenant_id,
-    type: linha.type,
-    active: linha.active,
+    type: linha.tipo,
+    active: linha.ativo,
     config: decifrarConfig(linha.config ?? {}, keyring()),
   };
 }

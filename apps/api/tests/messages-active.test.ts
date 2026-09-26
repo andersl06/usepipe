@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 19).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
+const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 const { telefoneValido, MAX_CONTACTS_BY_TRIGGER } = await import('../src/domain/message-active.js');
@@ -29,10 +29,10 @@ beforeAll(async () => {
   cenario = await montarCenario(`ativa-${randomUUID().slice(0, 8)}`);
   api = await upApi(0);
 
-  const novo = createTokencriarTokencreateToken();
+  const novo = createToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   cookie = novo.token;
 
@@ -54,7 +54,7 @@ afterAll(async () => {
 function disparar(corpo: Record<string, unknown>): Promise<Response> {
   return fetch(`${api.url}/v1/messages-active`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
+    headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
     body: JSON.stringify({ canal_id: cenario.channelId, template_id: templateId, ...corpo }),
   });
 }
@@ -253,7 +253,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     expect((await disparar({ contatos: [] })).status).toBe(400);
     const semTemplate = await fetch(`${api.url}/v1/messages-active`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
+      headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
       body: JSON.stringify({ canal_id: cenario.channelId, contatos: [{ telefone: telefoneNovo() }] }),
     });
     expect(semTemplate.status).toBe(400);
@@ -269,7 +269,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     `);
     const resposta = await fetch(`${api.url}/v1/messages-active`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
+      headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
       body: JSON.stringify({
         canal_id: cenario.channelId,
         template_id: rows[0]!.id,
@@ -284,7 +284,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     try {
       const resposta = await fetch(`${api.url}/v1/messages-active`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
+        headers: { 'content-type': 'application/json', cookie: `pipe_session=${cookie}` },
         body: JSON.stringify({
           canal_id: outro.channelId,
           template_id: templateId,
@@ -304,7 +304,7 @@ describe('List sends from the last 72 hours with delivery status', () => {
     await disparar({ contatos: [{ telefone }], parametros: ['x'] });
 
     const resposta = await fetch(`${api.url}/v1/messages-active`, {
-      headers: { cookie: `${NOME_DO_COOKIE}=${cookie}` },
+      headers: { cookie: `pipe_session=${cookie}` },
     });
 
     expect(resposta.status).toBe(200);
@@ -320,7 +320,7 @@ describe('List sends from the last 72 hours with delivery status', () => {
 
   it('devolve os limites em vigor, para a tela não repetir número mágico', async () => {
     const resposta = await fetch(`${api.url}/v1/messages-active/limits`, {
-      headers: { cookie: `${NOME_DO_COOKIE}=${cookie}` },
+      headers: { cookie: `pipe_session=${cookie}` },
     });
     const corpo = (await resposta.json()) as { maxContactsByTrigger: number };
     expect(corpo.maxContactsByTrigger).toBe(15);

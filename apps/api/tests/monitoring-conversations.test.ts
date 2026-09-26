@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
+const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -49,7 +49,7 @@ async function pessoa(cenario: Cenario, permissions: string[]): Promise<string> 
 }
 
 async function session(cenario: Cenario, userId: string): Promise<string> {
-  const token = createTokencriarTokencreateToken();
+  const token = createToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
     values (${cenario.tenantId}, ${userId}, ${token.hash}, ${token.expiresAt}, 'google')
@@ -57,7 +57,7 @@ async function session(cenario: Cenario, userId: string): Promise<string> {
   return token.token;
 }
 
-const cabecalho = (token: string) => ({ cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' });
+const cabecalho = (token: string) => ({ cookie: `pipe_session=${token}`, 'content-type': 'application/json' });
 
 async function conversation(cenario = a): Promise<string> {
   const sufixo = randomUUID().slice(0, 8);

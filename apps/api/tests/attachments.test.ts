@@ -79,8 +79,8 @@ describe('Upload attachments and return signed links', () => {
     expect(corpo.mime).toBe('image/png');
     expect(corpo.tipo).toBe('imagem');
     expect(corpo.bytes).toBe(PNG.byteLength);
-    expect(corpo.link).toContain('assinatura=');
-    expect(corpo.link).toContain('expira=');
+    expect(corpo.link).toContain('signature=');
+    expect(corpo.link).toContain('expires=');
   });
 
   it('Prefix attachment object keys with the tenant ID', async () => {
@@ -162,7 +162,7 @@ describe('Download attachments through signed links', () => {
 
   it('recusa link sem assinatura', async () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
-    const semAssinatura = link.replace(/&assinatura=[^&]*/, '');
+    const semAssinatura = link.replace(/&signature=[^&]*/, '');
     expect((await fetch(semAssinatura)).status).toBe(401);
   });
 
@@ -170,8 +170,8 @@ describe('Download attachments through signed links', () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
     const url = new URL(link);
     const assinatura = url.searchParams.get('signature')!;
-    // // Swap the first digit for ANOTHER one. This used to be `replace(/assinatura=./,
-    // // 'assinatura=0')`, which changed nothing when the digit was already `0` — the test
+    // // Swap the first digit for ANOTHER one. This used to be `replace(/signature=./,
+    // // 'signature=0')`, which changed nothing when the digit was already `0` — the test
     // // passed by luck in 15 of 16 runs.
     url.searchParams.set('signature', (assinatura[0] === '0' ? '1' : '0') + assinatura.slice(1));
 
@@ -181,7 +181,7 @@ describe('Download attachments through signed links', () => {
   it('Reject a manually extended signed-link expiration', async () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
     const expira = Number(new URL(link).searchParams.get('expires'));
-    const esticado = link.replace(`expira=${expira}`, `expira=${expira + 3_600_000}`);
+    const esticado = link.replace(`expires=${expira}`, `expires=${expira + 3_600_000}`);
     expect((await fetch(esticado)).status).toBe(401);
   });
 
@@ -189,7 +189,7 @@ describe('Download attachments through signed links', () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
     const outro = await linkDe(PNG, 'image/png', 'outra.png');
     const idOutro = new URL(outro).pathname.split('/').pop()!;
-    const trocado = link.replace(/\/v1\/anexos\/[^?]+/, `/v1/attachments/${idOutro}`);
+    const trocado = link.replace(/\/v1\/attachments\/[^?]+/, `/v1/attachments/${idOutro}`);
     expect((await fetch(trocado)).status).toBe(401);
   });
 

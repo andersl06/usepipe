@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
+const { NOME_DO_COOKIE, createToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -69,16 +69,16 @@ async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<strin
 }
 
 async function openSession(cenario: Cenario, userId: string): Promise<string> {
-  const novo = createTokencriarTokencreateToken();
+  const novo = createToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
 
 function comCookie(token: string): Record<string, string> {
-  return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
+  return { cookie: `pipe_session=${token}`, 'content-type': 'application/json' };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
