@@ -307,28 +307,28 @@ export async function carregarGrowth(tx: TransactionPipe, tid: string): Promise<
   /* As consultas vão em série: em paralelo o driver disputa a mesma conexão
      e o `set_config` do tenant se perde. */
   const channels = await tx
-    .select({ id: channel.id, nome: channel.nome })
+    .select({ id: channel.id, name: channel.nome })
     .from(channel)
     .where(and(eq(channel.tenantId, tid), eq(channel.tipo, 'whatsapp_cloud'), eq(channel.ativo, true)))
     .orderBy(asc(channel.nome));
   const modelos = await tx
     .select({
       id: templateMessage.id,
-      nome: templateMessage.nome,
+      name: templateMessage.nome,
       idioma: templateMessage.idioma,
-      categoria: templateMessage.categoria,
+      category: templateMessage.categoria,
       statusMeta: templateMessage.statusMeta,
-      corpo: templateMessage.corpo,
+      body: templateMessage.corpo,
       variaveis: templateMessage.variables,
-      canalId: channel.id,
-      canalNome: channel.nome,
+      channelId: channel.id,
+      channelName: channel.nome,
     })
     .from(templateMessage)
     .innerJoin(channel, eq(channel.id, templateMessage.canalId))
     .where(and(eq(templateMessage.tenantId, tid), eq(channel.tipo, 'whatsapp_cloud')))
     .orderBy(asc(templateMessage.nome));
   const contacts = await tx
-    .select({ id: contact.id, nome: contact.nome, telefone: contact.telefoneE164 })
+    .select({ id: contact.id, name: contact.nome, phone: contact.telefoneE164 })
     .from(contact)
     .where(
       and(
@@ -344,11 +344,11 @@ export async function carregarGrowth(tx: TransactionPipe, tid: string): Promise<
     .select({
       id: message.id,
       disparoId: message.disparoId,
-      contatoNome: contact.nome,
+      contactName: contact.nome,
       templateNome: templateMessage.nome,
-      canalNome: channel.nome,
-      estado: message.stateDelivery,
-      erroCodigo: message.errorCode,
+      channelName: channel.nome,
+      state: message.stateDelivery,
+      errorCode: message.errorCode,
       criadaEm: message.criadaEm,
       custoCentavos: message.custoCentavos,
     })
@@ -372,11 +372,11 @@ export async function carregarGrowth(tx: TransactionPipe, tid: string): Promise<
   return {
     channels,
     contacts: contacts.flatMap((pessoa) =>
-      pessoa.telefone ? [{ ...pessoa, telefone: pessoa.telefone }] : [],
+      pessoa.phone ? [{ ...pessoa, phone: pessoa.phone }] : [],
     ),
-    modelos: modelos.map((template) => ({
+    modelos: modelos.map(({ variaveis, ...template }) => ({
       ...template,
-      variaveis: readVariables(template.variaveis),
+      variables: readVariables(variaveis),
     })),
     envios: envios.map((envio) => ({
       ...envio,
@@ -412,22 +412,22 @@ export async function carregarModelos(
   const linhas = await tx
     .select({
       id: templateMessage.id,
-      canalId: templateMessage.canalId,
-      corpo: templateMessage.corpo,
-      nome: templateMessage.nome,
+      channelId: templateMessage.canalId,
+      body: templateMessage.corpo,
+      name: templateMessage.nome,
       idioma: templateMessage.idioma,
-      categoria: templateMessage.categoria,
+      category: templateMessage.categoria,
       statusMeta: templateMessage.statusMeta,
-      cabecalhoTipo: templateMessage.cabecalhoTipo,
+      headerType: templateMessage.cabecalhoTipo,
       variaveis: templateMessage.variables,
-      canalNome: channel.nome,
+      channelName: channel.nome,
     })
     .from(templateMessage)
     .innerJoin(channel, eq(channel.id, templateMessage.canalId))
     .where(channelId ? eq(templateMessage.canalId, channelId) : undefined)
     .orderBy(asc(templateMessage.nome));
 
-  return linhas.map((l) => ({ ...l, variaveis: readVariables(l.variaveis) }));
+  return linhas.map(({ variaveis, ...l }) => ({ ...l, variables: readVariables(variaveis) }));
 }
 
 export async function loadChannelOfFlow(
