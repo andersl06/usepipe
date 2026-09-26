@@ -18,9 +18,9 @@ import {
 import { uuidOu404 } from './management-flow.js';
 
 /**
- * The contact Builder (`/fluxo/:id/builder`) uses a browser session. It shares the HTTP adapter pattern of `gestao-fluxo.ts` but keeps the draft, publish and history lifecycle together here; the rules live in `dominio/gestao/builder-do-fluxo.ts`. `GET :id/builder` loads the design; `PUT :id/builder` saves a draft and returns per-block engine errors with 200 even when invalid; `POST :id/builder/publicar` publishes or returns 409 with `detalhe.erros`; `GET :id/builder/versoes` and `POST .../versoes/:versao/restaurar` handle versions. Routers return 409 on all these routes (`roteador_sem_builder`). The tenant comes from the session, never the URL; an invalid UUID `id` returns 404 before querying.
+ * The contact Builder (`/fluxo/:id/builder`) uses a browser session. It shares the HTTP adapter pattern of `gestao-fluxo.ts` but keeps the draft, publish and history lifecycle together here; the rules live in `dominio/gestao/builder-do-fluxo.ts`. `GET :id/builder` loads the design; `PUT :id/builder` saves a draft and returns per-block engine errors with 200 even when invalid; `POST :id/builder/publicar` publishes or returns 409 with `detalhe.erros`; `GET :id/builder/versoes` and `POST .../versoes/:version/restaurar` handle versions. Routers return 409 on all these routes (`roteador_sem_builder`). The tenant comes from the session, never the URL; an invalid UUID `id` returns 404 before querying.
  */
-@Controller('v1/gestao/fluxos')
+@Controller('v1/management/flows')
 export class ManagementBuilderController {
   @Get(':id/builder')
   @WithSession()
@@ -49,7 +49,7 @@ export class ManagementBuilderController {
     );
   }
 
-  @Post(':id/builder/publicar')
+  @Post(':id/builder/publish')
   @HttpCode(200)
   @WithSession()
   async publicar(
@@ -63,7 +63,7 @@ export class ManagementBuilderController {
     );
   }
 
-  @Get(':id/builder/versoes')
+  @Get(':id/builder/versions')
   @WithSession()
   async versions(
     @Req() requisicao: RequestWithSession,
@@ -76,13 +76,13 @@ export class ManagementBuilderController {
     );
   }
 
-  @Post(':id/builder/versoes/:versao/restaurar')
+  @Post(':id/builder/versions/:version/restore')
   @HttpCode(200)
   @WithSession()
   async restore(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Param('versao') versao: string,
+    @Param('version') versao: string,
   ): Promise<RascunhoGravado> {
     const session = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');

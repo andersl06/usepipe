@@ -72,7 +72,7 @@ export class DeskController {
   }
 
 
-  @Get('conversas/:id')
+  @Get('conversations/:id')
   @WithSession()
   conversation(
     @Req() requisicao: RequestWithSession,
@@ -122,7 +122,7 @@ export class DeskController {
   }
 
 
-  @Get('contatos/:id')
+  @Get('contacts/:id')
   @WithSession()
   contact(
     @Req() requisicao: RequestWithSession,
@@ -199,7 +199,7 @@ export class DeskController {
 
 
 
-  @Post('acoes/:acao')
+  @Post('actions/:acao')
   @HttpCode(200)
   @WithSession()
   async acao(

@@ -170,7 +170,7 @@ export function textoDaQuery(requisicao: Request, campo: string): string | undef
 
 /** Requested origin without a trailing slash; `baseDoApp` validates it. */
 export function origemDaQuery(requisicao: Request): string | undefined {
-  const crua = textoDaQuery(requisicao, 'origem');
+  const crua = textoDaQuery(requisicao, 'origin');
   return crua ? crua.replace(/\/$/, '') : undefined;
 }
 
@@ -237,10 +237,10 @@ export class LoginController {
       return;
     }
 
-    const invitation = textoDaQuery(requisicao, 'convite');
+    const invitation = textoDaQuery(requisicao, 'invite');
     const origem = origemDaQuery(requisicao);
     const desafio: ChallengeWithInvitation = {
-      ...createChallenge(textoDaQuery(requisicao, 'destino') ?? '/'),
+      ...createChallenge(textoDaQuery(requisicao, 'returnTo') ?? '/'),
       ...(invitation ? { invitation } : {}),
       ...(origem ? { origem } : {}),
     };

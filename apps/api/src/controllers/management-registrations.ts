@@ -167,7 +167,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Patch('atendentes/filas/:id')
+  @Patch('agents/queues/:id')
   @WithSession()
   async editarQueue(
     @Req() requisicao: RequestWithSession,
@@ -181,7 +181,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Delete('atendentes/filas/:id')
+  @Delete('agents/queues/:id')
   @HttpCode(204)
   @WithSession()
   async deleteQueue(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
@@ -192,7 +192,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Post('atendentes/filas/:id/atendentes')
+  @Post('agents/queues/:id/agents')
   @WithSession()
   async vincularAgent(
     @Req() requisicao: RequestWithSession,
@@ -215,13 +215,13 @@ export class ManagementRegistrationsController {
     return { ok: true };
   }
 
-  @Delete('atendentes/filas/:id/atendentes/:atendenteId')
+  @Delete('agents/queues/:id/agents/:agentId')
   @HttpCode(204)
   @WithSession()
   async unlinkAgent(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Param('atendenteId') agentId: string,
+    @Param('agentId') agentId: string,
   ): Promise<void> {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'fila');
@@ -233,7 +233,7 @@ export class ManagementRegistrationsController {
 
   /* ------------------------------------------- regras de atendimento (item 1) */
 
-  @Patch('regras/atendimento/:id')
+  @Patch('rules/attendance/:id')
   @WithSession()
   async editarRuleQueue(
     @Req() requisicao: RequestWithSession,
@@ -247,7 +247,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Delete('regras/atendimento/:id')
+  @Delete('rules/attendance/:id')
   @HttpCode(204)
   @WithSession()
   async deleteRuleQueue(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
@@ -260,7 +260,7 @@ export class ManagementRegistrationsController {
 
 
 
-  @Patch('regras/horarios/faixas/:id')
+  @Patch('rules/schedules/ranges/:id')
   @WithSession()
   async editarFaixaHorario(
     @Req() requisicao: RequestWithSession,
@@ -274,7 +274,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Delete('regras/horarios/faixas/:id')
+  @Delete('rules/schedules/ranges/:id')
   @HttpCode(204)
   @WithSession()
   async excluirFaixaHorario(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
@@ -285,7 +285,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Patch('regras/horarios/excecoes/:id')
+  @Patch('rules/schedules/exceptions/:id')
   @WithSession()
   async editarExceptionSchedule(
     @Req() requisicao: RequestWithSession,
@@ -299,7 +299,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Delete('regras/horarios/excecoes/:id')
+  @Delete('rules/schedules/exceptions/:id')
   @HttpCode(204)
   @WithSession()
   async deleteExceptionSchedule(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
@@ -324,7 +324,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Patch('configuracoes/regras/:id')
+  @Patch('settings/rules/:id')
   @WithSession()
   async editarRegraSla(
     @Req() requisicao: RequestWithSession,
@@ -338,7 +338,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Delete('configuracoes/regras/:id')
+  @Delete('settings/rules/:id')
   @HttpCode(204)
   @WithSession()
   async excluirRegraSla(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
@@ -372,7 +372,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Patch('configuracoes/palavras-proibidas/:id')
+  @Patch('settings/words-forbidden/:id')
   @WithSession()
   async editarPalavraProibida(
     @Req() requisicao: RequestWithSession,
@@ -386,7 +386,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Delete('configuracoes/palavras-proibidas/:id')
+  @Delete('settings/words-forbidden/:id')
   @HttpCode(204)
   @WithSession()
   async excluirPalavraProibida(
@@ -414,7 +414,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Patch('regras/prioridade/:id')
+  @Patch('rules/priority/:id')
   @WithSession()
   async editarRulePriority(
     @Req() requisicao: RequestWithSession,
@@ -428,7 +428,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Delete('regras/prioridade/:id')
+  @Delete('rules/priority/:id')
   @HttpCode(204)
   @WithSession()
   async deleteRulePriority(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
@@ -487,7 +487,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Patch('comunicacao/respostas-prontas/:id')
+  @Patch('communication/responses-ready/:id')
   @WithSession()
   async editarRespostaPronta(
     @Req() requisicao: RequestWithSession,
@@ -501,7 +501,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Delete('comunicacao/respostas-prontas/:id')
+  @Delete('communication/responses-ready/:id')
   @HttpCode(204)
   @WithSession()
   async excluirRespostaPronta(
@@ -529,7 +529,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Patch('atendentes/pausas/:id')
+  @Patch('agents/pauses/:id')
   @WithSession()
   async editarMotivoPausa(
     @Req() requisicao: RequestWithSession,
@@ -543,7 +543,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Delete('atendentes/pausas/:id')
+  @Delete('agents/pauses/:id')
   @HttpCode(204)
   @WithSession()
   async excluirMotivoPausa(
@@ -560,7 +560,7 @@ export class ManagementRegistrationsController {
 
 
 
-  @Post('acoes/:acao')
+  @Post('actions/:acao')
   @HttpCode(200)
   @WithSession()
   async acao(

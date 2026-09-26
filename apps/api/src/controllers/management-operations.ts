@@ -143,7 +143,7 @@ export class ManagementOperationsController {
     });
   }
 
-  @Get('monitoramento/conversas/:id')
+  @Get('monitoring/conversations/:id')
   @WithSession()
   async previaOfConversation(@Req() requisicao: RequestWithSession, @Param('id') id: string) {
     const sessao = sessionOf(requisicao);
@@ -156,7 +156,7 @@ export class ManagementOperationsController {
     return previa;
   }
 
-  @Post('monitoramento/conversas/:id/notas')
+  @Post('monitoring/conversations/:id/notes')
   @HttpCode(201)
   @WithSession()
   async falarWithAgent(
@@ -172,7 +172,7 @@ export class ManagementOperationsController {
     return { ok: true };
   }
 
-  @Post('monitoramento/conversas/:id/transferir')
+  @Post('monitoring/conversations/:id/transfer')
   @WithSession()
   async transferInMonitoring(
     @Req() requisicao: RequestWithSession,
@@ -196,7 +196,7 @@ export class ManagementOperationsController {
     });
   }
 
-  @Post('monitoramento/conversas/:id/finalizar')
+  @Post('monitoring/conversations/:id/finalize')
   @WithSession()
   async finalizeInMonitoring(
     @Req() requisicao: RequestWithSession,
@@ -319,7 +319,7 @@ export class ManagementOperationsController {
     });
   }
 
-  @Get('monitoria/:id')
+  @Get('quality-review/:id')
   @WithSession()
   async ficha(
     @Req() requisicao: RequestWithSession,

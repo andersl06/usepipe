@@ -200,7 +200,7 @@ export class SsoLoginController {
       const fluxo = await connectionForFlow(tenantId, { exigirActive: true });
       const origem = origemDaQuery(requisicao);
       const desafio: ChallengeWithInvitation = {
-        ...createChallenge(textoDaQuery(requisicao, 'destino') ?? '/'),
+        ...createChallenge(textoDaQuery(requisicao, 'returnTo') ?? '/'),
         tenantId,
         ...(origem ? { origem } : {}),
       };

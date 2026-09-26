@@ -194,7 +194,7 @@ export class ManagementAccountController {
     });
   }
 
-  @Delete('contrato/certificados/:id')
+  @Delete('contract/certificates/:id')
   @HttpCode(200)
   @WithSession()
   async apagarCertificado(
@@ -212,7 +212,7 @@ export class ManagementAccountController {
     });
   }
 
-  @Delete('contrato/certificados/:id/hosts/:hostId')
+  @Delete('contract/certificates/:id/hosts/:hostId')
   @HttpCode(200)
   @WithSession()
   async apagarHostDoCertificado(

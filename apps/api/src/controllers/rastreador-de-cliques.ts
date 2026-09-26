@@ -35,7 +35,7 @@ interface CorpoDeLink {
   destination?: string;
 }
 
-@Controller('v1/gestao/fluxos/:fluxoId/links-rastreados')
+@Controller('v1/management/flows/:flowId/links-tracked')
 export class TrackedLinksController {
   @Get()
   @WithSession()

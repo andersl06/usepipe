@@ -97,7 +97,7 @@ export interface ResponseOfReports {
   fuso: string;
 }
 
-@Controller('v1/gestao/fluxos/:id/analise')
+@Controller('v1/management/flows/:id/analytics')
 export class ManagementAnalyticsController {
   @Get('dashboard')
   @WithSession()
@@ -132,7 +132,7 @@ export class ManagementAnalyticsController {
     return resposta;
   }
 
-  @Get('mensagens-ativas')
+  @Get('messages-active')
   @WithSession()
   async messagesActive(
     @Req() requisicao: RequestWithSession,
@@ -159,7 +159,7 @@ export class ManagementAnalyticsController {
     });
   }
 
-  @Get('visao-geral')
+  @Get('view-overview')
   @WithSession()
   async visaoGeral(
     @Req() requisicao: RequestWithSession,
@@ -178,7 +178,7 @@ export class ManagementAnalyticsController {
     });
   }
 
-  @Get('jornada')
+  @Get('journey')
   @WithSession()
   async jornada(
     @Req() requisicao: RequestWithSession,
@@ -208,7 +208,7 @@ export class ManagementAnalyticsController {
     return resposta;
   }
 
-  @Get('relatorios')
+  @Get('reports')
   @WithSession()
   async reports(
     @Req() requisicao: RequestWithSession,

@@ -78,7 +78,7 @@ export class ContactsController {
     if (consulta['telefone']) filtros.push(sql`telefone_e164 = ${consulta['telefone']}`);
     if (consulta['email']) filtros.push(sql`email = ${consulta['email']}`);
     if (consulta['documento']) filtros.push(sql`documento = ${consulta['documento']}`);
-    if (consulta['busca']) filtros.push(sql`nome ilike ${`%${consulta['busca']}%`}`);
+    if (consulta['search']) filtros.push(sql`nome ilike ${`%${consulta['search']}%`}`);
 
     const linhas = await noTenant(tenantId, async (tx) => {
       const { rows } = await tx.execute<LineContact>(sql`

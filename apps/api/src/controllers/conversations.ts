@@ -157,7 +157,7 @@ export class ConversationsController {
     return asConversation(linha);
   }
 
-  @Get(':id/mensagens')
+  @Get(':id/messages')
   @Scopes('mensagens:ler')
   async messages(
     @Req() requisicao: RequestAuthenticated,
@@ -173,8 +173,8 @@ export class ConversationsController {
     });
 
     const filtros: SQL[] = [sql`conversa_id = ${id}::uuid`];
-    if (query['direcao']) {
-      filtros.push(igualEmLista('direcao', query['direcao'], ['entrada', 'saida', 'interna']));
+    if (query['direction']) {
+      filtros.push(igualEmLista('direcao', query['direction'], ['entrada', 'saida', 'interna']));
     }
     if (query['estado_entrega']) {
       filtros.push(
@@ -213,7 +213,7 @@ export class ConversationsController {
   /**
    * The same route serves integrations and the Desk; see `ChaveOuSessao`. What differs is message authorship. For a browser session, the author comes from the cookie's `usuario_id`, and any body `atendente_id` is ignored. Accepting that field would let a signed-in person send a message in a colleague's name, displaying that colleague to the customer.
    */
-  @Post(':id/mensagens')
+  @Post(':id/messages')
   @HttpCode(201)
   @KeyOrSession('mensagens:escrever')
   async enviar(
@@ -247,7 +247,7 @@ export class ConversationsController {
   /**
    * Send multiple files as one message per file, sequentially, as the source `enviarAnexos` does. Validate the whole batch before sending the first: more than 10 files, a missing attachment or an attachment over its type limit rejects all, and the response identifies the file. Return messages in send order.
    */
-  @Post(':id/mensagens/anexos')
+  @Post(':id/messages/attachments')
   @HttpCode(201)
   @KeyOrSession('mensagens:escrever')
   async sendLoteOfAttachments(
@@ -284,7 +284,7 @@ export class ConversationsController {
   /**
    * Close the conversation. The list mirrors Blip's `blip-tags` and enforces required tags.
    */
-  @Post(':id/encerrar')
+  @Post(':id/close')
   @KeyOrSession('conversas:escrever')
   async encerrar(
     @Req() requisicao: RequestAuthenticated & RequestWithSession,
@@ -306,11 +306,11 @@ export class ConversationsController {
   /**
    * Retry a failed message. The former screen changed `mensagem` to `pendente` directly in the database and did not work: it left `outbox_mensagem` unchanged, while the worker claims messages from outbox state. See `reenviarMensagem`.
    */
-  @Post(':id/mensagens/:mensagemId/reenviar')
+  @Post(':id/messages/:messageId/resend')
   @KeyOrSession('mensagens:escrever')
   async reenviar(
     @Req() requisicao: RequestAuthenticated & RequestWithSession,
-    @Param('mensagemId') messageId: string,
+    @Param('messageId') messageId: string,
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
     const r = await resendMessage(ator.tenantId, messageId);
@@ -320,7 +320,7 @@ export class ConversationsController {
   /**
    * Transfer to another queue or attendant. This closes the current conversation and opens a new one at the destination; it is not a state transition. The rule in `packages/core/src/conversa/maquina.ts` mirrors Blip. The response therefore contains both IDs: the closed conversation and the new one.
    */
-  @Post(':id/transferir')
+  @Post(':id/transfer')
   @KeyOrSession('conversas:escrever')
   async transferir(
     @Req() requisicao: RequestAuthenticated & RequestWithSession,
@@ -349,7 +349,7 @@ export class ConversationsController {
   }
 
 
-  @Post(':id/espera')
+  @Post(':id/wait')
   @KeyOrSession('conversas:escrever')
   async espera(
     @Req() requisicao: RequestAuthenticated & RequestWithSession,

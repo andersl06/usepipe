@@ -231,7 +231,7 @@ export class ManagementFlowController {
   /**
    * The bot's channel is the source `channels/{canal}` page. The rules for one bot per number, refusing inactive channels and `channels.escrever` permission on the flow live in `dominio/gestao/canal-do-fluxo.ts`.
    */
-  @Get(':id/canal')
+  @Get(':id/channel')
   @WithSession()
   async channel(
     @Req() requisicao: RequestWithSession,
@@ -243,7 +243,7 @@ export class ManagementFlowController {
   }
 
 
-  @Put(':id/canal')
+  @Put(':id/channel')
   @WithSession()
   async connectChannel(
     @Req() requisicao: RequestWithSession,
@@ -263,7 +263,7 @@ export class ManagementFlowController {
   /**
    * Disconnect the channel from this bot, leaving the channel itself connected to Meta. Optional `motivo` comes from the source disconnect modal and is written to the log.
    */
-  @Delete(':id/canal')
+  @Delete(':id/channel')
   @HttpCode(204)
   @WithSession()
   async disconnectChannel(
@@ -280,7 +280,7 @@ export class ManagementFlowController {
   }
 
   /** "Tela de Boas-vindas" — a regra mora em `dominio/gestao/configuracao-do-fluxo.ts`. */
-  @Get(':id/boas-vindas')
+  @Get(':id/welcome')
   @WithSession()
   async boasVindas(
     @Req() requisicao: RequestWithSession,
@@ -291,7 +291,7 @@ export class ManagementFlowController {
     return noTenant(sessao.tenantId, (tx) => carregarBoasVindas(tx, sessao.tenantId, id));
   }
 
-  @Patch(':id/boas-vindas')
+  @Patch(':id/welcome')
   @WithSession()
   async salvarBoasVindasRota(
     @Req() requisicao: RequestWithSession,
@@ -310,7 +310,7 @@ export class ManagementFlowController {
   }
 
   /** "Menu Persistente" — mesma regra do arquivo acima. */
-  @Get(':id/menu-persistente')
+  @Get(':id/menu-persistent')
   @WithSession()
   async menuPersistente(
     @Req() requisicao: RequestWithSession,
@@ -321,7 +321,7 @@ export class ManagementFlowController {
     return noTenant(sessao.tenantId, (tx) => carregarMenuPersistente(tx, sessao.tenantId, id));
   }
 
-  @Patch(':id/menu-persistente')
+  @Patch(':id/menu-persistent')
   @WithSession()
   async salvarMenuPersistenteRota(
     @Req() requisicao: RequestWithSession,
@@ -336,7 +336,7 @@ export class ManagementFlowController {
     );
   }
 
-  @Get(':id/contatos')
+  @Get(':id/contacts')
   @WithSession()
   async contacts(
     @Req() requisicao: RequestWithSession,
@@ -347,12 +347,12 @@ export class ManagementFlowController {
     return noTenant(sessao.tenantId, (tx) => listContactsOfFlow(tx, sessao.tenantId, id));
   }
 
-  @Get(':id/contatos/:contatoId')
+  @Get(':id/contacts/:contactId')
   @WithSession()
   async detalheOfContact(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Param('contatoId') contactId: string,
+    @Param('contactId') contactId: string,
     @Query('ticketId') ticketId?: string,
   ): Promise<DetalheOfContact> {
     const sessao = sessionOf(requisicao);
@@ -397,7 +397,7 @@ export class ManagementFlowController {
     return noTenant(sessao.tenantId, (tx) => carregarGrowth(tx, sessao.tenantId));
   }
 
-  @Get(':id/conteudos')
+  @Get(':id/content-items')
   @WithSession()
   async conteudos(
     @Req() requisicao: RequestWithSession,
@@ -413,7 +413,7 @@ export class ManagementFlowController {
   }
 
 
-  @Get(':id/servicos')
+  @Get(':id/services')
   @WithSession()
   async servicos(
     @Req() requisicao: RequestWithSession,
@@ -428,7 +428,7 @@ export class ManagementFlowController {
     return data;
   }
 
-  @Post(':id/servicos')
+  @Post(':id/services')
   @WithSession()
   async createService(
     @Req() requisicao: RequestWithSession,
@@ -442,12 +442,12 @@ export class ManagementFlowController {
     );
   }
 
-  @Patch(':id/servicos/:servicoId')
+  @Patch(':id/services/:serviceId')
   @WithSession()
   async editarService(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Param('servicoId') serviceId: string,
+    @Param('serviceId') serviceId: string,
     @Body() corpo: Partial<RequestOfService>,
   ): Promise<LinkedService> {
     const sessao = sessionOf(requisicao);
@@ -458,13 +458,13 @@ export class ManagementFlowController {
     );
   }
 
-  @Delete(':id/servicos/:servicoId')
+  @Delete(':id/services/:serviceId')
   @HttpCode(204)
   @WithSession()
   async deleteService(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Param('servicoId') servicoId: string,
+    @Param('serviceId') servicoId: string,
   ): Promise<void> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');

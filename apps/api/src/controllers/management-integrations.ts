@@ -58,7 +58,7 @@ interface CorpoDeWebhook {
 export class ManagementIntegrationsController {
   /* ------------------------------------------------------- Chaves do fluxo */
 
-  @Get('v1/gestao/fluxos/:id/chaves')
+  @Get('v1/management/flows/:id/keys')
   @WithSession()
   async chaves(
     @Req() requisicao: RequestWithSession,
@@ -71,7 +71,7 @@ export class ManagementIntegrationsController {
     );
   }
 
-  @Post('v1/gestao/fluxos/:id/chaves')
+  @Post('v1/management/flows/:id/keys')
   @WithSession()
   async createKey(
     @Req() requisicao: RequestWithSession,
@@ -87,13 +87,13 @@ export class ManagementIntegrationsController {
   }
 
   /** The screen says "Excluir chave", but the rule revokes by setting `revogada_em`; it never deletes the row. */
-  @Delete('v1/gestao/fluxos/:id/chaves/:chaveId')
+  @Delete('v1/management/flows/:id/keys/:keyId')
   @HttpCode(204)
   @WithSession()
   async revogarKey(
     @Req() request: RequestWithSession,
     @Param('id') id: string,
-    @Param('chaveId') keyId: string,
+    @Param('keyId') keyId: string,
   ): Promise<void> {
     const session = sessionOf(request);
     uuidOu404(id, 'fluxo');
@@ -105,7 +105,7 @@ export class ManagementIntegrationsController {
 
 
 
-  @Get('v1/gestao/fluxos/:id/conexao')
+  @Get('v1/management/flows/:id/connection')
   @WithSession()
   async conexao(
     @Req() requisicao: RequestWithSession,
@@ -118,7 +118,7 @@ export class ManagementIntegrationsController {
     );
   }
 
-  @Put('v1/gestao/fluxos/:id/conexao')
+  @Put('v1/management/flows/:id/connection')
   @WithSession()
   async salvarConexao(
     @Req() requisicao: RequestWithSession,
@@ -141,14 +141,14 @@ export class ManagementIntegrationsController {
 
   /* ---------------------------------------------------------------- Webhook */
 
-  @Get('v1/gestao/webhooks')
+  @Get('v1/management/webhooks')
   @WithSession()
   async webhooks(@Req() requisicao: RequestWithSession): Promise<WebhookDeSaida[]> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => listarWebhooks(tx, sessao.tenantId, sessao.userId));
   }
 
-  @Post('v1/gestao/webhooks')
+  @Post('v1/management/webhooks')
   @WithSession()
   async createWebhook(
     @Req() requisicao: RequestWithSession,
@@ -166,7 +166,7 @@ export class ManagementIntegrationsController {
     );
   }
 
-  @Patch('v1/gestao/webhooks/:webhookId')
+  @Patch('v1/management/webhooks/:webhookId')
   @WithSession()
   async editarWebhook(
     @Req() requisicao: RequestWithSession,
@@ -186,7 +186,7 @@ export class ManagementIntegrationsController {
     );
   }
 
-  @Delete('v1/gestao/webhooks/:webhookId')
+  @Delete('v1/management/webhooks/:webhookId')
   @HttpCode(204)
   @WithSession()
   async excluirWebhook(
@@ -200,7 +200,7 @@ export class ManagementIntegrationsController {
     );
   }
 
-  @Post('v1/gestao/webhooks/:webhookId/testar')
+  @Post('v1/management/webhooks/:webhookId/test')
   @HttpCode(200)
   @WithSession()
   async testarWebhook(

@@ -153,7 +153,7 @@ export class ChannelsController {
   /**
    * The number's business profile (photo, status message, description, address, email, websites and category), plus read-only display name and Meta review status. See `dominio/whatsapp/perfil.ts`.
    */
-  @Get('whatsapp/:id/perfil')
+  @Get('whatsapp/:id/profile')
   @WithSession()
   async perfil(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<PerfilVisivel> {
     const sessao = sessionOf(requisicao);
@@ -161,7 +161,7 @@ export class ChannelsController {
     return readProfileOfChannel(sessao.tenantId, id);
   }
 
-  @Patch('whatsapp/:id/perfil')
+  @Patch('whatsapp/:id/profile')
   @WithSession()
   async gravarPerfil(
     @Req() requisicao: RequestWithSession,
@@ -174,7 +174,7 @@ export class ChannelsController {
   }
 
   /** Channel tabs "Configurações" and "Configurações de alerta". See `dominio/whatsapp/preferencias.ts`. */
-  @Get('whatsapp/:id/preferencias')
+  @Get('whatsapp/:id/preferences')
   @WithSession()
   async preferences(
     @Req() requisicao: RequestWithSession,
@@ -185,7 +185,7 @@ export class ChannelsController {
     return readPreferences(sessao.tenantId, id);
   }
 
-  @Patch('whatsapp/:id/preferencias')
+  @Patch('whatsapp/:id/preferences')
   @WithSession()
   async writePreferences(
     @Req() requisicao: RequestWithSession,
@@ -198,7 +198,7 @@ export class ChannelsController {
   }
 
   /** Traz da Meta todos os modelos da WABA do canal. Ver `dominio/whatsapp/modelos.ts`. */
-  @Post('whatsapp/:id/modelos/sincronizar')
+  @Post('whatsapp/:id/templates/sync')
   @HttpCode(200)
   @WithSession()
   async sincronizarModelos(
@@ -211,7 +211,7 @@ export class ChannelsController {
   }
 
   /** Create the template in Meta for review and store a `pendente` copy. */
-  @Post('whatsapp/:id/modelos')
+  @Post('whatsapp/:id/templates')
   @HttpCode(201)
   @WithSession()
   async createTemplate(
@@ -225,12 +225,12 @@ export class ChannelsController {
   }
 
   /** Apaga na Meta, pelo nome (todos os idiomas), e aqui. */
-  @Delete('whatsapp/:id/modelos/:nome')
+  @Delete('whatsapp/:id/templates/:name')
   @WithSession()
   async deleteTemplate(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Param('nome') nome: string,
+    @Param('name') nome: string,
   ): Promise<{ removed: number }> {
     const sessao = sessionOf(requisicao);
     await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');

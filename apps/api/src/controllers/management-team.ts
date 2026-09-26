@@ -18,7 +18,7 @@ import {
 } from '../domain/management/team-of-flow.js';
 
 /**
- * The contact's "Equipe" tab (`/fluxo/:id/equipe`) uses a browser session. Keep per-flow team logic in `dominio/gestao/equipe-do-fluxo.ts`, with a thin adapter like `gestao-builder.ts`. `GET :id/equipe` loads members, edit-modal resources and caller editability; `GET :id/equipe/eu` supplies `itensDoMenu`; `POST :id/equipe` adds someone already on the contract by email; `PATCH :id/equipe/:usuarioId` saves changes; `DELETE :id/equipe/:usuarioId` returns 204. The tenant comes from the session, never the URL, so another customer's flow looks absent (404). Invalid UUID `id` is rejected with 404 before Postgres can return 500.
+ * The contact's "Equipe" tab (`/fluxo/:id/equipe`) uses a browser session. Keep per-flow team logic in `dominio/gestao/equipe-do-fluxo.ts`, with a thin adapter like `gestao-builder.ts`. `GET :id/equipe` loads members, edit-modal resources and caller editability; `GET :id/equipe/eu` supplies `itensDoMenu`; `POST :id/equipe` adds someone already on the contract by email; `PATCH :id/equipe/:userId` saves changes; `DELETE :id/equipe/:userId` returns 204. The tenant comes from the session, never the URL, so another customer's flow looks absent (404). Invalid UUID `id` is rejected with 404 before Postgres can return 500.
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -30,9 +30,9 @@ function uuidOu404(value: string, oQue: string): string {
   return value;
 }
 
-@Controller('v1/gestao/fluxos')
+@Controller('v1/management/flows')
 export class ManagementTeamController {
-  @Get(':id/equipe')
+  @Get(':id/team')
   @WithSession()
   async listar(
     @Req() requisicao: RequestWithSession,
@@ -46,7 +46,7 @@ export class ManagementTeamController {
   }
 
   /** No separate permission is needed: this response describes the caller and is always that caller's own data. */
-  @Get(':id/equipe/eu')
+  @Get(':id/team/i')
   @WithSession()
   async minhas(
     @Req() requisicao: RequestWithSession,
@@ -59,7 +59,7 @@ export class ManagementTeamController {
     );
   }
 
-  @Post(':id/equipe')
+  @Post(':id/team')
   @HttpCode(201)
   @WithSession()
   async adicionar(
@@ -74,12 +74,12 @@ export class ManagementTeamController {
     );
   }
 
-  @Patch(':id/equipe/:usuarioId')
+  @Patch(':id/team/:userId')
   @WithSession()
   async editar(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Param('usuarioId') usuarioId: string,
+    @Param('userId') usuarioId: string,
     @Body() corpo: RequestOfMemberOfFlow,
   ): Promise<MemberOfFlow> {
     const sessao = sessionOf(requisicao);
@@ -90,13 +90,13 @@ export class ManagementTeamController {
     );
   }
 
-  @Delete(':id/equipe/:usuarioId')
+  @Delete(':id/team/:userId')
   @HttpCode(204)
   @WithSession()
   async remover(
     @Req() request: RequestWithSession,
     @Param('id') id: string,
-    @Param('usuarioId') userId: string,
+    @Param('userId') userId: string,
   ): Promise<void> {
     const session = sessionOf(request);
     uuidOu404(id, 'fluxo');

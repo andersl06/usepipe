@@ -54,7 +54,7 @@ export class ContactImportsController {
   }
 
   /** Download the rejected-row report with its `erros` column. */
-  @Get(':id/falhas')
+  @Get(':id/failures')
   @WithSession()
   async falhas(
     @Req() requisicao: RequestWithSession,

@@ -50,7 +50,7 @@ export class LabelsController {
   }
 }
 
-@Controller('v1/conversas/:id/etiquetas')
+@Controller('v1/conversations/:id/labels')
 export class ConversationLabelsController {
   @Post()
   @HttpCode(201)
@@ -69,13 +69,13 @@ export class ConversationLabelsController {
     return { etiqueta_id: r.etiquetaId, nome: r.name, aplicada: r.aplicada };
   }
 
-  @Delete(':etiquetaId')
+  @Delete(':labelId')
   @HttpCode(200)
   @KeyOrSession('conversas:escrever')
   async remover(
     @Req() requisicao: RequestAuthenticated & RequestWithSession,
     @Param('id') id: string,
-    @Param('etiquetaId') etiquetaId: string,
+    @Param('labelId') etiquetaId: string,
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
     const r = await unlabelConversation(
@@ -87,7 +87,7 @@ export class ConversationLabelsController {
   }
 }
 
-@Controller('v1/contatos/:id/etiquetas')
+@Controller('v1/contacts/:id/labels')
 export class ContactLabelsController {
   @Get()
   @KeyOrSession('contatos:ler')
@@ -114,13 +114,13 @@ export class ContactLabelsController {
     return { etiqueta_id: r.etiquetaId, nome: r.name, aplicada: r.aplicada };
   }
 
-  @Delete(':etiquetaId')
+  @Delete(':labelId')
   @HttpCode(200)
   @KeyOrSession('contatos:escrever')
   async remover(
     @Req() requisicao: RequestAuthenticated & RequestWithSession,
     @Param('id') id: string,
-    @Param('etiquetaId') etiquetaId: string,
+    @Param('labelId') etiquetaId: string,
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
     const r = await unlabelContact(ator, id, etiquetaId);
