@@ -50,7 +50,7 @@ export async function loadSummaryOfContract(
     const [linha] = await tx
       .select({
         id: tenant.id,
-        nome: tenant.nome,
+        name: tenant.nome,
         slug: tenant.slug,
         logoUrl: tenant.logoUrl,
         criadoEm: tenant.criadoEm,
@@ -70,13 +70,13 @@ export async function loadSummaryOfContract(
 
     return {
       id: linha?.id ?? tid,
-      nome: linha?.nome ?? '',
+      name: linha?.name ?? '',
       slug: linha?.slug ?? '',
       logoUrl: linha?.logoUrl ?? null,
       criadoEm: linha?.criadoEm ?? null,
       fuso: linha?.fuso ?? 'America/Sao_Paulo',
-      fluxos: flows?.n ?? 0,
-      membros: members?.n ?? 0,
+      flows: flows?.n ?? 0,
+      members: members?.n ?? 0,
     };
   });
 }
@@ -115,7 +115,7 @@ export interface MemberOfContract {
 export async function loadPapeisOfAccount(tx: TransactionPipe): Promise<RoleOfAccount[]> {
   return consultar(tx, (tx) =>
     tx
-      .select({ id: role.id, nome: role.nome })
+      .select({ id: role.id, name: role.nome })
       .from(role)
       .where(eq(role.scope, 'conta'))
       .orderBy(asc(role.nome)),
@@ -144,11 +144,11 @@ export async function loadMembers(tx: TransactionPipe): Promise<MemberOfContract
     const linhas = await tx
       .select({
         id: user.id,
-        nome: user.nome,
+        name: user.nome,
         email: user.email,
         avatarUrl: user.avatarUrl,
-        papelId: role.id,
-        papelNome: role.nome,
+        roleId: role.id,
+        roleName: role.nome,
       })
       .from(user)
       /* Só o papel de CONTA: é UM por pessoa (índice parcial da 0021), então o
@@ -172,8 +172,8 @@ export async function loadMembers(tx: TransactionPipe): Promise<MemberOfContract
       .select({
         id: invitation.id,
         email: invitation.email,
-        papelId: role.id,
-        papelNome: role.nome,
+        roleId: role.id,
+        roleName: role.nome,
       })
       .from(invitation)
       .innerJoin(role, eq(role.id, invitation.papelId))
@@ -185,7 +185,7 @@ export async function loadMembers(tx: TransactionPipe): Promise<MemberOfContract
       ...pendentes.map((c) => ({
         ...c,
         tipo: 'convite' as const,
-        nome: c.email.slice(0, c.email.indexOf('@')),
+        name: c.email.slice(0, c.email.indexOf('@')),
         avatarUrl: null,
       })),
     ];
@@ -270,7 +270,7 @@ export async function defineRoleOfMember(
     await tx.delete(userRole).where(ofAccount);
     await tx
       .insert(userRole)
-      .values({ tenantId: tid, usuarioId: userIdTarget, papelId: novo.id, escopo: 'conta' });
+      .values({ tenantId: tid, userId: userIdTarget, papelId: novo.id, escopo: 'conta' });
 
     await registrarAuditoria(tx, tid, {
       ator,
