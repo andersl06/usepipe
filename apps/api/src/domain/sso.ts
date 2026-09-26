@@ -73,11 +73,11 @@ export function ssoCallbackUrl(): string {
 function visivel(linha: LinhaConexao): ConexaoSsoVisivel {
   return {
     id: linha.id,
-    provider: linha.provedor as ProvedorSso,
-    issuer: linha.emissor,
-    clienteId: linha.cliente_id,
-    estado: linha.estado as StateConnection,
-    politica: linha.politica as PoliticaSso,
+    provider: linha.provider as ProvedorSso,
+    issuer: linha.issuer,
+    clientId: linha.cliente_id,
+    state: linha.state as StateConnection,
+    policy: linha.policy as PoliticaSso,
     testadaEm: linha.testada_em ? new Date(linha.testada_em) : null,
     ativadaEm: linha.ativada_em ? new Date(linha.ativada_em) : null,
     callbackUrl: ssoCallbackUrl(),
@@ -281,7 +281,7 @@ export async function connectionForFlow(
 ): Promise<ConnectionForFlow> {
   const linha = await linhaDoTenant(tenantId);
   if (!linha) throw PipeError.naoEncontrado('Conexão de SSO');
-  if (options.exigirActive && linha.estado !== 'ativa') {
+  if (options.exigirActive && linha.state !== 'ativa') {
     throw PipeError.request('sso_inactive', 'O SSO desta conta ainda não foi ativado.');
   }
 
@@ -294,14 +294,14 @@ export async function connectionForFlow(
   return {
     tenantId,
     config: {
-      provedor: linha.provedor as ProvedorSso,
-      emissor: linha.emissor,
+      provedor: linha.provider as ProvedorSso,
+      emissor: linha.issuer,
       clienteId: linha.cliente_id,
       customerSecret: clienteSegredo,
       urlOfCallback: ssoCallbackUrl(),
-      ...(linha.provedor === 'entra' ? { tenantsEntra: tenantsDoEntra(linha.emissor) } : {}),
+      ...(linha.provider === 'entra' ? { tenantsEntra: tenantsDoEntra(linha.issuer) } : {}),
     },
-    descoberta: await descobrir(linha.emissor, buscar),
+    descoberta: await descobrir(linha.issuer, buscar),
   };
 }
 
