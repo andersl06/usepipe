@@ -168,34 +168,34 @@ describe('POST /v1/management/agents/queues', () => {
   it('Reject empty queue names, out-of-range capacity, and duplicate names', async () => {
     const semNome = await createQueue(sessionManager, { nome: '  ' });
     expect(semNome.status).toBe(400);
-    expect(semNome.corpo.erro.code).toBe('name_required');
+    expect(semNome.body.erro.code).toBe('name_required');
 
     const capInvalida = await createQueue(sessionManager, { capacidadePadrao: 0 });
     expect(capInvalida.status).toBe(400);
-    expect(capInvalida.corpo.erro.code).toBe('capacity_invalid');
+    expect(capInvalida.body.erro.code).toBe('capacity_invalid');
 
     const nome = `Repetida ${randomUUID().slice(0, 6)}`;
     expect((await createQueue(sessionManager, { nome })).status).toBe(201);
     const repetida = await createQueue(sessionManager, { nome });
     expect(repetida.status).toBe(409);
-    expect(repetida.corpo.erro.code).toBe('name_in_use');
+    expect(repetida.body.erro.code).toBe('name_in_use');
   });
 
   it('horário inexistente é 400; cor fora da paleta é 400', async () => {
     const semHorario = await createQueue(sessionManager, { horarioId: randomUUID() });
     expect(semHorario.status).toBe(400);
-    expect(semHorario.corpo.erro.code).toBe('schedule_not_found');
+    expect(semHorario.body.erro.code).toBe('schedule_not_found');
 
     const corInvalida = await createQueue(sessionManager, { cor: 'vermelho-sangue' });
     expect(corInvalida.status).toBe(400);
-    expect(corInvalida.corpo.erro.code).toBe('color_invalid');
+    expect(corInvalida.body.erro.code).toBe('color_invalid');
   });
 
   it('Return 403 without `fila.gerenciar` and 401 without a session', async () => {
     const semPoder = await createQueue(sessionWithoutAuthority, {});
     expect(semPoder.status).toBe(403);
-    expect(semPoder.corpo.erro.code).toBe('without_permission');
-    expect(semPoder.corpo.erro.detalhe.permissao).toBe('fila.gerenciar');
+    expect(semPoder.body.erro.code).toBe('without_permission');
+    expect(semPoder.body.erro.detalhe.permissao).toBe('fila.gerenciar');
 
     const withoutSession = await fetch(`${api.url}/v1/management/agents/queues`, {
       method: 'POST',
@@ -230,7 +230,7 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
       ativa: false,
     });
     expect(desativada.status).toBe(200);
-    expect(desativada.corpo.ativa).toBe(false);
+    expect(desativada.body.ativa).toBe(false);
   });
 
   it('nada mudado não grava nem registra', async () => {
@@ -298,7 +298,7 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
     });
     expect(resposta.status).toBe(409);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('queue_with_conversation_open');
+    expect(corpo.error.code).toBe('queue_with_conversation_open');
   });
 
   it('Return 409 when deleting the inbox default queue', async () => {
@@ -309,8 +309,8 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
     });
     expect(resposta.status).toBe(409);
     const corpo = (await resposta.json()) as { error: { code: string; message: string } };
-    expect(corpo.erro.codigo).toBe('queue_default_of_inbox');
-    expect(corpo.erro.message).toContain('caixa de entrada');
+    expect(corpo.error.codigo).toBe('queue_default_of_inbox');
+    expect(corpo.error.message).toContain('caixa de entrada');
   });
 
   it('Return 409 when deleting a queue used by an inbound routing rule', async () => {
@@ -326,7 +326,7 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
     });
     expect(resposta.status).toBe(409);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.erro.codigo).toBe('queue_used_in_rule');
+    expect(corpo.error.codigo).toBe('queue_used_in_rule');
   });
 
   it('Return 403 without `fila.gerenciar` and 404 for another tenant\'s queue', async () => {
@@ -443,23 +443,23 @@ describe('POST /v1/management/communication/responses-ready', () => {
   it('Reject shortcuts with spaces, duplicate shortcuts, and empty required fields', async () => {
     const comEspaco = await createResponse(sessionManager, { atalho: 'com espaco' });
     expect(comEspaco.status).toBe(400);
-    expect(comEspaco.corpo.erro.code).toBe('shortcut_with_space');
+    expect(comEspaco.body.erro.code).toBe('shortcut_with_space');
 
     const semTitulo = await createResponse(sessionManager, { titulo: '' });
     expect(semTitulo.status).toBe(400);
-    expect(semTitulo.corpo.erro.code).toBe('title_required');
+    expect(semTitulo.body.erro.code).toBe('title_required');
 
     const atalho = `unico-${randomUUID().slice(0, 6)}`;
     expect((await createResponse(sessionManager, { atalho })).status).toBe(201);
     const repetido = await createResponse(sessionManager, { atalho: `#${atalho}` });
     expect(repetido.status).toBe(409);
-    expect(repetido.corpo.erro.code).toBe('shortcut_in_use');
+    expect(repetido.body.erro.code).toBe('shortcut_in_use');
   });
 
   it('Return 403 without `resposta_pronta.gerenciar` even with `fila.gerenciar`', async () => {
     const resposta = await createResponse(sessionOnlyQueues);
     expect(resposta.status).toBe(403);
-    expect(resposta.corpo.erro.detalhe.permissao).toBe('resposta_pronta.gerenciar');
+    expect(resposta.body.erro.detalhe.permissao).toBe('resposta_pronta.gerenciar');
   });
 });
 
@@ -473,7 +473,7 @@ describe('PATCH e DELETE /v1/management/communication/responses-ready/:id', () =
       { corpo: 'Novo corpo', categoria: 'Suporte', ativa: false },
     );
     expect(editada.status).toBe(200);
-    expect(editada.corpo).toMatchObject({ corpo: 'Novo corpo', categoria: 'Suporte', ativa: false });
+    expect(editada.body).toMatchObject({ corpo: 'Novo corpo', categoria: 'Suporte', ativa: false });
   });
 
   it('exclui (204); de outro tenant é 404; id malformado é 404', async () => {
@@ -526,11 +526,11 @@ describe('POST /v1/management/agents/pauses', () => {
   it('Reject pause names over 30 characters, durations outside 1?480 minutes, and duplicate names', async () => {
     const nomeLongo = await createPause(sessionManager, { nome: 'x'.repeat(31) });
     expect(nomeLongo.status).toBe(400);
-    expect(nomeLongo.corpo.erro.code).toBe('name_size');
+    expect(nomeLongo.body.erro.code).toBe('name_size');
 
     const durationInvalid = await createPause(sessionManager, { duracaoSugeridaMin: 481 });
     expect(durationInvalid.status).toBe(400);
-    expect(durationInvalid.corpo.erro.code).toBe('duration_invalid');
+    expect(durationInvalid.body.erro.code).toBe('duration_invalid');
 
     const nome = `Repetida ${randomUUID().slice(0, 6)}`;
     expect((await createPause(sessionManager, { nome })).status).toBe(201);
@@ -541,7 +541,7 @@ describe('POST /v1/management/agents/pauses', () => {
   it('Return 403 without `pausa.gerenciar`', async () => {
     const resposta = await createPause(sessionOnlyQueues);
     expect(resposta.status).toBe(403);
-    expect(resposta.corpo.erro.detalhe.permissao).toBe('pausa.gerenciar');
+    expect(resposta.body.erro.detalhe.permissao).toBe('pausa.gerenciar');
   });
 });
 
@@ -553,7 +553,7 @@ describe('PATCH e DELETE /v1/management/agents/pauses/:id', () => {
       contaComoProdutivo: true,
     });
     expect(editada.status).toBe(200);
-    expect(editada.corpo).toMatchObject({ ativo: false, contaComoProdutivo: true });
+    expect(editada.body).toMatchObject({ ativo: false, contaComoProdutivo: true });
   });
 
   it('Delete a pause reason without affecting historical pauses', async () => {
@@ -628,19 +628,19 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
       condicoes: [],
     });
     expect(withoutCondition.status).toBe(400);
-    expect(withoutCondition.corpo.erro.code).toBe('without_condition');
+    expect(withoutCondition.body.erro.code).toBe('without_condition');
 
     const campoInvalido = await pedir('PATCH', `/v1/management/rules/attendance/${id}`, sessionManager, {
       condicoes: [{ campo: 'nao-existe', operador: 'igual', valor: 'x' }],
     });
     expect(campoInvalido.status).toBe(400);
-    expect(campoInvalido.corpo.erro.code).toBe('field_invalid');
+    expect(campoInvalido.body.erro.code).toBe('field_invalid');
 
     const semFila = await pedir('PATCH', `/v1/management/rules/attendance/${id}`, sessionManager, {
       filaDestinoId: randomUUID(),
     });
     expect(semFila.status).toBe(400);
-    expect(semFila.corpo.erro.code).toBe('queue_not_found');
+    expect(semFila.body.erro.code).toBe('queue_not_found');
   });
 
   it('nome repetido é 409', async () => {
@@ -650,7 +650,7 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
       nome: nomeExistente,
     });
     expect(repetido.status).toBe(409);
-    expect(repetido.corpo.erro.code).toBe('name_in_use');
+    expect(repetido.body.erro.code).toBe('name_in_use');
   });
 
   it('Return 403 without `regra.gerenciar` even with `fila.gerenciar`, and 404 for cross-tenant or malformed IDs', async () => {
@@ -660,7 +660,7 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
       nome: 'Invasor',
     });
     expect(semPoder.status).toBe(403);
-    expect(semPoder.corpo.erro.detalhe.permissao).toBe('regra.gerenciar');
+    expect(semPoder.body.erro.detalhe.permissao).toBe('regra.gerenciar');
 
     const outroTenant = await pedir(
       'PATCH',
@@ -737,35 +737,35 @@ describe('POST /v1/management/settings/rules', () => {
   it('recusa alvo inválido (400), prazo inválido (400), alerta ≥ prazo (400) e nome repetido (409)', async () => {
     const alvoInvalido = await createRuleSla(sessionManager, { alvo: 'chute' });
     expect(alvoInvalido.status).toBe(400);
-    expect(alvoInvalido.corpo.erro.code).toBe('target_invalid');
+    expect(alvoInvalido.body.erro.code).toBe('target_invalid');
 
     const prazoInvalido = await createRuleSla(sessionManager, { prazoSeg: 0 });
     expect(prazoInvalido.status).toBe(400);
-    expect(prazoInvalido.corpo.erro.code).toBe('deadline_invalid');
+    expect(prazoInvalido.body.erro.code).toBe('deadline_invalid');
 
     const alertaInvalido = await createRuleSla(sessionManager, { prazoSeg: 100, alertaSeg: 200 });
     expect(alertaInvalido.status).toBe(400);
-    expect(alertaInvalido.corpo.erro.code).toBe('alert_invalid');
+    expect(alertaInvalido.body.erro.code).toBe('alert_invalid');
 
     const nome = `Única ${randomUUID().slice(0, 6)}`;
     expect((await createRuleSla(sessionManager, { nome })).status).toBe(201);
     const repetida = await createRuleSla(sessionManager, { nome });
     expect(repetida.status).toBe(409);
-    expect(repetida.corpo.erro.code).toBe('name_in_use');
+    expect(repetida.body.erro.code).toBe('name_in_use');
   });
 
   it('Require an existing scope ID for queue-scoped SLA rules and reject unsupported scopes (`fila`)', async () => {
     const withoutScopeId = await createRuleSla(sessionManager, { escopoTipo: 'fila' });
     expect(withoutScopeId.status).toBe(400);
-    expect(withoutScopeId.corpo.erro.code).toBe('scope_id_required');
+    expect(withoutScopeId.body.erro.code).toBe('scope_id_required');
 
     const queueWrong = await createRuleSla(sessionManager, { escopoTipo: 'fila', escopoId: randomUUID() });
     expect(queueWrong.status).toBe(400);
-    expect(queueWrong.corpo.erro.code).toBe('queue_not_found');
+    expect(queueWrong.body.erro.code).toBe('queue_not_found');
 
     const scopeOutside = await createRuleSla(sessionManager, { escopoTipo: 'inbox', escopoId: a.inboxId });
     expect(scopeOutside.status).toBe(400);
-    expect(scopeOutside.corpo.erro.code).toBe('scope_invalid');
+    expect(scopeOutside.body.erro.code).toBe('scope_invalid');
 
     const withQueue = await createRuleSla(sessionManager, { escopoTipo: 'fila', escopoId: a.queueId });
     expect(withQueue.status).toBe(201);
@@ -774,7 +774,7 @@ describe('POST /v1/management/settings/rules', () => {
   it('Return 403 when creating an SLA rule without `regra.gerenciar` permission', async () => {
     const resposta = await createRuleSla(sessionOnlyQueues);
     expect(resposta.status).toBe(403);
-    expect(resposta.corpo.erro.detalhe.permissao).toBe('regra.gerenciar');
+    expect(resposta.body.erro.detalhe.permissao).toBe('regra.gerenciar');
   });
 });
 
@@ -788,7 +788,7 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
       { prazoSeg: 1200, alertaSeg: 900 },
     );
     expect(editada.status).toBe(200);
-    expect(editada.corpo).toMatchObject({ prazoSeg: 1200, alertaSeg: 900 });
+    expect(editada.body).toMatchObject({ prazoSeg: 1200, alertaSeg: 900 });
   });
 
   it('encolher o prazo abaixo do alerta já cadastrado sem mandar o novo alerta é 400', async () => {
@@ -800,7 +800,7 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
       { prazoSeg: 400 },
     );
     expect(resposta.status).toBe(400);
-    expect(resposta.corpo.erro.code).toBe('alert_invalid');
+    expect(resposta.body.erro.code).toBe('alert_invalid');
   });
 
   it('Return 403 without `regra.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
@@ -876,7 +876,7 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
     });
     expect(resposta.status).toBe(409);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.erro.codigo).toBe('rule_with_sla_running');
+    expect(corpo.error.codigo).toBe('rule_with_sla_running');
   });
 });
 
@@ -946,7 +946,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
       fim: '09:00',
     });
     expect(resposta.status).toBe(409);
-    expect(resposta.corpo.erro.code).toBe('end_before_of_start');
+    expect(resposta.body.erro.code).toBe('end_before_of_start');
   });
 
   it('Return 409 for overlapping schedule ranges on the same day', async () => {
@@ -957,7 +957,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
       inicio: '10:00',
     });
     expect(resposta.status).toBe(409);
-    expect(resposta.corpo.erro.code).toBe('range_overlapping');
+    expect(resposta.body.erro.code).toBe('range_overlapping');
   });
 
   it('Return 403 without `horario.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
@@ -968,7 +968,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
       inicio: '08:00',
     });
     expect(semPoder.status).toBe(403);
-    expect(semPoder.corpo.erro.detalhe.permissao).toBe('horario.gerenciar');
+    expect(semPoder.body.erro.detalhe.permissao).toBe('horario.gerenciar');
 
     const outroTenant = await pedir(
       'PATCH',
@@ -1025,7 +1025,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
       { fechado: false },
     );
     expect(abrirSemHorario.status).toBe(400);
-    expect(abrirSemHorario.corpo.erro.code).toBe('exception_without_schedule');
+    expect(abrirSemHorario.body.erro.code).toBe('exception_without_schedule');
 
     const aberta = await createExceptionSql(horarioId, '2026-11-01', false, '08:00', '12:00');
     const fecharComHorario = await pedir(
@@ -1035,7 +1035,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
       { fechado: true },
     );
     expect(fecharComHorario.status).toBe(400);
-    expect(fecharComHorario.corpo.erro.code).toBe('exception_closed_with_schedule');
+    expect(fecharComHorario.body.erro.code).toBe('exception_closed_with_schedule');
   });
 
   it('Return 409 when a schedule exception date overlaps another exception', async () => {
@@ -1049,7 +1049,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
       { data: '2026-01-01' },
     );
     expect(resposta.status).toBe(409);
-    expect(resposta.corpo.erro.code).toBe('data_in_use');
+    expect(resposta.body.erro.code).toBe('data_in_use');
   });
 
   it('Return 403 without `horario.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
@@ -1115,23 +1115,23 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
 
     const listing = await pedir('GET', '/v1/management/rules/priority', sessionManager);
     expect(listing.status).toBe(200);
-    expect((listing.corpo as { id: string }[]).some((r) => r.id === corpo.id)).toBe(true);
+    expect((listing.body as { id: string }[]).some((r) => r.id === corpo.id)).toBe(true);
   });
 
   it('Reject an unassignable priority, invalid condition, or duplicate rule name', async () => {
     const nivelInvalido = await createRulePriority(sessionManager, { nivel: 'sem_prioridade' });
     expect(nivelInvalido.status).toBe(400);
-    expect(nivelInvalido.corpo.erro.code).toBe('level_invalid');
+    expect(nivelInvalido.body.erro.code).toBe('level_invalid');
 
     const conditionInvalid = await createRulePriority(sessionManager, { condicao: 'nao e objeto' });
     expect(conditionInvalid.status).toBe(400);
-    expect(conditionInvalid.corpo.erro.code).toBe('condition_invalid');
+    expect(conditionInvalid.body.erro.code).toBe('condition_invalid');
 
     const nome = `Única ${randomUUID().slice(0, 6)}`;
     expect((await createRulePriority(sessionManager, { nome })).status).toBe(201);
     const repetida = await createRulePriority(sessionManager, { nome });
     expect(repetida.status).toBe(409);
-    expect(repetida.corpo.erro.code).toBe('name_in_use');
+    expect(repetida.body.erro.code).toBe('name_in_use');
   });
 
   it('Return 400 for unsupported priority-rule scopes', async () => {
@@ -1140,7 +1140,7 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
       escopoId: randomUUID(),
     });
     expect(resposta.status).toBe(400);
-    expect(resposta.corpo.erro.code).toBe('scope_invalid');
+    expect(resposta.body.erro.code).toBe('scope_invalid');
   });
 
   it('Edit a priority rule\'s level and condition and audit only changes', async () => {
@@ -1152,7 +1152,7 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
       { nivel: 'maxima', condicao: { etiqueta: 'vip' } },
     );
     expect(editada.status).toBe(200);
-    expect(editada.corpo).toMatchObject({ nivel: 'maxima', condicao: { etiqueta: 'vip' } });
+    expect(editada.body).toMatchObject({ nivel: 'maxima', condicao: { etiqueta: 'vip' } });
   });
 
   it('Return 403 without `regra.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
@@ -1165,7 +1165,7 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
       { nivel: 'baixa' },
     );
     expect(semPoder.status).toBe(403);
-    expect(semPoder.corpo.erro.detalhe.permissao).toBe('regra.gerenciar');
+    expect(semPoder.body.erro.detalhe.permissao).toBe('regra.gerenciar');
 
     const outroTenant = await pedir(
       'PATCH',

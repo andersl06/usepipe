@@ -119,7 +119,7 @@ describe('Send Desk replies with a session cookie', () => {
       select autor_tipo, autor_id from mensagem where conversa_id = ${conversaId}::uuid limit 1
     `);
     expect(rows[0]?.autor_tipo).toBe('atendente');
-    expect(rows[0]?.autor_id).toBe(cenario.agentId);
+    expect(rows[0]?.authorId).toBe(cenario.agentId);
   });
 
   it('Ignore agent IDs in the request body so users cannot impersonate colleagues (`atendente_id`)', async () => {
@@ -135,8 +135,8 @@ describe('Send Desk replies with a session cookie', () => {
     const { rows } = await cenario.dono.execute<{ authorId: string }>(sql`
       select autor_id from mensagem where conversa_id = ${conversaId}::uuid limit 1
     `);
-    expect(rows[0]?.autor_id).toBe(cenario.agentId);
-    expect(rows[0]?.autor_id).not.toBe(otherAgentId);
+    expect(rows[0]?.authorId).toBe(cenario.agentId);
+    expect(rows[0]?.authorId).not.toBe(otherAgentId);
   });
 
   it('Record `mensagem_saida` and `primeira_resposta` events for management reports', async () => {
@@ -147,7 +147,7 @@ describe('Send Desk replies with a session cookie', () => {
     const { rows } = await cenario.dono.execute<{ type: string }>(sql`
       select tipo from evento_atendimento where conversa_id = ${conversaId}::uuid order by tipo
     `);
-    const tipos = rows.map((r) => r.tipo);
+    const tipos = rows.map((r) => r.type);
     expect(tipos).toContain('mensagem_saida');
     expect(tipos).toContain('primeira_resposta');
   });
@@ -159,7 +159,7 @@ describe('Send Desk replies with a session cookie', () => {
 
     expect(resposta.status).toBe(403);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('conversation_of_other_agent');
+    expect(corpo.error.code).toBe('conversation_of_other_agent');
     // And nothing went to the delivery queue.
     expect(await contarOutbox(conversaId)).toBe(0);
   });
@@ -248,10 +248,10 @@ describe('Retry failed message sends', () => {
     }>(sql`
       select estado_entrega, erro_codigo, entregue_em from mensagem where id = ${mensagemId}::uuid
     `);
-    expect(rows[0]!.estado_entrega).toBe('pendente');
+    expect(rows[0]!.stateDelivery).toBe('pendente');
     expect(rows[0]!.errorCode).toBeNull();
     // `entregue_em` is the time Meta confirmed. Setting it here would fabricate evidence.
-    expect(rows[0]!.entregue_em).toBeNull();
+    expect(rows[0]!.entregueAt).toBeNull();
   });
 
   it('Recreate an outbox row for an old message that never had one', async () => {
@@ -285,7 +285,7 @@ describe('Retry failed message sends', () => {
     `);
     const resposta = await reenviar(conversaId, rows[0]!.id);
     expect(resposta.status).toBe(409);
-    expect(((await resposta.json()) as { error: { code: string } }).erro.codigo).toBe(
+    expect(((await resposta.json()) as { error: { code: string } }).error.codigo).toBe(
       'message_not_failed',
     );
   });
@@ -333,7 +333,7 @@ describe('Preserve API-key behavior on the same send route', () => {
     const { rows } = await cenario.dono.execute<{ authorId: string }>(sql`
       select autor_id from mensagem where conversa_id = ${conversaId}::uuid limit 1
     `);
-    expect(rows[0]?.autor_id).toBe(otherAgentId);
+    expect(rows[0]?.authorId).toBe(otherAgentId);
   });
 
   it('Return 403 without the message write scope (`mensagens:escrever`)', async () => {

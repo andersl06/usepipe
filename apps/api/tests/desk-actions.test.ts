@@ -170,11 +170,11 @@ describe('definirStatus', () => {
 
   it('invisível e offline também são aceitos', async () => {
     const invisivel = await acao(sessionAgent, 'definirStatus', { estado: 'invisivel' });
-    expect(invisivel.corpo).toMatchObject({ ok: true });
+    expect(invisivel.body).toMatchObject({ ok: true });
     expect((await statusDe(a.agentId))?.estado).toBe('invisivel');
 
     const offline = await acao(sessionAgent, 'definirStatus', { estado: 'offline' });
-    expect(offline.corpo).toMatchObject({ ok: true });
+    expect(offline.body).toMatchObject({ ok: true });
     expect((await statusDe(a.agentId))?.estado).toBe('offline');
 
     // // Returns the scenario to online — other tests in this file depend on it.
@@ -203,7 +203,7 @@ describe('Set an inactive agent offline and close any open pause', () => {
     await new Promise((r) => setTimeout(r, 10));
     await acao(sessionAgent, 'cairPorInatividade');
     const depois = await statusDe(a.agentId);
-    expect(new Date(depois!.desde).getTime()).toBe(new Date(antes!.desde).getTime());
+    expect(new Date(depois!.since).getTime()).toBe(new Date(antes!.since).getTime());
 
     await acao(sessionAgent, 'definirStatus', { estado: 'online' });
   });
@@ -227,11 +227,11 @@ describe('salvarNotaInterna', () => {
 
   it('Reject an internal note without conversationId or text', async () => {
     const withoutConversation = await acao(sessionAgent, 'salvarNotaInterna', { texto: 'oi' });
-    expect(withoutConversation.corpo).toMatchObject({ ok: false, erro: 'Conversa não informada.' });
+    expect(withoutConversation.body).toMatchObject({ ok: false, erro: 'Conversa não informada.' });
 
     const conversaId = await createConversationAssigned(a.agentId);
     const semTexto = await acao(sessionAgent, 'salvarNotaInterna', { conversaId, texto: '   ' });
-    expect(semTexto.corpo).toMatchObject({
+    expect(semTexto.body).toMatchObject({
       ok: false,
       erro: 'Escreva alguma coisa antes de enviar.',
     });
@@ -275,7 +275,7 @@ describe('atender', () => {
     const { rows: eventos } = await a.dono.execute<{ type: string }>(
       sql`select tipo from evento_atendimento where conversa_id = ${conversaId}::uuid`,
     );
-    expect(eventos.map((e) => e.tipo)).toContain('atribuida');
+    expect(eventos.map((e) => e.type)).toContain('atribuida');
   });
 
   it('Do not pull conversations from a queue the agent has not joined', async () => {
@@ -316,12 +316,12 @@ describe('Enforce the agent\'s available-slot limit when pulling from a queue', 
     await createConversationInQueue();
 
     const first = await acao(sessionAgent, 'atender');
-    expect(first.corpo['ok']).toBe(true);
+    expect(first.body['ok']).toBe(true);
 
     const segunda = await acao(sessionAgent, 'atender');
-    expect(segunda.corpo['ok']).toBe(false);
-    expect(String(segunda.corpo['erro'])).toContain('limite de atendimentos simultâneos');
-    expect(String(segunda.corpo['erro'])).toContain('(1 em andamento)');
+    expect(segunda.body['ok']).toBe(false);
+    expect(String(segunda.body['erro'])).toContain('limite de atendimentos simultâneos');
+    expect(String(segunda.body['erro'])).toContain('(1 em andamento)');
     expect(await activeOfAgent()).toBe(1);
   });
 
@@ -344,11 +344,11 @@ describe('Enforce the agent\'s available-slot limit when pulling from a queue', 
       acao(sessionAgent, 'atender'),
       acao(sessionAgent, 'atender'),
     ]);
-    const oks = [r1, r2].filter((r) => r.corpo['ok'] === true);
-    const recusas = [r1, r2].filter((r) => r.corpo['ok'] === false);
+    const oks = [r1, r2].filter((r) => r.body['ok'] === true);
+    const recusas = [r1, r2].filter((r) => r.body['ok'] === false);
     expect(oks).toHaveLength(1);
     expect(recusas).toHaveLength(1);
-    expect(String(recusas[0]!.corpo['erro'])).toContain('limite de atendimentos simultâneos');
+    expect(String(recusas[0]!.body['erro'])).toContain('limite de atendimentos simultâneos');
     expect(await activeOfAgent()).toBe(1);
   });
 
@@ -360,10 +360,10 @@ describe('Enforce the agent\'s available-slot limit when pulling from a queue', 
     `);
     await createConversationInQueue();
     await createConversationInQueue();
-    expect((await acao(sessionAgent, 'atender')).corpo['ok']).toBe(true);
-    expect((await acao(sessionAgent, 'atender')).corpo['ok']).toBe(true);
+    expect((await acao(sessionAgent, 'atender')).body['ok']).toBe(true);
+    expect((await acao(sessionAgent, 'atender')).body['ok']).toBe(true);
     const vazia = await acao(sessionAgent, 'atender');
-    expect(vazia.corpo).toMatchObject({ ok: false, erro: 'Não há clientes aguardando.' });
+    expect(vazia.body).toMatchObject({ ok: false, erro: 'Não há clientes aguardando.' });
 
     // // Returns the scenario: no override and no conversation stuck on the agent.
     await a.dono.execute(sql`
@@ -396,7 +396,7 @@ describe('Pin conversations and mark them unread per agent', () => {
   it('Pin a conversation with `fixadaAt`, keep the timestamp on repeat, and remove it on unpin', async () => {
     const conversaId = await createConversationAssigned(a.agentId);
     const fixada = await acao(sessionAgent, 'fixar', { conversaId, fixada: 'true' });
-    expect(fixada.corpo).toMatchObject({ ok: true, fixada: true });
+    expect(fixada.body).toMatchObject({ ok: true, fixada: true });
     const primeira = await taggingOf(conversaId);
     expect(primeira?.fixada_em).not.toBeNull();
 
@@ -411,7 +411,7 @@ describe('Pin conversations and mark them unread per agent', () => {
     expect(inQueue?.naoLidaEm).toBeNull();
 
     const desafixada = await acao(sessionAgent, 'fixar', { conversaId, fixada: 'false' });
-    expect(desafixada.corpo).toMatchObject({ ok: true, fixada: false });
+    expect(desafixada.body).toMatchObject({ ok: true, fixada: false });
     expect(await taggingOf(conversaId)).toBeNull();
   });
 
@@ -419,7 +419,7 @@ describe('Pin conversations and mark them unread per agent', () => {
     const conversaId = await createConversationAssigned(a.agentId);
     await acao(sessionAgent, 'fixar', { conversaId, fixada: 'true' });
     const naoLida = await acao(sessionAgent, 'marcarNaoLida', { conversaId, naoLida: 'true' });
-    expect(naoLida.corpo).toMatchObject({ ok: true, naoLida: true });
+    expect(naoLida.body).toMatchObject({ ok: true, naoLida: true });
     const ambas = await taggingOf(conversaId);
     expect(ambas?.fixada_em).not.toBeNull();
     expect(ambas?.nao_lida_em).not.toBeNull();
@@ -437,21 +437,21 @@ describe('Pin conversations and mark them unread per agent', () => {
   it('Reject pinning without a value, for another agent\'s conversation, or after closure', async () => {
     const minha = await createConversationAssigned(a.agentId);
     const withoutValue = await acao(sessionAgent, 'fixar', { conversaId: minha });
-    expect(withoutValue.corpo).toMatchObject({ ok: false });
+    expect(withoutValue.body).toMatchObject({ ok: false });
 
     const doColega = await createConversationAssigned(colegaId);
     const alheia = await acao(sessionAgent, 'fixar', { conversaId: doColega, fixada: 'true' });
-    expect(alheia.corpo).toMatchObject({ ok: false, erro: 'Esta conversa não está com você.' });
+    expect(alheia.body).toMatchObject({ ok: false, erro: 'Esta conversa não está com você.' });
     expect(await taggingOf(doColega)).toBeNull();
 
     await a.dono.execute(
       sql`update conversa set estado = 'encerrada', encerrada_em = now() where id = ${minha}::uuid`,
     );
     const fechada = await acao(sessionAgent, 'marcarNaoLida', { conversaId: minha, naoLida: 'true' });
-    expect(fechada.corpo).toMatchObject({ ok: false, erro: 'A conversa já foi encerrada.' });
+    expect(fechada.body).toMatchObject({ ok: false, erro: 'A conversa já foi encerrada.' });
 
     const inexistente = await acao(sessionAgent, 'fixar', { conversaId: randomUUID(), fixada: 'true' });
-    expect(inexistente.corpo).toMatchObject({ ok: false, erro: 'Conversa não encontrada.' });
+    expect(inexistente.body).toMatchObject({ ok: false, erro: 'Conversa não encontrada.' });
   });
 
   it('o teto de 50 fixadas da origem', async () => {
@@ -465,13 +465,13 @@ describe('Pin conversations and mark them unread per agent', () => {
     }
     const aMais = await createConversationAssigned(a.agentId);
     const recusa = await acao(sessionAgent, 'fixar', { conversaId: aMais, fixada: 'true' });
-    expect(recusa.corpo).toMatchObject({
+    expect(recusa.body).toMatchObject({
       ok: false,
       erro: 'Você já tem 50 conversas fixadas. Desafixe uma para fixar outra.',
     });
     // // Re-fixing one of the 50 doesn't hit the ceiling.
     const refixa = await acao(sessionAgent, 'fixar', { conversaId: outras[0]!, fixada: 'true' });
-    expect(refixa.corpo).toMatchObject({ ok: true });
+    expect(refixa.body).toMatchObject({ ok: true });
 
     await a.dono.execute(
       sql`delete from marcacao_conversa where usuario_id = ${a.agentId}::uuid`,
@@ -482,14 +482,14 @@ describe('Pin conversations and mark them unread per agent', () => {
 describe('Transfer selected conversations in bulk', () => {
   it('Reject a bulk transfer without selected conversations or a destination', async () => {
     const semConversa = await acao(sessionAgent, 'transferirEmMassa', { paraAtendenteId: colegaId });
-    expect(semConversa.corpo).toMatchObject({
+    expect(semConversa.body).toMatchObject({
       ok: false,
       erro: 'Selecione ao menos um atendimento.',
     });
 
     const conversaId = await createConversationAssigned(a.agentId);
     const withoutDestination = await acao(sessionAgent, 'transferirEmMassa', { conversaId: [conversaId] });
-    expect(withoutDestination.corpo).toMatchObject({
+    expect(withoutDestination.body).toMatchObject({
       ok: false,
       erro: 'Escolha a fila ou o atendente de destino.',
     });
@@ -508,7 +508,7 @@ describe('Transfer selected conversations in bulk', () => {
     const { rows } = await a.dono.execute<{ id: string; state: string }>(sql`
       select id, estado from conversa where id in (${c1}::uuid, ${c2}::uuid)
     `);
-    expect(rows.every((r) => r.estado === 'encerrada')).toBe(true);
+    expect(rows.every((r) => r.state === 'encerrada')).toBe(true);
 
     const { rows: novas } = await a.dono.execute<{ n: string }>(sql`
       select count(*)::text as n from conversa

@@ -41,7 +41,7 @@ describe('Return 503 from GET `/saude` and identify the unavailable database', (
     };
     expect(corpo.ok).toBe(false);
     expect(corpo.database).toBe('falha');
-    expect(corpo.versao).toBe('9.9.9-teste');
+    expect(corpo.version).toBe('9.9.9-teste');
 
     // The point of the timeout: respond quickly. A healthcheck that hangs leaves the
     // orchestrator waiting instead of taking the container out of rotation.

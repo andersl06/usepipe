@@ -57,8 +57,8 @@ async function createConversation(
       criada_em, atribuida_em, primeira_resposta_em, encerrada_em
     ) values (
       ${cenario.tenantId}::uuid, ${cenario.inboxId}::uuid, ${contactId}::uuid, ${cenario.queueId}::uuid,
-      ${opts.encerradaEm ? 'encerrada' : 'atribuida'}, ${opts.prioridade ?? 'sem_prioridade'},
-      ${opts.criadaEm}, ${opts.atribuidaEm ?? null}, ${opts.firstResponseAt ?? null}, ${opts.encerradaEm ?? null}
+      ${opts.closedAt ? 'encerrada' : 'atribuida'}, ${opts.priority ?? 'sem_prioridade'},
+      ${opts.criadaEm}, ${opts.assignedAt ?? null}, ${opts.firstResponseAt ?? null}, ${opts.closedAt ?? null}
     )
     returning id
   `);
@@ -78,9 +78,9 @@ async function createRuleSla(
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into regra_sla (tenant_id, nome, alvo, prazo_seg, alerta_seg, acao_alerta, acao_estouro)
     values (
-      ${cenario.tenantId}::uuid, ${`regra ${randomUUID().slice(0, 8)}`}, ${opts.alvo},
-      ${opts.prazoSeg}, ${opts.alertaSeg ?? null},
-      ${JSON.stringify(opts.acaoAlerta ?? {})}::jsonb, ${JSON.stringify(opts.acaoEstouro ?? {})}::jsonb
+      ${cenario.tenantId}::uuid, ${`regra ${randomUUID().slice(0, 8)}`}, ${opts.target},
+      ${opts.deadlineSeg}, ${opts.alertSeg ?? null},
+      ${JSON.stringify(opts.acaoAlert ?? {})}::jsonb, ${JSON.stringify(opts.acaoEstouro ?? {})}::jsonb
     )
     returning id
   `);
@@ -110,7 +110,7 @@ async function slaConversationOf(
     estourado_em: Date | null;
   }>(sql`select estado, alertado_em, estourado_em from sla_conversa where conversa_id = ${conversationId}::uuid`);
   const r = rows[0];
-  return r ? { state: r.estado, alertadoEm: r.alertado_em, estouradoEm: r.estourado_em } : null;
+  return r ? { state: r.state, alertadoEm: r.alertado_em, estouradoEm: r.estourado_em } : null;
 }
 
 async function contarEventos(cenario: Cenario, conversaId: string, tipo: string): Promise<number> {
@@ -183,10 +183,10 @@ describe('Check conversation SLA alerts and breaches', () => {
   });
 
   it('alerta no limiar certo, estourado no prazo certo, e idempotente nos dois', async () => {
-    await createRuleSla(a, { alvo: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
+    await createRuleSla(a, { target: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
     const agora0 = new Date();
     const criadaEm = new Date(agora0.getTime() - 400_000); // 400s atrás: já passou do alerta (300s), não do prazo (600s)
-    const conversationId = await createConversation(a, { criadaEm, atribuidaEm: criadaEm });
+    const conversationId = await createConversation(a, { criadaEm, assignedAt: criadaEm });
 
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, agora0);
     let linha = await slaConversationOf(a, conversationId);
@@ -196,7 +196,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     expect(await contarEventos(a, conversationId, 'sla_alertado')).toBe(1);
 
     // Idempotency: running it again at the SAME instant does not duplicate the event or change the timestamp.
-    const alertadoEmAntes = linha!.alertadoEm;
+    const alertadoEmAntes = linha!.alertedAt;
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, agora0);
     linha = await slaConversationOf(a, conversationId);
     expect(linha?.alertadoEm).toEqual(alertadoEmAntes);
@@ -211,7 +211,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     expect(await contarEventos(a, conversationId, 'sla_estourado')).toBe(1);
 
     // Idempotency of the breach: running it again neither duplicates nor regresses the state.
-    const estouradoEmAntes = linha!.estouradoEm;
+    const estouradoEmAntes = linha!.exceededAt;
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversationId, new Date(agora1.getTime() + 60_000));
     linha = await slaConversationOf(a, conversationId);
     expect(linha?.state).toBe('estourado');
@@ -220,12 +220,12 @@ describe('Check conversation SLA alerts and breaches', () => {
   });
 
   it('Send no SLA alert or breach for a conversation closed before either deadline', async () => {
-    await createRuleSla(a, { alvo: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
+    await createRuleSla(a, { target: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
     const agora = new Date();
     const criadaEm = new Date(agora.getTime() - 100_000);
     // Encerrou 50s depois de criada — MUITO antes do alerta (300s) e do prazo (600s).
     const encerradaEm = new Date(criadaEm.getTime() + 50_000);
-    const conversaId = await createConversation(a, { criadaEm, atribuidaEm: criadaEm, encerradaEm });
+    const conversaId = await createConversation(a, { criadaEm, assignedAt: criadaEm, encerradaEm });
 
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversaId, agora);
 
@@ -240,14 +240,14 @@ describe('Check conversation SLA alerts and breaches', () => {
   it('a ação notificar_supervisor emite o webhook UMA vez só, mesmo reavaliando', async () => {
     await createWebhook(a, ['sla.alertou']);
     await createRuleSla(a, {
-      alvo: 'primeira_resposta',
+      target: 'primeira_resposta',
       prazoSeg: 600,
       alertaSeg: 100,
       acaoAlerta: { tipo: 'notificar_supervisor' },
     });
     const agora = new Date();
     const criadaEm = new Date(agora.getTime() - 200_000); // já passou do alerta (100s)
-    const conversaId = await createConversation(a, { criadaEm, atribuidaEm: criadaEm });
+    const conversaId = await createConversation(a, { criadaEm, assignedAt: criadaEm });
 
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversaId, agora);
     await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(a.tenantId, conversaId, new Date(agora.getTime() + 5_000));
@@ -260,7 +260,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     // `resolucao` is the target's name IN THE DATABASE (`ALVOS_SLA`); `sla.ts` translates it to the
     // alvo `encerramento` do `@pipe/core` (`ALVO_DO_BANCO`).
     await createRuleSla(a, {
-      alvo: 'resolucao',
+      target: 'resolucao',
       prazoSeg: 60,
       alertaSeg: null,
       acaoEstouro: { tipo: 'elevar_prioridade' },
@@ -268,10 +268,10 @@ describe('Check conversation SLA alerts and breaches', () => {
     const agora = new Date();
     // A: older, `baixa` priority, resolution deadline already breached (created 100s ago, deadline is 60s).
     const criadaA = new Date(agora.getTime() - 100_000);
-    const conversationA = await createConversation(a, { criadaEm: criadaA, prioridade: 'baixa' });
+    const conversationA = await createConversation(a, { criadaEm: criadaA, priority: 'baixa' });
     // B: newer, `media` priority — with no SLA rule breaching for it.
     const criadaB = new Date(agora.getTime() - 10_000);
-    const conversationB = await createConversation(a, { criadaEm: criadaB, prioridade: 'media' });
+    const conversationB = await createConversation(a, { criadaEm: criadaB, priority: 'media' });
 
     const linhaAntes = [
       { id: conversationA, prioridade: 'baixa', marcos: { criadaEm: criadaA } },
@@ -299,12 +299,12 @@ describe('Isolate conversation SLA checks by tenant', () => {
     const semRegra = await montarCenario(`sla-sem-regra-${randomUUID().slice(0, 8)}`);
     try {
       // A rule registered ONLY in tenant B.
-      await createRuleSla(b, { alvo: 'primeira_resposta', prazoSeg: 10, alertaSeg: 5 });
+      await createRuleSla(b, { target: 'primeira_resposta', prazoSeg: 10, alertaSeg: 5 });
 
       const agora = new Date();
       // It would easily breach IF B's rule applied to this tenant.
       const criadaEm = new Date(agora.getTime() - 100_000);
-      const conversationWithoutRule = await createConversation(semRegra, { criadaEm, atribuidaEm: criadaEm });
+      const conversationWithoutRule = await createConversation(semRegra, { criadaEm, assignedAt: criadaEm });
 
       await checkSlaOfConversationchecarSlaOfConversationcheckSlaOfConversation(semRegra.tenantId, conversationWithoutRule, agora);
 

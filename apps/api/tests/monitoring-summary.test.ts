@@ -29,7 +29,7 @@ describe('Build the detailed monitoring summary', () => {
 
 describe('Count opened tickets by hour', () => {
   it('Fill all 24 hourly slots with zeroes where the database returned no data', () => {
-    expect(normalizeTicketsByHour([{ hora: 8, total: 3 }, { hora: 23, total: 1 }])).toEqual([
+    expect(normalizeTicketsByHour([{ hour: 8, total: 3 }, { hour: 23, total: 1 }])).toEqual([
       0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
     ]);
   });

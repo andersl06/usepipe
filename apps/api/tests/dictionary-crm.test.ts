@@ -77,7 +77,7 @@ function fetchFalso(lista: unknown[]): {
     [];
   let i = 0;
   const buscar = (async (url: string, init: RequestInit) => {
-    chamadas.push({ url: String(url), corpo: JSON.parse(String(init.body)) });
+    chamadas.push({ url: String(url), body: JSON.parse(String(init.body)) });
     const corpo = lista[i++];
     if (!corpo) throw new Error(`chamada ${i} não prevista pelo teste`);
     return new Response(JSON.stringify(corpo), { status: 200 });
@@ -111,7 +111,7 @@ describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', ()
   it('na 2.12+ pede applicationId e NÃO isCustom — pedir campo que não existe derruba a query', async () => {
     const { buscar, chamadas } = fetchFalso(respostas());
     await lerMetadados(CONFIG, buscar);
-    const query = chamadas[2]!.corpo.query;
+    const query = chamadas[2]!.body.query;
     expect(query).toContain('applicationId');
     expect(query).not.toContain('isCustom');
     expect(query).toContain('relation {');
@@ -139,7 +139,7 @@ describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', ()
     const meta = await lerMetadados(CONFIG, buscar);
 
     expect(chamadas).toHaveLength(3);
-    expect(chamadas[1]!.corpo.query).toContain('isCustom');
+    expect(chamadas[1]!.body.query).toContain('isCustom');
     expect(meta.customApplicationId).toBeNull();
     const pessoa = meta.objetos.find((o) => o.nameSingular === 'person');
     expect(pessoa?.fields.find((c) => c.name === 'pipeContatoId')?.isCustom).toBe(true);
@@ -322,8 +322,8 @@ describe('Synchronize the CRM dictionary in the database', () => {
         objetos: { code: string; campos: { code: string; isActive: boolean }[] }[];
       };
       // // A's: the pipeContatoId is removed there, and active in B.
-      const pessoa = corpo.objetos.find((o) => o.codigo === 'person');
-      expect(pessoa?.campos.find((c) => c.codigo === 'pipeContatoId')?.isActive).toBe(false);
+      const pessoa = corpo.objetos.find((o) => o.code === 'person');
+      expect(pessoa?.campos.find((c) => c.code === 'pipeContatoId')?.isActive).toBe(false);
       expect(JSON.stringify(corpo)).not.toContain(b.tenantId);
     } finally {
       await api.fechar();

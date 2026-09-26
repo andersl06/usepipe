@@ -291,7 +291,7 @@ describe('convivência: SSO obrigatório não tem porta dos fundos', () => {
     try {
       await expect(
         loginWithGoogle(cenario.dono, cenario.dono, {
-          issuer: 'https://accounts.google.com',
+          emissor: 'https://accounts.google.com',
           sujeito: 'google-da-ana',
           email: `ana@${DOMAIN}`,
           emailVerificado: true,
@@ -315,7 +315,7 @@ describe('convivência: SSO obrigatório não tem porta dos fundos', () => {
 
   it('Allow both Google and SSO login under the optional policy', async () => {
     const entrada = await loginWithGoogle(cenario.dono, cenario.dono, {
-      issuer: 'https://accounts.google.com',
+      emissor: 'https://accounts.google.com',
       sujeito: `google-${randomUUID()}`,
       email: `ana@${DOMAIN}`,
       emailVerificado: true,

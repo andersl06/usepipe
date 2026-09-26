@@ -254,7 +254,7 @@ describe('jsonb-compat: flow execution (resume)', () => {
     );
     // As chaves do documento guardado sobrevivem no meio das novas: é a prova de
     // compatibilidade. `stateId@<fluxoId antigo>` fica como legado inofensivo.
-    expect(resultado.variaveis['nome']).toBe(contextoGuardado['nome']);
+    expect(resultado.variables['nome']).toBe(contextoGuardado['nome']);
     golden('flow-resume.json', resultado);
   });
 });
@@ -305,7 +305,7 @@ describe('jsonb-compat: outbox', () => {
         typeof p === 'object' && p !== null && (p as { para?: string }).para === '5511900000999',
     );
     expect(pedido).toBeDefined();
-    golden('outbox-delivery.json', { content: pedido!.conteudo });
+    golden('outbox-delivery.json', { content: pedido!.content });
   });
 
   it('entrega_webhook.payload é lido pelo remetente de webhook de verdade, fetch mockado', async () => {
@@ -328,7 +328,7 @@ describe('jsonb-compat: outbox', () => {
       'fetch',
       vi.fn(async (url: string, init?: RequestInit) => {
         if (url.startsWith(api.url)) return fetchDeVerdade(url, init);
-        capturado.push({ url, corpo: JSON.parse(String(init?.body ?? '{}')) });
+        capturado.push({ url, body: JSON.parse(String(init?.body ?? '{}')) });
         return new Response('ok', { status: 200 });
       }),
     );
@@ -339,7 +339,7 @@ describe('jsonb-compat: outbox', () => {
     }
 
     expect(capturado).toHaveLength(1);
-    golden('webhook-delivery.json', { body: capturado[0]!.corpo });
+    golden('webhook-delivery.json', { body: capturado[0]!.body });
   });
 });
 

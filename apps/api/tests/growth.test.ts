@@ -81,8 +81,8 @@ describe('Register tracked links and generate short codes', () => {
       urlCurta: string;
       cliques: number;
     };
-    expect(corpo.codigo).toBeTruthy();
-    expect(corpo.urlCurta.endsWith(`/l/${corpo.codigo}`)).toBe(true);
+    expect(corpo.code).toBeTruthy();
+    expect(corpo.urlCurta.endsWith(`/l/${corpo.code}`)).toBe(true);
     expect(corpo.cliques).toBe(0);
   });
 
@@ -100,7 +100,7 @@ describe('Register tracked links and generate short codes', () => {
       body: JSON.stringify({ nome: 'x', destino: 'http://exemplo.com' }),
     });
     expect(resposta.status).toBe(400);
-    expect(((await resposta.json()) as { error: { code: string } }).error.codigo).toBe(
+    expect(((await resposta.json()) as { error: { code: string } }).error.code).toBe(
       'url_needs_https',
     );
   });
@@ -117,7 +117,7 @@ describe('Register tracked links and generate short codes', () => {
       body: JSON.stringify({ nome: 'x', destino: 'https://192.168.0.5/x' }),
     });
     expect(privado.status).toBe(400);
-    expect(((await privado.json()) as { error: { code: string } }).erro.codigo).toBe(
+    expect(((await privado.json()) as { error: { code: string } }).error.codigo).toBe(
       'url_forbidden',
     );
   });
@@ -146,7 +146,7 @@ describe('Redirect public tracked links and count clicks', () => {
       method: 'POST',
       body: JSON.stringify({ nome: 'Redirecionamento', destination }),
     });
-    codigo = ((await resposta.json()) as { code: string }).codigo;
+    codigo = ((await resposta.json()) as { code: string }).code;
   });
 
   it('Redirect publicly with 302 and record a click without a session', async () => {
@@ -169,7 +169,7 @@ describe('Redirect public tracked links and count clicks', () => {
     `);
     expect(Number(rows[0]!.n)).toBeGreaterThanOrEqual(1);
     expect(rows[0]!.userAgent).toBe('TesteAgente/1.0');
-    expect(rows[0]!.origem).toBe('campanha-x');
+    expect(rows[0]!.origin).toBe('campanha-x');
   });
 
   it('Return 404 for an unknown short code', async () => {
@@ -180,7 +180,7 @@ describe('Redirect public tracked links and count clicks', () => {
   it('Return click counts when listing tracked links', async () => {
     const resposta = await comCookie(`/v1/management/flows/${flowId}/links-tracked`);
     const corpo = (await resposta.json()) as { data: { code: string; cliques: number }[] };
-    const linha = corpo.data.find((item) => item.codigo === codigo);
+    const linha = corpo.data.find((item) => item.code === codigo);
     expect(linha?.cliques).toBeGreaterThanOrEqual(1);
   });
 
@@ -202,10 +202,10 @@ describe('Redirect public tracked links and count clicks', () => {
 
     const cliquesGeral = (
       (await geral.json()) as { data: { code: string; cliques: number }[] }
-    ).data.find((item) => item.codigo === codigo)?.cliques;
+    ).data.find((item) => item.code === codigo)?.cliques;
     const clicksOfPeriod = (
       (await ofPeriod.json()) as { data: { code: string; cliques: number }[] }
-    ).data.find((item) => item.codigo === codigo)?.cliques;
+    ).data.find((item) => item.code === codigo)?.cliques;
 
     expect(cliquesGeral).toBeGreaterThanOrEqual((clicksOfPeriod ?? 0) + 1);
   });
@@ -235,7 +235,7 @@ describe('Reject active messages without a contact phone or contact ID', () => {
       }),
     });
     expect(resposta.status).toBe(400);
-    expect(((await resposta.json()) as { error: { code: string } }).erro.codigo).toBe(
+    expect(((await resposta.json()) as { error: { code: string } }).error.codigo).toBe(
       'destination_invalid',
     );
   });
@@ -253,7 +253,7 @@ describe('Reject active messages without a contact phone or contact ID', () => {
         }),
       });
       expect(resposta.status).toBe(409);
-      expect(((await resposta.json()) as { error: { code: string } }).erro.codigo).toBe(
+      expect(((await resposta.json()) as { error: { code: string } }).error.codigo).toBe(
         'channel_inactive',
       );
     } finally {
@@ -272,7 +272,7 @@ describe('Reject active messages without a contact phone or contact ID', () => {
       headers: { authorization: `Bearer ${cenario.tokenWithoutScope}` },
     });
     expect(withoutScope.status).toBe(403);
-    expect(((await withoutScope.json()) as { error: { code: string } }).erro.codigo).toBe(
+    expect(((await withoutScope.json()) as { error: { code: string } }).error.codigo).toBe(
       'without_scope',
     );
   });

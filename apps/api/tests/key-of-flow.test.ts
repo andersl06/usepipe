@@ -114,14 +114,14 @@ async function chamar(
 
 /** O erro estruturado de `erros.ts`: `{ erro: { codigo, mensagem, detalhe? } }`. */
 function errorOf(resposta: Resposta): { code: string; message: string; detalhe?: Record<string, unknown> } {
-  return resposta.corpo['erro'] as { code: string; message: string; detalhe?: Record<string, unknown> };
+  return resposta.body['erro'] as { code: string; message: string; detalhe?: Record<string, unknown> };
 }
 
 /** Creates the flow key through the screen's ROUTE, and returns the `pipe_…` token. */
 async function keyOfScreen(flowId: string, nome: string): Promise<{ id: string; token: string }> {
   const criada = await chamar('POST', `/v1/management/flows/${flowId}/keys`, comCookie(session), { nome });
   expect(criada.status).toBe(201);
-  return { id: criada.corpo['id'] as string, token: criada.corpo['token'] as string };
+  return { id: criada.body['id'] as string, token: criada.body['token'] as string };
 }
 
 /** An Express request already matched to the route — what the guard sees. */
@@ -201,7 +201,7 @@ describe('Constrain flow API keys to flow routes', () => {
   it('Return 403 for flow keys on nonflow routes while allowing account keys', async () => {
     const recusada = await chamar('GET', '/v1/conversations', withKey(keyOfFlowA));
     expect(recusada.status).toBe(403);
-    expect(errorOf(recusada).codigo).toBe('key_of_flow');
+    expect(errorOf(recusada).code).toBe('key_of_flow');
     expect(errorOf(recusada).message).toContain('só vale nas rotas desse fluxo');
     expect(errorOf(recusada).detalhe).toEqual({ fluxoId: flowA });
 
@@ -209,19 +209,19 @@ describe('Constrain flow API keys to flow routes', () => {
       texto: 'oi',
     });
     expect(escrita.status).toBe(403);
-    expect(errorOf(escrita).codigo).toBe('key_of_flow');
+    expect(errorOf(escrita).code).toBe('key_of_flow');
 
     // Chave de CONTA: o tenant inteiro, como hoje.
     const account = await chamar('GET', '/v1/conversations', withKey(a.token));
     expect(account.status).toBe(200);
-    expect(account.corpo).toHaveProperty('data');
+    expect(account.body).toHaveProperty('data');
   });
 
   it('Check the scope before enforcing the flow-key boundary', async () => {
     // // The flow key is born without `filas:ler`: the refusal is a SCOPE one, not a flow one.
     const withoutScope = await chamar('GET', '/v1/queues', withKey(keyOfFlowA));
     expect(withoutScope.status).toBe(403);
-    expect(errorOf(withoutScope).codigo).toBe('without_scope');
+    expect(errorOf(withoutScope).code).toBe('without_scope');
     expect(errorOf(withoutScope).detalhe).toEqual({ escopo: 'filas:ler' });
 
     // // An account key with only `filas:ler`: gets into queues, blocked on conversations — as always.
@@ -229,21 +229,21 @@ describe('Constrain flow API keys to flow routes', () => {
     expect(queues.status).toBe(200);
     const conversations = await chamar('GET', '/v1/conversations', withKey(a.tokenWithoutScope));
     expect(conversations.status).toBe(403);
-    expect(errorOf(conversations).codigo).toBe('without_scope');
+    expect(errorOf(conversations).code).toBe('without_scope');
   });
 
   it('Return 401 for revoked flow keys before checking scope or flow', async () => {
     const { id, token } = await keyOfScreen(flowB, 'A revogar');
     const viva = await chamar('GET', '/v1/conversations', withKey(token));
     expect(viva.status).toBe(403); // válida, só cercada
-    expect(errorOf(viva).codigo).toBe('key_of_flow');
+    expect(errorOf(viva).code).toBe('key_of_flow');
 
     const revogada = await chamar('DELETE', `/v1/management/flows/${flowB}/keys/${id}`, comCookie(session));
     expect(revogada.status).toBe(204);
 
     const depois = await chamar('GET', '/v1/conversations', withKey(token));
     expect(depois.status).toBe(401);
-    expect(errorOf(depois).codigo).toBe('not_authorized');
+    expect(errorOf(depois).code).toBe('not_authorized');
     expect(errorOf(depois).message).toBe('Chave revogada.');
 
     const filas = await chamar('GET', '/v1/queues', withKey(token));

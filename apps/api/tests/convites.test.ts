@@ -165,7 +165,7 @@ describe('POST /v1/convites', () => {
     expect(rows[0]?.n).toBe('0');
 
     // // Seven days, not eight hours: an invite isn't a session.
-    const dias = (new Date(corpo.expiraEm).getTime() - Date.now()) / 86_400_000;
+    const dias = (new Date(corpo.expiresAt).getTime() - Date.now()) / 86_400_000;
     expect(dias).toBeGreaterThan(6.9);
     expect(dias).toBeLessThan(7.1);
   });
@@ -178,7 +178,7 @@ describe('POST /v1/convites', () => {
     });
     expect(resposta.status).toBe(400);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('role_invalid');
+    expect(corpo.error.code).toBe('role_invalid');
   });
 
   it('Reject attendance roles because invitations grant only account roles', async () => {
@@ -190,8 +190,8 @@ describe('POST /v1/convites', () => {
     });
     expect(resposta.status).toBe(400);
     const corpo = (await resposta.json()) as { error: { code: string; message: string } };
-    expect(corpo.erro.codigo).toBe('role_of_attendance');
-    expect(corpo.erro.message).toContain('admin, member ou guest');
+    expect(corpo.error.codigo).toBe('role_of_attendance');
+    expect(corpo.error.message).toContain('admin, member ou guest');
 
     const { rows } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from convite where email = ${email}`,
@@ -219,7 +219,7 @@ describe('POST /v1/convites', () => {
     });
     expect(resposta.status).toBe(403);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.erro.codigo).toBe('without_permission');
+    expect(corpo.error.codigo).toBe('without_permission');
   });
 
   it('Return 401 without a session', async () => {
@@ -254,7 +254,7 @@ describe('GET /v1/convites/:token', () => {
       tenant: { name: string; slug: string };
     };
     expect(corpo.email).toBe(email);
-    expect(corpo.papel).toBe('guest');
+    expect(corpo.role).toBe('guest');
     expect(corpo.tenant.slug).toContain('e2e-conv-');
     // // The tenant's id isn't anyone's business while they're still on the outside.
     expect(JSON.stringify(corpo)).not.toContain(a.tenantId);
@@ -274,7 +274,7 @@ describe('GET /v1/convites/:token', () => {
     const resposta = await fetch(`${api.url}/v1/convites/${token}`);
     expect(resposta.status).toBe(410);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.erro.codigo).toBe('invitation_expired');
+    expect(corpo.error.codigo).toBe('invitation_expired');
   });
 });
 
@@ -308,7 +308,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
     const repetido = await fetch(`${api.url}/v1/convites/${token}/aceitar`, { method: 'POST' });
     expect(repetido.status).toBe(410);
     const error = (await repetido.json()) as { error: { code: string } };
-    expect(error.erro.codigo).toBe('invitation_used');
+    expect(error.error.codigo).toBe('invitation_used');
 
     const { rows: quantos } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from usuario where email = ${email}`,
@@ -335,7 +335,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
 
   it('Add an invitee to the inviting tenant, never another tenant', async () => {
     const email = `daniela.${randomUUID().slice(0, 6)}@outrocliente.teste`;
-    const convite = await createInvitation(b.tenantId, { email, papel: 'guest' });
+    const convite = await createInvitation(b.tenantId, { email, role: 'guest' });
 
     const aceito = await acceptInvitationaceitarInvitationacceptInvitation(convite.token);
     expect(aceito.tenantId).toBe(b.tenantId);
@@ -431,8 +431,8 @@ describe('POST /v1/dominios', () => {
       registro: { name: string; tipo: string; value: string };
     };
     expect(corpo.domain).toBe(domain);
-    expect(corpo.verificadoEm).toBeNull();
-    expect(corpo.registro.nome).toBe(`_pipe-verificacao.${domain}`);
+    expect(corpo.verifiedAt).toBeNull();
+    expect(corpo.registro.name).toBe(`_pipe-verificacao.${domain}`);
     expect(corpo.registro.value).toMatch(/^pipe-verificacao=[0-9a-f]{32}$/);
 
     // // Idempotent: calling it again returns the SAME token, otherwise whoever already published
@@ -443,7 +443,7 @@ describe('POST /v1/dominios', () => {
       body: JSON.stringify({ domain }),
     });
     const segunda = (await outra.json()) as { registro: { value: string } };
-    expect(segunda.registro.valor).toBe(corpo.registro.value);
+    expect(segunda.registro.value).toBe(corpo.registro.value);
   });
 
   it('Reject public email domains that cannot identify a company (`gmail.com`)', async () => {
@@ -455,7 +455,7 @@ describe('POST /v1/dominios', () => {
       });
       expect(resposta.status).toBe(400);
       const corpo = (await resposta.json()) as { error: { code: string } };
-      expect(corpo.erro.codigo).toBe('domain_public');
+      expect(corpo.error.codigo).toBe('domain_public');
     }
   });
 
@@ -542,7 +542,7 @@ describe('Provision a customer tenant', () => {
     const slug = `acme-${marca}`;
     provisionados.push(slug);
     return provisionCustomer({
-      nome: `Acme ${marca}`,
+      name: `Acme ${marca}`,
       slug,
       plano: 'operacao',
       admin: `dono@acme-${marca}.teste`,
@@ -553,7 +553,7 @@ describe('Provision a customer tenant', () => {
   it('Provision a tenant and prepare its administrator to log in', async () => {
     const cliente = await provision();
 
-    expect(cliente.plano).toBe('operacao');
+    expect(cliente.plan).toBe('operacao');
     // // The catalog comes from the base seed, not from a second list written here.
     // // Three account roles (admin, member, guest) and five attendance roles.
     expect(cliente.papeis).toBe(8);
@@ -570,15 +570,15 @@ describe('Provision a customer tenant', () => {
        where t.id = ${cliente.tenantId}::uuid
        order by p.nome
     `);
-    expect(rows[0]?.plano).toBe('operacao');
+    expect(rows[0]?.plan).toBe('operacao');
     // // `admin` at the account level and `administrador` in attendance (migration 0021).
-    expect(rows.map((l) => l.papel)).toEqual(['admin', 'administrador']);
+    expect(rows.map((l) => l.role)).toEqual(['admin', 'administrador']);
     expect(rows[0]?.motivos).toBe(String(cliente.motivosDePausa));
 
     // // A domain is born pending: the DNS belongs to the customer, and the command doesn't invent proof.
     const dominio = cliente.domain!;
     expect(dominio.verificado).toBe(false);
-    expect(dominio.registro.nome).toBe(`_pipe-verificacao.${dominio.dominio}`);
+    expect(dominio.registro.name).toBe(`_pipe-verificacao.${dominio.domain}`);
     expect(asLogin(cliente)).toContain(dominio.registro.value);
   });
 
@@ -610,7 +610,7 @@ describe('Provision a customer tenant', () => {
     const cliente = await provision();
     await expect(
       provisionCustomer({
-        nome: 'Outra empresa, mesmo slug',
+        name: 'Outra empresa, mesmo slug',
         slug: cliente.slug,
         plano: 'essencial',
         admin: 'outro@outraempresa.teste',

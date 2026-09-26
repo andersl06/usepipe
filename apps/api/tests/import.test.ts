@@ -207,7 +207,7 @@ describe('linhas inválidas', () => {
         '1,"Clarice Uzzell,"missing_quote,918080808080,Acmecorp\n' +
         '2,Marieann Creegan,,+918080808081,Acmecorp',
     );
-    expect(importacao.state).toBe('falhou');
+    expect(importacao.estado).toBe('falhou');
     expect(await contactsWith(A.tenantId, ['+918080808081'])).toHaveLength(0);
   });
 

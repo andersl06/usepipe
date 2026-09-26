@@ -57,7 +57,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     const publication = await noTenant(cenario.tenantId, (tx) =>
       importFlowOfBlip(tx, {
         tenantId: cenario.tenantId,
-        nome: 'Gerador de fixtures',
+        name: 'Gerador de fixtures',
         channelId: cenario.channelId,
         json: FIXTURE_FLOW,
         publicar: true,
@@ -80,7 +80,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
       position: unknown;
     }>(sql`select id, conteudo, posicao from bloco where versao_id = ${publication.versaoId}::uuid`);
     for (const b of blockRows) {
-      acumular('flow-block-content.json', { id: b.id, value: b.conteudo });
+      acumular('flow-block-content.json', { id: b.id, value: b.content });
       acumular('flow-block-position.json', { id: b.id, value: b.position });
     }
 
@@ -157,7 +157,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     await noTenant(cenario.tenantId, (tx) =>
       importFlowOfBlip(tx, {
         tenantId: cenario.tenantId,
-        nome: 'Gerador de fixtures (ProcessHttp)',
+        name: 'Gerador de fixtures (ProcessHttp)',
         channelId: cenario.channelId,
         json: flowWithProcessHttp,
         publicar: true,
@@ -217,18 +217,18 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
       const service = await noTenant(cenario.tenantId, (tx) =>
         importFlowOfBlip(tx, {
           tenantId: cenario.tenantId,
-          nome: 'Serviço do roteador',
+          name: 'Serviço do roteador',
           channelId: null,
           json: FIXTURE_FLOW,
           publicar: true,
         }),
       );
       await cenario.dono.execute(
-        sql`update fluxo set usa_contexto_do_roteador = true where id = ${service.fluxoId}::uuid`,
+        sql`update fluxo set usa_contexto_do_roteador = true where id = ${service.flowId}::uuid`,
       );
       await cenario.dono.execute(sql`
         insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal)
-        values (${cenario.tenantId}::uuid, ${routerId}::uuid, ${service.fluxoId}::uuid, 'principal', true)
+        values (${cenario.tenantId}::uuid, ${routerId}::uuid, ${service.flowId}::uuid, 'principal', true)
       `);
 
       const BIA = '5511922220004';

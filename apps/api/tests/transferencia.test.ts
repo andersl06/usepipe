@@ -113,7 +113,7 @@ async function eventosDe(id: string): Promise<string[]> {
   const { rows } = await cenario.dono.execute<{ type: string }>(
     sql`select tipo from evento_atendimento where conversa_id = ${id}::uuid order by em, tipo`,
   );
-  return rows.map((r) => r.tipo);
+  return rows.map((r) => r.type);
 }
 
 describe('Transfer a conversation to a queue', () => {
@@ -125,7 +125,7 @@ describe('Transfer a conversation to a queue', () => {
     expect(resposta.status).toBe(201);
     const corpo = (await resposta.json()) as { ofConversationId: string; forConversationId: string; state: string };
     expect(corpo.ofConversationId).toBe(antiga);
-    expect(corpo.estado).toBe('na_fila');
+    expect(corpo.state).toBe('na_fila');
 
     expect((await conversation(antiga)).state).toBe('encerrada');
     const nova = await conversation(corpo.forConversationId);
@@ -190,7 +190,7 @@ describe('Transfer a conversation to a queue', () => {
     expect(rows[0]!.forQueueId).toBe(otherQueueId);
     expect(rows[0]!.ofQueueId).toBe(cenario.queueId);
     expect(rows[0]!.ofUserId).toBe(cenario.agentId);
-    expect(rows[0]!.motivo).toBe('Setor errado');
+    expect(rows[0]!.reason).toBe('Setor errado');
     expect(rows[0]!.byUserId).toBe(cenario.agentId);
   });
 
@@ -212,10 +212,10 @@ describe('Transfer a conversation to an agent', () => {
     const r = await transferir(antiga, { para_atendente_id: otherAgentId });
     const corpo = (await r.json()) as { forConversationId: string; state: string };
 
-    expect(corpo.estado).toBe('atribuida');
-    const nova = await conversation(corpo.para_conversa_id);
+    expect(corpo.state).toBe('atribuida');
+    const nova = await conversation(corpo.forConversationId);
     expect(nova.agentId).toBe(otherAgentId);
-    expect(await eventosDe(corpo.para_conversa_id)).toContain('atribuida');
+    expect(await eventosDe(corpo.forConversationId)).toContain('atribuida');
   });
 
   it('fecha a espera em aberto antes de transferir', async () => {
@@ -227,7 +227,7 @@ describe('Transfer a conversation to an agent', () => {
     const { rows } = await cenario.dono.execute<{ pausadoSeg: number }>(
       sql`select pausado_seg from conversa where id = ${antiga}::uuid`,
     );
-    expect(rows[0]!.pausado_seg).toBeGreaterThan(0);
+    expect(rows[0]!.pausadoSeg).toBeGreaterThan(0);
   });
 });
 

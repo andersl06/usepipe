@@ -232,7 +232,7 @@ describe('bot com o dublê do WhatsApp', () => {
        where e.conversa_id = ${nova.id}::uuid
     `);
     expect(rows[0]!.contexto['nome']).toBe('Ana');
-    expect(rows[0]!.codigo).toBe('pos-atendimento');
+    expect(rows[0]!.code).toBe('pos-atendimento');
   });
 
   it('Do not duplicate bot replies when the same message is redelivered', async () => {
@@ -276,11 +276,11 @@ describe('bot com o dublê do WhatsApp', () => {
     const { rows } = await cenario.dono.execute<{ state: string }>(
       sql`select estado from execucao_fluxo where conversa_id = ${conversa.id}::uuid`,
     );
-    expect(rows[0]!.estado).toBe('falhou');
+    expect(rows[0]!.state).toBe('falhou');
     const { rows: notas } = await cenario.dono.execute<{ body: string }>(
       sql`select corpo from nota_interna where conversa_id = ${conversa.id}::uuid`,
     );
-    expect(notas[0]!.corpo).toContain('o fluxo falhou');
-    expect(notas[0]!.corpo).toContain('ExecuteScript');
+    expect(notas[0]!.body).toContain('o fluxo falhou');
+    expect(notas[0]!.body).toContain('ExecuteScript');
   });
 });

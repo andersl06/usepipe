@@ -168,7 +168,7 @@ describe('Manage flow access keys', () => {
       sessionComplete,
     );
     expect(lista.status).toBe(200);
-    const criada = lista.corpo.find((c) => c['id'] === corpo.id);
+    const criada = lista.body.find((c) => c['id'] === corpo.id);
     expect(criada).toBeDefined();
     expect(criada).not.toHaveProperty('token');
     expect(criada).not.toHaveProperty('hash');
@@ -181,7 +181,7 @@ describe('Manage flow access keys', () => {
       nome: '   ',
     });
     expect(semNome.status).toBe(400);
-    expect((semNome.corpo as { error: { code: string } }).error.codigo).toBe('name_missing');
+    expect((semNome.body as { error: { code: string } }).error.code).toBe('name_missing');
 
     for (let i = 0; i < 3; i += 1) {
       const criada = await post(`/v1/management/flows/${flowOfLimit}/keys`, sessionComplete, {
@@ -193,7 +193,7 @@ describe('Manage flow access keys', () => {
       nome: 'Quarta',
     });
     expect(quarta.status).toBe(400);
-    expect((quarta.corpo as { error: { code: string } }).erro.codigo).toBe('limit_of_keys');
+    expect((quarta.body as { error: { code: string } }).error.codigo).toBe('limit_of_keys');
   });
 
   it('Return 403 without `chave_api.gerenciar` and 404 for invalid or cross-tenant IDs', async () => {
@@ -201,7 +201,7 @@ describe('Manage flow access keys', () => {
       nome: 'Proibida',
     });
     expect(semPoder.status).toBe(403);
-    expect((semPoder.corpo as { error: { detalhe: { permission: string } } }).erro.detalhe.permission).toBe(
+    expect((semPoder.body as { error: { detalhe: { permission: string } } }).error.detalhe.permission).toBe(
       'chave_api.gerenciar',
     );
 
@@ -219,7 +219,7 @@ describe('Manage flow access keys', () => {
       nome: `A revogar ${randomUUID().slice(0, 6)}`,
     });
     expect(criada.status).toBe(201);
-    const keyId = criada.corpo.id;
+    const keyId = criada.body.id;
 
     const outroTenant = await del(`/v1/management/flows/${flowId}/keys/${keyId}`, sessionOfOtherTenant);
     expect(outroTenant.status).toBe(404);
@@ -251,7 +251,7 @@ describe('Manage flow access keys', () => {
       `/v1/management/flows/${flowId}/keys`,
       sessionComplete,
     );
-    expect(visiveis.corpo.some((key) => key.id === keyId)).toBe(false);
+    expect(visiveis.body.some((key) => key.id === keyId)).toBe(false);
 
     const nova = await post(`/v1/management/flows/${flowId}/keys`, sessionComplete, {
       nome: 'Depois de revogar',
@@ -299,13 +299,13 @@ describe('Read flow connection details', () => {
       { urlMensagens: 'https://exemplo.pipe.app/mensagens' },
     );
     expect(salva.status).toBe(200);
-    expect(salva.corpo.urlMensagens).toBe('https://exemplo.pipe.app/mensagens');
+    expect(salva.body.urlMensagens).toBe('https://exemplo.pipe.app/mensagens');
 
     const relida = await get<{ urlMensagens: string | null }>(
       `/v1/management/flows/${conexaoFluxo}/connection`,
       sessionOnlyEditor,
     );
-    expect(relida.corpo.urlMensagens).toBe('https://exemplo.pipe.app/mensagens');
+    expect(relida.body.urlMensagens).toBe('https://exemplo.pipe.app/mensagens');
 
     const apagada = await put<{ urlMensagens: string | null }>(
       `/v1/management/flows/${conexaoFluxo}/connection`,
@@ -313,7 +313,7 @@ describe('Read flow connection details', () => {
       { urlMensagens: null },
     );
     expect(apagada.status).toBe(200);
-    expect(apagada.corpo.urlMensagens).toBeNull();
+    expect(apagada.body.urlMensagens).toBeNull();
   });
 
   it('Require `automacao.integracao.gerenciar` to save a flow connection, even for flow editors', async () => {
@@ -322,7 +322,7 @@ describe('Read flow connection details', () => {
       urlMensagens: 'https://exemplo.pipe.app/mensagens',
     });
     expect(resposta.status).toBe(403);
-    expect((resposta.corpo as { error: { detalhe: { permissao: string } } }).erro.detalhe.permissao).toBe(
+    expect((resposta.body as { error: { detalhe: { permissao: string } } }).error.detalhe.permissao).toBe(
       'automacao.integracao.gerenciar',
     );
   });
@@ -346,14 +346,14 @@ describe('Send outgoing webhooks for integrations', () => {
       eventos: [],
     });
     expect(semEventos.status).toBe(400);
-    expect((semEventos.corpo as { error: { code: string } }).erro.codigo).toBe('events_missing');
+    expect((semEventos.body as { error: { code: string } }).error.codigo).toBe('events_missing');
 
     const eventoInvalido = await post(`/v1/management/webhooks`, sessionComplete, {
       url: 'https://exemplo.pipe.app/hook',
       eventos: ['isto.nao.existe'],
     });
     expect(eventoInvalido.status).toBe(400);
-    expect((eventoInvalido.corpo as { error: { code: string } }).erro.codigo).toBe('event_invalid');
+    expect((eventoInvalido.body as { error: { code: string } }).error.codigo).toBe('event_invalid');
 
     const http = await post(`/v1/management/webhooks`, sessionComplete, {
       url: 'http://exemplo.pipe.app/hook',
@@ -373,10 +373,10 @@ describe('Send outgoing webhooks for integrations', () => {
       { url: `https://exemplo.pipe.app/hook-${randomUUID().slice(0, 8)}`, eventos: ['mensagem.criada', 'conversa.criada'] },
     );
     expect(criado.status).toBe(201);
-    expect(criado.corpo.secret).toMatch(/^[0-9a-f]{64}$/);
+    expect(criado.body.secret).toMatch(/^[0-9a-f]{64}$/);
 
     const lista = await get<Array<Record<string, unknown>>>(`/v1/management/webhooks`, sessionComplete);
-    const linha = lista.corpo.find((w) => w['id'] === criado.corpo.id);
+    const linha = lista.body.find((w) => w['id'] === criado.body.id);
     expect(linha).not.toHaveProperty('segredo');
     expect(linha?.['ativo']).toBe(true);
   });
@@ -386,18 +386,18 @@ describe('Send outgoing webhooks for integrations', () => {
       url: `https://exemplo.pipe.app/toggle-${randomUUID().slice(0, 8)}`,
       eventos: ['contato.criado'],
     });
-    const id = criado.corpo.id;
+    const id = criado.body.id;
 
     const desativado = await patch<{ active: boolean }>(`/v1/management/webhooks/${id}`, sessionComplete, {
       active: false,
     });
     expect(desativado.status).toBe(200);
-    expect(desativado.corpo.ativo).toBe(false);
+    expect(desativado.body.ativo).toBe(false);
 
     const ativado = await patch<{ active: boolean }>(`/v1/management/webhooks/${id}`, sessionComplete, {
       active: true,
     });
-    expect(ativado.corpo.ativo).toBe(true);
+    expect(ativado.body.ativo).toBe(true);
 
     const log = await a.dono.execute<{ acao: string }>(sql`
       select acao from log_auditoria
@@ -419,7 +419,7 @@ describe('Send outgoing webhooks for integrations', () => {
       url: `https://exemplo.pipe.app/teste-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
     });
-    const id = criado.corpo.id;
+    const id = criado.body.id;
 
     // The global `fetch` is used both by the domain code (to "deliver" to the webhook)
     // and by THIS test itself (to call the `api` process) — the same process,
@@ -442,8 +442,8 @@ describe('Send outgoing webhooks for integrations', () => {
       sessionComplete,
     );
     expect(ok.status).toBe(200);
-    expect(ok.corpo.ok).toBe(true);
-    expect(ok.corpo.status).toBe(200);
+    expect(ok.body.ok).toBe(true);
+    expect(ok.body.status).toBe(200);
     expect(chamadas).toHaveLength(1);
     const [, init] = chamadas[0]!;
     const cabecalhos = init?.headers as Record<string, string>;
@@ -461,8 +461,8 @@ describe('Send outgoing webhooks for integrations', () => {
       sessionComplete,
     );
     expect(falhou.status).toBe(200);
-    expect(falhou.corpo.ok).toBe(false);
-    expect(falhou.corpo.erro).toContain('falha de rede simulada');
+    expect(falhou.body.ok).toBe(false);
+    expect(falhou.body.erro).toContain('falha de rede simulada');
 
     const entregas = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from entrega_webhook where webhook_id = ${id}::uuid`,
@@ -475,7 +475,7 @@ describe('Send outgoing webhooks for integrations', () => {
       url: `https://exemplo.pipe.app/perm-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
     });
-    const id = criado.corpo.id;
+    const id = criado.body.id;
 
     const semPoder = await get(`/v1/management/webhooks`, sessionWithoutAuthority);
     expect(semPoder.status).toBe(403);
@@ -504,13 +504,13 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       },
     );
     expect(criado.status).toBe(201);
-    expect(criado.corpo.authentication).toEqual({
+    expect(criado.body.authentication).toEqual({
       tipo: 'basica',
       usuario: 'robo',
       urlAutorizacao: null,
       clientId: null,
     });
-    const id = criado.corpo.id;
+    const id = criado.body.id;
 
     const linha = (
       await a.dono.execute<{ authenticationPassword: string }>(
@@ -521,7 +521,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
     expect(linha?.authenticationPassword).not.toContain('segredo-123');
 
     const lista = await get<Array<Record<string, unknown>>>(`/v1/management/webhooks`, sessionComplete);
-    const naLista = lista.corpo.find((w) => w['id'] === id);
+    const naLista = lista.body.find((w) => w['id'] === id);
     expect(JSON.stringify(naLista)).not.toContain('segredo-123');
     expect(JSON.stringify(naLista)).not.toContain('pipev1.');
 
@@ -540,8 +540,8 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       sessionComplete,
     );
     expect(test.status).toBe(200);
-    expect(test.corpo.ok).toBe(true);
-    expect(test.corpo.corpo).toBe('recebido');
+    expect(test.body.ok).toBe(true);
+    expect(test.body.corpo).toBe('recebido');
     const cabecalhos = chamadas[0]?.[1]?.headers as Record<string, string>;
     expect(cabecalhos['authorization']).toBe(
       `Basic ${Buffer.from('robo:segredo-123').toString('base64')}`,
@@ -561,7 +561,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       },
     });
     expect(criado.status).toBe(201);
-    const id = criado.corpo.id;
+    const id = criado.body.id;
 
     const linha = (
       await a.dono.execute<{ oauth2_client_secret: string }>(
@@ -586,7 +586,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
     );
     const teste = await post<{ ok: boolean }>(`/v1/management/webhooks/${id}/test`, sessionComplete);
     expect(teste.status).toBe(200);
-    expect(teste.corpo.ok).toBe(true);
+    expect(teste.body.ok).toBe(true);
     expect(chamadas).toHaveLength(2);
     const [chamadaToken, callDestination] = chamadas as [
       [string, RequestInit | undefined],
@@ -606,7 +606,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       cabecalhos: [{ chave: 'X-Minha-Chave', valor: 'valor-customizado' }],
     });
     expect(criado.status).toBe(201);
-    const id = criado.corpo.id;
+    const id = criado.body.id;
 
     const chamadas: Array<[string, RequestInit | undefined]> = [];
     const fetchDeVerdade = fetch;
@@ -620,7 +620,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
     );
     const teste = await post<{ ok: boolean }>(`/v1/management/webhooks/${id}/test`, sessionComplete);
     expect(teste.status).toBe(200);
-    expect(teste.corpo.ok).toBe(true);
+    expect(teste.body.ok).toBe(true);
     const cabecalhos = chamadas[0]?.[1]?.headers as Record<string, string>;
     expect(cabecalhos['X-Minha-Chave']).toBe('valor-customizado');
     expect(cabecalhos['x-pipe-signature']).toMatch(/^sha256=[0-9a-f]{64}$/);
@@ -633,7 +633,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       cabecalhos: [{ chave: 'Content-Type', valor: 'text/plain' }],
     });
     expect(reservado.status).toBe(400);
-    expect((reservado.corpo as { error: { code: string } }).erro.codigo).toBe('header_reserved');
+    expect((reservado.body as { error: { code: string } }).error.codigo).toBe('header_reserved');
 
     const repetido = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/repetido-${randomUUID().slice(0, 8)}`,
@@ -644,7 +644,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       ],
     });
     expect(repetido.status).toBe(400);
-    expect((repetido.corpo as { error: { code: string } }).erro.codigo).toBe('header_repeated');
+    expect((repetido.body as { error: { code: string } }).error.codigo).toBe('header_repeated');
 
     const semSenha = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/incompleta-${randomUUID().slice(0, 8)}`,
@@ -652,7 +652,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       autenticacao: { tipo: 'basica', usuario: 'robo' },
     });
     expect(semSenha.status).toBe(400);
-    expect((semSenha.corpo as { error: { code: string } }).erro.codigo).toBe('authentication_incomplete');
+    expect((semSenha.body as { error: { code: string } }).error.codigo).toBe('authentication_incomplete');
 
     const oauthSsrf = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/oauth-ssrf-${randomUUID().slice(0, 8)}`,
@@ -673,7 +673,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       eventos: ['mensagem.criada'],
       autenticacao: { tipo: 'basica', usuario: 'robo', senha: 'senha-1' },
     });
-    const id = criado.corpo.id;
+    const id = criado.body.id;
 
     const editado = await patch<{ autenticacao: Record<string, unknown> }>(
       `/v1/management/webhooks/${id}`,
@@ -681,7 +681,7 @@ describe('Authenticate outgoing webhooks and attach custom headers', () => {
       { autenticacao: { tipo: 'nenhuma' } },
     );
     expect(editado.status).toBe(200);
-    expect(editado.corpo.autenticacao).toEqual({
+    expect(editado.body.autenticacao).toEqual({
       tipo: 'nenhuma',
       usuario: null,
       urlAutorizacao: null,

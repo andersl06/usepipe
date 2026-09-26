@@ -180,10 +180,10 @@ describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
 
     const desligado = await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, { ativo: false });
     expect(desligado.status).toBe(200);
-    expect(desligado.corpo).toEqual({ ativo: false, mensagem: 'Mensagem original', textoBotao: 'Começar' });
+    expect(desligado.body).toEqual({ ativo: false, mensagem: 'Mensagem original', textoBotao: 'Começar' });
 
     const read = await chamar(sessionEditor, 'GET', `${id}/boas-vindas`);
-    expect(read.corpo).toEqual({ ativo: false, mensagem: 'Mensagem original', textoBotao: 'Começar' });
+    expect(read.body).toEqual({ ativo: false, mensagem: 'Mensagem original', textoBotao: 'Começar' });
   });
 
   it('Return 403 without `automacao.fluxo.editar` and 404 for invalid or cross-tenant IDs', async () => {

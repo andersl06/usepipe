@@ -231,26 +231,26 @@ describe(`POST ${CAMINHO}`, () => {
 
     const lista = await pedir('GET', CAMINHO, sessionManager);
     expect(lista.status).toBe(200);
-    expect((lista.corpo as { id: string; term: string }[]).some((p) => p.id === corpo.id)).toBe(true);
+    expect((lista.body as { id: string; term: string }[]).some((p) => p.id === corpo.id)).toBe(true);
   });
 
   it('Reject empty banned terms and accent- or case-insensitive duplicates', async () => {
     const empty = await createWord(sessionManager, { termo: '   ' });
     expect(empty.status).toBe(400);
-    expect(empty.corpo.erro.code).toBe('term_required');
+    expect(empty.body.erro.code).toBe('term_required');
 
     const marca = randomUUID().slice(0, 6);
     expect((await createWord(sessionManager, { termo: `Açúcar ${marca}` })).status).toBe(201);
     const repetido = await createWord(sessionManager, { termo: `ACUCAR ${marca}` });
     expect(repetido.status).toBe(409);
-    expect(repetido.corpo.erro.code).toBe('term_in_use');
+    expect(repetido.body.erro.code).toBe('term_in_use');
   });
 
   it('Return 403 without `tenant.configurar` and 401 without a session', async () => {
     const semPoder = await createWord(sessionWithoutAuthority);
     expect(semPoder.status).toBe(403);
-    expect(semPoder.corpo.erro.code).toBe('without_permission');
-    expect(semPoder.corpo.erro.detalhe.permissao).toBe('tenant.configurar');
+    expect(semPoder.body.erro.code).toBe('without_permission');
+    expect(semPoder.body.erro.detalhe.permissao).toBe('tenant.configurar');
 
     const withoutSession = await fetch(`${api.url}${CAMINHO}`, {
       method: 'POST',
@@ -264,7 +264,7 @@ describe(`POST ${CAMINHO}`, () => {
     const { corpo: criada } = await createWord(sessionManager);
     const doOutro = await pedir('GET', CAMINHO, sessionOfOtherTenant);
     expect(doOutro.status).toBe(200);
-    expect((doOutro.corpo as { id: string }[]).some((p) => p.id === criada.id)).toBe(false);
+    expect((doOutro.body as { id: string }[]).some((p) => p.id === criada.id)).toBe(false);
   });
 });
 
@@ -295,14 +295,14 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
     const { corpo: first } = await createWord(sessionManager);
     const { corpo: segunda } = await createWord(sessionManager);
     const lista = await pedir('GET', CAMINHO, sessionManager);
-    const termOfFirst = (lista.corpo as { id: string; term: string }[]).find(
+    const termOfFirst = (lista.body as { id: string; term: string }[]).find(
       (p) => p.id === first.id,
-    )!.termo;
+    )!.term;
     const repetido = await pedir('PATCH', `${CAMINHO}/${segunda.id}`, sessionManager, {
       termo: termOfFirst.toUpperCase(),
     });
     expect(repetido.status).toBe(409);
-    expect(repetido.corpo.erro.code).toBe('term_in_use');
+    expect(repetido.body.erro.code).toBe('term_in_use');
   });
 
   it('sem tenant.configurar é 403; de outro tenant é 404; id malformado é 404', async () => {
@@ -381,9 +381,9 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
       texto: `Vocês são uns IDIÓTA${marca}s!`,
     });
     expect(recusada.status).toBe(400);
-    expect(recusada.corpo.erro.code).toBe('word_forbidden');
-    expect(recusada.corpo.erro.message).toContain(`"${palavra}"`);
-    expect(recusada.corpo.erro.detalhe.palavras).toEqual([palavra]);
+    expect(recusada.body.erro.code).toBe('word_forbidden');
+    expect(recusada.body.erro.message).toContain(`"${palavra}"`);
+    expect(recusada.body.erro.detalhe.palavras).toEqual([palavra]);
     // Neither the message nor the outbox was written: the rejection happens BEFORE writing.
     expect(await countMessages(a, conversationA)).toBe(0);
 
@@ -392,7 +392,7 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
       texto: `Mandei o Boleto   FALSO ${marca} ontem`,
     });
     expect(recusadaFrase.status).toBe(400);
-    expect(recusadaFrase.corpo.erro.detalhe.palavras).toEqual([frase]);
+    expect(recusadaFrase.body.erro.detalhe.palavras).toEqual([frase]);
 
     // Texto limpo passa.
     const limpa = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
@@ -449,7 +449,7 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
       body: JSON.stringify({ texto: `isso é ${palavra}`, atendente_id: a.agentId }),
     });
     expect(byAgent.status).toBe(400);
-    expect(((await byAgent.json()) as { error: { code: string } }).error.codigo).toBe(
+    expect(((await byAgent.json()) as { error: { code: string } }).error.code).toBe(
       'word_forbidden',
     );
   });

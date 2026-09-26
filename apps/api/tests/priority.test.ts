@@ -108,7 +108,7 @@ describe('Evaluate priority when a conversation enters a queue', () => {
     await cenario.dono.execute(sql`
       insert into regra_prioridade (tenant_id, nome, nivel, condicao)
       values (
-        ${cenario.tenantId}::uuid, ${`regra ${randomUUID().slice(0, 8)}`}, ${opts.nivel},
+        ${cenario.tenantId}::uuid, ${`regra ${randomUUID().slice(0, 8)}`}, ${opts.level},
         ${JSON.stringify(opts.condition ?? {})}::jsonb
       )
     `);
@@ -138,7 +138,7 @@ describe('Evaluate priority when a conversation enters a queue', () => {
 
   it('Set a new conversation\'s priority from a matching rule', async () => {
     await createRule({
-      nivel: 'maxima',
+      level: 'maxima',
       condition: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
     });
     await falar('5521987650001', 'preciso de ajuda urgente com meu pedido');

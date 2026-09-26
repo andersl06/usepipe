@@ -81,7 +81,7 @@ async function newFlow(
     insert into fluxo (tenant_id, nome, tipo, estado, canal_id)
     values (
       ${cenario.tenantId}, ${`${tipo} ${randomUUID().slice(0, 8)}`}, ${tipo},
-      ${extra.estado ?? 'rascunho'}, ${extra.channelId ?? null}
+      ${extra.state ?? 'rascunho'}, ${extra.channelId ?? null}
     )
     returning id
   `);
@@ -104,7 +104,7 @@ async function chamar(
 }
 
 const codigo = (r: { body: Record<string, unknown> }) =>
-  (r.corpo['erro'] as { code?: string } | undefined)?.codigo;
+  (r.body['erro'] as { code?: string } | undefined)?.codigo;
 
 beforeAll(async () => {
   a = await montarCenario(`rt-${randomUUID().slice(0, 8)}`);
@@ -131,11 +131,11 @@ describe('/v1/management/flows/:id/services', () => {
 
     const empty = await chamar(sessionEditor, 'GET', `${router}/servicos`);
     expect(empty.status).toBe(200);
-    expect(empty.corpo).toMatchObject({ principal: null, filhos: [] });
-    expect((empty.corpo['roteador'] as { id: string }).id).toBe(router);
-    const search = empty.corpo['busca'] as { id: string; type: string }[];
+    expect(empty.body).toMatchObject({ principal: null, filhos: [] });
+    expect((empty.body['roteador'] as { id: string }).id).toBe(router);
+    const search = empty.body['busca'] as { id: string; type: string }[];
     expect(search.some((f) => f.id === suporte)).toBe(true);
-    expect(search.every((f) => f.tipo === 'fluxo')).toBe(true);
+    expect(search.every((f) => f.type === 'fluxo')).toBe(true);
 
     const p = await chamar(sessionEditor, 'POST', `${router}/servicos`, {
       name: 'Principal',
@@ -146,7 +146,7 @@ describe('/v1/management/flows/:id/services', () => {
       expiracaoMin: 10,
     });
     expect(p.status).toBe(201);
-    expect(p.corpo).toMatchObject({
+    expect(p.body).toMatchObject({
       nome: 'Principal',
       principal: true,
       persistente: false,
@@ -162,17 +162,17 @@ describe('/v1/management/flows/:id/services', () => {
       expiracaoMin: 30,
     });
     expect(s.status).toBe(201);
-    expect(s.corpo).toMatchObject({ principal: false, persistente: false, expiracaoMin: 30 });
+    expect(s.body).toMatchObject({ principal: false, persistente: false, expiracaoMin: 30 });
 
     const lido = await chamar(sessionEditor, 'GET', `${router}/servicos`);
-    expect((lido.corpo['principal'] as { id: string }).id).toBe(p.corpo['id']);
-    expect((lido.corpo['filhos'] as { id: string; name: string }[]).map((f) => f.nome)).toEqual([
+    expect((lido.body['principal'] as { id: string }).id).toBe(p.body['id']);
+    expect((lido.body['filhos'] as { id: string; name: string }[]).map((f) => f.name)).toEqual([
       'Suporte',
     ]);
 
     const { rows } = await a.dono.execute<{ acao: string }>(sql`
       select acao from log_auditoria
-       where objeto_tipo = 'roteador_servico' and objeto_id = ${s.corpo['id'] as string}::uuid
+       where objeto_tipo = 'roteador_servico' and objeto_id = ${s.body['id'] as string}::uuid
     `);
     expect(rows.map((r) => r.acao)).toEqual(['criou']);
   });
@@ -223,7 +223,7 @@ describe('/v1/management/flows/:id/services', () => {
     // Persistent ignores expiration.
     const persistente = await post({ nome: 'Três', chatbotId: f3, persistente: true });
     expect(persistente.status).toBe(201);
-    expect(persistente.corpo).toMatchObject({ persistente: true, expiracaoMin: null });
+    expect(persistente.body).toMatchObject({ persistente: true, expiracaoMin: null });
 
     const { rows } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from roteador_servico where roteador_id = ${roteador}::uuid`,
@@ -262,19 +262,19 @@ describe('/v1/management/flows/:id/services', () => {
       persistente: false,
       expiracaoMin: 15,
     });
-    const id = criado.corpo['id'] as string;
+    const id = criado.body['id'] as string;
 
     const mais = await chamar(sessionEditor, 'PATCH', `${roteador}/servicos/${id}`, {
       expiracaoMin: 45,
     });
     expect(mais.status).toBe(200);
-    expect(mais.corpo).toMatchObject({ nome: 'Vendas', expiracaoMin: 45 });
+    expect(mais.body).toMatchObject({ nome: 'Vendas', expiracaoMin: 45 });
 
     const persistente = await chamar(sessionEditor, 'PATCH', `${roteador}/servicos/${id}`, {
       persistente: true,
       chatbotId: f2,
     });
-    expect(persistente.corpo).toMatchObject({
+    expect(persistente.body).toMatchObject({
       persistente: true,
       expiracaoMin: null,
       chatbot: { id: f2 },
@@ -299,7 +299,7 @@ describe('/v1/management/flows/:id/services', () => {
     const apagado = await chamar(sessionEditor, 'DELETE', `${roteador}/servicos/${id}`);
     expect(apagado.status).toBe(204);
     const depois = await chamar(sessionEditor, 'GET', `${roteador}/servicos`);
-    expect(depois.corpo['filhos']).toEqual([]);
+    expect(depois.body['filhos']).toEqual([]);
     expect((await chamar(sessionEditor, 'DELETE', `${roteador}/servicos/${id}`)).status).toBe(404);
   });
 
@@ -311,7 +311,7 @@ describe('/v1/management/flows/:id/services', () => {
       chatbotId: f1,
       principal: true,
     });
-    const id = criado.corpo['id'] as string;
+    const id = criado.body['id'] as string;
     const deB = await newFlow(b, 'fluxo');
 
     expect((await chamar(sessionOfOtherTenant, 'GET', `${roteador}/servicos`)).status).toBe(404);
@@ -455,10 +455,10 @@ describe('Route conversations through services', () => {
 
   async function publishService(nome: string, json: unknown): Promise<string> {
     const r = await noTenant(a.tenantId, (tx) =>
-      importFlowOfBlip(tx, { tenantId: a.tenantId, nome, channelId: null, json, publicar: true }),
+      importFlowOfBlip(tx, { tenantId: a.tenantId, name: nome, channelId: null, json, publicar: true }),
     );
     expect(r.errorOfValidation).toBeNull();
-    return r.fluxoId;
+    return r.flowId;
   }
 
   beforeAll(async () => {
@@ -636,7 +636,7 @@ describe('Route conversations through services', () => {
       select m.conteudo from mensagem m join conversa c on c.id = m.conversa_id
        where c.contato_id = ${contactId}::uuid and m.autor_tipo = 'bot'
     `);
-    expect(rows.map((r) => r.conteudo)).not.toContain('Suporte: anotado ');
+    expect(rows.map((r) => r.content)).not.toContain('Suporte: anotado ');
     // `volta` redirected to the main flow by the service's name.
     expect((await position(EVA)).serviceId).toBe(principalId);
   });
@@ -662,7 +662,7 @@ describe('Route conversations through services', () => {
     `);
     await closeConversation(
       { tenantId: a.tenantId, agentId: a.agentId, requireAssignment: true },
-      { conversaId: conversa.id, etiquetaId: etiquetas[0]!.id },
+      { conversationId: conversa.id, etiquetaId: etiquetas[0]!.id },
     );
 
     await falar(FABIO, 'voltei');

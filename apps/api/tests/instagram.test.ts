@@ -294,12 +294,12 @@ describe('Handle Instagram inbound and outbound webhooks', () => {
 
     await postar(channelId, {
       object: 'instagram',
-      entry: [{ id: igUserId, messaging: [{ sender: { id: IGSID }, recipient: { id: igUserId }, timestamp: Date.now(), read: { mid: saida!.id_provedor } }] }],
+      entry: [{ id: igUserId, messaging: [{ sender: { id: IGSID }, recipient: { id: igUserId }, timestamp: Date.now(), read: { mid: saida!.idProvider } }] }],
     });
     const [lida] = await linhas<{ stateDelivery: string }>(
       sql`select estado_entrega from mensagem where id = ${enviada.id}::uuid`,
     );
-    expect(lida!.estado_entrega).toBe('lida');
+    expect(lida!.stateDelivery).toBe('lida');
   });
 
   it('Hide another tenant\'s channel from listing and return 404 on disconnect', async () => {

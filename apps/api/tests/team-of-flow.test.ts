@@ -208,14 +208,14 @@ describe('POST /v1/management/flows/:id/team', () => {
       papelNoFluxo: 'visualizar',
     });
     expect(visita.status).toBe(201);
-    expect(visita.corpo['permissoes']).toMatchObject({ builder: 'ler', channels: 'ler' });
+    expect(visita.body['permissoes']).toMatchObject({ builder: 'ler', channels: 'ler' });
 
     const solta = await editar(sessionEditor, bruno.id, {
       papelNoFluxo: 'personalizado',
       permissoes: { builder: 'escrever', channels: 'ler' },
     });
     expect(solta.status).toBe(200);
-    expect(solta.corpo['permissoes']).toMatchObject({
+    expect(solta.body['permissoes']).toMatchObject({
       builder: 'escrever',
       channels: 'ler',
       /* Whatever is absent falls into "No permission" — the source's zero radio option. */
@@ -238,14 +238,14 @@ describe('POST /v1/management/flows/:id/team', () => {
   it('recusa a mesma pessoa duas vezes e nível que a origem não tem', async () => {
     const repetida = await adicionar(sessionEditor, { email: ana.email, papelNoFluxo: 'editar' });
     expect(repetida.status).toBe(409);
-    expect(repetida.corpo).toMatchObject({ erro: { codigo: 'ja_e_membro' } });
+    expect(repetida.body).toMatchObject({ erro: { codigo: 'ja_e_membro' } });
 
     const inventado = await adicionar(sessionEditor, {
       email: carla.email,
       papelNoFluxo: 'super-admin',
     });
     expect(inventado.status).toBe(400);
-    expect(inventado.corpo).toMatchObject({ erro: { codigo: 'papel_no_fluxo_invalido' } });
+    expect(inventado.body).toMatchObject({ erro: { codigo: 'papel_no_fluxo_invalido' } });
   });
 });
 
@@ -253,7 +253,7 @@ describe('Require permission to manage the flow team', () => {
   it('Return 403 without either flow or account team permission', async () => {
     const lista = await listar(sessionWithoutAuthority);
     expect(lista.status).toBe(403);
-    expect(lista.corpo).toMatchObject({ erro: { codigo: 'sem_permissao' } });
+    expect(lista.body).toMatchObject({ erro: { codigo: 'sem_permissao' } });
 
     const posta = await adicionar(sessionWithoutAuthority, {
       email: carla.email,
@@ -266,7 +266,7 @@ describe('Require permission to manage the flow team', () => {
     await seed(a, flowId, semPoderId, 'admin');
     const lista = await listar(sessionWithoutAuthority);
     expect(lista.status).toBe(200);
-    expect(lista.corpo['podeGerir']).toBe(true);
+    expect(lista.body['podeGerir']).toBe(true);
     /* Back to how it was: the remaining cases rely on him having no permission at all. */
     await a.dono.execute(sql`
       delete from fluxo_membro where fluxo_id = ${flowId}::uuid
@@ -293,7 +293,7 @@ describe('PATCH e DELETE /v1/management/flows/:id/team/:usuarioId', () => {
   it('altera o nível, registra no log e não grava quando nada mudou', async () => {
     const mudou = await editar(sessionEditor, ana.id, { papelNoFluxo: 'visualizar' });
     expect(mudou.status).toBe(200);
-    expect(mudou.corpo['papelNoFluxo']).toBe('visualizar');
+    expect(mudou.body['papelNoFluxo']).toBe('visualizar');
 
     const antes = (await auditoriaDe(ana.id)).length;
     const igual = await editar(sessionEditor, ana.id, { papelNoFluxo: 'visualizar' });
@@ -321,7 +321,7 @@ describe('PATCH e DELETE /v1/management/flows/:id/team/:usuarioId', () => {
 
     const rebaixa = await editar(sessionEditor, ana.id, { papelNoFluxo: 'editar' }, so);
     expect(rebaixa.status).toBe(409);
-    expect(rebaixa.corpo).toMatchObject({ erro: { codigo: 'ultimo_admin' } });
+    expect(rebaixa.body).toMatchObject({ erro: { codigo: 'ultimo_admin' } });
     expect((await remover(sessionEditor, ana.id, so)).status).toBe(409);
 
     /* Com um segundo administrador, os dois gestos passam. */
@@ -334,7 +334,7 @@ describe('PATCH e DELETE /v1/management/flows/:id/team/:usuarioId', () => {
     const log = await auditoriaDe(ana.id);
     expect(log.at(-1)).toMatchObject({ acao: 'excluiu' });
     const lista = await listar(sessionEditor);
-    const emails = (lista.corpo['membros'] as { email: string }[]).map((m) => m.email);
+    const emails = (lista.body['membros'] as { email: string }[]).map((m) => m.email);
     expect(emails).not.toContain(ana.email);
   });
 });
@@ -344,7 +344,7 @@ describe('Check flow and account permissions at both access gates', () => {
   const tentar = (usuarioId: string, fluxo: string, codigo: string) =>
     noTenant(a.tenantId, (tx) => requirePermissionInFlow(tx, usuarioId, fluxo, codigo))
       .then(() => 'passou')
-      .catch((error: Error & { code?: string }) => error.codigo ?? error.message);
+      .catch((error: Error & { code?: string }) => error.code ?? error.message);
 
   it('Allow flow-only permission without account permission', async () => {
     const flow = await createFlowInDatabase(a, `Portão A ${randomUUID().slice(0, 6)}`);

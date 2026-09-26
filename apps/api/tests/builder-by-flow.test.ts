@@ -241,7 +241,7 @@ async function doBot(conversationId: string): Promise<string[]> {
     select conteudo from mensagem
      where conversa_id = ${conversationId}::uuid and autor_tipo = 'bot' order by criada_em
   `);
-  return rows.map((r) => r.conteudo);
+  return rows.map((r) => r.content);
 }
 
 type LineExecution = { state: string; flowVersionId: string; blockVersionId: string | null };
@@ -319,7 +319,7 @@ describe('GET /v1/management/flows/:id/builder', () => {
 
     const semPoder = await builder(sessionWithoutAuthority, id);
     expect(semPoder.status).toBe(403);
-    expect(semPoder.corpo['erro']).toMatchObject({
+    expect(semPoder.body['erro']).toMatchObject({
       codigo: 'sem_permissao',
       detalhe: { permissao: 'automacao.fluxo.editar' },
     });
@@ -340,24 +340,24 @@ describe('PUT /v1/management/flows/:id/builder', () => {
 
     const first = await salvar(sessionEditor, id, desenho('Olá! Qual é o seu nome?'));
     expect(first.status).toBe(200);
-    expect(first.corpo['versao']).toMatchObject({ versao: 1, estado: 'rascunho', blocos: 3 });
-    expect(first.corpo['erros']).toEqual([]);
-    expect(first.corpo['naoSuportado']).toEqual({});
+    expect(first.body['versao']).toMatchObject({ versao: 1, estado: 'rascunho', blocos: 3 });
+    expect(first.body['erros']).toEqual([]);
+    expect(first.body['naoSuportado']).toEqual({});
 
     const aberto = await builder(sessionEditor, id);
-    expect(aberto.corpo).toMatchObject({ origem: 'rascunho', publicada: null });
-    expect(aberto.corpo['versao']['version']).toBe(1);
-    expect(falaDaPergunta(aberto.corpo)).toBe('Olá! Qual é o seu nome?');
+    expect(aberto.body).toMatchObject({ origem: 'rascunho', publicada: null });
+    expect(aberto.body['versao']['version']).toBe(1);
+    expect(falaDaPergunta(aberto.body)).toBe('Olá! Qual é o seu nome?');
 
     const segunda = await salvar(sessionEditor, id, desenho('Oi! Como você se chama?'));
     expect(segunda.status).toBe(200);
-    expect(segunda.corpo['versao']['id']).toBe(first.corpo['versao']['id']);
-    expect(segunda.corpo['versao']['version']).toBe(1);
+    expect(segunda.body['versao']['id']).toBe(first.body['versao']['id']);
+    expect(segunda.body['versao']['version']).toBe(1);
 
     const inDatabase = await versionsInDatabase(id);
     expect(inDatabase).toHaveLength(1);
     expect(inDatabase[0]).toMatchObject({ versao: 1, estado: 'rascunho', blocos: 3 });
-    expect(falaDaPergunta((await builder(sessionEditor, id)).corpo)).toBe('Oi! Como você se chama?');
+    expect(falaDaPergunta((await builder(sessionEditor, id)).body)).toBe('Oi! Como você se chama?');
 
     // // The flow itself stays a draft: saving doesn't publish.
     const { rows } = await a.dono.execute<{ state: string }>(
@@ -397,20 +397,20 @@ describe('PUT /v1/management/flows/:id/builder', () => {
 
     // // The read returns the same errors — the screen opens already knowing what's missing.
     const aberto = await builder(sessionEditor, id);
-    expect(aberto.corpo['origem']).toBe('rascunho');
-    expect(aberto.corpo['erros']).toEqual(errors);
+    expect(aberto.body['origem']).toBe('rascunho');
+    expect(aberto.body['erros']).toEqual(errors);
 
     // // And publishing rejects with the list, without touching anything.
     const recusa = await publicar(sessionPublisher, id);
     expect(recusa.status).toBe(409);
-    expect(recusa.corpo['erro']['code']).toBe('fluxo_invalido');
-    expect(recusa.corpo['erro']['detalhe']['errors']).toEqual(errors);
+    expect(recusa.body['erro']['code']).toBe('fluxo_invalido');
+    expect(recusa.body['erro']['detalhe']['errors']).toEqual(errors);
     expect((await versionsInDatabase(id))[0]?.state).toBe('rascunho');
 
     // // A body that isn't the editor's map is 400, not 500.
     const torto = await salvar(sessionEditor, id, { fluxo: 'isto não é um mapa' });
     expect(torto.status).toBe(400);
-    expect(torto.corpo['erro']['code']).toBe('desenho_invalido');
+    expect(torto.body['erro']['code']).toBe('desenho_invalido');
   });
 
   it('Do not save a draft without `automacao.fluxo.editar`', async () => {
@@ -431,16 +431,16 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
     // // No draft, nothing to publish.
     const semRascunho = await publicar(sessionPublisher, id);
     expect(semRascunho.status).toBe(409);
-    expect(semRascunho.corpo['erro']['code']).toBe('sem_rascunho');
+    expect(semRascunho.body['erro']['code']).toBe('sem_rascunho');
 
     await salvar(sessionEditor, id, desenho('Olá! Qual é o seu nome? (v1)'));
     const v1 = await publicar(sessionPublisher, id);
     expect(v1.status).toBe(200);
-    expect(v1.corpo['versao']).toMatchObject({ versao: 1, estado: 'publicada', blocos: 3 });
-    expect(v1.corpo['versao']['publishedAt']).toEqual(expect.any(String));
-    expect(v1.corpo['versao']['publishedBy']).toMatch(/^Pessoa /);
-    expect(v1.corpo['arquivada']).toBeNull();
-    const v1Id = v1.corpo['versao']['id'] as string;
+    expect(v1.body['versao']).toMatchObject({ versao: 1, estado: 'publicada', blocos: 3 });
+    expect(v1.body['versao']['publishedAt']).toEqual(expect.any(String));
+    expect(v1.body['versao']['publishedBy']).toMatch(/^Pessoa /);
+    expect(v1.body['arquivada']).toBeNull();
+    const v1Id = v1.body['versao']['id'] as string;
 
     const { rows: flows } = await a.dono.execute<{ state: string }>(
       sql`select estado from fluxo where id = ${id}::uuid`,
@@ -449,9 +449,9 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
 
     // // With no draft, the Builder opens the published version.
     const aberto = await builder(sessionEditor, id);
-    expect(aberto.corpo['origem']).toBe('publicada');
-    expect(aberto.corpo['versao']['version']).toBe(1);
-    expect(aberto.corpo['publicada']['version']).toBe(1);
+    expect(aberto.body['origem']).toBe('publicada');
+    expect(aberto.body['versao']['version']).toBe(1);
+    expect(aberto.body['publicada']['version']).toBe(1);
 
     // // The engine responds with v1, and Ana's conversation stays waiting for the name — in progress.
     await falar(ANA, 'oi');
@@ -462,17 +462,17 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
 
     // // Saving again creates draft v2 (the published v1 is immutable), and publishing promotes it.
     const rascunho = await salvar(sessionEditor, id, desenho('Olá! Qual é o seu nome? (v2)'));
-    expect(rascunho.corpo['versao']).toMatchObject({ versao: 2, estado: 'rascunho' });
-    expect(rascunho.corpo['versao']['id']).not.toBe(v1Id);
+    expect(rascunho.body['versao']).toMatchObject({ versao: 2, estado: 'rascunho' });
+    expect(rascunho.body['versao']['id']).not.toBe(v1Id);
 
     const v2 = await publicar(sessionPublisher, id);
     expect(v2.status).toBe(200);
-    expect(v2.corpo['versao']).toMatchObject({ versao: 2, estado: 'publicada' });
-    expect(v2.corpo['arquivada']).toMatchObject({ id: v1Id, versao: 1, estado: 'arquivada' });
-    const v2Id = v2.corpo['versao']['id'] as string;
+    expect(v2.body['versao']).toMatchObject({ versao: 2, estado: 'publicada' });
+    expect(v2.body['arquivada']).toMatchObject({ id: v1Id, versao: 1, estado: 'arquivada' });
+    const v2Id = v2.body['versao']['id'] as string;
 
     const noBanco = await versionsInDatabase(id);
-    expect(noBanco.map((v) => [v.versao, v.state, v.blocos])).toEqual([
+    expect(noBanco.map((v) => [v.version, v.state, v.blocks])).toEqual([
       [1, 'arquivada', 3],
       [2, 'publicada', 3],
     ]);
@@ -495,8 +495,8 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
     // // The history lists both, newest to oldest.
     const history = await versions(sessionEditor, id);
     expect(history.status).toBe(200);
-    const listadas = history.corpo as unknown as { version: number; state: string }[];
-    expect(listadas.map((v) => [v.versao, v.estado])).toEqual([
+    const listadas = history.body as unknown as { version: number; state: string }[];
+    expect(listadas.map((v) => [v.version, v.state])).toEqual([
       [2, 'publicada'],
       [1, 'arquivada'],
     ]);
@@ -518,7 +518,7 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
 
     const editor = await publicar(sessionEditor, id);
     expect(editor.status).toBe(403);
-    expect(editor.corpo['erro']).toMatchObject({
+    expect(editor.body['erro']).toMatchObject({
       codigo: 'sem_permissao',
       detalhe: { permissao: 'automacao.fluxo.publicar' },
     });
@@ -545,13 +545,13 @@ describe('POST /v1/management/flows/:id/builder/versions/:versao/restore', () =>
     expect(corpo['erros']).toEqual([]);
 
     const aberto = await builder(sessionEditor, id);
-    expect(aberto.corpo['origem']).toBe('rascunho');
-    expect(aberto.corpo['versao']['version']).toBe(3);
-    expect(falaDaPergunta(aberto.corpo)).toBe('primeira');
+    expect(aberto.body['origem']).toBe('rascunho');
+    expect(aberto.body['versao']['version']).toBe(3);
+    expect(falaDaPergunta(aberto.body)).toBe('primeira');
     // // The second one stays published: restoring doesn't publish.
-    expect(aberto.corpo['publicada']).toMatchObject({ versao: 2, estado: 'publicada' });
+    expect(aberto.body['publicada']).toMatchObject({ versao: 2, estado: 'publicada' });
 
-    expect((await versionsInDatabase(id)).map((v) => [v.versao, v.state])).toEqual([
+    expect((await versionsInDatabase(id)).map((v) => [v.version, v.state])).toEqual([
       [1, 'arquivada'],
       [2, 'publicada'],
       [3, 'rascunho'],
@@ -559,8 +559,8 @@ describe('POST /v1/management/flows/:id/builder/versions/:versao/restore', () =>
 
     // Restaurar de novo grava por cima do mesmo rascunho.
     const outra = await restore(sessionEditor, id, 2);
-    expect(outra.corpo['versao']['version']).toBe(3);
-    expect(falaDaPergunta((await builder(sessionEditor, id)).corpo)).toBe('segunda');
+    expect(outra.body['versao']['version']).toBe(3);
+    expect(falaDaPergunta((await builder(sessionEditor, id)).body)).toBe('segunda');
 
     // // A version that doesn't exist (or isn't a number) is 404.
     expect((await restore(sessionEditor, id, 99)).status).toBe(404);

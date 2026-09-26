@@ -126,8 +126,8 @@ describe('Exercise Messenger with the database, webhook, and worker', () => {
     const messages = await linhas<{ id_provedor: string; conversationId: string }>(sql`select id_provedor, conversa_id from mensagem where id_provedor='mid-1'`);
     expect(messages).toHaveLength(1);
     const [contact] = await linhas<{ phoneE164: string | null }>(sql`select c.telefone_e164 from contato c join contato_identidade i on i.contato_id=c.id where i.identificador='psid-1'`);
-    expect(contact!.telefone_e164).toBeNull();
-    const enviada = await sendMessage({ tenantId: A.tenantId, conversaId: messages[0]!.conversationId, texto: 'Olá de volta' });
+    expect(contact!.phoneE164).toBeNull();
+    const enviada = await sendMessage({ tenantId: A.tenantId, conversationId: messages[0]!.conversationId, texto: 'Olá de volta' });
     expect((await processarOutbox()).find((r) => r.messageId === enviada.id)).toMatchObject({ estado: 'enviada' });
     expect(dubleMessenger.chamadas).toContainEqual(expect.objectContaining({ para: 'psid-1', tipo: 'texto' }));
   });

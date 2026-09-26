@@ -155,11 +155,11 @@ describe('GET /v1/etiquetas — o catálogo do tenant', () => {
   it('List all labels without a filter and only matching labels with `?scope=`', async () => {
     const todas = await chamar('GET', '/v1/etiquetas', comCookie(sessionAgent));
     expect(todas.status).toBe(200);
-    const ids = (todas.corpo['etiquetas'] as { id: string }[]).map((e) => e.id);
+    const ids = (todas.body['etiquetas'] as { id: string }[]).map((e) => e.id);
     expect(ids).toEqual(expect.arrayContaining([labelConversation, labelContact, etiquetaAmbos]));
 
     const ofContact = await chamar('GET', '/v1/etiquetas?escopo=contato', comCookie(sessionAgent));
-    const idsContact = (ofContact.corpo['etiquetas'] as { id: string }[]).map((e) => e.id);
+    const idsContact = (ofContact.body['etiquetas'] as { id: string }[]).map((e) => e.id);
     expect(idsContact).toContain(labelContact);
     expect(idsContact).toContain(etiquetaAmbos);
     expect(idsContact).not.toContain(labelConversation);
@@ -184,7 +184,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
       { etiqueta_id: labelConversation },
     );
     expect(aplicada.status).toBe(201);
-    expect(aplicada.corpo).toMatchObject({ etiqueta_id: labelConversation, aplicada: true });
+    expect(aplicada.body).toMatchObject({ etiqueta_id: labelConversation, aplicada: true });
     expect(await labelsOfConversation(conversationId)).toEqual([labelConversation]);
 
     // The conversation stays OPEN: tagging is not closing.
@@ -200,7 +200,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
       { etiqueta_id: labelConversation },
     );
     expect(deNovo.status).toBe(201);
-    expect(deNovo.corpo['aplicada']).toBe(false);
+    expect(deNovo.body['aplicada']).toBe(false);
 
     const removida = await chamar(
       'DELETE',
@@ -208,7 +208,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
       comCookie(sessionAgent),
     );
     expect(removida.status).toBe(200);
-    expect(removida.corpo).toEqual({ removida: true });
+    expect(removida.body).toEqual({ removida: true });
     expect(await labelsOfConversation(conversationId)).toEqual([]);
 
     const semNada = await chamar(
@@ -216,7 +216,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
       `/v1/conversations/${conversationId}/labels/${labelConversation}`,
       comCookie(sessionAgent),
     );
-    expect(semNada.corpo).toEqual({ removida: false });
+    expect(semNada.body).toEqual({ removida: false });
 
     // One `criou` and one `excluiu` event — the no-op writes no row.
     const log = await auditoriaDe('conversa_etiqueta', conversationId);
@@ -231,7 +231,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
       etiqueta_id: etiquetaAmbos,
     });
     const tela = await chamar('GET', `/v1/desk/conversations/${conversationId}`, comCookie(sessionAgent));
-    const aberta = tela.corpo['aberta'] as { labelsOfConversation: { id: string }[] };
+    const aberta = tela.body['aberta'] as { labelsOfConversation: { id: string }[] };
     expect(aberta.labelsOfConversation.map((e) => e.id)).toEqual([etiquetaAmbos]);
   });
 
@@ -252,7 +252,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
       { etiqueta_id: labelContact },
     );
     expect(scopeWrong.status).toBe(400);
-    expect((scopeWrong.corpo['erro'] as { code: string }).codigo).toBe('label_of_other_scope');
+    expect((scopeWrong.body['erro'] as { code: string }).code).toBe('label_of_other_scope');
 
     const inexistente = await chamar(
       'POST',
@@ -272,7 +272,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
       { etiqueta_id: labelConversation },
     );
     expect(semPoder.status).toBe(403);
-    expect((semPoder.corpo['erro'] as { code: string }).codigo).toBe('without_permission');
+    expect((semPoder.body['erro'] as { code: string }).code).toBe('without_permission');
 
     const deOutro = await chamar(
       'POST',
@@ -281,7 +281,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
       { etiqueta_id: labelConversation },
     );
     expect(deOutro.status).toBe(403);
-    expect((deOutro.corpo['erro'] as { code: string }).codigo).toBe('conversation_of_other_agent');
+    expect((deOutro.body['erro'] as { code: string }).code).toBe('conversation_of_other_agent');
 
     const { conversationId: encerrada } = await createConversation(agentId, 'encerrada');
     const fechada = await chamar(
@@ -326,18 +326,18 @@ describe('GET/POST/DELETE /v1/contacts/:id/etiquetas — o contato', () => {
       { etiqueta_id: labelContact },
     );
     expect(aplicada.status).toBe(201);
-    expect(aplicada.corpo).toMatchObject({ etiqueta_id: labelContact, aplicada: true });
+    expect(aplicada.body).toMatchObject({ etiqueta_id: labelContact, aplicada: true });
 
     const lista = await chamar('GET', `/v1/contacts/${contactId}/labels`, comCookie(sessionAgent));
     expect(lista.status).toBe(200);
-    expect((lista.corpo['etiquetas'] as { id: string }[]).map((e) => e.id)).toEqual([labelContact]);
+    expect((lista.body['etiquetas'] as { id: string }[]).map((e) => e.id)).toEqual([labelContact]);
 
     const removida = await chamar(
       'DELETE',
       `/v1/contacts/${contactId}/labels/${labelContact}`,
       comCookie(sessionAgent),
     );
-    expect(removida.corpo).toEqual({ removida: true });
+    expect(removida.body).toEqual({ removida: true });
 
     const log = await auditoriaDe('contato_etiqueta', contactId);
     expect(log.map((l) => l.acao)).toEqual(['criou', 'excluiu']);
@@ -349,13 +349,13 @@ describe('GET/POST/DELETE /v1/contacts/:id/etiquetas — o contato', () => {
       etiqueta_id: etiquetaAmbos,
     });
     const tela = await chamar('GET', `/v1/desk/conversations/${conversationId}`, comCookie(sessionAgent));
-    const aberta = tela.corpo['aberta'] as {
+    const aberta = tela.body['aberta'] as {
       labelsOfConversation: { id: string }[];
       labelsOfContact: { id: string }[];
     };
     expect(aberta.labelsOfContact.map((e) => e.id)).toEqual([etiquetaAmbos]);
     // It does not leak into the conversation: they are different scopes.
-    expect(aberta.etiquetasDaConversa).toEqual([]);
+    expect(aberta.labelsOfConversation).toEqual([]);
   });
 
   it('Return 403 without `contato.editar` even with `conversa.etiquetar`, and 400 for a label with the wrong scope', async () => {
@@ -375,7 +375,7 @@ describe('GET/POST/DELETE /v1/contacts/:id/etiquetas — o contato', () => {
       { etiqueta_id: labelConversation },
     );
     expect(escopoErrado.status).toBe(400);
-    expect((escopoErrado.corpo['erro'] as { code: string }).codigo).toBe('label_of_other_scope');
+    expect((escopoErrado.body['erro'] as { code: string }).code).toBe('label_of_other_scope');
 
     const inexistente = await chamar(
       'POST',
@@ -393,7 +393,7 @@ describe('GET/POST/DELETE /v1/contacts/:id/etiquetas — o contato', () => {
     });
     expect(aplicada.status).toBe(201);
     const lista = await chamar('GET', `/v1/contacts/${contatoId}/labels`, withKey(a.token));
-    expect((lista.corpo['etiquetas'] as { id: string }[]).map((e) => e.id)).toEqual([etiquetaAmbos]);
+    expect((lista.body['etiquetas'] as { id: string }[]).map((e) => e.id)).toEqual([etiquetaAmbos]);
 
     const semEscopo = await chamar('GET', `/v1/contacts/${contatoId}/labels`, withKey(a.tokenWithoutScope));
     expect(semEscopo.status).toBe(403);

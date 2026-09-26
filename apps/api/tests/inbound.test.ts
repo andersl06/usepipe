@@ -106,7 +106,7 @@ describe('Require a session cookie for protected routes', () => {
     const resposta = await fetch(`${api.url}/v1/eu`);
     expect(resposta.status).toBe(401);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('not_authorized');
+    expect(corpo.error.code).toBe('not_authorized');
   });
 
   it('cookie com token inexistente, 401', async () => {
@@ -136,11 +136,11 @@ describe('GET /v1/eu', () => {
     };
 
     expect(eu.user.id).toBe(cenario.agentId);
-    expect(eu.user.nome).toBe('Ana Ribeiro');
+    expect(eu.user.name).toBe('Ana Ribeiro');
     expect(eu.user.avatarUrl).toBeNull();
     expect(eu.tenant.id).toBe(cenario.tenantId);
-    expect(eu.tenant.plano).toBe('essencial');
-    expect(eu.origem).toBe('google');
+    expect(eu.tenant.plan).toBe('essencial');
+    expect(eu.origin).toBe('google');
 
     // // Union of both roles, without repeating `conversa.ver`.
     expect(eu.permissions).toEqual(PERMISSIONS);
@@ -294,7 +294,7 @@ describe('GET /saude', () => {
     };
     expect(corpo.ok).toBe(true);
     expect(corpo.database).toBe('ok');
-    expect(corpo.versao).toBeTruthy();
+    expect(corpo.version).toBeTruthy();
     expect(['ok', 'falha']).toContain(corpo.redis);
   });
 
@@ -374,7 +374,7 @@ describe('a origem de quem começou o login', () => {
       `${api.url}/v1/auth/google?origin=${encodeURIComponent('http://gestao.teste')}`,
       { redirect: 'manual' },
     );
-    expect(lerDesafioDoCookie(resposta.headers.get('set-cookie') ?? '').origem).toBe(
+    expect(lerDesafioDoCookie(resposta.headers.get('set-cookie') ?? '').origin).toBe(
       'http://gestao.teste',
     );
   });

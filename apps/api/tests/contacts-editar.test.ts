@@ -73,8 +73,8 @@ async function newContact(
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome, email, telefone_e164, atributos)
     values (
-      ${cenario.tenantId}, ${extra.nome ?? `Contato ${randomUUID().slice(0, 8)}`},
-      ${extra.email ?? null}, ${extra.telefone ?? null},
+      ${cenario.tenantId}, ${extra.name ?? `Contato ${randomUUID().slice(0, 8)}`},
+      ${extra.email ?? null}, ${extra.phone ?? null},
       ${JSON.stringify(extra.atributos ?? {})}::jsonb
     )
     returning id

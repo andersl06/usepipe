@@ -85,9 +85,9 @@ async function conectar(token: string, assuntos: string[] = ['conversa', 'fila',
   const inscrito = new Promise<void>((resolve) => {
     ws.on('message', (cru) => {
       const q = JSON.parse(String(cru)) as { type?: string };
-      if (q.tipo === 'inscrito') resolve();
+      if (q.type === 'inscrito') resolve();
       // The contract's `ping` is not an event; it does not pollute what the test inspects.
-      else if (q.tipo !== 'ping') recebidos.push(q);
+      else if (q.type !== 'ping') recebidos.push(q);
     });
   });
   ws.send(JSON.stringify({ assuntos }));
@@ -159,14 +159,14 @@ describe('Confirm requested topic subscriptions', () => {
     const resposta = new Promise<{ type: string; reason?: string }>((resolve) => {
       ws.on('message', (cru) => {
         const q = JSON.parse(String(cru)) as { type: string; reason?: string };
-        if (q.tipo !== 'ping') resolve(q);
+        if (q.type !== 'ping') resolve(q);
       });
     });
     ws.send(JSON.stringify({ assuntos: ['banco_de_dados_inteiro'] }));
 
     const q = await resposta;
-    expect(q.tipo).toBe('recusado');
-    expect(q.motivo).toBe('assunto_desconhecido');
+    expect(q.type).toBe('recusado');
+    expect(q.reason).toBe('assunto_desconhecido');
     ws.close();
   });
 
@@ -182,7 +182,7 @@ describe('Confirm requested topic subscriptions', () => {
     await new Promise<void>((resolve) => ws.once('open', () => resolve()));
     ws.on('message', (cru) => {
       const q = JSON.parse(String(cru)) as { type?: string };
-      if (q.tipo !== 'ping') recebidos.push(q);
+      if (q.type !== 'ping') recebidos.push(q);
     });
 
     await publicar(cenario.tenantId, evento('conversation', randomUUID()));
@@ -305,10 +305,10 @@ describe('queda', () => {
     const ping = await new Promise<{ type: string }>((resolve) => {
       ws.on('message', (cru) => {
         const q = JSON.parse(String(cru)) as { type: string };
-        if (q.tipo === 'ping') resolve(q);
+        if (q.type === 'ping') resolve(q);
       });
     });
-    expect(ping.tipo).toBe('ping');
+    expect(ping.type).toBe('ping');
     ws.close();
   });
 });

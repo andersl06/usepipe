@@ -156,15 +156,15 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     expect(status).toBe(201);
     const messages = corpo['mensagens'] as { id: string; stateDelivery: string }[];
     expect(messages).toHaveLength(3);
-    expect(messages.every((m) => m.estado_entrega === 'pendente')).toBe(true);
+    expect(messages.every((m) => m.stateDelivery === 'pendente')).toBe(true);
 
     // // In the order the response says they went out (the batch's order), not the clock's.
     const todas = await messagesOf(conversationId);
     const gravadas = messages.map((m) => todas.find((g) => g.id === m.id)!);
     expect(gravadas.map((m) => m.attachmentId)).toEqual([foto, contract, outra]);
-    expect(gravadas.map((m) => m.tipo)).toEqual(['imagem', 'documento', 'imagem']);
+    expect(gravadas.map((m) => m.type)).toEqual(['imagem', 'documento', 'imagem']);
     // // The caption goes on the FIRST one, only.
-    expect(gravadas.map((m) => m.conteudo)).toEqual(['Segue o material', null, null]);
+    expect(gravadas.map((m) => m.content)).toEqual(['Segue o material', null, null]);
 
     const { rows: outbox } = await cenario.dono.execute<{ n: string }>(sql`
       select count(*)::text as n from outbox_mensagem
@@ -186,7 +186,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     }
     const { status, corpo } = await enviarLote(conversaId, { anexo_ids: ids });
     expect(status).toBe(400);
-    expect((corpo['erro'] as { code: string }).codigo).toBe('attachments_excessive');
+    expect((corpo['erro'] as { code: string }).code).toBe('attachments_excessive');
     expect(await messagesOf(conversaId)).toHaveLength(0);
   });
 
@@ -211,7 +211,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     const { status, corpo } = await enviarLote(conversaId, { anexo_ids: [ok, grande] });
     expect(status).toBe(400);
     const error = corpo['erro'] as { code: string; message: string };
-    expect(error.codigo).toBe('file_large_excessive');
+    expect(error.code).toBe('file_large_excessive');
     expect(error.message).toContain('enorme.pdf');
     expect(await messagesOf(conversaId)).toHaveLength(0);
   });
@@ -229,7 +229,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     const a2 = await up(PNG, 'image/png', 'b.png');
     const { status, corpo } = await enviarLote(conversaId, { anexo_ids: [a1, a2] });
     expect(status).toBe(409);
-    expect((corpo['erro'] as { code: string }).codigo).toBe('janela_fechada');
+    expect((corpo['erro'] as { code: string }).code).toBe('janela_fechada');
     expect(await messagesOf(conversaId)).toHaveLength(0);
   });
 
@@ -245,7 +245,7 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     const { rows } = await cenario.dono.execute<{ authorId: string | null }>(
       sql`select autor_id from mensagem where id = ${gravadas[0]!.id}::uuid`,
     );
-    expect(rows[0]?.autor_id).toBe(cenario.agentId);
+    expect(rows[0]?.authorId).toBe(cenario.agentId);
 
     const doColega = await createConversation(colegaId);
     const recusa = await enviarLote(doColega, { anexo_ids: [a1] }, comCookie());

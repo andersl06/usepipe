@@ -95,7 +95,7 @@ describe('Handle inbound webhook events', () => {
     const resposta = await postarWebhook(payloadOfMessage(CLIENTE, 'oi'), 'sha256=00');
     expect(resposta.status).toBe(401);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.error.codigo).toBe('signature_invalid');
+    expect(corpo.error.code).toBe('signature_invalid');
   });
 });
 
@@ -174,7 +174,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     // The point of this work: it is no longer created as `enviada`.
     expect(corpo.stateDelivery).toBe('pendente');
     expect(corpo.insideOfWindow).toBe(true);
-    expect(corpo.categoria_cobranca).toBe('livre');
+    expect(corpo.categoryCobranca).toBe('livre');
 
     const outbox = await umaLinha<{ state: string; tentativas: number }>(
       sql`select estado, tentativas from outbox_mensagem where mensagem_id = ${messageOutputId}::uuid`,
@@ -235,7 +235,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
       await umaLinha<{ idProvider: string }>(
         sql`select id_provedor from mensagem where id = ${messageOutputId}::uuid`,
       )
-    )!.id_provedor;
+    )!.idProvider;
 
     // `delivered` arriving after `read` is routine on Meta's side. It must be discarded.
     await postarWebhook(
@@ -265,8 +265,8 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
 
     const messages = await comApi(`/v1/conversations/${conversationId}/messages?limit=50`);
     const corpo = (await messages.json()) as { data: { direction: string; stateDelivery: string | null }[] };
-    expect(corpo.data.some((m) => m.direcao === 'entrada')).toBe(true);
-    expect(corpo.data.some((m) => m.direcao === 'saida' && m.estado_entrega === 'lida')).toBe(true);
+    expect(corpo.data.some((m) => m.direction === 'entrada')).toBe(true);
+    expect(corpo.data.some((m) => m.direction === 'saida' && m.stateDelivery === 'lida')).toBe(true);
   });
 });
 
@@ -303,7 +303,7 @@ describe('caminho da falha', () => {
     });
     expect(resposta.status).toBe(201);
     const criada = (await resposta.json()) as { id: string; stateDelivery: string };
-    expect(criada.estado_entrega).toBe('pendente');
+    expect(criada.stateDelivery).toBe('pendente');
 
     const chamadasAntes = dubleWhatsApp.chamadas.length;
     const resultados = await processarOutbox();
@@ -348,9 +348,9 @@ describe('caminho da falha', () => {
     const corpo = (await resposta.json()) as {
       error: { code: string; message: string; detalhe: { modo: string } };
     };
-    expect(corpo.erro.codigo).toBe('janela_fechada');
-    expect(corpo.erro.message).toContain('template aprovado pela Meta');
-    expect(corpo.erro.detalhe.modo).toBe('somente_template');
+    expect(corpo.error.codigo).toBe('janela_fechada');
+    expect(corpo.error.message).toContain('template aprovado pela Meta');
+    expect(corpo.error.detalhe.modo).toBe('somente_template');
     expect(dubleWhatsApp.chamadas.length).toBe(chamadasAntes);
   });
 });
@@ -411,7 +411,7 @@ describe('Authenticate API requests with an API key', () => {
     const resposta = await comApi('/v1/conversations', {}, cenario.tokenWithoutScope);
     expect(resposta.status).toBe(403);
     const corpo = (await resposta.json()) as { error: { code: string } };
-    expect(corpo.erro.codigo).toBe('without_scope');
+    expect(corpo.error.codigo).toBe('without_scope');
 
     // The same key can read the queue, because it holds that scope.
     expect((await comApi('/v1/queues', {}, cenario.tokenWithoutScope)).status).toBe(200);

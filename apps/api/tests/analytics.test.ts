@@ -77,8 +77,8 @@ beforeAll(async () => {
            (${cenario.tenantId}, ${versaoId}, 'b2', 'Transbordo', 'transferencia')
     returning id, codigo
   `);
-  const b1 = blocos.rows.find((b) => b.codigo === 'b1')!.id;
-  const b2 = blocos.rows.find((b) => b.codigo === 'b2')!.id;
+  const b1 = blocos.rows.find((b) => b.code === 'b1')!.id;
+  const b2 = blocos.rows.find((b) => b.code === 'b2')!.id;
 
   const contact = await cenario.dono.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome, telefone_e164)
@@ -207,10 +207,10 @@ describe('Visão Geral', () => {
     const corpo = (await r.json()) as {
       data: { contagens: { ativos: number; engajados: number; recebidas: number; enviadas: number } };
     };
-    expect(corpo.dados.contagens.ativos).toBe(1);
-    expect(corpo.dados.contagens.engajados).toBe(1);
-    expect(corpo.dados.contagens.recebidas).toBe(2);
-    expect(corpo.dados.contagens.enviadas).toBe(1);
+    expect(corpo.data.contagens.ativos).toBe(1);
+    expect(corpo.data.contagens.engajados).toBe(1);
+    expect(corpo.data.contagens.recebidas).toBe(2);
+    expect(corpo.data.contagens.enviadas).toBe(1);
   });
 });
 

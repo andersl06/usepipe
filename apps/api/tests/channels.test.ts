@@ -137,10 +137,10 @@ describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o
     const canal = await conectar(A, { codigo: `ok-${S}` });
 
     expect(canal.state).toBe('conectado');
-    expect(canal.ativo).toBe(true);
+    expect(canal.active).toBe(true);
     expect(canal.wabaId).toBe(WABA);
     expect(canal.webhookUrl).toBe(`https://api.teste/webhooks/whatsapp/${canal.id}`);
-    expect(canal.nome).toBe('Empresa de Ensaio WhatsApp');
+    expect(canal.name).toBe('Empresa de Ensaio WhatsApp');
 
     // // The WABA is signed BEFORE the override, with the Chatwoot fields and the three
     // // from the umbrella route; the override points to THAT channel's URL.
@@ -165,7 +165,7 @@ describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o
     );
     expect(rows).toHaveLength(1);
     expect(rows[0]!.name).toBe('Empresa de Ensaio WhatsApp');
-    expect(rows[0]!.fila_padrao_id).not.toBeNull();
+    expect(rows[0]!.queueDefaultId).not.toBeNull();
   });
 
   it('Reject missing, forged, cross-session, or expired state before calling Meta', async () => {
@@ -180,7 +180,7 @@ describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o
     ];
     for (const state of estados) {
       await expect(
-        controller.conectar(request(A), { codigo: `csrf-${S}`, waba_id: WABA, state }),
+        controller.conectar(request(A), { code: `csrf-${S}`, waba_id: WABA, state }),
       ).rejects.toMatchObject({ codigo: 'estado_invalido', status: 403 });
     }
     expect(ClienteGraphDuble.chamadas).toHaveLength(0);
@@ -336,7 +336,7 @@ describe('Configure the channel webhook (`webhook_setup_service_spec`)', () => {
     await runRegistrationEmbedded({
       tenantId: A.tenantId,
       userId: A.adminId,
-      codigo: `coexistencia-${S}`,
+      code: `coexistencia-${S}`,
       wabaId: WABA,
       coexistencia: true,
     });
@@ -443,7 +443,7 @@ describe('Validate manual channel configuration (`manual_setup_validation_servic
   });
 
   it('Phone Number ID que não é da WABA: recusado', async () => {
-    await expect(runConfigurationManual({ ...base(), numeroId: 'outro' })).rejects.toMatchObject({
+    await expect(runConfigurationManual({ ...base(), numberId: 'outro' })).rejects.toMatchObject({
       message: 'Este Phone Number ID não pertence ao WABA ID informado.',
     });
   });
@@ -462,9 +462,9 @@ describe('Validate manual channel configuration (`manual_setup_validation_servic
   });
 
   it('Save the customer app and secret, return the webhook, and keep the number on disconnect', async () => {
-    const feito = await runConfigurationManual({ ...base(), nome: 'Suporte manual' });
+    const feito = await runConfigurationManual({ ...base(), name: 'Suporte manual' });
     expect(feito.webhookError).toBeNull();
-    expect(feito.channel.nome).toBe('Suporte manual');
+    expect(feito.channel.name).toBe('Suporte manual');
     expect(feito.channel.config['origem']).toBe('manual_setup_v2');
     // // This channel's webhook checks the signature with the client app's secret, not ours.
     expect(feito.channel.config['appSecret']).toBe(appSecret);
@@ -497,7 +497,7 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/perfil)', () =>
     });
 
     const depois = await writeProfileOfChannel(A.tenantId, A.adminId, canal.id, {
-      sobre: '  Atendimento de seg a sex  ',
+      about: '  Atendimento de seg a sex  ',
       sites: ['https://pipe.app'],
       categoria: 'PROF_SERVICES',
       foto: PNG,
@@ -513,7 +513,7 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/perfil)', () =>
     expect(chamadas('subir_foto')).toHaveLength(1);
 
     // // A missing field isn't touched.
-    const deNovo = await writeProfileOfChannel(A.tenantId, A.adminId, canal.id, { descricao: 'Escola' });
+    const deNovo = await writeProfileOfChannel(A.tenantId, A.adminId, canal.id, { description: 'Escola' });
     expect(deNovo).toMatchObject({ sobre: 'Atendimento de seg a sex', descricao: 'Escola' });
 
     const { rows } = await dono.execute<{ n: string }>(sql`
@@ -551,7 +551,7 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/perfil)', () =>
     const canal = await conectar(A, { codigo: `perfil-b-${S}` });
     await expect(readProfileOfChannel(B.tenantId, canal.id)).rejects.toMatchObject({ status: 404 });
     await expect(
-      writeProfileOfChannel(B.tenantId, B.adminId, canal.id, { sobre: 'invasão' }),
+      writeProfileOfChannel(B.tenantId, B.adminId, canal.id, { about: 'invasão' }),
     ).rejects.toMatchObject({ status: 404 });
 
     const { rows } = await dono.execute<{ id: string }>(sql`
@@ -582,7 +582,7 @@ describe('Synchronize, create, and delete Meta message templates', () => {
   it('Create a Meta template with examples, mark it pending, and sync status and deletions', async () => {
     const canal = await conectar(A, { codigo: `modelos-${S}` });
     const criado = await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
-      nome: 'boas_vindas',
+      name: 'boas_vindas',
       categoria: 'utilidade',
       cabecalho: 'Olá {{1}}',
       exemploDoCabecalho: 'Ana',
@@ -628,7 +628,7 @@ describe('Synchronize, create, and delete Meta message templates', () => {
       ClienteGraphDuble.modelos.get(canal.wabaId!)!.filter((m) => m.name !== 'promo'),
     );
     const segunda = await sincronizarModelos(A.tenantId, A.adminId, canal.id);
-    expect(segunda.removidos).toBe(1);
+    expect(segunda.removed).toBe(1);
     expect((await templatesLocations(canal.id)).map((m) => m.name)).toEqual(['boas_vindas']);
 
     const excluido = await deleteTemplateInMeta(A.tenantId, A.adminId, canal.id, 'boas_vindas');
@@ -682,7 +682,7 @@ describe('Create templates with image, video, and document headers', () => {
     const canal = await conectar(A, { codigo: `modelos-imagem-${S}` });
     ClienteGraphDuble.reiniciar();
     const criado = await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
-      nome: 'oferta_com_foto',
+      name: 'oferta_com_foto',
       categoria: 'marketing',
       headerMedia: JPEG,
       corpo: 'Oferta para {{1}}.',
@@ -719,8 +719,8 @@ describe('Create templates with image, video, and document headers', () => {
     const canal = await conectar(A, { codigo: `modelos-video-doc-${S}` });
     ClienteGraphDuble.reiniciar();
     const base = { categoria: 'utilidade', corpo: 'Segue o material.', exemplos: [] as string[] };
-    await createTemplateInMeta(A.tenantId, A.adminId, canal.id, { ...base, nome: 'com_video', headerMedia: MP4 });
-    await createTemplateInMeta(A.tenantId, A.adminId, canal.id, { ...base, nome: 'com_pdf', headerMedia: PDF });
+    await createTemplateInMeta(A.tenantId, A.adminId, canal.id, { ...base, name: 'com_video', headerMedia: MP4 });
+    await createTemplateInMeta(A.tenantId, A.adminId, canal.id, { ...base, name: 'com_pdf', headerMedia: PDF });
 
     const naMeta = ClienteGraphDuble.modelos.get(canal.wabaId!)!;
     expect(naMeta.find((m) => m.name === 'com_video')!.components![0]).toMatchObject({
@@ -748,7 +748,7 @@ describe('Create templates with image, video, and document headers', () => {
     ClienteGraphDuble.reiniciar();
     const criar = (p: object) =>
       createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
-        nome: 'recusado',
+        name: 'recusado',
         categoria: 'marketing',
         corpo: 'Oi.',
         ...p,
@@ -802,7 +802,7 @@ describe('Build Meta authentication templates with their fixed components', () =
     const canal = await conectar(A, { codigo: `modelos-auth-${S}` });
     ClienteGraphDuble.reiniciar();
     const criado = await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
-      nome: 'codigo_de_acesso',
+      name: 'codigo_de_acesso',
       categoria: 'autenticacao',
       authentication: { expiraEmMinutos: 10, textoDoBotao: 'Copiar' },
     });
@@ -836,7 +836,7 @@ describe('Build Meta authentication templates with their fixed components', () =
   it('Default to security advice and a copy-code button without a footer, and preserve the category on sync', async () => {
     const canal = await conectar(A, { codigo: `modelos-auth-padrao-${S}` });
     ClienteGraphDuble.reiniciar();
-    await createTemplateInMeta(A.tenantId, A.adminId, canal.id, { nome: 'otp', categoria: 'autenticacao' });
+    await createTemplateInMeta(A.tenantId, A.adminId, canal.id, { name: 'otp', categoria: 'autenticacao' });
     const enviado = ClienteGraphDuble.modelos.get(canal.wabaId!)![0]!;
     expect(enviado.components).toEqual([
       { type: 'BODY', add_security_recommendation: true },
@@ -845,7 +845,7 @@ describe('Build Meta authentication templates with their fixed components', () =
 
     // // Off: the field doesn't go out, and the local copy is left without the security phrase.
     await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
-      nome: 'otp_seco',
+      name: 'otp_seco',
       categoria: 'autenticacao',
       authentication: { recommendationOfSecurity: false },
     });
@@ -876,7 +876,7 @@ describe('Build Meta authentication templates with their fixed components', () =
     const canal = await conectar(A, { codigo: `modelos-auth-recusa-${S}` });
     ClienteGraphDuble.reiniciar();
     const criar = (p: object) =>
-      createTemplateInMeta(A.tenantId, A.adminId, canal.id, { nome: 'otp', categoria: 'autenticacao', ...p });
+      createTemplateInMeta(A.tenantId, A.adminId, canal.id, { name: 'otp', categoria: 'autenticacao', ...p });
 
     await expect(criar({ corpo: 'Seu código é {{1}}' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
     await expect(criar({ cabecalho: 'Código' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
@@ -911,7 +911,7 @@ describe('Read and update channel and alert preferences', () => {
     });
     await writePreferences(A.tenantId, A.adminId, canal.id, { menu: false });
     const depois = await writePreferences(A.tenantId, A.adminId, canal.id, {
-      alertaRecategorizacao: { emails: ' Ana@Pipe.app, bia@pipe.app ,ana@pipe.app' },
+      alertRecategorization: { emails: ' Ana@Pipe.app, bia@pipe.app ,ana@pipe.app' },
     });
     expect(depois).toEqual({
       quickReply: true,
@@ -928,7 +928,7 @@ describe('Read and update channel and alert preferences', () => {
       writePreferences(A.tenantId, A.adminId, canal.id, { menu: 'sim' as unknown as boolean }),
     ).rejects.toMatchObject({ detalhe: { campo: 'menu' } });
     await expect(
-      writePreferences(A.tenantId, A.adminId, canal.id, { alertaRecategorizacao: { emails: 'nao-e-email' } }),
+      writePreferences(A.tenantId, A.adminId, canal.id, { alertRecategorization: { emails: 'nao-e-email' } }),
     ).rejects.toMatchObject({ detalhe: { campo: 'emails' } });
     await expect(readPreferences(B.tenantId, canal.id)).rejects.toMatchObject({ status: 404 });
   });
@@ -954,7 +954,7 @@ describe('Update template status and category from webhooks', () => {
   it('Apply template approval and recategorization webhooks and ignore unknown templates', async () => {
     const canal = await conectar(A, { codigo: `eventos-${S}` });
     await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
-      nome: 'lembrete',
+      name: 'lembrete',
       categoria: 'utilidade',
       corpo: 'Oi',
     });
@@ -1036,7 +1036,7 @@ describe('desconectar (webhook_teardown_service_spec)', () => {
       new PipeError(502, 'meta_refused', 'token revogado'),
     );
     const depois = await desconectarWhatsApp(A.tenantId, A.adminId, canal.id);
-    expect(depois.ativo).toBe(false);
+    expect(depois.active).toBe(false);
   });
 
   it('Return 404 for another tenant\'s channel', async () => {
@@ -1077,14 +1077,14 @@ describe('o cliente real, com fetch injetado (facebook_api_client_spec) — nenh
       return {
         ok: r.ok ?? true,
         status: r.status ?? (r.ok === false ? 400 : 200),
-        text: async () => JSON.stringify(r.corpo),
+        text: async () => JSON.stringify(r.body),
       } as Response;
     }) as unknown as typeof fetch;
     return { buscar, pedidos };
   }
 
   it('Exchange the code by GET with client_id, client_secret, and code in the v26.0 query', async () => {
-    const { buscar, pedidos } = fetchFalso([{ corpo: { access_token: 'token-do-cliente-abcdefgh' } }]);
+    const { buscar, pedidos } = fetchFalso([{ body: { access_token: 'token-do-cliente-abcdefgh' } }]);
     const resposta = await new ClienteGraphReal('', buscar).exchangeCodeByToken('codigo-da-meta');
     expect(resposta.access_token).toBe('token-do-cliente-abcdefgh');
     const url = new URL(pedidos[0]!.url);
@@ -1095,8 +1095,8 @@ describe('o cliente real, com fetch injetado (facebook_api_client_spec) — nenh
 
   it('Follow pagination when listing WABA phone numbers', async () => {
     const { buscar, pedidos } = fetchFalso([
-      { corpo: { data: [{ id: '1' }], paging: { next: 'x', cursors: { after: 'c1' } } } },
-      { corpo: { data: [{ id: '2' }] } },
+      { body: { data: [{ id: '1' }], paging: { next: 'x', cursors: { after: 'c1' } } } },
+      { body: { data: [{ id: '2' }] } },
     ]);
     const numeros = await new ClienteGraphReal('tok', buscar).buscarTodosOsNumeros('waba-1');
     expect(numeros.map((n) => n.id)).toEqual(['1', '2']);
@@ -1104,7 +1104,7 @@ describe('o cliente real, com fetch injetado (facebook_api_client_spec) — nenh
   });
 
   it('assina a WABA e depois sobrescreve o callback do número com webhook_configuration', async () => {
-    const { buscar, pedidos } = fetchFalso([{ corpo: { success: true } }]);
+    const { buscar, pedidos } = fetchFalso([{ body: { success: true } }]);
     await new ClienteGraphReal('tok', buscar).assinarWebhookDoNumero(
       'waba-1',
       '777',
@@ -1124,7 +1124,7 @@ describe('o cliente real, com fetch injetado (facebook_api_client_spec) — nenh
   });
 
   it('registra o número com messaging_product e o PIN em texto', async () => {
-    const { buscar, pedidos } = fetchFalso([{ corpo: { success: true } }]);
+    const { buscar, pedidos } = fetchFalso([{ body: { success: true } }]);
     await new ClienteGraphReal('tok', buscar).registrarNumero('777', '123456');
     expect(pedidos[0]!.url).toBe('https://graph.facebook.com/v26.0/777/register');
     expect(JSON.parse(String(pedidos[0]!.init?.body))).toEqual({
@@ -1135,7 +1135,7 @@ describe('o cliente real, com fetch injetado (facebook_api_client_spec) — nenh
 
   it('Return Meta\'s error code as 502 without exposing the customer token', async () => {
     const { buscar } = fetchFalso([
-      { ok: false, status: 400, corpo: { error: { code: 190, message: 'Token token-do-cliente-abcdefgh has expired' } } },
+      { ok: false, status: 400, body: { error: { code: 190, message: 'Token token-do-cliente-abcdefgh has expired' } } },
     ]);
     const error = (await new ClienteGraphReal('token-do-cliente-abcdefgh', buscar)
       .buscarTodosOsNumeros('waba-1')

@@ -98,7 +98,7 @@ async function eventosDe(conversationId: string): Promise<string[]> {
   const { rows } = await cenario.dono.execute<{ type: string }>(sql`
     select tipo from evento_atendimento where conversa_id = ${conversationId}::uuid order by em, tipo
   `);
-  return rows.map((r) => r.tipo);
+  return rows.map((r) => r.type);
 }
 
 describe('Close conversations and record their events', () => {
@@ -138,7 +138,7 @@ describe('Close conversations and record their events', () => {
       select e.nome from conversa_etiqueta ce join etiqueta e on e.id = ce.etiqueta_id
        where ce.conversa_id = ${id}::uuid order by e.nome
     `);
-    expect(associadas.map((etiqueta) => etiqueta.nome)).toEqual(['Dúvida', 'Resolvido']);
+    expect(associadas.map((etiqueta) => etiqueta.name)).toEqual(['Dúvida', 'Resolvido']);
   });
 
   it('Require a label when closing a conversation to preserve its reason', async () => {
@@ -159,7 +159,7 @@ describe('Close conversations and record their events', () => {
     const { rows } = await cenario.dono.execute<{ pausadoSeg: number }>(
       sql`select pausado_seg from conversa where id = ${id}::uuid`,
     );
-    expect(rows[0]!.pausado_seg).toBeGreaterThan(0);
+    expect(rows[0]!.pausadoSeg).toBeGreaterThan(0);
   });
 
   it('Reject closing a conversation that is already closed', async () => {
@@ -213,9 +213,9 @@ describe('espera', () => {
     const resposta = await chamar(`/v1/conversations/${id}/wait`);
     const corpo = (await resposta.json()) as { state: string; pausadoSeg: number };
 
-    expect(corpo.estado).toBe('em_atendimento');
+    expect(corpo.state).toBe('em_atendimento');
     // // The conversation was born with `em_espera_desde` 30 seconds ago.
-    expect(corpo.pausado_seg).toBeGreaterThanOrEqual(29);
+    expect(corpo.pausadoSeg).toBeGreaterThanOrEqual(29);
     const { rows } = await cenario.dono.execute<{ data: Record<string, number> }>(sql`
       select dados from evento_atendimento
        where conversa_id = ${id}::uuid and tipo = 'espera_encerrada' limit 1

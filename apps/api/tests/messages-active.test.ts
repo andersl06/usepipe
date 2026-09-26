@@ -97,7 +97,7 @@ describe('disparo', () => {
       data: { phone: string; enviada: boolean; messageId: string | null }[];
     };
     expect(corpo.enviadas).toBe(2);
-    expect(corpo.recusadas).toBe(0);
+    expect(corpo.refused).toBe(0);
     expect(corpo.data.every((d) => d.messageId !== null)).toBe(true);
   });
 
@@ -106,7 +106,7 @@ describe('disparo', () => {
     const { data } = (await r.json()) as { data: { messageId: string }[] };
 
     const { rows } = await cenario.dono.execute<{ state: string }>(
-      sql`select estado from outbox_mensagem where mensagem_id = ${data[0]!.mensagem_id}::uuid`,
+      sql`select estado from outbox_mensagem where mensagem_id = ${data[0]!.messageId}::uuid`,
     );
     expect(rows[0]?.state).toBe('pendente');
   });
@@ -121,7 +121,7 @@ describe('disparo', () => {
     expect(rows[0]!.agentId).toBe(cenario.agentId);
     // It is created as `atribuida`, and the dispatch itself already moves it to `em_atendimento` — the template
     // is the agent's first message.
-    expect(rows[0]!.estado).toBe('em_atendimento');
+    expect(rows[0]!.state).toBe('em_atendimento');
 
     const { rows: ev } = await cenario.dono.execute<{ data: Record<string, string> }>(sql`
       select dados from evento_atendimento
@@ -172,7 +172,7 @@ describe('disparo', () => {
     const segundo = await disparar({ contatos: [{ telefone }], parametros: ['x'] });
     const { data: d2 } = (await segundo.json()) as { data: { contactId: string }[] };
 
-    expect(d2[0]!.contato_id).toBe(d1[0]!.contactId);
+    expect(d2[0]!.contactId).toBe(d1[0]!.contactId);
   });
 
   it('Accept different template parameters for each contact', async () => {
@@ -186,10 +186,10 @@ describe('disparo', () => {
 
     const { rows } = await cenario.dono.execute<{ content: string }>(sql`
       select conteudo from mensagem where id in
-        (${data[0]!.mensagem_id}::uuid, ${data[1]!.mensagem_id}::uuid)
+        (${data[0]!.messageId}::uuid, ${data[1]!.messageId}::uuid)
       order by conteudo
     `);
-    expect(rows.map((x) => x.conteudo)).toEqual([
+    expect(rows.map((x) => x.content)).toEqual([
       'Olá Ana, tudo bem?',
       'Olá Bia, tudo bem?',
     ]);
@@ -211,7 +211,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
       data: { enviada: boolean; reason: string | null }[];
     };
     expect(corpo.enviadas).toBe(2);
-    expect(corpo.recusadas).toBe(1);
+    expect(corpo.refused).toBe(1);
     expect(corpo.data.find((d) => !d.enviada)?.motivo).toBe('numero_invalido');
   });
 
@@ -224,7 +224,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
 
     const corpo = (await resposta.json()) as { data: { enviada: boolean; reason: string }[] };
     expect(corpo.data[0]!.enviada).toBe(false);
-    expect(corpo.data[0]!.motivo).toBe('ja_em_atendimento');
+    expect(corpo.data[0]!.reason).toBe('ja_em_atendimento');
   });
 
   it('Reject duplicate contacts within one send', async () => {
@@ -235,7 +235,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     });
     const corpo = (await resposta.json()) as { data: { enviada: boolean; reason: string }[] };
     expect(corpo.data[0]!.enviada).toBe(true);
-    expect(corpo.data[1]!.motivo).toBe('contato_duplicado');
+    expect(corpo.data[1]!.reason).toBe('contato_duplicado');
   });
 
   it('recusa o lote acima do teto de 15', async () => {
@@ -244,7 +244,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     }));
     const resposta = await disparar({ contacts, parametros: ['x'] });
     expect(resposta.status).toBe(400);
-    expect(((await resposta.json()) as { error: { code: string } }).error.codigo).toBe(
+    expect(((await resposta.json()) as { error: { code: string } }).error.code).toBe(
       'limit_of_contacts',
     );
   });
@@ -313,9 +313,9 @@ describe('List sends from the last 72 hours with delivery status', () => {
       data: { phone: string; stateDelivery: string; templateName: string }[];
     };
     expect(corpo.windowHours).toBe(72);
-    const linha = corpo.data.find((d) => d.telefone === telefone);
+    const linha = corpo.data.find((d) => d.phone === telefone);
     expect(linha?.stateDelivery).toBe('pendente');
-    expect(linha?.template_nome).toBe('boas_vindas');
+    expect(linha?.templateName).toBe('boas_vindas');
   });
 
   it('devolve os limites em vigor, para a tela não repetir número mágico', async () => {

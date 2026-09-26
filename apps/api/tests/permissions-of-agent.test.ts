@@ -143,7 +143,7 @@ async function linhaDe(usuarioId: string, codigo: string) {
 }
 
 function permission(corpo: Resposta, codigo: string): Linha | undefined {
-  return corpo.permissions?.find((p) => p.codigo === codigo);
+  return corpo.permissions?.find((p) => p.code === codigo);
 }
 
 beforeAll(async () => {
@@ -189,7 +189,7 @@ describe('GET /v1/management/agents/permissions', () => {
     /*
      * The table is the AGENT's full catalog, not just what the person already has: a disabled row must still appear so it can be turned on. Anything management-level (report, rule, user) is excluded: it comes from the role.
      */
-    const codigos = corpo.permissions?.map((p) => p.codigo) ?? [];
+    const codigos = corpo.permissions?.map((p) => p.code) ?? [];
     for (const codigo of DO_CATALOGO) {
       if (/^(conversa|contato)./.test(codigo)) expect(codigos).toContain(codigo);
       else expect(codigos).not.toContain(codigo);

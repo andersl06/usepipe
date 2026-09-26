@@ -125,7 +125,7 @@ async function categoryOfTemplate(id: string): Promise<string> {
   const { rows } = await cenario.dono.execute<{ category: string }>(
     sql`select categoria from template_mensagem where id = ${id}::uuid`,
   );
-  return rows[0]!.categoria;
+  return rows[0]!.category;
 }
 
 beforeAll(async () => {
@@ -228,7 +228,7 @@ describe('o remetente', () => {
 describe('Create and email invitations', () => {
   it('Email the invitation link while also returning it in the response', async () => {
     const email = `ana.${randomUUID().slice(0, 6)}@cliente.teste`;
-    const invitation = await createInvitation(cenario.tenantId, { email, papel: 'guest' });
+    const invitation = await createInvitation(cenario.tenantId, { email, role: 'guest' });
     expect(invitation.url).toContain('http://telas.teste/convite/');
 
     expect(RemetenteDuble.enviados).toHaveLength(1);
@@ -243,7 +243,7 @@ describe('Create and email invitations', () => {
 
   it('reenviar manda o link NOVO, que é o que passa a valer', async () => {
     const email = `bia.${randomUUID().slice(0, 6)}@cliente.teste`;
-    const first = await createInvitation(cenario.tenantId, { email, papel: 'guest' });
+    const first = await createInvitation(cenario.tenantId, { email, role: 'guest' });
     RemetenteDuble.reiniciar();
 
     const segundo = await resendInvitation(cenario.tenantId, first.id);
@@ -257,7 +257,7 @@ describe('Create and email invitations', () => {
   it('Preserve an invitation and return its link when the email provider is unavailable', async () => {
     definirRemetente(new RemetenteQueFalha());
     const email = `carla.${randomUUID().slice(0, 6)}@cliente.teste`;
-    const convite = await createInvitation(cenario.tenantId, { email, papel: 'guest' });
+    const convite = await createInvitation(cenario.tenantId, { email, role: 'guest' });
     expect(convite.url).toContain('/convite/');
 
     const { rows } = await cenario.dono.execute<{ n: string }>(
@@ -273,7 +273,7 @@ describe('Send template recategorization alerts', () => {
     const { rows } = await cenario.dono.execute<{ name: string }>(
       sql`select nome from template_mensagem where id = ${templateId}::uuid`,
     );
-    const nome = rows[0]!.nome;
+    const nome = rows[0]!.name;
     await configurarAlerta(true, ['ana@pipe.app', 'bia@pipe.app']);
     const channel = (await resolveChannel(cenario.channelId))!;
 
@@ -300,7 +300,7 @@ describe('Send template recategorization alerts', () => {
     await configurarAlerta(false, ['ana@pipe.app']);
     const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(canal, recategorization(rows[0]!.nome, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'UTILITY', 'MARKETING'))).toBe(1);
     expect(await categoryOfTemplate(modeloId)).toBe('marketing');
     expect(RemetenteDuble.enviados).toHaveLength(0);
   });
@@ -315,7 +315,7 @@ describe('Send template recategorization alerts', () => {
     await configurarAlerta(true, []);
     const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(canal, recategorization(rows[0]!.nome, 'MARKETING', 'UTILITY'))).toBe(1);
+    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'MARKETING', 'UTILITY'))).toBe(1);
     expect(RemetenteDuble.enviados).toHaveLength(1);
     expect(RemetenteDuble.enviados[0]!.para).toContain(emailDoGestor);
     // // The scenario's agent doesn't manage the channel: doesn't make the list.
@@ -334,7 +334,7 @@ describe('Send template recategorization alerts', () => {
     await configurarAlerta(true, ['ana@pipe.app']);
     const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(canal, recategorization(rows[0]!.nome, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await applyEventsOfTemplateaplicarEventsOfTemplateapplyEventsOfTemplate(canal, recategorization(rows[0]!.name, 'UTILITY', 'MARKETING'))).toBe(1);
     expect(await categoryOfTemplate(modeloId)).toBe('marketing');
   });
 });

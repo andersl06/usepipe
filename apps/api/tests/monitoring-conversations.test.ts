@@ -52,7 +52,7 @@ async function session(cenario: Cenario, userId: string): Promise<string> {
   const token = createToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${token.hash}, ${token.expiresAt}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${token.hash}, ${token.expiraEm}, 'google')
   `);
   return token.token;
 }
@@ -119,13 +119,13 @@ describe('Monitor conversations across queues and agents', () => {
       const resposta = await pedir(gestor, 'GET', `/v1/management/monitoring?${query}`);
       expect(resposta.status).toBe(200);
       const corpo = await resposta.json() as { data: { opens: { id: string }[] } };
-      const ids = corpo.data.abertas.map(c => c.id);
+      const ids = corpo.data.opens.map(c => c.id);
       expect(ids).toEqual(expect.arrayContaining([first, segunda]));
       expect(ids).not.toContain(fora);
     }
     const unica = await pedir(gestor, 'GET', `/v1/management/monitoring?fila=${fila2}`);
     const corpo = await unica.json() as { data: { opens: { id: string }[] } };
-    expect(corpo.dados.abertas.map(c => c.id)).toEqual([segunda]);
+    expect(corpo.data.abertas.map(c => c.id)).toEqual([segunda]);
   });
 
   it('lê a prévia, grava nota e deixa auditoria', async () => {
@@ -168,6 +168,6 @@ describe('Monitor conversations across queues and agents', () => {
     expect((await pedir(semPoder, 'POST', `/v1/management/monitoring/conversations/${id}/finalize`, { etiqueta_ids: [] })).status).toBe(403);
     const semEtiqueta = await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${id}/finalize`, {});
     expect(semEtiqueta.status).toBe(400);
-    expect((await semEtiqueta.json() as { error: { code: string } }).error.codigo).toBe('label_required');
+    expect((await semEtiqueta.json() as { error: { code: string } }).error.code).toBe('label_required');
   });
 });
