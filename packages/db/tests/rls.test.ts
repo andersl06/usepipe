@@ -148,7 +148,7 @@ describe('Enforce tenant isolation through row-level security', () => {
     mes.setMonth(mes.getMonth() + 2);
     const first = `${mes.getFullYear()}-${String(mes.getMonth() + 1).padStart(2, '0')}-01`;
     const { rows: criada } = await cenario.dono.execute<{ pipeCreatePartitionMonth: string }>(
-      sql`select pipe_criar_particao_mes('mensagem', ${first}::date)`,
+      sql`select pipe_criar_particao_mes('mensagem', ${first}::date) as "pipeCreatePartitionMonth"`,
     );
     const nome = criada[0]?.pipeCreatePartitionMonth ?? '';
     expect(nome).toMatch(/^mensagem_\d{4}_\d{2}$/);
