@@ -83,11 +83,12 @@ export async function listConversations(
     fixada_em: Date | string | null;
     nao_lida_em: Date | string | null;
   }>(sql`
-    select c.id, c.estado, c.prioridade, c.criada_em, c.primeira_resposta_em,
-           c.ultima_mensagem_em, c.ultima_mensagem_de,
-           c.janela_expira_em, c.em_espera_desde, ct.nome as contato_nome, ct.telefone_e164 as contato_telefone,
+    select c.id, c.estado as state, c.prioridade as priority, c.criada_em, c.primeira_resposta_em,
+           c.ultima_mensagem_em, c.ultima_mensagem_de as "lastMessageOf",
+           c.janela_expira_em as "windowExpiresAt", c.em_espera_desde, ct.nome as contato_nome,
+           ct.telefone_e164 as "contactPhone",
            f.nome as fila_nome,
-           ca.tipo as canal_tipo, m.conteudo as ultima_mensagem, m.tipo as ultima_mensagem_tipo,
+           ca.tipo as "channelType", m.conteudo as "lastMessage", m.tipo as "lastMessageType",
            mc.fixada_em, mc.nao_lida_em
       from conversa c
       join contato ct on ct.id = c.contato_id
@@ -114,15 +115,15 @@ export async function listConversations(
     criadaEm: iso(r.criada_em),
     primeiraRespostaEm: isoOuNulo(r.primeira_resposta_em),
     ultimaMensagemEm: isoOuNulo(r.ultima_mensagem_em),
-    ultimaMensagemDe: r.lastMessageOf,
+    lastMessageFrom: r.lastMessageOf,
     janelaExpiraEm: isoOuNulo(r.windowExpiresAt),
     emEsperaDesde: isoOuNulo(r.em_espera_desde),
     contatoNome: r.contato_nome,
     contatoTelefone: r.contactPhone,
     filaNome: r.fila_nome,
     canalTipo: r.channelType,
-    ultimaMensagem: r.lastMessage,
-    ultimaMensagemTipo: r.lastMessageType,
+    lastMessage: r.lastMessage,
+    lastMessageType: r.lastMessageType,
     fixadaEm: isoOuNulo(r.fixada_em),
     naoLidaEm: isoOuNulo(r.nao_lida_em),
   }));
@@ -295,7 +296,7 @@ export async function listarEtiquetas(tx: TransactionPipe): Promise<EtiquetaDoDe
     color: string | null;
     requiredInClosure: boolean;
   }>(sql`
-    select id, nome, cor, obrigatoria_no_encerramento
+    select id, nome as name, cor as color, obrigatoria_no_encerramento as "requiredInClosure"
       from etiqueta
      where escopo in ('conversa', 'ambos')
      order by obrigatoria_no_encerramento, nome
@@ -304,7 +305,7 @@ export async function listarEtiquetas(tx: TransactionPipe): Promise<EtiquetaDoDe
     id: r.id,
     nome: r.name,
     cor: r.color,
-    obrigatoriaNoEncerramento: r.requiredInClosure,
+    requiredInClosure: r.requiredInClosure,
   }));
 }
 
@@ -328,7 +329,7 @@ export async function listarMotivosDePausa(tx: TransactionPipe): Promise<MotivoD
     name: string;
     durationSuggestedMin: number | null;
   }>(sql`
-    select id, nome, duracao_sugerida_min
+    select id, nome as name, duracao_sugerida_min as "durationSuggestedMin"
       from motivo_pausa
      where ativo
      order by nome
@@ -336,7 +337,7 @@ export async function listarMotivosDePausa(tx: TransactionPipe): Promise<MotivoD
   return rows.map((r) => ({
     id: r.id,
     nome: r.name,
-    duracaoSugeridaMin: r.durationSuggestedMin,
+    durationSuggestedMin: r.durationSuggestedMin,
   }));
 }
 
@@ -530,8 +531,8 @@ export async function listContacts(tx: TransactionPipe, search: string): Promise
     email: string | null;
     lastInteractionAt: Date | string | null;
   }>(sql`
-    select ct.id, ct.nome, ct.telefone_e164 as telefone, ct.email,
-           (select max(c.ultima_mensagem_em) from conversa c where c.contato_id = ct.id) as ultima_interacao_em
+    select ct.id, ct.nome as name, ct.telefone_e164 as phone, ct.email,
+           (select max(c.ultima_mensagem_em) from conversa c where c.contato_id = ct.id) as "lastInteractionAt"
       from contato ct
      where ct.excluido_em is null
        ${filter}
@@ -540,10 +541,10 @@ export async function listContacts(tx: TransactionPipe, search: string): Promise
   `);
   return rows.map((r) => ({
     id: r.id,
-    nome: r.name,
-    telefone: r.phone,
+    name: r.name,
+    phone: r.phone,
     email: r.email,
-    ultimaInteracaoEm: isoOuNulo(r.lastInteractionAt),
+    lastInteractionAt: isoOuNulo(r.lastInteractionAt),
   }));
 }
 
@@ -568,7 +569,7 @@ export async function loadContact(
     document: string | null;
     atributos: Record<string, unknown> | null;
   }>(sql`
-    select id, nome, telefone_e164 as telefone, email, documento, atributos
+    select id, nome as name, telefone_e164 as phone, email, documento as document, atributos
       from contato
      where id = ${contatoId}
      limit 1
@@ -577,10 +578,10 @@ export async function loadContact(
   if (!r) return null;
   return {
     id: r.id,
-    nome: r.name,
-    telefone: r.phone,
+    name: r.name,
+    phone: r.phone,
     email: r.email,
-    documento: r.document,
+    document: r.document,
     atributos: r.atributos ?? {},
   };
 }
