@@ -9,12 +9,12 @@ import { useRead } from './query';
  */
 export interface AccountInList {
   tenantId: string;
-  nome: string;
+  name: string;
   slug: string;
-  plano: string;
-  emVigor: boolean;
-  onboardingConcluido: boolean;
-  pessoal: boolean;
+  plan: string;
+  inForce: boolean;
+  onboardingCompleted: boolean;
+  personal: boolean;
 }
 
 export interface PortalShell {

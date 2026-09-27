@@ -4,15 +4,15 @@
 
 export interface AccountInForce {
   id: string;
-  nome: string;
+  name: string;
   slug: string;
-  plano: string;
+  plan: string;
   site: string | null;
-  funcionarios: string | null;
+  employees: string | null;
   city: string | null;
   state: string | null;
   pais: string | null;
-  telefone: string | null;
+  phone: string | null;
   optinWhatsapp: boolean;
   /** Reference Preferences tab holds account language and timezone. */
   idioma: string;
@@ -25,13 +25,13 @@ export interface AccountInForce {
 
 export interface AccountInList {
   tenantId: string;
-  nome: string;
+  name: string;
   slug: string;
-  plano: string;
-  emVigor: boolean;
-  onboardingConcluido: boolean;
+  plan: string;
+  inForce: boolean;
+  onboardingCompleted: boolean;
   /**
    * A PERSONAL account is self-service and not yet a contract. The `api` criterion is ZERO verified domains: contract owners publish a company DNS TXT record, while self-service users have not. This mirrors reference contract (with `tenant.id`) versus personal space (without); render them differently in the selector.
    */
-  pessoal: boolean;
+  personal: boolean;
 }

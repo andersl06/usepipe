@@ -153,8 +153,9 @@ export class MyAccountController {
     const session = sessionOf(request);
     const linha = await noTenant(session.tenantId, async (tx) => {
       const { rows } = await tx.execute<LineAccount>(sql`
-        select id, nome, slug, plano, site, funcionarios, cidade, estado, pais,
-               telefone, optin_whatsapp, idioma, fuso, onboarding_concluido_em
+        select id, nome as "name", slug, plano as "plan", site, funcionarios as "employees",
+               cidade as "city", estado as "state", pais, telefone as "phone",
+               optin_whatsapp, idioma, fuso, onboarding_concluido_em
           from tenant
          where id = ${session.tenantId}::uuid
          limit 1
@@ -207,8 +208,9 @@ export class MyAccountController {
           onboarding_concluido_em = coalesce(onboarding_concluido_em, now()),
           atualizado_em = now()
          where id = ${sessao.tenantId}::uuid
-        returning id, nome, slug, plano, site, funcionarios, cidade, estado, pais,
-                  telefone, optin_whatsapp, idioma, fuso, onboarding_concluido_em
+        returning id, nome as "name", slug, plano as "plan", site, funcionarios as "employees",
+                  cidade as "city", estado as "state", pais, telefone as "phone",
+                  optin_whatsapp, idioma, fuso, onboarding_concluido_em
       `);
       return rows[0] ?? null;
     });
@@ -237,7 +239,7 @@ export class MyAccountController {
              not exists (
                select 1 from dominio_tenant d
                 where d.tenant_id = t.id and d.verificado_em is not null
-             ) as pessoal
+             ) as "personal"
         from usuario u
         join tenant t on t.id = u.tenant_id
        where lower(u.email) = ${email} and u.ativo and t.ativo
@@ -283,7 +285,7 @@ export class MyAccountController {
 
     const email = await emailOfSession(sessao.tenantId, sessao.userId);
     const { rows } = await databaseOwner().execute<{ userId: string; slug: string }>(sql`
-      select u.id as usuario_id, t.slug
+      select u.id as "userId", t.slug
         from usuario u
         join tenant t on t.id = u.tenant_id
        where u.tenant_id = ${destination}::uuid and lower(u.email) = ${email}
