@@ -4,7 +4,7 @@ import { useSession } from '../context/session';
 /**
  * Product-screen guard replaces server-side Next `exigirEu()`. Without a session, redirect to `/entrar` while preserving destination. An account whose onboarding is incomplete goes to `/bem-vindo`; only the `api` knows completion and reports it in `Eu`. While the first session check is pending, show no protected screen to avoid a flash.
  */
-const ROTAS_DO_ONBOARDING = /^\/(bem-vindo|minha-conta|trocar-conta)(\/|$)/;
+const ROTAS_DO_ONBOARDING = /^\/(bem-vindo|my-account|switch-account)(\/|$)/;
 
 export function RequireSession() {
   const { eu } = useSession();
