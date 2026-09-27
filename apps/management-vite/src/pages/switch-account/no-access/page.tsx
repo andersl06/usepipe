@@ -34,7 +34,7 @@ export function PageNoAccess() {
         </p>
 
         <div className="bv-acao">
-          <Link href={emVigor ? '/portal' : '/bem-vindo'}>
+          <Link href={emVigor ? '/portal' : '/welcome'}>
             {emVigor ? `Voltar para ${emVigor.nome}` : 'Voltar'}
           </Link>
         </div>

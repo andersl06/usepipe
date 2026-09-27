@@ -209,7 +209,9 @@ export function App() {
         <Route path="/contract/certificates" element={<CertificatesPage />} />
         <Route path="/contract/members" element={<MembersPage />} />
         <Route path="/my-account" element={<PageMyAccount />} />
-        <Route path="/bem-vindo" element={<PageWelcome />} />
+        <Route path="/welcome" element={<PageWelcome />} />
+        {/* Pre-rename address, kept so saved links and old e-mails still land on the page. */}
+        <Route path="/bem-vindo" element={<Navigate to="/welcome" replace />} />
         <Route path="/switch-account/no-access" element={<PageNoAccess />} />
         {/* D-31 (`std/nav-contract.md` §Gestão): passo do wizard no path, não
             em `?passo=`. `:passo?` cobre a base (sem passo, primeira tela)
