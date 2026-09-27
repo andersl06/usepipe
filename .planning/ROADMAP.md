@@ -248,7 +248,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 02-12-PLAN.md — Satisfação e etiquetas no editor do Builder
+- [x] 02-12-PLAN.md — Satisfação e etiquetas no editor do Builder
 - [x] 02-14-PLAN.md — Ações: slot contexto ponta a ponta
 
 **Wave 6** *(blocked on Wave 5 completion)*
@@ -381,7 +381,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
-| 2. Fechar o Builder | 13/22 | In Progress|  |
+| 2. Fechar o Builder | 14/22 | In Progress|  |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |

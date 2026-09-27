@@ -15,6 +15,12 @@
 | 5 | Atalho Alt+Enter para tela cheia | média | `e.altKey && this.toggleFullscreen()`. |
 | 6 | Ctrl+Y como alternativa de refazer | baixa | Atalho presente na referência. |
 
+## Resíduos dos planos executados (entram no plano de lacunas)
+
+- 02-12: aba Conteúdo não reconhece o MIME da pesquisa de satisfação (mostra "conteúdo não suportado"; o motor já processa). A pergunta hoje é editada na aba de saídas.
+- 02-12: criar bloco de pesquisa com um clique a partir do seletor de destino de uma saída de atendimento (hoje: Novo bloco → Pesquisa, depois ligar).
+- 02-09: validação das setas com o fluxo real AUVP Capital, bloqueada pela captura C-42 (export do fluxo + print do canvas).
+
 ## Fica de fora (decisão do dono)
 
 - Animação de entrada do painel lateral (0,5 s na referência, instantânea no Pipe).
