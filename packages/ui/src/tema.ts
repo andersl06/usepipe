@@ -45,6 +45,28 @@ export const TEMA = {
   },
 
   /**
+   * Builder-only brand tokens, one per role (D-32). The Builder always renders dark
+   * (D-31), so these only exist in the dark scope of `estilos/tokens.css` — never use
+   * `marca.*` above nor `--p-foco` (keyboard focus) inside the Builder; every blue from
+   * the reference maps to one of these roles instead.
+   */
+  builder: {
+    marca: {
+      base: 'var(--p-builder-marca)',
+      hover: 'var(--p-builder-marca-hover)',
+      ativo: 'var(--p-builder-marca-ativo)',
+      anel: 'var(--p-builder-marca-anel)',
+      bordaAtiva: 'var(--p-builder-marca-borda-ativa)',
+      selecionado: 'var(--p-builder-marca-selecionado)',
+      destaque: 'var(--p-builder-marca-destaque)',
+      brilho: 'var(--p-builder-marca-brilho)',
+      sombra: 'var(--p-builder-marca-sombra)',
+      sobreposicao: 'var(--p-builder-marca-sobreposicao)',
+      gradiente: 'var(--p-builder-marca-gradiente)',
+    },
+  },
+
+  /**
    * A state is a PAIR: pastel background, dark foreground, and the line connecting them. Never use colored content alone; all three variables travel together so two files cannot give the state two different colors.
    */
   estado: {

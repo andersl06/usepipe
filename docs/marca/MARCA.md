@@ -45,6 +45,32 @@ Vive em `--p-grafico-1..5` e **só aparece em gráfico e ilustração**. Não é
 
 Regra: moss não vira cor de alerta. Vermelho é só terracota, e só para o que exige ação.
 
+## Builder: tokens de marca (tema escuro)
+
+O Builder renderiza sempre no tema escuro, independente da preferência de tema do resto do
+produto (D-31) — o contêiner raiz do editor (`editor.tsx`) força `data-tema="escuro"`. Todo azul
+de marca/ênfase da referência (`#3f7de8`, `#498bff`, `#0c50c5`, `#003c64`, `#b3d4ff`, medidos em
+`referencias-blip/builder/builder/reconstrucao/MEDIDAS.md`) vira um destes tokens verdes por
+papel, nunca `var(--p-marca)` direto nem `--p-foco` (violeta, foco de teclado do resto do
+produto) — cada papel preserva a opacidade/blur do efeito equivalente na referência quando
+medido (D-32). Os papéis `brilho`, `sombra` e `gradiente` ainda não têm captura ao vivo do canvas
+(pendências registradas em `ref/inventario-visual.md`); ficam com valor semente derivado de
+`--p-marca`, a recalibrar quando a captura confirmar o efeito real.
+
+| Token | Valor | Papel | Onde é permitido |
+|---|---|---|---|
+| `--p-builder-marca` | `var(--p-marca)` | Cor base de marca/ênfase (equivalente a `#3f7de8`/`#1e6bf1`) | Seta do canvas, ponto de saída do nó, texto de hover do menu de contexto |
+| `--p-builder-marca-hover` | `var(--p-marca-forte)` | Hover de link/botão (equivalente a `#498bff`) | `.hover-primary:hover` do Portal, hover de link de marca |
+| `--p-builder-marca-ativo` | `color-mix(in srgb, var(--p-marca) 75%, black)` | Estado ativo/pressionado de um controle (equivalente a `#0c50c5`) | Radio marcado, botão pressionado |
+| `--p-builder-marca-anel` | `var(--p-marca)` | Anel de seleção/hover do nó, `box-shadow: 0 0 0 4px`, sólido | `.bl-no:hover`, `.bl-no--selecionado`, `.bl-no--editando`, `.bl-no--alvo` |
+| `--p-builder-marca-borda-ativa` | `var(--p-marca-forte)` | Borda inferior de campo em foco/edição, seta ativa | `.bl-panel-title:focus-visible`, `.bl-panel-add-tag:focus`, seta selecionada |
+| `--p-builder-marca-selecionado` | `var(--p-marca)` | Preenchimento sólido do nó/aba quando selecionado | `.bl-no--selecionado:not(.bl-no--inicio)`, `.bl-abas button[aria-selected='true']` |
+| `--p-builder-marca-destaque` | `color-mix(in srgb, var(--p-marca) 24%, #282828)` | Fundo tingido de marca a 24% sobre superfície escura | Hover/seleção de item de lista (novo bloco, menu de ações, variáveis, versões) |
+| `--p-builder-marca-brilho` | `color-mix(in srgb, var(--p-marca) 50%, transparent)` | Glow/blur (sem captura ao vivo confirmada — valor semente) | Reservado; nenhum uso ainda |
+| `--p-builder-marca-sombra` | `color-mix(in srgb, var(--p-marca) 35%, black)` | Sombra tingida de marca (sem captura ao vivo confirmada — valor semente) | Reservado; nenhum uso ainda |
+| `--p-builder-marca-sobreposicao` | `color-mix(in srgb, var(--p-marca) 20%, transparent)` | Véu/tingimento de fundo a 20% (medido: cartão selecionado do stepper, `rgba(63,125,232,.2)`) | Fundo de cartão/opção selecionada |
+| `--p-builder-marca-gradiente` | `linear-gradient(135deg, var(--p-marca), var(--p-marca-forte))` | Gradiente de marca (sem captura ao vivo confirmada — valor semente) | Reservado; nenhum uso ainda |
+
 ## Tipografia
 - Texto e títulos: **IBM Plex Sans** (system stack com Helvetica/Arial de reserva). Uma família só
   no corpo.
