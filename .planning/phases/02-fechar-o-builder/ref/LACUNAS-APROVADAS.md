@@ -31,7 +31,7 @@ Levantamento de 2026-09-27: a Blip usa AngularJS 1.x (SPA, ui-router), jsPlumb n
 
 | # | Candidata | Prioridade | Observação |
 |---|---|---|---|
-| 7 | Editor de código com realce e autocompletar para script e JSON (Monaco na referência; hoje `<textarea>`) | alta | Pacote novo: decidir Monaco, CodeMirror 6 ou manter textarea. Afeta 02-16. |
+| 7 | Editor de código com realce e autocompletar para script e JSON (Monaco na referência; hoje `<textarea>`) | alta | **APROVADO pelo dono em 2026-09-27: Monaco (`@monaco-editor/react`), carregado sob demanda.** Entra já no 02-16 para o editor de ExecuteScript/ExecuteScriptV2 (passa pelo checkpoint de legitimidade de pacote); JSON do ProcessHttp e demais campos de código vão para o plano de lacunas. |
 | 8 | Tooltip próprio (hoje `title` do navegador) | média | CSS simples em `@pipe/ui`, sem lib nova. |
 | 9 | Reordenação por arrasto consistente em todas as listas do painel | média | Mesmo item 4; reaproveitar o padrão `draggable` de `panel-actions.tsx`. |
 
