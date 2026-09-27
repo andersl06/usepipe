@@ -8,6 +8,7 @@ import {
   jsonb,
   pgTable,
   primaryKey,
+  smallint,
   text,
   uniqueIndex,
   uuid,
@@ -533,5 +534,51 @@ export const taggingConversation = pgTable(
     primaryKey({ name: 'marcacao_conversa_pk', columns: [t.usuarioId, t.conversaId] }),
     index('marcacao_conversa_usuario_idx').on(t.tenantId, t.usuarioId),
     check('marcacao_conversa_alguma_ck', sql`${t.fixadaEm} is not null or ${t.naoLidaEm} is not null`),
+  ],
+);
+
+export const STATES_SATISFACTION_SURVEY_RESPONSE = [
+  'completa',
+  'so_nota',
+  'sem_resposta',
+  'abandono',
+] as const;
+
+/**
+ * Native satisfaction survey answer (BAH 3.0, `ref/inventario-satisfacao-e-tags.md` §5). One row
+ * per delivered survey, covering the four documented outcomes — including `sem_resposta` and
+ * `abandono`, which the reference itself never persists as a row (D-08.5 gate). No TTL/retention
+ * and no language restriction, unlike the reference (D-10).
+ */
+export const satisfactionSurveyResponse = pgTable(
+  'pesquisa_satisfacao_resposta',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    conversaId: uuid('conversa_id')
+      .notNull()
+      .references(() => conversation.id, { onDelete: 'restrict' }),
+    conversaAtendimentoId: uuid('conversa_atendimento_id').references(() => conversation.id, {
+      onDelete: 'set null',
+    }),
+    /** `survey:` block id in the flow's own vocabulary; not a foreign key (`bloco` is versioned). */
+    fluxoBlocoId: text('fluxo_bloco_id'),
+    filaId: uuid('fila_id').references(() => queue.id, { onDelete: 'set null' }),
+    atendenteId: uuid('atendente_id').references(() => user.id, { onDelete: 'set null' }),
+    contatoId: uuid('contato_id')
+      .notNull()
+      .references(() => contact.id, { onDelete: 'restrict' }),
+    nota: smallint('nota'),
+    comentario: text('comentario'),
+    estado: text('estado').notNull(),
+    criadaEm: moment('criada_em').notNull().defaultNow(),
+    respondidaEm: moment('respondida_em'),
+  },
+  (t) => [
+    listaCheck('pesquisa_satisfacao_resposta_estado_ck', t.estado, STATES_SATISFACTION_SURVEY_RESPONSE),
+    check('pesquisa_satisfacao_resposta_nota_ck', sql`${t.nota} is null or (${t.nota} >= 1 and ${t.nota} <= 5)`),
+    index('pesquisa_satisfacao_resposta_fila_idx').on(t.tenantId, t.filaId, t.criadaEm),
+    index('pesquisa_satisfacao_resposta_atendente_idx').on(t.tenantId, t.atendenteId, t.criadaEm),
+    index('pesquisa_satisfacao_resposta_periodo_idx').on(t.tenantId, t.criadaEm),
   ],
 );

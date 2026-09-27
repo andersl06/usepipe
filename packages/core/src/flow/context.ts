@@ -138,6 +138,14 @@ export interface ServicosDoMotor {
    * `IRedirectManager.RedirectUserAsync` moves the contact to another router service. When absent, this flow is not behind a router and `Redirect` fails: "o redirecionamento funciona apenas no Bot Router" (help.blip.ai).
    */
   redirect?(pedido: { endereco: string; context: unknown }): Promise<void>;
+  /**
+   * Persist the answer to a native satisfaction survey block (`packages/core/src/flow/satisfaction-survey.ts`). Optional because a flow with no survey block never calls it.
+   */
+  recordSatisfactionAnswer?(answer: {
+    rating: number | null;
+    comment: string | null;
+    status: string;
+  }): Promise<void>;
 }
 
 export type VariableProvider = (
