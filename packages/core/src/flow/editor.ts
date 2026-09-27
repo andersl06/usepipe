@@ -141,6 +141,32 @@ export const CONTEUDOS_SUPORTADOS = new Set([
   'application/vnd.lime.satisfaction-survey+json',
 ]);
 export const CONTEUDOS_SEM_EFEITO = new Set(['application/vnd.lime.chatstate+json']);
+
+/**
+ * The single contract of the Builder's "Conteúdo dinâmico" card (`SendRawMessage`): `rawContent`
+ * is a `{{variable}}` placeholder. The engine substitutes it (JSON-escaped, like every setting)
+ * with the LIME document `{type, content}` the flow stored in that variable, and the API resolves
+ * that document right before channel delivery (`resolveDynamicContent`). The Builder writes and
+ * reads the card only through these two functions.
+ */
+export const DYNAMIC_CONTENT_TYPE = 'application/vnd.pipe.dynamic-content+json';
+
+export function dynamicContentRaw(variable: string): string {
+  const nome = variable.trim();
+  return nome ? `{{${nome}}}` : '';
+}
+
+/** The variable name back from `rawContent`; also reads the pre-fix draft shape `{"variable": "x"}`. */
+export function dynamicContentVariable(raw: string): string {
+  const placeholder = /^\s*{{\s*([a-zA-Z0-9.@_-]+)\s*}}\s*$/.exec(raw);
+  if (placeholder) return placeholder[1]!;
+  try {
+    const legado = (JSON.parse(raw) as { variable?: unknown } | null)?.variable;
+    return typeof legado === 'string' ? legado : '';
+  } catch {
+    return '';
+  }
+}
 /** Actions that execute without effect in Pipe, listed explicitly so they do not appear functional. */
 export const ACTIONS_WITHOUT_EFFECT = new Set(['LeavingFromDesk']);
 
