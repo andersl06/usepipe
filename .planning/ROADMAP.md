@@ -180,6 +180,25 @@ Plans:
 
 - [ ] 01-41-PLAN.md — Commit history inputs and owner choice, reconstruct D-22 history and ff-merge into limpeza.
 
+**Gap closure (2026-09-27, D-52/D-53)** — ondas 34–49, sequenciais:
+
+- [ ] 01-42-PLAN.md — (onda 34) Corrigir quebras de runtime do rename (placeholder a preencher com o relatório da varredura) e criar o verificador de contrato de runtime (D-53).
+- [ ] 01-43-PLAN.md — (onda 35) short_name único por tenant (migração 0051 com backfill) e GET /v1/management/flows/short-name/:shortName (D-52).
+- [ ] 01-44-PLAN.md — (onda 36) Gestão sob /application: detail/{shortName}, create/*, telas de tenant, redirects legados e construtor único de caminhos (D-52).
+- [ ] 01-45-PLAN.md — (onda 37) Links fora da Gestão, route-match de front sem link pendurado, nav-contract D-52 e smoke de navegador com o dono.
+- [ ] 01-46-PLAN.md — (onda 38) Classificação STD-11 por regra (DDL, texto de produto, caminhos) e re-baseline explícito do gate (std11-classified).
+- [ ] 01-47-PLAN.md — (onda 39) Mapa old→new do resíduo STD-11 (propostas Codex, check-map, revisão Sonnet) com aprovação do dono.
+- [ ] 01-48-PLAN.md — (onda 40) --ids-file nas ferramentas de rename e rename do escopo packages (gate std11-packages).
+- [ ] 01-49-PLAN.md — (onda 41) Rename do escopo apps/api/src/domain com checagem de alias SQL (gate std11-api-domain).
+- [ ] 01-50-PLAN.md — (onda 42) Rename de controllers/raiz da API, workers e bridge, com endpoints PT residuais (gate std11-api-core).
+- [ ] 01-51-PLAN.md — (onda 43) Rename dos testes da API (gate std11-api-tests).
+- [ ] 01-52-PLAN.md — (onda 44) Rename das telas da Gestão com CSS (gate std11-mgmt-pages).
+- [ ] 01-53-PLAN.md — (onda 45) Rename do resto da Gestão e do Desk com CSS e storage keys (gate std11-mgmt-rest-desk).
+- [ ] 01-54-PLAN.md — (onda 46) Rename de CRM (limite CRM-01), tools, site, scripts e docs (gate std11-crm-tools-site).
+- [ ] 01-55-PLAN.md — (onda 47) Resolver as 348 pendências de comentário, passe old→new em comentários e triagem do resto (fecha 01-15/20/27/37/40).
+- [ ] 01-56-PLAN.md — (onda 48) Identificadores e comentários de infra, scripts gerar, build de imagens (fecha 01-39).
+- [ ] 01-57-PLAN.md — (onda 49) 01-41 obsoleto com tag std-cutover-end, scan STD-11 zero, gate final, regressão completa, 01-VERIFICATION e assinatura do dono.
+
 **Cross-cutting constraints:**
 
 - Slice gate passes
