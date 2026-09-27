@@ -182,7 +182,7 @@ async function executeNativeCommand(
   if (!match || !['', '/change-tags', '/transfer', '/status', '/priority'].includes(route)) {
     throw new Error(`A URI '${uri}' não é executada no Pipe.`);
   }
-  let result: Record<string, unknown> = { status: 'success', reason: 'OK', resource: null };
+  const result: Record<string, unknown> = { status: 'success', reason: 'OK', resource: null };
   if (route === '/change-tags') {
     const tags = Array.isArray(body['tags']) ? body['tags'].filter((tag): tag is string => typeof tag === 'string') : [];
     for (const name of tags) {

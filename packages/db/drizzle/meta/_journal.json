@@ -309,6 +309,13 @@
       "when": 1790060000000,
       "tag": "0049_acoes_plataforma",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1790070000000,
+      "tag": "0050_rls_subconsulta_acoes_plataforma",
+      "breakpoints": true
     }
   ]
 }

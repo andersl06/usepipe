@@ -153,7 +153,7 @@ export async function processInbound(
   const rastro: InboundTrace = { estados: [], actionsGlobal: [], stateFinalId: null };
   const prazo = Date.now() + configuration.inboundTimeLimitMs;
   let state: State | null = null;
-  let cursorPendente = options.retomarProcessHttp
+  const cursorPendente = options.retomarProcessHttp
     ? { ...options.retomarProcessHttp, consumido: false }
     : null;
 
