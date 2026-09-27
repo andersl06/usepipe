@@ -10,6 +10,7 @@ import {
   pasteBlock,
   desligar,
   deleteBlock,
+  duplicateBlock,
   ligar,
   montarDesenho,
   moveBlock,
@@ -277,4 +278,48 @@ test('edges: an empty map and a block without $conditionOutputs both return []',
   assert.deepEqual(arestasDe({}), []);
   const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
   assert.deepEqual(arestasDe({ origem }), []);
+});
+
+/* ------------------------------------------------------ copiar/colar/duplicar */
+
+test('copy-paste: duplicating a block yields a new id and independent data (mutating the copy leaves the original untouched)', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  const mapa = duplicateBlock({ origem }, 'origem', 'copia');
+  const copia = mapa.copia;
+  assert.ok(copia);
+  assert.notEqual(copia!.id, origem.id);
+  copia!.$title = 'mudou';
+  copia!.$contentActions![0]!.input!.variable = 'mudou';
+  assert.notEqual(origem.$title, 'mudou');
+  assert.notEqual(origem.$contentActions?.[0]?.input?.variable, 'mudou');
+});
+
+test('copy-paste: pasting the copied text twice yields a distinct id each time', () => {
+  const origem = newBlock({}, { top: 10, left: 20 }, 'origem');
+  const copiado1 = copiedTextBlock(copiedBlockText(origem));
+  assert.ok(copiado1);
+  const mapa1 = pasteBlock({ origem }, copiado1!, { top: 50, left: 50 });
+  const copiado2 = copiedTextBlock(copiedBlockText(origem));
+  assert.ok(copiado2);
+  const mapa2 = pasteBlock(mapa1, copiado2!, { top: 90, left: 90 });
+  const idsColados = Object.keys(mapa2).filter((id) => id !== 'origem');
+  assert.equal(idsColados.length, 2);
+  assert.notEqual(idsColados[0], idsColados[1]);
+});
+
+test('copy-paste: invalid pasted text returns null without touching the map', () => {
+  const mapa = { origem: newBlock({}, { top: 0, left: 0 }, 'origem') };
+  assert.equal(copiedTextBlock('pipe-builder:block/v1:{quebrado'), null);
+  assert.equal(copiedTextBlock(`pipe-builder:block/v1:${JSON.stringify({ semId: true })}`), null);
+  assert.deepEqual(mapa, { origem: mapa.origem });
+});
+
+test('copy-paste: a copied output keeps its stateId, but arestasDe never draws an edge to a block missing from the destination map', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [{ $id: 'saida', stateId: 'outro', conditions: [] }];
+  const copiado = copiedTextBlock(copiedBlockText(origem));
+  assert.ok(copiado);
+  const mapaIsolado = pasteBlock({}, copiado!, { top: 50, left: 50 }, 'copia');
+  assert.equal(mapaIsolado.copia?.$conditionOutputs?.[0]?.stateId, 'outro');
+  assert.deepEqual(arestasDe(mapaIsolado), []);
 });
