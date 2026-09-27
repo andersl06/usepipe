@@ -4,7 +4,7 @@ import { Etiqueta, Icone } from '@pipe/ui';
 import { IconePortal } from '../../components/icones-portal';
 import { ModalConfirmation } from '../registrations/_modal';
 import type { AcaoDoEditor, Mapa } from './model';
-import { CATALOG_OF_ACTIONS, LABELS_OF_ACTIONS, novaAcao } from './actions-of-block';
+import { actionsOfGroup, LABELS_OF_ACTIONS, novaAcao } from './actions-of-block';
 import type { ActionsList } from './actions-of-block';
 import {
   adicionarAcaoGlobal,
@@ -181,7 +181,7 @@ function ActionsGlobalList({
             {groups.map((grupo) => (
               <div key={grupo} className="bl-menu-actions-group">
                 <span className="sub">{grupo}</span>
-                {CATALOG_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
+                {actionsOfGroup(grupo).map((t) => (
                   <button key={t.tipo} type="button" role="menuitem" onClick={() => adicionar(t.tipo)}>
                     {t.rotulo}
                   </button>

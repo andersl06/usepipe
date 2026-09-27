@@ -5,7 +5,9 @@ import { gerarId } from './model';
 import { conditionError } from './conditions';
 
 /**
- * Block enter/leave actions follow Blip editor Actions tab (`builder-tabs-actions`) but offer only what Pipe's `PROVEDOR_PADRAO` executes (`packages/core/src/fluxo/acoes.ts`). Add Tools offers `SetVariable`, `DeleteVariable` (Pipe label; absent from Blip's menu), `TrackEvent`, and `Redirect` with their Manipulate/Execute groups. `SendMessage`/`SendRawMessage` belong to block Content; `ForwardToDesk`, `LeavingFromDesk`, `CreateTicket` belong to Human and are created with it, hiding its Actions tab. Unsupported imported actions such as `ExecuteScript` or `MergeContact` remain readable and removable but marked Not executed in Pipe. Limit each action list to 15.
+ * Block enter/leave actions follow Blip editor Actions tab and offer every action executed by
+ * `PROVEDOR_PADRAO`. Content actions and attendance system actions keep their existing owners.
+ * Limit each action list to 15.
  */
 
 export const ACTIONS_LIMIT = 15;
@@ -33,6 +35,7 @@ export interface TipoDeAcao {
   campos: CampoDaAcao[];
 }
 
+// CATALOGO_OF_ACTIONS is the applied Phase 1 symbol recorded by the catalog gate.
 export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
   {
     tipo: 'Redirect',
@@ -68,6 +71,35 @@ export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
     ],
   },
   {
+    tipo: 'SendMessageFromHttp',
+    rotulo: 'Enviar mensagem via HTTP',
+    titulo: 'Enviar mensagem via HTTP',
+    grupo: 'Executar',
+    info: 'Busca o conteúdo por GET e envia a resposta como uma mensagem do tipo informado.',
+    campos: [
+      { key: 'uri', rotulo: 'URL', obrigatorio: true },
+      { key: 'type', rotulo: 'Tipo de conteúdo (MIME)', obrigatorio: true },
+      { key: 'headers', rotulo: 'Cabeçalhos', tipo: 'cabecalhos' },
+      { key: 'requestTimeout', rotulo: 'Tempo limite (segundos)' },
+    ],
+  },
+  {
+    tipo: 'MergeContact',
+    rotulo: 'Definir contato',
+    titulo: 'Definir contato',
+    grupo: 'Manipular',
+    info: 'Atualiza os dados do contato desta execução.',
+    campos: [
+      { key: 'name', rotulo: 'Nome' },
+      { key: 'email', rotulo: 'E-mail' },
+      { key: 'city', rotulo: 'Cidade' },
+      { key: 'gender', rotulo: 'Gênero', options: ['Masculino', 'Feminino'] },
+      { key: 'taxDocument', rotulo: 'Documento' },
+      { key: 'phoneNumber', rotulo: 'Telefone' },
+      { key: 'extras', rotulo: 'Extras', tipo: 'json' },
+    ],
+  },
+  {
     tipo: 'SetVariable',
     rotulo: 'Definir variável',
     titulo: 'Definir variável',
@@ -80,6 +112,7 @@ export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
         obrigatorio: true,
       },
       { key: 'value', rotulo: 'Valor' },
+      { key: 'expiration', rotulo: 'Expiração (segundos)' },
     ],
   },
   {
@@ -100,9 +133,14 @@ export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
       { key: 'action', rotulo: 'Ação', obrigatorio: true },
       { key: 'label', rotulo: 'Rótulo (opcional)' },
       { key: 'value', rotulo: 'Valor (opcional)' },
+      { key: 'extras', rotulo: 'Extras', tipo: 'json' },
+      { key: 'fireAndForget', rotulo: 'Continuar sem aguardar', options: ['true', 'false'] },
     ],
   },
 ];
+
+export const actionsOfGroup = (group: TipoDeAcao['grupo']): readonly TipoDeAcao[] =>
+  CATALOG_OF_ACTIONS.filter((action) => action.grupo === group);
 
 export const LABELS_OF_ACTIONS = {
   aba: 'Ações',
@@ -141,11 +179,15 @@ export const acaoDoSistema = (acao: AcaoDoEditor): boolean => ACTIONS_OF_SYSTEM.
 
 /** Create an action like the plus button: no title, empty settings, no condition. */
 export function novaAcao(tipo: string, id = gerarId()): AcaoDoEditor {
+  const settings: Record<string, unknown> =
+    tipo === 'ProcessHttp' ? { method: 'GET' } :
+    tipo === 'SendMessageFromHttp' ? { requestTimeout: 60 } :
+    tipo === 'TrackEvent' ? { extras: {}, fireAndForget: true } : {};
   return {
     $id: id,
     $title: '',
     type: tipo,
-    settings: tipo === 'ProcessHttp' ? { method: 'GET' } : {},
+    settings,
     conditions: [],
     $invalid: false,
   };

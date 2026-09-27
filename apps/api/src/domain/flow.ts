@@ -319,6 +319,35 @@ export async function runFlowInInbound(
     registerEvent: async (evento) => {
       eventos.push(evento);
     },
+    mergeContact: async (fields) => {
+      const updates: ReturnType<typeof sql>[] = [];
+      const extras: Record<string, unknown> = {};
+      const textColumns: Record<string, string> = {
+        name: 'nome',
+        email: 'email',
+        phoneNumber: 'telefone_e164',
+        taxDocument: 'documento',
+      };
+      for (const [key, column] of Object.entries(textColumns)) {
+        if (Object.prototype.hasOwnProperty.call(fields, key)) {
+          updates.push(sql`${sql.raw(column)} = ${fields[key] ?? null}`);
+        }
+      }
+      for (const key of ['city', 'gender']) {
+        if (Object.prototype.hasOwnProperty.call(fields, key)) extras[key] = fields[key];
+      }
+      if (fields.extras && typeof fields.extras === 'object' && !Array.isArray(fields.extras)) {
+        Object.assign(extras, fields.extras);
+      }
+      if (Object.keys(extras).length > 0) {
+        updates.push(sql`atributos = coalesce(atributos, '{}'::jsonb) || ${JSON.stringify(extras)}::jsonb`);
+      }
+      if (updates.length === 0) return;
+      // The execution is already inside noTenant; the id is deliberately the current
+      // execution contact, so a flow setting contact_id cannot cross tenant boundaries.
+      await tx.execute(sql`update contato set ${sql.join(updates, sql`, `)}, atualizado_em = now()
+        where id = ${e.contactId}`);
+    },
     recordSatisfactionAnswer: async (answer) => {
       const recent = await mostRecentClosedAttendance(tx, e.contactId, conversation.id);
       const blockId = variables[stateKey(flow.id)] ?? null;

@@ -41,7 +41,13 @@ const setVariable: AcaoDoMotor = {
     const variable = comoTexto(campo(c, 'variable'));
     if (variable === null)
       throw new Error("O valor 'variable' é obrigatório na ação 'SetVariable'.");
-    setContextVariable(context, variable, comoTexto(campo(c, 'value')));
+    const expiration = Number(campo(c, 'expiration'));
+    setContextVariable(
+      context,
+      variable,
+      comoTexto(campo(c, 'value')),
+      Number.isFinite(expiration) && expiration > 0 ? expiration : undefined,
+    );
   },
 };
 
@@ -106,7 +112,55 @@ const trackEvent: AcaoDoMotor = {
     if (!comoTexto(campo(c, 'action'))?.trim()) {
       throw new Error("O valor 'action' é obrigatório na ação 'TrackEvent'.");
     }
-    await context.services.registerEvent(c);
+    const value = comoTexto(campo(c, 'value'));
+    const parsedValue = value === null || value.trim() === '' ? null : Number(value);
+    await context.services.registerEvent({
+      ...c,
+      value: parsedValue !== null && Number.isFinite(parsedValue) ? parsedValue : null,
+      fireAndForget: campo(c, 'fireAndForget') === false ? false : true,
+      extras: campo(c, 'extras') ?? {},
+    });
+  },
+};
+
+/** `SendMessageFromHttpAction`: GET a declared resource and send its body as a LIME message. */
+const sendMessageFromHttp: AcaoDoMotor = {
+  tipo: 'SendMessageFromHttp',
+  async executar(context, settings) {
+    const c = requireSettings(this.tipo, settings);
+    if (!context.services.callHttp) throw new Error('A ação SendMessageFromHttp não está disponível neste fluxo.');
+    const uri = comoTexto(campo(c, 'uri'))?.trim();
+    const type = comoTexto(campo(c, 'type'))?.trim();
+    if (!uri) throw new Error("O valor 'uri' é obrigatório na ação 'SendMessageFromHttp'.");
+    if (!type) throw new Error("O valor 'type' é obrigatório na ação 'SendMessageFromHttp'.");
+    if (!MIME.test(type)) throw new Error("O valor 'type' da ação 'SendMessageFromHttp' precisa ser um MIME válido.");
+    const headers = campo(c, 'headers');
+    const cabecalhos: Record<string, string> = {};
+    if (headers && typeof headers === 'object' && !Array.isArray(headers)) {
+      for (const [key, value] of Object.entries(headers)) {
+        const texto = comoTexto(value);
+        if (texto !== null) cabecalhos[key] = texto;
+      }
+    }
+    const timeout = Number(campo(c, 'requestTimeout'));
+    const resposta = await context.services.callHttp({
+      metodo: 'GET',
+      url: uri,
+      cabecalhos,
+      timeoutMs: Number.isFinite(timeout) && timeout > 0 ? timeout * 1000 : 60000,
+    });
+    if (resposta.status >= 400) throw new Error(`A ação 'SendMessageFromHttp' recebeu HTTP ${resposta.status}.`);
+    await context.services.send({ tipo: type, conteudo: resposta.corpo });
+  },
+};
+
+/** `MergeContactAction`: the API service always writes the current execution contact. */
+const mergeContact: AcaoDoMotor = {
+  tipo: 'MergeContact',
+  async executar(context, settings) {
+    const c = requireSettings(this.tipo, settings);
+    if (!context.services.mergeContact) throw new Error('A ação MergeContact não está disponível neste fluxo.');
+    await context.services.mergeContact(c);
   },
 };
 
@@ -213,12 +267,14 @@ const processHttp: AcaoDoMotor = {
   },
 };
 
-export const ACTIONS_OF_ENGINE: readonly AcaoDoMotor[] = [
+export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   setVariable,
   deleteVariable,
   sendMessage,
   sendRawMessage,
   trackEvent,
+  sendMessageFromHttp,
+  mergeContact,
   createTicket,
   forwardToDesk,
   leavingFromDesk,
@@ -227,7 +283,7 @@ export const ACTIONS_OF_ENGINE: readonly AcaoDoMotor[] = [
 ];
 
 /** Default `ActionProvider` containing actions Pipe executes. */
-export const PROVEDOR_PADRAO: ActionsProvider = new Map(ACTIONS_OF_ENGINE.map((a) => [a.tipo, a]));
+export const PROVEDOR_PADRAO: ActionsProvider = new Map(ACTIONS_OF_MOTOR.map((a) => [a.tipo, a]));
 
 /** `ActionProvider.Get` treats an unimplemented type as an error, never an ignored action. */
 export function obterAcao(provedor: ActionsProvider, tipo: string): AcaoDoMotor {

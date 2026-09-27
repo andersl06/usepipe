@@ -130,6 +130,8 @@ export interface ServicosDoMotor {
     settings: Record<string, unknown> | null;
   }): Promise<Attendance>;
   registerEvent(evento: Record<string, unknown>): Promise<void>;
+  /** Persist contact fields for the contact that owns this execution. */
+  mergeContact?(fields: Record<string, unknown>): Promise<void>;
   /** The `api` executes the request; core only describes it and performs no network access. */
   callHttp?(pedido: PedidoDeHttp): Promise<RespostaDeHttp>;
   /** The API stores the cursor and calls the network after the transaction ends. */
@@ -161,6 +163,8 @@ export interface Context {
   inbound: InboundLazy;
   /** Persisted user context; Blip stores every value here as text. */
   variables: Record<string, string>;
+  /** In-memory expiration deadlines for variables set by the current execution. */
+  variableExpirations?: Record<string, number>;
   /** `InputContext` lasts only for this input, including current state and created ticket. */
   inboundContext: Map<string, unknown>;
   /** Contact in Blip vocabulary (`name`, `phoneNumber`, `email`, `extras`, etc.). */
@@ -179,6 +183,12 @@ export const KEY_OF_STATE_CURRENT = 'current-state-id';
 
 /** `GetContextVariableAsync`: o valor cru, sem fonte nem propriedade. */
 export function contextGetVariable(context: Context, nome: string): string | null {
+  const expiresAt = context.variableExpirations?.[nome];
+  if (expiresAt !== undefined && expiresAt <= Date.now()) {
+    delete context.variableExpirations![nome];
+    delete context.variables[nome];
+    return null;
+  }
   return Object.prototype.hasOwnProperty.call(context.variables, nome)
     ? (context.variables[nome] ?? null)
     : null;
@@ -187,12 +197,23 @@ export function contextGetVariable(context: Context, nome: string): string | nul
 /**
  * `SetVariableAsync`. ponytail: source `expiration` is not persisted, so a variable lasts until deletion or overwrite. Persistence would require a timestamp per key.
  */
-export function setVariable(context: Context, nome: string, value: string | null): void {
+export function setVariable(
+  context: Context,
+  nome: string,
+  value: string | null,
+  expirationSeconds?: number,
+): void {
   context.variables[nome] = value ?? '';
+  if (expirationSeconds !== undefined && expirationSeconds > 0) {
+    (context.variableExpirations ??= {})[nome] = Date.now() + expirationSeconds * 1000;
+  } else if (context.variableExpirations) {
+    delete context.variableExpirations[nome];
+  }
 }
 
 export function deleteVariable(context: Context, nome: string): void {
   delete context.variables[nome];
+  if (context.variableExpirations) delete context.variableExpirations[nome];
 }
 
 // --- StateManager ---
