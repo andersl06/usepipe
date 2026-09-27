@@ -1,7 +1,9 @@
 # Portão final da Phase 2 (Fechar o Builder)
 
 **Rascunho preparado em:** 2026-09-27, sobre o commit base `b3a96db` (worktree do plano 02-22).
-**Situação:** aguardando a resposta do dono. A linha "Aprovação final do dono" só é preenchida depois da resposta.
+**Situação:** aprovado pelo dono.
+
+**Aprovação final do dono:** 2026-09-27 — "aprovado". Aceitas as recomendações do orquestrador: as diferenças visuais medidas (fonte, pílula, rodapé, botões "+ Adicionar", zoom, "Novo bloco", tabela de Versões, menu de adicionar conteúdo) vão para o plano de lacunas; o Builder inteiro passa a usar Nunito Sans por paridade (D-30). BUILDER-05 continua aberto até a captura C-42.
 
 ## 1. Gates automáticos
 

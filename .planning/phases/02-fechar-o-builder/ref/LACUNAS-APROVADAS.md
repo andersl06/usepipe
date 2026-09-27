@@ -26,6 +26,13 @@
 - 02-16: assinaturas de `time`, `context`, `botTimeZone` do ExecuteScriptV2 não expostas e `request.fetchAsync` com forma provisória (captura C-24); `localTimeZoneEnabled` sem efeito (script roda em UTC); limites do Jint no V1 (1000 instruções, recursão 50) não reproduzidos; script e ProcessHttp seguram conexão do banco dentro da transação por até 10 s; `confirmarUrlSegura` não resolve DNS (vale também para o ProcessHttp).
 - Lint da API falha em dois arquivos antigos: `src/domain/management/sla.ts:61` e `tests/channel-of-flow.test.ts:486` (variável não usada).
 
+## Diferenças visuais do portão final (aprovadas pelo dono em 2026-09-27, ver ref/VERIFICACAO-VISUAL.md)
+
+- Fonte: Nunito Sans em todo o Builder (hoje IBM Plex Sans nos nós, na pílula e nos painéis laterais; Nunito só no painel do bloco).
+- Menu "Adicionar conteúdo": barra de ícones com "mais opções" como na referência (hoje lista vertical com itens cortados). Prioridade alta.
+- Pílula lateral `#282828` → `#1f1f1f`; botões do rodapé 40 → 48 px; botões "+ Adicionar…" 48 → 56 px; zoom ainda em `var(--moss)` (`#4a5d23`) em `builder.css` → token `--p-builder-marca`; raio e cor dos itens do "Novo bloco"; altura das opções e sombra do menu de ferramentas; tabela de Versões (505 px) mais larga que o painel.
+- Lint anterior à Fase 2: `@pipe/realtime` `src/index.ts:113`, `@pipe/desk-vite` `desk-selection.tsx:43`, `@pipe/crm` padrão `semente`.
+
 ## Fica de fora (decisão do dono)
 
 - Animação de entrada do painel lateral (0,5 s na referência, instantânea no Pipe).
