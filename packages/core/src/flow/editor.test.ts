@@ -352,3 +352,32 @@ describe('media content', () => {
     ]);
   });
 });
+
+describe('interactive content', () => {
+  it('accepts every confirmed interactive MIME and validates web links and locations', () => {
+    expect(CONTEUDOS_SUPORTADOS).toEqual(
+      expect.objectContaining({
+        has: expect.any(Function),
+      }),
+    );
+    for (const mime of [
+      'application/vnd.lime.chatstate+json',
+      'application/vnd.lime.input+json',
+      'application/vnd.lime.location+json',
+      'application/vnd.lime.web-link+json',
+      'application/vnd.lime.select+json',
+    ]) {
+      expect(CONTEUDOS_SUPORTADOS.has(mime)).toBe(true);
+    }
+    expect(
+      engineContentErrors('application/vnd.lime.web-link+json', {
+        content: { uri: 'http://example.com' },
+      }),
+    ).toEqual(['A URL do web link deve usar https.']);
+    expect(
+      engineContentErrors('application/vnd.lime.location+json', {
+        content: { latitude: -91, longitude: 0 },
+      }),
+    ).toEqual(['A latitude deve estar entre -90 e 90.']);
+  });
+});

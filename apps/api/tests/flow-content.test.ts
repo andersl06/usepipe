@@ -11,7 +11,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 const { dubleWhatsApp, processarOutbox } = await import('@pipe/workers');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
-const { importFlowOfBlip } = await import('../src/domain/flow.js');
+const { importFlowOfBlip, toChannelOutput } = await import('../src/domain/flow.js');
 const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
@@ -172,5 +172,28 @@ describe('bot entrega os cinco tipos do slot conteudo-midia', () => {
       select fila_id from conversa where id = ${conversaId}::uuid
     `);
     expect(conversa[0]?.fila_id).not.toBeNull();
+  });
+});
+
+describe('interactive content channel output', () => {
+  it('serializes confirmed interactive content and rejects an insecure web link', () => {
+    expect(
+      toChannelOutput({
+        tipo: 'application/vnd.lime.location+json',
+        conteudo: { latitude: -19.9, longitude: -43.9 },
+      }),
+    ).toMatchObject({ tipo: 'localizacao', dados: { localizacao: { latitude: -19.9, longitude: -43.9 } } });
+    expect(
+      toChannelOutput({
+        tipo: 'application/vnd.lime.web-link+json',
+        conteudo: { uri: 'https://example.com', text: 'Abrir' },
+      }),
+    ).toMatchObject({ tipo: 'texto', texto: 'Abrir', dados: { webLink: { uri: 'https://example.com' } } });
+    expect(() =>
+      toChannelOutput({
+        tipo: 'application/vnd.lime.web-link+json',
+        conteudo: { uri: 'http://example.com' },
+      }),
+    ).toThrow('URL insegura');
   });
 });
