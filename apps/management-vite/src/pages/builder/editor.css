@@ -968,6 +968,81 @@
   justify-content: flex-end;
 }
 
+/* ------------------------------------------------- functions library (D-22) */
+
+.bl-functions-empty {
+  margin-top: 12px;
+}
+.bl-functions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+.bl-functions-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+}
+.bl-functions-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.bl-functions-form .bl-campo {
+  margin-bottom: 12px;
+}
+.bl-functions-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bl-functions-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+}
+.bl-functions-insert {
+  margin-bottom: 8px;
+}
+.bl-functions-picker {
+  margin-top: 8px;
+}
+.bl-functions-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.bl-functions-picker-item {
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.bl-functions-picker-item:hover {
+  background: var(--p-builder-marca-destaque);
+}
+
 .bl-oculto {
   position: absolute;
   width: 1px;
