@@ -244,7 +244,7 @@ Plans:
 **Wave 4** *(blocked on Wave 3 completion)*
 
 - [ ] 02-09-PLAN.md — Seletor de destino com busca + validação de setas com fluxos reais (D-23, D-29)
-- [ ] 02-11-PLAN.md — Satisfação: schema, motor, etiquetas no ticket, endpoint de consulta (D-06..D-12)
+- [x] 02-11-PLAN.md — Satisfação: schema, motor, etiquetas no ticket, endpoint de consulta (D-06..D-12)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -381,7 +381,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
-| 2. Fechar o Builder | 9/22 | In Progress|  |
+| 2. Fechar o Builder | 10/22 | In Progress|  |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |
