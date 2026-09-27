@@ -22,7 +22,7 @@ import type {
 import { resolveChannel } from './database.js';
 import { SEM_CRM, syncDictionary, tenantsOfDictionary } from './domain/dictionary-crm.js';
 import { processarPayload } from './domain/inbound.js';
-import { executarProcessHttp } from './domain/flow.js';
+import { executarProcessHttp, recoverStuckProcessHttp } from './domain/flow.js';
 import { renovarTokensInstagram } from './domain/instagram/renewal.js';
 import { contactsWithoutMirror, syncContact } from './domain/mirror-crm.js';
 import { downloadMediaOfAttachment, midiasPendentes } from './domain/media.js';
@@ -50,6 +50,9 @@ let queueProcessHttp: Queue<JobProcessHttp> | null = null;
 let consumidorProcessHttp: Worker<JobProcessHttp> | null = null;
 let relogioProcessHttp: ReturnType<typeof setInterval> | null = null;
 const processHttpEmMemoria: JobProcessHttp[] = [];
+const QUEUE_PROCESS_HTTP_SWEEP = 'pipe-process-http-sweep';
+let queueProcessHttpSweep: Queue | null = null;
+let consumerProcessHttpSweep: Worker | null = null;
 
 function redis(): IORedis {
   conexao ??= new IORedis(conexaoRedis().url, { maxRetriesPerRequest: null });
@@ -99,24 +102,54 @@ export function consumirProcessHttp(): void {
   );
 }
 
+/**
+ * Memory-mode branch keeps its own in-process timer (development/tests, no Redis). The BullMQ
+ * branch adds a dedicated queue and scheduler so production recovers a `process_http_execucao`
+ * a failure left stuck in `chamando` (D-26); `consumeSweepProcessHttp` runs the recovery.
+ */
 export async function scheduleSweepProcessHttp(): Promise<void> {
-  if (modo() !== 'memoria' || process.env['PIPE_PROCESS_HTTP_EM_MEMORIA'] !== '1' || relogioProcessHttp) return;
-  let rodando = false;
-  relogioProcessHttp = setInterval(() => {
-    if (rodando) return;
-    rodando = true;
-    void (async () => {
-      try {
-        while (processHttpEmMemoria.length > 0) {
-          const job = processHttpEmMemoria.shift()!;
-          await executarProcessHttp(job.processoId);
+  if (modo() === 'memoria') {
+    if (process.env['PIPE_PROCESS_HTTP_EM_MEMORIA'] !== '1' || relogioProcessHttp) return;
+    let rodando = false;
+    relogioProcessHttp = setInterval(() => {
+      if (rodando) return;
+      rodando = true;
+      void (async () => {
+        try {
+          while (processHttpEmMemoria.length > 0) {
+            const job = processHttpEmMemoria.shift()!;
+            await executarProcessHttp(job.processoId);
+          }
+        } finally {
+          rodando = false;
         }
-      } finally {
-        rodando = false;
-      }
-    })();
-  }, Number(process.env['PIPE_PROCESS_HTTP_VARREDURA_MS'] ?? 15_000));
-  relogioProcessHttp.unref();
+      })();
+    }, Number(process.env['PIPE_PROCESS_HTTP_VARREDURA_MS'] ?? 15_000));
+    relogioProcessHttp.unref();
+    return;
+  }
+  queueProcessHttpSweep ??= new Queue(QUEUE_PROCESS_HTTP_SWEEP, { connection: redis() });
+  await queueProcessHttpSweep.upsertJobScheduler(
+    'process-http-sweep',
+    { every: Number(process.env['PIPE_PROCESS_HTTP_VARREDURA_MS'] ?? 60_000) },
+    { name: 'varredura', data: {} },
+  );
+}
+
+/** Consume the ProcessHttp recovery sweep; concurrency 1, since `recoverStuckProcessHttp` already claims rows `for update skip locked`. */
+export function consumeSweepProcessHttp(): void {
+  if (modo() === 'memoria' || consumerProcessHttpSweep) return;
+  consumerProcessHttpSweep = new Worker(
+    QUEUE_PROCESS_HTTP_SWEEP,
+    async (job) => {
+      if (job.name !== 'varredura') return 0;
+      const limiteMs = Number(process.env['PIPE_PROCESS_HTTP_TIMEOUT_MS'] ?? 120_000);
+      const novos = await recoverStuckProcessHttp(limiteMs);
+      for (const { tenantId, processoId } of novos) await enfileirarProcessHttp({ tenantId, processoId });
+      return novos.length;
+    },
+    { connection: redis(), concurrency: 1 },
+  );
 }
 
 export async function enqueueDelivery(job: JobDelivery): Promise<void> {
@@ -499,6 +532,7 @@ export async function stateOfQueues(): Promise<StateOfQueue[]> {
 export async function closeQueues(): Promise<void> {
   await consumerInbound?.close();
   await consumidorProcessHttp?.close();
+  await consumerProcessHttpSweep?.close();
   if (relogioProcessHttp) clearInterval(relogioProcessHttp);
   relogioProcessHttp = null;
   processHttpEmMemoria.length = 0;
@@ -516,6 +550,7 @@ export async function closeQueues(): Promise<void> {
   queueInstagramToken = null;
   await queueInbound?.close();
   await queueProcessHttp?.close();
+  await queueProcessHttpSweep?.close();
   await queueDelivery?.close();
   await queueMirrorCrm?.close();
   await queueDictionaryCrm?.close();
@@ -524,12 +559,14 @@ export async function closeQueues(): Promise<void> {
   await conexao?.quit();
   consumerInbound = null;
   consumidorProcessHttp = null;
+  consumerProcessHttpSweep = null;
   consumerMirrorCrm = null;
   consumerDictionaryCrm = null;
   consumerMedia = null;
   consumidorSla = null;
   queueInbound = null;
   queueProcessHttp = null;
+  queueProcessHttpSweep = null;
   queueDelivery = null;
   queueMirrorCrm = null;
   queueDictionaryCrm = null;

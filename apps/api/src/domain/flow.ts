@@ -545,8 +545,25 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
     };
   }
 
+  const { novos } = await resumeCallOfProcessHttp(processoId, encontrado.tenant_id, resposta);
+  return novos;
+}
+
+/**
+ * Shared second half of a ProcessHttp round trip: claim the `chamando` row, store the response,
+ * resume the suspended cursor, catch up any inbound messages that arrived while the row was
+ * pending, and close the row as `retomada`. `executarProcessHttp` calls this after a real HTTP
+ * response; `recoverStuckProcessHttp` calls it with a synthetic timeout response for a row a
+ * failure left stuck in `chamando` past its timeout.
+ */
+async function resumeCallOfProcessHttp(
+  processoId: string,
+  tenantId: string,
+  resposta: RespostaDeHttp,
+): Promise<{ recovered: boolean; novos: string[] }> {
   const novosProcessos: string[] = [];
-  await noTenant(encontrado.tenant_id, async (tx) => {
+  let recovered = false;
+  await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{
       executionId: string; bloco_codigo: string; lista: CursorDeProcessHttp['lista'];
       indice: number; entrada: Record<string, unknown>; contexto: Record<string, string>;
@@ -567,6 +584,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
     `);
     const p = rows[0];
     if (!p) return;
+    recovered = true;
     await tx.execute(sql`
       update process_http_execucao set resposta = ${JSON.stringify(resposta)}::jsonb,
              estado = 'respondida', atualizado_em = now() where id = ${processoId}
@@ -574,7 +592,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
     const publicado = await flowPublishedOfChannel(tx, p.channelId, p.contactId);
     if (!publicado) return;
     const retomada = await runFlowInInbound(tx, publicado, {
-      tenantId: encontrado.tenant_id,
+      tenantId,
       conversation: {
         id: p.conversationId, nova: false, queueId: p.queueId,
         agentId: p.agentId, queueDefaultId: p.queueDefaultId,
@@ -608,7 +626,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
     `);
     for (const mensagem of messagesPending) {
       const atual = await runFlowInInbound(tx, publicado, {
-        tenantId: encontrado.tenant_id,
+        tenantId,
         conversation: {
           id: p.conversationId, nova: false, queueId: null,
           agentId: null, queueDefaultId: p.queueDefaultId,
@@ -628,6 +646,59 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
        where id = ${processoId}
     `);
   });
+  return { recovered, novos: novosProcessos };
+}
+
+/** A new `ProcessHttp` suspension the sweep's resume produced, ready for `enfileirarProcessHttp`. */
+export interface NewProcessHttp {
+  tenantId: string;
+  processoId: string;
+}
+
+/**
+ * Periodic BullMQ sweep (D-26): a failure between claiming `process_http_execucao` (`chamando`)
+ * and finishing the resume — network crash, worker restart, an unrelated bug — otherwise leaves
+ * that row stuck forever, and `runFlowInInbound` blocks every new message from the same contact
+ * while a `pendente`/`chamando` row exists (line ~210 above). Recover rows stuck past `limiteMs`
+ * with a synthetic 408 timeout response, the same shape `executarProcessHttp` writes for a real
+ * one, and return `{tenantId, processoId}` for any new `ProcessHttp` suspension the resume
+ * produced (a sweep can recover rows from several tenants in one pass, so a bare id is not
+ * enough for the caller to enqueue it correctly), the same way `consumirProcessHttp` chains a
+ * normal resume.
+ */
+export async function recoverStuckProcessHttp(limiteMs: number): Promise<NewProcessHttp[]> {
+  const { rows: presas } = await databaseOwner().execute<{
+    id: string; tenant_id: string; atualizado_em: string;
+  }>(sql`
+    select id, tenant_id, atualizado_em from process_http_execucao
+     where estado = 'chamando' and atualizado_em < now() - ${limiteMs}::bigint * interval '1 millisecond'
+     order by atualizado_em
+     limit 100
+     for update skip locked
+  `);
+
+  const novosProcessos: NewProcessHttp[] = [];
+  for (const linha of presas) {
+    try {
+      const { recovered, novos } = await resumeCallOfProcessHttp(linha.id, linha.tenant_id, {
+        status: 408,
+        corpo: '',
+      });
+      if (recovered) {
+        for (const processoId of novos) novosProcessos.push({ tenantId: linha.tenant_id, processoId });
+        console.error('[alert] process_http_stuck', {
+          tenantId: linha.tenant_id,
+          processoId: linha.id,
+          desde: linha.atualizado_em,
+        });
+      }
+    } catch (erro) {
+      // A varredura não pode travar por causa de uma linha; registra e segue, como as demais varreduras.
+      console.error(
+        `[process-http-sweep] falhou ao recuperar ${linha.id}: ${(erro as Error).message}`,
+      );
+    }
+  }
   return novosProcessos;
 }
 

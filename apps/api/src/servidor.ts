@@ -24,6 +24,7 @@ import {
   consumeDownloadMedia,
   consumeInbound,
   consumirProcessHttp,
+  consumeSweepProcessHttp,
   consumeMirrorCrm,
   closeQueues,
 } from './queues.js';
@@ -119,6 +120,7 @@ export async function upApi(porta = Number(process.env['PORT'] ?? 3000)): Promis
   const app = await createApplication();
   consumeInbound();
   consumirProcessHttp();
+  consumeSweepProcessHttp();
   await scheduleSweepProcessHttp();
   consumeMirrorCrm();
   await scheduleSweepMirrorCrm();
