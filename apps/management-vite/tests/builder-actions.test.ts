@@ -3,7 +3,10 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import {
   CATALOG_OF_ACTIONS,
+  SCRIPT_TEMPLATE,
   actionErrors,
+  variablesOfField,
+  withVariables,
   comCampo,
   comCampoJson,
   fieldValue,
@@ -44,7 +47,49 @@ test('structured contact extras survive persistence round trip and are validated
   assert.equal(CATALOG_OF_ACTIONS.some((item) => item.tipo === 'MergeContact'), true);
 });
 
+for (const tipo of ['ExecuteScript', 'ExecuteScriptV2'] as const) {
+  test(`script actions: ${tipo} starts with the default source and the reference fields`, () => {
+    const acao = novaAcao(tipo, `id-${tipo}`);
+    assert.equal(fieldValue(acao, 'source'), SCRIPT_TEMPLATE);
+    assert.deepEqual(variablesOfField(acao, 'inputVariables'), []);
+    assert.deepEqual(
+      tipoDeAcao(tipo)?.campos.map((c) => c.key),
+      ['source', 'inputVariables', 'outputVariable'],
+    );
+    assert.deepEqual(actionErrors(acao), ['Variável para o valor de retorno: campo obrigatório.']);
+    assert.deepEqual(actionErrors(comCampo(acao, 'source', '')), [
+      'Código-fonte: campo obrigatório.',
+      'Variável para o valor de retorno: campo obrigatório.',
+    ]);
+  });
+
+  test(`script actions: ${tipo} round trip keeps source and variable lists`, () => {
+    const source = 'function run(a, b) {\n  return a + b;\n}';
+    let acao = novaAcao(tipo);
+    acao = comCampo(acao, 'source', source);
+    acao = withVariables(acao, 'inputVariables', ['x', 'contact.name']);
+    acao = comCampo(acao, 'outputVariable', 'soma');
+    const volta = JSON.parse(JSON.stringify(acao)) as typeof acao;
+    assert.equal(fieldValue(volta, 'source'), source);
+    assert.deepEqual(variablesOfField(volta, 'inputVariables'), ['x', 'contact.name']);
+    assert.equal(fieldValue(volta, 'outputVariable'), 'soma');
+    assert.deepEqual(actionErrors(volta), []);
+  });
+}
+
+test('script actions: V1 defaults function to run', () => {
+  assert.equal(fieldValue(novaAcao('ExecuteScript'), 'function'), 'run');
+});
+
 test('actions panel does not render raw HTML', () => {
   const source = readFileSync(new URL('../src/pages/builder/panel-actions.tsx', import.meta.url), 'utf8');
   assert.equal(source.includes('dangerouslySetInnerHTML'), false);
+});
+
+test('script actions: Monaco is lazy-loaded from the local package, never statically or from a CDN', () => {
+  const panel = readFileSync(new URL('../src/pages/builder/panel-actions.tsx', import.meta.url), 'utf8');
+  assert.match(panel, /lazy\(\(\) => import\('\.\/code-editor'\)\)/);
+  assert.equal(/from '(monaco-editor|@monaco-editor\/react)/.test(panel), false);
+  const editor = readFileSync(new URL('../src/pages/builder/code-editor.tsx', import.meta.url), 'utf8');
+  assert.match(editor, /loader\.config\(\{ monaco \}\)/);
 });

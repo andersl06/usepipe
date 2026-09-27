@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useLayoutEffect, useRef, useState } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '../../components/icones-portal';
@@ -26,9 +26,14 @@ import {
   substituirAcao,
   tipoDeAcao,
   fieldValue,
+  variablesOfField,
+  withVariables,
 } from './actions-of-block';
 import type { ActionsList } from './actions-of-block';
 import { ConditionsEditor } from './condition';
+
+/** Monaco stays in its own chunk, fetched only when a script action is opened. */
+const CodeEditor = lazy(() => import('./code-editor'));
 
 let actionsCopied: AcaoDoEditor[] = [];
 
@@ -513,6 +518,31 @@ export function ActionCard({
                       cabecalhos={cabecalhosDoCampo(acao, campo.key)}
                       onMudar={(cabecalhos) => onMudar(comCabecalhos(acao, campo.key, cabecalhos))}
                     />
+                  ) : campo.tipo === 'variableList' ? (
+                    <EditorDeVariaveis
+                      rotulo={campo.rotulo}
+                      variaveis={variablesOfField(acao, campo.key)}
+                      onMudar={(names) => onMudar(withVariables(acao, campo.key, names))}
+                    />
+                  ) : campo.tipo === 'code' ? (
+                    <Suspense
+                      fallback={
+                        <textarea
+                          className="campo bl-campo-codigo"
+                          rows={10}
+                          spellCheck={false}
+                          aria-label={campo.rotulo}
+                          value={fieldValue(acao, campo.key)}
+                          onChange={(e) => onMudar(comCampo(acao, campo.key, e.target.value))}
+                        />
+                      }
+                    >
+                      <CodeEditor
+                        ariaLabel={campo.rotulo}
+                        value={fieldValue(acao, campo.key)}
+                        onChange={(v) => onMudar(comCampo(acao, campo.key, v))}
+                      />
+                    </Suspense>
                   ) : campo.options ? (
                     <select
                       className="campo"
@@ -567,6 +597,46 @@ export function ActionCard({
         </div>
       ) : null}
     </article>
+  );
+}
+
+function EditorDeVariaveis({
+  rotulo,
+  variaveis,
+  onMudar,
+}: {
+  rotulo: string;
+  variaveis: string[];
+  onMudar: (variaveis: string[]) => void;
+}) {
+  return (
+    <div className="bl-cabecalhos">
+      {variaveis.map((nome, indice) => (
+        <div className="bl-header-row" key={indice}>
+          <Campo
+            value={nome}
+            placeholder="Adicione as variáveis"
+            aria-label={`${rotulo} ${indice + 1}`}
+            onChange={(e) => onMudar(variaveis.map((v, i) => (i === indice ? e.target.value : v)))}
+          />
+          <button
+            type="button"
+            className="iconbtn"
+            aria-label="Remover variável"
+            onClick={() => onMudar(variaveis.filter((_, i) => i !== indice))}
+          >
+            <ManagementIcon nome="lixeira" tamanho={18} />
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        className="bl-adicionar-cabecalho"
+        onClick={() => onMudar([...variaveis, ''])}
+      >
+        + Criar variável
+      </button>
+    </div>
   );
 }
 

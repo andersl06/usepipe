@@ -13,11 +13,13 @@
     "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
+    "@monaco-editor/react": "4.7.0",
     "@pipe/contracts": "workspace:*",
     "@pipe/core": "workspace:*",
     "@pipe/db": "workspace:*",
     "@pipe/ui": "workspace:*",
     "@tanstack/react-query": "^5.90.2",
+    "monaco-editor": "0.57.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.3"

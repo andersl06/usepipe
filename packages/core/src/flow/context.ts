@@ -111,6 +111,20 @@ export interface RespostaDeHttp {
   corpo: string;
 }
 
+/** What the engine asks the script sandbox to run; the `api` owns the sandbox. */
+export interface ScriptRequest {
+  /** 1 = `ExecuteScript`, 2 = `ExecuteScriptV2`. */
+  version: 1 | 2;
+  source: string;
+  /** Function called with the input variables, `run` by default. */
+  functionName: string;
+  /** Input variable values in `inputVariables` order; a missing variable is `null`. */
+  args: (string | null)[];
+  timeoutMs: number;
+  /** V1 `localTimeZoneEnabled`: `Date` uses the bot time zone instead of UTC. */
+  localTimeZone: boolean;
+}
+
 export type ActionsSuspendedList = 'entrada' | 'conteudo' | 'saida';
 
 export interface CursorDeProcessHttp {
@@ -136,6 +150,8 @@ export interface ServicosDoMotor {
   callHttp?(pedido: PedidoDeHttp): Promise<RespostaDeHttp>;
   /** The API stores the cursor and calls the network after the transaction ends. */
   suspendHttp?(pedido: PedidoDeHttp, cursor: Omit<CursorDeProcessHttp, 'resposta'>): Promise<never>;
+  /** Runs untrusted script source in the sandbox and returns the JSON-safe result. */
+  runScript?(request: ScriptRequest): Promise<unknown>;
   /**
    * `IRedirectManager.RedirectUserAsync` moves the contact to another router service. When absent, this flow is not behind a router and `Redirect` fails: "o redirecionamento funciona apenas no Bot Router" (help.blip.ai).
    */

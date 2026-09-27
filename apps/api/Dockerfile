@@ -3,8 +3,10 @@
 #
 # node:22-alpine, não 20: o `engines` da raiz exige `>=22` (o README ainda diz 20,
 # está desatualizado) e o pnpm recusa instalar fora do intervalo. Alpine porque
-# nenhuma dependência daqui é nativa — `pg` é JavaScript puro e o `pg-native`
-# opcional não está instalado —, então musl não custa nada e corta ~130 MB.
+# a única dependência nativa, `isolated-vm` (sandbox de script do fluxo), já traz
+# binário musl pronto em `prebuilds/`; `pg` é JavaScript puro e o `pg-native`
+# opcional não está instalado. musl não custa nada e corta ~130 MB.
+# `isolated-vm` 6.x roda no Node 22 e exige `--no-node-snapshot` (ver CMD).
 
 FROM node:22-alpine AS base
 ENV PNPM_HOME=/pnpm
@@ -97,4 +99,4 @@ EXPOSE 3100
 HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=4 \
   CMD node -e "require('http').get('http://127.0.0.1:'+(process.env.PORT||3100)+'/',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "--no-node-snapshot", "dist/main.js"]

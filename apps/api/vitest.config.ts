@@ -8,5 +8,7 @@ export default defineConfig({
     fileParallelism: false,
     testTimeout: 120_000,
     hookTimeout: 180_000,
+    // isolated-vm (script sandbox) requires this flag on Node 20+; same flag as the Dockerfile CMD.
+    poolOptions: { forks: { execArgv: ['--no-node-snapshot'] } },
   },
 });

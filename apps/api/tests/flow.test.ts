@@ -260,15 +260,16 @@ describe('bot com o dublê do WhatsApp', () => {
   });
 
   it('Send a failed flow to a queue so the customer still gets help', async () => {
-    const comScript = JSON.parse(JSON.stringify(FIXTURE)) as {
+    const comFalha = JSON.parse(JSON.stringify(FIXTURE)) as {
       flow: Record<string, { $enteringCustomActions: unknown[] }>;
     };
-    comScript.flow['boas-vindas']!.$enteringCustomActions.push({
-      type: 'ExecuteScript',
-      settings: { function: 'run', source: 'function run() { return 1; }', outputVariable: 'x' },
+    comFalha.flow['boas-vindas']!.$enteringCustomActions.push({
+      // Unsupported in Pipe (no journey report yet), so the action fails on purpose.
+      type: 'TrackContactsJourney',
+      settings: {},
       conditions: [],
     });
-    await publicar(comScript);
+    await publicar(comFalha);
 
     await falar(DAVI, 'oi');
     const conversa = await conversationOpen(DAVI);
@@ -281,6 +282,6 @@ describe('bot com o dublê do WhatsApp', () => {
       sql`select corpo from nota_interna where conversa_id = ${conversa.id}::uuid`,
     );
     expect(notas[0]!.corpo).toContain('o fluxo falhou');
-    expect(notas[0]!.corpo).toContain('ExecuteScript');
+    expect(notas[0]!.corpo).toContain('TrackContactsJourney');
   });
 });

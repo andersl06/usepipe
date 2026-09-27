@@ -1,5 +1,5 @@
 /**
- * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder.UnitTests/FlowManagerTests.cs, OutputConditions/OutputConditionsTests.cs, and Actions/ActionConditionsTests.cs. Changes: xUnit/NSubstitute to vitest with a fake `ServicosDoMotor`; where the original uses `ExecuteScript` to store a variable, this uses `SetVariable` because Pipe has no script action; assertions inspect context and output rather than mock calls.
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder.UnitTests/FlowManagerTests.cs, OutputConditions/OutputConditionsTests.cs, and Actions/ActionConditionsTests.cs. Changes: xUnit/NSubstitute to vitest with a fake `ServicosDoMotor`; where the original uses `ExecuteScript` to store a variable, this uses `SetVariable` to keep these tests independent of the script sandbox; assertions inspect context and output rather than mock calls.
  */
 import { describe, expect, it } from 'vitest';
 import { createInbound } from './context.js';
@@ -470,16 +470,16 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect((error as Error).message).toContain("ação 'SetVariable' falhou");
   });
 
-  it('an action with no implementation in Pipe (ExecuteScript) breaks processing', async () => {
+  it('an action with no implementation in Pipe (TrackContactsJourney) breaks processing', async () => {
     const error = await rodar(
       [
         raiz([{ stateId: 'ping' }]),
-        { id: 'ping', inputActions: [{ type: 'ExecuteScript', settings: {} }] },
+        { id: 'ping', inputActions: [{ type: 'TrackContactsJourney', settings: {} }] },
       ],
       'x',
     ).catch((e: unknown) => e);
     expect(error).toBeInstanceOf(EngineError);
-    expect((error as Error).message).toContain("'ExecuteScript' não existe no Pipe");
+    expect((error as Error).message).toContain("'TrackContactsJourney' não existe no Pipe");
   });
 
   it('entry validation: outside the rule it sends the error and stays in the state', async () => {
