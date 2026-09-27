@@ -3,6 +3,7 @@ import type {
   BlockError,
   RascunhoGravado,
   VersaoPublicada,
+  VersionOfFlow,
 } from '@pipe/contracts';
 import { api, ApiError } from '../lib/api';
 import { atualizarLeituras } from '../lib/actions';
@@ -68,5 +69,30 @@ export async function restoreVersion(
     return { ok: true, value };
   } catch (error) {
     return { ok: false, error: motivoDe(error, 'Não foi possível restaurar a versão.') };
+  }
+}
+
+/** The Builder's version history, newest first — the "Versões" tab's table (D-16). */
+export async function listVersions(id: string): Promise<Resultado<VersionOfFlow[]>> {
+  try {
+    const value = await api.get<VersionOfFlow[]>(`/v1/management/flows/${id}/builder/versions`);
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível carregar o histórico de versões.') };
+  }
+}
+
+/** An old version's drawing, in the same `{flow, globals}` shape as the draft — to export it (D-16). */
+export async function loadVersion(
+  id: string,
+  versao: number,
+): Promise<Resultado<DesenhoDoBuilder>> {
+  try {
+    const value = await api.get<DesenhoDoBuilder>(
+      `/v1/management/flows/${id}/builder/versions/${versao}`,
+    );
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível carregar a versão.') };
   }
 }
