@@ -124,6 +124,9 @@ export class SuspensaoDeProcessHttp extends Error {
 
 class TimeExpired extends Error {}
 
+/** Actions whose `source` is JavaScript: never substituted (WR-03). */
+const SCRIPT_ACTIONS = new Set(['ExecuteScript', 'ExecuteScriptV2']);
+
 /**
  * `Promise.race` alone leaves the losing action running; `controle` is aborted at the deadline so
  * the action (and the services it handed the signal to) stop instead of working past it.
@@ -422,10 +425,20 @@ async function processActions(
     try {
       let settings: Record<string, unknown> | null = null;
       if (flowAction.settings !== undefined && flowAction.settings !== null) {
-        let texto = JSON.stringify(flowAction.settings);
+        // Pipe decision (security, diverges from Blip): script code is never a template. The JSON
+        // escape only protects the settings JSON, not the JavaScript around the value, so a
+        // customer message in `{{input.content}}` would become code in the sandbox (with the
+        // tenant's fetch/mTLS). Scripts receive customer data only through `inputVariables`.
+        const codigo = SCRIPT_ACTIONS.has(acao.tipo)
+          ? Object.entries(flowAction.settings).filter(([k]) => k.toLowerCase() === 'source')
+          : [];
+        const resto = codigo.length > 0
+          ? Object.fromEntries(Object.entries(flowAction.settings).filter(([k]) => k.toLowerCase() !== 'source'))
+          : flowAction.settings;
+        let texto = JSON.stringify(resto);
         // `ExecuteTemplate` receives the raw template; other actions receive substituted variables.
         if (acao.tipo !== 'ExecuteTemplate') texto = await replaceVariables(texto, context);
-        settings = JSON.parse(texto) as Record<string, unknown>;
+        settings = { ...(JSON.parse(texto) as Record<string, unknown>), ...Object.fromEntries(codigo) };
       }
       context.inboundContext.set(KEY_OF_STATE_CURRENT, state?.id ?? null);
       if (flowAction.type === 'ProcessHttp' && context.services.suspendHttp) {

@@ -464,6 +464,10 @@ export function actionErrors(acao: AcaoDoEditor): string[] {
       errors.push('O nome da variável de entrada só pode ter letras, números e pontos.');
     }
   }
+  if ((tipo?.tipo === 'ExecuteScript' || tipo?.tipo === 'ExecuteScriptV2') && /{{[^}]+}}/.test(fieldValue(acao, 'source'))) {
+    // The engine never substitutes variables inside script code (customer data would become code).
+    errors.push('Código: variáveis {{...}} não são substituídas no script; use "Variáveis de entrada".');
+  }
   for (const c of acao.conditions ?? []) {
     const error = conditionError(c);
     if (error && !errors.includes(error)) errors.push(error);

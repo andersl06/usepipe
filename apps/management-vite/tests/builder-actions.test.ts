@@ -43,6 +43,14 @@ test('context action defaults and required fields match the reference contract',
   assert.deepEqual(actionErrors(novaAcao('MergeContact')), []);
 });
 
+test('script actions warn that {{variables}} are not substituted in code (WR-03)', () => {
+  for (const tipo of ['ExecuteScript', 'ExecuteScriptV2']) {
+    const comVariavel = comCampo(novaAcao(tipo), 'source', 'function run() { return "{{input.content}}"; }');
+    assert.ok(actionErrors(comVariavel).some((e) => e.includes('não são substituídas')));
+    assert.ok(!actionErrors(novaAcao(tipo)).some((e) => e.includes('não são substituídas')));
+  }
+});
+
 test('platform actions: native editors exist and external fallbacks are explicit', () => {
   for (const tipo of ['SendCommand', 'ProcessCommand', 'ManageList', 'SetBucket', 'ProcessContentAssistant']) {
     assert.equal(tipoDeAcao(tipo)?.tipo, tipo);

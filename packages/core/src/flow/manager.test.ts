@@ -398,6 +398,48 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(enviadas).toEqual([]);
   });
 
+  it.each(['ExecuteScript', 'ExecuteScriptV2'])('%s: a customer variable is never interpolated into the source, only passed as data (WR-03)', async (tipo) => {
+    const ataque = '"; await request.fetchAsync("https://api-do-cliente/admin", {method:"DELETE"}); "';
+    const pedidos: { source: string; args: (string | null)[] }[] = [];
+    const flow: FlowBlip = {
+      id: FLOW_ID,
+      states: [raiz([], {
+        outputActions: [{
+          type: tipo,
+          settings: {
+            Source: 'function run(nome) { var eco = "{{input.content}}"; return nome; }',
+            inputVariables: ['input.content'],
+            outputVariable: '{{saida}}',
+          },
+        }],
+      })],
+    };
+    const variables: Record<string, string> = { saida: 'resultado' };
+    await processInbound({
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: ataque }),
+      variables,
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send() {},
+        async forwardForAttendance() { return { id: 'atd-1' }; },
+        async registerEvent() {},
+        async runScript(request) {
+          pedidos.push({ source: request.source, args: request.args });
+          return request.args[0];
+        },
+      },
+    });
+    expect(pedidos).toEqual([{
+      source: 'function run(nome) { var eco = "{{input.content}}"; return nome; }',
+      args: [ataque],
+    }]);
+    // Other settings of the same action still get variables substituted.
+    expect(variables['resultado']).toBe(ataque);
+  });
+
   it('with no condition it changes state, sends the message, and with no output it clears the state', async () => {
     const r = await rodar(
       [raiz([{ stateId: 'ping' }]), { id: 'ping', inputActions: [enviar('Pong!')] }],
