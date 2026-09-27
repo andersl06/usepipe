@@ -1,14 +1,15 @@
 import { useState, type ReactNode } from 'react';
-import type { BuilderOfFlow, BlockError } from '@pipe/contracts';
+import type { BuilderOfFlow, BlockError, VersionOfFlow } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../components/icones-management';
 import { IconePortal } from '../components/icones-portal';
 import { useEu } from '../context/session';
 import { ApiError } from '../lib/api';
 import { useRead } from '../lib/query';
+import type { Resultado } from '../lib/rest';
 import { Modal } from './registrations/_modal';
 import { ContactBars, useContact } from './flow/contact';
-import { publishFlow } from './builder-gravar';
+import { publishFlow, restoreVersion } from './builder-gravar';
 import { Editor } from './builder/editor';
 import { podeDesfazer, podeRefazer } from './builder/state';
 import { ConfigurationPanel } from './builder/panel-configuration';
@@ -147,6 +148,16 @@ export function PageBuilder() {
     });
   }
 
+  /** Restore an old version as the draft (D-16), then reload the editor once the read brings it back. */
+  async function restaurarVersaoAntiga(version: number): Promise<Resultado<VersionOfFlow>> {
+    const r = await restoreVersion(contact.id, version);
+    if (!r.ok) return r;
+    editor.recarregarQuando(r.value.versao.id, r.value.versao.atualizadoEm);
+    setConfigAberto(false);
+    setRecado({ tom: 'sucesso', texto: `Versão ${version} restaurada como rascunho.` });
+    return { ok: true, value: r.value.versao };
+  }
+
   const nadaParaPublicar = data?.origem === 'publicada' && !state.sujo;
   /** Explain why Publish is disabled in its tooltip. */
   function motivoDoPublicar(): string {
@@ -267,6 +278,7 @@ export function PageBuilder() {
 
           {configAberto && editor.carregado ? (
             <ConfigurationPanel
+              flowId={contact.id}
               flowName={contact.nome}
               mapa={state.mapa}
               global={state.global}
@@ -279,6 +291,7 @@ export function PageBuilder() {
                 setConfigAberto(false);
                 setRecado({ tom: 'sucesso', texto: 'Fluxo importado.' });
               }}
+              onRestoreVersion={restaurarVersaoAntiga}
               onFechar={() => setConfigAberto(false)}
             />
           ) : null}

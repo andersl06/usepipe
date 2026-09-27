@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Req } from '@nestjs/common';
 import type {
   BuilderOfFlow,
+  DesenhoDoBuilder,
   RascunhoGravado,
   VersionOfFlow,
   VersaoPublicada,
@@ -11,6 +12,7 @@ import type { RequestWithSession } from '../session.js';
 import {
   carregarBuilder,
   listVersions,
+  loadVersionDrawing,
   publicarRascunho,
   restoreVersion,
   salvarRascunho,
@@ -18,7 +20,7 @@ import {
 import { uuidOu404 } from './management-flow.js';
 
 /**
- * The contact Builder (`/fluxo/:id/builder`) uses a browser session. It shares the HTTP adapter pattern of `gestao-fluxo.ts` but keeps the draft, publish and history lifecycle together here; the rules live in `dominio/gestao/builder-do-fluxo.ts`. `GET :id/builder` loads the design; `PUT :id/builder` saves a draft and returns per-block engine errors with 200 even when invalid; `POST :id/builder/publicar` publishes or returns 409 with `detalhe.erros`; `GET :id/builder/versoes` and `POST .../versoes/:version/restaurar` handle versions. Routers return 409 on all these routes (`roteador_sem_builder`). The tenant comes from the session, never the URL; an invalid UUID `id` returns 404 before querying.
+ * The contact Builder (`/fluxo/:id/builder`) uses a browser session. It shares the HTTP adapter pattern of `gestao-fluxo.ts` but keeps the draft, publish and history lifecycle together here; the rules live in `dominio/gestao/builder-do-fluxo.ts`. `GET :id/builder` loads the design; `PUT :id/builder` saves a draft and returns per-block engine errors with 200 even when invalid; `POST :id/builder/publicar` publishes or returns 409 with `detalhe.erros`; `GET :id/builder/versoes` lists the version history, `GET .../versoes/:version` returns one old version's drawing (to export it), and `POST .../versoes/:version/restaurar` brings it back as the draft. Routers return 409 on all these routes (`roteador_sem_builder`). The tenant comes from the session, never the URL; an invalid UUID `id` returns 404 before querying.
  */
 @Controller('v1/management/flows')
 export class ManagementBuilderController {
@@ -73,6 +75,21 @@ export class ManagementBuilderController {
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
       listVersions(tx, sessao.tenantId, sessao.userId, id),
+    );
+  }
+
+  @Get(':id/builder/versions/:version')
+  @WithSession()
+  async versionDrawing(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Param('version') versao: string,
+  ): Promise<DesenhoDoBuilder> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    const numero = /^\d+$/.test(versao) ? Number(versao) : Number.NaN;
+    return noTenant(sessao.tenantId, (tx) =>
+      loadVersionDrawing(tx, sessao.tenantId, sessao.userId, id, numero),
     );
   }
 

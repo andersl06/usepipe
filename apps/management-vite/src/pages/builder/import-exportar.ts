@@ -25,14 +25,33 @@ export function exportText(mapa: Mapa, global: Record<string, unknown>): string 
   return JSON.stringify({ flow, globalActions: global }, null, 2);
 }
 
-/** `${shortName}.json` — without characters that would break the file name. */
-export function nameOfFileOfExport(flowName: string): string {
+/** Lowercased flow name without characters that would break a file name. */
+function safeName(flowName: string): string {
   const seguro = flowName
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9-_]+/g, '-')
     .replace(/^-+|-+$/g, '');
-  return `${seguro || 'fluxo'}.json`;
+  return seguro || 'fluxo';
+}
+
+/** `${shortName}.json` — the current draft's export file name. */
+export function nameOfFileOfExport(flowName: string): string {
+  return `${safeName(flowName)}.json`;
+}
+
+/**
+ * `${shortName}-v{version}-{date}.json` for an old version's export (D-16): the version number and
+ * publish date tell two exports of the same flow apart. `date` accepts `publicadaEm`/`criadoEm` as
+ * returned by the `api` (ISO string) or null when the version has neither yet.
+ */
+export function nameOfFileOfExportedVersion(
+  flowName: string,
+  version: number,
+  date: string | null,
+): string {
+  const dia = date?.slice(0, 10);
+  return `${safeName(flowName)}-v${version}${dia ? `-${dia}` : ''}.json`;
 }
 
 /**

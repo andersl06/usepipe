@@ -23,10 +23,11 @@ import {
 import {
   MESSAGES_OF_IMPORT,
   nameOfFileOfExport,
+  nameOfFileOfExportedVersion,
   exportText,
   validateImport,
 } from '../src/pages/builder/import-exportar.ts';
-import { newBlock } from '../src/pages/builder/model.ts';
+import { lerDesenho, newBlock } from '../src/pages/builder/model.ts';
 import { LEGACY_BLUES, TAG_PALETTE, blockTags } from '../src/pages/builder/tags-of-block.ts';
 import { blockErrors } from '../src/pages/builder/validation.ts';
 import {
@@ -216,6 +217,31 @@ test('validateImport accepts a valid export and returns the map ready to load', 
     globalActions: { $enteringCustomActions: [] },
   };
   const r = validateImport(JSON.stringify(valido));
+  assert.equal(r.ok, true);
+  if (!r.ok) return;
+  assert.equal(r.mapa.onboarding?.root, true);
+  assert.deepEqual(r.global, { $enteringCustomActions: [] });
+});
+
+/* ----------------------------------------------------- versions: (D-16) */
+
+test('versions: nameOfFileOfExportedVersion adds the version and truncates the date', () => {
+  assert.equal(
+    nameOfFileOfExportedVersion('Meu Bot!', 3, '2026-09-20T14:05:00.000Z'),
+    'meu-bot-v3-2026-09-20.json',
+  );
+  assert.equal(nameOfFileOfExportedVersion('Meu Bot!', 1, null), 'meu-bot-v1.json');
+});
+
+test('versions: an old version drawing round-trips through exportText and validateImport', () => {
+  // // Same shape `GET :id/builder/versions/:version` (Task 1) returns: a compiled `DesenhoDoBuilder`.
+  const desenho = {
+    flow: { onboarding: { id: 'onboarding', root: true, $contentActions: [] } },
+    globals: { $enteringCustomActions: [] },
+  };
+  const mapa = lerDesenho(desenho);
+  const texto = exportText(mapa, desenho.globals);
+  const r = validateImport(texto);
   assert.equal(r.ok, true);
   if (!r.ok) return;
   assert.equal(r.mapa.onboarding?.root, true);

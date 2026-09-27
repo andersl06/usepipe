@@ -386,6 +386,11 @@
   gap: 16px;
   padding: 24px;
 }
+.bl-queues-summary {
+  margin: -12px 0 0;
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-size: 12px;
+}
 .bl-panel-header {
   display: flex;
   align-items: center;
@@ -938,6 +943,29 @@
 }
 .bl-versions-item:hover {
   background: var(--p-builder-marca-destaque);
+}
+
+.bl-versions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.bl-versions-table th {
+  padding: 6px 8px;
+  text-align: left;
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-weight: 500;
+  border-bottom: 1px solid #3a3a3a;
+}
+.bl-versions-table td {
+  padding: 8px;
+  border-bottom: 1px solid #2f2f2f;
+  vertical-align: middle;
+}
+.bl-versions-row-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
 }
 
 .bl-oculto {

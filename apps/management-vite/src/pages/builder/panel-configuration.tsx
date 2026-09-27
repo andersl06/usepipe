@@ -1,9 +1,12 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
+import type { VersionOfFlow } from '@pipe/contracts';
 import { Etiqueta, Icone } from '@pipe/ui';
 import { IconePortal } from '../../components/icones-portal';
+import type { Resultado } from '../../lib/rest';
 import { ModalConfirmation } from '../registrations/_modal';
 import type { AcaoDoEditor, Mapa } from './model';
+import { lerDesenho } from './model';
 import { actionsOfGroup, LABELS_OF_ACTIONS, novaAcao } from './actions-of-block';
 import type { ActionsList } from './actions-of-block';
 import {
@@ -14,9 +17,11 @@ import {
   substituirAcaoGlobal,
 } from './actions-global';
 import { ActionCard } from './panel-actions';
+import { listVersions, loadVersion } from '../builder-gravar';
 import {
   MESSAGES_OF_IMPORT,
   nameOfFileOfExport,
+  nameOfFileOfExportedVersion,
   exportText,
   validateImport,
 } from './import-exportar';
@@ -33,18 +38,23 @@ import {
 type Aba = 'acoes' | 'versoes';
 
 export function ConfigurationPanel({
+  flowId,
   flowName,
   mapa,
   global,
   onChangeGlobal,
   onImport,
+  onRestoreVersion,
   onFechar,
 }: {
+  flowId: string;
   flowName: string;
   mapa: Mapa;
   global: Record<string, unknown>;
   onChangeGlobal: (global: Record<string, unknown>) => void;
   onImport: (mapa: Mapa, global: Record<string, unknown>) => void;
+  /** Restores an old version as the draft; the caller owns the `api` call and reloading the editor. */
+  onRestoreVersion: (version: number) => Promise<Resultado<VersionOfFlow>>;
   onFechar: () => void;
 }) {
   const [aba, setAba] = useState<Aba>('acoes');
@@ -78,7 +88,14 @@ export function ConfigurationPanel({
       <div className="bl-panel-body">
         {aba === 'acoes' ? <ActionsGlobalTab global={global} onMudar={onChangeGlobal} /> : null}
         {aba === 'versoes' ? (
-          <VersionsTab flowName={flowName} mapa={mapa} global={global} onImport={onImport} />
+          <VersionsTab
+            flowId={flowId}
+            flowName={flowName}
+            mapa={mapa}
+            global={global}
+            onImport={onImport}
+            onRestoreVersion={onRestoreVersion}
+          />
         ) : null}
       </div>
     </aside>
@@ -195,20 +212,53 @@ function ActionsGlobalList({
   );
 }
 
+/** Estado da versão (`fluxo_versao.estado`), traduzido para a tabela do histórico. */
+const LABELS_OF_STATE: Record<VersionOfFlow['estado'], string> = {
+  rascunho: 'Rascunho',
+  publicada: 'Publicada',
+  arquivada: 'Arquivada',
+};
+
+const dataCurta = (iso: string | null): string =>
+  iso ? new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+
 function VersionsTab({
+  flowId,
   flowName,
   mapa,
   global,
   onImport,
+  onRestoreVersion,
 }: {
+  flowId: string;
   flowName: string;
   mapa: Mapa;
   global: Record<string, unknown>;
   onImport: (mapa: Mapa, global: Record<string, unknown>) => void;
+  onRestoreVersion: (version: number) => Promise<Resultado<VersionOfFlow>>;
 }) {
   const file = useRef<HTMLInputElement>(null);
   const [pendente, setPendente] = useState<{ mapa: Mapa; global: Record<string, unknown> } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [versions, setVersions] = useState<VersionOfFlow[] | null>(null);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [restoreTarget, setRestoreTarget] = useState<number | null>(null);
+  const [restoring, setRestoring] = useState(false);
+  const [restoreError, setRestoreError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let ativo = true;
+    void listVersions(flowId).then((r) => {
+      if (!ativo) return;
+      if (r.ok) setVersions(r.value);
+      else setHistoryError(r.error);
+    });
+    return () => {
+      ativo = false;
+    };
+  }, [flowId]);
 
   function exportar(): void {
     const conteudo = exportText(mapa, global);
@@ -219,6 +269,36 @@ function VersionsTab({
     a.download = nameOfFileOfExport(flowName);
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function exportVersion(versao: VersionOfFlow): Promise<void> {
+    setExportError(null);
+    const r = await loadVersion(flowId, versao.versao);
+    if (!r.ok) {
+      setExportError(r.error);
+      return;
+    }
+    const conteudo = exportText(lerDesenho(r.value), r.value.globals);
+    const blob = new Blob([conteudo], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nameOfFileOfExportedVersion(flowName, versao.versao, versao.publicadaEm ?? versao.criadoEm);
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function confirmRestore(): Promise<void> {
+    if (restoreTarget === null) return;
+    setRestoring(true);
+    setRestoreError(null);
+    const r = await onRestoreVersion(restoreTarget);
+    setRestoring(false);
+    if (!r.ok) {
+      setRestoreError(r.error);
+      return;
+    }
+    setRestoreTarget(null);
   }
 
   function toChooseFile(e: ChangeEvent<HTMLInputElement>): void {
@@ -261,6 +341,59 @@ function VersionsTab({
       </p>
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
+      <h4 className="bl-section-title">Histórico de versões</h4>
+      {historyError ? <Etiqueta tom="erro">{historyError}</Etiqueta> : null}
+      {versions === null && !historyError ? <p className="bl-ajuda">Carregando histórico…</p> : null}
+      {versions && versions.length === 0 ? (
+        <p className="bl-ajuda">Nenhuma versão publicada ainda.</p>
+      ) : null}
+      {exportError ? <Etiqueta tom="erro">{exportError}</Etiqueta> : null}
+      {versions && versions.length > 0 ? (
+        <table className="bl-versions-table">
+          <thead>
+            <tr>
+              <th>Versão</th>
+              <th>Estado</th>
+              <th>Blocos</th>
+              <th>Publicada em</th>
+              <th>Publicada por</th>
+              <th aria-label="Ações" />
+            </tr>
+          </thead>
+          <tbody>
+            {versions.map((v) => (
+              <tr key={v.id}>
+                <td>{v.versao}</td>
+                <td>{LABELS_OF_STATE[v.estado]}</td>
+                <td>{v.blocos}</td>
+                <td>{dataCurta(v.publicadaEm)}</td>
+                <td>{v.publishedBy ?? '—'}</td>
+                <td className="bl-versions-row-actions">
+                  <button
+                    type="button"
+                    className="iconbtn"
+                    title="Exportar versão"
+                    aria-label={`Exportar versão ${v.versao}`}
+                    onClick={() => void exportVersion(v)}
+                  >
+                    <IconePortal nome="baixar" tamanho={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="iconbtn"
+                    title="Restaurar"
+                    aria-label={`Restaurar versão ${v.versao}`}
+                    onClick={() => setRestoreTarget(v.versao)}
+                  >
+                    <Icone nome="restoreVersion" tamanho={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : null}
+
       <ModalConfirmation
         aberto={pendente !== null}
         titulo="Importar fluxo"
@@ -271,6 +404,20 @@ function VersionsTab({
           setPendente(null);
         }}
         onCancelar={() => setPendente(null)}
+      />
+
+      <ModalConfirmation
+        aberto={restoreTarget !== null}
+        titulo="Restaurar versão"
+        message="Restaurar versão: o rascunho atual é substituído pela versão selecionada. Publique de novo para valer no atendimento."
+        error={restoreError}
+        confirmando={restoring}
+        rotuloConfirmar="Restaurar"
+        onConfirmar={() => void confirmRestore()}
+        onCancelar={() => {
+          setRestoreTarget(null);
+          setRestoreError(null);
+        }}
       />
     </div>
   );
