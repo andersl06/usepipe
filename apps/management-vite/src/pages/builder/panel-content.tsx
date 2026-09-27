@@ -16,17 +16,22 @@ import {
   setInbound,
   definirEspera,
   definirMenu,
+  definirConteudoInterativo,
   definirMidia,
   definirTexto,
   moverConteudo,
   novaFigurinha,
   novaImagem,
   novoAudio,
+  novoDigitando,
   novoDocumento,
   novoMenu,
   novoQuickReply,
+  novoPedirLocalizacao,
+  novoWebLink,
   novoTexto,
   novoVideo,
+  novaLocalizacao,
   removerConteudo,
   hasInbound,
   validationWithRule,
@@ -143,7 +148,13 @@ export function ContentPanel({
                         ? ROTULOS_DO_CONTEUDO.digitando
                         : c.tipo === 'midia'
                           ? `${LABEL_OF_MEDIA_CARD[c.midia]}${c.uri ? `: ${c.uri}` : ''}`
-                          : c.texto || ROTULOS_DO_CONTEUDO[c.tipo]}
+                          : c.tipo === 'localizacao'
+                            ? `${c.latitude}, ${c.longitude}`
+                            : c.tipo === 'pedirLocalizacao'
+                              ? c.texto || 'Pedir localização'
+                              : c.tipo === 'webLink'
+                                ? c.texto || c.uri || 'Web link'
+                                : c.texto || ROTULOS_DO_CONTEUDO[c.tipo]}
                   {c.tipo === 'menu' || c.tipo === 'quickReply' ? (
                     <span className="bl-preview-options">
                       {c.options.map((o, i) => (
@@ -218,6 +229,10 @@ export function ContentPanel({
               <button type="button" role="menuitem" onClick={() => adicionar(novoQuickReply())}>
                 {ROTULOS_DO_CONTEUDO.quickReply}
               </button>
+              <button type="button" role="menuitem" onClick={() => adicionar(novoDigitando())}>Digitando</button>
+              <button type="button" role="menuitem" onClick={() => adicionar(novoPedirLocalizacao())}>Pedir localização</button>
+              <button type="button" role="menuitem" onClick={() => adicionar(novaLocalizacao())}>Enviar localização</button>
+              <button type="button" role="menuitem" onClick={() => adicionar(novoWebLink())}>Web link</button>
               {!hasInbound(block) ? (
                 <button type="button" role="menuitem" onClick={() => adicionar(newInbound())}>
                   {ROTULOS_DO_CONTEUDO.entrada}
@@ -251,6 +266,9 @@ export function ContentPanel({
                 const c = cards.find((c) => c.indice === selecionado)!;
                 if (c.tipo === 'outro') return c.mime;
                 if (c.tipo === 'midia') return LABEL_OF_MEDIA_CARD[c.midia];
+                if (c.tipo === 'pedirLocalizacao') return 'Pedir localização';
+                if (c.tipo === 'localizacao') return 'Enviar localização';
+                if (c.tipo === 'webLink') return 'Web link';
                 return ROTULOS_DO_CONTEUDO[c.tipo];
               })()}
             </h4>
@@ -444,7 +462,24 @@ function ContentCard({
             {order}
             {excluir}
           </header>
-          <p className="sub">Roda sem efeito no Pipe.</p>
+          <p className="sub">O canal pode não exibir o indicador.</p>
+        </article>
+      );
+    case 'pedirLocalizacao':
+      return <InteractiveFields title="Pedir localização" order={order} excluir={excluir} value={card.texto} placeholder="Texto do pedido" onChange={(text) => onMudar(definirConteudoInterativo(block, i, { text }))} />;
+    case 'localizacao':
+      return (
+        <article className="bl-card bl-card--bot"><header><b>Enviar localização</b>{order}{excluir}</header>
+          <label className="bl-campo"><span className="sub">Latitude</span><Campo value={card.latitude} onChange={(e) => onMudar(definirConteudoInterativo(block, i, { latitude: Number(e.target.value), longitude: Number(card.longitude) }))} /></label>
+          <label className="bl-campo"><span className="sub">Longitude</span><Campo value={card.longitude} onChange={(e) => onMudar(definirConteudoInterativo(block, i, { latitude: Number(card.latitude), longitude: Number(e.target.value) }))} /></label>
+        </article>
+      );
+    case 'webLink':
+      return (
+        <article className="bl-card bl-card--bot"><header><b>Web link</b>{order}{excluir}</header>
+          <label className="bl-campo"><span className="sub">URL</span><Campo value={card.uri} placeholder="https://..." onChange={(e) => onMudar(definirConteudoInterativo(block, i, { uri: e.target.value, text: card.texto, target: 'blank' }))} /></label>
+          <label className="bl-campo"><span className="sub">Texto</span><Campo value={card.texto} onChange={(e) => onMudar(definirConteudoInterativo(block, i, { uri: card.uri, text: e.target.value, target: 'blank' }))} /></label>
+          {card.uri.startsWith('https://') ? <a href={card.uri} target="_blank" rel="noopener noreferrer">{card.texto || card.uri}</a> : null}
         </article>
       );
     case 'outro':
@@ -461,6 +496,10 @@ function ContentCard({
         </article>
       );
   }
+}
+
+function InteractiveFields({ title, order, excluir, value, placeholder, onChange }: { title: string; order: React.ReactNode; excluir: React.ReactNode; value: string; placeholder: string; onChange: (value: string) => void }) {
+  return <article className="bl-card bl-card--bot"><header><b>{title}</b>{order}{excluir}</header><Campo value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} /></article>;
 }
 
 function InboundCard({
