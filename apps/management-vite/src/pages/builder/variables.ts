@@ -64,7 +64,7 @@ export function userVariables(mapa: Mapa, global: Record<string, unknown>): stri
 }
 
 /** The search filter for each panel tab: no accents, case-insensitive. */
-function normalizar(texto: string): string {
+export function normalizar(texto: string): string {
   return texto
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
@@ -84,4 +84,16 @@ export function systemFilterVariables(
   const alvo = normalizar(search.trim());
   if (!alvo) return [...variables];
   return variables.filter((v) => normalizar(v.nome).includes(alvo) || normalizar(v.description).includes(alvo));
+}
+
+/**
+ * The block-destination search behind `DestinationPicker` (`destination-picker.tsx`): same no-accent/case-insensitive
+ * filter, matching by title or id. Kept here — not in `destination-picker.tsx` — so it can be unit-tested without
+ * loading the React component tree (`@pipe/ui`'s barrel pulls in JSX the `node:test` runner's transform can't
+ * execute standalone); the same split this file already makes from `panel-variables.tsx`.
+ */
+export function filterDestinations(blocos: readonly Block[], busca: string): Block[] {
+  const alvo = normalizar(busca.trim());
+  if (!alvo) return [...blocos];
+  return blocos.filter((b) => normalizar(b.$title ?? '').includes(alvo) || normalizar(b.id).includes(alvo));
 }

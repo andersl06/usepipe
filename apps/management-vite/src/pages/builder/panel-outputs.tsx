@@ -1,6 +1,5 @@
 import { Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
-import { Selection } from '../../components/selection';
 import type { Block, Mapa, SaidaDoEditor } from './model';
 import { OUTPUTS_OF_ATTENDANCE, ehAttendance } from './model';
 import {
@@ -15,6 +14,7 @@ import {
 } from './conditions';
 import { ConditionsEditor } from './condition';
 import { CabecalhoInfo } from './cabecalho-info';
+import { DestinationPicker } from './destination-picker';
 
 /**
  * The editor's "Condições de saída" tab: the opening text ("Defina as regras e o bloco para o qual o usuário será direcionado"), one card per output (`output-card-container`: surface-2 background, radius 10) with the conditions and the "Ir para", the "+ Adicionar condição de saída", and finally the "Saída padrão" with the notice that its arrow isn't shown.
@@ -46,24 +46,6 @@ export function OutputsPanel({
   const destinos = Object.values(mapa);
   const existe = (id: string): boolean => id in mapa;
   const attendance = ehAttendance(block.id);
-
-  const destinationSelector = (value: string, onEscolher: (id: string) => void, rotulo: string) => (
-    <label className="bl-campo">
-      <span className="sub">{rotulo}</span>
-      <Selection
-        value={existe(value) ? value : value ? '__outro' : ''}
-        onChange={(e) => onEscolher(e.target.value === '__outro' ? value : e.target.value)}
-      >
-        <option value="">{ROTULOS_DAS_SAIDAS.direcionar}</option>
-        {destinos.map((b) => (
-          <option key={b.id} value={b.id}>
-            {b.$title || b.id}
-          </option>
-        ))}
-        {value && !existe(value) ? <option value="__outro">{value} (não existe)</option> : null}
-      </Selection>
-    </label>
-  );
 
   function adicionar(): void {
     const r = adicionarSaida(block);
@@ -125,11 +107,12 @@ export function OutputsPanel({
             ) : (
               <div key={status} className="bl-saida">
                 <p>{titulo.replace('+ Condição para ', '')}</p>
-                {destinationSelector(
-                  saidas[indice]!.stateId ?? '',
-                  (id) => onMudar(outputSetDestination(block, indice, id)),
-                  ROTULOS_DAS_SAIDAS.irPara,
-                )}
+                <DestinationPicker
+                  valor={saidas[indice]!.stateId ?? ''}
+                  blocos={destinos}
+                  rotulo={ROTULOS_DAS_SAIDAS.irPara}
+                  onEscolher={(id) => onMudar(outputSetDestination(block, indice, id))}
+                />
                 <button
                   type="button"
                   className="iconbtn"
@@ -217,11 +200,12 @@ export function OutputsPanel({
                   rotuloAdicionar="+ Adicionar condição"
                 />
               )}
-              {destinationSelector(
-                saida.stateId ?? '',
-                (id) => onMudar(outputSetDestination(block, i, id)),
-                ROTULOS_DAS_SAIDAS.irPara,
-              )}
+              <DestinationPicker
+                valor={saida.stateId ?? ''}
+                blocos={destinos}
+                rotulo={ROTULOS_DAS_SAIDAS.irPara}
+                onEscolher={(id) => onMudar(outputSetDestination(block, i, id))}
+              />
               {errors.length > 0 ? (
                 <ul className="bl-errors">
                   {errors.map((e) => (
@@ -242,11 +226,12 @@ export function OutputsPanel({
         <CabecalhoInfo titulo={ROTULOS_DAS_SAIDAS.saidaPadrao} aberto>
           <p>{ROTULOS_DAS_SAIDAS.saidaPadraoInfo}</p>
         </CabecalhoInfo>
-        {destinationSelector(
-          block.$defaultOutput?.stateId ?? '',
-          (id) => onMudar(definirSaidaPadrao(block, id)),
-          ROTULOS_DAS_SAIDAS.irPara,
-        )}
+        <DestinationPicker
+          valor={block.$defaultOutput?.stateId ?? ''}
+          blocos={destinos}
+          rotulo={ROTULOS_DAS_SAIDAS.irPara}
+          onEscolher={(id) => onMudar(definirSaidaPadrao(block, id))}
+        />
         <p className="bl-ajuda">{ROTULOS_DAS_SAIDAS.semSeta}</p>
       </section>
     </div>

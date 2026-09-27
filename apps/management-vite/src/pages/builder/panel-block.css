@@ -256,6 +256,59 @@
 .bl-panel--block .selection-list button {
   color: #fff;
 }
+/* Block-destination search combobox ("Ir para"): reference `bds-autocomplete`, arrow-down indicator, dropdown on the panel surface, border highlighted while active (reconstrucao/MEDIDAS.md). */
+.bl-destination-picker {
+  position: relative;
+}
+.bl-destination-picker-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 32px;
+}
+.bl-panel--block .bl-destination-picker-input:hover,
+.bl-panel--block .bl-destination-picker-input:focus {
+  border-color: var(--p-builder-marca-borda-ativa);
+}
+.bl-destination-picker-arrow {
+  position: absolute;
+  right: 12px;
+  bottom: 16px;
+  pointer-events: none;
+  color: var(--p-conteudo-desabilitado);
+}
+.bl-panel--block .bl-destination-picker-list {
+  position: absolute;
+  z-index: 20;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  max-height: 200px;
+  overflow: auto;
+  padding: 0;
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+}
+.bl-panel--block .bl-destination-picker-option {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.bl-panel--block .bl-destination-picker-option:hover,
+.bl-panel--block .bl-destination-picker-option--ativa,
+.bl-panel--block .bl-destination-picker-option.selecionada {
+  background: var(--p-builder-marca-destaque);
+}
+.bl-destination-picker-empty {
+  padding: 8px 12px;
+  margin: 0;
+}
 .bl-panel--block .bl-section-subtitle {
   font-size: 14px;
 }
