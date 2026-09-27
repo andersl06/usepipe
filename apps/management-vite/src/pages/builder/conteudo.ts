@@ -182,7 +182,7 @@ export function cardsOf(block: Block): Card[] {
       cards.push({ indice, tipo: 'http', uri: texto(http.uri), mime: texto(http.type), cabecalhos: JSON.stringify(http.headers ?? {}), timeout: texto(http.requestTimeout ?? 60) });
     } else if (acao.type === 'SendRawMessage' && mime === TIPO_CONTEUDO_DINAMICO) {
       let variavel = '';
-      try { variavel = texto((JSON.parse(texto(acao.settings?.['rawContent'])) as { variable?: unknown }).variable); } catch {}
+      try { variavel = texto((JSON.parse(texto(acao.settings?.['rawContent'])) as { variable?: unknown }).variable); } catch { /* rawContent sem JSON válido: fica sem variável */ }
       cards.push({ indice, tipo: 'dinamico', variavel });
     } else if (mime === TIPO_PESQUISA) {
       cards.push({ indice, tipo: 'pesquisa' });

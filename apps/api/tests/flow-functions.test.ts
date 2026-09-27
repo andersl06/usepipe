@@ -18,6 +18,7 @@ const { runFlowScript } = await import('../src/domain/script-sandbox.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Scenario = Awaited<ReturnType<typeof montarCenario>>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Body = Record<string, any>;
 let scenario: Scenario;
 let api: Awaited<ReturnType<typeof upApi>>;
