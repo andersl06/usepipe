@@ -13,6 +13,8 @@ interface UpdatesFilter {
   categoria: string;
 }
 
+/** Visible category (Portuguese) → CSS hook in updates.css (`[data-category=...]`). */
+const CATEGORY_KEY: Record<string, string> = { Atendimento: 'attendance', 'Automação': 'automation', Portal: 'portal' };
 const FILTRO_VAZIO: UpdatesFilter = { q: '', categoria: '' };
 
 function validateUpdatesFilter(value: unknown): UpdatesFilter | null {
@@ -160,7 +162,7 @@ function Card({
 }) {
   return (
     <article className={grande ? 'nv-card nv-card-large' : 'nv-card'}>
-      <div className="nv-capa" data-categoria={update.categoria}>
+      <div className="nv-capa" data-category={CATEGORY_KEY[update.categoria] ?? undefined}>
         <span className="nv-capa-etq">{update.categoria}</span>
       </div>
 

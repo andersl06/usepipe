@@ -92,7 +92,8 @@ export function Canvas({
     const medidas: Record<string, number> = {};
     let mudou = false;
     for (const el of raiz.querySelectorAll<HTMLElement>('[data-block]')) {
-      const id = el.dataset['bloco']!;
+      // `data-block` in no.tsx; the dataset key must follow the attribute name.
+      const id = el.dataset['block']!;
       medidas[id] = el.offsetHeight;
       if (alturas[id] !== el.offsetHeight) mudou = true;
     }
