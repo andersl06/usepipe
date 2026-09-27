@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
+import { engineContentErrors } from '@pipe/core';
 import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '../../components/icones-portal';
 import { Selection } from '../../components/selection';
@@ -15,16 +16,48 @@ import {
   setInbound,
   definirEspera,
   definirMenu,
+  definirMidia,
   definirTexto,
   moverConteudo,
+  novaFigurinha,
+  novaImagem,
+  novoAudio,
+  novoDocumento,
   novoMenu,
   novoQuickReply,
   novoTexto,
+  novoVideo,
   removerConteudo,
   hasInbound,
   validationWithRule,
+  TIPO_MEDIA,
 } from './conteudo';
-import type { Card, MenuOption } from './conteudo';
+import type { Card, MenuOption, TypeOfMediaCard } from './conteudo';
+
+/** Menu label and icon per media card, in the frozen inventory's order (items 1-5 of 18). */
+const MEDIA_MENU_ITEMS: { midia: TypeOfMediaCard; rotulo: keyof typeof ROTULOS_DO_CONTEUDO; icone: 'figurinha' | 'audio' | 'imagem' | 'video' | 'documento'; criar: () => ItemDeConteudo }[] = [
+  { midia: 'sticker', rotulo: 'figurinha', icone: 'figurinha', criar: () => novaFigurinha() },
+  { midia: 'audio', rotulo: 'audio', icone: 'audio', criar: () => novoAudio() },
+  { midia: 'image', rotulo: 'imagem', icone: 'imagem', criar: () => novaImagem() },
+  { midia: 'video', rotulo: 'video', icone: 'video', criar: () => novoVideo() },
+  { midia: 'document', rotulo: 'documento', icone: 'documento', criar: () => novoDocumento() },
+];
+
+const LABEL_OF_MEDIA_CARD: Record<TypeOfMediaCard, string> = {
+  sticker: ROTULOS_DO_CONTEUDO.figurinha,
+  audio: ROTULOS_DO_CONTEUDO.audio,
+  image: ROTULOS_DO_CONTEUDO.imagem,
+  video: ROTULOS_DO_CONTEUDO.video,
+  document: ROTULOS_DO_CONTEUDO.documento,
+};
+
+const ICON_OF_MEDIA: Record<TypeOfMediaCard, 'figurinha' | 'audio' | 'imagem' | 'video' | 'documento'> = {
+  sticker: 'figurinha',
+  audio: 'audio',
+  image: 'imagem',
+  video: 'video',
+  document: 'documento',
+};
 
 /**
  * The editor's "Conteúdo" tab: the block's conversation as cards — the bot's messages on the left (Texto, Menu, Quick reply), the "Entrada do usuário" on the right — and the "+" that offers the types. Each card edits in place; the input opens its own panel: "Salvar resposta em variável" (with the "Variável" field), "Validar a entrada do usuário" ("Tipo de validação", "Expressão regular", "Instrução de validação"), and the choice between "Aguardar resposta" and "Não aguardar".
@@ -108,7 +141,9 @@ export function ContentPanel({
                       ? c.mime
                       : c.tipo === 'digitando'
                         ? ROTULOS_DO_CONTEUDO.digitando
-                        : c.texto || ROTULOS_DO_CONTEUDO[c.tipo]}
+                        : c.tipo === 'midia'
+                          ? `${LABEL_OF_MEDIA_CARD[c.midia]}${c.uri ? `: ${c.uri}` : ''}`
+                          : c.texto || ROTULOS_DO_CONTEUDO[c.tipo]}
                   {c.tipo === 'menu' || c.tipo === 'quickReply' ? (
                     <span className="bl-preview-options">
                       {c.options.map((o, i) => (
@@ -164,6 +199,16 @@ export function ContentPanel({
           </button>
           {menuAberto ? (
             <div className="bl-menu-actions" role="menu">
+              {MEDIA_MENU_ITEMS.map((item) => (
+                <button
+                  key={item.midia}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => adicionar(item.criar())}
+                >
+                  <Icone nome={item.icone} tamanho={16} /> {ROTULOS_DO_CONTEUDO[item.rotulo]}
+                </button>
+              ))}
               <button type="button" role="menuitem" onClick={() => adicionar(novoTexto())}>
                 {ROTULOS_DO_CONTEUDO.texto}
               </button>
@@ -204,7 +249,9 @@ export function ContentPanel({
             <h4>
               {(() => {
                 const c = cards.find((c) => c.indice === selecionado)!;
-                return c.tipo === 'outro' ? c.mime : ROTULOS_DO_CONTEUDO[c.tipo];
+                if (c.tipo === 'outro') return c.mime;
+                if (c.tipo === 'midia') return LABEL_OF_MEDIA_CARD[c.midia];
+                return ROTULOS_DO_CONTEUDO[c.tipo];
               })()}
             </h4>
           </header>
@@ -352,6 +399,36 @@ function ContentCard({
           <p className="bl-ajuda">
             {menu ? ROTULOS_DO_CONTEUDO.limiteDoMenu : ROTULOS_DO_CONTEUDO.limiteDoQuickReply}
           </p>
+        </article>
+      );
+    }
+    case 'midia': {
+      const erros = engineContentErrors(TIPO_MEDIA, card.settings);
+      return (
+        <article className="bl-card bl-card--bot">
+          <header>
+            <b>
+              <Icone nome={ICON_OF_MEDIA[card.midia]} tamanho={16} /> {LABEL_OF_MEDIA_CARD[card.midia]}
+            </b>
+            {order}
+            {excluir}
+          </header>
+          <label className="bl-campo">
+            <span className="sub">{ROTULOS_DO_CONTEUDO.campoUri}</span>
+            <Campo
+              value={card.uri}
+              placeholder="https://..."
+              onChange={(e) => onMudar(definirMidia(block, i, e.target.value, card.legenda))}
+            />
+          </label>
+          <label className="bl-campo">
+            <span className="sub">{ROTULOS_DO_CONTEUDO.campoLegenda}</span>
+            <Campo
+              value={card.legenda}
+              onChange={(e) => onMudar(definirMidia(block, i, card.uri, e.target.value))}
+            />
+          </label>
+          {erros.length > 0 ? <Etiqueta tom="alerta">{erros[0]}</Etiqueta> : null}
         </article>
       );
     }

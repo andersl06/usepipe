@@ -44,6 +44,16 @@ const CAMINHOS = {
   relogio: 'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M12 7v5l3 3',
   sol: 'M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M3 12h1M12 3v1M20 12h1M12 20v1M5.6 5.6l.7 .7M18.4 5.6l-.7 .7M17.7 17.7l.7 .7M6.3 17.7l-.7 .7',
   x: 'M18 6l-12 12M6 6l12 12',
+  // The five below are original simple line drawings in the same 24-unit/no-fill style,
+  // not copied from Tabler's exact path data (unlike the rest of this map).
+  figurinha:
+    'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M9 10l.01 0M15 10l.01 0M9.5 15a3.5 3.5 0 0 0 5 0',
+  audio: 'M9 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0M19 15m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0M9 17v-13l10 -2v13',
+  imagem:
+    'M4 4h16v16h-16zM4 15l4 -4l4 4l4 -5l4 5M9 9m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+  video: 'M4 4h16v16h-16zM10 9l5 3l-5 3z',
+  documento:
+    'M14 3v4a1 1 0 0 0 1 1h4M6 3h8l5 5v12a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1v-16a1 1 0 0 1 1 -1zM9 13h6M9 17h6',
 } as const;
 
 export type NomeDeIcone = keyof typeof CAMINHOS;
