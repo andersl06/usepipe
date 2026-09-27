@@ -134,3 +134,78 @@ describe('context actions', () => {
     expect(c.variables.result).toBe(' {{1+1}}');
   });
 });
+
+describe('script actions', () => {
+  it('passes input variables to run and stores the result', async () => {
+    const c = context();
+    const requests: unknown[] = [];
+    c.services.runScript = async (request) => { requests.push(request); return 3; };
+    c.variables.x = '1';
+    c.flow.states[0]!.outputActions = [{
+      type: 'ExecuteScript',
+      settings: { source: 'function run(a, b) { return +a + +b; }', inputVariables: ['x', 'missing'], outputVariable: 'sum' },
+    }];
+
+    await processInbound(c);
+
+    expect(requests).toEqual([{
+      version: 1,
+      source: 'function run(a, b) { return +a + +b; }',
+      functionName: 'run',
+      args: ['1', null],
+      timeoutMs: 5000,
+      localTimeZone: false,
+    }]);
+    expect(c.variables.sum).toBe('3');
+  });
+
+  it('stores objects as JSON and uses the V2 time limit', async () => {
+    const c = context();
+    let timeoutMs = 0;
+    c.services.runScript = async (request) => { timeoutMs = request.timeoutMs; return { ok: true }; };
+    c.flow.states[0]!.outputActions = [{
+      type: 'ExecuteScriptV2',
+      settings: { source: 'async function run() { return { ok: true }; }', outputVariable: 'out' },
+    }];
+
+    await processInbound(c);
+
+    expect(timeoutMs).toBe(10000);
+    expect(c.variables.out).toBe('{"ok":true}');
+  });
+
+  it('V2 captureExceptions stores the error instead of failing', async () => {
+    const c = context();
+    c.services.runScript = async () => { throw new Error('boom'); };
+    c.flow.states[0]!.outputActions = [{
+      type: 'ExecuteScriptV2',
+      settings: { source: 'function run() { throw new Error("boom"); }', outputVariable: 'out', captureExceptions: true, exceptionVariable: 'err' },
+    }];
+
+    await processInbound(c);
+
+    expect(c.variables.err).toBe('boom');
+    expect(c.variables.out).toBeUndefined();
+  });
+
+  it('a V1 script error fails the action even with captureExceptions', async () => {
+    const c = context();
+    c.services.runScript = async () => { throw new Error('boom'); };
+    c.flow.states[0]!.outputActions = [{
+      type: 'ExecuteScript',
+      settings: { source: 'function run() {}', outputVariable: 'out', captureExceptions: true, exceptionVariable: 'err' },
+    }];
+
+    await expect(processInbound(c)).rejects.toThrow('boom');
+  });
+
+  it('requires source and outputVariable', async () => {
+    const c = context();
+    c.services.runScript = async () => null;
+    c.flow.states[0]!.outputActions = [{ type: 'ExecuteScript', settings: { outputVariable: 'out' } }];
+    await expect(processInbound(c)).rejects.toThrow("'source' é obrigatório");
+
+    c.flow.states[0]!.outputActions = [{ type: 'ExecuteScriptV2', settings: { source: 'function run() {}' } }];
+    await expect(processInbound(c)).rejects.toThrow("'outputVariable' é obrigatório");
+  });
+});

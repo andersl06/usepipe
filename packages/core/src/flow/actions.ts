@@ -3,7 +3,7 @@
  */
 
 import type { Context, PedidoDeHttp } from './context.js';
-import { KEY_OF_TICKET, deleteVariable as deleteContextVariable, setVariable as setContextVariable } from './context.js';
+import { KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable } from './context.js';
 
 export type Settings = Record<string, unknown> | null;
 
@@ -267,6 +267,45 @@ const processHttp: AcaoDoMotor = {
   },
 };
 
+/** Blip limits: V1 (Jint) 5 s, V2 (V8/ClearScript) 10 s. */
+const SCRIPT_TIMEOUT_MS = { 1: 5_000, 2: 10_000 } as const;
+
+/**
+ * `ExecuteScriptAction` / `ExecuteScriptV2Action`: `source` and `outputVariable` are required; input variables go to `function` (default `run`) as text, and the return value is stored like any context variable (text as is, anything else as JSON). V2 `captureExceptions` stores the script error in `exceptionVariable` instead of failing the action.
+ */
+function executeScript(version: 1 | 2): AcaoDoMotor {
+  return {
+    tipo: version === 1 ? 'ExecuteScript' : 'ExecuteScriptV2',
+    async executar(context, settings) {
+      const c = requireSettings(this.tipo, settings);
+      if (!context.services.runScript) throw new Error(`A ação ${this.tipo} não está disponível neste fluxo.`);
+      const source = comoTexto(campo(c, 'source'));
+      if (!source?.trim()) throw new Error(`O valor 'source' é obrigatório na ação '${this.tipo}'.`);
+      const output = comoTexto(campo(c, 'outputVariable'))?.trim();
+      if (!output) throw new Error(`O valor 'outputVariable' é obrigatório na ação '${this.tipo}'.`);
+      const inputs = campo(c, 'inputVariables');
+      const names = Array.isArray(inputs) ? inputs.map((n) => comoTexto(n)?.trim() ?? '') : [];
+      const args = await Promise.all(names.map((n) => (n ? getVariable(context, n) : null)));
+      const exceptionVariable = comoTexto(campo(c, 'exceptionVariable'))?.trim();
+      const capture = version === 2 && campo(c, 'captureExceptions') === true && !!exceptionVariable;
+      try {
+        const result = await context.services.runScript({
+          version,
+          source,
+          functionName: comoTexto(campo(c, 'function'))?.trim() || 'run',
+          args,
+          timeoutMs: SCRIPT_TIMEOUT_MS[version],
+          localTimeZone: campo(c, 'localTimeZoneEnabled') === true,
+        });
+        setContextVariable(context, output, comoTexto(result));
+      } catch (error) {
+        if (!capture) throw error;
+        setContextVariable(context, exceptionVariable!, error instanceof Error ? error.message : String(error));
+      }
+    },
+  };
+}
+
 export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   setVariable,
   deleteVariable,
@@ -280,6 +319,8 @@ export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   leavingFromDesk,
   redirect,
   processHttp,
+  executeScript(1),
+  executeScript(2),
 ];
 
 /** Default `ActionProvider` containing actions Pipe executes. */
