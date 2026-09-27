@@ -131,6 +131,10 @@ export const CONTEUDOS_SUPORTADOS = new Set([
   'text/plain',
   'application/vnd.lime.select+json',
   'application/vnd.lime.media-link+json',
+  'application/vnd.lime.chatstate+json',
+  'application/vnd.lime.input+json',
+  'application/vnd.lime.location+json',
+  'application/vnd.lime.web-link+json',
 ]);
 export const CONTEUDOS_SEM_EFEITO = new Set(['application/vnd.lime.chatstate+json']);
 /** Actions that execute without effect in Pipe, listed explicitly so they do not appear functional. */
@@ -229,12 +233,27 @@ function tentarParse(v: string): unknown {
  * Validate `SendMessage` settings for content types the engine enforces beyond the whitelist — today only `media-link` (the figurinha/áudio/imagem/vídeo/documento slot, `ref/inventario-conteudo.md`): `uri` is required, and when the file's real MIME/size are declared, they must respect the frozen inventory's per-category format list and byte ceiling. Sticker has no separate entry: it validates as `imagem` when its declared MIME says so (the reference does not distinguish it beyond MIME either).
  */
 export function engineContentErrors(tipo: string, settings: unknown): string[] {
-  if (tipo.toLowerCase() !== 'application/vnd.lime.media-link+json') return [];
+  const mime = tipo.toLowerCase();
   const bruto = (settings as { content?: unknown } | null | undefined)?.content;
   const content = (typeof bruto === 'string' ? tentarParse(bruto) : bruto) as Record<
     string,
     unknown
   > | null;
+  if (mime === 'application/vnd.lime.web-link+json') {
+    const uri = content && typeof content['uri'] === 'string' ? content['uri'].trim() : '';
+    if (!uri) return ["O campo 'uri' é obrigatório no web link."];
+    return /^https:\/\//i.test(uri) ? [] : ['A URL do web link deve usar https.'];
+  }
+  if (mime === 'application/vnd.lime.location+json') {
+    const latitude = content?.['latitude'];
+    const longitude = content?.['longitude'];
+    if (typeof latitude !== 'number' || !Number.isFinite(latitude)) return ["O campo 'latitude' é obrigatório na localização."];
+    if (typeof longitude !== 'number' || !Number.isFinite(longitude)) return ["O campo 'longitude' é obrigatório na localização."];
+    if (latitude < -90 || latitude > 90) return ['A latitude deve estar entre -90 e 90.'];
+    if (longitude < -180 || longitude > 180) return ['A longitude deve estar entre -180 e 180.'];
+    return [];
+  }
+  if (mime !== 'application/vnd.lime.media-link+json') return [];
   const uri = content && typeof content['uri'] === 'string' ? content['uri'].trim() : '';
   if (!uri) return ["O campo 'uri' é obrigatório no conteúdo de mídia."];
 

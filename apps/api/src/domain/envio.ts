@@ -16,7 +16,7 @@ import { enqueueDelivery } from '../queues.js';
  * API sends do not start as `enviada`, unlike the old Desk path. A message starts `pendente` with an `outbox_mensagem` row; a worker delivers it and state advances only after Meta confirms, as anticipated in `apps/desk/src/app/acoes.ts`. Evaluate the 24-hour window rule from `@pipe/core` BEFORE writing; outside the window, reject free text with an actionable reason rather than a later Meta error.
  */
 
-export type TipoEnvio = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'template';
+export type TipoEnvio = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'localizacao' | 'template';
 
 export interface PedidoDeEnvio {
   tenantId: string;

@@ -4,7 +4,7 @@ import type { TemplateParaEnvio } from './template.js';
  * WhatsApp outbound adapter. Two implementations share an interface because we have NO test WABA: `ClienteWhatsAppReal` calls Cloud API; `ClienteWhatsAppDuble` simulates delivery, delays, and failures to exercise the whole path. `PIPE_WHATSAPP_CLIENTE` selects one; without a WABA, the default is intentionally the double. Starting the real client without credentials would generate repeated authentication failures rather than useful signal.
  */
 
-export type TipoConteudo = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'template' | 'interativo';
+export type TipoConteudo = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'localizacao' | 'template' | 'interativo';
 
 export interface CredentialsChannel {
 
@@ -43,7 +43,13 @@ export interface ConteudoInterativo {
   options: string[];
 }
 
-export type Conteudo = ConteudoTexto | ContentMedia | ConteudoTemplate | ConteudoInterativo;
+export interface ConteudoLocalizacao {
+  tipo: 'localizacao';
+  latitude: number;
+  longitude: number;
+}
+
+export type Conteudo = ConteudoTexto | ContentMedia | ConteudoTemplate | ConteudoInterativo | ConteudoLocalizacao;
 
 export interface PedidoEnvio {
   /** Recipient in E.164 without `+`, as Cloud API requires. */

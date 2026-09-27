@@ -146,6 +146,14 @@ export function montarCorpo(pedido: PedidoEnvio): Record<string, unknown> {
     };
   }
 
+  if (conteudo.tipo === 'localizacao') {
+    return {
+      ...base,
+      type: 'location',
+      location: { latitude: conteudo.latitude, longitude: conteudo.longitude },
+    };
+  }
+
   return { ...base, type: FIELD_OF_MEDIA[conteudo.tipo], [FIELD_OF_MEDIA[conteudo.tipo]]: media(conteudo) };
 }
 

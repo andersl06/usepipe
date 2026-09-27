@@ -11,6 +11,10 @@ import {
   novoAudio,
   novoDocumento,
   novoVideo,
+  novoDigitando,
+  novoPedirLocalizacao,
+  novaLocalizacao,
+  novoWebLink,
 } from '../src/pages/builder/conteudo.ts';
 import type { ItemDeConteudo } from '../src/pages/builder/model.ts';
 
@@ -98,4 +102,16 @@ test('figurinha e imagem, ambas image/*, voltam a ler como o mesmo tipo de mídi
   delete r.block.$contentActions![0]!.action!['$typeOfContent'];
   const [cartao] = cardsOf(r.block).filter((c) => c.tipo === 'midia');
   assert.equal(cartao!.midia, 'image');
+});
+
+test('interactive content factories round trip through cardsOf', () => {
+  const bloco = newBlock({}, { top: 0, left: 0 }, 'b1');
+  let atual = bloco;
+  for (const item of [novoDigitando(), novoPedirLocalizacao('Compartilhe sua localização'), novaLocalizacao('-19.9', '-43.9'), novoWebLink('https://example.com', 'Abrir')]) {
+    const r = adicionarConteudo(atual, item);
+    assert.equal(r.ok, true);
+    if (r.ok) atual = r.block;
+  }
+  assert.deepEqual(cardsOf(atual).filter((c) => c.tipo !== 'entrada').map((c) => c.tipo), ['digitando', 'pedirLocalizacao', 'localizacao', 'webLink']);
+  assert.deepEqual(contentErrors(atual), []);
 });

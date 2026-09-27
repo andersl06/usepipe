@@ -49,6 +49,9 @@ export const TIPO_TEXTO = 'text/plain';
 export const TIPO_SELECT = 'application/vnd.lime.select+json';
 export const TIPO_DIGITANDO = 'application/vnd.lime.chatstate+json';
 export const TIPO_MEDIA = 'application/vnd.lime.media-link+json';
+export const TIPO_PEDIR_LOCALIZACAO = 'application/vnd.lime.input+json';
+export const TIPO_LOCALIZACAO = 'application/vnd.lime.location+json';
+export const TIPO_WEB_LINK = 'application/vnd.lime.web-link+json';
 
 /**
  * `$typeOfContent` per media card, in the frozen inventory's menu order (items 1-5 of 18,
@@ -96,6 +99,9 @@ export type Card =
   | { indice: number; tipo: 'menu' | 'quickReply'; texto: string; options: MenuOption[] }
   | { indice: number; tipo: 'entrada'; inbound: EditorInbound }
   | { indice: number; tipo: 'digitando' }
+  | { indice: number; tipo: 'pedirLocalizacao'; texto: string }
+  | { indice: number; tipo: 'localizacao'; latitude: string; longitude: string }
+  | { indice: number; tipo: 'webLink'; uri: string; texto: string }
   | {
       indice: number;
       tipo: 'midia';
@@ -155,6 +161,14 @@ export function cardsOf(block: Block): Card[] {
       cards.push({ indice, tipo: lido.imediato ? 'quickReply' : 'menu', texto: lido.texto, options: lido.options });
     } else if (acao.type === 'SendMessage' && mime === TIPO_DIGITANDO) {
       cards.push({ indice, tipo: 'digitando' });
+    } else if (acao.type === 'SendMessage' && mime === TIPO_PEDIR_LOCALIZACAO) {
+      cards.push({ indice, tipo: 'pedirLocalizacao', texto: texto((acao.settings?.['content'] as { text?: unknown })?.text) });
+    } else if (acao.type === 'SendMessage' && mime === TIPO_LOCALIZACAO) {
+      const localizacao = acao.settings?.['content'] as { latitude?: unknown; longitude?: unknown };
+      cards.push({ indice, tipo: 'localizacao', latitude: texto(localizacao?.latitude), longitude: texto(localizacao?.longitude) });
+    } else if (acao.type === 'SendMessage' && mime === TIPO_WEB_LINK) {
+      const link = acao.settings?.['content'] as { uri?: unknown; text?: unknown };
+      cards.push({ indice, tipo: 'webLink', uri: texto(link?.uri), texto: texto(link?.text) });
     } else if (acao.type === 'SendMessage' && mime === TIPO_MEDIA) {
       const conteudoMidia = (acao.settings?.['content'] ?? {}) as { uri?: unknown; type?: unknown; title?: unknown };
       cards.push({
@@ -199,6 +213,22 @@ export function novoMenu(conteudo = '', options: MenuOption[] = [], id = gerarId
 
 export function novoQuickReply(conteudo = '', options: MenuOption[] = [], id = gerarId()): ItemDeConteudo {
   return fala(id, TIPO_SELECT, { text: conteudo, scope: 'immediate', options: options }, 'select-immediate');
+}
+
+export function novoDigitando(id = gerarId()): ItemDeConteudo {
+  return fala(id, TIPO_DIGITANDO, { state: 'composing' }, 'typing');
+}
+
+export function novoPedirLocalizacao(conteudo = 'Envie sua localização.', id = gerarId()): ItemDeConteudo {
+  return fala(id, TIPO_PEDIR_LOCALIZACAO, { text: conteudo }, 'ask-location');
+}
+
+export function novaLocalizacao(latitude = '', longitude = '', id = gerarId()): ItemDeConteudo {
+  return fala(id, TIPO_LOCALIZACAO, { latitude: Number(latitude), longitude: Number(longitude) }, 'location');
+}
+
+export function novoWebLink(uri = '', conteudo = '', id = gerarId()): ItemDeConteudo {
+  return fala(id, TIPO_WEB_LINK, { uri, text: conteudo, target: 'blank' }, 'web-link');
 }
 
 /** Shared by the five `conteudo-midia` cards: `uri` is what the inventory confirms as required for all of them, `title` the optional caption they also share (`ref/inventario-conteudo.md`). */
@@ -314,6 +344,15 @@ export function definirMenu(block: Block, indice: number, conteudo: string, opti
   return { ...block, $contentActions: lista };
 }
 
+export function definirConteudoInterativo(block: Block, indice: number, conteudo: Record<string, unknown>): Block {
+  return {
+    ...block,
+    $contentActions: (block.$contentActions ?? []).map((item, i) =>
+      i === indice ? comSettings(item, (settings) => ({ ...settings, content: conteudo })) : item,
+    ),
+  };
+}
+
 /** Replace a block's `input`; do nothing when no input exists. */
 export function setInbound(block: Block, inbound: EditorInbound): Block {
   const lista = (block.$contentActions ?? []).map((item) => (item.input ? { ...item, input: inbound } : item));
@@ -358,6 +397,15 @@ export function contentErrors(block: Block): string[] {
     // required field and per-category format/size limit share one literal message (D-24).
     if (c.tipo === 'midia') {
       for (const erro of engineContentErrors(TIPO_MEDIA, c.settings)) errors.push(erro);
+    }
+    if (c.tipo === 'pedirLocalizacao' && !c.texto.trim()) errors.push('Pedir localização: texto obrigatório.');
+    if (c.tipo === 'localizacao') {
+      for (const erro of engineContentErrors(TIPO_LOCALIZACAO, {
+        content: { latitude: Number(c.latitude), longitude: Number(c.longitude) },
+      })) errors.push(erro);
+    }
+    if (c.tipo === 'webLink') {
+      for (const erro of engineContentErrors(TIPO_WEB_LINK, { content: { uri: c.uri } })) errors.push(erro);
     }
     if (c.tipo === 'entrada') {
       const e = c.inbound;
