@@ -110,5 +110,5 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 ## Session Continuity
 
 Last session: 2026-09-26T15:49:19.701Z
-Stopped at: Phase 1 gate 3 approved by the owner; std/english-rename merged into limpeza (907803b), whole suite green
+Stopped at: Phase 1 gates 3 and 4 done — merged into limpeza and deployed to the VPS; left: residual sweep (01-31) and history squash (01-41)
 Resume file: None
