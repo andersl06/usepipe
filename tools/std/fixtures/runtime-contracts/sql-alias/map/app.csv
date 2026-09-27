@@ -1,0 +1,2 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+fx-2,app,1,ts-prop,nomeX,nameX,query.ts:1,1,no,,,applied,fixture,
