@@ -6,6 +6,45 @@ export interface BlockTag {
   cor: string;
 }
 
+/** Reference blues (D-13/D-32): any tag color imported with one of these becomes brand green. */
+export const LEGACY_BLUES = ['#3f7de8', '#0096fa', '#1e6bf1', '#498bff'];
+
+export function isLegacyBlue(cor: string): boolean {
+  return LEGACY_BLUES.includes(cor.toLowerCase());
+}
+
+export interface TagPaletteEntry {
+  label: string;
+  /** CSS color for the swatch button — a token for the brand entry, a literal hex for the rest. */
+  value: string;
+}
+
+/** Colors offered by the block tag editor's picker (`panel.tsx`), brand first. */
+export const TAG_PALETTE: TagPaletteEntry[] = [
+  { label: 'Marca', value: 'var(--p-builder-marca)' },
+  { label: 'Laranja', value: '#ff961e' },
+  { label: 'Verde', value: '#61d36f' },
+  { label: 'Violeta', value: '#ee82ee' },
+  { label: 'Preto', value: '#000000' },
+  { label: 'Vermelho', value: '#ff4c4c' },
+];
+
+/** Suggested tag labels, offered by the entry field alongside free typing (D-11a). */
+export const TAG_SUGGESTIONS = ['Importante', 'VIP', 'Erro', 'Em revisão', 'Pronto'];
+
+/**
+ * `$tags` persists a literal color — Blip reads it from the exported flow (STD-06), not
+ * a CSS custom property — so the brand swatch (`TAG_PALETTE`'s `var(--p-builder-marca)`)
+ * resolves to this hex before being saved. The Builder always renders dark (D-31), so
+ * this is the dark `--p-marca`/`--p-builder-marca` value from `estilos/tokens.css` —
+ * keep both in sync.
+ */
+const BRAND_TAG_HEX = '#a3b76a';
+
+export function resolveTagColor(cor: string): string {
+  return cor === 'var(--p-builder-marca)' ? BRAND_TAG_HEX : cor;
+}
+
 const COLORS_OF_ACTIONS: Record<string, string> = {
   ExecuteScript: '#ff961e',
   ExecuteScriptV2: '#ff961e',
@@ -16,7 +55,8 @@ const COLORS_OF_ACTIONS: Record<string, string> = {
 
 function corDaEtiqueta(rotulo: string, corDaOrigem?: unknown): string {
   const cor = typeof corDaOrigem === 'string' ? corDaOrigem : COLORS_OF_ACTIONS[rotulo];
-  if (!cor || ['#3f7de8', '#0096fa', '#1e6bf1', '#498bff'].includes(cor.toLowerCase())) return '#4a5d23';
+  // Live canvas badge, not a persisted value: renders the theme-aware brand token (D-32).
+  if (!cor || isLegacyBlue(cor)) return 'var(--p-builder-marca)';
   return cor;
 }
 

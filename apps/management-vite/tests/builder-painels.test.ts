@@ -27,7 +27,7 @@ import {
   validateImport,
 } from '../src/pages/builder/import-exportar.ts';
 import { newBlock } from '../src/pages/builder/model.ts';
-import { blockTags } from '../src/pages/builder/tags-of-block.ts';
+import { LEGACY_BLUES, TAG_PALETTE, blockTags } from '../src/pages/builder/tags-of-block.ts';
 import { blockErrors } from '../src/pages/builder/validation.ts';
 import {
   VARIABLES_OF_SYSTEM,
@@ -104,7 +104,21 @@ test('the block card shows content, entry and custom actions without repeating',
     etiquetas.map(({ rotulo }) => rotulo),
     ['API', 'ProcessHttp', 'SendMessage', 'UserInput'],
   );
-  assert.equal(etiquetas[0]?.cor, '#4a5d23');
+  assert.equal(etiquetas[0]?.cor, 'var(--p-builder-marca)');
+});
+
+test('tag color: blue becomes brand token', () => {
+  const block = newBlock({}, { top: 0, left: 0 }, 'inicio');
+  block.$tags = [{ label: 'Origem', background: '#498bff' }];
+  const [etiqueta] = blockTags(block);
+  assert.equal(etiqueta?.cor, 'var(--p-builder-marca)');
+});
+
+test('TAG_PALETTE has no blue', () => {
+  const azulNaPaleta = TAG_PALETTE.map((entrada) => entrada.value.toLowerCase()).some((cor) =>
+    LEGACY_BLUES.includes(cor),
+  );
+  assert.equal(azulNaPaleta, false);
 });
 
 test('userVariables merges context variables from blocks and global actions, without repeating', () => {

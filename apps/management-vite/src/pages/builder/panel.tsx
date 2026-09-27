@@ -9,6 +9,8 @@ import { ROTULOS_DAS_SAIDAS } from './conditions';
 import { ContentPanel } from './panel-content';
 import { ActionsPanel } from './panel-actions';
 import { OutputsPanel } from './panel-outputs';
+import { TAG_PALETTE, TAG_SUGGESTIONS, isLegacyBlue, resolveTagColor } from './tags-of-block';
+import { filterVariables } from './variables';
 
 /**
  * The block's sidebar — their `sidebar-content-component.builder-sidebar`: docked to the right at 1rem, with a 1rem radius and `calc(100% - 2rem)` height, 28.75rem wide. At the top, the block's title in a text field (`#builder-sidebar-title`, `maxlength="50"`, placeholder "Nome do bloco", read-only on the Início block) and the "x"; a divider; and the `bds-tab-group` with the three tabs: "Conteúdo" (on the attendance block, "Atendimento"), "Condições de saída", and "Ações".
@@ -20,6 +22,8 @@ type Aba = 'conteudo' | 'acoes' | 'saidas';
 
 type BlockTag = { label: string; color: string; indice: number };
 
+const DEFAULT_TAG_COLOR = resolveTagColor(TAG_PALETTE[0]!.value);
+
 function blockTags(tags: unknown[] | undefined): BlockTag[] {
   return (tags ?? []).flatMap((tag, indice) => {
     if (!tag || typeof tag !== 'object') return [];
@@ -30,14 +34,12 @@ function blockTags(tags: unknown[] | undefined): BlockTag[] {
         ? value.color
         : typeof value.background === 'string'
           ? value.background
-          : '#4a5d23';
+          : DEFAULT_TAG_COLOR;
     return [
       {
         indice,
         label: value.label,
-        color: ['#3f7de8', '#0096fa', '#1e6bf1', '#498bff'].includes(cor.toLowerCase())
-          ? '#4a5d23'
-          : cor,
+        color: isLegacyBlue(cor) ? DEFAULT_TAG_COLOR : cor,
       },
     ];
   });
@@ -79,7 +81,7 @@ export function BlockPanel({
     if (!label || tags.some((tag) => tag.label.toLowerCase() === label.toLowerCase())) return;
     onMudar({
       ...block,
-      $tags: [...(block.$tags ?? []), { id: crypto.randomUUID(), label, background: '#4a5d23' }],
+      $tags: [...(block.$tags ?? []), { id: crypto.randomUUID(), label, background: DEFAULT_TAG_COLOR }],
     });
     setNovaTag('');
   }
@@ -134,18 +136,19 @@ export function BlockPanel({
               </span>
               {tagAberta === tag.indice ? (
                 <div className="bl-tag-cores">
-                  {['#4a5d23', '#ff961e', '#61d36f', '#ee82ee', '#000000', '#ff4c4c'].map((cor) => (
+                  {TAG_PALETTE.map(({ label, value: cor }) => (
                     <button
                       type="button"
                       key={cor}
-                      aria-label={`Cor ${cor}`}
+                      aria-label={`Cor ${label}`}
                       style={{ background: cor }}
                       onClick={() => {
+                        const salvo = resolveTagColor(cor);
                         onMudar({
                           ...block,
                           $tags: block.$tags?.map((item, i) =>
                             i === tag.indice
-                              ? { ...(item as object), color: cor, background: cor }
+                              ? { ...(item as object), color: salvo, background: salvo }
                               : item,
                           ),
                         });
@@ -161,6 +164,7 @@ export function BlockPanel({
             className="bl-panel-add-tag"
             value={novaTag}
             placeholder="Adicionar tag..."
+            list="bl-tag-suggestions"
             onChange={(e) => setNovaTag(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -170,6 +174,11 @@ export function BlockPanel({
             }}
             onBlur={adicionarTag}
           />
+          <datalist id="bl-tag-suggestions">
+            {filterVariables(TAG_SUGGESTIONS, novaTag).map((sugestao) => (
+              <option key={sugestao} value={sugestao} />
+            ))}
+          </datalist>
       </div>
       <hr className="bl-panel-wire" />
       {errors.length > 0 ? (
