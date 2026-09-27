@@ -25,6 +25,14 @@
 - Solicitar ligação (8º item do slot `conteudo-interativo`; dependência de infra de voz a esclarecer).
 - TrackContactsJourney (6º item do slot `acoes-plataforma`).
 
-## Pendente de levantamento
+## Candidatas da tecnologia de renderização (aguardam aprovação do dono)
 
-- Diferenças de comportamento causadas pela tecnologia de renderização (AngularJS, Vue `blip-cards`, web components Stencil, micro-frontends) × React do Pipe. Levantamento em andamento; entra aqui quando o dono aprovar.
+Levantamento de 2026-09-27: a Blip usa AngularJS 1.x (SPA, ui-router), jsPlumb nas setas, Vue nos cards de conteúdo, web components Stencil (`bds-*`), micro-frontends React no rodapé e navbar, Monaco no editor de script/JSON, SortableJS para reordenar. O Pipe é React 19 + React Router 7, canvas em SVG e pointer events à mão, sem lib de drag, canvas ou editor de código.
+
+| # | Candidata | Prioridade | Observação |
+|---|---|---|---|
+| 7 | Editor de código com realce e autocompletar para script e JSON (Monaco na referência; hoje `<textarea>`) | alta | Pacote novo: decidir Monaco, CodeMirror 6 ou manter textarea. Afeta 02-16. |
+| 8 | Tooltip próprio (hoje `title` do navegador) | média | CSS simples em `@pipe/ui`, sem lib nova. |
+| 9 | Reordenação por arrasto consistente em todas as listas do painel | média | Mesmo item 4; reaproveitar o padrão `draggable` de `panel-actions.tsx`. |
+
+Não entram: micro-frontends e web components (organização interna da referência, sem efeito visível).
