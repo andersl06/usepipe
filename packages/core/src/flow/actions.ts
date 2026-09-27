@@ -34,6 +34,15 @@ export const ALLOWED_COMMAND_URIS = Object.freeze([
   '/tickets/{id}/priority',
 ] as const);
 
+/** Generic platform actions remain marked external when their settings are outside D-20's Pipe subset. */
+export const EXTERNAL_DEPENDENCY_ACTIONS = [
+  'SendCommand',
+  'ProcessCommand',
+  'ManageList',
+  'SetBucket',
+  'ProcessContentAssistant',
+] as const;
+
 function commandKind(uri: string): (typeof ALLOWED_COMMAND_URIS)[number] | null {
   if (/^\/tickets\/[^/]+$/.test(uri)) return '/tickets/{id}';
   for (const allowed of ALLOWED_COMMAND_URIS.slice(1)) {

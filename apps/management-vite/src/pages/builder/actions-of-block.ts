@@ -35,6 +35,17 @@ export interface TipoDeAcao {
   campos: CampoDaAcao[];
 }
 
+/** Types whose generic Blip service form remains external when it cannot be mapped to Pipe. */
+export const EXTERNAL_DEPENDENCY_ACTIONS = [
+  'SendCommand',
+  'ProcessCommand',
+  'ManageList',
+  'SetBucket',
+  'ProcessContentAssistant',
+] as const;
+
+export const EXTERNAL_DEPENDENCY_MESSAGE = 'Esta ação depende de um serviço da Blip que o Pipe ainda não reproduz. Marcada como não executada — revise antes de publicar.';
+
 /** `ExecuteScript` and `ExecuteScriptV2` share the same editor fields in the reference. */
 const SCRIPT_FIELDS: CampoDaAcao[] = [
   { key: 'source', rotulo: 'Código-fonte', obrigatorio: true, tipo: 'code' },
@@ -151,6 +162,72 @@ export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
     campos: BLIP_FUNCTION_FIELDS,
   },
   {
+    tipo: 'SendCommand',
+    rotulo: 'Enviar comando (rótulo pendente de C-25)',
+    titulo: 'Enviar comando',
+    grupo: 'Executar',
+    info: 'Comandos conhecidos do Pipe são mapeados para o domínio nativo; URIs arbitrárias ficam externas.',
+    campos: [
+      { key: 'to', rotulo: 'Rótulo pendente de captura (C-25)' },
+      { key: 'method', rotulo: 'Método', obrigatorio: true },
+      { key: 'uri', rotulo: 'URI', obrigatorio: true },
+      { key: 'type', rotulo: 'Tipo' },
+      { key: 'resource', rotulo: 'Resource', tipo: 'json' },
+    ],
+  },
+  {
+    tipo: 'ProcessCommand',
+    rotulo: 'Processar comando',
+    titulo: 'Processar comando',
+    grupo: 'Executar',
+    info: 'Consultas e alterações conhecidas do Desk são mapeadas para o domínio nativo do Pipe.',
+    campos: [
+      { key: 'to', rotulo: 'Para' },
+      { key: 'method', rotulo: 'Método', obrigatorio: true },
+      { key: 'uri', rotulo: 'URI', obrigatorio: true },
+      { key: 'type', rotulo: 'Tipo' },
+      { key: 'resource', rotulo: 'Resource', tipo: 'json' },
+      { key: 'variable', rotulo: 'Variável da resposta', obrigatorio: true },
+    ],
+  },
+  {
+    tipo: 'ManageList',
+    rotulo: 'Gerenciar lista de distribuição',
+    titulo: 'Gerenciar lista de distribuição',
+    grupo: 'Manipular',
+    campos: [
+      { key: 'action', rotulo: 'Ação', options: ['Add', 'Remove'] },
+      { key: 'listName', rotulo: 'Nome da lista', obrigatorio: true },
+    ],
+  },
+  {
+    tipo: 'SetBucket',
+    rotulo: 'Definir memória (rótulo pendente de C-25)',
+    titulo: 'Definir memória',
+    grupo: 'Manipular',
+    info: 'A memória é chaveada por contato por padrão; ative a memória global somente quando necessário.',
+    campos: [
+      { key: 'id', rotulo: 'Rótulo pendente de captura (C-25)', obrigatorio: true },
+      { key: 'type', rotulo: 'Tipo', obrigatorio: true },
+      { key: 'document', rotulo: 'Documento', tipo: 'json', obrigatorio: true },
+      { key: 'expiration', rotulo: 'Expiração (segundos)' },
+      { key: 'global', rotulo: 'Memória global' },
+    ],
+  },
+  {
+    tipo: 'ProcessContentAssistant',
+    rotulo: 'Consultar Assistente de conteúdo',
+    titulo: 'Consultar Assistente de conteúdo',
+    grupo: 'Executar',
+    info: 'Consulta a base de conhecimento do Pipe com confiança entre 0 e 1.',
+    campos: [
+      { key: 'text', rotulo: 'Texto a ser analisado', obrigatorio: true },
+      { key: 'score', rotulo: 'Confiança mínima (0 a 1)' },
+      { key: 'tags', rotulo: 'Tags' },
+      { key: 'outputVariable', rotulo: 'Variável para o valor de retorno', obrigatorio: true },
+    ],
+  },
+  {
     tipo: 'MergeContact',
     rotulo: 'Definir contato',
     titulo: 'Definir contato',
@@ -241,6 +318,16 @@ export const rotuloDaAcao = (tipo: string): string => tipoDeAcao(tipo)?.titulo ?
 
 /** The engine does not execute this action: it throws at runtime and the conversation falls into the queue. */
 export const acaoSemSuporte = (acao: AcaoDoEditor): boolean => !PROVEDOR_PADRAO.has(acao.type);
+
+/** Generic command imports are read-only; known Pipe routes stay editable and executable. */
+export const acaoTemDependenciaExterna = (acao: AcaoDoEditor): boolean => {
+  if (!EXTERNAL_DEPENDENCY_ACTIONS.includes(acao.type as (typeof EXTERNAL_DEPENDENCY_ACTIONS)[number])) return false;
+  if (acao.type === 'SendCommand' || acao.type === 'ProcessCommand') {
+    const uri = typeof acao.settings?.['uri'] === 'string' ? acao.settings['uri'] : '';
+    return !!uri && !/^\/tickets\/[^/]+(?:\/change-tags|\/transfer|\/status|\/priority)?$/.test(uri);
+  }
+  return false;
+};
 
 export const acaoDoSistema = (acao: AcaoDoEditor): boolean => ACTIONS_OF_SYSTEM.has(acao.type);
 

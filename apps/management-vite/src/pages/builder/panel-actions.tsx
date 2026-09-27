@@ -8,6 +8,8 @@ import { ehAttendance } from './model';
 import {
   actionsOfGroup,
   LABELS_OF_ACTIONS,
+  EXTERNAL_DEPENDENCY_MESSAGE,
+  acaoTemDependenciaExterna,
   acaoDoSistema,
   acaoSemSuporte,
   adicionarAcao,
@@ -317,9 +319,10 @@ export function ActionCard({
   }, [aberta, flutuante]);
   const tipo = tipoDeAcao(acao.type);
   const semSuporte = acaoSemSuporte(acao);
+  const dependenciaExterna = acaoTemDependenciaExterna(acao);
   const doSistema = acaoDoSistema(acao);
   const errors = actionErrors(acao);
-  const editavel = !!tipo && !doSistema;
+  const editavel = !!tipo && !doSistema && !dependenciaExterna;
   return (
     <article
       className={`bl-acao${errors.length > 0 ? ' bl-action--error' : ''}${aberta ? ' bl-acao--aberta' : ''}`}
@@ -375,7 +378,7 @@ export function ActionCard({
         <button type="button" className="bl-acao-abrir" onClick={onAbrir} aria-expanded={aberta}>
           <span className="bl-acao-tipo">{acao.$title || rotuloDaAcao(acao.type)}</span>
         </button>
-        {semSuporte ? <Etiqueta tom="alerta">{LABELS_OF_ACTIONS.naoExecutada}</Etiqueta> : null}
+        {semSuporte || dependenciaExterna ? <Etiqueta tom="alerta">{LABELS_OF_ACTIONS.naoExecutada}</Etiqueta> : null}
         {doSistema ? <Etiqueta>{LABELS_OF_ACTIONS.doSistema}</Etiqueta> : null}
         {errors.length > 0 ? (
           <Etiqueta tom="erro" redonda>
@@ -493,7 +496,8 @@ export function ActionCard({
               </button>
             </header>
           ) : null}
-          {tipo?.info ? <p className="sub">{tipo.info}</p> : null}
+          {dependenciaExterna ? <p className="sub">{EXTERNAL_DEPENDENCY_MESSAGE}</p> : null}
+          {!dependenciaExterna && tipo?.info ? <p className="sub">{tipo.info}</p> : null}
           {editavel ? (
             <>
               {!onCopiar ? (
