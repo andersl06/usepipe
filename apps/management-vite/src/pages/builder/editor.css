@@ -386,6 +386,11 @@
   gap: 16px;
   padding: 24px;
 }
+.bl-queues-summary {
+  margin: -12px 0 0;
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-size: 12px;
+}
 .bl-panel-header {
   display: flex;
   align-items: center;
