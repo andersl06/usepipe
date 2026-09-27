@@ -56,21 +56,21 @@ function RuleActions({
 }) {
   return (
     <>
-      <Interruptor id={regra.id} active={regra.active} nome={regra.nome} />
+      <Interruptor id={regra.id} active={regra.active} nome={regra.name} />
       <BotaoDeIcone
         nome="cima"
-        rotulo={`Mover "${regra.nome}" para cima — avalia antes`}
+        rotulo={`Mover "${regra.name}" para cima — avalia antes`}
         onClick={() => onMover(-1)}
         disabled={first}
       />
       <BotaoDeIcone
         nome="baixo"
-        rotulo={`Mover "${regra.nome}" para baixo — avalia depois`}
+        rotulo={`Mover "${regra.name}" para baixo — avalia depois`}
         onClick={() => onMover(1)}
         disabled={ultima}
       />
-      <BotaoDeIcone nome="lapis" rotulo={`Editar a regra ${regra.nome}`} onClick={onEditar} />
-      <BotaoDeIcone nome="x" rotulo={`Excluir a regra ${regra.nome}`} onClick={onExcluir} />
+      <BotaoDeIcone nome="lapis" rotulo={`Editar a regra ${regra.name}`} onClick={onEditar} />
+      <BotaoDeIcone nome="x" rotulo={`Excluir a regra ${regra.name}`} onClick={onExcluir} />
     </>
   );
 }
@@ -129,7 +129,7 @@ export function AttendancePageRules() {
       cards: regras.map((r, indice) => ({
         id: r.id,
         campos: [
-          { rotulo: 'Nome da Regra', value: r.nome },
+          { rotulo: 'Nome da Regra', value: r.name },
           { rotulo: 'Fila', value: r.queueDestinationName },
         ],
         situation: r.active ? 'Ativa' : 'Desativada',
@@ -151,8 +151,8 @@ export function AttendancePageRules() {
             ? [`Fila “${r.queueDestinationName}” está desativada — a conversa cai nela e para`]
             : []),
         ],
-        procura: `${r.nome} ${r.queueDestinationName} ${r.conditions
-          .map((c) => `${rotuloDoCampo(c.campo)} ${c.value}`)
+        procura: `${r.name} ${r.queueDestinationName} ${r.conditions
+          .map((c) => `${rotuloDoCampo(c.field)} ${c.value}`)
           .join(' ')}`.toLowerCase(),
       })),
     },
@@ -219,7 +219,7 @@ export function AttendancePageRules() {
         titulo="Excluir regra"
         message={
           <>
-            Excluir a regra “{regraParaExcluir?.nome}”? Esta ação não pode ser desfeita.
+            Excluir a regra “{regraParaExcluir?.name}”? Esta ação não pode ser desfeita.
           </>
         }
         error={errorDeletion}
