@@ -27,21 +27,21 @@ export interface ConversationOpenRow {
   attendanceSeg: number | null;
   emEspera: boolean;
   /** A bola está com o atendente: o cliente falou por último, ou ninguém respondeu ainda. */
-  waitingAgent: boolean;
+  aguardandoAtendente: boolean;
   sla: PillSla;
-  etiquetas: string[];
+  labels: string[];
 }
 
 export interface CardsRealTime {
-  inQueue: number;
-  longestWaitInQueueSeg: number | null;
+  naFila: number;
+  largestWaitInQueueSeg: number | null;
   /**
    * De quantas conversas o máximo acima saiu. Máximo sem população é a mesma
    * armadilha da média sem denominador (§2 da spec de métricas): "40 minutos"
    * entre duas conversas e entre duzentas pedem reações opostas.
    */
   waitingFirstResponse: number;
-  longestWaitFirstResponseSeg: number | null;
+  largestWaitFirstResponseSeg: number | null;
   inAttendance: number;
   agentsOnline: number;
   mediaByAgent: number | null;
@@ -58,14 +58,14 @@ export interface CardAgents {
 export interface TodayCards {
   esperaDoCliente: ResultadoMetrica;
   untilFirstResponse: ResultadoMetrica;
-  attendanceTime: ResultadoMetrica;
-  responseTime: ResponseTimeResult;
+  timeOfAttendance: ResultadoMetrica;
+  timeOfResponse: ResponseTimeResult;
   closures: CountClosure;
 }
 
 export interface WorkloadAgent {
   id: string;
-  nome: string;
+  name: string;
   state: StateAgent;
   ativas: number;
   waitingAgent: number;
@@ -73,44 +73,44 @@ export interface WorkloadAgent {
   carga: number;
   /** Carga máxima possível: o limite todo ocupado por conversa aguardando o atendente. */
   cargaMaxima: number;
-  timeAverageResponseSeg: number | null;
-  timeAverageAttendanceSeg: number | null;
+  timeMediumResponseSeg: number | null;
+  timeMediumAttendanceSeg: number | null;
 }
 
 export interface SummaryQueue {
   id: string;
-  nome: string;
+  name: string;
   inQueue: number;
-  inAttendance: number;
+  emAtendimento: number;
   maiorEsperaSeg: number | null;
-  agentsOnline: number;
-  timeAverageInQueueSeg: number | null;
-  timeAverageResponseSeg: number | null;
-  timeAverageAttendanceSeg: number | null;
+  atendentesOnline: number;
+  timeMediumInQueueSeg: number | null;
+  tempoMedioRespostaSeg: number | null;
+  tempoMedioAtendimentoSeg: number | null;
 }
 
 export interface ResumoEtiqueta {
   id: string;
-  nome: string;
-  cor: string | null;
+  name: string;
+  color: string | null;
   abertas: number;
   finalizadas: number;
-  timeAverageAttendanceSeg: number | null;
+  tempoMedioAtendimentoSeg: number | null;
 }
 
 export interface Monitoring {
   agora: Date;
   fuso: string;
-  realTime: CardsRealTime;
+  realtime: CardsRealTime;
   agents: CardAgents;
   hoje: TodayCards;
   abertas: ConversationOpenRow[];
   carga: WorkloadAgent[];
   queues: SummaryQueue[];
-  etiquetas: ResumoEtiqueta[];
+  labels: ResumoEtiqueta[];
   ticketsOpenByHour: number[];
   /** Catálogo para os filtros rápidos. */
-  listAgents: { id: string; nome: string }[];
+  listAgents: { id: string; name: string }[];
 }
 
 /** Número de ticket legível a partir do uuid — o modelo não tem sequência própria. */

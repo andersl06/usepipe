@@ -338,7 +338,7 @@ export function PageMonitoring() {
   }
   if (!read.data) return <MonitoringLoading />;
   const { data: m } = read.data;
-  const { realTime, agents, hoje } = m;
+  const { realtime, agents, hoje } = m;
 
   return (
     <div className={modoTv ? 'mon-page mon-page-tv' : 'mon-page'}>
@@ -367,40 +367,40 @@ export function PageMonitoring() {
             <div className="metrics-grupo estreito">
               <Metrica
                 destaque
-                value={numero(realTime.inQueue)}
+                value={numero(realtime.naFila)}
                 rotulo="Na fila"
                 dica="Número de atendimentos aguardando por um atendente"
                 formula="Conversas abertas que ainda não foram atribuídas a nenhum atendente. Contagem deste instante, com o cronômetro correndo."
               />
               <Metrica
-                value={duration(realTime.longestWaitInQueueSeg)}
+                value={duration(realtime.largestWaitInQueueSeg)}
                 rotulo="Tempo máximo na fila"
                 dica="Tempo máximo que um atendimento ficou na fila"
                 formula="A maior espera entre as conversas ainda não atribuídas: agora menos criada_em."
-                denominador={`Entre ${numero(realTime.inQueue)} na fila.`}
+                denominador={`Entre ${numero(realtime.naFila)} na fila.`}
               />
             </div>
             <div className="metrics-grupo largo">
               <Metrica
-                value={duration(realTime.longestWaitFirstResponseSeg)}
+                value={duration(realtime.largestWaitFirstResponseSeg)}
                 rotulo="Tempo máximo até 1ª resposta"
                 dica="Tempo máximo que um atendimento ficou sem resposta"
                 formula="A maior espera entre as conversas já atribuídas e ainda sem resposta do atendente: agora menos atribuida_em."
-                denominador={`Entre ${numero(realTime.waitingFirstResponse)} aguardando.`}
+                denominador={`Entre ${numero(realtime.waitingFirstResponse)} aguardando.`}
               />
               <Metrica
                 destaque
-                value={numero(realTime.inAttendance)}
+                value={numero(realtime.inAttendance)}
                 rotulo="Em atendimento"
                 dica="Número de atendimentos em andamento"
                 formula="Conversas abertas com atendente atribuído, neste instante."
               />
               <Metrica
-                value={numero(realTime.mediaByAgent, 1)}
+                value={numero(realtime.mediaByAgent, 1)}
                 rotulo="Média de tickets por atendente"
                 dica="Número de atendimentos por atendente"
                 formula="Conversas em atendimento divididas pelos atendentes online. Ponderada por volume, nunca média de médias."
-                denominador={`${numero(realTime.inAttendance)} ÷ ${numero(realTime.agentsOnline)} online.`}
+                denominador={`${numero(realtime.inAttendance)} ÷ ${numero(realtime.agentsOnline)} online.`}
               />
             </div>
           </div>
@@ -441,11 +441,11 @@ export function PageMonitoring() {
               denominador={denominador(hoje.esperaDoCliente, 'sem início')}
             />
             <Metrica
-              value={duration(hoje.responseTime.value)}
+              value={duration(hoje.timeOfResponse.value)}
               rotulo="Tempo médio de resposta"
               dica="Tempo médio de resposta para atendimento"
               formula="Média dos intervalos entre a mensagem do cliente e a próxima mensagem do atendente. População: conversas com pelo menos uma troca completa."
-              denominador={`${numero(hoje.responseTime.conversationsConsidered)} com troca completa · ${numero(hoje.responseTime.population)} intervalos.`}
+              denominador={`${numero(hoje.timeOfResponse.conversationsConsidered)} com troca completa · ${numero(hoje.timeOfResponse.population)} intervalos.`}
             />
             <Metrica
               value={duration(hoje.untilFirstResponse.value)}
@@ -455,11 +455,11 @@ export function PageMonitoring() {
               denominador={denominador(hoje.untilFirstResponse)}
             />
             <Metrica
-              value={duration(hoje.attendanceTime.value)}
+              value={duration(hoje.timeOfAttendance.value)}
               rotulo="Tempo médio de atendimento"
               dica="Tempo médio de atendimento"
               formula="encerrada_em menos primeira_resposta_em. População: conversas que tiveram 1ª resposta."
-              denominador={denominador(hoje.attendanceTime)}
+              denominador={denominador(hoje.timeOfAttendance)}
             />
           </div>
         </CardMetric>
@@ -571,7 +571,7 @@ export function PageMonitoring() {
                 name="fila"
                 rotulo="Filas"
                 placeholder="Selecione as filas"
-                options={m.queues}
+                options={m.queues.map((o) => ({ id: o.id, nome: o.name }))}
                 valuesInitials={filterIds(params.queue)}
               />
             </PanelField>
@@ -584,7 +584,7 @@ export function PageMonitoring() {
                 name="atendente"
                 rotulo="Atendentes"
                 placeholder="Selecione os atendentes"
-                options={m.listAgents}
+                options={m.listAgents.map((o) => ({ id: o.id, nome: o.name }))}
                 valuesInitials={filterIds(params.agent)}
               />
             </PanelField>

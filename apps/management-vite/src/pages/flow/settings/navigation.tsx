@@ -38,7 +38,7 @@ const ITENS: {
     icone: 'menu-persistente',
     titulo: 'Menu Persistente',
     description: 'Configure o menu persistente de seu fluxo',
-    rota: 'menu-persistente',
+    rota: 'persistent-menu',
   },
   {
     icone: 'loja',

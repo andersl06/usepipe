@@ -178,7 +178,7 @@ export async function loadPreviewOfConversation(
   const { rows } = await tx.execute<{
     id: string; contactName: string | null; queueName: string | null; agentName: string | null;
   }>(sql`
-    select c.id, ct.nome as contato_nome, f.nome as fila_nome, u.nome as atendente_nome
+    select c.id, ct.nome as "contactName", f.nome as "queueName", u.nome as "agentName"
       from conversa c
       join contato ct on ct.id = c.contato_id
       left join fila f on f.id = c.fila_id
@@ -191,15 +191,15 @@ export async function loadPreviewOfConversation(
   const itens = await tx.execute<{
     id: string; at: Date | string; type: 'mensagem' | 'nota'; direction: string | null; texto: string; autor: string | null;
   }>(sql`
-    select m.id, m.criada_em as em, 'mensagem'::text as tipo, m.direcao as "direction",
+    select m.id, m.criada_em as "at", 'mensagem'::text as "type", m.direcao as "direction",
            coalesce(m.conteudo, '') as texto, u.nome as autor
       from mensagem m left join usuario u on u.id = m.autor_id
      where m.conversa_id = ${conversationId}::uuid
     union all
-    select n.id, n.em, 'nota'::text as tipo, null, n.corpo, u.nome
+    select n.id, n.em as "at", 'nota'::text as "type", null, n.corpo, u.nome
       from nota_interna n left join usuario u on u.id = n.usuario_id
      where n.conversa_id = ${conversationId}::uuid
-     order by em
+     order by "at"
   `);
   return {
     id: conversationOpen.id,

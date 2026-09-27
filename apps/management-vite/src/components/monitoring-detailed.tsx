@@ -40,7 +40,7 @@ type Filter = {
   search?: string;
 };
 
-type MonitoringActions = Pick<Monitoring, 'queues' | 'listAgents' | 'etiquetas'>;
+type MonitoringActions = Pick<Monitoring, 'queues' | 'listAgents' | 'labels'>;
 
 /** Formato usado pelo BDS nas tabelas: sempre hh:mm:ss e, acima de 24h, dias. */
 function durationMonitoring(segundos: number | null | undefined): string {
@@ -216,7 +216,7 @@ function ModalTransferMonitoring({
         <Selection value={destination} onChange={(evento) => setDestination(evento.target.value)} aria-label={alvo === 'fila' ? 'Fila' : 'Atendente'}>
           <option value="">{alvo === 'fila' ? 'Selecionar fila' : 'Selecionar atendente'}</option>
           {options.map((option) => (
-            <option key={option.id} value={option.id}>{option.nome}</option>
+            <option key={option.id} value={option.id}>{option.name}</option>
           ))}
         </Selection>
       </label>
@@ -422,10 +422,10 @@ function TableAgents({
         <tbody>
           {agents.length === 0 ? <tr><td colSpan={5}><WithoutData /></td></tr> : pg.visiveis.map((a) => (
             <tr key={a.id}>
-              <td className="who">{a.nome}</td>
+              <td className="who">{a.name}</td>
               <td className="num">{numero(a.ativas)}</td>
-              <td className="num">{durationMonitoring(a.timeAverageResponseSeg)}</td>
-              <td className="num">{durationMonitoring(a.timeAverageAttendanceSeg)}</td>
+              <td className="num">{durationMonitoring(a.timeMediumResponseSeg)}</td>
+              <td className="num">{durationMonitoring(a.timeMediumAttendanceSeg)}</td>
               <ActionViewConversations filter={filter} agentId={a.id} />
             </tr>
           ))}
@@ -460,14 +460,14 @@ function TableQueues({ queues }: { queues: Monitoring['queues'] }) {
           {queues.length === 0 ? <tr><td colSpan={6}><WithoutData /></td></tr> : pg.visiveis.map((f) => (
             <tr
               key={f.id}
-              className={f.agentsOnline === 0 && f.inQueue > 0 ? 'critico' : undefined}
+              className={f.atendentesOnline === 0 && f.inQueue > 0 ? 'critico' : undefined}
             >
-              <td className="who">{f.nome}</td>
+              <td className="who">{f.name}</td>
               <td className="num">{numero(f.inQueue)}</td>
-              <td className="num">{numero(f.inAttendance)}</td>
-              <td className="num">{durationMonitoring(f.timeAverageInQueueSeg)}</td>
-              <td className="num">{durationMonitoring(f.timeAverageResponseSeg)}</td>
-              <td className="num">{durationMonitoring(f.timeAverageAttendanceSeg)}</td>
+              <td className="num">{numero(f.emAtendimento)}</td>
+              <td className="num">{durationMonitoring(f.timeMediumInQueueSeg)}</td>
+              <td className="num">{durationMonitoring(f.tempoMedioRespostaSeg)}</td>
+              <td className="num">{durationMonitoring(f.tempoMedioAtendimentoSeg)}</td>
             </tr>
           ))}
         </tbody>
@@ -481,7 +481,7 @@ function TableQueues({ queues }: { queues: Monitoring['queues'] }) {
 /**
  * The Tags sheet asks for finished tickets, but the tag query returns `abertas`, open conversations with that tag. Do not relabel a different metric to fit available data; show a dash until closed-by-tag data exists.
  */
-function TabelaTags({ etiquetas }: { etiquetas: Monitoring['etiquetas'] }) {
+function TabelaTags({ etiquetas }: { etiquetas: Monitoring['labels'] }) {
   const pg = usePage(etiquetas);
   return (
     <>
@@ -497,9 +497,9 @@ function TabelaTags({ etiquetas }: { etiquetas: Monitoring['etiquetas'] }) {
         <tbody>
           {etiquetas.length === 0 ? <tr><td colSpan={3}><WithoutData /></td></tr> : pg.visiveis.map((e) => (
             <tr key={e.id}>
-              <td className="who">{e.nome}</td>
+              <td className="who">{e.name}</td>
               <td className="num">{numero(e.finalizadas)}</td>
-              <td className="num">{durationMonitoring(e.timeAverageAttendanceSeg)}</td>
+              <td className="num">{durationMonitoring(e.tempoMedioAtendimentoSeg)}</td>
             </tr>
           ))}
         </tbody>
@@ -516,7 +516,7 @@ type Previa = {
   contactName: string;
   queueName: string | null;
   agentName: string | null;
-  itens: { id: string; em: string; tipo: 'mensagem' | 'nota'; direction?: string; texto: string; autor?: string | null }[];
+  itens: { id: string; at: string; type: 'mensagem' | 'nota'; direction?: string; texto: string; autor?: string | null }[];
 };
 
 function ConversationPreview({ id, aoFechar }: { id: string; aoFechar: () => void }) {
@@ -557,7 +557,7 @@ function ConversationPreview({ id, aoFechar }: { id: string; aoFechar: () => voi
           {read.isLoading ? <p>Carregando conversa…</p> : null}
           {read.isError ? <p>Não foi possível carregar a conversa.</p> : null}
           {read.data?.itens.map((item) => (
-            item.tipo === 'nota' ? <p key={item.id} className="mon-previa-nota"><b>{item.autor ?? 'Nota interna'}</b>{item.texto}</p> :
+            item.type === 'nota' ? <p key={item.id} className="mon-previa-nota"><b>{item.autor ?? 'Nota interna'}</b>{item.texto}</p> :
             <div key={item.id} className={item.direction === 'entrada' ? 'mon-balao inbound' : 'mon-balao saida'}>
               <p>{item.texto || 'Conteúdo sem texto'}</p><small>{item.autor ?? ''}</small>
             </div>
@@ -617,7 +617,7 @@ export function MonitoringDetailed({
   const actionCatalogs: MonitoringActions = {
     queues: monitoring.queues,
     listAgents: monitoring.listAgents,
-    etiquetas: monitoring.etiquetas,
+    labels: monitoring.labels,
   };
 
   return (
@@ -663,7 +663,7 @@ export function MonitoringDetailed({
         <TableAgents agents={monitoring.carga} filter={filter} />
       ) : null}
       {aba === 'filas' ? <TableQueues queues={monitoring.queues} /> : null}
-      {aba === 'etiquetas' ? <TabelaTags etiquetas={monitoring.etiquetas} /> : null}
+      {aba === 'etiquetas' ? <TabelaTags etiquetas={monitoring.labels} /> : null}
       {conversationOpen ? <ConversationPreview id={conversationOpen} aoFechar={() => setConversationOpen(null)} /> : null}
     </div>
   );

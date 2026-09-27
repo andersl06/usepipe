@@ -32,8 +32,8 @@ export function ModalFinishMonitoring({
     if (!etiquetas.length) return;
     setSelecionadas((current) => current.length
       ? current
-      : etiquetas.filter((etiqueta) => linha.etiquetas.includes(etiqueta.nome)).map((etiqueta) => etiqueta.id));
-  }, [etiquetas, linha.etiquetas]);
+      : etiquetas.filter((etiqueta) => linha.labels.includes(etiqueta.nome)).map((etiqueta) => etiqueta.id));
+  }, [etiquetas, linha.labels]);
 
   async function finalizar() {
     setEnviando(true);
