@@ -83,7 +83,7 @@ describe('script sandbox: escape attempts', () => {
   it('input values carry no host prototype (constructor of an argument)', async () => {
     const r = await runFlowScript(
       script(`function run(a) {
-        return typeof a.constructor.constructor('return typeof process')() + '|' +
+        return a.constructor.constructor('return typeof process')() + '|' +
           typeof a.constructor.constructor('return this')().require;
       }`, { args: ['texto'] }),
     );
@@ -178,7 +178,7 @@ describe('script sandbox: escape attempts', () => {
 
 describe('script sandbox: HTTP', () => {
   it('request.fetchAsync goes through the host fetch with copied values', async () => {
-    const fetch = vi.fn(async (url: string) => ({ status: 200, body: `ok ${url}` }));
+    const fetch = vi.fn(async (url: unknown) => ({ status: 200, body: `ok ${String(url)}` }));
     const r = await runFlowScript(
       script(`async function run() {
         const resposta = await request.fetchAsync('https://api.exemplo.com/x', { method: 'GET' });

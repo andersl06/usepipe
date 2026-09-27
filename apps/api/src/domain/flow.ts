@@ -35,6 +35,7 @@ import { registrarEvento } from './eventos.js';
 import { evaluatePriority, loadRulesOfPriorityActive } from './management/priority-engine.js';
 import { redirectInRouter, serviceOfRouter } from './router.js';
 import { chamarComMtls } from './mtls.js';
+import { runFlowScript, scriptFetch } from './script-sandbox.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 import type { TipoEnvio } from './envio.js';
 
@@ -387,6 +388,8 @@ export async function runFlowInInbound(
         };
       }
     },
+    // Like callHttp, the script (up to 10 s) still runs inside the inbound transaction.
+    runScript: (request) => runFlowScript(request, { fetch: scriptFetch(e.tenantId) }),
     suspendHttp: async (pedido, cursor) => {
       confirmarUrlSegura(pedido.url);
       const key = `${executionId}:${e.message.idProvedor}:${cursor.estadoId ?? 'global'}:${cursor.lista}:${cursor.indice}`;
