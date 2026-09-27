@@ -5,6 +5,36 @@
   font-display: swap;
   src: url('/fonts/nunito-sans-latin.woff2') format('woff2');
 }
+/*
+ * The side panels (Filas, Configuração, Variáveis) mount outside the dark `.bl-editor` container,
+ * so without their own surfaces the `@pipe/ui` primitives inside them (`th`, `.iconbtn`, muted
+ * text) paint with the light theme: white table header, white close button, grey-on-black text.
+ */
+.bl-panel {
+  --p-superficie-0: #424242;
+  --p-superficie-1: #393939;
+  --p-superficie-2: #1f1f1f;
+  --p-superficie-3: #141414;
+  --p-conteudo: #fff;
+  --p-conteudo-suave: #a3a3a3;
+  --p-conteudo-fantasma: #949494;
+  --p-conteudo-desabilitado: #949494;
+  --p-linha: rgb(255 255 255 / 16%);
+  --p-linha-media: rgb(255 255 255 / 20%);
+}
+.bl-panel-header span.bl-panel-title {
+  height: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.bl-panel-header .iconbtn {
+  border-color: transparent;
+  background: transparent;
+}
+.bl-versions-table th {
+  background: transparent;
+}
 /* Measurements from portal.css; effective surfaces from the dark `bds-theme-provider`. */
 .bl-panel--block {
   --p-superficie-0: #424242;
