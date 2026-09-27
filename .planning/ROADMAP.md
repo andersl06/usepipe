@@ -238,7 +238,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 02-08-PLAN.md — Tema escuro, tokens --p-builder-marca-*, paleta de $tags, ícones (D-11, D-13, D-30..D-33)
+- [x] 02-08-PLAN.md — Tema escuro, tokens --p-builder-marca-*, paleta de $tags, ícones (D-11, D-13, D-30..D-33)
 - [x] 02-10-PLAN.md — Conteúdo: slot mídia ponta a ponta
 
 **Wave 4** *(blocked on Wave 3 completion)*
@@ -381,7 +381,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
-| 2. Fechar o Builder | 8/22 | In Progress|  |
+| 2. Fechar o Builder | 9/22 | In Progress|  |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |
