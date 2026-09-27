@@ -271,7 +271,7 @@ Plans:
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 02-20-PLAN.md — Ações de plataforma nativas + dependências externas registradas (D-20, D-24)
+- [x] 02-20-PLAN.md — Ações de plataforma nativas + dependências externas registradas (D-20, D-24)
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
@@ -381,7 +381,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
-| 2. Fechar o Builder | 19/22 | In Progress|  |
+| 2. Fechar o Builder | 20/22 | In Progress|  |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |
