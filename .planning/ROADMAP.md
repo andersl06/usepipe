@@ -253,7 +253,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 02-13-PLAN.md — Versões (exportar versão antiga) e painel de Filas (D-15, D-16)
+- [x] 02-13-PLAN.md — Versões (exportar versão antiga) e painel de Filas (D-15, D-16)
 - [x] 02-15-PLAN.md — Conteúdo: slot interativo ponta a ponta
 
 **Wave 7** *(blocked on Wave 6 completion)*
@@ -381,7 +381,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
-| 2. Fechar o Builder | 15/22 | In Progress|  |
+| 2. Fechar o Builder | 16/22 | In Progress|  |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |
