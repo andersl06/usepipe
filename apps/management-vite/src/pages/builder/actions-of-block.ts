@@ -18,8 +18,8 @@ export interface CampoDaAcao {
   rotulo: string;
   ajuda?: string;
   obrigatorio?: boolean;
-  /** `texto` is one line; `longo` uses a textarea. */
-  tipo?: 'texto' | 'longo' | 'json' | 'cabecalhos';
+  /** `texto` is one line; `longo` uses a textarea; `code` is script source; `variableList` is a list of variable names. */
+  tipo?: 'texto' | 'longo' | 'json' | 'cabecalhos' | 'code' | 'variableList';
   /** Valores fechados usam o mesmo seletor do Builder. */
   options?: readonly string[];
 }
@@ -34,6 +34,21 @@ export interface TipoDeAcao {
   info?: string;
   campos: CampoDaAcao[];
 }
+
+/** `ExecuteScript` and `ExecuteScriptV2` share the same editor fields in the reference. */
+const SCRIPT_FIELDS: CampoDaAcao[] = [
+  { key: 'source', rotulo: 'Código-fonte', obrigatorio: true, tipo: 'code' },
+  {
+    key: 'inputVariables',
+    rotulo: 'Variáveis de entrada',
+    tipo: 'variableList',
+    ajuda: 'Você pode utilizar uma das variáveis pré-determinadas na lista ou definidas em resposta do usuário',
+  },
+  { key: 'outputVariable', rotulo: 'Variável para o valor de retorno', obrigatorio: true },
+];
+
+/** Starting source for a new script action; input variables arrive as `run` parameters. */
+export const SCRIPT_TEMPLATE = 'function run() {\n  return;\n}\n';
 
 // CATALOGO_OF_ACTIONS is the applied Phase 1 symbol recorded by the catalog gate.
 export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
@@ -82,6 +97,20 @@ export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
       { key: 'headers', rotulo: 'Cabeçalhos', tipo: 'cabecalhos' },
       { key: 'requestTimeout', rotulo: 'Tempo limite (segundos)' },
     ],
+  },
+  {
+    tipo: 'ExecuteScript',
+    rotulo: 'Executar script',
+    titulo: 'Executar script',
+    grupo: 'Executar',
+    campos: SCRIPT_FIELDS,
+  },
+  {
+    tipo: 'ExecuteScriptV2',
+    rotulo: 'Executar script 2.0',
+    titulo: 'Executar script 2.0',
+    grupo: 'Executar',
+    campos: SCRIPT_FIELDS,
   },
   {
     tipo: 'MergeContact',
@@ -182,7 +211,9 @@ export function novaAcao(tipo: string, id = gerarId()): AcaoDoEditor {
   const settings: Record<string, unknown> =
     tipo === 'ProcessHttp' ? { method: 'GET' } :
     tipo === 'SendMessageFromHttp' ? { requestTimeout: 60 } :
-    tipo === 'TrackEvent' ? { extras: {}, fireAndForget: true } : {};
+    tipo === 'TrackEvent' ? { extras: {}, fireAndForget: true } :
+    tipo === 'ExecuteScript' ? { function: 'run', source: SCRIPT_TEMPLATE, inputVariables: [] } :
+    tipo === 'ExecuteScriptV2' ? { source: SCRIPT_TEMPLATE, inputVariables: [] } : {};
   return {
     $id: id,
     $title: '',
@@ -261,6 +292,16 @@ export function comCabecalhos(acao: AcaoDoEditor, key: string, cabecalhos: Cabec
     cabecalhos.filter(({ key }) => key.trim()).map(({ key, value }) => [key.trim(), value]),
   );
   return Object.keys(value).length ? withValue(acao, key, value) : comCampo(acao, key, '');
+}
+
+/** Script input variables are stored as an array of names. */
+export function variablesOfField(acao: AcaoDoEditor, key: string): string[] {
+  const bruto = acao.settings?.[key];
+  return Array.isArray(bruto) ? bruto.map((v) => String(v ?? '')) : [];
+}
+
+export function withVariables(acao: AcaoDoEditor, key: string, names: string[]): AcaoDoEditor {
+  return withValue(acao, key, names);
 }
 
 function withValue(acao: AcaoDoEditor, key: string, value: unknown): AcaoDoEditor {

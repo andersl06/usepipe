@@ -562,6 +562,13 @@
   min-height: 96px;
   resize: vertical;
 }
+.bl-campo textarea.bl-campo-codigo {
+  min-height: 180px;
+  resize: vertical;
+  font-family: var(--p-fonte-mono);
+  font-size: 13px;
+  tab-size: 2;
+}
 .bl-panel .selection-control,
 .bl-panel .selection-list {
   border-color: #3a3a3a;
