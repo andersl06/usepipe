@@ -20,6 +20,26 @@ export interface ScriptOptions {
   fetch?: ScriptFetch;
   /** Blip limit for both engines: 100 MB. */
   memoryMb?: number;
+  /**
+   * The flow's function library (`funcao_do_fluxo`, D-22): each function becomes callable by name
+   * from `ExecuteScript`/`ExecuteScriptV2`, which is what "Inserir função da biblioteca" writes.
+   */
+  library?: Iterable<{ name: string; code: string }>;
+}
+
+/**
+ * Each library entry runs in its own function scope and only its named function reaches the
+ * script, so a helper or `const` inside one entry never collides with the script or another entry.
+ * `var` (not `const`) so a script declaring a function of the same name still loads.
+ */
+function libraryPrelude(library: Iterable<{ name: string; code: string }> | undefined): string {
+  let prelude = '';
+  for (const fn of library ?? []) {
+    if (!IDENTIFIER.test(fn.name)) continue;
+    // A function the script itself declares (hoisted) with the same name wins over the library.
+    prelude += `var ${fn.name} = typeof ${fn.name} === 'function' ? ${fn.name} : (function () {\n${fn.code}\n;return ${fn.name};\n})();\n`;
+  }
+  return prelude;
 }
 
 const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
@@ -60,7 +80,7 @@ export async function runFlowScript(request: ScriptRequest, options: ScriptOptio
       );
     }
     const result = await context.evalClosure(
-      `${request.source}\n;return (async () => JSON.stringify(await ${request.functionName}(...$0)))();`,
+      `${libraryPrelude(options.library)}${request.source}\n;return (async () => JSON.stringify(await ${request.functionName}(...$0)))();`,
       [request.args],
       { arguments: { copy: true }, result: { promise: true, copy: true }, timeout: request.timeoutMs },
     );

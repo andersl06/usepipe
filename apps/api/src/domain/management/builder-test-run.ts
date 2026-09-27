@@ -249,7 +249,7 @@ function servicesOfTestRun(
         };
       }
     },
-    runScript: (request) => runFlowScript(request, { fetch: scriptFetch(tid) }),
+    runScript: (request) => runFlowScript(request, { fetch: scriptFetch(tid), library: flowFunctions.values() }),
     runFlowFunction: async ({ functionId, args }) => {
       const definition = flowFunctions.get(functionId);
       if (!definition) throw new Error(`A função '${functionId}' não existe neste fluxo.`);

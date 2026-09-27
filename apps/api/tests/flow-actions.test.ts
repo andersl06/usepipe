@@ -38,6 +38,21 @@ const FLOW = {
         conditions: [{ source: 'input', comparison: 'equals', values: ['transfer-invalida'] }],
       },
       {
+        // A script calling a tenant library function, as "Inserir função da biblioteca" writes it.
+        type: 'ExecuteScriptV2',
+        settings: {
+          source: 'function run() {\n  return formatarCpf(\'123.456.789-00\');\n}\n',
+          inputVariables: [],
+          outputVariable: 'cpfLimpo',
+        },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['biblioteca'] }],
+      },
+      {
+        type: 'SendMessage',
+        settings: { type: 'text/plain', content: 'CPF: {{cpfLimpo}}' },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['biblioteca'] }],
+      },
+      {
         // 40k characters pass the app's 64 KB character check, but 80 KB of UTF-8 violate the
         // `pg_column_size(valor) <= 65536` CHECK: a real database error inside the action.
         type: 'SetBucket',
@@ -158,6 +173,19 @@ describe('context action services', () => {
   it('SendCommand /transfer with a non-uuid queueId fails the action and keeps the inbound message (CR-02)', async () => {
     await falar('transfer-invalida');
     await esperarFalhaSemPerderAEntrada('transfer-invalida');
+  });
+
+  it('a script can call a function from the flow library (CR-07)', async () => {
+    await cenario.dono.execute(sql`
+      insert into funcao_do_fluxo (tenant_id, nome, parametros, codigo)
+      values (${cenario.tenantId}, 'formatarCpf', '["cpf"]'::jsonb,
+        'function soDigitos(t) { return String(t).replace(/\\D/g, ""); } function formatarCpf(cpf) { return soDigitos(cpf); }')
+    `);
+    await falar('biblioteca');
+    const { rows } = await cenario.dono.execute<{ conteudo: string }>(sql`
+      select conteudo from mensagem where tenant_id = ${cenario.tenantId}::uuid and autor_tipo = 'bot'
+    `);
+    expect(rows.map((m) => m.conteudo)).toEqual(['CPF: 12345678900']);
   });
 
   it('the native satisfaction survey block sends its question to the channel and records the reply (CR-03)', async () => {

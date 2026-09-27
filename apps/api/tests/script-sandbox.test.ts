@@ -232,6 +232,29 @@ describe('script sandbox: HTTP', () => {
   });
 });
 
+describe('script sandbox: flow function library (CR-07)', () => {
+  const library = [
+    { name: 'formatarCpf', code: 'const limpar = (t) => String(t).replace(/\\D/g, ""); function formatarCpf(cpf) { return limpar(cpf); }' },
+    { name: 'saudar', code: 'const limpar = 1; function saudar(nome) { return "Olá " + nome; }' },
+  ];
+
+  it('library functions are callable from the script, each in its own scope', async () => {
+    const r = await runFlowScript(
+      script('function run(cpf) {\n  const resultado = formatarCpf(cpf);\n  return saudar(resultado) + " " + typeof limpar;\n}', { args: ['123.456.789-00'] }),
+      { library },
+    );
+    expect(r).toBe('Olá 12345678900 undefined');
+  });
+
+  it('a script declaring a function with a library name still loads, and its own declaration wins', async () => {
+    const r = await runFlowScript(
+      script('function saudar() { return "local"; }\nfunction run() { return saudar(); }'),
+      { library },
+    );
+    expect(r).toBe('local');
+  });
+});
+
 describe('outbound HTTP: redirects are re-validated hop by hop (CR-05)', () => {
   afterEach(() => vi.restoreAllMocks());
   const redirecionar = (location: string, status = 302) =>

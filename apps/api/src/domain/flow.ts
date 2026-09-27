@@ -458,7 +458,8 @@ export async function runFlowInInbound(
       }
     },
     // Like callHttp, the script (up to 10 s) still runs inside the inbound transaction.
-    runScript: (request) => runFlowScript(request, { fetch: scriptFetch(e.tenantId) }),
+    runScript: (request) =>
+      runFlowScript(request, { fetch: scriptFetch(e.tenantId), library: flowFunctions.values() }),
     runFlowFunction: async ({ functionId, args }) => {
       const definition = flowFunctions.get(functionId);
       if (!definition) throw new Error(`A função '${functionId}' não existe neste fluxo.`);

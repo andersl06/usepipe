@@ -3,7 +3,7 @@ import type { FlowFunction, FlowFunctionInput } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
 import { ModalConfirmation } from '../registrations/_modal';
-import { filterFlowFunctions, functionCallSnippet } from './flow-functions';
+import { filterFlowFunctions } from './flow-functions';
 import {
   createFlowFunction,
   deleteFlowFunction,
@@ -397,8 +397,8 @@ export function FlowFunctionSelect({
   );
 }
 
-/** The script actions' code-field helper: inserts `nome(param1, param2)` at the end of the source. */
-export function FlowFunctionInsertPicker({ onInsert }: { onInsert: (snippet: string) => void }) {
+/** The script actions' code-field helper: hands the picked function to `insertLibraryCall` (call inside `run`). */
+export function FlowFunctionInsertPicker({ onInsert }: { onInsert: (fn: FlowFunction) => void }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="bl-functions-insert">
@@ -408,7 +408,7 @@ export function FlowFunctionInsertPicker({ onInsert }: { onInsert: (snippet: str
       {open ? (
         <FlowFunctionSearch
           onPick={(fn) => {
-            onInsert(functionCallSnippet(fn));
+            onInsert(fn);
             setOpen(false);
           }}
         />

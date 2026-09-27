@@ -23,3 +23,27 @@ export function filterFlowFunctions(list: readonly FlowFunction[], query: string
 export function functionCallSnippet(fn: Pick<FlowFunction, 'name' | 'parameters'>): string {
   return `${fn.name}(${fn.parameters.join(', ')})`;
 }
+
+/**
+ * "Inserir função da biblioteca" over ExecuteScript/ExecuteScriptV2: the call goes in as the first
+ * statement of the script's entry function (`run`, or V1's `function` setting), so it only runs
+ * when the engine calls that function — the API puts the library in scope (`script-sandbox.ts`).
+ * Parameters the entry function does not declare yet are appended to its signature: the engine
+ * feeds them from "Variáveis de entrada", so the call never names an undeclared variable.
+ * Without an entry function the call is added as a comment rather than code that runs at load.
+ */
+export function insertLibraryCall(
+  source: string,
+  fn: Pick<FlowFunction, 'name' | 'parameters'>,
+  entryName = 'run',
+): string {
+  const nome = entryName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const entrada = new RegExp(`((?:async\\s+)?function\\s+${nome}\\s*\\()([^)]*)(\\)\\s*\\{)`).exec(source);
+  if (!entrada) return `${source}\n// ${functionCallSnippet(fn)}`;
+  const [todo, antes, parametros, depois] = entrada as unknown as [string, string, string, string];
+  const declarados = parametros.split(',').map((p) => p.split('=')[0]!.trim()).filter(Boolean);
+  const faltam = fn.parameters.filter((p) => !declarados.includes(p));
+  const assinatura = [parametros.trim(), ...faltam].filter(Boolean).join(', ');
+  const fim = entrada.index + todo.length;
+  return `${source.slice(0, entrada.index)}${antes}${assinatura}${depois}\n  ${functionCallSnippet(fn)};${source.slice(fim)}`;
+}
