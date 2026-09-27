@@ -37,7 +37,7 @@ Uma área só é **VALIDATED** quando, quando aplicável: (1) implementada, (2) 
 - **Conexões Instagram e Messenger** — IMPLEMENTED (mesmo padrão de conexão do WhatsApp). Validação funcional real não confirmada (24/09/2026) → falta FUNCTIONALLY VERIFIED + VISUALLY VERIFIED + OWNER APPROVED
 - **Equipe/permissões, Filas/atendentes/pausas (fora do módulo Atendimento), mTLS, Chamada externa (ProcessHttp)** — IMPLEMENTED; evidência parcial de FUNCTIONALLY VERIFIED (comportamento descrito em detalhe em PROJECT-HANDOFF.md) e possível VISUALLY VERIFIED (nota do Builder em PROJECT-HANDOFF.md sugere que "as outras telas... têm foto real", mas nenhuma aprovação explícita do dono está documentada para estas em particular) → falta OWNER APPROVED confirmado; reclassificar caso a caso na Phase 3
 - **Mecanismo de espelho Pipe→Twenty** — IMPLEMENTED, FUNCTIONALLY VERIFIED (teste de integração `apps/api/tests/twenty.test.ts`). Sem superfície visual própria (VISUALLY VERIFIED N/A); sem confirmação explícita de aprovação do dono → falta OWNER APPROVED
-- **Builder (núcleo)** — IMPLEMENTED, FUNCTIONALLY VERIFIED. Explicitamente NÃO comparado por foto lado a lado (só CSS/DOM extraído, per PROJECT-HANDOFF.md) → falta VISUALLY VERIFIED + OWNER APPROVED
+- **Builder** — Phase 2 concluída em 2026-09-27: catálogo de 16/18 conteúdos e 16/17 ações com editor, motor e canal; seletor de destino com busca; biblioteca de funções; pesquisa de satisfação nativa; Versões, Filas e painel de Teste (simulação local); sandbox de scripts (isolated-vm) e editor Monaco. IMPLEMENTED, FUNCTIONALLY VERIFIED (1.799 testes), OWNER APPROVED no portão final (ref/GATE-FINAL.md). VISUALLY VERIFIED parcial: 11 telas conferidas contra a reconstrução medida da referência; diferenças e capturas C-NN pendentes em ref/LACUNAS-APROVADAS.md → falta VISUALLY VERIFIED completo e a validação das setas com fluxo real (C-42). Validated in Phase 2 (parcial): BUILDER-02, BUILDER-03, BUILDER-04.
 - **Front migrado de Next.js para Vite (Desk, Gestão)** — fato de engenharia, IMPLEMENTED e verificável no código; não é, por si, uma "superfície a aprovar visualmente" — é a arquitetura por trás das telas que ainda precisam da aprovação listada acima
 
 ### Active
@@ -45,7 +45,7 @@ Uma área só é **VALIDATED** quando, quando aplicável: (1) implementada, (2) 
 <!-- Escopo atual — ver REQUIREMENTS.md para a lista completa com IDs e mapeamento de fase -->
 
 - [ ] Padronizar a linguagem técnica do projeto para inglês (rotas, endpoints, arquivos, pastas, funções, variáveis, types, testes, contrato de navegação/renderização) nos 3 fronts, API e workers — antes do Builder; dados persistidos ficam fora do rename mecânico
-- [ ] Fechar as lacunas conhecidas do Builder (catálogo de conteúdos/ações, biblioteca de funções, seletor de destino, pesquisa de satisfação, paleta de tags, painéis de Filas/Teste, bug suspeito em `arestasDe()`)
+- [~] Fechar as lacunas conhecidas do Builder — Phase 2 concluída (2026-09-27); resta o plano de lacunas (`ref/LACUNAS-APROVADAS.md`: interações do canvas, excedentes Carrossel/Solicitar ligação/TrackContactsJourney, diferenças visuais, achados WR/IN da revisão) e a captura C-42 para BUILDER-05. Itens originais: (catálogo de conteúdos/ações, biblioteca de funções, seletor de destino, pesquisa de satisfação, paleta de tags, painéis de Filas/Teste, bug suspeito em `arestasDe()`)
 - [ ] Levar Desk, Atendimento, conexões de canal e demais superfícies já implementadas ao estado VALIDATED (visual + aprovação do dono) antes de iniciar CRM/Twenty
 - [ ] Decidir e implementar o destino de `apps/crm` agora que a integração com o Twenty está confirmada como decisão de CRM (24/09)
 - [ ] Mesclar `limpeza` em `master`, decidir destino de `apps/site` e das branches soltas
@@ -67,7 +67,7 @@ Uma área só é **VALIDATED** quando, quando aplicável: (1) implementada, (2) 
 - Cadastro embutido (Embedded Signup) da Meta — bloqueado por falta de CNPJ/app aprovado; caminho atual é conexão manual.
 - App mobile nativo — Desk é web responsivo; nativo está explicitamente fora de escopo (o requisito real é PWA instalável, ver REQ-mobile).
 - Ponte LIME (`apps/ponte`) como caminho principal da interface — decisão do dono revertida no fim do dia 12/09/2026; o código continua existindo (ferramenta de laboratório), mas rodar a cópia compilada da Blip por trás de uma ponte deixou de ser o caminho do produto.
-- Canal de teste do Builder ligado ao motor — a Blip usa um bot real via SDK BlipChat; o Pipe não tem canal de teste no motor e não há spec detalhada ainda.
+- Canal de teste real do Builder (ex.: WhatsApp de teste) — deferido por decisão do dono (2026-09-27, D-14): o painel de Teste do Pipe roda o motor real sobre o rascunho em simulação local, sem publicar (a Blip publica o rascunho ao testar).
 - Qualquer código, CSS, classe, ícone, som ou imagem da Blip dentro do repositório — regra permanente de licença; só comportamento e texto medidos ficam como referência, fora do git (`referencias-blip/`).
 
 ## Context
@@ -108,4 +108,4 @@ Uma área só é **VALIDATED** quando, quando aplicável: (1) implementada, (2) 
 | Critério de VALIDATED redefinido: implementado + funciona ponta a ponta + comparado com a referência (quando aplicável) + aprovado pelo dono — código ou teste isolado não basta | Corrige o critério do ingest inicial, que marcava área como pronta só por existir implementação; nenhuma superfície de produto é considerada aprovada sem confirmação explícita do dono (Phase 3, VALSURF-01..05) | — Pending (Phase 3) |
 
 ---
-*Last updated: 2026-09-24 after ingest do PROJECT-HANDOFF.md e specs/ADRs sintetizados (primeira geração de `.planning/` para este repositório brownfield)*
+*Last updated: 2026-09-27 após a conclusão da Phase 2 (Fechar o Builder)*
