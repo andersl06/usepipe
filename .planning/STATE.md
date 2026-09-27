@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-05-PLAN.md
-last_updated: "2026-09-27T00:19:18.276Z"
+stopped_at: Phase 01.1 context revised (D-23..D-26)
+last_updated: "2026-09-27T15:16:16.138Z"
 last_activity: 2026-09-26 -- Phase 02 execution started
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 71
-  completed_plans: 23
+  completed_plans: 37
   percent: 0
 ---
 
@@ -114,6 +114,6 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 
 ## Session Continuity
 
-Last session: 2026-09-27T00:19:18.257Z
-Stopped at: Completed 02-05-PLAN.md
-Resume file: None
+Last session: 2026-09-27T15:16:16.120Z
+Stopped at: Phase 01.1 context revised (D-23..D-26)
+Resume file: .planning/phases/01.1-subdominio-por-tenant/01.1-CONTEXT.md
