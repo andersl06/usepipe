@@ -3,7 +3,7 @@ import type { Block, EditorInbound, ItemDeConteudo, InboundValidation } from './
 import { LABEL_OF_INBOUND, card, gerarId, newInbound } from './model';
 
 /**
- * Block Content tab follows Blip's conversation-like `$contentActions` cards, robot utterances left and user input right. Offer only Pipe channel `CONTEUDOS_SUPORTADOS` (`packages/core/src/flow/editor.ts`): text `text/plain`, two `application/vnd.lime.select+json` variants (Menu without `scope`, Quick reply with `scope: "immediate"`), and the five `conteudo-midia` types sharing `application/vnd.lime.media-link+json` (figurinha/áudio/imagem/vídeo/documento — the reference does not distinguish them beyond the file's real MIME either, `ref/inventario-conteudo.md`). Other Blip menu types (carousel, HTTP, dynamic content, survey, location, web link, call request) are still rejected on publish as unsupported `conteudo:<mime>`. Imported `chatstate` Typing appears but cannot be newly created and runs without effect. Limits match editor copy: 25 content items per block, menus up to 10 options of 24 characters, quick replies up to 3 options of 20 characters.
+ * Block Content tab follows Blip's conversation-like `$contentActions` cards, robot utterances left and user input right. Pipe resolves HTTP and dynamic-content envelopes immediately before channel delivery; the native survey MIME is recognized here even though its dedicated block owns the survey lifecycle. Limits match editor copy: 25 content items per block, menus up to 10 options of 24 characters, quick replies up to 3 options of 20 characters.
  */
 
 export const LIMITE_DE_CONTEUDOS = 25;
@@ -19,6 +19,8 @@ export const ROTULOS_DO_CONTEUDO = {
   entrada: LABEL_OF_INBOUND,
   digitando: 'Digitando',
   dinamico: 'Conteúdo dinâmico',
+  http: 'Conteúdo HTTP',
+  pesquisa: 'Pesquisa',
   limite: 'Limite de 25 conteúdos atingido',
   limiteDoMenu: 'Para WhastApp, defina até 10 opções para o menu, com no máximo 24 caracteres cada.',
   limiteDoQuickReply: 'Para WhastApp, defina até 3 opções para o Quick Reply, com até 20 caracteres cada.',
@@ -52,6 +54,9 @@ export const TIPO_MEDIA = 'application/vnd.lime.media-link+json';
 export const TIPO_PEDIR_LOCALIZACAO = 'application/vnd.lime.input+json';
 export const TIPO_LOCALIZACAO = 'application/vnd.lime.location+json';
 export const TIPO_WEB_LINK = 'application/vnd.lime.web-link+json';
+export const TIPO_CONTEUDO_HTTP = 'application/vnd.pipe.http-content+json';
+export const TIPO_CONTEUDO_DINAMICO = 'application/vnd.pipe.dynamic-content+json';
+export const TIPO_PESQUISA = 'application/vnd.lime.satisfaction-survey+json';
 
 /**
  * `$typeOfContent` per media card, in the frozen inventory's menu order (items 1-5 of 18,
@@ -102,6 +107,9 @@ export type Card =
   | { indice: number; tipo: 'pedirLocalizacao'; texto: string }
   | { indice: number; tipo: 'localizacao'; latitude: string; longitude: string }
   | { indice: number; tipo: 'webLink'; uri: string; texto: string }
+  | { indice: number; tipo: 'http'; uri: string; mime: string; cabecalhos: string; timeout: string }
+  | { indice: number; tipo: 'dinamico'; variavel: string }
+  | { indice: number; tipo: 'pesquisa' }
   | {
       indice: number;
       tipo: 'midia';
@@ -169,6 +177,15 @@ export function cardsOf(block: Block): Card[] {
     } else if (acao.type === 'SendMessage' && mime === TIPO_WEB_LINK) {
       const link = acao.settings?.['content'] as { uri?: unknown; text?: unknown };
       cards.push({ indice, tipo: 'webLink', uri: texto(link?.uri), texto: texto(link?.text) });
+    } else if (acao.type === 'SendMessage' && mime === TIPO_CONTEUDO_HTTP) {
+      const http = (acao.settings?.['content'] ?? {}) as { uri?: unknown; type?: unknown; headers?: unknown; requestTimeout?: unknown };
+      cards.push({ indice, tipo: 'http', uri: texto(http.uri), mime: texto(http.type), cabecalhos: JSON.stringify(http.headers ?? {}), timeout: texto(http.requestTimeout ?? 60) });
+    } else if (acao.type === 'SendRawMessage' && mime === TIPO_CONTEUDO_DINAMICO) {
+      let variavel = '';
+      try { variavel = texto((JSON.parse(texto(acao.settings?.['rawContent'])) as { variable?: unknown }).variable); } catch {}
+      cards.push({ indice, tipo: 'dinamico', variavel });
+    } else if (mime === TIPO_PESQUISA) {
+      cards.push({ indice, tipo: 'pesquisa' });
     } else if (acao.type === 'SendMessage' && mime === TIPO_MEDIA) {
       const conteudoMidia = (acao.settings?.['content'] ?? {}) as { uri?: unknown; type?: unknown; title?: unknown };
       cards.push({
@@ -229,6 +246,21 @@ export function novaLocalizacao(latitude = '', longitude = '', id = gerarId()): 
 
 export function novoWebLink(uri = '', conteudo = '', id = gerarId()): ItemDeConteudo {
   return fala(id, TIPO_WEB_LINK, { uri, text: conteudo, target: 'blank' }, 'web-link');
+}
+
+export function novoConteudoHttp(uri = '', mime = 'text/plain', cabecalhos: Record<string, string> = {}, timeout = 60, id = gerarId()): ItemDeConteudo {
+  return fala(id, TIPO_CONTEUDO_HTTP, { uri, type: mime, headers: cabecalhos, requestTimeout: timeout }, 'http-content');
+}
+
+export function novoConteudoDinamico(variavel = '', id = gerarId()): ItemDeConteudo {
+  return {
+    action: {
+      $id: id, $typeOfContent: 'raw-content', type: 'SendRawMessage',
+      settings: { id, type: TIPO_CONTEUDO_DINAMICO, rawContent: JSON.stringify({ variable: variavel }) },
+      $cardContent: card(id, TIPO_CONTEUDO_DINAMICO, variavel, 'left'),
+    },
+    $invalid: false,
+  };
 }
 
 /** Shared by the five `conteudo-midia` cards: `uri` is what the inventory confirms as required for all of them, `title` the optional caption they also share (`ref/inventario-conteudo.md`). */
@@ -353,6 +385,19 @@ export function definirConteudoInterativo(block: Block, indice: number, conteudo
   };
 }
 
+export function definirConteudoHttp(block: Block, indice: number, conteudo: Record<string, unknown>): Block {
+  return definirConteudoInterativo(block, indice, conteudo);
+}
+
+export function definirConteudoDinamico(block: Block, indice: number, variavel: string): Block {
+  return {
+    ...block,
+    $contentActions: (block.$contentActions ?? []).map((item, i) => i === indice
+      ? comSettings(item, (settings) => ({ ...settings, rawContent: JSON.stringify({ variable: variavel }) }))
+      : item),
+  };
+}
+
 /** Replace a block's `input`; do nothing when no input exists. */
 export function setInbound(block: Block, inbound: EditorInbound): Block {
   const lista = (block.$contentActions ?? []).map((item) => (item.input ? { ...item, input: inbound } : item));
@@ -407,6 +452,12 @@ export function contentErrors(block: Block): string[] {
     if (c.tipo === 'webLink') {
       for (const erro of engineContentErrors(TIPO_WEB_LINK, { content: { uri: c.uri } })) errors.push(erro);
     }
+    if (c.tipo === 'http') {
+      if (!c.uri.trim()) errors.push('Conteúdo HTTP: URL obrigatória.');
+      if (!c.mime.trim()) errors.push('Conteúdo HTTP: MIME type obrigatório.');
+      try { JSON.parse(c.cabecalhos); } catch { errors.push('Conteúdo HTTP: cabeçalhos devem ser JSON válido.'); }
+    }
+    if (c.tipo === 'dinamico' && !c.variavel.trim()) errors.push('Conteúdo dinâmico: variável obrigatória.');
     if (c.tipo === 'entrada') {
       const e = c.inbound;
       if (e.variable?.trim() && !/^[a-zA-Z0-9.]+$/.test(e.variable)) {

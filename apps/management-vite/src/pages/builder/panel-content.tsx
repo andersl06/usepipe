@@ -17,6 +17,8 @@ import {
   definirEspera,
   definirMenu,
   definirConteudoInterativo,
+  definirConteudoDinamico,
+  definirConteudoHttp,
   definirMidia,
   definirTexto,
   moverConteudo,
@@ -29,6 +31,8 @@ import {
   novoQuickReply,
   novoPedirLocalizacao,
   novoWebLink,
+  novoConteudoDinamico,
+  novoConteudoHttp,
   novoTexto,
   novoVideo,
   novaLocalizacao,
@@ -152,8 +156,14 @@ export function ContentPanel({
                             ? `${c.latitude}, ${c.longitude}`
                             : c.tipo === 'pedirLocalizacao'
                               ? c.texto || 'Pedir localização'
-                              : c.tipo === 'webLink'
-                                ? c.texto || c.uri || 'Web link'
+                            : c.tipo === 'webLink'
+                              ? c.texto || c.uri || 'Web link'
+                              : c.tipo === 'http'
+                                ? c.uri || ROTULOS_DO_CONTEUDO.http
+                                : c.tipo === 'dinamico'
+                                  ? c.variavel || ROTULOS_DO_CONTEUDO.dinamico
+                                  : c.tipo === 'pesquisa'
+                                    ? ROTULOS_DO_CONTEUDO.pesquisa
                                 : c.texto || ROTULOS_DO_CONTEUDO[c.tipo]}
                   {c.tipo === 'menu' || c.tipo === 'quickReply' ? (
                     <span className="bl-preview-options">
@@ -233,6 +243,8 @@ export function ContentPanel({
               <button type="button" role="menuitem" onClick={() => adicionar(novoPedirLocalizacao())}>Pedir localização</button>
               <button type="button" role="menuitem" onClick={() => adicionar(novaLocalizacao())}>Enviar localização</button>
               <button type="button" role="menuitem" onClick={() => adicionar(novoWebLink())}>Web link</button>
+              <button type="button" role="menuitem" onClick={() => adicionar(novoConteudoHttp())}>{ROTULOS_DO_CONTEUDO.http}</button>
+              <button type="button" role="menuitem" onClick={() => adicionar(novoConteudoDinamico())}>{ROTULOS_DO_CONTEUDO.dinamico}</button>
               {!hasInbound(block) ? (
                 <button type="button" role="menuitem" onClick={() => adicionar(newInbound())}>
                   {ROTULOS_DO_CONTEUDO.entrada}
@@ -269,6 +281,9 @@ export function ContentPanel({
                 if (c.tipo === 'pedirLocalizacao') return 'Pedir localização';
                 if (c.tipo === 'localizacao') return 'Enviar localização';
                 if (c.tipo === 'webLink') return 'Web link';
+                if (c.tipo === 'http') return ROTULOS_DO_CONTEUDO.http;
+                if (c.tipo === 'dinamico') return ROTULOS_DO_CONTEUDO.dinamico;
+                if (c.tipo === 'pesquisa') return ROTULOS_DO_CONTEUDO.pesquisa;
                 return ROTULOS_DO_CONTEUDO[c.tipo];
               })()}
             </h4>
@@ -482,6 +497,32 @@ function ContentCard({
           {card.uri.startsWith('https://') ? <a href={card.uri} target="_blank" rel="noopener noreferrer">{card.texto || card.uri}</a> : null}
         </article>
       );
+    case 'http': {
+      const headers = (): Record<string, string> => {
+        try { return JSON.parse(card.cabecalhos) as Record<string, string>; } catch { return {}; }
+      };
+      const mudar = (next: Partial<{ uri: string; mime: string; cabecalhos: string; timeout: string }>) => {
+        const cabecalhos = next.cabecalhos ?? card.cabecalhos;
+        onMudar(definirConteudoHttp(block, i, {
+          uri: next.uri ?? card.uri, type: next.mime ?? card.mime,
+          headers: next.cabecalhos === undefined ? headers() : (() => { try { return JSON.parse(cabecalhos); } catch { return {}; } })(),
+          requestTimeout: Number(next.timeout ?? card.timeout) || 60,
+        }));
+      };
+      return <article className="bl-card bl-card--bot"><header><b>{ROTULOS_DO_CONTEUDO.http}</b>{order}{excluir}</header>
+        <label className="bl-campo"><span className="sub">URL</span><Campo value={card.uri} placeholder="https://..." onChange={(e) => mudar({ uri: e.target.value })} /></label>
+        <label className="bl-campo"><span className="sub">MIME type</span><Campo value={card.mime} placeholder="text/plain" onChange={(e) => mudar({ mime: e.target.value })} /></label>
+        <label className="bl-campo"><span className="sub">Cabeçalhos (JSON)</span><textarea className="campo bl-campo-longo" rows={3} value={card.cabecalhos} onChange={(e) => mudar({ cabecalhos: e.target.value })} /></label>
+        <label className="bl-campo"><span className="sub">Timeout (segundos)</span><Campo value={card.timeout} onChange={(e) => mudar({ timeout: e.target.value })} /></label>
+      </article>;
+    }
+    case 'dinamico':
+      return <article className="bl-card bl-card--bot"><header><b>{ROTULOS_DO_CONTEUDO.dinamico}</b>{order}{excluir}</header>
+        <label className="bl-campo"><span className="sub">Variável</span><Campo value={card.variavel} placeholder="conteudoLime" onChange={(e) => onMudar(definirConteudoDinamico(block, i, e.target.value))} /></label>
+        <p className="bl-ajuda">A variável deve conter o JSON LIME completo.</p>
+      </article>;
+    case 'pesquisa':
+      return <article className="bl-card bl-card--bot"><header><b>{ROTULOS_DO_CONTEUDO.pesquisa}</b>{order}{excluir}</header><p className="bl-ajuda">Edite a pesquisa no bloco de satisfação.</p></article>;
     case 'outro':
       return (
         <article className="bl-card bl-card--bot bl-card--deleted">
