@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useLayoutEffect, useRef, useState } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '../../components/icones-portal';
@@ -31,6 +31,9 @@ import {
 } from './actions-of-block';
 import type { ActionsList } from './actions-of-block';
 import { ConditionsEditor } from './condition';
+
+/** Monaco stays in its own chunk, fetched only when a script action is opened. */
+const CodeEditor = lazy(() => import('./code-editor'));
 
 let actionsCopied: AcaoDoEditor[] = [];
 
@@ -522,13 +525,24 @@ export function ActionCard({
                       onMudar={(names) => onMudar(withVariables(acao, campo.key, names))}
                     />
                   ) : campo.tipo === 'code' ? (
-                    <textarea
-                      className="campo bl-campo-codigo"
-                      rows={10}
-                      spellCheck={false}
-                      value={fieldValue(acao, campo.key)}
-                      onChange={(e) => onMudar(comCampo(acao, campo.key, e.target.value))}
-                    />
+                    <Suspense
+                      fallback={
+                        <textarea
+                          className="campo bl-campo-codigo"
+                          rows={10}
+                          spellCheck={false}
+                          aria-label={campo.rotulo}
+                          value={fieldValue(acao, campo.key)}
+                          onChange={(e) => onMudar(comCampo(acao, campo.key, e.target.value))}
+                        />
+                      }
+                    >
+                      <CodeEditor
+                        ariaLabel={campo.rotulo}
+                        value={fieldValue(acao, campo.key)}
+                        onChange={(v) => onMudar(comCampo(acao, campo.key, v))}
+                      />
+                    </Suspense>
                   ) : campo.options ? (
                     <select
                       className="campo"

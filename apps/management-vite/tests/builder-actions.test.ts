@@ -85,3 +85,11 @@ test('actions panel does not render raw HTML', () => {
   const source = readFileSync(new URL('../src/pages/builder/panel-actions.tsx', import.meta.url), 'utf8');
   assert.equal(source.includes('dangerouslySetInnerHTML'), false);
 });
+
+test('script actions: Monaco is lazy-loaded from the local package, never statically or from a CDN', () => {
+  const panel = readFileSync(new URL('../src/pages/builder/panel-actions.tsx', import.meta.url), 'utf8');
+  assert.match(panel, /lazy\(\(\) => import\('\.\/code-editor'\)\)/);
+  assert.equal(/from '(monaco-editor|@monaco-editor\/react)/.test(panel), false);
+  const editor = readFileSync(new URL('../src/pages/builder/code-editor.tsx', import.meta.url), 'utf8');
+  assert.match(editor, /loader\.config\(\{ monaco \}\)/);
+});
