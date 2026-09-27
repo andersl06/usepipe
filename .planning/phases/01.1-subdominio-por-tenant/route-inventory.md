@@ -1,189 +1,159 @@
 # Inventário de rotas e redirecionamentos (insumo da fase 01.1)
 
-Levantado em 2026-09-27 no código de `limpeza`, já com a fase 1 aplicada. Três
-fontes: as rotas declaradas nos fronts, os 207 endpoints que o `route-match`
-extrai da API, e as capturas da Blip em `referencias-blip/` — em especial
-`portal/INDICE.md`, que registra o caminho real de cada uma das 54 páginas
-capturadas, e as notas em `pesquisa/`.
+Levantado em 2026-09-27 no código de `limpeza`, com a fase 1 aplicada.
 
-## 1. O padrão da Blip, medido
+**Método, porque a primeira versão deste documento foi por amostragem e deixou
+passar a ficha do contato:** as rotas da Blip vêm agora das **declarações de
+rota dos próprios bundles** (`url:` nos arquivos de `referencias-blip`), 172
+delas, não de busca por palavra. As nossas saem do roteador de cada front, 87.
+Os dois conjuntos crus ficam ao lado deste arquivo, em `blip-routes-raw.txt` e
+`pipe-routes-raw.txt`, para quem quiser conferir a conta. A API entra com os
+207 endpoints que o `route-match` extrai.
 
-Dois hosts por cliente, e é exatamente o desenho da fase 01.1:
+## 1. A forma do endereço
 
 ```
-<cliente>.blip.ai/application/detail/<identificador-do-bot>/<módulo>
+<cliente>.blip.ai/application/detail/<shortName>/<módulo>
 <cliente>.desk.blip.ai/<página>
 ```
 
-O terceiro nível é o **identificador do bot**, nunca um id técnico. Nas
-capturas: `supernovaprincipal`, `supernovaroteador`, `pipeprincipal`,
-`auvpsegurosrouter`, `auvpescolaprd`. No código da Blip o valor vem de
-`applicationIdentity` e de `botIdentifier`. Não existe segmento de tipo: o
-mesmo caminho serve chatbot e roteador, e quem diz qual é é o nome.
+O terceiro segmento é declarado na Blip como **`:shortName`**
+(`/application/detail/:shortName`). Não é id técnico nem tipo de bot: é o nome
+curto. A nossa tabela de fluxos já tem a coluna `short_name`, e o comentário
+dela diz exatamente isso. Também não existe segmento de tipo: o mesmo caminho
+serve chatbot e roteador.
 
-### Painel do contrato, fora do bot
+## 2. Equivalência, nome a nome
 
-`/application` (lista de bots), `/application/tenant/index` (painel),
-`/application/tenant/panel`, `/application/tenant/mtls`,
-`/application/tenant/agent`, `/application/tenant/create`,
-`/application/tenant/pipeline`, `/application/tenant/personal`,
-`/application/historic`, `/application/function`, e a criação de bot em
-`/application/create/name`, `/application/create/router` e
-`/application/create/marketplace`.
+Dos 172 nomes da Blip, 25 já se chamam igual no Pipe: `channels`, `growth`,
+`contents`, `integrations`, `webhook`, `team`, `keys`, `monitoring`, `history`,
+`reports`, `analytics`, `dashboard`, `overview`, `journey`, `dataDictionary`,
+`clicktracker`, `activeMessages`, `log`, `attendance`, `basic`, `welcome`,
+`persistentMenu`, `profile`, `login` e `dataExtractor`.
 
-### Módulos sob o bot
+Outros 26 são a mesma tela com nome diferente. Cada linha é uma decisão de
+manter o nosso nome ou adotar o da origem:
 
-| grupo | caminhos |
-|---|---|
-| visão | `home` |
-| construtor | `templates/builder`, `template/master` |
-| canais | `channels`, `channels/whatsapp-embedded` |
-| conteúdos | `contents/messagetemplate` |
-| configurações | `configurations/basic`, `configurations/welcome`, `configurations/persistent`, `configurations/apikey` |
-| crescimento | `growth/activemessages`, `growth/activemessages/payments`, `growth/clicktracker`, `growth/adsbuying`, `growth/messages/log` |
-| integrações | `integrations` |
-| contatos | `users` (lista), `users/<contactId>?ticketId=<id>` (ficha) |
-| equipe | `team` |
-| análise | `analytics/dashboard`, `analytics/dataExtractor`, `analytics/data` |
-| atendimento | `attendance/desk/` + `monitoring`, `history`, `queue-management`, `team`, `attendance-hours`, `personalizedbreaks`, `rules`, `sla-policy`, `replies`, `message-template`, `channels`, `general-settings`, `report`, `effort`, `calls-dashboard`, `sales-dashboard`, `survey-dashboard`, `blip-copilot` |
-| ticket | `attendance/history/<ticketId>` |
+| Pipe | Blip | tela |
+|---|---|---|
+| `contacts`, `contacts/:contactId` | `users`, `users/:id?ticketId` | contatos e ficha |
+| `agents/queues` | `queue-management` | filas |
+| `agents/breaks` | `personalizedbreaks` | pausas |
+| `agents/management` | `team` (atendentes) | atendentes |
+| `rules/sla` | `sla-policy` | política de SLA |
+| `rules/attendance` | `rules` | regras de atendimento |
+| `rules/hours` | `attendance-hours` | horários |
+| `communication/canned-responses` | `replies` | respostas prontas |
+| `communication/templates` | `message-template` | modelos de mensagem |
+| `reports/attendance` | `report` | relatório de atendimento |
+| `reports/effort` | `effort` | relatório de esforço |
+| `reports/satisfaction` | `survey-dashboard` | satisfação |
+| `quality-review` | `quality-assurance` | monitoria |
+| `settings/basic` | `configurations/basic` | configurações básicas |
+| `api/keys` | `configurations/apikey`, `keys` | chaves de API |
+| `tracked-links` | `clicktracker` | links rastreados |
+| `ads` | `adsbuying` | anúncios |
+| `payments` | `paymentsReport` | pagamentos |
+| `report-manager` | `data-extractor` | gerenciador de relatórios |
+| `builder` | `templates/builder` | construtor |
+| `services` | `templates/pipeline` | serviços do roteador |
+| `portal` | `application` | lista de bots |
+| `contract`, `contract/members`, `contract/certificates` | `application/tenant/*` | contrato |
+| `my-account` | `account`, `profile` | minha conta |
+| `updates` | `application/product-updates` | novidades |
+| `create/flow`, `create/router` | `application/create/name`, `application/create/router` | criar bot |
 
-### Desk
+## 3. Só na Blip
 
-`index` (atendimento), `contacts`, `analytics`, `activeMessage`,
-`bulk-ticket`, `preferences`, sempre na raiz do host `desk`.
+**Telas de produto que o Pipe não tem:** `calls-dashboard` (voz),
+`sales-dashboard`, `blip-copilot` e `ia-copilots/*` (IA no atendimento),
+`general-settings`, `whatsapp-embedded` (já diferido, bloqueado por CNPJ),
+`application/create/marketplace` e `marketplace/create` (loja de modelos),
+`brain`, `knowledge-base`, `unknown-questions`, `audiences`, `campaigns`,
+`funnel`, `smart-sales`, `blip-insights`, `blip-conversations-insights`,
+`botanalytics`, `performance`, `builder-monitoring`, `builder-observability`,
+`unit-test`, `icebreaker`, `scheduler`, `groups`, `application/historic`,
+`application/move`, `application/intelligence-lite`, `metadata-management`.
 
-## 2. O que o Pipe tem hoje
+**Integrações de terceiros como rota própria:** `salesforce`, `hubspot`,
+`rdstation`, `mailgun`, `goodData`, `dashbot`, `telegram`, `messenger`,
+`instagram`, `whatsapp`, `whatsapp-obo`, `applebusinesschat`, `businesschat`,
+`googlercs`, `blipchat2.0`.
 
-### Desk: paridade praticamente completa
+**Convite e criação de conta muito mais ramificados:**
+`application/tenant/create`, `create-success`, `existing`,
+`invitation-request-sent`, `inviteMember`, `not-found`, `permission-groups`,
+`personal/creationError`, `activate/:email?token`, `register`, `terms`,
+`initial-setup`.
 
-| Blip | Pipe |
-|---|---|
-| `index` | `/` |
-| `contacts` | `/contacts` |
-| `analytics` | `/analytics` |
-| `activeMessage` | `/activeMessage/send` |
-| `bulk-ticket` | `/bulk-ticket` |
-| `preferences` | `/preferences` |
+Nada disso é escopo da fase 01.1, que trata de endereçamento. É material de
+fase de produto, e vale virar ideia diferida em vez de ficar só na captura.
 
-Só desvia no sufixo `/send` e no camelCase de `activeMessage`, que está fora do
-padrão kebab das outras rotas.
+## 4. Só no Pipe
 
-### Gestão: mesmas telas, organização diferente
+`deployment` (implantação, que a Blip não expõe como rota),
+`switch-account/no-access`, `preferences/*` na Gestão, `quality-review/:id` e os
+resíduos da seção 7. No Desk, `bulk-ticket` e `preferences` existem na origem
+como página do host `desk`, não como rota do portal.
 
-O Pipe tem `/portal`, `/contract` (com `members` e `certificates`),
-`/my-account`, `/deployment`, `/create/flow/:passo?`, `/create/router/:passo?`
-e, por bot, `/flow/:id/<módulo>` ou `/router/:id/<módulo>` com 54 módulos.
-
-A diferença estrutural: a Blip agrupa toda a **configuração** do atendimento
-sob `attendance/desk/*`, enquanto o Pipe espalha em `monitoring`, `history`,
-`agents/*`, `rules/*`, `communication/*`, `reports/*` e `quality-review`.
-
-### API: 207 endpoints
-
-`/v1/management` 112, `/v1/channels` 18, `/v1/contacts` 11,
-`/v1/conversations` 11, `/v1/desk` 9, `/v1/auth` 8, `/v1/convites` 4,
-`/webhooks/whatsapp` 4, resto 30.
-
-## 3. Redirecionamentos existentes
-
-**No navegador:** `/` para `/portal`; e três índices de módulo (`growth` para
-`active-messages`, `settings` para `basic`, `attendance` para `monitoring`).
-
-**No servidor**, todos 302: fim do login para a base ou para o destino guardado
-no desafio; falha de provedor para a tela de login com `?error=`; início do
-OAuth e do SSO; e `/l/:codigo`, o link rastreado público.
-
-**Na borda (Traefik, VPS):** `/v1`, `/webhooks` e `/l/` para a API, `/desk`
-para o Desk com remoção de prefixo, o resto para a Gestão.
-
-## 4. O que falta, por tipo
-
-### 4.1 A divergência de URL que motivou o inventário
-
-Blip: `/application/detail/<nome-do-bot>/<módulo>`.
-Pipe: `/flow/<id>/<módulo>` e `/router/<id>/<módulo>`.
-
-Dois desvios de uma vez: o tipo do bot aparece na URL e o identificador é
-técnico. A coluna para a forma da Blip já existe no banco,
-`flow.short_name` (`packages/db/src/schema/automation.ts:48`), e o comentário
-dela diz literalmente que o valor aparece em `/application/detail/{shortName}`.
-Não há índice único: a unicidade é conferida hoje só no nome.
-
-### 4.2 A ficha do contato
-
-A Blip abre o contato **dentro do portal do bot**, com o ticket na query:
+## 5. A ficha do contato
 
 ```
-/application/detail/<bot>/users                          lista de contatos
-/application/detail/<bot>/users/<contactId>?ticketId=<id>  ficha, com uma conversa aberta
+/application/detail/<bot>/users                             lista
+/application/detail/<bot>/users/<contactId>?ticketId=<id>    ficha com conversa
 ```
 
-No código de origem o estado é `auth.application.detail.users.user`, com a
-rota `/users/:id?ticketId`, e o `<contactId>` é a identidade do contato no
-gateway, no formato `<número>@wa.gw.msging.net`. A API da Blip usa a mesma
-identidade em `/users/{identity}`. O ticket do histórico tem identidade
-própria, `<uuid>@tunnel.msging.net`, e aparece no caminho em
-`attendance/history/<ticketId>`.
+O `<contactId>` é a identidade do contato no gateway, no formato
+`<número>@wa.gw.msging.net`; o ticket tem identidade própria,
+`<uuid>@tunnel.msging.net`, e aparece em `attendance/history/<ticketId>`. No
+código da origem o estado é `auth.application.detail.users.user`, com a rota
+`/users/:id?ticketId`.
 
-**Cuidado com o nome:** na Blip, `users` sob o bot é a lista de CONTATOS
-(o título em português da tela é "Contatos"); a equipe fica em `team`. O Pipe
-inverte a palavra: usa `contacts` para contato e `team` para equipe, o que é
-mais claro, mas divergente.
+No Pipe a ficha já lê `ticketId` na query
+(`pages/flow/contacts/detalhe/detalhe.tsx:27`), igual à origem. No Desk, contato
+e ticket ficam em estado, que é a paridade decidida na D-29 da fase 1. A
+diferença é a forma do identificador: id interno aqui, identidade de canal lá.
 
-No Pipe hoje, na Gestão: `/flow/<id>/contacts` e
-`/flow/<id>/contacts/<contactId>`, e a ficha **já lê `ticketId` na query**
-(`pages/flow/contacts/detalhe/detalhe.tsx:27`), igual à origem. No Desk, a
-seleção de contato e de ticket vive em estado, não na URL, que é a paridade
-decidida na D-29 da fase 1.
+Essa rota já quebrou uma vez: o parâmetro ficou em português depois do rename e
+a ficha nunca abria, corrigido no plano 01-24.
 
-Vale registrar que essa rota já quebrou uma vez: o parâmetro tinha ficado em
-português depois do rename e a ficha nunca resolvia, corrigido no plano 01-24.
+## 6. Redirecionamentos
 
-### 4.3 Telas que a Blip tem e o Pipe não
+**No navegador:** `/` para `/portal`; `growth` para `active-messages`;
+`settings` para `basic`; `attendance` para `monitoring`.
 
-| Blip | o que é |
-|---|---|
-| `attendance/desk/calls-dashboard` | painel de chamadas (voz) |
-| `attendance/desk/sales-dashboard` | painel de vendas |
-| `attendance/desk/blip-copilot` | copiloto de IA no atendimento |
-| `attendance/desk/general-settings` | configurações gerais do atendimento |
-| `channels/whatsapp-embedded` | cadastro embutido da Meta (já diferido, bloqueado por CNPJ) |
-| `application/create/marketplace` | criar bot a partir de modelo de loja |
-| `application/tenant/pipeline`, `tenant/agent`, `tenant/personal` | painéis do contrato |
-| `application/historic`, `application/function` | histórico e funções da conta |
+**No servidor**, 302: fim do login para a base ou para o destino do desafio;
+falha de provedor para a tela de login com `?error=`; início de OAuth e SSO; e
+`/l/:codigo`, o link rastreado público.
 
-Nada disso é escopo da fase 01.1, que é de endereçamento. É material para uma
-fase de produto, e vale registrar como ideias diferidas em vez de deixar
-espalhado em captura.
+**Na borda (Traefik):** `/v1`, `/webhooks` e `/l/` para a API, `/desk` para o
+Desk com remoção de prefixo, o resto para a Gestão.
 
-### 4.4 Resíduos da fase 1
+## 7. Resíduos da fase 1
 
-1. **Seis endpoints ficaram em português sem linha no mapa aprovado**, logo não
-   foram esquecidos na aplicação: nunca foram propostos. `/v1/convites`,
-   `/v1/convites/:token/aceitar`, `/v1/convites/:token/reenviar`,
-   `/v1/etiquetas`, `/v1/eu` e `/v1/auth/sair`. Incoerente porque a tela já é
-   `/invite/:token`, em inglês, e a API responde em `/v1/convites`.
+1. **Seis endpoints ficaram em português sem linha no mapa aprovado**, logo
+   nunca foram propostos: `/v1/convites`, `/v1/convites/:token/aceitar`,
+   `/v1/convites/:token/reenviar`, `/v1/etiquetas`, `/v1/eu` e
+   `/v1/auth/sair`. A tela já é `/invite/:token` em inglês e a API responde em
+   `/v1/convites`.
 2. **Uma tradução ruim passou:** `/v1/gestao/fluxos/:id/equipe/eu` virou
    `/v1/management/flows/:id/team/i`; em inglês é `/me`.
 3. **Quatro resíduos nos fronts:** `/bem-vindo`, o módulo `alerta`, o parâmetro
    `:passo` em dois assistentes, e `/activeMessage/send` em camelCase.
 
-Mudar endpoint é mudar contrato, então cada um precisa de linha no mapa antes
-de ser aplicado, na varredura final da fase 1 (plano 01-31).
+Endpoint é contrato, então cada um precisa de linha no mapa antes de mudar, na
+varredura final da fase 1 (plano 01-31).
 
-## 5. Decisões que a fase 01.1 precisa tomar antes de executar
+## 8. Decisões que a fase 01.1 precisa antes de executar
 
-A fase foi planejada com o host por cliente e o prefixo `/application`
-(decisão D-02), mas **sem** o trecho `detail/<nome-do-bot>`. Para fechar a
-paridade:
-
-1. O caminho do bot usa `short_name`? Se sim, ele passa a ser único por
-   cliente, com migração para preencher os valores de hoje e regra de colisão.
-2. O tipo do bot sai da URL, como na Blip? Isso significa resolver fluxo ou
-   roteador pelo nome, não pelo caminho.
-3. As URLs atuais redirecionam ou morrem? A decisão D-10 da própria fase já
-   escolheu corte seco para os hosts antigos; o mesmo critério vale aqui.
-4. A configuração do atendimento é reagrupada sob `attendance/desk/*` como na
-   Blip, ou o Pipe mantém a organização própria? Isso mexe em 54 rotas de
-   front e é a maior decisão de escopo das quatro.
+1. O caminho do bot passa a ser o `short_name`, como na origem? Se sim, ele
+   vira único por cliente, com migração dos valores atuais e regra de colisão.
+2. O tipo do bot sai da URL? Hoje temos `/flow/<id>` e `/router/<id>`; a Blip
+   tem um caminho só e resolve pelo nome.
+3. As URLs de hoje redirecionam ou morrem? A D-10 da própria fase já escolheu
+   corte seco para os hosts antigos, e o mesmo critério serve aqui.
+4. Adotamos os nomes da origem na tabela da seção 2, ou mantemos os nossos? São
+   26 pares. Manter os nossos é defensável, porque vários são mais claros
+   (`contacts` em vez de `users`, `agents/queues` em vez de `queue-management`),
+   mas a decisão precisa ser explícita: hoje é mistura, 25 nomes iguais aos da
+   origem e 26 diferentes, sem critério registrado.
