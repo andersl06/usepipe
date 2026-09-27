@@ -135,6 +135,28 @@ describe('context actions', () => {
   });
 });
 
+describe('flow function actions', () => {
+  it('executes a selected library function and stores its return value', async () => {
+    const c = context();
+    const services = c.services as typeof c.services & {
+      runFlowFunction: (request: { functionId: string; args: (string | null)[] }) => Promise<unknown>;
+    };
+    services.runFlowFunction = async (request) => {
+      expect(request).toEqual({ functionId: 'func-1', args: ['Ana'] });
+      return { greeting: 'Olá Ana' };
+    };
+    c.flow.states[0]!.outputActions = [{
+      type: 'ExecuteBlipFunction',
+      settings: { functionId: 'func-1', inputVariables: ['nome'], outputVariable: 'resultado' },
+    }];
+    c.variables['nome'] = 'Ana';
+
+    await processInbound(c);
+
+    expect(c.variables['resultado']).toBe('{"greeting":"Olá Ana"}');
+  });
+});
+
 describe('script actions', () => {
   it('passes input variables to run and stores the result', async () => {
     const c = context();

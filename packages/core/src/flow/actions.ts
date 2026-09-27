@@ -306,6 +306,50 @@ function runScriptAction(version: 1 | 2): AcaoDoMotor['executar'] {
 const executeScript: AcaoDoMotor = { tipo: 'ExecuteScript', executar: runScriptAction(1) };
 const executeScriptV2: AcaoDoMotor = { tipo: 'ExecuteScriptV2', executar: runScriptAction(2) };
 
+const executeTemplate: AcaoDoMotor = {
+  tipo: 'ExecuteTemplate',
+  executar: async function (context, settings) {
+    const c = requireSettings(this.tipo, settings);
+    const template = comoTexto(campo(c, 'template'));
+    const output = comoTexto(campo(c, 'outputVariable'))?.trim();
+    if (!template) throw new Error(`O valor 'template' é obrigatório na ação '${this.tipo}'.`);
+    if (!output) throw new Error(`O valor 'outputVariable' é obrigatório na ação '${this.tipo}'.`);
+    const inputs = campo(c, 'inputVariables');
+    const names = Array.isArray(inputs) ? inputs.map((n) => comoTexto(n)?.trim() ?? '') : [];
+    const values: Record<string, unknown> = {};
+    for (const name of names) {
+      if (!name) continue;
+      const value = await getVariable(context, name);
+      try { values[name] = value === null ? null : JSON.parse(value); } catch { values[name] = value; }
+    }
+    const result = template.replace(/{{\s*([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\s*}}/g, (_match, path: string) => {
+      let value: unknown = values[path.split('.')[0]!];
+      for (const part of path.split('.').slice(1)) value = value && typeof value === 'object' ? (value as Record<string, unknown>)[part] : undefined;
+      return value === undefined || value === null ? '' : typeof value === 'string' ? value : JSON.stringify(value);
+    });
+    setContextVariable(context, output, result);
+  },
+};
+
+const executeBlipFunction: AcaoDoMotor = {
+  tipo: 'ExecuteBlipFunction',
+  executar: async function (context, settings) {
+    const c = requireSettings(this.tipo, settings);
+    if (!context.services.runFlowFunction) {
+      throw new Error(`A ação ${this.tipo} não está disponível neste fluxo.`);
+    }
+    const functionId = comoTexto(campo(c, 'functionId'))?.trim();
+    if (!functionId) throw new Error(`O valor 'functionId' é obrigatório na ação '${this.tipo}'.`);
+    const output = comoTexto(campo(c, 'outputVariable'))?.trim();
+    if (!output) throw new Error(`O valor 'outputVariable' é obrigatório na ação '${this.tipo}'.`);
+    const inputs = campo(c, 'inputVariables');
+    const names = Array.isArray(inputs) ? inputs.map((n) => comoTexto(n)?.trim() ?? '') : [];
+    const args = await Promise.all(names.map((n) => (n ? getVariable(context, n) : null)));
+    const result = await context.services.runFlowFunction({ functionId, args });
+    setContextVariable(context, output, comoTexto(result));
+  },
+};
+
 export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   setVariable,
   deleteVariable,
@@ -321,6 +365,8 @@ export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   processHttp,
   executeScript,
   executeScriptV2,
+  executeTemplate,
+  executeBlipFunction,
 ];
 
 /** Default `ActionProvider` containing actions Pipe executes. */

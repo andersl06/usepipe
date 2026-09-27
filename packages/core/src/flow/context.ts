@@ -152,6 +152,8 @@ export interface ServicosDoMotor {
   suspendHttp?(pedido: PedidoDeHttp, cursor: Omit<CursorDeProcessHttp, 'resposta'>): Promise<never>;
   /** Runs untrusted script source in the sandbox and returns the JSON-safe result. */
   runScript?(request: ScriptRequest): Promise<unknown>;
+  /** Runs a function selected from the conversation flow's function library in the same sandbox. */
+  runFlowFunction?(request: { functionId: string; args: (string | null)[] }): Promise<unknown>;
   /**
    * `IRedirectManager.RedirectUserAsync` moves the contact to another router service. When absent, this flow is not behind a router and `Redirect` fails: "o redirecionamento funciona apenas no Bot Router" (help.blip.ai).
    */
