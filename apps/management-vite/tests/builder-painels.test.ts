@@ -36,6 +36,11 @@ import {
   systemFilterVariables,
   userVariables,
 } from '../src/pages/builder/variables.ts';
+import {
+  GLOBAL_ACTIONS_SECTION_ID,
+  debugSections,
+  testVariablesToRecord,
+} from '../src/pages/builder/test-panel-logic.ts';
 
 /* ------------------------------------------------------------- variaveis.ts */
 
@@ -305,5 +310,46 @@ test('removerAcaoGlobal e moverAcaoGlobal mexem só na lista indicada', () => {
   assert.deepEqual(
     actionsGlobalList(removido, '$enteringCustomActions').map((a) => a.type),
     ['C', 'B'],
+  );
+});
+
+/* -------------------------------------------------------- test panel: test-panel-logic.ts (D-14) */
+
+test('test panel: testVariablesToRecord drops blank names and keeps values as typed', () => {
+  assert.deepEqual(
+    testVariablesToRecord([
+      { chave: 'modo', valor: 'simulação' },
+      { chave: '  ', valor: 'ignorado' },
+      { chave: ' nome ', valor: 'Ana' },
+    ]),
+    { modo: 'simulação', nome: 'Ana' },
+  );
+  assert.deepEqual(testVariablesToRecord([]), {});
+});
+
+test('test panel: debugSections appends the global actions trace after the visited blocks', () => {
+  const debug = {
+    states: [
+      { stateId: 'inicio', actions: [{ tipo: 'SetVariable' }] },
+      { stateId: 'confirma', actions: [] },
+    ],
+    actionsGlobal: [{ tipo: 'TrackEvent', error: 'falhou' }],
+    currentStateId: 'confirma',
+    variables: {},
+  };
+  const secoes = debugSections(debug);
+  assert.equal(secoes.length, 3);
+  assert.deepEqual(
+    secoes.map((s) => s.stateId),
+    ['inicio', 'confirma', GLOBAL_ACTIONS_SECTION_ID],
+  );
+  assert.deepEqual(secoes[2]?.actions, [{ tipo: 'TrackEvent', error: 'falhou' }]);
+});
+
+test('test panel: debugSections with no visited blocks still surfaces the global actions section', () => {
+  const debug = { states: [], actionsGlobal: [], currentStateId: null, variables: {} };
+  assert.deepEqual(
+    debugSections(debug).map((s) => s.stateId),
+    [GLOBAL_ACTIONS_SECTION_ID],
   );
 });

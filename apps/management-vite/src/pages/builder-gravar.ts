@@ -4,6 +4,9 @@ import type {
   RascunhoGravado,
   VersaoPublicada,
   VersionOfFlow,
+  TestRunRequest,
+  TestRunResult,
+  TestRunReset,
 } from '@pipe/contracts';
 import { api, ApiError } from '../lib/api';
 import { atualizarLeituras } from '../lib/actions';
@@ -94,5 +97,28 @@ export async function loadVersion(
     return { ok: true, value };
   } catch (error) {
     return { ok: false, error: motivoDe(error, 'Não foi possível carregar a versão.') };
+  }
+}
+
+/**
+ * The Test panel (BUILDER-04, D-14): runs one message over the current draft with the real
+ * engine, against an isolated test contact — never a real channel or conversation.
+ */
+export async function runTest(id: string, payload: TestRunRequest): Promise<Resultado<TestRunResult>> {
+  try {
+    const value = await api.post<TestRunResult>(`/v1/management/flows/${id}/builder/test-runs`, payload);
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível enviar a mensagem de teste.') };
+  }
+}
+
+/** Resets the test contact and its test variables (D-14). */
+export async function resetTest(id: string): Promise<Resultado<TestRunReset>> {
+  try {
+    const value = await api.delete<TestRunReset>(`/v1/management/flows/${id}/builder/test-runs`);
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível reiniciar o teste.') };
   }
 }

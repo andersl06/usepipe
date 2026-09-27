@@ -1,10 +1,13 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Req } from '@nestjs/common';
 import type {
   BuilderOfFlow,
   DesenhoDoBuilder,
   RascunhoGravado,
   VersionOfFlow,
   VersaoPublicada,
+  TestRunRequest,
+  TestRunResult,
+  TestRunReset,
 } from '@pipe/contracts';
 import { noTenant } from '../database.js';
 import { WithSession, sessionOf } from '../session.js';
@@ -17,6 +20,7 @@ import {
   restoreVersion,
   salvarRascunho,
 } from '../domain/management/builder-of-flow.js';
+import { runBuilderTest, resetBuilderTest } from '../domain/management/builder-test-run.js';
 import { uuidOu404 } from './management-flow.js';
 
 /**
@@ -107,6 +111,39 @@ export class ManagementBuilderController {
     const numero = /^\d+$/.test(versao) ? Number(versao) : Number.NaN;
     return noTenant(session.tenantId, (tx) =>
       restoreVersion(tx, session.tenantId, session.userId, id, numero),
+    );
+  }
+
+  /**
+   * The Test panel (BUILDER-04, D-14): runs one message over the CURRENT DRAFT with the real
+   * engine and an isolated test contact — never a real channel, never a real conversation.
+   */
+  @Post(':id/builder/test-runs')
+  @HttpCode(200)
+  @WithSession()
+  async testRun(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Body() corpo: TestRunRequest,
+  ): Promise<TestRunResult> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) =>
+      runBuilderTest(tx, sessao.tenantId, sessao.userId, id, corpo),
+    );
+  }
+
+  /** Resets the test contact and its test variables (D-14); the next message starts from the root again. */
+  @Delete(':id/builder/test-runs')
+  @WithSession()
+  async resetTestRun(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+  ): Promise<TestRunReset> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) =>
+      resetBuilderTest(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 }

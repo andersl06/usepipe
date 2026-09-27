@@ -702,3 +702,150 @@
   margin: 8px 0;
   font-size: 12px;
 }
+
+/* Test panel (BUILDER-04, D-14): local simulation of the current draft, with an embedded Debug trail. */
+.bl-test-toggle {
+  position: absolute;
+  right: calc(var(--p-e-5) + 64px);
+  bottom: var(--p-e-5);
+  z-index: 2;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--p-r-pilula);
+  background: var(--p-builder-marca);
+  color: var(--p-marca-conteudo);
+  box-shadow: var(--p-sombra-2);
+  cursor: pointer;
+}
+.bl-test-toggle:hover,
+.bl-test-toggle--ativo {
+  background: var(--p-builder-marca-hover);
+}
+/*
+ * The test panel keeps `.bl-panel`'s plain full-height sidebar geometry (445px, no inset — the
+ * captured reference's `chatbot-test-bar`, C-37), unlike `.bl-panel--block`'s floating card; it
+ * only needs its own dark-surface tokens for the elements below.
+ */
+.bl-panel--test {
+  --p-superficie-1: #393939;
+  --p-conteudo-suave: #fff;
+  --p-linha-media: rgb(255 255 255 / 20%);
+}
+.bl-panel--test .bl-test-variaveis-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 20px 16px;
+  border-bottom: 1px solid var(--p-linha-media);
+}
+.bl-test-variavel-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bl-test-variavel-linha .campo {
+  flex: 1;
+  min-width: 0;
+}
+.bl-test-conversa {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bl-test-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--p-conteudo-suave);
+}
+.bl-test-mensagens {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.bl-test-msg {
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.bl-test-msg p {
+  margin: 0;
+}
+.bl-test-msg--usuario {
+  align-self: flex-end;
+  background: var(--p-builder-marca);
+  color: var(--p-marca-conteudo);
+}
+.bl-test-msg--bot {
+  align-self: flex-start;
+  background: var(--p-superficie-1);
+}
+.bl-test-midia {
+  max-width: 100%;
+  border-radius: 8px;
+}
+.bl-test-opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.bl-test-opcao {
+  padding: 6px 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-pilula);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.bl-test-opcao:hover {
+  border-color: var(--p-builder-marca);
+}
+.bl-test-campo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--p-linha-media);
+}
+.bl-test-campo .campo {
+  flex: 1;
+  min-width: 0;
+}
+.bl-test-debug {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--p-linha-media);
+}
+.bl-test-debug-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bl-test-bloco-link {
+  border: 0;
+  background: transparent;
+  color: var(--p-builder-marca);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+.bl-test-variaveis,
+.bl-test-estados {
+  margin: 0;
+  padding-left: 16px;
+}

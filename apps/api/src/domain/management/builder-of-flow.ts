@@ -394,6 +394,36 @@ async function gravarRascunho(
 
 /* -------------------------------------------------------------- Gestos */
 
+/** Same 403/404/409 gate `carregarBuilder` applies, for callers that only need the permission check (the test panel's reset, D-14). */
+export async function assertAccessToBuilder(
+  tx: TransactionPipe,
+  tid: string,
+  usuarioId: string,
+  fluxoId: string,
+): Promise<void> {
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDIT_FLOW);
+}
+
+/**
+ * The draft (or published, or default) drawing compiled to engine format, with the same
+ * rascunho ?? publicada ?? padrao precedence `carregarBuilder` reads — for callers that run the
+ * engine over it instead of drawing the canvas (the test panel, D-14).
+ */
+export async function compiledDraftOfFlow(
+  tx: TransactionPipe,
+  tid: string,
+  usuarioId: string,
+  fluxoId: string,
+): Promise<{ flow: FlowBlip; errors: BlockError[] }> {
+  await assertAccessToBuilder(tx, tid, usuarioId, fluxoId);
+  const publicada = await versionInState(tx, fluxoId, 'publicada');
+  const rascunho = await versionInState(tx, fluxoId, 'rascunho');
+  const carregada = rascunho ?? publicada;
+  const desenho = carregada ? await desenhoDaVersao(tx, carregada.id) : DESENHO_PADRAO;
+  const compilado = compilar(desenho, fluxoId);
+  return { flow: compilado.flow, errors: compilado.errors };
+}
+
 /** Builder opens the draft, otherwise the published version, otherwise the default flow. */
 export async function carregarBuilder(
   tx: TransactionPipe,
