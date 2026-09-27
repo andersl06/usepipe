@@ -33,6 +33,13 @@
 - Pílula lateral `#282828` → `#1f1f1f`; botões do rodapé 40 → 48 px; botões "+ Adicionar…" 48 → 56 px; zoom ainda em `var(--moss)` (`#4a5d23`) em `builder.css` → token `--p-builder-marca`; raio e cor dos itens do "Novo bloco"; altura das opções e sombra do menu de ferramentas; tabela de Versões (505 px) mais larga que o painel.
 - Lint anterior à Fase 2: `@pipe/realtime` `src/index.ts:113`, `@pipe/desk-vite` `desk-selection.tsx:43`, `@pipe/crm` padrão `semente`.
 
+## Achados da verificação da fase (2026-09-27, menores)
+
+- Ícone `userEngaged` existe em `packages/ui/src/icones.tsx` mas nenhum componente o usa (BUILDER-04 o conta como entregue): ligar no bloco de Atendimento humano no canvas e no menu "Novo bloco".
+- Botão desabilitado "Conversa — em breve" em `apps/management-vite/src/pages/builder.tsx`.
+- Salvar o rascunho automaticamente antes da primeira mensagem do painel de Teste.
+- Verificador de catálogo não confere itens sem MIME (Carrossel, Solicitar ligação); zoom em `var(--moss)` fora do diretório coberto pelo grep do gate.
+
 ## Fica de fora (decisão do dono)
 
 - Animação de entrada do painel lateral (0,5 s na referência, instantânea no Pipe).
