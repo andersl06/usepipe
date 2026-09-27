@@ -64,10 +64,12 @@ export function Selection({
     return () => document.removeEventListener('mousedown', aoClicarFora);
   }, []);
 
-  function escolher(value: string) {
-    if (value === undefined) setSelecionado(value);
+  // `escolhido`, not `value`: the parameter must not shadow the `value` prop, which is
+  // what tells a controlled select (parent owns the value) from an uncontrolled one.
+  function escolher(escolhido: string) {
+    if (value === undefined) setSelecionado(escolhido);
     setAberto(false);
-    if (campo.current) campo.current.value = value;
+    if (campo.current) campo.current.value = escolhido;
     const alvo = campo.current as unknown as HTMLSelectElement;
     onChange?.({ target: alvo, currentTarget: alvo } as ChangeEvent<HTMLSelectElement>);
   }
