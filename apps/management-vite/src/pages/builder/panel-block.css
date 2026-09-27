@@ -6,8 +6,7 @@
   src: url('/fonts/nunito-sans-latin.woff2') format('woff2');
 }
 /* Measurements from portal.css; effective surfaces from the dark `bds-theme-provider`. */
-.bl-panel--block,
-.bl-panel--test {
+.bl-panel--block {
   --p-superficie-0: #424242;
   --p-superficie-1: #393939;
   --p-superficie-2: #1f1f1f;
@@ -724,6 +723,16 @@
 .bl-test-toggle:hover,
 .bl-test-toggle--ativo {
   background: var(--p-builder-marca-hover);
+}
+/*
+ * The test panel keeps `.bl-panel`'s plain full-height sidebar geometry (445px, no inset — the
+ * captured reference's `chatbot-test-bar`, C-37), unlike `.bl-panel--block`'s floating card; it
+ * only needs its own dark-surface tokens for the elements below.
+ */
+.bl-panel--test {
+  --p-superficie-1: #393939;
+  --p-conteudo-suave: #fff;
+  --p-linha-media: rgb(255 255 255 / 20%);
 }
 .bl-panel--test .bl-test-variaveis-form {
   display: flex;
