@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ScriptRequest } from '@pipe/core';
-import { runFlowScript, scriptFetch } from '../src/domain/script-sandbox.js';
+import {
+  MAX_FETCHES_POR_SCRIPT,
+  MAX_ISOLATES,
+  MAX_RESULTADO_BYTES,
+  runFlowScript,
+  scriptFetch,
+} from '../src/domain/script-sandbox.js';
 import { chamarComMtls } from '../src/domain/mtls.js';
 import { confirmarUrlSegura } from '../src/domain/management/integrations.js';
 
@@ -191,7 +197,7 @@ describe('script sandbox: HTTP', () => {
       { fetch },
     );
     expect(r).toBe('200 ok https://api.exemplo.com/x');
-    expect(fetch).toHaveBeenCalledWith('https://api.exemplo.com/x', { method: 'GET' });
+    expect(fetch).toHaveBeenCalledWith('https://api.exemplo.com/x', { method: 'GET' }, expect.any(AbortSignal));
   });
 
   it('blocks private URL from script HTTP (SSRF)', async () => {
@@ -229,6 +235,65 @@ describe('script sandbox: HTTP', () => {
     for (const url of ['https://fcbarcelona.com/', 'https://fd.exemplo.com/', 'https://[2001:4860:4860::8888]/', 'https://8.8.8.8/']) {
       expect(() => confirmarUrlSegura(url)).not.toThrow();
     }
+  });
+});
+
+describe('script sandbox: resource limits (WR-02)', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('caps request.fetchAsync calls per execution and aborts the host calls when it ends', async () => {
+    const sinais: AbortSignal[] = [];
+    const fetch = vi.fn(async (_url: unknown, _init: unknown, signal?: AbortSignal) => {
+      if (signal) sinais.push(signal);
+      return { status: 200, body: 'ok' };
+    });
+    await expect(
+      runFlowScript(
+        script(`async function run() {
+          await Promise.all(Array.from({ length: ${MAX_FETCHES_POR_SCRIPT + 1} }, () => request.fetchAsync('https://api.exemplo.com/x')));
+          return 'todas';
+        }`),
+        { fetch },
+      ),
+    ).rejects.toThrow(`no máximo ${MAX_FETCHES_POR_SCRIPT}`);
+    expect(fetch).toHaveBeenCalledTimes(MAX_FETCHES_POR_SCRIPT);
+    expect(sinais.length).toBeGreaterThan(0);
+    expect(sinais.every((s) => s.aborted)).toBe(true);
+  });
+
+  it('reads the script HTTP response as a stream and stops at the byte limit', async () => {
+    let lidos = 0;
+    const corpo = new ReadableStream<Uint8Array>({
+      pull(controle) {
+        // An endless body: only a streaming reader that stops at the limit finishes.
+        lidos += 64 * 1024;
+        controle.enqueue(new Uint8Array(64 * 1024).fill(97));
+      },
+    });
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(corpo, { status: 200 }));
+    const r = await chamarComMtls(TENANT_QUALQUER, 'http://publico.exemplo.com/grande', {
+      metodo: 'GET', headers: {}, timeoutMs: 5_000, maxBytes: 1_048_576,
+    });
+    const texto = await r.texto();
+    expect(texto.length).toBe(1_048_576);
+    expect(lidos).toBeLessThan(2 * 1_048_576);
+  });
+
+  it('limits concurrent isolates: extra executions wait for a slot, and give up at their time limit', async () => {
+    const lentos = Array.from({ length: MAX_ISOLATES }, () =>
+      runFlowScript(script('function run() { const t = Date.now(); while (Date.now() - t < 300) {} return 1; }')));
+    const esperando = runFlowScript(script('function run() { return 2; }'));
+    const desistiu = runFlowScript(script('function run() { return 3; }', { timeoutMs: 50 }));
+    await expect(desistiu).rejects.toThrow(/scripts em execução/);
+    expect(await Promise.all(lentos)).toEqual(Array(MAX_ISOLATES).fill(1));
+    expect(await esperando).toBe(2);
+  });
+
+  it('refuses a return value larger than the variable limit', async () => {
+    await expect(
+      runFlowScript(script(`function run() { return 'x'.repeat(${MAX_RESULTADO_BYTES + 1}); }`)),
+    ).rejects.toThrow(/retorno do script/);
+    expect(await runFlowScript(script(`function run() { return 'x'.repeat(${MAX_RESULTADO_BYTES - 10}); }`))).toHaveLength(MAX_RESULTADO_BYTES - 10);
   });
 });
 

@@ -150,6 +150,27 @@ export interface PedidoDeSaida {
   timeoutMs: number;
   /** Caller's own deadline (a flow action's time limit), combined with `timeoutMs`. */
   signal?: AbortSignal;
+  /** Read at most this many body bytes: the rest is never downloaded (the stream is cancelled). */
+  maxBytes?: number;
+}
+
+/** Read a body stream up to `limite` bytes, then cancel it: the remainder never reaches memory. */
+async function lerAte(corpo: ReadableStream<Uint8Array> | null, limite: number): Promise<string> {
+  if (!corpo) return '';
+  const leitor = corpo.getReader();
+  const partes: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (total < limite) {
+      const { done, value } = await leitor.read();
+      if (done) break;
+      partes.push(value);
+      total += value.byteLength;
+    }
+  } finally {
+    await leitor.cancel().catch(() => {});
+  }
+  return Buffer.concat(partes).subarray(0, limite).toString('utf8');
 }
 
 function prazoDo(pedido: PedidoDeSaida): AbortSignal {
@@ -177,16 +198,27 @@ function pedirComAgente(url: string, pedido: PedidoDeSaida, agente: https.Agent)
       },
       (resposta) => {
         const pedacos: Buffer[] = [];
-        resposta.on('data', (pedaco: Buffer) => pedacos.push(pedaco));
-        resposta.on('error', rejeitar);
-        resposta.on('end', () => {
+        let total = 0;
+        const limite = pedido.maxBytes ?? Infinity;
+        const terminar = () => {
           const status = resposta.statusCode ?? 0;
           resolver({
             ok: status >= 200 && status < 300,
             status,
-            texto: async () => Buffer.concat(pedacos).toString('utf8'),
+            texto: async () => Buffer.concat(pedacos).subarray(0, limite).toString('utf8'),
           });
+        };
+        resposta.on('data', (pedaco: Buffer) => {
+          pedacos.push(pedaco);
+          total += pedaco.byteLength;
+          // Past the limit: stop downloading (the socket is dropped) and answer with what arrived.
+          if (total >= limite) {
+            resposta.destroy();
+            terminar();
+          }
         });
+        resposta.on('error', rejeitar);
+        resposta.on('end', terminar);
       },
     );
     request.on('error', rejeitar);
@@ -222,7 +254,12 @@ export async function chamarComMtls(
     });
     const destino = resposta.headers.get('location');
     if (resposta.status < 300 || resposta.status >= 400 || !destino) {
-      return { ok: resposta.ok, status: resposta.status, texto: () => resposta.text() };
+      const limite = p.maxBytes;
+      return {
+        ok: resposta.ok,
+        status: resposta.status,
+        texto: () => (limite === undefined ? resposta.text() : lerAte(resposta.body, limite)),
+      };
     }
     await resposta.body?.cancel();
     if (salto >= MAX_REDIRECIONAMENTOS) {
