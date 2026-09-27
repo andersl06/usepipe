@@ -4,3 +4,5 @@ created: 2026-09-24
 ---
 
 Only memory-queue mode has a sweep (apps/api/src/filas.ts). In production (BullMQ, attempts: 1) any failure after the claim leaves the row in chamando and blocks every new message from that contact forever, with no alert. Add a periodic sweep with timeout + alert. See .planning/debug/process-http-auto-resume.md.
+
+Resolved: phase 02, plan 02-05 (D-26), commit 34165ac
