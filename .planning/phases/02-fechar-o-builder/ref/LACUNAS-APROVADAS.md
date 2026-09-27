@@ -21,6 +21,8 @@
 - 02-12: criar bloco de pesquisa com um clique a partir do seletor de destino de uma saída de atendimento (hoje: Novo bloco → Pesquisa, depois ligar).
 - 02-09: validação das setas com o fluxo real AUVP Capital, bloqueada pela captura C-42 (export do fluxo + print do canvas).
 
+- 02-16: sandbox de script roda dentro do processo da API (aprovado pelo dono em 2026-09-27: isolated-vm@6.2.0, @monaco-editor/react@4.7.0, monaco-editor@0.57.0, flag --no-node-snapshot). Endurecimento: mover o sandbox para um processo filho dedicado, para um script hostil não derrubar a API.
+
 ## Fica de fora (decisão do dono)
 
 - Animação de entrada do painel lateral (0,5 s na referência, instantânea no Pipe).
