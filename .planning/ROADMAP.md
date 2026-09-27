@@ -267,7 +267,7 @@ Plans:
 **Wave 9** *(blocked on Wave 8 completion)*
 
 - [ ] 02-18-PLAN.md — Biblioteca de funções: painel e busca no Builder
-- [ ] 02-19-PLAN.md — Conteúdo: slot dinâmico (HTTP/Dinâmico) e fechamento do catálogo
+- [x] 02-19-PLAN.md — Conteúdo: slot dinâmico (HTTP/Dinâmico) e fechamento do catálogo
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
@@ -381,7 +381,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
-| 2. Fechar o Builder | 17/22 | In Progress|  |
+| 2. Fechar o Builder | 18/22 | In Progress|  |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |
