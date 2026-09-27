@@ -295,6 +295,23 @@ function montarConteudo(
 
   const typeMedia = TYPES_OF_MEDIA[linha.tipo];
   if (typeMedia) {
+    // Bot-authored media (`gravarRespostaDoBot` in `apps/api/src/domain/flow.ts`) points at an
+    // external URL declared in the flow, already SSRF-checked when the message was recorded —
+    // never a Pipe-uploaded `anexo`. Every channel here accepts media by link (§ `cliente.ts`,
+    // `instagram.ts`, `messenger.ts`), so no download/upload step is needed for either source.
+    const midia = linha.dados?.['midia'] as
+      | { url?: unknown; mime?: unknown; titulo?: unknown; nomeArquivo?: unknown }
+      | undefined;
+    if (midia && typeof midia.url === 'string' && midia.url) {
+      return {
+        conteudo: {
+          tipo: typeMedia,
+          link: midia.url,
+          legenda: typeof midia.titulo === 'string' ? midia.titulo : (linha.conteudo ?? undefined),
+          nameFile: typeof midia.nomeArquivo === 'string' ? midia.nomeArquivo : undefined,
+        },
+      };
+    }
     if (!linha.anexo_mime || linha.anexo_bytes === null || !linha.anexo_chave) {
       return { erro: { codigo: 'anexo_ausente', texto: `Mensagem de ${linha.tipo} sem anexo.` } };
     }
