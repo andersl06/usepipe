@@ -82,10 +82,12 @@ O Builder é **sempre escuro**, independente do alternador de tema do resto do p
 
 **Âncora visual do canvas:** com um bloco selecionado, o anel de marca do nó (`--p-builder-marca-anel`, `box-shadow: 0 0 0 4px`) é o ponto focal da tela — todo o resto (demais nós, painel lateral, fundo) fica em tokens de superfície neutros para não competir com ele. No estado vazio (fluxo novo, sem blocos), o foco passa para o texto do empty state ("Comece pelo primeiro bloco" — ver Copywriting), que ocupa o centro do canvas.
 
+> **Correção 2026-09-26 (após o portão, medida na reconstrução da referência):** o Builder da Blip roda dentro de `bds-theme-provider theme="dark"`, e os valores efetivos em produção são: canvas `#141414` com grade `#242424` 1px/16px; nó `#393939` com texto `#fff`; painel lateral, pílula, menu "Novo bloco" e menu de contexto `#1f1f1f`; bolha de conteúdo `#393939` com borda `#666`, raio `13px 13px 13px 2px`; estado "Salvo" `#393939`; setas `#666` 2px (a seta **não** é cor de marca e não entra na regra azul→verde); nó selecionado = anel 4px + fundo azul de marca com véu `#141414` a 50%; botão "+ Adicionar…" 56px branco com texto `#424242`. A tabela abaixo listava `#12140e/#1a1d15/#232619` (tokens do resto do produto); **os valores que valem para o Builder são os da referência**, que o código atual (`editor.css`, `painel-bloco.css`) já usa. Só os azuis (`#3f7de8`, `#498bff`, `#0c50c5`, `#003c64`) viram tokens `--p-builder-marca-*`. Fonte dentro do Builder: **Nunito Sans**, por paridade (D-30); trocar para IBM Plex Sans é uma decisão do dono, ainda aberta, e custa uma linha. Tabela completa: `referencias-blip/builder/builder/reconstrucao/MEDIDAS.md` (fora do git, D-33).
+
 | Role | Value (tema escuro, tokens existentes) | Usage |
 |------|-------|-------|
-| Dominant (60%) | `--p-superficie-1` escuro `#12140e` | Fundo do canvas |
-| Secondary (30%) | `--p-superficie-0` escuro `#1a1d15` (nó, cartão) / `--p-superficie-2` escuro `#232619` (painel lateral, recesso) | Nós, painel lateral, cabeçalho |
+| Dominant (60%) | `#141414` (grade `#242424`) — ver correção acima; o token `--p-superficie-1` escuro `#12140e` NÃO se aplica ao canvas | Fundo do canvas |
+| Secondary (30%) | nó `#393939` / painel lateral, pílula e menus `#1f1f1f` — ver correção acima | Nós, painel lateral, cabeçalho |
 | Accent (10%) | `--p-marca` escuro `#a3b76a` como semente — granularizado abaixo | Ver lista fechada de elementos |
 | Destructive | `--p-erro-conteudo` escuro `#e4816d` sobre `--p-erro-fundo` escuro `#3a211b` | Excluir bloco, excluir ligação, descartar rascunho — sempre com confirmação (ver Copywriting) |
 
