@@ -11,7 +11,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 const { dubleWhatsApp, processarOutbox } = await import('@pipe/workers');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
-const { importFlowOfBlip, toChannelOutput } = await import('../src/domain/flow.js');
+const { importFlowOfBlip, resolveDynamicContent, toChannelOutput } = await import('../src/domain/flow.js');
 const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
@@ -195,5 +195,37 @@ describe('interactive content channel output', () => {
         conteudo: { uri: 'http://example.com' },
       }),
     ).toThrow('A URL precisa usar HTTPS.');
+  });
+});
+
+describe('dynamic content', () => {
+  const http = (uri: string) => ({
+    tipo: 'application/vnd.pipe.http-content+json',
+    conteudo: { uri, type: 'text/plain', headers: {}, requestTimeout: 60 },
+  });
+
+  it('resolves HTTP content through the safe outbound boundary', async () => {
+    const resolved = await resolveDynamicContent(http('https://content.example/test'), 'tenant', {
+      callHttp: async () => ({ ok: true, status: 200, texto: async () => 'Resposta HTTP' }),
+    });
+    expect(toChannelOutput(resolved)).toMatchObject({ tipo: 'texto', texto: 'Resposta HTTP' });
+  });
+
+  it.each(['http://localhost/test', 'https://169.254.169.254/latest/meta-data'])('refuses unsafe HTTP URL %s', async (uri) => {
+    await expect(resolveDynamicContent(http(uri), 'tenant')).rejects.toThrow();
+  });
+
+  it('fails HTTP timeout and invalid dynamic JSON without a partial output', async () => {
+    await expect(
+      resolveDynamicContent(http('https://content.example/slow'), 'tenant', {
+        callHttp: async () => { throw new Error('timeout'); },
+      }),
+    ).rejects.toThrow('Conteúdo HTTP');
+    await expect(
+      resolveDynamicContent(
+        { tipo: 'application/vnd.pipe.dynamic-content+json', conteudo: '{not json', bruto: true },
+        'tenant',
+      ),
+    ).rejects.toThrow('JSON LIME válido');
   });
 });
