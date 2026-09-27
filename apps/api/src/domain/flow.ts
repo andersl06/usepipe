@@ -37,6 +37,7 @@ import { redirectInRouter, serviceOfRouter } from './router.js';
 import { chamarComMtls } from './mtls.js';
 import { runFlowScript, scriptFetch } from './script-sandbox.js';
 import { confirmarUrlSegura } from './management/integrations.js';
+import { loadFlowFunctions } from './management/flow-functions.js';
 import type { TipoEnvio } from './envio.js';
 
 /**
@@ -267,6 +268,7 @@ export async function runFlowInInbound(
   const executionId = execution.id;
 
   const { flow, blockByCode } = await loadFlow(tx, publicado);
+  const flowFunctions = await loadFlowFunctions(tx, publicado.flowId);
   // With shared router context, variables are scoped to the router-contact pair.
   const variables: Record<string, string> = {
     ...(roteador?.sharesContext ? roteador.contexto : execution.context),
@@ -390,6 +392,21 @@ export async function runFlowInInbound(
     },
     // Like callHttp, the script (up to 10 s) still runs inside the inbound transaction.
     runScript: (request) => runFlowScript(request, { fetch: scriptFetch(e.tenantId) }),
+    runFlowFunction: async ({ functionId, args }) => {
+      const definition = flowFunctions.get(functionId);
+      if (!definition) throw new Error(`A função '${functionId}' não existe neste fluxo.`);
+      if (definition.parameters.length !== args.length) {
+        throw new Error(`A função '${definition.name}' esperava ${definition.parameters.length} parâmetro(s).`);
+      }
+      return runFlowScript({
+        version: 2,
+        source: definition.code,
+        functionName: definition.name,
+        args,
+        timeoutMs: 10_000,
+        localTimeZone: false,
+      }, { fetch: scriptFetch(e.tenantId) });
+    },
     suspendHttp: async (pedido, cursor) => {
       confirmarUrlSegura(pedido.url);
       const key = `${executionId}:${e.message.idProvedor}:${cursor.estadoId ?? 'global'}:${cursor.lista}:${cursor.indice}`;

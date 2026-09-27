@@ -390,7 +390,7 @@ async function processActions(
       continue;
     }
 
-    const tipo = flowAction.type === 'ExecuteBlipFunction' ? 'ExecuteScriptV2' : flowAction.type;
+    const tipo = flowAction.type;
     const acao = obterAcao(provedor, tipo);
     const passo: RastroDeAcao = { tipo: flowAction.type };
     rastro.push(passo);

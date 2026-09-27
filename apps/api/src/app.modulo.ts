@@ -41,6 +41,7 @@ import { InstagramChannelsController } from './controllers/channels-instagram.js
 import { MessengerChannelsController } from './controllers/channels-messenger.js';
 import { MessengerWebhookController } from './controllers/webhooks-messenger.js';
 import { SatisfactionSurveysController } from './controllers/satisfaction-surveys.js';
+import { FlowFunctionsController } from './controllers/flow-functions.js';
 
 /**
  * Root module. Controllers call domain functions directly, as the Desk does with `servidor/consultas.ts`, instead of using constructor type injection. This avoids `emitDecoratorMetadata`, which conflicts with the base tsconfig's `verbatimModuleSyntax`, and lets rules be tested without starting Nest. Guards are registered as ready values for the same reason. The two guards cover distinct markers: `@Escopos(...)` requires an API key for integrations, while `@ComSessao()` requires a browser session. An unmarked route is deliberately public: the Meta webhook authenticates by signature, and `/saude` is public.
@@ -85,6 +86,7 @@ import { SatisfactionSurveysController } from './controllers/satisfaction-survey
     ContactImportsController,
     AccountsController,
     SatisfactionSurveysController,
+    FlowFunctionsController,
   ],
   providers: [
     { provide: APP_GUARD, useValue: new ApiKeyGuard(new Reflector()) },
