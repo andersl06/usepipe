@@ -349,3 +349,56 @@ export interface VersaoPublicada {
   /** Previous version taken offline when this one went live, if any. */
   arquivada: VersionOfFlow | null;
 }
+
+/**
+ * Test panel (D-14): a message the bot sends during a local simulation, in the same shape
+ * `toChannelOutput` returns for a real channel.
+ */
+export interface TestRunMessage {
+  tipo: string;
+  texto: string | null;
+  dados: Record<string, unknown> | null;
+}
+
+/** One action's execution result, mirroring the engine's `RastroDeAcao`. */
+export interface TestRunActionTrace {
+  tipo: string;
+  error?: string;
+  esquecida?: boolean;
+}
+
+/** One block visited while processing a test message. */
+export interface TestRunStateTrace {
+  stateId: string;
+  actions: TestRunActionTrace[];
+  nextStateId?: string | null;
+  error?: string;
+}
+
+/** Debug panel content (D-14): current block, variables, executed actions and errors. */
+export interface TestRunDebug {
+  states: TestRunStateTrace[];
+  actionsGlobal: TestRunActionTrace[];
+  /** Block waiting for the next test message; null when the run left no state pending. */
+  currentStateId: string | null;
+  variables: Record<string, string>;
+  /** Present when the run failed before finishing. */
+  error?: string;
+}
+
+/** `POST /v1/management/flows/:id/builder/test-runs`. */
+export interface TestRunRequest {
+  input: string;
+  testVariables?: Record<string, string>;
+}
+
+/** Response of a test-run message: the bot's replies plus the Debug trail. */
+export interface TestRunResult {
+  messages: TestRunMessage[];
+  debug: TestRunDebug;
+}
+
+/** `DELETE /v1/management/flows/:id/builder/test-runs`. */
+export interface TestRunReset {
+  reset: true;
+}
