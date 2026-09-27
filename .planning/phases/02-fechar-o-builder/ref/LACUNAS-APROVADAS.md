@@ -36,3 +36,4 @@ Levantamento de 2026-09-27: a Blip usa AngularJS 1.x (SPA, ui-router), jsPlumb n
 | 9 | Reordenação por arrasto consistente em todas as listas do painel | média | Mesmo item 4; reaproveitar o padrão `draggable` de `panel-actions.tsx`. |
 
 Não entram: micro-frontends e web components (organização interna da referência, sem efeito visível).
+- Teste instável: `apps/api/tests/flow-content.test.ts` > figurinha falhou uma vez com outro executor usando o mesmo Postgres em paralelo e passou isolado (2026-09-27). Rever na regressão final (02-22).
