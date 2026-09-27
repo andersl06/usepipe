@@ -18,8 +18,8 @@ export interface CampoDaAcao {
   rotulo: string;
   ajuda?: string;
   obrigatorio?: boolean;
-  /** `texto` is one line; `longo` uses a textarea; `code` is script source; `variableList` is a list of variable names. */
-  tipo?: 'texto' | 'longo' | 'json' | 'cabecalhos' | 'code' | 'variableList';
+  /** `texto` is one line; `longo` uses a textarea; `code` is script source; `variableList` is a list of variable names; `functionId` picks a function from the library (D-22). */
+  tipo?: 'texto' | 'longo' | 'json' | 'cabecalhos' | 'code' | 'variableList' | 'functionId';
   /** Valores fechados usam o mesmo seletor do Builder. */
   options?: readonly string[];
 }
@@ -49,6 +49,28 @@ const SCRIPT_FIELDS: CampoDaAcao[] = [
 
 /** Starting source for a new script action; input variables arrive as `run` parameters. */
 export const SCRIPT_TEMPLATE = 'function run() {\n  return;\n}\n';
+
+/** Shared by `ExecuteTemplate` and `ExecuteBlipFunction`: the engine (`actions.ts`) reads input variables as call arguments and writes the result to `outputVariable`, same contract as the script actions. */
+const INPUT_VARIABLES_FIELD: CampoDaAcao = {
+  key: 'inputVariables',
+  rotulo: 'Variáveis de entrada',
+  tipo: 'variableList',
+  ajuda: 'Você pode utilizar uma das variáveis pré-determinadas na lista ou definidas em resposta do usuário',
+};
+
+/** `ExecuteTemplate` renders Handlebars; `{{nome}}`/`{{pedido.numero}}` are read from the input variables above. */
+const TEMPLATE_FIELDS: CampoDaAcao[] = [
+  { key: 'template', rotulo: 'Template', obrigatorio: true, tipo: 'longo', ajuda: 'Adicione o template para execução correta da funcionalidade.' },
+  INPUT_VARIABLES_FIELD,
+  { key: 'outputVariable', rotulo: 'Salvar retorno', obrigatorio: true, ajuda: 'Para mostrar as informações da consulta no fluxo, utilize: {{NomeDaVariável}}' },
+];
+
+/** `ExecuteBlipFunction` runs a named function from the library (D-22) instead of inline source. */
+const BLIP_FUNCTION_FIELDS: CampoDaAcao[] = [
+  { key: 'functionId', rotulo: 'Definição da função', obrigatorio: true, tipo: 'functionId' },
+  INPUT_VARIABLES_FIELD,
+  { key: 'outputVariable', rotulo: 'Variável para o valor de retorno', obrigatorio: true },
+];
 
 // CATALOGO_OF_ACTIONS is the applied Phase 1 symbol recorded by the catalog gate.
 export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
@@ -111,6 +133,22 @@ export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
     titulo: 'Executar script 2.0',
     grupo: 'Executar',
     campos: SCRIPT_FIELDS,
+  },
+  {
+    tipo: 'ExecuteTemplate',
+    rotulo: 'Executar template',
+    titulo: 'Executar template',
+    grupo: 'Executar',
+    info: 'Renderiza um template Handlebars — sem execução de script arbitrário.',
+    campos: TEMPLATE_FIELDS,
+  },
+  {
+    tipo: 'ExecuteBlipFunction',
+    rotulo: 'Função da biblioteca',
+    titulo: 'Função da biblioteca',
+    grupo: 'Executar',
+    info: 'Selecione uma função criada na Biblioteca de funções ou crie uma nova para ser utilizada como uma ação.',
+    campos: BLIP_FUNCTION_FIELDS,
   },
   {
     tipo: 'MergeContact',

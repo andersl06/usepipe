@@ -31,6 +31,7 @@ import {
 } from './actions-of-block';
 import type { ActionsList } from './actions-of-block';
 import { ConditionsEditor } from './condition';
+import { FlowFunctionInsertPicker, FlowFunctionSelect } from './flow-functions-panel';
 
 /** Monaco stays in its own chunk, fetched only when a script action is opened. */
 const CodeEditor = lazy(() => import('./code-editor'));
@@ -525,24 +526,41 @@ export function ActionCard({
                       onMudar={(names) => onMudar(withVariables(acao, campo.key, names))}
                     />
                   ) : campo.tipo === 'code' ? (
-                    <Suspense
-                      fallback={
-                        <textarea
-                          className="campo bl-campo-codigo"
-                          rows={10}
-                          spellCheck={false}
-                          aria-label={campo.rotulo}
-                          value={fieldValue(acao, campo.key)}
-                          onChange={(e) => onMudar(comCampo(acao, campo.key, e.target.value))}
+                    <>
+                      {tipo?.tipo === 'ExecuteScript' || tipo?.tipo === 'ExecuteScriptV2' ? (
+                        <FlowFunctionInsertPicker
+                          onInsert={(snippet) => {
+                            const atual = fieldValue(acao, campo.key);
+                            onMudar(
+                              comCampo(acao, campo.key, atual ? `${atual}\n${snippet}` : snippet),
+                            );
+                          }}
                         />
-                      }
-                    >
-                      <CodeEditor
-                        ariaLabel={campo.rotulo}
-                        value={fieldValue(acao, campo.key)}
-                        onChange={(v) => onMudar(comCampo(acao, campo.key, v))}
-                      />
-                    </Suspense>
+                      ) : null}
+                      <Suspense
+                        fallback={
+                          <textarea
+                            className="campo bl-campo-codigo"
+                            rows={10}
+                            spellCheck={false}
+                            aria-label={campo.rotulo}
+                            value={fieldValue(acao, campo.key)}
+                            onChange={(e) => onMudar(comCampo(acao, campo.key, e.target.value))}
+                          />
+                        }
+                      >
+                        <CodeEditor
+                          ariaLabel={campo.rotulo}
+                          value={fieldValue(acao, campo.key)}
+                          onChange={(v) => onMudar(comCampo(acao, campo.key, v))}
+                        />
+                      </Suspense>
+                    </>
+                  ) : campo.tipo === 'functionId' ? (
+                    <FlowFunctionSelect
+                      value={fieldValue(acao, campo.key)}
+                      onChange={(functionId) => onMudar(comCampo(acao, campo.key, functionId))}
+                    />
                   ) : campo.options ? (
                     <select
                       className="campo"
