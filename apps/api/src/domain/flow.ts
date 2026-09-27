@@ -11,6 +11,7 @@ import {
   processInbound,
   importReport,
   SuspensaoDeProcessHttp,
+  SURVEY_CONTENT_TYPE,
   validateFlow,
 } from '@pipe/core';
 import type {
@@ -1139,8 +1140,6 @@ export function perguntaDoSelect(m: OutputMessage): { texto: string; opcoes: str
 export function textForOChannel(m: OutputMessage): string | null {
   const tipo = m.tipo.toLowerCase();
   if (tipo === 'application/vnd.lime.chatstate+json') return null;
-  // The native satisfaction block owns its question/answer lifecycle in the flow engine.
-  if (tipo === 'application/vnd.lime.satisfaction-survey+json') return null;
   let conteudo = m.conteudo;
   if (m.bruto && typeof conteudo === 'string' && tipo !== 'text/plain') {
     try {
@@ -1148,6 +1147,16 @@ export function textForOChannel(m: OutputMessage): string | null {
     } catch {
       // segue como texto; o tipo decide abaixo
     }
+  }
+  // The native satisfaction block (`newSurveyBlock`): the question goes to the customer as text
+  // with the fixed 1-5 scale (D-06); the engine reads the reply in the block's input
+  // (`interpretSatisfactionAnswer`).
+  if (tipo === SURVEY_CONTENT_TYPE) {
+    const pergunta = (conteudo as { question?: unknown } | null)?.question;
+    if (typeof pergunta !== 'string' || !pergunta.trim()) {
+      throw new Error("O campo 'question' é obrigatório na pesquisa de satisfação.");
+    }
+    return `${pergunta.trim()}\n1 2 3 4 5`;
   }
   if (tipo === 'text/plain')
     return typeof conteudo === 'string' ? conteudo : JSON.stringify(conteudo);

@@ -7,7 +7,7 @@ process.env['PIPE_WHATSAPP_CLIENTE'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 
-const { dubleWhatsApp } = await import('@pipe/workers');
+const { dubleWhatsApp, processarOutbox } = await import('@pipe/workers');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
@@ -45,6 +45,26 @@ const FLOW = {
         conditions: [{ source: 'input', comparison: 'equals', values: ['bucket-grande'] }],
       },
     ],
+    outputs: [
+      {
+        order: 0,
+        stateId: 'survey:1',
+        conditions: [{ source: 'input', comparison: 'equals', values: ['pesquisa'] }],
+      },
+      { order: 1, stateId: 'raiz' },
+    ],
+  }, {
+    // The native survey block exactly as the Builder's `newSurveyBlock` exports it.
+    id: 'survey:1',
+    input: {},
+    inputActions: [{
+      type: 'SendMessage',
+      settings: {
+        id: 'survey-1-pergunta',
+        type: 'application/vnd.lime.satisfaction-survey+json',
+        content: { type: '', scale: '1-5', question: 'De 1 a 5, como você avalia o atendimento?', score: '' },
+      },
+    }],
     outputs: [{ order: 0, stateId: 'raiz' }],
   }],
 };
@@ -138,5 +158,21 @@ describe('context action services', () => {
   it('SendCommand /transfer with a non-uuid queueId fails the action and keeps the inbound message (CR-02)', async () => {
     await falar('transfer-invalida');
     await esperarFalhaSemPerderAEntrada('transfer-invalida');
+  });
+
+  it('the native satisfaction survey block sends its question to the channel and records the reply (CR-03)', async () => {
+    await falar('pesquisa');
+    const { rows: bot } = await cenario.dono.execute<{ conteudo: string }>(sql`
+      select conteudo from mensagem where tenant_id = ${cenario.tenantId}::uuid and autor_tipo = 'bot'
+    `);
+    expect(bot.map((m) => m.conteudo)).toEqual(['De 1 a 5, como você avalia o atendimento?\n1 2 3 4 5']);
+    await processarOutbox();
+    expect(dubleWhatsApp.chamadas.filter((c) => c.para === PHONE).map((c) => c.tipo)).toEqual(['texto']);
+
+    await falar('5 muito bom');
+    const { rows: respostas } = await cenario.dono.execute<{ nota: number; comentario: string | null }>(sql`
+      select nota, comentario from pesquisa_satisfacao_resposta where tenant_id = ${cenario.tenantId}::uuid
+    `);
+    expect(respostas).toEqual([{ nota: 5, comentario: 'muito bom' }]);
   });
 });
