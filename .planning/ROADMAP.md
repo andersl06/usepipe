@@ -82,11 +82,11 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 01-13-PLAN.md — Slice 1a (D-19 step 1): apply the approved map for `@pipe/core` and `@pipe/db`, including every consumer, and pass the slice gate.
+- [x] 01-13-PLAN.md — Slice 1a (D-19 step 1): apply the approved map for `@pipe/core` and `@pipe/db`, including every consumer, and pass the slice gate.
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 01-14-PLAN.md — Slice 1b (D-19 step 1, rest of the packages): apply approved TS-level rows for contracts, ui, ai, autenticacao, armazenamento, tempo-real and mcp, ...
+- [x] 01-14-PLAN.md — Slice 1b (D-19 step 1, rest of the packages): apply approved TS-level rows for contracts, ui, ai, autenticacao, armazenamento, tempo-real and mcp, ...
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
@@ -94,19 +94,19 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [ ] 01-16-PLAN.md — Slice 2a (D-19 step 2): apply the approved map for `apps/workers` and `apps/ponte`, and rename BullMQ queues/jobs/schedulers and Prometheus metrics...
+- [x] 01-16-PLAN.md — Slice 2a (D-19 step 2): apply the approved map for `apps/workers` and `apps/ponte`, and rename BullMQ queues/jobs/schedulers and Prometheus metrics...
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
-- [ ] 01-17-PLAN.md — Slice 2b: apply the approved map for API identifiers, files, directories, subpath exports and test titles (not endpoint strings), and prove guards ...
+- [x] 01-17-PLAN.md — Slice 2b: apply the approved map for API identifiers, files, directories, subpath exports and test titles (not endpoint strings), and prove guards ...
 
 **Wave 14** *(blocked on Wave 13 completion)*
 
-- [ ] 01-18-PLAN.md — Slice 2c: rename API endpoints and every path-string dependent, including auth callbacks, invite links, body-limit scoping and flow-key route parsing.
+- [x] 01-18-PLAN.md — Slice 2c: rename API endpoints and every path-string dependent, including auth callbacks, invite links, body-limit scoping and flow-key route parsing.
 
 **Wave 15** *(blocked on Wave 14 completion)*
 
-- [ ] 01-19-PLAN.md — Slice 2d: rename the remaining API string contracts — non-persisted error codes, non-db wire keys, WebSocket events, and the session cookie — with ...
+- [x] 01-19-PLAN.md — Slice 2d: rename the remaining API string contracts — non-persisted error codes, non-db wire keys, WebSocket events, and the session cookie — with ...
 
 **Wave 16** *(blocked on Wave 15 completion)*
 
@@ -122,27 +122,27 @@ Plans:
 
 **Wave 19** *(blocked on Wave 18 completion)*
 
-- [ ] 01-21-PLAN.md — Slice 3a (D-19 step 3): apply the approved map to `apps/desk-vite` (identifiers, files, folders, routes, params, storage keys, test titles).
+- [x] 01-21-PLAN.md — Slice 3a (D-19 step 3): apply the approved map to `apps/desk-vite` (identifiers, files, folders, routes, params, storage keys, test titles).
 
 **Wave 20** *(blocked on Wave 19 completion)*
 
-- [ ] 01-22-PLAN.md — Implement the Desk part of the navigation contract (D-27, D-29, D-32) on the renamed Desk.
+- [x] 01-22-PLAN.md — Implement the Desk part of the navigation contract (D-27, D-29, D-32) on the renamed Desk.
 
 **Wave 21** *(blocked on Wave 20 completion)*
 
-- [ ] 01-23-PLAN.md — Slice 3c: apply the approved map to `apps/gestao-vite` (287 files) and execute the Gestão removals decided by the owner (D-14, D-28).
+- [x] 01-23-PLAN.md — Slice 3c: apply the approved map to `apps/gestao-vite` (287 files) and execute the Gestão removals decided by the owner (D-14, D-28).
 
 **Wave 22** *(blocked on Wave 21 completion)*
 
-- [ ] 01-24-PLAN.md — Implement the Gestão part of the navigation contract: filters in state with remembered last filter (D-30), and the owner's gate-2 decisions for wiz...
+- [x] 01-24-PLAN.md — Implement the Gestão part of the navigation contract: filters in state with remembered last filter (D-30), and the owner's gate-2 decisions for wiz...
 
 **Wave 23** *(blocked on Wave 22 completion)*
 
-- [ ] 01-25-PLAN.md — Slice 3e: apply the approved CSS map (D-35) across packages/ui, desk-vite, gestao-vite, crm and site.
+- [x] 01-25-PLAN.md — Slice 3e: apply the approved CSS map (D-35) across packages/ui, desk-vite, gestao-vite, crm and site.
 
 **Wave 24** *(blocked on Wave 23 completion)*
 
-- [ ] 01-26-PLAN.md — Slice 3f: apply the approved map to `apps/crm` within STD-09 limits — rename identifiers and routes only; keep Next App Router and Server Component...
+- [x] 01-26-PLAN.md — Slice 3f: apply the approved map to `apps/crm` within STD-09 limits — rename identifiers and routes only; keep Next App Router and Server Component...
 
 **Wave 25** *(blocked on Wave 24 completion)*
 
@@ -150,15 +150,15 @@ Plans:
 
 **Wave 26** *(blocked on Wave 25 completion)*
 
-- [ ] 01-28-PLAN.md — Slice 4a (D-19 step 4): rename PT-named workspace packages, one at a time, with every build/deploy reference, validating a real docker build after ...
+- [x] 01-28-PLAN.md — Slice 4a (D-19 step 4): rename PT-named workspace packages, one at a time, with every build/deploy reference, validating a real docker build after ...
 
 **Wave 27** *(blocked on Wave 26 completion)*
 
-- [ ] 01-29-PLAN.md — Slice 4b: rename the Gestão app (and the Desk app only if the map says so), one app at a time, including compose/Traefik/image names, with real ima...
+- [x] 01-29-PLAN.md — Slice 4b: rename the Gestão app (and the Desk app only if the map says so), one app at a time, including compose/Traefik/image names, with real ima...
 
 **Wave 28** *(blocked on Wave 27 completion)*
 
-- [ ] 01-30-PLAN.md — Rename ponte and site from the approved map (D-39).
+- [x] 01-30-PLAN.md — Rename ponte and site from the approved map (D-39).
 
 **Wave 29** *(blocked on Wave 28 completion)*
 
@@ -170,11 +170,11 @@ Plans:
 
 **Wave 31** *(blocked on Wave 30 completion)*
 
-- [ ] 01-32-PLAN.md — Final regression and review before cutover (STD-11): full gate, all images, invariant review by Sonnet, and the owner's local smoke walk.
+- [x] 01-32-PLAN.md — Final regression and review before cutover (STD-11): full gate, all images, invariant review by Sonnet, and the owner's local smoke walk.
 
 **Wave 32** *(blocked on Wave 31 completion)*
 
-- [ ] 01-33-PLAN.md — Drain legacy queues, execute production cutover, commit smoke results and tag std-cutover-end.
+- [x] 01-33-PLAN.md — Drain legacy queues, execute production cutover, commit smoke results and tag std-cutover-end.
 
 **Wave 33** *(blocked on Wave 32 completion)*
 
@@ -196,16 +196,25 @@ Plans:
 
 **Notas para o planejamento (roteamento de modelo)**: uso intencional de modelos diferentes por tipo de tarefa, conforme decisão do dono (24/09/2026). **Sonnet**: inventário e dependency analysis, definição da convenção canônica, mapa old→new, decisões semânticas de nomenclatura, classificação URL vs React state, análise de breaking changes, estratégia de compatibilidade, revisão final e validação de regressão. **Haiku** (só depois do mapa old→new aprovado): rename de arquivos/diretórios, imports, referências, links, navigate/redirect, endpoints já mapeados, testes, fixtures, funções/variáveis quando o nome novo já estiver definido, busca por referências antigas remanescentes. Haiku não inventa nomenclatura, não traduz semanticamente por conta própria, não decide arquitetura, URL vs React state, breaking changes, nem altera contrato persistido sem plano.
 
+> **Nota (2026-09-27):** o D-49 colapsou os planos de fatia num único passo de aplicação (tag `std-apply-all-end`), e os portões 3 e 4 estão feitos (D-50, D-51). Seguem abertos: 01-15, 01-20, 01-27, 01-31, 01-37, 01-39, 01-40 (classificação STD-11, identificadores de infra e 348 pendências de comentário) e 01-41 (obsoleto como escrito). Mapa plano → estado com evidência em `phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/01-CLOSURE.md`.
+
 ### Phase 01.1: Subdomínio por tenant no padrão Blip (INSERTED)
 
 **Goal:** Cada cliente acessa o Pipe pelo próprio subdomínio, como na Blip: `<tenant>.usepipe.app/application` (Gestão/Portal) e `<tenant>.desk.usepipe.app` (Desk). Escopo: DNS e TLS curinga, resolução do tenant pelo host, cookie de sessão válido entre subdomínios, Traefik na VPS, redirects de login/convite/OAuth. Domínio: `usepipe.app` (ainda não comprado, D-43). As rotas já chegam no formato Blip pela Phase 1 e não assumem host fixo.
 **Requirements**: TBD
 **Depends on:** Phase 1
-**Plans:** 0 plans
+**Plans:** 8 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 01.1 to break down)
+- [ ] 01.1-01-PLAN.md — Pré-condições, nomes, módulo puro de host de tenant e lista de reservados
+- [ ] 01.1-02-PLAN.md — API: origem por sufixo, guard Host↔credencial, WebSocket
+- [ ] 01.1-03-PLAN.md — Cookie, login central/OAuth/SSO com callback em login.<D>, returnTo, convite, provisionamento
+- [ ] 01.1-04-PLAN.md — Fronts: links em runtime, modo login, redirect para o login central, fim do VITE_PIPE_DESK_URL
+- [ ] 01.1-05-PLAN.md — Traefik DNS-01/wildcard, roteamento por host, deploy, DNS como código
+- [ ] 01.1-06-PLAN.md — Dev local documentado e suíte de isolamento entre tenants
+- [ ] 01.1-07-PLAN.md — Smoke na VPS em modo pré-domínio (checkpoint do dono)
+- [ ] 01.1-08-PLAN.md — Runbook de ativação do domínio e adendo das specs
 
 ### Phase 2: Fechar o Builder
 
