@@ -48,12 +48,12 @@ export function AgentPagePermissions() {
   if (!read.data) return null;
   const { agents, permissions } = read.data;
 
-  function valueCurrent(codigo: string, ligada: boolean): boolean {
-    return codigo in editado ? editado[codigo]! : ligada;
+  function valueCurrent(code: string, ligada: boolean): boolean {
+    return code in editado ? editado[code]! : ligada;
   }
 
-  function alternar(codigo: string, atual: boolean) {
-    setEditado((e) => ({ ...e, [codigo]: !atual }));
+  function alternar(code: string, atual: boolean) {
+    setEditado((e) => ({ ...e, [code]: !atual }));
   }
 
   async function saveChanges() {
@@ -79,12 +79,12 @@ export function AgentPagePermissions() {
         <h2>Permissões</h2>
       </div>
 
-      <p className="sub">{permissionsDescription(agents.map((a) => a.nome))}</p>
+      <p className="sub">{permissionsDescription(agents.map((a) => a.name))}</p>
 
       <div className="lista-selecionados">
         {agents.map((a) => (
           <span key={a.id} className="selecionado-chip">
-            <Avatar nome={a.nome} /> {a.nome}
+            <Avatar nome={a.name} /> {a.name}
           </span>
         ))}
       </div>
@@ -103,10 +103,10 @@ export function AgentPagePermissions() {
             </thead>
             <tbody>
               {permissions.map((p) => {
-                const ligada = valueCurrent(p.codigo, p.ligada);
-                const parcial = !(p.codigo in editado) && p.parcial;
+                const ligada = valueCurrent(p.code, p.ligada);
+                const parcial = !(p.code in editado) && p.parcial;
                 return (
-                  <tr key={p.codigo}>
+                  <tr key={p.code}>
                     <td>{p.description}</td>
                     <td>
                       <button
@@ -117,7 +117,7 @@ export function AgentPagePermissions() {
                         data-parcial={parcial ? 'true' : undefined}
                         aria-label={p.description}
                         title={parcial ? 'Uns têm, outros não' : undefined}
-                        onClick={() => alternar(p.codigo, ligada)}
+                        onClick={() => alternar(p.code, ligada)}
                       >
                         <span className="interruptor-bolinha" />
                       </button>

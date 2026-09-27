@@ -95,13 +95,13 @@ export function PageActiveMessage() {
     setError(null);
     try {
       const r = await api.post<{ enviadas: number; recusadas: number }>('/v1/messages-active', {
-        canal_id: channel.id,
+        channelId: channel.id,
         template_id: template.id,
         parametros: variables.map((_, i) => templateParameters[i] ?? ''),
-        contatos: destinos.map((d) => ({
-          contato_id: d.contactId,
-          telefone: d.telefone,
-          nome: d.nome,
+        contacts: destinos.map((d) => ({
+          contactId: d.contactId,
+          phone: d.telefone,
+          name: d.nome,
         })),
       });
       setResultado(r);

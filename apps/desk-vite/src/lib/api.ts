@@ -41,10 +41,11 @@ export async function pedir<T>(caminho: string, init: RequestInit = {}): Promise
     } catch {
       /* An empty or non-JSON body is acceptable here; the status already identifies the failure. */
     }
-    const message =
-      corpo && typeof corpo === 'object' && 'mensagem' in corpo
-        ? String((corpo as { mensagem: unknown }).mensagem)
+    const errorBody =
+      corpo && typeof corpo === 'object' && 'error' in corpo
+        ? (corpo as { error?: { message?: unknown } }).error
         : undefined;
+    const message = typeof errorBody?.message === 'string' ? errorBody.message : undefined;
     throw new ApiError(resposta.status, corpo, message);
   }
   if (resposta.status === 204) return undefined as T;

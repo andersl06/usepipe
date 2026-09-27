@@ -266,7 +266,7 @@ export async function listarTemplatesAprovados(
   channelId: string,
 ): Promise<TemplateAprovado[]> {
   const { rows } = await tx.execute<Linha<TemplateAprovado>>(sql`
-    select id, nome, categoria, corpo, variaveis
+    select id, nome, categoria, corpo, variaveis as "variables"
       from template_mensagem
      where canal_id = ${channelId}
        and status_meta = 'aprovado'
