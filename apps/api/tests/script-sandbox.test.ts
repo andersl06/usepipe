@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ScriptRequest } from '@pipe/core';
 import { runFlowScript, scriptFetch } from '../src/domain/script-sandbox.js';
+import { chamarComMtls } from '../src/domain/mtls.js';
+import { confirmarUrlSegura } from '../src/domain/management/integrations.js';
+
+const TENANT_QUALQUER = '00000000-0000-0000-0000-000000000000';
 
 function script(source: string, extra: Partial<ScriptRequest> = {}): ScriptRequest {
   return {
@@ -203,5 +207,67 @@ describe('script sandbox: HTTP', () => {
       ).rejects.toThrow(/HTTPS|localhost|rede privada/);
     }
     expect(saida).not.toHaveBeenCalled();
+  });
+
+  it('blocks bracketed IPv6 literals, including IPv4-mapped ones (CR-05)', async () => {
+    const saida = vi.spyOn(globalThis, 'fetch');
+    const fetch = scriptFetch(TENANT_QUALQUER);
+    for (const url of ['https://[::1]/', 'https://[::ffff:a9fe:a9fe]/latest/meta-data', 'https://[::ffff:169.254.169.254]/',
+      'https://[::ffff:127.0.0.1]/', 'https://[::ffff:7f00:1]/', 'https://[fd00::1]/', 'https://[fe80::1]/', 'https://[::]/',
+      'https://[64:ff9b::a9fe:a9fe]/', 'https://[2002:a9fe:a9fe::1]/', 'https://100.64.0.1/']) {
+      await expect(
+        runFlowScript(
+          script(`async function run(u) { return (await request.fetchAsync(u)).status; }`, { args: [url] }),
+          { fetch },
+        ),
+      ).rejects.toThrow(/rede privada|localhost/);
+    }
+    expect(saida).not.toHaveBeenCalled();
+  });
+
+  it('still accepts public hosts, including names that merely start with fc/fd and public IPv6 (CR-05)', () => {
+    for (const url of ['https://fcbarcelona.com/', 'https://fd.exemplo.com/', 'https://[2001:4860:4860::8888]/', 'https://8.8.8.8/']) {
+      expect(() => confirmarUrlSegura(url)).not.toThrow();
+    }
+  });
+});
+
+describe('outbound HTTP: redirects are re-validated hop by hop (CR-05)', () => {
+  afterEach(() => vi.restoreAllMocks());
+  const redirecionar = (location: string, status = 302) =>
+    new Response(null, { status, headers: { location } });
+
+  it.each([
+    'https://169.254.169.254/latest/meta-data/iam/security-credentials/',
+    'http://169.254.169.254/latest/meta-data',
+    'https://[::1]/admin',
+    'https://[::ffff:a9fe:a9fe]/',
+    'https://[::ffff:127.0.0.1]/',
+  ])('302 → %s is refused and never requested', async (location) => {
+    const saida = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(redirecionar(location));
+    await expect(
+      chamarComMtls(TENANT_QUALQUER, 'http://publico.exemplo.com/r', { metodo: 'GET', headers: {}, timeoutMs: 5_000 }),
+    ).rejects.toThrow(/HTTPS|rede privada|localhost/);
+    expect(saida).toHaveBeenCalledTimes(1);
+    expect(saida.mock.calls[0]![1]).toMatchObject({ redirect: 'manual' });
+  });
+
+  it('follows a safe redirect as GET, dropping credentials across origins, and caps the hops', async () => {
+    const saida = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(redirecionar('https://outro.exemplo.com/final', 302))
+      .mockResolvedValueOnce(new Response('ok', { status: 200 }));
+    const r = await chamarComMtls(TENANT_QUALQUER, 'http://publico.exemplo.com/r', {
+      metodo: 'POST', headers: { authorization: 'Bearer segredo', 'x-outro': '1' }, body: '{}', timeoutMs: 5_000,
+    });
+    expect(r.status).toBe(200);
+    expect(await r.texto()).toBe('ok');
+    expect(saida.mock.calls[1]![0]).toBe('https://outro.exemplo.com/final');
+    expect(saida.mock.calls[1]![1]).toMatchObject({ method: 'GET', headers: { 'x-outro': '1' }, body: undefined });
+    expect((saida.mock.calls[1]![1] as { headers: Record<string, string> }).headers).not.toHaveProperty('authorization');
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => redirecionar('https://outro.exemplo.com/de-novo'));
+    await expect(
+      chamarComMtls(TENANT_QUALQUER, 'http://publico.exemplo.com/r', { metodo: 'GET', headers: {}, timeoutMs: 5_000 }),
+    ).rejects.toThrow(/redirecionou mais de/);
   });
 });

@@ -235,7 +235,13 @@ describe('dynamic content', () => {
     expect(toChannelOutput(resolved)).toMatchObject({ tipo: 'texto', texto: 'Resposta HTTP' });
   });
 
-  it.each(['http://localhost/test', 'https://169.254.169.254/latest/meta-data'])('refuses unsafe HTTP URL %s', async (uri) => {
+  it.each([
+    'http://localhost/test',
+    'https://169.254.169.254/latest/meta-data',
+    'https://[::1]/test',
+    'https://[::ffff:a9fe:a9fe]/latest/meta-data',
+    'https://[::ffff:127.0.0.1]/test',
+  ])('refuses unsafe HTTP URL %s', async (uri) => {
     await expect(resolveDynamicContent(http(uri), 'tenant')).rejects.toThrow();
   });
 
