@@ -8,3 +8,4 @@ export * from './management-team.js';
 export * from './management-registrations.js';
 export * from './desk.js';
 export * from './closure.js';
+export * from './satisfaction-survey.js';

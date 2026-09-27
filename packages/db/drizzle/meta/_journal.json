@@ -288,6 +288,13 @@
       "when": 1790030000000,
       "tag": "0046_permissao_do_atendente",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1790040000000,
+      "tag": "0047_pesquisa_satisfacao_resposta",
+      "breakpoints": true
     }
   ]
 }
