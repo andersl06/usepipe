@@ -36,6 +36,7 @@ import { evaluatePriority, loadRulesOfPriorityActive } from './management/priori
 import { redirectInRouter, serviceOfRouter } from './router.js';
 import { chamarComMtls } from './mtls.js';
 import { confirmarUrlSegura } from './management/integrations.js';
+import type { TipoEnvio } from './envio.js';
 
 /**
  * The automated flow (bot) connected to WhatsApp intake uses the Blip `FlowManager` port in `@pipe/core`. This module handles Pipe-specific work: load the channel's published flow, store context in `execucao_fluxo`, record visited states in `execucao_passo`, put replies in the outbox, and hand a conversation to a queue. Run inside the transaction that records the incoming message, in the `pipe-entrada` consumer; the webhook only responds 200 and enqueues. Keeping input and bot reply in one transaction makes them commit together, while Meta redelivery is caught by `id_provedor` and `execucao_passo_entrada_uk`. `ProcessHttp` uses the same HTTPS/SSRF and mTLS outbound boundary, but persists a cursor and leaves the transaction before contacting the client API. Human ownership takes precedence: Blip parks a user in `desk:`, while Pipe lets the conversation own this decision. With an agent or queue, the bot stays silent; it responds only when neither is assigned. After attendance closes, the next message opens a new conversation with the bot context, which belongs to the contact as in Blip. If paused in `desk:`, feed the closed `Ticket` to the engine first so the attendance block's outputs determine the next state (the Blip editor's "bloco configur?vel"). For a channel with a published router, run the contact's current SERVICE from `roteador.ts`. Changing service closes the old execution and starts a new one; returning from human attendance resumes in the contact's service, because position belongs to the contact.
@@ -295,10 +296,17 @@ export async function runFlowInInbound(
 
   const servicos: ServicosDoMotor = {
     send: async (m) => {
-      const texto = textForOChannel(m);
-      if (texto === null) return;
-      const pergunta = perguntaDoSelect(m);
-      await gravarRespostaDoBot(tx, e.tenantId, conversation.id, texto, relogio(), pergunta ? { pergunta } : null);
+      const saida = toChannelOutput(m);
+      if (saida === null) return;
+      await gravarRespostaDoBot(
+        tx,
+        e.tenantId,
+        conversation.id,
+        saida.texto,
+        relogio(),
+        saida.dados,
+        saida.tipo,
+      );
       respostas += 1;
     },
     forwardForAttendance: async ({ settings }) => {
@@ -866,10 +874,11 @@ async function gravarRespostaDoBot(
   tx: TransactionPipe,
   tenantId: string,
   conversationId: string,
-  texto: string,
+  texto: string | null,
   em: Date,
-  /** Use `{ pergunta }` for a menu; the worker chooses buttons, a list, or text. */
+  /** `{ pergunta }` for a menu (the worker chooses buttons, a list, or text) or `{ midia }` for a media type. */
   data: Record<string, unknown> | null = null,
+  tipo: TipoEnvio = 'texto',
 ): Promise<void> {
   const categoria = classificarCusto({
     conteudo: 'texto_livre',
@@ -881,7 +890,7 @@ async function gravarRespostaDoBot(
       tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, estado_entrega, criada_em,
       dentro_da_janela, categoria_cobranca, dados
     ) values (
-      ${tenantId}, ${conversationId}, 'saida', 'bot', 'texto', ${texto}, 'pendente', ${em}, true, ${categoria},
+      ${tenantId}, ${conversationId}, 'saida', 'bot', ${tipo}, ${texto}, 'pendente', ${em}, true, ${categoria},
       ${data ? JSON.stringify(data) : null}::jsonb
     )
     returning id
@@ -901,7 +910,7 @@ async function gravarRespostaDoBot(
     mensagem_id: messageId,
     conversa_id: conversationId,
     direcao: 'saida',
-    tipo: 'texto',
+    tipo,
     conteudo: texto,
   });
 }
@@ -947,6 +956,67 @@ export function textForOChannel(m: OutputMessage): string | null {
     return [menu.text ?? '', ...opcoes].filter((l) => l !== '').join('\n');
   }
   throw new Error(`O canal do Pipe ainda não envia conteúdo do tipo '${m.tipo}'.`);
+}
+
+const MEDIA_LINK = 'application/vnd.lime.media-link+json';
+
+/**
+ * `media-link` (figurinha/áudio/imagem/vídeo/documento, `ref/inventario-conteudo.md`) does not carry a category field: Blip does not distinguish them beyond the file's real MIME either, so this reads the same category the engine's `engineContentErrors` (`@pipe/core`) uses to validate at publish time.
+ */
+function categoryOfMedia(mime: string): 'imagem' | 'audio' | 'video' | 'documento' {
+  const m = mime.toLowerCase();
+  if (m.startsWith('image/')) return 'imagem';
+  if (m.startsWith('audio/')) return 'audio';
+  if (m.startsWith('video/')) return 'video';
+  return 'documento';
+}
+
+export interface ChannelOutput {
+  tipo: TipoEnvio;
+  texto: string | null;
+  dados: Record<string, unknown> | null;
+}
+
+/**
+ * Convert what the flow emits into what a channel worker sends. Text and menu delegate to `textForOChannel`/`perguntaDoSelect`, unchanged from before this type existed. `media-link` becomes the media category with the pointer in `dados.midia`; the URL passes through the same SSRF guard as every other outbound URL in this module before it is ever stored. Returns `null` for content that sends nothing (typing).
+ */
+export function toChannelOutput(m: OutputMessage): ChannelOutput | null {
+  if (m.tipo.toLowerCase() === MEDIA_LINK) {
+    let conteudo = m.conteudo;
+    if (typeof conteudo === 'string') {
+      try {
+        conteudo = JSON.parse(conteudo);
+      } catch {
+        throw new Error('O conteúdo de mídia do bot não é um JSON válido.');
+      }
+    }
+    const c = (conteudo ?? {}) as {
+      uri?: unknown;
+      type?: unknown;
+      title?: unknown;
+      text?: unknown;
+    };
+    const uri = typeof c.uri === 'string' ? c.uri : '';
+    if (!uri) throw new Error("O campo 'uri' é obrigatório no conteúdo de mídia.");
+    confirmarUrlSegura(uri);
+    const mimeReal = typeof c.type === 'string' && c.type ? c.type : 'application/octet-stream';
+    return {
+      tipo: categoryOfMedia(mimeReal),
+      texto: null,
+      dados: {
+        midia: {
+          url: uri,
+          mime: mimeReal,
+          titulo: typeof c.title === 'string' ? c.title : null,
+          nomeArquivo: typeof c.text === 'string' ? c.text : null,
+        },
+      },
+    };
+  }
+  const texto = textForOChannel(m);
+  if (texto === null) return null;
+  const pergunta = perguntaDoSelect(m);
+  return { tipo: 'texto', texto, dados: pergunta ? { pergunta } : null };
 }
 
 async function loadContact(
