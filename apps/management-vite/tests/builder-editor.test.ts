@@ -4,10 +4,13 @@ import { moverSaida } from '../src/pages/builder/conditions.ts';
 import { stateInitial, reduzir } from '../src/pages/builder/state.ts';
 import {
   addBlock,
+  arestasDe,
+  attendanceNewBlock,
   copiedTextBlock,
   pasteBlock,
   desligar,
   deleteBlock,
+  duplicateBlock,
   ligar,
   montarDesenho,
   moveBlock,
@@ -171,4 +174,152 @@ test('the panel\'s validation flags the entry\'s required fields before saving',
     'A expressão regular é obrigatória na regra de validação regex.',
     'A mensagem de erro da validação é obrigatória.',
   ]);
+});
+
+/* ---------------------------------------------------------- arestasDe() */
+
+test('edges: a valid $conditionOutputs stateId produces exactly { de, para }', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [{ $id: 'saida', stateId: 'destino', conditions: [] }];
+  const destino = newBlock({}, { top: 0, left: 200 }, 'destino');
+  assert.deepEqual(arestasDe({ origem, destino }), [{ de: 'origem', para: 'destino' }]);
+});
+
+test('edges: a stateId missing from the map produces no edge', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [{ $id: 'saida', stateId: 'inexistente', conditions: [] }];
+  assert.deepEqual(arestasDe({ origem }), []);
+});
+
+test('edges: two outputs of the same block to the same destination collapse into a single edge', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [
+    { $id: 'a', stateId: 'destino', conditions: [] },
+    { $id: 'b', stateId: 'destino', conditions: [] },
+  ];
+  const destino = newBlock({}, { top: 0, left: 200 }, 'destino');
+  assert.deepEqual(arestasDe({ origem, destino }), [{ de: 'origem', para: 'destino' }]);
+});
+
+test('edges: outputs to different destinations produce one edge per destination, in output order', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [
+    { $id: 'a', stateId: 'destinoB', conditions: [] },
+    { $id: 'b', stateId: 'destinoA', conditions: [] },
+  ];
+  const destinoA = newBlock({}, { top: 0, left: 200 }, 'destinoA');
+  const destinoB = newBlock({}, { top: 0, left: 400 }, 'destinoB');
+  assert.deepEqual(arestasDe({ origem, destinoA, destinoB }), [
+    { de: 'origem', para: 'destinoB' },
+    { de: 'origem', para: 'destinoA' },
+  ]);
+});
+
+test('edges: an attendance block with destinations on ClosedAttendant/ClosedClient/ClosedClientInactivity produces three edges', () => {
+  const attendance = attendanceNewBlock({}, { top: 0, left: 0 }, 'atendimento');
+  const destinationByStatus: Record<string, string> = {
+    ClosedAttendant: 'closedAttendant',
+    ClosedClient: 'closedClient',
+    ClosedClientInactivity: 'closedClientInactivity',
+  };
+  for (const saida of attendance.$conditionOutputs ?? []) {
+    const status = saida.conditions?.find((c) => c.variable === 'input.content@status')?.values?.[0];
+    if (typeof status === 'string' && destinationByStatus[status]) saida.stateId = destinationByStatus[status];
+  }
+  const closedAttendant = newBlock({}, { top: 0, left: 200 }, 'closedAttendant');
+  const closedClient = newBlock({}, { top: 0, left: 400 }, 'closedClient');
+  const closedClientInactivity = newBlock({}, { top: 0, left: 600 }, 'closedClientInactivity');
+  assert.deepEqual(
+    arestasDe({ [attendance.id]: attendance, closedAttendant, closedClient, closedClientInactivity }),
+    [
+      { de: attendance.id, para: 'closedAttendant' },
+      { de: attendance.id, para: 'closedClient' },
+      { de: attendance.id, para: 'closedClientInactivity' },
+    ],
+  );
+});
+
+test('edges: an output flagged $isDeskDefaultOutput never draws an edge, even with an existing destination', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [
+    { $id: 'erro', stateId: 'destino', $isDeskDefaultOutput: true, conditions: [] },
+  ];
+  const destino = newBlock({}, { top: 0, left: 200 }, 'destino');
+  assert.deepEqual(arestasDe({ origem, destino }), []);
+});
+
+test('edges: a $isDeskCustomOutput (OutOfAttendanceHour/NoAgentAvailable) with an existing destination draws an edge', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [
+    {
+      $id: 'disponibilidade',
+      stateId: 'destino',
+      $isDeskOutput: true,
+      $isDeskCustomOutput: true,
+      conditions: [
+        { source: 'context', variable: 'desk_forwardToDeskState_status', comparison: 'equals', values: ['OutOfAttendanceHour'] },
+      ],
+    },
+  ];
+  const destino = newBlock({}, { top: 0, left: 200 }, 'destino');
+  // caracterização: conferir com ref/inventario-paineis-e-setas.md (D-29.2) — arestasDe não filtra
+  // por $isDeskCustomOutput (só por $isDeskDefaultOutput), então a seta é desenhada.
+  assert.deepEqual(arestasDe({ origem, destino }), [{ de: 'origem', para: 'destino' }]);
+});
+
+test('edges: a filled $defaultOutput without $conditionOutputs never draws an edge (PAINEL-Saidas.md:53)', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$defaultOutput = { stateId: 'destino' };
+  const destino = newBlock({}, { top: 0, left: 200 }, 'destino');
+  assert.deepEqual(arestasDe({ origem, destino }), []);
+});
+
+test('edges: an empty map and a block without $conditionOutputs both return []', () => {
+  assert.deepEqual(arestasDe({}), []);
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  assert.deepEqual(arestasDe({ origem }), []);
+});
+
+/* ------------------------------------------------------ copiar/colar/duplicar */
+
+test('copy-paste: duplicating a block yields a new id and independent data (mutating the copy leaves the original untouched)', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  const mapa = duplicateBlock({ origem }, 'origem', 'copia');
+  const copia = mapa.copia;
+  assert.ok(copia);
+  assert.notEqual(copia!.id, origem.id);
+  copia!.$title = 'mudou';
+  copia!.$contentActions![0]!.input!.variable = 'mudou';
+  assert.notEqual(origem.$title, 'mudou');
+  assert.notEqual(origem.$contentActions?.[0]?.input?.variable, 'mudou');
+});
+
+test('copy-paste: pasting the copied text twice yields a distinct id each time', () => {
+  const origem = newBlock({}, { top: 10, left: 20 }, 'origem');
+  const copiado1 = copiedTextBlock(copiedBlockText(origem));
+  assert.ok(copiado1);
+  const mapa1 = pasteBlock({ origem }, copiado1!, { top: 50, left: 50 });
+  const copiado2 = copiedTextBlock(copiedBlockText(origem));
+  assert.ok(copiado2);
+  const mapa2 = pasteBlock(mapa1, copiado2!, { top: 90, left: 90 });
+  const idsColados = Object.keys(mapa2).filter((id) => id !== 'origem');
+  assert.equal(idsColados.length, 2);
+  assert.notEqual(idsColados[0], idsColados[1]);
+});
+
+test('copy-paste: invalid pasted text returns null without touching the map', () => {
+  const mapa = { origem: newBlock({}, { top: 0, left: 0 }, 'origem') };
+  assert.equal(copiedTextBlock('pipe-builder:block/v1:{quebrado'), null);
+  assert.equal(copiedTextBlock(`pipe-builder:block/v1:${JSON.stringify({ semId: true })}`), null);
+  assert.deepEqual(mapa, { origem: mapa.origem });
+});
+
+test('copy-paste: a copied output keeps its stateId, but arestasDe never draws an edge to a block missing from the destination map', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [{ $id: 'saida', stateId: 'outro', conditions: [] }];
+  const copiado = copiedTextBlock(copiedBlockText(origem));
+  assert.ok(copiado);
+  const mapaIsolado = pasteBlock({}, copiado!, { top: 50, left: 50 }, 'copia');
+  assert.equal(mapaIsolado.copia?.$conditionOutputs?.[0]?.stateId, 'outro');
+  assert.deepEqual(arestasDe(mapaIsolado), []);
 });
