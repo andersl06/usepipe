@@ -20,6 +20,7 @@ import {
 } from '../src/pages/builder/model.ts';
 import { caixaContemPonto, houveArrasto } from '../src/pages/builder/setas.ts';
 import { blockErrors } from '../src/pages/builder/validation.ts';
+import { filterDestinations } from '../src/pages/builder/variables.ts';
 
 test('buildDrawing exports the screen\'s blocks and the global actions without changing the map', () => {
   const first = newBlock({}, { top: 10, left: 20 }, 'primeiro');
@@ -278,6 +279,52 @@ test('edges: an empty map and a block without $conditionOutputs both return []',
   assert.deepEqual(arestasDe({}), []);
   const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
   assert.deepEqual(arestasDe({ origem }), []);
+});
+
+/* ------------------------------------------------------- filterDestinations() */
+
+test('filterDestinations: matches "atendi" against both "Atendimento" and "ATENDIMENTO humano", case- and accent-insensitive', () => {
+  const blocos = [
+    { id: 'a1', $title: 'Atendimento' },
+    { id: 'a2', $title: 'ATENDIMENTO humano' },
+    { id: 'a3', $title: 'Menu principal' },
+  ];
+  assert.deepEqual(
+    filterDestinations(blocos, 'atendi').map((b) => b.id),
+    ['a1', 'a2'],
+  );
+});
+
+test('filterDestinations: matches "Ação" when the search has no accent', () => {
+  const blocos = [
+    { id: 'x', $title: 'Ação' },
+    { id: 'y', $title: 'Outro bloco' },
+  ];
+  assert.deepEqual(
+    filterDestinations(blocos, 'acao').map((b) => b.id),
+    ['x'],
+  );
+});
+
+test('filterDestinations: an empty search returns every block', () => {
+  const blocos = [
+    { id: 'a', $title: 'A' },
+    { id: 'b', $title: 'B' },
+  ];
+  assert.deepEqual(filterDestinations(blocos, ''), blocos);
+});
+
+test('filterDestinations: also matches by id, not only by title', () => {
+  const blocos = [{ id: 'fallback', $title: 'Bloco sem título' }];
+  assert.deepEqual(
+    filterDestinations(blocos, 'fallb').map((b) => b.id),
+    ['fallback'],
+  );
+});
+
+test('filterDestinations: the origin block can appear as its own destination (loopback allowed, D-02 inventory)', () => {
+  const origem = { id: 'origem', $title: 'Origem' };
+  assert.deepEqual(filterDestinations([origem], 'orig'), [origem]);
 });
 
 /* ------------------------------------------------------ copiar/colar/duplicar */
