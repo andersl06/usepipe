@@ -10,7 +10,7 @@ import { FormulariosDeHorario } from './regras-horarios-formulario';
 export function PageHours() {
   const read = useRead<Horarios & { fuso: string }>('/v1/management/rules/schedules');
   if (!read.data) return null;
-  const { fuso, horarios, queuesWithoutHour, agora } = read.data;
+  const { fuso, horarios, queuesWithoutSchedule, agora } = read.data;
 
   const withoutQueue = horarios.filter((h) => h.queues.length === 0);
   const semFaixa = horarios.filter((h) => h.faixas.length === 0);
@@ -23,7 +23,7 @@ export function PageHours() {
       cards: horarios.map((h) => ({
         id: h.id,
         campos: [
-          { rotulo: 'Horário', value: h.nome },
+          { rotulo: 'Horário', value: h.name },
           { rotulo: 'Fuso', value: h.fuso },
           {
             rotulo: 'Agora',
@@ -52,14 +52,14 @@ export function PageHours() {
         active: h.queues.length > 0,
         rodape: [
           ...h.faixas.map(
-            (f) => `${DIAS_DA_SEMANA[f.diaSemana] ?? String(f.diaSemana)} ${f.inicio}–${f.fim}`,
+            (f) => `${DIAS_DA_SEMANA[f.dayWeek] ?? String(f.dayWeek)} ${f.start}–${f.end}`,
           ),
           ...h.exceptions.map(
             (e) =>
-              `${e.data} · ${e.fechado ? 'fechado' : `${e.inicio}–${e.fim}`}${e.motivo ? ` · ${e.motivo}` : ''}`,
+              `${e.data} · ${e.closed ? 'fechado' : `${e.start}–${e.end}`}${e.reason ? ` · ${e.reason}` : ''}`,
           ),
         ],
-        procura: `${h.nome} ${h.fuso} ${h.queues.join(' ')}`.toLowerCase(),
+        procura: `${h.name} ${h.fuso} ${h.queues.join(' ')}`.toLowerCase(),
       })),
     },
   ];
@@ -95,12 +95,12 @@ export function PageHours() {
         </p>
       </section>
 
-      <FormulariosDeHorario horarios={horarios.map((h) => ({ id: h.id, nome: h.nome }))} />
+      <FormulariosDeHorario horarios={horarios.map((h) => ({ id: h.id, name: h.name }))} />
 
       {semFaixa.length > 0 ? (
         <div className="note">
           Sem nenhuma faixa, e por isso fechado o tempo todo:{' '}
-          {semFaixa.map((h) => h.nome).join(', ')}. A fila que usar um destes nunca vai ter o
+          {semFaixa.map((h) => h.name).join(', ')}. A fila que usar um destes nunca vai ter o
           relógio de SLA correndo.
         </div>
       ) : null}
@@ -108,14 +108,14 @@ export function PageHours() {
       {withoutQueue.length > 0 ? (
         <div className="note">
           Cadastrados e sem fila nenhuma apontando para eles:{' '}
-          {withoutQueue.map((h) => h.nome).join(', ')}. Ligue-os em Filas de atendimento, ou eles não
+          {withoutQueue.map((h) => h.name).join(', ')}. Ligue-os em Filas de atendimento, ou eles não
           mudam o SLA de conversa nenhuma.
         </div>
       ) : null}
 
-      {queuesWithoutHour.length > 0 ? (
+      {queuesWithoutSchedule.length > 0 ? (
         <div className="note">
-          Filas ativas sem horário, com o relógio de SLA correndo 24×7: {queuesWithoutHour.join(', ')}
+          Filas ativas sem horário, com o relógio de SLA correndo 24×7: {queuesWithoutSchedule.join(', ')}
           .
         </div>
       ) : null}

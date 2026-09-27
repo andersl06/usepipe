@@ -70,7 +70,7 @@ function FormularioFaixa({ horarios }: { horarios: readonly HorarioParaEscolher[
           <Seletor name="horarioId" required disabled={enviando}>
             {horarios.map((h) => (
               <option key={h.id} value={h.id}>
-                {h.nome}
+                {h.name}
               </option>
             ))}
           </Seletor>
@@ -130,7 +130,7 @@ function ExceptionForm({ horarios }: { horarios: readonly HorarioParaEscolher[] 
           <Seletor name="horarioId" required disabled={enviando}>
             {horarios.map((h) => (
               <option key={h.id} value={h.id}>
-                {h.nome}
+                {h.name}
               </option>
             ))}
           </Seletor>

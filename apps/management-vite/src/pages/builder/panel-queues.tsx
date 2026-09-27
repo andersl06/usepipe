@@ -25,7 +25,7 @@ export function QueuesPanel({
   const navegar = useNavigate();
   const read = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
   const queues = read.data?.queues ?? [];
-  const active = queues.filter((q) => q.active).length;
+  const active = queues.filter((q) => q.ativa).length;
   return (
     <aside className="bl-panel" aria-label="Gerenciamento de Filas">
       <div className="bl-panel-header">

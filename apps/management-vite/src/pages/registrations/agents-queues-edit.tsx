@@ -58,7 +58,7 @@ export function QueuePageEdit() {
   return (
     <>
       <div className="board-head">
-        <h2>{queue.nome}</h2>
+        <h2>{queue.name}</h2>
       </div>
 
       <QueueData queue={queue} horarios={readHours.data.horarios} />
@@ -75,24 +75,24 @@ function QueueData({
   horarios,
 }: {
   queue: QueueRegistered;
-  horarios: readonly { id: string; nome: string }[];
+  horarios: readonly { id: string; name: string }[];
 }) {
-  const [nome, setNome] = useState(queue.nome);
-  const [cor, setCor] = useState(queue.cor ?? '#5b5fed');
+  const [nome, setNome] = useState(queue.name);
+  const [cor, setCor] = useState(queue.color ?? '#5b5fed');
   const [capacity, setCapacity] = useState(String(queue.capacityDefault));
   const [order, setOrder] = useState(String(queue.order));
-  const [horarioId, setHorarioId] = useState(queue.horarioId ?? '');
-  const [active, setActive] = useState(queue.active);
+  const [horarioId, setHorarioId] = useState(queue.scheduleId ?? '');
+  const [active, setActive] = useState(queue.ativa);
   const [salvando, setSalvando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const mudou =
-    nome.trim() !== queue.nome ||
-    cor !== (queue.cor ?? '#5b5fed') ||
+    nome.trim() !== queue.name ||
+    cor !== (queue.color ?? '#5b5fed') ||
     capacity !== String(queue.capacityDefault) ||
     order !== String(queue.order) ||
-    horarioId !== (queue.horarioId ?? '') ||
-    active !== queue.active;
+    horarioId !== (queue.scheduleId ?? '') ||
+    active !== queue.ativa;
 
   async function salvar(evento: FormEvent) {
     evento.preventDefault();
@@ -164,7 +164,7 @@ function QueueData({
               <option value="">Sem horário — atende 24×7</option>
               {horarios.map((h) => (
                 <option key={h.id} value={h.id}>
-                  {h.nome}
+                  {h.name}
                 </option>
               ))}
             </Selection>
@@ -201,7 +201,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
   const [error, setError] = useState<string | null>(null);
 
   const alvo = search.trim().toLowerCase();
-  const filtrados = alvo ? queue.agents.filter((a) => a.nome.toLowerCase().includes(alvo)) : queue.agents;
+  const filtrados = alvo ? queue.agents.filter((a) => a.name.toLowerCase().includes(alvo)) : queue.agents;
   const mostrados = filtrados.slice(0, visiveis);
 
   async function remover() {
@@ -256,13 +256,13 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
               {mostrados.map((a) => (
                 <div key={a.id} className="form-linha linha-lista">
                   <span className="sub">
-                    {a.nome} · {a.capacity}
+                    {a.name} · {a.capacity}
                     {a.temOverride ? ' próprio' : ''}
                   </span>
                   <BotaoDeIcone
                     nome="x"
-                    rotulo={`Remover ${a.nome} da fila`}
-                    onClick={() => setParaRemover({ id: a.id, nome: a.nome })}
+                    rotulo={`Remover ${a.name} da fila`}
+                    onClick={() => setParaRemover({ id: a.id, nome: a.name })}
                   />
                 </div>
               ))}

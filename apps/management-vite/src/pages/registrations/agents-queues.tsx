@@ -36,7 +36,7 @@ function QueueActions({
   onExcluir: () => void;
 }) {
   const alternar = async () => {
-    const r = await toggleQueue(queue.id, queue.active);
+    const r = await toggleQueue(queue.id, queue.ativa);
     if (!r.ok) onErrorToggle(r.error);
   };
   return (
@@ -45,9 +45,9 @@ function QueueActions({
         type="button"
         className="interruptor"
         role="switch"
-        aria-checked={queue.active}
-        aria-label={queue.active ? `Desativar a fila ${queue.nome}` : `Ativar a fila ${queue.nome}`}
-        title={queue.active ? 'Desativar esta fila' : 'Ativar esta fila'}
+        aria-checked={queue.ativa}
+        aria-label={queue.ativa ? `Desativar a fila ${queue.name}` : `Ativar a fila ${queue.name}`}
+        title={queue.ativa ? 'Desativar esta fila' : 'Ativar esta fila'}
         onClick={() => void alternar()}
       >
         <span className="interruptor-bolinha" />
@@ -88,11 +88,11 @@ export function PageQueues() {
       cards: queues.map((f) => ({
         id: f.id,
         campos: [
-          { rotulo: 'Fila de atendimento', value: f.nome },
+          { rotulo: 'Fila de atendimento', value: f.name },
           { rotulo: 'Atendentes atribuídos', value: numero(f.agents.length), classe: 'num' },
         ],
-        situation: f.active ? 'Ativa' : 'Desativada',
-        active: f.active,
+        situation: f.ativa ? 'Ativa' : 'Desativada',
+        active: f.ativa,
         acao: (
           <QueueActions
             queue={f}
@@ -101,7 +101,7 @@ export function PageQueues() {
             onExcluir={() => setQueueForDelete(f)}
           />
         ),
-        procura: f.nome.toLowerCase(),
+        procura: f.name.toLowerCase(),
       })),
     },
   ];
@@ -137,7 +137,7 @@ export function PageQueues() {
       <ModalConfirmation
         aberto={queueForDelete !== null}
         titulo="Confirmar exclusão"
-        message={<>Excluir a fila "{queueForDelete?.nome}"? Esta ação não pode ser desfeita.</>}
+        message={<>Excluir a fila "{queueForDelete?.name}"? Esta ação não pode ser desfeita.</>}
         error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}

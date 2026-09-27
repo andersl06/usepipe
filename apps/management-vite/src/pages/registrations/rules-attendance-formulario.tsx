@@ -205,7 +205,7 @@ export function RuleQueueForm({
               <option value="">Escolha a fila</option>
               {queues.map((f) => (
                 <option key={f.id} value={f.id}>
-                  {f.active ? f.nome : `${f.nome} (desativada)`}
+                  {f.ativa ? f.name : `${f.name} (desativada)`}
                 </option>
               ))}
             </Seletor>
