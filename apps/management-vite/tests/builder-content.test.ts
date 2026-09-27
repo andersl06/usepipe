@@ -15,6 +15,8 @@ import {
   novoPedirLocalizacao,
   novaLocalizacao,
   novoWebLink,
+  novoConteudoDinamico,
+  novoConteudoHttp,
 } from '../src/pages/builder/conteudo.ts';
 import type { ItemDeConteudo } from '../src/pages/builder/model.ts';
 
@@ -114,4 +116,16 @@ test('interactive content factories round trip through cardsOf', () => {
   }
   assert.deepEqual(cardsOf(atual).filter((c) => c.tipo !== 'entrada').map((c) => c.tipo), ['digitando', 'pedirLocalizacao', 'localizacao', 'webLink']);
   assert.deepEqual(contentErrors(atual), []);
+});
+
+test('dynamic content factories round trip through cardsOf', () => {
+  const bloco = newBlock({}, { top: 0, left: 0 }, 'b1');
+  const http = adicionarConteudo(bloco, novoConteudoHttp('https://content.example/message', 'text/plain', { authorization: 'Bearer x' }));
+  assert.equal(http.ok, true);
+  if (!http.ok) return;
+  const dynamic = adicionarConteudo(http.block, novoConteudoDinamico('conteudoLime'));
+  assert.equal(dynamic.ok, true);
+  if (!dynamic.ok) return;
+  assert.deepEqual(cardsOf(dynamic.block).filter((c) => c.tipo !== 'entrada').map((c) => c.tipo), ['http', 'dinamico']);
+  assert.deepEqual(contentErrors(dynamic.block), []);
 });

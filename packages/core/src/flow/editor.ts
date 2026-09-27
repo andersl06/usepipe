@@ -129,12 +129,16 @@ export function blipReadFlow(json: unknown, id: string): FlowBlip {
 /** Content types currently sent by Pipe channels; typing passes through without effect. */
 export const CONTEUDOS_SUPORTADOS = new Set([
   'text/plain',
+  // Pipe envelopes resolved by the API immediately before channel serialization.
+  'application/vnd.pipe.http-content+json',
+  'application/vnd.pipe.dynamic-content+json',
   'application/vnd.lime.select+json',
   'application/vnd.lime.media-link+json',
   'application/vnd.lime.chatstate+json',
   'application/vnd.lime.input+json',
   'application/vnd.lime.location+json',
   'application/vnd.lime.web-link+json',
+  'application/vnd.lime.satisfaction-survey+json',
 ]);
 export const CONTEUDOS_SEM_EFEITO = new Set(['application/vnd.lime.chatstate+json']);
 /** Actions that execute without effect in Pipe, listed explicitly so they do not appear functional. */

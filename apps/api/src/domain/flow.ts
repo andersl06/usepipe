@@ -299,7 +299,7 @@ export async function runFlowInInbound(
 
   const servicos: ServicosDoMotor = {
     send: async (m) => {
-      const saida = toChannelOutput(m);
+      const saida = toChannelOutput(await resolveDynamicContent(m, e.tenantId));
       if (saida === null) return;
       await gravarRespostaDoBot(
         tx,
@@ -1004,6 +1004,8 @@ export function perguntaDoSelect(m: OutputMessage): { texto: string; opcoes: str
 export function textForOChannel(m: OutputMessage): string | null {
   const tipo = m.tipo.toLowerCase();
   if (tipo === 'application/vnd.lime.chatstate+json') return null;
+  // The native satisfaction block owns its question/answer lifecycle in the flow engine.
+  if (tipo === 'application/vnd.lime.satisfaction-survey+json') return null;
   let conteudo = m.conteudo;
   if (m.bruto && typeof conteudo === 'string' && tipo !== 'text/plain') {
     try {
@@ -1048,6 +1050,92 @@ export interface ChannelOutput {
   tipo: TipoEnvio;
   texto: string | null;
   dados: Record<string, unknown> | null;
+}
+
+const HTTP_CONTENT_TYPE = 'application/vnd.pipe.http-content+json';
+const DYNAMIC_CONTENT_TYPE = 'application/vnd.pipe.dynamic-content+json';
+const MAX_DYNAMIC_CONTENT_BYTES = 1_048_576;
+const CHANNEL_CONTENT_TYPES = new Set([
+  'text/plain',
+  'application/vnd.lime.select+json',
+  'application/vnd.lime.media-link+json',
+  'application/vnd.lime.chatstate+json',
+  'application/vnd.lime.input+json',
+  'application/vnd.lime.location+json',
+  'application/vnd.lime.web-link+json',
+]);
+
+type DynamicResolverOptions = {
+  callHttp?: typeof chamarComMtls;
+};
+type DynamicLimeDocument = { type?: unknown; content?: unknown; metadata?: unknown };
+
+/** Resolve the two Pipe-only Builder envelopes before the normal channel serializer sees them. */
+export async function resolveDynamicContent(
+  message: OutputMessage,
+  tenantId: string,
+  options: DynamicResolverOptions = {},
+): Promise<OutputMessage> {
+  const type = message.tipo.toLowerCase();
+  if (type === HTTP_CONTENT_TYPE) {
+    const content = (message.conteudo ?? {}) as {
+      uri?: unknown;
+      type?: unknown;
+      headers?: unknown;
+      requestTimeout?: unknown;
+    };
+    const uri = typeof content.uri === 'string' ? content.uri.trim() : '';
+    const resolvedType = typeof content.type === 'string' ? content.type.trim().toLowerCase() : '';
+    if (!uri) throw new Error("O campo 'uri' é obrigatório no Conteúdo HTTP.");
+    if (!CHANNEL_CONTENT_TYPES.has(resolvedType)) {
+      throw new Error(`O Conteúdo HTTP resolveu um tipo que o canal não envia: '${resolvedType || '(vazio)'}'.`);
+    }
+    confirmarUrlSegura(uri);
+    const headers: Record<string, string> = {};
+    if (content.headers && typeof content.headers === 'object' && !Array.isArray(content.headers)) {
+      for (const [key, value] of Object.entries(content.headers)) {
+        if (typeof value === 'string') headers[key] = value;
+      }
+    }
+    const seconds = Number(content.requestTimeout);
+    const timeoutMs = Number.isFinite(seconds) && seconds > 0 ? seconds * 1_000 : 60_000;
+    try {
+      const response = await (options.callHttp ?? chamarComMtls)(tenantId, uri, {
+        metodo: 'GET', headers, timeoutMs,
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const body = await response.texto();
+      if (Buffer.byteLength(body, 'utf8') > MAX_DYNAMIC_CONTENT_BYTES) {
+        throw new Error('A resposta ultrapassa o limite de 1 MB.');
+      }
+      return { tipo: resolvedType, conteudo: body, bruto: true };
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(`Conteúdo HTTP não pôde ser resolvido: ${detail}`);
+    }
+  }
+  if (type !== DYNAMIC_CONTENT_TYPE) return message;
+  if (typeof message.conteudo !== 'string') {
+    throw new Error('O Conteúdo dinâmico precisa conter um JSON LIME válido.');
+  }
+  let resolved: DynamicLimeDocument;
+  try {
+    resolved = JSON.parse(message.conteudo) as DynamicLimeDocument;
+  } catch {
+    throw new Error('O Conteúdo dinâmico precisa conter um JSON LIME válido.');
+  }
+  const resolvedType = typeof resolved.type === 'string' ? resolved.type.toLowerCase() : '';
+  if (!CHANNEL_CONTENT_TYPES.has(resolvedType)) {
+    throw new Error(`O Conteúdo dinâmico resolveu um tipo que o canal não envia: '${resolvedType || '(vazio)'}'.`);
+  }
+  return {
+    tipo: resolvedType,
+    conteudo: resolved.content,
+    metadados: resolved.metadata && typeof resolved.metadata === 'object' && !Array.isArray(resolved.metadata)
+      ? resolved.metadata as Record<string, string>
+      : null,
+    bruto: true,
+  };
 }
 
 /**

@@ -381,3 +381,15 @@ describe('interactive content', () => {
     ).toEqual(['A latitude deve estar entre -90 e 90.']);
   });
 });
+
+describe('dynamic content', () => {
+  it('accepts the HTTP, dynamic, and satisfaction-survey envelopes at publish time', () => {
+    for (const mime of [
+      'application/vnd.pipe.http-content+json',
+      'application/vnd.pipe.dynamic-content+json',
+      'application/vnd.lime.satisfaction-survey+json',
+    ]) {
+      expect(CONTEUDOS_SUPORTADOS.has(mime)).toBe(true);
+    }
+  });
+});
