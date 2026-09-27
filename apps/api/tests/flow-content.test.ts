@@ -194,6 +194,6 @@ describe('interactive content channel output', () => {
         tipo: 'application/vnd.lime.web-link+json',
         conteudo: { uri: 'http://example.com' },
       }),
-    ).toThrow('URL insegura');
+    ).toThrow('A URL precisa usar HTTPS.');
   });
 });
