@@ -224,6 +224,10 @@ None — no external service configuration required.
 - Still open, correctly deferred: a real test channel (e.g. a WhatsApp test number) is explicitly a future item per the owner's 2026-09-27 decision — not built here, not a gap in this plan.
 - Small, non-blocking cleanup items for whoever next touches `builder.tsx`: remove the now-redundant disabled `.bl-conversation` placeholder button, and — if exact "send while autosave is still pending" correctness ever matters — thread `editor.salvarAgora()`/dirty state into `Editor` so the Test panel can force-save immediately before the first message of a session.
 
+## Self-Check: PASSED
+
+All 12 files listed in "Files Created/Modified" plus this SUMMARY confirmed present on disk (`FOUND`, none `MISSING`). All 4 commits (`b7203db`, `9276c88`, `d8689ec`, `daeb652`) confirmed present in `git log`.
+
 ---
 *Phase: 02-fechar-o-builder*
 *Completed: 2026-09-27*
