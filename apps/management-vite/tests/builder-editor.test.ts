@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { moverSaida } from '../src/pages/builder/conditions.ts';
 import { stateInitial, reduzir } from '../src/pages/builder/state.ts';
+import { SURVEY_CONTENT_TYPE } from '@pipe/core';
 import {
   addBlock,
   arestasDe,
@@ -11,11 +12,16 @@ import {
   desligar,
   deleteBlock,
   duplicateBlock,
+  isSurveyBlock,
   ligar,
+  lerDesenho,
   montarDesenho,
   moveBlock,
   newBlock,
+  newSurveyBlock,
   positionOf,
+  setSurveyQuestion,
+  surveyQuestion,
   copiedBlockText,
 } from '../src/pages/builder/model.ts';
 import { caixaContemPonto, houveArrasto } from '../src/pages/builder/setas.ts';
@@ -279,6 +285,56 @@ test('edges: an empty map and a block without $conditionOutputs both return []',
   assert.deepEqual(arestasDe({}), []);
   const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
   assert.deepEqual(arestasDe({ origem }), []);
+});
+
+/* --------------------------------------------------- newSurveyBlock()/isSurveyBlock() */
+
+test('survey: newSurveyBlock creates a survey:-prefixed block that sends the native document and awaits a reply', () => {
+  const block = newSurveyBlock({}, { top: 0, left: 0 }, 'nota');
+  assert.equal(block.id, 'survey:nota');
+  assert.equal(isSurveyBlock(block), true);
+  const pergunta = block.$contentActions?.[0]?.action;
+  assert.equal(pergunta?.type, 'SendMessage');
+  assert.equal((pergunta?.settings as { type?: string })?.type, SURVEY_CONTENT_TYPE);
+  assert.ok(block.$contentActions?.[1]?.input, 'entrada do usuário waits for the reply');
+});
+
+test('survey: isSurveyBlock only recognizes the id prefix, not the title', () => {
+  const bloco = newBlock({}, { top: 0, left: 0 }, 'bloco');
+  assert.equal(isSurveyBlock(bloco), false);
+  assert.equal(isSurveyBlock({ ...bloco, $title: 'Pesquisa de satisfação' }), false);
+  assert.equal(isSurveyBlock(newSurveyBlock({}, { top: 0, left: 0 }, 'nota')), true);
+});
+
+test('survey: surveyQuestion reads and setSurveyQuestion replaces the question, keeping the fixed 1-5 scale', () => {
+  const bloco = newSurveyBlock({}, { top: 0, left: 0 }, 'nota');
+  assert.equal(surveyQuestion(bloco), 'De 1 a 5, como você avalia o atendimento?');
+  const mudado = setSurveyQuestion(bloco, 'Você recomendaria nosso atendimento?');
+  assert.equal(surveyQuestion(mudado), 'Você recomendaria nosso atendimento?');
+  const settings = mudado.$contentActions?.[0]?.action?.settings as { content?: { scale?: string } };
+  assert.equal(settings.content?.scale, '1-5');
+});
+
+test('survey: montarDesenho -> lerDesenho round trip preserves the survey block', () => {
+  const bloco = newSurveyBlock({}, { top: 10, left: 20 }, 'nota');
+  const mapa = { [bloco.id]: bloco };
+  const desenho = montarDesenho(mapa, {});
+  const relido = lerDesenho(desenho);
+  assert.ok(relido['survey:nota']);
+  assert.equal(isSurveyBlock(relido['survey:nota']!), true);
+  assert.equal(surveyQuestion(relido['survey:nota']!), surveyQuestion(bloco));
+});
+
+test('survey: linking a survey block as the destination of an attendance closing output draws an edge (D-29.2)', () => {
+  const attendance = attendanceNewBlock({}, { top: 0, left: 0 }, 'atendimento');
+  const survey = newSurveyBlock({}, { top: 0, left: 200 }, 'nota');
+  for (const saida of attendance.$conditionOutputs ?? []) {
+    const status = saida.conditions?.find((c) => c.variable === 'input.content@status')?.values?.[0];
+    if (status === 'ClosedAttendant') saida.stateId = survey.id;
+  }
+  assert.deepEqual(arestasDe({ [attendance.id]: attendance, [survey.id]: survey }), [
+    { de: attendance.id, para: survey.id },
+  ]);
 });
 
 /* ------------------------------------------------------- filterDestinations() */

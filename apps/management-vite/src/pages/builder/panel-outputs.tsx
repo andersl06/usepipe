@@ -1,7 +1,14 @@
+import { useState } from 'react';
 import { Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
 import type { Block, Mapa, SaidaDoEditor } from './model';
-import { OUTPUTS_OF_ATTENDANCE, ehAttendance } from './model';
+import {
+  OUTPUTS_OF_ATTENDANCE,
+  ehAttendance,
+  isSurveyBlock,
+  setSurveyQuestion,
+  surveyQuestion,
+} from './model';
 import {
   ROTULOS_DAS_SAIDAS,
   adicionarSaida,
@@ -46,6 +53,21 @@ export function OutputsPanel({
   const destinos = Object.values(mapa);
   const existe = (id: string): boolean => id in mapa;
   const attendance = ehAttendance(block.id);
+  const survey = isSurveyBlock(block);
+  // "Exibir apenas blocos de pesquisa de satisfação" (D-08): a filter of the destination
+  // picker, one toggle per output row, not a special branching rule
+  // (`ref/inventario-satisfacao-e-tags.md` §1).
+  const [somentePesquisa, setSomentePesquisa] = useState<Set<number>>(new Set());
+  const destinosDaSaida = (i: number): Block[] =>
+    somentePesquisa.has(i) ? destinos.filter(isSurveyBlock) : destinos;
+  function alternarFiltroDePesquisa(i: number): void {
+    setSomentePesquisa((atual) => {
+      const novo = new Set(atual);
+      if (novo.has(i)) novo.delete(i);
+      else novo.add(i);
+      return novo;
+    });
+  }
 
   function adicionar(): void {
     const r = adicionarSaida(block);
@@ -55,6 +77,22 @@ export function OutputsPanel({
 
   return (
     <div className="bl-aba-corpo">
+      {survey ? (
+        <section className="bl-survey-config">
+          <CabecalhoInfo titulo="Pergunta da pesquisa" aberto>
+            <p>Pergunta enviada ao cliente, que responde de 1 a 5 (D-06).</p>
+          </CabecalhoInfo>
+          <label className="bl-campo">
+            <span className="sub">Pergunta</span>
+            <input
+              type="text"
+              className="campo"
+              value={surveyQuestion(block)}
+              onChange={(e) => onMudar(setSurveyQuestion(block, e.target.value))}
+            />
+          </label>
+        </section>
+      ) : null}
       {attendance ? (
         <section className="bl-availability">
           <CabecalhoInfo titulo="Disponibilidade de atendimento" aberto>
@@ -200,9 +238,19 @@ export function OutputsPanel({
                   rotuloAdicionar="+ Adicionar condição"
                 />
               )}
+              {!saida.$isDeskDefaultOutput ? (
+                <label className="bl-survey-filtro">
+                  <input
+                    type="checkbox"
+                    checked={somentePesquisa.has(i)}
+                    onChange={() => alternarFiltroDePesquisa(i)}
+                  />
+                  Exibir apenas blocos de pesquisa de satisfação
+                </label>
+              ) : null}
               <DestinationPicker
                 valor={saida.stateId ?? ''}
-                blocos={destinos}
+                blocos={destinosDaSaida(i)}
                 rotulo={ROTULOS_DAS_SAIDAS.irPara}
                 onEscolher={(id) => onMudar(outputSetDestination(block, i, id))}
               />

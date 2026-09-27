@@ -23,6 +23,39 @@ export const VARIABLES_OF_SYSTEM: readonly SystemVariable[] = [
   { nome: 'contact.extras.<chave>', description: 'Um campo extra do contato.' },
   { nome: 'state.id', description: 'O id do bloco atual.' },
   { nome: 'ticket.id', description: 'O id do atendimento em curso, dentro do bloco Humano.' },
+  {
+    nome: 'input.content@tags',
+    description:
+      'As etiquetas marcadas no atendimento encerrado (lista de nomes). Disponível no bloco seguinte quando o encerramento foi pelo atendente ou por inatividade do cliente; não disponível quando o cliente encerra (D-12).',
+  },
+  {
+    nome: 'input.content@sequentialId',
+    description:
+      'O número sequencial do atendimento encerrado, exibido na tela. Mesma disponibilidade de input.content@tags (D-12).',
+  },
+  {
+    nome: 'input.content@team',
+    description: 'A fila do atendimento encerrado. Mesma disponibilidade de input.content@tags (D-12).',
+  },
+  {
+    nome: 'input.content@agentIdentity',
+    description:
+      'O e-mail do atendente responsável pelo atendimento encerrado. Mesma disponibilidade de input.content@tags (D-12).',
+  },
+  {
+    nome: 'input.content@openDate',
+    description: 'A data de abertura do atendimento encerrado. Mesma disponibilidade de input.content@tags (D-12).',
+  },
+  {
+    nome: 'input.content@closeDate',
+    description:
+      'A data de encerramento do atendimento encerrado. Mesma disponibilidade de input.content@tags (D-12).',
+  },
+  {
+    nome: 'input.content@closedBy',
+    description:
+      'Quem encerrou o atendimento (atendente, cliente ou inatividade). Mesma disponibilidade de input.content@tags (D-12).',
+  },
 ] as const;
 
 function actionsAdd(actions: AcaoDoEditor[] | undefined, nomes: Set<string>): void {

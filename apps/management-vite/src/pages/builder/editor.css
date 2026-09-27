@@ -100,6 +100,11 @@
   line-height: 21px;
   word-break: break-word;
 }
+/* The native satisfaction survey block (D-33: Pipe's own icon, never Blip's). */
+.bl-no-icone {
+  vertical-align: -3px;
+  margin-right: 4px;
+}
 .bl-no--selecionado .bl-no-titulo,
 .bl-no--editando .bl-no-titulo {
   font-weight: 700;
