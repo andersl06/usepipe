@@ -231,3 +231,47 @@ describe('script actions', () => {
     await expect(processInbound(c)).rejects.toThrow("'outputVariable' é obrigatório");
   });
 });
+
+describe('platform actions', () => {
+  it('maps known commands and rejects an arbitrary LIME URI', async () => {
+    const c = context();
+    const commands: unknown[] = [];
+    c.services.sendCommand = async (request) => { commands.push(request); };
+    c.flow.states[0]!.outputActions = [{ type: 'SendCommand', settings: {
+      uri: '/tickets/123/change-tags', method: 'set', resource: { tags: ['vip'] },
+    } }];
+    await processInbound(c);
+    expect(commands).toHaveLength(1);
+    c.flow.states[0]!.outputActions = [{ type: 'SendCommand', settings: { uri: 'https://router.example/anything' } }];
+    await expect(processInbound(c)).rejects.toThrow('não é executada no Pipe');
+  });
+
+  it('keeps bucket and list operations scoped through their services', async () => {
+    const c = context();
+    const calls: unknown[] = [];
+    c.services.bucketSet = async (request) => { calls.push(['bucket', request]); };
+    c.services.listManage = async (request) => { calls.push(['list', request]); };
+    c.flow.states[0]!.outputActions = [
+      { type: 'SetBucket', settings: { id: 'preferences', type: 'application/json', document: { dark: true } } },
+      { type: 'ManageList', settings: { listName: 'vip', action: 'Add' } },
+    ];
+    await processInbound(c);
+    expect(calls).toEqual([
+      ['bucket', expect.objectContaining({ key: 'preferences', scope: 'contact' })],
+      ['list', { name: 'vip', operation: 'Add' }],
+    ]);
+  });
+
+  it('writes the RAG answer only when the confidence contract is 0..1', async () => {
+    const c = context();
+    c.services.respondWithKnowledge = async (request) => {
+      expect(request.minimumConfidence).toBe(0.7);
+      return { answer: 'Resposta da base', confidence: 0.9 };
+    };
+    c.flow.states[0]!.outputActions = [{ type: 'ProcessContentAssistant', settings: {
+      text: 'Como funciona?', score: 0.7, outputVariable: 'resposta',
+    } }];
+    await processInbound(c);
+    expect(c.variables.resposta).toBe('Resposta da base');
+  });
+});

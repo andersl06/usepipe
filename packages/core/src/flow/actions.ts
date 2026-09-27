@@ -25,6 +25,111 @@ function campo(settings: Settings, nome: string): unknown {
 const comoTexto = (v: unknown): string | null =>
   v === undefined || v === null ? null : typeof v === 'string' ? v : JSON.stringify(v);
 
+/** Only these Pipe-owned command routes are safe to map from Blip commands. */
+export const ALLOWED_COMMAND_URIS = Object.freeze([
+  '/tickets/{id}',
+  '/tickets/{id}/change-tags',
+  '/tickets/{id}/transfer',
+  '/tickets/{id}/status',
+  '/tickets/{id}/priority',
+] as const);
+
+/** Generic platform actions remain marked external when their settings are outside D-20's Pipe subset. */
+export const EXTERNAL_DEPENDENCY_ACTIONS = [
+  'SendCommand',
+  'ProcessCommand',
+  'ManageList',
+  'SetBucket',
+  'ProcessContentAssistant',
+] as const;
+
+function commandKind(uri: string): (typeof ALLOWED_COMMAND_URIS)[number] | null {
+  if (/^\/tickets\/[^/]+$/.test(uri)) return '/tickets/{id}';
+  for (const allowed of ALLOWED_COMMAND_URIS.slice(1)) {
+    const suffix = allowed.slice('/tickets/{id}'.length);
+    if (uri.endsWith(suffix) && /^\/tickets\/[^/]+/.test(uri)) return allowed;
+  }
+  return null;
+}
+
+function requireKnownCommand(tipo: string, settings: Record<string, unknown>): string {
+  const uri = comoTexto(campo(settings, 'uri'))?.trim();
+  if (!uri) throw new Error(`O valor 'uri' é obrigatório na ação '${tipo}'.`);
+  if (!commandKind(uri)) throw new Error(`A URI '${uri}' não é executada no Pipe.`);
+  return uri;
+}
+
+const nativeCommand = (tipo: 'SendCommand' | 'ProcessCommand'): AcaoDoMotor => ({
+  tipo,
+  async executar(context, settings) {
+    const c = requireSettings(this.tipo, settings);
+    const uri = requireKnownCommand(this.tipo, c);
+    const method = (comoTexto(campo(c, 'method')) ?? (tipo === 'ProcessCommand' ? 'GET' : 'set')).toUpperCase();
+    if (tipo === 'SendCommand') {
+      if (!context.services.sendCommand) throw new Error("A ação 'SendCommand' não está disponível neste fluxo.");
+      await context.services.sendCommand({ uri, method, resource: campo(c, 'resource') ?? null });
+      return;
+    }
+    if (!context.services.processCommand) throw new Error("A ação 'ProcessCommand' não está disponível neste fluxo.");
+    const result = await context.services.processCommand({ uri, method, resource: campo(c, 'resource') ?? null });
+    const output = comoTexto(campo(c, 'variable'))?.trim();
+    if (!output) throw new Error("O valor 'variable' é obrigatório na ação 'ProcessCommand'.");
+    setContextVariable(context, output, comoTexto(result));
+  },
+});
+
+const manageList: AcaoDoMotor = {
+  tipo: 'ManageList',
+  async executar(context, settings) {
+    const c = requireSettings(this.tipo, settings);
+    const name = comoTexto(campo(c, 'listName'))?.trim();
+    if (!name) throw new Error("O valor 'listName' é obrigatório na ação 'ManageList'.");
+    if (!context.services.listManage) throw new Error("A ação 'ManageList' não está disponível neste fluxo.");
+    const operation = comoTexto(campo(c, 'action')) === 'Remove' ? 'Remove' : 'Add';
+    await context.services.listManage({ name, operation });
+  },
+};
+
+const setBucket: AcaoDoMotor = {
+  tipo: 'SetBucket',
+  async executar(context, settings) {
+    const c = requireSettings(this.tipo, settings);
+    const key = comoTexto(campo(c, 'id'))?.trim();
+    const type = comoTexto(campo(c, 'type'))?.trim();
+    if (!key) throw new Error("O valor 'id' é obrigatório na ação 'SetBucket'.");
+    if (!type) throw new Error("O valor 'type' é obrigatório na ação 'SetBucket'.");
+    if (!context.services.bucketSet) throw new Error("A ação 'SetBucket' não está disponível neste fluxo.");
+    const expiration = Number(campo(c, 'expiration'));
+    const global = campo(c, 'global') === true || campo(c, 'scope') === 'global';
+    await context.services.bucketSet({
+      key,
+      type,
+      value: campo(c, 'document') ?? null,
+      scope: global ? 'global' : 'contact',
+      expirationSeconds: Number.isFinite(expiration) && expiration > 0 ? expiration : undefined,
+    });
+  },
+};
+
+const processContentAssistant: AcaoDoMotor = {
+  tipo: 'ProcessContentAssistant',
+  async executar(context, settings) {
+    const c = requireSettings(this.tipo, settings);
+    const text = comoTexto(campo(c, 'text'))?.trim();
+    const output = comoTexto(campo(c, 'outputVariable'))?.trim();
+    if (!text) throw new Error("O valor 'text' é obrigatório na ação 'ProcessContentAssistant'.");
+    if (!output) throw new Error("O valor 'outputVariable' é obrigatório na ação 'ProcessContentAssistant'.");
+    if (!context.services.respondWithKnowledge) throw new Error("A ação 'ProcessContentAssistant' não está disponível neste fluxo.");
+    const minimum = campo(c, 'score') === undefined || campo(c, 'score') === null ? 0 : Number(campo(c, 'score'));
+    if (!Number.isFinite(minimum) || minimum < 0 || minimum > 1) throw new Error("O valor 'score' deve estar entre 0 e 1.");
+    const result = await context.services.respondWithKnowledge({ text, minimumConfidence: minimum, tags: comoTexto(campo(c, 'tags')) ?? undefined });
+    setContextVariable(context, output, result.answer ?? 'Não sei responder com a base de conhecimento disponível.');
+  },
+};
+
+const sendCommand = nativeCommand('SendCommand');
+const processCommand = nativeCommand('ProcessCommand');
+
 /** `ActionBase.ExecuteAsync` rejects null configuration before any work. */
 function requireSettings(tipo: string, settings: Settings): Record<string, unknown> {
   if (!settings) throw new Error(`As configurações são obrigatórias na ação '${tipo}'.`);
@@ -367,6 +472,11 @@ export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   executeScriptV2,
   executeTemplate,
   executeBlipFunction,
+  sendCommand,
+  processCommand,
+  manageList,
+  setBucket,
+  processContentAssistant,
 ];
 
 /** Default `ActionProvider` containing actions Pipe executes. */

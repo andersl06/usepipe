@@ -168,6 +168,60 @@ export interface ResultOfFlow {
   processHttpId?: string;
 }
 
+/** Maps only the closed command subset approved by D-20; arbitrary LIME is never forwarded. */
+async function executeNativeCommand(
+  tx: TransactionPipe,
+  e: InboundInFlow,
+  uri: string,
+  resource: unknown,
+  waitForResponse: boolean,
+): Promise<unknown> {
+  const body = resource && typeof resource === 'object' ? resource as Record<string, unknown> : {};
+  const match = uri.match(/^\/tickets\/[^/]+(\/.*)?$/);
+  const route = match?.[1] ?? '';
+  if (!match || !['', '/change-tags', '/transfer', '/status', '/priority'].includes(route)) {
+    throw new Error(`A URI '${uri}' não é executada no Pipe.`);
+  }
+  let result: Record<string, unknown> = { status: 'success', reason: 'OK', resource: null };
+  if (route === '/change-tags') {
+    const tags = Array.isArray(body['tags']) ? body['tags'].filter((tag): tag is string => typeof tag === 'string') : [];
+    for (const name of tags) {
+      const { rows } = await tx.execute<{ id: string }>(sql`
+        insert into etiqueta (tenant_id, nome, escopo, atualizado_em)
+        values (${e.tenantId}, ${name}, 'conversa', now())
+        on conflict (tenant_id, nome) do update set atualizado_em = now()
+        returning id
+      `);
+      await tx.execute(sql`
+        insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, em)
+        values (${e.tenantId}, ${e.conversation.id}, ${rows[0]!.id}, now()) on conflict do nothing
+      `);
+    }
+    result.resource = { tags };
+  } else if (route === '/transfer') {
+    const queueId = typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;
+    if (!queueId) throw new Error("O comando de transferência exige 'queueId'.");
+    await tx.execute(sql`update conversa set fila_id = ${queueId}, estado = 'na_fila', atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
+    result.resource = { queueId };
+  } else if (route === '/status') {
+    const status = typeof body['status'] === 'string' ? body['status'] : null;
+    if (!status || !['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'].includes(status)) throw new Error("O comando de status exige um status do Pipe válido.");
+    await tx.execute(sql`update conversa set estado = ${status}, atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
+    result.resource = { status };
+  } else if (route === '/priority') {
+    const priority = typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;
+    if (!priority || !['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'].includes(priority)) throw new Error("O comando de prioridade exige um nível do Pipe válido.");
+    await tx.execute(sql`update conversa set prioridade = ${priority}, atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
+    result.resource = { priority };
+  } else {
+    const { rows } = await tx.execute<{ id: string; estado: string; prioridade: string; fila_id: string | null }>(sql`
+      select id, estado, prioridade, fila_id from conversa where id = ${e.conversation.id} and tenant_id = ${e.tenantId}
+    `);
+    result.resource = rows[0] ?? null;
+  }
+  return waitForResponse ? result : undefined;
+}
+
 const NAO_TRATOU: ResultOfFlow = { tratou: false, respostas: 0 };
 
 type LineExecution = {
@@ -406,6 +460,77 @@ export async function runFlowInInbound(
         timeoutMs: 10_000,
         localTimeZone: false,
       }, { fetch: scriptFetch(e.tenantId) });
+    },
+    bucketSet: async ({ key, type, value, scope, expirationSeconds }) => {
+      if (JSON.stringify(value).length > 65_536) throw new Error('O documento da ação SetBucket excede 64 KB.');
+      const contactId = scope === 'contact' ? e.contactId : null;
+      const expiresAt = expirationSeconds ? new Date(Date.now() + expirationSeconds * 1000) : null;
+      if (scope === 'global') {
+        await tx.execute(sql`
+          insert into gravar_memoria (tenant_id, contato_id, escopo, chave, valor, expira_em, atualizado_em)
+          values (${e.tenantId}, null, 'global', ${key}, ${JSON.stringify({ type, value })}::jsonb, ${expiresAt}, now())
+          on conflict (tenant_id, chave) where escopo = 'global'
+          do update set valor = excluded.valor, expira_em = excluded.expira_em, atualizado_em = now()
+        `);
+      } else {
+        await tx.execute(sql`
+          insert into gravar_memoria (tenant_id, contato_id, escopo, chave, valor, expira_em, atualizado_em)
+          values (${e.tenantId}, ${contactId}, 'contact', ${key}, ${JSON.stringify({ type, value })}::jsonb, ${expiresAt}, now())
+          on conflict (tenant_id, contato_id, chave) where escopo = 'contact'
+          do update set valor = excluded.valor, expira_em = excluded.expira_em, atualizado_em = now()
+        `);
+      }
+    },
+    bucketGet: async ({ key, scope }) => {
+      const { rows } = await tx.execute<{ valor: { value?: unknown } }>(sql`
+        select valor from gravar_memoria
+         where tenant_id = ${e.tenantId} and chave = ${key}
+           and escopo = ${scope} and (${scope === 'global' ? sql`true` : sql`contato_id = ${e.contactId}`})
+           and (expira_em is null or expira_em > now())
+         limit 1
+      `);
+      return rows[0]?.valor?.value ?? null;
+    },
+    listManage: async ({ name, operation }) => {
+      const { rows } = await tx.execute<{ id: string }>(sql`
+        insert into lista_distribuicao (tenant_id, nome, atualizado_em)
+        values (${e.tenantId}, ${name}, now())
+        on conflict (tenant_id, nome) do update set atualizado_em = now()
+        returning id
+      `);
+      if (operation === 'Remove') {
+        await tx.execute(sql`
+          delete from lista_distribuicao_contato c using lista_distribuicao l
+           where c.lista_id = l.id and c.tenant_id = ${e.tenantId} and l.tenant_id = ${e.tenantId}
+             and l.nome = ${name} and c.contato_id = ${e.contactId}
+        `);
+      } else {
+        await tx.execute(sql`
+          insert into lista_distribuicao_contato (tenant_id, lista_id, contato_id, atualizado_em)
+          values (${e.tenantId}, ${rows[0]!.id}, ${e.contactId}, now())
+          on conflict (tenant_id, lista_id, contato_id) do nothing
+        `);
+      }
+    },
+    sendCommand: async ({ uri, resource }) => {
+      await executeNativeCommand(tx, e, uri, resource, false);
+    },
+    processCommand: async ({ uri, resource }) => executeNativeCommand(tx, e, uri, resource, true),
+    respondWithKnowledge: async ({ text, minimumConfidence }) => {
+      const words = text.toLowerCase().split(/\W+/).filter((word) => word.length > 2).slice(0, 12);
+      const pattern = words.length > 0 ? `%${words[0]}%` : '%';
+      const { rows } = await tx.execute<{ texto: string }>(sql`
+        select t.texto from trecho_conhecimento t
+        join documento_conhecimento d on d.id = t.documento_id and d.tenant_id = ${e.tenantId} and d.ativo = true
+        join base_conhecimento b on b.id = d.base_id and b.tenant_id = ${e.tenantId} and b.ativa = true
+        where t.tenant_id = ${e.tenantId} and t.texto ilike ${pattern}
+        order by t.ordem asc limit 1
+      `);
+      if (!rows[0]) return { answer: null, confidence: 0 };
+      const lower = rows[0].texto.toLowerCase();
+      const hits = words.filter((word) => lower.includes(word)).length;
+      const confidence = Math.min(1, Math.max(0.1, hits / Math.max(words.length, 1)));
+      return confidence >= minimumConfidence ? { answer: rows[0].texto, confidence } : { answer: null, confidence };
     },
     suspendHttp: async (pedido, cursor) => {
       confirmarUrlSegura(pedido.url);

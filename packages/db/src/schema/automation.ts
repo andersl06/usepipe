@@ -481,6 +481,57 @@ export const flowFunction = pgTable(
   ],
 );
 
+/** Native equivalents for the platform actions (D-20). */
+export const distributionList = pgTable(
+  'lista_distribuicao',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    name: text('nome').notNull(),
+    ...carimbos(),
+  },
+  (t) => [uniqueIndex('lista_distribuicao_tenant_nome_uk').on(t.tenantId, t.name)],
+);
+
+export const distributionListContact = pgTable(
+  'lista_distribuicao_contato',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    listId: uuid('lista_id').notNull().references(() => distributionList.id, { onDelete: 'cascade' }),
+    contactId: uuid('contato_id').notNull().references(() => contact.id, { onDelete: 'cascade' }),
+    ...carimbos(),
+  },
+  (t) => [
+    uniqueIndex('lista_distribuicao_contato_uk').on(t.tenantId, t.listId, t.contactId),
+    index('lista_distribuicao_contato_contato_idx').on(t.tenantId, t.contactId),
+  ],
+);
+
+export const MEMORY_SCOPES = ['contact', 'global'] as const;
+
+export const memoryRecord = pgTable(
+  'gravar_memoria',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    contactId: uuid('contato_id').references(() => contact.id, { onDelete: 'cascade' }),
+    scope: text('escopo').notNull().default('contact'),
+    key: text('chave').notNull(),
+    value: jsonb('valor').notNull().default(sql`'null'::jsonb`),
+    expiresAt: moment('expira_em'),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('gravar_memoria_escopo_ck', t.scope, MEMORY_SCOPES),
+    check('gravar_memoria_contato_ck', sql`(${t.scope} = 'global' and ${t.contactId} is null) or (${t.scope} = 'contact' and ${t.contactId} is not null)`),
+    uniqueIndex('gravar_memoria_contato_chave_uk').on(t.tenantId, t.contactId, t.key).where(sql`${t.scope} = 'contact'`),
+    uniqueIndex('gravar_memoria_global_chave_uk').on(t.tenantId, t.key).where(sql`${t.scope} = 'global'`),
+    index('gravar_memoria_tenant_idx').on(t.tenantId, t.contactId, t.key),
+    check('gravar_memoria_valor_ck', sql`pg_column_size(${t.value}) <= 65536`),
+  ],
+);
+
 export const executionAction = pgTable(
   'execucao_acao',
   {

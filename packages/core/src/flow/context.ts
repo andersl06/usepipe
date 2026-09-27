@@ -166,6 +166,16 @@ export interface ServicosDoMotor {
     comment: string | null;
     status: string;
   }): Promise<void>;
+  /** Native SetBucket equivalent, scoped to the current contact unless global is explicit. */
+  bucketSet?(request: { key: string; type: string; value: unknown; scope: 'contact' | 'global'; expirationSeconds?: number }): Promise<void>;
+  bucketGet?(request: { key: string; scope: 'contact' | 'global' }): Promise<unknown | null>;
+  /** Native ManageList equivalent. */
+  listManage?(request: { name: string; operation: 'Add' | 'Remove' }): Promise<void>;
+  /** Closed subset of Desk commands; arbitrary LIME routing is deliberately not exposed. */
+  sendCommand?(request: { uri: string; method: string; resource: unknown }): Promise<void>;
+  processCommand?(request: { uri: string; method: string; resource: unknown }): Promise<unknown>;
+  /** RAG over the tenant's base_conhecimento/trecho_conhecimento tables. */
+  respondWithKnowledge?(request: { text: string; minimumConfidence: number; tags?: string }): Promise<{ answer: string | null; confidence: number }>;
 }
 
 export type VariableProvider = (

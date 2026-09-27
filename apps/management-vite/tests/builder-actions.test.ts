@@ -3,6 +3,10 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import {
   CATALOG_OF_ACTIONS,
+  EXTERNAL_DEPENDENCY_ACTIONS,
+  EXTERNAL_DEPENDENCY_MESSAGE,
+  acaoTemDependenciaExterna,
+  actionsOfGroup,
   SCRIPT_TEMPLATE,
   actionErrors,
   variablesOfField,
@@ -37,6 +41,21 @@ test('context action defaults and required fields match the reference contract',
     'Tipo de conteúdo (MIME): campo obrigatório.',
   ]);
   assert.deepEqual(actionErrors(novaAcao('MergeContact')), []);
+});
+
+test('platform actions: native editors exist and external fallbacks are explicit', () => {
+  for (const tipo of ['SendCommand', 'ProcessCommand', 'ManageList', 'SetBucket', 'ProcessContentAssistant']) {
+    assert.equal(tipoDeAcao(tipo)?.tipo, tipo);
+    assert.ok(actionsOfGroup('Executar').some((action) => action.tipo === tipo) || actionsOfGroup('Manipular').some((action) => action.tipo === tipo));
+  }
+  assert.deepEqual(EXTERNAL_DEPENDENCY_ACTIONS, ['SendCommand', 'ProcessCommand', 'ManageList', 'SetBucket', 'ProcessContentAssistant']);
+  assert.match(EXTERNAL_DEPENDENCY_MESSAGE, /^Esta ação depende de um serviço da Blip/);
+});
+
+test('platform actions: arbitrary command imports are read-only dependencies', () => {
+  assert.equal(acaoTemDependenciaExterna({ type: 'SendCommand', settings: { uri: 'lime://arbitrary' } }), true);
+  assert.equal(acaoTemDependenciaExterna({ type: 'ProcessCommand', settings: { uri: '/tickets/123/status' } }), false);
+  assert.equal(acaoTemDependenciaExterna({ type: 'SetBucket', settings: {} }), false);
 });
 
 test('structured contact extras survive persistence round trip and are validated', () => {
