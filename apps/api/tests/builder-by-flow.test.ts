@@ -138,6 +138,8 @@ const versions = (sessao: string, id: string) =>
   pedir(sessao, 'GET', `/v1/management/flows/${id}/builder/versions`);
 const restore = (sessao: string, id: string, versao: string | number) =>
   pedir(sessao, 'POST', `/v1/management/flows/${id}/builder/versions/${versao}/restore`);
+const versionDrawing = (sessao: string, id: string, versao: string | number) =>
+  pedir(sessao, 'GET', `/v1/management/flows/${id}/builder/versions/${versao}`);
 
 /**
  * A design in the Blip editor's format, as the copy dictates: the root expects the first message, the next block asks for the name and waits, and the attendance one overflows. `texto` changes between versions so the test can see which version the engine ran.
@@ -201,7 +203,12 @@ function desenho(texto: string): { flow: Record<string, unknown>; globals: Recor
 
 /** The text the `pergunta` block sends, read from the design the `api` returns. */
 function falaDaPergunta(corpo: Corpo): string {
-  const pergunta = corpo['desenho']['flow']['pergunta'];
+  return falaDoDesenho(corpo['desenho']);
+}
+
+/** Same as `falaDaPergunta`, but for a `DesenhoDoBuilder` body directly (`GET .../versions/:version`). */
+function falaDoDesenho(desenho: Corpo): string {
+  const pergunta = desenho['flow']['pergunta'];
   return pergunta['$contentActions'][0]['action']['settings']['content'] as string;
 }
 
@@ -568,5 +575,48 @@ describe('POST /v1/management/flows/:id/builder/versions/:versao/restore', () =>
     expect((await restore(sessionEditor, id, 'ultima')).status).toBe(404);
     // // From another tenant, too.
     expect((await restore(sessionOfOtherTenant, id, 1)).status).toBe(404);
+  });
+});
+
+describe('GET /v1/management/flows/:id/builder/versions/:version', () => {
+  it('version drawing: returns the drawing of an old version, in the editor map format', async () => {
+    const id = await criado(`Historico ${randomUUID().slice(0, 6)}`);
+    await salvar(sessionEditor, id, desenho('primeira'));
+    await publicar(sessionPublisher, id);
+    await salvar(sessionEditor, id, desenho('segunda'));
+    await publicar(sessionPublisher, id);
+
+    const { status, body } = await versionDrawing(sessionEditor, id, 1);
+    expect(status).toBe(200);
+    expect(falaDoDesenho(body)).toBe('primeira');
+    expect(typeof body['globals']).toBe('object');
+
+    const segunda = await versionDrawing(sessionEditor, id, 2);
+    expect(falaDoDesenho(segunda.body)).toBe('segunda');
+
+    // // The published version stays untouched: the current draft (v2) never leaks into the v1 read.
+    expect((await builder(sessionEditor, id)).body['versao']['versao']).toBe(2);
+  });
+
+  it('version drawing: 404 for a version that does not exist or is not a number', async () => {
+    const id = await criado(`SemVersao ${randomUUID().slice(0, 6)}`);
+    await salvar(sessionEditor, id, desenho('x'));
+
+    expect((await versionDrawing(sessionEditor, id, 99)).status).toBe(404);
+    expect((await versionDrawing(sessionEditor, id, 'ultima')).status).toBe(404);
+    expect((await versionDrawing(sessionEditor, id, 0)).status).toBe(404);
+  });
+
+  it('version drawing: 403 without `automacao.fluxo.editar` and 404 for another tenant or invalid id', async () => {
+    const id = await criado(`Protegido2 ${randomUUID().slice(0, 6)}`);
+    await salvar(sessionEditor, id, desenho('x'));
+    await publicar(sessionPublisher, id);
+
+    const semPoder = await versionDrawing(sessionWithoutAuthority, id, 1);
+    expect(semPoder.status).toBe(403);
+    expect(semPoder.body['error']).toMatchObject({ code: 'without_permission' });
+
+    expect((await versionDrawing(sessionOfOtherTenant, id, 1)).status).toBe(404);
+    expect((await versionDrawing(sessionEditor, 'nao-e-uuid', 1)).status).toBe(404);
   });
 });

@@ -529,6 +529,21 @@ export async function listVersions(
   return rows.map(comoVersao);
 }
 
+/** Resolve a version number to its `fluxo_versao` id, or 404 when it doesn't exist. */
+async function versionIdOfNumber(
+  tx: TransactionPipe,
+  fluxoId: string,
+  numero: number,
+): Promise<string> {
+  if (!Number.isInteger(numero) || numero < 1) throw PipeError.naoEncontrado('versão');
+  const { rows } = await tx.execute<{ id: string }>(sql`
+    select id from fluxo_versao where fluxo_id = ${fluxoId} and versao = ${numero} limit 1
+  `);
+  const linha = rows[0];
+  if (!linha) throw PipeError.naoEncontrado('versão');
+  return linha.id;
+}
+
 /** Copy an old version into the draft; the published version remains live until another publish. */
 export async function restoreVersion(
   tx: TransactionPipe,
@@ -538,14 +553,25 @@ export async function restoreVersion(
   numero: number,
 ): Promise<RascunhoGravado> {
   await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDIT_FLOW);
-  if (!Number.isInteger(numero) || numero < 1) throw PipeError.naoEncontrado('versão');
-  const { rows } = await tx.execute<{ id: string }>(sql`
-    select id from fluxo_versao where fluxo_id = ${fluxoId} and versao = ${numero} limit 1
-  `);
-  const origem = rows[0];
-  if (!origem) throw PipeError.naoEncontrado('versão');
-
-  const desenho = await desenhoDaVersao(tx, origem.id);
+  const versaoId = await versionIdOfNumber(tx, fluxoId, numero);
+  const desenho = await desenhoDaVersao(tx, versaoId);
   const compilado = compilar(desenho, fluxoId);
   return gravarRascunho(tx, tid, usuarioId, fluxoId, compilado, { restauradaDe: numero });
+}
+
+/**
+ * The drawing of a past version, in the same `{flow, globals}` shape `carregarBuilder` returns — used to export an old
+ * version without a second serializer. Read-only: unlike `restoreVersion`, nothing is written.
+ */
+export async function loadVersionDrawing(
+  tx: TransactionPipe,
+  tid: string,
+  usuarioId: string,
+  fluxoId: string,
+  numero: number,
+): Promise<DesenhoDoBuilder> {
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDIT_FLOW);
+  const versaoId = await versionIdOfNumber(tx, fluxoId, numero);
+  const desenho = await desenhoDaVersao(tx, versaoId);
+  return compilar(desenho, fluxoId).desenho;
 }
