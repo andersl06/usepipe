@@ -32,6 +32,18 @@ const FLOW = {
         settings: { name: 'Ana atualizada', contact_id: 'contact-from-another-tenant' },
         conditions: [{ source: 'input', comparison: 'equals', values: ['merge'] }],
       },
+      {
+        type: 'SendCommand',
+        settings: { uri: '/tickets/atual/transfer', resource: { queueId: 'fila-vendas' } },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['transfer-invalida'] }],
+      },
+      {
+        // 40k characters pass the app's 64 KB character check, but 80 KB of UTF-8 violate the
+        // `pg_column_size(valor) <= 65536` CHECK: a real database error inside the action.
+        type: 'SetBucket',
+        settings: { id: 'grande', type: 'text/plain', document: 'é'.repeat(40_000) },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['bucket-grande'] }],
+      },
     ],
     outputs: [{ order: 0, stateId: 'raiz' }],
   }],
@@ -100,5 +112,31 @@ describe('context action services', () => {
     `);
     expect(after[0]?.id).toBe(before[0]?.id);
     expect(after[0]?.nome).toBe('Ana atualizada');
+  });
+
+  /** The flow failed, the inbound message survived, and the conversation overflowed to the default queue. */
+  async function esperarFalhaSemPerderAEntrada(texto: string): Promise<void> {
+    const { rows: entradas } = await cenario.dono.execute<{ conteudo: string }>(sql`
+      select conteudo from mensagem where tenant_id = ${cenario.tenantId}::uuid and direcao = 'entrada'
+    `);
+    expect(entradas.map((m) => m.conteudo)).toEqual([texto]);
+    const { rows: execucoes } = await cenario.dono.execute<{ estado: string }>(sql`
+      select estado from execucao_fluxo where tenant_id = ${cenario.tenantId}::uuid
+    `);
+    expect(execucoes.map((x) => x.estado)).toEqual(['falhou']);
+    const { rows: conversas } = await cenario.dono.execute<{ fila_id: string | null }>(sql`
+      select fila_id from conversa where tenant_id = ${cenario.tenantId}::uuid
+    `);
+    expect(conversas).toEqual([{ fila_id: cenario.queueId }]);
+  }
+
+  it('a DB error inside a platform action fails the action, not the inbound transaction (CR-02)', async () => {
+    await falar('bucket-grande');
+    await esperarFalhaSemPerderAEntrada('bucket-grande');
+  });
+
+  it('SendCommand /transfer with a non-uuid queueId fails the action and keeps the inbound message (CR-02)', async () => {
+    await falar('transfer-invalida');
+    await esperarFalhaSemPerderAEntrada('transfer-invalida');
   });
 });

@@ -168,6 +168,8 @@ export interface ResultOfFlow {
   processHttpId?: string;
 }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /** Maps only the closed command subset approved by D-20; arbitrary LIME is never forwarded. */
 async function executeNativeCommand(
   tx: TransactionPipe,
@@ -201,6 +203,7 @@ async function executeNativeCommand(
   } else if (route === '/transfer') {
     const queueId = typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;
     if (!queueId) throw new Error("O comando de transferência exige 'queueId'.");
+    if (!UUID.test(queueId)) throw new Error(`O comando de transferência recebeu um 'queueId' inválido: '${queueId}'.`);
     await tx.execute(sql`update conversa set fila_id = ${queueId}, estado = 'na_fila', atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
     result.resource = { queueId };
   } else if (route === '/status') {
@@ -351,6 +354,12 @@ export async function runFlowInInbound(
   let transferida = false;
   let processHttpId: string | undefined;
 
+  // Postgres aborts the whole transaction on any error, so a DB error inside an action would
+  // take the inbound message down with it. Every service that touches the database runs in a
+  // SAVEPOINT (a nested drizzle transaction on the same connection): its error becomes an action
+  // failure (`EngineError` → overflow to the queue) and the inbound transaction stays usable.
+  const emSavepoint = <T>(fn: (sp: TransactionPipe) => Promise<T>): Promise<T> => tx.transaction(fn);
+
   const servicos: ServicosDoMotor = {
     send: async (m) => {
       const saida = toChannelOutput(await resolveDynamicContent(m, e.tenantId));
@@ -369,7 +378,7 @@ export async function runFlowInInbound(
     forwardForAttendance: async ({ settings }) => {
       const queueId =
         typeof settings?.['filaId'] === 'string' ? settings['filaId'] : conversation.queueDefaultId;
-      await transbordar(tx, e, queueId, variables, null, relogio());
+      await emSavepoint((sp) => transbordar(sp, e, queueId, variables, null, relogio()));
       transferida = true;
       return { id: conversation.id, status: 'Waiting' };
     },
@@ -402,10 +411,10 @@ export async function runFlowInInbound(
       if (updates.length === 0) return;
       // The execution is already inside noTenant; the id is deliberately the current
       // execution contact, so a flow setting contact_id cannot cross tenant boundaries.
-      await tx.execute(sql`update contato set ${sql.join(updates, sql`, `)}, atualizado_em = now()
-        where id = ${e.contactId}`);
+      await emSavepoint((sp) => sp.execute(sql`update contato set ${sql.join(updates, sql`, `)}, atualizado_em = now()
+        where id = ${e.contactId}`));
     },
-    recordSatisfactionAnswer: async (answer) => {
+    recordSatisfactionAnswer: (answer) => emSavepoint(async (tx) => {
       const recent = await mostRecentClosedAttendance(tx, e.contactId, conversation.id);
       const blockId = variables[stateKey(flow.id)] ?? null;
       await tx.execute(sql`
@@ -419,7 +428,7 @@ export async function runFlowInInbound(
           ${answer.status === 'sem_resposta' ? null : relogio()}
         )
       `);
-    },
+    }),
     callHttp: async (pedido: PedidoDeHttp) => {
       confirmarUrlSegura(pedido.url);
       try {
@@ -461,7 +470,7 @@ export async function runFlowInInbound(
         localTimeZone: false,
       }, { fetch: scriptFetch(e.tenantId) });
     },
-    bucketSet: async ({ key, type, value, scope, expirationSeconds }) => {
+    bucketSet: ({ key, type, value, scope, expirationSeconds }) => emSavepoint(async (tx) => {
       if (JSON.stringify(value).length > 65_536) throw new Error('O documento da ação SetBucket excede 64 KB.');
       const contactId = scope === 'contact' ? e.contactId : null;
       const expiresAt = expirationSeconds ? new Date(Date.now() + expirationSeconds * 1000) : null;
@@ -480,8 +489,8 @@ export async function runFlowInInbound(
           do update set valor = excluded.valor, expira_em = excluded.expira_em, atualizado_em = now()
         `);
       }
-    },
-    bucketGet: async ({ key, scope }) => {
+    }),
+    bucketGet: ({ key, scope }) => emSavepoint(async (tx) => {
       const { rows } = await tx.execute<{ valor: { value?: unknown } }>(sql`
         select valor from gravar_memoria
          where tenant_id = ${e.tenantId} and chave = ${key}
@@ -490,8 +499,8 @@ export async function runFlowInInbound(
          limit 1
       `);
       return rows[0]?.valor?.value ?? null;
-    },
-    listManage: async ({ name, operation }) => {
+    }),
+    listManage: ({ name, operation }) => emSavepoint(async (tx) => {
       const { rows } = await tx.execute<{ id: string }>(sql`
         insert into lista_distribuicao (tenant_id, nome, atualizado_em)
         values (${e.tenantId}, ${name}, now())
@@ -511,12 +520,13 @@ export async function runFlowInInbound(
           on conflict (tenant_id, lista_id, contato_id) do nothing
         `);
       }
-    },
+    }),
     sendCommand: async ({ uri, resource }) => {
-      await executeNativeCommand(tx, e, uri, resource, false);
+      await emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, false));
     },
-    processCommand: async ({ uri, resource }) => executeNativeCommand(tx, e, uri, resource, true),
-    respondWithKnowledge: async ({ text, minimumConfidence }) => {
+    processCommand: ({ uri, resource }) =>
+      emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, true)),
+    respondWithKnowledge: ({ text, minimumConfidence }) => emSavepoint(async (tx) => {
       const words = text.toLowerCase().split(/\W+/).filter((word) => word.length > 2).slice(0, 12);
       const pattern = words.length > 0 ? `%${words[0]}%` : '%';
       const { rows } = await tx.execute<{ texto: string }>(sql`
@@ -531,7 +541,7 @@ export async function runFlowInInbound(
       const hits = words.filter((word) => lower.includes(word)).length;
       const confidence = Math.min(1, Math.max(0.1, hits / Math.max(words.length, 1)));
       return confidence >= minimumConfidence ? { answer: rows[0].texto, confidence } : { answer: null, confidence };
-    },
+    }),
     suspendHttp: async (pedido, cursor) => {
       confirmarUrlSegura(pedido.url);
       const key = `${executionId}:${e.message.idProvedor}:${cursor.estadoId ?? 'global'}:${cursor.lista}:${cursor.indice}`;
