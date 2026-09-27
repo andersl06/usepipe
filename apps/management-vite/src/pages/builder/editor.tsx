@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { BlockError } from '@pipe/contracts';
-import { Etiqueta } from '@pipe/ui';
+import { Etiqueta, Icone } from '@pipe/ui';
+import { useContact } from '../flow/contact';
 import { ModalConfirmation } from '../registrations/_modal';
 import { Canvas } from './canvas';
 import type { EditorState, GestoDoEditor } from './state';
@@ -22,6 +23,7 @@ import {
   replaceBlock,
 } from './model';
 import { BlockPanel } from './panel';
+import { TestPanel } from './test-panel';
 import { positionInCenter } from './setas';
 import { errorsLocal, joinErrors } from './validation';
 import './editor.css';
@@ -56,20 +58,29 @@ export function Editor({
   panelExternalOpen: boolean;
   pesquisa: string;
 }) {
+  const { contact } = useContact();
   const { mapa } = state;
   const [selecionado, setSelecionado] = useState<string | null>(null);
   const [editando, setEditando] = useState<string | null>(null);
+  const [testOpen, setTestOpen] = useState(false);
   const [offset, setOffset] = useState<Position>({ top: 0, left: 0 });
   const [excluindo, setExcluindo] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const area = useRef<HTMLDivElement>(null);
 
   /*
-   * The Configuração and Filas panels occupy the same side as the block panel; opening one of them closes the block editor so it doesn't overlap content.
+   * The Configuração and Filas panels occupy the same side as the block panel; opening one of them closes the block editor so it doesn't overlap content. The Test panel (D-14) shares that side too.
    */
   useEffect(() => {
-    if (panelExternalOpen) setEditando(null);
+    if (panelExternalOpen) {
+      setEditando(null);
+      setTestOpen(false);
+    }
   }, [panelExternalOpen]);
+
+  useEffect(() => {
+    if (testOpen) setEditando(null);
+  }, [testOpen]);
 
   /* O aviso some sozinho, como o toast do editor. */
   useEffect(() => {
@@ -205,6 +216,26 @@ export function Editor({
           onMudar={(block) => aplicar(replaceBlock(mapa, block))}
           onFechar={() => setEditando(null)}
           onAviso={setAviso}
+        />
+      ) : null}
+
+      <button
+        type="button"
+        className={testOpen ? 'bl-test-toggle bl-test-toggle--ativo' : 'bl-test-toggle'}
+        title="Testar fluxo em construção"
+        aria-label="Testar fluxo em construção"
+        aria-pressed={testOpen}
+        onClick={() => setTestOpen((v) => !v)}
+      >
+        <Icone nome="testEnvironment" tamanho={22} />
+      </button>
+
+      {testOpen ? (
+        <TestPanel
+          flowId={contact.id}
+          mapa={mapa}
+          onFechar={() => setTestOpen(false)}
+          onDestacarBloco={(id) => setSelecionado(id)}
         />
       ) : null}
 
