@@ -134,7 +134,7 @@ function SummaryCard({
         {resumo.logoUrl ? (
           <img className="ct-foto" src={resumo.logoUrl} alt="" width={72} height={72} />
         ) : (
-          <Avatar nome={resumo.nome} className="ct-foto" />
+          <Avatar nome={resumo.name} className="ct-foto" />
         )}
       </div>
 
@@ -145,7 +145,7 @@ function SummaryCard({
         <div className="ct-block">
           {/* The "Nome do contrato" label they place above the name. */}
           <span className="ct-rotulo">Nome do contrato</span>
-          <h1 className="ct-nome">{resumo.nome}</h1>
+          <h1 className="ct-nome">{resumo.name}</h1>
 
           {/*
  * Their `{id}.blip.ai`, bold with a copy button. Our address identifier is the account slug.

@@ -38,7 +38,7 @@ export function CertificatesPage() {
           <Link className="cm-voltar" href="/contract" aria-label="Voltar ao painel do contrato">
             <IconePortal nome="esquerda" tamanho={24} />
           </Link>
-          <h1>Certificados MTLS de {contract.nome}</h1>
+          <h1>Certificados MTLS de {contract.name}</h1>
         </div>
 
         <TelaDeCertificados certificados={lista.data} podeEscrever={podeEscrever} />
