@@ -17,6 +17,7 @@ import {
   moveBlock,
   newBlock,
   attendanceNewBlock,
+  newSurveyBlock,
   podeExcluir,
   replaceBlock,
 } from './model';
@@ -130,6 +131,14 @@ export function Editor({
     setEditando(block.id);
   }
 
+  function createSurvey(): void {
+    const block = newSurveyBlock(mapa, positionForNew());
+    aplicar(addBlock(mapa, block));
+    onCloseNewBlock();
+    setSelecionado(block.id);
+    setEditando(block.id);
+  }
+
   function ligarBlocos(de: string, para: string): void {
     const r = ligar(mapa, de, para);
     if (r.ok) aplicar(r.mapa);
@@ -179,7 +188,12 @@ export function Editor({
       />
 
       {newBlockOpen ? (
-        <MenuNewBlock onPadrao={createDefault} onHumano={createHuman} onFechar={onCloseNewBlock} />
+        <MenuNewBlock
+          onPadrao={createDefault}
+          onHumano={createHuman}
+          onPesquisa={createSurvey}
+          onFechar={onCloseNewBlock}
+        />
       ) : null}
 
       {blockOpen ? (

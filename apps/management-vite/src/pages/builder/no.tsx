@@ -1,7 +1,8 @@
 import type { PointerEvent as PointerEventDeReact, MouseEvent as MouseEventDeReact } from 'react';
 import { Etiqueta } from '@pipe/ui';
+import { IconePortal } from '../../components/icones-portal';
 import type { Block } from './model';
-import { ehAttendance, positionOf } from './model';
+import { ehAttendance, isSurveyBlock, positionOf } from './model';
 import { blockTags } from './tags-of-block';
 
 /**
@@ -41,6 +42,7 @@ export function No({
   const classes = ['bl-no'];
   if (block.root) classes.push('bl-no--inicio');
   if (ehAttendance(block.id)) classes.push('bl-node--attendance');
+  if (isSurveyBlock(block)) classes.push('bl-node--survey');
   if (errors.length > 0) classes.push('bl-node--error');
   if (selecionado) classes.push('bl-no--selecionado');
   if (editando) classes.push('bl-no--editando');
@@ -58,7 +60,12 @@ export function No({
       onContextMenu={onContextMenu}
     >
       <div className="bl-no-corpo">
-        <span className="bl-no-titulo">{block.$title || block.id}</span>
+        <span className="bl-no-titulo">
+          {isSurveyBlock(block) ? (
+            <IconePortal nome="gostei" tamanho={16} className="bl-no-icone" />
+          ) : null}
+          {block.$title || block.id}
+        </span>
         {errors.length > 0 ? (
           <Etiqueta tom="erro" redonda className="bl-node-errors">
             {errors.length}

@@ -691,3 +691,14 @@
 .bl-availability > .bl-mais {
   margin-top: 24px;
 }
+/* The native satisfaction survey block's own question field and destination filter (D-06/D-08). */
+.bl-survey-config {
+  margin-bottom: 24px;
+}
+.bl-survey-filtro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  font-size: 12px;
+}
