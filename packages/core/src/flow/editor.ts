@@ -127,10 +127,135 @@ export function blipReadFlow(json: unknown, id: string): FlowBlip {
 }
 
 /** Content types currently sent by Pipe channels; typing passes through without effect. */
-export const CONTEUDOS_SUPORTADOS = new Set(['text/plain', 'application/vnd.lime.select+json']);
+export const CONTEUDOS_SUPORTADOS = new Set([
+  'text/plain',
+  'application/vnd.lime.select+json',
+  'application/vnd.lime.media-link+json',
+]);
 export const CONTEUDOS_SEM_EFEITO = new Set(['application/vnd.lime.chatstate+json']);
 /** Actions that execute without effect in Pipe, listed explicitly so they do not appear functional. */
 export const ACTIONS_WITHOUT_EFFECT = new Set(['LeavingFromDesk']);
+
+const MB = 1024 * 1024;
+
+/** `media-link` category the reference does not carry as a separate field: it is inferred from the file's real MIME (`content.type`), the same way Blip does not distinguish "Figurinha" from other `media-link` beyond that MIME (`ref/inventario-conteudo.md`, seção Figurinha). */
+type CategoriaDeMidia = 'imagem' | 'audio' | 'video' | 'documento';
+
+/** MIME accepted per media category, sourced from the frozen inventory (`ref/inventario-conteudo.md`). Images have no documented ceiling. */
+const MEDIA_FORMATS: Readonly<Record<CategoriaDeMidia, readonly string[]>> = {
+  imagem: [
+    'image/gif',
+    'image/jpeg',
+    'image/jpg',
+    'image/jfif',
+    'image/png',
+    'image/svg+xml',
+    'image/tiff',
+    'image/vnd.dwg',
+    'image/webp',
+  ],
+  audio: [
+    'audio/aac',
+    'audio/midi',
+    'audio/mp3',
+    'audio/mp4',
+    'audio/mpeg',
+    'audio/wav',
+    'audio/ogg',
+    'audio/wma',
+    'audio/webm',
+    'audio/opus',
+    'audio/x-aac',
+    'audio/amr',
+  ],
+  video: [
+    'video/3gpp',
+    'video/avi',
+    'video/mpeg',
+    'video/mpg',
+    'video/mp4',
+    'video/mov',
+    'video/quicktime',
+    'video/m4v',
+    'video/wmv',
+    'video/webm',
+  ],
+  documento: [
+    'application/pdf',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.ms-outlook',
+    'application/zip',
+    'application/vnd.rar',
+    'application/x-rar-compressed',
+    'text/csv',
+    'text/html',
+    'text/plain',
+  ],
+};
+
+/** Byte ceiling per media category (Blip-documented: 16 MB audio/video, 100 MB document); image has none. */
+const MEDIA_MAX_BYTES: Readonly<Partial<Record<CategoriaDeMidia, number>>> = {
+  audio: 16 * MB,
+  video: 16 * MB,
+  documento: 100 * MB,
+};
+
+function categoryOfMedia(mime: string): CategoriaDeMidia | null {
+  const m = mime.toLowerCase();
+  if (m.startsWith('image/')) return 'imagem';
+  if (m.startsWith('audio/')) return 'audio';
+  if (m.startsWith('video/')) return 'video';
+  return m ? 'documento' : null;
+}
+
+function toMegabytes(bytes: number): string {
+  return (bytes / MB).toFixed(1).replace('.', ',');
+}
+
+function tentarParse(v: string): unknown {
+  try {
+    return JSON.parse(v);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Validate `SendMessage` settings for content types the engine enforces beyond the whitelist — today only `media-link` (the figurinha/áudio/imagem/vídeo/documento slot, `ref/inventario-conteudo.md`): `uri` is required, and when the file's real MIME/size are declared, they must respect the frozen inventory's per-category format list and byte ceiling. Sticker has no separate entry: it validates as `imagem` when its declared MIME says so (the reference does not distinguish it beyond MIME either).
+ */
+export function engineContentErrors(tipo: string, settings: unknown): string[] {
+  if (tipo.toLowerCase() !== 'application/vnd.lime.media-link+json') return [];
+  const bruto = (settings as { content?: unknown } | null | undefined)?.content;
+  const content = (typeof bruto === 'string' ? tentarParse(bruto) : bruto) as Record<
+    string,
+    unknown
+  > | null;
+  const uri = content && typeof content['uri'] === 'string' ? content['uri'].trim() : '';
+  if (!uri) return ["O campo 'uri' é obrigatório no conteúdo de mídia."];
+
+  const mimeReal = content && typeof content['type'] === 'string' ? content['type'] : '';
+  const categoria = mimeReal ? categoryOfMedia(mimeReal) : null;
+  if (!categoria) return [];
+
+  const errors: string[] = [];
+  const aceitos = MEDIA_FORMATS[categoria];
+  if (!aceitos.includes(mimeReal.toLowerCase())) {
+    errors.push(`Formato ${mimeReal} não é aceito para ${categoria}. Aceitos: ${aceitos.join(', ')}.`);
+  }
+  const teto = MEDIA_MAX_BYTES[categoria];
+  const size = content && typeof content['size'] === 'number' ? content['size'] : undefined;
+  if (teto !== undefined && size !== undefined && size > teto) {
+    errors.push(
+      `Arquivo de ${toMegabytes(size)} MB passa do limite de ${toMegabytes(teto)} MB para ${categoria}.`,
+    );
+  }
+  return errors;
+}
 
 export interface ImportReport {
   estados: number;

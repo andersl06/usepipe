@@ -4,6 +4,7 @@
 
 import type { ConditionBlip } from './condition.js';
 import { ValidationError, validateCondition } from './condition.js';
+import { engineContentErrors } from './editor.js';
 
 /** `Action`: `settings` is free JSON per type, corresponding to original `JRaw`. */
 export interface Acao {
@@ -100,6 +101,12 @@ export const contextEhVariable = (id: string): boolean =>
 /** `Action.Validate()`. */
 export function validarAcao(acao: Acao): void {
   if (!acao.type) throw new ValidationError('O tipo da ação é obrigatório.');
+  if (acao.type === 'SendMessage') {
+    const settings = acao.settings as { type?: unknown } | null | undefined;
+    const tipo = typeof settings?.type === 'string' ? settings.type : '';
+    const erro = engineContentErrors(tipo, acao.settings)[0];
+    if (erro) throw new ValidationError(erro);
+  }
 }
 
 /** `Input.Validate()`. */

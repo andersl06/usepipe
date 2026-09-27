@@ -6,10 +6,12 @@ import {
   ehExportDoEditor,
   blipReadFlow,
   importReport,
+  engineContentErrors,
+  CONTEUDOS_SUPORTADOS,
 } from './editor.js';
 import type { ExportDoEditor } from './editor.js';
 import { processInbound } from './manager.js';
-import { validateFlow } from './modelos.js';
+import { validateFlow, flowErrors } from './modelos.js';
 import type { FlowBlip } from './modelos.js';
 import fixture from './fixtures/editor-sintetico.json' with { type: 'json' };
 
@@ -206,5 +208,147 @@ describe('the imported flow running in the engine', () => {
     const errado = await login('3');
     expect(errado[0]).toBe('Não entendi. Responda 1 ou 2.');
     expect(variables['stateId@f1']).toBe('menu');
+  });
+});
+
+describe('media content', () => {
+  const MEDIA_LINK = 'application/vnd.lime.media-link+json';
+  const settingsMedia = (uri: string | undefined, type: string, size?: number): unknown => ({
+    type: MEDIA_LINK,
+    content: {
+      ...(uri !== undefined ? { uri } : {}),
+      type,
+      ...(size !== undefined ? { size } : {}),
+    },
+  });
+  const missingUri = ["O campo 'uri' é obrigatório no conteúdo de mídia."];
+  const MEDIA_FORMATS_IMAGEM =
+    'image/gif, image/jpeg, image/jpg, image/jfif, image/png, image/svg+xml, image/tiff, image/vnd.dwg, image/webp';
+
+  // Figurinha: the reference does not distinguish it from other media-link content beyond
+  // the file's MIME (`ref/inventario-conteudo.md`, seção Figurinha), so it validates as `imagem`.
+  it('accepts a sticker with an accepted image MIME', () => {
+    expect(
+      engineContentErrors(MEDIA_LINK, settingsMedia('https://cdn.exemplo.com/fig.webp', 'image/webp')),
+    ).toEqual([]);
+  });
+  it('rejects a sticker without uri', () => {
+    expect(engineContentErrors(MEDIA_LINK, settingsMedia(undefined, 'image/webp'))).toEqual(missingUri);
+  });
+  it('rejects a sticker with an unsupported image format', () => {
+    expect(
+      engineContentErrors(MEDIA_LINK, settingsMedia('https://cdn.exemplo.com/fig.bmp', 'image/bmp')),
+    ).toEqual(['Formato image/bmp não é aceito para imagem. Aceitos: ' + MEDIA_FORMATS_IMAGEM + '.']);
+  });
+
+  it('accepts audio within the accepted format and size', () => {
+    expect(
+      engineContentErrors(MEDIA_LINK, settingsMedia('https://cdn.exemplo.com/audio.mp3', 'audio/mp3', 1_000_000)),
+    ).toEqual([]);
+  });
+  it('rejects audio without uri', () => {
+    expect(engineContentErrors(MEDIA_LINK, settingsMedia(undefined, 'audio/mp3'))).toEqual(missingUri);
+  });
+  it('rejects audio over the 16 MB ceiling documented for the type', () => {
+    expect(
+      engineContentErrors(
+        MEDIA_LINK,
+        settingsMedia('https://cdn.exemplo.com/audio.mp3', 'audio/mp3', 17 * 1024 * 1024),
+      ),
+    ).toEqual(['Arquivo de 17,0 MB passa do limite de 16,0 MB para audio.']);
+  });
+
+  it('accepts an image in an accepted format', () => {
+    expect(
+      engineContentErrors(MEDIA_LINK, settingsMedia('https://cdn.exemplo.com/foto.png', 'image/png')),
+    ).toEqual([]);
+  });
+  it('rejects an image without uri', () => {
+    expect(engineContentErrors(MEDIA_LINK, settingsMedia(undefined, 'image/png'))).toEqual(missingUri);
+  });
+  it('rejects an image in an unsupported format (no size ceiling documented for images)', () => {
+    expect(
+      engineContentErrors(MEDIA_LINK, settingsMedia('https://cdn.exemplo.com/foto.bmp', 'image/bmp'))[0],
+    ).toContain('Formato image/bmp não é aceito para imagem.');
+  });
+
+  it('accepts video within the accepted format and size', () => {
+    expect(
+      engineContentErrors(
+        MEDIA_LINK,
+        settingsMedia('https://cdn.exemplo.com/video.mp4', 'video/mp4', 10 * 1024 * 1024),
+      ),
+    ).toEqual([]);
+  });
+  it('rejects video without uri', () => {
+    expect(engineContentErrors(MEDIA_LINK, settingsMedia(undefined, 'video/mp4'))).toEqual(missingUri);
+  });
+  it('rejects video over the 16 MB ceiling documented for the type', () => {
+    expect(
+      engineContentErrors(
+        MEDIA_LINK,
+        settingsMedia('https://cdn.exemplo.com/video.mp4', 'video/mp4', 20 * 1024 * 1024),
+      ),
+    ).toEqual(['Arquivo de 20,0 MB passa do limite de 16,0 MB para video.']);
+  });
+
+  it('accepts a document within the accepted format and size', () => {
+    expect(
+      engineContentErrors(
+        MEDIA_LINK,
+        settingsMedia('https://cdn.exemplo.com/doc.pdf', 'application/pdf', 50 * 1024 * 1024),
+      ),
+    ).toEqual([]);
+  });
+  it('rejects a document without uri', () => {
+    expect(engineContentErrors(MEDIA_LINK, settingsMedia(undefined, 'application/pdf'))).toEqual(missingUri);
+  });
+  it('rejects a document over the 100 MB ceiling documented for the type', () => {
+    expect(
+      engineContentErrors(
+        MEDIA_LINK,
+        settingsMedia('https://cdn.exemplo.com/doc.pdf', 'application/pdf', 120 * 1024 * 1024),
+      ),
+    ).toEqual(['Arquivo de 120,0 MB passa do limite de 100,0 MB para documento.']);
+  });
+
+  it('a MIME outside the catalog stays refused, as before', () => {
+    expect(CONTEUDOS_SUPORTADOS.has('application/vnd.lime.web-link+json')).toBe(false);
+    expect(CONTEUDOS_SUPORTADOS.has(MEDIA_LINK)).toBe(true);
+  });
+
+  const flowWith = (settings: unknown): FlowBlip => ({
+    id: 'f1',
+    states: [
+      {
+        id: 'raiz',
+        root: true,
+        input: {},
+        inputActions: [{ type: 'SendMessage', settings }],
+        outputs: [],
+      },
+    ],
+  });
+
+  it('a flow with valid media settings publishes without error', () => {
+    expect(
+      flowErrors(flowWith(settingsMedia('https://cdn.exemplo.com/foto.png', 'image/png'))),
+    ).toEqual([]);
+  });
+
+  it('a flow missing a required media field is refused at publish with the literal message', () => {
+    expect(flowErrors(flowWith(settingsMedia(undefined, 'image/png')))).toEqual([
+      { stateId: 'raiz', message: missingUri[0] },
+    ]);
+  });
+
+  it('a flow exceeding a documented media limit is refused at publish with the literal message', () => {
+    expect(
+      flowErrors(
+        flowWith(settingsMedia('https://cdn.exemplo.com/doc.pdf', 'application/pdf', 120 * 1024 * 1024)),
+      ),
+    ).toEqual([
+      { stateId: 'raiz', message: 'Arquivo de 120,0 MB passa do limite de 100,0 MB para documento.' },
+    ]);
   });
 });
