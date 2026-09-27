@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { filterFlowFunctions, functionCallSnippet } from '../src/pages/builder/flow-functions.ts';
+import { filterFlowFunctions, functionCallSnippet, insertLibraryCall } from '../src/pages/builder/flow-functions.ts';
+import { SCRIPT_TEMPLATE } from '../src/pages/builder/actions-of-block.ts';
 
 const FUNCTIONS = [
   {
@@ -47,4 +48,25 @@ test('functions: a search with no match returns an empty list', () => {
 test('functions: functionCallSnippet formats the call as name(param1, param2)', () => {
   assert.equal(functionCallSnippet(FUNCTIONS[0]!), 'calculoDeFrete(cep)');
   assert.equal(functionCallSnippet(FUNCTIONS[1]!), 'saudacao()');
+});
+
+test('functions: inserting a library call puts it inside run, never at the top level (CR-07)', () => {
+  const inserido = insertLibraryCall(SCRIPT_TEMPLATE, FUNCTIONS[0]!);
+  // The parameter becomes run's own parameter (fed by "Variáveis de entrada"), so the call never
+  // references an undeclared name, and it only runs when the engine calls run.
+  assert.equal(inserido, 'function run(cep) {\n  calculoDeFrete(cep);\n  return;\n}\n');
+  // Already declared parameters are reused; a custom function name (V1 `function`) is honoured.
+  assert.equal(
+    insertLibraryCall('async function principal(cep, outro) {\n  return 1;\n}', FUNCTIONS[0]!, 'principal'),
+    'async function principal(cep, outro) {\n  calculoDeFrete(cep);\n  return 1;\n}',
+  );
+  // No entry function to insert into: kept as a comment instead of a call that runs at load.
+  assert.equal(insertLibraryCall('const x = 1;', FUNCTIONS[1]!), 'const x = 1;\n// saudacao()');
+});
+
+test('functions: the inserted call runs in the engine once the library is in scope (CR-07)', () => {
+  const source = insertLibraryCall(SCRIPT_TEMPLATE, FUNCTIONS[0]!).replace('  return;', '  return calculoDeFrete(cep);');
+  // Mirrors the API sandbox prelude: the library function is in scope when run is called.
+  const run = new Function(`function calculoDeFrete(cep) { return 'frete ' + cep; }\n${source}\nreturn run;`)() as (cep: string) => string;
+  assert.equal(run('01001-000'), 'frete 01001-000');
 });

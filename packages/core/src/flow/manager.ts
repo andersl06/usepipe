@@ -124,12 +124,24 @@ export class SuspensaoDeProcessHttp extends Error {
 
 class TimeExpired extends Error {}
 
-function withTimeLimit<T>(promessa: Promise<T>, ms: number): Promise<T> {
+/** Actions whose `source` is JavaScript: never substituted (WR-03). */
+const SCRIPT_ACTIONS = new Set(['ExecuteScript', 'ExecuteScriptV2']);
+
+/**
+ * `Promise.race` alone leaves the losing action running; `controle` is aborted at the deadline so
+ * the action (and the services it handed the signal to) stop instead of working past it.
+ */
+function withTimeLimit<T>(executar: (signal: AbortSignal) => Promise<T>, ms: number): Promise<T> {
+  const controle = new AbortController();
   let relogio: ReturnType<typeof setTimeout> | undefined;
   const limite = new Promise<never>((_, rejeitar) => {
-    relogio = setTimeout(() => rejeitar(new TimeExpired()), ms);
+    relogio = setTimeout(() => {
+      const erro = new TimeExpired();
+      controle.abort(erro);
+      rejeitar(erro);
+    }, ms);
   });
-  return Promise.race([promessa, limite]).finally(() => clearTimeout(relogio));
+  return Promise.race([executar(controle.signal), limite]).finally(() => clearTimeout(relogio));
 }
 
 const messageOf = (e: unknown): string => (e instanceof Error ? e.message : String(e));
@@ -187,6 +199,11 @@ export async function processInbound(
     // entering actions only run once, right after a transition (below, inside the loop), so a
     // resume that restores an already-current state must finish them here before the loop falls
     // through to that state's content/output actions.
+    // The inbound message was already consumed by the state before the suspension, so after
+    // finishing the entering actions decide exactly as the loop's `finally` does: a state that
+    // awaits input stops here and waits for the NEXT message; one that does not continues to
+    // its content/outputs without re-reading the old message as its answer.
+    let aguardaProxima = false;
     if (
       cursorPendente &&
       !cursorPendente.consumido &&
@@ -204,9 +221,14 @@ export async function processInbound(
         state.id,
         cursorPendente,
       );
+      const inboundCondition =
+        !state.input?.conditions ||
+        (await evaluateConditions(state.input.conditions, context.inbound, context));
+      aguardaProxima = !!state.input && !state.input.bypass && inboundCondition;
+      waitInbound = false;
     }
 
-    do {
+    if (!aguardaProxima) do {
       try {
         if (Date.now() > prazo) {
           throw new TimeExpired(
@@ -403,10 +425,20 @@ async function processActions(
     try {
       let settings: Record<string, unknown> | null = null;
       if (flowAction.settings !== undefined && flowAction.settings !== null) {
-        let texto = JSON.stringify(flowAction.settings);
+        // Pipe decision (security, diverges from Blip): script code is never a template. The JSON
+        // escape only protects the settings JSON, not the JavaScript around the value, so a
+        // customer message in `{{input.content}}` would become code in the sandbox (with the
+        // tenant's fetch/mTLS). Scripts receive customer data only through `inputVariables`.
+        const codigo = SCRIPT_ACTIONS.has(acao.tipo)
+          ? Object.entries(flowAction.settings).filter(([k]) => k.toLowerCase() === 'source')
+          : [];
+        const resto = codigo.length > 0
+          ? Object.fromEntries(Object.entries(flowAction.settings).filter(([k]) => k.toLowerCase() !== 'source'))
+          : flowAction.settings;
+        let texto = JSON.stringify(resto);
         // `ExecuteTemplate` receives the raw template; other actions receive substituted variables.
         if (acao.tipo !== 'ExecuteTemplate') texto = await replaceVariables(texto, context);
-        settings = JSON.parse(texto) as Record<string, unknown>;
+        settings = { ...(JSON.parse(texto) as Record<string, unknown>), ...Object.fromEntries(codigo) };
       }
       context.inboundContext.set(KEY_OF_STATE_CURRENT, state?.id ?? null);
       if (flowAction.type === 'ProcessHttp' && context.services.suspendHttp) {
@@ -428,7 +460,10 @@ async function processActions(
         if (cursor) cursor.consumido = true;
         continue;
       }
-      await withTimeLimit(acao.executar(context, settings), timeLimit);
+      await withTimeLimit(
+        (signal) => acao.executar(context, settings, { signal, timeLimitMs: timeLimit }),
+        timeLimit,
+      );
     } catch (error) {
       if (error instanceof SuspensaoDeProcessHttp) throw error;
       passo.error = messageOf(error);

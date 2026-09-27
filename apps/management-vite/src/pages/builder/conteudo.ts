@@ -1,4 +1,11 @@
-import { CONTEUDOS_SEM_EFEITO, CONTEUDOS_SUPORTADOS, engineContentErrors } from '@pipe/core';
+import {
+  CONTEUDOS_SEM_EFEITO,
+  CONTEUDOS_SUPORTADOS,
+  DYNAMIC_CONTENT_TYPE,
+  dynamicContentRaw,
+  dynamicContentVariable,
+  engineContentErrors,
+} from '@pipe/core';
 import type { Block, EditorInbound, ItemDeConteudo, InboundValidation } from './model';
 import { LABEL_OF_INBOUND, card, gerarId, newInbound } from './model';
 
@@ -55,7 +62,8 @@ export const TIPO_PEDIR_LOCALIZACAO = 'application/vnd.lime.input+json';
 export const TIPO_LOCALIZACAO = 'application/vnd.lime.location+json';
 export const TIPO_WEB_LINK = 'application/vnd.lime.web-link+json';
 export const TIPO_CONTEUDO_HTTP = 'application/vnd.pipe.http-content+json';
-export const TIPO_CONTEUDO_DINAMICO = 'application/vnd.pipe.dynamic-content+json';
+/** Single contract with the engine/API: `dynamicContentRaw`/`dynamicContentVariable` in `@pipe/core`. */
+export const TIPO_CONTEUDO_DINAMICO = DYNAMIC_CONTENT_TYPE;
 export const TIPO_PESQUISA = 'application/vnd.lime.satisfaction-survey+json';
 
 /**
@@ -181,9 +189,7 @@ export function cardsOf(block: Block): Card[] {
       const http = (acao.settings?.['content'] ?? {}) as { uri?: unknown; type?: unknown; headers?: unknown; requestTimeout?: unknown };
       cards.push({ indice, tipo: 'http', uri: texto(http.uri), mime: texto(http.type), cabecalhos: JSON.stringify(http.headers ?? {}), timeout: texto(http.requestTimeout ?? 60) });
     } else if (acao.type === 'SendRawMessage' && mime === TIPO_CONTEUDO_DINAMICO) {
-      let variavel = '';
-      try { variavel = texto((JSON.parse(texto(acao.settings?.['rawContent'])) as { variable?: unknown }).variable); } catch { /* rawContent sem JSON válido: fica sem variável */ }
-      cards.push({ indice, tipo: 'dinamico', variavel });
+      cards.push({ indice, tipo: 'dinamico', variavel: dynamicContentVariable(texto(acao.settings?.['rawContent'])) });
     } else if (mime === TIPO_PESQUISA) {
       cards.push({ indice, tipo: 'pesquisa' });
     } else if (acao.type === 'SendMessage' && mime === TIPO_MEDIA) {
@@ -256,7 +262,7 @@ export function novoConteudoDinamico(variavel = '', id = gerarId()): ItemDeConte
   return {
     action: {
       $id: id, $typeOfContent: 'raw-content', type: 'SendRawMessage',
-      settings: { id, type: TIPO_CONTEUDO_DINAMICO, rawContent: JSON.stringify({ variable: variavel }) },
+      settings: { id, type: TIPO_CONTEUDO_DINAMICO, rawContent: dynamicContentRaw(variavel) },
       $cardContent: card(id, TIPO_CONTEUDO_DINAMICO, variavel, 'left'),
     },
     $invalid: false,
@@ -393,7 +399,7 @@ export function definirConteudoDinamico(block: Block, indice: number, variavel: 
   return {
     ...block,
     $contentActions: (block.$contentActions ?? []).map((item, i) => i === indice
-      ? comSettings(item, (settings) => ({ ...settings, rawContent: JSON.stringify({ variable: variavel }) }))
+      ? comSettings(item, (settings) => ({ ...settings, rawContent: dynamicContentRaw(variavel) }))
       : item),
   };
 }

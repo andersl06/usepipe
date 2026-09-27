@@ -33,10 +33,32 @@ export async function comTenant<T>(
   if (!UUID.test(tenantId)) {
     throw new TenantInvalidError(tenantId);
   }
-  return db.transaction(async (tx) => {
-    await tx.execute(sql`select set_config('pipe.tenant_id', ${tenantId}, true)`);
-    return fn(tx);
-  });
+  let sessao: { prepareQuery: unknown } | undefined;
+  try {
+    return await db.transaction(async (tx) => {
+      // drizzle creates one session per pooled transaction; every query (`execute`, builders,
+      // savepoints) goes through its `prepareQuery`.
+      sessao = (tx as unknown as { session: { prepareQuery: unknown } }).session;
+      await tx.execute(sql`select set_config('pipe.tenant_id', ${tenantId}, true)`);
+      return fn(tx);
+    });
+  } finally {
+    // After COMMIT/ROLLBACK the client is back in the pool. A promise that outlived the
+    // transaction (an action past its time limit, say) must not run a query through it: it
+    // would land without `pipe.tenant_id`, or inside another request's transaction.
+    if (sessao) {
+      sessao.prepareQuery = () => {
+        throw new TransactionClosedError();
+      };
+    }
+  }
+}
+
+export class TransactionClosedError extends Error {
+  constructor() {
+    super('A transação já terminou: nada mais pode ser executado nela.');
+    this.name = 'TransacaoEncerradaErro';
+  }
 }
 
 /** The tenant active in this transaction, for logging and assertions. */

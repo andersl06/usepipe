@@ -245,7 +245,9 @@ export function confirmarUrlSegura(url: string): void {
   if (analisada.protocol !== 'https:') {
     throw PipeError.request('url_needs_https', 'A URL precisa usar HTTPS.');
   }
-  const host = analisada.hostname.toLowerCase();
+  // `URL.hostname` keeps the brackets of an IPv6 literal (`[::1]`) and already normalizes IPv4
+  // spellings (`0x7f.1`, `2130706433` → `127.0.0.1`) and IPv6 compression.
+  const host = analisada.hostname.toLowerCase().replace(/^\[|\]$/g, '').replace(/\.$/, '');
   if (host === 'localhost' || host.endsWith('.localhost') || host === '0.0.0.0') {
     throw PipeError.request('url_forbidden', 'A URL não pode apontar para localhost.');
   }
@@ -257,20 +259,55 @@ export function confirmarUrlSegura(url: string): void {
   }
 }
 
+/** `host` without brackets: an IPv4 literal, an IPv6 literal, or a DNS name (never private here). */
 function ipPrivado(host: string): boolean {
   const v4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
-  if (v4) {
-    const a = Number(v4[1]);
-    const b = Number(v4[2]);
-    if (a === 0 || a === 127 || a === 10) return true;
-    if (a === 172 && b >= 16 && b <= 31) return true;
-    if (a === 192 && b === 168) return true;
-    if (a === 169 && b === 254) return true;
-    return false;
-  }
-  if (host === '::1' || host === '::') return true;
-  if (host.startsWith('fe80:') || host.startsWith('fc') || host.startsWith('fd')) return true;
+  if (v4) return ipv4Privado(v4.slice(1, 5).map(Number));
+  if (!host.includes(':')) return false;
+  const h = hextetos(host);
+  // Unparseable IPv6 literal: refuse rather than guess.
+  if (!h) return true;
+  const embutido = (i: number) => [h[i]! >> 8, h[i]! & 0xff, h[i + 1]! >> 8, h[i + 1]! & 0xff];
+  const zeros = (ate: number) => h.slice(0, ate).every((x) => x === 0);
+  if (zeros(8) || (zeros(7) && h[7] === 1)) return true; // :: e ::1
+  if (zeros(5) && h[5] === 0xffff) return ipv4Privado(embutido(6)); // ::ffff:a.b.c.d (IPv4 mapeado)
+  if (zeros(6)) return ipv4Privado(embutido(6)); // ::a.b.c.d (IPv4 compatível, obsoleto)
+  if (h[0] === 0x64 && h[1] === 0xff9b && h.slice(2, 6).every((x) => x === 0)) return ipv4Privado(embutido(6)); // NAT64 64:ff9b::/96
+  if (h[0] === 0x2002) return ipv4Privado(embutido(1)); // 6to4 2002::/16
+  if ((h[0]! & 0xffc0) === 0xfe80) return true; // link-local fe80::/10
+  if ((h[0]! & 0xfe00) === 0xfc00) return true; // unique local fc00::/7
+  if ((h[0]! & 0xff00) === 0xff00) return true; // multicast ff00::/8
   return false;
+}
+
+function ipv4Privado([a, b]: number[]): boolean {
+  if (a === 0 || a === 127 || a === 10) return true;
+  if (a === 172 && b! >= 16 && b! <= 31) return true;
+  if (a === 192 && b === 168) return true;
+  if (a === 169 && b === 254) return true;
+  if (a === 100 && b! >= 64 && b! <= 127) return true; // CGNAT 100.64.0.0/10
+  if (a === 198 && (b === 18 || b === 19)) return true; // benchmark 198.18.0.0/15
+  return a! >= 224; // multicast e reservados
+}
+
+/** An IPv6 literal as its 8 hextets (with a trailing dotted IPv4, if any), or null. */
+function hextetos(host: string): number[] | null {
+  let texto = host.split('%')[0]!;
+  const v4 = /(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(texto);
+  if (v4) {
+    const [a, b, c, d] = v4.slice(1, 5).map(Number) as [number, number, number, number];
+    texto = `${texto.slice(0, v4.index)}${((a << 8) | b).toString(16)}:${((c << 8) | d).toString(16)}`;
+  }
+  const partes = texto.split('::');
+  if (partes.length > 2) return null;
+  const lista = (s: string | undefined) => (s ? s.split(':') : []);
+  const cabeca = lista(partes[0]);
+  const cauda = lista(partes[1]);
+  const faltam = 8 - cabeca.length - cauda.length;
+  if (partes.length === 1 ? faltam !== 0 : faltam < 1) return null;
+  const todos = [...cabeca, ...Array<string>(partes.length === 2 ? faltam : 0).fill('0'), ...cauda];
+  if (!todos.every((x) => /^[0-9a-f]{1,4}$/.test(x))) return null;
+  return todos.map((x) => parseInt(x, 16));
 }
 
 /* --------------------------------------------------------- Webhook_saida */

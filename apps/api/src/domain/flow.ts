@@ -11,6 +11,7 @@ import {
   processInbound,
   importReport,
   SuspensaoDeProcessHttp,
+  SURVEY_CONTENT_TYPE,
   validateFlow,
 } from '@pipe/core';
 import type {
@@ -38,6 +39,7 @@ import { chamarComMtls } from './mtls.js';
 import { runFlowScript, scriptFetch } from './script-sandbox.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 import { loadFlowFunctions } from './management/flow-functions.js';
+import { closeInTransaction, type LineConversation } from './conversation.js';
 import type { TipoEnvio } from './envio.js';
 
 /**
@@ -168,13 +170,21 @@ export interface ResultOfFlow {
   processHttpId?: string;
 }
 
-/** Maps only the closed command subset approved by D-20; arbitrary LIME is never forwarded. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Maps only the closed command subset approved by D-20; arbitrary LIME is never forwarded.
+ * `/transfer` and `/status` change the conversation only through the same domain paths a human
+ * handoff/closure uses (`transferir` = the bot's attendance handoff `transbordar`, and
+ * `closeInTransaction`), so events, SLA, webhooks and distribution fire.
+ */
 async function executeNativeCommand(
   tx: TransactionPipe,
   e: InboundInFlow,
   uri: string,
   resource: unknown,
   waitForResponse: boolean,
+  transferir: (sp: TransactionPipe, queueId: string) => Promise<void>,
 ): Promise<unknown> {
   const body = resource && typeof resource === 'object' ? resource as Record<string, unknown> : {};
   const match = uri.match(/^\/tickets\/[^/]+(\/.*)?$/);
@@ -201,12 +211,31 @@ async function executeNativeCommand(
   } else if (route === '/transfer') {
     const queueId = typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;
     if (!queueId) throw new Error("O comando de transferência exige 'queueId'.");
-    await tx.execute(sql`update conversa set fila_id = ${queueId}, estado = 'na_fila', atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
+    if (!UUID.test(queueId)) throw new Error(`O comando de transferência recebeu um 'queueId' inválido: '${queueId}'.`);
+    // Explicit tenant filter: the foreign key alone accepts another tenant's queue (it ignores RLS).
+    const { rows: filas } = await tx.execute<{ id: string }>(sql`
+      select id from fila where id = ${queueId}::uuid and tenant_id = ${e.tenantId}::uuid and ativa limit 1
+    `);
+    if (!filas[0]) throw new Error(`A fila '${queueId}' não existe neste Pipe.`);
+    await transferir(tx, queueId);
     result.resource = { queueId };
   } else if (route === '/status') {
     const status = typeof body['status'] === 'string' ? body['status'] : null;
     if (!status || !['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'].includes(status)) throw new Error("O comando de status exige um status do Pipe válido.");
-    await tx.execute(sql`update conversa set estado = ${status}, atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
+    if (status === 'na_fila') {
+      if (!e.conversation.queueDefaultId) throw new Error('A inbox do canal não tem fila padrão: o bot não tem para onde transferir.');
+      await transferir(tx, e.conversation.queueDefaultId);
+    } else if (status === 'encerrada') {
+      const { rows } = await tx.execute<LineConversation>(sql`
+        select id, estado as state, fila_id as "queueId", atendente_id as "agentId", em_espera_desde
+          from conversa where id = ${e.conversation.id} and tenant_id = ${e.tenantId}::uuid limit 1
+      `);
+      if (!rows[0]) throw new Error('A conversa não existe.');
+      await closeInTransaction(tx, e.tenantId, rows[0], null, [], new Date());
+    } else {
+      // The state machine only reaches these with an agent (`atribuida` → `em_atendimento` → `em_espera`).
+      throw new Error(`O bot não pode colocar a conversa em '${status}': esse estado exige um atendente.`);
+    }
     result.resource = { status };
   } else if (route === '/priority') {
     const priority = typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;
@@ -351,26 +380,38 @@ export async function runFlowInInbound(
   let transferida = false;
   let processHttpId: string | undefined;
 
+  // Postgres aborts the whole transaction on any error, so a DB error inside an action would
+  // take the inbound message down with it. Every service that touches the database runs in a
+  // SAVEPOINT (a nested drizzle transaction on the same connection): its error becomes an action
+  // failure (`EngineError` → overflow to the queue) and the inbound transaction stays usable.
+  const emSavepoint = <T>(fn: (sp: TransactionPipe) => Promise<T>): Promise<T> => tx.transaction(fn);
+  /** The bot's attendance handoff, shared by `forwardForAttendance` and the `/transfer` command. */
+  const transferirPeloBot = async (sp: TransactionPipe, queueId: string | null): Promise<void> => {
+    await transbordar(sp, e, queueId, variables, null, relogio());
+    transferida = true;
+  };
+
   const servicos: ServicosDoMotor = {
-    send: async (m) => {
-      const saida = toChannelOutput(await resolveDynamicContent(m, e.tenantId));
+    send: async (m, signal) => {
+      const saida = toChannelOutput(await resolveDynamicContent(m, e.tenantId, signal ? { signal } : {}));
       if (saida === null) return;
-      await gravarRespostaDoBot(
-        tx,
+      // An action past its time limit must not record a reply (CR-06).
+      signal?.throwIfAborted();
+      await emSavepoint((sp) => gravarRespostaDoBot(
+        sp,
         e.tenantId,
         conversation.id,
         saida.texto,
         relogio(),
         saida.dados,
         saida.tipo,
-      );
+      ));
       respostas += 1;
     },
     forwardForAttendance: async ({ settings }) => {
       const queueId =
         typeof settings?.['filaId'] === 'string' ? settings['filaId'] : conversation.queueDefaultId;
-      await transbordar(tx, e, queueId, variables, null, relogio());
-      transferida = true;
+      await emSavepoint((sp) => transferirPeloBot(sp, queueId));
       return { id: conversation.id, status: 'Waiting' };
     },
     registerEvent: async (evento) => {
@@ -402,10 +443,10 @@ export async function runFlowInInbound(
       if (updates.length === 0) return;
       // The execution is already inside noTenant; the id is deliberately the current
       // execution contact, so a flow setting contact_id cannot cross tenant boundaries.
-      await tx.execute(sql`update contato set ${sql.join(updates, sql`, `)}, atualizado_em = now()
-        where id = ${e.contactId}`);
+      await emSavepoint((sp) => sp.execute(sql`update contato set ${sql.join(updates, sql`, `)}, atualizado_em = now()
+        where id = ${e.contactId}`));
     },
-    recordSatisfactionAnswer: async (answer) => {
+    recordSatisfactionAnswer: (answer) => emSavepoint(async (tx) => {
       const recent = await mostRecentClosedAttendance(tx, e.contactId, conversation.id);
       const blockId = variables[stateKey(flow.id)] ?? null;
       await tx.execute(sql`
@@ -419,8 +460,8 @@ export async function runFlowInInbound(
           ${answer.status === 'sem_resposta' ? null : relogio()}
         )
       `);
-    },
-    callHttp: async (pedido: PedidoDeHttp) => {
+    }),
+    callHttp: async (pedido: PedidoDeHttp, signal?: AbortSignal) => {
       confirmarUrlSegura(pedido.url);
       try {
         const resposta = await chamarComMtls(e.tenantId, pedido.url, {
@@ -428,8 +469,9 @@ export async function runFlowInInbound(
           headers: pedido.cabecalhos,
           body: pedido.corpo,
           // Future work: this call still runs INSIDE the inbound transaction, holding a
-          // database connection; outside the transaction, the source `requestTimeout` is 60 s.
+          // database connection; the engine caps it at the action's time limit and aborts it there.
           timeoutMs: pedido.timeoutMs,
+          ...(signal ? { signal } : {}),
         });
         const corpo = await resposta.texto();
         const limite = Number(process.env['PIPE_PROCESS_HTTP_MAX_RESPOSTA_BYTES'] ?? 1_048_576);
@@ -445,7 +487,8 @@ export async function runFlowInInbound(
       }
     },
     // Like callHttp, the script (up to 10 s) still runs inside the inbound transaction.
-    runScript: (request) => runFlowScript(request, { fetch: scriptFetch(e.tenantId) }),
+    runScript: (request) =>
+      runFlowScript(request, { fetch: scriptFetch(e.tenantId), library: flowFunctions.values() }),
     runFlowFunction: async ({ functionId, args }) => {
       const definition = flowFunctions.get(functionId);
       if (!definition) throw new Error(`A função '${functionId}' não existe neste fluxo.`);
@@ -461,7 +504,7 @@ export async function runFlowInInbound(
         localTimeZone: false,
       }, { fetch: scriptFetch(e.tenantId) });
     },
-    bucketSet: async ({ key, type, value, scope, expirationSeconds }) => {
+    bucketSet: ({ key, type, value, scope, expirationSeconds }) => emSavepoint(async (tx) => {
       if (JSON.stringify(value).length > 65_536) throw new Error('O documento da ação SetBucket excede 64 KB.');
       const contactId = scope === 'contact' ? e.contactId : null;
       const expiresAt = expirationSeconds ? new Date(Date.now() + expirationSeconds * 1000) : null;
@@ -480,8 +523,8 @@ export async function runFlowInInbound(
           do update set valor = excluded.valor, expira_em = excluded.expira_em, atualizado_em = now()
         `);
       }
-    },
-    bucketGet: async ({ key, scope }) => {
+    }),
+    bucketGet: ({ key, scope }) => emSavepoint(async (tx) => {
       const { rows } = await tx.execute<{ valor: { value?: unknown } }>(sql`
         select valor from gravar_memoria
          where tenant_id = ${e.tenantId} and chave = ${key}
@@ -490,8 +533,8 @@ export async function runFlowInInbound(
          limit 1
       `);
       return rows[0]?.valor?.value ?? null;
-    },
-    listManage: async ({ name, operation }) => {
+    }),
+    listManage: ({ name, operation }) => emSavepoint(async (tx) => {
       const { rows } = await tx.execute<{ id: string }>(sql`
         insert into lista_distribuicao (tenant_id, nome, atualizado_em)
         values (${e.tenantId}, ${name}, now())
@@ -511,12 +554,13 @@ export async function runFlowInInbound(
           on conflict (tenant_id, lista_id, contato_id) do nothing
         `);
       }
-    },
+    }),
     sendCommand: async ({ uri, resource }) => {
-      await executeNativeCommand(tx, e, uri, resource, false);
+      await emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, false, transferirPeloBot));
     },
-    processCommand: async ({ uri, resource }) => executeNativeCommand(tx, e, uri, resource, true),
-    respondWithKnowledge: async ({ text, minimumConfidence }) => {
+    processCommand: ({ uri, resource }) =>
+      emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, true, transferirPeloBot)),
+    respondWithKnowledge: ({ text, minimumConfidence }) => emSavepoint(async (tx) => {
       const words = text.toLowerCase().split(/\W+/).filter((word) => word.length > 2).slice(0, 12);
       const pattern = words.length > 0 ? `%${words[0]}%` : '%';
       const { rows } = await tx.execute<{ texto: string }>(sql`
@@ -531,7 +575,7 @@ export async function runFlowInInbound(
       const hits = words.filter((word) => lower.includes(word)).length;
       const confidence = Math.min(1, Math.max(0.1, hits / Math.max(words.length, 1)));
       return confidence >= minimumConfidence ? { answer: rows[0].texto, confidence } : { answer: null, confidence };
-    },
+    }),
     suspendHttp: async (pedido, cursor) => {
       confirmarUrlSegura(pedido.url);
       const key = `${executionId}:${e.message.idProvedor}:${cursor.estadoId ?? 'global'}:${cursor.lista}:${cursor.indice}`;
@@ -1129,8 +1173,6 @@ export function perguntaDoSelect(m: OutputMessage): { texto: string; opcoes: str
 export function textForOChannel(m: OutputMessage): string | null {
   const tipo = m.tipo.toLowerCase();
   if (tipo === 'application/vnd.lime.chatstate+json') return null;
-  // The native satisfaction block owns its question/answer lifecycle in the flow engine.
-  if (tipo === 'application/vnd.lime.satisfaction-survey+json') return null;
   let conteudo = m.conteudo;
   if (m.bruto && typeof conteudo === 'string' && tipo !== 'text/plain') {
     try {
@@ -1138,6 +1180,16 @@ export function textForOChannel(m: OutputMessage): string | null {
     } catch {
       // segue como texto; o tipo decide abaixo
     }
+  }
+  // The native satisfaction block (`newSurveyBlock`): the question goes to the customer as text
+  // with the fixed 1-5 scale (D-06); the engine reads the reply in the block's input
+  // (`interpretSatisfactionAnswer`).
+  if (tipo === SURVEY_CONTENT_TYPE) {
+    const pergunta = (conteudo as { question?: unknown } | null)?.question;
+    if (typeof pergunta !== 'string' || !pergunta.trim()) {
+      throw new Error("O campo 'question' é obrigatório na pesquisa de satisfação.");
+    }
+    return `${pergunta.trim()}\n1 2 3 4 5`;
   }
   if (tipo === 'text/plain')
     return typeof conteudo === 'string' ? conteudo : JSON.stringify(conteudo);
@@ -1192,6 +1244,8 @@ const CHANNEL_CONTENT_TYPES = new Set([
 
 type DynamicResolverOptions = {
   callHttp?: typeof chamarComMtls;
+  /** The sending action's deadline: the HTTP content request is aborted with it. */
+  signal?: AbortSignal;
 };
 type DynamicLimeDocument = { type?: unknown; content?: unknown; metadata?: unknown };
 
@@ -1226,7 +1280,7 @@ export async function resolveDynamicContent(
     const timeoutMs = Number.isFinite(seconds) && seconds > 0 ? seconds * 1_000 : 60_000;
     try {
       const response = await (options.callHttp ?? chamarComMtls)(tenantId, uri, {
-        metodo: 'GET', headers, timeoutMs,
+        metodo: 'GET', headers, timeoutMs, ...(options.signal ? { signal: options.signal } : {}),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const body = await response.texto();

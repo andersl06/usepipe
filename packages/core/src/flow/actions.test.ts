@@ -9,7 +9,7 @@ function context(): Context {
       url: 'https://api.exemplo.test/clientes/42',
       cabecalhos: { authorization: 'Bearer abc' },
       corpo: '{"nome":"Ana"}',
-      timeoutMs: 60000,
+      timeoutMs: 30000, // capped at the default action time limit (CR-06)
     });
     return { status: 201, corpo: '{"id":"c-1"}' };
   };
@@ -57,7 +57,7 @@ describe('context actions', () => {
         metodo: 'GET',
         url: 'https://api.exemplo.test/message',
         cabecalhos: { authorization: 'Bearer abc' },
-        timeoutMs: 60000,
+        timeoutMs: 30000, // capped at the default action time limit (CR-06)
       });
       return { status: 200, corpo: '{"text":"oi"}' };
     };

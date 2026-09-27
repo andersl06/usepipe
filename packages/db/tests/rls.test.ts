@@ -47,6 +47,25 @@ describe('Enforce tenant isolation through row-level security', () => {
     expect(espiada).toHaveLength(0);
   });
 
+  it('a transaction handle that outlives comTenant can no longer run queries (CR-06)', async () => {
+    let vazado: Parameters<Parameters<typeof comTenant>[2]>[0] | undefined;
+    await comTenant(cenario.app, cenario.tenantA, async (tx) => {
+      vazado = tx;
+      await tx.execute(sql`select 1`);
+    });
+    // After COMMIT the client is back in the pool; a late promise must not write through it
+    // (with or without `pipe.tenant_id`, possibly inside another request's transaction).
+    await expect((async () => vazado!.execute(sql`select 1`))()).rejects.toThrow(/transação já terminou/);
+    await expect(vazado!.transaction(async (sp) => sp.execute(sql`select 1`))).rejects.toThrow(/transação já terminou/);
+
+    let depoisDoErro: typeof vazado;
+    await expect(comTenant(cenario.app, cenario.tenantA, async (tx) => {
+      depoisDoErro = tx;
+      throw new Error('falhou');
+    })).rejects.toThrow('falhou');
+    await expect((async () => depoisDoErro!.execute(sql`select 1`))()).rejects.toThrow(/transação já terminou/);
+  });
+
   it('Deny queries when `pipe.tenant_id` is unset', async () => {
     const fechou = await falhouFechada(() =>
       cenario.app.execute<{ id: string }>(sql`select id from fila`),

@@ -201,8 +201,9 @@ function servicesOfTestRun(
   flowFunctions: Map<string, { id: string; name: string; parameters: string[]; code: string }>,
 ): ServicosDoMotor {
   return {
-    send: async (m) => {
-      const saida = toChannelOutput(await resolveDynamicContent(m, tid));
+    send: async (m, signal) => {
+      const saida = toChannelOutput(await resolveDynamicContent(m, tid, signal ? { signal } : {}));
+      signal?.throwIfAborted();
       if (saida) messages.push(saida);
     },
     // Simulated: the test panel never opens a real ticket nor moves a real conversation to a queue.
@@ -226,7 +227,7 @@ function servicesOfTestRun(
     recordSatisfactionAnswer: async () => {
       /* Test-run survey answers are not persisted: there is no real attendance session to attach them to. */
     },
-    callHttp: async (pedido) => {
+    callHttp: async (pedido, signal) => {
       confirmarUrlSegura(pedido.url);
       try {
         const resposta = await chamarComMtls(tid, pedido.url, {
@@ -234,6 +235,7 @@ function servicesOfTestRun(
           headers: pedido.cabecalhos,
           body: pedido.corpo,
           timeoutMs: pedido.timeoutMs,
+          ...(signal ? { signal } : {}),
         });
         const corpo = await resposta.texto();
         const limite = Number(process.env['PIPE_PROCESS_HTTP_MAX_RESPOSTA_BYTES'] ?? 1_048_576);
@@ -247,7 +249,7 @@ function servicesOfTestRun(
         };
       }
     },
-    runScript: (request) => runFlowScript(request, { fetch: scriptFetch(tid) }),
+    runScript: (request) => runFlowScript(request, { fetch: scriptFetch(tid), library: flowFunctions.values() }),
     runFlowFunction: async ({ functionId, args }) => {
       const definition = flowFunctions.get(functionId);
       if (!definition) throw new Error(`A função '${functionId}' não existe neste fluxo.`);

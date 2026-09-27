@@ -19,6 +19,8 @@ import {
   novoConteudoHttp,
 } from '../src/pages/builder/conteudo.ts';
 import type { ItemDeConteudo } from '../src/pages/builder/model.ts';
+import { DYNAMIC_CONTENT_TYPE, createInbound, dynamicContentRaw, processInbound } from '@pipe/core';
+import type { FlowBlip, OutputMessage } from '@pipe/core';
 
 /**
  * Round trip for each `conteudo-midia` type approved at the gate (D-18/D-24): create ->
@@ -128,4 +130,51 @@ test('dynamic content factories round trip through cardsOf', () => {
   if (!dynamic.ok) return;
   assert.deepEqual(cardsOf(dynamic.block).filter((c) => c.tipo !== 'entrada').map((c) => c.tipo), ['http', 'dinamico']);
   assert.deepEqual(contentErrors(dynamic.block), []);
+});
+
+test('dynamic content card: Builder settings -> engine -> the LIME document the API resolves (CR-04)', async () => {
+  const item = novoConteudoDinamico('conteudoLime');
+  const settings = item.action!.settings as Record<string, unknown>;
+  assert.equal(settings['rawContent'], dynamicContentRaw('conteudoLime'));
+
+  const documento = { type: 'text/plain', content: 'Olá "cliente"' };
+  const enviadas: OutputMessage[] = [];
+  const flow: FlowBlip = {
+    id: 'f',
+    states: [{
+      id: 'root',
+      root: true,
+      input: {},
+      outputActions: [
+        { type: 'SetVariable', settings: { variable: 'conteudoLime', value: JSON.stringify(documento) } },
+        { type: 'SendRawMessage', settings },
+      ],
+      outputs: [],
+    }],
+  };
+  await processInbound({
+    user: 'u',
+    flow,
+    inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
+    variables: {},
+    inboundContext: new Map(),
+    contact: null,
+    services: {
+      async send(m) { enviadas.push(m); },
+      async forwardForAttendance() { return { id: 't' }; },
+      async registerEvent() {},
+    },
+  });
+  assert.equal(enviadas.length, 1);
+  assert.equal(enviadas[0]!.tipo, DYNAMIC_CONTENT_TYPE);
+  assert.deepEqual(JSON.parse(String(enviadas[0]!.conteudo)), documento);
+
+  const bloco = newBlock({}, { top: 0, left: 0 }, 'b2');
+  const r = adicionarConteudo(bloco, item);
+  assert.equal(r.ok, true);
+  if (!r.ok) return;
+  assert.deepEqual(
+    cardsOf(r.block).filter((c) => c.tipo === 'dinamico').map((c) => (c as { variavel?: string }).variavel),
+    ['conteudoLime'],
+  );
 });

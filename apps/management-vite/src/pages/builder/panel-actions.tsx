@@ -34,6 +34,7 @@ import {
 import type { ActionsList } from './actions-of-block';
 import { ConditionsEditor } from './condition';
 import { FlowFunctionInsertPicker, FlowFunctionSelect } from './flow-functions-panel';
+import { insertLibraryCall } from './flow-functions';
 
 /** Monaco stays in its own chunk, fetched only when a script action is opened. */
 const CodeEditor = lazy(() => import('./code-editor'));
@@ -533,10 +534,10 @@ export function ActionCard({
                     <>
                       {tipo?.tipo === 'ExecuteScript' || tipo?.tipo === 'ExecuteScriptV2' ? (
                         <FlowFunctionInsertPicker
-                          onInsert={(snippet) => {
-                            const atual = fieldValue(acao, campo.key);
+                          onInsert={(fn) => {
+                            const entrada = fieldValue(acao, 'function').trim() || 'run';
                             onMudar(
-                              comCampo(acao, campo.key, atual ? `${atual}\n${snippet}` : snippet),
+                              comCampo(acao, campo.key, insertLibraryCall(fieldValue(acao, campo.key), fn, entrada)),
                             );
                           }}
                         />

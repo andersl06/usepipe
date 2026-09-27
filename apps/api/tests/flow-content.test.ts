@@ -13,6 +13,7 @@ const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip, resolveDynamicContent, toChannelOutput } = await import('../src/domain/flow.js');
 const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { DYNAMIC_CONTENT_TYPE, dynamicContentRaw } = await import('@pipe/core');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -53,7 +54,8 @@ const FLOW: unknown = {
         { order: 3, stateId: 'envia-video', conditions: [{ source: 'input', comparison: 'equals', values: ['video'] }] },
         { order: 4, stateId: 'envia-documento', conditions: [{ source: 'input', comparison: 'equals', values: ['documento'] }] },
         { order: 5, stateId: 'envia-inseguro', conditions: [{ source: 'input', comparison: 'equals', values: ['inseguro'] }] },
-        { order: 6, stateId: 'raiz' },
+        { order: 6, stateId: 'envia-dinamico', conditions: [{ source: 'input', comparison: 'equals', values: ['dinamico'] }] },
+        { order: 7, stateId: 'raiz' },
       ],
     },
     estadoDeEnvio('envia-figurinha', conteudoMidia('https://cdn.exemplo.com/fig.webp', 'image/webp')),
@@ -63,6 +65,21 @@ const FLOW: unknown = {
     estadoDeEnvio('envia-documento', conteudoMidia('https://cdn.exemplo.com/doc.pdf', 'application/pdf')),
     // Same shape, insecure scheme: `confirmarUrlSegura` must fail the action, not send half a message.
     estadoDeEnvio('envia-inseguro', conteudoMidia('http://cdn.exemplo.com/foto.png', 'image/png')),
+    {
+      // The "Conteúdo dinâmico" card exactly as the Builder writes it (the shared core contract).
+      id: 'envia-dinamico',
+      inputActions: [
+        {
+          type: 'SetVariable',
+          settings: { variable: 'conteudoLime', value: JSON.stringify({ type: 'text/plain', content: 'Olá do conteúdo dinâmico' }) },
+        },
+        {
+          type: 'SendRawMessage',
+          settings: { id: 'd1', type: DYNAMIC_CONTENT_TYPE, rawContent: dynamicContentRaw('conteudoLime') },
+        },
+      ],
+      outputs: [{ order: 0, stateId: 'raiz' }],
+    },
   ],
 };
 
@@ -146,6 +163,13 @@ describe('bot entrega os cinco tipos do slot conteudo-midia', () => {
     ).toBe(true);
   });
 
+  it('Conteúdo dinâmico escrito pelo Builder resolve e chega ao cliente como texto (CR-04)', async () => {
+    await falar('dinamico');
+    const linha = await ultimaMensagemDoBot(await conversationId());
+    expect(linha.tipo).toBe('texto');
+    expect(linha.conteudo).toBe('Olá do conteúdo dinâmico');
+  });
+
   it('URL insegura (não https) falha a ação sem gravar mensagem pela metade, e transfere a conversa', async () => {
     const conversaId = await conversationId();
     const contarMensagensDoBot = async (): Promise<number> => {
@@ -211,8 +235,27 @@ describe('dynamic content', () => {
     expect(toChannelOutput(resolved)).toMatchObject({ tipo: 'texto', texto: 'Resposta HTTP' });
   });
 
-  it.each(['http://localhost/test', 'https://169.254.169.254/latest/meta-data'])('refuses unsafe HTTP URL %s', async (uri) => {
+  it.each([
+    'http://localhost/test',
+    'https://169.254.169.254/latest/meta-data',
+    'https://[::1]/test',
+    'https://[::ffff:a9fe:a9fe]/latest/meta-data',
+    'https://[::ffff:127.0.0.1]/test',
+  ])('refuses unsafe HTTP URL %s', async (uri) => {
     await expect(resolveDynamicContent(http(uri), 'tenant')).rejects.toThrow();
+  });
+
+  it('hands the sending action deadline to the HTTP content request (CR-06)', async () => {
+    const prazo = new AbortController();
+    let recebido: AbortSignal | undefined;
+    await resolveDynamicContent(http('https://content.example/test'), 'tenant', {
+      signal: prazo.signal,
+      callHttp: async (_tenant, _uri, pedido) => {
+        recebido = pedido.signal;
+        return { ok: true, status: 200, texto: async () => 'ok' };
+      },
+    });
+    expect(recebido).toBe(prazo.signal);
   });
 
   it('fails HTTP timeout and invalid dynamic JSON without a partial output', async () => {

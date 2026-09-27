@@ -137,8 +137,19 @@ export interface CursorDeProcessHttp {
 /**
  * External engine dependencies mirror Blip `ISender` and extensions. The `api` implements them; network actions must run outside the inbound transaction.
  */
+/**
+ * The running action's deadline (`FlowAction.timeout` or `defaultActionTimeLimitMs`). The engine
+ * aborts `signal` when the time limit expires; services that do network or write work receive it so
+ * an action past its deadline stops instead of writing through a transaction that already ended.
+ */
+export interface ActionDeadline {
+  signal: AbortSignal;
+  timeLimitMs: number;
+}
+
 export interface ServicosDoMotor {
-  send(message: OutputMessage): Promise<void>;
+  /** `signal`: the calling action's deadline; the `api` must not write after it aborts. */
+  send(message: OutputMessage, signal?: AbortSignal): Promise<void>;
   forwardForAttendance(pedido: {
     origem: string;
     settings: Record<string, unknown> | null;
@@ -147,7 +158,7 @@ export interface ServicosDoMotor {
   /** Persist contact fields for the contact that owns this execution. */
   mergeContact?(fields: Record<string, unknown>): Promise<void>;
   /** The `api` executes the request; core only describes it and performs no network access. */
-  callHttp?(pedido: PedidoDeHttp): Promise<RespostaDeHttp>;
+  callHttp?(pedido: PedidoDeHttp, signal?: AbortSignal): Promise<RespostaDeHttp>;
   /** The API stores the cursor and calls the network after the transaction ends. */
   suspendHttp?(pedido: PedidoDeHttp, cursor: Omit<CursorDeProcessHttp, 'resposta'>): Promise<never>;
   /** Runs untrusted script source in the sandbox and returns the JSON-safe result. */

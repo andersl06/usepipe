@@ -245,6 +245,199 @@ describe('FlowManager.ProcessInputAsync', () => {
     });
     expect(enviados).toEqual(['antes', 'depois']);
     expect(variables.status).toBe('200');
+    expect(variables[KEY_STATE]).toBe('ping');
+  });
+
+  it('resuming ProcessHttp in a waiting state\'s entering actions does not take the already-consumed message as that state\'s answer (CR-01)', async () => {
+    const enviados: string[] = [];
+    const flow: FlowBlip = {
+      id: FLOW_ID,
+      states: [
+        raiz([{ stateId: 'confirma' }], { input: { variable: 'cpf' } }),
+        {
+          id: 'confirma',
+          input: { variable: 'confirmacao' },
+          inputActions: [{
+            type: 'ProcessHttp',
+            settings: { uri: 'https://cliente.test/cpf', responseStatusVariable: 'status' },
+          }, enviar('Confirma?')],
+          outputs: [{ stateId: 'fim' }],
+        },
+        { id: 'fim', input: {}, inputActions: [enviar('Obrigado')], outputs: [] },
+      ],
+    };
+    const variables: Record<string, string> = {};
+    const base = {
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: '123.456.789-00' }),
+      variables,
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send(m: OutputMessage) { enviados.push(String(m.conteudo)); },
+        async forwardForAttendance() { return { id: 'atd-1', status: 'Open' }; },
+        async registerEvent() {},
+        async callHttp() { return { status: 200, corpo: '{}' }; },
+        async suspendHttp(pedido: unknown, cursor: unknown): Promise<never> {
+          throw new SuspensaoDeProcessHttp(pedido as never, cursor as never);
+        },
+      },
+    } satisfies Context;
+
+    await expect(processInbound(base)).rejects.toBeInstanceOf(SuspensaoDeProcessHttp);
+    expect(variables.cpf).toBe('123.456.789-00');
+
+    const rastro = await processInbound({
+      ...base,
+      inboundContext: new Map(),
+      services: { ...base.services, async suspendHttp() { throw new Error('não deveria suspender de novo'); } },
+    }, {
+      retomarProcessHttp: {
+        lista: 'entrada', estadoId: 'confirma', indice: 0,
+        resposta: { status: 200, corpo: '{}' },
+      },
+    });
+    expect(enviados).toEqual(['Confirma?']);
+    expect(variables.confirmacao).toBeUndefined();
+    expect(variables[KEY_STATE]).toBe('confirma');
+    expect(rastro.stateFinalId).toBe('confirma');
+  });
+
+  it('resuming ProcessHttp in a non-waiting state\'s entering actions continues to its outputs without re-reading the message (CR-01)', async () => {
+    const enviados: string[] = [];
+    const flow: FlowBlip = {
+      id: FLOW_ID,
+      states: [
+        raiz([{ stateId: 'consulta' }], { input: { variable: 'cpf' } }),
+        {
+          id: 'consulta',
+          input: { bypass: true, variable: 'naoDeveGravar' },
+          inputActions: [{
+            type: 'ProcessHttp',
+            settings: { uri: 'https://cliente.test/cpf', responseStatusVariable: 'status' },
+          }],
+          outputs: [{ stateId: 'pergunta' }],
+        },
+        { id: 'pergunta', input: { variable: 'resposta' }, inputActions: [enviar('Próxima?')], outputs: [] },
+      ],
+    };
+    const variables: Record<string, string> = {};
+    const base = {
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: '123' }),
+      variables,
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send(m: OutputMessage) { enviados.push(String(m.conteudo)); },
+        async forwardForAttendance() { return { id: 'atd-1', status: 'Open' }; },
+        async registerEvent() {},
+        async callHttp() { return { status: 200, corpo: '{}' }; },
+        async suspendHttp(pedido: unknown, cursor: unknown): Promise<never> {
+          throw new SuspensaoDeProcessHttp(pedido as never, cursor as never);
+        },
+      },
+    } satisfies Context;
+
+    await expect(processInbound(base)).rejects.toBeInstanceOf(SuspensaoDeProcessHttp);
+    await processInbound({
+      ...base,
+      inboundContext: new Map(),
+      services: { ...base.services, async suspendHttp() { throw new Error('não deveria suspender de novo'); } },
+    }, {
+      retomarProcessHttp: {
+        lista: 'entrada', estadoId: 'consulta', indice: 0,
+        resposta: { status: 200, corpo: '{}' },
+      },
+    });
+    expect(enviados).toEqual(['Próxima?']);
+    expect(variables.naoDeveGravar).toBeUndefined();
+    expect(variables.resposta).toBeUndefined();
+    expect(variables[KEY_STATE]).toBe('pergunta');
+  });
+
+  it('an action past its time limit caps its HTTP timeout, is aborted, and never sends afterwards (CR-06)', async () => {
+    const enviadas: unknown[] = [];
+    const pedidos: { timeoutMs: number; signal?: AbortSignal }[] = [];
+    const flow: FlowBlip = {
+      id: FLOW_ID,
+      states: [raiz([], {
+        outputActions: [{
+          type: 'SendMessageFromHttp',
+          timeout: 0.2,
+          settings: { uri: 'https://cliente.test/lento', type: 'text/plain', requestTimeout: 60 },
+        }],
+      })],
+    };
+    const context: Context = {
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
+      variables: {},
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send(m) { enviadas.push(m); },
+        async forwardForAttendance() { return { id: 'atd-1' }; },
+        async registerEvent() {},
+        async callHttp(pedido, signal) {
+          pedidos.push({ timeoutMs: pedido.timeoutMs, ...(signal ? { signal } : {}) });
+          // A slow server that ignores the abort and answers after the deadline.
+          await new Promise((r) => setTimeout(r, 400));
+          return { status: 200, corpo: 'tarde demais' };
+        },
+      },
+    };
+    await expect(processInbound(context)).rejects.toThrow(/tempo limite de 200 ms/);
+    await new Promise((r) => setTimeout(r, 500));
+    expect(pedidos).toHaveLength(1);
+    expect(pedidos[0]!.timeoutMs).toBeLessThanOrEqual(200);
+    expect(pedidos[0]!.signal?.aborted).toBe(true);
+    expect(enviadas).toEqual([]);
+  });
+
+  it.each(['ExecuteScript', 'ExecuteScriptV2'])('%s: a customer variable is never interpolated into the source, only passed as data (WR-03)', async (tipo) => {
+    const ataque = '"; await request.fetchAsync("https://api-do-cliente/admin", {method:"DELETE"}); "';
+    const pedidos: { source: string; args: (string | null)[] }[] = [];
+    const flow: FlowBlip = {
+      id: FLOW_ID,
+      states: [raiz([], {
+        outputActions: [{
+          type: tipo,
+          settings: {
+            Source: 'function run(nome) { var eco = "{{input.content}}"; return nome; }',
+            inputVariables: ['input.content'],
+            outputVariable: '{{saida}}',
+          },
+        }],
+      })],
+    };
+    const variables: Record<string, string> = { saida: 'resultado' };
+    await processInbound({
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: ataque }),
+      variables,
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send() {},
+        async forwardForAttendance() { return { id: 'atd-1' }; },
+        async registerEvent() {},
+        async runScript(request) {
+          pedidos.push({ source: request.source, args: request.args });
+          return request.args[0];
+        },
+      },
+    });
+    expect(pedidos).toEqual([{
+      source: 'function run(nome) { var eco = "{{input.content}}"; return nome; }',
+      args: [ataque],
+    }]);
+    // Other settings of the same action still get variables substituted.
+    expect(variables['resultado']).toBe(ataque);
   });
 
   it('with no condition it changes state, sends the message, and with no output it clears the state', async () => {

@@ -2,6 +2,7 @@ import https from 'node:https';
 import { sql } from 'drizzle-orm';
 import { decifrar } from '@pipe/db';
 import { keyring, noTenant } from '../database.js';
+import { confirmarUrlSegura } from './management/integrations.js';
 
 /**
  * Outbound mTLS: Pipe presents the customer's certificate when Pipe calls that customer's addresses; Pipe is the TLS client, not a server demanding certificates. This mirrors the `/mtls` setup in `referencias-blip/pesquisa/blip-certificados-mtls.md`: a `.pfx` is bound to hosts and presented on outbound calls. `webhooks-saida.ts` and the Integrations Test button use `chamarComMtls`; a future Builder `ProcessHttp` action can use `chamarComMtls(tenantId, url, ...)` when `dominio/fluxo.ts` supports it. Match hostname and port, ignoring URL path. Without a certificate use a normal call; if two certificates match, use the most recently registered. Cache each tenant's host index for `TTL_INDICE_MS` and each certificate's `https.Agent` until `esquecerCertificadosMtls` invalidates it on create/delete in `gestao/certificados.ts`. Certificates are immutable, so short TTL bounds stale indexes across API instances. Decrypted `.pfx` exists only in the Agent and never in logs. Registered `hosts` may include `https://api.cliente.com.br` or `https://api.cliente.com.br:8443/x`; match `hostname` plus port, and keep decrypted bytes inside the `Agent`.
@@ -147,6 +148,34 @@ export interface PedidoDeSaida {
   headers: Record<string, string>;
   body?: string;
   timeoutMs: number;
+  /** Caller's own deadline (a flow action's time limit), combined with `timeoutMs`. */
+  signal?: AbortSignal;
+  /** Read at most this many body bytes: the rest is never downloaded (the stream is cancelled). */
+  maxBytes?: number;
+}
+
+/** Read a body stream up to `limite` bytes, then cancel it: the remainder never reaches memory. */
+async function lerAte(corpo: ReadableStream<Uint8Array> | null, limite: number): Promise<string> {
+  if (!corpo) return '';
+  const leitor = corpo.getReader();
+  const partes: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (total < limite) {
+      const { done, value } = await leitor.read();
+      if (done) break;
+      partes.push(value);
+      total += value.byteLength;
+    }
+  } finally {
+    await leitor.cancel().catch(() => {});
+  }
+  return Buffer.concat(partes).subarray(0, limite).toString('utf8');
+}
+
+function prazoDo(pedido: PedidoDeSaida): AbortSignal {
+  const tempo = AbortSignal.timeout(pedido.timeoutMs);
+  return pedido.signal ? AbortSignal.any([tempo, pedido.signal]) : tempo;
 }
 
 /** Response subset shared by requests with and without a certificate, as needed for delivery. This is the subset of `Response` used by delivery. */
@@ -165,20 +194,31 @@ function pedirComAgente(url: string, pedido: PedidoDeSaida, agente: https.Agent)
         method: pedido.metodo ?? 'POST',
         headers: pedido.headers,
         agent: agente,
-        signal: AbortSignal.timeout(pedido.timeoutMs),
+        signal: prazoDo(pedido),
       },
       (resposta) => {
         const pedacos: Buffer[] = [];
-        resposta.on('data', (pedaco: Buffer) => pedacos.push(pedaco));
-        resposta.on('error', rejeitar);
-        resposta.on('end', () => {
+        let total = 0;
+        const limite = pedido.maxBytes ?? Infinity;
+        const terminar = () => {
           const status = resposta.statusCode ?? 0;
           resolver({
             ok: status >= 200 && status < 300,
             status,
-            texto: async () => Buffer.concat(pedacos).toString('utf8'),
+            texto: async () => Buffer.concat(pedacos).subarray(0, limite).toString('utf8'),
           });
+        };
+        resposta.on('data', (pedaco: Buffer) => {
+          pedacos.push(pedaco);
+          total += pedaco.byteLength;
+          // Past the limit: stop downloading (the socket is dropped) and answer with what arrived.
+          if (total >= limite) {
+            resposta.destroy();
+            terminar();
+          }
         });
+        resposta.on('error', rejeitar);
+        resposta.on('end', terminar);
       },
     );
     request.on('error', rejeitar);
@@ -186,22 +226,61 @@ function pedirComAgente(url: string, pedido: PedidoDeSaida, agente: https.Agent)
   });
 }
 
+/** Redirect hops followed by `chamarComMtls`, each one re-validated by `confirmarUrlSegura`. */
+export const MAX_REDIRECIONAMENTOS = 3;
+
 /**
- * Call a customer URL for the tenant, presenting its certificate if the host has one and using ordinary `fetch` otherwise. This is the single outbound path for webhooks and future Builder `ProcessHttp` calls.
+ * Call a customer URL for the tenant, presenting its certificate if the host has one and using ordinary `fetch` otherwise. This is the single outbound path for webhooks, flow HTTP (ProcessHttp, SendMessageFromHttp, HTTP content), script `request.fetchAsync` and the Builder test run.
+ * Callers validate the first URL; `fetch` must never follow a redirect on its own (a public URL answering `302 Location: http://169.254.169.254/...` would bypass that check), so every hop goes through `confirmarUrlSegura` here, at most `MAX_REDIRECIONAMENTOS` times. `https.request` (mTLS path) never follows redirects.
  */
 export async function chamarComMtls(
   tenantId: string,
   url: string,
   pedido: PedidoDeSaida,
 ): Promise<RespostaDeSaida> {
-  const agente = await agenteMtlsPara(tenantId, url);
-  if (agente) return pedirComAgente(url, pedido, agente);
+  let atual = url;
+  let p = pedido;
+  const prazo = prazoDo(pedido);
+  for (let salto = 0; ; salto += 1) {
+    const agente = await agenteMtlsPara(tenantId, atual);
+    if (agente) return pedirComAgente(atual, p, agente);
 
-  const resposta = await fetch(url, {
-    method: pedido.metodo ?? 'POST',
-    headers: pedido.headers,
-    body: pedido.body,
-    signal: AbortSignal.timeout(pedido.timeoutMs),
-  });
-  return { ok: resposta.ok, status: resposta.status, texto: () => resposta.text() };
+    const resposta = await fetch(atual, {
+      method: p.metodo ?? 'POST',
+      headers: p.headers,
+      body: p.body,
+      signal: prazo,
+      redirect: 'manual',
+    });
+    const destino = resposta.headers.get('location');
+    if (resposta.status < 300 || resposta.status >= 400 || !destino) {
+      const limite = p.maxBytes;
+      return {
+        ok: resposta.ok,
+        status: resposta.status,
+        texto: () => (limite === undefined ? resposta.text() : lerAte(resposta.body, limite)),
+      };
+    }
+    await resposta.body?.cancel();
+    if (salto >= MAX_REDIRECIONAMENTOS) {
+      throw new Error(`A URL redirecionou mais de ${MAX_REDIRECIONAMENTOS} vezes.`);
+    }
+    const proxima = new URL(destino, atual);
+    confirmarUrlSegura(proxima.toString());
+    // Like `fetch`: 303, or 301/302 after a POST, continue as GET without a body; credentials
+    // never follow the request to another origin.
+    const metodo =
+      resposta.status === 303 || ((resposta.status === 301 || resposta.status === 302) && (p.metodo ?? 'POST') === 'POST')
+        ? 'GET'
+        : (p.metodo ?? 'POST');
+    const mesmaOrigem = proxima.origin === new URL(atual).origin;
+    const headers = mesmaOrigem
+      ? p.headers
+      : Object.fromEntries(
+          Object.entries(p.headers).filter(([k]) => !['authorization', 'cookie', 'proxy-authorization'].includes(k.toLowerCase())),
+        );
+    p = { ...p, metodo, headers };
+    if (metodo === 'GET') delete p.body;
+    atual = proxima.toString();
+  }
 }
