@@ -245,6 +245,117 @@ describe('FlowManager.ProcessInputAsync', () => {
     });
     expect(enviados).toEqual(['antes', 'depois']);
     expect(variables.status).toBe('200');
+    expect(variables[KEY_STATE]).toBe('ping');
+  });
+
+  it('resuming ProcessHttp in a waiting state\'s entering actions does not take the already-consumed message as that state\'s answer (CR-01)', async () => {
+    const enviados: string[] = [];
+    const flow: FlowBlip = {
+      id: FLOW_ID,
+      states: [
+        raiz([{ stateId: 'confirma' }], { input: { variable: 'cpf' } }),
+        {
+          id: 'confirma',
+          input: { variable: 'confirmacao' },
+          inputActions: [{
+            type: 'ProcessHttp',
+            settings: { uri: 'https://cliente.test/cpf', responseStatusVariable: 'status' },
+          }, enviar('Confirma?')],
+          outputs: [{ stateId: 'fim' }],
+        },
+        { id: 'fim', input: {}, inputActions: [enviar('Obrigado')], outputs: [] },
+      ],
+    };
+    const variables: Record<string, string> = {};
+    const base = {
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: '123.456.789-00' }),
+      variables,
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send(m: OutputMessage) { enviados.push(String(m.conteudo)); },
+        async forwardForAttendance() { return { id: 'atd-1', status: 'Open' }; },
+        async registerEvent() {},
+        async callHttp() { return { status: 200, corpo: '{}' }; },
+        async suspendHttp(pedido: unknown, cursor: unknown): Promise<never> {
+          throw new SuspensaoDeProcessHttp(pedido as never, cursor as never);
+        },
+      },
+    } satisfies Context;
+
+    await expect(processInbound(base)).rejects.toBeInstanceOf(SuspensaoDeProcessHttp);
+    expect(variables.cpf).toBe('123.456.789-00');
+
+    const rastro = await processInbound({
+      ...base,
+      inboundContext: new Map(),
+      services: { ...base.services, async suspendHttp() { throw new Error('não deveria suspender de novo'); } },
+    }, {
+      retomarProcessHttp: {
+        lista: 'entrada', estadoId: 'confirma', indice: 0,
+        resposta: { status: 200, corpo: '{}' },
+      },
+    });
+    expect(enviados).toEqual(['Confirma?']);
+    expect(variables.confirmacao).toBeUndefined();
+    expect(variables[KEY_STATE]).toBe('confirma');
+    expect(rastro.stateFinalId).toBe('confirma');
+  });
+
+  it('resuming ProcessHttp in a non-waiting state\'s entering actions continues to its outputs without re-reading the message (CR-01)', async () => {
+    const enviados: string[] = [];
+    const flow: FlowBlip = {
+      id: FLOW_ID,
+      states: [
+        raiz([{ stateId: 'consulta' }], { input: { variable: 'cpf' } }),
+        {
+          id: 'consulta',
+          input: { bypass: true, variable: 'naoDeveGravar' },
+          inputActions: [{
+            type: 'ProcessHttp',
+            settings: { uri: 'https://cliente.test/cpf', responseStatusVariable: 'status' },
+          }],
+          outputs: [{ stateId: 'pergunta' }],
+        },
+        { id: 'pergunta', input: { variable: 'resposta' }, inputActions: [enviar('Próxima?')], outputs: [] },
+      ],
+    };
+    const variables: Record<string, string> = {};
+    const base = {
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: '123' }),
+      variables,
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send(m: OutputMessage) { enviados.push(String(m.conteudo)); },
+        async forwardForAttendance() { return { id: 'atd-1', status: 'Open' }; },
+        async registerEvent() {},
+        async callHttp() { return { status: 200, corpo: '{}' }; },
+        async suspendHttp(pedido: unknown, cursor: unknown): Promise<never> {
+          throw new SuspensaoDeProcessHttp(pedido as never, cursor as never);
+        },
+      },
+    } satisfies Context;
+
+    await expect(processInbound(base)).rejects.toBeInstanceOf(SuspensaoDeProcessHttp);
+    await processInbound({
+      ...base,
+      inboundContext: new Map(),
+      services: { ...base.services, async suspendHttp() { throw new Error('não deveria suspender de novo'); } },
+    }, {
+      retomarProcessHttp: {
+        lista: 'entrada', estadoId: 'consulta', indice: 0,
+        resposta: { status: 200, corpo: '{}' },
+      },
+    });
+    expect(enviados).toEqual(['Próxima?']);
+    expect(variables.naoDeveGravar).toBeUndefined();
+    expect(variables.resposta).toBeUndefined();
+    expect(variables[KEY_STATE]).toBe('pergunta');
   });
 
   it('with no condition it changes state, sends the message, and with no output it clears the state', async () => {

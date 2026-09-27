@@ -187,6 +187,11 @@ export async function processInbound(
     // entering actions only run once, right after a transition (below, inside the loop), so a
     // resume that restores an already-current state must finish them here before the loop falls
     // through to that state's content/output actions.
+    // The inbound message was already consumed by the state before the suspension, so after
+    // finishing the entering actions decide exactly as the loop's `finally` does: a state that
+    // awaits input stops here and waits for the NEXT message; one that does not continues to
+    // its content/outputs without re-reading the old message as its answer.
+    let aguardaProxima = false;
     if (
       cursorPendente &&
       !cursorPendente.consumido &&
@@ -204,9 +209,14 @@ export async function processInbound(
         state.id,
         cursorPendente,
       );
+      const inboundCondition =
+        !state.input?.conditions ||
+        (await evaluateConditions(state.input.conditions, context.inbound, context));
+      aguardaProxima = !!state.input && !state.input.bypass && inboundCondition;
+      waitInbound = false;
     }
 
-    do {
+    if (!aguardaProxima) do {
       try {
         if (Date.now() > prazo) {
           throw new TimeExpired(
