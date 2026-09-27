@@ -999,6 +999,15 @@ export function textForOChannel(m: OutputMessage): string | null {
     const opcoes = (menu.options ?? []).map((o, i) => `${o.order ?? i + 1}. ${o.text ?? ''}`);
     return [menu.text ?? '', ...opcoes].filter((l) => l !== '').join('\n');
   }
+  if (tipo === 'application/vnd.lime.input+json') {
+    return ((conteudo as { text?: string } | null)?.text ?? 'Envie sua localização.');
+  }
+  if (tipo === 'application/vnd.lime.web-link+json') {
+    const link = conteudo as { uri?: string; text?: string } | null;
+    if (!link?.uri) throw new Error("O campo 'uri' é obrigatório no web link.");
+    confirmarUrlSegura(link.uri);
+    return [link.text ?? '', link.uri].filter(Boolean).join('\n');
+  }
   throw new Error(`O canal do Pipe ainda não envia conteúdo do tipo '${m.tipo}'.`);
 }
 
@@ -1025,6 +1034,14 @@ export interface ChannelOutput {
  * Convert what the flow emits into what a channel worker sends. Text and menu delegate to `textForOChannel`/`perguntaDoSelect`, unchanged from before this type existed. `media-link` becomes the media category with the pointer in `dados.midia`; the URL passes through the same SSRF guard as every other outbound URL in this module before it is ever stored. Returns `null` for content that sends nothing (typing).
  */
 export function toChannelOutput(m: OutputMessage): ChannelOutput | null {
+  const tipo = m.tipo.toLowerCase();
+  if (tipo === 'application/vnd.lime.location+json') {
+    const content = m.conteudo as { latitude?: unknown; longitude?: unknown } | null;
+    if (typeof content?.latitude !== 'number' || typeof content.longitude !== 'number') {
+      throw new Error("Os campos 'latitude' e 'longitude' são obrigatórios na localização.");
+    }
+    return { tipo: 'localizacao', texto: null, dados: { localizacao: { latitude: content.latitude, longitude: content.longitude } } };
+  }
   if (m.tipo.toLowerCase() === MEDIA_LINK) {
     let conteudo = m.conteudo;
     if (typeof conteudo === 'string') {
@@ -1060,7 +1077,10 @@ export function toChannelOutput(m: OutputMessage): ChannelOutput | null {
   const texto = textForOChannel(m);
   if (texto === null) return null;
   const pergunta = perguntaDoSelect(m);
-  return { tipo: 'texto', texto, dados: pergunta ? { pergunta } : null };
+  const webLink = tipo === 'application/vnd.lime.web-link+json'
+    ? { uri: (m.conteudo as { uri?: string } | null)?.uri ?? '' }
+    : null;
+  return { tipo: 'texto', texto, dados: pergunta ? { pergunta } : webLink ? { webLink } : null };
 }
 
 async function loadContact(

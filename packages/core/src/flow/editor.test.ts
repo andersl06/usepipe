@@ -312,8 +312,8 @@ describe('media content', () => {
     ).toEqual(['Arquivo de 120,0 MB passa do limite de 100,0 MB para documento.']);
   });
 
-  it('a MIME outside the catalog stays refused, as before', () => {
-    expect(CONTEUDOS_SUPORTADOS.has('application/vnd.lime.web-link+json')).toBe(false);
+  it('a MIME outside the catalog stays refused', () => {
+    expect(CONTEUDOS_SUPORTADOS.has('application/vnd.lime.collection+json')).toBe(false);
     expect(CONTEUDOS_SUPORTADOS.has(MEDIA_LINK)).toBe(true);
   });
 

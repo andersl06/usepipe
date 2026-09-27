@@ -233,7 +233,12 @@ function prepararEnvioInstagram(
   return {
     instagram: {
       para: linha.identificador,
-      conteudo: c.tipo === 'texto' ? c : { tipo: c.tipo, link: c.link, legenda: c.legenda },
+      conteudo:
+        c.tipo === 'localizacao'
+          ? { tipo: 'texto', texto: `${c.latitude}, ${c.longitude}` }
+          : c.tipo === 'texto'
+            ? c
+            : { tipo: c.tipo, link: c.link, legenda: c.legenda },
       credentials,
     },
   };
@@ -245,7 +250,7 @@ function prepararEnvioMessenger(linha: LinhaDeEnvio): { messenger: PedidoMesseng
   if (typeof config['tokenAcesso'] !== 'string' || !config['tokenAcesso']) return { erro: { codigo: 'canal_sem_credencial', texto: 'O canal não tem token de acesso.' } };
   const conteudo = montarConteudo(linha, undefined); if ('erro' in conteudo) return conteudo; const c = conteudo.conteudo;
   if (c.tipo === 'template' || c.tipo === 'interativo') return { erro: { codigo: 'tipo_nao_suportado', texto: 'O Messenger não envia template.' } };
-  return { messenger: { para: linha.identificador, conteudo: c.tipo === 'texto' ? c : { tipo: c.tipo, link: c.link, legenda: c.legenda }, credentials: { tokenAccess: config['tokenAcesso'], apiVersao: typeof config['apiVersao'] === 'string' ? config['apiVersao'] : undefined } } };
+  return { messenger: { para: linha.identificador, conteudo: c.tipo === 'localizacao' ? { tipo: 'texto', texto: `${c.latitude}, ${c.longitude}` } : c.tipo === 'texto' ? c : { tipo: c.tipo, link: c.link, legenda: c.legenda }, credentials: { tokenAccess: config['tokenAcesso'], apiVersao: typeof config['apiVersao'] === 'string' ? config['apiVersao'] : undefined } } };
 }
 
 /**
@@ -291,6 +296,23 @@ function montarConteudo(
       ? conteudoDaPergunta(pergunta, preferencesInteractiveOf(linha.canal_config))
       : null;
     return { conteudo: interativo ?? { tipo: 'texto', texto } };
+  }
+
+  if (linha.tipo === 'localizacao') {
+    const localizacao = linha.dados?.['localizacao'] as
+      | { latitude?: unknown; longitude?: unknown }
+      | undefined;
+    if (typeof localizacao?.latitude !== 'number' || typeof localizacao.longitude !== 'number') {
+      return {
+        erro: {
+          codigo: 'localizacao_invalida',
+          texto: 'Mensagem de localização sem latitude e longitude.',
+        },
+      };
+    }
+    return {
+      conteudo: { tipo: 'localizacao', latitude: localizacao.latitude, longitude: localizacao.longitude },
+    };
   }
 
   const typeMedia = TYPES_OF_MEDIA[linha.tipo];
