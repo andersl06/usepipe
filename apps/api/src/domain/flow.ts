@@ -39,6 +39,7 @@ import { chamarComMtls } from './mtls.js';
 import { runFlowScript, scriptFetch } from './script-sandbox.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 import { loadFlowFunctions } from './management/flow-functions.js';
+import { closeInTransaction, type LineConversation } from './conversation.js';
 import type { TipoEnvio } from './envio.js';
 
 /**
@@ -171,13 +172,19 @@ export interface ResultOfFlow {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Maps only the closed command subset approved by D-20; arbitrary LIME is never forwarded. */
+/**
+ * Maps only the closed command subset approved by D-20; arbitrary LIME is never forwarded.
+ * `/transfer` and `/status` change the conversation only through the same domain paths a human
+ * handoff/closure uses (`transferir` = the bot's attendance handoff `transbordar`, and
+ * `closeInTransaction`), so events, SLA, webhooks and distribution fire.
+ */
 async function executeNativeCommand(
   tx: TransactionPipe,
   e: InboundInFlow,
   uri: string,
   resource: unknown,
   waitForResponse: boolean,
+  transferir: (sp: TransactionPipe, queueId: string) => Promise<void>,
 ): Promise<unknown> {
   const body = resource && typeof resource === 'object' ? resource as Record<string, unknown> : {};
   const match = uri.match(/^\/tickets\/[^/]+(\/.*)?$/);
@@ -205,12 +212,30 @@ async function executeNativeCommand(
     const queueId = typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;
     if (!queueId) throw new Error("O comando de transferência exige 'queueId'.");
     if (!UUID.test(queueId)) throw new Error(`O comando de transferência recebeu um 'queueId' inválido: '${queueId}'.`);
-    await tx.execute(sql`update conversa set fila_id = ${queueId}, estado = 'na_fila', atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
+    // Explicit tenant filter: the foreign key alone accepts another tenant's queue (it ignores RLS).
+    const { rows: filas } = await tx.execute<{ id: string }>(sql`
+      select id from fila where id = ${queueId}::uuid and tenant_id = ${e.tenantId}::uuid and ativa limit 1
+    `);
+    if (!filas[0]) throw new Error(`A fila '${queueId}' não existe neste Pipe.`);
+    await transferir(tx, queueId);
     result.resource = { queueId };
   } else if (route === '/status') {
     const status = typeof body['status'] === 'string' ? body['status'] : null;
     if (!status || !['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'].includes(status)) throw new Error("O comando de status exige um status do Pipe válido.");
-    await tx.execute(sql`update conversa set estado = ${status}, atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
+    if (status === 'na_fila') {
+      if (!e.conversation.queueDefaultId) throw new Error('A inbox do canal não tem fila padrão: o bot não tem para onde transferir.');
+      await transferir(tx, e.conversation.queueDefaultId);
+    } else if (status === 'encerrada') {
+      const { rows } = await tx.execute<LineConversation>(sql`
+        select id, estado as state, fila_id as "queueId", atendente_id as "agentId", em_espera_desde
+          from conversa where id = ${e.conversation.id} and tenant_id = ${e.tenantId}::uuid limit 1
+      `);
+      if (!rows[0]) throw new Error('A conversa não existe.');
+      await closeInTransaction(tx, e.tenantId, rows[0], null, [], new Date());
+    } else {
+      // The state machine only reaches these with an agent (`atribuida` → `em_atendimento` → `em_espera`).
+      throw new Error(`O bot não pode colocar a conversa em '${status}': esse estado exige um atendente.`);
+    }
     result.resource = { status };
   } else if (route === '/priority') {
     const priority = typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;
@@ -360,6 +385,11 @@ export async function runFlowInInbound(
   // SAVEPOINT (a nested drizzle transaction on the same connection): its error becomes an action
   // failure (`EngineError` → overflow to the queue) and the inbound transaction stays usable.
   const emSavepoint = <T>(fn: (sp: TransactionPipe) => Promise<T>): Promise<T> => tx.transaction(fn);
+  /** The bot's attendance handoff, shared by `forwardForAttendance` and the `/transfer` command. */
+  const transferirPeloBot = async (sp: TransactionPipe, queueId: string | null): Promise<void> => {
+    await transbordar(sp, e, queueId, variables, null, relogio());
+    transferida = true;
+  };
 
   const servicos: ServicosDoMotor = {
     send: async (m, signal) => {
@@ -381,8 +411,7 @@ export async function runFlowInInbound(
     forwardForAttendance: async ({ settings }) => {
       const queueId =
         typeof settings?.['filaId'] === 'string' ? settings['filaId'] : conversation.queueDefaultId;
-      await emSavepoint((sp) => transbordar(sp, e, queueId, variables, null, relogio()));
-      transferida = true;
+      await emSavepoint((sp) => transferirPeloBot(sp, queueId));
       return { id: conversation.id, status: 'Waiting' };
     },
     registerEvent: async (evento) => {
@@ -527,10 +556,10 @@ export async function runFlowInInbound(
       }
     }),
     sendCommand: async ({ uri, resource }) => {
-      await emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, false));
+      await emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, false, transferirPeloBot));
     },
     processCommand: ({ uri, resource }) =>
-      emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, true)),
+      emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, true, transferirPeloBot)),
     respondWithKnowledge: ({ text, minimumConfidence }) => emSavepoint(async (tx) => {
       const words = text.toLowerCase().split(/\W+/).filter((word) => word.length > 2).slice(0, 12);
       const pattern = words.length > 0 ? `%${words[0]}%` : '%';

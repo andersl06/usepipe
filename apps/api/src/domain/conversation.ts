@@ -12,7 +12,7 @@ import { evento, publicar } from '../realtime.js';
  * Closing and pausing conversations belong in the domain, not the screen: events must not depend on the screen remembering them. Desk previously wrote state directly and recorded no `evento_atendimento`, leaving TMR, SLA, and effort reports blind to agent actions. Immutable `evento_atendimento` is the source of all metrics (data model §4); conversation state is a cache of those events. If they diverge, trust the event.
  */
 
-type LineConversation = {
+export type LineConversation = {
   id: string;
   state: string;
   queueId: string | null;
@@ -54,6 +54,80 @@ async function carregar(
     );
   }
   return conversa;
+}
+
+/**
+ * The closing writes, inside the caller's transaction: state + `encerrada_em`, the open waiting
+ * interval, the `encerrada` event (metrics/SLA read events, not the state) and the webhook.
+ * Shared by `closeConversation` (Desk/API) and the bot's `/tickets/{id}/status` command
+ * (`flow.ts`), which runs inside the inbound transaction. Returns the closure reason (tag names).
+ */
+export async function closeInTransaction(
+  tx: Parameters<Parameters<typeof noTenant>[1]>[0],
+  tenantId: string,
+  conversa: LineConversation,
+  agentId: string | null,
+  etiquetas: readonly { id: string; name: string }[],
+  agora: Date,
+): Promise<string> {
+  requireTransition(conversa.state, 'encerrada');
+  for (const etiqueta of etiquetas) {
+    await tx.execute(sql`
+      insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, por_usuario_id)
+      values (${tenantId}, ${conversa.id}, ${etiqueta.id}, ${agentId})
+      on conflict do nothing
+    `);
+  }
+  const motivo = etiquetas.map((etiqueta) => etiqueta.name).join(', ');
+
+  // Close an open waiting interval before closing its conversation; otherwise the
+  // paused interval remains open and disappears from effort reporting.
+  const pausaEmAberto = conversa.state === 'em_espera' && conversa.em_espera_desde !== null;
+  const pausadoSeg = pausaEmAberto
+    ? Math.round((agora.getTime() - comoData(conversa.em_espera_desde)!.getTime()) / 1000)
+    : 0;
+
+  await tx.execute(sql`
+    update conversa
+       set estado = 'encerrada', encerrada_em = ${agora}, encerrada_por = ${agentId},
+           motivo_encerramento = ${motivo || null}, em_espera_desde = null,
+           pausado_seg = pausado_seg + ${pausadoSeg}, atualizado_em = ${agora}
+     where id = ${conversa.id}
+  `);
+
+  if (pausaEmAberto) {
+    await registrarEvento(tx, {
+      tenantId,
+      conversationId: conversa.id,
+      type: 'espera_encerrada',
+      at: agora,
+      userId: agentId,
+      queueId: conversa.queueId,
+      data: { motivo: 'encerramento', pausado_seg: pausadoSeg },
+    });
+  }
+
+  await registrarEvento(tx, {
+    tenantId,
+    conversationId: conversa.id,
+    type: 'encerrada',
+    at: agora,
+    userId: agentId,
+    queueId: conversa.queueId,
+    // `encerradaPor` in `@pipe/core` identifies WHO removed the conversation from the screen, not the clicker's ID.
+    data: {
+      encerrada_por: agentId ? 'atendente' : 'transferencia',
+      ...(etiquetas.length === 1 ? { etiqueta: etiquetas[0]!.name } : {}),
+      etiquetas: etiquetas.map((etiqueta) => etiqueta.name),
+    },
+  });
+
+  await emitir(tx, tenantId, 'conversa.encerrada', {
+    conversa_id: conversa.id,
+    motivo: motivo || null,
+    encerrada_por: agentId,
+  });
+  return motivo;
 }
 
 /** Convert a state-machine rejection to 409 without exposing `never` to the controller. */
@@ -105,63 +179,7 @@ export async function closeConversation(
       throw PipeError.request('label_required', 'Escolha as tags obrigatórias para finalizar.');
     }
 
-    for (const etiqueta of etiquetas) {
-      await tx.execute(sql`
-        insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, por_usuario_id)
-        values (${ator.tenantId}, ${conversa.id}, ${etiqueta.id}, ${ator.agentId})
-        on conflict do nothing
-      `);
-    }
-    const motivo = etiquetas.map((etiqueta) => etiqueta.name).join(', ');
-
-    // Close an open waiting interval before closing its conversation; otherwise the
-    // paused interval remains open and disappears from effort reporting.
-    const pausaEmAberto = conversa.state === 'em_espera' && conversa.em_espera_desde !== null;
-    const pausadoSeg = pausaEmAberto
-      ? Math.round((agora.getTime() - comoData(conversa.em_espera_desde)!.getTime()) / 1000)
-      : 0;
-
-    await tx.execute(sql`
-      update conversa
-         set estado = 'encerrada', encerrada_em = ${agora}, encerrada_por = ${ator.agentId},
-             motivo_encerramento = ${motivo || null}, em_espera_desde = null,
-             pausado_seg = pausado_seg + ${pausadoSeg}, atualizado_em = ${agora}
-       where id = ${conversa.id}
-    `);
-
-    if (pausaEmAberto) {
-      await registrarEvento(tx, {
-        tenantId: ator.tenantId,
-        conversationId: conversa.id,
-        type: 'espera_encerrada',
-        at: agora,
-        userId: ator.agentId,
-        queueId: conversa.queueId,
-        data: { motivo: 'encerramento', pausado_seg: pausadoSeg },
-      });
-    }
-
-    await registrarEvento(tx, {
-      tenantId: ator.tenantId,
-      conversationId: conversa.id,
-      type: 'encerrada',
-      at: agora,
-      userId: ator.agentId,
-      queueId: conversa.queueId,
-      // `encerradaPor` in `@pipe/core` identifies WHO removed the conversation from the screen, not the clicker's ID.
-      data: {
-        encerrada_por: ator.agentId ? 'atendente' : 'transferencia',
-        ...(etiquetas.length === 1 ? { etiqueta: etiquetas[0]!.name } : {}),
-        etiquetas: etiquetas.map((etiqueta) => etiqueta.name),
-      },
-    });
-
-    await emitir(tx, ator.tenantId, 'conversa.encerrada', {
-      conversa_id: conversa.id,
-      motivo: motivo || null,
-      encerrada_por: ator.agentId,
-    });
-
+    const motivo = await closeInTransaction(tx, ator.tenantId, conversa, ator.agentId, etiquetas, agora);
     return { motivo };
   });
 

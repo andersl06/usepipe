@@ -188,6 +188,86 @@ describe('context action services', () => {
     expect(rows.map((m) => m.conteudo)).toEqual(['CPF: 12345678900']);
   });
 
+  /** Publish a one-block flow whose root runs a single SendCommand. */
+  async function publicarComando(uri: string, resource: unknown): Promise<void> {
+    const r = await noTenant(cenario.tenantId, (tx) => importFlowOfBlip(tx, {
+      tenantId: cenario.tenantId,
+      name: 'Ações de contexto',
+      channelId: cenario.channelId,
+      json: {
+        id: 'comando',
+        states: [{
+          id: 'raiz', root: true, input: {},
+          outputActions: [{ type: 'SendCommand', settings: { uri, resource } }],
+          outputs: [],
+        }],
+      },
+      publicar: true,
+    }));
+    expect(r.errorOfValidation).toBeNull();
+  }
+
+  async function conversaAtual(): Promise<{ id: string; fila_id: string | null; estado: string; encerrada_em: Date | null }> {
+    const { rows } = await cenario.dono.execute<{ id: string; fila_id: string | null; estado: string; encerrada_em: Date | null }>(sql`
+      select id, fila_id, estado, encerrada_em from conversa where tenant_id = ${cenario.tenantId}::uuid
+    `);
+    expect(rows).toHaveLength(1);
+    return rows[0]!;
+  }
+
+  async function eventosDa(conversaId: string): Promise<string[]> {
+    const { rows } = await cenario.dono.execute<{ tipo: string }>(sql`
+      select tipo from evento_atendimento where conversa_id = ${conversaId}::uuid order by em, tipo
+    `);
+    return rows.map((r) => r.tipo);
+  }
+
+  it('SendCommand /transfer refuses a queue of another tenant (WR-01)', async () => {
+    const outro = await montarCenario(`flow-actions-outro-${randomUUID().slice(0, 8)}`);
+    try {
+      await publicarComando('/tickets/atual/transfer', { queueId: outro.queueId });
+      await falar('oi');
+      const conversa = await conversaAtual();
+      // The action failed (the flow overflows to the tenant's own default queue), never the foreign queue.
+      expect(conversa.fila_id).toBe(cenario.queueId);
+      const { rows } = await cenario.dono.execute<{ estado: string }>(sql`
+        select estado from execucao_fluxo where tenant_id = ${cenario.tenantId}::uuid
+      `);
+      expect(rows.map((x) => x.estado)).toEqual(['falhou']);
+    } finally {
+      await outro.encerrar();
+    }
+  });
+
+  it('SendCommand /transfer goes through the bot attendance handoff: events, queue and distribution (WR-01)', async () => {
+    const { rows: fila } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into fila (tenant_id, nome) values (${cenario.tenantId}, 'Vendas') returning id
+    `);
+    await publicarComando('/tickets/atual/transfer', { queueId: fila[0]!.id });
+    await falar('oi');
+    const conversa = await conversaAtual();
+    expect(conversa.fila_id).toBe(fila[0]!.id);
+    expect(conversa.estado).toBe('na_fila');
+    expect(await eventosDa(conversa.id)).toEqual(expect.arrayContaining(['criada', 'enfileirada']));
+  });
+
+  it('SendCommand /status encerrada closes through the domain closure: encerrada_em and event (WR-01)', async () => {
+    await publicarComando('/tickets/atual/status', { status: 'encerrada' });
+    await falar('oi');
+    const conversa = await conversaAtual();
+    expect(conversa.estado).toBe('encerrada');
+    expect(conversa.encerrada_em).not.toBeNull();
+    expect(await eventosDa(conversa.id)).toContain('encerrada');
+  });
+
+  it('SendCommand /status refuses a state that requires an agent (WR-01)', async () => {
+    await publicarComando('/tickets/atual/status', { status: 'em_atendimento' });
+    await falar('oi');
+    const conversa = await conversaAtual();
+    expect(conversa.estado).not.toBe('em_atendimento');
+    expect(conversa.fila_id).toBe(cenario.queueId);
+  });
+
   it('the native satisfaction survey block sends its question to the channel and records the reply (CR-03)', async () => {
     await falar('pesquisa');
     const { rows: bot } = await cenario.dono.execute<{ conteudo: string }>(sql`
