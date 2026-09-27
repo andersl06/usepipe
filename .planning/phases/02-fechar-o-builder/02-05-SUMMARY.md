@@ -77,9 +77,9 @@ Cada task foi commitada atomicamente:
 1. **Task 0: Pre-flight Gate** - sem commit (só verificação; tag `std-apply-all-end` presente, plano liberado)
 2. **Task 1: Retomada de ProcessHttp em `$enteringCustomActions`** - `e096ec0` (fix)
 3. **Task 2: Varredura BullMQ + reforço da regressão D-27** - `34165ac` (feat)
-4. **Task 3: Fechar os todos dobrados** - `a21f2de` (docs)
+4. **Task 3: Fechar os todos dobrados** - `a21f2de` (docs), corrigido em `0d146ed` (fix — ver Deviations #3)
 
-**Plan metadata:** (este commit, feito a seguir)
+**Plan metadata:** `eafc300` (SUMMARY.md)
 
 ## Files Created/Modified
 
@@ -120,8 +120,18 @@ Cada task foi commitada atomicamente:
 
 ---
 
-**Total deviations:** 2 auto-fixed (1 missing critical/correção de tipo, 1 blocking/nome de script desatualizado)
-**Impact on plan:** Nenhum dos dois afeta o comportamento descrito pelo plano; o primeiro evita um bug real de multi-tenant no reenfileiramento, o segundo é só uma correção de nome de comando por causa do rename da Phase 1.
+**3. [Rule 1 - Bug] Commit de fechamento dos todos (Task 3) não capturou as linhas `Resolved:`**
+- **Found during:** Pós-execução, ao preparar o commit final de tracking (STATE.md/ROADMAP.md)
+- **Issue:** O comando de stage da Task 3 passou pathspecs dos caminhos antigos em `pending/` (já removidos pelo `git mv`) junto dos novos em `completed/`; `git add` com um pathspec inválido falha por completo e não estagia nenhum dos caminhos válidos. O commit `a21f2de` (Task 3) capturou só o `git mv`, sem as duas linhas `Resolved: phase 02, plan 02-05 (...)` adicionadas depois via Edit — o `git status --porcelain` só foi conferido depois do commit, então passou despercebido até a checagem de auto-fixes desta seção.
+- **Fix:** Novo commit (`0d146ed`) adicionando as duas linhas `Resolved:` que já estavam corretas no disco (a verificação `grep -l "Resolved: phase 02"` do plano passou porque lia o working tree, não o commit).
+- **Files modified:** `.planning/todos/completed/process-http-entering-actions.md`, `.planning/todos/completed/process-http-bullmq-sweep.md`
+- **Verification:** `git show HEAD:.planning/todos/completed/process-http-bullmq-sweep.md` confirma a linha `Resolved:` presente no commit.
+- **Committed in:** `0d146ed`
+
+---
+
+**Total deviations:** 3 auto-fixed (1 missing critical/correção de tipo, 1 blocking/nome de script desatualizado, 1 bug de sequenciamento de commit do próprio executor)
+**Impact on plan:** Nenhum afeta o comportamento descrito pelo plano; o primeiro evita um bug real de multi-tenant no reenfileiramento, o segundo é só uma correção de nome de comando por causa do rename da Phase 1, o terceiro corrige um lapso do próprio processo de commit desta execução (conteúdo já estava certo no disco, só não tinha sido gravado no git).
 
 ## Issues Encountered
 
@@ -179,3 +189,4 @@ None - nenhuma configuração de serviço externo é necessária. Duas variávei
 - FOUND commit: `e096ec0` (Task 1)
 - FOUND commit: `34165ac` (Task 2)
 - FOUND commit: `a21f2de` (Task 3)
+- FOUND commit: `0d146ed` (Deviation #3 fix)

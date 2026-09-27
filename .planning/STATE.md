@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 1 gate 3 approved by the owner; std/english-rename merged into limpeza (907803b), whole suite green
-last_updated: "2026-09-26T23:46:43.342Z"
+stopped_at: Completed 02-05-PLAN.md
+last_updated: "2026-09-27T00:19:18.276Z"
 last_activity: 2026-09-26 -- Phase 02 execution started
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 71
-  completed_plans: 21
+  completed_plans: 23
   percent: 0
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-09-24)
 ## Current Position
 
 Phase: 02 (fechar-o-builder) — EXECUTING
-Plan: 2 of 22
+Plan: 3 of 22
 Status: Executing Phase 02
 Last activity: 2026-09-26 -- Phase 02 execution started
 
-Progress: [███░░░░░░░] 30%
+Progress: [███░░░░░░░] 32%
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [███░░░░░░░] 30%
 *Updated after each plan completion*
 | Phase 01 P01 | 45min | 2 tasks | 6 files |
 | Phase 02 P07 | 15min | 4 tasks | 6 files |
+| Phase 02 P05 | 40min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,10 @@ Decisões completas em PROJECT.md (Key Decisions). Resumo relevante para o traba
 - [Phase 01]: 01-01: baseline code commit 57ca8d5; crm standalone EPERM accepted, gates use build --filter=!@pipe/crm + crm 'Compiled successfully'
 - [Phase 02]: Portão do dono (D-04) fechado 26/09/2026: dono aprovou classificação item a item e decisões de mecanismo (D-14, D-15, D-21, D-22, D-08.5/D-09, D-20) sem ajustes; itens EXCEDE CAPACIDADE (Carrossel, Solicitar ligação, TrackContactsJourney) aprovados como excedente, replanejar via /gsd:plan-phase 2 --gaps
 - [Phase 02]: Planos 02-08..02-22 seguem bloqueados pelo pré-flight gate da Phase 1 (tag std-apply-all-end ainda ausente), independente do portão do dono já fechado
+- [Phase ?]: [Phase 02, plan 02-05]: D-25 corrigido no ponto comum de processInbound (packages/core/src/flow/manager.ts) — retomada de ProcessHttp em $enteringCustomActions de qualquer estado, sem caminho especial por lista.
+- [Phase 02]: D-26 implementado com fila BullMQ dedicada (pipe-process-http-sweep) para a varredura de process_http_execucao presa, além do modo memória já existente.
+- [Phase 02]: recoverStuckProcessHttp devolve {tenantId, processoId}[] em vez de string[]: uma varredura pode recuperar linhas de tenants diferentes na mesma rodada.
+- [Phase 02]: D-27 (duplicate-key na retomada de ProcessHttp) já estava corrigido antes desta plan (commit 8dac98b); reforçada a regressão com asserção de contagem e prova por mutação manual revertida.
 
 ### Pending Todos
 
@@ -109,6 +114,6 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 
 ## Session Continuity
 
-Last session: 2026-09-26T15:49:19.701Z
-Stopped at: Phase 1 gates 3 and 4 done — merged into limpeza and deployed to the VPS; left: residual sweep (01-31) and history squash (01-41)
+Last session: 2026-09-27T00:19:18.257Z
+Stopped at: Completed 02-05-PLAN.md
 Resume file: None
