@@ -23,6 +23,9 @@
 
 - 02-16: sandbox de script roda dentro do processo da API (aprovado pelo dono em 2026-09-27: isolated-vm@6.2.0, @monaco-editor/react@4.7.0, monaco-editor@0.57.0, flag --no-node-snapshot). Endurecimento: mover o sandbox para um processo filho dedicado, para um script hostil não derrubar a API.
 
+- 02-16: assinaturas de `time`, `context`, `botTimeZone` do ExecuteScriptV2 não expostas e `request.fetchAsync` com forma provisória (captura C-24); `localTimeZoneEnabled` sem efeito (script roda em UTC); limites do Jint no V1 (1000 instruções, recursão 50) não reproduzidos; script e ProcessHttp seguram conexão do banco dentro da transação por até 10 s; `confirmarUrlSegura` não resolve DNS (vale também para o ProcessHttp).
+- Lint da API falha em dois arquivos antigos: `src/domain/management/sla.ts:61` e `tests/channel-of-flow.test.ts:486` (variável não usada).
+
 ## Fica de fora (decisão do dono)
 
 - Animação de entrada do painel lateral (0,5 s na referência, instantânea no Pipe).
