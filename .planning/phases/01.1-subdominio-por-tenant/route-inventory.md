@@ -42,7 +42,8 @@ mesmo caminho serve chatbot e roteador, e quem diz qual é é o nome.
 | configurações | `configurations/basic`, `configurations/welcome`, `configurations/persistent`, `configurations/apikey` |
 | crescimento | `growth/activemessages`, `growth/activemessages/payments`, `growth/clicktracker`, `growth/adsbuying`, `growth/messages/log` |
 | integrações | `integrations` |
-| pessoas | `team`, `users` |
+| contatos | `users` (lista), `users/<contactId>?ticketId=<id>` (ficha) |
+| equipe | `team` |
 | análise | `analytics/dashboard`, `analytics/dataExtractor`, `analytics/data` |
 | atendimento | `attendance/desk/` + `monitoring`, `history`, `queue-management`, `team`, `attendance-hours`, `personalizedbreaks`, `rules`, `sla-policy`, `replies`, `message-template`, `channels`, `general-settings`, `report`, `effort`, `calls-dashboard`, `sales-dashboard`, `survey-dashboard`, `blip-copilot` |
 | ticket | `attendance/history/<ticketId>` |
@@ -109,7 +110,37 @@ técnico. A coluna para a forma da Blip já existe no banco,
 dela diz literalmente que o valor aparece em `/application/detail/{shortName}`.
 Não há índice único: a unicidade é conferida hoje só no nome.
 
-### 4.2 Telas que a Blip tem e o Pipe não
+### 4.2 A ficha do contato
+
+A Blip abre o contato **dentro do portal do bot**, com o ticket na query:
+
+```
+/application/detail/<bot>/users                          lista de contatos
+/application/detail/<bot>/users/<contactId>?ticketId=<id>  ficha, com uma conversa aberta
+```
+
+No código de origem o estado é `auth.application.detail.users.user`, com a
+rota `/users/:id?ticketId`, e o `<contactId>` é a identidade do contato no
+gateway, no formato `<número>@wa.gw.msging.net`. A API da Blip usa a mesma
+identidade em `/users/{identity}`. O ticket do histórico tem identidade
+própria, `<uuid>@tunnel.msging.net`, e aparece no caminho em
+`attendance/history/<ticketId>`.
+
+**Cuidado com o nome:** na Blip, `users` sob o bot é a lista de CONTATOS
+(o título em português da tela é "Contatos"); a equipe fica em `team`. O Pipe
+inverte a palavra: usa `contacts` para contato e `team` para equipe, o que é
+mais claro, mas divergente.
+
+No Pipe hoje, na Gestão: `/flow/<id>/contacts` e
+`/flow/<id>/contacts/<contactId>`, e a ficha **já lê `ticketId` na query**
+(`pages/flow/contacts/detalhe/detalhe.tsx:27`), igual à origem. No Desk, a
+seleção de contato e de ticket vive em estado, não na URL, que é a paridade
+decidida na D-29 da fase 1.
+
+Vale registrar que essa rota já quebrou uma vez: o parâmetro tinha ficado em
+português depois do rename e a ficha nunca resolvia, corrigido no plano 01-24.
+
+### 4.3 Telas que a Blip tem e o Pipe não
 
 | Blip | o que é |
 |---|---|
@@ -126,7 +157,7 @@ Nada disso é escopo da fase 01.1, que é de endereçamento. É material para um
 fase de produto, e vale registrar como ideias diferidas em vez de deixar
 espalhado em captura.
 
-### 4.3 Resíduos da fase 1
+### 4.4 Resíduos da fase 1
 
 1. **Seis endpoints ficaram em português sem linha no mapa aprovado**, logo não
    foram esquecidos na aplicação: nunca foram propostos. `/v1/convites`,
