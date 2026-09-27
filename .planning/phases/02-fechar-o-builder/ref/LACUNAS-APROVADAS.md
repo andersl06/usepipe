@@ -40,6 +40,10 @@
 - Salvar o rascunho automaticamente antes da primeira mensagem do painel de Teste.
 - Verificador de catálogo não confere itens sem MIME (Carrossel, Solicitar ligação); zoom em `var(--moss)` fora do diretório coberto pelo grep do gate.
 
+## Achados da revisão de código não corrigidos no fechamento (ver 02-REVIEW.md)
+
+Corrigidos antes de fechar a fase: CR-01..CR-07 e WR-01..WR-03 (relatório em 02-REVIEW-FIX.md). Entram no plano de lacunas: WR-04 (biblioteca de funções não acompanha a versão publicada), WR-05 (varredura de ProcessHttp: linha presa em `chamando`, `pendente` órfã, lock fora de transação), WR-06 (HTTP segura a transação de entrada e baixa o corpo inteiro), WR-07 (validação de conteúdo em toda entrada derruba o bot por um card inválido), WR-08 (API de funções sem validação; schema Drizzle diverge da 0048), WR-09 (`ON DELETE RESTRICT` em `pesquisa_satisfacao_resposta.conversa_id`), WR-10 (funções limitadas às 50 primeiras), WR-11 (estado do painel de Teste diverge entre UI e servidor), WR-12 (timeout do ProcessHttp em texto ignorado, anterior à fase), WR-13 (64 KB do SetBucket × CHECK do banco), IN-01..IN-06.
+
 ## Fica de fora (decisão do dono)
 
 - Animação de entrada do painel lateral (0,5 s na referência, instantânea no Pipe).
