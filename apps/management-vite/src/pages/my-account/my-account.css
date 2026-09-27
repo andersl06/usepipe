@@ -438,6 +438,34 @@
 }
 
 /*
+ * The shared Selection (components/selection.tsx) replaced the native <select> here. It
+ * brings its own 40px box and border, which overflowed the 47px field. Inside a field it
+ * becomes a bare line like the text inputs: the field box is the border, the component's
+ * chevron is the arrow.
+ */
+.account-field .selection-control {
+  height: 19px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: var(--p-t-md);
+  line-height: 19px;
+}
+
+.account-field .selection-control:focus-visible {
+  box-shadow: none;
+}
+
+.account-field .selection-list {
+  left: -10px;
+  right: -10px;
+  top: calc(100% + 10px);
+}
+
+/*
  * The selector's arrow is ours (theirs is a `bds-icon`), but it sits where theirs sits: flush right, centered in the box.
  */
 .account-field:has(select) {

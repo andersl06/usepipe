@@ -98,7 +98,7 @@ export function Selection({
   }
 
   return (
-    <div ref={raiz} className={['selecao', className].filter(Boolean).join(' ')}>
+    <div ref={raiz} className={['selection', className].filter(Boolean).join(' ')}>
       <input ref={campo} type="hidden" name={name} value={atual} />
       <button
         type="button"
@@ -127,7 +127,12 @@ export function Selection({
               aria-selected={option.value === atual}
               disabled={option.desabilitada}
               className={option.value === atual ? 'selecionada' : undefined}
-              onClick={() => escolher(option.value)}
+              onClick={(evento) => {
+                // Pages wrap the select in a <label>. Without preventDefault the click on an
+                // option also activates the label, which clicks the combobox and reopens the list.
+                evento.preventDefault();
+                escolher(option.value);
+              }}
             >
               {option.rotulo}
             </button>
