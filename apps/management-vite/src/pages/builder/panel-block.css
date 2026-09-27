@@ -7,7 +7,6 @@
 }
 /* Measurements from portal.css; effective surfaces from the dark `bds-theme-provider`. */
 .bl-panel--block {
-  --bl-verde: #4a5d23;
   --p-superficie-0: #424242;
   --p-superficie-1: #393939;
   --p-superficie-2: #1f1f1f;
@@ -54,7 +53,7 @@
   font-weight: 400;
 }
 .bl-panel--block #builder-sidebar-title:focus:not([readonly]) {
-  border-bottom-color: var(--bl-verde);
+  border-bottom-color: var(--p-builder-marca-borda-ativa);
 }
 .bl-panel--block .iconbtn {
   display: inline-flex;
@@ -163,7 +162,7 @@
   color: #fff;
 }
 .bl-panel--block .bl-abas button[aria-selected='true'] {
-  border-bottom: 2px solid var(--bl-verde);
+  border-bottom: 2px solid var(--p-builder-marca-selecionado);
   font-weight: 700;
 }
 .bl-panel--block .bl-panel-body {
@@ -332,7 +331,7 @@
   transform: rotate(45deg);
 }
 .bl-previa-conteudo:hover {
-  outline: 2px solid var(--bl-verde);
+  outline: 2px solid var(--p-builder-marca-anel);
 }
 .bl-preview-options {
   display: flex;
@@ -448,7 +447,7 @@
 }
 .bl-panel--block input[type='checkbox'],
 .bl-panel--block input[type='radio'] {
-  accent-color: var(--bl-verde);
+  accent-color: var(--p-builder-marca-ativo);
   width: 20px;
   height: 20px;
 }

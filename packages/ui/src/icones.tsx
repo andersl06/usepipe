@@ -54,6 +54,22 @@ const CAMINHOS = {
   video: 'M4 4h16v16h-16zM10 9l5 3l-5 3z',
   documento:
     'M14 3v4a1 1 0 0 0 1 1h4M6 3h8l5 5v12a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1v-16a1 1 0 0 1 1 -1zM9 13h6M9 17h6',
+  // Builder-only icons (D-33): own drawings for roles the reference has no license-free
+  // equivalent for in this file; new names in English (std/CONVENTIONS-EN.md).
+  userEngaged:
+    'M10 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0M5 20v-1a4 4 0 0 1 4 -4h2a4 4 0 0 1 1.5 .29M17 15m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M15.2 15.2l1.1 1.1l2.1 -2.1',
+  numberedMenu:
+    'M4 6m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M4 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M4 18m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M9 6h11M9 12h11M9 18h11',
+  location:
+    'M12 21s-7 -6.5 -7 -11a7 7 0 0 1 14 0c0 4.5 -7 11 -7 11zM12 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0',
+  httpRequest:
+    'M4 8h12l-3 -3M16 8l-3 3M20 16h-12l3 -3M8 16l-3 3',
+  script:
+    'M6 3h9l5 5v13a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1v-16a1 1 0 0 1 1 -1zM14 3v4a1 1 0 0 0 1 1h4M9.5 13l-2 2l2 2M14.5 13l2 2l-2 2',
+  testEnvironment:
+    'M9 3h6M10 3v5.5l-5 8a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8 -3l-5 -8v-5.5M8 15h8',
+  restoreVersion:
+    'M9 3h9a1 1 0 0 1 1 1v16a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1v-9M5 8l-3 3l3 3M2 11h9',
 } as const;
 
 export type NomeDeIcone = keyof typeof CAMINHOS;

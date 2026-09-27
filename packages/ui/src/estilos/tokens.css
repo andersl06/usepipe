@@ -313,10 +313,37 @@
 
     --p-sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
     --p-sombra-2: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+
+    /*
+     * Builder: brand tokens by role (D-32). The reference's blues
+     * (`#3f7de8`, `#498bff`, `#0c50c5`, `#003c64`, `#b3d4ff`) become this
+     * green scale, one role per state, so no two states flatten to the same
+     * color. Roles with no live canvas capture yet (brilho, sombra,
+     * gradiente) keep a seed derived from `--p-marca` — see
+     * `docs/marca/MARCA.md`.
+     */
+    --p-builder-marca: var(--p-marca);
+    --p-builder-marca-hover: var(--p-marca-forte);
+    --p-builder-marca-ativo: color-mix(in srgb, var(--p-marca) 75%, black);
+    --p-builder-marca-anel: var(--p-marca);
+    --p-builder-marca-borda-ativa: var(--p-marca-forte);
+    --p-builder-marca-selecionado: var(--p-marca);
+    --p-builder-marca-destaque: color-mix(in srgb, var(--p-marca) 24%, #282828);
+    --p-builder-marca-brilho: color-mix(in srgb, var(--p-marca) 50%, transparent);
+    --p-builder-marca-sombra: color-mix(in srgb, var(--p-marca) 35%, black);
+    --p-builder-marca-sobreposicao: color-mix(in srgb, var(--p-marca) 20%, transparent);
+    --p-builder-marca-gradiente: linear-gradient(135deg, var(--p-marca), var(--p-marca-forte));
   }
 }
 
-:root[data-tema='escuro'] {
+/*
+ * The plain `[data-tema='escuro']` selector (not just `:root[...]`) lets the
+ * Builder set this attribute on its own root element (`editor.tsx`) instead
+ * of the document root, so its dark scope doesn't depend on the app's theme
+ * toggle (D-31) — descendants inherit the custom properties either way.
+ */
+:root[data-tema='escuro'],
+[data-tema='escuro'] {
   color-scheme: dark;
 
   --p-superficie-0: #1a1d15;
@@ -370,6 +397,19 @@
 
   --p-sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
   --p-sombra-2: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+
+  /* Builder: brand tokens by role (D-32). See the comment on the pair above. */
+  --p-builder-marca: var(--p-marca);
+  --p-builder-marca-hover: var(--p-marca-forte);
+  --p-builder-marca-ativo: color-mix(in srgb, var(--p-marca) 75%, black);
+  --p-builder-marca-anel: var(--p-marca);
+  --p-builder-marca-borda-ativa: var(--p-marca-forte);
+  --p-builder-marca-selecionado: var(--p-marca);
+  --p-builder-marca-destaque: color-mix(in srgb, var(--p-marca) 24%, #282828);
+  --p-builder-marca-brilho: color-mix(in srgb, var(--p-marca) 50%, transparent);
+  --p-builder-marca-sombra: color-mix(in srgb, var(--p-marca) 35%, black);
+  --p-builder-marca-sobreposicao: color-mix(in srgb, var(--p-marca) 20%, transparent);
+  --p-builder-marca-gradiente: linear-gradient(135deg, var(--p-marca), var(--p-marca-forte));
 }
 
 /*
