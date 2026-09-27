@@ -252,6 +252,20 @@ describe('outbound HTTP: redirects are re-validated hop by hop (CR-05)', () => {
     expect(saida.mock.calls[0]![1]).toMatchObject({ redirect: 'manual' });
   });
 
+  it('aborts the request when the caller deadline (action time limit) expires (CR-06)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((_url, init) =>
+      new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(init.signal!.reason));
+      }));
+    const prazo = new AbortController();
+    setTimeout(() => prazo.abort(new Error('prazo da ação')), 50);
+    await expect(
+      chamarComMtls(TENANT_QUALQUER, 'http://publico.exemplo.com/lento', {
+        metodo: 'GET', headers: {}, timeoutMs: 60_000, signal: prazo.signal,
+      }),
+    ).rejects.toThrow('prazo da ação');
+  });
+
   it('follows a safe redirect as GET, dropping credentials across origins, and caps the hops', async () => {
     const saida = vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(redirecionar('https://outro.exemplo.com/final', 302))

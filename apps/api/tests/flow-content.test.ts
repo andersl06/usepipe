@@ -245,6 +245,19 @@ describe('dynamic content', () => {
     await expect(resolveDynamicContent(http(uri), 'tenant')).rejects.toThrow();
   });
 
+  it('hands the sending action deadline to the HTTP content request (CR-06)', async () => {
+    const prazo = new AbortController();
+    let recebido: AbortSignal | undefined;
+    await resolveDynamicContent(http('https://content.example/test'), 'tenant', {
+      signal: prazo.signal,
+      callHttp: async (_tenant, _uri, pedido) => {
+        recebido = pedido.signal;
+        return { ok: true, status: 200, texto: async () => 'ok' };
+      },
+    });
+    expect(recebido).toBe(prazo.signal);
+  });
+
   it('fails HTTP timeout and invalid dynamic JSON without a partial output', async () => {
     await expect(
       resolveDynamicContent(http('https://content.example/slow'), 'tenant', {

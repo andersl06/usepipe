@@ -2,7 +2,7 @@
  * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/Actions/{ActionBase,ActionProvider}.cs; Actions/SetVariable/*, Actions/DeleteVariable/*, Actions/SendMessage/SendMessageAction.cs, Actions/SendRawMessage/*, Actions/TrackEvent/TrackEventSettings.cs, Actions/CreateTicket/CreateTicketAction.cs, and Actions/Redirect/RedirectAction.cs. Changes from C# to TypeScript: `ServicosDoMotor` injected by the `api` sends messages, opens tickets, and records events (originally `ISender` and Blip extensions); typing `Task.Delay` is not awaited because the engine runs inside the inbound transaction. `ForwardToDesk` and `LeavingFromDesk` are Blip server actions absent from the SDK; their behavior follows the exported editor block, including `desk_forwardToDeskState_status`.
  */
 
-import type { Context, PedidoDeHttp } from './context.js';
+import type { ActionDeadline, Context, PedidoDeHttp } from './context.js';
 import { KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable } from './context.js';
 
 export type Settings = Record<string, unknown> | null;
@@ -10,7 +10,8 @@ export type Settings = Record<string, unknown> | null;
 /** `IAction`. */
 export interface AcaoDoMotor {
   tipo: string;
-  executar(context: Context, settings: Settings): Promise<void>;
+  /** `prazo`: the deadline `processActions` enforces for this call (absent when run directly). */
+  executar(context: Context, settings: Settings, prazo?: ActionDeadline): Promise<void>;
 }
 
 export type ActionsProvider = ReadonlyMap<string, AcaoDoMotor>;
@@ -171,7 +172,7 @@ const deleteVariable: AcaoDoMotor = {
 /** `SendMessageAction`. */
 const sendMessage: AcaoDoMotor = {
   tipo: 'SendMessage',
-  async executar(context, settings) {
+  async executar(context, settings, prazo) {
     const c = requireSettings(this.tipo, settings);
     const tipo = comoTexto(campo(c, 'type'));
     if (!tipo || !MIME.test(tipo)) throw new Error(`Tipo de mídia inválido: '${tipo}'.`);
@@ -181,14 +182,14 @@ const sendMessage: AcaoDoMotor = {
       tipo,
       conteudo: campo(c, 'content'),
       metadados: (campo(c, 'metadata') as Record<string, string> | undefined) ?? null,
-    });
+    }, prazo?.signal);
   },
 };
 
 /** `SendRawMessageAction`. */
 const sendRawMessage: AcaoDoMotor = {
   tipo: 'SendRawMessage',
-  async executar(context, settings) {
+  async executar(context, settings, prazo) {
     const c = requireSettings(this.tipo, settings);
     const bruto = comoTexto(campo(c, 'rawContent'));
     const tipo = comoTexto(campo(c, 'type'));
@@ -202,7 +203,7 @@ const sendRawMessage: AcaoDoMotor = {
       conteudo: bruto,
       metadados: (campo(c, 'metadata') as Record<string, string> | undefined) ?? null,
       bruto: true,
-    });
+    }, prazo?.signal);
   },
 };
 
@@ -231,7 +232,7 @@ const trackEvent: AcaoDoMotor = {
 /** `SendMessageFromHttpAction`: GET a declared resource and send its body as a LIME message. */
 const sendMessageFromHttp: AcaoDoMotor = {
   tipo: 'SendMessageFromHttp',
-  async executar(context, settings) {
+  async executar(context, settings, prazo) {
     const c = requireSettings(this.tipo, settings);
     if (!context.services.callHttp) throw new Error('A ação SendMessageFromHttp não está disponível neste fluxo.');
     const uri = comoTexto(campo(c, 'uri'))?.trim();
@@ -248,14 +249,17 @@ const sendMessageFromHttp: AcaoDoMotor = {
       }
     }
     const timeout = Number(campo(c, 'requestTimeout'));
+    const pedidoMs = Number.isFinite(timeout) && timeout > 0 ? timeout * 1000 : 60000;
     const resposta = await context.services.callHttp({
       metodo: 'GET',
       url: uri,
       cabecalhos,
-      timeoutMs: Number.isFinite(timeout) && timeout > 0 ? timeout * 1000 : 60000,
-    });
+      // The HTTP call never outlives the action: it runs inside the inbound transaction.
+      timeoutMs: prazo ? Math.min(pedidoMs, prazo.timeLimitMs) : pedidoMs,
+    }, prazo?.signal);
+    prazo?.signal.throwIfAborted();
     if (resposta.status >= 400) throw new Error(`A ação 'SendMessageFromHttp' recebeu HTTP ${resposta.status}.`);
-    await context.services.send({ tipo: type, conteudo: resposta.corpo });
+    await context.services.send({ tipo: type, conteudo: resposta.corpo }, prazo?.signal);
   },
 };
 
@@ -333,7 +337,7 @@ const redirect: AcaoDoMotor = {
  */
 const processHttp: AcaoDoMotor = {
   tipo: 'ProcessHttp',
-  async executar(context, settings) {
+  async executar(context, settings, prazo) {
     const c = requireSettings(this.tipo, settings);
     if (!context.services.callHttp) throw new Error('A ação ProcessHttp não está disponível neste fluxo.');
     const metodo = (comoTexto(campo(c, 'method')) ?? 'GET').toUpperCase();
@@ -364,7 +368,12 @@ const processHttp: AcaoDoMotor = {
     if (context.services.suspendHttp && cursor) {
       await context.services.suspendHttp(pedido, cursor as never);
     }
-    const resposta = await context.services.callHttp(pedido);
+    // Synchronous path (no suspension, e.g. the Builder test run): bounded by the action deadline.
+    const resposta = await context.services.callHttp(
+      prazo ? { ...pedido, timeoutMs: Math.min(pedido.timeoutMs, prazo.timeLimitMs) } : pedido,
+      prazo?.signal,
+    );
+    prazo?.signal.throwIfAborted();
     const status = comoTexto(campo(c, 'responseStatusVariable'))?.trim();
     const bodyVariable = comoTexto(campo(c, 'responseBodyVariable'))?.trim();
     if (status) setContextVariable(context, status, String(resposta.status));

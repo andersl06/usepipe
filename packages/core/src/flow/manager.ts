@@ -124,12 +124,21 @@ export class SuspensaoDeProcessHttp extends Error {
 
 class TimeExpired extends Error {}
 
-function withTimeLimit<T>(promessa: Promise<T>, ms: number): Promise<T> {
+/**
+ * `Promise.race` alone leaves the losing action running; `controle` is aborted at the deadline so
+ * the action (and the services it handed the signal to) stop instead of working past it.
+ */
+function withTimeLimit<T>(executar: (signal: AbortSignal) => Promise<T>, ms: number): Promise<T> {
+  const controle = new AbortController();
   let relogio: ReturnType<typeof setTimeout> | undefined;
   const limite = new Promise<never>((_, rejeitar) => {
-    relogio = setTimeout(() => rejeitar(new TimeExpired()), ms);
+    relogio = setTimeout(() => {
+      const erro = new TimeExpired();
+      controle.abort(erro);
+      rejeitar(erro);
+    }, ms);
   });
-  return Promise.race([promessa, limite]).finally(() => clearTimeout(relogio));
+  return Promise.race([executar(controle.signal), limite]).finally(() => clearTimeout(relogio));
 }
 
 const messageOf = (e: unknown): string => (e instanceof Error ? e.message : String(e));
@@ -438,7 +447,10 @@ async function processActions(
         if (cursor) cursor.consumido = true;
         continue;
       }
-      await withTimeLimit(acao.executar(context, settings), timeLimit);
+      await withTimeLimit(
+        (signal) => acao.executar(context, settings, { signal, timeLimitMs: timeLimit }),
+        timeLimit,
+      );
     } catch (error) {
       if (error instanceof SuspensaoDeProcessHttp) throw error;
       passo.error = messageOf(error);

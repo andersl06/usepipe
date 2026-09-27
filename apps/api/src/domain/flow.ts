@@ -362,18 +362,20 @@ export async function runFlowInInbound(
   const emSavepoint = <T>(fn: (sp: TransactionPipe) => Promise<T>): Promise<T> => tx.transaction(fn);
 
   const servicos: ServicosDoMotor = {
-    send: async (m) => {
-      const saida = toChannelOutput(await resolveDynamicContent(m, e.tenantId));
+    send: async (m, signal) => {
+      const saida = toChannelOutput(await resolveDynamicContent(m, e.tenantId, signal ? { signal } : {}));
       if (saida === null) return;
-      await gravarRespostaDoBot(
-        tx,
+      // An action past its time limit must not record a reply (CR-06).
+      signal?.throwIfAborted();
+      await emSavepoint((sp) => gravarRespostaDoBot(
+        sp,
         e.tenantId,
         conversation.id,
         saida.texto,
         relogio(),
         saida.dados,
         saida.tipo,
-      );
+      ));
       respostas += 1;
     },
     forwardForAttendance: async ({ settings }) => {
@@ -430,7 +432,7 @@ export async function runFlowInInbound(
         )
       `);
     }),
-    callHttp: async (pedido: PedidoDeHttp) => {
+    callHttp: async (pedido: PedidoDeHttp, signal?: AbortSignal) => {
       confirmarUrlSegura(pedido.url);
       try {
         const resposta = await chamarComMtls(e.tenantId, pedido.url, {
@@ -438,8 +440,9 @@ export async function runFlowInInbound(
           headers: pedido.cabecalhos,
           body: pedido.corpo,
           // Future work: this call still runs INSIDE the inbound transaction, holding a
-          // database connection; outside the transaction, the source `requestTimeout` is 60 s.
+          // database connection; the engine caps it at the action's time limit and aborts it there.
           timeoutMs: pedido.timeoutMs,
+          ...(signal ? { signal } : {}),
         });
         const corpo = await resposta.texto();
         const limite = Number(process.env['PIPE_PROCESS_HTTP_MAX_RESPOSTA_BYTES'] ?? 1_048_576);
@@ -1211,6 +1214,8 @@ const CHANNEL_CONTENT_TYPES = new Set([
 
 type DynamicResolverOptions = {
   callHttp?: typeof chamarComMtls;
+  /** The sending action's deadline: the HTTP content request is aborted with it. */
+  signal?: AbortSignal;
 };
 type DynamicLimeDocument = { type?: unknown; content?: unknown; metadata?: unknown };
 
@@ -1245,7 +1250,7 @@ export async function resolveDynamicContent(
     const timeoutMs = Number.isFinite(seconds) && seconds > 0 ? seconds * 1_000 : 60_000;
     try {
       const response = await (options.callHttp ?? chamarComMtls)(tenantId, uri, {
-        metodo: 'GET', headers, timeoutMs,
+        metodo: 'GET', headers, timeoutMs, ...(options.signal ? { signal: options.signal } : {}),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const body = await response.texto();

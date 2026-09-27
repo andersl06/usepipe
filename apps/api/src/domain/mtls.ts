@@ -148,6 +148,13 @@ export interface PedidoDeSaida {
   headers: Record<string, string>;
   body?: string;
   timeoutMs: number;
+  /** Caller's own deadline (a flow action's time limit), combined with `timeoutMs`. */
+  signal?: AbortSignal;
+}
+
+function prazoDo(pedido: PedidoDeSaida): AbortSignal {
+  const tempo = AbortSignal.timeout(pedido.timeoutMs);
+  return pedido.signal ? AbortSignal.any([tempo, pedido.signal]) : tempo;
 }
 
 /** Response subset shared by requests with and without a certificate, as needed for delivery. This is the subset of `Response` used by delivery. */
@@ -166,7 +173,7 @@ function pedirComAgente(url: string, pedido: PedidoDeSaida, agente: https.Agent)
         method: pedido.metodo ?? 'POST',
         headers: pedido.headers,
         agent: agente,
-        signal: AbortSignal.timeout(pedido.timeoutMs),
+        signal: prazoDo(pedido),
       },
       (resposta) => {
         const pedacos: Buffer[] = [];
@@ -201,7 +208,7 @@ export async function chamarComMtls(
 ): Promise<RespostaDeSaida> {
   let atual = url;
   let p = pedido;
-  const prazo = AbortSignal.timeout(pedido.timeoutMs);
+  const prazo = prazoDo(pedido);
   for (let salto = 0; ; salto += 1) {
     const agente = await agenteMtlsPara(tenantId, atual);
     if (agente) return pedirComAgente(atual, p, agente);

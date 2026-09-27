@@ -358,6 +358,46 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(variables[KEY_STATE]).toBe('pergunta');
   });
 
+  it('an action past its time limit caps its HTTP timeout, is aborted, and never sends afterwards (CR-06)', async () => {
+    const enviadas: unknown[] = [];
+    const pedidos: { timeoutMs: number; signal?: AbortSignal }[] = [];
+    const flow: FlowBlip = {
+      id: FLOW_ID,
+      states: [raiz([], {
+        outputActions: [{
+          type: 'SendMessageFromHttp',
+          timeout: 0.2,
+          settings: { uri: 'https://cliente.test/lento', type: 'text/plain', requestTimeout: 60 },
+        }],
+      })],
+    };
+    const context: Context = {
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
+      variables: {},
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send(m) { enviadas.push(m); },
+        async forwardForAttendance() { return { id: 'atd-1' }; },
+        async registerEvent() {},
+        async callHttp(pedido, signal) {
+          pedidos.push({ timeoutMs: pedido.timeoutMs, ...(signal ? { signal } : {}) });
+          // A slow server that ignores the abort and answers after the deadline.
+          await new Promise((r) => setTimeout(r, 400));
+          return { status: 200, corpo: 'tarde demais' };
+        },
+      },
+    };
+    await expect(processInbound(context)).rejects.toThrow(/tempo limite de 200 ms/);
+    await new Promise((r) => setTimeout(r, 500));
+    expect(pedidos).toHaveLength(1);
+    expect(pedidos[0]!.timeoutMs).toBeLessThanOrEqual(200);
+    expect(pedidos[0]!.signal?.aborted).toBe(true);
+    expect(enviadas).toEqual([]);
+  });
+
   it('with no condition it changes state, sends the message, and with no output it clears the state', async () => {
     const r = await rodar(
       [raiz([{ stateId: 'ping' }]), { id: 'ping', inputActions: [enviar('Pong!')] }],
