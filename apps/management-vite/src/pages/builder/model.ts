@@ -1,5 +1,5 @@
 import type { ConditionBlip } from '@pipe/core';
-import { VARIABLE_OF_FORWARDING } from '@pipe/core';
+import { VARIABLE_OF_FORWARDING, SURVEY_CONTENT_TYPE } from '@pipe/core';
 import type { DesenhoDoBuilder } from '@pipe/contracts';
 
 /**
@@ -98,6 +98,13 @@ export const ID_DO_FALLBACK = 'fallback';
 export const ID_DO_FIM = 'end';
 export const PREFIX_OF_ATTENDANCE = 'desk:';
 export const VERSION_OF_BLOCK_OF_ATTENDANCE = '3.0.0';
+
+/** The native satisfaction survey block's id prefix (`ref/inventario-satisfacao-e-tags.md` §1, D-16: same `<tipo>:<uuid>` convention Blip uses for `desk:`). */
+export const PREFIX_OF_SURVEY = 'survey:';
+export const TITLE_OF_SURVEY = 'Pesquisa de satisfação';
+/** Fixed 1-5 scale (D-06); not user-editable — the native model has no other scale. */
+export const SURVEY_SCALE = '1-5';
+export const SURVEY_QUESTION_DEFAULT = 'De 1 a 5, como você avalia o atendimento?';
 
 export const MESSAGES = {
   limiteDeSaidas: 'Limite de 25 condições de saída atingidos',
@@ -291,6 +298,71 @@ export function attendanceNewBlock(mapa: Mapa, position: Position, id = gerarId(
     $conditionOutputs: attendanceOutputs,
     // Once the attendance ends, the conversation returns to this same block by default.
     $defaultOutput: { stateId: codigo, $invalid: false },
+  };
+}
+
+/**
+ * "Exibir apenas blocos de pesquisa de satisfação" (D-08) is a filter of the destination
+ * picker, not special branching logic (`ref/inventario-satisfacao-e-tags.md` §1: the reference
+ * checks the `survey:` id prefix, `isSurveyState`/`filterSurveyState`) — same mechanism `ehAttendance`
+ * already uses for `desk:`.
+ */
+export const isSurveyBlock = (block: Block): boolean => block.id.startsWith(PREFIX_OF_SURVEY);
+
+function surveyContentSettings(item: ItemDeConteudo): Record<string, unknown> | null {
+  const acao = item.action;
+  if (!acao || acao.type !== 'SendMessage') return null;
+  const settings = acao.settings as { type?: unknown } | undefined;
+  return settings?.type === SURVEY_CONTENT_TYPE ? (acao.settings as Record<string, unknown>) : null;
+}
+
+function surveyContentItem(block: Block): ItemDeConteudo | undefined {
+  return (block.$contentActions ?? []).find((item) => surveyContentSettings(item) !== null);
+}
+
+/** The question sent on entering a `survey:` block, or `''` outside one. */
+export function surveyQuestion(block: Block): string {
+  const settings = surveyContentItem(block) ? surveyContentSettings(surveyContentItem(block)!) : null;
+  const conteudo = settings?.['content'] as { question?: unknown } | undefined;
+  return typeof conteudo?.question === 'string' ? conteudo.question : '';
+}
+
+/** Replace the question text, keeping `type`/`scale`/`score` (D-06: fixed 1-5 scale) untouched. */
+export function setSurveyQuestion(block: Block, texto: string): Block {
+  const lista = (block.$contentActions ?? []).map((item) => {
+    const settings = surveyContentSettings(item);
+    if (!settings) return item;
+    const conteudo = { ...(settings['content'] as Record<string, unknown> | undefined), question: texto };
+    return { ...item, action: { ...item.action!, settings: { ...settings, content: conteudo } } };
+  });
+  return { ...block, $contentActions: lista };
+}
+
+/**
+ * The native satisfaction survey block: sends the question with the `application/vnd.lime.satisfaction-survey+json`
+ * document `packages/core/src/flow/satisfaction-survey.ts` recognizes, then awaits the reply, exactly like Blip's
+ * `iu.SurveyType` factory (`portal.js:252122-252130`). Branching after the reply uses the block's own generic
+ * `$conditionOutputs` — no fixed promoter/neutral/detractor category is built in (D-08.5/D-09, owner-approved
+ * gate): the author configures those conditions the same way as any other block's outputs, so this starts empty.
+ */
+export function newSurveyBlock(mapa: Mapa, position: Position, id = gerarId()): Block {
+  const codigo = `${PREFIX_OF_SURVEY}${id}`;
+  const pergunta: ItemDeConteudo = {
+    action: {
+      $id: `${id}-pergunta`,
+      type: 'SendMessage',
+      settings: {
+        id: `${id}-pergunta`,
+        type: SURVEY_CONTENT_TYPE,
+        content: { type: '', scale: SURVEY_SCALE, question: SURVEY_QUESTION_DEFAULT, score: '' },
+      },
+    },
+    $invalid: false,
+  };
+  return {
+    ...esqueleto(codigo, TITLE_OF_SURVEY, position),
+    $contentActions: [pergunta, newInbound(`${id}-entrada`)],
+    $defaultOutput: saidaPadraoInicial(mapa),
   };
 }
 
