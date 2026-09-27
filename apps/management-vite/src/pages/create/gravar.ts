@@ -23,9 +23,11 @@ export async function saveContact(
 ): Promise<Resultado> {
   const image = await readImage(data.get('imagem'));
   try {
+    // Body keys follow the API contract (`RequestOfContact`: name, type). The form field
+    // itself is still called `nome`.
     const resultado = await api.post<Resultado>('/v1/management/flows', {
-      nome: String(data.get('nome') ?? ''),
-      tipo,
+      name: String(data.get('nome') ?? ''),
+      type: tipo,
       image,
       recados,
     });
