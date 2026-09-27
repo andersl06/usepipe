@@ -58,7 +58,7 @@ export function PageQualityReview() {
   };
   const q = new URLSearchParams();
   for (const key of ['agent', 'avaliador', 'de', 'ate'] as const) {
-    if (params[key]) q.set(key, params[key] as string);
+    if (params[key]) q.set(key === "de" ? "from" : key === "ate" ? "to" : key, params[key] as string);
   }
   const read = useRead<QualityReviewResponse>(`/v1/management/quality-review?${q}`);
   if (!read.data) return null;

@@ -27,7 +27,7 @@ export interface AgentPermissions {
 /** Build the read path with IDs in the query, matching the reference edit route without `:id`. */
 export function permissionsPath(ids: readonly string[]): string | null {
   if (ids.length === 0) return null;
-  return `/v1/management/agents/permissions?atendentes=${ids.join(',')}`;
+  return `/v1/management/agents/permissions?agents=${ids.join(',')}`;
 }
 
 /** Save only fields changed on the screen for `Salvar alterações`. */
@@ -37,7 +37,7 @@ export async function savePermissions(
 ): Promise<Resultado<void>> {
   try {
     await api.patch('/v1/management/agents/permissions', {
-      usuarioIds: [...userIds],
+      userIds: [...userIds],
       permissions,
     });
     atualizarLeituras();
@@ -89,7 +89,7 @@ export async function priorityCreateRule(
   pedido: RequestOfRuleOfPriority,
 ): Promise<Resultado<void>> {
   try {
-    await api.post('/v1/management/rules/priority', pedido);
+    await api.post('/v1/management/rules/priority', { name: pedido.nome, level: pedido.nivel, scopeType: pedido.scopeType, scopeId: pedido.scopeId });
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

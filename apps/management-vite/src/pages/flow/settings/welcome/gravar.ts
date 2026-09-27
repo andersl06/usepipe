@@ -16,7 +16,7 @@ export async function salvarBoasVindas(
   try {
     const value = await api.patch<ConfigurationOfWelcome>(
       `/v1/management/flows/${id}/welcome`,
-      pedido,
+      { active: pedido.ativo, message: pedido.message, textoBotao: pedido.textoBotao },
     );
     atualizarLeituras();
     return { ok: true, value };

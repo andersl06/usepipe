@@ -49,8 +49,8 @@ export function DashboardPage() {
 
   const q = new URLSearchParams();
   if (periodo.periodo) q.set('periodo', periodo.periodo);
-  if (periodo.de) q.set('de', periodo.de);
-  if (periodo.ate) q.set('ate', periodo.ate);
+  if (periodo.de) q.set('from', periodo.de);
+  if (periodo.ate) q.set('to', periodo.ate);
   const contatos = search.get('contatos');
   if (contatos) q.set('contatos', contatos);
   const read = useRead<RespostaDoDashboard>(

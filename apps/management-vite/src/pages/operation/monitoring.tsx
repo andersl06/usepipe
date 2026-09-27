@@ -295,8 +295,8 @@ export function PageMonitoring() {
     agent: filterIds(queueAgent.agent).join(','),
   };
   const q = new URLSearchParams();
-  if (params.queue) q.set('fila', params.queue);
-  if (params.agent) q.set('atendente', params.agent);
+  if (params.queue) q.set('queue', params.queue);
+  if (params.agent) q.set('agent', params.agent);
   const read = useRead<MonitoringResponse>(`/v1/management/monitoring?${q}`, {
     staleTime: 0,
   });

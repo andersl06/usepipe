@@ -53,7 +53,7 @@ type Aba = 'visao-geral' | 'configuracoes';
 export function TelaDoWebhook({ base }: { base: string }) {
   const { data, isLoading } = useRead<WebhookListado[]>('/v1/management/webhooks');
   const webhooks = data ?? [];
-  const algumAtivo = webhooks.some((w) => w.ativo);
+  const algumAtivo = webhooks.some((w) => w.active);
 
   const [aba, setAba] = useState<Aba>('visao-geral');
   const [avancadoAberto, setAvancadoAberto] = useState(false);
@@ -147,7 +147,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
   }
 
   async function alternarAtivo(webhook: WebhookListado) {
-    await editarWebhook(webhook.id, { ativo: !webhook.ativo });
+    await editarWebhook(webhook.id, { active: !webhook.active });
   }
 
   async function testar(webhook: WebhookListado) {
@@ -553,8 +553,8 @@ export function TelaDoWebhook({ base }: { base: string }) {
                         <span className="ig-typo-16">{webhook.url}</span>
                         <Interruptor
                           id={`webhook-ativo-${webhook.id}`}
-                          ligado={webhook.ativo}
-                          rotulo={webhook.ativo ? 'Desativar webhook' : 'Ativar webhook'}
+                          ligado={webhook.active}
+                          rotulo={webhook.active ? 'Desativar webhook' : 'Ativar webhook'}
                           aoMudar={() => void alternarAtivo(webhook)}
                         />
                         <button

@@ -120,7 +120,7 @@ export function Composer({
         const attachment = (await resposta.json()) as { id: string };
         attachmentIds.push(attachment.id);
       }
-      await api.post(`/v1/conversations/${conversation.id}/messages/anexos`, { anexo_ids: attachmentIds });
+      await api.post(`/v1/conversations/${conversation.id}/messages/attachments`, { attachmentIds });
       atualizarLeituras();
       aoEnviar();
     } catch (e) {

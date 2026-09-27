@@ -76,8 +76,8 @@ export function ActiveMessagesPage() {
 
   const q = new URLSearchParams();
   if (periodo.periodo) q.set('periodo', periodo.periodo);
-  if (periodo.de) q.set('de', periodo.de);
-  if (periodo.ate) q.set('ate', periodo.ate);
+  if (periodo.de) q.set('from', periodo.de);
+  if (periodo.ate) q.set('to', periodo.ate);
   const templateFiltro = search.get('template');
   if (templateFiltro) q.set('template', templateFiltro);
   const read = useRead<ActiveMessagesResponse>(

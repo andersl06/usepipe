@@ -189,7 +189,7 @@ function ModalTransferMonitoring({
     setError(null);
     try {
       await api.post(`/v1/management/monitoring/conversations/${linha.id}/transfer`,
-        alvo === 'fila' ? { para_fila_id: destination } : { para_atendente_id: destination },
+        alvo === 'fila' ? { forQueueId: destination } : { forAgentId: destination },
       );
       await consultas.invalidateQueries({ queryKey: ['api'] });
       aoFechar();

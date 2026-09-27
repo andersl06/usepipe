@@ -58,8 +58,8 @@ export function JourneyPage() {
   }, [filtrosKey, periodo]);
 
   const q = new URLSearchParams();
-  if (periodo.de) q.set('de', periodo.de);
-  if (periodo.ate) q.set('ate', periodo.ate);
+  if (periodo.de) q.set('from', periodo.de);
+  if (periodo.ate) q.set('to', periodo.ate);
   const read = useRead<RespostaDaJornada>(
     `/v1/management/flows/${contact.id}/analytics/journey?${q.toString()}`,
   );

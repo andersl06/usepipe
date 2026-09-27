@@ -27,8 +27,8 @@ export function PageEffort() {
    */
   const params: Search = { de: dataOuNada(crus.de), ate: dataOuNada(crus.ate) };
   const q = new URLSearchParams();
-  if (params.de) q.set('de', params.de);
-  if (params.ate) q.set('ate', params.ate);
+  if (params.de) q.set('from', params.de);
+  if (params.ate) q.set('to', params.ate);
   const read = useRead<EffortResponse>(`/v1/management/reports/effort?${q}`);
   if (!read.data) return null;
   const { de, ate, report } = read.data;

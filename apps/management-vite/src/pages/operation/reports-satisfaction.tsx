@@ -78,8 +78,8 @@ export function PageSatisfaction() {
   /* Data torta vira "sem filtro", em vez de virar 500 no `::date` do Postgres. */
   const params: Search = { de: dataOuNada(crus.de), ate: dataOuNada(crus.ate) };
   const q = new URLSearchParams();
-  if (params.de) q.set('de', params.de);
-  if (params.ate) q.set('ate', params.ate);
+  if (params.de) q.set('from', params.de);
+  if (params.ate) q.set('to', params.ate);
   const read = useRead<SatisfactionResponse>(`/v1/management/reports/satisfaction?${q}`);
   const [panelOpen, setPanelOpen] = useState(false);
   if (!read.data) return null;

@@ -36,9 +36,9 @@ export async function salvarBasicas(
   }
   try {
     const value = await api.patch<FlowSaved>(`/v1/management/flows/${id}`, {
-      nome: edit.nome,
-      descricao: edit.description,
-      ...(image === undefined ? {} : { image }),
+      name: edit.nome,
+      description: edit.description,
+      ...(image === undefined ? {} : { imagem: image }),
     });
     atualizarLeituras();
     return { ok: true, value };

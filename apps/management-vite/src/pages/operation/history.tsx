@@ -110,7 +110,7 @@ export function PageHistory() {
   };
   const q = new URLSearchParams();
   for (const key of ['queue', 'agent', 'etiqueta', 'de', 'ate'] as const) {
-    if (params[key]) q.set(key, params[key] as string);
+    if (params[key]) q.set(key === "de" ? "from" : key === "ate" ? "to" : key, params[key] as string);
   }
   const read = useRead<HistoryResponse>(`/v1/management/history?${q}`);
   const [panelOpen, setPanelOpen] = useState(false);

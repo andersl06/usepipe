@@ -76,7 +76,15 @@ export async function editQueue(
   pedido: RequestOfEditOfQueue,
 ): Promise<ResultadoComCampo<void>> {
   try {
-    await api.patch(`/v1/management/agents/queues/${id}`, pedido);
+    // Body keys follow the API (`RequestOfEditOfQueue`: name, color, scheduleId, ativa).
+    await api.patch(`/v1/management/agents/queues/${id}`, {
+      name: pedido.nome,
+      color: pedido.cor,
+      scheduleId: pedido.horarioId,
+      capacityDefault: pedido.capacityDefault,
+      order: pedido.order,
+      ativa: pedido.active,
+    });
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -92,7 +100,7 @@ export async function linkAgentInQueue(
 ): Promise<ResultadoComCampo<void>> {
   try {
     await api.post(`/v1/management/agents/queues/${queueId}/agents`, {
-      usuarioId: agentId,
+      userId: agentId,
       ...(capacityOverride != null ? { capacityOverride } : {}),
     });
     atualizarLeituras();
@@ -152,7 +160,14 @@ export async function editRuleQueue(
   pedido: RequestOfEditOfRuleQueue,
 ): Promise<Resultado<void>> {
   try {
-    await api.patch(`/v1/management/rules/attendance/${id}`, pedido);
+    // Body keys follow the API (`RequestOfEditOfRuleQueue`: name, combiner, condicoes[field, operator]).
+    await api.patch(`/v1/management/rules/attendance/${id}`, {
+      name: pedido.nome,
+      order: pedido.order,
+      combiner: pedido.combinador,
+      queueDestinationId: pedido.queueDestinationId,
+      condicoes: pedido.conditions?.map((c) => ({ field: c.campo, operator: c.operador, value: c.value })),
+    });
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

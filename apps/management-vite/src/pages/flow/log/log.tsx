@@ -64,11 +64,11 @@ export function PageLog() {
   const tipo = filtros.tipo;
 
   const queryBase = new URLSearchParams();
-  if (search) queryBase.set('busca', search);
-  if (de) queryBase.set('de', de);
-  if (ate) queryBase.set('ate', ate);
-  if (direction) queryBase.set('direcao', direction);
-  if (tipo) queryBase.set('tipo', tipo);
+  if (search) queryBase.set('search', search);
+  if (de) queryBase.set('from', de);
+  if (ate) queryBase.set('to', ate);
+  if (direction) queryBase.set('direction', direction);
+  if (tipo) queryBase.set('type', tipo);
   const filterKey = queryBase.toString();
 
   const firstPage = useRead<LogPage>(

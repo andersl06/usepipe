@@ -25,7 +25,7 @@ export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string }
 
 export async function createKey(flowId: string, nome: string): Promise<Resultado<KeyCreated>> {
   try {
-    const value = await api.post<KeyCreated>(`/v1/management/flows/${flowId}/keys`, { nome });
+    const value = await api.post<KeyCreated>(`/v1/management/flows/${flowId}/keys`, { name: nome });
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {

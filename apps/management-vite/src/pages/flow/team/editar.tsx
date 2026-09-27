@@ -99,8 +99,8 @@ function Edit({
     setAviso('');
     try {
       await api.patch(`/v1/management/flows/${flowId}/team/${member.userId}`, {
-        roleInFlow,
-        permissions,
+        papelNoFluxo: roleInFlow,
+        permissoes: permissions,
       });
       atualizarLeituras();
       navegar(`${base}/team`);

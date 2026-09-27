@@ -69,7 +69,7 @@ export function PagePortal() {
    */
   const shell = portalUseShell();
   const grade = useRead<GradeDoPortal>(
-    `/v1/management/flows?busca=${encodeURIComponent(search)}&pagina=${page}&porPagina=${byPage}`,
+    `/v1/management/flows?search=${encodeURIComponent(search)}&pagina=${page}&porPagina=${byPage}`,
 );
   /* The database being down can't wipe out the bar: the grid falls back to the empty state. */
   const data: PortalData = {

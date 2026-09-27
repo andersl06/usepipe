@@ -480,7 +480,7 @@ function ModalTransferir({
     setError(null);
     try {
       await api.post(`/v1/conversations/${conversationId}/transfer`, {
-        ...(alvo === 'fila' ? { para_fila_id: queueId } : { para_atendente_id: agentId }),
+        ...(alvo === 'fila' ? { forQueueId: queueId } : { forAgentId: agentId }),
       });
       atualizarLeituras();
       aoTransferir();

@@ -176,7 +176,7 @@ export function PageAttendance() {
   };
   const q = new URLSearchParams();
   for (const key of ['queue', 'agent', 'de', 'ate'] as const) {
-    if (params[key]) q.set(key, params[key] as string);
+    if (params[key]) q.set(key === "de" ? "from" : key === "ate" ? "to" : key, params[key] as string);
   }
   const read = useRead<ResponseOfReportOfAttendance>(
     `/v1/management/reports/attendance?${q}`,

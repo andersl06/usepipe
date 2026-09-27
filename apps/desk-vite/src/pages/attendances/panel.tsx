@@ -232,10 +232,10 @@ function ContactEdit({
     setError(null);
     try {
       await api.patch(`/v1/contacts/${conversation.contactId}`, {
-        nome: nome.trim() || null,
-        telefone_e164: telefone.trim() || null,
+        name: nome.trim() || null,
+        phoneE164: telefone.trim() || null,
         email: email.trim() || null,
-        documento: document.trim() || null,
+        document: document.trim() || null,
       });
       aoSalvar();
     } catch (e) {

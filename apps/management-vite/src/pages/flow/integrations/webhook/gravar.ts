@@ -36,7 +36,7 @@ export interface WebhookListado {
   id: string;
   url: string;
   eventos: string[];
-  ativo: boolean;
+  active: boolean;
   criadoEm: string;
   authentication: AuthenticationVisible;
   cabecalhos: CabecalhoCustomizado[];
@@ -82,7 +82,7 @@ export async function editarWebhook(
   pedido: {
     url?: string;
     eventos?: string[];
-    ativo?: boolean;
+    active?: boolean;
     authentication?: AuthenticationInbound;
     cabecalhos?: CabecalhoCustomizado[];
   },

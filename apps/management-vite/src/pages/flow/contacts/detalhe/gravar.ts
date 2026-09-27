@@ -18,7 +18,13 @@ export type Resultado = { ok: true } | { ok: false; error: string };
 
 export async function saveContact(id: string, edit: ContactEdit): Promise<Resultado> {
   try {
-    await api.patch(`/v1/contacts/${id}`, edit);
+    await api.patch(`/v1/contacts/${id}`, {
+      name: edit.nome,
+      email: edit.email,
+      phoneE164: edit.telefone_e164,
+      document: edit.document,
+      atributos: edit.atributos,
+    });
     atualizarLeituras();
     return { ok: true };
   } catch (error) {
