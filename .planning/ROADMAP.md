@@ -12,7 +12,7 @@ Pipe já tem um núcleo grande construído e commitado (canais, monitoramento, e
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [ ] **Phase 1: Padronizar linguagem técnica, navegação e renderização** - Rotas, endpoints, arquivos, pastas, funções, variáveis, types e testes deixam de ser em português na base técnica; contrato de navegação/renderização documentado; dados persistidos ficam fora do rename mecânico
-- [ ] **Phase 2: Fechar o Builder** - Editor atinge paridade funcional suficiente para publicar fluxos completos sem depender de decisões pendentes no motor
+- [x] **Phase 2: Fechar o Builder** - Editor atinge paridade funcional suficiente para publicar fluxos completos sem depender de decisões pendentes no motor (completed 2026-09-27)
 - [ ] **Phase 3: Validar e fechar superfícies atuais** - Desk, Atendimento, conexões de canal e demais superfícies já implementadas chegam ao estado VALIDATED (visual + aprovação do dono) antes do CRM/Twenty
 - [ ] **Phase 4: Resolver o CRM e consolidar o repositório** - `apps/crm` tem destino decidido, `limpeza` mesclado em `master`, `apps/site`/branches soltas resolvidas
 - [ ] **Phase 5: Validar ponta a ponta em produção** - Atendimento real funciona na VPS com WhatsApp e login Google, coberto por teste e2e
@@ -279,7 +279,7 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [ ] 02-22-PLAN.md — Regressão final, verificação visual e portão final do dono
+- [x] 02-22-PLAN.md — Regressão final, verificação visual e portão final do dono
 
 **UI hint**: yes
 
@@ -381,7 +381,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
-| 2. Fechar o Builder | 21/22 | In Progress|  |
+| 2. Fechar o Builder | 22/22 | Complete   | 2026-09-27 |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |
