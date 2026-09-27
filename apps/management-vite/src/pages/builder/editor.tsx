@@ -154,7 +154,7 @@ export function Editor({
   const blockOpen = editando ? mapa[editando] : undefined;
 
   return (
-    <div ref={area} className="bl-editor">
+    <div ref={area} className="bl-editor" data-tema="escuro">
       <Canvas
         mapa={mapa}
         errorsByBlock={errorsByBlock}

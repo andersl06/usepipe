@@ -42,17 +42,17 @@
   transition: box-shadow 0.25s ease-in, background-color 0.25s ease-in;
 }
 .bl-no:hover {
-  box-shadow: 0 0 0 4px var(--p-marca, #4a5d23);
+  box-shadow: 0 0 0 4px var(--p-builder-marca-anel);
   z-index: 5;
 }
 .bl-no--selecionado,
 .bl-no--editando {
-  box-shadow: 0 0 0 4px var(--p-marca, #4a5d23);
+  box-shadow: 0 0 0 4px var(--p-builder-marca-anel);
   z-index: 5;
 }
 .bl-no--selecionado:not(.bl-no--inicio),
 .bl-no--editando:not(.bl-no--inicio) {
-  background: var(--p-marca, #4a5d23);
+  background: var(--p-builder-marca-selecionado);
 }
 .bl-no--selecionado:not(.bl-no--inicio)::before,
 .bl-no--editando:not(.bl-no--inicio)::before {
@@ -69,7 +69,7 @@
   z-index: 1;
 }
 .bl-no--alvo {
-  box-shadow: 0 0 0 4px var(--p-marca, #4a5d23);
+  box-shadow: 0 0 0 4px var(--p-builder-marca-anel);
 }
 .bl-node--outside-search {
   opacity: 0.2;
@@ -82,7 +82,7 @@
 }
 /* `Início` is the flow's entry block; `atendimento` is the handoff to a human. */
 .bl-no--inicio {
-  background: var(--p-marca, #4a5d23);
+  background: var(--p-builder-marca);
 }
 .bl-node--attendance {
   /*
@@ -161,7 +161,7 @@
   height: 16px;
   margin-left: -8px;
   border-radius: 50%;
-  background: var(--p-marca, #4a5d23);
+  background: var(--p-builder-marca);
   opacity: 0;
   cursor: crosshair;
   transition: visibility 0.3s, opacity 0.3s linear;
@@ -187,8 +187,9 @@
   pointer-events: auto;
 }
 .bl-seta-traco {
+  /* Arrows are neutral, not brand: the reference paints them #666, never marca (D-32). */
   fill: none;
-  stroke: var(--p-marca, #4a5d23);
+  stroke: #666;
   stroke-width: 2;
 }
 .bl-seta-alvo {
@@ -198,13 +199,13 @@
   cursor: pointer;
 }
 .bl-seta-ponta {
-  fill: var(--p-marca, #4a5d23);
+  fill: #666;
   stroke: none;
 }
 .bl-seta--selecionada .bl-seta-traco,
 .bl-seta--selecionada .bl-seta-ponta {
-  stroke: var(--p-marca, #4a5d23);
-  fill: var(--p-marca, #4a5d23);
+  stroke: var(--p-builder-marca-borda-ativa);
+  fill: var(--p-builder-marca-borda-ativa);
 }
 .bl-seta--provisoria {
   stroke-dasharray: 6 4;
@@ -298,13 +299,13 @@
 .bl-menu-context button:hover,
 .bl-menu-context button:focus-visible {
   background: transparent;
-  color: var(--p-marca, #4a5d23);
+  color: var(--p-builder-marca);
 }
 .bl-new-block-item:hover {
-  background: color-mix(in srgb, var(--p-marca, #4a5d23) 24%, #282828);
+  background: var(--p-builder-marca-destaque);
 }
 .bl-panel .bl-menu-actions button:hover {
-  background: color-mix(in srgb, var(--p-marca, #4a5d23) 24%, #282828);
+  background: var(--p-builder-marca-destaque);
 }
 .bl-new-block-header,
 .bl-menu-actions-group {
@@ -412,7 +413,7 @@
 }
 .bl-panel-title:focus-visible {
   outline: 0;
-  border-bottom-color: var(--p-marca, #4a5d23);
+  border-bottom-color: var(--p-builder-marca-borda-ativa);
 }
 .bl-panel-id {
   margin: -8px 20px 12px;
@@ -447,7 +448,7 @@
   font: 400 14px/21px 'Nunito Sans', 'Carbona', Tahoma, Helvetica, Arial, sans-serif;
   outline: 0;
 }
-.bl-panel-add-tag:focus { border-bottom-color: var(--p-marca, #4a5d23); }
+.bl-panel-add-tag:focus { border-bottom-color: var(--p-builder-marca-borda-ativa); }
 .bl-panel-add-tag::placeholder { color: #a3a3a3; }
 .bl-panel-body {
   flex: 1;
@@ -511,7 +512,7 @@
   cursor: pointer;
 }
 .bl-abas button[aria-selected='true'] {
-  border-bottom-color: var(--p-marca, #4a5d23);
+  border-bottom-color: var(--p-builder-marca-selecionado);
   color: #fff;
   font-weight: 700;
 }
@@ -573,7 +574,7 @@
 .bl-panel .selection-list button:hover,
 .bl-panel .selection-list button:focus-visible,
 .bl-panel .selection-list button.selecionada {
-  background: color-mix(in srgb, var(--p-marca, #4a5d23) 24%, #282828);
+  background: var(--p-builder-marca-destaque);
   color: #fff;
 }
 .bl-field-error {
@@ -743,7 +744,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--p-marca, #4a5d23);
+  color: var(--p-builder-marca);
   font: inherit;
   cursor: pointer;
 }
@@ -879,7 +880,7 @@
   border-radius: 8px;
 }
 .bl-variables-list li:hover {
-  background: color-mix(in srgb, var(--p-marca, #4a5d23) 24%, #282828);
+  background: var(--p-builder-marca-destaque);
 }
 .bl-variable-line {
   display: flex;
@@ -918,7 +919,7 @@
   cursor: pointer;
 }
 .bl-versions-item:hover {
-  background: color-mix(in srgb, var(--p-marca, #4a5d23) 24%, #282828);
+  background: var(--p-builder-marca-destaque);
 }
 
 .bl-oculto {
