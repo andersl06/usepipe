@@ -188,7 +188,7 @@ describe('interactive content channel output', () => {
         tipo: 'application/vnd.lime.web-link+json',
         conteudo: { uri: 'https://example.com', text: 'Abrir' },
       }),
-    ).toMatchObject({ tipo: 'texto', texto: 'Abrir', dados: { webLink: { uri: 'https://example.com' } } });
+    ).toMatchObject({ tipo: 'texto', texto: 'Abrir\nhttps://example.com', dados: { webLink: { uri: 'https://example.com' } } });
     expect(() =>
       toChannelOutput({
         tipo: 'application/vnd.lime.web-link+json',
