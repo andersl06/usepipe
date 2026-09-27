@@ -6,7 +6,7 @@ import { CabecalhoInfo } from './cabecalho-info';
 import type { AcaoDoEditor, Block } from './model';
 import { ehAttendance } from './model';
 import {
-  CATALOG_OF_ACTIONS,
+  actionsOfGroup,
   LABELS_OF_ACTIONS,
   acaoDoSistema,
   acaoSemSuporte,
@@ -250,7 +250,7 @@ function ListOfActionsOfBlock({
             {groups.map((grupo) => (
               <div key={grupo} className="bl-menu-actions-group">
                 <span className="sub">{grupo}</span>
-                {CATALOG_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
+                {actionsOfGroup(grupo).map((t) => (
                   <button
                     key={t.tipo}
                     type="button"

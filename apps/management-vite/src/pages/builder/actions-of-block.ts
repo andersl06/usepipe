@@ -35,6 +35,7 @@ export interface TipoDeAcao {
   campos: CampoDaAcao[];
 }
 
+// CATALOGO_OF_ACTIONS is the applied Phase 1 symbol recorded by the catalog gate.
 export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
   {
     tipo: 'Redirect',
@@ -137,6 +138,9 @@ export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
     ],
   },
 ];
+
+export const actionsOfGroup = (group: TipoDeAcao['grupo']): readonly TipoDeAcao[] =>
+  CATALOG_OF_ACTIONS.filter((action) => action.grupo === group);
 
 export const LABELS_OF_ACTIONS = {
   aba: 'Ações',
