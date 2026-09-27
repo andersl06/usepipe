@@ -19,12 +19,13 @@ const askSurvey: Acao = {
 };
 
 /** A `survey:` state as the Builder would export it: sends the question on entering, then waits for the reply. */
-function surveyState(outputs: State['outputs'] = []): State {
+function surveyState(outputs: State['outputs'] = [], extra: Partial<State> = {}): State {
   return {
     id: 'survey:nota',
     inputActions: [askSurvey],
-    input: { bypass: false, variable: 'nota_pesquisa' },
+    input: { bypass: false, variable: 'nota.pesquisa' },
     outputs,
+    ...extra,
   };
 }
 
@@ -141,14 +142,17 @@ describe('engine wiring: the survey block records the answer and branches by the
 
   it('grava a resposta e segue a saída configurada pelo autor do fluxo para a nota recebida (D-09: sem categoria fixa)', async () => {
     const states: State[] = [
-      surveyState([
-        {
-          order: 0,
-          stateId: 'promotor',
-          conditions: [{ source: 'input', comparison: 'equals', values: ['5'] }],
-        },
-        { order: 1, stateId: 'outro' },
-      ]),
+      surveyState(
+        [
+          {
+            order: 0,
+            stateId: 'promotor',
+            conditions: [{ source: 'input', comparison: 'equals', values: ['5'] }],
+          },
+          { order: 1, stateId: 'outro' },
+        ],
+        { root: true },
+      ),
       { id: 'promotor', input: { bypass: true } },
       { id: 'outro', input: { bypass: true } },
     ];
@@ -157,7 +161,10 @@ describe('engine wiring: the survey block records the answer and branches by the
   });
 
   it('não grava nada quando o serviço não está implementado (opcional)', async () => {
-    const states: State[] = [surveyState([{ order: 0, stateId: 'outro' }]), { id: 'outro', input: { bypass: true } }];
+    const states: State[] = [
+      surveyState([{ order: 0, stateId: 'outro' }], { root: true }),
+      { id: 'outro', input: { bypass: true } },
+    ];
     const flow: FlowBlip = { id: FLOW_ID, states };
     const context: Context = {
       user: 'user@domain',

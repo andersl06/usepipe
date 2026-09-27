@@ -319,6 +319,21 @@ export async function runFlowInInbound(
     registerEvent: async (evento) => {
       eventos.push(evento);
     },
+    recordSatisfactionAnswer: async (answer) => {
+      const recent = await mostRecentClosedAttendance(tx, e.contactId, conversation.id);
+      const blockId = variables[stateKey(flow.id)] ?? null;
+      await tx.execute(sql`
+        insert into pesquisa_satisfacao_resposta (
+          tenant_id, conversa_id, conversa_atendimento_id, fluxo_bloco_id, fila_id,
+          atendente_id, contato_id, nota, comentario, estado, respondida_em
+        ) values (
+          ${e.tenantId}, ${conversation.id}, ${recent?.id ?? null}, ${blockId},
+          ${recent?.queueId ?? null}, ${recent?.agentId ?? null}, ${e.contactId},
+          ${answer.rating}, ${answer.comment}, ${answer.status},
+          ${answer.status === 'sem_resposta' ? null : relogio()}
+        )
+      `);
+    },
     callHttp: async (pedido: PedidoDeHttp) => {
       confirmarUrlSegura(pedido.url);
       try {
@@ -1044,27 +1059,84 @@ async function loadContact(
     : null;
 }
 
+type RecentAttendance = {
+  id: string;
+  by: string | null;
+  queueId: string | null;
+  queueName: string | null;
+  agentId: string | null;
+  agentEmail: string | null;
+  openDate: Date | null;
+  closeDate: Date | null;
+  tags: string[];
+  sequentialId: number;
+};
+
+/**
+ * The contact's last closed attendance session (`RLS` already scopes every row here to the
+ * current tenant, including the `sequentialId` count). Shared by `lastAttendance` (the `Ticket`
+ * fed to the engine, D-12) and `recordSatisfactionAnswer` (which attendance the survey answer
+ * evaluates, D-08.5).
+ */
+async function mostRecentClosedAttendance(
+  tx: TransactionPipe,
+  contatoId: string,
+  conversationCurrentId: string,
+): Promise<RecentAttendance | null> {
+  const { rows } = await tx.execute<RecentAttendance>(sql`
+    select c.id,
+           (select ev.dados->>'encerrada_por' from evento_atendimento ev
+             where ev.conversa_id = c.id and ev.tipo = 'encerrada'
+             order by ev.em desc limit 1) as "by",
+           c.fila_id as "queueId", q.nome as "queueName",
+           c.atendente_id as "agentId", u.email as "agentEmail",
+           c.criada_em as "openDate", c.encerrada_em as "closeDate",
+           coalesce(
+             (select array_agg(et.nome order by et.nome) from conversa_etiqueta ce
+               join etiqueta et on et.id = ce.etiqueta_id where ce.conversa_id = c.id),
+             '{}'
+           ) as "tags",
+           (select count(*)::int from conversa c2
+             where (c2.criada_em, c2.id) <= (c.criada_em, c.id)) as "sequentialId"
+      from conversa c
+      left join fila q on q.id = c.fila_id
+      left join usuario u on u.id = c.atendente_id
+     where c.contato_id = ${contatoId} and c.estado = 'encerrada' and c.id <> ${conversationCurrentId}
+     order by c.encerrada_em desc nulls last
+     limit 1
+  `);
+  return rows[0] ?? null;
+}
+
 /** The contact's last closed attendance session, like the `Ticket` Blip sends to the bot. */
 async function lastAttendance(
   tx: TransactionPipe,
   contatoId: string,
   conversationCurrentId: string,
-): Promise<{ id: string; status: string; closed: true }> {
-  const { rows } = await tx.execute<{ id: string; by: string | null }>(sql`
-    select c.id,
-           (select ev.dados->>'encerrada_por' from evento_atendimento ev
-             where ev.conversa_id = c.id and ev.tipo = 'encerrada'
-             order by ev.em desc limit 1) as "by"
-      from conversa c
-     where c.contato_id = ${contatoId} and c.estado = 'encerrada' and c.id <> ${conversationCurrentId}
-     order by c.encerrada_em desc nulls last
-     limit 1
-  `);
-  const linha = rows[0];
+): Promise<{
+  id: string;
+  status: string;
+  closed: true;
+  tags: string[];
+  team: string | null;
+  agentIdentity: string | null;
+  openDate: Date | null;
+  closeDate: Date | null;
+  closedBy: string | null;
+  sequentialId: number | null;
+}> {
+  const recent = await mostRecentClosedAttendance(tx, contatoId, conversationCurrentId);
   return {
-    id: linha?.id ?? conversationCurrentId,
-    status: STATUS_DO_TICKET[linha?.by ?? ''] ?? 'ClosedAttendant',
+    id: recent?.id ?? conversationCurrentId,
+    status: STATUS_DO_TICKET[recent?.by ?? ''] ?? 'ClosedAttendant',
     closed: true,
+    tags: recent?.tags ?? [],
+    team: recent?.queueName ?? null,
+    agentIdentity: recent?.agentEmail ?? null,
+    openDate: recent?.openDate ?? null,
+    closeDate: recent?.closeDate ?? null,
+    closedBy: recent?.by ?? null,
+    sequentialId: recent?.sequentialId ?? null,
   };
 }
 

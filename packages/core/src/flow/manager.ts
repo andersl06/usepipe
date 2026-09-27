@@ -23,6 +23,7 @@ import type { Acao, State, FlowBlip, InboundValidation } from './modelos.js';
 import { contextEhVariable, validateFlow } from './modelos.js';
 import type { ActionsProvider } from './actions.js';
 import { PROVEDOR_PADRAO, obterAcao } from './actions.js';
+import { interpretSatisfactionAnswer } from './satisfaction-survey.js';
 
 /** `ConventionsConfiguration` values match the source. */
 export interface EngineConfiguration {
@@ -222,6 +223,13 @@ export async function processInbound(
               corrente.input.variable,
               context.inbound.serializedContent,
             );
+          }
+          const satisfactionAnswer = interpretSatisfactionAnswer(
+            corrente,
+            context.inbound.serializedContent,
+          );
+          if (satisfactionAnswer) {
+            await context.services.recordSatisfactionAnswer?.(satisfactionAnswer);
           }
         }
 
