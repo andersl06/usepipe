@@ -42,6 +42,11 @@ import {
   debugSections,
   testVariablesToRecord,
 } from '../src/pages/builder/test-panel-logic.ts';
+import {
+  CONFIGURATION_SECTIONS,
+  secondsToTimeSpan,
+  timeSpanToSeconds,
+} from '../src/pages/builder/configuration-sections.ts';
 
 /* ------------------------------------------------------------- variaveis.ts */
 
@@ -405,4 +410,35 @@ test('Configuração, Biblioteca and Filas mount on the shared floating shell', 
   assert.match(filas, /<FloatingSidebar/);
   assert.match(filas, /lado="direita"/);
   assert.match(filas, /titulo="Gerenciamento de filas"/);
+});
+
+/* ------------------------------------------- configuration-sections.ts (F-2, D-56 item 3) */
+
+test('CONFIGURATION_SECTIONS has the 8 captured sections, in order, with literal titles', () => {
+  const titulos = CONFIGURATION_SECTIONS.map((s) => s.titulo);
+  assert.deepEqual(titulos, [
+    'CONFIABILIDADE DE IA',
+    'TRACKING AUTOMÁTICO',
+    'UTILIZAR CONTEXTO DO ROTEADOR',
+    'EXPIRAÇÃO DA SESSÃO',
+    'TEMPO LIMITE DE AÇÕES',
+    'IDENTIFICADOR DO FLUXO',
+    'VARIÁVEIS DE CONFIGURAÇÃO',
+    'VARIÁVEIS SENSÍVEIS',
+  ]);
+});
+
+test('only "Variáveis de configuração" is available — the engine only reads config.X generically', () => {
+  const disponiveis = CONFIGURATION_SECTIONS.filter((s) => s.disponivel).map((s) => s.id);
+  assert.deepEqual(disponiveis, ['variaveis-configuracao']);
+});
+
+test('secondsToTimeSpan/timeSpanToSeconds round-trip the TimeSpan text Blip stores', () => {
+  assert.equal(secondsToTimeSpan(90), '00:01:30');
+  assert.equal(secondsToTimeSpan(3600), '01:00:00');
+  assert.equal(timeSpanToSeconds('01:00:00'), 3600);
+  assert.equal(timeSpanToSeconds('00:01:30'), 90);
+  assert.equal(timeSpanToSeconds('not a timespan'), null);
+  assert.equal(timeSpanToSeconds('99:99:99'), null);
+  assert.equal(secondsToTimeSpan(-1), null);
 });
