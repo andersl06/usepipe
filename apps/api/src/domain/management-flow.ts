@@ -33,17 +33,17 @@ export async function loadContact(tx: TransactionPipe, tid: string, id: string) 
     .select({
       id: flow.id,
       nome: flow.nome,
-      estado: flow.estado,
+      state: flow.estado,
       tipo: flow.tipo,
-      imagemUrl: flow.imageUrl,
+      imageUrl: flow.imageUrl,
       shortName: flow.shortName,
-      descricao: flow.descricao,
+      description: flow.descricao,
       criadoEm: flow.criadoEm,
-      canalId: flow.channelId,
-      canalNome: channel.nome,
-      canalTipo: channel.tipo,
-      canalAtivo: channel.ativo,
-      canalNumero: identifierOfChannel,
+      channelId: flow.channelId,
+      channelName: channel.nome,
+      channelType: channel.tipo,
+      channelActive: channel.ativo,
+      channelNumber: identifierOfChannel,
     })
     .from(flow)
     .leftJoin(channel, eq(channel.id, flow.channelId))
