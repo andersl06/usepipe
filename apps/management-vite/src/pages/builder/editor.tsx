@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { BlockError } from '@pipe/contracts';
-import { Etiqueta, Icone } from '@pipe/ui';
+import { Icone } from '@pipe/ui';
 import { useContact } from '../flow/contact';
 import { ModalConfirmation } from '../registrations/_modal';
 import { Canvas } from './canvas';
@@ -25,12 +25,13 @@ import {
 import { BlockPanel } from './panel';
 import { TestPanel } from './test-panel';
 import { positionInCenter } from './setas';
+import type { ToastInput } from './toast-queue';
 import { errorsLocal, joinErrors } from './validation';
 import './editor.css';
 import './panel-block.css';
 
 /**
- * The editor itself, inside the frame's dark canvas: the blocks and arrows (`Canvas`), the sidebar of the open block (`BlockPanel`), the "NOVO BLOCO" sheet next to the pill, and the two warnings — the rejection toast ("Limite de 25 condições de saída atingidos"…) and the delete confirmation, which here is `ModalConfirmation` and not `window.confirm` (the Blip editor deletes without asking and relies on undo; Pipe has undo AND asks).
+ * The editor itself, inside the frame's dark canvas: the blocks and arrows (`Canvas`), the sidebar of the open block (`BlockPanel`), the "NOVO BLOCO" sheet next to the pill, and the delete confirmation, which here is `ModalConfirmation` and not `window.confirm` (the Blip editor deletes without asking and relies on undo; Pipe has undo AND asks). Passing warnings ("Limite de 25 condições de saída atingidos"…, colar, copiar bloco) go through `onAviso`, the Builder's single toast (F-6, D-56).
  *
  * The drawing lives in the `estado.ts` reducer, reached through `state`/`despachar`; each gesture becomes a new map via the `modelo.ts` functions and an `aplicar`. Per-block errors are the sum of the screen's (`errorsLocal`) with the ones the `api` returned (`apiErrors`) and the ones from the 409 on publish (`errosDoMotor`).
  */
@@ -46,6 +47,7 @@ export function Editor({
   onCloseNewBlock,
   panelExternalOpen,
   pesquisa,
+  onAviso,
 }: {
   state: EditorState;
   despachar: (gesto: GestoDoEditor) => void;
@@ -57,6 +59,7 @@ export function Editor({
   onCloseNewBlock: () => void;
   panelExternalOpen: boolean;
   pesquisa: string;
+  onAviso: (input: ToastInput) => void;
 }) {
   const { contact } = useContact();
   const { mapa } = state;
@@ -65,7 +68,6 @@ export function Editor({
   const [testOpen, setTestOpen] = useState(false);
   const [offset, setOffset] = useState<Position>({ top: 0, left: 0 });
   const [excluindo, setExcluindo] = useState<string | null>(null);
-  const [aviso, setAviso] = useState<string | null>(null);
   const area = useRef<HTMLDivElement>(null);
 
   /*
@@ -81,13 +83,6 @@ export function Editor({
   useEffect(() => {
     if (testOpen) setEditando(null);
   }, [testOpen]);
-
-  /* O aviso some sozinho, como o toast do editor. */
-  useEffect(() => {
-    if (!aviso) return;
-    const t = setTimeout(() => setAviso(null), 4000);
-    return () => clearTimeout(t);
-  }, [aviso]);
 
   /* Bloco que sumiu (desfazer, excluir) fecha o painel. */
   useEffect(() => {
@@ -116,6 +111,28 @@ export function Editor({
   }
 
   const aplicar = (novo: typeof mapa): void => despachar({ tipo: 'aplicar', mapa: novo });
+
+  /**
+   * `Canvas` and `BlockPanel` (and everything under them) still call a plain
+   * `(texto: string) => void`; this maps that text to the right toast tone before forwarding to
+   * the Builder's single toast (F-6, D-56). Copy/paste feedback reads as success; the "no block to
+   * paste" case becomes the Blip's two-line danger message; anything else is a plain warning.
+   */
+  function avisar(texto: string): void {
+    if (texto === 'Copie um bloco do Builder antes de colar.') {
+      onAviso({
+        tom: 'perigo',
+        titulo: 'O conteúdo copiado não é um bloco válido.',
+        texto: 'Tente de novo.',
+      });
+      return;
+    }
+    if (/copiad[oa]|colado/.test(texto)) {
+      onAviso({ tom: 'sucesso', texto });
+      return;
+    }
+    onAviso({ tom: 'aviso', texto });
+  }
 
   function positionForNew(): Position {
     const caixa = area.current?.getBoundingClientRect();
@@ -153,12 +170,12 @@ export function Editor({
   function ligarBlocos(de: string, para: string): void {
     const r = ligar(mapa, de, para);
     if (r.ok) aplicar(r.mapa);
-    else setAviso(r.error);
+    else avisar(r.error);
   }
 
   function pedirExclusao(id: string): void {
     if (!podeExcluir(mapa, id)) {
-      setAviso(MESSAGES.naoExclui);
+      avisar(MESSAGES.naoExclui);
       return;
     }
     setExcluindo(id);
@@ -166,8 +183,8 @@ export function Editor({
 
   function copiarId(id: string): void {
     void navigator.clipboard?.writeText(id).then(
-      () => setAviso('Id copiado.'),
-      () => setAviso(id),
+      () => avisar('Id copiado.'),
+      () => avisar(id),
     );
   }
 
@@ -194,7 +211,7 @@ export function Editor({
         onCopiarId={copiarId}
         onColar={(block, position) => aplicar(pasteBlock(mapa, block, position))}
         onExcluir={pedirExclusao}
-        onAviso={setAviso}
+        onAviso={avisar}
         pesquisa={pesquisa}
       />
 
@@ -215,7 +232,7 @@ export function Editor({
           errors={errorsByBlock[blockOpen.id] ?? []}
           onMudar={(block) => aplicar(replaceBlock(mapa, block))}
           onFechar={() => setEditando(null)}
-          onAviso={setAviso}
+          onAviso={avisar}
         />
       ) : null}
 
@@ -237,12 +254,6 @@ export function Editor({
           onFechar={() => setTestOpen(false)}
           onDestacarBloco={(id) => setSelecionado(id)}
         />
-      ) : null}
-
-      {aviso ? (
-        <div className="bl-toast" role="status">
-          <Etiqueta tom="alerta">{aviso}</Etiqueta>
-        </div>
       ) : null}
 
       <ModalConfirmation

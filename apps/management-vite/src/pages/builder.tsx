@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { BuilderOfFlow, BlockError, VersionOfFlow } from '@pipe/contracts';
-import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
+import { Botao, Campo, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../components/icones-management';
 import { IconePortal } from '../components/icones-portal';
 import { useEu } from '../context/session';
 import { ApiError } from '../lib/api';
 import { useRead } from '../lib/query';
 import type { Resultado } from '../lib/rest';
-import { Modal } from './registrations/_modal';
 import { ContactBars, useContact } from './flow/contact';
 import { publishFlow, restoreVersion } from './builder-gravar';
 import { Editor } from './builder/editor';
@@ -16,6 +15,8 @@ import { ConfigurationPanel } from './builder/panel-configuration';
 import { QueuesPanel } from './builder/panel-queues';
 import { VariablesPanel } from './builder/panel-variables';
 import { ZOOM_MAXIMO, ZOOM_MINIMO, zoomAjustado } from './builder/setas';
+import { BuilderToasts } from './builder/toast';
+import { pushToast, dismissToast, type Toast, type ToastInput } from './builder/toast-queue';
 import { useEditorDoBuilder } from './builder/use-editor';
 import { errorsLocal, joinErrors } from './builder/validation';
 import './builder.css';
@@ -116,11 +117,12 @@ export function PageBuilder() {
     setPesquisaAberta(false);
   }
   const [zoom, setZoom] = useState(ZOOM_MAXIMO);
-  const [recado, setRecado] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  function toast(input: ToastInput): void {
+    setToasts((prev) => pushToast(prev, input, Date.now()));
+  }
 
-  const [publicarAberto, setPublicarAberto] = useState(false);
   const [publicando, setPublicando] = useState(false);
-  const [publicationError, publicationSetError] = useState<string | null>(null);
   /** Publish 409 can add errors to those already known from saving. */
   const [engineErrors, engineSetErrors] = useState<BlockError[]>([]);
 
@@ -139,41 +141,60 @@ export function PageBuilder() {
         read.error.message)
       : read.error?.message;
 
-  function abrirPublicar(): void {
-    publicationSetError(null);
-    setPublicarAberto(true);
+  /** The loading icon stays at least this long even when the request answers sooner (F-6.1 H). */
+  async function aguardarMinimo(inicio: number, minimoMs = 2000): Promise<void> {
+    const passou = Date.now() - inicio;
+    if (passou < minimoMs) await new Promise((resolve) => setTimeout(resolve, minimoMs - passou));
   }
 
+  /**
+   * Never disabled by error (D-56): a click with pending errors only shows the validation toast
+   * and never reaches the server; publishing itself never opens a modal, just the pill's loading
+   * icon for a minimum of 2s.
+   */
   async function publicar(): Promise<void> {
     if (!data || publicando) return;
+    if (errors.length > 0) {
+      toast({
+        tom: 'aviso',
+        texto:
+          'Erro ao publicar o fluxo: Um ou mais blocos estão inválidos. Corrija os blocos marcados de vermelho e tente novamente.',
+      });
+      return;
+    }
+    const inicio = Date.now();
     setPublicando(true);
-    publicationSetError(null);
     /*
      * Publish exactly what is on screen. Save first if changes are dirty or this is a new default flow; the Blip copy performs those two steps in order when publishing.
      */
     if (state.sujo || data.origem !== 'rascunho') {
       const gravou = await editor.salvarAgora();
       if (!gravou) {
+        await aguardarMinimo(inicio);
         setPublicando(false);
-        publicationSetError('Não foi possível salvar o rascunho antes de publicar.');
+        toast({ tom: 'perigo', texto: 'Erro ao publicar o fluxo' });
         return;
       }
     }
     const r = await publishFlow(contact.id);
+    await aguardarMinimo(inicio);
     setPublicando(false);
     if (!r.ok) {
-      publicationSetError(r.error);
       engineSetErrors(r.errors);
+      const loop = r.errors.find((e) => e.mensagem.includes('laço'));
+      if (loop) {
+        toast({
+          tom: 'perigo',
+          titulo: `Existe um loop no seu fluxo começando no bloco '${tituloDe(loop.block)}' que não requer entrada de usuário.`,
+          texto: 'Inclua uma ou mais entradas do usuário nos blocos ligados a este.',
+        });
+      } else {
+        toast({ tom: 'perigo', texto: 'Erro ao publicar o fluxo' });
+      }
       return;
     }
     engineSetErrors([]);
-    setPublicarAberto(false);
-    setRecado({
-      tom: 'sucesso',
-      texto: r.value.arquivada
-        ? `Versão ${r.value.versao.versao} publicada; a ${r.value.arquivada.versao} saiu do ar.`
-        : `Versão ${r.value.versao.versao} publicada.`,
-    });
+    toast({ tom: 'sucesso', texto: 'Fluxo publicado!' });
   }
 
   /** Restore an old version as the draft (D-16), then reload the editor once the read brings it back. */
@@ -182,17 +203,23 @@ export function PageBuilder() {
     if (!r.ok) return r;
     editor.recarregarQuando(r.value.versao.id, r.value.versao.atualizadoEm);
     setConfigAberto(false);
-    setRecado({ tom: 'sucesso', texto: `Versão ${version} restaurada como rascunho.` });
+    toast({ tom: 'sucesso', texto: `Versão ${version} restaurada como rascunho.` });
     return { ok: true, value: r.value.versao };
   }
 
   const nadaParaPublicar = data?.origem === 'publicada' && !state.sujo;
   /** Explain why Publish is disabled in its tooltip. */
   function motivoDoPublicar(): string {
+    if (publicando) return 'publicando…';
     if (!podePublicar) return 'você não tem a permissão de publicar fluxo';
     if (nadaParaPublicar) return `nada para publicar: a versão ${data?.versao?.versao ?? ''} já está no ar`;
     return readRefusal ?? 'carregando';
   }
+
+  /** One toast per autosave failure (F-6.1 I); the pill itself keeps "Tentar de novo". */
+  useEffect(() => {
+    if (recording.state === 'erro') toast({ tom: 'perigo', texto: 'Erro ao salvar o fluxograma' });
+  }, [recording]);
 
   /** Footer Saved status includes its underlying persistence state. */
   function recordingStatus(): { icone: 'circuloOk' | 'atualizar' | 'alerta'; texto: string } {
@@ -251,25 +278,6 @@ export function PageBuilder() {
           </div>
         ) : null}
 
-        {errors.length > 0 ? (
-          <div className="bl-aviso bl-notice--error" role="alert">
-            <div className="bl-aviso-texto">
-              <span>
-                <Icone nome="alerta" tamanho={16} /> O motor recusaria este fluxo — {errors.length}{' '}
-                {errors.length === 1 ? 'erro' : 'erros'} a corrigir antes de publicar:
-              </span>
-              <ul className="bl-errors">
-                {errors.slice(0, 6).map((e) => (
-                  <li key={`${e.block ?? ''}:${e.mensagem}`}>
-                    <b>{tituloDe(e.block)}</b>: {e.mensagem}
-                  </li>
-                ))}
-                {errors.length > 6 ? <li>… e mais {errors.length - 6}.</li> : null}
-              </ul>
-            </div>
-          </div>
-        ) : null}
-
         <div className="bl-corpo">
           {readRefusal ? (
             <div className="bl-empty">
@@ -292,6 +300,7 @@ export function PageBuilder() {
               onCloseNewBlock={() => setNewBlockOpen(false)}
               panelExternalOpen={configAberto || queuesOpen}
               pesquisa={pesquisaComAtraso}
+              onAviso={toast}
             />
           )}
 
@@ -300,7 +309,7 @@ export function PageBuilder() {
               mapa={state.mapa}
               global={state.global}
               onFechar={() => setVariablesOpen(false)}
-              onAviso={(texto) => setRecado({ tom: 'sucesso', texto })}
+              onAviso={(texto) => toast({ tom: 'sucesso', texto })}
             />
           ) : null}
 
@@ -317,7 +326,7 @@ export function PageBuilder() {
                 despachar({ tipo: 'aplicar', mapa });
                 despachar({ tipo: 'aplicarGlobais', global });
                 setConfigAberto(false);
-                setRecado({ tom: 'sucesso', texto: 'Fluxo importado.' });
+                toast({ tom: 'sucesso', texto: 'Fluxo importado.' });
               }}
               onRestoreVersion={restaurarVersaoAntiga}
               onFechar={() => setConfigAberto(false)}
@@ -349,11 +358,15 @@ export function PageBuilder() {
             </BotaoDaBarra>
             <BotaoDaBarra
               rotulo="Publicar fluxo"
-              desabilitado={!data || !podePublicar || nadaParaPublicar}
+              desabilitado={!data || !podePublicar || nadaParaPublicar || publicando}
               motivo={motivoDoPublicar()}
-              onClick={abrirPublicar}
+              onClick={() => void publicar()}
             >
-              <IconePortal nome="aprender" tamanho={24} />
+              {publicando ? (
+                <ManagementIcon nome="atualizar" tamanho={24} className="bl-girando" />
+              ) : (
+                <IconePortal nome="aprender" tamanho={24} />
+              )}
             </BotaoDaBarra>
             <BotaoDaBarra
               rotulo="Configuração"
@@ -453,11 +466,6 @@ export function PageBuilder() {
                 <span>{readRefusal ? 'Indisponível' : 'Carregando…'}</span>
               )}
             </div>
-            {recado ? (
-              <Etiqueta tom={recado.tom} className="bl-recado">
-                {recado.texto}
-              </Etiqueta>
-            ) : null}
 
             <div className="bl-controles">
               <button
@@ -521,59 +529,12 @@ export function PageBuilder() {
         </div>
       </div>
 
-      {/*
- * Publish confirmation uses reference `bds-modal` and lists engine errors when refused; never use `window.confirm`.
- */}
-      <Modal aberto={publicarAberto} titulo="Publicar fluxo" onFechar={() => setPublicarAberto(false)}>
-        {data ? (
-          <>
-            <p className="sub">
-              {data.origem === 'padrao'
-                ? 'O desenho será salvo como rascunho e publicado como versão 1. '
-                : state.sujo
-                  ? 'O que está na tela é gravado no rascunho e vira a versão publicada. '
-                  : `O rascunho v${data.versao?.versao ?? ''} vira a versão publicada. `}
-              {data.publicada
-                ? `A versão ${data.publicada.versao}, que está no ar, é arquivada — as conversas que já estavam com o robô continuam nela até a próxima mensagem.`
-                : 'A partir daí, o canal ligado a este fluxo passa a responder com ele.'}
-            </p>
-            {errors.length > 0 ? (
-              <>
-                <Etiqueta tom="erro">
-                  O motor recusaria este fluxo. Corrija antes de publicar:
-                </Etiqueta>
-                <ul className="bl-errors bl-errors--modal">
-                  {errors.map((e) => (
-                    <li key={`${e.block ?? ''}:${e.mensagem}`}>
-                      <b>{tituloDe(e.block)}</b>: {e.mensagem}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : null}
-            {Object.keys(data.naoSuportado).length > 0 ? (
-              <p className="sub">
-                Ações que o motor do Pipe ainda não executa (a conversa cai na fila quando chegar
-                nelas): {Object.keys(data.naoSuportado).join(', ')}.
-              </p>
-            ) : null}
-            {publicationError ? <Etiqueta tom="erro">{publicationError}</Etiqueta> : null}
-            <div className="cl-actions">
-              <Botao type="button" onClick={() => setPublicarAberto(false)} disabled={publicando}>
-                Cancelar
-              </Botao>
-              <Botao
-                type="button"
-                variante="primario"
-                onClick={() => void publicar()}
-                disabled={publicando || errors.length > 0}
-              >
-                {publicando ? 'Publicando…' : 'Publicar'}
-              </Botao>
-            </div>
-          </>
-        ) : null}
-      </Modal>
+      <BuilderToasts
+        toasts={toasts}
+        onFechar={(id) => setToasts((prev) => dismissToast(prev, id))}
+        onPausar={() => {}}
+        onRetomar={() => {}}
+      />
     </div>
   );
 }
