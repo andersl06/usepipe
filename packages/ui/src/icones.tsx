@@ -70,6 +70,7 @@ const CAMINHOS = {
     'M9 3h6M10 3v5.5l-5 8a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8 -3l-5 -8v-5.5M8 15h8',
   restoreVersion:
     'M9 3h9a1 1 0 0 1 1 1v16a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1v-9M5 8l-3 3l3 3M2 11h9',
+  perigo: 'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M12 8v4M12 16h.01',
 } as const;
 
 export type NomeDeIcone = keyof typeof CAMINHOS;
