@@ -150,7 +150,7 @@ export function PageHistory() {
       return {
         id: l.id,
         ticket: l.ticket,
-        encerrada: dataHora(l.encerradaEm, fuso),
+        encerrada: dataHora(l.closedAt, fuso),
         contact: l.contactName,
         queue: l.queueName ?? '—',
         agent: l.agentName ?? '—',
@@ -160,7 +160,7 @@ export function PageHistory() {
         statusTexto: status?.texto ?? 'Aberta',
         statusClasse: status?.classe ?? 'etiqueta',
         critico: l.status === 'perdida',
-        etiquetas: l.etiquetas,
+        etiquetas: l.labels,
       };
     };
 
@@ -274,7 +274,7 @@ export function PageHistory() {
         >
           <span className="pilula-rotulo">Atendentes</span>
           {params.agent ? (
-            <span>{catalogos.agents.find((a) => a.id === params.agent)?.nome}</span>
+            <span>{catalogos.agents.find((a) => a.id === params.agent)?.name}</span>
           ) : null}
         </button>
         <button
@@ -284,7 +284,7 @@ export function PageHistory() {
         >
           <span className="pilula-rotulo">Tags</span>
           {params.etiqueta ? (
-            <span>{catalogos.etiquetas.find((e) => e.id === params.etiqueta)?.nome}</span>
+            <span>{catalogos.labels.find((e) => e.id === params.etiqueta)?.name}</span>
           ) : null}
         </button>
 
@@ -329,7 +329,7 @@ export function PageHistory() {
             <option value="">Selecione os atendentes</option>
             {catalogos.agents.map((a) => (
               <option key={a.id} value={a.id}>
-                {a.nome}
+                {a.name}
               </option>
             ))}
           </Selection>
@@ -338,9 +338,9 @@ export function PageHistory() {
         <PanelField rotulo="Tags" apoio="Selecione uma ou mais tags">
           <Selection name="etiqueta" defaultValue={params.etiqueta ?? ''} aria-label="Tags">
             <option value="">Selecione as tags</option>
-            {catalogos.etiquetas.map((e) => (
+            {catalogos.labels.map((e) => (
               <option key={e.id} value={e.id}>
-                {e.nome}
+                {e.name}
               </option>
             ))}
           </Selection>
@@ -351,7 +351,7 @@ export function PageHistory() {
             <option value="">Selecione as filas</option>
             {catalogos.queues.map((f) => (
               <option key={f.id} value={f.id}>
-                {f.nome}
+                {f.name}
               </option>
             ))}
           </Selection>

@@ -90,7 +90,7 @@ export function PageQualityReview() {
           <option value="">Todos os avaliados</option>
           {catalogos.agents.map((a) => (
             <option key={a.id} value={a.id}>
-              {a.nome}
+              {a.name}
             </option>
           ))}
         </Selection>
