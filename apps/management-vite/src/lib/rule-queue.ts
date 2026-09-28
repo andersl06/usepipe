@@ -130,7 +130,7 @@ export interface Match {
  * sem o desempate, duas regras com ordem 0 são resolvidas pela ordem em que o
  * Postgres devolveu as linhas, que não é ordem nenhuma.
  */
-export function ordenarRegras(regras: readonly QueueRule[]): QueueRule[] {
+export function ordenarRegras<T extends QueueRule>(regras: readonly T[]): T[] {
   return [...regras].sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
 }
 

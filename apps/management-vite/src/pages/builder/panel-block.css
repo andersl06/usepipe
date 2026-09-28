@@ -1295,6 +1295,39 @@
 }
 
 /*
+ * Queue-rules mode (F-5, 02-34): reuses `.bl-queue-card`/`.bl-queues-search`/`.bl-queues-list`
+ * for the rule cards, search and empty state, so this only covers what is specific to this
+ * mode — the editable-name header and the centered, bold footer (the queue list's footer is
+ * left-aligned instead, see `.bl-queues-footer` above).
+ */
+.bl-rules-header h3.bl-rules-nome {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bl-rules-header .bl-rules-nome-input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  box-sizing: border-box;
+}
+.bl-rules-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/*
  * Configuração's "Variáveis" tab (F-2, D-56 item 3): 8 collapsible sections, header padding
  * 10px 5px (C:39523-39551), chevron on the left, 16px/700 uppercase title, 1px #393939 divider
  * with 20px margin between sections.

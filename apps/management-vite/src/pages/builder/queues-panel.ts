@@ -1,4 +1,5 @@
 import { ehAttendance, type Mapa } from './model';
+import { ordenarRegras, type QueueRule } from '../../lib/rule-queue';
 
 /**
  * Pure state and rules for the Builder's embedded queue panel (D-56 item 4, reverting D-15):
@@ -52,6 +53,41 @@ export function pageQueues<T>(filas: T[], paginas: number): QueuesPage<T> {
   const limite = Math.max(1, paginas) * POR_PAGINA;
   const visiveis = filas.slice(0, limite);
   return { visiveis, total: filas.length, temMais: visiveis.length < filas.length };
+}
+
+/** The rules that belong to one queue, in evaluation order — same order `ordenarRegras` gives the engine. */
+export function queueRules<T extends QueueRule>(regras: readonly T[], filaId: string): T[] {
+  return ordenarRegras(regras.filter((r) => r.queueDestinationId === filaId));
+}
+
+export type RenameBlockReason = 'atendentes' | 'regras' | 'permissao';
+
+/**
+ * The queue-rules header's pencil only opens the rename field when nothing depends on the queue's
+ * identity yet: no agents linked, no rules pointing at it, and the caller can write. Priority
+ * (atendentes > regras > permissao) matches the source's toast copy — an agent-having queue keeps
+ * the "atendentes" message even if it also has rules.
+ */
+export function renameBlockReason(
+  fila: { agents: readonly unknown[] },
+  qtdRegras: number,
+  podeGravar: boolean,
+): RenameBlockReason | null {
+  if (fila.agents.length > 0) return 'atendentes';
+  if (qtdRegras > 0) return 'regras';
+  if (!podeGravar) return 'permissao';
+  return null;
+}
+
+/** `minLengthField` from the source's dictionary (`T:...minLengthField`, {0}=3), the generic field validation it reuses for this input. */
+const NOME_CURTO = 'Esse campo deve ter no mínimo 3 caracteres.';
+
+export type QueueRenameError = typeof NOME_CURTO | QueueNameError;
+
+/** Same rules as `queueNameError`, plus the rename field's own minimum length. */
+export function queueRenameError(nome: string, outrasFilas: QueueForName[]): QueueRenameError | null {
+  if (nome.trim().length < 3) return NOME_CURTO;
+  return queueNameError(nome, outrasFilas);
 }
 
 export type QueuesPanelMode = { modo: 'lista' } | { modo: 'criar' } | { modo: 'regras'; id: string };
