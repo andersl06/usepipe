@@ -60,7 +60,7 @@ test('a queue with no agent does not count: the conversation would arrive and no
 });
 
 test('import: in progress, failed and completed-without-accepted do not close the step', () => {
-  const importBase = { id: 'i', aceitos: 0, rejeitados: 0, temFalhas: false };
+  const importBase = { id: 'i', accepted: 0, rejeitados: 0, temFalhas: false };
   assert.equal(estados({ ...NADA, lastImport: { ...importBase, state: 'executando' } })['contatos'], 'andamento');
   assert.equal(estados({ ...NADA, lastImport: { ...importBase, state: 'falhou' } })['contatos'], 'pendente');
   assert.equal(
@@ -68,7 +68,7 @@ test('import: in progress, failed and completed-without-accepted do not close th
     'pendente',
   );
   const feita = montarPassos(
-    { ...NADA, lastImport: { ...importBase, state: 'concluida', aceitos: 12, rejeitados: 1 } },
+    { ...NADA, lastImport: { ...importBase, state: 'concluida', accepted: 12, rejeitados: 1 } },
     DESK,
   ).find((p) => p.id === 'contatos')!;
   assert.equal(feita.state, 'feito');
@@ -84,7 +84,7 @@ test('tudo pronto: seis de seis', () => {
     members: 2,
     queuesActive: 1,
     queuesWithAgent: 1,
-    lastImport: { id: 'i', state: 'concluida', aceitos: 3, rejeitados: 0, temFalhas: false },
+    lastImport: { id: 'i', state: 'concluida', accepted: 3, rejeitados: 0, temFalhas: false },
     conversationHandled: true,
   });
   assert.ok(Object.values(tudo).every((e) => e === 'feito'));
