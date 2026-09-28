@@ -84,7 +84,7 @@ function CompanyAccordionData({
   perfil: PerfilVisivel;
   aoGravar: (novo: PerfilVisivel) => void;
 }) {
-  const [categoria, setCategoria] = useState(perfil.categoria);
+  const [category, setCategoria] = useState(perfil.category);
   const [endereco, setEndereco] = useState(perfil.endereco);
   const [email, setEmail] = useState(perfil.email);
   const [description, setDescription] = useState(perfil.description);
@@ -95,19 +95,19 @@ function CompanyAccordionData({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setCategoria(perfil.categoria);
+    setCategoria(perfil.category);
     setEndereco(perfil.endereco);
     setEmail(perfil.email);
     setDescription(perfil.description);
   }, [perfil]);
 
   const mudou =
-    categoria !== perfil.categoria || endereco !== perfil.endereco || email !== perfil.email || description !== perfil.description;
+    category !== perfil.category || endereco !== perfil.endereco || email !== perfil.email || description !== perfil.description;
 
   async function salvar() {
     setGravando(true);
     setError(null);
-    const resultado = await gravarPerfilWhatsapp(channelId, { categoria, endereco, email, description });
+    const resultado = await gravarPerfilWhatsapp(channelId, { category, endereco, email, description });
     setGravando(false);
     if (!resultado.ok) {
       setError(resultado.error);
@@ -176,7 +176,7 @@ function CompanyAccordionData({
 
         <label style={rotulo}>
           <span className="sub">Categoria da empresa</span>
-          <Seletor value={categoria} onChange={(e) => setCategoria(e.target.value)} disabled={gravando}>
+          <Seletor value={category} onChange={(e) => setCategoria(e.target.value)} disabled={gravando}>
             {CATEGORIAS_DO_PERFIL.map((c) => (
               <option key={c.value} value={c.value}>
                 {c.rotulo}
@@ -242,7 +242,7 @@ function PreViewPanel({ nome, perfil }: { nome: string; perfil: PerfilVisivel })
     <aside className="cw-preview">
       <img className="cw-preview-avatar" src={perfil.fotoUrl ?? undefined} alt="" />
       <strong>{nome}</strong>
-      {perfil.sobre ? <p className="sub" style={{ margin: 0 }}>{perfil.sobre}</p> : null}
+      {perfil.about ? <p className="sub" style={{ margin: 0 }}>{perfil.about}</p> : null}
       {perfil.email ? <div className="cw-preview-linha">{perfil.email}</div> : null}
       {perfil.endereco ? <div className="cw-preview-linha">{perfil.endereco}</div> : null}
       {perfil.sites[0] ? <div className="cw-preview-linha">{perfil.sites[0]}</div> : null}
@@ -278,7 +278,7 @@ export function AbaPerfil() {
           <UserAccordionName />
           <CompanyAccordionData
             channelId={channel.id}
-            numeroAtivado={saude?.numero ?? channel.numero ?? ''}
+            numeroAtivado={saude?.number ?? channel.numero ?? ''}
             perfil={perfil}
             aoGravar={setPerfil}
           />

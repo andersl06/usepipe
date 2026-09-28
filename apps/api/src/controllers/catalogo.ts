@@ -294,13 +294,13 @@ export class QueuesController {
         aguardando: string;
         inAttendance: string;
       }>(sql`
-        select f.id, f.nome as "name", f.cor as "color", f.ordem as "order", f.ativa as "active", f.capacidade_padrao,
+        select f.id, f.nome as "name", f.cor as "color", f.ordem as "order", f.ativa as "active", f.capacidade_padrao as "capacityDefault",
                (select count(*) from conversa c
                  where c.fila_id = f.id and c.estado = 'na_fila')::text as aguardando,
                (select count(*) from conversa c
                  where c.fila_id = f.id
                    and c.estado in ('atribuida', 'em_atendimento', 'em_espera'))::text
-                 as em_atendimento
+                 as "inAttendance"
           from fila f
          where ${juntar(filters)}
            and ${conditionOfCursor('f.nome', 'text', order.direction, cursor, 'f.id')}
@@ -398,7 +398,7 @@ export class AgentsController {
         since: Date | string | null;
         ativas: string;
       }>(sql`
-        select u.id, u.nome as "name", u.email, coalesce(s.estado, 'offline') as estado, s.desde as "since",
+        select u.id, u.nome as "name", u.email, coalesce(s.estado, 'offline') as "state", s.desde as "since",
                (select count(*) from conversa c
                  where c.atendente_id = u.id and c.estado <> 'encerrada')::text as ativas
           from usuario u

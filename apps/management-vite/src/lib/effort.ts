@@ -15,7 +15,7 @@ export interface Window {
 
 export interface AgentEffort {
   id: string;
-  nome: string;
+  name: string;
   tickets: number;
   effortSeg: number;
   /** Esforço ÷ tickets. Ponderado por construção (§5 da spec de métricas). */
@@ -29,7 +29,7 @@ export interface AgentEffort {
   /** Texto que o atendente **não** digitou: resposta pronta e template. */
   charsDeRespostaPronta: number;
   /** O que esse texto acrescentaria ao esforço se fosse contado como digitação. */
-  effortCannedResponseSeg: number;
+  effortResponseReadySeg: number;
   audiosSemMetadado: number;
 }
 

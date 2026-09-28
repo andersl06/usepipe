@@ -48,9 +48,9 @@ export async function loadMetrics(
         filter (
           where c.primeira_resposta_em is not null
             and c.primeira_resposta_em between ${inicio} and ${fim}
-        ) as primeira_resposta,
+        ) as "firstResponse",
       avg(extract(epoch from (c.atribuida_em - c.criada_em)))
-        filter (where c.atribuida_em between ${inicio} and ${fim}) as espera_fila,
+        filter (where c.atribuida_em between ${inicio} and ${fim}) as "waitQueue",
       avg(extract(epoch from (c.atribuida_em - c.criada_em)) + c.pausado_seg)
         filter (where c.atribuida_em between ${inicio} and ${fim}) as espera_total
       from conversa c

@@ -86,7 +86,7 @@ export async function validateConfigurationManual(data: {
              select 1 from canal
               where tipo = 'whatsapp_cloud' and config->>'numero' = ${numero}
                 and (${eu}::uuid is null or id <> ${eu}::uuid)
-           ) as numero,
+           ) as "number",
            exists (
              select 1 from canal
               where tipo = 'whatsapp_cloud' and numero_id = ${numeroId}

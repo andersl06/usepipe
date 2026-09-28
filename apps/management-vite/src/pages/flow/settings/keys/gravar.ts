@@ -7,12 +7,12 @@ import { motivoDe } from '../basic/gravar';
  */
 export interface KeyListed {
   id: string;
-  nome: string;
+  name: string;
   prefix: string;
-  scopes: string[];
+  escopos: string[];
   criadaEm: string;
   ultimoUsoEm: string | null;
-  revogadaEm: string | null;
+  revokedAt: string | null;
   requisitante: string | null;
 }
 

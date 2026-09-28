@@ -24,7 +24,7 @@ interface QualityReviewResponse {
   de: string;
   ate: string;
   catalogos: Catalogos;
-  panel: QualityReviewPanel;
+  application: QualityReviewPanel;
 }
 
 interface Search {
@@ -62,7 +62,7 @@ export function PageQualityReview() {
   }
   const read = useRead<QualityReviewResponse>(`/v1/management/quality-review?${q}`);
   if (!read.data) return null;
-  const { fuso, de, ate, catalogos, panel } = read.data;
+  const { fuso, de, ate, catalogos, application: panel } = read.data;
 
   const zeradas = panel.byAgent.reduce((s, l) => s + l.zeradas, 0);
 
@@ -90,7 +90,7 @@ export function PageQualityReview() {
           <option value="">Todos os avaliados</option>
           {catalogos.agents.map((a) => (
             <option key={a.id} value={a.id}>
-              {a.nome}
+              {a.name}
             </option>
           ))}
         </Selection>
@@ -142,10 +142,10 @@ export function PageQualityReview() {
           <div className="card-rel">
             <span className="r">Confiança da IA</span>
             <span className="v">
-              {panel.confiancaIa.value === null ? '—' : percentual(panel.confiancaIa.value)}
+              {panel.confidenceAi.value === null ? '—' : percentual(panel.confidenceAi.value)}
             </span>
             <span className="den">
-              {denominador(panel.confiancaIa, 'sem confiança declarada')}
+              {denominador(panel.confidenceAi, 'sem confiança declarada')}
             </span>
           </div>
 
@@ -156,7 +156,7 @@ export function PageQualityReview() {
               {panel.byEvaluator.length === 0
                 ? 'nenhuma avaliação no período'
                 : panel.byEvaluator
-                    .map((p) => `${numero(p.total)} ${ROTULO_AVALIADOR[p.tipo] ?? p.tipo}`)
+                    .map((p) => `${numero(p.total)} ${ROTULO_AVALIADOR[p.type] ?? p.type}`)
                     .join(' · ')}
             </span>
           </div>
@@ -241,23 +241,23 @@ export function PageQualityReview() {
               <tbody>
                 {panel.evaluations.map((a) => (
                   <tr key={a.id}>
-                    <td className="mono">{dataHora(a.avaliadaEm, fuso)}</td>
+                    <td className="mono">{dataHora(a.evaluatedAt, fuso)}</td>
                     <td className="who">{a.contact ?? 'Sem contato'}</td>
-                    <td>{a.avaliado ?? 'Sem atendente'}</td>
+                    <td>{a.evaluated ?? 'Sem atendente'}</td>
                     <td>{a.queue ?? 'Sem fila'}</td>
-                    <td>{a.formulario}</td>
+                    <td>{a.form}</td>
                     <td>
-                      {ROTULO_AVALIADOR[a.avaliadorTipo] ?? a.avaliadorTipo}
-                      {a.confiancaIa !== null ? (
-                        <span className="den">confiança {percentual(a.confiancaIa)}</span>
+                      {ROTULO_AVALIADOR[a.evaluatorType] ?? a.evaluatorType}
+                      {a.confidenceAi !== null ? (
+                        <span className="den">confiança {percentual(a.confidenceAi)}</span>
                       ) : null}
                     </td>
                     <td className="num">
-                      {a.nota === null ? '—' : `${numero(a.nota, 1)} / ${numero(a.notaMaxima)}`}
-                      {a.conceito ? <span className="den">{a.conceito}</span> : null}
+                      {a.note === null ? '—' : `${numero(a.note, 1)} / ${numero(a.noteMaximum)}`}
+                      {a.concept ? <span className="den">{a.concept}</span> : null}
                     </td>
                     <td>
-                      <span className={a.nota === 0 ? 'etiqueta alerta' : 'etiqueta'}>
+                      <span className={a.note === 0 ? 'etiqueta alerta' : 'etiqueta'}>
                         {LABEL_STATE_EVALUATION[a.state] ?? a.state}
                       </span>
                     </td>

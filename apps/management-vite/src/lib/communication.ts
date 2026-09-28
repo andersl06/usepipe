@@ -58,27 +58,27 @@ export function headerOffset(cabecalho: string): 0 | 1 {
 
 export interface RespostaProntaListada {
   id: string;
-  atalho: string;
-  titulo: string;
-  corpo: string;
-  categoria: string | null;
-  active: boolean;
+  shortcut: string;
+  title: string;
+  body: string;
+  category: string | null;
+  ativa: boolean;
 }
 
 export interface TemplateListed {
   id: string;
   channelId: string;
-  corpo: string;
-  nome: string;
+  body: string;
+  name: string;
   idioma: string;
-  categoria: string;
+  category: string;
   statusMeta: string;
-  cabecalhoTipo: string;
+  headerType: string;
   variables: string[];
   channelName: string;
 }
 
 export interface ChannelWhatsapp {
   id: string;
-  nome: string;
+  name: string;
 }

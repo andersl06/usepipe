@@ -11,7 +11,7 @@
 
 export interface ContractSummary {
   id: string;
-  nome: string;
+  name: string;
   slug: string;
   logoUrl: string | null;
   /** ISO 8601: atravessa o JSON como texto. */
@@ -31,7 +31,7 @@ export interface ContractSummary {
  */
 export interface AccountRole {
   id: string;
-  nome: string;
+  name: string;
 }
 
 export interface ContractMember {
@@ -43,7 +43,7 @@ export interface ContractMember {
    * distinção, com o dado guardado em dois lugares.
    */
   tipo: 'usuario' | 'convite';
-  nome: string;
+  name: string;
   email: string;
   avatarUrl: string | null;
   roleId: string | null;

@@ -107,7 +107,7 @@ export async function salvarNotaInterna(
   atendenteId: string,
   data: Campos,
 ): Promise<Resultado> {
-  const conversationId = String(data.get('conversaId') ?? '');
+  const conversationId = String(data.get('conversationId') ?? '');
   const texto = String(data.get('texto') ?? '').trim();
 
   if (!conversationId) return falha('Conversa não informada.');

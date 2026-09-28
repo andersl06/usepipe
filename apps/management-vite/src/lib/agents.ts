@@ -23,7 +23,7 @@ export function filterAgents(
   const alvo = filter.search.trim().toLowerCase();
   const queues = new Set(filter.queues);
   return agents.filter((a) => {
-    if (alvo && !`${a.nome} ${a.email}`.toLowerCase().includes(alvo)) return false;
+    if (alvo && !`${a.name} ${a.email}`.toLowerCase().includes(alvo)) return false;
     /*
      * One matched queue is enough: an agent in both Support and Finance appears under Support.
      */

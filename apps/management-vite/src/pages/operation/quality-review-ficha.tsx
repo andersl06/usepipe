@@ -34,12 +34,12 @@ export function EvaluationPageRecord() {
   const { id = '' } = useParams();
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
-  const read = useRead<{ fuso: string; ficha: EvaluationRecord }>(
+  const read = useRead<{ fuso: string; record: EvaluationRecord }>(
     `/v1/management/quality-review/${id}`,
   );
   if (read.error instanceof ApiError && read.error.status === 404) return <NaoEncontrado />;
   if (!read.data) return null;
-  const { fuso, ficha } = read.data;
+  const { fuso, record: ficha } = read.data;
 
   const c = ficha.cabecalho;
   const semResposta = ficha.groups.flatMap((g) => g.criterios).filter((x) => x.value === null);
@@ -47,11 +47,11 @@ export function EvaluationPageRecord() {
   return (
     <>
       <div className="board-head">
-        <h2>{c.formulario}</h2>
+        <h2>{c.form}</h2>
         <span className="sub">
-          {c.avaliado ?? 'Sem atendente'} · {c.contact ?? 'Sem contato'} · {c.queue ?? 'Sem fila'} ·
-          avaliada em {dataHora(c.avaliadaEm, fuso)} por{' '}
-          {ROTULO_AVALIADOR[c.avaliadorTipo] ?? c.avaliadorTipo}
+          {c.evaluated ?? 'Sem atendente'} · {c.contact ?? 'Sem contato'} · {c.queue ?? 'Sem fila'} ·
+          avaliada em {dataHora(c.evaluatedAt, fuso)} por{' '}
+          {ROTULO_AVALIADOR[c.evaluatorType] ?? c.evaluatorType}
         </span>
       </div>
 
@@ -60,7 +60,7 @@ export function EvaluationPageRecord() {
           ← Todas as avaliações
         </Link>
         <span className="etiqueta">{LABEL_STATE_EVALUATION[c.state] ?? c.state}</span>
-        {c.categoria ? <span className="etiqueta">{c.categoria}</span> : null}
+        {c.category ? <span className="etiqueta">{c.category}</span> : null}
         {c.sentiment ? <span className="etiqueta">Sentimento {c.sentiment}</span> : null}
       </div>
 
@@ -70,10 +70,10 @@ export function EvaluationPageRecord() {
           <div className="card-rel">
             <span className="r">Nota valendo</span>
             <span className="v">
-              {c.nota === null ? '—' : `${numero(c.nota, 1)} / ${numero(c.notaMaxima)}`}
+              {c.note === null ? '—' : `${numero(c.note, 1)} / ${numero(c.noteMaximum)}`}
             </span>
             <span className="den">
-              {ficha.fatalRejected.length > 0
+              {ficha.fatalRejecteds.length > 0
                 ? 'zerada por critério fatal'
                 : 'sem critério fatal reprovado'}
             </span>
@@ -82,16 +82,16 @@ export function EvaluationPageRecord() {
           <div className="card-rel">
             <span className="r">Antes do critério fatal</span>
             <span className="v">
-              {numero(ficha.notaAntesDoFatal, 1)} / {numero(c.notaMaxima)}
+              {numero(ficha.notaAntesDoFatal, 1)} / {numero(c.noteMaximum)}
             </span>
             <span className="den">soma dos pontos de cada critério — o tamanho do estrago</span>
           </div>
 
           <div className="card-rel">
             <span className="r">Confiança do modelo</span>
-            <span className="v">{c.confiancaIa === null ? '—' : percentual(c.confiancaIa)}</span>
+            <span className="v">{c.confidenceAi === null ? '—' : percentual(c.confidenceAi)}</span>
             <span className="den">
-              {c.avaliadorTipo === 'ia'
+              {c.evaluatorType === 'ia'
                 ? 'a nota da IA é sugestão até a revisão humana'
                 : 'avaliação humana, sem confiança de modelo'}
             </span>
@@ -108,20 +108,20 @@ export function EvaluationPageRecord() {
           </div>
         </div>
 
-        {ficha.fatalRejected.length > 0 ? (
+        {ficha.fatalRejecteds.length > 0 ? (
           <p className="note">
-            <b>Zerada por critério fatal:</b> {ficha.fatalRejected.join(', ')}. Critério fatal
+            <b>Zerada por critério fatal:</b> {ficha.fatalRejecteds.join(', ')}. Critério fatal
             reprovado zera a avaliação inteira, por mais alto que tenha sido o resto — e o resto
             está ali ao lado, em “antes do critério fatal”.
           </p>
         ) : null}
       </section>
 
-      {ficha.resumo ? (
+      {ficha.summary ? (
         <section className="block-rel">
           <h3>O que a conversa foi</h3>
           <div className="card-rel">
-            <p className="sub">{ficha.resumo}</p>
+            <p className="sub">{ficha.summary}</p>
             <span className="den">
               Resumo e classificação da IA
               {ficha.modelClassification ? ` · ${ficha.modelClassification}` : ''} — é a leitura da
@@ -134,7 +134,7 @@ export function EvaluationPageRecord() {
       {ficha.groups.map((g) => (
         <section key={g.id} className="block-rel">
           <h3>
-            {g.nome} <span className="sub">peso {numero(g.peso, 2)}</span>
+            {g.name} <span className="sub">peso {numero(g.peso, 2)}</span>
           </h3>
           <div className="card-rel tabela scroll">
             <table>
@@ -148,7 +148,7 @@ export function EvaluationPageRecord() {
               </thead>
               <tbody>
                 {g.criterios.map((k) => (
-                  <tr key={k.criterioId}>
+                  <tr key={k.criterionId}>
                     <td className="who">
                       {k.criterio}
                       {k.fatal ? <span className="den">critério fatal · zera a nota</span> : null}
@@ -157,10 +157,10 @@ export function EvaluationPageRecord() {
                     <td>
                       <span
                         className={
-                          fatalReprovado(k.tipo, k.fatal, k.value) ? 'etiqueta alerta' : 'etiqueta'
+                          fatalReprovado(k.type, k.fatal, k.value) ? 'etiqueta alerta' : 'etiqueta'
                         }
                       >
-                        {valueLabel(k.tipo, k.value)}
+                        {valueLabel(k.type, k.value)}
                       </span>
                     </td>
                     <td className="num">

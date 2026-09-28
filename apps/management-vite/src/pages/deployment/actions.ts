@@ -43,7 +43,7 @@ function postarJson(caminho: string, corpo: unknown): Promise<Response> {
 
 /** O primeiro passo do cadastro embutido: a `api` gera o estado e diz o modo. */
 export async function startRegistrationEmbedded(): Promise<RegistrationStart> {
-  const resposta = await chamarApi('/v1/channels/whatsapp/estado', { method: 'POST' });
+  const resposta = await chamarApi('/v1/channels/whatsapp/state', { method: 'POST' });
   if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
   return { ok: true, ...((await resposta.json()) as Omit<RegistrationStart, 'ok'>) };
 }
@@ -53,19 +53,19 @@ export async function completeRegistrationEmbedded(
   credentials: RegistrationCredentials,
 ): Promise<ResultadoDaAcao> {
   const resposta = await postarJson('/v1/channels/whatsapp', {
-    codigo: credentials.codigo,
+    code: credentials.codigo,
     waba_id: credentials.wabaId,
     phone_number_id: credentials.numeroId || undefined,
     business_id: credentials.businessId || undefined,
     coexistencia: credentials.coexistencia === true,
-    estado: credentials.state,
+    state: credentials.state,
     canal_id: credentials.channelId,
     fluxo_id: credentials.flowId,
   });
   if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
   const channel = (await resposta.json()) as {
-    numero?: string | null;
-    nome?: string;
+    number?: string | null;
+    name?: string;
     motivo?: string | null;
   };
   atualizarLeituras();
@@ -79,7 +79,7 @@ export async function completeRegistrationEmbedded(
     ok: true,
     message: credentials.channelId
       ? 'Reautorização concluída.'
-      : `WhatsApp conectado: ${channel.numero ?? channel.nome ?? 'número novo'}.`,
+      : `WhatsApp conectado: ${channel.number ?? channel.name ?? 'número novo'}.`,
   };
 }
 
@@ -92,14 +92,14 @@ export async function conectarManual(
     waba_id: campo('wabaId'),
     phone_number_id: campo('numeroId'),
     access_token: campo('token'),
-    nome: campo('nome') || undefined,
+    name: campo('nome') || undefined,
   });
   if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
-  const channel = (await resposta.json()) as { nome?: string; webhookError?: string | null };
+  const channel = (await resposta.json()) as { name?: string; webhookError?: string | null };
   atualizarLeituras();
   return channel.webhookError
     ? { ok: true, message: `Canal criado, mas o webhook falhou: ${channel.webhookError}` }
-    : { ok: true, message: `Canal ${channel.nome ?? ''} conectado.` };
+    : { ok: true, message: `Canal ${channel.name ?? ''} conectado.` };
 }
 
 export async function convidar(
@@ -108,7 +108,7 @@ export async function convidar(
 ): Promise<ResultadoDaAcao> {
   const resposta = await postarJson('/v1/convites', {
     email: String(data.get('email') ?? '').trim(),
-    papel: String(data.get('papel') ?? '').trim(),
+    role: String(data.get('papel') ?? '').trim(),
   });
   if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
   const invitation = (await resposta.json()) as { email: string; url: string };

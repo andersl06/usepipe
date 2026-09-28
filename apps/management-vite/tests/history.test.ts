@@ -22,12 +22,12 @@ const linha = (parcial: Partial<HistoryRow> = {}): HistoryRow => ({
   contactName: 'Contato',
   queueName: 'Suporte',
   agentName: 'Ana',
-  encerradaEm: '2026-09-05T19:22:00.000Z',
+  closedAt: '2026-09-05T19:22:00.000Z',
   status: 'finalizada',
   esperaSeg: 10,
   firstResponseSeg: 20,
   attendanceSeg: 30,
-  etiquetas: [],
+  labels: [],
   ...parcial,
 });
 
@@ -102,7 +102,7 @@ test('by tag, the conversation enters every tag it has', () => {
    * By design the groups' sum exceeds the total: the question is "how many conversations touched this tag", not "how do I split the total". If someone "fixes" this, the per-tag count starts undercounting.
    */
   const groups = groupHistory(
-    [linha({ etiquetas: ['Elogio', 'Reclamação'] }), linha({ id: 'b', etiquetas: [] })],
+    [linha({ labels: ['Elogio', 'Reclamação'] }), linha({ id: 'b', labels: [] })],
     'etiqueta',
   );
   assert.deepEqual(groups.map((g) => g.titulo).sort(), ['Elogio', 'Reclamação', 'Sem etiqueta']);

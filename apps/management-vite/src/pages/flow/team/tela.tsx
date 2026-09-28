@@ -212,7 +212,7 @@ function ModalDeAdicionar({
       });
       atualizarLeituras();
       if (role === 'personalizado') {
-        navegar(`editar/${member.userId}`);
+        navegar(`edit/${member.userId}`);
       } else {
         aoFechar();
       }
@@ -421,12 +421,12 @@ export function TelaDeEquipe({
             /*
              * The origin's `editUser(user)`: the whole card (`<a class="no-decoration">`) and the pencil icon open the SAME edit view.
              */
-            onClick={podeGerir ? () => navegar(`editar/${member.userId}`) : undefined}
+            onClick={podeGerir ? () => navegar(`edit/${member.userId}`) : undefined}
             onKeyDown={
               podeGerir
                 ? (evento) => {
                     if (evento.target === evento.currentTarget && evento.key === 'Enter') {
-                      navegar(`editar/${member.userId}`);
+                      navegar(`edit/${member.userId}`);
                     }
                   }
                 : undefined
@@ -468,7 +468,7 @@ export function TelaDeEquipe({
                         aria-label={`Editar ${member.nome}`}
                         onClick={(evento) => {
                           evento.stopPropagation();
-                          navegar(`editar/${member.userId}`);
+                          navegar(`edit/${member.userId}`);
                         }}
                       >
                         <IconePortal nome="editar" tamanho={20} />

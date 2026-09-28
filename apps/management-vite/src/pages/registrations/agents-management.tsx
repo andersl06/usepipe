@@ -88,13 +88,13 @@ export function AgentsPageManagement() {
               type="checkbox"
               checked={selecionados.has(a.id)}
               onChange={() => toggleSelection(a.id)}
-              aria-label={`Selecionar ${a.nome}`}
+              aria-label={`Selecionar ${a.name}`}
             />
-            <Avatar nome={a.nome} />
+            <Avatar nome={a.name} />
           </span>
         ),
         campos: [
-          { rotulo: 'Atendente', value: a.nome },
+          { rotulo: 'Atendente', value: a.name },
           { rotulo: 'E-mail', value: a.email },
           { rotulo: 'Filas', value: queuesInCard(a.queues) },
           {
@@ -103,23 +103,23 @@ export function AgentsPageManagement() {
             classe: 'num',
           },
         ],
-        situation: a.ativo ? 'Ativo' : 'Desativado',
+        situation: a.active ? 'Ativo' : 'Desativado',
         /*
          * The source has no status column (ficha §d.2: "go back to 4 columns") — `ativa` would only decide `Cartao`'s badge, and since the three actions always exist here, it never shows up anyway.
          */
-        active: a.ativo,
+        active: a.active,
         acao: (
           <>
-            <BotaoDeIcone nome="lapis" rotulo={`Editar ${a.nome}`} onClick={() => irForEdit([a.id])} />
+            <BotaoDeIcone nome="lapis" rotulo={`Editar ${a.name}`} onClick={() => irForEdit([a.id])} />
             <BotaoDeIcone
               nome="chave"
-              rotulo={`Permissões de ${a.nome}`}
+              rotulo={`Permissões de ${a.name}`}
               onClick={() => irForPermissions([a.id])}
             />
-            <BotaoDeIcone nome="x" rotulo={`Excluir ${a.nome}`} onClick={() => setParaExcluir(a)} />
+            <BotaoDeIcone nome="x" rotulo={`Excluir ${a.name}`} onClick={() => setParaExcluir(a)} />
           </>
         ),
-        procura: `${a.nome} ${a.email}`.toLowerCase(),
+        procura: `${a.name} ${a.email}`.toLowerCase(),
       })),
     },
   ];
@@ -174,7 +174,7 @@ export function AgentsPageManagement() {
         titulo="Excluir atendente"
         message={
           <>
-            Tirar "{paraExcluir?.nome}" de todas as filas? A pessoa deixa de receber conversa e continua com a
+            Tirar "{paraExcluir?.name}" de todas as filas? A pessoa deixa de receber conversa e continua com a
             conta.
           </>
         }

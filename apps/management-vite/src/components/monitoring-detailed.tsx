@@ -91,7 +91,7 @@ function classeDaLinha(linha: ConversationOpenRow): string | undefined {
  */
 function PillPriority({ nivel }: { nivel: string }) {
   const rotulo = LABELS_PRIORITY[nivel as LevelPriority] ?? nivel;
-  const tinta = nivel === 'maxima' ? ' erro' : nivel === 'alta' ? ' alerta' : '';
+  const tinta = nivel === 'maxima' ? ' error' : nivel === 'alta' ? ' alerta' : '';
   return <span className={`etiqueta${tinta}`}>{rotulo}</span>;
 }
 

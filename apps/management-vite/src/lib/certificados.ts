@@ -13,16 +13,16 @@ export interface HostDoCertificado {
  */
 export type StatusDoCertificado = 'valido' | 'expirado' | 'sem_arquivo';
 
-/** `GET /v1/gestao/contrato/certificados` returns Portuguese field names but never returns file or password. */
+/** `GET /v1/gestao/contrato/certificados` never returns file or password. */
 export interface CertificadoMtls {
   id: string;
   description: string;
   /** ISO 8601. Lida do `.pfx` pela `api`. */
-  expiraEm: string;
+  expiresAt: string;
   /** SHA-256 `AB:CD:…`, lida do `.pfx`. */
   impressaoDigital: string;
-  emissor: string | null;
-  sujeito: string | null;
+  issuer: string | null;
+  subject: string | null;
   status: StatusDoCertificado;
   hosts: HostDoCertificado[];
 }

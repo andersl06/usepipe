@@ -13,24 +13,24 @@ export interface HistoryRow {
   contactName: string;
   queueName: string | null;
   agentName: string | null;
-  encerradaEm: string | null;
+  closedAt: string | null;
   status: StatusClosure | null;
   esperaSeg: number | null;
   firstResponseSeg: number | null;
   attendanceSeg: number | null;
-  etiquetas: string[];
+  labels: string[];
 }
 
 export interface HistoryFilter {
   queueId?: string | undefined;
   agentId?: string | undefined;
-  etiquetaId?: string | undefined;
+  labelId?: string | undefined;
 }
 
 export interface Catalogos {
-  queues: { id: string; nome: string }[];
-  agents: { id: string; nome: string }[];
-  etiquetas: { id: string; nome: string }[];
+  queues: { id: string; name: string }[];
+  agents: { id: string; name: string }[];
+  labels: { id: string; name: string }[];
 }
 
 /** Teto de linhas: o histórico é uma tela de consulta, não de exportação. */
@@ -114,7 +114,7 @@ export function groupHistory(
     if (by === 'status') {
       return [l.status ? (ROTULO_DESFECHO[l.status] ?? l.status) : 'Sem desfecho'];
     }
-    return l.etiquetas.length > 0 ? l.etiquetas : ['Sem etiqueta'];
+    return l.labels.length > 0 ? l.labels : ['Sem etiqueta'];
   };
 
   const mapa = new Map<string, HistoryRow[]>();

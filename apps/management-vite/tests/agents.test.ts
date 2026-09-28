@@ -21,7 +21,7 @@ function pessoa(
   queues: string[],
   limiteSimultaneo: number | null = 5,
 ): AgentRegistered {
-  return { id: nome, nome, email, ativo: true, state: 'online', queues, limiteSimultaneo };
+  return { id: nome, name: nome, email, active: true, state: 'online', queues, limiteSimultaneo };
 }
 
 const LISTA = [
@@ -33,29 +33,29 @@ const LISTA = [
 
 test('search matches by name and email, case-insensitively', () => {
   assert.deepEqual(
-    filterAgents(LISTA, { search: 'ANA sou', queues: [] }).map((a) => a.nome),
+    filterAgents(LISTA, { search: 'ANA sou', queues: [] }).map((a) => a.name),
     ['Ana Souza'],
   );
   assert.deepEqual(
-    filterAgents(LISTA, { search: 'carla.menezes@pipe', queues: [] }).map((a) => a.nome),
+    filterAgents(LISTA, { search: 'carla.menezes@pipe', queues: [] }).map((a) => a.name),
     ['Carla Menezes'],
   );
 });
 
 test('the queue filter is OR: whoever is in Support shows up even if also in Default', () => {
   assert.deepEqual(
-    filterAgents(LISTA, { search: '', queues: ['Suporte'] }).map((a) => a.nome),
+    filterAgents(LISTA, { search: '', queues: ['Suporte'] }).map((a) => a.name),
     ['Ana Souza', 'Bruno Dias'],
   );
   assert.deepEqual(
-    filterAgents(LISTA, { search: '', queues: ['Suporte', 'Financeiro'] }).map((a) => a.nome),
+    filterAgents(LISTA, { search: '', queues: ['Suporte', 'Financeiro'] }).map((a) => a.name),
     ['Ana Souza', 'Bruno Dias', 'Carla Menezes'],
   );
 });
 
 test('search and filter add up, and no queue checked means all of them', () => {
   assert.deepEqual(
-    filterAgents(LISTA, { search: 'a', queues: ['Financeiro'] }).map((a) => a.nome),
+    filterAgents(LISTA, { search: 'a', queues: ['Financeiro'] }).map((a) => a.name),
     ['Carla Menezes'],
   );
   assert.equal(filterAgents(LISTA, { search: '   ', queues: [] }).length, 4);

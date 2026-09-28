@@ -17,7 +17,7 @@ interface SatisfactionResponse {
   fuso: string;
   de: string;
   ate: string;
-  report: ReportSatisfaction;
+  relatorio: ReportSatisfaction;
 }
 
 interface Search {
@@ -33,7 +33,7 @@ function rotuloDoTipo(tipo: string): string {
 }
 
 function escalaDe(grupo: GroupSatisfaction): string {
-  return `${rotuloDoTipo(grupo.tipo)}, escala ${numero(grupo.escalaMin)} a ${numero(grupo.escalaMax)}`;
+  return `${rotuloDoTipo(grupo.type)}, escala ${numero(grupo.escalaMin)} a ${numero(grupo.escalaMax)}`;
 }
 
 /**
@@ -83,7 +83,7 @@ export function PageSatisfaction() {
   const read = useRead<SatisfactionResponse>(`/v1/management/reports/satisfaction?${q}`);
   const [panelOpen, setPanelOpen] = useState(false);
   if (!read.data) return null;
-  const { fuso, de, ate, report } = read.data;
+  const { fuso, de, ate, relatorio: report } = read.data;
   const groups = report.groups;
   const aba = abaValida(crus.aba);
   const hrefAba = (key: Aba) => {
@@ -92,7 +92,7 @@ export function PageSatisfaction() {
     return `${base}/reports/satisfaction?${p}`;
   };
 
-  const totalRespostas = groups.reduce((t, g) => t + g.respostas, 0);
+  const totalRespostas = groups.reduce((t, g) => t + g.responses, 0);
   const taxa = report.encerradas > 0 ? totalRespostas / report.encerradas : null;
   const unico = groups.length === 1 ? groups[0] : undefined;
   const averagesByScale = groups.map((g) => `${escalaDe(g)}: ${numero(g.media, 2)}`).join(' · ');
@@ -188,7 +188,7 @@ export function PageSatisfaction() {
               </div>
             ) : (
               groups.map((g) => (
-                <div key={`${g.tipo}-${g.escalaMin}-${g.escalaMax}`} className="scroll" style={{ marginTop: 20 }}>
+                <div key={`${g.type}-${g.escalaMin}-${g.escalaMax}`} className="scroll" style={{ marginTop: 20 }}>
                   <table>
                     <thead>
                       <tr>
@@ -199,8 +199,8 @@ export function PageSatisfaction() {
                     </thead>
                     <tbody>
                       {g.classes.map((c) => (
-                        <tr key={c.nome}>
-                          <td className="who">{c.nome}</td>
+                        <tr key={c.name}>
+                          <td className="who">{c.name}</td>
                           <td className="num">{numero(c.quantity)}</td>
                           <td className="num">{percentual(c.fraction)}</td>
                         </tr>
@@ -305,8 +305,8 @@ export function PageSatisfaction() {
                       {/*
  * The score travels with its scale in the `title`: a bare 4 doesn't say whether it's near the ceiling or a detractor.
  */}
-                      <td className="num" title={`${rotuloDoTipo(c.tipo)}, escala ${numero(c.escalaMin)} a ${numero(c.escalaMax)}`}>
-                        {numero(c.nota)}
+                      <td className="num" title={`${rotuloDoTipo(c.type)}, escala ${numero(c.escalaMin)} a ${numero(c.escalaMax)}`}>
+                        {numero(c.note)}
                       </td>
                       <td>{c.classe ?? '—'}</td>
                       <td className="comentario">{c.texto}</td>

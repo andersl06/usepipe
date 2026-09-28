@@ -11,7 +11,7 @@ export const TYPES_AUTHENTICATION = ['nenhuma', 'basica', 'oauth2_client_credent
 export type TypeAuthentication = (typeof TYPES_AUTHENTICATION)[number];
 
 export interface AuthenticationVisible {
-  tipo: TypeAuthentication;
+  type: TypeAuthentication;
   user: string | null;
   urlAuthorization: string | null;
   clientId: string | null;

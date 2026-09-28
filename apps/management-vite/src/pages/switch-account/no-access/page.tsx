@@ -16,7 +16,7 @@ export function PageNoAccess() {
   const slug = (search.get('para') ?? '').trim().toLowerCase();
   const read = useRead<AccountInList[]>('/v1/accounts/my');
   const accounts = read.data ?? [];
-  const emVigor = accounts.find((c) => c.emVigor);
+  const emVigor = accounts.find((c) => c.inForce);
 
   return (
     <main className="entry-step">
@@ -35,7 +35,7 @@ export function PageNoAccess() {
 
         <div className="bv-acao">
           <Link href={emVigor ? '/portal' : '/welcome'}>
-            {emVigor ? `Voltar para ${emVigor.nome}` : 'Voltar'}
+            {emVigor ? `Voltar para ${emVigor.name}` : 'Voltar'}
           </Link>
         </div>
       </section>

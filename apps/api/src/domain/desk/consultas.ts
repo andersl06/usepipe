@@ -252,7 +252,7 @@ export async function listarRespostasProntas(
   atendenteId: string,
 ): Promise<RespostaProntaDoDesk[]> {
   const { rows } = await tx.execute<Linha<RespostaProntaDoDesk>>(sql`
-    select id, escopo, categoria, atalho, titulo, corpo
+    select id, escopo as "scope", categoria, atalho, titulo, corpo
       from resposta_pronta
      where ativa
        and (escopo = 'empresa' or usuario_id = ${atendenteId})
@@ -266,7 +266,7 @@ export async function listarTemplatesAprovados(
   channelId: string,
 ): Promise<TemplateAprovado[]> {
   const { rows } = await tx.execute<Linha<TemplateAprovado>>(sql`
-    select id, nome, categoria, corpo, variaveis
+    select id, nome, categoria, corpo, variaveis as "variables"
       from template_mensagem
      where canal_id = ${channelId}
        and status_meta = 'aprovado'

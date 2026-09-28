@@ -1,0 +1,2 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+fx-8,app,1,wire-key,nome,name,front.ts:1,1,no,,,applied,fixture,

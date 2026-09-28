@@ -20,7 +20,7 @@ function regra(
   scopeId: string | null,
   nivel = 'alta',
 ): PriorityRule {
-  return { id, nome, nivel, scopeType, scopeId, condition: {}, active: true };
+  return { id, name: nome, level: nivel, scopeType, scopeId, condition: {}, ativa: true };
 }
 
 const TODAS = [
@@ -32,7 +32,7 @@ const TODAS = [
 
 test('the queue\'s section only sees that queue\'s rules', () => {
   assert.deepEqual(
-    queueRules(TODAS, 'fila-suporte').map((r) => r.nome),
+    queueRules(TODAS, 'fila-suporte').map((r) => r.name),
     ['VIP', 'Fila de segunda'],
   );
   assert.deepEqual(queueRules(TODAS, 'fila-sem-regra'), []);
@@ -44,7 +44,7 @@ test('a tenant-scoped rule does not appear in the queue\'s section', () => {
     false,
   );
   assert.deepEqual(
-    regrasDoTenant(TODAS).map((r) => r.nome),
+    regrasDoTenant(TODAS).map((r) => r.name),
     ['Cliente antigo'],
   );
 });

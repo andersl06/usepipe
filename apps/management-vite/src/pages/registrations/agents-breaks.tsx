@@ -12,7 +12,7 @@ import { Modal, ModalConfirmation } from './_modal';
  * Only "Excluir" — the source has no toggle or edit on this row, and no "Resultados por página" in the footer (`FICHA-atendentes-filas-pausas.md` §a.5 and §b.3: "There's no edit icon, no toggle" / "just the arrows + page number + counter"). `alternarMotivoPausa` (`cadastros-gravar.ts`) goes unused on this screen for that reason — it wasn't deleted because the `PATCH .../pausas/:id` route is still valid and tested.
  */
 function ReasonActions({ motivo, onExcluir }: { motivo: MotivoDePausa; onExcluir: () => void }) {
-  return <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.nome}`} onClick={onExcluir} />;
+  return <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.name}`} onClick={onExcluir} />;
 }
 
 /**
@@ -48,16 +48,16 @@ export function PageBreaks() {
       cards: motivos.map((m) => ({
         id: m.id,
         campos: [
-          { rotulo: 'Nome da pausa', value: m.nome },
+          { rotulo: 'Nome da pausa', value: m.name },
           {
             rotulo: 'Duração',
             value: m.durationSuggestedMin === null ? '—' : `${numero(m.durationSuggestedMin)} minutos`,
           },
         ],
-        situation: m.ativo ? 'Ativo' : 'Desativado',
-        active: m.ativo,
+        situation: m.active ? 'Ativo' : 'Desativado',
+        active: m.active,
         acao: <ReasonActions motivo={m} onExcluir={() => setMotivoParaExcluir(m)} />,
-        procura: m.nome.toLowerCase(),
+        procura: m.name.toLowerCase(),
       })),
     },
   ];
@@ -104,7 +104,7 @@ export function PageBreaks() {
       <ModalConfirmation
         aberto={motivoParaExcluir !== null}
         titulo="Excluir motivo"
-        message={<>Excluir o motivo "{motivoParaExcluir?.nome}"? Esta ação não pode ser desfeita.</>}
+        message={<>Excluir o motivo "{motivoParaExcluir?.name}"? Esta ação não pode ser desfeita.</>}
         error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}

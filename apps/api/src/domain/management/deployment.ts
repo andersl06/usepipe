@@ -54,8 +54,8 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
       number: string | null;
       reauthorization: boolean;
     }>(sql`
-      select id, nome as "name", ativo as "active", numero_id, config->>'numero' as numero,
-             coalesce(config->>'reautorizacaoPendente', 'false') = 'true' as reautorizacao
+      select id, nome as "name", ativo as "active", numero_id, config->>'numero' as "number",
+             coalesce(config->>'reautorizacaoPendente', 'false') = 'true' as "reauthorization"
         from canal
        where tipo = 'whatsapp_cloud'
        order by criado_em
@@ -63,14 +63,14 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
 
     const pessoas = await um<{ convites: string; members: string }>(sql`
       select (select count(*) from convite)::text as convites,
-             (select count(*) from usuario where ativo)::text as membros
+             (select count(*) from usuario where ativo)::text as "members"
     `);
 
     const queues = await um<{ ativas: string; withAgent: string }>(sql`
       select count(*) filter (where f.ativa)::text as ativas,
              count(*) filter (
                where f.ativa and exists (select 1 from fila_atendente fa where fa.fila_id = f.id)
-             )::text as com_atendente
+             )::text as "withAgent"
         from fila f
     `);
 

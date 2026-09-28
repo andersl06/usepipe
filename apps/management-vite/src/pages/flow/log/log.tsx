@@ -34,8 +34,8 @@ interface LinhaDoLog {
   id: string;
   criadaEm: string;
   direction: string;
-  tipo: string;
-  conteudo: string | null;
+  type: string;
+  content: string | null;
   metadata: unknown;
   de: string | null;
   para: string | null;
@@ -130,8 +130,8 @@ export function PageLog() {
           data: new Date(log.criadaEm).toLocaleString('sv-SE'),
           de: log.de ?? '',
           para: log.para ?? '',
-          tipo: log.tipo,
-          conteudo: log.conteudo ?? '',
+          tipo: log.type,
+          conteudo: log.content ?? '',
           /* `formatMessages`: `JSON.stringify(e.metadata, void 0, 2)` */
           metadata: log.metadata ? JSON.stringify(log.metadata, undefined, 2) : null,
         }))}

@@ -28,7 +28,7 @@ export interface DeploymentSignals {
   lastImport: {
     id: string;
     state: string;
-    aceitos: number;
+    accepted: number;
     rejeitados: number;
     temFalhas: boolean;
   } | null;
@@ -86,8 +86,8 @@ function contactsStep(
       ? `, ${quantos(ultima.rejeitados, 'linha rejeitada', 'linhas rejeitadas')}`
       : '';
   return {
-    state: ultima.aceitos > 0 ? 'feito' : 'pendente',
-    resumo: `${quantos(ultima.aceitos, 'contato importado', 'contatos importados')}${rejeitadas}.`,
+    state: ultima.accepted > 0 ? 'feito' : 'pendente',
+    resumo: `${quantos(ultima.accepted, 'contato importado', 'contatos importados')}${rejeitadas}.`,
   };
 }
 

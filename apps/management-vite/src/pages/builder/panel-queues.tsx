@@ -25,7 +25,7 @@ export function QueuesPanel({
   const navegar = useNavigate();
   const read = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
   const queues = read.data?.queues ?? [];
-  const active = queues.filter((q) => q.active).length;
+  const active = queues.filter((q) => q.ativa).length;
   return (
     <aside className="bl-panel" aria-label="Gerenciamento de Filas">
       <div className="bl-panel-header">
@@ -47,7 +47,7 @@ export function QueuesPanel({
         <Botao
           type="button"
           variante="primario"
-          onClick={() => navegar(`${attendanceBase(contactType, contactId)}/atendentes/filas`)}
+          onClick={() => navegar(`${attendanceBase(contactType, contactId)}/agents/queues`)}
         >
           Abrir gerenciamento de filas
         </Botao>

@@ -18,7 +18,7 @@ function ResponseActions({
   onExcluir: () => void;
 }) {
   const alternar = async () => {
-    const r = await alternarRespostaPronta(resposta.id, resposta.active);
+    const r = await alternarRespostaPronta(resposta.id, resposta.ativa);
     if (!r.ok) onErrorToggle(r.error);
   };
   return (
@@ -27,16 +27,16 @@ function ResponseActions({
         type="button"
         className="interruptor"
         role="switch"
-        aria-checked={resposta.active}
+        aria-checked={resposta.ativa}
         aria-label={
-          resposta.active ? `Desativar a resposta ${resposta.titulo}` : `Ativar a resposta ${resposta.titulo}`
+          resposta.ativa ? `Desativar a resposta ${resposta.title}` : `Ativar a resposta ${resposta.title}`
         }
-        title={resposta.active ? 'Desativar esta resposta' : 'Ativar esta resposta'}
+        title={resposta.ativa ? 'Desativar esta resposta' : 'Ativar esta resposta'}
         onClick={() => void alternar()}
       >
         <span className="interruptor-bolinha" />
       </button>
-      <BotaoDeIcone nome="x" rotulo={`Excluir a resposta ${resposta.titulo}`} onClick={onExcluir} />
+      <BotaoDeIcone nome="x" rotulo={`Excluir a resposta ${resposta.title}`} onClick={onExcluir} />
     </>
   );
 }
@@ -75,13 +75,13 @@ export function PageCannedResponses() {
       cards: respostas.map((r) => ({
         id: r.id,
         campos: [
-          { rotulo: 'Atalho', value: `#${r.atalho}` },
-          { rotulo: 'Título', value: r.titulo },
-          { rotulo: 'Fila / canal', value: r.categoria ?? '—' },
-          { rotulo: 'Corpo', value: r.corpo },
+          { rotulo: 'Atalho', value: `#${r.shortcut}` },
+          { rotulo: 'Título', value: r.title },
+          { rotulo: 'Fila / canal', value: r.category ?? '—' },
+          { rotulo: 'Corpo', value: r.body },
         ],
-        situation: r.active ? 'Ativa' : 'Desativada',
-        active: r.active,
+        situation: r.ativa ? 'Ativa' : 'Desativada',
+        active: r.ativa,
         acao: (
           <ResponseActions
             resposta={r}
@@ -89,7 +89,7 @@ export function PageCannedResponses() {
             onExcluir={() => setRespostaParaExcluir(r)}
           />
         ),
-        procura: `${r.titulo} ${r.atalho}`.toLowerCase(),
+        procura: `${r.title} ${r.shortcut}`.toLowerCase(),
       })),
     },
   ];
@@ -124,7 +124,7 @@ export function PageCannedResponses() {
         aberto={respostaParaExcluir !== null}
         titulo="Excluir resposta"
         message={
-          <>Excluir a resposta "{respostaParaExcluir?.titulo}"? Esta ação não pode ser desfeita.</>
+          <>Excluir a resposta "{respostaParaExcluir?.title}"? Esta ação não pode ser desfeita.</>
         }
         error={errorDeletion}
         confirmando={excluindo}

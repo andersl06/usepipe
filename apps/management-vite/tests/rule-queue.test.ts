@@ -17,19 +17,19 @@ import {
 
 const regra = (parcial: Partial<QueueRule> = {}): QueueRule => ({
   id: 'r1',
-  nome: 'Regra 1',
+  name: 'Regra 1',
   order: 0,
-  combinador: 'e',
+  combiner: 'e',
   queueDestinationId: 'f1',
   queueDestinationName: 'Suporte',
   active: true,
-  conditions: [{ campo: 'mensagem', operador: 'contem', value: 'boleto' }],
+  conditions: [{ field: 'mensagem', operator: 'contem', value: 'boleto' }],
   ...parcial,
 });
 
 const context = {
   message: 'Preciso da segunda via do BOLETO',
-  contact: { nome: 'Ana Maria', email: 'ana@empresa.com.br', atributos: { plano: 'ouro' } },
+  contact: { name: 'Ana Maria', email: 'ana@empresa.com.br', atributos: { plano: 'ouro' } },
 };
 
 test('the first matching rule wins, and the order is the one on the screen', () => {
@@ -65,19 +65,19 @@ test('regra desativada não é avaliada, mesmo casando', () => {
 
 test('the AND combinator requires every condition', () => {
   const todas = regra({
-    combinador: 'e',
+    combiner: 'e',
     conditions: [
-      { campo: 'mensagem', operador: 'contem', value: 'boleto' },
-      { campo: 'contato.email', operador: 'contem', value: '@empresa' },
+      { field: 'mensagem', operator: 'contem', value: 'boleto' },
+      { field: 'contato.email', operator: 'contem', value: '@empresa' },
     ],
   });
   assert.ok(destinationQueue([todas], context));
 
   const uma = regra({
-    combinador: 'e',
+    combiner: 'e',
     conditions: [
-      { campo: 'mensagem', operador: 'contem', value: 'boleto' },
-      { campo: 'contato.email', operador: 'contem', value: '@gmail' },
+      { field: 'mensagem', operator: 'contem', value: 'boleto' },
+      { field: 'contato.email', operator: 'contem', value: '@gmail' },
     ],
   });
   assert.equal(destinationQueue([uma], context), null);
@@ -85,10 +85,10 @@ test('the AND combinator requires every condition', () => {
 
 test('the OR combinator only needs one condition', () => {
   const ou = regra({
-    combinador: 'ou',
+    combiner: 'ou',
     conditions: [
-      { campo: 'mensagem', operador: 'contem', value: 'cancelamento' },
-      { campo: 'contato.email', operador: 'contem', value: '@empresa' },
+      { field: 'mensagem', operator: 'contem', value: 'cancelamento' },
+      { field: 'contato.email', operator: 'contem', value: '@empresa' },
     ],
   });
   assert.ok(destinationQueue([ou], context));
@@ -96,7 +96,7 @@ test('the OR combinator only needs one condition', () => {
 
 test('the contact\'s extra field is read via a dotted path', () => {
   const extra = regra({
-    conditions: [{ campo: 'contato.atributos.plano', operador: 'igual', value: 'Ouro' }],
+    conditions: [{ field: 'contato.atributos.plano', operator: 'igual', value: 'Ouro' }],
   });
   // Case and accent don't count: normalization is `@pipe/core`'s.
   assert.ok(destinationQueue([extra], context));
@@ -115,7 +115,7 @@ test('regra idêntica abaixo de outra é inalcançável — a de cima vence semp
     regra({
       id: 'outra',
       order: 3,
-      conditions: [{ campo: 'mensagem', operador: 'contem', value: 'nota' }],
+      conditions: [{ field: 'mensagem', operator: 'contem', value: 'nota' }],
     }),
   ]);
   assert.deepEqual(mortas, ['sombra']);
@@ -132,10 +132,10 @@ test('the rule is spelled out in full with the combinator visible', () => {
   assert.equal(
     descreverRegra(
       regra({
-        combinador: 'ou',
+        combiner: 'ou',
         conditions: [
-          { campo: 'mensagem', operador: 'contem', value: 'boleto' },
-          { campo: 'contato.atributos.plano', operador: 'igual', value: 'ouro' },
+          { field: 'mensagem', operator: 'contem', value: 'boleto' },
+          { field: 'contato.atributos.plano', operator: 'igual', value: 'ouro' },
         ],
       }),
     ),

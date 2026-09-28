@@ -583,7 +583,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                             {rotuloDoEvento(evento)}
                           </span>
                         ))}
-                        <span className="ig-chip">{authenticationLabel(webhook.authentication.tipo)}</span>
+                        <span className="ig-chip">{authenticationLabel(webhook.authentication.type)}</span>
                         {webhook.cabecalhos.length > 0 ? (
                           <span className="ig-chip">
                             {webhook.cabecalhos.length}{' '}

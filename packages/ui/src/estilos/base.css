@@ -13,7 +13,7 @@
  *      places, and only two: tabular numbers (`.num`) and section labels (`.lbl`).
  *    - `.etiqueta` (the former `.pill`) is born NEUTRAL and is Pipe's only tag
  *      component, with a clickable variant. Queue, channel, source and phase have
- *      no color. Status color is `.etiqueta.erro` / `.alerta` / `.sucesso` /
+ *      no color. Status color is `.etiqueta.error` / `.alerta` / `.sucesso` /
  *      `.info`, and only appears on what demands action.
  *    - The body goes from 13px to 14px, and the whole scale to 16/14/12 (+10),
  *      which is the measurement from Blip. The table row follows: 34px to 36px.

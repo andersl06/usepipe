@@ -132,6 +132,14 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+describe('start embedded registration (POST /v1/channels/whatsapp/state)', () => {
+  it('returns state under the English key the front reads', async () => {
+    const resposta = await controller.iniciar(request(A));
+    expect(resposta['state']).toBeTruthy();
+    expect(resposta['estado']).toBeUndefined();
+  });
+});
+
 describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o dublê', () => {
   it('Create the channel and inbox, encrypt its token, and point the number webhook to its route', async () => {
     const canal = await conectar(A, { code: `ok-${S}` });
@@ -480,6 +488,34 @@ describe('Validate manual channel configuration (`manual_setup_validation_servic
     expect(chamadas('limpar_override')).toHaveLength(1);
     expect(chamadas('descadastrar')).toHaveLength(0);
     expect(chamadas('desassinar')).toHaveLength(0);
+  });
+
+  it('rejects a number already connected to another inbox with the number message, not the Phone Number ID one', async () => {
+    // The double derives the returned phone number from the TOKEN's own suffix
+    // (`numeroDoToken`), so both calls need a matching token/numberId pair of their own —
+    // independent of `base()` — to reuse the exact same number on purpose.
+    const numberId = ClienteGraphDuble.sufixo(`ja-conectado-${S}`);
+    const pedidoDuplicado = {
+      tenantId: A.tenantId,
+      userId: A.adminId,
+      wabaId: 'waba-duplicado',
+      numberId,
+      token: `manual-${numberId}`,
+      appSecret,
+    };
+    const primeiro = await runConfigurationManual({ ...pedidoDuplicado, name: 'Primeira caixa' });
+    expect(primeiro.channel.config['numero']).toBeTruthy();
+
+    // Same WABA/numberId/token, no channelId: a brand-new inbox trying to claim a number
+    // that is already connected elsewhere, not a reconnection of the same inbox.
+    await expect(
+      runConfigurationManual({ ...pedidoDuplicado, name: 'Segunda caixa' }),
+    ).rejects.toMatchObject({
+      message: 'Este número de WhatsApp já está conectado a outra caixa de entrada.',
+    });
+
+    ClienteGraphDuble.reiniciar();
+    await desconectarWhatsApp(A.tenantId, A.adminId, primeiro.channel.id);
   });
 });
 

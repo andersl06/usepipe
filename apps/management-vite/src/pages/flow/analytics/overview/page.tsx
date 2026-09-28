@@ -19,7 +19,7 @@ import './visao-geral.css';
  * padrão (não manda `de`/`ate`).
  */
 interface RespostaDaVisaoGeral {
-  data: DadosDaVisaoGeral;
+  dados: DadosDaVisaoGeral;
   de: string;
   ate: string;
 }
@@ -59,8 +59,8 @@ export function OverviewPage() {
     `/v1/management/flows/${contact.id}/analytics/view-overview?${q.toString()}`,
   );
   if (!read.data) return null;
-  const { data, de, ate } = read.data;
+  const { dados, de, ate } = read.data;
   return (
-    <VisaoGeral data={data} de={de} ate={ate} aoAplicarPeriodo={(de, ate) => setPeriodo({ de, ate })} />
+    <VisaoGeral data={dados} de={de} ate={ate} aoAplicarPeriodo={(de, ate) => setPeriodo({ de, ate })} />
   );
 }

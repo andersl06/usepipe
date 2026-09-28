@@ -111,29 +111,29 @@ export function PageDeployment() {
           {channels.length === 0 ? null : (
             <div className="list-cards">
               {channels.map((c) => {
-                const precisaReconectar = !c.ativo || c.reauthorizationPending;
+                const precisaReconectar = !c.active || c.reauthorizationPending;
                 return (
                   <article key={c.id} className="card-list">
                     <span />
                     <div className="cl-campos" style={{ '--cl-colunas': 2 } as React.CSSProperties}>
                       <div className="cl-campo">
                         <span className="r">Canal</span>
-                        <span className="v">{c.nome}</span>
+                        <span className="v">{c.name}</span>
                       </div>
                       <div className="cl-campo">
                         <span className="r">Número</span>
-                        <span className="v">{c.numero ?? 'Sem número'}</span>
+                        <span className="v">{c.number ?? 'Sem número'}</span>
                       </div>
                     </div>
                     <div className="cl-actions">
                       <Etiqueta tom={precisaReconectar ? 'alerta' : 'sucesso'}>
-                        {!c.ativo
+                        {!c.active
                           ? 'Desligado'
                           : c.reauthorizationPending
                             ? 'Reautorizar'
                             : 'Conectado'}
                       </Etiqueta>
-                      {precisaReconectar && c.numero ? (
+                      {precisaReconectar && c.number ? (
                         <ConectarWhatsApp channelId={c.id} rotulo="Reconectar" variante="padrao" />
                       ) : null}
                     </div>
@@ -169,7 +169,7 @@ export function PageDeployment() {
           {ultima ? (
             <p className="note">
               Última importação: <b>{LABEL_IMPORT[ultima.state] ?? ultima.state}</b>,{' '}
-              {numero(ultima.aceitos)} aceito(s) e {numero(ultima.rejeitados)} rejeitado(s).{' '}
+              {numero(ultima.accepted)} aceito(s) e {numero(ultima.rejeitados)} rejeitado(s).{' '}
               {ultima.temFalhas ? (
                 <a href={`/v1/contacts/imports/${ultima.id}/failures`}>
                   Baixar as linhas rejeitadas, com o motivo

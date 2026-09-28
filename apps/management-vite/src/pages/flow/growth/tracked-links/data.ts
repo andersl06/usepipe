@@ -9,9 +9,9 @@
 export interface LinkRastreado {
   id: string;
   flowId: string;
-  nome: string;
+  name: string;
   destinationUrl: string;
-  codigo: string;
+  code: string;
   urlCurta: string;
   cliques: number;
   criadoEm: string;

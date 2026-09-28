@@ -16,7 +16,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
   /*
    * Show only OTHER accounts: in the source DOM, a user on `supernova` sees three items and none is `supernova`.
    */
-  const outras = data.accounts.filter((c) => !c.emVigor);
+  const outras = data.accounts.filter((c) => !c.inForce);
 
   return (
     <header className="g-barra g-barra-sup pt-barra">
@@ -70,15 +70,15 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
                   {/*
  * Local `balao` corresponds to source `message-ballon`; for `business` use local `panel`, the closest facade icon. Adding a shared-package icon for this single screen is unwarranted.
  */}
-                  <IconePortal nome={account.pessoal ? 'balao' : 'contrato'} tamanho={24} />
+                  <IconePortal nome={account.personal ? 'balao' : 'contrato'} tamanho={24} />
                   <span>
-                    {account.nome}
-                    {account.pessoal ? (
+                    {account.name}
+                    {account.personal ? (
                       <span className="pt-account-type">{account.slug}.usepipe.ai</span>
                     ) : (
-                      <span className="pt-account-type">{account.plano}</span>
+                      <span className="pt-account-type">{account.plan}</span>
                     )}
-                    {account.onboardingConcluido ? null : <span className="g-tipo">em cadastro</span>}
+                    {account.onboardingCompleted ? null : <span className="g-tipo">em cadastro</span>}
                   </span>
                 </button>
               ))}

@@ -21,8 +21,8 @@ import { envioQuePreserva } from '../../components/envio-de-formulario';
 const EXTRA = '__extra__';
 
 interface ConditionInitial {
-  campo: string;
-  operador: OperadorDeRegra;
+  field: string;
+  operator: OperadorDeRegra;
   value: string;
 }
 
@@ -34,12 +34,12 @@ function ConditionRow({
   /** Fills the row when editing an existing rule — absent means "blank row" (creation). */
   inicial?: ConditionInitial;
 }) {
-  const campoInicialEhFixo = !inicial || (CAMPOS_DE_REGRA as readonly string[]).includes(inicial.campo);
+  const campoInicialEhFixo = !inicial || (CAMPOS_DE_REGRA as readonly string[]).includes(inicial.field);
   const [campo, setCampo] = useState<string>(
-    inicial ? (campoInicialEhFixo ? inicial.campo : EXTRA) : CAMPOS_DE_REGRA[0],
+    inicial ? (campoInicialEhFixo ? inicial.field : EXTRA) : CAMPOS_DE_REGRA[0],
   );
   const keyExtraInitial =
-    inicial && !campoInicialEhFixo ? inicial.campo.slice(PREFIX_ATTRIBUTE.length) : '';
+    inicial && !campoInicialEhFixo ? inicial.field.slice(PREFIX_ATTRIBUTE.length) : '';
 
   return (
     <div className="form-linha">
@@ -77,7 +77,7 @@ function ConditionRow({
 
       <label className="form-campo" style={{ flexBasis: '180px' }}>
         <span className="sub">Operador</span>
-        <Seletor name="operador" defaultValue={inicial?.operador ?? 'contem'} disabled={desabilitado}>
+        <Seletor name="operador" defaultValue={inicial?.operator ?? 'contem'} disabled={desabilitado}>
           {OPERADORES_DE_REGRA.map((o) => (
             <option key={o} value={o}>
               {ROTULO_OPERADOR[o]}
@@ -187,7 +187,7 @@ export function RuleQueueForm({
             <span className="sub">Nome da regra</span>
             <Campo
               name="nome"
-              defaultValue={regraExistente?.nome}
+              defaultValue={regraExistente?.name}
               placeholder="Cobrança por palavra-chave"
               required
               disabled={enviando}
@@ -205,7 +205,7 @@ export function RuleQueueForm({
               <option value="">Escolha a fila</option>
               {queues.map((f) => (
                 <option key={f.id} value={f.id}>
-                  {f.active ? f.nome : `${f.nome} (desativada)`}
+                  {f.ativa ? f.name : `${f.name} (desativada)`}
                 </option>
               ))}
             </Seletor>
@@ -225,7 +225,7 @@ export function RuleQueueForm({
 
           <label className="form-campo" style={{ flexBasis: '200px' }}>
             <span className="sub">Combinar condições com</span>
-            <Seletor name="combinador" defaultValue={regraExistente?.combinador ?? 'e'} disabled={enviando}>
+            <Seletor name="combinador" defaultValue={regraExistente?.combiner ?? 'e'} disabled={enviando}>
               <option value="e">E — todas precisam casar</option>
               <option value="ou">OU — basta uma casar</option>
             </Seletor>

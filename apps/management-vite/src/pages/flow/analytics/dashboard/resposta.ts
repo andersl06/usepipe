@@ -6,5 +6,5 @@ export interface RespostaDoDashboard {
   intervalo: Intervalo;
   hoje: string;
   data: DashboardData;
-  lista: { tipo: 'interacao' | 'rejeicao'; nomes: string[] } | null;
+  lista: { type: 'interacao' | 'rejeicao'; nomes: string[] } | null;
 }

@@ -24,7 +24,7 @@ import type { OperadorDeRegra, QueueRule } from './rule-queue';
 
 export interface QueueAgent {
   id: string;
-  nome: string;
+  name: string;
   state: string | null;
   /** `fila_atendente.capacidade_override` ou a capacidade padrão da fila. */
   capacity: number;
@@ -34,31 +34,31 @@ export interface QueueAgent {
 
 export interface QueueRegistered {
   id: string;
-  nome: string;
-  cor: string | null;
+  name: string;
+  color: string | null;
   capacityDefault: number;
   order: number;
-  active: boolean;
-  horarioId: string | null;
+  ativa: boolean;
+  scheduleId: string | null;
   horarioNome: string | null;
   agents: QueueAgent[];
 }
 
 export interface HorarioParaEscolher {
   id: string;
-  nome: string;
+  name: string;
 }
 
 // ------------------------------------------------------------------ pausas
 
 export interface MotivoDePausa {
   id: string;
-  nome: string;
+  name: string;
   durationSuggestedMin: number | null;
   countsAsProductive: boolean;
-  ativo: boolean;
+  active: boolean;
   /** Pausas encerradas no período. */
-  pausas: number;
+  pauses: number;
   /** Duração média observada, em segundos. `null` quando ninguém usou. */
   mediaSeg: number | null;
 }
@@ -78,23 +78,23 @@ export interface UsoDePausas {
 
 export interface FaixaDoHorario {
   id: string;
-  diaSemana: number;
-  inicio: string;
-  fim: string;
+  dayWeek: number;
+  start: string;
+  end: string;
 }
 
 export interface HourException {
   id: string;
   data: string;
-  fechado: boolean;
-  inicio: string | null;
-  fim: string | null;
-  motivo: string | null;
+  closed: boolean;
+  start: string | null;
+  end: string | null;
+  reason: string | null;
 }
 
 export interface HorarioCadastrado {
   id: string;
-  nome: string;
+  name: string;
   fuso: string;
   faixas: FaixaDoHorario[];
   exceptions: HourException[];
@@ -110,7 +110,7 @@ export interface HorarioCadastrado {
 export interface Horarios {
   horarios: HorarioCadastrado[];
   /** Filas ativas sem horário: nelas o relógio do SLA corre 24×7. */
-  queuesWithoutHour: string[];
+  queuesWithoutSchedule: string[];
   agora: string;
 }
 
@@ -130,8 +130,8 @@ export interface Horarios {
  */
 export interface QueueForChoose {
   id: string;
-  nome: string;
-  active: boolean;
+  name: string;
+  ativa: boolean;
 }
 
 /** A regra do banco carrega uma coisa a mais que o motor: se a fila de destino está de pé. */
@@ -166,9 +166,9 @@ export type Recording = { ok: true } | { ok: false; error: string };
 
 export interface AgentRegistered {
   id: string;
-  nome: string;
+  name: string;
   email: string;
-  ativo: boolean;
+  active: boolean;
   /** `null` quando a pessoa nunca conectou: não é "offline", é "nunca esteve". */
   state: string | null;
   queues: string[];

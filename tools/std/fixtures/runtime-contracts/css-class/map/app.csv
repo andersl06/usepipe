@@ -1,0 +1,2 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+fx-4,app,1,css-class,cartao,card,component.tsx:1,1,no,,,applied,fixture,

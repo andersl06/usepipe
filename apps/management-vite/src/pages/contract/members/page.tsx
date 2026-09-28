@@ -35,7 +35,7 @@ export function MembersPage() {
   const order = Object.keys(PAPEIS_DA_ORIGEM);
   const roleOptions = papeis
     .flatMap((p) =>
-      accountEhRole(p.nome) ? [{ id: p.id, roleId: p.nome, ...PAPEIS_DA_ORIGEM[p.nome] }] : [],
+      accountEhRole(p.name) ? [{ id: p.id, roleId: p.name, ...PAPEIS_DA_ORIGEM[p.name] }] : [],
     )
     .sort((a, b) => order.indexOf(a.roleId) - order.indexOf(b.roleId));
 
@@ -49,7 +49,7 @@ export function MembersPage() {
             <Link className="mb-voltar" href="/contract" aria-label="Voltar ao painel do contrato">
               <IconePortal nome="esquerda" tamanho={24} />
             </Link>
-            <h1>Membros do contrato {contract.nome}</h1>
+            <h1>Membros do contrato {contract.name}</h1>
           </div>
 
           {parametros.erro ? (
@@ -72,7 +72,7 @@ export function MembersPage() {
                     .map((m) => ({
                       id: m.id,
                       tipo: m.tipo,
-                      nome: m.nome,
+                      nome: m.name,
                       email: m.email,
                       role: accountEhRole(m.roleName)
                         ? PAPEIS_DA_ORIGEM[m.roleName].rotulo

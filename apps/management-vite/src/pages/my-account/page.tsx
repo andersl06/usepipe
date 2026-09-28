@@ -166,7 +166,7 @@ export function PageMyAccount() {
                       required
                       minLength={TAMANHO.nomeMin}
                       maxLength={TAMANHO.nomeMax}
-                      defaultValue={account.nome}
+                      defaultValue={account.name}
                     />
                   </label>
                   <p className="account-note">{RECADOS.nome}</p>
@@ -187,7 +187,7 @@ export function PageMyAccount() {
                       required
                       maxLength={TAMANHO.telefoneMax}
                       placeholder="+55 31 99999-0000"
-                      defaultValue={account.telefone ?? ''}
+                      defaultValue={account.phone ?? ''}
                     />
                   </label>
                   <p className="account-note">{RECADOS.telefone}</p>
@@ -209,7 +209,7 @@ export function PageMyAccount() {
 
                   <label className="account-field" data-error={recusado('funcionarios')}>
                     <span>Tamanho da empresa</span>
-                    <Selection name="funcionarios" defaultValue={account.funcionarios ?? ''} aria-label="Tamanho da empresa">
+                    <Selection name="funcionarios" defaultValue={account.employees ?? ''} aria-label="Tamanho da empresa">
                       <option value="">Selecionar</option>
                       {account.faixasDeFuncionarios.map((faixa) => (
                         <option key={faixa} value={faixa}>

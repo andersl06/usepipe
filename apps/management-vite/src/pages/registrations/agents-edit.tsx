@@ -96,7 +96,7 @@ function EditInBatch({ ids, base }: { ids: readonly string[]; base: string }) {
       <div className="lista-selecionados">
         {selecionados.map((a) => (
           <span key={a.id} className="selecionado-chip">
-            <Avatar nome={a.nome} /> {a.nome}
+            <Avatar nome={a.name} /> {a.name}
           </span>
         ))}
       </div>
@@ -109,7 +109,7 @@ function EditInBatch({ ids, base }: { ids: readonly string[]; base: string }) {
               <option value="">Escolha uma fila</option>
               {readQueues.data.queues.map((f) => (
                 <option key={f.id} value={f.id}>
-                  {f.nome}
+                  {f.name}
                 </option>
               ))}
             </Selection>

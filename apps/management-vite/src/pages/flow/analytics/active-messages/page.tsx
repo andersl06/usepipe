@@ -31,13 +31,13 @@ import './active-messages.css';
  * D-30) e a `api` resolve o período no fuso da conta.
  */
 interface ActiveMessagesResponse {
-  period: Period;
+  periodo: Period;
   intervalo: Intervalo;
   hoje: string;
   /** O `startDateLimit` do `bds-datepicker`: 186 dias atrás. */
   limite: string;
   template: string | null;
-  data: ActiveMessagesData;
+  dados: ActiveMessagesData;
 }
 
 interface ActiveMessagesPeriodFilter {
@@ -84,7 +84,7 @@ export function ActiveMessagesPage() {
     `/v1/management/flows/${contact.id}/analytics/messages-active?${q.toString()}`,
   );
   if (!read.data) return null;
-  const { period, intervalo, hoje, limite, template, data } = read.data;
+  const { periodo: period, intervalo, hoje, limite, template, dados: data } = read.data;
 
   return (
     <div className="ma-tela">

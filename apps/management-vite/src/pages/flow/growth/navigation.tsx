@@ -35,7 +35,7 @@ const ITENS: { titulo: string; description: string | null; beta?: true; rota: st
   {
     titulo: 'Links rastreados',
     description: 'Crie links curtos e acompanhe os cliques das suas campanhas',
-    rota: 'links-rastreados',
+    rota: 'tracked-links',
   },
 ];
 

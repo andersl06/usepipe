@@ -162,7 +162,7 @@ function TabelaDeQuebra({ eixo, linhas }: { eixo: string; linhas: LinhaDeQuebra[
 export function PageAttendance() {
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
-  const manager = `${contactBase(contact.tipo, contact.id)}/analise/gerenciador-de-relatorios`;
+  const manager = `${contactBase(contact.tipo, contact.id)}/analytics/report-manager`;
   const [search] = useSearchParams();
   const crus = Object.fromEntries(search.entries()) as Search;
   /*
@@ -187,8 +187,8 @@ export function PageAttendance() {
   const geral = report.geral;
   const enc = geral.closures;
 
-  const queueName = catalogos.queues.find((f) => f.id === params.queue)?.nome;
-  const agentName = catalogos.agents.find((a) => a.id === params.agent)?.nome;
+  const queueName = catalogos.queues.find((f) => f.id === params.queue)?.name;
+  const agentName = catalogos.agents.find((a) => a.id === params.agent)?.name;
   const hasFilter = Boolean(params.queue || params.agent);
 
   const aba = abaValida(crus.aba);
@@ -263,7 +263,7 @@ export function PageAttendance() {
             <option value="">Selecione os atendentes</option>
             {catalogos.agents.map((a) => (
               <option key={a.id} value={a.id}>
-                {a.nome}
+                {a.name}
               </option>
             ))}
           </Selection>
@@ -273,7 +273,7 @@ export function PageAttendance() {
             <option value="">Selecione as filas</option>
             {catalogos.queues.map((f) => (
               <option key={f.id} value={f.id}>
-                {f.nome}
+                {f.name}
               </option>
             ))}
           </Selection>

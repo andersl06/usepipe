@@ -9,8 +9,8 @@ import { queueUnlinkAgent, linkAgentInQueue } from './registrations-gravar';
 
 /** One row of the reference Permission type by Status table. */
 export interface PermissionRow {
-  codigo: string;
-  grupo: string;
+  code: string;
+  group: string;
   description: string;
   dosPapeis: boolean;
   override: boolean | null;
@@ -20,7 +20,7 @@ export interface PermissionRow {
 }
 
 export interface AgentPermissions {
-  agents: { id: string; nome: string; email: string }[];
+  agents: { id: string; name: string; email: string }[];
   permissions: PermissionRow[];
 }
 

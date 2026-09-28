@@ -126,8 +126,8 @@ export async function salvarBoasVindas(
       depois: mudanca.depois,
     });
     const contactMessenger = await loadContact(tx, tid, id);
-    if (contactMessenger?.canalTipo === 'messenger' && contactMessenger.canalAtivo && contactMessenger.canalId) {
-      const channel = await readChannelMessenger(tid, contactMessenger.canalId);
+    if (contactMessenger?.channelType === 'messenger' && contactMessenger.channelActive && contactMessenger.channelId) {
+      const channel = await readChannelMessenger(tid, contactMessenger.channelId);
       // Verify with a real token that the Page accepts this combination of `get_started` and `greeting`.
       await aplicarPerfilMessenger(channel, depois.ativo
         ? { get_started: { payload: 'PIPE_COMECAR' }, greeting: [{ locale: 'default', text: depois.message }] }
@@ -191,7 +191,7 @@ export async function salvarMenuPersistente(
   await requirePermissionInFlow(tx, usuarioId, id, 'basicConfigurations.escrever');
 
   const contact = await loadContact(tx, tid, id);
-  if (contact?.canalTipo !== 'messenger' || contact.canalAtivo !== true) {
+  if (contact?.channelType !== 'messenger' || contact.channelActive !== true) {
     throw PipeError.request(
       'menu_persistent_channel',
       'Só é possível ativar o menu persistente se o seu chatbot estiver conectado ao Facebook Messenger.',
@@ -241,8 +241,8 @@ export async function salvarMenuPersistente(
     });
   }
   const contatoMessenger = await loadContact(tx, tid, id);
-  if (contatoMessenger?.canalTipo === 'messenger' && contatoMessenger.canalAtivo && contatoMessenger.canalId) {
-    const canal = await readChannelMessenger(tid, contatoMessenger.canalId);
+  if (contatoMessenger?.channelType === 'messenger' && contatoMessenger.channelActive && contatoMessenger.channelId) {
+    const canal = await readChannelMessenger(tid, contatoMessenger.channelId);
     // Verify with a real token that the Page accepts this `persistent_menu` shape.
     await aplicarPerfilMessenger(canal, { persistent_menu: [{ locale: 'default', composer_input_disabled: false, call_to_actions: preenchidos.map((item) => ({ type: 'web_url', title: item.texto, url: item.link })) }] });
   }

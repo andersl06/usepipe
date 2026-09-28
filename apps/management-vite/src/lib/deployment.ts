@@ -11,9 +11,9 @@ import type { DeploymentSignals } from './passos-of-deployment';
 
 export interface DeploymentChannel {
   id: string;
-  nome: string;
-  ativo: boolean;
-  numero: string | null;
+  name: string;
+  active: boolean;
+  number: string | null;
   reauthorizationPending: boolean;
 }
 

@@ -45,7 +45,7 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
   const modelosAprovados = data.modelos.filter(
     (template) =>
       template.channelId === channelId &&
-      template.categoria === categoria &&
+      template.category === categoria &&
       template.statusMeta === 'aprovado',
   );
   const templateSelected = data.modelos.find((template) => template.id === templateId);
@@ -268,7 +268,7 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                           checked={channelId === channel.id}
                           onChange={() => setChannelId(channel.id)}
                         />
-                        <span>{channel.nome}</span>
+                        <span>{channel.name}</span>
                       </label>
                     ))
                   ) : (
@@ -309,7 +309,7 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                       <option value="">Selecione um modelo aprovado</option>
                       {modelosAprovados.map((template) => (
                         <option value={template.id} key={template.id}>
-                          {template.nome} · {template.idioma}
+                          {template.name} · {template.idioma}
                         </option>
                       ))}
                     </Selection>
@@ -318,7 +318,7 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                   {templateSelected ? (
                     <div className="gr-previa">
                       <span>Prévia</span>
-                      <p>{templateSelected.corpo}</p>
+                      <p>{templateSelected.body}</p>
                     </div>
                   ) : null}
                   {templateSelected && templateSelected.variables.length > 0 ? (
@@ -386,7 +386,7 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                         <option value="">Selecione um contato</option>
                         {data.contacts.map((contact) => (
                           <option key={contact.id} value={contact.id}>
-                            {contact.nome ?? contact.telefone} · {contact.telefone}
+                            {contact.name ?? contact.phone} · {contact.phone}
                           </option>
                         ))}
                       </Selection>
@@ -401,7 +401,7 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                     <dt>Nome da mensagem:</dt>
                     <dd>{nome || '—'}</dd>
                     <dt>Nome do modelo:</dt>
-                    <dd>{templateSelected?.nome ?? '—'}</dd>
+                    <dd>{templateSelected?.name ?? '—'}</dd>
                     <dt>Categoria do modelo:</dt>
                     <dd>{categoria}</dd>
                     <dt>Tipo de envio:</dt>
@@ -410,7 +410,7 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                     <dd>
                       {tipoAudiencia === 'massa'
                         ? `${quantityFile} contatos · ${file || 'sem arquivo'}`
-                        : (data.contacts.find((item) => item.id === contactId)?.nome ??
+                        : (data.contacts.find((item) => item.id === contactId)?.name ??
                           '1 contato')}
                     </dd>
                   </dl>
@@ -511,8 +511,8 @@ function ListaDeEnvios({ envios }: { envios: EnvioGrowth[] }) {
                 <tr key={envio.id}>
                   <td>{envio.templateNome ?? '—'}</td>
                   <td>
-                    <span className={`gr-status gr-status--${envio.estado ?? 'pendente'}`}>
-                      {labelState(envio.estado)}
+                    <span className={`gr-status gr-status--${envio.state ?? 'pendente'}`}>
+                      {labelState(envio.state)}
                     </span>
                   </td>
                   <td>Sem agendamento</td>

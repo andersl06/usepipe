@@ -80,7 +80,7 @@ export async function syncContact(
  */
 export async function contactsWithoutMirror(lote = 200): Promise<JobMirrorCrm[]> {
   const { rows } = await databaseOwner().execute<{ tenant_id: string; contactId: string }>(sql`
-    select c.tenant_id, c.id as contato_id
+    select c.tenant_id, c.id as "contactId"
       from contato c
       join tenant t on t.id = c.tenant_id
      where c.twenty_pessoa_id is null
