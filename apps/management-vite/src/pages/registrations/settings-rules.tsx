@@ -27,19 +27,19 @@ export function PageRules() {
         return {
           id: r.id,
           campos: [
-            { rotulo: 'Regra', value: r.nome },
-            { rotulo: 'Alvo', value: ROTULO_ALVO[r.alvo] ?? r.alvo },
-            { rotulo: 'Prazo', value: duration(r.prazoSeg), classe: 'num' },
+            { rotulo: 'Regra', value: r.name },
+            { rotulo: 'Alvo', value: ROTULO_ALVO[r.target] ?? r.target },
+            { rotulo: 'Prazo', value: duration(r.deadlineSeg), classe: 'num' },
             {
               rotulo: 'Alerta',
-              value: r.alertaSeg === null ? '—' : duration(r.alertaSeg),
+              value: r.alertSeg === null ? '—' : duration(r.alertSeg),
               classe: 'num',
             },
             { rotulo: 'Escopo', value: scope },
           ],
-          situation: r.active ? 'Ativa' : 'Desativada',
-          active: r.active,
-          procura: `${r.nome} ${ROTULO_ALVO[r.alvo] ?? r.alvo} ${scope}`.toLowerCase(),
+          situation: r.ativa ? 'Ativa' : 'Desativada',
+          active: r.ativa,
+          procura: `${r.name} ${ROTULO_ALVO[r.target] ?? r.target} ${scope}`.toLowerCase(),
         };
       }),
     },
@@ -49,7 +49,7 @@ export function PageRules() {
       cards: queues.map((f) => ({
         id: f.id,
         campos: [
-          { rotulo: 'Fila', value: f.nome },
+          { rotulo: 'Fila', value: f.name },
           { rotulo: 'Capacidade padrão', value: numero(f.capacityDefault), classe: 'num' },
           { rotulo: 'Ordem', value: numero(f.order), classe: 'num' },
           {
@@ -57,9 +57,9 @@ export function PageRules() {
             value: f.temHorario ? 'Definido' : 'Sem horário, o relógio corre sempre',
           },
         ],
-        situation: f.active ? 'Ativa' : 'Desativada',
-        active: f.active,
-        procura: f.nome.toLowerCase(),
+        situation: f.ativa ? 'Ativa' : 'Desativada',
+        active: f.ativa,
+        procura: f.name.toLowerCase(),
       })),
     },
   ];

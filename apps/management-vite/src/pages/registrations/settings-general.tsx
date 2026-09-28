@@ -22,7 +22,7 @@ export function PageSettingsGeneral() {
   if (!read.data) return null;
   const { identity, pesquisa, outrasPesquisas, etiquetas } = read.data;
 
-  const tipoGravado = pesquisa?.tipo ?? '';
+  const tipoGravado = pesquisa?.type ?? '';
   const tipoAtual: TipoDePesquisa = tipoDePesquisaValido(tipoGravado) ? tipoGravado : 'csat';
   const obrigatorias = etiquetas.filter((e) => e.obrigatoria);
 
@@ -44,12 +44,12 @@ export function PageSettingsGeneral() {
           </>
         }
         acao={saveIdentity}
-        rodape={`Plano ${identity.plano} — o plano é contrato, e muda com a gente.`}
+        rodape={`Plano ${identity.plan} — o plano é contrato, e muda com a gente.`}
       >
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '260px' }}>
             <span className="sub">Nome da operação</span>
-            <Campo name="nome" defaultValue={identity.nome} required />
+            <Campo name="nome" defaultValue={identity.name} required />
           </label>
 
           <label className="form-campo" style={{ flexBasis: '240px' }}>
@@ -108,7 +108,7 @@ export function PageSettingsGeneral() {
 
           <label className="form-campo" style={{ flexBasis: '240px' }}>
             <span className="sub">Quando disparar</span>
-            <Seletor name="disparo" defaultValue={pesquisa?.disparo ?? 'encerramento'}>
+            <Seletor name="disparo" defaultValue={pesquisa?.trigger ?? 'encerramento'}>
               {DISPAROS_DE_PESQUISA.map((d) => (
                 <option key={d} value={d}>
                   {ROTULO_DISPARO[d]}
@@ -175,7 +175,7 @@ export function PageSettingsGeneral() {
                   defaultChecked={e.obrigatoria}
                 />
                 <span className="sub">
-                  <b>{e.nome}</b> · {numero(e.usos)} conversa(s) já etiquetada(s)
+                  <b>{e.name}</b> · {numero(e.usos)} conversa(s) já etiquetada(s)
                 </span>
               </label>
             ))}

@@ -75,7 +75,7 @@ export function FormularioRegraSla({
           <span className="sub">Nome</span>
           <Campo
             name="nome"
-            defaultValue={regraExistente?.nome}
+            defaultValue={regraExistente?.name}
             placeholder="Primeira resposta padrão"
             required
             disabled={enviando}
@@ -84,7 +84,7 @@ export function FormularioRegraSla({
 
         <label className="form-campo" style={{ flexBasis: '200px' }}>
           <span className="sub">Alvo</span>
-          <Seletor name="alvo" defaultValue={regraExistente?.alvo ?? 'primeira_resposta'} disabled={enviando}>
+          <Seletor name="alvo" defaultValue={regraExistente?.target ?? 'primeira_resposta'} disabled={enviando}>
             {Object.entries(ROTULO_ALVO).map(([value, rotulo]) => (
               <option key={value} value={value}>
                 {rotulo}
@@ -100,7 +100,7 @@ export function FormularioRegraSla({
             type="number"
             min={1}
             max={604_800}
-            defaultValue={regraExistente?.prazoSeg ?? 3600}
+            defaultValue={regraExistente?.deadlineSeg ?? 3600}
             required
             disabled={enviando}
           />
@@ -112,7 +112,7 @@ export function FormularioRegraSla({
             name="alertaSeg"
             type="number"
             min={1}
-            defaultValue={regraExistente?.alertaSeg ?? undefined}
+            defaultValue={regraExistente?.alertSeg ?? undefined}
             disabled={enviando}
           />
         </label>
@@ -140,7 +140,7 @@ export function FormularioRegraSla({
                 <option value="">Escolha a fila</option>
                 {queues.map((f) => (
                   <option key={f.id} value={f.id}>
-                    {f.nome}
+                    {f.name}
                   </option>
                 ))}
               </Seletor>

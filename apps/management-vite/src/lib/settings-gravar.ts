@@ -18,9 +18,25 @@ export interface PedidoDeRegraSla {
 
 export type RequestOfEditOfRuleSla = Partial<PedidoDeRegraSla>;
 
+/** Body keys follow the API (`PedidoDeRegraSla`/`RequestOfEditOfRuleSla`: name, target, deadlineSeg, alertSeg, ativa). */
+export function wireBodyOfRuleSla(pedido: RequestOfEditOfRuleSla): Record<string, unknown> {
+  const corpo: Record<string, unknown> = {};
+  if (pedido.nome !== undefined) corpo['name'] = pedido.nome;
+  if (pedido.alvo !== undefined) corpo['target'] = pedido.alvo;
+  if (pedido.prazoSeg !== undefined) corpo['deadlineSeg'] = pedido.prazoSeg;
+  if (pedido.alertaSeg !== undefined) corpo['alertSeg'] = pedido.alertaSeg;
+  if (pedido.scopeType !== undefined) corpo['scopeType'] = pedido.scopeType;
+  if (pedido.scopeId !== undefined) corpo['scopeId'] = pedido.scopeId;
+  if (pedido.active !== undefined) corpo['ativa'] = pedido.active;
+  return corpo;
+}
+
 export async function createRuleSla(pedido: PedidoDeRegraSla): Promise<Resultado<{ id: string }>> {
   try {
-    const criada = await api.post<{ id: string }>('/v1/management/settings/rules', pedido);
+    const criada = await api.post<{ id: string }>(
+      '/v1/management/settings/rules',
+      wireBodyOfRuleSla(pedido),
+    );
     atualizarLeituras();
     return { ok: true, value: criada };
   } catch (error) {
@@ -33,7 +49,7 @@ export async function editarRegraSla(
   pedido: RequestOfEditOfRuleSla,
 ): Promise<Resultado<void>> {
   try {
-    await api.patch(`/v1/management/settings/rules/${id}`, pedido);
+    await api.patch(`/v1/management/settings/rules/${id}`, wireBodyOfRuleSla(pedido));
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

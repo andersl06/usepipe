@@ -33,7 +33,7 @@ function RuleSlaActions({
   onExcluir: () => void;
 }) {
   const alternar = async () => {
-    await editarRegraSla(regra.id, { active: !regra.active });
+    await editarRegraSla(regra.id, { active: !regra.ativa });
   };
   return (
     <>
@@ -41,15 +41,15 @@ function RuleSlaActions({
         type="button"
         className="interruptor"
         role="switch"
-        aria-checked={regra.active}
-        aria-label={regra.active ? `Desativar a regra ${regra.nome}` : `Ativar a regra ${regra.nome}`}
-        title={regra.active ? 'Desativar esta regra' : 'Ativar esta regra'}
+        aria-checked={regra.ativa}
+        aria-label={regra.ativa ? `Desativar a regra ${regra.name}` : `Ativar a regra ${regra.name}`}
+        title={regra.ativa ? 'Desativar esta regra' : 'Ativar esta regra'}
         onClick={() => void alternar()}
       >
         <span className="interruptor-bolinha" />
       </button>
-      <BotaoDeIcone nome="lapis" rotulo={`Editar a regra ${regra.nome}`} onClick={onEditar} />
-      <BotaoDeIcone nome="x" rotulo={`Excluir a regra ${regra.nome}`} onClick={onExcluir} />
+      <BotaoDeIcone nome="lapis" rotulo={`Editar a regra ${regra.name}`} onClick={onEditar} />
+      <BotaoDeIcone nome="x" rotulo={`Excluir a regra ${regra.name}`} onClick={onExcluir} />
     </>
   );
 }
@@ -83,20 +83,20 @@ export function SlaPageRules() {
       emptyDescription: 'Toda conversa aparece como “Sem regra” no Monitoramento.',
       cards: regras.map((r) => {
         const queueAssigned = r.scopeType === 'tenant' ? '' : (r.scopeName ?? 'fila removida');
-        const meta = SIGLA_DO_ALVO[r.alvo] ?? r.alvo;
-        const prazo = `${ROTULO_ALVO[r.alvo] ?? r.alvo}: prazo ${duration(r.prazoSeg)}${
-          r.alertaSeg === null ? '' : `, alerta ${duration(r.alertaSeg)}`
+        const meta = SIGLA_DO_ALVO[r.target] ?? r.target;
+        const prazo = `${ROTULO_ALVO[r.target] ?? r.target}: prazo ${duration(r.deadlineSeg)}${
+          r.alertSeg === null ? '' : `, alerta ${duration(r.alertSeg)}`
         }`;
         return {
           id: r.id,
           campos: [
-            { rotulo: 'Regras de SLA', value: r.nome },
+            { rotulo: 'Regras de SLA', value: r.name },
             { rotulo: 'Metas', value: meta, titulo: prazo },
             { rotulo: 'Filas atribuídas', value: queueAssigned },
           ],
           selo: r.scopeType === 'tenant' ? 'Padrão' : undefined,
-          situation: r.active ? 'Ativa' : 'Desativada',
-          active: r.active,
+          situation: r.ativa ? 'Ativa' : 'Desativada',
+          active: r.ativa,
           acao: (
             <RuleSlaActions
               regra={r}
@@ -104,7 +104,7 @@ export function SlaPageRules() {
               onExcluir={() => setRegraParaExcluir(r)}
             />
           ),
-          procura: `${r.nome} ${meta} ${ROTULO_ALVO[r.alvo] ?? r.alvo} ${queueAssigned}`.toLowerCase(),
+          procura: `${r.name} ${meta} ${ROTULO_ALVO[r.target] ?? r.target} ${queueAssigned}`.toLowerCase(),
         };
       }),
     },
@@ -155,7 +155,7 @@ export function SlaPageRules() {
         titulo="Excluir regra de SLA"
         message={
           <>
-            Excluir a regra “{regraParaExcluir?.nome}”? Esta ação não pode ser desfeita.
+            Excluir a regra “{regraParaExcluir?.name}”? Esta ação não pode ser desfeita.
           </>
         }
         error={errorDeletion}

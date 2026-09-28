@@ -14,22 +14,22 @@
 
 export interface RegraSlaConfigurada {
   id: string;
-  nome: string;
-  alvo: string;
-  prazoSeg: number;
-  alertaSeg: number | null;
+  name: string;
+  target: string;
+  deadlineSeg: number;
+  alertSeg: number | null;
   scopeType: string;
   scopeName: string | null;
-  active: boolean;
+  ativa: boolean;
 }
 
 export interface QueueConfigured {
   id: string;
-  nome: string;
+  name: string;
   capacityDefault: number;
   order: number;
   temHorario: boolean;
-  active: boolean;
+  ativa: boolean;
 }
 
 /** Rótulos do banco em português corrente. O alvo é enum, não texto livre. */
@@ -55,7 +55,7 @@ export const LABEL_SCOPE: Record<string, string> = {
 
 export interface EtiquetaConfigurada {
   id: string;
-  nome: string;
+  name: string;
   scope: string;
   requiredInClosure: boolean;
   usos: number;
@@ -63,9 +63,9 @@ export interface EtiquetaConfigurada {
 
 export interface ChannelConfigured {
   id: string;
-  nome: string;
-  tipo: string;
-  ativo: boolean;
+  name: string;
+  type: string;
+  active: boolean;
 }
 
 /**
@@ -82,7 +82,7 @@ export interface ChannelConfigured {
  */
 export interface ChannelBox {
   id: string;
-  nome: string;
+  name: string;
   queueDefault: string | null;
   abertas: number;
 }
@@ -102,25 +102,25 @@ export interface ChannelDetailed extends ChannelConfigured {
    Salvar da tela". */
 
 export interface TenantIdentity {
-  nome: string;
+  name: string;
   fuso: string;
   idioma: string;
-  plano: string;
+  plan: string;
 }
 
 export interface PesquisaConfigurada {
   id: string;
-  tipo: string;
+  type: string;
   escalaMin: number;
   escalaMax: number;
   pergunta: string;
-  disparo: string;
+  trigger: string;
   active: boolean;
 }
 
 export interface ClosureTag {
   id: string;
-  nome: string;
+  name: string;
   obrigatoria: boolean;
   usos: number;
 }

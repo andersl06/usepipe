@@ -56,7 +56,7 @@ export function PageData() {
               <tbody>
                 {etiquetas.map((e) => (
                   <tr key={e.id}>
-                    <td className="who">{e.nome}</td>
+                    <td className="who">{e.name}</td>
                     <td>{LABEL_SCOPE_TAG[e.scope] ?? e.scope}</td>
                     <td>{e.requiredInClosure ? 'Sim' : 'Não'}</td>
                     <td className="num">{numero(e.usos)}</td>
