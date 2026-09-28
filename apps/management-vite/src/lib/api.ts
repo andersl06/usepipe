@@ -2,7 +2,7 @@
  * Gestao HTTP client uses browser `fetch` with the session cookie to call NestJS `api`. Under the README database boundary (`Quem fala com o banco`), the front requests data rather than opening a DB connection. `/v1/...` uses Vite proxy to `api` on 3010 in development; production shares a parent domain so the cookie crosses via `Domain`. Return types come from `@pipe/contracts` or the endpoint contract, never guessed here.
  */
 
-const BASE = (import.meta.env['VITE_URL_API'] as string | undefined)?.replace(/\/$/, '') ?? '';
+const BASE = (import.meta.env?.['VITE_URL_API'] as string | undefined)?.replace(/\/$/, '') ?? '';
 
 /** Build an `api` URL from the configured base, or a same-origin path if no base is set, for top-level login and `fetch`. */
 export function urlDaApi(caminho: string): string {
