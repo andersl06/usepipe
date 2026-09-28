@@ -443,6 +443,15 @@ export function withConditions(acao: AcaoDoEditor, conditions: ConditionBlip[]):
   return { ...acao, conditions: conditions };
 }
 
+function parsesAsJson(texto: string): boolean {
+  try {
+    JSON.parse(texto);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Return missing action fields in panel wording; skip validation for actions the engine cannot execute. */
 export function actionErrors(acao: AcaoDoEditor): string[] {
   const errors: string[] = [];
@@ -453,7 +462,12 @@ export function actionErrors(acao: AcaoDoEditor): string[] {
     }
     if (campo.tipo === 'json') {
       const bruto = acao.settings?.[campo.key];
-      if (bruto !== undefined && (!bruto || typeof bruto !== 'object' || Array.isArray(bruto))) {
+      // Blip exports keep a command resource as text (`"{\n \"resource\": \"onboarding\"\n}"`),
+      // with `type` saying how to read it. Text is valid; only a JSON type must parse.
+      const ehObjeto = !!bruto && typeof bruto === 'object' && !Array.isArray(bruto);
+      const ehTextoValido =
+        typeof bruto === 'string' && (!/json/i.test(fieldValue(acao, 'type')) || parsesAsJson(bruto));
+      if (bruto !== undefined && bruto !== '' && !ehObjeto && !ehTextoValido) {
         errors.push(`${campo.rotulo}: informe um objeto JSON válido.`);
       }
     }

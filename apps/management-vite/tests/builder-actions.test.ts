@@ -43,6 +43,22 @@ test('context action defaults and required fields match the reference contract',
   assert.deepEqual(actionErrors(novaAcao('MergeContact')), []);
 });
 
+test('a command resource exported by Blip as text is accepted; bad JSON with a JSON type is not', () => {
+  const blip = {
+    ...novaAcao('ProcessCommand'),
+    settings: {
+      method: 'set',
+      uri: '/contexts/{{contact.identity}}/stateid@82d6b54b',
+      type: 'text/plain',
+      resource: '{\n    "resource": "onboarding"\n}\n        ',
+      variable: 'processedContext',
+    },
+  };
+  assert.ok(!actionErrors(blip).some((e) => e.startsWith('Resource')));
+  const quebrado = { ...blip, settings: { ...blip.settings, type: 'application/json', resource: '{ nope' } };
+  assert.ok(actionErrors(quebrado).some((e) => e.startsWith('Resource')));
+});
+
 test('script actions warn that {{variables}} are not substituted in code (WR-03)', () => {
   for (const tipo of ['ExecuteScript', 'ExecuteScriptV2']) {
     const comVariavel = comCampo(novaAcao(tipo), 'source', 'function run() { return "{{input.content}}"; }');
