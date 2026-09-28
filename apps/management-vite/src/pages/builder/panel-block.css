@@ -880,38 +880,24 @@
 .bl-panel--block .bl-saida:focus-within .bl-condition-line > .bl-remover {
   opacity: 1;
 }
-.bl-panel--block .bl-values {
-  background: #393939;
-  border: 1px solid #141414;
-  border-radius: 8px;
+/* The shared chips field (`components/selection-chips`) on the panel's dark surface. */
+.bl-panel--block .at-selection-chips {
+  color: #fff;
+}
+.bl-panel--block .at-selection-chips .at-sc-campo {
   min-height: 55px;
+  background: #393939;
+  border-color: #141414;
 }
-.bl-panel--block .bl-values-field::placeholder {
+.bl-panel--block .at-selection-chips .at-sc-chip {
+  border-color: rgb(255 255 255 / 20%);
+}
+.bl-panel--block .at-selection-chips input.at-sc-search::placeholder {
   color: #fff;
-  opacity: 1;
 }
-.bl-panel--block .bl-value {
-  height: 24px;
-  padding: 0 4px 0 10px;
-  gap: 4px;
-  border-radius: 12px;
-  background: #141414;
-  color: #fff;
-  font-size: 14px;
-}
-.bl-panel--block .bl-value button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
+.bl-panel--block .at-selection-chips .at-sc-erro,
+.bl-panel--block .at-selection-chips.at-sc--danger .at-sc-campo {
+  --p-error-content: var(--p-error-on-dark);
 }
 /* The "OU" divider between output cards (F-1.4 line 8), a 24px-tall block with a line on each side. */
 .bl-panel--block .bl-ou {

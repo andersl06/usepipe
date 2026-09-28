@@ -1,16 +1,14 @@
-import { useState } from 'react';
-import type { KeyboardEvent as KeyboardEventDeReact } from 'react';
 import type { ConditionBlip } from '@pipe/core';
 import { ehUnaria } from '@pipe/core';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
 import { Selection } from '../../components/selection';
+import { SelectionChips } from '../../components/selection-chips';
 import {
   COMPARISONS_OF_SCREEN,
   FONTES_DA_TELA,
   ROTULOS_DAS_SAIDAS,
   ROTULO_DA_FONTE,
-  addValue,
   withComparison,
   comFonte,
   comparisonOf,
@@ -18,7 +16,6 @@ import {
   fonteDe,
   fonteSemSuporte,
   newCondition,
-  removeValue,
 } from './conditions';
 
 /**
@@ -81,28 +78,12 @@ function ConditionRow({
   onMudar: (c: ConditionBlip) => void;
   onRemover: () => void;
 }) {
-  const [digitando, setDigitando] = useState('');
   const fonte = fonteDe(condition);
   const comparison = comparisonOf(condition);
   const unaria = ehUnaria(comparison);
   const values = condition.values ?? [];
   const error = conditionError(condition);
   const semSuporte = fonteSemSuporte(condition);
-
-  function confirmValue(): void {
-    if (!digitando.trim()) return;
-    onMudar(addValue(condition, digitando));
-    setDigitando('');
-  }
-
-  function aoTeclar(e: KeyboardEventDeReact<HTMLInputElement>): void {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      confirmValue();
-    } else if (e.key === 'Backspace' && !digitando && values.length > 0) {
-      onMudar(removeValue(condition, values.length - 1));
-    }
-  }
 
   return (
     <div className={`bl-condition${error ? ' bl-condition--error' : ''}`} title={error ?? undefined}>
@@ -162,25 +143,13 @@ function ConditionRow({
            * the chips remain — but `condition.operator` is never cleared, so it survives edits and
            * round-trips through import/export untouched.
            */}
-          <div className="bl-values" onClick={(e) => (e.currentTarget.querySelector('input') as HTMLInputElement | null)?.focus()}>
-            {values.map((v, i) => (
-              <span key={`${v}-${i}`} className="bl-value">
-                {v}
-                <button type="button" aria-label={`Remover ${v}`} onClick={() => onMudar(removeValue(condition, i))}>
-                  ×
-                </button>
-              </span>
-            ))}
-            <input
-              className="bl-values-field"
-              aria-label={ROTULOS_DAS_SAIDAS.valores}
-              placeholder={values.length === 0 ? ROTULOS_DAS_SAIDAS.valores : ''}
-              value={digitando}
-              onChange={(e) => setDigitando(e.target.value)}
-              onKeyDown={aoTeclar}
-              onBlur={confirmValue}
-            />
-          </div>
+          <SelectionChips
+            rotulo={ROTULOS_DAS_SAIDAS.valores}
+            placeholder={ROTULOS_DAS_SAIDAS.valores}
+            values={values}
+            onChange={(next) => onMudar({ ...condition, values: next })}
+            erro={values.length === 0 && error ? 'Ops! Este campo precisa ser preenchido' : undefined}
+          />
         </div>
       ) : null}
     </div>
