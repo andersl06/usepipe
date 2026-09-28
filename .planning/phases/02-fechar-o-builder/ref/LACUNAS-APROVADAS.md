@@ -4,6 +4,21 @@
 **Origem:** comparativo de interações Blip × Pipe (levantamento somente leitura sobre `portal.js`, jsPlumb, `portal.css` e o código do Builder do Pipe) e excedentes do portão (`CLASSIFICACAO-PORTAO.md`).
 **Uso:** entrada de `/gsd:plan-phase 2 --gaps`, depois que as waves em execução terminarem, para não disputar os mesmos arquivos do canvas.
 
+## Fidelidade visual apontada pelo dono no uso real (2026-09-28, entram com prioridade máxima)
+
+O dono testou o Builder com um fluxo real exportado da Blip e apontou que a fase não chegou à fidelidade de D-30. Em ordem de gravidade dita por ele ("essa é a parte que mais está pecando" = item 1):
+
+| # | Área | O que o dono disse | Referência disponível |
+|---|---|---|---|
+| F-1 | Cards dos blocos no canvas: condições de saída e ações | "os cardszinho e a forma do texto dentro dos cards de condições de saída e ações diferente, está muito afastado do da Blip" | `reconstrucao/` (screenshots c, d; `MEDIDAS.md`) |
+| F-2 | Painel Configuração do Builder | "configuração ainda totalmente diferente" | falta captura |
+| F-3 | Biblioteca de variáveis | "visualmente diferente" | falta captura |
+| F-4 | Bloco/painel da lupa (busca) | "diferente e em branco" | falta captura |
+| F-5 | Gerenciamento de filas | "diferente" | falta captura |
+| F-6 | Tratamento de erros e a forma de mostrar o erro | "a forma que mostra o erro visualmente muito diferente" | falta captura |
+
+Critério de aceite: o mesmo de D-30 e do portão visual (medidas por `getBoundingClientRect`/`getComputedStyle` lado a lado com a captura, diferença só azul→verde), com o dono aprovando cada área.
+
 ## Interações do canvas (entram)
 
 | # | Lacuna | Prioridade | Como a referência faz |
