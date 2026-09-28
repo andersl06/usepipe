@@ -471,7 +471,9 @@ describe('Route conversations through services', () => {
       update fluxo set usa_contexto_do_roteador = true
        where id in (${principalId}::uuid, ${vendasId}::uuid)
     `);
-    routerId = await newFlow(a, 'roteador', { state: 'publicado', channelId: a.channelId });
+    // Created as the screen creates it (`rascunho`): like Blip, a router has no publish step and
+    // routes as soon as it has a channel and a main service.
+    routerId = await newFlow(a, 'roteador', { state: 'rascunho', channelId: a.channelId });
     await a.dono.execute(sql`
       insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal, persistente, expiracao_min)
       values

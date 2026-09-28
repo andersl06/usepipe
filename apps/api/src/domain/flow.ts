@@ -64,7 +64,7 @@ export interface FlowPublished {
 }
 
 /**
- * The channel bot: a published router takes precedence over a directly connected flow (one bot per number) and resolves the contact's service. That is why the contact enters here.
+ * The channel bot: a router takes precedence over a directly connected flow (one bot per number) and resolves the contact's service. That is why the contact enters here. Like Blip, a router has no publish step: it routes while it is not archived, and `serviceOfRouter` still only picks services with a published version.
  */
 export async function flowPublishedOfChannel(
   tx: TransactionPipe,
@@ -73,7 +73,7 @@ export async function flowPublishedOfChannel(
 ): Promise<FlowPublished | null> {
   const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`
     select id, tenant_id from fluxo
-     where canal_id = ${channelId} and tipo = 'roteador' and estado = 'publicado'
+     where canal_id = ${channelId} and tipo = 'roteador' and estado <> 'arquivado'
      order by criado_em desc
      limit 1
   `);
