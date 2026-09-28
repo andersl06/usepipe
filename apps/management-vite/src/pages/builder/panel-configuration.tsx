@@ -18,6 +18,7 @@ import {
 } from './actions-global';
 import { ActionCard } from './panel-actions';
 import { FlowFunctionsPanel } from './flow-functions-panel';
+import { FloatingSidebar } from './floating-sidebar';
 import { listVersions, loadVersion } from '../builder-gravar';
 import {
   MESSAGES_OF_IMPORT,
@@ -66,28 +67,28 @@ export function ConfigurationPanel({
     { key: 'funcoes', rotulo: 'Funções' },
   ];
   return (
-    <aside className="bl-panel bl-panel--settings" aria-label="Configuração">
-      <div className="bl-panel-header">
-        <span className="bl-panel-title">Configurações</span>
-        <button type="button" className="iconbtn" aria-label="Fechar" title="Fechar" onClick={onFechar}>
-          <IconePortal nome="fechar" tamanho={20} />
-        </button>
-      </div>
-      <hr className="bl-panel-wire" />
-      <div className="bl-abas" role="tablist">
-        {abas.map((a) => (
-          <button
-            key={a.key}
-            type="button"
-            role="tab"
-            aria-selected={aba === a.key}
-            className={aba === a.key ? 'bl-aba bl-aba--ativa' : 'bl-aba'}
-            onClick={() => setAba(a.key)}
-          >
-            {a.rotulo}
-          </button>
-        ))}
-      </div>
+    <FloatingSidebar
+      lado="direita"
+      titulo="Configurações gerais"
+      ariaLabel="Configuração"
+      onFechar={onFechar}
+      abas={
+        <div className="bl-abas" role="tablist">
+          {abas.map((a) => (
+            <button
+              key={a.key}
+              type="button"
+              role="tab"
+              aria-selected={aba === a.key}
+              className={aba === a.key ? 'bl-aba bl-aba--ativa' : 'bl-aba'}
+              onClick={() => setAba(a.key)}
+            >
+              {a.rotulo}
+            </button>
+          ))}
+        </div>
+      }
+    >
       <div className="bl-panel-body">
         {aba === 'acoes' ? <ActionsGlobalTab global={global} onMudar={onChangeGlobal} /> : null}
         {aba === 'funcoes' ? <FlowFunctionsPanel /> : null}
@@ -102,7 +103,7 @@ export function ConfigurationPanel({
           />
         ) : null}
       </div>
-    </aside>
+    </FloatingSidebar>
   );
 }
 

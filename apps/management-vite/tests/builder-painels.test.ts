@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import {
   adicionarAcaoGlobal,
@@ -352,4 +353,56 @@ test('test panel: debugSections with no visited blocks still surfaces the global
     debugSections(debug).map((s) => s.stateId),
     [GLOBAL_ACTIONS_SECTION_ID],
   );
+});
+
+/* ---------------------------------------------------- floating-sidebar.tsx (F-2/F-3/F-5 shell) */
+
+test('the floating shell (.bl-panel--flutuante) matches the Blip measurements: 460px, radius 16, shadow', () => {
+  const css = readFileSync(new URL('../src/pages/builder/panel-block.css', import.meta.url), 'utf8');
+  const bloco = css.match(/\.bl-panel--flutuante,\s*\n\.bl-panel--block\s*\{[^}]*\}/);
+  assert.ok(bloco, 'shared .bl-panel--flutuante/.bl-panel--block geometry block not found');
+  assert.match(bloco![0], /width:\s*460px/);
+  assert.match(bloco![0], /border-radius:\s*16px/);
+  assert.match(bloco![0], /box-shadow:\s*32px 0 56px 32px rgb\(0 0 0 \/ 50%\)/);
+});
+
+test('the floating shell keeps the block panel unchanged and adds direita/esquerda positions', () => {
+  const css = readFileSync(new URL('../src/pages/builder/panel-block.css', import.meta.url), 'utf8');
+  assert.match(css, /\.bl-panel--block\s*\{\s*\n\s*top:\s*16px;\s*\n\s*right:\s*16px;\s*\n\s*bottom:\s*16px;\s*\n\}/);
+  assert.match(
+    css,
+    /\.bl-panel--flutuante\.bl-panel--direita\s*\{\s*\n\s*top:\s*16px;\s*\n\s*right:\s*16px;\s*\n\s*bottom:\s*16px;\s*\n\}/,
+  );
+  assert.match(
+    css,
+    /\.bl-panel--flutuante\.bl-panel--esquerda\s*\{\s*\n\s*top:\s*16px;\s*\n\s*left:\s*16px;\s*\n\s*bottom:\s*16px;\s*\n\s*right:\s*auto;\s*\n\}/,
+  );
+});
+
+test('floating-sidebar.tsx exports FloatingSidebar and mounts as .bl-panel--flutuante', () => {
+  const source = readFileSync(new URL('../src/pages/builder/floating-sidebar.tsx', import.meta.url), 'utf8');
+  assert.match(source, /export function FloatingSidebar/);
+  assert.match(source, /bl-panel bl-panel--flutuante bl-panel--\$\{lado\}/);
+});
+
+test('Configuração, Biblioteca and Filas mount on the shared floating shell', () => {
+  const configuracao = readFileSync(
+    new URL('../src/pages/builder/panel-configuration.tsx', import.meta.url),
+    'utf8',
+  );
+  const biblioteca = readFileSync(new URL('../src/pages/builder/panel-variables.tsx', import.meta.url), 'utf8');
+  const filas = readFileSync(new URL('../src/pages/builder/panel-queues.tsx', import.meta.url), 'utf8');
+
+  assert.match(configuracao, /<FloatingSidebar/);
+  assert.match(configuracao, /lado="direita"/);
+  assert.match(configuracao, /titulo="Configurações gerais"/);
+
+  assert.match(biblioteca, /<FloatingSidebar/);
+  assert.match(biblioteca, /lado="esquerda"/);
+  assert.equal(/titulo=/.test(biblioteca), false);
+  assert.equal(biblioteca.includes('<hr'), false);
+
+  assert.match(filas, /<FloatingSidebar/);
+  assert.match(filas, /lado="direita"/);
+  assert.match(filas, /titulo="Gerenciamento de filas"/);
 });

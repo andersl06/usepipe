@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Campo } from '@pipe/ui';
 import { IconePortal } from '../../components/icones-portal';
 import type { Mapa } from './model';
+import { FloatingSidebar } from './floating-sidebar';
 import {
   VARIABLES_OF_SYSTEM,
   filterVariables,
@@ -42,33 +43,33 @@ export function VariablesPanel({
   const userFiltered = filterVariables(user, search);
 
   return (
-    <aside className="bl-panel bl-panel--left" aria-label="Biblioteca de variáveis">
-      <div className="bl-panel-header">
-        <button type="button" className="iconbtn" aria-label="Fechar" title="Fechar" onClick={onFechar}>
-          <IconePortal nome="fechar" tamanho={20} />
-        </button>
-      </div>
-      <hr className="bl-panel-wire" />
-      <div className="bl-abas" role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={aba === 'sistema'}
-          className={aba === 'sistema' ? 'bl-aba bl-aba--ativa' : 'bl-aba'}
-          onClick={() => setAba('sistema')}
-        >
-          Variáveis do sistema
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={aba === 'usuario'}
-          className={aba === 'usuario' ? 'bl-aba bl-aba--ativa' : 'bl-aba'}
-          onClick={() => setAba('usuario')}
-        >
-          Variáveis do usuário
-        </button>
-      </div>
+    <FloatingSidebar
+      lado="esquerda"
+      ariaLabel="Biblioteca de variáveis"
+      onFechar={onFechar}
+      abas={
+        <div className="bl-abas" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={aba === 'sistema'}
+            className={aba === 'sistema' ? 'bl-aba bl-aba--ativa' : 'bl-aba'}
+            onClick={() => setAba('sistema')}
+          >
+            Variáveis do sistema
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={aba === 'usuario'}
+            className={aba === 'usuario' ? 'bl-aba bl-aba--ativa' : 'bl-aba'}
+            onClick={() => setAba('usuario')}
+          >
+            Variáveis do usuário
+          </button>
+        </div>
+      }
+    >
       <div className="bl-panel-body">
         <Campo
           value={search}
@@ -127,6 +128,6 @@ export function VariablesPanel({
           </ul>
         )}
       </div>
-    </aside>
+    </FloatingSidebar>
   );
 }
