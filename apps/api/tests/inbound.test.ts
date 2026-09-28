@@ -370,6 +370,14 @@ describe('a origem de quem começou o login', () => {
     expect(baseDoApp('http://gestao.teste/')).toBe('http://gestao.teste');
   });
 
+  it('recusa também o separador de caminho do Windows como abertura de redirect externo', () => {
+    // Um navegador trata `\` como `/`: sem essa recusa, `/\evil` normaliza para `//evil`
+    // (redirect para outro host). Mesma lacuna fechada no front (`caminhoInterno`, 01-44).
+    expect(destinationAbsolute('/\\evil', 'http://gestao.teste')).toBe(
+      'http://gestao.teste/application',
+    );
+  });
+
   it('Store the request origin in the challenge cookie', async () => {
     const resposta = await fetch(
       `${api.url}/v1/auth/google?origin=${encodeURIComponent('http://gestao.teste')}`,

@@ -47,6 +47,9 @@ import type { RequestWithSession } from '../session.js';
 export const COOKIE_DESAFIO = 'pipe_challenge';
 const DESAFIO_SEGUNDOS = 300;
 
+/** Management's post-login landing page (D-52). Duplicated from `apps/management-vite/src/lib/application-paths.ts`'s `APPLICATION` — the API cannot import front code, and `/` still works too (it redirects client-side), but this is the real destination. */
+export const APPLICATION = '/application';
+
 /** Challenge cookie `Path`: it applies only to the two `/v1/auth` routes. */
 const CAMINHO_DESAFIO = '/v1/auth';
 
@@ -85,10 +88,13 @@ export function urlOfError(codigo: RefusesOfInbound, origem?: string): string {
 }
 
 /**
- * `criarDesafio` already restricts destinations to internal paths. Check again here so a future caller constructing a challenge by hand cannot turn an absolute destination into an open redirect and use our domain for phishing.
+ * `criarDesafio` already restricts destinations to internal paths. Check again here so a future caller constructing a challenge by hand cannot turn an absolute destination into an open redirect and use our domain for phishing. Reject a leading `\` too: a browser treats it as `/`, so `/\evil` would otherwise normalize to `//evil` (an external redirect) — the same gap closed on the front end's `caminhoInterno` (`apps/management-vite/src/lib/inbound.ts`).
  */
 export function destinationAbsolute(destination: string, origem?: string): string {
-  const interno = destination.startsWith('/') && !destination.startsWith('//') ? destination : '/';
+  const interno =
+    destination.startsWith('/') && !destination.startsWith('//') && !destination.startsWith('/\\')
+      ? destination
+      : APPLICATION;
   return `${baseDoApp(origem)}${interno}`;
 }
 
@@ -240,7 +246,7 @@ export class LoginController {
     const invitation = textoDaQuery(requisicao, 'invite');
     const origem = origemDaQuery(requisicao);
     const desafio: ChallengeWithInvitation = {
-      ...createChallenge(textoDaQuery(requisicao, 'returnTo') ?? '/'),
+      ...createChallenge(textoDaQuery(requisicao, 'returnTo') ?? APPLICATION),
       ...(invitation ? { invitation } : {}),
       ...(origem ? { origin: origem } : {}),
     };

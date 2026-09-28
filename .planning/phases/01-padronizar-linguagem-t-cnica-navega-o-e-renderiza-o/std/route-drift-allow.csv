@@ -9,3 +9,5 @@ packages/authentication/tests/oidc.test.ts,${EMISSOR}/oauth2/v1/keys,Endpoint ex
 packages/realtime/src/index.ts,"${urlApi.replace(/\/$/, '').replace(/^http/, 'ws')}/v1/eventos",Upgrade WebSocket não aparece nos decorators HTTP do Nest,01-18
 packages/realtime/tests/realtime.test.ts,ws://localhost:3000/v1/eventos,URL WebSocket unitária sem decorator HTTP,01-18
 packages/realtime/tests/realtime.test.ts,wss://api.usepipe.com.br/v1/eventos,URL WebSocket unitária sem decorator HTTP,01-18
+apps/management-vite/src/lib/shell.ts,/entrar,Resíduo PT do STD-11 (rota real é /login) — não é endereço D-52; fora do escopo de arquivos do 01-45,D-53
+apps/management-vite/src/pages/operation/history.tsx,/termo-de-responsabilidade,Link morto pré-existente sem relação com D-52; fora do escopo de arquivos do 01-45,TBD

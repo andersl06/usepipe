@@ -12,6 +12,7 @@ import { databaseApp, databaseOwner, noTenant } from '../database.js';
 import { WithSession, requirePermission, sessionCookie, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import {
+  APPLICATION,
   codigoDaRecusa,
   cookieDoDesafio,
   destinationAbsolute,
@@ -108,7 +109,9 @@ export class SsoLoginController {
     // `exigirAtiva: false` permits testing a draft connection, which is the purpose here.
     const flow = await connectionForFlow(session.tenantId, { requireActive: false });
     const desafio: ChallengeWithInvitation = {
-      ...createChallenge('/'),
+      // The test flow never redirects there (it returns JSON, see `callback` below); the
+      // destination is unused but kept consistent with real sign-in.
+      ...createChallenge(APPLICATION),
       tenantId: session.tenantId,
       test: true,
     };
@@ -200,7 +203,7 @@ export class SsoLoginController {
       const fluxo = await connectionForFlow(tenantId, { requireActive: true });
       const origem = origemDaQuery(requisicao);
       const desafio: ChallengeWithInvitation = {
-        ...createChallenge(textoDaQuery(requisicao, 'returnTo') ?? '/'),
+        ...createChallenge(textoDaQuery(requisicao, 'returnTo') ?? APPLICATION),
         tenantId,
         ...(origem ? { origem } : {}),
       };

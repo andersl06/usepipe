@@ -1046,7 +1046,16 @@ function main(): void {
     frontConsumers.sort(compareFrontOccurrence);
 
     const frontConsumersFile = getOne(args, '--front-consumers');
-    if (frontConsumersFile) writeFrontConsumers(frontConsumersFile, frontConsumers);
+    if (frontConsumersFile) {
+      // An allow-listed dangling link is a known, reviewed exception (see --allow), not an
+      // unreviewed break — the report should say so instead of reading identically to one.
+      const forReport = frontConsumers.map((item) =>
+        item.dangling && allowlist.has(`${item.file}\0${item.raw}`)
+          ? { ...item, match: 'allowed (route-drift-allow.csv)' }
+          : item,
+      );
+      writeFrontConsumers(frontConsumersFile, forReport);
+    }
 
     const danglingFront = frontConsumers.filter(
       (item) => item.dangling && !allowlist.has(`${item.file}\0${item.raw}`),
