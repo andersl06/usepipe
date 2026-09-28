@@ -214,7 +214,7 @@ describe('salvarNotaInterna', () => {
   it('Save an internal note attributed to the session agent', async () => {
     const conversationId = await createConversationAssigned(a.agentId);
     const { body } = await acao(sessionAgent, 'salvarNotaInterna', {
-      conversaId: conversationId,
+      conversationId,
       texto: '  Cliente pediu retorno amanhã.  ',
     });
     expect(body).toMatchObject({ ok: true });
@@ -231,7 +231,7 @@ describe('salvarNotaInterna', () => {
     expect(withoutConversation.body).toMatchObject({ ok: false, error: 'Conversa não informada.' });
 
     const conversaId = await createConversationAssigned(a.agentId);
-    const semTexto = await acao(sessionAgent, 'salvarNotaInterna', { conversaId, texto: '   ' });
+    const semTexto = await acao(sessionAgent, 'salvarNotaInterna', { conversationId: conversaId, texto: '   ' });
     expect(semTexto.body).toMatchObject({
       ok: false,
       error: 'Escreva alguma coisa antes de enviar.',

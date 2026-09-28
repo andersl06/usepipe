@@ -209,12 +209,12 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
 
     const contact = await chamar(sessionEditor, 'GET', `/v1/management/flows/${flowId}`);
     expect(contact.body['contact']).toMatchObject({
-      canalId: channelId,
-      canalTipo: 'whatsapp_cloud',
-      canalAtivo: true,
-      canalNumero: '+5511900000001',
+      channelId,
+      channelType: 'whatsapp_cloud',
+      channelActive: true,
+      channelNumber: '+5511900000001',
     });
-    expect((contact.body['contact'] as { canalNome: string }).canalNome).toMatch(/^Canal /);
+    expect((contact.body['contact'] as { channelName: string }).channelName).toMatch(/^Canal /);
 
     // // Connecting the same channel again isn't an error and doesn't create a record.
     expect((await ligar(sessionEditor, flowId, channelId)).status).toBe(200);

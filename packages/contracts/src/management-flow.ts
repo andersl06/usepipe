@@ -13,8 +13,8 @@ export interface ContactOfFlow {
   /** Description in Edit Flow: optional there, nullable here. */
   description: string | null;
   criadoEm: string | null;
-  canalId: string | null;
-  canalNome: string | null;
+  channelId: string | null;
+  channelName: string | null;
   channelType: string | null;
   channelActive: boolean | null;
   /** Channel identifier shown to viewers: phone number for WhatsApp, `@usuário` for Instagram, or Page ID for Messenger. */
