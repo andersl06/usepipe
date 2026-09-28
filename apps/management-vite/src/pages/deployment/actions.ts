@@ -53,12 +53,12 @@ export async function completeRegistrationEmbedded(
   credentials: RegistrationCredentials,
 ): Promise<ResultadoDaAcao> {
   const resposta = await postarJson('/v1/channels/whatsapp', {
-    codigo: credentials.codigo,
+    code: credentials.codigo,
     waba_id: credentials.wabaId,
     phone_number_id: credentials.numeroId || undefined,
     business_id: credentials.businessId || undefined,
     coexistencia: credentials.coexistencia === true,
-    estado: credentials.state,
+    state: credentials.state,
     canal_id: credentials.channelId,
     fluxo_id: credentials.flowId,
   });
