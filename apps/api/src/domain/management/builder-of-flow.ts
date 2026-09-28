@@ -499,7 +499,7 @@ export async function publicarRascunho(
 
   const anterior = await versionInState(tx, fluxoId, 'publicada');
   const { rows: maior } = await tx.execute<{ version: number }>(sql`
-    select coalesce(max(versao), 0) as versao from fluxo_versao
+    select coalesce(max(versao), 0) as "version" from fluxo_versao
      where fluxo_id = ${fluxoId} and id <> ${rascunho.id}
   `);
   const numero = Math.max(rascunho.versao, Number(maior[0]?.version ?? 0) + 1);

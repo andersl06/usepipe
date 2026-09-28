@@ -221,7 +221,7 @@ function message(erro: unknown): string {
 async function userWithEmail(tenantId: string, email: string): Promise<string | null> {
   return noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ name: string }>(
-      sql`select nome from usuario where email = ${email} and ativo limit 1`,
+      sql`select nome as "name" from usuario where email = ${email} and ativo limit 1`,
     );
     return rows[0]?.name ?? null;
   });
