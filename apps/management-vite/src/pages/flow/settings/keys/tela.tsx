@@ -259,7 +259,7 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
                 </div>
                 <div className="cf-key-column">
                   <dt>Nome</dt>
-                  <dd>{key.nome}</dd>
+                  <dd>{key.name}</dd>
                 </div>
                 <div className="cf-key-column">
                   <dt>Requisitante</dt>
@@ -297,7 +297,7 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
             <strong>Cuidado</strong>: certifique-se de que a chave removida não seja a mesma usada
             para a configuração HTTP do bot.
             <br />
-            Quer mesmo excluir a chave &quot;{excluindo?.nome}&quot;?
+            Quer mesmo excluir a chave &quot;{excluindo?.name}&quot;?
           </>
         }
         error={deletionError}
