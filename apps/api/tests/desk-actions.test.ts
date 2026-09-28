@@ -132,28 +132,28 @@ describe('POST /v1/desk/actions/:action — lista fechada e sessão obrigatória
   });
 
   it('Return 401 for Desk actions without a session', async () => {
-    const { status } = await acao(null, 'definirStatus', { estado: 'online' });
+    const { status } = await acao(null, 'definirStatus', { state: 'online' });
     expect(status).toBe(401);
   });
 });
 
 describe('definirStatus', () => {
   it('Reject an unknown agent status', async () => {
-    const { status, body } = await acao(sessionAgent, 'definirStatus', { estado: 'sonolento' });
+    const { status, body } = await acao(sessionAgent, 'definirStatus', { state: 'sonolento' });
     expect(status).toBe(200);
     expect(body).toMatchObject({ ok: false, error: 'Estado desconhecido.' });
   });
 
   it('pausa sem motivo é recusada; não muda o status atual', async () => {
-    await acao(sessionAgent, 'definirStatus', { estado: 'online' });
-    const { body } = await acao(sessionAgent, 'definirStatus', { estado: 'pausa' });
+    await acao(sessionAgent, 'definirStatus', { state: 'online' });
+    const { body } = await acao(sessionAgent, 'definirStatus', { state: 'pausa' });
     expect(body).toMatchObject({ ok: false, error: 'Escolha o motivo da pausa.' });
     expect((await statusDe(a.agentId))?.state).toBe('online');
   });
 
   it('Record a reasoned pausa as an agent state and an open `pause` row', async () => {
     const motivoId = await createReasonOfPause();
-    const { body } = await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });
+    const { body } = await acao(sessionAgent, 'definirStatus', { state: 'pausa', motivoId });
     expect(body).toMatchObject({ ok: true });
     expect((await statusDe(a.agentId))?.state).toBe('pausa');
     expect((await pausaAbertaDe(a.agentId))?.motivo_id).toBe(motivoId);
@@ -161,32 +161,32 @@ describe('definirStatus', () => {
 
   it('Close the previous pause when an agent returns online so reports do not double-count time', async () => {
     const motivoId = await createReasonOfPause();
-    await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });
+    await acao(sessionAgent, 'definirStatus', { state: 'pausa', motivoId });
     expect(await pausaAbertaDe(a.agentId)).not.toBeNull();
 
-    await acao(sessionAgent, 'definirStatus', { estado: 'online' });
+    await acao(sessionAgent, 'definirStatus', { state: 'online' });
     expect((await statusDe(a.agentId))?.state).toBe('online');
     expect(await pausaAbertaDe(a.agentId)).toBeNull();
   });
 
   it('invisível e offline também são aceitos', async () => {
-    const invisivel = await acao(sessionAgent, 'definirStatus', { estado: 'invisivel' });
+    const invisivel = await acao(sessionAgent, 'definirStatus', { state: 'invisivel' });
     expect(invisivel.body).toMatchObject({ ok: true });
     expect((await statusDe(a.agentId))?.state).toBe('invisivel');
 
-    const offline = await acao(sessionAgent, 'definirStatus', { estado: 'offline' });
+    const offline = await acao(sessionAgent, 'definirStatus', { state: 'offline' });
     expect(offline.body).toMatchObject({ ok: true });
     expect((await statusDe(a.agentId))?.state).toBe('offline');
 
     // // Returns the scenario to online — other tests in this file depend on it.
-    await acao(sessionAgent, 'definirStatus', { estado: 'online' });
+    await acao(sessionAgent, 'definirStatus', { state: 'online' });
   });
 });
 
 describe('Set an inactive agent offline and close any open pause', () => {
   it('Move an inactive agent offline and close its open pause', async () => {
     const motivoId = await createReasonOfPause();
-    await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });
+    await acao(sessionAgent, 'definirStatus', { state: 'pausa', motivoId });
 
     const { body } = await acao(sessionAgent, 'cairPorInatividade');
     expect(body).toMatchObject({ ok: true });
@@ -194,7 +194,7 @@ describe('Set an inactive agent offline and close any open pause', () => {
     expect(await pausaAbertaDe(a.agentId)).toBeNull();
 
     // // Returns the scenario to online.
-    await acao(sessionAgent, 'definirStatus', { estado: 'online' });
+    await acao(sessionAgent, 'definirStatus', { state: 'online' });
   });
 
   it('é um no-op se já está offline: não reescreve `desde`', async () => {
@@ -206,7 +206,7 @@ describe('Set an inactive agent offline and close any open pause', () => {
     const depois = await statusDe(a.agentId);
     expect(new Date(depois!.since).getTime()).toBe(new Date(antes!.since).getTime());
 
-    await acao(sessionAgent, 'definirStatus', { estado: 'online' });
+    await acao(sessionAgent, 'definirStatus', { state: 'online' });
   });
 });
 
@@ -241,10 +241,10 @@ describe('salvarNotaInterna', () => {
 
 describe('atender', () => {
   it('recusa quem não está online', async () => {
-    await acao(sessionAgent, 'definirStatus', { estado: 'invisivel' });
+    await acao(sessionAgent, 'definirStatus', { state: 'invisivel' });
     const { body } = await acao(sessionAgent, 'atender');
     expect(body).toMatchObject({ ok: false, error: 'Fique online para atender.' });
-    await acao(sessionAgent, 'definirStatus', { estado: 'online' });
+    await acao(sessionAgent, 'definirStatus', { state: 'online' });
   });
 
   it('Reject a queue pull when no conversations are waiting', async () => {

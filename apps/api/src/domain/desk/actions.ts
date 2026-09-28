@@ -31,7 +31,7 @@ export async function definirStatus(
   atendenteId: string,
   dados: Campos,
 ): Promise<Resultado> {
-  const state = String(dados.get('estado') ?? '') as StateAgent;
+  const state = String(dados.get('state') ?? '') as StateAgent;
   const motivoId = String(dados.get('motivoId') ?? '') || null;
 
   if (!['online', 'pausa', 'invisivel', 'offline'].includes(state)) {
