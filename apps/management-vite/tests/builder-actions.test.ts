@@ -5,10 +5,15 @@ import {
   CATALOG_OF_ACTIONS,
   EXTERNAL_DEPENDENCY_ACTIONS,
   EXTERNAL_DEPENDENCY_MESSAGE,
+  ACTION_TYPE_ICON,
+  ACTION_ICON_GENERIC,
+  LABELS_OF_ACTIONS,
   acaoTemDependenciaExterna,
   actionsOfGroup,
   SCRIPT_TEMPLATE,
   actionErrors,
+  iconOfActionType,
+  removeActions,
   variablesOfField,
   withVariables,
   comCampo,
@@ -134,4 +139,48 @@ test('script actions: Monaco is lazy-loaded from the local package, never static
   assert.equal(/from '(monaco-editor|@monaco-editor\/react)/.test(panel), false);
   const editor = readFileSync(new URL('../src/pages/builder/code-editor.tsx', import.meta.url), 'utf8');
   assert.match(editor, /loader\.config\(\{ monaco \}\)/);
+});
+
+test('ACTION_TYPE_ICON maps the reference F-1.2 types to a Pipe icon; unknown types fall back to the generic one', () => {
+  const expected: Record<string, string> = {
+    ProcessHttp: 'httpRequest',
+    TrackEvent: 'trackEvent',
+    MergeContact: 'mergeContact',
+    Redirect: 'redirect',
+    ManageList: 'manageList',
+    ExecuteScript: 'script',
+    ExecuteScriptV2: 'script',
+    ExecuteBlipFunction: 'blipFunction',
+    SetVariable: 'setVariable',
+    ProcessCommand: 'processCommand',
+    ExecuteTemplate: 'executeTemplate',
+    ForwardToAgent: 'forwardToAgent',
+  };
+  for (const [tipo, icone] of Object.entries(expected)) {
+    assert.equal(ACTION_TYPE_ICON[tipo], icone);
+    assert.equal(iconOfActionType(tipo), icone);
+  }
+  assert.equal(iconOfActionType('SendMessageFromHttp'), ACTION_ICON_GENERIC);
+  assert.equal(iconOfActionType('SomeUnknownFutureType'), ACTION_ICON_GENERIC);
+});
+
+test('removeActions drops the selected positions, keeping the remaining order', () => {
+  const acoes = [novaAcao('SetVariable', 'a'), novaAcao('TrackEvent', 'b'), novaAcao('MergeContact', 'c')];
+  assert.deepEqual(removeActions(acoes, [0, 2]).map((a) => a.$id), ['b']);
+  assert.deepEqual(removeActions(acoes, []).map((a) => a.$id), ['a', 'b', 'c']);
+  assert.deepEqual(removeActions(acoes, [1]).map((a) => a.$id), ['a', 'c']);
+});
+
+test('LABELS_OF_ACTIONS carries the bulk-selection texts, the error chip text and bold description parts with no raw HTML', () => {
+  assert.equal(LABELS_OF_ACTIONS.copiarSelecionados, 'Copiar selecionados');
+  assert.equal(LABELS_OF_ACTIONS.deletarSelecionados, 'Deletar selecionados');
+  assert.equal(LABELS_OF_ACTIONS.erro, 'Erro');
+  assert.equal(LABELS_OF_ACTIONS.bibliotecaFuncoesEtiqueta, 'Novo');
+  assert.equal(LABELS_OF_ACTIONS.gerenciarFuncoes, 'Gerenciar funções');
+  assert.equal(LABELS_OF_ACTIONS.criarFuncao, 'Criar função');
+  for (const partes of [LABELS_OF_ACTIONS.entradaDescricao, LABELS_OF_ACTIONS.saidaDescricao]) {
+    assert.ok(Array.isArray(partes));
+    assert.ok(partes.some((p) => p.forte));
+    for (const parte of partes) assert.equal(/<[^>]+>/.test(parte.texto), false);
+  }
 });
