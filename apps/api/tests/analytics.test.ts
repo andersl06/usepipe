@@ -59,8 +59,8 @@ beforeAll(async () => {
   cookie = await createCookieOfSession(cenario);
 
   const flow = await cenario.dono.execute<{ id: string }>(sql`
-    insert into fluxo (tenant_id, nome, tipo, estado, canal_id)
-    values (${cenario.tenantId}, 'Bot de teste', 'fluxo', 'publicado', ${cenario.channelId})
+    insert into fluxo (tenant_id, nome, tipo, estado, canal_id, short_name)
+    values (${cenario.tenantId}, 'Bot de teste', 'fluxo', 'publicado', ${cenario.channelId}, 'bot-de-teste')
     returning id
   `);
   flowId = flow.rows[0]!.id;

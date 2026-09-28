@@ -40,7 +40,7 @@ beforeAll(async () => {
   cookie = novo.token;
 
   const { rows: bot } = await cenario.dono.execute<{ id: string }>(sql`
-    insert into fluxo (tenant_id, nome) values (${cenario.tenantId}, 'Bot de teste') returning id
+    insert into fluxo (tenant_id, nome, short_name) values (${cenario.tenantId}, 'Bot de teste', 'bot-de-teste') returning id
   `);
   flowId = bot[0]!.id;
 
@@ -128,7 +128,7 @@ describe('Register tracked links and generate short codes', () => {
     const outro = await montarCenario(`growth-outro-${randomUUID().slice(0, 8)}`);
     try {
       const { rows } = await outro.dono.execute<{ id: string }>(sql`
-        insert into fluxo (tenant_id, nome) values (${outro.tenantId}, 'Bot de outra conta')
+        insert into fluxo (tenant_id, nome, short_name) values (${outro.tenantId}, 'Bot de outra conta', 'bot-de-outra-conta')
         returning id
       `);
       const resposta = await comCookie(`/v1/management/flows/${rows[0]!.id}/links-tracked`);

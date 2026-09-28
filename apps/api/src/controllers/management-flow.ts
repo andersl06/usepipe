@@ -43,6 +43,7 @@ import {
   loadChannelOfFlow,
   carregarGradeDoPortal,
   loadContact,
+  loadContactByShortName,
   loadDetailContactOfFlow,
   carregarGrowth,
   loadLogsOfFlow,
@@ -79,6 +80,18 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function uuidOu404(value: string, oQue: string): string {
   if (!UUID.test(value)) throw PipeError.naoEncontrado(oQue);
+  return value;
+}
+
+/**
+ * The charset `nomeCurto` (`regras-de-nome.ts`) ever produces: letters (including accents),
+ * digits, brackets, parentheses, underscore and hyphen, lowercase, no space (D-52 turns spaces
+ * into hyphens before saving). Reject anything else before it reaches the database.
+ */
+const SHORT_NAME = /^[a-zà-ÿ0-9[\]()_-]{1,40}$/;
+
+function shortNameOu404(value: string): string {
+  if (!SHORT_NAME.test(value)) throw PipeError.naoEncontrado('fluxo');
   return value;
 }
 
@@ -209,6 +222,30 @@ export class ManagementFlowController {
         byPage: (BY_PAGE as readonly number[]).includes(tamanho) ? tamanho : BY_PAGE[0],
       }),
     );
+  }
+
+  /**
+   * Resolve a flow by its URL key (D-52), the address `/application/detail/{shortName}/...`
+   * needs. Declared before `:id` so a two-segment path like `short-name/meu-bot` never matches
+   * `:id/xxx` sub-routes instead. Same session guard and response shape as `:id`; the query
+   * additionally excludes archived flows, since an archived flow's short name may already
+   * belong to a live one.
+   */
+  @Get('short-name/:shortName')
+  @WithSession()
+  async contactByShortName(
+    @Req() requisicao: RequestWithSession,
+    @Param('shortName') shortName: string,
+  ): Promise<ShellOfContact> {
+    const sessao = sessionOf(requisicao);
+    shortNameOu404(shortName);
+    const resultado = await noTenant(sessao.tenantId, async (tx) => {
+      const contato = await loadContactByShortName(tx, sessao.tenantId, shortName);
+      if (!contato) return null;
+      return { contact: contato, fuso: await fusoDoTenant(tx) };
+    });
+    if (!resultado) throw PipeError.naoEncontrado('fluxo');
+    return resultado;
   }
 
   @Get(':id')

@@ -43,9 +43,9 @@ export const flow = pgTable(
      */
     imageUrl: text('imagem_url'),
     /**
-     * Short identifier derived from the name (`name.toLowerCase()` in the source). It appears in source contact URLs (`/application/detail/{shortName}`) and requires names to begin with a letter. There is no unique index: uniqueness is still checked on `nome`. Migration 0020.
+     * URL key per tenant, derived from the name (`nomeCurto`, `regras-de-nome.ts`). It appears in contact URLs (`/application/detail/{shortName}`) and requires names to begin with a letter. Unique among LIVE flows (`estado <> 'arquivado'`) through `fluxo_short_name_vivo_uk`; an archived flow releases its short name for reuse, matching the exception `nomeEmUso` already makes for `nome`. Migration 0020 added the column nullable; migration 0051 (D-52) backfilled it, broke ties, and added the NOT NULL and the unique index.
      */
-    shortName: text('short_name'),
+    shortName: text('short_name').notNull(),
     /**
      * Contact description is the source "Editar Fluxo" `description` at `/configurations/basic`. Optional because the source textarea has no `required`; when present it must have 2–160 characters (`ng-minlength="2"`, `ng-maxlength="160"`). The database `check` enforces the maximum; the `api` enforces the minimum. Migration 0022.
      */
@@ -66,6 +66,10 @@ export const flow = pgTable(
     listaCheck('fluxo_estado_ck', t.estado, STATES_FLOW),
     listaCheck('fluxo_tipo_ck', t.tipo, TYPES_FLOW),
     check('fluxo_descricao_ck', sql.raw(`char_length("descricao") <= ${DESCRIPTION_FLOW_MAX}`)),
+    /** D-52: one short name per tenant among live flows. Migration 0051. */
+    uniqueIndex('fluxo_short_name_vivo_uk')
+      .on(t.tenantId, t.shortName)
+      .where(sql`estado <> 'arquivado'`),
   ],
 );
 
