@@ -313,7 +313,7 @@ Plans:
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
-- [ ] 02-23-PLAN.md — F-1 cards de condições de saída no painel do bloco (Se/Condição, E/OU, chips, +, Ir para)
+- [x] 02-23-PLAN.md — F-1 cards de condições de saída no painel do bloco (Se/Condição, E/OU, chips, +, Ir para)
 
 **Wave 14** *(blocked on Wave 13 completion)*
 
