@@ -47,6 +47,7 @@ export function ModalConfirmation({
   error,
   confirmando,
   rotuloConfirmar = 'Excluir',
+  rotuloCancelar = 'Cancelar',
   onConfirmar,
   onCancelar,
 }: {
@@ -57,6 +58,8 @@ export function ModalConfirmation({
   error?: string | null;
   confirmando?: boolean;
   rotuloConfirmar?: string;
+  /** Blip's "Carregar fluxo" confirmation uses "Sim"/"Não" instead of "Cancelar" (F-2.1). */
+  rotuloCancelar?: string;
   onConfirmar: () => void;
   onCancelar: () => void;
 }) {
@@ -66,7 +69,7 @@ export function ModalConfirmation({
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
       <div className="cl-actions">
         <Botao type="button" onClick={onCancelar} disabled={confirmando}>
-          Cancelar
+          {rotuloCancelar}
         </Botao>
         <Botao type="button" variante="perigo" onClick={onConfirmar} disabled={confirmando}>
           {confirmando ? 'Excluindo…' : rotuloConfirmar}

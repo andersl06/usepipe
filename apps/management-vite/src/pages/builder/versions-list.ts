@@ -5,16 +5,19 @@ import type { VersionOfFlow } from '@pipe/contracts';
  * `dd/MM/yyyy - HH:mm:ss` date shown on each card.
  */
 
+/** A `VersionOfFlow` known to have been published — `publicadaEm` narrowed from `string | null`. */
+export type PublishedVersion = VersionOfFlow & { publicadaEm: string };
+
 /** The last 10 published versions (`publicadaEm` set), newest first. */
-export function lastPublished(versions: VersionOfFlow[]): VersionOfFlow[] {
+export function lastPublished(versions: VersionOfFlow[]): PublishedVersion[] {
   return versions
-    .filter((v): v is VersionOfFlow & { publicadaEm: string } => v.publicadaEm !== null)
+    .filter((v): v is PublishedVersion => v.publicadaEm !== null)
     .sort((a, b) => new Date(b.publicadaEm).getTime() - new Date(a.publicadaEm).getTime())
     .slice(0, 10);
 }
 
 /** The most recently published version, or null when nothing has been published yet. */
-export function latestPublished(versions: VersionOfFlow[]): VersionOfFlow | null {
+export function latestPublished(versions: VersionOfFlow[]): PublishedVersion | null {
   return lastPublished(versions)[0] ?? null;
 }
 

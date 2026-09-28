@@ -32,9 +32,6 @@
   border-color: transparent;
   background: transparent;
 }
-.bl-versions-table th {
-  background: transparent;
-}
 /*
  * Measurements from portal.css; effective surfaces from the dark `bds-theme-provider`. Shared by
  * the block panel and the floating shell (Configuração, Biblioteca, Filas — `floating-sidebar.tsx`).

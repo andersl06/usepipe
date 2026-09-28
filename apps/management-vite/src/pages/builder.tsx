@@ -372,6 +372,7 @@ export function PageBuilder() {
                 toast({ tom: 'sucesso', texto: 'Fluxo importado.' });
               }}
               onRestoreVersion={restaurarVersaoAntiga}
+              onAviso={toast}
               onFechar={() => setConfigAberto(false)}
             />
           ) : null}

@@ -5,20 +5,10 @@ import { Etiqueta, Icone } from '@pipe/ui';
 import { IconePortal } from '../../components/icones-portal';
 import type { Resultado } from '../../lib/rest';
 import { ModalConfirmation } from '../registrations/_modal';
-import type { AcaoDoEditor, Mapa } from './model';
+import type { Mapa } from './model';
 import { lerDesenho } from './model';
-import { actionsOfGroup, LABELS_OF_ACTIONS, novaAcao } from './actions-of-block';
-import type { ActionsList } from './actions-of-block';
-import { renderDescricao } from './cabecalho-info';
-import type { DescricaoParte } from './cabecalho-info';
-import {
-  adicionarAcaoGlobal,
-  actionsGlobalList,
-  moverAcaoGlobal,
-  removerAcaoGlobal,
-  substituirAcaoGlobal,
-} from './actions-global';
-import { ActionCard } from './panel-actions';
+import { pseudoBlockOfGlobal, globalOfPseudoBlock } from './actions-global';
+import { ActionsPanel } from './panel-actions';
 import { FlowFunctionsPanel } from './flow-functions-panel';
 import { FloatingSidebar } from './floating-sidebar';
 import { ConfigurationVariablesTab } from './panel-configuration-variables';
@@ -30,6 +20,8 @@ import {
   exportText,
   validateImport,
 } from './import-exportar';
+import { lastPublished, latestPublished, formatPublishedAt } from './versions-list';
+import type { ToastInput } from './toast-queue';
 
 /**
  * The "Configuração" panel (`$ctrl.editConfig()`, `settings-builder` icon) — the source's 3 tabs
@@ -39,10 +31,13 @@ import {
  *   (`panel-configuration-variables.tsx`). Only "Variáveis de configuração" is wired to the engine
  *   ({{config.X}}, read by `packages/core/src/flow/context.ts`); the other 7 show the Blip control
  *   disabled with the recorded value, marked "Não disponível no Pipe".
- * - "Versões" (where the source's "Importar"/"Exportar" live, not a standalone button): downloads/reads
- *   the same `{flow, globalActions}` Blip uses.
- * - "Ações globais": the same two lists as a block (`$enteringCustomActions`/`$leavingCustomActions`),
- *   but for the whole flow — the engine actually runs them (`editor.ts` from `@pipe/core`).
+ * - "Versões" (where the source's "Carregar fluxo"/"Baixar fluxo" live, not a standalone button):
+ *   downloads/reads the same `{flow, globalActions}` Blip uses; "Restaurar versão" restores the latest
+ *   publication; "VERSÕES PUBLICADAS" lists the last 10 as cards (F-2.1, `versions-list.ts`).
+ * - "Ações globais": the identical `ActionsPanel` the block's "Ações" tab renders (F-2.2), fed a
+ *   pseudo-block built from `global` (`pseudoBlockOfGlobal`/`globalOfPseudoBlock`, `actions-global.ts`)
+ *   so the same `$enteringCustomActions`/`$leavingCustomActions` editing works flow-wide — the engine
+ *   actually runs them (`editor.ts` from `@pipe/core`).
  * - "Funções": the "Biblioteca de funções" the `ExecuteBlipFunction` action consumes — a bot-scoped
  *   resource, so it lives beside the Blip tabs rather than inside a single block; last in the tab order
  *   (D-22), after the source's own tabs.
@@ -60,6 +55,7 @@ export function ConfigurationPanel({
   onChangeConfiguration,
   onImport,
   onRestoreVersion,
+  onAviso,
   onFechar,
   abaInicial,
   criarFuncaoAoAbrir,
@@ -75,6 +71,8 @@ export function ConfigurationPanel({
   onImport: (mapa: Mapa, global: Record<string, unknown>) => void;
   /** Restores an old version as the draft; the caller owns the `api` call and reloading the editor. */
   onRestoreVersion: (version: number) => Promise<Resultado<VersionOfFlow>>;
+  /** The Builder's single toast (F-6, D-56): action limits in "Ações globais", "nada publicado" in "Versões". */
+  onAviso: (input: ToastInput) => void;
   onFechar: () => void;
   /** Which tab opens first; the block Ações tab's "Gerenciar/Criar função" lands here on "Funções" (D-22). */
   abaInicial?: Aba;
@@ -82,6 +80,15 @@ export function ConfigurationPanel({
   criarFuncaoAoAbrir?: boolean;
 }) {
   const [aba, setAba] = useState<Aba>(abaInicial ?? 'variaveis');
+  /** "Biblioteca de funções" inside "Ações globais" switches to "Funções" without leaving the panel. */
+  const [criarFuncao, setCriarFuncao] = useState(criarFuncaoAoAbrir ?? false);
+  function abrirFuncoes(modo: 'gerenciar' | 'criar'): void {
+    setCriarFuncao(modo === 'criar');
+    setAba('funcoes');
+  }
+  function avisar(texto: string): void {
+    onAviso({ tom: 'aviso', texto });
+  }
   const abas: { key: Aba; rotulo: string }[] = [
     { key: 'variaveis', rotulo: 'Variáveis' },
     { key: 'versoes', rotulo: 'Versões' },
@@ -119,8 +126,15 @@ export function ConfigurationPanel({
             onChange={onChangeConfiguration}
           />
         ) : null}
-        {aba === 'acoes' ? <ActionsGlobalTab global={global} onMudar={onChangeGlobal} /> : null}
-        {aba === 'funcoes' ? <FlowFunctionsPanel iniciarCriando={criarFuncaoAoAbrir} /> : null}
+        {aba === 'acoes' ? (
+          <ActionsPanel
+            block={pseudoBlockOfGlobal(global)}
+            onMudar={(bloco) => onChangeGlobal(globalOfPseudoBlock(bloco))}
+            onAviso={avisar}
+            onAbrirFuncoes={abrirFuncoes}
+          />
+        ) : null}
+        {aba === 'funcoes' ? <FlowFunctionsPanel iniciarCriando={criarFuncao} /> : null}
         {aba === 'versoes' ? (
           <VersionsTab
             flowId={flowId}
@@ -129,6 +143,7 @@ export function ConfigurationPanel({
             global={global}
             onImport={onImport}
             onRestoreVersion={onRestoreVersion}
+            onAviso={avisar}
           />
         ) : null}
       </div>
@@ -136,125 +151,13 @@ export function ConfigurationPanel({
   );
 }
 
-function ActionsGlobalTab({
-  global,
-  onMudar,
-}: {
-  global: Record<string, unknown>;
-  onMudar: (global: Record<string, unknown>) => void;
-}) {
-  return (
-    <div className="bl-aba-corpo">
-      <ActionsGlobalList
-        lista="$enteringCustomActions"
-        titulo={LABELS_OF_ACTIONS.entrada}
-        description={LABELS_OF_ACTIONS.entradaDescricao}
-        rotuloAdicionar={LABELS_OF_ACTIONS.adicionarEntrada}
-        global={global}
-        onMudar={onMudar}
-      />
-      <ActionsGlobalList
-        lista="$leavingCustomActions"
-        titulo={LABELS_OF_ACTIONS.saida}
-        description={LABELS_OF_ACTIONS.saidaDescricao}
-        rotuloAdicionar={LABELS_OF_ACTIONS.adicionarSaida}
-        global={global}
-        onMudar={onMudar}
-      />
-    </div>
-  );
-}
-
-function ActionsGlobalList({
-  lista,
-  titulo,
-  description,
-  rotuloAdicionar,
-  global,
-  onMudar,
-}: {
-  lista: ActionsList;
-  titulo: string;
-  description: DescricaoParte[];
-  rotuloAdicionar: string;
-  global: Record<string, unknown>;
-  onMudar: (global: Record<string, unknown>) => void;
-}) {
-  const actions = actionsGlobalList(global, lista);
-  const [menuAberto, setMenuAberto] = useState(false);
-  const [aberta, setAberta] = useState<number | null>(null);
-
-  function adicionar(tipo: string): void {
-    const r = adicionarAcaoGlobal(global, lista, novaAcao(tipo));
-    setMenuAberto(false);
-    if (!r.ok) return;
-    onMudar(r.global);
-    setAberta(actions.length);
-  }
-
-  const groups = ['Executar', 'Manipular'] as const;
-
-  return (
-    <section className="bl-section">
-      <h4 className="bl-section-title">{titulo}</h4>
-      <p className="sub">{renderDescricao(description)}</p>
-
-      {actions.map((acao: AcaoDoEditor, i) => (
-        <ActionCard
-          key={acao.$id ?? i}
-          acao={acao}
-          aberta={aberta === i}
-          first={i === 0}
-          ultima={i === actions.length - 1}
-          onAbrir={() => setAberta(aberta === i ? null : i)}
-          onMudar={(nova) => onMudar(substituirAcaoGlobal(global, lista, i, nova))}
-          onStart={() => onMudar(moverAcaoGlobal(global, lista, i, i - 1))}
-          onLower={() => onMudar(moverAcaoGlobal(global, lista, i, i + 1))}
-          onRemover={() => {
-            setAberta(null);
-            onMudar(removerAcaoGlobal(global, lista, i));
-          }}
-        />
-      ))}
-
-      <div className="bl-adicionar-acao">
-        <button type="button" className="bl-mais" onClick={() => setMenuAberto((v) => !v)}>
-          {rotuloAdicionar}
-        </button>
-        {menuAberto ? (
-          <div className="bl-menu-actions" role="menu">
-            <header>
-              <b>{LABELS_OF_ACTIONS.menu}</b>
-              <button type="button" className="iconbtn" aria-label="Fechar" onClick={() => setMenuAberto(false)}>
-                <Icone nome="x" tamanho={16} />
-              </button>
-            </header>
-            {groups.map((grupo) => (
-              <div key={grupo} className="bl-menu-actions-group">
-                <span className="sub">{grupo}</span>
-                {actionsOfGroup(grupo).map((t) => (
-                  <button key={t.tipo} type="button" role="menuitem" onClick={() => adicionar(t.tipo)}>
-                    {t.rotulo}
-                  </button>
-                ))}
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </div>
-    </section>
-  );
-}
-
-/** Estado da versão (`fluxo_versao.estado`), traduzido para a tabela do histórico. */
-const LABELS_OF_STATE: Record<VersionOfFlow['estado'], string> = {
-  rascunho: 'Rascunho',
-  publicada: 'Publicada',
-  arquivada: 'Arquivada',
-};
-
-const dataCurta = (iso: string | null): string =>
-  iso ? new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+/** Blip's "Restaurar versão" confirmation and messages (F-2.1); only this tab uses them. */
+const MESSAGES_OF_RESTORE = {
+  disclaimer:
+    'Ao restaurar a última versão publicada, as alterações no fluxo principal serão perdidas, enquanto as alterações nos subfluxos serão mantidas. Deseja prosseguir com a restauração?',
+  nadaPublicado: 'Não foi encontrada nenhuma versão publicada',
+  erro: 'Não foi possível restaurar a versão publicada',
+} as const;
 
 function VersionsTab({
   flowId,
@@ -263,6 +166,7 @@ function VersionsTab({
   global,
   onImport,
   onRestoreVersion,
+  onAviso,
 }: {
   flowId: string;
   flowName: string;
@@ -270,6 +174,7 @@ function VersionsTab({
   global: Record<string, unknown>;
   onImport: (mapa: Mapa, global: Record<string, unknown>) => void;
   onRestoreVersion: (version: number) => Promise<Resultado<VersionOfFlow>>;
+  onAviso: (texto: string) => void;
 }) {
   const file = useRef<HTMLInputElement>(null);
   const [pendente, setPendente] = useState<{ mapa: Mapa; global: Record<string, unknown> } | null>(null);
@@ -281,6 +186,7 @@ function VersionsTab({
   const [restoreTarget, setRestoreTarget] = useState<number | null>(null);
   const [restoring, setRestoring] = useState(false);
   const [restoreError, setRestoreError] = useState<string | null>(null);
+  const [publicadasAbertas, setPublicadasAbertas] = useState(false);
 
   useEffect(() => {
     let ativo = true;
@@ -329,10 +235,20 @@ function VersionsTab({
     const r = await onRestoreVersion(restoreTarget);
     setRestoring(false);
     if (!r.ok) {
-      setRestoreError(r.error);
+      setRestoreError(MESSAGES_OF_RESTORE.erro);
       return;
     }
     setRestoreTarget(null);
+  }
+
+  /** "Restaurar versão" (list item, F-2.1): restores the latest publication, or warns there is none. */
+  function restoreLatest(): void {
+    const alvo = versions ? latestPublished(versions) : null;
+    if (!alvo) {
+      onAviso(MESSAGES_OF_RESTORE.nadaPublicado);
+      return;
+    }
+    setRestoreTarget(alvo.versao);
   }
 
   function toChooseFile(e: ChangeEvent<HTMLInputElement>): void {
@@ -353,86 +269,106 @@ function VersionsTab({
     leitor.readAsText(arq);
   }
 
+  const recentes = versions ? lastPublished(versions) : [];
+
   return (
     <div className="bl-aba-corpo">
       <ul className="bl-versions-actions">
         <li>
           <button type="button" className="bl-versions-item" onClick={() => file.current?.click()}>
-            <IconePortal nome="enviar-arquivo" tamanho={18} />
-            <span>Importar fluxo</span>
+            <IconePortal nome="enviar-arquivo" tamanho={20} />
+            <span>Carregar fluxo</span>
           </button>
           <input ref={file} type="file" accept=".json" className="bl-oculto" onChange={toChooseFile} />
         </li>
         <li>
           <button type="button" className="bl-versions-item" onClick={exportar}>
-            <IconePortal nome="baixar" tamanho={18} />
-            <span>Exportar fluxo</span>
+            <IconePortal nome="baixar" tamanho={20} />
+            <span>Baixar fluxo</span>
           </button>
         </li>
       </ul>
-      <p className="bl-ajuda">
-        Baixa o fluxo e as ações globais num arquivo .json; importar substitui o rascunho atual.
-      </p>
+      <div className="bl-versions-aviso">
+        <IconePortal nome="informacao-cheia" tamanho={14} />
+        <span>Baixar o fluxo e as configurações de ações globais.</span>
+      </div>
+      <ul className="bl-versions-actions">
+        <li>
+          <button type="button" className="bl-versions-item" onClick={restoreLatest}>
+            <Icone nome="historico" tamanho={20} />
+            <span>Restaurar versão</span>
+          </button>
+        </li>
+      </ul>
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
-
-      <h4 className="bl-section-title">Histórico de versões</h4>
-      {historyError ? <Etiqueta tom="erro">{historyError}</Etiqueta> : null}
-      {versions === null && !historyError ? <p className="bl-ajuda">Carregando histórico…</p> : null}
-      {versions && versions.length === 0 ? (
-        <p className="bl-ajuda">Nenhuma versão publicada ainda.</p>
-      ) : null}
       {exportError ? <Etiqueta tom="erro">{exportError}</Etiqueta> : null}
-      {versions && versions.length > 0 ? (
-        <table className="bl-versions-table">
-          <thead>
-            <tr>
-              <th>Versão</th>
-              <th>Estado</th>
-              <th>Blocos</th>
-              <th>Publicada em</th>
-              <th>Publicada por</th>
-              <th aria-label="Ações" />
-            </tr>
-          </thead>
-          <tbody>
-            {versions.map((v) => (
-              <tr key={v.id}>
-                <td>{v.versao}</td>
-                <td>{LABELS_OF_STATE[v.estado]}</td>
-                <td>{v.blocos}</td>
-                <td>{dataCurta(v.publicadaEm)}</td>
-                <td>{v.publishedBy ?? '—'}</td>
-                <td className="bl-versions-row-actions">
-                  <button
-                    type="button"
-                    className="iconbtn"
-                    title="Exportar versão"
-                    aria-label={`Exportar versão ${v.versao}`}
-                    onClick={() => void exportVersion(v)}
-                  >
-                    <IconePortal nome="baixar" tamanho={16} />
-                  </button>
-                  <button
-                    type="button"
-                    className="iconbtn"
-                    title="Restaurar"
-                    aria-label={`Restaurar versão ${v.versao}`}
-                    onClick={() => setRestoreTarget(v.versao)}
-                  >
-                    <Icone nome="restoreVersion" tamanho={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : null}
+
+      <section className="bl-config-secao">
+        <header className="bl-config-secao-cabecalho">
+          <button
+            type="button"
+            className="bl-config-secao-toggle"
+            aria-expanded={publicadasAbertas}
+            onClick={() => setPublicadasAbertas((v) => !v)}
+          >
+            <Icone
+              nome="baixo"
+              tamanho={16}
+              className={publicadasAbertas ? 'bl-config-chevron bl-config-chevron--aberta' : 'bl-config-chevron'}
+            />
+            <span>VERSÕES PUBLICADAS</span>
+          </button>
+        </header>
+        {publicadasAbertas ? (
+          <div className="bl-config-secao-corpo">
+            <p className="sub">Confira o histórico de versões publicadas do seu fluxo</p>
+            {historyError ? <Etiqueta tom="erro">{historyError}</Etiqueta> : null}
+            {versions === null && !historyError ? <p className="bl-ajuda">Carregando histórico…</p> : null}
+            {versions && recentes.length === 0 ? (
+              <p className="bl-ajuda">Nenhuma versão publicada ainda.</p>
+            ) : null}
+            {recentes.length > 0 ? (
+              <div className="bl-version-cards">
+                {recentes.map((v) => (
+                  <article className="bl-version-card" key={v.id}>
+                    <div className="bl-version-card-info">
+                      <b>{formatPublishedAt(v.publicadaEm)}</b>
+                      <span>{v.publishedBy ?? '—'}</span>
+                    </div>
+                    <div className="bl-version-card-actions">
+                      <button
+                        type="button"
+                        className="bl-version-icon"
+                        title="Restaurar versão"
+                        aria-label={`Restaurar versão ${v.versao}`}
+                        onClick={() => setRestoreTarget(v.versao)}
+                      >
+                        <Icone nome="restoreVersion" tamanho={18} />
+                      </button>
+                      <button
+                        type="button"
+                        className="bl-version-icon"
+                        title="Baixar fluxo"
+                        aria-label={`Baixar versão ${v.versao}`}
+                        onClick={() => void exportVersion(v)}
+                      >
+                        <IconePortal nome="baixar" tamanho={18} />
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </section>
 
       <ModalConfirmation
         aberto={pendente !== null}
-        titulo="Importar fluxo"
+        titulo="Carregar fluxo"
         message={MESSAGES_OF_IMPORT.disclaimer}
-        rotuloConfirmar="Importar"
+        rotuloConfirmar="Sim"
+        rotuloCancelar="Não"
         onConfirmar={() => {
           if (pendente) onImport(pendente.mapa, pendente.global);
           setPendente(null);
@@ -443,7 +379,7 @@ function VersionsTab({
       <ModalConfirmation
         aberto={restoreTarget !== null}
         titulo="Restaurar versão"
-        message="Restaurar versão: o rascunho atual é substituído pela versão selecionada. Publique de novo para valer no atendimento."
+        message={MESSAGES_OF_RESTORE.disclaimer}
         error={restoreError}
         confirmando={restoring}
         rotuloConfirmar="Restaurar"

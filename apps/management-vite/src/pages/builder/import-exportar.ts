@@ -9,9 +9,15 @@ import { lerDesenho } from './model';
  */
 
 export const MESSAGES_OF_IMPORT = {
-  arquivoInvalido: 'O arquivo especificado não contém uma sequência de importação válida.',
-  semRaiz: 'O arquivo especificado não contém uma sequência de importação válida.',
-  disclaimer: 'Quando você importar o fluxo, a versão atual será substituída. Deseja continuar?',
+  arquivoInvalido: 'O arquivo especificado não contém um fluxo válido para importação',
+  semRaiz: 'O arquivo especificado não contém um fluxo válido para importação',
+  disclaimer: 'Ao importar o fluxo, a sua versão atual será substituída. Deseja continuar?',
+  /**
+   * Blip's text for a failure after the "Sim" confirmation (F-2.1). Pipe's import is a synchronous,
+   * client-side dispatch (`builder.tsx`'s `onImport`) with no failure mode after `validateImport`
+   * already passed, so this stays unreachable until import goes through the API.
+   */
+  erroAoCarregar: 'Não foi possível importar o fluxo',
 } as const;
 
 export type ImportResult =
