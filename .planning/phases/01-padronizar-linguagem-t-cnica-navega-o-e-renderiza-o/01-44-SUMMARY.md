@@ -60,7 +60,7 @@ key-decisions:
 
 requirements-completed: [STD-05, STD-12]
 
-duration: ~5h (com uma interrupção do ambiente, ver Issues Encountered)
+duration: ~6h (com uma interrupção do ambiente, ver Issues Encountered)
 completed: 2026-09-28
 ---
 
@@ -90,13 +90,13 @@ completed: 2026-09-28
 ## Task Commits
 
 1. **Task 1: Árvore /application, rota de detalhe por shortName, criação e redirects** - `05f4328e` (feat)
-2. **Task 2: Todos os links, menus e destinos da Gestão pelo construtor único** - _(a seguir, ver commit final desta SUMMARY)_
+2. **Task 2: Todos os links, menus e destinos da Gestão pelo construtor único** - `9fea6dce` (refactor)
 
-**Plan metadata:** commit deste SUMMARY (a seguir)
+**Plan metadata:** commit deste SUMMARY (a seguir) + `af31f492` (draft commitado logo após a Task 1)
 
 ## Files Created/Modified
 
-Ver `key-files` no frontmatter. Lista completa nos dois commits de task (`git show --stat 05f4328e` e o commit seguinte).
+Ver `key-files` no frontmatter. Lista completa nos dois commits de task (`git show --stat 05f4328e` e `git show --stat 9fea6dce`).
 
 ## Decisions Made
 
@@ -116,7 +116,7 @@ Ver `key-files` no frontmatter. Lista completa nos dois commits de task (`git sh
 - **Fix:** `caminhoInterno` agora também recusa `destination.startsWith('/\\')`.
 - **Files modified:** apps/management-vite/src/lib/inbound.ts
 - **Verification:** `pnpm --filter @pipe/management-vite typecheck` limpo; comportamento coberto por leitura de código (não há teste de unidade dedicado a `caminhoInterno` no pacote; deixei o `deferred-items.md` registrando o par server-side ainda aberto, ver abaixo).
-- **Committed in:** commit de Task 2 (a seguir)
+- **Committed in:** 9fea6dce (Task 2)
 
 **2. [Rule 1 - Bug] `pages/deployment/page.tsx`'s `PageMonitoring`'s form action apontava para `/monitoramento` (PT), rota inexistente**
 - **Found during:** Task 2, ao trocar `attendanceBase(contact.tipo, contact.id)` por `attendanceBase(contact)` em `operation/monitoring.tsx`
@@ -124,7 +124,7 @@ Ver `key-files` no frontmatter. Lista completa nos dois commits de task (`git sh
 - **Fix:** Trocado o sufixo para `/monitoring`.
 - **Files modified:** apps/management-vite/src/pages/operation/monitoring.tsx
 - **Verification:** `pnpm --filter @pipe/management-vite typecheck` e `test` limpos.
-- **Committed in:** commit de Task 2 (a seguir)
+- **Committed in:** 9fea6dce (Task 2)
 
 **3. [Rule 1 - Bug] Quatro `href="/builder"` (nunca foi rota top-level válida) e um placeholder desatualizado no catálogo de menu**
 - **Found during:** Task 2, varredura final por `"/builder"`/`'/builder'`
@@ -132,7 +132,7 @@ Ver `key-files` no frontmatter. Lista completa nos dois commits de task (`git sh
 - **Fix:** `portal.tsx` aponta para `createPath('marketplace')` (mesmo destino do botão "Criar fluxo" da barra clara); os dois links dentro do contato usam `contactPath(contact)`/`p.base` + `/templates/builder` (novo endereço do Builder, D-54); o placeholder do catálogo virou `/templates/builder`.
 - **Files modified:** apps/management-vite/src/pages/portal.tsx, apps/management-vite/src/pages/flow/analytics/data-dictionary/pages.tsx, apps/management-vite/src/pages/flow/analytics/dashboard/tela.tsx, apps/management-vite/src/pages/flow/itens.ts
 - **Verification:** `pnpm --filter @pipe/management-vite typecheck`, `test` e `build` limpos.
-- **Committed in:** commit de Task 2 (a seguir)
+- **Committed in:** 9fea6dce (Task 2)
 
 ---
 
@@ -148,7 +148,7 @@ Ver `key-files` no frontmatter. Lista completa nos dois commits de task (`git sh
 ## Issues Encountered
 
 - **Falha do ambiente (bash/cygwin):** no meio da varredura da Task 2, todo o Bash tool (Git Bash) passou a falhar com `*** fatal error - add_item (...) failed, errno 1` em QUALQUER comando, incluindo `echo`, por um período — provavelmente exaustão de processos/handles depois de muitas chamadas consecutivas do tool. Continuei o trabalho só com leitura/edição de arquivo (sem rodar comando nenhum) até o shell voltar a responder sozinho; depois disso rodei toda a bateria de verificação (typecheck, teste, build, runtime-contracts) normalmente, sem perder nenhuma mudança. Nenhum código foi declarado "funcionando" nesse intervalo sem verificação real depois.
-- `node tools/std/runtime-contracts.ts --map STD/map --out STD/reports/runtime-contracts-01-44.csv --allow STD/runtime-contracts-allow.csv` — exit 0, "Runtime contracts: clean." (diferente do plano 01-43, que teve débito pré-existente; aqui não achou nada).
+- O comando de verificação do checker de runtime, como escrito literalmente no plano (`--map STD/map --out STD/reports/... --allow STD/runtime-contracts-allow.csv`), resolve `STD` para a raiz do repo — mas o plano define `STD = P1/std` no `<context>` (`P1` = a pasta desta fase). Rodei primeiro ao pé da letra e criei sem querer uma pasta `STD/` vazia na raiz do repo (removida antes de qualquer commit); refiz com os caminhos resolvidos (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/{map,reports/runtime-contracts-01-44.csv,runtime-contracts-allow.csv}`) — exit 1, 394 achados, TODOS de fio PT→EN em corpo/resposta/alias de SQL (STD-11, débito pré-existente e repo-wide, mesma categoria que o plano 01-43 já registrou como não relacionado à este plano), zero achados nas linhas que este plano tocou (conferido arquivo por arquivo nos ~6 arquivos que este plano modificou e que também aparecem na lista: `management-flow.ts`, `contract/actions.ts`, `create/flow/actions.ts`, `create/router/actions.ts`, `builder.tsx` — todos em linhas fora do diff deste plano).
 - Testes de API (`apps/api/tests/flow-short-name.test.ts` e a suíte completa) NÃO foram rodados por este executor: seguindo a nota do orquestrador para este plano ("API tests from a worktree conflict with the running containers"), as mudanças em `apps/api` (retorno de `shortName` em `createFlow`, seleção em `carregarGradeDoPortal`) foram só typecheckadas (`pnpm --filter @pipe/api typecheck`, limpo) e revisadas por leitura — nenhum teste de API rodou contra banco real neste worktree. Fica para o orquestrador rodar `pnpm --filter @pipe/api test` após o merge.
 
 ## User Setup Required
@@ -160,6 +160,35 @@ None - nenhuma configuração externa necessária.
 - A Gestão inteira está sob `/application` no formato D-52; a Phase 01.1 (subdomínio por tenant) pode assumir essa base para o próximo corte de endereçamento.
 - `apps/api/src/controllers/login.ts:91` tem o mesmo bug de open redirect que foi corrigido no front deste plano — ver Threat Flags e `deferred-items.md`.
 - O plano 01-45 (smoke do dono) ainda não rodou; esta execução termina antes dele, como o plano previa.
+
+## Self-Check: PASSED
+
+Arquivos criados (existência confirmada):
+- FOUND: apps/management-vite/src/lib/application-paths.ts
+- FOUND: apps/management-vite/src/pages/legacy-redirects.tsx
+- FOUND: apps/management-vite/src/pages/create/name/page.tsx
+- FOUND: apps/management-vite/tests/application-routes.test.ts
+- FOUND: .planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/deferred-items.md
+- FOUND: .planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/reports/runtime-contracts-01-44.csv
+
+Commits (existência confirmada no log do branch):
+- FOUND: 05f4328e (Task 1)
+- FOUND: af31f492 (draft do SUMMARY)
+- FOUND: 9fea6dce (Task 2)
+
+Verificações rodadas e observadas (não apenas inspecionadas):
+- `pnpm --filter @pipe/management-vite typecheck` — limpo, rodado de novo após CADA rodada de correções (última vez após todo o Task 2, também limpo).
+- `pnpm --filter @pipe/management-vite exec node --import tsx --test tests/application-routes.test.ts` — 17/17 verdes (verify da Task 1).
+- `pnpm --filter @pipe/management-vite test` (suíte completa) — 332 testes, 6 suítes, 332 verdes, 0 falhas (após corrigir `flow-detalhe.test.ts` e `analytics-abas.test.ts` para o novo formato).
+- `pnpm --filter @pipe/management-vite build` — `tsc --noEmit && vite build`, build de produção gerado sem erro.
+- `pnpm --filter @pipe/api typecheck` — limpo (cobre os arquivos de `apps/api` tocados por este plano).
+- `node tools/std/runtime-contracts.ts` com os caminhos `STD` resolvidos corretamente — exit 1, 394 achados, nenhum nas linhas tocadas por este plano (ver Issues Encountered).
+- `rg -n "application/detail/:shortName" apps/management-vite/src/App.tsx` — exatamente 1 ocorrência (a montagem real; os dois comentários que citavam o mesmo texto foram reescritos para não colidir com o grep do critério de aceite).
+- `rg -n 'path="/(portal|flow|router|create)' apps/management-vite/src/App.tsx` — só as linhas de `LegacyRedirect`/`LegacyContactRedirect`.
+- `rg -n "passo" apps/management-vite/src/App.tsx apps/management-vite/src/pages/create --glob '*.ts*'` filtrado pelas mesmas regras do critério de aceite — só comentário, nenhum `useParams().passo` nem `?passo=` em código.
+- Varredura final de link antigo (`rg` com o padrão do critério de aceite da Task 2, mais uma segunda passada manual por `settings/basic`, `/builder`, `agents/queues` etc. que o padrão do plano não cobria) — limpa, com as descobertas documentadas em Deviations.
+
+STATE.md, ROADMAP.md e REQUIREMENTS.md não foram tocados, conforme instrução do orquestrador para este plano.
 
 ---
 *Phase: 01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o*
