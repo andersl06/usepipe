@@ -6,8 +6,12 @@ import {
   hasAttendanceBlock,
   pageQueues,
   queueNameError,
+  queueRenameError,
+  queueRules,
   queuesPanelReducer,
+  renameBlockReason,
 } from '../src/pages/builder/queues-panel.ts';
+import type { QueueRule } from '../src/lib/rule-queue.ts';
 
 test('hasAttendanceBlock: false com um mapa sem bloco de atendimento', () => {
   const mapa: Mapa = { inicio: newBlock({}, { top: 0, left: 0 }, 'inicio') };
@@ -82,4 +86,61 @@ test('queuesPanelReducer: editar(id) -> regras(id)', () => {
 test('queuesPanelReducer: voltar -> lista', () => {
   const estado = queuesPanelReducer({ modo: 'regras', id: 'f2' }, { tipo: 'voltar' });
   assert.deepEqual(estado, { modo: 'lista' });
+});
+
+function regra(over: Partial<QueueRule>): QueueRule {
+  return {
+    id: 'r1',
+    name: 'Regra',
+    order: 0,
+    combiner: 'e',
+    queueDestinationId: 'f1',
+    queueDestinationName: 'Fila',
+    active: true,
+    conditions: [],
+    ...over,
+  };
+}
+
+test('queueRules: só as regras da fila pedida, ordenadas por order', () => {
+  const regras = [
+    regra({ id: 'a', queueDestinationId: 'f1', order: 2 }),
+    regra({ id: 'b', queueDestinationId: 'f2', order: 0 }),
+    regra({ id: 'c', queueDestinationId: 'f1', order: 1 }),
+  ];
+  assert.deepEqual(
+    queueRules(regras, 'f1').map((r) => r.id),
+    ['c', 'a'],
+  );
+});
+
+test('renameBlockReason: null com 0 atendentes, 0 regras e permissão', () => {
+  assert.equal(renameBlockReason({ agents: [] }, 0, true), null);
+});
+
+test('renameBlockReason: atendentes tem prioridade sobre regras e permissão', () => {
+  assert.equal(renameBlockReason({ agents: [{}] }, 1, false), 'atendentes');
+});
+
+test('renameBlockReason: regras quando não há atendentes', () => {
+  assert.equal(renameBlockReason({ agents: [] }, 1, true), 'regras');
+});
+
+test('renameBlockReason: permissão só quando não há atendentes nem regras', () => {
+  assert.equal(renameBlockReason({ agents: [] }, 0, false), 'permissao');
+});
+
+test('queueRenameError: nome curto', () => {
+  assert.equal(queueRenameError('ab', []), 'Nome precisa ter ao menos 3 caracteres.');
+});
+
+test('queueRenameError: nome repetido usa o mesmo texto de queueNameError', () => {
+  assert.equal(
+    queueRenameError('Suporte', [{ name: 'Suporte' }]),
+    queueNameError('Suporte', [{ name: 'Suporte' }]),
+  );
+});
+
+test('queueRenameError: nome válido não gera erro', () => {
+  assert.equal(queueRenameError('Cobrança', [{ name: 'Suporte' }]), null);
 });
