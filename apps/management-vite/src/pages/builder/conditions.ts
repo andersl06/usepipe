@@ -1,7 +1,7 @@
 import { COMPARISONS, ValidationError, ehUnaria, validateCondition } from '@pipe/core';
 import type { Comparison, ConditionBlip } from '@pipe/core';
-import type { Block, SaidaDoEditor } from './model';
-import { LIMITE_DE_SAIDAS, MESSAGES, gerarId, withoutDestination } from './model';
+import type { Block, Mapa, SaidaDoEditor } from './model';
+import { LIMITE_DE_SAIDAS, MESSAGES, gerarId, isSurveyBlock, withoutDestination } from './model';
 
 /**
  * Block-exit and action conditions use engine vocabulary (`packages/core/src/fluxo/condicao.ts`) and literal Blip Exit conditions tab labels (`builder-tabs-outputs`, pt-BR `sources`, `comparisons`, `and`/`or`). Offer only supported `input` and `context` sources, 13 `COMPARACOES` in enum order, and `or`/`and` among values. Blip `intent`/`entity` lack a Pipe AI provider: show an imported condition with a warning but do not offer creation. Exit order is evaluation order; the engine takes the first match (`FlowManager.ProcessOutputsAsync` ported in `gerenciador.ts`), then default. Provide up/down controls.
@@ -166,6 +166,28 @@ export function outputSetConditions(block: Block, indice: number, conditions: Co
     i === indice ? { ...s, conditions: conditions } : s,
   );
   return { ...block, $conditionOutputs: saidas };
+}
+
+/**
+ * Remove one condition from an output. Emptying an output's last condition removes the output
+ * itself, matching the Blip `on-remove-condition` behavior. Sibling conditions and outputs are
+ * untouched, so an `operator` value the screen no longer shows a select for stays in the JSON.
+ */
+export function removeCondition(block: Block, outputIndex: number, conditionIndex: number): Block {
+  const saidas = block.$conditionOutputs ?? [];
+  const saida = saidas[outputIndex];
+  if (!saida) return block;
+  const conditions = (saida.conditions ?? []).filter((_, i) => i !== conditionIndex);
+  const novasSaidas =
+    conditions.length === 0
+      ? saidas.filter((_, i) => i !== outputIndex)
+      : saidas.map((s, i) => (i === outputIndex ? { ...s, conditions } : s));
+  return { ...block, $conditionOutputs: novasSaidas };
+}
+
+/** Whether the flow has a satisfaction-survey block, matching the Blip `isDeskSurveyEnabled` check. */
+export function flowHasSurvey(mapa: Mapa): boolean {
+  return Object.values(mapa).some(isSurveyBlock);
 }
 
 export function definirSaidaPadrao(block: Block, destination: string): Block {
