@@ -71,9 +71,9 @@ completed: 2026-09-28
 Each task was committed atomically:
 
 1. **Task 1: Componente `FloatingSidebar` e CSS da casca** - `a19baa38` (feat)
-2. **Task 2: Montar Configuração, Biblioteca e Filas na casca** - pendente (ver commit final)
+2. **Task 2: Montar Configuração, Biblioteca e Filas na casca** - `f4feb7e6` (feat)
 
-**Plan metadata:** pendente (docs: complete plan)
+**Plan metadata:** `ba9b7d05` (docs: draft summary); final metadata commit segue este arquivo.
 
 ## Files Created/Modified
 - `apps/management-vite/src/pages/builder/floating-sidebar.tsx` - novo componente `FloatingSidebar`
@@ -89,11 +89,11 @@ Ver `key-decisions` no frontmatter.
 
 ## Deviations from Plan
 
-None - plan executado como escrito (draft: Task 1 concluída; Task 2 e verificação final em andamento).
+None - plan executado como escrito. `typecheck` e `test` (342/342) verdes após as duas tarefas; greps de verificação da Tarefa 2 (`<FloatingSidebar` nos três painéis, "Gerenciamento de filas") conferidos.
 
 ## Issues Encountered
 
-Nenhum até aqui.
+Nenhum.
 
 ## User Setup Required
 
@@ -106,3 +106,11 @@ Casca comum pronta para 02-30..02-34 reescreverem o conteúdo interno de cada pa
 ---
 *Phase: 02-fechar-o-builder*
 *Completed: 2026-09-28*
+
+## Self-Check: PASSED
+
+- FOUND: `apps/management-vite/src/pages/builder/floating-sidebar.tsx`
+- FOUND: `apps/management-vite/tests/builder-painels.test.ts`
+- FOUND commit `a19baa38` (Task 1)
+- FOUND commit `f4feb7e6` (Task 2)
+- FOUND commit `ba9b7d05` (draft summary)
