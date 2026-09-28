@@ -180,6 +180,14 @@ test('userVariables collects responseStatusVariable/responseBodyVariable, output
   );
 });
 
+test('userVariables lists this flow\'s resources as resource.<nome>', () => {
+  const mapa = { bloco: newBlock({}, { top: 0, left: 0 }, 'bloco') };
+  assert.deepEqual(
+    userVariables(mapa, {}, {}, ['TimeZoneAttendance', 'objectResources']),
+    ['resource.objectResources', 'resource.TimeZoneAttendance'],
+  );
+});
+
 test('filterVariables ignores accents and case', () => {
   const nomes = ['Saldo', 'situação', 'temp'];
   assert.deepEqual(filterVariables(nomes, 'situacao'), ['situação']);

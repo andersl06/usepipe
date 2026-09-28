@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import type { BuilderOfFlow, BlockError, VersionOfFlow } from '@pipe/contracts';
+import type { BuilderOfFlow, BlockError, FlowResource, VersionOfFlow } from '@pipe/contracts';
 import { Botao, Campo, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../components/icones-management';
 import { IconePortal } from '../components/icones-portal';
@@ -86,6 +86,10 @@ export function PageBuilder() {
   const [avisoAberto, setAvisoAberto] = useState(true);
   const [newBlockOpen, setNewBlockOpen] = useState(false);
   const [variablesOpen, setVariablesOpen] = useState(false);
+  /* "Minhas variáveis" lists this flow's resources too; loaded lazily, only once the panel opens. */
+  const resourcesRead = useRead<FlowResource[]>(
+    variablesOpen ? `/v1/management/flows/${contact.id}/resources` : null,
+  );
   const [configAberto, setConfigAberto] = useState(false);
   const [configTab, setConfigTab] = useState<'variaveis' | 'versoes' | 'acoes' | 'funcoes'>('variaveis');
   const [criarFuncaoAoAbrir, setCriarFuncaoAoAbrir] = useState(false);
@@ -349,6 +353,7 @@ export function PageBuilder() {
               mapa={state.mapa}
               global={state.global}
               configuration={state.configuracao}
+              resourceNames={(resourcesRead.data ?? []).map((r) => r.name)}
               onFechar={() => setVariablesOpen(false)}
             />
           ) : null}

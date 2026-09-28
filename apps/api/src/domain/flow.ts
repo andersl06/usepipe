@@ -40,6 +40,7 @@ import { chamarComMtls } from './mtls.js';
 import { runFlowScript, scriptFetch } from './script-sandbox.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 import { loadFlowFunctions } from './management/flow-functions.js';
+import { loadFlowResources } from './management/flow-resources.js';
 import { closeInTransaction, type LineConversation } from './conversation.js';
 import type { TipoEnvio } from './envio.js';
 
@@ -353,6 +354,10 @@ export async function runFlowInInbound(
 
   const { flow, blockByCode } = await loadFlow(tx, publicado);
   const flowFunctions = await loadFlowFunctions(tx, publicado.flowId);
+  // Powers the engine's `resource` variable source (Context.resources); resources belong to THIS
+  // flow's own recurso_do_fluxo rows, never the router's, even when `sharesContext` shares
+  // `variables` below — Blip's resource store is per bot, and each service here is its own bot.
+  const resources = await loadFlowResources(tx, publicado.flowId);
   // With shared router context, variables are scoped to the router-contact pair.
   const variables: Record<string, string> = {
     ...(roteador?.sharesContext ? roteador.contexto : execution.context),
@@ -653,6 +658,7 @@ export async function runFlowInInbound(
       variables,
       inboundContext: new Map(),
       contact,
+      resources,
       services: servicos,
     };
     try {

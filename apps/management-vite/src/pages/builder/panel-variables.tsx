@@ -53,11 +53,14 @@ export function VariablesPanel({
   mapa,
   global,
   configuration,
+  resourceNames = [],
   onFechar,
 }: {
   mapa: Mapa;
   global: Record<string, unknown>;
   configuration: Record<string, string>;
+  /** This flow's `recurso_do_fluxo` names, listed as `resource.<nome>` in "Minhas variáveis". */
+  resourceNames?: readonly string[];
   onFechar: () => void;
 }) {
   const [aba, setAba] = useState<Aba>('sistema');
@@ -65,7 +68,7 @@ export function VariablesPanel({
   const [buscaUsuario, setBuscaUsuario] = useState('');
   const [copiado, setCopiado] = useState<string | null>(null);
 
-  const user = userVariables(mapa, global, configuration);
+  const user = userVariables(mapa, global, configuration, resourceNames);
   const sistemaFiltrado = systemFilterVariables(BLIP_SYSTEM_VARIABLES, buscaSistema);
   const userFiltered = userLibraryFilter(user, buscaUsuario);
 

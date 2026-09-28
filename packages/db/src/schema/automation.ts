@@ -485,6 +485,34 @@ export const flowFunction = pgTable(
   ],
 );
 
+/** Maximum length of a resource's stored value (`valor`), matching `funcao_do_fluxo`'s code cap. */
+export const MAX_FLOW_RESOURCE_VALUE = 65_536;
+
+/**
+ * Per-flow key/value resource (Blip "Recursos", permission key `resources`): source
+ * `/resources/{key}` LIME commands store a MIME `type` and a text-or-JSON `content` per key. The
+ * engine's `resource` variable source reads this table the same way `config` reads
+ * `fluxo.configuracao`.
+ */
+export const flowResource = pgTable(
+  'recurso_do_fluxo',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    flowId: uuid('fluxo_id').notNull().references(() => flow.id, { onDelete: 'cascade' }),
+    name: text('nome').notNull(),
+    type: text('tipo').notNull().default('text/plain'),
+    value: text('valor').notNull(),
+    ...carimbos(),
+  },
+  (t) => [
+    uniqueIndex('recurso_do_fluxo_fluxo_nome_uk').on(t.tenantId, t.flowId, t.name),
+    index('recurso_do_fluxo_fluxo_idx').on(t.tenantId, t.flowId),
+    check('recurso_do_fluxo_valor_ck', sql`length(${t.value}) <= ${MAX_FLOW_RESOURCE_VALUE}`),
+    check('recurso_do_fluxo_nome_ck', sql`length(${t.name}) between 1 and 190`),
+  ],
+);
+
 /** Native equivalents for the platform actions (D-20). */
 export const distributionList = pgTable(
   'lista_distribuicao',

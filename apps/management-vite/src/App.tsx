@@ -33,6 +33,7 @@ import { PersistentMenuPage } from './pages/flow/settings/persistent-menu/menu-p
 import { TeamPage } from './pages/flow/team/equipe';
 import { EditMemberPage } from './pages/flow/team/editar';
 import { PageContents } from './pages/flow/contents/conteudos';
+import { PageResources } from './pages/flow/resources/recursos';
 import { AnalyticsShell } from './pages/flow/analytics/shell';
 import { ABA_PADRAO } from './pages/flow/analytics/abas';
 import { DashboardPage } from './pages/flow/analytics/dashboard/dashboard';
@@ -194,6 +195,7 @@ const contactRoutes = (
     <Route path="team/edit/:userId" element={<EditMemberPage />} />
 
     <Route path="contents" element={<PageContents />} />
+    <Route path="resources" element={<PageResources />} />
 
     <Route path="analytics" element={<AnalyticsShell />}>
       <Route index element={<Navigate to={ABA_PADRAO} replace />} />

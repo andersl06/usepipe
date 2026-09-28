@@ -44,12 +44,14 @@ function blockAdd(block: Block, nomes: Set<string>): void {
 
 /**
  * Every `context` variable this flow creates or reads, plus its `configuration` keys as `config.<chave>`
- * (the same `{{config.Chave}}` syntax the Configuração panel's help text uses), in alphabetical order.
+ * (the same `{{config.Chave}}` syntax the Configuração panel's help text uses) and its
+ * `recurso_do_fluxo` rows as `resource.<nome>`, in alphabetical order.
  */
 export function userVariables(
   mapa: Mapa,
   global: Record<string, unknown>,
   configuration: Record<string, string> = {},
+  resourceNames: readonly string[] = [],
 ): string[] {
   const nomes = new Set<string>();
   for (const block of Object.values(mapa)) blockAdd(block, nomes);
@@ -57,6 +59,7 @@ export function userVariables(
   actionsAdd(globalWithActions.$enteringCustomActions, nomes);
   actionsAdd(globalWithActions.$leavingCustomActions, nomes);
   for (const chave of Object.keys(configuration)) nomes.add(`config.${chave}`);
+  for (const nome of resourceNames) nomes.add(`resource.${nome}`);
   return [...nomes].sort((a, b) => a.localeCompare(b));
 }
 
