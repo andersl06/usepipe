@@ -23,7 +23,7 @@ import type { Caixa, Ponto } from './setas';
 
 export interface PropsDoCanvas {
   mapa: Mapa;
-  errorsByBlock: Record<string, string[]>;
+  invalidBlocks: Set<string>;
   selecionado: string | null;
   editando: string | null;
   zoom: number;
@@ -57,7 +57,7 @@ const edgeKey = (a: Aresta): string => `${a.de}\u0000${a.para}`;
 
 export function Canvas({
   mapa,
-  errorsByBlock,
+  invalidBlocks,
   selecionado,
   editando,
   zoom,
@@ -368,7 +368,7 @@ export function Canvas({
           <No
             key={block.id}
             block={block}
-            errors={errorsByBlock[block.id] ?? []}
+            invalido={invalidBlocks.has(block.id)}
             selecionado={selecionado === block.id}
             editando={editando === block.id}
             alvo={connectionTarget === block.id}

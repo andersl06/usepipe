@@ -48,7 +48,6 @@ function blockTags(tags: unknown[] | undefined): BlockTag[] {
 export function BlockPanel({
   block,
   mapa,
-  errors,
   onMudar,
   onFechar,
   onAviso,
@@ -56,8 +55,6 @@ export function BlockPanel({
 }: {
   block: Block;
   mapa: Mapa;
-  /** The block's errors (from the screen and the engine), for the top banner. */
-  errors: string[];
   onMudar: (block: Block) => void;
   onFechar: () => void;
   onAviso: (texto: string) => void;
@@ -183,13 +180,6 @@ export function BlockPanel({
           </datalist>
       </div>
       <hr className="bl-panel-wire" />
-      {errors.length > 0 ? (
-        <ul className="bl-errors bl-panel-errors">
-          {errors.map((e) => (
-            <li key={e}>{e}</li>
-          ))}
-        </ul>
-      ) : null}
       <div className="bl-abas" role="tablist">
         {abas.map((a) => (
           <button

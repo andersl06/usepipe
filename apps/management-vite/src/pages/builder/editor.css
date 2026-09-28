@@ -50,8 +50,8 @@
   box-shadow: 0 0 0 4px var(--p-builder-marca-anel);
   z-index: 5;
 }
-.bl-no--selecionado:not(.bl-no--inicio),
-.bl-no--editando:not(.bl-no--inicio) {
+.bl-no--selecionado:not(.bl-no--inicio):not(.bl-node--error),
+.bl-no--editando:not(.bl-no--inicio):not(.bl-node--error) {
   background: var(--p-builder-marca-selecionado);
 }
 .bl-no--selecionado:not(.bl-no--inicio)::before,
@@ -90,8 +90,17 @@
    */
   background: #393939;
 }
+/* Invalid block (F-6): Blip paints it red by fill and ring, never by text or a counter. */
 .bl-node--error {
-  border: 1px solid var(--p-error-content, #c4442e);
+  background: #7b3d3d;
+}
+.bl-node--error .bl-no-saida {
+  background: #b60c0c;
+}
+.bl-node--error:hover,
+.bl-node--error.bl-no--selecionado,
+.bl-node--error.bl-no--editando {
+  box-shadow: 0 0 0 4px rgb(182 12 12);
 }
 
 .bl-no-titulo {
@@ -150,11 +159,6 @@
   text-overflow: ellipsis;
   transition: opacity 60ms;
   word-break: normal;
-}
-.bl-node-errors {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--p-error-content, #c4442e);
 }
 
 /* The point from which the connection is dragged: only appears with the mouse over it. */
