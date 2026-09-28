@@ -183,7 +183,7 @@ Plans:
 **Gap closure (2026-09-27, D-52/D-53)** — ondas 34–49, sequenciais:
 
 - [x] 01-42-PLAN.md — (onda 34) Corrigir quebras de runtime do rename (a partir do relatório da varredura) e criar o verificador de contrato de runtime (D-53).
-- [ ] 01-43-PLAN.md — (onda 35) short_name único por tenant (migração 0051 com backfill) e GET /v1/management/flows/short-name/:shortName (D-52).
+- [x] 01-43-PLAN.md — (onda 35) short_name único por tenant (migração 0051 com backfill) e GET /v1/management/flows/short-name/:shortName (D-52).
 - [ ] 01-44-PLAN.md — (onda 36) Gestão sob /application: detail/{shortName}, create/*, telas de tenant, redirects legados e construtor único de caminhos (D-52).
 - [ ] 01-45-PLAN.md — (onda 37) Links fora da Gestão, route-match de front sem link pendurado, nav-contract D-52 e smoke de navegador com o dono.
 - [ ] 01-46-PLAN.md — (onda 38) Classificação STD-11 por regra (DDL, texto de produto, caminhos) e re-baseline explícito do gate (std11-classified).
