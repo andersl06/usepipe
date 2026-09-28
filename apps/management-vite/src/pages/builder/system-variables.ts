@@ -130,7 +130,7 @@ export const BLIP_SYSTEM_VARIABLES: readonly SystemVariable[] = [
   { nome: 'random.guid', descricao: 'Identificador alfa númerico único', suportada: false },
   { nome: 'random.integer', descricao: 'Número inteiro aleatório', suportada: false },
   { nome: 'random.string', descricao: 'Conjunto de caracteres (string) aleatório', suportada: false },
-  { nome: 'resource.?', descricao: "Recurso do bot, onde '?' é a chave do recurso", suportada: false },
+  { nome: 'resource.?', descricao: "Recurso do bot, onde '?' é a chave do recurso", suportada: true },
   { nome: 'secret.?', descricao: 'Variaveis sensíveis. Atualmente disponível para uso apenas em ações HTTP.', suportada: false },
   { nome: 'state.id', descricao: 'Id do bloco corrente no fluxo', suportada: true },
   { nome: 'state.name', descricao: 'Nome do bloco corrente no fluxo', suportada: true },

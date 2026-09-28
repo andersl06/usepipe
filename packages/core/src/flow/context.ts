@@ -1,5 +1,5 @@
 /**
- * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is not stored; Blip service providers (bucket, resource, tunnel, calendar, secret, etc.) are absent and throw, as the original does when a source lacks a provider.
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider,ResourceVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is not stored; Blip service providers (bucket, tunnel, calendar, secret, etc.) are absent and throw, as the original does when a source lacks a provider. `resource` DOES have a provider: the `api` loads the flow's `recurso_do_fluxo` rows into `Context.resources` the same way it loads `contact`, so an imported flow reading `{{resource.x}}` (and `resource.x@prop` for JSON resources, via the generic `propertyJson` path already used by every source) resolves instead of throwing "Não há provedor para a fonte de variável 'resource'.".
  */
 
 import type { FlowBlip } from './modelos.js';
@@ -34,6 +34,7 @@ export const FONTES_SUPORTADAS: ReadonlySet<VariableSource> = new Set([
   'input',
   'state',
   'ticket',
+  'resource',
 ]);
 
 /** Incoming message in LIME vocabulary: `tipo` is the MIME type (`text/plain`, etc.). */
@@ -215,6 +216,12 @@ export interface Context {
   inboundContext: Map<string, unknown>;
   /** Contact in Blip vocabulary (`name`, `phoneNumber`, `email`, `extras`, etc.). */
   contact?: Record<string, unknown> | null;
+  /**
+   * This flow's `recurso_do_fluxo` rows, keyed by `nome`, value already the stored text (a JSON
+   * resource's stringified content). The `resource` provider reads it directly; `@property` access
+   * on a JSON resource is handled generically by `getVariable`, like every other source.
+   */
+  resources?: Record<string, string>;
   /** Extra providers or replacements for defaults. */
   providers?: Partial<Record<VariableSource, VariableProvider>>;
   services: ServicosDoMotor;
@@ -406,6 +413,8 @@ const PROVEDORES_PADRAO: Partial<Record<VariableSource, VariableProvider>> = {
   contact: contactProvider,
   config: (nome, c) => c.flow.configuration?.[nome] ?? null,
   ticket: (nome, c) => objectProperty(c.inboundContext.get(KEY_OF_TICKET), nome),
+  /** `ResourceVariableProvider`: `resources.<name>` set by the `api`; `@property` on a JSON value is generic. */
+  resource: (nome, c) => c.resources?.[nome] ?? null,
 };
 
 /** `ContextBase.GetVariableAsync`. */
