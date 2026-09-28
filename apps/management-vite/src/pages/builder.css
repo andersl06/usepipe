@@ -429,22 +429,49 @@
   outline-offset: 0;
 }
 
-/* The (i) button reuses the `.dica` accessible-tooltip pattern (`components/metrica.tsx`). */
-.bl-pesquisa-info > summary {
-  width: 25px;
+/*
+ * The solid (i) sits in its own bordered chip (Blip `.search-wrapper bds-icon`: 25px high,
+ * padding 10px 8px, radius 10, ghost border) and shows a small bottom tooltip on hover or
+ * keyboard focus — never a click toggle.
+ */
+.bl-pesquisa-info {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
   height: 25px;
-  min-width: 0;
-  min-height: 0;
-  margin: 0;
   padding: 10px 8px;
-  border: 1px solid #8c8c8c;
+  border: 1px solid var(--p-conteudo-fantasma);
   border-radius: 10px;
-  color: #fff;
+  color: var(--p-conteudo);
+  cursor: help;
 }
-.bl-pesquisa-info .dica-balao {
-  left: auto;
-  right: -10px;
-  width: 240px;
+.bl-pesquisa-info:focus-visible {
+  outline: 2px solid var(--p-builder-marca-anel);
+  outline-offset: 2px;
+}
+.bl-pesquisa-dica {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 4;
+  width: max-content;
+  max-width: 240px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--p-superficie-4);
+  color: var(--p-conteudo-claro);
+  box-shadow: var(--p-sombra-2);
+  font-size: 12px;
+  line-height: 18px;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.bl-pesquisa-info:hover .bl-pesquisa-dica,
+.bl-pesquisa-info:focus-visible .bl-pesquisa-dica {
+  visibility: visible;
+  opacity: 1;
 }
 
 /*

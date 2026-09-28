@@ -5,7 +5,13 @@ import type { Block } from '../src/pages/builder/model.ts';
 import { adicionarConteudo, novoTexto } from '../src/pages/builder/conteudo.ts';
 import { adicionarSaida } from '../src/pages/builder/conditions.ts';
 import { adicionarAcao, comCampo, comTitulo, novaAcao } from '../src/pages/builder/actions-of-block.ts';
-import { matchBlock, parseSearch, searchMatches } from '../src/pages/builder/search.ts';
+import {
+  SEARCH_DEBOUNCE_MS,
+  isSearchDimming,
+  matchBlock,
+  parseSearch,
+  searchMatches,
+} from '../src/pages/builder/search.ts';
 
 /**
  * Blip search covers title, tags, output-condition variable/values, action title/fields and
@@ -131,4 +137,20 @@ test('searchMatches: devolve só os ids que casam', () => {
   const mapa = { bate: bate, [naoBate.id]: naoBate };
   const resultado = searchMatches(mapa, 'title:inicio');
   assert.deepEqual([...(resultado ?? [])], ['bate']);
+});
+
+test('SEARCH_DEBOUNCE_MS: igual ao debounce(makeSearch, 500) da Blip', () => {
+  assert.equal(SEARCH_DEBOUNCE_MS, 500);
+});
+
+test('isSearchDimming: só esmaece com pelo menos um bloco encontrado (Blip searchedStates.length > 0)', () => {
+  const bate = { ...newBlock({}, { top: 0, left: 0 }, 'bate'), $title: 'Início' };
+  const outro = { ...newBlock({}, { top: 0, left: 0 }, 'outro'), $title: 'Outro' };
+  const mapa = { bate, outro };
+  assert.equal(isSearchDimming(searchMatches(mapa, '')), false);
+  assert.equal(isSearchDimming(searchMatches(mapa, 'zzzz')), false);
+  const achados = searchMatches(mapa, 'inicio');
+  assert.equal(isSearchDimming(achados), true);
+  assert.equal(achados?.has('bate'), true);
+  assert.equal(achados?.has('outro'), false);
 });

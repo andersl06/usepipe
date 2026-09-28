@@ -118,6 +118,17 @@ export function matchBlock(block: Block, parsed: ParsedSearch): boolean {
   return listas.some((lista) => lista.some((texto) => normalizar(texto).includes(parsed.termo)));
 }
 
+/** Blip filters only after typing stops: `debouncedMakeSearch = debounce(makeSearch, 500)`. */
+export const SEARCH_DEBOUNCE_MS = 500;
+
+/**
+ * Blip dims non-matches (`no-match-node`, opacity .2) and hides connectors (`hide-conns`) only
+ * while `searchedStates.length > 0`, so a term that matches nothing leaves the canvas intact.
+ */
+export function isSearchDimming(matches: Set<string> | null): matches is Set<string> {
+  return matches !== null && matches.size > 0;
+}
+
 /** Empty term -> `null` (no search active); term with no match -> empty `Set`. */
 export function searchMatches(mapa: Mapa, texto: string): Set<string> | null {
   const parsed = parseSearch(texto);
