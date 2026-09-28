@@ -317,7 +317,7 @@ Plans:
 
 **Wave 14** *(blocked on Wave 13 completion)*
 
-- [ ] 02-24-PLAN.md — F-1 linhas da aba Ações (ícone por tipo, chip Erro, seleção em lote, Biblioteca de funções)
+- [x] 02-24-PLAN.md — F-1 linhas da aba Ações (ícone por tipo, chip Erro, seleção em lote, Biblioteca de funções)
 
 **Wave 15** *(blocked on Wave 14 completion)*
 
