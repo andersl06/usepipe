@@ -52,6 +52,7 @@ export function BlockPanel({
   onMudar,
   onFechar,
   onAviso,
+  onAbrirFuncoes,
 }: {
   block: Block;
   mapa: Mapa;
@@ -60,6 +61,7 @@ export function BlockPanel({
   onMudar: (block: Block) => void;
   onFechar: () => void;
   onAviso: (texto: string) => void;
+  onAbrirFuncoes?: (modo: 'gerenciar' | 'criar') => void;
 }) {
   const [aba, setAba] = useState<Aba>('conteudo');
   const [editandoTitulo, setEditandoTitulo] = useState(false);
@@ -207,7 +209,12 @@ export function BlockPanel({
           <ContentPanel block={block} onMudar={onMudar} onAviso={onAviso} />
         ) : null}
         {aba === 'acoes' ? (
-          <ActionsPanel block={block} onMudar={onMudar} onAviso={onAviso} />
+          <ActionsPanel
+            block={block}
+            onMudar={onMudar}
+            onAviso={onAviso}
+            onAbrirFuncoes={onAbrirFuncoes}
+          />
         ) : null}
         {aba === 'saidas' ? (
           <OutputsPanel block={block} mapa={mapa} onMudar={onMudar} onAviso={onAviso} />

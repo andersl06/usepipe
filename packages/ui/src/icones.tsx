@@ -70,6 +70,29 @@ const CAMINHOS = {
     'M9 3h6M10 3v5.5l-5 8a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8 -3l-5 -8v-5.5M8 15h8',
   restoreVersion:
     'M9 3h9a1 1 0 0 1 1 1v16a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1v-9M5 8l-3 3l3 3M2 11h9',
+  // Block action icons by type (D-33, F-1.2): one drawing per action type, never Blip's artwork.
+  trackEvent:
+    'M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+  mergeContact:
+    'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-12a1 1 0 0 1 1 -1zM9 11m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M6.5 16c.5 -1.8 1.6 -2.5 2.5 -2.5s2 .7 2.5 2.5M14 10h4M14 14h3',
+  redirect:
+    'M13 3h6v6M19 3l-9 9M11 5h-5a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-5',
+  manageList:
+    'M9 6h11M9 12h11M9 18h11M4 6l1 1l2 -2M4 12l1 1l2 -2M4 18l1 1l2 -2',
+  blipFunction:
+    'M6 3h9l5 5v13a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1v-16a1 1 0 0 1 1 -1zM14 3v4a1 1 0 0 0 1 1h4M10 12c-1 0 -1.5 .7 -1.5 1.6v.8c0 .7 -.3 1.1 -1 1.1c.7 0 1 .4 1 1.1v.8c0 .9 .5 1.6 1.5 1.6M14 12c1 0 1.5 .7 1.5 1.6v.8c0 .7 .3 1.1 1 1.1c-.7 0 -1 .4 -1 1.1v.8c0 .9 -.5 1.6 -1.5 1.6',
+  setVariable:
+    'M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2zM9 9l6 6M15 9l-6 6',
+  processCommand:
+    'M4 4h16v16h-16zM8 9l3 3l-3 3M13 15h4',
+  executeTemplate:
+    'M6 3h9l5 5v13a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1v-16a1 1 0 0 1 1 -1zM14 3v4a1 1 0 0 0 1 1h4M9.5 12.5l-2 2l2 2M14.5 12.5l2 2l-2 2M12.5 11.5l-1 6',
+  forwardToAgent:
+    'M9 3v4M15 3v4M6 7h12v3a6 6 0 0 1 -12 0zM9 16v2a3 3 0 0 0 6 0v-2M12 18v3',
+  actionGeneric:
+    'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M10 8l6 4l-6 4z',
+  addOutline:
+    'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M12 8v8M8 12h8',
 } as const;
 
 export type NomeDeIcone = keyof typeof CAMINHOS;

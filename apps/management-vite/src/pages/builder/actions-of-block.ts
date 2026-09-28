@@ -1,8 +1,10 @@
 import { PROVEDOR_PADRAO } from '@pipe/core';
 import type { ConditionBlip } from '@pipe/core';
+import type { NomeDeIcone } from '@pipe/ui';
 import type { AcaoDoEditor, Block } from './model';
 import { gerarId } from './model';
 import { conditionError } from './conditions';
+import type { DescricaoParte } from './cabecalho-info';
 
 /**
  * Block enter/leave actions follow Blip editor Actions tab and offer every action executed by
@@ -286,14 +288,45 @@ export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
 export const actionsOfGroup = (group: TipoDeAcao['grupo']): readonly TipoDeAcao[] =>
   CATALOG_OF_ACTIONS.filter((action) => action.grupo === group);
 
+/** Icon per action type (F-1.2, D-33): the reference's 12 documented types map to a Pipe-drawn icon. */
+export const ACTION_TYPE_ICON: Record<string, NomeDeIcone> = {
+  ProcessHttp: 'httpRequest',
+  TrackEvent: 'trackEvent',
+  MergeContact: 'mergeContact',
+  Redirect: 'redirect',
+  ManageList: 'manageList',
+  ExecuteScript: 'script',
+  ExecuteScriptV2: 'script',
+  ExecuteBlipFunction: 'blipFunction',
+  SetVariable: 'setVariable',
+  ProcessCommand: 'processCommand',
+  ExecuteTemplate: 'executeTemplate',
+  ForwardToAgent: 'forwardToAgent',
+};
+
+export const ACTION_ICON_GENERIC: NomeDeIcone = 'actionGeneric';
+
+/** Action types outside the reference's 12 (e.g. `SendMessageFromHttp`, `SetBucket`) get the generic icon. */
+export const iconOfActionType = (tipo: string): NomeDeIcone => ACTION_TYPE_ICON[tipo] ?? ACTION_ICON_GENERIC;
+
+// T:836 bold segments as structured parts, so the panel renders `<strong>` through React
+// (`cabecalho-info.tsx`'s `renderDescricao`) instead of raw, unescaped HTML.
+const ENTERING_DESCRIPTION: DescricaoParte[] = [
+  { texto: 'Inclua ações que serão executadas ' },
+  { texto: 'antes do envio do primeiro conteúdo', forte: true },
+];
+const LEAVING_DESCRIPTION: DescricaoParte[] = [
+  { texto: 'Inclua ações que serão executadas ' },
+  { texto: 'após o envio do último conteúdo ou resposta do usuário', forte: true },
+];
+
 export const LABELS_OF_ACTIONS = {
   aba: 'Ações',
   entrada: 'Ações de Entrada',
-  entradaDescricao: 'Inclua ações que serão executadas antes do envio do primeiro conteúdo',
+  entradaDescricao: ENTERING_DESCRIPTION,
   adicionarEntrada: 'Adicionar ação de entrada',
   saida: 'Ações de Saída',
-  saidaDescricao:
-    'Inclua ações que serão executadas após o envio do último conteúdo ou resposta do usuário',
+  saidaDescricao: LEAVING_DESCRIPTION,
   adicionarSaida: 'Adicionar ação de saída',
   nome: 'Nome da ação',
   detalhe: 'Detalhes da ação',
@@ -306,6 +339,11 @@ export const LABELS_OF_ACTIONS = {
     'O bloco de atendimento representa o ponto do fluxo que um atendente está trocando mensagens com o usuário, portanto o bot não deve interferir nas ações de entrada e saída.',
   naoExecutada: 'Não executada no Pipe',
   doSistema: 'Ação do bloco de atendimento',
+  erro: 'Erro',
+  selecionarTodos: 'Selecionar todos',
+  colarAcao: 'Colar ação',
+  copiarSelecionados: 'Copiar selecionados',
+  deletarSelecionados: 'Deletar selecionados',
 } as const;
 
 /** System-run actions belong to the Human block, not the person. */
@@ -537,6 +575,15 @@ export function substituirAcao(
 export function removerAcao(block: Block, lista: ActionsList, indice: number): Block {
   const current = block[lista] ?? [];
   return { ...block, [lista]: current.filter((_, i) => i !== indice) };
+}
+
+/**
+ * Bulk delete for "Deletar selecionados" (F-1.4 row 23): drops the given positions, keeping the
+ * rest in order. Positions, not `$id`, because `$id` is optional on imported actions.
+ */
+export function removeActions<T>(list: readonly T[], indices: readonly number[]): T[] {
+  const remove = new Set(indices);
+  return list.filter((_, i) => !remove.has(i));
 }
 
 /** Move an action up/down in execution order. */

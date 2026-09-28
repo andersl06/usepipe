@@ -46,6 +46,7 @@ export function Editor({
   onCloseNewBlock,
   panelExternalOpen,
   pesquisa,
+  onAbrirFuncoes,
 }: {
   state: EditorState;
   despachar: (gesto: GestoDoEditor) => void;
@@ -57,6 +58,7 @@ export function Editor({
   onCloseNewBlock: () => void;
   panelExternalOpen: boolean;
   pesquisa: string;
+  onAbrirFuncoes?: (modo: 'gerenciar' | 'criar') => void;
 }) {
   const { contact } = useContact();
   const { mapa } = state;
@@ -216,6 +218,7 @@ export function Editor({
           onMudar={(block) => aplicar(replaceBlock(mapa, block))}
           onFechar={() => setEditando(null)}
           onAviso={setAviso}
+          onAbrirFuncoes={onAbrirFuncoes}
         />
       ) : null}
 

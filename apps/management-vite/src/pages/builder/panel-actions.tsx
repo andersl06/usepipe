@@ -1,8 +1,9 @@
 import { Suspense, lazy, useLayoutEffect, useRef, useState } from 'react';
-import { Campo, Etiqueta, Icone } from '@pipe/ui';
+import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '../../components/icones-portal';
-import { CabecalhoInfo } from './cabecalho-info';
+import { CabecalhoInfo, renderDescricao } from './cabecalho-info';
+import type { DescricaoParte } from './cabecalho-info';
 import type { AcaoDoEditor, Block } from './model';
 import { ehAttendance } from './model';
 import {
@@ -17,7 +18,9 @@ import {
   comCabecalhos,
   comCampo,
   comCampoJson,
+  iconOfActionType,
   pasteActions,
+  removeActions,
   withConditions,
   comTitulo,
   actionErrors,
@@ -51,10 +54,13 @@ export function ActionsPanel({
   block,
   onMudar,
   onAviso,
+  onAbrirFuncoes,
 }: {
   block: Block;
   onMudar: (block: Block) => void;
   onAviso: (texto: string) => void;
+  /** Opens the function library (D-22) already reachable from Configuration → Funções, in the requested mode. */
+  onAbrirFuncoes?: (modo: 'gerenciar' | 'criar') => void;
 }) {
   const [copiadas, setCopiadas] = useState(actionsCopied);
   function copiar(actions: AcaoDoEditor[]): void {
@@ -70,6 +76,7 @@ export function ActionsPanel({
   }
   return (
     <div className="bl-aba-corpo">
+      {onAbrirFuncoes ? <FunctionLibrarySection onAbrirFuncoes={onAbrirFuncoes} /> : null}
       {block.root ? (
         <section className="bl-section">
           <CabecalhoInfo titulo={LABELS_OF_ACTIONS.entrada} aberto>
@@ -115,6 +122,41 @@ export function ActionsPanel({
   );
 }
 
+/** "BIBLIOTECA DE FUNÇÕES", first section of the Ações tab (F-1, CAPTURAS): opens the existing library (D-22). */
+function FunctionLibrarySection({
+  onAbrirFuncoes,
+}: {
+  onAbrirFuncoes: (modo: 'gerenciar' | 'criar') => void;
+}) {
+  return (
+    <section className="bl-section">
+      <CabecalhoInfo
+        titulo="Biblioteca de funções"
+        etiqueta={<Etiqueta tom="sucesso">Novo</Etiqueta>}
+        aberto
+      >
+        <p>
+          Crie e gerencie funções globais para serem chamadas sempre que necessário nos chatbots
+          do seu contrato
+        </p>
+        <div className="bl-function-library-botoes">
+          <button
+            type="button"
+            className="bl-botao-contorno"
+            onClick={() => onAbrirFuncoes('gerenciar')}
+          >
+            <ManagementIcon nome="biblioteca" tamanho={16} />
+            Gerenciar funções
+          </button>
+          <Botao variante="primario" icone="mais" onClick={() => onAbrirFuncoes('criar')}>
+            Criar função
+          </Botao>
+        </div>
+      </CabecalhoInfo>
+    </section>
+  );
+}
+
 function ListOfActionsOfBlock({
   block,
   lista,
@@ -129,7 +171,7 @@ function ListOfActionsOfBlock({
   block: Block;
   lista: ActionsList;
   titulo: string;
-  description: string;
+  description: DescricaoParte[];
   rotuloAdicionar: string;
   onMudar: (block: Block) => void;
   onAviso: (texto: string) => void;
@@ -165,7 +207,7 @@ function ListOfActionsOfBlock({
   return (
     <section className="bl-section bl-lista-de-acoes">
       <CabecalhoInfo titulo={titulo} contador={`${actions.length}/15`} aberto={actions.length === 0}>
-        <p>{description}</p>
+        <p>{renderDescricao(description)}</p>
       </CabecalhoInfo>
       <div className="bl-actions-selection">
         <label>
@@ -175,20 +217,43 @@ function ListOfActionsOfBlock({
             checked={actions.length > 0 && selecionadas.length === actions.length}
             onChange={(e) => setSelecionadas(e.target.checked ? actions.map((_, i) => i) : [])}
           />
-          Selecionar todos
+          {LABELS_OF_ACTIONS.selecionarTodos}
         </label>
-        <button
-          type="button"
-          className="bl-botao-contorno"
-          disabled={!selecionadas.length && !copiadas.length}
-          onClick={() =>
-            selecionadas.length
-              ? onCopiar(actions.filter((_, i) => selecionadas.includes(i)))
-              : colar()
-          }
-        >
-          {selecionadas.length ? 'Copiar ações' : 'Colar ação'}
-        </button>
+        {selecionadas.length ? (
+          <div className="bl-actions-selected-buttons">
+            <button
+              type="button"
+              className="iconbtn"
+              title={LABELS_OF_ACTIONS.copiarSelecionados}
+              aria-label={LABELS_OF_ACTIONS.copiarSelecionados}
+              onClick={() => onCopiar(actions.filter((_, i) => selecionadas.includes(i)))}
+            >
+              <IconePortal nome="copiar" tamanho={18} />
+            </button>
+            <button
+              type="button"
+              className="iconbtn"
+              title={LABELS_OF_ACTIONS.deletarSelecionados}
+              aria-label={LABELS_OF_ACTIONS.deletarSelecionados}
+              onClick={() => {
+                onMudar({ ...block, [lista]: removeActions(actions, selecionadas) });
+                setSelecionadas([]);
+                setAberta(null);
+              }}
+            >
+              <ManagementIcon nome="lixeira" tamanho={18} />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="bl-botao-contorno"
+            disabled={!copiadas.length}
+            onClick={colar}
+          >
+            {LABELS_OF_ACTIONS.colarAcao}
+          </button>
+        )}
       </div>
 
       {actions.map((acao, i) => (
@@ -377,15 +442,14 @@ export function ActionCard({
           />
         ) : null}
         <button type="button" className="bl-acao-abrir" onClick={onAbrir} aria-expanded={aberta}>
+          <span className="bl-acao-icone">
+            <Icone nome={iconOfActionType(acao.type)} tamanho={24} />
+          </span>
           <span className="bl-acao-tipo">{acao.$title || rotuloDaAcao(acao.type)}</span>
         </button>
         {semSuporte || dependenciaExterna ? <Etiqueta tom="alerta">{LABELS_OF_ACTIONS.naoExecutada}</Etiqueta> : null}
         {doSistema ? <Etiqueta>{LABELS_OF_ACTIONS.doSistema}</Etiqueta> : null}
-        {errors.length > 0 ? (
-          <Etiqueta tom="erro" redonda>
-            {errors.length}
-          </Etiqueta>
-        ) : null}
+        {errors.length > 0 ? <Etiqueta tom="erro">{LABELS_OF_ACTIONS.erro}</Etiqueta> : null}
         <span className="bl-output-order">
           <button
             type="button"
