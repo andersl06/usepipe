@@ -47,7 +47,7 @@ export interface PropsDoDashboard {
    * Whether the sidebar is open (`isDisplayingContactsSidebar`), with the list
    * already loaded.
    */
-  lista: { tipo: 'interacao' | 'rejeicao'; nomes: string[] } | null;
+  lista: { type: 'interacao' | 'rejeicao'; nomes: string[] } | null;
   /**
    * Período em React state (D-30, `std/nav-contract.md` §Gestão): os chips e
    * o "De/Até" personalizado chamam esta função em vez de navegar para
@@ -1218,7 +1218,7 @@ function ContactsBar(p: PropsDoDashboard & { lista: NonNullable<PropsDoDashboard
   const { contacts } = p.data;
   const total = contacts.total.atual;
   const com = contacts.withInteraction.atual;
-  const interaction = p.lista.tipo === 'interacao';
+  const interaction = p.lista.type === 'interacao';
   const taxa = total ? (interaction ? com / total : 1 - com / total) : undefined;
   const fechar = query(p);
   return (
