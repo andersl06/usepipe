@@ -38,9 +38,10 @@ import type { ToastInput } from './toast-queue';
  *   pseudo-block built from `global` (`pseudoBlockOfGlobal`/`globalOfPseudoBlock`, `actions-global.ts`)
  *   so the same `$enteringCustomActions`/`$leavingCustomActions` editing works flow-wide — the engine
  *   actually runs them (`editor.ts` from `@pipe/core`).
- * - "Funções": the "Biblioteca de funções" the `ExecuteBlipFunction` action consumes — a bot-scoped
- *   resource, so it lives beside the Blip tabs rather than inside a single block; last in the tab order
- *   (D-22), after the source's own tabs.
+ *
+ * Blip has no "Funções" tab (owner, 2026-09-28): the "Biblioteca de funções" (D-22) the
+ * `ExecuteBlipFunction` action consumes opens only from the actions' "Gerenciar/Criar função", as a
+ * sub-view of this panel with a back button instead of a tab.
  */
 
 type Aba = 'variaveis' | 'versoes' | 'acoes' | 'funcoes';
@@ -93,7 +94,6 @@ export function ConfigurationPanel({
     { key: 'variaveis', rotulo: 'Variáveis' },
     { key: 'versoes', rotulo: 'Versões' },
     { key: 'acoes', rotulo: 'Ações globais' },
-    { key: 'funcoes', rotulo: 'Funções' },
   ];
   return (
     <FloatingSidebar
@@ -134,7 +134,15 @@ export function ConfigurationPanel({
             onAbrirFuncoes={abrirFuncoes}
           />
         ) : null}
-        {aba === 'funcoes' ? <FlowFunctionsPanel iniciarCriando={criarFuncao} /> : null}
+        {aba === 'funcoes' ? (
+          <>
+            <button type="button" className="bl-versions-item" onClick={() => setAba('acoes')}>
+              <IconePortal nome="voltar" tamanho={20} />
+              <span>Voltar</span>
+            </button>
+            <FlowFunctionsPanel iniciarCriando={criarFuncao} />
+          </>
+        ) : null}
         {aba === 'versoes' ? (
           <VersionsTab
             flowId={flowId}
