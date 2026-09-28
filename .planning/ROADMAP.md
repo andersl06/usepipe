@@ -325,7 +325,7 @@ Plans:
 
 **Wave 16** *(blocked on Wave 15 completion)*
 
-- [ ] 02-26-PLAN.md — Casca flutuante comum (460px, raio 16, sombra) para Configuração, Biblioteca e Filas
+- [x] 02-26-PLAN.md — Casca flutuante comum (460px, raio 16, sombra) para Configuração, Biblioteca e Filas
 
 **Wave 17** *(blocked on Wave 16 completion)*
 
