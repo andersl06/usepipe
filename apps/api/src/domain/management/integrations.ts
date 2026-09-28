@@ -863,7 +863,7 @@ async function montarConexao(
 
   return {
     flowId: fluxoId,
-    endpoint: `${(process.env['PIPE_API_URL_PUBLICA'] ?? 'https://api.pipe.app').replace(/\/$/, '')}/v1`,
+    endpoint: `${(process.env['PIPE_URL_API_PUBLICA'] ?? 'https://api.pipe.app').replace(/\/$/, '')}/v1`,
     keyPrefix: key?.prefixo ?? null,
     urlMessages: await urlDoWebhookPara(tx, tenantId, EVENTS_MESSAGES),
     urlNotifications: await urlDoWebhookPara(tx, tenantId, EVENTS_NOTIFICATIONS),

@@ -52,7 +52,7 @@ export interface ContextOfClick {
 }
 
 function basePublica(): string {
-  return (process.env['PIPE_API_URL_PUBLICA'] ?? 'https://api.pipe.app').replace(/\/$/, '');
+  return (process.env['PIPE_URL_API_PUBLICA'] ?? 'https://api.pipe.app').replace(/\/$/, '');
 }
 
 /** `GET /l/:codigo` is deliberately short for ads and messages. */

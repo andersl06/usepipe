@@ -13,6 +13,7 @@ const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js'
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 const { forgetChannel } = await import('../src/database.js');
+const { urlCurtaDe } = await import('../src/domain/rastreador-de-cliques.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -276,5 +277,25 @@ describe('Reject active messages without a contact phone or contact ID', () => {
     expect(((await withoutScope.json()) as { error: { code: string } }).error.code).toBe(
       'without_scope',
     );
+  });
+});
+
+describe('Short tracked-link URL reads the public API base', () => {
+  const chave = 'PIPE_URL_API_PUBLICA';
+  const antes = process.env[chave];
+
+  afterAll(() => {
+    if (antes === undefined) delete process.env[chave];
+    else process.env[chave] = antes;
+  });
+
+  it('uses PIPE_URL_API_PUBLICA, not the placeholder, once it is configured', () => {
+    process.env[chave] = 'https://api.usepipe.com.br';
+    expect(urlCurtaDe('abc123')).toBe('https://api.usepipe.com.br/l/abc123');
+  });
+
+  it('falls back to the documented placeholder when unset', () => {
+    delete process.env[chave];
+    expect(urlCurtaDe('abc123')).toBe('https://api.pipe.app/l/abc123');
   });
 });
