@@ -1102,3 +1102,194 @@
   margin: 0;
   padding-left: 16px;
 }
+
+/*
+ * Queue management panel (F-5, D-56 item 4): list/search/card/create inside `panel-queues.tsx`.
+ * The 460px shell and its 24px 32px body padding already come from `.bl-panel--flutuante`
+ * above; these rules only cover what is specific to this panel's content.
+ */
+.bl-queues-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+.bl-queues-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--p-conteudo);
+}
+.bl-queues-empty-botao {
+  min-height: 56px;
+  padding: 0 24px;
+}
+.bl-queues-search {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+}
+.bl-queues-search-campo {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.bl-queues-search-campo .campo {
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  padding-left: 40px;
+}
+.bl-queues-search-icone {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: var(--p-conteudo-desabilitado);
+  pointer-events: none;
+}
+.bl-queues-search-botao {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: var(--p-r-sm);
+  background: var(--p-builder-marca);
+  color: var(--p-marca-conteudo);
+  cursor: pointer;
+}
+.bl-queues-search-botao:hover {
+  background: var(--p-builder-marca-hover);
+}
+.bl-queues-no-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 0;
+  text-align: center;
+}
+.bl-queues-no-result-titulo {
+  margin: 8px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+.bl-queues-list {
+  display: flex;
+  flex-direction: column;
+}
+.bl-queue-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 91px;
+  box-sizing: border-box;
+  padding: 20px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  background: #393939;
+  box-shadow: 0 2px 12px rgb(96 123 153 / 15%);
+}
+.bl-queue-card-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.bl-queue-card-label {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 25.6px;
+  color: rgb(148 148 148);
+}
+.bl-queue-card-name {
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bl-queue-card-right {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+.bl-queue-card-actions {
+  display: flex;
+  align-items: center;
+  height: 29px;
+  padding-right: 8px;
+  border-right: 2px solid #8ca0b3;
+  opacity: 0;
+  transition: opacity 125ms ease;
+}
+.bl-queue-card:hover .bl-queue-card-actions,
+.bl-queue-card:focus-within .bl-queue-card-actions {
+  opacity: 1;
+}
+.ig-interruptor.bl-queue-switch {
+  width: 50px;
+  padding-left: 8px;
+}
+.bl-queues-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 16px;
+}
+.bl-queues-carregar-mais {
+  flex-shrink: 0;
+}
+.bl-queues-form-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bl-queues-form-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.bl-queues-form-texto {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--p-conteudo);
+}
+.bl-queues-form-input {
+  width: 396px;
+  max-width: 100%;
+  height: 40px;
+  box-sizing: border-box;
+}
+.bl-queues-form-erro {
+  margin-top: 8px;
+}
+.bl-queues-form-botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 16px;
+}
+.bl-queues-form-botoes .btn:first-child {
+  min-width: 91px;
+  min-height: 56px;
+}
+.bl-queues-form-botoes .btn.primario {
+  min-height: 56px;
+}
+.bl-recado-titulo {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 700;
+}

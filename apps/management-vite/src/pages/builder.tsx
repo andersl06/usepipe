@@ -14,6 +14,7 @@ import { Editor } from './builder/editor';
 import { podeDesfazer, podeRefazer } from './builder/state';
 import { ConfigurationPanel } from './builder/panel-configuration';
 import { QueuesPanel } from './builder/panel-queues';
+import { hasAttendanceBlock } from './builder/queues-panel';
 import { VariablesPanel } from './builder/panel-variables';
 import { ZOOM_MAXIMO, ZOOM_MINIMO, zoomAjustado } from './builder/setas';
 import { useEditorDoBuilder } from './builder/use-editor';
@@ -118,7 +119,19 @@ export function PageBuilder() {
     setPesquisaAberta(false);
   }
   const [zoom, setZoom] = useState(ZOOM_MAXIMO);
-  const [recado, setRecado] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null);
+  /*
+   * Stand-in for 02-27's shared toast (runs in parallel, not yet merged): a title is optional,
+   * `duracaoMs` auto-dismisses. Swap for the shared component at merge without changing call
+   * sites — every `setRecado({...})` below already matches its expected shape.
+   */
+  const [recado, setRecado] = useState<
+    { tom: 'sucesso' | 'erro' | 'alerta'; titulo?: string; texto: string; duracaoMs?: number } | null
+  >(null);
+  useEffect(() => {
+    if (!recado?.duracaoMs) return;
+    const id = window.setTimeout(() => setRecado(null), recado.duracaoMs);
+    return () => window.clearTimeout(id);
+  }, [recado]);
 
   const [publicarAberto, setPublicarAberto] = useState(false);
   const [publicando, setPublicando] = useState(false);
@@ -140,6 +153,24 @@ export function PageBuilder() {
       ? ((read.error.corpo as { error?: { message?: string } } | null)?.error?.message ??
         read.error.message)
       : read.error?.message;
+
+  /** Pill button (source `openRulesModal`): no attendance block, just the 3s warning toast — never opens. */
+  function abrirFilas(): void {
+    if (queuesOpen) {
+      setQueuesOpen(false);
+      return;
+    }
+    if (!hasAttendanceBlock(state.mapa)) {
+      setRecado({
+        tom: 'alerta',
+        titulo: 'Você ainda não configurou o atendimento humano.',
+        texto: 'Para ativar o atendimento humano, adicione um bloco de atendimento no Builder.',
+        duracaoMs: 3000,
+      });
+      return;
+    }
+    setQueuesOpen(true);
+  }
 
   function abrirPublicar(): void {
     publicationSetError(null);
@@ -337,10 +368,7 @@ export function PageBuilder() {
           ) : null}
 
           {queuesOpen ? (
-            <QueuesPanel
-              contact={contact}
-              onFechar={() => setQueuesOpen(false)}
-            />
+            <QueuesPanel onFechar={() => setQueuesOpen(false)} onAviso={(aviso) => setRecado(aviso)} />
           ) : null}
 
           {/*
@@ -437,9 +465,9 @@ export function PageBuilder() {
               desabilitado={!editor.carregado}
               motivo={readRefusal ?? 'carregando'}
               ativo={queuesOpen}
-              onClick={() => setQueuesOpen((v) => !v)}
+              onClick={abrirFilas}
             >
-              <IconePortal nome="suporte" tamanho={24} />
+              <Icone nome="userEngaged" tamanho={24} />
             </BotaoDaBarra>
           </div>
 
@@ -470,6 +498,7 @@ export function PageBuilder() {
             </div>
             {recado ? (
               <Etiqueta tom={recado.tom} className="bl-recado">
+                {recado.titulo ? <strong className="bl-recado-titulo">{recado.titulo}</strong> : null}
                 {recado.texto}
               </Etiqueta>
             ) : null}
