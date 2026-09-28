@@ -456,6 +456,8 @@ describe('PUT /v1/management/flows/:id/builder — configuration', () => {
     await falar(CARLA, 'oi');
     const conversa = await conversationOf(CARLA);
     expect(await doBot(conversa.id)).toEqual(['Olá, bem-vindo!']);
+    // Free the scenario channel: the next suites attach their own flow to it.
+    await a.dono.execute(sql`update fluxo set canal_id = null where id = ${id}::uuid`);
   });
 
   it('a design without `configuration` reads back `{}`, and old drafts keep opening', async () => {
