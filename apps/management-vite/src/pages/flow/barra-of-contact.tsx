@@ -39,6 +39,7 @@ export interface Contact {
 
 export function ContactBar({ contact, ativo }: { contact: Contact; ativo?: string }) {
   const tipo = contact.tipo === 'roteador' ? 'roteador' : 'fluxo';
+  const noAr = tipo === 'roteador' ? contact.state !== 'arquivado' : contact.state === 'publicado';
   const base = flowPath(contact.shortName);
   /*
    * Step 2 of the source (`getUpdatedMenus()`): the bar only shows what the person can see in THIS contact. While the response hasn't arrived, `undefined` hides the whole row — flashing the full bar and then shrinking it is worse than the brief delay window, and anyone without access still gets a 403 on the destination screen, which is where the permission actually applies.
@@ -64,9 +65,10 @@ export function ContactBar({ contact, ativo }: { contact: Contact; ativo?: strin
             {/*
  * Their `u-status-on/off`, at the avatar's corner. There the signal is `application.status` (online/offline); here it's `estado`, the closest we have: published serves, draft doesn't yet.
  */}
+            {/* A router has no publish step (like Blip): it is on while not archived. */}
             <i
-              className={contact.state === 'publicado' ? 'g-ponto g-ponto-on' : 'g-ponto'}
-              title={contact.state === 'publicado' ? 'Publicado' : 'Rascunho'}
+              className={noAr ? 'g-ponto g-ponto-on' : 'g-ponto'}
+              title={tipo === 'roteador' ? (noAr ? 'Ativo' : 'Arquivado') : noAr ? 'Publicado' : 'Rascunho'}
             />
           </span>
 
