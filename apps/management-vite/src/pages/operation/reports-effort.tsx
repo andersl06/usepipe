@@ -9,7 +9,7 @@ interface EffortResponse {
   fuso: string;
   de: string;
   ate: string;
-  report: ReportEffort;
+  relatorio: ReportEffort;
 }
 
 interface Search {
@@ -31,7 +31,7 @@ export function PageEffort() {
   if (params.ate) q.set('to', params.ate);
   const read = useRead<EffortResponse>(`/v1/management/reports/effort?${q}`);
   if (!read.data) return null;
-  const { de, ate, report } = read.data;
+  const { de, ate, relatorio: report } = read.data;
   const totalEffort = report.agents.reduce((t, a) => t + a.effortSeg, 0);
   const totalTickets = report.agents.reduce((t, a) => t + a.tickets, 0);
 
@@ -132,7 +132,7 @@ export function PageEffort() {
               <tbody>
                 {report.agents.map((a) => (
                   <tr key={a.id}>
-                    <td className="who">{a.nome}</td>
+                    <td className="who">{a.name}</td>
                     <td className="num">{numero(a.tickets)}</td>
                     <td className="num">{durationLong(a.effortSeg)}</td>
                     <td className="num">{durationLong(a.effortByTicketSeg)}</td>
@@ -144,7 +144,7 @@ export function PageEffort() {
                     <td className="num">{percentual(a.occupancy)}</td>
                     <td className="num">
                       {numero(a.charsDeRespostaPronta)} car. ·{' '}
-                      {durationLong(a.effortCannedResponseSeg)} descontados
+                      {durationLong(a.effortResponseReadySeg)} descontados
                     </td>
                   </tr>
                 ))}
