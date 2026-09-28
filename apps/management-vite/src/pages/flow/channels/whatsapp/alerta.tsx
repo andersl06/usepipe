@@ -41,7 +41,7 @@ export function AbaAlerta() {
     setGravandoSwitch(true);
     setError(null);
     const resultado = await savePreferencesWhatsapp(channelId, {
-      alertRecategorization: { ativo: value },
+      alertRecategorization: { active: value },
     });
     setGravandoSwitch(false);
     if (!resultado.ok) setError(resultado.error);
@@ -81,7 +81,7 @@ export function AbaAlerta() {
         </div>
         <Interruptor
           id="cw-alerta-recategorizacao"
-          ligado={preferences?.alertRecategorization.ativo ?? false}
+          ligado={preferences?.alertRecategorization.active ?? false}
           desabilitado={withoutChannel || gravandoSwitch}
           rotulo="Alertas de recategorização de modelos"
           aoMudar={(v) => void alternar(v)}

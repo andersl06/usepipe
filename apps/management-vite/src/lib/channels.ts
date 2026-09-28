@@ -4,11 +4,11 @@
 
 export interface ChannelWhatsAppVisible {
   id: string;
-  nome: string;
-  ativo: boolean;
+  name: string;
+  active: boolean;
   wabaId: string | null;
   numeroId: string | null;
-  numero: string | null;
+  number: string | null;
   displayName: string | null;
   state: 'conectado' | 'desligado' | 'indisponivel';
   quality: string | null;
@@ -20,12 +20,12 @@ export interface ChannelWhatsAppVisible {
 }
 
 export interface PerfilVisivel {
-  sobre: string;
+  about: string;
   endereco: string;
   description: string;
   email: string;
   sites: string[];
-  categoria: string;
+  category: string;
   fotoUrl: string | null;
   nome: {
     display: string | null;
@@ -36,39 +36,40 @@ export interface PerfilVisivel {
 }
 
 export interface PedidoDePerfil {
+  about?: string;
   endereco?: string;
   description?: string;
   email?: string;
   sites?: string[];
-  categoria?: string;
+  category?: string;
   foto?: string;
 }
 
 export interface ChannelPreferences {
   quickReply: boolean;
   menu: boolean;
-  alertRecategorization: { ativo: boolean; emails: string[] };
+  alertRecategorization: { active: boolean; emails: string[] };
 }
 
 export interface PreferencesRequest {
   quickReply?: boolean;
   menu?: boolean;
-  alertRecategorization?: { ativo?: boolean; emails?: string[] };
+  alertRecategorization?: { active?: boolean; emails?: string[] };
 }
 
 export interface ChannelInstagramVisible {
   id: string;
-  nome: string;
-  ativo: boolean;
+  name: string;
+  active: boolean;
   igUserId: string | null;
   username: string | null;
   state: 'conectado' | 'desligado' | 'indisponivel';
   motivo: string | null;
-  tokenExpiraEm: string | null;
+  tokenExpiresAt: string | null;
   webhookUrl: string;
   criadoEm: string;
 }
-export interface ChannelMessengerVisible { id: string; nome: string; ativo: boolean; pageId: string | null; state: 'conectado' | 'desligado'; webhookUrl: string; criadoEm: string }
+export interface ChannelMessengerVisible { id: string; name: string; active: boolean; paginaId: string | null; state: 'conectado' | 'desligado'; webhookUrl: string; criadoEm: string }
 
 /** Use the same profile limits as `apps/api/src/dominio/whatsapp/perfil.ts` for screen counters only. */
 export const LIMITES_DO_PERFIL = {

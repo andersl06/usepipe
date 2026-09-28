@@ -34,8 +34,8 @@ export function AbaVisaoGeral() {
 
 function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
   const [desconectando, setDesconectando] = useState(false);
-  const numero = saude?.numero ?? channel.numero ?? channel.nome;
-  const numeroWa = numeroParaWaMe(saude?.numero ?? channel.numero);
+  const numero = saude?.number ?? channel.numero ?? channel.nome;
+  const numeroWa = numeroParaWaMe(saude?.number ?? channel.numero);
 
   if (saude && saude.state === 'indisponivel') {
     return (
