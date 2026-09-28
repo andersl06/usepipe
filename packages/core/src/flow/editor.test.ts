@@ -382,6 +382,32 @@ describe('interactive content', () => {
   });
 });
 
+describe('configuration', () => {
+  it('converterDoEditor copies the sanitized configuration map onto FlowBlip.configuration', () => {
+    const e = copia();
+    e.configuration = { Chave: 'v', 'builder:stateTrack': 'true' };
+    const convertido = converterDoEditor(e, 'f1');
+    expect(convertido.configuration).toEqual({ Chave: 'v', 'builder:stateTrack': 'true' });
+  });
+
+  it('without configuration, FlowBlip.configuration stays absent (old flows keep opening)', () => {
+    const convertido = converterDoEditor(copia(), 'f1');
+    expect(convertido.configuration).toBeUndefined();
+  });
+
+  it('drops non-text values and empty keys instead of throwing', () => {
+    const e = copia();
+    e.configuration = {
+      Ok: 'texto',
+      // @ts-expect-error sanitized at runtime, not just by the type
+      Numero: 42,
+      '': 'sem chave',
+    };
+    const convertido = converterDoEditor(e, 'f1');
+    expect(convertido.configuration).toEqual({ Ok: 'texto' });
+  });
+});
+
 describe('dynamic content', () => {
   it('accepts the HTTP, dynamic, and satisfaction-survey envelopes at publish time', () => {
     for (const mime of [

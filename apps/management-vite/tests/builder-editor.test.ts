@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { flowHasSurvey, moverSaida, removeCondition } from '../src/pages/builder/conditions.ts';
-import { stateInitial, reduzir } from '../src/pages/builder/state.ts';
+import { stateInitial, reduzir, validConfigKey } from '../src/pages/builder/state.ts';
+import { exportText, validateImport } from '../src/pages/builder/import-exportar.ts';
 import { SURVEY_CONTENT_TYPE } from '@pipe/core';
 import {
   addBlock,
@@ -481,6 +482,55 @@ test('removeCondition: the operator field of an untouched sibling condition is p
   ];
   const resultado = removeCondition(origem, 0, 0);
   assert.equal(resultado.$conditionOutputs?.[0]?.conditions?.[0]?.operator, 'and');
+});
+
+/* --------------------------------------------------------- configuration */
+
+test('configuracao: sets a key, `valor: null` removes it, and desfazer returns to the previous value', () => {
+  const carregado = reduzir(stateInitial(), { tipo: 'carregar', mapa: {}, global: {} });
+  assert.deepEqual(carregado.configuracao, {});
+
+  const gravado = reduzir(carregado, { tipo: 'configuracao', chave: 'Nome', valor: 'Ana' });
+  assert.deepEqual(gravado.configuracao, { Nome: 'Ana' });
+  assert.equal(gravado.sujo, true);
+
+  const removido = reduzir(gravado, { tipo: 'configuracao', chave: 'Nome', valor: null });
+  assert.deepEqual(removido.configuracao, {});
+
+  const desfeito = reduzir(removido, { tipo: 'desfazer' });
+  assert.deepEqual(desfeito.configuracao, { Nome: 'Ana' });
+  const refeito = reduzir(desfeito, { tipo: 'refazer' });
+  assert.deepEqual(refeito.configuracao, {});
+});
+
+test('validConfigKey: only letters and numbers, no hyphen or other symbols', () => {
+  assert.equal(validConfigKey('Nome1'), true);
+  assert.equal(validConfigKey('nome-1'), false);
+});
+
+test('import-exportar: export -> import does not touch the screen\'s configuracao (the file carries only {flow, globalActions})', () => {
+  const raiz = newBlock({}, { top: 0, left: 0 }, 'raiz');
+  raiz.root = true;
+  const mapa = { raiz };
+  const carregado = reduzir(stateInitial(), {
+    tipo: 'carregar',
+    mapa,
+    global: {},
+    configuracao: { Nome: 'Ana' },
+  });
+
+  const texto = exportText(carregado.mapa, carregado.global);
+  assert.equal(JSON.parse(texto).configuration, undefined);
+
+  const resultado = validateImport(texto);
+  assert.equal(resultado.ok, true);
+  assert.equal('configuration' in resultado, false);
+  // A tela nunca despacha `carregar` a partir de um import (ver `import-exportar.ts`),
+  // então `configuracao` continua a mesma depois de aplicar `mapa`/`global` do import.
+  const depoisDoImport = resultado.ok
+    ? reduzir(carregado, { tipo: 'aplicar', mapa: resultado.mapa })
+    : carregado;
+  assert.deepEqual(depoisDoImport.configuracao, { Nome: 'Ana' });
 });
 
 test('flowHasSurvey: true only when a block in the map is the satisfaction survey block', () => {

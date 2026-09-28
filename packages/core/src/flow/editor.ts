@@ -29,6 +29,18 @@ export interface EditorState extends Objeto {
 export interface ExportDoEditor {
   flow: Record<string, EditorState>;
   globalActions?: Partial<EditorState> | null;
+  /** `configuration` map (`{{config.Chave}}`, `context.ts:407`); sanitized into `FlowBlip.configuration` by `converterDoEditor`. */
+  configuration?: Record<string, string>;
+}
+
+/** Text values under non-empty keys only — drops what the engine could not read back anyway. */
+function limparConfiguration(configuration: Record<string, string> | undefined): Record<string, string> | undefined {
+  if (!configuration) return undefined;
+  const saida: Record<string, string> = {};
+  for (const [chave, valor] of Object.entries(configuration)) {
+    if (chave && typeof valor === 'string') saida[chave] = valor;
+  }
+  return Object.keys(saida).length > 0 ? saida : undefined;
 }
 
 /** Editor exports store `flow` as a STATE MAP rather than `states[]`. */
@@ -101,12 +113,14 @@ function convertState(e: EditorState): State {
 /** Convert editor export to published format; importer supplies the flow `id`. */
 export function converterDoEditor(exportado: ExportDoEditor, id: string): FlowBlip {
   const global = exportado.globalActions ?? {};
+  const configuration = limparConfiguration(exportado.configuration);
   return {
     id,
     states: Object.values(exportado.flow).map(convertState),
     inputActions: (global.$enteringCustomActions ?? []).map(converterAcao),
     outputActions: (global.$leavingCustomActions ?? []).map(converterAcao),
     afterStateChangedActions: (global.$afterStateChangedActions ?? []).map(converterAcao),
+    ...(configuration ? { configuration } : {}),
   };
 }
 
