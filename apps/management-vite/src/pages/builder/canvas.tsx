@@ -3,7 +3,7 @@ import type { PointerEvent as PointerEventDeReact, WheelEvent as WheelEventDeRea
 import type { Aresta, Block, Mapa, Position } from './model';
 import { arestasDe, copiedTextBlock, podeExcluir, positionOf, copiedBlockText } from './model';
 import { No } from './no';
-import { blockTags } from './tags-of-block';
+import { searchMatches } from './search';
 import {
   HEIGHT_DEFAULT_OF_BLOCK,
   WIDTH_OF_BLOCK,
@@ -258,15 +258,13 @@ export function Canvas({
   const blocos = Object.values(mapa);
   const connectionTarget = arrasto?.tipo === 'ligacao' ? arrasto.alvo : null;
   const blockMenu = menu?.tipo === 'bloco' ? mapa[menu.id] : undefined;
-  const termoDaPesquisa = pesquisa.trim().toLocaleLowerCase('pt-BR');
-  const corresponde = (block: (typeof blocos)[number]): boolean =>
-    !termoDaPesquisa ||
-    [block.id, block.$title ?? '', ...blockTags(block).map((etiqueta) => etiqueta.rotulo)]
-      .join(' ')
-      .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '')
-      .toLocaleLowerCase('pt-BR')
-      .includes(termoDaPesquisa.normalize('NFD').replace(/\p{Diacritic}/gu, ''));
+  /*
+   * `null` = no search active; an empty `Set` = a term with no result. Both leave the canvas
+   * intact (F-4.1) — only a non-empty result set dims the blocks that fall outside it.
+   */
+  const matches = searchMatches(mapa, pesquisa);
+  const pesquisando = matches !== null && matches.size > 0;
+  const corresponde = (block: (typeof blocos)[number]): boolean => !pesquisando || matches!.has(block.id);
 
   /** Um item do menu de contexto: fecha o menu e faz o gesto no bloco dele. */
   function escolher(gesto: (id: string) => void): void {
@@ -318,7 +316,7 @@ export function Canvas({
   return (
     <div
       ref={fundo}
-      className={`bl-canvas${arrasto?.tipo === 'cena' ? ' bl-canvas--arrastando' : ''}${termoDaPesquisa ? ' bl-canvas--pesquisando' : ''}`}
+      className={`bl-canvas${arrasto?.tipo === 'cena' ? ' bl-canvas--arrastando' : ''}${pesquisando ? ' bl-canvas--pesquisando' : ''}`}
       onPointerDown={aoPressionarFundo}
       onPointerMove={aoMover}
       onPointerUp={aoSoltar}

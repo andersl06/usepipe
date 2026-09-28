@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { BuilderOfFlow, BlockError, VersionOfFlow } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../components/icones-management';
@@ -87,6 +87,34 @@ export function PageBuilder() {
   const [queuesOpen, setQueuesOpen] = useState(false);
   const [pesquisaAberta, setPesquisaAberta] = useState(false);
   const [pesquisa, setPesquisa] = useState('');
+  /* Blip waits 500ms after typing before filtering the canvas; clearing the term (closing, or
+   * clicking outside with an empty field) restores it right away instead of waiting. */
+  const [pesquisaComAtraso, setPesquisaComAtraso] = useState('');
+  useEffect(() => {
+    if (!pesquisa) {
+      setPesquisaComAtraso('');
+      return;
+    }
+    const temporizador = setTimeout(() => setPesquisaComAtraso(pesquisa), 500);
+    return () => clearTimeout(temporizador);
+  }, [pesquisa]);
+  const pesquisaAncoraRef = useRef<HTMLDivElement>(null);
+  /* Clicking outside the pill+box closes the search, but only with an empty field (F-4.1). */
+  useEffect(() => {
+    if (!pesquisaAberta) return;
+    const aoClicarFora = (e: PointerEvent): void => {
+      if (pesquisa.trim()) return;
+      const alvo = e.target as Node | null;
+      if (alvo && pesquisaAncoraRef.current?.contains(alvo)) return;
+      setPesquisaAberta(false);
+    };
+    document.addEventListener('pointerdown', aoClicarFora);
+    return () => document.removeEventListener('pointerdown', aoClicarFora);
+  }, [pesquisaAberta, pesquisa]);
+  function fecharPesquisa(): void {
+    setPesquisa('');
+    setPesquisaAberta(false);
+  }
   const [zoom, setZoom] = useState(ZOOM_MAXIMO);
   const [recado, setRecado] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null);
 
@@ -263,7 +291,7 @@ export function PageBuilder() {
               newBlockOpen={newBlockOpen}
               onCloseNewBlock={() => setNewBlockOpen(false)}
               panelExternalOpen={configAberto || queuesOpen}
-              pesquisa={pesquisa}
+              pesquisa={pesquisaComAtraso}
             />
           )}
 
@@ -345,16 +373,50 @@ export function PageBuilder() {
             >
               <ManagementIcon nome="biblioteca" tamanho={24} />
             </BotaoDaBarra>
-            <BotaoDaBarra
-              rotulo="Pesquisar"
-              classe="bl-pesquisar"
-              desabilitado={!editor.carregado}
-              motivo={readRefusal ?? 'carregando'}
-              ativo={pesquisaAberta}
-              onClick={() => setPesquisaAberta((aberta) => !aberta)}
-            >
-              <IconePortal nome="busca" tamanho={24} />
-            </BotaoDaBarra>
+            <div className="bl-pesquisa-ancora" ref={pesquisaAncoraRef}>
+              <BotaoDaBarra
+                rotulo={pesquisaAberta ? 'Fechar' : 'Pesquisar'}
+                classe="bl-pesquisar"
+                desabilitado={!editor.carregado}
+                motivo={readRefusal ?? 'carregando'}
+                ativo={pesquisaAberta}
+                onClick={() => (pesquisaAberta ? fecharPesquisa() : setPesquisaAberta(true))}
+              >
+                <IconePortal nome={pesquisaAberta ? 'fechar' : 'busca'} tamanho={24} />
+              </BotaoDaBarra>
+              {pesquisaAberta ? (
+                <div className="bl-pesquisa-flutuante" data-tema="escuro">
+                  <div className="bl-pesquisa-campo">
+                    <IconePortal nome="busca" tamanho={20} className="bl-pesquisa-icone" />
+                    <Campo
+                      autoFocus
+                      value={pesquisa}
+                      placeholder="Pesquisar"
+                      aria-label="Pesquisar blocos"
+                      onChange={(e) => setPesquisa(e.target.value)}
+                    />
+                  </div>
+                  <details className="dica bl-pesquisa-info">
+                    <summary aria-label="Como pesquisar">
+                      <IconePortal nome="informacao" tamanho={16} />
+                    </summary>
+                    <div className="dica-balao" role="note">
+                      Para facilitar a pesquisa, use:
+                      <br />
+                      <code>title: Início</code>
+                      <br />
+                      <code>tags: valor</code>
+                      <br />
+                      <code>content: valor</code>
+                      <br />
+                      <code>actions: valor</code>
+                      <br />
+                      <code>output: valor</code>
+                    </div>
+                  </details>
+                </div>
+              ) : null}
+            </div>
             <BotaoDaBarra
               rotulo="Gerenciamento de Filas"
               desabilitado={!editor.carregado}
@@ -365,20 +427,6 @@ export function PageBuilder() {
               <IconePortal nome="suporte" tamanho={24} />
             </BotaoDaBarra>
           </div>
-          {pesquisaAberta ? (
-            <div className="bl-pesquisa-flutuante">
-              <Campo
-                autoFocus
-                value={pesquisa}
-                placeholder="Pesquisar"
-                aria-label="Pesquisar blocos"
-                onChange={(e) => setPesquisa(e.target.value)}
-              />
-              <button type="button" className="iconbtn" aria-label="Fechar pesquisa" onClick={() => { setPesquisa(''); setPesquisaAberta(false); }}>
-                <IconePortal nome="fechar" tamanho={20} />
-              </button>
-            </div>
-          ) : null}
 
           {/*
  * Reference `.builder-footer` has a light status pill (Saved with `checkball`), three separate Undo/Redo/Fullscreen icons spaced by 10px, `100%`, and 100px slider from 20% to 100%.
