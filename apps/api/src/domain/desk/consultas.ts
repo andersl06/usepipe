@@ -252,7 +252,7 @@ export async function listarRespostasProntas(
   atendenteId: string,
 ): Promise<RespostaProntaDoDesk[]> {
   const { rows } = await tx.execute<Linha<RespostaProntaDoDesk>>(sql`
-    select id, escopo, categoria, atalho, titulo, corpo
+    select id, escopo as "scope", categoria, atalho, titulo, corpo
       from resposta_pronta
      where ativa
        and (escopo = 'empresa' or usuario_id = ${atendenteId})
