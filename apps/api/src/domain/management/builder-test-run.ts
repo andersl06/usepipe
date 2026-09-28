@@ -21,6 +21,7 @@ import { runFlowScript, scriptFetch } from '../script-sandbox.js';
 import { toChannelOutput, resolveDynamicContent } from '../flow.js';
 import { confirmarUrlSegura } from './integrations.js';
 import { loadFlowFunctions } from './flow-functions.js';
+import { loadFlowResources } from './flow-resources.js';
 import { assertAccessToBuilder, compiledDraftOfFlow } from './builder-of-flow.js';
 
 /**
@@ -317,6 +318,7 @@ export async function runBuilderTest(
   const store = storeOfTestRun(tid, userId, flowId);
   if (options.testVariables) Object.assign(store.variables, options.testVariables);
   const flowFunctions = await loadFlowFunctions(tx, flowId);
+  const resources = await loadFlowResources(tx, flowId);
 
   const messages: TestRunMessage[] = [];
   const context: Context = {
@@ -326,6 +328,7 @@ export async function runBuilderTest(
     variables: store.variables,
     inboundContext: new Map(),
     contact: store.contact,
+    resources,
     services: servicesOfTestRun(tx, tid, store, messages, flowFunctions),
   };
 

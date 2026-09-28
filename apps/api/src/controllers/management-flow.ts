@@ -40,6 +40,12 @@ import {
   deleteService,
 } from '../domain/management/services-of-router.js';
 import {
+  listFlowResources,
+  createFlowResource,
+  updateFlowResource,
+  deleteFlowResource,
+} from '../domain/management/flow-resources.js';
+import {
   loadChannelOfFlow,
   carregarGradeDoPortal,
   loadContact,
@@ -61,6 +67,8 @@ import type {
   RequestOfChannelOfFlow,
   RequestOfService,
   LinkedService,
+  FlowResource,
+  FlowResourceInput,
 } from '@pipe/contracts';
 import { BY_PAGE } from '@pipe/contracts';
 import type {
@@ -508,6 +516,70 @@ export class ManagementFlowController {
     uuidOu404(servicoId, 'serviço');
     await noTenant(sessao.tenantId, (tx) =>
       deleteService(tx, sessao.tenantId, sessao.userId, id, servicoId),
+    );
+  }
+
+  /**
+   * Blip "Recursos" (`resources.ler`/`resources.escrever` on this flow, `requirePermissionInFlow`
+   * like `basicConfigurations` above). CRUD for the key/value store the builder's
+   * `{{resource.<name>}}` reads through the engine's `resource` provider.
+   */
+  @Get(':id/resources')
+  @WithSession()
+  async resources(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+  ): Promise<FlowResource[]> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) =>
+      listFlowResources(tx, sessao.userId, sessao.tenantId, id),
+    );
+  }
+
+  @Post(':id/resources')
+  @WithSession()
+  async createResource(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Body() corpo: FlowResourceInput,
+  ): Promise<FlowResource> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) =>
+      createFlowResource(tx, sessao.userId, sessao.tenantId, id, corpo),
+    );
+  }
+
+  @Put(':id/resources/:resourceId')
+  @WithSession()
+  async updateResource(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Param('resourceId') resourceId: string,
+    @Body() corpo: FlowResourceInput,
+  ): Promise<FlowResource> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    uuidOu404(resourceId, 'recurso');
+    return noTenant(sessao.tenantId, (tx) =>
+      updateFlowResource(tx, sessao.userId, sessao.tenantId, id, resourceId, corpo),
+    );
+  }
+
+  @Delete(':id/resources/:resourceId')
+  @HttpCode(204)
+  @WithSession()
+  async deleteResource(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Param('resourceId') resourceId: string,
+  ): Promise<void> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    uuidOu404(resourceId, 'recurso');
+    await noTenant(sessao.tenantId, (tx) =>
+      deleteFlowResource(tx, sessao.userId, sessao.tenantId, id, resourceId),
     );
   }
 }
