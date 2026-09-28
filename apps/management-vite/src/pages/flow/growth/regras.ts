@@ -3,10 +3,10 @@ import type { EnvioGrowth } from '@pipe/contracts';
 export function resumirEnvios(envios: EnvioGrowth[]) {
   return {
     audiencia: new Set(envios.map((envio) => envio.contactName ?? envio.id)).size,
-    recebidas: envios.filter((envio) => envio.estado === 'entregue' || envio.estado === 'lida')
+    recebidas: envios.filter((envio) => envio.state === 'entregue' || envio.state === 'lida')
       .length,
-    lidas: envios.filter((envio) => envio.estado === 'lida').length,
-    falharam: envios.filter((envio) => envio.estado === 'falhou').length,
+    lidas: envios.filter((envio) => envio.state === 'lida').length,
+    falharam: envios.filter((envio) => envio.state === 'falhou').length,
   };
 }
 
@@ -15,7 +15,7 @@ export function filtrarEnvios(envios: EnvioGrowth[], search: string, state: stri
   return envios.filter(
     (envio) =>
       (!termo || envio.templateNome?.toLocaleLowerCase('pt-BR').includes(termo)) &&
-      (state === 'todos' || envio.estado === state),
+      (state === 'todos' || envio.state === state),
   );
 }
 

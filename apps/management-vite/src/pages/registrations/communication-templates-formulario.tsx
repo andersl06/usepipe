@@ -33,7 +33,7 @@ function textVariables(texto: string): string[] {
 const rotulo = { display: 'flex', flexDirection: 'column' as const, gap: '4px' };
 const column = { display: 'flex', flexDirection: 'column' as const, gap: 'var(--p-e-3)' };
 
-export function TemplateForm({ channels }: { channels: { id: string; nome: string }[] }) {
+export function TemplateForm({ channels }: { channels: { id: string; name: string }[] }) {
   const [channelId, setChannelId] = useState('');
   const [nome, setNome] = useState('');
   const [idioma, setIdioma] = useState('pt_BR');
@@ -121,7 +121,7 @@ export function TemplateForm({ channels }: { channels: { id: string; nome: strin
               </option>
               {channels.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.nome}
+                  {c.name}
                 </option>
               ))}
             </Seletor>

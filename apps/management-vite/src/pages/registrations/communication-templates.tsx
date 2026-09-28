@@ -43,12 +43,12 @@ function SyncBar({ channels }: { channels: ChannelWhatsapp[] }) {
     const saida = await channelSyncTemplates(channel.id);
     setSincronizando(null);
     if (!saida.ok) {
-      setResultado({ channel: channel.nome, texto: saida.error, error: true });
+      setResultado({ channel: channel.name, texto: saida.error, error: true });
       return;
     }
     const { criados, atualizados, removidos, ignorados } = saida.value;
     setResultado({
-      channel: channel.nome,
+      channel: channel.name,
       texto: `${criados} criado(s), ${atualizados} atualizado(s), ${removidos} removido(s)${ignorados ? `, ${ignorados} ignorado(s)` : ''}.`,
     });
   }
@@ -65,7 +65,7 @@ function SyncBar({ channels }: { channels: ChannelWhatsapp[] }) {
             disabled={sincronizando === c.id}
             onClick={() => void sincronizar(c)}
           >
-            {sincronizando === c.id ? 'Sincronizando…' : `Sincronizar "${c.nome}" com a Meta`}
+            {sincronizando === c.id ? 'Sincronizando…' : `Sincronizar "${c.name}" com a Meta`}
           </Botao>
         ))}
       </div>
@@ -94,7 +94,7 @@ export function PageTemplates() {
     if (!paraExcluir) return;
     setExcluindo(true);
     setErrorDeletion(null);
-    const resultado = await channelDeleteTemplate(paraExcluir.channelId, paraExcluir.nome);
+    const resultado = await channelDeleteTemplate(paraExcluir.channelId, paraExcluir.name);
     setExcluindo(false);
     if (!resultado.ok) {
       setErrorDeletion(resultado.error);
@@ -114,30 +114,30 @@ export function PageTemplates() {
       cards: modelos.map((m) => ({
         id: m.id,
         campos: [
-          { rotulo: 'Nome', value: m.nome },
+          { rotulo: 'Nome', value: m.name },
           { rotulo: 'Idioma', value: m.idioma },
           {
             rotulo: 'Categoria',
-            value: ROTULO_CATEGORIA_TEMPLATE[m.categoria as CategoriaTemplate] ?? m.categoria,
+            value: ROTULO_CATEGORIA_TEMPLATE[m.category as CategoriaTemplate] ?? m.category,
           },
           { rotulo: 'Canal', value: m.channelName },
           {
             rotulo: 'Cabeçalho',
-            value: ROTULO_CABECALHO[m.cabecalhoTipo as CabecalhoTemplate] ?? m.cabecalhoTipo,
+            value: ROTULO_CABECALHO[m.headerType as CabecalhoTemplate] ?? m.headerType,
           },
           {
-            rotulo: headerHasMedia(m.cabecalhoTipo)
+            rotulo: headerHasMedia(m.headerType)
               ? 'Variáveis (cabeçalho desloca +1)'
               : 'Variáveis',
-            value: triggerPositions(m.cabecalhoTipo, m.variables.length),
+            value: triggerPositions(m.headerType, m.variables.length),
           },
           { rotulo: 'Status na Meta', value: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta },
         ],
         situation: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta,
         active: m.statusMeta === 'aprovado',
-        procura: `${m.nome} ${m.idioma} ${m.categoria} ${m.channelName}`.toLowerCase(),
+        procura: `${m.name} ${m.idioma} ${m.category} ${m.channelName}`.toLowerCase(),
         acao: (
-          <BotaoDeIcone nome="x" rotulo={`Excluir o modelo ${m.nome}`} onClick={() => setParaExcluir(m)} />
+          <BotaoDeIcone nome="x" rotulo={`Excluir o modelo ${m.name}`} onClick={() => setParaExcluir(m)} />
         ),
       })),
     },
@@ -188,7 +188,7 @@ export function PageTemplates() {
       <ModalConfirmation
         aberto={paraExcluir !== null}
         titulo="Excluir modelo"
-        message={`Excluir "${paraExcluir?.nome}"? A Meta apaga o modelo em todos os idiomas cadastrados com este nome.`}
+        message={`Excluir "${paraExcluir?.name}"? A Meta apaga o modelo em todos os idiomas cadastrados com este nome.`}
         error={errorDeletion}
         confirmando={excluindo}
         rotuloConfirmar="Excluir"

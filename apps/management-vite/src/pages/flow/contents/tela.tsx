@@ -262,12 +262,12 @@ export function TelaDeConteudos({
                     <div className="ct-item-linha">
                       <div className="ct-item-w40">
                         <span className="ct-item-rotulo">Nome do modelo</span>
-                        <span className="ct-item-nome">{template.nome}</span>
+                        <span className="ct-item-nome">{template.name}</span>
                       </div>
                       <div className="ct-item-w15">
                         <span className="ct-item-rotulo">Categoria</span>
                         <span>
-                          {ROTULO_CATEGORIA[template.categoria as Categoria] ?? template.categoria}
+                          {ROTULO_CATEGORIA[template.category as Categoria] ?? template.category}
                         </span>
                       </div>
                       <div className="ct-item-w15">
@@ -301,7 +301,7 @@ export function TelaDeConteudos({
         {aberto ? (
           <NewTemplateSidebar
             channelId={channelId}
-            existentes={modelos.map((template) => template.nome)}
+            existentes={modelos.map((template) => template.name)}
             aoFechar={() => setAberto(false)}
           />
         ) : null}

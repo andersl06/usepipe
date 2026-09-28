@@ -135,7 +135,7 @@ export interface EnvioGrowth {
   contactName: string | null;
   templateNome: string | null;
   channelName: string;
-  estado: string | null;
+  state: string | null;
   errorCode: string | null;
   criadaEm: string;
   custoCentavos: number | null;
@@ -143,25 +143,25 @@ export interface EnvioGrowth {
 
 export interface TemplateGrowth {
   id: string;
-  nome: string;
+  name: string;
   idioma: string;
-  categoria: string;
+  category: string;
   statusMeta: string;
-  corpo: string;
+  body: string;
   variables: string[];
   channelId: string;
-  canalNome: string;
+  channelName: string;
 }
 
 export interface ContactGrowth {
   id: string;
-  nome: string | null;
-  telefone: string;
+  name: string | null;
+  phone: string;
 }
 
 /** `GET /v1/gestao/fluxos/:id/growth`: data belongs to the ACCOUNT, not the contact. */
 export interface DataOfGrowth {
-  channels: { id: string; nome: string }[];
+  channels: { id: string; name: string }[];
   modelos: TemplateGrowth[];
   contacts: ContactGrowth[];
   envios: EnvioGrowth[];
@@ -171,20 +171,20 @@ export interface DataOfGrowth {
 
 export interface TemplateListed {
   id: string;
-  canalId: string;
-  corpo: string;
-  nome: string;
+  channelId: string;
+  body: string;
+  name: string;
   idioma: string;
-  categoria: string;
+  category: string;
   statusMeta: string;
-  cabecalhoTipo: string;
-  variaveis: string[];
-  canalNome: string;
+  headerType: string;
+  variables: string[];
+  channelName: string;
 }
 
 /** `GET /v1/gestao/fluxos/:id/conteudos`; without a WhatsApp channel, `modelos` is empty. */
 export interface ContentItemsOfFlow {
-  canalId: string | null;
+  channelId: string | null;
   modelos: TemplateListed[];
 }
 
