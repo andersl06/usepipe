@@ -63,6 +63,6 @@ export function useSair() {
   return async () => {
     await sair();
     queue.clear();
-    navegar('/entrar', { replace: true });
+    navegar('/login', { replace: true });
   };
 }
