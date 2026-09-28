@@ -1,4 +1,5 @@
 import { and, asc, count, desc, eq, gte, ilike, isNotNull, isNull, ne, sql } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
 import {
   channel,
   classificationConversation,
@@ -27,8 +28,8 @@ export const identifierOfChannel = sql<string | null>`coalesce(
   ${channel.config} ->> 'numero', ${channel.config} ->> 'username', ${channel.numeroId}
 )`;
 
-/** O contato (o `fluxo`) e o canal dele. Uma consulta, um `leftJoin`. */
-export async function loadContact(tx: TransactionPipe, tid: string, id: string) {
+/** The contact (the `fluxo`) and its channel — the shared query behind both lookups below. */
+async function loadContactWhere(tx: TransactionPipe, extraCondition: SQL) {
   const [linha] = await tx
     .select({
       id: flow.id,
@@ -47,9 +48,26 @@ export async function loadContact(tx: TransactionPipe, tid: string, id: string) 
     })
     .from(flow)
     .leftJoin(channel, eq(channel.id, flow.channelId))
-    .where(and(eq(flow.tenantId, tid), eq(flow.id, id)))
+    .where(extraCondition)
     .limit(1);
   return linha ?? null;
+}
+
+/** `GET :id` — the flow may be archived; this route is read-only. */
+export async function loadContact(tx: TransactionPipe, tid: string, id: string) {
+  return loadContactWhere(tx, and(eq(flow.tenantId, tid), eq(flow.id, id))!);
+}
+
+/**
+ * `GET short-name/:shortName` (D-52). Unlike `loadContact`, this excludes archived flows: an
+ * archived flow's short name may already belong to a live flow (`fluxo_short_name_vivo_uk` is
+ * partial), so resolving through it here would be ambiguous or stale.
+ */
+export async function loadContactByShortName(tx: TransactionPipe, tid: string, shortName: string) {
+  return loadContactWhere(
+    tx,
+    and(eq(flow.tenantId, tid), eq(flow.shortName, shortName), ne(flow.estado, 'arquivado'))!,
+  );
 }
 
 export type ContactOfFlow = NonNullable<Awaited<ReturnType<typeof loadContact>>>;

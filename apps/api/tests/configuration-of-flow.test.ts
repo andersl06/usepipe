@@ -70,9 +70,10 @@ function comCookie(token: string): Record<string, string> {
 }
 
 async function newFlow(cenario: Cenario, extra: { state?: string } = {}): Promise<string> {
+  const marca = randomUUID().slice(0, 8);
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
-    insert into fluxo (tenant_id, nome, tipo, estado)
-    values (${cenario.tenantId}, ${`fluxo ${randomUUID().slice(0, 8)}`}, 'fluxo', ${extra.state ?? 'rascunho'})
+    insert into fluxo (tenant_id, nome, tipo, estado, short_name)
+    values (${cenario.tenantId}, ${`fluxo ${marca}`}, 'fluxo', ${extra.state ?? 'rascunho'}, ${`fluxo-${marca}`})
     returning id
   `);
   return rows[0]!.id;

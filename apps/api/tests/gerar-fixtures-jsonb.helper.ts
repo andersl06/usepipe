@@ -208,8 +208,8 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
       `);
 
       const { rows: routerRows } = await cenario.dono.execute<{ id: string }>(sql`
-        insert into fluxo (tenant_id, nome, canal_id, tipo, estado)
-        values (${cenario.tenantId}::uuid, 'Roteador de teste', ${channelRouterId}::uuid, 'roteador', 'publicado')
+        insert into fluxo (tenant_id, nome, canal_id, tipo, estado, short_name)
+        values (${cenario.tenantId}::uuid, 'Roteador de teste', ${channelRouterId}::uuid, 'roteador', 'publicado', 'roteador-de-teste')
         returning id
       `);
       const routerId = routerRows[0]!.id;

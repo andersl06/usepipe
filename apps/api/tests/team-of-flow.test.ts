@@ -94,9 +94,10 @@ function comCookie(token: string): Record<string, string> {
 }
 
 async function createFlowInDatabase(cenario: Cenario, nome: string): Promise<string> {
+  const shortName = nome.toLowerCase().replace(/\s+/g, '-');
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
-    insert into fluxo (tenant_id, nome, tipo, estado)
-    values (${cenario.tenantId}, ${nome}, 'fluxo', 'publicado')
+    insert into fluxo (tenant_id, nome, tipo, estado, short_name)
+    values (${cenario.tenantId}, ${nome}, 'fluxo', 'publicado', ${shortName})
     returning id
   `);
   return rows[0]!.id;

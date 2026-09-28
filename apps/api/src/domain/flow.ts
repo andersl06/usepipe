@@ -14,6 +14,7 @@ import {
   SURVEY_CONTENT_TYPE,
   validateFlow,
 } from '@pipe/core';
+import { nomeCurto } from './management/regras-de-nome.js';
 import type {
   Context,
   State,
@@ -1534,7 +1535,8 @@ export async function importFlowOfBlip(
   let flowId = existentes[0]?.id;
   if (!flowId) {
     const { rows } = await tx.execute<{ id: string }>(sql`
-      insert into fluxo (tenant_id, nome, canal_id) values (${pedido.tenantId}, ${pedido.name}, ${pedido.channelId})
+      insert into fluxo (tenant_id, nome, canal_id, short_name)
+      values (${pedido.tenantId}, ${pedido.name}, ${pedido.channelId}, ${nomeCurto(pedido.name)})
       returning id
     `);
     flowId = rows[0]!.id;

@@ -60,7 +60,7 @@ export function limparNome(bruto: string): string {
 }
 
 /**
- * Source `application.shortName = application.name.toLowerCase()` would leave spaces (e.g. 'Meu Fluxo' to `meu fluxo`), though observed real short names have none; an unseen downstream service likely normalizes them. Pipe replaces spaces with hyphens before saving `fluxo.short_name` (migration `0020`) so addresses work. Do not add a unique index: existing name uniqueness is checked by Server Action `select` over `nome`, and an index here would newly make 'Meu Bot' collide with 'meu-bot'.
+ * Source `application.shortName = application.name.toLowerCase()` would leave spaces (e.g. 'Meu Fluxo' to `meu fluxo`), though observed real short names have none; an unseen downstream service likely normalizes them. Pipe replaces spaces with hyphens before saving `fluxo.short_name` (migration `0020`) so addresses work. D-52 makes this the collision key: `nomeEmUso` compares `nomeCurto` results, not raw `nome`, and `fluxo_short_name_vivo_uk` (migration `0051`) enforces it in the database — 'Meu Bot' and 'meu-bot' can no longer both be live in the same tenant.
  */
 export function nomeCurto(nome: string): string {
   return limparNome(nome).trim().toLowerCase().replace(/\s+/g, '-');

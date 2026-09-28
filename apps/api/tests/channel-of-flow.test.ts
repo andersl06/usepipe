@@ -87,11 +87,12 @@ async function newFlow(
   tipo: 'fluxo' | 'roteador',
   extra: { state?: string; channelId?: string } = {},
 ): Promise<string> {
+  const marca = randomUUID().slice(0, 8);
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
-    insert into fluxo (tenant_id, nome, tipo, estado, canal_id)
+    insert into fluxo (tenant_id, nome, tipo, estado, canal_id, short_name)
     values (
-      ${cenario.tenantId}, ${`${tipo} ${randomUUID().slice(0, 8)}`}, ${tipo},
-      ${extra.state ?? 'rascunho'}, ${extra.channelId ?? null}
+      ${cenario.tenantId}, ${`${tipo} ${marca}`}, ${tipo},
+      ${extra.state ?? 'rascunho'}, ${extra.channelId ?? null}, ${`${tipo}-${marca}`}
     )
     returning id
   `);

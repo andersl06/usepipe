@@ -97,7 +97,12 @@ export function imageOfBytes(dataUrl: string): string | null {
   return `data:${mime};base64,${Buffer.from(bytes).toString('base64')}`;
 }
 
-/** Check another LIVE contact with this name. An archived contact frees its name. */
+/**
+ * Check another LIVE contact whose `nomeCurto(nome)` collides with this one's (D-52): the
+ * database enforces the same rule with `fluxo_short_name_vivo_uk`, so "Meu Bot" and "meu-bot"
+ * cannot both be live in a tenant even though their `nome` differs. An archived contact frees
+ * its short name, matching the partial index's `estado <> 'arquivado'`.
+ */
 async function nomeEmUso(
   tx: TransactionPipe,
   tenantId: string,
@@ -110,7 +115,7 @@ async function nomeEmUso(
     .where(
       and(
         eq(flow.tenantId, tenantId),
-        eq(flow.nome, nome),
+        eq(flow.shortName, nomeCurto(nome)),
         ne(flow.estado, 'arquivado'),
         excetoId ? ne(flow.id, excetoId) : undefined,
       ),
@@ -125,6 +130,21 @@ function conflitoDeNome(): PipeError {
     'name_in_use',
     'Já existe um fluxo com este nome. Experimente usar outro nome.',
   );
+}
+
+function postgresCode(error: unknown): string | undefined {
+  const candidate = error as { code?: string; cause?: { code?: string } };
+  return candidate.code ?? candidate.cause?.code;
+}
+
+/**
+ * `nomeEmUso` closes most races, but two concurrent requests can still both pass the check
+ * before either commits. `fluxo_short_name_vivo_uk` is the real guarantee; translate its
+ * violation to the same `name_in_use` the pre-check produces, rather than a 500.
+ */
+function ifShortNameCollision(error: unknown): never {
+  if (postgresCode(error) === '23505') throw conflitoDeNome();
+  throw error;
 }
 
 const ator = (userId: string): Ator => ({ type: 'usuario', id: userId });
@@ -144,10 +164,11 @@ export async function createFlow(
   const imageUrl = pedido.image ? imageOfBytes(pedido.image) : null;
 
   if (await nomeEmUso(tx, tenantId, nome)) throw conflitoDeNome();
-  const [criado] = await tx
+  const criado = await tx
     .insert(flow)
     .values({ tenantId, nome, tipo, shortName: nomeCurto(nome), imageUrl })
-    .returning({ id: flow.id });
+    .returning({ id: flow.id })
+    .then(([linha]) => linha, ifShortNameCollision);
   if (!criado) throw conflitoDeNome();
 
   await registrarAuditoria(tx, tenantId, {
@@ -231,7 +252,7 @@ export async function editFlow(
     throw conflitoDeNome();
   }
 
-  const [gravado] = await tx
+  const gravado = await tx
     .update(flow)
     .set({
       nome: depois.nome,
@@ -247,7 +268,8 @@ export async function editFlow(
       description: flow.descricao,
       imageUrl: flow.imageUrl,
       shortName: flow.shortName,
-    });
+    })
+    .then(([linha]) => linha, ifShortNameCollision);
   if (!gravado) throw PipeError.naoEncontrado('fluxo');
 
   await registrarAuditoria(tx, tenantId, {

@@ -108,8 +108,8 @@ async function montarFluxoDeTeste(
   const condicoes = carregarFixture('flow-transition-condition.json');
 
   await cenario.dono.execute(sql`
-    insert into fluxo (id, tenant_id, nome, tipo, estado)
-    values (${fluxoId}::uuid, ${cenario.tenantId}::uuid, 'Fluxo de teste (jsonb-compat)', 'fluxo', 'publicado')
+    insert into fluxo (id, tenant_id, nome, tipo, estado, short_name)
+    values (${fluxoId}::uuid, ${cenario.tenantId}::uuid, 'Fluxo de teste (jsonb-compat)', 'fluxo', 'publicado', ${`fluxo-de-teste-jsonb-compat-${fluxoId.slice(0, 8)}`})
   `);
   await cenario.dono.execute(sql`
     insert into fluxo_versao (id, tenant_id, fluxo_id, versao, estado, global)

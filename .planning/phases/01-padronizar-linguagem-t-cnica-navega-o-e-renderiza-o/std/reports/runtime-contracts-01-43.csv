@@ -1,0 +1,395 @@
+file,line,class,old,new,snippet,counterpart
+apps/api/src/controllers/catalogo.ts,73,request-key,campo,field,"campo: 'criado_em',",
+apps/api/src/controllers/catalogo.ts,279,request-key,campo,field,"campo: 'nome',",
+apps/api/src/controllers/catalogo.ts,372,request-key,campo,field,"const ordem = readSorting(consulta['order_by'], ['nome'], { campo: 'nome', direction: 'asc' });",
+apps/api/src/controllers/catalogo.ts,284,request-key,ativa,active,if (query['ativa']) filters.push(sql`ativa = ${query['ativa'] === 'true'}`);,apps/api/src/controllers/management-flow.ts
+apps/api/src/controllers/catalogo.ts,284,request-key,ativa,active,if (query['ativa']) filters.push(sql`ativa = ${query['ativa'] === 'true'}`);,apps/api/src/controllers/management-flow.ts
+apps/api/src/controllers/conversations.ts,91,request-key,campo,field,"campo: 'criada_em',",
+apps/api/src/controllers/conversations.ts,171,request-key,campo,field,"campo: 'criada_em',",
+apps/api/src/controllers/conversations.ts,179,request-key,estado_entrega,stateDelivery,if (query['estado_entrega']) {,
+apps/api/src/controllers/conversations.ts,181,request-key,estado_entrega,stateDelivery,"igualEmLista('estado_entrega', query['estado_entrega'], [",
+apps/api/src/controllers/convites.ts,30,request-key,criadoPor,createdBy,"criadoPor: sessao.userId,",apps/api/src/domain/convites.ts
+apps/api/src/controllers/login.ts,367,sql-alias,codigo,code,select distinct pp.permissao_codigo as codigo,apps/api/src/controllers/login.ts
+apps/api/src/controllers/login.ts,372,sql-alias,codigo,code,select uperm.permissao_codigo as codigo,apps/api/src/controllers/login.ts
+apps/api/src/controllers/management-analytics.ts,262,request-key,tipo,type,"type: tipo && (TYPES_MESSAGE as readonly string[]).includes(tipo) ? tipo : undefined,",apps/api/src/controllers/management-analytics.ts
+apps/api/src/controllers/management-flow.ts,159,request-key,roteador,router,"type: corpo.type === 'roteador' ? 'roteador' : 'fluxo',",apps/api/tests/router.test.ts
+apps/api/src/controllers/management-flow.ts,188,request-key,nome,name,"name: typeof nome === 'string' ? nome : undefined,",apps/api/src/controllers/management-flow.ts
+apps/api/src/controllers/management-flow.ts,190,request-key,imagem,image,"imagem: image === null || typeof image === 'string' ? image : undefined,",apps/api/src/controllers/management-flow.ts
+apps/api/src/domain/conversation.ts,126,request-key,conversa_id,conversationId,"conversa_id: conversa.id,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/conversation.ts,127,request-key,motivo,reason,"motivo: motivo || null,",apps/api/tests/registrations-attendance.test.ts
+apps/api/src/domain/conversation.ts,128,request-key,encerrada_por,closedBy,"encerrada_por: agentId,",packages/core/src/metrics/metrics.test.ts
+apps/api/src/domain/conversation.ts,228,request-key,conversa_id,conversationId,"conversa_id: conversation.id,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/conversation.ts,229,request-key,estado,state,"estado: 'em_espera',",apps/api/src/controllers/sso.ts
+apps/api/src/domain/conversation.ts,251,request-key,conversa_id,conversationId,"conversa_id: conversation.id,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/conversation.ts,252,request-key,estado,state,"estado: 'em_atendimento',",apps/api/src/controllers/sso.ts
+apps/api/src/domain/conversation.ts,436,request-key,conversa_id,conversationId,"conversa_id: conversa.id,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/conversation.ts,437,request-key,motivo,reason,"motivo: 'Transferida',",apps/api/tests/registrations-attendance.test.ts
+apps/api/src/domain/conversation.ts,438,request-key,encerrada_por,closedBy,"encerrada_por: ator.agentId,",packages/core/src/metrics/metrics.test.ts
+apps/api/src/domain/conversation.ts,441,request-key,conversa_id,conversationId,"conversa_id: novaId,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/conversation.ts,442,request-key,contato_id,contactId,"contato_id: conversa.contactId,",apps/api/src/domain/flow.ts
+apps/api/src/domain/conversation.ts,443,request-key,fila_id,queueId,"fila_id: queueDestination,",apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/conversation.ts,444,request-key,de_conversa_id,ofConversationId,"de_conversa_id: conversa.id,",
+apps/api/src/domain/desk/consultas.ts,72,sql-alias,contato_nome,contactName,"c.janela_expira_em as ""windowExpiresAt"", c.em_espera_desde, ct.nome as contato_nome,",apps/api/src/domain/desk/consultas.ts
+apps/api/src/domain/desk/consultas.ts,74,sql-alias,fila_nome,queueName,"f.nome as fila_nome,",apps/api/src/domain/desk/consultas.ts
+apps/api/src/domain/desk/consultas.ts,374,sql-alias,fila_nome,queueName,"select c.id, c.criada_em, c.encerrada_em, c.estado as ""state"", f.nome as fila_nome",apps/api/src/domain/desk/consultas.ts
+apps/api/src/domain/desk/consultas.ts,419,sql-alias,fila_nome,queueName,"f.nome as fila_nome, ca.tipo as ""channelType"",",apps/api/src/domain/desk/consultas.ts
+apps/api/src/domain/desk/consultas.ts,420,sql-alias,contato_nome,contactName,"ct.id as ""contactId"", ct.nome as contato_nome, ct.telefone_e164 as ""phoneE164"",",apps/api/src/domain/desk/consultas.ts
+apps/api/src/domain/distribution.ts,161,request-key,conversa_id,conversationId,"conversa_id: conversationId,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/distribution.ts,162,request-key,atendente_id,agentId,"atendente_id: agentId,",apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/distribution.ts,163,request-key,fila_id,queueId,"fila_id: filaId,",apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/envio.ts,253,request-key,mensagem_id,messageId,"mensagem_id: messageId,",packages/db/src/schema/conversations.ts
+apps/api/src/domain/envio.ts,254,request-key,conversa_id,conversationId,"conversa_id: conversation.id,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/envio.ts,255,request-key,direcao,direction,"direcao: 'saida',",apps/api/src/controllers/catalogo.ts
+apps/api/src/domain/flow.ts,927,request-key,corpo,body,"corpo: '',",apps/api/src/domain/flow.ts
+apps/api/src/domain/flow.ts,934,request-key,desde,since,"desde: linha.atualizado_em,",
+apps/api/src/domain/flow.ts,1071,request-key,conversa_id,conversationId,"conversa_id: e.conversation.id,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/flow.ts,1072,request-key,estado,state,"estado: 'na_fila',",apps/api/src/controllers/sso.ts
+apps/api/src/domain/flow.ts,1073,request-key,fila_id,queueId,"fila_id: queueId,",apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/flow.ts,1144,request-key,mensagem_id,messageId,"mensagem_id: messageId,",packages/db/src/schema/conversations.ts
+apps/api/src/domain/flow.ts,1145,request-key,conversa_id,conversationId,"conversa_id: conversationId,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/flow.ts,1146,request-key,direcao,direction,"direcao: 'saida',",apps/api/src/controllers/catalogo.ts
+apps/api/src/domain/flow.ts,1148,request-key,conteudo,content,"conteudo: texto,",
+apps/api/src/domain/flow.ts,213,request-key,filaId,queueId,const queueId = typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;,apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/flow.ts,213,request-key,filaId,queueId,const queueId = typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;,apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/flow.ts,242,request-key,prioridade,priority,const priority = typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;,apps/api/src/domain/flow.ts
+apps/api/src/domain/flow.ts,242,request-key,prioridade,priority,const priority = typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;,apps/api/src/domain/flow.ts
+apps/api/src/domain/inbound.ts,280,request-key,mensagem_id,messageId,"mensagem_id: messageId,",packages/db/src/schema/conversations.ts
+apps/api/src/domain/inbound.ts,281,request-key,conversa_id,conversationId,"conversa_id: conversation.id,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/inbound.ts,282,request-key,direcao,direction,"direcao: 'entrada',",apps/api/src/controllers/catalogo.ts
+apps/api/src/domain/inbound.ts,369,request-key,mensagem_id,messageId,"mensagem_id: message.id,",packages/db/src/schema/conversations.ts
+apps/api/src/domain/inbound.ts,370,request-key,conversa_id,conversationId,"conversa_id: message.conversationId,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/inbound.ts,384,request-key,canal,channel,"canal: canal.id,",apps/api/tests/channel-of-flow.test.ts
+apps/api/src/domain/inbound.ts,450,request-key,contato_id,contactId,"await emitir(tx, canal.tenantId, 'contato.criado', { contato_id: contatoId, nome, telefone });",apps/api/src/domain/flow.ts
+apps/api/src/domain/inbound.ts,537,request-key,conversa_id,conversationId,"conversa_id: conversaId,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/inbound.ts,538,request-key,contato_id,contactId,"contato_id: contactId,",apps/api/src/domain/flow.ts
+apps/api/src/domain/inbound.ts,539,request-key,fila_id,queueId,"fila_id: queueId,",apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/instagram/renewal.ts,34,request-key,reautorizacaoPendente,reauthorizationPending,"await atualizarConfigInstagram(channel, { reautorizacaoPendente: true });",
+apps/api/src/domain/instagram/renewal.ts,43,request-key,tokenAcesso,tokenAccess,"tokenAcesso: novo.access_token,",
+apps/api/src/domain/instagram/renewal.ts,45,request-key,tokenExpiraEm,tokenExpiresAt,"tokenExpiraEm: new Date(agora.getTime() + validityMs).toISOString(),",
+apps/api/src/domain/instagram/renewal.ts,46,request-key,reautorizacaoPendente,reauthorizationPending,"reautorizacaoPendente: false,",
+apps/api/src/domain/instagram/renewal.ts,53,request-key,reautorizacaoPendente,reauthorizationPending,"await atualizarConfigInstagram(channel, { reautorizacaoPendente: true });",
+apps/api/src/domain/management-analytics.ts,293,sql-alias,canal,channel,"select ca.nome as canal, count(*) as total",apps/api/src/domain/management-analytics.ts
+apps/api/src/domain/management-analytics.ts,354,sql-alias,quantidade,quantity,count(*) as quantidade,
+apps/api/src/domain/management/actions/settings.ts,101,request-key,ativa,active,"ativa: active,",apps/api/src/controllers/management-flow.ts
+apps/api/src/domain/management/builder-test-run.ts,132,request-key,filaId,queueId,typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;,apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/management/builder-test-run.ts,132,request-key,filaId,queueId,typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;,apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/management/builder-test-run.ts,145,request-key,prioridade,priority,typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;,apps/api/src/domain/flow.ts
+apps/api/src/domain/management/builder-test-run.ts,145,request-key,prioridade,priority,typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;,apps/api/src/domain/flow.ts
+apps/api/src/domain/management/channel-of-flow.ts,141,request-key,canalId,channelId,"{ canalId: alvo.id },",apps/api/src/import-flow.ts
+apps/api/src/domain/management/channel-of-flow.ts,152,request-key,fluxoId,flowId,"{ fluxoId: dono.id, fluxoNome: dono.nome },",apps/api/src/authentication.ts
+apps/api/src/domain/management/channel-of-flow.ts,152,request-key,fluxoNome,flowName,"{ fluxoId: dono.id, fluxoNome: dono.nome },",
+apps/api/src/domain/management/contract.ts,147,request-key,tipo,type,"byPerson.set(linha.id, { ...linha, tipo: 'usuario' });",apps/api/src/controllers/management-analytics.ts
+apps/api/src/domain/management/monitoring.ts,195,sql-alias,autor,author,"coalesce(m.conteudo, '') as texto, u.nome as autor",apps/api/src/domain/desk/consultas.ts
+apps/api/src/domain/management/priority-engine.ts,81,request-key,mensagem,message,"{ ...context, mensagem: context.message, contato: context.contact } as Readonly<Record<string, unknown>>,",apps/api/src/controllers/management-flow.ts
+apps/api/src/domain/management/priority-engine.ts,81,request-key,contato,contact,"{ ...context, mensagem: context.message, contato: context.contact } as Readonly<Record<string, unknown>>,",apps/api/tests/channel-of-flow.test.ts
+apps/api/src/domain/management/sla-motor.ts,81,request-key,conversa_id,conversationId,"conversa_id: ctx.conversationId,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/management/sla-motor.ts,82,request-key,fila_id,queueId,"fila_id: ctx.queueId,",apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/management/window.ts,22,sql-alias,inicio,start,"sql`select date_trunc('day', now() at time zone ${fuso}) at time zone ${fuso} as inicio,",apps/api/src/domain/management-analytics.ts
+apps/api/src/domain/management/window.ts,23,sql-alias,fim,end,"(date_trunc('day', now() at time zone ${fuso}) + interval '1 day') at time zone ${fuso} as fim`,",apps/api/src/domain/management-analytics.ts
+apps/api/src/domain/management/window.ts,38,sql-alias,inicio,start,"sql`select (${de}::date)::timestamp at time zone ${fuso} as inicio,",apps/api/src/domain/management-analytics.ts
+apps/api/src/domain/management/window.ts,39,sql-alias,fim,end,"((${ate}::date + 1)::timestamp) at time zone ${fuso} as fim`,",apps/api/src/domain/management-analytics.ts
+apps/api/src/domain/message-active.ts,213,request-key,contato_id,contactId,"contato_id: contatoId,",apps/api/src/domain/flow.ts
+apps/api/src/domain/message-active.ts,216,request-key,origem,origin,"origem: 'mensagem_ativa',",apps/api/src/controllers/redirect.ts
+apps/api/src/domain/message-active.ts,268,request-key,conversa_id,conversationId,"conversa_id: conversaId,",apps/api/src/domain/conversation.ts
+apps/api/src/domain/message-active.ts,269,request-key,contato_id,contactId,"contato_id: contactId,",apps/api/src/domain/flow.ts
+apps/api/src/domain/message-active.ts,270,request-key,fila_id,queueId,"fila_id: inbox.queueDefaultId,",apps/api/src/controllers/management-operations.ts
+apps/api/src/domain/message-active.ts,271,request-key,origem,origin,"origem: 'mensagem_ativa',",apps/api/src/controllers/redirect.ts
+apps/api/src/domain/whatsapp/channel.ts,109,request-key,reautorizacaoPendente,reauthorizationPending,"return updateChannel(channel, { reautorizacaoPendente: true });",
+apps/api/src/domain/whatsapp/channel.ts,114,request-key,reautorizacaoPendente,reauthorizationPending,"return updateChannel(canal, { reautorizacaoPendente: false });",
+apps/api/src/domain/whatsapp/reauthorization.ts,38,request-key,tokenAcesso,tokenAccess,"{ tokenAcesso: pedido.token, phoneNumberId: numeroId, origem: 'embedded_signup' },",
+apps/api/src/domain/whatsapp/reauthorization.ts,38,request-key,origem,origin,"{ tokenAcesso: pedido.token, phoneNumberId: numeroId, origem: 'embedded_signup' },",apps/api/src/controllers/redirect.ts
+apps/api/src/eventos-ws.ts,118,request-key,tipo,type,"enviar(ws, { tipo: 'recusado', motivo: 'assunto_desconhecido' });",apps/api/src/controllers/management-analytics.ts
+apps/api/src/eventos-ws.ts,118,request-key,motivo,reason,"enviar(ws, { tipo: 'recusado', motivo: 'assunto_desconhecido' });",apps/api/tests/registrations-attendance.test.ts
+apps/api/src/eventos-ws.ts,127,request-key,tipo,type,"enviar(ws, { tipo: 'recusado', motivo: 'assunto_desconhecido' });",apps/api/src/controllers/management-analytics.ts
+apps/api/src/eventos-ws.ts,127,request-key,motivo,reason,"enviar(ws, { tipo: 'recusado', motivo: 'assunto_desconhecido' });",apps/api/tests/registrations-attendance.test.ts
+apps/api/src/eventos-ws.ts,135,request-key,tipo,type,"void pronto.then(() => enviar(ws, { tipo: 'inscrito', assuntos: [...assuntos] }));",apps/api/src/controllers/management-analytics.ts
+apps/api/src/eventos-ws.ts,157,request-key,tipo,type,"enviar(ws, { tipo: 'ping' });",apps/api/src/controllers/management-analytics.ts
+apps/api/src/metrics.ts,139,request-key,fila,queue,"for (const f of queues) texto += serie('pipe_queue_depth', { fila: f.queue }, f.depth);",apps/management-vite/src/pages/operation/history.tsx
+apps/api/src/metrics.ts,142,request-key,fila,queue,"texto += serie('pipe_queue_oldest_item_age_seconds', { fila: f.queue }, f.ageSeconds);",apps/management-vite/src/pages/operation/history.tsx
+apps/api/tests/accounts.test.ts,89,sql-alias,papel,role,"select u.nome, p.nome as papel",apps/api/src/domain/convites.ts
+apps/api/tests/builder-by-flow.test.ts,351,request-key,versao,version,"expect(first.body['versao']).toMatchObject({ versao: 1, estado: 'rascunho', blocos: 3 });",apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,352,request-key,erros,errors,expect(first.body['erros']).toEqual([]);,apps/api/tests/builder-by-flow.test.ts
+apps/api/tests/builder-by-flow.test.ts,353,request-key,naoSuportado,notSupported,expect(first.body['naoSuportado']).toEqual({});,
+apps/api/tests/builder-by-flow.test.ts,357,request-key,versao,version,expect(aberto.body['versao']['versao']).toBe(1);,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,362,request-key,versao,version,expect(segunda.body['versao']['id']).toBe(first.body['versao']['id']);,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,362,request-key,versao,version,expect(segunda.body['versao']['id']).toBe(first.body['versao']['id']);,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,363,request-key,versao,version,expect(segunda.body['versao']['versao']).toBe(1);,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,396,request-key,versao,version,"expect(body['versao']).toMatchObject({ versao: 1, estado: 'rascunho', blocos: 1 });",apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,397,request-key,erros,errors,const errors = body['erros'] as { block: string | null; mensagem: string }[];,apps/api/tests/builder-by-flow.test.ts
+apps/api/tests/builder-by-flow.test.ts,408,request-key,origem,origin,expect(aberto.body['origem']).toBe('rascunho');,apps/api/src/controllers/redirect.ts
+apps/api/tests/builder-by-flow.test.ts,447,request-key,versao,version,"expect(v1.body['versao']).toMatchObject({ versao: 1, estado: 'publicada', blocos: 3 });",apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,448,request-key,versao,version,expect(v1.body['versao']['publicadaEm']).toEqual(expect.any(String));,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,449,request-key,versao,version,expect(v1.body['versao']['publishedBy']).toMatch(/^Pessoa /);,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,451,request-key,versao,version,const v1Id = v1.body['versao']['id'] as string;,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,460,request-key,origem,origin,expect(aberto.body['origem']).toBe('publicada');,apps/api/src/controllers/redirect.ts
+apps/api/tests/builder-by-flow.test.ts,461,request-key,versao,version,expect(aberto.body['versao']['versao']).toBe(1);,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,473,request-key,versao,version,"expect(rascunho.body['versao']).toMatchObject({ versao: 2, estado: 'rascunho' });",apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,474,request-key,versao,version,expect(rascunho.body['versao']['id']).not.toBe(v1Id);,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,478,request-key,versao,version,"expect(v2.body['versao']).toMatchObject({ versao: 2, estado: 'publicada' });",apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,480,request-key,versao,version,const v2Id = v2.body['versao']['id'] as string;,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,552,request-key,versao,version,"expect(body['versao']).toMatchObject({ versao: 3, estado: 'rascunho', blocos: 3 });",apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,553,request-key,erros,errors,expect(body['erros']).toEqual([]);,apps/api/tests/builder-by-flow.test.ts
+apps/api/tests/builder-by-flow.test.ts,556,request-key,origem,origin,expect(aberto.body['origem']).toBe('rascunho');,apps/api/src/controllers/redirect.ts
+apps/api/tests/builder-by-flow.test.ts,557,request-key,versao,version,expect(aberto.body['versao']['versao']).toBe(3);,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,570,request-key,versao,version,expect(outra.body['versao']['versao']).toBe(3);,apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,598,request-key,versao,version,"expect((await builder(sessionEditor, id)).body['versao']['versao']).toBe(2);",apps/api/tests/flow-functions.test.ts
+apps/api/tests/builder-by-flow.test.ts,220,sql-alias,blocos,blocks,(select count(*)::int from bloco b where b.versao_id = v.id) as blocos,apps/api/src/domain/management/builder-of-flow.ts
+apps/api/tests/builder-by-flow.test.ts,259,sql-alias,bloco_versao_id,blockVersionId,"select e.estado, e.fluxo_versao_id, b.versao_id as bloco_versao_id",
+apps/api/tests/channels.test.ts,408,request-key,canal_id,channelId,"const segunda = await conectar(A, { code: codigo, canal_id: first.id });",apps/api/src/import-flow.ts
+apps/api/tests/contacts-editar.test.ts,208,request-key,nome,name,"const semPoder = await editar(sessionWithoutAuthority, id, { nome: 'X' });",apps/api/src/controllers/management-flow.ts
+apps/api/tests/contacts-editar.test.ts,211,request-key,nome,name,"const outroTenant = await editar(sessionOfOtherTenant, id, { nome: 'X' });",apps/api/src/controllers/management-flow.ts
+apps/api/tests/contacts-editar.test.ts,214,request-key,nome,name,"const malformado = await editar(sessionEditor, 'nao-e-uuid', { nome: 'X' });",apps/api/src/controllers/management-flow.ts
+apps/api/tests/conversation-events.test.ts,125,response-key,encerrada_por,closedBy,expect(rows[0]?.data['encerrada_por']).toBe('atendente');,apps/api/src/domain/management/attendance.ts
+apps/api/tests/conversation-events.test.ts,224,response-key,pausado_seg,pausadoSeg,expect(rows[0]?.data['pausado_seg']).toBeGreaterThanOrEqual(29);,
+apps/api/tests/cycle-of-lifetime-of-flow.test.ts,393,request-key,imagem,image,"const tirada = await editar(sessionEditor, id, { imagem: null });",apps/api/src/controllers/management-flow.ts
+apps/api/tests/cycle-of-lifetime-of-flow.test.ts,397,request-key,imagem,image,"const posta = await editar(sessionEditor, id, { imagem: PNG });",apps/api/src/controllers/management-flow.ts
+apps/api/tests/cycle-of-lifetime-of-flow.test.ts,401,request-key,imagem,image,"const falsa = await editar(sessionEditor, id, { imagem: NOT_IMAGE });",apps/api/src/controllers/management-flow.ts
+apps/api/tests/desk-actions.test.ts,135,request-key,estado,state,"const { status } = await acao(null, 'definirStatus', { estado: 'online' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,142,request-key,estado,state,"const { status, body } = await acao(sessionAgent, 'definirStatus', { estado: 'sonolento' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,148,request-key,estado,state,"await acao(sessionAgent, 'definirStatus', { estado: 'online' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,149,request-key,estado,state,"const { body } = await acao(sessionAgent, 'definirStatus', { estado: 'pausa' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,156,request-key,estado,state,"const { body } = await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,164,request-key,estado,state,"await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,167,request-key,estado,state,"await acao(sessionAgent, 'definirStatus', { estado: 'online' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,173,request-key,estado,state,"const invisivel = await acao(sessionAgent, 'definirStatus', { estado: 'invisivel' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,177,request-key,estado,state,"const offline = await acao(sessionAgent, 'definirStatus', { estado: 'offline' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,182,request-key,estado,state,"await acao(sessionAgent, 'definirStatus', { estado: 'online' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,189,request-key,estado,state,"await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,197,request-key,estado,state,"await acao(sessionAgent, 'definirStatus', { estado: 'online' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,209,request-key,estado,state,"await acao(sessionAgent, 'definirStatus', { estado: 'online' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,244,request-key,estado,state,"await acao(sessionAgent, 'definirStatus', { estado: 'invisivel' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,247,request-key,estado,state,"await acao(sessionAgent, 'definirStatus', { estado: 'online' });",apps/api/src/controllers/sso.ts
+apps/api/tests/desk-actions.test.ts,440,request-key,conversaId,conversationId,"const withoutValue = await acao(sessionAgent, 'fixar', { conversaId: minha });",apps/api/src/domain/conversation.ts
+apps/api/tests/desk-actions.test.ts,444,request-key,conversaId,conversationId,"const alheia = await acao(sessionAgent, 'fixar', { conversaId: doColega, fixada: 'true' });",apps/api/src/domain/conversation.ts
+apps/api/tests/desk-actions.test.ts,451,request-key,conversaId,conversationId,"const fechada = await acao(sessionAgent, 'marcarNaoLida', { conversaId: minha, naoLida: 'true' });",apps/api/src/domain/conversation.ts
+apps/api/tests/desk-actions.test.ts,454,request-key,conversaId,conversationId,"const inexistente = await acao(sessionAgent, 'fixar', { conversaId: randomUUID(), fixada: 'true' });",apps/api/src/domain/conversation.ts
+apps/api/tests/desk-actions.test.ts,468,request-key,conversaId,conversationId,"const recusa = await acao(sessionAgent, 'fixar', { conversaId: aMais, fixada: 'true' });",apps/api/src/domain/conversation.ts
+apps/api/tests/desk-actions.test.ts,474,request-key,conversaId,conversationId,"const refixa = await acao(sessionAgent, 'fixar', { conversaId: outras[0]!, fixada: 'true' });",apps/api/src/domain/conversation.ts
+apps/api/tests/desk-actions.test.ts,485,request-key,paraAtendenteId,forAgentId,"const semConversa = await acao(sessionAgent, 'transferirEmMassa', { paraAtendenteId: colegaId });",apps/api/tests/transferencia.test.ts
+apps/api/tests/desk-actions.test.ts,492,request-key,conversaId,conversationId,"const withoutDestination = await acao(sessionAgent, 'transferirEmMassa', { conversaId: [conversaId] });",apps/api/src/domain/conversation.ts
+apps/api/tests/desk-actions.test.ts,504,request-key,conversaId,conversationId,"conversaId: [c1, c2],",apps/api/src/domain/conversation.ts
+apps/api/tests/desk-actions.test.ts,505,request-key,paraAtendenteId,forAgentId,"paraAtendenteId: colegaId,",apps/api/tests/transferencia.test.ts
+apps/api/tests/desk-actions.test.ts,524,request-key,conversaId,conversationId,"conversaId: [c1, randomUUID()],",apps/api/src/domain/conversation.ts
+apps/api/tests/desk-actions.test.ts,525,request-key,paraAtendenteId,forAgentId,"paraAtendenteId: colegaId,",apps/api/tests/transferencia.test.ts
+apps/api/tests/etiquetas.test.ts,159,request-key,etiquetas,labels,const ids = (todas.body['etiquetas'] as { id: string }[]).map((e) => e.id);,
+apps/api/tests/etiquetas.test.ts,163,request-key,etiquetas,labels,const idsContact = (ofContact.body['etiquetas'] as { id: string }[]).map((e) => e.id);,
+apps/api/tests/etiquetas.test.ts,334,request-key,etiquetas,labels,expect((lista.body['etiquetas'] as { id: string }[]).map((e) => e.id)).toEqual([labelContact]);,
+apps/api/tests/etiquetas.test.ts,397,request-key,etiquetas,labels,expect((lista.body['etiquetas'] as { id: string }[]).map((e) => e.id)).toEqual([etiquetaAmbos]);,
+apps/api/tests/gerar-fixtures-jsonb.helper.ts,185,request-key,entrada,inbound,"entrada: p.entrada,",
+apps/api/tests/gerar-fixtures-jsonb.helper.ts,186,request-key,contexto,context,"contexto: p.contexto,",
+apps/api/tests/gerar-fixtures-jsonb.helper.ts,259,request-key,conversa_id,conversationId,"conversa_id: randomUUID(),",apps/api/src/domain/conversation.ts
+apps/api/tests/gerar-fixtures-jsonb.helper.ts,260,request-key,estado,state,"estado: 'na_fila',",apps/api/src/controllers/sso.ts
+apps/api/tests/gerar-fixtures-jsonb.helper.ts,261,request-key,origem,origin,"origem: 'gerar-fixtures-jsonb',",apps/api/src/controllers/redirect.ts
+apps/api/tests/jsonb-compat.test.ts,308,request-key,conteudo,content,"golden('outbox-delivery.json', { conteudo: pedido!.conteudo });",
+apps/api/tests/key-of-flow.test.ts,191,request-key,fluxoId,flowId,"fluxoId: flowA,",apps/api/src/authentication.ts
+apps/api/tests/media-received.test.ts,154,request-key,tokenAcesso,tokenAccess,"const channelId = await newChannel(tenantId, 'whatsapp_cloud', { tokenAcesso: token, apiVersao: 'v26.0' });",
+apps/api/tests/media-received.test.ts,220,request-key,tokenAcesso,tokenAccess,"const canalId = await newChannel(tenantId, 'whatsapp_cloud', { tokenAcesso: 'tok' });",
+apps/api/tests/messages-active.test.ts,131,response-key,origem,origin,expect(ev[0]?.data['origem']).toBe('mensagem_ativa');,
+apps/api/tests/monitoring-conversations.test.ts,123,response-key,abertas,opens,const ids = corpo.data.abertas.map(c => c.id);,
+apps/api/tests/monitoring-conversations.test.ts,129,response-key,abertas,opens,expect(corpo.data.abertas.map(c => c.id)).toEqual([segunda]);,
+apps/api/tests/registrations-attendance.test.ts,234,request-key,ativa,active,expect(desativada.body.ativa).toBe(false);,apps/api/src/controllers/management-flow.ts
+apps/api/tests/registrations-attendance.test.ts,622,request-key,condicoes,conditions,"expect(body.condicoes).toEqual([{ field: 'contato.nome', operator: 'igual', value: 'Ana' }]);",
+apps/api/tests/satisfaction-survey.test.ts,145,request-key,nota,note,"await inserirResposta(a, { nota: 5, comentario: 'atendimento excelente', estado: 'completa' });",
+apps/api/tests/satisfaction-survey.test.ts,145,request-key,estado,state,"await inserirResposta(a, { nota: 5, comentario: 'atendimento excelente', estado: 'completa' });",apps/api/src/controllers/sso.ts
+apps/api/tests/satisfaction-survey.test.ts,146,request-key,nota,note,"await inserirResposta(a, { nota: 2, comentario: null, estado: 'so_nota' });",
+apps/api/tests/satisfaction-survey.test.ts,146,request-key,estado,state,"await inserirResposta(a, { nota: 2, comentario: null, estado: 'so_nota' });",apps/api/src/controllers/sso.ts
+apps/api/tests/satisfaction-survey.test.ts,147,request-key,nota,note,"await inserirResposta(a, { nota: null, comentario: null, estado: 'sem_resposta' });",
+apps/api/tests/satisfaction-survey.test.ts,147,request-key,estado,state,"await inserirResposta(a, { nota: null, comentario: null, estado: 'sem_resposta' });",apps/api/src/controllers/sso.ts
+apps/api/tests/satisfaction-survey.test.ts,148,request-key,nota,note,"await inserirResposta(a, { nota: 4, comentario: 'gostei muito, 100% satisfeito', estado: 'completa' });",
+apps/api/tests/satisfaction-survey.test.ts,148,request-key,estado,state,"await inserirResposta(a, { nota: 4, comentario: 'gostei muito, 100% satisfeito', estado: 'completa' });",apps/api/src/controllers/sso.ts
+apps/api/tests/satisfaction-survey.test.ts,149,request-key,nota,note,"await inserirResposta(b, { nota: 1, comentario: 'péssimo', estado: 'completa' });",
+apps/api/tests/satisfaction-survey.test.ts,149,request-key,estado,state,"await inserirResposta(b, { nota: 1, comentario: 'péssimo', estado: 'completa' });",apps/api/src/controllers/sso.ts
+apps/api/tests/team-of-flow.test.ts,195,request-key,papelNoFluxo,roleInFlow,"papelNoFluxo: 'editar',",apps/api/tests/team-of-flow.test.ts
+apps/api/tests/team-of-flow.test.ts,210,request-key,papelNoFluxo,roleInFlow,"papelNoFluxo: 'visualizar',",apps/api/tests/team-of-flow.test.ts
+apps/api/tests/team-of-flow.test.ts,231,request-key,papelNoFluxo,roleInFlow,"papelNoFluxo: 'visualizar',",apps/api/tests/team-of-flow.test.ts
+apps/api/tests/team-of-flow.test.ts,241,request-key,papelNoFluxo,roleInFlow,"const repetida = await adicionar(sessionEditor, { email: ana.email, papelNoFluxo: 'editar' });",apps/api/tests/team-of-flow.test.ts
+apps/api/tests/team-of-flow.test.ts,247,request-key,papelNoFluxo,roleInFlow,"papelNoFluxo: 'super-admin',",apps/api/tests/team-of-flow.test.ts
+apps/api/tests/team-of-flow.test.ts,262,request-key,papelNoFluxo,roleInFlow,"papelNoFluxo: 'visualizar',",apps/api/tests/team-of-flow.test.ts
+apps/api/tests/team-of-flow.test.ts,296,request-key,papelNoFluxo,roleInFlow,"const mudou = await editar(sessionEditor, ana.id, { papelNoFluxo: 'visualizar' });",apps/api/tests/team-of-flow.test.ts
+apps/api/tests/team-of-flow.test.ts,301,request-key,papelNoFluxo,roleInFlow,"const igual = await editar(sessionEditor, ana.id, { papelNoFluxo: 'visualizar' });",apps/api/tests/team-of-flow.test.ts
+apps/api/tests/team-of-flow.test.ts,315,request-key,papelNoFluxo,roleInFlow,"expect((await editar(sessionEditor, ana.id, { papelNoFluxo: 'admin' }, outro)).status).toBe(404);",apps/api/tests/team-of-flow.test.ts
+apps/api/tests/team-of-flow.test.ts,324,request-key,papelNoFluxo,roleInFlow,"const rebaixa = await editar(sessionEditor, ana.id, { papelNoFluxo: 'editar' }, so);",apps/api/tests/team-of-flow.test.ts
+apps/api/tests/transferencia.test.ts,150,response-key,encerrada_por,closedBy,expect(rows[0]?.data['encerrada_por']).toBe('transferencia');,apps/api/src/domain/management/attendance.ts
+apps/bridge/src/rotas.ts,213,response-key,estado,state,"state: data.estado,",
+apps/bridge/src/rotas.ts,216,response-key,filas,queues,"data.filas,",apps/desk-vite/src/pages/attendances/conversation.tsx
+apps/crm/src/lib/database.ts,125,sql-alias,inicio,start,"sql`select (${base}) at time zone ${fuso} as inicio,",apps/api/src/domain/management-analytics.ts
+apps/crm/src/lib/database.ts,126,sql-alias,fim,end,"((${base}) + interval '1 month') at time zone ${fuso} as fim`,",apps/api/src/domain/management-analytics.ts
+apps/crm/src/lib/leads.ts,352,request-key,tipo,type,"if (l.leadId && em) mapa.set(l.leadId, { em, tipo: LABEL_ACTIVITY[l.tipo] ?? l.tipo });",apps/api/src/controllers/management-analytics.ts
+apps/crm/src/lib/settings-data.ts,208,request-key,obrigatoria,required,"const queixa = recusarNome(nome, 'O nome da empresa') ?? recusarUrl(logoUrl, { obrigatoria: false });",
+apps/crm/src/lib/settings-data.ts,134,response-key,nome,name,const nome = normalizar(data.nome);,apps/api/src/domain/management/flow-functions.ts
+apps/crm/src/lib/settings-data.ts,204,response-key,nome,name,const nome = normalizar(data.nome);,apps/api/src/domain/management/flow-functions.ts
+apps/crm/src/lib/settings-data.ts,206,response-key,fuso,timezone,const fuso = normalizar(data.fuso);,
+apps/crm/src/lib/settings-data.ts,585,response-key,nome,name,const nome = normalizar(data.nome);,apps/api/src/domain/management/flow-functions.ts
+apps/crm/src/lib/settings-data.ts,742,response-key,codigo,code,const codigo = normalizar(data.codigo)?.toLowerCase() ?? null;,apps/api/src/domain/management/flow-functions.ts
+apps/crm/src/lib/settings-data.ts,746,response-key,tipo,type,"if (!tipoDeCampoValido(data.tipo)) return { ok: false, error: 'Escolha um tipo para o campo.' };",
+apps/crm/src/lib/settings-data.ts,765,response-key,tipo,type,"tipo: data.tipo,",
+apps/crm/src/lib/settings-data.ts,768,response-key,tipo,type,"agregavel: data.tipo === 'numero',",
+apps/crm/src/lib/settings-data.ts,777,response-key,tipo,type,"depois: { codigo, rotulo, tipo: data.tipo, description },",
+apps/crm/src/lib/settings-data.ts,893,response-key,nome,name,const nome = normalizar(data.nome);,apps/api/src/domain/management/flow-functions.ts
+apps/crm/src/lib/settings-data.ts,516,sql-alias,permissoes,permissions,"(select count(*)::int from papel_permissao pp where pp.papel_id = p.id) as permissoes,",
+apps/crm/src/lib/settings-data.ts,517,sql-alias,membros,members,(select count(*)::int from usuario_papel up where up.papel_id = p.id) as membros,apps/api/src/domain/management/deployment.ts
+apps/crm/src/lib/settings-data.ts,728,sql-alias,chave,key,"from lead, lateral jsonb_object_keys(customizados) as chave",apps/api/src/controllers/conversations.ts
+apps/crm/tests/filters.test.ts,42,request-key,origem,origin,"assert.deepEqual(lido, { origem: 'Anúncio Meta' });",apps/api/src/controllers/redirect.ts
+apps/crm/tests/settings-comum.test.ts,78,request-key,obrigatoria,required,"assert.equal(recusarUrl(null, { obrigatoria: false }), null);",
+apps/desk-vite/src/pages/active-message/page.tsx,78,request-key,telefone,phone,"{ contactId: null, telefone: '+55' + t.replace(/^55/, ''), nome: nome.trim() || null },",apps/api/tests/contacts-editar.test.ts
+apps/desk-vite/src/pages/active-message/page.tsx,78,request-key,nome,name,"{ contactId: null, telefone: '+55' + t.replace(/^55/, ''), nome: nome.trim() || null },",apps/api/src/controllers/management-flow.ts
+apps/desk-vite/src/pages/active-message/page.tsx,89,request-key,telefone,phone,"setDestinos([...destinos, { contactId: c.id, telefone: c.phone, nome: c.name }]);",apps/api/tests/contacts-editar.test.ts
+apps/desk-vite/src/pages/active-message/page.tsx,89,request-key,nome,name,"setDestinos([...destinos, { contactId: c.id, telefone: c.phone, nome: c.name }]);",apps/api/src/controllers/management-flow.ts
+apps/desk-vite/src/pages/attendances/column.tsx,72,request-key,conversaId,conversationId,"if (marcada?.naoLidaEm) void executar('marcarNaoLida', { conversaId: id, naoLida: 'false' });",apps/api/src/domain/conversation.ts
+apps/desk-vite/src/pages/attendances/page.tsx,73,response-key,respostas,responses,respostas={queue.data.respostas},
+apps/desk-vite/src/pages/attendances/page.tsx,74,response-key,etiquetas,labels,etiquetas={queue.data.etiquetas},
+apps/desk-vite/src/pages/attendances/panel.tsx,299,response-key,etiquetas,labels,const disponiveis = (catalogo.data?.etiquetas ?? []).filter((e) => !jaTem.has(e.id));,
+apps/management-vite/src/components/filters-quick.tsx,117,request-key,contato,contact,"definirQuery(parametersWithFilters(query, { contato: '', status: '' }));",apps/api/tests/channel-of-flow.test.ts
+apps/management-vite/src/components/modal-finalizar-monitoring.tsx,24,response-key,etiquetas,labels,const etiquetas: ClosureTag[] = (read.data?.etiquetas ?? []).map((e) => ({,
+apps/management-vite/src/lib/channels-gravar.ts,61,response-key,numeroId,numberId,"phone_number_id: data.numeroId,",apps/api/src/domain/whatsapp/validation-of-configuration-manual.ts
+apps/management-vite/src/lib/channels-gravar.ts,64,response-key,nome,name,"...(data.nome ? { name: data.nome } : {}),",apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/lib/channels-gravar.ts,64,response-key,nome,name,"...(data.nome ? { name: data.nome } : {}),",apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/lib/channels-gravar.ts,213,response-key,nome,name,"...(data.nome ? { name: data.nome } : {}),",apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/lib/channels-gravar.ts,213,response-key,nome,name,"...(data.nome ? { name: data.nome } : {}),",apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/lib/channels-gravar.ts,234,response-key,nome,name,"export async function conectarMessengerManual(data: { token: string; appSecret: string; nome?: string; flowId?: string }): Promise<Resultado<ChannelConnected<ChannelMessengerVisible>>> { try { const resposta = await api.post<ChannelMessengerVisible & { webhookError: string | null; webhook: { url: string; verifyToken: string } }>('/v1/channels/messenger/manual', { access_token: data.token, app_secret: data.appSecret, ...(data.nome ? { name: data.nome } : {}), ...(data.flowId ? { flowId: data.flowId } : {}) }); atualizarLeituras(); const { webhookError, webhook, ...channel } = resposta; return { ok: true, value: { channel, webhookError, webhook } }; } catch (error) { return falha(error, 'Não foi possível conectar o Messenger.'); } }",apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/lib/channels-gravar.ts,234,response-key,nome,name,"export async function conectarMessengerManual(data: { token: string; appSecret: string; nome?: string; flowId?: string }): Promise<Resultado<ChannelConnected<ChannelMessengerVisible>>> { try { const resposta = await api.post<ChannelMessengerVisible & { webhookError: string | null; webhook: { url: string; verifyToken: string } }>('/v1/channels/messenger/manual', { access_token: data.token, app_secret: data.appSecret, ...(data.nome ? { name: data.nome } : {}), ...(data.flowId ? { flowId: data.flowId } : {}) }); atualizarLeituras(); const { webhookError, webhook, ...channel } = resposta; return { ok: true, value: { channel, webhookError, webhook } }; } catch (error) { return falha(error, 'Não foi possível conectar o Messenger.'); } }",apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/builder.tsx,126,response-key,origem,origin,if (state.sujo || data.origem !== 'rascunho') {,
+apps/management-vite/src/pages/builder.tsx,161,response-key,origem,origin,const nadaParaPublicar = data?.origem === 'publicada' && !state.sujo;,
+apps/management-vite/src/pages/builder.tsx,165,response-key,versao,version,if (nadaParaPublicar) return `nada para publicar: a versão ${data?.versao?.versao ?? ''} já está no ar`;,apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/builder.tsx,396,response-key,origem,origin,<span title={`${ROTULO_DA_ORIGEM[data.origem]}${data.versao ? ` v${data.versao.versao}` : ''}${data.publicada && data.origem !== 'publicada' ? ` · no ar: v${data.publicada.versao}` : ''} · ${blocos} ${blocos === 1 ? 'bloco' : 'blocos'}`}>,
+apps/management-vite/src/pages/builder.tsx,396,response-key,versao,version,<span title={`${ROTULO_DA_ORIGEM[data.origem]}${data.versao ? ` v${data.versao.versao}` : ''}${data.publicada && data.origem !== 'publicada' ? ` · no ar: v${data.publicada.versao}` : ''} · ${blocos} ${blocos === 1 ? 'bloco' : 'blocos'}`}>,apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/builder.tsx,396,response-key,versao,version,<span title={`${ROTULO_DA_ORIGEM[data.origem]}${data.versao ? ` v${data.versao.versao}` : ''}${data.publicada && data.origem !== 'publicada' ? ` · no ar: v${data.publicada.versao}` : ''} · ${blocos} ${blocos === 1 ? 'bloco' : 'blocos'}`}>,apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/builder.tsx,396,response-key,origem,origin,<span title={`${ROTULO_DA_ORIGEM[data.origem]}${data.versao ? ` v${data.versao.versao}` : ''}${data.publicada && data.origem !== 'publicada' ? ` · no ar: v${data.publicada.versao}` : ''} · ${blocos} ${blocos === 1 ? 'bloco' : 'blocos'}`}>,
+apps/management-vite/src/pages/builder.tsx,484,response-key,origem,origin,{data.origem === 'padrao',
+apps/management-vite/src/pages/builder.tsx,488,response-key,versao,version,: `O rascunho v${data.versao?.versao ?? ''} vira a versão publicada. `},apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/builder.tsx,507,response-key,naoSuportado,notSupported,{Object.keys(data.naoSuportado).length > 0 ? (,
+apps/management-vite/src/pages/builder.tsx,510,response-key,naoSuportado,notSupported,"nelas): {Object.keys(data.naoSuportado).join(', ')}.",
+apps/management-vite/src/pages/builder/use-editor.ts,26,response-key,versao,version,data.versao ? `${data.versao.id}:${data.versao.atualizadoEm ?? ''}` : 'padrao';,apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/builder/use-editor.ts,26,response-key,versao,version,data.versao ? `${data.versao.id}:${data.versao.atualizadoEm ?? ''}` : 'padrao';,apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/builder/use-editor.ts,26,response-key,versao,version,data.versao ? `${data.versao.id}:${data.versao.atualizadoEm ?? ''}` : 'padrao';,apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/contract/actions.ts,20,request-key,papelId,roleId,"papelId: String(data.get('papelId') ?? '').trim(),",
+apps/management-vite/src/pages/create/flow/actions.ts,9,request-key,tipo,type,"const resultado = await saveContact(data, { tipo: 'fluxo', recados: RECADOS });",apps/api/src/controllers/management-analytics.ts
+apps/management-vite/src/pages/create/router/actions.ts,11,request-key,tipo,type,"const resultado = await saveContact(data, { tipo: 'roteador', recados: RECADOS });",apps/api/src/controllers/management-analytics.ts
+apps/management-vite/src/pages/deployment/actions.ts,62,request-key,canal_id,channelId,"canal_id: credentials.channelId,",apps/api/src/import-flow.ts
+apps/management-vite/src/pages/deployment/actions.ts,63,request-key,fluxo_id,flowId,"fluxo_id: credentials.flowId,",apps/api/src/authentication.ts
+apps/management-vite/src/pages/flow/analytics/reports/page.tsx,23,response-key,fuso,timezone,fuso={read.data.fuso},
+apps/management-vite/src/pages/flow/contents/regras.ts,130,response-key,nome,name,!!data.nome &&,apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/flow/contents/regras.ts,131,response-key,nome,name,"nameError(data.nome, data.existentes) === null &&",apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/flow/contents/regras.ts,132,response-key,categoria,category,!!data.categoria &&,tools/std/classify-jsonb.test.ts
+apps/management-vite/src/pages/flow/contents/regras.ts,133,response-key,tipo,type,"translationsValid(data.tipo, data.categoria, data.translations) &&",
+apps/management-vite/src/pages/flow/contents/regras.ts,133,response-key,categoria,category,"translationsValid(data.tipo, data.categoria, data.translations) &&",tools/std/classify-jsonb.test.ts
+apps/management-vite/src/pages/flow/contents/tela.tsx,370,request-key,categoria,category,"categoria: categoria as 'marketing' | 'utilidade',",apps/api/src/domain/management/actions/communication.ts
+apps/management-vite/src/pages/flow/contents/tela.tsx,371,request-key,corpo,body,"corpo: t.texto,",apps/api/src/domain/flow.ts
+apps/management-vite/src/pages/flow/settings/basic/tela.tsx,146,request-key,nome,name,"nome: nomeEditado,",apps/api/src/controllers/management-flow.ts
+apps/management-vite/src/pages/flow/settings/welcome/tela.tsx,27,request-key,ativo,active,"const resultado = await salvarBoasVindas(id, { ativo: false });",apps/api/src/controllers/management-flow.ts
+apps/management-vite/src/pages/flow/settings/welcome/tela.tsx,38,request-key,ativo,active,"const resultado = await salvarBoasVindas(id, { ativo: true, message, textoBotao: textoDoBotao });",apps/api/src/controllers/management-flow.ts
+apps/management-vite/src/pages/flow/team/tela.tsx,234,request-key,papel,role,"papel: 'guest',",apps/api/src/controllers/convites.ts
+apps/management-vite/src/pages/my-account/regras.ts,88,response-key,nome,name,const nome = data.nome.trim();,apps/api/src/domain/management/flow-functions.ts
+apps/management-vite/src/pages/my-account/regras.ts,96,response-key,telefone,phone,"const digitos = data.telefone.replace(/\D/g, '');",
+apps/management-vite/src/pages/my-account/regras.ts,113,response-key,funcionarios,employees,"if (foraDaLista(data.funcionarios, data.faixas)) {",
+apps/management-vite/src/pages/my-account/regras.ts,119,response-key,fuso,timezone,"if (foraDaLista(data.fuso, data.fusos)) {",
+apps/management-vite/src/pages/operation/history.tsx,187,response-key,fuso,timezone,"cards: g.linhas.map(inCard(data.fuso)),",
+apps/management-vite/src/pages/operation/monitoring.tsx,552,request-key,contato,contact,"setSearch(parametersWithFilters(search, { contato: '', status: '' }));",apps/api/tests/channel-of-flow.test.ts
+apps/management-vite/src/pages/registrations/agents-queues-edit.tsx,103,request-key,nome,name,"nome: nome.trim(),",apps/api/src/controllers/management-flow.ts
+apps/management-vite/src/pages/registrations/agents-queues-edit.tsx,107,request-key,horarioId,scheduleId,"horarioId: horarioId || null,",apps/api/src/domain/management/actions/agents.ts
+apps/management-vite/src/pages/registrations/rules-attendance-formulario.tsx,113,request-key,nome,name,"nome: String(data.get('nome') ?? '').trim(),",apps/api/src/controllers/management-flow.ts
+apps/management-vite/src/pages/registrations/rules-attendance-formulario.tsx,115,request-key,combinador,combiner,"combinador: (String(data.get('combinador') ?? 'e') as 'e' | 'ou'),",apps/api/src/domain/management/actions/regras.ts
+apps/management-vite/tests/analytics.test.ts,65,request-key,inicio,start,"assert.deepEqual(ok, { inicio: '2026-09-01', fim: '2026-09-10' });",apps/api/src/domain/management/builder-test-run.ts
+apps/management-vite/tests/analytics.test.ts,65,request-key,fim,end,"assert.deepEqual(ok, { inicio: '2026-09-01', fim: '2026-09-10' });",
+apps/management-vite/tests/builder-editor.test.ts,90,request-key,tipo,type,"const solto = reduzir(duranteArrasto, { tipo: 'soltar' });",apps/api/src/controllers/management-analytics.ts
+apps/management-vite/tests/builder-editor.test.ts,93,request-key,tipo,type,"assert.deepEqual(positionOf(reduzir(solto, { tipo: 'desfazer' }).mapa.bloco!), { top: 0, left: 0 });",apps/api/src/controllers/management-analytics.ts
+apps/management-vite/tests/builder-editor.test.ts,94,request-key,tipo,type,"assert.deepEqual(positionOf(reduzir(reduzir(solto, { tipo: 'desfazer' }), { tipo: 'refazer' }).mapa.bloco!), { top: 30, left: 40 });",apps/api/src/controllers/management-analytics.ts
+apps/management-vite/tests/builder-editor.test.ts,116,request-key,tipo,type,"const firstLoose = reduzir(firstMovement, { tipo: 'soltar' });",apps/api/src/controllers/management-analytics.ts
+apps/management-vite/tests/builder-editor.test.ts,124,request-key,tipo,type,"const desfeitoNoMeio = reduzir(duranteArrasto, { tipo: 'desfazer' });",apps/api/src/controllers/management-analytics.ts
+apps/management-vite/tests/builder-editor.test.ts,129,request-key,tipo,type,"const segundoSolto = reduzir(desfeitoNoMeio, { tipo: 'soltar' });",apps/api/src/controllers/management-analytics.ts
+apps/management-vite/tests/builder-editor.test.ts,134,request-key,tipo,type,"const firstUndo = reduzir(segundoSolto, { tipo: 'desfazer' });",apps/api/src/controllers/management-analytics.ts
+apps/management-vite/tests/builder-editor.test.ts,136,request-key,tipo,type,"const segundoDesfazer = reduzir(firstUndo, { tipo: 'desfazer' });",apps/api/src/controllers/management-analytics.ts
+apps/management-vite/tests/builder-editor.test.ts,417,request-key,origem,origin,"assert.deepEqual(mapa, { origem: mapa.origem });",apps/api/src/controllers/redirect.ts
+apps/management-vite/tests/builder-painels.test.ts,94,request-key,inicio,start,"const errors = blockErrors(block, { inicio: block });",apps/api/src/domain/management/builder-test-run.ts
+apps/management-vite/tests/communication.test.ts,46,request-key,imagem,image,"assert.deepEqual(mapa, { nenhum: 0, texto: 0, imagem: 1, video: 1, documento: 1 });",apps/api/src/controllers/management-flow.ts
+apps/management-vite/tests/communication.test.ts,46,request-key,documento,document,"assert.deepEqual(mapa, { nenhum: 0, texto: 0, imagem: 1, video: 1, documento: 1 });",
+apps/management-vite/tests/filters-monitoring.test.ts,31,request-key,contato,contact,"const proximos = parametersWithFilters(current, { contato: 'Bia' });",apps/api/tests/channel-of-flow.test.ts
+apps/workers/src/delivery.ts,153,response-key,canal_tipo,channelType,"const preparado = data.canal_tipo === 'instagram' ? prepararEnvioInstagram(data) : data.canal_tipo === 'messenger' ? prepararEnvioMessenger(data) : prepararEnvio(data, parametros);",
+apps/workers/src/delivery.ts,153,response-key,canal_tipo,channelType,"const preparado = data.canal_tipo === 'instagram' ? prepararEnvioInstagram(data) : data.canal_tipo === 'messenger' ? prepararEnvioMessenger(data) : prepararEnvio(data, parametros);",
+apps/workers/src/delivery.ts,128,sql-alias,canal_config,channelConfig,"ca.config as canal_config, ca.tipo as canal_tipo,",apps/api/src/domain/media.ts
+apps/workers/src/delivery.ts,128,sql-alias,canal_tipo,channelType,"ca.config as canal_config, ca.tipo as canal_tipo,",apps/api/src/domain/desk/consultas.ts
+apps/workers/src/delivery.ts,129,sql-alias,template_nome,templateName,"t.nome as template_nome, t.idioma as template_idioma,",apps/api/src/domain/message-active.ts
+apps/workers/src/delivery.ts,130,sql-alias,template_variaveis,templateVariables,"t.cabecalho_tipo as template_cabecalho, t.variaveis as template_variaveis,",
+apps/workers/src/delivery.ts,132,sql-alias,anexo_mime,attachmentMime,"a.mime as anexo_mime, a.bytes as anexo_bytes,",
+apps/workers/src/delivery.ts,132,sql-alias,anexo_bytes,attachmentBytes,"a.mime as anexo_mime, a.bytes as anexo_bytes,",
+apps/workers/src/delivery.ts,133,sql-alias,anexo_chave,attachmentKey,"a.chave_storage as anexo_chave, a.nome_original as anexo_nome",
+apps/workers/src/delivery.ts,133,sql-alias,anexo_nome,attachmentName,"a.chave_storage as anexo_chave, a.nome_original as anexo_nome",
+packages/ai/src/classification/index.ts,104,response-key,categoria,category,"const escolhida = matchOption(apresentadas, data.categoria, data.subcategoria);",tools/std/classify-jsonb.test.ts
+packages/ai/src/classification/index.ts,107,response-key,categoria,category,"`""${optionKey({ categoria: data.categoria, subcategoria: data.subcategoria })}"" não está entre as ${apresentadas.length} opções apresentadas.`,",tools/std/classify-jsonb.test.ts
+packages/ai/src/classification/index.ts,117,response-key,intencao,intent,"intent: data.intencao?.trim() || null,",
+packages/ai/src/classification/index.ts,118,response-key,sentimento,sentiment,"sentiment: data.sentimento,",
+packages/ai/src/evaluation/evaluation.ts,94,response-key,respostas,responses,for (const resposta of data.respostas) {,
+packages/ai/src/resumo/index.ts,62,response-key,resumo,summary,"return { resumo: data.resumo.trim(), consumo, template, prompt: identificador(prompt) };",
+packages/authentication/src/inbound.ts,237,request-key,origem,origin,"return loginWithIdentity(bancoDono, bancoApp, pessoa, { origem: 'sso', tenantId }, contexto);",apps/api/src/controllers/redirect.ts
+packages/core/src/conversation/conversation.test.ts,131,request-key,tipo,type,"expect(aplicarEvento(caso.de, { tipo: caso.tipo })).toEqual({ state: caso.para, mudou: true });",apps/api/src/controllers/management-analytics.ts
+packages/core/src/conversation/conversation.test.ts,137,request-key,tipo,type,"expect(aplicarEvento(state, { tipo: 'mensagem_entrada' })).toEqual({ state, mudou: false });",apps/api/src/controllers/management-analytics.ts
+packages/core/src/conversation/conversation.test.ts,138,request-key,tipo,type,"expect(aplicarEvento(state, { tipo: 'sla_alertado' })).toEqual({ state, mudou: false });",apps/api/src/controllers/management-analytics.ts
+packages/core/src/conversation/conversation.test.ts,143,request-key,tipo,type,"expect(aplicarEvento('encerrada', { tipo: 'encerrada' })).toEqual({",apps/api/src/controllers/management-analytics.ts
+packages/core/src/conversation/conversation.test.ts,147,request-key,tipo,type,"expect(aplicarEvento('em_espera', { tipo: 'espera_iniciada' })).toEqual({",apps/api/src/controllers/management-analytics.ts
+packages/core/src/conversation/conversation.test.ts,165,request-key,tipo,type,"expect(() => aplicarEvento(caso.de, { tipo: caso.tipo })).toThrow(TransitionInvalidError);",apps/api/src/controllers/management-analytics.ts
+packages/core/src/conversation/conversation.test.ts,166,request-key,tipo,type,"const tentativa = tentarAplicarEvento(caso.de, { tipo: caso.tipo });",apps/api/src/controllers/management-analytics.ts
+packages/core/src/flow/manager.ts,447,request-key,estadoId,stateId,"estadoId: stateId,",
+packages/core/src/sla/sla.test.ts,335,request-key,atribuidaEm,assignedAt,"expect(inicioDoAlvo('primeira_resposta', { ...marcos, atribuidaEm: null })).toEqual(marcos.criadaEm);",apps/api/tests/sla-motor.test.ts
+packages/core/src/window/window.ts,113,request-key,expiraEm,expiresAt,"const withinWindow = hasWindow ? windowOpen(query.expiraEm, query.agora) : true;",apps/api/src/domain/management/palavras-proibidas.ts
+packages/core/src/window/window.ts,113,request-key,agora,now,"const withinWindow = hasWindow ? windowOpen(query.expiraEm, query.agora) : true;",
+packages/core/src/window/window.ts,114,request-key,expiraEm,expiresAt,"const restanteSeg = hasWindow ? segundosRestantes(query.expiraEm, query.agora) : 0;",apps/api/src/domain/management/palavras-proibidas.ts
+packages/core/src/window/window.ts,114,request-key,agora,now,"const restanteSeg = hasWindow ? segundosRestantes(query.expiraEm, query.agora) : 0;",
+packages/core/src/window/window.ts,117,request-key,conteudo,content,if (query.conteudo === 'template') {,
+packages/db/src/schema/automation.ts,378,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/automation.ts,379,request-key,versao,version,"versao: integer('versao').notNull().default(1),",apps/api/tests/flow-functions.test.ts
+packages/db/src/schema/automation.ts,380,request-key,ativo,active,"ativo: boolean('ativo').notNull().default(false),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/automation.ts,606,request-key,codigo,code,"codigo: text('codigo').notNull(),",apps/api/src/controllers/sso.ts
+packages/db/src/schema/automation.ts,634,request-key,codigo,code,"codigo: text('codigo').notNull(),",apps/api/src/controllers/sso.ts
+packages/db/src/schema/automation.ts,636,request-key,tipo,type,"tipo: text('tipo').notNull(),",apps/api/src/controllers/management-analytics.ts
+packages/db/src/schema/automation.ts,637,request-key,descricao,description,"descricao: text('descricao'),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/conversations.ts,72,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/conversations.ts,73,request-key,cor,color,"cor: text('cor'),",apps/api/src/domain/management/actions/agents.ts
+packages/db/src/schema/conversations.ts,77,request-key,horarioId,scheduleId,"horarioId: uuid('horario_id'),",apps/api/src/domain/management/actions/agents.ts
+packages/db/src/schema/conversations.ts,80,request-key,ativa,active,"ativa: boolean('ativa').notNull().default(true),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/conversations.ts,380,request-key,estado,state,"estado: text('estado').notNull().default('pendente'),",apps/api/src/controllers/sso.ts
+packages/db/src/schema/conversations.ts,413,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/conversations.ts,416,request-key,ativo,active,"ativo: boolean('ativo').notNull().default(true),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/conversations.ts,458,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/conversations.ts,459,request-key,cor,color,"cor: text('cor'),",apps/api/src/domain/management/actions/agents.ts
+packages/db/src/schema/conversations.ts,460,request-key,escopo,scope,"escopo: text('escopo').notNull().default('conversa'),",apps/management-vite/src/pages/builder/conteudo.ts
+packages/db/src/schema/crm.ts,347,request-key,opcoes,options,opcoes: jsonb('opcoes'),apps/management-vite/src/pages/builder/conteudo.ts
+packages/db/src/schema/identity.ts,78,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/identity.ts,80,request-key,fuso,timezone,"fuso: text('fuso').notNull().default('America/Sao_Paulo'),",
+packages/db/src/schema/identity.ts,84,request-key,plano,plan,"plano: text('plano').notNull().default('essencial'),",
+packages/db/src/schema/identity.ts,86,request-key,ativo,active,"ativo: boolean('ativo').notNull().default(true),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/identity.ts,96,request-key,funcionarios,employees,"funcionarios: text('funcionarios'),",
+packages/db/src/schema/identity.ts,100,request-key,telefone,phone,"telefone: text('telefone'),",apps/api/tests/contacts-editar.test.ts
+packages/db/src/schema/identity.ts,125,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/identity.ts,129,request-key,ativo,active,"ativo: boolean('ativo').notNull().default(true),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/identity.ts,153,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/identity.ts,172,request-key,codigo,code,"codigo: text('codigo').primaryKey(),",apps/api/src/controllers/sso.ts
+packages/db/src/schema/identity.ts,173,request-key,descricao,description,"descricao: text('descricao').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/identity.ts,174,request-key,grupo,group,"grupo: text('grupo').notNull(),",
+packages/db/src/schema/identity.ts,248,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/identity.ts,249,request-key,descricao,description,"descricao: text('descricao'),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/identity.ts,344,request-key,verificadoEm,verifiedAt,"verificadoEm: moment('verificado_em'),",
+packages/db/src/schema/identity.ts,437,request-key,em,at,"em: moment('em').notNull().defaultNow(),",apps/api/src/domain/assumir.ts
+packages/db/src/schema/management.ts,258,request-key,termo,term,"termo: text('termo').notNull(),",apps/api/tests/palavras-proibidas.test.ts
+packages/db/src/schema/management.ts,259,request-key,ativo,active,"ativo: boolean('ativo').notNull().default(true),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/management.ts,274,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/management.ts,275,request-key,fuso,timezone,"fuso: text('fuso').notNull().default('America/Sao_Paulo'),",
+packages/db/src/schema/management.ts,319,request-key,tipo,type,"tipo: text('tipo').notNull(),",apps/api/src/controllers/management-analytics.ts
+packages/db/src/schema/management.ts,324,request-key,disparo,trigger,"disparo: text('disparo').notNull().default('encerramento'),",apps/api/src/domain/management/actions/settings.ts
+packages/db/src/schema/management.ts,325,request-key,ativa,active,"ativa: boolean('ativa').notNull().default(true),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/quality-review.ts,172,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/schema/quality-review.ts,297,request-key,modelo,template,"modelo: text('modelo').notNull(),",
+packages/db/src/schema/quality-review.ts,303,request-key,em,at,"em: moment('em').notNull().defaultNow(),",apps/api/src/domain/assumir.ts
+packages/db/src/schema/quality-review.ts,311,request-key,nome,name,"nome: text('nome').notNull(),",apps/api/src/controllers/management-flow.ts
+packages/db/src/seed.ts,262,sql-alias,alvo,target,end as alvo,
+tools/std/fixtures/mini/apps/api/src/contracts.ts,28,request-key,contatoId,contactId,export const contato = body.contatoId;,apps/api/src/domain/flow.ts
+tools/std/fixtures/mini/apps/api/src/contracts.ts,25,queue-name,pipe-entrada,pipe-inbound,new Worker('pipe-entrada');,
+tools/std/fixtures/runtime-contracts/body-key/front.ts,3,request-key,nome,name,"nome: nome,",apps/api/src/controllers/management-flow.ts
+tools/std/inventory.test.ts,21,request-key,contatoId,contactId,"const result = run({ fileName: 'packages/db/src/schema/x.ts', sourceText: ""export const t = pgTable('t', { contatoId: text('contato_id') });"" });",apps/api/src/domain/flow.ts
+tools/std/jsonb-reach.test.ts,10,request-key,conteudo,content,"const report = names(`interface Alvo { canalId: string } interface Acao { tipo: 'enviar' | 'esperar'; alvo: Alvo } interface Bloco { acoes: Acao[] } const bloco = pgTable('bloco', { conteudo: jsonb('conteudo').$type<Bloco>() });`);",
+tools/std/jsonb-reach.test.ts,15,request-key,contexto,context,"const report = names(`interface Item { nome: string } interface Contexto { itens: Array<Item | null>; mapa: Record<string, Partial<Item>> } const execucao = pgTable('execucao', { contexto: jsonb('contexto') }); const ctx: Contexto = {} as any; db.insert(execucao).values({ contexto: ctx });`);",
+tools/std/jsonb-reach.test.ts,20,request-key,contexto,context,"const report = names(`interface Contexto { usuario: string } const execucao = pgTable('execucao', { contexto: jsonb('contexto') }); const novo: Contexto = {} as any; db.update(execucao).set({ contexto: novo }); db.insert(execucao).values({}).onConflictDoUpdate({ set: { contexto: novo } });`);",
+tools/std/jsonb-reach.test.ts,25,request-key,contexto,context,"const report = names(`interface Contexto { usuario: string } const execucao = pgTable('execucao', { contexto: jsonb('contexto') }); declare const linha: any; const a = linha.contexto as Contexto; const b: Contexto = linha.contexto;`);",
+tools/std/jsonb-reach.test.ts,30,request-key,contexto,context,"const report = names(`interface Contexto { mapa: Record<string, string> } interface Memoria { segredo: string } const execucao = pgTable('execucao', { contexto: jsonb('contexto') }); const ctx: Contexto = {} as any; db.insert(execucao).values({ contexto: ctx });`);",
+tools/std/jsonb-reach.test.ts,35,request-key,contexto,context,"const sourceText = `${prelude}\ninterface Contexto { user: string } const execucao = pgTable('execucao', { contexto: jsonb('contexto') }); const ctx: Contexto = {} as any; db.insert(execucao).values({ contexto: ctx });`;",
+tools/std/jsonb-reach.test.ts,44,request-key,variaveis,variables,"'/schema.ts': `${prelude}\nconst templateMensagem = pgTable('template_mensagem', { variaveis: jsonb('variaveis') }); declare const linha: any; const variaveis: string[] = linha.variaveis;`,",apps/api/tests/dictionary-crm.test.ts
+tools/std/jsonb-reach.test.ts,53,request-key,condicao,condition,"'/x.ts': `${prelude}\ntype Operador = 'em' | 'contem';\ninterface Expressao { operador: Operador }\nconst regra = pgTable('regra', { condicao: jsonb('condicao').$type<Expressao>() });`,",apps/api/tests/registrations-attendance.test.ts
