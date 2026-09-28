@@ -48,6 +48,23 @@ describe('ProcessHttp', () => {
   });
 });
 
+describe('TrackContactsJourney', () => {
+  it('runs as a no-op so imported Blip flows do not fail on their first block', async () => {
+    const c = context();
+    const enviadas: unknown[] = [];
+    c.services.send = async (m) => { enviadas.push(m); };
+    c.flow.states[0]!.outputActions = [
+      {
+        type: 'TrackContactsJourney',
+        settings: { previousStateId: '{{state.previous.id}}', stateId: '{{state.id}}', stateName: '{{state.name}}' },
+      },
+      { type: 'SetVariable', settings: { variable: 'passou', value: 'sim' } },
+    ];
+    await processInbound(c);
+    expect(c.variables['passou']).toBe('sim');
+  });
+});
+
 describe('Blip context commands (D-55)', () => {
   it('set /contexts/{contact}/stateid@{flow} moves another flow\'s saved block and answers success', async () => {
     const c = context();

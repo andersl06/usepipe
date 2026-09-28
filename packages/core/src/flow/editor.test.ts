@@ -115,7 +115,7 @@ describe('importador do export do editor da Blip', () => {
     const e = copia();
     const menu = e.flow['menu']!;
     menu.$enteringCustomActions = [
-      { type: 'TrackContactsJourney', settings: { stepName: 'x' } },
+      { type: 'UnknownActionForTest', settings: { stepName: 'x' } },
       { type: 'ProcessHttp', settings: { uri: 'https://exemplo.invalido', method: 'GET' } },
       { type: 'ProcessHttp', settings: { uri: 'https://exemplo.invalido', method: 'POST' } },
     ];
@@ -131,7 +131,7 @@ describe('importador do export do editor da Blip', () => {
     });
     const convertido = converterDoEditor(e, 'f1');
     expect(importReport(convertido).naoSuportado).toEqual({
-      'acao:TrackContactsJourney': 1,
+      'acao:UnknownActionForTest': 1,
       'conteudo:application/json': 1,
       'entrada:expiracao': 1,
       'variavel:calendar': 1,
@@ -140,7 +140,7 @@ describe('importador do export do editor da Blip', () => {
     expect(
       convertido.states.find((s) => s.id === 'menu')!.inputActions!.map((a) => a.type),
     ).toEqual([
-      'TrackContactsJourney',
+      'UnknownActionForTest',
       'ProcessHttp',
       'ProcessHttp',
       'SendRawMessage',

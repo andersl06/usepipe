@@ -493,7 +493,19 @@ const executeBlipFunction: AcaoDoMotor = {
   },
 };
 
+/**
+ * Blip adds `TrackContactsJourney` to every block of an exported flow to feed its "Jornada dos
+ * contatos" report. Pipe builds that report from each execution's visited blocks
+ * (`execucao_passo`, `carregarJornada`), so the action has nothing to record here; it must still
+ * succeed, or every imported Blip flow fails on its first block.
+ */
+const trackContactsJourney: AcaoDoMotor = {
+  tipo: 'TrackContactsJourney',
+  async executar() {},
+};
+
 export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
+  trackContactsJourney,
   setVariable,
   deleteVariable,
   sendMessage,

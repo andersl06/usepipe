@@ -662,16 +662,16 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect((error as Error).message).toContain("ação 'SetVariable' falhou");
   });
 
-  it('an action with no implementation in Pipe (TrackContactsJourney) breaks processing', async () => {
+  it('an action with no implementation in Pipe (UnknownActionForTest) breaks processing', async () => {
     const error = await rodar(
       [
         raiz([{ stateId: 'ping' }]),
-        { id: 'ping', inputActions: [{ type: 'TrackContactsJourney', settings: {} }] },
+        { id: 'ping', inputActions: [{ type: 'UnknownActionForTest', settings: {} }] },
       ],
       'x',
     ).catch((e: unknown) => e);
     expect(error).toBeInstanceOf(EngineError);
-    expect((error as Error).message).toContain("'TrackContactsJourney' não existe no Pipe");
+    expect((error as Error).message).toContain("'UnknownActionForTest' não existe no Pipe");
   });
 
   it('entry validation: outside the rule it sends the error and stays in the state', async () => {
