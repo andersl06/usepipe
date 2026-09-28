@@ -3,7 +3,7 @@
  */
 
 import type { ActionDeadline, Context, PedidoDeHttp } from './context.js';
-import { KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable } from './context.js';
+import { KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable, stateKey } from './context.js';
 
 export type Settings = Record<string, unknown> | null;
 
@@ -60,10 +60,39 @@ function requireKnownCommand(tipo: string, settings: Record<string, unknown>): s
   return uri;
 }
 
+/** `/contexts/{contact}/stateid@{flowId}` — Blip's context route for a flow's saved state (D-55). */
+const CONTEXT_STATE_URI = /^\/contexts\/[^/]*\/stateid@([^/?#]+)$/i;
+
+/** The resource may be `"onboarding"`, `{"resource":"onboarding"}` or that JSON as text, as Blip exports it. */
+function stateOfResource(resource: unknown): string | null {
+  let valor: unknown = resource;
+  if (typeof valor === 'string') {
+    const texto = valor.trim();
+    try {
+      valor = JSON.parse(texto);
+    } catch {
+      return texto || null;
+    }
+  }
+  if (valor && typeof valor === 'object' && !Array.isArray(valor)) valor = campo(valor as Settings, 'resource');
+  return typeof valor === 'string' && valor.trim() ? valor.trim() : null;
+}
+
 const nativeCommand = (tipo: 'SendCommand' | 'ProcessCommand'): AcaoDoMotor => ({
   tipo,
   async executar(context, settings) {
     const c = requireSettings(this.tipo, settings);
+    const contextUri = comoTexto(campo(c, 'uri'))?.trim().match(CONTEXT_STATE_URI);
+    if (contextUri && (comoTexto(campo(c, 'method')) ?? '').toLowerCase() === 'set') {
+      const flowId = contextUri[1]!;
+      const stateId = stateOfResource(campo(c, 'resource'));
+      if (!stateId) throw new Error(`Informe o bloco de destino no resource da URI '${contextUri[0]}'.`);
+      if (flowId === context.flow.id) setContextVariable(context, stateKey(flowId), stateId);
+      else await context.services.setFlowState?.({ flowId, stateId });
+      const output = comoTexto(campo(c, 'variable'))?.trim();
+      if (tipo === 'ProcessCommand' && output) setContextVariable(context, output, '{"status":"success"}');
+      return;
+    }
     const uri = requireKnownCommand(this.tipo, c);
     const method = (comoTexto(campo(c, 'method')) ?? (tipo === 'ProcessCommand' ? 'GET' : 'set')).toUpperCase();
     if (tipo === 'SendCommand') {

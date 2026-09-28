@@ -561,6 +561,27 @@ export async function runFlowInInbound(
     },
     processCommand: ({ uri, resource }) =>
       emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, true, transferirPeloBot)),
+    // Blip `set /contexts/{contact}/stateid@{flow}`: the flow's saved block lives in the contact's
+    // latest execution context of that flow (`stateId@<flowId>`), which the next execution inherits.
+    setFlowState: ({ flowId, stateId }) => emSavepoint(async (sp) => {
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(flowId)) return false;
+      const { rows: fluxos } = await sp.execute<{ id: string }>(sql`
+        select id from fluxo where id = ${flowId}::uuid and tenant_id = ${e.tenantId}
+      `);
+      if (!fluxos[0]) return false;
+      await sp.execute(sql`
+        update execucao_fluxo
+           set contexto = coalesce(contexto, '{}'::jsonb) || jsonb_build_object(${`stateId@${flowId}`}::text, ${stateId}::text)
+         where id = (
+           select ex.id from execucao_fluxo ex
+             join fluxo_versao v on v.id = ex.fluxo_versao_id
+            where ex.contato_id = ${e.contactId} and v.fluxo_id = ${flowId}::uuid
+            order by ex.iniciada_em desc
+            limit 1
+         )
+      `);
+      return true;
+    }),
     respondWithKnowledge: ({ text, minimumConfidence }) => emSavepoint(async (tx) => {
       const words = text.toLowerCase().split(/\W+/).filter((word) => word.length > 2).slice(0, 12);
       const pattern = words.length > 0 ? `%${words[0]}%` : '%';

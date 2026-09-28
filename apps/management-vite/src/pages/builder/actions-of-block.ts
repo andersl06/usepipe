@@ -324,7 +324,11 @@ export const acaoTemDependenciaExterna = (acao: AcaoDoEditor): boolean => {
   if (!EXTERNAL_DEPENDENCY_ACTIONS.includes(acao.type as (typeof EXTERNAL_DEPENDENCY_ACTIONS)[number])) return false;
   if (acao.type === 'SendCommand' || acao.type === 'ProcessCommand') {
     const uri = typeof acao.settings?.['uri'] === 'string' ? acao.settings['uri'] : '';
-    return !!uri && !/^\/tickets\/[^/]+(?:\/change-tags|\/transfer|\/status|\/priority)?$/.test(uri);
+    return (
+      !!uri &&
+      !/^\/tickets\/[^/]+(?:\/change-tags|\/transfer|\/status|\/priority)?$/.test(uri) &&
+      !/^\/contexts\/[^/]*\/stateid@[^/?#]+$/i.test(uri)
+    );
   }
   return false;
 };

@@ -184,6 +184,13 @@ export interface ServicosDoMotor {
   listManage?(request: { name: string; operation: 'Add' | 'Remove' }): Promise<void>;
   /** Closed subset of Desk commands; arbitrary LIME routing is deliberately not exposed. */
   sendCommand?(request: { uri: string; method: string; resource: unknown }): Promise<void>;
+  /**
+   * Blip's `set /contexts/{contact}/stateid@{flowId}`: move this contact's saved block in ANOTHER flow
+   * (usually back to `onboarding` before a Redirect). Returns false when `flowId` is not a flow of this
+   * tenant (e.g. a Blip id from an imported flow); the engine then treats the command as done, because a
+   * Pipe Redirect already starts the destination at its root.
+   */
+  setFlowState?(request: { flowId: string; stateId: string }): Promise<boolean>;
   processCommand?(request: { uri: string; method: string; resource: unknown }): Promise<unknown>;
   /** RAG over the tenant's base_conhecimento/trecho_conhecimento tables. */
   respondWithKnowledge?(request: { text: string; minimumConfidence: number; tags?: string }): Promise<{ answer: string | null; confidence: number }>;

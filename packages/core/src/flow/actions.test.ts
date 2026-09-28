@@ -48,6 +48,31 @@ describe('ProcessHttp', () => {
   });
 });
 
+describe('Blip context commands (D-55)', () => {
+  it('set /contexts/{contact}/stateid@{flow} moves another flow\'s saved block and answers success', async () => {
+    const c = context();
+    const pedidos: unknown[] = [];
+    c.services.setFlowState = async (pedido) => {
+      pedidos.push(pedido);
+      return false; // a Blip id unknown to Pipe must not fail the action
+    };
+    c.flow.states[0]!.outputActions = [{
+      type: 'ProcessCommand',
+      settings: {
+        to: 'postmaster@builder.msging.net',
+        method: 'set',
+        uri: '/contexts/{{user}}/stateid@82d6b54b-eb67-4b5e-bb8b-6c390d5d505e',
+        type: 'text/plain',
+        resource: '{\n    "resource": "onboarding"\n}\n        ',
+        variable: 'processedContext',
+      },
+    }];
+    await processInbound(c);
+    expect(pedidos).toEqual([{ flowId: '82d6b54b-eb67-4b5e-bb8b-6c390d5d505e', stateId: 'onboarding' }]);
+    expect(c.variables['processedContext']).toBe('{"status":"success"}');
+  });
+});
+
 describe('context actions', () => {
   it('sends the GET response from SendMessageFromHttp', async () => {
     const c = context();
