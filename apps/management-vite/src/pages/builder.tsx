@@ -346,8 +346,8 @@ export function PageBuilder() {
             <VariablesPanel
               mapa={state.mapa}
               global={state.global}
+              configuration={state.configuracao}
               onFechar={() => setVariablesOpen(false)}
-              onAviso={(texto) => toast({ tom: 'sucesso', texto })}
             />
           ) : null}
 

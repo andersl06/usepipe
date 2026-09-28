@@ -929,36 +929,158 @@
   cursor: pointer;
 }
 
-/* ------------------------------------------------- variables library */
+/* ------------------------------------------------- variables library (F-3) */
 
-.bl-variables-empty {
-  margin-top: 12px;
-}
-.bl-variables-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 12px;
-  padding: 0;
-  list-style: none;
-}
-.bl-variables-list li {
-  padding: 8px 10px;
-  border-radius: 8px;
-}
-.bl-variables-list li:hover {
-  background: var(--p-builder-marca-destaque);
-}
-.bl-variable-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
+/*
+ * `.bl-variable-name` stays as-is (13px/700): `flow-functions-panel.tsx` reuses it for the function
+ * library's name span, outside this plan's scope. Everything below is new, `bl-library-*`, so the
+ * Biblioteca de variáveis panel doesn't touch that other panel's look.
+ */
 .bl-variable-name {
   font-size: 13px;
   font-weight: 700;
   word-break: break-all;
+}
+
+/* Faixa das abas e corpo da lista: transparente/#141414 só no painel esquerdo (Biblioteca); Configuração e Filas, à direita, ficam com o visual padrão da casca (panel-block.css). */
+.bl-panel--flutuante.bl-panel--esquerda .bl-abas {
+  background: transparent;
+  padding: 0 32px;
+}
+.bl-panel--flutuante.bl-panel--esquerda .bl-panel-body {
+  padding: 0 32px;
+  background: #141414;
+}
+
+.bl-library-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  box-sizing: border-box;
+  margin: 24px 0;
+  padding: 8px 4px 8px 12px;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 8px;
+  color: #949494;
+}
+.bl-library-search:focus-within {
+  border-color: var(--p-builder-marca-borda-ativa);
+}
+.bl-library-search svg {
+  flex-shrink: 0;
+}
+.bl-library-search-input.campo {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  line-height: 22px;
+}
+.bl-library-search-input.campo::placeholder {
+  color: #949494;
+}
+
+.bl-library-empty {
+  margin: 0;
+  padding: 16px 20px;
+  background: #1f1f1f;
+  color: #949494;
+  font-size: 14px;
+}
+
+.bl-library-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bl-library-list li {
+  padding: 10px 20px;
+  border-radius: 0;
+}
+.bl-library-list li:nth-child(odd) {
+  background: #141414;
+}
+.bl-library-list li:nth-child(even) {
+  background: #1f1f1f;
+}
+.bl-library-list--user li {
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  box-sizing: border-box;
+}
+
+.bl-library-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.bl-library-name {
+  overflow: hidden;
+  max-width: 300px;
+  margin-right: 20px;
+  font: 400 16px/1.5 inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bl-library-description {
+  margin: 0;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.bl-library-unsupported {
+  margin: 4px 0 0;
+  color: #949494;
+  font-size: 12px;
+}
+
+.bl-library-copy {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  cursor: pointer;
+}
+.bl-library-list li:hover .bl-library-copy,
+.bl-library-copy:focus-visible,
+.bl-library-copy--copiado {
+  opacity: 1;
+}
+.bl-library-copy:hover,
+.bl-library-copy--copiado {
+  background: rgb(255 255 255 / 16%);
+}
+.bl-library-copy-tooltip {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #fff;
+  color: #262626;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 /* ------------------------------------------------- settings: versions */
