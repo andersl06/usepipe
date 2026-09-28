@@ -1293,3 +1293,131 @@
   margin-bottom: 2px;
   font-weight: 700;
 }
+
+/*
+ * Configuração's "Variáveis" tab (F-2, D-56 item 3): 8 collapsible sections, header padding
+ * 10px 5px (C:39523-39551), chevron on the left, 16px/700 uppercase title, 1px #393939 divider
+ * with 20px margin between sections.
+ */
+.bl-config-secao-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 5px;
+}
+.bl-config-secao-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bl-config-chevron {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+  transform: rotate(-90deg);
+}
+.bl-config-chevron--aberta {
+  transform: rotate(0deg);
+}
+.bl-config-secao-controles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bl-config-secao-corpo {
+  padding: 0 5px 10px;
+}
+/*
+ * `.bl-campo--interno` (02-23's internal-label pattern) is scoped to `.bl-panel--block` only
+ * (line 344); the Variáveis tab lives in the floating shell (`.bl-panel--flutuante`), so it needs
+ * the same rule here, additively, without touching the block-panel scoping above.
+ */
+.bl-panel--flutuante .bl-campo--interno {
+  position: relative;
+}
+.bl-panel--flutuante .bl-campo--interno > .sub {
+  position: absolute;
+  z-index: 1;
+  top: 5px;
+  left: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  pointer-events: none;
+}
+.bl-panel--flutuante .bl-campo--interno .campo {
+  padding: 23px 12px 8px;
+  width: 100%;
+  min-height: 56px;
+  box-sizing: border-box;
+  border-radius: 8px;
+}
+.bl-config-divisor {
+  border: 0;
+  height: 1px;
+  margin: 20px 0;
+  background: #393939;
+}
+.bl-config-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bl-config-slider-valor {
+  color: var(--p-builder-marca);
+  font-size: 14px;
+  font-weight: 700;
+}
+.bl-config-link-desabilitado {
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--p-conteudo-desabilitado);
+  text-decoration: underline;
+  cursor: not-allowed;
+}
+/* "Variáveis de configuração" — the one functional section: chave/valor rows, 160x56 each (C:39960). */
+.bl-config-vars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bl-config-var-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bl-config-var-linha .campo {
+  width: 160px;
+  height: 56px;
+  box-sizing: border-box;
+}
+.bl-panel--flutuante .campo.bl-campo--erro,
+.bl-panel--block .campo.bl-campo--erro {
+  border-color: var(--p-error-line);
+  outline: 1px solid var(--p-error-content);
+  outline-offset: -1px;
+}
+.bl-config-adicionar {
+  min-height: 60px;
+  width: 100%;
+  border: 1px dashed var(--p-conteudo-desabilitado);
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bl-config-adicionar:disabled {
+  cursor: not-allowed;
+}
