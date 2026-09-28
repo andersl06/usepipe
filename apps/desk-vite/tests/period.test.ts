@@ -34,8 +34,8 @@ test('average time with no value shows a dash, not zero', () => {
 
 const c = (id: string, nome: string | null, ultima: string | null) => ({
   id,
-  nome,
-  telefone: null,
+  name: nome,
+  phone: null,
   email: null,
   lastInteractionAt: ultima,
 });

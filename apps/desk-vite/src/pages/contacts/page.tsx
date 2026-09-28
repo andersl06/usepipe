@@ -121,8 +121,8 @@ export function PageContacts() {
                       <span className="dk-contact-text">
                         <b>
                           {displayName({
-                            contactName: c.nome,
-                            contactPhone: c.telefone,
+                            contactName: c.name,
+                            contactPhone: c.phone,
                             contactEmail: c.email,
                             contactId: c.id,
                           })}

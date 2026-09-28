@@ -3,8 +3,8 @@
  */
 export interface ListContact {
   id: string;
-  nome: string | null;
-  telefone: string | null;
+  name: string | null;
+  phone: string | null;
   email: string | null;
   lastInteractionAt: string | null;
 }
@@ -39,8 +39,8 @@ export function groupContacts(
   const groups = new Map<string, ListContact[]>();
   const ordenados = [...contacts].sort((a, b) => {
     if (order === 'alfabetica') {
-      const an = (a.nome ?? '').trim();
-      const bn = (b.nome ?? '').trim();
+      const an = (a.name ?? '').trim();
+      const bn = (b.name ?? '').trim();
       if (!an && bn) return 1;
       if (an && !bn) return -1;
       return an.localeCompare(bn, 'pt-BR', { sensitivity: 'base' });
@@ -50,7 +50,7 @@ export function groupContacts(
     return bt - at;
   });
   for (const c of ordenados) {
-    const key = order === 'alfabetica' ? letra(c.nome) : dia(c.lastInteractionAt);
+    const key = order === 'alfabetica' ? letra(c.name) : dia(c.lastInteractionAt);
     const lista = groups.get(key);
     if (lista) lista.push(c);
     else groups.set(key, [c]);

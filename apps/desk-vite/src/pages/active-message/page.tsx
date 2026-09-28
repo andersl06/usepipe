@@ -17,8 +17,8 @@ const MAX_CONTACTS = 15;
 
 interface Channel {
   id: string;
-  nome: string;
-  tipo: TypeChannelDatabase;
+  name: string;
+  type: TypeChannelDatabase;
   templates: TemplateAprovado[];
 }
 
@@ -53,14 +53,14 @@ export function PageActiveMessage() {
       : null,
   );
   const contactInitial = useRead<{
-    contact: { id: string; nome: string | null; telefone: string | null };
+    contact: { id: string; name: string | null; phone: string | null };
   }>(parametros.get('contact') ? `/v1/desk/contacts/${parametros.get('contact')}` : null);
   /* When arriving from `Conversar novamente` in Contacts, preselect that contact. */
   useEffect(() => {
     const c = contactInitial.data?.contact;
     if (c)
       setDestinos((atual) =>
-        atual.length === 0 ? [{ contactId: c.id, telefone: c.telefone, nome: c.nome }] : atual,
+        atual.length === 0 ? [{ contactId: c.id, telefone: c.phone, nome: c.name }] : atual,
       );
   }, [contactInitial.data]);
 
@@ -86,7 +86,7 @@ export function PageActiveMessage() {
     const ja = destinos.some((d) => d.contactId === c.id);
     if (ja) setDestinos(destinos.filter((d) => d.contactId !== c.id));
     else if (destinos.length < MAX_CONTACTS)
-      setDestinos([...destinos, { contactId: c.id, telefone: c.telefone, nome: c.nome }]);
+      setDestinos([...destinos, { contactId: c.id, telefone: c.phone, nome: c.name }]);
   }
 
   async function enviar() {
@@ -191,7 +191,7 @@ export function PageActiveMessage() {
                       <option value="">Selecionar chatbot</option>
                       {channels.data?.channels.map((c) => (
                         <option key={c.id} value={c.id}>
-                          {c.nome}
+                          {c.name}
                         </option>
                       ))}
                     </select>
@@ -241,7 +241,7 @@ export function PageActiveMessage() {
                       <option value="">Selecionar chatbot</option>
                       {channels.data?.channels.map((c) => (
                         <option key={c.id} value={c.id}>
-                          {c.nome}
+                          {c.name}
                         </option>
                       ))}
                     </select>
@@ -270,14 +270,14 @@ export function PageActiveMessage() {
                           <span>
                             <b>
                               {displayName({
-                                contactName: c.nome,
-                                contactPhone: c.telefone,
+                                contactName: c.name,
+                                contactPhone: c.phone,
                                 contactEmail: c.email,
                                 contactId: c.id,
                               })}
                             </b>
                             <small>
-                              {c.telefone ? telefoneInternacional(c.telefone) : c.email}
+                              {c.phone ? telefoneInternacional(c.phone) : c.email}
                             </small>
                           </span>
                         </label>
@@ -354,7 +354,7 @@ export function PageActiveMessage() {
           <div className="dk-active-body">
             <div className="dk-active-form">
               <h3>Escolher modelo</h3>
-              <p>Modelos de mensagem aprovados para o chatbot {channel?.nome ?? ''}.</p>
+              <p>Modelos de mensagem aprovados para o chatbot {channel?.name ?? ''}.</p>
               {(channel?.templates ?? []).length === 0 ? (
                 <p>Nenhum modelo de mensagem aprovado para este chatbot.</p>
               ) : (
@@ -438,7 +438,7 @@ export function PageActiveMessage() {
               <h3>Dados da Mensagem Ativa</h3>
               <div className="dk-campo-flutuante">
                 <span>Chatbot</span>
-                <b>{channel?.nome}</b>
+                <b>{channel?.name}</b>
               </div>
               <div className="dk-campo-flutuante">
                 <span>Modelo de mensagem</span>
