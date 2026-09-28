@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react';
 import { Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
+import { IconePortal } from '../../components/icones-portal';
 import { Interruptor } from '../flow/integrations/interruptor';
 import type { Block, Mapa, SaidaDoEditor } from './model';
 import {
@@ -33,6 +34,16 @@ import { DestinationPicker } from './destination-picker';
  *
  * On the attendance block (`desk:`), the four outputs the editor created are the "Saídas de atendimento": a fixed condition (the closed `Ticket`, or the forwarding that failed), with only the destination to choose.
  */
+
+/** F-1/F-6: the invalid card's own icon, outside the card at `left:-28px; top:5px` — the messages live in its `title`, never as text in the card. */
+function OutputErrorIcon({ errors }: { errors: string[] }) {
+  if (errors.length === 0) return null;
+  return (
+    <span className="bl-output-erro" title={errors.join('\n')}>
+      <IconePortal nome="informacao-cheia" tamanho={16} />
+    </span>
+  );
+}
 
 function labelOfOutputOfAttendance(saida: SaidaDoEditor): string {
   if (saida.$isDeskDefaultOutput) return 'sem atendente disponível (erro ao encaminhar)';
@@ -78,6 +89,12 @@ export function OutputsPanel({
     if (r.ok) onMudar(r.block);
     else onAviso(r.error);
   }
+
+  const defaultOutputStateId = block.$defaultOutput?.stateId;
+  const defaultOutputErrors =
+    defaultOutputStateId && !existe(defaultOutputStateId) && !/^{{.*}}$/.test(defaultOutputStateId)
+      ? [`O estado de destino '${defaultOutputStateId}' da saída não existe.`]
+      : [];
 
   return (
     <div className="bl-aba-corpo">
@@ -196,6 +213,7 @@ export function OutputsPanel({
               <section
                 className={`bl-saida${fixa ? ' bl-output--attendance' : ''}${errors.length > 0 ? ' bl-output--error' : ''}`}
               >
+                <OutputErrorIcon errors={errors} />
                 <header className="bl-saida-cabecalho">
                   <b>
                     {fixa
@@ -262,13 +280,6 @@ export function OutputsPanel({
                   rotulo={ROTULOS_DAS_SAIDAS.irPara}
                   onEscolher={(id) => onMudar(outputSetDestination(block, i, id))}
                 />
-                {errors.length > 0 ? (
-                  <ul className="bl-errors">
-                    {errors.map((e) => (
-                      <li key={e}>{e}</li>
-                    ))}
-                  </ul>
-                ) : null}
               </section>
               {haOutraVisivelDepois ? (
                 <div className="bl-ou" aria-hidden="true">
@@ -286,7 +297,10 @@ export function OutputsPanel({
         {ROTULOS_DAS_SAIDAS.adicionar}
       </button>
 
-      <section className="bl-saida bl-saida--padrao">
+      <section
+        className={`bl-saida bl-saida--padrao${defaultOutputErrors.length > 0 ? ' bl-output--error' : ''}`}
+      >
+        <OutputErrorIcon errors={defaultOutputErrors} />
         <CabecalhoInfo titulo={ROTULOS_DAS_SAIDAS.saidaPadrao} aberto>
           <p>{ROTULOS_DAS_SAIDAS.saidaPadraoInfo}</p>
         </CabecalhoInfo>

@@ -105,7 +105,7 @@ function ConditionRow({
   }
 
   return (
-    <div className={`bl-condition${error ? ' bl-condition--error' : ''}`}>
+    <div className={`bl-condition${error ? ' bl-condition--error' : ''}`} title={error ?? undefined}>
       {!first ? <b className="bl-condition-and">E</b> : null}
       <div className="bl-condition-line bl-condition-fields">
         {semSuporte ? (
@@ -143,6 +143,8 @@ function ConditionRow({
         </button>
         {fonte === 'context' ? (
           <Campo
+            className={!condition.variable?.trim() && error ? 'bl-campo--danger' : undefined}
+            title={!condition.variable?.trim() && error ? error : undefined}
             aria-label={ROTULOS_DAS_SAIDAS.nomeDaVariavel}
             placeholder={ROTULOS_DAS_SAIDAS.nomeDaVariavel}
             value={condition.variable ?? ''}
@@ -151,7 +153,10 @@ function ConditionRow({
         ) : null}
       </div>
       {!unaria ? (
-        <div className="bl-condition-values">
+        <div
+          className={`bl-condition-values${error ? ' bl-campo--danger' : ''}`}
+          title={error ?? undefined}
+        >
           {/*
            * The Blip screen no longer shows an OR/AND select between values (F-1.4 line 4) — only
            * the chips remain — but `condition.operator` is never cleared, so it survives edits and
@@ -178,7 +183,6 @@ function ConditionRow({
           </div>
         </div>
       ) : null}
-      {error ? <p className="bl-field-error">{error}</p> : null}
     </div>
   );
 }

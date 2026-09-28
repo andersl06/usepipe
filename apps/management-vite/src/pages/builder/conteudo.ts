@@ -430,52 +430,57 @@ export function validationWithRule(atual: InboundValidation | null | undefined, 
   };
 }
 
+/** Show one card's content errors in panel wording — the unit `error-marks.ts` marks per index. */
+export function contentErrorsOfCard(c: Card): string[] {
+  const errors: string[] = [];
+  if (c.tipo === 'texto' && !c.texto.trim()) errors.push('Texto: campo obrigatório.');
+  if (c.tipo === 'menu' || c.tipo === 'quickReply') {
+    const limite = c.tipo === 'menu' ? LIMITE_DO_MENU : LIMITE_DO_QUICK_REPLY;
+    if (!c.texto.trim()) errors.push(`${c.tipo === 'menu' ? 'Menu' : 'Quick reply'}: texto obrigatório.`);
+    if (c.options.length === 0) errors.push(`${c.tipo === 'menu' ? 'Menu' : 'Quick reply'}: informe ao menos uma opção.`);
+    if (c.options.some((o) => !o.text.trim())) errors.push('Opção sem texto.');
+    if (c.options.length > limite.opcoes || c.options.some((o) => o.text.length > limite.caracteres)) {
+      errors.push(c.tipo === 'menu' ? ROTULOS_DO_CONTEUDO.limiteDoMenu : ROTULOS_DO_CONTEUDO.limiteDoQuickReply);
+    }
+  }
+  // Same function the motor calls at publish time (`engineContentErrors`, `@pipe/core`):
+  // required field and per-category format/size limit share one literal message (D-24).
+  if (c.tipo === 'midia') {
+    for (const erro of engineContentErrors(TIPO_MEDIA, c.settings)) errors.push(erro);
+  }
+  if (c.tipo === 'pedirLocalizacao' && !c.texto.trim()) errors.push('Pedir localização: texto obrigatório.');
+  if (c.tipo === 'localizacao') {
+    for (const erro of engineContentErrors(TIPO_LOCALIZACAO, {
+      content: { latitude: Number(c.latitude), longitude: Number(c.longitude) },
+    })) errors.push(erro);
+  }
+  if (c.tipo === 'webLink') {
+    for (const erro of engineContentErrors(TIPO_WEB_LINK, { content: { uri: c.uri } })) errors.push(erro);
+  }
+  if (c.tipo === 'http') {
+    if (!c.uri.trim()) errors.push('Conteúdo HTTP: URL obrigatória.');
+    if (!c.mime.trim()) errors.push('Conteúdo HTTP: MIME type obrigatório.');
+    try { JSON.parse(c.cabecalhos); } catch { errors.push('Conteúdo HTTP: cabeçalhos devem ser JSON válido.'); }
+  }
+  if (c.tipo === 'dinamico' && !c.variavel.trim()) errors.push('Conteúdo dinâmico: variável obrigatória.');
+  if (c.tipo === 'entrada') {
+    const e = c.inbound;
+    if (e.variable?.trim() && !/^[a-zA-Z0-9.]+$/.test(e.variable)) {
+      errors.push('O nome da variável de entrada só pode ter letras, números e pontos.');
+    }
+    const v = e.validation;
+    if (v) {
+      if (v.rule === 'regex' && !v.regex?.trim()) errors.push('A expressão regular é obrigatória na regra de validação regex.');
+      if (v.rule === 'type' && !v.type?.trim()) errors.push('O tipo de mídia é obrigatório na regra de validação type.');
+      if (!v.error?.trim()) errors.push('A mensagem de erro da validação é obrigatória.');
+    }
+  }
+  return errors;
+}
+
 /** Show block-content errors in panel wording. */
 export function contentErrors(block: Block): string[] {
   const errors: string[] = [];
-  for (const c of cardsOf(block)) {
-    if (c.tipo === 'texto' && !c.texto.trim()) errors.push('Texto: campo obrigatório.');
-    if (c.tipo === 'menu' || c.tipo === 'quickReply') {
-      const limite = c.tipo === 'menu' ? LIMITE_DO_MENU : LIMITE_DO_QUICK_REPLY;
-      if (!c.texto.trim()) errors.push(`${c.tipo === 'menu' ? 'Menu' : 'Quick reply'}: texto obrigatório.`);
-      if (c.options.length === 0) errors.push(`${c.tipo === 'menu' ? 'Menu' : 'Quick reply'}: informe ao menos uma opção.`);
-      if (c.options.some((o) => !o.text.trim())) errors.push('Opção sem texto.');
-      if (c.options.length > limite.opcoes || c.options.some((o) => o.text.length > limite.caracteres)) {
-        errors.push(c.tipo === 'menu' ? ROTULOS_DO_CONTEUDO.limiteDoMenu : ROTULOS_DO_CONTEUDO.limiteDoQuickReply);
-      }
-    }
-    // Same function the motor calls at publish time (`engineContentErrors`, `@pipe/core`):
-    // required field and per-category format/size limit share one literal message (D-24).
-    if (c.tipo === 'midia') {
-      for (const erro of engineContentErrors(TIPO_MEDIA, c.settings)) errors.push(erro);
-    }
-    if (c.tipo === 'pedirLocalizacao' && !c.texto.trim()) errors.push('Pedir localização: texto obrigatório.');
-    if (c.tipo === 'localizacao') {
-      for (const erro of engineContentErrors(TIPO_LOCALIZACAO, {
-        content: { latitude: Number(c.latitude), longitude: Number(c.longitude) },
-      })) errors.push(erro);
-    }
-    if (c.tipo === 'webLink') {
-      for (const erro of engineContentErrors(TIPO_WEB_LINK, { content: { uri: c.uri } })) errors.push(erro);
-    }
-    if (c.tipo === 'http') {
-      if (!c.uri.trim()) errors.push('Conteúdo HTTP: URL obrigatória.');
-      if (!c.mime.trim()) errors.push('Conteúdo HTTP: MIME type obrigatório.');
-      try { JSON.parse(c.cabecalhos); } catch { errors.push('Conteúdo HTTP: cabeçalhos devem ser JSON válido.'); }
-    }
-    if (c.tipo === 'dinamico' && !c.variavel.trim()) errors.push('Conteúdo dinâmico: variável obrigatória.');
-    if (c.tipo === 'entrada') {
-      const e = c.inbound;
-      if (e.variable?.trim() && !/^[a-zA-Z0-9.]+$/.test(e.variable)) {
-        errors.push('O nome da variável de entrada só pode ter letras, números e pontos.');
-      }
-      const v = e.validation;
-      if (v) {
-        if (v.rule === 'regex' && !v.regex?.trim()) errors.push('A expressão regular é obrigatória na regra de validação regex.');
-        if (v.rule === 'type' && !v.type?.trim()) errors.push('O tipo de mídia é obrigatório na regra de validação type.');
-        if (!v.error?.trim()) errors.push('A mensagem de erro da validação é obrigatória.');
-      }
-    }
-  }
+  for (const c of cardsOf(block)) errors.push(...contentErrorsOfCard(c));
   return errors;
 }

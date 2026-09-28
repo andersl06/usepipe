@@ -13,6 +13,7 @@ import {
   ROTULOS_DO_CONTEUDO,
   adicionarConteudo,
   cardsOf,
+  contentErrorsOfCard,
   setInbound,
   definirEspera,
   definirMenu,
@@ -320,6 +321,9 @@ function ContentCard({
 }) {
   const i = card.indice;
   const inbound = card.tipo === 'entrada';
+  // F-6.1 F: the invalid card gets a red border, no text — the message stays where it always was.
+  const comErro = contentErrorsOfCard(card).length > 0;
+  const classeErro = comErro ? ' bl-card--erro' : '';
   const order =
     inbound || fixo ? null : (
       <span className="bl-output-order">
@@ -361,7 +365,7 @@ function ContentCard({
   switch (card.tipo) {
     case 'texto':
       return (
-        <article className="bl-card bl-card--bot">
+        <article className={`bl-card bl-card--bot${classeErro}`}>
           <header>
             <b>{ROTULOS_DO_CONTEUDO.texto}</b>
             {order}
@@ -383,7 +387,7 @@ function ContentCard({
       const switchOptions = (options: MenuOption[]): void =>
         onMudar(definirMenu(block, i, card.texto, options));
       return (
-        <article className="bl-card bl-card--bot">
+        <article className={`bl-card bl-card--bot${classeErro}`}>
           <header>
             <b>{menu ? ROTULOS_DO_CONTEUDO.menu : ROTULOS_DO_CONTEUDO.quickReply}</b>
             {order}
@@ -438,7 +442,7 @@ function ContentCard({
     case 'midia': {
       const erros = engineContentErrors(TIPO_MEDIA, card.settings);
       return (
-        <article className="bl-card bl-card--bot">
+        <article className={`bl-card bl-card--bot${classeErro}`}>
           <header>
             <b>
               <Icone nome={ICON_OF_MEDIA[card.midia]} tamanho={16} /> {LABEL_OF_MEDIA_CARD[card.midia]}
@@ -467,11 +471,11 @@ function ContentCard({
     }
     case 'entrada':
       return (
-        <InboundCard inbound={card.inbound} block={block} fixo={fixo} onMudar={onMudar} />
+        <InboundCard inbound={card.inbound} block={block} fixo={fixo} comErro={comErro} onMudar={onMudar} />
       );
     case 'digitando':
       return (
-        <article className="bl-card bl-card--bot bl-card--deleted">
+        <article className={`bl-card bl-card--bot bl-card--deleted${classeErro}`}>
           <header>
             <b>{ROTULOS_DO_CONTEUDO.digitando}</b>
             {order}
@@ -481,17 +485,17 @@ function ContentCard({
         </article>
       );
     case 'pedirLocalizacao':
-      return <InteractiveFields title="Pedir localização" order={order} excluir={excluir} value={card.texto} placeholder="Texto do pedido" onChange={(text) => onMudar(definirConteudoInterativo(block, i, { text }))} />;
+      return <InteractiveFields title="Pedir localização" order={order} excluir={excluir} value={card.texto} placeholder="Texto do pedido" comErro={comErro} onChange={(text) => onMudar(definirConteudoInterativo(block, i, { text }))} />;
     case 'localizacao':
       return (
-        <article className="bl-card bl-card--bot"><header><b>Enviar localização</b>{order}{excluir}</header>
+        <article className={`bl-card bl-card--bot${classeErro}`}><header><b>Enviar localização</b>{order}{excluir}</header>
           <label className="bl-campo"><span className="sub">Latitude</span><Campo value={card.latitude} onChange={(e) => onMudar(definirConteudoInterativo(block, i, { latitude: Number(e.target.value), longitude: Number(card.longitude) }))} /></label>
           <label className="bl-campo"><span className="sub">Longitude</span><Campo value={card.longitude} onChange={(e) => onMudar(definirConteudoInterativo(block, i, { latitude: Number(card.latitude), longitude: Number(e.target.value) }))} /></label>
         </article>
       );
     case 'webLink':
       return (
-        <article className="bl-card bl-card--bot"><header><b>Web link</b>{order}{excluir}</header>
+        <article className={`bl-card bl-card--bot${classeErro}`}><header><b>Web link</b>{order}{excluir}</header>
           <label className="bl-campo"><span className="sub">URL</span><Campo value={card.uri} placeholder="https://..." onChange={(e) => onMudar(definirConteudoInterativo(block, i, { uri: e.target.value, text: card.texto, target: 'blank' }))} /></label>
           <label className="bl-campo"><span className="sub">Texto</span><Campo value={card.texto} onChange={(e) => onMudar(definirConteudoInterativo(block, i, { uri: card.uri, text: e.target.value, target: 'blank' }))} /></label>
           {card.uri.startsWith('https://') ? <a href={card.uri} target="_blank" rel="noopener noreferrer">{card.texto || card.uri}</a> : null}
@@ -509,7 +513,7 @@ function ContentCard({
           requestTimeout: Number(next.timeout ?? card.timeout) || 60,
         }));
       };
-      return <article className="bl-card bl-card--bot"><header><b>{ROTULOS_DO_CONTEUDO.http}</b>{order}{excluir}</header>
+      return <article className={`bl-card bl-card--bot${classeErro}`}><header><b>{ROTULOS_DO_CONTEUDO.http}</b>{order}{excluir}</header>
         <label className="bl-campo"><span className="sub">URL</span><Campo value={card.uri} placeholder="https://..." onChange={(e) => mudar({ uri: e.target.value })} /></label>
         <label className="bl-campo"><span className="sub">MIME type</span><Campo value={card.mime} placeholder="text/plain" onChange={(e) => mudar({ mime: e.target.value })} /></label>
         <label className="bl-campo"><span className="sub">Cabeçalhos (JSON)</span><textarea className="campo bl-campo-longo" rows={3} value={card.cabecalhos} onChange={(e) => mudar({ cabecalhos: e.target.value })} /></label>
@@ -517,7 +521,7 @@ function ContentCard({
       </article>;
     }
     case 'dinamico':
-      return <article className="bl-card bl-card--bot"><header><b>{ROTULOS_DO_CONTEUDO.dinamico}</b>{order}{excluir}</header>
+      return <article className={`bl-card bl-card--bot${classeErro}`}><header><b>{ROTULOS_DO_CONTEUDO.dinamico}</b>{order}{excluir}</header>
         <label className="bl-campo"><span className="sub">Variável</span><Campo value={card.variavel} placeholder="conteudoLime" onChange={(e) => onMudar(definirConteudoDinamico(block, i, e.target.value))} /></label>
         <p className="bl-ajuda">A variável deve conter o JSON LIME completo.</p>
       </article>;
@@ -525,7 +529,7 @@ function ContentCard({
       return <article className="bl-card bl-card--bot"><header><b>{ROTULOS_DO_CONTEUDO.pesquisa}</b>{order}{excluir}</header><p className="bl-ajuda">Edite a pesquisa no bloco de satisfação.</p></article>;
     case 'outro':
       return (
-        <article className="bl-card bl-card--bot bl-card--deleted">
+        <article className={`bl-card bl-card--bot bl-card--deleted${classeErro}`}>
           <header>
             <b>{card.mime}</b>
             {order}
@@ -539,19 +543,21 @@ function ContentCard({
   }
 }
 
-function InteractiveFields({ title, order, excluir, value, placeholder, onChange }: { title: string; order: React.ReactNode; excluir: React.ReactNode; value: string; placeholder: string; onChange: (value: string) => void }) {
-  return <article className="bl-card bl-card--bot"><header><b>{title}</b>{order}{excluir}</header><Campo value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} /></article>;
+function InteractiveFields({ title, order, excluir, value, placeholder, comErro, onChange }: { title: string; order: React.ReactNode; excluir: React.ReactNode; value: string; placeholder: string; comErro?: boolean; onChange: (value: string) => void }) {
+  return <article className={`bl-card bl-card--bot${comErro ? ' bl-card--erro' : ''}`}><header><b>{title}</b>{order}{excluir}</header><Campo value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} /></article>;
 }
 
 function InboundCard({
   inbound,
   block,
   fixo,
+  comErro,
   onMudar,
 }: {
   inbound: EditorInbound;
   block: Block;
   fixo: boolean;
+  comErro?: boolean;
   onMudar: (block: Block) => void;
 }) {
   const validando = !!inbound.validation;
@@ -559,7 +565,7 @@ function InboundCard({
   const atualizar = (nova: EditorInbound): void => onMudar(setInbound(block, nova));
 
   return (
-    <article className="bl-card bl-card--client">
+    <article className={`bl-card bl-card--client${comErro ? ' bl-card--erro' : ''}`}>
       <header>
         <b>{ROTULOS_DO_CONTEUDO.entrada}</b>
         <span className="sub">

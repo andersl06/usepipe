@@ -19,7 +19,7 @@ import { ZOOM_MAXIMO, ZOOM_MINIMO, zoomAjustado } from './builder/setas';
 import { BuilderToasts } from './builder/toast';
 import { pushToast, dismissToast, type Toast, type ToastInput } from './builder/toast-queue';
 import { useEditorDoBuilder } from './builder/use-editor';
-import { errorsLocal, joinErrors } from './builder/validation';
+import { invalidBlocks } from './builder/error-marks';
 import './builder.css';
 
 /**
@@ -140,7 +140,8 @@ export function PageBuilder() {
 
   const podePublicar = eu.permissions.includes('automacao.fluxo.publicar');
 
-  const errors = joinErrors(errorsLocal(state.mapa), editor.apiErrors, engineErrors);
+  /** Publish gate (D-56): the screen's own `$invalid` marks plus whatever the `api`/engine flagged. */
+  const invalidos = invalidBlocks(state.mapa, [...editor.apiErrors, ...engineErrors]);
   const tituloDe = (id: string | null): string =>
     id === null ? 'Fluxo' : (state.mapa[id]?.$title ?? id);
 
@@ -191,7 +192,7 @@ export function PageBuilder() {
    */
   async function publicar(): Promise<void> {
     if (!data || publicando) return;
-    if (errors.length > 0) {
+    if (invalidos.size > 0 || editor.apiErrors.length > 0 || engineErrors.length > 0) {
       toast({
         tom: 'aviso',
         texto:
