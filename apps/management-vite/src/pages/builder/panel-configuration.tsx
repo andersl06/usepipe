@@ -21,6 +21,7 @@ import {
 import { ActionCard } from './panel-actions';
 import { FlowFunctionsPanel } from './flow-functions-panel';
 import { FloatingSidebar } from './floating-sidebar';
+import { ConfigurationVariablesTab } from './panel-configuration-variables';
 import { listVersions, loadVersion } from '../builder-gravar';
 import {
   MESSAGES_OF_IMPORT,
@@ -31,23 +32,32 @@ import {
 } from './import-exportar';
 
 /**
- * The "Configuração" panel (`$ctrl.editConfig()`, `settings-builder` icon) — the source has 3 tabs (`portal.js`: "Variáveis", "Versões", "Ações Globais"). Here the two with an engine behind them, plus the function library (D-22):
+ * The "Configuração" panel (`$ctrl.editConfig()`, `settings-builder` icon) — the source's 3 tabs
+ * (`portal.js`: "Variáveis", "Versões", "Ações Globais"), reproduced here plus the function library:
  *
- * - "Ações Globais": the same two lists as a block (`$enteringCustomActions`/`$leavingCustomActions`), but for the whole flow — the engine actually runs them (`editor.ts` from `@pipe/core`).
- * - "Versões" (which in the source is where "Importar"/"Exportar" live, not a standalone button): downloads/reads the same `{flow, globalActions}` Blip uses.
- * - "Funções": the "Biblioteca de funções" the `ExecuteBlipFunction` action consumes — a bot-scoped resource, so it lives beside "Versões"/"Ações Globais" rather than inside a single block.
- *
- * The source's "Variáveis" tab (state expiration, action timeout, minimum AI score, tunnel owner context…) is Blip engine configuration that the Pipe engine doesn't have — not built, so as not to fake a control that does nothing.
+ * - "Variáveis" (default tab, D-56 item 3): the 8 sections `configuration-sections.ts` captured
+ *   (`panel-configuration-variables.tsx`). Only "Variáveis de configuração" is wired to the engine
+ *   ({{config.X}}, read by `packages/core/src/flow/context.ts`); the other 7 show the Blip control
+ *   disabled with the recorded value, marked "Não disponível no Pipe".
+ * - "Versões" (where the source's "Importar"/"Exportar" live, not a standalone button): downloads/reads
+ *   the same `{flow, globalActions}` Blip uses.
+ * - "Ações globais": the same two lists as a block (`$enteringCustomActions`/`$leavingCustomActions`),
+ *   but for the whole flow — the engine actually runs them (`editor.ts` from `@pipe/core`).
+ * - "Funções": the "Biblioteca de funções" the `ExecuteBlipFunction` action consumes — a bot-scoped
+ *   resource, so it lives beside the Blip tabs rather than inside a single block; last in the tab order
+ *   (D-22), after the source's own tabs.
  */
 
-type Aba = 'acoes' | 'versoes' | 'funcoes';
+type Aba = 'variaveis' | 'versoes' | 'acoes' | 'funcoes';
 
 export function ConfigurationPanel({
   flowId,
   flowName,
   mapa,
   global,
+  configuration,
   onChangeGlobal,
+  onChangeConfiguration,
   onImport,
   onRestoreVersion,
   onFechar,
@@ -58,7 +68,10 @@ export function ConfigurationPanel({
   flowName: string;
   mapa: Mapa;
   global: Record<string, unknown>;
+  /** `flow.configuration` ({{config.X}}); edited by the "Variáveis" tab's "Variáveis de configuração". */
+  configuration: Record<string, string>;
   onChangeGlobal: (global: Record<string, unknown>) => void;
+  onChangeConfiguration: (chave: string, valor: string | null) => void;
   onImport: (mapa: Mapa, global: Record<string, unknown>) => void;
   /** Restores an old version as the draft; the caller owns the `api` call and reloading the editor. */
   onRestoreVersion: (version: number) => Promise<Resultado<VersionOfFlow>>;
@@ -68,10 +81,11 @@ export function ConfigurationPanel({
   /** With `abaInicial: 'funcoes'`, opens the library straight into "Criar função". */
   criarFuncaoAoAbrir?: boolean;
 }) {
-  const [aba, setAba] = useState<Aba>(abaInicial ?? 'acoes');
+  const [aba, setAba] = useState<Aba>(abaInicial ?? 'variaveis');
   const abas: { key: Aba; rotulo: string }[] = [
-    { key: 'acoes', rotulo: 'Ações Globais' },
+    { key: 'variaveis', rotulo: 'Variáveis' },
     { key: 'versoes', rotulo: 'Versões' },
+    { key: 'acoes', rotulo: 'Ações globais' },
     { key: 'funcoes', rotulo: 'Funções' },
   ];
   return (
@@ -98,6 +112,13 @@ export function ConfigurationPanel({
       }
     >
       <div className="bl-panel-body">
+        {aba === 'variaveis' ? (
+          <ConfigurationVariablesTab
+            configuration={configuration}
+            flowId={flowId}
+            onChange={onChangeConfiguration}
+          />
+        ) : null}
         {aba === 'acoes' ? <ActionsGlobalTab global={global} onMudar={onChangeGlobal} /> : null}
         {aba === 'funcoes' ? <FlowFunctionsPanel iniciarCriando={criarFuncaoAoAbrir} /> : null}
         {aba === 'versoes' ? (

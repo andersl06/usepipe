@@ -86,7 +86,7 @@ export function PageBuilder() {
   const [newBlockOpen, setNewBlockOpen] = useState(false);
   const [variablesOpen, setVariablesOpen] = useState(false);
   const [configAberto, setConfigAberto] = useState(false);
-  const [configTab, setConfigTab] = useState<'acoes' | 'versoes' | 'funcoes'>('acoes');
+  const [configTab, setConfigTab] = useState<'variaveis' | 'versoes' | 'acoes' | 'funcoes'>('variaveis');
   const [criarFuncaoAoAbrir, setCriarFuncaoAoAbrir] = useState(false);
   const [queuesOpen, setQueuesOpen] = useState(false);
   const [pesquisaAberta, setPesquisaAberta] = useState(false);
@@ -357,9 +357,11 @@ export function PageBuilder() {
               flowName={contact.nome}
               mapa={state.mapa}
               global={state.global}
+              configuration={state.configuracao}
               abaInicial={configTab}
               criarFuncaoAoAbrir={criarFuncaoAoAbrir}
               onChangeGlobal={(global) => despachar({ tipo: 'aplicarGlobais', global })}
+              onChangeConfiguration={(chave, valor) => despachar({ tipo: 'configuracao', chave, valor })}
               onImport={(mapa, global) => {
                 // Use `aplicar`, not `carregar`: imported flow must become dirty for autosave and undo, like any edit.
                 // `carregar` only syncs server state and would leave an imported flow visible but unsaved.
@@ -411,7 +413,7 @@ export function PageBuilder() {
               motivo={readRefusal ?? 'carregando'}
               ativo={configAberto}
               onClick={() => {
-                setConfigTab('acoes');
+                setConfigTab('variaveis');
                 setConfigAberto((v) => !v);
               }}
             >
