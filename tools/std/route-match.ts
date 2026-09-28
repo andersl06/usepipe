@@ -44,6 +44,28 @@ export interface RouteComparison {
   current: ComparableRoute[];
 }
 
+/** A React Router `<Route path="...">` pattern, built by joining nested `<Route>` elements. */
+export interface FrontRouteInfo {
+  path: string;
+  /** Only reachable through `LegacyRedirect`/`LegacyContactRedirect`/`Navigate` — a link that
+   * only matches a legacy route still counts as dangling: an internal link cannot depend on a
+   * redirect. */
+  legacy: boolean;
+  file: string;
+  line: number;
+}
+
+/** A reference to a front route found in `href`/`to`/`navigate`/`navegar`/`rota:`/path-builder calls. */
+export interface FrontConsumerInfo {
+  file: string;
+  line: number;
+  raw: string;
+  normalized: string;
+  /** The matched route pattern, or `'dangling'` when no non-legacy route matches. */
+  match: string;
+  dangling: boolean;
+}
+
 type SourceInput = string | ts.SourceFile | { fileName: string; sourceText: string };
 type ComparableRoute = Pick<RouteInfo, 'method' | 'path' | 'guards'>;
 
@@ -156,6 +178,293 @@ export function collectConsumers(files: SourceInput[], routes: RouteInfo[] = [])
     visit(sourceFile);
   }
   return results.sort(compareOccurrence);
+}
+
+const LEGACY_ELEMENT_NAMES = new Set(['LegacyRedirect', 'LegacyContactRedirect', 'Navigate']);
+const EXTERNAL_PREFIXES = ['http://', 'https://', 'mailto:', 'data:', 'tel:', '#'];
+
+function isExternalPath(raw: string): boolean {
+  return EXTERNAL_PREFIXES.some((prefix) => raw.startsWith(prefix));
+}
+
+function normalizeFrontRoutePath(raw: string): string {
+  let value = raw.trim().replace(/\/{2,}/g, '/');
+  if (!value.startsWith('/')) value = `/${value}`;
+  if (value.length > 1) value = value.replace(/\/+$/, '');
+  return value;
+}
+
+function jsxTagName(name: ts.JsxTagNameExpression, sourceFile: ts.SourceFile): string {
+  return ts.isIdentifier(name) ? name.text : name.getText(sourceFile);
+}
+
+type JsxElementLike = ts.JsxElement | ts.JsxSelfClosingElement;
+
+function isRouteElement(node: ts.Node, sourceFile: ts.SourceFile): node is JsxElementLike {
+  if (ts.isJsxSelfClosingElement(node)) return jsxTagName(node.tagName, sourceFile) === 'Route';
+  if (ts.isJsxElement(node)) return jsxTagName(node.openingElement.tagName, sourceFile) === 'Route';
+  return false;
+}
+
+function jsxAttributesOf(node: JsxElementLike): ts.JsxAttributes {
+  return ts.isJsxSelfClosingElement(node) ? node.attributes : node.openingElement.attributes;
+}
+
+function jsxAttribute(node: JsxElementLike, name: string, sourceFile: ts.SourceFile): ts.JsxAttribute | undefined {
+  return jsxAttributesOf(node).properties.find(
+    (property): property is ts.JsxAttribute =>
+      ts.isJsxAttribute(property) && property.name.getText(sourceFile) === name,
+  );
+}
+
+function jsxAttributeExpression(attribute: ts.JsxAttribute): ts.Expression | undefined {
+  if (!attribute.initializer) return undefined;
+  if (ts.isStringLiteral(attribute.initializer)) return attribute.initializer;
+  if (ts.isJsxExpression(attribute.initializer)) return attribute.initializer.expression ?? undefined;
+  return undefined;
+}
+
+function routePathAttribute(node: JsxElementLike, sourceFile: ts.SourceFile): string | undefined {
+  const attribute = jsxAttribute(node, 'path', sourceFile);
+  if (!attribute) return undefined;
+  const value = jsxAttributeExpression(attribute);
+  if (!value || !isPathLiteral(value)) return undefined;
+  return literalValue(value, sourceFile);
+}
+
+function isLegacyRoute(node: JsxElementLike, sourceFile: ts.SourceFile): boolean {
+  const attribute = jsxAttribute(node, 'element', sourceFile);
+  if (!attribute) return false;
+  const value = jsxAttributeExpression(attribute);
+  if (!value) return false;
+  if (ts.isJsxSelfClosingElement(value)) return LEGACY_ELEMENT_NAMES.has(jsxTagName(value.tagName, sourceFile));
+  if (ts.isJsxElement(value)) {
+    return LEGACY_ELEMENT_NAMES.has(jsxTagName(value.openingElement.tagName, sourceFile));
+  }
+  return false;
+}
+
+/** Local `const NAME = (<>...</>)` JSX fragments/elements, so a `<Route>{name}</Route>` child
+ * mounted through a variable (as `App.tsx` does for `contactRoutes`) still walks into it. */
+function collectJsxVariables(sourceFile: ts.SourceFile): Map<string, ts.Node> {
+  const variables = new Map<string, ts.Node>();
+  const visit = (node: ts.Node): void => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
+      let initializer: ts.Node = node.initializer;
+      while (ts.isParenthesizedExpression(initializer)) initializer = initializer.expression;
+      if (ts.isJsxElement(initializer) || ts.isJsxSelfClosingElement(initializer) || ts.isJsxFragment(initializer)) {
+        variables.set(node.name.text, initializer);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return variables;
+}
+
+/**
+ * Parses nested `<Route path="...">` JSX (React Router) into full path patterns, one entry per
+ * `<Route>` node (both an intermediate node and its leaves are matchable addresses). A route
+ * whose `element` is `LegacyRedirect`/`LegacyContactRedirect`/`Navigate` is `legacy: true`.
+ */
+export function collectFrontRoutes(files: SourceInput[]): FrontRouteInfo[] {
+  const routes: FrontRouteInfo[] = [];
+  for (const input of files) {
+    const sourceFile = toSourceFile(input);
+    const jsxVariables = collectJsxVariables(sourceFile);
+    const visit = (node: ts.Node, prefix: string): void => {
+      if (isRouteElement(node, sourceFile)) {
+        const pathValue = routePathAttribute(node, sourceFile);
+        const nextPrefix =
+          pathValue === undefined
+            ? prefix
+            : normalizeFrontRoutePath(pathValue.startsWith('/') ? pathValue : `${prefix}/${pathValue}`);
+        if (pathValue !== undefined) {
+          routes.push({
+            path: nextPrefix,
+            legacy: isLegacyRoute(node, sourceFile),
+            file: normalizeFileName(sourceFile.fileName),
+            line: sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1,
+          });
+        }
+        ts.forEachChild(node, (child) => visit(child, nextPrefix));
+        return;
+      }
+      if (ts.isJsxExpression(node) && node.expression && ts.isIdentifier(node.expression)) {
+        const mapped = jsxVariables.get(node.expression.text);
+        if (mapped) {
+          visit(mapped, prefix);
+          return;
+        }
+      }
+      ts.forEachChild(node, (child) => visit(child, prefix));
+    };
+    visit(sourceFile, '');
+  }
+  return routes.sort((left, right) =>
+    `${left.path}\0${left.file}\0${left.line}`.localeCompare(`${right.path}\0${right.file}\0${right.line}`),
+  );
+}
+
+function frontSegmentMatches(candidateSegment: string, routeSegment: string | undefined): boolean {
+  return (
+    candidateSegment === routeSegment || candidateSegment === ':*' || (routeSegment?.startsWith(':') ?? false)
+  );
+}
+
+/**
+ * A candidate whose FIRST segment is `:*` came from a template whose leading interpolation is
+ * the base path (e.g. `` `${attendanceBase(contact)}/queue-management` ``): the runtime value of
+ * that base cannot be resolved statically. Match it as a SUFFIX against any route's trailing
+ * segments instead of requiring an exact segment count, so a real relative addition (like
+ * `/queue-management`) is not flagged just because its dynamic prefix is opaque here.
+ */
+function findFrontRouteMatches(normalizedCandidate: string, routes: FrontRouteInfo[]): FrontRouteInfo[] {
+  const candidateSegments = segments(normalizedCandidate);
+  if (candidateSegments[0] === ':*' && candidateSegments.length > 1) {
+    const suffix = candidateSegments.slice(1);
+    return routes.filter((route) => {
+      const routeSegments = segments(route.path);
+      if (suffix.length > routeSegments.length) return false;
+      const tail = routeSegments.slice(-suffix.length);
+      return tail.every((segment, index) => frontSegmentMatches(suffix[index] ?? '', segment));
+    });
+  }
+  return routes.filter((route) => {
+    const routeSegments = segments(route.path);
+    return (
+      candidateSegments.length === routeSegments.length &&
+      candidateSegments.every((segment, index) => frontSegmentMatches(segment, routeSegments[index]))
+    );
+  });
+}
+
+function compareFrontOccurrence(left: FrontConsumerInfo, right: FrontConsumerInfo): number {
+  return `${left.file}\0${left.line}\0${left.raw}`.localeCompare(`${right.file}\0${right.line}\0${right.raw}`);
+}
+
+function addFrontOccurrence(
+  results: FrontConsumerInfo[],
+  seen: Set<string>,
+  sourceFile: ts.SourceFile,
+  node: ts.Node,
+  raw: string,
+  routes: FrontRouteInfo[],
+): void {
+  if (isExternalPath(raw)) return;
+  // A relative value (no leading slash, e.g. `to="monitoring"` inside a nested <Route>) resolves
+  // against React Router's current-route context, which this static scan does not model; treat
+  // it as unmatchable rather than a false dangling report. An empty value (from a template that
+  // resolves to nothing statically, e.g. a conditional href) is skipped the same way.
+  if (!raw.startsWith('/')) return;
+  const file = normalizeFileName(sourceFile.fileName);
+  const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+  const key = `${file}\0${line}\0${raw}`;
+  if (seen.has(key)) return;
+  seen.add(key);
+  const normalized = normalizePath(raw);
+  // `/v1/...` is an API endpoint (e.g. a file-download `<a href>`), never a front route.
+  if (normalized.startsWith('/v1')) return;
+  const candidateSegments = segments(normalized);
+  if (candidateSegments[0] === ':*' && candidateSegments.length === 1) {
+    // Just a dynamic base with nothing appended (e.g. `href={someUrl}`): unresolvable statically,
+    // assumed valid rather than reported as a false dangling link.
+    results.push({ file, line, raw, normalized, match: 'dynamic-base', dangling: false });
+    return;
+  }
+  const matches = findFrontRouteMatches(normalized, routes);
+  const dangling = matches.length === 0 || matches.every((route) => route.legacy);
+  const matched = matches.find((route) => !route.legacy) ?? matches[0];
+  results.push({ file, line, raw, normalized, match: dangling ? 'dangling' : (matched?.path ?? 'dangling'), dangling });
+}
+
+function propertyAssignmentName(node: ts.PropertyAssignment, sourceFile: ts.SourceFile): string | undefined {
+  if (ts.isIdentifier(node.name)) return node.name.text;
+  if (ts.isStringLiteralLike(node.name)) return node.name.text;
+  return node.name.getText(sourceFile);
+}
+
+/**
+ * Scans `src/**` of a front app for `href="/x"`, `to="/x"` (covers `<Navigate to="/x">` and
+ * `<Link to="/x">` alike), `navigate('/x')`, `navegar('/x')`, `rota: '/x'`, template literals
+ * with an interpolated segment (matches `:param`), and calls to a registered path-builder
+ * (`--builder name=pattern`: the call's string-literal arguments are appended to `pattern`).
+ * An external path (`https://`, `mailto:`, `#`) is ignored.
+ */
+export function collectFrontConsumers(
+  files: SourceInput[],
+  routes: FrontRouteInfo[],
+  builders: ReadonlyMap<string, string>,
+): FrontConsumerInfo[] {
+  const results: FrontConsumerInfo[] = [];
+  const seen = new Set<string>();
+  for (const input of files) {
+    const sourceFile = toSourceFile(input);
+    const visit = (node: ts.Node): void => {
+      let raw: string | undefined;
+      if (ts.isJsxAttribute(node) && ['href', 'to'].includes(node.name.getText(sourceFile))) {
+        const value = jsxAttributeExpression(node);
+        if (value && isPathLiteral(value)) raw = literalValue(value, sourceFile);
+      } else if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
+        const name = node.expression.text;
+        const firstArgument = node.arguments[0];
+        if ((name === 'navigate' || name === 'navegar') && firstArgument && isPathLiteral(firstArgument)) {
+          raw = literalValue(firstArgument, sourceFile);
+        } else if (builders.has(name)) {
+          const base = builders.get(name) ?? '';
+          const literalArguments = node.arguments
+            .filter((argument): argument is ts.StringLiteralLike => ts.isStringLiteralLike(argument))
+            .map((argument) => argument.text);
+          raw = literalArguments.length > 0 ? `${base}/${literalArguments.join('/')}` : base;
+        }
+      } else if (
+        ts.isPropertyAssignment(node) &&
+        propertyAssignmentName(node, sourceFile) === 'rota' &&
+        isPathLiteral(node.initializer)
+      ) {
+        raw = literalValue(node.initializer, sourceFile);
+      }
+      if (raw !== undefined) addFrontOccurrence(results, seen, sourceFile, node, raw, routes);
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  return results.sort(compareFrontOccurrence);
+}
+
+/**
+ * Scans files OUTSIDE a front app (API, other fronts, docs — via `--scan-extra`) for string or
+ * template literals that start with one of the front app's own route prefixes (derived from
+ * `routes`, so it also catches the legacy `LegacyRedirect` prefixes like `/portal`), skipping
+ * import/export specifiers.
+ */
+export function collectExternalFrontReferences(
+  files: SourceInput[],
+  routes: FrontRouteInfo[],
+): FrontConsumerInfo[] {
+  const prefixes = new Set(routes.map((route) => `/${segments(route.path)[0] ?? ''}`));
+  const results: FrontConsumerInfo[] = [];
+  const seen = new Set<string>();
+  for (const input of files) {
+    const sourceFile = toSourceFile(input);
+    const visit = (node: ts.Node): void => {
+      if (isPathLiteral(node) && !isImportLikeLiteral(node)) {
+        const raw = literalValue(node, sourceFile);
+        if (raw.startsWith('/') && !isExternalPath(raw)) {
+          const normalized = normalizePath(raw);
+          // The bare root ("/") is every app's own generic "go home" default — not a distinctive
+          // enough signal of a Gestão address to check across unrelated apps.
+          const firstSegment = `/${segments(normalized)[0] ?? ''}`;
+          if (firstSegment !== '/' && prefixes.has(firstSegment)) {
+            addFrontOccurrence(results, seen, sourceFile, node, raw, routes);
+          }
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  return results.sort(compareFrontOccurrence);
 }
 
 export function compareRoutes(
@@ -585,79 +894,194 @@ function readAllowlist(file: string | undefined): Set<string> {
   return new Set(rows.map((row) => `${row[fileIndex] ?? ''}\0${row[rawIndex] ?? ''}`));
 }
 
-function parseArguments(argv: string[]): Map<string, string | true> {
-  const result = new Map<string, string | true>();
+function writeFrontConsumers(file: string, consumers: FrontConsumerInfo[]): void {
+  const rows = ['file,line,raw,normalized,match'];
+  for (const item of consumers) {
+    rows.push([item.file, item.line, item.raw, item.normalized, item.match].map(csvCell).join(','));
+  }
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${rows.join('\n')}\n`);
+}
+
+function matchesGlob(pattern: string, file: string): boolean {
+  if (pattern.endsWith('/**')) {
+    const prefix = pattern.slice(0, -3);
+    return file === prefix || file.startsWith(`${prefix}/`);
+  }
+  if (pattern.endsWith('**')) return file.startsWith(pattern.slice(0, -2));
+  return file === pattern;
+}
+
+/** Repeatable-flag argument parser: every `--flag` collects into a list, so `--front`,
+ * `--builder` and `--scan-extra` can each be passed more than once. */
+function parseArguments(argv: string[]): Map<string, (string | true)[]> {
+  const result = new Map<string, (string | true)[]>();
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (!argument?.startsWith('--')) throw new Error(`Argumento inválido: ${argument}`);
-    if (argument === '--check') result.set(argument, true);
-    else {
+    const list = result.get(argument) ?? [];
+    if (argument === '--check') {
+      list.push(true);
+    } else {
       const value = argv[index + 1];
       if (!value || value.startsWith('--')) throw new Error(`Valor ausente para ${argument}`);
-      result.set(argument, value);
+      list.push(value);
       index += 1;
     }
+    result.set(argument, list);
   }
   return result;
 }
 
-function requiredArgument(args: Map<string, string | true>, name: string): string {
-  const value = args.get(name);
-  if (typeof value !== 'string') throw new Error(`Argumento obrigatório: ${name}`);
+function getAll(args: Map<string, (string | true)[]>, name: string): string[] {
+  return (args.get(name) ?? []).filter((value): value is string => typeof value === 'string');
+}
+
+function getOne(args: Map<string, (string | true)[]>, name: string): string | undefined {
+  return getAll(args, name)[0];
+}
+
+function requiredOne(args: Map<string, (string | true)[]>, name: string): string {
+  const value = getOne(args, name);
+  if (value === undefined) throw new Error(`Argumento obrigatório: ${name}`);
   return value;
 }
 
+function printHelp(): void {
+  console.log(
+    [
+      'Uso:',
+      '  route-match --emit <json> [--consumers <csv>] [--compare <json> --map <dir>] [--allow <csv>] [--check]',
+      '  route-match --front <appDir> [--front <appDir> ...] [--builder nome=padrão ...]',
+      '              [--front-consumers <csv>] [--scan-extra <glob> ...] [--allow <csv>]',
+      '',
+      '  --emit <json>            Grava as rotas da API coletadas em <json>.',
+      '  --consumers <csv>        Grava os consumidores de rota da API em <csv>.',
+      '  --compare <json>         Compara as rotas atuais contra um baseline.',
+      '  --map <dir|csv>          Mapa de rename usado por --compare.',
+      '  --allow <csv>            Lista file,raw isenta de falha.',
+      '  --check                  Sai com 1 se houver consumidor de API sem rota.',
+      '  --front <appDir>         Modo front: lê <Route path> aninhadas em appDir/src (repetível).',
+      '  --builder nome=padrão    Mapeia uma chamada de construtor de caminho ao seu padrão de rota (repetível).',
+      '  --front-consumers <csv>  Grava os consumidores de rota de front em <csv>.',
+      '  --scan-extra <glob>      Varre arquivos fora dos --front por referências às rotas deles (repetível).',
+    ].join('\n'),
+  );
+}
+
 function main(): void {
-  const args = parseArguments(process.argv.slice(2));
-  const emitFile = requiredArgument(args, '--emit');
-  const trackedFiles = allTrackedFiles();
-  const apiFiles = trackedFiles.filter(
-    (file) => file.startsWith('apps/api/src/') && file.endsWith('.ts'),
-  );
-  const routes = collectRoutes(apiFiles);
-  fs.mkdirSync(path.dirname(emitFile), { recursive: true });
-  fs.writeFileSync(emitFile, `${JSON.stringify(routes, null, 2)}\n`);
-
-  const consumerApps = new Set(['desk-vite', 'management-vite', 'crm', 'bridge', 'workers']);
-  const consumerFiles = trackedFiles.filter((file) => {
-    if (!/\.tsx?$/.test(file)) return false;
-    const parts = file.split('/');
-    if (parts[0] === 'apps' && parts[2] === 'tests') return true;
-    if (parts[0] === 'apps' && parts[2] === 'src' && consumerApps.has(parts[1] ?? '')) return true;
-    return parts[0] === 'packages' && (parts[2] === 'src' || parts[2] === 'tests');
-  });
-  const occurrences = [...collectConsumers(consumerFiles, routes), ...collectInternal(apiFiles, routes)].sort(
-    compareOccurrence,
-  );
-  const consumersFile = args.get('--consumers');
-  if (typeof consumersFile === 'string') writeConsumers(consumersFile, occurrences);
-
-  let failed = false;
-  if (args.has('--compare')) {
-    const baseline = JSON.parse(fs.readFileSync(requiredArgument(args, '--compare'), 'utf8')) as RouteInfo[];
-    const mapTarget = requiredArgument(args, '--map');
-    const renames = readRenameRows(mapTarget);
-    const comparison = compareRoutes(baseline, routes, renames, readPersistedValues(mapTarget));
-    if (!comparison.equal) {
-      failed = true;
-      console.error('ROUTE SET CHANGED');
-      for (const difference of comparison.differences) console.error(difference);
-    }
+  const argv = process.argv.slice(2);
+  if (argv.includes('--help')) {
+    printHelp();
+    return;
   }
 
-  const allowlist = readAllowlist(typeof args.get('--allow') === 'string' ? String(args.get('--allow')) : undefined);
+  const args = parseArguments(argv);
+  const trackedFiles = allTrackedFiles();
+  const allowlist = readAllowlist(getOne(args, '--allow'));
+  let failed = false;
+
+  const emitFile = getOne(args, '--emit');
+  const fronts = getAll(args, '--front');
+  if (!emitFile && fronts.length === 0) throw new Error('Informe --emit ou --front.');
+
+  let routes: RouteInfo[] = [];
+  if (emitFile) {
+    const apiFiles = trackedFiles.filter(
+      (file) => file.startsWith('apps/api/src/') && file.endsWith('.ts'),
+    );
+    routes = collectRoutes(apiFiles);
+    fs.mkdirSync(path.dirname(emitFile), { recursive: true });
+    fs.writeFileSync(emitFile, `${JSON.stringify(routes, null, 2)}\n`);
+
+    const consumerApps = new Set(['desk-vite', 'management-vite', 'crm', 'bridge', 'workers']);
+    const consumerFiles = trackedFiles.filter((file) => {
+      if (!/\.tsx?$/.test(file)) return false;
+      const parts = file.split('/');
+      if (parts[0] === 'apps' && parts[2] === 'tests') return true;
+      if (parts[0] === 'apps' && parts[2] === 'src' && consumerApps.has(parts[1] ?? '')) return true;
+      return parts[0] === 'packages' && (parts[2] === 'src' || parts[2] === 'tests');
+    });
+    const occurrences = [...collectConsumers(consumerFiles, routes), ...collectInternal(apiFiles, routes)].sort(
+      compareOccurrence,
+    );
+    const consumersFile = getOne(args, '--consumers');
+    if (consumersFile) writeConsumers(consumersFile, occurrences);
+
+    if (args.has('--compare')) {
+      const baseline = JSON.parse(fs.readFileSync(requiredOne(args, '--compare'), 'utf8')) as RouteInfo[];
+      const mapTarget = requiredOne(args, '--map');
+      const renames = readRenameRows(mapTarget);
+      const comparison = compareRoutes(baseline, routes, renames, readPersistedValues(mapTarget));
+      if (!comparison.equal) {
+        failed = true;
+        console.error('ROUTE SET CHANGED');
+        for (const difference of comparison.differences) console.error(difference);
+      }
+    }
+
+    reportApiCheck(args, allowlist, occurrences, routes, () => {
+      failed = true;
+    });
+  }
+
+  if (fronts.length > 0) {
+    const builders = new Map<string, string>();
+    for (const definition of getAll(args, '--builder')) {
+      const separator = definition.indexOf('=');
+      if (separator < 0) throw new Error(`--builder inválido (esperado nome=padrão): ${definition}`);
+      builders.set(definition.slice(0, separator), definition.slice(separator + 1));
+    }
+
+    const frontSourceFiles = fronts.flatMap((dir) =>
+      trackedFiles.filter((file) => file.startsWith(`${dir}/src/`) && /\.tsx?$/.test(file)),
+    );
+    const frontRoutes = collectFrontRoutes(frontSourceFiles);
+    const frontConsumers = collectFrontConsumers(frontSourceFiles, frontRoutes, builders);
+
+    for (const glob of getAll(args, '--scan-extra')) {
+      const extraFiles = trackedFiles.filter((file) => matchesGlob(glob, file) && /\.tsx?$/.test(file));
+      frontConsumers.push(...collectExternalFrontReferences(extraFiles, frontRoutes));
+    }
+    frontConsumers.sort(compareFrontOccurrence);
+
+    const frontConsumersFile = getOne(args, '--front-consumers');
+    if (frontConsumersFile) writeFrontConsumers(frontConsumersFile, frontConsumers);
+
+    const danglingFront = frontConsumers.filter(
+      (item) => item.dangling && !allowlist.has(`${item.file}\0${item.raw}`),
+    );
+    if (danglingFront.length > 0) {
+      failed = true;
+      console.error(`DANGLING FRONT LINKS: ${danglingFront.length}`);
+      for (const item of danglingFront) console.error(`${item.file}:${item.line} ${item.raw}`);
+    }
+    console.log(
+      `Front routes: ${frontRoutes.length}; front references: ${frontConsumers.length}; dangling: ${danglingFront.length}`,
+    );
+  }
+
+  if (failed) process.exitCode = 1;
+}
+
+function reportApiCheck(
+  args: Map<string, (string | true)[]>,
+  allowlist: Set<string>,
+  occurrences: ConsumerInfo[],
+  routes: RouteInfo[],
+  markFailed: () => void,
+): void {
   const unallowed = occurrences.filter(
     (item) => item.match === 'ORPHAN' && !allowlist.has(`${item.file}\0${item.raw}`),
   );
   if (args.has('--check') && unallowed.length > 0) {
-    failed = true;
+    markFailed();
     console.error(`UNMATCHED PATHS: ${unallowed.length}`);
     for (const item of unallowed) console.error(`${item.file}:${item.line} [${item.kind}] ${item.raw}`);
   }
 
   const orphans = occurrences.filter((item) => item.match === 'ORPHAN').length;
   console.log(`Routes: ${routes.length}; references: ${occurrences.length}; orphan/unmatched: ${orphans}`);
-  if (failed) process.exitCode = 1;
 }
 
 const invokedPath = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : '';
