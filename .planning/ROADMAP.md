@@ -248,7 +248,7 @@ Plans:
   4. Atendente tem painéis de Gerenciamento de Filas e de Teste com paridade funcional, além de copiar/colar bloco e exportar versão antiga
   5. As setas do canvas do Builder representam corretamente toda ligação salva, com teste cobrindo `arestasDe()`
 
-**Plans**: 22 plans
+**Plans**: 35 plans
 
 Plans:
 **Wave 1**
@@ -308,6 +308,60 @@ Plans:
 **Wave 12** *(blocked on Wave 11 completion)*
 
 - [x] 02-22-PLAN.md — Regressão final, verificação visual e portão final do dono
+
+**Rodada de fidelidade F-1..F-6 (gap closure, waves 13–25, em sequência)**
+
+**Wave 13** *(blocked on Wave 12 completion)*
+
+- [ ] 02-23-PLAN.md — F-1 cards de condições de saída no painel do bloco (Se/Condição, E/OU, chips, +, Ir para)
+
+**Wave 14** *(blocked on Wave 13 completion)*
+
+- [ ] 02-24-PLAN.md — F-1 linhas da aba Ações (ícone por tipo, chip Erro, seleção em lote, Biblioteca de funções)
+
+**Wave 15** *(blocked on Wave 14 completion)*
+
+- [ ] 02-25-PLAN.md — F-4 lupa: caixa escura, sem resultado não mexe no canvas, fechar limpa, busca por conteúdo/ações/saídas
+
+**Wave 16** *(blocked on Wave 15 completion)*
+
+- [ ] 02-26-PLAN.md — Casca flutuante comum (460px, raio 16, sombra) para Configuração, Biblioteca e Filas
+
+**Wave 17** *(blocked on Wave 16 completion)*
+
+- [ ] 02-27-PLAN.md — F-6 toast único no canto inferior esquerdo; publicar/salvar por toast; sem faixa nem modal (D-56)
+
+**Wave 18** *(blocked on Wave 17 completion)*
+
+- [ ] 02-28-PLAN.md — F-6 marcas de erro: nó vermelho, borda e ícone nos cards, campo danger; sem listas (D-56)
+
+**Wave 19** *(blocked on Wave 18 completion)*
+
+- [ ] 02-29-PLAN.md — F-2 base: configuration do fluxo editado pelo Builder e publicado para o motor
+
+**Wave 20** *(blocked on Wave 19 completion)*
+
+- [ ] 02-30-PLAN.md — F-3 Biblioteca de variáveis: 118 variáveis da Blip, nome puro, busca por aba, zebra (D-56)
+
+**Wave 21** *(blocked on Wave 20 completion)*
+
+- [ ] 02-31-PLAN.md — F-2 Configuração, aba Variáveis com as 8 seções da Blip (D-56)
+
+**Wave 22** *(blocked on Wave 21 completion)*
+
+- [ ] 02-32-PLAN.md — F-2 Configuração, Versões em cards e Ações globais pelo componente da aba Ações
+
+**Wave 23** *(blocked on Wave 22 completion)*
+
+- [ ] 02-33-PLAN.md — F-5 filas embutidas: aviso sem atendimento, lista, busca, cards, criação (D-56, reverte D-15)
+
+**Wave 24** *(blocked on Wave 23 completion)*
+
+- [ ] 02-34-PLAN.md — F-5 filas embutidas: modo regras da fila
+
+**Wave 25** *(blocked on Wave 24 completion)*
+
+- [ ] 02-35-PLAN.md — Portão do dono da rodada F-1..F-6: regressão e medição lado a lado
 
 **UI hint**: yes
 
