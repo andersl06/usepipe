@@ -5,6 +5,7 @@ import { useEu } from '../../context/session';
 import { useSair } from '../../lib/shell';
 import { useRead } from '../../lib/query';
 import type { AccountInForce } from '../../lib/account';
+import { APPLICATION } from '../../lib/application-paths';
 import { saveAccount } from './actions';
 import { PADRAO_DE_SITE, RECADOS, ROTULO_DE_FUSO, ROTULO_DE_IDIOMA, TAMANHO } from './regras';
 import { Selection } from '../../components/selection';
@@ -82,7 +83,7 @@ export function PageMyAccount() {
             <a href="/my-account" aria-current="page">
               Minha conta
             </a>
-            <Link href="/portal">Portal</Link>
+            <Link href={APPLICATION}>Portal</Link>
             {/*
  * Desk doesn't have our screen yet. Grayed out, not hidden: that's what the source does, and hiding it would conceal that the product has it.
  */}

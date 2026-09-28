@@ -1,6 +1,7 @@
 import { api, chamarApi, motivoDaFalha } from '../../lib/api';
 import { atualizarLeituras } from '../../lib/actions';
 import { irPara } from '../../lib/navigation';
+import { tenantPath } from '../../lib/application-paths';
 
 /**
  * The Members panel's actions — the same ones as before, from the browser app. The `conta.membros.escrever` permission is checked in the `api`, on write; here we only assemble the request and come back with the reason in the URL, the way the screen already knows how to display.
@@ -11,7 +12,7 @@ interface ResultadoSimples {
 }
 
 function backWithError(error: string): void {
-  irPara(`/contract/members?erro=${encodeURIComponent(error)}`);
+  irPara(`${tenantPath('tenant/members')}?erro=${encodeURIComponent(error)}`);
 }
 
 export async function switchRole(data: FormData): Promise<void> {

@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { ShellModule, useContact } from '../contact';
+import { ShellModule } from '../contact';
 import { NavigationSettings } from './navigation';
 import './settings.css';
 
@@ -13,12 +13,10 @@ import './settings.css';
  * The two sit SIDE BY SIDE at full width below the contact bar (`#main-section.pa0` is `display:flex`). The shared `CascaDoModulo` already centers the content in `fx-coluna` (80%); `.cf-casca` undoes that inset to open the sidebar at the edge, without touching the shell.
  */
 export function SettingsShell() {
-  const { contact } = useContact();
-  const id = contact.id;
   return (
     <ShellModule ativo="Configurações">
       <div className="cf-shell">
-        <NavigationSettings id={id} />
+        <NavigationSettings />
         <section className="cf-miolo">
           <div className="cf-conteudo">
             <Outlet />

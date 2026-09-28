@@ -1,6 +1,6 @@
 import Link from '../../../components/link';
 import { useLocation } from 'react-router-dom';
-import { contactBase, useContact } from '../contact';
+import { contactPath, useContact } from '../contact';
 import { IconePortal, type NomeDeIconePortal } from '../../../components/icones-portal';
 
 /**
@@ -54,15 +54,15 @@ const ITENS: {
   },
 ];
 
-export function NavigationSettings({ id }: { id: string }) {
+export function NavigationSettings() {
   const caminho = useLocation().pathname;
-  /* The prefix comes from the contact's type: router and flow have separate trees. */
-  const base = contactBase(useContact().contact.tipo, id);
+  /* `settings` → `configurations` (D-54; route-inventory.md §2, `settings/basic` → `configurations/basic`). */
+  const base = contactPath(useContact().contact);
   return (
     <aside className="cf-lateral">
       <nav className="cf-arvore" aria-label="Configurações do fluxo">
         {ITENS.map((item) => {
-          const href = item.rota ? `${base}/settings/${item.rota}` : null;
+          const href = item.rota ? `${base}/configurations/${item.rota}` : null;
           const atual = href !== null && caminho === href;
           const miolo = (
             <>

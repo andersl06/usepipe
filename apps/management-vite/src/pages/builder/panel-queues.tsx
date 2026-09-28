@@ -3,6 +3,7 @@ import { Botao, Icone } from '@pipe/ui';
 import { IconePortal } from '../../components/icones-portal';
 import { useRead } from '../../lib/query';
 import type { QueueRegistered } from '../../lib/registrations';
+import type { Contact } from '../flow/barra-of-contact';
 import { attendanceBase } from '../operation/shell';
 
 /**
@@ -14,12 +15,10 @@ import { attendanceBase } from '../operation/shell';
  * queues exist and how many are active, from the same list PaginaFilas already reads.
  */
 export function QueuesPanel({
-  contactType,
-  contactId,
+  contact,
   onFechar,
 }: {
-  contactType: string;
-  contactId: string;
+  contact: Pick<Contact, 'shortName'>;
   onFechar: () => void;
 }) {
   const navegar = useNavigate();
@@ -47,7 +46,7 @@ export function QueuesPanel({
         <Botao
           type="button"
           variante="primario"
-          onClick={() => navegar(`${attendanceBase(contactType, contactId)}/agents/queues`)}
+          onClick={() => navegar(`${attendanceBase(contact)}/queue-management`)}
         >
           Abrir gerenciamento de filas
         </Botao>

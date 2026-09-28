@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useEu, useSession } from '../context/session';
 import { api } from './api';
+import { APPLICATION } from './application-paths';
 import { useRead } from './query';
 
 /**
@@ -48,9 +49,9 @@ export function accountUseSwitch() {
     onSuccess: async () => {
       await atualizar();
       queue.clear();
-      navegar('/portal');
+      navegar(APPLICATION);
     },
-    onError: () => navegar('/portal?error=troca'),
+    onError: () => navegar(`${APPLICATION}?error=troca`),
   });
 }
 

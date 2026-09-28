@@ -33,7 +33,7 @@ function valueLabel(tipo: string, value: string | null): string {
 export function EvaluationPageRecord() {
   const { id = '' } = useParams();
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
   const read = useRead<{ fuso: string; record: EvaluationRecord }>(
     `/v1/management/quality-review/${id}`,
   );
@@ -56,7 +56,7 @@ export function EvaluationPageRecord() {
       </div>
 
       <div className="quickfilters">
-        <Link href={`${base}/quality-review`} className="btn">
+        <Link href={`${base}/quality-assurance`} className="btn">
           ← Todas as avaliações
         </Link>
         <span className="etiqueta">{LABEL_STATE_EVALUATION[c.state] ?? c.state}</span>

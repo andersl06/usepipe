@@ -1,14 +1,21 @@
 import type { RespostaDaDescoberta } from '@pipe/contracts';
 import { urlDaApi } from './api';
+import { APPLICATION } from './application-paths';
 
 /**
  * Browser sign-in preserves the useful part of `apps/gestao/src/lib/sessao.ts`. Never read the cookie manually: `api` issues an HttpOnly session cookie and the browser carries it.
  */
-const DESTINATION_DEFAULT = '/portal';
+const DESTINATION_DEFAULT = APPLICATION;
 
-/** Only an internal path is a valid return destination; `//outro.site` must not become a redirect target. */
+/**
+ * Only an internal path is a valid return destination (T-01-44-01). A single leading `/` isn't
+ * enough: `//evil` and `/\evil` are both protocol-relative in a browser (backslash normalizes to
+ * forward slash), so either becomes an external redirect target the same as a full URL would.
+ */
 export function caminhoInterno(destination: string | undefined | null): string {
-  return destination && destination.startsWith('/') && !destination.startsWith('//') ? destination : DESTINATION_DEFAULT;
+  if (!destination || !destination.startsWith('/')) return DESTINATION_DEFAULT;
+  if (destination.startsWith('//') || destination.startsWith('/\\')) return DESTINATION_DEFAULT;
+  return destination;
 }
 
 /** Este aplicativo, visto pelo navegador — vai na ida do login como `?origem=`. */

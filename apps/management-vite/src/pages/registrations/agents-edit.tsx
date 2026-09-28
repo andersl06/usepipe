@@ -20,7 +20,7 @@ export function AgentPageEdit({ modo }: { modo: 'editar' | 'adicionar' }) {
   const [params] = useSearchParams();
   const navegar = useNavigate();
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
   const ids = (params.get('agents') ?? '').split(',').filter(Boolean);
 
   if (modo === 'adicionar') {
@@ -35,7 +35,7 @@ export function AgentPageEdit({ modo }: { modo: 'editar' | 'adicionar' }) {
             No Pipe, quem entra na equipe recebe um convite — não há cadastro solto de conta nesta tela. Para
             colocar alguém já cadastrado numa fila, volte e use o ícone <b>Editar</b> na lista.
           </p>
-          <button type="button" className="btn" onClick={() => navegar(`${base}/agents/management`)}>
+          <button type="button" className="btn" onClick={() => navegar(`${base}/team`)}>
             Voltar para Gestão de atendentes
           </button>
         </div>
@@ -64,7 +64,7 @@ function EditInBatch({ ids, base }: { ids: readonly string[]; base: string }) {
       <div className="empty">
         <b>Nenhum atendente selecionado</b>
         <p>
-          <button type="button" className="btn" onClick={() => navegar(`${base}/agents/management`)}>
+          <button type="button" className="btn" onClick={() => navegar(`${base}/team`)}>
             Voltar para Gestão de atendentes
           </button>
         </p>
@@ -79,7 +79,7 @@ function EditInBatch({ ids, base }: { ids: readonly string[]; base: string }) {
     setError(null);
     const resultado = await applyInSelection(ids, queueId, capacity.trim() ? Number(capacity) : null);
     setEnviando(false);
-    if (resultado.ok) navegar(`${base}/agents/management`);
+    if (resultado.ok) navegar(`${base}/team`);
     else setError(resultado.error);
   }
 
@@ -132,7 +132,7 @@ function EditInBatch({ ids, base }: { ids: readonly string[]; base: string }) {
         {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
         <div className="cl-actions">
-          <Botao type="button" onClick={() => navegar(`${base}/agents/management`)} disabled={enviando}>
+          <Botao type="button" onClick={() => navegar(`${base}/team`)} disabled={enviando}>
             Cancelar
           </Botao>
           <Botao type="submit" variante="primario" disabled={enviando || !queueId}>

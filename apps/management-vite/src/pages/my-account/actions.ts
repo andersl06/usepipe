@@ -2,6 +2,7 @@ import { api, chamarApi, motivoDaFalha } from '../../lib/api';
 import { atualizarLeituras } from '../../lib/actions';
 import { irPara } from '../../lib/navigation';
 import type { AccountInForce } from '../../lib/account';
+import { APPLICATION } from '../../lib/application-paths';
 import { conferir } from './regras';
 
 /**
@@ -39,7 +40,7 @@ export async function saveAccount(data: FormData): Promise<void> {
   if (!resposta.ok) return backWithError(await motivoDaFalha(resposta));
   atualizarLeituras();
   /* The session (`Eu`) changes: onboarding closed. `ExigirSessao` re-reads it on the portal. */
-  window.location.assign('/portal');
+  window.location.assign(APPLICATION);
 }
 
 function backWithError(motivo: string, campo?: string): void {

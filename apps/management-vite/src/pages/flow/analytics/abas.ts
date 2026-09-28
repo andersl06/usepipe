@@ -139,7 +139,7 @@ const CATALOGO: readonly (Omit<Aba, 'visivel'> & {
   {
     key: 'dataExtractor',
     rotulo: 'Gerenciador de Relatórios',
-    segment: 'report-manager',
+    segment: 'data-extractor',
     mostra: (f, cluster) => showsManager(f.managerByCluster, cluster),
   },
   {

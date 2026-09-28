@@ -1,17 +1,15 @@
 import { Outlet } from 'react-router-dom';
-import { ContactBars, useContact } from '../contact';
+import { ContactBars } from '../contact';
 import { NavigationGrowth } from './navigation';
 import './growth.css';
 
 export function GrowthShell() {
-  const { contact } = useContact();
-  const id = contact.id;
   return (
     <div className="pt-app">
       <ContactBars ativo="Growth" />
       {/* `section.main-section > ui-view`: the sidebar and the body, side by side. */}
       <div className="gr-shell">
-        <NavigationGrowth id={id} />
+        <NavigationGrowth />
         <main className="gr-miolo">
           <Outlet />
         </main>

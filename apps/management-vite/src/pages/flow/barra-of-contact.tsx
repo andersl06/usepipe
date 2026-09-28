@@ -3,6 +3,7 @@ import type { MyPermissionsInFlow } from '@pipe/contracts';
 import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '../../components/icones-portal';
 import { Link } from '../../components/link';
+import { flowPath } from '../../lib/application-paths';
 import { useRead } from '../../lib/query';
 import { ICONS_OF_CONTACT, LIMITE_VISIVEL, itensDoMenu, type ItemDoMenu } from './itens';
 
@@ -24,7 +25,8 @@ export interface Contact {
   state: string;
   tipo: string;
   imageUrl: string | null;
-  shortName: string | null;
+  /** Unique among live flows in the tenant since migration 0051 (D-52, plan 01-43) — the URL key. */
+  shortName: string;
   description: string | null;
   criadoEm: Date | null;
   channelId: string | null;
@@ -37,12 +39,12 @@ export interface Contact {
 
 export function ContactBar({ contact, ativo }: { contact: Contact; ativo?: string }) {
   const tipo = contact.tipo === 'roteador' ? 'roteador' : 'fluxo';
-  const base = `/${tipo === 'roteador' ? 'router' : 'flow'}/${contact.id}`;
+  const base = flowPath(contact.shortName);
   /*
    * Step 2 of the source (`getUpdatedMenus()`): the bar only shows what the person can see in THIS contact. While the response hasn't arrived, `undefined` hides the whole row — flashing the full bar and then shrinking it is worse than the brief delay window, and anyone without access still gets a 403 on the destination screen, which is where the permission actually applies.
    */
   const minhas = useRead<MyPermissionsInFlow>(`/v1/management/flows/${contact.id}/team/i`);
-  const itens = itensDoMenu(tipo, contact.id, minhas.data);
+  const itens = itensDoMenu(tipo, base, minhas.data);
   const visiveis = itens.slice(0, LIMITE_VISIVEL);
   const excedentes = itens.slice(LIMITE_VISIVEL);
 

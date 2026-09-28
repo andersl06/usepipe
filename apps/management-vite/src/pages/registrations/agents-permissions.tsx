@@ -22,7 +22,7 @@ export function AgentPagePermissions() {
   const [params] = useSearchParams();
   const navegar = useNavigate();
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
   const ids = (params.get('agents') ?? '').split(',').filter(Boolean);
 
   const caminho = permissionsPath(ids);
@@ -37,7 +37,7 @@ export function AgentPagePermissions() {
       <div className="empty">
         <b>Nenhum atendente selecionado</b>
         <p>
-          <button type="button" className="btn" onClick={() => navegar(`${base}/agents/management`)}>
+          <button type="button" className="btn" onClick={() => navegar(`${base}/team`)}>
             Voltar para Gestão de atendentes
           </button>
         </p>
@@ -67,7 +67,7 @@ export function AgentPagePermissions() {
     setSalvando(false);
     if (resultado.ok) {
       setEditado({});
-      navegar(`${base}/agents/management`);
+      navegar(`${base}/team`);
     } else {
       setError(resultado.error);
     }
@@ -133,7 +133,7 @@ export function AgentPagePermissions() {
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
       <div className="cl-actions">
-        <Botao type="button" onClick={() => navegar(`${base}/agents/management`)} disabled={salvando}>
+        <Botao type="button" onClick={() => navegar(`${base}/team`)} disabled={salvando}>
           Cancelar
         </Botao>
         <Botao

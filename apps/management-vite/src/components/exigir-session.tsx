@@ -3,8 +3,12 @@ import { useSession } from '../context/session';
 
 /**
  * Product-screen guard replaces server-side Next `exigirEu()`. Without a session, redirect to `/entrar` while preserving destination. An account whose onboarding is incomplete goes to `/welcome`; only the `api` knows completion and reports it in `Eu`. While the first session check is pending, show no protected screen to avoid a flash.
+ *
+ * `switch-account` moved under `/application` (D-52); `welcome` and `my-account` stayed at the
+ * root (evidence in `lib/application-paths.ts`'s header comment). `/bem-vindo` no longer exists
+ * (D-14, corte seco) — `legacy-redirects.tsx` doesn't redirect it either.
  */
-const ROTAS_DO_ONBOARDING = /^\/(welcome|bem-vindo|my-account|switch-account)(\/|$)/;
+const ROTAS_DO_ONBOARDING = /^\/(welcome|my-account|application\/switch-account)(\/|$)/;
 
 export function RequireSession() {
   const { eu } = useSession();

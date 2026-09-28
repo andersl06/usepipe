@@ -12,7 +12,7 @@ export interface FlowSaved {
   nome: string;
   description: string | null;
   imageUrl: string | null;
-  shortName: string | null;
+  shortName: string;
 }
 
 export interface EditBasic {

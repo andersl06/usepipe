@@ -4,7 +4,7 @@ import { IconePortal } from '../../../components/icones-portal';
 
 import type { DataOfServices, LinkedService } from '@pipe/contracts';
 
-import { contactBase } from '../contact';
+import { flowPath } from '../../../lib/application-paths';
 
 import { deleteService, saveService } from './gravar';
 
@@ -460,10 +460,7 @@ export function TelaDeServicos({
                 value={
                   service.chatbot.nome
                 }
-                href={contactBase(
-                  service.chatbot.tipo,
-                  service.chatbot.id,
-                )}
+                href={flowPath(service.chatbot.shortName)}
               />
 
               <Linha

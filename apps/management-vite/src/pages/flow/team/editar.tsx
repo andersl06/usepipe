@@ -8,7 +8,7 @@ import { atualizarLeituras } from '../../../lib/actions';
 import { api, ApiError } from '../../../lib/api';
 import { useRead } from '../../../lib/query';
 import { NaoEncontrado } from '../../nao-encontrado';
-import { ContactBars, contactBase, useContact } from '../contact';
+import { ContactBars, contactPath, useContact } from '../contact';
 import { BotaoBds, PageHeader, Role } from '../settings/pecas';
 import { PermissionsList } from './tela';
 import {
@@ -52,7 +52,7 @@ export function EditMemberPage() {
           <Edit
             key={member.userId}
             flowId={contact.id}
-            base={contactBase(contact.tipo, contact.id)}
+            base={contactPath(contact)}
             member={member}
             recursos={read.data.recursos}
           />

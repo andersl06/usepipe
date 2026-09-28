@@ -1,6 +1,6 @@
 import Link from '../../../components/link';
 import { useLocation } from 'react-router-dom';
-import { contactBase, useContact } from '../contact';
+import { contactPath, useContact } from '../contact';
 
 /**
  * The Growth sidebar — `<aside class="detail-aside fl"><nav class="sidenav"><sidenav-menu><ol><sidenav-menu-item>` (portal.js, state `auth.application.detail.growth`). Each item is `li.relative > a` with `span.sidebar-title` and `span.sidebar-subtitle`; the active one is `$state.includes(sref)` — it also lights up on the screens inside it.
@@ -25,24 +25,29 @@ const ITENS: { titulo: string; description: string | null; beta?: true; rota: st
     titulo: 'Anúncios',
     description: 'Crie e publique anúncios que se conectam ao seu chatbot',
     beta: true,
-    rota: 'ads',
+    rota: 'adsbuying',
   },
   {
     titulo: 'Relatório de Pagamentos',
     description: 'Visualize e analise os pagamentos realizados',
-    rota: 'payments',
+    rota: 'paymentsReport',
   },
   {
+    /*
+     * Kept as our own name (D-54): Blip's `clicktracker` already names the Click Tracker item
+     * above (Click-to-WhatsApp ad performance). Adopting it here too would collide two different
+     * screens onto the same address.
+     */
     titulo: 'Links rastreados',
     description: 'Crie links curtos e acompanhe os cliques das suas campanhas',
     rota: 'tracked-links',
   },
 ];
 
-export function NavigationGrowth({ id }: { id: string }) {
+export function NavigationGrowth() {
   const caminho = useLocation().pathname;
   const { contact } = useContact();
-  const base = contactBase(contact.tipo, id);
+  const base = contactPath(contact);
   return (
     <aside className="gr-lateral">
       <nav className="gr-sidenav" aria-label="Seções do Growth">

@@ -7,6 +7,7 @@ import { useEu } from '../../context/session';
 import { portalUseShell } from '../../lib/shell';
 import { useRead } from '../../lib/query';
 import type { ContractSummary } from '../../lib/contract';
+import { tenantPath } from '../../lib/application-paths';
 import { BotaoCopiar } from './copiar';
 import { cardsVisible, permissionRequired, byGroup, type ContractCard } from './catalogo';
 import './contract.css';
@@ -96,7 +97,7 @@ function DemoTier() {
     <div className="ct-previa" role="status">
       <b>Prévia do painel.</b> Você está vendo todos os cartões, como se o contrato tivesse o plano
       mais alto e você fosse administrador. Nada aqui pode ser salvo neste modo.
-      <Link href="/contract">Sair da prévia</Link>
+      <Link href={tenantPath('tenant')}>Sair da prévia</Link>
     </div>
   );
 }

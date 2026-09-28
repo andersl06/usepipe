@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { montarPassos } from '../src/lib/passos-of-deployment.ts';
 import type { DeploymentSignals } from '../src/lib/passos-of-deployment.ts';
+import { APPLICATION, flowPath } from '../src/lib/application-paths.ts';
 
 /**
  * The deployment wizard's steps, derived from the database signals. Each step is done when what it requires exists — never by a click.
@@ -20,13 +21,14 @@ const NADA: DeploymentSignals = {
 };
 
 const DESK = 'https://app.teste';
+const SHORT_NAME = 'bot-principal';
 
 function estados(signals: DeploymentSignals): Record<string, string> {
-  return Object.fromEntries(montarPassos(signals, DESK).map((p) => [p.id, p.state]));
+  return Object.fromEntries(montarPassos(signals, DESK, SHORT_NAME).map((p) => [p.id, p.state]));
 }
 
 test('a freshly provisioned tenant: six steps, in onboarding order, all pending', () => {
-  const passos = montarPassos(NADA, DESK);
+  const passos = montarPassos(NADA, DESK, SHORT_NAME);
   assert.deepEqual(
     passos.map((p) => p.id),
     ['acesso', 'whatsapp', 'equipe', 'fila', 'contatos', 'conversa'],
@@ -35,11 +37,13 @@ test('a freshly provisioned tenant: six steps, in onboarding order, all pending'
 });
 
 test('the test conversation depends on WhatsApp, and only then offers the Desk', () => {
-  const sem = montarPassos(NADA, DESK).find((p) => p.id === 'conversa')!;
+  const sem = montarPassos(NADA, DESK, SHORT_NAME).find((p) => p.id === 'conversa')!;
   assert.equal(sem.acao, null);
   assert.match(sem.resumo, /Depende do WhatsApp/);
 
-  const com = montarPassos({ ...NADA, channelsConnected: 1 }, DESK).find((p) => p.id === 'conversa')!;
+  const com = montarPassos({ ...NADA, channelsConnected: 1 }, DESK, SHORT_NAME).find(
+    (p) => p.id === 'conversa',
+  )!;
   assert.deepEqual(com.acao, { rotulo: 'Abrir o Desk', href: DESK, externo: true });
 });
 
@@ -53,7 +57,9 @@ test('an invitation without acceptance is in progress; someone beyond the admin 
 });
 
 test('a queue with no agent does not count: the conversation would arrive and no one would receive it', () => {
-  const passo = montarPassos({ ...NADA, queuesActive: 2 }, DESK).find((p) => p.id === 'fila')!;
+  const passo = montarPassos({ ...NADA, queuesActive: 2 }, DESK, SHORT_NAME).find(
+    (p) => p.id === 'fila',
+  )!;
   assert.equal(passo.state, 'pendente');
   assert.match(passo.resumo, /nenhum atendente/);
   assert.equal(estados({ ...NADA, queuesActive: 2, queuesWithAgent: 1 })['fila'], 'feito');
@@ -70,9 +76,26 @@ test('import: in progress, failed and completed-without-accepted do not close th
   const feita = montarPassos(
     { ...NADA, lastImport: { ...importBase, state: 'concluida', accepted: 12, rejeitados: 1 } },
     DESK,
+    SHORT_NAME,
   ).find((p) => p.id === 'contatos')!;
   assert.equal(feita.state, 'feito');
   assert.equal(feita.resumo, '12 contatos importados, 1 linha rejeitada.');
+});
+
+test('Ver canais and Abrir filas link into the primary flow (D-52); with none, they fall back to the portal', () => {
+  const comFluxo = montarPassos({ ...NADA, channelsConnected: 1, queuesActive: 1 }, DESK, SHORT_NAME);
+  assert.deepEqual(comFluxo.find((p) => p.id === 'whatsapp')!.acao, {
+    rotulo: 'Ver canais',
+    href: flowPath(SHORT_NAME, 'channels'),
+  });
+  assert.deepEqual(comFluxo.find((p) => p.id === 'fila')!.acao, {
+    rotulo: 'Abrir filas',
+    href: flowPath(SHORT_NAME, 'attendance/queue-management'),
+  });
+
+  const semFluxo = montarPassos({ ...NADA, channelsConnected: 1, queuesActive: 1 }, DESK, null);
+  assert.equal(semFluxo.find((p) => p.id === 'whatsapp')!.acao?.href, APPLICATION);
+  assert.equal(semFluxo.find((p) => p.id === 'fila')!.acao?.href, APPLICATION);
 });
 
 test('tudo pronto: seis de seis', () => {

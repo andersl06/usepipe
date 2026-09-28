@@ -5,7 +5,7 @@ import { ApiError } from '../../../../lib/api';
 import { useRead } from '../../../../lib/query';
 import type { DetailOfContact } from '@pipe/contracts';
 import { NaoEncontrado } from '../../../nao-encontrado';
-import { contactBase, useContact } from '../../contact';
+import { contactPath, useContact } from '../../contact';
 import {
   messageStamp,
   diaEHora,
@@ -21,7 +21,7 @@ import { InformationContact } from './editar';
 export function BotDetailContact() {
   const { contact: bot } = useContact();
   const id = bot.id;
-  const base = contactBase(bot.tipo, id);
+  const base = contactPath(bot);
   const { contactId = '' } = useParams();
   const [parametros] = useSearchParams();
   const ticketId = parametros.get('ticketId') ?? undefined;
@@ -39,7 +39,7 @@ export function BotDetailContact() {
       <div className="ct-detalhes-conteudo">
         <header className="ct-history-header">
           <div className="ct-nome-container">
-            <Link className="ct-voltar" href={`${base}/contacts`} aria-label="Voltar">
+            <Link className="ct-voltar" href={`${base}/users`} aria-label="Voltar">
               <IconePortal nome="esquerda" tamanho={32} />
             </Link>
             <span className="ct-avatar ct-avatar-detalhe">
@@ -98,7 +98,7 @@ export function BotDetailContact() {
                           <span className="ct-ticket-actions">
                             <Link
                               className="ct-botao-icone ct-botao-icone--curto"
-                              href={`${base}/contacts/${contactId}?ticketId=${ticket.id}`}
+                              href={`${base}/users/${contactId}?ticketId=${ticket.id}`}
                               title="Ver conversa"
                               aria-label="Ver conversa"
                             >

@@ -24,7 +24,7 @@ import { ModalConfirmation } from './_modal';
 export function AgentsPageManagement() {
   const navegar = useNavigate();
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
 
   const [queuesApplied, setQueuesApplied] = useState<string[]>([]);
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
@@ -59,11 +59,11 @@ export function AgentsPageManagement() {
   }
 
   function irForEdit(ids: readonly string[]) {
-    navegar(`${base}/agents/management/edit?agents=${ids.join(',')}`);
+    navegar(`${base}/team/edit?agents=${ids.join(',')}`);
   }
 
   function irForPermissions(ids: readonly string[]) {
-    navegar(`${base}/agents/management/permissions?agents=${ids.join(',')}`);
+    navegar(`${base}/team/permission?agents=${ids.join(',')}`);
   }
 
   async function excluir() {
@@ -132,7 +132,7 @@ export function AgentsPageManagement() {
           variante="primario"
           icone="mais"
           className="board-acao"
-          onClick={() => navegar(`${base}/agents/management/add`)}
+          onClick={() => navegar(`${base}/team/create`)}
         >
           Adicionar atendentes
         </Botao>

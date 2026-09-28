@@ -1,5 +1,5 @@
 import Link from '../../../components/link';
-import { contactBase, useContact } from '../contact';
+import { contactPath, useContact } from '../contact';
 import { IllustrationIntegration, type IllustrationName } from './illustrations';
 
 /**
@@ -56,8 +56,7 @@ const CARDS: readonly {
 
 export function PageIntegrations() {
   const { contact } = useContact();
-  const id = contact.id;
-  const base = contactBase(contact.tipo, id);
+  const base = contactPath(contact);
   return (
     <div className="ig-lista">
       {CARDS.map((card) => {

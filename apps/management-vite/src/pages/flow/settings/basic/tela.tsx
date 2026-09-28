@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IconePortal } from '../../../../components/icones-portal';
 import { irPara } from '../../../../lib/navigation';
+import { APPLICATION, flowPath } from '../../../../lib/application-paths';
 import { BotaoBds, PageHeader } from '../pecas';
 import { deleteFlow, salvarBasicas } from './gravar';
 import './basicas.css';
@@ -104,7 +105,7 @@ export function SettingsBasicScreen({
   nome: string;
   description: string;
   imageUrl: string | null;
-  shortName: string | null;
+  shortName: string;
   /** Their `canDeleteBot`: only whoever has `automacao.fluxo.excluir`. */
   podeExcluir: boolean;
 }) {
@@ -161,6 +162,14 @@ export function SettingsBasicScreen({
     setFile(undefined);
     /* `saveSuccessText` deles. */
     setSucesso('Configuração salva com sucesso.');
+    /*
+     * The name change may have changed `shortName`, the URL key (D-52): whoever is looking at
+     * `/application/detail/<old>/configurations/basic` needs to land on the new short name, or
+     * the next F5 (or shared link) 404s on the stale address.
+     */
+    if (resultado.value.shortName !== shortName) {
+      irPara(flowPath(resultado.value.shortName, 'configurations/basic'), { substituir: true });
+    }
   }
 
   async function excluir() {
@@ -173,7 +182,7 @@ export function SettingsBasicScreen({
       return;
     }
     /* There, after deleting, `$state.go` goes to the chatbot list. Here, the portal. */
-    irPara('/portal', { substituir: true });
+    irPara(APPLICATION, { substituir: true });
   }
 
   return (

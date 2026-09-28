@@ -11,7 +11,7 @@ import type { Catalogos } from '../../lib/history';
 import { type ReportAttendance, type LinhaDeQuebra } from '../../lib/attendance';
 import { dataOuNada, denominador, duration, numero, uuidOuNada } from '../../lib/format';
 import { periodCurrent, periodLabel } from '../../lib/periodos';
-import { contactBase, useContact } from '../flow/contact';
+import { contactPath, useContact } from '../flow/contact';
 import { attendanceBase } from './shell';
 
 interface ResponseOfReportOfAttendance {
@@ -161,8 +161,8 @@ function TabelaDeQuebra({ eixo, linhas }: { eixo: string; linhas: LinhaDeQuebra[
  */
 export function PageAttendance() {
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
-  const manager = `${contactBase(contact.tipo, contact.id)}/analytics/report-manager`;
+  const base = attendanceBase(contact);
+  const manager = `${contactPath(contact)}/analytics/data-extractor`;
   const [search] = useSearchParams();
   const crus = Object.fromEntries(search.entries()) as Search;
   /*
@@ -195,7 +195,7 @@ export function PageAttendance() {
   const hrefAba = (key: TabBreakdown) => {
     const p = new URLSearchParams(q);
     p.set('aba', key);
-    return `${base}/reports/attendance?${p}`;
+    return `${base}/report?${p}`;
   };
   const linhasDaAba: Record<TabBreakdown, LinhaDeQuebra[]> = {
     atendentes: report.byAgent,
@@ -253,8 +253,8 @@ export function PageAttendance() {
       <PanelFilters
         aberto={panelOpen}
         aoFechar={() => setPanelOpen(false)}
-        acao={`${base}/reports/attendance`}
-        limpar={hasFilter ? `${base}/reports/attendance?de=${de}&to=${ate}` : null}
+        acao={`${base}/report`}
+        limpar={hasFilter ? `${base}/report?de=${de}&to=${ate}` : null}
       >
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
         <FieldPeriod de={de} ate={ate} fuso={fuso} />

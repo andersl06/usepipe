@@ -72,7 +72,7 @@ function Rotulo({ texto, dica }: { texto: string; dica: string }) {
  */
 export function PageSatisfaction() {
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
   const [search] = useSearchParams();
   const crus = Object.fromEntries(search.entries()) as Search;
   /* Data torta vira "sem filtro", em vez de virar 500 no `::date` do Postgres. */
@@ -89,7 +89,7 @@ export function PageSatisfaction() {
   const hrefAba = (key: Aba) => {
     const p = new URLSearchParams(q);
     p.set('aba', key);
-    return `${base}/reports/satisfaction?${p}`;
+    return `${base}/survey-dashboard?${p}`;
   };
 
   const totalRespostas = groups.reduce((t, g) => t + g.responses, 0);
@@ -123,7 +123,7 @@ export function PageSatisfaction() {
       <PanelFilters
         aberto={panelOpen}
         aoFechar={() => setPanelOpen(false)}
-        acao={`${base}/reports/satisfaction`}
+        acao={`${base}/survey-dashboard`}
         limpar={null}
       >
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}

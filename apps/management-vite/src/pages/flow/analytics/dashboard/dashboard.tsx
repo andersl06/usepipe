@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useRead } from '../../../../lib/query';
 import { filterStorageKey, loadFilters, saveFilters } from '../../../../lib/filter-memory';
 import { useEu } from '../../../../context/session';
-import { useContact } from '../../contact';
+import { contactPath, useContact } from '../../contact';
 import type { RespostaDoDashboard } from './resposta';
 import { TelaDoDashboard } from './tela';
 import './dashboard.css';
@@ -61,6 +61,7 @@ export function DashboardPage() {
   return (
     <TelaDoDashboard
       id={contact.id}
+      base={contactPath(contact)}
       period={period}
       intervalo={intervalo}
       hoje={hoje}

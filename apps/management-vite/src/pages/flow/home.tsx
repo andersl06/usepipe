@@ -1,5 +1,5 @@
 import { Avatar } from '@pipe/ui';
-import { ContactBars, contactBase, useContact } from './contact';
+import { ContactBars, contactPath, useContact } from './contact';
 import {
   CardChannels,
   CardTeam,
@@ -17,9 +17,12 @@ import './flow.css';
  *
  * The ruler is the `supernova.blip.ai/portal.js` bundle (25.203.0-v0.43.0) — the `application.home` template (module 77021) and the `HomeController` controller (module 84909) —, plus the `portal.css` sheet for the grid layout.
  *
- * ═══ THE ROUTE USES `id`, AND THAT'S A DELIBERATE DIVERGENCE ═══
+ * ═══ THE ROUTE NOW USES `shortName`, LIKE THE ORIGIN ═══
  *
- * There the URL carries the `shortName`, the contact's key on the platform. Here the `fluxo.short_name` column exists (migration 0020) but is NOT unique — there's no index, and uniqueness is only checked against `nome` at creation. Routing by a field that can repeat means choosing, by the luck of `limit(1)`, which of two contacts the person opens. It stays on `id` until there's a unique index; `shortName` remains what the screen SHOWS, where the origin writes "Id:".
+ * `fluxo.short_name` is unique among live flows in the tenant since migration 0051 (D-52, plan
+ * 01-43), so the URL carries it directly (`/application/detail/{shortName}`, D-52) instead of the
+ * internal `id`. The origin still writes "Id:" beside the short name on this exact screen, which
+ * is why the header below keeps showing both.
  *
  * ═══ WHAT THE ORIGIN SHOWS THAT WE DON'T HAVE ═══
  *
@@ -30,6 +33,7 @@ import './flow.css';
 export function ContactHome() {
   const { contact, fuso } = useContact();
   const shell = portalUseShell();
+  const base = contactPath(contact);
 
   return (
     <div className="pt-app">
@@ -70,12 +74,11 @@ export function ContactHome() {
             <CardExtensions extensions={[]} />
             <CardChannels
               ativos={contact.channelActive && contact.channelType ? [contact.channelType] : []}
-              id={contact.id}
-              tipo={contact.tipo}
+              base={base}
             />
             <CardTeam members={[]} />
             <CardPreferences fuso={fuso} plano={shell.tenant.plano} />
-            <CardMetrics metrics={null} base={contactBase(contact.tipo, contact.id)} />
+            <CardMetrics metrics={null} base={base} />
           </div>
         </div>
       </main>

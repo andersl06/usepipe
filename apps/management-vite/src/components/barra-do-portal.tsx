@@ -1,5 +1,6 @@
 import { Avatar } from '@pipe/ui';
 import { useSair, accountUseSwitch, type PortalShell } from '../lib/shell';
+import { APPLICATION, tenantPath } from '../lib/application-paths';
 import { Link } from './link';
 import { IconePortal, type NomeDeIconePortal } from './icones-portal';
 
@@ -47,7 +48,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
           {/*
  * Reference menu's first destination is `Painel do contrato`, the contract panel, distinct from personal `Minha conta`; the previous link pointed to the wrong screen. Put the active account name beneath at 10px (`organization-panel-options`). Exclude the active account from the list below because it already titles the opener.
  */}
-          <Link className="pt-panel" href="/contract">
+          <Link className="pt-panel" href={tenantPath('tenant')}>
             <IconePortal nome="painel" tamanho={24} />
             <span>
               Painel do contrato
@@ -93,7 +94,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
  * Reference `nav-items` has only Home in all 22 captured screens (`referencias-blip/portal/dom/*.html`); there is no Blip Store or second item. Attendance, Channels, and Desk belong to an individual contact after entry. A store item here contradicted measured DOM rather than filling a documented gap.
  */}
       <nav className="pt-links" aria-label="Seções">
-        <Link href="/portal" aria-current="page">
+        <Link href={APPLICATION} aria-current="page">
           Início
         </Link>
       </nav>
@@ -102,7 +103,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
       {/*
  * Keep the brand in its own central `auto` grid column between the `1fr` columns `.pt-barra-inicio` and `.pt-barra-fim`, so a long account name cannot overlap it. Use a mask rather than `<img>`: the dark asset with moss stroke was designed for a light background and disappears on this black bar. The mask paints it with the bar's single-color ink, as in the reference.
  */}
-      <Link className="pt-marca" href="/portal" aria-label="Pipe">
+      <Link className="pt-marca" href={APPLICATION} aria-label="Pipe">
         <span className="pt-lockup" role="img" aria-label="Pipe" />
       </Link>
 

@@ -16,7 +16,7 @@ const LABEL_SCOPE_TAG: Record<string, string> = {
  */
 export function PageData() {
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
   const read = useRead<{ etiquetas: EtiquetaConfigurada[]; channels: ChannelConfigured[] }>(
     '/v1/management/settings/data',
   );
