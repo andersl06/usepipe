@@ -489,6 +489,34 @@ describe('Validate manual channel configuration (`manual_setup_validation_servic
     expect(chamadas('descadastrar')).toHaveLength(0);
     expect(chamadas('desassinar')).toHaveLength(0);
   });
+
+  it('rejects a number already connected to another inbox with the number message, not the Phone Number ID one', async () => {
+    // The double derives the returned phone number from the TOKEN's own suffix
+    // (`numeroDoToken`), so both calls need a matching token/numberId pair of their own —
+    // independent of `base()` — to reuse the exact same number on purpose.
+    const numberId = ClienteGraphDuble.sufixo(`ja-conectado-${S}`);
+    const pedidoDuplicado = {
+      tenantId: A.tenantId,
+      userId: A.adminId,
+      wabaId: 'waba-duplicado',
+      numberId,
+      token: `manual-${numberId}`,
+      appSecret,
+    };
+    const primeiro = await runConfigurationManual({ ...pedidoDuplicado, name: 'Primeira caixa' });
+    expect(primeiro.channel.config['numero']).toBeTruthy();
+
+    // Same WABA/numberId/token, no channelId: a brand-new inbox trying to claim a number
+    // that is already connected elsewhere, not a reconnection of the same inbox.
+    await expect(
+      runConfigurationManual({ ...pedidoDuplicado, name: 'Segunda caixa' }),
+    ).rejects.toMatchObject({
+      message: 'Este número de WhatsApp já está conectado a outra caixa de entrada.',
+    });
+
+    ClienteGraphDuble.reiniciar();
+    await desconectarWhatsApp(A.tenantId, A.adminId, primeiro.channel.id);
+  });
 });
 
 describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/profile)', () => {
