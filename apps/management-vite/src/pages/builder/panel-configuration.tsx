@@ -9,6 +9,8 @@ import type { AcaoDoEditor, Mapa } from './model';
 import { lerDesenho } from './model';
 import { actionsOfGroup, LABELS_OF_ACTIONS, novaAcao } from './actions-of-block';
 import type { ActionsList } from './actions-of-block';
+import { renderDescricao } from './cabecalho-info';
+import type { DescricaoParte } from './cabecalho-info';
 import {
   adicionarAcaoGlobal,
   actionsGlobalList,
@@ -145,7 +147,7 @@ function ActionsGlobalList({
 }: {
   lista: ActionsList;
   titulo: string;
-  description: string;
+  description: DescricaoParte[];
   rotuloAdicionar: string;
   global: Record<string, unknown>;
   onMudar: (global: Record<string, unknown>) => void;
@@ -167,7 +169,7 @@ function ActionsGlobalList({
   return (
     <section className="bl-section">
       <h4 className="bl-section-title">{titulo}</h4>
-      <p className="sub">{description}</p>
+      <p className="sub">{renderDescricao(description)}</p>
 
       {actions.map((acao: AcaoDoEditor, i) => (
         <ActionCard
