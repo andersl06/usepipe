@@ -52,7 +52,12 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
     if (!data || esperando === null) return;
     if (esperando !== 'inicial' && versionKey(data) !== esperando) return;
     ultimoPedido.current += 1;
-    despachar({ tipo: 'carregar', mapa: lerDesenho(data.desenho), global: data.desenho.globals });
+    despachar({
+      tipo: 'carregar',
+      mapa: lerDesenho(data.desenho),
+      global: data.desenho.globals,
+      configuracao: data.desenho.configuration ?? {},
+    });
     apiSetErrors(data.errors);
     setRecording({ state: 'salvo' });
     setEsperando(null);
@@ -60,14 +65,21 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
   }, [data, esperando]);
 
   const gravar = useCallback(
-    async (mapa: Mapa, global: Record<string, unknown>): Promise<boolean> => {
+    async (
+      mapa: Mapa,
+      global: Record<string, unknown>,
+      configuracao: Record<string, string>,
+    ): Promise<boolean> => {
       setRecording({ state: 'salvando' });
-      const r = await salvarRascunho(flowId, montarDesenho(mapa, global));
+      const r = await salvarRascunho(flowId, {
+        ...montarDesenho(mapa, global),
+        configuration: configuracao,
+      });
       if (!r.ok) {
         setRecording({ state: 'erro', error: r.error });
         return false;
       }
-      despachar({ tipo: 'salvo', mapa });
+      despachar({ tipo: 'salvo', mapa, configuracao });
       apiSetErrors(r.value.erros);
       setRecording({ state: 'salvo' });
       return true;
@@ -80,11 +92,11 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
     if (!state.sujo || !carregado) return;
     setRecording((g) => (g.state === 'salvando' ? g : { state: 'pendente' }));
     const pedido = ++ultimoPedido.current;
-    const { mapa, global } = state;
+    const { mapa, global, configuracao } = state;
     const temporizador = setTimeout(() => {
       emCurso.current = emCurso.current.then(async () => {
         if (pedido !== ultimoPedido.current) return true;
-        return gravar(mapa, global);
+        return gravar(mapa, global, configuracao);
       });
     }, ESPERA_PARA_GRAVAR_MS);
     return () => clearTimeout(temporizador);
@@ -92,8 +104,8 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
 
   const salvarAgora = useCallback(async (): Promise<boolean> => {
     ultimoPedido.current += 1;
-    const { mapa, global } = state;
-    emCurso.current = emCurso.current.then(() => gravar(mapa, global));
+    const { mapa, global, configuracao } = state;
+    emCurso.current = emCurso.current.then(() => gravar(mapa, global, configuracao));
     return emCurso.current;
   }, [state, gravar]);
 
