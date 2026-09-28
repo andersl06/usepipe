@@ -1,26 +1,23 @@
 import { createContext, useContext, type ReactNode } from 'react';
-import { Navigate, Outlet, useLocation, useParams } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 import { BarraDoPortal } from '../../components/barra-do-portal';
 import { portalUseShell } from '../../lib/shell';
 import { useRead } from '../../lib/query';
 import { ApiError } from '../../lib/api';
+import { flowPath } from '../../lib/application-paths';
 import { NaoEncontrado } from '../nao-encontrado';
-import { ContactBar, UUID, type Contact } from './barra-of-contact';
+import { ContactBar, type Contact } from './barra-of-contact';
 import './flow.css';
 
-/**
- * The contact's URL prefix, based on type — `router` for what the source calls `master`, `flow` for the rest (`builder`). It's the SAME distinction as `itens.ts`, here on the side that builds the path rather than the menu.
- */
-export function contactPrefix(tipo: string): 'router' | 'flow' {
-  return tipo === 'roteador' ? 'router' : 'flow';
-}
-
-export function contactBase(tipo: string, id: string): string {
-  return `/${contactPrefix(tipo)}/${id}`;
+/** `/application/detail/<shortName>[/<rest>]` — the single builder for a contact's own tree (D-52). */
+export function contactPath(contact: Pick<Contact, 'shortName'>, ...rest: string[]): string {
+  return flowPath(contact.shortName, ...rest);
 }
 
 /**
- * The contact (the `fluxo`) that ALL `/fluxo/:id/**` screens render, read once via `GET /v1/gestao/fluxos/:id` and handed to the children through route context — the origin's `auth.application.detail`, the parent state for all of them.
+ * The contact (the `fluxo`) that ALL `/application/detail/:shortName/**` screens render, read
+ * once via `GET /v1/management/flows/short-name/:shortName` and handed to the children through
+ * route context — the origin's `auth.application.detail`, the parent state for all of them.
  *
  * `criadoEm` arrives as text (JSON); whoever displays the date converts it.
  */
@@ -41,28 +38,25 @@ export function useContact(): ContactLoaded {
 }
 
 /**
- * The parent route: validates the `id`, loads the contact, and only then renders the child. Anything outside uuid format, or with no contact in the tenant, is a 404 — like the `notFound()` each `page.tsx` used to do.
+ * The parent route: reads the `shortName` from the URL (`GET
+ * short-name/:shortName`, plan 01-43), and only then renders the child. A shortName absent from
+ * this tenant, or belonging to an archived flow, is a 404 — like the `notFound()` each
+ * `page.tsx` used to do.
  *
- * `/fluxo/:id` and `/roteador/:id` render the SAME tree (App.tsx mounts both over the same child routes); whoever enters through the wrong prefix for the contact's type gets redirected here, once, to the right prefix — preserving the rest of the path, the query string, and the hash. It's the safety net for an old link, a bookmark, or a link a not-yet-updated screen still generates.
+ * `/application/detail/:shortName` renders ONE tree for both flow and router (App.tsx mounts it
+ * once, D-52) — there is no type segment in the URL to get wrong.
  */
 export function ContactRoute() {
-  const { id = '' } = useParams();
-  const local = useLocation();
-  const valido = UUID.test(id);
-  const read = useRead<ContactLoaded>(valido ? `/v1/management/flows/${id}` : null);
+  const { shortName = '' } = useParams();
+  const read = useRead<ContactLoaded>(
+    shortName ? `/v1/management/flows/short-name/${encodeURIComponent(shortName)}` : null,
+  );
 
-  if (!valido || (read.error instanceof ApiError && read.error.status === 404)) {
+  if (!shortName || (read.error instanceof ApiError && read.error.status === 404)) {
     return <NaoEncontrado />;
   }
   if (read.error) return <ReadFailure error={read.error} />;
   if (!read.data) return null;
-
-  const prefixCorrect = contactPrefix(read.data.contact.tipo);
-  const prefixCurrent = local.pathname.startsWith('/router/') ? 'router' : 'flow';
-  if (prefixCurrent !== prefixCorrect) {
-    const resto = local.pathname.slice(`/${prefixCurrent}/${id}`.length);
-    return <Navigate to={`/${prefixCorrect}/${id}${resto}${local.search}${local.hash}`} replace />;
-  }
 
   return (
     <ContactContext.Provider value={read.data}>

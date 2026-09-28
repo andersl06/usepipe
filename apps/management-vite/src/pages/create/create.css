@@ -108,7 +108,7 @@
  * ---------------------------------------------------------------- the "x"
  *   `<bds-icon name="close" size="xxx-large" class="close-icon absolute right-0">` — `xxx-large` is 40px in `bds-icon`, `right-0` is tachyons and `.close-icon { margin-right: 3rem }`. No `top`: it sits at the static height, i.e. aligned to the top of the container's 3rem padding.
  *
- *   In the source it's the ONLY way out of the screen, and Esc also closes it (`$document.on('keydown', 27 → close())`, and `close()` ends in `$state.go('auth.application.list')`). Here it leads to `/portal`, our list; Esc does NOT close, because a key is client state and these screens still have none.
+ *   In the source it's the ONLY way out of the screen, and Esc also closes it (`$document.on('keydown', 27 → close())`, and `close()` ends in `$state.go('auth.application.list')`). Here it leads to `/application`, our list; Esc does NOT close, because a key is client state and these screens still have none.
  */
 .cr-fechar {
   position: absolute;

@@ -121,7 +121,7 @@ export interface RequestOfContact {
  * Success is `{ id }`; rejection is `{ erro }` with the screen's phrase, both with 200. The create screen expects this contract and carries `erro` back to the name step in the URL. This exception to this controller's `ErroPipe` pattern applies only to POST; PATCH and DELETE use status codes and `{ erro: { codigo, mensagem } }` like the rest of the `api`.
  */
 export type ResultOfContact =
-  { id: string; error?: undefined } | { id?: undefined; error: string };
+  { id: string; shortName: string; error?: undefined } | { id?: undefined; shortName?: undefined; error: string };
 
 export interface RequestOfEditOfContact {
   name?: string;

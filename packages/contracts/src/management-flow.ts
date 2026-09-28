@@ -9,7 +9,8 @@ export interface ContactOfFlow {
   estado: string;
   tipo: string;
   imageUrl: string | null;
-  shortName: string | null;
+  /** Unique among live flows in the tenant since migration 0051 (D-52, plan 01-43) — the URL key. */
+  shortName: string;
   /** Description in Edit Flow: optional there, nullable here. */
   description: string | null;
   criadoEm: string | null;
@@ -196,7 +197,7 @@ export interface RouterService {
   nome: string;
   estado: string;
   tipo: string;
-  shortName: string | null;
+  shortName: string;
 }
 
 /** Router service (`roteador_servico`): its name and handling chatbot. */
@@ -247,6 +248,8 @@ export interface FlowOfPortal {
   estado: string;
   tipo: string;
   imagemUrl: string | null;
+  /** The URL key (D-52): `/application/detail/<shortName>`. */
+  shortName: string;
 }
 
 /** `GET /v1/gestao/fluxos?busca=&pagina=&porPagina=` — a grade, paginada no banco. */

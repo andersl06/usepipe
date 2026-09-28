@@ -473,6 +473,7 @@ export async function carregarGradeDoPortal(
       estado: flow.estado,
       tipo: flow.tipo,
       imagemUrl: flow.imageUrl,
+      shortName: flow.shortName,
     })
     .from(flow)
     .where(filter)
