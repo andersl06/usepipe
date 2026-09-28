@@ -370,15 +370,6 @@
   box-shadow: 0 2px 8px -2px rgb(0 0 0 / 16%);
   overflow: hidden;
 }
-/*
- * The Variables Library is the only panel on the LEFT in the origin (`library-sidebar`, `position-left`) — the others (block, Settings) are `position-right`.
- */
-.bl-panel--left {
-  right: auto;
-  left: 0;
-  border-radius: 0 16px 16px 0;
-  background: #1f1f1f;
-}
 .bl-queues-body {
   display: flex;
   flex-direction: column;
@@ -397,16 +388,6 @@
   gap: 8px;
   min-height: 40px;
   padding: 16px 20px;
-}
-.bl-panel--settings .bl-panel-header {
-  padding: 24px 32px 0;
-}
-.bl-panel--settings .bl-panel-title {
-  height: auto;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
 }
 .bl-panel-title {
   flex: 1;

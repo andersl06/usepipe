@@ -35,7 +35,11 @@
 .bl-versions-table th {
   background: transparent;
 }
-/* Measurements from portal.css; effective surfaces from the dark `bds-theme-provider`. */
+/*
+ * Measurements from portal.css; effective surfaces from the dark `bds-theme-provider`. Shared by
+ * the block panel and the floating shell (Configuração, Biblioteca, Filas — `floating-sidebar.tsx`).
+ */
+.bl-panel--flutuante,
 .bl-panel--block {
   --p-superficie-0: #424242;
   --p-superficie-1: #393939;
@@ -45,9 +49,6 @@
   --p-conteudo-suave: #fff;
   --p-conteudo-desabilitado: #949494;
   --p-linha-media: rgb(255 255 255 / 20%);
-  top: 16px;
-  right: 16px;
-  bottom: 16px;
   width: 460px;
   max-width: calc(100% - 32px);
   border-radius: 16px;
@@ -62,16 +63,43 @@
     sans-serif;
   box-shadow: 32px 0 56px 32px rgb(0 0 0 / 50%);
 }
+.bl-panel--block {
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+}
+.bl-panel--flutuante.bl-panel--direita {
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+}
+.bl-panel--flutuante.bl-panel--esquerda {
+  top: 16px;
+  left: 16px;
+  bottom: 16px;
+  right: auto;
+}
+.bl-panel--flutuante button,
+.bl-panel--flutuante input,
+.bl-panel--flutuante textarea,
 .bl-panel--block button,
 .bl-panel--block input,
 .bl-panel--block textarea {
   font-family: inherit;
 }
+.bl-panel--flutuante .bl-panel-header,
 .bl-panel--block .bl-panel-header {
   padding: 32px 32px 16px;
   gap: 8px;
 }
-.bl-panel--block #builder-sidebar-title {
+.bl-panel--flutuante.bl-panel--esquerda .bl-panel-header {
+  padding: 20px 32px 0;
+  justify-content: flex-end;
+}
+.bl-panel--block #builder-sidebar-title,
+.bl-panel--flutuante .bl-panel-title {
+  flex: 1;
+  min-width: 0;
   height: 32px;
   padding: 0 0 5px;
   border: 0;
@@ -85,6 +113,7 @@
 .bl-panel--block #builder-sidebar-title:focus:not([readonly]) {
   border-bottom-color: var(--p-builder-marca-borda-ativa);
 }
+.bl-panel--flutuante .iconbtn,
 .bl-panel--block .iconbtn {
   display: inline-flex;
   align-items: center;
@@ -98,10 +127,12 @@
   color: #fff;
   cursor: pointer;
 }
+.bl-panel--flutuante .iconbtn:hover:not(:disabled),
 .bl-panel--block .iconbtn:hover:not(:disabled) {
   background: rgb(255 255 255 / 8%);
   color: #fff;
 }
+.bl-panel--flutuante .iconbtn svg,
 .bl-panel--block .iconbtn svg {
   display: block;
   flex-shrink: 0;
@@ -159,6 +190,7 @@
 .bl-panel--block .bl-panel-add-tag::placeholder {
   color: #fff;
 }
+.bl-panel--flutuante .bl-panel-wire,
 .bl-panel--block .bl-panel-wire {
   border: 0;
   height: 1px;
@@ -177,6 +209,7 @@
 .bl-panel--block .bl-panel-body .bl-detalhe {
   visibility: visible;
 }
+.bl-panel--flutuante .bl-abas,
 .bl-panel--block .bl-abas {
   flex-shrink: 0;
   justify-content: space-around;
@@ -185,6 +218,7 @@
   border-bottom: 1px solid #ffffff0f;
   background: #1f1f1f;
 }
+.bl-panel--flutuante .bl-abas button,
 .bl-panel--block .bl-abas button {
   box-sizing: border-box;
   height: 46px;
@@ -193,11 +227,13 @@
   line-height: 24px;
   color: rgb(82 99 108);
 }
+.bl-panel--flutuante .bl-abas button[aria-selected='true'],
 .bl-panel--block .bl-abas button[aria-selected='true'] {
   border-bottom: 2px solid var(--p-builder-marca-selecionado);
   color: #fff;
   font-weight: 700;
 }
+.bl-panel--flutuante .bl-panel-body,
 .bl-panel--block .bl-panel-body {
   position: relative;
   padding: 24px 32px;
@@ -206,14 +242,19 @@
 .bl-panel--block .bl-panel-body--outputs {
   padding: 24px 48px;
 }
+.bl-panel--flutuante .bl-aba-corpo,
 .bl-panel--block .bl-aba-corpo {
   padding-top: 0;
 }
+.bl-panel--flutuante .sub,
+.bl-panel--flutuante .bl-section-subtitle,
+.bl-panel--flutuante .bl-acao-tipo,
 .bl-panel--block .sub,
 .bl-panel--block .bl-section-subtitle,
 .bl-panel--block .bl-acao-tipo {
   color: #fff;
 }
+.bl-panel--flutuante .bl-section,
 .bl-panel--block .bl-section {
   margin: 0 0 32px;
 }
