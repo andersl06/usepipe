@@ -32,11 +32,12 @@ import { lerDesenho, newBlock } from '../src/pages/builder/model.ts';
 import { LEGACY_BLUES, TAG_PALETTE, blockTags } from '../src/pages/builder/tags-of-block.ts';
 import { blockErrors } from '../src/pages/builder/validation.ts';
 import {
-  VARIABLES_OF_SYSTEM,
   filterVariables,
   systemFilterVariables,
+  userLibraryFilter,
   userVariables,
 } from '../src/pages/builder/variables.ts';
+import { BLIP_SYSTEM_VARIABLES } from '../src/pages/builder/system-variables.ts';
 import {
   GLOBAL_ACTIONS_SECTION_ID,
   debugSections,
@@ -155,6 +156,24 @@ test('userVariables returns an empty list when the flow references no context va
   assert.deepEqual(userVariables(mapa, {}), []);
 });
 
+test('userVariables collects responseStatusVariable/responseBodyVariable, outputVariable and the flow\'s configuration keys', () => {
+  const block = newBlock({}, { top: 0, left: 0 }, 'bloco');
+  block.$enteringCustomActions = [
+    {
+      type: 'ProcessHttp',
+      settings: { responseStatusVariable: 'status', responseBodyVariable: 'corpo' },
+    },
+    { type: 'ExecuteScript', settings: { outputVariable: 'resultado' } },
+    { type: 'ProcessCommand', settings: { variable: 'respostaComando' } },
+  ];
+  const mapa = { block };
+
+  assert.deepEqual(
+    userVariables(mapa, {}, { ApiKey: 'x', Ambiente: 'prod' }),
+    ['config.Ambiente', 'config.ApiKey', 'corpo', 'respostaComando', 'resultado', 'status'],
+  );
+});
+
 test('filterVariables ignores accents and case', () => {
   const nomes = ['Saldo', 'situação', 'temp'];
   assert.deepEqual(filterVariables(nomes, 'situacao'), ['situação']);
@@ -163,15 +182,42 @@ test('filterVariables ignores accents and case', () => {
   assert.deepEqual(filterVariables(nomes, 'zzz'), []);
 });
 
-test('filterSystemVariables searches the name and the description', () => {
-  const byName = systemFilterVariables(VARIABLES_OF_SYSTEM, 'contact.email');
+test('BLIP_SYSTEM_VARIABLES has all 118 reference variables, sorted, with pt-BR descriptions and support marks', () => {
+  assert.equal(BLIP_SYSTEM_VARIABLES.length, 118);
+  const sorted = [...BLIP_SYSTEM_VARIABLES].sort((a, b) => a.nome.localeCompare(b.nome));
+  assert.deepEqual(BLIP_SYSTEM_VARIABLES.map((v) => v.nome), sorted.map((v) => v.nome));
+
+  const inputContent = BLIP_SYSTEM_VARIABLES.find((v) => v.nome === 'input.content');
+  assert.equal(inputContent?.descricao, 'Conteúdo da mensagem enviado pelo usuário');
+  assert.equal(inputContent?.suportada, true);
+
+  const context = BLIP_SYSTEM_VARIABLES.find((v) => v.nome === 'context.?');
+  assert.ok(context);
+  assert.equal(context?.suportada, true);
+
+  const bucket = BLIP_SYSTEM_VARIABLES.find((v) => v.nome === 'bucket.?');
+  assert.equal(bucket?.suportada, false);
+});
+
+test('systemFilterVariables (accent-sensitive) searches the name and the description', () => {
+  const byName = systemFilterVariables(BLIP_SYSTEM_VARIABLES, 'contact.email');
   assert.deepEqual(
     byName.map((v) => v.nome),
     ['contact.email'],
   );
 
-  const byDescription = systemFilterVariables(VARIABLES_OF_SYSTEM, 'atendimento');
-  assert.ok(byDescription.some((v) => v.nome === 'ticket.id'));
+  const byDescription = systemFilterVariables(BLIP_SYSTEM_VARIABLES, 'nome do contato');
+  assert.ok(byDescription.some((v) => v.nome === 'contact.name'));
+
+  assert.deepEqual(systemFilterVariables(BLIP_SYSTEM_VARIABLES, 'situaçao'), []);
+});
+
+test('userLibraryFilter (accent-sensitive) searches the name only', () => {
+  const nomes = ['saldo', 'situação', 'temp'];
+  assert.deepEqual(userLibraryFilter(nomes, 'situação'), ['situação']);
+  assert.deepEqual(userLibraryFilter(nomes, 'situacao'), []);
+  assert.deepEqual(userLibraryFilter(nomes, 'SALDO'), ['saldo']);
+  assert.deepEqual(userLibraryFilter(nomes, ''), nomes);
 });
 
 /* --------------------------------------------------------- importar-exportar.ts */
