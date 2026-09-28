@@ -100,7 +100,9 @@ export function Etiqueta({
   children,
 }: PropsDeEtiqueta) {
   const classes = ['etiqueta'];
-  if (tom !== 'neutro') classes.push(tom);
+  // The CSS tone class is `error`, but the public `tom` value stays `erro` — changing it
+  // would ripple through 45+ call sites for a name only this class boundary needs to know.
+  if (tom !== 'neutro') classes.push(tom === 'erro' ? 'error' : tom);
   if (redonda) classes.push('redonda');
   if (className) classes.push(className);
   const classe = classes.join(' ');

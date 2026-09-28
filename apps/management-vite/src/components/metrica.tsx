@@ -25,7 +25,7 @@ export function Metrica({
   /** Tinta de erro: "Perdidos" e "Abandonados", como o `color-delete` deles. */
   tom?: 'erro';
 }) {
-  const classe = ['metric', destaque ? 'agora' : '', tom === 'erro' ? 'erro' : '']
+  const classe = ['metric', destaque ? 'agora' : '', tom === 'erro' ? 'error' : '']
     .filter(Boolean)
     .join(' ');
   return (
