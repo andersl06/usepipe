@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { Botao, Icone } from '@pipe/ui';
-import { IconePortal } from '../../components/icones-portal';
 import { useRead } from '../../lib/query';
 import type { QueueRegistered } from '../../lib/registrations';
 import type { Contact } from '../flow/barra-of-contact';
 import { attendanceBase } from '../operation/shell';
+import { FloatingSidebar } from './floating-sidebar';
 
 /**
  * A Builder shortcut to the real queue registry (D-15: the reference has no confirmed embedded
@@ -26,14 +26,12 @@ export function QueuesPanel({
   const queues = read.data?.queues ?? [];
   const active = queues.filter((q) => q.ativa).length;
   return (
-    <aside className="bl-panel" aria-label="Gerenciamento de Filas">
-      <div className="bl-panel-header">
-        <span className="bl-panel-title">Gerenciamento de Filas</span>
-        <button type="button" className="iconbtn" aria-label="Fechar" title="Fechar" onClick={onFechar}>
-          <IconePortal nome="fechar" tamanho={20} />
-        </button>
-      </div>
-      <hr className="bl-panel-wire" />
+    <FloatingSidebar
+      lado="direita"
+      titulo="Gerenciamento de filas"
+      ariaLabel="Gerenciamento de filas"
+      onFechar={onFechar}
+    >
       <div className="bl-panel-body bl-queues-body">
         <Icone nome="fila" tamanho={32} />
         <p>Gerencie filas, atendentes atribuídos e regras de atendimento.</p>
@@ -51,6 +49,6 @@ export function QueuesPanel({
           Abrir gerenciamento de filas
         </Botao>
       </div>
-    </aside>
+    </FloatingSidebar>
   );
 }
