@@ -574,10 +574,13 @@ export function ActionCard({
                   />
                 </label>
               ) : null}
-              {tipo!.campos.map((campo) => (
+              {tipo!.campos.map((campo) => {
+                const vazio = !!campo.obrigatorio && !fieldValue(acao, campo.key).trim();
+                return (
                 <label
                   key={campo.key}
-                  className={`bl-campo${onCopiar ? ' bl-campo--interno' : ''}`}
+                  className={`bl-campo${onCopiar ? ' bl-campo--interno' : ''}${vazio ? ' bl-campo--danger' : ''}`}
+                  title={vazio ? `${campo.rotulo}: campo obrigatório.` : undefined}
                 >
                   <span className="sub">
                     {campo.rotulo}
@@ -663,7 +666,8 @@ export function ActionCard({
                   )}
                   {campo.ajuda ? <span className="bl-ajuda">{campo.ajuda}</span> : null}
                 </label>
-              ))}
+                );
+              })}
               <h5 className="bl-section-subtitle">{LABELS_OF_ACTIONS.condicao}</h5>
               <ConditionsEditor
                 conditions={acao.conditions ?? []}
@@ -674,13 +678,6 @@ export function ActionCard({
           ) : (
             <pre className="bl-acao-bruta">{JSON.stringify(acao.settings ?? {}, null, 2)}</pre>
           )}
-          {errors.length > 0 ? (
-            <ul className="bl-errors">
-              {errors.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
-            </ul>
-          ) : null}
         </div>
       ) : null}
     </article>

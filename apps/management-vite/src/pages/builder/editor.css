@@ -474,15 +474,6 @@
   background: #3a3a3a;
   color: #fff;
 }
-.bl-panel-errors,
-.bl-errors {
-  margin-bottom: 12px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: var(--p-error-background, #fbe9e6);
-  color: var(--p-error-content, #c4442e);
-  font-size: 12px;
-}
 .bl-panel-wire {
   height: 1px;
   margin: 0;
@@ -569,6 +560,18 @@
   border-radius: 8px;
   background: #282828;
 }
+/* Required field left empty (F-6.1 G): border and label go red, message stays in the `title`. */
+.bl-campo--danger > .sub {
+  color: #b60c0c;
+}
+.bl-campo--danger input,
+.bl-campo--danger textarea,
+.bl-campo--danger .campo,
+.bl-campo--danger .bl-values,
+.campo.bl-campo--danger {
+  border-color: #b60c0c;
+  border-radius: 8px;
+}
 .bl-panel .selection-control,
 .bl-panel .selection-list {
   border-color: #3a3a3a;
@@ -583,9 +586,6 @@
 .bl-panel .selection-list button.selecionada {
   background: var(--p-builder-marca-destaque);
   color: #fff;
-}
-.bl-field-error {
-  color: var(--p-error-content, #c4442e);
 }
 
 /* ------------------------------------------------ outputs, conditions and actions */
@@ -618,12 +618,32 @@
   border-style: dashed;
 }
 /*
- * The card's error state (invalid output, action or condition) — the class was applied but the rule was missing, so no invalid card stood out.
+ * The card's error state (invalid action or condition) — border only, no text.
  */
-.bl-output--error,
 .bl-action--error,
 .bl-condition--error {
   border-color: var(--p-error-content, #c4442e);
+}
+/*
+ * The invalid output card (F-1.4 line 13, F-6): outweighs `.bl-lista-de-saidas > .bl-saida`'s
+ * list-row geometry so a card mid-list still gets its own border, radius and background, exactly
+ * like the standalone "Saída padrão" one. No text lives in the card — the message is the icon's
+ * `title` (`OutputErrorIcon`, `panel-outputs.tsx`).
+ */
+.bl-lista-de-saidas > .bl-saida.bl-output--error,
+.bl-saida.bl-output--error {
+  position: relative;
+  padding: 5px;
+  border: 1px solid rgb(182 12 12);
+  border-radius: 10px;
+  background: #1f1f1f;
+}
+.bl-output-erro {
+  position: absolute;
+  top: 5px;
+  left: -28px;
+  display: flex;
+  color: rgb(240 72 71);
 }
 .bl-saida-cabecalho,
 .bl-acao-cabecalho {
@@ -842,6 +862,10 @@
 }
 .bl-card--deleted {
   opacity: 0.6;
+}
+/* Invalid content card (F-6.1 F): border only, no text on the card itself. */
+.bl-card--erro {
+  border: 1px solid #b60c0c;
 }
 /*
  * Two radio options side by side — the class existed without `display`/`gap`, so "Aguardar resposta" and "Não aguardar" ended up stuck together, with no space between the end of one label and the start of the other.
