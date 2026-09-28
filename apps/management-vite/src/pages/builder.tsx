@@ -84,6 +84,8 @@ export function PageBuilder() {
   const [newBlockOpen, setNewBlockOpen] = useState(false);
   const [variablesOpen, setVariablesOpen] = useState(false);
   const [configAberto, setConfigAberto] = useState(false);
+  const [configTab, setConfigTab] = useState<'acoes' | 'versoes' | 'funcoes'>('acoes');
+  const [criarFuncaoAoAbrir, setCriarFuncaoAoAbrir] = useState(false);
   const [queuesOpen, setQueuesOpen] = useState(false);
   const [pesquisaAberta, setPesquisaAberta] = useState(false);
   const [pesquisa, setPesquisa] = useState('');
@@ -114,6 +116,13 @@ export function PageBuilder() {
   function abrirPublicar(): void {
     publicationSetError(null);
     setPublicarAberto(true);
+  }
+
+  /** The block Ações tab's "Gerenciar/Criar função" opens the function library (D-22) already inside Configuração. */
+  function abrirFuncoes(modo: 'gerenciar' | 'criar'): void {
+    setConfigTab('funcoes');
+    setCriarFuncaoAoAbrir(modo === 'criar');
+    setConfigAberto(true);
   }
 
   async function publicar(): Promise<void> {
@@ -264,6 +273,7 @@ export function PageBuilder() {
               onCloseNewBlock={() => setNewBlockOpen(false)}
               panelExternalOpen={configAberto || queuesOpen}
               pesquisa={pesquisa}
+              onAbrirFuncoes={abrirFuncoes}
             />
           )}
 
@@ -282,6 +292,8 @@ export function PageBuilder() {
               flowName={contact.nome}
               mapa={state.mapa}
               global={state.global}
+              abaInicial={configTab}
+              criarFuncaoAoAbrir={criarFuncaoAoAbrir}
               onChangeGlobal={(global) => despachar({ tipo: 'aplicarGlobais', global })}
               onImport={(mapa, global) => {
                 // Use `aplicar`, not `carregar`: imported flow must become dirty for autosave and undo, like any edit.
@@ -332,7 +344,10 @@ export function PageBuilder() {
               desabilitado={!editor.carregado}
               motivo={readRefusal ?? 'carregando'}
               ativo={configAberto}
-              onClick={() => setConfigAberto((v) => !v)}
+              onClick={() => {
+                setConfigTab('acoes');
+                setConfigAberto((v) => !v);
+              }}
             >
               <IconePortal nome="painel" tamanho={24} />
             </BotaoDaBarra>

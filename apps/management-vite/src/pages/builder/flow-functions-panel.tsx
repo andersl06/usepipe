@@ -154,11 +154,11 @@ function FlowFunctionForm({
 
 /* -------------------------------------------------------------- library panel */
 
-export function FlowFunctionsPanel() {
+export function FlowFunctionsPanel({ iniciarCriando }: { iniciarCriando?: boolean } = {}) {
   const [functions, setFunctions] = useState<FlowFunction[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [editing, setEditing] = useState<FlowFunction | 'new' | null>(null);
+  const [editing, setEditing] = useState<FlowFunction | 'new' | null>(iniciarCriando ? 'new' : null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<FlowFunction | null>(null);
   const [removing, setRemoving] = useState(false);

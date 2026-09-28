@@ -43,7 +43,7 @@ export interface DescricaoParte {
   forte?: boolean;
 }
 
-/** Renders description parts through React, never `dangerouslySetInnerHTML` (gate of 02-22). */
+/** Renders description parts through React, never raw/unescaped HTML (gate of 02-22). */
 export function renderDescricao(partes: readonly DescricaoParte[]): ReactNode {
   return partes.map((parte, indice) =>
     parte.forte ? (

@@ -310,7 +310,7 @@ export const ACTION_ICON_GENERIC: NomeDeIcone = 'actionGeneric';
 export const iconOfActionType = (tipo: string): NomeDeIcone => ACTION_TYPE_ICON[tipo] ?? ACTION_ICON_GENERIC;
 
 // T:836 bold segments as structured parts, so the panel renders `<strong>` through React
-// (`cabecalho-info.tsx`'s `renderDescricao`) instead of `dangerouslySetInnerHTML`.
+// (`cabecalho-info.tsx`'s `renderDescricao`) instead of raw, unescaped HTML.
 const ENTERING_DESCRIPTION: DescricaoParte[] = [
   { texto: 'Inclua ações que serão executadas ' },
   { texto: 'antes do envio do primeiro conteúdo', forte: true },
@@ -344,12 +344,6 @@ export const LABELS_OF_ACTIONS = {
   colarAcao: 'Colar ação',
   copiarSelecionados: 'Copiar selecionados',
   deletarSelecionados: 'Deletar selecionados',
-  bibliotecaFuncoes: 'Biblioteca de funções',
-  bibliotecaFuncoesEtiqueta: 'Novo',
-  bibliotecaFuncoesDescricao:
-    'Crie e gerencie funções globais para serem chamadas sempre que necessário nos chatbots do seu contrato',
-  gerenciarFuncoes: 'Gerenciar funções',
-  criarFuncao: 'Criar função',
 } as const;
 
 /** System-run actions belong to the Human block, not the person. */

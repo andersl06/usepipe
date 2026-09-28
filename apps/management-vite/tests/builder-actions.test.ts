@@ -133,6 +133,15 @@ test('actions panel does not render raw HTML', () => {
   assert.equal(source.includes('dangerouslySetInnerHTML'), false);
 });
 
+test('the Ações tab opens with the function library section and its two buttons wired to onAbrirFuncoes', () => {
+  const source = readFileSync(new URL('../src/pages/builder/panel-actions.tsx', import.meta.url), 'utf8');
+  assert.match(source, /Biblioteca de funções/);
+  assert.match(source, /Gerenciar funções/);
+  assert.match(source, /Criar função/);
+  assert.match(source, /onAbrirFuncoes\('gerenciar'\)/);
+  assert.match(source, /onAbrirFuncoes\('criar'\)/);
+});
+
 test('script actions: Monaco is lazy-loaded from the local package, never statically or from a CDN', () => {
   const panel = readFileSync(new URL('../src/pages/builder/panel-actions.tsx', import.meta.url), 'utf8');
   assert.match(panel, /lazy\(\(\) => import\('\.\/code-editor'\)\)/);
@@ -175,9 +184,6 @@ test('LABELS_OF_ACTIONS carries the bulk-selection texts, the error chip text an
   assert.equal(LABELS_OF_ACTIONS.copiarSelecionados, 'Copiar selecionados');
   assert.equal(LABELS_OF_ACTIONS.deletarSelecionados, 'Deletar selecionados');
   assert.equal(LABELS_OF_ACTIONS.erro, 'Erro');
-  assert.equal(LABELS_OF_ACTIONS.bibliotecaFuncoesEtiqueta, 'Novo');
-  assert.equal(LABELS_OF_ACTIONS.gerenciarFuncoes, 'Gerenciar funções');
-  assert.equal(LABELS_OF_ACTIONS.criarFuncao, 'Criar função');
   for (const partes of [LABELS_OF_ACTIONS.entradaDescricao, LABELS_OF_ACTIONS.saidaDescricao]) {
     assert.ok(Array.isArray(partes));
     assert.ok(partes.some((p) => p.forte));

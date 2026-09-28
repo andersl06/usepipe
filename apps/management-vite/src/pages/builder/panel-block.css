@@ -577,6 +577,9 @@
   transform: rotate(45deg);
 }
 .bl-botao-contorno {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 6px 16px;
   min-height: 32px;
   border: 1px solid #fff;
@@ -586,6 +589,12 @@
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+}
+/* "BIBLIOTECA DE FUNÇÕES" header row (F-1, CAPTURAS): "Novo" badge plus the two action buttons. */
+.bl-function-library-botoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
 }
 .bl-panel--block .bl-acao {
   padding: 10px 0;

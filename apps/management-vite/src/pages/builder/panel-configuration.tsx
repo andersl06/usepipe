@@ -50,6 +50,8 @@ export function ConfigurationPanel({
   onImport,
   onRestoreVersion,
   onFechar,
+  abaInicial,
+  criarFuncaoAoAbrir,
 }: {
   flowId: string;
   flowName: string;
@@ -60,8 +62,12 @@ export function ConfigurationPanel({
   /** Restores an old version as the draft; the caller owns the `api` call and reloading the editor. */
   onRestoreVersion: (version: number) => Promise<Resultado<VersionOfFlow>>;
   onFechar: () => void;
+  /** Which tab opens first; the block Ações tab's "Gerenciar/Criar função" lands here on "Funções" (D-22). */
+  abaInicial?: Aba;
+  /** With `abaInicial: 'funcoes'`, opens the library straight into "Criar função". */
+  criarFuncaoAoAbrir?: boolean;
 }) {
-  const [aba, setAba] = useState<Aba>('acoes');
+  const [aba, setAba] = useState<Aba>(abaInicial ?? 'acoes');
   const abas: { key: Aba; rotulo: string }[] = [
     { key: 'acoes', rotulo: 'Ações Globais' },
     { key: 'versoes', rotulo: 'Versões' },
@@ -92,7 +98,7 @@ export function ConfigurationPanel({
       </div>
       <div className="bl-panel-body">
         {aba === 'acoes' ? <ActionsGlobalTab global={global} onMudar={onChangeGlobal} /> : null}
-        {aba === 'funcoes' ? <FlowFunctionsPanel /> : null}
+        {aba === 'funcoes' ? <FlowFunctionsPanel iniciarCriando={criarFuncaoAoAbrir} /> : null}
         {aba === 'versoes' ? (
           <VersionsTab
             flowId={flowId}
