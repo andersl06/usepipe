@@ -19,6 +19,10 @@
       "types": "./dist/domain/management/builder-of-flow.d.ts",
       "default": "./dist/domain/management/builder-of-flow.js"
     },
+    "./domain/management/name-rules": {
+      "types": "./dist/domain/management/regras-de-nome.d.ts",
+      "default": "./dist/domain/management/regras-de-nome.js"
+    },
     "./domain/conversation": {
       "types": "./dist/domain/conversation.d.ts",
       "default": "./dist/domain/conversation.js"

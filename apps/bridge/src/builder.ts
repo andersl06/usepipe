@@ -5,6 +5,7 @@ import {
   publicarRascunho,
   salvarRascunho,
 } from '@pipe/api/domain/management/flow-builder';
+import { nomeCurto } from '@pipe/api/domain/management/name-rules';
 import { noTenant } from './database.js';
 import type { Session } from './rotas.js';
 
@@ -44,7 +45,8 @@ export async function bridgeFlow(session: Session): Promise<string> {
     `);
     if (existentes[0]) return existentes[0].id;
     const { rows: criados } = await tx.execute<{ id: string }>(sql`
-      insert into fluxo (tenant_id, nome, tipo) values (${session.tenantId}, ${NAME_OF_FLOW}, 'fluxo')
+      insert into fluxo (tenant_id, nome, tipo, short_name)
+      values (${session.tenantId}, ${NAME_OF_FLOW}, 'fluxo', ${nomeCurto(NAME_OF_FLOW)})
       returning id
     `);
     return criados[0]!.id;
