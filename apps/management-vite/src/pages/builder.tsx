@@ -20,6 +20,7 @@ import { BuilderToasts } from './builder/toast';
 import { pushToast, dismissToast, type Toast, type ToastInput } from './builder/toast-queue';
 import { useEditorDoBuilder } from './builder/use-editor';
 import { invalidBlocks } from './builder/error-marks';
+import { SEARCH_DEBOUNCE_MS } from './builder/search';
 import './builder.css';
 
 /**
@@ -99,7 +100,7 @@ export function PageBuilder() {
       setPesquisaComAtraso('');
       return;
     }
-    const temporizador = setTimeout(() => setPesquisaComAtraso(pesquisa), 500);
+    const temporizador = setTimeout(() => setPesquisaComAtraso(pesquisa), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(temporizador);
   }, [pesquisa]);
   const pesquisaAncoraRef = useRef<HTMLDivElement>(null);
@@ -451,26 +452,33 @@ export function PageBuilder() {
                       placeholder="Pesquisar"
                       aria-label="Pesquisar blocos"
                       onChange={(e) => setPesquisa(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') fecharPesquisa();
+                      }}
                     />
                   </div>
-                  <details className="dica bl-pesquisa-info">
-                    <summary aria-label="Como pesquisar">
-                      <IconePortal nome="informacao" tamanho={16} />
-                    </summary>
-                    <div className="dica-balao" role="note">
+                  {/* Solid info icon with a bottom tooltip on hover or focus, not a click. */}
+                  <span
+                    className="bl-pesquisa-info"
+                    tabIndex={0}
+                    aria-label="Como pesquisar"
+                    aria-describedby="bl-pesquisa-dica"
+                  >
+                    <IconePortal nome="informacao-cheia" tamanho={16} />
+                    <span className="bl-pesquisa-dica" id="bl-pesquisa-dica" role="tooltip">
                       Para facilitar a pesquisa, use:
                       <br />
-                      <code>title: Início</code>
+                      title: Início
                       <br />
-                      <code>tags: valor</code>
+                      tags: valor
                       <br />
-                      <code>content: valor</code>
+                      content: valor
                       <br />
-                      <code>actions: valor</code>
+                      actions: valor
                       <br />
-                      <code>output: valor</code>
-                    </div>
-                  </details>
+                      output: valor
+                    </span>
+                  </span>
                 </div>
               ) : null}
             </div>
