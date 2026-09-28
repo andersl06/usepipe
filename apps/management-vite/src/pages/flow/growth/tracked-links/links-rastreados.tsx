@@ -40,7 +40,7 @@ function FormularioDeLink({ flowId, toCreate }: { flowId: string; toCreate: () =
     evento.preventDefault();
     setEnviando(true);
     setResultado(null);
-    const r = await createLinkTracked(flowId, { nome: nome.trim(), destination: destination.trim() });
+    const r = await createLinkTracked(flowId, { name: nome.trim(), destination: destination.trim() });
     setEnviando(false);
     if (r.ok) {
       setNome('');
@@ -148,12 +148,12 @@ export default function PageTrackedLinks() {
               <tbody>
                 {links.map((link) => (
                   <tr key={link.id}>
-                    <td>{link.nome}</td>
+                    <td>{link.name}</td>
                     <td>{link.urlCurta}</td>
                     <td>{link.destinationUrl}</td>
                     <td className="num">{numero(link.cliques)}</td>
                     <td>
-                      <BotaoCopiarLink url={link.urlCurta} nome={link.nome} />
+                      <BotaoCopiarLink url={link.urlCurta} nome={link.name} />
                     </td>
                   </tr>
                 ))}

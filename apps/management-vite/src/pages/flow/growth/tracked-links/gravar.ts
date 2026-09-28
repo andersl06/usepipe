@@ -22,7 +22,7 @@ function falha<T>(error: unknown, padrao: string): Resultado<T> {
 
 export async function createLinkTracked(
   flowId: string,
-  pedido: { nome: string; destination: string },
+  pedido: { name: string; destination: string },
 ): Promise<Resultado<LinkRastreado>> {
   try {
     const value = await api.post<LinkRastreado>(
