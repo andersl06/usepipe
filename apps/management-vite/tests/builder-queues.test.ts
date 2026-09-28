@@ -131,7 +131,7 @@ test('renameBlockReason: permissão só quando não há atendentes nem regras', 
 });
 
 test('queueRenameError: nome curto', () => {
-  assert.equal(queueRenameError('ab', []), 'Nome precisa ter ao menos 3 caracteres.');
+  assert.equal(queueRenameError('ab', []), 'Esse campo deve ter no mínimo 3 caracteres.');
 });
 
 test('queueRenameError: nome repetido usa o mesmo texto de queueNameError', () => {

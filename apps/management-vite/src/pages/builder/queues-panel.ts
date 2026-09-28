@@ -79,7 +79,8 @@ export function renameBlockReason(
   return null;
 }
 
-const NOME_CURTO = 'Nome precisa ter ao menos 3 caracteres.';
+/** `minLengthField` from the source's dictionary (`T:...minLengthField`, {0}=3), the generic field validation it reuses for this input. */
+const NOME_CURTO = 'Esse campo deve ter no mínimo 3 caracteres.';
 
 export type QueueRenameError = typeof NOME_CURTO | QueueNameError;
 
