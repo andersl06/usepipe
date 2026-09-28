@@ -294,6 +294,8 @@ export interface ConfigurationOfMenuPersistent {
 export interface DesenhoDoBuilder {
   flow: Record<string, unknown>;
   globals: Record<string, unknown>;
+  /** `configuration` map (Configuração › Variáveis › "Variáveis de configuração", `{{config.Chave}}`); absent or `{}` for flows saved before this field existed. */
+  configuration?: Record<string, string>;
 }
 
 /**
