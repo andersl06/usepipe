@@ -59,11 +59,10 @@ test('a command resource exported by Blip as text is accepted; bad JSON with a J
   assert.ok(actionErrors(quebrado).some((e) => e.startsWith('Resource')));
 });
 
-test('script actions warn that {{variables}} are not substituted in code (WR-03)', () => {
+test('script code may carry {{variables}}, as in Blip (D-55)', () => {
   for (const tipo of ['ExecuteScript', 'ExecuteScriptV2']) {
-    const comVariavel = comCampo(novaAcao(tipo), 'source', 'function run() { return "{{input.content}}"; }');
-    assert.ok(actionErrors(comVariavel).some((e) => e.includes('não são substituídas')));
-    assert.ok(!actionErrors(novaAcao(tipo)).some((e) => e.includes('não são substituídas')));
+    const comVariavel = comCampo(novaAcao(tipo), 'source', 'function run() { {{resource.fn}} return "{{input.content}}"; }');
+    assert.ok(!actionErrors(comVariavel).some((e) => e.startsWith('Código')));
   }
 });
 

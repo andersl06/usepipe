@@ -124,8 +124,6 @@ export class SuspensaoDeProcessHttp extends Error {
 
 class TimeExpired extends Error {}
 
-/** Actions whose `source` is JavaScript: never substituted (WR-03). */
-const SCRIPT_ACTIONS = new Set(['ExecuteScript', 'ExecuteScriptV2']);
 
 /**
  * `Promise.race` alone leaves the losing action running; `controle` is aborted at the deadline so
@@ -425,20 +423,15 @@ async function processActions(
     try {
       let settings: Record<string, unknown> | null = null;
       if (flowAction.settings !== undefined && flowAction.settings !== null) {
-        // Pipe decision (security, diverges from Blip): script code is never a template. The JSON
-        // escape only protects the settings JSON, not the JavaScript around the value, so a
-        // customer message in `{{input.content}}` would become code in the sandbox (with the
-        // tenant's fetch/mTLS). Scripts receive customer data only through `inputVariables`.
-        const codigo = SCRIPT_ACTIONS.has(acao.tipo)
-          ? Object.entries(flowAction.settings).filter(([k]) => k.toLowerCase() === 'source')
-          : [];
-        const resto = codigo.length > 0
-          ? Object.fromEntries(Object.entries(flowAction.settings).filter(([k]) => k.toLowerCase() !== 'source'))
-          : flowAction.settings;
-        let texto = JSON.stringify(resto);
+        // Owner decision D-55 (2026-09-28): same as Blip, `{{...}}` is substituted in every
+        // setting, script `source` included, so flows exported from Blip run unchanged (a
+        // resource can inject a whole function with `{{resource.x}}`). Accepted risk: a
+        // customer-controlled variable written inside code becomes code in the sandbox, with the
+        // tenant's fetch/mTLS. Prefer `inputVariables` for customer data.
+        let texto = JSON.stringify(flowAction.settings);
         // `ExecuteTemplate` receives the raw template; other actions receive substituted variables.
         if (acao.tipo !== 'ExecuteTemplate') texto = await replaceVariables(texto, context);
-        settings = { ...(JSON.parse(texto) as Record<string, unknown>), ...Object.fromEntries(codigo) };
+        settings = JSON.parse(texto) as Record<string, unknown>;
       }
       context.inboundContext.set(KEY_OF_STATE_CURRENT, state?.id ?? null);
       if (flowAction.type === 'ProcessHttp' && context.services.suspendHttp) {

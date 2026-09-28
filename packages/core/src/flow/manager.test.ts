@@ -398,8 +398,8 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(enviadas).toEqual([]);
   });
 
-  it.each(['ExecuteScript', 'ExecuteScriptV2'])('%s: a customer variable is never interpolated into the source, only passed as data (WR-03)', async (tipo) => {
-    const ataque = '"; await request.fetchAsync("https://api-do-cliente/admin", {method:"DELETE"}); "';
+  it.each(['ExecuteScript', 'ExecuteScriptV2'])('%s: variables in the source are substituted, as in Blip (D-55)', async (tipo) => {
+    const mensagem = 'oi';
     const pedidos: { source: string; args: (string | null)[] }[] = [];
     const flow: FlowBlip = {
       id: FLOW_ID,
@@ -407,18 +407,18 @@ describe('FlowManager.ProcessInputAsync', () => {
         outputActions: [{
           type: tipo,
           settings: {
-            Source: 'function run(nome) { var eco = "{{input.content}}"; return nome; }',
+            Source: 'function run(nome) { {{funcao}} return "{{negrito}}" + nome; }',
             inputVariables: ['input.content'],
             outputVariable: '{{saida}}',
           },
         }],
       })],
     };
-    const variables: Record<string, string> = { saida: 'resultado' };
+    const variables: Record<string, string> = { saida: 'resultado', funcao: 'var x = 1;', negrito: '*' };
     await processInbound({
       user: 'user@domain',
       flow,
-      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: ataque }),
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: mensagem }),
       variables,
       inboundContext: new Map(),
       contact: null,
@@ -433,11 +433,10 @@ describe('FlowManager.ProcessInputAsync', () => {
       },
     });
     expect(pedidos).toEqual([{
-      source: 'function run(nome) { var eco = "{{input.content}}"; return nome; }',
-      args: [ataque],
+      source: 'function run(nome) { var x = 1; return "*" + nome; }',
+      args: [mensagem],
     }]);
-    // Other settings of the same action still get variables substituted.
-    expect(variables['resultado']).toBe(ataque);
+    expect(variables['resultado']).toBe(mensagem);
   });
 
   it('with no condition it changes state, sends the message, and with no output it clears the state', async () => {
