@@ -337,7 +337,7 @@ Plans:
 
 **Wave 19** *(blocked on Wave 18 completion)*
 
-- [ ] 02-29-PLAN.md — F-2 base: configuration do fluxo editado pelo Builder e publicado para o motor
+- [x] 02-29-PLAN.md — F-2 base: configuration do fluxo editado pelo Builder e publicado para o motor
 
 **Wave 20** *(blocked on Wave 19 completion)*
 
