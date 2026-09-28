@@ -1309,6 +1309,87 @@
   font-weight: 700;
   text-align: center;
 }
+/* Ghost button (reference `bds-button variant="ghost"`): no fill, no border, brand text. */
+.bl-rules-view .btn.bl-rules-ghost {
+  min-height: 48px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--p-builder-marca);
+  box-shadow: none;
+}
+.bl-rules-view .btn.bl-rules-ghost:hover {
+  background: rgb(255 255 255 / 8%);
+}
+.bl-rule-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.bl-queue-card.bl-rule-card--aberta {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  padding: 16px;
+}
+.bl-rule-card-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}
+.bl-rule-card-titulo h4 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bl-rule-card-titulo .campo {
+  flex: 1;
+  min-width: 0;
+}
+.bl-rule-outline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bl-rule-condition {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bl-rule-condition-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+.bl-rule-condition-extra .campo {
+  width: 100%;
+  box-sizing: border-box;
+}
+.bl-rule-adicionar {
+  display: flex;
+  justify-content: center;
+}
+.bl-rules-view .at-selection-chips {
+  color: #fff;
+}
+.bl-rules-view .at-selection-chips .at-sc-campo {
+  background: #393939;
+  border-color: rgb(255 255 255 / 20%);
+}
+.bl-rules-view .at-selection-chips .at-sc-chip {
+  border-color: rgb(255 255 255 / 20%);
+}
+.bl-rules-view .at-sc-erro,
+.bl-rules-view .at-selection-chips.at-sc--danger .at-sc-campo {
+  --p-error-content: var(--p-error-on-dark);
+}
 
 /*
  * Configuração's "Variáveis" tab (F-2, D-56 item 3): 8 collapsible sections, header padding

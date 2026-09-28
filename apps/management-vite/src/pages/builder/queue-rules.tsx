@@ -1,20 +1,39 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Botao, Campo, Carregando, Etiqueta, Icone, Illustration } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import type { QueueForChoose, QueueRegistered, QueueRegisteredRule } from '../../lib/registrations';
-import { editQueue } from '../../lib/registrations-gravar';
-import { toggleRuleQueue } from '../../lib/actions';
+import { deleteRuleQueue, editQueue, editRuleQueue } from '../../lib/registrations-gravar';
+import { saveRuleQueue, toggleRuleQueue } from '../../lib/actions';
+import { rotuloDoCampo } from '../../lib/rule-queue';
+import { ManagementIcon } from '../../components/icones-management';
+import { Selection } from '../../components/selection';
+import { SelectionChips } from '../../components/selection-chips';
 import { Interruptor } from '../flow/integrations/interruptor';
-import { RuleQueueForm } from '../registrations/rules-attendance-formulario';
-import { filterQueues, pageQueues, queueRenameError, queueRules, renameBlockReason, type RenameBlockReason } from './queues-panel';
+import {
+  RULE_COMPARISONS,
+  RULE_SOURCES,
+  draftToApi,
+  filterQueues,
+  newRuleCondition,
+  newRuleDraft,
+  pageQueues,
+  queueRenameError,
+  queueRules,
+  renameBlockReason,
+  ruleDraftState,
+  ruleToDraft,
+  type RenameBlockReason,
+  type RuleComparison,
+  type RuleDraft,
+  type RuleDraftCondition,
+} from './queues-panel';
 import type { QueuesAviso } from './panel-queues';
 
 /**
- * The Builder's embedded queue-rules mode (D-56 item 4, completing 02-33's placeholder):
- * editable queue name with the same locks as the Desk, search, rule cards with a toggle, and
- * "Criar nova regra" opening the Desk's own `RuleQueueForm` inside the panel, with this queue
- * already fixed as the destination. No delete button anywhere — the live capture confirmed the
- * source template never shows one here either (`ref/CAPTURAS-F1-F6.md` §F-5).
+ * The Builder's embedded queue-rules mode, laid out like reference `builder-attendance-rules`:
+ * editable queue name with the same locks as the Desk, debounced search, and rule cards that open
+ * in place to create or edit (one open at a time). The destination is always this queue, so the
+ * card has no queue picker.
  */
 
 interface QueueRulesRead {
@@ -28,6 +47,10 @@ const TEXTO_BLOQUEIO: Record<RenameBlockReason, string> = {
   permissao: 'Você não tem permissão para alterar esta fila.',
 };
 
+const CAMPO_OBRIGATORIO = 'Ops! Este campo precisa ser preenchido';
+const NOVA = 'nova';
+const DEBOUNCE_MS = 300;
+
 export function QueueRulesView({
   fila,
   onVoltar,
@@ -38,7 +61,8 @@ export function QueueRulesView({
   onAviso: (aviso: QueuesAviso) => void;
 }) {
   const read = useRead<QueueRulesRead>('/v1/management/rules/attendance');
-  const [criando, setCriando] = useState(false);
+  const [aberta, setAberta] = useState<{ id: string; draft: RuleDraft } | null>(null);
+  const [salvando, setSalvando] = useState(false);
   const [termoDigitado, setTermoDigitado] = useState('');
   const [termoAplicado, setTermoAplicado] = useState('');
   const [paginas, setPaginas] = useState(1);
@@ -47,10 +71,19 @@ export function QueueRulesView({
   const [salvandoNome, setSalvandoNome] = useState(false);
   const [erroNome, setErroNome] = useState<string | null>(null);
 
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setTermoAplicado(termoDigitado.trim());
+      setPaginas(1);
+    }, DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [termoDigitado]);
+
   const carregando = !read.data;
-  const regrasDaFila = read.data ? queueRules(read.data.regras, fila.id) : [];
+  const todasRegras = read.data?.regras ?? [];
+  const regrasDaFila = queueRules(todasRegras, fila.id);
   // Permission to write hasn't got a reusable helper on the Desk side (no such thing in
-  // `pages/registrations/*`) — always allowed until one exists, per the plan's own fallback.
+  // `pages/registrations/*`) — always allowed until one exists.
   const podeGravar = true;
   const motivoBloqueio = renameBlockReason(fila, regrasDaFila.length, podeGravar);
 
@@ -89,14 +122,52 @@ export function QueueRulesView({
     setEditandoNome(false);
   };
 
-  const aplicarBusca = () => {
-    setTermoAplicado(termoDigitado.trim());
-    setPaginas(1);
+  const criarNova = () => setAberta({ id: NOVA, draft: newRuleDraft(regrasDaFila) });
+  const editar = (regra: QueueRegisteredRule) => setAberta({ id: regra.id, draft: ruleToDraft(regra) });
+
+  const confirmar = async () => {
+    if (!aberta) return;
+    const payload = draftToApi(aberta.draft);
+    if (!payload) return;
+    const nome = aberta.draft.name.trim();
+    setSalvando(true);
+    let erro: string | undefined;
+    if (aberta.id === NOVA) {
+      // Order is global across queues: a new rule goes after every existing one, like the Desk's default.
+      const ordem = Math.min(999, todasRegras.reduce((max, r) => Math.max(max, r.order + 1), 0));
+      const dados = new FormData();
+      dados.set('nome', nome);
+      dados.set('filaDestinoId', fila.id);
+      dados.set('combinador', payload.combiner);
+      dados.set('ordem', String(ordem));
+      for (const c of payload.conditions) {
+        dados.append('campo', c.campo);
+        dados.append('operador', c.operador);
+        dados.append('valor', c.value);
+      }
+      const resultado = await saveRuleQueue({ ok: true }, dados);
+      if (!resultado.ok) erro = resultado.error ?? 'Não foi possível salvar.';
+    } else {
+      const resultado = await editRuleQueue(aberta.id, {
+        nome,
+        combinador: payload.combiner,
+        conditions: payload.conditions,
+      });
+      if (!resultado.ok) erro = resultado.error;
+    }
+    setSalvando(false);
+    if (erro) {
+      onAviso({ tom: 'erro', texto: erro });
+      return;
+    }
+    setAberta(null);
   };
-  const limparBusca = () => {
-    setTermoDigitado('');
-    setTermoAplicado('');
-    setPaginas(1);
+
+  const excluir = async (regra: QueueRegisteredRule) => {
+    if (!window.confirm(`Excluir a regra ${regra.name}?`)) return;
+    const resultado = await deleteRuleQueue(regra.id);
+    if (!resultado.ok) onAviso({ tom: 'erro', texto: resultado.error });
+    else if (aberta?.id === regra.id) setAberta(null);
   };
 
   const alternar = async (regra: QueueRegisteredRule) => {
@@ -105,6 +176,21 @@ export function QueueRulesView({
     const resultado = await toggleRuleQueue({ ok: true }, dados);
     if (!resultado.ok) onAviso({ tom: 'erro', texto: resultado.error ?? 'Não foi possível alterar a regra.' });
   };
+
+  const cartaoAberto = (id: string) =>
+    aberta?.id === id ? (
+      <RuleCardOpen
+        key={id}
+        draft={aberta.draft}
+        salvando={salvando}
+        onMudar={(draft) => setAberta({ id, draft })}
+        onCancelar={() => setAberta(null)}
+        onConfirmar={() => void confirmar()}
+      />
+    ) : null;
+
+  const filtradas = filterQueues(regrasDaFila, termoAplicado);
+  const pagina = pageQueues(filtradas, paginas);
 
   return (
     <div className="bl-rules-view">
@@ -160,134 +246,293 @@ export function QueueRulesView({
         <div className="bl-queues-loading">
           <Carregando rotulo="Carregando regras" />
         </div>
-      ) : criando ? (
-        <RuleQueueForm
-          queues={read.data!.queues}
-          destinoFixo={{ id: fila.id, name: fila.name }}
-          aoSalvar={() => setCriando(false)}
-        />
-      ) : regrasDaFila.length === 0 ? (
+      ) : regrasDaFila.length === 0 && aberta?.id !== NOVA ? (
         <div className="bl-queues-empty">
-          <p>Você ainda não possui regras de atendimento definidas.</p>
-          <Botao
-            variante="primario"
-            icone="mais"
-            className="bl-queues-empty-botao"
-            onClick={() => setCriando(true)}
-          >
+          <p>
+            Você ainda não possui regras de atendimento definidas. Escolha o comportamento padrão
+            para tickets e as filas para os quais eles serão direcionados.
+          </p>
+          <Botao variante="primario" icone="mais" className="bl-queues-empty-botao" onClick={criarNova}>
             Criar nova regra
           </Botao>
         </div>
       ) : (
-        <QueueRulesList
-          regras={regrasDaFila}
-          termoDigitado={termoDigitado}
-          termoAplicado={termoAplicado}
-          paginas={paginas}
-          onTermoDigitadoChange={setTermoDigitado}
-          onBuscar={aplicarBusca}
-          onLimparBusca={limparBusca}
-          onCriarNova={() => setCriando(true)}
-          onCarregarMais={() => setPaginas((p) => p + 1)}
-          onAlternar={(regra) => void alternar(regra)}
-        />
+        <>
+          {regrasDaFila.length > 0 ? (
+            <div className="bl-queues-search">
+              <div className="bl-queues-search-campo">
+                <Icone nome="busca" tamanho={20} className="bl-queues-search-icone" />
+                <Campo
+                  value={termoDigitado}
+                  placeholder="Pesquisar"
+                  aria-label="Pesquisar regras"
+                  onChange={(e) => setTermoDigitado(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                className="bl-queues-search-botao"
+                aria-label={termoAplicado ? 'Limpar busca' : 'Criar nova regra'}
+                title={termoAplicado ? 'Limpar busca' : 'Criar nova regra'}
+                onClick={termoAplicado ? () => setTermoDigitado('') : criarNova}
+              >
+                <Icone nome={termoAplicado ? 'x' : 'mais'} tamanho={20} />
+              </button>
+            </div>
+          ) : null}
+
+          {cartaoAberto(NOVA)}
+
+          {regrasDaFila.length > 0 && filtradas.length === 0 ? (
+            <div className="bl-queues-no-result">
+              <Illustration nome="busca" tamanho={96} />
+              <p className="bl-queues-no-result-titulo">Regra não encontrada :(</p>
+              <p>Não há regras cadastradas com esse nome</p>
+            </div>
+          ) : regrasDaFila.length > 0 ? (
+            <>
+              <div className="bl-queues-list">
+                {pagina.visiveis.map(
+                  (regra) =>
+                    cartaoAberto(regra.id) ?? (
+                      <div key={regra.id} className="bl-queue-card bl-rule-card">
+                        <div className="bl-queue-card-info">
+                          <span className="bl-queue-card-label">Nome da regra</span>
+                          <span className="bl-queue-card-name">{regra.name}</span>
+                        </div>
+                        <div className="bl-queue-card-right">
+                          <div className="bl-rule-card-actions">
+                            <button
+                              type="button"
+                              className="iconbtn"
+                              aria-label="Editar regra"
+                              title="Editar regra"
+                              onClick={() => editar(regra)}
+                            >
+                              <Icone nome="lapis" tamanho={18} />
+                            </button>
+                            <button
+                              type="button"
+                              className="iconbtn"
+                              aria-label="Excluir regra"
+                              title="Excluir regra"
+                              onClick={() => void excluir(regra)}
+                            >
+                              <ManagementIcon nome="lixeira" tamanho={18} />
+                            </button>
+                          </div>
+                          <Interruptor
+                            id={`bl-regra-${regra.id}`}
+                            ligado={regra.active}
+                            rotulo={regra.active ? `Desativar a regra ${regra.name}` : `Ativar a regra ${regra.name}`}
+                            aoMudar={() => void alternar(regra)}
+                            className="bl-queue-switch"
+                          />
+                        </div>
+                      </div>
+                    ),
+                )}
+              </div>
+              <div className="bl-rules-footer">
+                <span>
+                  Exibindo {pagina.visiveis.length} de {pagina.total}
+                </span>
+                {pagina.temMais ? (
+                  <Botao className="bl-rules-ghost" onClick={() => setPaginas((p) => p + 1)}>
+                    Carregar mais
+                  </Botao>
+                ) : null}
+              </div>
+            </>
+          ) : null}
+        </>
       )}
     </div>
   );
 }
 
-/** Search line, rule cards and centered footer — everything the rule list shows once there is at least one rule for this queue. */
-function QueueRulesList({
-  regras,
-  termoDigitado,
-  termoAplicado,
-  paginas,
-  onTermoDigitadoChange,
-  onBuscar,
-  onLimparBusca,
-  onCriarNova,
-  onCarregarMais,
-  onAlternar,
+/** Open rule card (reference `.rule-item-opened`): editable title, conditions, Cancelar/Confirmar. */
+function RuleCardOpen({
+  draft,
+  salvando,
+  onMudar,
+  onCancelar,
+  onConfirmar,
 }: {
-  regras: QueueRegisteredRule[];
-  termoDigitado: string;
-  termoAplicado: string;
-  paginas: number;
-  onTermoDigitadoChange: (value: string) => void;
-  onBuscar: () => void;
-  onLimparBusca: () => void;
-  onCriarNova: () => void;
-  onCarregarMais: () => void;
-  onAlternar: (regra: QueueRegisteredRule) => void;
+  draft: RuleDraft;
+  salvando: boolean;
+  onMudar: (draft: RuleDraft) => void;
+  onCancelar: () => void;
+  onConfirmar: () => void;
 }) {
-  const filtradas = filterQueues(regras, termoAplicado);
-  const pagina = pageQueues(filtradas, paginas);
+  const [editandoTitulo, setEditandoTitulo] = useState(false);
+  const [titulo, setTitulo] = useState(draft.name);
+  const estado = ruleDraftState(draft);
+  const tituloVazio = titulo.trim() === '';
+
+  const confirmarTitulo = () => {
+    if (tituloVazio) return;
+    onMudar({ ...draft, name: titulo.trim() });
+    setEditandoTitulo(false);
+  };
+  const mudarCondicao = (i: number, c: RuleDraftCondition) =>
+    onMudar({ ...draft, conditions: draft.conditions.map((x, j) => (j === i ? c : x)) });
 
   return (
-    <>
-      <div className="bl-queues-search">
-        <div className="bl-queues-search-campo">
-          <Icone nome="busca" tamanho={20} className="bl-queues-search-icone" />
-          <Campo
-            value={termoDigitado}
-            placeholder="Pesquisar"
-            aria-label="Pesquisar regras"
-            onChange={(e) => onTermoDigitadoChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key !== 'Enter') return;
-              e.preventDefault();
-              onBuscar();
-            }}
-          />
-        </div>
-        <button
-          type="button"
-          className="bl-queues-search-botao"
-          aria-label={termoAplicado ? 'Limpar busca' : 'Criar nova regra'}
-          title={termoAplicado ? 'Limpar busca' : 'Criar nova regra'}
-          onClick={termoAplicado ? onLimparBusca : onCriarNova}
-        >
-          <Icone nome={termoAplicado ? 'x' : 'mais'} tamanho={20} />
-        </button>
+    <div className="bl-queue-card bl-rule-card bl-rule-card--aberta">
+      <div className="bl-rule-card-titulo">
+        {editandoTitulo ? (
+          <>
+            <Campo
+              autoFocus
+              value={titulo}
+              aria-label="Nome da regra"
+              aria-invalid={tituloVazio || undefined}
+              onChange={(e) => setTitulo(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  confirmarTitulo();
+                } else if (e.key === 'Escape') {
+                  setTitulo(draft.name);
+                  setEditandoTitulo(false);
+                }
+              }}
+            />
+            <button
+              type="button"
+              className="iconbtn"
+              aria-label="Cancelar edição"
+              title="Cancelar edição"
+              onClick={() => {
+                setTitulo(draft.name);
+                setEditandoTitulo(false);
+              }}
+            >
+              <Icone nome="x" tamanho={18} />
+            </button>
+            <button
+              type="button"
+              className="iconbtn"
+              aria-label="Confirmar edição"
+              title="Confirmar edição"
+              disabled={tituloVazio}
+              onClick={confirmarTitulo}
+            >
+              <Icone nome="cheque" tamanho={18} />
+            </button>
+          </>
+        ) : (
+          <>
+            <h4>{draft.name}</h4>
+            <button
+              type="button"
+              className="iconbtn"
+              aria-label="Editar nome da regra"
+              title="Editar nome da regra"
+              onClick={() => {
+                setTitulo(draft.name);
+                setEditandoTitulo(true);
+              }}
+            >
+              <Icone nome="lapis" tamanho={18} />
+            </button>
+          </>
+        )}
       </div>
+      {editandoTitulo && tituloVazio ? <span className="at-sc-erro">{CAMPO_OBRIGATORIO}</span> : null}
 
-      {filtradas.length === 0 ? (
-        <div className="bl-queues-no-result">
-          <Illustration nome="busca" tamanho={96} />
-          <p className="bl-queues-no-result-titulo">Regra não encontrada  :(</p>
-          <p>Não há regras cadastradas com este nome</p>
-        </div>
-      ) : (
-        <>
-          <div className="bl-queues-list">
-            {pagina.visiveis.map((regra) => (
-              <div key={regra.id} className="bl-queue-card">
-                <div className="bl-queue-card-info">
-                  <span className="bl-queue-card-label">Nome da regra</span>
-                  <span className="bl-queue-card-name">{regra.name}</span>
-                </div>
-                <Interruptor
-                  id={`bl-regra-${regra.id}`}
-                  ligado={regra.active}
-                  rotulo={regra.active ? `Desativar a regra ${regra.name}` : `Ativar a regra ${regra.name}`}
-                  aoMudar={() => onAlternar(regra)}
-                  className="bl-queue-switch"
+      <div className="bl-rule-outline">
+        {draft.conditions.map((c, i) => (
+          <div key={i} className="bl-rule-condition">
+            <div className="bl-rule-condition-campos">
+              <Selection
+                aria-label="Se"
+                rotulo="Se"
+                value={c.source}
+                onChange={(e) => mudarCondicao(i, { ...c, source: e.target.value })}
+              >
+                {RULE_SOURCES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.rotulo}
+                  </option>
+                ))}
+                {RULE_SOURCES.some((s) => s.value === c.source) ? null : (
+                  <option value={c.source}>{rotuloDoCampo(c.source)}</option>
+                )}
+              </Selection>
+              <Selection
+                aria-label="Condição"
+                rotulo="Condição"
+                value={c.comparison}
+                onChange={(e) => mudarCondicao(i, { ...c, comparison: e.target.value as RuleComparison })}
+              >
+                {RULE_COMPARISONS.map((x) => (
+                  <option key={x.value} value={x.value}>
+                    {x.rotulo}
+                  </option>
+                ))}
+              </Selection>
+              <button
+                type="button"
+                className="iconbtn bl-rule-condition-remover"
+                aria-label="Remover condição"
+                title="Remover condição"
+                onClick={() => onMudar({ ...draft, conditions: draft.conditions.filter((_, j) => j !== i) })}
+              >
+                <ManagementIcon nome="lixeira" tamanho={18} />
+              </button>
+            </div>
+            {c.source === 'Contact.Extras' ? (
+              <div className="bl-rule-condition-extra">
+                <Campo
+                  aria-label="Propriedade extra do contato"
+                  placeholder="Propriedade"
+                  value={c.extraKey}
+                  aria-invalid={estado.extraKeyMissing[i] || undefined}
+                  onChange={(e) => mudarCondicao(i, { ...c, extraKey: e.target.value })}
                 />
               </div>
-            ))}
-          </div>
-          <div className="bl-rules-footer">
-            <span>
-              Exibindo {pagina.visiveis.length} de {pagina.total}
-            </span>
-            {pagina.temMais ? (
-              <Botao className="bl-queues-carregar-mais" onClick={onCarregarMais}>
-                Carregar mais
-              </Botao>
             ) : null}
+            <SelectionChips
+              label="Valor"
+              rotulo="Valor"
+              placeholder="Valores"
+              values={c.values}
+              onChange={(values) => mudarCondicao(i, { ...c, values })}
+              erro={estado.valuesMissing[i] ? CAMPO_OBRIGATORIO : undefined}
+            />
           </div>
-        </>
-      )}
-    </>
+        ))}
+      </div>
+
+      <div className="bl-rule-adicionar">
+        <Botao
+          icone="mais"
+          className="bl-rules-ghost"
+          onClick={() => onMudar({ ...draft, conditions: [...draft.conditions, newRuleCondition()] })}
+        >
+          Adicionar condição
+        </Botao>
+      </div>
+
+      <div className="bl-queues-form-botoes">
+        <Botao onClick={onCancelar} disabled={salvando}>
+          Cancelar
+        </Botao>
+        <Botao
+          variante="primario"
+          onClick={onConfirmar}
+          disabled={salvando || estado.confirmDisabled}
+          title={
+            !estado.valuesMissing.some(Boolean) && draftToApi(draft) === null
+              ? 'Com mais de uma condição, várias opções no mesmo campo precisam seguir a combinação da regra.'
+              : undefined
+          }
+        >
+          Confirmar
+        </Botao>
+      </div>
+    </div>
   );
 }

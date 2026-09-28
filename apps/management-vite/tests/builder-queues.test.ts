@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { newBlock, attendanceNewBlock, type Mapa } from '../src/pages/builder/model.ts';
+import { addChips, splitChipText } from '../src/components/chip-values.ts';
 import {
+  draftToApi,
+  newRuleDraft,
+  nextRuleName,
+  ruleDraftState,
+  ruleToDraft,
   filterQueues,
   hasAttendanceBlock,
   pageQueues,
@@ -143,4 +149,98 @@ test('queueRenameError: nome repetido usa o mesmo texto de queueNameError', () =
 
 test('queueRenameError: nome válido não gera erro', () => {
   assert.equal(queueRenameError('Cobrança', [{ name: 'Suporte' }]), null);
+});
+
+test('splitChipText: vírgula, | e ; fecham chips; o resto continua digitado', () => {
+  assert.deepEqual(splitChipText('boleto, pix|cartão;  ;fat'), { chips: ['boleto', 'pix', 'cartão'], rest: 'fat' });
+  assert.deepEqual(splitChipText('sem delimitador'), { chips: [], rest: 'sem delimitador' });
+});
+
+test('addChips: ignora vazio e repetido', () => {
+  assert.deepEqual(addChips(['a'], [' a ', '', 'b', 'b']), ['a', 'b']);
+});
+
+test('nextRuleName: sequencial e pula nome já usado', () => {
+  assert.equal(nextRuleName([]), 'Regra 1');
+  assert.equal(nextRuleName([{ name: 'Regra 1' }]), 'Regra 2');
+  assert.equal(nextRuleName([{ name: 'Outra' }, { name: 'Regra 3' }]), 'Regra 4');
+});
+
+test('ruleDraftState: Confirmar desabilitado com valor vazio', () => {
+  const draft = newRuleDraft([]);
+  const estado = ruleDraftState(draft);
+  assert.deepEqual(estado.valuesMissing, [true]);
+  assert.equal(estado.confirmDisabled, true);
+  draft.conditions[0]!.values = ['boleto'];
+  assert.equal(ruleDraftState(draft).confirmDisabled, false);
+});
+
+test('ruleDraftState: Extras Contato exige a propriedade', () => {
+  const draft = newRuleDraft([]);
+  draft.conditions[0] = { source: 'Contact.Extras', extraKey: '', comparison: 'Equals', values: ['ouro'] };
+  assert.equal(ruleDraftState(draft).confirmDisabled, true);
+  draft.conditions[0].extraKey = 'plano';
+  assert.equal(ruleDraftState(draft).confirmDisabled, false);
+  assert.deepEqual(draftToApi(draft)?.conditions, [{ campo: 'contato.atributos.plano', operador: 'igual', value: 'ouro' }]);
+});
+
+test('draftToApi: uma condição com vários chips vira OU; negada vira E', () => {
+  const draft = newRuleDraft([]);
+  draft.conditions[0]!.values = ['boleto', 'pix'];
+  assert.deepEqual(draftToApi(draft), {
+    combiner: 'ou',
+    conditions: [
+      { campo: 'mensagem', operador: 'contem', value: 'boleto' },
+      { campo: 'mensagem', operador: 'contem', value: 'pix' },
+    ],
+  });
+  draft.conditions[0]!.comparison = 'NotContains';
+  assert.equal(draftToApi(draft)?.combiner, 'e');
+});
+
+test('draftToApi: E com várias condições não guarda "qualquer um" de chips', () => {
+  const draft = newRuleDraft([]);
+  draft.conditions = [
+    { source: 'Message', extraKey: '', comparison: 'Contains', values: ['boleto', 'pix'] },
+    { source: 'Contact.Name', extraKey: '', comparison: 'Equals', values: ['Ana'] },
+  ];
+  assert.equal(draftToApi(draft), null);
+  assert.equal(ruleDraftState(draft).confirmDisabled, true);
+});
+
+test('ruleToDraft -> draftToApi preserva a regra guardada', () => {
+  const regra: QueueRule = {
+    id: 'r1',
+    name: 'Cobrança',
+    order: 0,
+    combiner: 'ou',
+    queueDestinationId: 'f1',
+    queueDestinationName: 'Financeiro',
+    active: true,
+    conditions: [
+      { field: 'mensagem', operator: 'contem', value: 'boleto' },
+      { field: 'mensagem', operator: 'contem', value: 'pix' },
+    ],
+  };
+  const draft = ruleToDraft(regra);
+  assert.equal(draft.conditions.length, 1);
+  assert.deepEqual(draft.conditions[0]!.values, ['boleto', 'pix']);
+  assert.deepEqual(draftToApi(draft), {
+    combiner: 'ou',
+    conditions: regra.conditions.map((c) => ({ campo: c.field, operador: c.operator, value: c.value })),
+  });
+
+  const mista: QueueRule = {
+    ...regra,
+    conditions: [
+      { field: 'contato.telefone', operator: 'igual', value: '5511' },
+      { field: 'mensagem', operator: 'nao_contem', value: 'spam' },
+    ],
+  };
+  const d2 = ruleToDraft(mista);
+  assert.equal(d2.conditions[0]!.source, 'contato.telefone');
+  assert.deepEqual(draftToApi(d2), {
+    combiner: 'ou',
+    conditions: mista.conditions.map((c) => ({ campo: c.field, operador: c.operator, value: c.value })),
+  });
 });
