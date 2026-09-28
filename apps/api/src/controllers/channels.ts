@@ -46,7 +46,7 @@ export class ChannelsController {
     const sessao = sessionOf(requisicao);
     await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
     return {
-      estado: issueState(sessao.tenantId, sessao.userId),
+      state: issueState(sessao.tenantId, sessao.userId),
       appId: process.env['WHATSAPP_APP_ID'] ?? '',
       configId: process.env['WHATSAPP_CONFIG_ID'] ?? '',
       versao: versaoDaApi(),

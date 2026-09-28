@@ -132,6 +132,14 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+describe('start embedded registration (POST /v1/channels/whatsapp/state)', () => {
+  it('returns state under the English key the front reads', async () => {
+    const resposta = await controller.iniciar(request(A));
+    expect(resposta['state']).toBeTruthy();
+    expect(resposta['estado']).toBeUndefined();
+  });
+});
+
 describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o dublê', () => {
   it('Create the channel and inbox, encrypt its token, and point the number webhook to its route', async () => {
     const canal = await conectar(A, { code: `ok-${S}` });
