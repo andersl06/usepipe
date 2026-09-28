@@ -321,7 +321,7 @@ Plans:
 
 **Wave 15** *(blocked on Wave 14 completion)*
 
-- [ ] 02-25-PLAN.md — F-4 lupa: caixa escura, sem resultado não mexe no canvas, fechar limpa, busca por conteúdo/ações/saídas
+- [x] 02-25-PLAN.md — F-4 lupa: caixa escura, sem resultado não mexe no canvas, fechar limpa, busca por conteúdo/ações/saídas
 
 **Wave 16** *(blocked on Wave 15 completion)*
 
