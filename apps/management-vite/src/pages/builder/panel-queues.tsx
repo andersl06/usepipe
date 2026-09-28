@@ -7,14 +7,15 @@ import { saveQueue } from '../../lib/actions';
 import { Interruptor } from '../flow/integrations/interruptor';
 import { FloatingSidebar } from './floating-sidebar';
 import { filterQueues, pageQueues, queueNameError, queuesPanelReducer } from './queues-panel';
+import { QueueRulesView } from './queue-rules';
 
 /**
  * The Builder's embedded queue manager (D-56 item 4, reverting D-15): list, search (Enter-only),
  * card switch, and create form, all writing to the same queues the Desk registry reads
  * (`/v1/management/agents/queues`, `toggleQueue`/`saveQueue` from `registrations-gravar.ts`/
  * `actions.ts`). Rules live in `queues-panel.ts`; this component only wires them to the read and
- * the two writes. The "regras" mode is a placeholder — its list of attendance rules per queue is
- * built in the next plan of this round (02-34).
+ * the two writes. The "regras" mode renders `QueueRulesView` (`queue-rules.tsx`), which owns its
+ * own read of `/v1/management/rules/attendance` and the rule-level writes.
  */
 
 export type QueuesAviso = { tom: 'sucesso' | 'erro' | 'alerta'; texto: string; duracaoMs?: number };
@@ -78,22 +79,20 @@ export function QueuesPanel({
             onSalvo={(nome) => void finalizarCriacao(nome)}
           />
         ) : modo.modo === 'regras' ? (
-          <div className="bl-queues-rules-placeholder">
-            <div className="bl-queues-form-header">
-              <button
-                type="button"
-                className="iconbtn"
-                aria-label="Voltar"
-                title="Voltar"
-                onClick={() => despacharModo({ tipo: 'voltar' })}
-              >
-                <Icone nome="esquerda" tamanho={20} />
-              </button>
-              <h3>{queues.find((q) => q.id === modo.id)?.name ?? ''}</h3>
-            </div>
-            <hr className="bl-panel-wire" />
-            <p className="sub">Regras desta fila — em construção no próximo plano.</p>
-          </div>
+          (() => {
+            const filaAtual = queues.find((q) => q.id === modo.id);
+            return filaAtual ? (
+              <QueueRulesView
+                fila={filaAtual}
+                onVoltar={() => despacharModo({ tipo: 'voltar' })}
+                onAviso={onAviso}
+              />
+            ) : (
+              <div className="bl-queues-loading">
+                <Carregando rotulo="Carregando fila" />
+              </div>
+            );
+          })()
         ) : queues.length === 0 ? (
           <div className="bl-queues-empty">
             <p>

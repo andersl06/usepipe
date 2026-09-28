@@ -124,6 +124,7 @@ export function RuleQueueForm({
   queues,
   regraExistente,
   aoSalvar,
+  destinoFixo,
 }: {
   queues: readonly QueueForChoose[];
   /** Presente = editar esta regra (`PATCH`); ausente = criar (mesmo de sempre). */
@@ -132,6 +133,13 @@ export function RuleQueueForm({
    * Closes the modal once saving succeeds — without this the person is left staring at their own blank form, not knowing if it worked.
    */
   aoSalvar?: () => void;
+  /**
+   * The Builder's embedded queue-rules mode (02-34) already knows which queue the rule belongs
+   * to, so the picker is replaced by a read-only field plus a hidden input carrying the id — a
+   * `disabled` select would drop `filaDestinoId` from the submitted `FormData` entirely. Absent
+   * (the Desk page's normal call), the picker below is unchanged.
+   */
+  destinoFixo?: { id: string; name: string };
 }) {
   const editando = regraExistente !== undefined;
   const formRef = useRef<HTMLFormElement>(null);
@@ -194,22 +202,30 @@ export function RuleQueueForm({
             />
           </label>
 
-          <label className="form-campo" style={{ flexBasis: '220px' }}>
-            <span className="sub">Fila de destino</span>
-            <Seletor
-              name="filaDestinoId"
-              defaultValue={regraExistente?.queueDestinationId ?? ''}
-              required
-              disabled={enviando}
-            >
-              <option value="">Escolha a fila</option>
-              {queues.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.ativa ? f.name : `${f.name} (desativada)`}
-                </option>
-              ))}
-            </Seletor>
-          </label>
+          {destinoFixo ? (
+            <label className="form-campo" style={{ flexBasis: '220px' }}>
+              <span className="sub">Fila de destino</span>
+              <Campo value={destinoFixo.name} readOnly disabled={enviando} />
+              <input type="hidden" name="filaDestinoId" value={destinoFixo.id} />
+            </label>
+          ) : (
+            <label className="form-campo" style={{ flexBasis: '220px' }}>
+              <span className="sub">Fila de destino</span>
+              <Seletor
+                name="filaDestinoId"
+                defaultValue={regraExistente?.queueDestinationId ?? ''}
+                required
+                disabled={enviando}
+              >
+                <option value="">Escolha a fila</option>
+                {queues.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.ativa ? f.name : `${f.name} (desativada)`}
+                  </option>
+                ))}
+              </Seletor>
+            </label>
+          )}
 
           <label className="form-campo">
             <span className="sub">Ordem</span>

@@ -56,7 +56,7 @@ export function pageQueues<T>(filas: T[], paginas: number): QueuesPage<T> {
 }
 
 /** The rules that belong to one queue, in evaluation order — same order `ordenarRegras` gives the engine. */
-export function queueRules(regras: readonly QueueRule[], filaId: string): QueueRule[] {
+export function queueRules<T extends QueueRule>(regras: readonly T[], filaId: string): T[] {
   return ordenarRegras(regras.filter((r) => r.queueDestinationId === filaId));
 }
 
