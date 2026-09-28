@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
+import { Interruptor } from '../flow/integrations/interruptor';
 import type { Block, Mapa, SaidaDoEditor } from './model';
 import {
   OUTPUTS_OF_ATTENDANCE,
@@ -12,11 +13,13 @@ import {
 import {
   ROTULOS_DAS_SAIDAS,
   adicionarSaida,
+  flowHasSurvey,
   outputSetConditions,
   outputSetDestination,
   definirSaidaPadrao,
   outputErrors,
   moverSaida,
+  removeCondition,
   removerSaida,
 } from './conditions';
 import { ConditionsEditor } from './condition';
@@ -54,9 +57,10 @@ export function OutputsPanel({
   const existe = (id: string): boolean => id in mapa;
   const attendance = ehAttendance(block.id);
   const survey = isSurveyBlock(block);
-  // "Exibir apenas blocos de pesquisa de satisfação" (D-08): a filter of the destination
-  // picker, one toggle per output row, not a special branching rule
-  // (`ref/inventario-satisfacao-e-tags.md` §1).
+  const flowSurvey = flowHasSurvey(mapa);
+  // "Exibir pesquisa de satisfação" (D-08): a filter of the destination picker, one toggle per
+  // output row, not a special branching rule (`ref/inventario-satisfacao-e-tags.md` §1). Only
+  // shown when the flow actually has a survey block to filter for.
   const [somentePesquisa, setSomentePesquisa] = useState<Set<number>>(new Set());
   const destinosDaSaida = (i: number): Block[] =>
     somentePesquisa.has(i) ? destinos.filter(isSurveyBlock) : destinos;
@@ -186,82 +190,94 @@ export function OutputsPanel({
           if (saida.$isDeskCustomOutput) return null;
           const errors = outputErrors(saida, existe);
           const fixa = !!saida.$isDeskOutput;
+          const haOutraVisivelDepois = saidas.slice(i + 1).some((s) => !s.$isDeskCustomOutput);
           return (
-            <section
-              key={saida.$id ?? i}
-              className={`bl-saida${fixa ? ' bl-output--attendance' : ''}${errors.length > 0 ? ' bl-output--error' : ''}`}
-            >
-              <header className="bl-saida-cabecalho">
-                <b>
-                  {fixa
-                    ? labelOfOutputOfAttendance(saida)
-                    : `${ROTULOS_DAS_SAIDAS.condicao} ${i + 1}`}
-                </b>
-                <span className="bl-output-order">
-                  <button
-                    type="button"
-                    className="iconbtn"
-                    title="Subir"
-                    aria-label="Subir"
-                    disabled={i === 0}
-                    onClick={() => onMudar(moverSaida(block, i, i - 1))}
-                  >
-                    <Icone nome="cima" tamanho={16} />
-                  </button>
-                  <button
-                    type="button"
-                    className="iconbtn"
-                    title="Descer"
-                    aria-label="Descer"
-                    disabled={i === saidas.length - 1}
-                    onClick={() => onMudar(moverSaida(block, i, i + 1))}
-                  >
-                    <Icone nome="baixo" tamanho={16} />
-                  </button>
-                  {!fixa ? (
+            <Fragment key={saida.$id ?? i}>
+              <section
+                className={`bl-saida${fixa ? ' bl-output--attendance' : ''}${errors.length > 0 ? ' bl-output--error' : ''}`}
+              >
+                <header className="bl-saida-cabecalho">
+                  <b>
+                    {fixa
+                      ? labelOfOutputOfAttendance(saida)
+                      : `${ROTULOS_DAS_SAIDAS.condicao} ${i + 1}`}
+                  </b>
+                  <span className="bl-output-order">
                     <button
                       type="button"
                       className="iconbtn"
-                      title="Deletar"
-                      aria-label="Deletar"
-                      onClick={() => onMudar(removerSaida(block, i))}
+                      title="Subir"
+                      aria-label="Subir"
+                      disabled={i === 0}
+                      onClick={() => onMudar(moverSaida(block, i, i - 1))}
                     >
-                      <ManagementIcon nome="lixeira" tamanho={18} />
+                      <Icone nome="cima" tamanho={16} />
                     </button>
-                  ) : null}
-                </span>
-              </header>
-              {fixa ? null : (
-                <ConditionsEditor
-                  conditions={saida.conditions ?? []}
-                  onMudar={(conditions) => onMudar(outputSetConditions(block, i, conditions))}
-                  rotuloAdicionar="+ Adicionar condição"
-                />
-              )}
-              {!saida.$isDeskDefaultOutput ? (
-                <label className="bl-survey-filtro">
-                  <input
-                    type="checkbox"
-                    checked={somentePesquisa.has(i)}
-                    onChange={() => alternarFiltroDePesquisa(i)}
+                    <button
+                      type="button"
+                      className="iconbtn"
+                      title="Descer"
+                      aria-label="Descer"
+                      disabled={i === saidas.length - 1}
+                      onClick={() => onMudar(moverSaida(block, i, i + 1))}
+                    >
+                      <Icone nome="baixo" tamanho={16} />
+                    </button>
+                    {!fixa ? (
+                      <button
+                        type="button"
+                        className="iconbtn"
+                        title="Deletar"
+                        aria-label="Deletar"
+                        onClick={() => onMudar(removerSaida(block, i))}
+                      >
+                        <ManagementIcon nome="lixeira" tamanho={18} />
+                      </button>
+                    ) : null}
+                  </span>
+                </header>
+                {fixa ? null : (
+                  <ConditionsEditor
+                    conditions={saida.conditions ?? []}
+                    onMudar={(conditions) => onMudar(outputSetConditions(block, i, conditions))}
+                    onRemoverCondicao={(conditionIndex) => onMudar(removeCondition(block, i, conditionIndex))}
+                    rotuloAdicionar="+ Adicionar condição"
                   />
-                  Exibir apenas blocos de pesquisa de satisfação
-                </label>
+                )}
+                {!saida.$isDeskDefaultOutput && flowSurvey ? (
+                  <label className="bl-survey-filtro">
+                    <Interruptor
+                      id={`survey-filter-${saida.$id ?? i}`}
+                      curto
+                      ligado={somentePesquisa.has(i)}
+                      rotulo="Exibir pesquisa de satisfação"
+                      aoMudar={() => alternarFiltroDePesquisa(i)}
+                    />
+                    Exibir pesquisa de satisfação
+                  </label>
+                ) : null}
+                <DestinationPicker
+                  valor={saida.stateId ?? ''}
+                  blocos={destinosDaSaida(i)}
+                  rotulo={ROTULOS_DAS_SAIDAS.irPara}
+                  onEscolher={(id) => onMudar(outputSetDestination(block, i, id))}
+                />
+                {errors.length > 0 ? (
+                  <ul className="bl-errors">
+                    {errors.map((e) => (
+                      <li key={e}>{e}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </section>
+              {haOutraVisivelDepois ? (
+                <div className="bl-ou" aria-hidden="true">
+                  <span />
+                  OU
+                  <span />
+                </div>
               ) : null}
-              <DestinationPicker
-                valor={saida.stateId ?? ''}
-                blocos={destinosDaSaida(i)}
-                rotulo={ROTULOS_DAS_SAIDAS.irPara}
-                onEscolher={(id) => onMudar(outputSetDestination(block, i, id))}
-              />
-              {errors.length > 0 ? (
-                <ul className="bl-errors">
-                  {errors.map((e) => (
-                    <li key={e}>{e}</li>
-                  ))}
-                </ul>
-              ) : null}
-            </section>
+            </Fragment>
           );
         })}
       </div>

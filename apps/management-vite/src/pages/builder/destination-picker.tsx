@@ -79,7 +79,7 @@ export function DestinationPicker({
   }
 
   return (
-    <label className="bl-campo bl-destination-picker" ref={raiz}>
+    <label className="bl-campo bl-campo--interno bl-destination-picker" ref={raiz}>
       <span className="sub">{rotulo}</span>
       <input
         type="text"

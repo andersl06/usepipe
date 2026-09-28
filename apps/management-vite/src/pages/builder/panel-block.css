@@ -186,13 +186,16 @@
   background: #1f1f1f;
 }
 .bl-panel--block .bl-abas button {
-  padding: 16px 8px;
+  box-sizing: border-box;
+  height: 46px;
+  padding: 0 8px;
   font-size: 16px;
   line-height: 24px;
-  color: #fff;
+  color: rgb(82 99 108);
 }
 .bl-panel--block .bl-abas button[aria-selected='true'] {
   border-bottom: 2px solid var(--p-builder-marca-selecionado);
+  color: #fff;
   font-weight: 700;
 }
 .bl-panel--block .bl-panel-body {
@@ -285,6 +288,29 @@
 }
 .bl-panel--block .selection-list button {
   color: #fff;
+}
+/*
+ * Internal label pattern reused outside `.bl-detalhe` too (`.bl-campo--interno .bl-detalhe`
+ * rules above only fire inside the action-detail overlay): "Ir para" draws its label inside the
+ * box, the same way the condition selects do (F-1.4 line 2).
+ */
+.bl-panel--block .bl-campo--interno {
+  position: relative;
+}
+.bl-panel--block .bl-campo--interno > .sub {
+  position: absolute;
+  z-index: 1;
+  top: 5px;
+  left: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  pointer-events: none;
+}
+.bl-panel--block .bl-campo--interno .campo {
+  padding: 23px 12px 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 /* Block-destination search combobox ("Ir para"): reference `bds-autocomplete`, arrow-down indicator, dropdown on the panel surface, border highlighted while active (reconstrucao/MEDIDAS.md). */
 .bl-destination-picker {
@@ -636,8 +662,8 @@
   color: #fff;
 }
 .bl-panel--block .bl-saida {
-  padding: 7px 0 16px;
-  margin: 24px 0;
+  padding: 5px;
+  margin: 10px 0;
   border: 0;
   border-radius: 10px;
   background: #1f1f1f;
@@ -663,7 +689,7 @@
   opacity: 1;
 }
 .bl-panel--block .bl-condition {
-  padding: 0;
+  padding: 10px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -674,38 +700,107 @@
   grid-template-columns: 1fr;
   gap: 8px;
 }
-.bl-panel--block .bl-condition-line > .bl-remover {
-  position: absolute;
-  right: -36px;
-  top: 24px;
+/*
+ * Se/Condição side by side (F-1.4 line 1): two internally-labelled boxes instead of the
+ * source/comparison selects stacked in one column. The delete button stays absolutely
+ * positioned, so it never claims a grid cell.
+ */
+.bl-panel--block .bl-condition-fields {
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10px;
 }
-.bl-panel--block .bl-condition-if {
-  color: #fff;
+.bl-panel--block .bl-condition-fields > .campo {
+  margin-top: 10px;
+  padding-left: 10px;
+}
+.bl-panel--block .bl-condition-values {
+  margin-top: 10px;
+}
+.bl-panel--block .bl-condition-fields .selection-control {
+  align-items: flex-end;
+  height: 56px;
+  padding: 7px 4px 7px 12px;
+  border-color: rgb(255 255 255 / 20%);
+}
+.bl-panel--block .bl-condition-fields .selection-control > .sub {
+  position: absolute;
+  top: 5px;
+  left: 12px;
   font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  color: #fff;
+  pointer-events: none;
+}
+.bl-panel--block .bl-condition-fields .selection-control > span:not(.sub) {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+}
+.bl-panel--block .bl-condition-fields .selection-control svg {
+  width: 20px;
+  height: 20px;
+}
+.bl-panel--block .bl-saida .bl-condition-line > .bl-remover {
+  position: absolute;
+  top: 13px;
+  right: -40px;
+  width: 30px;
+  height: 30px;
+  padding: 3px;
+  border-radius: 50%;
+  opacity: 0;
+}
+.bl-panel--block .bl-saida:hover .bl-condition-line > .bl-remover,
+.bl-panel--block .bl-saida:focus-within .bl-condition-line > .bl-remover {
+  opacity: 1;
 }
 .bl-panel--block .bl-values {
   background: #393939;
   border: 1px solid #141414;
   border-radius: 8px;
-  min-height: 56px;
+  min-height: 55px;
+}
+.bl-panel--block .bl-values-field::placeholder {
+  color: #fff;
+  opacity: 1;
 }
 .bl-panel--block .bl-value {
+  height: 24px;
+  padding: 0 4px 0 10px;
+  gap: 4px;
+  border-radius: 12px;
   background: #141414;
   color: #fff;
+  font-size: 14px;
 }
-.bl-panel--block .bl-saida .bl-conditions > .bl-mais {
-  min-height: 25px;
-  width: 25px;
-  margin: 8px auto;
+.bl-panel--block .bl-value button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   padding: 0;
+  border: 0;
   border-radius: 50%;
-  overflow: hidden;
-  font-size: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
-.bl-panel--block .bl-saida .bl-conditions > .bl-mais::after {
-  content: '+';
-  font-size: 18px;
-  font-weight: 400;
+/* The "OU" divider between output cards (F-1.4 line 8), a 24px-tall block with a line on each side. */
+.bl-panel--block .bl-ou {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.bl-panel--block .bl-ou > span {
+  flex: 1;
+  height: 1px;
+  margin: 0 10px;
+  background: #393939;
 }
 .bl-panel--block .bl-saida--padrao,
 .bl-availability {
@@ -730,7 +825,7 @@
   align-items: center;
   gap: 8px;
   margin: 8px 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 /* Test panel (BUILDER-04, D-14): local simulation of the current draft, with an embedded Debug trail. */

@@ -479,8 +479,7 @@
 .bl-panel .bl-ajuda,
 .bl-panel .bl-panel-id,
 .bl-panel .bl-acao-tipo,
-.bl-panel .bl-output-order,
-.bl-panel .bl-condition-if {
+.bl-panel .bl-output-order {
   color: #a3a3a3;
 }
 .bl-panel .iconbtn {
@@ -685,48 +684,50 @@
   align-items: end;
   gap: 8px;
 }
-.bl-condition-fields > .bl-condition-if {
-  grid-column: 1;
-  margin-bottom: 38px;
-}
 .bl-condition-fields > .selection:first-of-type { grid-column: 1; }
 .bl-condition-fields > .selection:last-of-type { grid-column: 2; }
 .bl-condition-fields > .campo { grid-column: 1 / -1; }
+/*
+ * The bold "E" between condition rows from the 2nd one on (F-1.4 line 2) — each row still shows
+ * "Se" as its own internal label (`Selection`'s `rotulo`), this is only the connector.
+ */
+.bl-condition-and {
+  display: block;
+  margin: 0;
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.5;
+}
+/*
+ * The "+" circle sits centered over a thin divider line, both scoped to a short wrapper so the
+ * circle can overlap the line above the next row without pushing layout (F-1.4 line 9).
+ */
+.bl-add-condition-wrapper {
+  position: relative;
+  height: 8px;
+  margin-top: -8px;
+}
+.bl-add-condition-linha {
+  height: 1px;
+  margin: 20px 0;
+  background: #141414;
+}
 .bl-add-condition {
+  position: absolute;
+  top: -13px;
+  left: calc(50% - 12px);
   display: grid;
-  width: 24px;
-  height: 24px;
-  margin: 12px auto;
+  width: 25px;
+  height: 26px;
+  margin: 0;
   padding: 0;
   place-items: center;
-  border: 2px solid #aaa;
+  border: 0;
   border-radius: 50%;
   background: #393939;
   color: #fff;
-  font: 700 18px/1 Arial, sans-serif;
   cursor: pointer;
-}
-.bl-add-condition::before,
-.bl-add-condition::after {
-  position: absolute;
-  z-index: -1;
-  width: calc(50% - 18px);
-  height: 1px;
-  background: #333;
-  content: '';
-}
-.bl-add-condition::before { transform: translateX(-68px); }
-.bl-add-condition::after { transform: translateX(68px); }
-/*
- * The "OU"/"E" between values: its own width, without stretching across the row (the class existed with no rule at all, so `Selecao` grew like the fields next to it).
- */
-.bl-condition-operator {
-  flex: none;
-  width: 90px;
-}
-.bl-condition-if {
-  color: var(--p-conteudo-suave, #6b6b6b);
-  font-size: 12px;
 }
 .bl-values {
   flex: 1;

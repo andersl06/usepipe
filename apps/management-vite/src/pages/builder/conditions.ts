@@ -41,11 +41,6 @@ export const COMPARISONS_OF_SCREEN = COMPARISONS.map((value) => ({
   rotulo: LABEL_OF_COMPARISON[value],
 }));
 
-export const OPERADORES_DA_TELA = [
-  { valor: 'or', rotulo: 'OU' },
-  { valor: 'and', rotulo: 'E' },
-] as const;
-
 export const ROTULOS_DAS_SAIDAS = {
   titulo: 'Condições de saída',
   info: 'Defina as regras e o bloco para o qual o usuário será direcionado',

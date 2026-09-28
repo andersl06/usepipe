@@ -40,8 +40,13 @@ export function Selection({
   name,
   onChange,
   value,
+  rotulo,
   'aria-label': ariaLabel,
-}: Omit<ComponentPropsWithoutRef<'select'>, 'multiple' | 'size' | 'children'> & { children: ReactNode }) {
+}: Omit<ComponentPropsWithoutRef<'select'>, 'multiple' | 'size' | 'children'> & {
+  children: ReactNode;
+  /** Internal label drawn inside `.selection-control`, above the value (`.bl-campo--interno > .sub` pattern). */
+  rotulo?: string;
+}) {
   const options = optionsOf(children);
   const inicial = String(value ?? defaultValue ?? options.find((option) => !option.desabilitada)?.value ?? '');
   const [selecionado, setSelecionado] = useState(inicial);
@@ -113,6 +118,7 @@ export function Selection({
         onClick={() => setAberto((state) => !state)}
         onKeyDown={aoTeclar}
       >
+        {rotulo ? <span className="sub">{rotulo}</span> : null}
         <span className={optionCurrent ? undefined : 'selection-placeholder'}>{optionCurrent?.rotulo}</span>
         <Icone nome="baixo" tamanho={16} />
       </button>
