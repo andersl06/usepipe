@@ -28,6 +28,7 @@ import {
   exportText,
   validateImport,
 } from '../src/pages/builder/import-exportar.ts';
+import { formatPublishedAt, lastPublished, latestPublished } from '../src/pages/builder/versions-list.ts';
 import { lerDesenho, newBlock } from '../src/pages/builder/model.ts';
 import { LEGACY_BLUES, TAG_PALETTE, blockTags } from '../src/pages/builder/tags-of-block.ts';
 import { blockErrors } from '../src/pages/builder/validation.ts';
@@ -278,6 +279,64 @@ test('validateImport accepts a valid export and returns the map ready to load', 
   if (!r.ok) return;
   assert.equal(r.mapa.onboarding?.root, true);
   assert.deepEqual(r.global, { $enteringCustomActions: [] });
+});
+
+/* --------------------------------------------------- versions-list.ts (F-2) */
+
+test('versions: lastPublished keeps only published versions, newest first, capped at 10', () => {
+  const publicadas = Array.from({ length: 12 }, (_, i) => ({
+    id: `v${i}`,
+    versao: i + 1,
+    estado: 'publicada' as const,
+    blocos: 1,
+    publicadaEm: `2026-01-${String(i + 1).padStart(2, '0')}T00:00:00Z`,
+    publishedBy: 'Ana',
+    criadoEm: null,
+    atualizadoEm: null,
+  }));
+  const rascunho = {
+    id: 'draft',
+    versao: 13,
+    estado: 'rascunho' as const,
+    blocos: 1,
+    publicadaEm: null,
+    publishedBy: null,
+    criadoEm: null,
+    atualizadoEm: null,
+  };
+  const recentes = lastPublished([...publicadas, rascunho]);
+  assert.equal(recentes.length, 10);
+  assert.deepEqual(recentes.map((v) => v.versao), [12, 11, 10, 9, 8, 7, 6, 5, 4, 3]);
+});
+
+test('versions: latestPublished returns the newest publication, or null when nothing was published', () => {
+  const publicada = {
+    id: 'v1',
+    versao: 1,
+    estado: 'publicada' as const,
+    blocos: 1,
+    publicadaEm: '2026-01-01T00:00:00Z',
+    publishedBy: 'Ana',
+    criadoEm: null,
+    atualizadoEm: null,
+  };
+  const rascunho = {
+    id: 'v2',
+    versao: 2,
+    estado: 'rascunho' as const,
+    blocos: 1,
+    publicadaEm: null,
+    publishedBy: null,
+    criadoEm: null,
+    atualizadoEm: null,
+  };
+  assert.equal(latestPublished([publicada, rascunho])?.versao, 1);
+  assert.equal(latestPublished([]), null);
+  assert.equal(latestPublished([rascunho]), null);
+});
+
+test('versions: formatPublishedAt renders dd/MM/yyyy - HH:mm:ss in the given timezone', () => {
+  assert.equal(formatPublishedAt('2026-09-28T13:04:05Z', 'America/Sao_Paulo'), '28/09/2026 - 10:04:05');
 });
 
 /* ----------------------------------------------------- versions: (D-16) */
