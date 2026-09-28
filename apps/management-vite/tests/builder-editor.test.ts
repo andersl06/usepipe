@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { moverSaida } from '../src/pages/builder/conditions.ts';
+import { flowHasSurvey, moverSaida, removeCondition } from '../src/pages/builder/conditions.ts';
 import { stateInitial, reduzir } from '../src/pages/builder/state.ts';
 import { SURVEY_CONTENT_TYPE } from '@pipe/core';
 import {
@@ -425,4 +425,71 @@ test('copy-paste: a copied output keeps its stateId, but arestasDe never draws a
   const mapaIsolado = pasteBlock({}, copiado!, { top: 50, left: 50 }, 'copia');
   assert.equal(mapaIsolado.copia?.$conditionOutputs?.[0]?.stateId, 'outro');
   assert.deepEqual(arestasDe(mapaIsolado), []);
+});
+
+test('removeCondition: an output with two conditions keeps the output after removing one', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [
+    {
+      $id: 'saida',
+      stateId: 'destino',
+      conditions: [
+        { source: 'input', comparison: 'equals', values: ['a'] },
+        { source: 'input', comparison: 'equals', values: ['b'] },
+      ],
+    },
+  ];
+  const resultado = removeCondition(origem, 0, 0);
+  assert.equal(resultado.$conditionOutputs?.length, 1);
+  assert.deepEqual(
+    resultado.$conditionOutputs?.[0]?.conditions,
+    [{ source: 'input', comparison: 'equals', values: ['b'] }],
+  );
+});
+
+test('removeCondition: removing an output\'s only condition removes the output itself (Blip on-remove-condition)', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [
+    { $id: 'primeira', stateId: 'destino1', conditions: [{ source: 'input', comparison: 'equals', values: ['a'] }] },
+    { $id: 'segunda', stateId: 'destino2', conditions: [{ source: 'input', comparison: 'equals', values: ['b'] }] },
+  ];
+  const resultado = removeCondition(origem, 0, 0);
+  assert.equal(resultado.$conditionOutputs?.length, 1);
+  assert.equal(resultado.$conditionOutputs?.[0]?.$id, 'segunda');
+});
+
+test('removeCondition: an out-of-range index leaves the block untouched', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [
+    { $id: 'saida', stateId: 'destino', conditions: [{ source: 'input', comparison: 'equals', values: ['a'] }] },
+  ];
+  const resultado = removeCondition(origem, 5, 0);
+  assert.deepEqual(resultado, origem);
+});
+
+test('removeCondition: the operator field of an untouched sibling condition is preserved (not shown, but kept for import/export)', () => {
+  const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
+  origem.$conditionOutputs = [
+    {
+      $id: 'saida',
+      stateId: 'destino',
+      conditions: [
+        { source: 'input', comparison: 'equals', values: ['a'] },
+        { source: 'input', comparison: 'equals', values: ['x', 'y'], operator: 'and' },
+      ],
+    },
+  ];
+  const resultado = removeCondition(origem, 0, 0);
+  assert.equal(resultado.$conditionOutputs?.[0]?.conditions?.[0]?.operator, 'and');
+});
+
+test('flowHasSurvey: true only when a block in the map is the satisfaction survey block', () => {
+  const semPesquisa = { origem: newBlock({}, { top: 0, left: 0 }, 'origem') };
+  assert.equal(flowHasSurvey(semPesquisa), false);
+
+  const comPesquisa = {
+    origem: newBlock({}, { top: 0, left: 0 }, 'origem'),
+    'survey:1': newBlock({}, { top: 0, left: 0 }, 'survey:1'),
+  };
+  assert.equal(flowHasSurvey(comPesquisa), true);
 });
