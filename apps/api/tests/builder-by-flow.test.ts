@@ -48,6 +48,7 @@ const RECADOS = {
 
 const ANA = '5511922220001';
 const BIA = '5511922220002';
+const CARLA = '5511922220003';
 
 async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
@@ -427,6 +428,67 @@ describe('PUT /v1/management/flows/:id/builder', () => {
     expect(status).toBe(403);
     expect(body['error']['code']).toBe('without_permission');
     expect(await versionsInDatabase(id)).toHaveLength(0);
+  });
+});
+
+describe('PUT /v1/management/flows/:id/builder — configuration', () => {
+  it('roundtrips through GET, lands in the published global, and resolves {{config.X}} in the engine', async () => {
+    const id = await criado(`Config ${randomUUID().slice(0, 6)}`);
+    await a.dono.execute(sql`update fluxo set canal_id = ${a.channelId}::uuid where id = ${id}::uuid`);
+
+    const salvo = await salvar(sessionEditor, id, {
+      ...desenho('Olá, {{config.Saudacao}}!'),
+      configuration: { Saudacao: 'bem-vindo' },
+    });
+    expect(salvo.status).toBe(200);
+
+    const aberto = await builder(sessionEditor, id);
+    expect(aberto.body['desenho']['configuration']).toEqual({ Saudacao: 'bem-vindo' });
+
+    const pub = await publicar(sessionPublisher, id);
+    expect(pub.status).toBe(200);
+
+    const { rows } = await a.dono.execute<{ global: Record<string, unknown> }>(
+      sql`select global from fluxo_versao where id = ${pub.body['versao']['id']}::uuid`,
+    );
+    expect(rows[0]?.global['configuration']).toEqual({ Saudacao: 'bem-vindo' });
+
+    await falar(CARLA, 'oi');
+    const conversa = await conversationOf(CARLA);
+    expect(await doBot(conversa.id)).toEqual(['Olá, bem-vindo!']);
+  });
+
+  it('a design without `configuration` reads back `{}`, and old drafts keep opening', async () => {
+    const id = await criado(`SemConfig ${randomUUID().slice(0, 6)}`);
+    await salvar(sessionEditor, id, desenho('x'));
+    const aberto = await builder(sessionEditor, id);
+    expect(aberto.body['desenho']['configuration']).toEqual({});
+  });
+
+  it('rejects `configuration` that is not an object of texts', async () => {
+    const id = await criado(`ConfigInvalido ${randomUUID().slice(0, 6)}`);
+    const resp = await salvar(sessionEditor, id, { ...desenho('x'), configuration: { Nome: 42 } });
+    expect(resp.status).toBe(400);
+    expect(resp.body['error']['code']).toBe('design_invalid');
+  });
+
+  it('rejects a user key outside [a-zA-Z0-9], but keeps `builder:*` keys', async () => {
+    const id = await criado(`ChaveInvalida ${randomUUID().slice(0, 6)}`);
+    const semPrefixo = await salvar(sessionEditor, id, {
+      ...desenho('x'),
+      configuration: { 'nome-1': 'x' },
+    });
+    expect(semPrefixo.status).toBe(400);
+    expect(semPrefixo.body['error']['code']).toBe('design_invalid');
+
+    const comPrefixo = await salvar(sessionEditor, id, {
+      ...desenho('x'),
+      configuration: { 'builder:stateTrack': 'true' },
+    });
+    expect(comPrefixo.status).toBe(200);
+    expect((await builder(sessionEditor, id)).body['desenho']['configuration']).toEqual({
+      'builder:stateTrack': 'true',
+    });
   });
 });
 
