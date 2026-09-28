@@ -10,7 +10,9 @@ import { IMAGE, type RecadosDoNome } from './regras-de-nome';
  * the rules from `regras-de-nome.ts`. Here the photo only becomes a `data:` URI
  * to cross the JSON boundary — and doesn't even go if it's already past the cap.
  */
-export type Resultado = { id: string; error?: undefined } | { id?: undefined; error: string };
+export type Resultado =
+  | { id: string; shortName: string; error?: undefined }
+  | { id?: undefined; shortName?: undefined; error: string };
 
 export interface RecordingOptions {
   tipo: 'fluxo' | 'roteador';

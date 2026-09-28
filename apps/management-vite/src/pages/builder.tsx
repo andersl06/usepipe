@@ -298,8 +298,7 @@ export function PageBuilder() {
 
           {queuesOpen ? (
             <QueuesPanel
-              contactType={contact.tipo}
-              contactId={contact.id}
+              contact={contact}
               onFechar={() => setQueuesOpen(false)}
             />
           ) : null}

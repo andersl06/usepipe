@@ -2,7 +2,7 @@ import Link from '../../../components/link';
 import { IconePortal } from '../../../components/icones-portal';
 import { useRead } from '../../../lib/query';
 import type { ContactListed } from '@pipe/contracts';
-import { contactBase, useContact } from '../contact';
+import { contactPath, useContact } from '../contact';
 import {
   formatPeriodLimit,
   formatLastInteraction,
@@ -17,7 +17,7 @@ import {
 export function BotListContacts() {
   const { contact: bot } = useContact();
   const id = bot.id;
-  const base = contactBase(bot.tipo, id);
+  const base = contactPath(bot);
   const read = useRead<ContactListed[]>(`/v1/management/flows/${id}/contacts`);
   const contacts = read.data ?? [];
   const period = periodDefault(new Date());
@@ -94,7 +94,7 @@ export function BotListContacts() {
               {contacts.map((contact) => (
                 <Link
                   className="ct-user"
-                  href={`${base}/contacts/${contact.id}`}
+                  href={`${base}/users/${contact.id}`}
                   key={contact.id}
                 >
                   <span className="ct-section ct-section-avatar">

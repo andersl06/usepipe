@@ -19,7 +19,7 @@ interface Search {
 
 export function PageEffort() {
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
   const [search] = useSearchParams();
   const crus = Object.fromEntries(search.entries()) as Search;
   /*
@@ -47,7 +47,7 @@ export function PageEffort() {
       {/*
  * 56px filter strip, in the place and order of their strip: label and controls on the left, period and action on the right.
  */}
-      <form className="quickfilters" method="get" action={`${base}/reports/effort`}>
+      <form className="quickfilters" method="get" action={`${base}/effort`}>
         <span className="lbl">Filtros rápidos:</span>
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />

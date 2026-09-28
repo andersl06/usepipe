@@ -7,7 +7,7 @@ import { SearchIcon, IconePortal, type NomeDeIconePortal } from '../components/i
 import Link from '../components/link';
 import { portalUseShell, type PortalShell } from '../lib/shell';
 import { useRead } from '../lib/query';
-import { contactBase } from './flow/contact';
+import { APPLICATION, createPath, flowPath, tenantPath } from '../lib/application-paths';
 
 export const dynamic = 'force-dynamic';
 
@@ -333,11 +333,11 @@ function SubBarra({
 
           {data.canCreate ? (
             <>
-              <Link className="btn" href="/create/router">
+              <Link className="btn" href={createPath('router')}>
                 <IconePortal nome="roteador" tamanho={20} />
                 Criar roteador
               </Link>
-              <Link className="btn primario" href="/create/flow">
+              <Link className="btn primario" href={createPath('marketplace')}>
                 <IconePortal nome="fluxo" tamanho={20} />
                 Criar fluxo
               </Link>
@@ -369,7 +369,10 @@ function BoasVindas({ data }: { data: PortalData }) {
           fluxo — a conversa que atende antes da pessoa?
         </p>
         <div className="pt-boasvindas-acao">
-          <Link className="btn primario" href="/builder">
+          {/* fix: `/builder` was never a valid top-level route (Builder only exists inside a
+              contact, `${flowPath(shortName)}/templates/builder`); this button leads to
+              creation, same destination as the light bar's own "Criar fluxo". */}
+          <Link className="btn primario" href={createPath('marketplace')}>
             Criar meu primeiro fluxo
           </Link>
         </div>
@@ -396,7 +399,7 @@ function ActionCards() {
  * Their four, in the same order: news, contract, help and community. Community is still being built and comes in disabled/greyed out.
  */}
       <ActionCard
-        href="/updates"
+        href={tenantPath('product-updates')}
         icone="novidades"
         rotulo="Novidades no Pipe"
         texto="O que mudou, o que chegou e o que está a caminho."
@@ -405,7 +408,7 @@ function ActionCards() {
  * CONTRATO (Contract), not "Minha conta" (My account): in the source these are two different screens and `onContractCardClick` leads to the contract panel (the `tenant` fragment), not to the person's profile. It was pointing to the wrong place.
  */}
       <ActionCard
-        href="/contract"
+        href={tenantPath('tenant')}
         icone="contrato"
         rotulo="Acompanhe seu contrato"
         texto="Plano, endereço, pessoas com acesso e os dados do contrato."
@@ -481,7 +484,7 @@ function ActionCard({
       {miolo}
     </a>
   ) : (
-    <Link className="pt-acao" href={href ?? '/portal'}>
+    <Link className="pt-acao" href={href ?? APPLICATION}>
       {miolo}
     </Link>
   );
@@ -516,7 +519,7 @@ function FlowCard({ flow }: { flow: Flow }) {
       /*
        * The card opens the contact's HOME, not the builder: in the source, `handleContactClick` goes to `/application/detail/{contato}/home`, and that's where Builder, Atendimento, Canais and the rest get chosen from. Going straight to the builder skipped the screen that brings everything together — and, for a router, it led to a builder it doesn't even use.
        */
-      href={contactBase(flow.tipo, encodeURIComponent(flow.id))}
+      href={flowPath(flow.shortName)}
       title={naoPublicado ? `${flow.nome} — ainda não publicado` : flow.nome}
     >
       {/*

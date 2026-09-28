@@ -1,10 +1,11 @@
 import Link from '../../components/link';
 import { Icone } from '@pipe/ui';
 import { IconePortal } from '../../components/icones-portal';
+import { APPLICATION } from '../../lib/application-paths';
 import { IMAGE, TAMANHO } from './regras-de-nome';
 
 /**
- * The two pieces the router and flow share IDENTICALLY — because in the source they're the same file, not two similar screens. ═══ THE SHELL (module 30189) ═══ `auth.application.create` is an ABSTRACT state: it draws the shell, and the child states only fill in the middle. The shell is a `<bds-theme-provider theme="dark">` wrapping `#create-application-container`, a dark-background `.full-screen-container`. The portal bar DISAPPEARS. Four pieces remain, in this order: 1. the "x" (`bds-icon name="close" size="xxx-large"`), absolute on the right — the screen's only exit, and Esc does the same; 2. the centered logo, 5rem wide (`logoCenter` is the default, and only the `aiagent` state turns it off); 3. the `<form>`, which grows and carries the step — here these are the `children`; 4. the "Precisa de ajuda…" footer, which appears on every step of both screens (`showFooter` is only false in `aiagent`). ═══ THE NAME STEP (module 96904) ═══ A single template for both screens. What changes are three `ng-if="$ctrl.template != 'master'"` swapping a word: the subtitle, the title and the field label. The rest — the photo circle, the field with the floating label, the counter, the two end-to-end buttons — is byte for byte the same. ═══ WHAT WE DIDN'T COPY, AND WHY ═══ Esc to close (`$document.on('keydown', 27 → close())`), the preview of the chosen photo (`<img class="uploaded-img">`), and the field's live counter (`<span counter-for=… ng-maxlength="30">30</span>`, which starts at 30 and counts down): all three are client state, and these screens have none. The "x" still leads to `/portal`, the photo is still chosen, uploaded and saved, and the limit is still enforced by `maxLength` and by the Server Action. All that's missing is the check before submitting.
+ * The two pieces the router and flow share IDENTICALLY — because in the source they're the same file, not two similar screens. ═══ THE SHELL (module 30189) ═══ `auth.application.create` is an ABSTRACT state: it draws the shell, and the child states only fill in the middle. The shell is a `<bds-theme-provider theme="dark">` wrapping `#create-application-container`, a dark-background `.full-screen-container`. The portal bar DISAPPEARS. Four pieces remain, in this order: 1. the "x" (`bds-icon name="close" size="xxx-large"`), absolute on the right — the screen's only exit, and Esc does the same; 2. the centered logo, 5rem wide (`logoCenter` is the default, and only the `aiagent` state turns it off); 3. the `<form>`, which grows and carries the step — here these are the `children`; 4. the "Precisa de ajuda…" footer, which appears on every step of both screens (`showFooter` is only false in `aiagent`). ═══ THE NAME STEP (module 96904) ═══ A single template for both screens. What changes are three `ng-if="$ctrl.template != 'master'"` swapping a word: the subtitle, the title and the field label. The rest — the photo circle, the field with the floating label, the counter, the two end-to-end buttons — is byte for byte the same. ═══ WHAT WE DIDN'T COPY, AND WHY ═══ Esc to close (`$document.on('keydown', 27 → close())`), the preview of the chosen photo (`<img class="uploaded-img">`), and the field's live counter (`<span counter-for=… ng-maxlength="30">30</span>`, which starts at 30 and counts down): all three are client state, and these screens have none. The "x" still leads to `/application`, the photo is still chosen, uploaded and saved, and the limit is still enforced by `maxLength` and by the Server Action. All that's missing is the check before submitting.
  */
 
 /*
@@ -30,16 +31,16 @@ export function CreationShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="cr-tela">
       {/*
- * Their `close-icon`: 40px (`size="xxx-large"`), absolute on the right, 3rem from the edge. `close()` ends at `$state.go('auth.application.list')` — here, `/portal`.
+ * Their `close-icon`: 40px (`size="xxx-large"`), absolute on the right, 3rem from the edge. `close()` ends at `$state.go('auth.application.list')` — here, `/application`.
  */}
-      <Link className="cr-fechar" href="/portal" aria-label="Fechar">
+      <Link className="cr-fechar" href={APPLICATION} aria-label="Fechar">
         <Icone nome="x" tamanho={40} />
       </Link>
 
       {/*
  * The centered `.logo-image`: 5rem wide. The lockup is the same `.pt-lockup` from the portal bar, which is already 80px and already painted with the chrome's ink.
  */}
-      <Link className="cr-marca" href="/portal" aria-label="Pipe">
+      <Link className="cr-marca" href={APPLICATION} aria-label="Pipe">
         <span className="pt-lockup" role="img" aria-label="Pipe" />
       </Link>
 

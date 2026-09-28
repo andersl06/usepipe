@@ -1,5 +1,6 @@
 import { saveContact } from '../gravar';
 import { irPara } from '../../../lib/navigation';
+import { createNamePath, flowPath } from '../../../lib/application-paths';
 import { RECADOS } from './regras';
 
 /**
@@ -7,17 +8,23 @@ import { RECADOS } from './regras';
  */
 export async function createFlow(data: FormData): Promise<void> {
   const resultado = await saveContact(data, { tipo: 'fluxo', recados: RECADOS });
-  if (resultado.error) {
-    return backWithError(resultado.error, String(data.get('nome') ?? ''), data.get('template'));
+  /* Checking `shortName` (not `error`) is what lets TS narrow the union: `error` is a plain
+     `string` in the failure branch, ambiguously truthy, while `shortName` is strictly `undefined`
+     there — the only property that excludes it cleanly. */
+  if (!resultado.shortName) {
+    return backWithError(
+      resultado.error ?? 'Não foi possível criar.',
+      String(data.get('nome') ?? ''),
+      data.get('template'),
+    );
   }
-  irPara(`/flow/${resultado.id}`);
+  irPara(flowPath(resultado.shortName));
 }
 
 function backWithError(motivo: string, nome: string, template: FormDataEntryValue | null): void {
-  /* Passo no path (D-31, `std/nav-contract.md` §Gestão); erro/nome/template
-     continuam na query, classificados em separado. */
+  /* Step in the path (D-31, D-52); error/name stay in the query, classified separately. */
   const search = new URLSearchParams({ error: motivo });
   if (nome) search.set('nome', nome);
-  if (typeof template === 'string' && template) search.set('template', template);
-  irPara(`/create/flow/name?${search}`);
+  const templateName = typeof template === 'string' && template ? template : 'builder';
+  irPara(`${createNamePath(templateName)}?${search}`);
 }

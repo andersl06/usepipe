@@ -43,7 +43,7 @@ export interface FlowWritten {
   name: string;
   description: string | null;
   imageUrl: string | null;
-  shortName: string | null;
+  shortName: string;
 }
 
 /* ------------------------------------------------------------- Regras */
@@ -157,7 +157,7 @@ export async function createFlow(
   tenantId: string,
   usuarioId: string,
   pedido: RequestOfCreation,
-): Promise<{ id: string }> {
+): Promise<{ id: string; shortName: string }> {
   await requirePermission(tx, usuarioId, EDIT_FLOW);
   const nome = nomeConferido(pedido.name);
   const tipo = pedido.type === 'roteador' ? 'roteador' : 'fluxo';
@@ -167,7 +167,7 @@ export async function createFlow(
   const criado = await tx
     .insert(flow)
     .values({ tenantId, nome, tipo, shortName: nomeCurto(nome), imageUrl })
-    .returning({ id: flow.id })
+    .returning({ id: flow.id, shortName: flow.shortName })
     .then(([linha]) => linha, ifShortNameCollision);
   if (!criado) throw conflitoDeNome();
 
@@ -178,7 +178,7 @@ export async function createFlow(
     objetoId: criado.id,
     depois: { nome, tipo, estado: 'rascunho' },
   });
-  return { id: criado.id };
+  return { id: criado.id, shortName: criado.shortName };
 }
 
 /** Return the live contact or 404, like source `fetch_inbox`; archived contacts are treated as absent. */

@@ -1,54 +1,28 @@
 import Link from '../../../components/link';
 import { IconePortal } from '../../../components/icones-portal';
-import { Navigate, useParams, useSearchParams } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { portalUseShell } from '../../../lib/shell';
-import { CreationShell, PassoDoNome } from '../casco';
-import { createFlow } from './actions';
-import { ROTULOS, RECADOS, TEMPLATE_PADRAO } from './regras';
+import { APPLICATION, createPath, createNamePath } from '../../../lib/application-paths';
+import { CreationShell } from '../casco';
+import { ROTULOS, TEMPLATE_PADRAO } from './regras';
 import '../create.css';
 import './create-flow.css';
 
+/** Which of the two routes mounted this page (D-52: the step lives in the path, not `?passo=`); the third step, the name, is `PageCreateName` — shared with the router. */
+export type CreateFlowStep = 'marketplace' | 'test';
+
 /**
- * Create flow — a copy of the portal's `auth.application.create.marketplace` → `…create.name`, read from the `portal.js` bundle (`25.204.0-v0.43.1`). Until now the portal's light bar primary button pointed here and returned a 404. This is the screen that was missing. ═══ THE DIFFERENCE FROM THE ROUTER IS ONE EXTRA STEP ═══ The router's `selectTemplate('master')` goes DIRECTLY to the name step. The flow doesn't: the portal's button enters `auth.application.create.marketplace` (`/application/create/marketplace`, module 92466's template), the screen that asks HOW to start. Only then comes the name — and the name is the same template for both screens, which is why it lives in `../casco.tsx`. step 1 `…create.marketplace` two options, side by side step 2 `…create.name/{template}` the name, the photo, and the create button Here all THREE steps are the SAME route, separated by `?passo=` — the same arrangement as the router, for the same reason: with no client state, each step is a render. ═══ THE MARKETPLACE HAS TWO CARDS, AND ONLY TWO ═══ There's no search, no category, no model grid. The whole template is `<div class="marketplace-step-options flex justify-center flex-wrap">` with two `<bds-paper class="option-card">`: "Usar template" → `selectTemplate('blip_deskCustomerService')` "Construir do zero" → `selectTemplate('builder')` And the two DON'T go to the same place. `selectTemplate` ends with: if ('blip_deskCustomerService' === e) this.$state.go('^.test', …) else this.$state.go('^.name', …) In other words: "Construir do zero" lands DIRECTLY on the name step, and "Usar template" passes first through `auth.application.create.test` (`?passo=template` here) — the pre-configured model's presentation, with the description and four features confirmed in the 09/17/2026 capture (`referencias-blip/builder/criar-fluxo/`). The live test chat the source runs alongside it (the account's own chatbot name and status) is NOT included: it's a simulation of client state, the same rule that already removed the field counter and the photo preview in `../casco.tsx`. What the presentation PROMISES — `MarketplaceTemplatesService.processTemplate` pre-configuring business hours, handoff, evaluation and agent-availability checks — still has no counterpart on our side: see the TODO in `acoes.ts`. "Escolher esse template" creates a blank flow, just like "Construir do zero"; only the name step's title changes.
+ * Create flow — a copy of the portal's `auth.application.create.marketplace` → `…create.name`, read from the `portal.js` bundle (`25.204.0-v0.43.1`). Until now the portal's light bar primary button pointed here and returned a 404. This is the screen that was missing. ═══ THE DIFFERENCE FROM THE ROUTER IS ONE EXTRA STEP ═══ The router's `selectTemplate('master')` goes DIRECTLY to the name step. The flow doesn't: the portal's button enters `auth.application.create.marketplace` (`/application/create/marketplace`, module 92466's template), the screen that asks HOW to start. Only then comes the name — and the name is the same template for both screens, which is why it lives in `../casco.tsx`. step 1 `…create.marketplace` two options, side by side step 2 `…create.name/{template}` the name, the photo, and the create button Each step is its OWN route now (D-52), matching the Blip capture's three declared addresses (`/application/create/marketplace`, `/application/create/test` — confirmed absent as its own Blip URL, kept as our name; `/application/create/name/{template}`) — the same arrangement as before, just the step selector moved from `?passo=` to the path. ═══ THE MARKETPLACE HAS TWO CARDS, AND ONLY TWO ═══ There's no search, no category, no model grid. The whole template is `<div class="marketplace-step-options flex justify-center flex-wrap">` with two `<bds-paper class="option-card">`: "Usar template" → `selectTemplate('blip_deskCustomerService')` "Construir do zero" → `selectTemplate('builder')` And the two DON'T go to the same place. `selectTemplate` ends with: if ('blip_deskCustomerService' === e) this.$state.go('^.test', …) else this.$state.go('^.name', …) In other words: "Construir do zero" lands DIRECTLY on the name step, and "Usar template" passes first through `auth.application.create.test` — the pre-configured model's presentation, with the description and four features confirmed in the 09/17/2026 capture (`referencias-blip/builder/criar-fluxo/`). The live test chat the source runs alongside it (the account's own chatbot name and status) is NOT included: it's a simulation of client state, the same rule that already removed the field counter and the photo preview in `../casco.tsx`. What the presentation PROMISES — `MarketplaceTemplatesService.processTemplate` pre-configuring business hours, handoff, evaluation and agent-availability checks — still has no counterpart on our side: see the TODO in `acoes.ts`. "Escolher esse template" creates a blank flow, just like "Construir do zero"; only the name step's title changes.
  */
-export function PageCreateFlow() {
+export function PageCreateFlow({ step }: { step: CreateFlowStep }) {
   const shell = portalUseShell();
-  const { passo } = useParams();
-  const [search] = useSearchParams();
-  const parametros = {
-    erro: search.get('erro') ?? undefined,
-    nome: search.get('nome') ?? undefined,
-    template: search.get('template') ?? undefined,
-  };
-  const veioDoTemplate = parametros.template === TEMPLATE_PADRAO;
 
   /*
-   * Their `canCreateChatbot` is checked in the controller's `$onInit`, BEFORE drawing any step: whoever can't is sent to `$state.go(getReturnState())`, which is the contact list. Here, `/portal`.
+   * Their `canCreateChatbot` is checked in the controller's `$onInit`, BEFORE drawing any step: whoever can't is sent to `$state.go(getReturnState())`, which is the contact list. Here, `/application`.
    */
-  if (!shell.canCreate) return <Navigate to="/portal" replace />;
+  if (!shell.canCreate) return <Navigate to={APPLICATION} replace />;
 
-  return (
-    <CreationShell>
-      {passo === 'name' ? (
-        <PassoDoNome
-          acao={createFlow}
-          voltarPara={veioDoTemplate ? `/create/flow/template` : '/create/flow'}
-          rotulos={{
-            ...ROTULOS,
-            tituloDoNome: veioDoTemplate ? ROTULOS.tituloDoNomeComTemplate : ROTULOS.tituloDoNome,
-          }}
-          errorTitle={RECADOS.titulo}
-          error={parametros.erro}
-          nome={parametros.nome}
-          camposOcultos={veioDoTemplate ? { template: TEMPLATE_PADRAO } : undefined}
-        />
-      ) : passo === 'template' ? (
-        <PassoDoTemplate />
-      ) : (
-        <PassoDoMarketplace />
-      )}
-    </CreationShell>
-  );
+  return <CreationShell>{step === 'test' ? <PassoDoTemplate /> : <PassoDoMarketplace />}</CreationShell>;
 }
 
 /* ============================================== passo 1: o marketplace */
@@ -71,7 +45,7 @@ function PassoDoMarketplace() {
         {/*
  * `selectTemplate('blip_deskCustomerService')` → `^.test`, the model's presentation (`PassoDoTemplate`, below). The source's `bds-chip-tag color="success"` — "Ideal para começar" — stays half over the top border: it's what makes people look at this card first.
  */}
-        <Link className="cf-card" href="/create/flow/template">
+        <Link className="cf-card" href={createPath('test')}>
           <span className="cf-selo-recomendado">{ROTULOS.selo}</span>
           {/*
  * `bds-icon name="integration" size="brand"`. Our `loja` icon is the `plugin` design from the same set — the outlet that fits.
@@ -84,7 +58,7 @@ function PassoDoMarketplace() {
         {/*
  * `selectTemplate('builder')` → `^.name`. It's the whole path we copied: this is where `template = 'builder'` comes from, which is our `tipo = 'fluxo'`.
  */}
-        <Link className="cf-card" href="/create/flow/name">
+        <Link className="cf-card" href={createNamePath('builder')}>
           {/*
  * `bds-icon name="file-empty-file" size="brand"` — the blank sheet. `icones-portal.tsx` doesn't have that icon; `flow` (`builder-new-state`, the builder's empty block) is the same gesture and the SAME icon as the button that brought the person here.
  */}
@@ -130,14 +104,11 @@ function PassoDoTemplate() {
 
         <div className="cr-actions">
           {/* Volta ao passo 1, como o `back()` deles guardado em `beforeNameStep`. */}
-          <Link className="btn cr-botao" href="/create/flow">
+          <Link className="btn cr-botao" href={createPath('marketplace')}>
             <IconePortal nome="esquerda" tamanho={20} />
             {ROTULOS.voltar}
           </Link>
-          <Link
-            className="btn primario cr-botao"
-            href={`/create/flow/name?template=${TEMPLATE_PADRAO}`}
-          >
+          <Link className="btn primario cr-botao" href={createNamePath(TEMPLATE_PADRAO)}>
             {ROTULOS.escolherEsseTemplate}
           </Link>
         </div>

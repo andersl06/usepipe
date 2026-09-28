@@ -1,3 +1,5 @@
+import { APPLICATION, flowPath } from './application-paths';
+
 /**
  * Os passos do assistente de implantação, a partir do que existe no banco.
  *
@@ -91,7 +93,17 @@ function contactsStep(
   };
 }
 
-export function montarPassos(s: DeploymentSignals, urlDoDesk: string): DeploymentStep[] {
+/**
+ * `primaryShortName` is the tenant's most recent flow (`pages/deployment/page.tsx` reads it from
+ * the same portal grid the list screen uses — this file has no database access of its own, and
+ * the account may not have a "main" flow at all). Steps that link into a contact fall back to the
+ * portal list when there is none, since there's no contact to link into yet.
+ */
+export function montarPassos(
+  s: DeploymentSignals,
+  urlDoDesk: string,
+  primaryShortName: string | null,
+): DeploymentStep[] {
   const temWhatsApp = s.channelsConnected > 0;
   return [
     {
@@ -113,7 +125,7 @@ export function montarPassos(s: DeploymentSignals, urlDoDesk: string): Deploymen
           ? 'O número foi ligado, mas a Meta pede reautorização. Refaça a conexão.'
           : 'Sem número conectado, nenhuma conversa chega ao Desk.',
       acao: temWhatsApp
-        ? { rotulo: 'Ver canais', href: '/canais' }
+        ? { rotulo: 'Ver canais', href: primaryShortName ? flowPath(primaryShortName, 'channels') : APPLICATION }
         : { rotulo: 'Conectar', href: '#whatsapp' },
     },
     {
@@ -138,7 +150,10 @@ export function montarPassos(s: DeploymentSignals, urlDoDesk: string): Deploymen
           : s.queuesActive > 0
             ? 'Há fila ativa, mas nenhum atendente habilitado nela: a conversa chega e ninguém a recebe.'
             : 'Nenhuma fila ativa.',
-      acao: { rotulo: 'Abrir filas', href: '/atendentes/filas' },
+      acao: {
+        rotulo: 'Abrir filas',
+        href: primaryShortName ? flowPath(primaryShortName, 'attendance/queue-management') : APPLICATION,
+      },
     },
     {
       id: 'contatos',

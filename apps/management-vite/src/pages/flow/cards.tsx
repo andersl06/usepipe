@@ -1,7 +1,6 @@
 import Link from '../../components/link';
 import { Avatar } from '@pipe/ui';
 import { IconePortal, LogoPortal, type NomeDeIconePortal } from '../../components/icones-portal';
-import { contactBase } from './contact';
 import { numeroDaHome, pilhaDaEquipe, type Extensao, type Member, type Metrics } from './itens';
 
 /**
@@ -115,12 +114,10 @@ const LOGOS_OF_CHANNEL = [
 /** `ng-if="!showAiCard"` — without the AI card (flag off), this is it. */
 export function CardChannels({
   ativos,
-  id,
-  tipo,
+  base,
 }: {
   ativos: readonly string[];
-  id: string;
-  tipo: string;
+  base: string;
 }) {
   const logos = LOGOS_OF_CHANNEL.filter((l) => l.sempre || ativos.includes(l.tipo));
   return (
@@ -149,7 +146,7 @@ export function CardChannels({
             ))}
           </div>
           <div className="fx-faixa-botao">
-            <Botao href={`${contactBase(tipo, id)}/channels`}>Ver canais</Botao>
+            <Botao href={`${base}/channels`}>Ver canais</Botao>
           </div>
         </div>
       </section>
@@ -255,14 +252,14 @@ export function CardMetrics({ metrics, base }: { metrics: Metrics | null; base: 
           rotulo="Mensagens recebidas"
           dica="Número de mensagens recebidas pelo contato desde a criação"
           value={metrics.recebidas}
-          href={`${base}/attendance/reports/attendance`}
+          href={`${base}/attendance/report`}
         />
         <Metrica
           icone="mensagem-enviada"
           rotulo="Mensagens enviadas"
           dica="Número de mensagens enviadas pelo contato desde a criação"
           value={metrics.enviadas}
-          href={`${base}/attendance/reports/attendance`}
+          href={`${base}/attendance/report`}
         />
       </section>
     </div>

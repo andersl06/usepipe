@@ -31,7 +31,7 @@ export function QueuePageEdit() {
   const { queueId } = useParams<{ queueId: string }>();
   const navegar = useNavigate();
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
 
   const readQueues = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
   const readHours = useRead<Horarios & { fuso: string }>('/v1/management/rules/schedules');
@@ -47,7 +47,7 @@ export function QueuePageEdit() {
       <div className="empty">
         <b>Fila não encontrada</b>
         <p>
-          <button type="button" className="btn" onClick={() => navegar(`${base}/agents/queues`)}>
+          <button type="button" className="btn" onClick={() => navegar(`${base}/queue-management`)}>
             Voltar para Filas de atendimento
           </button>
         </p>
@@ -218,7 +218,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
     <Card
       titulo="Atendentes"
       actions={
-        <Botao variante="primario" onClick={() => navegar(`${base}/agents/management`)}>
+        <Botao variante="primario" onClick={() => navegar(`${base}/team`)}>
           Adicionar atendente
         </Botao>
       }

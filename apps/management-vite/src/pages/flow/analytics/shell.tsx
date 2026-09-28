@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { ContactBars, contactBase, useContact } from '../contact';
+import { ContactBars, contactPath, useContact } from '../contact';
 import { CLUSTER_DA_CAPTURA, FLAGS_DA_CAPTURA, analyticsTabs } from './abas';
 import { AnalyticsView } from './vista';
 import './analytics.css';
@@ -19,7 +19,6 @@ import './analytics.css';
  */
 export function AnalyticsShell() {
   const { contact } = useContact();
-  const id = contact.id;
 
   return (
     <div className="pt-app">
@@ -31,7 +30,7 @@ export function AnalyticsShell() {
  */}
       <main className="an-miolo">
         <AnalyticsView
-          base={`${contactBase(contact.tipo, id)}/analytics`}
+          base={`${contactPath(contact)}/analytics`}
           abas={analyticsTabs(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA)}
         >
           <Outlet />

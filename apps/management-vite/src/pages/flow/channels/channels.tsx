@@ -1,7 +1,7 @@
 import { LogoPortal } from '../../../components/icones-portal';
 import Link from '../../../components/link';
 import { cardConnected, channelRoute, type TypeOfChannelOfBot } from '../../../lib/channel-of-flow';
-import { ShellModule, contactBase, useContact } from '../contact';
+import { ShellModule, contactPath, useContact } from '../contact';
 import '../integrations/header-of-page.css';
 import './channels.css';
 
@@ -37,7 +37,7 @@ const CHANNELS: readonly ScreenChannel[] = [
 
 export function ChannelsPage() {
   const { contact } = useContact();
-  const base = contactBase(contact.tipo, contact.id);
+  const base = contactPath(contact);
 
   return (
     <ShellModule ativo="Canais">

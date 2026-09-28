@@ -266,7 +266,7 @@ function MonitoringLoading() {
  */
 export function PageMonitoring() {
   const { contact } = useContact();
-  const base = `${attendanceBase(contact.tipo, contact.id)}/monitoramento`;
+  const base = `${attendanceBase(contact)}/monitoring`;
   const [search, setSearch] = useSearchParams();
   const [panelOpen, setPanelOpen] = useState(false);
   const [fieldPanel, setFieldPanel] = useState<string | null>(null);

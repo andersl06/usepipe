@@ -55,7 +55,8 @@ export const LIMITE_VISIVEL = 5;
  * THE ORDER IS THE SOURCE'S, measured in `roteador-team__pagina.html` (master) and `application-detail-pipeprincipal-configurations-basic.html` (builder): visible is Builder · Atendimento · Análise · Growth · Canais (fluxo) and Serviços · Análise · Growth · Canais · Contatos (roteador, with Builder and Atendimento hidden by `HIDDEN_IN_ROUTER`). Canais and Análise used to come before Growth here — which made the bar show Contatos as a disguised sixth item posing as fifth, and Growth ended up stuck in the "...".
  */
 const CATALOGO = [
-  { key: 'builder', rotulo: 'Builder', href: '/builder' },
+  /* The catalog's own `href` is a placeholder: the map below always overrides it with `${base}/templates/builder` (D-54). */
+  { key: 'builder', rotulo: 'Builder', href: '/templates/builder' },
   { key: 'desk', rotulo: 'Atendimento', href: '/monitoring' },
   /* Análise belongs to the contact: the destination depends on `id` and comes from `itensDoMenu`. */
   { key: 'analysis', rotulo: 'Análise', href: null },
@@ -82,12 +83,18 @@ const RECURSO_DO_ITEM: Readonly<Record<string, string>> = { contents: 'resources
  *
  * Without the argument (or with `editaPelaConta`), nothing is sieved: whoever has `automacao.fluxo.editar` on the account keeps seeing everything, which is how Pipe worked before 0035 and is the other side of `exigirPermissaoNoFluxo`'s double gate. Whoever isn't a member and doesn't have the account permission also never reaches this point — the contact shell already refused.
  */
+/**
+ * `base` is the contact's own path (`flowPath(shortName)`, D-52) — this function only appends
+ * the module segment, using the Blip names decided in D-54 where the screen has one
+ * (`route-inventory.md` §2): `builder` → `templates/builder`, `contacts` → `users`, the router's
+ * template item → `templates/pipeline`. `attendance/monitoring` keeps its name; both segments are
+ * already the same as Blip's.
+ */
 export function itensDoMenu(
   tipo: ContactType,
-  id: string,
+  base: string,
   permissions?: MyPermissionsInFlow | undefined,
 ): ItemDoMenu[] {
-  const base = `/${tipo === 'roteador' ? 'router' : 'flow'}/${id}`;
   const sieve = permissions && !permissions.editsByAccount ? permissions.permissoes : null;
   const itens: ItemDoMenu[] = CATALOGO.filter(
     (item) => tipo === 'fluxo' || !HIDDEN_IN_ROUTER.includes(item.key),
@@ -101,7 +108,7 @@ export function itensDoMenu(
       rotulo: item.rotulo,
       href:
         item.key === 'builder'
-          ? `${base}/builder`
+          ? `${base}/templates/builder`
           : item.key === 'desk'
             ? `${base}/attendance/monitoring`
             : item.key === 'analysis'
@@ -109,7 +116,7 @@ export function itensDoMenu(
               : item.key === 'channels'
                 ? `${base}/channels`
                 : item.key === 'users'
-                  ? `${base}/contacts`
+                  ? `${base}/users`
                   : item.key === 'growth'
                     ? `${base}/growth/active-messages`
                     : item.key === 'contents'
@@ -122,7 +129,7 @@ export function itensDoMenu(
   /*
    * `getTemplateSetupItem()`: the template item goes at the FRONT of everything. Only the roteador has one among the two types that exist here.
    */
-  if (tipo === 'roteador') itens.unshift({ rotulo: 'Serviços', href: `${base}/services` });
+  if (tipo === 'roteador') itens.unshift({ rotulo: 'Serviços', href: `${base}/templates/pipeline` });
 
   return itens;
 }
@@ -135,7 +142,8 @@ export function itensDoMenu(
 export const ICONS_OF_CONTACT: readonly (ItemDoMenu & { icone: NomeDeIconePortal })[] = [
   /* `getIcons(sref)`: `icon-integration`, `icon-config`, `icon-team-1`. */
   { rotulo: 'Integrações', href: '/integrations', icone: 'integracoes' },
-  { rotulo: 'Configurações', href: '/settings/basic', icone: 'configuracoes' },
+  /* `settings` → `configurations` (D-54). */
+  { rotulo: 'Configurações', href: '/configurations/basic', icone: 'configuracoes' },
   { rotulo: 'Equipe', href: '/team', icone: 'equipe' },
   /* `modules.application.detail.test` — o `icon-lab` que abre o teste. */
   { rotulo: 'Testar', href: null, icone: 'testar' },

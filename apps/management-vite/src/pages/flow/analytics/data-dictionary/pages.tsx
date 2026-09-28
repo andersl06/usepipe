@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react';
 import Link from '../../../../components/link';
 import { IconePortal } from '../../../../components/icones-portal';
+import { contactPath, useContact } from '../../contact';
 
 /**
  * The Data Dictionary pages, one function per page from the origin, with the EXACT pt-BR text from the dictionaries embedded in `analytics-main.js` (the `pt:` of each `translate`). The only text swap is "Blip" → "Pipe", wherever the brand name is visible to the reader. The common pieces carry the name of the styled-component they came from (`UN`, `VN`, `CN`…), because that name is how the measurement is found in the bundle. The `font-size` each one inherits matters: loose text inside a `VN` inherits the `bds-typo`'s fs-14; loose outside it, the page's 16. See `dicionario.css`.
@@ -634,6 +635,7 @@ function Messages() {
 
 /** `gU` (dictionary `hU`). */
 function FlowConversational() {
+  const { contact } = useContact();
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
@@ -651,7 +653,7 @@ function FlowConversational() {
           <Passos
             itens={[
               <>
-                Acesse o<Link href="/builder">“Builder”</Link>do seu chatbot;
+                Acesse o<Link href={`${contactPath(contact)}/templates/builder`}>“Builder”</Link>do seu chatbot;
               </>,
               <>
                 Clique em “Configurações”

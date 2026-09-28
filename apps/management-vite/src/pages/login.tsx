@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { RefusesOfInbound } from '@pipe/contracts';
 import { caminhoInterno, discoverInbound, inboundWithGoogleUrl, urlNaApi } from '../lib/inbound';
+import { APPLICATION } from '../lib/application-paths';
 import { FundoPipe } from './fundo-pipe';
 
 /**
@@ -98,7 +99,7 @@ export function PageLogin() {
     }
     // Sem SSO, a pessoa fica na mesma tela com o motivo e o e-mail já digitado.
     const volta = new URLSearchParams({ method: inbound.metodo, email: email.trim() });
-    if (destination !== '/portal') volta.set('destino', destination);
+    if (destination !== APPLICATION) volta.set('destino', destination);
     setParametros(volta, { replace: true });
     setEnviando(false);
   }

@@ -1,4 +1,5 @@
 import type { NomeDeIconePortal } from '../../components/icones-portal';
+import { tenantPath } from '../../lib/application-paths';
 
 /**
  * The Contract Panel's card catalog — one record per card, like at the source. There each card is an object with `group`, `option`, `icon`, `accessPermission`, `featureToggle`, `metrics`, `path` and `additionalCheck` (`referencias-blip/pesquisa/blip-painel-do-contrato.md` §"Os cartões, os três grupos"), and the screen is the result of running the funnel over that list. Here it's the same idea with the fields OUR base supports: no `featureToggle` and no `metrics`, because we have no LaunchDarkly and no subscription with metrics — and inventing both just to copy a funnel would mean inventing a product. **The check is the key+verb pair**, like their matrix: `accessPermission` is the key (`tenant-members`) and the check is the verb (`read`/`write`). The permission code the person needs is the join of the two — `conta.membros` + `ler` = `conta.membros.ler` —, and that's how the eleven permissions created in migration `0019_permissoes_da_conta` connect to the screen. ## What was left out, and why No card was invented, and none was copied for decoration. Left out are the ones that, at the source, only exist behind a flag or a plan — things we don't have: - **Atendentes** (`/agent`): depends on the subscription's `Agent` metric. - **Base de conhecimento** (`/knowledge-base`): check `b` — write **and** a paid or trial agent plan. Without an agent plan, `b` is always false. - **Pipeline** (`/pipeline`): check `c` — read **and** (the `pipeline-enable` flag **or** an agent plan). Without the flag and without the plan, always false. - **The entire "Acompanhamento do plano" group** (seven consumption cards): all require `tenant-billing` PLUS a `billing-*` flag PLUS a subscription metric, and the section only renders when more than one card remains. The ones that stayed and carry `flagNaOrigem` are the ones the source hides behind a flag but that already have a real permission guarding the door: the flag disappears from the rule (we have none), the permission still applies, and the flag's name stays recorded in the field — that's what demo mode shows next to the card.
@@ -51,7 +52,7 @@ export const CATALOGO: readonly ContractCard[] = [
     icone: 'avatar',
     key: 'conta.membros',
     conferencia: 'ler',
-    rota: '/contract/members',
+    rota: tenantPath('tenant/members'),
     pronto: true,
   },
   {
@@ -63,7 +64,7 @@ export const CATALOGO: readonly ContractCard[] = [
     icone: 'cadeado',
     key: 'conta.membros',
     conferencia: 'ler',
-    rota: '/contract/certificates',
+    rota: tenantPath('tenant/mtls'),
     pronto: true,
     flagNaOrigem: 'enable-tenant-mtls-certificates',
   },
@@ -76,7 +77,7 @@ export const CATALOGO: readonly ContractCard[] = [
     icone: 'comunidade',
     key: 'conta.grupos_acesso',
     conferencia: 'ler',
-    rota: '/contract/access-groups',
+    rota: tenantPath('tenant/permission-groups'),
     pronto: false,
     flagNaOrigem: 'portal-fragment-permission-groups-is-enabled',
   },
@@ -95,7 +96,7 @@ export const CATALOGO: readonly ContractCard[] = [
     key: 'conta.membros',
     /* The only card that requires WRITE, like at the source (check `e`). */
     conferencia: 'escrever',
-    rota: '/contract/calls',
+    rota: tenantPath('tenant/calls'),
     pronto: false,
     flagNaOrigem: 'tenant-calls-settings',
   },

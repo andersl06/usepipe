@@ -4,7 +4,7 @@ import { ManagementIcon } from '../../../components/icones-management';
 import { IconePortal } from '../../../components/icones-portal';
 import Link from '../../../components/link';
 import { channelRoute, type TypeOfChannelOfBot } from '../../../lib/channel-of-flow';
-import { ShellModule, contactBase, useContact } from '../contact';
+import { ShellModule, contactPath, useContact } from '../contact';
 import '../integrations/header-of-page.css';
 import '../integrations/integrations.css';
 import './channel-of-bot.css';
@@ -45,7 +45,7 @@ export function ChannelShell({
   children: ReactNode;
 }) {
   const { contact } = useContact();
-  const base = contactBase(contact.tipo, contact.id);
+  const base = contactPath(contact);
   const caminho = useLocation().pathname.replace(/\/$/, '');
   /** This page's URL; whatever comes after it is the tab. */
   const raiz = channelRoute(base, tipo);

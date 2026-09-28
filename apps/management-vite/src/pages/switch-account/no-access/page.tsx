@@ -2,6 +2,7 @@ import Link from '../../../components/link';
 import { useSearchParams } from 'react-router-dom';
 import { useRead } from '../../../lib/query';
 import type { AccountInList } from '../../../lib/shell';
+import { APPLICATION } from '../../../lib/application-paths';
 import '../../welcome/boas-vindas.css';
 
 /**
@@ -34,7 +35,7 @@ export function PageNoAccess() {
         </p>
 
         <div className="bv-acao">
-          <Link href={emVigor ? '/portal' : '/welcome'}>
+          <Link href={emVigor ? APPLICATION : '/welcome'}>
             {emVigor ? `Voltar para ${emVigor.name}` : 'Voltar'}
           </Link>
         </div>

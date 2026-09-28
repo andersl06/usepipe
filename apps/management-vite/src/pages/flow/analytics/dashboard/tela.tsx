@@ -14,7 +14,6 @@ import {
   type Intervalo,
   type Period,
 } from '@pipe/core/analytics';
-import { contactBase } from '../../contact';
 import { PeriodCustom } from './period-custom';
 
 /**
@@ -39,6 +38,8 @@ import { PeriodCustom } from './period-custom';
 
 export interface PropsDoDashboard {
   id: string;
+  /** The contact's own path (`contactPath(contact)`, D-52) — used to link out to its own screens. */
+  base: string;
   period: Period;
   intervalo: Intervalo;
   hoje: string;
@@ -1144,7 +1145,7 @@ function ColumnsCard(props: {
  * name is plain text; in the flow, a link to the Builder.
  */
 function SectionBlocks(p: PropsDoDashboard) {
-  const dictionary = `${contactBase(p.data.router ? 'roteador' : 'fluxo', p.id)}/analytics/data-dictionary?path=dashboard:listOfBlocks`;
+  const dictionary = `${p.base}/analytics/data-dictionary?path=dashboard:listOfBlocks`;
   const description = (flow: string, router: string, fim: string) => (
     <>
       {p.data.router ? router : flow}{' '}
@@ -1167,7 +1168,7 @@ function SectionBlocks(p: PropsDoDashboard) {
     p.data.router ? (
       n
     ) : (
-      <a className="da-link" href="/builder" target="_blank" rel="noreferrer">
+      <a className="da-link" href={`${p.base}/templates/builder`} target="_blank" rel="noreferrer">
         {n}
       </a>
     );

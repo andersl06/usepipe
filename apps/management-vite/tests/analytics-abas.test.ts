@@ -34,7 +34,8 @@ test('the Manager navigates the flow\'s current tree', () => {
   const aba = analyticsTabs(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA).find(
     (item) => item.key === 'dataExtractor',
   );
-  assert.equal(aba?.segment, 'report-manager');
+  /* `report-manager` → `data-extractor` (D-54, route-inventory.md §2). */
+  assert.equal(aba?.segment, 'data-extractor');
 });
 
 test('the Manager falls back to `default` when the cluster has no key of its own', () => {

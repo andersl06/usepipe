@@ -2,9 +2,11 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { ClosureNotice } from '@pipe/ui';
 import { RequireSession } from './components/exigir-session';
 import { useRegisterNavigation } from './lib/navigation';
+import { APPLICATION } from './lib/application-paths';
 import { PageLogin } from './pages/login';
 import { NaoEncontrado } from './pages/nao-encontrado';
 import { PagePortal } from './pages/portal';
+import { LegacyRedirect, LegacyContactRedirect } from './pages/legacy-redirects';
 import { ContactRoute } from './pages/flow/contact';
 import { ContactHome } from './pages/flow/home';
 import { ChannelsPage } from './pages/flow/channels/channels';
@@ -77,6 +79,7 @@ import { PageMyAccount } from './pages/my-account/page';
 import { PageDeployment } from './pages/deployment/page';
 import { PageCreateFlow } from './pages/create/flow/page';
 import { PageCreateRouter } from './pages/create/router/page';
+import { PageCreateName } from './pages/create/name/page';
 import { PageWelcome } from './pages/welcome/page';
 import { PageUpdates } from './pages/updates/page';
 import { PageInvitation } from './pages/invitation/page';
@@ -84,7 +87,11 @@ import { PageNoAccess } from './pages/switch-account/no-access/page';
 import { PageBuilder } from './pages/builder';
 
 /**
- * Contact child routes render beneath parent `RotaDoContato` at `/fluxo/:id` or `/roteador/:id`. Router reference screens formerly lived incorrectly under `/fluxo/:id/*` (`auvpsegurosrouter`, `pipeprincipal`) and moved to `/roteador/:id/*`. Keep `/fluxo/:id/*` on the same screens until the chatbot-specific view is designed. `RotaDoContato` redirects a prefix that disagrees with contact type, making shared child routes safe for now.
+ * Contact child routes render beneath `ContactRoute`, mounted once below (search this file for
+ * `ContactRoute` to find the single mount point), ONE tree for both flow and router — Blip has
+ * no type segment in the URL and resolves everything by short name (D-52, `route-inventory.md`
+ * §1). The segments below use Blip's own names where `route-inventory.md` §2 documents one
+ * (D-54); where it doesn't, they keep ours.
  */
 const contactRoutes = (
   <>
@@ -101,7 +108,8 @@ const contactRoutes = (
     </Route>
     <Route path="channels/instagram" element={<PageChannelInstagram />} />
     <Route path="channels/messenger" element={<PageChannelMessenger />} />
-    <Route path="services" element={<ServicesPage />} />
+    {/* `services` → `templates/pipeline` (D-54; route-inventory.md §2, "serviços do roteador"). */}
+    <Route path="templates/pipeline" element={<ServicesPage />} />
 
     {/*
  * The Attendance module mirrors source `attendance/desk/*` inside the same contact: Portal bar, contact bar with Attendance selected, and its own `desk-sidebar` in `operacao/casca.tsx`. These screens formerly lived at separate paths such as `/monitoramento` and `/historico` with a second Portal shell; the original change report maps the move.
@@ -110,35 +118,38 @@ const contactRoutes = (
       <Route index element={<Navigate to="monitoring" replace />} />
       <Route path="monitoring" element={<PageMonitoring />} />
       <Route path="history" element={<PageHistory />} />
-      <Route path="quality-review" element={<PageQualityReview />} />
-      <Route path="quality-review/:id" element={<EvaluationPageRecord />} />
-      <Route path="reports/attendance" element={<PageAttendance />} />
-      <Route path="reports/effort" element={<PageEffort />} />
-      <Route path="reports/satisfaction" element={<PageSatisfaction />} />
-      <Route path="agents/management" element={<AgentsPageManagement />} />
-      {/*
- * Mirror source `/team/create` and `/team/edit` without `:id`; batch-edit selection travels in `?atendentes=` (reference sheet §a.1/§a.4).
- */}
-      <Route path="agents/management/add" element={<AgentPageEdit modo="adicionar" />} />
-      <Route path="agents/management/edit" element={<AgentPageEdit modo="editar" />} />
-      {/* `/team/permission` da origem. */}
-      <Route path="agents/management/permissions" element={<AgentPagePermissions />} />
-      <Route path="agents/queues" element={<PageQueues />} />
-      {/* Mirror source `/queue-management/edit/:id` as a separate page, not a modal. */}
-      <Route path="agents/queues/:queueId/edit" element={<QueuePageEdit />} />
-      <Route path="agents/breaks" element={<PageBreaks />} />
-      <Route path="communication/templates" element={<PageTemplates />} />
-      <Route path="communication/canned-responses" element={<PageCannedResponses />} />
-      <Route path="rules/attendance" element={<AttendancePageRules />} />
-      <Route path="rules/sla" element={<SlaPageRules />} />
-      <Route path="rules/hours" element={<PageHours />} />
+      {/* `quality-review` → `quality-assurance` (D-54). */}
+      <Route path="quality-assurance" element={<PageQualityReview />} />
+      <Route path="quality-assurance/:id" element={<EvaluationPageRecord />} />
+      {/* `reports/attendance|effort|satisfaction` → `report`, `effort`, `survey-dashboard` (D-54). */}
+      <Route path="report" element={<PageAttendance />} />
+      <Route path="effort" element={<PageEffort />} />
+      <Route path="survey-dashboard" element={<PageSatisfaction />} />
+      {/* `agents/management` → `team` (D-54, "atendentes"), mirroring source `/team/create`, `/team/edit`, `/team/permission` without `:id`; batch-edit selection travels in `?atendentes=` (reference sheet §a.1/§a.4). */}
+      <Route path="team" element={<AgentsPageManagement />} />
+      <Route path="team/create" element={<AgentPageEdit modo="adicionar" />} />
+      <Route path="team/edit" element={<AgentPageEdit modo="editar" />} />
+      <Route path="team/permission" element={<AgentPagePermissions />} />
+      {/* `agents/queues` → `queue-management` (D-54); child mirrors source `/queue-management/edit/:id` as a separate page, not a modal. */}
+      <Route path="queue-management" element={<PageQueues />} />
+      <Route path="queue-management/:queueId/edit" element={<QueuePageEdit />} />
+      {/* `agents/breaks` → `personalizedbreaks` (D-54). */}
+      <Route path="personalizedbreaks" element={<PageBreaks />} />
+      {/* `communication/templates|canned-responses` → `message-template`, `replies` (D-54). */}
+      <Route path="message-template" element={<PageTemplates />} />
+      <Route path="replies" element={<PageCannedResponses />} />
+      {/* `rules/attendance|sla|hours` → `rules`, `sla-policy`, `attendance-hours` (D-54). */}
+      <Route path="rules" element={<AttendancePageRules />} />
+      <Route path="sla-policy" element={<SlaPageRules />} />
+      <Route path="attendance-hours" element={<PageHours />} />
       <Route path="preferences/general" element={<PageSettingsGeneral />} />
       <Route path="preferences/data" element={<PageData />} />
       <Route path="preferences/rules" element={<PageRules />} />
       <Route path="channels" element={<PageChannels />} />
     </Route>
 
-    <Route path="contacts" element={<ContactsShell />}>
+    {/* `contacts` → `users` (D-54, route-inventory.md §2). */}
+    <Route path="users" element={<ContactsShell />}>
       <Route index element={<BotListContacts />} />
       {/* fix(01-24): o nome do param tinha ficado PT (`contactId`) depois do
           rename, e `detalhe.tsx` já lê `contactId` — o contato nunca resolvia
@@ -157,12 +168,20 @@ const contactRoutes = (
       <Route index element={<Navigate to="active-messages" replace />} />
       <Route path="active-messages" element={<PageActiveMessages />} />
       <Route path="clicktracker" element={<PageClickTracker />} />
-      <Route path="ads" element={<PageAds />} />
-      <Route path="payments" element={<PaymentsPageReport />} />
+      {/* `ads` → `adsbuying`, `payments` → `paymentsReport` (D-54). */}
+      <Route path="adsbuying" element={<PageAds />} />
+      <Route path="paymentsReport" element={<PaymentsPageReport />} />
+      {/*
+ * Kept as our own name (D-54): Blip's `clicktracker` already names the item above
+ * (Click-to-WhatsApp ad performance). Tracked links have no Blip counterpart
+ * (`growth/navigation.tsx`); adopting `clicktracker` here too would collide two screens
+ * onto the same address.
+ */}
       <Route path="tracked-links" element={<PageTrackedLinks />} />
     </Route>
 
-    <Route path="settings" element={<SettingsShell />}>
+    {/* `settings` → `configurations` (D-54; route-inventory.md §2, "settings/basic" → "configurations/basic"). Leaf names already match Blip's (`basic`, `welcome`, `keys`) and stay as they were. */}
+    <Route path="configurations" element={<SettingsShell />}>
       <Route index element={<Navigate to="basic" replace />} />
       <Route path="basic" element={<SettingsBasicPage />} />
       <Route path="welcome" element={<WelcomePage />} />
@@ -183,14 +202,24 @@ const contactRoutes = (
       <Route path="journey" element={<JourneyPage />} />
       <Route path="reports" element={<ReportsPage />} />
       <Route path="active-messages" element={<AnaliseMensagensAtivas />} />
-      <Route path="report-manager" element={<ManagerPage />} />
+      {/* `report-manager` → `data-extractor` (D-54). */}
+      <Route path="data-extractor" element={<ManagerPage />} />
       <Route path="data-dictionary" element={<DictionaryPage />} />
     </Route>
+
+    {/* `builder` → `templates/builder` (D-54). Menu-hidden for routers (`itens.ts`'s `HIDDEN_IN_ROUTER`), but the tree is single now (D-52) — no type segment left to gate it by. */}
+    <Route path="templates/builder" element={<PageBuilder />} />
   </>
 );
 
 /**
- * Gestão routes retain the same URLs as the former Next app so bookmarks and history keep working. The tree uses contact `/fluxo/:id` for chatbot or `/roteador/:id` for router as parent state, with modules below. Only `/entrar` is public; `ExigirSessao` guards the rest.
+ * Gestão routes live under `/application` (D-52), matching Blip's own shape: the portal list,
+ * the contact tree keyed by short name (`ContactRoute`, below), the creation wizard under
+ * `/application/create`, and the tenant-level screens (`tenant`, `product-updates`,
+ * `deployment`, `switch-account`). Only `/login` and `/invite/:token` are public; `RequireSession`
+ * guards the rest. Every pre-D-52 address redirects with replace through
+ * `LegacyRedirect`/`LegacyContactRedirect` (`lib/application-paths.ts`), preserving the rest of
+ * the path, the query, and the hash.
  */
 export function App() {
   useRegisterNavigation();
@@ -202,38 +231,40 @@ export function App() {
       <Route path="/invite/:token" element={<PageInvitation />} />
 
       <Route element={<RequireSession />}>
-        <Route path="/" element={<Navigate to="/portal" replace />} />
-        <Route path="/portal" element={<PagePortal />} />
-        <Route path="/updates" element={<PageUpdates />} />
-        <Route path="/contract" element={<ContractPage />} />
-        <Route path="/contract/certificates" element={<CertificatesPage />} />
-        <Route path="/contract/members" element={<MembersPage />} />
+        <Route path="/" element={<Navigate to={APPLICATION} replace />} />
+        <Route path="/application" element={<PagePortal />} />
+        <Route path="/application/product-updates" element={<PageUpdates />} />
+        <Route path="/application/tenant" element={<ContractPage />} />
+        <Route path="/application/tenant/mtls" element={<CertificatesPage />} />
+        <Route path="/application/tenant/members" element={<MembersPage />} />
+        {/* Root-level: the Blip capture shows neither state nested under `/application` (`lib/application-paths.ts`'s header comment). */}
         <Route path="/my-account" element={<PageMyAccount />} />
         <Route path="/welcome" element={<PageWelcome />} />
-        {/* Pre-rename address, kept so saved links and old e-mails still land on the page. */}
-        <Route path="/bem-vindo" element={<Navigate to="/welcome" replace />} />
-        <Route path="/switch-account/no-access" element={<PageNoAccess />} />
-        {/* D-31 (`std/nav-contract.md` §Gestão): passo do wizard no path, não
-            em `?passo=`. `:passo?` cobre a base (sem passo, primeira tela)
-            e cada segmento de passo com a MESMA rota declarativa. */}
-        <Route path="/create/flow/:passo?" element={<PageCreateFlow />} />
-        <Route path="/create/router/:passo?" element={<PageCreateRouter />} />
+        <Route path="/application/switch-account/no-access" element={<PageNoAccess />} />
+        {/* D-31/D-52: the wizard step lives in the path, not `?passo=` or `:passo`. */}
+        <Route path="/application/create/marketplace" element={<PageCreateFlow step="marketplace" />} />
+        <Route path="/application/create/test" element={<PageCreateFlow step="test" />} />
+        <Route path="/application/create/router" element={<PageCreateRouter />} />
+        <Route path="/application/create/name/:template" element={<PageCreateName />} />
 
         {/*
  * Implantação is account onboarding, with no contact to nest beneath. It renders its own `pt-app` and `BarraDoPortal` chrome in `page.tsx`, like Novidades and the contract panel. Builder and Growth moved inside the contact; after that, `EstruturaGestao` had no route requiring its two-bar shell and was removed.
  */}
-        <Route path="/deployment" element={<PageDeployment />} />
+        <Route path="/application/deployment" element={<PageDeployment />} />
 
-        <Route path="/flow/:id" element={<ContactRoute />}>
-          {contactRoutes}
-          {/*
- * Builder is hidden from the router menu by `HIDDEN_IN_ROUTER` in `fluxo/itens.ts`, matching the reference, so this route exists only here and not below `/roteador/:id`.
- */}
-          <Route path="builder" element={<PageBuilder />} />
-        </Route>
-        <Route path="/router/:id" element={<ContactRoute />}>
+        <Route path="/application/detail/:shortName" element={<ContactRoute />}>
           {contactRoutes}
         </Route>
+
+        {/* Pre-D-52 addresses: redirect with replace, preserving path/query/hash. */}
+        <Route path="/portal" element={<LegacyRedirect />} />
+        <Route path="/create/*" element={<LegacyRedirect />} />
+        <Route path="/updates" element={<LegacyRedirect />} />
+        <Route path="/contract/*" element={<LegacyRedirect />} />
+        <Route path="/deployment" element={<LegacyRedirect />} />
+        <Route path="/switch-account/*" element={<LegacyRedirect />} />
+        <Route path="/flow/:id/*" element={<LegacyContactRedirect />} />
+        <Route path="/router/:id/*" element={<LegacyContactRedirect />} />
 
         <Route path="*" element={<NaoEncontrado />} />
       </Route>

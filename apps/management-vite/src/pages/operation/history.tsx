@@ -95,7 +95,7 @@ function CamposEscondidos({ atual, exceto }: { atual: Search; exceto: readonly s
  */
 export function PageHistory() {
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
   const [search] = useSearchParams();
   const crus = Object.fromEntries(search.entries()) as Search;
   /* Conferido na entrada: id torto e data torta viram "sem filtro", em vez de

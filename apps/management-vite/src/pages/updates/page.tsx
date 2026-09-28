@@ -4,6 +4,7 @@ import { SearchIcon, IconePortal } from '../../components/icones-portal';
 import { Selection } from '../../components/selection';
 import { portalUseShell } from '../../lib/shell';
 import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-memory';
+import { tenantPath } from '../../lib/application-paths';
 import { useEu } from '../../context/session';
 import { CATEGORIAS, UPDATES, type Update } from './conteudo';
 import './updates.css';
@@ -77,7 +78,7 @@ export function PageUpdates() {
           <form
             className="nv-filters"
             method="get"
-            action="/updates"
+            action={tenantPath('product-updates')}
             role="search"
             onSubmit={(e) => {
               e.preventDefault();

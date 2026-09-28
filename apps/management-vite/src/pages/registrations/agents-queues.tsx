@@ -61,7 +61,7 @@ function QueueActions({
 export function PageQueues() {
   const navegar = useNavigate();
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
   const [modalAberto, setModalAberto] = useState(false);
   const [queueForDelete, setQueueForDelete] = useState<QueueRegistered | null>(null);
   const [excluindo, setExcluindo] = useState(false);
@@ -97,7 +97,7 @@ export function PageQueues() {
           <QueueActions
             queue={f}
             onErrorToggle={setErrorToggle}
-            onEditar={() => navegar(`${base}/agents/queues/${f.id}/edit`)}
+            onEditar={() => navegar(`${base}/queue-management/${f.id}/edit`)}
             onExcluir={() => setQueueForDelete(f)}
           />
         ),

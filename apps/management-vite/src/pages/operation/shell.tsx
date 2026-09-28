@@ -3,7 +3,8 @@ import { estaAtivo } from '@pipe/ui';
 import Link from '../../components/link';
 import { IconePortal, type NomeDeIconePortal } from '../../components/icones-portal';
 import { URL_DESK } from '../../components/structure-management';
-import { ShellModule, contactBase, useContact } from '../flow/contact';
+import { ShellModule, contactPath, useContact } from '../flow/contact';
+import type { Contact } from '../flow/barra-of-contact';
 import './attendance.css';
 
 /**
@@ -27,36 +28,36 @@ const GROUPS: readonly GrupoLateral[] = [
     rotulo: 'Relatórios',
     icone: 'relatorios',
     filhos: [
-      { rotulo: 'Atendimento', rota: 'reports/attendance' },
-      { rotulo: 'Satisfação', rota: 'reports/satisfaction' },
-      { rotulo: 'Esforço por atendente', rota: 'reports/effort' },
-      { rotulo: 'Monitoria com IA', rota: 'quality-review' },
+      { rotulo: 'Atendimento', rota: 'report' },
+      { rotulo: 'Satisfação', rota: 'survey-dashboard' },
+      { rotulo: 'Esforço por atendente', rota: 'effort' },
+      { rotulo: 'Monitoria com IA', rota: 'quality-assurance' },
     ],
   },
   {
     rotulo: 'Comunicação',
     icone: 'comunicacao',
     filhos: [
-      { rotulo: 'Respostas prontas', rota: 'communication/canned-responses' },
-      { rotulo: 'Modelos de mensagens', rota: 'communication/templates' },
+      { rotulo: 'Respostas prontas', rota: 'replies' },
+      { rotulo: 'Modelos de mensagens', rota: 'message-template' },
     ],
   },
   {
     rotulo: 'Regras',
     icone: 'regras',
     filhos: [
-      { rotulo: 'Atendimento', rota: 'rules/attendance' },
-      { rotulo: 'SLA', rota: 'rules/sla' },
-      { rotulo: 'Horários', rota: 'rules/hours' },
+      { rotulo: 'Atendimento', rota: 'rules' },
+      { rotulo: 'SLA', rota: 'sla-policy' },
+      { rotulo: 'Horários', rota: 'attendance-hours' },
     ],
   },
   {
     rotulo: 'Atendentes',
     icone: 'atendentes',
     filhos: [
-      { rotulo: 'Gestão de atendentes', rota: 'agents/management' },
-      { rotulo: 'Filas de atendimento', rota: 'agents/queues' },
-      { rotulo: 'Pausas personalizadas', rota: 'agents/breaks' },
+      { rotulo: 'Gestão de atendentes', rota: 'team' },
+      { rotulo: 'Filas de atendimento', rota: 'queue-management' },
+      { rotulo: 'Pausas personalizadas', rota: 'personalizedbreaks' },
     ],
   },
   {
@@ -70,9 +71,9 @@ const GROUPS: readonly GrupoLateral[] = [
   },
 ];
 
-/** `/{tipo}/{id}/attendance` — o prefixo que toda tela deste módulo pendura. */
-export function attendanceBase(tipo: string, id: string): string {
-  return `${contactBase(tipo, id)}/attendance`;
+/** `${flowPath(shortName)}/attendance` — o prefixo que toda tela deste módulo pendura. */
+export function attendanceBase(contact: Pick<Contact, 'shortName'>): string {
+  return `${contactPath(contact)}/attendance`;
 }
 
 function NavigationAttendance({ base, caminho }: { base: string; caminho: string }) {
@@ -136,7 +137,7 @@ function NavigationAttendance({ base, caminho }: { base: string; caminho: string
  */
 export function AttendanceShell() {
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
   const caminho = useLocation().pathname;
   return (
     <ShellModule ativo="Atendimento">

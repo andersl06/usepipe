@@ -45,7 +45,7 @@ interface Search {
  */
 export function PageQualityReview() {
   const { contact } = useContact();
-  const base = attendanceBase(contact.tipo, contact.id);
+  const base = attendanceBase(contact);
   const [search] = useSearchParams();
   const crus = Object.fromEntries(search.entries()) as Search;
   /* Conferido na entrada: id torto e data torta viram "sem filtro", em vez de
@@ -76,7 +76,7 @@ export function PageQualityReview() {
         </span>
       </div>
 
-      <form className="quickfilters" method="get" action={`${base}/quality-review`}>
+      <form className="quickfilters" method="get" action={`${base}/quality-assurance`}>
         <span className="lbl">Período</span>
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
@@ -107,7 +107,7 @@ export function PageQualityReview() {
         </Selection>
 
         <div className="faixa-fim">
-          <a href={`${base}/quality-review`} className="btn">
+          <a href={`${base}/quality-assurance`} className="btn">
             Limpar
           </a>
           <button type="submit" className="btn primary">
@@ -262,7 +262,7 @@ export function PageQualityReview() {
                       </span>
                     </td>
                     <td>
-                      <Link href={`${base}/quality-review/${a.id}`}>Abrir</Link>
+                      <Link href={`${base}/quality-assurance/${a.id}`}>Abrir</Link>
                     </td>
                   </tr>
                 ))}

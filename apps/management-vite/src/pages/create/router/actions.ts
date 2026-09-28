@@ -1,5 +1,6 @@
 import { saveContact } from '../gravar';
 import { irPara } from '../../../lib/navigation';
+import { createNamePath, flowPath } from '../../../lib/application-paths';
 import { RECADOS } from './regras';
 
 /**
@@ -9,14 +10,17 @@ import { RECADOS } from './regras';
  */
 export async function createRouter(data: FormData): Promise<void> {
   const resultado = await saveContact(data, { tipo: 'roteador', recados: RECADOS });
-  if (resultado.error) return backWithError(resultado.error, String(data.get('nome') ?? ''));
-  irPara(`/router/${resultado.id}`);
+  /* Checking `shortName` (not `error`) is what lets TS narrow the union — see the same note in
+     `../flow/actions.ts`. */
+  if (!resultado.shortName) {
+    return backWithError(resultado.error ?? 'Não foi possível criar.', String(data.get('nome') ?? ''));
+  }
+  irPara(flowPath(resultado.shortName));
 }
 
 function backWithError(motivo: string, nome: string): void {
-  /* Passo no path (D-31, `std/nav-contract.md` §Gestão); erro/nome
-     continuam na query, classificados em separado. */
+  /* Step in the path (D-31, D-52); error/name stay in the query, classified separately. */
   const search = new URLSearchParams({ error: motivo });
   if (nome) search.set('nome', nome);
-  irPara(`/create/router/name?${search}`);
+  irPara(`${createNamePath('master')}?${search}`);
 }

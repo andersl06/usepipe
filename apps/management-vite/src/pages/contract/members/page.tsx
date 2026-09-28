@@ -6,6 +6,7 @@ import { useEu } from '../../../context/session';
 import { portalUseShell } from '../../../lib/shell';
 import { useRead } from '../../../lib/query';
 import type { ContractMember, AccountRole, ContractSummary } from '../../../lib/contract';
+import { tenantPath } from '../../../lib/application-paths';
 import { PAPEIS_DA_ORIGEM, accountEhRole } from '../catalogo';
 import '../contract.css';
 import { InviteMembers } from './convidar';
@@ -24,7 +25,7 @@ export function MembersPage() {
   const lista = useRead<{ members: ContractMember[]; papeis: AccountRole[] }>(
     podeLer ? '/v1/management/contract/members' : null,
   );
-  if (!podeLer) return <Navigate to="/contract" replace />;
+  if (!podeLer) return <Navigate to={tenantPath('tenant')} replace />;
   if (!resumo.data || !lista.data) return null;
   const contract = resumo.data;
   const { members, papeis } = lista.data;
@@ -46,7 +47,7 @@ export function MembersPage() {
       <main className="pt-conteudo">
         <div className="mb-tela">
           <div className="mb-cabecalho">
-            <Link className="mb-voltar" href="/contract" aria-label="Voltar ao painel do contrato">
+            <Link className="mb-voltar" href={tenantPath('tenant')} aria-label="Voltar ao painel do contrato">
               <IconePortal nome="esquerda" tamanho={24} />
             </Link>
             <h1>Membros do contrato {contract.name}</h1>

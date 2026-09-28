@@ -1,5 +1,6 @@
 import { Etiqueta } from '@pipe/ui';
 import type { TomDeEtiqueta } from '@pipe/ui';
+import type { GradeDoPortal } from '@pipe/contracts';
 import { BarraDoPortal } from '../../components/barra-do-portal';
 import { useEu } from '../../context/session';
 import { portalUseShell } from '../../lib/shell';
@@ -40,6 +41,12 @@ export function PageDeployment() {
   const eu = useEu();
   const shell = portalUseShell();
   const read = useRead<Deployment>('/v1/management/deployment');
+  /*
+   * The most recent flow, so the "Ver canais" and "Abrir filas" steps below can link into a
+   * contact (`lib/passos-of-deployment.ts`). The account may have none yet, in which case those
+   * steps fall back to the portal list.
+   */
+  const primaryFlow = useRead<GradeDoPortal>('/v1/management/flows?search=&pagina=1&porPagina=1');
   if (!read.data) {
     return (
       <div className="pt-app">
@@ -48,7 +55,8 @@ export function PageDeployment() {
     );
   }
   const { signals, channels } = read.data;
-  const passos = montarPassos(signals, URL_DESK);
+  const primaryShortName = primaryFlow.data?.flows[0]?.shortName ?? null;
+  const passos = montarPassos(signals, URL_DESK, primaryShortName);
   const feitos = passos.filter((p) => p.state === 'feito').length;
   const firstName = eu.user.nome.split(' ')[0] ?? eu.user.nome;
   const ultima = signals.lastImport;

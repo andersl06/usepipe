@@ -1,11 +1,11 @@
 import Link from '../../../components/link';
 import { ManagementIcon } from '../../../components/icones-management';
 import { IconePortal } from '../../../components/icones-portal';
-import { Navigate, useParams, useSearchParams } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { portalUseShell } from '../../../lib/shell';
-import { CreationShell, PassoDoNome } from '../casco';
-import { createRouter } from './actions';
-import { RECADOS, ROTULOS } from './regras';
+import { APPLICATION, createNamePath } from '../../../lib/application-paths';
+import { CreationShell } from '../casco';
+import { ROTULOS } from './regras';
 import '../create.css';
 import './create-router.css';
 
@@ -28,9 +28,9 @@ import './create-router.css';
  *     picker, the name field with a counter, and two buttons: "Voltar" and
  *     "Criar roteador" (`type="submit"`).
  *
- * Here the two steps are the SAME route, separated by `?passo=nome`. It's a Server
- * Component: two steps with no client state are two renders, and the first step's
- * button is a link, just as their `ui-sref` is a link.
+ * Each step is now its OWN route (D-52): the invitation is this file, and the name step is
+ * `PageCreateName` at `/application/create/name/master`, shared with the flow's own name step —
+ * in the source they're literally the same template.
  *
  * ═══ WHAT THE ROUTER SKIPS, AND THE FLOW DOESN'T ═══
  *
@@ -51,34 +51,17 @@ const URL_SABER_MAIS = (import.meta.env['VITE_PIPE_AJUDA_ROTEADOR_URL'] as strin
 
 export function PageCreateRouter() {
   const shell = portalUseShell();
-  const { passo } = useParams();
-  const [search] = useSearchParams();
-  const parametros = {
-    erro: search.get('erro') ?? undefined,
-    nome: search.get('nome') ?? undefined,
-  };
 
   /*
    * Their `canCreateChatbot` is checked in the controller's `$onInit`, BEFORE
    * rendering any step: whoever can't do it falls into
-   * `$state.go(getReturnState())`, which is the contact list. Here, `/portal`.
+   * `$state.go(getReturnState())`, which is the contact list. Here, `/application`.
    */
-  if (!shell.canCreate) return <Navigate to="/portal" replace />;
+  if (!shell.canCreate) return <Navigate to={APPLICATION} replace />;
 
   return (
     <CreationShell>
-      {passo === 'name' ? (
-        <PassoDoNome
-          acao={createRouter}
-          voltarPara="/create/router"
-          rotulos={ROTULOS}
-          errorTitle={RECADOS.titulo}
-          error={parametros.erro}
-          nome={parametros.nome}
-        />
-      ) : (
-        <InvitationStep />
-      )}
+      <InvitationStep />
     </CreationShell>
   );
 }
@@ -143,7 +126,7 @@ function InvitationStep() {
  * text. Here it's a link because the next step is another render, not another
  * state in the browser's memory.
  */}
-          <Link className="btn primario cr-botao" href="/create/router/name">
+          <Link className="btn primario cr-botao" href={createNamePath('master')}>
             {ROTULOS.tagline}
           </Link>
         </div>

@@ -46,7 +46,7 @@ describe('service form', () => {
       nome,
       estado: 'publicado',
       tipo: 'fluxo',
-      shortName: null,
+      shortName: `bot-${id}`,
     });
     const search = [bot('1', 'Suporte'), bot('2', 'Vendas'), bot('3', 'Suporte VIP')];
     assert.deepEqual(

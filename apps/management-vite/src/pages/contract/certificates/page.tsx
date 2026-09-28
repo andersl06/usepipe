@@ -7,6 +7,7 @@ import { portalUseShell } from '../../../lib/shell';
 import { useRead } from '../../../lib/query';
 import type { CertificadoMtls } from '../../../lib/certificados';
 import type { ContractSummary } from '../../../lib/contract';
+import { tenantPath } from '../../../lib/application-paths';
 import './certificados.css';
 import { TelaDeCertificados } from './tela';
 
@@ -21,7 +22,7 @@ export function CertificatesPage() {
   const lista = useRead<CertificadoMtls[]>(
     podeLer ? '/v1/management/contract/certificates' : null,
   );
-  if (!podeLer) return <Navigate to="/contract" replace />;
+  if (!podeLer) return <Navigate to={tenantPath('tenant')} replace />;
   if (!read.data || !lista.data) return null;
   const contract = read.data;
   const podeEscrever = eu.permissions.includes('conta.membros.escrever');
@@ -35,7 +36,7 @@ export function CertificatesPage() {
  * `setHeaderContent({ redirect: "/", text: "Certificados MTLS de {0}" })`: at the source, the portal bar is what draws the back arrow and the phrase.
  */}
         <div className="cm-cabecalho">
-          <Link className="cm-voltar" href="/contract" aria-label="Voltar ao painel do contrato">
+          <Link className="cm-voltar" href={tenantPath('tenant')} aria-label="Voltar ao painel do contrato">
             <IconePortal nome="esquerda" tamanho={24} />
           </Link>
           <h1>Certificados MTLS de {contract.name}</h1>

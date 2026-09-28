@@ -2,6 +2,7 @@ import Link from '../../components/link';
 import { Navigate } from 'react-router-dom';
 import { useRead } from '../../lib/query';
 import type { AccountInForce } from '../../lib/account';
+import { APPLICATION } from '../../lib/application-paths';
 import { FundoPipe } from '../fundo-pipe';
 import './boas-vindas.css';
 
@@ -13,7 +14,7 @@ export function PageWelcome() {
   if (read.error) return <Navigate to="/login" replace />;
   if (!read.data) return null;
   const account = read.data;
-  if (account.onboardingConcluidoEm) return <Navigate to="/portal" replace />;
+  if (account.onboardingConcluidoEm) return <Navigate to={APPLICATION} replace />;
 
   return (
     <main className="bv">
