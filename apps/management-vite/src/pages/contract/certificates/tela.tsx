@@ -205,7 +205,7 @@ export function TelaDeCertificados({
                   <td className="cm-col-description" title={c.description}>
                     {c.description}
                   </td>
-                  <td>{expirationData(c.expiraEm)}</td>
+                  <td>{expirationData(c.expiresAt)}</td>
                   <td>
                     {/*
  * `bds-chip-tag` by `status` — the source's computed chip, with the fingerprint and subject in the tooltip.
@@ -339,8 +339,8 @@ function Tabela({
 function Etiqueta({ certificado }: { certificado: CertificadoMtls }) {
   const { texto, classe } = etiquetaDoStatus(certificado.status);
   const dica = [
-    certificado.sujeito ? `Sujeito: ${certificado.sujeito}` : null,
-    certificado.emissor ? `Emissor: ${certificado.emissor}` : null,
+    certificado.subject ? `Sujeito: ${certificado.subject}` : null,
+    certificado.issuer ? `Emissor: ${certificado.issuer}` : null,
     `SHA-256: ${certificado.impressaoDigital}`,
   ]
     .filter(Boolean)
