@@ -1,23 +1,45 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { addChips, splitChipText } from './chip-values';
 import './selection-chips.css';
 
 type Option = { id: string; nome: string };
 
-/** Match the geometry of reference Attendance `bds-select-chips` and `chip-clickable`. */
+/**
+ * The product's one chips field, matching reference `bds-select-chips` / `bds-input-chips` and
+ * `chip-clickable`. With `options` it picks from a list (arrow on the right); without them it takes
+ * free text, where Enter, `,`, `|` and `;` close a chip. Uncontrolled forms read the hidden `name`
+ * input; controlled callers pass `values` + `onChange`.
+ */
 export function SelectionChips({
   name,
   rotulo,
+  label,
   placeholder,
   options,
   valuesInitials = [],
+  values: valuesControlled,
+  onChange,
+  erro,
 }: {
-  name: string;
+  name?: string;
   rotulo: string;
+  /** Visible label above the field; absent keeps the label accessible only. */
+  label?: string;
   placeholder: string;
-  options: readonly Option[];
+  options?: readonly Option[];
   valuesInitials?: readonly string[];
+  values?: readonly string[];
+  onChange?: (values: string[]) => void;
+  /** Danger state: red border and this message below the field. */
+  erro?: string;
 }) {
-  const [values, setValues] = useState(() => [...new Set(valuesInitials)]);
+  const [valuesInternal, setValuesInternal] = useState(() => [...new Set(valuesInitials)]);
+  const values = valuesControlled ? [...valuesControlled] : valuesInternal;
+  const setValues = (next: string[]) => {
+    if (onChange) onChange(next);
+    if (!valuesControlled) setValuesInternal(next);
+  };
+  const livre = !options;
   const [search, setSearch] = useState('');
   const [aberta, setAberta] = useState(false);
   const [indice, setIndice] = useState(0);
@@ -29,7 +51,7 @@ export function SelectionChips({
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLocaleLowerCase();
-  const disponiveis = options.filter(
+  const disponiveis = (options ?? []).filter(
     (o) => !values.includes(o.id) && normalizar(o.nome).includes(normalizar(search)),
   );
   const ativo = disponiveis[Math.min(indice, disponiveis.length - 1)];
@@ -43,14 +65,27 @@ export function SelectionChips({
   }, []);
 
   function adicionar(id: string) {
-    setValues((current) => (current.includes(id) ? current : [...current, id]));
+    if (!values.includes(id)) setValues([...values, id]);
     setSearch('');
     setIndice(0);
     setAberta(false);
     input.current?.focus();
   }
 
+  function confirmarDigitado() {
+    if (search.trim()) setValues(addChips(values, [search]));
+    setSearch('');
+  }
+
   function teclar(e: KeyboardEvent<HTMLInputElement>) {
+    if (livre) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        confirmarDigitado();
+      }
+      if (e.key === 'Backspace' && !search && values.length) setValues(values.slice(0, -1));
+      return;
+    }
     if (e.key === 'Escape') {
       e.stopPropagation();
       setAberta(false);
@@ -69,29 +104,32 @@ export function SelectionChips({
       if (aberta && ativo) adicionar(ativo.id);
       else setAberta(true);
     }
-    if (e.key === 'Backspace' && !search) setValues((current) => current.slice(0, -1));
+    if (e.key === 'Backspace' && !search && values.length) setValues(values.slice(0, -1));
   }
 
   return (
     <div
-      className="at-selection-chips"
+      className={`at-selection-chips${erro ? ' at-sc--danger' : ''}`}
       ref={raiz}
       onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setAberta(false);
+        if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+        setAberta(false);
+        if (livre) confirmarDigitado();
       }}
     >
+      {label ? <span className="at-sc-label">{label}</span> : null}
       <div
         className="at-sc-campo"
         onClick={() => {
           input.current?.focus();
-          setAberta(true);
+          if (!livre) setAberta(true);
         }}
       >
         <div className="at-sc-conteudo">
           {values.length > 0 && (
             <span className="at-sc-chips">
               {values.map((id) => {
-                const nome = options.find((o) => o.id === id)?.nome ?? id;
+                const nome = options?.find((o) => o.id === id)?.nome ?? id;
                 return (
                   <span className="at-sc-chip" key={id}>
                     <span className="at-sc-chip-texto" title={nome}>
@@ -103,7 +141,7 @@ export function SelectionChips({
                       aria-label={`Remover ${nome}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setValues((current) => current.filter((v) => v !== id));
+                        setValues(values.filter((v) => v !== id));
                         input.current?.focus();
                       }}
                     >
@@ -122,28 +160,47 @@ export function SelectionChips({
               })}
             </span>
           )}
-          <input
-            ref={input}
-            className="at-sc-search"
-            type="text"
-            role="combobox"
-            aria-label={rotulo}
-            aria-expanded={aberta}
-            aria-controls={listaId}
-            aria-autocomplete="list"
-            aria-activedescendant={aberta && ativo ? `${listaId}-${ativo.id}` : undefined}
-            autoComplete="off"
-            placeholder={placeholder}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setIndice(0);
-              setAberta(true);
-            }}
-            onKeyDown={teclar}
-          />
+          {livre ? (
+            <input
+              ref={input}
+              className="at-sc-search"
+              type="text"
+              aria-label={rotulo}
+              aria-invalid={erro ? true : undefined}
+              autoComplete="off"
+              placeholder={placeholder}
+              value={search}
+              onChange={(e) => {
+                const { chips, rest } = splitChipText(e.target.value);
+                if (chips.length) setValues(addChips(values, chips));
+                setSearch(rest);
+              }}
+              onKeyDown={teclar}
+            />
+          ) : (
+            <input
+              ref={input}
+              className="at-sc-search"
+              type="text"
+              role="combobox"
+              aria-label={rotulo}
+              aria-expanded={aberta}
+              aria-controls={listaId}
+              aria-autocomplete="list"
+              aria-activedescendant={aberta && ativo ? `${listaId}-${ativo.id}` : undefined}
+              autoComplete="off"
+              placeholder={placeholder}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setIndice(0);
+                setAberta(true);
+              }}
+              onKeyDown={teclar}
+            />
+          )}
         </div>
-        <button
+        {livre ? null : <button
           type="button"
           className="at-sc-seta"
           aria-label={`Opções de ${rotulo.toLocaleLowerCase()}`}
@@ -158,9 +215,10 @@ export function SelectionChips({
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12.1498 15.9001C12.0513 15.9005 11.9537 15.8813 11.8627 15.8435C11.7716 15.8058 11.6891 15.7502 11.6198 15.6801L6.21985 10.2801C6.08737 10.1379 6.01524 9.94985 6.01867 9.75555C6.0221 9.56125 6.10081 9.37586 6.23822 9.23845C6.37564 9.10104 6.56102 9.02233 6.75532 9.0189C6.94963 9.01547 7.13767 9.08759 7.27985 9.22007L12.1498 14.0901L16.9998 9.22007C17.1405 9.07962 17.3311 9.00073 17.5298 9.00073C17.7286 9.00073 17.9192 9.07962 18.0598 9.22007C18.1306 9.28902 18.1868 9.37143 18.2252 9.46246C18.2636 9.55349 18.2834 9.65128 18.2834 9.75007C18.2834 9.84887 18.2636 9.94666 18.2252 10.0377C18.1868 10.1287 18.1306 10.2111 18.0598 10.2801L12.6598 15.6801C12.5255 15.8177 12.3422 15.8968 12.1498 15.9001Z" />
           </svg>
-        </button>
+        </button>}
       </div>
-      {aberta && (
+      {erro ? <span className="at-sc-erro">{erro}</span> : null}
+      {aberta && !livre && (
         <div
           className="at-sc-options"
           id={listaId}
@@ -189,7 +247,7 @@ export function SelectionChips({
           )}
         </div>
       )}
-      <input type="hidden" name={name} value={values.join(',')} />
+      {name ? <input type="hidden" name={name} value={values.join(',')} /> : null}
     </div>
   );
 }
