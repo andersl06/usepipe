@@ -13,6 +13,7 @@ import { Editor } from './builder/editor';
 import { podeDesfazer, podeRefazer } from './builder/state';
 import { ConfigurationPanel } from './builder/panel-configuration';
 import { QueuesPanel } from './builder/panel-queues';
+import { hasAttendanceBlock } from './builder/queues-panel';
 import { VariablesPanel } from './builder/panel-variables';
 import { ZOOM_MAXIMO, ZOOM_MINIMO, zoomAjustado } from './builder/setas';
 import { BuilderToasts } from './builder/toast';
@@ -123,6 +124,15 @@ export function PageBuilder() {
   function toast(input: ToastInput): void {
     setToasts((prev) => pushToast(prev, input, Date.now()));
   }
+  /** Queue panel notices (02-33) speak sucesso/erro/alerta; the shared toast speaks sucesso/perigo/aviso. */
+  function avisoDasFilas(aviso: {
+    tom: 'sucesso' | 'erro' | 'alerta';
+    titulo?: string;
+    texto: string;
+    duracaoMs?: number;
+  }): void {
+    toast({ ...aviso, tom: aviso.tom === 'erro' ? 'perigo' : aviso.tom === 'alerta' ? 'aviso' : 'sucesso' });
+  }
 
   const [publicando, setPublicando] = useState(false);
   /** Publish 409 can add errors to those already known from saving. */
@@ -147,6 +157,24 @@ export function PageBuilder() {
   async function aguardarMinimo(inicio: number, minimoMs = 2000): Promise<void> {
     const passou = Date.now() - inicio;
     if (passou < minimoMs) await new Promise((resolve) => setTimeout(resolve, minimoMs - passou));
+  }
+
+  /** Pill button (source `openRulesModal`): no attendance block, just the 3s warning toast — never opens. */
+  function abrirFilas(): void {
+    if (queuesOpen) {
+      setQueuesOpen(false);
+      return;
+    }
+    if (!hasAttendanceBlock(state.mapa)) {
+      toast({
+        tom: 'aviso',
+        titulo: 'Você ainda não configurou o atendimento humano.',
+        texto: 'Para ativar o atendimento humano, adicione um bloco de atendimento no Builder.',
+        duracaoMs: 3000,
+      });
+      return;
+    }
+    setQueuesOpen(true);
   }
 
   /** The block Ações tab's "Gerenciar/Criar função" opens the function library (D-22) already inside Configuração. */
@@ -346,10 +374,7 @@ export function PageBuilder() {
           ) : null}
 
           {queuesOpen ? (
-            <QueuesPanel
-              contact={contact}
-              onFechar={() => setQueuesOpen(false)}
-            />
+            <QueuesPanel onFechar={() => setQueuesOpen(false)} onAviso={avisoDasFilas} />
           ) : null}
 
           {/*
@@ -450,9 +475,9 @@ export function PageBuilder() {
               desabilitado={!editor.carregado}
               motivo={readRefusal ?? 'carregando'}
               ativo={queuesOpen}
-              onClick={() => setQueuesOpen((v) => !v)}
+              onClick={abrirFilas}
             >
-              <IconePortal nome="suporte" tamanho={24} />
+              <Icone nome="userEngaged" tamanho={24} />
             </BotaoDaBarra>
           </div>
 
