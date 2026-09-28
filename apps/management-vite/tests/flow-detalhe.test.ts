@@ -37,6 +37,7 @@ test('Contacts and Content open their areas within the contact\'s context', () =
     /* `contacts` → `users` (D-54, route-inventory.md §2). */
     assert.equal(itens.find((i) => i.rotulo === 'Contatos')?.href, `${BASE}/users`);
     assert.equal(itens.find((i) => i.rotulo === 'Conteúdos')?.href, `${BASE}/contents`);
+    assert.equal(itens.find((i) => i.rotulo === 'Recursos')?.href, `${BASE}/resources`);
   }
 });
 
@@ -104,6 +105,7 @@ test('the rest of the row is the same in both, and in the same order', () => {
     'Canais',
     'Contatos',
     'Conteúdos',
+    'Recursos',
     'Log',
     'Pagamentos',
   ]);
@@ -156,10 +158,14 @@ test('"No permission" disappears from the bar, and the destination stays the sam
 });
 
 test('"Conteúdos" is the `resources` entry on the permission list, not `contents`', () => {
-  /* It's the only key on which the source's two lists disagree by name. */
+  /*
+   * It's the only key on which the source's two lists disagree by name — and Pipe's own "Recursos"
+   * item (the screen actually behind Blip's `resources` permission) shares that same gate, so
+   * granting `resources` reveals both Pipe screens at once.
+   */
   assert.deepEqual(
     itensDoMenu('fluxo', BASE, SO_ISSO({ resources: 'ler' })).map((i) => i.rotulo),
-    ['Conteúdos'],
+    ['Conteúdos', 'Recursos'],
   );
   assert.deepEqual(itensDoMenu('fluxo', BASE, SO_ISSO({ contents: 'ler' })), []);
 });
