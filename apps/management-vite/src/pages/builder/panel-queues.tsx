@@ -47,7 +47,7 @@ export function QueuesPanel({
         <Botao
           type="button"
           variante="primario"
-          onClick={() => navegar(`${attendanceBase(contactType, contactId)}/atendentes/filas`)}
+          onClick={() => navegar(`${attendanceBase(contactType, contactId)}/agents/queues`)}
         >
           Abrir gerenciamento de filas
         </Botao>

@@ -162,7 +162,7 @@ function TabelaDeQuebra({ eixo, linhas }: { eixo: string; linhas: LinhaDeQuebra[
 export function PageAttendance() {
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
-  const manager = `${contactBase(contact.tipo, contact.id)}/analise/gerenciador-de-relatorios`;
+  const manager = `${contactBase(contact.tipo, contact.id)}/analytics/report-manager`;
   const [search] = useSearchParams();
   const crus = Object.fromEntries(search.entries()) as Search;
   /*

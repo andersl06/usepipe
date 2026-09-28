@@ -31,7 +31,7 @@ export function AnalyticsShell() {
  */}
       <main className="an-miolo">
         <AnalyticsView
-          base={`${contactBase(contact.tipo, id)}/analise`}
+          base={`${contactBase(contact.tipo, id)}/analytics`}
           abas={analyticsTabs(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA)}
         >
           <Outlet />

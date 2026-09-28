@@ -149,7 +149,7 @@ export function CardChannels({
             ))}
           </div>
           <div className="fx-faixa-botao">
-            <Botao href={`${contactBase(tipo, id)}/canais`}>Ver canais</Botao>
+            <Botao href={`${contactBase(tipo, id)}/channels`}>Ver canais</Botao>
           </div>
         </div>
       </section>

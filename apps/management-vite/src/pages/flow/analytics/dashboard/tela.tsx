@@ -1144,7 +1144,7 @@ function ColumnsCard(props: {
  * name is plain text; in the flow, a link to the Builder.
  */
 function SectionBlocks(p: PropsDoDashboard) {
-  const dictionary = `${contactBase(p.data.router ? 'roteador' : 'fluxo', p.id)}/analise/dicionario-de-dados?path=dashboard:listOfBlocks`;
+  const dictionary = `${contactBase(p.data.router ? 'roteador' : 'fluxo', p.id)}/analytics/data-dictionary?path=dashboard:listOfBlocks`;
   const description = (flow: string, router: string, fim: string) => (
     <>
       {p.data.router ? router : flow}{' '}

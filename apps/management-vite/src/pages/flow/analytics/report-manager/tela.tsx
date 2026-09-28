@@ -211,7 +211,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             <p>
               Selecione entre as opções os dados que deseja analisar no relatório. Entenda melhor
               cada um deles no{' '}
-              <a href="../dicionario-de-dados?path=reportManager">Dicionário de Dados.</a>
+              <a href="../data-dictionary?path=reportManager">Dicionário de Dados.</a>
             </p>
             <Options itens={REPORTS} escolhido={tipo} aoEscolher={setTipo} />
             {tipo === 'thread-transcription' ? (
