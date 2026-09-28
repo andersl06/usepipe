@@ -225,7 +225,10 @@ async function desenhoDaVersao(tx: TransactionPipe, versaoId: string): Promise<D
           $leavingCustomActions: global['outputActions'] ?? [],
           $afterStateChangedActions: global['afterStateChangedActions'] ?? [],
         };
-  return { flow, globals };
+  const configuration = ehObjeto(global['configuration'])
+    ? (global['configuration'] as Record<string, string>)
+    : {};
+  return { flow, globals, configuration };
 }
 
 const DESENHO_PADRAO: DesenhoDoBuilder = { flow: FLOW_DEFAULT, globals: ACTIONS_GLOBAL_DEFAULT };
@@ -241,6 +244,40 @@ interface Compilado {
 
 const ehObjeto = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === 'object' && !Array.isArray(v);
+
+/** A user key is `[a-zA-Z0-9]+` (Blip's own rule, `ref/FIDELIDADE-F1-F6.md`); `builder:*` is the platform's own reserved namespace. */
+const CONFIG_KEY_USER = /^[a-zA-Z0-9]+$/;
+const CONFIG_KEY_BUILDER = /^builder:/;
+
+/**
+ * Validate the `configuration` map from the request body: absent stays absent (old drafts keep saving without it), otherwise every value must be text and every key must be a plain user key or a `builder:*` platform key — anything else is `design_invalid`, not silently dropped (unlike `converterDoEditor`'s defensive sanitizing).
+ */
+function validatedConfiguration(bruto: unknown): Record<string, string> | undefined {
+  if (bruto === undefined) return undefined;
+  if (!ehObjeto(bruto)) {
+    throw PipeError.request(
+      'design_invalid',
+      'O campo `configuration` precisa ser um objeto de texto por chave.',
+    );
+  }
+  const saida: Record<string, string> = {};
+  for (const [chave, valor] of Object.entries(bruto)) {
+    if (typeof valor !== 'string') {
+      throw PipeError.request(
+        'design_invalid',
+        `A chave de configuração '${chave}' precisa ter um valor de texto.`,
+      );
+    }
+    if (!CONFIG_KEY_USER.test(chave) && !CONFIG_KEY_BUILDER.test(chave)) {
+      throw PipeError.request(
+        'design_invalid',
+        `A chave de configuração '${chave}' só pode ter letras e números, ou o prefixo 'builder:'.`,
+      );
+    }
+    saida[chave] = valor;
+  }
+  return saida;
+}
 
 /**
  * Convert the editor drawing to engine format and report engine errors. External JSON must be an object of objects; a state without `id` uses its map key, as in Blip's editor.
@@ -260,11 +297,12 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
     fluxo[codigo] = typeof e['id'] === 'string' && e['id'] ? e : { ...e, id: codigo };
   }
   const globais = ehObjeto(bruto['globals']) ? bruto['globals'] : { ...ACTIONS_GLOBAL_DEFAULT };
+  const configuration = validatedConfiguration(bruto['configuration']);
 
   let compilado: FlowBlip;
   try {
     compilado = converterDoEditor(
-      { flow: fluxo, globalActions: globais } as unknown as ExportDoEditor,
+      { flow: fluxo, globalActions: globais, configuration } as unknown as ExportDoEditor,
       fluxoId,
     );
   } catch (error) {
@@ -277,7 +315,7 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
   }
   return {
     flow: compilado,
-    desenho: { flow: fluxo, globals: globais },
+    desenho: { flow: fluxo, globals: globais, configuration: configuration ?? {} },
     errors: flowErrors(compilado).map((e) => ({ block: e.stateId, mensagem: e.message })),
     notSupported: importReport(compilado).naoSuportado,
   };
