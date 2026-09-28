@@ -265,43 +265,6 @@
 }
 
 /*
- * ------------------------------------------------------- the engine's errors
- *    The second strip, for when the engine would reject the flow: same shape as the notice strip (`bds-banner`), with the error tone — pastel background, dark content, like every status tag in the product.
- */
-/*
- * The UI package's error tokens (`tokens.css`): pastel background, dark rule and content — the same pair as `Etiqueta tom="erro"`.
- */
-.bl-notice--error {
-  background: var(--p-error-background);
-  border-bottom-color: var(--p-error-line);
-  color: var(--p-error-content);
-}
-
-.bl-notice--error svg {
-  vertical-align: -3px;
-  margin-right: 4px;
-}
-
-.bl-errors {
-  margin: var(--p-e-2) 0 0;
-  padding-left: 1.25em;
-  font-size: var(--p-t-sm);
-  color: var(--ink-2);
-}
-
-.bl-errors li + li {
-  margin-top: 2px;
-}
-
-.bl-notice--error .bl-errors {
-  color: inherit;
-}
-
-.bl-errors--modal {
-  margin-bottom: var(--p-e-3);
-}
-
-/*
  * ------------------------------------------------------------- the blocks
  *    The cards' layer, at the position Blip's editor left them in (`$position.top/left`, in px from their canvas). Read-only: the card is the face of their `.default-node` — light background, radius 8, shadow — no dragging or connecting. The `Início` one carries the brand color (`--p-marca`, not their blue) on the left border; the `atendimento` one, moss.
  */
@@ -358,12 +321,6 @@
   margin: var(--p-e-2) 0 0;
   color: var(--ink-3);
   font-style: italic;
-}
-
-/* The footer's message (saved, published, failed), to the right of the pill. */
-.bl-recado {
-  margin-left: 10px;
-  max-width: 48ch;
 }
 
 /*
@@ -517,6 +474,16 @@
   color: #fff;
   font-size: var(--p-t-md);
   line-height: 1.5;
+}
+
+/* Save failure (F-6.1 I, toast carries the message): white text, no light background, red icon. */
+.bl-status--erro {
+  color: #fff;
+  background: #393939;
+}
+
+.bl-status--erro svg {
+  color: var(--p-error-on-dark, #ff8a80);
 }
 
 /* Their `mh3`: 10px on each side, and the icon buttons loose, without a pill. */

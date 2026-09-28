@@ -93,6 +93,7 @@ const CAMINHOS = {
     'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M10 8l6 4l-6 4z',
   addOutline:
     'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M12 8v8M8 12h8',
+  perigo: 'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M12 8v4M12 16h.01',
 } as const;
 
 export type NomeDeIcone = keyof typeof CAMINHOS;
