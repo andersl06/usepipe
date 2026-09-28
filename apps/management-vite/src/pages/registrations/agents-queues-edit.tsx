@@ -346,12 +346,12 @@ function PrioritySectionRules({
         ofQueue.map((r) => (
           <div key={r.id} className="form-linha linha-lista">
             <span className="sub">
-              {r.nome} · {rotuloDoNivel(r.nivel)}
+              {r.name} · {rotuloDoNivel(r.level)}
             </span>
             <BotaoDeIcone
               nome="x"
-              rotulo={`Excluir a regra ${r.nome}`}
-              onClick={() => setParaExcluir({ id: r.id, nome: r.nome })}
+              rotulo={`Excluir a regra ${r.name}`}
+              onClick={() => setParaExcluir({ id: r.id, nome: r.name })}
             />
           </div>
         ))

@@ -6,12 +6,12 @@ import { NIVEIS_ATRIBUIVEIS, LABELS_PRIORITY, type LevelPriority } from '@pipe/c
 
 export interface PriorityRule {
   id: string;
-  nome: string;
-  nivel: string;
+  name: string;
+  level: string;
   scopeType: string;
   scopeId: string | null;
   condition: Record<string, unknown>;
-  active: boolean;
+  ativa: boolean;
 }
 
 export { NIVEIS_ATRIBUIVEIS };
