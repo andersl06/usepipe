@@ -12,8 +12,9 @@ import { numero } from '../lib/format';
 import { api } from '@pipe/ui/api';
 import { ManagementIcon } from './icones-management';
 import { IconePortal } from '@pipe/ui/icones-portal';
-import { Pagination, usePage } from './pagination';
-import { Selection } from './selection';
+import { Pagination, usePage } from '@pipe/ui/pagination';
+import { Modal } from '@pipe/ui/modal';
+import { Select } from '@pipe/ui/select';
 import { useRead } from '../lib/query';
 import { ModalFinishMonitoring } from './modal-finalizar-monitoring';
 
@@ -213,12 +214,12 @@ function ModalTransferMonitoring({
       </div>
       <label className="mon-campo">
         {alvo === 'fila' ? 'Fila' : 'Atendente'}
-        <Selection value={destination} onChange={(evento) => setDestination(evento.target.value)} aria-label={alvo === 'fila' ? 'Fila' : 'Atendente'}>
+        <Select value={destination} onChange={(evento) => setDestination(evento.target.value)} aria-label={alvo === 'fila' ? 'Fila' : 'Atendente'}>
           <option value="">{alvo === 'fila' ? 'Selecionar fila' : 'Selecionar atendente'}</option>
           {options.map((option) => (
             <option key={option.id} value={option.id}>{option.name}</option>
           ))}
-        </Selection>
+        </Select>
       </label>
       <p className="mon-modal-aviso">A transferência encerra este ticket e cria um novo no destino.</p>
       {error ? <p className="mon-modal-error">{error}</p> : null}
@@ -242,12 +243,10 @@ function MonitoringModal({
   aoFechar: () => void;
 }) {
   return (
-    <div className="mon-modal-fundo" role="presentation" onClick={aoFechar}>
-      <section className="mon-modal" role="dialog" aria-modal="true" aria-label={titulo} onClick={(evento) => evento.stopPropagation()}>
-        <h2>{titulo}</h2>
-        {children}
-      </section>
-    </div>
+    <Modal skin={{ fundo: 'mon-modal-fundo', caixa: 'mon-modal', elemento: 'section' }} titulo={titulo} onFechar={aoFechar}>
+      <h2>{titulo}</h2>
+      {children}
+    </Modal>
   );
 }
 
@@ -334,7 +333,7 @@ function TabelaAtribuidas({
         </table>
       </div>
 
-      <Pagination state={pg} grade="open-tickets-grid" />
+      <Pagination layout="grade" state={pg} grade="open-tickets-grid" />
       <p className="tbl-legenda">
         O destaque amarelo sinaliza que um ticket foi atribuído a um atendente, mas o contato ainda não recebeu a primeira resposta.
       </p>
@@ -390,7 +389,7 @@ function TabelaAguardando({
         </tbody>
         </table>
       </div>
-      <Pagination state={pg} grade="waiting-tickets-grid" />
+      <Pagination layout="grade" state={pg} grade="waiting-tickets-grid" />
     </>
   );
 }
@@ -432,7 +431,7 @@ function TableAgents({
         </tbody>
         </table>
       </div>
-      <Pagination state={pg} grade="attendants-grid" />
+      <Pagination layout="grade" state={pg} grade="attendants-grid" />
     </>
   );
 }
@@ -473,7 +472,7 @@ function TableQueues({ queues }: { queues: Monitoring['queues'] }) {
         </tbody>
         </table>
       </div>
-      <Pagination state={pg} grade="teams-grid" />
+      <Pagination layout="grade" state={pg} grade="teams-grid" />
     </>
   );
 }
@@ -505,7 +504,7 @@ function TabelaTags({ etiquetas }: { etiquetas: Monitoring['labels'] }) {
         </tbody>
         </table>
       </div>
-      <Pagination state={pg} grade="tags-grid" />
+      <Pagination layout="grade" state={pg} grade="tags-grid" />
     </>
   );
 }

@@ -8,7 +8,7 @@ import type { AccountInForce } from '../../lib/account';
 import { APPLICATION } from '../../lib/application-paths';
 import { saveAccount } from './actions';
 import { PADRAO_DE_SITE, RECADOS, ROTULO_DE_FUSO, ROTULO_DE_IDIOMA, TAMANHO } from './regras';
-import { Selection } from '../../components/selection';
+import { Select } from '@pipe/ui/select';
 import './my-account.css';
 
 /**
@@ -210,14 +210,14 @@ export function PageMyAccount() {
 
                   <label className="account-field" data-error={recusado('funcionarios')}>
                     <span>Tamanho da empresa</span>
-                    <Selection name="funcionarios" defaultValue={account.employees ?? ''} aria-label="Tamanho da empresa">
+                    <Select name="funcionarios" defaultValue={account.employees ?? ''} aria-label="Tamanho da empresa">
                       <option value="">Selecionar</option>
                       {account.faixasDeFuncionarios.map((faixa) => (
                         <option key={faixa} value={faixa}>
                           {faixa} funcionários
                         </option>
                       ))}
-                    </Selection>
+                    </Select>
                   </label>
                   <p className="account-note">{RECADOS.funcionarios}</p>
 
@@ -233,14 +233,14 @@ export function PageMyAccount() {
 
                   <label className="account-field">
                     <span>Estado</span>
-                    <Selection name="estado" defaultValue={account.state ?? ''} aria-label="Estado">
+                    <Select name="estado" defaultValue={account.state ?? ''} aria-label="Estado">
                       <option value="">Selecionar</option>
                       {ESTADOS.map((uf) => (
                         <option key={uf} value={uf}>
                           {uf}
                         </option>
                       ))}
-                    </Selection>
+                    </Select>
                   </label>
 
                   <label className="account-field">
@@ -267,13 +267,13 @@ export function PageMyAccount() {
                 <div className="account-panel account-panel-preferences">
                   <label className="account-field" data-error={recusado('idioma')}>
                     <span>Idioma</span>
-                    <Selection name="idioma" defaultValue={account.idioma} aria-label="Idioma">
+                    <Select name="idioma" defaultValue={account.idioma} aria-label="Idioma">
                       {account.idiomas.map((codigo) => (
                         <option key={codigo} value={codigo}>
                           {ROTULO_DE_IDIOMA[codigo] ?? codigo}
                         </option>
                       ))}
-                    </Selection>
+                    </Select>
                   </label>
                   <p className="account-note">{RECADOS.idioma}</p>
 
@@ -282,13 +282,13 @@ export function PageMyAccount() {
  */}
                   <label className="account-field" data-error={recusado('fuso')}>
                     <span>Fuso horário</span>
-                    <Selection name="fuso" defaultValue={account.fuso} aria-label="Fuso horário">
+                    <Select name="fuso" defaultValue={account.fuso} aria-label="Fuso horário">
                       {account.fusos.map((nome) => (
                         <option key={nome} value={nome}>
                           {ROTULO_DE_FUSO[nome] ?? nome}
                         </option>
                       ))}
-                    </Selection>
+                    </Select>
                   </label>
                   <p className="account-note">{RECADOS.fuso}</p>
                 </div>

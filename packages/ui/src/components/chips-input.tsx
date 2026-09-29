@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { addChips, splitChipText } from './chip-values';
-import './selection-chips.css';
+import './chips-input.css';
 
 type Option = { id: string; nome: string };
 
@@ -10,7 +10,7 @@ type Option = { id: string; nome: string };
  * free text, where Enter, `,`, `|` and `;` close a chip. Uncontrolled forms read the hidden `name`
  * input; controlled callers pass `values` + `onChange`.
  */
-export function SelectionChips({
+export function ChipsInput({
   name,
   rotulo,
   label,

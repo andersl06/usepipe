@@ -16,7 +16,7 @@ import { periodCurrent, periodLabel } from '../../lib/periodos';
 import { EmptyState, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
 import { PanelField, FieldPeriod, PanelFilters } from '../../components/panel-filters';
-import { Selection } from '../../components/selection';
+import { Select } from '@pipe/ui/select';
 import { montarCsv } from '../../lib/csv-history';
 import { ListHistory, type CardHistory } from '../../components/lista-history';
 import { useContact } from '../flow/contact';
@@ -325,36 +325,36 @@ export function PageHistory() {
         </PanelField>
 
         <PanelField rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
-          <Selection name="atendente" defaultValue={params.agent ?? ''} aria-label="Atendentes">
+          <Select name="atendente" defaultValue={params.agent ?? ''} aria-label="Atendentes">
             <option value="">Selecione os atendentes</option>
             {catalogos.agents.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}
               </option>
             ))}
-          </Selection>
+          </Select>
         </PanelField>
 
         <PanelField rotulo="Tags" apoio="Selecione uma ou mais tags">
-          <Selection name="etiqueta" defaultValue={params.etiqueta ?? ''} aria-label="Tags">
+          <Select name="etiqueta" defaultValue={params.etiqueta ?? ''} aria-label="Tags">
             <option value="">Selecione as tags</option>
             {catalogos.labels.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.name}
               </option>
             ))}
-          </Selection>
+          </Select>
         </PanelField>
 
         <PanelField rotulo="Filas" apoio="Selecione uma ou mais filas">
-          <Selection name="fila" defaultValue={params.queue ?? ''} aria-label="Filas">
+          <Select name="fila" defaultValue={params.queue ?? ''} aria-label="Filas">
             <option value="">Selecione as filas</option>
             {catalogos.queues.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
               </option>
             ))}
-          </Selection>
+          </Select>
         </PanelField>
 
         <PanelField rotulo="Contato" apoio="Selecione um contato">
@@ -397,7 +397,7 @@ export function PageHistory() {
               <label className="lbl" htmlFor="agrupar">
                 Agrupar por
               </label>
-              <Selection
+              <Select
                 id="agrupar"
                 name="agrupar"
                 defaultValue={by}
@@ -408,7 +408,7 @@ export function PageHistory() {
                     {a.chave === 'nenhum' ? a.rotulo : `Agrupar por ${a.rotulo.toLowerCase()}`}
                   </option>
                 ))}
-              </Selection>
+              </Select>
               {truncado ? (
                 <span className="sub">
                   {numero(linhas.length)} conversas · as {HISTORY_LIMIT} mais recentes

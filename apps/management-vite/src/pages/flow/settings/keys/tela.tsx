@@ -1,5 +1,6 @@
+import { Modal } from '@pipe/ui/modal';
 import { useEffect, useState } from 'react';
-import { ModalConfirmation } from '../../../registrations/_modal';
+import { ConfirmModal } from '@pipe/ui/modal';
 import { useRead } from '../../../../lib/query';
 import {
   BotaoBds,
@@ -57,37 +58,30 @@ function KeyModal({ token, onFechar }: { token: string; onFechar: () => void }) 
   }, [onFechar]);
 
   return (
-    <div className="cf-overlay">
-      <div
-        className="cf-modal cf-modal--key"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="titulo-chave-gerada"
-      >
-        <h2 id="titulo-chave-gerada">Chave de acesso</h2>
-        <div className="cf-modal-aviso" role="alert">
-          <ul>
-            <li>Copie sua chave. Por segurança, ela não será exibida novamente.</li>
-            <li>Se você usa uma sessão HTTP, atualize o cabeçalho com a nova chave.</li>
-          </ul>
-        </div>
-        <div className="cf-modal-key-field">
-          <h3>Usando SDK</h3>
-          <p>Chave de acesso</p>
-          <CampoCopiavel rotulo="Chave de acesso" value={token} />
-        </div>
-        <div className="cf-modal-key-field">
-          <h3>Usando HTTP</h3>
-          <p>Cabeçalho de autenticação</p>
-          <CampoCopiavel rotulo="Autorização HTTP" value={`Bearer ${token}`} />
-        </div>
-        <div className="cf-modal-actions">
-          <BotaoBds autoFocus onClick={onFechar}>
-            Fechar
-          </BotaoBds>
-        </div>
+    <Modal skin={{ fundo: 'cf-overlay', caixa: 'cf-modal cf-modal--key' }} rotuloId="titulo-chave-gerada">
+      <h2 id="titulo-chave-gerada">Chave de acesso</h2>
+      <div className="cf-modal-aviso" role="alert">
+        <ul>
+          <li>Copie sua chave. Por segurança, ela não será exibida novamente.</li>
+          <li>Se você usa uma sessão HTTP, atualize o cabeçalho com a nova chave.</li>
+        </ul>
       </div>
-    </div>
+      <div className="cf-modal-key-field">
+        <h3>Usando SDK</h3>
+        <p>Chave de acesso</p>
+        <CampoCopiavel rotulo="Chave de acesso" value={token} />
+      </div>
+      <div className="cf-modal-key-field">
+        <h3>Usando HTTP</h3>
+        <p>Cabeçalho de autenticação</p>
+        <CampoCopiavel rotulo="Autorização HTTP" value={`Bearer ${token}`} />
+      </div>
+      <div className="cf-modal-actions">
+        <BotaoBds autoFocus onClick={onFechar}>
+          Fechar
+        </BotaoBds>
+      </div>
+    </Modal>
   );
 }
 
@@ -289,7 +283,7 @@ export function TelaDeChaves({ flowId }: { flowId: string }) {
         <KeyModal token={tokenGerado} onFechar={() => setTokenGerado(null)} />
       ) : null}
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={excluindo !== null}
         titulo="Excluir chave"
         message={

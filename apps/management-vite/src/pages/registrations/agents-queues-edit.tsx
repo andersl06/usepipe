@@ -11,10 +11,10 @@ import {
   rotuloDoNivel,
   type PriorityRule,
 } from '../../lib/rules-priority';
-import { Selection } from '../../components/selection';
+import { Select } from '@pipe/ui/select';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
-import { ModalConfirmation } from './_modal';
+import { ConfirmModal } from '@pipe/ui/modal';
 
 /**
  * Editing a queue — its OWN PAGE, not a modal.
@@ -155,7 +155,7 @@ function QueueData({
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '260px' }}>
             <span className="sub">Horário</span>
-            <Selection
+            <Select
               value={horarioId}
               onChange={(e) => setHorarioId(e.target.value)}
               disabled={salvando}
@@ -167,7 +167,7 @@ function QueueData({
                   {h.name}
                 </option>
               ))}
-            </Selection>
+            </Select>
           </label>
 
           <label className="form-caixa" style={{ alignSelf: 'flex-end' }}>
@@ -285,7 +285,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
 
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={paraRemover !== null}
         titulo="Você deseja remover este atendente da fila?"
         message={<>{paraRemover?.nome}</>}
@@ -359,7 +359,7 @@ function PrioritySectionRules({
 
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={paraExcluir !== null}
         titulo="Confirmar exclusão"
         message={<>Excluir a regra "{paraExcluir?.nome}"? Esta ação não pode ser desfeita.</>}
@@ -402,13 +402,13 @@ function PriorityFormRule({ queueId, onFechar }: { queueId: string; onFechar: ()
         </label>
         <label className="form-campo" style={{ flexBasis: '200px' }}>
           <span className="sub">Nível</span>
-          <Selection value={nivel} onChange={(e) => setNivel(e.target.value)} disabled={enviando} aria-label="Nível">
+          <Select value={nivel} onChange={(e) => setNivel(e.target.value)} disabled={enviando} aria-label="Nível">
             {NIVEIS_ATRIBUIVEIS.map((n) => (
               <option key={n} value={n}>
                 {rotuloDoNivel(n)}
               </option>
             ))}
-          </Selection>
+          </Select>
         </label>
       </div>
 

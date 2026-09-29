@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IconePortal } from '@pipe/ui/icones-portal';
-import { Selection } from '../../../../components/selection';
+import { Select } from '@pipe/ui/select';
 import { saveContact } from './gravar';
 
 interface Properties {
@@ -133,11 +133,11 @@ export function InformationContact(props: Properties) {
             <div className="ct-linha">
               <span className="ct-rotulo ct-f4">Gênero</span>
               {editando ? (
-                <Selection className="ct-selection" name="genero" defaultValue={genero ?? ''} aria-label="Gênero">
+                <Select className="ct-selection" name="genero" defaultValue={genero ?? ''} aria-label="Gênero">
                   <option value="">Selecione o gênero</option>
                   <option value="male">Masculino</option>
                   <option value="female">Feminino</option>
-                </Selection>
+                </Select>
               ) : (
                 <span className="ct-value ct-f4">{generoExibido || '-'}</span>
               )}

@@ -9,7 +9,7 @@ import {
   type TypeOfChannelOfBot,
 } from '../../../lib/channel-of-flow';
 import { flowDisconnectChannel, connectChannelToFlow } from '../../../lib/channels-gravar';
-import { Modal } from '../../registrations/_modal';
+import { Modal } from '@pipe/ui/modal';
 
 /**
  * The connect/disconnect pieces the three channel pages share.

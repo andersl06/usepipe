@@ -9,7 +9,7 @@ import { numero } from '../../lib/format';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
-import { ModalConfirmation } from './_modal';
+import { ConfirmModal } from '@pipe/ui/modal';
 
 /**
  * Attendant management — the list.
@@ -169,7 +169,7 @@ export function AgentsPageManagement() {
         filters={<QueuesFilter options={queuesAvailable} aplicado={queuesApplied} onAplicar={setQueuesApplied} />}
       />
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={paraExcluir !== null}
         titulo="Excluir atendente"
         message={

@@ -11,7 +11,14 @@
     "./estilos.css": "./src/estilos.css",
     "./tema": "./src/tema.ts",
     "./icones-portal": "./src/icones-portal.tsx",
-    "./api": "./src/api.ts"
+    "./api": "./src/api.ts",
+    "./select": "./src/components/select.tsx",
+    "./chips-input": "./src/components/chips-input.tsx",
+    "./chip-values": "./src/components/chip-values.ts",
+    "./pagination": "./src/components/pagination.tsx",
+    "./toast": "./src/components/toast.tsx",
+    "./toast-queue": "./src/components/toast-queue.ts",
+    "./modal": "./src/components/modal.tsx"
   },
   "files": [
     "src",

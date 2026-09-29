@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import type { FlowFunction, FlowFunctionInput } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
-import { ModalConfirmation } from '../registrations/_modal';
+import { ConfirmModal } from '@pipe/ui/modal';
 import { filterFlowFunctions } from './flow-functions';
 import {
   createFlowFunction,
@@ -247,7 +247,7 @@ export function FlowFunctionsPanel({ iniciarCriando }: { iniciarCriando?: boolea
         Criar função
       </button>
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={removeTarget !== null}
         titulo="Excluir função"
         message={`Excluir a função "${removeTarget?.name}"? Ações que a chamam deixam de funcionar.`}

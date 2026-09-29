@@ -8,7 +8,7 @@ import {
   conectarWhatsappManual,
   type ChannelConnected,
 } from '../../lib/channels-gravar';
-import { Modal } from './_modal';
+import { Modal } from '@pipe/ui/modal';
 
 /**
  * The manual path for connecting WhatsApp/Instagram — without an app approved by Meta, the embedded signup (`cadastro-embutido-whatsapp.tsx`) isn't an option for the average customer; this is the main path now (`POST /v1/canais/{whatsapp,instagram}/manual`, `canais.ts`/`canais-instagram.ts`).

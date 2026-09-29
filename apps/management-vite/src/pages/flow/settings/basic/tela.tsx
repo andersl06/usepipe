@@ -1,3 +1,4 @@
+import { Modal } from '@pipe/ui/modal';
 import { useEffect, useRef, useState } from 'react';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import { irPara } from '../../../../lib/navigation';
@@ -313,54 +314,43 @@ export function SettingsBasicScreen({
       </div>
 
       {excluindo ? (
-        <div
-          className="cf-overlay"
-          role="presentation"
-          onMouseDown={(evento) => evento.target === evento.currentTarget && setExcluindo(false)}
-        >
-          <section
-            className="cf-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cf-excluir-fluxo-titulo"
-          >
-            <h2 id="cf-excluir-fluxo-titulo">Quer mesmo excluir {shortName ?? nome}?</h2>
-            <p>
-              O fluxo será removido do Pipe e não estará mais disponível para clientes em nenhum
-              canal. Essa ação não poderá ser desfeita.
+        <Modal skin={{ fundo: 'cf-overlay', caixa: 'cf-modal', elemento: 'section' }} rotuloId="cf-excluir-fluxo-titulo" onFechar={() => setExcluindo(false)}>
+          <h2 id="cf-excluir-fluxo-titulo">Quer mesmo excluir {shortName ?? nome}?</h2>
+          <p>
+            O fluxo será removido do Pipe e não estará mais disponível para clientes em nenhum
+            canal. Essa ação não poderá ser desfeita.
+          </p>
+          <label className="cf-basicas-ciente">
+            <input
+              type="checkbox"
+              checked={ciente}
+              onChange={(evento) => setCiente(evento.target.checked)}
+            />
+            <span>
+              Estou ciente de que sou responsável pela exclusão do fluxo e posso responder em
+              casos de auditoria.
+            </span>
+          </label>
+          {aviso ? (
+            <p role="alert" className="cf-aviso">
+              {aviso}
             </p>
-            <label className="cf-basicas-ciente">
-              <input
-                type="checkbox"
-                checked={ciente}
-                onChange={(evento) => setCiente(evento.target.checked)}
-              />
-              <span>
-                Estou ciente de que sou responsável pela exclusão do fluxo e posso responder em
-                casos de auditoria.
-              </span>
-            </label>
-            {aviso ? (
-              <p role="alert" className="cf-aviso">
-                {aviso}
-              </p>
-            ) : null}
-            <footer className="cf-modal-actions">
-              <BotaoBds variante="secondary" onClick={() => setExcluindo(false)}>
-                Voltar
-              </BotaoBds>
-              {/* Their `deleteChatBotModalToolTip` while the checkbox isn't checked. */}
-              <BotaoBds
-                variante="perigo"
-                disabled={!ciente || removendo}
-                title={ciente ? undefined : 'Confirme o campo acima para continuar'}
-                onClick={() => void excluir()}
-              >
-                Excluir fluxo
-              </BotaoBds>
-            </footer>
-          </section>
-        </div>
+          ) : null}
+          <footer className="cf-modal-actions">
+            <BotaoBds variante="secondary" onClick={() => setExcluindo(false)}>
+              Voltar
+            </BotaoBds>
+            {/* Their `deleteChatBotModalToolTip` while the checkbox isn't checked. */}
+            <BotaoBds
+              variante="perigo"
+              disabled={!ciente || removendo}
+              title={ciente ? undefined : 'Confirme o campo acima para continuar'}
+              onClick={() => void excluir()}
+            >
+              Excluir fluxo
+            </BotaoBds>
+          </footer>
+        </Modal>
       ) : null}
     </>
   );

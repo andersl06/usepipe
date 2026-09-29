@@ -5,7 +5,7 @@ import { useRead } from '../../lib/query';
 import type { AgentRegistered, QueueRegistered } from '../../lib/registrations';
 import { applyInSelection } from '../../lib/agents-gravar';
 import { editTitle } from '../../lib/agents';
-import { Selection } from '../../components/selection';
+import { Select } from '@pipe/ui/select';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
 
@@ -105,14 +105,14 @@ function EditInBatch({ ids, base }: { ids: readonly string[]; base: string }) {
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '260px' }}>
             <span className="sub">Fila</span>
-            <Selection value={queueId} onChange={(e) => setQueueId(e.target.value)} aria-label="Fila" required>
+            <Select value={queueId} onChange={(e) => setQueueId(e.target.value)} aria-label="Fila" required>
               <option value="">Escolha uma fila</option>
               {readQueues.data.queues.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
                 </option>
               ))}
-            </Selection>
+            </Select>
           </label>
 
           <label className="form-campo" style={{ flexBasis: '220px' }}>

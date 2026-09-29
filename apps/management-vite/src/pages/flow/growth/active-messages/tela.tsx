@@ -1,7 +1,8 @@
+import { Modal } from '@pipe/ui/modal';
 import { useMemo, useState, useTransition } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { SearchIcon, IconePortal } from '@pipe/ui/icones-portal';
-import { Selection } from '../../../../components/selection';
+import { Select } from '@pipe/ui/select';
 import { useRead } from '../../../../lib/query';
 import type { DataOfGrowth, EnvioGrowth } from '@pipe/contracts';
 import { analisarCsv, filtrarEnvios } from '../regras';
@@ -186,34 +187,34 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
         <div className="gr-filters-fields">
           <label>
             Canal
-            <Selection value={channelFilter} onChange={(evento) => setChannelFilter(evento.target.value)} aria-label="Canal">
+            <Select value={channelFilter} onChange={(evento) => setChannelFilter(evento.target.value)} aria-label="Canal">
               <option value="whatsapp">Whatsapp</option>
               <option value="google-rcs">GoogleRCS</option>
               <option value="sms">SMS</option>
               <option value="outros">Outros canais</option>
-            </Selection>
+            </Select>
           </label>
           <label>
             Tipo da mensagem
-            <Selection
+            <Select
               value={typeMessage}
               onChange={(evento) => setTypeMessage(evento.target.value)}
             >
               <option value="todos">Todos</option>
               <option value="agendadas">Agendadas</option>
               <option value="nao-agendadas">Não agendadas</option>
-            </Selection>
+            </Select>
           </label>
           <label>
             Tipo de campanha
-            <Selection
+            <Select
               value={tipoCampanha}
               onChange={(evento) => setTipoCampanha(evento.target.value)}
             >
               <option value="todos">Todos</option>
               <option value="individual">Individual</option>
               <option value="massa">Em massa</option>
-            </Selection>
+            </Select>
           </label>
         </div>
       </section>
@@ -221,271 +222,260 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
       <ListaDeEnvios envios={envios} />
 
       {create ? (
-        <div
-          className="gr-overlay"
-          role="presentation"
-          onMouseDown={(e) => e.target === e.currentTarget && setCreate(false)}
-        >
-          <section
-            className="gr-modal gr-assistente"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gr-titulo-criacao"
-          >
-            <header className="gr-modal-cabeca">
-              <div>
-                <h2 id="gr-titulo-criacao">Enviar mensagem ativa</h2>
-                <p>
-                  {['Escolha o canal', 'Nome e modelo', 'Audiência', 'Resumo e envio'][etapa - 1]}
-                </p>
-              </div>
-              <button
-                className="gr-icone-botao"
-                type="button"
-                aria-label="Fechar"
-                onClick={() => setCreate(false)}
-              >
-                <IconePortal nome="fechar" tamanho={20} />
-              </button>
-            </header>
-            <div className="gr-etapas" aria-label={`Etapa ${etapa} de 4`}>
-              {[1, 2, 3, 4].map((numero) => (
-                <span className={etapa >= numero ? 'concluida' : ''} key={numero}>
-                  {numero}
-                </span>
-              ))}
+        <Modal skin={{ fundo: 'gr-overlay', caixa: 'gr-modal gr-assistente', elemento: 'section' }} rotuloId="gr-titulo-criacao" onFechar={() => setCreate(false)}>
+          <header className="gr-modal-cabeca">
+            <div>
+              <h2 id="gr-titulo-criacao">Enviar mensagem ativa</h2>
+              <p>
+                {['Escolha o canal', 'Nome e modelo', 'Audiência', 'Resumo e envio'][etapa - 1]}
+              </p>
             </div>
-            <div className="gr-formulario">
-              {etapa === 1 ? (
-                <fieldset>
-                  <legend>Canal</legend>
-                  {data.channels.length ? (
-                    data.channels.map((channel) => (
-                      <label className="gr-escolha" key={channel.id}>
-                        <input
-                          type="radio"
-                          name="canal"
-                          checked={channelId === channel.id}
-                          onChange={() => setChannelId(channel.id)}
-                        />
-                        <span>{channel.name}</span>
-                      </label>
-                    ))
-                  ) : (
-                    <p>Nenhum canal WhatsApp ativo encontrado.</p>
-                  )}
-                </fieldset>
-              ) : null}
-              {etapa === 2 ? (
-                <>
+            <button
+              className="gr-icone-botao"
+              type="button"
+              aria-label="Fechar"
+              onClick={() => setCreate(false)}
+            >
+              <IconePortal nome="fechar" tamanho={20} />
+            </button>
+          </header>
+          <div className="gr-etapas" aria-label={`Etapa ${etapa} de 4`}>
+            {[1, 2, 3, 4].map((numero) => (
+              <span className={etapa >= numero ? 'concluida' : ''} key={numero}>
+                {numero}
+              </span>
+            ))}
+          </div>
+          <div className="gr-formulario">
+            {etapa === 1 ? (
+              <fieldset>
+                <legend>Canal</legend>
+                {data.channels.length ? (
+                  data.channels.map((channel) => (
+                    <label className="gr-escolha" key={channel.id}>
+                      <input
+                        type="radio"
+                        name="canal"
+                        checked={channelId === channel.id}
+                        onChange={() => setChannelId(channel.id)}
+                      />
+                      <span>{channel.name}</span>
+                    </label>
+                  ))
+                ) : (
+                  <p>Nenhum canal WhatsApp ativo encontrado.</p>
+                )}
+              </fieldset>
+            ) : null}
+            {etapa === 2 ? (
+              <>
+                <label>
+                  Nome da campanha
+                  <input
+                    value={nome}
+                    onChange={(evento) => setNome(evento.target.value)}
+                    placeholder="Escreva aqui"
+                  />
+                </label>
+                <label>
+                  Categoria da campanha
+                  <Select
+                    value={categoria}
+                    onChange={(evento) => {
+                      setCategoria(evento.target.value);
+                      setTemplateId('');
+                    }}
+                  >
+                    <option value="utilidade">Utilidade</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="autenticacao">Autenticação</option>
+                  </Select>
+                </label>
+                <label>
+                  Modelo
+                  <Select
+                    value={templateId}
+                    onChange={(evento) => setTemplateId(evento.target.value)}
+                  >
+                    <option value="">Selecione um modelo aprovado</option>
+                    {modelosAprovados.map((template) => (
+                      <option value={template.id} key={template.id}>
+                        {template.name} · {template.idioma}
+                      </option>
+                    ))}
+                  </Select>
+                </label>
+                {modelosAprovados.length === 0 ? <p>Nenhum modelo aprovado encontrado.</p> : null}
+                {templateSelected ? (
+                  <div className="gr-previa">
+                    <span>Prévia</span>
+                    <p>{templateSelected.body}</p>
+                  </div>
+                ) : null}
+                {templateSelected && templateSelected.variables.length > 0 ? (
                   <label>
-                    Nome da campanha
+                    Parâmetros do modelo
                     <input
-                      value={nome}
-                      onChange={(evento) => setNome(evento.target.value)}
-                      placeholder="Escreva aqui"
+                      value={parametrosTexto}
+                      onChange={(evento) => setParametrosTexto(evento.target.value)}
+                      placeholder="Separados por vírgula, na ordem do modelo"
                     />
+                    <small>
+                      Vale para toda a lista; um contato com parâmetro próprio no arquivo
+                      (colunas depois do telefone e do nome) usa o dele no lugar deste.
+                    </small>
                   </label>
-                  <label>
-                    Categoria da campanha
-                    <Selection
-                      value={categoria}
-                      onChange={(evento) => {
-                        setCategoria(evento.target.value);
-                        setTemplateId('');
-                      }}
-                    >
-                      <option value="utilidade">Utilidade</option>
-                      <option value="marketing">Marketing</option>
-                      <option value="autenticacao">Autenticação</option>
-                    </Selection>
+                ) : null}
+              </>
+            ) : null}
+            {etapa === 3 ? (
+              <>
+                <fieldset>
+                  <legend>Tipo de disparo</legend>
+                  <label className="gr-escolha">
+                    <input
+                      type="radio"
+                      checked={tipoAudiencia === 'massa'}
+                      onChange={() => setTipoAudiencia('massa')}
+                    />
+                    Em massa
                   </label>
+                  <label className="gr-escolha">
+                    <input
+                      type="radio"
+                      checked={tipoAudiencia === 'individual'}
+                      onChange={() => setTipoAudiencia('individual')}
+                    />
+                    Individual
+                  </label>
+                </fieldset>
+                {tipoAudiencia === 'massa' ? (
+                  <label className="gr-file">
+                    Arraste e solte seus arquivos aqui ou clique para fazer upload do arquivo.
+                    <input
+                      type="file"
+                      accept=".csv,text/csv"
+                      onChange={(evento) => void readFile(evento.target.files?.[0])}
+                    />
+                    {file ? (
+                      <span>
+                        {file} · {quantityFile} contatos
+                      </span>
+                    ) : null}
+                    <small>
+                      Colunas: telefone, nome (opcional), parâmetros do modelo (opcionais).
+                      Limite de {maxContacts} contatos por disparo.
+                    </small>
+                  </label>
+                ) : (
                   <label>
-                    Modelo
-                    <Selection
-                      value={templateId}
-                      onChange={(evento) => setTemplateId(evento.target.value)}
+                    Contato
+                    <Select
+                      value={contactId}
+                      onChange={(evento) => setContactId(evento.target.value)}
                     >
-                      <option value="">Selecione um modelo aprovado</option>
-                      {modelosAprovados.map((template) => (
-                        <option value={template.id} key={template.id}>
-                          {template.name} · {template.idioma}
+                      <option value="">Selecione um contato</option>
+                      {data.contacts.map((contact) => (
+                        <option key={contact.id} value={contact.id}>
+                          {contact.name ?? contact.phone} · {contact.phone}
                         </option>
                       ))}
-                    </Selection>
+                    </Select>
                   </label>
-                  {modelosAprovados.length === 0 ? <p>Nenhum modelo aprovado encontrado.</p> : null}
-                  {templateSelected ? (
-                    <div className="gr-previa">
-                      <span>Prévia</span>
-                      <p>{templateSelected.body}</p>
-                    </div>
-                  ) : null}
-                  {templateSelected && templateSelected.variables.length > 0 ? (
-                    <label>
-                      Parâmetros do modelo
-                      <input
-                        value={parametrosTexto}
-                        onChange={(evento) => setParametrosTexto(evento.target.value)}
-                        placeholder="Separados por vírgula, na ordem do modelo"
-                      />
-                      <small>
-                        Vale para toda a lista; um contato com parâmetro próprio no arquivo
-                        (colunas depois do telefone e do nome) usa o dele no lugar deste.
-                      </small>
-                    </label>
-                  ) : null}
-                </>
-              ) : null}
-              {etapa === 3 ? (
-                <>
-                  <fieldset>
-                    <legend>Tipo de disparo</legend>
-                    <label className="gr-escolha">
-                      <input
-                        type="radio"
-                        checked={tipoAudiencia === 'massa'}
-                        onChange={() => setTipoAudiencia('massa')}
-                      />
-                      Em massa
-                    </label>
-                    <label className="gr-escolha">
-                      <input
-                        type="radio"
-                        checked={tipoAudiencia === 'individual'}
-                        onChange={() => setTipoAudiencia('individual')}
-                      />
-                      Individual
-                    </label>
-                  </fieldset>
-                  {tipoAudiencia === 'massa' ? (
-                    <label className="gr-file">
-                      Arraste e solte seus arquivos aqui ou clique para fazer upload do arquivo.
-                      <input
-                        type="file"
-                        accept=".csv,text/csv"
-                        onChange={(evento) => void readFile(evento.target.files?.[0])}
-                      />
-                      {file ? (
-                        <span>
-                          {file} · {quantityFile} contatos
-                        </span>
-                      ) : null}
-                      <small>
-                        Colunas: telefone, nome (opcional), parâmetros do modelo (opcionais).
-                        Limite de {maxContacts} contatos por disparo.
-                      </small>
-                    </label>
-                  ) : (
-                    <label>
-                      Contato
-                      <Selection
-                        value={contactId}
-                        onChange={(evento) => setContactId(evento.target.value)}
-                      >
-                        <option value="">Selecione um contato</option>
-                        {data.contacts.map((contact) => (
-                          <option key={contact.id} value={contact.id}>
-                            {contact.name ?? contact.phone} · {contact.phone}
-                          </option>
-                        ))}
-                      </Selection>
-                    </label>
-                  )}
-                </>
-              ) : null}
-              {etapa === 4 ? (
-                <div className="gr-revisao">
-                  <h3>Resumo e envio</h3>
-                  <dl>
-                    <dt>Nome da mensagem:</dt>
-                    <dd>{nome || '—'}</dd>
-                    <dt>Nome do modelo:</dt>
-                    <dd>{templateSelected?.name ?? '—'}</dd>
-                    <dt>Categoria do modelo:</dt>
-                    <dd>{categoria}</dd>
-                    <dt>Tipo de envio:</dt>
-                    <dd>{tipoAudiencia === 'massa' ? 'Em massa' : 'Individual'}</dd>
-                    <dt>Audiência:</dt>
-                    <dd>
-                      {tipoAudiencia === 'massa'
-                        ? `${quantityFile} contatos · ${file || 'sem arquivo'}`
-                        : (data.contacts.find((item) => item.id === contactId)?.name ??
-                          '1 contato')}
-                    </dd>
-                  </dl>
-                  {resultadoEnvio ? (
-                    <div className="gr-resultado-envio">
-                      <p>
-                        {resultadoEnvio.enviadas} contato(s) enviado(s)
-                        {resultadoEnvio.recusadas
-                          ? `, ${resultadoEnvio.recusadas} recusado(s):`
-                          : '.'}
-                      </p>
-                      {resultadoEnvio.recusadas ? (
-                        <ul>
-                          {resultadoEnvio.data
-                            .filter((item) => !item.enviada)
-                            .map((item, indice) => (
-                              <li key={item.contactId ?? item.telefone ?? indice}>
-                                {item.telefone ?? item.contactId ?? 'Contato'} —{' '}
-                                {rotuloDeRecusa(item.motivo)}
-                              </li>
-                            ))}
-                        </ul>
-                      ) : null}
-                    </div>
-                  ) : (
+                )}
+              </>
+            ) : null}
+            {etapa === 4 ? (
+              <div className="gr-revisao">
+                <h3>Resumo e envio</h3>
+                <dl>
+                  <dt>Nome da mensagem:</dt>
+                  <dd>{nome || '—'}</dd>
+                  <dt>Nome do modelo:</dt>
+                  <dd>{templateSelected?.name ?? '—'}</dd>
+                  <dt>Categoria do modelo:</dt>
+                  <dd>{categoria}</dd>
+                  <dt>Tipo de envio:</dt>
+                  <dd>{tipoAudiencia === 'massa' ? 'Em massa' : 'Individual'}</dd>
+                  <dt>Audiência:</dt>
+                  <dd>
+                    {tipoAudiencia === 'massa'
+                      ? `${quantityFile} contatos · ${file || 'sem arquivo'}`
+                      : (data.contacts.find((item) => item.id === contactId)?.name ??
+                        '1 contato')}
+                  </dd>
+                </dl>
+                {resultadoEnvio ? (
+                  <div className="gr-resultado-envio">
                     <p>
-                      Verifique se está tudo certo com suas configurações antes de realizar o envio.
+                      {resultadoEnvio.enviadas} contato(s) enviado(s)
+                      {resultadoEnvio.recusadas
+                        ? `, ${resultadoEnvio.recusadas} recusado(s):`
+                        : '.'}
                     </p>
-                  )}
-                </div>
-              ) : null}
-              {aviso ? (
-                <p className="gr-aviso" role="alert">
-                  {aviso}
-                </p>
-              ) : null}
-            </div>
-            <footer className="gr-modal-actions">
-              {etapa > 1 && !resultadoEnvio ? (
-                <button
-                  className="gr-botao"
-                  type="button"
-                  onClick={() => {
-                    setAviso('');
-                    setEtapa((atual) => (atual - 1) as Etapa);
-                  }}
-                >
-                  Voltar
-                </button>
-              ) : null}
-              {etapa < 4 ? (
-                <button className="gr-botao gr-botao-primario" type="button" onClick={avancar}>
-                  Continuar
-                </button>
-              ) : resultadoEnvio ? (
-                <button
-                  className="gr-botao gr-botao-primario"
-                  type="button"
-                  onClick={fecharAssistente}
-                >
-                  Concluir
-                </button>
-              ) : (
-                <button
-                  className="gr-botao gr-botao-primario"
-                  type="button"
-                  disabled={enviando}
-                  onClick={() => void enviarAgora()}
-                >
-                  {enviando ? 'Enviando…' : 'Enviar agora'}
-                </button>
-              )}
-            </footer>
-          </section>
-        </div>
+                    {resultadoEnvio.recusadas ? (
+                      <ul>
+                        {resultadoEnvio.data
+                          .filter((item) => !item.enviada)
+                          .map((item, indice) => (
+                            <li key={item.contactId ?? item.telefone ?? indice}>
+                              {item.telefone ?? item.contactId ?? 'Contato'} —{' '}
+                              {rotuloDeRecusa(item.motivo)}
+                            </li>
+                          ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                ) : (
+                  <p>
+                    Verifique se está tudo certo com suas configurações antes de realizar o envio.
+                  </p>
+                )}
+              </div>
+            ) : null}
+            {aviso ? (
+              <p className="gr-aviso" role="alert">
+                {aviso}
+              </p>
+            ) : null}
+          </div>
+          <footer className="gr-modal-actions">
+            {etapa > 1 && !resultadoEnvio ? (
+              <button
+                className="gr-botao"
+                type="button"
+                onClick={() => {
+                  setAviso('');
+                  setEtapa((atual) => (atual - 1) as Etapa);
+                }}
+              >
+                Voltar
+              </button>
+            ) : null}
+            {etapa < 4 ? (
+              <button className="gr-botao gr-botao-primario" type="button" onClick={avancar}>
+                Continuar
+              </button>
+            ) : resultadoEnvio ? (
+              <button
+                className="gr-botao gr-botao-primario"
+                type="button"
+                onClick={fecharAssistente}
+              >
+                Concluir
+              </button>
+            ) : (
+              <button
+                className="gr-botao gr-botao-primario"
+                type="button"
+                disabled={enviando}
+                onClick={() => void enviarAgora()}
+              >
+                {enviando ? 'Enviando…' : 'Enviar agora'}
+              </button>
+            )}
+          </footer>
+        </Modal>
       ) : null}
     </div>
   );

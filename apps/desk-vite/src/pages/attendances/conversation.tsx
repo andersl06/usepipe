@@ -16,6 +16,7 @@ import { displayName } from '../../lib/order';
 import { Thread } from './thread';
 import { Composer } from './composer';
 import { CardClosureTicket, avisarTicketFinalizado } from '@pipe/ui';
+import { Modal } from '@pipe/ui/modal';
 
 /**
  * Reference conversation panel `.pane-chat` (`~/desk-clone/capturas/parciais/header-conversa.html`, `thread.html`, `composer.html`): header with avatar, name, ticket/bot/queue, call/search/transfer/finish/menu controls and contact-panel toggle; then tags, conversation search, thread, and composer. Transfer and Finish use source modals `transfer-modal-content` and `close-modal-container`, calling `POST /v1/conversas/:id/transferir` and `/encerrar`; menu `Modo de Espera` calls `/espera`.
@@ -414,41 +415,34 @@ function ModalEtiquetas({
   }
 
   return (
-    <div className="dk-veu" role="presentation" onClick={aoFechar}>
-      <div
-        className="dk-modal"
-        role="dialog"
-        aria-labelledby="modal-title"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="modal-title" style={{ fontSize: 24, fontWeight: 600 }}>
-          Adicionar tags ao Ticket {numero}
-        </h2>
-        {etiquetas.length === 0 ? (
-          <p>Nenhuma etiqueta cadastrada para conversas.</p>
-        ) : (
-          <div className="dk-lista-de-etiquetas" role="group" aria-label="Tags da conversa">
-            {etiquetas.map((e) => (
-              <label key={e.id} className="dk-option-tag">
-                <input
-                  type="checkbox"
-                  checked={aplicadas.has(e.id)}
-                  disabled={ocupada !== null}
-                  onChange={() => void alternar(e)}
-                />
-                <span>{e.nome}</span>
-              </label>
-            ))}
-          </div>
-        )}
-        {error ? <p className="dk-error">{error}</p> : null}
-        <div className="dk-modal-actions">
-          <button type="button" className="dk-botao" onClick={aoFechar}>
-            Concluir
-          </button>
+    <Modal skin={{ fundo: 'dk-veu', caixa: 'dk-modal' }} rotuloId="modal-title" onFechar={aoFechar}>
+      <h2 id="modal-title" style={{ fontSize: 24, fontWeight: 600 }}>
+        Adicionar tags ao Ticket {numero}
+      </h2>
+      {etiquetas.length === 0 ? (
+        <p>Nenhuma etiqueta cadastrada para conversas.</p>
+      ) : (
+        <div className="dk-lista-de-etiquetas" role="group" aria-label="Tags da conversa">
+          {etiquetas.map((e) => (
+            <label key={e.id} className="dk-option-tag">
+              <input
+                type="checkbox"
+                checked={aplicadas.has(e.id)}
+                disabled={ocupada !== null}
+                onChange={() => void alternar(e)}
+              />
+              <span>{e.nome}</span>
+            </label>
+          ))}
         </div>
+      )}
+      {error ? <p className="dk-error">{error}</p> : null}
+      <div className="dk-modal-actions">
+        <button type="button" className="dk-botao" onClick={aoFechar}>
+          Concluir
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -495,86 +489,79 @@ function ModalTransferir({
   const podeTransferir = alvo === 'fila' ? Boolean(queueId) : Boolean(agentId);
 
   return (
-    <div className="dk-veu" role="presentation" onClick={aoFechar}>
-      <div
-        className="dk-modal"
-        role="dialog"
-        aria-labelledby="modal-title"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="modal-title" style={{ fontSize: 24, fontWeight: 600 }}>
-          Transferir atendimento do Ticket {numero}
-        </h2>
-        <div style={{ display: 'flex', gap: 32, marginBottom: 16 }}>
-          <label style={{ display: 'flex', gap: 8, alignItems: 'center', margin: 0 }}>
-            <input
-              type="radio"
-              name="alvo"
-              checked={alvo === 'fila'}
-              onChange={() => setAlvo('fila')}
-            />{' '}
-            Fila
-          </label>
-          <label style={{ display: 'flex', gap: 8, alignItems: 'center', margin: 0 }}>
-            <input
-              type="radio"
-              name="alvo"
-              checked={alvo === 'atendente'}
-              onChange={() => setAlvo('atendente')}
-            />{' '}
-            Atendente
-          </label>
-        </div>
-        {alvo === 'fila' ? (
-          <>
-            <label htmlFor="fila">Fila</label>
-            <select id="fila" value={queueId} onChange={(e) => setQueueId(e.target.value)}>
-              <option value="">Selecionar fila</option>
-              {queues.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.nome}
-                </option>
-              ))}
-            </select>
-          </>
-        ) : (
-          <>
-            <label htmlFor="atendente">Atendente</label>
-            <select
-              id="atendente"
-              value={agentId}
-              onChange={(e) => setAgentId(e.target.value)}
-            >
-              <option value="">Selecionar atendente</option>
-              {colegas.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nome}
-                </option>
-              ))}
-            </select>
-          </>
-        )}
-        <p style={{ color: 'var(--p-conteudo-desabilitado)', fontSize: 14 }}>
-          Escolha a fila que receberá esse atendimento. Lembrando que a transferência gera um novo
-          número de ticket.
-        </p>
-        {error ? <p className="dk-error">{error}</p> : null}
-        <div className="dk-modal-actions">
-          <button type="button" className="dk-botao dk-botao-secundario" onClick={aoFechar}>
-            Cancelar
-          </button>
-          <button
-            type="button"
-            className="dk-botao"
-            id="confirm-transfer-btn"
-            disabled={!podeTransferir || enviando}
-            onClick={() => void transferir()}
-          >
-            Transferir ticket
-          </button>
-        </div>
+    <Modal skin={{ fundo: 'dk-veu', caixa: 'dk-modal' }} rotuloId="modal-title" onFechar={aoFechar}>
+      <h2 id="modal-title" style={{ fontSize: 24, fontWeight: 600 }}>
+        Transferir atendimento do Ticket {numero}
+      </h2>
+      <div style={{ display: 'flex', gap: 32, marginBottom: 16 }}>
+        <label style={{ display: 'flex', gap: 8, alignItems: 'center', margin: 0 }}>
+          <input
+            type="radio"
+            name="alvo"
+            checked={alvo === 'fila'}
+            onChange={() => setAlvo('fila')}
+          />{' '}
+          Fila
+        </label>
+        <label style={{ display: 'flex', gap: 8, alignItems: 'center', margin: 0 }}>
+          <input
+            type="radio"
+            name="alvo"
+            checked={alvo === 'atendente'}
+            onChange={() => setAlvo('atendente')}
+          />{' '}
+          Atendente
+        </label>
       </div>
-    </div>
+      {alvo === 'fila' ? (
+        <>
+          <label htmlFor="fila">Fila</label>
+          <select id="fila" value={queueId} onChange={(e) => setQueueId(e.target.value)}>
+            <option value="">Selecionar fila</option>
+            {queues.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.nome}
+              </option>
+            ))}
+          </select>
+        </>
+      ) : (
+        <>
+          <label htmlFor="atendente">Atendente</label>
+          <select
+            id="atendente"
+            value={agentId}
+            onChange={(e) => setAgentId(e.target.value)}
+          >
+            <option value="">Selecionar atendente</option>
+            {colegas.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+      <p style={{ color: 'var(--p-conteudo-desabilitado)', fontSize: 14 }}>
+        Escolha a fila que receberá esse atendimento. Lembrando que a transferência gera um novo
+        número de ticket.
+      </p>
+      {error ? <p className="dk-error">{error}</p> : null}
+      <div className="dk-modal-actions">
+        <button type="button" className="dk-botao dk-botao-secundario" onClick={aoFechar}>
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className="dk-botao"
+          id="confirm-transfer-btn"
+          disabled={!podeTransferir || enviando}
+          onClick={() => void transferir()}
+        >
+          Transferir ticket
+        </button>
+      </div>
+    </Modal>
   );
 }
 

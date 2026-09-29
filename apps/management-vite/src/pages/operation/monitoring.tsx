@@ -7,8 +7,8 @@ import { denominador, duration, numero } from '../../lib/format';
 import { ManagementIcon } from '../../components/icones-management';
 import { SListFilter, SOperationFilter } from '../../components/filters-quick';
 import { PanelField, PanelFilters } from '../../components/panel-filters';
-import { Selection } from '../../components/selection';
-import { SelectionChips } from '../../components/selection-chips';
+import { Select } from '@pipe/ui/select';
+import { ChipsInput } from '@pipe/ui/chips-input';
 import { parametersWithFilters, filterIds } from '../../lib/filters-monitoring';
 import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-memory';
 import { Metrica } from '../../components/metrica';
@@ -567,7 +567,7 @@ export function PageMonitoring() {
         {fieldPanel === 'fila' ? (
           <>
             <PanelField rotulo="Filas" icone="fila" apoio="Selecione uma ou mais filas">
-              <SelectionChips
+              <ChipsInput
                 name="fila"
                 rotulo="Filas"
                 placeholder="Selecione as filas"
@@ -580,7 +580,7 @@ export function PageMonitoring() {
         {fieldPanel === 'lista' ? (
           <>
             <PanelField rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
-              <SelectionChips
+              <ChipsInput
                 name="atendente"
                 rotulo="Atendentes"
                 placeholder="Selecione os atendentes"
@@ -592,7 +592,7 @@ export function PageMonitoring() {
               <input type="search" name="contato" defaultValue={params.contact ?? ''} />
             </PanelField>
             <PanelField rotulo="Status do atendente" apoio="Disponibilidade atual do atendente">
-              <Selection
+              <Select
                 name="status"
                 defaultValue={params.status ?? ''}
                 aria-label="Status do atendente"
@@ -603,7 +603,7 @@ export function PageMonitoring() {
                     {state.nome}
                   </option>
                 ))}
-              </Selection>
+              </Select>
             </PanelField>
           </>
         ) : null}

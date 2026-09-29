@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Icone } from '@pipe/ui';
+import { Icone } from '../icones';
+import './toast.css';
 import { expireToasts, type Toast, type ToastTone } from './toast-queue';
 
 const GLIFO_POR_TOM: Record<ToastTone, 'cheque' | 'alerta' | 'perigo'> = {
@@ -9,12 +10,12 @@ const GLIFO_POR_TOM: Record<ToastTone, 'cheque' | 'alerta' | 'perigo'> = {
 };
 
 /**
- * The Builder's single toast (F-6.1 K, D-56): bottom-left, gradient by tone, up to 6 stacked
+ * The product's single toast (born in the Builder, F-6.1 K, D-56): bottom-left, gradient by tone, up to 6 stacked
  * with the newest on top (array order does that on its own — see `toast-queue.ts`). Keeps its
  * own copy of the list so a paused item's deadline (`expireToasts`) can be pushed forward every
  * tick without the parent needing a setter beyond `onFechar`.
  */
-export function BuilderToasts({
+export function Toasts({
   toasts,
   onFechar,
   onPausar,

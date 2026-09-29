@@ -9,7 +9,7 @@ import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
 import { QueueForm } from './agents-queues-formulario';
-import { Modal, ModalConfirmation } from './_modal';
+import { Modal, ConfirmModal } from '@pipe/ui/modal';
 
 /**
  * Queues — the list.
@@ -20,7 +20,7 @@ import { Modal, ModalConfirmation } from './_modal';
  *
  * **"Editar" opens a PAGE, not a modal.** That's what the owner asked for, and what the source's router says: `attendance.desk.queueManagement.edit` has `url:"/edit/:id"` (ficha §a.1). Here: `atendentes/filas/:id/editar`.
  *
- * Toggle and deletion stay on the card (`PATCH`/`DELETE` on `/v1/gestao/atendentes/filas/:id`), confirmed via `ModalConfirmation` — never `window.confirm`/`window.alert`. A toggle rejection becomes an `Etiqueta` above the list, since there's no open modal for it to live in.
+ * Toggle and deletion stay on the card (`PATCH`/`DELETE` on `/v1/gestao/atendentes/filas/:id`), confirmed via `ConfirmModal` — never `window.confirm`/`window.alert`. A toggle rejection becomes an `Etiqueta` above the list, since there's no open modal for it to live in.
  */
 
 /** The row card's toggle + edit/delete — the `acao` slot of `lista-regras.tsx`. */
@@ -134,7 +134,7 @@ export function PageQueues() {
         <QueueForm aoSalvar={() => setModalAberto(false)} />
       </Modal>
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={queueForDelete !== null}
         titulo="Confirmar exclusão"
         message={<>Excluir a fila "{queueForDelete?.name}"? Esta ação não pode ser desfeita.</>}

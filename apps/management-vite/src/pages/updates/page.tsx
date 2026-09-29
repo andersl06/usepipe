@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BarraDoPortal } from '../../components/barra-do-portal';
 import { SearchIcon, IconePortal } from '@pipe/ui/icones-portal';
-import { Selection } from '../../components/selection';
+import { Select } from '@pipe/ui/select';
 import { portalUseShell } from '../../lib/shell';
 import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-memory';
 import { tenantPath } from '../../lib/application-paths';
@@ -100,7 +100,7 @@ export function PageUpdates() {
               />
             </div>
             <div className="nv-campo nv-campo-lista">
-              <Selection
+              <Select
                 name="categoria"
                 defaultValue={categoria || CATEGORIAS[0]}
                 aria-label="Categoria"
@@ -110,7 +110,7 @@ export function PageUpdates() {
                     {c}
                   </option>
                 ))}
-              </Selection>
+              </Select>
               <IconePortal nome="baixo" tamanho={20} />
             </div>
             <button type="submit" className="btn">

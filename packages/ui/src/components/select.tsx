@@ -11,7 +11,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react';
-import { Icone } from '@pipe/ui';
+import { Icone } from '../icones';
 
 type Option = { value: string; rotulo: ReactNode; desabilitada: boolean };
 
@@ -30,9 +30,9 @@ function optionsOf(children: ReactNode): Option[] {
 }
 
 /**
- * Provide one Gestao select matching Blip `bds-select` box and list. Its hidden input preserves `name` for existing GET/POST forms, while its event still exposes `.target.value` like the native select it replaces.
+ * The product's one select, matching Blip `bds-select` box and list. Its hidden input preserves `name` for existing GET/POST forms, while its event still exposes `.target.value` like the native select it replaces.
  */
-export function Selection({
+export function Select({
   children,
   className,
   defaultValue,

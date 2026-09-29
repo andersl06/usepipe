@@ -1,5 +1,5 @@
 /**
- * Pure queue behind the Builder's single toast (F-6.1 K, D-56): newest on top, capped at
+ * Pure queue behind the product's single toast (F-6.1 K, D-56): newest on top, capped at
  * `TOAST_LIMIT`, each with its own countdown that a hover pauses. No DOM, no timers — the
  * component (`toast.tsx`) owns the `setInterval` and calls `expireToasts` on a tick.
  */

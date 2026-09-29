@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { SearchIcon, IconePortal } from '@pipe/ui/icones-portal';
-import { Selection } from '../../../components/selection';
+import { Select } from '@pipe/ui/select';
 import { Interruptor } from '../integrations/interruptor';
 
 /** `mensagem.direcao`/`mensagem.tipo` (`@pipe/db/schema`) — os valores que o filtro aceita. */
@@ -164,23 +164,23 @@ export function TelaDoLog({
                       </label>
                       <label className="lg-filter">
                         <span>Direção</span>
-                        <Selection name="direcao" defaultValue={direction} onChange={reenviar} aria-label="Direção">
+                        <Select name="direcao" defaultValue={direction} onChange={reenviar} aria-label="Direção">
                           {DIRECTIONS.map(([value, rotulo]) => (
                             <option key={value} value={value}>
                               {rotulo}
                             </option>
                           ))}
-                        </Selection>
+                        </Select>
                       </label>
                       <label className="lg-filter">
                         <span>Tipo</span>
-                        <Selection name="tipo" defaultValue={tipo} onChange={reenviar} aria-label="Tipo">
+                        <Select name="tipo" defaultValue={tipo} onChange={reenviar} aria-label="Tipo">
                           {TIPOS.map(([value, rotulo]) => (
                             <option key={value} value={value}>
                               {rotulo}
                             </option>
                           ))}
-                        </Selection>
+                        </Select>
                       </label>
                     </div>
                   </form>

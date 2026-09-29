@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
-import { Selection } from './selection';
-
-const SIZES_OF_PAGE = [5, 10, 15, 25, 50, 100, 250, 500] as const;
+import { Pagination } from '@pipe/ui/pagination';
 
 /**
  * Search sits alone below the header as reference `bds-input icon="search"` in a `w-30` column: 30% width, 54px high, 20px search icon (`dom/rules.html`).
@@ -26,86 +24,6 @@ function SearchTop({
         placeholder={placeholder}
         aria-label={placeholder}
       />
-    </div>
-  );
-}
-
-/**
- * Footer navigation uses `arrow-first`, `arrow-left`, `arrow-right`, `arrow-last` from `FICHA-rules.md` and `FICHA-queue-management.md` Section 5. Keep these four single-use icons local instead of adding them to `@pipe/ui`.
- */
-function PageArrow({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
-  const caminhos: Record<typeof tipo, string> = {
-    primeira: 'M11 7l-5 5l5 5M17 7l-5 5l5 5',
-    anterior: 'M15 6l-6 6l6 6',
-    proxima: 'M9 6l6 6l-6 6',
-    ultima: 'M7 7l5 5l-5 5M13 7l5 5l-5 5',
-  };
-  return (
-    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d={caminhos[tipo]} />
-    </svg>
-  );
-}
-
-/**
- * `Resultados por página` footer mirrors the two captured paginated screens (`FICHA-rules.md`, `FICHA-queue-management.md`, Sections 2.5 and 5): size select, `X-Y de Z` count, and four arrows. Paginate the already-filtered complete list in the browser; no server pagination contract is needed.
- */
-function PaginationFooter({
-  total,
-  page,
-  tamanho,
-  toChangePage,
-  aoMudarTamanho,
-  ocultarTamanho = false,
-}: {
-  total: number;
-  page: number;
-  tamanho: number;
-  toChangePage: (p: number) => void;
-  aoMudarTamanho: (t: number) => void;
-  /**
-   * Reference `personalizedbreaks` has no `pagination-and-search-results-select` (`FICHA-atendentes-filas-pausas.md` §b.3/§c), only a count and arrows.
-   */
-  ocultarTamanho?: boolean;
-}) {
-  const totalPages = Math.max(1, Math.ceil(total / tamanho));
-  const inicio = total === 0 ? 0 : (page - 1) * tamanho + 1;
-  const fim = Math.min(page * tamanho, total);
-  return (
-    <div className="footer-pagination">
-      {ocultarTamanho ? null : (
-        <label className="rp-tamanho">
-          Resultados por página
-          <Selection value={tamanho} onChange={(e) => aoMudarTamanho(Number(e.target.value))} aria-label="Resultados por página">
-            {SIZES_OF_PAGE.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </Selection>
-        </label>
-      )}
-      <span className="rp-count">{`${inicio}-${fim} de ${total}`}</span>
-      <div className="rp-nav">
-        <button type="button" disabled={page <= 1} onClick={() => toChangePage(1)} aria-label="Primeira página">
-          <PageArrow tipo="primeira" />
-        </button>
-        <button type="button" disabled={page <= 1} onClick={() => toChangePage(page - 1)} aria-label="Página anterior">
-          <PageArrow tipo="anterior" />
-        </button>
-        <span className="rp-atual">{page}</span>
-        <button type="button" disabled={page >= totalPages} onClick={() => toChangePage(page + 1)} aria-label="Próxima página">
-          <PageArrow tipo="proxima" />
-        </button>
-        <button
-          type="button"
-          disabled={page >= totalPages}
-          onClick={() => toChangePage(totalPages)}
-          aria-label="Última página"
-        >
-          <PageArrow tipo="ultima" />
-        </button>
-      </div>
     </div>
   );
 }
@@ -319,12 +237,9 @@ export function ListaRegras({
       )}
 
       {podePaginar && !nenhuma ? (
-        <PaginationFooter
-          total={totalItens}
-          page={pageCurrent}
-          tamanho={tamanho}
-          toChangePage={setPage}
-          aoMudarTamanho={setTamanho}
+        <Pagination
+          layout="lista"
+          state={{ page: pageCurrent, byPage: tamanho, total: totalItens, setPage, setByPage: setTamanho }}
           ocultarTamanho={pageHideSize}
         />
       ) : null}

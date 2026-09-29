@@ -3,7 +3,7 @@ import { Avatar } from '@pipe/ui';
 import type { TeamOfFlow, MemberOfFlow, RoleInFlow, PermissionsInFlow } from '@pipe/contracts';
 import { useNavigate, useParams } from 'react-router-dom';
 import { IconePortal } from '@pipe/ui/icones-portal';
-import { Selection } from '../../../components/selection';
+import { Select } from '@pipe/ui/select';
 import { atualizarLeituras } from '../../../lib/actions';
 import { api, ApiError } from '@pipe/ui/api';
 import { useRead } from '../../../lib/query';
@@ -148,7 +148,7 @@ function Edit({
         <Role className="cf-team-edit-card">
           <div className="cf-equipe-editar-controle">
             <h2>Permissões</h2>
-            <Selection
+            <Select
               value={nivel}
               onChange={(evento) => escolher(evento.currentTarget.value as EditLevel)}
               aria-label="Permissões"
@@ -158,7 +158,7 @@ function Edit({
                   {option.rotulo}
                 </option>
               ))}
-            </Selection>
+            </Select>
           </div>
           <PermissionsList
             recursos={recursos}

@@ -5,7 +5,7 @@ import { ROTULO_ALVO, type QueueConfigured, type RegraSlaConfigurada } from '../
 import { editarRegraSla, excluirRegraSla } from '../../lib/settings-gravar';
 import { duration } from '../../lib/format';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
-import { Modal, ModalConfirmation } from './_modal';
+import { Modal, ConfirmModal } from '@pipe/ui/modal';
 import { FormularioRegraSla } from './regras-sla-formulario';
 
 /**
@@ -19,7 +19,7 @@ const SIGLA_DO_ALVO: Record<string, string> = {
 };
 
 /**
- * Regras ├ SLA — the source's `attendance/desk/sla-policy`, measured in `referencias-blip/fichas/FICHA-sla-policy.md` and checked against the `fotos/original-sla-policy.png` screenshot. Same skeleton as theirs (§2): header, search alone below ("Buscar regras de SLA", §3), card list, and the pagination footer (§5). The card has FOUR columns — "Regras de SLA", "Metas", "Filas atribuídas" and the unlabeled "Padrão" badge (§4) — and nothing else on the row besides the actions. DATA divergences, not layout ones: - **One target per rule.** There, one policy combines several targets ("TME, TMR1"); here `regra_sla.alvo` is a single value. The column shows the target's acronym, and the deadline/alert go in the `title`. - **"Padrão" comes from scope.** What the source calls the default policy is, here, the `tenant`-scope rule — the one `escolherRegra` uses as fallback. The badge is that rule, not a new flag. - **"Filas atribuídas"** is at most one queue (or the whole operation): `scopeType`/`scopeId` tie the rule to a single scope. `TODO(escrita)` removed: real `PATCH`/`POST`/`DELETE` on `/v1/gestao/configuracoes/regras` (item 2 of the Attendance registration task) — "Criar regra" and the card's "Editar"/"Excluir" icons (§5) are wired up the same way as `regras-atendimento.tsx`: toggle + `ModalConfirmation` for delete, never `window.confirm`.
+ * Regras ├ SLA — the source's `attendance/desk/sla-policy`, measured in `referencias-blip/fichas/FICHA-sla-policy.md` and checked against the `fotos/original-sla-policy.png` screenshot. Same skeleton as theirs (§2): header, search alone below ("Buscar regras de SLA", §3), card list, and the pagination footer (§5). The card has FOUR columns — "Regras de SLA", "Metas", "Filas atribuídas" and the unlabeled "Padrão" badge (§4) — and nothing else on the row besides the actions. DATA divergences, not layout ones: - **One target per rule.** There, one policy combines several targets ("TME, TMR1"); here `regra_sla.alvo` is a single value. The column shows the target's acronym, and the deadline/alert go in the `title`. - **"Padrão" comes from scope.** What the source calls the default policy is, here, the `tenant`-scope rule — the one `escolherRegra` uses as fallback. The badge is that rule, not a new flag. - **"Filas atribuídas"** is at most one queue (or the whole operation): `scopeType`/`scopeId` tie the rule to a single scope. `TODO(escrita)` removed: real `PATCH`/`POST`/`DELETE` on `/v1/gestao/configuracoes/regras` (item 2 of the Attendance registration task) — "Criar regra" and the card's "Editar"/"Excluir" icons (§5) are wired up the same way as `regras-atendimento.tsx`: toggle + `ConfirmModal` for delete, never `window.confirm`.
  */
 
 /** Switch + edit/delete — the row-card's `acao` slot. */
@@ -150,7 +150,7 @@ export function SlaPageRules() {
         ) : null}
       </Modal>
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={regraParaExcluir !== null}
         titulo="Excluir regra de SLA"
         message={

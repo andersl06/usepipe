@@ -1,3 +1,4 @@
+import { Modal } from '@pipe/ui/modal';
 import { useId, useMemo, useState } from 'react';
 import { Avatar } from '@pipe/ui';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +10,7 @@ import type {
   ResourceOfFlow,
 } from '@pipe/contracts';
 import { IconePortal } from '@pipe/ui/icones-portal';
-import { Pagination, usePage } from '../../../components/pagination';
+import { Pagination, usePage } from '@pipe/ui/pagination';
 import { atualizarLeituras } from '../../../lib/actions';
 import { api } from '@pipe/ui/api';
 import { BotaoBds, PageHeader } from '../settings/pecas';
@@ -241,108 +242,97 @@ function ModalDeAdicionar({
   }
 
   return (
-    <div
-      className="cf-overlay"
-      role="presentation"
-      onMouseDown={(evento) => evento.target === evento.currentTarget && aoFechar()}
-    >
-      <section
-        className="cf-modal cf-equipe-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="cf-adicionar-membro-titulo"
-      >
-        <button type="button" className="cf-equipe-fechar" aria-label="Fechar" onClick={aoFechar}>
-          <IconePortal nome="fechar" tamanho={20} />
-        </button>
+    <Modal skin={{ fundo: 'cf-overlay', caixa: 'cf-modal cf-equipe-modal', elemento: 'section' }} rotuloId="cf-adicionar-membro-titulo" onFechar={aoFechar}>
+      <button type="button" className="cf-equipe-fechar" aria-label="Fechar" onClick={aoFechar}>
+        <IconePortal nome="fechar" tamanho={20} />
+      </button>
 
-        {linkCriado ? (
-          <>
-            <div className="cf-equipe-modal-cabeca">
-              <h2 id="cf-adicionar-membro-titulo">Convite criado</h2>
-              <p className="cf-equipe-subtitulo">
-                Copie o link e envie para {linkCriado.email}: ele não aparece de novo. Depois que a
-                pessoa entrar, adicione-a a este fluxo.
-              </p>
-            </div>
-            <div className="cf-equipe-link-criado">
-              <span title={linkCriado.url}>{linkCriado.url}</span>
+      {linkCriado ? (
+        <>
+          <div className="cf-equipe-modal-cabeca">
+            <h2 id="cf-adicionar-membro-titulo">Convite criado</h2>
+            <p className="cf-equipe-subtitulo">
+              Copie o link e envie para {linkCriado.email}: ele não aparece de novo. Depois que a
+              pessoa entrar, adicione-a a este fluxo.
+            </p>
+          </div>
+          <div className="cf-equipe-link-criado">
+            <span title={linkCriado.url}>{linkCriado.url}</span>
+            <BotaoBds
+              variante="secondary"
+              onClick={async () => {
+                await navigator.clipboard.writeText(linkCriado.url);
+                setCopiado(true);
+              }}
+            >
+              {copiado ? 'Copiado' : 'Copiar link'}
+            </BotaoBds>
+          </div>
+          <footer className="cf-equipe-modal-rodape">
+            <BotaoBds variante="bot" onClick={aoFechar}>
+              OK :)
+            </BotaoBds>
+          </footer>
+        </>
+      ) : (
+        <>
+          <div className="cf-equipe-modal-cabeca">
+            <h2 id="cf-adicionar-membro-titulo">Adicionar pessoa</h2>
+            <p className="cf-equipe-subtitulo">
+              Adicione e defina as permissões de uma nova pessoa para sua equipe
+            </p>
+          </div>
+          <label className="cf-equipe-campo-email">
+            <span>E-mail</span>
+            <input
+              type="email"
+              value={email}
+              onChange={(evento) => {
+                setEmail(evento.target.value);
+                setAviso('');
+                setConvidar(false);
+              }}
+              maxLength={250}
+              autoFocus
+            />
+          </label>
+          {email && !emailValido ? (
+            <p className="cf-aviso" role="alert">
+              Formato de endereço e-mail inválido.
+            </p>
+          ) : null}
+          {emailValido && emailAlreadyMember ? (
+            <p className="cf-aviso" role="alert">
+              Essa pessoa já faz parte da equipe.
+            </p>
+          ) : null}
+          <PermissionControl role={role} aoEscolher={setRole} />
+          {aviso ? (
+            <p className="cf-aviso" role="alert">
+              {aviso}
+            </p>
+          ) : null}
+          <footer className="cf-equipe-modal-rodape">
+            <BotaoBds variante="secondary" onClick={aoFechar}>
+              Cancelar
+            </BotaoBds>
+            {convidar ? (
+              <BotaoBds variante="bot" disabled={enviando} onClick={inviteForContract}>
+                Convidar para o contrato
+              </BotaoBds>
+            ) : (
               <BotaoBds
-                variante="secondary"
-                onClick={async () => {
-                  await navigator.clipboard.writeText(linkCriado.url);
-                  setCopiado(true);
-                }}
+                variante="bot"
+                disabled={enviando || !emailValido || emailAlreadyMember}
+                onClick={salvar}
               >
-                {copiado ? 'Copiado' : 'Copiar link'}
+                {acaoDeAdicionar(role)}
               </BotaoBds>
-            </div>
-            <footer className="cf-equipe-modal-rodape">
-              <BotaoBds variante="bot" onClick={aoFechar}>
-                OK :)
-              </BotaoBds>
-            </footer>
-          </>
-        ) : (
-          <>
-            <div className="cf-equipe-modal-cabeca">
-              <h2 id="cf-adicionar-membro-titulo">Adicionar pessoa</h2>
-              <p className="cf-equipe-subtitulo">
-                Adicione e defina as permissões de uma nova pessoa para sua equipe
-              </p>
-            </div>
-            <label className="cf-equipe-campo-email">
-              <span>E-mail</span>
-              <input
-                type="email"
-                value={email}
-                onChange={(evento) => {
-                  setEmail(evento.target.value);
-                  setAviso('');
-                  setConvidar(false);
-                }}
-                maxLength={250}
-                autoFocus
-              />
-            </label>
-            {email && !emailValido ? (
-              <p className="cf-aviso" role="alert">
-                Formato de endereço e-mail inválido.
-              </p>
-            ) : null}
-            {emailValido && emailAlreadyMember ? (
-              <p className="cf-aviso" role="alert">
-                Essa pessoa já faz parte da equipe.
-              </p>
-            ) : null}
-            <PermissionControl role={role} aoEscolher={setRole} />
-            {aviso ? (
-              <p className="cf-aviso" role="alert">
-                {aviso}
-              </p>
-            ) : null}
-            <footer className="cf-equipe-modal-rodape">
-              <BotaoBds variante="secondary" onClick={aoFechar}>
-                Cancelar
-              </BotaoBds>
-              {convidar ? (
-                <BotaoBds variante="bot" disabled={enviando} onClick={inviteForContract}>
-                  Convidar para o contrato
-                </BotaoBds>
-              ) : (
-                <BotaoBds
-                  variante="bot"
-                  disabled={enviando || !emailValido || emailAlreadyMember}
-                  onClick={salvar}
-                >
-                  {acaoDeAdicionar(role)}
-                </BotaoBds>
-              )}
-            </footer>
-          </>
-        )}
-      </section>
-    </div>
+            )}
+          </footer>
+        </>
+      )}
+    </Modal>
   );
 }
 
@@ -496,7 +486,7 @@ export function TelaDeEquipe({
         {filtrados.length === 0 ? (
           <span className="cf-team-empty">Nenhum membro encontrado =(</span>
         ) : (
-          <Pagination state={page} />
+          <Pagination layout="grade" state={page} />
         )}
       </div>
 
@@ -509,47 +499,36 @@ export function TelaDeEquipe({
       ) : null}
 
       {excluindo ? (
-        <div
-          className="cf-overlay"
-          role="presentation"
-          onMouseDown={(evento) => evento.target === evento.currentTarget && setExcluindo(null)}
-        >
-          <section
-            className="cf-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cf-excluir-membro-titulo"
-          >
-            <h2 id="cf-excluir-membro-titulo">Confirmar exclusão</h2>
-            <p>Deseja realmente remover {excluindo.email} do seu chatbot?</p>
-            {aviso ? (
-              <p className="cf-aviso" role="alert">
-                {aviso}
-              </p>
-            ) : null}
-            <footer className="cf-modal-actions">
-              <BotaoBds variante="secondary" onClick={() => setExcluindo(null)}>
-                Não
-              </BotaoBds>
-              <BotaoBds
-                variante="perigo"
-                disabled={enviando}
-                onClick={async () => {
-                  setEnviando(true);
-                  const resultado = await gravar(api.delete(caminho(flowId, excluindo.userId)));
-                  setEnviando(false);
-                  if (!resultado.ok) {
-                    setAviso(resultado.error ?? 'Não foi possível remover.');
-                    return;
-                  }
-                  setExcluindo(null);
-                }}
-              >
-                Sim
-              </BotaoBds>
-            </footer>
-          </section>
-        </div>
+        <Modal skin={{ fundo: 'cf-overlay', caixa: 'cf-modal', elemento: 'section' }} rotuloId="cf-excluir-membro-titulo" onFechar={() => setExcluindo(null)}>
+          <h2 id="cf-excluir-membro-titulo">Confirmar exclusão</h2>
+          <p>Deseja realmente remover {excluindo.email} do seu chatbot?</p>
+          {aviso ? (
+            <p className="cf-aviso" role="alert">
+              {aviso}
+            </p>
+          ) : null}
+          <footer className="cf-modal-actions">
+            <BotaoBds variante="secondary" onClick={() => setExcluindo(null)}>
+              Não
+            </BotaoBds>
+            <BotaoBds
+              variante="perigo"
+              disabled={enviando}
+              onClick={async () => {
+                setEnviando(true);
+                const resultado = await gravar(api.delete(caminho(flowId, excluindo.userId)));
+                setEnviando(false);
+                if (!resultado.ok) {
+                  setAviso(resultado.error ?? 'Não foi possível remover.');
+                  return;
+                }
+                setExcluindo(null);
+              }}
+            >
+              Sim
+            </BotaoBds>
+          </footer>
+        </Modal>
       ) : null}
     </>
   );

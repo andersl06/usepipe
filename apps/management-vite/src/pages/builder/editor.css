@@ -672,7 +672,7 @@
 .bl-condition-fields > .campo { grid-column: 1 / -1; }
 /*
  * The bold "E" between condition rows from the 2nd one on (F-1.4 line 2) — each row still shows
- * "Se" as its own internal label (`Selection`'s `rotulo`), this is only the connector.
+ * "Se" as its own internal label (`Select`'s `rotulo`), this is only the connector.
  */
 .bl-condition-and {
   display: block;
@@ -842,81 +842,6 @@
   border-radius: 8px;
   background: #282828;
   font-size: 12px;
-}
-
-/*
- * The Builder's single toast (F-6.1 K, D-56): bottom-left, stacked newest-on-top, one gradient
- * per tone (status colors, never the brand blue→green swap — D-30 only touches brand blue).
- */
-.bl-toast-lista {
-  position: fixed;
-  left: 18px;
-  bottom: 20px;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.bl-toast {
-  display: inline-flex;
-  align-items: center;
-  max-width: 500px;
-  padding: 14px 20px;
-  border-radius: 10px;
-  background: #4a4a4a;
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-  animation: bl-toast-entrada 0.3s ease-out;
-}
-
-@keyframes bl-toast-entrada {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.bl-toast--sucesso {
-  background: linear-gradient(90deg, #00e4e8, #00d3be);
-}
-
-.bl-toast--aviso {
-  background: linear-gradient(90deg, #ffbd4e, #ffb04f);
-}
-
-.bl-toast--perigo {
-  background: linear-gradient(90deg, #ff654b, #ff807f);
-}
-
-.bl-toast-icone {
-  flex: none;
-  margin-right: 25px;
-}
-
-.bl-toast-texto {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.bl-toast-titulo {
-  font-weight: 700;
-}
-
-.bl-toast .close {
-  flex: none;
-  margin-left: 20px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
 }
 
 /* ------------------------------------------------- variables library (F-3) */

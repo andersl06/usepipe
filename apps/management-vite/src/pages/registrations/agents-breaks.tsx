@@ -6,7 +6,7 @@ import { excluirMotivoPausa } from '../../lib/registrations-gravar';
 import { numero } from '../../lib/format';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { FormularioMotivoPausa } from './agents-breaks-formulario';
-import { Modal, ModalConfirmation } from './_modal';
+import { Modal, ConfirmModal } from '@pipe/ui/modal';
 
 /**
  * Only "Excluir" — the source has no toggle or edit on this row, and no "Resultados por página" in the footer (`FICHA-atendentes-filas-pausas.md` §a.5 and §b.3: "There's no edit icon, no toggle" / "just the arrows + page number + counter"). `alternarMotivoPausa` (`cadastros-gravar.ts`) goes unused on this screen for that reason — it wasn't deleted because the `PATCH .../pausas/:id` route is still valid and tested.
@@ -101,7 +101,7 @@ export function PageBreaks() {
         <FormularioMotivoPausa aoSalvar={() => setModalAberto(false)} />
       </Modal>
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={motivoParaExcluir !== null}
         titulo="Excluir motivo"
         message={<>Excluir o motivo "{motivoParaExcluir?.name}"? Esta ação não pode ser desfeita.</>}

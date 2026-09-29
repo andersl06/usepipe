@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { IconePortal } from '@pipe/ui/icones-portal';
-import { Selection } from '../../../../components/selection';
+import { Select } from '@pipe/ui/select';
 import type { ArestaDaJornada } from '@pipe/core/analytics';
 import { PageHeader, Card, PeriodSelector } from '../pecas';
 import { desenharSankey } from './sankey';
@@ -89,7 +89,7 @@ export function ContactsJourney({
             <span className="an-t16 jr-filter-label">Começar a partir de</span>
             {/* `<bds-autocomplete placeholder="Início">`. */}
             <label className="jr-autocompletar">
-              <Selection
+              <Select
                 value={inicio}
                 onChange={(evento) => setInicio(evento.target.value)}
                 aria-label="Começar a partir de"
@@ -100,7 +100,7 @@ export function ContactsJourney({
                     {n}
                   </option>
                 ))}
-              </Selection>
+              </Select>
               <IconePortal nome="baixo" tamanho={24} />
             </label>
           </div>
