@@ -33,6 +33,13 @@ export const COMMAND_ROUTES: readonly CommandRoute[] = Object.freeze([
   { name: 'desk.teams.list', recipient: 'desk', method: 'get', path: /^\/teams$/ },
   { name: 'desk.teams.agentsOnline', recipient: 'desk', method: 'get', path: /^\/teams\/agents-online$/ },
   { name: 'desk.attendants.list', recipient: 'desk', method: 'get', path: /^\/attendants$/ },
+  // Desk writes in Blip's vocabulary. `change-status` precedes `/tickets/{customerIdentity}`; an
+  // empty ticket id (`/tickets//close`, an unset `{{ticketId}}`) means the bot's own ticket.
+  { name: 'desk.tickets.changeStatus', recipient: 'desk', method: 'set', path: /^\/tickets\/change-status(?:-without-redirect)?$/ },
+  { name: 'desk.tickets.close', recipient: 'desk', method: 'set', path: /^\/tickets\/(?<id>[^/]*)\/close$/ },
+  { name: 'desk.tickets.transfer', recipient: 'desk', method: 'set', path: /^\/tickets\/(?<id>[^/]*)\/transfer$/ },
+  { name: 'desk.tickets.create', recipient: 'desk', method: 'set', path: /^\/tickets(?:\/(?<customer>[^/]+))?$/ },
+  { name: 'desk.attendanceSurveyAnswer', recipient: 'desk', method: 'set', path: /^\/attendance-survey-answer$/ },
   { name: 'pipe.tickets.get', recipient: '*', method: 'get', path: /^\/tickets\/(?<id>[^/]+)$/ },
   { name: 'pipe.tickets.changeTags', recipient: '*', method: '*', path: /^\/tickets\/(?<id>[^/]+)\/change-tags$/ },
   { name: 'pipe.tickets.transfer', recipient: '*', method: '*', path: /^\/tickets\/(?<id>[^/]+)\/transfer$/ },
@@ -62,7 +69,7 @@ export function matchCommand(
     const found = path.match(route.path);
     if (!found) continue;
     const params: Record<string, string> = {};
-    for (const [key, value] of Object.entries(found.groups ?? {})) params[key] = safeDecode(value);
+    for (const [key, value] of Object.entries(found.groups ?? {})) if (value !== undefined) params[key] = safeDecode(value);
     return { route: route.name, recipient, method, params, query: new URLSearchParams(search) };
   }
   return null;

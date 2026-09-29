@@ -37,13 +37,30 @@ describe('matchCommand', () => {
     expect(matchCommand({ to: desk, method: 'set', uri: '/tickets/1/change-tags' })?.route).toBe('pipe.tickets.changeTags');
   });
 
+  it('routes Desk writes; the Desk transfer wins over the Pipe one for the Desk recipient', () => {
+    expect(matchCommand({ to: desk, method: 'set', uri: '/tickets/change-status' })?.route).toBe('desk.tickets.changeStatus');
+    expect(matchCommand({ to: desk, method: 'set', uri: '/tickets/change-status-without-redirect' })?.route).toBe('desk.tickets.changeStatus');
+    expect(matchCommand({ to: desk, method: 'set', uri: '/tickets/abc/close' })).toMatchObject({ route: 'desk.tickets.close', params: { id: 'abc' } });
+    expect(matchCommand({ to: desk, method: 'set', uri: '/tickets//close' })).toMatchObject({ route: 'desk.tickets.close', params: { id: '' } });
+    expect(matchCommand({ to: desk, method: 'set', uri: '/tickets/abc/transfer' })?.route).toBe('desk.tickets.transfer');
+    expect(matchCommand({ method: 'set', uri: '/tickets/abc/transfer' })?.route).toBe('pipe.tickets.transfer');
+    expect(matchCommand({ to: desk, method: 'set', uri: '/tickets' })).toMatchObject({ route: 'desk.tickets.create', params: {} });
+    expect(matchCommand({ to: desk, method: 'set', uri: '/tickets/5511999%40wa.gw.msging.net' })).toMatchObject({
+      route: 'desk.tickets.create',
+      params: { customer: '5511999@wa.gw.msging.net' },
+    });
+    expect(matchCommand({ to: desk, method: 'set', uri: '/attendance-survey-answer' })?.route).toBe('desk.attendanceSurveyAnswer');
+  });
+
   it('rejects what has no row', () => {
     expect(matchCommand({ method: 'get', uri: '/teams' })).toBeNull();
     expect(matchCommand({ to: desk, method: 'set', uri: '/teams' })).toBeNull();
     expect(matchCommand({ to: 'postmaster@builder.msging.net', method: 'get', uri: '/attendants' })).toBeNull();
     expect(matchCommand({ method: 'get', uri: '/tickets/a/b/status' })).toBeNull();
-    // Desk writes are not routed yet; a bare ticket URI is only a read.
-    expect(matchCommand({ to: desk, method: 'set', uri: '/tickets/change-status' })).toBeNull();
+    // Desk writes need the Desk recipient and `set`.
+    expect(matchCommand({ to: desk, method: 'delete', uri: '/tickets/change-status' })).toBeNull();
+    expect(matchCommand({ method: 'set', uri: '/tickets/change-status' })).toBeNull();
+    expect(matchCommand({ method: 'set', uri: '/attendance-survey-answer' })).toBeNull();
     expect(matchCommand({ method: 'get', uri: 'https://router.example/anything' })).toBeNull();
   });
 });
@@ -108,5 +125,75 @@ describe('ProcessCommand with the export Desk reads', () => {
       services: { send: async () => {}, forwardForAttendance: async () => ({ id: 't' }), registerEvent: async () => {}, processCommand: async () => null },
     };
     await expect(processInbound(c)).rejects.toThrow("A URI '/attendance-queues' não é executada no Pipe.");
+  });
+});
+
+/** The export's "Logica - Atendimento finalizado pelo cliente" block, settings verbatim. */
+const EXPORT_DESK_WRITES = [
+  {
+    to: 'postmaster@desk.msging.net',
+    method: 'set',
+    uri: '/tickets/change-status',
+    resource: { id: '{{sequentialIdFromTicket}}', status: 'ClosedClient' },
+    type: 'application/json',
+    from: '{{application.identity}}',
+    variable: 'getCloseResponse',
+  },
+  {
+    to: 'postmaster@desk.msging.net',
+    method: 'set',
+    uri: '/tickets/{{ticketId}}/close',
+    from: '{{application.identity}}',
+    variable: 'finalizarResponse',
+    resource: {
+      id: '{{random.guid}}',
+      customerIdentity: '{{tunnel.identity}}',
+      ownerIdentity: '{{application.identifier}}@msging.net',
+      status: 'ClosedClient',
+      tags: ['Encerrado pelo Cliente'],
+    },
+  },
+] as const;
+
+describe('ProcessCommand with the export Desk writes', () => {
+  it('routes change-status and the close of an unset ticket id, with the resources resolved', async () => {
+    const requests: CommandRequest[] = [];
+    const c: Context = {
+      user: 'contato-1',
+      flow: {
+        id: 'fluxo-1',
+        states: [{
+          id: 'raiz',
+          root: true,
+          input: {},
+          outputActions: [
+            { type: 'SetVariable', settings: { variable: 'sequentialIdFromTicket', value: '42' } },
+            ...EXPORT_DESK_WRITES.map((settings) => ({ type: 'ProcessCommand', settings: { ...settings } })),
+          ],
+          outputs: [],
+        }],
+      },
+      inbound: createInbound({ id: 'entrada-1', tipo: 'text/plain', conteudo: 'sair' }),
+      variables: {},
+      inboundContext: new Map(),
+      providers: { tunnel: () => 'contato-1', application: () => 'bot' },
+      services: {
+        send: async () => {},
+        forwardForAttendance: async () => ({ id: 'ticket-1' }),
+        registerEvent: async () => {},
+        processCommand: async (request) => {
+          requests.push(request);
+          return { method: 'set', status: 'success' };
+        },
+      },
+    };
+    await processInbound(c);
+    expect(requests.map((r) => [r.command.route, r.command.params])).toEqual([
+      ['desk.tickets.changeStatus', {}],
+      ['desk.tickets.close', { id: '' }],
+    ]);
+    expect(requests[0]!.resource).toEqual({ id: '42', status: 'ClosedClient' });
+    expect(requests[1]!.resource).toMatchObject({ customerIdentity: 'contato-1', tags: ['Encerrado pelo Cliente'] });
+    expect(JSON.parse(c.variables['finalizarResponse']!)).toEqual({ method: 'set', status: 'success' });
   });
 });
