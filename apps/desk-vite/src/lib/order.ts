@@ -18,9 +18,6 @@ export const LABELS_OF_FILTER: Record<Filter, string> = {
 export const FILTERS: readonly Filter[] = ['todos', 'nao-lidos', 'em-espera', 'inativos'];
 
 
-const HORA_MS = 3_600_000;
-const WINDOW_HOURS = 24;
-
 /**
  * A conversation is `Não lida` when the contact sent the latest message or the agent marked it manually through the card menu (`naoLidaEm`, source `UNREAD`). We do not store an unread count, only who spoke last; the chip and card bolding derive from this rule.
  */
@@ -55,14 +52,6 @@ export function windowOpen(
   const channel = channelType === 'instagram' ? 'whatsapp_cloud' : channelType;
   if (!channelHasWindow(channel)) return true;
   return janelaAbertaDoCore(windowExpiresIn ? new Date(windowExpiresIn) : null, agora);
-}
-
-/** Return whole hours remaining in the window for the warning; return `null` after closure or when there is no window. */
-export function horasRestantes(windowExpiresIn: string | null, agora: Date): number | null {
-  if (!windowExpiresIn) return null;
-  const restante = new Date(windowExpiresIn).getTime() - agora.getTime();
-  if (restante <= 0) return null;
-  return Math.min(WINDOW_HOURS, Math.ceil(restante / HORA_MS));
 }
 
 export function applyFilter(

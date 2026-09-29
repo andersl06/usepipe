@@ -374,18 +374,6 @@
   box-shadow: 0 2px 8px -2px rgb(0 0 0 / 16%);
   overflow: hidden;
 }
-.bl-queues-body {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 24px;
-}
-.bl-queues-summary {
-  margin: -12px 0 0;
-  color: var(--p-conteudo-suave, #6b6b6b);
-  font-size: 12px;
-}
 .bl-panel-header {
   display: flex;
   align-items: center;
@@ -409,10 +397,6 @@
 .bl-panel-title:focus-visible {
   outline: 0;
   border-bottom-color: var(--p-builder-marca-borda-ativa);
-}
-.bl-panel-id {
-  margin: -8px 20px 12px;
-  font-size: 12px;
 }
 .bl-panel-tags {
   display: flex;
@@ -462,7 +446,6 @@
 .bl-panel .sub,
 .bl-panel .bl-section-subtitle,
 .bl-panel .bl-ajuda,
-.bl-panel .bl-panel-id,
 .bl-panel .bl-acao-tipo,
 .bl-panel .bl-output-order {
   color: #a3a3a3;
@@ -529,8 +512,6 @@
 }
 .bl-campo input,
 .bl-campo textarea,
-.bl-value input,
-.bl-values-field input,
 .bl-panel .campo {
   padding: 8px 10px;
   border: 1px solid #3a3a3a;
@@ -567,7 +548,6 @@
 .bl-campo--danger input,
 .bl-campo--danger textarea,
 .bl-campo--danger .campo,
-.bl-campo--danger .bl-values,
 .campo.bl-campo--danger {
   border-color: #b60c0c;
   border-radius: 8px;
@@ -661,7 +641,6 @@
   font-weight: 400;
 }
 .bl-conditions,
-.bl-values,
 .bl-options {
   display: flex;
   flex-direction: column;
@@ -673,8 +652,7 @@
   list-style: none;
 }
 .bl-condition-line,
-.bl-condition-values,
-.bl-value {
+.bl-condition-values {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -733,22 +711,6 @@
   background: #393939;
   color: #fff;
   cursor: pointer;
-}
-.bl-values {
-  flex: 1;
-  min-width: 160px;
-  padding: 4px 8px;
-  border: 1px solid #3a3a3a;
-  border-radius: 8px;
-  background: #282828;
-}
-.bl-values .bl-values-field {
-  flex: 1;
-  min-width: 6ch;
-  padding: 4px 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
 }
 .bl-acao-corpo,
 .bl-acao-bruta {

@@ -1,4 +1,3 @@
-import type { BlockError } from '@pipe/contracts';
 import type { Block, Mapa } from './model';
 import { contentErrors } from './conteudo';
 import { outputErrors } from './conditions';
@@ -12,7 +11,7 @@ const ERRORS_OF_DRAFT_OF_OUTPUT = new Set([
 /**
  * What the SCREEN can flag before sending to the server — the Blip editor's `$invalid`, block by block: required field empty, output without a destination, condition without values, variable with an invalid name. It's the first of the two lists the block's card paints; the second comes from the `api` (the engine's `errosDoFluxo`: root without an input, loop without an input, nonexistent destination), after each save and on the 409 from publishing.
  *
- * The wording is the panel's and the engine's — never two texts for the same problem, which is why `juntarErros` removes duplicates.
+ * The wording is the panel's and the engine's — never two texts for the same problem.
  */
 
 export const LIMITE_DO_TITULO = 50;
@@ -44,24 +43,4 @@ export function blockErrors(block: Block, mapa: Mapa): string[] {
     }
   }
   return errors;
-}
-
-/** Os erros locais de todos os blocos, no mesmo formato dos da `api`. */
-export function errorsLocal(mapa: Mapa): BlockError[] {
-  const lista: BlockError[] = [];
-  for (const block of Object.values(mapa)) {
-    for (const message of blockErrors(block, mapa)) lista.push({ block: block.id, mensagem: message });
-  }
-  return lista;
-}
-
-/** Junta listas de erro sem repetir (mesmo bloco, mesma frase). */
-export function joinErrors(...listas: BlockError[][]): BlockError[] {
-  const saida: BlockError[] = [];
-  for (const lista of listas) {
-    for (const e of lista) {
-      if (!saida.some((x) => x.block === e.block && x.mensagem === e.mensagem)) saida.push(e);
-    }
-  }
-  return saida;
 }

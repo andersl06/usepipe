@@ -88,19 +88,6 @@ export function comFonte(c: ConditionBlip, fonte: string): ConditionBlip {
   return resto;
 }
 
-/** Add one value on Enter; ignore duplicates and blanks. */
-export function addValue(c: ConditionBlip, value: string): ConditionBlip {
-  const texto = value.trim();
-  const current = c.values ?? [];
-  if (!texto || current.includes(texto)) return c;
-  return { ...c, values: [...current, texto] };
-}
-
-export function removeValue(c: ConditionBlip, indice: number): ConditionBlip {
-  const current = c.values ?? [];
-  return { ...c, values: current.filter((_, i) => i !== indice) };
-}
-
 /** Return `validarCondicao` engine wording or nothing when valid. */
 export function conditionError(c: ConditionBlip): string | null {
   try {

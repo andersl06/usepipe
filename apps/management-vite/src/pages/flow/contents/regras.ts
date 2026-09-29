@@ -54,14 +54,6 @@ export function blocosDoMenu(
   return linha2.length ? [linha1, linha2] : [linha1];
 }
 
-/** Compatibility: the flattened list of types the menu offers. */
-export function tiposDisponiveis(
-  categoria: string,
-  flags: TemplateFlags = { ...FLAGS_DO_PIPE, payment: true, carrossel: true },
-): TipoDeConteudo[] {
-  return blocosDoMenu(categoria as Categoria, flags).flat();
-}
-
 /** `ng-if="$ctrl.messageTemplateType === 'default' && !isAuthenticationType() && !isEmptyCategory()"` */
 export function blockShowChoice(tipo: TipoDeConteudo | 'default', categoria: Categoria | '') {
   return tipo === 'default' && categoria !== 'autenticacao' && categoria !== '';

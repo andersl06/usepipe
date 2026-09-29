@@ -1271,11 +1271,6 @@
 .bl-queues-form-botoes .btn.primario {
   min-height: 56px;
 }
-.bl-recado-titulo {
-  display: block;
-  margin-bottom: 2px;
-  font-weight: 700;
-}
 
 /*
  * Queue-rules mode (F-5, 02-34): reuses `.bl-queue-card`/`.bl-queues-search`/`.bl-queues-list`
