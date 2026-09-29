@@ -182,10 +182,16 @@ const listTickets: CommandHandler = async (tx, tenantId, { query }) => {
   return collection('application/vnd.iris.ticket+json', rows.map(ticketOf));
 };
 
+/** One ticket of this tenant in Blip's shape, or null (the Desk writes answer with it too). */
+export async function ticketById(tx: TransactionPipe, tenantId: string, id: string): Promise<Record<string, unknown> | null> {
+  const rows = UUID.test(id) ? await selectTickets(tx, tenantId, sql`t.id = ${id}::uuid`, { take: 1, skip: 0 }) : [];
+  return rows[0] ? ticketOf(rows[0]) : null;
+}
+
 const getTicket: CommandHandler = async (tx, tenantId, { params }) => {
   const id = params['id'] ?? '';
-  const rows = UUID.test(id) ? await selectTickets(tx, tenantId, sql`t.id = ${id}::uuid`, { take: 1, skip: 0 }) : [];
-  return rows[0] ? success('application/vnd.iris.ticket+json', ticketOf(rows[0])) : notFound(`O ticket '${id}' não existe.`);
+  const ticket = await ticketById(tx, tenantId, id);
+  return ticket ? success('application/vnd.iris.ticket+json', ticket) : notFound(`O ticket '${id}' não existe.`);
 };
 
 /** Active queues with how many of their agents are online right now (`status_atendente`). */

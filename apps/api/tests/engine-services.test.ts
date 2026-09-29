@@ -104,3 +104,73 @@ describe('engineServices', () => {
     expect(calls).toEqual(['bucket']);
   });
 });
+
+describe('Desk write commands (no database: the current ticket is not a real conversation)', () => {
+  const DESK = 'postmaster@desk.msging.net';
+
+  function deskCommand(uri: string, resource: unknown): CommandRequest {
+    const match = matchCommand({ to: DESK, method: 'set', uri });
+    if (!match) throw new Error(`sem rota: ${uri}`);
+    return { uri, method: 'set', resource, command: match };
+  }
+
+  function withSurvey(): { calls: string[]; s: ReturnType<typeof services> } {
+    const { calls, effects } = withEffects();
+    effects.recordSatisfactionAnswer = async (answer) => void calls.push(`survey:${JSON.stringify(answer)}`);
+    return { calls, s: services(effects) };
+  }
+
+  it('change-status maps Blip statuses to the closing actor or the queue, answering the ticket', async () => {
+    const { calls, s } = withSurvey();
+    const ok = await s.processCommand!(deskCommand('/tickets/change-status', { id: '42', status: 'ClosedClient' }));
+    expect(ok).toMatchObject({ method: 'set', status: 'success', type: 'application/vnd.iris.ticket+json', resource: { id: 'c1' } });
+    await s.processCommand!(deskCommand('/tickets/change-status-without-redirect', { status: 'ClosedClientInactivity' }));
+    await s.processCommand!(deskCommand('/tickets/change-status', { status: 'closedattendant' }));
+    await s.processCommand!(deskCommand('/tickets/change-status', { status: 'Waiting' }));
+    expect(calls).toEqual(['close:cliente', 'close:inatividade', 'close:atendente', 'enqueue']);
+  });
+
+  it('change-status answers LIME failures instead of throwing, without effects', async () => {
+    const { calls, s } = withSurvey();
+    expect(await s.processCommand!(deskCommand('/tickets/change-status', { status: 'Open', agentIdentity: 'a%40b.c@blip.ai' })))
+      .toMatchObject({ status: 'failure', reason: { code: 66 } });
+    expect(await s.processCommand!(deskCommand('/tickets/change-status', { status: 'Fechado' })))
+      .toMatchObject({ status: 'failure', reason: { code: 64 } });
+    expect(await s.processCommand!(deskCommand('/tickets/change-status', {})))
+      .toMatchObject({ status: 'failure', reason: { code: 64 } });
+    expect(calls).toEqual([]);
+  });
+
+  it('/close applies the tags, then closes as the customer unless the status says otherwise', async () => {
+    const { calls, s } = withSurvey();
+    await s.processCommand!(deskCommand('/tickets//close', { status: 'ClosedClient', tags: ['Encerrado pelo Cliente', 3] }));
+    await s.processCommand!(deskCommand('/tickets/c1/close', { status: 'ClosedClientInactivity' }));
+    expect(await s.processCommand!(deskCommand('/tickets/c1/close', { status: 'Open' })))
+      .toMatchObject({ status: 'failure', reason: { code: 64 } });
+    expect(calls).toEqual(['tags:Encerrado pelo Cliente', 'close:cliente', 'close:inatividade']);
+  });
+
+  it('/transfer needs a team name; set /tickets opens the ticket; sendCommand answers nothing', async () => {
+    const { calls, s } = withSurvey();
+    expect(await s.processCommand!(deskCommand('/tickets/c1/transfer', { queueId: 'x' })))
+      .toMatchObject({ status: 'failure', reason: { code: 64 } });
+    expect(await s.processCommand!(deskCommand('/tickets/5511999%40wa.gw.msging.net', 'Preciso de ajuda')))
+      .toMatchObject({ status: 'success', type: 'application/vnd.iris.ticket+json' });
+    expect(await s.sendCommand!(deskCommand('/tickets', {}))).toBeUndefined();
+    expect(calls).toEqual(['enqueue', 'enqueue']);
+  });
+
+  it('/attendance-survey-answer records a 1-5 answer like the native survey block', async () => {
+    const { calls, s } = withSurvey();
+    await s.processCommand!(deskCommand('/attendance-survey-answer', { rating: 4, comment: 'bom' }));
+    await s.processCommand!(deskCommand('/attendance-survey-answer', { value: '5' }));
+    await s.processCommand!(deskCommand('/attendance-survey-answer', {}));
+    expect(await s.processCommand!(deskCommand('/attendance-survey-answer', { rating: 9 })))
+      .toMatchObject({ status: 'failure', reason: { code: 64 } });
+    expect(calls).toEqual([
+      'survey:{"rating":4,"comment":"bom","status":"completa"}',
+      'survey:{"rating":5,"comment":null,"status":"so_nota"}',
+      'survey:{"rating":null,"comment":null,"status":"sem_resposta"}',
+    ]);
+  });
+});
