@@ -63,15 +63,8 @@ const CATALOGO = [
   { key: 'growth', rotulo: 'Growth', href: null },
   { key: 'channels', rotulo: 'Canais', href: null },
   { key: 'users', rotulo: 'Contatos', href: null },
+  /* Blip's "Conteúdos" holds two cards: "Modelos de Mensagem" and "Recursos" (`contents.menu.*`). */
   { key: 'contents', rotulo: 'Conteúdos', href: null },
-  /*
-   * Blip's OWN "Conteúdos" menu item (`portal.js:214788`: `'resources' === a && (n.title =
-   * 'contents.title')`) is this generic key/value resource screen (`{{resource.<name>}}`), not
-   * message templates. Pipe's "Conteúdos" above already means something else here — WhatsApp
-   * templates, with no Blip counterpart at that address — so Recursos gets its own item instead of
-   * replacing it; both stay reachable, gated by the same `resources` permission Blip itself uses.
-   */
-  { key: 'resources', rotulo: 'Recursos', href: null },
   { key: 'logMessages', rotulo: 'Log', href: null },
   { key: 'payments', rotulo: 'Pagamentos', href: null },
 ] as const satisfies readonly { key: string; rotulo: string; href: string | null }[];
@@ -129,9 +122,7 @@ export function itensDoMenu(
                     ? `${base}/growth/active-messages`
                     : item.key === 'contents'
                       ? `${base}/contents`
-                      : item.key === 'resources'
-                        ? `${base}/resources`
-                        : item.key === 'logMessages'
+                      : item.key === 'logMessages'
                           ? `${base}/log`
                           : item.href,
     }));

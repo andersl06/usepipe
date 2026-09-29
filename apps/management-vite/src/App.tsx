@@ -195,7 +195,7 @@ const contactRoutes = (
     <Route path="team/edit/:userId" element={<EditMemberPage />} />
 
     <Route path="contents" element={<PageContents />} />
-    <Route path="resources" element={<PageResources />} />
+    <Route path="contents/resources" element={<PageResources />} />
 
     <Route path="analytics" element={<AnalyticsShell />}>
       <Route index element={<Navigate to={ABA_PADRAO} replace />} />

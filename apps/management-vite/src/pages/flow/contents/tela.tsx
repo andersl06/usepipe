@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { Link } from '../../../components/link';
+import { flowPath } from '../../../lib/application-paths';
+import { useContact } from '../contact';
 import { IconePortal, type NomeDeIconePortal } from '../../../components/icones-portal';
 import { Selection } from '../../../components/selection';
 import type { TemplateListed } from '@pipe/contracts';
@@ -98,19 +101,23 @@ function BalaoIndisponivel() {
 /**
  * Conteúdos' `<aside class="detail-aside fl">`: `<bds-grid class="sidebar-container" direction="column">` with one `sidebar-item-container > a.sidebar-anchor > bds-grid.sidebar-item` per entry (title fs-14 bold, subtitle fs-12, `bds-icon arrow-right` on the right; the active one gets `.selected-sidebar-item`). Text from `modules.application.detail.contents.menu.*`.
  *
- * ponytail: "Recursos" (`contents.resource`) still has no screen here; it's left without a destination.
+ * Both cards navigate: "Modelos de Mensagem" is `/contents`, "Recursos" is `/contents/resources` — Blip keeps
+ * the bot's resources here, under Conteúdos, not as a separate menu item.
  */
-function LateralDeConteudos() {
+export function LateralDeConteudos({ ativo }: { ativo: 'templates' | 'resources' }) {
+  const base = `${flowPath(useContact().contact.shortName)}/contents`;
   const itens = [
     {
       titulo: 'Modelos de Mensagem',
       descricao: 'Submeta novas mensagens para envio via WhatsApp',
-      ativo: true,
+      href: base,
+      ativo: ativo === 'templates',
     },
     {
       titulo: 'Recursos',
       descricao: 'Recursos podem ser utilizados como conteúdo das mensagens enviadas pelo chatbot',
-      ativo: false,
+      href: `${base}/resources`,
+      ativo: ativo === 'resources',
     },
   ];
   return (
@@ -118,13 +125,10 @@ function LateralDeConteudos() {
       <nav className="ct-lateral-lista" aria-label="Conteúdos do fluxo">
         {itens.map((item) => (
           <div className="ct-lateral-item" key={item.titulo}>
-            <a
-              className={
-                item.ativo ? 'ct-side-card ct-side-card--active' : 'ct-side-card'
-              }
+            <Link
+              href={item.href}
+              className={item.ativo ? 'ct-side-card ct-side-card--active' : 'ct-side-card'}
               aria-current={item.ativo ? 'page' : undefined}
-              role="link"
-              tabIndex={0}
             >
               <span className="ct-lateral-texto">
                 <span className="ct-lateral-titulo">{item.titulo}</span>
@@ -133,7 +137,7 @@ function LateralDeConteudos() {
               <span className="ct-lateral-seta">
                 <IconePortal nome="direita" tamanho={24} />
               </span>
-            </a>
+            </Link>
           </div>
         ))}
       </nav>
@@ -178,7 +182,7 @@ export function TelaDeConteudos({
 
   return (
     <div className="ct-shell">
-      <LateralDeConteudos />
+      <LateralDeConteudos ativo="templates" />
       <section className="ct-miolo" id="main-content-area">
         <header className="ct-cabecalho" id="whatsapp-message-templates-header">
           <div className="ct-header-section">

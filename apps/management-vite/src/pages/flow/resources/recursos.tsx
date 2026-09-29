@@ -3,6 +3,8 @@ import type { FlowResource, FlowResourceInput } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
 import { ManagementIcon } from '../../../components/icones-management';
 import { ShellModule, useContact } from '../contact';
+import { LateralDeConteudos } from '../contents/tela';
+import '../contents/conteudos.css';
 import { ModalConfirmation, Modal } from '../../registrations/_modal';
 import { filterResources, nameError, parseImportedResources, NAME_ERROR_MESSAGE } from './regras';
 import { createFlowResource, deleteFlowResource, listFlowResources, updateFlowResource } from './gravar';
@@ -224,7 +226,10 @@ export function PageResources() {
   const filtered = resources ? filterResources(resources, search) : [];
 
   return (
-    <ShellModule ativo="Recursos">
+    <ShellModule ativo="Conteúdos">
+      <div className="ct-shell">
+      <LateralDeConteudos ativo="resources" />
+      <section className="ct-miolo" id="main-content-area">
       <div className="board-head">
         <h2>Recursos</h2>
       </div>
@@ -346,6 +351,8 @@ export function PageResources() {
           setRemoveError(null);
         }}
       />
+      </section>
+      </div>
     </ShellModule>
   );
 }
