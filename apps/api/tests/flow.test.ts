@@ -264,8 +264,8 @@ describe('bot com o dublê do WhatsApp', () => {
       flow: Record<string, { $enteringCustomActions: unknown[] }>;
     };
     comFalha.flow['boas-vindas']!.$enteringCustomActions.push({
-      // Unsupported in Pipe (no journey report yet), so the action fails on purpose.
-      type: 'TrackContactsJourney',
+      // An action type Pipe does not know, so the flow fails on purpose.
+      type: 'UnknownActionForTest',
       settings: {},
       conditions: [],
     });
@@ -282,6 +282,6 @@ describe('bot com o dublê do WhatsApp', () => {
       sql`select corpo from nota_interna where conversa_id = ${conversa.id}::uuid`,
     );
     expect(notas[0]!.corpo).toContain('o fluxo falhou');
-    expect(notas[0]!.corpo).toContain('TrackContactsJourney');
+    expect(notas[0]!.corpo).toContain('UnknownActionForTest');
   });
 });
