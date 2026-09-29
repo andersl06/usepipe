@@ -42,6 +42,8 @@ describe('matchCommand', () => {
     expect(matchCommand({ to: desk, method: 'set', uri: '/teams' })).toBeNull();
     expect(matchCommand({ to: 'postmaster@builder.msging.net', method: 'get', uri: '/attendants' })).toBeNull();
     expect(matchCommand({ method: 'get', uri: '/tickets/a/b/status' })).toBeNull();
+    // Desk writes are not routed yet; a bare ticket URI is only a read.
+    expect(matchCommand({ to: desk, method: 'set', uri: '/tickets/change-status' })).toBeNull();
     expect(matchCommand({ method: 'get', uri: 'https://router.example/anything' })).toBeNull();
   });
 });

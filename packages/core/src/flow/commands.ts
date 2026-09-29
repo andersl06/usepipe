@@ -33,7 +33,7 @@ export const COMMAND_ROUTES: readonly CommandRoute[] = Object.freeze([
   { name: 'desk.teams.list', recipient: 'desk', method: 'get', path: /^\/teams$/ },
   { name: 'desk.teams.agentsOnline', recipient: 'desk', method: 'get', path: /^\/teams\/agents-online$/ },
   { name: 'desk.attendants.list', recipient: 'desk', method: 'get', path: /^\/attendants$/ },
-  { name: 'pipe.tickets.get', recipient: '*', method: '*', path: /^\/tickets\/(?<id>[^/]+)$/ },
+  { name: 'pipe.tickets.get', recipient: '*', method: 'get', path: /^\/tickets\/(?<id>[^/]+)$/ },
   { name: 'pipe.tickets.changeTags', recipient: '*', method: '*', path: /^\/tickets\/(?<id>[^/]+)\/change-tags$/ },
   { name: 'pipe.tickets.transfer', recipient: '*', method: '*', path: /^\/tickets\/(?<id>[^/]+)\/transfer$/ },
   { name: 'pipe.tickets.status', recipient: '*', method: '*', path: /^\/tickets\/(?<id>[^/]+)\/status$/ },
