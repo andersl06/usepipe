@@ -1,18 +1,20 @@
 import { sql } from 'drizzle-orm';
-import type { ClosedBy, CommandRequest, ServicosDoMotor } from '@pipe/core';
+import { DeskUnavailable, type ClosedBy, type CommandRequest, type ServicosDoMotor } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { chamarComMtls } from './mtls.js';
 import { runFlowScript, scriptFetch } from './script-sandbox.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 import type { LoadedFlowFunction } from './management/flow-functions.js';
 import { DESK_READ_COMMANDS } from './desk-commands.js';
+import { queueUnavailability } from './queue-entry.js';
 
 /**
  * The engine services (`ServicosDoMotor`) that production (`flow.ts` `runFlowInInbound`) and the
  * Builder's Test panel (`management/builder-test-run.ts`) share. Both build theirs with
  * `engineServices`, which owns everything that must behave the same in both: the outbound HTTP
  * boundary, scripts and flow functions, the knowledge match, the routed commands and their
- * validation, the contact-field mapping and the SetBucket limit. What differs is only where the
+ * validation, the contact-field mapping, the SetBucket limit and the ForwardToDesk availability
+ * checks (queue schedule and agents online). What differs is only where the
  * writes land, passed in as `EngineEffects`: the real conversation and tables in production, an
  * in-memory store in a test run.
  */
@@ -57,6 +59,11 @@ export type EngineEffects = Pick<
   tickets: TicketEffects;
   /** Persist the mapped `MergeContact` fields: Pipe columns plus extras merged into `atributos`. */
   saveContact(patch: ContactPatch): Promise<void>;
+  /**
+   * The queue a handoff would land in (`chooseQueue`) given the block's explicit `filaId`, or null.
+   * Read-only: only the availability checks call it, before `forwardForAttendance`.
+   */
+  queueOfHandoff(tx: TransactionPipe, queueId: string | null): Promise<string | null>;
 };
 
 export interface EngineServicesOptions {
@@ -205,9 +212,22 @@ export async function knowledgeMatch(
  * for a real execution.
  */
 export function engineServices({ tenantId, flowFunctions, isolate, effects }: EngineServicesOptions): ServicosDoMotor {
-  const { tickets, saveContact, ...rest } = effects;
+  const { tickets, saveContact, queueOfHandoff, ...rest } = effects;
   return {
     ...rest,
+    // A block with availability exits opens no ticket when the chosen queue is closed or has
+    // nobody online. `DeskUnavailable` is thrown outside `isolate`, so it is not a database error.
+    forwardForAttendance: async (request) => {
+      const checks = request.unavailableWhen;
+      if (checks?.length) {
+        const queueId = typeof request.settings?.['filaId'] === 'string' ? request.settings['filaId'] : null;
+        const unavailable = await isolate(async (tx) =>
+          queueUnavailability(tx, tenantId, await queueOfHandoff(tx, queueId), new Date(), checks),
+        );
+        if (unavailable) throw new DeskUnavailable(unavailable);
+      }
+      return effects.forwardForAttendance(request);
+    },
     mergeContact: async (fields) => {
       const patch = contactPatch(fields);
       if (Object.keys(patch.columns).length === 0 && Object.keys(patch.extras).length === 0) return;

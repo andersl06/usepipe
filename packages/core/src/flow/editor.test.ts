@@ -419,3 +419,92 @@ describe('dynamic content', () => {
     }
   });
 });
+
+/**
+ * P6 (02-45): the handoff as the real export builds it (`desk180326…`, shape only, no customer
+ * content): a block `MergeContact`s `extras.teams` from a variable, then the attendance block runs
+ * `ForwardToDesk` with empty settings, is entered on `Success` and only has the `Error` exit.
+ * The `api` picks the queue from `extras.teams`; here the engine must hand over the merge before
+ * the forward and ask for no availability check (the block has no such exit).
+ */
+describe('the export handoff (MergeContact extras.teams + ForwardToDesk)', () => {
+  const state = (id: string, extra: Record<string, unknown>) => ({
+    id,
+    $title: id,
+    $position: { top: '0px', left: '0px' },
+    $contentActions: [],
+    $conditionOutputs: [],
+    $enteringCustomActions: [],
+    $leavingCustomActions: [],
+    $defaultOutput: { stateId: 'fallback' },
+    ...extra,
+  });
+  const exportDoHandoff = {
+    flow: {
+      onboarding: state('onboarding', {
+        root: true,
+        $contentActions: [{ input: { bypass: false, variable: 'attendanceQueueSelected' } }],
+        $defaultOutput: { stateId: 'seleciona' },
+      }),
+      seleciona: state('seleciona', {
+        $enteringCustomActions: [{ type: 'MergeContact', settings: { extras: { teams: '{{attendanceQueueSelected}}' } } }],
+        $contentActions: [],
+        $defaultOutput: { stateId: 'desk:0126' },
+      }),
+      'desk:0126': state('desk:0126', {
+        $enteringCustomActions: [{ type: 'ForwardToDesk', conditions: [], settings: {} }],
+        $contentActions: [
+          {
+            input: {
+              bypass: false,
+              conditions: [{ source: 'context', variable: 'desk_forwardToDeskState_status', comparison: 'equals', values: ['Success'] }],
+            },
+          },
+        ],
+        $conditionOutputs: [
+          {
+            stateId: 'fim',
+            conditions: [
+              { source: 'context', variable: 'input.type', comparison: 'equals', values: ['application/vnd.iris.ticket+json'] },
+              { source: 'context', variable: 'input.content@status', comparison: 'equals', values: ['ClosedAttendant'] },
+            ],
+          },
+          { stateId: 'fallback', conditions: [{ source: 'context', variable: 'desk_forwardToDeskState_status', comparison: 'equals', values: ['Error'] }] },
+        ],
+        $defaultOutput: { stateId: 'desk:0126' },
+      }),
+      fim: state('fim', { $contentActions: [{ action: { type: 'SendMessage', settings: { type: 'text/plain', content: 'Fim.' } } }, { input: { bypass: false } }] }),
+      fallback: state('fallback', { $contentActions: [{ action: { type: 'SendMessage', settings: { type: 'text/plain', content: 'Erro.' } } }, { input: { bypass: false } }] }),
+    },
+    globalActions: {},
+  } as unknown as ExportDoEditor;
+
+  it('merges the queue name, then forwards with no availability check and waits on the desk block', async () => {
+    const flow = converterDoEditor(exportDoHandoff, 'f1');
+    const calls: string[] = [];
+    const pedidos: { settings: unknown; unavailableWhen?: readonly string[] }[] = [];
+    const variables: Record<string, string> = {};
+    const context: Context = {
+      user: 'contato-1',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: 'Financeiro' }),
+      variables,
+      inboundContext: new Map(),
+      services: {
+        send: async () => {},
+        registerEvent: async () => {},
+        mergeContact: async (fields) => void calls.push(`merge:${JSON.stringify(fields)}`),
+        forwardForAttendance: async (p) => {
+          calls.push('forward');
+          pedidos.push(p);
+          return { id: 'ticket-1', status: 'Waiting' };
+        },
+      },
+    };
+    await processInbound(context);
+    expect(calls).toEqual([`merge:${JSON.stringify({ extras: { teams: 'Financeiro' } })}`, 'forward']);
+    expect(pedidos[0]).toMatchObject({ settings: {} });
+    expect(pedidos[0]!.unavailableWhen).toBeUndefined();
+    expect(variables).toMatchObject({ desk_forwardToDeskState_status: 'Success', 'stateId@f1': 'desk:0126' });
+  });
+});

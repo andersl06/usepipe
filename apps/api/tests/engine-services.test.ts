@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { matchCommand, type ClosedBy, type CommandRequest } from '@pipe/core';
+import { describe, expect, it, vi } from 'vitest';
+import { DeskUnavailable, matchCommand, type ClosedBy, type CommandRequest, type DeskUnavailableStatus } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { contactPatch, engineServices, type EngineEffects, type TicketEffects } from '../src/domain/engine-services.js';
 
@@ -10,6 +10,16 @@ import { contactPatch, engineServices, type EngineEffects, type TicketEffects } 
  */
 
 const tx = {} as TransactionPipe;
+
+/** The queue checks read the schedule and online agents (DB suites); here they answer `closed`. */
+const availability = vi.hoisted(() => ({ closed: null as DeskUnavailableStatus | null, queues: [] as (string | null)[] }));
+vi.mock('../src/domain/queue-entry.js', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  queueUnavailability: async (_tx: unknown, _tenantId: string, queueId: string | null, _at: Date, checks: readonly string[]) => {
+    availability.queues.push(queueId);
+    return availability.closed && checks.includes(availability.closed) ? availability.closed : null;
+  },
+}));
 
 function withEffects(): { calls: string[]; effects: EngineEffects } {
   const calls: string[] = [];
@@ -26,7 +36,11 @@ function withEffects(): { calls: string[]; effects: EngineEffects } {
     effects: {
       tickets,
       send: async () => {},
-      forwardForAttendance: async () => ({ id: 't', status: 'Waiting' }),
+      forwardForAttendance: async () => {
+        calls.push('forward');
+        return { id: 't', status: 'Waiting' };
+      },
+      queueOfHandoff: async (_tx, queueId) => queueId ?? 'fila-da-regra',
       registerEvent: async () => {},
       saveContact: async (patch) => void calls.push(`contact:${JSON.stringify(patch)}`),
       bucketSet: async () => void calls.push('bucket'),
@@ -102,5 +116,41 @@ describe('engineServices', () => {
     ).rejects.toThrow('64 KB');
     await s.bucketSet!({ key: 'k', type: 'text/plain', value: 'ok', scope: 'contact' });
     expect(calls).toEqual(['bucket']);
+  });
+
+  describe('ForwardToDesk availability checks', () => {
+    it('without availability exits opens the ticket and checks nothing', async () => {
+      availability.queues = [];
+      availability.closed = 'NoAgentAvailable';
+      const { calls, effects } = withEffects();
+      await services(effects).forwardForAttendance({ origem: 'ForwardToDesk', settings: {} });
+      expect(calls).toEqual(['forward']);
+      expect(availability.queues).toEqual([]);
+    });
+
+    it('checks the queue the handoff would choose and opens nothing when it is unavailable', async () => {
+      availability.queues = [];
+      availability.closed = 'OutOfAttendanceHour';
+      const { calls, effects } = withEffects();
+      const s = services(effects);
+      const pedido = { origem: 'ForwardToDesk', settings: {}, unavailableWhen: ['OutOfAttendanceHour', 'NoAgentAvailable'] as const };
+      await expect(s.forwardForAttendance(pedido)).rejects.toBeInstanceOf(DeskUnavailable);
+      await expect(s.forwardForAttendance(pedido)).rejects.toMatchObject({ status: 'OutOfAttendanceHour' });
+      expect(calls).toEqual([]);
+      expect(availability.queues).toEqual(['fila-da-regra', 'fila-da-regra']);
+    });
+
+    it('an explicit filaId is the queue checked; an available queue opens the ticket', async () => {
+      availability.queues = [];
+      availability.closed = null;
+      const { calls, effects } = withEffects();
+      await services(effects).forwardForAttendance({
+        origem: 'ForwardToDesk',
+        settings: { filaId: 'fila-x' },
+        unavailableWhen: ['NoAgentAvailable'],
+      });
+      expect(availability.queues).toEqual(['fila-x']);
+      expect(calls).toEqual(['forward']);
+    });
   });
 });

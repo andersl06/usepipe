@@ -1,6 +1,5 @@
 import { sql } from 'drizzle-orm';
 import {
-  DeskUnavailable,
   EngineError,
   stateKey,
   classificarCusto,
@@ -41,7 +40,7 @@ import { loadFlowFunctions } from './management/flow-functions.js';
 import { loadFlowResources } from './management/flow-resources.js';
 import { closeInTransaction, type LineConversation } from './conversation.js';
 import { engineServices, isFlowOfTenant, type TicketEffects } from './engine-services.js';
-import { chooseQueueOfConversation, enterQueue, queueUnavailability } from './queue-entry.js';
+import { chooseQueueOfConversation, enterQueue } from './queue-entry.js';
 import type { TipoEnvio } from './envio.js';
 
 /**
@@ -375,29 +374,21 @@ export async function runFlowInInbound(
         ));
         respostas += 1;
       },
-      // `chooseQueue` decides the queue. A block with availability exits opens no ticket when that
-      // queue is closed or has nobody online (`DeskUnavailable`, outside the savepoint so it is
-      // not taken for a database error).
-      forwardForAttendance: async ({ settings, unavailableWhen }) => {
+      // The ticket, in the queue `chooseQueue` decides (`enterQueue`).
+      forwardForAttendance: async ({ settings }) => {
         const queueId = typeof settings?.['filaId'] === 'string' ? settings['filaId'] : null;
-        if (unavailableWhen?.length) {
-          const unavailable = await emSavepoint(async (sp) => {
-            const choice = await chooseQueueOfConversation(sp, {
-              tenantId: e.tenantId,
-              conversationId: conversation.id,
-              queueId,
-              defaultQueueId: e.conversation.queueDefaultId,
-              message: e.message.content,
-            });
-            return queueUnavailability(sp, e.tenantId, choice.queueId, new Date(), unavailableWhen);
-          });
-          if (unavailable) throw new DeskUnavailable(unavailable);
-        }
         return emSavepoint(async (sp) => {
           await transferirPeloBot(sp, queueId);
           return ticketOfConversation(sp, conversation.id);
         });
       },
+      queueOfHandoff: async (sp, queueId) => (await chooseQueueOfConversation(sp, {
+        tenantId: e.tenantId,
+        conversationId: conversation.id,
+        queueId,
+        defaultQueueId: e.conversation.queueDefaultId,
+        message: e.message.content,
+      })).queueId,
       registerEvent: async (evento) => {
         eventos.push(evento);
       },

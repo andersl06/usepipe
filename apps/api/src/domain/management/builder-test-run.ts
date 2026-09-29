@@ -3,7 +3,6 @@ import {
   PROVEDOR_PADRAO,
   processInbound,
   createInbound,
-  DeskUnavailable,
   EngineError,
   SuspensaoDeProcessHttp,
 } from '@pipe/core';
@@ -18,7 +17,7 @@ import type {
 import { PipeError } from '../../errors.js';
 import { toChannelOutput, resolveDynamicContent, loadApplicationIdentity } from '../flow.js';
 import { engineServices, isFlowOfTenant } from '../engine-services.js';
-import { chooseQueue, queueUnavailability } from '../queue-entry.js';
+import { chooseQueue } from '../queue-entry.js';
 import { loadFlowFunctions, type LoadedFlowFunction } from './flow-functions.js';
 import { loadFlowResources } from './flow-resources.js';
 import { assertAccessToBuilder, compiledDraftOfFlow } from './builder-of-flow.js';
@@ -139,9 +138,9 @@ function servicesOfTestRun(
 ): ServicosDoMotor {
   const conversation = store.conversation;
   /** The queue a real handoff would pick (`chooseQueue`; a test run has no inbox default). */
-  const queueOf = async (queueId: string | null): Promise<string | null> => {
+  const queueOf = async (sp: TransactionPipe, queueId: string | null): Promise<string | null> => {
     const contact = store.contact;
-    const choice = await chooseQueue(tx, tid, {
+    const choice = await chooseQueue(sp, tid, {
       queueId,
       defaultQueueId: null,
       message: input,
@@ -155,7 +154,7 @@ function servicesOfTestRun(
     return choice.queueId;
   };
   const enqueue = async (queueId: string | null): Promise<void> => {
-    conversation.filaId = await queueOf(queueId);
+    conversation.filaId = await queueOf(tx, queueId);
     conversation.estado = 'na_fila';
   };
   return engineServices({
@@ -182,17 +181,13 @@ function servicesOfTestRun(
         signal?.throwIfAborted();
         if (saida) messages.push(saida);
       },
-      // Simulated: no real ticket and no real queue, but the queue a real handoff would choose.
-      // The availability checks read the real queue's schedule and online agents, as production does.
-      forwardForAttendance: async ({ settings, unavailableWhen }) => {
-        const queueId = typeof settings?.['filaId'] === 'string' ? settings['filaId'] : null;
-        if (unavailableWhen?.length) {
-          const unavailable = await queueUnavailability(tx, tid, await queueOf(queueId), new Date(), unavailableWhen);
-          if (unavailable) throw new DeskUnavailable(unavailable);
-        }
-        await enqueue(queueId);
+      // Simulated: no real ticket and no real queue, but the queue a real handoff would choose. The
+      // availability checks (`engineServices`) read the real queue's schedule and online agents.
+      forwardForAttendance: async ({ settings }) => {
+        await enqueue(typeof settings?.['filaId'] === 'string' ? settings['filaId'] : null);
         return { id: 'atendimento-de-teste', status: 'Waiting' };
       },
+      queueOfHandoff: queueOf,
       registerEvent: async () => {
         /* Kept only in memory for this run; a test run never feeds tenant analytics. */
       },
