@@ -14,7 +14,7 @@ const { createToken } = await import('@pipe/authentication');
 const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
-const { importFlowOfBlip } = await import('../src/domain/flow.js');
+const { importFlowOfBlip, loadApplicationIdentity } = await import('../src/domain/flow.js');
 const { redirectInRouter } = await import('../src/domain/router.js');
 const { closeConversation } = await import('../src/domain/conversation.js');
 const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
@@ -546,6 +546,19 @@ describe('Route conversations through services', () => {
     expect(p.serviceId).toBe(principalId);
     expect(p.expira_em).toBeNull();
     expect((await conversationOpen(ANA)).queueId).toBeNull();
+  });
+
+  it('Give a router service its own and the router short names for application.* and tunnel.*', async () => {
+    const { rows } = await a.dono.execute<{ id: string; short_name: string }>(sql`
+      select id, short_name from fluxo where id in (${principalId}::uuid, ${routerId}::uuid)
+    `);
+    const short = (id: string) => rows.find((r) => r.id === id)!.short_name;
+    await expect(
+      noTenant(a.tenantId, (tx) => loadApplicationIdentity(tx, principalId, routerId)),
+    ).resolves.toEqual({ identifier: short(principalId), routerIdentifier: short(routerId) });
+    // RLS: another tenant never reads these names.
+    const alheio = await noTenant(b.tenantId, (tx) => loadApplicationIdentity(tx, principalId, routerId));
+    expect(alheio).toEqual({ identifier: principalId, routerIdentifier: null });
   });
 
   it('Route the next message to a redirected service while preserving the prior block', async () => {

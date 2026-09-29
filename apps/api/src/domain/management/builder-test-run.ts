@@ -18,7 +18,7 @@ import type {
 import { PipeError } from '../../errors.js';
 import { chamarComMtls } from '../mtls.js';
 import { runFlowScript, scriptFetch } from '../script-sandbox.js';
-import { toChannelOutput, resolveDynamicContent } from '../flow.js';
+import { toChannelOutput, resolveDynamicContent, loadApplicationIdentity } from '../flow.js';
 import { confirmarUrlSegura } from './integrations.js';
 import { loadFlowFunctions } from './flow-functions.js';
 import { loadFlowResources } from './flow-resources.js';
@@ -329,6 +329,7 @@ export async function runBuilderTest(
     inboundContext: new Map(),
     contact: store.contact,
     resources,
+    application: await loadApplicationIdentity(tx, flowId),
     services: servicesOfTestRun(tx, tid, store, messages, flowFunctions),
   };
 

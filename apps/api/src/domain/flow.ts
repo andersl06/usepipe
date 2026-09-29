@@ -380,6 +380,7 @@ export async function runFlowInInbound(
     `);
   };
   const contact = await loadContact(tx, e.contactId);
+  const application = await loadApplicationIdentity(tx, publicado.flowId, roteador?.id ?? null);
   const relogio = relogioCrescente();
   const eventos: Record<string, unknown>[] = [];
   let respostas = 0;
@@ -659,6 +660,7 @@ export async function runFlowInInbound(
       inboundContext: new Map(),
       contact,
       resources,
+      application,
       services: servicos,
     };
     try {
@@ -1396,6 +1398,24 @@ export function toChannelOutput(m: OutputMessage): ChannelOutput | null {
     ? { uri: (m.conteudo as { uri?: string } | null)?.uri ?? '' }
     : null;
   return { tipo: 'texto', texto, dados: pergunta ? { pergunta } : webLink ? { webLink } : null };
+}
+
+/**
+ * The engine's `application.*`/`tunnel.*` identity: the flow's short name (Blip's bot identifier) and,
+ * for a router service, the router's. Scoped by id and RLS, like `loadFlowResources`.
+ */
+export async function loadApplicationIdentity(
+  tx: TransactionPipe,
+  flowId: string,
+  routerId: string | null = null,
+): Promise<NonNullable<Context['application']>> {
+  const { rows } = await tx.execute<{ identifier: string; routerIdentifier: string | null }>(sql`
+    select f.short_name as identifier,
+           (select r.short_name from fluxo r where r.id = ${routerId}::uuid) as "routerIdentifier"
+      from fluxo f
+     where f.id = ${flowId}::uuid
+  `);
+  return rows[0] ?? { identifier: flowId, routerIdentifier: null };
 }
 
 async function loadContact(
