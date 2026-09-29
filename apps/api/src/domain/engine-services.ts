@@ -7,6 +7,7 @@ import { confirmarUrlSegura } from './management/integrations.js';
 import type { LoadedFlowFunction } from './management/flow-functions.js';
 import { DESK_READ_COMMANDS } from './desk-commands.js';
 import { queueUnavailability } from './queue-entry.js';
+import { DESK_WRITE_COMMANDS } from './desk-write-commands.js';
 
 /**
  * The engine services (`ServicosDoMotor`) that production (`flow.ts` `runFlowInInbound`) and the
@@ -106,6 +107,7 @@ export function assertBucketSize(value: unknown): void {
 /**
  * Runs a command the engine already routed (`COMMAND_ROUTES` in `@pipe/core`); arbitrary LIME is
  * never forwarded. Desk reads answer in Blip's shapes (`desk-commands.ts`) from real, read-only data;
+ * Desk writes (`desk-write-commands.ts`) apply Blip's vocabulary through the same `tickets` effects;
  * `pipe.tickets.*` are validated here once and applied through `tickets`.
  */
 export async function executeCommand(
@@ -114,10 +116,16 @@ export async function executeCommand(
   { uri, resource, command }: CommandRequest,
   waitForResponse: boolean,
   tickets: TicketEffects,
+  recordSatisfactionAnswer?: ServicosDoMotor['recordSatisfactionAnswer'],
 ): Promise<unknown> {
   const deskRead = DESK_READ_COMMANDS[command.route];
   if (deskRead) {
     const response = await deskRead(tx, tenantId, command);
+    return waitForResponse ? response : undefined;
+  }
+  const deskWrite = DESK_WRITE_COMMANDS[command.route];
+  if (deskWrite) {
+    const response = await deskWrite(tx, tenantId, { resource, command }, { tickets, recordSatisfactionAnswer });
     return waitForResponse ? response : undefined;
   }
   const route = command.route;
@@ -276,9 +284,10 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects }: En
       await effects.bucketSet?.(request);
     },
     sendCommand: async (request) => {
-      await isolate((tx) => executeCommand(tx, tenantId, request, false, tickets));
+      await isolate((tx) => executeCommand(tx, tenantId, request, false, tickets, effects.recordSatisfactionAnswer));
     },
-    processCommand: (request) => isolate((tx) => executeCommand(tx, tenantId, request, true, tickets)),
+    processCommand: (request) =>
+      isolate((tx) => executeCommand(tx, tenantId, request, true, tickets, effects.recordSatisfactionAnswer)),
     respondWithKnowledge: (request) => isolate((tx) => knowledgeMatch(tx, tenantId, request)),
   };
 }
