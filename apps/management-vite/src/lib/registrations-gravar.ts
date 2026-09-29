@@ -1,4 +1,4 @@
-import { api, ApiError } from './api';
+import { api, ApiError } from '@pipe/ui/api';
 import { atualizarLeituras } from './actions';
 import { motivoDe, type Resultado } from './rest';
 import type { OperadorDeRegra } from './rule-queue';

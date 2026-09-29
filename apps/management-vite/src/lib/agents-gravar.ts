@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api } from '@pipe/ui/api';
 import { atualizarLeituras } from './actions';
 import { motivoDe, type Resultado } from './rest';
 import { queueUnlinkAgent, linkAgentInQueue } from './registrations-gravar';

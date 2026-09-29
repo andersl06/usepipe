@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import type { ConversationOpen, RespostaProntaDoDesk, TemplateAprovado } from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
-import { api, chamarApi, motivoDaFalha } from '../../lib/api';
+import { api, chamarApi, motivoDaFalha } from '@pipe/ui/api';
 import { atualizarLeituras } from '../../lib/actions';
 import { MAX_FILES_BY_SENDING, recusaDoLote } from '../../lib/attachments';
 import { windowOpen } from '../../lib/order';

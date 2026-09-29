@@ -6,7 +6,7 @@ import {
   type EvaluationRecord,
 } from '../../lib/quality-review';
 import { useParams } from 'react-router-dom';
-import { ApiError } from '../../lib/api';
+import { ApiError } from '@pipe/ui/api';
 import { useRead } from '../../lib/query';
 import { NaoEncontrado } from '../nao-encontrado';
 import { fatalReprovado } from '../../lib/nota-evaluation';

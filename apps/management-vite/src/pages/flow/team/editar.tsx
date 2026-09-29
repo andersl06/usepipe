@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import { Selection } from '../../../components/selection';
 import { atualizarLeituras } from '../../../lib/actions';
-import { api, ApiError } from '../../../lib/api';
+import { api, ApiError } from '@pipe/ui/api';
 import { useRead } from '../../../lib/query';
 import { NaoEncontrado } from '../../nao-encontrado';
 import { ContactBars, contactPath, useContact } from '../contact';

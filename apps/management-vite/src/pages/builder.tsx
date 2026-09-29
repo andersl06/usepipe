@@ -4,7 +4,7 @@ import { Botao, Campo, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../components/icones-management';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import { useEu } from '../context/session';
-import { ApiError } from '../lib/api';
+import { ApiError } from '@pipe/ui/api';
 import { useRead } from '../lib/query';
 import type { Resultado } from '../lib/rest';
 import { ContactBars, useContact } from './flow/contact';

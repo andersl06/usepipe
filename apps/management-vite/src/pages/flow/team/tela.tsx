@@ -11,7 +11,7 @@ import type {
 import { IconePortal } from '@pipe/ui/icones-portal';
 import { Pagination, usePage } from '../../../components/pagination';
 import { atualizarLeituras } from '../../../lib/actions';
-import { api } from '../../../lib/api';
+import { api } from '@pipe/ui/api';
 import { BotaoBds, PageHeader } from '../settings/pecas';
 import { acaoDeAdicionar, COLUNAS_DE_NIVEL, ROLES_OF_FLOW } from './permissions';
 import '../settings/settings.css';

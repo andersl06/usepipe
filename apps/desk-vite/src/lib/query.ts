@@ -1,5 +1,5 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { api } from './api';
+import { api } from '@pipe/ui/api';
 
 /**
  * Expose an `api` read as loading, error, and data screen state through TanStack Query, as specified in `2026-09-07-arquitetura-de-front.md` §2. The path is the cache key, so screens requesting the same path share data and invalidation targets that path.

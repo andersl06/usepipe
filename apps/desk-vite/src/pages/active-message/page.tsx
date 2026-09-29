@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { TemplateAprovado, TypeChannelDatabase } from '@pipe/contracts';
 import { useRead } from '../../lib/query';
-import { api } from '../../lib/api';
+import { api } from '@pipe/ui/api';
 import { atualizarLeituras } from '../../lib/actions';
 import { IconeDesk } from '../../components/icones-desk';
 import { Avatar } from '../../components/avatar';

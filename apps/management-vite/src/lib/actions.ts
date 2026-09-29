@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api } from '@pipe/ui/api';
 import { clienteDeConsultas } from './cliente-de-consultas';
 
 

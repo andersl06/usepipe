@@ -1,5 +1,5 @@
 import type { FlowResource, FlowResourceInput } from '@pipe/contracts';
-import { api } from '../../../lib/api';
+import { api } from '@pipe/ui/api';
 import { motivoDe, type Resultado } from '../../../lib/rest';
 
 /**

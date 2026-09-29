@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Eu } from '@pipe/contracts';
-import { api, ApiError } from '../lib/api';
+import { api, ApiError } from '@pipe/ui/api';
 
 /**
  * Quem está logado — a única fonte, alimentada por `GET /v1/eu`.

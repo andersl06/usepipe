@@ -1,4 +1,4 @@
-import { api, ApiError, pedir } from './api';
+import { api, ApiError, pedir } from '@pipe/ui/api';
 import { atualizarLeituras } from './actions';
 import type { ChannelOfFlow } from '@pipe/contracts';
 import type {

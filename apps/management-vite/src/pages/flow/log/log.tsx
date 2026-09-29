@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api } from '../../../lib/api';
+import { api } from '@pipe/ui/api';
 import { useRead } from '../../../lib/query';
 import { filterStorageKey, loadFilters, saveFilters } from '../../../lib/filter-memory';
 import { useEu } from '../../../context/session';

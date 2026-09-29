@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
 import { Botao } from '@pipe/ui';
 import { LogoPortal } from '@pipe/ui/icones-portal';
-import { ApiError } from '../../../../lib/api';
+import { ApiError } from '@pipe/ui/api';
 import { useRead } from '../../../../lib/query';
 import { channelInBotState } from '../../../../lib/channel-of-flow';
 import { ConectarInstagramManual } from '../../../registrations/channel-conectar-manual';

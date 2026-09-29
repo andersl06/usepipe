@@ -9,7 +9,7 @@ import {
   type Monitoring,
 } from '../lib/monitoring';
 import { numero } from '../lib/format';
-import { api } from '../lib/api';
+import { api } from '@pipe/ui/api';
 import { ManagementIcon } from './icones-management';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import { Pagination, usePage } from './pagination';

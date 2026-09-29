@@ -1,7 +1,7 @@
 import Link from '../../../../components/link';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { IconePortal } from '@pipe/ui/icones-portal';
-import { ApiError } from '../../../../lib/api';
+import { ApiError } from '@pipe/ui/api';
 import { useRead } from '../../../../lib/query';
 import type { DetailOfContact } from '@pipe/contracts';
 import { NaoEncontrado } from '../../../nao-encontrado';

@@ -8,7 +8,7 @@ import type {
 } from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
 import { Avatar } from '../../components/avatar';
-import { api } from '../../lib/api';
+import { api } from '@pipe/ui/api';
 import { useRead } from '../../lib/query';
 import { atualizarLeituras } from '../../lib/actions';
 import { numeroDoTicket } from '../../lib/channel';

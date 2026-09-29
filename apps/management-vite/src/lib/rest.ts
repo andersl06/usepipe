@@ -1,4 +1,4 @@
-import { ApiError } from './api';
+import { ApiError } from '@pipe/ui/api';
 
 /**
  * A true REST write returns status 400/403/404/409 for `POST`/`PATCH`/`DELETE`, unlike legacy `acoes.ts` `Resultado` with `{ok,erro}` in a 200 for `useActionState`. Match the per-call result shape in `paginas/fluxo/configuracoes/basicas/gravar.ts`.

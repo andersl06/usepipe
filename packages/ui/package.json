@@ -10,12 +10,16 @@
     ".": "./src/index.ts",
     "./estilos.css": "./src/estilos.css",
     "./tema": "./src/tema.ts",
-    "./icones-portal": "./src/icones-portal.tsx"
+    "./icones-portal": "./src/icones-portal.tsx",
+    "./api": "./src/api.ts"
   },
   "files": [
     "src",
     "verificar-tokens.mjs"
   ],
+  "dependencies": {
+    "@pipe/contracts": "workspace:*"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
