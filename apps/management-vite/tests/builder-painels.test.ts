@@ -210,7 +210,14 @@ test('BLIP_SYSTEM_VARIABLES has all 118 reference variables, sorted, with pt-BR 
   assert.equal(context?.suportada, true);
 
   const bucket = BLIP_SYSTEM_VARIABLES.find((v) => v.nome === 'bucket.?');
-  assert.equal(bucket?.suportada, false);
+  assert.equal(bucket?.suportada, true);
+  const secret = BLIP_SYSTEM_VARIABLES.find((v) => v.nome === 'secret.?');
+  assert.equal(secret?.suportada, false);
+
+  // Every variable whose source now has an engine provider is marked supported.
+  const novas = BLIP_SYSTEM_VARIABLES.filter((v) => /^(application|calendar|random|tunnel)\./.test(v.nome));
+  assert.equal(novas.length, 48);
+  assert.ok(novas.every((v) => v.suportada));
 });
 
 test('systemFilterVariables (accent-sensitive) searches the name and the description', () => {
