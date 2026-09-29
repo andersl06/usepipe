@@ -1,57 +1,38 @@
 import { useEffect, useState } from 'react';
 import type { FlowResource, FlowResourceInput } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
+import { ConfirmModal, Modal } from '@pipe/ui/modal';
+import { Select } from '@pipe/ui/select';
 import { ManagementIcon } from '../../../components/icones-management';
 import { ShellModule, useContact } from '../contact';
 import { LateralDeConteudos } from '../contents/tela';
 import '../contents/conteudos.css';
-import { ConfirmModal, Modal } from '@pipe/ui/modal';
-import { filterResources, nameError, parseImportedResources, NAME_ERROR_MESSAGE } from './regras';
+import './recursos.css';
+import {
+  NAME_ERROR_MESSAGE,
+  RESOURCE_KIND_LABEL,
+  RESOURCE_MIME,
+  contentError,
+  filterResources,
+  kindOfType,
+  nameError,
+  parseImportedResources,
+  truncateContent,
+  typeLabel,
+  type ResourceKind,
+} from './regras';
 import { createFlowResource, deleteFlowResource, listFlowResources, updateFlowResource } from './gravar';
 
 /**
- * Blip "Recursos" (menu `contents`, permission key `resources`, `portal.js`'s `ContentController`):
- * a per-flow key/value store read by the builder as `{{resource.<name>}}`. Pipe's "Conteúdos" item
- * already shows WhatsApp templates (`contents/conteudos.tsx`) — a Pipe-specific screen with no Blip
- * counterpart at that address — so Recursos gets its own top-level item instead of replacing it
- * (`pages/flow/itens.ts`); both stay reachable, and both are gated by the same `resources`
- * permission Blip itself uses for its "Conteúdos" tab.
+ * "Recursos" (menu `contents`, permission key `resources`): a per-flow key/value store read by the
+ * builder as `{{resource.<name>}}`. The same screen serves flows and routers (a router is a flow row
+ * of type `roteador`, so `contents/resources` sits in the shared contact routes). Each resource is a
+ * card: read-only (key, type, truncated content, edit/delete) or editing in place.
  */
 
-function ValueField({
-  type,
-  value,
-  onChange,
-}: {
-  type: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const isJson = type.trim().toLowerCase().endsWith('json');
-  const invalid = isJson && value.trim() !== '' && (() => {
-    try {
-      JSON.parse(value);
-      return false;
-    } catch {
-      return true;
-    }
-  })();
-  return (
-    <>
-      <textarea
-        className="campo bl-campo-longo"
-        rows={6}
-        spellCheck={false}
-        aria-label="Conteúdo do recurso"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
-      {invalid ? <Etiqueta tom="erro">Este conteúdo deve ser um JSON válido.</Etiqueta> : null}
-    </>
-  );
-}
+type SaveResult = { ok: true; value: FlowResource } | { ok: false; error: string };
 
-function ResourceForm({
+function ResourceEditor({
   initial,
   onCancel,
   onSaved,
@@ -60,23 +41,24 @@ function ResourceForm({
   initial: FlowResource | null;
   onCancel: () => void;
   onSaved: (resource: FlowResource) => void;
-  save: (input: FlowResourceInput) => Promise<{ ok: true; value: FlowResource } | { ok: false; error: string }>;
+  save: (input: FlowResourceInput) => Promise<SaveResult>;
 }) {
   const [name, setName] = useState(initial?.name ?? '');
-  const [type, setType] = useState(initial?.type ?? 'text/plain');
+  const [kind, setKind] = useState<ResourceKind>(initial ? kindOfType(initial.type) : 'text');
   const [value, setValue] = useState(initial?.value ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [touchedName, setTouchedName] = useState(false);
+  const [touched, setTouched] = useState(false);
 
-  const erroNome = nameError(name);
+  const nameProblem = nameError(name);
+  const contentProblem = contentError(kind, value);
 
-  async function salvar(): Promise<void> {
-    setTouchedName(true);
-    if (erroNome) return;
+  async function submit(): Promise<void> {
+    setTouched(true);
+    if (nameProblem || contentProblem) return;
     setSaving(true);
     setError(null);
-    const r = await save({ name: name.trim(), type: type.trim() || 'text/plain', value });
+    const r = await save({ name: name.trim(), type: RESOURCE_MIME[kind], value });
     setSaving(false);
     if (!r.ok) {
       setError(r.error);
@@ -86,43 +68,89 @@ function ResourceForm({
   }
 
   return (
-    <div className="cl-form">
-      <h4 className="bl-section-title">{initial ? 'Editar recurso' : 'Novo recurso'}</h4>
-      <label className="bl-campo">
-        <span className="sub">Chave</span>
-        <Campo
-          value={name}
-          placeholder="Insira a chave do recurso aqui"
-          onBlur={() => setTouchedName(true)}
-          onChange={(e) => setName(e.target.value)}
+    <div className="rc-editing">
+      <div className="rc-edit-row">
+        <label className="rc-field rc-field--key">
+          <span className="rc-label">Chave</span>
+          <Campo
+            value={name}
+            placeholder="Insira a chave do recurso aqui"
+            aria-label="Chave do recurso"
+            onBlur={() => setTouched(true)}
+            onChange={(e) => setName(e.target.value)}
+          />
+          {touched && nameProblem ? <Etiqueta tom="erro">{NAME_ERROR_MESSAGE[nameProblem]}</Etiqueta> : null}
+        </label>
+        <div className="rc-field rc-field--type">
+          <span className="rc-label">Tipo</span>
+          <Select aria-label="Tipo do recurso" value={kind} onChange={(e) => setKind(e.target.value as ResourceKind)}>
+            <option value="text">{RESOURCE_KIND_LABEL.text}</option>
+            <option value="json">{RESOURCE_KIND_LABEL.json}</option>
+          </Select>
+        </div>
+      </div>
+      <label className="rc-field">
+        <span className="rc-label">Conteúdo</span>
+        <textarea
+          className="campo bl-campo-longo"
+          rows={6}
+          spellCheck={false}
+          aria-label="Conteúdo do recurso"
+          placeholder="Insira o conteúdo do recurso aqui"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
         />
-        {touchedName && erroNome ? <Etiqueta tom="erro">{NAME_ERROR_MESSAGE[erroNome]}</Etiqueta> : null}
-      </label>
-      <label className="bl-campo">
-        <span className="sub">Tipo</span>
-        <Campo
-          value={type}
-          list="pipe-resource-types"
-          placeholder="text/plain"
-          onChange={(e) => setType(e.target.value)}
-        />
-        <datalist id="pipe-resource-types">
-          <option value="text/plain" />
-          <option value="application/json" />
-        </datalist>
-      </label>
-      <label className="bl-campo">
-        <span className="sub">Conteúdo</span>
-        <ValueField type={type} value={value} onChange={setValue} />
+        {contentProblem ? <Etiqueta tom="erro">{contentProblem}</Etiqueta> : null}
       </label>
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
       <div className="cl-actions">
         <Botao onClick={onCancel} disabled={saving}>
           Cancelar
         </Botao>
-        <Botao variante="primario" onClick={() => void salvar()} disabled={saving}>
+        <Botao variante="primario" onClick={() => void submit()} disabled={saving}>
           {saving ? 'Salvando…' : 'Salvar'}
         </Botao>
+      </div>
+    </div>
+  );
+}
+
+function ResourceView({
+  resource,
+  onEdit,
+  onDelete,
+}: {
+  resource: FlowResource;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <div className="rc-view">
+      <div className="rc-col rc-col--key">
+        <span className="rc-label">Chave</span>
+        <span className="rc-key">{resource.name}</span>
+      </div>
+      <div className="rc-col rc-col--type">
+        <span className="rc-label">Tipo</span>
+        <span>{typeLabel(resource.type)}</span>
+      </div>
+      <div className="rc-col rc-col--content">
+        <span className="rc-label">Conteúdo</span>
+        <span className="rc-content">{truncateContent(resource.value)}</span>
+      </div>
+      <div className="rc-actions">
+        <button type="button" className="iconbtn" aria-label={`Editar ${resource.name}`} title="Editar" onClick={onEdit}>
+          <ManagementIcon nome="lapis" tamanho={18} />
+        </button>
+        <button
+          type="button"
+          className="iconbtn"
+          aria-label={`Excluir ${resource.name}`}
+          title="Excluir"
+          onClick={onDelete}
+        >
+          <ManagementIcon nome="lixeira" tamanho={18} />
+        </button>
       </div>
     </div>
   );
@@ -208,6 +236,7 @@ export function PageResources() {
   const [removing, setRemoving] = useState(false);
   const [removeError, setRemoveError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   async function reload(): Promise<void> {
     const r = await listFlowResources(flowId);
@@ -225,133 +254,130 @@ export function PageResources() {
 
   const filtered = resources ? filterResources(resources, search) : [];
 
+  function afterSave(): void {
+    setAviso('Recurso salvo com sucesso!');
+    setEditing(null);
+    void reload();
+  }
+
   return (
     <ShellModule ativo="Conteúdos">
       <div className="ct-shell">
-      <LateralDeConteudos ativo="resources" />
-      <section className="ct-miolo" id="main-content-area">
-      <div className="board-head">
-        <h2>Recursos</h2>
-      </div>
-      <p className="sub">
-        Adicione e altere recursos do seu chatbot. Os recursos podem ser utilizados com conteúdo das mensagens
-        enviadas pelo chatbot, através de <code>{'{{resource.<chave>}}'}</code>.
-      </p>
-
-      {editing ? (
-        <ResourceForm
-          initial={editing === 'new' ? null : editing}
-          onCancel={() => setEditing(null)}
-          save={(input) =>
-            editing === 'new' ? createFlowResource(flowId, input) : updateFlowResource(flowId, editing.id, input)
-          }
-          onSaved={() => {
-            setAviso(editing === 'new' ? 'Recurso salvo com sucesso!' : 'Recurso salvo com sucesso!');
-            setEditing(null);
-            void reload();
-          }}
-        />
-      ) : (
-        <>
-          <div className="cl-actions" style={{ justifyContent: 'space-between' }}>
-            <Campo
-              value={search}
-              placeholder="Pesquise por um recurso"
-              aria-label="Pesquise por um recurso"
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <div className="cl-actions">
+        <LateralDeConteudos ativo="resources" />
+        <section className="ct-miolo" id="main-content-area">
+          <header className="rc-header">
+            <div className="rc-title-row">
+              <h1 className="ct-titulo">Recursos</h1>
+              <button
+                type="button"
+                className="iconbtn"
+                aria-label="Ver documentação"
+                aria-expanded={helpOpen}
+                title="Ver documentação"
+                onClick={() => setHelpOpen((open) => !open)}
+              >
+                <ManagementIcon nome="ajuda" tamanho={20} />
+              </button>
+            </div>
+            <div className="rc-header-actions">
+              <Botao onClick={() => setHelpOpen((open) => !open)}>Ver documentação</Botao>
               <Botao onClick={() => setImporting(true)}>Importar recursos</Botao>
-              <Botao variante="primario" onClick={() => setEditing('new')}>
-                Adicionar novo
+              <Botao variante="primario" onClick={() => setEditing('new')} disabled={editing === 'new'}>
+                Adicionar Novo
               </Botao>
             </div>
-          </div>
+          </header>
+          {helpOpen ? (
+            <p className="sub rc-help">
+              Adicione e altere recursos do seu chatbot. Os recursos podem ser utilizados como conteúdo das
+              mensagens enviadas pelo chatbot, através de <code>{'{{resource.<chave>}}'}</code>. Para um recurso do
+              tipo JSON, use <code>{'{{resource.<chave>@<propriedade>}}'}</code>.
+            </p>
+          ) : null}
+          <Campo
+            value={search}
+            placeholder="Pesquise por um recurso"
+            aria-label="Pesquise por um recurso"
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
           {aviso ? <Etiqueta tom="sucesso">{aviso}</Etiqueta> : null}
           {loadError ? <Etiqueta tom="erro">{loadError}</Etiqueta> : null}
           {resources === null && !loadError ? <p className="bl-ajuda">Carregando recursos…</p> : null}
-          {resources && resources.length === 0 ? (
+
+          <ul className="rc-list">
+            {editing === 'new' ? (
+              <li className="ct-paper rc-card">
+                <ResourceEditor
+                  initial={null}
+                  onCancel={() => setEditing(null)}
+                  save={(input) => createFlowResource(flowId, input)}
+                  onSaved={afterSave}
+                />
+              </li>
+            ) : null}
+            {filtered.map((resource) => (
+              <li key={resource.id} className="ct-paper rc-card">
+                {editing !== null && editing !== 'new' && editing.id === resource.id ? (
+                  <ResourceEditor
+                    initial={resource}
+                    onCancel={() => setEditing(null)}
+                    save={(input) => updateFlowResource(flowId, resource.id, input)}
+                    onSaved={afterSave}
+                  />
+                ) : (
+                  <ResourceView
+                    resource={resource}
+                    onEdit={() => setEditing(resource)}
+                    onDelete={() => setRemoveTarget(resource)}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+          {resources && resources.length === 0 && editing !== 'new' ? (
             <div className="bl-functions-empty">
               <p className="sub">Você ainda não adicionou nenhum recurso.</p>
-              <p className="bl-ajuda">
-                Clique no botão &ldquo;Adicionar novo&rdquo; para adicionar recursos.
-              </p>
+              <p className="bl-ajuda">Clique no botão &ldquo;Adicionar Novo&rdquo; para adicionar recursos.</p>
             </div>
           ) : null}
           {resources && resources.length > 0 && filtered.length === 0 ? (
             <p className="bl-ajuda">Nenhum recurso encontrado.</p>
           ) : null}
-          {filtered.length > 0 ? (
-            <ul className="bl-functions-list">
-              {filtered.map((resource) => (
-                <li key={resource.id}>
-                  <div className="bl-functions-item">
-                    <div>
-                      <span className="bl-variable-name">{resource.name}</span>
-                      <p className="sub">{resource.type}</p>
-                    </div>
-                    <div className="bl-functions-item-actions">
-                      <button
-                        type="button"
-                        className="iconbtn"
-                        aria-label={`Editar ${resource.name}`}
-                        title="Editar"
-                        onClick={() => setEditing(resource)}
-                      >
-                        <ManagementIcon nome="lapis" tamanho={18} />
-                      </button>
-                      <button
-                        type="button"
-                        className="iconbtn"
-                        aria-label={`Excluir ${resource.name}`}
-                        title="Excluir"
-                        onClick={() => setRemoveTarget(resource)}
-                      >
-                        <ManagementIcon nome="lixeira" tamanho={18} />
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </>
-      )}
 
-      <ImportModal
-        aberto={importing}
-        flowId={flowId}
-        onFechar={() => setImporting(false)}
-        onImported={() => void reload()}
-      />
+          <ImportModal
+            aberto={importing}
+            flowId={flowId}
+            onFechar={() => setImporting(false)}
+            onImported={() => void reload()}
+          />
 
-      <ConfirmModal
-        aberto={removeTarget !== null}
-        titulo="Excluir recurso"
-        message={`Excluir o recurso "${removeTarget?.name}"? Fluxos que o referenciam deixam de encontrá-lo.`}
-        error={removeError}
-        confirmando={removing}
-        onConfirmar={async () => {
-          if (!removeTarget) return;
-          setRemoving(true);
-          setRemoveError(null);
-          const r = await deleteFlowResource(flowId, removeTarget.id);
-          setRemoving(false);
-          if (!r.ok) {
-            setRemoveError(r.error);
-            return;
-          }
-          setRemoveTarget(null);
-          setAviso('Recurso excluído com sucesso!');
-          void reload();
-        }}
-        onCancelar={() => {
-          setRemoveTarget(null);
-          setRemoveError(null);
-        }}
-      />
-      </section>
+          <ConfirmModal
+            aberto={removeTarget !== null}
+            titulo="Excluir recurso"
+            message={`Excluir o recurso "${removeTarget?.name}"? Fluxos que o referenciam deixam de encontrá-lo.`}
+            error={removeError}
+            confirmando={removing}
+            onConfirmar={async () => {
+              if (!removeTarget) return;
+              setRemoving(true);
+              setRemoveError(null);
+              const r = await deleteFlowResource(flowId, removeTarget.id);
+              setRemoving(false);
+              if (!r.ok) {
+                setRemoveError(r.error);
+                return;
+              }
+              setRemoveTarget(null);
+              setAviso('Recurso excluído com sucesso!');
+              void reload();
+            }}
+            onCancelar={() => {
+              setRemoveTarget(null);
+              setRemoveError(null);
+            }}
+          />
+        </section>
       </div>
     </ShellModule>
   );

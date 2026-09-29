@@ -87,3 +87,49 @@ export function parseImportedResources(
   }
   return { ok: true, items, errors };
 }
+
+export type ResourceKind = 'text' | 'json';
+
+export const RESOURCE_MIME: Record<ResourceKind, string> = { text: 'text/plain', json: 'application/json' };
+
+export const RESOURCE_KIND_LABEL: Record<ResourceKind, string> = { text: 'Texto', json: 'JSON' };
+
+/** Maps a stored MIME type to the two kinds the screen offers; anything ending in `json` is JSON, the rest is text. */
+export function kindOfType(type: string): ResourceKind {
+  return type.trim().toLowerCase().endsWith('json') ? 'json' : 'text';
+}
+
+/** Card label for the "Tipo" column. */
+export function typeLabel(type: string): string {
+  return RESOURCE_KIND_LABEL[kindOfType(type)];
+}
+
+export const CONTENT_PREVIEW_LIMIT = 200;
+export const CONTENT_PREVIEW_LINES = 3;
+
+/** Shortens a value for the read-only card: at most a few lines and characters, with an ellipsis when cut. */
+export function truncateContent(
+  value: string,
+  maxChars: number = CONTENT_PREVIEW_LIMIT,
+  maxLines: number = CONTENT_PREVIEW_LINES,
+): string {
+  const lines = value.split(/\r?\n/);
+  let text = lines.slice(0, maxLines).join('\n');
+  let cut = lines.length > maxLines;
+  if (text.length > maxChars) {
+    text = text.slice(0, maxChars);
+    cut = true;
+  }
+  return cut ? `${text.trimEnd()}…` : text;
+}
+
+/** A JSON-typed resource must hold parseable JSON (an empty value is left to the API). */
+export function contentError(kind: ResourceKind, value: string): string | null {
+  if (kind !== 'json' || value.trim() === '') return null;
+  try {
+    JSON.parse(value);
+    return null;
+  } catch {
+    return 'Este conteúdo deve ser um JSON válido.';
+  }
+}
