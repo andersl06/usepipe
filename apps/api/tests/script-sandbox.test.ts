@@ -68,6 +68,36 @@ describe('script sandbox: behavior', () => {
   });
 });
 
+describe('script sandbox: time zone (LocalTimeZoneEnabled)', () => {
+  // 2026-01-15 02:30 UTC is still the 14th, 23:30, in São Paulo (UTC-3, no DST since 2019).
+  const instant = Date.UTC(2026, 0, 15, 2, 30, 0);
+  const probe = `function run(t) {
+    const d = new Date(Number(t));
+    return [d.getFullYear(), d.getMonth(), d.getDate(), d.getDay(), d.getHours(), d.getMinutes(),
+      d.getTimezoneOffset(), d.toString(), new Date(2026, 0, 14, 23, 30).getTime() === Number(t)];
+  }`;
+
+  it('runs local Date methods in the bot zone', async () => {
+    const r = await runFlowScript(script(probe, { args: [String(instant)], localTimeZone: true, timeZone: 'America/Sao_Paulo' }));
+    expect(r).toEqual([2026, 0, 14, 3, 23, 30, 180, 'Wed Jan 14 2026 23:30:00 GMT-0300', true]);
+  });
+
+  it('runs local Date methods in UTC when the setting is off, whatever the host zone', async () => {
+    const r = await runFlowScript(script(probe, { args: [String(instant)], timeZone: 'UTC' }));
+    expect(r).toEqual([2026, 0, 15, 4, 2, 30, 0, 'Thu Jan 15 2026 02:30:00 GMT+0000', false]);
+  });
+
+  it('keeps setters, instanceof and Date() consistent with the zone', async () => {
+    const r = await runFlowScript(script(`function run(t) {
+      const d = new Date(Number(t));
+      d.setHours(8, 0, 0, 0);
+      return [d.toISOString(), d instanceof Date, typeof Date(), typeof Date.now(),
+        d.toLocaleDateString('pt-BR'), new Date(0).getTime()];
+    }`, { args: [String(instant)], localTimeZone: true, timeZone: 'America/Sao_Paulo' }));
+    expect(r).toEqual(['2026-01-14T11:00:00.000Z', true, 'string', 'number', '14/01/2026', 0]);
+  });
+});
+
 describe('script sandbox: escape attempts', () => {
   it('has no require, process, module or Buffer in scope', async () => {
     const r = await runFlowScript(
