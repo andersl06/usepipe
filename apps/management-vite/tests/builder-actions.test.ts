@@ -83,6 +83,10 @@ test('platform actions: native editors exist and external fallbacks are explicit
 test('platform actions: arbitrary command imports are read-only dependencies', () => {
   assert.equal(acaoTemDependenciaExterna({ type: 'SendCommand', settings: { uri: 'lime://arbitrary' } }), true);
   assert.equal(acaoTemDependenciaExterna({ type: 'ProcessCommand', settings: { uri: '/tickets/123/status' } }), false);
+  const desk = 'postmaster@desk.msging.net';
+  assert.equal(acaoTemDependenciaExterna({ type: 'ProcessCommand', settings: { to: desk, method: 'get', uri: '/teams/agents-online' } }), false);
+  assert.equal(acaoTemDependenciaExterna({ type: 'ProcessCommand', settings: { method: 'get', uri: '/teams/agents-online' } }), true);
+  assert.equal(acaoTemDependenciaExterna({ type: 'ProcessCommand', settings: { to: desk, method: 'set', uri: '/tickets/change-status' } }), true);
   assert.equal(acaoTemDependenciaExterna({ type: 'SetBucket', settings: {} }), false);
 });
 

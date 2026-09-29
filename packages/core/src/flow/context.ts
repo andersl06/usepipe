@@ -2,6 +2,7 @@
  * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider,ResourceVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is not stored; `calendar`, `random`, `application`, `tunnel` and `bucket` have providers (see each below), while other Blip service providers (secret, aiagent, etc.) are absent and throw, as the original does when a source lacks a provider. `resource` DOES have a provider: the `api` loads the flow's `recurso_do_fluxo` rows into `Context.resources` the same way it loads `contact`, so an imported flow reading `{{resource.x}}` (and `resource.x@prop` for JSON resources, via the generic `propertyJson` path already used by every source) resolves instead of throwing "Não há provedor para a fonte de variável 'resource'.".
  */
 
+import type { CommandMatch } from './commands.js';
 import type { FlowBlip } from './modelos.js';
 import { KEYS_OF_STATE } from './modelos.js';
 
@@ -153,6 +154,14 @@ export interface ActionDeadline {
   timeLimitMs: number;
 }
 
+/** A `SendCommand`/`ProcessCommand` after routing; `command` says which handler runs it. */
+export interface CommandRequest {
+  uri: string;
+  method: string;
+  resource: unknown;
+  command: CommandMatch;
+}
+
 export interface ServicosDoMotor {
   /** `signal`: the calling action's deadline; the `api` must not write after it aborts. */
   send(message: OutputMessage, signal?: AbortSignal): Promise<void>;
@@ -188,8 +197,8 @@ export interface ServicosDoMotor {
   bucketGet?(request: { key: string; scope: 'contact' | 'global' }): Promise<unknown | null>;
   /** Native ManageList equivalent. */
   listManage?(request: { name: string; operation: 'Add' | 'Remove' }): Promise<void>;
-  /** Closed subset of Desk commands; arbitrary LIME routing is deliberately not exposed. */
-  sendCommand?(request: { uri: string; method: string; resource: unknown }): Promise<void>;
+  /** Commands the engine matched in `COMMAND_ROUTES`; `command.route` names the handler to run. */
+  sendCommand?(request: CommandRequest): Promise<void>;
   /**
    * Blip's `set /contexts/{contact}/stateid@{flowId}`: move this contact's saved block in ANOTHER flow
    * (usually back to `onboarding` before a Redirect). Returns false when `flowId` is not a flow of this
@@ -197,7 +206,7 @@ export interface ServicosDoMotor {
    * Pipe Redirect already starts the destination at its root.
    */
   setFlowState?(request: { flowId: string; stateId: string }): Promise<boolean>;
-  processCommand?(request: { uri: string; method: string; resource: unknown }): Promise<unknown>;
+  processCommand?(request: CommandRequest): Promise<unknown>;
   /** RAG over the tenant's base_conhecimento/trecho_conhecimento tables. */
   respondWithKnowledge?(request: { text: string; minimumConfidence: number; tags?: string }): Promise<{ answer: string | null; confidence: number }>;
 }

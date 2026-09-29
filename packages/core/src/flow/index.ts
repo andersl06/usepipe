@@ -5,6 +5,7 @@ export * from './condition.js';
 export * from './modelos.js';
 export * from './context.js';
 export * from './actions.js';
+export * from './commands.js';
 export * from './manager.js';
 export * from './editor.js';
 export * from './padrao.js';

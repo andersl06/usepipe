@@ -7,7 +7,7 @@ import {
   EngineError,
   SuspensaoDeProcessHttp,
 } from '@pipe/core';
-import type { Context, ServicosDoMotor, InboundTrace } from '@pipe/core';
+import type { CommandRequest, Context, ServicosDoMotor, InboundTrace } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import type {
   TestRunDebug,
@@ -22,6 +22,7 @@ import { toChannelOutput, resolveDynamicContent, loadApplicationIdentity } from 
 import { confirmarUrlSegura } from './integrations.js';
 import { loadFlowFunctions } from './flow-functions.js';
 import { loadFlowResources } from './flow-resources.js';
+import { DESK_READ_COMMANDS } from '../desk-commands.js';
 import { assertAccessToBuilder, compiledDraftOfFlow } from './builder-of-flow.js';
 
 /**
@@ -108,40 +109,49 @@ function respeitaLimiteDeTaxa(userId: string): boolean {
   return atual.n <= LIMIT_BY_WINDOW;
 }
 
-/** Closed subset of Desk commands (D-20), run against the test run's own in-memory conversation instead of a real one. */
+/**
+ * Routed commands in a test run: Desk reads are read-only, so they answer from the tenant's real
+ * queues and agents (the test contact has no tickets); `pipe.tickets.*` writes go to the test run's
+ * own in-memory conversation instead of a real one.
+ */
 async function executeNativeCommandTest(
+  tx: TransactionPipe,
+  tid: string,
   conversation: TestRunConversationState,
-  uri: string,
-  resource: unknown,
+  { uri, resource, command }: CommandRequest,
   waitForResponse: boolean,
 ): Promise<unknown> {
+  const deskRead = DESK_READ_COMMANDS[command.route];
+  if (deskRead) {
+    const response = await deskRead(tx, tid, command);
+    return waitForResponse ? response : undefined;
+  }
   const body = resource && typeof resource === 'object' ? (resource as Record<string, unknown>) : {};
-  const match = uri.match(/^\/tickets\/[^/]+(\/.*)?$/);
-  const route = match?.[1] ?? '';
-  if (!match || !['', '/change-tags', '/transfer', '/status', '/priority'].includes(route)) {
+  const route = command.route;
+  if (!['pipe.tickets.get', 'pipe.tickets.changeTags', 'pipe.tickets.transfer', 'pipe.tickets.status', 'pipe.tickets.priority'].includes(route)) {
     throw new Error(`A URI '${uri}' não é executada no Pipe.`);
   }
   const result: Record<string, unknown> = { status: 'success', reason: 'OK', resource: null };
-  if (route === '/change-tags') {
+  if (route === 'pipe.tickets.changeTags') {
     const tags = Array.isArray(body['tags'])
       ? body['tags'].filter((tag): tag is string => typeof tag === 'string')
       : [];
     conversation.etiquetas = Array.from(new Set([...conversation.etiquetas, ...tags]));
     result['resource'] = { tags };
-  } else if (route === '/transfer') {
+  } else if (route === 'pipe.tickets.transfer') {
     const queueId =
       typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;
     if (!queueId) throw new Error("O comando de transferência exige 'queueId'.");
     conversation.filaId = queueId;
     result['resource'] = { queueId };
-  } else if (route === '/status') {
+  } else if (route === 'pipe.tickets.status') {
     const status = typeof body['status'] === 'string' ? body['status'] : null;
     if (!status || !['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'].includes(status)) {
       throw new Error("O comando de status exige um status do Pipe válido.");
     }
     conversation.estado = status;
     result['resource'] = { status };
-  } else if (route === '/priority') {
+  } else if (route === 'pipe.tickets.priority') {
     const priority =
       typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;
     if (!priority || !['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'].includes(priority)) {
@@ -284,10 +294,10 @@ function servicesOfTestRun(
       else membros.add(TEST_CONTACT_ID);
       store.lists.set(name, membros);
     },
-    sendCommand: async ({ uri, resource }) => {
-      await executeNativeCommandTest(store.conversation, uri, resource, false);
+    sendCommand: async (request) => {
+      await executeNativeCommandTest(tx, tid, store.conversation, request, false);
     },
-    processCommand: async ({ uri, resource }) => executeNativeCommandTest(store.conversation, uri, resource, true),
+    processCommand: async (request) => executeNativeCommandTest(tx, tid, store.conversation, request, true),
     respondWithKnowledge: async ({ text, minimumConfidence }) =>
       respondWithKnowledgeTest(tx, tid, { text, minimumConfidence }),
   };
