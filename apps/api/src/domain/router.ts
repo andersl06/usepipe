@@ -94,7 +94,7 @@ export async function serviceOfRouter(
 }
 
 /**
- * `Redirect` moves the contact to this router's service named `nome`. It must match a registered Services name (help.blip.ai); an unknown name fails the action. `blocoInicial` is the subsequent Change-User-State; without it, the destination starts at its root. This takes effect on the next message.
+ * `Redirect` moves the contact to this router's service named `nome`. It must match a registered Services name (help.blip.ai), or the service flow's short name as `set /contexts/{contact}/Master-State` sends it (`{shortName}@msging.net`, the suffix already stripped); an unknown name fails the action. `blocoInicial` is the subsequent Change-User-State; without it, the destination starts at its root. This takes effect on the next message.
  */
 export async function redirectInRouter(
   tx: TransactionPipe,
@@ -112,8 +112,13 @@ export async function redirectInRouter(
     persistent: boolean;
     expirationMin: number | null;
   }>(sql`
-    select servico_id as "serviceId", principal, persistente as "persistent", expiracao_min as "expirationMin" from roteador_servico
-     where roteador_id = ${pedido.routerId} and nome = ${pedido.service}
+    select rs.servico_id as "serviceId", rs.principal, rs.persistente as "persistent", rs.expiracao_min as "expirationMin"
+      from roteador_servico rs
+      join fluxo f on f.id = rs.servico_id
+     where rs.roteador_id = ${pedido.routerId}
+       and (rs.nome = ${pedido.service} or lower(f.short_name) = lower(${pedido.service}))
+     order by (rs.nome = ${pedido.service}) desc
+     limit 1
   `);
   const destination = rows[0];
   if (!destination) throw new Error(`O serviço '${pedido.service}' não existe neste roteador.`);

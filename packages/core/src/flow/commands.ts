@@ -18,9 +18,9 @@ export function commandRecipient(to: string | null | undefined): CommandRecipien
 
 export interface CommandRoute {
   name: string;
-  /** `*` accepts any recipient: the Pipe-vocabulary routes predate `to` routing. */
+  /** `*` accepts any recipient: the Pipe-vocabulary routes predate `to` routing. `a|b` accepts either. */
   recipient: CommandRecipient | '*';
-  /** Lowercase LIME method, or `*`. */
+  /** Lowercase LIME method, `a|b` for several, or `*`. */
   method: string;
   /** Tested against the path without its query string; named groups become `params`. */
   path: RegExp;
@@ -45,6 +45,20 @@ export const COMMAND_ROUTES: readonly CommandRoute[] = Object.freeze([
   { name: 'pipe.tickets.transfer', recipient: '*', method: '*', path: /^\/tickets\/(?<id>[^/]+)\/transfer$/ },
   { name: 'pipe.tickets.status', recipient: '*', method: '*', path: /^\/tickets\/(?<id>[^/]+)\/status$/ },
   { name: 'pipe.tickets.priority', recipient: '*', method: '*', path: /^\/tickets\/(?<id>[^/]+)\/priority$/ },
+  // Builder and core bot commands. Blip documents `/contexts` under both `builder` and `core` (Master-State).
+  { name: 'builder.flowId', recipient: 'builder', method: 'get', path: /^\/flow-id$/ },
+  { name: 'builder.contexts.list', recipient: 'builder|core', method: 'get', path: /^\/contexts\/(?<identity>[^/]+)$/ },
+  {
+    name: 'builder.contexts.variable',
+    recipient: 'builder|core',
+    method: 'get|set|delete',
+    path: /^\/contexts\/(?<identity>[^/]+)\/(?<variable>[^/]+)$/,
+  },
+  { name: 'core.configuration.caller', recipient: 'core', method: 'get', path: /^\/configuration\/caller$/ },
+  { name: 'core.buckets.item', recipient: 'core', method: 'get|set|delete', path: /^\/buckets\/(?<id>[^/]+)$/ },
+  { name: 'core.resources.item', recipient: 'core', method: 'get', path: /^\/resources\/(?<id>[^/]+)$/ },
+  { name: 'crm.contacts.merge', recipient: 'crm|core', method: 'set|merge', path: /^\/contacts$/ },
+  { name: 'crm.contacts.get', recipient: 'crm|core', method: 'get', path: /^\/contacts\/(?<identity>[^/]+)$/ },
 ]);
 
 export interface CommandMatch {
@@ -64,8 +78,8 @@ export function matchCommand(
   const method = (command.method ?? '').trim().toLowerCase();
   const [path = '', search = ''] = command.uri.trim().split(/\?(.*)/s, 2);
   for (const route of routes) {
-    if (route.recipient !== '*' && route.recipient !== recipient) continue;
-    if (route.method !== '*' && route.method !== method) continue;
+    if (route.recipient !== '*' && !route.recipient.split('|').includes(recipient)) continue;
+    if (route.method !== '*' && !route.method.split('|').includes(method)) continue;
     const found = path.match(route.path);
     if (!found) continue;
     const params: Record<string, string> = {};

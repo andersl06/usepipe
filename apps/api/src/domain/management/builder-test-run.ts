@@ -214,6 +214,9 @@ function servicesOfTestRun(
         }
         return entrada.value ?? null;
       },
+      bucketDelete: async ({ key, scope }) => {
+        store.bucket.delete(`${scope}:${key}`);
+      },
       listManage: async ({ name, operation }) => {
         const membros = store.lists.get(name) ?? new Set<string>();
         if (operation === 'Remove') membros.delete(TEST_CONTACT_ID);

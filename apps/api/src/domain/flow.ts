@@ -446,6 +446,13 @@ export async function runFlowInInbound(
         `);
         return rows[0]?.valor?.value ?? null;
       }),
+      bucketDelete: ({ key, scope }) => emSavepoint(async (tx) => {
+        await tx.execute(sql`
+          delete from gravar_memoria
+           where tenant_id = ${e.tenantId} and chave = ${key}
+             and escopo = ${scope} and (${scope === 'global' ? sql`true` : sql`contato_id = ${e.contactId}`})
+        `);
+      }),
       listManage: ({ name, operation }) => emSavepoint(async (tx) => {
         const { rows } = await tx.execute<{ id: string }>(sql`
           insert into lista_distribuicao (tenant_id, nome, atualizado_em)

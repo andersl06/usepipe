@@ -8,6 +8,7 @@ import type { LoadedFlowFunction } from './management/flow-functions.js';
 import { DESK_READ_COMMANDS } from './desk-commands.js';
 import { queueUnavailability } from './queue-entry.js';
 import { DESK_WRITE_COMMANDS } from './desk-write-commands.js';
+import { BUILDER_COMMANDS } from './builder-commands.js';
 
 /**
  * The engine services (`ServicosDoMotor`) that production (`flow.ts` `runFlowInInbound`) and the
@@ -54,6 +55,7 @@ export type EngineEffects = Pick<
   | 'recordSatisfactionAnswer'
   | 'bucketSet'
   | 'bucketGet'
+  | 'bucketDelete'
   | 'listManage'
   | 'setFlowState'
 > & {
@@ -113,11 +115,17 @@ export function assertBucketSize(value: unknown): void {
 export async function executeCommand(
   tx: TransactionPipe,
   tenantId: string,
-  { uri, resource, command }: CommandRequest,
+  request: CommandRequest,
   waitForResponse: boolean,
   tickets: TicketEffects,
   recordSatisfactionAnswer?: ServicosDoMotor['recordSatisfactionAnswer'],
 ): Promise<unknown> {
+  const { uri, resource, command } = request;
+  const builderCommand = BUILDER_COMMANDS[command.route];
+  if (builderCommand) {
+    const response = await builderCommand(tx, tenantId, request);
+    return waitForResponse ? response : undefined;
+  }
   const deskRead = DESK_READ_COMMANDS[command.route];
   if (deskRead) {
     const response = await deskRead(tx, tenantId, command);

@@ -176,6 +176,8 @@ export interface CommandRequest {
   method: string;
   resource: unknown;
   command: CommandMatch;
+  /** The flow that sent it (`get /configuration/caller` finds its router). */
+  flowId?: string;
 }
 
 export interface ServicosDoMotor {
@@ -216,6 +218,7 @@ export interface ServicosDoMotor {
   /** Native SetBucket equivalent, scoped to the current contact unless global is explicit. */
   bucketSet?(request: { key: string; type: string; value: unknown; scope: 'contact' | 'global'; expirationSeconds?: number }): Promise<void>;
   bucketGet?(request: { key: string; scope: 'contact' | 'global' }): Promise<unknown | null>;
+  bucketDelete?(request: { key: string; scope: 'contact' | 'global' }): Promise<void>;
   /** Native ManageList equivalent. */
   listManage?(request: { name: string; operation: 'Add' | 'Remove' }): Promise<void>;
   /** Commands the engine matched in `COMMAND_ROUTES`; `command.route` names the handler to run. */
