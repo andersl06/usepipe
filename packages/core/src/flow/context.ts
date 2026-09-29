@@ -105,6 +105,17 @@ export interface Attendance {
   [campo: string]: unknown;
 }
 
+/** Blip `ForwardToDeskState` statuses for a handoff that opened no ticket (`portal.js` enum `Im`). */
+export type DeskUnavailableStatus = 'OutOfAttendanceHour' | 'NoAgentAvailable';
+
+/** The target queue is closed or has nobody online: no ticket was opened. */
+export class DeskUnavailable extends Error {
+  constructor(readonly status: DeskUnavailableStatus) {
+    super(status === 'OutOfAttendanceHour' ? 'A fila está fora do horário de atendimento.' : 'Nenhum atendente disponível na fila.');
+    this.name = 'DeskUnavailable';
+  }
+}
+
 export interface PedidoDeHttp {
   metodo: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   url: string;
@@ -170,9 +181,14 @@ export interface CommandRequest {
 export interface ServicosDoMotor {
   /** `signal`: the calling action's deadline; the `api` must not write after it aborts. */
   send(message: OutputMessage, signal?: AbortSignal): Promise<void>;
+  /**
+   * Opens the ticket. `unavailableWhen` lists the checks the attendance block has an exit for; when
+   * one holds for the chosen queue, the `api` opens nothing and throws `DeskUnavailable`.
+   */
   forwardForAttendance(pedido: {
     origem: string;
     settings: Record<string, unknown> | null;
+    unavailableWhen?: readonly DeskUnavailableStatus[];
   }): Promise<Attendance>;
   registerEvent(evento: Record<string, unknown>): Promise<void>;
   /** Persist contact fields for the contact that owns this execution. */

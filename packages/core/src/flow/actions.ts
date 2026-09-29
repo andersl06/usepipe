@@ -2,9 +2,9 @@
  * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/Actions/{ActionBase,ActionProvider}.cs; Actions/SetVariable/*, Actions/DeleteVariable/*, Actions/SendMessage/SendMessageAction.cs, Actions/SendRawMessage/*, Actions/TrackEvent/TrackEventSettings.cs, Actions/CreateTicket/CreateTicketAction.cs, and Actions/Redirect/RedirectAction.cs. Changes from C# to TypeScript: `ServicosDoMotor` injected by the `api` sends messages, opens tickets, and records events (originally `ISender` and Blip extensions); typing `Task.Delay` is not awaited because the engine runs inside the inbound transaction. `ForwardToDesk` and `LeavingFromDesk` are Blip server actions absent from the SDK; their behavior follows the exported editor block, including `desk_forwardToDeskState_status`.
  */
 
-import type { ActionDeadline, CommandRequest, Context, PedidoDeHttp } from './context.js';
+import type { ActionDeadline, CommandRequest, Context, DeskUnavailableStatus, PedidoDeHttp } from './context.js';
 import { matchCommand } from './commands.js';
-import { KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable, stateKey } from './context.js';
+import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable, stateKey } from './context.js';
 
 export type Settings = Record<string, unknown> | null;
 
@@ -346,21 +346,41 @@ const createTicket: AcaoDoMotor = {
 /** Variable tested by the Blip editor's attendance block on entry and exit. */
 export const VARIABLE_OF_FORWARDING = 'desk_forwardToDeskState_status';
 
+const UNAVAILABLE_STATUSES: readonly DeskUnavailableStatus[] = ['OutOfAttendanceHour', 'NoAgentAvailable'];
+
 /**
- * Blip server `ForwardToDesk`: the editor attendance block expects entry only when this variable is `Success`, and its default exit is `Error`. A failure therefore becomes a variable value rather than an exception.
+ * The availability checks the current block has an exit for (Builder "Disponibilidade de
+ * atendimento"). As in Blip, a block without that exit keeps opening the ticket, which then waits
+ * in the queue.
+ */
+export function unavailabilityExits(context: Context): DeskUnavailableStatus[] {
+  const stateId = context.inboundContext.get(KEY_OF_STATE_CURRENT);
+  const state = context.flow.states.find((s) => s.id === stateId);
+  const tested = new Set(
+    (state?.outputs ?? []).flatMap((o) =>
+      (o.conditions ?? []).filter((c) => c.variable === VARIABLE_OF_FORWARDING).flatMap((c) => c.values ?? []),
+    ),
+  );
+  return UNAVAILABLE_STATUSES.filter((s) => tested.has(s));
+}
+
+/**
+ * Blip server `ForwardToDesk`: the editor attendance block expects entry only when this variable is `Success`, and its default exit is `Error`. A failure therefore becomes a variable value rather than an exception. A closed queue or one with nobody online opens no ticket and yields `OutOfAttendanceHour`/`NoAgentAvailable`, which only a block with that exit asks for.
  */
 const forwardToDesk: AcaoDoMotor = {
   tipo: 'ForwardToDesk',
   async executar(context, settings) {
     try {
+      const unavailableWhen = unavailabilityExits(context);
       const attendance = await context.services.forwardForAttendance({
         origem: this.tipo,
         settings: settings,
+        ...(unavailableWhen.length ? { unavailableWhen } : {}),
       });
       context.inboundContext.set(KEY_OF_TICKET, attendance);
       setContextVariable(context, VARIABLE_OF_FORWARDING, 'Success');
-    } catch {
-      setContextVariable(context, VARIABLE_OF_FORWARDING, 'Error');
+    } catch (error) {
+      setContextVariable(context, VARIABLE_OF_FORWARDING, error instanceof DeskUnavailable ? error.status : 'Error');
     }
   },
 };

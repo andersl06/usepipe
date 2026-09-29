@@ -2,7 +2,7 @@
  * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder.UnitTests/FlowManagerTests.cs, OutputConditions/OutputConditionsTests.cs, and Actions/ActionConditionsTests.cs. Changes: xUnit/NSubstitute to vitest with a fake `ServicosDoMotor`; where the original uses `ExecuteScript` to store a variable, this uses `SetVariable` to keep these tests independent of the script sandbox; assertions inspect context and output rather than mock calls.
  */
 import { describe, expect, it } from 'vitest';
-import { createInbound } from './context.js';
+import { createInbound, DeskUnavailable } from './context.js';
 import type { Context, OutputMessage } from './context.js';
 import {
   ProcessingOutputError,
@@ -890,6 +890,69 @@ describe('attendance block (desk:) the way Blip\'s editor builds it', () => {
     const r = await rodar(deskStates, 'quero falar com alguém', { failAttendance: true });
     expect(r.variables['desk_forwardToDeskState_status']).toBe('Error');
     expect(r.textos).toEqual(['Sem atendente agora.']);
+  });
+
+  describe('availability exits (NoAgentAvailable / OutOfAttendanceHour)', () => {
+    const exit = (status: string, stateId: string) => ({
+      stateId,
+      conditions: [{ source: 'context', variable: 'desk_forwardToDeskState_status', comparison: 'equals', values: [status] }],
+    });
+    const withExits: State[] = deskStates.map((s) =>
+      s.id === 'desk:suporte'
+        ? { ...s, outputs: [exit('OutOfAttendanceHour', 'fechado'), exit('NoAgentAvailable', 'ninguem'), ...(s.outputs ?? [])] }
+        : s,
+    );
+    withExits.push(
+      { id: 'fechado', inputActions: [enviar('Estamos fora do horário.')] },
+      { id: 'ninguem', inputActions: [enviar('Ninguém online.')] },
+    );
+
+    const run = async (states: State[], unavailable: 'OutOfAttendanceHour' | 'NoAgentAvailable' | null) => {
+      const pedidos: { unavailableWhen?: readonly string[] }[] = [];
+      const f = servicosFalsos();
+      const context: Context = {
+        user: 'user@domain',
+        flow: { id: FLOW_ID, states },
+        inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: 'quero falar com alguém' }),
+        variables: {},
+        inboundContext: new Map(),
+        services: {
+          ...f.servicos,
+          async forwardForAttendance(p) {
+            pedidos.push(p);
+            const hit = unavailable && p.unavailableWhen?.includes(unavailable);
+            if (hit) throw new DeskUnavailable(unavailable);
+            return { id: 'atd-1', status: 'Waiting' };
+          },
+        },
+      };
+      await processInbound(context);
+      return { pedidos, variables: context.variables, textos: f.enviadas.map((m) => m.conteudo) };
+    };
+
+    it('asks the api for exactly the checks the block has an exit for', async () => {
+      const r = await run(withExits, null);
+      expect(r.pedidos[0]?.unavailableWhen).toEqual(['OutOfAttendanceHour', 'NoAgentAvailable']);
+      expect(r.variables['desk_forwardToDeskState_status']).toBe('Success');
+    });
+
+    it('a closed queue follows the out-of-hours exit without a ticket', async () => {
+      const r = await run(withExits, 'OutOfAttendanceHour');
+      expect(r.variables['desk_forwardToDeskState_status']).toBe('OutOfAttendanceHour');
+      expect(r.textos).toEqual(['Estamos fora do horário.']);
+    });
+
+    it('a queue with nobody online follows the no-agent exit', async () => {
+      const r = await run(withExits, 'NoAgentAvailable');
+      expect(r.variables['desk_forwardToDeskState_status']).toBe('NoAgentAvailable');
+      expect(r.textos).toEqual(['Ninguém online.']);
+    });
+
+    it('a block without those exits asks for no check and keeps opening the ticket', async () => {
+      const r = await run(deskStates, 'NoAgentAvailable');
+      expect(r.pedidos[0]?.unavailableWhen).toBeUndefined();
+      expect(r.variables['desk_forwardToDeskState_status']).toBe('Success');
+    });
   });
 });
 
