@@ -2,7 +2,8 @@
  * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/Actions/{ActionBase,ActionProvider}.cs; Actions/SetVariable/*, Actions/DeleteVariable/*, Actions/SendMessage/SendMessageAction.cs, Actions/SendRawMessage/*, Actions/TrackEvent/TrackEventSettings.cs, Actions/CreateTicket/CreateTicketAction.cs, and Actions/Redirect/RedirectAction.cs. Changes from C# to TypeScript: `ServicosDoMotor` injected by the `api` sends messages, opens tickets, and records events (originally `ISender` and Blip extensions); typing `Task.Delay` is not awaited because the engine runs inside the inbound transaction. `ForwardToDesk` and `LeavingFromDesk` are Blip server actions absent from the SDK; their behavior follows the exported editor block, including `desk_forwardToDeskState_status`.
  */
 
-import type { ActionDeadline, Context, PedidoDeHttp } from './context.js';
+import type { ActionDeadline, CommandRequest, Context, PedidoDeHttp } from './context.js';
+import { matchCommand } from './commands.js';
 import { KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable, stateKey } from './context.js';
 
 export type Settings = Record<string, unknown> | null;
@@ -26,15 +27,6 @@ function campo(settings: Settings, nome: string): unknown {
 const comoTexto = (v: unknown): string | null =>
   v === undefined || v === null ? null : typeof v === 'string' ? v : JSON.stringify(v);
 
-/** Only these Pipe-owned command routes are safe to map from Blip commands. */
-export const ALLOWED_COMMAND_URIS = Object.freeze([
-  '/tickets/{id}',
-  '/tickets/{id}/change-tags',
-  '/tickets/{id}/transfer',
-  '/tickets/{id}/status',
-  '/tickets/{id}/priority',
-] as const);
-
 /** Generic platform actions remain marked external when their settings are outside D-20's Pipe subset. */
 export const EXTERNAL_DEPENDENCY_ACTIONS = [
   'SendCommand',
@@ -44,20 +36,12 @@ export const EXTERNAL_DEPENDENCY_ACTIONS = [
   'ProcessContentAssistant',
 ] as const;
 
-function commandKind(uri: string): (typeof ALLOWED_COMMAND_URIS)[number] | null {
-  if (/^\/tickets\/[^/]+$/.test(uri)) return '/tickets/{id}';
-  for (const allowed of ALLOWED_COMMAND_URIS.slice(1)) {
-    const suffix = allowed.slice('/tickets/{id}'.length);
-    if (uri.endsWith(suffix) && /^\/tickets\/[^/]+/.test(uri)) return allowed;
-  }
-  return null;
-}
-
-function requireKnownCommand(tipo: string, settings: Record<string, unknown>): string {
+function requireKnownCommand(tipo: string, settings: Record<string, unknown>, method: string): CommandRequest {
   const uri = comoTexto(campo(settings, 'uri'))?.trim();
   if (!uri) throw new Error(`O valor 'uri' é obrigatório na ação '${tipo}'.`);
-  if (!commandKind(uri)) throw new Error(`A URI '${uri}' não é executada no Pipe.`);
-  return uri;
+  const command = matchCommand({ to: comoTexto(campo(settings, 'to')), method, uri });
+  if (!command) throw new Error(`A URI '${uri}' não é executada no Pipe.`);
+  return { uri, method, resource: campo(settings, 'resource') ?? null, command };
 }
 
 /** `/contexts/{contact}/stateid@{flowId}` — Blip's context route for a flow's saved state (D-55). */
@@ -93,15 +77,15 @@ const nativeCommand = (tipo: 'SendCommand' | 'ProcessCommand'): AcaoDoMotor => (
       if (tipo === 'ProcessCommand' && output) setContextVariable(context, output, '{"status":"success"}');
       return;
     }
-    const uri = requireKnownCommand(this.tipo, c);
     const method = (comoTexto(campo(c, 'method')) ?? (tipo === 'ProcessCommand' ? 'GET' : 'set')).toUpperCase();
+    const request = requireKnownCommand(this.tipo, c, method);
     if (tipo === 'SendCommand') {
       if (!context.services.sendCommand) throw new Error("A ação 'SendCommand' não está disponível neste fluxo.");
-      await context.services.sendCommand({ uri, method, resource: campo(c, 'resource') ?? null });
+      await context.services.sendCommand(request);
       return;
     }
     if (!context.services.processCommand) throw new Error("A ação 'ProcessCommand' não está disponível neste fluxo.");
-    const result = await context.services.processCommand({ uri, method, resource: campo(c, 'resource') ?? null });
+    const result = await context.services.processCommand(request);
     const output = comoTexto(campo(c, 'variable'))?.trim();
     if (!output) throw new Error("O valor 'variable' é obrigatório na ação 'ProcessCommand'.");
     setContextVariable(context, output, comoTexto(result));
