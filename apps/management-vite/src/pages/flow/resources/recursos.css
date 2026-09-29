@@ -1,104 +1,196 @@
-/* Resources screen: header, vertical card list and the in-place editing state. Reuses `.ct-paper` for the card surface. */
-.rc-header {
-  display: flex;
-  flex-wrap: wrap;
+/*
+ * Resources screen. Frame, header and card surface reuse the Conteúdos sheet (`ct-shell`, `ct-cabecalho`,
+ * `ct-header-section`, `ct-botao`, `ct-paper`), which already carries the measured header (42px row, 16px
+ * section padding, bottom rule, 80/90/100% container). What is specific here is the card list:
+ *   - card padding 24px, 8px gap between cards, no lateral menu (the page uses the full width);
+ *   - view columns 20% / 23% / 57%, 16px right margin on each, labels 14px bold muted, values 16px regular;
+ *   - edit columns 26% / 26% / 48%, textarea capped at 300px;
+ *   - action area min 5rem at the right, revealed on hover (and keyboard focus) so the row never shifts.
+ * Colors come only from `--p-*` tokens.
+ */
+
+/* No side menu on this page: nothing casts the aside's shadow on the left edge. */
+.rc-page {
+  box-shadow: none;
+}
+
+.rc-title {
+  margin: 0 4px 0 0;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--p-conteudo);
+}
+
+.rc-container {
+  color: var(--p-conteudo);
+  padding-bottom: 24px;
+}
+
+/* 40px icon button, 8px radius, transparent, tinted on hover. */
+.rc-icon-button {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
 }
-.rc-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.rc-icon-button:hover:not(:disabled) {
+  background: var(--g-tinta-hover);
 }
-.rc-header-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.rc-icon-button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
+.rc-icon-button--primary {
+  color: var(--p-marca);
+}
+.rc-icon-button--info {
+  color: var(--p-conteudo-fantasma);
+}
+.rc-icon-button--info:hover:not(:disabled),
+.rc-icon-button--info[aria-expanded='true'] {
+  color: var(--p-marca);
+}
+
 .rc-help {
+  box-sizing: border-box;
+  margin-bottom: 8px;
+  padding: 32px;
+  font-size: 16px;
+}
+.rc-help p {
   margin: 0 0 16px;
 }
-.rc-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin: 16px 0 0;
+.rc-link {
   padding: 0;
-  list-style: none;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: var(--g-peso-negrito);
+  color: var(--p-marca);
+  cursor: pointer;
 }
-.rc-card {
+
+/* Card: 24px padding, 8px below. */
+.rc-paper {
+  margin-bottom: 8px;
   padding: 24px;
 }
-.rc-view {
+
+.rc-item {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  font-size: 14px;
-  line-height: 21px;
 }
-.rc-col {
+.rc-info {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-grow: 1;
   min-width: 0;
-  overflow-wrap: anywhere;
 }
-.rc-col--key {
-  flex: 0 0 25%;
+.rc-info > div {
+  min-width: 0;
+  margin-right: 16px;
 }
-.rc-col--type {
-  flex: 0 0 12%;
+.rc-item--view .rc-key {
+  width: 20%;
 }
-.rc-col--content {
-  flex: 1 1 auto;
+.rc-item--view .rc-type {
+  width: 23%;
 }
+.rc-item--view .rc-content {
+  width: 57%;
+}
+.rc-item--edition .rc-key,
+.rc-item--edition .rc-type {
+  width: 26%;
+}
+.rc-item--edition .rc-content {
+  width: 48%;
+}
+
 .rc-label {
-  font-weight: var(--g-peso-negrito);
+  display: block;
   font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 1.5;
+  color: var(--p-conteudo-fantasma);
 }
-.rc-key {
-  font-family: var(--g-fonte-mono, monospace);
+.rc-item--edition .rc-label {
+  margin-bottom: 4px;
 }
-.rc-content {
+.rc-value {
+  display: block;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  word-break: break-word;
+  color: var(--p-conteudo);
+}
+.rc-value--content {
   white-space: pre-wrap;
+  word-break: break-all;
 }
+
+.rc-item--edition .campo,
+.rc-item--edition .seletor {
+  box-sizing: border-box;
+  width: 100%;
+}
+.rc-textarea {
+  display: block;
+  min-height: 40px;
+  max-height: 300px;
+  resize: vertical;
+}
+
+/* Actions: min 5rem, vertically centered on the row; hidden until the card is hovered or focused. */
 .rc-actions {
   display: flex;
   flex: none;
-  gap: 4px;
-  margin-left: auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 5rem;
+  align-self: center;
 }
-.rc-editing {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.rc-item--view .rc-actions {
+  visibility: hidden;
 }
-.rc-edit-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+.rc-paper:hover .rc-item--view .rc-actions,
+.rc-item--view:focus-within .rc-actions {
+  visibility: visible;
 }
-.rc-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
+.rc-actions--edition {
+  align-self: flex-start;
+  margin-top: 21px;
 }
-.rc-field--key {
-  flex: 1 1 260px;
-}
-.rc-field--type {
-  flex: 0 0 200px;
-}
-@media (max-width: 720px) {
-  .rc-view {
-    flex-wrap: wrap;
+
+@media (hover: none) {
+  .rc-item--view .rc-actions {
+    visibility: visible;
   }
-  .rc-col--key,
-  .rc-col--type,
-  .rc-col--content {
-    flex: 1 1 100%;
+}
+
+/* Mobile: stack the columns; the row would be unreadable at 100%-of-a-phone widths. */
+@media (max-width: 549px) {
+  .rc-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .rc-item--view .rc-key,
+  .rc-item--view .rc-type,
+  .rc-item--view .rc-content,
+  .rc-item--edition .rc-key,
+  .rc-item--edition .rc-type,
+  .rc-item--edition .rc-content {
+    width: auto;
   }
 }
