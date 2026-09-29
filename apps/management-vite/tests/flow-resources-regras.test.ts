@@ -1,6 +1,36 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { filterResources, nameError, parseImportedResources } from '../src/pages/flow/resources/regras.ts';
+import {
+  contentError,
+  filterResources,
+  kindOfType,
+  nameError,
+  parseImportedResources,
+  truncateContent,
+  typeLabel,
+} from '../src/pages/flow/resources/regras.ts';
+
+test('typeLabel maps MIME types to Texto/JSON', () => {
+  assert.equal(typeLabel('text/plain'), 'Texto');
+  assert.equal(typeLabel('application/json'), 'JSON');
+  assert.equal(typeLabel('application/vnd.api+json'), 'JSON');
+  assert.equal(typeLabel('text/html'), 'Texto');
+  assert.equal(kindOfType('APPLICATION/JSON'), 'json');
+});
+
+test('truncateContent cuts by lines and characters with an ellipsis', () => {
+  assert.equal(truncateContent('short'), 'short');
+  assert.equal(truncateContent('a\nb\nc\nd'), 'a\nb\nc…');
+  assert.equal(truncateContent('x'.repeat(50), 10), `${'x'.repeat(10)}…`);
+  assert.equal(truncateContent('a\nb\nc'), 'a\nb\nc');
+});
+
+test('contentError validates JSON only for the json kind', () => {
+  assert.equal(contentError('json', '{"a":1}'), null);
+  assert.equal(contentError('json', '{oops'), 'Este conteúdo deve ser um JSON válido.');
+  assert.equal(contentError('json', '  '), null);
+  assert.equal(contentError('text', '{oops'), null);
+});
 
 test('nameError: accepts letters, digits, underscore and dot; rejects hyphen, space and emoji', () => {
   assert.equal(nameError('TimeZoneAttendance'), null);
