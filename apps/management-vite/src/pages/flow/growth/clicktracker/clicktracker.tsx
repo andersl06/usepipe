@@ -1,5 +1,5 @@
 import { Illustration } from '@pipe/ui';
-import { IconePortal, LogoPortal } from '../../../../components/icones-portal';
+import { IconePortal, LogoPortal } from '@pipe/ui/icones-portal';
 
 /*
  * The Click Tracker panel as the `portal-fragment-click-tracker` microfrontend renders it on the `growth/clicktracker` route (measured on the copy with a ruler): fs-32 title with a tooltip, "Evento de conversão" + "Período analisado", the event field with an edit chip and a From/To picker, the token field (status stripe, logo, "Token de acesso à Marketing API" / "Conectado", "Alterar token"), a divider, "Desempenho resumido de seus anúncios" with four indicators, and the empty state "Nenhum dado encontrado". The "Eventos de otimização" screen is another origin route (`growth/conversation-settings/events`).

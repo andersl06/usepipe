@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Selection } from '../../../../components/selection';
 import {
   INTERVALOS_RAPIDOS,

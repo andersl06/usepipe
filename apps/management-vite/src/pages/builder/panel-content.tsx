@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
 import { engineContentErrors } from '@pipe/core';
 import { ManagementIcon } from '../../components/icones-management';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Selection } from '../../components/selection';
 import type { Block, EditorInbound, ItemDeConteudo } from './model';
 import { ehAttendance, newInbound } from './model';

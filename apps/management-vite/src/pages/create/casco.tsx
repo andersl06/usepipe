@@ -1,6 +1,6 @@
 import Link from '../../components/link';
 import { Icone } from '@pipe/ui';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { APPLICATION } from '../../lib/application-paths';
 import { IMAGE, TAMANHO } from './regras-de-nome';
 

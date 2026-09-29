@@ -8,7 +8,7 @@ import type {
   PermissionsInFlow,
   ResourceOfFlow,
 } from '@pipe/contracts';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Pagination, usePage } from '../../../components/pagination';
 import { atualizarLeituras } from '../../../lib/actions';
 import { api } from '../../../lib/api';

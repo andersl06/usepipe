@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
 import type { ChannelOfFlow } from '@pipe/contracts';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import {
   channelsForOffer,
   podeConfirmarDesconexao,

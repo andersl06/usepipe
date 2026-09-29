@@ -1,6 +1,6 @@
 import type { JSX, ReactNode } from 'react';
 import Link from '../../../../components/link';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { contactPath, useContact } from '../../contact';
 
 /**

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { BuilderOfFlow, BlockError, FlowResource, VersionOfFlow } from '@pipe/contracts';
 import { Botao, Campo, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../components/icones-management';
-import { IconePortal } from '../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { useEu } from '../context/session';
 import { ApiError } from '../lib/api';
 import { useRead } from '../lib/query';

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarraDoPortal } from '../../components/barra-do-portal';
-import { SearchIcon, IconePortal } from '../../components/icones-portal';
+import { SearchIcon, IconePortal } from '@pipe/ui/icones-portal';
 import { Selection } from '../../components/selection';
 import { portalUseShell } from '../../lib/shell';
 import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-memory';

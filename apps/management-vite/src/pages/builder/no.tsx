@@ -1,5 +1,5 @@
 import type { PointerEvent as PointerEventDeReact, MouseEvent as MouseEventDeReact } from 'react';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import type { Block } from './model';
 import { ehAttendance, isSurveyBlock, positionOf } from './model';
 import { blockTags } from './tags-of-block';

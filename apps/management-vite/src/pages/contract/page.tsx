@@ -1,7 +1,7 @@
 import Link from '../../components/link';
 import { Avatar } from '@pipe/ui';
 import { BarraDoPortal } from '../../components/barra-do-portal';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { useSearchParams } from 'react-router-dom';
 import { useEu } from '../../context/session';
 import { portalUseShell } from '../../lib/shell';

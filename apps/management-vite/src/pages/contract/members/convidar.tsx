@@ -1,6 +1,6 @@
 import { useActionState, useId, useRef, useState } from 'react';
 import type { ClipboardEvent, KeyboardEvent } from 'react';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { inviteMembers } from '../actions';
 import type { InvitationResult } from '../actions';
 import type { RoleOption } from './tabela';

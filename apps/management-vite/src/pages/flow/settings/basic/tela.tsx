@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { irPara } from '../../../../lib/navigation';
 import { APPLICATION, flowPath } from '../../../../lib/application-paths';
 import { BotaoBds, PageHeader } from '../pecas';

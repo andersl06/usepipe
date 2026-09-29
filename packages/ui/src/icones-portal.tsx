@@ -1,7 +1,7 @@
 import type { SVGProps } from 'react';
 
 /**
- * Portal icons follow the source design. `@pipe/ui` uses 24px Tabler outlines with 1.75px strokes, while the Blip Portal rail uses filled icons; this visible difference prompted the owner's request to match it. These local paths were measured in the rendered DOM at `supernova.blip.ai` (`referencias-blip/pesquisa/blip-portal-contrato.md`); local names appear on the left and source names in comments. Keep them local to Gestão rather than `packages/ui` until another app needs them; then move them to the facade without changing callers. `parOuImpar` implements `fill-rule="evenodd"` so enclosed gaps stay open.
+ * Portal icons follow the source design. `@pipe/ui` uses 24px Tabler outlines with 1.75px strokes, while the Blip Portal rail uses filled icons; this visible difference prompted the owner's request to match it. These local paths were measured in the rendered DOM at `supernova.blip.ai` (`referencias-blip/pesquisa/blip-portal-contrato.md`); local names appear on the left and source names in comments. They live in `@pipe/ui/icones-portal` (a subpath, so the ~220 KB of paths only ships to apps that import it) and are shared by Gestão and Desk. `parOuImpar` implements `fill-rule="evenodd"` so enclosed gaps stay open.
  */
 
 const DESENHOS = {

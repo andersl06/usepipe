@@ -1,7 +1,7 @@
 import { useId, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
-import { IconePortal, SearchIcon } from '../../../components/icones-portal';
-import type { NomeDeIconePortal } from '../../../components/icones-portal';
+import { IconePortal, SearchIcon } from '@pipe/ui/icones-portal';
+import type { NomeDeIconePortal } from '@pipe/ui/icones-portal';
 import { deleteMembers, resendInvitation, switchRole } from '../actions';
 import type { ResultadoDoReenvio } from '../actions';
 

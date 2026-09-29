@@ -1,5 +1,5 @@
 import { Illustration } from '@pipe/ui';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 
 /**
  * Growth › Relatório de Pagamentos — `growth/activemessages/paymentsReport` in the origin. Rebuilt from a photo (the owner complained the first version "came out totally different"): the origin doesn't open in the 8790 clone, and the captured HTML doesn't render outside Blip's domain (the `active-campaign-mfe` MFE embeds React with Tailwind classes), so the ruler here is the rendered DOM saved at `referencias-blip/canais/roteador/roteador-relatoriopagamentos__pagina.html`.

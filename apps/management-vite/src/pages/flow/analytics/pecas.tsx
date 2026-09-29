@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 
 /**
  * The pieces shared by more than one Analytics tab. No state and no data of their own: everything arrives via prop, so the filled-in render comes from the same component.

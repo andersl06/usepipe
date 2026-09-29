@@ -1,4 +1,4 @@
-import { LogoPortal } from '../../../components/icones-portal';
+import { LogoPortal } from '@pipe/ui/icones-portal';
 import Link from '../../../components/link';
 import { cardConnected, channelRoute, type TypeOfChannelOfBot } from '../../../lib/channel-of-flow';
 import { ShellModule, contactPath, useContact } from '../contact';

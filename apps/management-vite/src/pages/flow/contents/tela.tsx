@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconePortal, type NomeDeIconePortal } from '../../../components/icones-portal';
+import { IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 import { Selection } from '../../../components/selection';
 import type { TemplateListed } from '@pipe/contracts';
 import { createTemplateInChannel } from '../../../lib/channels-gravar';

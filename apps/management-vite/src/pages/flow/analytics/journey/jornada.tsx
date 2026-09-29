@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Selection } from '../../../../components/selection';
 import type { ArestaDaJornada } from '@pipe/core/analytics';
 import { PageHeader, Card, PeriodSelector } from '../pecas';

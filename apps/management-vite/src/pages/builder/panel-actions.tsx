@@ -1,7 +1,7 @@
 import { Suspense, lazy, useLayoutEffect, useRef, useState } from 'react';
 import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { CabecalhoInfo, renderDescricao } from './cabecalho-info';
 import type { DescricaoParte } from './cabecalho-info';
 import type { AcaoDoEditor, Block } from './model';

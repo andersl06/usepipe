@@ -1,4 +1,4 @@
-import { SearchIcon, IconePortal } from '../../../../components/icones-portal';
+import { SearchIcon, IconePortal } from '@pipe/ui/icones-portal';
 import type { ReportCustom } from '@pipe/core/analytics';
 import { PageHeader } from '../pecas';
 

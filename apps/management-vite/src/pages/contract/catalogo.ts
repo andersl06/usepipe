@@ -1,4 +1,4 @@
-import type { NomeDeIconePortal } from '../../components/icones-portal';
+import type { NomeDeIconePortal } from '@pipe/ui/icones-portal';
 import { tenantPath } from '../../lib/application-paths';
 
 /**

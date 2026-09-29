@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode, RefObject } from 'react';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import {
   expirationData,
   etiquetaDoStatus,

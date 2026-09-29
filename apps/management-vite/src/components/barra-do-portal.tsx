@@ -2,7 +2,7 @@ import { Avatar } from '@pipe/ui';
 import { useSair, accountUseSwitch, type PortalShell } from '../lib/shell';
 import { APPLICATION, tenantPath } from '../lib/application-paths';
 import { Link } from './link';
-import { IconePortal, type NomeDeIconePortal } from './icones-portal';
+import { IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 
 /**
  * Portal dark bar mirrors reference `main-navbar`. Keep it here, outside `app/portal/page.tsx`, because it persists across all Portal child screens, including news, store, and router creation; only the body changes. Each element is documented at its use site with its source DOM name; see `referencias-blip/pesquisa/blip-portal-contrato.md`.

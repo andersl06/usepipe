@@ -1,6 +1,6 @@
 import Link from '../../../../components/link';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { ApiError } from '../../../../lib/api';
 import { useRead } from '../../../../lib/query';
 import type { DetailOfContact } from '@pipe/contracts';

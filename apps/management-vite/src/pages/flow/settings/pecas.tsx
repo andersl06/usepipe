@@ -1,5 +1,5 @@
 import { useState, type HTMLInputTypeAttribute, type ReactNode } from 'react';
-import { IconePortal, type NomeDeIconePortal } from '../../../components/icones-portal';
+import { IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 
 /**
  * The pieces the Settings screens repeat, each with the source component's name in the comment. Only their LAYOUT: the paint is ours.

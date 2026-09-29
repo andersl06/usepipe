@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
-import { IconePortal } from './icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { PERIODOS, calculatePeriod, periodCurrent } from '../lib/periodos';
 import { Selection } from './selection';
 

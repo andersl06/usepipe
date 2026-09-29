@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import type { Block, Mapa } from './model';
 import { ehAttendance } from './model';
 import { LIMITE_DO_TITULO } from './validation';

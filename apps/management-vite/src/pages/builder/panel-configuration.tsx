@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import type { VersionOfFlow } from '@pipe/contracts';
 import { Etiqueta, Icone } from '@pipe/ui';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import type { Resultado } from '../../lib/rest';
 import { ModalConfirmation } from '../registrations/_modal';
 import type { Mapa } from './model';

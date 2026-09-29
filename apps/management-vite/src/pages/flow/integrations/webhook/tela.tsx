@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Link from '../../../../components/link';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { useRead } from '../../../../lib/query';
 import { ModalConfirmation } from '../../../registrations/_modal';
 import { Interruptor } from '../interruptor';

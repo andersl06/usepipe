@@ -1,5 +1,5 @@
 import { ManagementIcon } from '../../components/icones-management';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Icone } from '@pipe/ui';
 
 /**

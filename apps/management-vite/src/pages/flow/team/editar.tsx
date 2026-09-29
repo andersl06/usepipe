@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Avatar } from '@pipe/ui';
 import type { TeamOfFlow, MemberOfFlow, RoleInFlow, PermissionsInFlow } from '@pipe/contracts';
 import { useNavigate, useParams } from 'react-router-dom';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Selection } from '../../../components/selection';
 import { atualizarLeituras } from '../../../lib/actions';
 import { api, ApiError } from '../../../lib/api';

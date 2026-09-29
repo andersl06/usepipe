@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
-import { SearchIcon, IconePortal } from '../../../components/icones-portal';
+import { SearchIcon, IconePortal } from '@pipe/ui/icones-portal';
 import { Selection } from '../../../components/selection';
 import { Interruptor } from '../integrations/interruptor';
 

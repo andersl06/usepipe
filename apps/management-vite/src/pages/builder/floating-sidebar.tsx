@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 
 /**
  * The floating shell shared by Configuração, Biblioteca de variáveis and Filas — the source's

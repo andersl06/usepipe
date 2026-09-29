@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react';
 import { Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Interruptor } from '../flow/integrations/interruptor';
 import type { Block, Mapa, SaidaDoEditor } from './model';
 import {

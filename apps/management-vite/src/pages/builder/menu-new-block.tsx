@@ -1,4 +1,4 @@
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 
 /**
  * The "NOVO BLOCO" sheet that the pill's "Adicionar bloco" opens (`#builder-command-buttons-add`): uppercase 16/semi-bold title with the "x" on the right, a divider, and a list of `bds-button variant="secondary" full-width justify-content="space-between"` — icon on the left, name on the right. Of their menu, only the blocks the Pipe engine runs make it in: "Padrão" (`builder-new-state`), "Humano" (`agent`), and "Pesquisa de satisfação" (`survey:`, D-06 — the native BAH 3.0 model, `ref/inventario-satisfacao-e-tags.md` §1). Agente, Pagamento, Componentes exclusivos, Catálogo, AI Answers, Biblioteca de blocos, and Subfluxo are Blip plan features with no engine behind them here.

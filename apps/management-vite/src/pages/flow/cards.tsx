@@ -1,6 +1,6 @@
 import Link from '../../components/link';
 import { Avatar } from '@pipe/ui';
-import { IconePortal, LogoPortal, type NomeDeIconePortal } from '../../components/icones-portal';
+import { IconePortal, LogoPortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 import { numeroDaHome, pilhaDaEquipe, type Extensao, type Member, type Metrics } from './itens';
 
 /**

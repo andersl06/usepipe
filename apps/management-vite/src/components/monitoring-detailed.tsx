@@ -11,7 +11,7 @@ import {
 import { numero } from '../lib/format';
 import { api } from '../lib/api';
 import { ManagementIcon } from './icones-management';
-import { IconePortal } from './icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Pagination, usePage } from './pagination';
 import { Selection } from './selection';
 import { useRead } from '../lib/query';

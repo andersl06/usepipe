@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Illustration } from '@pipe/ui';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { useRead } from '../../../../lib/query';
 import { numero } from '../../../../lib/format';
 import { useContact } from '../../contact';

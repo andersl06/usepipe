@@ -9,7 +9,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./estilos.css": "./src/estilos.css",
-    "./tema": "./src/tema.ts"
+    "./tema": "./src/tema.ts",
+    "./icones-portal": "./src/icones-portal.tsx"
   },
   "files": [
     "src",

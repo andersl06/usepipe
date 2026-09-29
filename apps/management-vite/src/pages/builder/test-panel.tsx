@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import type { TestRunDebug, TestRunMessage } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { runTest, resetTest } from '../builder-gravar';
 import type { Mapa } from './model';
 import { GLOBAL_ACTIONS_SECTION_ID, debugSections, testVariablesToRecord } from './test-panel-logic';

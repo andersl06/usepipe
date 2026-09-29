@@ -3,7 +3,7 @@ import { Illustration } from '@pipe/ui';
 import { BY_PAGE, type FlowOfPortal, type GradeDoPortal } from '@pipe/contracts';
 import { BarraDoPortal } from '../components/barra-do-portal';
 import { Selection } from '../components/selection';
-import { SearchIcon, IconePortal, type NomeDeIconePortal } from '../components/icones-portal';
+import { SearchIcon, IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 import Link from '../components/link';
 import { portalUseShell, type PortalShell } from '../lib/shell';
 import { useRead } from '../lib/query';
