@@ -199,3 +199,6 @@ Fora do escopo: tela/dashboard de relatório de satisfação (Analytics, fase fu
 
 *Phase: 02-fechar-o-builder*
 *Context gathered: 2026-09-26*
+
+- **D-57 (2026-09-28, dono):** o Pipe implementa tudo o que o Builder da Blip executa em runtime (inventário em `ref/INVENTARIO-RUNTIME-BLIP.md`, planos P1–P16). A biblioteca de funções passa a ser **da conta (tenant)**, igual à Blip: uma função serve todos os fluxos, com aviso "em uso em outros bots" (P10).
+- **D-58 (2026-09-28, dono):** o Agente de IA suporta **Anthropic e OpenAI, escolhidos por agente** (provedor + modelo na configuração do agente) (P14).
