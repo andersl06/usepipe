@@ -2,7 +2,7 @@
  * Desk HTTP client for the NestJS `api`: browser `fetch` sends the session cookie. The front end requests data; it does not connect to the database (README's "Quem fala com o banco" boundary). Calls use `/v1/...` through `VITE_URL_API` when configured, otherwise the current origin; Vite proxies development requests to `api`; in production the front and API share a parent domain and the cookie crosses via `Domain`. Return types come from `@pipe/contracts` or the endpoint contract rather than being guessed here.
  */
 
-const BASE = (import.meta.env['VITE_URL_API'] as string | undefined)?.replace(/\/$/, '') ?? '';
+const BASE = (import.meta.env?.['VITE_URL_API'] as string | undefined)?.replace(/\/$/, '') ?? '';
 
 /** Build an `api` URL from the configured base, or a same-origin path when no base is configured, for top-level login navigation and `fetch`. */
 export function urlDaApi(caminho: string): string {

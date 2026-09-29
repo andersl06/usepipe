@@ -1484,11 +1484,11 @@ button {
 /*
  * The corners inside the group (`.blip-card-group > :first-child … .bubble`): the 2px clip lives at the bottom, on the speaker's side; on the rest, the top one on the same side also shrinks.
  */
-.dk-group-inbound .dk-balao-caixa:first-child .dk-balao {
+.dk-grupo-entrada .dk-balao-caixa:first-child .dk-balao {
   border-radius: 13px 13px 13px 2px;
 }
 
-.dk-group-inbound .dk-balao-caixa:not(:first-child) .dk-balao {
+.dk-grupo-entrada .dk-balao-caixa:not(:first-child) .dk-balao {
   border-radius: 2px 13px 13px 2px;
 }
 

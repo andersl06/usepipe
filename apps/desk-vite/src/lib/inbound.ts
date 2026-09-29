@@ -11,7 +11,7 @@ const DESTINATION_DEFAULT = '/';
 
 /** Only an internal path is a valid return destination; `//outro.site` must not become a redirect target. */
 export function caminhoInterno(destination: string | undefined | null): string {
-  return destination && destination.startsWith('/') && !destination.startsWith('//') ? destination : DESTINATION_DEFAULT;
+  return destination && destination.startsWith('/') && !destination.startsWith('//') && !destination.startsWith('/\\') ? destination : DESTINATION_DEFAULT;
 }
 
 /** Este aplicativo, visto pelo navegador — vai na ida do login como `?origem=`. */
