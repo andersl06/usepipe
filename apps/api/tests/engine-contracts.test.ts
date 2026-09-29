@@ -177,14 +177,16 @@ describe('ticket.* after ForwardToDesk', () => {
   it('exposes the Blip Ticket fields of the new attendance', async () => {
     await falar('ticket');
     const { id, contatoId } = await conversa();
-    const { rows } = await cenario.dono.execute<{ fila: string; sequencial: number }>(sql`
-      select q.nome as fila,
+    const { rows } = await cenario.dono.execute<{ fila: string; sequencial: number; estado: string }>(sql`
+      select q.nome as fila, c.estado,
              (select count(*)::int from conversa c2
                where c2.tenant_id = c.tenant_id and (c2.criada_em, c2.id) <= (c.criada_em, c.id)) as sequencial
         from conversa c join fila q on q.id = c.fila_id
        where c.id = ${id}::uuid
     `);
     const linha = await ultimaMensagemDoBot(id);
-    expect(linha.conteudo).toBe(`Waiting|${rows[0]!.fila}|${rows[0]!.sequencial}|${contatoId}|false`);
+    // The distributor may assign an online agent right away, so the status follows the real state.
+    const status = rows[0]!.estado === 'atribuida' ? 'Assigned' : 'Waiting';
+    expect(linha.conteudo).toBe(`${status}|${rows[0]!.fila}|${rows[0]!.sequencial}|${contatoId}|false`);
   });
 });
