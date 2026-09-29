@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { newBlock, attendanceNewBlock, type Mapa } from '../src/pages/builder/model.ts';
-import { addChips, splitChipText } from '../src/components/chip-values.ts';
+import { addChips, splitChipText } from '@pipe/ui/chip-values';
 import {
   draftToApi,
   newRuleDraft,

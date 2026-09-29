@@ -880,7 +880,7 @@
 .bl-panel--block .bl-saida:focus-within .bl-condition-line > .bl-remover {
   opacity: 1;
 }
-/* The shared chips field (`components/selection-chips`) on the panel's dark surface. */
+/* The shared chips field (`ChipsInput` from `@pipe/ui/chips-input`) on the panel's dark surface. */
 .bl-panel--block .at-selection-chips {
   color: #fff;
 }
@@ -1270,11 +1270,6 @@
 }
 .bl-queues-form-botoes .btn.primario {
   min-height: 56px;
-}
-.bl-recado-titulo {
-  display: block;
-  margin-bottom: 2px;
-  font-weight: 700;
 }
 
 /*

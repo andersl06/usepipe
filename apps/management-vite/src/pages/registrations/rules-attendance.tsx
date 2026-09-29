@@ -6,7 +6,7 @@ import { descreverRegra, regrasInalcancaveis, rotuloDoCampo } from '../../lib/ru
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { toggleRuleQueue } from '../../lib/actions';
 import { editRuleQueue, deleteRuleQueue } from '../../lib/registrations-gravar';
-import { Modal, ModalConfirmation } from './_modal';
+import { Modal, ConfirmModal } from '@pipe/ui/modal';
 import { RuleQueueForm } from './rules-attendance-formulario';
 
 interface QueueRules {
@@ -16,7 +16,7 @@ interface QueueRules {
 }
 
 /**
- * Regras ├ Atendimento — the entry rule. Skeleton measured in `FICHA-rules.md` §2: header with "Criar nova regra" on the right (no subtitle), search alone below, row-card with only "Nome da Regra"/"Fila" as columns (§4), and the pagination footer (§2.5). The row-card itself — label 12/400 over value 16/700, a toggle that enables/disables the record right in the list — is the same one as always. The combinator, the evaluation order, and the unreachable-rule warning aren't columns in the ficha (it only documents "Nome da Regra" and "Fila"), but they remain decisive for predicting what the rule does — so they live in the card's footer (`descreverRegra`/warnings), which is a per-row annotation, not a new column or a new block on the page. "Criar nova regra" opens a modal — Blip doesn't show the form on the page, it lives inside the closed modal the material captured for the sibling screens (`FICHA-queue-management.md` §2.6). Edit/delete (item 1, second part) were added: the "Editar" icon reopens the same modal with `FormularioRegraFila` in edit mode; the "Excluir" icon asks for confirmation via `ModalConfirmation` — never `window.confirm`, which is the provisional pattern `atendentes-filas.tsx` still uses (the comment there says so itself). REORDER is the two footer arrows: each click swaps the rule's position with its neighbor and sends one `PATCH` per rule whose `order` changed — no dedicated endpoint (decision logged in `cadastros.ts`).
+ * Regras ├ Atendimento — the entry rule. Skeleton measured in `FICHA-rules.md` §2: header with "Criar nova regra" on the right (no subtitle), search alone below, row-card with only "Nome da Regra"/"Fila" as columns (§4), and the pagination footer (§2.5). The row-card itself — label 12/400 over value 16/700, a toggle that enables/disables the record right in the list — is the same one as always. The combinator, the evaluation order, and the unreachable-rule warning aren't columns in the ficha (it only documents "Nome da Regra" and "Fila"), but they remain decisive for predicting what the rule does — so they live in the card's footer (`descreverRegra`/warnings), which is a per-row annotation, not a new column or a new block on the page. "Criar nova regra" opens a modal — Blip doesn't show the form on the page, it lives inside the closed modal the material captured for the sibling screens (`FICHA-queue-management.md` §2.6). Edit/delete (item 1, second part) were added: the "Editar" icon reopens the same modal with `FormularioRegraFila` in edit mode; the "Excluir" icon asks for confirmation via `ConfirmModal` — never `window.confirm`, which is the provisional pattern `atendentes-filas.tsx` still uses (the comment there says so itself). REORDER is the two footer arrows: each click swaps the rule's position with its neighbor and sends one `PATCH` per rule whose `order` changed — no dedicated endpoint (decision logged in `cadastros.ts`).
  */
 
 /** The card's toggle. A one-button form: there's nothing typed to preserve. */
@@ -214,7 +214,7 @@ export function AttendancePageRules() {
         ) : null}
       </Modal>
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={regraParaExcluir !== null}
         titulo="Excluir regra"
         message={

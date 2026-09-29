@@ -3,7 +3,6 @@ import { test } from 'node:test';
 import {
   LIMITE_URLS,
   adicionarUrl,
-  interruptorDesabilitado,
   removerUrl,
   salvarDesabilitado,
   urlValida,
@@ -29,13 +28,6 @@ test('só HTTPS vale, e não pode repetir', () => {
   assert.ok(!urlValida('https://exemplo', ['https://exemplo']));
   const repetida = 'https://exemplo.pipe.app';
   assert.ok(!urlValida(repetida, [repetida, repetida]));
-});
-
-test('the Enable switch only unlocks with the first URL filled in and valid', () => {
-  assert.ok(interruptorDesabilitado([]));
-  assert.ok(interruptorDesabilitado(['']));
-  assert.ok(interruptorDesabilitado(['https://a.pipe.app', 'ftp://x']));
-  assert.ok(!interruptorDesabilitado(['https://a.pipe.app']));
 });
 
 test('salvar trava com URL inválida, mas linha vazia não trava', () => {

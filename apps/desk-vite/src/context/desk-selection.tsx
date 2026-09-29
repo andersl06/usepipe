@@ -40,7 +40,6 @@ export function DeskSelectionProvider({ children }: { children: ReactNode }) {
     setSelection((sel) => selectionAfterLocationChange(sel, location.state));
     // location.key changes on every navigation (push/replace/back/forward),
     // which is exactly when the marker needs re-checking.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.key]);
 
   function openConversation(id: string) {

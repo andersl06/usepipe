@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { analisarCsv, filtrarEnvios, resumirEnvios } from '../src/pages/flow/growth/regras';
+import { analisarCsv, filtrarEnvios } from '../src/pages/flow/growth/regras';
 import type { EnvioGrowth } from '@pipe/contracts';
 
 const envios: EnvioGrowth[] = [
@@ -29,10 +29,6 @@ const envios: EnvioGrowth[] = [
 ];
 
 describe('Growth — active messages', () => {
-  it('summarizes unique recipients and delivery states', () => {
-    assert.deepEqual(resumirEnvios(envios), { audiencia: 2, recebidas: 1, lidas: 1, falharam: 1 });
-  });
-
   it('filters by template name and state at the same time', () => {
     assert.deepEqual(
       filtrarEnvios(envios, 'boas', 'lida').map(({ id }) => id),

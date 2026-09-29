@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { IconePortal, type NomeDeIconePortal } from '../../../../components/icones-portal';
+import { IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 import {
   PERIODOS_DE_CALENDARIO,
   PERIODOS_FIXOS,

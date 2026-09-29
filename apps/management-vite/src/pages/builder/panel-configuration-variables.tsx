@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Interruptor } from '../flow/integrations/interruptor';
 import {
   CONFIGURATION_SECTIONS,

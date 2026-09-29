@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { Assunto, Subscription } from '@pipe/contracts';
-import { urlDaApi } from './api';
+import { urlDaApi } from '@pipe/ui/api';
 import { clienteDeConsultas } from './cliente-de-consultas';
 
 /**

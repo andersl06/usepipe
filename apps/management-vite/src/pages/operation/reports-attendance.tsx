@@ -4,7 +4,7 @@ import { Icone } from '@pipe/ui';
 import Link from '../../components/link';
 import { ManagementIcon } from '../../components/icones-management';
 import { PanelField, FieldPeriod, PanelFilters } from '../../components/panel-filters';
-import { Selection } from '../../components/selection';
+import { Select } from '@pipe/ui/select';
 import { Dica, Metrica } from '../../components/metrica';
 import { useRead } from '../../lib/query';
 import type { Catalogos } from '../../lib/history';
@@ -259,24 +259,24 @@ export function PageAttendance() {
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
         <FieldPeriod de={de} ate={ate} fuso={fuso} />
         <PanelField rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
-          <Selection name="atendente" defaultValue={params.agent ?? ''} aria-label="Atendentes">
+          <Select name="atendente" defaultValue={params.agent ?? ''} aria-label="Atendentes">
             <option value="">Selecione os atendentes</option>
             {catalogos.agents.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}
               </option>
             ))}
-          </Selection>
+          </Select>
         </PanelField>
         <PanelField rotulo="Filas" apoio="Selecione uma ou mais filas">
-          <Selection name="fila" defaultValue={params.queue ?? ''} aria-label="Filas">
+          <Select name="fila" defaultValue={params.queue ?? ''} aria-label="Filas">
             <option value="">Selecione as filas</option>
             {catalogos.queues.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.name}
               </option>
             ))}
-          </Selection>
+          </Select>
         </PanelField>
       </PanelFilters>
 

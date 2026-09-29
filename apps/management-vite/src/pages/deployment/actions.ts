@@ -1,4 +1,4 @@
-import { chamarApi, motivoDaFalha } from '../../lib/api';
+import { chamarApi, motivoDaFalha } from '@pipe/ui/api';
 import { atualizarLeituras } from '../../lib/actions';
 
 /**

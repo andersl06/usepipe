@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Botao, EmptyState } from '@pipe/ui';
 import { ConectarWhatsApp } from '../../../../components/registration-embedded-whatsapp';
-import { IconePortal, LogoPortal } from '../../../../components/icones-portal';
+import { IconePortal, LogoPortal } from '@pipe/ui/icones-portal';
 import { rotuloDoMotivo } from '../../../../lib/channels';
 import { numeroParaWaMe } from '../../../../lib/channel-of-flow';
 import { ConectarWhatsappManual } from '../../../registrations/channel-conectar-manual';

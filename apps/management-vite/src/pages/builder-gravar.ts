@@ -8,7 +8,7 @@ import type {
   TestRunResult,
   TestRunReset,
 } from '@pipe/contracts';
-import { api, ApiError } from '../lib/api';
+import { api, ApiError } from '@pipe/ui/api';
 import { atualizarLeituras } from '../lib/actions';
 import { motivoDe, type Resultado } from '../lib/rest';
 

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import type { ConversationOpen, RespostaProntaDoDesk, TemplateAprovado } from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
-import { api, chamarApi, motivoDaFalha } from '../../lib/api';
+import { api, chamarApi, motivoDaFalha } from '@pipe/ui/api';
+import { Modal } from '@pipe/ui/modal';
 import { atualizarLeituras } from '../../lib/actions';
 import { MAX_FILES_BY_SENDING, recusaDoLote } from '../../lib/attachments';
 import { windowOpen } from '../../lib/order';
@@ -411,59 +412,52 @@ function TemplateModal({
   }
 
   return (
-    <div className="dk-veu" role="presentation" onClick={aoFechar}>
-      <div
-        className="dk-modal"
-        role="dialog"
-        aria-labelledby="modelo-titulo"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="modelo-titulo">Enviar mensagem ativa · Ticket {numeroDoTicket(conversation.id)}</h2>
-        {templates.length === 0 ? (
-          <p>Nenhum modelo de mensagem aprovado para este canal.</p>
-        ) : (
-          <>
-            <label htmlFor="modelo">Modelo de mensagem</label>
-            <select id="modelo" value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
-              {templates.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.nome}
-                </option>
-              ))}
-            </select>
-            {variables.map((v, i) => (
-              <div key={v}>
-                <label htmlFor={`var-${i}`}>{v}</label>
-                <input
-                  id={`var-${i}`}
-                  type="text"
-                  value={parametros[i] ?? ''}
-                  onChange={(e) => {
-                    const novo = [...parametros];
-                    novo[i] = e.target.value;
-                    setParametros(novo);
-                  }}
-                />
-              </div>
+    <Modal skin={{ fundo: 'dk-veu', caixa: 'dk-modal' }} rotuloId="modelo-titulo" onFechar={aoFechar}>
+      <h2 id="modelo-titulo">Enviar mensagem ativa · Ticket {numeroDoTicket(conversation.id)}</h2>
+      {templates.length === 0 ? (
+        <p>Nenhum modelo de mensagem aprovado para este canal.</p>
+      ) : (
+        <>
+          <label htmlFor="modelo">Modelo de mensagem</label>
+          <select id="modelo" value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
+            {templates.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.nome}
+              </option>
             ))}
-            <p style={{ whiteSpace: 'pre-line' }}>{template?.corpo}</p>
-          </>
-        )}
-        {error ? <p className="dk-error">{error}</p> : null}
-        <div className="dk-modal-actions">
-          <button type="button" className="dk-botao dk-botao-secundario" onClick={aoFechar}>
-            Cancelar
-          </button>
-          <button
-            type="button"
-            className="dk-botao"
-            onClick={() => void enviar()}
-            disabled={!template || enviando}
-          >
-            Enviar
-          </button>
-        </div>
+          </select>
+          {variables.map((v, i) => (
+            <div key={v}>
+              <label htmlFor={`var-${i}`}>{v}</label>
+              <input
+                id={`var-${i}`}
+                type="text"
+                value={parametros[i] ?? ''}
+                onChange={(e) => {
+                  const novo = [...parametros];
+                  novo[i] = e.target.value;
+                  setParametros(novo);
+                }}
+              />
+            </div>
+          ))}
+          <p style={{ whiteSpace: 'pre-line' }}>{template?.corpo}</p>
+        </>
+      )}
+      {error ? <p className="dk-error">{error}</p> : null}
+      <div className="dk-modal-actions">
+        <button type="button" className="dk-botao dk-botao-secundario" onClick={aoFechar}>
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className="dk-botao"
+          onClick={() => void enviar()}
+          disabled={!template || enviando}
+        >
+          Enviar
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }

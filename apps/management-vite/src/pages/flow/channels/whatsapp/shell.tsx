@@ -1,7 +1,7 @@
 import { Outlet, useOutletContext } from 'react-router-dom';
 import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
 import { useRead } from '../../../../lib/query';
-import { ApiError } from '../../../../lib/api';
+import { ApiError } from '@pipe/ui/api';
 import type { ChannelWhatsAppVisible } from '../../../../lib/channels';
 import { channelInBotState, type ChannelInBotState } from '../../../../lib/channel-of-flow';
 import { ReadFailure, useContact } from '../../contact';

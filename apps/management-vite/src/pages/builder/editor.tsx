@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { BlockError } from '@pipe/contracts';
 import { Icone } from '@pipe/ui';
 import { useContact } from '../flow/contact';
-import { ModalConfirmation } from '../registrations/_modal';
+import { ConfirmModal } from '@pipe/ui/modal';
 import { Canvas } from './canvas';
 import type { EditorState, GestoDoEditor } from './state';
 import { MenuNewBlock } from './menu-new-block';
@@ -25,13 +25,13 @@ import {
 import { BlockPanel } from './panel';
 import { TestPanel } from './test-panel';
 import { positionInCenter } from './setas';
-import type { ToastInput } from './toast-queue';
+import type { ToastInput } from '@pipe/ui/toast-queue';
 import { invalidBlocks } from './error-marks';
 import './editor.css';
 import './panel-block.css';
 
 /**
- * The editor itself, inside the frame's dark canvas: the blocks and arrows (`Canvas`), the sidebar of the open block (`BlockPanel`), the "NOVO BLOCO" sheet next to the pill, and the delete confirmation, which here is `ModalConfirmation` and not `window.confirm` (the Blip editor deletes without asking and relies on undo; Pipe has undo AND asks). Passing warnings ("Limite de 25 condições de saída atingidos"…, colar, copiar bloco) go through `onAviso`, the Builder's single toast (F-6, D-56).
+ * The editor itself, inside the frame's dark canvas: the blocks and arrows (`Canvas`), the sidebar of the open block (`BlockPanel`), the "NOVO BLOCO" sheet next to the pill, and the delete confirmation, which here is `ConfirmModal` and not `window.confirm` (the Blip editor deletes without asking and relies on undo; Pipe has undo AND asks). Passing warnings ("Limite de 25 condições de saída atingidos"…, colar, copiar bloco) go through `onAviso`, the Builder's single toast (F-6, D-56).
  *
  * The drawing lives in the `estado.ts` reducer, reached through `state`/`despachar`; each gesture becomes a new map via the `modelo.ts` functions and an `aplicar`. A block paints red (F-6) when `blockMarks` says `node: true` — the screen's own rules plus whatever the `api` (`apiErrors`) or the 409 on publish (`engineErrors`) flagged for it; there is no text on the canvas, only color.
  */
@@ -253,7 +253,7 @@ export function Editor({
         />
       ) : null}
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={excluindo !== null}
         titulo="Excluir bloco"
         message={

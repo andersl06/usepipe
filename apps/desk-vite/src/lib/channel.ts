@@ -1,7 +1,7 @@
 import type { TypeChannelDatabase } from '@pipe/contracts';
 
 /**
- * Match the reference channel display: overlay a logo on the contact avatar (`bds-icon type="logo" name="whatsapp"` on a card) and spell out the name in the panel (`Canal: WhatsApp`). Logos come from `componentes/icones-portal.tsx` (`asset-logo-*`); `widget` uses the email logo because no unbranded chat logo is available.
+ * Match the reference channel display: overlay a logo on the contact avatar (`bds-icon type="logo" name="whatsapp"` on a card) and spell out the name in the panel (`Canal: WhatsApp`). Logos come from `@pipe/ui/icones-portal` (`asset-logo-*`); `widget` uses the email logo because no unbranded chat logo is available.
  */
 export type NameOfLogoOfChannel = 'whatsapp' | 'instagram' | 'email';
 

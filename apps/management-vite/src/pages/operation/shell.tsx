@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { estaAtivo } from '@pipe/ui';
 import Link from '../../components/link';
-import { IconePortal, type NomeDeIconePortal } from '../../components/icones-portal';
+import { IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 import { URL_DESK } from '../../components/structure-management';
 import { ShellModule, contactPath, useContact } from '../flow/contact';
 import type { Contact } from '../flow/barra-of-contact';

@@ -9,13 +9,14 @@ import {
   templateValid,
   blockShowChoice,
   mostrarVoltar,
-  tiposDisponiveis,
 } from '../src/pages/flow/contents/regras.ts';
 
 test('payment is only available for Utility templates', () => {
-  assert.ok(tiposDisponiveis('utilidade').includes('pagamento'));
-  assert.ok(!tiposDisponiveis('marketing').includes('pagamento'));
-  assert.ok(!tiposDisponiveis('autenticacao').includes('pagamento'));
+  const tipos = (categoria: Parameters<typeof blocosDoMenu>[0]) =>
+    blocosDoMenu(categoria, { ...FLAGS_DO_PIPE, payment: true, carrossel: true }).flat();
+  assert.ok(tipos('utilidade').includes('pagamento'));
+  assert.ok(!tipos('marketing').includes('pagamento'));
+  assert.ok(!tipos('autenticacao').includes('pagamento'));
 });
 
 test('the block menu follows the flags: in Pipe they are text/image/document and video', () => {

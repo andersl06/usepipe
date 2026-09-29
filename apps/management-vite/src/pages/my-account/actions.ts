@@ -1,4 +1,4 @@
-import { api, chamarApi, motivoDaFalha } from '../../lib/api';
+import { api, chamarApi, motivoDaFalha } from '@pipe/ui/api';
 import { atualizarLeituras } from '../../lib/actions';
 import { irPara } from '../../lib/navigation';
 import type { AccountInForce } from '../../lib/account';

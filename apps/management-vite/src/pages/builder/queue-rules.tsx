@@ -6,8 +6,9 @@ import { deleteRuleQueue, editQueue, editRuleQueue } from '../../lib/registratio
 import { saveRuleQueue, toggleRuleQueue } from '../../lib/actions';
 import { rotuloDoCampo } from '../../lib/rule-queue';
 import { ManagementIcon } from '../../components/icones-management';
-import { Selection } from '../../components/selection';
-import { SelectionChips } from '../../components/selection-chips';
+import { ChipsInput } from '@pipe/ui/chips-input';
+import { ConfirmModal } from '@pipe/ui/modal';
+import { Select } from '@pipe/ui/select';
 import { Interruptor } from '../flow/integrations/interruptor';
 import {
   RULE_COMPARISONS,
@@ -70,6 +71,9 @@ export function QueueRulesView({
   const [nomeEditado, setNomeEditado] = useState(fila.name);
   const [salvandoNome, setSalvandoNome] = useState(false);
   const [erroNome, setErroNome] = useState<string | null>(null);
+  const [paraExcluir, setParaExcluir] = useState<QueueRegisteredRule | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -163,11 +167,22 @@ export function QueueRulesView({
     setAberta(null);
   };
 
-  const excluir = async (regra: QueueRegisteredRule) => {
-    if (!window.confirm(`Excluir a regra ${regra.name}?`)) return;
-    const resultado = await deleteRuleQueue(regra.id);
-    if (!resultado.ok) onAviso({ tom: 'erro', texto: resultado.error });
-    else if (aberta?.id === regra.id) setAberta(null);
+  const excluir = (regra: QueueRegisteredRule) => {
+    setErroExclusao(null);
+    setParaExcluir(regra);
+  };
+
+  const confirmarExclusao = async () => {
+    if (!paraExcluir) return;
+    setExcluindo(true);
+    const resultado = await deleteRuleQueue(paraExcluir.id);
+    setExcluindo(false);
+    if (!resultado.ok) {
+      setErroExclusao(resultado.error);
+      return;
+    }
+    if (aberta?.id === paraExcluir.id) setAberta(null);
+    setParaExcluir(null);
   };
 
   const alternar = async (regra: QueueRegisteredRule) => {
@@ -316,7 +331,7 @@ export function QueueRulesView({
                               className="iconbtn"
                               aria-label="Excluir regra"
                               title="Excluir regra"
-                              onClick={() => void excluir(regra)}
+                              onClick={() => excluir(regra)}
                             >
                               <ManagementIcon nome="lixeira" tamanho={18} />
                             </button>
@@ -347,6 +362,15 @@ export function QueueRulesView({
           ) : null}
         </>
       )}
+      <ConfirmModal
+        aberto={paraExcluir !== null}
+        titulo="Excluir regra"
+        message={`Excluir a regra ${paraExcluir?.name ?? ''}?`}
+        error={erroExclusao}
+        confirmando={excluindo}
+        onConfirmar={() => void confirmarExclusao()}
+        onCancelar={() => setParaExcluir(null)}
+      />
     </div>
   );
 }
@@ -446,7 +470,7 @@ function RuleCardOpen({
         {draft.conditions.map((c, i) => (
           <div key={i} className="bl-rule-condition">
             <div className="bl-rule-condition-campos">
-              <Selection
+              <Select
                 aria-label="Se"
                 rotulo="Se"
                 value={c.source}
@@ -460,8 +484,8 @@ function RuleCardOpen({
                 {RULE_SOURCES.some((s) => s.value === c.source) ? null : (
                   <option value={c.source}>{rotuloDoCampo(c.source)}</option>
                 )}
-              </Selection>
-              <Selection
+              </Select>
+              <Select
                 aria-label="Condição"
                 rotulo="Condição"
                 value={c.comparison}
@@ -472,7 +496,7 @@ function RuleCardOpen({
                     {x.rotulo}
                   </option>
                 ))}
-              </Selection>
+              </Select>
               <button
                 type="button"
                 className="iconbtn bl-rule-condition-remover"
@@ -494,7 +518,7 @@ function RuleCardOpen({
                 />
               </div>
             ) : null}
-            <SelectionChips
+            <ChipsInput
               label="Valor"
               rotulo="Valor"
               placeholder="Valores"

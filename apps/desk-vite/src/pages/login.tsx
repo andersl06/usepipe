@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { RefusesOfInbound } from '@pipe/contracts';
-import { caminhoInterno, discoverInbound, inboundWithGoogleUrl, urlNaApi } from '../lib/inbound';
+import { caminhoInterno, discoverInbound, inboundWithGoogleUrl, urlNaApi } from '@pipe/ui/api';
 import { FundoPipe } from './fundo-pipe';
 
 /**
@@ -78,7 +78,7 @@ function ehRecusa(codigo: string | null): codigo is RefusesOfInbound {
 
 export function PageLogin() {
   const [parametros, setParametros] = useSearchParams();
-  const destination = caminhoInterno(parametros.get('destino'));
+  const destination = caminhoInterno(parametros.get('destino'), '/');
   const [email, setEmail] = useState(parametros.get('email') ?? '');
   const [enviando, setEnviando] = useState(false);
 

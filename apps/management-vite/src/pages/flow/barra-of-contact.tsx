@@ -1,7 +1,7 @@
 import { Avatar } from '@pipe/ui';
 import type { MyPermissionsInFlow } from '@pipe/contracts';
 import { ManagementIcon } from '../../components/icones-management';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Link } from '../../components/link';
 import { flowPath } from '../../lib/application-paths';
 import { useRead } from '../../lib/query';

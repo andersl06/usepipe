@@ -1,15 +1,5 @@
 import type { EnvioGrowth } from '@pipe/contracts';
 
-export function resumirEnvios(envios: EnvioGrowth[]) {
-  return {
-    audiencia: new Set(envios.map((envio) => envio.contactName ?? envio.id)).size,
-    recebidas: envios.filter((envio) => envio.state === 'entregue' || envio.state === 'lida')
-      .length,
-    lidas: envios.filter((envio) => envio.state === 'lida').length,
-    falharam: envios.filter((envio) => envio.state === 'falhou').length,
-  };
-}
-
 export function filtrarEnvios(envios: EnvioGrowth[], search: string, state: string) {
   const termo = search.trim().toLocaleLowerCase('pt-BR');
   return envios.filter(

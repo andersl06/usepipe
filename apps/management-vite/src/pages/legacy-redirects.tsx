@@ -1,5 +1,5 @@
 import { Navigate, useLocation, useParams } from 'react-router-dom';
-import { ApiError } from '../lib/api';
+import { ApiError } from '@pipe/ui/api';
 import { legacyTarget, flowPath, renameContactSubpath } from '../lib/application-paths';
 import { useRead } from '../lib/query';
 import { UUID } from './flow/barra-of-contact';

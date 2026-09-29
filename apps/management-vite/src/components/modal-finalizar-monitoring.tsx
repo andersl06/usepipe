@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CardClosureTicket, avisarTicketFinalizado, type ClosureTag } from '@pipe/ui';
 import type { EtiquetaDoDesk } from '@pipe/contracts';
 import type { ConversationOpenRow } from '../lib/monitoring';
-import { api } from '../lib/api';
+import { api } from '@pipe/ui/api';
 import { useRead } from '../lib/query';
 
 /**

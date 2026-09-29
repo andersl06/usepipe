@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Campo } from '@pipe/ui';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import type { Mapa } from './model';
 import { FloatingSidebar } from './floating-sidebar';
 import { BLIP_SYSTEM_VARIABLES } from './system-variables';

@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import Link from '../../../../components/link';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { PAGES, AboutData } from './pages';
 import './dictionary.css';
 

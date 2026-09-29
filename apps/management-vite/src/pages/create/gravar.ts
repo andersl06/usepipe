@@ -1,4 +1,4 @@
-import { api } from '../../lib/api';
+import { api } from '@pipe/ui/api';
 import { atualizarLeituras } from '../../lib/actions';
 import { IMAGE, type RecadosDoNome } from './regras-de-nome';
 

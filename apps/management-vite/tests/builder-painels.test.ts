@@ -1,16 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
+import { actionsGlobalList } from '../src/pages/builder/actions-global.ts';
 import {
-  adicionarAcaoGlobal,
-  actionsGlobalList,
-  moverAcaoGlobal,
-  removerAcaoGlobal,
-  substituirAcaoGlobal,
-} from '../src/pages/builder/actions-global.ts';
-import {
-  ACTIONS_LIMIT,
-  LABELS_OF_ACTIONS,
   tipoDeAcao,
   pasteActions,
   cabecalhosDoCampo,
@@ -383,60 +375,6 @@ test('versions: an old version drawing round-trips through exportText and valida
 
 test('globalActionList returns an empty list when the key does not exist', () => {
   assert.deepEqual(actionsGlobalList({}, '$enteringCustomActions'), []);
-});
-
-test('adicionarAcaoGlobal acrescenta na lista certa sem mexer na outra', () => {
-  const r = adicionarAcaoGlobal({}, '$enteringCustomActions', { type: 'SetVariable' });
-  assert.equal(r.ok, true);
-  if (!r.ok) return;
-  assert.deepEqual(actionsGlobalList(r.global, '$enteringCustomActions'), [
-    { type: 'SetVariable' },
-  ]);
-  assert.deepEqual(actionsGlobalList(r.global, '$leavingCustomActions'), []);
-});
-
-test('addGlobalAction rejects past the limit of 15, same as block actions', () => {
-  const cheias = {
-    $enteringCustomActions: Array.from({ length: ACTIONS_LIMIT }, () => ({
-      type: 'SetVariable',
-    })),
-  };
-  const r = adicionarAcaoGlobal(cheias, '$enteringCustomActions', { type: 'SetVariable' });
-  assert.deepEqual(r, { ok: false, error: LABELS_OF_ACTIONS.limite });
-});
-
-test('substituirAcaoGlobal troca só o índice pedido', () => {
-  const global = {
-    $leavingCustomActions: [
-      { type: 'SetVariable', $title: 'a' },
-      { type: 'TrackEvent', $title: 'b' },
-    ],
-  };
-  const trocado = substituirAcaoGlobal(global, '$leavingCustomActions', 1, {
-    type: 'TrackEvent',
-    $title: 'novo',
-  });
-  assert.deepEqual(
-    actionsGlobalList(trocado, '$leavingCustomActions').map((a) => a.$title),
-    ['a', 'novo'],
-  );
-});
-
-test('removerAcaoGlobal e moverAcaoGlobal mexem só na lista indicada', () => {
-  const global = {
-    $enteringCustomActions: [{ type: 'A' }, { type: 'B' }, { type: 'C' }],
-  };
-  const movido = moverAcaoGlobal(global, '$enteringCustomActions', 2, 0);
-  assert.deepEqual(
-    actionsGlobalList(movido, '$enteringCustomActions').map((a) => a.type),
-    ['C', 'A', 'B'],
-  );
-
-  const removido = removerAcaoGlobal(movido, '$enteringCustomActions', 1);
-  assert.deepEqual(
-    actionsGlobalList(removido, '$enteringCustomActions').map((a) => a.type),
-    ['C', 'B'],
-  );
 });
 
 /* -------------------------------------------------------- test panel: test-panel-logic.ts (D-14) */

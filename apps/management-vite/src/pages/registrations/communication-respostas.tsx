@@ -5,7 +5,7 @@ import type { RespostaProntaListada } from '../../lib/communication';
 import { alternarRespostaPronta, excluirRespostaPronta } from '../../lib/communication-gravar';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { FormularioRespostaPronta } from './communication-respostas-formulario';
-import { Modal, ModalConfirmation } from './_modal';
+import { Modal, ConfirmModal } from '@pipe/ui/modal';
 
 /** The switch and the "Excluir" on the row card — `PATCH`/`DELETE` on `.../respostas-prontas/:id`. */
 function ResponseActions({
@@ -120,7 +120,7 @@ export function PageCannedResponses() {
         <FormularioRespostaPronta aoSalvar={() => setModalAberto(false)} />
       </Modal>
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={respostaParaExcluir !== null}
         titulo="Excluir resposta"
         message={

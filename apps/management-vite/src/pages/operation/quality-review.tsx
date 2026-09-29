@@ -1,5 +1,5 @@
 import Link from '../../components/link';
-import { Selection } from '../../components/selection';
+import { Select } from '@pipe/ui/select';
 import { useSearchParams } from 'react-router-dom';
 import { useRead } from '../../lib/query';
 import { useContact } from '../flow/contact';
@@ -81,7 +81,7 @@ export function PageQualityReview() {
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
 
-        <Selection
+        <Select
           name="atendente"
           defaultValue={params.agent ?? ''}
           className="btn"
@@ -93,9 +93,9 @@ export function PageQualityReview() {
               {a.name}
             </option>
           ))}
-        </Selection>
+        </Select>
 
-        <Selection
+        <Select
           name="avaliador"
           defaultValue={params.avaliador ?? ''}
           className="btn"
@@ -104,7 +104,7 @@ export function PageQualityReview() {
           <option value="">IA e humano</option>
           <option value="ia">Só a IA</option>
           <option value="humano">Só humano</option>
-        </Selection>
+        </Select>
 
         <div className="faixa-fim">
           <a href={`${base}/quality-assurance`} className="btn">

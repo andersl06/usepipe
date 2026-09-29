@@ -150,12 +150,6 @@ export function positionAsText(position: Position): { top: string; left: string 
   };
 }
 
-/** The root of the drawing, if there is exactly one. */
-export function raizDe(mapa: Mapa): Block | null {
-  const raizes = Object.values(mapa).filter((b) => b.root);
-  return raizes.length === 1 ? raizes[0]! : null;
-}
-
 /** A entrada de um bloco (o item `input` de `$contentActions`), se houver. */
 export function inboundOf(block: Block): EditorInbound | null {
   return block.$contentActions?.find((c) => c.input)?.input ?? null;
@@ -368,12 +362,6 @@ export function newSurveyBlock(mapa: Mapa, position: Position, id = gerarId()): 
 
 export function addBlock(mapa: Mapa, block: Block): Mapa {
   return { ...mapa, [block.id]: block };
-}
-
-export function renameBlock(mapa: Mapa, id: string, titulo: string): Mapa {
-  const block = mapa[id];
-  if (!block) return mapa;
-  return { ...mapa, [id]: { ...block, $title: titulo } };
 }
 
 export function moveBlock(mapa: Mapa, id: string, position: Position): Mapa {

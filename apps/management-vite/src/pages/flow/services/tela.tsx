@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 
 import type { DataOfServices, LinkedService } from '@pipe/contracts';
 

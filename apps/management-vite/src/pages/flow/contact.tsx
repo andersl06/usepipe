@@ -3,7 +3,7 @@ import { Outlet, useParams } from 'react-router-dom';
 import { BarraDoPortal } from '../../components/barra-do-portal';
 import { portalUseShell } from '../../lib/shell';
 import { useRead } from '../../lib/query';
-import { ApiError } from '../../lib/api';
+import { ApiError } from '@pipe/ui/api';
 import { flowPath } from '../../lib/application-paths';
 import { NaoEncontrado } from '../nao-encontrado';
 import { ContactBar, type Contact } from './barra-of-contact';

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 
 /**
  * The pieces shared by more than one Analytics tab. No state and no data of their own: everything arrives via prop, so the filled-in render comes from the same component.
@@ -158,8 +158,6 @@ export function Card({
 
 /* ---------------------------------------------------------- the period in the URL */
 
-const DIA = /^\d{4}-\d{2}-\d{2}$/;
-
 /** O dia de hoje (`AAAA-MM-DD`) no fuso da conta. */
 export function hojeNoFuso(fuso: string, agora = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: fuso }).format(agora);
@@ -170,26 +168,4 @@ export function somarDias(dia: string, n: number): string {
   const d = new Date(`${dia}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
-}
-
-/**
- * `de` and `ate` come from the URL, which is untrusted external text: they only pass through in day format and in order; otherwise, the screen's default period applies.
- */
-export function urlPeriod(
-  search: Record<string, string | string[] | undefined>,
-  padraoDe: string,
-  padraoAte: string,
-): { de: string; ate: string } {
-  const de = search.de;
-  const ate = search.ate;
-  if (
-    typeof de === 'string' &&
-    typeof ate === 'string' &&
-    DIA.test(de) &&
-    DIA.test(ate) &&
-    de <= ate
-  ) {
-    return { de, ate };
-  }
-  return { de: padraoDe, ate: padraoAte };
 }

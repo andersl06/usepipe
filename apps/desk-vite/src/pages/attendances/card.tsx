@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ConversationOfList } from '@pipe/contracts';
-import { LogoPortal } from '../../components/icones-portal';
+import { LogoPortal } from '@pipe/ui/icones-portal';
 import { IconeDesk } from '../../components/icones-desk';
 import { Avatar } from '../../components/avatar';
 import { executar } from '../../lib/actions';

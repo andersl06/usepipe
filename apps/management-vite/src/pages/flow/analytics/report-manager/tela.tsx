@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { IconePortal } from '../../../../components/icones-portal';
-import { Selection } from '../../../../components/selection';
+import { IconePortal } from '@pipe/ui/icones-portal';
+import { Select } from '@pipe/ui/select';
 import {
   INTERVALOS_RAPIDOS,
   cincoAnosAntes,
@@ -131,7 +131,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                 <IconePortal nome="robo" tamanho={20} />
                 <span className="gr-campo-miolo">
                   <span>Bot</span>
-                  <Selection
+                  <Select
                     value={botEscolhido}
                     onChange={(e) => setBotEscolhido(e.target.value)}
                     aria-label="Bot"
@@ -139,7 +139,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                   >
                     <option value="">Selecione...</option>
                     <option value={bot}>{bot}</option>
-                  </Selection>
+                  </Select>
                 </span>
                 <IconePortal nome="baixo" tamanho={18} />
               </span>

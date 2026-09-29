@@ -1,5 +1,5 @@
 import type { RequestOfService, LinkedService } from '@pipe/contracts';
-import { api } from '../../../lib/api';
+import { api } from '@pipe/ui/api';
 import { atualizarLeituras } from '../../../lib/actions';
 import { motivoDe, type Resultado } from '../settings/basic/gravar';
 

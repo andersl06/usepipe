@@ -1,6 +1,7 @@
+import { Modal } from '@pipe/ui/modal';
 import { useState, type FormEvent } from 'react';
 import { Illustration } from '@pipe/ui';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { useRead } from '../../../../lib/query';
 import { numero } from '../../../../lib/format';
 import { useContact } from '../../contact';
@@ -170,33 +171,22 @@ export default function PageTrackedLinks() {
       </section>
 
       {create ? (
-        <div
-          className="gr-overlay"
-          role="presentation"
-          onMouseDown={(e) => e.target === e.currentTarget && setCreate(false)}
-        >
-          <section
-            className="gr-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gr-titulo-link-rastreado"
-          >
-            <header className="gr-modal-cabeca">
-              <div>
-                <h2 id="gr-titulo-link-rastreado">Criar link rastreado</h2>
-              </div>
-              <button
-                className="gr-icone-botao"
-                type="button"
-                aria-label="Fechar"
-                onClick={() => setCreate(false)}
-              >
-                <IconePortal nome="fechar" tamanho={20} />
-              </button>
-            </header>
-            <FormularioDeLink flowId={flowId} toCreate={() => setCreate(false)} />
-          </section>
-        </div>
+        <Modal skin={{ fundo: 'gr-overlay', caixa: 'gr-modal', elemento: 'section' }} rotuloId="gr-titulo-link-rastreado" onFechar={() => setCreate(false)}>
+          <header className="gr-modal-cabeca">
+            <div>
+              <h2 id="gr-titulo-link-rastreado">Criar link rastreado</h2>
+            </div>
+            <button
+              className="gr-icone-botao"
+              type="button"
+              aria-label="Fechar"
+              onClick={() => setCreate(false)}
+            >
+              <IconePortal nome="fechar" tamanho={20} />
+            </button>
+          </header>
+          <FormularioDeLink flowId={flowId} toCreate={() => setCreate(false)} />
+        </Modal>
       ) : null}
     </div>
   );

@@ -13,8 +13,8 @@ import {
 } from '../../lib/communication';
 import { channelDeleteTemplate, channelSyncTemplates } from '../../lib/channels-gravar';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
-import { Selection } from '../../components/selection';
-import { ModalConfirmation } from './_modal';
+import { Select } from '@pipe/ui/select';
+import { ConfirmModal } from '@pipe/ui/modal';
 import { TemplateForm } from './communication-templates-formulario';
 
 /**
@@ -170,14 +170,14 @@ export function PageTemplates() {
           filters={
             <>
               <span className="filtrar-rotulo">Filtrar por:</span>
-              <Selection value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
+              <Select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
                 <option value="">Status</option>
                 {OPTIONS_STATUS.map((s) => (
                   <option key={s} value={s}>
                     {ROTULO_STATUS_META[s]}
                   </option>
                 ))}
-              </Selection>
+              </Select>
             </>
           }
         />
@@ -185,7 +185,7 @@ export function PageTemplates() {
 
       <TemplateForm channels={channels} />
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={paraExcluir !== null}
         titulo="Excluir modelo"
         message={`Excluir "${paraExcluir?.name}"? A Meta apaga o modelo em todos os idiomas cadastrados com este nome.`}

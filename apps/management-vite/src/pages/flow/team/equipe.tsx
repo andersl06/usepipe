@@ -1,5 +1,5 @@
 import type { TeamOfFlow } from '@pipe/contracts';
-import { ApiError } from '../../../lib/api';
+import { ApiError } from '@pipe/ui/api';
 import { useRead } from '../../../lib/query';
 import { ContactBars, useContact } from '../contact';
 import { TelaDeEquipe } from './tela';

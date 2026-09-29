@@ -2,8 +2,8 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
 import { engineContentErrors } from '@pipe/core';
 import { ManagementIcon } from '../../components/icones-management';
-import { IconePortal } from '../../components/icones-portal';
-import { Selection } from '../../components/selection';
+import { IconePortal } from '@pipe/ui/icones-portal';
+import { Select } from '@pipe/ui/select';
 import type { Block, EditorInbound, ItemDeConteudo } from './model';
 import { ehAttendance, newInbound } from './model';
 import {
@@ -629,7 +629,7 @@ function InboundCard({
                 <>
                   <label className="bl-campo">
                     <span className="sub">{ROTULOS_DO_CONTEUDO.tipoDeValidacao}</span>
-                    <Selection
+                    <Select
                       value={inbound.validation.rule}
                       onChange={(e) =>
                         atualizar({
@@ -643,7 +643,7 @@ function InboundCard({
                           {r.rotulo}
                         </option>
                       ))}
-                    </Selection>
+                    </Select>
                   </label>
                   {inbound.validation.rule === 'regex' ? (
                     <label className="bl-campo">

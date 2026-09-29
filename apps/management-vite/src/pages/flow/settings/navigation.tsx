@@ -1,7 +1,7 @@
 import Link from '../../../components/link';
 import { useLocation } from 'react-router-dom';
 import { contactPath, useContact } from '../contact';
-import { IconePortal, type NomeDeIconePortal } from '../../../components/icones-portal';
+import { IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 
 /**
  * The Settings sidebar — `<bds-grid padding="2"><bds-nav-tree-group collapse="single">` with one `<bds-nav-tree icon text secondary-text>` per item (portal.js, template for the `auth.application.detail.configurations` state).

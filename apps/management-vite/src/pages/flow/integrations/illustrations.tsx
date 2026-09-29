@@ -1,7 +1,7 @@
 /**
  * The Integrations cards' illustrations — the origin's `<img src="/assets/img/integrations/*.svg">` (the integrations template module in portal.js), copied from the capture's asset files by `gerar-ilustracoes.mjs` (scratchpad), with no redesign.
  *
- * Dashbot and Botanalytics are third-party brands and keep their colors as-is — the same rule as the channel logos in `componentes/icones-portal.tsx`. Webhook is the origin's own artwork: its stroke becomes `currentColor` and its highlight becomes Pipe's brand color.
+ * Dashbot and Botanalytics are third-party brands and keep their colors as-is — the same rule as the channel logos in `@pipe/ui/icones-portal`. Webhook is the origin's own artwork: its stroke becomes `currentColor` and its highlight becomes Pipe's brand color.
  *
  * Stays LOCAL to this folder per the working rule (write locally and report); when another screen needs the same figures, it moves up to `componentes/`.
  */

@@ -5,7 +5,6 @@ import {
   applyFilter,
   buscar,
   contagens,
-  horasRestantes,
   windowOpen,
   displayName,
   ordenar,
@@ -140,8 +139,6 @@ test('the 24-hour window', () => {
   assert.equal(windowOpen(null, 'whatsapp_cloud', agora), false);
   assert.equal(windowOpen('2026-09-17T13:00:00Z', 'whatsapp_cloud', agora), true);
   assert.equal(windowOpen('2026-09-17T11:00:00Z', 'whatsapp_cloud', agora), false);
-  assert.equal(horasRestantes('2026-09-17T13:30:00Z', agora), 2);
-  assert.equal(horasRestantes('2026-09-17T11:00:00Z', agora), null);
 });
 
 test('the display name is never left blank', () => {

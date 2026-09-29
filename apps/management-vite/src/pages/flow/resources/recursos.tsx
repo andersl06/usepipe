@@ -5,7 +5,7 @@ import { ManagementIcon } from '../../../components/icones-management';
 import { ShellModule, useContact } from '../contact';
 import { LateralDeConteudos } from '../contents/tela';
 import '../contents/conteudos.css';
-import { ModalConfirmation, Modal } from '../../registrations/_modal';
+import { ConfirmModal, Modal } from '@pipe/ui/modal';
 import { filterResources, nameError, parseImportedResources, NAME_ERROR_MESSAGE } from './regras';
 import { createFlowResource, deleteFlowResource, listFlowResources, updateFlowResource } from './gravar';
 
@@ -326,7 +326,7 @@ export function PageResources() {
         onImported={() => void reload()}
       />
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={removeTarget !== null}
         titulo="Excluir recurso"
         message={`Excluir o recurso "${removeTarget?.name}"? Fluxos que o referenciam deixam de encontrá-lo.`}

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ManagementIcon } from '../../../components/icones-management';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import Link from '../../../components/link';
 import { channelRoute, type TypeOfChannelOfBot } from '../../../lib/channel-of-flow';
 import { ShellModule, contactPath, useContact } from '../contact';

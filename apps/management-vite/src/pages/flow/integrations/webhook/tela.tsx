@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Link from '../../../../components/link';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { useRead } from '../../../../lib/query';
-import { ModalConfirmation } from '../../../registrations/_modal';
+import { ConfirmModal } from '@pipe/ui/modal';
 import { Interruptor } from '../interruptor';
 import { IllustrationIntegration } from '../illustrations';
 import { LIMITE_URLS, adicionarUrl, removerUrl, salvarDesabilitado, urlValida } from './regras';
@@ -604,7 +604,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
         </section>
       </div>
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={excluindo !== null}
         titulo="Excluir webhook"
         message={<>Quer mesmo excluir o webhook para &quot;{excluindo?.url}&quot;?</>}

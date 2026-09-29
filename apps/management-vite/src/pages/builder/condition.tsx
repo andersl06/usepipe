@@ -2,8 +2,8 @@ import type { ConditionBlip } from '@pipe/core';
 import { ehUnaria } from '@pipe/core';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
-import { Selection } from '../../components/selection';
-import { SelectionChips } from '../../components/selection-chips';
+import { Select } from '@pipe/ui/select';
+import { ChipsInput } from '@pipe/ui/chips-input';
 import {
   COMPARISONS_OF_SCREEN,
   FONTES_DA_TELA,
@@ -94,7 +94,7 @@ function ConditionRow({
             {ROTULO_DA_FONTE[fonte] ?? fonte}
           </Etiqueta>
         ) : (
-          <Selection
+          <Select
             aria-label="Fonte"
             rotulo="Se"
             value={fonte}
@@ -105,9 +105,9 @@ function ConditionRow({
                 {f.rotulo}
               </option>
             ))}
-          </Selection>
+          </Select>
         )}
-        <Selection
+        <Select
           aria-label="Comparação"
           rotulo="Condição"
           value={comparison}
@@ -118,7 +118,7 @@ function ConditionRow({
               {c.rotulo}
             </option>
           ))}
-        </Selection>
+        </Select>
         <button type="button" className="iconbtn bl-remover" title="Excluir condição" aria-label="Excluir condição" onClick={onRemover}>
           <ManagementIcon nome="lixeira" tamanho={18} />
         </button>
@@ -143,7 +143,7 @@ function ConditionRow({
            * the chips remain — but `condition.operator` is never cleared, so it survives edits and
            * round-trips through import/export untouched.
            */}
-          <SelectionChips
+          <ChipsInput
             rotulo={ROTULOS_DAS_SAIDAS.valores}
             placeholder={ROTULOS_DAS_SAIDAS.valores}
             values={values}

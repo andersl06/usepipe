@@ -17,14 +17,12 @@ export default defineConfig({
   base: process.env['VITE_BASE'] || '/',
   plugins: [react()],
   resolve: {
-    alias: {
-      '@': path.resolve(import.meta.dirname, './src'),
-      '@pipe/ui/estilos.css': path.resolve(
-        import.meta.dirname,
-        '../../packages/ui/src/estilos.css',
-      ),
-      '@pipe/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
-    },
+    // Only the bare `@pipe/ui` is aliased to its source; subpaths (`@pipe/ui/modal`, `/api`,
+    // `/estilos.css`…) resolve through the package's `exports`, which point into `src` as well.
+    alias: [
+      { find: '@', replacement: path.resolve(import.meta.dirname, './src') },
+      { find: /^@pipe\/ui$/, replacement: path.resolve(import.meta.dirname, '../../packages/ui/src/index.ts') },
+    ],
   },
   server: {
     port: Number(process.env['VITE_PORTA']) || 3210,

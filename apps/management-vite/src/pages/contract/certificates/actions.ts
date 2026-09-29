@@ -1,4 +1,4 @@
-import { api, ApiError } from '../../../lib/api';
+import { api, ApiError } from '@pipe/ui/api';
 import { atualizarLeituras } from '../../../lib/actions';
 import type { CertificadoMtls } from '../../../lib/certificados';
 

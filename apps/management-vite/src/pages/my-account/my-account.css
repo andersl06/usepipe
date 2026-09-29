@@ -438,7 +438,7 @@
 }
 
 /*
- * The shared Selection (components/selection.tsx) replaced the native <select> here. It
+ * The shared Select (`@pipe/ui/select`) replaced the native <select> here. It
  * brings its own 40px box and border, which overflowed the 47px field. Inside a field it
  * becomes a bare line like the text inputs: the field box is the border, the component's
  * chevron is the arrow.

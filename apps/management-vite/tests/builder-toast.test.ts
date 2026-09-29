@@ -6,7 +6,7 @@ import {
   pushToast,
   TOAST_DURATION_MS,
   TOAST_LIMIT,
-} from '../src/pages/builder/toast-queue.ts';
+} from '@pipe/ui/toast-queue';
 
 test('pushToast puts the newest toast on top and defaults to 5s', () => {
   const comOPrimeiro = pushToast([], { tom: 'sucesso', texto: 'Fluxo publicado!' }, 1000);

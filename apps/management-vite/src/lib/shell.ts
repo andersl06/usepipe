@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useEu, useSession } from '../context/session';
-import { api } from './api';
+import { api } from '@pipe/ui/api';
 import { APPLICATION } from './application-paths';
 import { useRead } from './query';
 

@@ -1,6 +1,6 @@
 import Link from '../../../components/link';
 import { ManagementIcon } from '../../../components/icones-management';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Navigate } from 'react-router-dom';
 import { portalUseShell } from '../../../lib/shell';
 import { APPLICATION, createNamePath } from '../../../lib/application-paths';

@@ -287,13 +287,6 @@ button {
   font-weight: var(--d-peso-negrito);
 }
 
-.dk-menu-titulo {
-  padding: 8px 24px;
-  font-size: 12px;
-  font-weight: var(--d-peso-semi);
-  color: var(--p-conteudo-desabilitado);
-}
-
 /*
  * ===================================================== the column (sidenav)
  *    `#container .sidenav { width: 25% }`, background on surface 2.
@@ -923,11 +916,6 @@ button {
   color: var(--p-alerta-conteudo);
 }
 
-.dk-chip-error {
-  background: var(--p-error-background);
-  color: var(--p-error-content);
-}
-
 .dk-chip-contorno {
   background: transparent;
   border: 1px solid var(--p-conteudo-desabilitado);
@@ -979,23 +967,6 @@ button {
   align-items: center;
   gap: 8px;
   margin: 8px 0;
-}
-
-/* `.badge-warning`: unread counter, 24px tall, 24px minimum, 12/700. */
-.dk-contador {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 24px;
-  min-width: 24px;
-  padding: 0 6px;
-  box-sizing: border-box;
-  border-radius: 12px;
-  background: var(--p-error-content);
-  color: var(--p-conteudo-claro);
-  font-size: 12px;
-  font-weight: var(--d-peso-negrito);
-  line-height: 20px;
 }
 
 /*
@@ -1103,17 +1074,6 @@ button {
   width: 20px;
   height: 20px;
   display: block;
-}
-
-/* An `x-small` icon on the strip (`.ticket-info-icon`), in ghost content color. */
-.dk-card-info-icon {
-  display: flex;
-  color: var(--p-conteudo-fantasma);
-}
-
-.dk-card-info-icon svg {
-  width: 20px;
-  height: 20px;
 }
 
 /*
@@ -1854,56 +1814,6 @@ button {
   width: 100%;
   padding: 32px;
   font-size: 16px;
-}
-
-/* A janela de 24h fechada: o aviso do `bds-alert` de aviso dentro do compositor. */
-.dk-alerta {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: var(--p-alerta-fundo);
-  color: var(--p-alerta-conteudo);
-  font-size: 14px;
-  line-height: 20px;
-}
-
-.dk-alerta svg {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-}
-
-.dk-alerta b {
-  display: block;
-  font-size: 16px;
-}
-
-/* The file-drop area, over the entire conversation (`.drop-container`). */
-.dk-soltar {
-  position: absolute;
-  inset: 0;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--p-superficie-1);
-  opacity: 0.9;
-}
-
-.dk-drop-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 96%;
-  height: 95%;
-  border: 7px dashed var(--p-superficie-3);
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: var(--d-peso-negrito);
-  line-height: 40px;
 }
 
 /*

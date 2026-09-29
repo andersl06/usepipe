@@ -1,5 +1,5 @@
 import Link from '../../../components/link';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { useRead } from '../../../lib/query';
 import type { ContactListed } from '@pipe/contracts';
 import { contactPath, useContact } from '../contact';

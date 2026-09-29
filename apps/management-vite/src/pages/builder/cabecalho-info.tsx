@@ -1,5 +1,5 @@
 import { Fragment, useState, type ReactNode } from 'react';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 
 export function CabecalhoInfo({
   titulo,

@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Illustration } from '@pipe/ui';
 import { BY_PAGE, type FlowOfPortal, type GradeDoPortal } from '@pipe/contracts';
 import { BarraDoPortal } from '../components/barra-do-portal';
-import { Selection } from '../components/selection';
-import { SearchIcon, IconePortal, type NomeDeIconePortal } from '../components/icones-portal';
+import { Pagination } from '@pipe/ui/pagination';
+import { SearchIcon, IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 import Link from '../components/link';
 import { portalUseShell, type PortalShell } from '../lib/shell';
 import { useRead } from '../lib/query';
@@ -126,11 +126,9 @@ export function PagePortal() {
                     ))}
                   </div>
                   <Pagination
-                    page={page}
-                    byPage={byPage}
-                    encontrados={data.encontrados}
-                    setPage={setPage}
-                    setByPage={setByPage}
+                    layout="portal"
+                    sizes={BY_PAGE}
+                    state={{ page, byPage, total: data.encontrados, setPage, setByPage }}
                   />
                 </>
               )}
@@ -138,126 +136,6 @@ export function PagePortal() {
           )}
         </div>
       </main>
-    </div>
-  );
-}
-
-/**
- * The source's pagination (`bds-pagination` with `page-counter`, `number-items` and `items-page`): item count on the left, items-per-page choice, and the pages on the right.
- *
- * The page and the items-per-page count live in React state. The portal's visible URL doesn't receive `pagina` or `por`; those values only exist in the call to `GET /v1/gestao/fluxos`.
- */
-function Pagination({
-  page,
-  byPage,
-  encontrados,
-  setPage,
-  setByPage,
-}: {
-  page: number;
-  byPage: number;
-  encontrados: number;
-  setPage: (page: number) => void;
-  setByPage: (quantity: number) => void;
-}) {
-  const tamanho = BY_PAGE.includes(byPage as never) ? byPage : BY_PAGE[0];
-  const pages = Math.max(1, Math.ceil(encontrados / tamanho));
-  const firstItem = encontrados === 0 ? 0 : (page - 1) * tamanho + 1;
-  const ultimoItem = Math.min(page * tamanho, encontrados);
-
-  /*
-   * Always shows, even with a single page: in the DOM of the eleven-bot account the bar is there, saying "1-11 de 11" and "de 1 páginas". Hiding it was our own invention.
-   */
-
-  return (
-    <div className="pt-pagination">
-      <div className="pt-pagination-left">
-        <label>Itens por página:</label>
-
-        <Selection
-          value={String(tamanho)}
-          aria-label="Itens por página"
-          onChange={(e) => {
-            setByPage(Number(e.target.value));
-            setPage(1);
-          }}
-        >
-          {BY_PAGE.map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </Selection>
-
-        <span className="pt-pagination-account">
-          {firstItem}-{ultimoItem} de {encontrados}
-        </span>
-      </div>
-
-      <nav className="pt-pagination-right" aria-label="Páginas">
-
-        {}
-        <button
-          type="button"
-          className="pt-pagination-icon"
-          disabled={page === 1}
-          onClick={() => setPage(1)}
-          aria-label="Primeira página"
-        >
-          «
-        </button>
-
-        {}
-        <button
-          type="button"
-          className="pt-pagination-icon"
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          aria-label="Página anterior"
-        >
-          ‹
-        </button>
-
-        {}
-        <Selection
-          value={String(page)}
-          aria-label="Página atual"
-          onChange={(e) => setPage(Number(e.target.value))}
-        >
-          {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </Selection>
-
-        <span className="pt-pagination-of">
-          de {pages} páginas
-        </span>
-
-        {}
-        <button
-          type="button"
-          className="pt-pagination-icon"
-          disabled={page === pages}
-          onClick={() => setPage(page + 1)}
-          aria-label="Próxima página"
-        >
-          ›
-        </button>
-
-        {}
-        <button
-          type="button"
-          className="pt-pagination-icon"
-          disabled={page === pages}
-          onClick={() => setPage(pages)}
-          aria-label="Última página"
-        >
-          »
-        </button>
-
-      </nav>
     </div>
   );
 }

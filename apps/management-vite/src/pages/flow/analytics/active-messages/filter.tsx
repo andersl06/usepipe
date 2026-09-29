@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 
 /**
  * The Active Messages filter — `St` (analytics-main.js 33556), dictionary `gt`. It's client-side for ONE visible reason: "Aplicar" starts disabled and only lights up when something changes (the `N`/`U()` of `Lx`: chip, date, or template). The rest is a plain GET form — the period, dates, and template go in the URL, and the (server) page reads from there, which is the origin's `K()`. It deliberately does not import `lib/analise.ts`: that file opens the database. Labels and date limits arrive via prop.

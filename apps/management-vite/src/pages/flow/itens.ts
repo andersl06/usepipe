@@ -31,7 +31,7 @@
  */
 
 import type { MyPermissionsInFlow } from '@pipe/contracts';
-import type { NomeDeIconePortal } from '../../components/icones-portal';
+import type { NomeDeIconePortal } from '@pipe/ui/icones-portal';
 
 /** `flow` and `router` are the source's `builder` and `master`. */
 export type ContactType = 'fluxo' | 'roteador';

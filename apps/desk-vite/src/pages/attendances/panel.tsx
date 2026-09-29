@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import type { ConversationOfDesk, LabelOfConversation, EtiquetaDoDesk } from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
 import { useDeskSelection } from '../../context/desk-selection';
-import { api } from '../../lib/api';
+import { api } from '@pipe/ui/api';
 import { useRead } from '../../lib/query';
 import { executar, atualizarLeituras } from '../../lib/actions';
 import { channelOf, numeroDoTicket } from '../../lib/channel';

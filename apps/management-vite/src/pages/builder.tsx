@@ -2,9 +2,9 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { BuilderOfFlow, BlockError, FlowResource, VersionOfFlow } from '@pipe/contracts';
 import { Botao, Campo, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../components/icones-management';
-import { IconePortal } from '../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { useEu } from '../context/session';
-import { ApiError } from '../lib/api';
+import { ApiError } from '@pipe/ui/api';
 import { useRead } from '../lib/query';
 import type { Resultado } from '../lib/rest';
 import { ContactBars, useContact } from './flow/contact';
@@ -16,8 +16,8 @@ import { QueuesPanel } from './builder/panel-queues';
 import { hasAttendanceBlock } from './builder/queues-panel';
 import { VariablesPanel } from './builder/panel-variables';
 import { ZOOM_MAXIMO, ZOOM_MINIMO, zoomAjustado } from './builder/setas';
-import { BuilderToasts } from './builder/toast';
-import { pushToast, dismissToast, type Toast, type ToastInput } from './builder/toast-queue';
+import { Toasts } from '@pipe/ui/toast';
+import { pushToast, dismissToast, type Toast, type ToastInput } from '@pipe/ui/toast-queue';
 import { useEditorDoBuilder } from './builder/use-editor';
 import { invalidBlocks } from './builder/error-marks';
 import { SEARCH_DEBOUNCE_MS } from './builder/search';
@@ -586,7 +586,7 @@ export function PageBuilder() {
         </div>
       </div>
 
-      <BuilderToasts
+      <Toasts
         toasts={toasts}
         onFechar={(id) => setToasts((prev) => dismissToast(prev, id))}
         onPausar={() => {}}

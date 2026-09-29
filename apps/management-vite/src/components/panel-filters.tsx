@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
-import { IconePortal } from './icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { PERIODOS, calculatePeriod, periodCurrent } from '../lib/periodos';
-import { Selection } from './selection';
+import { Select } from '@pipe/ui/select';
 
 /**
  * Reference Filter sidebar `data-testid="saved-filters-sidebar"` (`referencias-blip/fichas/FICHA-monitoring.md`, `FICHA-history.md`) starts closed, with title/subtitle, New query and Saved filters tabs, screen fields, saved-filter switch, and two footer buttons. Saved filters are structural only: no storage exists, so show an honest empty state; disable the footer switch with a reason. Apply uses a GET form, closes the panel, and navigates while state remains in the URL.
@@ -154,7 +154,7 @@ export function PanelField({
 export function FieldPeriod({ de, ate, fuso }: { de: string; ate: string; fuso: string }) {
   return (
     <PanelField rotulo="Período" apoio="Selecione um intervalo de datas">
-      <Selection
+      <Select
         name="periodo"
         defaultValue={periodCurrent(de, ate, fuso)}
         aria-label="Atalho de período"
@@ -174,7 +174,7 @@ export function FieldPeriod({ de, ate, fuso }: { de: string; ate: string; fuso: 
           </option>
         ))}
         <option value="personalizado">Personalizado</option>
-      </Selection>
+      </Select>
       <div className="panel-dates">
         <input type="date" name="de" defaultValue={de} aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} aria-label="Até" />

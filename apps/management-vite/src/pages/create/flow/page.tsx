@@ -1,5 +1,5 @@
 import Link from '../../../components/link';
-import { IconePortal } from '../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { Navigate } from 'react-router-dom';
 import { portalUseShell } from '../../../lib/shell';
 import { APPLICATION, createPath, createNamePath } from '../../../lib/application-paths';

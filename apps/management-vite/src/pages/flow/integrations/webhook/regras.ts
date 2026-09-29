@@ -34,11 +34,6 @@ export function validarUrls(urls: readonly string[]): boolean[] {
   return urls.map((url) => url === '' || urlValida(url, urls));
 }
 
-export function interruptorDesabilitado(urls: readonly string[]): boolean {
-  const semUrl = urls.length === 0 || urls[0] === '';
-  return semUrl || validarUrls(urls).some((ok) => !ok);
-}
-
 export function salvarDesabilitado(urls: readonly string[]): boolean {
   return validarUrls(urls).some((ok) => !ok);
 }

@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import type { VersionOfFlow } from '@pipe/contracts';
 import { Etiqueta, Icone } from '@pipe/ui';
-import { IconePortal } from '../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import type { Resultado } from '../../lib/rest';
-import { ModalConfirmation } from '../registrations/_modal';
+import { ConfirmModal } from '@pipe/ui/modal';
 import type { Mapa } from './model';
 import { lerDesenho } from './model';
 import { pseudoBlockOfGlobal, globalOfPseudoBlock } from './actions-global';
@@ -21,7 +21,7 @@ import {
   validateImport,
 } from './import-exportar';
 import { lastPublished, latestPublished, formatPublishedAt } from './versions-list';
-import type { ToastInput } from './toast-queue';
+import type { ToastInput } from '@pipe/ui/toast-queue';
 
 /**
  * The "Configuração" panel (`$ctrl.editConfig()`, `settings-builder` icon) — the source's 3 tabs
@@ -371,7 +371,7 @@ function VersionsTab({
         ) : null}
       </section>
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={pendente !== null}
         titulo="Carregar fluxo"
         message={MESSAGES_OF_IMPORT.disclaimer}
@@ -384,7 +384,7 @@ function VersionsTab({
         onCancelar={() => setPendente(null)}
       />
 
-      <ModalConfirmation
+      <ConfirmModal
         aberto={restoreTarget !== null}
         titulo="Restaurar versão"
         message={MESSAGES_OF_RESTORE.disclaimer}

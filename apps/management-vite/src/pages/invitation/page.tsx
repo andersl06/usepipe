@@ -1,7 +1,8 @@
 import { useParams } from 'react-router-dom';
 import type { InvitationVisible } from '@pipe/contracts';
 import { useRead } from '../../lib/query';
-import { inboundWithGoogleUrl } from '../../lib/inbound';
+import { inboundWithGoogleUrl } from '@pipe/ui/api';
+import { APPLICATION } from '../../lib/application-paths';
 import { FundoPipe } from '../fundo-pipe';
 
 /**
@@ -45,7 +46,7 @@ export function PageInvitation() {
                 <dd>{DATA.format(new Date(invitation.expiresAt))}</dd>
               </dl>
 
-              <a className="login-google" href={inboundWithGoogleUrl({ invitation: token })}>
+              <a className="login-google" href={inboundWithGoogleUrl({ invitation: token, destination: APPLICATION })}>
                 Entrar com Google e aceitar
               </a>
 

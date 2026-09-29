@@ -8,7 +8,7 @@ import {
   type Intervalo,
   type Period,
 } from '@pipe/core/analytics';
-import { IconePortal } from '../../../../components/icones-portal';
+import { IconePortal } from '@pipe/ui/icones-portal';
 import { useRead } from '../../../../lib/query';
 import { filterStorageKey, loadFilters, saveFilters } from '../../../../lib/filter-memory';
 import { useEu } from '../../../../context/session';
