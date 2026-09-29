@@ -3,12 +3,11 @@
  * `ref/CAPTURAS-F1-F6.md` §F-2): 8 collapsible sections, each writing one key of `flow.configuration`
  * (P:288224). Titles and descriptions are the literal captured texts, copied verbatim, not rewritten.
  *
- * Availability (D-56 item 3): the Pipe engine only reads `configuration` generically through
- * `{{config.X}}` (`packages/core/src/flow/context.ts`, `config: (nome, c) => c.flow.configuration?.[nome]`).
- * None of the Blip-reserved `builder:*` keys have engine behavior behind them — `defaultActionTimeLimitMs`
- * (`packages/core/src/flow/manager.ts`) is a fixed manager setting, not read per-flow from
- * `configuration['builder:actionExecutionTimeout']`. So only "Variáveis de configuração" (arbitrary user
- * keys) is functional; the other 7 sections show the Blip control disabled with the recorded value, if any.
+ * Availability (D-56 item 3): the Pipe engine reads `configuration` through `{{config.X}}`
+ * (`packages/core/src/flow/context.ts`) and reads two Blip-reserved keys itself:
+ * `builder:stateExpiration` (the saved block expires after that idle time) and
+ * `builder:actionExecutionTimeout` (replaces the 30 s default per action, `packages/core/src/flow/manager.ts`).
+ * Those three sections are functional; the other 5 show the Blip control disabled with the recorded value, if any.
  */
 
 export type ConfigurationControlType =
@@ -72,7 +71,7 @@ export const CONFIGURATION_SECTIONS: readonly ConfigurationSection[] = [
     controle: 'seconds',
     chave: 'builder:stateExpiration',
     rotuloCampo: 'Expiração da sessão',
-    disponivel: false,
+    disponivel: true,
   },
   {
     id: 'tempo-limite-acoes',
@@ -82,7 +81,7 @@ export const CONFIGURATION_SECTIONS: readonly ConfigurationSection[] = [
     controle: 'seconds',
     chave: 'builder:actionExecutionTimeout',
     rotuloCampo: 'Tempo limite de ações',
-    disponivel: false,
+    disponivel: true,
   },
   {
     id: 'identificador-fluxo',

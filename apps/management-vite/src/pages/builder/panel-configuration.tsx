@@ -28,8 +28,8 @@ import type { ToastInput } from './toast-queue';
  * (`portal.js`: "Variáveis", "Versões", "Ações Globais"), reproduced here plus the function library:
  *
  * - "Variáveis" (default tab, D-56 item 3): the 8 sections `configuration-sections.ts` captured
- *   (`panel-configuration-variables.tsx`). Only "Variáveis de configuração" is wired to the engine
- *   ({{config.X}}, read by `packages/core/src/flow/context.ts`); the other 7 show the Blip control
+ *   (`panel-configuration-variables.tsx`). "Variáveis de configuração" ({{config.X}}), "Expiração da
+ *   sessão" and "Tempo limite de ações" are wired to the engine; the other 5 show the Blip control
  *   disabled with the recorded value, marked "Não disponível no Pipe".
  * - "Versões" (where the source's "Carregar fluxo"/"Baixar fluxo" live, not a standalone button):
  *   downloads/reads the same `{flow, globalActions}` Blip uses; "Restaurar versão" restores the latest
