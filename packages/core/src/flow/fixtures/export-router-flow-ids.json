@@ -1,0 +1,229 @@
+{
+  "$comment": "Minimal shapes from the production export desk180326kgc0psrfuschzbsnvea.json, block \"Resetar contextos\" (058b9624-…): the /configuration/caller → script → /flow-id?shortname → set stateid@ chain. Settings verbatim; no secrets.",
+  "stateId": "058b9624-23ed-4446-bf3c-73ffa85c89b2",
+  "enteringActions": [
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@msging.net",
+        "method": "get",
+        "uri": "/configuration/caller",
+        "variable": "configCallerResponse"
+      }
+    },
+    {
+      "type": "ExecuteScript",
+      "settings": {
+        "function": "run",
+        "source": "function run(configCallerResponse, personalizedSkillName) {\n  try {\n    configCallerResponse = JSON.parse(configCallerResponse);\n    let services = configCallerResponse.resource.items;\n    let item = services.find(item => item['name'] === 'Application');\n    let routerStructure = JSON.parse(item.value).settings.children;\n    \n    return routerStructure\n      .filter(item => item['shortName'])\n      .reduce((acc, item) => {\n        acc[item['service']] = item['shortName'];\n        return acc;\n      }, {});\n  } catch (e) {\n    return {};\n  }\n}",
+        "inputVariables": [
+          "configCallerResponse"
+        ],
+        "outputVariable": "serviceNames",
+        "LocalTimeZoneEnabled": false
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "get",
+        "uri": "/flow-id?shortname={{serviceNames@Main}}",
+        "variable": "flowIdMain"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "get",
+        "uri": "/flow-id?shortname={{serviceNames@NotaCerta}}",
+        "variable": "flowIdNotaCerta"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "get",
+        "uri": "/flow-id?shortname={{serviceNames@Tratativas}}",
+        "variable": "flowIdTratativas"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "get",
+        "uri": "/flow-id?shortname={{serviceNames@PreMain}}",
+        "variable": "flowIdPreMain"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "get",
+        "uri": "/flow-id?shortname={{serviceNames@PreDesk}}",
+        "variable": "flowIdPreDesk"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "get",
+        "uri": "/flow-id?shortname={{serviceNames@PreSurvey}}",
+        "variable": "flowIdPreSurvey"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "get",
+        "uri": "/flow-id?shortname={{serviceNames@PostSurvey}}",
+        "variable": "flowIdPostSurvey"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "get",
+        "uri": "/flow-id?shortname={{serviceNames@PreEnd}}",
+        "variable": "flowIdPreEnd"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "get",
+        "uri": "/flow-id?shortname={{serviceNames@PreFaq}}",
+        "variable": "flowIdPreFaq"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "get",
+        "uri": "/flow-id?shortname={{serviceNames@PostHS}}",
+        "variable": "flowIdPostHS"
+      }
+    }
+  ],
+  "leavingActions": [
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "set",
+        "resource": "{\n    \"resource\": \"onboarding\"\n}\n        ",
+        "type": "text/plain",
+        "uri": "/contexts/{{contact.identity}}/stateid@{{flowIdMain@resource}}",
+        "variable": "processedContext"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "set",
+        "resource": "{\n    \"resource\": \"onboarding\"\n}\n        ",
+        "type": "text/plain",
+        "uri": "/contexts/{{contact.identity}}/stateid@{{flowIdNotaCerta@resource}}",
+        "variable": "processedContext"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "set",
+        "resource": "{\n    \"resource\": \"onboarding\"\n}\n        ",
+        "type": "text/plain",
+        "uri": "/contexts/{{contact.identity}}/stateid@{{flowIdTratativas@resource}}",
+        "variable": "processedContext"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "set",
+        "resource": "{\n    \"resource\": \"onboarding\"\n}\n        ",
+        "type": "text/plain",
+        "uri": "/contexts/{{contact.identity}}/stateid@{{flowIdPreMain@resource}}",
+        "variable": "processedContext"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "set",
+        "resource": "{\n    \"resource\": \"onboarding\"\n}\n        ",
+        "type": "text/plain",
+        "uri": "/contexts/{{contact.identity}}/stateid@{{flowIdPreFaq@resource}}",
+        "variable": "processedContext"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "set",
+        "resource": "{\n    \"resource\": \"onboarding\"\n}\n        ",
+        "type": "text/plain",
+        "uri": "/contexts/{{contact.identity}}/stateid@{{flowIdPreDesk@resource}}",
+        "variable": "processedContext"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "set",
+        "resource": "{\n    \"resource\": \"onboarding\"\n}\n        ",
+        "type": "text/plain",
+        "uri": "/contexts/{{contact.identity}}/stateid@{{flowIdPreSurvey@resource}}",
+        "variable": "processedContext"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "set",
+        "resource": "{\n    \"resource\": \"onboarding\"\n}\n        ",
+        "type": "text/plain",
+        "uri": "/contexts/{{contact.identity}}/stateid@{{flowIdPostSurvey@resource}}",
+        "variable": "processedContext"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "set",
+        "resource": "{\n    \"resource\": \"onboarding\"\n}\n        ",
+        "type": "text/plain",
+        "uri": "/contexts/{{contact.identity}}/stateid@{{flowIdPreEnd@resource}}",
+        "variable": "processedContext"
+      }
+    },
+    {
+      "type": "ProcessCommand",
+      "settings": {
+        "to": "postmaster@builder.msging.net",
+        "method": "set",
+        "resource": "{\n    \"resource\": \"onboarding\"\n}\n        ",
+        "type": "text/plain",
+        "uri": "/contexts/{{contact.identity}}/stateid@{{flowIdPostHS@resource}}",
+        "variable": "processedContext"
+      }
+    }
+  ]
+}

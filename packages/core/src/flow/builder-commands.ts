@@ -68,7 +68,7 @@ function variableKey(name: string): string {
 
 function visibleVariables(context: Context): string[] {
   return Object.keys(context.variables).filter(
-    (name) => name !== EXPIRATIONS_KEY && contextGetVariable(context, name) !== null,
+    (name) => name !== EXPIRATIONS_KEY && !name.startsWith('#') && contextGetVariable(context, name) !== null,
   );
 }
 
