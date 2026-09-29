@@ -4,6 +4,7 @@
 
 import type { ActionDeadline, CommandRequest, Context, PedidoDeHttp } from './context.js';
 import { matchCommand } from './commands.js';
+import { runLocalCommand } from './builder-commands.js';
 import { KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable, stateKey } from './context.js';
 
 export type Settings = Record<string, unknown> | null;
@@ -78,7 +79,15 @@ const nativeCommand = (tipo: 'SendCommand' | 'ProcessCommand'): AcaoDoMotor => (
       return;
     }
     const method = (comoTexto(campo(c, 'method')) ?? (tipo === 'ProcessCommand' ? 'GET' : 'set')).toUpperCase();
-    const request = requireKnownCommand(this.tipo, c, method);
+    const request = { ...requireKnownCommand(this.tipo, c, method), flowId: context.flow.id };
+    const local = await runLocalCommand(context, request);
+    if (local) {
+      if (tipo === 'SendCommand') return;
+      const output = comoTexto(campo(c, 'variable'))?.trim();
+      if (!output) throw new Error("O valor 'variable' é obrigatório na ação 'ProcessCommand'.");
+      setContextVariable(context, output, JSON.stringify(local));
+      return;
+    }
     if (tipo === 'SendCommand') {
       if (!context.services.sendCommand) throw new Error("A ação 'SendCommand' não está disponível neste fluxo.");
       await context.services.sendCommand(request);
