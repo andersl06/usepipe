@@ -28,22 +28,19 @@ import type {
   ImportReport,
   Saida,
   ServicosDoMotor,
-  CommandRequest,
 } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { emitir } from '../webhooks-saida.js';
-import { distributeConversation } from './distribution.js';
 import { registrarEvento } from './eventos.js';
-import { evaluatePriority, loadRulesOfPriorityActive } from './management/priority-engine.js';
 import { redirectInRouter, serviceOfRouter } from './router.js';
 import { chamarComMtls } from './mtls.js';
-import { runFlowScript, scriptFetch } from './script-sandbox.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 import { loadFlowFunctions } from './management/flow-functions.js';
 import { loadFlowResources } from './management/flow-resources.js';
 import { closeInTransaction, type LineConversation } from './conversation.js';
-import { DESK_READ_COMMANDS } from './desk-commands.js';
+import { engineServices, isFlowOfTenant, type TicketEffects } from './engine-services.js';
+import { enterQueue } from './queue-entry.js';
 import type { TipoEnvio } from './envio.js';
 
 /**
@@ -172,91 +169,6 @@ export interface ResultOfFlow {
   /** Number of replies written to the outbox, used to nudge delivery after commit. */
   respostas: number;
   processHttpId?: string;
-}
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-/**
- * Runs a command the engine already routed (`COMMAND_ROUTES` in `@pipe/core`); arbitrary LIME is never
- * forwarded. Desk reads answer in Blip's shapes (`desk-commands.ts`). The `pipe.tickets.*` routes act on
- * the current conversation in Pipe's vocabulary: `/transfer` and `/status` change it only through the
- * same domain paths a human handoff/closure uses (`transferir` = the bot's attendance handoff
- * `transbordar`, and `closeInTransaction`), so events, SLA, webhooks and distribution fire.
- */
-async function executeNativeCommand(
-  tx: TransactionPipe,
-  e: InboundInFlow,
-  { uri, resource, command }: CommandRequest,
-  waitForResponse: boolean,
-  transferir: (sp: TransactionPipe, queueId: string) => Promise<void>,
-): Promise<unknown> {
-  const deskRead = DESK_READ_COMMANDS[command.route];
-  if (deskRead) {
-    const response = await deskRead(tx, e.tenantId, command);
-    return waitForResponse ? response : undefined;
-  }
-  const body = resource && typeof resource === 'object' ? resource as Record<string, unknown> : {};
-  const route = command.route;
-  if (!['pipe.tickets.get', 'pipe.tickets.changeTags', 'pipe.tickets.transfer', 'pipe.tickets.status', 'pipe.tickets.priority'].includes(route)) {
-    throw new Error(`A URI '${uri}' não é executada no Pipe.`);
-  }
-  const result: Record<string, unknown> = { status: 'success', reason: 'OK', resource: null };
-  if (route === 'pipe.tickets.changeTags') {
-    const tags = Array.isArray(body['tags']) ? body['tags'].filter((tag): tag is string => typeof tag === 'string') : [];
-    for (const name of tags) {
-      const { rows } = await tx.execute<{ id: string }>(sql`
-        insert into etiqueta (tenant_id, nome, escopo, atualizado_em)
-        values (${e.tenantId}, ${name}, 'conversa', now())
-        on conflict (tenant_id, nome) do update set atualizado_em = now()
-        returning id
-      `);
-      await tx.execute(sql`
-        insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, em)
-        values (${e.tenantId}, ${e.conversation.id}, ${rows[0]!.id}, now()) on conflict do nothing
-      `);
-    }
-    result.resource = { tags };
-  } else if (route === 'pipe.tickets.transfer') {
-    const queueId = typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;
-    if (!queueId) throw new Error("O comando de transferência exige 'queueId'.");
-    if (!UUID.test(queueId)) throw new Error(`O comando de transferência recebeu um 'queueId' inválido: '${queueId}'.`);
-    // Explicit tenant filter: the foreign key alone accepts another tenant's queue (it ignores RLS).
-    const { rows: filas } = await tx.execute<{ id: string }>(sql`
-      select id from fila where id = ${queueId}::uuid and tenant_id = ${e.tenantId}::uuid and ativa limit 1
-    `);
-    if (!filas[0]) throw new Error(`A fila '${queueId}' não existe neste Pipe.`);
-    await transferir(tx, queueId);
-    result.resource = { queueId };
-  } else if (route === 'pipe.tickets.status') {
-    const status = typeof body['status'] === 'string' ? body['status'] : null;
-    if (!status || !['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'].includes(status)) throw new Error("O comando de status exige um status do Pipe válido.");
-    if (status === 'na_fila') {
-      if (!e.conversation.queueDefaultId) throw new Error('A inbox do canal não tem fila padrão: o bot não tem para onde transferir.');
-      await transferir(tx, e.conversation.queueDefaultId);
-    } else if (status === 'encerrada') {
-      const { rows } = await tx.execute<LineConversation>(sql`
-        select id, estado as state, fila_id as "queueId", atendente_id as "agentId", em_espera_desde
-          from conversa where id = ${e.conversation.id} and tenant_id = ${e.tenantId}::uuid limit 1
-      `);
-      if (!rows[0]) throw new Error('A conversa não existe.');
-      await closeInTransaction(tx, e.tenantId, rows[0], null, [], new Date());
-    } else {
-      // The state machine only reaches these with an agent (`atribuida` → `em_atendimento` → `em_espera`).
-      throw new Error(`O bot não pode colocar a conversa em '${status}': esse estado exige um atendente.`);
-    }
-    result.resource = { status };
-  } else if (route === 'pipe.tickets.priority') {
-    const priority = typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;
-    if (!priority || !['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'].includes(priority)) throw new Error("O comando de prioridade exige um nível do Pipe válido.");
-    await tx.execute(sql`update conversa set prioridade = ${priority}, atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
-    result.resource = { priority };
-  } else {
-    const { rows } = await tx.execute<{ id: string; estado: string; prioridade: string; fila_id: string | null }>(sql`
-      select id, estado, prioridade, fila_id from conversa where id = ${e.conversation.id} and tenant_id = ${e.tenantId}
-    `);
-    result.resource = rows[0] ?? null;
-  }
-  return waitForResponse ? result : undefined;
 }
 
 const NAO_TRATOU: ResultOfFlow = { tratou: false, respostas: 0 };
@@ -404,256 +316,203 @@ export async function runFlowInInbound(
     transferida = true;
   };
 
-  const servicos: ServicosDoMotor = {
-    send: async (m, signal) => {
-      const saida = toChannelOutput(await resolveDynamicContent(m, e.tenantId, signal ? { signal } : {}));
-      if (saida === null) return;
-      // An action past its time limit must not record a reply (CR-06).
-      signal?.throwIfAborted();
-      await emSavepoint((sp) => gravarRespostaDoBot(
-        sp,
-        e.tenantId,
-        conversation.id,
-        saida.texto,
-        relogio(),
-        saida.dados,
-        saida.tipo,
-      ));
-      respostas += 1;
-    },
-    forwardForAttendance: async ({ settings }) => {
-      const queueId =
-        typeof settings?.['filaId'] === 'string' ? settings['filaId'] : conversation.queueDefaultId;
-      return emSavepoint(async (sp) => {
-        await transferirPeloBot(sp, queueId);
-        return ticketOfConversation(sp, conversation.id);
-      });
-    },
-    registerEvent: async (evento) => {
-      eventos.push(evento);
-    },
-    mergeContact: async (fields) => {
-      const updates: ReturnType<typeof sql>[] = [];
-      const extras: Record<string, unknown> = {};
-      const textColumns: Record<string, string> = {
-        name: 'nome',
-        email: 'email',
-        phoneNumber: 'telefone_e164',
-        taxDocument: 'documento',
-      };
-      for (const [key, column] of Object.entries(textColumns)) {
-        if (Object.prototype.hasOwnProperty.call(fields, key)) {
-          updates.push(sql`${sql.raw(column)} = ${fields[key] ?? null}`);
-        }
-      }
-      for (const key of ['city', 'gender']) {
-        if (Object.prototype.hasOwnProperty.call(fields, key)) extras[key] = fields[key];
-      }
-      if (fields.extras && typeof fields.extras === 'object' && !Array.isArray(fields.extras)) {
-        Object.assign(extras, fields.extras);
-      }
-      if (Object.keys(extras).length > 0) {
-        updates.push(sql`atributos = coalesce(atributos, '{}'::jsonb) || ${JSON.stringify(extras)}::jsonb`);
-      }
-      if (updates.length === 0) return;
-      // The execution is already inside noTenant; the id is deliberately the current
-      // execution contact, so a flow setting contact_id cannot cross tenant boundaries.
-      await emSavepoint((sp) => sp.execute(sql`update contato set ${sql.join(updates, sql`, `)}, atualizado_em = now()
-        where id = ${e.contactId}`));
-    },
-    recordSatisfactionAnswer: (answer) => emSavepoint(async (tx) => {
-      const recent = await mostRecentClosedAttendance(tx, e.contactId, conversation.id);
-      const blockId = variables[stateKey(flow.id)] ?? null;
-      await tx.execute(sql`
-        insert into pesquisa_satisfacao_resposta (
-          tenant_id, conversa_id, conversa_atendimento_id, fluxo_bloco_id, fila_id,
-          atendente_id, contato_id, nota, comentario, estado, respondida_em
-        ) values (
-          ${e.tenantId}, ${conversation.id}, ${recent?.id ?? null}, ${blockId},
-          ${recent?.queueId ?? null}, ${recent?.agentId ?? null}, ${e.contactId},
-          ${answer.rating}, ${answer.comment}, ${answer.status},
-          ${answer.status === 'sem_resposta' ? null : relogio()}
-        )
+  const tickets: TicketEffects = {
+    get: async (sp) => {
+      const { rows } = await sp.execute<{ id: string; estado: string; prioridade: string; fila_id: string | null }>(sql`
+        select id, estado, prioridade, fila_id from conversa where id = ${e.conversation.id} and tenant_id = ${e.tenantId}
       `);
-    }),
-    callHttp: async (pedido: PedidoDeHttp, signal?: AbortSignal) => {
-      confirmarUrlSegura(pedido.url);
-      try {
-        const resposta = await chamarComMtls(e.tenantId, pedido.url, {
-          metodo: pedido.metodo,
-          headers: pedido.cabecalhos,
-          body: pedido.corpo,
-          // Future work: this call still runs INSIDE the inbound transaction, holding a
-          // database connection; the engine caps it at the action's time limit and aborts it there.
-          timeoutMs: pedido.timeoutMs,
-          ...(signal ? { signal } : {}),
-        });
-        const corpo = await resposta.texto();
-        const limite = Number(process.env['PIPE_PROCESS_HTTP_MAX_RESPOSTA_BYTES'] ?? 1_048_576);
-        return { status: resposta.status, corpo: corpo.slice(0, limite) };
-      } catch (erro) {
-        // Source rule: network failure or timeout must not abort ProcessHttp; the flow receives a synthetic status.
-        const message = erro instanceof Error ? erro.message : String(erro);
-        const timeout = /timeout|aborted|timed out/i.test(message);
-        return {
-          status: timeout ? 504 : 503,
-          corpo: JSON.stringify({ error: timeout ? 'timeout' : 'network_error', message: message }),
-        };
-      }
+      return rows[0] ?? null;
     },
-    // Like callHttp, the script (up to 10 s) still runs inside the inbound transaction.
-    runScript: (request) =>
-      runFlowScript(request, { fetch: scriptFetch(e.tenantId), library: flowFunctions.values() }),
-    runFlowFunction: async ({ functionId, args }) => {
-      const definition = flowFunctions.get(functionId);
-      if (!definition) throw new Error(`A função '${functionId}' não existe neste fluxo.`);
-      if (definition.parameters.length !== args.length) {
-        throw new Error(`A função '${definition.name}' esperava ${definition.parameters.length} parâmetro(s).`);
-      }
-      return runFlowScript({
-        version: 2,
-        source: definition.code,
-        functionName: definition.name,
-        args,
-        timeoutMs: 10_000,
-        localTimeZone: false,
-      }, { fetch: scriptFetch(e.tenantId) });
-    },
-    bucketSet: ({ key, type, value, scope, expirationSeconds }) => emSavepoint(async (tx) => {
-      if (JSON.stringify(value).length > 65_536) throw new Error('O documento da ação SetBucket excede 64 KB.');
-      const contactId = scope === 'contact' ? e.contactId : null;
-      const expiresAt = expirationSeconds ? new Date(Date.now() + expirationSeconds * 1000) : null;
-      if (scope === 'global') {
-        await tx.execute(sql`
-          insert into gravar_memoria (tenant_id, contato_id, escopo, chave, valor, expira_em, atualizado_em)
-          values (${e.tenantId}, null, 'global', ${key}, ${JSON.stringify({ type, value })}::jsonb, ${expiresAt}, now())
-          on conflict (tenant_id, chave) where escopo = 'global'
-          do update set valor = excluded.valor, expira_em = excluded.expira_em, atualizado_em = now()
+    changeTags: async (sp, tags) => {
+      for (const name of tags) {
+        const { rows } = await sp.execute<{ id: string }>(sql`
+          insert into etiqueta (tenant_id, nome, escopo, atualizado_em)
+          values (${e.tenantId}, ${name}, 'conversa', now())
+          on conflict (tenant_id, nome) do update set atualizado_em = now()
+          returning id
         `);
-      } else {
-        await tx.execute(sql`
-          insert into gravar_memoria (tenant_id, contato_id, escopo, chave, valor, expira_em, atualizado_em)
-          values (${e.tenantId}, ${contactId}, 'contact', ${key}, ${JSON.stringify({ type, value })}::jsonb, ${expiresAt}, now())
-          on conflict (tenant_id, contato_id, chave) where escopo = 'contact'
-          do update set valor = excluded.valor, expira_em = excluded.expira_em, atualizado_em = now()
+        await sp.execute(sql`
+          insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, em)
+          values (${e.tenantId}, ${e.conversation.id}, ${rows[0]!.id}, now()) on conflict do nothing
         `);
       }
-    }),
-    bucketGet: ({ key, scope }) => emSavepoint(async (tx) => {
-      const { rows } = await tx.execute<{ valor: { value?: unknown } }>(sql`
-        select valor from gravar_memoria
-         where tenant_id = ${e.tenantId} and chave = ${key}
-           and escopo = ${scope} and (${scope === 'global' ? sql`true` : sql`contato_id = ${e.contactId}`})
-           and (expira_em is null or expira_em > now())
-         limit 1
-      `);
-      return rows[0]?.valor?.value ?? null;
-    }),
-    listManage: ({ name, operation }) => emSavepoint(async (tx) => {
-      const { rows } = await tx.execute<{ id: string }>(sql`
-        insert into lista_distribuicao (tenant_id, nome, atualizado_em)
-        values (${e.tenantId}, ${name}, now())
-        on conflict (tenant_id, nome) do update set atualizado_em = now()
-        returning id
-      `);
-      if (operation === 'Remove') {
-        await tx.execute(sql`
-          delete from lista_distribuicao_contato c using lista_distribuicao l
-           where c.lista_id = l.id and c.tenant_id = ${e.tenantId} and l.tenant_id = ${e.tenantId}
-             and l.nome = ${name} and c.contato_id = ${e.contactId}
-        `);
-      } else {
-        await tx.execute(sql`
-          insert into lista_distribuicao_contato (tenant_id, lista_id, contato_id, atualizado_em)
-          values (${e.tenantId}, ${rows[0]!.id}, ${e.contactId}, now())
-          on conflict (tenant_id, lista_id, contato_id) do nothing
-        `);
-      }
-    }),
-    sendCommand: async (request) => {
-      await emSavepoint((sp) => executeNativeCommand(sp, e, request, false, transferirPeloBot));
     },
-    processCommand: (request) =>
-      emSavepoint((sp) => executeNativeCommand(sp, e, request, true, transferirPeloBot)),
-    // Blip `set /contexts/{contact}/stateid@{flow}`: the flow's saved block lives in the contact's
-    // latest execution context of that flow (`stateId@<flowId>`), which the next execution inherits.
-    setFlowState: ({ flowId, stateId }) => emSavepoint(async (sp) => {
-      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(flowId)) return false;
-      const { rows: fluxos } = await sp.execute<{ id: string }>(sql`
-        select id from fluxo where id = ${flowId}::uuid and tenant_id = ${e.tenantId}
+    transfer: (sp, queueId) => transferirPeloBot(sp, queueId),
+    enqueue: (sp) => transferirPeloBot(sp, null),
+    close: async (sp, closedBy) => {
+      const { rows } = await sp.execute<LineConversation>(sql`
+        select id, estado as state, fila_id as "queueId", atendente_id as "agentId", em_espera_desde
+          from conversa where id = ${e.conversation.id} and tenant_id = ${e.tenantId}::uuid limit 1
       `);
-      if (!fluxos[0]) return false;
-      await sp.execute(sql`
-        update execucao_fluxo
-           set contexto = coalesce(contexto, '{}'::jsonb) || jsonb_build_object(${`stateId@${flowId}`}::text, ${stateId}::text)
-         where id = (
-           select ex.id from execucao_fluxo ex
-             join fluxo_versao v on v.id = ex.fluxo_versao_id
-            where ex.contato_id = ${e.contactId} and v.fluxo_id = ${flowId}::uuid
-            order by ex.iniciada_em desc
-            limit 1
-         )
-      `);
-      return true;
-    }),
-    respondWithKnowledge: ({ text, minimumConfidence }) => emSavepoint(async (tx) => {
-      const words = text.toLowerCase().split(/\W+/).filter((word) => word.length > 2).slice(0, 12);
-      const pattern = words.length > 0 ? `%${words[0]}%` : '%';
-      const { rows } = await tx.execute<{ texto: string }>(sql`
-        select t.texto from trecho_conhecimento t
-        join documento_conhecimento d on d.id = t.documento_id and d.tenant_id = ${e.tenantId} and d.ativo = true
-        join base_conhecimento b on b.id = d.base_id and b.tenant_id = ${e.tenantId} and b.ativa = true
-        where t.tenant_id = ${e.tenantId} and t.texto ilike ${pattern}
-        order by t.ordem asc limit 1
-      `);
-      if (!rows[0]) return { answer: null, confidence: 0 };
-      const lower = rows[0].texto.toLowerCase();
-      const hits = words.filter((word) => lower.includes(word)).length;
-      const confidence = Math.min(1, Math.max(0.1, hits / Math.max(words.length, 1)));
-      return confidence >= minimumConfidence ? { answer: rows[0].texto, confidence } : { answer: null, confidence };
-    }),
-    suspendHttp: async (pedido, cursor) => {
-      confirmarUrlSegura(pedido.url);
-      const key = `${executionId}:${e.message.idProvedor}:${cursor.estadoId ?? 'global'}:${cursor.lista}:${cursor.indice}`;
-      const { rows } = await tx.execute<{ id: string }>(sql`
-        insert into process_http_execucao (
-          tenant_id, execucao_id, chave, bloco_id, bloco_codigo, lista, indice,
-          entrada, contexto, pedido, estado
-        ) values (
-          ${e.tenantId}, ${executionId}, ${key},
-          ${cursor.estadoId ? (blockByCode.get(cursor.estadoId) ?? null) : null},
-          ${cursor.estadoId ?? ''}, ${cursor.lista}, ${cursor.indice},
-          ${JSON.stringify({
-            id: e.message.id,
-            id_provedor: e.message.idProvedor,
-            tipo: e.message.type,
-            conteudo: e.message.content,
-          })}::jsonb,
-          ${JSON.stringify(variables)}::jsonb, ${JSON.stringify(pedido)}::jsonb, 'pendente'
-        )
-        on conflict (execucao_id, chave) do nothing
-        returning id
-      `);
-      processHttpId = rows[0]?.id;
-      // O cursor fica committed antes de liberar a chamada externa.
-      throw new SuspensaoDeProcessHttp(pedido, cursor);
+      if (!rows[0]) throw new Error('A conversa não existe.');
+      await closeInTransaction(sp, e.tenantId, rows[0], null, [], new Date(), closedBy);
     },
-    // The Redirect `context` is not delivered as the destination's first input;
-    // the destination starts on the next customer message. Delivering it immediately would require running the destination flow engine here.
-    // destino aqui dentro, com o fluxo dele carregado.
-    ...(roteador
-      ? {
-          redirect: async ({ endereco }: { endereco: string }) => {
-            await redirectInRouter(tx, {
-              tenantId: e.tenantId,
-              routerId: roteador.id,
-              contactId: e.contactId,
-              service: endereco,
-            });
-          },
-        }
-      : {}),
+    setPriority: async (sp, priority) => {
+      await sp.execute(sql`update conversa set prioridade = ${priority}, atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
+    },
   };
+
+  const servicos: ServicosDoMotor = engineServices({
+    tenantId: e.tenantId,
+    flowFunctions,
+    isolate: emSavepoint,
+    effects: {
+      tickets,
+      send: async (m, signal) => {
+        const saida = toChannelOutput(await resolveDynamicContent(m, e.tenantId, signal ? { signal } : {}));
+        if (saida === null) return;
+        // An action past its time limit must not record a reply (CR-06).
+        signal?.throwIfAborted();
+        await emSavepoint((sp) => gravarRespostaDoBot(
+          sp,
+          e.tenantId,
+          conversation.id,
+          saida.texto,
+          relogio(),
+          saida.dados,
+          saida.tipo,
+        ));
+        respostas += 1;
+      },
+      // An explicit `filaId` wins; without one the attendance rules, then the inbox default, decide.
+      forwardForAttendance: async ({ settings }) => {
+        const queueId = typeof settings?.['filaId'] === 'string' ? settings['filaId'] : null;
+        return emSavepoint(async (sp) => {
+          await transferirPeloBot(sp, queueId);
+          return ticketOfConversation(sp, conversation.id);
+        });
+      },
+      registerEvent: async (evento) => {
+        eventos.push(evento);
+      },
+      // The execution is already inside noTenant; the id is deliberately the current execution
+      // contact, so a flow setting contact_id cannot cross tenant boundaries.
+      saveContact: async ({ columns, extras }) => {
+        const updates = Object.entries(columns).map(([column, value]) => sql`${sql.raw(column)} = ${value ?? null}`);
+        if (Object.keys(extras).length > 0) {
+          updates.push(sql`atributos = coalesce(atributos, '{}'::jsonb) || ${JSON.stringify(extras)}::jsonb`);
+        }
+        await emSavepoint((sp) => sp.execute(sql`update contato set ${sql.join(updates, sql`, `)}, atualizado_em = now()
+          where id = ${e.contactId}`));
+      },
+      recordSatisfactionAnswer: (answer) => emSavepoint(async (tx) => {
+        const recent = await mostRecentClosedAttendance(tx, e.contactId, conversation.id);
+        const blockId = variables[stateKey(flow.id)] ?? null;
+        await tx.execute(sql`
+          insert into pesquisa_satisfacao_resposta (
+            tenant_id, conversa_id, conversa_atendimento_id, fluxo_bloco_id, fila_id,
+            atendente_id, contato_id, nota, comentario, estado, respondida_em
+          ) values (
+            ${e.tenantId}, ${conversation.id}, ${recent?.id ?? null}, ${blockId},
+            ${recent?.queueId ?? null}, ${recent?.agentId ?? null}, ${e.contactId},
+            ${answer.rating}, ${answer.comment}, ${answer.status},
+            ${answer.status === 'sem_resposta' ? null : relogio()}
+          )
+        `);
+      }),
+      bucketSet: ({ key, type, value, scope, expirationSeconds }) => emSavepoint(async (tx) => {
+        const contactId = scope === 'contact' ? e.contactId : null;
+        const expiresAt = expirationSeconds ? new Date(Date.now() + expirationSeconds * 1000) : null;
+        if (scope === 'global') {
+          await tx.execute(sql`
+            insert into gravar_memoria (tenant_id, contato_id, escopo, chave, valor, expira_em, atualizado_em)
+            values (${e.tenantId}, null, 'global', ${key}, ${JSON.stringify({ type, value })}::jsonb, ${expiresAt}, now())
+            on conflict (tenant_id, chave) where escopo = 'global'
+            do update set valor = excluded.valor, expira_em = excluded.expira_em, atualizado_em = now()
+          `);
+        } else {
+          await tx.execute(sql`
+            insert into gravar_memoria (tenant_id, contato_id, escopo, chave, valor, expira_em, atualizado_em)
+            values (${e.tenantId}, ${contactId}, 'contact', ${key}, ${JSON.stringify({ type, value })}::jsonb, ${expiresAt}, now())
+            on conflict (tenant_id, contato_id, chave) where escopo = 'contact'
+            do update set valor = excluded.valor, expira_em = excluded.expira_em, atualizado_em = now()
+          `);
+        }
+      }),
+      bucketGet: ({ key, scope }) => emSavepoint(async (tx) => {
+        const { rows } = await tx.execute<{ valor: { value?: unknown } }>(sql`
+          select valor from gravar_memoria
+           where tenant_id = ${e.tenantId} and chave = ${key}
+             and escopo = ${scope} and (${scope === 'global' ? sql`true` : sql`contato_id = ${e.contactId}`})
+             and (expira_em is null or expira_em > now())
+           limit 1
+        `);
+        return rows[0]?.valor?.value ?? null;
+      }),
+      listManage: ({ name, operation }) => emSavepoint(async (tx) => {
+        const { rows } = await tx.execute<{ id: string }>(sql`
+          insert into lista_distribuicao (tenant_id, nome, atualizado_em)
+          values (${e.tenantId}, ${name}, now())
+          on conflict (tenant_id, nome) do update set atualizado_em = now()
+          returning id
+        `);
+        if (operation === 'Remove') {
+          await tx.execute(sql`
+            delete from lista_distribuicao_contato c using lista_distribuicao l
+             where c.lista_id = l.id and c.tenant_id = ${e.tenantId} and l.tenant_id = ${e.tenantId}
+               and l.nome = ${name} and c.contato_id = ${e.contactId}
+          `);
+        } else {
+          await tx.execute(sql`
+            insert into lista_distribuicao_contato (tenant_id, lista_id, contato_id, atualizado_em)
+            values (${e.tenantId}, ${rows[0]!.id}, ${e.contactId}, now())
+            on conflict (tenant_id, lista_id, contato_id) do nothing
+          `);
+        }
+      }),
+      // Blip `set /contexts/{contact}/stateid@{flow}`: the flow's saved block lives in the contact's
+      // latest execution context of that flow (`stateId@<flowId>`), which the next execution inherits.
+      setFlowState: ({ flowId, stateId }) => emSavepoint(async (sp) => {
+        if (!(await isFlowOfTenant(sp, e.tenantId, flowId))) return false;
+        await sp.execute(sql`
+          update execucao_fluxo
+             set contexto = coalesce(contexto, '{}'::jsonb) || jsonb_build_object(${stateKey(flowId)}::text, ${stateId}::text)
+           where id = (
+             select ex.id from execucao_fluxo ex
+               join fluxo_versao v on v.id = ex.fluxo_versao_id
+              where ex.contato_id = ${e.contactId} and v.fluxo_id = ${flowId}::uuid
+              order by ex.iniciada_em desc
+              limit 1
+           )
+        `);
+        return true;
+      }),
+    },
+  });
+  servicos.suspendHttp = async (pedido, cursor) => {
+    confirmarUrlSegura(pedido.url);
+    const key = `${executionId}:${e.message.idProvedor}:${cursor.estadoId ?? 'global'}:${cursor.lista}:${cursor.indice}`;
+    const { rows } = await tx.execute<{ id: string }>(sql`
+      insert into process_http_execucao (
+        tenant_id, execucao_id, chave, bloco_id, bloco_codigo, lista, indice,
+        entrada, contexto, pedido, estado
+      ) values (
+        ${e.tenantId}, ${executionId}, ${key},
+        ${cursor.estadoId ? (blockByCode.get(cursor.estadoId) ?? null) : null},
+        ${cursor.estadoId ?? ''}, ${cursor.lista}, ${cursor.indice},
+        ${JSON.stringify({
+          id: e.message.id,
+          id_provedor: e.message.idProvedor,
+          tipo: e.message.type,
+          conteudo: e.message.content,
+        })}::jsonb,
+        ${JSON.stringify(variables)}::jsonb, ${JSON.stringify(pedido)}::jsonb, 'pendente'
+      )
+      on conflict (execucao_id, chave) do nothing
+      returning id
+    `);
+    processHttpId = rows[0]?.id;
+    // O cursor fica committed antes de liberar a chamada externa.
+    throw new SuspensaoDeProcessHttp(pedido, cursor);
+  };
+  // The Redirect `context` is not delivered as the destination's first input; the destination
+  // starts on the next customer message. Delivering it immediately would require running the
+  // destination flow engine here, with its flow loaded.
+  if (roteador) {
+    servicos.redirect = async ({ endereco }) => {
+      await redirectInRouter(tx, { tenantId: e.tenantId, routerId: roteador.id, contactId: e.contactId, service: endereco });
+    };
+  }
 
   /** Run one engine input. A flow failure must not abort the message; route it to a queue. */
   const rodar = async (
@@ -1047,7 +906,7 @@ async function gravarPassos(
 }
 
 /**
- * Move the conversation from bot control into a queue. This is when attendance begins: write `criada` and `enfileirada` NOW, not when the bot started. Queue time and first-response time start at `criada` (`@pipe/core`, `marcosDaConversa`); including bot time would charge the team for the robot conversation. In Blip too, the ticket is created only at handoff.
+ * Move the conversation from bot control into a queue (`enterQueue`; `queueId` null lets the attendance rules, then the inbox default, decide). This is when attendance begins: write `criada` and `enfileirada` NOW, not when the bot started. Queue time and first-response time start at `criada` (`@pipe/core`, `marcosDaConversa`); including bot time would charge the team for the robot conversation. In Blip too, the ticket is created only at handoff.
  */
 async function transbordar(
   tx: TransactionPipe,
@@ -1057,59 +916,29 @@ async function transbordar(
   motivo: string | null,
   em: Date,
 ): Promise<void> {
-  if (!queueId)
-    throw new Error('A inbox do canal não tem fila padrão: o bot não tem para onde transferir.');
-  const { rows } = await tx.execute<{ id: string }>(sql`
-    update conversa set fila_id = ${queueId}, estado = 'na_fila', atualizado_em = now()
-     where id = ${e.conversation.id} and atendente_id is null and fila_id is null
-    returning id
-  `);
-  if (!rows[0]) return;
-
-  // The conversation has just entered the queue; the `update` above changes a row only once
-  // because its condition requires `fila_id is null`. This is the only time
-  // to assess its priority. See the Pipe decision in `gestao/prioridade-motor.ts`.
-  const rulesOfPriority = await loadRulesOfPriorityActive(tx);
-  if (rulesOfPriority.length > 0) {
-    const nivel = evaluatePriority(rulesOfPriority, {
-      queueId,
-      message: e.message.content,
-    });
-    if (nivel) {
+  await enterQueue(tx, {
+    tenantId: e.tenantId,
+    conversationId: e.conversation.id,
+    queueId,
+    defaultQueueId: e.conversation.queueDefaultId,
+    message: e.message.content,
+    at: em,
+    origin: 'fluxo',
+    requireQueue: true,
+    eventData: { origem: 'fluxo', ...(motivo ? { motivo } : {}) },
+    beforeDistribution: async (destination) => {
+      // Give the agent what the bot collected about the customer in the note shown by Desk.
       await tx.execute(sql`
-        update conversa set prioridade = ${nivel}, atualizado_em = now() where id = ${e.conversation.id}
+        insert into nota_interna (tenant_id, conversa_id, corpo, em)
+        values (${e.tenantId}, ${e.conversation.id}, ${summaryOfContext(variaveis, motivo)}, ${em})
       `);
-    }
-  }
-
-  const data = { origem: 'fluxo', ...(motivo ? { motivo } : {}) };
-  await registrarEvento(tx, {
-    tenantId: e.tenantId,
-    conversationId: e.conversation.id,
-    type: 'criada',
-    at: em,
-    queueId,
-    data,
+      await emitir(tx, e.tenantId, 'conversa.estado_alterado', {
+        conversa_id: e.conversation.id,
+        estado: 'na_fila',
+        fila_id: destination,
+      });
+    },
   });
-  await registrarEvento(tx, {
-    tenantId: e.tenantId,
-    conversationId: e.conversation.id,
-    type: 'enfileirada',
-    at: em,
-    queueId,
-    data,
-  });
-  // Give the agent what the bot collected about the customer in the note shown by Desk.
-  await tx.execute(sql`
-    insert into nota_interna (tenant_id, conversa_id, corpo, em)
-    values (${e.tenantId}, ${e.conversation.id}, ${summaryOfContext(variaveis, motivo)}, ${em})
-  `);
-  await emitir(tx, e.tenantId, 'conversa.estado_alterado', {
-    conversa_id: e.conversation.id,
-    estado: 'na_fila',
-    fila_id: queueId,
-  });
-  await distributeConversation(tx, e.tenantId, e.conversation.id, queueId, em);
 }
 
 /** The emergency fallback must not abort the incoming message. */
@@ -1120,7 +949,7 @@ async function transbordarSemFalhar(
   motivo: string,
 ): Promise<void> {
   try {
-    await transbordar(tx, e, e.conversation.queueDefaultId, variaveis, motivo, new Date());
+    await transbordar(tx, e, null, variaveis, motivo, new Date());
   } catch (erro) {
     console.error(`[fluxo] conversa ${e.conversation.id} ficou sem fila: ${(erro as Error).message}`);
   }

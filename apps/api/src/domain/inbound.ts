@@ -21,11 +21,7 @@ import {
 } from '../queues.js';
 import { distributeConversation } from './distribution.js';
 import { registrarEvento } from './eventos.js';
-import {
-  evaluatePriority,
-  loadRulesOfPriorityActive,
-  type ContextOfPriority,
-} from './management/priority-engine.js';
+import { enterQueue } from './queue-entry.js';
 import { applyEventsOfTemplate } from './whatsapp/events-of-template.js';
 import { flowPublishedOfChannel, runFlowInInbound } from './flow.js';
 import { payloadDoInstagram, valuesOfInstagram } from './instagram/inbound.js';
@@ -232,14 +228,9 @@ async function receiveMessage(
     const contactId = await findOrCreateContact(tx, canal, de, nomeDoPerfil);
     // With a published flow or router on the channel, a new conversation belongs to the bot and starts without a queue.
     const flow = await flowPublishedOfChannel(tx, canal.id, contactId);
-    // Calculado ANTES de abrir a conversa: `regra_prioridade` pode condicionar no
-    // the first message text; `acharOuAbrirConversa` applies the rule as soon as
-    // a conversa nasce na fila.
+    // Read BEFORE opening the conversation: the attendance and priority rules may test the first message.
     const conteudo = textoDe(mensagem);
-    const conversation = await findOrOpenConversation(tx, canal, inbox, contactId, em, flow !== null, {
-      message: conteudo,
-      nomeDoPerfil,
-    });
+    const conversation = await findOrOpenConversation(tx, canal, inbox, contactId, em, flow !== null, conteudo);
 
     const tipo = TIPO_DA_META[mensagem.type ?? 'text'] ?? 'texto';
     const attachmentId = await saveAttachment(tx, canal.tenantId, canal.id, mensagem);
@@ -301,7 +292,7 @@ async function receiveMessage(
 
     // A conversation still queued is eligible for distribution on each new message if
     // atendente entrou online depois da primeira, ela sai da fila agora.
-    if (!bot.tratou && conversation.state === 'na_fila' && !conversation.agentId && conversation.queueId) {
+    if (!bot.tratou && !conversation.nova && conversation.state === 'na_fila' && !conversation.agentId && conversation.queueId) {
       await distributeConversation(tx, canal.tenantId, conversation.id, conversation.queueId, em);
     }
 
@@ -472,7 +463,7 @@ async function findOrOpenConversation(
   contactId: string,
   em: Date,
   comBot: boolean,
-  contextPriority: { message: string | null; nomeDoPerfil: string | null },
+  message: string | null,
 ): Promise<ConversationResolved> {
   const { rows } = await tx.execute<{
     id: string;
@@ -496,67 +487,40 @@ async function findOrOpenConversation(
     };
   }
 
-  // With a bot, the conversation starts without a queue; it joins one only when the bot transfers it.
-  const queueId = comBot ? null : inbox.queueDefaultId;
+  // Born without a queue. With a bot it joins one only when the bot hands it off; without a bot it
+  // enters now, through the same path as the handoff (attendance rules, priority, distribution).
   const { rows: criada } = await tx.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em)
-    values (${canal.tenantId}, ${inbox.id}, ${contactId}, ${queueId ?? sql`null`}, 'na_fila', ${em})
+    values (${canal.tenantId}, ${inbox.id}, ${contactId}, null, 'na_fila', ${em})
     returning id
   `);
   const conversaId = criada[0]?.id;
   if (!conversaId) throw new Error('não criou a conversa');
 
-  // `criada` and `enfileirada` mark the start of ATTENDANCE and determine
-  // queue time. Bot conversations receive them on handoff (`dominio/fluxo.ts`), not here.
-  if (!comBot) {
-    await registrarEvento(tx, {
-      tenantId: canal.tenantId,
-      conversationId: conversaId,
-      type: 'criada',
-      at: em,
-      queueId,
-    });
-    await registrarEvento(tx, {
-      tenantId: canal.tenantId,
-      conversationId: conversaId,
-      type: 'enfileirada',
-      at: em,
-      queueId,
-    });
-    // The conversation has just entered the queue; this is the only point where
-    // `aplicarRegraDePrioridade` roda para ela (`dominio/gestao/prioridade-motor.ts`).
-    // Without a bot, apply it HERE rather than on handoff (`fluxo.ts`), because there
-    // transbordo: a conversa nasce direto na fila.
-    await applyRuleOfPriority(tx, conversaId, {
-      queueId,
-      message: contextPriority.message,
-      contact: { nome: contextPriority.nomeDoPerfil },
-    });
+  const emitCreated = async (queueId: string | null): Promise<void> => {
+    await emitir(tx, canal.tenantId, 'conversa.criada', { conversa_id: conversaId, contato_id: contactId, fila_id: queueId });
+  };
+  if (comBot) {
+    await emitCreated(null);
+    return { id: conversaId, state: 'na_fila', agentId: null, queueId: null, nova: true };
   }
-  await emitir(tx, canal.tenantId, 'conversa.criada', {
-    conversa_id: conversaId,
-    contato_id: contactId,
-    fila_id: queueId,
+  const entry = await enterQueue(tx, {
+    tenantId: canal.tenantId,
+    conversationId: conversaId,
+    queueId: null,
+    defaultQueueId: inbox.queueDefaultId,
+    message,
+    at: em,
+    origin: 'entrada',
+    beforeDistribution: emitCreated,
   });
-
-  return { id: conversaId, state: 'na_fila', agentId: null, queueId, nova: true };
-}
-
-/**
- * Apply `regra_prioridade` to a conversation JUST entering a queue. With no active rule, leave `conversa.prioridade` at its column default `sem_prioridade`.
- */
-async function applyRuleOfPriority(
-  tx: TransactionPipe,
-  conversaId: string,
-  context: ContextOfPriority,
-): Promise<void> {
-  const regras = await loadRulesOfPriorityActive(tx);
-  if (regras.length === 0) return;
-  const nivel = evaluatePriority(regras, context);
-  if (!nivel) return;
-  await tx.execute(sql`
-    update conversa set prioridade = ${nivel}, atualizado_em = now() where id = ${conversaId}
-  `);
+  return {
+    id: conversaId,
+    state: entry.agentId ? 'atribuida' : 'na_fila',
+    agentId: entry.agentId,
+    queueId: entry.queueId,
+    nova: true,
+  };
 }
 
 function textoDe(mensagem: MessageOfMeta): string | null {

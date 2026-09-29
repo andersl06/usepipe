@@ -1,9 +1,10 @@
 import { sql } from 'drizzle-orm';
 import { TransitionInvalidError, transitar } from '@pipe/core';
-import type { StateConversation } from '@pipe/core';
+import type { ClosedBy, StateConversation } from '@pipe/core';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
+import { enterQueue } from './queue-entry.js';
 import { requirePermission } from '../session.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../realtime.js';
@@ -61,6 +62,9 @@ async function carregar(
  * interval, the `encerrada` event (metrics/SLA read events, not the state) and the webhook.
  * Shared by `closeConversation` (Desk/API) and the bot's `/tickets/{id}/status` command
  * (`flow.ts`), which runs inside the inbound transaction. Returns the closure reason (tag names).
+ * `closedBy` is who ended it (`evento.dados.encerrada_por`, read by metrics and by the Blip ticket
+ * status: `cliente` → `ClosedClient`, `inatividade` → `ClosedClientInactivity`); the default keeps
+ * the Desk/API rule, an agent or else `transferencia`.
  */
 export async function closeInTransaction(
   tx: Parameters<Parameters<typeof noTenant>[1]>[0],
@@ -69,6 +73,7 @@ export async function closeInTransaction(
   agentId: string | null,
   etiquetas: readonly { id: string; name: string }[],
   agora: Date,
+  closedBy: ClosedBy = agentId ? 'atendente' : 'transferencia',
 ): Promise<string> {
   requireTransition(conversa.state, 'encerrada');
   for (const etiqueta of etiquetas) {
@@ -116,7 +121,7 @@ export async function closeInTransaction(
     queueId: conversa.queueId,
     // `encerradaPor` in `@pipe/core` identifies WHO removed the conversation from the screen, not the clicker's ID.
     data: {
-      encerrada_por: agentId ? 'atendente' : 'transferencia',
+      encerrada_por: closedBy,
       ...(etiquetas.length === 1 ? { etiqueta: etiquetas[0]!.name } : {}),
       etiquetas: etiquetas.map((etiqueta) => etiqueta.name),
     },
@@ -382,16 +387,18 @@ export async function transferConversation(
     });
 
     const queueDestination = forQueue ?? conversa.queueId;
-    const stateNew: 'na_fila' | 'atribuida' = forAgent ? 'atribuida' : 'na_fila';
 
+    // A queue destination is born without a queue and enters it through `enterQueue`, like a bot
+    // handoff: `criada` + `transferida_fila`, priority rules (an inherited priority is kept) and
+    // distribution. An agent destination starts assigned.
     const { rows: nova } = await tx.execute<{ id: string }>(sql`
       insert into conversa (
         tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, prioridade,
         criada_em, atribuida_em, janela_expira_em, janela_aberta_por_mensagem_id,
         ultima_mensagem_em, ultima_mensagem_de
       ) values (
-        ${ator.tenantId}, ${conversa.inbox_id}, ${conversa.contactId}, ${queueDestination},
-        ${forAgent}, ${stateNew}, ${conversa.priority},
+        ${ator.tenantId}, ${conversa.inbox_id}, ${conversa.contactId}, ${forAgent ? queueDestination : null},
+        ${forAgent}, ${forAgent ? 'atribuida' : 'na_fila'}, ${conversa.priority},
         ${agora}, ${forAgent ? agora : null},
         ${conversa.windowExpiresAt}, ${conversa.windowOpenByMessageId},
         ${conversa.lastMessageAt}, ${conversa.lastMessageOf}
@@ -401,50 +408,53 @@ export async function transferConversation(
     const novaId = nova[0]?.id;
     if (!novaId) throw new Error('não criou a conversa de destino');
 
-    await registrarEvento(tx, {
+    // `atribuicao` links the two conversations so the transfer dashboard can reconstruct the
+    // client's journey after closure; it and the webhooks precede any assignment of the new one.
+    const linkAndNotify = async (): Promise<void> => {
+      await tx.execute(sql`
+        insert into atribuicao (
+          tenant_id, conversa_id, de_usuario_id, para_usuario_id,
+          de_fila_id, para_fila_id, motivo, por_usuario_id, em
+        ) values (
+          ${ator.tenantId}, ${conversa.id}, ${conversa.agentId}, ${forAgent},
+          ${conversa.queueId}, ${forQueue}, ${pedido.reason ?? null}, ${ator.agentId}, ${agora}
+        )
+      `);
+      await emitir(tx, ator.tenantId, 'conversa.encerrada', {
+        conversa_id: conversa.id,
+        motivo: 'Transferida',
+        encerrada_por: ator.agentId,
+      });
+      await emitir(tx, ator.tenantId, 'conversa.criada', {
+        conversa_id: novaId,
+        contato_id: conversa.contactId,
+        fila_id: queueDestination,
+        de_conversa_id: conversa.id,
+      });
+    };
+
+    if (forAgent) {
+      const base = { tenantId: ator.tenantId, conversationId: novaId, at: agora, queueId: queueDestination };
+      await registrarEvento(tx, { ...base, type: 'criada', userId: ator.agentId });
+      await registrarEvento(tx, { ...base, type: 'atribuida', userId: forAgent, data: { de_conversa_id: conversa.id } });
+      await linkAndNotify();
+      return { ofConversationId: conversa.id, forConversationId: novaId, state: 'atribuida' as const };
+    }
+
+    const entry = await enterQueue(tx, {
       tenantId: ator.tenantId,
       conversationId: novaId,
-      type: 'criada',
+      queueId: forQueue,
+      defaultQueueId: null,
+      message: null,
       at: agora,
+      origin: 'transferencia',
       userId: ator.agentId,
-      queueId: queueDestination,
+      eventData: { de_conversa_id: conversa.id },
+      beforeDistribution: linkAndNotify,
     });
-    await registrarEvento(tx, {
-      tenantId: ator.tenantId,
-      conversationId: novaId,
-      // A queue destination uses `transferida_fila`; for an agent the new conversation starts assigned.
-      type: forAgent ? 'atribuida' : 'transferida_fila',
-      at: agora,
-      userId: forAgent ?? ator.agentId,
-      queueId: queueDestination,
-      data: { de_conversa_id: conversa.id },
-    });
-
-    // `atribuicao` links the two conversations so the transfer dashboard can
-    // reconstruct the client's journey after closure.
-    await tx.execute(sql`
-      insert into atribuicao (
-        tenant_id, conversa_id, de_usuario_id, para_usuario_id,
-        de_fila_id, para_fila_id, motivo, por_usuario_id, em
-      ) values (
-        ${ator.tenantId}, ${conversa.id}, ${conversa.agentId}, ${forAgent},
-        ${conversa.queueId}, ${forQueue}, ${pedido.reason ?? null}, ${ator.agentId}, ${agora}
-      )
-    `);
-
-    await emitir(tx, ator.tenantId, 'conversa.encerrada', {
-      conversa_id: conversa.id,
-      motivo: 'Transferida',
-      encerrada_por: ator.agentId,
-    });
-    await emitir(tx, ator.tenantId, 'conversa.criada', {
-      conversa_id: novaId,
-      contato_id: conversa.contactId,
-      fila_id: queueDestination,
-      de_conversa_id: conversa.id,
-    });
-
-    return { ofConversationId: conversa.id, forConversationId: novaId, state: stateNew };
+    const state: 'na_fila' | 'atribuida' = entry.agentId ? 'atribuida' : 'na_fila';
+    return { ofConversationId: conversa.id, forConversationId: novaId, state };
   });
 
   drenarEmSegundoPlano(ator.tenantId);
