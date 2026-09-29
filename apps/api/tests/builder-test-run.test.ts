@@ -333,6 +333,86 @@ describe('POST /v1/management/flows/:id/builder/test-runs', () => {
     expect(alheia.body['debug']['error']).toMatch(/não existe neste Pipe/);
   });
 
+  it('ForwardToDesk availability exits run the production checks over the queue chosen by extras.teams (P6)', async () => {
+    // The export's attendance block: MergeContact extras.teams, ForwardToDesk with empty settings,
+    // entered on Success, plus the Builder's availability exits.
+    const block = (teams: string) => ({
+      flow: {
+        inicio: {
+          id: 'inicio',
+          root: true,
+          $title: 'Início',
+          $position: { top: '40px', left: '40px' },
+          $contentActions: [{ input: { bypass: false } }],
+          $conditionOutputs: [],
+          $enteringCustomActions: [],
+          $leavingCustomActions: [],
+          $defaultOutput: { stateId: 'desk:suporte' },
+        },
+        'desk:suporte': {
+          id: 'desk:suporte',
+          $title: 'Atendimento humano',
+          $position: { top: '200px', left: '40px' },
+          $contentActions: [
+            {
+              input: {
+                bypass: false,
+                conditions: [{ source: 'context', variable: 'desk_forwardToDeskState_status', comparison: 'equals', values: ['Success'] }],
+              },
+            },
+          ],
+          $conditionOutputs: ['OutOfAttendanceHour', 'NoAgentAvailable', 'Error'].map((status) => ({
+            stateId: status === 'Error' ? 'erro' : status === 'NoAgentAvailable' ? 'ninguem' : 'fechado',
+            conditions: [{ source: 'context', variable: 'desk_forwardToDeskState_status', comparison: 'equals', values: [status] }],
+          })),
+          $enteringCustomActions: [
+            { type: 'MergeContact', settings: { extras: { teams } } },
+            { type: 'ForwardToDesk', settings: {} },
+          ],
+          $leavingCustomActions: [],
+          $defaultOutput: { stateId: 'desk:suporte' },
+        },
+        ...Object.fromEntries(
+          [['fechado', 'Fora do horário.'], ['ninguem', 'Ninguém online.'], ['erro', 'Erro.']].map(([id, texto], i) => [
+            id,
+            {
+              id,
+              $title: id,
+              $position: { top: `${360 + i * 160}px`, left: '40px' },
+              $contentActions: [
+                { action: { type: 'SendMessage', settings: { type: 'text/plain', content: texto } } },
+                { input: { bypass: false } },
+              ],
+              $conditionOutputs: [],
+              $enteringCustomActions: [],
+              $leavingCustomActions: [],
+              $defaultOutput: { stateId: id },
+            },
+          ]),
+        ),
+      },
+      globals: {},
+    });
+    // A queue nobody serves, and the scenario's queue, served by an online agent.
+    const vazia = `Sem ninguém ${randomUUID().slice(0, 6)}`;
+    await a.dono.execute(sql`insert into fila (tenant_id, nome) values (${a.tenantId}, ${vazia})`);
+    const { rows } = await a.dono.execute<{ nome: string }>(sql`select nome from fila where id = ${a.queueId}::uuid`);
+    const suporte = rows[0]!.nome;
+    const id = await criado(`Transbordo ${randomUUID().slice(0, 6)}`);
+
+    await salvar(sessionEditor, id, block(vazia));
+    const semNinguem = await testRun(sessionEditor, id, { input: 'quero atendimento' });
+    expect(semNinguem.body['messages']).toEqual([{ tipo: 'texto', texto: 'Ninguém online.', dados: null }]);
+    expect(semNinguem.body['debug']['variables']).toMatchObject({ desk_forwardToDeskState_status: 'NoAgentAvailable' });
+
+    await salvar(sessionEditor, id, block(suporte));
+    await resetTestRun(sessionEditor, id);
+    const atendido = await testRun(sessionEditor, id, { input: 'quero atendimento' });
+    expect(atendido.body['messages']).toEqual([]);
+    expect(atendido.body['debug']['variables']).toMatchObject({ desk_forwardToDeskState_status: 'Success' });
+    expect(atendido.body['debug']['currentStateId']).toBe('desk:suporte');
+  });
+
   it('403 without `automacao.fluxo.editar`, 404 for another tenant or an invalid id', async () => {
     const id = await criado(`Guardado ${randomUUID().slice(0, 6)}`);
     await salvar(sessionEditor, id, desenho());

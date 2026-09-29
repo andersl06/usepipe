@@ -40,7 +40,7 @@ import { loadFlowFunctions } from './management/flow-functions.js';
 import { loadFlowResources } from './management/flow-resources.js';
 import { closeInTransaction, type LineConversation } from './conversation.js';
 import { engineServices, isFlowOfTenant, type TicketEffects } from './engine-services.js';
-import { enterQueue } from './queue-entry.js';
+import { chooseQueueOfConversation, enterQueue } from './queue-entry.js';
 import type { TipoEnvio } from './envio.js';
 
 /**
@@ -374,7 +374,7 @@ export async function runFlowInInbound(
         ));
         respostas += 1;
       },
-      // An explicit `filaId` wins; without one the attendance rules, then the inbox default, decide.
+      // The ticket, in the queue `chooseQueue` decides (`enterQueue`).
       forwardForAttendance: async ({ settings }) => {
         const queueId = typeof settings?.['filaId'] === 'string' ? settings['filaId'] : null;
         return emSavepoint(async (sp) => {
@@ -382,6 +382,13 @@ export async function runFlowInInbound(
           return ticketOfConversation(sp, conversation.id);
         });
       },
+      queueOfHandoff: async (sp, queueId) => (await chooseQueueOfConversation(sp, {
+        tenantId: e.tenantId,
+        conversationId: conversation.id,
+        queueId,
+        defaultQueueId: e.conversation.queueDefaultId,
+        message: e.message.content,
+      })).queueId,
       registerEvent: async (evento) => {
         eventos.push(evento);
       },

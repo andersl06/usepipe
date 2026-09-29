@@ -1,6 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { destinationQueue, type OperadorDeRegra, type QueueRule } from '@pipe/core';
+import {
+  dentroDoExpediente,
+  destinationQueue,
+  type DeskUnavailableStatus,
+  type HourAttendance,
+  type OperadorDeRegra,
+  type QueueRule,
+  type QueueRuleContext,
+} from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
+import { teamsWithAgentsOnline } from './desk-commands.js';
 import { distributeConversation } from './distribution.js';
 import { registrarEvento } from './eventos.js';
 import { evaluatePriority, loadRulesOfPriorityActive } from './management/priority-engine.js';
@@ -11,9 +20,7 @@ import { evaluatePriority, loadRulesOfPriorityActive } from './management/priori
  * come through here, so the queue rules, the priority rules, the `criada`/entry events and the
  * load-based distribution always run the same way.
  *
- * Destination: the explicit queue when the caller has one (ForwardToDesk `filaId`, `/transfer`,
- * Desk transfer); otherwise the first attendance rule (`regra_fila`) that matches the message and
- * the contact; otherwise the default queue (`inbox.fila_padrao_id`).
+ * Destination: `chooseQueue`.
  */
 
 export interface EnterQueueInput {
@@ -78,27 +85,105 @@ export async function loadActiveQueueRules(tx: TransactionPipe, tenantId: string
   }));
 }
 
-export async function enterQueue(tx: TransactionPipe, input: EnterQueueInput): Promise<QueueEntry> {
+export interface QueueChoice {
+  queueId: string | null;
+  /** Rule that chose the queue, when one did. */
+  ruleId: string | null;
+}
+
+/**
+ * Where a conversation without a queue lands: the explicit queue (ForwardToDesk `filaId`,
+ * `/transfer`, Desk transfer); else the first attendance rule (`regra_fila`) matching the message
+ * and the contact; else the active queue named by `contact.extras.teams` (Blip flows `MergeContact`
+ * the queue name there before the handoff); else the default queue (`inbox.fila_padrao_id`).
+ */
+export async function chooseQueue(
+  tx: TransactionPipe,
+  tenantId: string,
+  input: Pick<EnterQueueInput, 'queueId' | 'defaultQueueId' | 'message'> & { contact: QueueRuleContext['contact'] },
+): Promise<QueueChoice> {
+  if (input.queueId) return { queueId: input.queueId, ruleId: null };
+  const match = destinationQueue(await loadActiveQueueRules(tx, tenantId), { message: input.message, contact: input.contact });
+  if (match) return { queueId: match.queueDestinationId, ruleId: match.regraId };
+  const teams = input.contact?.extras?.['teams'];
+  if (typeof teams === 'string' && teams.trim()) {
+    const { rows } = await tx.execute<{ id: string }>(sql`
+      select id from fila
+       where tenant_id = ${tenantId}::uuid and ativa and lower(nome) = lower(${teams.trim()})
+       order by ordem limit 1
+    `);
+    if (rows[0]) return { queueId: rows[0].id, ruleId: null };
+  }
+  return { queueId: input.defaultQueueId, ruleId: null };
+}
+
+async function contactOfConversation(tx: TransactionPipe, tenantId: string, conversationId: string): Promise<ContactRow> {
   const { rows } = await tx.execute<ContactRow>(sql`
     select c.prioridade as priority, ct.nome as name, ct.email, ct.telefone_e164 as phone, ct.atributos as extras
       from conversa c
       left join contato ct on ct.id = c.contato_id
-     where c.id = ${input.conversationId}::uuid and c.tenant_id = ${input.tenantId}::uuid
+     where c.id = ${conversationId}::uuid and c.tenant_id = ${tenantId}::uuid
      limit 1
   `);
   const row = rows[0];
-  if (!row) throw new Error(`A conversa '${input.conversationId}' não existe.`);
+  if (!row) throw new Error(`A conversa '${conversationId}' não existe.`);
+  return row;
+}
 
-  let queueId = input.queueId;
-  let ruleId: string | null = null;
-  if (!queueId) {
-    const match = destinationQueue(await loadActiveQueueRules(tx, input.tenantId), {
-      message: input.message,
-      contact: { name: row.name, email: row.email, phone: row.phone, extras: row.extras },
-    });
-    queueId = match?.queueDestinationId ?? input.defaultQueueId;
-    ruleId = match?.regraId ?? null;
+/** `chooseQueue` for an existing conversation, reading its contact. */
+export async function chooseQueueOfConversation(
+  tx: TransactionPipe,
+  input: Pick<EnterQueueInput, 'tenantId' | 'conversationId' | 'queueId' | 'defaultQueueId' | 'message'>,
+): Promise<QueueChoice> {
+  const contact = await contactOfConversation(tx, input.tenantId, input.conversationId);
+  return chooseQueue(tx, input.tenantId, { ...input, contact });
+}
+
+/**
+ * The first of `checks` that fails for the queue: a closed queue (its `horario_id` schedule,
+ * exceptions included) before a queue with nobody online. A queue without a schedule is always
+ * open; no queue means nothing to check.
+ */
+export async function queueUnavailability(
+  tx: TransactionPipe,
+  tenantId: string,
+  queueId: string | null,
+  at: Date,
+  checks: readonly DeskUnavailableStatus[],
+): Promise<DeskUnavailableStatus | null> {
+  if (!queueId) return null;
+  if (checks.includes('OutOfAttendanceHour') && !dentroDoExpediente(at, await scheduleOfQueue(tx, tenantId, queueId))) {
+    return 'OutOfAttendanceHour';
   }
+  if (checks.includes('NoAgentAvailable')) {
+    const online = (await teamsWithAgentsOnline(tx, tenantId)).find((t) => t.id === queueId)?.agentsOnline ?? 0;
+    if (online === 0) return 'NoAgentAvailable';
+  }
+  return null;
+}
+
+async function scheduleOfQueue(tx: TransactionPipe, tenantId: string, queueId: string): Promise<HourAttendance | null> {
+  const { rows } = await tx.execute<{ id: string; fuso: string }>(sql`
+    select h.id, h.fuso from fila f
+      join horario_atendimento h on h.id = f.horario_id and h.tenant_id = f.tenant_id
+     where f.id = ${queueId}::uuid and f.tenant_id = ${tenantId}::uuid
+  `);
+  const head = rows[0];
+  if (!head) return null;
+  const { rows: faixas } = await tx.execute<{ diaSemana: number; inicio: string; fim: string }>(sql`
+    select dia_semana as "diaSemana", inicio::text as inicio, fim::text as fim
+      from horario_faixa where horario_id = ${head.id}::uuid and tenant_id = ${tenantId}::uuid
+  `);
+  const { rows: exceptions } = await tx.execute<{ data: string; fechado: boolean; inicio: string | null; fim: string | null }>(sql`
+    select data::text as data, fechado, inicio::text as inicio, fim::text as fim
+      from horario_excecao where horario_id = ${head.id}::uuid and tenant_id = ${tenantId}::uuid
+  `);
+  return { fuso: head.fuso, faixas, exceptions };
+}
+
+export async function enterQueue(tx: TransactionPipe, input: EnterQueueInput): Promise<QueueEntry> {
+  const row = await contactOfConversation(tx, input.tenantId, input.conversationId);
+  const { queueId, ruleId } = await chooseQueue(tx, input.tenantId, { ...input, contact: row });
   if (!queueId && input.requireQueue) {
     throw new Error('Nenhuma regra de atendimento casou e a inbox do canal não tem fila padrão: não há para onde transferir.');
   }

@@ -189,9 +189,12 @@ const getTicket: CommandHandler = async (tx, tenantId, { params }) => {
 };
 
 /** Active queues with how many of their agents are online right now (`status_atendente`). */
-const listTeams: CommandHandler = async (tx, tenantId) => {
-  const { rows } = await tx.execute<{ name: string; agentsOnline: number }>(sql`
-    select f.nome as name,
+export async function teamsWithAgentsOnline(
+  tx: TransactionPipe,
+  tenantId: string,
+): Promise<{ id: string; name: string; agentsOnline: number }[]> {
+  const { rows } = await tx.execute<{ id: string; name: string; agentsOnline: number }>(sql`
+    select f.id, f.nome as name,
            count(distinct u.id) filter (where s.estado = 'online')::int as "agentsOnline"
       from fila f
       left join fila_atendente fa on fa.fila_id = f.id and fa.tenant_id = f.tenant_id
@@ -201,8 +204,14 @@ const listTeams: CommandHandler = async (tx, tenantId) => {
      group by f.id
      order by f.ordem, f.nome
   `);
-  return collection('application/vnd.iris.desk.team+json', rows);
-};
+  return rows;
+}
+
+const listTeams: CommandHandler = async (tx, tenantId) =>
+  collection(
+    'application/vnd.iris.desk.team+json',
+    (await teamsWithAgentsOnline(tx, tenantId)).map(({ name, agentsOnline }) => ({ name, agentsOnline })),
+  );
 
 /** Active users that belong to at least one queue. */
 const listAttendants: CommandHandler = async (tx, tenantId) => {
