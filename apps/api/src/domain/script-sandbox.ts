@@ -81,6 +81,79 @@ function libraryPrelude(library: Iterable<{ name: string; code: string }> | unde
   return prelude;
 }
 
+/**
+ * Pins the isolate's local time to one IANA zone (`LocalTimeZoneEnabled` → bot zone, otherwise UTC,
+ * as Blip's servers run scripts), whatever zone the API host has. Local getters/setters,
+ * `getTimezoneOffset`, `toString`, `toLocale*` and `new Date(y, m, …)` follow the zone.
+ * ponytail: `new Date('2026-01-01T10:00')` (text without offset) still parses in the host zone;
+ * patch `Date.parse` too if a flow depends on it.
+ */
+function timeZonePrelude(timeZone: string | undefined): string {
+  if (!timeZone) return '';
+  let zone = 'UTC';
+  try {
+    zone = new Intl.DateTimeFormat('en-US', { timeZone }).resolvedOptions().timeZone;
+  } catch {
+    // Unknown zone: stay deterministic in UTC.
+  }
+  return `(() => {
+  const D = Date, P = D.prototype, TZ = ${JSON.stringify(zone)};
+  const fmt = new Intl.DateTimeFormat('en-US', { timeZone: TZ, hourCycle: 'h23', year: 'numeric',
+    month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' });
+  const offset = (t) => {
+    if (t !== t) return 0;
+    const p = {};
+    for (const x of fmt.formatToParts(new D(t))) p[x.type] = x.value;
+    const s = t - (((t % 1000) + 1000) % 1000);
+    return D.UTC(+p.year, p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - s;
+  };
+  const utc = {};
+  for (const n of ['FullYear', 'Month', 'Date', 'Day', 'Hours', 'Minutes', 'Seconds', 'Milliseconds']) {
+    utc['get' + n] = P['getUTC' + n];
+    if (n !== 'Day') utc['set' + n] = P['setUTC' + n];
+  }
+  const wall = (d) => new D(d.getTime() + offset(d.getTime()));
+  const fromWall = (w) => { const t = w - offset(w); return w - offset(t); };
+  for (const k of Object.keys(utc)) {
+    P[k] = k.startsWith('get')
+      ? function () { return utc[k].call(wall(this)); }
+      : function (...a) { const w = wall(this); utc[k].apply(w, a); return this.setTime(fromWall(w.getTime())); };
+  }
+  P.getTimezoneOffset = function () { return -offset(this.getTime()) / 60000; };
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const two = (n) => String(n).padStart(2, '0');
+  P.toDateString = function () {
+    if (this.getTime() !== this.getTime()) return 'Invalid Date';
+    return days[this.getDay()] + ' ' + months[this.getMonth()] + ' ' + two(this.getDate()) + ' ' + this.getFullYear();
+  };
+  P.toTimeString = function () {
+    if (this.getTime() !== this.getTime()) return 'Invalid Date';
+    const o = -this.getTimezoneOffset(), a = Math.abs(o);
+    return two(this.getHours()) + ':' + two(this.getMinutes()) + ':' + two(this.getSeconds()) +
+      ' GMT' + (o < 0 ? '-' : '+') + two(Math.floor(a / 60)) + two(a % 60);
+  };
+  P.toString = function () {
+    return this.getTime() !== this.getTime() ? 'Invalid Date' : this.toDateString() + ' ' + this.toTimeString();
+  };
+  for (const n of ['toLocaleString', 'toLocaleDateString', 'toLocaleTimeString']) {
+    const f = P[n];
+    P[n] = function (l, o) { return f.call(this, l, { timeZone: TZ, ...o }); };
+  }
+  const Z = function Date(...a) {
+    if (!new.target) return new D().toString();
+    if (a.length < 2) return new D(...a);
+    const [y, m, d = 1, h = 0, mi = 0, s = 0, ms = 0] = a.map(Number);
+    return new D(fromWall(D.UTC(y, m, d, h, mi, s, ms)));
+  };
+  Z.prototype = P;
+  Z.now = D.now; Z.UTC = D.UTC; Z.parse = D.parse;
+  Object.defineProperty(P, 'constructor', { value: Z, writable: true, configurable: true });
+  globalThis.Date = Z;
+})();
+`;
+}
+
 const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
 const METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
 
@@ -138,7 +211,7 @@ async function rodarNoIsolate(request: ScriptRequest, options: ScriptOptions): P
       );
     }
     const result = await context.evalClosure(
-      `${libraryPrelude(options.library)}${request.source}\n;return (async () => JSON.stringify(await ${request.functionName}(...$0)))();`,
+      `${timeZonePrelude(request.timeZone)}${libraryPrelude(options.library)}${request.source}\n;return (async () => JSON.stringify(await ${request.functionName}(...$0)))();`,
       [request.args],
       { arguments: { copy: true }, result: { promise: true, copy: true }, timeout: request.timeoutMs },
     );

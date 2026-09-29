@@ -128,8 +128,13 @@ export interface ScriptRequest {
   /** Input variable values in `inputVariables` order; a missing variable is `null`. */
   args: (string | null)[];
   timeoutMs: number;
-  /** V1 `localTimeZoneEnabled`: `Date` uses the bot time zone instead of UTC. */
+  /** `LocalTimeZoneEnabled`: `Date` uses the bot time zone instead of UTC. */
   localTimeZone: boolean;
+  /**
+   * IANA zone the script's local `Date` methods use: the bot zone (`builder:#localTimeZone`) when
+   * `localTimeZone` is on, `UTC` otherwise, as Blip's servers run scripts. Absent = host zone.
+   */
+  timeZone?: string;
 }
 
 export type ActionsSuspendedList = 'entrada' | 'conteudo' | 'saida';
@@ -224,8 +229,6 @@ export interface Context {
   inbound: InboundLazy;
   /** Persisted user context; Blip stores every value here as text. */
   variables: Record<string, string>;
-  /** In-memory expiration deadlines for variables set by the current execution. */
-  variableExpirations?: Record<string, number>;
   /** `InputContext` lasts only for this input, including current state and created ticket. */
   inboundContext: Map<string, unknown>;
   /** Contact in Blip vocabulary (`name`, `phoneNumber`, `email`, `extras`, etc.). */
@@ -253,12 +256,47 @@ export const KEY_OF_STATE_CURRENT = 'current-state-id';
 
 // --- IContext: armazenamento ---
 
+/**
+ * Per-variable expiration deadlines (epoch ms), stored as JSON text INSIDE the persisted variables
+ * map so every place that loads and saves `variables` (execution, router context, ProcessHttp
+ * resume) keeps them with no schema change. `#` cannot appear in a variable name, so no flow can
+ * read or overwrite this key.
+ */
+export const EXPIRATIONS_KEY = '#expirations';
+
+function expirationsOf(variables: Record<string, string>): Record<string, number> {
+  try {
+    const parsed: unknown = JSON.parse(variables[EXPIRATIONS_KEY] ?? '{}');
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, number>)
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeExpirations(variables: Record<string, string>, expirations: Record<string, number>): void {
+  if (Object.keys(expirations).length === 0) delete variables[EXPIRATIONS_KEY];
+  else variables[EXPIRATIONS_KEY] = JSON.stringify(expirations);
+}
+
+/** Drop every variable whose deadline has passed; the engine calls this before each input. */
+export function pruneExpiredVariables(variables: Record<string, string>, now = Date.now()): void {
+  if (!(EXPIRATIONS_KEY in variables)) return;
+  const expirations = expirationsOf(variables);
+  for (const [nome, expiresAt] of Object.entries(expirations)) {
+    if (expiresAt > now) continue;
+    delete variables[nome];
+    delete expirations[nome];
+  }
+  writeExpirations(variables, expirations);
+}
+
 /** `GetContextVariableAsync`: o valor cru, sem fonte nem propriedade. */
 export function contextGetVariable(context: Context, nome: string): string | null {
-  const expiresAt = context.variableExpirations?.[nome];
+  const expiresAt = expirationsOf(context.variables)[nome];
   if (expiresAt !== undefined && expiresAt <= Date.now()) {
-    delete context.variableExpirations![nome];
-    delete context.variables[nome];
+    deleteVariable(context, nome);
     return null;
   }
   return Object.prototype.hasOwnProperty.call(context.variables, nome)
@@ -266,9 +304,7 @@ export function contextGetVariable(context: Context, nome: string): string | nul
     : null;
 }
 
-/**
- * `SetVariableAsync`. ponytail: source `expiration` is not persisted, so a variable lasts until deletion or overwrite. Persistence would require a timestamp per key.
- */
+/** `SetVariableAsync`: `expirationSeconds` (Blip `SetVariable.expiration`) persists with the value. */
 export function setVariable(
   context: Context,
   nome: string,
@@ -276,16 +312,39 @@ export function setVariable(
   expirationSeconds?: number,
 ): void {
   context.variables[nome] = value ?? '';
+  const expirations = expirationsOf(context.variables);
   if (expirationSeconds !== undefined && expirationSeconds > 0) {
-    (context.variableExpirations ??= {})[nome] = Date.now() + expirationSeconds * 1000;
-  } else if (context.variableExpirations) {
-    delete context.variableExpirations[nome];
+    expirations[nome] = Date.now() + expirationSeconds * 1000;
+  } else if (nome in expirations) {
+    delete expirations[nome];
+  } else {
+    return;
   }
+  writeExpirations(context.variables, expirations);
 }
 
 export function deleteVariable(context: Context, nome: string): void {
   delete context.variables[nome];
-  if (context.variableExpirations) delete context.variableExpirations[nome];
+  const expirations = expirationsOf(context.variables);
+  if (!(nome in expirations)) return;
+  delete expirations[nome];
+  writeExpirations(context.variables, expirations);
+}
+
+/**
+ * .NET `TimeSpan.Parse`, which Blip uses for `builder:stateExpiration` and
+ * `builder:actionExecutionTimeout`: `[d.]hh:mm[:ss[.fffffff]]`, or a bare integer meaning DAYS.
+ * Returns seconds, or null when the text is not a TimeSpan.
+ */
+export function timeSpanSeconds(text: string | null | undefined): number | null {
+  const t = text?.trim();
+  if (!t) return null;
+  if (/^\d+$/.test(t)) return Number(t) * 86_400;
+  const m = /^(?:(\d+)\.)?(\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d{1,7}))?)?$/.exec(t);
+  if (!m) return null;
+  const [, d = '0', h = '0', min = '0', s = '0', frac = '0'] = m;
+  if (Number(h) > 23 || Number(min) > 59 || Number(s) > 59) return null;
+  return Number(d) * 86_400 + Number(h) * 3600 + Number(min) * 60 + Number(s) + Number(`0.${frac}`);
 }
 
 // --- StateManager ---
@@ -297,15 +356,21 @@ export const getStateId = (c: Context): string | null =>
   contextGetVariable(c, stateKey(c.flow.id));
 export const getStatePreviousId = (c: Context): string | null =>
   contextGetVariable(c, statePreviousKey(c.flow.id));
+/** `builder:stateExpiration`: after this idle time the saved block expires and the user restarts at the root. */
+const stateExpiration = (c: Context): number | undefined =>
+  timeSpanSeconds(c.flow.configuration?.['builder:stateExpiration']) || undefined;
 export const setStateId = (c: Context, id: string): void =>
-  setVariable(c, stateKey(c.flow.id), id);
+  setVariable(c, stateKey(c.flow.id), id, stateExpiration(c));
 export const setStatePreviousId = (c: Context, id: string): void =>
-  setVariable(c, statePreviousKey(c.flow.id), id);
+  setVariable(c, statePreviousKey(c.flow.id), id, stateExpiration(c));
 export const deleteStateId = (c: Context): void => deleteVariable(c, stateKey(c.flow.id));
 
 /** Read stored state from already persisted context without constructing `Contexto`. */
-export const stateSaved = (variables: Record<string, string>, flowId: string): string | null =>
-  variables[stateKey(flowId)] ?? null;
+export const stateSaved = (variables: Record<string, string>, flowId: string): string | null => {
+  const expiresAt = expirationsOf(variables)[stateKey(flowId)];
+  if (expiresAt !== undefined && expiresAt <= Date.now()) return null;
+  return variables[stateKey(flowId)] ?? null;
+};
 
 // --- ContextBase.GetVariableAsync ---
 

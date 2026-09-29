@@ -367,13 +367,12 @@ export function importReport(flow: FlowBlip): ImportReport {
     if (!PROVEDOR_PADRAO.has(a.type)) return somar(r.naoSuportado, `acao:${a.type}`);
     if (ACTIONS_WITHOUT_EFFECT.has(a.type)) somar(r.semEfeito, `acao:${a.type}`);
     const tipo = (a.settings as { type?: unknown } | undefined)?.type;
-    if (a.type === 'SendMessage' && tipo !== undefined) {
-      if (CONTEUDOS_SEM_EFEITO.has(texto(tipo))) somar(r.semEfeito, `conteudo:${texto(tipo)}`);
-      else if (!CONTEUDOS_SUPORTADOS.has(texto(tipo)))
-        somar(r.naoSuportado, `conteudo:${texto(tipo)}`);
-    }
-    if (a.type === 'SendRawMessage' && texto(tipo) !== 'text/plain') {
-      somar(r.naoSuportado, `conteudo:${texto(tipo)}`);
+    // `SendRawMessage` takes any MIME the channel sends; a `{{variable}}` type is only known at run time.
+    const conteudo = (a.type === 'SendMessage' || a.type === 'SendRawMessage') && tipo !== undefined
+      ? texto(tipo) : null;
+    if (conteudo !== null && !conteudo.includes('{{')) {
+      if (CONTEUDOS_SEM_EFEITO.has(conteudo)) somar(r.semEfeito, `conteudo:${conteudo}`);
+      else if (!CONTEUDOS_SUPORTADOS.has(conteudo)) somar(r.naoSuportado, `conteudo:${conteudo}`);
     }
   };
 

@@ -5,6 +5,7 @@ import { IconePortal } from '../../components/icones-portal';
 import { Interruptor } from '../flow/integrations/interruptor';
 import {
   CONFIGURATION_SECTIONS,
+  secondsToTimeSpan,
   timeSpanToSeconds,
 } from './configuration-sections';
 import type { ConfigurationSection } from './configuration-sections';
@@ -12,9 +13,10 @@ import { validConfigKey } from './state';
 
 /**
  * The "Variáveis" tab of Configuração (default tab, `ref/CAPTURAS-F1-F6.md` §F-2): 8 collapsible
- * sections, all collapsed at first. "Variáveis de configuração" is the only functional one — it edits
- * `flow.configuration` ({{config.X}}), which `packages/core/src/flow/context.ts` already reads. The
- * other 7 show the Blip control disabled, with the recorded value if the flow has one (an imported
+ * sections, all collapsed at first. "Variáveis de configuração" edits `flow.configuration`
+ * ({{config.X}}); "Expiração da sessão" and "Tempo limite de ações" edit the
+ * `builder:stateExpiration`/`builder:actionExecutionTimeout` keys the engine reads. The
+ * other 5 show the Blip control disabled, with the recorded value if the flow has one (an imported
  * Blip flow may still carry a `builder:*` key even though the Pipe engine never reads it), marked
  * "Não disponível no Pipe" (D-56 item 3).
  */
@@ -156,9 +158,14 @@ function ConfigurationControl({
         <span className="sub">{secao.rotuloCampo}</span>
         <Campo
           type="number"
+          min={0}
           value={segundos ?? ''}
-          disabled
-          readOnly
+          disabled={!secao.disponivel}
+          readOnly={!secao.disponivel}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            const texto = e.target.value.trim();
+            onChange(secao.chave ?? '', texto === '' ? null : secondsToTimeSpan(Number(texto)));
+          }}
           aria-label={secao.rotuloCampo}
         />
       </label>

@@ -17,7 +17,9 @@ import {
   setStateId,
   setVariable,
   getStateId,
+  pruneExpiredVariables,
   replaceVariables,
+  timeSpanSeconds,
 } from './context.js';
 import type { Acao, State, FlowBlip, InboundValidation } from './modelos.js';
 import { contextEhVariable, validateFlow } from './modelos.js';
@@ -157,9 +159,18 @@ export async function processInbound(
   context: Context,
   options: EngineOptions = {},
 ): Promise<InboundTrace> {
-  const configuration = { ...CONFIGURATION_DEFAULT, ...options.configuration };
-  const provedor = options.actions ?? PROVEDOR_PADRAO;
   const flow = context.flow;
+  // `builder:actionExecutionTimeout` replaces the 30 s default, capped by the 60 s input limit.
+  const flowActionTimeout = timeSpanSeconds(flow.configuration?.['builder:actionExecutionTimeout']);
+  const configuration = {
+    ...CONFIGURATION_DEFAULT,
+    ...(flowActionTimeout
+      ? { defaultActionTimeLimitMs: Math.min(flowActionTimeout * 1000, CONFIGURATION_DEFAULT.inboundTimeLimitMs) }
+      : {}),
+    ...options.configuration,
+  };
+  const provedor = options.actions ?? PROVEDOR_PADRAO;
+  pruneExpiredVariables(context.variables);
   const rastro: InboundTrace = { estados: [], actionsGlobal: [], stateFinalId: null };
   const prazo = Date.now() + configuration.inboundTimeLimitMs;
   let state: State | null = null;
@@ -173,6 +184,8 @@ export async function processInbound(
     // Restore stored state; use the root if absent or missing from this flow.
     const stateId = getStateId(context);
     state = flow.states.find((s) => s.id === stateId) ?? flow.states.find((s) => s.root)!;
+    // Each input renews the session: `builder:stateExpiration` counts inactivity, not time in a block.
+    if (stateId === state.id) setStateId(context, state.id);
 
     let transitions = 0;
     if (flow.inputActions) {

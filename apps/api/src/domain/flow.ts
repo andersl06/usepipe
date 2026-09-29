@@ -424,8 +424,10 @@ export async function runFlowInInbound(
     forwardForAttendance: async ({ settings }) => {
       const queueId =
         typeof settings?.['filaId'] === 'string' ? settings['filaId'] : conversation.queueDefaultId;
-      await emSavepoint((sp) => transferirPeloBot(sp, queueId));
-      return { id: conversation.id, status: 'Waiting' };
+      return emSavepoint(async (sp) => {
+        await transferirPeloBot(sp, queueId);
+        return ticketOfConversation(sp, conversation.id);
+      });
     },
     registerEvent: async (evento) => {
       eventos.push(evento);
@@ -1127,7 +1129,7 @@ async function transbordarSemFalhar(
 /** Variables collected by the bot, excluding engine control keys. */
 export function summaryOfContext(variaveis: Record<string, string>, motivo: string | null): string {
   const linhas = Object.entries(variaveis)
-    .filter(([k]) => !/^(previous-)?stateId@/.test(k) && !k.startsWith('desk_'))
+    .filter(([k]) => !/^(previous-)?stateId@/.test(k) && !k.startsWith('desk_') && !k.startsWith('#'))
     .map(([k, v]) => `- ${k}: ${v}`);
   return [
     motivo ? `Transferida pelo bot (${motivo}).` : 'Transferida pelo bot.',
@@ -1356,8 +1358,18 @@ export async function resolveDynamicContent(
 /**
  * Convert what the flow emits into what a channel worker sends. Text and menu delegate to `textForOChannel`/`perguntaDoSelect`, unchanged from before this type existed. `media-link` becomes the media category with the pointer in `dados.midia`; the URL passes through the same SSRF guard as every other outbound URL in this module before it is ever stored. Returns `null` for content that sends nothing (typing).
  */
-export function toChannelOutput(m: OutputMessage): ChannelOutput | null {
-  const tipo = m.tipo.toLowerCase();
+export function toChannelOutput(message: OutputMessage): ChannelOutput | null {
+  const tipo = message.tipo.toLowerCase();
+  // `SendRawMessage` carries any LIME document as serialized text: parse it once so every type
+  // below (location, web-link, …) sees the same object a `SendMessage` would.
+  let m = message;
+  if (m.bruto && typeof m.conteudo === 'string' && tipo !== 'text/plain') {
+    try {
+      m = { ...m, conteudo: JSON.parse(m.conteudo) as unknown };
+    } catch {
+      // Not JSON: the type-specific checks below reject it with their own message.
+    }
+  }
   if (tipo === 'application/vnd.lime.location+json') {
     const content = m.conteudo as { latitude?: unknown; longitude?: unknown } | null;
     if (typeof content?.latitude !== 'number' || typeof content.longitude !== 'number') {
@@ -1527,6 +1539,76 @@ async function lastAttendance(
     closeDate: recent?.closeDate ?? null,
     closedBy: recent?.by ?? null,
     sequentialId: recent?.sequentialId ?? null,
+  };
+}
+
+/** Pipe conversation state → Blip `TicketStatusEnum`. */
+const TICKET_STATUS_OF_STATE: Record<string, string> = {
+  na_fila: 'Waiting',
+  atribuida: 'Assigned',
+  em_atendimento: 'Open',
+  em_espera: 'Open',
+  encerrada: 'ClosedAttendant',
+};
+
+/**
+ * The conversation as Blip's `Ticket` document (`blip-api-schemas.md`, Ticket), which the engine
+ * exposes as `{{ticket.*}}` after `ForwardToDesk`/`CreateTicket`. Identities are Pipe ids (contact
+ * id for the customer, agent e-mail for the agent); `sequentialId` counts the tenant's conversations
+ * (explicitly filtered by tenant), the same numbering the closed-ticket input uses.
+ */
+export async function ticketOfConversation(
+  tx: TransactionPipe,
+  conversationId: string,
+): Promise<{ id: string; [field: string]: unknown }> {
+  const { rows } = await tx.execute<{
+    id: string; state: string; contactId: string; team: string | null; agentIdentity: string | null;
+    storageDate: string; statusDate: string; openDate: string | null; firstResponseDate: string | null; closeDate: string | null;
+    priority: string; tags: string[]; sequentialId: number;
+  }>(sql`
+    select c.id, c.estado as state, c.contato_id as "contactId", q.nome as team,
+           u.email as "agentIdentity",
+           to_char(coalesce(
+             (select min(ev.em) from evento_atendimento ev where ev.conversa_id = c.id and ev.tipo = 'criada'),
+             c.criada_em) at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "storageDate",
+           to_char(coalesce(c.atualizado_em, c.criada_em) at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "statusDate",
+           to_char(c.atribuida_em at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "openDate",
+           to_char(c.primeira_resposta_em at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "firstResponseDate",
+           to_char(c.encerrada_em at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "closeDate",
+           c.prioridade as priority,
+           coalesce(
+             (select array_agg(et.nome order by et.nome) from conversa_etiqueta ce
+               join etiqueta et on et.id = ce.etiqueta_id where ce.conversa_id = c.id),
+             '{}'
+           ) as tags,
+           (select count(*)::int from conversa c2
+             where c2.tenant_id = c.tenant_id
+               and (c2.criada_em, c2.id) <= (c.criada_em, c.id)) as "sequentialId"
+      from conversa c
+      left join fila q on q.id = c.fila_id
+      left join usuario u on u.id = c.atendente_id
+     where c.id = ${conversationId}
+  `);
+  const t = rows[0];
+  if (!t) throw new Error('A conversa do atendimento não foi encontrada.');
+  const status = TICKET_STATUS_OF_STATE[t.state] ?? 'Waiting';
+  return {
+    id: t.id,
+    sequentialId: t.sequentialId,
+    customerIdentity: t.contactId,
+    agentIdentity: t.agentIdentity,
+    provider: 'Lime',
+    status,
+    team: t.team,
+    storageDate: t.storageDate,
+    openDate: t.openDate,
+    statusDate: t.statusDate,
+    firstResponseDate: t.firstResponseDate,
+    closeDate: t.closeDate,
+    closed: status.startsWith('Closed'),
+    priority: t.priority,
+    tags: t.tags,
+    unreadMessages: 0,
   };
 }
 

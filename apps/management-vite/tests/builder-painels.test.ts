@@ -548,9 +548,9 @@ test('CONFIGURATION_SECTIONS has the 8 captured sections, in order, with literal
   ]);
 });
 
-test('only "Variáveis de configuração" is available — the engine only reads config.X generically', () => {
+test('available sections are the ones the engine reads: session expiration, action time limit and config.X', () => {
   const disponiveis = CONFIGURATION_SECTIONS.filter((s) => s.disponivel).map((s) => s.id);
-  assert.deepEqual(disponiveis, ['variaveis-configuracao']);
+  assert.deepEqual(disponiveis, ['expiracao-sessao', 'tempo-limite-acoes', 'variaveis-configuracao']);
 });
 
 test('secondsToTimeSpan/timeSpanToSeconds round-trip the TimeSpan text Blip stores', () => {
