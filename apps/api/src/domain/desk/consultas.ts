@@ -370,10 +370,17 @@ export async function listHistoryOfContact(
     encerrada_em: Date | string | null;
     state: StateConversation;
     fila_nome: string | null;
+    closed_by: string | null;
   }>(sql`
-    select c.id, c.criada_em, c.encerrada_em, c.estado as "state", f.nome as fila_nome
+    select c.id, c.criada_em, c.encerrada_em, c.estado as "state", f.nome as fila_nome,
+           ev.dados->>'encerrada_por' as closed_by
       from conversa c
       left join fila f on f.id = c.fila_id
+      left join lateral (
+        select e.dados from evento_atendimento e
+         where e.conversa_id = c.id and e.tipo = 'encerrada'
+         order by e.em desc limit 1
+      ) ev on c.estado = 'encerrada'
      where c.contato_id = ${contactId}
        and (${exceto}::uuid is null or c.id <> ${exceto}::uuid)
      order by c.criada_em desc
@@ -385,6 +392,7 @@ export async function listHistoryOfContact(
     encerradaEm: isoOuNulo(r.encerrada_em),
     estado: r.state,
     filaNome: r.fila_nome,
+    closedBy: r.closed_by,
   }));
 }
 

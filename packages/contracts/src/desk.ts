@@ -148,6 +148,12 @@ export interface ConversationOfHistory {
   encerradaEm: string | null;
   estado: StateConversation;
   filaNome: string | null;
+  /**
+   * Who ended it, from the `encerrada` attendance event (`dados.encerrada_por`): atendente / cliente /
+   * inatividade / transferencia / bot. Null while open or when the event predates the field. Kept a
+   * plain string so a new actor never breaks the read; the front end maps known values to labels.
+   */
+  closedBy: string | null;
 }
 
 

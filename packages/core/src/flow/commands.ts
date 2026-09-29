@@ -89,6 +89,20 @@ export function matchCommand(
   return null;
 }
 
+/** `/contexts/{contact}/stateid@{flowId}` — Blip's context route for a flow's saved state (D-55). */
+export const CONTEXT_STATE_URI = /^\/contexts\/[^/]*\/stateid@([^/?#]+)$/i;
+
+/**
+ * Whether the engine runs this command: a routed command, or the `set` of another flow's saved block
+ * (handled before routing, for any recipient). The Builder uses it to flag what the engine would refuse.
+ */
+export function isPipeCommand(command: { to?: string | null; method?: string | null; uri: string }): boolean {
+  const method = (command.method ?? '').trim().toLowerCase();
+  const path = command.uri.trim().split('?')[0] ?? '';
+  if (method === 'set' && CONTEXT_STATE_URI.test(path)) return true;
+  return matchCommand(command) !== null;
+}
+
 function safeDecode(value: string): string {
   try {
     return decodeURIComponent(value);

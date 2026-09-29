@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commandRecipient, matchCommand } from './commands.js';
+import { commandRecipient, isPipeCommand, matchCommand } from './commands.js';
 import { createInbound, type CommandRequest, type Context } from './context.js';
 import { processInbound } from './manager.js';
 
@@ -195,5 +195,24 @@ describe('ProcessCommand with the export Desk writes', () => {
     expect(requests[0]!.resource).toEqual({ id: '42', status: 'ClosedClient' });
     expect(requests[1]!.resource).toMatchObject({ customerIdentity: 'contato-1', tags: ['Encerrado pelo Cliente'] });
     expect(JSON.parse(c.variables['finalizarResponse']!)).toEqual({ method: 'set', status: 'success' });
+  });
+});
+
+describe('isPipeCommand', () => {
+  const desk = 'postmaster@desk.msging.net';
+  const builder = 'postmaster@builder.msging.net';
+  it('recognizes every route the engine runs', () => {
+    expect(isPipeCommand({ to: builder, method: 'get', uri: '/flow-id?shortname=x' })).toBe(true);
+    expect(isPipeCommand({ to: desk, method: 'set', uri: '/tickets/abc/close' })).toBe(true);
+    expect(isPipeCommand({ to: desk, method: 'set', uri: '/tickets/change-status' })).toBe(true);
+    expect(isPipeCommand({ method: 'get', uri: '/contexts/abc/nome' })).toBe(true);
+  });
+  it("accepts the set of another flow's saved block for any recipient", () => {
+    expect(isPipeCommand({ to: desk, method: 'set', uri: '/contexts/abc/stateid@fluxo-2' })).toBe(true);
+    expect(isPipeCommand({ to: desk, method: 'get', uri: '/contexts/abc/stateid@fluxo-2' })).toBe(false);
+  });
+  it('rejects unknown routes', () => {
+    expect(isPipeCommand({ to: desk, method: 'set', uri: '/nao-existe' })).toBe(false);
+    expect(isPipeCommand({ to: builder, method: 'get', uri: '/flow-id/extra' })).toBe(false);
   });
 });

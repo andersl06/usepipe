@@ -1,4 +1,4 @@
-import { PROVEDOR_PADRAO, matchCommand } from '@pipe/core';
+import { EXTERNAL_DEPENDENCY_ACTIONS, PROVEDOR_PADRAO, isPipeCommand } from '@pipe/core';
 import type { ConditionBlip } from '@pipe/core';
 import type { NomeDeIcone } from '@pipe/ui';
 import type { AcaoDoEditor, Block } from './model';
@@ -37,14 +37,8 @@ export interface TipoDeAcao {
   campos: CampoDaAcao[];
 }
 
-/** Types whose generic Blip service form remains external when it cannot be mapped to Pipe. */
-export const EXTERNAL_DEPENDENCY_ACTIONS = [
-  'SendCommand',
-  'ProcessCommand',
-  'ManageList',
-  'SetBucket',
-  'ProcessContentAssistant',
-] as const;
+/** Types whose generic Blip service form remains external when it cannot be mapped to Pipe (single list, owned by core). */
+export { EXTERNAL_DEPENDENCY_ACTIONS };
 
 export const EXTERNAL_DEPENDENCY_MESSAGE = 'Esta ação depende de um serviço da Blip que o Pipe ainda não reproduz. Marcada como não executada — revise antes de publicar.';
 
@@ -364,11 +358,7 @@ export const acaoTemDependenciaExterna = (acao: AcaoDoEditor): boolean => {
     const texto = (chave: string) => (typeof acao.settings?.[chave] === 'string' ? (acao.settings[chave] as string) : '');
     const uri = texto('uri');
     const method = texto('method') || (acao.type === 'ProcessCommand' ? 'get' : 'set');
-    return (
-      !!uri &&
-      !matchCommand({ to: texto('to'), method, uri }) &&
-      !/^\/contexts\/[^/]*\/stateid@[^/?#]+$/i.test(uri)
-    );
+    return !!uri && !isPipeCommand({ to: texto('to'), method, uri });
   }
   return false;
 };
