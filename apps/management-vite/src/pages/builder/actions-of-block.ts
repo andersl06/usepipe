@@ -1,4 +1,4 @@
-import { PROVEDOR_PADRAO } from '@pipe/core';
+import { PROVEDOR_PADRAO, matchCommand } from '@pipe/core';
 import type { ConditionBlip } from '@pipe/core';
 import type { NomeDeIcone } from '@pipe/ui';
 import type { AcaoDoEditor, Block } from './model';
@@ -361,10 +361,12 @@ export const acaoSemSuporte = (acao: AcaoDoEditor): boolean => !PROVEDOR_PADRAO.
 export const acaoTemDependenciaExterna = (acao: AcaoDoEditor): boolean => {
   if (!EXTERNAL_DEPENDENCY_ACTIONS.includes(acao.type as (typeof EXTERNAL_DEPENDENCY_ACTIONS)[number])) return false;
   if (acao.type === 'SendCommand' || acao.type === 'ProcessCommand') {
-    const uri = typeof acao.settings?.['uri'] === 'string' ? acao.settings['uri'] : '';
+    const texto = (chave: string) => (typeof acao.settings?.[chave] === 'string' ? (acao.settings[chave] as string) : '');
+    const uri = texto('uri');
+    const method = texto('method') || (acao.type === 'ProcessCommand' ? 'get' : 'set');
     return (
       !!uri &&
-      !/^\/tickets\/[^/]+(?:\/change-tags|\/transfer|\/status|\/priority)?$/.test(uri) &&
+      !matchCommand({ to: texto('to'), method, uri }) &&
       !/^\/contexts\/[^/]*\/stateid@[^/?#]+$/i.test(uri)
     );
   }

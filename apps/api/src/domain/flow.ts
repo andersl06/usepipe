@@ -28,6 +28,7 @@ import type {
   ImportReport,
   Saida,
   ServicosDoMotor,
+  CommandRequest,
 } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
@@ -42,6 +43,7 @@ import { confirmarUrlSegura } from './management/integrations.js';
 import { loadFlowFunctions } from './management/flow-functions.js';
 import { loadFlowResources } from './management/flow-resources.js';
 import { closeInTransaction, type LineConversation } from './conversation.js';
+import { DESK_READ_COMMANDS } from './desk-commands.js';
 import type { TipoEnvio } from './envio.js';
 
 /**
@@ -175,27 +177,31 @@ export interface ResultOfFlow {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * Maps only the closed command subset approved by D-20; arbitrary LIME is never forwarded.
- * `/transfer` and `/status` change the conversation only through the same domain paths a human
- * handoff/closure uses (`transferir` = the bot's attendance handoff `transbordar`, and
- * `closeInTransaction`), so events, SLA, webhooks and distribution fire.
+ * Runs a command the engine already routed (`COMMAND_ROUTES` in `@pipe/core`); arbitrary LIME is never
+ * forwarded. Desk reads answer in Blip's shapes (`desk-commands.ts`). The `pipe.tickets.*` routes act on
+ * the current conversation in Pipe's vocabulary: `/transfer` and `/status` change it only through the
+ * same domain paths a human handoff/closure uses (`transferir` = the bot's attendance handoff
+ * `transbordar`, and `closeInTransaction`), so events, SLA, webhooks and distribution fire.
  */
 async function executeNativeCommand(
   tx: TransactionPipe,
   e: InboundInFlow,
-  uri: string,
-  resource: unknown,
+  { uri, resource, command }: CommandRequest,
   waitForResponse: boolean,
   transferir: (sp: TransactionPipe, queueId: string) => Promise<void>,
 ): Promise<unknown> {
+  const deskRead = DESK_READ_COMMANDS[command.route];
+  if (deskRead) {
+    const response = await deskRead(tx, e.tenantId, command);
+    return waitForResponse ? response : undefined;
+  }
   const body = resource && typeof resource === 'object' ? resource as Record<string, unknown> : {};
-  const match = uri.match(/^\/tickets\/[^/]+(\/.*)?$/);
-  const route = match?.[1] ?? '';
-  if (!match || !['', '/change-tags', '/transfer', '/status', '/priority'].includes(route)) {
+  const route = command.route;
+  if (!['pipe.tickets.get', 'pipe.tickets.changeTags', 'pipe.tickets.transfer', 'pipe.tickets.status', 'pipe.tickets.priority'].includes(route)) {
     throw new Error(`A URI '${uri}' não é executada no Pipe.`);
   }
   const result: Record<string, unknown> = { status: 'success', reason: 'OK', resource: null };
-  if (route === '/change-tags') {
+  if (route === 'pipe.tickets.changeTags') {
     const tags = Array.isArray(body['tags']) ? body['tags'].filter((tag): tag is string => typeof tag === 'string') : [];
     for (const name of tags) {
       const { rows } = await tx.execute<{ id: string }>(sql`
@@ -210,7 +216,7 @@ async function executeNativeCommand(
       `);
     }
     result.resource = { tags };
-  } else if (route === '/transfer') {
+  } else if (route === 'pipe.tickets.transfer') {
     const queueId = typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;
     if (!queueId) throw new Error("O comando de transferência exige 'queueId'.");
     if (!UUID.test(queueId)) throw new Error(`O comando de transferência recebeu um 'queueId' inválido: '${queueId}'.`);
@@ -221,7 +227,7 @@ async function executeNativeCommand(
     if (!filas[0]) throw new Error(`A fila '${queueId}' não existe neste Pipe.`);
     await transferir(tx, queueId);
     result.resource = { queueId };
-  } else if (route === '/status') {
+  } else if (route === 'pipe.tickets.status') {
     const status = typeof body['status'] === 'string' ? body['status'] : null;
     if (!status || !['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'].includes(status)) throw new Error("O comando de status exige um status do Pipe válido.");
     if (status === 'na_fila') {
@@ -239,7 +245,7 @@ async function executeNativeCommand(
       throw new Error(`O bot não pode colocar a conversa em '${status}': esse estado exige um atendente.`);
     }
     result.resource = { status };
-  } else if (route === '/priority') {
+  } else if (route === 'pipe.tickets.priority') {
     const priority = typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;
     if (!priority || !['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'].includes(priority)) throw new Error("O comando de prioridade exige um nível do Pipe válido.");
     await tx.execute(sql`update conversa set prioridade = ${priority}, atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
@@ -561,11 +567,11 @@ export async function runFlowInInbound(
         `);
       }
     }),
-    sendCommand: async ({ uri, resource }) => {
-      await emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, false, transferirPeloBot));
+    sendCommand: async (request) => {
+      await emSavepoint((sp) => executeNativeCommand(sp, e, request, false, transferirPeloBot));
     },
-    processCommand: ({ uri, resource }) =>
-      emSavepoint((sp) => executeNativeCommand(sp, e, uri, resource, true, transferirPeloBot)),
+    processCommand: (request) =>
+      emSavepoint((sp) => executeNativeCommand(sp, e, request, true, transferirPeloBot)),
     // Blip `set /contexts/{contact}/stateid@{flow}`: the flow's saved block lives in the contact's
     // latest execution context of that flow (`stateId@<flowId>`), which the next execution inherits.
     setFlowState: ({ flowId, stateId }) => emSavepoint(async (sp) => {
