@@ -1,5 +1,5 @@
 /**
- * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider,ResourceVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is not stored; Blip service providers (bucket, tunnel, calendar, secret, etc.) are absent and throw, as the original does when a source lacks a provider. `resource` DOES have a provider: the `api` loads the flow's `recurso_do_fluxo` rows into `Context.resources` the same way it loads `contact`, so an imported flow reading `{{resource.x}}` (and `resource.x@prop` for JSON resources, via the generic `propertyJson` path already used by every source) resolves instead of throwing "Não há provedor para a fonte de variável 'resource'.".
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider,ResourceVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is not stored; `calendar`, `random`, `application`, `tunnel` and `bucket` have providers (see each below), while other Blip service providers (secret, aiagent, etc.) are absent and throw, as the original does when a source lacks a provider. `resource` DOES have a provider: the `api` loads the flow's `recurso_do_fluxo` rows into `Context.resources` the same way it loads `contact`, so an imported flow reading `{{resource.x}}` (and `resource.x@prop` for JSON resources, via the generic `propertyJson` path already used by every source) resolves instead of throwing "Não há provedor para a fonte de variável 'resource'.".
  */
 
 import type { FlowBlip } from './modelos.js';
@@ -35,6 +35,11 @@ export const FONTES_SUPORTADAS: ReadonlySet<VariableSource> = new Set([
   'state',
   'ticket',
   'resource',
+  'calendar',
+  'random',
+  'application',
+  'tunnel',
+  'bucket',
 ]);
 
 /** Incoming message in LIME vocabulary: `tipo` is the MIME type (`text/plain`, etc.). */
@@ -222,6 +227,11 @@ export interface Context {
    * on a JSON resource is handled generically by `getVariable`, like every other source.
    */
   resources?: Record<string, string>;
+  /**
+   * This bot for `application.*`: the flow's short name. `routerIdentifier` is the router's short name
+   * when the flow runs as a router service, which is when Blip messages arrive by tunnel (`tunnel.*`).
+   */
+  application?: { identifier: string; routerIdentifier?: string | null };
   /** Extra providers or replacements for defaults. */
   providers?: Partial<Record<VariableSource, VariableProvider>>;
   services: ServicosDoMotor;
@@ -407,7 +417,127 @@ function contactProvider(nome: string, c: Context): string | null {
   return objectProperty(contact, nome);
 }
 
+const DAY_MS = 86_400_000;
+const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const pad2 = (n: number): string => String(n).padStart(2, '0');
+
+/** `calendar.*` in GMT-0, with `tomorrow.` and `yesterday.` shifting the current instant by one day. */
+function calendarProvider(nome: string): string | null {
+  const partes = nome.toLowerCase().split('.');
+  const shift = partes[0] === 'tomorrow' ? DAY_MS : partes[0] === 'yesterday' ? -DAY_MS : 0;
+  if (shift !== 0) partes.shift();
+  if (partes.length !== 1) return null;
+  const d = new Date(Date.now() + shift);
+  const date = `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+  const time = `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
+  switch (partes[0]) {
+    case 'date':
+      return date;
+    case 'datetime':
+      return `${date}T${time}:${pad2(d.getUTCSeconds())}Z`;
+    case 'time':
+      return time;
+    case 'day':
+      return String(d.getUTCDate());
+    case 'dayofweek':
+      return DAYS_OF_WEEK[d.getUTCDay()]!;
+    case 'month':
+      return String(d.getUTCMonth() + 1);
+    case 'year':
+      return String(d.getUTCFullYear());
+    case 'hour':
+      return String(d.getUTCHours());
+    case 'minute':
+      return String(d.getUTCMinutes());
+    case 'second':
+      return String(d.getUTCSeconds());
+    case 'unixtime':
+      return String(Math.floor(d.getTime() / 1000));
+    case 'unixtimemilliseconds':
+      return String(d.getTime());
+  }
+  return null;
+}
+
+const randomUUID = (): string =>
+  (globalThis as unknown as { crypto: { randomUUID(): string } }).crypto.randomUUID();
+
+/** `random.guid`, `random.integer` (non-negative 32-bit, like .NET `Random.Next()`), `random.string`. */
+function randomProvider(nome: string): string | null {
+  switch (nome.toLowerCase()) {
+    case 'guid':
+      return randomUUID();
+    case 'integer':
+      return String(Math.floor(Math.random() * 2_147_483_647));
+    case 'string':
+      return randomUUID().replace(/-/g, '');
+  }
+  return null;
+}
+
+/** Blip's bot domain, kept so imported flows that build `{{application.identifier}}@msging.net` stay consistent. */
+const BOT_DOMAIN = 'msging.net';
+const BOT_INSTANCE = 'pipe';
+
+/** `application.*`: identity is `identifier@domain`, node is `identity/instance`. */
+function applicationProvider(nome: string, c: Context): string | null {
+  const identifier = c.application?.identifier;
+  if (!identifier) return null;
+  const identity = `${identifier}@${BOT_DOMAIN}`;
+  switch (nome.toLowerCase()) {
+    case 'identifier':
+      return identifier;
+    case 'domain':
+      return BOT_DOMAIN;
+    case 'instance':
+      return BOT_INSTANCE;
+    case 'identity':
+      return identity;
+    case 'node':
+      return `${identity}/${BOT_INSTANCE}`;
+  }
+  return null;
+}
+
+/**
+ * `tunnel.*` exists only behind a router, as in Blip. Pipe has no tunnel identity: the contact is unique
+ * in the tenant, so `identity` and `originator` are the contact itself (same as `contact.identity`);
+ * `owner` is the router and `destination` this service.
+ */
+function tunnelProvider(nome: string, c: Context): string | null {
+  const router = c.application?.routerIdentifier;
+  if (!router || !c.application?.identifier) return null;
+  switch (nome.toLowerCase()) {
+    case 'identity':
+    case 'originator':
+      return c.user;
+    case 'owner':
+      return `${router}@${BOT_DOMAIN}`;
+    case 'destination':
+      return `${c.application.identifier}@${BOT_DOMAIN}`;
+  }
+  return null;
+}
+
+/**
+ * `bucket.<id>`: the document SetBucket stored, the contact's first and then the tenant-wide one.
+ * Text comes back as is, any other document as JSON.
+ */
+async function bucketProvider(nome: string, c: Context): Promise<string | null> {
+  const get = c.services.bucketGet;
+  if (!get) return null;
+  const value =
+    (await get({ key: nome, scope: 'contact' })) ?? (await get({ key: nome, scope: 'global' }));
+  if (value === null || value === undefined) return null;
+  return typeof value === 'string' ? value : JSON.stringify(value);
+}
+
 const PROVEDORES_PADRAO: Partial<Record<VariableSource, VariableProvider>> = {
+  calendar: calendarProvider,
+  random: randomProvider,
+  application: applicationProvider,
+  tunnel: tunnelProvider,
+  bucket: bucketProvider,
   input: inboundProvider,
   state: stateProvider,
   contact: contactProvider,

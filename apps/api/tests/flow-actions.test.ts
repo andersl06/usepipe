@@ -59,6 +59,19 @@ const FLOW = {
         settings: { id: 'grande', type: 'text/plain', document: 'é'.repeat(40_000) },
         conditions: [{ source: 'input', comparison: 'equals', values: ['bucket-grande'] }],
       },
+      {
+        type: 'SetBucket',
+        settings: { id: 'saudacao', type: 'text/plain', document: 'olá' },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['provedores'] }],
+      },
+      {
+        type: 'SendMessage',
+        settings: {
+          type: 'text/plain',
+          content: '{{application.identity}}|{{tunnel.identity}}|{{bucket.saudacao}}|{{calendar.year}}|{{random.guid}}',
+        },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['provedores'] }],
+      },
     ],
     outputs: [
       {
@@ -186,6 +199,23 @@ describe('context action services', () => {
       select conteudo from mensagem where tenant_id = ${cenario.tenantId}::uuid and autor_tipo = 'bot'
     `);
     expect(rows.map((m) => m.conteudo)).toEqual(['CPF: 12345678900']);
+  });
+
+  it('fills application, bucket, calendar and random; tunnel stays empty without a router', async () => {
+    await falar('provedores');
+    const { rows: fluxos } = await cenario.dono.execute<{ short_name: string }>(sql`
+      select short_name from fluxo where tenant_id = ${cenario.tenantId}::uuid
+    `);
+    const { rows } = await cenario.dono.execute<{ conteudo: string }>(sql`
+      select conteudo from mensagem where tenant_id = ${cenario.tenantId}::uuid and autor_tipo = 'bot'
+    `);
+    expect(rows).toHaveLength(1);
+    const [identity, tunnel, bucket, year, guid] = rows[0]!.conteudo.split('|');
+    expect(identity).toBe(`${fluxos[0]!.short_name}@msging.net`);
+    expect(tunnel).toBe('');
+    expect(bucket).toBe('olá');
+    expect(year).toBe(String(new Date().getUTCFullYear()));
+    expect(guid).toMatch(/^[0-9a-f-]{36}$/);
   });
 
   /** Publish a one-block flow whose root runs a single SendCommand. */
