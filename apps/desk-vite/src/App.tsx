@@ -3,6 +3,8 @@ import { ClosureNotice } from '@pipe/ui';
 import { RequireSession } from './components/exigir-session';
 import { Shell } from './components/shell';
 import { useRegisterNavigation } from './lib/navigation';
+import { useLiveEvents } from './lib/live-events';
+import { useSession } from './context/session';
 import { PageLogin } from './pages/login';
 import { PageInvitation } from './pages/invitation';
 import { PageAttendances } from './pages/attendances/page';
@@ -18,6 +20,7 @@ import { NaoEncontrado } from './pages/nao-encontrado';
  */
 export function App() {
   useRegisterNavigation();
+  useLiveEvents(Boolean(useSession().eu));
   return (
     <>
     <ClosureNotice />
