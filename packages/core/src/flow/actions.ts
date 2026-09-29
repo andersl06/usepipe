@@ -215,6 +215,48 @@ const sendMessage: AcaoDoMotor = {
   },
 };
 
+/**
+ * Blip "Pesquisa" card (`SurveyMessage`, settings `type`, `scale`, `surveyContent`). Blip's server
+ * renders it; Pipe sends the question as a menu whose options follow the chosen scale (1-3 or 1-5,
+ * stars or numbers) or, for the recommendation survey, the two captured answers. The customer's
+ * choice arrives as the next input, like any menu answer.
+ */
+const surveyMessage: AcaoDoMotor = {
+  tipo: 'SurveyMessage',
+  async executar(context, settings, prazo) {
+    const c = requireSettings(this.tipo, settings);
+    const type = comoTexto(campo(c, 'type')) ?? '';
+    const scale = comoTexto(campo(c, 'scale')) ?? '';
+    const question = comoTexto(campo(c, 'surveyContent'))?.trim();
+    if (!type.trim()) throw new Error("O valor 'type' é obrigatório na ação 'SurveyMessage'.");
+    if (!question) throw new Error("O valor 'surveyContent' é obrigatório na ação 'SurveyMessage'.");
+    let options: string[];
+    if (/recomendation/i.test(type)) {
+      options = ['Recomendaria', 'Não recomendaria'];
+    } else {
+      if (!scale.trim()) throw new Error("O valor 'scale' é obrigatório na ação 'SurveyMessage'.");
+      const size = /OneToThree/i.test(scale) ? 3 : 5;
+      const stars = !/Number$/i.test(scale);
+      options = Array.from({ length: size }, (_, i) => (stars ? '★'.repeat(i + 1) : String(i + 1)));
+    }
+    await context.services.send({
+      tipo: 'application/vnd.lime.select+json',
+      conteudo: { text: question, options: options.map((text, i) => ({ order: i + 1, text })) },
+      metadados: (campo(c, 'metadata') as Record<string, string> | undefined) ?? null,
+    }, prazo?.signal);
+  },
+};
+
+/**
+ * Blip `ForwardMessageToDesk` relays customer messages to the open ticket. Pipe already does this
+ * by design: while a conversation is queued or with an agent, inbound messages go to Desk and never
+ * reach the bot, so the action succeeds without doing anything.
+ */
+const forwardMessageToDesk: AcaoDoMotor = {
+  tipo: 'ForwardMessageToDesk',
+  async executar() {},
+};
+
 /** `SendRawMessageAction`. */
 const sendRawMessage: AcaoDoMotor = {
   tipo: 'SendRawMessage',
@@ -410,6 +452,52 @@ const processHttp: AcaoDoMotor = {
   },
 };
 
+/** Blip's portal default for `builder:#localTimeZone` when the account has none. */
+const BOT_TIME_ZONE_DEFAULT = 'America/Sao_Paulo';
+
+/** Blip stores Windows zone ids; these are the ones a Brazilian/LatAm tenant realistically has. */
+const WINDOWS_TIME_ZONES: Readonly<Record<string, string>> = {
+  'E. South America Standard Time': 'America/Sao_Paulo',
+  'SA Eastern Standard Time': 'America/Cayenne',
+  'Tocantins Standard Time': 'America/Araguaina',
+  'Bahia Standard Time': 'America/Bahia',
+  'Central Brazilian Standard Time': 'America/Cuiaba',
+  'SA Western Standard Time': 'America/La_Paz',
+  'SA Pacific Standard Time': 'America/Bogota',
+  'UTC-02': 'Etc/GMT+2',
+  'Argentina Standard Time': 'America/Buenos_Aires',
+  'Pacific SA Standard Time': 'America/Santiago',
+  'Paraguay Standard Time': 'America/Asuncion',
+  'Montevideo Standard Time': 'America/Montevideo',
+  'Venezuela Standard Time': 'America/Caracas',
+  'Central Standard Time (Mexico)': 'America/Mexico_City',
+  'Eastern Standard Time': 'America/New_York',
+  'Central Standard Time': 'America/Chicago',
+  'Mountain Standard Time': 'America/Denver',
+  'Pacific Standard Time': 'America/Los_Angeles',
+  'GMT Standard Time': 'Europe/London',
+  'W. Europe Standard Time': 'Europe/Berlin',
+  'Romance Standard Time': 'Europe/Paris',
+  'UTC': 'UTC',
+};
+
+/**
+ * The bot's time zone as an IANA id, from `builder:#localTimeZone` (a Windows id in Blip, e.g.
+ * `E. South America Standard Time`). An IANA id is accepted as is; anything unknown falls back to
+ * Blip's own default, São Paulo.
+ */
+export function botTimeZone(configuration: Record<string, string> | null | undefined): string {
+  const raw = configuration?.['builder:#localTimeZone']?.trim();
+  if (!raw) return BOT_TIME_ZONE_DEFAULT;
+  const mapped = WINDOWS_TIME_ZONES[raw] ?? raw;
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: mapped });
+    return mapped;
+  } catch {
+    return BOT_TIME_ZONE_DEFAULT;
+  }
+}
+
 /** Blip limits: V1 (Jint) 5 s, V2 (V8/ClearScript) 10 s. */
 const SCRIPT_TIMEOUT_MS = { 1: 5_000, 2: 10_000 } as const;
 
@@ -429,6 +517,7 @@ function runScriptAction(version: 1 | 2): AcaoDoMotor['executar'] {
     const args = await Promise.all(names.map((n) => (n ? getVariable(context, n) : null)));
     const exceptionVariable = comoTexto(campo(c, 'exceptionVariable'))?.trim();
     const capture = version === 2 && campo(c, 'captureExceptions') === true && !!exceptionVariable;
+    const localTimeZone = campo(c, 'localTimeZoneEnabled') === true;
     try {
       const result = await context.services.runScript({
         version,
@@ -436,7 +525,8 @@ function runScriptAction(version: 1 | 2): AcaoDoMotor['executar'] {
         functionName: comoTexto(campo(c, 'function'))?.trim() || 'run',
         args,
         timeoutMs: SCRIPT_TIMEOUT_MS[version],
-        localTimeZone: campo(c, 'localTimeZoneEnabled') === true,
+        localTimeZone,
+        timeZone: localTimeZone ? botTimeZone(context.flow.configuration) : 'UTC',
       });
       setContextVariable(context, output, comoTexto(result));
     } catch (error) {
@@ -510,6 +600,8 @@ export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   deleteVariable,
   sendMessage,
   sendRawMessage,
+  surveyMessage,
+  forwardMessageToDesk,
   trackEvent,
   sendMessageFromHttp,
   mergeContact,

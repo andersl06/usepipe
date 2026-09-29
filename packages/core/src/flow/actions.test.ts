@@ -160,7 +160,7 @@ describe('context actions', () => {
     await processInbound(c);
 
     expect(c.variables.temporary).toBe('yes');
-    expect(c.variableExpirations?.temporary).toBeGreaterThan(Date.now());
+    expect(JSON.parse(c.variables['#expirations']!).temporary).toBeGreaterThan(Date.now());
     expect(events[0]).toMatchObject({ category: 'sales', action: 'qualified', value: 1.5, fireAndForget: true });
   });
 
@@ -219,6 +219,7 @@ describe('script actions', () => {
       args: ['1', null],
       timeoutMs: 5000,
       localTimeZone: false,
+      timeZone: 'UTC',
     }]);
     expect(c.variables.sum).toBe('3');
   });
