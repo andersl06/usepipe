@@ -8,6 +8,7 @@ import { Avatar } from '../../components/avatar';
 import { channelOf, numeroDoTicket } from '../../lib/channel';
 import { dataAbreviada } from '../../lib/format';
 import { displayName } from '../../lib/order';
+import { situationLabel } from '../../lib/situation';
 import { groupContacts, type ListContact, type ContactsOrder } from '../../lib/contacts';
 import { Thread } from '../attendances/thread';
 
@@ -226,7 +227,7 @@ export function PageContacts() {
                         <b>Ticket {numeroDoTicket(h.id)}</b>
                         <span>{h.filaNome ?? 'Transferência direta'}</span>
                         <small>
-                          {situation(h)}
+                          {situationLabel(h)}
                           {h.encerradaEm ? ` · ${dataAbreviada(new Date(h.encerradaEm))}` : ''}
                         </small>
                       </button>
@@ -354,15 +355,3 @@ function dataCurta(d: Date): string {
 }
 
 
-function situation(h: ConversationOfHistory): string {
-  switch (h.estado) {
-    case 'encerrada':
-      return 'Finalizado pelo atendente';
-    case 'na_fila':
-      return 'Aguardando';
-    case 'atribuida':
-      return 'Atribuído';
-    default:
-      return 'Aberto';
-  }
-}

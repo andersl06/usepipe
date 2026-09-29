@@ -3,7 +3,7 @@
  */
 
 import type { ActionDeadline, CommandRequest, Context, DeskUnavailableStatus, PedidoDeHttp } from './context.js';
-import { matchCommand } from './commands.js';
+import { CONTEXT_STATE_URI, matchCommand } from './commands.js';
 import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable, stateKey } from './context.js';
 import { runLocalCommand } from './builder-commands.js';
 
@@ -44,9 +44,6 @@ function requireKnownCommand(tipo: string, settings: Record<string, unknown>, me
   if (!command) throw new Error(`A URI '${uri}' não é executada no Pipe.`);
   return { uri, method, resource: campo(settings, 'resource') ?? null, command };
 }
-
-/** `/contexts/{contact}/stateid@{flowId}` — Blip's context route for a flow's saved state (D-55). */
-const CONTEXT_STATE_URI = /^\/contexts\/[^/]*\/stateid@([^/?#]+)$/i;
 
 /** The resource may be `"onboarding"`, `{"resource":"onboarding"}` or that JSON as text, as Blip exports it. */
 function stateOfResource(resource: unknown): string | null {

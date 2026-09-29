@@ -86,8 +86,33 @@ test('platform actions: arbitrary command imports are read-only dependencies', (
   const desk = 'postmaster@desk.msging.net';
   assert.equal(acaoTemDependenciaExterna({ type: 'ProcessCommand', settings: { to: desk, method: 'get', uri: '/teams/agents-online' } }), false);
   assert.equal(acaoTemDependenciaExterna({ type: 'ProcessCommand', settings: { method: 'get', uri: '/teams/agents-online' } }), true);
-  assert.equal(acaoTemDependenciaExterna({ type: 'ProcessCommand', settings: { to: desk, method: 'set', uri: '/tickets/change-status' } }), true);
   assert.equal(acaoTemDependenciaExterna({ type: 'SetBucket', settings: {} }), false);
+});
+
+test('platform actions: every command the engine runs is recognized, unknown URIs stay flagged', () => {
+  const desk = 'postmaster@desk.msging.net';
+  const builder = 'postmaster@builder.msging.net';
+  const core = 'postmaster@msging.net';
+  const externa = (type: string, settings: Record<string, unknown>) => acaoTemDependenciaExterna({ type, settings });
+  // Desk writes.
+  assert.equal(externa('SendCommand', { to: desk, method: 'set', uri: '/tickets/change-status' }), false);
+  assert.equal(externa('SendCommand', { to: desk, method: 'set', uri: '/tickets/abc/close' }), false);
+  assert.equal(externa('SendCommand', { to: desk, method: 'set', uri: '/tickets/{{ticketId}}/transfer' }), false);
+  assert.equal(externa('SendCommand', { to: desk, method: 'set', uri: '/attendance-survey-answer' }), false);
+  // Builder and core.
+  assert.equal(externa('ProcessCommand', { to: builder, method: 'get', uri: '/flow-id?shortname=x' }), false);
+  assert.equal(externa('ProcessCommand', { to: builder, method: 'get', uri: '/contexts/{{contact.identity}}' }), false);
+  assert.equal(externa('SendCommand', { to: builder, method: 'set', uri: '/contexts/abc/nome' }), false);
+  assert.equal(externa('SendCommand', { method: 'set', uri: '/contexts/abc/stateid@fluxo-2' }), false);
+  assert.equal(externa('SendCommand', { to: desk, method: 'set', uri: '/contexts/abc/stateid@fluxo-2' }), false);
+  assert.equal(externa('ProcessCommand', { to: core, method: 'get', uri: '/configuration/caller' }), false);
+  assert.equal(externa('ProcessCommand', { to: core, method: 'get', uri: '/buckets/chave' }), false);
+  assert.equal(externa('ProcessCommand', { to: core, method: 'get', uri: '/resources/msg' }), false);
+  assert.equal(externa('SendCommand', { to: core, method: 'merge', uri: '/contacts' }), false);
+  // Unknown stays flagged.
+  assert.equal(externa('SendCommand', { to: desk, method: 'set', uri: '/nao-existe' }), true);
+  assert.equal(externa('ProcessCommand', { to: builder, method: 'get', uri: '/flow-id/extra' }), true);
+  assert.equal(externa('SendCommand', { method: 'get', uri: '/contexts/abc/stateid@fluxo-2/x' }), true);
 });
 
 test('structured contact extras survive persistence round trip and are validated', () => {
