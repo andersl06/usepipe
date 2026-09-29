@@ -123,7 +123,7 @@ describe('importador do export do editor da Blip', () => {
     menu.$contentActions!.unshift({
       action: {
         type: 'SendMessage',
-        settings: { type: 'text/plain', content: 'Hoje é {{calendar.date}}' },
+        settings: { type: 'text/plain', content: 'Segredo {{secret.token}}' },
       },
     });
     menu.$contentActions!.unshift({
@@ -134,7 +134,7 @@ describe('importador do export do editor da Blip', () => {
       'acao:UnknownActionForTest': 1,
       'conteudo:application/json': 1,
       'entrada:expiracao': 1,
-      'variavel:calendar': 1,
+      'variavel:secret': 1,
     });
     // Unsupported content stays in the flow; conversion silently drops nothing.
     expect(
