@@ -3,7 +3,7 @@ import {
   PROVEDOR_PADRAO,
   processInbound,
   createInbound,
-  destinationQueue,
+  DeskUnavailable,
   EngineError,
   SuspensaoDeProcessHttp,
 } from '@pipe/core';
@@ -18,7 +18,7 @@ import type {
 import { PipeError } from '../../errors.js';
 import { toChannelOutput, resolveDynamicContent, loadApplicationIdentity } from '../flow.js';
 import { engineServices, isFlowOfTenant } from '../engine-services.js';
-import { loadActiveQueueRules } from '../queue-entry.js';
+import { chooseQueue, queueUnavailability } from '../queue-entry.js';
 import { loadFlowFunctions, type LoadedFlowFunction } from './flow-functions.js';
 import { loadFlowResources } from './flow-resources.js';
 import { assertAccessToBuilder, compiledDraftOfFlow } from './builder-of-flow.js';
@@ -138,21 +138,24 @@ function servicesOfTestRun(
   flowFunctions: Map<string, LoadedFlowFunction>,
 ): ServicosDoMotor {
   const conversation = store.conversation;
-  /** The queue a real handoff would pick: explicit, else the first matching attendance rule. */
-  const enqueue = async (queueId: string | null): Promise<void> => {
+  /** The queue a real handoff would pick (`chooseQueue`; a test run has no inbox default). */
+  const queueOf = async (queueId: string | null): Promise<string | null> => {
     const contact = store.contact;
-    const match = queueId
-      ? null
-      : destinationQueue(await loadActiveQueueRules(tx, tid), {
-          message: input,
-          contact: {
-            name: contact['name'] as string | null,
-            email: contact['email'] as string | null,
-            phone: contact['phoneNumber'] as string | null,
-            extras: contact['extras'] as Record<string, unknown> | null,
-          },
-        });
-    conversation.filaId = queueId ?? match?.queueDestinationId ?? null;
+    const choice = await chooseQueue(tx, tid, {
+      queueId,
+      defaultQueueId: null,
+      message: input,
+      contact: {
+        name: contact['name'] as string | null,
+        email: contact['email'] as string | null,
+        phone: contact['phoneNumber'] as string | null,
+        extras: contact['extras'] as Record<string, unknown> | null,
+      },
+    });
+    return choice.queueId;
+  };
+  const enqueue = async (queueId: string | null): Promise<void> => {
+    conversation.filaId = await queueOf(queueId);
     conversation.estado = 'na_fila';
   };
   return engineServices({
@@ -180,8 +183,14 @@ function servicesOfTestRun(
         if (saida) messages.push(saida);
       },
       // Simulated: no real ticket and no real queue, but the queue a real handoff would choose.
-      forwardForAttendance: async ({ settings }) => {
-        await enqueue(typeof settings?.['filaId'] === 'string' ? settings['filaId'] : null);
+      // The availability checks read the real queue's schedule and online agents, as production does.
+      forwardForAttendance: async ({ settings, unavailableWhen }) => {
+        const queueId = typeof settings?.['filaId'] === 'string' ? settings['filaId'] : null;
+        if (unavailableWhen?.length) {
+          const unavailable = await queueUnavailability(tx, tid, await queueOf(queueId), new Date(), unavailableWhen);
+          if (unavailable) throw new DeskUnavailable(unavailable);
+        }
+        await enqueue(queueId);
         return { id: 'atendimento-de-teste', status: 'Waiting' };
       },
       registerEvent: async () => {
