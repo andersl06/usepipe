@@ -134,9 +134,9 @@ export async function distributeConversation(
   conversationId: string,
   filaId: string,
   em: Date,
-): Promise<void> {
+): Promise<string | null> {
   const escolha = await chooseForQueue(tx, filaId);
-  if (!escolha.escolhido) return;
+  if (!escolha.escolhido) return null;
 
   const agentId = escolha.escolhido.id;
   await tx.execute(sql`
@@ -162,4 +162,5 @@ export async function distributeConversation(
     atendente_id: agentId,
     fila_id: filaId,
   });
+  return agentId;
 }

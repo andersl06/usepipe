@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
-import { sql } from 'drizzle-orm';
 import {
   PROVEDOR_PADRAO,
   processInbound,
   createInbound,
+  destinationQueue,
   EngineError,
   SuspensaoDeProcessHttp,
 } from '@pipe/core';
-import type { CommandRequest, Context, ServicosDoMotor, InboundTrace } from '@pipe/core';
+import type { Context, ServicosDoMotor, InboundTrace } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import type {
   TestRunDebug,
@@ -16,24 +16,21 @@ import type {
   TestRunResult,
 } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
-import { chamarComMtls } from '../mtls.js';
-import { runFlowScript, scriptFetch } from '../script-sandbox.js';
 import { toChannelOutput, resolveDynamicContent, loadApplicationIdentity } from '../flow.js';
-import { confirmarUrlSegura } from './integrations.js';
-import { loadFlowFunctions } from './flow-functions.js';
+import { engineServices, isFlowOfTenant } from '../engine-services.js';
+import { loadActiveQueueRules } from '../queue-entry.js';
+import { loadFlowFunctions, type LoadedFlowFunction } from './flow-functions.js';
 import { loadFlowResources } from './flow-resources.js';
-import { DESK_READ_COMMANDS } from '../desk-commands.js';
 import { assertAccessToBuilder, compiledDraftOfFlow } from './builder-of-flow.js';
 
 /**
- * The Builder's Test panel (BUILDER-04, D-14): the owner unblocked simulation local — the same
- * engine and the same action provider `PROVEDOR_PADRAO` production uses, run over the flow's
- * CURRENT DRAFT with an isolated test contact, never a real one. `send`, `forwardForAttendance`
- * and every service that would otherwise write to a tenant table (lists, memory, platform
- * commands, MergeContact) target an in-memory store instead, so a test run never creates a row in
- * `mensagem`, `outbox_mensagem`, `conversa` or `execucao_fluxo`, and never mixes with real
- * conversations. `ProcessHttp` and scripts still call out through the same guards production uses
- * (`confirmarUrlSegura`, the script sandbox) because those never touch Pipe's own tables.
+ * The Builder's Test panel (BUILDER-04, D-14): the same engine, the same action provider
+ * `PROVEDOR_PADRAO` and the same engine services (`engineServices`) production uses, run over the
+ * flow's CURRENT DRAFT with an isolated test contact, never a real one. Only the effects differ:
+ * `send`, `forwardForAttendance` and every service that would write to a tenant table (lists,
+ * memory, ticket commands, MergeContact, flow state) target an in-memory store, so a test run never
+ * creates a row in `mensagem`, `outbox_mensagem`, `conversa` or `execucao_fluxo`. `ProcessHttp`,
+ * scripts and reads go through the same guards and queries production uses.
  */
 
 interface TestRunConversationState {
@@ -54,6 +51,8 @@ interface TestRunStore {
   conversation: TestRunConversationState;
   lists: Map<string, Set<string>>;
   bucket: Map<string, TestRunBucketEntry>;
+  /** Blocks set in other flows by `set /contexts/.../stateid@<flow>`. */
+  flowStates: Map<string, string>;
   expiresAt: number;
 }
 
@@ -77,6 +76,7 @@ function newTestRunStore(): TestRunStore {
     conversation: { estado: 'na_fila', prioridade: 'sem_prioridade', filaId: null, etiquetas: [] },
     lists: new Map(),
     bucket: new Map(),
+    flowStates: new Map(),
     expiresAt: Date.now() + TEST_RUN_STATE_TTL_MS,
   };
 }
@@ -109,86 +109,6 @@ function respeitaLimiteDeTaxa(userId: string): boolean {
   return atual.n <= LIMIT_BY_WINDOW;
 }
 
-/**
- * Routed commands in a test run: Desk reads are read-only, so they answer from the tenant's real
- * queues and agents (the test contact has no tickets); `pipe.tickets.*` writes go to the test run's
- * own in-memory conversation instead of a real one.
- */
-async function executeNativeCommandTest(
-  tx: TransactionPipe,
-  tid: string,
-  conversation: TestRunConversationState,
-  { uri, resource, command }: CommandRequest,
-  waitForResponse: boolean,
-): Promise<unknown> {
-  const deskRead = DESK_READ_COMMANDS[command.route];
-  if (deskRead) {
-    const response = await deskRead(tx, tid, command);
-    return waitForResponse ? response : undefined;
-  }
-  const body = resource && typeof resource === 'object' ? (resource as Record<string, unknown>) : {};
-  const route = command.route;
-  if (!['pipe.tickets.get', 'pipe.tickets.changeTags', 'pipe.tickets.transfer', 'pipe.tickets.status', 'pipe.tickets.priority'].includes(route)) {
-    throw new Error(`A URI '${uri}' não é executada no Pipe.`);
-  }
-  const result: Record<string, unknown> = { status: 'success', reason: 'OK', resource: null };
-  if (route === 'pipe.tickets.changeTags') {
-    const tags = Array.isArray(body['tags'])
-      ? body['tags'].filter((tag): tag is string => typeof tag === 'string')
-      : [];
-    conversation.etiquetas = Array.from(new Set([...conversation.etiquetas, ...tags]));
-    result['resource'] = { tags };
-  } else if (route === 'pipe.tickets.transfer') {
-    const queueId =
-      typeof body['queueId'] === 'string' ? body['queueId'] : typeof body['filaId'] === 'string' ? body['filaId'] : null;
-    if (!queueId) throw new Error("O comando de transferência exige 'queueId'.");
-    conversation.filaId = queueId;
-    result['resource'] = { queueId };
-  } else if (route === 'pipe.tickets.status') {
-    const status = typeof body['status'] === 'string' ? body['status'] : null;
-    if (!status || !['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'].includes(status)) {
-      throw new Error("O comando de status exige um status do Pipe válido.");
-    }
-    conversation.estado = status;
-    result['resource'] = { status };
-  } else if (route === 'pipe.tickets.priority') {
-    const priority =
-      typeof body['priority'] === 'string' ? body['priority'] : typeof body['prioridade'] === 'string' ? body['prioridade'] : null;
-    if (!priority || !['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'].includes(priority)) {
-      throw new Error("O comando de prioridade exige um nível do Pipe válido.");
-    }
-    conversation.prioridade = priority;
-    result['resource'] = { priority };
-  } else {
-    result['resource'] = { id: 'teste', ...conversation };
-  }
-  return waitForResponse ? result : undefined;
-}
-
-/** Same fuzzy match `respondWithKnowledge` uses in production — read-only, so it is safe against the tenant's real base. */
-async function respondWithKnowledgeTest(
-  tx: TransactionPipe,
-  tid: string,
-  request: { text: string; minimumConfidence: number },
-): Promise<{ answer: string | null; confidence: number }> {
-  const words = request.text.toLowerCase().split(/\W+/).filter((word) => word.length > 2).slice(0, 12);
-  const pattern = words.length > 0 ? `%${words[0]}%` : '%';
-  const { rows } = await tx.execute<{ texto: string }>(sql`
-    select t.texto from trecho_conhecimento t
-    join documento_conhecimento d on d.id = t.documento_id and d.tenant_id = ${tid} and d.ativo = true
-    join base_conhecimento b on b.id = d.base_id and b.tenant_id = ${tid} and b.ativa = true
-    where t.tenant_id = ${tid} and t.texto ilike ${pattern}
-    order by t.ordem asc limit 1
-  `);
-  if (!rows[0]) return { answer: null, confidence: 0 };
-  const lower = rows[0].texto.toLowerCase();
-  const hits = words.filter((word) => lower.includes(word)).length;
-  const confidence = Math.min(1, Math.max(0.1, hits / Math.max(words.length, 1)));
-  return request.minimumConfidence <= confidence
-    ? { answer: rows[0].texto, confidence }
-    : { answer: null, confidence };
-}
-
 function debugOf(rastro: InboundTrace, variables: Record<string, string>, error?: string): TestRunDebug {
   return {
     states: rastro.estados.map((e) => ({
@@ -204,103 +124,106 @@ function debugOf(rastro: InboundTrace, variables: Record<string, string>, error?
   };
 }
 
+/**
+ * The production engine services (`engineServices`) with the test run's effects: every write lands
+ * in the in-memory store. Reads (Desk commands, queue and flow checks, attendance rules, knowledge)
+ * run against the tenant's real data, read-only.
+ */
 function servicesOfTestRun(
   tx: TransactionPipe,
   tid: string,
+  input: string,
   store: TestRunStore,
   messages: TestRunMessage[],
-  flowFunctions: Map<string, { id: string; name: string; parameters: string[]; code: string }>,
+  flowFunctions: Map<string, LoadedFlowFunction>,
 ): ServicosDoMotor {
-  return {
-    send: async (m, signal) => {
-      const saida = toChannelOutput(await resolveDynamicContent(m, tid, signal ? { signal } : {}));
-      signal?.throwIfAborted();
-      if (saida) messages.push(saida);
-    },
-    // Simulated: the test panel never opens a real ticket nor moves a real conversation to a queue.
-    forwardForAttendance: async () => ({ id: 'atendimento-de-teste', status: 'Waiting' }),
-    registerEvent: async () => {
-      /* Kept only in memory for this run; a test run never feeds tenant analytics. */
-    },
-    mergeContact: async (fields) => {
-      const textFields = ['name', 'email', 'phoneNumber', 'taxDocument'] as const;
-      for (const key of textFields) {
-        if (Object.prototype.hasOwnProperty.call(fields, key)) store.contact[key] = fields[key] ?? null;
-      }
-      const extras = (store.contact['extras'] ??= {}) as Record<string, unknown>;
-      for (const key of ['city', 'gender']) {
-        if (Object.prototype.hasOwnProperty.call(fields, key)) extras[key] = fields[key];
-      }
-      if (fields['extras'] && typeof fields['extras'] === 'object' && !Array.isArray(fields['extras'])) {
-        Object.assign(extras, fields['extras'] as Record<string, unknown>);
-      }
-    },
-    recordSatisfactionAnswer: async () => {
-      /* Test-run survey answers are not persisted: there is no real attendance session to attach them to. */
-    },
-    callHttp: async (pedido, signal) => {
-      confirmarUrlSegura(pedido.url);
-      try {
-        const resposta = await chamarComMtls(tid, pedido.url, {
-          metodo: pedido.metodo,
-          headers: pedido.cabecalhos,
-          body: pedido.corpo,
-          timeoutMs: pedido.timeoutMs,
-          ...(signal ? { signal } : {}),
+  const conversation = store.conversation;
+  /** The queue a real handoff would pick: explicit, else the first matching attendance rule. */
+  const enqueue = async (queueId: string | null): Promise<void> => {
+    const contact = store.contact;
+    const match = queueId
+      ? null
+      : destinationQueue(await loadActiveQueueRules(tx, tid), {
+          message: input,
+          contact: {
+            name: contact['name'] as string | null,
+            email: contact['email'] as string | null,
+            phone: contact['phoneNumber'] as string | null,
+            extras: contact['extras'] as Record<string, unknown> | null,
+          },
         });
-        const corpo = await resposta.texto();
-        const limite = Number(process.env['PIPE_PROCESS_HTTP_MAX_RESPOSTA_BYTES'] ?? 1_048_576);
-        return { status: resposta.status, corpo: corpo.slice(0, limite) };
-      } catch (erro) {
-        const message = erro instanceof Error ? erro.message : String(erro);
-        const timeout = /timeout|aborted|timed out/i.test(message);
-        return {
-          status: timeout ? 504 : 503,
-          corpo: JSON.stringify({ error: timeout ? 'timeout' : 'network_error', message }),
-        };
-      }
-    },
-    runScript: (request) => runFlowScript(request, { fetch: scriptFetch(tid), library: flowFunctions.values() }),
-    runFlowFunction: async ({ functionId, args }) => {
-      const definition = flowFunctions.get(functionId);
-      if (!definition) throw new Error(`A função '${functionId}' não existe neste fluxo.`);
-      if (definition.parameters.length !== args.length) {
-        throw new Error(`A função '${definition.name}' esperava ${definition.parameters.length} parâmetro(s).`);
-      }
-      return runFlowScript(
-        { version: 2, source: definition.code, functionName: definition.name, args, timeoutMs: 10_000, localTimeZone: false },
-        { fetch: scriptFetch(tid) },
-      );
-    },
-    bucketSet: async ({ key, value, scope, expirationSeconds }) => {
-      if (JSON.stringify(value).length > 65_536) throw new Error('O documento da ação SetBucket excede 64 KB.');
-      store.bucket.set(`${scope}:${key}`, {
-        value,
-        expiresAt: expirationSeconds ? Date.now() + expirationSeconds * 1000 : null,
-      });
-    },
-    bucketGet: async ({ key, scope }) => {
-      const entrada = store.bucket.get(`${scope}:${key}`);
-      if (!entrada) return null;
-      if (entrada.expiresAt && entrada.expiresAt <= Date.now()) {
-        store.bucket.delete(`${scope}:${key}`);
-        return null;
-      }
-      return entrada.value ?? null;
-    },
-    listManage: async ({ name, operation }) => {
-      const membros = store.lists.get(name) ?? new Set<string>();
-      if (operation === 'Remove') membros.delete(TEST_CONTACT_ID);
-      else membros.add(TEST_CONTACT_ID);
-      store.lists.set(name, membros);
-    },
-    sendCommand: async (request) => {
-      await executeNativeCommandTest(tx, tid, store.conversation, request, false);
-    },
-    processCommand: async (request) => executeNativeCommandTest(tx, tid, store.conversation, request, true),
-    respondWithKnowledge: async ({ text, minimumConfidence }) =>
-      respondWithKnowledgeTest(tx, tid, { text, minimumConfidence }),
+    conversation.filaId = queueId ?? match?.queueDestinationId ?? null;
+    conversation.estado = 'na_fila';
   };
+  return engineServices({
+    tenantId: tid,
+    flowFunctions,
+    isolate: (fn) => tx.transaction(fn),
+    effects: {
+      tickets: {
+        get: async () => ({ id: 'teste', ...conversation }),
+        changeTags: async (_tx, tags) => {
+          conversation.etiquetas = Array.from(new Set([...conversation.etiquetas, ...tags]));
+        },
+        transfer: (_tx, queueId) => enqueue(queueId),
+        enqueue: () => enqueue(null),
+        close: async () => {
+          conversation.estado = 'encerrada';
+        },
+        setPriority: async (_tx, priority) => {
+          conversation.prioridade = priority;
+        },
+      },
+      send: async (m, signal) => {
+        const saida = toChannelOutput(await resolveDynamicContent(m, tid, signal ? { signal } : {}));
+        signal?.throwIfAborted();
+        if (saida) messages.push(saida);
+      },
+      // Simulated: no real ticket and no real queue, but the queue a real handoff would choose.
+      forwardForAttendance: async ({ settings }) => {
+        await enqueue(typeof settings?.['filaId'] === 'string' ? settings['filaId'] : null);
+        return { id: 'atendimento-de-teste', status: 'Waiting' };
+      },
+      registerEvent: async () => {
+        /* Kept only in memory for this run; a test run never feeds tenant analytics. */
+      },
+      saveContact: async ({ columns, extras }) => {
+        const names = { nome: 'name', email: 'email', telefone_e164: 'phoneNumber', documento: 'taxDocument' } as const;
+        for (const [column, value] of Object.entries(columns)) store.contact[names[column as keyof typeof names]] = value;
+        Object.assign((store.contact['extras'] ??= {}) as Record<string, unknown>, extras);
+      },
+      recordSatisfactionAnswer: async () => {
+        /* Test-run survey answers are not persisted: there is no real attendance session to attach them to. */
+      },
+      bucketSet: async ({ key, value, scope, expirationSeconds }) => {
+        store.bucket.set(`${scope}:${key}`, {
+          value,
+          expiresAt: expirationSeconds ? Date.now() + expirationSeconds * 1000 : null,
+        });
+      },
+      bucketGet: async ({ key, scope }) => {
+        const entrada = store.bucket.get(`${scope}:${key}`);
+        if (!entrada) return null;
+        if (entrada.expiresAt && entrada.expiresAt <= Date.now()) {
+          store.bucket.delete(`${scope}:${key}`);
+          return null;
+        }
+        return entrada.value ?? null;
+      },
+      listManage: async ({ name, operation }) => {
+        const membros = store.lists.get(name) ?? new Set<string>();
+        if (operation === 'Remove') membros.delete(TEST_CONTACT_ID);
+        else membros.add(TEST_CONTACT_ID);
+        store.lists.set(name, membros);
+      },
+      // Same answer as production (false for a flow outside the tenant); the block is kept in memory.
+      setFlowState: async ({ flowId, stateId }) => {
+        if (!(await isFlowOfTenant(tx, tid, flowId))) return false;
+        store.flowStates.set(flowId, stateId);
+        return true;
+      },
+    },
+  });
 }
 
 export interface RunBuilderTestOptions {
@@ -340,7 +263,7 @@ export async function runBuilderTest(
     contact: store.contact,
     resources,
     application: await loadApplicationIdentity(tx, flowId),
-    services: servicesOfTestRun(tx, tid, store, messages, flowFunctions),
+    services: servicesOfTestRun(tx, tid, options.input, store, messages, flowFunctions),
   };
 
   try {

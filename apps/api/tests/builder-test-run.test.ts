@@ -310,6 +310,29 @@ describe('POST /v1/management/flows/:id/builder/test-runs', () => {
     expect(await contagemDeProducao(a.tenantId)).toEqual(antes);
   });
 
+  it('shares the production engine services: a ticket transfer is validated exactly as in production', async () => {
+    const comTransferencia = (queueId: string) => {
+      const d = desenhoComHttpPrivado();
+      d.globals = {
+        $enteringCustomActions: [
+          { type: 'ProcessCommand', settings: { method: 'set', uri: '/tickets/atual/transfer', resource: { queueId }, variable: 'r' } },
+        ],
+      };
+      return d;
+    };
+    const id = await criado(`Comando ${randomUUID().slice(0, 6)}`);
+
+    await salvar(sessionEditor, id, comTransferencia('fila-vendas'));
+    const invalida = await testRun(sessionEditor, id, { input: 'oi' });
+    expect(invalida.body['debug']['error']).toMatch(/queueId.*inválido/);
+
+    // Another tenant's queue: the same tenant check production runs (the test run used to accept it).
+    await salvar(sessionEditor, id, comTransferencia(b.queueId));
+    await resetTestRun(sessionEditor, id);
+    const alheia = await testRun(sessionEditor, id, { input: 'oi' });
+    expect(alheia.body['debug']['error']).toMatch(/não existe neste Pipe/);
+  });
+
   it('403 without `automacao.fluxo.editar`, 404 for another tenant or an invalid id', async () => {
     const id = await criado(`Guardado ${randomUUID().slice(0, 6)}`);
     await salvar(sessionEditor, id, desenho());
