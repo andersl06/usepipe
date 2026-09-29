@@ -1,5 +1,9 @@
 import { and, asc, count, eq, gte, isNotNull, isNull, ne, sql } from 'drizzle-orm';
 import {
+  campoValido,
+  operadorValido,
+  type OperadorDeRegra,
+  type QueueRule,
   dentroDoExpediente,
   durationTotalSeg,
   intervalosUteis,
@@ -27,7 +31,6 @@ import { PipeError } from '../../errors.js';
 import { requirePermission } from '../../session.js';
 import { corValida } from './colors-of-queue.js';
 import { minutosDoRelogio, relogio, relogioValido } from './format.js';
-import { campoValido, operadorValido, type OperadorDeRegra, type RuleOfQueue } from './rule-queue.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
@@ -685,7 +688,7 @@ export interface QueueForChoose {
 }
 
 /** A regra do banco carrega uma coisa a mais que o motor: se a fila de destino está de pé. */
-export interface RuleOfQueueRegistered extends RuleOfQueue {
+export interface RuleOfQueueRegistered extends QueueRule {
   queueDestinationActive: boolean;
 }
 

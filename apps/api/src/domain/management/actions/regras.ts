@@ -5,7 +5,7 @@ import type { TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../../errors.js';
 import { requirePermission } from '../../../session.js';
 import { SCHEDULE_MANAGE, toggleActiveOfRuleQueue, writeRuleQueue } from '../registrations.js';
-import { campoValido, operadorValido, type OperadorDeRegra } from '../rule-queue.js';
+import { campoValido, operadorValido, type OperadorDeRegra } from '@pipe/core';
 import { minutosDoRelogio, relogioValido } from '../format.js';
 
 /** The transaction already has its tenant fixed; `consultar` only names the block, as in Management. */
