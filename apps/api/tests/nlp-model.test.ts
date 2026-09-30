@@ -131,9 +131,12 @@ describe('intent classification', () => {
     await expect(none.s.analyzeInput!({ text: 'x' })).resolves.toBeNull();
   });
 
-  it('without a key production fails the analysis (the engine reads no intent) while the test run uses the stand-in', async () => {
+  it('without a key production reads no intent but keeps the entities, while the test run uses the stand-in', async () => {
     const production = services({ key: false, stub: false });
-    await expect(production.s.analyzeInput!({ text: 'onde está meu pedido' })).rejects.toThrow(/não está configurada/);
+    await expect(production.s.analyzeInput!({ text: 'onde está meu pedido de caderno' })).resolves.toEqual({
+      intentions: [],
+      entities: [{ id: 'e1', name: 'produto', value: 'caderno' }],
+    });
     const testRun = services({ key: false, stub: true });
     const analysis = await testRun.s.analyzeInput!({ text: 'onde está meu pedido' });
     expect(analysis?.intentions[0]).toMatchObject({ name: 'rastrear_pedido' });
