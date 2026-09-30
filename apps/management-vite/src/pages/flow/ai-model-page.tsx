@@ -7,6 +7,7 @@ import { useRead } from '../../lib/query';
 import { aiModelApi, saveAiModel } from '../../lib/flow-ai-model';
 import { AiModelForm } from './ai-model-form';
 import { aiModelErrors } from './ai-model-logic';
+import { AiModelReadView } from './ai-model-read-view';
 import './ai-model.css';
 
 export function AiModelPage() {
@@ -20,16 +21,16 @@ export function AiModelPage() {
       <header><h1>Inteligência artificial</h1><p>Configure o modelo do bot e os assistentes de AI Answers.</p>
         <a href={contactPath(contact, 'templates/builder')} target="_blank" rel="noopener noreferrer">Abrir Builder e Variáveis sensíveis</a>
       </header>
-      {read.error ? <p role="alert">Não foi possível carregar o modelo: {read.error.message} <Botao onClick={() => void read.refetch()}>Tentar novamente</Botao></p>
-        : read.data ? <AiModelEditor key={contact.id} initial={read.data} canWrite={canWrite} secretNames={secrets.data?.map((s) => s.name) ?? []} />
-          : <p role="status">Carregando modelo…</p>}
+      <AiModelReadView data={read.data} error={read.error} retry={() => void read.refetch()}>
+        {(data) => <AiModelEditor key={contact.id} initial={data} canWrite={canWrite} secretNames={secrets.data?.map((s) => s.name) ?? []} />}
+      </AiModelReadView>
       {permissions.error ? <p role="alert">Não foi possível verificar a permissão de edição: {permissions.error.message}</p> : null}
       {secrets.error ? <p role="alert">Não foi possível consultar os nomes das variáveis sensíveis: {secrets.error.message}</p> : null}
     </main>
   </div>;
 }
 
-/** Keep the local draft during cache refreshes; a successful PUT replaces it with the normalized model. */
+/** Keep the local draft during cache refreshes (initial is read only on mount); a successful PUT replaces it with the normalized model. */
 function AiModelEditor({ initial, canWrite, secretNames }: { initial: FlowAiModel; canWrite: boolean; secretNames: string[] }) {
   const query = useQueryClient();
   const [draft, setDraft] = useState<FlowAiModelInput>(initial);

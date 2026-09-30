@@ -183,6 +183,25 @@ test('assistant picker refetches on focus and offers an explicit refresh for edi
   assert.match(busy, /disabled=""[^>]*>Atualizar assistentes/);
 });
 
+test('a failed background refetch keeps the model editor mounted beside the error', async () => {
+  const { AiModelReadView } = await import('../src/pages/flow/ai-model-read-view');
+  const data: import('@pipe/contracts').FlowAiModel = { ...model, flowId: 'flow', updatedAt: null };
+  const editor = (d: typeof data) => React.createElement('form', { id: 'draft' }, d.flowId);
+  const view = (error: Error | null, loaded: typeof data | null = data) => AiModelReadView({ data: loaded ?? undefined, error, retry: () => undefined, children: editor }) as React.ReactElement<{ children: React.ReactNode[] }>;
+  const failed = view(new Error('Rede indisponível'));
+  const html = renderToStaticMarkup(failed);
+  assert.match(html, /id="draft"/);
+  assert.match(html, /Não foi possível atualizar o modelo: Rede indisponível/);
+  assert.match(html, /alterações não salvas foram mantidas/);
+  // Same element type and position before, during and after the error: React keeps the editor (and its draft) mounted.
+  for (const tree of [view(null), failed, view(null)]) {
+    assert.equal(tree.type, React.Fragment);
+    assert.equal((tree.props.children[1] as React.ReactElement<{ id: string }>).props.id, 'draft');
+  }
+  assert.match(renderToStaticMarkup(view(new Error('Falhou'), null)), /Não foi possível carregar o modelo: Falhou/);
+  assert.doesNotMatch(renderToStaticMarkup(view(new Error('Falhou'), null)), /id="draft"/);
+});
+
 test('condition suggestions offer intent names and entity values according to the selected entity', async () => {
   const module = await import('../src/pages/flow/ai-model-logic').catch(() => null);
   assert.ok(module);
