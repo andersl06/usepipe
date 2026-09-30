@@ -77,6 +77,7 @@ export const AGENT_MESSAGES = {
   handoffInvalido: "Somente caracteres alfanuméricos minúsculos e '_' são permitidos",
   handoffRepetido: 'Nome de condição de saída já está em uso',
   handoffSemDescricao: (nome: string) => `Direcionamento '${nome}': descreva quando o agente deve usá-lo.`,
+  handoffSemSaida: (nome: string) => `Direcionamento '${nome}': escolha o bloco de destino.`,
   ferramentaCurta: 'O nome da ação deve ter no mínimo 3 caracteres',
   ferramentaInvalida:
     "Somente caracteres alfanuméricos minúsculos, '-' e '_' são permitidos. Exemplo: minha_acao_1",
@@ -703,6 +704,8 @@ export function aiAgentErrors(block: Block): string[] {
     else if (!/^[a-z0-9_]+$/.test(nome)) add(AGENT_MESSAGES.handoffInvalido);
     if (nome && handoffs.filter((o) => o.name.trim() === nome).length > 1) add(AGENT_MESSAGES.handoffRepetido);
     if (!h.description.trim()) add(AGENT_MESSAGES.handoffSemDescricao(nome));
+    // An imported handoff whose exit is missing has nowhere to go (a present exit is checked with the outputs).
+    if (nome && h.output < 0) add(AGENT_MESSAGES.handoffSemSaida(nome));
   }
   const tools = block.$localCustomActions ?? [];
   for (const acao of tools) {

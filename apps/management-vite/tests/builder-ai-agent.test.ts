@@ -203,6 +203,7 @@ test('handoffs add, rename, point and remove their named exit together', () => {
   // An imported handoff without its exit gets one when a destination is chosen.
   const semSaida = { ...b, $conditionOutputs: b.$conditionOutputs!.filter((_, i) => i !== 1) };
   assert.equal(agentHandoffs(semSaida)[0]!.output, -1);
+  assert.ok(aiAgentErrors(semSaida).includes(AGENT_MESSAGES.handoffSemSaida('direcionamento_1')));
   const comSaida = setHandoffDestination(semSaida, 0, 'fallback');
   assert.equal(comSaida.$conditionOutputs![handoffOutputIndex(comSaida, 'direcionamento_1')]!.stateId, 'fallback');
   // The exception output can be re-pointed, and is re-created when an import lacks it.
