@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Eu } from '@pipe/contracts';
 import { api, ApiError } from '@pipe/ui/api';
+import { hostMode } from '../lib/tenant-links';
 
 /**
  * Quem está logado — a única fonte, alimentada por `GET /v1/eu`.
@@ -12,6 +13,7 @@ import { api, ApiError } from '@pipe/ui/api';
 interface Session {
   /** `null` sem sessão; `undefined` enquanto a primeira pergunta não voltou. */
   eu: Eu | null | undefined;
+  authFailure: boolean;
   atualizar: () => Promise<void>;
   sair: () => Promise<void>;
 }
@@ -20,18 +22,23 @@ const Context = createContext<Session | undefined>(undefined);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [eu, setEu] = useState<Eu | null | undefined>(undefined);
+  const [authFailure, setAuthFailure] = useState(false);
 
   const atualizar = useCallback(async () => {
     try {
       setEu(await api.get<Eu>('/v1/eu'));
+      setAuthFailure(false);
     } catch (error) {
+      const code = error instanceof ApiError && typeof error.corpo === 'object' && error.corpo !== null && 'error' in error.corpo
+        ? (error.corpo as { error?: { code?: string } }).error?.code : undefined;
+      setAuthFailure(error instanceof ApiError && (error.status === 401 || (error.status === 403 && code === 'tenant_mismatch')));
       if (error instanceof ApiError) setEu(null);
       else setEu((atual) => (atual === undefined ? null : atual));
     }
   }, []);
 
   useEffect(() => {
-    void atualizar();
+    if (hostMode(window.location) !== 'reserved') void atualizar();
   }, [atualizar]);
 
   const sair = useCallback(async () => {
@@ -42,7 +49,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  return <Context.Provider value={{ eu, atualizar, sair }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ eu, authFailure, atualizar, sair }}>{children}</Context.Provider>;
 }
 
 export function useSession(): Session {

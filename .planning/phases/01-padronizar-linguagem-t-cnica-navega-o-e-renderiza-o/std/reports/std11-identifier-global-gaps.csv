@@ -1,0 +1,143 @@
+worklist,file,line,token,snippet
+packages,packages/ai/src/bancada/conjunto.ts,15,transcricao,"transcricao: z.string().nullish(),"
+packages,packages/ai/src/classification/classification.test.ts,109,intencao,"intencao: 'resolver',"
+packages,packages/ai/src/classification/classification.test.ts,110,sentimento,"sentimento: 'positivo',"
+packages,packages/ai/src/classification/classification.test.ts,130,intencao,"intencao: null,"
+packages,packages/ai/src/classification/classification.test.ts,131,sentimento,"sentimento: 'neutro',"
+packages,packages/ai/src/classification/classification.test.ts,148,intencao,"intencao: null,"
+packages,packages/ai/src/classification/classification.test.ts,149,sentimento,"sentimento: 'neutro',"
+packages,packages/ai/src/classification/classification.test.ts,166,intencao,"intencao: null,"
+packages,packages/ai/src/classification/classification.test.ts,167,sentimento,"sentimento: 'neutro',"
+packages,packages/ai/src/classification/index.ts,26,intencao,"intencao: z.string().nullable(),"
+packages,packages/ai/src/classification/index.ts,27,sentimento,"sentimento: z.enum(SENTIMENTS),"
+packages,packages/core/src/flow/builder-commands.test.ts,20,saudacao,"resources: { saudacao: 'Olá', config: '{""horario"":""8h""}' },"
+packages,packages/core/src/flow/subflows.test.ts,321,saudacao,"configuration: { saudacao: 'Oi', 'builder:stateExpiration': '00:30:00' },"
+packages,packages/core/src/flow/subflows.test.ts,324,saudacao,"Coleta: { id: 'blip-id', configuration: { saudacao: 'Olá' }, states: [{ id: 'onboarding', root: true, input: {}, outputs"
+packages,packages/core/src/flow/subflows.test.ts,331,saudacao,"expect(sub.configuration).toEqual({ saudacao: 'Olá', 'builder:stateExpiration': '00:30:00' });"
+packages,packages/core/src/score/score.test.ts,105,idade,"idade: 34,"
+packages,packages/db/src/seed-demo.ts,415,cidade,"Cidade: 'Belo Horizonte',"
+packages,packages/ui/src/icones-portal.tsx,9,contrato,contrato: {
+packages,packages/ui/src/icones-portal.tsx,51,novidades,novidades: {
+packages,packages/ui/src/icones-portal.tsx,72,comunidade,comunidade: {
+packages,packages/ui/src/icones-portal.tsx,174,robo,robo: {
+packages,packages/ui/src/icones-portal.tsx,227,lixeira,lixeira: {
+packages,packages/ui/src/icones-portal.tsx,262,integracoes,integracoes: {
+packages,packages/ui/src/icones-portal.tsx,544,anotacoes,anotacoes: {
+packages,packages/ui/src/icones-portal.tsx,580,relatorios,relatorios: {
+packages,packages/ui/src/icones-portal.tsx,588,comunicacao,comunicacao: {
+packages,packages/ui/src/icones.tsx,28,engrenagem,engrenagem:
+packages,packages/ui/src/tema.ts,150,densidade,densidade: {
+api-domain,apps/api/src/domain/instagram/channel.ts,204,exibicao,"nomeExibicao: account.name ?? username ?? igUserId,"
+api-domain,apps/api/src/domain/instagram/channel.ts,210,reautorizacao,"reautorizacaoPendente: false,"
+api-domain,apps/api/src/domain/instagram/renewal.ts,34,reautorizacao,"await atualizarConfigInstagram(channel, { reautorizacaoPendente: true });"
+api-domain,apps/api/src/domain/instagram/renewal.ts,46,reautorizacao,"reautorizacaoPendente: false,"
+api-domain,apps/api/src/domain/instagram/renewal.ts,53,reautorizacao,"await atualizarConfigInstagram(channel, { reautorizacaoPendente: true });"
+api-domain,apps/api/src/domain/management-flow.ts,212,identidade,"identidade: identity?.valor ?? null,"
+api-domain,apps/api/src/domain/management/quality-review.ts,283,sentimento,"sentimento: classificationConversation.sentiment,"
+api-domain,apps/api/src/domain/whatsapp/channel.ts,109,reautorizacao,"return updateChannel(channel, { reautorizacaoPendente: true });"
+api-domain,apps/api/src/domain/whatsapp/channel.ts,114,reautorizacao,"return updateChannel(canal, { reautorizacaoPendente: false });"
+api-domain,apps/api/src/domain/whatsapp/creation-of-channel.ts,73,exibicao,"nomeExibicao: nomeDaEmpresa,"
+api-core,apps/api/src/controllers/desk.ts,17,marcacoes,import * as marcacoes from '../domain/desk/taggings.js';
+api-core,apps/api/src/controllers/management-registrations.ts,20,cadastros,import * as cadastros from '../domain/management/registrations.js';
+api-core,apps/api/src/controllers/management-registrations.ts,21,comunicacao,import * as comunicacao from '../domain/management/communication.js';
+api-core,apps/api/src/controllers/management-registrations.ts,29,comunicacao,import * as acoesComunicacao from '../domain/management/actions/communication.js';
+api-core,apps/api/src/controllers/management-registrations.ts,56,identidade,"salvarIdentidade: acoesConfiguracoes.saveIdentity,"
+api-core,apps/workers/src/import-of-contacts.ts,31,cidade,"cidade: 'city',"
+api-tests,apps/api/tests/builder-by-flow.test.ts,441,saudacao,"configuration: { Saudacao: 'bem-vindo' },"
+api-tests,apps/api/tests/builder-by-flow.test.ts,446,saudacao,expect(aberto.body['desenho']['configuration']).toEqual({ Saudacao: 'bem-vindo' });
+api-tests,apps/api/tests/builder-by-flow.test.ts,454,saudacao,expect(rows[0]?.global['configuration']).toEqual({ Saudacao: 'bem-vindo' });
+api-tests,apps/api/tests/gerar-fixtures-jsonb.helper.ts,281,pontuacao,"atributos: { plano: 'pro', origem_utm: 'anuncio-instagram', pontuacao_nps: 9 },"
+api-tests,apps/api/tests/gerar-fixtures-jsonb.helper.ts,334,idade,"idade: 34,"
+mgmt-pages,apps/management-vite/src/pages/builder/conteudo.ts,45,instrucao,"instrucao: 'Instrução de validação',"
+mgmt-pages,apps/management-vite/src/pages/builder/model.ts,112,liga,"fimNaoLiga: ""Um bloco de 'Fim' não se conecta com um próximo bloco. Ele deve ser sempre o último."","
+mgmt-pages,apps/management-vite/src/pages/contract/certificates/tela.tsx,23,apresentacao,apresentacao: {
+mgmt-pages,apps/management-vite/src/pages/contract/certificates/tela.tsx,61,atencao,"atencao: 'Atenção',"
+mgmt-pages,apps/management-vite/src/pages/create/casco.tsx,27,orcamento,"pecaOrcamento: 'Solicite um orçamento',"
+mgmt-pages,apps/management-vite/src/pages/create/flow/regras.ts,38,apresentacao,"apresentacaoSubtitulo: 'Modelo de fluxo pré-configurado',"
+mgmt-pages,apps/management-vite/src/pages/create/flow/regras.ts,42,apresentacao,apresentacaoDescricao:
+mgmt-pages,apps/management-vite/src/pages/my-account/actions.ts,16,cidade,"cidade: String(data.get('cidade') ?? '').trim(),"
+mgmt-pages,apps/management-vite/src/pages/my-account/regras.ts,19,cidade,"cidadeMax: 120,"
+mgmt-rest-desk,apps/desk-vite/src/components/icones-desk.tsx,8,atendimentos,atendimentos: {
+mgmt-rest-desk,apps/desk-vite/src/components/icones-desk.tsx,414,lixeira,lixeira: {
+mgmt-rest-desk,apps/desk-vite/src/components/icones-desk.tsx,518,notificacao,notificacao: {
+mgmt-rest-desk,apps/management-vite/src/App.tsx,45,analise,import { ActiveMessagesPage as AnaliseMensagensAtivas } from './pages/flow/analytics/active-messages/page';
+mgmt-rest-desk,apps/management-vite/src/components/icones-management.tsx,19,lixeira,lixeira:
+mgmt-rest-desk,apps/management-vite/src/lib/channels.ts,110,reautorizacao,"reautorizacao_pendente: 'Aguardando reautorização do WhatsApp.',"
+mgmt-rest-desk,apps/management-vite/src/lib/channels.ts,112,inacessivel,"meta_inacessivel: 'A Meta não respondeu: tente novamente em instantes.',"
+crm-tools-site,apps/crm/seed/seed-crm.ts,91,indicacao,"Indicação: null,"
+crm-tools-site,apps/crm/seed/seed-crm.ts,135,fechamento,"Fechamento: 85,"
+crm-tools-site,apps/crm/seed/seed-crm.ts,920,atividades,"atividades: rowsActivity.length,"
+crm-tools-site,apps/crm/seed/seed-crm.ts,922,contas,"contas: ACCOUNTS.length,"
+crm-tools-site,apps/crm/src/lib/funil.ts,54,probabilidade,"probabilidade: opportunity.probability,"
+crm-tools-site,apps/crm/src/lib/funil.ts,56,fechamento,"fechamentoPrevisto: opportunity.closingExpected,"
+crm-tools-site,apps/crm/src/lib/funil.ts,116,fechamento,"Fechamento: 85,"
+crm-tools-site,apps/crm/src/lib/leads.ts,537,explicacao,"explicacao: scoreLead.explanation,"
+crm-tools-site,scripts/dev-tenant-smoke.sh,12,contas,"[[ ""${PIPE_DOMINIO_CONTAS:-}"" == lvh.me && ""${PIPE_COOKIE_DOMINIO:-}"" == .lvh.me && ""${PIPE_PORTA_PUBLICA:-}"" == 3110 ]]"
+crm-tools-site,scripts/dev-tenant-smoke.sh,68,recusou,echo 'OK: host beta recusou cookie de alfa (403)'
+crm-tools-site,tools/std/check-map.ts,109,controlador,"const suffix = Object.entries({ Controlador: 'Controller', Servico: 'Service', Guarda: 'Guard', Erro: 'Error', Filtro: '"
+infra,apps/api/Dockerfile,59,semente,\( -name src -o -name tests -o -name semente -o -name node_modules \
+infra,apps/workers/Dockerfile,54,semente,\( -name src -o -name tests -o -name semente -o -name node_modules \
+infra,infra/compose/backup/restore-test.sh,10,restauracao,ALVO=/tmp/restauracao-teste
+infra,infra/compose/backup/restore-test.sh,37,idade,"IDADE=$(psql -h ""${ALVO}"" -p ""${PORTA}"" -U pipe -d pipe -tAc \"
+infra,infra/compose/backup/restore-test.sh,40,idade,"if [ ""${LINHAS}"" -gt 0 ] && [ ""${IDADE}"" -lt 86400 ]; then"
+infra,infra/compose/backup/restore-test.sh,46,restauracao,cat > /metricas/pipe_restauracao.prom.tmp <<METRICA
+infra,infra/compose/backup/restore-test.sh,49,restauracao,pipe_restauracao_ok ${OK}
+infra,infra/compose/backup/restore-test.sh,52,restauracao,pipe_restauracao_segundos ${DURACAO}
+infra,infra/compose/backup/restore-test.sh,55,restauracao,pipe_restauracao_fim_timestamp $(date +%s)
+infra,infra/compose/backup/restore-test.sh,58,idade,pipe_restauracao_atraso_dado_segundos ${IDADE}
+infra,infra/compose/backup/restore-test.sh,58,restauracao,pipe_restauracao_atraso_dado_segundos ${IDADE}
+infra,infra/compose/backup/restore-test.sh,60,restauracao,mv /metricas/pipe_restauracao.prom.tmp /metricas/pipe_restauracao.prom
+infra,infra/compose/backup/restore-test.sh,62,restauracao,"if [ -n ""${HEALTHCHECK_URL_RESTAURACAO:-}"" ] && [ ""${OK}"" -eq 1 ]; then"
+infra,infra/compose/bootstrap.sh,107,implantacao,"""Cada um está descrito em docs/specs/2026-09-07-implantacao.md §3 — o que é,"" \"
+infra,infra/compose/bootstrap.sh,108,edite,"""onde nasce e como gerar. Edite com:  cd ../..  &&  sops infra/compose/secrets/production.enc.env"""
+infra,infra/compose/bootstrap.sh,120,separadas,"""Cada chave é \`<id>:<32 bytes em base64>\`, separadas por vírgula."" \"
+infra,infra/compose/bootstrap.sh,146,inicializacao,"""A primeira cria o papel pipe_app na inicialização do banco; a segunda é a"" \"
+infra,infra/compose/bootstrap.sh,165,aponta,"[ ${#erradas[@]} -eq 0 ] || parar ""o DNS ainda não aponta para esta máquina."" \"
+infra,infra/compose/bootstrap.sh,173,enquanto,"""TTL de 300 enquanto estiver mexendo. Espere propagar e rode de novo."""
+infra,infra/compose/bootstrap.sh,181,alguem,"parar ""a porta ${porta} já está ocupada por ${dono:-alguém}."" \"
+infra,infra/compose/bootstrap.sh,184,experimento,"""de infraestrutura diz que produção do Pipe não divide máquina com experimento."""
+infra,infra/compose/bootstrap.sh,190,imagens,"passo ""6/9  Imagens"""
+infra,infra/compose/bootstrap.sh,196,imagens,"|| parar ""não consegui baixar as imagens da tag ${VERSAO}."" \"
+infra,infra/compose/bootstrap.sh,215,migrar,"""vazio. Se este banco já tinha dado, crie o papel à mão ANTES de migrar:"" \"
+infra,infra/compose/bootstrap.sh,224,migrar,"""${COMPOSE[@]}"" --profile tarefa run --rm migrar \"
+infra,infra/compose/bootstrap.sh,226,subir,"""NADA foi publicado — é o ponto do script rodá-la antes de subir o resto."" \"
+infra,infra/compose/bootstrap.sh,237,ficou,"|| parar ""algum serviço não ficou saudável em 5 minutos."" \"
+infra,infra/compose/bootstrap.sh,244,publicacoes,"printf '%s\t%s\t%s\n' ""$(date -Is)"" ""${VERSAO}"" ""${SUDO_USER:-root}"" >> ""${DADOS}/publicacoes.tsv"""
+infra,infra/compose/bootstrap.sh,258,arquivamento,arquivamento de WAL está DESLIGADO (PG_ARCHIVE_MODE=off):
+infra,infra/compose/bootstrap.sh,265,provisionar,docker compose -f docker-compose.prod.yml --profile tarefa run --rm provisionar \\
+infra,infra/compose/bootstrap.sh,269,entao,com --verificar. Só então o Google login encontra o tenant.
+infra,infra/compose/bootstrap.sh,272,implantacao,O passo a passo está em docs/specs/2026-09-07-implantacao.md §6.
+infra,infra/compose/deploy.sh,39,migrar,$COMPOSE --profile tarefa run --rm migrar
+infra,infra/compose/deploy.sh,47,publicacoes,"printf '%s\t%s\t%s\n' ""$(date -Is)"" ""${VERSAO}"" ""${SUDO_USER:-root}"" >> /opt/pipe-dados/publicacoes.tsv"
+infra,infra/compose/docker-compose.prod.yml,391,restauracao,HEALTHCHECK_URL_RESTAURACAO: ${HEALTHCHECK_URL_RESTAURACAO}
+infra,infra/compose/docker-compose.prod.yml,487,migrar,migrar:
+infra,infra/compose/docker-compose.prod.yml,499,migrar,"command: ['node', '/app/packages/db/dist/migrar.js']"
+infra,infra/compose/docker-compose.prod.yml,514,provisionar,provisionar:
+infra,infra/compose/docker-compose.prod.yml,522,provisionar,"entrypoint: ['node', '/app/apps/api/dist/provisionar.js']"
+infra,infra/compose/tenant-domain.sh,4,contas,"local domain=""${PIPE_DOMINIO_CONTAS:-}"""
+infra,infra/compose/tenant-domain.sh,7,apenas,echo 'PIPE_DOMINIO_CONTAS invalido: use apenas labels DNS em minusculas.' >&2; return 1;
+infra,infra/compose/tenant-domain.sh,15,retorno,"[[ ""${GOOGLE_URL_RETORNO:-}"" == ""https://login.${domain}/""* ]] || {"
+infra,infra/k8s/values/kube-prometheus-stack-values.yaml,29,severidade,"- matchers: [severidade=""acorda""]"
+infra,infra/observability/alertas.yml,15,severidade,labels: { severidade: acorda }
+infra,infra/observability/alertas.yml,29,severidade,labels: { severidade: acorda }
+infra,infra/observability/alertas.yml,38,severidade,labels: { severidade: acorda }
+infra,infra/observability/alertas.yml,52,severidade,labels: { severidade: acorda }
+infra,infra/observability/alertas.yml,59,severidade,labels: { severidade: acorda }
+infra,infra/observability/alertas.yml,63,restauracao,- alert: RestauracaoNaoValida
+infra,infra/observability/alertas.yml,67,restauracao,expr: pipe_restauracao_ok == 0
+infra,infra/observability/alertas.yml,69,severidade,labels: { severidade: acorda }
+infra,infra/observability/alertas.yml,75,severidade,labels: { severidade: ticket }
+infra,infra/observability/alertas.yml,79,restauracao,- alert: TesteDeRestauracaoAtrasado
+infra,infra/observability/alertas.yml,80,restauracao,expr: time() - pipe_restauracao_fim_timestamp > 691200 # 8 dias
+infra,infra/observability/alertas.yml,81,severidade,labels: { severidade: ticket }
+infra,infra/observability/alertas.yml,85,severidade,labels: { severidade: ticket }
+infra,infra/observability/alertas.yml,93,severidade,labels: { severidade: ticket }
+infra,infra/observability/alertas.yml,100,severidade,labels: { severidade: ticket }
+infra,infra/observability/alertas.yml,105,severidade,labels: { severidade: ticket }
+infra,infra/observability/alertmanager.yml,16,severidade,"- matchers: [severidade=""acorda""]"
+infra,infra/observability/alertmanager.yml,48,severidade,"target_matchers: [severidade=""ticket""]"
+infra,infra/terraform/modules/vps-pipe/cloud-init.yaml,41,restauracao,- path: /etc/systemd/system/pipe-restauracao-teste.service
+infra,infra/terraform/modules/vps-pipe/cloud-init.yaml,49,restauracao,- path: /etc/systemd/system/pipe-restauracao-teste.timer
+infra,infra/terraform/modules/vps-pipe/cloud-init.yaml,52,restauracao,Description=Teste semanal de restauração
+infra,infra/terraform/modules/vps-pipe/cloud-init.yaml,52,semanal,Description=Teste semanal de restauração
+infra,infra/terraform/modules/vps-pipe/cloud-init.yaml,77,restauracao,- systemctl enable --now pipe-backup.timer pipe-restauracao-teste.timer

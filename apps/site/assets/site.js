@@ -236,7 +236,7 @@
   }
 })();
 
-/* O "Entrar" leva ao aplicativo, que mora em outro domínio — `app.usepipe.ai`.
+/* The public Entrar destination is configured in index.html; local visits are redirected below.
 
    Em desenvolvimento esse endereço não existe, e o botão levaria a lugar nenhum
    justo na hora de testar o caminho inteiro. Aqui ele é reescrito para a porta

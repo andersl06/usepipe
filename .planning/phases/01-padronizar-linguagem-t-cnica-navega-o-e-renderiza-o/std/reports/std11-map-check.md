@@ -1,0 +1,5 @@
+# STD-11 map check (interim)
+
+`node tools/std/check-map.ts --map STD/map` exits 1 with **two** genuine errors in the existing full map; zero errors involve the new `std11-*` rows. Both remaining errors are historical approved fixups whose targets are still Portuguese: `fixup-symbol-b7d4e610` (`importacao`, API import test) and `management-vite-symbol-fixup04` (`importarArquivo`, Management invite form). The names are still used in code, so they must be proposed and approved for rename; they were not silenced.
+
+The validator previously counted 605 errors, of which 522 were duplicate historical IDs with the same mapping and 81 were intentionally `skipped` rows. `check-map.ts` now deduplicates IDs while rejecting conflicting mappings and ignores `skipped` rows; `map-tools.test.ts` covers both. The independent route-row check now returns `total=2 std11=0` using `checkMap({ map: STD/map })` and filtering issue IDs with prefix `std11-`. This is still **not** a clean-map result. No `--approve` operation was run.

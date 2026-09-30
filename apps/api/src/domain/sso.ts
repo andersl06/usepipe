@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { cifrarConfig, decifrarConfig, registrarAuditoria } from '@pipe/db';
-import { DOMINIOS_PUBLICOS, descobrir, domainOfEmail } from '@pipe/authentication';
+import { DOMINIOS_PUBLICOS, descobrir, domainOfEmail, readTenantHostConfig } from '@pipe/authentication';
+import { buildLoginUrl } from '@pipe/contracts';
 import type { ConfigOidc, DescobertaOidc, ProvedorSso } from '@pipe/authentication';
 import type { RespostaDaDescoberta } from '@pipe/contracts';
 import { databaseOwner, keyring, noTenant } from '../database.js';
@@ -51,6 +52,8 @@ interface LinhaConexao {
 
 /** Use one callback URL for every tenant; `state`, not the URL, identifies the tenant. */
 export function ssoCallbackUrl(): string {
+  const config = readTenantHostConfig();
+  if (config) return `${buildLoginUrl(config).replace(/\/$/, '')}/v1/auth/sso/callback`;
   const base = (process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace(/\/$/, '');
   return `${base}/v1/auth/sso/callback`;
 }

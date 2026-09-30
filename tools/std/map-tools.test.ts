@@ -73,6 +73,15 @@ test('same CSS selector redeclared in one file is not a duplicate target; a diff
   ]);
   assert.ok(checkMap({ map: f.map, scopes: ['css'] }).errors.some((e) => e.message === 'duplicate target'));
 });
+test('checker ignores historical skipped rows and deduplicates identical IDs while rejecting conflicts', () => {
+  const f = fixture();
+  const applied = row('old-path', { kind: 'file', old: 'nome.ts', new: 'name.ts', status: 'applied' });
+  mapRows(f.map, [applied, row('skipped', { status: 'skipped', new: 'NomeRuim' })]);
+  fs.writeFileSync(path.join(f.map, 'legacy.csv'), toCsv([[...MAP_COLUMNS], MAP_COLUMNS.map(column => ({ ...applied, status: 'approved' })[column])]));
+  assert.equal(checkMap({ map: f.map }).errors.length, 0);
+  fs.writeFileSync(path.join(f.map, 'legacy.csv'), toCsv([[...MAP_COLUMNS], MAP_COLUMNS.map(column => ({ ...applied, new: 'other.ts' })[column])]));
+  assert.ok(checkMap({ map: f.map }).errors.some(issue => issue.message === 'duplicate id with conflicting mapping'));
+});
 test('front-route collisions are scoped per app; the same path is expected to recur across independent front-end scopes', () => {
   const f = fixture();
   mapRows(f.map, [

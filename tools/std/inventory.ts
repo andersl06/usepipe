@@ -39,7 +39,12 @@ const DEPENDENT_HEADERS = ['route_row_id', 'app', 'route', 'file', 'line', 'kind
 function slash(value: string): string { return value.replaceAll('\\', '/').replace(/^\.\//, ''); }
 function sha(value: string): string { return createHash('sha1').update(value).digest('hex').slice(0, 8); }
 function lineOf(source: ts.SourceFile, node: ts.Node): number { return source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1; }
-function isPt(value: string): boolean { return splitIdentifier(value).some((token) => isPtToken(token)); }
+let extraLexicon: Set<string> | undefined;
+function withLexicon<T>(words: Set<string> | undefined, work: () => T): T {
+  const previous = extraLexicon; extraLexicon = words;
+  try { return work(); } finally { extraLexicon = previous; }
+}
+function isPt(value: string): boolean { return splitIdentifier(value).some((token) => isPtToken(token, extraLexicon)); }
 function scopeOf(file: string): string {
   const parts = slash(file).split('/');
   if (parts[0] === 'packages') return `packages-${parts[1]}`;
@@ -319,14 +324,14 @@ function countConsumers(sources: SourceText[], rows: MapRow[]): void {
 }
 function uniqueRows(rows: MapRow[]): MapRow[] { return [...new Map(rows.sort((a, b) => `${a.scope}\0${a.kind}\0${a.old}\0${a.declared_at}`.localeCompare(`${b.scope}\0${b.kind}\0${b.old}\0${b.declared_at}`)).map((r) => [r.id, r])).values()]; }
 
-export function extractSources(sources: SourceText[], files = sources.map((s) => s.fileName)): InventoryResult {
+export function extractSources(sources: SourceText[], files = sources.map((s) => s.fileName), lexicon?: Set<string>): InventoryResult { return withLexicon(lexicon, () => {
   const rows: MapRow[] = []; const comments: CommentRow[] = []; commentsSink = comments;
   collectPaths(files, rows); for (const source of sources.filter((s) => CODE.test(s.fileName))) collectCode(source, rows, comments);
   for (const source of sources.filter((s) => s.fileName.endsWith('.css') || /apps\/site\/.*\.html$/.test(s.fileName))) collectStyles(source, rows);
   collectFrontRoutes(sources, rows); collectCrmRoutes(files, rows); collectEndpoints(sources, rows);
   const deduped = uniqueRows(rows); countConsumers(sources, deduped); const routeDependents = collectDependents(sources, deduped); commentsSink = undefined;
   return { rows: deduped, comments: comments.sort((a, b) => `${a.scope}\0${a.file}\0${a.start_line}`.localeCompare(`${b.scope}\0${b.file}\0${b.start_line}`)), routeDependents };
-}
+}); }
 export function applyJsonbReach(result: InventoryResult, report: JsonbReachRow[]): void {
   const byDeclaration = new Map<string, JsonbReachRow[]>();
   for (const item of report) { const key = `${slash(item.declared_at)}\0${item.kind}\0${item.name}`; const list = byDeclaration.get(key) ?? []; list.push(item); byDeclaration.set(key, list); }
@@ -343,11 +348,11 @@ export function applyJsonbReach(result: InventoryResult, report: JsonbReachRow[]
   }
   result.rows = uniqueRows(result.rows);
 }
-export function extract(root: string): InventoryResult {
+export function extract(root: string, lexicon?: Set<string>): InventoryResult { return withLexicon(lexicon, () => {
   const files = listFiles(root).map(slash).filter((file) => !file.startsWith('tools/std/fixtures/')); const sources = sourcesAt(root, files.filter((f) => CODE.test(f) || f.endsWith('.css') || f.endsWith('.html') || f.endsWith('.md')));
-  const result = extractSources(sources, files); collectManifests(root, files, result.rows);
+  const result = extractSources(sources, files, lexicon); collectManifests(root, files, result.rows);
   const reach = traceJsonbReach(loadWorkspaceProject(root)); lastJsonbReport = reach.report; applyJsonbReach(result, reach.report); result.rows = uniqueRows(result.rows); return result;
-}
+}); }
 
 function csv(headers: readonly string[], rows: Record<string, string>[]): string { const cell = (v: string): string => /[",\r\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v; return `${headers.join(',')}\n${rows.map((r) => headers.map((h) => cell(r[h] ?? '')).join(',')).join('\n')}\n`; }
 function summary(result: InventoryResult): string { const lines = ['# Inventory summary', '', '| Scope | Kind | Rows |', '|---|---|---:|']; for (const scope of SCOPES) { const byKind = new Map<string, number>(); for (const r of result.rows.filter((r) => r.scope === scope)) byKind.set(r.kind, (byKind.get(r.kind) ?? 0) + 1); if (byKind.size === 0) lines.push(`| ${scope} | - | 0 |`); else for (const [kind, count] of [...byKind].sort()) lines.push(`| ${scope} | ${kind} | ${count} |`); } lines.push('', `Total rows: ${result.rows.length}`, `Total comments: ${result.comments.length}`, `Total route dependents: ${result.routeDependents.length}`); return `${lines.join('\n')}\n`; }
@@ -361,5 +366,5 @@ function writeInventoryMap(out: string, rows: MapRow[]): void {
   }
 }
 function printTotals(result: InventoryResult): void { for (const scope of SCOPES) console.log(`${scope}: ${result.rows.filter((r) => r.scope === scope).length}`); const kinds = new Map<string, number>(); for (const row of result.rows) kinds.set(row.kind, (kinds.get(row.kind) ?? 0) + 1); for (const [kind, count] of [...kinds].sort()) console.log(`kind ${kind}: ${count}`); console.log(`jsonb-reach: ${lastJsonbReport.length}`); const columns = new Map<string, number>(); for (const item of lastJsonbReport) columns.set(`${item.table}.${item.column}`, (columns.get(`${item.table}.${item.column}`) ?? 0) + 1); for (const [column, count] of [...columns].sort()) console.log(`jsonb ${column}: ${count}`); console.log(`jsonb names: ${[...new Set(lastJsonbReport.map((item) => item.name))].sort().join(',')}`); console.log(`comments: ${result.comments.length}; route-dependents: ${result.routeDependents.length}`); }
-function main(): void { const args = process.argv.slice(2); const outIndex = args.indexOf('--out'); if (outIndex < 0 || !args[outIndex + 1]) throw new Error('Usage: node tools/std/inventory.ts --out <STD> [--dry-run]'); const result = extract(process.cwd()); printTotals(result); if (args.includes('--dry-run')) return; const out = path.resolve(args[outIndex + 1]!); writeInventoryMap(out, result.rows); for (const scope of SCOPES) { const scoped = result.comments.filter((r) => r.scope === scope); if (scoped.length) { const file = path.join(out, 'comments', `${scope}.csv`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, csv(COMMENT_HEADERS, scoped as unknown as Record<string, string>[])); } } fs.mkdirSync(path.join(out, 'reports'), { recursive: true }); fs.writeFileSync(path.join(out, 'reports/front-route-dependents.csv'), csv(DEPENDENT_HEADERS, result.routeDependents as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'reports/jsonb-reach.csv'), csv(['table', 'column', 'via', 'root_type', 'kind', 'name', 'declared_at'], lastJsonbReport as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'inventory-summary.md'), summary(result)); }
+function main(): void { const args = process.argv.slice(2); const outIndex = args.indexOf('--out'); if (outIndex < 0 || !args[outIndex + 1]) throw new Error('Usage: node tools/std/inventory.ts --out <STD> [--dry-run] [--lexicon-file <txt>]'); const lexiconIndex = args.indexOf('--lexicon-file'); const lexicon = lexiconIndex < 0 ? undefined : new Set(fs.readFileSync(args[lexiconIndex + 1]!, 'utf8').split(/\r?\n/).map(word => word.trim()).filter(Boolean)); const result = extract(process.cwd(), lexicon); printTotals(result); if (args.includes('--dry-run')) return; const out = path.resolve(args[outIndex + 1]!); writeInventoryMap(out, result.rows); for (const scope of SCOPES) { const scoped = result.comments.filter((r) => r.scope === scope); if (scoped.length) { const file = path.join(out, 'comments', `${scope}.csv`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, csv(COMMENT_HEADERS, scoped as unknown as Record<string, string>[])); } } fs.mkdirSync(path.join(out, 'reports'), { recursive: true }); fs.writeFileSync(path.join(out, 'reports/front-route-dependents.csv'), csv(DEPENDENT_HEADERS, result.routeDependents as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'reports/jsonb-reach.csv'), csv(['table', 'column', 'via', 'root_type', 'kind', 'name', 'declared_at'], lastJsonbReport as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'inventory-summary.md'), summary(result)); }
 const invoked = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : ''; if (import.meta.url === invoked) { try { main(); } catch (error) { console.error(error); process.exitCode = 1; } }

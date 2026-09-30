@@ -1,3 +1,5 @@
+# Caminho Kubernetes alternativo, fora de uso: ainda usa hosts fixos/HTTP-01.
+# Ao reativar, seguir docs/specs/2026-09-29-tenant-subdomains.md e DNS-01 curinga.
 # Rotas e certificado.
 #
 # Ingress "clássico" e não Gateway API: a API de Ingress continua disponível e

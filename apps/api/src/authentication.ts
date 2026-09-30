@@ -6,6 +6,8 @@ import { sql } from 'drizzle-orm';
 import type { Request } from 'express';
 import { databaseOwner } from './database.js';
 import { PipeError } from './errors.js';
+import { readTenantHostConfig } from '@pipe/authentication';
+import { resolveRequestTenantSlug } from './request-tenant.js';
 import { KEY_ANY_CREDENTIAL, KEY_SESSION, temBearer } from './session.js';
 import type { RequestWithSession } from './session.js';
 
@@ -29,6 +31,7 @@ export type Scope = (typeof CATALOG_SCOPES)[number];
 
 export interface ContextOfKey {
   tenantId: string;
+  tenantSlug: string;
   keyId: string;
   escopos: string[];
   /**
@@ -87,6 +90,7 @@ export function contextOf(request: RequestAuthenticated): ContextOfKey {
 type LineKey = {
   id: string;
   tenant_id: string;
+  tenant_slug: string;
   fluxo_id: string | null;
   hash: string;
   escopos: string[] | null;
@@ -154,6 +158,10 @@ export class ApiKeyGuard implements CanActivate {
     if (qualquer && !temBearer(request)) return true;
 
     const key = await autenticar(request.header('authorization'));
+    const requestedSlug = resolveRequestTenantSlug({ host: request.headers.host, origin: request.headers.origin }, readTenantHostConfig());
+    if (requestedSlug && requestedSlug !== key.tenantSlug) {
+      throw new PipeError(403, 'tenant_mismatch', 'Você não tem acesso a esta conta.');
+    }
     request.context = key;
 
     const permitido = exigidos.every(
@@ -182,10 +190,11 @@ export async function autenticar(cabecalho: string | undefined): Promise<Context
   const [, prefix, secret] = partes;
 
   const { rows } = await databaseOwner().execute<LineKey>(sql`
-    select id, tenant_id, fluxo_id, hash, escopos,
-           (expira_em is not null and expira_em <= now()) as expirada,
-           (revogada_em is not null) as revogada
-      from chave_api
+    select chave_api.id, chave_api.tenant_id, tenant.slug as tenant_slug,
+           chave_api.fluxo_id, chave_api.hash, chave_api.escopos,
+           (chave_api.expira_em is not null and chave_api.expira_em <= now()) as expirada,
+           (chave_api.revogada_em is not null) as revogada
+      from chave_api join tenant on tenant.id = chave_api.tenant_id
      where prefixo = ${prefix}
      limit 1
   `);
@@ -202,6 +211,7 @@ export async function autenticar(cabecalho: string | undefined): Promise<Context
 
   return {
     tenantId: linha.tenant_id,
+    tenantSlug: linha.tenant_slug,
     keyId: linha.id,
     escopos: linha.escopos ?? [],
     flowId: linha.fluxo_id,

@@ -32,19 +32,7 @@ export DOCKER_BUILDKIT=1
 PULL=()
 [[ "${SEM_PULL:-0}" == "1" ]] && PULL=(--pull=false)
 
-# Os links ENTRE os módulos são assados no pacote do navegador durante a build:
-# `NEXT_PUBLIC_*` (Next, em `desk`) e `VITE_*` (Vite, em `management-vite`) não são
-# lidas em tempo de execução, e por isso não adianta pô-las no `.env` da VPS.
-# Sem estas linhas a imagem sai apontando para `localhost` e o botão que leva do
-# Desk à Gestão — ou a Gestão à `api` — não sai do lugar em produção.
-#
-# O padrão é o domínio de produção, e não o de desenvolvimento: quem constrói
-# imagem está publicando. Para uma imagem local, passe as quatro por ambiente.
-DOMINIO="${PIPE_DOMINIO:-usepipe.com.br}"
-URL_DESK="${PIPE_URL_DESK:-https://app.${DOMINIO}}"
-URL_MANAGEMENT="${PIPE_URL_MANAGEMENT:-https://gestao.${DOMINIO}}"
-URL_CRM="${PIPE_URL_CRM:-https://crm.${DOMINIO}}"
-URL_API="${PIPE_URL_API:-https://api.${DOMINIO}}"
+# Browser bundles use same-origin `/v1`; tenant links are resolved at runtime.
 
 for app in "${APPS[@]}"; do
   # O site é estático e mora no próprio diretório, sem workspace pnpm nenhum.
@@ -57,10 +45,9 @@ for app in "${APPS[@]}"; do
   ARGS=()
   case "$app" in
     desk-vite)
-      ARGS=(--build-arg "VITE_URL_API=${URL_API}") ;;
+      ARGS=(--build-arg "VITE_URL_API=") ;;
     management-vite)
-      ARGS=(--build-arg "VITE_PIPE_DESK_URL=${URL_DESK}"
-            --build-arg "VITE_URL_API=${URL_API}") ;;
+      ARGS=(--build-arg "VITE_URL_API=") ;;
   esac
 
   echo "==> ${REGISTRO}/${app}:${VERSAO}"

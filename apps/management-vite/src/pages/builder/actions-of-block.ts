@@ -28,7 +28,7 @@ export interface CampoDaAcao {
 
 export interface TipoDeAcao {
   tipo: string;
-  /** O nome no menu "ADICIONAR FERRAMENTAS". */
+  /** The menu label is "ADICIONAR FERRAMENTAS". */
   rotulo: string;
 
   titulo: string;

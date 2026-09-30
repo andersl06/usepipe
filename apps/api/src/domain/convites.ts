@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { InboundRefused, createToken, hashDoToken } from '@pipe/authentication';
+import { InboundRefused, createToken, hashDoToken, readTenantHostConfig } from '@pipe/authentication';
+import { buildLoginUrl } from '@pipe/contracts';
 import type { PessoaDoGoogle } from '@pipe/authentication';
 import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
@@ -54,6 +55,8 @@ function nomeProvisorio(email: string): string {
 }
 
 export function urlOfInvitation(token: string): string {
+  const config = readTenantHostConfig();
+  if (config) return `${buildLoginUrl(config)}invite/${token}`;
   const base = (process.env['PIPE_URL_APP'] ?? 'http://localhost:3000').replace(/\/$/, '');
   return `${base}/invite/${token}`;
 }

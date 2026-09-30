@@ -16,7 +16,8 @@ const URL_BUDGET = (import.meta.env['VITE_PIPE_ORCAMENTO_URL'] as string | undef
 /*
  * With no quote page, the request becomes an email to support — the SAME address the portal's "?" menu uses. The footer doesn't disappear: it's part of the shell in the source, and hiding it because an environment variable is missing would remove a piece of the screen that exists.
  */
-const DESTINATION_BUDGET = URL_BUDGET || 'mailto:suporte@usepipe.ai';
+const supportEmail = (import.meta.env['VITE_PIPE_SUPPORT_EMAIL'] as string | undefined) ?? '';
+const DESTINATION_BUDGET = URL_BUDGET || (supportEmail ? `mailto:${supportEmail}` : '');
 
 /**
  * `createApplication.needHelp` and `createApplication.requestAQuote` — the footer's two phrases are the same on both screens, with no per-template variant.
@@ -51,12 +52,12 @@ export function CreationShell({ children }: { children: React.ReactNode }) {
  */}
       <footer className="cr-rodape">
         <span>{RODAPE.precisaDeAjuda} </span>
-        <a
+        {DESTINATION_BUDGET ? <a
           href={DESTINATION_BUDGET}
           {...(URL_BUDGET ? { target: '_blank', rel: 'noreferrer' } : {})}
         >
           {RODAPE.pecaOrcamento}
-        </a>
+        </a> : <span>Fale com o administrador da conta para solicitar um orçamento.</span>}
       </footer>
     </div>
   );

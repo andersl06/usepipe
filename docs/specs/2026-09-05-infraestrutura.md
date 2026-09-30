@@ -1,5 +1,7 @@
 # Pipe — infraestrutura e modelo de entrega
 
+> Adendo de 29/09/2026: a topologia de hosts fixos e o HTTP-01 normal descritos abaixo foram substituídos por subdomínios por tenant. Ver [2026-09-29-tenant-subdomains.md](2026-09-29-tenant-subdomains.md).
+
 Decidido em 05/09/2026: **SaaS multi-tenant operado pela PJ**. O cliente não instala nada.
 Este documento registra o que essa decisão implica, incluindo as partes desconfortáveis.
 

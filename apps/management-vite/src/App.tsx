@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { ClosureNotice } from '@pipe/ui';
 import { RequireSession } from './components/exigir-session';
 import { useRegisterNavigation } from './lib/navigation';
 import { APPLICATION } from './lib/application-paths';
+import { hostMode, readDeniedTenantNotice } from './lib/tenant-links';
 import { PageLogin } from './pages/login';
 import { NaoEncontrado } from './pages/nao-encontrado';
 import { PagePortal } from './pages/portal';
@@ -214,6 +216,17 @@ const contactRoutes = (
   </>
 );
 
+function DeniedTenantNotice() {
+  const [slug] = useState(() => readDeniedTenantNotice(window.location.search));
+  useEffect(() => {
+    if (!slug) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('deniedTenant');
+    window.history.replaceState(window.history.state, '', url);
+  }, [slug]);
+  return slug ? <p role="alert">Você não tem acesso a {slug}. Levamos você para a sua conta.</p> : null;
+}
+
 /**
  * Gestão routes live under `/application` (D-52), matching Blip's own shape: the portal list,
  * the contact tree keyed by short name (`ContactRoute`, below), the creation wizard under
@@ -225,6 +238,16 @@ const contactRoutes = (
  */
 export function App() {
   useRegisterNavigation();
+  const mode = hostMode(window.location);
+  if (mode === 'reserved') return <main><h1>Endereço não encontrado</h1></main>;
+  if (mode === 'login') return (
+    <Routes>
+      <Route path="/" element={<PageLogin />} />
+      <Route path="/login" element={<PageLogin />} />
+      <Route path="/invite/:token" element={<PageInvitation />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
+  );
   return (
     <>
     <ClosureNotice />
@@ -234,7 +257,7 @@ export function App() {
 
       <Route element={<RequireSession />}>
         <Route path="/" element={<Navigate to={APPLICATION} replace />} />
-        <Route path="/application" element={<PagePortal />} />
+        <Route path="/application" element={<><DeniedTenantNotice /><PagePortal /></>} />
         <Route path="/application/product-updates" element={<PageUpdates />} />
         <Route path="/application/tenant" element={<ContractPage />} />
         <Route path="/application/tenant/mtls" element={<CertificatesPage />} />

@@ -52,8 +52,8 @@ afterEach(() => {
 describe('Build the WebSocket channel URL', () => {
   it('Convert HTTP URLs to `ws` and HTTPS URLs to `wss`', () => {
     expect(urlOfChannel('http://localhost:3000')).toBe('ws://localhost:3000/v1/eventos');
-    expect(urlOfChannel('https://api.usepipe.com.br/')).toBe(
-      'wss://api.usepipe.com.br/v1/eventos',
+    expect(urlOfChannel('https://api.pipe.test/')).toBe(
+      'wss://api.pipe.test/v1/eventos',
     );
   });
 });

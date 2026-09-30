@@ -13,12 +13,14 @@ import {
   hashDoToken,
   origemPermitida,
   origensPermitidas,
+  readTenantHostConfig,
   sair as encerrarSessao,
   exchangeCode,
   urlOfAuthorization,
 } from '@pipe/authentication';
 import type { DesafioDeLogin, OptionsOfCookie, PessoaDoGoogle } from '@pipe/authentication';
 import type { Eu, OriginOfSession, Plano, RefusesOfInbound } from '@pipe/contracts';
+import { buildLoginUrl, buildTenantOrigin, isLoginHost, parseReturnTo } from '@pipe/contracts';
 import { databaseApp, databaseOwner, noTenant } from '../database.js';
 import { acceptInvitation } from '../domain/convites.js';
 import {
@@ -56,9 +58,7 @@ const CAMINHO_DESAFIO = '/v1/auth';
 export function optionsOfCookie(): OptionsOfCookie {
   const domain = process.env['PIPE_COOKIE_DOMINIO'];
   return {
-    // `Domain=.usepipe.com.br` lets a cookie issued by `api.usepipe.com.br` work across `app.`, `gestao.` and `crm.`. Leave Domain unset in development: `Domain=localhost` invalidates the cookie in several browsers, making login appear to do nothing.
-    // em `app.`, `gestao.` e `crm.`. Vazio em desenvolvimento: `Domain=localhost`
-    // invalidates the cookie in several browsers, making login appear to do nothing.
+    // The base domain shares the session across login, application, and desk hosts.
     domain: domain && domain.length > 0 ? domain : undefined,
     seguro: process.env['PIPE_COOKIE_SEGURO'] !== 'false',
   };
@@ -77,6 +77,12 @@ export function baseDoApp(origem: string | undefined): string {
 }
 
 export function urlOfError(codigo: RefusesOfInbound, origem?: string): string {
+  const tenant = readTenantHostConfig();
+  if (tenant) {
+    const url = new URL(`${buildLoginUrl(tenant)}login`);
+    url.searchParams.set('error', codigo);
+    return url.toString();
+  }
   const base = baseDoApp(origem);
   // `PIPE_URL_ENTRADA` applies only when the initiating origin is unknown; overriding a
   // por cima de uma origem conhecida devolveria todo mundo ao mesmo lugar de novo.
@@ -98,11 +104,35 @@ export function destinationAbsolute(destination: string, origem?: string): strin
   return `${baseDoApp(origem)}${interno}`;
 }
 
+/** Resolve the post-login URL from the authenticated tenant, never from the requested host. */
+export async function destinationForTenant(tenantId: string, returnTo?: string): Promise<string> {
+  const config = readTenantHostConfig();
+  if (!config) return destinationAbsolute(APPLICATION);
+  const { rows } = await databaseOwner().execute<{ slug: string }>(sql`
+    select slug from tenant where id = ${tenantId}::uuid limit 1
+  `);
+  const slug = rows[0]?.slug;
+  if (!slug) throw new Error('Authenticated tenant has no slug');
+  const home = `${buildTenantOrigin(slug, 'application', config)}${APPLICATION}`;
+  const target = returnTo ? parseReturnTo(returnTo, config) : null;
+  if (!target) return home;
+  if (target.slug === slug) return target.url;
+  return `${home}?deniedTenant=${encodeURIComponent(target.slug)}`;
+}
+
+export function redirectToCentralLogin(request: Request, response: Response): boolean {
+  const config = readTenantHostConfig();
+  if (!config || isLoginHost(request.headers.host ?? '', config)) return false;
+  response.redirect(302, buildLoginUrl(config, textoDaQuery(request, 'returnTo')));
+  return true;
+}
+
 /**
  * Pipe's challenge combines the provider challenge with an invitation when login starts from one. The invitation token travels in the same cookie so it survives the Google round trip. Without it, the callback could not know the account was invited and would reject an unknown domain.
  */
 export type ChallengeWithInvitation = DesafioDeLogin & {
   invitation?: string;
+  returnTo?: string;
   /** The app that started login; the callback returns there. */
   origin?: string;
   /** The tenant that initiated SSO determines which customer the person belongs to. */
@@ -123,7 +153,8 @@ export function cookieDoDesafio(desafio: ChallengeWithInvitation | null): string
     'SameSite=Lax',
     `Max-Age=${desafio ? DESAFIO_SEGUNDOS : 0}`,
   ];
-  if (options.domain) partes.push(`Domain=${options.domain}`);
+  // Login start and callback share one host, so the challenge stays host-only.
+  if (options.domain && !readTenantHostConfig()) partes.push(`Domain=${options.domain}`);
   if (options.seguro ?? true) partes.push('Secure');
   return partes.join('; ');
 }
@@ -204,6 +235,8 @@ export class LoginController {
       resposta.status(404).end();
       return;
     }
+    // *.localhost has host-only cookies; dev sign-in must happen on each app host.
+    if (readTenantHostConfig()?.baseDomain !== 'localhost' && redirectToCentralLogin(requisicao, resposta)) return;
     const email = (textoDaQuery(requisicao, 'email') ?? 'ana.ribeiro@demo.pipe.app')
       .trim()
       .toLowerCase();
@@ -223,10 +256,14 @@ export class LoginController {
       values (${u.tenant_id}::uuid, ${u.id}::uuid, ${novo.hash}, ${novo.expiraEm}, 'senha')
     `);
     resposta.setHeader('set-cookie', sessionCookie(cookieOfSession(novo.token, novo.expiraEm, optionsOfCookie())));
+    if (readTenantHostConfig()) {
+      resposta.redirect(302, await destinationForTenant(u.tenant_id, textoDaQuery(requisicao, 'returnTo')));
+      return;
+    }
     const permitidas = origensPermitidas();
     const origem = origemDaQuery(requisicao);
     const base =
-      origem && permitidas.includes(origem) ? origem : (permitidas[0] ?? 'http://localhost:3200');
+      origem && origemPermitida(origem, permitidas) ? origem : (permitidas.fixed[0] ?? 'http://localhost:3200');
     resposta.redirect(302, `${base}/`);
   }
 
@@ -235,6 +272,7 @@ export class LoginController {
    */
   @Get('google')
   ir(@Req() requisicao: Request, @Res() resposta: Response): void {
+    if (redirectToCentralLogin(requisicao, resposta)) return;
     let config;
     try {
       config = configDoAmbiente();
@@ -249,6 +287,7 @@ export class LoginController {
       ...createChallenge(textoDaQuery(requisicao, 'returnTo') ?? APPLICATION),
       ...(invitation ? { invitation } : {}),
       ...(origem ? { origin: origem } : {}),
+      ...(readTenantHostConfig() && textoDaQuery(requisicao, 'returnTo') ? { returnTo: textoDaQuery(requisicao, 'returnTo') } : {}),
     };
     resposta.setHeader('set-cookie', cookieDoDesafio(desafio));
     resposta.redirect(302, urlOfAuthorization(config, desafio));
@@ -257,6 +296,7 @@ export class LoginController {
   /** Google callback: either establish a session or return a rejection code. */
   @Get('google/callback')
   async callback(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
+    if (redirectToCentralLogin(requisicao, resposta)) return;
     const apagarDesafio = cookieDoDesafio(null);
     const desafio = lerDesafio(requisicao);
     if (!desafio) {
@@ -306,7 +346,9 @@ export class LoginController {
         apagarDesafio,
         sessionCookie(cookieOfSession(inbound.token, inbound.expiresAt, optionsOfCookie())),
       ]);
-      resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origin));
+      resposta.redirect(302, readTenantHostConfig()
+        ? await destinationForTenant(inbound.tenantId, desafio.returnTo)
+        : destinationAbsolute(desafio.destination, desafio.origin));
     } catch (erro) {
       const codigo = codigoDaRecusa(erro);
       if (codigo === 'falha_no_provedor') console.error('[api] falha ao entrar', erro);

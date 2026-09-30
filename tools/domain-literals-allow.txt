@@ -1,0 +1,23 @@
+# Examples and historical planning documentation intentionally show sample domains.
+.env.example
+apps/crm/.env.example
+apps/management-vite/README.md
+apps/site/README.md
+apps/site/docker-compose.yml
+# Owner explicitly retained this active Entrar destination; changing it is deferred.
+apps/site/index.html:^      <a class="btn btn--ghost btn--sm" data-entrar href="https://app\.usepipe\.ai/entrar">Entrar</a>$
+infra/compose/env.prod.exemplo
+infra/runbooks/domain-activation.md
+infra/terraform/**/terraform.tfvars.exemplo
+docs/**
+.planning/**
+# Legacy, non-compose Kubernetes topology; tracked separately from the VPS edge.
+infra/k8s/base/rotas.yaml
+infra/k8s/tenants/exemplo-dedicado/kustomization.yaml
+# Explicit non-host uses (sender addresses and a Kubernetes label key).
+apps/site/index.html:mailto:contato@
+infra/k8s/values/cert-manager-issuer.yaml:email: infra@
+infra/k8s/values/kube-prometheus-stack-values.yaml:to: infra@
+infra/terraform/modules/tenant-dedicado/main.tf:usepipe\.com\.br/tenant
+# The scanner must name the pattern it detects.
+tools/check-domain-literals.mjs

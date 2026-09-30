@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ClosureNotice } from '@pipe/ui';
 import { RequireSession } from './components/exigir-session';
@@ -5,6 +6,7 @@ import { Shell } from './components/shell';
 import { useRegisterNavigation } from './lib/navigation';
 import { useLiveEvents } from './lib/live-events';
 import { useSession } from './context/session';
+import { tenantLoginUrl } from './lib/tenant-login';
 import { PageLogin } from './pages/login';
 import { PageInvitation } from './pages/invitation';
 import { PageAttendances } from './pages/attendances/page';
@@ -25,8 +27,8 @@ export function App() {
     <>
     <ClosureNotice />
     <Routes>
-      <Route path="/login" element={<PageLogin />} />
-      <Route path="/invite/:token" element={<PageInvitation />} />
+      <Route path="/login" element={<TenantLoginOrLocal><PageLogin /></TenantLoginOrLocal>} />
+      <Route path="/invite/:token" element={<TenantLoginOrLocal><PageInvitation /></TenantLoginOrLocal>} />
 
       <Route element={<RequireSession />}>
         <Route element={<Shell />}>
@@ -42,4 +44,12 @@ export function App() {
     </Routes>
     </>
   );
+}
+
+function TenantLoginOrLocal({ children }: { children: React.ReactNode }) {
+  const loginUrl = tenantLoginUrl(window.location, import.meta.env.DEV);
+  useEffect(() => {
+    if (loginUrl) window.location.replace(loginUrl);
+  }, [loginUrl]);
+  return loginUrl ? null : children;
 }

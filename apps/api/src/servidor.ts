@@ -29,6 +29,7 @@ import {
   closeQueues,
 } from './queues.js';
 import { measureRequest } from './metrics.js';
+import { assertTenantDomainConfig } from './tenant-domain-config.js';
 import { closeDelayedJobs, consumeDelayedJobs, scheduleSweepDelayedJobs } from './delayed-jobs.js';
 import { registerScheduledMessages } from './domain/scheduled-messages.js';
 import { registerInputExpirations } from './domain/input-expiration-job.js';
@@ -40,7 +41,7 @@ export async function createApplication(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModulo, { bodyParser: false });
 
   /**
-   * Credentialed CORS uses the closed `PIPE_ORIGENS` list for the API at `api.usepipe.com.br` and screens at `app.`, `gestao.`, and `crm.`. Never wildcard it: browsers reject `*` with `credentials: true`, and allowing arbitrary origins would expose authenticated requests from signed-in users.
+   * Credentialed CORS uses fixed `PIPE_ORIGENS` plus strictly validated tenant hosts. Never wildcard it: browsers reject `*` with `credentials: true`, and allowing arbitrary origins would expose authenticated requests from signed-in users.
    */
   const permitidas = origensPermitidas();
   app.enableCors({
@@ -120,6 +121,7 @@ export interface ApiNoAr {
 /** Start listening; port 0 lets the OS choose, as tests require. Tests pass `porta = 0`. */
 // Use 3000 rather than 3100: Management uses 3100, Desk 3200, and CRM 3300. The old API default could take Management's port first and make it fail with EADDRINUSE.
 export async function upApi(porta = Number(process.env['PORT'] ?? 3000)): Promise<ApiNoAr> {
+  assertTenantDomainConfig();
   const app = await createApplication();
   consumeInbound();
   consumirProcessHttp();

@@ -1,8 +1,10 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { RefusesOfInbound } from '@pipe/contracts';
 import { caminhoInterno, discoverInbound, inboundWithGoogleUrl, urlNaApi } from '@pipe/ui/api';
 import { APPLICATION } from '../lib/application-paths';
+import { useSession } from '../context/session';
+import { hostMode, loggedInDestination } from '../lib/tenant-links';
 import { FundoPipe } from './fundo-pipe';
 
 /**
@@ -80,6 +82,16 @@ function ehRecusa(codigo: string | null): codigo is RefusesOfInbound {
 export function PageLogin() {
   const [parametros, setParametros] = useSearchParams();
   const destination = caminhoInterno(parametros.get('destino'), APPLICATION);
+  const central = hostMode(window.location) === 'login';
+  const returnTo = parametros.get('returnTo');
+  const loginDestination = central ? (returnTo ?? APPLICATION) : destination;
+  const { eu, sair } = useSession();
+  const ownAccount = central && eu ? loggedInDestination(window.location, eu.tenant.slug, null, import.meta.env.DEV) : null;
+  useEffect(() => {
+    if (!central || !eu || !returnTo) return;
+    const target = loggedInDestination(window.location, eu.tenant.slug, returnTo, import.meta.env.DEV);
+    if (target) window.location.replace(target);
+  }, [central, eu, returnTo]);
   const [email, setEmail] = useState(parametros.get('email') ?? '');
   const [enviando, setEnviando] = useState(false);
 
@@ -94,15 +106,32 @@ export function PageLogin() {
     setEnviando(true);
     const inbound = await discoverInbound(email.trim());
     if (inbound.metodo === 'sso' && inbound.irPara) {
-      window.location.assign(urlNaApi(inbound.irPara, destination));
+      window.location.assign(urlNaApi(inbound.irPara, loginDestination));
       return;
     }
     // Sem SSO, a pessoa fica na mesma tela com o motivo e o e-mail já digitado.
     const volta = new URLSearchParams({ method: inbound.metodo, email: email.trim() });
     if (destination !== APPLICATION) volta.set('destino', destination);
+    if (central && returnTo) volta.set('returnTo', returnTo);
     setParametros(volta, { replace: true });
     setEnviando(false);
   }
+
+  if (central && eu) return (
+    <main className="login">
+      <div className="login-stage">
+        <section className="login-card">
+          <h1>Sua conta Pipe</h1>
+          {returnTo ? <p>Levando você para a sua conta…</p> : (
+            <>
+              <a href={ownAccount ?? '/application'}>Continuar na sua conta</a>
+              <button type="button" onClick={() => void sair()}>Entrar com outra conta</button>
+            </>
+          )}
+        </section>
+      </div>
+    </main>
+  );
 
   return (
     <main className="login">
@@ -128,7 +157,7 @@ export function PageLogin() {
           ) : null}
 
           {/* Link, e não botão: entrar com o Google é navegação de topo para a `api`. */}
-          <a className="login-google" href={inboundWithGoogleUrl({ destination })}>
+          <a className="login-google" href={inboundWithGoogleUrl({ destination: loginDestination })}>
             <LogoGoogle />
             <span>Entrar com Google</span>
           </a>
@@ -167,7 +196,7 @@ export function PageLogin() {
             />
 
             <div className="login-forgot">
-              <a href="mailto:suporte@usepipe.com.br">Esqueci minha senha</a>
+              <span>Peça ajuda ao administrador da sua conta</span>
             </div>
 
             <p id="entrar-ajuda" className="login-help">
@@ -180,7 +209,7 @@ export function PageLogin() {
 
           <div className="login-foot">
             <span>Primeiro acesso?</span>
-            <a href="mailto:suporte@usepipe.com.br">Falar com o suporte</a>
+            <span>Fale com o administrador da sua conta</span>
           </div>
         </section>
       </div>

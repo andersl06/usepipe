@@ -1,6 +1,6 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { comTenant } from '@pipe/db';
-import { conexaoSso, domainTenant, identityExternal, session, user } from '@pipe/db/schema';
+import { conexaoSso, domainTenant, identityExternal, session, tenant, user } from '@pipe/db/schema';
 import type { DatabasePipe, TransactionPipe } from '@pipe/db';
 import { ehDomainPublic, domainOfEmail } from './google.js';
 import { createToken, estaValida } from './session.js';
@@ -368,12 +368,14 @@ export async function resolveSession(
     .select({
       id: session.id,
       tenantId: session.tenantId,
+      tenantSlug: tenant.slug,
       usuarioId: session.usuarioId,
       expiraEm: session.expiraEm,
       origem: session.origem,
       encerradaEm: session.encerradaEm,
     })
     .from(session)
+    .innerJoin(tenant, eq(tenant.id, session.tenantId))
     .where(eq(session.tokenHash, hash))
     .limit(1);
 
@@ -384,6 +386,7 @@ export async function resolveSession(
   return {
     id: linha.id,
     tenantId: linha.tenantId,
+    tenantSlug: linha.tenantSlug,
     userId: linha.usuarioId,
     expiraEm: linha.expiraEm,
     origem: linha.origem,

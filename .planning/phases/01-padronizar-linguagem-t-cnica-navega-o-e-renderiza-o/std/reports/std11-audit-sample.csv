@@ -1,0 +1,584 @@
+rule,selection,file,line,kind,token,snippet,category,exception_ref
+ddl,classified,apps/api/src/authentication.ts,192,sql-name,chave,const { rows } = await databaseOwner().execute<LineKey>(sql`,B,D-08
+ddl,classified,apps/api/src/controllers/attachments.ts,69,sql-name,anexo,"sql`select tenant_id from anexo where id = ${attachmentId}::uuid limit 1`,",B,D-08
+ddl,classified,apps/api/src/controllers/catalogo.ts,80,sql-name,documento,if (consulta['documento']) filtros.push(sql`documento = ${consulta['documento']}`);,B,D-08
+ddl,classified,apps/api/src/controllers/conversations.ts,103,sql-name,fila,if (consulta['fila_id']) filters.push(sql`c.fila_id = ${consulta['fila_id']}::uuid`);,B,D-08
+ddl,classified,apps/api/src/controllers/crm.ts,66,sql-name,contato,const { rows } = await tx.execute<{ twenty_pessoa_id: string | null }>(sql`,B,D-08
+ddl,classified,apps/api/src/controllers/login.ts,243,sql-name,usuario,const { rows } = await databaseOwner().execute<{ id: string; tenant_id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/controllers/management-account.ts,35,sql-name,codigo,const { rows } = await tx.execute<{ code: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/controllers/my-account.ts,155,sql-name,cidade,const { rows } = await tx.execute<LineAccount>(sql`,B,D-08
+ddl,classified,apps/api/src/controllers/sso.ts,241,sql-name,ativo,"sql`select nome as ""name"" from usuario where email = ${email} and ativo limit 1`,",B,D-08
+ddl,classified,apps/api/src/database.ts,66,sql-name,ativo,"}>(sql`select id, tenant_id, tipo, ativo, config from canal where id = ${canalId} limit 1`);",B,D-08
+ddl,classified,apps/api/src/domain/assumir.ts,16,sql-name,conversa,"sql`select estado as ""state"", fila_id as ""queueId"" from conversa where id = ${conversationId}::uuid limit 1`,",B,D-08
+ddl,classified,apps/api/src/domain/attachment.ts,102,sql-name,anexo,const { rows } = await tx.execute<{ id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/builder-commands.ts,43,sql-name,estado,const { rows } = await tx.execute<{ id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/builder-of-account.ts,74,sql-name,atualizado,"sql`update usuario set nome = ${nomeDaPessoa}, atualizado_em = now()",B,D-08
+ddl,classified,apps/api/src/domain/channels.ts,51,sql-name,ativo,const { rows } = await tx.execute<LineChannel>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/conversation.ts,38,sql-name,atendente,const { rows } = await tx.execute<LineConversation>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/convites.ts,118,sql-name,escopo,"sql`select id, escopo as scope from papel where nome = ${nameOfRole} limit 1`,",B,D-08
+ddl,classified,apps/api/src/domain/desk-commands.ts,91,sql-name,atendente,const { rows } = await tx.execute<TicketRow>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/desk-write-commands.ts,191,sql-name,ativa,const { rows } = await tx.execute<{ id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/desk/actions.ts,150,sql-name,atendente,"sql`select estado as ""state"" from status_atendente where usuario_id = ${atendenteId}::uuid for update`,",B,D-08
+ddl,classified,apps/api/src/domain/desk/consultas.ts,69,sql-name,atendente,}>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/desk/metrics.ts,35,sql-name,atendente,}>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/desk/taggings.ts,36,sql-name,atendente,"sql`select estado as ""state"", atendente_id as ""agentId"" from conversa where id = ${conversationId}::uuid limit 1`,",B,D-08
+ddl,classified,apps/api/src/domain/dictionary-crm.ts,309,sql-name,atualizado,const removidosObj = await tx.execute(sql`,B,D-08
+ddl,classified,apps/api/src/domain/distribution.ts,26,sql-name,atendente,const { rows } = await tx.execute<LineAgent>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/dominios.ts,83,sql-name,dominio,"}>(sql`select id, token_verificacao, verificado_em from dominio_tenant",B,D-08
+ddl,classified,apps/api/src/domain/engine-services.ts,169,sql-name,ativa,const { rows } = await tx.execute<{ id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/envio.ts,90,sql-name,atendente,const { rows } = await tx.execute<LineConversation>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/etiquetas.ts,37,sql-name,cor,}>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/eventos.ts,20,sql-name,atendimento,await tx.execute(sql`,B,D-08
+ddl,classified,apps/api/src/domain/flow.ts,81,sql-name,canal,const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/import-of-contacts.ts,69,sql-name,arquivo,const { rows } = await tx.execute<{ id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/inbound.ts,223,sql-name,mensagem,"sql`select 1 as existe from mensagem where id_provedor = ${idProvedor} limit 1`,",B,D-08
+ddl,classified,apps/api/src/domain/input-expiration-job.ts,38,sql-name,bloco,const { rows } = await tx.execute<{ stateId: string | null; expiresAt: Date | string | null }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/input-expiration.ts,27,sql-name,bloco,const { rows } = await tx.execute<{ id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/instagram/channel.ts,74,sql-name,ativo,const { rows } = await tx.execute<LineChannel>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/instagram/renewal.ts,62,sql-name,ativo,const { rows } = await databaseOwner().execute<{ id: string; tenant_id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/management-analytics.ts,55,sql-name,canal,"sql`select f.tipo as ""type"", k.tipo as ""channel"" from fluxo f left join canal k on k.id = f.canal_id where f.id = ${flux",B,D-08
+ddl,classified,apps/api/src/domain/management/builder-of-flow.ts,50,sql-name,estado,const { rows } = await tx.execute<{ id: string; name: string; type: string; state: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/management/certificados.ts,137,sql-name,descricao,const { rows: certificados } = await tx.execute<LinhaDeCertificado>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/management/deployment.ts,40,sql-name,acesso,const access = await um<{ v: boolean }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/management/flow-functions.ts,25,sql-name,atualizado,"const COLUMNS = sql`id, tenant_id as ""tenantId"", nome as name, descricao as description,",B,D-08
+ddl,classified,apps/api/src/domain/management/flow-resources.ts,73,sql-name,estado,const { rows } = await tx.execute<{ id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/management/flow-secrets.ts,64,sql-name,atualizado,"const COLUMNS = sql`id, fluxo_id as ""flowId"", nome as name, criado_em as ""createdAt"", atualizado_em as ""updatedAt""`;",B,D-08
+ddl,classified,apps/api/src/domain/management/integrations.ts,36,sql-name,estado,const { rows } = await tx.execute<{ id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/management/monitoring.ts,180,sql-name,atendente,}>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/management/permissions-of-agent.ts,181,sql-name,codigo,const { rows } = await tx.execute<{ tem: boolean }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/management/satisfaction-surveys.ts,75,sql-name,pesquisa,"? sql`pesquisa_satisfacao_resposta.criada_em >= ${dateOrBadRequest(query.from, 'from')}::date`",B,D-08
+ddl,classified,apps/api/src/domain/management/sla-motor.ts,310,sql-name,conversa,const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/management/team-of-flow.ts,271,sql-name,codigo,const { rows } = await tx.execute<{ tem: boolean }>(sql`,B,D-08
+ddl,excluded,apps/api/src/authentication.ts,192,sql-name,expirada,const { rows } = await databaseOwner().execute<LineKey>(sql`,,
+ddl,excluded,apps/api/src/controllers/catalogo.ts,400,sql-name,ativas,}>(sql`,,
+ddl,excluded,apps/api/src/database.ts,99,sql-name,desc,}>(sql`,,
+ddl,excluded,apps/api/src/domain/builder-commands.ts,61,sql-name,asc,const { rows: flows } = await tx.execute<FlowRow>(sql`,,
+ddl,excluded,apps/api/src/domain/builder-of-account.ts,107,sql-name,existe,"sql`select exists (select 1 from tenant where slug = ${slug}) as existe`,",,
+ddl,excluded,apps/api/src/domain/desk-commands.ts,91,sql-name,desc,const { rows } = await tx.execute<TicketRow>(sql`,,
+ddl,excluded,apps/api/src/domain/desk/actions.ts,183,sql-name,asc,const { rows } = await tx.execute<{ id: string; queueId: string | null }>(sql`,,
+ddl,excluded,apps/api/src/domain/desk/consultas.ts,69,sql-name,contato,}>(sql`,,
+ddl,excluded,apps/api/src/domain/distribution.ts,26,sql-name,ativas,const { rows } = await tx.execute<LineAgent>(sql`,,
+ddl,excluded,apps/api/src/domain/engine-services.ts,225,sql-name,asc,const { rows } = await tx.execute<{ texto: string }>(sql`,,
+ddl,excluded,apps/api/src/domain/flow.ts,81,sql-name,desc,const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`,,
+ddl,excluded,apps/api/src/domain/import-of-contacts.ts,118,sql-name,desc,const { rows } = await tx.execute<LineImport>(sql`,,
+ddl,excluded,apps/api/src/domain/inbound.ts,223,sql-name,existe,"sql`select 1 as existe from mensagem where id_provedor = ${idProvedor} limit 1`,",,
+ddl,excluded,apps/api/src/domain/management-analytics.ts,98,sql-name,transbordo,const { rows: flow } = await tx.execute<{ total: number; transbordo: number }>(sql`,,
+ddl,excluded,apps/api/src/domain/management/builder-of-flow.ts,120,sql-name,desc,const { rows } = await tx.execute<LinhaVersao>(sql`,,
+ddl,excluded,apps/api/src/domain/management/certificados.ts,137,sql-name,arquivo,const { rows: certificados } = await tx.execute<LinhaDeCertificado>(sql`,,
+ddl,excluded,apps/api/src/domain/management/deployment.ts,64,sql-name,convites,const pessoas = await um<{ convites: string; members: string }>(sql`,,
+ddl,excluded,apps/api/src/domain/management/flow-secrets.ts,87,sql-name,fluxo,const { rows } = await tx.execute<Row>(sql`,,
+ddl,excluded,apps/api/src/domain/management/integrations.ts,837,sql-name,desc,const { rows } = await tx.execute<{ url: string }>(sql`,,
+ddl,excluded,apps/api/src/domain/message-active.ts,306,sql-name,desc,}>(sql`,,
+ddl,excluded,apps/api/src/domain/mtls.ts,44,sql-name,arquivo,const { rows } = await tx.execute<{ certificado_id: string; host: string }>(sql`,,
+ddl,excluded,apps/api/src/domain/rastreador-de-cliques.ts,88,sql-name,destino,const { rows } = await tx.execute<{ id: string; createdAt: string }>(sql`,,
+ddl,excluded,apps/api/src/domain/router.ts,42,sql-name,desc,const { rows: servicos } = await tx.execute<LineOfService>(sql`,,
+ddl,excluded,apps/api/src/domain/scheduled-messages.ts,78,sql-name,desc,const { rows } = await tx.execute<{ conversationId: string; channelId: string; open: boolean }>(sql`,,
+ddl,excluded,apps/api/src/domain/scheduling-commands.ts,461,sql-name,desc,const { rows } = await tx.execute<{ day: string; action: string; count: number }>(sql`,,
+ddl,excluded,apps/api/tests/attachments-multiplos.test.ts,138,sql-name,asc,}>(sql`,,
+ddl,excluded,apps/api/tests/builder-by-flow.test.ts,219,sql-name,blocos,const { rows } = await a.dono.execute<LinhaVersao>(sql`,,
+ddl,excluded,apps/api/tests/channel-of-flow.test.ts,158,sql-name,asc,}>(sql`,,
+ddl,excluded,apps/api/tests/configuration-of-flow.test.ts,102,sql-name,asc,}>(sql`,,
+ddl,excluded,apps/api/tests/contacts-editar.test.ts,114,sql-name,asc,const { rows } = await a.dono.execute<{ acao: string; antes: unknown; depois: unknown }>(sql`,,
+ddl,excluded,apps/api/tests/contract.test.ts,401,sql-name,mtls,"sql`select count(*)::text as n from certificado_mtls where descricao = ${description}`,",,
+ddl,excluded,apps/api/tests/cycle-of-lifetime-of-flow.test.ts,127,sql-name,asc,}>(sql`,,
+ddl,excluded,apps/api/tests/desk-availability.test.ts,122,sql-name,desc,const { rows } = await cenario.dono.execute<{ id: string; fila_id: string | null; estado: string }>(sql`,,
+ddl,excluded,apps/api/tests/desk-write-commands.test.ts,88,sql-name,desc,"const { rows } = await cenario.dono.execute<{ contexto: Record<string, string> }>(sql`",,
+ddl,excluded,apps/api/tests/dictionary-crm.test.ts,336,sql-name,campos,const { rows } = await c.dono.execute<{ objetos: number; campos: number }>(sql`,,
+ddl,excluded,apps/api/tests/engine-contracts.test.ts,103,sql-name,desc,const { rows } = await cenario.dono.execute<{ id: string; contatoId: string }>(sql`,,
+ddl,excluded,apps/api/tests/etiquetas.test.ts,129,sql-name,asc,const { rows } = await a.dono.execute<{ acao: string; antes: unknown; depois: unknown }>(sql`,,
+ddl,excluded,apps/api/tests/flow-actions.test.ts,166,sql-name,desc,const { rows } = await cenario.dono.execute<{ estado: string }>(sql`,,
+ddl,excluded,apps/api/tests/flow-content.test.ts,102,sql-name,desc,const { rows } = await cenario.dono.execute<LinhaMensagem>(sql`,,
+ddl,excluded,apps/api/tests/flow-secrets.test.ts,107,sql-name,cifrado,const { rows } = await a.dono.execute<{ nome: string; valor_cifrado: string }>(sql`,,
+ddl,excluded,apps/api/tests/flow.test.ts,84,sql-name,desc,const { rows } = await cenario.dono.execute<Conversation>(sql`,,
+ddl,excluded,apps/api/tests/growth.test.ts,166,sql-name,usuario,}>(sql`,,
+ddl,excluded,apps/api/tests/input-expiration.test.ts,113,sql-name,desc,const { rows } = await cenario.dono.execute<Execution>(sql`,,
+ddl,excluded,apps/api/tests/integrations.test.ts,404,sql-name,asc,const log = await a.dono.execute<{ acao: string }>(sql`,,
+ddl,excluded,apps/api/tests/monitoring-conversations.test.ts,141,sql-name,desc,const { rows: log } = await a.dono.execute<{ depois: { acao: string } }>(sql`,,
+ddl,excluded,apps/api/tests/palavras-proibidas.test.ts,175,sql-name,asc,}>(sql`,,
+ddl,excluded,apps/api/tests/permissions-of-agent.test.ts,316,sql-name,desc,"const { rows } = await a.dono.execute<{ acao: string; depois: Record<string, unknown> | null }>(sql`",,
+ddl,excluded,apps/api/tests/priority.test.ts,128,sql-name,desc,const { rows } = await cenario.dono.execute<{ priority: string }>(sql`,,
+ddl,excluded,apps/api/tests/process-http-retomada.test.ts,124,sql-name,desc,const { rows } = await cenario.dono.execute<ProcessoHttp>(sql`,,
+ddl,excluded,apps/api/tests/queue-entry.test.ts,87,sql-name,desc,const { rows } = await cenario.dono.execute<Conversa>(sql`,,
+quoted-comment,classified,apps/api/src/controllers/desk.ts,168,comment,,/**,A,D-17
+quoted-comment,classified,apps/api/src/controllers/flow-functions.ts,28,comment,,"/** Flows that use the function, for the Builder's ""em uso em outros bots"" warning. */",A,D-17
+quoted-comment,classified,apps/api/src/controllers/messages-active.ts,39,comment,,"/** The ""Status geral"" panel defaults to the last 72 hours, as in the source. */",A,D-17
+quoted-comment,classified,apps/api/src/controllers/my-account.ts,61,comment,,/**,A,D-17
+quoted-comment,classified,apps/api/src/domain/builder-of-account.ts,54,comment,,"// both are provisional and ""minha conta"" can replace them.",A,D-17
+quoted-comment,classified,apps/api/src/domain/management/channel-of-flow.ts,124,comment,,/** 'Ativar número' links the channel to this bot; linking the same channel again is idempotent. */,A,D-17
+quoted-comment,classified,apps/api/src/domain/management/permissions-of-agent.ts,18,comment,,"/** Catalog permission 'Criar, editar e desativar usuário' governs changing others' permissions. */",A,D-17
+quoted-comment,classified,apps/api/src/domain/management/registrations.ts,41,comment,,"/** 'Gerenciar regras de fila, prioridade e SLA' from the catalog also covers these three operations. */",A,D-17
+quoted-comment,classified,apps/api/src/domain/management/settings.ts,21,comment,,/**,A,D-17
+quoted-comment,classified,apps/api/tests/flow-content.test.ts,69,comment,,"// The ""Conteúdo dinâmico"" card exactly as the Builder writes it (the shared core contract).",A,D-17
+quoted-comment,classified,apps/management-vite/src/estilos/global.css,876,comment,,/*,A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/actions-of-block.ts,31,comment,,"/** The menu label is ""ADICIONAR FERRAMENTAS"". */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/cabecalho-info.tsx,15,comment,,"/** A tag next to the title, such as the ""Novo"" badge on ""Biblioteca de funções"". */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/configuration-sections.ts,29,comment,,"/** A second literal paragraph, only ""Variáveis sensíveis"" has one. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/conteudo.ts,103,comment,,"/** The ""Instrução de validação"" (validation instruction) the editor suggests per rule. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/editor.css,1001,comment,,/*,A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-block.css,258,comment,,"/* Section divider between ""BIBLIOTECA DE FUNÇÕES"" / ""AÇÕES DE ENTRADA"" / ""AÇÕES DE SAÍDA"" (F-1.4 row 24). */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,75,comment,,"/** The Builder's single toast (F-6, D-56): action limits in ""Ações globais"", ""nada publicado"" in ""Versões"". */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-outputs.tsx,72,comment,,"// ""Exibir pesquisa de satisfação"" (D-08): a filter of the destination picker, one toggle per",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/queues-panel.ts,159,comment,,"/** ""Regra N"" with N one past the rule count, skipping names already taken. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/contract/members/tabela.tsx,17,comment,,"/** The account role label — ""Admin"", ""Pode editar"", ""Pode visualizar"". */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/contract/page.tsx,147,comment,,"{/* The ""Nome do contrato"" label they place above the name. */}",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/flow/channels/conexao.tsx,64,comment,,"/** ""Volte e cadastre agora."" — takes you back to the connection step. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/flow/growth/growth.css,540,comment,,"/* Labels ""Evento de conversão"" / ""Período analisado"": fs-14 + 20px icon. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/flow/integrations/integrations.css,750,comment,,"/* The ""Webhook criado. Copie o segredo agora"" panel — disappears after ""Já copiei"". */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/flow/settings/keys/tela.tsx,41,comment,,"/** The date in pt-BR, for the source's ""Data de criação"". */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/my-account/my-account.css,544,comment,,/*,A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/registrations/regras-sla-formulario.tsx,32,comment,,"// Editing doesn't send scope — see ""Decisão Pipe"" at the top of the file.",A,D-17
+quoted-comment,classified,apps/management-vite/tests/builder-functions.test.ts,59,comment,,"// The parameter becomes run's own parameter (fed by ""Variáveis de entrada""), so the call never",A,D-17
+quoted-comment,classified,apps/management-vite/tests/csv-history.test.ts,35,comment,,/*,A,D-17
+quoted-comment,classified,packages/contracts/src/management-flow.ts,213,comment,,"/** The `""Expiração do redirecionamento""` label gives redirect expiration in minutes; null for primary and persistent se",A,D-17
+quoted-comment,classified,packages/core/src/flow/commands.test.ts,131,comment,,"/** The export's ""Logica - Atendimento finalizado pelo cliente"" block, settings verbatim. */",A,D-17
+quoted-comment,classified,packages/core/src/flow/editor.ts,79,comment,,"// a newly created attendance block (the ""Saídas de atendimento"" have no destination",A,D-17
+quoted-comment,classified,packages/db/src/schema/identity.ts,102,comment,,"/** Null means onboarding is incomplete, and Management routes to ""minha conta"". */",A,D-17
+quoted-comment,classified,packages/ui/src/components/modal.tsx,82,comment,,"/** Blip's ""Carregar fluxo"" confirmation uses ""Sim""/""Não"" instead of ""Cancelar"" (F-2.1). */",A,D-17
+quoted-comment,classified,apps/api/src/domain/management/permissions-of-agent.ts,21,comment,,/**,A,D-17
+quoted-comment,classified,apps/api/src/domain/management/registrations.ts,43,comment,,/** Catalog permission: 'Gerenciar horário de atendimento e feriado'. */,A,D-17
+quoted-comment,classified,apps/management-vite/src/estilos/global.css,1776,comment,,/*,A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/editor.css,1034,comment,,"/* The note between ""Baixar fluxo"" and ""Restaurar versão"": solid x-small info icon + 12px text. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-block.css,657,comment,,"/* ""BIBLIOTECA DE FUNÇÕES"" header row (F-1, CAPTURAS): ""Novo"" badge plus the two action buttons. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,84,comment,,"/** ""Biblioteca de funções"" inside ""Ações globais"" switches to ""Funções"" without leaving the panel. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/flow/integrations/integrations.css,758,comment,,"/* Extra space above the headers block, inside ""Configurações avançadas"". */",A,D-17
+quoted-comment,classified,apps/management-vite/src/estilos/global.css,1990,comment,,/*,A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/editor.css,1044,comment,,"/* ""VERSÕES PUBLICADAS"" cards: 383×96, padding 24 16 24 24, radius 16, #393939, shadow. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-block.css,1062,comment,,"/* P8: ""Expirar entrada"" while the test contact waits in a block with an inactivity time. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,162,comment,,"/** Blip's ""Restaurar versão"" confirmation and messages (F-2.1); only this tab uses them. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/estilos/global.css,4766,comment,,/*,A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-block.css,1504,comment,,"/* ""Variáveis sensíveis"": save/load failure under a row. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,252,comment,,"/** ""Restaurar versão"" (list item, F-2.1): restores the latest publication, or warns there is none. */",A,D-17
+quoted-comment,excluded,.dockerignore,1,comment,,# O contexto de build de toda imagem do Pipe é a raiz do monorepo — é a única,,
+quoted-comment,excluded,apps/api/Dockerfile,4,comment,,"# node:22-alpine, não 20: o `engines` da raiz exige `>=22` (o README ainda diz 20,",,
+quoted-comment,excluded,apps/api/src/app.modulo.ts,46,comment,,/**,,
+quoted-comment,excluded,apps/api/src/authentication.ts,14,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/accounts.ts,5,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/attachments.ts,12,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/catalogo.ts,52,comment,,"/** `PATCH /v1/contatos/:id`: missing fields are unchanged; `null` clears a field, except `atributos`, which merges. */",,
+quoted-comment,excluded,apps/api/src/controllers/channels-instagram.ts,9,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/channels-messenger.ts,4,comment,,"/** With `fluxo_id`, bot permission applies and the channel is linked to that bot (`conexao-no-fluxo.ts`). */",,
+quoted-comment,excluded,apps/api/src/controllers/channels.ts,25,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/connection-in-flow.ts,10,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/conversations.ts,23,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/convites.ts,9,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/crm.ts,11,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/desk.ts,21,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/etiquetas.ts,18,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/imports.ts,14,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/login.ts,35,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/management-account.ts,31,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/management-analytics.ts,33,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/management-builder.ts,26,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/management-flow.ts,91,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/management-integrations.ts,30,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/management-operations.ts,35,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/management-registrations.ts,33,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/management-team.ts,20,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/messages-active.ts,15,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/my-account.ts,11,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/operations.ts,8,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/rastreador-de-cliques.ts,13,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/redirect.ts,6,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/satisfaction-surveys.ts,8,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/sso.ts,40,comment,,/**,,
+quoted-comment,excluded,apps/api/src/controllers/webhooks-instagram.ts,60,comment,,/** Return 404 for a channel that is not Instagram; a WhatsApp URL must not accept Direct traffic. */,,
+quoted-comment,excluded,apps/api/src/controllers/webhooks-whatsapp.ts,69,comment,,/**,,
+quoted-comment,excluded,apps/api/src/database.ts,5,comment,,/**,,
+quoted-comment,excluded,apps/api/src/delayed-jobs.ts,5,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/assumir.ts,6,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/attachment.ts,21,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/builder-of-account.ts,7,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/channels.ts,11,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/conversation.ts,12,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/convites.ts,10,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/desk-commands.ts,5,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/desk-write-commands.ts,7,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/desk/actions.ts,16,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/desk/consultas.ts,22,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/desk/metrics.ts,6,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/desk/taggings.ts,5,comment,,/**,,
+quoted-comment,excluded,apps/api/src/domain/dictionary-crm.ts,8,comment,,/**,,
+product-string-literal,excluded,apps/api/src/controllers/convites.ts,13,string-literal,convites,@Controller('v1/convites'),,
+product-string-literal,excluded,apps/api/src/controllers/etiquetas.ts,34,string-literal,etiquetas,@Controller('v1/etiquetas'),,
+product-string-literal,excluded,apps/api/src/controllers/redirect.ts,11,string-literal,codigo,@Get(':codigo'),,
+product-string-literal,excluded,apps/api/src/controllers/sso.ts,108,string-literal,testar,@Get('sso/testar'),,
+product-string-literal,excluded,apps/api/src/controllers/webhooks-instagram.ts,16,string-literal,canal,@Get(':canalId'),,
+product-string-literal,excluded,apps/api/src/controllers/webhooks-messenger.ts,4,string-literal,canal,"@Get(':canalId') async verificar(@Param('canalId') id:string,@Query('hub.mode') modo:string|undefined,@Query('hub.verify",,
+product-string-literal,excluded,apps/api/src/controllers/webhooks-whatsapp.ts,17,string-literal,canal,@Get(':canalId'),,
+product-string-literal,excluded,apps/api/src/queues.ts,72,string-literal,entrada,"await queueInbound.add('entrada', { channelId, payload }, { removeOnComplete: 1_000 });",,
+product-string-literal,excluded,apps/api/tests/accounts.test.ts,49,string-literal,desligada,"it('desligada, que é o padrão: 404, e nada é criado — é a venda assistida', async () => {",,
+product-string-literal,excluded,apps/api/tests/analytics.test.ts,201,string-literal,geral,"describe('Visão Geral', () => {",,
+product-string-literal,excluded,apps/api/tests/attachments-multiplos.test.ts,221,string-literal,anexo,"it('Return 400 when `anexo_ids` is absent or empty', async () => {",,
+product-string-literal,excluded,apps/api/tests/attachments.test.ts,96,string-literal,fora,"it('recusa tipo fora da lista da Blip', async () => {",,
+product-string-literal,excluded,apps/api/tests/builder-by-flow.test.ts,326,string-literal,automacao,"it('Return 403 without `automacao.fluxo.editar` and 404 for invalid or cross-tenant IDs', async () => {",,
+product-string-literal,excluded,apps/api/tests/builder-test-run.test.ts,458,string-literal,automacao,"it('403 without `automacao.fluxo.editar`, 404 for another tenant or an invalid id', async () => {",,
+product-string-literal,excluded,apps/api/tests/channel-of-flow.test.ts,337,string-literal,fluxo,"describe('Connect a new channel to a bot using `fluxo_id`', () => {",,
+product-string-literal,excluded,apps/api/tests/channels.test.ts,143,string-literal,cadastro,"describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o dublê', () => {",,
+product-string-literal,excluded,apps/api/tests/configuration-of-flow.test.ts,191,string-literal,automacao,"it('Return 403 without `automacao.fluxo.editar` and 404 for invalid or cross-tenant IDs', async () => {",,
+product-string-literal,excluded,apps/api/tests/contacts-editar.test.ts,143,string-literal,mudou,"it('edita nome, e-mail e telefone, e registra só o que mudou', async () => {",,
+product-string-literal,excluded,apps/api/tests/contract.test.ts,184,string-literal,conta,"it('List each member\'s role and reject users without conta.membros.ler', async () => {",,
+product-string-literal,excluded,apps/api/tests/conversation-events.test.ts,201,string-literal,iniciada,"it('Record `espera_iniciada` when a conversation enters the waiting state', async () => {",,
+product-string-literal,excluded,apps/api/tests/convites.test.ts,138,string-literal,convites,"describe('POST /v1/convites', () => {",,
+product-string-literal,excluded,apps/api/tests/cycle-of-lifetime-of-flow.test.ts,223,string-literal,cada,"it('saneia o nome como a origem faz a cada tecla, e o shortName sai do nome limpo', async () => {",,
+product-string-literal,excluded,apps/api/tests/desk-actions.test.ts,128,string-literal,fechada,"describe('POST /v1/desk/actions/:action — lista fechada e sessão obrigatória', () => {",,
+product-string-literal,excluded,apps/api/tests/desk-availability.test.ts,148,string-literal,merge,"it('a MergeContact extras.teams before the handoff sends the ticket to that queue', async () => {",,
+product-string-literal,excluded,apps/api/tests/desk-write-commands.test.ts,110,string-literal,atendimento,"it(""runs the export's 'Atendimento finalizado pelo cliente' chain: change-status by sequentialId, then /close"", async ()",,
+product-string-literal,excluded,apps/api/tests/dictionary-crm.test.ts,93,string-literal,contra,"describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', () => {",,
+product-string-literal,excluded,apps/api/tests/email.test.ts,152,string-literal,padrao,"it('no modo padrão é o dublê, e o dublê registra o que enviou', async () => {",,
+product-string-literal,excluded,apps/api/tests/engine-services.test.ts,71,string-literal,fila,"it('refuses agent-only states and routes na_fila to a rule-decided entry', async () => {",,
+product-string-literal,excluded,apps/api/tests/envio-session.test.ts,126,string-literal,atendente,"it('Ignore agent IDs in the request body so users cannot impersonate colleagues (`atendente_id`)', async () => {",,
+product-string-literal,excluded,apps/api/tests/etiquetas.test.ts,155,string-literal,etiquetas,"describe('GET /v1/etiquetas — o catálogo do tenant', () => {",,
+product-string-literal,excluded,apps/api/tests/flow-content.test.ts,143,string-literal,cinco,"describe('bot entrega os cinco tipos do slot conteudo-midia', () => {",,
+product-string-literal,excluded,apps/api/tests/flow.test.ts,111,string-literal,com,"describe('bot com o dublê do WhatsApp', () => {",,
+product-string-literal,excluded,apps/api/tests/growth.test.ts,74,string-literal,codigo,"it('cadastra o link e gera o código curto', async () => {",,
+product-string-literal,excluded,apps/api/tests/history.test.ts,48,string-literal,nao,"it('usa os últimos 30 dias, incluindo hoje, quando não recebe datas', async () => {",,
+product-string-literal,excluded,apps/api/tests/import.test.ts,90,string-literal,com,"describe('telefone em E.164, com o nono dígito do Brasil', () => {",,
+product-string-literal,excluded,apps/api/tests/inbound-phone.test.ts,85,string-literal,celular,"it('fixo não ganha 9: só a faixa de celular é normalizada', async () => {",,
+product-string-literal,excluded,apps/api/tests/inbound.test.ts,106,string-literal,sem,"it('sem cookie, 401', async () => {",,
+product-string-literal,excluded,apps/api/tests/instagram.test.ts,138,string-literal,subscribe,"it('Create a channel and inbox, encrypt secrets, subscribe the webhook, and return its credentials', async () => {",,
+product-string-literal,excluded,apps/api/tests/integrations.test.ts,180,string-literal,chaves,"it('sem nome é 400; no limite de 3 chaves vivas, a quarta é 400', async () => {",,
+product-string-literal,excluded,apps/api/tests/jsonb-compat.test.ts,233,string-literal,bloco,"it('um fluxo remontado com bloco.conteudo/posicao e transicao.condicao das fixtures roda uma entrada fixa', async () => ",,
+product-string-literal,excluded,apps/api/tests/key-of-flow.test.ts,170,string-literal,chave,"it('Return 403 with `chave_de_fluxo` for flow keys on nonflow routes while allowing account keys', () => {",,
+product-string-literal,excluded,apps/api/tests/media-received.test.ts,131,string-literal,aceita,"it('aceita os hosts documentados, só em https', () => {",,
+product-string-literal,excluded,apps/api/tests/messages-active.test.ts,200,string-literal,nada,"describe('recusas — e o disparo nunca é tudo-ou-nada', () => {",,
+product-string-literal,excluded,apps/api/tests/messenger.test.ts,31,string-literal,echoes,"it('Translate Messenger PSIDs, postbacks, and media while ignoring echoes', () => {",,
+product-string-literal,excluded,apps/api/tests/monitoring-conversations.test.ts,132,string-literal,deixa,"it('lê a prévia, grava nota e deixa auditoria', async () => {",,
+product-string-literal,excluded,apps/api/tests/monitoring-summary.test.ts,31,string-literal,fill,"it('Fill all 24 hourly slots with zeroes where the database returned no data', () => {",,
+product-string-literal,excluded,apps/api/tests/palavras-proibidas.test.ts,189,string-literal,palavras,"describe('encontrarPalavrasProibidas — a régua de §3.4', () => {",,
+product-string-literal,excluded,apps/api/tests/permissions-of-agent.test.ts,298,string-literal,gerenciar,"it('Prevent users without `usuario.gerenciar` from editing any agent\'s permissions', async () => {",,
+product-string-literal,excluded,apps/api/tests/ponta-a-ponta.test.ts,86,string-literal,com,"it('recusa desafio com verify_token errado', async () => {",,
+product-string-literal,excluded,apps/api/tests/priority.test.ts,80,string-literal,prioridade,"it('Return null when no priority rule matches (`sem_prioridade`)', () => {",,
+product-literal-value,classified,apps/api/src/domain/management/colors-of-queue.ts,10,literal-value,escuro,"{ valor: 'grafico-5', rotulo: 'Verde escuro' },",A,STD-10
+product-literal-value,classified,apps/api/src/domain/management/history.ts,213,literal-value,agrupamento,"{ chave: 'nenhum', rotulo: 'Sem agrupamento' },",A,STD-10
+product-literal-value,classified,apps/api/src/provision.ts,22,literal-value,almoco,"{ nome: 'Almoço', duracaoSugeridaMin: 60, contaComoProdutivo: false },",A,STD-10
+product-literal-value,classified,apps/crm/src/lib/leads-visao.ts,82,literal-value,agrupamento,"{ chave: 'nenhum', rotulo: 'Sem agrupamento' },",A,STD-10
+product-literal-value,classified,apps/crm/src/lib/settings-comum.ts,115,literal-value,nao,"{ codigo: 'booleano', rotulo: 'Sim ou não' },",A,STD-10
+product-literal-value,classified,apps/management-vite/src/components/monitoring-detailed.tsx,30,literal-value,atendimento,"{ chave: 'aguardando', rotulo: 'Aguardando atendimento' },",A,STD-10
+product-literal-value,classified,apps/management-vite/src/lib/csv-history.ts,17,literal-value,situacao,"'Situação',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/lib/history.ts,73,literal-value,agrupamento,"{ chave: 'nenhum', rotulo: 'Sem agrupamento' },",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder.tsx,73,literal-value,fluxo,"padrao: 'Fluxo padrão',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/actions-of-block.ts,318,literal-value,acoes,"aba: 'Ações',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/conditions.ts,11,literal-value,usuario,"{ valor: 'input', rotulo: 'Resposta do usuário' },",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/configuration-sections.ts,43,literal-value,confiabilidade,"titulo: 'CONFIABILIDADE DE IA',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/conteudo.ts,23,literal-value,conteudo,"aba: 'Conteúdo',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/import-exportar.ts,12,literal-value,arquivo,"arquivoInvalido: 'O arquivo especificado não contém um fluxo válido para importação',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/model.ts,110,literal-value,condicoes,"limiteDeSaidas: 'Limite de 25 condições de saída atingidos',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,165,literal-value,alteracoes,"'Ao restaurar a última versão publicada, as alterações no fluxo principal serão perdidas, enquanto as alterações nos sub",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/queues-panel.ts,25,literal-value,com,export type QueueNameError = 'Você precisa dar um nome para essa fila' | 'Já existe uma fila com esse nome.' | 'reservad,A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/system-variables.ts,27,literal-value,apenas,"{ nome: 'agent.firstName', descricao: 'O primeiro nome do atendente (visível apenas em respostas prontas no Desk).', sup",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/contract/catalogo.ts,12,literal-value,configuracoes,"titulo: 'Configurações gerais',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/contract/certificates/tela.tsx,30,literal-value,mtls,"titulo: 'Certificados MTLS',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/contract/members/tabela.tsx,41,literal-value,papel,"escolhaOPapel: 'Escolha o papel',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/create/casco.tsx,26,literal-value,contato,"precisaDeAjuda: 'Precisa de ajuda para desenvolver o contato inteligente da sua empresa?',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/create/flow/regras.ts,14,literal-value,criar,"tagline: 'Criar fluxo',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/create/router/regras.ts,25,literal-value,criar,"tagline: 'Criar roteador',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/flow/analytics/active-messages/miolo.tsx,81,literal-value,audiencia,"enviadas: ['Enviadas', 'Todas as mensagens enviadas à audiência'],",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/flow/analytics/data-dictionary/pages.tsx,218,literal-value,coluna,"const COLUNAS = ['Nome da coluna', 'Descrição'] as const;",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/flow/analytics/report-manager/tela.tsx,15,literal-value,ativas,"nome: 'Mensagens ativas',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/flow/itens.ts,62,literal-value,analise,"{ key: 'analysis', rotulo: 'Análise', href: null },",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/my-account/regras.ts,61,literal-value,das,"funcionarios: 'Escolha uma das faixas da lista.',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/operation/reports-attendance.tsx,55,literal-value,tempo,"'Tempo médio da 1ª resposta',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/updates/conteudo.ts,21,literal-value,automacao,"export const CATEGORIAS = ['Todas as categorias', 'Portal', 'Atendimento', 'Automação'] as const;",A,STD-10
+product-literal-value,classified,packages/db/src/seed.ts,16,literal-value,conversas,"['conversa.ver', 'conversa', 'Ver conversas das filas em que participa'],",A,STD-10
+product-literal-value,classified,apps/api/src/domain/management/history.ts,213,literal-value,sem,"{ chave: 'nenhum', rotulo: 'Sem agrupamento' },",A,STD-10
+product-literal-value,classified,apps/crm/src/lib/leads-visao.ts,82,literal-value,sem,"{ chave: 'nenhum', rotulo: 'Sem agrupamento' },",A,STD-10
+product-literal-value,classified,apps/crm/src/lib/settings-comum.ts,167,literal-value,alterar,"{ codigo: 'conversas:escrever', rotulo: 'Criar e alterar conversa' },",A,STD-10
+product-literal-value,classified,apps/management-vite/src/lib/history.ts,73,literal-value,sem,"{ chave: 'nenhum', rotulo: 'Sem agrupamento' },",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder.tsx,73,literal-value,padrao,"padrao: 'Fluxo padrão',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/actions-of-block.ts,319,literal-value,acoes,"entrada: 'Ações de Entrada',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/conditions.ts,12,literal-value,variavel,"{ valor: 'context', rotulo: 'Variável' },",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/configuration-sections.ts,45,literal-value,confiabilidade,"'Defina o percentual de confiabilidade de uma intenção para ser considerada uma resposta válida.',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/conteudo.ts,27,literal-value,quick,"quickReply: 'Quick reply',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/import-exportar.ts,12,literal-value,fluxo,"arquivoInvalido: 'O arquivo especificado não contém um fluxo válido para importação',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/model.ts,110,literal-value,limite,"limiteDeSaidas: 'Limite de 25 condições de saída atingidos',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,165,literal-value,com,"'Ao restaurar a última versão publicada, as alterações no fluxo principal serão perdidas, enquanto as alterações nos sub",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/queues-panel.ts,25,literal-value,dar,export type QueueNameError = 'Você precisa dar um nome para essa fila' | 'Já existe uma fila com esse nome.' | 'reservad,A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/system-variables.ts,27,literal-value,atendente,"{ nome: 'agent.firstName', descricao: 'O primeiro nome do atendente (visível apenas em respostas prontas no Desk).', sup",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/contract/catalogo.ts,12,literal-value,gerais,"titulo: 'Configurações gerais',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/contract/certificates/tela.tsx,31,literal-value,listagem,"subtitulo: 'Listagem de certificados MTLS',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/contract/members/tabela.tsx,43,literal-value,membro,"mensagemDeExclusao: 'Tem certeza que deseja excluir esse(s) membro(s)?',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/create/casco.tsx,26,literal-value,para,"precisaDeAjuda: 'Precisa de ajuda para desenvolver o contato inteligente da sua empresa?',",A,STD-10
+product-literal-value,excluded,apps/api/src/controllers/catalogo.ts,296,literal-value,atendimento,}>(sql`,,
+product-literal-value,excluded,apps/api/src/controllers/login.ts,254,literal-value,senha,await databaseOwner().execute(sql`,,
+product-literal-value,excluded,apps/api/src/controllers/management-account.ts,49,literal-value,convite,type: 'usuario' | 'convite';,,
+product-literal-value,excluded,apps/api/src/controllers/management-analytics.ts,67,literal-value,interacao,lista: { type: 'interacao' | 'rejeicao'; nomes: string[] } | null;,,
+product-literal-value,excluded,apps/api/src/controllers/management-flow.ts,130,literal-value,fluxo,type: 'fluxo' | 'roteador';,,
+product-literal-value,excluded,apps/api/src/controllers/my-account.ts,25,literal-value,mais,"'mais de 10.000',",,
+product-literal-value,excluded,apps/api/src/domain/assumir.ts,21,literal-value,fila,const { rowCount } = await tx.execute(sql`,,
+product-literal-value,excluded,apps/api/src/domain/attachment.ts,51,literal-value,documento,tipo: 'imagem' | 'audio' | 'video' | 'documento';,,
+product-literal-value,excluded,apps/api/src/domain/builder-commands.ts,43,literal-value,arquivado,const { rows } = await tx.execute<{ id: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/channels.ts,26,literal-value,desligado,state: 'conectado' | 'desligado' | 'indisponivel';,,
+product-literal-value,excluded,apps/api/src/domain/conversation.ts,179,literal-value,conversa,const { rows: obrigatorias } = await tx.execute<{ id: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/convites.ts,321,literal-value,conta,await tx.execute(sql`,,
+product-literal-value,excluded,apps/api/src/domain/desk-commands.ts,91,literal-value,fila,const { rows } = await tx.execute<TicketRow>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/desk/actions.ts,183,literal-value,fila,const { rows } = await tx.execute<{ id: string; queueId: string | null }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/desk/consultas.ts,191,literal-value,entrada,direction: 'entrada' | 'saida' | 'interna';,,
+product-literal-value,excluded,apps/api/src/domain/desk/taggings.ts,52,literal-value,nao,"marca: 'fixada_em' | 'nao_lida_em',",,
+product-literal-value,excluded,apps/api/src/domain/dictionary-crm.ts,15,literal-value,sem,export const SEM_CRM = 'sem_crm' as const;,,
+product-literal-value,excluded,apps/api/src/domain/distribution.ts,26,literal-value,atendente,const { rows } = await tx.execute<LineAgent>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/engine-services.ts,36,literal-value,baixa,"const PRIORITY_LEVELS = ['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'] as const;",,
+product-literal-value,excluded,apps/api/src/domain/envio.ts,19,literal-value,localizacao,export type TipoEnvio = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'localizacao' | 'template';,,
+product-literal-value,excluded,apps/api/src/domain/flow.ts,81,literal-value,arquivado,const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/import-of-contacts.ts,69,literal-value,pronta,const { rows } = await tx.execute<{ id: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/inbound.ts,238,literal-value,contato,const { rows: criada } = await tx.execute<{ id: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/instagram/channel.ts,29,literal-value,desligado,state: 'conectado' | 'desligado' | 'indisponivel';,,
+product-literal-value,excluded,apps/api/src/domain/instagram/renewal.ts,15,literal-value,renovado,export type ResultOfRenewal = 'renovado' | 'early_excessive' | 'expired' | 'refused';,,
+product-literal-value,excluded,apps/api/src/domain/management-analytics.ts,70,literal-value,entrada,}>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/management-flow.ts,27,literal-value,username,export const identifierOfChannel = sql<string | null>`coalesce(,,
+product-literal-value,excluded,apps/api/src/domain/management/builder-of-flow.ts,50,literal-value,arquivado,const { rows } = await tx.execute<{ id: string; name: string; type: string; state: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/management/certificados.ts,19,literal-value,expirado,export type StatusDoCertificado = 'valido' | 'expirado' | 'without_file';,,
+product-literal-value,excluded,apps/api/src/domain/management/colors-of-queue.ts,6,literal-value,grafico,"{ valor: 'grafico-1', rotulo: 'Sage' },",,
+product-literal-value,excluded,apps/api/src/domain/management/communication.ts,46,literal-value,documento,"export const CABECALHOS_TEMPLATE = ['nenhum', 'texto', 'imagem', 'video', 'documento'] as const;",,
+product-literal-value,excluded,apps/api/src/domain/management/contract.ts,96,literal-value,convite,tipo: 'usuario' | 'convite';,,
+product-literal-value,excluded,apps/api/src/domain/management/cycle-of-lifetime-of-flow.ts,29,literal-value,fluxo,type: 'fluxo' | 'roteador';,,
+product-literal-value,excluded,apps/api/src/domain/management/deployment.ts,40,literal-value,administrador,const access = await um<{ v: boolean }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/management/flow-functions.ts,157,literal-value,arquivado,"const { rows } = await tx.execute<FlowFunctionUsage & Record<string, unknown>>(sql`",,
+product-literal-value,excluded,apps/api/src/domain/management/flow-resources.ts,73,literal-value,arquivado,const { rows } = await tx.execute<{ id: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/management/flow-secrets.ts,73,literal-value,arquivado,const { rows } = await tx.execute<{ id: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/management/format.ts,104,literal-value,domingo,"'Domingo',",,
+product-literal-value,excluded,apps/api/src/domain/management/history.ts,213,literal-value,nenhum,"{ chave: 'nenhum', rotulo: 'Sem agrupamento' },",,
+product-literal-value,excluded,apps/api/src/domain/management/integrations.ts,36,literal-value,arquivado,const { rows } = await tx.execute<{ id: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/management/monitoring.ts,168,literal-value,mensagem,itens: { id: string; at: Date | string; type: 'mensagem' | 'nota'; direction?: string; texto: string; autor?: string | n,,
+product-literal-value,excluded,apps/api/src/domain/management/pesquisa.ts,5,literal-value,nps,"export const TIPOS_DE_PESQUISA = ['csat', 'nps'] as const;",,
+product-literal-value,excluded,apps/api/src/domain/management/rules-priority.ts,46,literal-value,fila,"const SCOPES_PRIORITY_SUPPORTED = ['tenant', 'fila'] as const;",,
+product-literal-value,excluded,apps/api/src/domain/management/sla-motor.ts,310,literal-value,alertado,const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/management/sla.ts,23,literal-value,cumprido,export type StatePill = 'inside' | 'alert' | 'exceeded' | 'without_rule' | 'cumprido';,,
+product-literal-value,excluded,apps/api/src/domain/message-active.ts,27,literal-value,invalido,| 'numero_invalido',,
+product-literal-value,excluded,apps/api/src/domain/messenger/channel.ts,12,literal-value,desligado,export interface ChannelMessengerVisible { id: string; name: string; active: boolean; paginaId: string | null; state: 'c,,
+product-literal-value,excluded,apps/api/src/domain/queue-entry.ts,37,literal-value,entrada,origin: 'fluxo' | 'entrada' | 'transferencia';,,
+product-literal-value,excluded,apps/api/src/domain/router.ts,42,literal-value,publicada,const { rows: servicos } = await tx.execute<LineOfService>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/scheduling-commands.ts,30,literal-value,falhou,export type ScheduleState = 'agendada' | 'executada' | 'cancelada' | 'falhou';,,
+migration-path,classified,packages/db/drizzle/0000_fundacao.sql,1,path,0000,packages/db/drizzle/0000_fundacao.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0002_particoes.sql,1,path,0002,packages/db/drizzle/0002_particoes.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0003_chaves_cruzadas.sql,1,path,chaves,packages/db/drizzle/0003_chaves_cruzadas.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0004_canal_instagram.sql,1,path,0004,packages/db/drizzle/0004_canal_instagram.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0005_mensagem_dados.sql,1,path,0005,packages/db/drizzle/0005_mensagem_dados.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0007_tenant_implantacao.sql,1,path,0007,packages/db/drizzle/0007_tenant_implantacao.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0008_canal_roteamento.sql,1,path,0008,packages/db/drizzle/0008_canal_roteamento.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0010_convite.sql,1,path,0010,packages/db/drizzle/0010_convite.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0012_espelho_twenty.sql,1,path,0012,packages/db/drizzle/0012_espelho_twenty.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0013_prioridade_cinco_degraus.sql,1,path,0013,packages/db/drizzle/0013_prioridade_cinco_degraus.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0014_motor_de_fluxo.sql,1,path,0014,packages/db/drizzle/0014_motor_de_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0015_dicionario_twenty.sql,1,path,0015,packages/db/drizzle/0015_dicionario_twenty.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0016_entrada_do_cliente.sql,1,path,0016,packages/db/drizzle/0016_entrada_do_cliente.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0017_conta_por_autosservico.sql,1,path,0017,packages/db/drizzle/0017_conta_por_autosservico.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0018_fluxo_e_roteador.sql,1,path,0018,packages/db/drizzle/0018_fluxo_e_roteador.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0019_permissoes_da_conta.sql,1,path,0019,packages/db/drizzle/0019_permissoes_da_conta.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0020_fluxo_imagem_e_short_name.sql,1,path,0020,packages/db/drizzle/0020_fluxo_imagem_e_short_name.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0021_papel_da_conta.sql,1,path,conta,packages/db/drizzle/0021_papel_da_conta.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0022_fluxo_descricao.sql,1,path,0022,packages/db/drizzle/0022_fluxo_descricao.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0023_permissao_excluir_fluxo.sql,1,path,0023,packages/db/drizzle/0023_permissao_excluir_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0024_roteador_servicos.sql,1,path,0024,packages/db/drizzle/0024_roteador_servicos.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0030_permissoes_cadastros_atendimento.sql,1,path,0030,packages/db/drizzle/0030_permissoes_cadastros_atendimento.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0031_configuracao_do_fluxo.sql,1,path,0031,packages/db/drizzle/0031_configuracao_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0032_integracoes_fluxo.sql,1,path,0032,packages/db/drizzle/0032_integracoes_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0033_download_de_midia.sql,1,path,0033,packages/db/drizzle/0033_download_de_midia.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0034_permissao_publicar_fluxo.sql,1,path,0034,packages/db/drizzle/0034_permissao_publicar_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0035_equipe_do_fluxo.sql,1,path,0035,packages/db/drizzle/0035_equipe_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0036_webhook_autenticacao_e_cabecalhos.sql,1,path,autenticacao,packages/db/drizzle/0036_webhook_autenticacao_e_cabecalhos.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0039_certificado_mtls.sql,1,path,mtls,packages/db/drizzle/0039_certificado_mtls.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0040_indices_log_e_analise.sql,1,path,0040,packages/db/drizzle/0040_indices_log_e_analise.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0041_marcacao_de_conversa.sql,1,path,0041,packages/db/drizzle/0041_marcacao_de_conversa.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0042_palavra_proibida.sql,1,path,palavra,packages/db/drizzle/0042_palavra_proibida.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0043_canal_messenger.sql,1,path,0043,packages/db/drizzle/0043_canal_messenger.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0044_certificado_mtls_arquivo.sql,1,path,0044,packages/db/drizzle/0044_certificado_mtls_arquivo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0046_permissao_do_atendente.sql,1,path,0046,packages/db/drizzle/0046_permissao_do_atendente.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0047_pesquisa_satisfacao_resposta.sql,1,path,pesquisa,packages/db/drizzle/0047_pesquisa_satisfacao_resposta.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0048_funcao_do_fluxo.sql,1,path,fluxo,packages/db/drizzle/0048_funcao_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0049_acoes_plataforma.sql,1,path,acoes,packages/db/drizzle/0049_acoes_plataforma.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0050_rls_subconsulta_acoes_plataforma.sql,1,path,acoes,packages/db/drizzle/0050_rls_subconsulta_acoes_plataforma.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0052_recurso_do_fluxo.sql,1,path,fluxo,packages/db/drizzle/0052_recurso_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0053_agendamento_e_eventos.sql,1,path,agendamento,packages/db/drizzle/0053_agendamento_e_eventos.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0054_funcao_da_conta.sql,1,path,conta,packages/db/drizzle/0054_funcao_da_conta.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0055_variavel_secreta_do_fluxo.sql,1,path,fluxo,packages/db/drizzle/0055_variavel_secreta_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0056_expiracao_da_entrada.sql,1,path,entrada,packages/db/drizzle/0056_expiracao_da_entrada.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0000_fundacao.sql,1,path,fundacao,packages/db/drizzle/0000_fundacao.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0002_particoes.sql,1,path,particoes,packages/db/drizzle/0002_particoes.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0004_canal_instagram.sql,1,path,canal,packages/db/drizzle/0004_canal_instagram.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0005_mensagem_dados.sql,1,path,dados,packages/db/drizzle/0005_mensagem_dados.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0007_tenant_implantacao.sql,1,path,implantacao,packages/db/drizzle/0007_tenant_implantacao.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0008_canal_roteamento.sql,1,path,canal,packages/db/drizzle/0008_canal_roteamento.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0010_convite.sql,1,path,convite,packages/db/drizzle/0010_convite.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0012_espelho_twenty.sql,1,path,espelho,packages/db/drizzle/0012_espelho_twenty.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0013_prioridade_cinco_degraus.sql,1,path,cinco,packages/db/drizzle/0013_prioridade_cinco_degraus.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0014_motor_de_fluxo.sql,1,path,fluxo,packages/db/drizzle/0014_motor_de_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0015_dicionario_twenty.sql,1,path,dicionario,packages/db/drizzle/0015_dicionario_twenty.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0016_entrada_do_cliente.sql,1,path,entrada,packages/db/drizzle/0016_entrada_do_cliente.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0017_conta_por_autosservico.sql,1,path,autosservico,packages/db/drizzle/0017_conta_por_autosservico.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0018_fluxo_e_roteador.sql,1,path,fluxo,packages/db/drizzle/0018_fluxo_e_roteador.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0019_permissoes_da_conta.sql,1,path,conta,packages/db/drizzle/0019_permissoes_da_conta.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0020_fluxo_imagem_e_short_name.sql,1,path,fluxo,packages/db/drizzle/0020_fluxo_imagem_e_short_name.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0021_papel_da_conta.sql,1,path,papel,packages/db/drizzle/0021_papel_da_conta.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0022_fluxo_descricao.sql,1,path,descricao,packages/db/drizzle/0022_fluxo_descricao.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0023_permissao_excluir_fluxo.sql,1,path,fluxo,packages/db/drizzle/0023_permissao_excluir_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0024_roteador_servicos.sql,1,path,roteador,packages/db/drizzle/0024_roteador_servicos.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0030_permissoes_cadastros_atendimento.sql,1,path,atendimento,packages/db/drizzle/0030_permissoes_cadastros_atendimento.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0031_configuracao_do_fluxo.sql,1,path,configuracao,packages/db/drizzle/0031_configuracao_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0032_integracoes_fluxo.sql,1,path,fluxo,packages/db/drizzle/0032_integracoes_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0033_download_de_midia.sql,1,path,midia,packages/db/drizzle/0033_download_de_midia.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0034_permissao_publicar_fluxo.sql,1,path,fluxo,packages/db/drizzle/0034_permissao_publicar_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0035_equipe_do_fluxo.sql,1,path,equipe,packages/db/drizzle/0035_equipe_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0036_webhook_autenticacao_e_cabecalhos.sql,1,path,cabecalhos,packages/db/drizzle/0036_webhook_autenticacao_e_cabecalhos.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0040_indices_log_e_analise.sql,1,path,analise,packages/db/drizzle/0040_indices_log_e_analise.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0041_marcacao_de_conversa.sql,1,path,conversa,packages/db/drizzle/0041_marcacao_de_conversa.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0042_palavra_proibida.sql,1,path,proibida,packages/db/drizzle/0042_palavra_proibida.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0043_canal_messenger.sql,1,path,canal,packages/db/drizzle/0043_canal_messenger.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0044_certificado_mtls_arquivo.sql,1,path,arquivo,packages/db/drizzle/0044_certificado_mtls_arquivo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0046_permissao_do_atendente.sql,1,path,atendente,packages/db/drizzle/0046_permissao_do_atendente.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0047_pesquisa_satisfacao_resposta.sql,1,path,satisfacao,packages/db/drizzle/0047_pesquisa_satisfacao_resposta.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0048_funcao_do_fluxo.sql,1,path,funcao,packages/db/drizzle/0048_funcao_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0053_agendamento_e_eventos.sql,1,path,eventos,packages/db/drizzle/0053_agendamento_e_eventos.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0054_funcao_da_conta.sql,1,path,funcao,packages/db/drizzle/0054_funcao_da_conta.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0055_variavel_secreta_do_fluxo.sql,1,path,variavel,packages/db/drizzle/0055_variavel_secreta_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0056_expiracao_da_entrada.sql,1,path,expiracao,packages/db/drizzle/0056_expiracao_da_entrada.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0005_mensagem_dados.sql,1,path,mensagem,packages/db/drizzle/0005_mensagem_dados.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0008_canal_roteamento.sql,1,path,roteamento,packages/db/drizzle/0008_canal_roteamento.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0013_prioridade_cinco_degraus.sql,1,path,degraus,packages/db/drizzle/0013_prioridade_cinco_degraus.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0017_conta_por_autosservico.sql,1,path,conta,packages/db/drizzle/0017_conta_por_autosservico.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0018_fluxo_e_roteador.sql,1,path,roteador,packages/db/drizzle/0018_fluxo_e_roteador.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0019_permissoes_da_conta.sql,1,path,permissoes,packages/db/drizzle/0019_permissoes_da_conta.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0020_fluxo_imagem_e_short_name.sql,1,path,imagem,packages/db/drizzle/0020_fluxo_imagem_e_short_name.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0022_fluxo_descricao.sql,1,path,fluxo,packages/db/drizzle/0022_fluxo_descricao.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0023_permissao_excluir_fluxo.sql,1,path,permissao,packages/db/drizzle/0023_permissao_excluir_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0024_roteador_servicos.sql,1,path,servicos,packages/db/drizzle/0024_roteador_servicos.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0030_permissoes_cadastros_atendimento.sql,1,path,cadastros,packages/db/drizzle/0030_permissoes_cadastros_atendimento.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0031_configuracao_do_fluxo.sql,1,path,fluxo,packages/db/drizzle/0031_configuracao_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0032_integracoes_fluxo.sql,1,path,integracoes,packages/db/drizzle/0032_integracoes_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0034_permissao_publicar_fluxo.sql,1,path,permissao,packages/db/drizzle/0034_permissao_publicar_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0035_equipe_do_fluxo.sql,1,path,fluxo,packages/db/drizzle/0035_equipe_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0040_indices_log_e_analise.sql,1,path,indices,packages/db/drizzle/0040_indices_log_e_analise.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0041_marcacao_de_conversa.sql,1,path,marcacao,packages/db/drizzle/0041_marcacao_de_conversa.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0044_certificado_mtls_arquivo.sql,1,path,mtls,packages/db/drizzle/0044_certificado_mtls_arquivo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0046_permissao_do_atendente.sql,1,path,permissao,packages/db/drizzle/0046_permissao_do_atendente.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0013_prioridade_cinco_degraus.sql,1,path,prioridade,packages/db/drizzle/0013_prioridade_cinco_degraus.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0017_conta_por_autosservico.sql,1,path,por,packages/db/drizzle/0017_conta_por_autosservico.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0030_permissoes_cadastros_atendimento.sql,1,path,permissoes,packages/db/drizzle/0030_permissoes_cadastros_atendimento.sql,B,D-08
+migration-path,excluded,apps/api/src/controllers/convites.ts,1,path,convites,apps/api/src/controllers/convites.ts,,
+migration-path,excluded,apps/api/src/controllers/etiquetas.ts,1,path,etiquetas,apps/api/src/controllers/etiquetas.ts,,
+migration-path,excluded,apps/api/src/domain/assumir.ts,1,path,assumir,apps/api/src/domain/assumir.ts,,
+migration-path,excluded,apps/api/src/domain/convites.ts,1,path,convites,apps/api/src/domain/convites.ts,,
+migration-path,excluded,apps/api/src/domain/dominios.ts,1,path,dominios,apps/api/src/domain/dominios.ts,,
+migration-path,excluded,apps/api/src/domain/etiquetas.ts,1,path,etiquetas,apps/api/src/domain/etiquetas.ts,,
+migration-path,excluded,apps/api/src/domain/eventos.ts,1,path,eventos,apps/api/src/domain/eventos.ts,,
+migration-path,excluded,apps/api/src/domain/management/actions/campos.ts,1,path,campos,apps/api/src/domain/management/actions/campos.ts,,
+migration-path,excluded,apps/api/src/domain/management/actions/regras.ts,1,path,regras,apps/api/src/domain/management/actions/regras.ts,,
+migration-path,excluded,apps/api/src/domain/management/cabecalho.ts,1,path,cabecalho,apps/api/src/domain/management/cabecalho.ts,,
+migration-path,excluded,apps/api/src/domain/management/palavras-proibidas.ts,1,path,palavras,apps/api/src/domain/management/palavras-proibidas.ts,,
+migration-path,excluded,apps/api/src/domain/management/pesquisa.ts,1,path,pesquisa,apps/api/src/domain/management/pesquisa.ts,,
+migration-path,excluded,apps/api/src/domain/management/regras-de-nome.ts,1,path,regras,apps/api/src/domain/management/regras-de-nome.ts,,
+migration-path,excluded,apps/api/src/domain/management/regras-sla.ts,1,path,regras,apps/api/src/domain/management/regras-sla.ts,,
+migration-path,excluded,apps/api/src/domain/mtls.ts,1,path,mtls,apps/api/src/domain/mtls.ts,,
+migration-path,excluded,apps/api/src/domain/whatsapp/modelos.ts,1,path,modelos,apps/api/src/domain/whatsapp/modelos.ts,,
+migration-path,excluded,apps/api/src/domain/whatsapp/perfil.ts,1,path,perfil,apps/api/src/domain/whatsapp/perfil.ts,,
+migration-path,excluded,apps/api/src/domain/whatsapp/troca-de-token.ts,1,path,troca,apps/api/src/domain/whatsapp/troca-de-token.ts,,
+migration-path,excluded,apps/api/src/eventos-ws.ts,1,path,eventos,apps/api/src/eventos-ws.ts,,
+migration-path,excluded,apps/api/src/webhooks-saida.ts,1,path,saida,apps/api/src/webhooks-saida.ts,,
+migration-path,excluded,apps/api/tests/convites.test.ts,1,path,convites,apps/api/tests/convites.test.ts,,
+migration-path,excluded,apps/api/tests/etiquetas.test.ts,1,path,etiquetas,apps/api/tests/etiquetas.test.ts,,
+migration-path,excluded,apps/api/tests/fixtures/jsonb/golden/flow-resume.json,1,path,resume,apps/api/tests/fixtures/jsonb/golden/flow-resume.json,,
+migration-path,excluded,apps/api/tests/gerar-fixtures-jsonb.helper.ts,1,path,gerar,apps/api/tests/gerar-fixtures-jsonb.helper.ts,,
+migration-path,excluded,apps/api/tests/palavras-proibidas.test.ts,1,path,palavras,apps/api/tests/palavras-proibidas.test.ts,,
+migration-path,excluded,apps/api/tests/transferencia.test.ts,1,path,transferencia,apps/api/tests/transferencia.test.ts,,
+migration-path,excluded,apps/bridge/src/lime.ts,1,path,lime,apps/bridge/src/lime.ts,,
+migration-path,excluded,apps/crm/src/components/colunas.tsx,1,path,colunas,apps/crm/src/components/colunas.tsx,,
+migration-path,excluded,apps/crm/src/components/esqueleto.tsx,1,path,esqueleto,apps/crm/src/components/esqueleto.tsx,,
+migration-path,excluded,apps/crm/src/components/quadro-funil.tsx,1,path,quadro,apps/crm/src/components/quadro-funil.tsx,,
+migration-path,excluded,apps/crm/src/components/settings/cabecalho.tsx,1,path,cabecalho,apps/crm/src/components/settings/cabecalho.tsx,,
+migration-path,excluded,apps/crm/src/lib/campos-editaveis.ts,1,path,campos,apps/crm/src/lib/campos-editaveis.ts,,
+migration-path,excluded,apps/crm/src/lib/leads-visao.ts,1,path,visao,apps/crm/src/lib/leads-visao.ts,,
+migration-path,excluded,apps/crm/src/lib/regras.ts,1,path,regras,apps/crm/src/lib/regras.ts,,
+migration-path,excluded,apps/crm/tests/campos-editaveis.test.ts,1,path,campos,apps/crm/tests/campos-editaveis.test.ts,,
+migration-path,excluded,apps/crm/tests/colunas.test.ts,1,path,colunas,apps/crm/tests/colunas.test.ts,,
+migration-path,excluded,apps/desk-vite/src/pages/fundo-pipe.tsx,1,path,fundo,apps/desk-vite/src/pages/fundo-pipe.tsx,,
+migration-path,excluded,apps/desk-vite/src/pages/nao-encontrado.tsx,1,path,encontrado,apps/desk-vite/src/pages/nao-encontrado.tsx,,
+migration-path,excluded,apps/management-vite/src/components/filters-quick.tsx,1,path,quick,apps/management-vite/src/components/filters-quick.tsx,,
+migration-path,excluded,apps/management-vite/src/components/lista-regras.tsx,1,path,regras,apps/management-vite/src/components/lista-regras.tsx,,
+migration-path,excluded,apps/management-vite/src/components/metrica.tsx,1,path,metrica,apps/management-vite/src/components/metrica.tsx,,
+migration-path,excluded,apps/management-vite/src/lib/pesquisa.ts,1,path,pesquisa,apps/management-vite/src/lib/pesquisa.ts,,
+migration-path,excluded,apps/management-vite/src/pages/builder/cabecalho-info.tsx,1,path,cabecalho,apps/management-vite/src/pages/builder/cabecalho-info.tsx,,
+migration-path,excluded,apps/management-vite/src/pages/builder/conteudo.ts,1,path,conteudo,apps/management-vite/src/pages/builder/conteudo.ts,,
+migration-path,excluded,apps/management-vite/src/pages/create/flow/regras.ts,1,path,regras,apps/management-vite/src/pages/create/flow/regras.ts,,
+migration-path,excluded,apps/management-vite/src/pages/create/regras-de-nome.ts,1,path,regras,apps/management-vite/src/pages/create/regras-de-nome.ts,,
+migration-path,excluded,apps/management-vite/src/pages/create/router/regras.ts,1,path,regras,apps/management-vite/src/pages/create/router/regras.ts,,
+migration-path,excluded,apps/management-vite/src/pages/flow/analytics/journey/jornada.css,1,path,jornada,apps/management-vite/src/pages/flow/analytics/journey/jornada.css,,
+migration-path,excluded,apps/management-vite/src/pages/flow/analytics/journey/jornada.tsx,1,path,jornada,apps/management-vite/src/pages/flow/analytics/journey/jornada.tsx,,
+migration-path,excluded,apps/management-vite/src/pages/flow/analytics/overview/visao-geral.css,1,path,geral,apps/management-vite/src/pages/flow/analytics/overview/visao-geral.css,,
+site-path,classified,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp/index.html,1,path,atendimento,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/blog/index.html,1,path,blog,apps/site/blog/index.html,C,D-47
+site-path,classified,apps/site/blog/lista-de-transmissao-no-whatsapp/index.html,1,path,blog,apps/site/blog/lista-de-transmissao-no-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp/index.html,1,path,ausencia,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/blog/numero-de-whatsapp-banido/index.html,1,path,banido,apps/site/blog/numero-de-whatsapp-banido/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/agendador-de-mensagem-whatsapp/index.html,1,path,agendador,apps/site/ferramentas/agendador-de-mensagem-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/calculadora-de-nps/index.html,1,path,calculadora,apps/site/ferramentas/calculadora-de-nps/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/calculadora-de-taxas-do-ifood/index.html,1,path,calculadora,apps/site/ferramentas/calculadora-de-taxas-do-ifood/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/gerador-de-link-whatsapp/index.html,1,path,ferramentas,apps/site/ferramentas/gerador-de-link-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/gerador-de-qr-code-whatsapp/index.html,1,path,ferramentas,apps/site/ferramentas/gerador-de-qr-code-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/index.html,1,path,ferramentas,apps/site/ferramentas/index.html,C,D-47
+site-path,classified,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp/index.html,1,path,blog,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/blog/lista-de-transmissao-no-whatsapp/index.html,1,path,transmissao,apps/site/blog/lista-de-transmissao-no-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp/index.html,1,path,automatica,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/blog/numero-de-whatsapp-banido/index.html,1,path,blog,apps/site/blog/numero-de-whatsapp-banido/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/agendador-de-mensagem-whatsapp/index.html,1,path,ferramentas,apps/site/ferramentas/agendador-de-mensagem-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/calculadora-de-nps/index.html,1,path,ferramentas,apps/site/ferramentas/calculadora-de-nps/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/calculadora-de-taxas-do-ifood/index.html,1,path,ferramentas,apps/site/ferramentas/calculadora-de-taxas-do-ifood/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/gerador-de-link-whatsapp/index.html,1,path,gerador,apps/site/ferramentas/gerador-de-link-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/gerador-de-qr-code-whatsapp/index.html,1,path,gerador,apps/site/ferramentas/gerador-de-qr-code-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp/index.html,1,path,frases,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp/index.html,1,path,blog,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/agendador-de-mensagem-whatsapp/index.html,1,path,mensagem,apps/site/ferramentas/agendador-de-mensagem-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/calculadora-de-nps/index.html,1,path,nps,apps/site/ferramentas/calculadora-de-nps/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/calculadora-de-taxas-do-ifood/index.html,1,path,ifood,apps/site/ferramentas/calculadora-de-taxas-do-ifood/index.html,C,D-47
+site-path,classified,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp/index.html,1,path,para,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp/index.html,1,path,mensagem,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp/index.html,C,D-47
+site-path,classified,apps/site/ferramentas/calculadora-de-taxas-do-ifood/index.html,1,path,taxas,apps/site/ferramentas/calculadora-de-taxas-do-ifood/index.html,C,D-47
+site-path,classified,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp/index.html,1,path,prontas,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp/index.html,C,D-47
+site-path,excluded,apps/api/src/controllers/convites.ts,1,path,convites,apps/api/src/controllers/convites.ts,,
+site-path,excluded,apps/api/src/controllers/etiquetas.ts,1,path,etiquetas,apps/api/src/controllers/etiquetas.ts,,
+site-path,excluded,apps/api/src/domain/assumir.ts,1,path,assumir,apps/api/src/domain/assumir.ts,,
+site-path,excluded,apps/api/src/domain/convites.ts,1,path,convites,apps/api/src/domain/convites.ts,,
+site-path,excluded,apps/api/src/domain/dominios.ts,1,path,dominios,apps/api/src/domain/dominios.ts,,
+site-path,excluded,apps/api/src/domain/etiquetas.ts,1,path,etiquetas,apps/api/src/domain/etiquetas.ts,,
+site-path,excluded,apps/api/src/domain/eventos.ts,1,path,eventos,apps/api/src/domain/eventos.ts,,
+site-path,excluded,apps/api/src/domain/management/actions/campos.ts,1,path,campos,apps/api/src/domain/management/actions/campos.ts,,
+site-path,excluded,apps/api/src/domain/management/actions/regras.ts,1,path,regras,apps/api/src/domain/management/actions/regras.ts,,
+site-path,excluded,apps/api/src/domain/management/cabecalho.ts,1,path,cabecalho,apps/api/src/domain/management/cabecalho.ts,,
+site-path,excluded,apps/api/src/domain/management/palavras-proibidas.ts,1,path,palavras,apps/api/src/domain/management/palavras-proibidas.ts,,
+site-path,excluded,apps/api/src/domain/management/pesquisa.ts,1,path,pesquisa,apps/api/src/domain/management/pesquisa.ts,,
+site-path,excluded,apps/api/src/domain/management/regras-de-nome.ts,1,path,regras,apps/api/src/domain/management/regras-de-nome.ts,,
+site-path,excluded,apps/api/src/domain/management/regras-sla.ts,1,path,regras,apps/api/src/domain/management/regras-sla.ts,,
+site-path,excluded,apps/api/src/domain/mtls.ts,1,path,mtls,apps/api/src/domain/mtls.ts,,
+site-path,excluded,apps/api/src/domain/whatsapp/modelos.ts,1,path,modelos,apps/api/src/domain/whatsapp/modelos.ts,,
+site-path,excluded,apps/api/src/domain/whatsapp/perfil.ts,1,path,perfil,apps/api/src/domain/whatsapp/perfil.ts,,
+site-path,excluded,apps/api/src/domain/whatsapp/troca-de-token.ts,1,path,troca,apps/api/src/domain/whatsapp/troca-de-token.ts,,
+site-path,excluded,apps/api/src/eventos-ws.ts,1,path,eventos,apps/api/src/eventos-ws.ts,,
+site-path,excluded,apps/api/src/webhooks-saida.ts,1,path,saida,apps/api/src/webhooks-saida.ts,,
+site-path,excluded,apps/api/tests/convites.test.ts,1,path,convites,apps/api/tests/convites.test.ts,,
+site-path,excluded,apps/api/tests/etiquetas.test.ts,1,path,etiquetas,apps/api/tests/etiquetas.test.ts,,
+site-path,excluded,apps/api/tests/fixtures/jsonb/golden/flow-resume.json,1,path,resume,apps/api/tests/fixtures/jsonb/golden/flow-resume.json,,
+site-path,excluded,apps/api/tests/gerar-fixtures-jsonb.helper.ts,1,path,gerar,apps/api/tests/gerar-fixtures-jsonb.helper.ts,,
+site-path,excluded,apps/api/tests/palavras-proibidas.test.ts,1,path,palavras,apps/api/tests/palavras-proibidas.test.ts,,
+site-path,excluded,apps/api/tests/transferencia.test.ts,1,path,transferencia,apps/api/tests/transferencia.test.ts,,
+site-path,excluded,apps/bridge/src/lime.ts,1,path,lime,apps/bridge/src/lime.ts,,
+site-path,excluded,apps/crm/src/components/colunas.tsx,1,path,colunas,apps/crm/src/components/colunas.tsx,,
+site-path,excluded,apps/crm/src/components/esqueleto.tsx,1,path,esqueleto,apps/crm/src/components/esqueleto.tsx,,
+site-path,excluded,apps/crm/src/components/quadro-funil.tsx,1,path,quadro,apps/crm/src/components/quadro-funil.tsx,,
+site-path,excluded,apps/crm/src/components/settings/cabecalho.tsx,1,path,cabecalho,apps/crm/src/components/settings/cabecalho.tsx,,
+site-path,excluded,apps/crm/src/lib/campos-editaveis.ts,1,path,campos,apps/crm/src/lib/campos-editaveis.ts,,
+site-path,excluded,apps/crm/src/lib/leads-visao.ts,1,path,visao,apps/crm/src/lib/leads-visao.ts,,
+site-path,excluded,apps/crm/src/lib/regras.ts,1,path,regras,apps/crm/src/lib/regras.ts,,
+site-path,excluded,apps/crm/tests/campos-editaveis.test.ts,1,path,campos,apps/crm/tests/campos-editaveis.test.ts,,
+site-path,excluded,apps/crm/tests/colunas.test.ts,1,path,colunas,apps/crm/tests/colunas.test.ts,,
+site-path,excluded,apps/desk-vite/src/pages/fundo-pipe.tsx,1,path,fundo,apps/desk-vite/src/pages/fundo-pipe.tsx,,
+site-path,excluded,apps/desk-vite/src/pages/nao-encontrado.tsx,1,path,encontrado,apps/desk-vite/src/pages/nao-encontrado.tsx,,
+site-path,excluded,apps/management-vite/src/components/filters-quick.tsx,1,path,quick,apps/management-vite/src/components/filters-quick.tsx,,
+site-path,excluded,apps/management-vite/src/components/lista-regras.tsx,1,path,regras,apps/management-vite/src/components/lista-regras.tsx,,
+site-path,excluded,apps/management-vite/src/components/metrica.tsx,1,path,metrica,apps/management-vite/src/components/metrica.tsx,,
+site-path,excluded,apps/management-vite/src/lib/pesquisa.ts,1,path,pesquisa,apps/management-vite/src/lib/pesquisa.ts,,
+site-path,excluded,apps/management-vite/src/pages/builder/cabecalho-info.tsx,1,path,cabecalho,apps/management-vite/src/pages/builder/cabecalho-info.tsx,,
+site-path,excluded,apps/management-vite/src/pages/builder/conteudo.ts,1,path,conteudo,apps/management-vite/src/pages/builder/conteudo.ts,,
+site-path,excluded,apps/management-vite/src/pages/create/flow/regras.ts,1,path,regras,apps/management-vite/src/pages/create/flow/regras.ts,,
+site-path,excluded,apps/management-vite/src/pages/create/regras-de-nome.ts,1,path,regras,apps/management-vite/src/pages/create/regras-de-nome.ts,,
+site-path,excluded,apps/management-vite/src/pages/create/router/regras.ts,1,path,regras,apps/management-vite/src/pages/create/router/regras.ts,,
+site-path,excluded,apps/management-vite/src/pages/flow/analytics/journey/jornada.css,1,path,jornada,apps/management-vite/src/pages/flow/analytics/journey/jornada.css,,
+site-path,excluded,apps/management-vite/src/pages/flow/analytics/journey/jornada.tsx,1,path,jornada,apps/management-vite/src/pages/flow/analytics/journey/jornada.tsx,,
+site-path,excluded,apps/management-vite/src/pages/flow/analytics/overview/visao-geral.css,1,path,geral,apps/management-vite/src/pages/flow/analytics/overview/visao-geral.css,,

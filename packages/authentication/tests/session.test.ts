@@ -78,13 +78,33 @@ describe('Create and validate sessions', () => {
     const permitidas = origensPermitidas({
       PIPE_ORIGENS: 'https://gestao.pipe.com.br, https://app.pipe.com.br/',
     } as NodeJS.ProcessEnv);
-    expect(permitidas).toEqual(['https://gestao.pipe.com.br', 'https://app.pipe.com.br']);
+    expect(permitidas).toEqual({ fixed: ['https://gestao.pipe.com.br', 'https://app.pipe.com.br'], tenant: null });
     expect(origemPermitida('https://app.pipe.com.br', permitidas)).toBe(true);
     // A trailing slash must not cause rejection: browsers send origins without one, but environment values often include it.
     // costuma ser escrito com.
     expect(origemPermitida('https://app.pipe.com.br/', permitidas)).toBe(true);
     expect(origemPermitida('https://malicioso.example', permitidas)).toBe(false);
     expect(origemPermitida(undefined, permitidas)).toBe(false);
+  });
+
+  it('accepts only exact tenant origins with the configured scheme and port', () => {
+    const allowed = origensPermitidas({
+      PIPE_DOMINIO_CONTAS: 'pipe.test',
+      PIPE_ORIGENS: 'https://crm.pipe.test',
+    } as NodeJS.ProcessEnv);
+    for (const origin of [
+      'https://acme.pipe.test', 'https://acme.pipe.test/',
+      'https://acme.desk.pipe.test', 'https://crm.pipe.test',
+    ]) expect(origemPermitida(origin, allowed), origin).toBe(true);
+    for (const origin of [
+      'http://acme.pipe.test', 'https://acme.pipe.test:8443',
+      'https://api.pipe.test', 'https://desk.pipe.test',
+      'https://acme.pipe.test.evil.example', 'https://user@acme.pipe.test',
+      'https://acme.pipe.test/caminho', '',
+    ]) expect(origemPermitida(origin, allowed), origin).toBe(false);
+    expect(origemPermitida(null, allowed)).toBe(false);
+    expect(origemPermitida(undefined, allowed)).toBe(false);
+    expect(origemPermitida('https://qualquer.example', origensPermitidas({ PIPE_ORIGENS: '*' } as NodeJS.ProcessEnv))).toBe(false);
   });
 
   it('Compare tokens without leaking the length of a matching prefix', () => {

@@ -20,7 +20,7 @@ COPY tsconfig.base.json ./
 COPY packages packages
 COPY apps/desk-vite apps/desk-vite
 ARG VITE_BASE=/
-ARG VITE_URL_API=http://localhost:3010
+ARG VITE_URL_API=
 ENV VITE_BASE=$VITE_BASE
 ENV VITE_URL_API=$VITE_URL_API
 RUN pnpm --filter "@pipe/desk-vite..." build

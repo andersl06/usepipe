@@ -1,4 +1,5 @@
 import { Avatar } from '@pipe/ui';
+import { deriveBaseDomain } from '@pipe/contracts';
 import { useSair, accountUseSwitch, type PortalShell } from '../lib/shell';
 import { APPLICATION, tenantPath } from '../lib/application-paths';
 import { Link } from './link';
@@ -9,7 +10,7 @@ import { IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
  */
 
 /** Support email is the only external destination currently available. */
-const EMAIL_SUPORTE = 'suporte@usepipe.ai';
+const EMAIL_SUPORTE = (import.meta.env['VITE_PIPE_SUPPORT_EMAIL'] as string | undefined) ?? '';
 
 export function BarraDoPortal({ data }: { data: PortalShell }) {
   const accountSwitch = accountUseSwitch();
@@ -75,7 +76,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
                   <span>
                     {account.name}
                     {account.personal ? (
-                      <span className="pt-account-type">{account.slug}.usepipe.ai</span>
+                      <span className="pt-account-type">{account.slug}{deriveBaseDomain(window.location.hostname) ? `.${deriveBaseDomain(window.location.hostname)}` : ''}</span>
                     ) : (
                       <span className="pt-account-type">{account.plan}</span>
                     )}
@@ -119,10 +120,10 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
  * The reference `?` menu has Help, Academy, Community, Support. We currently have support and an upcoming community; show the latter dimmed with a blinking badge so the destination remains discoverable without a dead link.
  */}
           <div className="g-panel pt-menu">
-            <a href={`mailto:${EMAIL_SUPORTE}`}>
+            {EMAIL_SUPORTE ? <a href={`mailto:${EMAIL_SUPORTE}`}>
               <IconePortal nome="suporte" tamanho={20} />
               Pipe Suporte
-            </a>
+            </a> : <span><IconePortal nome="suporte" tamanho={20} /> Peça ajuda ao administrador da conta</span>}
             <ItemEmObra icone="comunidade" rotulo="Pipe Comunidade" />
           </div>
         </details>

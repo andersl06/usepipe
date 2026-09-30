@@ -2,11 +2,12 @@ import type { IncomingMessage, Server } from 'node:http';
 import type { Duplex } from 'node:stream';
 import { WebSocketServer } from 'ws';
 import type { WebSocket } from 'ws';
-import { hashDoToken, origemPermitida, origensPermitidas, resolveSession } from '@pipe/authentication';
+import { hashDoToken, origemPermitida, origensPermitidas, readTenantHostConfig, resolveSession } from '@pipe/authentication';
 import { ASSUNTOS } from '@pipe/contracts';
 import type { Assunto, EventoDoServidor, Subscription, QuadroDeControle } from '@pipe/contracts';
 import { databaseOwner } from './database.js';
 import { lerCookie, SESSION_COOKIE_NAME } from './session.js';
+import { resolveRequestTenantSlug } from './request-tenant.js';
 import { registrar } from './realtime.js';
 import type { Conexao } from './realtime.js';
 
@@ -62,6 +63,9 @@ export function connectChannelOfEvents(servidor: Server): ChannelOfEvents {
         if (!token) return recusar(socket, 401, 'Unauthorized');
         const session = await resolveSession(databaseOwner(), hashDoToken(token));
         if (!session) return recusar(socket, 401, 'Unauthorized');
+
+        const requestedSlug = resolveRequestTenantSlug({ host: request.headers.host, origin: request.headers.origin }, readTenantHostConfig());
+        if (requestedSlug && requestedSlug !== session.tenantSlug) return recusar(socket, 403, 'Forbidden');
 
         wss.handleUpgrade(request, socket, cabeca, (ws) => {
           void aoConectar(ws, session.tenantId, session.userId);

@@ -1,0 +1,35 @@
+# Domain mode: DNS-01 issues wildcard certificates without enumerating tenants.
+services:
+  traefik:
+    environment:
+      TRAEFIK_CERTIFICATESRESOLVERS_LE-DNS_ACME_EMAIL: ${ACME_EMAIL}
+      TRAEFIK_CERTIFICATESRESOLVERS_LE-DNS_ACME_STORAGE: /acme/acme-dns.json
+      TRAEFIK_CERTIFICATESRESOLVERS_LE-DNS_ACME_DNSCHALLENGE: 'true'
+      TRAEFIK_CERTIFICATESRESOLVERS_LE-DNS_ACME_DNSCHALLENGE_PROVIDER: cloudflare
+      TRAEFIK_CERTIFICATESRESOLVERS_LE-DNS_ACME_DNSCHALLENGE_RESOLVERS: 1.1.1.1:53,1.0.0.1:53
+      CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN}
+  api:
+    labels:
+      - traefik.http.routers.api.tls.certresolver=le-dns
+      - traefik.http.routers.api-tenant.tls.certresolver=le-dns
+  management-vite:
+    labels:
+      - traefik.http.routers.management.tls.certresolver=le-dns
+      - traefik.http.routers.management.tls.domains[0].main=*.${PIPE_DOMINIO_CONTAS}
+      - traefik.http.routers.login.tls.certresolver=le-dns
+  desk:
+    labels:
+      - traefik.http.routers.desk.tls.certresolver=le-dns
+      - traefik.http.routers.desk.tls.domains[0].main=*.desk.${PIPE_DOMINIO_CONTAS}
+  crm:
+    labels:
+      - traefik.http.routers.crm.tls.certresolver=le-dns
+  grafana:
+    labels:
+      - traefik.http.routers.grafana.tls.certresolver=le-dns
+  site:
+    labels:
+      - traefik.http.routers.site.tls.certresolver=le-dns
+      - traefik.http.routers.site.tls.domains[0].main=${PIPE_DOMINIO_CONTAS}
+      - traefik.http.routers.site.tls.domains[0].sans=www.${PIPE_DOMINIO_CONTAS}
+      - traefik.http.routers.www.tls.certresolver=le-dns

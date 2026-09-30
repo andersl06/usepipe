@@ -290,8 +290,8 @@ describe('Short tracked-link URL reads the public API base', () => {
   });
 
   it('uses PIPE_URL_API_PUBLICA, not the placeholder, once it is configured', () => {
-    process.env[chave] = 'https://api.usepipe.com.br';
-    expect(urlCurtaDe('abc123')).toBe('https://api.usepipe.com.br/l/abc123');
+    process.env[chave] = 'https://api.pipe.test';
+    expect(urlCurtaDe('abc123')).toBe('https://api.pipe.test/l/abc123');
   });
 
   it('falls back to the documented placeholder when unset', () => {

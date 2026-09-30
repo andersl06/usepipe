@@ -1,3 +1,5 @@
+# Caminho Kubernetes alternativo, fora de uso: ainda usa HTTP-01 e hosts fixos.
+# Ao reativar, seguir docs/specs/2026-09-29-tenant-subdomains.md e DNS-01 curinga.
 # Emissor de certificado. Dois: o de teste existe porque a Let's Encrypt limita
 # emissões por semana, e descobrir o limite durante um incidente significa ficar
 # sem certificado até a semana seguinte.

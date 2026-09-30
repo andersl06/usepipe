@@ -44,15 +44,8 @@ COPY tsconfig.base.json ./
 # aplicativos irmãos — segue de fora.
 COPY packages packages
 COPY apps/management-vite apps/management-vite
-# As URLs para o Desk e para a `api` são ASSADAS no pacote do navegador: o Vite
-# só expõe em `import.meta.env` o que existir no ambiente NA HORA do build, e
-# nunca lê variável de execução depois — sem estes dois `ARG` a imagem de
-# produção sai apontando para `localhost` e o front chama a própria origem
-# (que não tem `/v1`) em vez da `api`. Os padrões continuam sendo os de
-# desenvolvimento, para `docker build` sem argumento continuar servindo.
-ARG VITE_PIPE_DESK_URL=http://localhost:3200
-ARG VITE_URL_API=http://localhost:3010
-ENV VITE_PIPE_DESK_URL=$VITE_PIPE_DESK_URL
+# Tenant hosts route `/v1` on the same origin; Desk links are computed in the browser.
+ARG VITE_URL_API=
 ENV VITE_URL_API=$VITE_URL_API
 RUN pnpm --filter "@pipe/management-vite..." build
 

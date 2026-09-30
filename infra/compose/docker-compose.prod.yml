@@ -22,6 +22,9 @@ x-padrao: &padrao
 x-app: &app
   <<: *padrao
   env_file: [/opt/pipe-dados/.env]
+  # The shared env file holds the ACME token; remove it from application processes.
+  environment:
+    CF_DNS_API_TOKEN: ''
   networks: [borda, dados]
   # Tetos calculados para uma VPS de 4 vCPU / 16 GB. A soma dos limites passa do
   # total de propósito: nem todos chegam no teto ao mesmo tempo. O que não pode
@@ -59,7 +62,7 @@ x-saude-next: &saude-next
 services:
   traefik:
     <<: *padrao
-    image: traefik:v3.3
+    image: traefik:v3.7.13
     command:
       - --providers.docker=true
       # Sem isto, todo contêiner novo vira rota publicada por acidente.
@@ -78,9 +81,6 @@ services:
       # ACME por desafio HTTP: não exige token de DNS na máquina, e a porta 80 já
       # precisa estar aberta para o redirecionamento.
       # https://doc.traefik.io/traefik/reference/install-configuration/tls/certificate-resolvers/acme/
-      - --certificatesresolvers.le.acme.email=${ACME_EMAIL}
-      - --certificatesresolvers.le.acme.storage=/acme/acme.json
-      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
       - --accesslog=true
       - --metrics.prometheus=true
       - --ping=true
@@ -128,13 +128,18 @@ services:
     labels:
       - traefik.enable=true
       # `!PathPrefix('/metrics')`: o roteador é por Host, e sem esta negação
-      # `https://api.usepipe.com.br/metrics` fica público. O porteiro da própria
+      # `https://api.<dominio>/metrics` fica público. O porteiro da própria
       # rota libera faixa privada quando não há token, e atrás do Traefik o IP
       # visto É privado — ou seja, a defesa da aplicação não vale aqui. O
       # Prometheus continua coletando por dentro, em `api:3100`.
-      - traefik.http.routers.api.rule=Host(`api.usepipe.com.br`) && !PathPrefix(`/metrics`)
+      - traefik.http.routers.api.rule=Host(`api.${PIPE_DOMINIO_CONTAS}`) && !PathPrefix(`/metrics`)
       - traefik.http.routers.api.entrypoints=websec
-      - traefik.http.routers.api.tls.certresolver=le
+      - traefik.http.routers.api.priority=100
+      # Interpolated domain dots only broaden routing; strict API host parsing authorizes.
+      - traefik.http.routers.api-tenant.rule=HostRegexp(`^[a-z0-9-]+\.(desk\.)?${PIPE_DOMINIO_CONTAS}$`) && PathPrefix(`/v1`)
+      - traefik.http.routers.api-tenant.entrypoints=websec
+      - traefik.http.routers.api-tenant.priority=90
+      - traefik.http.routers.api-tenant.service=api
       - traefik.http.services.api.loadbalancer.server.port=3100
     depends_on:
       postgres:
@@ -168,9 +173,9 @@ services:
     networks: [borda]
     labels:
       - traefik.enable=true
-      - traefik.http.routers.desk.rule=Host(`app.usepipe.com.br`)
+      - traefik.http.routers.desk.rule=HostRegexp(`^[a-z0-9-]+\.desk\.${PIPE_DOMINIO_CONTAS}$`)
       - traefik.http.routers.desk.entrypoints=websec
-      - traefik.http.routers.desk.tls.certresolver=le
+      - traefik.http.routers.desk.priority=40
       - traefik.http.services.desk.loadbalancer.server.port=80
 
   # Gestão como SPA estática (Vite + nginx): não fala com o Postgres, não lê
@@ -190,9 +195,13 @@ services:
           memory: 128m
     labels:
       - traefik.enable=true
-      - traefik.http.routers.management.rule=Host(`gestao.usepipe.com.br`)
+      - traefik.http.routers.management.rule=HostRegexp(`^[a-z0-9-]+\.${PIPE_DOMINIO_CONTAS}$`)
       - traefik.http.routers.management.entrypoints=websec
-      - traefik.http.routers.management.tls.certresolver=le
+      - traefik.http.routers.management.priority=30
+      - traefik.http.routers.login.rule=Host(`login.${PIPE_DOMINIO_CONTAS}`)
+      - traefik.http.routers.login.entrypoints=websec
+      - traefik.http.routers.login.priority=80
+      - traefik.http.routers.login.service=management
       - traefik.http.services.management.loadbalancer.server.port=80
 
   # O CRM que existe HOJE é `apps/crm`, Next 15, código nosso, dentro do monorepo —
@@ -214,7 +223,8 @@ services:
     env_file: [/opt/pipe-dados/.env]
     networks: [borda, dados]
     environment:
-      PIPE_URL_ESTE_APP: https://crm.usepipe.com.br
+      PIPE_URL_ESTE_APP: https://crm.${PIPE_DOMINIO_CONTAS}
+      CF_DNS_API_TOKEN: ''
     healthcheck: *saude-next
     depends_on:
       postgres:
@@ -226,9 +236,9 @@ services:
           memory: 2g
     labels:
       - traefik.enable=true
-      - traefik.http.routers.crm.rule=Host(`crm.usepipe.com.br`)
+      - traefik.http.routers.crm.rule=Host(`crm.${PIPE_DOMINIO_CONTAS}`)
       - traefik.http.routers.crm.entrypoints=websec
-      - traefik.http.routers.crm.tls.certresolver=le
+      - traefik.http.routers.crm.priority=70
       - traefik.http.services.crm.loadbalancer.server.port=3000
 
   site:
@@ -242,9 +252,17 @@ services:
           memory: 128m
     labels:
       - traefik.enable=true
-      - traefik.http.routers.site.rule=Host(`usepipe.com.br`) || Host(`www.usepipe.com.br`)
+      - traefik.http.routers.site.rule=Host(`${PIPE_DOMINIO_CONTAS}`)
       - traefik.http.routers.site.entrypoints=websec
-      - traefik.http.routers.site.tls.certresolver=le
+      - traefik.http.routers.site.priority=60
+      - traefik.http.routers.www.rule=Host(`www.${PIPE_DOMINIO_CONTAS}`)
+      - traefik.http.routers.www.entrypoints=websec
+      - traefik.http.routers.www.priority=60
+      - traefik.http.routers.www.service=site
+      - traefik.http.routers.www.middlewares=www-to-apex
+      - traefik.http.middlewares.www-to-apex.redirectregex.regex=^https?://www\.(.+)
+      - traefik.http.middlewares.www-to-apex.redirectregex.replacement=https://$${1}
+      - traefik.http.middlewares.www-to-apex.redirectregex.permanent=true
       - traefik.http.services.site.loadbalancer.server.port=80
 
   postgres:
@@ -459,9 +477,9 @@ services:
     networks: [borda]
     labels:
       - traefik.enable=true
-      - traefik.http.routers.grafana.rule=Host(`metricas.usepipe.com.br`)
+      - traefik.http.routers.grafana.rule=Host(`metricas.${PIPE_DOMINIO_CONTAS}`)
       - traefik.http.routers.grafana.entrypoints=websec
-      - traefik.http.routers.grafana.tls.certresolver=le
+      - traefik.http.routers.grafana.priority=70
       - traefik.http.services.grafana.loadbalancer.server.port=3000
 
   # Migration roda ANTES do código novo subir (§9 da spec) e sai.
@@ -472,6 +490,8 @@ services:
     profiles: [tarefa]
     restart: 'no'
     env_file: [/opt/pipe-dados/.env]
+    environment:
+      CF_DNS_API_TOKEN: ''
     # `pnpm --filter @pipe/db migrar` NÃO roda aqui: a imagem de produção não tem
     # pnpm, tsx nem devDependencies. O `dist/migrar.js` compilado faz o mesmo —
     # aplica as migrations e garante as partições — e os .sql viajam junto em
@@ -497,6 +517,8 @@ services:
     profiles: [tarefa]
     restart: 'no'
     env_file: [/opt/pipe-dados/.env]
+    environment:
+      CF_DNS_API_TOKEN: ''
     entrypoint: ['node', '/app/apps/api/dist/provisionar.js']
     networks: [dados]
     depends_on:

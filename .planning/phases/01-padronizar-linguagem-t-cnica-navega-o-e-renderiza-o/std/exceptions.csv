@@ -3,7 +3,7 @@ glob,pattern,kind,category,justification,ref
 **/*.md,*,md-prose,A,Markdown prose is documentation text and is not scanned (only .md paths are technical; technical references inside docs are swept by stale-refs in slice 5),STD-10
 referencias-blip/**,*,*,C,Captured reference material is excluded from repository code rules,D-17
 **/*,^webhooks/,string-literal,C,Webhook paths are already English,D-15
-packages/db/src/schema/**,.*,sql-name,B,SQL names remain unchanged while TypeScript names migrate,D-08
+packages/db/src/schema/**,@ddl,sql-name,B,SQL names present in the exported DDL remain unchanged while TypeScript names migrate,D-08
 **/*,^memoria$|^bullmq$,*,C,Environment values remain unchanged,D-06
 **/*,^ACME_EMAIL$,*,C,Environment variable name remains unchanged,D-06/D-36
 **/*,^ANTHROPIC_API_KEY$,*,C,Environment variable name remains unchanged,D-06/D-36
@@ -836,3 +836,60 @@ apps/api/src/dominio/dicionario-crm.ts,^relation$,ts-prop,B,persisted: jsonb:dic
 apps/api/src/dominio/dicionario-crm.ts,^morphRelations$,ts-prop,B,persisted: jsonb:dicionarioCampo.morph_relations,persisted.csv:persisted-wire-10
 packages/contracts/src/management-flow.ts,"^/\*\* ""Não redirecionar automaticamente para o principal""\. \*/$",comment,C,"Reviewed literal evidence: /** ""Não redirecionar automaticamente para o principal"". */",D-17
 packages/db/src/schema/automation.ts,"^/\*\* ""Não redirecionar automaticamente para o principal""\. \*/$",comment,C,"Reviewed literal evidence: /** ""Não redirecionar automaticamente para o principal"". */",D-17
+**/*,@ddl,sql-name,B,SQL identifiers present in the exported DDL stay unchanged,D-08
+packages/db/drizzle/0000_fundacao.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0001_rls.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0002_particoes.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0003_chaves_cruzadas.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0004_canal_instagram.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0005_mensagem_dados.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0006_rls_initplan.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0007_tenant_implantacao.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0008_canal_roteamento.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0009_login.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0010_convite.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0011_sso.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0012_espelho_twenty.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0013_prioridade_cinco_degraus.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0014_motor_de_fluxo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0015_dicionario_twenty.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0016_entrada_do_cliente.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0017_conta_por_autosservico.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0018_fluxo_e_roteador.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0019_permissoes_da_conta.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0020_fluxo_imagem_e_short_name.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0021_papel_da_conta.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0022_fluxo_descricao.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0023_permissao_excluir_fluxo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0024_roteador_servicos.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0030_permissoes_cadastros_atendimento.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0031_configuracao_do_fluxo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0032_integracoes_fluxo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0033_download_de_midia.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0034_permissao_publicar_fluxo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0035_equipe_do_fluxo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0036_webhook_autenticacao_e_cabecalhos.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0038_rastreador_de_cliques.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0039_certificado_mtls.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0040_indices_log_e_analise.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0041_marcacao_de_conversa.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0042_palavra_proibida.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0043_canal_messenger.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0044_certificado_mtls_arquivo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0045_process_http_cursor.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0046_permissao_do_atendente.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0047_pesquisa_satisfacao_resposta.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0048_funcao_do_fluxo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0049_acoes_plataforma.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0050_rls_subconsulta_acoes_plataforma.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0051_flow_short_name_unique.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0052_recurso_do_fluxo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0053_agendamento_e_eventos.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0054_funcao_da_conta.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0055_variavel_secreta_do_fluxo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0056_expiracao_da_entrada.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+apps/site/blog/**,*,path,C,Public indexed Portuguese site URLs remain unchanged,D-47
+apps/site/ferramentas/**,*,path,C,Public indexed Portuguese site URLs remain unchanged,D-47
+**/*,@quoted-comment,comment,A,Quoted product text or literal third-party evidence inside a comment,D-17
+**/*,@product-text,string-literal,A,User-visible sentence in a technical position,STD-10
+**/*,@product-text,literal-value,A,User-visible sentence in a technical position,STD-10
