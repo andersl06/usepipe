@@ -140,7 +140,7 @@ export function ConfigurationPanel({
               <IconePortal nome="voltar" tamanho={20} />
               <span>Voltar</span>
             </button>
-            <FlowFunctionsPanel iniciarCriando={criarFuncao} />
+            <FlowFunctionsPanel iniciarCriando={criarFuncao} flowId={flowId} />
           </>
         ) : null}
         {aba === 'versoes' ? (

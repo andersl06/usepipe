@@ -337,6 +337,13 @@
       "when": 1790100000000,
       "tag": "0053_agendamento_e_eventos",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1790110000000,
+      "tag": "0054_funcao_da_conta",
+      "breakpoints": true
     }
   ]
 }

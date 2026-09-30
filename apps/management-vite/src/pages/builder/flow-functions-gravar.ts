@@ -1,4 +1,4 @@
-import type { FlowFunction, FlowFunctionInput } from '@pipe/contracts';
+import type { FlowFunction, FlowFunctionInput, FlowFunctionUsage } from '@pipe/contracts';
 import { api } from '@pipe/ui/api';
 import { motivoDe, type Resultado } from '../../lib/rest';
 
@@ -11,7 +11,7 @@ import { motivoDe, type Resultado } from '../../lib/rest';
 
 export async function listFlowFunctions(): Promise<Resultado<FlowFunction[]>> {
   try {
-    const value = await api.get<FlowFunction[]>('/v1/management/flow-functions');
+    const value = await api.get<FlowFunction[]>('/v1/management/flow-functions?limit=100');
     return { ok: true, value };
   } catch (error) {
     return { ok: false, error: motivoDe(error, 'Não foi possível carregar as funções.') };
@@ -45,5 +45,15 @@ export async function deleteFlowFunction(id: string): Promise<Resultado<void>> {
     return { ok: true, value: undefined };
   } catch (error) {
     return { ok: false, error: motivoDe(error, 'Não foi possível excluir a função.') };
+  }
+}
+
+/** Flows of the account that use the function (P10): feeds the "em uso em outros bots" warning. */
+export async function flowFunctionUsage(id: string): Promise<Resultado<FlowFunctionUsage[]>> {
+  try {
+    const value = await api.get<FlowFunctionUsage[]>(`/v1/management/flow-functions/${id}/usage`);
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível verificar onde a função é usada.') };
   }
 }

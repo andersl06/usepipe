@@ -3,10 +3,11 @@ import type { FlowFunction, FlowFunctionInput } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
 import { ConfirmModal } from '@pipe/ui/modal';
-import { filterFlowFunctions } from './flow-functions';
+import { filterFlowFunctions, inUseWarning, otherFlowsUsing } from './flow-functions';
 import {
   createFlowFunction,
   deleteFlowFunction,
+  flowFunctionUsage,
   listFlowFunctions,
   updateFlowFunction,
 } from './flow-functions-gravar';
@@ -19,6 +20,10 @@ import {
  * All three share the search-by-name-or-description list (`FlowFunctionSearch`) and the create/edit
  * form (`FlowFunctionForm`), reusing the lazy Monaco editor from `code-editor.tsx` (02-16) for the
  * function's own source — the same engine `ExecuteScriptV2` already runs on (D-22).
+ *
+ * The library belongs to the account (P10, D-57): editing or deleting a function another bot uses
+ * shows "em uso em outros bots", and an action pointing at a UUID the library lacks (an imported
+ * Blip flow) offers to recreate the function under that same UUID.
  */
 
 const CodeEditor = lazy(() => import('./code-editor'));
@@ -68,10 +73,16 @@ function ParametersEditor({
 
 function FlowFunctionForm({
   initial,
+  fixedId,
+  warning,
   onCancel,
   onSaved,
 }: {
   initial: FlowFunction | null;
+  /** Create only: recreate a function under the UUID an imported Blip action already points at. */
+  fixedId?: string;
+  /** "Em uso em outros bots" (P10): editing changes the function for every flow of the account. */
+  warning?: string | null;
   onCancel: () => void;
   onSaved: (fn: FlowFunction) => void;
 }) {
@@ -86,6 +97,7 @@ function FlowFunctionForm({
     setSaving(true);
     setError(null);
     const input: FlowFunctionInput = {
+      ...(!initial && fixedId ? { id: fixedId } : {}),
       name: name.trim(),
       description: description.trim() || null,
       parameters: parameters.map((p) => p.trim()).filter(Boolean),
@@ -105,6 +117,7 @@ function FlowFunctionForm({
   return (
     <div className="bl-aba-corpo bl-functions-form">
       <h4 className="bl-section-title">{initial ? 'Editar função' : 'Criar função'}</h4>
+      {warning ? <Etiqueta tom="alerta">{warning}</Etiqueta> : null}
       <label className="bl-campo">
         <span className="sub">Nome</span>
         <Campo value={name} onChange={(e) => setName(e.target.value)} />
@@ -154,7 +167,7 @@ function FlowFunctionForm({
 
 /* -------------------------------------------------------------- library panel */
 
-export function FlowFunctionsPanel({ iniciarCriando }: { iniciarCriando?: boolean } = {}) {
+export function FlowFunctionsPanel({ iniciarCriando, flowId }: { iniciarCriando?: boolean; flowId?: string } = {}) {
   const [functions, setFunctions] = useState<FlowFunction[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -163,6 +176,15 @@ export function FlowFunctionsPanel({ iniciarCriando }: { iniciarCriando?: boolea
   const [removeTarget, setRemoveTarget] = useState<FlowFunction | null>(null);
   const [removing, setRemoving] = useState(false);
   const [removeError, setRemoveError] = useState<string | null>(null);
+  /** "Em uso em outros bots" for the function being edited or deleted (P10, D-57). */
+  const [usageWarning, setUsageWarning] = useState<string | null>(null);
+
+  function checkUsage(fn: FlowFunction, acao: 'editar' | 'excluir'): void {
+    setUsageWarning(null);
+    void flowFunctionUsage(fn.id).then((r) => {
+      if (r.ok) setUsageWarning(inUseWarning(otherFlowsUsing(r.value, flowId), acao));
+    });
+  }
 
   async function reload(): Promise<void> {
     const r = await listFlowFunctions();
@@ -182,6 +204,7 @@ export function FlowFunctionsPanel({ iniciarCriando }: { iniciarCriando?: boolea
     return (
       <FlowFunctionForm
         initial={editing === 'new' ? null : editing}
+        warning={editing === 'new' ? null : usageWarning}
         onCancel={() => setEditing(null)}
         onSaved={() => {
           setAviso(editing === 'new' ? 'Função criada.' : 'Função salva.');
@@ -225,7 +248,7 @@ export function FlowFunctionsPanel({ iniciarCriando }: { iniciarCriando?: boolea
                   {fn.description ? <p className="sub">{fn.description}</p> : null}
                 </div>
                 <div className="bl-functions-item-actions">
-                  <button type="button" className="iconbtn" aria-label={`Editar ${fn.name}`} title="Editar" onClick={() => setEditing(fn)}>
+                  <button type="button" className="iconbtn" aria-label={`Editar ${fn.name}`} title="Editar" onClick={() => { checkUsage(fn, 'editar'); setEditing(fn); }}>
                     <ManagementIcon nome="lapis" tamanho={18} />
                   </button>
                   <button
@@ -233,7 +256,7 @@ export function FlowFunctionsPanel({ iniciarCriando }: { iniciarCriando?: boolea
                     className="iconbtn"
                     aria-label={`Excluir ${fn.name}`}
                     title="Excluir"
-                    onClick={() => setRemoveTarget(fn)}
+                    onClick={() => { checkUsage(fn, 'excluir'); setRemoveTarget(fn); }}
                   >
                     <ManagementIcon nome="lixeira" tamanho={18} />
                   </button>
@@ -250,7 +273,9 @@ export function FlowFunctionsPanel({ iniciarCriando }: { iniciarCriando?: boolea
       <ConfirmModal
         aberto={removeTarget !== null}
         titulo="Excluir função"
-        message={`Excluir a função "${removeTarget?.name}"? Ações que a chamam deixam de funcionar.`}
+        message={usageWarning
+          ? `Excluir a função "${removeTarget?.name}"? ${usageWarning}`
+          : `Excluir a função "${removeTarget?.name}"? Ações que a chamam deixam de funcionar.`}
         error={removeError}
         confirmando={removing}
         onConfirmar={async () => {
@@ -336,10 +361,13 @@ export function FlowFunctionSelect({
   onChange: (functionId: string) => void;
 }) {
   const [selected, setSelected] = useState<FlowFunction | null>(null);
+  /** The action points at a UUID the account library lacks (typically an imported Blip flow). */
+  const [missing, setMissing] = useState(false);
   const [creating, setCreating] = useState(false);
   const [open, setOpen] = useState(!value);
 
   useEffect(() => {
+    setMissing(false);
     if (!value) {
       setSelected(null);
       return;
@@ -347,7 +375,9 @@ export function FlowFunctionSelect({
     let ativo = true;
     void listFlowFunctions().then((r) => {
       if (!ativo || !r.ok) return;
-      setSelected(r.value.find((fn) => fn.id === value) ?? null);
+      const found = r.value.find((fn) => fn.id.toLowerCase() === value.toLowerCase()) ?? null;
+      setSelected(found);
+      setMissing(!found);
     });
     return () => {
       ativo = false;
@@ -358,11 +388,13 @@ export function FlowFunctionSelect({
     return (
       <FlowFunctionForm
         initial={null}
+        fixedId={missing ? value : undefined}
         onCancel={() => setCreating(false)}
         onSaved={(fn) => {
           setCreating(false);
           setOpen(false);
           setSelected(fn);
+          setMissing(false);
           onChange(fn.id);
         }}
       />
@@ -371,6 +403,11 @@ export function FlowFunctionSelect({
 
   return (
     <div className="bl-functions-select">
+      {missing ? (
+        <Etiqueta tom="alerta">
+          A função {value} não está na biblioteca da conta. Crie a função para manter este identificador ou escolha outra.
+        </Etiqueta>
+      ) : null}
       {selected ? (
         <div className="bl-functions-selected">
           <span className="bl-variable-name">{selected.name}</span>
@@ -379,7 +416,7 @@ export function FlowFunctionSelect({
           </button>
         </div>
       ) : null}
-      {open ? (
+      {open || missing ? (
         <>
           <FlowFunctionSearch
             onPick={(fn) => {

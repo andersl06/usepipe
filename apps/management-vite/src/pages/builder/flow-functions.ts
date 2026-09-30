@@ -1,9 +1,9 @@
-import type { FlowFunction } from '@pipe/contracts';
+import type { FlowFunction, FlowFunctionUsage } from '@pipe/contracts';
 import { normalizar } from './variables';
 
 /**
- * Pure logic for the engine's "Biblioteca de funções" (D-22): a bot-scoped library of named,
- * reusable script functions, consumed by the `ExecuteBlipFunction` action (`functionId`) and by
+ * Pure logic for the engine's "Biblioteca de funções" (D-22): the account's (tenant's) library of
+ * named, reusable script functions (P10, D-57), consumed by the `ExecuteBlipFunction` action (`source`) and by
  * the function selector this backs inside the script actions' code field. Deliberately without
  * `../../lib/api` here — same split `channels.ts`/`channel-of-flow.ts`/`comunicacao.ts` already
  * make in this app, so `tests/builder-functions.test.ts` runs under `node --test` without
@@ -17,6 +17,26 @@ export function filterFlowFunctions(list: readonly FlowFunction[], query: string
   return list.filter(
     (f) => normalizar(f.name).includes(alvo) || normalizar(f.description ?? '').includes(alvo),
   );
+}
+
+/**
+ * "Em uso em outros bots" (P10, D-57): the library belongs to the account, so the flows that use a
+ * function (`GET /flow-functions/:id/usage`) other than the one open in the Builder are the ones an
+ * edit or a deletion would also change.
+ */
+export function otherFlowsUsing(usage: readonly FlowFunctionUsage[], currentFlowId: string | undefined): FlowFunctionUsage[] {
+  return usage.filter((flow) => flow.flowId !== currentFlowId);
+}
+
+/** Warning text for edit/delete, or `null` when no other bot uses the function. */
+export function inUseWarning(others: readonly FlowFunctionUsage[], acao: 'editar' | 'excluir'): string | null {
+  if (others.length === 0) return null;
+  const nomes = others.map((flow) => flow.flowName);
+  const lista = nomes.length <= 3 ? nomes.join(', ') : `${nomes.slice(0, 3).join(', ')} e mais ${nomes.length - 3}`;
+  const efeito = acao === 'editar'
+    ? 'As alterações valem para todos eles.'
+    : 'Excluir a função faz as ações que a chamam deixarem de funcionar nesses bots.';
+  return `Esta função está em uso em outros bots (${lista}). ${efeito}`;
 }
 
 /** The call-site format the reference documents for inserting a library call into a script: `nome(param1, param2)`. */
