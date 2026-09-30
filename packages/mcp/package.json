@@ -2,7 +2,7 @@
   "name": "@pipe/mcp",
   "version": "0.1.0",
   "private": true,
-  "description": "Servidor MCP: consulta e ações do Pipe para agentes",
+  "description": "MCP do Pipe: cliente para os servidores MCP do agente de IA",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,7 +14,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint src"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.tests.json",
+    "lint": "eslint src",
+    "test": "vitest run"
   }
 }

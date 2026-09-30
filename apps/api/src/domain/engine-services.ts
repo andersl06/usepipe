@@ -15,6 +15,8 @@ import { loadFlowSecret } from './management/flow-secrets.js';
 import { agentModelService } from './agent-model.js';
 import { nlpServices } from './nlp-model.js';
 import { loadFlowAiModel } from './management/flow-ai-model.js';
+import { knowledgeService } from './knowledge/search.js';
+import { mcpService } from './knowledge/mcp-tools.js';
 
 /**
  * The engine services (`ServicosDoMotor`) that production (`flow.ts` `runFlowInInbound`) and the
@@ -220,28 +222,6 @@ export async function isFlowOfTenant(tx: TransactionPipe, tenantId: string, flow
   return rows.length > 0;
 }
 
-/** Read-only fuzzy match over the tenant's knowledge base; safe in a test run too. */
-export async function knowledgeMatch(
-  tx: TransactionPipe,
-  tenantId: string,
-  { text, minimumConfidence }: { text: string; minimumConfidence: number },
-): Promise<{ answer: string | null; confidence: number }> {
-  const words = text.toLowerCase().split(/\W+/).filter((word) => word.length > 2).slice(0, 12);
-  const pattern = words.length > 0 ? `%${words[0]}%` : '%';
-  const { rows } = await tx.execute<{ texto: string }>(sql`
-    select t.texto from trecho_conhecimento t
-    join documento_conhecimento d on d.id = t.documento_id and d.tenant_id = ${tenantId} and d.ativo = true
-    join base_conhecimento b on b.id = d.base_id and b.tenant_id = ${tenantId} and b.ativa = true
-    where t.tenant_id = ${tenantId} and t.texto ilike ${pattern}
-    order by t.ordem asc limit 1
-  `);
-  if (!rows[0]) return { answer: null, confidence: 0 };
-  const lower = rows[0].texto.toLowerCase();
-  const hits = words.filter((word) => lower.includes(word)).length;
-  const confidence = Math.min(1, Math.max(0.1, hits / Math.max(words.length, 1)));
-  return confidence >= minimumConfidence ? { answer: rows[0].texto, confidence } : { answer: null, confidence };
-}
-
 /**
  * The full `ServicosDoMotor` minus the caller-specific `suspendHttp`/`redirect`, which only exist
  * for a real execution.
@@ -330,7 +310,9 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects, flow
       isolate((tx) => executeCommand(tx, tenantId, request, true, tickets, effects.recordSatisfactionAnswer, messaging)),
     // AI agent (P14): the provider key is this flow's secret, decrypted per call and never returned.
     callAgentModel: agentModelService({ loadSecret, stubWhenNoKey: agentStub ?? false }),
-    respondWithKnowledge: (request) => isolate((tx) => knowledgeMatch(tx, tenantId, request)),
+    // Knowledge search and MCP tools (P15): embeddings key and MCP auth are this flow's secrets.
+    ...knowledgeService({ tenantId, isolate, loadSecret }),
+    ...mcpService({ loadSecret }),
     // NLP, content assistant and AI Answers (P16) over the flow's AI model, same provider call and keys.
     ...(flowId
       ? nlpServices({

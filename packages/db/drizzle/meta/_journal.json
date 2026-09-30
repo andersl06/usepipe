@@ -367,6 +367,13 @@
       "breakpoints": true
     },
     {
+      "idx": 58,
+      "version": "7",
+      "when": 1790150000000,
+      "tag": "0058_busca_na_base_de_conhecimento",
+      "breakpoints": true
+    },
+    {
       "idx": 80,
       "version": "7",
       "when": 1790160000000,
