@@ -5,6 +5,8 @@ import { stateInitial, reduzir } from './state';
 import type { EditorState, GestoDoEditor } from './state';
 import { lerDesenho, montarDesenho } from './model';
 import type { Mapa } from './model';
+import type { Subflows } from './subflows';
+import { buildSubflows, readSubflows } from './subflows';
 
 /**
  * The editor's state wired to the `api`: loads the drawing the `GET` brought, saves itself automatically a bit after each change (the Blip editor's `debouncedSave`, which is what makes the footer's "Salvo" exist), and stores the per-block errors the `PUT` returns.
@@ -57,6 +59,7 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
       mapa: lerDesenho(data.desenho),
       global: data.desenho.globals,
       configuracao: data.desenho.configuration ?? {},
+      subfluxos: readSubflows(data.desenho.subflows),
     });
     apiSetErrors(data.errors);
     setRecording({ state: 'salvo' });
@@ -69,17 +72,20 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
       mapa: Mapa,
       global: Record<string, unknown>,
       configuracao: Record<string, string>,
+      subfluxos: Subflows,
     ): Promise<boolean> => {
       setRecording({ state: 'salvando' });
       const r = await salvarRascunho(flowId, {
         ...montarDesenho(mapa, global),
         configuration: configuracao,
+        // Always sent: an empty object is how the last subflow gets deleted.
+        subflows: buildSubflows(subfluxos),
       });
       if (!r.ok) {
         setRecording({ state: 'erro', error: r.error });
         return false;
       }
-      despachar({ tipo: 'salvo', mapa, configuracao });
+      despachar({ tipo: 'salvo', mapa, configuracao, subfluxos });
       apiSetErrors(r.value.erros);
       setRecording({ state: 'salvo' });
       return true;
@@ -92,11 +98,11 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
     if (!state.sujo || !carregado) return;
     setRecording((g) => (g.state === 'salvando' ? g : { state: 'pendente' }));
     const pedido = ++ultimoPedido.current;
-    const { mapa, global, configuracao } = state;
+    const { mapa, global, configuracao, subfluxos } = state;
     const temporizador = setTimeout(() => {
       emCurso.current = emCurso.current.then(async () => {
         if (pedido !== ultimoPedido.current) return true;
-        return gravar(mapa, global, configuracao);
+        return gravar(mapa, global, configuracao, subfluxos);
       });
     }, ESPERA_PARA_GRAVAR_MS);
     return () => clearTimeout(temporizador);
@@ -104,8 +110,8 @@ export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): 
 
   const salvarAgora = useCallback(async (): Promise<boolean> => {
     ultimoPedido.current += 1;
-    const { mapa, global, configuracao } = state;
-    emCurso.current = emCurso.current.then(() => gravar(mapa, global, configuracao));
+    const { mapa, global, configuracao, subfluxos } = state;
+    emCurso.current = emCurso.current.then(() => gravar(mapa, global, configuracao, subfluxos));
     return emCurso.current;
   }, [state, gravar]);
 

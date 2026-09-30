@@ -97,6 +97,8 @@ export const LIMITE_DE_SAIDAS = 25;
 export const ID_DO_FALLBACK = 'fallback';
 export const ID_DO_FIM = 'end';
 export const PREFIX_OF_ATTENDANCE = 'desk:';
+/** A block that hands the contact to a subflow (P12/P13): Blip's `subflow:<uuid>` id convention. */
+export const PREFIX_OF_SUBFLOW = 'subflow:';
 export const VERSION_OF_BLOCK_OF_ATTENDANCE = '3.0.0';
 
 /** The native satisfaction survey block's id prefix (`ref/inventario-satisfacao-e-tags.md` §1, D-16: same `<tipo>:<uuid>` convention Blip uses for `desk:`). */
@@ -222,7 +224,8 @@ export function newInbound(id = gerarId()): ItemDeConteudo {
   };
 }
 
-function esqueleto(id: string, titulo: string, position: Position): Block {
+/** The empty block every factory starts from: every `$` editor key present, no content. */
+export function esqueleto(id: string, titulo: string, position: Position): Block {
   return {
     id,
     root: false,
@@ -243,7 +246,7 @@ function esqueleto(id: string, titulo: string, position: Position): Block {
 }
 
 /** The default output of a new block: `fallback`, like in the editor — if one exists. */
-function saidaPadraoInicial(mapa: Mapa): Block['$defaultOutput'] {
+export function saidaPadraoInicial(mapa: Mapa): Block['$defaultOutput'] {
   return mapa[ID_DO_FALLBACK] ? { stateId: ID_DO_FALLBACK, $invalid: false } : null;
 }
 
@@ -378,7 +381,12 @@ export function replaceBlock(mapa: Mapa, block: Block): Mapa {
 /** "Duplicar" from the context menu: a copy with a new id, "[Cópia]" in the title, 20px to the side. */
 function blockCopy(origem: Block, position: Position, novoId = gerarId()): Block {
   const copia = copiar(origem);
-  copia.id = ehAttendance(origem.id) ? `${PREFIX_OF_ATTENDANCE}${novoId}` : novoId;
+  // A copy keeps the id prefix the engine reads (`desk:`, `subflow:`), so it behaves like the original.
+  copia.id = ehAttendance(origem.id)
+    ? `${PREFIX_OF_ATTENDANCE}${novoId}`
+    : origem.id.startsWith(PREFIX_OF_SUBFLOW)
+      ? `${PREFIX_OF_SUBFLOW}${novoId}`
+      : novoId;
   copia.root = false;
   copia.$title = `${origem.$title ?? TITULO_PADRAO} [Cópia]`;
   copia.$position = positionAsText(position);
