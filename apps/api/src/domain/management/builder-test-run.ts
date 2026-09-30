@@ -79,7 +79,7 @@ function newTestRunStore(): TestRunStore {
   return {
     variables: {},
     contact: { identity: TEST_CONTACT_ID, name: 'Contato de teste', phoneNumber: null, email: null, extras: {} },
-    conversation: { estado: 'na_fila', prioridade: 'sem_prioridade', filaId: null, etiquetas: [] },
+    conversation: { estado: 'com_bot', prioridade: 'sem_prioridade', filaId: null, etiquetas: [] },
     lists: new Map(),
     bucket: new Map(),
     flowStates: new Map(),

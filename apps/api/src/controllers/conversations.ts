@@ -24,7 +24,7 @@ import type { Page } from '../pagination.js';
  * `/v1/conversas` is the central API resource. Per `apis.md` §5, it uses a plural resource, query filters, declared ordering and cursor pagination. Queries do not manually filter `tenant_id`: RLS already does, and a duplicate filter would hide rather than expose an isolation bug.
  */
 
-const ESTADOS = ['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'];
+const ESTADOS = ['com_bot', 'na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'];
 
 type LineConversation = {
   id: string;

@@ -379,6 +379,13 @@
       "when": 1790160000000,
       "tag": "0080_modelo_ia_do_fluxo",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1790170000000,
+      "tag": "0081_conversa_com_bot",
+      "breakpoints": true
     }
   ]
 }
