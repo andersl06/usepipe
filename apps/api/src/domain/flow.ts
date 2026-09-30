@@ -40,6 +40,7 @@ import { loadFlowFunctions } from './management/flow-functions.js';
 import { loadFlowResources } from './management/flow-resources.js';
 import { closeInTransaction, type LineConversation } from './conversation.js';
 import { engineServices, isFlowOfTenant, type TicketEffects } from './engine-services.js';
+import { databaseMessagingEffects } from './scheduling-commands.js';
 import { chooseQueueOfConversation, enterQueue } from './queue-entry.js';
 import type { TipoEnvio } from './envio.js';
 
@@ -389,6 +390,7 @@ export async function runFlowInInbound(
         defaultQueueId: e.conversation.queueDefaultId,
         message: e.message.content,
       })).queueId,
+      messaging: databaseMessagingEffects({ tenantId: e.tenantId, flowId: publicado.flowId, contactId: e.contactId }),
       registerEvent: async (evento) => {
         eventos.push(evento);
       },

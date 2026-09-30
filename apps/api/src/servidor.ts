@@ -29,6 +29,8 @@ import {
   closeQueues,
 } from './queues.js';
 import { measureRequest } from './metrics.js';
+import { closeDelayedJobs, consumeDelayedJobs, scheduleSweepDelayedJobs } from './delayed-jobs.js';
+import { registerScheduledMessages } from './domain/scheduled-messages.js';
 
 /**
  * Start Nest with a custom JSON parser that preserves raw request bytes in `corpoCru`. Meta signs those bytes with `X-Hub-Signature-256`; reserializing parsed JSON can change spacing or key order and make valid webhooks fail signature verification.
@@ -132,6 +134,9 @@ export async function upApi(porta = Number(process.env['PORT'] ?? 3000)): Promis
   await scheduleSweepSla();
   consumeRenewalInstagram();
   await scheduleRenewalInstagram();
+  registerScheduledMessages();
+  consumeDelayedJobs();
+  await scheduleSweepDelayedJobs();
   await app.listen(porta);
   // Attach realtime to the existing HTTP server's `upgrade` after `listen`; do not open another port. One API port serves Desk, Management, and CRM.
   const channel = connectChannelOfEvents(app.getHttpServer() as Server);
@@ -145,6 +150,7 @@ export async function upApi(porta = Number(process.env['PORT'] ?? 3000)): Promis
       await closeRealtime();
       await app.close();
       await closeQueues();
+      await closeDelayedJobs();
       await fecharBancos();
     },
   };

@@ -564,6 +564,60 @@ export const memoryRecord = pgTable(
   ],
 );
 
+export const SCHEDULE_STATES = ['agendada', 'executada', 'cancelada', 'falhou'] as const;
+
+/**
+ * A message a bot scheduled with Blip's `set /schedules` (P7), keyed by the Blip message id. The row
+ * is authoritative: a delayed job fires it at `when` and a sweep recovers a lost job.
+ */
+export const scheduledMessage = pgTable(
+  'agendamento_mensagem',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    flowId: uuid('fluxo_id').references(() => flow.id, { onDelete: 'set null' }),
+    contactId: uuid('contato_id').references(() => contact.id, { onDelete: 'set null' }),
+    messageId: text('mensagem_id').notNull(),
+    name: text('nome'),
+    to: text('destino').notNull(),
+    type: text('tipo').notNull(),
+    content: jsonb('conteudo').notNull().default(sql`'null'::jsonb`),
+    when: moment('quando').notNull(),
+    state: text('estado').notNull().default('agendada'),
+    result: jsonb('resultado'),
+    executedAt: moment('executado_em'),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('agendamento_mensagem_estado_ck', t.state, SCHEDULE_STATES),
+    check('agendamento_mensagem_conteudo_ck', sql`pg_column_size(${t.content}) <= 65536`),
+    check('agendamento_mensagem_id_ck', sql`length(${t.messageId}) between 1 and 200`),
+    uniqueIndex('agendamento_mensagem_tenant_mensagem_uk').on(t.tenantId, t.messageId),
+    index('agendamento_mensagem_pendente_idx').on(t.when).where(sql`${t.state} = 'agendada'`),
+  ],
+);
+
+/** An event a bot recorded with Blip's `set /event-track` (P7). */
+export const trackedEvent = pgTable(
+  'evento_rastreado',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    flowId: uuid('fluxo_id').references(() => flow.id, { onDelete: 'set null' }),
+    contactId: uuid('contato_id').references(() => contact.id, { onDelete: 'set null' }),
+    category: text('categoria').notNull(),
+    action: text('acao').notNull(),
+    extras: jsonb('extras').notNull().default(sql`'{}'::jsonb`),
+    at: moment('em').notNull().defaultNow(),
+  },
+  (t) => [
+    check('evento_rastreado_categoria_ck', sql`length(${t.category}) between 1 and 200`),
+    check('evento_rastreado_acao_ck', sql`length(${t.action}) between 1 and 200`),
+    check('evento_rastreado_extras_ck', sql`pg_column_size(${t.extras}) <= 16384`),
+    index('evento_rastreado_categoria_idx').on(t.tenantId, t.category, t.at),
+  ],
+);
+
 export const executionAction = pgTable(
   'execucao_acao',
   {

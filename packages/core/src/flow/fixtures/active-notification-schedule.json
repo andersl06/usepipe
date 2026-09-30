@@ -1,0 +1,80 @@
+{
+  "$comment": "Native replacement of the export's active notification blocks ('[HTTP] Agendar Notificação Ativa', 'Entrada Notificação Ativa', '[T.2.0.0] Verifica interesse em Notificação Ativa'), which call Blip's hosted sendnotificationblipemployee service. Invented data (template, list, ids); no value from the export.",
+  "states": [
+    {
+      "title": "Entrada Notificação Ativa",
+      "outputActions": [
+        {
+          "type": "ProcessCommand",
+          "settings": {
+            "to": "postmaster@broadcast.msging.net",
+            "method": "set",
+            "uri": "/lists/interessados-notificacao@broadcast.msging.net/recipients",
+            "type": "application/vnd.lime.identity",
+            "resource": "{{contact.identity}}",
+            "variable": "addRecipientResponse"
+          }
+        }
+      ]
+    },
+    {
+      "title": "[HTTP] Agendar Notificação Ativa",
+      "outputActions": [
+        {
+          "type": "ProcessCommand",
+          "settings": {
+            "to": "postmaster@scheduler.msging.net",
+            "method": "set",
+            "uri": "/schedules",
+            "type": "application/vnd.iris.schedule+json",
+            "resource": {
+              "name": "notificacao-ativa",
+              "when": "{{notificationDate}}",
+              "message": {
+                "id": "notificacao-{{contact.identity}}",
+                "to": "{{contact.identity}}",
+                "type": "application/json",
+                "content": {
+                  "type": "template",
+                  "template": {
+                    "name": "lembrete_de_aula",
+                    "language": { "code": "pt_BR", "policy": "deterministic" },
+                    "components": [
+                      { "type": "body", "parameters": [{ "type": "text", "text": "{{contact.name}}" }] }
+                    ]
+                  }
+                }
+              }
+            },
+            "variable": "scheduleResponse"
+          }
+        },
+        {
+          "type": "ProcessCommand",
+          "settings": {
+            "to": "postmaster@analytics.msging.net",
+            "method": "set",
+            "uri": "/event-track",
+            "type": "application/vnd.iris.eventTrack+json",
+            "resource": { "category": "notificacao-ativa", "action": "agendada" },
+            "variable": "eventTrackResponse"
+          }
+        }
+      ]
+    },
+    {
+      "title": "[T.2.0.0] Verifica interesse em Notificação Ativa",
+      "outputActions": [
+        {
+          "type": "ProcessCommand",
+          "settings": {
+            "to": "postmaster@scheduler.msging.net",
+            "method": "get",
+            "uri": "/schedules/notificacao-{{contact.identity}}",
+            "variable": "scheduleStatus"
+          }
+        }
+      ]
+    }
+  ]
+}

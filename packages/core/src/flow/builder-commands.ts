@@ -173,6 +173,26 @@ async function contactCommand(context: Context, request: CommandRequest): Promis
 }
 
 /**
+ * `get /tunnels/{id}` (`postmaster@tunnel.msging.net`): Blip resolves a router tunnel to the
+ * customer's channel identity (`originator`). Pipe has no tunnel ids: the contact is unique in the
+ * tenant, so the only tunnel a bot can resolve is its own contact's, whatever identity names it.
+ */
+function tunnelCommand(context: Context, request: CommandRequest): CommandResponse {
+  const { method, params } = request.command;
+  const id = params['id'] ?? '';
+  if (!isCurrentContact(context, id)) return failure(method, 67, `O túnel '${id}' não existe.`);
+  const app = context.application;
+  const self = app?.identifier ? `${app.identifier}@${BOT_DOMAIN}` : null;
+  const owner = app?.routerIdentifier ? `${app.routerIdentifier}@${BOT_DOMAIN}` : self;
+  const phone = digits(context.contact?.['phoneNumber']);
+  return success(method, 'application/vnd.iris.tunnel+json', {
+    owner,
+    originator: phone ? `${phone}@wa.gw.msging.net` : context.user,
+    destination: self,
+  });
+}
+
+/**
  * Runs the command here when its data is in the execution; `undefined` means the `api` runs it.
  */
 export async function runLocalCommand(context: Context, request: CommandRequest): Promise<CommandResponse | undefined> {
@@ -193,6 +213,8 @@ export async function runLocalCommand(context: Context, request: CommandRequest)
     case 'crm.contacts.merge':
     case 'crm.contacts.get':
       return contactCommand(context, request);
+    case 'tunnel.item':
+      return tunnelCommand(context, request);
   }
   return undefined;
 }

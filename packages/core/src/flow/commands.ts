@@ -59,6 +59,22 @@ export const COMMAND_ROUTES: readonly CommandRoute[] = Object.freeze([
   { name: 'core.resources.item', recipient: 'core', method: 'get', path: /^\/resources\/(?<id>[^/]+)$/ },
   { name: 'crm.contacts.merge', recipient: 'crm|core', method: 'set|merge', path: /^\/contacts$/ },
   { name: 'crm.contacts.get', recipient: 'crm|core', method: 'get', path: /^\/contacts\/(?<identity>[^/]+)$/ },
+  // P7: scheduled messages, broadcast lists, analytics events, tunnels and the click tracker.
+  { name: 'scheduler.schedules.set', recipient: 'scheduler', method: 'set', path: /^\/schedules$/ },
+  { name: 'scheduler.schedules.item', recipient: 'scheduler', method: 'get|delete', path: /^\/schedules\/(?<id>[^/]+)$/ },
+  { name: 'broadcast.lists', recipient: 'broadcast', method: 'get|set', path: /^\/lists$/ },
+  { name: 'broadcast.lists.item', recipient: 'broadcast', method: 'get|delete', path: /^\/lists\/(?<list>[^/]+)$/ },
+  { name: 'broadcast.recipients', recipient: 'broadcast', method: 'get|set', path: /^\/lists\/(?<list>[^/]+)\/recipients$/ },
+  {
+    name: 'broadcast.recipients.item',
+    recipient: 'broadcast',
+    method: 'get|delete',
+    path: /^\/lists\/(?<list>[^/]+)\/recipients\/(?<id>[^/]+)$/,
+  },
+  { name: 'analytics.eventTrack', recipient: 'analytics', method: 'get|set', path: /^\/event-track$/ },
+  { name: 'analytics.eventTrack.category', recipient: 'analytics', method: 'get', path: /^\/event-track\/(?<category>[^/]+)$/ },
+  { name: 'tunnel.item', recipient: 'tunnel', method: 'get', path: /^\/tunnels\/(?<id>[^/]+)$/ },
+  { name: 'clicktracker.encode', recipient: 'clicktracker', method: 'set', path: /^\/entrypoint\/encode$/ },
 ]);
 
 export interface CommandMatch {
