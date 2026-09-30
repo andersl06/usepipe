@@ -5,6 +5,8 @@ import {
   dynamicContentRaw,
   dynamicContentVariable,
   engineContentErrors,
+  inputExpirationToMinutes,
+  minutesToInputExpiration,
 } from '@pipe/core';
 import type { Block, EditorInbound, ItemDeConteudo, InboundValidation } from './model';
 import { LABEL_OF_INBOUND, card, gerarId, newInbound } from './model';
@@ -43,6 +45,11 @@ export const ROTULOS_DO_CONTEUDO = {
   instrucao: 'Instrução de validação',
   regex: 'Expressão regular',
   tipoDeMidia: 'Tipo',
+  tempoDeInatividade: 'Tempo de inatividade',
+  tempoDeInatividadeInfo:
+    'Se o cliente não responder dentro deste tempo, o fluxo segue pela saída do bloco como se não houvesse resposta (a saída padrão, ou uma condição de entrada que não existe).',
+  minutosDeInatividade: 'Tempo limite (minutos)',
+  minutosInvalidos: 'Informe um número inteiro de 1 a 1380 minutos.',
   adicionar: 'Adicionar conteúdo',
   naoSuportado: 'Conteúdo que o Pipe não envia',
   figurinha: 'Figurinha',
@@ -418,6 +425,35 @@ export function definirEspera(block: Block, aguardar: boolean): Block {
   nova.input!.bypass = !aguardar;
   const r = adicionarConteudo(block, nova);
   return r.ok ? r.block : block;
+}
+
+/**
+ * Input expiration (P8, `input.expiration`): on while the key holds text, even empty (the switch
+ * was turned on and no valid minutes were typed yet, which the engine ignores).
+ */
+export function inactivityEnabled(inbound: EditorInbound): boolean {
+  return inbound.expiration !== undefined && inbound.expiration !== null;
+}
+
+/** Turning the switch off removes the key; turning it on starts empty, as the reference does. */
+export function withInactivity(inbound: EditorInbound, enabled: boolean): EditorInbound {
+  if (enabled) return { ...inbound, expiration: inbound.expiration ?? '' };
+  const rest = { ...inbound };
+  delete rest.expiration;
+  return rest;
+}
+
+/** Minutes shown in the field for the stored `h:m` text; empty when there is none. */
+export function inactivityMinutes(inbound: EditorInbound): string {
+  const minutes = inputExpirationToMinutes(inbound.expiration);
+  return minutes === null ? '' : String(minutes);
+}
+
+/** Typed minutes → stored `h:m` text; invalid input stores empty text and reports `valid: false`. */
+export function withInactivityMinutes(inbound: EditorInbound, typed: string): { inbound: EditorInbound; valid: boolean } {
+  const text = typed.trim();
+  const expiration = /^\d+$/.test(text) ? minutesToInputExpiration(Number(text)) : null;
+  return { inbound: { ...inbound, expiration: expiration ?? '' }, valid: expiration !== null };
 }
 
 /** Return validation with a substituted rule and prefilled instruction, as the editor does. */

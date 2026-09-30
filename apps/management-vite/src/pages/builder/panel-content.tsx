@@ -39,7 +39,11 @@ import {
   novaLocalizacao,
   removerConteudo,
   hasInbound,
+  inactivityEnabled,
+  inactivityMinutes,
   validationWithRule,
+  withInactivity,
+  withInactivityMinutes,
   TIPO_MEDIA,
 } from './conteudo';
 import type { Card, MenuOption, TypeOfMediaCard } from './conteudo';
@@ -563,6 +567,9 @@ function InboundCard({
   const validando = !!inbound.validation;
   const aguardando = !inbound.bypass;
   const atualizar = (nova: EditorInbound): void => onMudar(setInbound(block, nova));
+  // Typed minutes stay as typed (an invalid value stores empty text and shows the hint).
+  const [minutos, setMinutos] = useState(() => inactivityMinutes(inbound));
+  const minutosValidos = !inactivityEnabled(inbound) || withInactivityMinutes(inbound, minutos).valid;
 
   return (
     <article className={`bl-card bl-card--client${comErro ? ' bl-card--erro' : ''}`}>
@@ -687,6 +694,40 @@ function InboundCard({
                     />
                   </label>
                 </>
+              ) : null}
+            </section>
+          ) : null}
+
+          {aguardando && !ehAttendance(block.id) ? (
+            <section className="bl-section">
+              <label className="form-caixa">
+                <input
+                  type="checkbox"
+                  checked={inactivityEnabled(inbound)}
+                  onChange={(e) => {
+                    setMinutos(e.target.checked ? minutos : '');
+                    atualizar(withInactivity(inbound, e.target.checked));
+                  }}
+                />
+                <span className="bl-section-subtitle">{ROTULOS_DO_CONTEUDO.tempoDeInatividade}</span>
+              </label>
+              <p className="bl-ajuda">{ROTULOS_DO_CONTEUDO.tempoDeInatividadeInfo}</p>
+              {inactivityEnabled(inbound) ? (
+                <label className="bl-campo">
+                  <span className="sub">{ROTULOS_DO_CONTEUDO.minutosDeInatividade}</span>
+                  <Campo
+                    type="number"
+                    min={1}
+                    max={1380}
+                    value={minutos}
+                    aria-invalid={!minutosValidos}
+                    onChange={(e) => {
+                      setMinutos(e.target.value);
+                      atualizar(withInactivityMinutes(inbound, e.target.value).inbound);
+                    }}
+                  />
+                  {!minutosValidos ? <Etiqueta tom="erro">{ROTULOS_DO_CONTEUDO.minutosInvalidos}</Etiqueta> : null}
+                </label>
               ) : null}
             </section>
           ) : null}
