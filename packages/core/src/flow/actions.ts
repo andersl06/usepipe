@@ -4,7 +4,8 @@
 
 import type { ActionDeadline, CommandRequest, Context, DeskUnavailableStatus, PedidoDeHttp } from './context.js';
 import { CONTEXT_STATE_URI, matchCommand } from './commands.js';
-import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, maskSecrets, setVariable as setContextVariable, stateKey } from './context.js';
+import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, botFlow, deleteVariable as deleteContextVariable, getVariable, maskSecrets, setVariable as setContextVariable, stateKey } from './context.js';
+import { subflowRuntimeId } from './modelos.js';
 import { runLocalCommand } from './builder-commands.js';
 
 export type Settings = Record<string, unknown> | null;
@@ -45,6 +46,13 @@ function requireKnownCommand(tipo: string, settings: Record<string, unknown>, me
   return { uri, method, resource: campo(settings, 'resource') ?? null, command };
 }
 
+/** The flow running now, the bot's flow or one of the bot's subflows (`subflow-{shortName}-{bot}`). */
+function isFlowOfThisBot(context: Context, flowId: string): boolean {
+  const bot = botFlow(context);
+  if (flowId === context.flow.id || flowId === bot.id) return true;
+  return Object.keys(bot.subflows ?? {}).some((shortName) => subflowRuntimeId(bot.id, shortName) === flowId);
+}
+
 /** The resource may be `"onboarding"`, `{"resource":"onboarding"}` or that JSON as text, as Blip exports it. */
 function stateOfResource(resource: unknown): string | null {
   let valor: unknown = resource;
@@ -69,14 +77,16 @@ const nativeCommand = (tipo: 'SendCommand' | 'ProcessCommand'): AcaoDoMotor => (
       const flowId = contextUri[1]!;
       const stateId = stateOfResource(campo(c, 'resource'));
       if (!stateId) throw new Error(`Informe o bloco de destino no resource da URI '${contextUri[0]}'.`);
-      if (flowId === context.flow.id) setContextVariable(context, stateKey(flowId), stateId);
+      // The bot's own flow and its subflows keep their blocks in this same context.
+      if (isFlowOfThisBot(context, flowId)) setContextVariable(context, stateKey(flowId), stateId);
       else await context.services.setFlowState?.({ flowId, stateId });
       const output = comoTexto(campo(c, 'variable'))?.trim();
       if (tipo === 'ProcessCommand' && output) setContextVariable(context, output, '{"status":"success"}');
       return;
     }
     const method = (comoTexto(campo(c, 'method')) ?? (tipo === 'ProcessCommand' ? 'GET' : 'set')).toUpperCase();
-    const request = { ...requireKnownCommand(this.tipo, c, method), flowId: context.flow.id };
+    // The api resolves the bot (router, `/configuration/caller`) by its flow, even inside a subflow.
+    const request = { ...requireKnownCommand(this.tipo, c, method), flowId: botFlow(context).id };
     const local = await runLocalCommand(context, request);
     if (local) {
       if (tipo === 'SendCommand') return;

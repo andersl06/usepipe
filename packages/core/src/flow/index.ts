@@ -8,6 +8,7 @@ export * from './actions.js';
 export * from './commands.js';
 export * from './builder-commands.js';
 export * from './manager.js';
+export * from './subflows.js';
 export * from './editor.js';
 export * from './padrao.js';
 export * from './satisfaction-survey.js';

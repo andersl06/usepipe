@@ -87,12 +87,75 @@ export interface FlowBlip {
   outputActions?: Acao[] | null;
   afterStateChangedActions?: Acao[] | null;
   configuration?: Record<string, string> | null;
+  /**
+   * The bot's subflows, keyed by Blip's `shortNameOfSubflow`, each a published `Flow` with
+   * `type: 'subflow'`. Blip keeps every subflow as a separate application; Pipe stores them in the
+   * caller's own version document (`fluxo_versao.global.subflows`), so a published version and its
+   * subflows can never drift apart. Only the root flow carries this map: a subflow calling another
+   * subflow resolves the short name here too.
+   */
+  subflows?: Record<string, FlowBlip> | null;
 }
 
 const VERSAO_ATUAL_DE_SUBFLUXO = 2;
 const VARIABLE_OF_INBOUND = /^([a-zA-Z0-9.]+)$/;
 
 export const ehSubfluxo = (flow: FlowBlip): boolean => flow.type?.toLowerCase() === 'subflow';
+
+/** Blip `FlowManager.IsSubflowState`: a block whose id starts with `subflow:` calls a subflow. */
+export const SUBFLOW_STATE_PREFIX = 'subflow:';
+
+export const isSubflowState = (state: State | null | undefined): state is State =>
+  !!state && state.id.startsWith(SUBFLOW_STATE_PREFIX);
+
+/** The subflow a `subflow:` block calls: Blip's `shortNameOfSubflow` extension data. */
+export function subflowShortName(state: State): string | null {
+  const value = state['shortNameOfSubflow'] ?? state['ShortNameOfSubflow'];
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+/**
+ * The runtime id of a subflow of `rootId`, following Blip's subflow application name
+ * (`subflow-{shortName}-{bot}`). It keys the subflow's saved block (`stateId@{id}`) and its own
+ * `currentFlowSession@{id}` when it calls another subflow.
+ */
+export const subflowRuntimeId = (rootId: string, shortName: string): string =>
+  `subflow-${shortName}-${rootId}`;
+
+/**
+ * The subflow `shortName` of `root`, ready to run: runtime id, `type: 'subflow'`, version 2 unless
+ * the document says otherwise (Blip rejects a subflow below 2), and the root's `configuration`
+ * under its own so `{{config.x}}` and the `builder:*` keys keep working inside it. Null when the
+ * root has no such subflow. The short name matches exactly first, then ignoring case.
+ */
+export function runtimeSubflow(root: FlowBlip, shortName: string): FlowBlip | null {
+  const map = root.subflows ?? {};
+  const key = Object.prototype.hasOwnProperty.call(map, shortName)
+    ? shortName
+    : Object.keys(map).find((k) => k.toLowerCase() === shortName.toLowerCase());
+  const doc = key === undefined ? undefined : map[key];
+  if (key === undefined || !doc || !Array.isArray(doc.states)) return null;
+  const configuration = { ...(root.configuration ?? {}), ...(doc.configuration ?? {}) };
+  return {
+    ...doc,
+    id: subflowRuntimeId(root.id, key),
+    type: 'subflow',
+    version: doc.version ?? VERSAO_ATUAL_DE_SUBFLUXO,
+    ...(Object.keys(configuration).length > 0 ? { configuration } : {}),
+    subflows: null,
+  };
+}
+
+/** A `subflow:` block must name a subflow the root stores. */
+function subflowReferenceError(state: State, root: FlowBlip): string | null {
+  if (!isSubflowState(state)) return null;
+  const shortName = subflowShortName(state);
+  if (!shortName) return `O bloco de subfluxo '${state.id}' não indica qual subfluxo chamar.`;
+  if (!runtimeSubflow(root, shortName)) {
+    return `O subfluxo '${shortName}' chamado pelo bloco '${state.id}' não existe neste fluxo.`;
+  }
+  return null;
+}
 
 /** `stateId` in `{{variavel}}` form: destination calculated at runtime. */
 export const contextEhVariable = (id: string): boolean =>
@@ -148,7 +211,7 @@ export function validateState(state: State): void {
 /**
  * `Flow.Validate()` contract for a valid flow: exactly one root state; root awaits input and has no condition; unique IDs; every output destination exists or is `{{variável}}`; and no loop bypasses input.
  */
-export function validateFlow(flow: FlowBlip): void {
+export function validateFlow(flow: FlowBlip, root: FlowBlip = flow): void {
   if (!flow.id) throw new ValidationError('O id do fluxo é obrigatório.');
   if (!Array.isArray(flow.states))
     throw new ValidationError('O fluxo precisa de pelo menos um estado.');
@@ -209,6 +272,26 @@ export function validateFlow(flow: FlowBlip): void {
 
   for (const a of flow.outputActions ?? []) validarAcao(a);
   for (const a of flow.afterStateChangedActions ?? []) validarAcao(a);
+
+  for (const state of flow.states) {
+    const message = subflowReferenceError(state, root);
+    if (message) throw new ValidationError(message);
+  }
+  // Only the root validates the subflows it stores; a subflow checks its own references above.
+  if (flow === root) {
+    for (const shortName of Object.keys(root.subflows ?? {})) {
+      const subflow = runtimeSubflow(root, shortName);
+      if (!subflow) throw new ValidationError(`Subfluxo '${shortName}': o subfluxo não tem estados.`);
+      try {
+        validateFlow(subflow, root);
+      } catch (error) {
+        if (error instanceof ValidationError) {
+          throw new ValidationError(`Subfluxo '${shortName}': ${error.message}`);
+        }
+        throw error;
+      }
+    }
+  }
 }
 
 /** `validarFluxo` error attached to its causing state, or null for a whole-flow error. */
@@ -230,7 +313,7 @@ const validationMessage = (conferir: () => void): string | null => {
 /**
  * Return ALL errors `validarFluxo` would report, each attached to its causing state so Builder marks the right block. `validarFluxo` stops at the first error to remain faithful to `Flow.Validate()`; the engine needs only that. The UI needs all missing pieces at once. Validate each state and output destination, then whole-flow conditions such as missing or duplicate root, duplicate ID, and loop without input. Messages match `validarFluxo` exactly; an empty list means validation would pass.
  */
-export function flowErrors(flow: FlowBlip): ByStateError[] {
+export function flowErrors(flow: FlowBlip, root: FlowBlip = flow): ByStateError[] {
   const errors: ByStateError[] = [];
   const anotar = (stateId: string | null, message: string): void => {
     if (!errors.some((e) => e.stateId === stateId && e.message === message)) {
@@ -248,9 +331,30 @@ export function flowErrors(flow: FlowBlip): ByStateError[] {
         anotar(state.id, `O estado de destino '${saida.stateId}' da saída não existe.`);
       }
     }
+    const referencia = subflowReferenceError(state, root);
+    if (referencia) anotar(state.id, referencia);
   }
 
-  const geral = validationMessage(() => validateFlow(flow));
+  // A subflow's own errors land on the blocks that call it (null when none does), prefixed with
+  // its short name exactly as `validarFluxo` reports the first of them.
+  if (flow === root) {
+    for (const shortName of Object.keys(root.subflows ?? {})) {
+      const subflow = runtimeSubflow(root, shortName);
+      const internos: ByStateError[] = subflow
+        ? flowErrors(subflow, root)
+        : [{ stateId: null, message: 'o subfluxo não tem estados.' }];
+      const chamadores = estados
+        .filter((s) => isSubflowState(s) && subflowShortName(s)?.toLowerCase() === shortName.toLowerCase())
+        .map((s) => s.id);
+      for (const erro of internos) {
+        for (const chamador of chamadores.length > 0 ? chamadores : [null]) {
+          anotar(chamador, `Subfluxo '${shortName}': ${erro.message}`);
+        }
+      }
+    }
+  }
+
+  const geral = validationMessage(() => validateFlow(flow, root));
   // Do not duplicate a `validarFluxo` error already listed for a state.
   if (!geral || errors.some((e) => e.message === geral)) return errors;
 
