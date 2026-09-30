@@ -33,7 +33,7 @@ const config: ConfigOidc = {
   emissor: EMISSOR,
   clienteId: 'cliente-do-pipe',
   customerSecret: 'segredo-do-pipe',
-  urlOfCallback: 'https://api.usepipe.com.br/v1/auth/sso/callback',
+  urlOfCallback: 'https://api.pipe.test/v1/auth/sso/callback',
 };
 
 async function keysOfTest() {

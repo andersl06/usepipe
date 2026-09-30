@@ -202,7 +202,7 @@ export class SsoLoginController {
   }
 
   /**
-   * A company direct link, `app.usepipe.com.br/e/<slug>`, reaches this route. It performs the same discovery by URL rather than email for people with personal email addresses who cannot be discovered by domain.
+   * A direct SSO link reaches this route. It performs discovery by URL rather than email for people with personal email addresses who cannot be discovered by domain.
    */
   @Get('sso/:slug')
   async ir(

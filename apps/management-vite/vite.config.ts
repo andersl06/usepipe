@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react-swc';
 /**
  * Pipe Gestão as an SPA — the design from `docs/specs/2026-09-07-arquitetura-de-front.md`: Vite with SWC, a static front, and the NestJS `api` as the only gateway to the database.
  *
- * In development `/v1` is proxied to the `api` (3010), so the `pipe_sessao` (HttpOnly) cookie can travel back and forth on the SAME origin — no CORS, no token in the browser. In production both live under `.usepipe.com.br` and the cookie crosses via `Domain`, as the spec describes.
+ * In development `/v1` is proxied to the `api` (3010), so the HttpOnly session cookie travels on the same origin. In production the parent-domain cookie is shared across tenant hosts.
  *
  * `@pipe/ui` is consumed as source, with no build step — the same arrangement the Next app used with `transpilePackages`.
  */

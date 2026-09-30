@@ -38,7 +38,7 @@ export async function createApplication(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModulo, { bodyParser: false });
 
   /**
-   * Credentialed CORS uses the closed `PIPE_ORIGENS` list for the API at `api.usepipe.com.br` and screens at `app.`, `gestao.`, and `crm.`. Never wildcard it: browsers reject `*` with `credentials: true`, and allowing arbitrary origins would expose authenticated requests from signed-in users.
+   * Credentialed CORS uses fixed `PIPE_ORIGENS` plus strictly validated tenant hosts. Never wildcard it: browsers reject `*` with `credentials: true`, and allowing arbitrary origins would expose authenticated requests from signed-in users.
    */
   const permitidas = origensPermitidas();
   app.enableCors({
