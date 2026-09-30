@@ -3,6 +3,6 @@
 # Nada de segredo aqui: token de API sai do ambiente, não de arquivo.
 zone_id         = "0000000000000000000000000000"
 # Example only; configure the Cloudflare zone/delegation accordingly.
-domain          = "hml.usepipe.app"
+domain          = "hml.pipebr.ai"
 email_acme      = "infra@pipe.com.br"
 repositorio_git = "git@github.com:pipe/pipe.git"

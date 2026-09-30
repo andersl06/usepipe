@@ -19,4 +19,4 @@ O cookie de sessão usa `Domain=.<D>` para Gestão, Desk e login central, `Secur
 
 Traefik roteia por padrões de host com prioridade explícita, com `/v1` no próprio host do tenant encaminhado à API. Em domínio real, ACME DNS-01 emite pedidos separados para `*.<D>`, `*.desk.<D>` e `<D>` + `www.<D>`; todos os A são DNS only, com CAA para Let's Encrypt. O modo pré-domínio `.sslip.io` usa HTTP-01 apenas para poucos tenants de smoke explícitos, sem certificado curinga. Nenhum CNAME de serviço terceiro deve ficar na zona que recebe o cookie.
 
-O domínio pretendido é `usepipe.app`, mas a compra, o DNS, o deploy e o smoke na VPS são checkpoints do dono; este adendo não afirma que foram executados.
+O domínio pretendido é `pipebr.ai`, mas a compra, o DNS, o deploy e o smoke na VPS são checkpoints do dono; este adendo não afirma que foram executados.

@@ -4,6 +4,8 @@ apps/crm/.env.example
 apps/management-vite/README.md
 apps/site/README.md
 apps/site/docker-compose.yml
+# Owner explicitly retained this active Entrar destination; changing it is deferred.
+apps/site/index.html:^.*data-entrar.*app\.usepipe\.ai/entrar.*$
 infra/compose/env.prod.exemplo
 infra/runbooks/domain-activation.md
 infra/terraform/**/terraform.tfvars.exemplo

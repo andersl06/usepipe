@@ -1,6 +1,6 @@
 # Subdomínios de tenant no desenvolvimento
 
-Use `lvh.me` para reproduzir o cookie compartilhado sem tocar no domínio real. O navegador força HTTPS para domínios `.app` por HSTS preload; `http://*.usepipe.app` não serve para desenvolvimento. `lvh.me` resolve para `127.0.0.1`; sem DNS externo, acrescente `login.lvh.me`, `alfa.lvh.me`, `beta.lvh.me`, `alfa.desk.lvh.me` e `beta.desk.lvh.me` ao arquivo `hosts` local.
+Use `lvh.me` para reproduzir o cookie compartilhado sem tocar no domínio real planejado (`pipebr.ai`). `lvh.me` resolve para `127.0.0.1`; sem DNS externo, acrescente `login.lvh.me`, `alfa.lvh.me`, `beta.lvh.me`, `alfa.desk.lvh.me` e `beta.desk.lvh.me` ao arquivo `hosts` local. A validação do domínio real deve usar HTTPS.
 
 Pré-requisitos: Node/pnpm do projeto, Postgres e Redis locais já preparados e migrations locais previamente aplicadas pelo operador. Este guia não executa migrations. Evite rodar os Vite servers expostos a uma rede pública (`0.0.0.0`).
 
