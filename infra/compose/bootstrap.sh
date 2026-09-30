@@ -49,8 +49,6 @@ for prog in docker sops age; do
     "        curl -fsSLo /usr/local/bin/sops https://github.com/getsops/sops/releases/latest/download/sops-v3.9.4.linux.amd64" \
     "        chmod +x /usr/local/bin/sops"
 done
-docker compose version > /dev/null 2>&1 || parar "o plugin \`docker compose\` não está disponível." \
-  "Instale o docker pelo get.docker.com, que já traz o plugin v2."
 
 mkdir -p "${DADOS}/acme"
 touch "${DADOS}/acme/acme.json" "${DADOS}/acme/acme-dns.json"
@@ -96,6 +94,8 @@ source "${ENV}"
 set +a
 pipe_domain_preflight || parar "configuracao de dominio invalida."
 DOMINIO="${PIPE_DOMINIO_CONTAS}"
+docker compose version > /dev/null 2>&1 || parar "o plugin \`docker compose\` não está disponível." \
+  "Instale o docker pelo get.docker.com, que já traz o plugin v2."
 
 faltando=()
 for chave in POSTGRES_SENHA POSTGRES_APP_SENHA DATABASE_URL DATABASE_URL_APP REDIS_URL \

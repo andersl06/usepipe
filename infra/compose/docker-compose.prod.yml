@@ -22,6 +22,9 @@ x-padrao: &padrao
 x-app: &app
   <<: *padrao
   env_file: [/opt/pipe-dados/.env]
+  # The shared env file holds the ACME token; remove it from application processes.
+  environment:
+    CF_DNS_API_TOKEN: ''
   networks: [borda, dados]
   # Tetos calculados para uma VPS de 4 vCPU / 16 GB. A soma dos limites passa do
   # total de propósito: nem todos chegam no teto ao mesmo tempo. O que não pode
@@ -221,6 +224,7 @@ services:
     networks: [borda, dados]
     environment:
       PIPE_URL_ESTE_APP: https://crm.${PIPE_DOMINIO_CONTAS}
+      CF_DNS_API_TOKEN: ''
     healthcheck: *saude-next
     depends_on:
       postgres:
@@ -486,6 +490,8 @@ services:
     profiles: [tarefa]
     restart: 'no'
     env_file: [/opt/pipe-dados/.env]
+    environment:
+      CF_DNS_API_TOKEN: ''
     # `pnpm --filter @pipe/db migrar` NÃO roda aqui: a imagem de produção não tem
     # pnpm, tsx nem devDependencies. O `dist/migrar.js` compilado faz o mesmo —
     # aplica as migrations e garante as partições — e os .sql viajam junto em
@@ -511,6 +517,8 @@ services:
     profiles: [tarefa]
     restart: 'no'
     env_file: [/opt/pipe-dados/.env]
+    environment:
+      CF_DNS_API_TOKEN: ''
     entrypoint: ['node', '/app/apps/api/dist/provisionar.js']
     networks: [dados]
     depends_on:
