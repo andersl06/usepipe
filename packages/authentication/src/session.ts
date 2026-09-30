@@ -1,4 +1,6 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+import { parseTenantHost } from '@pipe/contracts';
+import type { TenantHostConfig } from '@pipe/contracts';
 
 /**
  * Pipe sessions put the token in a browser cookie and store only its **hash** in the database. As with API keys, a database reader cannot impersonate a user.
@@ -92,22 +94,46 @@ function montarCookie(value: string, opcoes: OptionsOfCookie, prazo: string): st
  *
  * A closed list comes from the environment. Never use `*`: browsers reject credentialed wildcard CORS, and allowing it would let any website send authenticated requests for a signed-in user.
  */
-export function origensPermitidas(env: NodeJS.ProcessEnv = process.env): string[] {
-  const cru = env['PIPE_ORIGENS'] ?? '';
-  return cru
-    .split(',')
-    .map((o) => o.trim().replace(/\/$/, ''))
-    .filter(Boolean);
+export type AllowedOrigins = { fixed: string[]; tenant: TenantHostConfig | null };
+
+export function readTenantHostConfig(env: NodeJS.ProcessEnv = process.env): TenantHostConfig | null {
+  const baseDomain = (env['PIPE_DOMINIO_CONTAS'] ?? '').trim().toLowerCase();
+  if (!baseDomain) return null;
+  return {
+    baseDomain,
+    publicPort: (env['PIPE_PORTA_PUBLICA'] ?? '').trim(),
+    secure: env['PIPE_COOKIE_SEGURO'] !== 'false',
+  };
 }
 
-export function origemPermitida(origem: string | undefined, permitidas: string[]): boolean {
+export function origensPermitidas(env: NodeJS.ProcessEnv = process.env): AllowedOrigins {
+  const cru = env['PIPE_ORIGENS'] ?? '';
+  return { fixed: cru
+    .split(',')
+    .map((o) => o.trim().replace(/\/$/, ''))
+    .filter((o) => Boolean(o) && !o.includes('*')),
+    tenant: readTenantHostConfig(env),
+  };
+}
+
+export function origemPermitida(origem: string | undefined | null, permitidas: AllowedOrigins): boolean {
   if (!origem) return false;
-  return permitidas.includes(origem.replace(/\/$/, ''));
+  try {
+    const url = new URL(origem);
+    if (url.username || url.password || url.pathname !== '/' || url.search || url.hash) return false;
+    if (!['http:', 'https:'].includes(url.protocol)) return false;
+    if (permitidas.fixed.includes(url.origin)) return true;
+    const config = permitidas.tenant;
+    return Boolean(config && url.protocol === (config.secure ? 'https:' : 'http:') && parseTenantHost(url.host, config));
+  } catch {
+    return false;
+  }
 }
 
 export interface SessionActive {
   id: string;
   tenantId: string;
+  tenantSlug: string;
   userId: string;
   expiraEm: Date;
   origem: string;

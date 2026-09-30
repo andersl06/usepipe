@@ -226,7 +226,7 @@ export class LoginController {
     const permitidas = origensPermitidas();
     const origem = origemDaQuery(requisicao);
     const base =
-      origem && permitidas.includes(origem) ? origem : (permitidas[0] ?? 'http://localhost:3200');
+      origem && origemPermitida(origem, permitidas) ? origem : (permitidas.fixed[0] ?? 'http://localhost:3200');
     resposta.redirect(302, `${base}/`);
   }
 

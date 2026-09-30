@@ -351,6 +351,9 @@ importers:
 
   packages/authentication:
     dependencies:
+      '@pipe/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       '@pipe/db':
         specifier: workspace:*
         version: link:../db

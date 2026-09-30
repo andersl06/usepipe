@@ -3,11 +3,12 @@ import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
 import { sql } from 'drizzle-orm';
 import type { Request } from 'express';
-import { hashDoToken, resolveSession } from '@pipe/authentication';
+import { hashDoToken, readTenantHostConfig, resolveSession } from '@pipe/authentication';
 import type { SessionActive } from '@pipe/authentication';
 import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner } from './database.js';
 import { PipeError } from './errors.js';
+import { resolveRequestTenantSlug } from './request-tenant.js';
 
 /**
  * Browser session authentication complements API-key authentication in `autenticacao.ts`. Controllers read neither headers nor cookies and derive `tenant_id` server-side. Integrations use `Authorization: Bearer pipe_...`; people use browser cookie `pipe_sessao`. Routes declare `@Escopos(...)` or `@ComSessao()`; unmarked routes such as webhooks and `/saude` are intentionally public. Parse the cookie directly with semicolon splitting instead of adding `cookie-parser`. The cookie parser is a semicolon `split`.
@@ -121,6 +122,11 @@ export class SessionGuard implements CanActivate {
     // Look up the unique indexed hash; plaintext tokens never reach the database.
     const session = await resolveSession(databaseOwner(), hashDoToken(token));
     if (!session) throw recusa();
+
+    const requestedSlug = resolveRequestTenantSlug({ host: request.headers.host, origin: request.headers.origin }, readTenantHostConfig());
+    if (requestedSlug && requestedSlug !== session.tenantSlug) {
+      throw new PipeError(403, 'tenant_mismatch', 'Você não tem acesso a esta conta.');
+    }
 
     request.session = session;
     return true;
