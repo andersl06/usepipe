@@ -104,7 +104,12 @@ test('a combination with a blank intent is a validation error, not "any intent"'
 test('renaming an entity value keeps content matching its synonyms at runtime', async () => {
   const module = await import('../src/pages/flow/ai-model-logic');
   // The engine's own matcher: validation must agree with what actually matches.
-  const runtime = await import('../../api/src/domain/nlp-model');
+  // A computed path, so type-checking this app (e.g. its Docker build, which has no `apps/api`) never resolves it.
+  const runtimePath = new URL('../../api/src/domain/nlp-model.ts', import.meta.url).href;
+  const runtime = (await import(runtimePath)) as {
+    findEntities: (m: FlowAiModelInput, text: string) => unknown;
+    matchContentInModel: (m: FlowAiModelInput, input: { intent: string; entities: unknown }) => { id: string } | null;
+  };
   const matches = (m: FlowAiModelInput, text: string) => runtime.matchContentInModel(m, { intent: 'trocas', entities: runtime.findEntities(m, text) })?.id ?? null;
   assert.equal(matches(model, 'quero trocar a blusa'), 'c');
   const memory: RenameMemory = new Map();
