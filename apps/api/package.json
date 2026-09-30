@@ -55,6 +55,7 @@
     "@pipe/contracts": "workspace:*",
     "@pipe/core": "workspace:*",
     "@pipe/db": "workspace:*",
+    "@pipe/mcp": "workspace:*",
     "@pipe/storage": "workspace:*",
     "@pipe/workers": "workspace:*",
     "bullmq": "^5.60.0",

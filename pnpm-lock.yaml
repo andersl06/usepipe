@@ -65,6 +65,9 @@ importers:
       '@pipe/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@pipe/mcp':
+        specifier: workspace:*
+        version: link:../../packages/mcp
       '@pipe/storage':
         specifier: workspace:*
         version: link:../../packages/storage
