@@ -277,8 +277,9 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects }: En
     // Like callHttp, the script (up to 10 s) still runs inside the inbound transaction.
     runScript: (request) => runFlowScript(request, { fetch: scriptFetch(tenantId), library: flowFunctions.values() }),
     runFlowFunction: async ({ functionId, args }) => {
-      const definition = flowFunctions.get(functionId);
-      if (!definition) throw new Error(`A função '${functionId}' não existe neste fluxo.`);
+      // The tenant library is keyed by the database's lowercase UUID; Blip exports may differ in case.
+      const definition = flowFunctions.get(functionId.toLowerCase());
+      if (!definition) throw new Error(`A função '${functionId}' não existe na biblioteca da conta.`);
       if (definition.parameters.length !== args.length) {
         throw new Error(`A função '${definition.name}' esperava ${definition.parameters.length} parâmetro(s).`);
       }

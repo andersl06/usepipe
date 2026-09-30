@@ -197,6 +197,33 @@ describe('flow function actions', () => {
 
     expect(c.variables['resultado']).toBe('{"greeting":"Olá Ana"}');
   });
+
+  it('reads the function UUID from `source`, as a Blip export stores it', async () => {
+    const c = context();
+    const requests: unknown[] = [];
+    c.services.runFlowFunction = async (request) => { requests.push(request); return 'ok'; };
+    c.flow.states[0]!.outputActions = [{
+      type: 'ExecuteBlipFunction',
+      settings: { source: '0f8fad5b-d9cb-469f-a165-70867728950e', inputVariables: [], outputVariable: 'resultado' },
+    }];
+
+    await processInbound(c);
+
+    expect(requests).toEqual([{ functionId: '0f8fad5b-d9cb-469f-a165-70867728950e', args: [] }]);
+    expect(c.variables['resultado']).toBe('ok');
+  });
+
+  it('fails the action when neither source nor functionId is set', async () => {
+    const c = context();
+    c.services.runFlowFunction = async () => 'nunca';
+    c.flow.states[0]!.outputActions = [{
+      type: 'ExecuteBlipFunction',
+      settings: { inputVariables: [], outputVariable: 'resultado' },
+    }];
+
+    await expect(processInbound(c)).rejects.toThrow(/source/);
+    expect(c.variables['resultado']).toBeUndefined();
+  });
 });
 
 describe('script actions', () => {

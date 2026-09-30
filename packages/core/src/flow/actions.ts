@@ -581,8 +581,10 @@ const executeBlipFunction: AcaoDoMotor = {
     if (!context.services.runFlowFunction) {
       throw new Error(`A ação ${this.tipo} não está disponível neste fluxo.`);
     }
-    const functionId = comoTexto(campo(c, 'functionId'))?.trim();
-    if (!functionId) throw new Error(`O valor 'functionId' é obrigatório na ação '${this.tipo}'.`);
+    // Blip stores the library function's UUID in `source` (its validator requires a UUID there);
+    // `functionId` is what Pipe's Builder wrote before P10 and keeps working.
+    const functionId = (comoTexto(campo(c, 'source'))?.trim() || comoTexto(campo(c, 'functionId'))?.trim()) ?? '';
+    if (!functionId) throw new Error(`O valor 'source' é obrigatório na ação '${this.tipo}'.`);
     const output = comoTexto(campo(c, 'outputVariable'))?.trim();
     if (!output) throw new Error(`O valor 'outputVariable' é obrigatório na ação '${this.tipo}'.`);
     const inputs = campo(c, 'inputVariables');
