@@ -297,10 +297,15 @@ export function nlpServices(options: NlpServicesOptions): Pick<ServicosDoMotor, 
       const entities = findEntities(model, text);
       if (model.intents.length === 0) return { intentions: [], entities };
       const request = classifierRequest(model, text);
-      const intentions = (await useStub(request))
-        ? lexicalIntents(model, text)
-        : parseClassifierReply(model, await options.callModel(request, AbortSignal.timeout(NLP_LIMITS.classifierTimeoutMs)));
-      return { intentions, entities };
+      if (await useStub(request)) return { intentions: lexicalIntents(model, text), entities };
+      try {
+        const reply = await options.callModel(request, AbortSignal.timeout(NLP_LIMITS.classifierTimeoutMs));
+        return { intentions: parseClassifierReply(model, reply), entities };
+      } catch {
+        // A failed classification (no key, provider down) means no intent, as in Blip; the
+        // dictionary entities need no provider and are kept.
+        return { intentions: [], entities };
+      }
     },
     matchContent: async (request) => {
       const model = await options.loadModel();
