@@ -141,6 +141,7 @@ function servicesOfTestRun(
   store: TestRunStore,
   messages: TestRunMessage[],
   flowFunctions: Map<string, LoadedFlowFunction>,
+  flowId?: string,
 ): ServicosDoMotor {
   const conversation = store.conversation;
   /** The queue a real handoff would pick (`chooseQueue`; a test run has no inbox default). */
@@ -166,6 +167,8 @@ function servicesOfTestRun(
   return engineServices({
     tenantId: tid,
     flowFunctions,
+    // `{{secret.*}}` resolves in the test run's HTTP actions too; the engine masks it in `debug`.
+    ...(flowId ? { flowId } : {}),
     isolate: (fn) => tx.transaction(fn),
     effects: {
       tickets: {
@@ -282,7 +285,7 @@ export async function runBuilderTest(
     contact: store.contact,
     resources,
     application: await loadApplicationIdentity(tx, flowId),
-    services: servicesOfTestRun(tx, tid, options.input, store, messages, flowFunctions),
+    services: servicesOfTestRun(tx, tid, options.input, store, messages, flowFunctions, flowId),
   };
 
   try {

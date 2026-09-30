@@ -4,7 +4,7 @@
 
 import { COMPARISONS, FONTES } from './condition.js';
 import type { ConditionBlip } from './condition.js';
-import { SOURCES_OF_VARIABLE, FONTES_SUPORTADAS } from './context.js';
+import { ACTIONS_WITH_SECRETS, SOURCES_OF_VARIABLE, FONTES_SUPORTADAS } from './context.js';
 import type { VariableSource } from './context.js';
 import type { Acao, Inbound, State, FlowBlip, Saida } from './modelos.js';
 import { PROVEDOR_PADRAO } from './actions.js';
@@ -361,8 +361,13 @@ export function importReport(flow: FlowBlip): ImportReport {
     }
   };
 
+  /** `{{secret.*}}` references inside HTTP action settings, the only place they resolve. */
+  let secretsInHttp = 0;
   const verAcao = (a: Acao): void => {
     somar(r.actions, a.type);
+    if (ACTIONS_WITH_SECRETS.has(a.type)) {
+      secretsInHttp += [...JSON.stringify(a.settings ?? null).matchAll(/{{secret\./gi)].length;
+    }
     viewConditions(a.conditions);
     if (!PROVEDOR_PADRAO.has(a.type)) return somar(r.naoSuportado, `acao:${a.type}`);
     if (ACTIONS_WITHOUT_EFFECT.has(a.type)) somar(r.semEfeito, `acao:${a.type}`);
@@ -412,6 +417,12 @@ export function importReport(flow: FlowBlip): ImportReport {
     if (!nome.includes('.')) continue;
     const fonte = nome.split('.')[0]!.toLowerCase();
     const conhecida = SOURCES_OF_VARIABLE.includes(fonte as VariableSource);
+    if (fonte === 'secret') {
+      // A secret works only in an HTTP action (as in Blip); anywhere else it reads empty.
+      if (secretsInHttp > 0) secretsInHttp -= 1;
+      else somar(r.naoSuportado, 'variavel:secret');
+      continue;
+    }
     if (!conhecida || !FONTES_SUPORTADAS.has(fonte as VariableSource))
       somar(r.naoSuportado, `variavel:${fonte}`);
   }

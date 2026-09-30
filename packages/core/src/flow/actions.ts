@@ -4,7 +4,7 @@
 
 import type { ActionDeadline, CommandRequest, Context, DeskUnavailableStatus, PedidoDeHttp } from './context.js';
 import { CONTEXT_STATE_URI, matchCommand } from './commands.js';
-import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable, stateKey } from './context.js';
+import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, maskSecrets, setVariable as setContextVariable, stateKey } from './context.js';
 import { runLocalCommand } from './builder-commands.js';
 
 export type Settings = Record<string, unknown> | null;
@@ -444,6 +444,8 @@ const processHttp: AcaoDoMotor = {
     const pedido: PedidoDeHttp = {
       metodo: metodo as PedidoDeHttp['metodo'], url: uri, cabecalhos, timeoutMs,
       ...(corpo === undefined ? {} : { corpo }),
+      // A request carrying `{{secret.*}}` must be encrypted wherever the `api` stores it.
+      ...(prazo?.secrets?.size ? { sensivel: true } : {}),
     };
     const cursor = context.inboundContext.get('process-http-cursor');
     if (context.services.suspendHttp && cursor) {
@@ -458,7 +460,8 @@ const processHttp: AcaoDoMotor = {
     const status = comoTexto(campo(c, 'responseStatusVariable'))?.trim();
     const bodyVariable = comoTexto(campo(c, 'responseBodyVariable'))?.trim();
     if (status) setContextVariable(context, status, String(resposta.status));
-    if (bodyVariable) setContextVariable(context, bodyVariable, resposta.corpo);
+    // A service that echoes the credential (or a network error quoting the URL) must not put it in context.
+    if (bodyVariable) setContextVariable(context, bodyVariable, maskSecrets(resposta.corpo, prazo?.secrets));
   },
 };
 

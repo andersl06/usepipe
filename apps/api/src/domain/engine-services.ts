@@ -10,6 +10,7 @@ import { queueUnavailability } from './queue-entry.js';
 import { DESK_WRITE_COMMANDS } from './desk-write-commands.js';
 import { BUILDER_COMMANDS } from './builder-commands.js';
 import { SCHEDULING_COMMANDS, type MessagingEffects } from './scheduling-commands.js';
+import { loadFlowSecret } from './management/flow-secrets.js';
 
 /**
  * The engine services (`ServicosDoMotor`) that production (`flow.ts` `runFlowInInbound`) and the
@@ -81,6 +82,8 @@ export interface EngineServicesOptions {
    */
   isolate: <T>(fn: (tx: TransactionPipe) => Promise<T>) => Promise<T>;
   effects: EngineEffects;
+  /** The running flow: its `variavel_secreta_do_fluxo` rows back `{{secret.*}}` in HTTP actions (P11). */
+  flowId?: string;
 }
 
 /** `MergeContact` fields in Pipe columns; `city`/`gender`/`extras` go to `atributos`. */
@@ -237,10 +240,20 @@ export async function knowledgeMatch(
  * The full `ServicosDoMotor` minus the caller-specific `suspendHttp`/`redirect`, which only exist
  * for a real execution.
  */
-export function engineServices({ tenantId, flowFunctions, isolate, effects }: EngineServicesOptions): ServicosDoMotor {
+export function engineServices({ tenantId, flowFunctions, isolate, effects, flowId }: EngineServicesOptions): ServicosDoMotor {
   const { tickets, saveContact, queueOfHandoff, messaging, ...rest } = effects;
+  /** Decrypted secrets for this one input only; they live in memory and nowhere else. */
+  const secrets = new Map<string, string | null>();
   return {
     ...rest,
+    ...(flowId
+      ? {
+          resolveSecret: async (name: string) => {
+            if (!secrets.has(name)) secrets.set(name, await isolate((tx) => loadFlowSecret(tx, flowId, name)));
+            return secrets.get(name) ?? null;
+          },
+        }
+      : {}),
     // A block with availability exits opens no ticket when the chosen queue is closed or has
     // nobody online. `DeskUnavailable` is thrown outside `isolate`, so it is not a database error.
     forwardForAttendance: async (request) => {

@@ -10,6 +10,7 @@ import {
   blipReadFlow,
   processInbound,
   importReport,
+  maskSecrets,
   SuspensaoDeProcessHttp,
   SURVEY_CONTENT_TYPE,
   validateFlow,
@@ -38,6 +39,7 @@ import { chamarComMtls } from './mtls.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 import { loadFlowFunctions } from './management/flow-functions.js';
 import { loadFlowResources } from './management/flow-resources.js';
+import { openHttpRequest, sealHttpRequest, type StoredHttpRequest } from './management/flow-secrets.js';
 import { closeInTransaction, type LineConversation } from './conversation.js';
 import { engineServices, isFlowOfTenant, type TicketEffects } from './engine-services.js';
 import { databaseMessagingEffects } from './scheduling-commands.js';
@@ -356,6 +358,8 @@ export async function runFlowInInbound(
   const servicos: ServicosDoMotor = engineServices({
     tenantId: e.tenantId,
     flowFunctions,
+    // Secrets belong to this flow, never the router's, like resources above.
+    flowId: publicado.flowId,
     isolate: emSavepoint,
     effects: {
       tickets,
@@ -512,7 +516,7 @@ export async function runFlowInInbound(
           tipo: e.message.type,
           conteudo: e.message.content,
         })}::jsonb,
-        ${JSON.stringify(variables)}::jsonb, ${JSON.stringify(pedido)}::jsonb, 'pendente'
+        ${JSON.stringify(variables)}::jsonb, ${JSON.stringify(sealHttpRequest(pedido))}::jsonb, 'pendente'
       )
       on conflict (execucao_id, chave) do nothing
       returning id
@@ -659,7 +663,7 @@ export async function runFlowInInbound(
 export async function executarProcessHttp(processoId: string): Promise<string[]> {
   type Linha = {
     id: string; tenant_id: string; executionId: string; state: string;
-    pedido: PedidoDeHttp; inbound: Record<string, unknown>; blockCode: string;
+    pedido: StoredHttpRequest; inbound: Record<string, unknown>; blockCode: string;
     lista: CursorDeProcessHttp['lista']; indice: number;
   };
   const dono = await databaseOwner().execute<Linha>(sql`
@@ -679,19 +683,25 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
   });
   if (!tomou) return [];
 
-  confirmarUrlSegura(encontrado.pedido.url);
+  // A request carrying `{{secret.*}}` was stored encrypted (`sealHttpRequest`); decrypt it only here.
+  const pedido: PedidoDeHttp = openHttpRequest(encontrado.pedido);
+  confirmarUrlSegura(pedido.url);
   let resposta: RespostaDeHttp;
   try {
-    const r = await chamarComMtls(encontrado.tenant_id, encontrado.pedido.url, {
-      metodo: encontrado.pedido.metodo,
-      headers: encontrado.pedido.cabecalhos,
-      body: encontrado.pedido.corpo,
-      timeoutMs: encontrado.pedido.timeoutMs,
+    const r = await chamarComMtls(encontrado.tenant_id, pedido.url, {
+      metodo: pedido.metodo,
+      headers: pedido.cabecalhos,
+      body: pedido.corpo,
+      timeoutMs: pedido.timeoutMs,
     });
     const limite = Number(process.env['PIPE_PROCESS_HTTP_MAX_RESPOSTA_BYTES'] ?? 1_048_576);
     resposta = { status: r.status, corpo: (await r.texto()).slice(0, limite) };
   } catch (erro) {
-    const mensagem = erro instanceof Error ? erro.message : String(erro);
+    const bruta = erro instanceof Error ? erro.message : String(erro);
+    // The stored response must not quote a secret the URL or a header carried.
+    const mensagem = pedido.sensivel
+      ? maskSecrets(bruta, new Set([pedido.url, ...Object.values(pedido.cabecalhos)]))
+      : bruta;
     const timeout = /timeout|aborted|timed out/i.test(mensagem);
     resposta = {
       status: timeout ? 504 : 503,
