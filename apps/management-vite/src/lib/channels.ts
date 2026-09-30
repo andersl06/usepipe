@@ -118,6 +118,13 @@ export function rotuloDoMotivo(motivo: string | null): string {
   return ROTULO_MOTIVO[motivo] ?? motivo;
 }
 
+/** A reconexão é uma ação de recuperação, não uma configuração de rotina. */
+export function precisaReconectarWhatsapp(
+  canal: Pick<ChannelWhatsAppVisible, 'state'> | null,
+): boolean {
+  return canal?.state === 'indisponivel';
+}
+
 /**
  * Convert reference `Insira os e-mails separados por vírgula` (sheet Section 4) to a list. Accept commas or newlines, trim whitespace, drop empty values and duplicates.
  */

@@ -70,7 +70,6 @@ import { ShellChannelWhatsapp } from './pages/flow/channels/whatsapp/shell';
 import { AbaVisaoGeral } from './pages/flow/channels/whatsapp/visao-geral';
 import { AbaPerfil } from './pages/flow/channels/whatsapp/perfil';
 import { TabSettings } from './pages/flow/channels/whatsapp/settings';
-import { AbaAlerta } from './pages/flow/channels/whatsapp/alerta';
 import { PageChannelInstagram } from './pages/flow/channels/instagram/page';
 import { PageChannelMessenger } from './pages/flow/channels/messenger/page';
 import { ContractPage } from './pages/contract/page';
@@ -105,7 +104,6 @@ const contactRoutes = (
       <Route index element={<AbaVisaoGeral />} />
       <Route path="profile" element={<AbaPerfil />} />
       <Route path="settings" element={<TabSettings />} />
-      <Route path="alerta" element={<AbaAlerta />} />
     </Route>
     <Route path="channels/instagram" element={<PageChannelInstagram />} />
     <Route path="channels/messenger" element={<PageChannelMessenger />} />

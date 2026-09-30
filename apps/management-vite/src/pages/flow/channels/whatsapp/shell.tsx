@@ -9,9 +9,9 @@ import { ChannelShell, type ChannelTab } from '../shell-of-channel';
 import './channel-whatsapp.css';
 
 /**
- * WhatsApp inside the BOT — `/application/detail/{bot}/channels/whatsapp-embedded` (`FICHA-conectar-canal-no-bot.md` §1.2–1.3, template 79961): "‹" back arrow to the channel list, title "WhatsApp", and the tabs Visão Geral | Perfil da empresa | Configurações | Configurações de alerta | Ambiente de testes, with "Documentação" on the right.
+ * WhatsApp inside the BOT — `/application/detail/{bot}/channels/whatsapp-embedded` (`FICHA-conectar-canal-no-bot.md` §1.2–1.3, template 79961): "‹" back arrow to the channel list, title "WhatsApp", and the tabs Visão Geral | Perfil da empresa | Configurações, with "Documentação" on the right.
  *
- * The two middle tabs only exist with the number connected (`ng-show="currentActivationStep === VERIFIED"`) — photo `08` from the channel's ficha. "Ambiente de testes" Pipe doesn't have internally yet.
+ * Perfil da empresa e Configurações only exist with the number connected (`ng-show="currentActivationStep === VERIFIED"`) — photo `08` from the channel's ficha. Alert settings and test environment are intentionally out of the Pipe channel experience for now.
  *
  * These tabs used to live under `cadastros/canal-whatsapp/**`, in the Attendance module, with the channel chosen by the URL (`/canais/whatsapp/:canalId`). In the source the channel belongs TO THE BOT: there's one page per bot, and the channel comes from `GET /v1/gestao/fluxos/:id/canal`. What the profile, settings and alert tabs need beyond that — the number's health on Meta — still comes from `/v1/canais/whatsapp` (which requires `canal.gerenciar`; without it, Visão Geral draws with what the bot knows and the other tabs say what happened).
  */
@@ -31,8 +31,6 @@ const ABAS: readonly ChannelTab[] = [
   { rotulo: 'Visão Geral', segment: '' },
   { rotulo: 'Perfil da empresa', segment: 'profile', exigeConectado: true },
   { rotulo: 'Configurações', segment: 'settings', exigeConectado: true },
-  { rotulo: 'Configurações de alerta', segment: 'alerta' },
-  { rotulo: 'Ambiente de testes', segment: 'testes', emBreve: true },
 ];
 
 /** What Visão Geral receives when there's NO channel: the screen decides the step. */

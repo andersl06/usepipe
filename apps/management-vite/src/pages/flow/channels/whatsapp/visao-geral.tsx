@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Botao, EmptyState } from '@pipe/ui';
 import { LogoPortal } from '@pipe/ui/icones-portal';
-import { rotuloDoMotivo } from '../../../../lib/channels';
+import { precisaReconectarWhatsapp, rotuloDoMotivo } from '../../../../lib/channels';
 import { numeroParaWaMe } from '../../../../lib/channel-of-flow';
 import { ConectarWhatsappManual } from '../../../registrations/channel-conectar-manual';
 import { OtherChannelNotice, ChooseChannelExisting, ModalDesconectar } from '../conexao';
@@ -36,7 +36,7 @@ function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
   const numero = saude?.number ?? channel.numero ?? channel.nome;
   const numeroWa = numeroParaWaMe(saude?.number ?? channel.numero);
 
-  if (saude && saude.state === 'indisponivel') {
+  if (precisaReconectarWhatsapp(saude)) {
     return (
       <div className="cb-empty">
         <EmptyState titulo="Ainda não é possível usar este número" illustration="erro">
@@ -46,7 +46,7 @@ function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
           flowId={flowId}
           channelId={channel.id}
           values={{ wabaId: saude?.wabaId ?? undefined, numeroId: saude?.numeroId ?? undefined }}
-          rotulo="Atualizar credenciais"
+          rotulo="Reconectar número"
           variante="primario"
         />
         <Botao type="button" variante="perigo" onClick={() => setDesconectando(true)}>

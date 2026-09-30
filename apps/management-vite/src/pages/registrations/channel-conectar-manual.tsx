@@ -13,6 +13,7 @@ import {
   conectarWhatsappManual,
   type ChannelConnected,
 } from '../../lib/channels-gravar';
+import { estadoVisualDoCampoSecreto } from '../../lib/secret-field';
 import './channel-conectar-manual.css';
 
 interface Props<T> {
@@ -42,6 +43,7 @@ function Field({
   readOnly?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
+  const secretState = estadoVisualDoCampoSecreto(visible);
   return (
     <label className="cc-campo">
       <span className="cc-campo-rotulo">{label}</span>
@@ -50,7 +52,7 @@ function Field({
       >
         <Campo
           name={name}
-          type={secret && !visible ? 'password' : 'text'}
+          type={secret ? secretState.tipo : 'text'}
           required={required}
           defaultValue={initial}
           readOnly={readOnly}
@@ -59,9 +61,9 @@ function Field({
         />
         {secret ? (
           <button
-            className="cc-campo-olho"
+            className={`cc-campo-olho cc-campo-olho--${secretState.icone}`}
             type="button"
-            aria-label={visible ? `Ocultar ${label}` : `Mostrar ${label}`}
+            aria-label={`${secretState.acao} ${label}`}
             aria-pressed={visible}
             onClick={() => setVisible((value) => !value)}
           >
