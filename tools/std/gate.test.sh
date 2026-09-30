@@ -36,3 +36,12 @@ if scan_trend > /dev/null; then echo 'FAIL rising PT count accepted' >&2; exit 1
 label=slice-1 TEST_LEXICON=original TEST_COUNT=10
 scan_trend > /dev/null
 echo 'PASS lexicon mismatch and rising count rejected; equal count accepted'
+
+# A Windows checkout (core.autocrlf) may hand the gate CRLF state files.
+printf 'baseline\r\n' > "$reports/gate-order.txt"
+printf 'Lexicon: original\r\nUnclassified: 10\r\n' > "$reports/baseline-scan-summary.md"
+label=slice-1 TEST_LEXICON=original TEST_COUNT=10
+scan_trend > /dev/null
+label=slice-1 TEST_LEXICON=original TEST_COUNT=11
+if scan_trend > /dev/null; then echo 'FAIL rising PT count accepted with CRLF state' >&2; exit 1; fi
+echo 'PASS CRLF gate order and summaries compare as LF'

@@ -7,6 +7,7 @@ import {
   collectFrontConsumers,
   collectFrontRoutes,
   collectRoutes,
+  collectUpgradeRoutes,
   compareRoutes,
   normalizePath,
   type RenameRow,
@@ -88,6 +89,30 @@ test('collectConsumers matches a live route and reports an orphan', () => {
 
   assert.equal(consumers.find((item) => item.raw === '/v1/x/${id}')?.match, '/v1/x/:*');
   assert.equal(consumers.find((item) => item.raw === '/v1/y')?.match, 'ORPHAN');
+});
+
+test('collectUpgradeRoutes reads the path a WebSocketServer upgrade handler accepts', () => {
+  const upgrade = collectUpgradeRoutes([
+    source(
+      'apps/api/src/socket.ts',
+      `const PATH = '/v1/events';
+       const wss = new WebSocketServer({ noServer: true });
+       function up(request) { if (url.pathname !== PATH) return; if ('/v1/other' === url.pathname) return; }`,
+    ),
+    source('apps/api/src/plain.ts', `const PATH = '/v1/nope'; if (url.pathname === PATH) {}`),
+  ]);
+  assert.deepEqual(
+    upgrade.map((route) => [route.method, route.path, route.file]),
+    [
+      ['GET', '/v1/events', 'apps/api/src/socket.ts'],
+      ['GET', '/v1/other', 'apps/api/src/socket.ts'],
+    ],
+  );
+  const consumers = collectConsumers(
+    [source('apps/desk-vite/src/live.ts', "new WebSocket(`${base.replace(/^http/, 'ws')}/v1/events`)")],
+    upgrade,
+  );
+  assert.equal(consumers[0]?.match, '/v1/events');
 });
 
 test('compareRoutes translates only applied endpoint and symbol rows and detects guard loss', () => {

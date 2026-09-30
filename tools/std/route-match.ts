@@ -152,6 +152,75 @@ export function collectRoutes(files: SourceInput[]): RouteInfo[] {
   return routes.sort(compareRouteInfo);
 }
 
+const PATH_COMPARISON_OPERATORS = new Set([
+  ts.SyntaxKind.EqualsEqualsEqualsToken,
+  ts.SyntaxKind.ExclamationEqualsEqualsToken,
+  ts.SyntaxKind.EqualsEqualsToken,
+  ts.SyntaxKind.ExclamationEqualsToken,
+]);
+
+/**
+ * WebSocket upgrade endpoints are not Nest decorators: a file that builds a `ws` `WebSocketServer`
+ * accepts an upgrade only when `<url>.pathname` equals a path literal (directly or through a
+ * `const`). Each such comparison becomes a `GET` route so consumers of the upgrade URL resolve.
+ * These routes serve consumer matching only; they are not part of the emitted HTTP route set.
+ */
+export function collectUpgradeRoutes(files: SourceInput[]): RouteInfo[] {
+  const routes: RouteInfo[] = [];
+  for (const input of files) {
+    const sourceFile = toSourceFile(input);
+    const constants = new Map<string, string>();
+    let buildsWebSocketServer = false;
+    const comparisons: ts.BinaryExpression[] = [];
+    const visit = (node: ts.Node): void => {
+      if (ts.isNewExpression(node) && decoratorName(node.expression) === 'WebSocketServer') {
+        buildsWebSocketServer = true;
+      } else if (
+        ts.isVariableDeclaration(node) &&
+        ts.isIdentifier(node.name) &&
+        node.initializer &&
+        ts.isStringLiteralLike(node.initializer) &&
+        ts.isVariableDeclarationList(node.parent) &&
+        (node.parent.flags & ts.NodeFlags.Const) !== 0
+      ) {
+        constants.set(node.name.text, node.initializer.text);
+      } else if (ts.isBinaryExpression(node) && PATH_COMPARISON_OPERATORS.has(node.operatorToken.kind)) {
+        comparisons.push(node);
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+    if (!buildsWebSocketServer) continue;
+
+    const pathValue = (node: ts.Expression): string | undefined => {
+      if (ts.isStringLiteralLike(node)) return node.text;
+      if (ts.isIdentifier(node)) return constants.get(node.text);
+      return undefined;
+    };
+    const isPathname = (node: ts.Expression): boolean =>
+      ts.isPropertyAccessExpression(node) && node.name.text === 'pathname';
+    for (const comparison of comparisons) {
+      const value = isPathname(comparison.left)
+        ? pathValue(comparison.right)
+        : isPathname(comparison.right)
+          ? pathValue(comparison.left)
+          : undefined;
+      if (!value?.startsWith('/')) continue;
+      routes.push({
+        method: 'GET',
+        path: normalizePath(value),
+        rawPath: value,
+        controller: 'WebSocketServer',
+        handler: 'upgrade',
+        guards: [],
+        file: normalizeFileName(sourceFile.fileName),
+        line: sourceFile.getLineAndCharacterOfPosition(comparison.getStart(sourceFile)).line + 1,
+      });
+    }
+  }
+  return routes.sort(compareRouteInfo);
+}
+
 export function collectConsumers(files: SourceInput[], routes: RouteInfo[] = []): ConsumerInfo[] {
   const results: ConsumerInfo[] = [];
   const seen = new Set<string>();
@@ -1002,9 +1071,13 @@ function main(): void {
       if (parts[0] === 'apps' && parts[2] === 'src' && consumerApps.has(parts[1] ?? '')) return true;
       return parts[0] === 'packages' && (parts[2] === 'src' || parts[2] === 'tests');
     });
-    const occurrences = [...collectConsumers(consumerFiles, routes), ...collectInternal(apiFiles, routes)].sort(
-      compareOccurrence,
-    );
+    // Upgrade endpoints only resolve consumers; the emitted/compared set stays HTTP decorators.
+    const upgradeRoutes = collectUpgradeRoutes(apiFiles);
+    const matchable = [...routes, ...upgradeRoutes];
+    const occurrences = [
+      ...collectConsumers(consumerFiles, matchable),
+      ...collectInternal(apiFiles, matchable),
+    ].sort(compareOccurrence);
     const consumersFile = getOne(args, '--consumers');
     if (consumersFile) writeConsumers(consumersFile, occurrences);
 
@@ -1023,6 +1096,7 @@ function main(): void {
     reportApiCheck(args, allowlist, occurrences, routes, () => {
       failed = true;
     });
+    console.log(`Upgrade routes: ${upgradeRoutes.map((route) => route.path).join(', ') || 'none'}`);
   }
 
   if (fronts.length > 0) {

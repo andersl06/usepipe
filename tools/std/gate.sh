@@ -78,15 +78,16 @@ scan_trend() {
   if [[ -f "$reports/gate2-lexicon.txt" ]]; then args+=(--lexicon-file "$reports/gate2-lexicon.txt"); fi
   node tools/std/scan-pt.ts "${args[@]}" || return 1
   local summary="$reports/$label-scan-summary.md" lexicon current prior='' prior_count=''
-  lexicon="$(sed -n 's/^Lexicon: //p' "$summary" | head -1)"
-  current="$(sed -n 's/^Unclassified: //p' "$summary" | head -1)"
+  lexicon="$(sed -n 's/^Lexicon: //p' "$summary" | head -1 | tr -d '\r')"
+  current="$(sed -n 's/^Unclassified: //p' "$summary" | head -1 | tr -d '\r')"
   [[ -n "$lexicon" && "$current" =~ ^[0-9]+$ ]] || return 1
   if [[ -f "$reports/gate-order.txt" ]]; then
     while IFS= read -r previous; do
+      previous="${previous%$'\r'}"
       [[ "$previous" == "$label" || ! -f "$reports/$previous-scan-summary.md" ]] && continue
-      if [[ "$(sed -n 's/^Lexicon: //p' "$reports/$previous-scan-summary.md" | head -1)" == "$lexicon" ]]; then
+      if [[ "$(sed -n 's/^Lexicon: //p' "$reports/$previous-scan-summary.md" | head -1 | tr -d '\r')" == "$lexicon" ]]; then
         prior="$previous"
-        prior_count="$(sed -n 's/^Unclassified: //p' "$reports/$previous-scan-summary.md" | head -1)"
+        prior_count="$(sed -n 's/^Unclassified: //p' "$reports/$previous-scan-summary.md" | head -1 | tr -d '\r')"
       fi
     done < "$reports/gate-order.txt"
   fi
@@ -98,7 +99,7 @@ scan_trend() {
 }
 run pt-scan scan_trend
 js_specifiers() {
-  local dirs=() app app_dir dir rg_rc=0
+  local dirs=() app app_dir dir
   for app in api workers ponte; do
     app_dir="$(node tools/std/test-counts.ts --resolve-path "apps/$app" --map "$std/map")" || return 1
     dirs+=("$app_dir/src" "$app_dir/tests")
@@ -106,18 +107,17 @@ js_specifiers() {
   for dir in packages/*/src; do [[ "$dir" == packages/ui/src ]] || dirs+=("$dir"); done
   for dir in "${dirs[@]}"; do [[ -d "$dir" ]] || { echo "missing source dir: $dir"; return 1; }; done
   local count baseline
-  rg -n --pcre2 "from '\\.{1,2}/[^']*(?<!\\.js)'" "${dirs[@]}" > "$scratch/js-specifiers.txt" || rg_rc=$?
-  (( rg_rc <= 1 )) || return 1
+  node tools/std/js-specifiers.ts "${dirs[@]}" > "$scratch/js-specifiers.txt" || return 1
   count="$(wc -l < "$scratch/js-specifiers.txt" | tr -d '[:space:]')"
   if [[ "$label" == baseline ]]; then printf '%s\n' "$count" > "$reports/baseline-js-specifiers.txt"; fi
-  baseline="$(cat "$reports/baseline-js-specifiers.txt")"
+  baseline="$(tr -d '\r' < "$reports/baseline-js-specifiers.txt")"
   [[ "$count" =~ ^[0-9]+$ && "$baseline" =~ ^[0-9]+$ ]] || return 1
   (( count <= baseline )) || { echo "js specifiers: $count > $baseline"; return 1; }
 }
 run js-specifiers js_specifiers
 run jsonb-keys node tools/std/jsonb-keys.ts --check
 if (( failed == 0 )); then
-  if [[ ! -f "$reports/gate-order.txt" ]] || ! grep -Fxq "$label" "$reports/gate-order.txt"; then printf '%s\n' "$label" >> "$reports/gate-order.txt"; fi
+  if [[ ! -f "$reports/gate-order.txt" ]] || ! tr -d '\r' < "$reports/gate-order.txt" | grep -Fxq "$label"; then printf '%s\n' "$label" >> "$reports/gate-order.txt"; fi
 fi
 cat "$report"
 exit "$failed"

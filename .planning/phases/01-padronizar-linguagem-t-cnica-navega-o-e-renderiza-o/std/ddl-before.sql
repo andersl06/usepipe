@@ -74,6 +74,7 @@
 	"atualizado_em" timestamp with time zone
 	"atualizado_em" timestamp with time zone
 	"atualizado_em" timestamp with time zone
+	"atualizado_em" timestamp with time zone
 	"atualizado_em" timestamp with time zone,
 	"atualizado_em" timestamp with time zone,
 	"atualizado_em" timestamp with time zone,
@@ -144,6 +145,7 @@
 	"calibracao_id" uuid NOT NULL,
 	"campanha" text,
 	"campo" text NOT NULL,
+	"canal_id" uuid NOT NULL,
 	"canal_id" uuid NOT NULL,
 	"canal_id" uuid NOT NULL,
 	"canal_id" uuid,
@@ -259,6 +261,7 @@
 	"criado_em" timestamp with time zone DEFAULT now() NOT NULL
 	"criado_em" timestamp with time zone DEFAULT now() NOT NULL
 	"criado_em" timestamp with time zone DEFAULT now() NOT NULL
+	"criado_em" timestamp with time zone DEFAULT now() NOT NULL,
 	"criado_em" timestamp with time zone DEFAULT now() NOT NULL,
 	"criado_em" timestamp with time zone DEFAULT now() NOT NULL,
 	"criado_em" timestamp with time zone DEFAULT now() NOT NULL,
@@ -627,6 +630,7 @@
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"id_provedor" text,
 	"identificador" text NOT NULL,
 	"idioma" text DEFAULT 'pt-BR' NOT NULL,
@@ -837,6 +841,7 @@
 	"revogada_em" timestamp with time zone,
 	"roteador_id" uuid NOT NULL,
 	"roteador_id" uuid NOT NULL,
+	"roteador_id" uuid NOT NULL,
 	"rotulo" text NOT NULL,
 	"rotulo" text NOT NULL,
 	"rotulo" text NOT NULL,
@@ -864,6 +869,7 @@
 	"telefone" text,
 	"telefone_e164" text,
 	"template_id" uuid,
+	"tenant_id" uuid NOT NULL,
 	"tenant_id" uuid NOT NULL,
 	"tenant_id" uuid NOT NULL,
 	"tenant_id" uuid NOT NULL,
@@ -1281,6 +1287,7 @@
 );
 );
 );
+);
 ALTER TABLE "acao" ADD CONSTRAINT "acao_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "acao" ADD CONSTRAINT "acao_workflow_id_workflow_id_fk" FOREIGN KEY ("workflow_id") REFERENCES "public"."workflow"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "agendamento_consulta" ADD CONSTRAINT "agendamento_consulta_consulta_id_consulta_salva_id_fk" FOREIGN KEY ("consulta_id") REFERENCES "public"."consulta_salva"("id") ON DELETE cascade ON UPDATE no action;
@@ -1514,6 +1521,9 @@ ALTER TABLE "resposta_pesquisa" ADD CONSTRAINT "resposta_pesquisa_pesquisa_id_pe
 ALTER TABLE "resposta_pesquisa" ADD CONSTRAINT "resposta_pesquisa_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "resposta_pronta" ADD CONSTRAINT "resposta_pronta_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "resposta_pronta" ADD CONSTRAINT "resposta_pronta_usuario_id_usuario_id_fk" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "roteador_canal" ADD CONSTRAINT "roteador_canal_canal_id_canal_id_fk" FOREIGN KEY ("canal_id") REFERENCES "public"."canal"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "roteador_canal" ADD CONSTRAINT "roteador_canal_roteador_id_fluxo_id_fk" FOREIGN KEY ("roteador_id") REFERENCES "public"."fluxo"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "roteador_canal" ADD CONSTRAINT "roteador_canal_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "roteador_servico" ADD CONSTRAINT "roteador_servico_roteador_id_fluxo_id_fk" FOREIGN KEY ("roteador_id") REFERENCES "public"."fluxo"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "roteador_servico" ADD CONSTRAINT "roteador_servico_servico_id_fluxo_id_fk" FOREIGN KEY ("servico_id") REFERENCES "public"."fluxo"("id") ON DELETE restrict ON UPDATE no action;
 ALTER TABLE "roteador_servico" ADD CONSTRAINT "roteador_servico_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
@@ -1722,6 +1732,7 @@ CREATE TABLE "resposta_avaliacao" (
 CREATE TABLE "resposta_formulario" (
 CREATE TABLE "resposta_pesquisa" (
 CREATE TABLE "resposta_pronta" (
+CREATE TABLE "roteador_canal" (
 CREATE TABLE "roteador_servico" (
 CREATE TABLE "score_lead" (
 CREATE TABLE "sessao" (
@@ -1783,6 +1794,7 @@ CREATE UNIQUE INDEX "recurso_do_fluxo_fluxo_nome_uk" ON "recurso_do_fluxo" USING
 CREATE UNIQUE INDEX "resposta_avaliacao_uk" ON "resposta_avaliacao" USING btree ("avaliacao_id","criterio_id");
 CREATE UNIQUE INDEX "resposta_formulario_uk" ON "resposta_formulario" USING btree ("lead_id","pergunta_id");
 CREATE UNIQUE INDEX "resposta_pesquisa_uk" ON "resposta_pesquisa" USING btree ("conversa_id","pesquisa_id");
+CREATE UNIQUE INDEX "roteador_canal_roteador_canal_uk" ON "roteador_canal" USING btree ("roteador_id","canal_id");
 CREATE UNIQUE INDEX "roteador_servico_nome_uk" ON "roteador_servico" USING btree ("roteador_id","nome");
 CREATE UNIQUE INDEX "roteador_servico_principal_uk" ON "roteador_servico" USING btree ("roteador_id") WHERE "roteador_servico"."principal";
 CREATE UNIQUE INDEX "roteador_servico_servico_uk" ON "roteador_servico" USING btree ("roteador_id","servico_id");
