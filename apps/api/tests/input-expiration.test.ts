@@ -165,7 +165,8 @@ describe('input expiration in production (P8)', () => {
     const { rows: passos } = await cenario.dono.execute<{ entrada: Record<string, unknown> | null }>(sql`
       select entrada from execucao_passo where execucao_id = ${armada.id}::uuid and entrada ? 'id_provedor' order by em
     `);
-    expect(passos.some((p) => String(p.entrada?.['id_provedor']).startsWith('expiracao-entrada:'))).toBe(true);
+    // The id carries the armed time (the claim reads the pre-update row, not the cleared one).
+    expect(passos.some((p) => /^expiracao-entrada:[0-9a-f-]+:[1-9][0-9]+$/.test(String(p.entrada?.['id_provedor'])))).toBe(true);
     const { rows: entradas } = await cenario.dono.execute<{ n: string }>(sql`
       select count(*)::text as n from mensagem where conversa_id = ${armada.conversa_id}::uuid and direcao = 'entrada'
     `);

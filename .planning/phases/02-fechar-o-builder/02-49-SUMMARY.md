@@ -106,7 +106,7 @@ The existing `tenant_isolado` RLS on `execucao_fluxo` already covers it. The Dri
   - `eslint .`: clean.
   - `pnpm test`: 420 tests passed, including the 4 in `builder-input-expiration.test.ts`.
   - `vite build`: OK.
-- **Not run (DB): `apps/api/tests/input-expiration.test.ts`, 6 tests.** The orchestrator should run it with migration 0056 applied:
+- **DB: `apps/api/tests/input-expiration.test.ts`, 6/6 passed** after one fix. The claim's `update … returning` returned the cleared columns, so the job ran an untagged empty input (`id_provedor` ending `:0`) and the stale-block guard never applied. The claim now reads the armed block and time from a locked CTE of the row before the update. The tests cover:
   - arm → due → exactly one firing under concurrency → re-arm the next block → an answer clears it;
   - an answer before the expiration cancels it;
   - an expiration for a block the contact left is ignored;

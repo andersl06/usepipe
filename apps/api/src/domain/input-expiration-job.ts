@@ -33,19 +33,24 @@ export async function fireInputExpiration(tenantId: string, executionId: string)
   const result = await noTenant(tenantId, async (tx) => {
     // `skip locked`: a customer message holding the row wins, and re-arms or clears it itself. The
     // 2 s tolerance absorbs a timer firing a hair early against the database clock.
-    const { rows } = await tx.execute<{ stateId: string; expiresAt: Date | string }>(sql`
+    // `returning` gives the row AFTER the update (both columns null), so the armed block and time
+    // come from the locked pre-update row in the CTE.
+    const { rows } = await tx.execute<{ stateId: string | null; expiresAt: Date | string | null }>(sql`
+      with armed as (
+        select id, entrada_expira_bloco as bloco, entrada_expira_em as em from execucao_fluxo
+         where id = ${executionId}::uuid and tenant_id = ${tenantId}::uuid and estado = 'aguardando'
+           and entrada_expira_em <= now() + interval '2 seconds' and entrada_expira_bloco is not null
+         for update skip locked
+      )
       update execucao_fluxo e
          set entrada_expira_em = null, entrada_expira_bloco = null
-       where e.id = (
-         select id from execucao_fluxo
-          where id = ${executionId}::uuid and tenant_id = ${tenantId}::uuid and estado = 'aguardando'
-            and entrada_expira_em <= now() + interval '2 seconds' and entrada_expira_bloco is not null
-          for update skip locked
-       )
-         and e.entrada_expira_em <= now() + interval '2 seconds'
-      returning e.entrada_expira_bloco as "stateId", e.entrada_expira_em as "expiresAt"
+        from armed
+       where e.id = armed.id
+      returning armed.bloco as "stateId", armed.em as "expiresAt"
     `);
-    if (!rows[0]) return null;
+    const armed = rows[0];
+    if (!armed?.stateId || !armed.expiresAt) return null;
+    const { stateId, expiresAt } = armed;
     const { rows: details } = await tx.execute<Omit<ClaimedExpiration, 'stateId' | 'expiresAt'>>(sql`
       select e.conversa_id as "conversationId", e.contato_id as "contactId", f.canal_id as "channelId",
              c.fila_id as "queueId", c.atendente_id as "agentId", i.fila_padrao_id as "queueDefaultId",
@@ -58,7 +63,7 @@ export async function fireInputExpiration(tenantId: string, executionId: string)
        where e.id = ${executionId}::uuid
     `);
     const claimed: ClaimedExpiration | undefined = details[0]
-      ? { ...details[0], stateId: rows[0].stateId, expiresAt: new Date(rows[0].expiresAt) }
+      ? { ...details[0], stateId, expiresAt: new Date(expiresAt) }
       : undefined;
     // A closed conversation no longer talks to the bot; the next customer message opens a new one.
     if (!claimed || claimed.closed || !claimed.channelId || !claimed.contactId) return null;
