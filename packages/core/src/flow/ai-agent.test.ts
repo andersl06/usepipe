@@ -226,7 +226,10 @@ describe('ForwardToAgent in the engine (stubbed provider)', () => {
     expect(h.variables[agentMemoryKey(AGENT)]).toBeUndefined();
     expect(h.variables[VARIABLE_OF_AGENT_FORWARDING]).toBeUndefined();
     await expect(getVariable(c, 'aiagent.name')).resolves.toBe('dados_coletados');
-    await expect(getVariable(c, 'aiagent.agentResponse')).resolves.toBe('Perfeito.');
+    await expect(getVariable(c, 'aiagent.agentResponse')).resolves.toBe('["Perfeito."]');
+    await expect(getVariable(c, 'aiAgent.redirect')).resolves.toBe('handoff');
+    await expect(getVariable(c, 'aiagent.message@content')).resolves.toBe('Perfeito.');
+    await expect(getVariable(c, 'aiagent.toolCall_id')).resolves.toBe('c2');
     await expect(getVariable(c, 'aiagent.userMessage')).resolves.toBe('sim');
     expect(h.variables[AI_AGENT_VARIABLES_KEY]).toBeDefined();
   });

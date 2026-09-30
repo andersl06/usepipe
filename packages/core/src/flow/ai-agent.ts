@@ -278,13 +278,22 @@ export function agentToolbox(state: State | null | undefined, settings: AgentSet
 
 // --- `aiagent.*` variables and memory ---
 
-/** Fields Blip lists for the `aiagent` source; Pipe fills the ones it has (see SUMMARY 02-53). */
+/**
+ * Fields Blip lists for the `aiagent` source (Builder variable library); Pipe fills the ones it has
+ * (`skill_*`/`task_*` belong to Blip's AI platform and stay empty).
+ */
 export interface AgentVariables {
+  /** "Lista de respostas geradas pela IA": JSON array of the texts of the last turn. */
   agentResponse?: string;
+  /** "Código do erro que causou o redirecionamento". */
   errorCode?: string;
+  /** "O envelope de mensagem enviado pela IA": `{type, content}` of its last message (or the error). */
   message?: string;
+  /** "Nome da action cadastrada": the tool or handoff the model called. */
   name?: string;
+  /** The arguments of that call, as JSON. */
   parameters?: string;
+  /** "Indica o tipo de redirecionamento": `handoff` or `error`. */
   redirect?: string;
   toolCall_id?: string;
   userMessage?: string;
@@ -382,15 +391,26 @@ function handOff(context: Context, handoff: AgentHandoff, args: Record<string, u
   });
   writeAgentVariables(context, {
     name: handoff.name,
-    redirect: handoff.name,
+    redirect: 'handoff',
     parameters: JSON.stringify(args),
   });
   setVariable(context, VARIABLE_OF_AGENT_FORWARDING, AGENT_STATUS_HANDOFF);
 }
 
+const envelope = (content: string): string => JSON.stringify({ type: 'text/plain', content });
+
 function fail(context: Context, errorCode: string, message: string): void {
-  writeAgentVariables(context, { errorCode, message });
+  writeAgentVariables(context, { errorCode, redirect: 'error', message: envelope(message) });
   setVariable(context, VARIABLE_OF_AGENT_FORWARDING, 'Error');
+}
+
+/** The texts of this turn: `aiagent.agentResponse`/`message` and the block's output variable. */
+function recordAnswers(context: Context, answers: string[], outputVariable: string | null): void {
+  writeAgentVariables(context, {
+    agentResponse: JSON.stringify(answers),
+    ...(answers.length ? { message: envelope(answers.at(-1)!) } : {}),
+  });
+  if (outputVariable) setVariable(context, outputVariable, answers.join('\n\n'));
 }
 
 /**
@@ -431,7 +451,7 @@ export const forwardToAgent: AcaoDoMotor = {
       return;
     }
 
-    let answer = '';
+    const answers: string[] = [];
     try {
       for (let call = 0; ; call++) {
         if (call >= AGENT_LIMITS.maxModelCalls) {
@@ -465,7 +485,7 @@ export const forwardToAgent: AcaoDoMotor = {
           ...(response.raw ? { raw: response.raw } : {}),
         });
         if (said) {
-          answer = said;
+          answers.push(said);
           if (config.forward) await context.services.send({ tipo: 'text/plain', conteudo: said }, prazo?.signal);
         }
         if (response.toolCalls.length === 0) break;
@@ -474,9 +494,8 @@ export const forwardToAgent: AcaoDoMotor = {
         if (handoffCall) {
           // The memory ends with a call nobody answered; it restarts clean on the next visit.
           deleteVariable(context, agentMemoryKey(stateId));
-          if (answer) writeAgentVariables(context, { agentResponse: answer });
+          recordAnswers(context, answers, config.outputVariable);
           writeAgentVariables(context, { toolCall_id: handoffCall.id });
-          if (config.outputVariable && answer) setVariable(context, config.outputVariable, answer);
           handOff(context, box.handoffs.get(handoffCall.name)!, handoffCall.arguments);
           return;
         }
@@ -492,8 +511,7 @@ export const forwardToAgent: AcaoDoMotor = {
     }
 
     saveAgentMemory(context, stateId, memory, config.memoryLength);
-    writeAgentVariables(context, { agentResponse: answer });
-    if (config.outputVariable) setVariable(context, config.outputVariable, answer);
+    recordAnswers(context, answers, config.outputVariable);
     setVariable(context, VARIABLE_OF_AGENT_FORWARDING, 'Success');
   },
 };
