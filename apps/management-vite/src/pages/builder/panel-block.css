@@ -1526,3 +1526,83 @@
 .bl-config-adicionar:disabled {
   cursor: not-allowed;
 }
+
+/* ------------------------------------------------------------ agente de IA (P14) */
+
+.bl-agent-secao {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #fff3;
+}
+.bl-agent-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.bl-agent-interruptor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 12px;
+  font-size: 14px;
+}
+.bl-agent-instrucao {
+  margin-bottom: 12px;
+}
+.bl-agent-instrucao .bl-agent-prompt {
+  width: 100%;
+  min-height: 160px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+.bl-agent-erros {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #b60c0c;
+  border-radius: 8px;
+  color: #f6f6f6;
+  font-size: 13px;
+}
+.bl-agent-erros ul {
+  margin: 0;
+  padding-left: 16px;
+}
+.bl-agent-aviso {
+  margin: 0 0 12px;
+  color: #ff961e;
+  font-size: 13px;
+}
+.bl-agent-nota {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 0;
+  color: rgb(255 255 255 / 64%);
+  font-size: 12px;
+  line-height: 18px;
+}
+.bl-agent-nota svg {
+  flex: none;
+  margin-top: 1px;
+}
+.bl-agent-handoff-titulo {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.bl-agent-resumo {
+  margin: 4px 0 8px;
+}
+.bl-agent-ferramenta {
+  margin-bottom: 12px;
+}
+.bl-agent-ferramenta-erros {
+  margin: 0 0 8px;
+  padding-left: 16px;
+  font-size: 12px;
+}

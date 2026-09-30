@@ -14,6 +14,8 @@ import { filterVariables } from './variables';
 import type { SubflowDrawing, Subflows } from './subflows';
 import { isSubflowBlock } from './subflows';
 import { SubflowSection } from './subflow-ui';
+import { isAiAgentBlock } from './ai-agent-block';
+import { AiAgentInstructionsPanel, AiAgentOutputsPanel } from './panel-ai-agent';
 
 /** What the block panel needs to know about subflows (P13). */
 export interface SubflowPanelContext {
@@ -66,6 +68,7 @@ export function BlockPanel({
   onAviso,
   onAbrirFuncoes,
   subflow,
+  onAbrirVariaveis,
 }: {
   block: Block;
   mapa: Mapa;
@@ -74,7 +77,10 @@ export function BlockPanel({
   onAviso: (texto: string) => void;
   onAbrirFuncoes?: (modo: 'gerenciar' | 'criar') => void;
   subflow?: SubflowPanelContext;
+  /** Opens Configuração › Variáveis (the AI agent's key lives in "Variáveis sensíveis", P14). */
+  onAbrirVariaveis?: () => void;
 }) {
+  const agente = isAiAgentBlock(block);
   const [aba, setAba] = useState<Aba>('conteudo');
   const [editandoTitulo, setEditandoTitulo] = useState(false);
   const [novaTag, setNovaTag] = useState('');
@@ -87,7 +93,9 @@ export function BlockPanel({
         ? ROTULOS_DO_CONTEUDO.abaAtendimento
         : isSubflowBlock(block)
           ? 'Subfluxo'
-          : ROTULOS_DO_CONTEUDO.aba,
+          : agente
+            ? 'Instruções'
+            : ROTULOS_DO_CONTEUDO.aba,
     },
     { key: 'saidas', rotulo: ROTULOS_DAS_SAIDAS.titulo },
     { key: 'acoes', rotulo: LABELS_OF_ACTIONS.aba },
@@ -223,7 +231,10 @@ export function BlockPanel({
             onAviso={onAviso}
           />
         ) : null}
-        {aba === 'conteudo' && !(isSubflowBlock(block) && subflow) ? (
+        {aba === 'conteudo' && agente ? (
+          <AiAgentInstructionsPanel block={block} onMudar={onMudar} onAbrirVariaveis={onAbrirVariaveis} />
+        ) : null}
+        {aba === 'conteudo' && !agente && !(isSubflowBlock(block) && subflow) ? (
           <ContentPanel block={block} onMudar={onMudar} onAviso={onAviso} />
         ) : null}
         {aba === 'acoes' ? (
@@ -235,7 +246,10 @@ export function BlockPanel({
             inSubflow={subflow?.inSubflow ?? false}
           />
         ) : null}
-        {aba === 'saidas' ? (
+        {aba === 'saidas' && agente ? (
+          <AiAgentOutputsPanel block={block} mapa={mapa} onMudar={onMudar} onAviso={onAviso} />
+        ) : null}
+        {aba === 'saidas' && !agente ? (
           <OutputsPanel block={block} mapa={mapa} onMudar={onMudar} onAviso={onAviso} />
         ) : null}
       </div>
