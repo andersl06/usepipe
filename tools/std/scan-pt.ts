@@ -36,6 +36,7 @@ type Finding = {
   category: string;
   exception_ref: string;
   exceptionIndex?: number;
+  productText?: boolean;
 };
 type ExceptionRow = CsvRow & { index: number };
 
@@ -48,6 +49,7 @@ Options:
   --lexicon-file <txt>    Replace the map-derived lexicon with this file
   --write-lexicon <txt>   Write the sorted lexicon used by this run
   --exceptions <csv>      Exceptions file (default: ${DEFAULT_EXCEPTIONS})
+  --ddl <sql>             DDL names for @ddl (default: ${STD}/ddl-before.sql)
   --fail-on-unclassified  Exit 1 when unclassified findings remain
   --help                   Show this help`);
 }
@@ -71,6 +73,9 @@ function parseArgs(argv: string[]): Record<string, string | boolean> {
 
 function parseCsv(text: string): CsvRow[] {
   const records: string[][] = [];
+  const recordLines: number[] = [];
+  let line = 1;
+  let recordLine = 1;
   let record: string[] = [];
   let field = '';
   let quoted = false;
@@ -88,17 +93,27 @@ function parseCsv(text: string): CsvRow[] {
       field = '';
     } else if (char === '\n') {
       record.push(field.replace(/\r$/, ''));
-      if (record.some(Boolean)) records.push(record);
+      if (record.some(Boolean)) {
+        records.push(record);
+        recordLines.push(recordLine);
+      }
       record = [];
       field = '';
+      recordLine = line + 1;
     } else field += char;
+    if (char === '\n') line += 1;
   }
   if (field || record.length) {
     record.push(field.replace(/\r$/, ''));
     records.push(record);
+    recordLines.push(recordLine);
   }
   const headers = records.shift() ?? [];
-  return records.map((values) => Object.fromEntries(headers.map((header, i) => [header, values[i] ?? ''])));
+  recordLines.shift();
+  return records.map((values, index) => ({
+    ...Object.fromEntries(headers.map((header, i) => [header, values[i] ?? ''])),
+    csvLine: String(recordLines[index]),
+  }));
 }
 
 function csvCell(value: unknown): string {
@@ -178,6 +193,52 @@ function isConstContext(node: ts.Node): boolean {
   return false;
 }
 
+function isProductContext(node: ts.Node): boolean {
+  if (!ts.isStringLiteral(node) && !ts.isNoSubstitutionTemplateLiteral(node)) return false;
+  for (let current: ts.Node | undefined = node.parent; current; current = current.parent) {
+    if (ts.isBlock(current) || ts.isSourceFile(current)) break;
+    if (ts.isTaggedTemplateExpression(current) || ts.isJsxAttribute(current)) return false;
+    if (ts.isCallExpression(current) || ts.isNewExpression(current)) {
+      const name = callName(current.expression);
+      if (name !== 'ErroPipe' && !name.startsWith('ErroPipe.')) return false;
+    }
+    if (ts.isPropertyAssignment(current) || ts.isVariableDeclaration(current)) {
+      const name = current.name.getText().replace(/^['"]|['"]$/g, '');
+      if (/(COOKIE|SESSAO)/i.test(name) || /^(className|class|classList|path|to|href|url|sql|query|key|name|id|type|code|event|queue)$/i.test(name)) return false;
+    }
+  }
+  return true;
+}
+
+function isProductText(value: string): boolean {
+  const text = value.trim();
+  if (/\s--[a-z-]+\b|^(?:docker|pnpm|npm|git|terraform|node|curl)\s/i.test(text)) return false;
+  if (/^(?:select|insert|update|delete|create|alter|drop|with|truncate|grant|revoke)\s/i.test(text)) return false;
+  if (/\$\{|[/\\_{}<>]|\b(?:select|insert|update|delete|create|alter|drop|with)\b[\s\S]*\b(?:from|into|set|table|as|index|where)\b/i.test(text)) return false;
+  if (/\p{Ll}\p{Lu}/u.test(text) || /\b[\p{L}\d]+[-.:][\p{L}\d]+\b/u.test(text)) return false;
+  return /\p{L}\s+\p{L}/u.test(text) || (/^\p{L}+$/u.test(text) && /[ãõçáéíóúâêôà]/i.test(text));
+}
+
+function sqlParts(template: ts.TemplateLiteral): { value: string; identifier: boolean; interpolation?: boolean }[] {
+  const parts: ReturnType<typeof sqlParts> = [];
+  const addText = (text: string): void => {
+    for (const match of text.matchAll(/--[^\n]*|\/\*[\s\S]*?\*\/|'(?:''|[^'])*'|"(?:""|[^"])*"|[\p{L}_][\p{L}\p{N}_$]*/gu)) {
+      const value = match[0];
+      parts.push({ value: value.startsWith('"') ? value.slice(1, -1).replaceAll('""', '"') : value,
+        identifier: !/^(?:'|--|\/\*)/.test(value) });
+    }
+  };
+  if (ts.isNoSubstitutionTemplateLiteral(template)) addText(template.text);
+  else {
+    addText(template.head.text);
+    for (const span of template.templateSpans) {
+      parts.push({ value: span.expression.getText(), identifier: false, interpolation: true });
+      addText(span.literal.text);
+    }
+  }
+  return parts;
+}
+
 function inventoryPath(file: string, mapRows: CsvRow[]): string {
   let result = file;
   const rows = mapRows.filter((row) => ['applied', 'verified'].includes(row.status) &&
@@ -220,20 +281,74 @@ function main(): void {
 
   const exceptionFile = typeof args.exceptions === 'string' ? args.exceptions : DEFAULT_EXCEPTIONS;
   const exceptions: ExceptionRow[] = existsSync(exceptionFile)
-    ? parseCsv(readFileSync(exceptionFile, 'utf8')).map((row, index) => ({ ...row, index: index + 2 }))
+    ? parseCsv(readFileSync(exceptionFile, 'utf8')).map((row) => ({ ...row, index: Number(row.csvLine) }))
     : [];
+  for (const exception of exceptions) {
+    if (exception.pattern.startsWith('@') && !['@ddl', '@quoted-comment', '@product-text'].includes(exception.pattern)) {
+      throw new Error(`Unknown exception resolver ${exception.pattern} at ${exceptionFile}:${exception.index}`);
+    }
+  }
+  const ddlNames = new Set(exceptions.some((row) => row.pattern === '@ddl')
+    ? [...readFileSync(typeof args.ddl === 'string' ? args.ddl : `${STD}/ddl-before.sql`, 'utf8')
+      .replace(/--[^\n]*|\/\*[\s\S]*?\*\/|'(?:''|[^'])*'/g, ' ')
+      .matchAll(/"((?:""|[^"])*)"/g)].map((match) => match[1]!.replaceAll('""', '"')) : []);
   const findings: Finding[] = [];
   const seen = new Set<string>();
+  const historicalPaths = new Map<string, string>();
+  const applicableExceptions = new Map<string, ExceptionRow[]>();
+
+  function shouldScanComment(comment: string): boolean {
+    return isPtComment(comment) ||
+      (/['"`«]/.test(comment) && splitIdentifier(comment).some((token) => isPtToken(token, extra)));
+  }
+
+  function resolve(pattern: string, finding: Finding): boolean {
+    if (pattern === '@ddl') {
+      if (finding.kind !== 'sql-name') return false;
+      return ddlNames.has(finding.raw);
+    }
+    if (pattern === '@quoted-comment') {
+      if (finding.kind !== 'comment') return false;
+      let quotedProduct = false;
+      let technicalQuote = false;
+      const remaining = finding.raw.replace(/(?<![\p{L}\p{N}])'(?:\\[\s\S]|[^'\\])*'|"(?:\\[\s\S]|[^"\\])*"|`(?:\\[\s\S]|[^`\\])*`|«[^»]*»/gu, (quote) => {
+        const content = quote.slice(1, -1).replace(/\\(["'`])/g, '$1');
+        if (quote.startsWith('`') && !isProductText(content)) technicalQuote = true;
+        if (splitIdentifier(content).some((token) => isPtToken(token, extra))) {
+          if (isProductText(content)) quotedProduct = true;
+          else technicalQuote = true;
+        }
+        return ' ';
+      });
+      return quotedProduct && !technicalQuote && !isPtComment(remaining) &&
+        !splitIdentifier(remaining).some((token) => isPtToken(token, extra));
+    }
+    return ['string-literal', 'literal-value'].includes(finding.kind) &&
+      !/(?:^|\/)tests\/|\.test\.[cm]?[jt]sx?$|(?:^|\/)seed\//.test(finding.file) &&
+      finding.productText === true && isProductText(finding.raw);
+  }
 
   function classify(finding: Finding): Finding {
-    const historical = inventoryPath(finding.file, mapRows);
-    for (const exception of exceptions) {
-      if (exception.kind !== '*' && exception.kind !== finding.kind) continue;
-      if (!path.matchesGlob(finding.file, exception.glob) && !path.matchesGlob(historical, exception.glob)) continue;
+    const key = `${finding.file}\0${finding.kind}`;
+    let applicable = applicableExceptions.get(key);
+    if (!applicable) {
+      let historical = historicalPaths.get(finding.file);
+      if (historical === undefined) {
+        historical = inventoryPath(finding.file, mapRows);
+        historicalPaths.set(finding.file, historical);
+      }
+      applicable = exceptions.filter((exception) =>
+        (exception.kind === '*' || exception.kind === finding.kind) &&
+        (path.matchesGlob(finding.file, exception.glob) || path.matchesGlob(historical!, exception.glob)));
+      applicableExceptions.set(key, applicable);
+    }
+    for (const exception of applicable) {
+      if (finding.kind === 'identifier' && exception.category === 'A') continue;
       const target = finding.kind === 'comment' ? finding.snippet : finding.raw;
       let matches = false;
       try {
-        matches = exception.pattern === '*' || new RegExp(exception.pattern).test(target) ||
+        matches = exception.pattern.startsWith('@') ? resolve(exception.pattern, finding) :
+          exception.pattern === '*' || new RegExp(exception.pattern).test(target) ||
           new RegExp(exception.pattern).test(finding.token);
       }
       catch { throw new Error(`Invalid exception regex at ${exceptionFile}:${exception.index}`); }
@@ -242,10 +357,11 @@ function main(): void {
     return finding;
   }
 
-  function add(file: string, line: number, kind: string, value: string, snippet: string): void {
+  function add(file: string, line: number, kind: string, value: string, snippet: string,
+    context: Pick<Finding, 'productText'> = {}): void {
     for (const token of splitIdentifier(value)) {
       if (!isPtToken(token, extra)) continue;
-      const finding = classify({ file, line, kind, token, raw: value, snippet: snippet.slice(0, 120), category: '', exception_ref: '' });
+      const finding = classify({ file, line, kind, token, raw: value, snippet: snippet.slice(0, 120), category: '', exception_ref: '', ...context });
       const key = `${finding.file}\0${finding.line}\0${finding.kind}\0${finding.token}\0${finding.snippet}`;
       if (!seen.has(key)) {
         seen.add(key);
@@ -255,9 +371,9 @@ function main(): void {
   }
 
   function addComment(file: string, text: string, position: number, comment: string): void {
-    if (!isPtComment(comment)) return;
+    if (!shouldScanComment(comment)) return;
     const info = lineSnippet(text, position);
-    const finding = classify({ file, line: info.line, kind: 'comment', token: '', raw: '', snippet: info.snippet, category: '', exception_ref: '' });
+    const finding = classify({ file, line: info.line, kind: 'comment', token: '', raw: comment, snippet: info.snippet, category: '', exception_ref: '' });
     const key = `${file}\0${info.line}\0comment\0${info.snippet}`;
     if (!seen.has(key)) {
       seen.add(key);
@@ -283,7 +399,7 @@ function main(): void {
           if (SQL_CALLS.has(baseName) && file.startsWith('packages/db/src/schema/')) add(file, info.line, 'sql-name', value, info.snippet);
           else if (decorator || TECHNICAL_CALLS.has(name) || TECHNICAL_CALLS.has(baseName) ||
             name.endsWith('.add') || name.startsWith('ErroPipe.') || name === 'ErroPipe') {
-            add(file, info.line, 'string-literal', value, info.snippet);
+            add(file, info.line, 'string-literal', value, info.snippet, { productText: isProductContext(first!) });
           }
           if (['getAttribute', 'setAttribute', 'hasAttribute', 'removeAttribute'].includes(baseName) && value.startsWith('data-')) {
             add(file, info.line, 'data-attr', value, info.snippet);
@@ -296,12 +412,17 @@ function main(): void {
       }
       if (ts.isTaggedTemplateExpression(node) && node.tag.getText(source) === 'sql') {
         const info = lineSnippet(text, node.template.getStart(source));
-        add(file, info.line, 'sql-name', node.template.getText(source), info.snippet);
+        for (const part of sqlParts(node.template)) {
+          if (part.identifier) add(file, info.line, 'sql-name', part.value, info.snippet);
+          else if (!part.interpolation && part.value.startsWith("'")) {
+            add(file, info.line, 'literal-value', part.value.slice(1, -1).replaceAll("''", "'"), info.snippet);
+          }
+        }
       }
       if ((ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) &&
           ((ts.isLiteralTypeNode(node.parent) && ts.isUnionTypeNode(node.parent.parent)) || isConstContext(node))) {
         const info = lineSnippet(text, node.getStart(source));
-        add(file, info.line, 'literal-value', node.text, info.snippet);
+        add(file, info.line, 'literal-value', node.text, info.snippet, { productText: isProductContext(node) });
       }
       if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) &&
           /(COOKIE|SESSAO)/i.test(node.name.text)) {
@@ -373,8 +494,8 @@ function main(): void {
     text.split(/\r?\n/).forEach((lineText, index) => {
       const trimmed = lineText.trim();
       if (trimmed.startsWith('#')) {
-        if (isPtComment(trimmed)) {
-          const finding = classify({ file, line: index + 1, kind: 'comment', token: '', raw: '', snippet: trimmed.slice(0, 120), category: '', exception_ref: '' });
+        if (shouldScanComment(trimmed)) {
+          const finding = classify({ file, line: index + 1, kind: 'comment', token: '', raw: trimmed, snippet: trimmed.slice(0, 120), category: '', exception_ref: '' });
           findings.push(finding);
         }
         return;
