@@ -45,8 +45,7 @@ export function ShellChannelWhatsapp() {
   const read = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
   const situation = read.data ? channelInBotState(read.data.channel, 'whatsapp_cloud') : null;
   const conectado = situation?.state === 'conectado';
-  /* Health only matters when connected; 403 (without `canal.gerenciar`) isn't a page failure. */
-  const saudes = useRead<{ channels: ChannelWhatsAppVisible[] }>(conectado ? '/v1/channels/whatsapp' : null, {
+  const health = useRead<ChannelWhatsAppVisible | null>(conectado ? `/v1/management/flows/${contact.id}/channel/status` : null, {
     retry: false,
   });
 
@@ -60,7 +59,7 @@ export function ShellChannelWhatsapp() {
       ? {
           flowId: contact.id,
           channel: situation.channel,
-          saude: saudes.data?.channels.find((c) => c.id === situation.channel.id) ?? null,
+          saude: health.data?.id === situation.channel.id ? health.data : null,
         }
       : { flowId: contact.id, situation, disponiveis: read.data.disponiveis };
 

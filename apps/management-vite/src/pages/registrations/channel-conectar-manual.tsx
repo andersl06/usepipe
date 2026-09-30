@@ -1,7 +1,7 @@
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useId, useState, type FormEvent, type ReactNode } from 'react';
 import { Botao, Campo, Etiqueta, type VarianteDeBotao } from '@pipe/ui';
-import { IconePortal } from '@pipe/ui/icones-portal';
 import { Modal } from '@pipe/ui/modal';
+import { atualizarLeituras } from '../../lib/actions';
 import type {
   ChannelInstagramVisible,
   ChannelMessengerVisible,
@@ -43,14 +43,19 @@ function Field({
   readOnly?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
+  const inputId = useId();
+  const helpId = useId();
   const secretState = secretFieldVisualState(visible);
   return (
-    <label className="cc-campo">
-      <span className="cc-campo-rotulo">{label}</span>
+    <div className="cc-campo">
+      <label className="cc-campo-rotulo" htmlFor={inputId}>
+        {label}
+      </label>
       <span
         className={secret ? 'cc-campo-controle cc-campo-controle--secreto' : 'cc-campo-controle'}
       >
         <Campo
+          id={inputId}
           name={name}
           type={secret ? secretState.type : 'text'}
           required={required}
@@ -58,21 +63,51 @@ function Field({
           readOnly={readOnly}
           autoComplete="off"
           autoCapitalize="off"
+          aria-describedby={help ? helpId : undefined}
         />
         {secret ? (
           <button
-            className={`cc-campo-olho cc-campo-olho--${secretState.icon}`}
+            className="cc-campo-olho"
             type="button"
             aria-label={`${secretState.action} ${label}`}
             aria-pressed={visible}
+            aria-controls={inputId}
             onClick={() => setVisible((value) => !value)}
           >
-            <IconePortal nome="olho" tamanho={20} />
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              {secretState.icon === 'eye-off' ? (
+                <>
+                  <path d="M3 3l18 18" />
+                  <path d="M10.58 10.59a2 2 0 0 0 2.83 2.83" />
+                  <path d="M9.88 5.1A10.9 10.9 0 0 1 12 4.9c4.6 0 8.4 2.9 10 7.1a11 11 0 0 1-3.05 4.35" />
+                  <path d="M6.6 6.6A11.4 11.4 0 0 0 2 12c1.6 4.2 5.4 7.1 10 7.1 1.4 0 2.75-.27 3.95-.77" />
+                </>
+              ) : (
+                <>
+                  <path d="M2 12s3.6-7.1 10-7.1S22 12 22 12s-3.6 7.1-10 7.1S2 12 2 12Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </>
+              )}
+            </svg>
           </button>
         ) : null}
       </span>
-      {help ? <span className="cc-campo-ajuda">{help}</span> : null}
-    </label>
+      {help ? (
+        <span className="cc-campo-ajuda" id={helpId}>
+          {help}
+        </span>
+      ) : null}
+    </div>
   );
 }
 
@@ -137,15 +172,17 @@ function FormModal({
   open,
   title,
   onClose,
+  busy = false,
   children,
 }: {
   open: boolean;
   title: string;
   onClose: () => void;
+  busy?: boolean;
   children: ReactNode;
 }) {
   return (
-    <Modal aberto={open} titulo={title} onFechar={onClose}>
+    <Modal aberto={open} titulo={title} onFechar={busy ? undefined : onClose}>
       {children}
     </Modal>
   );
@@ -166,7 +203,10 @@ export function ConectarWhatsappManual({
   function close() {
     setOpen(false);
     setError(null);
-    if (success) onConectado?.(success.channel);
+    if (success) {
+      onConectado?.(success.channel);
+      atualizarLeituras();
+    }
     setSuccess(null);
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -199,6 +239,7 @@ export function ConectarWhatsappManual({
         open={open}
         title={channelId ? 'Atualizar conexão do WhatsApp' : 'Conectar WhatsApp'}
         onClose={close}
+        busy={sending}
       >
         {success ? (
           <WebhookReady
@@ -244,6 +285,7 @@ export function ConectarWhatsappManual({
 
 export function ConectarInstagramManual({
   flowId,
+  channelId,
   rotulo = 'Conectar Instagram',
   variante = 'padrao',
   onConectado,
@@ -255,7 +297,10 @@ export function ConectarInstagramManual({
   function close() {
     setOpen(false);
     setError(null);
-    if (success) onConectado?.(success.channel);
+    if (success) {
+      onConectado?.(success.channel);
+      atualizarLeituras();
+    }
     setSuccess(null);
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -268,6 +313,7 @@ export function ConectarInstagramManual({
       appSecret: String(data.get('appSecret') ?? '').trim(),
       nome: String(data.get('nome') ?? '').trim() || undefined,
       ...(flowId ? { flowId } : {}),
+      ...(channelId ? { channelId } : {}),
     });
     setSending(false);
     if (!result.ok) {
@@ -281,7 +327,12 @@ export function ConectarInstagramManual({
       <Botao type="button" variante={variante} onClick={() => setOpen(true)}>
         {rotulo}
       </Botao>
-      <FormModal open={open} title="Conectar Instagram" onClose={close}>
+      <FormModal
+        open={open}
+        title={channelId ? 'Atualizar conexão do Instagram' : 'Conectar Instagram'}
+        onClose={close}
+        busy={sending}
+      >
         {success ? (
           <WebhookReady
             webhook={success.webhook}
@@ -307,7 +358,7 @@ export function ConectarInstagramManual({
               required={false}
             />
             {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
-            <Actions sending={sending} onCancel={close} />
+            <Actions sending={sending} onCancel={close} label={channelId ? 'Salvar credenciais' : 'Conectar'} />
           </form>
         )}
       </FormModal>
@@ -328,7 +379,10 @@ export function ConectarMessengerManual({
   function close() {
     setOpen(false);
     setError(null);
-    if (success) onConectado?.(success.channel);
+    if (success) {
+      onConectado?.(success.channel);
+      atualizarLeituras();
+    }
     setSuccess(null);
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -354,7 +408,7 @@ export function ConectarMessengerManual({
       <Botao type="button" variante={variante} onClick={() => setOpen(true)}>
         {rotulo}
       </Botao>
-      <FormModal open={open} title="Conectar Messenger" onClose={close}>
+      <FormModal open={open} title="Conectar Messenger" onClose={close} busy={sending}>
         {success ? (
           <WebhookReady
             webhook={success.webhook}

@@ -26,6 +26,8 @@ import {
   disconnectChannelOfFlow,
   connectChannelToFlow,
 } from '../domain/management/channel-of-flow.js';
+import { listChannelsWhatsApp, type ChannelWhatsAppVisible } from '../domain/channels.js';
+import { readChannelInstagramVisible, type ChannelInstagramVisible } from '../domain/instagram/channel.js';
 import {
   carregarBoasVindas,
   carregarMenuPersistente,
@@ -293,6 +295,26 @@ export class ManagementFlowController {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) => loadChannelOfFlowInScreen(tx, sessao.tenantId, id));
+  }
+
+  /** Return only the status of the channel attached to this bot, without account-wide channel access. */
+  @Get(':id/channel/status')
+  @WithSession()
+  async channelStatus(
+    @Req() request: RequestWithSession,
+    @Param('id') id: string,
+  ): Promise<ChannelWhatsAppVisible | ChannelInstagramVisible | null> {
+    const session = sessionOf(request);
+    uuidOu404(id, 'fluxo');
+    const { channel } = await noTenant(session.tenantId, (tx) =>
+      loadChannelOfFlowInScreen(tx, session.tenantId, id),
+    );
+    if (!channel) return null;
+    if (channel.tipo === 'whatsapp_cloud') {
+      return (await listChannelsWhatsApp(session.tenantId, channel.id))[0] ?? null;
+    }
+    if (channel.tipo === 'instagram') return readChannelInstagramVisible(session.tenantId, channel.id);
+    return null;
   }
 
 

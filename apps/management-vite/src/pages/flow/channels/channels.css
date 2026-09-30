@@ -37,7 +37,7 @@
     transform 0.3s ease-out;
 }
 
-.cn-card:hover {
+.cn-card--link:hover {
   transform: translateY(-4px);
   box-shadow: var(--g-shadow-card);
 }

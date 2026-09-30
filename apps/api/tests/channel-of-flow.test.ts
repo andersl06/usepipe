@@ -205,6 +205,9 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     const lido = await readChannel(sessionEditor, flowId);
     expect(lido.status).toBe(200);
     expect(lido.body['channel']).toMatchObject({ id: channelId, flowId });
+    const status = await chamar(sessionWithoutAuthority, 'GET', `/v1/management/flows/${flowId}/channel/status`);
+    expect(status).toMatchObject({ status: 200, body: { id: channelId, state: 'indisponivel' } });
+    expect((await chamar(sessionOfOtherTenant, 'GET', `/v1/management/flows/${flowId}/channel/status`)).status).toBe(404);
     const disponiveis = lido.body['disponiveis'] as { id: string; flowId: string | null }[];
     expect(disponiveis.find((c) => c.id === channelId)?.flowId).toBe(flowId);
 

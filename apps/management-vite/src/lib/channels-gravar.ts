@@ -65,7 +65,6 @@ export async function conectarWhatsappManual(
       ...(data.flowId ? { flowId: data.flowId } : {}),
       ...(data.channelId ? { channelId: data.channelId } : {}),
     });
-    atualizarLeituras();
     const { webhookError, webhook, ...channel } = resposta;
     return { ok: true, value: { channel, webhookError, webhook } };
   } catch (error) {
@@ -199,6 +198,7 @@ export interface ConexaoManualInstagram {
   appSecret: string;
   nome?: string;
   flowId?: string;
+  channelId?: string;
 }
 
 export async function conectarInstagramManual(
@@ -212,8 +212,8 @@ export async function conectarInstagramManual(
       app_secret: data.appSecret,
       ...(data.nome ? { name: data.nome } : {}),
       ...(data.flowId ? { flowId: data.flowId } : {}),
+      ...(data.channelId ? { channelId: data.channelId } : {}),
     });
-    atualizarLeituras();
     const { webhookError, webhook, ...channel } = resposta;
     return { ok: true, value: { channel, webhookError, webhook } };
   } catch (error) {
@@ -231,5 +231,5 @@ export async function desconectarInstagram(id: string): Promise<Resultado<Channe
   }
 }
 
-export async function conectarMessengerManual(data: { token: string; appSecret: string; nome?: string; flowId?: string }): Promise<Resultado<ChannelConnected<ChannelMessengerVisible>>> { try { const resposta = await api.post<ChannelMessengerVisible & { webhookError: string | null; webhook: { url: string; verifyToken: string } }>('/v1/channels/messenger/manual', { access_token: data.token, app_secret: data.appSecret, ...(data.nome ? { name: data.nome } : {}), ...(data.flowId ? { flowId: data.flowId } : {}) }); atualizarLeituras(); const { webhookError, webhook, ...channel } = resposta; return { ok: true, value: { channel, webhookError, webhook } }; } catch (error) { return falha(error, 'Não foi possível conectar o Messenger.'); } }
+export async function conectarMessengerManual(data: { token: string; appSecret: string; nome?: string; flowId?: string }): Promise<Resultado<ChannelConnected<ChannelMessengerVisible>>> { try { const resposta = await api.post<ChannelMessengerVisible & { webhookError: string | null; webhook: { url: string; verifyToken: string } }>('/v1/channels/messenger/manual', { access_token: data.token, app_secret: data.appSecret, ...(data.nome ? { name: data.nome } : {}), ...(data.flowId ? { flowId: data.flowId } : {}) }); const { webhookError, webhook, ...channel } = resposta; return { ok: true, value: { channel, webhookError, webhook } }; } catch (error) { return falha(error, 'Não foi possível conectar o Messenger.'); } }
 export async function desconectarMessenger(id: string): Promise<Resultado<ChannelMessengerVisible>> { try { const value = await api.delete<ChannelMessengerVisible>(`/v1/channels/messenger/${id}`); atualizarLeituras(); return { ok: true, value }; } catch (error) { return falha(error, 'Não foi possível desconectar o Messenger.'); } }

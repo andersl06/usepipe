@@ -36,12 +36,19 @@ function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
   const numero = saude?.number ?? channel.numero ?? channel.nome;
   const numeroWa = numeroParaWaMe(saude?.number ?? channel.numero);
 
-  if (saude?.state === 'indisponivel') {
+  if (saude?.state === 'indisponivel' || saude?.state === 'desligado') {
     const needsReconnect = shouldReconnectWhatsapp(saude);
     return (
       <div className="cb-empty">
-        <EmptyState titulo="Ainda não é possível usar este número" illustration="erro">
-          <p className="sub">{rotuloDoMotivo(saude.motivo)}</p>
+        <EmptyState
+          titulo={saude.state === 'desligado' ? 'Este número está desligado' : 'Ainda não é possível usar este número'}
+          illustration="erro"
+        >
+          <p className="sub">
+            {saude.state === 'desligado'
+              ? 'Verifique o canal na gestão de contas.'
+              : rotuloDoMotivo(saude.motivo)}
+          </p>
         </EmptyState>
         {needsReconnect ? (
           <ConectarWhatsappManual
@@ -51,11 +58,11 @@ function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
             rotulo="Reconectar número"
             variante="primario"
           />
-        ) : (
+        ) : saude.state === 'indisponivel' ? (
           <Botao type="button" variante="primario" onClick={() => window.location.reload()}>
             Tentar novamente
           </Botao>
-        )}
+        ) : null}
         <Botao type="button" variante="perigo" onClick={() => setDesconectando(true)}>
           Desconectar canal
         </Botao>
@@ -79,13 +86,9 @@ function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
         {numero}
       </span>
       <p className="cb-typo-16">
-        Você já pode conversar com seus clientes pelo WhatsApp, configurar as funcionalidades do
-        canal e gerar mais insights para o seu negócio!
-      </p>
-      <p className="cb-typo-16">
-        Com o número conectado, você tem a possibilidade de interagir com seus clientes e leads
-        proativamente, sem precisar que ele te chame no WhatsApp primeiro. Conheça nossas{' '}
-        <strong>boas práticas</strong>!
+        {saude?.state === 'conectado'
+          ? 'O número está ativo neste bot. As mensagens recebidas aparecem no atendimento.'
+          : 'O número está vinculado a este bot. Não foi possível confirmar o estado da conexão agora.'}
       </p>
       <div className="cb-actions-between">
         <Botao

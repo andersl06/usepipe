@@ -56,15 +56,6 @@
   background: var(--p-superficie-2);
   color: var(--p-conteudo);
 }
-.cc-campo-olho--eye-off::after {
-  position: absolute;
-  width: 22px;
-  height: 2px;
-  transform: rotate(-45deg);
-  border-radius: 2px;
-  background: currentColor;
-  content: '';
-}
 .cc-campo-olho:focus-visible {
   outline: 2px solid var(--p-marca-forte);
   outline-offset: 1px;

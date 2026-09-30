@@ -84,7 +84,7 @@ export function ChannelsPage() {
                   {miolo}
                 </Link>
               ) : (
-                <article className="cn-card" aria-disabled="true">
+                <article className="cn-card">
                   {miolo}
                 </article>
               )}
