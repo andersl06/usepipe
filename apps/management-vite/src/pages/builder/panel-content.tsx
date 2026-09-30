@@ -475,7 +475,7 @@ function ContentCard({
     }
     case 'entrada':
       return (
-        <InboundCard inbound={card.inbound} block={block} fixo={fixo} comErro={comErro} onMudar={onMudar} />
+        <InboundCard key={block.id} inbound={card.inbound} block={block} fixo={fixo} comErro={comErro} onMudar={onMudar} />
       );
     case 'digitando':
       return (
