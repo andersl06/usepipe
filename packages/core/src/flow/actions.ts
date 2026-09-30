@@ -4,6 +4,7 @@
 
 import type { ActionDeadline, CommandRequest, Context, DeskUnavailableStatus, PedidoDeHttp } from './context.js';
 import { CONTEXT_STATE_URI, matchCommand } from './commands.js';
+import { scriptVariables } from './script-variables.js';
 import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, maskSecrets, setVariable as setContextVariable, stateKey } from './context.js';
 import { runLocalCommand } from './builder-commands.js';
 
@@ -469,7 +470,7 @@ const processHttp: AcaoDoMotor = {
 const BOT_TIME_ZONE_DEFAULT = 'America/Sao_Paulo';
 
 /** Blip stores Windows zone ids; these are the ones a Brazilian/LatAm tenant realistically has. */
-const WINDOWS_TIME_ZONES: Readonly<Record<string, string>> = {
+export const WINDOWS_TIME_ZONES: Readonly<Record<string, string>> = {
   'E. South America Standard Time': 'America/Sao_Paulo',
   'SA Eastern Standard Time': 'America/Cayenne',
   'Tocantins Standard Time': 'America/Araguaina',
@@ -540,6 +541,7 @@ function runScriptAction(version: 1 | 2): AcaoDoMotor['executar'] {
         timeoutMs: SCRIPT_TIMEOUT_MS[version],
         localTimeZone,
         timeZone: localTimeZone ? botTimeZone(context.flow.configuration) : 'UTC',
+        ...(version === 2 ? { variables: scriptVariables(context) } : {}),
       });
       setContextVariable(context, output, comoTexto(result));
     } catch (error) {

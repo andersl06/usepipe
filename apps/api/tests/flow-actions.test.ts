@@ -53,6 +53,30 @@ const FLOW = {
         conditions: [{ source: 'input', comparison: 'equals', values: ['biblioteca'] }],
       },
       {
+        // P9: the V2 API (context.*Async, time.*) on the production path; same script as the
+        // Builder test-run case in `builder-test-run.test.ts`.
+        type: 'ExecuteScriptV2',
+        settings: {
+          source: `async function run() {
+            await context.setVariableAsync('v2Texto', 'gravado');
+            await context.setVariableAsync('v2Tmp', 'x');
+            await context.deleteVariableAsync('v2Tmp');
+            const quando = time.dateToString(time.parseDate('2026-02-03 11:05', { timeZone: 'America/Sao_Paulo' }), { format: 'dd/MM HH:mm' });
+            time.sleep(10);
+            return [await context.getVariableAsync('input.content'), await context.getVariableAsync('v2Tmp'),
+              await context.getVariableAsync('secret.apiToken'), quando].join('|');
+          }`,
+          inputVariables: [],
+          outputVariable: 'v2Saida',
+        },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['script-v2'] }],
+      },
+      {
+        type: 'SendMessage',
+        settings: { type: 'text/plain', content: 'V2: {{v2Texto}} {{v2Saida}} [{{v2Tmp}}]' },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['script-v2'] }],
+      },
+      {
         // 40k characters pass the app's 64 KB character check, but 80 KB of UTF-8 violate the
         // `pg_column_size(valor) <= 65536` CHECK: a real database error inside the action.
         type: 'SetBucket',
@@ -199,6 +223,14 @@ describe('context action services', () => {
       select conteudo from mensagem where tenant_id = ${cenario.tenantId}::uuid and autor_tipo = 'bot'
     `);
     expect(rows.map((m) => m.conteudo)).toEqual(['CPF: 12345678900']);
+  });
+
+  it('ExecuteScriptV2 reads and writes the flow context and uses time.* in production (P9)', async () => {
+    await falar('script-v2');
+    const { rows } = await cenario.dono.execute<{ conteudo: string }>(sql`
+      select conteudo from mensagem where tenant_id = ${cenario.tenantId}::uuid and autor_tipo = 'bot'
+    `);
+    expect(rows.map((m) => m.conteudo)).toEqual(['V2: gravado script-v2|||03/02 14:05 []']);
   });
 
   it('fills application, bucket, calendar and random; tunnel stays empty without a router', async () => {
