@@ -38,6 +38,8 @@ import {
 } from '../src/pages/builder/test-panel-logic.ts';
 import {
   CONFIGURATION_SECTIONS,
+  percentToScore,
+  scoreToPercent,
   secondsToTimeSpan,
   timeSpanToSeconds,
 } from '../src/pages/builder/configuration-sections.ts';
@@ -217,6 +219,11 @@ test('BLIP_SYSTEM_VARIABLES has all 118 reference variables, sorted, with pt-BR 
     agente.filter((v) => !v.suportada).map((v) => v.nome),
     ['aiAgent.skill_id', 'aiAgent.skillName', 'aiAgent.task_id', 'aiAgent.taskName'],
   );
+
+  // P16: AI Answers and the content assistant are filled.
+  const p16 = BLIP_SYSTEM_VARIABLES.filter((v) => /^(aiAnswers\.|input\.contentAssistant\.|input\.intent\.|input\.entity\.)/.test(v.nome));
+  assert.equal(p16.length, 12);
+  assert.ok(p16.every((v) => v.suportada));
 });
 
 test('systemFilterVariables (accent-sensitive) searches the name and the description', () => {
@@ -493,9 +500,19 @@ test('CONFIGURATION_SECTIONS has the 8 captured sections, in order, with literal
   ]);
 });
 
-test('available sections are the ones the engine reads: session expiration, action time limit and config.X', () => {
+test('available sections are the ones the engine reads: AI confidence, session expiration, action time limit and config.X', () => {
   const disponiveis = CONFIGURATION_SECTIONS.filter((s) => s.disponivel).map((s) => s.id);
-  assert.deepEqual(disponiveis, ['expiracao-sessao', 'tempo-limite-acoes', 'variaveis-configuracao', 'variaveis-sensiveis']);
+  assert.deepEqual(disponiveis, ['confiabilidade-ia', 'expiracao-sessao', 'tempo-limite-acoes', 'variaveis-configuracao', 'variaveis-sensiveis']);
+});
+
+test('the AI confidence slider shows the stored 0..1 score as a percentage (P16)', () => {
+  assert.equal(scoreToPercent('0.7'), 70);
+  assert.equal(scoreToPercent(undefined), 50);
+  assert.equal(scoreToPercent('abc'), 50);
+  assert.equal(scoreToPercent('70'), 50);
+  assert.equal(percentToScore(70), '0.7');
+  assert.equal(percentToScore(150), '1');
+  assert.equal(percentToScore(0), '0');
 });
 
 test('secondsToTimeSpan/timeSpanToSeconds round-trip the TimeSpan text Blip stores', () => {

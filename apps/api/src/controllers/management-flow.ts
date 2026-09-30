@@ -53,6 +53,7 @@ import {
   updateFlowSecret,
   deleteFlowSecret,
 } from '../domain/management/flow-secrets.js';
+import { getFlowAiModel, saveFlowAiModel } from '../domain/management/flow-ai-model.js';
 import {
   loadChannelOfFlow,
   carregarGradeDoPortal,
@@ -79,6 +80,8 @@ import type {
   FlowResourceInput,
   FlowSecret,
   FlowSecretInput,
+  FlowAiModel,
+  FlowAiModelInput,
 } from '@pipe/contracts';
 import { BY_PAGE } from '@pipe/contracts';
 import type {
@@ -680,5 +683,32 @@ export class ManagementFlowController {
     await noTenant(sessao.tenantId, (tx) =>
       deleteFlowSecret(tx, sessao.userId, sessao.tenantId, id, secretId),
     );
+  }
+
+  /**
+   * The flow's AI model (P16, `builder.ler`/`builder.escrever`): NLP intents and entities, the
+   * content assistant's contents and the AI Answers assistants, read and replaced whole.
+   */
+  @Get(':id/ai-model')
+  @WithSession()
+  async aiModel(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+  ): Promise<FlowAiModel> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) => getFlowAiModel(tx, sessao.userId, sessao.tenantId, id));
+  }
+
+  @Put(':id/ai-model')
+  @WithSession()
+  async saveAiModel(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Body() corpo: FlowAiModelInput,
+  ): Promise<FlowAiModel> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) => saveFlowAiModel(tx, sessao.userId, sessao.tenantId, id, corpo));
   }
 }

@@ -10,6 +10,7 @@ import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, botFlow, deleteVa
 import { subflowRuntimeId } from './modelos.js';
 import { runLocalCommand } from './builder-commands.js';
 import { forwardToAgent, leavingFromAgent } from './ai-agent.js';
+import { processAnswers } from './ai-answers.js';
 
 export type Settings = Record<string, unknown> | null;
 
@@ -635,6 +636,12 @@ const leavingFromAgentAction: AcaoDoMotor = {
   executar: (context, settings, prazo) => leavingFromAgent.executar(context, settings, prazo),
 };
 
+/** AI Answers (P16, `ai-answers.ts`), delegated at call time for the same import-cycle reason. */
+const processAnswersAction: AcaoDoMotor = {
+  tipo: 'ProcessAnswers',
+  executar: (context, settings, prazo) => processAnswers.executar(context, settings, prazo),
+};
+
 export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   trackContactsJourney,
   setVariable,
@@ -662,6 +669,7 @@ export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   processContentAssistant,
   forwardToAgentAction,
   leavingFromAgentAction,
+  processAnswersAction,
 ];
 
 /** Default `ActionProvider` containing actions Pipe executes. */

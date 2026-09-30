@@ -6,6 +6,8 @@ export * from './modelos.js';
 export * from './context.js';
 export * from './actions.js';
 export * from './ai-agent.js';
+export * from './ai-answers.js';
+export * from './nlp.js';
 export * from './script-variables.js';
 export * from './template.js';
 export * from './commands.js';

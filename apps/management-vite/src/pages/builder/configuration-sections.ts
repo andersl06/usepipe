@@ -45,7 +45,8 @@ export const CONFIGURATION_SECTIONS: readonly ConfigurationSection[] = [
       'Defina o percentual de confiabilidade de uma intenção para ser considerada uma resposta válida.',
     controle: 'slider',
     chave: 'builder:minimumIntentScore',
-    disponivel: false,
+    // P16: the engine keeps an intent only at or above this score (`@pipe/core` `nlp.ts`).
+    disponivel: true,
   },
   {
     id: 'tracking-automatico',
@@ -132,4 +133,19 @@ export function timeSpanToSeconds(timeSpan: string): number | null {
   const segundos = Number(m[3]);
   if (minutos > 59 || segundos > 59) return null;
   return horas * 3600 + minutos * 60 + segundos;
+}
+
+/** Blip's Builder default for `builder:minimumIntentScore` (the engine uses the same, `@pipe/core` `nlp.ts`). */
+export const DEFAULT_MINIMUM_INTENT_PERCENT = 50;
+
+/** `'0.7'` → `70`: the stored 0..1 fraction as the slider's percentage; the default when absent or invalid. */
+export function scoreToPercent(score: string | undefined): number {
+  const value = score === undefined || score.trim() === '' ? Number.NaN : Number(score);
+  return Number.isFinite(value) && value >= 0 && value <= 1 ? Math.round(value * 100) : DEFAULT_MINIMUM_INTENT_PERCENT;
+}
+
+/** `70` → `'0.7'`, clamped to 0..100. */
+export function percentToScore(percent: number): string {
+  const clamped = Math.min(100, Math.max(0, Math.round(Number.isFinite(percent) ? percent : DEFAULT_MINIMUM_INTENT_PERCENT)));
+  return String(clamped / 100);
 }

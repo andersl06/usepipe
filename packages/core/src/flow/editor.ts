@@ -407,9 +407,8 @@ export function importReport(flow: FlowBlip): ImportReport {
   const viewConditions = (conditions: ConditionBlip[] | null | undefined): void => {
     for (const c of conditions ?? []) {
       const fonte = (c.source ?? 'input').toLowerCase();
+      // `intent`/`entity` run on the flow's AI model since P16 (`nlp.ts`).
       if (!FONTES.includes(fonte as (typeof FONTES)[number]))
-        somar(r.naoSuportado, `condicao:fonte:${fonte}`);
-      else if (fonte === 'intent' || fonte === 'entity')
         somar(r.naoSuportado, `condicao:fonte:${fonte}`);
       const comparison = (c.comparison ?? 'equals').toLowerCase();
       if (!COMPARISONS.some((x) => x.toLowerCase() === comparison)) {
