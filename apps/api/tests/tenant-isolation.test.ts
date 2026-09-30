@@ -2,17 +2,15 @@ import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { WebSocket } from 'ws';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { requestWithHost, setTenantHostEnv } from './tenant-host-helper.js';
 
 // Database integration suite: write now, run only when the owner permits local DB setup.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_EMAIL_MODO'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
-process.env['PIPE_DOMINIO_CONTAS'] = 'pipe.test';
-process.env['PIPE_COOKIE_DOMINIO'] = '.pipe.test';
-process.env['PIPE_COOKIE_SEGURO'] = 'true';
+setTenantHostEnv({ secure: true, origins: 'https://crm.pipe.test' });
 process.env['GOOGLE_URL_RETORNO'] = 'https://login.pipe.test/v1/auth/google/callback';
-process.env['PIPE_ORIGENS'] = 'https://crm.pipe.test';
 
 const { upApi } = await import('../src/servidor.js');
 const { createInvitation } = await import('../src/domain/convites.js');
@@ -38,6 +36,10 @@ beforeAll(async () => {
   betaSlug = `e2e-${b}`;
   alphaEmail = `ana-${a}@e2e.pipe.app`;
   betaEmail = `ana-${b}@e2e.pipe.app`;
+  // The scenario seeds no roles; the invitation step needs an account-scoped role to grant.
+  await alpha.dono.execute(sql`
+    insert into papel (tenant_id, nome, escopo) values (${alpha.tenantId}, 'member', 'conta')
+  `);
   api = await upApi(0);
 }, 180_000);
 
@@ -47,10 +49,16 @@ afterAll(async () => {
   await alpha?.encerrar();
 });
 
-function request(path: string, host: string, cookie?: string, options: RequestInit = {}) {
-  return fetch(`${api.url}${path}`, {
-    ...options, redirect: 'manual',
-    headers: { host, ...(cookie ? { cookie } : {}), ...options.headers },
+function request(
+  path: string,
+  host: string,
+  cookie?: string,
+  options: { method?: string; headers?: Record<string, string>; body?: string } = {},
+) {
+  // Plain HTTP client: it never follows redirects, so 302 responses are observed as sent.
+  return requestWithHost(`${api.url}${path}`, host, {
+    ...options,
+    headers: { ...(cookie ? { cookie } : {}), ...options.headers },
   });
 }
 
