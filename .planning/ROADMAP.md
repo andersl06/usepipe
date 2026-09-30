@@ -381,6 +381,58 @@ Plans:
 **Plans**: TBD
 **UI hint**: yes
 
+### Phase 03.1: Corrigir bugs do inventário Blip×Pipe (INSERTED)
+
+**Goal:** Bugs reais encontrados na comparação Blip×Pipe (isolamento de filas/regras por fluxo, presença do Desk, atalho de respostas prontas, template WhatsApp que perde rodapé/botões, Click Tracker que mostra "Conectado" sem token, identidade roteador/subbot) ficam corrigidos e cobertos por teste, e as frentes ainda não auditadas (Builder, APIs/LIME, canais, Portal) têm inventário complementar com a régua de evidência, conduzido de forma proativa pelo Claude (trazer ao dono bugs e regras da Blip que o Pipe não aplica). Insumos: `insumos/` da fase.
+**Requirements**: TBD
+**Depends on:** Phase 3 (insumo: auditorias Blip×Pipe de 2026-09-30)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 03.1 to break down)
+
+### Phase 03.2: Paridade visual da tela Atendimento do fluxo (INSERTED)
+
+**Goal:** A tela Atendimento dentro do fluxo (`application/detail/{fluxo}/attendance`, `apps/management-vite`) fica visualmente equivalente à da Blip: layout, medidas, tipografia, espaçamentos, estados vazio/carregando/erro, componentes e menus/modais abertos, com as cores do Pipe (azul → verde). Nada da Blip entra como código, CSS, ícone ou imagem (D-33). Regras só entram quando o visual exigir. Isolamento de filas/regras, presença, distribuição, identidade roteador/subbot, atalho do compositor e SLA são da Fase 3.1 / Fase 3, não desta.
+**Requirements**: TBD
+**Depends on:** nenhuma (independente da Fase 3.1)
+**Success Criteria** (what must be TRUE):
+
+  1. Cada estado da tela (lista, vazio, carregando, erro) tem captura Pipe lado a lado com a referência Blip, com medidas conferidas
+  2. Menus e modais abertos foram capturados na Blip (com data e estado de interface) e replicados no Pipe
+  3. Tipografia e espaçamentos estão dentro da tolerância medida, sem nenhum ativo da Blip no repositório
+  4. O dono aprova a comparação visual
+
+**UI hint**: yes
+**Plans:** 25 plans (Onda 0: 01-05; Onda 1: 06-16; Onda 2: 17-19; Onda 3: 20-22; Onda 4: 23-25)
+
+Plans:
+- [ ] 03.2-01-PLAN.md — ref/ (método, inventário congelado, capturas pendentes, conflitos de rota, questões ao dono, dependências 03.1)
+- [ ] 03.2-02-PLAN.md — censo de componentes Blip x Pipe + teste da matemática da paginação
+- [ ] 03.2-03-PLAN.md — medição e correção da casca; medição das skins de paginação e do tblwrap
+- [ ] 03.2-04-PLAN.md — dono envia capturas de estados abertos (não bloqueia)
+- [ ] 03.2-05-PLAN.md — portão da Onda 0: decisões do dono (Q1-Q7, R-NN) e aprovação da casca
+- [ ] 03.2-06-PLAN.md — rotas conforme decisões D-04
+- [ ] 03.2-07-PLAN.md — "Resultados por página" unificado e medido
+- [ ] 03.2-08-PLAN.md — tblwrap único + paginação/estados nas telas do censo
+- [ ] 03.2-09-PLAN.md — Monitoramento: barra e detalhe do ticket, menu de três pontos, Transferir/Finalizar
+- [ ] 03.2-10-PLAN.md — Monitoramento: filtros rápidos, Falar com atendente (D-14), estados
+- [ ] 03.2-11-PLAN.md — Histórico: lista, filtros, detalhe, estados, CSV seguro, paginação no servidor (se Q2)
+- [ ] 03.2-12-PLAN.md — Histórico: backend de envio por e-mail (e PDF se Q4), CSV compartilhado
+- [ ] 03.2-13-PLAN.md — Histórico: modais Exportar CSV/PDF e Enviar por e-mail
+- [ ] 03.2-14-PLAN.md — Filas: lista e gestão da fila ao clicar
+- [ ] 03.2-15-PLAN.md — Atendentes: lista, gestão ao clicar, permissões
+- [ ] 03.2-16-PLAN.md — portão da Onda 1
+- [ ] 03.2-17-PLAN.md — Regras e SLA
+- [ ] 03.2-18-PLAN.md — Horários e Pausas personalizadas
+- [ ] 03.2-19-PLAN.md — portão da Onda 2
+- [ ] 03.2-20-PLAN.md — Respostas e Templates de mensagem
+- [ ] 03.2-21-PLAN.md — Canais e Configurações gerais
+- [ ] 03.2-22-PLAN.md — portão da Onda 3
+- [ ] 03.2-23-PLAN.md — Relatórios, Esforço, Pesquisa + cartão único
+- [ ] 03.2-24-PLAN.md — dashboards de ligações e vendas
+- [ ] 03.2-25-PLAN.md — GATE-FINAL e OWNER APPROVED
+
 ### Phase 4: Resolver o CRM e consolidar o repositório
 
 **Goal**: A convivência não decidida entre `apps/crm` (Next.js) e a integração real com o Twenty termina, e o repositório fica num estado único e publicável.
