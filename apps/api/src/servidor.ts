@@ -31,6 +31,7 @@ import {
 import { measureRequest } from './metrics.js';
 import { closeDelayedJobs, consumeDelayedJobs, scheduleSweepDelayedJobs } from './delayed-jobs.js';
 import { registerScheduledMessages } from './domain/scheduled-messages.js';
+import { registerInputExpirations } from './domain/input-expiration-job.js';
 
 /**
  * Start Nest with a custom JSON parser that preserves raw request bytes in `corpoCru`. Meta signs those bytes with `X-Hub-Signature-256`; reserializing parsed JSON can change spacing or key order and make valid webhooks fail signature verification.
@@ -135,6 +136,7 @@ export async function upApi(porta = Number(process.env['PORT'] ?? 3000)): Promis
   consumeRenewalInstagram();
   await scheduleRenewalInstagram();
   registerScheduledMessages();
+  registerInputExpirations();
   consumeDelayedJobs();
   await scheduleSweepDelayedJobs();
   await app.listen(porta);
