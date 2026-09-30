@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_plan
-stopped_at: Phase 02 complete (22/22) — ready to discuss Phase 3
-last_updated: 2026-09-27T19:15:10.222Z
-last_activity: 2026-09-26 -- Phase 02 execution started
+status: planning
+stopped_at: Phase 03.2 UI-SPEC approved
+last_updated: "2026-09-30T23:19:19.056Z"
+last_activity: 2026-09-30 -- Phase 03.2 planning complete
 progress:
-  total_phases: 9
-  completed_phases: 0
-  total_plans: 71
-  completed_plans: 39
-  percent: 0
+  total_phases: 11
+  completed_phases: 1
+  total_plans: 164
+  completed_plans: 89
+  percent: 9
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-24)
 Phase: 3
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-09-27
+Last activity: 2026-09-30 -- Phase 03.2 planning complete
 
 Progress: [███░░░░░░░] 32%
 
@@ -61,6 +61,8 @@ Progress: [███░░░░░░░] 32%
 ### Roadmap Evolution
 
 - Phase 01.1 inserted after Phase 1: Subdomínio por tenant no padrão Blip (<tenant>.usepipe.ai/application, <tenant>.desk.usepipe.ai); pedido do dono durante o portão 1 da Phase 1
+- Phase 03.1 inserted after Phase 3: Corrigir bugs do inventário Blip×Pipe (URGENT)
+- Phase 03.2 inserted after Phase 3: Paridade do Atendimento com a Blip (URGENT)
 
 ### Decisions
 
@@ -116,6 +118,6 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 
 ## Session Continuity
 
-Last session: 2026-09-27T15:16:16.120Z
-Stopped at: Phase 01.1 context revised (D-23..D-26)
-Resume file: .planning/phases/01.1-subdominio-por-tenant/01.1-CONTEXT.md
+Last session: 2026-09-30T22:49:51.966Z
+Stopped at: Phase 03.2 UI-SPEC approved
+Resume file: .planning/phases/03.2-paridade-do-atendimento-com-a-blip/03.2-UI-SPEC.md
