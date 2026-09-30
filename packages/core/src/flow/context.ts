@@ -161,6 +161,14 @@ export interface ScriptRequest {
   variables?: ScriptVariables;
 }
 
+/** What `ExecuteTemplate` asks the `api` to render with Handlebars (P9); `data` is JSON-safe. */
+export interface TemplateRequest {
+  template: string;
+  /** Built by `templateData` from the input variables only; `secret.*` is never among them. */
+  data: Record<string, unknown>;
+  timeoutMs: number;
+}
+
 /**
  * The flow context as an `ExecuteScriptV2` script sees it. Values cross as text: the isolate turns
  * objects into JSON before `set`. `get` never reveals `secret.*` (P11) nor the internal
@@ -228,6 +236,8 @@ export interface ServicosDoMotor {
   suspendHttp?(pedido: PedidoDeHttp, cursor: Omit<CursorDeProcessHttp, 'resposta'>): Promise<never>;
   /** Runs untrusted script source in the sandbox and returns the JSON-safe result. */
   runScript?(request: ScriptRequest): Promise<unknown>;
+  /** Renders an `ExecuteTemplate` Handlebars template in the sandbox and returns the text. */
+  renderTemplate?(request: TemplateRequest): Promise<string>;
   /** Runs a function selected from the conversation flow's function library in the same sandbox. */
   runFlowFunction?(request: { functionId: string; args: (string | null)[] }): Promise<unknown>;
   /**
