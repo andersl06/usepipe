@@ -1,0 +1,4 @@
+# Shell scripts run under bash on every OS; CRLF breaks them.
+*.sh text eol=lf
+# STD gate state files are parsed line by line by tools/std/gate.sh.
+.planning/phases/*/std/reports/*.txt text eol=lf
