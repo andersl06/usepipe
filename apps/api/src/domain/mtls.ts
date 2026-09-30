@@ -209,7 +209,8 @@ function pedirComAgente(url: string, pedido: PedidoDeSaida, agente: https.Agent)
             status,
             texto: async () => Buffer.concat(pedacos).subarray(0, limite).toString('utf8'),
             headers: Object.fromEntries(
-              Object.entries(resposta.headers).map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : String(v ?? '')]),
+              // A throw here would leave the promise pending (it runs in a stream callback), so never assume headers.
+              Object.entries(resposta.headers ?? {}).map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : String(v ?? '')]),
             ),
           });
         };
