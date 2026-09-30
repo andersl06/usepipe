@@ -82,7 +82,7 @@ describe('Enforce tenant isolation through row-level security', () => {
     // Writes are isolated too: an insert without an active tenant must fail.
     await expect(
       cenario.app.execute(
-        sql`insert into fila (tenant_id, nome) values (${cenario.tenantA}::uuid, 'sem tenant em vigor')`,
+        sql`insert into fila (tenant_id, fluxo_id, nome) values (${cenario.tenantA}::uuid, ${cenario.flowA}::uuid, 'sem tenant em vigor')`,
       ),
     ).rejects.toThrow();
   });
@@ -110,7 +110,7 @@ describe('Enforce tenant isolation through row-level security', () => {
     await expect(
       comTenant(cenario.app, cenario.tenantA, async (tx) =>
         tx.execute(
-          sql`insert into fila (tenant_id, nome) values (${cenario.tenantB}::uuid, 'fila intrusa')`,
+          sql`insert into fila (tenant_id, fluxo_id, nome) values (${cenario.tenantB}::uuid, ${cenario.flowB}::uuid, 'fila intrusa')`,
         ),
       ),
     ).rejects.toThrow();

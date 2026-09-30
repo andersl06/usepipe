@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { createDatabase, closeDatabase } from './cliente.js';
 import type { DatabasePipe } from './cliente.js';
+import { flow } from './schema/automation.js';
 import { queue } from './schema/conversations.js';
 import { role, rolePermission, permission, tenant } from './schema/identity.js';
 
@@ -337,9 +338,24 @@ export async function seed(
       .onConflictDoNothing();
   }
 
+  // Queues belong to a flow (D-04): reuse the tenant's first live flow or create the example one.
+  const [existingFlow] = await db
+    .select({ id: flow.id })
+    .from(flow)
+    .where(and(eq(flow.tenantId, tenantId), sql`${flow.estado} <> 'arquivado'`))
+    .limit(1);
+  const [createdFlow] = existingFlow
+    ? []
+    : await db
+        .insert(flow)
+        .values({ tenantId, nome: 'Atendimento', shortName: 'atendimento' })
+        .returning({ id: flow.id });
+  const flowId = (existingFlow ?? createdFlow)?.id;
+  if (!flowId) throw new Error(`fluxo de exemplo do tenant "${slug}" não foi criado`);
+
   await db
     .insert(queue)
-    .values(QUEUES_EXAMPLE.map((f) => ({ tenantId, ...f })))
+    .values(QUEUES_EXAMPLE.map((f) => ({ tenantId, flowId, ...f })))
     .onConflictDoNothing();
 
   // Finally, after account roles exist, assign one to users seeded by another routine before this run or already present after migration 0021.

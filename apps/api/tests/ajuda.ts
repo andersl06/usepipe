@@ -13,6 +13,7 @@ export interface Cenario {
   dono: DatabasePipe;
   tenantId: string;
   channelId: string;
+  flowId: string;
   inboxId: string;
   queueId: string;
   agentId: string;
@@ -52,8 +53,14 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
     returning id
   `);
 
+  const flow = await um<{ id: string }>(sql`
+    insert into fluxo (tenant_id, nome, short_name, canal_id)
+    values (${tenant.id}, ${`Fluxo ${sufixo}`}, ${`fluxo${sufixo.replace(/-/g, '')}`}, ${channel.id})
+    returning id
+  `);
+
   const queue = await um<{ id: string }>(
-    sql`insert into fila (tenant_id, nome) values (${tenant.id}, ${`Suporte ${sufixo}`}) returning id`,
+    sql`insert into fila (tenant_id, fluxo_id, nome) values (${tenant.id}, ${flow.id}, ${`Suporte ${sufixo}`}) returning id`,
   );
 
   const inbox = await um<{ id: string }>(sql`
@@ -84,6 +91,7 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
     dono,
     tenantId: tenant.id,
     channelId: channel.id,
+    flowId: flow.id,
     inboxId: inbox.id,
     queueId: queue.id,
     agentId: agent.id,
@@ -94,6 +102,46 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
       await closeDatabase(dono);
     },
   };
+}
+
+/**
+ * Two flows in the same tenant, each with its own queue and a conflicting "Boleto" rule, sharing one agent linked to both queues.
+ */
+export async function montarDoisFluxos(sufixo: string) {
+  const cenario = await montarCenario(sufixo);
+  const { dono, tenantId } = cenario;
+  const um = async (query: ReturnType<typeof sql>) => {
+    const { rows } = await dono.execute<{ id: string }>(query);
+    return rows[0]!.id;
+  };
+
+  const flowA = cenario.flowId;
+  const flowB = await um(sql`
+    insert into fluxo (tenant_id, nome, short_name)
+    values (${tenantId}, ${`Servico ${sufixo}`}, ${`servico${sufixo.replace(/-/g, '')}`})
+    returning id
+  `);
+  const queueA = cenario.queueId;
+  // plano 18: mesmo nome após trocar fila_tenant_nome_uk
+  const queueB = await um(sql`
+    insert into fila (tenant_id, fluxo_id, nome) values (${tenantId}, ${flowB}, ${`Suporte B ${sufixo}`}) returning id
+  `);
+  await dono.execute(sql`
+    insert into fila_atendente (tenant_id, fila_id, usuario_id) values (${tenantId}, ${queueB}, ${cenario.agentId})
+  `);
+
+  for (const fila of [queueA, queueB]) {
+    const regra = await um(sql`
+      insert into regra_fila (tenant_id, nome, ordem, combinador, fila_destino_id, ativa)
+      values (${tenantId}, 'Boleto', 0, 'e', ${fila}, true) returning id
+    `);
+    await dono.execute(sql`
+      insert into regra_fila_condicao (tenant_id, regra_id, campo, operador, valor)
+      values (${tenantId}, ${regra}, 'mensagem', 'contem', 'boleto')
+    `);
+  }
+
+  return { cenario, flowA, flowB, queueA, queueB, userShared: cenario.agentId };
 }
 
 async function createKey(

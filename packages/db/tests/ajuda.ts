@@ -19,6 +19,8 @@ export interface Cenario {
   tenantB: string;
   queueA: string;
   queueB: string;
+  flowA: string;
+  flowB: string;
   encerrar: () => Promise<void>;
 }
 
@@ -37,12 +39,17 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
     );
     const tenantId = tenant.rows[0]?.id;
     if (!tenantId) throw new Error(`não criou o tenant ${slug}`);
+    const flow = await dono.execute<{ id: string }>(
+      sql`insert into fluxo (tenant_id, nome, short_name) values (${tenantId}, ${slug}, 'fluxo') returning id`,
+    );
+    const flowId = flow.rows[0]?.id;
+    if (!flowId) throw new Error(`não criou o fluxo de ${slug}`);
     const queue = await dono.execute<{ id: string }>(
-      sql`insert into fila (tenant_id, nome) values (${tenantId}, ${nameQueue}) returning id`,
+      sql`insert into fila (tenant_id, fluxo_id, nome) values (${tenantId}, ${flowId}, ${nameQueue}) returning id`,
     );
     const queueId = queue.rows[0]?.id;
     if (!queueId) throw new Error(`não criou a fila de ${slug}`);
-    return { tenantId, queueId };
+    return { tenantId, queueId, flowId };
   };
 
   const a = await create(`rls-a-${sufixo}`, `Fila A ${sufixo}`);
@@ -55,6 +62,8 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
     tenantB: b.tenantId,
     queueA: a.queueId,
     queueB: b.queueId,
+    flowA: a.flowId,
+    flowB: b.flowId,
     encerrar: async () => {
       await dono.execute(
         sql`delete from tenant where id in (${a.tenantId}::uuid, ${b.tenantId}::uuid)`,
