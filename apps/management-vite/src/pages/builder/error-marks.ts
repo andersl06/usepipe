@@ -3,6 +3,7 @@ import type { Block, Mapa } from './model';
 import { cardsOf, contentErrorsOfCard } from './conteudo';
 import { outputErrors } from './conditions';
 import { actionErrors } from './actions-of-block';
+import { aiAgentErrors } from './ai-agent-block';
 
 /**
  * The Blip screen's `$invalid` per block, the same rules `validation.ts` reads to word the
@@ -59,6 +60,10 @@ export function blockMarks(block: Block, mapa: Mapa, engineMessages: string[] = 
     },
   );
 
+  // AI agent block (P14): model, instructions, memory, handoffs and tools.
+  const agentMessages = aiAgentErrors(block);
+  messages.push(...agentMessages);
+
   messages.push(...engineMessages);
 
   const node =
@@ -66,6 +71,7 @@ export function blockMarks(block: Block, mapa: Mapa, engineMessages: string[] = 
     outputs.size > 0 ||
     defaultOutput ||
     actions.size > 0 ||
+    agentMessages.length > 0 ||
     engineMessages.length > 0;
 
   return { node, contentCards, outputs, defaultOutput, actions, messages };

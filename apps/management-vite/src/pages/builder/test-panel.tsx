@@ -6,6 +6,8 @@ import { runTest, resetTest } from '../builder-gravar';
 import type { Mapa } from './model';
 import type { Subflows } from './subflows';
 import { stepTitle } from './test-panel-logic';
+import { hasAiAgent } from './ai-agent-block';
+import { AGENT_TEST_NOTE } from './panel-ai-agent';
 import { GLOBAL_ACTIONS_SECTION_ID, debugSections, inputExpirationHint, testVariablesToRecord } from './test-panel-logic';
 
 /**
@@ -173,6 +175,8 @@ export function TestPanel({
   const [erro, setErro] = useState<string | null>(null);
   const [debug, setDebug] = useState<TestRunDebug | null>(null);
   const [variaveis, setVariaveis] = useState<{ chave: string; valor: string }[]>([]);
+  /** P14: an AI agent without a key answers with the test-run stub; say how to walk its exits. */
+  const comAgente = hasAiAgent(mapa, ...Object.values(subfluxos).map((s) => s.mapa));
 
   async function enviar(texto: string): Promise<void> {
     const mensagem = texto.trim();
@@ -265,6 +269,12 @@ export function TestPanel({
         </button>
       </div>
       <div className="bl-panel-body bl-test-conversa">
+        {comAgente ? (
+          <p className="bl-agent-nota" data-test="test-ai-agent-note">
+            <IconePortal nome="robo" tamanho={16} />
+            <span>{AGENT_TEST_NOTE}</span>
+          </p>
+        ) : null}
         {mensagens.length === 0 ? (
           <div className="bl-test-vazio">
             <Icone nome="testEnvironment" tamanho={32} />

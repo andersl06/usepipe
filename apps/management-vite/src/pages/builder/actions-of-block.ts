@@ -349,7 +349,14 @@ export const LABELS_OF_ACTIONS = {
 } as const;
 
 /** System-run actions belong to the Human block, not the person. */
-export const ACTIONS_OF_SYSTEM = new Set(['ForwardToDesk', 'LeavingFromDesk', 'CreateTicket']);
+export const ACTIONS_OF_SYSTEM = new Set([
+  'ForwardToDesk',
+  'LeavingFromDesk',
+  'CreateTicket',
+  // The AI agent block's own entering/after-change actions (P14).
+  'ForwardToAgent',
+  'LeavingFromAgent',
+]);
 
 export const tipoDeAcao = (tipo: string): TipoDeAcao | undefined =>
   CATALOG_OF_ACTIONS.find((t) => t.tipo === tipo);
@@ -541,7 +548,8 @@ export function actionErrors(acao: AcaoDoEditor): string[] {
   return errors;
 }
 
-export type ActionsList = '$enteringCustomActions' | '$leavingCustomActions';
+/** `$localCustomActions` is the AI agent block's tools list (P14). */
+export type ActionsList = '$enteringCustomActions' | '$leavingCustomActions' | '$localCustomActions';
 
 export type ResultadoDeAcao = { ok: true; block: Block } | { ok: false; error: string };
 

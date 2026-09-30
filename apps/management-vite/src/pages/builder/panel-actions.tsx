@@ -1,4 +1,4 @@
-import { Suspense, lazy, useLayoutEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '@pipe/ui/icones-portal';
@@ -40,6 +40,8 @@ import type { ActionsList } from './actions-of-block';
 import { ConditionsEditor } from './condition';
 import { FlowFunctionInsertPicker, FlowFunctionSelect } from './flow-functions-panel';
 import { insertLibraryCall } from './flow-functions';
+import { isAiAgentBlock, newTool, toolErrors } from './ai-agent-block';
+import { ToolFields } from './panel-ai-agent';
 
 /** Monaco stays in its own chunk, fetched only when a script action is opened. */
 const CodeEditor = lazy(() => import('./code-editor'));
@@ -76,6 +78,43 @@ export function ActionsPanel({
     return (
       <div className="bl-aba-corpo">
         <p className="sub">{LABELS_OF_ACTIONS.atendimento}</p>
+      </div>
+    );
+  }
+  if (isAiAgentBlock(block)) {
+    // P14: the agent's entering action is the agent itself; its tools take the "entrada" slot.
+    const tools = block.$localCustomActions ?? [];
+    return (
+      <div className="bl-aba-corpo">
+        <ListOfActionsOfBlock
+          block={block}
+          lista="$localCustomActions"
+          titulo="Ferramentas"
+          description={[{ texto: 'Inclua ferramentas que serão executadas pelo agente durante o atendimento.' }]}
+          rotuloAdicionar="Adicionar ferramenta"
+          onMudar={onMudar}
+          onAviso={onAviso}
+          copiadas={copiadas}
+          onCopiar={copiar}
+          inSubflow={inSubflow}
+          criarAcao={(tipo) => newTool(block, tipo)}
+          extraDoCard={(acao, mudar) => ({
+            campos: <ToolFields acao={acao} all={tools} onMudar={mudar} />,
+            erros: toolErrors(acao, tools),
+          })}
+        />
+        <ListOfActionsOfBlock
+          block={block}
+          lista="$leavingCustomActions"
+          titulo={LABELS_OF_ACTIONS.saida}
+          description={LABELS_OF_ACTIONS.saidaDescricao}
+          rotuloAdicionar={LABELS_OF_ACTIONS.adicionarSaida}
+          onMudar={onMudar}
+          onAviso={onAviso}
+          copiadas={copiadas}
+          onCopiar={copiar}
+          inSubflow={inSubflow}
+        />
       </div>
     );
   }
@@ -175,6 +214,8 @@ function ListOfActionsOfBlock({
   copiadas,
   onCopiar,
   inSubflow,
+  criarAcao = (tipo) => novaAcao(tipo),
+  extraDoCard,
 }: {
   block: Block;
   lista: ActionsList;
@@ -186,6 +227,10 @@ function ListOfActionsOfBlock({
   copiadas: AcaoDoEditor[];
   onCopiar: (actions: AcaoDoEditor[]) => void;
   inSubflow: boolean;
+  /** How the "+" creates an action (the agent's tools start with a name and a schema, P14). */
+  criarAcao?: (tipo: string) => AcaoDoEditor;
+  /** Extra fields and errors of each card (the agent's tool description and schema, P14). */
+  extraDoCard?: (acao: AcaoDoEditor, onMudar: (acao: AcaoDoEditor) => void) => { campos: ReactNode; erros: string[] };
 }) {
   const actions = block[lista] ?? [];
   const [menuAberto, setMenuAberto] = useState(false);
@@ -201,7 +246,7 @@ function ListOfActionsOfBlock({
   }
 
   function adicionar(tipo: string): void {
-    const r = adicionarAcao(block, lista, novaAcao(tipo));
+    const r = adicionarAcao(block, lista, criarAcao(tipo));
     setMenuAberto(false);
     if (!r.ok) {
       onAviso(r.error);
@@ -295,6 +340,7 @@ function ListOfActionsOfBlock({
           ultima={i === actions.length - 1}
           onAbrir={() => setAberta(aberta === i ? null : i)}
           onMudar={(nova) => onMudar(substituirAcao(block, lista, i, nova))}
+          extra={extraDoCard?.(acao, (nova) => onMudar(substituirAcao(block, lista, i, nova)))}
           onStart={() => onMudar(moverAcao(block, lista, i, i - 1))}
           onLower={() => onMudar(moverAcao(block, lista, i, i + 1))}
           onRemover={() => {
@@ -369,6 +415,7 @@ export function ActionCard({
   onArrastar,
   onSoltar,
   onTerminarArrasto,
+  extra,
 }: {
   acao: AcaoDoEditor;
   aberta: boolean;
@@ -385,6 +432,8 @@ export function ActionCard({
   onArrastar?: () => void;
   onSoltar?: () => void;
   onTerminarArrasto?: () => void;
+  /** Fields shown above the action's own fields, and their errors (an agent tool, P14). */
+  extra?: { campos: ReactNode; erros: string[] };
 }) {
   const [menu, setMenu] = useState(false);
   const detalhe = useRef<HTMLDivElement>(null);
@@ -396,7 +445,7 @@ export function ActionCard({
   const semSuporte = acaoSemSuporte(acao);
   const dependenciaExterna = acaoTemDependenciaExterna(acao);
   const doSistema = acaoDoSistema(acao);
-  const errors = actionErrors(acao);
+  const errors = [...actionErrors(acao), ...(extra?.erros ?? [])];
   const editavel = !!tipo && !doSistema && !dependenciaExterna;
   return (
     <article
@@ -572,6 +621,7 @@ export function ActionCard({
           ) : null}
           {dependenciaExterna ? <p className="sub">{EXTERNAL_DEPENDENCY_MESSAGE}</p> : null}
           {!dependenciaExterna && tipo?.info ? <p className="sub">{tipo.info}</p> : null}
+          {extra?.campos}
           {editavel ? (
             <>
               {!onCopiar ? (

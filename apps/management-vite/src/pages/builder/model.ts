@@ -71,6 +71,8 @@ export interface Block {
   $enteringCustomActions?: AcaoDoEditor[];
   $leavingCustomActions?: AcaoDoEditor[];
   $afterStateChangedActions?: AcaoDoEditor[];
+  /** Block-local actions; on an AI agent block (`ai-agent:`) they are the agent's tools (P14). */
+  $localCustomActions?: AcaoDoEditor[];
   deskStateVersion?: string;
   [extensao: string]: unknown;
 }
@@ -99,6 +101,8 @@ export const ID_DO_FIM = 'end';
 export const PREFIX_OF_ATTENDANCE = 'desk:';
 /** A block that hands the contact to a subflow (P12/P13): Blip's `subflow:<uuid>` id convention. */
 export const PREFIX_OF_SUBFLOW = 'subflow:';
+/** Blip's AI agent block id convention (`ai-agent:<uuid>`, P14); the factory lives in `ai-agent-block.ts`. */
+export const PREFIX_OF_AI_AGENT = 'ai-agent:';
 export const VERSION_OF_BLOCK_OF_ATTENDANCE = '3.0.0';
 
 /** The native satisfaction survey block's id prefix (`ref/inventario-satisfacao-e-tags.md` §1, D-16: same `<tipo>:<uuid>` convention Blip uses for `desk:`). */
@@ -381,12 +385,14 @@ export function replaceBlock(mapa: Mapa, block: Block): Mapa {
 /** "Duplicar" from the context menu: a copy with a new id, "[Cópia]" in the title, 20px to the side. */
 function blockCopy(origem: Block, position: Position, novoId = gerarId()): Block {
   const copia = copiar(origem);
-  // A copy keeps the id prefix the engine reads (`desk:`, `subflow:`), so it behaves like the original.
+  // A copy keeps the id prefix the engine reads (`desk:`, `subflow:`, `ai-agent:`), so it behaves like the original.
   copia.id = ehAttendance(origem.id)
     ? `${PREFIX_OF_ATTENDANCE}${novoId}`
     : origem.id.startsWith(PREFIX_OF_SUBFLOW)
       ? `${PREFIX_OF_SUBFLOW}${novoId}`
-      : novoId;
+      : origem.id.startsWith(PREFIX_OF_AI_AGENT)
+        ? `${PREFIX_OF_AI_AGENT}${novoId}`
+        : novoId;
   copia.root = false;
   copia.$title = `${origem.$title ?? TITULO_PADRAO} [Cópia]`;
   copia.$position = positionAsText(position);

@@ -2,6 +2,7 @@ import type { Block, Mapa } from './model';
 import { contentErrors } from './conteudo';
 import { outputErrors } from './conditions';
 import { actionErrors } from './actions-of-block';
+import { aiAgentErrors } from './ai-agent-block';
 
 const ERRORS_OF_DRAFT_OF_OUTPUT = new Set([
   'Definição de saída não preenchida',
@@ -42,5 +43,6 @@ export function blockErrors(block: Block, mapa: Mapa): string[] {
       anotar(e);
     }
   }
+  for (const e of aiAgentErrors(block)) anotar(e);
   return errors;
 }

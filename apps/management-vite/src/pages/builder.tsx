@@ -346,6 +346,11 @@ export function PageBuilder() {
               pesquisa={pesquisaComAtraso}
               onAbrirFuncoes={abrirFuncoes}
               onAviso={toast}
+              onAbrirVariaveis={() => {
+                // AI agent (P14): its provider key is a "Variáveis sensíveis" entry.
+                setConfigTab('variaveis');
+                setConfigAberto(true);
+              }}
             />
           )}
 

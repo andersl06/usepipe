@@ -1318,3 +1318,10 @@
   font-size: 11px;
   opacity: 0.8;
 }
+
+/* ------------------------------------------------------------ agente de IA (P14) */
+
+/* The AI agent block: Pipe's own paint (D-33), a brand-colored left edge and the "Agente de IA" caption. */
+.bl-node--ai-agent {
+  background-image: linear-gradient(to right, var(--p-builder-marca) 4px, transparent 4px);
+}
