@@ -330,6 +330,13 @@
       "when": 1790090000000,
       "tag": "0052_recurso_do_fluxo",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1790100000000,
+      "tag": "0053_agendamento_e_eventos",
+      "breakpoints": true
     }
   ]
 }
