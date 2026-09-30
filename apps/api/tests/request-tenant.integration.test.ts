@@ -6,6 +6,7 @@ process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 process.env['PIPE_DOMINIO_CONTAS'] = 'pipe.test';
+process.env['PIPE_COOKIE_DOMINIO'] = '.pipe.test';
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_ORIGENS'] = 'http://crm.pipe.test';
 

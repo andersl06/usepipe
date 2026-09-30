@@ -10,6 +10,7 @@ process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 23).toString('b
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_ORIGENS'] = 'http://localhost:3200';
 process.env['PIPE_DOMINIO_CONTAS'] = 'pipe.test';
+process.env['PIPE_COOKIE_DOMINIO'] = '.pipe.test';
 process.env['PIPE_COOKIE_SEGURO'] = 'true';
 // A fast ping so the test does not wait 15 seconds for the control frame.
 process.env['PIPE_WS_PING_MS'] = '150';
