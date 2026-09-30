@@ -3,7 +3,8 @@ import { test } from 'node:test';
 import { register } from 'node:module';
 import * as React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import type { FlowAiModelInput } from '@pipe/contracts';
+import type { FlowAiModel, FlowAiModelInput } from '@pipe/contracts';
+import type { RenameMemory } from '../src/pages/flow/ai-model-logic';
 import { FONTES_DA_TELA, fonteSemSuporte, comFonte } from '../src/pages/builder/conditions';
 import { actionErrors, novaAcao, tipoDeAcao } from '../src/pages/builder/actions-of-block';
 import { duplicateBlock } from '../src/pages/builder/model';
@@ -74,7 +75,7 @@ test('intent rename updates content references without mutating the model', asyn
 
 test('clearing an intent name while renaming never leaves an "any intent" reference', async () => {
   const module = await import('../src/pages/flow/ai-model-logic');
-  const memory: import('../src/pages/flow/ai-model-logic').RenameMemory = new Map();
+  const memory: RenameMemory = new Map();
   let current = model;
   const keystrokes = [...Array.from({ length: 'trocas'.length }, (_, i) => 'trocas'.slice(0, 'trocas'.length - 1 - i)), ...Array.from('devolucao', (_, i) => 'devolucao'.slice(0, i + 1))];
   for (const name of keystrokes) {
@@ -106,7 +107,7 @@ test('renaming an entity value keeps content matching its synonyms at runtime', 
   const runtime = await import('../../api/src/domain/nlp-model');
   const matches = (m: FlowAiModelInput, text: string) => runtime.matchContentInModel(m, { intent: 'trocas', entities: runtime.findEntities(m, text) })?.id ?? null;
   assert.equal(matches(model, 'quero trocar a blusa'), 'c');
-  const memory: import('../src/pages/flow/ai-model-logic').RenameMemory = new Map();
+  const memory: RenameMemory = new Map();
   let renamed = model;
   for (const name of ['camis', 'cami', 'cam', 'ca', 'c', '', 'c', 'ca', 'camiseta']) renamed = module.renameEntityValue(renamed, 'e', 0, name, memory);
   assert.deepEqual(renamed.contents[0]?.combinations[0]?.entities, ['camiseta']);
@@ -185,7 +186,7 @@ test('assistant picker refetches on focus and offers an explicit refresh for edi
 
 test('a failed background refetch keeps the model editor mounted beside the error', async () => {
   const { AiModelReadView } = await import('../src/pages/flow/ai-model-read-view');
-  const data: import('@pipe/contracts').FlowAiModel = { ...model, flowId: 'flow', updatedAt: null };
+  const data: FlowAiModel = { ...model, flowId: 'flow', updatedAt: null };
   const editor = (d: typeof data) => React.createElement('form', { id: 'draft' }, d.flowId);
   const view = (error: Error | null, loaded: typeof data | null = data) => AiModelReadView({ data: loaded ?? undefined, error, retry: () => undefined, children: editor }) as React.ReactElement<{ children: React.ReactNode[] }>;
   const failed = view(new Error('Rede indisponível'));
