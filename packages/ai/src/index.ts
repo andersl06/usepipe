@@ -9,3 +9,4 @@ export * from './resumo/index.js';
 export * from './classification/index.js';
 export * from './evaluation/index.js';
 export * from './bancada/index.js';
+export * from './agente/index.js';
