@@ -183,6 +183,8 @@ export interface RespostaDeSaida {
   ok: boolean;
   status: number;
   texto: () => Promise<string>;
+  /** Response headers, lower-case names; repeated headers joined with a comma. */
+  headers?: Record<string, string>;
 }
 
 /** Use `https.request` with the agent; global `fetch` (undici) does not accept `https.Agent`. */
@@ -206,6 +208,10 @@ function pedirComAgente(url: string, pedido: PedidoDeSaida, agente: https.Agent)
             ok: status >= 200 && status < 300,
             status,
             texto: async () => Buffer.concat(pedacos).subarray(0, limite).toString('utf8'),
+            headers: Object.fromEntries(
+              // A throw here would leave the promise pending (it runs in a stream callback), so never assume headers.
+              Object.entries(resposta.headers ?? {}).map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : String(v ?? '')]),
+            ),
           });
         };
         resposta.on('data', (pedaco: Buffer) => {
@@ -259,6 +265,7 @@ export async function chamarComMtls(
         ok: resposta.ok,
         status: resposta.status,
         texto: () => (limite === undefined ? resposta.text() : lerAte(resposta.body, limite)),
+        headers: Object.fromEntries(resposta.headers),
       };
     }
     await resposta.body?.cancel();

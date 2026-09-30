@@ -5,8 +5,11 @@ import {
   createInbound,
   EngineError,
   SuspensaoDeProcessHttp,
+  inputExpirationMessage,
+  pendingInputExpiration,
+  stateSaved,
 } from '@pipe/core';
-import type { Context, ServicosDoMotor, InboundTrace } from '@pipe/core';
+import type { Context, ServicosDoMotor, InboundTrace, FlowBlip } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import type {
   TestRunDebug,
@@ -114,16 +117,21 @@ function respeitaLimiteDeTaxa(userId: string): boolean {
   return atual.n <= LIMIT_BY_WINDOW;
 }
 
-function debugOf(rastro: InboundTrace, variables: Record<string, string>, error?: string): TestRunDebug {
+function debugOf(rastro: InboundTrace, variables: Record<string, string>, error?: string, flow?: FlowBlip): TestRunDebug {
+  // P8: same rule production uses to arm the expiration (`syncInputExpiration`).
+  const inputExpiration = flow && !error ? pendingInputExpiration(flow, stateSaved(variables, flow.id)) : null;
   return {
+    ...(inputExpiration ? { inputExpiration } : {}),
     states: rastro.estados.map((e) => ({
       stateId: e.stateId,
       actions: e.actions,
       nextStateId: e.nextStateId ?? null,
       ...(e.error ? { error: e.error } : {}),
+      ...(e.subflow ? { subflow: e.subflow } : {}),
     })),
     actionsGlobal: rastro.actionsGlobal,
     currentStateId: rastro.stateFinalId,
+    ...(rastro.subflow ? { currentSubflow: rastro.subflow } : {}),
     variables: { ...variables },
     ...(error ? { error } : {}),
   };
@@ -251,6 +259,8 @@ function servicesOfTestRun(
 export interface RunBuilderTestOptions {
   input: string;
   testVariables?: Record<string, string>;
+  /** P8: fire the waiting block's input expiration now, the input production's delayed job runs. */
+  expireInput?: boolean;
 }
 
 /**
@@ -275,22 +285,36 @@ export async function runBuilderTest(
   const flowFunctions = await loadFlowFunctions(tx, flowId);
   const resources = await loadFlowResources(tx, flowId);
 
+  // P8: a test run has no timer; "Expirar entrada" feeds the same expiration input the delayed job
+  // feeds in production, only when the waiting block has an expiration (the job's claim rule).
+  let expiredStateId: string | null = null;
+  if (options.expireInput) {
+    expiredStateId = pendingInputExpiration(flow, stateSaved(store.variables, flow.id))?.stateId ?? null;
+    if (!expiredStateId) {
+      throw new PipeError(409, 'input_expiration_not_pending', 'O bloco atual não aguarda entrada com tempo de inatividade.');
+    }
+  }
+
   const messages: TestRunMessage[] = [];
   const context: Context = {
     user: TEST_CONTACT_ID,
     flow,
-    inbound: createInbound({ id: randomUUID(), tipo: 'text/plain', conteudo: options.input }),
+    inbound: createInbound(
+      expiredStateId
+        ? inputExpirationMessage(expiredStateId, randomUUID(), TEST_CONTACT_ID)
+        : { id: randomUUID(), tipo: 'text/plain', conteudo: options.input },
+    ),
     variables: store.variables,
     inboundContext: new Map(),
     contact: store.contact,
     resources,
     application: await loadApplicationIdentity(tx, flowId),
-    services: servicesOfTestRun(tx, tid, options.input, store, messages, flowFunctions, flowId),
+    services: servicesOfTestRun(tx, tid, expiredStateId ? '' : options.input, store, messages, flowFunctions, flowId),
   };
 
   try {
     const rastro = await processInbound(context, { actions: PROVEDOR_PADRAO });
-    return { messages, debug: debugOf(rastro, store.variables) };
+    return { messages, debug: debugOf(rastro, store.variables, undefined, flow) };
   } catch (erro) {
     if (erro instanceof SuspensaoDeProcessHttp) {
       return { messages, debug: debugOf(erro.rastro ?? { estados: [], actionsGlobal: [], stateFinalId: null }, store.variables) };

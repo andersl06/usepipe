@@ -1,0 +1,164 @@
+{
+  "flow": {
+    "onboarding": {
+      "id": "onboarding",
+      "root": true,
+      "$title": "Início",
+      "$position": { "top": "40px", "left": "40px" },
+      "$tags": [],
+      "$contentActions": [{ "input": { "bypass": false, "$invalid": false }, "$invalid": false }],
+      "$conditionOutputs": [],
+      "$enteringCustomActions": [],
+      "$leavingCustomActions": [],
+      "$defaultOutput": { "stateId": "boas-vindas", "$invalid": false }
+    },
+    "boas-vindas": {
+      "id": "boas-vindas",
+      "$title": "Boas-vindas",
+      "$position": { "top": "40px", "left": "300px" },
+      "$contentActions": [
+        {
+          "action": {
+            "$id": "a1",
+            "type": "SendMessage",
+            "settings": { "id": "m1", "type": "text/plain", "content": "Olá! Antes de continuar, preciso de alguns dados." }
+          }
+        },
+        { "input": { "bypass": true } }
+      ],
+      "$conditionOutputs": [],
+      "$enteringCustomActions": [],
+      "$leavingCustomActions": [],
+      "$defaultOutput": { "stateId": "subflow:7c0e4a52-1b8d-4f7e-9a61-2d3c4b5a6e70" }
+    },
+    "subflow:7c0e4a52-1b8d-4f7e-9a61-2d3c4b5a6e70": {
+      "id": "subflow:7c0e4a52-1b8d-4f7e-9a61-2d3c4b5a6e70",
+      "root": false,
+      "shortNameOfSubflow": "coletadados",
+      "$title": "Coleta de dados",
+      "$position": { "top": "40px", "left": "560px" },
+      "$contentActions": [{ "input": { "bypass": false } }],
+      "$enteringCustomActions": [
+        {
+          "$id": "t1",
+          "type": "TrackEvent",
+          "settings": {
+            "category": "subflow:7c0e4a52-1b8d-4f7e-9a61-2d3c4b5a6e70",
+            "action": "Entering subflow - subflow:7c0e4a52-1b8d-4f7e-9a61-2d3c4b5a6e70",
+            "subflowDefaultAction": true
+          }
+        }
+      ],
+      "$leavingCustomActions": [],
+      "$conditionOutputs": [
+        {
+          "stateId": "confirmado",
+          "conditions": [{ "source": "context", "variable": "dadosOk", "comparison": "equals", "values": ["sim"] }]
+        }
+      ],
+      "$defaultOutput": { "stateId": "sem-dados" }
+    },
+    "confirmado": {
+      "id": "confirmado",
+      "$title": "Confirmado",
+      "$contentActions": [
+        {
+          "action": {
+            "$id": "a2",
+            "type": "SendMessage",
+            "settings": { "id": "m2", "type": "text/plain", "content": "Obrigado, {{nomeCliente}}! Seus dados foram salvos." }
+          }
+        },
+        { "input": { "bypass": false } }
+      ],
+      "$conditionOutputs": [],
+      "$enteringCustomActions": [],
+      "$leavingCustomActions": [],
+      "$defaultOutput": { "stateId": "onboarding" }
+    },
+    "sem-dados": {
+      "id": "sem-dados",
+      "$title": "Sem dados",
+      "$contentActions": [
+        {
+          "action": {
+            "$id": "a3",
+            "type": "SendMessage",
+            "settings": { "id": "m3", "type": "text/plain", "content": "Não consegui confirmar seus dados." }
+          }
+        },
+        { "input": { "bypass": false } }
+      ],
+      "$conditionOutputs": [],
+      "$enteringCustomActions": [],
+      "$leavingCustomActions": [],
+      "$defaultOutput": { "stateId": "onboarding" }
+    }
+  },
+  "globalActions": { "$enteringCustomActions": [], "$leavingCustomActions": [], "$afterStateChangedActions": [] },
+  "subflows": {
+    "coletadados": {
+      "flow": {
+        "onboarding": {
+          "id": "onboarding",
+          "root": true,
+          "$title": "Início",
+          "$contentActions": [{ "input": { "bypass": true } }],
+          "$conditionOutputs": [],
+          "$enteringCustomActions": [],
+          "$leavingCustomActions": [],
+          "$defaultOutput": { "stateId": "pergunta-nome" }
+        },
+        "pergunta-nome": {
+          "id": "pergunta-nome",
+          "$title": "Pergunta o nome",
+          "$contentActions": [
+            {
+              "action": {
+                "$id": "s1",
+                "type": "SendMessage",
+                "settings": { "id": "sm1", "type": "text/plain", "content": "Qual é o seu nome?" }
+              }
+            },
+            { "input": { "bypass": false, "variable": "nomeCliente" } }
+          ],
+          "$conditionOutputs": [],
+          "$enteringCustomActions": [],
+          "$leavingCustomActions": [],
+          "$defaultOutput": { "stateId": "valida" }
+        },
+        "valida": {
+          "id": "valida",
+          "$title": "Valida",
+          "$contentActions": [{ "input": { "bypass": true } }],
+          "$enteringCustomActions": [
+            { "$id": "s2", "type": "SetVariable", "settings": { "variable": "dadosOk", "value": "sim" } }
+          ],
+          "$leavingCustomActions": [],
+          "$conditionOutputs": [],
+          "$defaultOutput": { "stateId": "end" }
+        },
+        "end": {
+          "id": "end",
+          "end": true,
+          "$title": "Fim",
+          "$contentActions": [{ "input": { "bypass": true } }],
+          "$conditionOutputs": [],
+          "$enteringCustomActions": [],
+          "$leavingCustomActions": [],
+          "$defaultOutput": { "stateId": "fallback" }
+        },
+        "fallback": {
+          "id": "fallback",
+          "$title": "Exceções",
+          "$contentActions": [{ "input": { "bypass": false } }],
+          "$conditionOutputs": [],
+          "$enteringCustomActions": [],
+          "$leavingCustomActions": [],
+          "$defaultOutput": { "stateId": "onboarding" }
+        }
+      },
+      "globalActions": { "$enteringCustomActions": [], "$leavingCustomActions": [], "$afterStateChangedActions": [] }
+    }
+  }
+}

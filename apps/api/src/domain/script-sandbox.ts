@@ -1,5 +1,6 @@
 import ivm from 'isolated-vm';
-import type { ScriptRequest } from '@pipe/core';
+import { timeSpanSeconds, type ScriptRequest, type ScriptVariables } from '@pipe/core';
+import { MAX_CONTEXT_CALLS, v2ApiPrelude } from './script-v2-api.js';
 import { chamarComMtls, type PedidoDeSaida } from './mtls.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 
@@ -16,7 +17,11 @@ import { confirmarUrlSegura } from './management/integrations.js';
  * Host side of `request.fetchAsync`; values arrive already copied out of the isolate. `signal`
  * aborts when the script execution ends, so no host call outlives its isolate.
  */
-export type ScriptFetch = (url: unknown, init?: unknown, signal?: AbortSignal) => Promise<{ status: number; body: string }>;
+export type ScriptFetch = (
+  url: unknown,
+  init?: unknown,
+  signal?: AbortSignal,
+) => Promise<{ status: number; body: string; headers?: Record<string, string> }>;
 
 /** `request.fetchAsync` calls allowed per script execution (a script cannot fan out thousands). */
 export const MAX_FETCHES_POR_SCRIPT = 10;
@@ -170,6 +175,7 @@ export async function runFlowScript(request: ScriptRequest, options: ScriptOptio
 }
 
 async function rodarNoIsolate(request: ScriptRequest, options: ScriptOptions): Promise<unknown> {
+  const inicio = Date.now();
   const memoryMb = options.memoryMb ?? 100;
   const isolate = new ivm.Isolate({ memoryLimit: memoryMb, onCatastrophicError: catastrophic });
   const fim = new AbortController();
@@ -198,17 +204,33 @@ async function rodarNoIsolate(request: ScriptRequest, options: ScriptOptions): P
         );
       };
       // Separate closure: the Reference stays private to fetchAsync, out of the script's scope.
+      // Blip's response also has `success`, `headers` and `jsonAsync()` (used by its own templates).
       await context.evalClosure(
         `globalThis.request = Object.freeze({
           fetchAsync: async (url, init) => {
             const r = await $0.apply(undefined, [url, init],
               { arguments: { copy: true }, result: { promise: true, copy: true } });
             if (!r.ok) throw new Error(r.message);
-            return r.response;
+            const { status, body } = r.response;
+            const headers = r.response.headers || {};
+            return {
+              status,
+              body,
+              headers,
+              success: status >= 200 && status < 300,
+              jsonAsync: async () => JSON.parse(body),
+              getHeader: (name) => headers[String(name).toLowerCase()] ?? null,
+            };
           },
         });`,
         [new ivm.Reference(settled)],
       );
+    }
+    if (request.version === 2) {
+      await context.evalClosure(v2ApiPrelude(request.timeZone ?? 'UTC'), [
+        new ivm.Reference(sleepFor(inicio + request.timeoutMs, fim.signal)),
+        request.variables ? new ivm.Reference(contextBridge(request.variables, fim.signal)) : undefined,
+      ]);
     }
     const result = await context.evalClosure(
       `${timeZonePrelude(request.timeZone)}${libraryPrelude(options.library)}${request.source}\n;return (async () => JSON.stringify(await ${request.functionName}(...$0)))();`,
@@ -234,6 +256,71 @@ async function rodarNoIsolate(request: ScriptRequest, options: ScriptOptions): P
     fim.abort(new Error('A execução do script terminou.'));
     if (!isolate.isDisposed) isolate.dispose();
   }
+}
+
+/**
+ * Host side of `time.sleep`: waits in the host event loop while only the isolate thread blocks.
+ * A sleep that would cross the execution deadline never wakes up early; the time limit ends it.
+ */
+function sleepFor(deadline: number, end: AbortSignal): (ms: number) => Promise<void> {
+  return (ms) =>
+    new Promise<void>((resolve) => {
+      if (end.aborted) return resolve();
+      const remaining = deadline - Date.now();
+      const timer = ms < remaining ? setTimeout(resolve, ms) : undefined;
+      end.addEventListener('abort', () => {
+        clearTimeout(timer);
+        resolve();
+      }, { once: true });
+    });
+}
+
+/**
+ * Host side of `context.*Async`: validated, counted and refused once the execution ended, so a late
+ * call from a timed-out script never changes the flow context. Errors cross as data.
+ */
+function contextBridge(
+  variables: ScriptVariables,
+  end: AbortSignal,
+): (op: unknown, name: unknown, value?: unknown, expiration?: unknown) => Promise<{ ok: boolean; value?: string | null; message?: string }> {
+  let calls = 0;
+  return async (op, name, value, expiration) => {
+    try {
+      if (end.aborted) throw new Error('A execução do script terminou.');
+      calls += 1;
+      if (calls > MAX_CONTEXT_CALLS) {
+        throw new Error(`context.*Async pode ser chamado no máximo ${MAX_CONTEXT_CALLS} vezes por execução.`);
+      }
+      if (typeof name !== 'string') throw new Error('O nome da variável deve ser um texto.');
+      if (op === 'get') return { ok: true, value: await variables.get(name) };
+      if (op === 'delete') {
+        variables.delete(name);
+        return { ok: true, value: null };
+      }
+      if (op !== 'set' || typeof value !== 'string') throw new Error('Operação de contexto inválida.');
+      if (Buffer.byteLength(value, 'utf8') > MAX_RESULTADO_BYTES) {
+        throw new Error(`O valor da variável excede ${MAX_RESULTADO_BYTES / 1024} KB.`);
+      }
+      variables.set(name, value, expirationSeconds(expiration));
+      return { ok: true, value: null };
+    } catch (error) {
+      return { ok: false, message: message(error) };
+    }
+  };
+}
+
+/**
+ * `setVariableAsync` third argument: a number is milliseconds (JavaScript's unit, as `time.sleep`),
+ * a text is a .NET TimeSpan (`01:00:00`), as `builder:stateExpiration` is written.
+ */
+function expirationSeconds(expiration: unknown): number | undefined {
+  if (typeof expiration === 'number') return expiration > 0 ? expiration / 1000 : undefined;
+  if (typeof expiration === 'string') {
+    const seconds = timeSpanSeconds(expiration);
+    if (seconds === null) throw new Error(`Expiração inválida: '${expiration}'.`);
+    return seconds > 0 ? seconds : undefined;
+  }
+  return undefined;
 }
 
 function message(error: unknown): string {
@@ -275,6 +362,6 @@ export function scriptFetch(tenantId: string): ScriptFetch {
       maxBytes: limite,
       ...(signal ? { signal } : {}),
     });
-    return { status: resposta.status, body: await resposta.texto() };
+    return { status: resposta.status, body: await resposta.texto(), headers: resposta.headers ?? {} };
   };
 }

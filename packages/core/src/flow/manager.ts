@@ -1,5 +1,5 @@
 /**
- * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/FlowManager.cs (`ProcessInputAsync`, `ProcessActionsAsync`, `ProcessOutputsAsync`, `ValidateInputAsync`, `ValidateDocument`), Hosting/ConventionsConfiguration.cs (limits), Constants.cs (date formats), and FlowConstructionException, ActionProcessingException, OutputProcessingException, BuilderException. Changes from C# to TypeScript: no semaphore because the `api` locks the execution row in the database; no remote trace because the returned trace becomes `execucao_passo`; subflows and `inputExpiration` throw; `ExecuteBlipFunction` maps to `ExecuteScriptV2`; no monitoring logs. Preserve execution order: global entry actions → validate input and store `input.variable` → state exit actions → first matching output → after-state-change actions → store state → next state entry actions → repeat until input is awaited → global exit actions.
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/FlowManager.cs (`ProcessInputAsync`, `ProcessActionsAsync`, `ProcessOutputsAsync`, `ValidateInputAsync`, `ValidateDocument`), Hosting/ConventionsConfiguration.cs (limits), Constants.cs (date formats), and FlowConstructionException, ActionProcessingException, OutputProcessingException, BuilderException. Changes from C# to TypeScript: no semaphore because the `api` locks the execution row in the database; no remote trace because the returned trace becomes `execucao_passo`; subflows (`IsSubflowState`, `RedirectToSubflowAsync`, `RedirectToParentFlowAsync`) persist their chain in `currentFlowSession@{flowId}` instead of a per-input queue (`subflows.ts`); `inputExpiration` follows `input-expiration.ts`; `ExecuteBlipFunction` maps to `ExecuteScriptV2`; no monitoring logs. Preserve execution order: global entry actions → validate input and store `input.variable` → state exit actions → first matching output → after-state-change actions → store state → next state entry actions → repeat until input is awaited → global exit actions.
  */
 
 import { evaluateConditions, paraDecimal } from './condition.js';
@@ -24,10 +24,13 @@ import {
   timeSpanSeconds,
 } from './context.js';
 import type { Acao, State, FlowBlip, InboundValidation } from './modelos.js';
-import { contextEhVariable, validateFlow } from './modelos.js';
+import { contextEhVariable, isSubflowState, validateFlow } from './modelos.js';
+import type { FlowSession } from './subflows.js';
+import { currentSubflow, enterSubflow, openFlowSessions, returnToCaller } from './subflows.js';
 import type { ActionsProvider } from './actions.js';
 import { PROVEDOR_PADRAO, obterAcao } from './actions.js';
 import { interpretSatisfactionAnswer } from './satisfaction-survey.js';
+import { inputExpirationStateId } from './input-expiration.js';
 
 /** `ConventionsConfiguration` values match the source. */
 export interface EngineConfiguration {
@@ -58,6 +61,8 @@ export interface StateTrace {
   actions: RastroDeAcao[];
   nextStateId?: string | null;
   error?: string;
+  /** Short name of the subflow this block belongs to; absent for the bot's own blocks. */
+  subflow?: string;
 }
 
 /** `InputTrace`. */
@@ -67,6 +72,8 @@ export interface InboundTrace {
   /** State left for the user; null means the next contact starts at the root. */
   stateFinalId: string | null;
   error?: string;
+  /** Short name of the subflow `stateFinalId` belongs to; absent in the bot's own flow. */
+  subflow?: string;
 }
 
 /** `FlowConstructionException`. */
@@ -161,9 +168,12 @@ export async function processInbound(
   context: Context,
   options: EngineOptions = {},
 ): Promise<InboundTrace> {
-  const flow = context.flow;
+  const root = context.flow;
+  // The flow running now: the bot's flow or, while the contact is in one, a subflow.
+  let flow = root;
+  let sessions: FlowSession[] = [{ flow: root, shortName: null }];
   // `builder:actionExecutionTimeout` replaces the 30 s default, capped by the 60 s input limit.
-  const flowActionTimeout = timeSpanSeconds(flow.configuration?.['builder:actionExecutionTimeout']);
+  const flowActionTimeout = timeSpanSeconds(root.configuration?.['builder:actionExecutionTimeout']);
   const configuration = {
     ...CONFIGURATION_DEFAULT,
     ...(flowActionTimeout
@@ -180,12 +190,28 @@ export async function processInbound(
     ? { ...options.retomarProcessHttp, consumido: false }
     : null;
 
+  /** A trace step, tagged with the subflow it runs in. */
+  const traceStep = (stateId: string): StateTrace => {
+    const subflow = currentSubflow(sessions);
+    return { stateId, actions: [], ...(subflow ? { subflow } : {}) };
+  };
+
   try {
-    validateFlow(flow);
+    validateFlow(root);
+    // The contact may be inside a subflow (or a chain of them): run where it stopped.
+    sessions = openFlowSessions(context);
+    flow = context.flow;
 
     // Restore stored state; use the root if absent or missing from this flow.
     const stateId = getStateId(context);
     state = flow.states.find((s) => s.id === stateId) ?? flow.states.find((s) => s.root)!;
+    // `InputExpirationHandler.IsValidateState`: an expiration for a block the user already left
+    // (or whose saved block expired) is dropped without running anything.
+    const expiredStateId = inputExpirationStateId(context.inbound.message);
+    if (expiredStateId !== null && expiredStateId !== stateId) {
+      rastro.stateFinalId = stateId;
+      return rastro;
+    }
     // Each input renews the session: `builder:stateExpiration` counts inactivity, not time in a block.
     if (stateId === state.id) setStateId(context, state.id);
 
@@ -205,8 +231,41 @@ export async function processInbound(
     }
 
     let waitInbound = true;
-    let atual: StateTrace = { stateId: state.id, actions: [] };
+    let atual: StateTrace = traceStep(state.id);
     rastro.estados.push(atual);
+
+    /**
+     * Move to `next`: close the current trace step, save (or clear) the block and run its entering
+     * actions. A `subflow:` block runs its own entering actions in the caller (Blip's "Entering
+     * subflow" event), then hands the contact to the subflow's root, which runs its own.
+     */
+    const arrive = async (next: State | null): Promise<void> => {
+      atual.nextStateId = next?.id ?? null;
+      if (next) {
+        atual = traceStep(next.id);
+        rastro.estados.push(atual);
+        setStateId(context, next.id);
+      } else {
+        deleteStateId(context);
+      }
+      await processActions(
+        context,
+        next?.inputActions,
+        next,
+        provedor,
+        configuration,
+        atual.actions,
+        'entrada',
+        next?.id ?? null,
+        cursorPendente,
+      );
+      if (isSubflowState(next)) {
+        const start = enterSubflow(context, sessions, next);
+        flow = context.flow;
+        state = start;
+        await arrive(start);
+      }
+    };
 
     // Resuming a ProcessHttp suspended in the restored state's own entering actions: state
     // entering actions only run once, right after a transition (below, inside the loop), so a
@@ -234,10 +293,18 @@ export async function processInbound(
         state.id,
         cursorPendente,
       );
+      // A `subflow:` block suspended in its entering actions still has to hand the contact over.
+      if (isSubflowState(state)) {
+        const start = enterSubflow(context, sessions, state);
+        flow = context.flow;
+        state = start;
+        await arrive(start);
+      }
+      const retomado: State = state!;
       const inboundCondition =
-        !state.input?.conditions ||
-        (await evaluateConditions(state.input.conditions, context.inbound, context));
-      aguardaProxima = !!state.input && !state.input.bypass && inboundCondition;
+        !retomado.input?.conditions ||
+        (await evaluateConditions(retomado.input.conditions, context.inbound, context));
+      aguardaProxima = !!retomado.input && !retomado.input.bypass && inboundCondition;
       waitInbound = false;
     }
 
@@ -252,7 +319,8 @@ export async function processInbound(
 
         if (waitInbound) {
           if (!(await stateValidateInbound(context, corrente))) break;
-          if (corrente.input?.variable) {
+          // The expiration input is empty: it must not overwrite what the variable holds.
+          if (corrente.input?.variable && expiredStateId === null) {
             setVariable(
               context,
               corrente.input.variable,
@@ -262,6 +330,7 @@ export async function processInbound(
           const satisfactionAnswer = interpretSatisfactionAnswer(
             corrente,
             context.inbound.serializedContent,
+            { timedOut: expiredStateId !== null },
           );
           if (satisfactionAnswer) {
             await context.services.recordSatisfactionAnswer?.(satisfactionAnswer);
@@ -284,27 +353,46 @@ export async function processInbound(
         if (contextEhVariable(anteriorId))
           anteriorId = await replaceVariables(anteriorId, context);
 
+        // `End == true`: skip this block's exits and return to the calling flow, whose `subflow:`
+        // block then decides with its own exits (`RedirectToParentFlowAsync`). Without a caller
+        // the source throws, and so does `returnToCaller`.
+        let origem: State = corrente;
         if (corrente.end) {
-          // `RedirectToParentFlowAsync`: the source throws when there is no parent flow.
-          throw new BuildFlowError(
-            `O estado '${corrente.id}' é de fim de subfluxo, e subfluxo não existe no Pipe.`,
-          );
-        }
-
-        state = await processarSaidas(context, flow, corrente);
-        setStatePreviousId(context, anteriorId);
-
-        // Run after-state-change actions only when the state actually changed.
-        if (corrente.id !== state?.id) {
+          const leaving = atual;
+          const caller = returnToCaller(context, sessions);
           await processActions(
             context,
             corrente.afterStateChangedActions,
             corrente,
             provedor,
             configuration,
-            atual.actions,
+            leaving.actions,
             'saida',
             corrente.id,
+            cursorPendente,
+          );
+          flow = context.flow;
+          origem = caller;
+          anteriorId = caller.id;
+          leaving.nextStateId = caller.id;
+          atual = traceStep(caller.id);
+          rastro.estados.push(atual);
+        }
+
+        state = await processarSaidas(context, flow, origem);
+        setStatePreviousId(context, anteriorId);
+
+        // Run after-state-change actions only when the state actually changed.
+        if (origem.id !== state?.id) {
+          await processActions(
+            context,
+            origem.afterStateChangedActions,
+            origem,
+            provedor,
+            configuration,
+            atual.actions,
+            'saida',
+            origem.id,
             cursorPendente,
           );
           if (flow.afterStateChangedActions) {
@@ -322,32 +410,7 @@ export async function processInbound(
           }
         }
 
-        if (state?.id.startsWith('subflow:')) {
-          throw new BuildFlowError(
-            `O estado '${state.id}' é subfluxo, e subfluxo não existe no Pipe.`,
-          );
-        }
-
-        atual.nextStateId = state?.id ?? null;
-        if (state) {
-          atual = { stateId: state.id, actions: [] };
-          rastro.estados.push(atual);
-          setStateId(context, state.id);
-        } else {
-          deleteStateId(context);
-        }
-
-        await processActions(
-          context,
-          state?.inputActions,
-          state,
-          provedor,
-          configuration,
-          atual.actions,
-          'entrada',
-          state?.id ?? null,
-          cursorPendente,
-        );
+        await arrive(state);
 
         // Guard against a flow loop.
         if (transitions++ >= configuration.maxTransitionsByInbound) {
@@ -383,8 +446,12 @@ export async function processInbound(
     }
 
     rastro.stateFinalId = state?.id ?? null;
+    const subflowFinal = currentSubflow(sessions);
+    if (subflowFinal) rastro.subflow = subflowFinal;
     return rastro;
   } catch (error) {
+    const subflowFinal = currentSubflow(sessions);
+    if (subflowFinal) rastro.subflow = subflowFinal;
     if (error instanceof SuspensaoDeProcessHttp) {
       error.rastro = rastro;
       throw error;
@@ -397,6 +464,10 @@ export async function processInbound(
       rastro,
       error,
     );
+  } finally {
+    // The caller's context names the bot's flow again; the chain lives in `variables`.
+    context.flow = root;
+    delete context.rootFlow;
   }
 }
 

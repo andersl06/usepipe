@@ -9,6 +9,7 @@ process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
+process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 41).toString('base64')}`;
 
 const { createToken } = await import('@pipe/authentication');
 const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
@@ -207,6 +208,30 @@ function desenhoComHttpPrivado(): { flow: Record<string, unknown>; globals: Reco
   };
 }
 
+/**
+ * P9: the same V2 script as `flow-actions.test.ts` (production path): writes, deletes and reads the
+ * flow context, reads a secret (must come back empty), parses and formats a date, and sleeps.
+ */
+function scriptV2Action(): Record<string, unknown> {
+  return {
+    type: 'ExecuteScriptV2',
+    settings: {
+      source: `async function run() {
+        await context.setVariableAsync('v2Texto', 'gravado');
+        await context.setVariableAsync('v2Tmp', 'x');
+        await context.deleteVariableAsync('v2Tmp');
+        const quando = time.dateToString(time.parseDate('2026-02-03 11:05', { timeZone: 'America/Sao_Paulo' }), { format: 'dd/MM HH:mm' });
+        time.sleep(10);
+        return [await context.getVariableAsync('input.content'), await context.getVariableAsync('v2Tmp'),
+          await context.getVariableAsync('secret.apiToken'), quando].join('|');
+      }`,
+      inputVariables: [],
+      outputVariable: 'v2Saida',
+    },
+  };
+}
+const SCRIPT_V2_OUTPUT = 'script-v2|||03/02 14:05';
+
 type ContagemDeProducao = {
   mensagem: number;
   outbox_mensagem: number;
@@ -331,6 +356,23 @@ describe('POST /v1/management/flows/:id/builder/test-runs', () => {
     await resetTestRun(sessionEditor, id);
     const alheia = await testRun(sessionEditor, id, { input: 'oi' });
     expect(alheia.body['debug']['error']).toMatch(/não existe neste Pipe/);
+  });
+
+  it('ExecuteScriptV2 context.*Async and time.* behave as in production, and never reveal secret.* (P9)', async () => {
+    const id = await criado(`Script V2 ${randomUUID().slice(0, 6)}`);
+    const segredo = 'tok-INVENTED-v2-98765';
+    const criadoSegredo = await pedir(sessionEditor, 'POST', `/v1/management/flows/${id}/secrets`, { name: 'apiToken', value: segredo });
+    expect(criadoSegredo.status).toBe(201);
+    const d = desenhoComHttpPrivado();
+    d.globals = { $enteringCustomActions: [scriptV2Action()] };
+    await salvar(sessionEditor, id, d);
+
+    const { status, body } = await testRun(sessionEditor, id, { input: 'script-v2' });
+    expect(status).toBe(200);
+    expect(body['debug']['error']).toBeUndefined();
+    expect(body['debug']['variables']).toMatchObject({ v2Texto: 'gravado', v2Saida: SCRIPT_V2_OUTPUT });
+    expect(body['debug']['variables']['v2Tmp']).toBeUndefined();
+    expect(JSON.stringify(body)).not.toContain(segredo);
   });
 
   it('ForwardToDesk availability exits run the production checks over the queue chosen by extras.teams (P6)', async () => {

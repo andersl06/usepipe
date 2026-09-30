@@ -137,7 +137,6 @@ describe('importador do export do editor da Blip', () => {
     expect(importReport(convertido).naoSuportado).toEqual({
       'acao:UnknownActionForTest': 1,
       'conteudo:application/json': 1,
-      'entrada:expiracao': 1,
       'variavel:secret': 1,
     });
     // Unsupported content stays in the flow; conversion silently drops nothing.

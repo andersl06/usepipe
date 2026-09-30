@@ -296,6 +296,19 @@ export interface DesenhoDoBuilder {
   globals: Record<string, unknown>;
   /** `configuration` map (Configuração › Variáveis › "Variáveis de configuração", `{{config.Chave}}`); absent or `{}` for flows saved before this field existed. */
   configuration?: Record<string, string>;
+  /**
+   * The flow's subflows (P12), keyed by the `shortNameOfSubflow` its `subflow:` blocks use, each in
+   * the same editor shape. Absent when the flow has none; a save without this field keeps the
+   * subflows the flow already has (the Builder UI for subflows is P13).
+   */
+  subflows?: Record<string, DesenhoDoSubfluxo>;
+}
+
+/** A subflow drawing: the editor state map and global actions of a Blip subflow (`type: subflow`). */
+export interface DesenhoDoSubfluxo {
+  flow: Record<string, unknown>;
+  globals?: Record<string, unknown>;
+  configuration?: Record<string, string>;
 }
 
 /**
@@ -378,6 +391,8 @@ export interface TestRunStateTrace {
   actions: TestRunActionTrace[];
   nextStateId?: string | null;
   error?: string;
+  /** Short name of the subflow this block belongs to (P12); absent for the flow's own blocks. */
+  subflow?: string;
 }
 
 /** Debug panel content (D-14): current block, variables, executed actions and errors. */
@@ -386,15 +401,24 @@ export interface TestRunDebug {
   actionsGlobal: TestRunActionTrace[];
   /** Block waiting for the next test message; null when the run left no state pending. */
   currentStateId: string | null;
+  /** Subflow `currentStateId` belongs to (P12); absent when it is a block of the flow itself. */
+  currentSubflow?: string;
   variables: Record<string, string>;
   /** Present when the run failed before finishing. */
   error?: string;
+  /**
+   * P8: the block the test contact waits in has an input expiration (Blip "inactivity time"); the
+   * panel offers to expire it now instead of waiting `seconds`.
+   */
+  inputExpiration?: { stateId: string; seconds: number } | null;
 }
 
 /** `POST /v1/management/flows/:id/builder/test-runs`. */
 export interface TestRunRequest {
   input: string;
   testVariables?: Record<string, string>;
+  /** P8: run the waiting block's expiration now (no real timer); `input` is ignored. */
+  expireInput?: boolean;
 }
 
 /** Response of a test-run message: the bot's replies plus the Debug trail. */

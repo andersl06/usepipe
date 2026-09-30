@@ -1059,6 +1059,14 @@
   flex: 1;
   min-width: 0;
 }
+/* P8: "Expirar entrada" while the test contact waits in a block with an inactivity time. */
+.bl-test-expiracao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 8px 0;
+}
 .bl-test-debug {
   display: flex;
   flex-direction: column;

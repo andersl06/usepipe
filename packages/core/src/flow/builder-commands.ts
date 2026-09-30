@@ -11,6 +11,7 @@ import {
   EXPIRATIONS_KEY,
   contextGetVariable,
   deleteVariable,
+  flowSessionKey,
   setVariable,
   stateKey,
 } from './context.js';
@@ -60,10 +61,15 @@ function isCurrentContact(context: Context, identity: string): boolean {
   return phone.length > 0 && digits(local) === phone;
 }
 
-/** Blip keys the saved block as `stateid@{flow}`; Pipe as `stateId@{flow}`. */
+/**
+ * Blip keys the saved block as `stateid@{flow}`; Pipe as `stateId@{flow}`. The subflow session
+ * (`currentFlowSession@{flow}`, P12) keeps Blip's spelling whatever the case the flow sends.
+ */
 function variableKey(name: string): string {
   const state = name.match(/^stateid@(.+)$/i);
-  return state ? stateKey(state[1]!) : name;
+  if (state) return stateKey(state[1]!);
+  const session = name.match(/^currentflowsession@(.+)$/i);
+  return session ? flowSessionKey(session[1]!) : name;
 }
 
 function visibleVariables(context: Context): string[] {
