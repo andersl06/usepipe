@@ -9,6 +9,7 @@ import { DESK_READ_COMMANDS } from './desk-commands.js';
 import { queueUnavailability } from './queue-entry.js';
 import { DESK_WRITE_COMMANDS } from './desk-write-commands.js';
 import { BUILDER_COMMANDS } from './builder-commands.js';
+import { SCHEDULING_COMMANDS, type MessagingEffects } from './scheduling-commands.js';
 
 /**
  * The engine services (`ServicosDoMotor`) that production (`flow.ts` `runFlowInInbound`) and the
@@ -67,6 +68,8 @@ export type EngineEffects = Pick<
    * Read-only: only the availability checks call it, before `forwardForAttendance`.
    */
   queueOfHandoff(tx: TransactionPipe, queueId: string | null): Promise<string | null>;
+  /** Where the P7 commands (scheduler, broadcast lists, event-track, click tracker) land. */
+  messaging?: MessagingEffects;
 };
 
 export interface EngineServicesOptions {
@@ -119,6 +122,7 @@ export async function executeCommand(
   waitForResponse: boolean,
   tickets: TicketEffects,
   recordSatisfactionAnswer?: ServicosDoMotor['recordSatisfactionAnswer'],
+  messaging?: MessagingEffects,
 ): Promise<unknown> {
   const { uri, resource, command } = request;
   const builderCommand = BUILDER_COMMANDS[command.route];
@@ -134,6 +138,12 @@ export async function executeCommand(
   const deskWrite = DESK_WRITE_COMMANDS[command.route];
   if (deskWrite) {
     const response = await deskWrite(tx, tenantId, { resource, command }, { tickets, recordSatisfactionAnswer });
+    return waitForResponse ? response : undefined;
+  }
+  const scheduling = SCHEDULING_COMMANDS[command.route];
+  if (scheduling) {
+    if (!messaging) throw new Error(`A URI '${uri}' não está disponível neste fluxo.`);
+    const response = await scheduling(tx, request, messaging);
     return waitForResponse ? response : undefined;
   }
   const route = command.route;
@@ -228,7 +238,7 @@ export async function knowledgeMatch(
  * for a real execution.
  */
 export function engineServices({ tenantId, flowFunctions, isolate, effects }: EngineServicesOptions): ServicosDoMotor {
-  const { tickets, saveContact, queueOfHandoff, ...rest } = effects;
+  const { tickets, saveContact, queueOfHandoff, messaging, ...rest } = effects;
   return {
     ...rest,
     // A block with availability exits opens no ticket when the chosen queue is closed or has
@@ -292,10 +302,10 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects }: En
       await effects.bucketSet?.(request);
     },
     sendCommand: async (request) => {
-      await isolate((tx) => executeCommand(tx, tenantId, request, false, tickets, effects.recordSatisfactionAnswer));
+      await isolate((tx) => executeCommand(tx, tenantId, request, false, tickets, effects.recordSatisfactionAnswer, messaging));
     },
     processCommand: (request) =>
-      isolate((tx) => executeCommand(tx, tenantId, request, true, tickets, effects.recordSatisfactionAnswer)),
+      isolate((tx) => executeCommand(tx, tenantId, request, true, tickets, effects.recordSatisfactionAnswer, messaging)),
     respondWithKnowledge: (request) => isolate((tx) => knowledgeMatch(tx, tenantId, request)),
   };
 }

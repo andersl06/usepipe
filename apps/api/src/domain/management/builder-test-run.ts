@@ -17,6 +17,7 @@ import type {
 import { PipeError } from '../../errors.js';
 import { toChannelOutput, resolveDynamicContent, loadApplicationIdentity } from '../flow.js';
 import { engineServices, isFlowOfTenant } from '../engine-services.js';
+import { memoryMessagingEffects, type MemorySchedule } from '../scheduling-commands.js';
 import { chooseQueue } from '../queue-entry.js';
 import { loadFlowFunctions, type LoadedFlowFunction } from './flow-functions.js';
 import { loadFlowResources } from './flow-resources.js';
@@ -52,6 +53,9 @@ interface TestRunStore {
   bucket: Map<string, TestRunBucketEntry>;
   /** Blocks set in other flows by `set /contexts/.../stateid@<flow>`. */
   flowStates: Map<string, string>;
+  /** `set /schedules` and `set /event-track` of this run (P7): kept here, never sent or recorded. */
+  schedules: Map<string, MemorySchedule>;
+  events: { category: string; action: string; at: Date }[];
   expiresAt: number;
 }
 
@@ -76,6 +80,8 @@ function newTestRunStore(): TestRunStore {
     lists: new Map(),
     bucket: new Map(),
     flowStates: new Map(),
+    schedules: new Map(),
+    events: [],
     expiresAt: Date.now() + TEST_RUN_STATE_TTL_MS,
   };
 }
@@ -188,6 +194,12 @@ function servicesOfTestRun(
         return { id: 'atendimento-de-teste', status: 'Waiting' };
       },
       queueOfHandoff: queueOf,
+      messaging: memoryMessagingEffects({
+        contactIdentity: TEST_CONTACT_ID,
+        lists: store.lists,
+        schedules: store.schedules,
+        events: store.events,
+      }),
       registerEvent: async () => {
         /* Kept only in memory for this run; a test run never feeds tenant analytics. */
       },
