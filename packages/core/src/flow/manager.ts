@@ -11,7 +11,9 @@ import type {
   RespostaDeHttp,
 } from './context.js';
 import {
+  ACTIONS_WITH_SECRETS,
   KEY_OF_STATE_CURRENT,
+  maskSecrets,
   deleteStateId,
   setStatePreviousId,
   setStateId,
@@ -433,6 +435,8 @@ async function processActions(
         ? flowAction.timeout * 1000
         : configuration.defaultActionTimeLimitMs;
 
+    // Secret values read while substituting this action (only HTTP actions read `{{secret.*}}`).
+    const secrets = ACTIONS_WITH_SECRETS.has(flowAction.type) ? new Set<string>() : null;
     try {
       let settings: Record<string, unknown> | null = null;
       if (flowAction.settings !== undefined && flowAction.settings !== null) {
@@ -443,7 +447,9 @@ async function processActions(
         // tenant's fetch/mTLS. Prefer `inputVariables` for customer data.
         let texto = JSON.stringify(flowAction.settings);
         // `ExecuteTemplate` receives the raw template; other actions receive substituted variables.
-        if (acao.tipo !== 'ExecuteTemplate') texto = await replaceVariables(texto, context);
+        if (acao.tipo !== 'ExecuteTemplate') {
+          texto = await replaceVariables(texto, context, secrets ? { secrets } : undefined);
+        }
         settings = JSON.parse(texto) as Record<string, unknown>;
       }
       context.inboundContext.set(KEY_OF_STATE_CURRENT, state?.id ?? null);
@@ -462,26 +468,35 @@ async function processActions(
         const corpo = typeof settings?.['responseBodyVariable'] === 'string'
           ? settings['responseBodyVariable'].trim() : '';
         if (status) setVariable(context, status, String(alvo.resposta.status));
-        if (corpo) setVariable(context, corpo, alvo.resposta.corpo);
+        if (corpo) setVariable(context, corpo, maskSecrets(alvo.resposta.corpo, secrets));
         if (cursor) cursor.consumido = true;
         continue;
       }
       await withTimeLimit(
-        (signal) => acao.executar(context, settings, { signal, timeLimitMs: timeLimit }),
+        (signal) =>
+          acao.executar(context, settings, {
+            signal,
+            timeLimitMs: timeLimit,
+            ...(secrets?.size ? { secrets } : {}),
+          }),
         timeLimit,
       );
     } catch (error) {
       if (error instanceof SuspensaoDeProcessHttp) throw error;
-      passo.error = messageOf(error);
+      // A secret must never reach the trace, `execucao_passo` or the test run: mask it in the error.
+      const detail = maskSecrets(messageOf(error), secrets);
+      passo.error = detail;
       const message =
         error instanceof TimeExpired
           ? `O processamento da ação '${flowAction.type}' excedeu o tempo limite de ${timeLimit} ms.`
-          : `O processamento da ação '${flowAction.type}' falhou: ${messageOf(error)}`;
+          : `O processamento da ação '${flowAction.type}' falhou: ${detail}`;
       if (flowAction.continueOnError) {
         passo.esquecida = true;
         continue;
       }
-      throw new ProcessingActionError(message, flowAction.type, error);
+      // The original error may quote the request; with a secret in it, keep only the masked text.
+      const cause = secrets?.size ? new Error(detail) : error;
+      throw new ProcessingActionError(message, flowAction.type, cause);
     }
   }
 }
