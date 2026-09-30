@@ -130,9 +130,48 @@ with a separately observed RED/GREEN regression test.
   training, files, semantic retrieval, or the unrelated account knowledge catalog.
 - This API has whole-document replacement without a version field: simultaneous editors have
   the API's existing last-save-wins behavior. Unsaved edits remain local and do not auto-save.
-- Renaming entity values does not rewrite content combinations automatically; review their
-  selected values after such an edit. Intent renames do preserve their references automatically.
+- Entity value and intent renames move content references automatically (see review
+  corrections below); deletions leave references in place and block save until they are fixed.
 - Secret metadata availability, rather than the secret value, drives the missing-key notice.
   The browser cannot inspect server environment keys.
 
 Self-review completed; no blocking concern found. Task scope and 02-58 ownership boundaries preserved.
+
+## Review corrections
+
+An independent review of `b4b3bf2c` found four important issues; each was fixed with focused tests.
+
+1. **Entity edits silently broke content matching** (`14d82eae`). Renaming a value such as
+   `camisa` (synonym `blusa`) to `camiseta` left combinations on `camisa`, validation returned
+   `[]`, and input `blusa` stopped matching. `renameEntityValue` now moves combination references
+   using the runtime's own text normalization, but only when the old value is unambiguous: if
+   another entity value still has that text, references keep matching it and are left alone.
+   `aiModelErrors` flags any combination value no entity value can produce (deleted values or
+   entities included), which blocks save; the form marks such values as `(ausente)` with an
+   inline warning. The regression test runs the real engine matcher
+   (`apps/api/src/domain/nlp-model.ts` `findEntities` / `matchContentInModel`) before and after
+   the keystroke-by-keystroke rename.
+2. **Clearing an intent while renaming broadened matching** (`19f7d95f`). `trocas → '' → devolucao`
+   used to leave `{ intent: '' }`, i.e. any intent. Renames now keep references on the last
+   non-empty name while the field is empty (a per-editor `RenameMemory`), so the next keystroke
+   moves them; the cleared state is a validation error. A combination with a blank (not null)
+   intent is now always an error, and the select shows it as `(intenção em branco)` so the user
+   can pick "Qualquer intenção" explicitly. The test replays the real backspace/typing sequence.
+3. **Builder assistant picker went stale** (`da15fea5`). The Builder's AI model and secret-name
+   reads now use `staleTime: 0` and `refetchOnWindowFocus: true` (the app default disables focus
+   refetch with a 30 s stale time), so assistants saved in the "Editar assistente" tab appear on
+   return. The picker also has an **Atualizar assistentes** button and a refreshing status.
+4. **A failed background GET discarded unsaved edits** (`5d3167d1`). `AiModelReadView`
+   (`src/pages/flow/ai-model-read-view.tsx`) keeps the editor mounted at a fixed position whenever
+   data exists and shows the refresh error beside it with a retry; the load error replaces the
+   page only when nothing has loaded. The draft is still initialized only on mount, so a later
+   successful refetch does not reset it.
+
+`7283d087` only switches the new tests to `import type`.
+
+| Command (management-vite) | Result after corrections |
+|---|---|
+| `npx tsc --noEmit -p .` | exit 0 |
+| `npx eslint .` | exit 0 |
+| `pnpm test` | 485/485 passed, 0 failed/skipped (`flow-ai-model.test.ts` 21/21) |
+| `npx vite build` | exit 0; 1205 modules; existing chunk-size warning |
