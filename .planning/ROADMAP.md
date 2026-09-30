@@ -389,6 +389,7 @@ Plans:
 **Plans:** 20 plans (7 ondas)
 
 Plans:
+
 - [ ] 03.1-01-PLAN.md — Ensaios na Blip, aviso Meta (D-11) e decisões do dono (checkpoints)
 - [ ] 03.1-02-PLAN.md — Migration 0082 (fila por fluxo, expand) e fixtures de dois fluxos
 - [ ] 03.1-03-PLAN.md — Inventário proativo Builder/APIs-LIME/canais/Portal
@@ -410,6 +411,10 @@ Plans:
 - [ ] 03.1-19-PLAN.md — Contexto isolado por subbot, redirect com contexto e retorno
 - [ ] 03.1-20-PLAN.md — Correção dos bugs confirmados de backend do inventário e fechamento D-02
 
+**Cross-cutting constraints:**
+
+- (D-03) Cada correção tem teste ou evidência arquivo:linha registrada no inventário
+
 ### Phase 03.2: Paridade visual da tela Atendimento do fluxo (INSERTED)
 
 **Goal:** A tela Atendimento dentro do fluxo (`application/detail/{fluxo}/attendance`, `apps/management-vite`) fica visualmente equivalente à da Blip: layout, medidas, tipografia, espaçamentos, estados vazio/carregando/erro, componentes e menus/modais abertos, com as cores do Pipe (azul → verde). Nada da Blip entra como código, CSS, ícone ou imagem (D-33). Regras só entram quando o visual exigir. Isolamento de filas/regras, presença, distribuição, identidade roteador/subbot, atalho do compositor e SLA são da Fase 3.1 / Fase 3, não desta.
@@ -426,6 +431,7 @@ Plans:
 **Plans:** 1/25 plans executed
 
 Plans:
+
 - [x] 03.2-01-PLAN.md — ref/ (método, inventário congelado, capturas pendentes, conflitos de rota, questões ao dono, dependências 03.1)
 - [ ] 03.2-02-PLAN.md — censo de componentes Blip x Pipe + teste da matemática da paginação
 - [ ] 03.2-03-PLAN.md — medição e correção da casca; medição das skins de paginação e do tblwrap
