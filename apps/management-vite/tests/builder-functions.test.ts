@@ -1,19 +1,23 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { filterFlowFunctions, functionCallSnippet, insertLibraryCall } from '../src/pages/builder/flow-functions.ts';
-import { SCRIPT_TEMPLATE } from '../src/pages/builder/actions-of-block.ts';
+import {
+  filterFlowFunctions, functionCallSnippet, inUseWarning, insertLibraryCall, otherFlowsUsing,
+} from '../src/pages/builder/flow-functions.ts';
+import {
+  SCRIPT_TEMPLATE, actionErrors, functionReference, withFunctionReference,
+} from '../src/pages/builder/actions-of-block.ts';
 
 const FUNCTIONS = [
   {
-    id: '1', tenantId: 't', flowId: null, name: 'calculoDeFrete',
+    id: '1', tenantId: 't', name: 'calculoDeFrete',
     description: 'Calcula o total do frete.', parameters: ['cep'],
-    code: 'function calculoDeFrete(cep) { return cep; }', version: 1, scope: 'tenant' as const,
+    code: 'function calculoDeFrete(cep) { return cep; }', version: 1,
     createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z',
   },
   {
-    id: '2', tenantId: 't', flowId: null, name: 'saudacao',
+    id: '2', tenantId: 't', name: 'saudacao',
     description: 'Monta a saudação do dia.', parameters: [],
-    code: 'function saudacao() { return "oi"; }', version: 1, scope: 'tenant' as const,
+    code: 'function saudacao() { return "oi"; }', version: 1,
     createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z',
   },
 ];
@@ -69,4 +73,50 @@ test('functions: the inserted call runs in the engine once the library is in sco
   // Mirrors the API sandbox prelude: the library function is in scope when run is called.
   const run = new Function(`function calculoDeFrete(cep) { return 'frete ' + cep; }\n${source}\nreturn run;`)() as (cep: string) => string;
   assert.equal(run('01001-000'), 'frete 01001-000');
+});
+
+/* P10 / D-57: the library belongs to the account. */
+
+const USAGE = [
+  { flowId: 'f1', flowName: 'Vendas', shortName: 'vendas' },
+  { flowId: 'f2', flowName: 'Suporte', shortName: 'suporte' },
+  { flowId: 'f3', flowName: 'Cobrança', shortName: 'cobranca' },
+  { flowId: 'f4', flowName: 'Pós-venda', shortName: 'pos-venda' },
+  { flowId: 'f5', flowName: 'Ouvidoria', shortName: 'ouvidoria' },
+];
+
+test('functions: otherFlowsUsing leaves out the flow open in the Builder', () => {
+  assert.deepEqual(otherFlowsUsing(USAGE.slice(0, 2), 'f1').map((f) => f.flowId), ['f2']);
+  assert.deepEqual(otherFlowsUsing(USAGE.slice(0, 1), 'f1'), []);
+  assert.equal(otherFlowsUsing(USAGE.slice(0, 2), undefined).length, 2);
+});
+
+test('functions: inUseWarning says "em uso em outros bots" and names up to three', () => {
+  assert.equal(inUseWarning([], 'editar'), null);
+  assert.equal(
+    inUseWarning(USAGE.slice(1, 3), 'editar'),
+    'Esta função está em uso em outros bots (Suporte, Cobrança). As alterações valem para todos eles.',
+  );
+  const excluir = inUseWarning(USAGE, 'excluir')!;
+  assert.match(excluir, /em uso em outros bots \(Vendas, Suporte, Cobrança e mais 2\)/);
+  assert.match(excluir, /deixarem de funcionar/);
+});
+
+const BLIP_ID = '3b7e1a52-9c4d-4f1e-8a6b-2d5c7e9f0a13';
+
+test('functions: ExecuteBlipFunction reads Blip source first, then the legacy functionId', () => {
+  const blip = { type: 'ExecuteBlipFunction', settings: { source: BLIP_ID, outputVariable: 'r' } };
+  const legado = { type: 'ExecuteBlipFunction', settings: { functionId: 'antigo', outputVariable: 'r' } };
+  assert.equal(functionReference(blip), BLIP_ID);
+  assert.equal(functionReference(legado), 'antigo');
+  assert.deepEqual(actionErrors(blip), []);
+  assert.deepEqual(actionErrors(legado), []);
+  assert.deepEqual(actionErrors({ type: 'ExecuteBlipFunction', settings: { outputVariable: 'r' } }), [
+    'Definição da função: campo obrigatório.',
+  ]);
+});
+
+test('functions: picking a function writes source and drops functionId', () => {
+  const acao = withFunctionReference({ type: 'ExecuteBlipFunction', settings: { functionId: 'antigo', outputVariable: 'r' } }, BLIP_ID);
+  assert.deepEqual(acao.settings, { outputVariable: 'r', source: BLIP_ID });
 });
