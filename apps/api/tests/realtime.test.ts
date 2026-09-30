@@ -2,16 +2,14 @@ import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { WebSocket } from 'ws';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { setTenantHostEnv } from './tenant-host-helper.js';
 
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 23).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
-process.env['PIPE_ORIGENS'] = 'http://localhost:3200';
-process.env['PIPE_DOMINIO_CONTAS'] = 'pipe.test';
-process.env['PIPE_COOKIE_DOMINIO'] = '.pipe.test';
-process.env['PIPE_COOKIE_SEGURO'] = 'true';
+setTenantHostEnv({ secure: true, origins: 'http://localhost:3200' });
 // A fast ping so the test does not wait 15 seconds for the control frame.
 process.env['PIPE_WS_PING_MS'] = '150';
 

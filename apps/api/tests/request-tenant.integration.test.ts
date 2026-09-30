@@ -1,14 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { requestWithHost, setTenantHostEnv } from './tenant-host-helper.js';
 
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
-process.env['PIPE_DOMINIO_CONTAS'] = 'pipe.test';
-process.env['PIPE_COOKIE_DOMINIO'] = '.pipe.test';
-process.env['PIPE_COOKIE_SEGURO'] = 'false';
-process.env['PIPE_ORIGENS'] = 'http://crm.pipe.test';
+setTenantHostEnv({ secure: false, origins: 'http://crm.pipe.test' });
 
 const { createToken } = await import('@pipe/authentication');
 const { SESSION_COOKIE_NAME } = await import('../src/session.js');
@@ -48,11 +46,11 @@ afterAll(async () => {
 });
 
 async function get(path: string, host: string, credential: 'session' | 'key' | 'none', origin?: string) {
-  const headers: Record<string, string> = { host };
+  const headers: Record<string, string> = {};
   if (origin) headers['origin'] = origin;
   if (credential === 'session') headers['cookie'] = `${SESSION_COOKIE_NAME}=${token}`;
   if (credential === 'key') headers['authorization'] = `Bearer ${alpha.token}`;
-  return fetch(`${api.url}${path}`, { headers });
+  return requestWithHost(`${api.url}${path}`, host, { headers });
 }
 
 describe('tenant host against authenticated credential', () => {
