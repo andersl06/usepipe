@@ -1,7 +1,7 @@
 import type { PointerEvent as PointerEventDeReact, MouseEvent as MouseEventDeReact } from 'react';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import type { Block } from './model';
-import { ehAttendance, isSurveyBlock, positionOf } from './model';
+import { ID_DO_FIM, PREFIX_OF_SUBFLOW, ehAttendance, isSurveyBlock, positionOf } from './model';
 import { blockTags } from './tags-of-block';
 
 /**
@@ -21,6 +21,8 @@ export interface PropsDoNo {
   onPointerDown: (e: PointerEventDeReact<HTMLDivElement>) => void;
   onPointerDownNaSaida: (e: PointerEventDeReact<HTMLSpanElement>) => void;
   onContextMenu: (e: MouseEventDeReact<HTMLDivElement>) => void;
+  /** Double click on a subflow's calling block opens the subflow (P13). */
+  onDoubleClick?: () => void;
 }
 
 /** The editor's automatic labels: each action's type, and "UserInput" if a reply is expected. */
@@ -36,12 +38,17 @@ export function No({
   onPointerDown,
   onPointerDownNaSaida,
   onContextMenu,
+  onDoubleClick,
 }: PropsDoNo) {
+  const subflow = block.id.startsWith(PREFIX_OF_SUBFLOW);
+  const fim = block.id === ID_DO_FIM && block['end'] === true;
   const position = positionOf(block);
   const classes = ['bl-no'];
   if (block.root) classes.push('bl-no--inicio');
   if (ehAttendance(block.id)) classes.push('bl-node--attendance');
   if (isSurveyBlock(block)) classes.push('bl-node--survey');
+  if (subflow) classes.push('bl-node--subflow');
+  if (fim) classes.push('bl-node--end');
   if (invalido) classes.push('bl-node--error');
   if (selecionado) classes.push('bl-no--selecionado');
   if (editando) classes.push('bl-no--editando');
@@ -56,14 +63,18 @@ export function No({
       data-test={`builder-block-${block.id}`}
       onPointerDown={onPointerDown}
       onContextMenu={onContextMenu}
+      onDoubleClick={onDoubleClick}
+      title={subflow ? 'Clique duas vezes para abrir o subfluxo' : undefined}
     >
       <div className="bl-no-corpo">
         <span className="bl-no-titulo">
           {isSurveyBlock(block) ? (
             <IconePortal nome="gostei" tamanho={16} className="bl-no-icone" />
           ) : null}
+          {subflow ? <IconePortal nome="roteador" tamanho={16} className="bl-no-icone" /> : null}
           {block.$title || block.id}
         </span>
+        {subflow ? <span className="bl-no-tipo">Subfluxo</span> : null}
       </div>
       {etiquetas.length > 0 ? (
         <div className="bl-no-etiquetas">

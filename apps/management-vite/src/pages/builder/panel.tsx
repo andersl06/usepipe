@@ -11,6 +11,19 @@ import { ActionsPanel } from './panel-actions';
 import { OutputsPanel } from './panel-outputs';
 import { TAG_PALETTE, TAG_SUGGESTIONS, isLegacyBlue, resolveTagColor } from './tags-of-block';
 import { filterVariables } from './variables';
+import type { SubflowDrawing, Subflows } from './subflows';
+import { isSubflowBlock } from './subflows';
+import { SubflowSection } from './subflow-ui';
+
+/** What the block panel needs to know about subflows (P13). */
+export interface SubflowPanelContext {
+  /** The panel is editing a block inside a subflow canvas (Blip's restrictions apply). */
+  inSubflow: boolean;
+  subfluxos: Subflows;
+  onAbrir: (shortName: string) => void;
+  onCriarVazio: (shortName: string) => void;
+  onCarregar: (shortName: string, subflow: SubflowDrawing) => void;
+}
 
 /**
  * The block's sidebar — their `sidebar-content-component.builder-sidebar`: docked to the right at 1rem, with a 1rem radius and `calc(100% - 2rem)` height, 28.75rem wide. At the top, the block's title in a text field (`#builder-sidebar-title`, `maxlength="50"`, placeholder "Nome do bloco", read-only on the Início block) and the "x"; a divider; and the `bds-tab-group` with the three tabs: "Conteúdo" (on the attendance block, "Atendimento"), "Condições de saída", and "Ações".
@@ -52,6 +65,7 @@ export function BlockPanel({
   onFechar,
   onAviso,
   onAbrirFuncoes,
+  subflow,
 }: {
   block: Block;
   mapa: Mapa;
@@ -59,6 +73,7 @@ export function BlockPanel({
   onFechar: () => void;
   onAviso: (texto: string) => void;
   onAbrirFuncoes?: (modo: 'gerenciar' | 'criar') => void;
+  subflow?: SubflowPanelContext;
 }) {
   const [aba, setAba] = useState<Aba>('conteudo');
   const [editandoTitulo, setEditandoTitulo] = useState(false);
@@ -67,9 +82,12 @@ export function BlockPanel({
   const abas = ([
     {
       key: 'conteudo',
+      // A calling block has no content of its own: this tab shows the subflow it calls (P13).
       rotulo: ehAttendance(block.id)
         ? ROTULOS_DO_CONTEUDO.abaAtendimento
-        : ROTULOS_DO_CONTEUDO.aba,
+        : isSubflowBlock(block)
+          ? 'Subfluxo'
+          : ROTULOS_DO_CONTEUDO.aba,
     },
     { key: 'saidas', rotulo: ROTULOS_DAS_SAIDAS.titulo },
     { key: 'acoes', rotulo: LABELS_OF_ACTIONS.aba },
@@ -195,7 +213,17 @@ export function BlockPanel({
         ))}
       </div>
       <div className={`bl-panel-body bl-panel-body--${aba === 'saidas' ? 'outputs' : aba}`}>
-        {aba === 'conteudo' ? (
+        {aba === 'conteudo' && isSubflowBlock(block) && subflow ? (
+          <SubflowSection
+            block={block}
+            subfluxos={subflow.subfluxos}
+            onAbrir={subflow.onAbrir}
+            onCriarVazio={subflow.onCriarVazio}
+            onCarregar={subflow.onCarregar}
+            onAviso={onAviso}
+          />
+        ) : null}
+        {aba === 'conteudo' && !(isSubflowBlock(block) && subflow) ? (
           <ContentPanel block={block} onMudar={onMudar} onAviso={onAviso} />
         ) : null}
         {aba === 'acoes' ? (
@@ -204,6 +232,7 @@ export function BlockPanel({
             onMudar={onMudar}
             onAviso={onAviso}
             onAbrirFuncoes={onAbrirFuncoes}
+            inSubflow={subflow?.inSubflow ?? false}
           />
         ) : null}
         {aba === 'saidas' ? (

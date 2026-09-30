@@ -8,6 +8,8 @@ import type { Position } from './model';
 
 /** Their card's measurements: 175px wide (`.diagram-node`). Height is measured from the DOM. */
 export const WIDTH_OF_BLOCK = 175;
+/** A subflow's calling block is wider (225px, radius 6 in the reference's measurements). */
+export const WIDTH_OF_SUBFLOW_BLOCK = 225;
 export const HEIGHT_DEFAULT_OF_BLOCK = 76;
 export const TOCO = 30;
 export const PONTA = 10;

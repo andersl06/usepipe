@@ -1,4 +1,20 @@
 import type { TestRunActionTrace, TestRunDebug } from '@pipe/contracts';
+import type { Mapa } from './model';
+import type { Subflows } from './subflows';
+
+/**
+ * The title the Debug shows for a step: the block's title in the canvas it ran in (the subflow's
+ * when `subflow` is set, P13; short names compare ignoring case, as in the engine), else its id.
+ */
+export function stepTitle(mapa: Mapa, subfluxos: Subflows, stateId: string, subflow?: string | null): string {
+  if (subflow) {
+    const key = subflow in subfluxos
+      ? subflow
+      : Object.keys(subfluxos).find((k) => k.toLowerCase() === subflow.toLowerCase());
+    return (key ? subfluxos[key]?.mapa[stateId]?.$title : undefined) ?? stateId;
+  }
+  return mapa[stateId]?.$title ?? stateId;
+}
 
 /**
  * Pure logic for the Test panel (BUILDER-04, D-14), kept out of `test-panel.tsx` because that
@@ -28,6 +44,8 @@ export function inputExpirationHint(seconds: number): string {
 export interface DebugSection {
   stateId: string;
   actions: TestRunActionTrace[];
+  /** The subflow the block belongs to (P13); absent for the flow's own blocks and the global actions. */
+  subflow?: string;
 }
 
 /** Marker for the flow's global entering/leaving actions inside the flattened Debug list, distinct from any real block id. */

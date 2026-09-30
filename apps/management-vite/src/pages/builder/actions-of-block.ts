@@ -279,8 +279,16 @@ export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
   },
 ];
 
-export const actionsOfGroup = (group: TipoDeAcao['grupo']): readonly TipoDeAcao[] =>
-  CATALOG_OF_ACTIONS.filter((action) => action.grupo === group);
+/** Actions Blip does not offer inside a subflow (P13); `subflows.ts` flags them on imported blocks. */
+export const ACTIONS_NOT_IN_SUBFLOW: readonly string[] = ['Redirect', 'ProcessContentAssistant'];
+
+export const actionsOfGroup = (
+  group: TipoDeAcao['grupo'],
+  { inSubflow = false }: { inSubflow?: boolean } = {},
+): readonly TipoDeAcao[] =>
+  CATALOG_OF_ACTIONS.filter(
+    (action) => action.grupo === group && !(inSubflow && ACTIONS_NOT_IN_SUBFLOW.includes(action.tipo)),
+  );
 
 /** Icon per action type (F-1.2, D-33): the reference's 12 documented types map to a Pipe-drawn icon. */
 export const ACTION_TYPE_ICON: Record<string, NomeDeIcone> = {
