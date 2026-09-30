@@ -12,6 +12,7 @@ process.env['PIPE_ORIGENS'] = 'http://crm.pipe.test';
 const { createToken } = await import('@pipe/authentication');
 const { SESSION_COOKIE_NAME } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
+const { destinationForTenant } = await import('../src/controllers/login.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
@@ -54,6 +55,14 @@ async function get(path: string, host: string, credential: 'session' | 'key' | '
 }
 
 describe('tenant host against authenticated credential', () => {
+  it('returns to the authenticated tenant and records only a denied slug', async () => {
+    const own = `http://${alphaSlug}.pipe.test/application/x`;
+    expect(await destinationForTenant(alpha.tenantId, own)).toBe(own);
+    expect(await destinationForTenant(alpha.tenantId, `http://${betaSlug}.pipe.test/`))
+      .toBe(`http://${alphaSlug}.pipe.test/application?deniedTenant=${betaSlug}`);
+    expect(await destinationForTenant(alpha.tenantId, 'https://evil.example/'))
+      .toBe(`http://${alphaSlug}.pipe.test/application`);
+  });
   it('accepts the own application and desk hosts', async () => {
     expect((await get('/v1/eu', `${alphaSlug}.pipe.test`, 'session')).status).toBe(200);
     expect((await get('/v1/eu', `${alphaSlug}.desk.pipe.test`, 'session')).status).toBe(200);

@@ -29,6 +29,7 @@ import {
   closeQueues,
 } from './queues.js';
 import { measureRequest } from './metrics.js';
+import { assertTenantDomainConfig } from './tenant-domain-config.js';
 
 /**
  * Start Nest with a custom JSON parser that preserves raw request bytes in `corpoCru`. Meta signs those bytes with `X-Hub-Signature-256`; reserializing parsed JSON can change spacing or key order and make valid webhooks fail signature verification.
@@ -117,6 +118,7 @@ export interface ApiNoAr {
 /** Start listening; port 0 lets the OS choose, as tests require. Tests pass `porta = 0`. */
 // Use 3000 rather than 3100: Management uses 3100, Desk 3200, and CRM 3300. The old API default could take Management's port first and make it fail with EADDRINUSE.
 export async function upApi(porta = Number(process.env['PORT'] ?? 3000)): Promise<ApiNoAr> {
+  assertTenantDomainConfig();
   const app = await createApplication();
   consumeInbound();
   consumirProcessHttp();

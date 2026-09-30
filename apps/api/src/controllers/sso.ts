@@ -7,7 +7,9 @@ import {
   loginWithSso,
   exchangeCodeOidc,
   urlOfAuthorizationOidc,
+  readTenantHostConfig,
 } from '@pipe/authentication';
+import { buildLoginUrl, isLoginHost } from '@pipe/contracts';
 import { databaseApp, databaseOwner, noTenant } from '../database.js';
 import { WithSession, requirePermission, sessionCookie, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
@@ -16,11 +18,13 @@ import {
   codigoDaRecusa,
   cookieDoDesafio,
   destinationAbsolute,
+  destinationForTenant,
   lerDesafio,
   optionsOfCookie,
   origemDaQuery,
   textoDaQuery,
   urlOfError,
+  redirectToCentralLogin,
 } from './login.js';
 import type { ChallengeWithInvitation } from './login.js';
 import {
@@ -104,6 +108,11 @@ export class SsoLoginController {
   @Get('sso/testar')
   @WithSession()
   async testar(@Req() request: RequestWithSession, @Res() resposta: Response): Promise<void> {
+    const config = readTenantHostConfig();
+    if (config && !isLoginHost(request.headers.host ?? '', config)) {
+      resposta.redirect(302, `${buildLoginUrl(config).replace(/\/$/, '')}${request.originalUrl}`);
+      return;
+    }
     const session = sessionOf(request);
     await permitido(session.tenantId, session.userId, 'tenant.configurar');
     // `exigirAtiva: false` permits testing a draft connection, which is the purpose here.
@@ -124,6 +133,7 @@ export class SsoLoginController {
    */
   @Get('sso/callback')
   async callback(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
+    if (redirectToCentralLogin(requisicao, resposta)) return;
     const apagarDesafio = cookieDoDesafio(null);
     const desafio = lerDesafio(requisicao);
     if (!desafio?.tenantId) {
@@ -175,7 +185,9 @@ export class SsoLoginController {
         apagarDesafio,
         sessionCookie(cookieOfSession(inbound.token, inbound.expiresAt, optionsOfCookie())),
       ]);
-      resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origin));
+      resposta.redirect(302, readTenantHostConfig()
+        ? await destinationForTenant(inbound.tenantId, desafio.returnTo)
+        : destinationAbsolute(desafio.destination, desafio.origin));
     } catch (error) {
       const codigo = codigoDaRecusa(error);
       if (codigo === 'falha_no_provedor') console.error('[api] falha ao entrar por SSO', error);
@@ -198,6 +210,7 @@ export class SsoLoginController {
     @Req() requisicao: Request,
     @Res() resposta: Response,
   ): Promise<void> {
+    if (redirectToCentralLogin(requisicao, resposta)) return;
     try {
       const tenantId = await tenantBySlug(slug);
       const fluxo = await connectionForFlow(tenantId, { requireActive: true });
@@ -205,6 +218,7 @@ export class SsoLoginController {
       const desafio: ChallengeWithInvitation = {
         ...createChallenge(textoDaQuery(requisicao, 'returnTo') ?? APPLICATION),
         tenantId,
+        ...(readTenantHostConfig() && textoDaQuery(requisicao, 'returnTo') ? { returnTo: textoDaQuery(requisicao, 'returnTo') } : {}),
         ...(origem ? { origem } : {}),
       };
       resposta.setHeader('set-cookie', cookieDoDesafio(desafio));
