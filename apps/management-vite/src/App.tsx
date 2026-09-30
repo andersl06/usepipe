@@ -87,6 +87,7 @@ import { PageUpdates } from './pages/updates/page';
 import { PageInvitation } from './pages/invitation/page';
 import { PageNoAccess } from './pages/switch-account/no-access/page';
 import { PageBuilder } from './pages/builder';
+import { KnowledgeBasesPage } from './pages/knowledge/page';
 
 /**
  * Contact child routes render beneath `ContactRoute`, mounted once below (search this file for
@@ -261,6 +262,7 @@ export function App() {
         <Route path="/application/tenant" element={<ContractPage />} />
         <Route path="/application/tenant/mtls" element={<CertificatesPage />} />
         <Route path="/application/tenant/members" element={<MembersPage />} />
+        <Route path="/application/tenant/knowledge-base" element={<KnowledgeBasesPage />} />
         {/* Root-level: the Blip capture shows neither state nested under `/application` (`lib/application-paths.ts`'s header comment). */}
         <Route path="/my-account" element={<PageMyAccount />} />
         <Route path="/welcome" element={<PageWelcome />} />

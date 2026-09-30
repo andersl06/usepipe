@@ -1,0 +1,41 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+
+test('knowledge CRUD uses account endpoints, JSON ingestion and handles 204 and API errors', async (t) => {
+  const module = await import('../src/lib/knowledge.ts').catch(() => null);
+  assert.ok(module, 'Knowledge API client must exist');
+  const calls: { path: string; method: string; body: unknown }[] = [];
+  let failure = false;
+  const base = { id: 'base-1', name: 'FAQ', active: true, documents: 1, createdAt: '', updatedAt: null };
+  const document = { id: 'doc-1', baseId: 'base-1', title: 'Perguntas', tags: ['vendas'], version: 1, active: true, passages: 3, embedded: 0, createdAt: '', updatedAt: null };
+  t.mock.method(globalThis, 'fetch', async (input: string | URL | Request, init?: RequestInit) => {
+    const path = String(input);
+    const method = init?.method ?? 'GET';
+    calls.push({ path, method, body: init?.body ? JSON.parse(String(init.body)) : null });
+    if (failure) return Response.json({ error: { code: 'permission', message: 'Sem permissão para editar.' } }, { status: 403 });
+    if (method === 'DELETE') return new Response(null, { status: 204 });
+    if (path.endsWith('/documents/doc-1') && method === 'GET') return Response.json({ ...document, body: 'Texto' });
+    if (path.endsWith('/documents') && method === 'GET') return Response.json([document]);
+    if (path === module.KNOWLEDGE_BASES_API && method === 'GET') return Response.json([base]);
+    return Response.json(path.includes('/documents') ? document : base);
+  });
+  assert.deepEqual(await module.listKnowledgeBases(), { ok: true, value: [base] });
+  assert.deepEqual(await module.createKnowledgeBase(' FAQ '), { ok: true, value: base });
+  assert.ok((await module.updateKnowledgeBase('base-1', { name: 'Outro', active: false })).ok);
+  assert.deepEqual(await module.listKnowledgeDocuments('base-1'), { ok: true, value: [document] });
+  assert.deepEqual(await module.getKnowledgeDocument('base-1', 'doc-1'), { ok: true, value: { ...document, body: 'Texto' } });
+  assert.ok((await module.saveKnowledgeDocument('base-1', { title: ' Perguntas ', body: ' Texto ', tags: 'VENDAS' })).ok);
+  assert.ok((await module.saveKnowledgeDocument('base-1', { title: 'Editado', body: 'Novo', tags: '' }, 'doc-1')).ok);
+  assert.deepEqual(await module.deleteKnowledgeDocument('base-1', 'doc-1'), { ok: true, value: undefined });
+  assert.deepEqual(await module.deleteKnowledgeBase('base-1'), { ok: true, value: undefined });
+  assert.deepEqual(calls.map((c) => c.method), ['GET', 'POST', 'PATCH', 'GET', 'GET', 'POST', 'PATCH', 'DELETE', 'DELETE']);
+  assert.deepEqual(calls[1]?.body, { name: 'FAQ' });
+  assert.deepEqual(calls[5]?.body, { title: 'Perguntas', body: 'Texto', tags: ['vendas'] });
+  assert.equal(calls[6]?.path, '/v1/management/knowledge-bases/base-1/documents/doc-1');
+  failure = true;
+  assert.deepEqual(await module.deleteKnowledgeBase('base-1'), { ok: false, error: 'Sem permissão para editar.' });
+  const count = calls.length;
+  assert.equal((await module.createKnowledgeBase('')).ok, false);
+  assert.equal((await module.saveKnowledgeDocument('base-1', { title: '', body: '', tags: '' })).ok, false);
+  assert.equal(calls.length, count, 'invalid drafts must not reach the API');
+});

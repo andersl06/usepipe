@@ -1,0 +1,18 @@
+.kb-page { max-width: 1440px; margin: 0 auto; }
+.kb-heading { margin-bottom: 24px; }
+.kb-heading h1 { margin: 16px 0 8px; }
+.kb-layout { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 3fr); gap: 24px; align-items: start; }
+.kb-card { padding: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.kb-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
+.kb-row h2, .kb-row h3 { flex: 1; margin: 0; }
+.kb-bases, .kb-documents { list-style: none; padding: 0; margin: 16px 0; }
+.kb-bases button { width: 100%; display: grid; gap: 8px; text-align: left; padding: 16px; border: 1px solid var(--line); background: transparent; border-radius: 6px; cursor: pointer; margin-bottom: 8px; }
+.kb-bases button[aria-pressed="true"] { border-color: var(--moss); background: var(--moss-soft); }
+.kb-documents li { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.kb-documents p { margin: 6px 0; }
+.kb-card fieldset { border: 0; margin: 24px 0 0; padding: 0; min-width: 0; }
+.kb-card legend { font-weight: 600; margin-bottom: 16px; }
+.kb-card label { display: grid; gap: 8px; margin-bottom: 16px; }
+.kb-card textarea { width: 100%; resize: vertical; }
+.kb-error { color: var(--p-error-content); }
+@media (max-width: 760px) { .kb-layout { grid-template-columns: 1fr; } .kb-card { padding: 16px; } }

@@ -21,7 +21,10 @@ export interface CampoDaAcao {
   ajuda?: string;
   obrigatorio?: boolean;
   /** `texto` is one line; `longo` uses a textarea; `code` is script source; `variableList` is a list of variable names; `functionId` picks a function from the tenant library (D-22, P10) and stores its UUID in `source`, as Blip does. */
-  tipo?: 'texto' | 'longo' | 'json' | 'cabecalhos' | 'code' | 'variableList' | 'functionId';
+  tipo?: 'texto' | 'longo' | 'json' | 'cabecalhos' | 'code' | 'variableList' | 'functionId' | 'number';
+  min?: number;
+  max?: number;
+  step?: number;
   /** Valores fechados usam o mesmo seletor do Builder. */
   options?: readonly string[];
 }
@@ -215,12 +218,30 @@ export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
     rotulo: 'Consultar Assistente de conteúdo',
     titulo: 'Consultar Assistente de conteúdo',
     grupo: 'Executar',
-    info: 'Consulta a base de conhecimento do Pipe com confiança entre 0 e 1.',
+    info: 'Consulta a base de conhecimento com confiança entre 0 e 1. Sem correspondência, a variável é removida: use exists / notExists nas condições de saída.',
     campos: [
       { key: 'text', rotulo: 'Texto a ser analisado', obrigatorio: true },
-      { key: 'score', rotulo: 'Confiança mínima (0 a 1)' },
-      { key: 'tags', rotulo: 'Tags' },
+      { key: 'score', rotulo: 'Confiança mínima (0 a 1)', tipo: 'number', min: 0, max: 1, step: 0.01 },
+      { key: 'tags', rotulo: 'Tags', tipo: 'variableList' },
+      { key: 'apiKeySecret', rotulo: 'Chave de embeddings (variável sensível)', ajuda: 'Nome da variável sensível do fluxo. Sem chave, a busca usa o texto dos documentos.' },
       { key: 'outputVariable', rotulo: 'Variável para o valor de retorno', obrigatorio: true },
+    ],
+  },
+  {
+    tipo: 'KnowledgeBaseConsult',
+    rotulo: 'Base de conhecimento',
+    titulo: 'Consultar base de conhecimento',
+    grupo: 'Executar',
+    info: 'Busca documentos da conta. Sem correspondência, a variável é removida: use exists / notExists nas condições de saída.',
+    campos: [
+      { key: 'query', rotulo: 'Texto da consulta', ajuda: 'Vazio usa a mensagem do contato.' },
+      { key: 'catalogs', rotulo: 'Bases', tipo: 'variableList' },
+      { key: 'documents', rotulo: 'Documentos', tipo: 'variableList' },
+      { key: 'tags', rotulo: 'Tags', tipo: 'variableList' },
+      { key: 'top_k', rotulo: 'Quantidade de trechos', tipo: 'number', min: 1, max: 20, step: 1 },
+      { key: 'minimumScore', rotulo: 'Confiança mínima (0 a 1)', tipo: 'number', min: 0, max: 1, step: 0.01 },
+      { key: 'apiKeySecret', rotulo: 'Chave de embeddings (variável sensível)' },
+      { key: 'outputVariable', rotulo: 'Variável para o valor de retorno' },
     ],
   },
   {
@@ -484,6 +505,7 @@ export function comCabecalhos(acao: AcaoDoEditor, key: string, cabecalhos: Cabec
 /** Script input variables are stored as an array of names. */
 export function variablesOfField(acao: AcaoDoEditor, key: string): string[] {
   const bruto = acao.settings?.[key];
+  if (key === 'tags' && typeof bruto === 'string') return bruto.split(',').map((tag) => tag.trim()).filter(Boolean);
   return Array.isArray(bruto) ? bruto.map((v) => String(v ?? '')) : [];
 }
 
@@ -522,6 +544,11 @@ export function actionErrors(acao: AcaoDoEditor): string[] {
     const valor = campo.tipo === 'functionId' ? functionReference(acao) : fieldValue(acao, campo.key);
     if (campo.obrigatorio && !valor.trim()) {
       errors.push(`${campo.rotulo}: campo obrigatório.`);
+    }
+    if (campo.tipo === 'number' && valor.trim()) {
+      const n = Number(valor);
+      if (!Number.isFinite(n) || n < campo.min! || n > campo.max! || (campo.step === 1 && !Number.isInteger(n)))
+        errors.push(`${campo.rotulo}: use ${campo.step === 1 ? 'um inteiro' : 'um número'} entre ${campo.min} e ${campo.max}.`);
     }
     if (campo.tipo === 'json') {
       const bruto = acao.settings?.[campo.key];
