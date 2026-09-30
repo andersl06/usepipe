@@ -152,6 +152,23 @@ export interface ScriptRequest {
    * `localTimeZone` is on, `UTC` otherwise, as Blip's servers run scripts. Absent = host zone.
    */
   timeZone?: string;
+  /**
+   * V2 only: backs `context.getVariableAsync/setVariableAsync/deleteVariableAsync` in the isolate
+   * (built by `scriptVariables`). Absent = the script has no `context` global.
+   */
+  variables?: ScriptVariables;
+}
+
+/**
+ * The flow context as an `ExecuteScriptV2` script sees it. Values cross as text: the isolate turns
+ * objects into JSON before `set`. `get` never reveals `secret.*` (P11) nor the internal
+ * `#expirations` key.
+ */
+export interface ScriptVariables {
+  get(name: string): Promise<string | null>;
+  /** `expirationSeconds` > 0 persists a deadline, as `SetVariable.expiration` does. */
+  set(name: string, value: string, expirationSeconds?: number): void;
+  delete(name: string): void;
 }
 
 export type ActionsSuspendedList = 'entrada' | 'conteudo' | 'saida';
