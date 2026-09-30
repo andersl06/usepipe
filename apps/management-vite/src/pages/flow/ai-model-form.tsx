@@ -4,7 +4,7 @@ import { Botao, Campo } from '@pipe/ui';
 import { Select } from '@pipe/ui/select';
 import { ChipsInput } from '@pipe/ui/chips-input';
 import { MODEL_SUGGESTIONS } from '../builder/ai-agent-block';
-import { renameIntent, type RenameMemory } from './ai-model-logic';
+import { orphanEntityValues, removeEntityValue, renameEntityValue, renameIntent, type RenameMemory } from './ai-model-logic';
 
 /** Select value for a blank imported intent, distinct from "any intent" (null). */
 const BLANK_INTENT = '\u0000blank';
@@ -44,6 +44,7 @@ function Collection<T extends { id: string; name: string }>({ label, items, onCh
 export function AiModelForm({ model, onChange, secretNames }: { model: FlowAiModelInput; onChange: (model: FlowAiModelInput) => void; secretNames: string[] }) {
   const instance = useId();
   const intentNames = useRef<RenameMemory>(new Map()).current;
+  const valueNames = useRef<RenameMemory>(new Map()).current;
   const provider = model.settings.provider ?? (/^(gpt-|o\d)/i.test(model.settings.model ?? '') ? 'openai' : 'anthropic');
   const secret = model.settings.apiKeySecret || (provider === 'openai' ? 'OPENAI_API_KEY' : 'ANTHROPIC_API_KEY');
   const settings = (patch: Partial<FlowAiModelInput['settings']>) => onChange({ ...model, settings: { ...model.settings, ...patch } });
@@ -72,9 +73,9 @@ export function AiModelForm({ model, onChange, secretNames }: { model: FlowAiMod
       {(entity, update) => <>
         <TextField label="Nome da entidade" value={entity.name} onChange={(name) => update({ ...entity, name })} />
         {entity.values.map((value, i) => <fieldset className="ai-model-card" key={i}><legend>Valor {i + 1}</legend>
-          <TextField label="Valor da entidade" value={value.name} onChange={(name) => update({ ...entity, values: entity.values.map((x, n) => n === i ? { ...x, name } : x) })} />
+          <TextField label="Valor da entidade" value={value.name} onChange={(name) => onChange(renameEntityValue(model, entity.id, i, name, valueNames))} />
           <TextList label="Sinônimos" max={50} values={value.synonyms} onChange={(synonyms) => update({ ...entity, values: entity.values.map((x, n) => n === i ? { ...x, synonyms } : x) })} />
-          <Botao type="button" variante="padrao" onClick={() => update({ ...entity, values: entity.values.filter((_, n) => n !== i) })}>Excluir valor {i + 1}</Botao>
+          <Botao type="button" variante="padrao" onClick={() => onChange(removeEntityValue(model, entity.id, i, valueNames))}>Excluir valor {i + 1}</Botao>
         </fieldset>)}
         <Botao type="button" variante="padrao" disabled={entity.values.length >= 200} onClick={() => update({ ...entity, values: [...entity.values, { name: '', synonyms: [] }] })}>+ Adicionar valor</Botao>
       </>}
@@ -85,6 +86,7 @@ export function AiModelForm({ model, onChange, secretNames }: { model: FlowAiMod
         <TextField label="Resposta do conteúdo" long value={content.result} onChange={(result) => update({ ...content, result })} />
         {content.combinations.map((combination, i) => {
           const change = (next: FlowAiContentCombination) => update({ ...content, combinations: content.combinations.map((x, n) => n === i ? next : x) });
+          const orphans = orphanEntityValues(model, combination.entities);
           return <fieldset className="ai-model-card" key={i}><legend>Combinação {i + 1}</legend>
             <Select rotulo="Intenção" value={combination.intent === '' ? BLANK_INTENT : combination.intent ?? ''} onChange={(e) => change({ ...combination, intent: e.target.value === BLANK_INTENT ? '' : e.target.value || null })}>
               <option value="">Qualquer intenção</option>
@@ -92,7 +94,8 @@ export function AiModelForm({ model, onChange, secretNames }: { model: FlowAiMod
               {combination.intent && !model.intents.some((x) => x.name === combination.intent) ? <option value={combination.intent}>{combination.intent} (ausente)</option> : null}
               {model.intents.map((x) => <option key={x.id} value={x.name}>{x.name}</option>)}
             </Select>
-            <ChipsInput rotulo="Valores de entidades" label="Valores de entidades" placeholder="Escolha valores" values={combination.entities} options={[...new Set([...model.entities.flatMap((x) => x.values.map((v) => v.name)), ...combination.entities])].map((name) => ({ id: name, nome: name }))} onChange={(entities) => change({ ...combination, entities, ...(combination.minEntityMatch !== undefined ? { minEntityMatch: Math.min(combination.minEntityMatch, entities.length) } : {}) })} />
+            <ChipsInput rotulo="Valores de entidades" label="Valores de entidades" placeholder="Escolha valores" values={combination.entities} options={[...new Set([...model.entities.flatMap((x) => x.values.map((v) => v.name)), ...combination.entities])].map((name) => ({ id: name, nome: orphans.includes(name) ? `${name} (ausente)` : name }))} onChange={(entities) => change({ ...combination, entities, ...(combination.minEntityMatch !== undefined ? { minEntityMatch: Math.min(combination.minEntityMatch, entities.length) } : {}) })} />
+            {orphans.length ? <p className="ai-model-warning">Valores que não existem em nenhuma entidade e nunca serão identificados: {orphans.join(', ')}.</p> : null}
             <label className="ai-model-field"><span>Mínimo de valores identificados</span><Campo type="number" min={0} max={combination.entities.length} step={1} placeholder="Todos os valores" value={combination.minEntityMatch ?? ''} onChange={(e) => {
               const next = { ...combination };
               if (e.target.value === '') delete next.minEntityMatch;

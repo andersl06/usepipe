@@ -100,6 +100,37 @@ test('a combination with a blank intent is a validation error, not "any intent"'
   assert.match(html, /\(intenção em branco\)/);
 });
 
+test('renaming an entity value keeps content matching its synonyms at runtime', async () => {
+  const module = await import('../src/pages/flow/ai-model-logic');
+  // The engine's own matcher: validation must agree with what actually matches.
+  const runtime = await import('../../api/src/domain/nlp-model');
+  const matches = (m: FlowAiModelInput, text: string) => runtime.matchContentInModel(m, { intent: 'trocas', entities: runtime.findEntities(m, text) })?.id ?? null;
+  assert.equal(matches(model, 'quero trocar a blusa'), 'c');
+  const memory: import('../src/pages/flow/ai-model-logic').RenameMemory = new Map();
+  let renamed = model;
+  for (const name of ['camis', 'cami', 'cam', 'ca', 'c', '', 'c', 'ca', 'camiseta']) renamed = module.renameEntityValue(renamed, 'e', 0, name, memory);
+  assert.deepEqual(renamed.contents[0]?.combinations[0]?.entities, ['camiseta']);
+  assert.deepEqual(module.aiModelErrors(renamed), []);
+  assert.equal(matches(renamed, 'quero trocar a blusa'), 'c');
+  assert.deepEqual(model.contents[0]?.combinations[0]?.entities, ['camisa']);
+});
+
+test('shared entity values are not rewritten and unresolved combination values block save', async () => {
+  const module = await import('../src/pages/flow/ai-model-logic');
+  const shared: FlowAiModelInput = { ...model, entities: [...model.entities, { id: 'e2', name: 'roupa', values: [{ name: 'Camisa', synonyms: [] }] }] };
+  const renamed = module.renameEntityValue(shared, 'e', 0, 'camiseta');
+  assert.deepEqual(renamed.contents[0]?.combinations[0]?.entities, ['camisa'], 'still matches the other entity value');
+  assert.deepEqual(module.aiModelErrors(renamed), []);
+  const removed = module.removeEntityValue(model, 'e', 0);
+  assert.ok(module.aiModelErrors(removed).some((x) => /"camisa" não existe/.test(x)));
+  const withoutEntity = { ...model, entities: [] };
+  assert.ok(module.aiModelErrors(withoutEntity).some((x) => /"camisa" não existe/.test(x)));
+  assert.deepEqual(module.aiModelErrors({ ...model, contents: [{ ...model.contents[0]!, combinations: [{ intent: 'trocas', entities: ['Camisa!'] }] }] }), [], 'runtime normalization is honored');
+  const { AiModelForm } = await import('../src/pages/flow/ai-model-form');
+  const html = renderToStaticMarkup(React.createElement(AiModelForm, { model: removed, secretNames: [], onChange: () => undefined }));
+  assert.match(html, /nunca serão identificados: camisa/);
+});
+
 test('model save PUTs the whole input without server metadata and exposes API errors', async () => {
   const module = await import('../src/lib/flow-ai-model').catch(() => null);
   assert.ok(module, 'AI model API adapter must exist');
