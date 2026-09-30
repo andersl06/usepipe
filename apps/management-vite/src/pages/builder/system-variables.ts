@@ -9,9 +9,9 @@
  * captured against has both on, matching the 118-row list measured live), sorted the same way the source
  * sorts them (`localeCompare`). `suportada` marks the ones the Pipe engine actually fills: the variable's
  * source must be in `FONTES_SUPORTADAS` (`@pipe/core/flow/context.ts`), and — for `input.*` — the specific
- * property must be one `inboundProvider` (`context.ts`) has a branch for; `input.contentAssistant.*` and
- * `input.message.pp(identity)` are unreached code paths there, so they're marked unsupported like any
- * source with no provider at all. `tunnel.*` counts as supported although it only has a value in a
+ * property must be one `inboundProvider` (`context.ts`) has a branch for (`input.contentAssistant.*` and
+ * `aiAnswers.*` since P16); `input.message.pp(identity)` is an unreached code path there, so it's marked
+ * unsupported like any source with no provider at all. `tunnel.*` counts as supported although it only has a value in a
  * router service, the same condition Blip states in its descriptions.
  */
 
@@ -41,8 +41,8 @@ export const BLIP_SYSTEM_VARIABLES: readonly SystemVariable[] = [
   { nome: 'aiAgent.toolCall_id', descricao: 'Identificador da tool call solicitada para ser executada pela IA', suportada: true },
   { nome: 'aiAgent.userMessage', descricao: 'Mensagem original do usuário', suportada: true },
   { nome: 'aiAgent.userMessage_id', descricao: 'Identificador único da mensagem do usuário', suportada: true },
-  { nome: 'aiAnswers.response', descricao: 'Resposta à chamada da API de IA', suportada: false },
-  { nome: 'aiAnswers.statusCode', descricao: 'Código status de resposta http do retorno da chamada a API', suportada: false },
+  { nome: 'aiAnswers.response', descricao: 'Resposta à chamada da API de IA', suportada: true },
+  { nome: 'aiAnswers.statusCode', descricao: 'Código status de resposta http do retorno da chamada a API', suportada: true },
   { nome: 'application.domain', descricao: "O domínio no qual a aplicação do bot está executando (normalmente 'msging.net')", suportada: true },
   { nome: 'application.identifier', descricao: 'O identificador único da aplicação do bot', suportada: true },
   { nome: 'application.identity', descricao: "A identidade da aplicação do bot (igual a 'identifier@domain')", suportada: true },
@@ -108,9 +108,9 @@ export const BLIP_SYSTEM_VARIABLES: readonly SystemVariable[] = [
   { nome: 'contact.whatsAppWaId', descricao: 'O número de telefone do contato na Meta (ID do WhatsApp)', suportada: true },
   { nome: 'context.?', descricao: "Variáveis de contexto do bot, onde '?' deve ser substituído pelo nome da variável de contexto criada", suportada: true },
   { nome: 'input.content', descricao: 'Conteúdo da mensagem enviado pelo usuário', suportada: true },
-  { nome: 'input.contentAssistant.id', descricao: 'Identificador do conteúdo cuja combinação foi reconhecida', suportada: false },
-  { nome: 'input.contentAssistant.name', descricao: 'Nome do conteúdo cuja combinação foi reconhecida', suportada: false },
-  { nome: 'input.contentAssistant.result', descricao: 'Resposta atrelada à combinação reconhecida', suportada: false },
+  { nome: 'input.contentAssistant.id', descricao: 'Identificador do conteúdo cuja combinação foi reconhecida', suportada: true },
+  { nome: 'input.contentAssistant.name', descricao: 'Nome do conteúdo cuja combinação foi reconhecida', suportada: true },
+  { nome: 'input.contentAssistant.result', descricao: 'Resposta atrelada à combinação reconhecida', suportada: true },
   { nome: 'input.entity.?.id', descricao: 'Identificador da entidade reconhecida (onde ? deve ser trocado pelo nome da entidade)', suportada: true },
   { nome: 'input.entity.?.name', descricao: 'Nome da entidade reconhecida (onde ? deve ser trocado pelo nome da entidade)', suportada: true },
   { nome: 'input.entity.?.value', descricao: 'Valor da entidade reconhecida (onde ? deve ser trocado pelo nome da entidade)', suportada: true },

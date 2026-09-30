@@ -5,6 +5,8 @@ import { IconePortal } from '@pipe/ui/icones-portal';
 import { Interruptor } from '../flow/integrations/interruptor';
 import {
   CONFIGURATION_SECTIONS,
+  percentToScore,
+  scoreToPercent,
   secondsToTimeSpan,
   timeSpanToSeconds,
 } from './configuration-sections';
@@ -134,19 +136,20 @@ function ConfigurationControl({
   onChange: (chave: string, valor: string | null) => void;
 }) {
   if (secao.controle === 'slider') {
-    const valor = Number(configuration[secao.chave ?? ''] ?? 0);
+    // Stored as a 0..1 fraction (`"0.5"`), shown as a percentage, as the reference does.
+    const valor = scoreToPercent(configuration[secao.chave ?? '']);
     return (
       <div className="bl-config-slider">
         <input
           type="range"
           min={0}
           max={100}
-          value={Number.isFinite(valor) ? valor : 0}
-          disabled
+          value={valor}
+          disabled={!secao.disponivel}
           aria-label={secao.titulo}
-          readOnly
+          onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(secao.chave ?? '', percentToScore(Number(e.target.value)))}
         />
-        <span className="bl-config-slider-valor">{Number.isFinite(valor) ? valor : 0}%</span>
+        <span className="bl-config-slider-valor">{valor}%</span>
       </div>
     );
   }
