@@ -1,5 +1,6 @@
 	"aberta_por" uuid NOT NULL,
 	"acao" text NOT NULL,
+	"acao" text NOT NULL,
 	"acao_alerta" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"acao_estouro" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"acao_id" uuid,
@@ -109,6 +110,8 @@
 	"atualizado_em" timestamp with time zone,
 	"atualizado_em" timestamp with time zone,
 	"atualizado_em" timestamp with time zone,
+	"atualizado_em" timestamp with time zone,
+	"atualizado_em" timestamp with time zone,
 	"audio_gravado_seg" integer DEFAULT 0 NOT NULL,
 	"audio_ouvido_seg" integer DEFAULT 0 NOT NULL,
 	"autenticacao_senha" text,
@@ -149,6 +152,7 @@
 	"candidata_automacao" boolean DEFAULT false NOT NULL,
 	"capacidade_override" integer,
 	"capacidade_padrao" integer DEFAULT 5 NOT NULL,
+	"categoria" text NOT NULL,
 	"categoria" text NOT NULL,
 	"categoria" text NOT NULL,
 	"categoria" text,
@@ -204,6 +208,9 @@
 	"contato_id" uuid,
 	"contato_id" uuid,
 	"contato_id" uuid,
+	"contato_id" uuid,
+	"contato_id" uuid,
+	"conteudo" jsonb DEFAULT 'null'::jsonb NOT NULL,
 	"conteudo" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"conteudo" text NOT NULL,
 	"conteudo" text,
@@ -314,6 +321,8 @@
 	"criado_em" timestamp with time zone DEFAULT now() NOT NULL,
 	"criado_em" timestamp with time zone DEFAULT now() NOT NULL,
 	"criado_em" timestamp with time zone DEFAULT now() NOT NULL,
+	"criado_em" timestamp with time zone DEFAULT now() NOT NULL,
+	"criado_em" timestamp with time zone DEFAULT now() NOT NULL,
 	"criado_por" uuid,
 	"criado_por" uuid,
 	"criterio_id" uuid NOT NULL,
@@ -347,6 +356,7 @@
 	"desde" timestamp with time zone DEFAULT now() NOT NULL,
 	"desqualificado_em" timestamp with time zone,
 	"destino" jsonb DEFAULT '{}'::jsonb NOT NULL,
+	"destino" text NOT NULL,
 	"desvio_por_criterio" jsonb DEFAULT '{}'::jsonb NOT NULL
 	"desvio_total" numeric(6, 2),
 	"dia" date NOT NULL,
@@ -374,6 +384,7 @@
 	"em" timestamp with time zone DEFAULT now() NOT NULL
 	"em" timestamp with time zone DEFAULT now() NOT NULL
 	"em" timestamp with time zone DEFAULT now() NOT NULL
+	"em" timestamp with time zone DEFAULT now() NOT NULL,
 	"em" timestamp with time zone DEFAULT now() NOT NULL,
 	"em" timestamp with time zone DEFAULT now() NOT NULL,
 	"em" timestamp with time zone DEFAULT now() NOT NULL,
@@ -412,7 +423,6 @@
 	"escopo" text DEFAULT 'contact' NOT NULL,
 	"escopo" text DEFAULT 'conversa' NOT NULL,
 	"escopo" text DEFAULT 'empresa' NOT NULL,
-	"escopo" text DEFAULT 'tenant' NOT NULL,
 	"escopo_fila_id" uuid,
 	"escopo_id" uuid,
 	"escopo_id" uuid,
@@ -425,6 +435,7 @@
 	"espera_fila_seg" integer DEFAULT 0 NOT NULL,
 	"estado" text DEFAULT 'aberta' NOT NULL,
 	"estado" text DEFAULT 'aberto' NOT NULL,
+	"estado" text DEFAULT 'agendada' NOT NULL,
 	"estado" text DEFAULT 'correndo' NOT NULL,
 	"estado" text DEFAULT 'executando' NOT NULL,
 	"estado" text DEFAULT 'executando' NOT NULL,
@@ -457,6 +468,7 @@
 	"execucao_id" uuid NOT NULL,
 	"execucao_id" uuid NOT NULL,
 	"execucao_workflow_id" uuid NOT NULL,
+	"executado_em" timestamp with time zone,
 	"exemplos" uuid[] DEFAULT '{}'::uuid[] NOT NULL,
 	"expira_em" timestamp with time zone NOT NULL,
 	"expira_em" timestamp with time zone NOT NULL,
@@ -465,6 +477,7 @@
 	"expira_em" timestamp with time zone,
 	"expiracao_min" integer,
 	"explicacao" jsonb DEFAULT '[]'::jsonb NOT NULL,
+	"extras" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"faixa" text,
 	"faixa_atual" text,
 	"falhas_csv" text,
@@ -488,6 +501,8 @@
 	"fluxo_bloco_id" text,
 	"fluxo_id" uuid NOT NULL,
 	"fluxo_id" uuid NOT NULL,
+	"fluxo_id" uuid NOT NULL,
+	"fluxo_id" uuid,
 	"fluxo_id" uuid,
 	"fluxo_id" uuid,
 	"fluxo_versao_id" uuid NOT NULL,
@@ -512,6 +527,9 @@
 	"icon" text,
 	"id" uuid DEFAULT gen_random_uuid() NOT NULL,
 	"id" uuid DEFAULT gen_random_uuid() NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
@@ -649,6 +667,7 @@
 	"logo_url" text,
 	"mapeamento" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"maximo" integer NOT NULL,
+	"mensagem_id" text NOT NULL,
 	"mensagem_id" uuid NOT NULL,
 	"mensagens_entrada" integer DEFAULT 0 NOT NULL,
 	"mensagens_saida" integer DEFAULT 0 NOT NULL,
@@ -701,6 +720,8 @@
 	"nome" text NOT NULL,
 	"nome" text NOT NULL,
 	"nome" text NOT NULL,
+	"nome" text NOT NULL,
+	"nome" text,
 	"nome" text,
 	"nome_original" text,
 	"nota" numeric(6, 2),
@@ -795,6 +816,7 @@
 	"publicada_em" timestamp with time zone,
 	"publicada_em" timestamp with time zone,
 	"publicada_por" uuid,
+	"quando" timestamp with time zone NOT NULL,
 	"regra_id" uuid NOT NULL,
 	"regra_id" uuid NOT NULL,
 	"reiniciar" boolean DEFAULT false NOT NULL,
@@ -805,6 +827,7 @@
 	"resposta" jsonb,
 	"resposta" text,
 	"resposta_pronta_id" uuid,
+	"resultado" jsonb,
 	"resumo" text,
 	"resumo" text,
 	"revisada_em" timestamp with time zone,
@@ -945,6 +968,9 @@
 	"tenant_id" uuid NOT NULL,
 	"tenant_id" uuid NOT NULL,
 	"tenant_id" uuid NOT NULL,
+	"tenant_id" uuid NOT NULL,
+	"tenant_id" uuid NOT NULL,
+	"tenant_id" uuid NOT NULL,
 	"tentativas" integer DEFAULT 0 NOT NULL,
 	"tentativas" integer DEFAULT 0 NOT NULL,
 	"termo" text NOT NULL,
@@ -955,7 +981,9 @@
 	"tipo" text DEFAULT 'conforme' NOT NULL,
 	"tipo" text DEFAULT 'fluxo' NOT NULL,
 	"tipo" text DEFAULT 'oidc' NOT NULL,
+	"tipo" text DEFAULT 'text/plain' NOT NULL,
 	"tipo" text DEFAULT 'texto' NOT NULL,
+	"tipo" text NOT NULL,
 	"tipo" text NOT NULL,
 	"tipo" text NOT NULL,
 	"tipo" text NOT NULL,
@@ -1014,6 +1042,7 @@
 	"valor" jsonb DEFAULT 'null'::jsonb NOT NULL,
 	"valor" numeric(14, 2),
 	"valor" text
+	"valor" text NOT NULL,
 	"valor" text,
 	"valor_bool" boolean,
 	"valor_data" timestamp with time zone,
@@ -1045,6 +1074,9 @@
 	CONSTRAINT "acao_on_erro_ck" CHECK ("on_erro" in ('parar', 'continuar', 'repetir'))
 	CONSTRAINT "acao_tipo_ck" CHECK ("tipo" in ('criar_registro', 'atualizar_registro', 'enviar_mensagem', 'enviar_template', 'atribuir_proprietario', 'mover_fila', 'criar_avaliacao', 'http', 'funcao', 'agente_ia')),
 	CONSTRAINT "agendamento_consulta_formato_ck" CHECK ("formato" in ('csv', 'json', 'parquet'))
+	CONSTRAINT "agendamento_mensagem_conteudo_ck" CHECK (pg_column_size("agendamento_mensagem"."conteudo") <= 65536),
+	CONSTRAINT "agendamento_mensagem_estado_ck" CHECK ("estado" in ('agendada', 'executada', 'cancelada', 'falhou')),
+	CONSTRAINT "agendamento_mensagem_id_ck" CHECK (length("agendamento_mensagem"."mensagem_id") between 1 and 200)
 	CONSTRAINT "atividade_tipo_ck" CHECK ("tipo" in ('nota', 'ligacao', 'reuniao', 'email', 'conversa', 'tarefa', 'mudanca_fase'))
 	CONSTRAINT "avaliacao_avaliador_tipo_ck" CHECK ("avaliador_tipo" in ('humano', 'ia')),
 	CONSTRAINT "avaliacao_estado_ck" CHECK ("estado" in ('rascunho', 'concluida', 'contestada', 'revisada', 'encerrada'))
@@ -1070,6 +1102,9 @@
 	CONSTRAINT "etiqueta_escopo_ck" CHECK ("escopo" in ('conversa', 'contato', 'ambos'))
 	CONSTRAINT "evento_atendimento_id_em_pk" PRIMARY KEY("id","em"),
 	CONSTRAINT "evento_atendimento_tipo_ck" CHECK ("tipo" in ('criada', 'enfileirada', 'atribuida', 'reatribuida', 'transferida_fila', 'primeira_resposta', 'mensagem_entrada', 'mensagem_saida', 'espera_iniciada', 'espera_encerrada', 'sla_alertado', 'sla_estourado', 'encerrada', 'reaberta', 'avaliada', 'pesquisa_respondida'))
+	CONSTRAINT "evento_rastreado_acao_ck" CHECK (length("evento_rastreado"."acao") between 1 and 200),
+	CONSTRAINT "evento_rastreado_categoria_ck" CHECK (length("evento_rastreado"."categoria") between 1 and 200),
+	CONSTRAINT "evento_rastreado_extras_ck" CHECK (pg_column_size("evento_rastreado"."extras") <= 16384)
 	CONSTRAINT "execucao_fluxo_estado_ck" CHECK ("estado" in ('executando', 'aguardando', 'concluida', 'falhou', 'cancelada'))
 	CONSTRAINT "execucao_workflow_estado_ck" CHECK ("estado" in ('executando', 'aguardando', 'concluida', 'falhou', 'cancelada'))
 	CONSTRAINT "faixa_score_estrategia_ck" CHECK ("estrategia_proprietario" in ('rodizio', 'menor_carga', 'fixo', 'nenhuma'))
@@ -1109,6 +1144,8 @@
 	CONSTRAINT "pesquisa_tipo_ck" CHECK ("tipo" in ('csat', 'nps'))
 	CONSTRAINT "plano_coach_estado_ck" CHECK ("estado" in ('aberto', 'em_andamento', 'concluido', 'cancelado'))
 	CONSTRAINT "process_http_execucao_estado_ck" CHECK ("estado" in ('pendente', 'chamando', 'respondida', 'retomada'))
+	CONSTRAINT "recurso_do_fluxo_nome_ck" CHECK (length("recurso_do_fluxo"."nome") between 1 and 190)
+	CONSTRAINT "recurso_do_fluxo_valor_ck" CHECK (length("recurso_do_fluxo"."valor") <= $1),
 	CONSTRAINT "regra_fila_combinador_ck" CHECK ("combinador" in ('e', 'ou'))
 	CONSTRAINT "regra_prioridade_escopo_tipo_ck" CHECK ("escopo_tipo" in ('tenant', 'fila', 'inbox', 'equipe', 'etiqueta'))
 	CONSTRAINT "regra_prioridade_nivel_ck" CHECK ("nivel" in ('maxima', 'alta', 'media', 'baixa')),
@@ -1239,10 +1276,16 @@
 );
 );
 );
+);
+);
+);
 ALTER TABLE "acao" ADD CONSTRAINT "acao_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "acao" ADD CONSTRAINT "acao_workflow_id_workflow_id_fk" FOREIGN KEY ("workflow_id") REFERENCES "public"."workflow"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "agendamento_consulta" ADD CONSTRAINT "agendamento_consulta_consulta_id_consulta_salva_id_fk" FOREIGN KEY ("consulta_id") REFERENCES "public"."consulta_salva"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "agendamento_consulta" ADD CONSTRAINT "agendamento_consulta_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "agendamento_mensagem" ADD CONSTRAINT "agendamento_mensagem_contato_id_contato_id_fk" FOREIGN KEY ("contato_id") REFERENCES "public"."contato"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "agendamento_mensagem" ADD CONSTRAINT "agendamento_mensagem_fluxo_id_fluxo_id_fk" FOREIGN KEY ("fluxo_id") REFERENCES "public"."fluxo"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "agendamento_mensagem" ADD CONSTRAINT "agendamento_mensagem_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "anexo" ADD CONSTRAINT "anexo_canal_id_canal_id_fk" FOREIGN KEY ("canal_id") REFERENCES "public"."canal"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "anexo" ADD CONSTRAINT "anexo_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "atividade" ADD CONSTRAINT "atividade_conta_id_conta_id_fk" FOREIGN KEY ("conta_id") REFERENCES "public"."conta"("id") ON DELETE cascade ON UPDATE no action;
@@ -1329,6 +1372,9 @@ ALTER TABLE "evento_atendimento" ADD CONSTRAINT "evento_atendimento_conversa_id_
 ALTER TABLE "evento_atendimento" ADD CONSTRAINT "evento_atendimento_fila_id_fila_id_fk" FOREIGN KEY ("fila_id") REFERENCES "public"."fila"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "evento_atendimento" ADD CONSTRAINT "evento_atendimento_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "evento_atendimento" ADD CONSTRAINT "evento_atendimento_usuario_id_usuario_id_fk" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "evento_rastreado" ADD CONSTRAINT "evento_rastreado_contato_id_contato_id_fk" FOREIGN KEY ("contato_id") REFERENCES "public"."contato"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "evento_rastreado" ADD CONSTRAINT "evento_rastreado_fluxo_id_fluxo_id_fk" FOREIGN KEY ("fluxo_id") REFERENCES "public"."fluxo"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "evento_rastreado" ADD CONSTRAINT "evento_rastreado_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "execucao_acao" ADD CONSTRAINT "execucao_acao_acao_id_acao_id_fk" FOREIGN KEY ("acao_id") REFERENCES "public"."acao"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "execucao_acao" ADD CONSTRAINT "execucao_acao_execucao_workflow_id_execucao_workflow_id_fk" FOREIGN KEY ("execucao_workflow_id") REFERENCES "public"."execucao_workflow"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "execucao_acao" ADD CONSTRAINT "execucao_acao_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
@@ -1368,7 +1414,6 @@ ALTER TABLE "formulario_pergunta" ADD CONSTRAINT "formulario_pergunta_tenant_id_
 ALTER TABLE "formulario_pergunta" ADD CONSTRAINT "formulario_pergunta_versao_id_formulario_versao_id_fk" FOREIGN KEY ("versao_id") REFERENCES "public"."formulario_versao"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "formulario_versao" ADD CONSTRAINT "formulario_versao_formulario_id_formulario_id_fk" FOREIGN KEY ("formulario_id") REFERENCES "public"."formulario"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "formulario_versao" ADD CONSTRAINT "formulario_versao_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
-ALTER TABLE "funcao_do_fluxo" ADD CONSTRAINT "funcao_do_fluxo_fluxo_id_fluxo_id_fk" FOREIGN KEY ("fluxo_id") REFERENCES "public"."fluxo"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "funcao_do_fluxo" ADD CONSTRAINT "funcao_do_fluxo_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "gatilho" ADD CONSTRAINT "gatilho_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "gatilho" ADD CONSTRAINT "gatilho_workflow_id_workflow_id_fk" FOREIGN KEY ("workflow_id") REFERENCES "public"."workflow"("id") ON DELETE cascade ON UPDATE no action;
@@ -1446,6 +1491,8 @@ ALTER TABLE "posicao_no_roteador" ADD CONSTRAINT "posicao_no_roteador_tenant_id_
 ALTER TABLE "process_http_execucao" ADD CONSTRAINT "process_http_execucao_bloco_id_bloco_id_fk" FOREIGN KEY ("bloco_id") REFERENCES "public"."bloco"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "process_http_execucao" ADD CONSTRAINT "process_http_execucao_execucao_id_execucao_fluxo_id_fk" FOREIGN KEY ("execucao_id") REFERENCES "public"."execucao_fluxo"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "process_http_execucao" ADD CONSTRAINT "process_http_execucao_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "recurso_do_fluxo" ADD CONSTRAINT "recurso_do_fluxo_fluxo_id_fluxo_id_fk" FOREIGN KEY ("fluxo_id") REFERENCES "public"."fluxo"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "recurso_do_fluxo" ADD CONSTRAINT "recurso_do_fluxo_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "regra_fila" ADD CONSTRAINT "regra_fila_fila_destino_id_fila_id_fk" FOREIGN KEY ("fila_destino_id") REFERENCES "public"."fila"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "regra_fila" ADD CONSTRAINT "regra_fila_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "regra_fila_condicao" ADD CONSTRAINT "regra_fila_condicao_regra_id_regra_fila_id_fk" FOREIGN KEY ("regra_id") REFERENCES "public"."regra_fila"("id") ON DELETE cascade ON UPDATE no action;
@@ -1495,6 +1542,7 @@ ALTER TABLE "usuario_permissao" ADD CONSTRAINT "usuario_permissao_tenant_id_tena
 ALTER TABLE "usuario_permissao" ADD CONSTRAINT "usuario_permissao_usuario_id_usuario_id_fk" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "webhook_saida" ADD CONSTRAINT "webhook_saida_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "workflow" ADD CONSTRAINT "workflow_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
+CREATE INDEX "agendamento_mensagem_pendente_idx" ON "agendamento_mensagem" USING btree ("quando") WHERE "agendamento_mensagem"."estado" = 'agendada';
 CREATE INDEX "atividade_conta_idx" ON "atividade" USING btree ("tenant_id","conta_id","ocorrida_em" DESC NULLS LAST);
 CREATE INDEX "atividade_lead_idx" ON "atividade" USING btree ("tenant_id","lead_id","ocorrida_em" DESC NULLS LAST);
 CREATE INDEX "atribuicao_conversa_idx" ON "atribuicao" USING btree ("tenant_id","conversa_id","em");
@@ -1525,6 +1573,7 @@ CREATE INDEX "documento_conhecimento_base_idx" ON "documento_conhecimento" USING
 CREATE INDEX "entrega_webhook_pendente_idx" ON "entrega_webhook" USING btree ("estado","proxima_tentativa_em");
 CREATE INDEX "evento_atendimento_conversa_idx" ON "evento_atendimento" USING btree ("tenant_id","conversa_id","em");
 CREATE INDEX "evento_atendimento_tipo_idx" ON "evento_atendimento" USING btree ("tenant_id","tipo","em");
+CREATE INDEX "evento_rastreado_categoria_idx" ON "evento_rastreado" USING btree ("tenant_id","categoria","em");
 CREATE INDEX "execucao_acao_execucao_idx" ON "execucao_acao" USING btree ("tenant_id","execucao_workflow_id","em");
 CREATE INDEX "execucao_fluxo_conversa_idx" ON "execucao_fluxo" USING btree ("tenant_id","conversa_id");
 CREATE INDEX "execucao_fluxo_estado_idx" ON "execucao_fluxo" USING btree ("tenant_id","estado","iniciada_em");
@@ -1533,8 +1582,6 @@ CREATE INDEX "execucao_passo_execucao_idx" ON "execucao_passo" USING btree ("ten
 CREATE INDEX "execucao_workflow_idx" ON "execucao_workflow" USING btree ("tenant_id","workflow_id","iniciada_em" DESC NULLS LAST);
 CREATE INDEX "feedback_para_idx" ON "feedback" USING btree ("tenant_id","para_usuario_id","lido_em");
 CREATE INDEX "fluxo_membro_usuario_ix" ON "fluxo_membro" USING btree ("usuario_id");
-CREATE INDEX "funcao_do_fluxo_fluxo_idx" ON "funcao_do_fluxo" USING btree ("tenant_id","fluxo_id","nome");
-CREATE INDEX "funcao_do_fluxo_tenant_idx" ON "funcao_do_fluxo" USING btree ("tenant_id","nome");
 CREATE INDEX "gatilho_workflow_idx" ON "gatilho" USING btree ("tenant_id","workflow_id","tipo");
 CREATE INDEX "gravar_memoria_tenant_idx" ON "gravar_memoria" USING btree ("tenant_id","contato_id","chave");
 CREATE INDEX "grupo_criterio_formulario_idx" ON "grupo_criterio" USING btree ("formulario_id","ordem");
@@ -1562,6 +1609,7 @@ CREATE INDEX "pesquisa_satisfacao_resposta_atendente_idx" ON "pesquisa_satisfaca
 CREATE INDEX "pesquisa_satisfacao_resposta_fila_idx" ON "pesquisa_satisfacao_resposta" USING btree ("tenant_id","fila_id","criada_em");
 CREATE INDEX "pesquisa_satisfacao_resposta_periodo_idx" ON "pesquisa_satisfacao_resposta" USING btree ("tenant_id","criada_em");
 CREATE INDEX "process_http_execucao_pendente_idx" ON "process_http_execucao" USING btree ("tenant_id","estado");
+CREATE INDEX "recurso_do_fluxo_fluxo_idx" ON "recurso_do_fluxo" USING btree ("tenant_id","fluxo_id");
 CREATE INDEX "regra_fila_condicao_regra_idx" ON "regra_fila_condicao" USING btree ("regra_id");
 CREATE INDEX "regra_fila_ordem_idx" ON "regra_fila" USING btree ("tenant_id","ativa","ordem");
 CREATE INDEX "regra_score_versao_idx" ON "regra_score" USING btree ("tenant_id","versao","ativa");
@@ -1576,6 +1624,7 @@ CREATE INDEX "trecho_conhecimento_documento_idx" ON "trecho_conhecimento" USING 
 CREATE INDEX "webhook_saida_tenant_idx" ON "webhook_saida" USING btree ("tenant_id","ativo");
 CREATE TABLE "acao" (
 CREATE TABLE "agendamento_consulta" (
+CREATE TABLE "agendamento_mensagem" (
 CREATE TABLE "anexo" (
 CREATE TABLE "atividade" (
 CREATE TABLE "atribuicao" (
@@ -1610,6 +1659,7 @@ CREATE TABLE "esforco_atendente_dia" (
 CREATE TABLE "esforco_conversa" (
 CREATE TABLE "etiqueta" (
 CREATE TABLE "evento_atendimento" (
+CREATE TABLE "evento_rastreado" (
 CREATE TABLE "execucao_acao" (
 CREATE TABLE "execucao_fluxo" (
 CREATE TABLE "execucao_passo" (
@@ -1659,6 +1709,7 @@ CREATE TABLE "pesquisa_satisfacao_resposta" (
 CREATE TABLE "plano_coach" (
 CREATE TABLE "posicao_no_roteador" (
 CREATE TABLE "process_http_execucao" (
+CREATE TABLE "recurso_do_fluxo" (
 CREATE TABLE "regra_fila" (
 CREATE TABLE "regra_fila_condicao" (
 CREATE TABLE "regra_prioridade" (
@@ -1683,6 +1734,7 @@ CREATE TABLE "usuario_permissao" (
 CREATE TABLE "webhook_saida" (
 CREATE TABLE "workflow" (
 CREATE UNIQUE INDEX "acao_uk" ON "acao" USING btree ("workflow_id","ordem");
+CREATE UNIQUE INDEX "agendamento_mensagem_tenant_mensagem_uk" ON "agendamento_mensagem" USING btree ("tenant_id","mensagem_id");
 CREATE UNIQUE INDEX "bloco_uk" ON "bloco" USING btree ("versao_id","codigo");
 CREATE UNIQUE INDEX "calibracao_item_uk" ON "calibracao_item" USING btree ("calibracao_id","conversa_id");
 CREATE UNIQUE INDEX "campo_customizado_uk" ON "campo_customizado" USING btree ("tenant_id","objeto","codigo");
@@ -1709,6 +1761,7 @@ CREATE UNIQUE INDEX "formulario_avaliacao_uk" ON "formulario_avaliacao" USING bt
 CREATE UNIQUE INDEX "formulario_pergunta_uk" ON "formulario_pergunta" USING btree ("versao_id","codigo");
 CREATE UNIQUE INDEX "formulario_tenant_slug_uk" ON "formulario" USING btree ("tenant_id","slug");
 CREATE UNIQUE INDEX "formulario_versao_uk" ON "formulario_versao" USING btree ("formulario_id","versao");
+CREATE UNIQUE INDEX "funcao_do_fluxo_tenant_nome_uk" ON "funcao_do_fluxo" USING btree ("tenant_id","nome");
 CREATE UNIQUE INDEX "gravar_memoria_contato_chave_uk" ON "gravar_memoria" USING btree ("tenant_id","contato_id","chave") WHERE "gravar_memoria"."escopo" = 'contact';
 CREATE UNIQUE INDEX "gravar_memoria_global_chave_uk" ON "gravar_memoria" USING btree ("tenant_id","chave") WHERE "gravar_memoria"."escopo" = 'global';
 CREATE UNIQUE INDEX "horario_excecao_uk" ON "horario_excecao" USING btree ("horario_id","data");
@@ -1723,6 +1776,7 @@ CREATE UNIQUE INDEX "papel_id_escopo_uk" ON "papel" USING btree ("id","escopo");
 CREATE UNIQUE INDEX "papel_tenant_nome_uk" ON "papel" USING btree ("tenant_id","nome");
 CREATE UNIQUE INDEX "posicao_no_roteador_uk" ON "posicao_no_roteador" USING btree ("roteador_id","contato_id");
 CREATE UNIQUE INDEX "process_http_execucao_chave_uk" ON "process_http_execucao" USING btree ("execucao_id","chave");
+CREATE UNIQUE INDEX "recurso_do_fluxo_fluxo_nome_uk" ON "recurso_do_fluxo" USING btree ("tenant_id","fluxo_id","nome");
 CREATE UNIQUE INDEX "resposta_avaliacao_uk" ON "resposta_avaliacao" USING btree ("avaliacao_id","criterio_id");
 CREATE UNIQUE INDEX "resposta_formulario_uk" ON "resposta_formulario" USING btree ("lead_id","pergunta_id");
 CREATE UNIQUE INDEX "resposta_pesquisa_uk" ON "resposta_pesquisa" USING btree ("conversa_id","pesquisa_id");
