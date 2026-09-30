@@ -77,6 +77,27 @@ const FLOW = {
         conditions: [{ source: 'input', comparison: 'equals', values: ['script-v2'] }],
       },
       {
+        // P9: ExecuteTemplate (Handlebars) on the production path; same template as the Builder
+        // test-run case in `builder-test-run.test.ts`.
+        type: 'SetVariable',
+        settings: { variable: 'tplPedido', value: '{"numero":7,"itens":[{"nome":"Caneta"},{"nome":"Caderno"}]}' },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['template'] }],
+      },
+      {
+        type: 'ExecuteTemplate',
+        settings: {
+          template: '{{input.content}} #{{tplPedido.numero}}:{{#each tplPedido.itens}}{{#if @index}},{{/if}} {{nome}}{{/each}} [{{faltando}}][{{secret.apiToken}}]',
+          inputVariables: ['input.content', 'tplPedido', 'faltando', 'secret.apiToken'],
+          outputVariable: 'tplSaida',
+        },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['template'] }],
+      },
+      {
+        type: 'SendMessage',
+        settings: { type: 'text/plain', content: 'T: {{tplSaida}}' },
+        conditions: [{ source: 'input', comparison: 'equals', values: ['template'] }],
+      },
+      {
         // 40k characters pass the app's 64 KB character check, but 80 KB of UTF-8 violate the
         // `pg_column_size(valor) <= 65536` CHECK: a real database error inside the action.
         type: 'SetBucket',
@@ -231,6 +252,14 @@ describe('context action services', () => {
       select conteudo from mensagem where tenant_id = ${cenario.tenantId}::uuid and autor_tipo = 'bot'
     `);
     expect(rows.map((m) => m.conteudo)).toEqual(['V2: gravado script-v2|||03/02 14:05 []']);
+  });
+
+  it('ExecuteTemplate renders Handlebars over the input variables in production (P9)', async () => {
+    await falar('template');
+    const { rows } = await cenario.dono.execute<{ conteudo: string }>(sql`
+      select conteudo from mensagem where tenant_id = ${cenario.tenantId}::uuid and autor_tipo = 'bot'
+    `);
+    expect(rows.map((m) => m.conteudo)).toEqual(['T: template #7: Caneta, Caderno [][]']);
   });
 
   it('fills application, bucket, calendar and random; tunnel stays empty without a router', async () => {

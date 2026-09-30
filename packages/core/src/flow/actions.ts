@@ -5,6 +5,7 @@
 import type { ActionDeadline, CommandRequest, Context, DeskUnavailableStatus, PedidoDeHttp } from './context.js';
 import { CONTEXT_STATE_URI, matchCommand } from './commands.js';
 import { scriptVariables } from './script-variables.js';
+import { TEMPLATE_TIMEOUT_MS, parseTemplateValue, templateData } from './template.js';
 import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, botFlow, deleteVariable as deleteContextVariable, getVariable, maskSecrets, setVariable as setContextVariable, stateKey } from './context.js';
 import { subflowRuntimeId } from './modelos.js';
 import { runLocalCommand } from './builder-commands.js';
@@ -573,19 +574,17 @@ const executeTemplate: AcaoDoMotor = {
     const output = comoTexto(campo(c, 'outputVariable'))?.trim();
     if (!template) throw new Error(`O valor 'template' é obrigatório na ação '${this.tipo}'.`);
     if (!output) throw new Error(`O valor 'outputVariable' é obrigatório na ação '${this.tipo}'.`);
+    if (!context.services.renderTemplate) {
+      throw new Error(`A ação ${this.tipo} não está disponível neste fluxo.`);
+    }
     const inputs = campo(c, 'inputVariables');
     const names = Array.isArray(inputs) ? inputs.map((n) => comoTexto(n)?.trim() ?? '') : [];
-    const values: Record<string, unknown> = {};
+    // Read like `{{...}}` outside an HTTP action: `secret.*` reads null and never reaches the template.
+    const entries: [string, unknown][] = [];
     for (const name of names) {
-      if (!name) continue;
-      const value = await getVariable(context, name);
-      try { values[name] = value === null ? null : JSON.parse(value); } catch { values[name] = value; }
+      if (name) entries.push([name, parseTemplateValue(await getVariable(context, name))]);
     }
-    const result = template.replace(/{{\s*([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\s*}}/g, (_match, path: string) => {
-      let value: unknown = values[path.split('.')[0]!];
-      for (const part of path.split('.').slice(1)) value = value && typeof value === 'object' ? (value as Record<string, unknown>)[part] : undefined;
-      return value === undefined || value === null ? '' : typeof value === 'string' ? value : JSON.stringify(value);
-    });
+    const result = await context.services.renderTemplate({ template, data: templateData(entries), timeoutMs: TEMPLATE_TIMEOUT_MS });
     setContextVariable(context, output, result);
   },
 };
