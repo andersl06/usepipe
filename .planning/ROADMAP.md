@@ -384,12 +384,30 @@ Plans:
 ### Phase 03.1: Corrigir bugs do inventário Blip×Pipe (INSERTED)
 
 **Goal:** Bugs reais encontrados na comparação Blip×Pipe (isolamento de filas/regras por fluxo, presença do Desk, atalho de respostas prontas, template WhatsApp que perde rodapé/botões, Click Tracker que mostra "Conectado" sem token, identidade roteador/subbot) ficam corrigidos e cobertos por teste, e as frentes ainda não auditadas (Builder, APIs/LIME, canais, Portal) têm inventário complementar com a régua de evidência, conduzido de forma proativa pelo Claude (trazer ao dono bugs e regras da Blip que o Pipe não aplica). Insumos: `insumos/` da fase.
-**Requirements**: TBD
+**Requirements**: D-01..D-15 (decisões de 03.1-CONTEXT.md; D-15 = ticket só no transbordo, desfaz com_bot)
 **Depends on:** Phase 3 (insumo: auditorias Blip×Pipe de 2026-09-30)
-**Plans:** 0 plans
+**Plans:** 19 plans (6 ondas)
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 03.1 to break down)
+- [ ] 03.1-01-PLAN.md — Ensaios na Blip, aviso Meta (D-11) e decisões do dono (checkpoints)
+- [ ] 03.1-02-PLAN.md — Migration 0082 (fila por fluxo, expand) e fixtures de dois fluxos
+- [ ] 03.1-03-PLAN.md — Inventário proativo Builder/APIs-LIME/canais/Portal
+- [ ] 03.1-04-PLAN.md — Funil enterQueue/chooseQueue com fluxo e validação cross-fluxo
+- [ ] 03.1-05-PLAN.md — API de gestão de filas/regras/prioridade/fila padrão por fluxo
+- [ ] 03.1-06-PLAN.md — Presença do Desk conforme a Blip (logout, abertura, F5, TTL)
+- [ ] 03.1-07-PLAN.md — Gatilho de respostas prontas no compositor + spec reconciliada
+- [ ] 03.1-08-PLAN.md — Template WhatsApp sem perda de rodapé/botões
+- [ ] 03.1-09-PLAN.md — Click Tracker sem "Conectado" falso / remoção
+- [ ] 03.1-10-PLAN.md — Migration 0083: modelo do ticket no transbordo (mensagem sem conversa)
+- [ ] 03.1-11-PLAN.md — Desk, catálogo e mensagem ativa com filas do fluxo
+- [ ] 03.1-12-PLAN.md — Telas do Builder/Atendimento com flowId e fila padrão
+- [ ] 03.1-13-PLAN.md — Integração Click Tracker com Marketing API (se integrar)
+- [ ] 03.1-14-PLAN.md — Ticket nasce no transbordo (inbound/engine)
+- [ ] 03.1-15-PLAN.md — Remover com_bot, migration 0084 e listas só com ticket
+- [ ] 03.1-16-PLAN.md — Identidade original/túnel e contatos do subbot por execução
+- [ ] 03.1-17-PLAN.md — Correção dos bugs confirmados no inventário
+- [ ] 03.1-18-PLAN.md — Migration 0085 (contract) e aceitação D-07
+- [ ] 03.1-19-PLAN.md — Contexto isolado por subbot, redirect com contexto e retorno
 
 ### Phase 03.2: Paridade visual da tela Atendimento do fluxo (INSERTED)
 
