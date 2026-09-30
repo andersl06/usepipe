@@ -168,6 +168,21 @@ test('assistant picker preserves unknown imported IDs and links to the assistant
   assert.match(html, /\/bot\/ai\/model/);
 });
 
+test('assistant picker refetches on focus and offers an explicit refresh for edits saved in another tab', async () => {
+  const module = await import('../src/pages/builder/ai-model-context');
+  const { clienteDeConsultas } = await import('../src/lib/cliente-de-consultas');
+  assert.equal(clienteDeConsultas.getDefaultOptions().queries?.refetchOnWindowFocus, false, 'the app-wide default is what this override exists for');
+  assert.deepEqual(module.BUILDER_AI_MODEL_QUERY, { staleTime: 0, refetchOnWindowFocus: true });
+  const html = renderToStaticMarkup(React.createElement(module.AiModelContext.Provider, { value: { model, editorPath: '/bot/ai/model', refresh: () => undefined } },
+    React.createElement(module.AssistantPicker, { value: 'a', onChange: () => undefined })));
+  assert.match(html, /Atualizar assistentes/);
+  assert.match(html, /volta ao Builder/);
+  const busy = renderToStaticMarkup(React.createElement(module.AiModelContext.Provider, { value: { model, refresh: () => undefined, refreshing: true } },
+    React.createElement(module.AssistantPicker, { value: 'a', onChange: () => undefined })));
+  assert.match(busy, /Atualizando assistentes/);
+  assert.match(busy, /disabled=""[^>]*>Atualizar assistentes/);
+});
+
 test('condition suggestions offer intent names and entity values according to the selected entity', async () => {
   const module = await import('../src/pages/flow/ai-model-logic').catch(() => null);
   assert.ok(module);
