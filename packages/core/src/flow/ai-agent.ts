@@ -33,9 +33,20 @@ import {
   deleteVariable,
   setVariable,
   timeSpanSeconds,
+  type ActionDeadline,
   type Context,
 } from './context.js';
 import type { Acao, State } from './modelos.js';
+import {
+  DEFAULT_EMBEDDING_KEY_SECRET,
+  KNOWLEDGE_BASE_CONSULT,
+  knowledgeConsultSettings,
+  knowledgeRequest,
+  knowledgeResultJson,
+  mcpServersOf,
+  type KnowledgeConsultSettings,
+  type McpServer,
+} from './knowledge.js';
 
 // --- Provider-neutral model contract (the `api` maps it to each provider) ---
 
@@ -125,8 +136,11 @@ export const AGENT_LIMITS = {
   maxToolResultBytes: 4_096,
 } as const;
 
-/** Local actions that cannot be tools (Blip filters the agent and the knowledge consult). */
-const NOT_TOOLS = new Set([FORWARD_TO_AGENT, LEAVING_FROM_AGENT, 'KnowledgeBaseConsult']);
+/**
+ * Local actions that are not action tools (Blip filters the agent and the knowledge consult);
+ * `KnowledgeBaseConsult` becomes a knowledge search tool instead (P15).
+ */
+const NOT_TOOLS = new Set([FORWARD_TO_AGENT, LEAVING_FROM_AGENT, KNOWLEDGE_BASE_CONSULT]);
 
 export interface AgentHandoff {
   name: string;
@@ -145,6 +159,8 @@ export interface AgentSettings {
   handoffs: AgentHandoff[];
   forward: boolean;
   outputVariable: string | null;
+  /** `settings.tools` MCP servers (P15), Blip's `grounding-mcp` left out. */
+  mcpServers: McpServer[];
 }
 
 const obj = (v: unknown): Record<string, unknown> | null =>
@@ -205,6 +221,7 @@ export function agentSettings(settings: Settings): AgentSettings {
     handoffs,
     forward: forward ? forward['enabled'] !== false : true,
     outputVariable: variable?.['enabled'] === true ? text(variable['name']) : null,
+    mcpServers: mcpServersOf(s['tools']),
   };
 }
 
@@ -244,12 +261,27 @@ export interface AgentToolbox {
   actions: Map<string, Acao>;
   /** Tool name → handoff. */
   handoffs: Map<string, AgentHandoff>;
+  /** Tool name → a `KnowledgeBaseConsult` local action's search setup (P15). */
+  knowledge: Map<string, KnowledgeConsultSettings>;
+  /** Tool name → the MCP server and the tool's own name there (P15). */
+  mcp: Map<string, { server: McpServer; tool: string }>;
+  /** Names already given, so tools added later (MCP) stay unique. */
+  names: Set<string>;
 }
 
-/** The tools the model sees: the block's local actions, then one tool per handoff. */
+const KNOWLEDGE_TOOL_SCHEMA: Record<string, unknown> = {
+  type: 'object',
+  properties: { query: { type: 'string', description: 'O que buscar na base de conhecimento, em linguagem natural.' } },
+  required: ['query'],
+};
+
+/**
+ * The tools the model sees: the block's local actions, one knowledge search per
+ * `KnowledgeBaseConsult`, then one tool per handoff. MCP tools are added per turn (`addMcpTools`).
+ */
 export function agentToolbox(state: State | null | undefined, settings: AgentSettings): AgentToolbox {
   const taken = new Set<string>();
-  const box: AgentToolbox = { tools: [], actions: new Map(), handoffs: new Map() };
+  const box: AgentToolbox = { tools: [], actions: new Map(), handoffs: new Map(), knowledge: new Map(), mcp: new Map(), names: taken };
   for (const action of state?.localCustomActions ?? []) {
     if (NOT_TOOLS.has(action.type)) continue;
     const raw = action as unknown as Record<string, unknown>;
@@ -260,6 +292,25 @@ export function agentToolbox(state: State | null | undefined, settings: AgentSet
       name,
       description: text(raw['$description']) ?? `Executa a ação '${title}' do fluxo.`,
       inputSchema: actionSchema(action),
+    });
+  }
+  for (const action of state?.localCustomActions ?? []) {
+    if (action.type !== KNOWLEDGE_BASE_CONSULT) continue;
+    const raw = action as unknown as Record<string, unknown>;
+    let config: KnowledgeConsultSettings;
+    try {
+      config = knowledgeConsultSettings((action.settings ?? null) as Settings);
+    } catch {
+      continue;
+    }
+    const name = toolName(text(raw['$title']) ?? 'base_de_conhecimento', taken);
+    box.knowledge.set(name, config);
+    box.tools.push({
+      name,
+      description:
+        text(raw['$description']) ??
+        'Busca trechos na base de conhecimento da empresa. Use antes de responder perguntas sobre produtos, serviços e políticas.',
+      inputSchema: KNOWLEDGE_TOOL_SCHEMA,
     });
   }
   for (const handoff of settings.handoffs) {
@@ -274,6 +325,32 @@ export function agentToolbox(state: State | null | undefined, settings: AgentSet
     });
   }
   return box;
+}
+
+/**
+ * Adds the tools each MCP server of the block lists (P15). A server that cannot be listed (down,
+ * refused, unsupported transport) is left out of this turn instead of failing the agent.
+ */
+export async function addMcpTools(context: Context, box: AgentToolbox, servers: readonly McpServer[], signal?: AbortSignal): Promise<void> {
+  if (servers.length === 0 || !context.services.listMcpTools) return;
+  for (const server of servers) {
+    let listed;
+    try {
+      listed = await context.services.listMcpTools(server, signal);
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      continue;
+    }
+    for (const tool of listed) {
+      const name = toolName(tool.name, box.names);
+      box.mcp.set(name, { server, tool: tool.name });
+      box.tools.push({
+        name,
+        description: tool.description || `Ferramenta '${tool.name}' do servidor MCP '${server.code}'.`,
+        inputSchema: tool.inputSchema?.['type'] === 'object' ? tool.inputSchema : { type: 'object', properties: {} },
+      });
+    }
+  }
 }
 
 // --- `aiagent.*` variables and memory ---
@@ -450,6 +527,9 @@ export const forwardToAgent: AcaoDoMotor = {
       fail(context, 'unavailable', 'O agente de IA não está disponível neste fluxo.');
       return;
     }
+    await addMcpTools(context, box, config.mcpServers, prazo?.signal);
+    // An OpenAI agent's own key also serves the knowledge embeddings (same provider).
+    const embeddingKeySecret = config.provider === 'openai' ? config.apiKeySecret : null;
 
     const answers: string[] = [];
     try {
@@ -501,7 +581,7 @@ export const forwardToAgent: AcaoDoMotor = {
         }
         // Tool results go back in one message per call, in call order.
         for (const toolCall of response.toolCalls) {
-          memory.push(await runTool(context, box, toolCall, prazo?.runActions));
+          memory.push(await runTool(context, box, toolCall, prazo, embeddingKeySecret));
         }
       }
     } catch (error) {
@@ -516,11 +596,37 @@ export const forwardToAgent: AcaoDoMotor = {
   },
 };
 
+/** A `KnowledgeBaseConsult` tool call: the passages as JSON, sized to fit a tool result. */
+async function searchTool(
+  context: Context,
+  config: KnowledgeConsultSettings,
+  args: Record<string, unknown> | undefined,
+  signal: AbortSignal | undefined,
+  embeddingKeySecret: string | null,
+): Promise<[string, boolean?]> {
+  const query = text(args?.['query']) ?? context.inbound.serializedContent.trim();
+  if (!query) return [JSON.stringify({ status: 'error', message: "Informe 'query'." }), true];
+  if (!context.services.searchKnowledge) return ['A base de conhecimento não está disponível neste fluxo.', true];
+  try {
+    const result = await context.services.searchKnowledge(knowledgeRequest(query, config, embeddingKeySecret ?? DEFAULT_EMBEDDING_KEY_SECRET), signal);
+    if (result.passages.length === 0) {
+      return [JSON.stringify({ status: 'ok', mode: result.mode, passages: [], message: 'Nada encontrado na base de conhecimento.' })];
+    }
+    // Room for the `status` wrapper around the passages.
+    const passages = knowledgeResultJson(result, AGENT_LIMITS.maxToolResultBytes - 32);
+    return [`{"status":"ok",${passages.slice(1)}`];
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    return [JSON.stringify({ status: 'error', message: messageOf(error) }), true];
+  }
+}
+
 async function runTool(
   context: Context,
   box: AgentToolbox,
   toolCall: AgentToolCall,
-  runActions: ((actions: readonly Acao[]) => Promise<void>) | undefined,
+  prazo: ActionDeadline | undefined,
+  embeddingKeySecret: string | null,
 ): Promise<AgentMessage> {
   const reply = (content: string, isError?: boolean): AgentMessage => ({
     role: 'tool',
@@ -530,13 +636,27 @@ async function runTool(
     ...(isError ? { isError: true } : {}),
   });
   const action = box.actions.get(toolCall.name);
-  if (!action) return reply(`A ferramenta '${toolCall.name}' não existe.`, true);
-  if (!runActions) return reply('As ferramentas não estão disponíveis neste fluxo.', true);
+  const knowledge = box.knowledge.get(toolCall.name);
+  const mcp = box.mcp.get(toolCall.name);
+  if (!action && !knowledge && !mcp) return reply(`A ferramenta '${toolCall.name}' não existe.`, true);
   writeAgentVariables(context, {
     name: toolCall.name,
     toolCall_id: toolCall.id,
     parameters: JSON.stringify(toolCall.arguments ?? {}),
   });
+  if (knowledge) return reply(...(await searchTool(context, knowledge, toolCall.arguments, prazo?.signal, embeddingKeySecret)));
+  if (mcp) {
+    if (!context.services.callMcpTool) return reply('As ferramentas MCP não estão disponíveis neste fluxo.', true);
+    try {
+      const result = await context.services.callMcpTool(mcp.server, mcp.tool, toolCall.arguments ?? {}, prazo?.signal);
+      return reply(result.content, result.isError);
+    } catch (error) {
+      if (prazo?.signal.aborted) throw error;
+      return reply(JSON.stringify({ status: 'error', message: messageOf(error) }), true);
+    }
+  }
+  const runActions = prazo?.runActions;
+  if (!action || !runActions) return reply('As ferramentas não estão disponíveis neste fluxo.', true);
   const before = { ...context.variables };
   try {
     // Conditions, substitution, secrets masking and the time limit: the engine's own runner.

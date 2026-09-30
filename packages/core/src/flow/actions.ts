@@ -9,6 +9,7 @@ import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, botFlow, deleteVa
 import { subflowRuntimeId } from './modelos.js';
 import { runLocalCommand } from './builder-commands.js';
 import { forwardToAgent, leavingFromAgent } from './ai-agent.js';
+import { knowledgeBaseConsult } from './knowledge.js';
 
 export type Settings = Record<string, unknown> | null;
 
@@ -154,8 +155,13 @@ const processContentAssistant: AcaoDoMotor = {
     if (!context.services.respondWithKnowledge) throw new Error("A ação 'ProcessContentAssistant' não está disponível neste fluxo.");
     const minimum = campo(c, 'score') === undefined || campo(c, 'score') === null ? 0 : Number(campo(c, 'score'));
     if (!Number.isFinite(minimum) || minimum < 0 || minimum > 1) throw new Error("O valor 'score' deve estar entre 0 e 1.");
-    const result = await context.services.respondWithKnowledge({ text, minimumConfidence: minimum, tags: comoTexto(campo(c, 'tags')) ?? undefined });
-    setContextVariable(context, output, result.answer ?? 'Não sei responder com a base de conhecimento disponível.');
+    const apiKeySecret = comoTexto(campo(c, 'apiKeySecret'))?.trim() || null;
+    const result = await context.services.respondWithKnowledge({
+      text, minimumConfidence: minimum, tags: comoTexto(campo(c, 'tags')) ?? undefined, ...(apiKeySecret ? { apiKeySecret } : {}),
+    });
+    // No match leaves the variable absent (P15), so the block's exits can test it with `exists`.
+    if (result.answer === null) deleteContextVariable(context, output);
+    else setContextVariable(context, output, result.answer);
   },
 };
 
@@ -635,6 +641,10 @@ const leavingFromAgentAction: AcaoDoMotor = {
   tipo: 'LeavingFromAgent',
   executar: (context, settings, prazo) => leavingFromAgent.executar(context, settings, prazo),
 };
+const knowledgeBaseConsultAction: AcaoDoMotor = {
+  tipo: 'KnowledgeBaseConsult',
+  executar: (context, settings, prazo) => knowledgeBaseConsult.executar(context, settings, prazo),
+};
 
 export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   trackContactsJourney,
@@ -663,6 +673,7 @@ export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   processContentAssistant,
   forwardToAgentAction,
   leavingFromAgentAction,
+  knowledgeBaseConsultAction,
 ];
 
 /** Default `ActionProvider` containing actions Pipe executes. */

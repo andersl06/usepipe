@@ -4,6 +4,7 @@
 
 import type { AgentModelRequest, AgentModelResponse } from './ai-agent.js';
 import type { CommandMatch } from './commands.js';
+import type { KnowledgeSearchRequest, KnowledgeSearchResult, McpServer, McpToolInfo, McpToolResult } from './knowledge.js';
 import type { Acao, FlowBlip } from './modelos.js';
 import { KEYS_OF_STATE } from './modelos.js';
 
@@ -278,8 +279,20 @@ export interface ServicosDoMotor {
    * reaches the engine.
    */
   callAgentModel?(request: AgentModelRequest, signal?: AbortSignal): Promise<AgentModelResponse>;
-  /** RAG over the tenant's base_conhecimento/trecho_conhecimento tables. */
-  respondWithKnowledge?(request: { text: string; minimumConfidence: number; tags?: string }): Promise<{ answer: string | null; confidence: number }>;
+  /**
+   * RAG over the tenant's base_conhecimento/trecho_conhecimento tables (`ProcessContentAssistant`):
+   * the best passage at or above `minimumConfidence`. `apiKeySecret` names the embeddings key secret.
+   */
+  respondWithKnowledge?(request: { text: string; minimumConfidence: number; tags?: string; apiKeySecret?: string | null }): Promise<{ answer: string | null; confidence: number }>;
+  /**
+   * Knowledge search (P15, `knowledge.ts`): the best passages of the tenant's knowledge bases, by
+   * embeddings when the flow has the key secret, by full text otherwise. Read-only for the flow.
+   */
+  searchKnowledge?(request: KnowledgeSearchRequest, signal?: AbortSignal): Promise<KnowledgeSearchResult>;
+  /** The tools an AI agent's MCP server lists (P15); the `api` adds the secret headers. */
+  listMcpTools?(server: McpServer, signal?: AbortSignal): Promise<McpToolInfo[]>;
+  /** Calls one tool of an AI agent's MCP server (P15). */
+  callMcpTool?(server: McpServer, name: string, args: Record<string, unknown>, signal?: AbortSignal): Promise<McpToolResult>;
 }
 
 export type VariableProvider = (
