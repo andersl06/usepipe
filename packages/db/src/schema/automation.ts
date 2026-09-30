@@ -463,24 +463,26 @@ export const executionWorkflow = pgTable(
   ],
 );
 
-/** Reusable conversation-engine function (D-22). This is deliberately separate from workflow `funcao`. */
+/**
+ * Reusable conversation-engine function (D-22). This is deliberately separate from workflow `funcao`.
+ * The library belongs to the account (tenant), like Blip's (P10, D-57): every flow of the tenant sees
+ * every function and `ExecuteBlipFunction` references one by `id`. Migration 0054 folded the former
+ * per-flow scope (`fluxo_id`, `escopo`) into the tenant and made `nome` unique per tenant.
+ */
 export const flowFunction = pgTable(
   'funcao_do_fluxo',
   {
     id: id(),
     tenantId: refTenant(),
-    flowId: uuid('fluxo_id').references(() => flow.id, { onDelete: 'cascade' }),
     name: text('nome').notNull(),
     description: text('descricao'),
     parameters: jsonb('parametros').$type<string[]>().notNull().default([]),
     code: text('codigo').notNull(),
     version: integer('versao').notNull().default(1),
-    scope: text('escopo').notNull().default('tenant'),
     ...carimbos(),
   },
   (t) => [
-    index('funcao_do_fluxo_tenant_idx').on(t.tenantId, t.name),
-    index('funcao_do_fluxo_fluxo_idx').on(t.tenantId, t.flowId, t.name),
+    uniqueIndex('funcao_do_fluxo_tenant_nome_uk').on(t.tenantId, t.name),
     check('funcao_do_fluxo_codigo_ck', sql`length(${t.code}) <= 65536`),
   ],
 );

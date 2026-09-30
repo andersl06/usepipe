@@ -330,6 +330,13 @@
       "when": 1790090000000,
       "tag": "0052_recurso_do_fluxo",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1790110000000,
+      "tag": "0054_funcao_da_conta",
+      "breakpoints": true
     }
   ]
 }
