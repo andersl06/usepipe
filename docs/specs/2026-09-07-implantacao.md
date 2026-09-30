@@ -1,5 +1,7 @@
 # Implantação: do zero ao WhatsApp respondendo
 
+> Adendo de 29/09/2026: os hosts fixos e o HTTP-01 normal descritos abaixo foram substituídos por subdomínios por tenant. Ver [2026-09-29-tenant-subdomains.md](2026-09-29-tenant-subdomains.md) e o runbook de ativação antes de executar.
+
 Vinculante. Escrito em 07/09/2026, depois de revisar `infra/compose/docker-compose.prod.yml`
 linha a linha — que até hoje nunca tinha subido.
 
