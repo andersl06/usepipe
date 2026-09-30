@@ -13,6 +13,8 @@ import { BUILDER_COMMANDS } from './builder-commands.js';
 import { SCHEDULING_COMMANDS, type MessagingEffects } from './scheduling-commands.js';
 import { loadFlowSecret } from './management/flow-secrets.js';
 import { agentModelService } from './agent-model.js';
+import { nlpServices } from './nlp-model.js';
+import { loadFlowAiModel } from './management/flow-ai-model.js';
 
 /**
  * The engine services (`ServicosDoMotor`) that production (`flow.ts` `runFlowInInbound`) and the
@@ -253,6 +255,8 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects, flow
     if (!secrets.has(name)) secrets.set(name, await isolate((tx) => loadFlowSecret(tx, flowId, name)));
     return secrets.get(name) ?? null;
   };
+  /** The flow's AI model (P16), read at most once per input and only when the flow uses NLP. */
+  let aiModel: Promise<Awaited<ReturnType<typeof loadFlowAiModel>>> | undefined;
   return {
     ...rest,
     ...(flowId ? { resolveSecret: loadSecret } : {}),
@@ -327,5 +331,14 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects, flow
     // AI agent (P14): the provider key is this flow's secret, decrypted per call and never returned.
     callAgentModel: agentModelService({ loadSecret, stubWhenNoKey: agentStub ?? false }),
     respondWithKnowledge: (request) => isolate((tx) => knowledgeMatch(tx, tenantId, request)),
+    // NLP, content assistant and AI Answers (P16) over the flow's AI model, same provider call and keys.
+    ...(flowId
+      ? nlpServices({
+          loadModel: () => (aiModel ??= isolate((tx) => loadFlowAiModel(tx, flowId))),
+          callModel: agentModelService({ loadSecret, stubWhenNoKey: false }),
+          hasKey: async (name) => !!(await loadSecret(name))?.trim(),
+          stubWhenNoKey: agentStub ?? false,
+        })
+      : {}),
   };
 }
