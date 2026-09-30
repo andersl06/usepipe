@@ -38,14 +38,14 @@ function main(): void {
     process.exitCode = 2;
     return;
   }
-  for (const dir of dirs) {
-    if (!fs.statSync(dir, { throwIfNoEntry: false })?.isDirectory()) {
-      console.error(`missing source dir: ${dir}`);
+  for (const folder of dirs) {
+    if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()) {
+      console.error(`missing source dir: ${folder}`);
       process.exitCode = 2;
       return;
     }
   }
-  const hits = listFiles(dirs.map((dir) => dir.replaceAll(path.sep, '/'))).flatMap((file) => {
+  const hits = listFiles(dirs.map((folder) => folder.replaceAll(path.sep, '/'))).flatMap((file) => {
     const buffer = fs.readFileSync(file);
     if (buffer.includes(0)) return [];
     return findMissingJsSpecifiers(file, buffer.toString('utf8'));
