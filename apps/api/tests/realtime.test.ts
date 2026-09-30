@@ -9,6 +9,8 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 23).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_ORIGENS'] = 'http://localhost:3200';
+process.env['PIPE_DOMINIO_CONTAS'] = 'pipe.test';
+process.env['PIPE_COOKIE_SEGURO'] = 'true';
 // A fast ping so the test does not wait 15 seconds for the control frame.
 process.env['PIPE_WS_PING_MS'] = '150';
 
@@ -29,6 +31,8 @@ let cenario: Cenario;
 let outro: Cenario;
 let api: ApiNoAr;
 let urlWs: string;
+let alphaSlug: string;
+let betaSlug: string;
 
 async function openSession(alvo: Cenario, userId?: string): Promise<string> {
   const novo = createToken();
@@ -41,8 +45,12 @@ async function openSession(alvo: Cenario, userId?: string): Promise<string> {
 }
 
 beforeAll(async () => {
-  cenario = await montarCenario(`ws-${randomUUID().slice(0, 8)}`);
-  outro = await montarCenario(`ws-outro-${randomUUID().slice(0, 8)}`);
+  const a = `ws-${randomUUID().slice(0, 8)}`;
+  const b = `ws-outro-${randomUUID().slice(0, 8)}`;
+  cenario = await montarCenario(a);
+  outro = await montarCenario(b);
+  alphaSlug = `e2e-${a}`;
+  betaSlug = `e2e-${b}`;
   api = await upApi(0);
   urlWs = `${api.url.replace('http://', 'ws://')}/v1/eventos`;
 });
@@ -105,6 +113,26 @@ async function esperar(cliente: Cliente, quantos = 1, tetoMs = 3_000): Promise<v
 }
 
 describe('Authenticate WebSocket connections', () => {
+  it('accepts the own tenant host and rejects another tenant before upgrade', async () => {
+    const token = await openSession(cenario);
+    const own = new WebSocket(urlWs, { headers: {
+      host: `${alphaSlug}.desk.pipe.test`, origin: `https://${alphaSlug}.desk.pipe.test`,
+      cookie: `${NOME_DO_COOKIE}=${token}`,
+    } });
+    abertos.push(own);
+    await new Promise<void>((resolve, reject) => { own.once('open', resolve); own.once('error', reject); });
+
+    for (const [host, origin] of [
+      [`${betaSlug}.desk.pipe.test`, `https://${betaSlug}.desk.pipe.test`],
+      ['api.pipe.test', `https://${betaSlug}.pipe.test`],
+      ['api.pipe.test', `https://${alphaSlug}.pipe.test.evil.example`],
+    ]) {
+      const wrong = new WebSocket(urlWs, { headers: { host, origin, cookie: `${NOME_DO_COOKIE}=${token}` } });
+      const error = await new Promise<Error>((resolve) => wrong.once('error', resolve));
+      expect(error.message).toContain('403');
+    }
+  });
+
   it('sem cookie, o socket nem chega a existir', async () => {
     const ws = new WebSocket(urlWs, { headers: { origin: 'http://localhost:3200' } });
     const error = await new Promise<Error>((resolve) => ws.once('error', resolve));
