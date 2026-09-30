@@ -6,6 +6,8 @@ import { seed } from '@pipe/db';
 import { LIMITES_DO_PLANO, PLANOS } from '@pipe/db/schema';
 import type { Plano } from '@pipe/db/schema';
 import { domainOfEmail, ehDomainPublic } from '@pipe/authentication';
+import { readTenantHostConfig } from '@pipe/authentication';
+import { buildLoginUrl, buildTenantOrigin, isReservedSubdomain, isValidTenantSlug, TENANT_SLUG_PATTERN } from '@pipe/contracts';
 import { databaseOwner, fecharBancos, noTenant } from './database.js';
 import { PipeError } from './errors.js';
 import { logDomain, checkDomain } from './domain/dominios.js';
@@ -24,7 +26,6 @@ const MOTIVOS_PAUSA_PADRAO = [
   { nome: 'Treinamento', duracaoSugeridaMin: 60, contaComoProdutivo: true },
 ] as const;
 
-const SLUG_ACEITAVEL = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const EMAIL_ACEITAVEL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 export interface RequestOfProvisioning {
@@ -71,7 +72,10 @@ export async function provisionCustomer(
   const admin = pedido.admin.trim().toLowerCase();
 
   if (!nome) throw PipeError.request('name_missing', 'O cliente precisa de nome.');
-  if (!SLUG_ACEITAVEL.test(slug)) {
+  if (isReservedSubdomain(slug)) {
+    throw PipeError.request('reserved_slug', `"${slug}" é reservado e não pode ser usado como slug.`);
+  }
+  if (!TENANT_SLUG_PATTERN.test(slug) || !isValidTenantSlug(slug)) {
     throw PipeError.request(
       'slug_invalid',
       `"${slug}" não serve como slug: minúsculas, números e hífen no meio.`,
@@ -173,6 +177,7 @@ export async function provisionCustomer(
 /** Terminal text giving the tenant owner what they need to sign in. */
 export function asLogin(cliente: ClienteProvisionado): string {
   const app = (process.env['PIPE_URL_APP'] ?? 'http://localhost:3000').replace(/\/$/, '');
+  const config = readTenantHostConfig();
   const limites = LIMITES_DO_PLANO[cliente.plan];
   const linhas = [
     `tenant ${cliente.slug} (${cliente.tenantId}) criado no plano ${cliente.plan}`,
@@ -183,11 +188,19 @@ export function asLogin(cliente: ClienteProvisionado): string {
     `  administrador: ${cliente.adminEmail} (${cliente.adminId})`,
     '',
   ];
+  if (config) {
+    linhas.push(
+      `  Gestão: ${buildTenantOrigin(cliente.slug, 'application', config)}/application`,
+      `  Desk: ${buildTenantOrigin(cliente.slug, 'desk', config)}/`,
+      `  Login: ${buildLoginUrl(config)}`,
+      '',
+    );
+  }
 
   if (!cliente.domain) {
     linhas.push(
       'sem domínio registrado (conta criada no login).',
-      `Diga ao cliente: entre em ${app}/login com a conta Google ${cliente.adminEmail}.`,
+      `Diga ao cliente: entre em ${config ? buildLoginUrl(config) : `${app}/login`} com a conta Google ${cliente.adminEmail}.`,
       'Para entrada por domínio, registre um em POST /v1/dominios e verifique o TXT.',
     );
     return linhas.join('\n');
@@ -196,7 +209,7 @@ export function asLogin(cliente: ClienteProvisionado): string {
   if (cliente.domain.verificado) {
     linhas.push(
       `domínio ${cliente.domain.domain} VERIFICADO.`,
-      `Diga ao cliente: entre em ${app}/login com a conta Google ${cliente.adminEmail}.`,
+      `Diga ao cliente: entre em ${config ? buildLoginUrl(config) : `${app}/login`} com a conta Google ${cliente.adminEmail}.`,
       'A conta do Google é ligada sozinha na primeira entrada.',
     );
   } else {

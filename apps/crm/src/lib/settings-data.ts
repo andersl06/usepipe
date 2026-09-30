@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
+import { buildLoginUrl } from '@pipe/contracts';
 import { and, asc, eq, isNull, sql } from 'drizzle-orm';
 import {
   cifrar,
@@ -315,6 +316,10 @@ function novoToken(): { token: string; hash: string } {
  * (`app/convite/[token]/page.tsx`).
  */
 export function invitationUrl(token: string): string {
+  const domain = (process.env['PIPE_DOMINIO_CONTAS'] ?? '').trim().toLowerCase();
+  if (domain) {
+    return `${buildLoginUrl({ baseDomain: domain, publicPort: process.env['PIPE_PORTA_PUBLICA'] ?? '', secure: process.env['PIPE_COOKIE_SEGURO'] !== 'false' })}invite/${token}`;
+  }
   const base = (
     process.env['PIPE_URL_APP'] ??
     process.env['PIPE_URL_ESTE_APP'] ??
