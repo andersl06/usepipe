@@ -19,9 +19,11 @@ import {
 import type { TipoEvento } from '../metrics/eventos.js';
 
 /**
- * All 25 combinations from the §8 diagram. True means the diagram has that edge; every other transition must be rejected.
+ * All 36 combinations from the §8 diagram plus `com_bot`. True means the diagram has that edge; every other transition must be rejected.
  */
 const PERMITIDAS: [StateConversation, StateConversation][] = [
+  ['com_bot', 'na_fila'],
+  ['com_bot', 'encerrada'],
   ['na_fila', 'atribuida'],
   ['na_fila', 'encerrada'],
   ['atribuida', 'em_atendimento'],
@@ -51,6 +53,12 @@ describe('conversation transition table', () => {
     for (const state of STATES_CONVERSATION) {
       expect(transitionAllowed(state, state)).toBe(false);
     }
+  });
+
+  it('a bot conversation reaches an agent only through the queue, and nothing returns to the bot', () => {
+    expect(transitionAllowed('com_bot', 'atribuida')).toBe(false);
+    expect(transitionAllowed('com_bot', 'em_atendimento')).toBe(false);
+    for (const state of STATES_CONVERSATION) expect(transitionAllowed(state, 'com_bot')).toBe(false);
   });
 
   it('transfer is not an edge: it exits through closed and opens a new conversation', () => {
@@ -124,6 +132,10 @@ describe('aplicar evento', () => {
     { de: 'em_atendimento', tipo: 'encerrada', para: 'encerrada' },
     { de: 'encerrada', tipo: 'reaberta', para: 'na_fila' },
     { de: 'na_fila', tipo: 'encerrada', para: 'encerrada' },
+    // The bot's handoff writes `criada`/`enfileirada`; the bot or inactivity may close before it.
+    { de: 'com_bot', tipo: 'criada', para: 'na_fila' },
+    { de: 'com_bot', tipo: 'enfileirada', para: 'na_fila' },
+    { de: 'com_bot', tipo: 'encerrada', para: 'encerrada' },
   ];
 
   for (const caso of caminhoFeliz) {

@@ -1024,6 +1024,16 @@ async function transbordarSemFalhar(
     await transbordar(tx, e, null, variaveis, motivo, new Date());
   } catch (erro) {
     console.error(`[fluxo] conversa ${e.conversation.id} ficou sem fila: ${(erro as Error).message}`);
+    // No queue to go to (no rule, no inbox default): the bot gave up, so the conversation must not
+    // stay hidden `com_bot`. It waits queueless for any agent, as a queueless inbound one does.
+    try {
+      await tx.execute(sql`
+        update conversa set estado = 'na_fila', atualizado_em = now()
+         where id = ${e.conversation.id} and estado = 'com_bot'
+      `);
+    } catch (falha) {
+      console.error(`[fluxo] conversa ${e.conversation.id} ficou com o bot: ${(falha as Error).message}`);
+    }
   }
 }
 

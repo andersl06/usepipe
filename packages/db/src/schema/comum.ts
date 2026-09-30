@@ -32,7 +32,9 @@ export function listaCheck(nome: string, column: AnyPgColumn, values: readonly s
 }
 
 export const TYPES_CHANNEL = ['whatsapp_cloud', 'instagram', 'messenger', 'email', 'widget'] as const;
+/** `com_bot`: with the channel's flow, before any handoff (no ticket yet); see `@pipe/core` `maquina.ts`. */
 export const STATES_CONVERSATION = [
+  'com_bot',
   'na_fila',
   'atribuida',
   'em_atendimento',

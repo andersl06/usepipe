@@ -1,10 +1,13 @@
 /**
  * Conversation state machine from data-model §8. Allowed states and transitions follow the diagram. A transfer is not a transition: it closes the current conversation with `encerrada_por = transferencia` and opens another at the destination (Blip rules §2.6, measured in production), so `atribuida` has no edge back to `na_fila`. Customer events must not force invalid states, avoiding the Blip community's "ticket encerrado pelo usuário em fluxo humano" bug.
+ *
+ * `com_bot` comes before the attendance: a conversation on a channel with a published flow (or router) is born with the bot and has no ticket yet, as in Blip, where the ticket only exists once the flow forwards to human attendance. It leaves only through the queue entry (`na_fila`, the handoff) or by closing (the bot, or inactivity). No attendance event maps to it: events start at the handoff (`criada`), so replaying events never yields `com_bot`.
  */
 
 import type { EventAttendance, TipoEvento } from '../metrics/eventos.js';
 
 export type StateConversation =
+  | 'com_bot'
   | 'na_fila'
   | 'atribuida'
   | 'em_atendimento'
@@ -12,6 +15,7 @@ export type StateConversation =
   | 'encerrada';
 
 export const STATES_CONVERSATION: readonly StateConversation[] = [
+  'com_bot',
   'na_fila',
   'atribuida',
   'em_atendimento',
@@ -21,6 +25,7 @@ export const STATES_CONVERSATION: readonly StateConversation[] = [
 
 
 export const TRANSITIONS: Readonly<Record<StateConversation, readonly StateConversation[]>> = {
+  com_bot: ['na_fila', 'encerrada'],
   na_fila: ['atribuida', 'encerrada'],
   atribuida: ['em_atendimento', 'encerrada'],
   em_atendimento: ['em_espera', 'encerrada'],

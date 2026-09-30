@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, inArray, isNull, isNotNull, lt, sql } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, isNull, isNotNull, lt, ne, sql } from 'drizzle-orm';
 import {
   cargaPonderada,
   weightPriority,
@@ -398,7 +398,9 @@ export async function loadMonitoring(
       .leftJoin(queue, eq(queue.id, conversation.filaId))
       .leftJoin(user, eq(user.id, conversation.agentId))
       .leftJoin(contact, eq(contact.id, conversation.contatoId))
-      .where(and(isNull(conversation.encerradaEm), ...recorte))
+      // A `com_bot` conversation is with the flow and has no ticket yet: it is not waiting for an
+      // agent, so it stays out of "Na fila", "Tempo máximo na fila" and the waiting table.
+      .where(and(isNull(conversation.encerradaEm), ne(conversation.state, 'com_bot'), ...recorte))
       .orderBy(asc(conversation.criadaEm));
 
     const idsAbertas = abertasCru.map((c) => c.id);

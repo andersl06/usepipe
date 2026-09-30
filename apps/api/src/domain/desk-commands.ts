@@ -79,6 +79,8 @@ export function ticketOf(row: TicketRow): Record<string, unknown> {
 /**
  * Tickets in Blip's vocabulary. Status: `na_fila` → Waiting, `atribuida` → Assigned, `em_atendimento`/
  * `em_espera` → Open, `encerrada` → the closing actor (the same map the `desk:` block uses).
+ * A `com_bot` conversation has no ticket (in Blip the ticket only exists after the flow forwards to
+ * human attendance), so it is not listed and `get /tickets/{id}` answers not found for it.
  * ponytail: `sequentialId` counts the tenant's conversations up to this one (same as the `desk:` block's
  * ticket); a per-tenant sequence column is the upgrade when lists get large.
  */
@@ -127,7 +129,7 @@ async function selectTickets(
            where e.conversa_id = c.id and e.tenant_id = c.tenant_id and e.tipo = 'encerrada'
            order by e.em desc limit 1
         ) ev on true
-       where c.tenant_id = ${tenantId}::uuid
+       where c.tenant_id = ${tenantId}::uuid and c.estado <> 'com_bot'
     ) t
     where ${where}
     order by t.criada_em desc, t.id desc

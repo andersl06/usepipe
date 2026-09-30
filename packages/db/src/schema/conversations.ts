@@ -255,6 +255,10 @@ export const conversation = pgTable(
       .references(() => contact.id, { onDelete: 'restrict' }),
     filaId: uuid('fila_id').references(() => queue.id, { onDelete: 'set null' }),
     agentId: uuid('atendente_id').references(() => user.id, { onDelete: 'set null' }),
+    /*
+     * Inbound sets it explicitly: `com_bot` when the channel's flow takes the conversation, else the
+     * queue entry. The default stays `na_fila` for the paths that open straight into attendance.
+     */
     state: text('estado').notNull().default('na_fila'),
     /*
      * Created without a priority. A prioritization rule or human sets it; the old `media` default ordered the queue using a value nobody selected. See `NIVEIS_PRIORIDADE`.

@@ -60,6 +60,7 @@ export function messageSide(direction: string): 'direita' | 'esquerda' {
 /** `modules.application.detail.attendance.history.<statusName>` traduzido para o estado do Pipe. */
 export function rotuloDoStatus(state: string): string {
   const rotulos: Record<string, string> = {
+    com_bot: 'Com o bot',
     na_fila: 'Na fila',
     atribuida: 'Atribuído',
     em_atendimento: 'Em atendimento',

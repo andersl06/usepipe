@@ -487,11 +487,13 @@ async function findOrOpenConversation(
     };
   }
 
-  // Born without a queue. With a bot it joins one only when the bot hands it off; without a bot it
-  // enters now, through the same path as the handoff (attendance rules, priority, distribution).
+  // Born without a queue. With a bot it is `com_bot` (no ticket yet, as in Blip) and joins a queue
+  // only when the bot hands it off; without a bot it enters now, through the same path as the
+  // handoff (attendance rules, priority, distribution).
+  const initialState = comBot ? 'com_bot' : 'na_fila';
   const { rows: criada } = await tx.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em)
-    values (${canal.tenantId}, ${inbox.id}, ${contactId}, null, 'na_fila', ${em})
+    values (${canal.tenantId}, ${inbox.id}, ${contactId}, null, ${initialState}, ${em})
     returning id
   `);
   const conversaId = criada[0]?.id;
@@ -502,7 +504,7 @@ async function findOrOpenConversation(
   };
   if (comBot) {
     await emitCreated(null);
-    return { id: conversaId, state: 'na_fila', agentId: null, queueId: null, nova: true };
+    return { id: conversaId, state: 'com_bot', agentId: null, queueId: null, nova: true };
   }
   const entry = await enterQueue(tx, {
     tenantId: canal.tenantId,
