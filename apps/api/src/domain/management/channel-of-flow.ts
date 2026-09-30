@@ -1,14 +1,16 @@
-import { and, asc, eq, ne } from 'drizzle-orm';
+import { and, asc, eq, ne, sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
 import type { Ator, TransactionPipe } from '@pipe/db';
-import { channel, flow } from '@pipe/db/schema';
+import { channel, flow, routerChannel } from '@pipe/db/schema';
 import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
 import { identifierOfChannel } from '../management-flow.js';
 import { requirePermissionInFlow } from './team-of-flow.js';
 
 /**
- * Connect or disconnect a channel for a BOT, as source `/application/detail/{bot}/channels/{canal}` does behind 'Ativar número' (`FICHA-conectar-canal-no-bot.md` §§2,4). `fluxo.canal_id` was previously read by `fluxoPublicadoDoCanal`, while tests linked it by SQL; this adds the screen's write operation. Require `channels.escrever` on THIS flow or the account equivalent through `exigirPermissaoNoFluxo`. Reject a channel linked to another live bot, preserving the source's literal message 'Ops… Este número já está em uso / Para ativar o número neste bot, remova do anterior e tente novamente.' (`errorMsg.phoneNumberIsAlreadyConnected`); `detalhe` additionally identifies that bot. An inactive channel cannot receive, so linking returns 409. Pipe differs from Blip: `fluxo.canal_id` is one column, so this bot supports ONE channel; linking another returns 409 `fluxo_ja_tem_canal` rather than silently replacing WhatsApp, Messenger or Instagram.
+ * A router can own different channel types. Keep its first link in fluxo.canal_id
+ * for compatibility and put additional links in roteador_canal. Regular flows
+ * still own a single channel. A channel belongs to only one live bot.
  */
 
 const CONNECT_CHANNEL = 'channels.escrever';
@@ -18,7 +20,7 @@ const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 /** O contato vivo do tenant, ou 404 — o `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
 async function flowLive(tx: TransactionPipe, tenantId: string, fluxoId: string) {
   const [atual] = await tx
-    .select({ id: flow.id, nome: flow.nome, canalId: flow.channelId })
+    .select({ id: flow.id, nome: flow.nome, tipo: flow.tipo, canalId: flow.channelId })
     .from(flow)
     .where(and(eq(flow.tenantId, tenantId), eq(flow.id, fluxoId), ne(flow.estado, 'arquivado')))
     .limit(1);
@@ -46,7 +48,56 @@ async function botOfChannel(
     .where(and(eq(flow.tenantId, tenantId), eq(flow.channelId, canalId), ne(flow.estado, 'arquivado')))
     .orderBy(asc(flow.criadoEm))
     .limit(1);
-  return linha ?? null;
+  if (linha) return linha;
+  const [extra] = await tx
+    .select({ id: flow.id, nome: flow.nome })
+    .from(routerChannel)
+    .innerJoin(flow, eq(routerChannel.routerId, flow.id))
+    .where(
+      and(
+        eq(routerChannel.tenantId, tenantId),
+        eq(routerChannel.channelId, canalId),
+        ne(flow.estado, 'arquivado'),
+      ),
+    )
+    .limit(1);
+  return extra ?? null;
+}
+
+async function channelIdsOfBot(
+  tx: TransactionPipe,
+  tenantId: string,
+  current: Awaited<ReturnType<typeof flowLive>>,
+): Promise<string[]> {
+  const ids = current.canalId ? [current.canalId] : [];
+  if (current.tipo !== 'roteador') return ids;
+  const extras = await tx
+    .select({ channelId: routerChannel.channelId })
+    .from(routerChannel)
+    .where(and(eq(routerChannel.tenantId, tenantId), eq(routerChannel.routerId, current.id)))
+    .orderBy(asc(routerChannel.criadoEm));
+  return [...ids, ...extras.map((item) => item.channelId)];
+}
+
+async function existingChannelOfType(
+  tx: TransactionPipe,
+  tenantId: string,
+  current: Awaited<ReturnType<typeof flowLive>>,
+  type: string,
+) {
+  for (const id of await channelIdsOfBot(tx, tenantId, current)) {
+    const linked = await channelOfTenant(tx, tenantId, id);
+    if (linked.tipo === type) return linked;
+  }
+  return null;
+}
+
+async function lockFlow(tx: TransactionPipe, tenantId: string, flowId: string): Promise<void> {
+  await tx.execute(sql`select id from fluxo where tenant_id = ${tenantId}::uuid and id = ${flowId}::uuid for update`);
+}
+
+async function lockChannel(tx: TransactionPipe, tenantId: string, channelId: string): Promise<void> {
+  await tx.execute(sql`select id from canal where tenant_id = ${tenantId}::uuid and id = ${channelId}::uuid for update`);
 }
 
 /** Return a channel belonging to THIS tenant, or 404. Tenant identity comes from the session, never the request body. */
@@ -87,14 +138,14 @@ export async function loadChannelOfFlowInScreen(
   const disponiveis: ChannelOfFlow[] = [];
   for (const linha of linhas) disponiveis.push(await forContract(tx, tenantId, linha));
 
-  let ligado: ChannelOfFlow | null = null;
-  if (atual.canalId) {
-    const channelId = atual.canalId;
-    ligado =
-      disponiveis.find((c) => c.id === channelId) ??
-      (await forContract(tx, tenantId, await channelOfTenant(tx, tenantId, channelId)));
+  const channels: ChannelOfFlow[] = [];
+  for (const channelId of await channelIdsOfBot(tx, tenantId, atual)) {
+    channels.push(
+      disponiveis.find((item) => item.id === channelId) ??
+        (await forContract(tx, tenantId, await channelOfTenant(tx, tenantId, channelId))),
+    );
   }
-  return { channel: ligado, disponiveis };
+  return { channel: channels[0] ?? null, channels, disponiveis };
 }
 
 /* ------------------------------------------------------------------- Gestos */
@@ -107,10 +158,17 @@ export async function conferirQuePodeLigar(
   tenantId: string,
   userId: string,
   fluxoId: string,
+  channelType?: string,
 ): Promise<void> {
   const atual = await flowLive(tx, tenantId, fluxoId);
   await requirePermissionInFlow(tx, userId, fluxoId, CONNECT_CHANNEL);
-  if (atual.canalId) throw flowAlreadyHasChannel(await channelOfTenant(tx, tenantId, atual.canalId));
+  if (atual.canalId && atual.tipo !== 'roteador') {
+    throw flowAlreadyHasChannel(await channelOfTenant(tx, tenantId, atual.canalId));
+  }
+  if (channelType && atual.tipo === 'roteador') {
+    const existing = await existingChannelOfType(tx, tenantId, atual, channelType);
+    if (existing) throw flowAlreadyHasChannelType(existing);
+  }
 }
 
 function flowAlreadyHasChannel(existente: { id: string; tipo: string; nome: string }): PipeError {
@@ -118,6 +176,14 @@ function flowAlreadyHasChannel(existente: { id: string; tipo: string; nome: stri
     'flow_already_has_channel',
     `Este bot já está conectado ao canal "${existente.nome}". Desconecte-o antes de conectar outro.`,
     { canalId: existente.id, canalTipo: existente.tipo, canalNome: existente.nome },
+  );
+}
+
+function flowAlreadyHasChannelType(existing: { id: string; tipo: string; nome: string }): PipeError {
+  return PipeError.conflito(
+    'flow_already_has_channel_type',
+    `Este roteador já está conectado ao canal "${existing.nome}" deste tipo. Desconecte-o antes de conectar outro.`,
+    { canalId: existing.id, canalTipo: existing.tipo, canalNome: existing.nome },
   );
 }
 
@@ -129,11 +195,15 @@ export async function connectChannelToFlow(
   fluxoId: string,
   channelId: string,
 ): Promise<ChannelOfFlow> {
+  await lockFlow(tx, tenantId, fluxoId);
   const atual = await flowLive(tx, tenantId, fluxoId);
   await requirePermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
   const alvo = await channelOfTenant(tx, tenantId, channelId);
+  await lockChannel(tx, tenantId, channelId);
 
-  if (atual.canalId === alvo.id) return forContract(tx, tenantId, alvo);
+  if ((await channelIdsOfBot(tx, tenantId, atual)).includes(alvo.id)) {
+    return forContract(tx, tenantId, alvo);
+  }
   if (!alvo.ativo) {
     throw PipeError.conflito(
       'channel_inactive',
@@ -141,7 +211,13 @@ export async function connectChannelToFlow(
       { canalId: alvo.id },
     );
   }
-  if (atual.canalId) throw flowAlreadyHasChannel(await channelOfTenant(tx, tenantId, atual.canalId));
+  if (atual.canalId && atual.tipo !== 'roteador') {
+    throw flowAlreadyHasChannel(await channelOfTenant(tx, tenantId, atual.canalId));
+  }
+  if (atual.tipo === 'roteador') {
+    const existing = await existingChannelOfType(tx, tenantId, atual, alvo.tipo);
+    if (existing) throw flowAlreadyHasChannelType(existing);
+  }
 
   const dono = await botOfChannel(tx, tenantId, alvo.id);
   if (dono) {
@@ -153,17 +229,21 @@ export async function connectChannelToFlow(
     );
   }
 
-  await tx
-    .update(flow)
-    .set({ channelId: alvo.id, atualizadoEm: new Date() })
-    .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
+  if (atual.canalId) {
+    await tx.insert(routerChannel).values({ tenantId, routerId: atual.id, channelId: alvo.id });
+  } else {
+    await tx
+      .update(flow)
+      .set({ channelId: alvo.id, atualizadoEm: new Date() })
+      .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
+  }
 
   await registrarAuditoria(tx, tenantId, {
     ator: ator(usuarioId),
     acao: 'alterou',
     objetoTipo: 'fluxo',
     objetoId: atual.id,
-    antes: { canalId: null },
+    antes: { canalId: atual.canalId },
     depois: { canalId: alvo.id, canalTipo: alvo.tipo, canalNome: alvo.nome },
   });
   return { ...alvo, flowId: atual.id, flowName: atual.nome };
@@ -178,22 +258,38 @@ export async function disconnectChannelOfFlow(
   usuarioId: string,
   fluxoId: string,
   motivo?: string,
+  channelId?: string,
 ): Promise<void> {
+  await lockFlow(tx, tenantId, fluxoId);
   const atual = await flowLive(tx, tenantId, fluxoId);
   await requirePermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
-  if (!atual.canalId) return;
+  const ids = await channelIdsOfBot(tx, tenantId, atual);
+  if (!ids.length) {
+    if (channelId) throw PipeError.naoEncontrado('canal');
+    return;
+  }
+  const targetId = channelId ?? atual.canalId ?? ids[0]!;
+  if (!ids.includes(targetId)) throw PipeError.naoEncontrado('canal');
 
-  await tx
-    .update(flow)
-    .set({ channelId: null, atualizadoEm: new Date() })
-    .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
+  if (targetId !== atual.canalId) {
+    await tx.delete(routerChannel)
+      .where(and(eq(routerChannel.tenantId, tenantId), eq(routerChannel.routerId, atual.id), eq(routerChannel.channelId, targetId)));
+  } else {
+    const nextId = ids.find((id) => id !== targetId) ?? null;
+    if (nextId) {
+      await tx.delete(routerChannel)
+        .where(and(eq(routerChannel.tenantId, tenantId), eq(routerChannel.routerId, atual.id), eq(routerChannel.channelId, nextId)));
+    }
+    await tx.update(flow).set({ channelId: nextId, atualizadoEm: new Date() })
+      .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
+  }
 
   await registrarAuditoria(tx, tenantId, {
     ator: ator(usuarioId),
     acao: 'alterou',
     objetoTipo: 'fluxo',
     objetoId: atual.id,
-    antes: { canalId: atual.canalId },
+    antes: { canalId: targetId },
     depois: { canalId: null, ...(motivo ? { motivo } : {}) },
   });
 }
@@ -209,7 +305,7 @@ export async function canReconnectInFlow(
   canalId: string,
 ): Promise<boolean> {
   const atual = await flowLive(tx, tenantId, fluxoId);
-  if (atual.canalId !== canalId) return false;
+  if (!(await channelIdsOfBot(tx, tenantId, atual)).includes(canalId)) return false;
   await requirePermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
   return true;
 }

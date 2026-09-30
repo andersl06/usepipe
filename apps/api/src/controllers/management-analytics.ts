@@ -250,6 +250,7 @@ export class ManagementAnalyticsController {
       const fuso = await fusoDoTenant(tx);
       return loadLogOfMessages(
         tx,
+        sessao.tenantId,
         id,
         fuso,
         {

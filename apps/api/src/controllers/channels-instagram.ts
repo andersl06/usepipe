@@ -33,7 +33,7 @@ export class InstagramChannelsController {
       await readChannelInstagram(sessao.tenantId, corpo.channelId);
       await permitidoReconectar(sessao.tenantId, sessao.userId, flowId, corpo.channelId);
     } else {
-      await permitidoConectar(sessao.tenantId, sessao.userId, flowId);
+      await permitidoConectar(sessao.tenantId, sessao.userId, flowId, 'instagram');
     }
     const feito = await conectarInstagramManual({
       tenantId: sessao.tenantId,

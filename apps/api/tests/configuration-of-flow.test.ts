@@ -13,6 +13,7 @@ const { createToken } = await import('@pipe/authentication');
 const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
+const { ClienteGraphMessengerDuble } = await import('../src/domain/messenger/cliente-graph.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -20,7 +21,8 @@ type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 /**
  * "Welcome Screen" and "Persistent Menu" — `GET/PATCH /v1/gestao/fluxos/:id/{boas-vindas,menu-persistente}` (`dominio/gestao/configuracao-do-fluxo.ts`).
  *
- * The persistent menu requires a Messenger channel — and `TIPOS_CANAL` (`packages/db/src/schema/comum.ts`) doesn't have that type yet. That's why the PATCH menu test proves the REFUSAL (the same guard the source shows with Save disabled), not success: actually saving is only possible once the Messenger channel exists in Pipe.
+ * The persistent menu requires an active Messenger channel. A router may have
+ * WhatsApp as its legacy channel and Messenger as an additional channel.
  */
 
 let a: Cenario;
@@ -77,6 +79,26 @@ async function newFlow(cenario: Cenario, extra: { state?: string } = {}): Promis
     returning id
   `);
   return rows[0]!.id;
+}
+
+async function newRouterWithSecondaryMessenger(cenario: Cenario): Promise<string> {
+  const suffix = randomUUID().slice(0, 8);
+  const { rows: routers } = await cenario.dono.execute<{ id: string }>(sql`
+    insert into fluxo (tenant_id, nome, tipo, estado, short_name, canal_id)
+    values (${cenario.tenantId}, ${`router ${suffix}`}, 'roteador', 'rascunho', ${`router-${suffix}`}, ${cenario.channelId})
+    returning id
+  `);
+  const { rows: channels } = await cenario.dono.execute<{ id: string }>(sql`
+    insert into canal (tenant_id, tipo, nome, config, numero_id)
+    values (${cenario.tenantId}, 'messenger', ${`Messenger ${suffix}`},
+      ${JSON.stringify({ tokenAcesso: `page-${suffix}` })}::jsonb, ${`page-${suffix}`})
+    returning id
+  `);
+  await cenario.dono.execute(sql`
+    insert into roteador_canal (tenant_id, roteador_id, canal_id)
+    values (${cenario.tenantId}, ${routers[0]!.id}, ${channels[0]!.id})
+  `);
+  return routers[0]!.id;
 }
 
 async function chamar(
@@ -206,6 +228,41 @@ describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
 });
 
 describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
+  it('Accepts Messenger as the second router channel and applies welcome and menu to its Page', async () => {
+    const id = await newRouterWithSecondaryMessenger(a);
+    ClienteGraphMessengerDuble.reiniciar();
+
+    const welcome = await chamar(sessionEditor, 'PATCH', `${id}/welcome`, {
+      active: true,
+      message: 'Olá pelo Messenger',
+      textoBotao: 'Começar',
+    });
+    expect(welcome.status).toBe(200);
+    expect(ClienteGraphMessengerDuble.chamadas).toContainEqual({
+      acao: 'perfil',
+      perfil: {
+        get_started: { payload: 'PIPE_COMECAR' },
+        greeting: [{ locale: 'default', text: 'Olá pelo Messenger' }],
+      },
+    });
+
+    const menu = await chamar(sessionEditor, 'PATCH', `${id}/menu-persistent`, {
+      itens: [{ texto: 'Ajuda', link: 'https://pipe.test/help' }],
+    });
+    expect(menu.status).toBe(200);
+    expect(menu.body['itens']).toEqual([{ texto: 'Ajuda', link: 'https://pipe.test/help' }]);
+    expect(ClienteGraphMessengerDuble.chamadas).toContainEqual({
+      acao: 'perfil',
+      perfil: {
+        persistent_menu: [{
+          locale: 'default',
+          composer_input_disabled: false,
+          call_to_actions: [{ type: 'web_url', title: 'Ajuda', url: 'https://pipe.test/help' }],
+        }],
+      },
+    });
+  });
+
   it('Start with an empty persistent menu and no completed welcome message', async () => {
     const id = await newFlow(a);
     const { status, body } = await chamar(sessionEditor, 'GET', `${id}/menu-persistent`);

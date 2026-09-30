@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gte, ilike, isNotNull, isNull, ne, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, ilike, inArray, isNotNull, isNull, ne, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import {
   channel,
@@ -16,6 +16,7 @@ import {
 } from '@pipe/db/schema';
 import type { TransactionPipe } from '@pipe/db';
 import type { GradeDoPortal } from '@pipe/contracts';
+import { linkedActiveChannelOfType, linkedChannelIdsOfFlow } from './channel-links.js';
 
 /**
  * Read contact-facing flow screens (`/fluxo/:id/**` in Management). These queries moved from `apps/gestao/src/lib/*` as planned in the README: the caller supplies a tenant-scoped transaction, and the `api` controller owns session handling. This module knows no HTTP or screen; it returns what the UI renders, with types derived from the query (`Awaited<ReturnType<…>>`) rather than copied manually.
@@ -81,13 +82,8 @@ export async function fusoDoTenant(tx: TransactionPipe): Promise<string> {
 /* ------------------------------------------------------------- Contatos */
 
 export async function listContactsOfFlow(tx: TransactionPipe, tid: string, fluxoId: string) {
-  const [bot] = await tx
-    .select({ canalId: flow.channelId, canalNome: channel.nome, canalTipo: channel.tipo })
-    .from(flow)
-    .leftJoin(channel, eq(channel.id, flow.channelId))
-    .where(and(eq(flow.id, fluxoId), eq(flow.tenantId, tid)))
-    .limit(1);
-  if (!bot?.canalId) return [];
+  const channelIds = await linkedChannelIdsOfFlow(tx, tid, fluxoId);
+  if (!channelIds.length) return [];
 
   return tx
     .select({
@@ -106,7 +102,7 @@ export async function listContactsOfFlow(tx: TransactionPipe, tid: string, fluxo
     .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
     .innerJoin(channel, eq(channel.id, inbox.channelId))
     .where(
-      and(eq(contact.tenantId, tid), eq(inbox.channelId, bot.canalId), isNull(contact.excluidoEm)),
+      and(eq(contact.tenantId, tid), inArray(inbox.channelId, channelIds), isNull(contact.excluidoEm)),
     )
     .groupBy(contact.id, channel.id)
     .orderBy(asc(contact.nome))
@@ -129,6 +125,7 @@ export async function loadDetailContactOfFlow(
     .where(and(eq(flow.id, flowId), eq(flow.tenantId, tid)))
     .limit(1);
   if (!bot) return null;
+  const channelIds = await linkedChannelIdsOfFlow(tx, tid, flowId);
 
   const [pessoa] = await tx
     .select({
@@ -146,21 +143,7 @@ export async function loadDetailContactOfFlow(
     .limit(1);
   if (!pessoa) return null;
 
-  const [identity] = bot.canalTipo
-    ? await tx
-        .select({ valor: contactIdentity.identificador })
-        .from(contactIdentity)
-        .where(
-          and(
-            eq(contactIdentity.tenantId, tid),
-            eq(contactIdentity.contactId, contactId),
-            eq(contactIdentity.channelType, bot.canalTipo),
-          ),
-        )
-        .limit(1)
-    : [];
-
-  const conversations = bot.canalId
+  const conversations = channelIds.length
     ? await tx
         .select({
           id: conversation.id,
@@ -172,9 +155,12 @@ export async function loadDetailContactOfFlow(
           atendente: user.nome,
           atendenteEmail: user.email,
           resumo: classificationConversation.resumo,
+          channelName: channel.nome,
+          channelType: channel.tipo,
         })
         .from(conversation)
         .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
+        .innerJoin(channel, eq(channel.id, inbox.channelId))
         .leftJoin(queue, eq(queue.id, conversation.filaId))
         .leftJoin(user, eq(user.id, conversation.agentId))
         .leftJoin(classificationConversation, eq(classificationConversation.conversaId, conversation.id))
@@ -182,7 +168,7 @@ export async function loadDetailContactOfFlow(
           and(
             eq(conversation.tenantId, tid),
             eq(conversation.contatoId, contactId),
-            eq(inbox.channelId, bot.canalId),
+            inArray(inbox.channelId, channelIds),
           ),
         )
         .orderBy(desc(conversation.criadaEm))
@@ -190,6 +176,11 @@ export async function loadDetailContactOfFlow(
     : [];
 
   const selecionada = conversations.find((item) => item.id === ticketId) ?? conversations[0];
+  const [identity] = selecionada?.channelType
+    ? await tx.select({ valor: contactIdentity.identificador }).from(contactIdentity)
+        .where(and(eq(contactIdentity.tenantId, tid), eq(contactIdentity.contactId, contactId),
+          eq(contactIdentity.channelType, selecionada.channelType))).limit(1)
+    : [];
   const history = selecionada
     ? await tx
         .select({
@@ -210,7 +201,7 @@ export async function loadDetailContactOfFlow(
   return {
     pessoa,
     identidade: identity?.valor ?? null,
-    canal: bot.canalNome,
+    canal: selecionada?.channelName ?? bot.canalNome,
     conversations,
     selecionada: selecionada ?? null,
     history,
@@ -229,13 +220,8 @@ export async function loadLogsOfFlow(
   fluxoId: string,
   search = '',
 ) {
-  const [bot] = await tx
-    .select({ canalId: flow.channelId, nome: channel.nome })
-    .from(flow)
-    .leftJoin(channel, eq(channel.id, flow.channelId))
-    .where(and(eq(flow.id, fluxoId), eq(flow.tenantId, tid)))
-    .limit(1);
-  if (!bot?.canalId) return [];
+  const channelIds = await linkedChannelIdsOfFlow(tx, tid, fluxoId);
+  if (!channelIds.length) return [];
   const filterSearch = search.trim() ? ilike(message.conteudo, `%${search.trim()}%`) : undefined;
   const linhas = await tx
     .select({
@@ -253,7 +239,7 @@ export async function loadLogsOfFlow(
     .innerJoin(contact, eq(contact.id, conversation.contatoId))
     .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
     .innerJoin(channel, eq(channel.id, inbox.channelId))
-    .where(and(eq(message.tenantId, tid), eq(inbox.channelId, bot.canalId), filterSearch))
+    .where(and(eq(message.tenantId, tid), inArray(inbox.channelId, channelIds), filterSearch))
     .orderBy(desc(message.criadaEm))
     .limit(20);
   return linhas.map((linha) => ({
@@ -441,12 +427,7 @@ export async function loadChannelOfFlow(
   tid: string,
   fluxoId: string,
 ): Promise<string | null> {
-  const [bot] = await tx
-    .select({ canalId: flow.channelId })
-    .from(flow)
-    .where(and(eq(flow.id, fluxoId), eq(flow.tenantId, tid)))
-    .limit(1);
-  return bot?.canalId ?? null;
+  return (await linkedActiveChannelOfType(tx, tid, fluxoId, 'whatsapp_cloud'))?.id ?? null;
 }
 
 /* --------------------------------------------------------------- Portal */

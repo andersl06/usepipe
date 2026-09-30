@@ -73,6 +73,25 @@ export const flow = pgTable(
   ],
 );
 
+/** Additional inbound channels of a router. Its first channel stays in fluxo.canal_id for compatibility. */
+export const routerChannel = pgTable(
+  'roteador_canal',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    routerId: uuid('roteador_id')
+      .notNull()
+      .references(() => flow.id, { onDelete: 'cascade' }),
+    channelId: uuid('canal_id')
+      .notNull()
+      .references(() => channel.id, { onDelete: 'cascade' }),
+    ...carimbos(),
+  },
+  (t) => [
+    uniqueIndex('roteador_canal_roteador_canal_uk').on(t.routerId, t.channelId),
+  ],
+);
+
 /**
  * The four stops of the source Team modal's "Permissão" slider, keyed by `team.addUserModal.slider`: `visualize`, `custom`, `edit`, `admin`.
  */

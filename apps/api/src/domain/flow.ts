@@ -75,9 +75,13 @@ export async function flowPublishedOfChannel(
   contatoId: string,
 ): Promise<FlowPublished | null> {
   const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`
-    select id, tenant_id from fluxo
-     where canal_id = ${channelId} and tipo = 'roteador' and estado <> 'arquivado'
-     order by criado_em desc
+    select f.id, f.tenant_id from fluxo f
+     where f.tipo = 'roteador' and f.estado <> 'arquivado'
+       and (f.canal_id = ${channelId} or exists (
+         select 1 from roteador_canal rc
+          where rc.roteador_id = f.id and rc.canal_id = ${channelId}
+       ))
+     order by f.criado_em desc
      limit 1
   `);
   const router = roteadores[0];
@@ -735,7 +739,7 @@ async function resumeCallOfProcessHttp(
       agentId: string | null; queueDefaultId: string | null;
     }>(sql`
       select p.execucao_id as "executionId", p.bloco_codigo, p.lista, p.indice, p.entrada, p.contexto,
-             e.conversa_id as "conversationId", e.contato_id as "contactId", f.canal_id as "channelId", c.fila_id as "queueId", c.atendente_id as "agentId",
+             e.conversa_id as "conversationId", e.contato_id as "contactId", i.canal_id as "channelId", c.fila_id as "queueId", c.atendente_id as "agentId",
              i.fila_padrao_id as "queueDefaultId"
         from process_http_execucao p
         join execucao_fluxo e on e.id = p.execucao_id

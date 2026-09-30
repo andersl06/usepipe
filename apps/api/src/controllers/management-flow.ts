@@ -303,12 +303,16 @@ export class ManagementFlowController {
   async channelStatus(
     @Req() request: RequestWithSession,
     @Param('id') id: string,
+    @Query('channelId') channelId?: string,
   ): Promise<ChannelWhatsAppVisible | ChannelInstagramVisible | null> {
     const session = sessionOf(request);
     uuidOu404(id, 'fluxo');
-    const { channel } = await noTenant(session.tenantId, (tx) =>
+    if (channelId) uuidOu404(channelId, 'canal');
+    const { channels } = await noTenant(session.tenantId, (tx) =>
       loadChannelOfFlowInScreen(tx, session.tenantId, id),
     );
+    const channel = channelId ? channels.find((item) => item.id === channelId) : channels[0];
+    if (channelId && !channel) throw PipeError.naoEncontrado('canal');
     if (!channel) return null;
     if (channel.tipo === 'whatsapp_cloud') {
       return (await listChannelsWhatsApp(session.tenantId, channel.id))[0] ?? null;
@@ -344,13 +348,15 @@ export class ManagementFlowController {
   async disconnectChannel(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo?: { reason?: string },
+    @Body() corpo?: { reason?: string; channelId?: string },
   ): Promise<void> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     const motivo = typeof corpo?.reason === 'string' ? corpo.reason.trim().slice(0, 500) : '';
+    const channelId = typeof corpo?.channelId === 'string' ? corpo.channelId : undefined;
+    if (channelId) uuidOu404(channelId, 'canal');
     await noTenant(sessao.tenantId, (tx) =>
-      disconnectChannelOfFlow(tx, sessao.tenantId, sessao.userId, id, motivo || undefined),
+      disconnectChannelOfFlow(tx, sessao.tenantId, sessao.userId, id, motivo || undefined, channelId),
     );
   }
 

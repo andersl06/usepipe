@@ -27,9 +27,9 @@ const ABAS: readonly ChannelTab[] = [
 export function PageChannelInstagram() {
   const { contact } = useContact();
   const read = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
-  const connectedChannel = read.data?.channel?.tipo === 'instagram' && read.data.channel.ativo;
+  const connectedChannel = read.data?.channels.find((item) => item.tipo === 'instagram' && item.ativo);
   const health = useRead<ChannelInstagramVisible | null>(
-    connectedChannel ? `/v1/management/flows/${contact.id}/channel/status` : null,
+    connectedChannel ? `/v1/management/flows/${contact.id}/channel/status?channelId=${connectedChannel.id}` : null,
     { retry: false },
   );
 
@@ -37,7 +37,7 @@ export function PageChannelInstagram() {
     return <ReadFailure error={read.error} />;
   }
   if (!read.data) return null;
-  const situation = channelInBotState(read.data.channel, 'instagram');
+  const situation = channelInBotState(read.data.channels, 'instagram', contact.tipo === 'roteador');
 
   return (
     <ChannelShell
@@ -123,6 +123,7 @@ function Conectado({
         <ModalDesconectar
           aberto={desconectando}
           flowId={flowId}
+          channelId={channel.id}
           tipo="instagram"
           onFechar={() => setDesconectando(false)}
         />

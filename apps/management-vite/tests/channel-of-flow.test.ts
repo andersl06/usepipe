@@ -56,6 +56,18 @@ test('the channel page: connected, not connected, or the bot already has ANOTHER
   assert.deepEqual(channelInBotState(desligado, 'whatsapp_cloud'), { state: 'nao_conectado' });
 });
 
+test('a router reads the channel of each type independently', () => {
+  const whatsapp = channel({ flowId: BOT });
+  const instagram = channel({ id: 'ig', tipo: 'instagram', flowId: BOT });
+  assert.deepEqual(channelInBotState([whatsapp, instagram], 'instagram', true), {
+    state: 'conectado', channel: instagram,
+  });
+  assert.deepEqual(channelInBotState([whatsapp], 'messenger', true), { state: 'nao_conectado' });
+  assert.deepEqual(channelInBotState([whatsapp], 'instagram', false), {
+    state: 'outro_canal', channel: whatsapp,
+  });
+});
+
 test('"Number activation": only active channels of that type; free on one side, in use by another bot on the other', () => {
   const livre = channel({ id: 'livre' });
   const meu = channel({ id: 'meu', flowId: BOT, flowName: 'Este bot' });

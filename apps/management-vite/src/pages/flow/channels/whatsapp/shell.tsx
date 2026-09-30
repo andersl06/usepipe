@@ -43,9 +43,9 @@ export interface ContextWithoutChannel {
 export function ShellChannelWhatsapp() {
   const { contact } = useContact();
   const read = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
-  const situation = read.data ? channelInBotState(read.data.channel, 'whatsapp_cloud') : null;
+  const situation = read.data ? channelInBotState(read.data.channels, 'whatsapp_cloud', contact.tipo === 'roteador') : null;
   const conectado = situation?.state === 'conectado';
-  const health = useRead<ChannelWhatsAppVisible | null>(conectado ? `/v1/management/flows/${contact.id}/channel/status` : null, {
+  const health = useRead<ChannelWhatsAppVisible | null>(conectado ? `/v1/management/flows/${contact.id}/channel/status?channelId=${situation.channel.id}` : null, {
     retry: false,
   });
 

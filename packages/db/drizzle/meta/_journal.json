@@ -351,6 +351,13 @@
       "when": 1790120000000,
       "tag": "0055_variavel_secreta_do_fluxo",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1790130000000,
+      "tag": "0056_router_channels",
+      "breakpoints": true
     }
   ]
 }

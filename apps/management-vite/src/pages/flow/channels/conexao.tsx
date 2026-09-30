@@ -155,11 +155,13 @@ const DESCONEXAO: Readonly<Record<TypeOfChannelOfBot, TextosDaDesconexao>> = {
 export function ModalDesconectar({
   aberto,
   flowId,
+  channelId,
   tipo,
   onFechar,
 }: {
   aberto: boolean;
   flowId: string;
+  channelId: string;
   tipo: TypeOfChannelOfBot;
   onFechar: () => void;
 }) {
@@ -183,7 +185,7 @@ export function ModalDesconectar({
     }
     setEnviando(true);
     setError(null);
-    const resultado = await flowDisconnectChannel(flowId, motivo.trim());
+    const resultado = await flowDisconnectChannel(flowId, motivo.trim(), channelId);
     setEnviando(false);
     if (!resultado.ok) {
       setError(resultado.error);
@@ -237,7 +239,8 @@ export function ModalDesconectar({
 /* ----------------------------------------------------- Outro canal no bot */
 
 /**
- * Pipe decision (FICHA §5): `fluxo.canal_id` is a single column, so a bot already holding a channel of another type can't connect this one without disconnecting that one first. The source doesn't have this situation — there, one bot can have several channels.
+ * Only regular flows show this notice. Routers can connect a different type
+ * without detaching their existing channel.
  */
 export function OtherChannelNotice({ channel, rotulo }: { channel: ChannelOfFlow; rotulo: string }) {
   return (

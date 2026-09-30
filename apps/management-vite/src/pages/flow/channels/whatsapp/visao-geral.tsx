@@ -69,6 +69,7 @@ function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
         <ModalDesconectar
           aberto={desconectando}
           flowId={flowId}
+          channelId={channel.id}
           tipo="whatsapp_cloud"
           onFechar={() => setDesconectando(false)}
         />
@@ -106,6 +107,7 @@ function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
       <ModalDesconectar
         aberto={desconectando}
         flowId={flowId}
+        channelId={channel.id}
         tipo="whatsapp_cloud"
         onFechar={() => setDesconectando(false)}
       />

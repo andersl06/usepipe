@@ -77,7 +77,7 @@ export class ChannelsController {
     const sessao = sessionOf(requisicao);
     // Reauthorization belongs to the channel, not the bot: `fluxo_id` applies only to a new channel.
     const fluxoId = corpo.canal_id ? undefined : flowIdOfBody({ flowId: corpo.fluxo_id });
-    await permitidoConectar(sessao.tenantId, sessao.userId, fluxoId);
+    await permitidoConectar(sessao.tenantId, sessao.userId, fluxoId, 'whatsapp_cloud');
     checkState(corpo.state, sessao.tenantId, sessao.userId);
     validarParametros({ code: corpo.code, wabaId: corpo.waba_id });
 
@@ -130,7 +130,7 @@ export class ChannelsController {
       await readChannelWhatsApp(session.tenantId, corpo.channelId);
       await permitidoReconectar(session.tenantId, session.userId, doCorpo, corpo.channelId);
     } else {
-      await permitidoConectar(session.tenantId, session.userId, flowId);
+      await permitidoConectar(session.tenantId, session.userId, flowId, 'whatsapp_cloud');
     }
     const feito = await runConfigurationManual({
       tenantId: session.tenantId,

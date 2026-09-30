@@ -4,7 +4,7 @@ import type { Ator, TransactionPipe } from '@pipe/db';
 import { flow } from '@pipe/db/schema';
 import type { ConfigurationOfWelcome, ConfigurationOfMenuPersistent } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
-import { loadContact } from '../management-flow.js';
+import { linkedActiveChannelOfType } from '../channel-links.js';
 import { requirePermissionInFlow } from './team-of-flow.js';
 import { aplicarPerfilMessenger, readChannelMessenger } from '../messenger/channel.js';
 
@@ -77,7 +77,7 @@ export interface PedidoDeBoasVindas {
 }
 
 /**
- * `ativo: false` disables without erasing saved content, so reactivation restores the prior message. For an active Messenger contact, also update the Page profile (`get_started`/`greeting`); local persistence remains the screen's read source.
+ * `ativo: false` disables without erasing saved content, so reactivation restores the prior message. When Messenger is linked to this bot (including as an additional router channel), also update the Page profile (`get_started`/`greeting`); local persistence remains the screen's read source.
  */
 export async function salvarBoasVindas(
   tx: TransactionPipe,
@@ -125,9 +125,9 @@ export async function salvarBoasVindas(
       antes: mudanca.antes,
       depois: mudanca.depois,
     });
-    const contactMessenger = await loadContact(tx, tid, id);
-    if (contactMessenger?.channelType === 'messenger' && contactMessenger.channelActive && contactMessenger.channelId) {
-      const channel = await readChannelMessenger(tid, contactMessenger.channelId);
+    const contactMessenger = await linkedActiveChannelOfType(tx, tid, id, 'messenger');
+    if (contactMessenger) {
+      const channel = await readChannelMessenger(tid, contactMessenger.id);
       // Verify with a real token that the Page accepts this combination of `get_started` and `greeting`.
       await aplicarPerfilMessenger(channel, depois.ativo
         ? { get_started: { payload: 'PIPE_COMECAR' }, greeting: [{ locale: 'default', text: depois.message }] }
@@ -190,8 +190,8 @@ export async function salvarMenuPersistente(
      salvava pela conta (migração 0035). */
   await requirePermissionInFlow(tx, usuarioId, id, 'basicConfigurations.escrever');
 
-  const contact = await loadContact(tx, tid, id);
-  if (contact?.channelType !== 'messenger' || contact.channelActive !== true) {
+  const contact = await linkedActiveChannelOfType(tx, tid, id, 'messenger');
+  if (!contact) {
     throw PipeError.request(
       'menu_persistent_channel',
       'Só é possível ativar o menu persistente se o seu chatbot estiver conectado ao Facebook Messenger.',
@@ -240,9 +240,8 @@ export async function salvarMenuPersistente(
       depois,
     });
   }
-  const contatoMessenger = await loadContact(tx, tid, id);
-  if (contatoMessenger?.channelType === 'messenger' && contatoMessenger.channelActive && contatoMessenger.channelId) {
-    const canal = await readChannelMessenger(tid, contatoMessenger.channelId);
+  if (contact) {
+    const canal = await readChannelMessenger(tid, contact.id);
     // Verify with a real token that the Page accepts this `persistent_menu` shape.
     await aplicarPerfilMessenger(canal, { persistent_menu: [{ locale: 'default', composer_input_disabled: false, call_to_actions: preenchidos.map((item) => ({ type: 'web_url', title: item.texto, url: item.link })) }] });
   }

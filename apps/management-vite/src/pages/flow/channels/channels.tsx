@@ -1,6 +1,8 @@
 import { LogoPortal } from '@pipe/ui/icones-portal';
+import type { ChannelOfFlowInScreen } from '@pipe/contracts';
 import Link from '../../../components/link';
 import { cardConnected, channelRoute, type TypeOfChannelOfBot } from '../../../lib/channel-of-flow';
+import { useRead } from '../../../lib/query';
 import { ShellModule, contactPath, useContact } from '../contact';
 import '../integrations/header-of-page.css';
 import './channels.css';
@@ -40,6 +42,7 @@ const CHANNELS: readonly ScreenChannel[] = [
 export function ChannelsPage() {
   const { contact } = useContact();
   const base = contactPath(contact);
+  const linked = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
 
   return (
     <ShellModule ativo="Canais">
@@ -53,7 +56,9 @@ export function ChannelsPage() {
 
       <div className="cn-lista">
         {CHANNELS.map((channel) => {
-          const conectado = channel.sempre || cardConnected(contact, channel.key);
+          const conectado = channel.sempre || (linked.data
+            ? linked.data.channels.some((item) => item.tipo === channel.key && item.ativo)
+            : cardConnected(contact, channel.key));
           const miolo = (
             <>
               <div className="cn-card-content">

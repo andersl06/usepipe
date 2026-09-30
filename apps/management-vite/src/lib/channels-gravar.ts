@@ -86,11 +86,11 @@ export async function connectChannelToFlow(flowId: string, channelId: string): P
 }
 
 /** `Desconectar canal`: `DELETE /v1/gestao/fluxos/:id/canal` detaches the channel from this bot while the channel itself remains connected to Meta. */
-export async function flowDisconnectChannel(flowId: string, motivo: string): Promise<Resultado<void>> {
+export async function flowDisconnectChannel(flowId: string, motivo: string, channelId: string): Promise<Resultado<void>> {
   try {
     await pedir<void>(`/v1/management/flows/${flowId}/channel`, {
       method: 'DELETE',
-      body: JSON.stringify({ reason: motivo }),
+      body: JSON.stringify({ reason: motivo, channelId }),
     });
     atualizarLeituras();
     return { ok: true, value: undefined };
