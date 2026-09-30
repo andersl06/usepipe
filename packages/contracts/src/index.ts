@@ -11,3 +11,4 @@ export * from './closure.js';
 export * from './satisfaction-survey.js';
 export * from './flow-functions.js';
 export * from './flow-resources.js';
+export * from './flow-secrets.js';
