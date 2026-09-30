@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   ACTIONS_GLOBAL_DEFAULT,
   FLOW_DEFAULT,
+  blipReadSubflows,
   converterDoEditor,
   flowErrors,
   contextEhVariable,
@@ -13,6 +14,7 @@ import type { Ator, TransactionPipe } from '@pipe/db';
 import type {
   BuilderOfFlow,
   DesenhoDoBuilder,
+  DesenhoDoSubfluxo,
   BlockError,
   StateOfVersion,
   RascunhoGravado,
@@ -228,7 +230,76 @@ async function desenhoDaVersao(tx: TransactionPipe, versaoId: string): Promise<D
   const configuration = ehObjeto(global['configuration'])
     ? (global['configuration'] as Record<string, string>)
     : {};
-  return { flow, globals, configuration };
+  const subflows = subflowDrawings(global['subflows']);
+  return { flow, globals, configuration, ...(subflows ? { subflows } : {}) };
+}
+
+/**
+ * The drawings of the subflows stored in `fluxo_versao.global.subflows` (P12): the editor drawing
+ * kept with each one, or, for a subflow imported in the published format, one rebuilt from its
+ * engine states as `stateForOEditor` does for blocks without `original`.
+ */
+function subflowDrawings(stored: unknown): Record<string, DesenhoDoSubfluxo> | undefined {
+  if (!ehObjeto(stored) || Object.keys(stored).length === 0) return undefined;
+  const saida: Record<string, DesenhoDoSubfluxo> = {};
+  for (const [shortName, doc] of Object.entries(stored)) {
+    if (!ehObjeto(doc)) continue;
+    const editor = doc['editor'];
+    if (ehObjeto(editor) && ehObjeto(editor['flow'])) {
+      saida[shortName] = {
+        flow: editor['flow'],
+        globals: ehObjeto(editor['globals']) ? editor['globals'] : { ...ACTIONS_GLOBAL_DEFAULT },
+        configuration: ehObjeto(editor['configuration']) ? (editor['configuration'] as Record<string, string>) : {},
+      };
+      continue;
+    }
+    const states = Array.isArray(doc['states']) ? (doc['states'] as State[]) : [];
+    const flow: Record<string, unknown> = {};
+    for (const state of states) {
+      const { id, outputs, ...conteudo } = state;
+      flow[id] = stateForOEditor(id, conteudo, outputs ?? []);
+    }
+    saida[shortName] = {
+      flow,
+      globals: {
+        ...ACTIONS_GLOBAL_DEFAULT,
+        $enteringCustomActions: doc['inputActions'] ?? [],
+        $leavingCustomActions: doc['outputActions'] ?? [],
+        $afterStateChangedActions: doc['afterStateChangedActions'] ?? [],
+      },
+      configuration: ehObjeto(doc['configuration']) ? (doc['configuration'] as Record<string, string>) : {},
+    };
+  }
+  return saida;
+}
+
+/** Subflow drawings from the request body; absent stays absent (the save keeps the stored ones). */
+function validatedSubflows(bruto: unknown): Record<string, DesenhoDoSubfluxo> | undefined {
+  if (bruto === undefined) return undefined;
+  if (!ehObjeto(bruto)) {
+    throw PipeError.request('design_invalid', 'O campo `subflows` precisa ser um objeto com um subfluxo por nome.');
+  }
+  const saida: Record<string, DesenhoDoSubfluxo> = {};
+  for (const [shortName, desenho] of Object.entries(bruto)) {
+    const mapa = ehObjeto(desenho) ? desenho['flow'] : undefined;
+    if (!shortName.trim() || !ehObjeto(desenho) || !ehObjeto(mapa) || Object.values(mapa).some((e) => !ehObjeto(e))) {
+      throw PipeError.request(
+        'design_invalid',
+        `O subfluxo '${shortName}' precisa ser o mapa de blocos do editor: um objeto com um bloco por chave.`,
+      );
+    }
+    const fluxo: Record<string, unknown> = {};
+    for (const [codigo, estado] of Object.entries(mapa)) {
+      const e = estado as Record<string, unknown>;
+      fluxo[codigo] = typeof e['id'] === 'string' && e['id'] ? e : { ...e, id: codigo };
+    }
+    saida[shortName] = {
+      flow: fluxo,
+      globals: ehObjeto(desenho['globals']) ? desenho['globals'] : { ...ACTIONS_GLOBAL_DEFAULT },
+      configuration: validatedConfiguration(desenho['configuration']) ?? {},
+    };
+  }
+  return saida;
 }
 
 const DESENHO_PADRAO: DesenhoDoBuilder = { flow: FLOW_DEFAULT, globals: ACTIONS_GLOBAL_DEFAULT };
@@ -298,6 +369,7 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
   }
   const globais = ehObjeto(bruto['globals']) ? bruto['globals'] : { ...ACTIONS_GLOBAL_DEFAULT };
   const configuration = validatedConfiguration(bruto['configuration']);
+  const subflows = validatedSubflows(bruto['subflows']);
 
   let compilado: FlowBlip;
   try {
@@ -305,6 +377,16 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
       { flow: fluxo, globalActions: globais, configuration } as unknown as ExportDoEditor,
       fluxoId,
     );
+    if (subflows && Object.keys(subflows).length > 0) {
+      compilado.subflows = blipReadSubflows(
+        Object.fromEntries(
+          Object.entries(subflows).map(([shortName, s]) => [
+            shortName,
+            { flow: s.flow, globalActions: s.globals ?? {}, configuration: s.configuration ?? {} },
+          ]),
+        ),
+      );
+    }
   } catch (error) {
     // If `$contentActions` is not a list or an output is not an object,
     // the drawing is invalid; the converter error is not a server fault.
@@ -315,7 +397,12 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
   }
   return {
     flow: compilado,
-    desenho: { flow: fluxo, globals: globais, configuration: configuration ?? {} },
+    desenho: {
+      flow: fluxo,
+      globals: globais,
+      configuration: configuration ?? {},
+      ...(subflows && Object.keys(subflows).length > 0 ? { subflows } : {}),
+    },
     errors: flowErrors(compilado).map((e) => ({ block: e.stateId, mensagem: e.message })),
     notSupported: importReport(compilado).naoSuportado,
   };
@@ -495,8 +582,24 @@ export async function salvarRascunho(
   desenho: unknown,
 ): Promise<RascunhoGravado> {
   await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDIT_FLOW);
-  const compilado = compilar(desenho, fluxoId);
+  const compilado = compilar(await withStoredSubflows(tx, fluxoId, desenho), fluxoId);
   return gravarRascunho(tx, tid, usuarioId, fluxoId, compilado);
+}
+
+/**
+ * A drawing saved without `subflows` (the Builder has no subflow UI until P13) keeps the subflows
+ * the flow already has, from its draft or else its published version, instead of dropping them.
+ */
+async function withStoredSubflows(tx: TransactionPipe, fluxoId: string, desenho: unknown): Promise<unknown> {
+  if (!ehObjeto(desenho) || desenho['subflows'] !== undefined) return desenho;
+  const carregada =
+    (await versionInState(tx, fluxoId, 'rascunho')) ?? (await versionInState(tx, fluxoId, 'publicada'));
+  if (!carregada) return desenho;
+  const { rows } = await tx.execute<{ subflows: unknown }>(
+    sql`select global -> 'subflows' as subflows from fluxo_versao where id = ${carregada.id}`,
+  );
+  const subflows = subflowDrawings(rows[0]?.subflows);
+  return subflows ? { ...desenho, subflows } : desenho;
 }
 
 /**

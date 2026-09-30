@@ -107,6 +107,11 @@ function convertState(e: EditorState): State {
   if (e.$title !== undefined) state['name'] = e.$title;
   if (e.$position !== undefined) state['$position'] = e.$position;
   if (e.$tags !== undefined) state['$tags'] = e.$tags;
+  // Subflows (P12): the `end` block returns to the caller; a `subflow:` block names its subflow.
+  if (e['end'] === true) state.end = true;
+  if (typeof e['shortNameOfSubflow'] === 'string' && e['shortNameOfSubflow']) {
+    state['shortNameOfSubflow'] = e['shortNameOfSubflow'];
+  }
   return state;
 }
 
@@ -128,6 +133,17 @@ export function converterDoEditor(exportado: ExportDoEditor, id: string): FlowBl
  * Read any Blip flow format: editor export, published `applicationJson` (`{ settings: { flow } }`), `{ flow: { states } }`, or direct `Flow`. Published format passes through unchanged because the engine reads Blip natively.
  */
 export function blipReadFlow(json: unknown, id: string): FlowBlip {
+  const lido = readOneFlow(json, id);
+  // A bundle may carry the bot's subflows next to the flow: `{ ..., subflows: { shortName: export } }`.
+  const bundled = (json as { subflows?: unknown } | null)?.subflows;
+  const subflows =
+    bundled && typeof bundled === 'object' && !Array.isArray(bundled)
+      ? { ...(lido.subflows ?? {}), ...blipReadSubflows(bundled as Record<string, unknown>) }
+      : lido.subflows;
+  return subflows && Object.keys(subflows).length > 0 ? { ...lido, subflows } : lido;
+}
+
+function readOneFlow(json: unknown, id: string): FlowBlip {
   if (ehExportDoEditor(json)) return converterDoEditor(json, id);
   const j = json as { settings?: { flow?: FlowBlip }; flow?: FlowBlip; states?: unknown } | null;
   const flow =
@@ -138,6 +154,40 @@ export function blipReadFlow(json: unknown, id: string): FlowBlip {
     );
   }
   return { ...flow, id };
+}
+
+/**
+ * Read Blip subflow exports (each in any format `lerFluxoDaBlip` reads), keyed by the
+ * `shortNameOfSubflow` the calling blocks use. Each becomes a published `Flow` with
+ * `type: 'subflow'` and version 2 unless the export says otherwise; an editor export also keeps its
+ * drawing under `editor` (`{ flow, globals, configuration }`) for the Builder, which the engine
+ * never reads. The engine gives each one its runtime id (`subflowRuntimeId`).
+ */
+export function blipReadSubflows(exports: Record<string, unknown>): Record<string, FlowBlip> {
+  const saida: Record<string, FlowBlip> = {};
+  for (const [shortName, json] of Object.entries(exports)) {
+    let lido: FlowBlip;
+    try {
+      lido = readOneFlow(json, shortName);
+    } catch (error) {
+      throw new Error(`Subfluxo '${shortName}': ${(error as Error).message}`);
+    }
+    const subflow: FlowBlip & { editor?: unknown } = {
+      ...lido,
+      type: 'subflow',
+      version: lido.version ?? 2,
+    };
+    delete subflow.subflows;
+    if (ehExportDoEditor(json)) {
+      subflow.editor = {
+        flow: json.flow,
+        globals: json.globalActions ?? {},
+        configuration: json.configuration ?? {},
+      };
+    }
+    saida[shortName] = subflow;
+  }
+  return saida;
 }
 
 /** Content types currently sent by Pipe channels; typing passes through without effect. */
@@ -388,9 +438,26 @@ export function importReport(flow: FlowBlip): ImportReport {
   ]) {
     verAcao(a);
   }
+  // Subflows run (P12) when the export brings them: a `subflow:` block whose subflow is missing, or
+  // an `end` block in the bot's own flow (nothing to return to), is what Pipe cannot run.
+  const subflows = Object.values(flow.subflows ?? {});
+  const known = new Set(Object.keys(flow.subflows ?? {}).map((k) => k.toLowerCase()));
+  const states = [...flow.states, ...subflows.flatMap((s) => (Array.isArray(s.states) ? s.states : []))];
+  for (const s of subflows) {
+    for (const a of [...(s.inputActions ?? []), ...(s.outputActions ?? []), ...(s.afterStateChangedActions ?? [])]) {
+      verAcao(a);
+    }
+  }
   for (const e of flow.states) {
-    if (e.id.startsWith('subflow:')) somar(r.naoSuportado, 'estado:subfluxo');
     if (e.end) somar(r.naoSuportado, 'estado:fim-de-subfluxo');
+  }
+  for (const e of states) {
+    if (e.id.startsWith('subflow:')) {
+      const shortName = e['shortNameOfSubflow'];
+      if (typeof shortName !== 'string' || !known.has(shortName.toLowerCase())) {
+        somar(r.naoSuportado, `subfluxo:${typeof shortName === 'string' ? shortName : ''}`);
+      }
+    }
     for (const a of [
       ...(e.inputActions ?? []),
       ...(e.outputActions ?? []),
@@ -412,7 +479,9 @@ export function importReport(flow: FlowBlip): ImportReport {
   }
 
   // Variable sources lacking a Pipe provider, such as `{{calendar.x}}` and `{{resource.x}}`.
-  for (const m of JSON.stringify(flow).matchAll(/{{([a-zA-Z0-9.@_-]+)}}/g)) {
+  // A subflow's `editor` drawing repeats its states; count each reference once.
+  const semDesenho = JSON.stringify(flow, (k, v: unknown) => (k === 'editor' ? undefined : v));
+  for (const m of semDesenho.matchAll(/{{([a-zA-Z0-9.@_-]+)}}/g)) {
     const nome = m[1]!.split('@')[0]!;
     if (!nome.includes('.')) continue;
     const fonte = nome.split('.')[0]!.toLowerCase();

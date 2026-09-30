@@ -275,7 +275,13 @@ export type VariableProvider = (
 export interface Context {
   /** `UserIdentity`. */
   user: string;
+  /** The flow running now: the bot's flow, or the subflow the contact is in while one runs. */
   flow: FlowBlip;
+  /**
+   * The bot's own flow while `flow` is one of its subflows (set by the engine on entering one);
+   * absent otherwise. Commands that name "this bot" (`get /configuration/caller`) use it.
+   */
+  rootFlow?: FlowBlip;
   inbound: InboundLazy;
   /** Persisted user context; Blip stores every value here as text. */
   variables: Record<string, string>;
@@ -414,6 +420,24 @@ export const setStateId = (c: Context, id: string): void =>
 export const setStatePreviousId = (c: Context, id: string): void =>
   setVariable(c, statePreviousKey(c.flow.id), id, stateExpiration(c));
 export const deleteStateId = (c: Context): void => deleteVariable(c, stateKey(c.flow.id));
+export const deleteStatePreviousId = (c: Context): void =>
+  deleteVariable(c, statePreviousKey(c.flow.id));
+
+/**
+ * Blip's `currentFlowSession@{flowId}`: the short name of the subflow the contact is in, under the
+ * flow that called it. Absent or empty means the contact is in that flow itself. Stored in the same
+ * context as the saved block, with the calling flow's `builder:stateExpiration`, so a session never
+ * outlives the block that called it.
+ */
+export const flowSessionKey = (flowId: string): string => `currentFlowSession@${flowId}`;
+export const getFlowSession = (c: Context): string | null =>
+  contextGetVariable(c, flowSessionKey(c.flow.id)) || null;
+export const setFlowSession = (c: Context, shortName: string): void =>
+  setVariable(c, flowSessionKey(c.flow.id), shortName, stateExpiration(c));
+export const deleteFlowSession = (c: Context): void => deleteVariable(c, flowSessionKey(c.flow.id));
+
+/** The bot's flow, even while a subflow runs. */
+export const botFlow = (c: Context): FlowBlip => c.rootFlow ?? c.flow;
 
 /** Read stored state from already persisted context without constructing `Contexto`. */
 export const stateSaved = (variables: Record<string, string>, flowId: string): string | null => {

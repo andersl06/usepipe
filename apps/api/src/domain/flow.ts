@@ -7,6 +7,8 @@ import {
   ehExportDoEditor,
   contextEhVariable,
   stateSaved,
+  activeFlowSession,
+  blipReadSubflows,
   blipReadFlow,
   processInbound,
   importReport,
@@ -502,13 +504,14 @@ export async function runFlowInInbound(
   servicos.suspendHttp = async (pedido, cursor) => {
     confirmarUrlSegura(pedido.url);
     const key = `${executionId}:${e.message.idProvedor}:${cursor.estadoId ?? 'global'}:${cursor.lista}:${cursor.indice}`;
+    const blockOfCursor = blockOfFlowState(variables, flow, blockByCode, cursor.estadoId);
     const { rows } = await tx.execute<{ id: string }>(sql`
       insert into process_http_execucao (
         tenant_id, execucao_id, chave, bloco_id, bloco_codigo, lista, indice,
         entrada, contexto, pedido, estado
       ) values (
         ${e.tenantId}, ${executionId}, ${key},
-        ${cursor.estadoId ? (blockByCode.get(cursor.estadoId) ?? null) : null},
+        ${blockOfCursor},
         ${cursor.estadoId ?? ''}, ${cursor.lista}, ${cursor.indice},
         ${JSON.stringify({
           id: e.message.id,
@@ -581,7 +584,7 @@ export async function runFlowInInbound(
         await tx.execute(sql`
           update execucao_fluxo
              set estado = 'aguardando', contexto = ${JSON.stringify(variables)}::jsonb,
-                 bloco_atual_id = ${erro.cursor.estadoId ? (blockByCode.get(erro.cursor.estadoId) ?? null) : null}
+                 bloco_atual_id = ${blockOfFlowState(variables, flow, blockByCode, erro.cursor.estadoId)}
            where id = ${executionId}
         `);
         await saveContextOfRouter();
@@ -616,8 +619,14 @@ export async function runFlowInInbound(
   // `execucao_passo_entrada_uk` (a proteção contra webhook duplicado da Meta,
   // migration 0014), então uma retomada nunca inclui `id_provedor` de novo.
   let idProvedorUsado = Boolean(retomada);
-  const stateBefore = stateSaved(variables, flow.id);
-  if (nova && stateBefore?.startsWith('desk:') && flow.states.some((s) => s.id === stateBefore)) {
+  // The contact may be inside a subflow (P12): its `desk:` block lives there.
+  const sessionBefore = activeFlowSession(variables, flow);
+  const stateBefore = sessionBefore.stateId;
+  if (
+    nova &&
+    stateBefore?.startsWith('desk:') &&
+    sessionBefore.flow.states.some((s) => s.id === stateBefore)
+  ) {
     const ticket = await lastAttendance(tx, e.contactId, conversation.id);
     idProvedorUsado = true;
     const certo = await rodar(
@@ -632,8 +641,9 @@ export async function runFlowInInbound(
     if (!certo) return { tratou: true, respostas };
     // The bot stopped after replying to the customer; the next customer message wakes it.
     // After returning to the root or leaving the flow, treat this message as the first input, as Blip does.
-    const depois = stateSaved(variables, flow.id);
-    if (depois !== null && depois !== flow.states.find((s) => s.root)?.id) {
+    const sessionAfter = activeFlowSession(variables, flow);
+    const depois = sessionAfter.stateId;
+    if (depois !== null && depois !== sessionAfter.flow.states.find((s) => s.root)?.id) {
       await saveExecution(tx, executionId, variables, flow.id, blockByCode, transferida);
       await saveContextOfRouter();
       return { tratou: true, respostas };
@@ -877,6 +887,20 @@ const MIME_DO_TIPO: Readonly<Record<string, string>> = {
   localizacao: 'application/vnd.lime.location+json',
 };
 
+/**
+ * The `bloco` row of `stateId` when the contact is in the flow itself; null inside a subflow
+ * (P12), whose blocks have no rows and whose ids (`onboarding`, `fallback`) repeat the flow's.
+ */
+function blockOfFlowState(
+  variables: Record<string, string>,
+  flow: FlowBlip,
+  blockByCode: Map<string, string>,
+  stateId: string | null | undefined,
+): string | null {
+  if (!stateId || activeFlowSession(variables, flow).subflow) return null;
+  return blockByCode.get(stateId) ?? null;
+}
+
 async function saveExecution(
   tx: TransactionPipe,
   executionId: string,
@@ -915,6 +939,8 @@ async function gravarPassos(
     const saida = {
       acoes: passo.actions,
       proximo: 'proximoEstadoId' in passo ? (passo.proximoEstadoId ?? null) : null,
+      // A subflow block (P12) has no `bloco` row: the step names its block and subflow here.
+      ...(passo.subflow ? { subfluxo: passo.subflow, estado: passo.stateId } : {}),
       ...(i === 0 && rastro.actionsGlobal.length > 0 ? { acoesGlobais: rastro.actionsGlobal } : {}),
       ...(ultimo && eventos.length > 0 ? { eventos } : {}),
     };
@@ -923,7 +949,7 @@ async function gravarPassos(
     await tx.execute(sql`
       insert into execucao_passo (tenant_id, execucao_id, bloco_id, entrada, saida, erro, em)
       values (
-        ${tenantId}, ${execucaoId}, ${blocoPorCodigo.get(passo.stateId) ?? null},
+        ${tenantId}, ${execucaoId}, ${passo.subflow ? null : (blocoPorCodigo.get(passo.stateId) ?? null)},
         ${i === 0 ? JSON.stringify(entrada) : null}::jsonb, ${JSON.stringify(saida)}::jsonb,
         ${error}, ${relogio()}
       )
@@ -1517,6 +1543,12 @@ export async function importFlowOfBlip(
     channelId: string | null;
     json: unknown;
     publicar: boolean;
+    /**
+     * Blip exports each subflow separately (P12): each export here, keyed by the
+     * `shortNameOfSubflow` its `subflow:` blocks use, is stored with the flow in the same version.
+     * An export bundle may also carry them as `json.subflows`.
+     */
+    subflows?: Record<string, unknown>;
   },
 ): Promise<ImportOfFlow> {
   const { rows: existentes } = await tx.execute<{ id: string }>(sql`
@@ -1533,6 +1565,10 @@ export async function importFlowOfBlip(
   }
 
   const flow = blipReadFlow(pedido.json, flowId);
+  if (pedido.subflows && Object.keys(pedido.subflows).length > 0) {
+    // Subflows live in `fluxo_versao.global.subflows`, written below with the rest of `global`.
+    flow.subflows = { ...(flow.subflows ?? {}), ...blipReadSubflows(pedido.subflows) };
+  }
   const original = ehExportDoEditor(pedido.json) ? pedido.json.flow : null;
   let errorOfValidation: string | null = null;
   try {

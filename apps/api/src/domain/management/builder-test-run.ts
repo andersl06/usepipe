@@ -121,9 +121,11 @@ function debugOf(rastro: InboundTrace, variables: Record<string, string>, error?
       actions: e.actions,
       nextStateId: e.nextStateId ?? null,
       ...(e.error ? { error: e.error } : {}),
+      ...(e.subflow ? { subflow: e.subflow } : {}),
     })),
     actionsGlobal: rastro.actionsGlobal,
     currentStateId: rastro.stateFinalId,
+    ...(rastro.subflow ? { currentSubflow: rastro.subflow } : {}),
     variables: { ...variables },
     ...(error ? { error } : {}),
   };
