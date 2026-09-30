@@ -5,10 +5,10 @@
 | Tela | Segmento Blip | Rota Pipe atual (App.tsx) | Onda | Tema (da captura) | lista | vazio | carregando | erro | abertos (D-10) |
 |---|---|---|---|---|---|---|---|---|---|
 | Casca (barra do Portal, barra do contato, desk-sidebar) | attendance (AttendanceShell + desk-sidebar) | `attendance` (índice -> monitoring) | 0 | a confirmar na medição | a confirmar nas capturas de tela (a casca aparece em todas) | a confirmar nas capturas de tela (a casca aparece em todas) | pendente | pendente | sem item aberto conhecido |
-| Monitoramento | monitoring | `attendance/monitoring` | 1 | a confirmar na medição | capturado (attendance-desk-monitoring, 2026-09-07) | pendente | pendente | pendente | pendente (C-01..C-07) |
-| Histórico | history | `attendance/history` | 1 | a confirmar na medição | pendente | capturado (attendance-desk-history, 2026-09-07) | pendente | pendente | pendente (C-08..C-14) |
-| Filas | queue-management | `attendance/queue-management` (+ `/:queueId/edit`, R-02) | 1 | a confirmar na medição | capturado (attendance-desk-queue-management, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |
-| Atendentes | team | `attendance/team` (+ create/edit/permission, R-03) | 1 | a confirmar na medição | capturado (attendance-desk-team, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |
+| Monitoramento | monitoring | `attendance/monitoring` | 1 | a confirmar na medição | capturado (attendance-desk-monitoring, 2026-09-07) | pendente | pendente | pendente | pendente (C-01..C-08) |
+| Histórico | history | `attendance/history` | 1 | a confirmar na medição | pendente | capturado (attendance-desk-history, 2026-09-07) | pendente | pendente | pendente (C-09..C-14) |
+| Filas | queue-management | `attendance/queue-management` (+ `/:queueId/edit`, R-02) | 1 | a confirmar na medição | capturado (attendance-desk-queue-management, 2026-09-07) | pendente | pendente | pendente | pendente (C-15) |
+| Atendentes | team | `attendance/team` (+ create/edit/permission, R-03) | 1 | a confirmar na medição | capturado (attendance-desk-team, 2026-09-07) | pendente | pendente | pendente | pendente (C-16) |
 | Regras | rules | `attendance/rules` | 2 | a confirmar na medição | capturado (attendance-desk-rules, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |
 | SLA | sla-policy | `attendance/sla-policy` | 2 | a confirmar na medição | capturado (attendance-desk-sla-policy, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |
 | Horários | attendance-hours | `attendance/attendance-hours` | 2 | a confirmar na medição | capturado (attendance-desk-attendance-hours, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |
