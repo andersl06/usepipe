@@ -22,8 +22,13 @@ sops --decrypt secrets/production.enc.env > /opt/pipe-dados/.env
 # Depois do arquivo cifrado, de propósito: em `--env-file` vale a última
 # definição, então esta linha sobrescreve o PIPE_VERSAO que veio do SOPS.
 echo "PIPE_VERSAO=${VERSAO}" >> /opt/pipe-dados/.env
+source ./tenant-domain.sh
+set -a
+source /opt/pipe-dados/.env
+set +a
+pipe_domain_preflight
 
-COMPOSE="docker compose -f docker-compose.prod.yml --env-file /opt/pipe-dados/.env"
+COMPOSE="docker compose -f docker-compose.prod.yml -f docker-compose.tls-${PIPE_TLS_MODE}.yml --env-file /opt/pipe-dados/.env"
 
 # `postgres` e `backup` são construídos aqui, não puxados: a imagem é o Postgres
 # com pgbackrest ao lado, e ela não está em registro nenhum. `--ignore-buildable`

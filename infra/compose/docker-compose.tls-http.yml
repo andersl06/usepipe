@@ -1,0 +1,37 @@
+# Smoke-only mode for pipe.<ip-with-hyphens>.sslip.io. New tenant hosts must be
+# explicitly added here; HTTP-01 cannot issue wildcard certificates.
+services:
+  traefik:
+    environment:
+      TRAEFIK_CERTIFICATESRESOLVERS_LE_ACME_EMAIL: ${ACME_EMAIL}
+      TRAEFIK_CERTIFICATESRESOLVERS_LE_ACME_STORAGE: /acme/acme.json
+      TRAEFIK_CERTIFICATESRESOLVERS_LE_ACME_HTTPCHALLENGE_ENTRYPOINT: web
+  api:
+    labels:
+      - traefik.http.routers.api.tls.certresolver=le
+      - traefik.http.routers.api-tenant.tls.certresolver=le
+      - traefik.http.routers.api-tenant.tls.domains[0].main=demo-a.${PIPE_DOMINIO_CONTAS}
+      - traefik.http.routers.api-tenant.tls.domains[1].main=demo-b.${PIPE_DOMINIO_CONTAS}
+      - traefik.http.routers.api-tenant.tls.domains[2].main=demo-a.desk.${PIPE_DOMINIO_CONTAS}
+      - traefik.http.routers.api-tenant.tls.domains[3].main=demo-b.desk.${PIPE_DOMINIO_CONTAS}
+  management-vite:
+    labels:
+      - traefik.http.routers.management.tls.certresolver=le
+      - traefik.http.routers.management.tls.domains[0].main=demo-a.${PIPE_DOMINIO_CONTAS}
+      - traefik.http.routers.management.tls.domains[1].main=demo-b.${PIPE_DOMINIO_CONTAS}
+      - traefik.http.routers.login.tls.certresolver=le
+  desk:
+    labels:
+      - traefik.http.routers.desk.tls.certresolver=le
+      - traefik.http.routers.desk.tls.domains[0].main=demo-a.desk.${PIPE_DOMINIO_CONTAS}
+      - traefik.http.routers.desk.tls.domains[1].main=demo-b.desk.${PIPE_DOMINIO_CONTAS}
+  crm:
+    labels:
+      - traefik.http.routers.crm.tls.certresolver=le
+  grafana:
+    labels:
+      - traefik.http.routers.grafana.tls.certresolver=le
+  site:
+    labels:
+      - traefik.http.routers.site.tls.certresolver=le
+      - traefik.http.routers.www.tls.certresolver=le

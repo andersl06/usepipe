@@ -18,8 +18,7 @@ cd "$(dirname "$0")"
 
 DADOS=/opt/pipe-dados
 ENV="${DADOS}/.env"
-DOMINIO="${PIPE_DOMINIO:-usepipe.com.br}"
-HOSTS=("${DOMINIO}" "app.${DOMINIO}" "gestao.${DOMINIO}" "crm.${DOMINIO}" "api.${DOMINIO}")
+source ./tenant-domain.sh
 
 vermelho() { printf '\033[31m%s\033[0m\n' "$*" >&2; }
 verde() { printf '\033[32m%s\033[0m\n' "$*"; }
@@ -54,8 +53,8 @@ docker compose version > /dev/null 2>&1 || parar "o plugin \`docker compose\` n�
   "Instale o docker pelo get.docker.com, que já traz o plugin v2."
 
 mkdir -p "${DADOS}/acme"
-touch "${DADOS}/acme/acme.json"
-chmod 600 "${DADOS}/acme/acme.json"
+touch "${DADOS}/acme/acme.json" "${DADOS}/acme/acme-dns.json"
+chmod 600 "${DADOS}/acme/acme.json" "${DADOS}/acme/acme-dns.json"
 # O bit de execução costuma não sobreviver ao clone em máquina Windows.
 chmod +x postgres/init/*.sh backup/*.sh 2>/dev/null || true
 verde "ok"
@@ -95,6 +94,8 @@ set -a
 # shellcheck disable=SC1090
 source "${ENV}"
 set +a
+pipe_domain_preflight || parar "configuracao de dominio invalida."
+DOMINIO="${PIPE_DOMINIO_CONTAS}"
 
 faltando=()
 for chave in POSTGRES_SENHA POSTGRES_APP_SENHA DATABASE_URL DATABASE_URL_APP REDIS_URL \
@@ -156,6 +157,7 @@ meu_ip="$(curl -fsS -m 10 https://api.ipify.org || true)"
   "Sem internet de saída o ACME também não funciona. Confira a rede da VPS."
 
 erradas=()
+HOSTS=("${DOMINIO}" "www.${DOMINIO}" "api.${DOMINIO}" "login.${DOMINIO}" "crm.${DOMINIO}" "metricas.${DOMINIO}" "smoke-${RANDOM}.${DOMINIO}" "smoke-${RANDOM}.desk.${DOMINIO}")
 for host in "${HOSTS[@]}"; do
   resolvido="$(getent ahostsv4 "$host" 2> /dev/null | awk 'NR==1{print $1}')"
   [ "$resolvido" = "$meu_ip" ] || erradas+=("${host} → ${resolvido:-nada} (esperado ${meu_ip})")
@@ -166,10 +168,8 @@ done
   "SÓ VOCÊ pode resolver isto. No painel de DNS de ${DOMINIO}, crie registros A:" \
   "  @        A   ${meu_ip}" \
   "  www      A   ${meu_ip}" \
-  "  app      A   ${meu_ip}" \
-  "  gestao   A   ${meu_ip}" \
-  "  crm      A   ${meu_ip}" \
-  "  api      A   ${meu_ip}" \
+  "  api, login, crm, metricas A ${meu_ip}" \
+  "  *, *.desk A ${meu_ip} (DNS only, sem proxy)" \
   "TTL de 300 enquanto estiver mexendo. Espere propagar e rode de novo."
 verde "ok — os ${#HOSTS[@]} nomes apontam para ${meu_ip}"
 
@@ -188,7 +188,7 @@ verde "ok"
 
 # ---------------------------------------------------------------------------
 passo "6/9  Imagens"
-COMPOSE=(docker compose -f docker-compose.prod.yml --env-file "${ENV}")
+COMPOSE=(docker compose -f docker-compose.prod.yml -f "docker-compose.tls-${PIPE_TLS_MODE}.yml" --env-file "${ENV}")
 "${COMPOSE[@]}" config -q || parar "o docker-compose.prod.yml não valida com este .env." \
   "A mensagem do compose, logo acima, diz qual variável está faltando."
 "${COMPOSE[@]}" build postgres

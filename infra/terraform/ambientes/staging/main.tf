@@ -17,6 +17,7 @@ provider "cloudflare" {}
 variable "zone_id" { type = string }
 variable "email_acme" { type = string }
 variable "repositorio_git" { type = string }
+variable "domain" { type = string }
 
 module "vps" {
   source = "../../modules/vps-pipe"
@@ -26,7 +27,7 @@ module "vps" {
   plano           = "hostingercom-vps-kvm2-usd-1m"
   data_center_id  = 13
   template_id     = 1002
-  fqdn_traefik    = "traefik.hml.usepipe.com.br"
+  fqdn_traefik    = "traefik.${var.domain}"
   email_acme      = var.email_acme
   repositorio_git = var.repositorio_git
 }
@@ -36,14 +37,8 @@ module "dns" {
 
   zone_id = var.zone_id
   destino = module.vps.ipv4
-  # Homologação não tem apex e não fica atrás do proxy: quando o TLS quebra,
-  # você quer ver o erro do Traefik, não a página de erro da Cloudflare.
-  subdominios = {
-    "app.hml"    = false
-    "gestao.hml" = false
-    "crm.hml"    = false
-    "api.hml"    = false
-  }
+  # This staging subzone has its own apex record and stays DNS-only.
+  apex    = var.domain
 }
 
 output "ip" { value = module.vps.ipv4 }
