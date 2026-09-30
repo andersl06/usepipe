@@ -8,6 +8,7 @@ import { scriptVariables } from './script-variables.js';
 import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, botFlow, deleteVariable as deleteContextVariable, getVariable, maskSecrets, setVariable as setContextVariable, stateKey } from './context.js';
 import { subflowRuntimeId } from './modelos.js';
 import { runLocalCommand } from './builder-commands.js';
+import { forwardToAgent, leavingFromAgent } from './ai-agent.js';
 
 export type Settings = Record<string, unknown> | null;
 
@@ -621,6 +622,20 @@ const trackContactsJourney: AcaoDoMotor = {
   async executar() {},
 };
 
+/**
+ * The AI agent block's actions (P14, `ai-agent.ts`). They delegate at call time: `ai-agent.ts` sits
+ * in an import cycle with this module (through `context.ts` → `modelos.ts` → `editor.ts`), so its
+ * exports cannot be read while this list is built.
+ */
+const forwardToAgentAction: AcaoDoMotor = {
+  tipo: 'ForwardToAgent',
+  executar: (context, settings, prazo) => forwardToAgent.executar(context, settings, prazo),
+};
+const leavingFromAgentAction: AcaoDoMotor = {
+  tipo: 'LeavingFromAgent',
+  executar: (context, settings, prazo) => leavingFromAgent.executar(context, settings, prazo),
+};
+
 export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   trackContactsJourney,
   setVariable,
@@ -646,6 +661,8 @@ export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   manageList,
   setBucket,
   processContentAssistant,
+  forwardToAgentAction,
+  leavingFromAgentAction,
 ];
 
 /** Default `ActionProvider` containing actions Pipe executes. */
