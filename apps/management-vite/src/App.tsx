@@ -104,7 +104,7 @@ const contactRoutes = (
       <Route index element={<AbaVisaoGeral />} />
       <Route path="profile" element={<AbaPerfil />} />
       <Route path="settings" element={<TabSettings />} />
-      <Route path="alerta" element={<Navigate to="../settings" replace />} />
+      <Route path="alerta" element={<Navigate to=".." replace />} />
     </Route>
     <Route path="channels/instagram" element={<PageChannelInstagram />} />
     <Route path="channels/messenger" element={<PageChannelMessenger />} />
