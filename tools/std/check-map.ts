@@ -83,9 +83,17 @@ function glossaryPairs(file?: string): [string, string][] {
 }
 
 export function checkMap(options: { map: string; scopes?: string[]; requireStatus?: string; glossary?: string; approve?: boolean; sample?: number; seed?: number; out?: string }): { errors: Issue[]; warnings: Issue[]; sampledIds: string[] } {
-  const all = readMap(options.map);
+  const byId = new Map<string, MapRow>();
+  const idIssues: Issue[] = [];
+  for (const row of readMap(options.map)) {
+    const previous = byId.get(row.id);
+    if (previous && ['scope', 'kind', 'old', 'new', 'declared_at', 'persisted', 'category', 'decision_ref'].some(key => previous[key as keyof MapRow] !== row[key as keyof MapRow])) {
+      idIssues.push({ level: 'error', ids: [row.id], message: 'duplicate id with conflicting mapping' });
+    } else if (!previous || STATUS.indexOf(row.status) > STATUS.indexOf(previous.status)) byId.set(row.id, row);
+  }
+  const all = [...byId.values()];
   const selected = options.scopes?.length && !options.scopes.includes('all') ? all.filter((row) => options.scopes!.includes(row.scope)) : all;
-  const issues: Issue[] = [];
+  const issues: Issue[] = [...idIssues];
   const add = (level: Issue['level'], rows: MapRow[], message: string) => issues.push({ level, ids: rows.map((row) => row.id), message });
   const extra = buildExtraLexicon(all);
   const pairs = glossaryPairs(options.glossary);
@@ -93,11 +101,12 @@ export function checkMap(options: { map: string; scopes?: string[]; requireStatu
   if (required < 0) throw new Error('invalid --require-status');
   const collision = new Map<string, MapRow>();
   for (const row of selected) {
+    if (row.status === 'skipped') continue;
     if (STATUS.indexOf(row.status) < required) add('error', [row], `status ${row.status} below ${options.requireStatus}`);
     if (row.persisted === 'yes') add('error', [row], 'persisted row in map');
     if (!ACTIVE.has(row.status)) continue;
     if (!row.new) { add('error', [row], 'empty new'); continue; }
-    if (row.new === row.old && row.new !== 'KEEP') add('error', [row], 'new equals old');
+    if (row.new === row.old && row.new !== 'KEEP' && row.kind !== 'package') add('error', [row], 'new equals old');
     if (SPECIAL.has(row.new)) {
       const allowed = row.new === 'REMOVE' ? ['D-14', 'D-27', 'D-28', 'D-29', 'D-30'] : row.new === 'STATE' ? ['D-29', 'D-30', 'D-31', 'D-34'] : [];
       if (allowed.length && !allowed.some((decision) => new RegExp(`\\b${decision}\\b`).test(row.decision_ref))) add('error', [row], `${row.new} needs decision_ref`);

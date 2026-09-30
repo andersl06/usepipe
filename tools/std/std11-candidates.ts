@@ -13,7 +13,8 @@ const worklists = ['packages', 'api-domain', 'api-core', 'api-tests', 'mgmt-page
 const findings = worklists.flatMap(worklist => {
   const [header, ...rows] = parseCsv(readFileSync(`${reports}/std11-worklist-${worklist}.csv`, 'utf8'));
   return rows.filter(row => row[header.indexOf('kind')] === 'identifier').map(row => ({
-    worklist, file: row[header.indexOf('file')], token: row[header.indexOf('token')],
+    worklist, file: row[header.indexOf('file')], line: row[header.indexOf('line')],
+    token: row[header.indexOf('token')], snippet: row[header.indexOf('snippet')],
   }));
 });
 const byFile = new Map<string, Set<string>>();
@@ -39,8 +40,8 @@ for (const { row } of candidateRows) {
   declarationTokens.set(file, tokens);
 }
 const uncovered = findings.filter(({ file, token }) => !declarationTokens.get(file)?.has(token.toLowerCase()));
-writeFileSync(`${reports}/std11-identifier-gaps.csv`, toCsv([['worklist', 'file', 'token'], ...uncovered.map(row => [row.worklist, row.file, row.token])]));
+writeFileSync(`${reports}/std11-identifier-gaps.csv`, toCsv([['worklist', 'file', 'line', 'token', 'snippet'], ...uncovered.map(row => [row.worklist, row.file, row.line, row.token, row.snippet])]));
 const globalTokens = new Set([...declarationTokens.values()].flatMap(tokens => [...tokens]));
 const globallyUncovered = uncovered.filter(({ token }) => !globalTokens.has(token.toLowerCase()));
-writeFileSync(`${reports}/std11-identifier-global-gaps.csv`, toCsv([['worklist', 'file', 'token'], ...globallyUncovered.map(row => [row.worklist, row.file, row.token])]));
+writeFileSync(`${reports}/std11-identifier-global-gaps.csv`, toCsv([['worklist', 'file', 'line', 'token', 'snippet'], ...globallyUncovered.map(row => [row.worklist, row.file, row.line, row.token, row.snippet])]));
 console.log(`inventory=${inventory.length} candidates=${candidates.length} identifier-findings=${findings.length} local-gaps=${uncovered.length} global-gaps=${globallyUncovered.length}`);

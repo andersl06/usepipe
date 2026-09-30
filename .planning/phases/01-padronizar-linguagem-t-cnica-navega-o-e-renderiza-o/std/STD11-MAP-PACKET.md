@@ -1,6 +1,6 @@
 # STD-11 map packet — draft, not ready for approval
 
-Do **not** approve this packet yet. The 01-47 map is incomplete: the current inventory yields 2,964 candidate declarations for the identifier worklists, while 15,285 identifier findings include 11,054 occurrences without a declaration in the same file and 3,625 without even a matching name in the global inventory. The latter are captured in `reports/std11-identifier-global-gaps.csv`; candidate declarations are in `reports/std11-candidates.csv`. The current full-map validator also has 605 historical errors (`reports/std11-map-check.md`), none introduced by the route proposals below. No rename may run against this draft.
+Do **not** approve this packet yet. The 01-47 map is incomplete: using the same approved lexicon as the scanner, the inventory yields 8,715 candidate declarations for the identifier worklists, while 15,285 identifier findings include 3,653 occurrences without a declaration in the same file and 142 without even a matching name in the global inventory. The latter are captured with source snippets in `reports/std11-identifier-global-gaps.csv`; candidate declarations are in `reports/std11-candidates.csv`. The corrected full-map validator has two genuine historical errors (`reports/std11-map-check.md`), none introduced by the route proposals below. No rename may run against this draft.
 
 ## Sensitive route proposals (all `proposed`, not applied)
 

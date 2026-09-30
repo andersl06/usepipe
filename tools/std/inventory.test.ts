@@ -17,6 +17,12 @@ test('ignora identificadores ingleses', () => {
   assert.equal(result.rows.some((row) => ['status', 'useState'].includes(row.old)), false);
 });
 
+test('optional gate lexicon catches names missing from the base inventory lexicon', () => {
+  const sources = [{ fileName: 'apps/api/src/x.ts', sourceText: 'export interface CasoReferencia {}' }];
+  assert.equal(extractSources(sources).rows.some(row => row.old === 'CasoReferencia'), false);
+  assert.ok(extractSources(sources, undefined, new Set(['referencia'])).rows.some(row => row.old === 'CasoReferencia'));
+});
+
 test('Record the Drizzle TypeScript key and keep its SQL name only in notes', () => {
   const result = run({ fileName: 'packages/db/src/schema/x.ts', sourceText: "export const t = pgTable('t', { contatoId: text('contato_id') });" });
   const item = result.rows.find((row) => row.old === 'contatoId'); assert.ok(item); assert.match(item.notes, /sql=contato_id/);
