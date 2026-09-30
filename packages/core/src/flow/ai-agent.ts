@@ -47,9 +47,16 @@ export interface AgentToolCall {
   arguments: Record<string, unknown>;
 }
 
+/** Opaque provider content of an assistant turn; the engine only stores it in the memory. */
+export interface AgentRawContent {
+  provider: AgentProvider;
+  model: string;
+  content: unknown;
+}
+
 export type AgentMessage =
   | { role: 'user'; content: string }
-  | { role: 'assistant'; content: string; toolCalls?: AgentToolCall[] }
+  | { role: 'assistant'; content: string; toolCalls?: AgentToolCall[]; raw?: AgentRawContent }
   | { role: 'tool'; toolCallId: string; name: string; content: string; isError?: boolean };
 
 export interface AgentTool {
@@ -79,6 +86,8 @@ export interface AgentModelResponse {
   stopReason: string;
   model: string;
   usage?: { inputTokens: number; outputTokens: number };
+  /** The provider's own content, replayed unchanged to the same provider and model (thinking blocks). */
+  raw?: AgentRawContent;
 }
 
 // --- Blip vocabulary ---
@@ -453,6 +462,7 @@ export const forwardToAgent: AcaoDoMotor = {
           role: 'assistant',
           content: said,
           ...(response.toolCalls.length ? { toolCalls: response.toolCalls } : {}),
+          ...(response.raw ? { raw: response.raw } : {}),
         });
         if (said) {
           answer = said;
