@@ -13,6 +13,18 @@ export function testVariablesToRecord(rows: readonly { chave: string; valor: str
   );
 }
 
+/**
+ * P8: the line above "Expirar entrada" when the test contact waits in a block with an inactivity
+ * time (`debug.inputExpiration`): `3600` → "O bloco expira após 1 h sem resposta."
+ */
+export function inputExpirationHint(seconds: number): string {
+  const minutes = Math.round(seconds / 60);
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  const tempo = h > 0 ? (m > 0 ? `${h} h ${m} min` : `${h} h`) : `${m} min`;
+  return `O bloco expira após ${tempo} sem resposta.`;
+}
+
 export interface DebugSection {
   stateId: string;
   actions: TestRunActionTrace[];

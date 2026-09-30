@@ -470,7 +470,6 @@ export function importReport(flow: FlowBlip): ImportReport {
       somar(r.actions, a.type);
       somar(r.semEfeito, `acao-local:${a.type}`);
     }
-    if (e.input?.expiration) somar(r.naoSuportado, 'entrada:expiracao');
     viewConditions(e.input?.conditions);
     for (const s of e.outputs ?? []) {
       r.saidas += 1;

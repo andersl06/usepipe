@@ -4,7 +4,7 @@ import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import { runTest, resetTest } from '../builder-gravar';
 import type { Mapa } from './model';
-import { GLOBAL_ACTIONS_SECTION_ID, debugSections, testVariablesToRecord } from './test-panel-logic';
+import { GLOBAL_ACTIONS_SECTION_ID, debugSections, inputExpirationHint, testVariablesToRecord } from './test-panel-logic';
 
 /**
  * The Test panel (BUILDER-04, D-14): a local simulation of the current DRAFT with the real
@@ -169,6 +169,24 @@ export function TestPanel({
     ]);
   }
 
+  /** P8: fire the waiting block's inactivity time now; production waits for the real delayed job. */
+  async function expirar(): Promise<void> {
+    if (enviando) return;
+    setEnviando(true);
+    setErro(null);
+    const r = await runTest(flowId, { input: '', expireInput: true, testVariables: testVariablesToRecord(variaveis) });
+    setEnviando(false);
+    if (!r.ok) {
+      setErro(r.error);
+      return;
+    }
+    setDebug(r.value.debug);
+    setMensagens((atual) => [
+      ...atual,
+      ...r.value.messages.map((mensagemDoBot): ChatMessage => ({ autor: 'bot', mensagem: mensagemDoBot })),
+    ]);
+  }
+
   async function reiniciar(): Promise<void> {
     // The reference resets with no confirmation dialog (C-37): reset trades the whole test
     // session for a fresh one, immediately.
@@ -238,6 +256,14 @@ export function TestPanel({
           </ul>
         )}
         {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+        {debug?.inputExpiration ? (
+          <div className="bl-test-expiracao">
+            <span className="sub">{inputExpirationHint(debug.inputExpiration.seconds)}</span>
+            <Botao type="button" variante="padrao" disabled={enviando} onClick={() => void expirar()}>
+              Expirar entrada
+            </Botao>
+          </div>
+        ) : null}
         {debug ? <Debug debug={debug} mapa={mapa} onDestacar={onDestacarBloco} /> : null}
       </div>
       <div className="bl-test-campo">

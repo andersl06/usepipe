@@ -13,3 +13,4 @@ export * from './subflows.js';
 export * from './editor.js';
 export * from './padrao.js';
 export * from './satisfaction-survey.js';
+export * from './input-expiration.js';

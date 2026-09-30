@@ -305,9 +305,18 @@ export const executionFlow = pgTable(
     blockCurrentId: uuid('bloco_atual_id').references(() => block.id, { onDelete: 'set null' }),
     iniciadaEm: moment('iniciada_em').notNull().defaultNow(),
     encerradaEm: moment('encerrada_em'),
+    /**
+     * Migration 0056 (P8): when the block the contact waits in expires (Blip `input.expiration`)
+     * and which block it is; rewritten or cleared by every input, claimed by the expiration job.
+     */
+    inputExpiresAt: moment('entrada_expira_em'),
+    inputExpiresBlock: text('entrada_expira_bloco'),
   },
   (t) => [
     listaCheck('execucao_fluxo_estado_ck', t.estado, STATES_EXECUTION),
+    index('execucao_fluxo_entrada_expira_idx')
+      .on(t.inputExpiresAt)
+      .where(sql`${t.inputExpiresAt} is not null`),
     index('execucao_fluxo_conversa_idx').on(t.tenantId, t.conversationId),
     index('execucao_fluxo_estado_idx').on(t.tenantId, t.estado, t.iniciadaEm),
     /**

@@ -12,6 +12,7 @@ import {
   blipReadFlow,
   processInbound,
   importReport,
+  inputExpirationMessage,
   maskSecrets,
   SuspensaoDeProcessHttp,
   SURVEY_CONTENT_TYPE,
@@ -45,6 +46,7 @@ import { openHttpRequest, sealHttpRequest, type StoredHttpRequest } from './mana
 import { closeInTransaction, type LineConversation } from './conversation.js';
 import { engineServices, isFlowOfTenant, type TicketEffects } from './engine-services.js';
 import { databaseMessagingEffects } from './scheduling-commands.js';
+import { syncInputExpiration } from './input-expiration.js';
 import { chooseQueueOfConversation, enterQueue } from './queue-entry.js';
 import type { TipoEnvio } from './envio.js';
 
@@ -166,6 +168,8 @@ export interface InboundInFlow {
   };
   contactId: string;
   message: { id: string | null; idProvedor: string; type: string; content: string | null };
+  /** P8: this "message" is the expiration of the block the contact waited in (`input-expiration-job.ts`). */
+  inputExpiration?: { stateId: string };
 }
 
 export interface ResultOfFlow {
@@ -646,17 +650,20 @@ export async function runFlowInInbound(
     if (depois !== null && depois !== sessionAfter.flow.states.find((s) => s.root)?.id) {
       await saveExecution(tx, executionId, variables, flow.id, blockByCode, transferida);
       await saveContextOfRouter();
+      await syncInputExpiration(tx, e.tenantId, executionId, flow, transferida ? null : depois);
       return { tratou: true, respostas };
     }
   }
 
   const certo = await rodar(
-    {
-      id: e.message.idProvedor,
-      tipo: MIME_DO_TIPO[e.message.type] ?? 'text/plain',
-      conteudo: e.message.content ?? '',
-      de: e.contactId,
-    },
+    e.inputExpiration
+      ? inputExpirationMessage(e.inputExpiration.stateId, e.message.idProvedor, e.contactId)
+      : {
+          id: e.message.idProvedor,
+          tipo: MIME_DO_TIPO[e.message.type] ?? 'text/plain',
+          conteudo: e.message.content ?? '',
+          de: e.contactId,
+        },
     {
       mensagem_id: e.message.id,
       ...(idProvedorUsado ? {} : { id_provedor: e.message.idProvedor }),
@@ -666,6 +673,15 @@ export async function runFlowInInbound(
     await saveExecution(tx, executionId, variables, flow.id, blockByCode, transferida);
     await saveContextOfRouter();
   }
+  // P8: arm the expiration of the block the contact now waits in, or clear it (failure, handoff,
+  // a ProcessHttp still pending: its resume runs this again).
+  await syncInputExpiration(
+    tx,
+    e.tenantId,
+    executionId,
+    flow,
+    certo && !transferida && !processHttpId ? stateSaved(variables, flow.id) : null,
+  );
   return { tratou: true, respostas, ...(processHttpId ? { processHttpId } : {}) };
 }
 
