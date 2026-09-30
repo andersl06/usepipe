@@ -1493,6 +1493,11 @@
   height: 56px;
   box-sizing: border-box;
 }
+/* "Variáveis sensíveis": save/load failure under a row. */
+.bl-campo--erro-texto {
+  color: var(--erro, #c62828);
+  margin: 4px 0 0;
+}
 .bl-panel--flutuante .campo.bl-campo--erro,
 .bl-panel--block .campo.bl-campo--erro {
   border-color: var(--p-error-line);

@@ -7,7 +7,9 @@
  * (`packages/core/src/flow/context.ts`) and reads two Blip-reserved keys itself:
  * `builder:stateExpiration` (the saved block expires after that idle time) and
  * `builder:actionExecutionTimeout` (replaces the 30 s default per action, `packages/core/src/flow/manager.ts`).
- * Those three sections are functional; the other 5 show the Blip control disabled with the recorded value, if any.
+ * Those three sections are functional, and so is "Variáveis sensíveis" (P11): its secrets live
+ * encrypted in `variavel_secreta_do_fluxo` (not in `configuration`) and the engine reads them as
+ * `{{secret.X}}` in HTTP actions. The other 4 show the Blip control disabled with the recorded value, if any.
  */
 
 export type ConfigurationControlType =
@@ -106,7 +108,7 @@ export const CONFIGURATION_SECTIONS: readonly ConfigurationSection[] = [
     descricaoExtra:
       'Valores suprimidos. Caso queira apenas alterar o valor, insira novamente no campo destinado. Caso queira alterar o nome da chave, ajuste o nome e também reinsira o valor desejado.',
     controle: 'secret-vars',
-    disponivel: false,
+    disponivel: true,
   },
 ] as const;
 
