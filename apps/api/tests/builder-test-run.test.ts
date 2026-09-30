@@ -472,7 +472,7 @@ describe('POST /v1/management/flows/:id/builder/test-runs', () => {
     });
     // A queue nobody serves, and the scenario's queue, served by an online agent.
     const vazia = `Sem ninguém ${randomUUID().slice(0, 6)}`;
-    await a.dono.execute(sql`insert into fila (tenant_id, nome) values (${a.tenantId}, ${vazia})`);
+    await a.dono.execute(sql`insert into fila (tenant_id, fluxo_id, nome) values (${a.tenantId}, ${a.flowId}, ${vazia})`);
     const { rows } = await a.dono.execute<{ nome: string }>(sql`select nome from fila where id = ${a.queueId}::uuid`);
     const suporte = rows[0]!.nome;
     const id = await criado(`Transbordo ${randomUUID().slice(0, 6)}`);

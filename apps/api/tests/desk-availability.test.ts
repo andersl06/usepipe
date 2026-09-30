@@ -39,7 +39,7 @@ afterAll(async () => {
 beforeEach(async () => {
   cenario = await montarCenario(`p6-${randomUUID().slice(0, 8)}`);
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
-    insert into fila (tenant_id, nome) values (${cenario.tenantId}, 'Vazia') returning id
+    insert into fila (tenant_id, fluxo_id, nome) values (${cenario.tenantId}, ${cenario.flowId}, 'Vazia') returning id
   `);
   vaziaId = rows[0]!.id;
 }, 180_000);

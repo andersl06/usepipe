@@ -332,7 +332,7 @@ describe('context action services', () => {
 
   it('SendCommand /transfer goes through the bot attendance handoff: events, queue and distribution (WR-01)', async () => {
     const { rows: fila } = await cenario.dono.execute<{ id: string }>(sql`
-      insert into fila (tenant_id, nome) values (${cenario.tenantId}, 'Vendas') returning id
+      insert into fila (tenant_id, fluxo_id, nome) values (${cenario.tenantId}, ${cenario.flowId}, 'Vendas') returning id
     `);
     await publicarComando('/tickets/atual/transfer', { queueId: fila[0]!.id });
     await falar('oi');

@@ -68,8 +68,8 @@ async function contato(c: Cenario, telefone: string): Promise<string> {
 
 describe('Desk read commands', () => {
   it('get /teams and /teams/agents-online list active queues with online agents, per tenant', async () => {
-    await a.dono.execute(sql`insert into fila (tenant_id, nome) values (${a.tenantId}, 'Vendas')`);
-    await a.dono.execute(sql`insert into fila (tenant_id, nome, ativa) values (${a.tenantId}, 'Antiga', false)`);
+    await a.dono.execute(sql`insert into fila (tenant_id, fluxo_id, nome) values (${a.tenantId}, ${a.flowId}, 'Vendas')`);
+    await a.dono.execute(sql`insert into fila (tenant_id, fluxo_id, nome, ativa) values (${a.tenantId}, ${a.flowId}, 'Antiga', false)`);
     for (const uri of ['/teams', '/teams/agents-online']) {
       const r = await desk(a, uri);
       expect(r.status).toBe('success');

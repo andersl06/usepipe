@@ -52,7 +52,7 @@ beforeAll(async () => {
   otherAgentId = u[0]!.id;
 
   const { rows: f } = await cenario.dono.execute<{ id: string }>(sql`
-    insert into fila (tenant_id, nome) values (${cenario.tenantId}, ${`Financeiro ${randomUUID().slice(0, 6)}`})
+    insert into fila (tenant_id, fluxo_id, nome) values (${cenario.tenantId}, ${cenario.flowId}, ${`Financeiro ${randomUUID().slice(0, 6)}`})
     returning id
   `);
   otherQueueId = f[0]!.id;

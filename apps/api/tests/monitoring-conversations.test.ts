@@ -109,7 +109,7 @@ describe('Monitor conversations across queues and agents', () => {
     const fora = await conversation(b);
     const atendente2 = await pessoa(a, []);
     const { rows: queues } = await a.dono.execute<{ id: string }>(sql`
-      insert into fila (tenant_id, nome) values (${a.tenantId}, ${`Fila ${randomUUID()}`}) returning id
+      insert into fila (tenant_id, fluxo_id, nome) values (${a.tenantId}, ${a.flowId}, ${`Fila ${randomUUID()}`}) returning id
     `);
     const fila2 = queues[0]!.id;
     await a.dono.execute(sql`update conversa set fila_id = ${fila2}, atendente_id = ${atendente2} where id = ${segunda}`);

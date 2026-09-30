@@ -281,7 +281,7 @@ describe('atender', () => {
 
   it('Do not pull conversations from a queue the agent has not joined', async () => {
     const { rows: otherQueue } = await a.dono.execute<{ id: string }>(
-      sql`insert into fila (tenant_id, nome) values (${a.tenantId}, ${`Outra ${randomUUID().slice(0, 6)}`}) returning id`,
+      sql`insert into fila (tenant_id, fluxo_id, nome) values (${a.tenantId}, ${a.flowId}, ${`Outra ${randomUUID().slice(0, 6)}`}) returning id`,
     );
     await createConversationInQueue(otherQueue[0]!.id);
 

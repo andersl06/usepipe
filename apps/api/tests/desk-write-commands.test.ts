@@ -177,7 +177,7 @@ describe('Desk write commands in a published flow', () => {
     const outro = await montarCenario(`desk-write-outro-${randomUUID().slice(0, 8)}`);
     try {
       const { rows: fila } = await cenario.dono.execute<{ id: string }>(sql`
-        insert into fila (tenant_id, nome) values (${cenario.tenantId}, 'Vendas') returning id
+        insert into fila (tenant_id, fluxo_id, nome) values (${cenario.tenantId}, ${cenario.flowId}, 'Vendas') returning id
       `);
       const { rows: estrangeira } = await outro.dono.execute<{ nome: string }>(sql`
         select nome from fila where id = ${outro.queueId}::uuid
