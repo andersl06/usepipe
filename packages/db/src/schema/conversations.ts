@@ -24,6 +24,7 @@ import {
   listaCheck,
   moment,
 } from './comum.js';
+import { flow } from './automation.js';
 import { refTenant, user } from './identity.js';
 
 /** Module 3 covers conversations. The initial channels were WhatsApp Cloud API, email, and site widget; `TYPES_CHANNEL` now also includes Instagram and Messenger. */
@@ -75,12 +76,17 @@ export const queue = pgTable(
      * References `horario_atendimento` in the Management module. The foreign key is created by migration `0003_chaves_cruzadas` to avoid circular imports between modules.
      */
     horarioId: uuid('horario_id'),
+    /** Fluxo dono da fila (D-04). */
+    flowId: uuid('fluxo_id').references(() => flow.id, { onDelete: 'cascade' }),
     capacityDefault: integer('capacidade_padrao').notNull().default(5),
     order: integer('ordem').notNull().default(0),
     ativa: boolean('ativa').notNull().default(true),
     ...carimbos(),
   },
-  (t) => [uniqueIndex('fila_tenant_nome_uk').on(t.tenantId, t.nome)],
+  (t) => [
+    uniqueIndex('fila_tenant_nome_uk').on(t.tenantId, t.nome),
+    index('fila_tenant_fluxo_idx').on(t.tenantId, t.flowId),
+  ],
 );
 
 export const inbox = pgTable(

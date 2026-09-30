@@ -500,6 +500,7 @@
 	"fila_id" uuid,
 	"fila_id" uuid,
 	"fila_padrao_id" uuid,
+	"fila_padrao_id" uuid,
 	"fim" time NOT NULL
 	"fim" time,
 	"fixada_em" timestamp with time zone,
@@ -507,6 +508,8 @@
 	"fluxo_id" uuid NOT NULL,
 	"fluxo_id" uuid NOT NULL,
 	"fluxo_id" uuid NOT NULL,
+	"fluxo_id" uuid,
+	"fluxo_id" uuid,
 	"fluxo_id" uuid,
 	"fluxo_id" uuid,
 	"fluxo_id" uuid,
@@ -1100,7 +1103,7 @@
 	CONSTRAINT "contato_etiqueta_contato_id_etiqueta_id_pk" PRIMARY KEY("contato_id","etiqueta_id")
 	CONSTRAINT "contato_identidade_canal_tipo_ck" CHECK ("canal_tipo" in ('whatsapp_cloud', 'instagram', 'messenger', 'email', 'widget'))
 	CONSTRAINT "contestacao_estado_ck" CHECK ("estado" in ('aberta', 'aceita', 'recusada'))
-	CONSTRAINT "conversa_estado_ck" CHECK ("estado" in ('na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada')),
+	CONSTRAINT "conversa_estado_ck" CHECK ("estado" in ('com_bot', 'na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada')),
 	CONSTRAINT "conversa_etiqueta_conversa_id_etiqueta_id_pk" PRIMARY KEY("conversa_id","etiqueta_id")
 	CONSTRAINT "conversa_prioridade_ck" CHECK ("prioridade" in ('maxima', 'alta', 'media', 'baixa', 'sem_prioridade')),
 	CONSTRAINT "conversa_ultima_mensagem_de_ck" CHECK ("ultima_mensagem_de" in ('contato', 'atendente', 'bot'))
@@ -1403,11 +1406,13 @@ ALTER TABLE "feedback" ADD CONSTRAINT "feedback_avaliacao_id_avaliacao_id_fk" FO
 ALTER TABLE "feedback" ADD CONSTRAINT "feedback_de_usuario_id_usuario_id_fk" FOREIGN KEY ("de_usuario_id") REFERENCES "public"."usuario"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "feedback" ADD CONSTRAINT "feedback_para_usuario_id_usuario_id_fk" FOREIGN KEY ("para_usuario_id") REFERENCES "public"."usuario"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "feedback" ADD CONSTRAINT "feedback_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "fila" ADD CONSTRAINT "fila_fluxo_id_fluxo_id_fk" FOREIGN KEY ("fluxo_id") REFERENCES "public"."fluxo"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "fila" ADD CONSTRAINT "fila_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "fila_atendente" ADD CONSTRAINT "fila_atendente_fila_id_fila_id_fk" FOREIGN KEY ("fila_id") REFERENCES "public"."fila"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "fila_atendente" ADD CONSTRAINT "fila_atendente_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "fila_atendente" ADD CONSTRAINT "fila_atendente_usuario_id_usuario_id_fk" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "fluxo" ADD CONSTRAINT "fluxo_canal_id_canal_id_fk" FOREIGN KEY ("canal_id") REFERENCES "public"."canal"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "fluxo" ADD CONSTRAINT "fluxo_fila_padrao_id_fila_id_fk" FOREIGN KEY ("fila_padrao_id") REFERENCES "public"."fila"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "fluxo" ADD CONSTRAINT "fluxo_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "fluxo_membro" ADD CONSTRAINT "fluxo_membro_convidado_por_usuario_id_fk" FOREIGN KEY ("convidado_por") REFERENCES "public"."usuario"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "fluxo_membro" ADD CONSTRAINT "fluxo_membro_fluxo_id_fluxo_id_fk" FOREIGN KEY ("fluxo_id") REFERENCES "public"."fluxo"("id") ON DELETE cascade ON UPDATE no action;
@@ -1506,6 +1511,7 @@ ALTER TABLE "regra_fila" ADD CONSTRAINT "regra_fila_fila_destino_id_fila_id_fk" 
 ALTER TABLE "regra_fila" ADD CONSTRAINT "regra_fila_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "regra_fila_condicao" ADD CONSTRAINT "regra_fila_condicao_regra_id_regra_fila_id_fk" FOREIGN KEY ("regra_id") REFERENCES "public"."regra_fila"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "regra_fila_condicao" ADD CONSTRAINT "regra_fila_condicao_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "regra_prioridade" ADD CONSTRAINT "regra_prioridade_fluxo_id_fluxo_id_fk" FOREIGN KEY ("fluxo_id") REFERENCES "public"."fluxo"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "regra_prioridade" ADD CONSTRAINT "regra_prioridade_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "regra_score" ADD CONSTRAINT "regra_score_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "regra_sla" ADD CONSTRAINT "regra_sla_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
@@ -1594,6 +1600,7 @@ CREATE INDEX "execucao_fluxo_versao_idx" ON "execucao_fluxo" USING btree ("tenan
 CREATE INDEX "execucao_passo_execucao_idx" ON "execucao_passo" USING btree ("tenant_id","execucao_id","em");
 CREATE INDEX "execucao_workflow_idx" ON "execucao_workflow" USING btree ("tenant_id","workflow_id","iniciada_em" DESC NULLS LAST);
 CREATE INDEX "feedback_para_idx" ON "feedback" USING btree ("tenant_id","para_usuario_id","lido_em");
+CREATE INDEX "fila_tenant_fluxo_idx" ON "fila" USING btree ("tenant_id","fluxo_id");
 CREATE INDEX "fluxo_membro_usuario_ix" ON "fluxo_membro" USING btree ("usuario_id");
 CREATE INDEX "gatilho_workflow_idx" ON "gatilho" USING btree ("tenant_id","workflow_id","tipo");
 CREATE INDEX "gravar_memoria_tenant_idx" ON "gravar_memoria" USING btree ("tenant_id","contato_id","chave");
@@ -1625,6 +1632,7 @@ CREATE INDEX "process_http_execucao_pendente_idx" ON "process_http_execucao" USI
 CREATE INDEX "recurso_do_fluxo_fluxo_idx" ON "recurso_do_fluxo" USING btree ("tenant_id","fluxo_id");
 CREATE INDEX "regra_fila_condicao_regra_idx" ON "regra_fila_condicao" USING btree ("regra_id");
 CREATE INDEX "regra_fila_ordem_idx" ON "regra_fila" USING btree ("tenant_id","ativa","ordem");
+CREATE INDEX "regra_prioridade_tenant_fluxo_idx" ON "regra_prioridade" USING btree ("tenant_id","fluxo_id");
 CREATE INDEX "regra_score_versao_idx" ON "regra_score" USING btree ("tenant_id","versao","ativa");
 CREATE INDEX "resposta_formulario_pergunta_idx" ON "resposta_formulario" USING btree ("tenant_id","pergunta_id");
 CREATE INDEX "resposta_pesquisa_periodo_idx" ON "resposta_pesquisa" USING btree ("tenant_id","respondida_em");

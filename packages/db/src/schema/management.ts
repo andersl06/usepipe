@@ -25,6 +25,7 @@ import {
   moment,
 } from './comum.js';
 import { refTenant, user } from './identity.js';
+import { flow } from './automation.js';
 import { conversation, queue } from './conversations.js';
 
 /**
@@ -181,6 +182,8 @@ export const rulePriority = pgTable(
     nivel: text('nivel').notNull(),
     scopeType: text('escopo_tipo').notNull().default('tenant'),
     scopeId: uuid('escopo_id'),
+    /** Fluxo dono da regra (D-04). */
+    flowId: uuid('fluxo_id').references(() => flow.id, { onDelete: 'cascade' }),
     condition: jsonb('condicao')
       .notNull()
       .default(sql`'{}'::jsonb`),
@@ -188,6 +191,7 @@ export const rulePriority = pgTable(
     ...carimbos(),
   },
   (t) => [
+    index('regra_prioridade_tenant_fluxo_idx').on(t.tenantId, t.flowId),
     listaCheck('regra_prioridade_nivel_ck', t.nivel, NIVEIS_ATRIBUIVEIS),
     listaCheck('regra_prioridade_escopo_tipo_ck', t.scopeType, SCOPES_RULE),
   ],

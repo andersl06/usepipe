@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
   boolean,
   check,
   index,
@@ -12,7 +13,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { atualizadoEm, carimbos, excluidoEm, id, listaCheck, moment } from './comum.js';
 import { refTenant, user } from './identity.js';
-import { channel, contact, conversation } from './conversations.js';
+import { channel, contact, conversation, queue } from './conversations.js';
 
 /**
  * Module 6 covers automation and extraction as three distinct parts: conversation flow builder, system workflow engine, and query language backed by the data dictionary.
@@ -60,6 +61,10 @@ export const flow = pgTable(
     configuration: jsonb('configuracao')
       .notNull()
       .default(sql`'{}'::jsonb`),
+    /** Fila padrao do fluxo (D-04, A3); validada com fila.fluxo_id = fluxo.id na escrita. */
+    queueDefaultId: uuid('fila_padrao_id').references((): AnyPgColumn => queue.id, {
+      onDelete: 'set null',
+    }),
     ...carimbos(),
   },
   (t) => [
