@@ -1,4 +1,6 @@
-import { useState, type ReactNode } from 'react';
+import { useContext, useState, type ReactNode } from 'react';
+import { AiModelContext } from './ai-model-context';
+import { AI_LEXICAL_TEST_NOTE, hasLexicalAi, needsLexicalStandIn } from './ai-answers-block';
 import type { TestRunDebug, TestRunMessage } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { IconePortal } from '@pipe/ui/icones-portal';
@@ -177,6 +179,8 @@ export function TestPanel({
   const [variaveis, setVariaveis] = useState<{ chave: string; valor: string }[]>([]);
   /** P14: an AI agent without a key answers with the test-run stub; say how to walk its exits. */
   const comAgente = hasAiAgent(mapa, ...Object.values(subfluxos).map((s) => s.mapa));
+  const { model, secretNames, loading, error: modelError } = useContext(AiModelContext);
+  const comLexicalAi = !loading && !modelError && hasLexicalAi(model, mapa, ...Object.values(subfluxos).map((s) => s.mapa)) && needsLexicalStandIn(model, secretNames);
 
   async function enviar(texto: string): Promise<void> {
     const mensagem = texto.trim();
@@ -269,6 +273,7 @@ export function TestPanel({
         </button>
       </div>
       <div className="bl-panel-body bl-test-conversa">
+        {comLexicalAi ? <p className="bl-agent-nota" data-test="test-lexical-ai-note">{AI_LEXICAL_TEST_NOTE}</p> : null}
         {comAgente ? (
           <p className="bl-agent-nota" data-test="test-ai-agent-note">
             <IconePortal nome="robo" tamanho={16} />

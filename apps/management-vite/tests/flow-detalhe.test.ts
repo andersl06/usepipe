@@ -51,9 +51,9 @@ test('Growth and Log open their screens within the contact\'s context', () => {
   }
 });
 
-test('a fonte da subbarra não inclui Inteligência artificial sem claims do bot', () => {
+test('AI model is discoverable from the bot navigation', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
-    assert.ok(!itensDoMenu(tipo, BASE).some((item) => item.rotulo === 'Inteligência artificial'));
+    assert.equal(itensDoMenu(tipo, BASE).find((item) => item.rotulo === 'Inteligência artificial')?.href, `${BASE}/ai/model`);
   }
 });
 
@@ -106,6 +106,7 @@ test('the rest of the row is the same in both, and in the same order', () => {
     'Conteúdos',
     'Log',
     'Pagamentos',
+    'Inteligência artificial',
   ]);
 });
 
@@ -142,7 +143,7 @@ test('the flow\'s permissions hide what the person cannot see', () => {
   const itens = itensDoMenu('fluxo', BASE, SO_ISSO({ builder: 'escrever', analysis: 'ler' }));
   assert.deepEqual(
     itens.map((i) => i.rotulo),
-    ['Builder', 'Análise'],
+    ['Builder', 'Análise', 'Inteligência artificial'],
   );
 });
 

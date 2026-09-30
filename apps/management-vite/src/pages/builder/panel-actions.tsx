@@ -41,7 +41,9 @@ import { ConditionsEditor } from './condition';
 import { FlowFunctionInsertPicker, FlowFunctionSelect } from './flow-functions-panel';
 import { insertLibraryCall } from './flow-functions';
 import { isAiAgentBlock, newTool, toolErrors } from './ai-agent-block';
-import { ToolFields } from './panel-ai-agent';
+import { ToolFields, AgentToolsPanel, KnowledgeToolFields } from './panel-ai-agent';
+import { newKnowledgeTool } from './ai-agent-tools';
+import { AssistantPicker } from './ai-model-context';
 
 /** Monaco stays in its own chunk, fetched only when a script action is opened. */
 const CodeEditor = lazy(() => import('./code-editor'));
@@ -86,6 +88,7 @@ export function ActionsPanel({
     const tools = block.$localCustomActions ?? [];
     return (
       <div className="bl-aba-corpo">
+        <AgentToolsPanel block={block} onMudar={onMudar} onAviso={onAviso} />
         <ListOfActionsOfBlock
           block={block}
           lista="$localCustomActions"
@@ -97,7 +100,7 @@ export function ActionsPanel({
           copiadas={copiadas}
           onCopiar={copiar}
           inSubflow={inSubflow}
-          criarAcao={(tipo) => newTool(block, tipo)}
+          criarAcao={(tipo) => tipo === 'KnowledgeBaseConsult' ? newKnowledgeTool(block) : newTool(block, tipo)}
           extraDoCard={(acao, mudar) => ({
             campos: <ToolFields acao={acao} all={tools} onMudar={mudar} />,
             erros: toolErrors(acao, tools),
@@ -633,7 +636,8 @@ export function ActionCard({
                   />
                 </label>
               ) : null}
-              {tipo!.campos.map((campo) => {
+              {acao.type === 'KnowledgeBaseConsult' ? <KnowledgeToolFields acao={acao} onMudar={onMudar} /> : null}
+              {tipo!.campos.filter((campo) => acao.type !== 'KnowledgeBaseConsult' || ['query', 'outputVariable'].includes(campo.key)).map((campo) => {
                 const vazio = !!campo.obrigatorio && !fieldValue(acao, campo.key).trim();
                 return (
                 <label
@@ -645,7 +649,9 @@ export function ActionCard({
                     {campo.rotulo}
                     {campo.obrigatorio ? ' *' : ''}
                   </span>
-                  {campo.tipo === 'cabecalhos' ? (
+                  {acao.type === 'ProcessAnswers' && campo.key === 'AssistantId' ? (
+                    <AssistantPicker value={fieldValue(acao, 'AssistantId')} onChange={(value) => onMudar(comCampo(acao, 'AssistantId', value))} />
+                  ) : campo.tipo === 'cabecalhos' ? (
                     <EditorDeCabecalhos
                       cabecalhos={cabecalhosDoCampo(acao, campo.key)}
                       onMudar={(cabecalhos) => onMudar(comCabecalhos(acao, campo.key, cabecalhos))}
@@ -719,6 +725,10 @@ export function ActionCard({
                     />
                   ) : (
                     <Campo
+                      type={campo.tipo === 'number' ? 'number' : 'text'}
+                      min={campo.min}
+                      max={campo.max}
+                      step={campo.step}
                       value={fieldValue(acao, campo.key)}
                       onChange={(e) => onMudar(comCampo(acao, campo.key, e.target.value))}
                     />

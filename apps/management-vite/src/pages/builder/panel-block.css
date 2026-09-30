@@ -1606,3 +1606,10 @@
   padding-left: 16px;
   font-size: 12px;
 }
+.bl-knowledge-list { border: 0; padding: 0; margin: 16px 0; display: grid; gap: 10px; max-height: 240px; overflow: auto; }
+.bl-knowledge-list legend { font-weight: 600; margin-bottom: 10px; }
+.bl-knowledge-list label { display: flex; align-items: center; gap: 8px; }
+.bl-knowledge-list input { accent-color: var(--p-marca); }
+.bl-agent-mcp { border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin: 16px 0; }
+.bl-agent-mcp-url { overflow-wrap: anywhere; }
+.bl-ai-suggestions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }

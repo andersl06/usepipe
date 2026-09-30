@@ -23,6 +23,8 @@ import { canvasInvalidBlocks } from './builder/subflows';
 import { missingSubflows } from './builder/import-exportar';
 import { SEARCH_DEBOUNCE_MS } from './builder/search';
 import './builder.css';
+import { BuilderAiModelProvider } from './builder/ai-model-context';
+import { contactPath } from './flow/contact';
 
 /**
  * Builder layout follows captured production DOM (`referencias-blip/builder/builder-fluxo__pagina.html`; mapping in `builder.css`): notice strip, block-icon pill, dark canvas, status/zoom footer, conversation button. Pure `./builder/` modules `modelo.ts`, `condicoes.ts`, `conteudo.ts`, and `acoes-do-bloco.ts` edit the graph; `estado.ts` and `use-editor.ts` provide undo/redo and API-backed draft autosave; `canvas.tsx`, `no.tsx`, and `painel*.tsx` render graph and sidebar. Existing `/v1/gestao/fluxos/:id/builder` PUT saves a draft, Publish promotes it with per-block engine errors, history lists versions and restores an older one as draft. Unsupported frame controls remain disabled; confirmations use `Modal` from `cadastros/_modal`, never `window.confirm`. Route `/fluxo/:id/builder` stays inside the contact like source `/application/detail/<bot>/templates/builder`; `HIDDEN_IN_ROUTER` in `fluxo/itens.ts` hides Builder for routers, and `api` returns 409 if opened by URL.
@@ -290,7 +292,7 @@ export function PageBuilder() {
   const blocos = Object.keys(state.mapa).length;
 
   return (
-    <div className="pt-app">
+    <BuilderAiModelProvider flowId={contact.id} editorPath={contactPath(contact, 'ai/model')}><div className="pt-app">
       <ContactBars ativo="Builder" />
       <div className="bl-tela">
         {avisoAberto ? (
@@ -609,6 +611,6 @@ export function PageBuilder() {
         onPausar={() => {}}
         onRetomar={() => {}}
       />
-    </div>
+    </div></BuilderAiModelProvider>
   );
 }

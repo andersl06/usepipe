@@ -392,6 +392,8 @@ function blockCopy(origem: Block, position: Position, novoId = gerarId()): Block
       ? `${PREFIX_OF_SUBFLOW}${novoId}`
       : origem.id.startsWith(PREFIX_OF_AI_AGENT)
         ? `${PREFIX_OF_AI_AGENT}${novoId}`
+        : origem.id.startsWith('ai-answers:')
+          ? `ai-answers:${novoId}`
         : novoId;
   copia.root = false;
   copia.$title = `${origem.$title ?? TITULO_PADRAO} [Cópia]`;

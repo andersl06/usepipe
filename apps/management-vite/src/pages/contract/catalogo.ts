@@ -40,9 +40,23 @@ export interface ContractCard {
   pronto: boolean;
   /** The flag that, at the source, would hide this card. Only demo mode shows it. */
   flagNaOrigem?: string;
+  /** Some features use an existing domain permission instead of the account matrix. */
+  permission?: string;
 }
 
 export const CATALOGO: readonly ContractCard[] = [
+  {
+    id: 'knowledge-base',
+    grupo: 'configuracoes',
+    titulo: 'Base de conhecimento',
+    description: 'Gerencie as bases e os documentos utilizados pelos agentes de IA',
+    icone: 'painel',
+    key: 'automacao.fluxo',
+    conferencia: 'escrever',
+    permission: 'automacao.fluxo.editar',
+    rota: tenantPath('tenant/knowledge-base'),
+    pronto: true,
+  },
   {
     id: 'membros',
     grupo: 'configuracoes',
@@ -104,7 +118,7 @@ export const CATALOGO: readonly ContractCard[] = [
 
 /** The permission code the card requires: key + verb. */
 export function permissionRequired(card: ContractCard): string {
-  return `${card.key}.${card.conferencia}`;
+  return card.permission ?? `${card.key}.${card.conferencia}`;
 }
 
 export interface FilterOptions {

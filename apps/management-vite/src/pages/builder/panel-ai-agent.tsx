@@ -11,6 +11,9 @@ import { CabecalhoInfo } from './cabecalho-info';
 import { DestinationPicker } from './destination-picker';
 import { outputErrors } from './conditions';
 import { listFlowSecrets } from './secret-variables-gravar';
+import { adicionarAcao } from './actions-of-block';
+import { newKnowledgeTool } from './ai-agent-tools';
+import { KnowledgeFields, McpConnections } from './knowledge-tools-ui';
 import {
   AGENT_MEMORY_DEFAULT,
   MODEL_SUGGESTIONS,
@@ -89,6 +92,29 @@ function useSecretNames(): string[] | null {
     };
   }, [contact.id]);
   return names;
+}
+
+/** Account knowledge and MCP tools share the agent's local tool list and flow secret names. */
+export function AgentToolsPanel({ block, onMudar, onAviso }: {
+  block: Block; onMudar: (block: Block) => void; onAviso: (text: string) => void;
+}) {
+  const secrets = useSecretNames();
+  return <>
+    <section className="bl-section bl-agent-secao">
+      <h4>Base de conhecimento</h4>
+      <p className="bl-ajuda">Adicione uma consulta aos documentos da conta como ferramenta do agente.</p>
+      <button type="button" className="bl-botao-contorno" onClick={() => {
+        const result = adicionarAcao(block, '$localCustomActions', newKnowledgeTool(block));
+        if (result.ok) onMudar(result.block); else onAviso(result.error);
+      }}>Adicionar base de conhecimento</button>
+    </section>
+    <McpConnections block={block} onMudar={onMudar} secretNames={secrets} />
+  </>;
+}
+
+export function KnowledgeToolFields({ acao, onMudar }: { acao: AcaoDoEditor; onMudar: (action: AcaoDoEditor) => void }) {
+  const secrets = useSecretNames();
+  return <KnowledgeFields acao={acao} onMudar={onMudar} secretNames={secrets} />;
 }
 
 export function AiAgentInstructionsPanel({
