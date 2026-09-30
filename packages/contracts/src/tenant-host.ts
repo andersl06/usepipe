@@ -30,7 +30,10 @@ function splitHost(rawHost: string, config: TenantHostConfig): string | null {
   const [, hostname, port] = match;
   if (!hostname || hostname.startsWith('.') || hostname.endsWith('.')) return null;
   if (config.publicPort) {
-    if (port !== config.publicPort) return null;
+    // Local Desk has its own Vite port; production has one shared HTTPS port.
+    const localDesk = ['lvh.me', 'localhost'].includes(config.baseDomain) && config.publicPort === '3110'
+      && hostname.endsWith(`.desk.${config.baseDomain}`) && port === '3210';
+    if (port !== config.publicPort && !localDesk) return null;
   } else if (port && port !== (config.secure ? '443' : '80')) {
     return null;
   }
@@ -40,7 +43,8 @@ function splitHost(rawHost: string, config: TenantHostConfig): string | null {
 function validBase(config: TenantHostConfig): boolean {
   return Boolean(config.baseDomain && config.baseDomain === config.baseDomain.toLowerCase()
     && !config.baseDomain.startsWith('.') && !config.baseDomain.endsWith('.')
-    && !config.baseDomain.startsWith('desk.') && /^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(config.baseDomain));
+    && !config.baseDomain.startsWith('desk.')
+    && (config.baseDomain === 'localhost' || /^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(config.baseDomain)));
 }
 
 export function parseTenantHost(host: string, config: TenantHostConfig): { slug: string; app: TenantApp } | null {
@@ -64,7 +68,9 @@ export function buildTenantOrigin(slug: string, app: TenantApp, config: TenantHo
   if (!isValidTenantSlug(slug) || !validBase(config) || (app !== 'application' && app !== 'desk')) {
     throw new Error('Invalid tenant origin');
   }
-  return `${config.secure ? 'https' : 'http'}://${slug}${app === 'desk' ? '.desk' : ''}.${config.baseDomain}${config.publicPort ? `:${config.publicPort}` : ''}`;
+  const port = app === 'desk' && ['lvh.me', 'localhost'].includes(config.baseDomain) && config.publicPort === '3110'
+    ? '3210' : config.publicPort;
+  return `${config.secure ? 'https' : 'http'}://${slug}${app === 'desk' ? '.desk' : ''}.${config.baseDomain}${port ? `:${port}` : ''}`;
 }
 
 export function isLoginHost(host: string, config: TenantHostConfig): boolean {
@@ -76,6 +82,10 @@ export function deriveBaseDomain(hostname: string): string | null {
   const host = hostname.toLowerCase().replace(/\.$/, '');
   if (host === 'localhost' || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(host) || host.includes(':')) return null;
   const labels = host.split('.');
+  if (labels.at(-1) === 'localhost' && labels.length >= 2) {
+    return labels[1] === 'desk' ? (labels.length === 3 ? 'localhost' : null)
+      : (labels.length === 2 ? 'localhost' : null);
+  }
   if (labels.length < 3 || labels.some((label) => !label)) return null;
   const skip = labels[1] === 'desk' ? 2 : 1;
   return labels.length - skip >= 2 ? labels.slice(skip).join('.') : null;

@@ -235,7 +235,8 @@ export class LoginController {
       resposta.status(404).end();
       return;
     }
-    if (redirectToCentralLogin(requisicao, resposta)) return;
+    // *.localhost has host-only cookies; dev sign-in must happen on each app host.
+    if (readTenantHostConfig()?.baseDomain !== 'localhost' && redirectToCentralLogin(requisicao, resposta)) return;
     const email = (textoDaQuery(requisicao, 'email') ?? 'ana.ribeiro@demo.pipe.app')
       .trim()
       .toLowerCase();

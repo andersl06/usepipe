@@ -8,10 +8,10 @@ export function assertTenantDomainConfig(
 ): void {
   const domain = (env['PIPE_DOMINIO_CONTAS'] ?? '').trim();
   if (!domain) return;
-  if (!/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(domain) || domain.startsWith('desk.')) {
+  if (!(domain === 'localhost' || /^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(domain)) || domain.startsWith('desk.')) {
     throw new Error('PIPE_DOMINIO_CONTAS must be a valid base domain');
   }
-  if (env['PIPE_COOKIE_DOMINIO'] !== `.${domain}`) {
+  if (env['PIPE_COOKIE_DOMINIO'] !== (domain === 'localhost' ? '' : `.${domain}`)) {
     throw new Error('PIPE_COOKIE_DOMINIO must match PIPE_DOMINIO_CONTAS with a leading dot');
   }
   const config = readTenantHostConfig(env)!;

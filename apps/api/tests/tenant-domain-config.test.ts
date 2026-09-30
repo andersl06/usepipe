@@ -27,4 +27,13 @@ describe('tenant domain startup configuration', () => {
     expect(() => assertTenantDomainConfig(wrong, warn)).not.toThrow();
     expect(warn).toHaveBeenCalledOnce();
   });
+
+  it('accepts host-only cookies for the local *.localhost mode', () => {
+    const warn = vi.fn();
+    expect(() => assertTenantDomainConfig({
+      PIPE_DOMINIO_CONTAS: 'localhost', PIPE_COOKIE_DOMINIO: '', PIPE_PORTA_PUBLICA: '3110',
+      PIPE_COOKIE_SEGURO: 'false', GOOGLE_URL_RETORNO: 'http://localhost:3010/v1/auth/google/callback',
+    }, warn)).not.toThrow();
+    expect(warn).toHaveBeenCalledOnce();
+  });
 });
