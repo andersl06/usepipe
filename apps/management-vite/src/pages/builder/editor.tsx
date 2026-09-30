@@ -5,6 +5,7 @@ import { useContact } from '../flow/contact';
 import { ConfirmModal } from '@pipe/ui/modal';
 import { Canvas } from './canvas';
 import type { EditorState, GestoDoEditor } from './state';
+import { mapaNaTela } from './state';
 import { MenuNewBlock } from './menu-new-block';
 import type { Position } from './model';
 import {
@@ -23,10 +24,23 @@ import {
   replaceBlock,
 } from './model';
 import { BlockPanel } from './panel';
+import type { SubflowPanelContext } from './panel';
 import { TestPanel } from './test-panel';
 import { positionInCenter } from './setas';
 import type { ToastInput } from '@pipe/ui/toast-queue';
-import { invalidBlocks } from './error-marks';
+import type { SubflowDrawing } from './subflows';
+import {
+  SUBFLOW_MESSAGES,
+  canvasInvalidBlocks,
+  createSubflow,
+  deleteSubflowBlock,
+  isSubflowBlock,
+  newSubflowDrawing,
+  subflowOfBlock,
+  subflowTitle,
+  withSubflowMap,
+} from './subflows';
+import { CreateSubflowModal, SubflowBar } from './subflow-ui';
 import './editor.css';
 import './panel-block.css';
 
@@ -34,6 +48,8 @@ import './panel-block.css';
  * The editor itself, inside the frame's dark canvas: the blocks and arrows (`Canvas`), the sidebar of the open block (`BlockPanel`), the "NOVO BLOCO" sheet next to the pill, and the delete confirmation, which here is `ConfirmModal` and not `window.confirm` (the Blip editor deletes without asking and relies on undo; Pipe has undo AND asks). Passing warnings ("Limite de 25 condições de saída atingidos"…, colar, copiar bloco) go through `onAviso`, the Builder's single toast (F-6, D-56).
  *
  * The drawing lives in the `estado.ts` reducer, reached through `state`/`despachar`; each gesture becomes a new map via the `modelo.ts` functions and an `aplicar`. A block paints red (F-6) when `blockMarks` says `node: true` — the screen's own rules plus whatever the `api` (`apiErrors`) or the 409 on publish (`engineErrors`) flagged for it; there is no text on the canvas, only color.
+ *
+ * Subflows (P13): the canvas shows the main flow or the open subflow (`state.subfluxoAberto`). A subflow opens from its calling block (double click, or "Abrir subfluxo" in its panel), from the NOVO BLOCO sheet, or from a Debug step; `SubflowBar` goes back. A subflow's problems paint its calling block red on the main flow, as in Blip.
  */
 
 export function Editor({
@@ -64,13 +80,17 @@ export function Editor({
   onAviso: (input: ToastInput) => void;
 }) {
   const { contact } = useContact();
-  const { mapa } = state;
+  const mapa = mapaNaTela(state);
+  const aberto = state.subfluxoAberto;
   const [selecionado, setSelecionado] = useState<string | null>(null);
   const [editando, setEditando] = useState<string | null>(null);
   const [testOpen, setTestOpen] = useState(false);
   const [offset, setOffset] = useState<Position>({ top: 0, left: 0 });
   const [excluindo, setExcluindo] = useState<string | null>(null);
+  const [criandoSubfluxo, setCriandoSubfluxo] = useState(false);
   const area = useRef<HTMLDivElement>(null);
+  /** The block to select once the canvas switches (a Debug step inside a subflow). */
+  const selecionarAoTrocar = useRef<string | null>(null);
 
   /*
    * The Configuração and Filas panels occupy the same side as the block panel; opening one of them closes the block editor so it doesn't overlap content. The Test panel (D-14) shares that side too.
@@ -85,6 +105,14 @@ export function Editor({
   useEffect(() => {
     if (testOpen) setEditando(null);
   }, [testOpen]);
+
+  /* Another canvas (main flow ↔ subflow): nothing selected there yet, back to the origin. */
+  useEffect(() => {
+    setSelecionado(selecionarAoTrocar.current);
+    selecionarAoTrocar.current = null;
+    setEditando(null);
+    setOffset({ top: 0, left: 0 });
+  }, [aberto]);
 
   /* Bloco que sumiu (desfazer, excluir) fecha o painel. */
   useEffect(() => {
@@ -105,7 +133,7 @@ export function Editor({
     return () => window.removeEventListener('keydown', aoTeclar);
   }, [despachar]);
 
-  const invalidos = invalidBlocks(mapa, [...apiErrors, ...engineErrors]);
+  const invalidos = canvasInvalidBlocks(mapa, state.subfluxos, [...apiErrors, ...engineErrors], aberto);
 
   const aplicar = (novo: typeof mapa): void => despachar({ tipo: 'aplicar', mapa: novo });
 
@@ -164,6 +192,70 @@ export function Editor({
     setEditando(block.id);
   }
 
+  /* ------------------------------------------------------------ subfluxos */
+
+  function abrirSubfluxo(shortName: string | null, selecionar: string | null = null): void {
+    if (shortName === aberto) {
+      if (selecionar) setSelecionado(selecionar);
+      return;
+    }
+    selecionarAoTrocar.current = selecionar;
+    onCloseNewBlock();
+    despachar({ tipo: 'abrirSubfluxo', shortName });
+  }
+
+  /** "+ Criar novo subfluxo" (main flow only): the calling block lands in the middle, selected. */
+  function criarSubfluxo(nome: string): void {
+    const r = createSubflow(state.mapa, state.subfluxos, positionForNew(), nome);
+    despachar({ tipo: 'aplicarSubfluxos', mapa: r.mapa, subfluxos: r.subflows });
+    setCriandoSubfluxo(false);
+    onCloseNewBlock();
+    setSelecionado(r.block.id);
+    setEditando(r.block.id);
+  }
+
+  /** A calling block whose subflow has no drawing gets one: empty, or loaded from its file. */
+  function darDesenho(shortName: string, desenho: SubflowDrawing, abrir: boolean): void {
+    despachar({
+      tipo: 'aplicarSubfluxos',
+      mapa: state.mapa,
+      subfluxos: { ...state.subfluxos, [shortName]: desenho },
+      ...(abrir ? { abrir: shortName } : {}),
+    });
+  }
+
+  /** "Carregar subfluxo" on the open subflow: its drawing is replaced (one undo step). */
+  function recarregarAberto(desenho: SubflowDrawing): void {
+    if (aberto === null) return;
+    despachar({ tipo: 'aplicarSubfluxos', mapa: state.mapa, subfluxos: { ...state.subfluxos, [aberto]: desenho } });
+    onAviso({ tom: 'sucesso', texto: 'Subfluxo carregado.' });
+  }
+
+  const subflowContext: SubflowPanelContext = {
+    inSubflow: aberto !== null,
+    subfluxos: state.subfluxos,
+    onAbrir: (shortName) => abrirSubfluxo(shortName),
+    onCriarVazio: (shortName) => darDesenho(shortName, newSubflowDrawing(), true),
+    onCarregar: (shortName, desenho) => {
+      darDesenho(shortName, desenho, false);
+      onAviso({ tom: 'sucesso', texto: 'Subfluxo carregado.' });
+    },
+  };
+
+  function abrirPeloBloco(id: string): void {
+    const block = mapa[id];
+    if (!block) return;
+    const key = subflowOfBlock(block, state.subfluxos);
+    if (key) abrirSubfluxo(key);
+    else {
+      // No drawing yet: the panel's "Subfluxo" tab offers to load or create it.
+      setSelecionado(id);
+      setEditando(id);
+    }
+  }
+
+  /* --------------------------------------------------------------- setas */
+
   function ligarBlocos(de: string, para: string): void {
     const r = ligar(mapa, de, para);
     if (r.ok) aplicar(r.mapa);
@@ -178,6 +270,18 @@ export function Editor({
     setExcluindo(id);
   }
 
+  function excluir(id: string): void {
+    const block = mapa[id];
+    if (!block || !isSubflowBlock(block)) {
+      aplicar(deleteBlock(mapa, id));
+      return;
+    }
+    // "Deletar subfluxo": the calling block and, unless another block still calls it, its subflow.
+    const r = deleteSubflowBlock(mapa, state.subfluxos, id);
+    const subfluxos = aberto === null ? r.subflows : withSubflowMap(r.subflows, aberto, r.mapa);
+    despachar({ tipo: 'aplicarSubfluxos', mapa: aberto === null ? r.mapa : state.mapa, subfluxos });
+  }
+
   function copiarId(id: string): void {
     void navigator.clipboard?.writeText(id).then(
       () => avisar('Id copiado.'),
@@ -186,10 +290,14 @@ export function Editor({
   }
 
   const blockOpen = editando ? mapa[editando] : undefined;
+  const blocoExcluindo = excluindo ? mapa[excluindo] : undefined;
+  const excluindoSubfluxo = !!blocoExcluindo && isSubflowBlock(blocoExcluindo);
+  const desenhoAberto = aberto !== null ? state.subfluxos[aberto] : undefined;
 
   return (
     <div ref={area} className="bl-editor" data-tema="escuro">
       <Canvas
+        key={aberto ?? ''}
         mapa={mapa}
         invalidBlocks={invalidos}
         selecionado={selecionado}
@@ -210,7 +318,19 @@ export function Editor({
         onExcluir={pedirExclusao}
         onAviso={avisar}
         pesquisa={pesquisa}
+        onAbrirSubfluxo={abrirPeloBloco}
       />
+
+      {aberto !== null && desenhoAberto ? (
+        <SubflowBar
+          titulo={subflowTitle(state.mapa, aberto)}
+          shortName={aberto}
+          subflow={desenhoAberto}
+          onVoltar={() => abrirSubfluxo(null)}
+          onCarregar={recarregarAberto}
+          onAviso={(texto, erro) => onAviso({ tom: erro ? 'perigo' : 'aviso', texto })}
+        />
+      ) : null}
 
       {newBlockOpen ? (
         <MenuNewBlock
@@ -218,18 +338,29 @@ export function Editor({
           onHumano={createHuman}
           onPesquisa={createSurvey}
           onFechar={onCloseNewBlock}
+          subflow={
+            aberto === null
+              ? {
+                  mapa: state.mapa,
+                  subfluxos: state.subfluxos,
+                  onAbrir: (shortName) => abrirSubfluxo(shortName),
+                  onCriar: () => setCriandoSubfluxo(true),
+                }
+              : undefined
+          }
         />
       ) : null}
 
       {blockOpen ? (
         <BlockPanel
-          key={blockOpen.id}
+          key={`${aberto ?? ''}:${blockOpen.id}`}
           block={blockOpen}
           mapa={mapa}
           onMudar={(block) => aplicar(replaceBlock(mapa, block))}
           onFechar={() => setEditando(null)}
           onAviso={avisar}
           onAbrirFuncoes={onAbrirFuncoes}
+          subflow={subflowContext}
         />
       ) : null}
 
@@ -247,17 +378,29 @@ export function Editor({
       {testOpen ? (
         <TestPanel
           flowId={contact.id}
-          mapa={mapa}
+          mapa={state.mapa}
+          subfluxos={state.subfluxos}
           onFechar={() => setTestOpen(false)}
-          onDestacarBloco={(id) => setSelecionado(id)}
+          onDestacarBloco={(id, subflow) => abrirSubfluxo(subflow && state.subfluxos[subflow] ? subflow : null, id)}
         />
       ) : null}
 
+      <CreateSubflowModal
+        aberto={criandoSubfluxo}
+        onCriar={criarSubfluxo}
+        onCancelar={() => setCriandoSubfluxo(false)}
+      />
+
       <ConfirmModal
         aberto={excluindo !== null}
-        titulo="Excluir bloco"
+        titulo={excluindoSubfluxo ? SUBFLOW_MESSAGES.excluirTitulo : 'Excluir bloco'}
+        rotuloConfirmar={excluindoSubfluxo ? SUBFLOW_MESSAGES.excluirTitulo : undefined}
         message={
-          excluindo ? (
+          excluindoSubfluxo ? (
+            <>
+              {SUBFLOW_MESSAGES.excluirTexto} Dá para desfazer com Ctrl+Z.
+            </>
+          ) : excluindo ? (
             <>
               Excluir o bloco <b>{mapa[excluindo]?.$title ?? excluindo}</b>? As condições de saída de
               outros blocos que apontam para ele deixam de apontar. Dá para desfazer com Ctrl+Z.
@@ -265,7 +408,7 @@ export function Editor({
           ) : null
         }
         onConfirmar={() => {
-          if (excluindo) aplicar(deleteBlock(mapa, excluindo));
+          if (excluindo) excluir(excluindo);
           setExcluindo(null);
         }}
         onCancelar={() => setExcluindo(null)}

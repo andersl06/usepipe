@@ -4,6 +4,8 @@ import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import { runTest, resetTest } from '../builder-gravar';
 import type { Mapa } from './model';
+import type { Subflows } from './subflows';
+import { stepTitle } from './test-panel-logic';
 import { GLOBAL_ACTIONS_SECTION_ID, debugSections, inputExpirationHint, testVariablesToRecord } from './test-panel-logic';
 
 /**
@@ -69,21 +71,33 @@ function bolhaConteudo(m: TestRunMessage, onOpcao: (texto: string) => void): Rea
 function Debug({
   debug,
   mapa,
+  subfluxos,
   onDestacar,
 }: {
   debug: TestRunDebug;
   mapa: Mapa;
-  onDestacar: (id: string) => void;
+  subfluxos: Subflows;
+  onDestacar: (id: string, subflow: string | null) => void;
 }) {
-  const tituloDe = (id: string): string => mapa[id]?.$title ?? id;
+  const tituloDe = (id: string, subflow?: string): string => stepTitle(mapa, subfluxos, id, subflow);
+  /** P13: which subflow a step ran in (absent = the main flow). */
+  const marca = (subflow?: string) =>
+    subflow ? <span className="bl-test-subfluxo">Subfluxo {subflow}</span> : null;
   return (
     <div className="bl-test-debug">
       <div className="bl-test-debug-linha">
         <span className="bl-section-subtitle">Bloco atual</span>
         {debug.currentStateId ? (
-          <button type="button" className="bl-test-bloco-link" onClick={() => onDestacar(debug.currentStateId!)}>
-            {tituloDe(debug.currentStateId)}
-          </button>
+          <span>
+            <button
+              type="button"
+              className="bl-test-bloco-link"
+              onClick={() => onDestacar(debug.currentStateId!, debug.currentSubflow ?? null)}
+            >
+              {tituloDe(debug.currentStateId, debug.currentSubflow)}
+            </button>
+            {marca(debug.currentSubflow)}
+          </span>
         ) : (
           <span className="sub">nenhum (fluxo encerrado)</span>
         )}
@@ -108,9 +122,16 @@ function Debug({
             {estado.stateId === GLOBAL_ACTIONS_SECTION_ID ? (
               <b>Ações globais</b>
             ) : (
-              <button type="button" className="bl-test-bloco-link" onClick={() => onDestacar(estado.stateId)}>
-                {tituloDe(estado.stateId)}
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="bl-test-bloco-link"
+                  onClick={() => onDestacar(estado.stateId, estado.subflow ?? null)}
+                >
+                  {tituloDe(estado.stateId, estado.subflow)}
+                </button>
+                {marca(estado.subflow)}
+              </>
             )}
             {estado.actions.length === 0 ? (
               <span className="sub"> — nenhuma ação</span>
@@ -134,13 +155,17 @@ function Debug({
 export function TestPanel({
   flowId,
   mapa,
+  subfluxos,
   onFechar,
   onDestacarBloco,
 }: {
   flowId: string;
+  /** The main flow's blocks (the Debug names steps by title). */
   mapa: Mapa;
+  subfluxos: Subflows;
   onFechar: () => void;
-  onDestacarBloco: (id: string) => void;
+  /** Shows a step's block; `subflow` opens that subflow's canvas first (P13). */
+  onDestacarBloco: (id: string, subflow: string | null) => void;
 }) {
   const [mensagens, setMensagens] = useState<ChatMessage[]>([]);
   const [entrada, setEntrada] = useState('');
@@ -264,7 +289,7 @@ export function TestPanel({
             </Botao>
           </div>
         ) : null}
-        {debug ? <Debug debug={debug} mapa={mapa} onDestacar={onDestacarBloco} /> : null}
+        {debug ? <Debug debug={debug} mapa={mapa} subfluxos={subfluxos} onDestacar={onDestacarBloco} /> : null}
       </div>
       <div className="bl-test-campo">
         <Campo

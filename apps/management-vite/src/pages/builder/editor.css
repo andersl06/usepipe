@@ -1176,3 +1176,145 @@
 /*
  * Builder-open capture 03 is this route's composition reference: light panel, white cards and an invalid condition marked in red.
  */
+
+/* ------------------------------------------------------------- subfluxos (P13) */
+
+/* A subflow's calling block: 225px wide with radius 6 (reference measurements); our own paint. */
+.bl-node--subflow {
+  width: 225px;
+  border-radius: 6px;
+  outline: 1px dashed rgb(255 255 255 / 28%);
+  outline-offset: -8px;
+}
+.bl-no-tipo {
+  display: block;
+  margin-top: 4px;
+  color: rgb(255 255 255 / 64%);
+  font-size: 12px;
+  line-height: 16px;
+}
+/* The subflow's `end` block ("Fim") hands the contact back: no output dot to drag from. */
+.bl-node--end .bl-no-saida {
+  display: none;
+}
+
+.bl-subflow-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 0 16px;
+  padding-left: 12px;
+  border-left: 1px solid #3a3a3a;
+}
+.bl-subflow-menu-vazio {
+  margin: 6px 0;
+  color: rgb(255 255 255 / 56%);
+  font-size: 12px;
+}
+.bl-subflow-menu-item,
+.bl-subflow-criar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.bl-subflow-menu-item:hover,
+.bl-subflow-criar:hover {
+  background: var(--p-builder-marca-destaque);
+}
+.bl-subflow-criar {
+  color: var(--p-builder-marca);
+  font-weight: 700;
+}
+
+.bl-subflow-bar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 12rem);
+  padding: 6px 8px 6px 6px;
+  transform: translateX(-50%);
+  border-radius: 16px;
+  background: #1f1f1f;
+  color: #f6f6f6;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+}
+.bl-subflow-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--p-builder-marca);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bl-subflow-voltar:hover,
+.bl-subflow-voltar:focus-visible {
+  background: var(--p-builder-marca-destaque);
+}
+.bl-subflow-sep {
+  color: rgb(255 255 255 / 40%);
+}
+.bl-subflow-nome {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bl-subflow-chip {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 16px;
+}
+.bl-subflow-bar .iconbtn {
+  color: inherit;
+}
+
+.bl-subflow-secao p {
+  margin: 8px 0;
+}
+.bl-subflow-botoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.bl-subflow-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+/* Debug of the test panel: the subflow a block belongs to. */
+.bl-test-subfluxo {
+  margin-left: 6px;
+  padding: 0 6px;
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  font-size: 11px;
+  opacity: 0.8;
+}

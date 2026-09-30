@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PointerEvent as PointerEventDeReact, WheelEvent as WheelEventDeReact } from 'react';
 import type { Aresta, Block, Mapa, Position } from './model';
-import { arestasDe, copiedTextBlock, podeExcluir, positionOf, copiedBlockText } from './model';
+import { PREFIX_OF_SUBFLOW, arestasDe, copiedTextBlock, podeExcluir, positionOf, copiedBlockText } from './model';
 import { No } from './no';
 import { isSearchDimming, searchMatches } from './search';
 import {
   HEIGHT_DEFAULT_OF_BLOCK,
   WIDTH_OF_BLOCK,
+  WIDTH_OF_SUBFLOW_BLOCK,
   PASSO_DO_ZOOM,
   caminhoDaSeta,
   caminhoProvisorio,
@@ -42,6 +43,8 @@ export interface PropsDoCanvas {
   onExcluir: (id: string) => void;
   onAviso: (texto: string) => void;
   pesquisa: string;
+  /** Opens the subflow a `subflow:` block calls (double click, P13). */
+  onAbrirSubfluxo?: (id: string) => void;
 }
 
 type Arrasto =
@@ -76,6 +79,7 @@ export function Canvas({
   onExcluir,
   onAviso,
   pesquisa,
+  onAbrirSubfluxo,
 }: PropsDoCanvas) {
   const fundo = useRef<HTMLDivElement>(null);
   const [arrasto, setArrasto] = useState<Arrasto | null>(null);
@@ -147,7 +151,8 @@ export function Canvas({
   function caixaDe(id: string): Caixa {
     const block = mapa[id];
     const position = block ? positionOf(block) : { top: 0, left: 0 };
-    return { ...position, largura: WIDTH_OF_BLOCK, altura: alturas[id] ?? HEIGHT_DEFAULT_OF_BLOCK };
+    const largura = block?.id.startsWith(PREFIX_OF_SUBFLOW) ? WIDTH_OF_SUBFLOW_BLOCK : WIDTH_OF_BLOCK;
+    return { ...position, largura, altura: alturas[id] ?? HEIGHT_DEFAULT_OF_BLOCK };
   }
 
   /**
@@ -352,7 +357,7 @@ export function Canvas({
               className="bl-seta-traco bl-seta--provisoria"
               d={caminhoProvisorio(
                 {
-                  x: caixaDe(arrasto.de).left + WIDTH_OF_BLOCK / 2,
+                  x: caixaDe(arrasto.de).left + caixaDe(arrasto.de).largura / 2,
                   y: caixaDe(arrasto.de).top + caixaDe(arrasto.de).altura,
                 },
                 arrasto.ate,
@@ -372,6 +377,9 @@ export function Canvas({
             corresponde={corresponde(block)}
             onPointerDown={(e) => toPressBlock(block.id, e)}
             onPointerDownNaSaida={(e) => aoPressionarSaida(block.id, e)}
+            onDoubleClick={
+              onAbrirSubfluxo && block.id.startsWith(PREFIX_OF_SUBFLOW) ? () => onAbrirSubfluxo(block.id) : undefined
+            }
             onContextMenu={(e) => {
               e.preventDefault();
               e.stopPropagation();

@@ -19,7 +19,8 @@ import { ZOOM_MAXIMO, ZOOM_MINIMO, zoomAjustado } from './builder/setas';
 import { Toasts } from '@pipe/ui/toast';
 import { pushToast, dismissToast, type Toast, type ToastInput } from '@pipe/ui/toast-queue';
 import { useEditorDoBuilder } from './builder/use-editor';
-import { invalidBlocks } from './builder/error-marks';
+import { canvasInvalidBlocks } from './builder/subflows';
+import { missingSubflows } from './builder/import-exportar';
 import { SEARCH_DEBOUNCE_MS } from './builder/search';
 import './builder.css';
 
@@ -146,7 +147,7 @@ export function PageBuilder() {
   const podePublicar = eu.permissions.includes('automacao.fluxo.publicar');
 
   /** Publish gate (D-56): the screen's own `$invalid` marks plus whatever the `api`/engine flagged. */
-  const invalidos = invalidBlocks(state.mapa, [...editor.apiErrors, ...engineErrors]);
+  const invalidos = canvasInvalidBlocks(state.mapa, state.subfluxos, [...editor.apiErrors, ...engineErrors]);
   const tituloDe = (id: string | null): string =>
     id === null ? 'Fluxo' : (state.mapa[id]?.$title ?? id);
 
@@ -171,7 +172,7 @@ export function PageBuilder() {
       setQueuesOpen(false);
       return;
     }
-    if (!hasAttendanceBlock(state.mapa)) {
+    if (!hasAttendanceBlock(state.mapa) && !Object.values(state.subfluxos).some((s) => hasAttendanceBlock(s.mapa))) {
       toast({
         tom: 'aviso',
         titulo: 'Você ainda não configurou o atendimento humano.',
@@ -364,18 +365,29 @@ export function PageBuilder() {
               flowName={contact.nome}
               mapa={state.mapa}
               global={state.global}
+              subfluxos={state.subfluxos}
               configuration={state.configuracao}
               abaInicial={configTab}
               criarFuncaoAoAbrir={criarFuncaoAoAbrir}
               onChangeGlobal={(global) => despachar({ tipo: 'aplicarGlobais', global })}
               onChangeConfiguration={(chave, valor) => despachar({ tipo: 'configuracao', chave, valor })}
-              onImport={(mapa, global) => {
+              onImport={(mapa, global, subfluxos) => {
                 // Use `aplicar`, not `carregar`: imported flow must become dirty for autosave and undo, like any edit.
                 // `carregar` only syncs server state and would leave an imported flow visible but unsaved.
-                despachar({ tipo: 'aplicar', mapa });
+                // Subflows bundled in the file come with it; the canvas goes back to the main flow.
+                despachar({ tipo: 'aplicarSubfluxos', mapa, subfluxos, abrir: null });
                 despachar({ tipo: 'aplicarGlobais', global });
                 setConfigAberto(false);
-                toast({ tom: 'sucesso', texto: 'Fluxo importado.' });
+                const faltando = missingSubflows(mapa, subfluxos);
+                toast(
+                  faltando.length > 0
+                    ? {
+                        tom: 'aviso',
+                        titulo: 'Fluxo importado.',
+                        texto: `Carregue o arquivo de cada subfluxo pelo bloco que o chama: ${faltando.join(', ')}.`,
+                      }
+                    : { tom: 'sucesso', texto: 'Fluxo importado.' },
+                );
               }}
               onRestoreVersion={restaurarVersaoAntiga}
               onAviso={toast}

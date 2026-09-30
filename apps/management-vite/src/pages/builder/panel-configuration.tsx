@@ -7,6 +7,8 @@ import type { Resultado } from '../../lib/rest';
 import { ConfirmModal } from '@pipe/ui/modal';
 import type { Mapa } from './model';
 import { lerDesenho } from './model';
+import type { Subflows } from './subflows';
+import { readSubflows } from './subflows';
 import { pseudoBlockOfGlobal, globalOfPseudoBlock } from './actions-global';
 import { ActionsPanel } from './panel-actions';
 import { FlowFunctionsPanel } from './flow-functions-panel';
@@ -51,6 +53,7 @@ export function ConfigurationPanel({
   flowName,
   mapa,
   global,
+  subfluxos,
   configuration,
   onChangeGlobal,
   onChangeConfiguration,
@@ -65,11 +68,13 @@ export function ConfigurationPanel({
   flowName: string;
   mapa: Mapa;
   global: Record<string, unknown>;
+  /** The flow's subflows (P13): "Baixar fluxo" carries them in the file. */
+  subfluxos: Subflows;
   /** `flow.configuration` ({{config.X}}); edited by the "Variáveis" tab's "Variáveis de configuração". */
   configuration: Record<string, string>;
   onChangeGlobal: (global: Record<string, unknown>) => void;
   onChangeConfiguration: (chave: string, valor: string | null) => void;
-  onImport: (mapa: Mapa, global: Record<string, unknown>) => void;
+  onImport: (mapa: Mapa, global: Record<string, unknown>, subfluxos: Subflows) => void;
   /** Restores an old version as the draft; the caller owns the `api` call and reloading the editor. */
   onRestoreVersion: (version: number) => Promise<Resultado<VersionOfFlow>>;
   /** The Builder's single toast (F-6, D-56): action limits in "Ações globais", "nada publicado" in "Versões". */
@@ -149,6 +154,7 @@ export function ConfigurationPanel({
             flowName={flowName}
             mapa={mapa}
             global={global}
+            subfluxos={subfluxos}
             onImport={onImport}
             onRestoreVersion={onRestoreVersion}
             onAviso={avisar}
@@ -172,6 +178,7 @@ function VersionsTab({
   flowName,
   mapa,
   global,
+  subfluxos,
   onImport,
   onRestoreVersion,
   onAviso,
@@ -180,12 +187,13 @@ function VersionsTab({
   flowName: string;
   mapa: Mapa;
   global: Record<string, unknown>;
-  onImport: (mapa: Mapa, global: Record<string, unknown>) => void;
+  subfluxos: Subflows;
+  onImport: (mapa: Mapa, global: Record<string, unknown>, subfluxos: Subflows) => void;
   onRestoreVersion: (version: number) => Promise<Resultado<VersionOfFlow>>;
   onAviso: (texto: string) => void;
 }) {
   const file = useRef<HTMLInputElement>(null);
-  const [pendente, setPendente] = useState<{ mapa: Mapa; global: Record<string, unknown> } | null>(null);
+  const [pendente, setPendente] = useState<{ mapa: Mapa; global: Record<string, unknown>; subfluxos: Subflows } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [versions, setVersions] = useState<VersionOfFlow[] | null>(null);
@@ -209,7 +217,7 @@ function VersionsTab({
   }, [flowId]);
 
   function exportar(): void {
-    const conteudo = exportText(mapa, global);
+    const conteudo = exportText(mapa, global, subfluxos);
     const blob = new Blob([conteudo], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -226,7 +234,7 @@ function VersionsTab({
       setExportError(r.error);
       return;
     }
-    const conteudo = exportText(lerDesenho(r.value), r.value.globals);
+    const conteudo = exportText(lerDesenho(r.value), r.value.globals, readSubflows(r.value.subflows));
     const blob = new Blob([conteudo], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -271,7 +279,7 @@ function VersionsTab({
         setError(r.error);
         return;
       }
-      setPendente({ mapa: r.mapa, global: r.global });
+      setPendente({ mapa: r.mapa, global: r.global, subfluxos: r.subfluxos });
     };
     leitor.onerror = () => setError(MESSAGES_OF_IMPORT.arquivoInvalido);
     leitor.readAsText(arq);
@@ -378,7 +386,7 @@ function VersionsTab({
         rotuloConfirmar="Sim"
         rotuloCancelar="Não"
         onConfirmar={() => {
-          if (pendente) onImport(pendente.mapa, pendente.global);
+          if (pendente) onImport(pendente.mapa, pendente.global, pendente.subfluxos);
           setPendente(null);
         }}
         onCancelar={() => setPendente(null)}

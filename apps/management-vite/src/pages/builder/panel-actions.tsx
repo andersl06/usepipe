@@ -57,12 +57,15 @@ export function ActionsPanel({
   onMudar,
   onAviso,
   onAbrirFuncoes,
+  inSubflow = false,
 }: {
   block: Block;
   onMudar: (block: Block) => void;
   onAviso: (texto: string) => void;
   /** Opens the function library (D-22) already reachable from Configuration → Funções, in the requested mode. */
   onAbrirFuncoes?: (modo: 'gerenciar' | 'criar') => void;
+  /** Inside a subflow the menu leaves out what Blip does not offer there (P13: `Redirect`, `ProcessContentAssistant`). */
+  inSubflow?: boolean;
 }) {
   const [copiadas, setCopiadas] = useState(actionsCopied);
   function copiar(actions: AcaoDoEditor[]): void {
@@ -107,6 +110,7 @@ export function ActionsPanel({
           onAviso={onAviso}
           copiadas={copiadas}
           onCopiar={copiar}
+          inSubflow={inSubflow}
         />
       )}
       <ListOfActionsOfBlock
@@ -119,6 +123,7 @@ export function ActionsPanel({
         onAviso={onAviso}
         copiadas={copiadas}
         onCopiar={copiar}
+        inSubflow={inSubflow}
       />
     </div>
   );
@@ -169,6 +174,7 @@ function ListOfActionsOfBlock({
   onAviso,
   copiadas,
   onCopiar,
+  inSubflow,
 }: {
   block: Block;
   lista: ActionsList;
@@ -179,6 +185,7 @@ function ListOfActionsOfBlock({
   onAviso: (texto: string) => void;
   copiadas: AcaoDoEditor[];
   onCopiar: (actions: AcaoDoEditor[]) => void;
+  inSubflow: boolean;
 }) {
   const actions = block[lista] ?? [];
   const [menuAberto, setMenuAberto] = useState(false);
@@ -326,7 +333,7 @@ function ListOfActionsOfBlock({
             {groups.map((grupo) => (
               <div key={grupo} className="bl-menu-actions-group">
                 <span className="sub">{grupo}</span>
-                {actionsOfGroup(grupo).map((t) => (
+                {actionsOfGroup(grupo, { inSubflow }).map((t) => (
                   <button
                     key={t.tipo}
                     type="button"
