@@ -9,6 +9,7 @@ import type { Deployment } from '../../lib/deployment';
 import { montarPassos } from '../../lib/passos-of-deployment';
 import type { StepState } from '../../lib/passos-of-deployment';
 import { numero } from '../../lib/format';
+import { buildDeskUrl } from '../../lib/tenant-links';
 import { ConectarWhatsApp } from '../../components/registration-embedded-whatsapp';
 import { InvitationForm, ImportForm, FormularioManual } from './formularios';
 
@@ -21,9 +22,6 @@ import { InvitationForm, ImportForm, FormularioManual } from './formularios';
  *
  * The chrome is the PORTAL's (`pt-app` + `BarraDoPortal`), as in "Novidades" and the contract Panel: this screen is ACCOUNT onboarding, not a fluxo or roteador — there's no contact here to hang the contact bar on, and pushing the person into a contact that may not even exist yet would be inventing context the screen doesn't have. Before this delivery it lived under `EstruturaGestao` (two dark bars, the top one the same as this and the bottom one with the module selector) — but Builder and Growth, the two modules that occupied that bar, moved inside the contact, and without them the bottom bar drew an empty row. A single bar, the usual one, is the honest frame for a screen that has no module at all.
  */
-
-const URL_DESK =
-  (import.meta.env['VITE_PIPE_DESK_URL'] as string | undefined) ?? 'http://localhost:3200';
 
 const ROTULO: Record<StepState, string> = {
   feito: 'Feito',
@@ -56,7 +54,7 @@ export function PageDeployment() {
   }
   const { signals, channels } = read.data;
   const primaryShortName = primaryFlow.data?.flows[0]?.shortName ?? null;
-  const passos = montarPassos(signals, URL_DESK, primaryShortName);
+  const passos = montarPassos(signals, buildDeskUrl(window.location, eu.tenant.slug, import.meta.env.DEV), primaryShortName);
   const feitos = passos.filter((p) => p.state === 'feito').length;
   const firstName = eu.user.nome.split(' ')[0] ?? eu.user.nome;
   const ultima = signals.lastImport;

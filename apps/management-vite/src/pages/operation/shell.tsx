@@ -2,7 +2,8 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { estaAtivo } from '@pipe/ui';
 import Link from '../../components/link';
 import { IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
-import { URL_DESK } from '../../components/structure-management';
+import { useEu } from '../../context/session';
+import { buildDeskUrl } from '../../lib/tenant-links';
 import { ShellModule, contactPath, useContact } from '../flow/contact';
 import type { Contact } from '../flow/barra-of-contact';
 import './attendance.css';
@@ -76,7 +77,7 @@ export function attendanceBase(contact: Pick<Contact, 'shortName'>): string {
   return `${contactPath(contact)}/attendance`;
 }
 
-function NavigationAttendance({ base, caminho }: { base: string; caminho: string }) {
+function NavigationAttendance({ base, caminho, deskUrl }: { base: string; caminho: string; deskUrl: string | null }) {
   return (
     <nav className="g-lateral" aria-label="Atendimento">
       <div className="g-lateral-itens">
@@ -124,10 +125,10 @@ function NavigationAttendance({ base, caminho }: { base: string; caminho: string
         })}
       </div>
 
-      <a className="g-lateral-rodape" href={URL_DESK} target="_blank" rel="noreferrer">
+      {deskUrl && <a className="g-lateral-rodape" href={deskUrl} target="_blank" rel="noreferrer">
         Pipe Desk
         <IconePortal nome="externo" tamanho={20} />
-      </a>
+      </a>}
     </nav>
   );
 }
@@ -137,12 +138,14 @@ function NavigationAttendance({ base, caminho }: { base: string; caminho: string
  */
 export function AttendanceShell() {
   const { contact } = useContact();
+  const eu = useEu();
+  const deskUrl = buildDeskUrl(window.location, eu.tenant.slug, import.meta.env.DEV);
   const base = attendanceBase(contact);
   const caminho = useLocation().pathname;
   return (
     <ShellModule ativo="Atendimento">
       <div className="at-shell">
-        <NavigationAttendance base={base} caminho={caminho} />
+        <NavigationAttendance base={base} caminho={caminho} deskUrl={deskUrl} />
         <section className="at-miolo">
           <div className="p-conteudo">
             <Outlet />

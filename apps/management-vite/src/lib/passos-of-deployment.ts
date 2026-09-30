@@ -101,7 +101,7 @@ function contactsStep(
  */
 export function montarPassos(
   s: DeploymentSignals,
-  urlDoDesk: string,
+  urlDoDesk: string | null,
   primaryShortName: string | null,
 ): DeploymentStep[] {
   const temWhatsApp = s.channelsConnected > 0;
@@ -171,7 +171,7 @@ export function montarPassos(
           ? 'Mande um WhatsApp do seu celular para o número conectado e responda pelo Desk.'
           : 'Depende do WhatsApp conectado.',
       acao:
-        temWhatsApp && !s.conversationHandled
+        temWhatsApp && !s.conversationHandled && urlDoDesk
           ? { rotulo: 'Abrir o Desk', href: urlDoDesk, externo: true }
           : null,
     },
