@@ -26,7 +26,7 @@ export function PageChannelMessenger() {
     return <ReadFailure error={read.error} />;
   }
   if (!read.data) return null;
-  const situation = channelInBotState(read.data.channel, 'messenger');
+  const situation = channelInBotState(read.data.channels, 'messenger', contact.tipo === 'roteador');
 
   return (
     <ChannelShell
@@ -79,6 +79,7 @@ function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow
         <ModalDesconectar
           aberto={desconectando}
           flowId={flowId}
+          channelId={channel.id}
           tipo="messenger"
           onFechar={() => setDesconectando(false)}
         />

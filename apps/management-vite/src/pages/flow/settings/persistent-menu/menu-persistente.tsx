@@ -1,18 +1,25 @@
-import type { ConfigurationOfMenuPersistent } from '@pipe/contracts';
+import type { ChannelOfFlowInScreen, ConfigurationOfMenuPersistent } from '@pipe/contracts';
+import { channelInBotState } from '../../../../lib/channel-of-flow';
 import { useRead } from '../../../../lib/query';
 import { useContact } from '../../contact';
 import { TelaDeMenuPersistente } from './tela';
 
 /**
- * `/configurations/persistentMenu`. The compatible channel is Messenger — the same `canalTipo`/`channelActive` that `fluxo/canais/canais.tsx` already reads from the contact (`GET /v1/gestao/fluxos/:id`), without inventing a separate state. The items and the "boas-vindas filled in" lock come from `GET /v1/gestao/fluxos/:id/menu-persistente`.
+ * A router may have Messenger as a secondary channel, so use the linked-channel
+ * list rather than the legacy single-channel fields on the contact.
  */
 export function PersistentMenuPage() {
   const { contact } = useContact();
-  const channelCompatible = contact.channelActive === true && contact.channelType === 'messenger';
+  const linked = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
   const read = useRead<ConfigurationOfMenuPersistent>(
     `/v1/management/flows/${contact.id}/menu-persistent`,
   );
-  if (!read.data) return null;
+  if (!read.data || !linked.data) return null;
+  const channelCompatible = channelInBotState(
+    linked.data.channels,
+    'messenger',
+    contact.tipo === 'roteador',
+  ).state === 'conectado';
   return (
     <TelaDeMenuPersistente
       id={contact.id}

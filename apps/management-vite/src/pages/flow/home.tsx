@@ -1,4 +1,6 @@
 import { Avatar } from '@pipe/ui';
+import type { ChannelOfFlowInScreen } from '@pipe/contracts';
+import { useRead } from '../../lib/query';
 import { ContactBars, contactPath, useContact } from './contact';
 import {
   CardChannels,
@@ -34,6 +36,7 @@ export function ContactHome() {
   const { contact, fuso } = useContact();
   const shell = portalUseShell();
   const base = contactPath(contact);
+  const linked = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
 
   return (
     <div className="pt-app">
@@ -73,7 +76,9 @@ export function ContactHome() {
           <div className="fx-grade">
             <CardExtensions extensions={[]} />
             <CardChannels
-              ativos={contact.channelActive && contact.channelType ? [contact.channelType] : []}
+              ativos={linked.data
+                ? linked.data.channels.filter((item) => item.ativo).map((item) => item.tipo)
+                : contact.channelActive && contact.channelType ? [contact.channelType] : []}
               base={base}
             />
             <CardTeam members={[]} />

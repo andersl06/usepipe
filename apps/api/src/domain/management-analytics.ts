@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { TransactionPipe } from '@pipe/db';
+import { linkedChannelIdsOfFlow } from './channel-links.js';
 import {
   NAME_OF_CHANNEL,
   diasDoIntervalo,
@@ -389,21 +390,21 @@ export interface LogFilter {
 }
 
 /**
- * Message Log follows source `MessagesController`/`MessageService.getMessages`. Source period, direction, and type labels become real filters, with cursor pagination instead of fixed `take: 30` (`apis.md` §5.3; see `controladores/conversas.ts#mensagens`). Scope to bot-channel conversations (`fluxo.canal_id` to `inbox.canal_id`), as in `carregarLogsDoFluxo`, rather than `execucao_fluxo`: the Log includes human attendance after handoff. `mensagem` has no direct `canal_id` index, so Postgres scans channel conversations through `conversa_inbox_idx` (migration 0040), then messages by `conversa_id` through `mensagem_conversa_idx`. This suits a small channel but costs more with hundreds of thousands of closed conversations. If needed, fill a denormalized `canal_id` on `mensagem` during writes.
+ * Message Log includes all conversations from the bot's linked channels,
+ * including human attendance after handoff. Cursor pagination preserves
+ * the source's period, direction and type filters.
  */
 export async function loadLogOfMessages(
   tx: TransactionPipe,
+  tenantId: string,
   fluxoId: string,
   fuso: string,
   filter: LogFilter,
   cursor: Cursor | null,
   limite: number,
 ): Promise<Page<LinhaDoLog>> {
-  const { rows: bot } = await tx.execute<{ channelId: string | null }>(
-    sql`select canal_id as "channelId" from fluxo where id = ${fluxoId}`,
-  );
-  const channelId = bot[0]?.channelId ?? null;
-  if (!channelId) return { data: [], page_info: { has_next_page: false, end_cursor: null } };
+  const channelIds = await linkedChannelIdsOfFlow(tx, tenantId, fluxoId);
+  if (!channelIds.length) return { data: [], page_info: { has_next_page: false, end_cursor: null } };
 
   const filterSearch = filter.search?.trim() ? sql`m.conteudo ilike ${`%${filter.search.trim()}%`}` : sql`true`;
   const filterDirection = filter.direction ? sql`m.direcao = ${filter.direction}` : sql`true`;
@@ -433,7 +434,7 @@ export async function loadLogOfMessages(
       join contato ct on ct.id = cv.contato_id
       join inbox i on i.id = cv.inbox_id
       join canal ca on ca.id = i.canal_id
-     where i.canal_id = ${channelId}
+     where i.canal_id in (${sql.join(channelIds.map((id) => sql`${id}::uuid`), sql`, `)})
        and ${filterSearch} and ${filterDirection} and ${filterType} and ${filterOf} and ${filterUntil}
        and ${conditionOfCursor('m.criada_em', 'timestamptz', 'desc', cursor, 'm.id')}
      order by ${orderSql('m.criada_em', 'desc', 'm.id')}

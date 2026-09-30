@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   emailsParaTexto,
+  shouldReconnectWhatsapp,
   rotuloDoMotivo,
   sitesParaTexto,
   textoParaEmails,
@@ -43,4 +44,13 @@ test('rotuloDoMotivo traduz os códigos conhecidos e devolve o cru quando não c
   assert.equal(rotuloDoMotivo('sem_token'), 'Canal sem token de acesso: reconecte.');
   assert.equal(rotuloDoMotivo('algo_novo'), 'algo_novo');
   assert.equal(rotuloDoMotivo(null), 'Canal indisponível.');
+});
+
+test('WhatsApp reconnect only appears for credential failures', () => {
+  assert.equal(shouldReconnectWhatsapp(null), false);
+  assert.equal(shouldReconnectWhatsapp({ state: 'conectado', motivo: null }), false);
+  assert.equal(shouldReconnectWhatsapp({ state: 'desligado', motivo: 'sem_token' }), false);
+  assert.equal(shouldReconnectWhatsapp({ state: 'indisponivel', motivo: 'meta_inacessivel' }), false);
+  assert.equal(shouldReconnectWhatsapp({ state: 'indisponivel', motivo: 'meta_refused' }), true);
+  assert.equal(shouldReconnectWhatsapp({ state: 'indisponivel', motivo: 'sem_token' }), true);
 });

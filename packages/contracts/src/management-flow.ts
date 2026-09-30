@@ -42,6 +42,8 @@ export interface ChannelOfFlow {
  */
 export interface ChannelOfFlowInScreen {
   channel: ChannelOfFlow | null;
+  /** Every channel attached to the bot; routers may have more than one. */
+  channels: ChannelOfFlow[];
   disponiveis: ChannelOfFlow[];
 }
 

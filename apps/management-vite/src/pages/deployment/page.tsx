@@ -141,7 +141,7 @@ export function PageDeployment() {
                       {precisaReconectar && c.number ? (
                         <ConectarWhatsappManual
                           channelId={c.id}
-                          rotulo="Atualizar credenciais"
+                          rotulo="Reconectar número"
                           variante="padrao"
                         />
                       ) : null}

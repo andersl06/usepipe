@@ -46,12 +46,14 @@ interface LineChannel {
 /**
  * Read connection status. Quality and limits come from Meta on each read through health code ported from Chatwoot (`whatsapp/saude.ts`); they can change without notice. A Meta outage yields `indisponivel` with a reason, not a 502 for the whole screen.
  */
-export async function listChannelsWhatsApp(tenantId: string): Promise<ChannelWhatsAppVisible[]> {
+export async function listChannelsWhatsApp(tenantId: string, channelId?: string): Promise<ChannelWhatsAppVisible[]> {
+  const channelFilter = channelId ? sql`and id = ${channelId}::uuid` : sql``;
   const linhas = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<LineChannel>(sql`
       select id, nome, ativo, waba_id, numero_id, criado_em, config
         from canal
        where tipo = 'whatsapp_cloud'
+       ${channelFilter}
        order by criado_em
     `);
     return rows;

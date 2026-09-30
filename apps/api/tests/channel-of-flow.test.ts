@@ -18,7 +18,9 @@ const { createToken } = await import('@pipe/authentication');
 const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
-const { importFlowOfBlip } = await import('../src/domain/flow.js');
+const { importFlowOfBlip, flowPublishedOfChannel } = await import('../src/domain/flow.js');
+const { listContactsOfFlow, loadDetailContactOfFlow, loadLogsOfFlow } = await import('../src/domain/management-flow.js');
+const { loadLogOfMessages } = await import('../src/domain/management-analytics.js');
 const { ClienteGraphDuble } = await import('../src/domain/whatsapp/cliente-graph.js');
 const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
@@ -28,7 +30,9 @@ type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 /**
  * The BOT'S channel — `PUT`/`DELETE /v1/gestao/fluxos/:id/canal`, the `GET` the channel page reads, and the manual connection with `fluxo_id`.
  *
- * What's proven is what the source decides (`referencias-blip/canais/FICHA-conectar-canal-no-bot.md` §4): the channel belongs to the bot and the permission is the bot's `channels`; one bot per number ("Oops… This number is already in use" — Blip refuses, it doesn't transfer; whoever swaps disconnects the previous bot first); and, once the router is connected to the number, a message arriving on that number lands on it. Plus Pipe's own guards: an inactive channel doesn't connect (409), another tenant and a malformed uuid are 404, and a bot has only one channel (the `fluxo.canal_id` column).
+ * The bot owns its channels and their permissions. One live bot per number;
+ * routers may own different channel types, while a regular flow stays single-channel.
+ * Inactive, cross-tenant and malformed channels are rejected.
  */
 
 let a: Cenario;
@@ -138,8 +142,8 @@ const detalhe = (r: { body: Record<string, unknown> }) =>
 
 const ligar = (sessao: string, flowId: string, channelId: string) =>
   chamar(sessao, 'PUT', `/v1/management/flows/${flowId}/channel`, { canalId: channelId });
-const desligar = (sessao: string, fluxoId: string) =>
-  chamar(sessao, 'DELETE', `/v1/management/flows/${fluxoId}/channel`);
+const desligar = (sessao: string, fluxoId: string, channelId?: string) =>
+  chamar(sessao, 'DELETE', `/v1/management/flows/${fluxoId}/channel`, channelId ? { channelId } : undefined);
 const readChannel = (sessao: string, fluxoId: string) =>
   chamar(sessao, 'GET', `/v1/management/flows/${fluxoId}/channel`);
 
@@ -180,6 +184,130 @@ afterAll(async () => {
 });
 
 describe('PUT e GET /v1/management/flows/:id/channel', () => {
+  it('Allows a router to receive different channel types without replacing its first channel', async () => {
+    const routerId = await newFlow(a, 'roteador');
+    const whatsappId = await newChannel(a, { type: 'whatsapp_cloud' });
+    const instagramId = await newChannel(a, { type: 'instagram' });
+
+    expect((await ligar(sessionEditor, routerId, whatsappId)).status).toBe(200);
+    expect((await ligar(sessionEditor, routerId, instagramId)).status).toBe(200);
+    expect(await channelOfDatabase(routerId)).toBe(whatsappId);
+
+    const screen = await readChannel(sessionEditor, routerId);
+    expect(screen.status).toBe(200);
+    expect((screen.body['channels'] as { id: string }[]).map((item) => item.id)).toEqual([
+      whatsappId,
+      instagramId,
+    ]);
+  });
+
+  it('Rejects a second channel of the same type on a router without changing either link', async () => {
+    const routerId = await newFlow(a, 'roteador');
+    const first = await newChannel(a, { type: 'instagram' });
+    const second = await newChannel(a, { type: 'instagram' });
+    expect((await ligar(sessionEditor, routerId, first)).status).toBe(200);
+    const response = await ligar(sessionEditor, routerId, second);
+    expect(response.status).toBe(409);
+    expect(codigo(response)).toBe('flow_already_has_channel_type');
+    expect((await readChannel(sessionEditor, routerId)).body['channels']).toMatchObject([{ id: first }]);
+  });
+
+  it('Detaches only the selected channel and preserves the other router channel', async () => {
+    const routerId = await newFlow(a, 'roteador');
+    const whatsappId = await newChannel(a);
+    const instagramId = await newChannel(a, { type: 'instagram' });
+    await ligar(sessionEditor, routerId, whatsappId);
+    await ligar(sessionEditor, routerId, instagramId);
+    expect((await desligar(sessionEditor, routerId, whatsappId)).status).toBe(204);
+    expect((await readChannel(sessionEditor, routerId)).body['channels']).toMatchObject([{ id: instagramId }]);
+    expect((await ligar(sessionEditor, await newFlow(a, 'fluxo'), whatsappId)).status).toBe(200);
+    expect((await desligar(sessionEditor, routerId, instagramId)).status).toBe(204);
+    expect((await readChannel(sessionEditor, routerId)).body['channels']).toEqual([]);
+    expect((await desligar(sessionEditor, routerId, instagramId)).status).toBe(404);
+  });
+
+  it('Returns status only for a channel linked to the requested bot', async () => {
+    const routerId = await newFlow(a, 'roteador');
+    const whatsappId = await newChannel(a);
+    const instagramId = await newChannel(a, { type: 'instagram' });
+    const unrelated = await newChannel(a);
+    await ligar(sessionEditor, routerId, whatsappId);
+    await ligar(sessionEditor, routerId, instagramId);
+    const status = await chamar(sessionEditor, 'GET', `/v1/management/flows/${routerId}/channel/status?channelId=${whatsappId}`);
+    expect(status).toMatchObject({ status: 200, body: { id: whatsappId } });
+    expect((await chamar(sessionEditor, 'GET', `/v1/management/flows/${routerId}/channel/status?channelId=${unrelated}`)).status).toBe(404);
+  });
+
+  it('Allows reuse of an extra channel after its router is archived', async () => {
+    const original = await newFlow(a, 'roteador');
+    await ligar(sessionEditor, original, await newChannel(a));
+    const extra = await newChannel(a, { type: 'instagram' });
+    expect((await ligar(sessionEditor, original, extra)).status).toBe(200);
+    await a.dono.execute(sql`update fluxo set estado = 'arquivado' where id = ${original}::uuid`);
+    const next = await newFlow(a, 'roteador');
+    await ligar(sessionEditor, next, await newChannel(a));
+    expect((await ligar(sessionEditor, next, extra)).status).toBe(200);
+    expect((await readChannel(sessionEditor, next)).body['channels']).toMatchObject([{}, { id: extra }]);
+  });
+
+  it('Serializes competing routers so one live channel has one owner', async () => {
+    const first = await newFlow(a, 'roteador');
+    const second = await newFlow(a, 'roteador');
+    await ligar(sessionEditor, first, await newChannel(a));
+    await ligar(sessionEditor, second, await newChannel(a));
+    const extra = await newChannel(a, { type: 'instagram' });
+    const results = await Promise.all([
+      ligar(sessionEditor, first, extra),
+      ligar(sessionEditor, second, extra),
+    ]);
+    expect(results.map((item) => item.status).sort()).toEqual([200, 409]);
+    const owners = await Promise.all([first, second].map((id) => readChannel(sessionEditor, id)));
+    expect(owners.filter((item) => (item.body['channels'] as { id: string }[]).some((c) => c.id === extra))).toHaveLength(1);
+  });
+
+  it('Includes a secondary channel in contacts and both message logs', async () => {
+    const routerId = await newFlow(a, 'roteador');
+    await ligar(sessionEditor, routerId, await newChannel(a));
+    const instagramId = await newChannel(a, { type: 'instagram' });
+    await ligar(sessionEditor, routerId, instagramId);
+    const { rows: inboxes } = await a.dono.execute<{ id: string }>(sql`
+      insert into inbox (tenant_id, canal_id, nome)
+      values (${a.tenantId}, ${instagramId}, 'Instagram router test') returning id
+    `);
+    const { rows: contacts } = await a.dono.execute<{ id: string }>(sql`
+      insert into contato (tenant_id, nome) values (${a.tenantId}, 'Secondary channel contact') returning id
+    `);
+    const contactId = contacts[0]!.id;
+    const { rows: conversations } = await a.dono.execute<{ id: string }>(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, estado)
+      values (${a.tenantId}, ${inboxes[0]!.id}, ${contactId}, 'em_atendimento') returning id
+    `);
+    await a.dono.execute(sql`
+      insert into mensagem (id, tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, criada_em)
+      values (gen_random_uuid(), ${a.tenantId}, ${conversations[0]!.id}, 'entrada', 'contato', 'texto', 'Secondary channel message', now())
+    `);
+
+    const result = await noTenant(a.tenantId, async (tx) => ({
+      contacts: await listContactsOfFlow(tx, a.tenantId, routerId),
+      detail: await loadDetailContactOfFlow(tx, a.tenantId, routerId, contactId),
+      logs: await loadLogsOfFlow(tx, a.tenantId, routerId),
+      paged: await loadLogOfMessages(tx, a.tenantId, routerId, 'America/Sao_Paulo', {}, null, 30),
+    }));
+    expect(result.contacts.some((item) => item.id === contactId)).toBe(true);
+    expect(result.detail?.conversations.some((item) => item.id === conversations[0]!.id)).toBe(true);
+    expect(result.logs.some((item) => item.conteudo === 'Secondary channel message')).toBe(true);
+    expect(result.paged.data.some((item) => item.content === 'Secondary channel message')).toBe(true);
+  });
+
+  it('Selects the WhatsApp channel for templates even when it is secondary', async () => {
+    const routerId = await newFlow(a, 'roteador');
+    await ligar(sessionEditor, routerId, await newChannel(a, { type: 'instagram' }));
+    const whatsappId = await newChannel(a, { type: 'whatsapp_cloud' });
+    await ligar(sessionEditor, routerId, whatsappId);
+    const response = await chamar(sessionEditor, 'GET', `/v1/management/flows/${routerId}/content-items`);
+    expect(response).toMatchObject({ status: 200, body: { channelId: whatsappId } });
+  });
+
   it('Connect a channel to a bot, audit it, and include channel details in contact GET', async () => {
     const flowId = await newFlow(a, 'fluxo');
     const channelId = await newChannel(a, { number: '+5511900000001' });
@@ -205,6 +333,9 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     const lido = await readChannel(sessionEditor, flowId);
     expect(lido.status).toBe(200);
     expect(lido.body['channel']).toMatchObject({ id: channelId, flowId });
+    const status = await chamar(sessionWithoutAuthority, 'GET', `/v1/management/flows/${flowId}/channel/status`);
+    expect(status).toMatchObject({ status: 200, body: { id: channelId, state: 'indisponivel' } });
+    expect((await chamar(sessionOfOtherTenant, 'GET', `/v1/management/flows/${flowId}/channel/status`)).status).toBe(404);
     const disponiveis = lido.body['disponiveis'] as { id: string; flowId: string | null }[];
     expect(disponiveis.find((c) => c.id === channelId)?.flowId).toBe(flowId);
 
@@ -337,6 +468,22 @@ describe('DELETE /v1/management/flows/:id/channel', () => {
 describe('Connect a new channel to a bot using `fluxo_id`', () => {
   const appSecret = 'a'.repeat(32);
 
+  it('Rejects a second WhatsApp number on a router before creating an orphan channel', async () => {
+    const routerId = await newFlow(a, 'roteador');
+    await ligar(sessionEditor, routerId, await newChannel(a));
+    const numberId = ClienteGraphDuble.sufixo(`router-duplicate-${routerId}`);
+    const response = await chamar(sessionEditor, 'POST', '/v1/channels/whatsapp/manual', {
+      waba_id: 'waba-do-bot', phone_number_id: numberId,
+      access_token: `manual-${numberId}`, app_secret: appSecret, flowId: routerId,
+    });
+    expect(response.status).toBe(409);
+    expect(codigo(response)).toBe('flow_already_has_channel_type');
+    const { rows } = await a.dono.execute<{ count: string }>(sql`
+      select count(*)::text as count from canal where tenant_id = ${a.tenantId}::uuid and numero_id = ${numberId}
+    `);
+    expect(Number(rows[0]!.count)).toBe(0);
+  });
+
   it('Create a channel already linked to the bot under the bot\'s permission', async () => {
     const fluxoId = await newFlow(a, 'fluxo');
     const numeroId = ClienteGraphDuble.sufixo(`ligado-${fluxoId}`);
@@ -453,6 +600,14 @@ describe('Route messages from a connected phone number to its router bot', () =>
     `);
     expect(position[0]?.servico_id).toBe(principal.flowId);
 
+    const instagramId = await newChannel(a, { type: 'instagram' });
+    expect((await ligar(sessionEditor, routerId, instagramId)).status).toBe(200);
+    const { rows: contacts } = await a.dono.execute<{ id: string }>(sql`
+      select id from contato where tenant_id = ${a.tenantId}::uuid and telefone_e164 = ${`+${CLIENTE}`} limit 1
+    `);
+    const routed = await noTenant(a.tenantId, (tx) => flowPublishedOfChannel(tx, instagramId, contacts[0]!.id));
+    expect(routed?.flowId).toBe(principal.flowId);
+
     // // Once the router is disconnected from the number, the next new conversation no longer goes through it.
     expect((await desligar(sessionEditor, routerId)).status).toBe(204);
   });
@@ -484,7 +639,12 @@ describe('reconexão manual do mesmo número', () => {
      * Without `canal_id`: this is the dead end the owner ran into — the number already belongs to a channel. Outside the bot, `canal.gerenciar` is in charge, hence the separate session.
      */
     const sessionOfChannel = await openSession(a, await pessoaCom(a, ['canal.gerenciar']));
-    const { flowId: _semBot, ...semBot } = corpo;
+    const semBot = {
+      waba_id: corpo.waba_id,
+      phone_number_id: corpo.phone_number_id,
+      access_token: corpo.access_token,
+      app_secret: corpo.app_secret,
+    };
     const repetido = await chamar(sessionOfChannel, 'POST', '/v1/channels/whatsapp/manual', semBot);
     expect(repetido.status).toBe(422);
     expect(codigo(repetido)).toBe('configuration_invalid');

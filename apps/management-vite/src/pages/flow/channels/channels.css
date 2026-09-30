@@ -37,7 +37,7 @@
     transform 0.3s ease-out;
 }
 
-.cn-card:hover {
+.cn-card--link:hover {
   transform: translateY(-4px);
   box-shadow: var(--g-shadow-card);
 }
@@ -98,9 +98,8 @@
   color: var(--p-superficie-0);
 }
 
-.cn-botao--indisponivel {
+.cn-botao--pending-integration {
   color: var(--p-conteudo-desabilitado);
-  cursor: default;
 }
 
 @media (min-width: 550px) {

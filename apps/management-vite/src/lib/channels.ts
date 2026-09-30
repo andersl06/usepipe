@@ -109,6 +109,7 @@ export const CATEGORIAS_DO_PERFIL: readonly { value: string; rotulo: string }[] 
 const ROTULO_MOTIVO: Readonly<Record<string, string>> = {
   reautorizacao_pendente: 'Aguardando reautorização do WhatsApp.',
   sem_token: 'Canal sem token de acesso: reconecte.',
+  meta_refused: 'A Meta recusou a conexão. Confira a autorização e reconecte.',
   meta_inacessivel: 'A Meta não respondeu: tente novamente em instantes.',
   canal_sem_waba: 'Canal sem WABA: reconecte.',
 };
@@ -116,6 +117,19 @@ const ROTULO_MOTIVO: Readonly<Record<string, string>> = {
 export function rotuloDoMotivo(motivo: string | null): string {
   if (!motivo) return 'Canal indisponível.';
   return ROTULO_MOTIVO[motivo] ?? motivo;
+}
+
+/** Only credentials failures require a manual reconnect; Meta outages should be retried. */
+export function shouldReconnectWhatsapp(
+  channel: Pick<ChannelWhatsAppVisible, 'state' | 'motivo'> | null,
+): boolean {
+  return (
+    channel?.state === 'indisponivel' &&
+    (channel.motivo === 'reautorizacao_pendente' ||
+      channel.motivo === 'sem_token' ||
+      channel.motivo === 'meta_refused' ||
+      channel.motivo === 'canal_sem_waba')
+  );
 }
 
 /**

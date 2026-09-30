@@ -1,6 +1,8 @@
 import { LogoPortal } from '@pipe/ui/icones-portal';
+import type { ChannelOfFlowInScreen } from '@pipe/contracts';
 import Link from '../../../components/link';
 import { cardConnected, channelRoute, type TypeOfChannelOfBot } from '../../../lib/channel-of-flow';
+import { useRead } from '../../../lib/query';
 import { ShellModule, contactPath, useContact } from '../contact';
 import '../integrations/header-of-page.css';
 import './channels.css';
@@ -11,9 +13,9 @@ import './channels.css';
  * The source is the module 27679 template of `portal.js` (line 80819) and the `.channels-list` rules from `portal.css`. There, each card is a `<card ng-click="$ctrl.goToState('…channels.<canal>')">` — the click targets the WHOLE CARD, and "Conectar"/"Conectado" in the footer only change appearance: both lead to the SAME channel page, inside the bot (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1.1).
  *
  * WhatsApp, Messenger and Instagram have their own configuration pages. Pipe Chat and E-mail
- * remain active for the contact. Telegram and Slack are visible as planned integrations, but do
- * not pretend to offer a connection until their server-side connectors exist. Apple Messages for
- * Business and RCS for Business are deliberately out of the catalog for now.
+ * remain active for the contact. Telegram and Slack stay visible in the catalog, but are not
+ * presented as connectable until their server-side connector exists. Apple Messages for Business
+ * and RCS for Business are deliberately out of the catalog for now.
  */
 type Logo = 'pipe' | 'whatsapp' | 'messenger' | 'instagram' | 'telegram' | 'slack' | 'email';
 type ScreenChannel = {
@@ -21,7 +23,8 @@ type ScreenChannel = {
   nome: string;
   logo: Logo;
   sempre?: boolean;
-  emBreve?: boolean;
+  /** The catalog may show a provider before Pipe supports its real connector. */
+  pendingIntegration?: boolean;
   /** Has its own page inside the bot: the card navigates. */
   page?: TypeOfChannelOfBot;
 };
@@ -31,14 +34,15 @@ const CHANNELS: readonly ScreenChannel[] = [
   { key: 'whatsapp_cloud', nome: 'WhatsApp', logo: 'whatsapp', page: 'whatsapp_cloud' },
   { key: 'messenger', nome: 'Messenger', logo: 'messenger', page: 'messenger' },
   { key: 'instagram', nome: 'Instagram', logo: 'instagram', page: 'instagram' },
-  { key: 'telegram', nome: 'Telegram', logo: 'telegram', emBreve: true },
-  { key: 'slack', nome: 'Slack', logo: 'slack', emBreve: true },
+  { key: 'telegram', nome: 'Telegram', logo: 'telegram', pendingIntegration: true },
   { key: 'email', nome: 'E-mail', logo: 'email', sempre: true },
+  { key: 'slack', nome: 'Slack', logo: 'slack', pendingIntegration: true },
 ] as const;
 
 export function ChannelsPage() {
   const { contact } = useContact();
   const base = contactPath(contact);
+  const linked = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
 
   return (
     <ShellModule ativo="Canais">
@@ -52,7 +56,9 @@ export function ChannelsPage() {
 
       <div className="cn-lista">
         {CHANNELS.map((channel) => {
-          const conectado = channel.sempre || cardConnected(contact, channel.key);
+          const conectado = channel.sempre || (linked.data
+            ? linked.data.channels.some((item) => item.tipo === channel.key && item.ativo)
+            : cardConnected(contact, channel.key));
           const miolo = (
             <>
               <div className="cn-card-content">
@@ -63,12 +69,12 @@ export function ChannelsPage() {
                 className={
                   conectado
                     ? 'cn-botao cn-botao--conectado'
-                    : channel.emBreve
-                      ? 'cn-botao cn-botao--indisponivel'
+                    : channel.pendingIntegration
+                      ? 'cn-botao cn-botao--pending-integration'
                       : 'cn-botao'
                 }
               >
-                {conectado ? 'Conectado' : channel.emBreve ? 'Em breve' : 'Conectar'}
+                {conectado ? 'Conectado' : channel.pendingIntegration ? 'Em preparação' : 'Conectar'}
               </span>
             </>
           );
@@ -78,12 +84,12 @@ export function ChannelsPage() {
                 <Link
                   href={channelRoute(base, channel.page)}
                   className="cn-card cn-card--link"
-                  aria-label={`${channel.nome}: ${conectado ? 'Conectado' : 'Conectar'}`}
+                  aria-label={`${channel.nome}: ${conectado ? 'Conectado' : channel.pendingIntegration ? 'Em preparação' : 'Conectar'}`}
                 >
                   {miolo}
                 </Link>
               ) : (
-                <article className="cn-card" aria-disabled="true">
+                <article className="cn-card">
                   {miolo}
                 </article>
               )}

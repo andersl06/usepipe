@@ -19,7 +19,8 @@ export function channelRoute(base: string, tipo: TypeOfChannelOfBot): string {
 }
 
 /**
- * Channel state for THIS bot: `conectado` means an active channel of this kind (source `VERIFIED`); `nao_conectado` means none (source `LOGIN`); `outro_canal` means a different kind is already attached, a Pipe decision because `fluxo.canal_id` is a single column while the reference bot can have several.
+ * Channel state for this bot: routers read each type independently. A regular
+ * flow with another type attached still shows `outro_canal`.
  */
 export type ChannelInBotState =
   | { state: 'conectado'; channel: ChannelOfFlow }
@@ -27,13 +28,15 @@ export type ChannelInBotState =
   | { state: 'outro_canal'; channel: ChannelOfFlow };
 
 export function channelInBotState(
-  channel: ChannelOfFlow | null,
+  channels: ChannelOfFlow | readonly ChannelOfFlow[] | null,
   tipo: TypeOfChannelOfBot,
+  isRouter = false,
 ): ChannelInBotState {
-  if (!channel) return { state: 'nao_conectado' };
-  if (channel.tipo !== tipo) return { state: 'outro_canal', channel };
-  if (!channel.ativo) return { state: 'nao_conectado' };
-  return { state: 'conectado', channel };
+  const list = channels ? (Array.isArray(channels) ? channels : [channels]) : [];
+  const channel = list.find((item) => item.tipo === tipo);
+  if (channel?.ativo) return { state: 'conectado', channel };
+  if (isRouter || !list.length || channel) return { state: 'nao_conectado' };
+  return { state: 'outro_canal', channel: list[0]! };
 }
 
 /** The list card says Connected only for an ACTIVE channel of this kind on the bot. */

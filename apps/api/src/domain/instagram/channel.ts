@@ -149,6 +149,8 @@ async function lerVisivel(tenantId: string, channelId: string): Promise<ChannelI
   return visivel(linha);
 }
 
+export const readChannelInstagramVisible = lerVisivel;
+
 /**
  * Validate the token with `/me` and verify the App Secret through `appsecret_proof`. Reject an account already connected to any tenant; create channel and inbox in one transaction, subscribe the webhook, and return `{ url, verifyToken }` for the customer's app. An inactive account in the same tenant is reconnected with the new token, unlike WhatsApp's reauthorization by `canal_id`.
  */
@@ -158,6 +160,7 @@ export async function conectarInstagramManual(pedido: {
   token?: string | undefined;
   appSecret?: string | undefined;
   name?: string | undefined;
+  channelId?: string | undefined;
 }): Promise<ConexaoInstagram> {
   if (!pedido.token) throw recusa('O token de acesso é obrigatório.');
   if (!pedido.appSecret) throw recusa('O App Secret é obrigatório.');
@@ -188,7 +191,17 @@ export async function conectarInstagramManual(pedido: {
     select id, tenant_id, ativo as "active" from canal where numero_id = ${igUserId} limit 1
   `);
   const existente = existentes[0];
-  if (existente && (existente.tenant_id !== pedido.tenantId || existente.active)) throw accountInUse();
+  if (pedido.channelId) {
+    if (!existente || existente.id !== pedido.channelId || existente.tenant_id !== pedido.tenantId) {
+      throw PipeError.naoEncontrado('Canal');
+    }
+    const current = await lerVisivel(pedido.tenantId, pedido.channelId);
+    if (current.state !== 'indisponivel' || current.motivo !== 'reautorizacao_pendente') {
+      throw recusa('Esta conta não precisa de reautorização.');
+    }
+  } else if (existente && (existente.tenant_id !== pedido.tenantId || existente.active)) {
+    throw accountInUse();
+  }
 
   const agora = new Date();
   const username = account.username ?? null;
@@ -239,7 +252,7 @@ export async function conectarInstagramManual(pedido: {
       }
       await registrarAuditoria(tx, pedido.tenantId, {
         ator: { type: 'usuario', id: pedido.userId },
-        acao: existente ? 'ativou' : 'criou',
+        acao: pedido.channelId ? 'alterou' : existente ? 'ativou' : 'criou',
         objetoTipo: 'canal',
         objetoId: id,
         depois: { id, nome, tipo: 'instagram', ig_user_id: igUserId, origem: 'manual' },

@@ -26,6 +26,8 @@ import {
   disconnectChannelOfFlow,
   connectChannelToFlow,
 } from '../domain/management/channel-of-flow.js';
+import { listChannelsWhatsApp, type ChannelWhatsAppVisible } from '../domain/channels.js';
+import { readChannelInstagramVisible, type ChannelInstagramVisible } from '../domain/instagram/channel.js';
 import {
   carregarBoasVindas,
   carregarMenuPersistente,
@@ -295,6 +297,30 @@ export class ManagementFlowController {
     return noTenant(sessao.tenantId, (tx) => loadChannelOfFlowInScreen(tx, sessao.tenantId, id));
   }
 
+  /** Return only the status of the channel attached to this bot, without account-wide channel access. */
+  @Get(':id/channel/status')
+  @WithSession()
+  async channelStatus(
+    @Req() request: RequestWithSession,
+    @Param('id') id: string,
+    @Query('channelId') channelId?: string,
+  ): Promise<ChannelWhatsAppVisible | ChannelInstagramVisible | null> {
+    const session = sessionOf(request);
+    uuidOu404(id, 'fluxo');
+    if (channelId) uuidOu404(channelId, 'canal');
+    const { channels } = await noTenant(session.tenantId, (tx) =>
+      loadChannelOfFlowInScreen(tx, session.tenantId, id),
+    );
+    const channel = channelId ? channels.find((item) => item.id === channelId) : channels[0];
+    if (channelId && !channel) throw PipeError.naoEncontrado('canal');
+    if (!channel) return null;
+    if (channel.tipo === 'whatsapp_cloud') {
+      return (await listChannelsWhatsApp(session.tenantId, channel.id))[0] ?? null;
+    }
+    if (channel.tipo === 'instagram') return readChannelInstagramVisible(session.tenantId, channel.id);
+    return null;
+  }
+
 
   @Put(':id/channel')
   @WithSession()
@@ -322,13 +348,15 @@ export class ManagementFlowController {
   async disconnectChannel(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo?: { reason?: string },
+    @Body() corpo?: { reason?: string; channelId?: string },
   ): Promise<void> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     const motivo = typeof corpo?.reason === 'string' ? corpo.reason.trim().slice(0, 500) : '';
+    const channelId = typeof corpo?.channelId === 'string' ? corpo.channelId : undefined;
+    if (channelId) uuidOu404(channelId, 'canal');
     await noTenant(sessao.tenantId, (tx) =>
-      disconnectChannelOfFlow(tx, sessao.tenantId, sessao.userId, id, motivo || undefined),
+      disconnectChannelOfFlow(tx, sessao.tenantId, sessao.userId, id, motivo || undefined, channelId),
     );
   }
 

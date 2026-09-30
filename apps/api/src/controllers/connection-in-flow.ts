@@ -28,9 +28,10 @@ export function permitidoConectar(
   tenantId: string,
   userId: string,
   flowId: string | undefined,
+  channelType?: string,
 ): Promise<void> {
   return noTenant(tenantId, async (tx) => {
-    if (flowId) await conferirQuePodeLigar(tx, tenantId, userId, flowId);
+    if (flowId) await conferirQuePodeLigar(tx, tenantId, userId, flowId, channelType);
     else await requirePermission(tx, userId, 'canal.gerenciar');
   });
 }

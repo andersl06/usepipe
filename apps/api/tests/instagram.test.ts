@@ -170,6 +170,22 @@ describe('conexão manual (POST /v1/channels/instagram/manual)', () => {
     expect(await linhas(sql`select 1 from canal where tenant_id = ${B.tenantId}::uuid`)).toHaveLength(0);
   });
 
+  it('Reauthorize only the unavailable account in place', async () => {
+    const token = `renew-${S}`;
+    const connected = await conectar(A, token);
+    await expect(conectar(A, token, { channelId: connected.id })).rejects.toMatchObject({
+      codigo: 'configuration_invalid',
+    });
+
+    const current = await readChannelInstagram(A.tenantId, connected.id);
+    await atualizarConfigInstagram(current, { reautorizacaoPendente: true });
+    const renewed = await conectar(A, token, { channelId: connected.id });
+
+    expect(renewed).toMatchObject({ id: connected.id, state: 'conectado', motivo: null });
+    expect(await linhas(sql`select 1 from inbox where canal_id = ${connected.id}::uuid`)).toHaveLength(1);
+    await expect(conectar(B, token, { channelId: connected.id })).rejects.toMatchObject({ status: 404 });
+  });
+
   it('Keep customer tokens and secrets out of Graph client error messages', async () => {
     const token = 'IGAAtoken-secreto-do-cliente';
     const buscar = (async () =>

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
-import { Botao } from '@pipe/ui';
+import { Botao, Etiqueta } from '@pipe/ui';
 import { LogoPortal } from '@pipe/ui/icones-portal';
 import { ApiError } from '@pipe/ui/api';
 import { useRead } from '../../../../lib/query';
+import type { ChannelInstagramVisible } from '../../../../lib/channels';
 import { channelInBotState } from '../../../../lib/channel-of-flow';
 import { ConectarInstagramManual } from '../../../registrations/channel-conectar-manual';
 import { ReadFailure, useContact } from '../../contact';
@@ -26,12 +27,17 @@ const ABAS: readonly ChannelTab[] = [
 export function PageChannelInstagram() {
   const { contact } = useContact();
   const read = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
+  const connectedChannel = read.data?.channels.find((item) => item.tipo === 'instagram' && item.ativo);
+  const health = useRead<ChannelInstagramVisible | null>(
+    connectedChannel ? `/v1/management/flows/${contact.id}/channel/status?channelId=${connectedChannel.id}` : null,
+    { retry: false },
+  );
 
   if (read.error && !(read.error instanceof ApiError && read.error.status === 404)) {
     return <ReadFailure error={read.error} />;
   }
   if (!read.data) return null;
-  const situation = channelInBotState(read.data.channel, 'instagram');
+  const situation = channelInBotState(read.data.channels, 'instagram', contact.tipo === 'roteador');
 
   return (
     <ChannelShell
@@ -41,7 +47,11 @@ export function PageChannelInstagram() {
       conectado={situation.state === 'conectado'}
     >
       {situation.state === 'conectado' ? (
-        <Conectado flowId={contact.id} channel={situation.channel} />
+        <Conectado
+          flowId={contact.id}
+          channel={situation.channel}
+          health={health.data?.id === situation.channel.id ? health.data : null}
+        />
       ) : situation.state === 'outro_canal' ? (
         <div className="cb-linha">
           <div className="cb-icon-column">
@@ -58,7 +68,15 @@ export function PageChannelInstagram() {
   );
 }
 
-function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow }) {
+function Conectado({
+  flowId,
+  channel,
+  health,
+}: {
+  flowId: string;
+  channel: ChannelOfFlow;
+  health: ChannelInstagramVisible | null;
+}) {
   const [desconectando, setDesconectando] = useState(false);
   const user = channel.numero ? `@${channel.numero.replace(/^@/, '')}` : channel.nome;
   return (
@@ -76,11 +94,28 @@ function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow
           </span>
           {user}
         </span>
-        <p className="cb-typo-16">
-          Você já pode conversar com seus clientes pelo Instagram e gerar mais insights para o seu
-          negócio!
-        </p>
+        {health?.state === 'indisponivel' ? (
+          <Etiqueta tom="alerta">
+            A autorização desta conta expirou. Atualize as credenciais para voltar a receber mensagens.
+          </Etiqueta>
+        ) : health?.state === 'desligado' ? (
+          <Etiqueta tom="alerta">Esta conta está desligada e não recebe mensagens.</Etiqueta>
+        ) : (
+          <p className="cb-typo-16">
+            {health?.state === 'conectado'
+              ? 'As mensagens desta conta aparecem no atendimento.'
+              : 'A conta está vinculada a este bot. Não foi possível confirmar o estado da conexão agora.'}
+          </p>
+        )}
         <div className="cb-actions-right">
+          {health?.state === 'indisponivel' && health.motivo === 'reautorizacao_pendente' ? (
+            <ConectarInstagramManual
+              flowId={flowId}
+              channelId={channel.id}
+              rotulo="Atualizar credenciais"
+              variante="primario"
+            />
+          ) : null}
           <Botao type="button" variante="perigo" onClick={() => setDesconectando(true)}>
             Desconectar canal
           </Botao>
@@ -88,6 +123,7 @@ function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow
         <ModalDesconectar
           aberto={desconectando}
           flowId={flowId}
+          channelId={channel.id}
           tipo="instagram"
           onFechar={() => setDesconectando(false)}
         />
