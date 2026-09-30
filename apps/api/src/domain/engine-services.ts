@@ -11,6 +11,7 @@ import { DESK_WRITE_COMMANDS } from './desk-write-commands.js';
 import { BUILDER_COMMANDS } from './builder-commands.js';
 import { SCHEDULING_COMMANDS, type MessagingEffects } from './scheduling-commands.js';
 import { loadFlowSecret } from './management/flow-secrets.js';
+import { agentModelService } from './agent-model.js';
 
 /**
  * The engine services (`ServicosDoMotor`) that production (`flow.ts` `runFlowInInbound`) and the
@@ -84,6 +85,8 @@ export interface EngineServicesOptions {
   effects: EngineEffects;
   /** The running flow: its `variavel_secreta_do_fluxo` rows back `{{secret.*}}` in HTTP actions (P11). */
   flowId?: string;
+  /** Builder test run: the AI agent answers with a stub when the flow has no provider key (P14). */
+  agentStub?: boolean;
 }
 
 /** `MergeContact` fields in Pipe columns; `city`/`gender`/`extras` go to `atributos`. */
@@ -240,20 +243,18 @@ export async function knowledgeMatch(
  * The full `ServicosDoMotor` minus the caller-specific `suspendHttp`/`redirect`, which only exist
  * for a real execution.
  */
-export function engineServices({ tenantId, flowFunctions, isolate, effects, flowId }: EngineServicesOptions): ServicosDoMotor {
+export function engineServices({ tenantId, flowFunctions, isolate, effects, flowId, agentStub }: EngineServicesOptions): ServicosDoMotor {
   const { tickets, saveContact, queueOfHandoff, messaging, ...rest } = effects;
   /** Decrypted secrets for this one input only; they live in memory and nowhere else. */
   const secrets = new Map<string, string | null>();
+  const loadSecret = async (name: string): Promise<string | null> => {
+    if (!flowId) return null;
+    if (!secrets.has(name)) secrets.set(name, await isolate((tx) => loadFlowSecret(tx, flowId, name)));
+    return secrets.get(name) ?? null;
+  };
   return {
     ...rest,
-    ...(flowId
-      ? {
-          resolveSecret: async (name: string) => {
-            if (!secrets.has(name)) secrets.set(name, await isolate((tx) => loadFlowSecret(tx, flowId, name)));
-            return secrets.get(name) ?? null;
-          },
-        }
-      : {}),
+    ...(flowId ? { resolveSecret: loadSecret } : {}),
     // A block with availability exits opens no ticket when the chosen queue is closed or has
     // nobody online. `DeskUnavailable` is thrown outside `isolate`, so it is not a database error.
     forwardForAttendance: async (request) => {
@@ -320,6 +321,8 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects, flow
     },
     processCommand: (request) =>
       isolate((tx) => executeCommand(tx, tenantId, request, true, tickets, effects.recordSatisfactionAnswer, messaging)),
+    // AI agent (P14): the provider key is this flow's secret, decrypted per call and never returned.
+    callAgentModel: agentModelService({ loadSecret, stubWhenNoKey: agentStub ?? false }),
     respondWithKnowledge: (request) => isolate((tx) => knowledgeMatch(tx, tenantId, request)),
   };
 }
