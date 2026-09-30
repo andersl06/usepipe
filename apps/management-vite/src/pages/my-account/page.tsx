@@ -67,6 +67,7 @@ export function PageMyAccount() {
   const account = read.data;
 
   const firstTime = account.onboardingConcluidoEm === null;
+  const preferenciasAbertas = search.get('aba') === 'preferencias';
   /*
    * The field the server refused comes back marked. `data-erro` only exists when there is one, and it's what lights up the red ring on the right box.
    */
@@ -131,7 +132,7 @@ export function PageMyAccount() {
         <main className="account-content">
           <form id="conta-form" action={saveAccount} className="account-form">
             <div className="account-header">
-              <h1>{firstTime ? 'Sobre a sua empresa' : 'Minha conta'}</h1>
+              <h1>{firstTime ? 'Sobre a sua empresa' : 'Perfil da empresa'}</h1>
               <button type="submit" className="account-button">
                 {firstTime ? 'Salvar e abrir o portal' : 'Salvar alterações'}
               </button>
@@ -142,11 +143,21 @@ export function PageMyAccount() {
               <section className="account-card">
                 <ul className="account-tabs">
                   <li>
-                    <input type="radio" name="aba" id="conta-aba-perfil" defaultChecked />
-                    <label htmlFor="conta-aba-perfil">Meu perfil</label>
+                    <input
+                      type="radio"
+                      name="aba"
+                      id="conta-aba-perfil"
+                      defaultChecked={!preferenciasAbertas}
+                    />
+                    <label htmlFor="conta-aba-perfil">Empresa</label>
                   </li>
                   <li>
-                    <input type="radio" name="aba" id="conta-aba-preferencias" />
+                    <input
+                      type="radio"
+                      name="aba"
+                      id="conta-aba-preferencias"
+                      defaultChecked={preferenciasAbertas}
+                    />
                     <label htmlFor="conta-aba-preferencias">Preferências</label>
                   </li>
                 </ul>
@@ -176,7 +187,7 @@ export function PageMyAccount() {
  * Read-only, as in the source: email is the sign-in key, and changing it here would change the person, not the data.
  */}
                   <label className="account-field">
-                    <span>Seu e-mail</span>
+                    <span>E-mail de acesso</span>
                     <input type="email" value={eu.user.email} readOnly disabled />
                   </label>
 
@@ -259,7 +270,7 @@ export function PageMyAccount() {
                       name="optinWhatsapp"
                       defaultChecked={account.optinWhatsapp}
                     />
-                    <span>Contato via WhatsApp</span>
+                    <span>Quero receber comunicações pelo WhatsApp</span>
                   </label>
                 </div>
 

@@ -117,7 +117,11 @@ describe('importador do export do editor da Blip', () => {
     menu.$enteringCustomActions = [
       { type: 'UnknownActionForTest', settings: { stepName: 'x' } },
       { type: 'ProcessHttp', settings: { uri: 'https://exemplo.invalido', method: 'GET' } },
-      { type: 'ProcessHttp', settings: { uri: 'https://exemplo.invalido', method: 'POST' } },
+      // A secret inside an HTTP action resolves (P11); only the one in SendMessage below is reported.
+      {
+        type: 'ProcessHttp',
+        settings: { uri: 'https://exemplo.invalido', method: 'POST', headers: { Authorization: '{{secret.token}}' } },
+      },
     ];
     menu.$contentActions![1]!.input!['expiration'] = '00:10:00';
     menu.$contentActions!.unshift({

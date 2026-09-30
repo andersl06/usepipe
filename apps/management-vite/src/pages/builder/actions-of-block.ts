@@ -20,7 +20,7 @@ export interface CampoDaAcao {
   rotulo: string;
   ajuda?: string;
   obrigatorio?: boolean;
-  /** `texto` is one line; `longo` uses a textarea; `code` is script source; `variableList` is a list of variable names; `functionId` picks a function from the library (D-22). */
+  /** `texto` is one line; `longo` uses a textarea; `code` is script source; `variableList` is a list of variable names; `functionId` picks a function from the tenant library (D-22, P10) and stores its UUID in `source`, as Blip does. */
   tipo?: 'texto' | 'longo' | 'json' | 'cabecalhos' | 'code' | 'variableList' | 'functionId';
   /** Valores fechados usam o mesmo seletor do Builder. */
   options?: readonly string[];
@@ -72,9 +72,9 @@ const TEMPLATE_FIELDS: CampoDaAcao[] = [
   { key: 'outputVariable', rotulo: 'Salvar retorno', obrigatorio: true, ajuda: 'Para mostrar as informações da consulta no fluxo, utilize: {{NomeDaVariável}}' },
 ];
 
-/** `ExecuteBlipFunction` runs a named function from the library (D-22) instead of inline source. */
+/** `ExecuteBlipFunction` runs a function from the account's library (D-22, P10) by UUID, kept in `source` like a Blip export. */
 const BLIP_FUNCTION_FIELDS: CampoDaAcao[] = [
-  { key: 'functionId', rotulo: 'Definição da função', obrigatorio: true, tipo: 'functionId' },
+  { key: 'source', rotulo: 'Definição da função', obrigatorio: true, tipo: 'functionId' },
   INPUT_VARIABLES_FIELD,
   { key: 'outputVariable', rotulo: 'Variável para o valor de retorno', obrigatorio: true },
 ];
@@ -398,6 +398,19 @@ export function fieldValue(acao: AcaoDoEditor, key: string): string {
   return typeof atual === 'string' ? atual : JSON.stringify(atual);
 }
 
+/**
+ * The library function an `ExecuteBlipFunction` points at: Blip's `source` UUID, or the
+ * `functionId` Pipe's Builder wrote before P10 (the engine reads both, `source` first).
+ */
+export function functionReference(acao: AcaoDoEditor): string {
+  return fieldValue(acao, 'source').trim() || fieldValue(acao, 'functionId').trim();
+}
+
+/** Point the action at a library function, in Blip's `source` key, dropping the legacy `functionId`. */
+export function withFunctionReference(acao: AcaoDoEditor, id: string): AcaoDoEditor {
+  return comCampo(comCampo(acao, 'functionId', ''), 'source', id);
+}
+
 /** Write `settings.a.b`; empty text deletes the key. */
 export function comCampo(acao: AcaoDoEditor, key: string, value: string): AcaoDoEditor {
   const settings = JSON.parse(JSON.stringify(acao.settings ?? {})) as Record<string, unknown>;
@@ -491,7 +504,8 @@ export function actionErrors(acao: AcaoDoEditor): string[] {
   const errors: string[] = [];
   const tipo = tipoDeAcao(acao.type);
   for (const campo of tipo?.campos ?? []) {
-    if (campo.obrigatorio && !fieldValue(acao, campo.key).trim()) {
+    const valor = campo.tipo === 'functionId' ? functionReference(acao) : fieldValue(acao, campo.key);
+    if (campo.obrigatorio && !valor.trim()) {
       errors.push(`${campo.rotulo}: campo obrigatório.`);
     }
     if (campo.tipo === 'json') {

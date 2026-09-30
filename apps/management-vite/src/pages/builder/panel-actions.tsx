@@ -31,7 +31,9 @@ import {
   substituirAcao,
   tipoDeAcao,
   fieldValue,
+  functionReference,
   variablesOfField,
+  withFunctionReference,
   withVariables,
 } from './actions-of-block';
 import type { ActionsList } from './actions-of-block';
@@ -630,8 +632,8 @@ export function ActionCard({
                     </>
                   ) : campo.tipo === 'functionId' ? (
                     <FlowFunctionSelect
-                      value={fieldValue(acao, campo.key)}
-                      onChange={(functionId) => onMudar(comCampo(acao, campo.key, functionId))}
+                      value={functionReference(acao)}
+                      onChange={(functionId) => onMudar(withFunctionReference(acao, functionId))}
                     />
                   ) : campo.options ? (
                     <select

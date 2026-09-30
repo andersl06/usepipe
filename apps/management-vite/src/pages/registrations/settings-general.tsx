@@ -36,15 +36,9 @@ export function PageSettingsGeneral() {
       {/* ----------------------------------------------------------- card 1 */}
       <CardConfig
         titulo="Identidade da operação"
-        explanation={
-          <>
-            O nome que aparece na barra do topo e o fuso em que a operação vive. O fuso é o que
-            decide o que é <b>“hoje”</b> em todo cartão e em todo relatório — trocá-lo redesenha o
-            corte do dia, não só o rótulo da hora.
-          </>
-        }
+        explanation="Defina o nome exibido no atendimento, o idioma e o fuso horário da operação."
         acao={saveIdentity}
-        rodape={`Plano ${identity.plan} — o plano é contrato, e muda com a gente.`}
+        rodape={`Plano atual: ${identity.plan}.`}
       >
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '260px' }}>
@@ -72,14 +66,7 @@ export function PageSettingsGeneral() {
       {/* ----------------------------------------------------------- card 2 */}
       <CardConfig
         titulo="Pesquisa de satisfação"
-        explanation={
-          <>
-            Uma escala por pesquisa, e a escala sai do tipo: <b>CSAT</b> vai de 1 a 5, <b>NPS</b> de
-            0 a 10. Ela não é digitável de propósito — nota de escalas diferentes somada no mesmo
-            gráfico é o defeito que a §6 da nossa régua de métricas existe para impedir. A escala
-            fica gravada junto de cada resposta, então mudar aqui não reclassifica o passado.
-          </>
-        }
+        explanation="Envie uma pesquisa após o atendimento para acompanhar a experiência do cliente."
         acao={salvarPesquisa}
         interruptor={{
           name: 'ativa',
@@ -88,7 +75,7 @@ export function PageSettingsGeneral() {
         }}
         rodape={
           outrasPesquisas > 0
-            ? `Há mais ${numero(outrasPesquisas)} pesquisa(s) cadastrada(s). O relatório separa por tipo e escala; esta tela edita a mais recente.`
+            ? `${numero(outrasPesquisas)} pesquisa(s) anterior(es) permanecem disponíveis nos relatórios.`
             : `Hoje: ${SCALE_BY_TYPE[tipoAtual].faixas}`
         }
       >
@@ -128,23 +115,13 @@ export function PageSettingsGeneral() {
           />
         </label>
 
-        <p className="note">
-          A <b>taxa de resposta</b> continua obrigatória no relatório de Satisfação: uma média de
-          4,85 com 22% de resposta não é a mesma coisa que 4,85 com 90%, e a tela mostra as duas.
-        </p>
+        <p className="note">Os relatórios mostram a nota média e a taxa de resposta.</p>
       </CardConfig>
 
       {/* ----------------------------------------------------------- card 3 */}
       <CardConfig
-        titulo="Etiqueta no encerramento"
-        explanation={
-          <>
-            Torna obrigatória a inclusão de etiqueta em atendimento finalizado manualmente. O
-            atendente só consegue encerrar depois de escolher uma das marcadas aqui. É a lista que
-            alimenta o relatório por etiqueta — sem exigência, a lista fica furada e o relatório
-            mede o que sobrou.
-          </>
-        }
+        titulo="Etiquetas no encerramento"
+        explanation="Exija etiquetas ao encerrar atendimentos para organizar os relatórios."
         acao={closureSaveTags}
         interruptor={{
           name: 'exigir',
@@ -153,8 +130,8 @@ export function PageSettingsGeneral() {
         }}
         rodape={
           obrigatorias.length > 0
-            ? `${numero(obrigatorias.length)} de ${numero(etiquetas.length)} etiquetas são exigidas hoje.`
-            : 'Nenhuma etiqueta exigida — o encerramento não pede nada.'
+            ? `${numero(obrigatorias.length)} de ${numero(etiquetas.length)} etiquetas são obrigatórias.`
+            : 'Nenhuma etiqueta é obrigatória no momento.'
         }
       >
         {etiquetas.length === 0 ? (

@@ -463,24 +463,26 @@ export const executionWorkflow = pgTable(
   ],
 );
 
-/** Reusable conversation-engine function (D-22). This is deliberately separate from workflow `funcao`. */
+/**
+ * Reusable conversation-engine function (D-22). This is deliberately separate from workflow `funcao`.
+ * The library belongs to the account (tenant), like Blip's (P10, D-57): every flow of the tenant sees
+ * every function and `ExecuteBlipFunction` references one by `id`. Migration 0054 folded the former
+ * per-flow scope (`fluxo_id`, `escopo`) into the tenant and made `nome` unique per tenant.
+ */
 export const flowFunction = pgTable(
   'funcao_do_fluxo',
   {
     id: id(),
     tenantId: refTenant(),
-    flowId: uuid('fluxo_id').references(() => flow.id, { onDelete: 'cascade' }),
     name: text('nome').notNull(),
     description: text('descricao'),
     parameters: jsonb('parametros').$type<string[]>().notNull().default([]),
     code: text('codigo').notNull(),
     version: integer('versao').notNull().default(1),
-    scope: text('escopo').notNull().default('tenant'),
     ...carimbos(),
   },
   (t) => [
-    index('funcao_do_fluxo_tenant_idx').on(t.tenantId, t.name),
-    index('funcao_do_fluxo_fluxo_idx').on(t.tenantId, t.flowId, t.name),
+    uniqueIndex('funcao_do_fluxo_tenant_nome_uk').on(t.tenantId, t.name),
     check('funcao_do_fluxo_codigo_ck', sql`length(${t.code}) <= 65536`),
   ],
 );
@@ -561,6 +563,60 @@ export const memoryRecord = pgTable(
     uniqueIndex('gravar_memoria_global_chave_uk').on(t.tenantId, t.key).where(sql`${t.scope} = 'global'`),
     index('gravar_memoria_tenant_idx').on(t.tenantId, t.contactId, t.key),
     check('gravar_memoria_valor_ck', sql`pg_column_size(${t.value}) <= 65536`),
+  ],
+);
+
+export const SCHEDULE_STATES = ['agendada', 'executada', 'cancelada', 'falhou'] as const;
+
+/**
+ * A message a bot scheduled with Blip's `set /schedules` (P7), keyed by the Blip message id. The row
+ * is authoritative: a delayed job fires it at `when` and a sweep recovers a lost job.
+ */
+export const scheduledMessage = pgTable(
+  'agendamento_mensagem',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    flowId: uuid('fluxo_id').references(() => flow.id, { onDelete: 'set null' }),
+    contactId: uuid('contato_id').references(() => contact.id, { onDelete: 'set null' }),
+    messageId: text('mensagem_id').notNull(),
+    name: text('nome'),
+    to: text('destino').notNull(),
+    type: text('tipo').notNull(),
+    content: jsonb('conteudo').notNull().default(sql`'null'::jsonb`),
+    when: moment('quando').notNull(),
+    state: text('estado').notNull().default('agendada'),
+    result: jsonb('resultado'),
+    executedAt: moment('executado_em'),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('agendamento_mensagem_estado_ck', t.state, SCHEDULE_STATES),
+    check('agendamento_mensagem_conteudo_ck', sql`pg_column_size(${t.content}) <= 65536`),
+    check('agendamento_mensagem_id_ck', sql`length(${t.messageId}) between 1 and 200`),
+    uniqueIndex('agendamento_mensagem_tenant_mensagem_uk').on(t.tenantId, t.messageId),
+    index('agendamento_mensagem_pendente_idx').on(t.when).where(sql`${t.state} = 'agendada'`),
+  ],
+);
+
+/** An event a bot recorded with Blip's `set /event-track` (P7). */
+export const trackedEvent = pgTable(
+  'evento_rastreado',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    flowId: uuid('fluxo_id').references(() => flow.id, { onDelete: 'set null' }),
+    contactId: uuid('contato_id').references(() => contact.id, { onDelete: 'set null' }),
+    category: text('categoria').notNull(),
+    action: text('acao').notNull(),
+    extras: jsonb('extras').notNull().default(sql`'{}'::jsonb`),
+    at: moment('em').notNull().defaultNow(),
+  },
+  (t) => [
+    check('evento_rastreado_categoria_ck', sql`length(${t.category}) between 1 and 200`),
+    check('evento_rastreado_acao_ck', sql`length(${t.action}) between 1 and 200`),
+    check('evento_rastreado_extras_ck', sql`pg_column_size(${t.extras}) <= 16384`),
+    index('evento_rastreado_categoria_idx').on(t.tenantId, t.category, t.at),
   ],
 );
 

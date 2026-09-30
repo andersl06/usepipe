@@ -10,8 +10,8 @@ import { montarPassos } from '../../lib/passos-of-deployment';
 import type { StepState } from '../../lib/passos-of-deployment';
 import { numero } from '../../lib/format';
 import { buildDeskUrl } from '../../lib/tenant-links';
-import { ConectarWhatsApp } from '../../components/registration-embedded-whatsapp';
-import { InvitationForm, ImportForm, FormularioManual } from './formularios';
+import { ConectarWhatsappManual } from '../registrations/channel-conectar-manual';
+import { InvitationForm, ImportForm } from './formularios';
 
 /**
  * Implantação — from contract to first attended conversation, with no manual rollout.
@@ -109,9 +109,8 @@ export function PageDeployment() {
         <section className="card" id="whatsapp">
           <h3>WhatsApp</h3>
           <p className="sub">
-            O número é do cliente: a conexão roda pelo cadastro embutido da Meta, dentro do Business
-            Manager dele. Ao fim, o Pipe troca o código pelo token, registra o número e aponta o
-            webhook — ninguém copia URL nem token.
+            Informe manualmente os dados da conta, do número e do aplicativo da Meta. O Pipe valida
+            as credenciais, registra o número e configura o webhook.
           </p>
 
           {channels.length === 0 ? null : (
@@ -140,7 +139,11 @@ export function PageDeployment() {
                             : 'Conectado'}
                       </Etiqueta>
                       {precisaReconectar && c.number ? (
-                        <ConectarWhatsApp channelId={c.id} rotulo="Reconectar" variante="padrao" />
+                        <ConectarWhatsappManual
+                          channelId={c.id}
+                          rotulo="Atualizar credenciais"
+                          variante="padrao"
+                        />
                       ) : null}
                     </div>
                   </article>
@@ -149,10 +152,10 @@ export function PageDeployment() {
             </div>
           )}
 
-          <ConectarWhatsApp
+          <ConectarWhatsappManual
             rotulo={channels.length === 0 ? 'Conectar WhatsApp' : 'Conectar outro número'}
+            variante="primario"
           />
-          <FormularioManual />
         </section>
 
         <section className="card" id="equipe">

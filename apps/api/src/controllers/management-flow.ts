@@ -46,6 +46,12 @@ import {
   deleteFlowResource,
 } from '../domain/management/flow-resources.js';
 import {
+  listFlowSecrets,
+  createFlowSecret,
+  updateFlowSecret,
+  deleteFlowSecret,
+} from '../domain/management/flow-secrets.js';
+import {
   loadChannelOfFlow,
   carregarGradeDoPortal,
   loadContact,
@@ -69,6 +75,8 @@ import type {
   LinkedService,
   FlowResource,
   FlowResourceInput,
+  FlowSecret,
+  FlowSecretInput,
 } from '@pipe/contracts';
 import { BY_PAGE } from '@pipe/contracts';
 import type {
@@ -580,6 +588,69 @@ export class ManagementFlowController {
     uuidOu404(resourceId, 'recurso');
     await noTenant(sessao.tenantId, (tx) =>
       deleteFlowResource(tx, sessao.userId, sessao.tenantId, id, resourceId),
+    );
+  }
+
+  /**
+   * Builder "Variáveis sensíveis" (`builder.ler`/`builder.escrever` on this flow): the secrets
+   * `{{secret.<name>}}` reads in HTTP actions. Write-only: no response carries the value.
+   */
+  @Get(':id/secrets')
+  @WithSession()
+  async secrets(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+  ): Promise<FlowSecret[]> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) =>
+      listFlowSecrets(tx, sessao.userId, sessao.tenantId, id),
+    );
+  }
+
+  @Post(':id/secrets')
+  @WithSession()
+  async createSecret(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Body() corpo: FlowSecretInput,
+  ): Promise<FlowSecret> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) =>
+      createFlowSecret(tx, sessao.userId, sessao.tenantId, id, corpo),
+    );
+  }
+
+  @Put(':id/secrets/:secretId')
+  @WithSession()
+  async updateSecret(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Param('secretId') secretId: string,
+    @Body() corpo: FlowSecretInput,
+  ): Promise<FlowSecret> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    uuidOu404(secretId, 'variável sensível');
+    return noTenant(sessao.tenantId, (tx) =>
+      updateFlowSecret(tx, sessao.userId, sessao.tenantId, id, secretId, corpo),
+    );
+  }
+
+  @Delete(':id/secrets/:secretId')
+  @HttpCode(204)
+  @WithSession()
+  async deleteSecret(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Param('secretId') secretId: string,
+  ): Promise<void> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    uuidOu404(secretId, 'variável sensível');
+    await noTenant(sessao.tenantId, (tx) =>
+      deleteFlowSecret(tx, sessao.userId, sessao.tenantId, id, secretId),
     );
   }
 }

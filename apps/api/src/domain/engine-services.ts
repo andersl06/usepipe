@@ -9,6 +9,8 @@ import { DESK_READ_COMMANDS } from './desk-commands.js';
 import { queueUnavailability } from './queue-entry.js';
 import { DESK_WRITE_COMMANDS } from './desk-write-commands.js';
 import { BUILDER_COMMANDS } from './builder-commands.js';
+import { SCHEDULING_COMMANDS, type MessagingEffects } from './scheduling-commands.js';
+import { loadFlowSecret } from './management/flow-secrets.js';
 
 /**
  * The engine services (`ServicosDoMotor`) that production (`flow.ts` `runFlowInInbound`) and the
@@ -67,6 +69,8 @@ export type EngineEffects = Pick<
    * Read-only: only the availability checks call it, before `forwardForAttendance`.
    */
   queueOfHandoff(tx: TransactionPipe, queueId: string | null): Promise<string | null>;
+  /** Where the P7 commands (scheduler, broadcast lists, event-track, click tracker) land. */
+  messaging?: MessagingEffects;
 };
 
 export interface EngineServicesOptions {
@@ -78,6 +82,8 @@ export interface EngineServicesOptions {
    */
   isolate: <T>(fn: (tx: TransactionPipe) => Promise<T>) => Promise<T>;
   effects: EngineEffects;
+  /** The running flow: its `variavel_secreta_do_fluxo` rows back `{{secret.*}}` in HTTP actions (P11). */
+  flowId?: string;
 }
 
 /** `MergeContact` fields in Pipe columns; `city`/`gender`/`extras` go to `atributos`. */
@@ -119,6 +125,7 @@ export async function executeCommand(
   waitForResponse: boolean,
   tickets: TicketEffects,
   recordSatisfactionAnswer?: ServicosDoMotor['recordSatisfactionAnswer'],
+  messaging?: MessagingEffects,
 ): Promise<unknown> {
   const { uri, resource, command } = request;
   const builderCommand = BUILDER_COMMANDS[command.route];
@@ -134,6 +141,12 @@ export async function executeCommand(
   const deskWrite = DESK_WRITE_COMMANDS[command.route];
   if (deskWrite) {
     const response = await deskWrite(tx, tenantId, { resource, command }, { tickets, recordSatisfactionAnswer });
+    return waitForResponse ? response : undefined;
+  }
+  const scheduling = SCHEDULING_COMMANDS[command.route];
+  if (scheduling) {
+    if (!messaging) throw new Error(`A URI '${uri}' não está disponível neste fluxo.`);
+    const response = await scheduling(tx, request, messaging);
     return waitForResponse ? response : undefined;
   }
   const route = command.route;
@@ -227,10 +240,20 @@ export async function knowledgeMatch(
  * The full `ServicosDoMotor` minus the caller-specific `suspendHttp`/`redirect`, which only exist
  * for a real execution.
  */
-export function engineServices({ tenantId, flowFunctions, isolate, effects }: EngineServicesOptions): ServicosDoMotor {
-  const { tickets, saveContact, queueOfHandoff, ...rest } = effects;
+export function engineServices({ tenantId, flowFunctions, isolate, effects, flowId }: EngineServicesOptions): ServicosDoMotor {
+  const { tickets, saveContact, queueOfHandoff, messaging, ...rest } = effects;
+  /** Decrypted secrets for this one input only; they live in memory and nowhere else. */
+  const secrets = new Map<string, string | null>();
   return {
     ...rest,
+    ...(flowId
+      ? {
+          resolveSecret: async (name: string) => {
+            if (!secrets.has(name)) secrets.set(name, await isolate((tx) => loadFlowSecret(tx, flowId, name)));
+            return secrets.get(name) ?? null;
+          },
+        }
+      : {}),
     // A block with availability exits opens no ticket when the chosen queue is closed or has
     // nobody online. `DeskUnavailable` is thrown outside `isolate`, so it is not a database error.
     forwardForAttendance: async (request) => {
@@ -277,8 +300,9 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects }: En
     // Like callHttp, the script (up to 10 s) still runs inside the inbound transaction.
     runScript: (request) => runFlowScript(request, { fetch: scriptFetch(tenantId), library: flowFunctions.values() }),
     runFlowFunction: async ({ functionId, args }) => {
-      const definition = flowFunctions.get(functionId);
-      if (!definition) throw new Error(`A função '${functionId}' não existe neste fluxo.`);
+      // The tenant library is keyed by the database's lowercase UUID; Blip exports may differ in case.
+      const definition = flowFunctions.get(functionId.toLowerCase());
+      if (!definition) throw new Error(`A função '${functionId}' não existe na biblioteca da conta.`);
       if (definition.parameters.length !== args.length) {
         throw new Error(`A função '${definition.name}' esperava ${definition.parameters.length} parâmetro(s).`);
       }
@@ -292,10 +316,10 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects }: En
       await effects.bucketSet?.(request);
     },
     sendCommand: async (request) => {
-      await isolate((tx) => executeCommand(tx, tenantId, request, false, tickets, effects.recordSatisfactionAnswer));
+      await isolate((tx) => executeCommand(tx, tenantId, request, false, tickets, effects.recordSatisfactionAnswer, messaging));
     },
     processCommand: (request) =>
-      isolate((tx) => executeCommand(tx, tenantId, request, true, tickets, effects.recordSatisfactionAnswer)),
+      isolate((tx) => executeCommand(tx, tenantId, request, true, tickets, effects.recordSatisfactionAnswer, messaging)),
     respondWithKnowledge: (request) => isolate((tx) => knowledgeMatch(tx, tenantId, request)),
   };
 }

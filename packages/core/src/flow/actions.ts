@@ -4,7 +4,7 @@
 
 import type { ActionDeadline, CommandRequest, Context, DeskUnavailableStatus, PedidoDeHttp } from './context.js';
 import { CONTEXT_STATE_URI, matchCommand } from './commands.js';
-import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, setVariable as setContextVariable, stateKey } from './context.js';
+import { DeskUnavailable, KEY_OF_STATE_CURRENT, KEY_OF_TICKET, deleteVariable as deleteContextVariable, getVariable, maskSecrets, setVariable as setContextVariable, stateKey } from './context.js';
 import { runLocalCommand } from './builder-commands.js';
 
 export type Settings = Record<string, unknown> | null;
@@ -444,6 +444,8 @@ const processHttp: AcaoDoMotor = {
     const pedido: PedidoDeHttp = {
       metodo: metodo as PedidoDeHttp['metodo'], url: uri, cabecalhos, timeoutMs,
       ...(corpo === undefined ? {} : { corpo }),
+      // A request carrying `{{secret.*}}` must be encrypted wherever the `api` stores it.
+      ...(prazo?.secrets?.size ? { sensivel: true } : {}),
     };
     const cursor = context.inboundContext.get('process-http-cursor');
     if (context.services.suspendHttp && cursor) {
@@ -458,7 +460,8 @@ const processHttp: AcaoDoMotor = {
     const status = comoTexto(campo(c, 'responseStatusVariable'))?.trim();
     const bodyVariable = comoTexto(campo(c, 'responseBodyVariable'))?.trim();
     if (status) setContextVariable(context, status, String(resposta.status));
-    if (bodyVariable) setContextVariable(context, bodyVariable, resposta.corpo);
+    // A service that echoes the credential (or a network error quoting the URL) must not put it in context.
+    if (bodyVariable) setContextVariable(context, bodyVariable, maskSecrets(resposta.corpo, prazo?.secrets));
   },
 };
 
@@ -581,8 +584,10 @@ const executeBlipFunction: AcaoDoMotor = {
     if (!context.services.runFlowFunction) {
       throw new Error(`A ação ${this.tipo} não está disponível neste fluxo.`);
     }
-    const functionId = comoTexto(campo(c, 'functionId'))?.trim();
-    if (!functionId) throw new Error(`O valor 'functionId' é obrigatório na ação '${this.tipo}'.`);
+    // Blip stores the library function's UUID in `source` (its validator requires a UUID there);
+    // `functionId` is what Pipe's Builder wrote before P10 and keeps working.
+    const functionId = (comoTexto(campo(c, 'source'))?.trim() || comoTexto(campo(c, 'functionId'))?.trim()) ?? '';
+    if (!functionId) throw new Error(`O valor 'source' é obrigatório na ação '${this.tipo}'.`);
     const output = comoTexto(campo(c, 'outputVariable'))?.trim();
     if (!output) throw new Error(`O valor 'outputVariable' é obrigatório na ação '${this.tipo}'.`);
     const inputs = campo(c, 'inputVariables');

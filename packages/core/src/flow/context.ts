@@ -1,5 +1,5 @@
 /**
- * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider,ResourceVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is stored under `#expirations` (see `EXPIRATIONS_KEY`); `calendar`, `random`, `application`, `tunnel` and `bucket` have providers (see each below), while other Blip service providers (secret, aiagent, etc.) are absent and throw, as the original does when a source lacks a provider. `resource` DOES have a provider: the `api` loads the flow's `recurso_do_fluxo` rows into `Context.resources` the same way it loads `contact`, so an imported flow reading `{{resource.x}}` (and `resource.x@prop` for JSON resources, via the generic `propertyJson` path already used by every source) resolves instead of throwing "Não há provedor para a fonte de variável 'resource'.".
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider,ResourceVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is stored under `#expirations` (see `EXPIRATIONS_KEY`); `calendar`, `random`, `application`, `tunnel` and `bucket` have providers (see each below), `secret` resolves only while an HTTP action's settings are substituted (see `ACTIONS_WITH_SECRETS`), while other Blip service providers (aiagent, etc.) are absent and throw, as the original does when a source lacks a provider. `resource` DOES have a provider: the `api` loads the flow's `recurso_do_fluxo` rows into `Context.resources` the same way it loads `contact`, so an imported flow reading `{{resource.x}}` (and `resource.x@prop` for JSON resources, via the generic `propertyJson` path already used by every source) resolves instead of throwing "Não há provedor para a fonte de variável 'resource'.".
  */
 
 import type { CommandMatch } from './commands.js';
@@ -41,6 +41,7 @@ export const FONTES_SUPORTADAS: ReadonlySet<VariableSource> = new Set([
   'application',
   'tunnel',
   'bucket',
+  'secret',
 ]);
 
 /** Incoming message in LIME vocabulary: `tipo` is the MIME type (`text/plain`, etc.). */
@@ -122,6 +123,11 @@ export interface PedidoDeHttp {
   cabecalhos: Record<string, string>;
   corpo?: string;
   timeoutMs: number;
+  /**
+   * True when a `{{secret.*}}` value was substituted into this request. The `api` must then keep
+   * the request encrypted at rest (a suspended `ProcessHttp` stores it) and never log it.
+   */
+  sensivel?: boolean;
 }
 
 export interface RespostaDeHttp {
@@ -168,6 +174,8 @@ export interface CursorDeProcessHttp {
 export interface ActionDeadline {
   signal: AbortSignal;
   timeLimitMs: number;
+  /** Secret values substituted into this action's settings (only HTTP actions); the action masks them. */
+  secrets?: ReadonlySet<string>;
 }
 
 /** A `SendCommand`/`ProcessCommand` after routing; `command` says which handler runs it. */
@@ -231,6 +239,12 @@ export interface ServicosDoMotor {
    */
   setFlowState?(request: { flowId: string; stateId: string }): Promise<boolean>;
   processCommand?(request: CommandRequest): Promise<unknown>;
+  /**
+   * The decrypted value of this flow's secret variable `name` (`{{secret.name}}`, Blip "Variáveis
+   * sensíveis"), or null when it does not exist. The engine only calls it while substituting an HTTP
+   * action's settings; the value never reaches `variables`, the trace or an error message.
+   */
+  resolveSecret?(name: string): Promise<string | null>;
   /** RAG over the tenant's base_conhecimento/trecho_conhecimento tables. */
   respondWithKnowledge?(request: { text: string; minimumConfidence: number; tags?: string }): Promise<{ answer: string | null; confidence: number }>;
 }
@@ -640,10 +654,66 @@ const PROVEDORES_PADRAO: Partial<Record<VariableSource, VariableProvider>> = {
   resource: (nome, c) => c.resources?.[nome] ?? null,
 };
 
+/**
+ * Actions whose settings may read `{{secret.*}}`. Blip: "Variáveis sensíveis. Atualmente disponível
+ * para uso apenas em ações HTTP." Anywhere else a secret reads as empty, as in Blip.
+ */
+export const ACTIONS_WITH_SECRETS: ReadonlySet<string> = new Set(['ProcessHttp']);
+
+/** Options for one substitution. */
+export interface VariableOptions {
+  /**
+   * Present only while substituting an action in `ACTIONS_WITH_SECRETS`: `secret.*` then resolves
+   * through `services.resolveSecret`, and every value read is added here so the engine can mask it.
+   */
+  secrets?: Set<string>;
+}
+
+/** Shortest secret value `maskSecrets` hides; shorter ones would mangle ordinary text. */
+export const MIN_MASKED_SECRET_LENGTH = 4;
+export const SECRET_MASK = '********';
+
+/**
+ * Replace every revealed secret value in `text` (raw, JSON-escaped and URL-encoded forms) with a
+ * mask, so an error message, the trace or an HTTP response body written to a variable never
+ * carries it.
+ */
+export function maskSecrets(text: string, secrets: ReadonlySet<string> | null | undefined): string {
+  if (!secrets || secrets.size === 0 || !text) return text;
+  // Longest first: a secret that contains another must be masked whole.
+  const forms = [...secrets]
+    .flatMap((value) => [
+      value,
+      escaparTexto(value) ?? value,
+      JSON.stringify(value).slice(1, -1),
+      encodeURIComponent(value),
+    ])
+    .filter((value) => value.length >= MIN_MASKED_SECRET_LENGTH)
+    .sort((a, b) => b.length - a.length);
+  let out = text;
+  for (const form of new Set(forms)) out = out.split(form).join(SECRET_MASK);
+  return out;
+}
+
 /** `ContextBase.GetVariableAsync`. */
-export async function getVariable(context: Context, nome: string): Promise<string | null> {
+export async function getVariable(
+  context: Context,
+  nome: string,
+  options?: VariableOptions,
+): Promise<string | null> {
   const variable = readVariableName(nome);
   let value: string | null = '';
+  if (variable.fonte === 'secret') {
+    // Outside an HTTP action a secret stays empty, as in Blip; it never throws.
+    if (!options?.secrets || !context.services.resolveSecret) return null;
+    value = await context.services.resolveSecret(variable.nome);
+    if (value === null) return null;
+    options.secrets.add(value);
+    if (!value.trim() || !variable.property?.trim()) return value;
+    const property = propertyJson(value, variable.property);
+    if (property !== null) options.secrets.add(property);
+    return property;
+  }
   if (variable.fonte === 'context') {
     value = contextGetVariable(context, variable.nome);
   } else {
@@ -660,12 +730,16 @@ export async function getVariable(context: Context, nome: string): Promise<strin
 const VARIABLES_IN_TEXT = /{{([a-zA-Z0-9.@_-]+)}}/g;
 
 /** `VariableReplacer.ReplaceAsync`: replace `{{nome}}` with its value escaped for JSON. */
-export async function replaceVariables(value: string, context: Context): Promise<string> {
+export async function replaceVariables(
+  value: string,
+  context: Context,
+  options?: VariableOptions,
+): Promise<string> {
   const values = new Map<string, string | null>();
   for (const m of value.matchAll(VARIABLES_IN_TEXT)) {
     const nome = m[1]!;
     if (values.has(nome)) continue;
-    values.set(nome, escaparTexto(await getVariable(context, nome)));
+    values.set(nome, escaparTexto(await getVariable(context, nome, options)));
   }
   if (values.size === 0) return value;
   return value.replace(VARIABLES_IN_TEXT, (_todo, nome: string) => values.get(nome) ?? '');

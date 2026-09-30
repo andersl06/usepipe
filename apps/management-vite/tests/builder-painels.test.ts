@@ -204,7 +204,7 @@ test('BLIP_SYSTEM_VARIABLES has all 118 reference variables, sorted, with pt-BR 
   const bucket = BLIP_SYSTEM_VARIABLES.find((v) => v.nome === 'bucket.?');
   assert.equal(bucket?.suportada, true);
   const secret = BLIP_SYSTEM_VARIABLES.find((v) => v.nome === 'secret.?');
-  assert.equal(secret?.suportada, false);
+  assert.equal(secret?.suportada, true); // P11: resolves in HTTP actions
 
   // Every variable whose source now has an engine provider is marked supported.
   const novas = BLIP_SYSTEM_VARIABLES.filter((v) => /^(application|calendar|random|tunnel)\./.test(v.nome));
@@ -488,7 +488,7 @@ test('CONFIGURATION_SECTIONS has the 8 captured sections, in order, with literal
 
 test('available sections are the ones the engine reads: session expiration, action time limit and config.X', () => {
   const disponiveis = CONFIGURATION_SECTIONS.filter((s) => s.disponivel).map((s) => s.id);
-  assert.deepEqual(disponiveis, ['expiracao-sessao', 'tempo-limite-acoes', 'variaveis-configuracao']);
+  assert.deepEqual(disponiveis, ['expiracao-sessao', 'tempo-limite-acoes', 'variaveis-configuracao', 'variaveis-sensiveis']);
 });
 
 test('secondsToTimeSpan/timeSpanToSeconds round-trip the TimeSpan text Blip stores', () => {

@@ -10,16 +10,18 @@ import './channels.css';
  *
  * The source is the module 27679 template of `portal.js` (line 80819) and the `.channels-list` rules from `portal.css`. There, each card is a `<card ng-click="$ctrl.goToState('…channels.<canal>')">` — the click targets the WHOLE CARD, and "Conectar"/"Conectado" in the footer only change appearance: both lead to the SAME channel page, inside the bot (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1.1).
  *
- * Here: WhatsApp, Messenger and Instagram (the channels Pipe has) are links to `/{tipo}/{id}/canais/{whatsapp,messenger,instagram}`. The source keeps Pipe Chat and E-mail always "Conectado"; RCS, Telegram and Apple have a page there but not here, so they keep the state footer without leading anywhere (`aria-disabled`), instead of faking an integration.
+ * WhatsApp, Messenger and Instagram have their own configuration pages. Pipe Chat and E-mail
+ * remain active for the contact. Telegram and Slack are visible as planned integrations, but do
+ * not pretend to offer a connection until their server-side connectors exist. Apple Messages for
+ * Business and RCS for Business are deliberately out of the catalog for now.
  */
-type Logo =
-  'pipe' | 'whatsapp' | 'messenger' | 'instagram' | 'google' | 'telegram' | 'apple' | 'email';
+type Logo = 'pipe' | 'whatsapp' | 'messenger' | 'instagram' | 'telegram' | 'slack' | 'email';
 type ScreenChannel = {
   key: string;
   nome: string;
   logo: Logo;
   sempre?: boolean;
-  novo?: boolean;
+  emBreve?: boolean;
   /** Has its own page inside the bot: the card navigates. */
   page?: TypeOfChannelOfBot;
 };
@@ -29,9 +31,8 @@ const CHANNELS: readonly ScreenChannel[] = [
   { key: 'whatsapp_cloud', nome: 'WhatsApp', logo: 'whatsapp', page: 'whatsapp_cloud' },
   { key: 'messenger', nome: 'Messenger', logo: 'messenger', page: 'messenger' },
   { key: 'instagram', nome: 'Instagram', logo: 'instagram', page: 'instagram' },
-  { key: 'google-rcs', nome: 'RCS for Business', logo: 'google', novo: true },
-  { key: 'telegram', nome: 'Telegram', logo: 'telegram' },
-  { key: 'apple-business', nome: 'Apple Messages for Business', logo: 'apple' },
+  { key: 'telegram', nome: 'Telegram', logo: 'telegram', emBreve: true },
+  { key: 'slack', nome: 'Slack', logo: 'slack', emBreve: true },
   { key: 'email', nome: 'E-mail', logo: 'email', sempre: true },
 ] as const;
 
@@ -58,14 +59,21 @@ export function ChannelsPage() {
                 <ChannelLogo nome={channel.logo} />
                 <h2>{channel.nome}</h2>
               </div>
-              <span className={conectado ? 'cn-botao cn-botao--conectado' : 'cn-botao'}>
-                {conectado ? 'Conectado' : 'Conectar'}
+              <span
+                className={
+                  conectado
+                    ? 'cn-botao cn-botao--conectado'
+                    : channel.emBreve
+                      ? 'cn-botao cn-botao--indisponivel'
+                      : 'cn-botao'
+                }
+              >
+                {conectado ? 'Conectado' : channel.emBreve ? 'Em breve' : 'Conectar'}
               </span>
             </>
           );
           return (
             <div className="cn-item" key={channel.key}>
-              {channel.novo ? <span className="cn-novo">Novo!</span> : null}
               {channel.page ? (
                 <Link
                   href={channelRoute(base, channel.page)}
@@ -127,8 +135,13 @@ function ChannelLogo({ nome }: { nome: Logo }) {
             fill="#fff"
           />
         </>
-      ) : nome === 'apple' ? (
-        <path d="M57.4 42c.1 9.7 8.4 12.9 8.5 13-1 3.1-4.6 11.2-10.3 15.2-3.4 2.4-6.1 1.8-9.2.8-2.1-.7-4.3-1.6-6.9-1.6-2.7 0-5 1-7.2 1.7-3 1-5.7 1.6-8.8-.9-7.1-5.8-12-22.5-7-32.4 2.9-5.7 8.1-9.4 13.6-9.5 2.4 0 4.8.9 6.9 1.7 1.5.6 2.8 1.1 3.7 1.1.8 0 2.2-.6 3.8-1.2 2.5-1 5.6-2.2 8.7-1.9 2.1.1 7.9.8 11.6 6.3-.3.2-7.5 4.4-7.4 13.7ZM50.1 17.2c2.3-2.8 3.8-6.7 3.4-10.2-3.3.1-7.2 2.2-9.6 5-2.1 2.4-4 6.4-3.5 10 3.7.3 7.4-1.9 9.7-4.8Z" />
+      ) : nome === 'slack' ? (
+        <>
+          <rect x="33" y="8" width="13" height="28" rx="6.5" fill="#36c5f0" />
+          <rect x="44" y="34" width="28" height="13" rx="6.5" fill="#2eb67d" />
+          <rect x="34" y="44" width="13" height="28" rx="6.5" fill="#ecb22e" />
+          <rect x="8" y="33" width="28" height="13" rx="6.5" fill="#e01e5a" />
+        </>
       ) : (
         <>
           <circle cx="40" cy="40" r="32" fill="#3c64cb" />

@@ -34,11 +34,16 @@ describe('resource variable source', () => {
     await expect(getVariable(c, 'resource.missing')).resolves.toBeNull();
   });
 
-  it('still throws for a source with no provider at all (e.g. secret), unlike resource', async () => {
+  it('still throws for a source with no provider at all (e.g. aiagent), unlike resource', async () => {
     const c = context();
-    await expect(getVariable(c, 'secret.token')).rejects.toThrow(
-      "Não há provedor para a fonte de variável 'secret'.",
+    await expect(getVariable(c, 'aiagent.name')).rejects.toThrow(
+      "Não há provedor para a fonte de variável 'aiagent'.",
     );
+  });
+
+  it('secret reads empty outside an HTTP action instead of throwing (P11)', async () => {
+    const c = context();
+    await expect(getVariable(c, 'secret.token')).resolves.toBeNull();
   });
 
   it('interpolates {{resource.x}} in message text, including a JS source resource (D-55 createMenuFunction)', async () => {

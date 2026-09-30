@@ -10,6 +10,7 @@ import {
 } from './configuration-sections';
 import type { ConfigurationSection } from './configuration-sections';
 import { validConfigKey } from './state';
+import { SecretVarsControl } from './secret-vars-control';
 
 /**
  * The "Variáveis" tab of Configuração (default tab, `ref/CAPTURAS-F1-F6.md` §F-2): 8 collapsible
@@ -196,16 +197,7 @@ function ConfigurationControl({
   }
 
   if (secao.controle === 'secret-vars') {
-    return (
-      <button
-        type="button"
-        className="bl-config-adicionar"
-        disabled
-        title="Não disponível no Pipe"
-      >
-        + Adicionar informações extras
-      </button>
-    );
+    return <SecretVarsControl flowId={flowId} />;
   }
 
   return null;
