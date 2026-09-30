@@ -1,38 +1,38 @@
 # Baseline STD-11
 
-Total: 31724
-Unclassified: 26066
+Total: 32459
+Unclassified: 26603
 Lexicon: 02edb1d46412ffc806518c8a780b0f51f7909352
 
 ## Findings by kind
 
 | Kind | Count |
 |---|---:|
-| comment | 3020 |
-| css-class | 1553 |
-| css-custom-property | 1378 |
-| data-attr | 30 |
-| identifier | 15419 |
-| literal-value | 2633 |
+| comment | 3068 |
+| css-class | 1568 |
+| css-custom-property | 1377 |
+| data-attr | 31 |
+| identifier | 15733 |
+| literal-value | 2712 |
 | package-script | 2 |
-| path | 359 |
-| sql-name | 4484 |
-| string-literal | 2846 |
+| path | 366 |
+| sql-name | 4670 |
+| string-literal | 2932 |
 
 ## Classified by category
 
 | Category | Count |
 |---|---:|
-| A | 917 |
-| B | 4581 |
-| C | 160 |
+| A | 963 |
+| B | 4731 |
+| C | 162 |
 
 ## Matches by exception row
 
 | Row | Matches | Ref |
 |---:|---:|---|
-| 6 | 807 | D-08 |
-| 7 | 7 | D-06 |
+| 6 | 813 | D-08 |
+| 7 | 9 | D-06 |
 | 11 | 2 | D-06/D-36 |
 | 17 | 6 | D-06/D-36 |
 | 18 | 1 | D-06/D-36 |
@@ -163,7 +163,7 @@ Lexicon: 02edb1d46412ffc806518c8a780b0f51f7909352
 | 804 | 1 | persisted.csv:workers-ts-prop-3de70883 |
 | 821 | 21 | D-40 |
 | 837 | 1 | D-17 |
-| 839 | 3486 | D-08 |
+| 839 | 3630 | D-08 |
 | 840 | 2 | D-08 |
 | 842 | 2 | D-08 |
 | 843 | 1 | D-08 |
@@ -210,5 +210,5 @@ Lexicon: 02edb1d46412ffc806518c8a780b0f51f7909352
 | 890 | 2 | D-08 |
 | 891 | 14 | D-47 |
 | 892 | 15 | D-47 |
-| 893 | 49 | D-17 |
-| 895 | 868 | STD-10 |
+| 893 | 55 | D-17 |
+| 895 | 908 | STD-10 |

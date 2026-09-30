@@ -1,0 +1,92 @@
+{
+  "@pipe/ai": {
+    "passed": 83,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/api": {
+    "passed": 949,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/authentication": {
+    "passed": 42,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/bridge": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/contracts": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/core": {
+    "passed": 629,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/crm": {
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/db": {
+    "passed": 43,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/desk-vite": {
+    "passed": 38,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/management-vite": {
+    "passed": 485,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/mcp": {
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/realtime": {
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/storage": {
+    "passed": 24,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/ui": {
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  },
+  "@pipe/workers": {
+    "passed": 42,
+    "failed": 0,
+    "skipped": 0,
+    "files_failed": []
+  }
+}
