@@ -87,6 +87,7 @@ import { PageUpdates } from './pages/updates/page';
 import { PageInvitation } from './pages/invitation/page';
 import { PageNoAccess } from './pages/switch-account/no-access/page';
 import { PageBuilder } from './pages/builder';
+import { AiModelPage } from './pages/flow/ai-model-page';
 import { KnowledgeBasesPage } from './pages/knowledge/page';
 
 /**
@@ -213,6 +214,7 @@ const contactRoutes = (
 
     {/* `builder` → `templates/builder` (D-54). Menu-hidden for routers (`itens.ts`'s `HIDDEN_IN_ROUTER`), but the tree is single now (D-52) — no type segment left to gate it by. */}
     <Route path="templates/builder" element={<PageBuilder />} />
+    <Route path="ai/model" element={<AiModelPage />} />
   </>
 );
 

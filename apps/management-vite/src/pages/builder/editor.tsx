@@ -42,6 +42,7 @@ import {
 } from './subflows';
 import { CreateSubflowModal, SubflowBar } from './subflow-ui';
 import { newAiAgentBlock } from './ai-agent-block';
+import { newAiAnswersBlock } from './ai-answers-block';
 import './editor.css';
 import './panel-block.css';
 
@@ -205,6 +206,14 @@ export function Editor({
     setEditando(block.id);
   }
 
+  function createAiAnswers(): void {
+    const block = newAiAnswersBlock(mapa, positionForNew());
+    aplicar(addBlock(mapa, block));
+    onCloseNewBlock();
+    setSelecionado(block.id);
+    setEditando(block.id);
+  }
+
   /* ------------------------------------------------------------ subfluxos */
 
   function abrirSubfluxo(shortName: string | null, selecionar: string | null = null): void {
@@ -351,6 +360,7 @@ export function Editor({
           onHumano={createHuman}
           onPesquisa={createSurvey}
           onAgente={createAgent}
+          onAiAnswers={createAiAnswers}
           onFechar={onCloseNewBlock}
           subflow={
             aberto === null

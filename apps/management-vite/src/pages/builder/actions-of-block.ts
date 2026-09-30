@@ -85,6 +85,17 @@ const BLIP_FUNCTION_FIELDS: CampoDaAcao[] = [
 // CATALOGO_OF_ACTIONS is the applied Phase 1 symbol recorded by the catalog gate.
 export const CATALOG_OF_ACTIONS: readonly TipoDeAcao[] = [
   {
+    tipo: 'ProcessAnswers',
+    rotulo: 'AI Answers',
+    titulo: 'AI Answers',
+    grupo: 'Executar',
+    campos: [
+      { key: 'AssistantId', rotulo: 'Assistente', obrigatorio: true },
+      { key: 'UserInput', rotulo: 'Pergunta do usuário', obrigatorio: true, tipo: 'longo' },
+      { key: 'ContactId', rotulo: 'Identidade do contato', obrigatorio: true },
+    ],
+  },
+  {
     tipo: 'Redirect',
     rotulo: 'Redirecionar para serviço',
     titulo: 'Redirecionar a um serviço',
@@ -409,6 +420,7 @@ export function novaAcao(tipo: string, id = gerarId()): AcaoDoEditor {
     tipo === 'TrackEvent' ? { extras: {}, fireAndForget: true } :
     tipo === 'ExecuteScript' ? { function: 'run', source: SCRIPT_TEMPLATE, inputVariables: [] } :
     tipo === 'ExecuteScriptV2' ? { source: SCRIPT_TEMPLATE, inputVariables: [] } : {};
+  if (tipo === 'ProcessAnswers') Object.assign(settings, { UserInput: '{{input.content}}', ContactId: '{{contact.identity}}', AssistantId: '' });
   return {
     $id: id,
     $title: '',

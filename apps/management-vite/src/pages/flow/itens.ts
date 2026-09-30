@@ -14,7 +14,7 @@
  *     `switch` has no case for it.
  *  2. `getUpdatedMenus()` — filters the catalog by the PERSON's permissions
  *     (`applicationUserPermissionModel`) and preserves their order in the bundle. The
- *     `ai` item was removed from the Pipe catalog per the requested visual scope.
+ *     AI model access follows the Builder permission used by its GET/PUT endpoints (P16).
  *  3. `subheaderMenu.checkPermissions()` — filters by TEMPLATE, using the claims
  *     map (bundle module 62673), where each claim carries `hideInTemplate`.
  *     For `master` only two entries are hidden: `desk` (claim 106, and its twenty-odd
@@ -67,6 +67,7 @@ const CATALOGO = [
   { key: 'contents', rotulo: 'Conteúdos', href: null },
   { key: 'logMessages', rotulo: 'Log', href: null },
   { key: 'payments', rotulo: 'Pagamentos', href: null },
+  { key: 'ai', rotulo: 'Inteligência artificial', href: '/ai/model' },
 ] as const satisfies readonly { key: string; rotulo: string; href: string | null }[];
 
 /** O `hideInTemplate: [… 'master' …]` do mapa de claims, do lado que nos cabe. */
@@ -75,7 +76,7 @@ const HIDDEN_IN_ROUTER: readonly string[] = ['builder', 'desk'];
 /**
  * The CATALOG key → the resource in `PermissionsList.html`, where the source's two lists disagree on naming. They share almost every key (`builder`, `desk`, `analysis`, `growth`, `channels`, `users`, `logMessages`, `payments`): only "Conteúdos" is `contents` in the menu and `resources` in the permissions list.
  */
-const RECURSO_DO_ITEM: Readonly<Record<string, string>> = { contents: 'resources' };
+const RECURSO_DO_ITEM: Readonly<Record<string, string>> = { contents: 'resources', ai: 'builder' };
 
 /**
  * The whole row, in the source's order. Whoever renders it slices at `LIMITE_VISIVEL`.
@@ -124,7 +125,9 @@ export function itensDoMenu(
                       ? `${base}/contents`
                       : item.key === 'logMessages'
                           ? `${base}/log`
-                          : item.href,
+                          : item.key === 'ai'
+                            ? `${base}/ai/model`
+                            : item.href,
     }));
 
   /*

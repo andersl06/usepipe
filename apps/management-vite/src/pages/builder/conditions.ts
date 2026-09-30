@@ -4,12 +4,16 @@ import type { Block, Mapa, SaidaDoEditor } from './model';
 import { LIMITE_DE_SAIDAS, MESSAGES, gerarId, isSurveyBlock, withoutDestination } from './model';
 
 /**
- * Block-exit and action conditions use engine vocabulary (`packages/core/src/fluxo/condicao.ts`) and literal Blip Exit conditions tab labels (`builder-tabs-outputs`, pt-BR `sources`, `comparisons`, `and`/`or`). Offer only supported `input` and `context` sources, 13 `COMPARACOES` in enum order, and `or`/`and` among values. Blip `intent`/`entity` lack a Pipe AI provider: show an imported condition with a warning but do not offer creation. Exit order is evaluation order; the engine takes the first match (`FlowManager.ProcessOutputsAsync` ported in `gerenciador.ts`), then default. Provide up/down controls.
+ * Block-exit and action conditions use engine vocabulary and the four supported sources:
+ * input, context, intent and entity (P16). Exit order is evaluation order; the engine takes
+ * the first match, then the default. Imported operators and values survive editing.
  */
 
 export const FONTES_DA_TELA = [
   { valor: 'input', rotulo: 'Resposta do usuário' },
   { valor: 'context', rotulo: 'Variável' },
+  { valor: 'intent', rotulo: 'Intenção identificada' },
+  { valor: 'entity', rotulo: 'Entidade identificada' },
 ] as const;
 
 /** Label any source, including ones the screen does not offer. */
@@ -85,6 +89,7 @@ export function comFonte(c: ConditionBlip, fonte: string): ConditionBlip {
   delete resto.variable;
   delete resto.entity;
   if (fonte === 'context') resto.variable = c.variable ?? '';
+  if (fonte === 'entity') resto.entity = c.entity ?? '';
   return resto;
 }
 
@@ -99,10 +104,10 @@ export function conditionError(c: ConditionBlip): string | null {
   }
 }
 
-/** Pipe's engine has no AI provider, so intent and entity conditions can never match. */
+/** All four editor sources have engine providers (P16). */
 export const fonteSemSuporte = (c: ConditionBlip): boolean => {
   const fonte = fonteDe(c);
-  return fonte === 'intent' || fonte === 'entity';
+  return !FONTES_DA_TELA.some((item) => item.valor === fonte);
 };
 
 

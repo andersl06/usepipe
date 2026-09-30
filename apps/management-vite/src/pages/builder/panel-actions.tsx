@@ -43,6 +43,7 @@ import { insertLibraryCall } from './flow-functions';
 import { isAiAgentBlock, newTool, toolErrors } from './ai-agent-block';
 import { ToolFields, AgentToolsPanel, KnowledgeToolFields } from './panel-ai-agent';
 import { newKnowledgeTool } from './ai-agent-tools';
+import { AssistantPicker } from './ai-model-context';
 
 /** Monaco stays in its own chunk, fetched only when a script action is opened. */
 const CodeEditor = lazy(() => import('./code-editor'));
@@ -648,7 +649,9 @@ export function ActionCard({
                     {campo.rotulo}
                     {campo.obrigatorio ? ' *' : ''}
                   </span>
-                  {campo.tipo === 'cabecalhos' ? (
+                  {acao.type === 'ProcessAnswers' && campo.key === 'AssistantId' ? (
+                    <AssistantPicker value={fieldValue(acao, 'AssistantId')} onChange={(value) => onMudar(comCampo(acao, 'AssistantId', value))} />
+                  ) : campo.tipo === 'cabecalhos' ? (
                     <EditorDeCabecalhos
                       cabecalhos={cabecalhosDoCampo(acao, campo.key)}
                       onMudar={(cabecalhos) => onMudar(comCabecalhos(acao, campo.key, cabecalhos))}

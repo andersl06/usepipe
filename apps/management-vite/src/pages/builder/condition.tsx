@@ -1,4 +1,7 @@
+import { useContext, useId } from 'react';
 import type { ConditionBlip } from '@pipe/core';
+import { AiModelContext } from './ai-model-context';
+import { aiConditionSuggestions } from '../flow/ai-model-logic';
 import { ehUnaria } from '@pipe/core';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
@@ -84,13 +87,16 @@ function ConditionRow({
   const values = condition.values ?? [];
   const error = conditionError(condition);
   const semSuporte = fonteSemSuporte(condition);
+  const { model } = useContext(AiModelContext);
+  const entityList = useId();
+  const suggestions = aiConditionSuggestions(model, condition);
 
   return (
     <div className={`bl-condition${error ? ' bl-condition--error' : ''}`} title={error ?? undefined}>
       {!first ? <b className="bl-condition-and">E</b> : null}
       <div className="bl-condition-line bl-condition-fields">
         {semSuporte ? (
-          <Etiqueta tom="alerta" titulo="O Pipe não tem provedor de IA: esta condição nunca casa.">
+          <Etiqueta tom="alerta" titulo="Esta fonte de condição não é suportada pelo Pipe.">
             {ROTULO_DA_FONTE[fonte] ?? fonte}
           </Etiqueta>
         ) : (
@@ -132,6 +138,10 @@ function ConditionRow({
             onChange={(e) => onMudar({ ...condition, variable: e.target.value })}
           />
         ) : null}
+        {fonte === 'entity' ? <>
+          <Campo aria-label="Nome da entidade" placeholder="Nome da entidade" list={entityList} value={condition.entity ?? ''} onChange={(e) => onMudar({ ...condition, entity: e.target.value })} />
+          <datalist id={entityList}>{model?.entities.map((entity) => <option key={entity.id} value={entity.name} />)}</datalist>
+        </> : null}
       </div>
       {!unaria ? (
         <div
@@ -150,6 +160,10 @@ function ConditionRow({
             onChange={(next) => onMudar({ ...condition, values: next })}
             erro={values.length === 0 && error ? 'Ops! Este campo precisa ser preenchido' : undefined}
           />
+          {suggestions.length ? <div className="bl-ai-suggestions" aria-label="Sugestões do modelo de IA">
+            <span className="sub">Sugestões:</span>
+            {suggestions.filter((value) => !values.includes(value)).map((value) => <button type="button" className="bl-mais" key={value} onClick={() => onMudar({ ...condition, values: [...values, value] })}>{value}</button>)}
+          </div> : null}
         </div>
       ) : null}
     </div>
