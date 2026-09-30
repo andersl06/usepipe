@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { PAGE_SIZES, janelaDaPagina } from './pagination-math';
 import { Select } from './select';
 
 /**
@@ -18,7 +19,7 @@ import { Select } from './select';
  * The CSS for the three skins lives in the Gestão stylesheet next to the screen overrides that
  * refine it; moving it here would reorder the cascade.
  */
-export const PAGE_SIZES = [5, 10, 15, 25, 50, 100, 250, 500] as const;
+export { PAGE_SIZES } from './pagination-math';
 
 export interface PaginationState {
   page: number;
@@ -36,10 +37,7 @@ export function usePage<T>(
   const [byPage, setByPageRaw] = useState<number>(byPageInitial);
   const [pageRaw, setPage] = useState(1);
   const total = linhas.length;
-  const totalPages = Math.max(1, Math.ceil(total / byPage));
-  const page = Math.min(pageRaw, totalPages);
-  const inicio = total === 0 ? 0 : (page - 1) * byPage;
-  const fim = Math.min(inicio + byPage, total);
+  const { page, inicio, fim } = janelaDaPagina(total, pageRaw, byPage);
   const visiveis = useMemo(() => linhas.slice(inicio, fim), [linhas, inicio, fim]);
 
   return {
