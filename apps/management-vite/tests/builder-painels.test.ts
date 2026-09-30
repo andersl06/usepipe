@@ -210,6 +210,13 @@ test('BLIP_SYSTEM_VARIABLES has all 118 reference variables, sorted, with pt-BR 
   const novas = BLIP_SYSTEM_VARIABLES.filter((v) => /^(application|calendar|random|tunnel)\./.test(v.nome));
   assert.equal(novas.length, 48);
   assert.ok(novas.every((v) => v.suportada));
+
+  // P14: the AI agent block fills aiAgent.*, except Blip's platform-only skill/task fields.
+  const agente = BLIP_SYSTEM_VARIABLES.filter((v) => v.nome.startsWith('aiAgent.'));
+  assert.deepEqual(
+    agente.filter((v) => !v.suportada).map((v) => v.nome),
+    ['aiAgent.skill_id', 'aiAgent.skillName', 'aiAgent.task_id', 'aiAgent.taskName'],
+  );
 });
 
 test('systemFilterVariables (accent-sensitive) searches the name and the description', () => {

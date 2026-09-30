@@ -177,6 +177,8 @@ function servicesOfTestRun(
     flowFunctions,
     // `{{secret.*}}` resolves in the test run's HTTP actions too; the engine masks it in `debug`.
     ...(flowId ? { flowId } : {}),
+    // P14: with the flow's provider key the agent runs for real, as in production; without it, a stub.
+    agentStub: true,
     isolate: (fn) => tx.transaction(fn),
     effects: {
       tickets: {

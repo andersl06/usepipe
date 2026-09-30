@@ -549,6 +549,9 @@ async function processActions(
             signal,
             timeLimitMs: timeLimit,
             ...(secrets?.size ? { secrets } : {}),
+            // AI agent tools (P14): the block's local actions, in this block's trace.
+            runActions: (list) =>
+              processActions(inlineHttp(context), list, state, provedor, configuration, rastro, lista, stateId, null),
           }),
         timeLimit,
       );
@@ -570,6 +573,18 @@ async function processActions(
       throw new ProcessingActionError(message, flowAction.type, cause);
     }
   }
+}
+
+/**
+ * The same context without `suspendHttp`: an action run from inside another action (an AI agent
+ * tool) cannot suspend the input halfway, so its ProcessHttp calls the network directly. Variables,
+ * input context and flow are shared with the caller.
+ */
+function inlineHttp(context: Context): Context {
+  if (!context.services.suspendHttp) return context;
+  const services = { ...context.services };
+  delete services.suspendHttp;
+  return { ...context, services };
 }
 
 /** `ProcessOutputsAsync`: the first matching output wins; none produces a null state. */

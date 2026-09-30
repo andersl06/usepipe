@@ -64,8 +64,15 @@ function limpar<T>(objeto: Objeto, manter: readonly string[] = []): T {
   return saida as T;
 }
 
+/** A local action is an AI agent tool (P14): its description and argument schema reach the model. */
+const convertLocalAction = (a: Objeto): Acao => convertAction(a, ['$title', '$description', '$inputSchema']);
+
 function converterAcao(a: Objeto): Acao {
-  const acao = limpar<Acao>(a, ['$title']);
+  return convertAction(a, ['$title']);
+}
+
+function convertAction(a: Objeto, manter: readonly string[]): Acao {
+  const acao = limpar<Acao>(a, manter);
   if (acao.id === undefined && typeof a['$id'] === 'string') acao.id = a['$id'];
   if (Array.isArray(acao.conditions))
     acao.conditions = acao.conditions.map((c) => limpar<ConditionBlip>(c as Objeto));
@@ -101,7 +108,7 @@ function convertState(e: EditorState): State {
     afterStateChangedActions: (e.$afterStateChangedActions ?? []).map(converterAcao),
     outputs: saidas,
     ...(e.$localCustomActions?.length
-      ? { localCustomActions: e.$localCustomActions.map(converterAcao) }
+      ? { localCustomActions: e.$localCustomActions.map(convertLocalAction) }
       : {}),
   };
   if (e.$title !== undefined) state['name'] = e.$title;
@@ -465,8 +472,14 @@ export function importReport(flow: FlowBlip): ImportReport {
     ]) {
       verAcao(a);
     }
-    // Local actions run only through the Builder agent (`ProcessCommandInputAsync`), not normal conversation processing.
+    // In an AI agent block (P14) local actions are the agent's tools and run; elsewhere they run
+    // only through the Builder agent (`ProcessCommandInputAsync`), not normal conversation processing.
+    const agentBlock = (e.inputActions ?? []).some((a) => a.type === 'ForwardToAgent');
     for (const a of e.localCustomActions ?? []) {
+      if (agentBlock) {
+        verAcao(a);
+        continue;
+      }
       somar(r.actions, a.type);
       somar(r.semEfeito, `acao-local:${a.type}`);
     }

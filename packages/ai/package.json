@@ -34,6 +34,10 @@
     "./bancada": {
       "types": "./dist/bancada/index.d.ts",
       "default": "./dist/bancada/index.js"
+    },
+    "./agente": {
+      "types": "./dist/agente/index.d.ts",
+      "default": "./dist/agente/index.js"
     }
   },
   "scripts": {

@@ -1,9 +1,10 @@
 /**
- * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider,ResourceVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is stored under `#expirations` (see `EXPIRATIONS_KEY`); `calendar`, `random`, `application`, `tunnel` and `bucket` have providers (see each below), `secret` resolves only while an HTTP action's settings are substituted (see `ACTIONS_WITH_SECRETS`), while other Blip service providers (aiagent, etc.) are absent and throw, as the original does when a source lacks a provider. `resource` DOES have a provider: the `api` loads the flow's `recurso_do_fluxo` rows into `Context.resources` the same way it loads `contact`, so an imported flow reading `{{resource.x}}` (and `resource.x@prop` for JSON resources, via the generic `propertyJson` path already used by every source) resolves instead of throwing "Não há provedor para a fonte de variável 'resource'.".
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider,ResourceVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is stored under `#expirations` (see `EXPIRATIONS_KEY`); `calendar`, `random`, `application`, `tunnel` and `bucket` have providers (see each below), `secret` resolves only while an HTTP action's settings are substituted (see `ACTIONS_WITH_SECRETS`), `aiagent` reads the AI agent block's last turn (`ai-agent.ts`), while other Blip service providers (aianswers, etc.) are absent and throw, as the original does when a source lacks a provider. `resource` DOES have a provider: the `api` loads the flow's `recurso_do_fluxo` rows into `Context.resources` the same way it loads `contact`, so an imported flow reading `{{resource.x}}` (and `resource.x@prop` for JSON resources, via the generic `propertyJson` path already used by every source) resolves instead of throwing "Não há provedor para a fonte de variável 'resource'.".
  */
 
+import type { AgentModelRequest, AgentModelResponse } from './ai-agent.js';
 import type { CommandMatch } from './commands.js';
-import type { FlowBlip } from './modelos.js';
+import type { Acao, FlowBlip } from './modelos.js';
 import { KEYS_OF_STATE } from './modelos.js';
 
 /** `VariableSource`, na ordem do original. */
@@ -42,6 +43,7 @@ export const FONTES_SUPORTADAS: ReadonlySet<VariableSource> = new Set([
   'tunnel',
   'bucket',
   'secret',
+  'aiagent',
 ]);
 
 /** Incoming message in LIME vocabulary: `tipo` is the MIME type (`text/plain`, etc.). */
@@ -195,6 +197,12 @@ export interface ActionDeadline {
   timeLimitMs: number;
   /** Secret values substituted into this action's settings (only HTTP actions); the action masks them. */
   secrets?: ReadonlySet<string>;
+  /**
+   * Runs flow actions through the engine's own runner (conditions, `{{...}}`, secrets masking, time
+   * limit, trace) in the calling block, never suspending a ProcessHttp. The AI agent runs its tools
+   * (the block's local actions) with it.
+   */
+  runActions?: (actions: readonly Acao[]) => Promise<void>;
 }
 
 /** A `SendCommand`/`ProcessCommand` after routing; `command` says which handler runs it. */
@@ -264,6 +272,12 @@ export interface ServicosDoMotor {
    * action's settings; the value never reaches `variables`, the trace or an error message.
    */
   resolveSecret?(name: string): Promise<string | null>;
+  /**
+   * One model call of the AI agent (P14, `ai-agent.ts`) on the provider the block chose (D-58). The
+   * `api` resolves the provider key from the flow secret `request.apiKeySecret` names; the key never
+   * reaches the engine.
+   */
+  callAgentModel?(request: AgentModelRequest, signal?: AbortSignal): Promise<AgentModelResponse>;
   /** RAG over the tenant's base_conhecimento/trecho_conhecimento tables. */
   respondWithKnowledge?(request: { text: string; minimumConfidence: number; tags?: string }): Promise<{ answer: string | null; confidence: number }>;
 }
@@ -337,6 +351,12 @@ function writeExpirations(variables: Record<string, string>, expirations: Record
   if (Object.keys(expirations).length === 0) delete variables[EXPIRATIONS_KEY];
   else variables[EXPIRATIONS_KEY] = JSON.stringify(expirations);
 }
+
+/**
+ * `aiagent.*` (P14): the AI agent block's last turn, stored as JSON under this engine key (`#` keeps
+ * it out of reach of flow writes and scripts) so later blocks and inputs can read it.
+ */
+export const AI_AGENT_VARIABLES_KEY = '#aiagent';
 
 /** Drop every variable whose deadline has passed; the engine calls this before each input. */
 export function pruneExpiredVariables(variables: Record<string, string>, now = Date.now()): void {
@@ -695,6 +715,14 @@ const PROVEDORES_PADRAO: Partial<Record<VariableSource, VariableProvider>> = {
   ticket: (nome, c) => objectProperty(c.inboundContext.get(KEY_OF_TICKET), nome),
   /** `ResourceVariableProvider`: `resources.<name>` set by the `api`; `@property` on a JSON value is generic. */
   resource: (nome, c) => c.resources?.[nome] ?? null,
+  /** The AI agent's last turn (`ai-agent.ts`); a field it has not filled reads null. */
+  aiagent: (nome, c) => {
+    try {
+      return objectProperty(JSON.parse(c.variables[AI_AGENT_VARIABLES_KEY] ?? '{}'), nome);
+    } catch {
+      return null;
+    }
+  },
 };
 
 /**

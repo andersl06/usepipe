@@ -34,10 +34,10 @@ describe('resource variable source', () => {
     await expect(getVariable(c, 'resource.missing')).resolves.toBeNull();
   });
 
-  it('still throws for a source with no provider at all (e.g. aiagent), unlike resource', async () => {
+  it('still throws for a source with no provider at all (e.g. aianswers), unlike resource', async () => {
     const c = context();
-    await expect(getVariable(c, 'aiagent.name')).rejects.toThrow(
-      "Não há provedor para a fonte de variável 'aiagent'.",
+    await expect(getVariable(c, 'aianswers.name')).rejects.toThrow(
+      "Não há provedor para a fonte de variável 'aianswers'.",
     );
   });
 

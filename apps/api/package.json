@@ -50,6 +50,7 @@
     "@nestjs/common": "^11.1.6",
     "@nestjs/core": "^11.1.6",
     "@nestjs/platform-express": "^11.1.6",
+    "@pipe/ai": "workspace:*",
     "@pipe/authentication": "workspace:*",
     "@pipe/contracts": "workspace:*",
     "@pipe/core": "workspace:*",
