@@ -118,11 +118,16 @@ export function rotuloDoMotivo(motivo: string | null): string {
   return ROTULO_MOTIVO[motivo] ?? motivo;
 }
 
-/** A reconexão é uma ação de recuperação, não uma configuração de rotina. */
-export function precisaReconectarWhatsapp(
-  canal: Pick<ChannelWhatsAppVisible, 'state'> | null,
+/** Only credentials failures require a manual reconnect; Meta outages should be retried. */
+export function shouldReconnectWhatsapp(
+  channel: Pick<ChannelWhatsAppVisible, 'state' | 'motivo'> | null,
 ): boolean {
-  return canal?.state === 'indisponivel';
+  return (
+    channel?.state === 'indisponivel' &&
+    (channel.motivo === 'reautorizacao_pendente' ||
+      channel.motivo === 'sem_token' ||
+      channel.motivo === 'canal_sem_waba')
+  );
 }
 
 /**

@@ -22,7 +22,7 @@ type ScreenChannel = {
   logo: Logo;
   sempre?: boolean;
   /** The catalog may show a provider before Pipe supports its real connector. */
-  emPreparacao?: boolean;
+  pendingIntegration?: boolean;
   /** Has its own page inside the bot: the card navigates. */
   page?: TypeOfChannelOfBot;
 };
@@ -32,9 +32,9 @@ const CHANNELS: readonly ScreenChannel[] = [
   { key: 'whatsapp_cloud', nome: 'WhatsApp', logo: 'whatsapp', page: 'whatsapp_cloud' },
   { key: 'messenger', nome: 'Messenger', logo: 'messenger', page: 'messenger' },
   { key: 'instagram', nome: 'Instagram', logo: 'instagram', page: 'instagram' },
-  { key: 'telegram', nome: 'Telegram', logo: 'telegram', emPreparacao: true },
+  { key: 'telegram', nome: 'Telegram', logo: 'telegram', pendingIntegration: true },
   { key: 'email', nome: 'E-mail', logo: 'email', sempre: true },
-  { key: 'slack', nome: 'Slack', logo: 'slack', emPreparacao: true },
+  { key: 'slack', nome: 'Slack', logo: 'slack', pendingIntegration: true },
 ] as const;
 
 export function ChannelsPage() {
@@ -64,12 +64,12 @@ export function ChannelsPage() {
                 className={
                   conectado
                     ? 'cn-botao cn-botao--conectado'
-                    : channel.emPreparacao
-                      ? 'cn-botao cn-botao--preparacao'
+                    : channel.pendingIntegration
+                      ? 'cn-botao cn-botao--pending-integration'
                       : 'cn-botao'
                 }
               >
-                {conectado ? 'Conectado' : channel.emPreparacao ? 'Em preparação' : 'Conectar'}
+                {conectado ? 'Conectado' : channel.pendingIntegration ? 'Em preparação' : 'Conectar'}
               </span>
             </>
           );
@@ -79,7 +79,7 @@ export function ChannelsPage() {
                 <Link
                   href={channelRoute(base, channel.page)}
                   className="cn-card cn-card--link"
-                  aria-label={`${channel.nome}: ${conectado ? 'Conectado' : channel.emPreparacao ? 'Em preparação' : 'Conectar'}`}
+                  aria-label={`${channel.nome}: ${conectado ? 'Conectado' : channel.pendingIntegration ? 'Em preparação' : 'Conectar'}`}
                 >
                   {miolo}
                 </Link>

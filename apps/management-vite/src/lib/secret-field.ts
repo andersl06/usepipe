@@ -1,5 +1,5 @@
-export function estadoVisualDoCampoSecreto(visivel: boolean) {
-  return visivel
-    ? { tipo: 'text' as const, icone: 'olho-riscado' as const, acao: 'Ocultar' }
-    : { tipo: 'password' as const, icone: 'olho' as const, acao: 'Mostrar' };
+export function secretFieldVisualState(visible: boolean) {
+  return visible
+    ? { type: 'text' as const, icon: 'eye-off' as const, action: 'Ocultar' }
+    : { type: 'password' as const, icon: 'eye' as const, action: 'Mostrar' };
 }
