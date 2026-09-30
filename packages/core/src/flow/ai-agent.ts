@@ -185,13 +185,15 @@ export function agentSettings(settings: Settings): AgentSettings {
   const maxTokens = Number(model['maxTokens']);
   const temperature = model['temperature'];
   const prompt = Array.isArray(s['prompt']) ? s['prompt'] : [];
+  // Newer Blip blocks name the entry kind `type`; older ones (and the engine's own fixtures) use `role`.
+  const kindOf = (p: Record<string, unknown> | null | undefined) => p?.['type'] ?? p?.['role'];
   const system = prompt
     .map(obj)
-    .filter((p): p is Record<string, unknown> => !!p && (p['role'] === 'system' || p['role'] === 'instructions'))
+    .filter((p): p is Record<string, unknown> => !!p && (kindOf(p) === 'system' || kindOf(p) === 'instructions'))
     .map((p) => text(p['content']))
     .filter((c): c is string => !!c)
     .join('\n\n');
-  const memory = prompt.map(obj).find((p) => p?.['role'] === 'short-term-memory');
+  const memory = prompt.map(obj).find((p) => kindOf(p) === 'short-term-memory');
   const memoryLength = Number(obj(memory?.['config'])?.['length']);
   const handoffs = (Array.isArray(s['handoffs']) ? s['handoffs'] : [])
     .map(obj)
@@ -220,7 +222,8 @@ export function agentSettings(settings: Settings): AgentSettings {
         : AGENT_LIMITS.defaultMemoryMessages,
     handoffs,
     forward: forward ? forward['enabled'] !== false : true,
-    outputVariable: variable?.['enabled'] === true ? text(variable['name']) : null,
+    // Older blocks: `output.variable {enabled, name}`; Blip's current editor: `output.forward.outputVariable`.
+    outputVariable: variable?.['enabled'] === true ? text(variable['name']) : text(forward?.['outputVariable']),
     mcpServers: mcpServersOf(s['tools']),
   };
 }

@@ -150,6 +150,11 @@ describe('agent settings', () => {
       system: 'A\n\nB', memoryLength: 100, forward: false, outputVariable: 'saida',
     });
     expect(agentSettings(null)).toMatchObject({ provider: 'anthropic', model: 'claude-sonnet-5', maxTokens: 1024, memoryLength: 0, forward: true });
+    // Blip's current editor: prompt entries keyed `type`, output variable under `forward.outputVariable`.
+    expect(agentSettings({
+      prompt: [{ type: 'system', content: 'C' }, { type: 'short-term-memory', config: { length: 7 } }],
+      output: { forward: { enabled: true, outputVariable: 'resposta' } },
+    })).toMatchObject({ system: 'C', memoryLength: 7, forward: true, outputVariable: 'resposta' });
     expect(agentProvider('anthropic', 'gpt-4.1')).toBe('anthropic');
     expect(agentProvider(undefined, 'claude-opus-5')).toBe('anthropic');
     expect(agentProvider(undefined, 'o4-mini')).toBe('openai');
