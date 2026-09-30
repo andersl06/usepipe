@@ -389,12 +389,19 @@ export interface TestRunDebug {
   variables: Record<string, string>;
   /** Present when the run failed before finishing. */
   error?: string;
+  /**
+   * P8: the block the test contact waits in has an input expiration (Blip "inactivity time"); the
+   * panel offers to expire it now instead of waiting `seconds`.
+   */
+  inputExpiration?: { stateId: string; seconds: number } | null;
 }
 
 /** `POST /v1/management/flows/:id/builder/test-runs`. */
 export interface TestRunRequest {
   input: string;
   testVariables?: Record<string, string>;
+  /** P8: run the waiting block's expiration now (no real timer); `input` is ignored. */
+  expireInput?: boolean;
 }
 
 /** Response of a test-run message: the bot's replies plus the Debug trail. */
