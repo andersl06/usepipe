@@ -187,19 +187,19 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
         <div className="gr-filters-fields">
           <label>
             Canal
-            <Select value={channelFilter} onChange={(evento) => setChannelFilter(evento.target.value)} aria-label="Canal">
+            <Select
+              value={channelFilter}
+              onChange={(evento) => setChannelFilter(evento.target.value)}
+              aria-label="Canal"
+            >
               <option value="whatsapp">Whatsapp</option>
-              <option value="google-rcs">GoogleRCS</option>
               <option value="sms">SMS</option>
               <option value="outros">Outros canais</option>
             </Select>
           </label>
           <label>
             Tipo da mensagem
-            <Select
-              value={typeMessage}
-              onChange={(evento) => setTypeMessage(evento.target.value)}
-            >
+            <Select value={typeMessage} onChange={(evento) => setTypeMessage(evento.target.value)}>
               <option value="todos">Todos</option>
               <option value="agendadas">Agendadas</option>
               <option value="nao-agendadas">Não agendadas</option>
@@ -222,7 +222,11 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
       <ListaDeEnvios envios={envios} />
 
       {create ? (
-        <Modal skin={{ fundo: 'gr-overlay', caixa: 'gr-modal gr-assistente', elemento: 'section' }} rotuloId="gr-titulo-criacao" onFechar={() => setCreate(false)}>
+        <Modal
+          skin={{ fundo: 'gr-overlay', caixa: 'gr-modal gr-assistente', elemento: 'section' }}
+          rotuloId="gr-titulo-criacao"
+          onFechar={() => setCreate(false)}
+        >
           <header className="gr-modal-cabeca">
             <div>
               <h2 id="gr-titulo-criacao">Enviar mensagem ativa</h2>
@@ -321,8 +325,8 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                       placeholder="Separados por vírgula, na ordem do modelo"
                     />
                     <small>
-                      Vale para toda a lista; um contato com parâmetro próprio no arquivo
-                      (colunas depois do telefone e do nome) usa o dele no lugar deste.
+                      Vale para toda a lista; um contato com parâmetro próprio no arquivo (colunas
+                      depois do telefone e do nome) usa o dele no lugar deste.
                     </small>
                   </label>
                 ) : null}
@@ -363,8 +367,8 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                       </span>
                     ) : null}
                     <small>
-                      Colunas: telefone, nome (opcional), parâmetros do modelo (opcionais).
-                      Limite de {maxContacts} contatos por disparo.
+                      Colunas: telefone, nome (opcional), parâmetros do modelo (opcionais). Limite
+                      de {maxContacts} contatos por disparo.
                     </small>
                   </label>
                 ) : (
@@ -401,8 +405,7 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                   <dd>
                     {tipoAudiencia === 'massa'
                       ? `${quantityFile} contatos · ${file || 'sem arquivo'}`
-                      : (data.contacts.find((item) => item.id === contactId)?.name ??
-                        '1 contato')}
+                      : (data.contacts.find((item) => item.id === contactId)?.name ?? '1 contato')}
                   </dd>
                 </dl>
                 {resultadoEnvio ? (

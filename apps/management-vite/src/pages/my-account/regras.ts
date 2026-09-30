@@ -55,9 +55,9 @@ export const ROTULO_DE_FUSO: Record<string, string> = {
 
 /** Os recados de erro, um por campo, no tom dos da origem. */
 export const RECADOS = {
-  nome: `Ops! O nome da empresa precisa ter entre ${TAMANHO.nomeMin} e ${TAMANHO.nomeMax} caracteres.`,
-  telefone: 'Esse não parece ser um telefone válido. Por favor, tente de novo :)',
-  site: 'Esse não parece ser um site válido. Por favor, tente de novo :)',
+  nome: `Informe um nome entre ${TAMANHO.nomeMin} e ${TAMANHO.nomeMax} caracteres.`,
+  telefone: 'Informe um telefone válido.',
+  site: 'Informe um site válido.',
   funcionarios: 'Escolha uma das faixas da lista.',
   idioma: 'Escolha um dos idiomas da lista.',
   fuso: 'Escolha um dos fusos da lista.',

@@ -29,7 +29,12 @@ export function PageChannelMessenger() {
   const situation = channelInBotState(read.data.channel, 'messenger');
 
   return (
-    <ChannelShell tipo="messenger" titulo="Messenger" abas={ABAS} conectado={situation.state === 'conectado'}>
+    <ChannelShell
+      tipo="messenger"
+      titulo="Messenger"
+      abas={ABAS}
+      conectado={situation.state === 'conectado'}
+    >
       {situation.state === 'conectado' ? (
         <Conectado flowId={contact.id} channel={situation.channel} />
       ) : situation.state === 'outro_canal' ? (
@@ -106,16 +111,14 @@ function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: Ch
       </div>
       <div className="cb-column">
         <p className="cb-typo-16">
-          Seu chatbot será acessado através de uma página no Facebook. Por isso, é importante que
-          você{' '}
-          <a href="https://www.facebook.com/pages/create" target="_blank" rel="noopener noreferrer">
-            crie uma página
-          </a>{' '}
-          para a sua empresa no Facebook. Caso sua empresa já tenha uma página, você poderá
-          utilizá-la.
+          Conecte uma Página já vinculada ao aplicativo para receber mensagens do Messenger no Pipe.
         </p>
         <div className="cb-actions-right">
-          <ConectarMessengerManual flowId={flowId} rotulo="Conectar-se ao Messenger" variante="primario" />
+          <ConectarMessengerManual
+            flowId={flowId}
+            rotulo="Conectar Messenger"
+            variante="primario"
+          />
           {hasFreePage ? (
             <Botao type="button" onClick={() => setEscolhendo(true)}>
               Usar uma Página já conectada

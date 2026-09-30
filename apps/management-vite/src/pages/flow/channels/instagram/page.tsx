@@ -34,7 +34,12 @@ export function PageChannelInstagram() {
   const situation = channelInBotState(read.data.channel, 'instagram');
 
   return (
-    <ChannelShell tipo="instagram" titulo="Instagram" abas={ABAS} conectado={situation.state === 'conectado'}>
+    <ChannelShell
+      tipo="instagram"
+      titulo="Instagram"
+      abas={ABAS}
+      conectado={situation.state === 'conectado'}
+    >
       {situation.state === 'conectado' ? (
         <Conectado flowId={contact.id} channel={situation.channel} />
       ) : situation.state === 'outro_canal' ? (
@@ -115,17 +120,18 @@ function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: Ch
       </div>
       <div className="cb-column">
         <p className="cb-typo-16">
-          <strong>
-            Conecte seu chatbot ao canal de mensagens do Instagram e comece a transformar conversas em
-            oportunidades!
-          </strong>
+          Conecte uma conta profissional do Instagram para atender mensagens pelo Pipe.
         </p>
         <p className="cb-typo-16">
-          ⚠️<strong>Atenção:</strong> para começar a conexão, você precisa ter permissão de
-          administrador das páginas do Facebook e do Instagram da sua empresa. 🤓
+          Você precisa ter acesso de administradora ou administrador ao aplicativo e à conta do
+          Instagram que será conectada.
         </p>
         <div className="cb-actions-right">
-          <ConectarInstagramManual flowId={flowId} rotulo="Iniciar conexão" variante="primario" />
+          <ConectarInstagramManual
+            flowId={flowId}
+            rotulo="Conectar Instagram"
+            variante="primario"
+          />
           {hasFreeAccount ? (
             <Botao type="button" onClick={() => setEscolhendo(true)}>
               Usar uma conta já conectada
