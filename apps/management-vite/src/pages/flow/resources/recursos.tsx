@@ -5,6 +5,7 @@ import { IconePortal } from '@pipe/ui/icones-portal';
 import { ConfirmModal, Modal } from '@pipe/ui/modal';
 import { Select } from '@pipe/ui/select';
 import { ShellModule, useContact } from '../contact';
+import { LateralDeConteudos } from '../contents/tela';
 import '../contents/conteudos.css';
 import './recursos.css';
 import {
@@ -26,10 +27,10 @@ import { createFlowResource, deleteFlowResource, listFlowResources, updateFlowRe
  * builder as `{{resource.<name>}}`. The same screen serves flows and routers (a router is a flow row
  * of type `roteador`, so `contents/resources` sits in the shared contact routes).
  *
- * Layout follows Blip's page: full-width header (title, info button, "Adicionar Novo") and a centered
- * container with a vertical list of cards. Each card is read-only (key 20% / type 23% / content 57%,
- * edit and delete revealed on hover) or editing in place (26% / 26% / 48%). Blip shows no side menu and
- * no search box on this page, so neither is rendered; the "Modelos de Mensagem" page still links here.
+ * Layout follows Blip's page: the Conteúdos side menu (Modelos de Mensagem / Recursos), a header (title,
+ * info button, "Adicionar Novo") and a centered container with a vertical list of cards. Each card is
+ * read-only (key 20% / type 23% / content 57%, edit and delete revealed on hover) or editing in place
+ * (26% / 26% / 48%). Blip shows no search box on this page, so none is rendered.
  */
 
 type SaveResult = { ok: true; value: FlowResource } | { ok: false; error: string };
@@ -290,7 +291,8 @@ export function PageResources() {
   return (
     <ShellModule ativo="Conteúdos">
       <div className="ct-shell">
-        <section className="ct-miolo rc-page" id="main-content-area">
+        <LateralDeConteudos ativo="resources" />
+        <section className="ct-miolo" id="main-content-area">
           <header className="ct-cabecalho" id="resources-header">
             <div className="ct-header-section">
               <div className="ct-cabecalho-linha">

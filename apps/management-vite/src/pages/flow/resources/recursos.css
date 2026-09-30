@@ -2,17 +2,12 @@
  * Resources screen. Frame, header and card surface reuse the Conteúdos sheet (`ct-shell`, `ct-cabecalho`,
  * `ct-header-section`, `ct-botao`, `ct-paper`), which already carries the measured header (42px row, 16px
  * section padding, bottom rule, 80/90/100% container). What is specific here is the card list:
- *   - card padding 24px, 8px gap between cards, no lateral menu (the page uses the full width);
+ *   - card padding 24px, 8px gap between cards; the Conteúdos side menu stays, as on the source page;
  *   - view columns 20% / 23% / 57%, 16px right margin on each, labels 14px bold muted, values 16px regular;
  *   - edit columns 26% / 26% / 48%, textarea capped at 300px;
  *   - action area min 5rem at the right, revealed on hover (and keyboard focus) so the row never shifts.
  * Colors come only from `--p-*` tokens.
  */
-
-/* No side menu on this page: nothing casts the aside's shadow on the left edge. */
-.rc-page {
-  box-shadow: none;
-}
 
 .rc-title {
   margin: 0 4px 0 0;
