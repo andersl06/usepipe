@@ -25,11 +25,14 @@ export default defineConfig({
     ],
   },
   server: {
+    host: '0.0.0.0',
+    allowedHosts: ['.lvh.me', '.localhost', ...(process.env['PIPE_DOMINIO_CONTAS'] ? [`.${process.env['PIPE_DOMINIO_CONTAS']}`] : [])],
     port: Number(process.env['VITE_PORTA']) || 3210,
     proxy: {
       '/v1': {
         target: process.env['PIPE_URL_API'] || 'http://127.0.0.1:3010',
-        changeOrigin: true,
+        changeOrigin: false,
+        ws: true,
       },
     },
   },

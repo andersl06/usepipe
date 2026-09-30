@@ -166,7 +166,7 @@ export function PageLogin() {
             />
 
             <div className="login-forgot">
-              <a href="mailto:suporte@usepipe.com.br">Esqueci minha senha</a>
+              <span>Peça ajuda ao administrador da sua conta</span>
             </div>
 
             <p id="entrar-ajuda" className="login-help">
@@ -179,7 +179,7 @@ export function PageLogin() {
 
           <div className="login-foot">
             <span>Primeiro acesso?</span>
-            <a href="mailto:suporte@usepipe.com.br">Falar com o suporte</a>
+            <span>Fale com o administrador da sua conta</span>
           </div>
         </section>
       </div>

@@ -60,14 +60,14 @@ export function Rail({
         <ul className="dk-rail-items dk-rail-footer">
           <li className="dk-rail-item">
             {/* The reference help link opens Blip's help center; this one goes to Pipe support. */}
-            <a
+            {(import.meta.env['VITE_PIPE_SUPPORT_EMAIL'] as string | undefined) ? <a
               className="dk-rail-button"
-              href="mailto:suporte@usepipe.com.br"
+              href={`mailto:${import.meta.env['VITE_PIPE_SUPPORT_EMAIL'] as string}`}
               title="Ajuda"
               aria-label="Ajuda"
             >
               <IconeDesk nome="ajuda" />
-            </a>
+            </a> : null}
           </li>
           <li className="dk-rail-item">
             <NavLink
