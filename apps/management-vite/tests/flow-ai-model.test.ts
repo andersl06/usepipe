@@ -72,6 +72,34 @@ test('intent rename updates content references without mutating the model', asyn
   assert.equal(model.contents[0]?.combinations[0]?.intent, 'trocas');
 });
 
+test('clearing an intent name while renaming never leaves an "any intent" reference', async () => {
+  const module = await import('../src/pages/flow/ai-model-logic');
+  const memory: import('../src/pages/flow/ai-model-logic').RenameMemory = new Map();
+  let current = model;
+  const keystrokes = [...Array.from({ length: 'trocas'.length }, (_, i) => 'trocas'.slice(0, 'trocas'.length - 1 - i)), ...Array.from('devolucao', (_, i) => 'devolucao'.slice(0, i + 1))];
+  for (const name of keystrokes) {
+    current = module.renameIntent(current, 'i', name, memory);
+    const intent = current.contents[0]?.combinations[0]?.intent;
+    assert.ok(intent?.trim(), `reference became "${intent}" after typing "${name}"`);
+    if (!name) {
+      assert.equal(intent, 't', 'references keep the last non-empty name');
+      assert.ok(module.aiModelErrors(current).length, 'cleared name must block save');
+    }
+  }
+  assert.equal(current.contents[0]?.combinations[0]?.intent, 'devolucao');
+  assert.deepEqual(module.aiModelErrors(current), []);
+  assert.equal(model.contents[0]?.combinations[0]?.intent, 'trocas');
+});
+
+test('a combination with a blank intent is a validation error, not "any intent"', async () => {
+  const module = await import('../src/pages/flow/ai-model-logic');
+  const blank = { ...model, contents: [{ ...model.contents[0]!, combinations: [{ intent: '', entities: ['camisa'] }] }] };
+  assert.ok(module.aiModelErrors(blank).some((x) => /em branco/.test(x)));
+  const { AiModelForm } = await import('../src/pages/flow/ai-model-form');
+  const html = renderToStaticMarkup(React.createElement(AiModelForm, { model: blank, secretNames: [], onChange: () => undefined }));
+  assert.match(html, /\(intenção em branco\)/);
+});
+
 test('model save PUTs the whole input without server metadata and exposes API errors', async () => {
   const module = await import('../src/lib/flow-ai-model').catch(() => null);
   assert.ok(module, 'AI model API adapter must exist');

@@ -26,7 +26,8 @@ export function aiModelErrors(model: FlowAiModelInput): string[] {
     if (!content.combinations.length) errors.push(`Conteúdo ${content.name}: adicione uma combinação.`);
     for (const combination of content.combinations) {
       if (combination.intent && !intents.has(combination.intent.trim().toLowerCase())) errors.push(`Conteúdo ${content.name}: a intenção "${combination.intent}" não existe.`);
-      if (!combination.intent?.trim() && !combination.entities.length) errors.push(`Conteúdo ${content.name}: escolha uma intenção ou valores de entidades.`);
+      if (combination.intent != null && !combination.intent.trim()) errors.push(`Conteúdo ${content.name}: uma combinação está com a intenção em branco. Escolha uma intenção ou "Qualquer intenção".`);
+      else if (!combination.intent?.trim() && !combination.entities.length) errors.push(`Conteúdo ${content.name}: escolha uma intenção ou valores de entidades.`);
       const min = combination.minEntityMatch;
       if (min !== undefined && (!Number.isInteger(min) || min < 0 || min > combination.entities.length)) errors.push(`Conteúdo ${content.name}: mínimo de entidades deve estar entre 0 e ${combination.entities.length}.`);
     }
@@ -38,13 +39,35 @@ export function aiModelErrors(model: FlowAiModelInput): string[] {
   return errors;
 }
 
-/** Keep the model's content references valid when an intent is renamed. */
-export function renameIntent(model: FlowAiModelInput, id: string, name: string): FlowAiModelInput {
-  const previous = model.intents.find((x) => x.id === id)?.name;
+/**
+ * Name that content references still carry for each item whose name field is currently empty.
+ * The form keeps one per editor so a clear-then-type rename can still move its references.
+ */
+export type RenameMemory = Map<string, string>;
+
+/** Pick the name references carry: the current one, or the last one before the field was cleared. */
+function referenceName(current: string, key: string, next: string, memory: RenameMemory): string {
+  const from = current.trim() ? current : memory.get(key) ?? '';
+  if (next.trim()) memory.delete(key);
+  else if (from.trim()) memory.set(key, from);
+  return from.trim();
+}
+
+/**
+ * Keep the model's content references valid when an intent is renamed. References never become
+ * empty (an empty intent means "any intent" at runtime): while the field is cleared they keep the
+ * last name, which validation flags until a new name is typed.
+ */
+export function renameIntent(model: FlowAiModelInput, id: string, name: string, memory: RenameMemory = new Map()): FlowAiModelInput {
+  const from = referenceName(model.intents.find((x) => x.id === id)?.name ?? '', id, name, memory).toLowerCase();
+  const shared = model.intents.some((x) => x.id !== id && x.name.trim().toLowerCase() === from);
+  const rewrite = !!name.trim() && !!from && !shared;
   return {
     ...model,
     intents: model.intents.map((x) => x.id === id ? { ...x, name } : x),
-    contents: model.contents.map((x) => ({ ...x, combinations: x.combinations.map((c) => previous && c.intent?.toLowerCase() === previous.toLowerCase() ? { ...c, intent: name } : c) })),
+    contents: rewrite
+      ? model.contents.map((x) => ({ ...x, combinations: x.combinations.map((c) => c.intent?.trim().toLowerCase() === from ? { ...c, intent: name } : c) }))
+      : model.contents,
   };
 }
 

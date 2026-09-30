@@ -1,10 +1,13 @@
-import { useId, type ReactNode } from 'react';
+import { useId, useRef, type ReactNode } from 'react';
 import type { FlowAiModelInput, FlowAiContentCombination } from '@pipe/contracts';
 import { Botao, Campo } from '@pipe/ui';
 import { Select } from '@pipe/ui/select';
 import { ChipsInput } from '@pipe/ui/chips-input';
 import { MODEL_SUGGESTIONS } from '../builder/ai-agent-block';
-import { renameIntent } from './ai-model-logic';
+import { renameIntent, type RenameMemory } from './ai-model-logic';
+
+/** Select value for a blank imported intent, distinct from "any intent" (null). */
+const BLANK_INTENT = '\u0000blank';
 
 function TextField({ label, value, onChange, long = false }: { label: string; value: string; onChange: (value: string) => void; long?: boolean }) {
   return <label className="ai-model-field"><span>{label}</span>{long
@@ -40,6 +43,7 @@ function Collection<T extends { id: string; name: string }>({ label, items, onCh
 
 export function AiModelForm({ model, onChange, secretNames }: { model: FlowAiModelInput; onChange: (model: FlowAiModelInput) => void; secretNames: string[] }) {
   const instance = useId();
+  const intentNames = useRef<RenameMemory>(new Map()).current;
   const provider = model.settings.provider ?? (/^(gpt-|o\d)/i.test(model.settings.model ?? '') ? 'openai' : 'anthropic');
   const secret = model.settings.apiKeySecret || (provider === 'openai' ? 'OPENAI_API_KEY' : 'ANTHROPIC_API_KEY');
   const settings = (patch: Partial<FlowAiModelInput['settings']>) => onChange({ ...model, settings: { ...model.settings, ...patch } });
@@ -58,7 +62,7 @@ export function AiModelForm({ model, onChange, secretNames }: { model: FlowAiMod
     </section>
     <Collection label="Intenções" items={model.intents} max={200} create={() => ({ id: crypto.randomUUID(), name: '', description: '', examples: [], answers: [] })} onChange={(intents) => onChange({ ...model, intents })}>
       {(intent, update) => <>
-        <TextField label="Nome da intenção" value={intent.name} onChange={(name) => onChange(renameIntent(model, intent.id, name))} />
+        <TextField label="Nome da intenção" value={intent.name} onChange={(name) => onChange(renameIntent(model, intent.id, name, intentNames))} />
         <TextField label="Descrição" long value={intent.description ?? ''} onChange={(description) => update({ ...intent, description })} />
         <TextList label="Exemplos" max={100} values={intent.examples} onChange={(examples) => update({ ...intent, examples })} />
         <TextList label="Respostas" max={20} values={intent.answers} onChange={(answers) => update({ ...intent, answers })} />
@@ -82,8 +86,9 @@ export function AiModelForm({ model, onChange, secretNames }: { model: FlowAiMod
         {content.combinations.map((combination, i) => {
           const change = (next: FlowAiContentCombination) => update({ ...content, combinations: content.combinations.map((x, n) => n === i ? next : x) });
           return <fieldset className="ai-model-card" key={i}><legend>Combinação {i + 1}</legend>
-            <Select rotulo="Intenção" value={combination.intent ?? ''} onChange={(e) => change({ ...combination, intent: e.target.value || null })}>
+            <Select rotulo="Intenção" value={combination.intent === '' ? BLANK_INTENT : combination.intent ?? ''} onChange={(e) => change({ ...combination, intent: e.target.value === BLANK_INTENT ? '' : e.target.value || null })}>
               <option value="">Qualquer intenção</option>
+              {combination.intent === '' ? <option value={BLANK_INTENT}>(intenção em branco)</option> : null}
               {combination.intent && !model.intents.some((x) => x.name === combination.intent) ? <option value={combination.intent}>{combination.intent} (ausente)</option> : null}
               {model.intents.map((x) => <option key={x.id} value={x.name}>{x.name}</option>)}
             </Select>
