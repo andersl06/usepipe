@@ -1,9 +1,11 @@
 /**
- * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider,ResourceVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is stored under `#expirations` (see `EXPIRATIONS_KEY`); `calendar`, `random`, `application`, `tunnel` and `bucket` have providers (see each below), `secret` resolves only while an HTTP action's settings are substituted (see `ACTIONS_WITH_SECRETS`), `aiagent` reads the AI agent block's last turn (`ai-agent.ts`), while other Blip service providers (aianswers, etc.) are absent and throw, as the original does when a source lacks a provider. `resource` DOES have a provider: the `api` loads the flow's `recurso_do_fluxo` rows into `Context.resources` the same way it loads `contact`, so an imported flow reading `{{resource.x}}` (and `resource.x@prop` for JSON resources, via the generic `propertyJson` path already used by every source) resolves instead of throwing "Não há provedor para a fonte de variável 'resource'.".
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider,ResourceVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` analyses the text lazily through `services.analyzeInput` (P16, `nlp.ts`), so intent/entity come from the flow's AI model, or arrive prepared; variable expiration is stored under `#expirations` (see `EXPIRATIONS_KEY`); `calendar`, `random`, `application`, `tunnel` and `bucket` have providers (see each below), `secret` resolves only while an HTTP action's settings are substituted (see `ACTIONS_WITH_SECRETS`), `aiagent` reads the AI agent block's last turn (`ai-agent.ts`), `aianswers` the last `ProcessAnswers` call (`ai-answers.ts`), while other Blip service providers (blipfunction, etc.) are absent and throw, as the original does when a source lacks a provider. `resource` DOES have a provider: the `api` loads the flow's `recurso_do_fluxo` rows into `Context.resources` the same way it loads `contact`, so an imported flow reading `{{resource.x}}` (and `resource.x@prop` for JSON resources, via the generic `propertyJson` path already used by every source) resolves instead of throwing "Não há provedor para a fonte de variável 'resource'.".
  */
 
 import type { AgentModelRequest, AgentModelResponse } from './ai-agent.js';
 import type { CommandMatch } from './commands.js';
+import type { AnswersRequest, AnswersResult } from './ai-answers.js';
+import { analyzeInbound, inboundContentAssistant, type ContentMatch, type ContentMatchRequest, type InputAnalysis, type InputAnalysisRequest } from './nlp.js';
 import type { Acao, FlowBlip } from './modelos.js';
 import { KEYS_OF_STATE } from './modelos.js';
 
@@ -44,6 +46,7 @@ export const FONTES_SUPORTADAS: ReadonlySet<VariableSource> = new Set([
   'bucket',
   'secret',
   'aiagent',
+  'aianswers',
 ]);
 
 /** Incoming message in LIME vocabulary: `tipo` is the MIME type (`text/plain`, etc.). */
@@ -290,6 +293,15 @@ export interface ServicosDoMotor {
   callAgentModel?(request: AgentModelRequest, signal?: AbortSignal): Promise<AgentModelResponse>;
   /** RAG over the tenant's base_conhecimento/trecho_conhecimento tables. */
   respondWithKnowledge?(request: { text: string; minimumConfidence: number; tags?: string }): Promise<{ answer: string | null; confidence: number }>;
+  /**
+   * NLP (P16): score the flow's intents and find its entities in the input text. Called at most once
+   * per input, only when the flow reads an intent or an entity; a failure reads as "no intent".
+   */
+  analyzeInput?(request: InputAnalysisRequest): Promise<InputAnalysis | null>;
+  /** Content assistant (P16): the flow's content whose intent/entity combination matches, or null. */
+  matchContent?(request: ContentMatchRequest): Promise<ContentMatch | null>;
+  /** AI Answers (P16, `ProcessAnswers`): answer the user from the assistant's curated knowledge. */
+  processAnswers?(request: AnswersRequest, signal?: AbortSignal): Promise<AnswersResult>;
 }
 
 export type VariableProvider = (
@@ -367,6 +379,9 @@ function writeExpirations(variables: Record<string, string>, expirations: Record
  * it out of reach of flow writes and scripts) so later blocks and inputs can read it.
  */
 export const AI_AGENT_VARIABLES_KEY = '#aiagent';
+
+/** `aianswers.*` (P16): the last `ProcessAnswers` call's `{response, statusCode}`, JSON under this engine key. */
+export const AI_ANSWERS_VARIABLES_KEY = '#aianswers';
 
 /** Drop every variable whose deadline has passed; the engine calls this before each input. */
 export function pruneExpiredVariables(variables: Record<string, string>, now = Date.now()): void {
@@ -533,7 +548,7 @@ function objectProperty(objeto: unknown, nome: string): string | null {
 }
 
 /** `InputVariableProvider`. */
-function inboundProvider(nome: string, c: Context): string | null {
+async function inboundProvider(nome: string, c: Context): Promise<string | null> {
   const inbound = c.inbound;
   const minusculo = nome.toLowerCase();
   switch (minusculo) {
@@ -549,13 +564,18 @@ function inboundProvider(nome: string, c: Context): string | null {
       return null;
   }
   if (minusculo.startsWith('intent.')) {
-    return objectProperty(inbound.intent, minusculo.split('.')[1] ?? '');
+    const { intent } = await analyzeInbound(inbound, c);
+    return objectProperty(intent, minusculo.split('.')[1] ?? '');
   }
   if (minusculo.startsWith('entity.')) {
     const [, entity, prop] = minusculo.split('.');
     if (!entity || !prop) return null;
-    const achada = inbound.entities?.find((e) => e.name?.toLowerCase() === entity);
+    const { entities } = await analyzeInbound(inbound, c);
+    const achada = entities.find((e) => e.name?.toLowerCase() === entity);
     return objectProperty(achada, prop);
+  }
+  if (minusculo.startsWith('contentassistant.')) {
+    return objectProperty(await inboundContentAssistant(inbound, c), minusculo.split('.')[1] ?? '');
   }
   if (minusculo.startsWith('message.')) {
     const prop = minusculo.split('.')[1];
@@ -729,6 +749,14 @@ const PROVEDORES_PADRAO: Partial<Record<VariableSource, VariableProvider>> = {
   aiagent: (nome, c) => {
     try {
       return objectProperty(JSON.parse(c.variables[AI_AGENT_VARIABLES_KEY] ?? '{}'), nome);
+    } catch {
+      return null;
+    }
+  },
+  /** The last `ProcessAnswers` call (`ai-answers.ts`): `response` and `statusCode`. */
+  aianswers: (nome, c) => {
+    try {
+      return objectProperty(JSON.parse(c.variables[AI_ANSWERS_VARIABLES_KEY] ?? '{}'), nome);
     } catch {
       return null;
     }

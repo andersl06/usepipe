@@ -4,6 +4,7 @@
 
 import type { Context, InboundLazy } from './context.js';
 import { getVariable } from './context.js';
+import { analyzeInbound } from './nlp.js';
 
 /** `ConditionComparison` order follows the original enum; its first value is the default. */
 export const COMPARISONS = [
@@ -230,13 +231,14 @@ export async function evaluateConditionBlip(
       value = await getVariable(context, condition.variable ?? '');
       break;
     case 'intent':
-      // Pipe has no AI provider here; this matches Blip's result when analysis fails.
-      value = inbound.intent?.name ?? null;
+      // Analysed lazily once per input (P16, `nlp.ts`); a failed analysis reads null, as in Blip.
+      value = (await analyzeInbound(inbound, context)).intent?.name ?? null;
       break;
     case 'entity':
       value =
-        inbound.entities?.find((e) => e.name?.toLowerCase() === condition.entity?.toLowerCase())
-          ?.value ?? null;
+        (await analyzeInbound(inbound, context)).entities.find(
+          (e) => e.name?.toLowerCase() === condition.entity?.toLowerCase(),
+        )?.value ?? null;
       break;
   }
 
