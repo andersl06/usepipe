@@ -232,6 +232,25 @@ function scriptV2Action(): Record<string, unknown> {
 }
 const SCRIPT_V2_OUTPUT = 'script-v2|||03/02 14:05';
 
+/** P9 `ExecuteTemplate`: a JSON variable, `#each`/`#if`, a nested path, a missing variable and a secret. */
+function templatePedidoAction(): Record<string, unknown> {
+  return {
+    type: 'SetVariable',
+    settings: { variable: 'tplPedido', value: '{"numero":7,"itens":[{"nome":"Caneta"},{"nome":"Caderno"}]}' },
+  };
+}
+function templateAction(): Record<string, unknown> {
+  return {
+    type: 'ExecuteTemplate',
+    settings: {
+      template: '{{input.content}} #{{tplPedido.numero}}:{{#each tplPedido.itens}}{{#if @index}},{{/if}} {{nome}}{{/each}} [{{faltando}}][{{secret.apiToken}}]',
+      inputVariables: ['input.content', 'tplPedido', 'faltando', 'secret.apiToken'],
+      outputVariable: 'tplSaida',
+    },
+  };
+}
+const TEMPLATE_OUTPUT = 'template #7: Caneta, Caderno [][]';
+
 type ContagemDeProducao = {
   mensagem: number;
   outbox_mensagem: number;
@@ -372,6 +391,22 @@ describe('POST /v1/management/flows/:id/builder/test-runs', () => {
     expect(body['debug']['error']).toBeUndefined();
     expect(body['debug']['variables']).toMatchObject({ v2Texto: 'gravado', v2Saida: SCRIPT_V2_OUTPUT });
     expect(body['debug']['variables']['v2Tmp']).toBeUndefined();
+    expect(JSON.stringify(body)).not.toContain(segredo);
+  });
+
+  it('ExecuteTemplate renders Handlebars as in production and never sees secret.* (P9)', async () => {
+    const id = await criado(`Template ${randomUUID().slice(0, 6)}`);
+    const segredo = 'tok-INVENTED-tpl-24680';
+    const criadoSegredo = await pedir(sessionEditor, 'POST', `/v1/management/flows/${id}/secrets`, { name: 'apiToken', value: segredo });
+    expect(criadoSegredo.status).toBe(201);
+    const d = desenhoComHttpPrivado();
+    d.globals = { $enteringCustomActions: [templatePedidoAction(), templateAction()] };
+    await salvar(sessionEditor, id, d);
+
+    const { status, body } = await testRun(sessionEditor, id, { input: 'template' });
+    expect(status).toBe(200);
+    expect(body['debug']['error']).toBeUndefined();
+    expect(body['debug']['variables']).toMatchObject({ tplSaida: TEMPLATE_OUTPUT });
     expect(JSON.stringify(body)).not.toContain(segredo);
   });
 

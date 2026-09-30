@@ -34,7 +34,7 @@ export const MAX_RESULTADO_BYTES = 65_536;
 let isolatesAtivos = 0;
 const esperandoIsolate: (() => void)[] = [];
 
-async function ocuparIsolate(esperaMs: number): Promise<void> {
+export async function ocuparIsolate(esperaMs: number): Promise<void> {
   if (isolatesAtivos < MAX_ISOLATES) {
     isolatesAtivos += 1;
     return;
@@ -53,7 +53,7 @@ async function ocuparIsolate(esperaMs: number): Promise<void> {
 }
 
 /** Hand the slot straight to the next waiting execution, or free it. */
-function liberarIsolate(): void {
+export function liberarIsolate(): void {
   const proxima = esperandoIsolate.shift();
   if (proxima) proxima();
   else isolatesAtivos -= 1;
@@ -331,7 +331,7 @@ function message(error: unknown): string {
  * isolated-vm: V8 lost control of an isolate and its resources are unrecoverable. Log without script
  * content or contact data, let the SIGTERM handler in `main.ts` drain outstanding work, then abort.
  */
-function catastrophic(reason: string): void {
+export function catastrophic(reason: string): void {
   console.error('[alert] script_sandbox_catastrophic', { reason });
   process.kill(process.pid, 'SIGTERM');
   setTimeout(() => process.abort(), 10_000).unref();

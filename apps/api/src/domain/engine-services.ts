@@ -3,6 +3,7 @@ import { DeskUnavailable, type ClosedBy, type CommandRequest, type ServicosDoMot
 import type { TransactionPipe } from '@pipe/db';
 import { chamarComMtls } from './mtls.js';
 import { runFlowScript, scriptFetch } from './script-sandbox.js';
+import { renderFlowTemplate } from './template-sandbox.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 import type { LoadedFlowFunction } from './management/flow-functions.js';
 import { DESK_READ_COMMANDS } from './desk-commands.js';
@@ -299,6 +300,8 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects, flow
     },
     // Like callHttp, the script (up to 10 s) still runs inside the inbound transaction.
     runScript: (request) => runFlowScript(request, { fetch: scriptFetch(tenantId), library: flowFunctions.values() }),
+    // ExecuteTemplate (P9): Handlebars in its own isolate, never with network or secrets.
+    renderTemplate: (request) => renderFlowTemplate(request),
     runFlowFunction: async ({ functionId, args }) => {
       // The tenant library is keyed by the database's lowercase UUID; Blip exports may differ in case.
       const definition = flowFunctions.get(functionId.toLowerCase());
