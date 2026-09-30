@@ -1,0 +1,6 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+site-dir-8254be5e,site,4,dir,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp,,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp,0,no,,,candidate,,
+site-dir-91a8d4da,site,4,dir,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp,,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp,0,no,,,candidate,,
+site-dir-ebe8dd8d,site,4,dir,apps/site/ferramentas/agendador-de-mensagem-whatsapp,,apps/site/ferramentas/agendador-de-mensagem-whatsapp,0,no,,,candidate,,
+site-symbol-24de57ee,site,4,symbol,texto,,apps/site/assets/site.js:148,1706,no,,,candidate,,
+site-symbol-24992bfd,site,4,symbol,texto,,apps/site/assets/site.js:213,1706,no,,,candidate,,

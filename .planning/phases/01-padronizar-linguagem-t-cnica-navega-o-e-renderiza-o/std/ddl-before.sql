@@ -406,6 +406,8 @@
 	"entrada" jsonb NOT NULL,
 	"entrada" jsonb,
 	"entrada" jsonb,
+	"entrada_expira_bloco" text,
+	"entrada_expira_em" timestamp with time zone,
 	"entregue_em" timestamp with time zone,
 	"equipe_id" uuid NOT NULL,
 	"erro" text,
@@ -1576,6 +1578,7 @@ CREATE INDEX "evento_atendimento_tipo_idx" ON "evento_atendimento" USING btree (
 CREATE INDEX "evento_rastreado_categoria_idx" ON "evento_rastreado" USING btree ("tenant_id","categoria","em");
 CREATE INDEX "execucao_acao_execucao_idx" ON "execucao_acao" USING btree ("tenant_id","execucao_workflow_id","em");
 CREATE INDEX "execucao_fluxo_conversa_idx" ON "execucao_fluxo" USING btree ("tenant_id","conversa_id");
+CREATE INDEX "execucao_fluxo_entrada_expira_idx" ON "execucao_fluxo" USING btree ("entrada_expira_em") WHERE "execucao_fluxo"."entrada_expira_em" is not null;
 CREATE INDEX "execucao_fluxo_estado_idx" ON "execucao_fluxo" USING btree ("tenant_id","estado","iniciada_em");
 CREATE INDEX "execucao_fluxo_versao_idx" ON "execucao_fluxo" USING btree ("tenant_id","fluxo_versao_id");
 CREATE INDEX "execucao_passo_execucao_idx" ON "execucao_passo" USING btree ("tenant_id","execucao_id","em");

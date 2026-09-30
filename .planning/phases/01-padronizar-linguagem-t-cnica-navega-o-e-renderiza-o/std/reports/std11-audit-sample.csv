@@ -29,13 +29,15 @@ ddl,classified,apps/api/src/domain/engine-services.ts,169,sql-name,ativa,const {
 ddl,classified,apps/api/src/domain/envio.ts,90,sql-name,atendente,const { rows } = await tx.execute<LineConversation>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/etiquetas.ts,37,sql-name,cor,}>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/eventos.ts,20,sql-name,atendimento,await tx.execute(sql`,B,D-08
-ddl,classified,apps/api/src/domain/flow.ts,77,sql-name,canal,const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/flow.ts,81,sql-name,canal,const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/import-of-contacts.ts,69,sql-name,arquivo,const { rows } = await tx.execute<{ id: string }>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/inbound.ts,223,sql-name,mensagem,"sql`select 1 as existe from mensagem where id_provedor = ${idProvedor} limit 1`,",B,D-08
+ddl,classified,apps/api/src/domain/input-expiration-job.ts,38,sql-name,bloco,const { rows } = await tx.execute<{ stateId: string | null; expiresAt: Date | string | null }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/input-expiration.ts,27,sql-name,bloco,const { rows } = await tx.execute<{ id: string }>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/instagram/channel.ts,74,sql-name,ativo,const { rows } = await tx.execute<LineChannel>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/instagram/renewal.ts,62,sql-name,ativo,const { rows } = await databaseOwner().execute<{ id: string; tenant_id: string }>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/management-analytics.ts,55,sql-name,canal,"sql`select f.tipo as ""type"", k.tipo as ""channel"" from fluxo f left join canal k on k.id = f.canal_id where f.id = ${flux",B,D-08
-ddl,classified,apps/api/src/domain/management/builder-of-flow.ts,48,sql-name,estado,const { rows } = await tx.execute<{ id: string; name: string; type: string; state: string }>(sql`,B,D-08
+ddl,classified,apps/api/src/domain/management/builder-of-flow.ts,50,sql-name,estado,const { rows } = await tx.execute<{ id: string; name: string; type: string; state: string }>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/management/certificados.ts,137,sql-name,descricao,const { rows: certificados } = await tx.execute<LinhaDeCertificado>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/management/deployment.ts,40,sql-name,acesso,const access = await um<{ v: boolean }>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/management/flow-functions.ts,25,sql-name,atualizado,"const COLUMNS = sql`id, tenant_id as ""tenantId"", nome as name, descricao as description,",B,D-08
@@ -47,8 +49,6 @@ ddl,classified,apps/api/src/domain/management/permissions-of-agent.ts,181,sql-na
 ddl,classified,apps/api/src/domain/management/satisfaction-surveys.ts,75,sql-name,pesquisa,"? sql`pesquisa_satisfacao_resposta.criada_em >= ${dateOrBadRequest(query.from, 'from')}::date`",B,D-08
 ddl,classified,apps/api/src/domain/management/sla-motor.ts,310,sql-name,conversa,const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`,B,D-08
 ddl,classified,apps/api/src/domain/management/team-of-flow.ts,271,sql-name,codigo,const { rows } = await tx.execute<{ tem: boolean }>(sql`,B,D-08
-ddl,classified,apps/api/src/domain/media.ts,76,sql-name,anexo,const { rows } = await tx.execute<LineAttachment>(sql`,B,D-08
-ddl,classified,apps/api/src/domain/message-active.ts,124,sql-name,contato,const { rows: inAttendance } = await tx.execute<{ id: string }>(sql`,B,D-08
 ddl,excluded,apps/api/src/authentication.ts,192,sql-name,expirada,const { rows } = await databaseOwner().execute<LineKey>(sql`,,
 ddl,excluded,apps/api/src/controllers/catalogo.ts,400,sql-name,ativas,}>(sql`,,
 ddl,excluded,apps/api/src/database.ts,99,sql-name,desc,}>(sql`,,
@@ -59,11 +59,11 @@ ddl,excluded,apps/api/src/domain/desk/actions.ts,183,sql-name,asc,const { rows }
 ddl,excluded,apps/api/src/domain/desk/consultas.ts,69,sql-name,contato,}>(sql`,,
 ddl,excluded,apps/api/src/domain/distribution.ts,26,sql-name,ativas,const { rows } = await tx.execute<LineAgent>(sql`,,
 ddl,excluded,apps/api/src/domain/engine-services.ts,225,sql-name,asc,const { rows } = await tx.execute<{ texto: string }>(sql`,,
-ddl,excluded,apps/api/src/domain/flow.ts,77,sql-name,desc,const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`,,
+ddl,excluded,apps/api/src/domain/flow.ts,81,sql-name,desc,const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`,,
 ddl,excluded,apps/api/src/domain/import-of-contacts.ts,118,sql-name,desc,const { rows } = await tx.execute<LineImport>(sql`,,
 ddl,excluded,apps/api/src/domain/inbound.ts,223,sql-name,existe,"sql`select 1 as existe from mensagem where id_provedor = ${idProvedor} limit 1`,",,
 ddl,excluded,apps/api/src/domain/management-analytics.ts,98,sql-name,transbordo,const { rows: flow } = await tx.execute<{ total: number; transbordo: number }>(sql`,,
-ddl,excluded,apps/api/src/domain/management/builder-of-flow.ts,118,sql-name,desc,const { rows } = await tx.execute<LinhaVersao>(sql`,,
+ddl,excluded,apps/api/src/domain/management/builder-of-flow.ts,120,sql-name,desc,const { rows } = await tx.execute<LinhaVersao>(sql`,,
 ddl,excluded,apps/api/src/domain/management/certificados.ts,137,sql-name,arquivo,const { rows: certificados } = await tx.execute<LinhaDeCertificado>(sql`,,
 ddl,excluded,apps/api/src/domain/management/deployment.ts,64,sql-name,convites,const pessoas = await um<{ convites: string; members: string }>(sql`,,
 ddl,excluded,apps/api/src/domain/management/flow-secrets.ts,87,sql-name,fluxo,const { rows } = await tx.execute<Row>(sql`,,
@@ -86,11 +86,12 @@ ddl,excluded,apps/api/tests/desk-write-commands.test.ts,88,sql-name,desc,"const 
 ddl,excluded,apps/api/tests/dictionary-crm.test.ts,336,sql-name,campos,const { rows } = await c.dono.execute<{ objetos: number; campos: number }>(sql`,,
 ddl,excluded,apps/api/tests/engine-contracts.test.ts,103,sql-name,desc,const { rows } = await cenario.dono.execute<{ id: string; contatoId: string }>(sql`,,
 ddl,excluded,apps/api/tests/etiquetas.test.ts,129,sql-name,asc,const { rows } = await a.dono.execute<{ acao: string; antes: unknown; depois: unknown }>(sql`,,
-ddl,excluded,apps/api/tests/flow-actions.test.ts,142,sql-name,desc,const { rows } = await cenario.dono.execute<{ estado: string }>(sql`,,
+ddl,excluded,apps/api/tests/flow-actions.test.ts,166,sql-name,desc,const { rows } = await cenario.dono.execute<{ estado: string }>(sql`,,
 ddl,excluded,apps/api/tests/flow-content.test.ts,102,sql-name,desc,const { rows } = await cenario.dono.execute<LinhaMensagem>(sql`,,
 ddl,excluded,apps/api/tests/flow-secrets.test.ts,107,sql-name,cifrado,const { rows } = await a.dono.execute<{ nome: string; valor_cifrado: string }>(sql`,,
 ddl,excluded,apps/api/tests/flow.test.ts,84,sql-name,desc,const { rows } = await cenario.dono.execute<Conversation>(sql`,,
 ddl,excluded,apps/api/tests/growth.test.ts,166,sql-name,usuario,}>(sql`,,
+ddl,excluded,apps/api/tests/input-expiration.test.ts,113,sql-name,desc,const { rows } = await cenario.dono.execute<Execution>(sql`,,
 ddl,excluded,apps/api/tests/integrations.test.ts,404,sql-name,asc,const log = await a.dono.execute<{ acao: string }>(sql`,,
 ddl,excluded,apps/api/tests/monitoring-conversations.test.ts,141,sql-name,desc,const { rows: log } = await a.dono.execute<{ depois: { acao: string } }>(sql`,,
 ddl,excluded,apps/api/tests/palavras-proibidas.test.ts,175,sql-name,asc,}>(sql`,,
@@ -98,7 +99,6 @@ ddl,excluded,apps/api/tests/permissions-of-agent.test.ts,316,sql-name,desc,"cons
 ddl,excluded,apps/api/tests/priority.test.ts,128,sql-name,desc,const { rows } = await cenario.dono.execute<{ priority: string }>(sql`,,
 ddl,excluded,apps/api/tests/process-http-retomada.test.ts,124,sql-name,desc,const { rows } = await cenario.dono.execute<ProcessoHttp>(sql`,,
 ddl,excluded,apps/api/tests/queue-entry.test.ts,87,sql-name,desc,const { rows } = await cenario.dono.execute<Conversa>(sql`,,
-ddl,excluded,apps/api/tests/registrations-attendance.test.ts,137,sql-name,asc,}>(sql`,,
 quoted-comment,classified,apps/api/src/controllers/desk.ts,168,comment,,/**,A,D-17
 quoted-comment,classified,apps/api/src/controllers/flow-functions.ts,28,comment,,"/** Flows that use the function, for the Builder's ""em uso em outros bots"" warning. */",A,D-17
 quoted-comment,classified,apps/api/src/controllers/messages-active.ts,39,comment,,"/** The ""Status geral"" panel defaults to the last 72 hours, as in the source. */",A,D-17
@@ -113,7 +113,7 @@ quoted-comment,classified,apps/management-vite/src/estilos/global.css,876,commen
 quoted-comment,classified,apps/management-vite/src/pages/builder/actions-of-block.ts,31,comment,,"/** The menu label is ""ADICIONAR FERRAMENTAS"". */",A,D-17
 quoted-comment,classified,apps/management-vite/src/pages/builder/cabecalho-info.tsx,15,comment,,"/** A tag next to the title, such as the ""Novo"" badge on ""Biblioteca de funções"". */",A,D-17
 quoted-comment,classified,apps/management-vite/src/pages/builder/configuration-sections.ts,29,comment,,"/** A second literal paragraph, only ""Variáveis sensíveis"" has one. */",A,D-17
-quoted-comment,classified,apps/management-vite/src/pages/builder/conteudo.ts,96,comment,,"/** The ""Instrução de validação"" (validation instruction) the editor suggests per rule. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/conteudo.ts,103,comment,,"/** The ""Instrução de validação"" (validation instruction) the editor suggests per rule. */",A,D-17
 quoted-comment,classified,apps/management-vite/src/pages/builder/editor.css,1001,comment,,/*,A,D-17
 quoted-comment,classified,apps/management-vite/src/pages/builder/panel-block.css,258,comment,,"/* Section divider between ""BIBLIOTECA DE FUNÇÕES"" / ""AÇÕES DE ENTRADA"" / ""AÇÕES DE SAÍDA"" (F-1.4 row 24). */",A,D-17
 quoted-comment,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,75,comment,,"/** The Builder's single toast (F-6, D-56): action limits in ""Ações globais"", ""nada publicado"" in ""Versões"". */",A,D-17
@@ -143,9 +143,10 @@ quoted-comment,classified,apps/management-vite/src/pages/builder/panel-configura
 quoted-comment,classified,apps/management-vite/src/pages/flow/integrations/integrations.css,758,comment,,"/* Extra space above the headers block, inside ""Configurações avançadas"". */",A,D-17
 quoted-comment,classified,apps/management-vite/src/estilos/global.css,1990,comment,,/*,A,D-17
 quoted-comment,classified,apps/management-vite/src/pages/builder/editor.css,1044,comment,,"/* ""VERSÕES PUBLICADAS"" cards: 383×96, padding 24 16 24 24, radius 16, #393939, shadow. */",A,D-17
-quoted-comment,classified,apps/management-vite/src/pages/builder/panel-block.css,1496,comment,,"/* ""Variáveis sensíveis"": save/load failure under a row. */",A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-block.css,1062,comment,,"/* P8: ""Expirar entrada"" while the test contact waits in a block with an inactivity time. */",A,D-17
 quoted-comment,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,162,comment,,"/** Blip's ""Restaurar versão"" confirmation and messages (F-2.1); only this tab uses them. */",A,D-17
 quoted-comment,classified,apps/management-vite/src/estilos/global.css,4766,comment,,/*,A,D-17
+quoted-comment,classified,apps/management-vite/src/pages/builder/panel-block.css,1504,comment,,"/* ""Variáveis sensíveis"": save/load failure under a row. */",A,D-17
 quoted-comment,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,252,comment,,"/** ""Restaurar versão"" (list item, F-2.1): restores the latest publication, or warns there is none. */",A,D-17
 quoted-comment,excluded,.dockerignore,1,comment,,# O contexto de build de toda imagem do Pipe é a raiz do monorepo — é a única,,
 quoted-comment,excluded,apps/api/Dockerfile,4,comment,,"# node:22-alpine, não 20: o `engines` da raiz exige `>=22` (o README ainda diz 20,",,
@@ -210,7 +211,7 @@ product-string-literal,excluded,apps/api/tests/analytics.test.ts,201,string-lite
 product-string-literal,excluded,apps/api/tests/attachments-multiplos.test.ts,221,string-literal,anexo,"it('Return 400 when `anexo_ids` is absent or empty', async () => {",,
 product-string-literal,excluded,apps/api/tests/attachments.test.ts,96,string-literal,fora,"it('recusa tipo fora da lista da Blip', async () => {",,
 product-string-literal,excluded,apps/api/tests/builder-by-flow.test.ts,326,string-literal,automacao,"it('Return 403 without `automacao.fluxo.editar` and 404 for invalid or cross-tenant IDs', async () => {",,
-product-string-literal,excluded,apps/api/tests/builder-test-run.test.ts,416,string-literal,automacao,"it('403 without `automacao.fluxo.editar`, 404 for another tenant or an invalid id', async () => {",,
+product-string-literal,excluded,apps/api/tests/builder-test-run.test.ts,458,string-literal,automacao,"it('403 without `automacao.fluxo.editar`, 404 for another tenant or an invalid id', async () => {",,
 product-string-literal,excluded,apps/api/tests/channel-of-flow.test.ts,337,string-literal,fluxo,"describe('Connect a new channel to a bot using `fluxo_id`', () => {",,
 product-string-literal,excluded,apps/api/tests/channels.test.ts,143,string-literal,cadastro,"describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o dublê', () => {",,
 product-string-literal,excluded,apps/api/tests/configuration-of-flow.test.ts,191,string-literal,automacao,"it('Return 403 without `automacao.fluxo.editar` and 404 for invalid or cross-tenant IDs', async () => {",,
@@ -259,7 +260,7 @@ product-literal-value,classified,apps/management-vite/src/pages/builder.tsx,73,l
 product-literal-value,classified,apps/management-vite/src/pages/builder/actions-of-block.ts,318,literal-value,acoes,"aba: 'Ações',",A,STD-10
 product-literal-value,classified,apps/management-vite/src/pages/builder/conditions.ts,11,literal-value,usuario,"{ valor: 'input', rotulo: 'Resposta do usuário' },",A,STD-10
 product-literal-value,classified,apps/management-vite/src/pages/builder/configuration-sections.ts,43,literal-value,confiabilidade,"titulo: 'CONFIABILIDADE DE IA',",A,STD-10
-product-literal-value,classified,apps/management-vite/src/pages/builder/conteudo.ts,21,literal-value,conteudo,"aba: 'Conteúdo',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/conteudo.ts,23,literal-value,conteudo,"aba: 'Conteúdo',",A,STD-10
 product-literal-value,classified,apps/management-vite/src/pages/builder/import-exportar.ts,12,literal-value,arquivo,"arquivoInvalido: 'O arquivo especificado não contém um fluxo válido para importação',",A,STD-10
 product-literal-value,classified,apps/management-vite/src/pages/builder/model.ts,110,literal-value,condicoes,"limiteDeSaidas: 'Limite de 25 condições de saída atingidos',",A,STD-10
 product-literal-value,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,165,literal-value,alteracoes,"'Ao restaurar a última versão publicada, as alterações no fluxo principal serão perdidas, enquanto as alterações nos sub",A,STD-10
@@ -287,7 +288,7 @@ product-literal-value,classified,apps/management-vite/src/pages/builder.tsx,73,l
 product-literal-value,classified,apps/management-vite/src/pages/builder/actions-of-block.ts,319,literal-value,acoes,"entrada: 'Ações de Entrada',",A,STD-10
 product-literal-value,classified,apps/management-vite/src/pages/builder/conditions.ts,12,literal-value,variavel,"{ valor: 'context', rotulo: 'Variável' },",A,STD-10
 product-literal-value,classified,apps/management-vite/src/pages/builder/configuration-sections.ts,45,literal-value,confiabilidade,"'Defina o percentual de confiabilidade de uma intenção para ser considerada uma resposta válida.',",A,STD-10
-product-literal-value,classified,apps/management-vite/src/pages/builder/conteudo.ts,25,literal-value,quick,"quickReply: 'Quick reply',",A,STD-10
+product-literal-value,classified,apps/management-vite/src/pages/builder/conteudo.ts,27,literal-value,quick,"quickReply: 'Quick reply',",A,STD-10
 product-literal-value,classified,apps/management-vite/src/pages/builder/import-exportar.ts,12,literal-value,fluxo,"arquivoInvalido: 'O arquivo especificado não contém um fluxo válido para importação',",A,STD-10
 product-literal-value,classified,apps/management-vite/src/pages/builder/model.ts,110,literal-value,limite,"limiteDeSaidas: 'Limite de 25 condições de saída atingidos',",A,STD-10
 product-literal-value,classified,apps/management-vite/src/pages/builder/panel-configuration.tsx,165,literal-value,com,"'Ao restaurar a última versão publicada, as alterações no fluxo principal serão perdidas, enquanto as alterações nos sub",A,STD-10
@@ -317,14 +318,14 @@ product-literal-value,excluded,apps/api/src/domain/dictionary-crm.ts,15,literal-
 product-literal-value,excluded,apps/api/src/domain/distribution.ts,26,literal-value,atendente,const { rows } = await tx.execute<LineAgent>(sql`,,
 product-literal-value,excluded,apps/api/src/domain/engine-services.ts,36,literal-value,baixa,"const PRIORITY_LEVELS = ['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'] as const;",,
 product-literal-value,excluded,apps/api/src/domain/envio.ts,19,literal-value,localizacao,export type TipoEnvio = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'localizacao' | 'template';,,
-product-literal-value,excluded,apps/api/src/domain/flow.ts,77,literal-value,arquivado,const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/flow.ts,81,literal-value,arquivado,const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`,,
 product-literal-value,excluded,apps/api/src/domain/import-of-contacts.ts,69,literal-value,pronta,const { rows } = await tx.execute<{ id: string }>(sql`,,
 product-literal-value,excluded,apps/api/src/domain/inbound.ts,238,literal-value,contato,const { rows: criada } = await tx.execute<{ id: string }>(sql`,,
 product-literal-value,excluded,apps/api/src/domain/instagram/channel.ts,29,literal-value,desligado,state: 'conectado' | 'desligado' | 'indisponivel';,,
 product-literal-value,excluded,apps/api/src/domain/instagram/renewal.ts,15,literal-value,renovado,export type ResultOfRenewal = 'renovado' | 'early_excessive' | 'expired' | 'refused';,,
 product-literal-value,excluded,apps/api/src/domain/management-analytics.ts,70,literal-value,entrada,}>(sql`,,
 product-literal-value,excluded,apps/api/src/domain/management-flow.ts,27,literal-value,username,export const identifierOfChannel = sql<string | null>`coalesce(,,
-product-literal-value,excluded,apps/api/src/domain/management/builder-of-flow.ts,48,literal-value,arquivado,const { rows } = await tx.execute<{ id: string; name: string; type: string; state: string }>(sql`,,
+product-literal-value,excluded,apps/api/src/domain/management/builder-of-flow.ts,50,literal-value,arquivado,const { rows } = await tx.execute<{ id: string; name: string; type: string; state: string }>(sql`,,
 product-literal-value,excluded,apps/api/src/domain/management/certificados.ts,19,literal-value,expirado,export type StatusDoCertificado = 'valido' | 'expirado' | 'without_file';,,
 product-literal-value,excluded,apps/api/src/domain/management/colors-of-queue.ts,6,literal-value,grafico,"{ valor: 'grafico-1', rotulo: 'Sage' },",,
 product-literal-value,excluded,apps/api/src/domain/management/communication.ts,46,literal-value,documento,"export const CABECALHOS_TEMPLATE = ['nenhum', 'texto', 'imagem', 'video', 'documento'] as const;",,
@@ -390,6 +391,7 @@ migration-path,classified,packages/db/drizzle/0052_recurso_do_fluxo.sql,1,path,f
 migration-path,classified,packages/db/drizzle/0053_agendamento_e_eventos.sql,1,path,agendamento,packages/db/drizzle/0053_agendamento_e_eventos.sql,B,D-08
 migration-path,classified,packages/db/drizzle/0054_funcao_da_conta.sql,1,path,conta,packages/db/drizzle/0054_funcao_da_conta.sql,B,D-08
 migration-path,classified,packages/db/drizzle/0055_variavel_secreta_do_fluxo.sql,1,path,fluxo,packages/db/drizzle/0055_variavel_secreta_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0056_expiracao_da_entrada.sql,1,path,entrada,packages/db/drizzle/0056_expiracao_da_entrada.sql,B,D-08
 migration-path,classified,packages/db/drizzle/0000_fundacao.sql,1,path,fundacao,packages/db/drizzle/0000_fundacao.sql,B,D-08
 migration-path,classified,packages/db/drizzle/0002_particoes.sql,1,path,particoes,packages/db/drizzle/0002_particoes.sql,B,D-08
 migration-path,classified,packages/db/drizzle/0004_canal_instagram.sql,1,path,canal,packages/db/drizzle/0004_canal_instagram.sql,B,D-08
@@ -428,6 +430,7 @@ migration-path,classified,packages/db/drizzle/0048_funcao_do_fluxo.sql,1,path,fu
 migration-path,classified,packages/db/drizzle/0053_agendamento_e_eventos.sql,1,path,eventos,packages/db/drizzle/0053_agendamento_e_eventos.sql,B,D-08
 migration-path,classified,packages/db/drizzle/0054_funcao_da_conta.sql,1,path,funcao,packages/db/drizzle/0054_funcao_da_conta.sql,B,D-08
 migration-path,classified,packages/db/drizzle/0055_variavel_secreta_do_fluxo.sql,1,path,variavel,packages/db/drizzle/0055_variavel_secreta_do_fluxo.sql,B,D-08
+migration-path,classified,packages/db/drizzle/0056_expiracao_da_entrada.sql,1,path,expiracao,packages/db/drizzle/0056_expiracao_da_entrada.sql,B,D-08
 migration-path,classified,packages/db/drizzle/0005_mensagem_dados.sql,1,path,mensagem,packages/db/drizzle/0005_mensagem_dados.sql,B,D-08
 migration-path,classified,packages/db/drizzle/0008_canal_roteamento.sql,1,path,roteamento,packages/db/drizzle/0008_canal_roteamento.sql,B,D-08
 migration-path,classified,packages/db/drizzle/0013_prioridade_cinco_degraus.sql,1,path,degraus,packages/db/drizzle/0013_prioridade_cinco_degraus.sql,B,D-08

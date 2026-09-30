@@ -1,0 +1,8 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+bridge-symbol-3c6145c6,bridge,4,symbol,comoTicket,,apps/bridge/src/translation.ts:92,17,no,,,candidate,,
+bridge-symbol-b94a295f,bridge,4,symbol,comoTime,,apps/bridge/src/translation.ts:199,3,no,,,candidate,,
+bridge-symbol-9e130bac,bridge,4,symbol,texto,,apps/bridge/src/servidor.ts:92,1706,no,,,candidate,,
+bridge-test-title-09ca410f,bridge,1,test-title,"escapa o arroba do e-mail, como a Blip faz",,apps/bridge/tests/translation.test.ts:159,0,no,,,candidate,,
+bridge-ts-local-4e5daa64,bridge,4,ts-local,limite,,apps/bridge/src/rotas.ts:63,381,no,,,candidate,,
+bridge-ts-local-8198209c,bridge,4,ts-local,texto,,apps/bridge/src/actions.ts:67,1706,no,,,candidate,,
+bridge-ts-prop-bde69f58,bridge,4,ts-prop,texto,,apps/bridge/src/rotas.ts:166,1706,no,,,candidate,,

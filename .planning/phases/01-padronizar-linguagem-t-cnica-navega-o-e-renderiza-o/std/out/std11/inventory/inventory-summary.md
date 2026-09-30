@@ -1,0 +1,84 @@
+# Inventory summary
+
+| Scope | Kind | Rows |
+|---|---|---:|
+| packages-core | literal-value | 54 |
+| packages-core | symbol | 53 |
+| packages-core | test-title | 14 |
+| packages-core | ts-local | 19 |
+| packages-core | ts-prop | 27 |
+| packages-db | file | 41 |
+| packages-db | literal-value | 183 |
+| packages-db | symbol | 11 |
+| packages-db | test-title | 4 |
+| packages-db | ts-local | 8 |
+| packages-db | ts-prop | 96 |
+| packages-contracts | literal-value | 8 |
+| packages-contracts | ts-prop | 82 |
+| packages-ui | literal-value | 17 |
+| packages-ui | symbol | 8 |
+| packages-ui | ts-local | 3 |
+| packages-ui | ts-prop | 5 |
+| packages-ai | literal-value | 7 |
+| packages-ai | symbol | 10 |
+| packages-ai | test-title | 3 |
+| packages-ai | ts-local | 2 |
+| packages-ai | ts-prop | 3 |
+| packages-authentication | cookie | 1 |
+| packages-authentication | symbol | 1 |
+| packages-authentication | test-title | 1 |
+| packages-authentication | ts-local | 25 |
+| packages-authentication | ts-prop | 2 |
+| packages-storage | file | 1 |
+| packages-storage | symbol | 3 |
+| packages-storage | test-title | 1 |
+| packages-storage | ts-local | 9 |
+| packages-time-real | - | 0 |
+| packages-mcp | - | 0 |
+| workers | job-name | 2 |
+| workers | literal-value | 23 |
+| workers | symbol | 20 |
+| workers | test-title | 1 |
+| workers | ts-local | 12 |
+| workers | ts-prop | 53 |
+| api | cookie | 1 |
+| api | job-name | 7 |
+| api | literal-value | 50 |
+| api | metric | 5 |
+| api | symbol | 671 |
+| api | test-title | 115 |
+| api | ts-local | 699 |
+| api | ts-prop | 243 |
+| bridge | symbol | 3 |
+| bridge | test-title | 1 |
+| bridge | ts-local | 2 |
+| bridge | ts-prop | 1 |
+| desk-vite | literal-value | 15 |
+| desk-vite | symbol | 12 |
+| desk-vite | test-title | 2 |
+| desk-vite | ts-local | 12 |
+| desk-vite | ts-prop | 1 |
+| management-vite | literal-value | 75 |
+| management-vite | symbol | 280 |
+| management-vite | test-title | 51 |
+| management-vite | ts-local | 234 |
+| management-vite | ts-prop | 140 |
+| crm | cookie | 1 |
+| crm | literal-value | 48 |
+| crm | symbol | 36 |
+| crm | ts-local | 7 |
+| crm | ts-prop | 8 |
+| site | dir | 3 |
+| site | symbol | 2 |
+| infra | dir | 11 |
+| infra | file | 58 |
+| infra | symbol | 11 |
+| infra | test-title | 18 |
+| infra | ts-local | 10 |
+| css | css-class | 160 |
+| css | css-var | 47 |
+| css | data-attr | 2 |
+
+Total rows: 3866
+Total comments: 1838
+Total route dependents: 0

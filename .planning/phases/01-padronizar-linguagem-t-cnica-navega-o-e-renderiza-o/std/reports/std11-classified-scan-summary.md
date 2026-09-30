@@ -1,37 +1,37 @@
 # Baseline STD-11
 
-Total: 31451
-Unclassified: 25926
+Total: 31724
+Unclassified: 26066
 Lexicon: 02edb1d46412ffc806518c8a780b0f51f7909352
 
 ## Findings by kind
 
 | Kind | Count |
 |---|---:|
-| comment | 3000 |
-| css-class | 1552 |
+| comment | 3020 |
+| css-class | 1553 |
 | css-custom-property | 1378 |
 | data-attr | 30 |
-| identifier | 15322 |
-| literal-value | 2599 |
+| identifier | 15419 |
+| literal-value | 2633 |
 | package-script | 2 |
-| path | 356 |
-| sql-name | 4369 |
-| string-literal | 2843 |
+| path | 359 |
+| sql-name | 4484 |
+| string-literal | 2846 |
 
 ## Classified by category
 
 | Category | Count |
 |---|---:|
-| A | 898 |
-| B | 4467 |
+| A | 917 |
+| B | 4581 |
 | C | 160 |
 
 ## Matches by exception row
 
 | Row | Matches | Ref |
 |---:|---:|---|
-| 6 | 802 | D-08 |
+| 6 | 807 | D-08 |
 | 7 | 7 | D-06 |
 | 11 | 2 | D-06/D-36 |
 | 17 | 6 | D-06/D-36 |
@@ -163,7 +163,7 @@ Lexicon: 02edb1d46412ffc806518c8a780b0f51f7909352
 | 804 | 1 | persisted.csv:workers-ts-prop-3de70883 |
 | 821 | 21 | D-40 |
 | 837 | 1 | D-17 |
-| 839 | 3379 | D-08 |
+| 839 | 3486 | D-08 |
 | 840 | 2 | D-08 |
 | 842 | 2 | D-08 |
 | 843 | 1 | D-08 |
@@ -207,7 +207,8 @@ Lexicon: 02edb1d46412ffc806518c8a780b0f51f7909352
 | 887 | 2 | D-08 |
 | 888 | 2 | D-08 |
 | 889 | 2 | D-08 |
-| 890 | 14 | D-47 |
-| 891 | 15 | D-47 |
-| 892 | 48 | D-17 |
-| 894 | 850 | STD-10 |
+| 890 | 2 | D-08 |
+| 891 | 14 | D-47 |
+| 892 | 15 | D-47 |
+| 893 | 49 | D-17 |
+| 895 | 868 | STD-10 |

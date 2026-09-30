@@ -1,37 +1,37 @@
 # Baseline STD-11
 
-Total: 31451
-Unclassified: 30335
+Total: 31724
+Unclassified: 30603
 Lexicon: 02edb1d46412ffc806518c8a780b0f51f7909352
 
 ## Findings by kind
 
 | Kind | Count |
 |---|---:|
-| comment | 3000 |
-| css-class | 1552 |
+| comment | 3020 |
+| css-class | 1553 |
 | css-custom-property | 1378 |
 | data-attr | 30 |
-| identifier | 15322 |
-| literal-value | 2599 |
+| identifier | 15419 |
+| literal-value | 2633 |
 | package-script | 2 |
-| path | 356 |
-| sql-name | 4369 |
-| string-literal | 2843 |
+| path | 359 |
+| sql-name | 4484 |
+| string-literal | 2846 |
 
 ## Classified by category
 
 | Category | Count |
 |---|---:|
 | A | 0 |
-| B | 985 |
+| B | 990 |
 | C | 131 |
 
 ## Matches by exception row
 
 | Row | Matches | Ref |
 |---:|---:|---|
-| 6 | 802 | D-08 |
+| 6 | 807 | D-08 |
 | 7 | 7 | D-06 |
 | 11 | 2 | D-06/D-36 |
 | 17 | 6 | D-06/D-36 |

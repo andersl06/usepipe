@@ -887,6 +887,7 @@ packages/db/drizzle/0052_recurso_do_fluxo.sql,*,path,B,Migration filename record
 packages/db/drizzle/0053_agendamento_e_eventos.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
 packages/db/drizzle/0054_funcao_da_conta.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
 packages/db/drizzle/0055_variavel_secreta_do_fluxo.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
+packages/db/drizzle/0056_expiracao_da_entrada.sql,*,path,B,Migration filename recorded in the Drizzle journal,D-08
 apps/site/blog/**,*,path,C,Public indexed Portuguese site URLs remain unchanged,D-47
 apps/site/ferramentas/**,*,path,C,Public indexed Portuguese site URLs remain unchanged,D-47
 **/*,@quoted-comment,comment,A,Quoted product text or literal third-party evidence inside a comment,D-17
