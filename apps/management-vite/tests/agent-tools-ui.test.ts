@@ -31,6 +31,24 @@ test('knowledge picker shows available account bases, selected documents, tags a
   assert.match(html, /vendas/);
   assert.match(html, /checked=""/);
   assert.match(html, /Base de conhecimento/);
+  assert.match(html, /<input(?=[^>]*name="[^"]+-scope")(?=[^>]*value="documents")(?=[^>]*checked="")[^>]*>/);
+  assert.match(html, /Trocar o modo limpa a seleção anterior/);
+  assert.doesNotMatch(html, /<legend>Bases<\/legend>/, 'Document mode does not show whole-base selectors');
+  query.clear();
+});
+
+test('knowledge whole-base mode exposes a mutually exclusive scope choice and no document checkboxes', async () => {
+  const module = await import('../src/pages/builder/knowledge-tools-ui.tsx');
+  const query = new QueryClient();
+  query.setQueryData(['api', '/v1/management/knowledge-bases'], [
+    { id: 'base-B', name: 'Base B', active: true, documents: 2, createdAt: '', updatedAt: null },
+  ]);
+  const html = renderToStaticMarkup(createElement(QueryClientProvider, { client: query },
+    createElement(module.KnowledgeFields, { acao: { type: 'KnowledgeBaseConsult', settings: { catalogs: ['base-B'], documents: [] } }, onMudar: () => undefined, secretNames: [] })));
+  assert.match(html, /<input(?=[^>]*name="[^"]+-scope")(?=[^>]*value="bases")(?=[^>]*checked="")[^>]*>/);
+  assert.match(html, /<legend>Bases<\/legend>/);
+  assert.doesNotMatch(html, /<legend>Documentos<\/legend>/);
+  assert.doesNotMatch(html, /Documentos da base/);
   query.clear();
 });
 

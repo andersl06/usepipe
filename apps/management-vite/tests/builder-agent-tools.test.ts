@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { knowledgeConsultSettings, converterDoEditor, agentToolbox, agentSettings } from '@pipe/core';
+import { knowledgeConsultSettings, knowledgeRequest, converterDoEditor, agentToolbox, agentSettings } from '@pipe/core';
 import { newAiAgentBlock, agentSettingsOf, withAgentSettings } from '../src/pages/builder/ai-agent-block.ts';
 
 test('knowledge selection keeps document catalog metadata, tags and secret names on a local tool', async () => {
@@ -55,18 +55,57 @@ test('MCP lifecycle writes Blip tools format and preserves other imported agent 
   assert.equal(module.saveMcpServer(block, { ...draft, secretHeaders: { Authorization: 'not a secret name' } }).ok, false);
 });
 
-test('scope gestures keep catalog and document filters consistent across bases', async () => {
+test('whole-base and specific-document gestures switch exclusive scope modes in either order', async () => {
   const module = await import('../src/pages/builder/ai-agent-tools.ts');
-  assert.equal(typeof module.toggleKnowledgeDocument, 'function', 'Document selection gesture must exist');
-  const tool = module.withKnowledgeSelection(module.newKnowledgeTool(newAiAgentBlock({}, { top: 0, left: 0 }, 'scope')), {
-    catalogs: ['base-1'], documents: [], tags: [], topK: 5, minimumScore: 0, apiKeySecret: '',
-  });
-  const selected = module.toggleKnowledgeDocument(tool, { id: 'doc-2', baseId: 'base-2', active: true }, true);
-  assert.deepEqual(module.knowledgeSelection(selected).catalogs, ['base-1', 'base-2']);
-  const removed = module.toggleKnowledgeBase(selected, 'base-2', false);
-  assert.deepEqual(module.knowledgeSelection(removed).catalogs, ['base-1']);
-  assert.deepEqual(module.knowledgeSelection(removed).documents, []);
-  assert.deepEqual(module.knowledgeSelection(module.toggleKnowledgeDocument(selected, { id: 'doc-2', baseId: 'base-2', active: true }, false)).documents, []);
+  const tool = module.newKnowledgeTool(newAiAgentBlock({}, { top: 0, left: 0 }, 'scope'));
+  // Valid, invented UUIDs represent records known to the tenant (resolveScope drops unknown IDs).
+  const baseA = '10000000-0000-4000-8000-000000000001';
+  const baseB = '10000000-0000-4000-8000-000000000002';
+  const documentA = { id: '20000000-0000-4000-8000-000000000001', baseId: baseA, active: true };
+  const documentB1 = { id: '20000000-0000-4000-8000-000000000002', baseId: baseB, active: true };
+  const documentB2 = { id: '20000000-0000-4000-8000-000000000003', baseId: baseB, active: true };
+  const passages = [documentA, documentB1, documentB2];
+  // search.ts resolveScope ANDs catalog and document filters; empty filters mean unrestricted.
+  const runtimeMatches = (action: typeof tool) => {
+    const scope = knowledgeRequest('pergunta', knowledgeConsultSettings(action.settings!));
+    return passages.filter((d) => (!scope.bases.length || scope.bases.includes(d.baseId)) &&
+      (!scope.documents.length || scope.documents.includes(d.id))).map((d) => d.id);
+  };
+  const documentThenBase = module.toggleKnowledgeBase(module.toggleKnowledgeDocument(tool, documentA, true), baseB, true);
+  assert.deepEqual(runtimeMatches(documentThenBase), [documentB1.id, documentB2.id], 'Selecting a whole base replaces the document scope');
+  assert.deepEqual(module.knowledgeSelection(documentThenBase).documents, []);
+  assert.deepEqual(module.knowledgeSelection(documentThenBase).catalogs, [baseB]);
+  const baseThenDocument = module.toggleKnowledgeDocument(module.toggleKnowledgeBase(tool, baseB, true), documentA, true);
+  assert.deepEqual(runtimeMatches(baseThenDocument), [documentA.id], 'Selecting a document replaces the whole-base scope');
+  assert.deepEqual(module.knowledgeSelection(baseThenDocument).catalogs, [baseA], 'Document catalogs name only selected document parents');
+  const multiDocument = module.toggleKnowledgeDocument(baseThenDocument, passages[1]!, true);
+  assert.deepEqual(runtimeMatches(multiDocument), [documentA.id, documentB1.id]);
+  assert.deepEqual(module.knowledgeSelection(multiDocument).catalogs, [baseA, baseB]);
+  const removeDocument = module.toggleKnowledgeDocument(multiDocument, documentA, false);
+  assert.deepEqual(runtimeMatches(removeDocument), [documentB1.id]);
+  assert.deepEqual(module.knowledgeSelection(removeDocument).catalogs, [baseB]);
+  const removeLastDocument = module.toggleKnowledgeDocument(removeDocument, passages[1]!, false);
+  assert.deepEqual(module.knowledgeSelection(removeLastDocument).catalogs, []);
+  assert.deepEqual(runtimeMatches(removeLastDocument), passages.map((d) => d.id));
+  assert.deepEqual(module.knowledgeSelection(module.toggleKnowledgeBase(documentThenBase, baseB, false)).catalogs, []);
+  assert.deepEqual(tool.settings, { top_k: 5, catalogs: [], documents: [], tags: [] });
+});
+
+test('explicit scope mode changes clear the previous mode and retain unrelated tool settings', async () => {
+  const module = await import('../src/pages/builder/ai-agent-tools.ts');
+  assert.equal(typeof module.withKnowledgeScopeMode, 'function', 'Explicit scope switching must exist');
+  let tool = module.newKnowledgeTool(newAiAgentBlock({}, { top: 0, left: 0 }, 'mode'));
+  tool = module.withKnowledgeSelection(tool, { ...module.knowledgeSelection(tool), catalogs: ['base-A'], tags: ['faq'], apiKeySecret: 'EMBEDDINGS' });
+  const documentMode = module.withKnowledgeScopeMode(tool, 'documents');
+  assert.deepEqual(module.knowledgeSelection(documentMode).catalogs, []);
+  const selected = module.toggleKnowledgeDocument(documentMode, { id: 'doc-B', baseId: 'base-B', active: true }, true);
+  const baseMode = module.withKnowledgeScopeMode(selected, 'bases');
+  assert.deepEqual(module.knowledgeSelection(baseMode).catalogs, []);
+  assert.deepEqual(module.knowledgeSelection(baseMode).documents, []);
+  assert.deepEqual(module.knowledgeSelection(baseMode).tags, ['faq']);
+  assert.equal(module.knowledgeSelection(baseMode).apiKeySecret, 'EMBEDDINGS');
+  const canonical = module.withKnowledgeSelection(selected, { ...module.knowledgeSelection(selected), catalogs: ['base-A'] });
+  assert.deepEqual(module.knowledgeSelection(canonical).catalogs, ['base-B'], 'Parent scopes cannot become disjoint after another field edit');
 });
 
 test('MCP secret mappings accept existing flow naming rules and reject duplicate HTTP headers', async () => {

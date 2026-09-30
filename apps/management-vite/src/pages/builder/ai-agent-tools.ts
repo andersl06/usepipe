@@ -12,6 +12,7 @@ export interface KnowledgeSelection {
   minimumScore: number;
   apiKeySecret: string;
 }
+export type KnowledgeScopeMode = 'bases' | 'documents';
 
 export function newKnowledgeTool(block: Block, id = gerarId()): AcaoDoEditor {
   let n = 1;
@@ -48,7 +49,11 @@ export function withKnowledgeSelection(action: AcaoDoEditor, selection: Knowledg
   if (!Number.isFinite(selection.minimumScore) || selection.minimumScore < 0 || selection.minimumScore > 1)
     throw new Error('Confiança mínima: use um número entre 0 e 1.');
   const settings = { ...action.settings,
-    catalogs: [...selection.catalogs],
+    // Runtime combines filters with AND. In document mode catalogs only name document parents;
+    // legacy imported string IDs without parent metadata use the document filter alone.
+    catalogs: selection.documents.length
+      ? selection.documents.every((d) => d.baseId) ? [...new Set(selection.documents.map((d) => d.baseId))] : []
+      : [...selection.catalogs],
     documents: selection.documents.map((d) => ({ id: d.id, catalog_id: d.baseId, status: d.active ? 'active' : 'inactive' })),
     tags: [...selection.tags], top_k: selection.topK, minimumScore: selection.minimumScore,
   } as Record<string, unknown>;
@@ -57,18 +62,28 @@ export function withKnowledgeSelection(action: AcaoDoEditor, selection: Knowledg
   return { ...action, settings };
 }
 
-export function toggleKnowledgeBase(action: AcaoDoEditor, baseId: string, selected: boolean): AcaoDoEditor {
+/** Changing scope mode clears the previous mode's selection, preserving tags and query settings. */
+export function withKnowledgeScopeMode(action: AcaoDoEditor, mode: KnowledgeScopeMode): AcaoDoEditor {
   const current = knowledgeSelection(action);
   return withKnowledgeSelection(action, { ...current,
-    catalogs: selected ? [...new Set([...current.catalogs, baseId])] : current.catalogs.filter((id) => id !== baseId),
-    documents: selected ? current.documents : current.documents.filter((d) => d.baseId !== baseId),
+    catalogs: mode === 'bases' && current.documents.length === 0 ? current.catalogs : [],
+    documents: mode === 'documents' ? current.documents : [],
+  });
+}
+
+export function toggleKnowledgeBase(action: AcaoDoEditor, baseId: string, selected: boolean): AcaoDoEditor {
+  const current = knowledgeSelection(action);
+  const catalogs = current.documents.length ? [] : current.catalogs;
+  return withKnowledgeSelection(action, { ...current,
+    catalogs: selected ? [...new Set([...catalogs, baseId])] : catalogs.filter((id) => id !== baseId),
+    documents: [],
   });
 }
 
 export function toggleKnowledgeDocument(action: AcaoDoEditor, document: SelectedKnowledgeDocument, selected: boolean): AcaoDoEditor {
   const current = knowledgeSelection(action);
   return withKnowledgeSelection(action, { ...current,
-    catalogs: selected && current.catalogs.length ? [...new Set([...current.catalogs, document.baseId])] : current.catalogs,
+    catalogs: [],
     documents: selected ? [...current.documents.filter((d) => d.id !== document.id), document] : current.documents.filter((d) => d.id !== document.id),
   });
 }

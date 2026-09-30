@@ -5,7 +5,7 @@ import { motivoDe } from '../../lib/rest';
 import { KNOWLEDGE_BASES_API, KNOWLEDGE_BASES_PATH, knowledgeDocumentsApi, knowledgeTags, type KnowledgeBase, type KnowledgeDocument } from '../../lib/knowledge';
 import type { AcaoDoEditor, Block } from './model';
 import { comCampo, fieldValue } from './actions-of-block';
-import { knowledgeSelection, withKnowledgeSelection, toggleKnowledgeBase, toggleKnowledgeDocument, mcpServers, saveMcpServer, removeMcpServer, type KnowledgeSelection } from './ai-agent-tools';
+import { knowledgeSelection, withKnowledgeSelection, withKnowledgeScopeMode, toggleKnowledgeBase, toggleKnowledgeDocument, mcpServers, saveMcpServer, removeMcpServer, type KnowledgeSelection, type KnowledgeScopeMode } from './ai-agent-tools';
 
 export function KnowledgeFields({ acao, onMudar, secretNames }: {
   acao: AcaoDoEditor;
@@ -14,6 +14,8 @@ export function KnowledgeFields({ acao, onMudar, secretNames }: {
 }) {
   const uid = useId();
   const selection = knowledgeSelection(acao);
+  const [emptyScopeMode, setEmptyScopeMode] = useState<KnowledgeScopeMode>(selection.documents.length ? 'documents' : 'bases');
+  const scopeMode = selection.documents.length ? 'documents' : selection.catalogs.length ? 'bases' : emptyScopeMode;
   const bases = useRead<KnowledgeBase[]>(KNOWLEDGE_BASES_API);
   const [browseBase, setBrowseBase] = useState(selection.catalogs[0] ?? selection.documents[0]?.baseId ?? '');
   const docs = useRead<KnowledgeDocument[]>(browseBase ? knowledgeDocumentsApi(browseBase) : null);
@@ -29,16 +31,22 @@ export function KnowledgeFields({ acao, onMudar, secretNames }: {
   const tags = [...new Set((docs.data ?? []).flatMap((d) => d.tags))];
   return <section className="bl-agent-secao bl-knowledge" aria-label="Base de conhecimento">
     <h4>Base de conhecimento</h4>
-    <p className="bl-ajuda">Selecione bases inteiras ou documentos específicos. Sem seleção, a consulta usa todas as bases ativas da conta.</p>
+    <p className="bl-ajuda">Escolha bases inteiras ou documentos específicos. Trocar o modo limpa a seleção anterior. Sem seleção, a consulta usa todas as bases ativas da conta.</p>
+    <fieldset className="bl-knowledge-list"><legend>Escopo da consulta</legend>
+      <label><input type="radio" name={`${uid}-scope`} value="bases" checked={scopeMode === 'bases'} onChange={() => { gesture(() => withKnowledgeScopeMode(acao, 'bases')); setEmptyScopeMode('bases'); }} />Bases inteiras</label>
+      <label><input type="radio" name={`${uid}-scope`} value="documents" checked={scopeMode === 'documents'} onChange={() => { gesture(() => withKnowledgeScopeMode(acao, 'documents')); setEmptyScopeMode('documents'); }} />Documentos específicos</label>
+    </fieldset>
     <a href={KNOWLEDGE_BASES_PATH} target="_blank" rel="noreferrer">Gerenciar bases e documentos</a>
     {bases.isLoading ? <p role="status">Carregando bases…</p> : null}
     {bases.isError ? <p role="alert">{motivoDe(bases.error, 'Não foi possível carregar as bases.')} <button type="button" onClick={() => void bases.refetch()}>Tentar novamente</button></p> : null}
     {bases.data?.length === 0 ? <p className="bl-ajuda">Nenhuma base criada na conta.</p> : null}
-    <fieldset className="bl-knowledge-list"><legend>Bases</legend>{bases.data?.map((base) => <label key={base.id}>
+    {scopeMode === 'bases' ? <fieldset className="bl-knowledge-list"><legend>Bases</legend>{bases.data?.map((base) => <label key={base.id}>
       <input type="checkbox" checked={selection.catalogs.includes(base.id)} disabled={!base.active && !selection.catalogs.includes(base.id)} onChange={(e) => gesture(() => toggleKnowledgeBase(acao, base.id, e.target.checked))} />
       {base.name}{base.active ? '' : ' (inativa)'}
-    </label>)}</fieldset>
-    {selection.catalogs.filter((id) => bases.data && !bases.data.some((b) => b.id === id)).map((id) => <p key={id} className="bl-agent-aviso">Base indisponível: {id} <button type="button" onClick={() => update({ catalogs: selection.catalogs.filter((v) => v !== id) })}>Remover seleção</button></p>)}
+    </label>)}</fieldset> : null}
+    {scopeMode === 'bases' ? selection.catalogs.filter((id) => bases.data && !bases.data.some((b) => b.id === id)).map((id) => <p key={id} className="bl-agent-aviso">Base indisponível: {id} <button type="button" onClick={() => gesture(() => toggleKnowledgeBase(acao, id, false))}>Remover seleção</button></p>) : null}
+    {scopeMode === 'documents' ? <>
+    <p className="bl-ajuda">A consulta usa somente os documentos selecionados, mesmo quando pertencem a bases diferentes.</p>
     <label className="bl-campo"><span className="sub">Documentos da base</span><select className="campo" value={browseBase} onChange={(e) => setBrowseBase(e.target.value)}>
       <option value="">Escolha uma base para listar documentos</option>
       {bases.data?.map((base) => <option key={base.id} value={base.id}>{base.name}</option>)}
@@ -51,8 +59,9 @@ export function KnowledgeFields({ acao, onMudar, secretNames }: {
       <span>{doc.title} · {doc.passages} trechos{doc.active ? '' : ' (inativo)'}</span>
     </label>)}</fieldset> : null}
     {selection.documents.length ? <div className="bl-ajuda">{selection.documents.length} documento(s) selecionado(s)
-      {selection.documents.map((doc) => <button key={doc.id} type="button" className="bl-link" onClick={() => update({ documents: selection.documents.filter((d) => d.id !== doc.id) })}>Remover {docs.data?.find((d) => d.id === doc.id)?.title ?? doc.id}</button>)}
+      {selection.documents.map((doc) => <button key={doc.id} type="button" className="bl-link" onClick={() => gesture(() => toggleKnowledgeDocument(acao, doc, false))}>Remover {docs.data?.find((d) => d.id === doc.id)?.title ?? doc.id}</button>)}
     </div> : null}
+    </> : null}
     {tags.length ? <fieldset className="bl-knowledge-list"><legend>Tags disponíveis</legend>{tags.map((tag) => <label key={tag}><input type="checkbox" checked={selection.tags.includes(tag)} onChange={(e) => update({ tags: e.target.checked ? [...selection.tags, tag] : selection.tags.filter((t) => t !== tag) })} />{tag}</label>)}</fieldset> : null}
     <label className="bl-campo"><span className="sub">Tags (separadas por vírgula)</span><Campo key={selection.tags.join(',')} defaultValue={selection.tags.join(', ')} onBlur={(e) => {
       try { update({ tags: knowledgeTags(e.target.value) }); } catch (cause) { setError(cause instanceof Error ? cause.message : 'Tags inválidas.'); }
