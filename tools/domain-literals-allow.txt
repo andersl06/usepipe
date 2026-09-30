@@ -5,7 +5,7 @@ apps/management-vite/README.md
 apps/site/README.md
 apps/site/docker-compose.yml
 # Owner explicitly retained this active Entrar destination; changing it is deferred.
-apps/site/index.html:^.*data-entrar.*app\.usepipe\.ai/entrar.*$
+apps/site/index.html:^      <a class="btn btn--ghost btn--sm" data-entrar href="https://app\.usepipe\.ai/entrar">Entrar</a>$
 infra/compose/env.prod.exemplo
 infra/runbooks/domain-activation.md
 infra/terraform/**/terraform.tfvars.exemplo
