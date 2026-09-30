@@ -1,7 +1,7 @@
 import type { PointerEvent as PointerEventDeReact, MouseEvent as MouseEventDeReact } from 'react';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import type { Block } from './model';
-import { ID_DO_FIM, PREFIX_OF_SUBFLOW, ehAttendance, isSurveyBlock, positionOf } from './model';
+import { ID_DO_FIM, PREFIX_OF_AI_AGENT, PREFIX_OF_SUBFLOW, ehAttendance, isSurveyBlock, positionOf } from './model';
 import { blockTags } from './tags-of-block';
 
 /**
@@ -41,6 +41,7 @@ export function No({
   onDoubleClick,
 }: PropsDoNo) {
   const subflow = block.id.startsWith(PREFIX_OF_SUBFLOW);
+  const agente = block.id.startsWith(PREFIX_OF_AI_AGENT);
   const fim = block.id === ID_DO_FIM && block['end'] === true;
   const position = positionOf(block);
   const classes = ['bl-no'];
@@ -48,6 +49,7 @@ export function No({
   if (ehAttendance(block.id)) classes.push('bl-node--attendance');
   if (isSurveyBlock(block)) classes.push('bl-node--survey');
   if (subflow) classes.push('bl-node--subflow');
+  if (agente) classes.push('bl-node--ai-agent');
   if (fim) classes.push('bl-node--end');
   if (invalido) classes.push('bl-node--error');
   if (selecionado) classes.push('bl-no--selecionado');
@@ -72,9 +74,11 @@ export function No({
             <IconePortal nome="gostei" tamanho={16} className="bl-no-icone" />
           ) : null}
           {subflow ? <IconePortal nome="roteador" tamanho={16} className="bl-no-icone" /> : null}
+          {agente ? <IconePortal nome="robo" tamanho={16} className="bl-no-icone" /> : null}
           {block.$title || block.id}
         </span>
         {subflow ? <span className="bl-no-tipo">Subfluxo</span> : null}
+        {agente ? <span className="bl-no-tipo">Agente de IA</span> : null}
       </div>
       {etiquetas.length > 0 ? (
         <div className="bl-no-etiquetas">

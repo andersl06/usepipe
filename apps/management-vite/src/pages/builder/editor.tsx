@@ -41,6 +41,7 @@ import {
   withSubflowMap,
 } from './subflows';
 import { CreateSubflowModal, SubflowBar } from './subflow-ui';
+import { newAiAgentBlock } from './ai-agent-block';
 import './editor.css';
 import './panel-block.css';
 
@@ -65,6 +66,7 @@ export function Editor({
   pesquisa,
   onAbrirFuncoes,
   onAviso,
+  onAbrirVariaveis,
 }: {
   state: EditorState;
   despachar: (gesto: GestoDoEditor) => void;
@@ -78,6 +80,8 @@ export function Editor({
   pesquisa: string;
   onAbrirFuncoes?: (modo: 'gerenciar' | 'criar') => void;
   onAviso: (input: ToastInput) => void;
+  /** Opens Configuração › Variáveis ("Variáveis sensíveis" holds the AI agent's key, P14). */
+  onAbrirVariaveis?: () => void;
 }) {
   const { contact } = useContact();
   const mapa = mapaNaTela(state);
@@ -186,6 +190,15 @@ export function Editor({
 
   function createSurvey(): void {
     const block = newSurveyBlock(mapa, positionForNew());
+    aplicar(addBlock(mapa, block));
+    onCloseNewBlock();
+    setSelecionado(block.id);
+    setEditando(block.id);
+  }
+
+  /** "Agente de IA" (P14): lands in the middle, open on its "Instruções" tab. */
+  function createAgent(): void {
+    const block = newAiAgentBlock(mapa, positionForNew());
     aplicar(addBlock(mapa, block));
     onCloseNewBlock();
     setSelecionado(block.id);
@@ -337,6 +350,7 @@ export function Editor({
           onPadrao={createDefault}
           onHumano={createHuman}
           onPesquisa={createSurvey}
+          onAgente={createAgent}
           onFechar={onCloseNewBlock}
           subflow={
             aberto === null
@@ -361,6 +375,7 @@ export function Editor({
           onAviso={avisar}
           onAbrirFuncoes={onAbrirFuncoes}
           subflow={subflowContext}
+          onAbrirVariaveis={onAbrirVariaveis}
         />
       ) : null}
 
