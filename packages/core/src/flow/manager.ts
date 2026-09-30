@@ -1,5 +1,5 @@
 /**
- * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/FlowManager.cs (`ProcessInputAsync`, `ProcessActionsAsync`, `ProcessOutputsAsync`, `ValidateInputAsync`, `ValidateDocument`), Hosting/ConventionsConfiguration.cs (limits), Constants.cs (date formats), and FlowConstructionException, ActionProcessingException, OutputProcessingException, BuilderException. Changes from C# to TypeScript: no semaphore because the `api` locks the execution row in the database; no remote trace because the returned trace becomes `execucao_passo`; subflows and `inputExpiration` throw; `ExecuteBlipFunction` maps to `ExecuteScriptV2`; no monitoring logs. Preserve execution order: global entry actions → validate input and store `input.variable` → state exit actions → first matching output → after-state-change actions → store state → next state entry actions → repeat until input is awaited → global exit actions.
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/FlowManager.cs (`ProcessInputAsync`, `ProcessActionsAsync`, `ProcessOutputsAsync`, `ValidateInputAsync`, `ValidateDocument`), Hosting/ConventionsConfiguration.cs (limits), Constants.cs (date formats), and FlowConstructionException, ActionProcessingException, OutputProcessingException, BuilderException. Changes from C# to TypeScript: no semaphore because the `api` locks the execution row in the database; no remote trace because the returned trace becomes `execucao_passo`; subflows throw; `inputExpiration` follows `input-expiration.ts`; `ExecuteBlipFunction` maps to `ExecuteScriptV2`; no monitoring logs. Preserve execution order: global entry actions → validate input and store `input.variable` → state exit actions → first matching output → after-state-change actions → store state → next state entry actions → repeat until input is awaited → global exit actions.
  */
 
 import { evaluateConditions, paraDecimal } from './condition.js';
@@ -28,6 +28,7 @@ import { contextEhVariable, validateFlow } from './modelos.js';
 import type { ActionsProvider } from './actions.js';
 import { PROVEDOR_PADRAO, obterAcao } from './actions.js';
 import { interpretSatisfactionAnswer } from './satisfaction-survey.js';
+import { inputExpirationStateId } from './input-expiration.js';
 
 /** `ConventionsConfiguration` values match the source. */
 export interface EngineConfiguration {
@@ -186,6 +187,13 @@ export async function processInbound(
     // Restore stored state; use the root if absent or missing from this flow.
     const stateId = getStateId(context);
     state = flow.states.find((s) => s.id === stateId) ?? flow.states.find((s) => s.root)!;
+    // `InputExpirationHandler.IsValidateState`: an expiration for a block the user already left
+    // (or whose saved block expired) is dropped without running anything.
+    const expiredStateId = inputExpirationStateId(context.inbound.message);
+    if (expiredStateId !== null && expiredStateId !== stateId) {
+      rastro.stateFinalId = stateId;
+      return rastro;
+    }
     // Each input renews the session: `builder:stateExpiration` counts inactivity, not time in a block.
     if (stateId === state.id) setStateId(context, state.id);
 
@@ -252,7 +260,8 @@ export async function processInbound(
 
         if (waitInbound) {
           if (!(await stateValidateInbound(context, corrente))) break;
-          if (corrente.input?.variable) {
+          // The expiration input is empty: it must not overwrite what the variable holds.
+          if (corrente.input?.variable && expiredStateId === null) {
             setVariable(
               context,
               corrente.input.variable,
@@ -262,6 +271,7 @@ export async function processInbound(
           const satisfactionAnswer = interpretSatisfactionAnswer(
             corrente,
             context.inbound.serializedContent,
+            { timedOut: expiredStateId !== null },
           );
           if (satisfactionAnswer) {
             await context.services.recordSatisfactionAnswer?.(satisfactionAnswer);

@@ -67,9 +67,9 @@ function ratingComment(serializedContent: string): { rating: number | null; comm
  *
  * ponytail: `abandono` (customer starts answering but never completes) is not distinguished from
  * `sem_resposta` here — the reference behavior for that split is blocked pending capture
- * (Capturas pendentes #3, D-03). Callers needing `sem_resposta` must invoke this with
- * `timedOut: true`; no scheduler calls it automatically yet (no expiration/timeout mechanism
- * exists in the engine today — `entrada:expiracao` is reported unsupported in `editor.ts`).
+ * (Capturas pendentes #3, D-03). The engine passes `timedOut: true` when the survey block's input
+ * expiration fires (`input-expiration.ts`, P8), so a survey block with an inactivity time records
+ * `sem_resposta`.
  */
 export function interpretSatisfactionAnswer(
   state: State | null | undefined,

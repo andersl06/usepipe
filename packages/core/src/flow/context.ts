@@ -51,6 +51,8 @@ export interface InboundMessage {
   conteudo: unknown;
   de?: string;
   para?: string;
+  /** Engine-only tags, e.g. the expired block of an input expiration (`input-expiration.ts`). */
+  metadados?: Record<string, string>;
 }
 
 export interface Intent {
