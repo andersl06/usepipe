@@ -428,7 +428,7 @@ Plans:
   4. O dono aprova a comparação visual
 
 **UI hint**: yes
-**Plans:** 10/25 plans executed
+**Plans:** 11/25 plans executed
 
 Plans:
 
@@ -442,7 +442,7 @@ Plans:
 - [x] 03.2-08-PLAN.md — tblwrap único + paginação/estados nas telas do censo
 - [x] 03.2-09-PLAN.md — Monitoramento: barra e detalhe do ticket, menu de três pontos, Transferir/Finalizar
 - [x] 03.2-10-PLAN.md — Monitoramento: filtros rápidos, Falar com atendente (D-14), estados
-- [ ] 03.2-11-PLAN.md — Histórico: lista, filtros, detalhe, estados, CSV seguro, paginação no servidor (se Q2)
+- [x] 03.2-11-PLAN.md — Histórico: lista, filtros, detalhe, estados, CSV seguro, paginação no servidor (se Q2)
 - [ ] 03.2-12-PLAN.md — Histórico: backend de envio por e-mail (e PDF se Q4), CSV compartilhado
 - [ ] 03.2-13-PLAN.md — Histórico: modais Exportar CSV/PDF e Enviar por e-mail
 - [ ] 03.2-14-PLAN.md — Filas: lista e gestão da fila ao clicar
