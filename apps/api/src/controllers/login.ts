@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import type { Request, Response } from 'express';
 import {
@@ -14,6 +14,7 @@ import {
   origemPermitida,
   origensPermitidas,
   readTenantHostConfig,
+  resolveSession,
   sair as encerrarSessao,
   exchangeCode,
   urlOfAuthorization,
@@ -29,6 +30,13 @@ import {
 } from '../domain/builder-of-account.js';
 import type { InboundByInvitation } from '../domain/convites.js';
 import { PipeError } from '../errors.js';
+import {
+  PRESENCE_ON_LOGOUT,
+  definirStatus,
+  ehStateAgent,
+  stateOnDeskOpening,
+  type StateAgent,
+} from '../domain/status-agent.js';
 import { WithSession, lerCookies, sessionCookie, sessionOf, tokenOfSession } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 
@@ -361,7 +369,23 @@ export class LoginController {
   @Post('sair')
   async sair(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
     const token = tokenOfSession(requisicao);
-    if (token) await encerrarSessao(databaseOwner(), hashDoToken(token));
+    if (token) {
+      // Leave the agent Offline before the session disappears, or they would keep receiving tickets. A failure here never blocks the logout.
+      try {
+        const sessao = await resolveSession(databaseOwner(), hashDoToken(token));
+        if (sessao) {
+          await definirStatus({
+            tenantId: sessao.tenantId,
+            byUserId: sessao.userId,
+            targetUserId: sessao.userId,
+            state: PRESENCE_ON_LOGOUT,
+          });
+        }
+      } catch (erro) {
+        console.error('[api] falha ao gravar status no logout', erro);
+      }
+      await encerrarSessao(databaseOwner(), hashDoToken(token));
+    }
     resposta.setHeader('set-cookie', sessionCookie(cookieDeSaida(optionsOfCookie())));
     resposta.status(204).end();
   }
@@ -456,4 +480,55 @@ export class MeController {
       origem: session.origem as OriginOfSession,
     };
   }
+
+  /** The Desk opened (new tab or F5): apply the Blip presence rule to the agent's own status and stamp the presence signal. */
+  @Post('eu/presenca/abertura')
+  @WithSession()
+  async presencaAbertura(
+    @Req() requisicao: RequestWithSession,
+    @Body() corpo: { reload?: unknown; keepOnline?: unknown } | undefined,
+  ): Promise<{ state: StateAgent }> {
+    const { tenantId, userId } = sessionOf(requisicao);
+    const reload = corpo?.reload === true;
+    const keepOnline = corpo?.keepOnline === true;
+
+    const { rows } = await noTenant(tenantId, (tx) =>
+      tx.execute<{ state: string }>(
+        sql`select coalesce((select estado from status_atendente where usuario_id = ${userId}::uuid), 'offline') as state`,
+      ),
+    );
+    const previous: StateAgent = ehStateAgent(rows[0]?.state ?? '') ? (rows[0]!.state as StateAgent) : 'offline';
+    const next = stateOnDeskOpening(previous, { reload, keepOnline });
+    const state =
+      next && next !== previous
+        ? (await definirStatus({ tenantId, byUserId: userId, targetUserId: userId, state: next })).state
+        : previous;
+    await stampPresence(tenantId, userId, keepOnline);
+    return { state };
+  }
+
+  /** Periodic presence stamp; not a state transition, so it does not go through `definirStatus`. */
+  @Post('eu/presenca/sinal')
+  @WithSession()
+  async presencaSinal(
+    @Req() requisicao: RequestWithSession,
+    @Body() corpo: { keepOnline?: unknown } | undefined,
+  ): Promise<{ ok: true }> {
+    const { tenantId, userId } = sessionOf(requisicao);
+    await stampPresence(tenantId, userId, corpo?.keepOnline === true);
+    return { ok: true };
+  }
+}
+
+/**
+ * With "Continuar online" the agent stays eligible with the tab closed (Blip), so the stamp never expires; otherwise it is now() and `PRESENCE_TTL_SQL` expires it.
+ */
+async function stampPresence(tenantId: string, userId: string, keepOnline: boolean): Promise<void> {
+  await noTenant(tenantId, (tx) =>
+    tx.execute(sql`
+      update status_atendente
+         set conectado_em = ${keepOnline ? sql`'infinity'::timestamptz` : sql`now()`}
+       where usuario_id = ${userId}::uuid
+    `),
+  );
 }

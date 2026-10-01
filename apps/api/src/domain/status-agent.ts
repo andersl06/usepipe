@@ -17,6 +17,26 @@ export function ehStateAgent(value: string): value is StateAgent {
   return (STATES_AGENT as readonly string[]).includes(value);
 }
 
+/**
+ * Presence rule copied from Blip Desk (evidence ruler 2, bundle app.js; presence keys of the Blip trials record, trial 3).
+ * Closing the tab and F5 are the same `beforeunload` event: without "Continuar online" the agent goes Offline; with it only Online is kept (Pause and Invisible still go Offline). Logout always goes Offline.
+ * The API gets no signal when a tab dies, so each opening applies the effect of the unload that preceded it. Assumption: a tab killed without `beforeunload` is Offline by lost session (not verified in Blip).
+ */
+export const PRESENCE_ON_REOPEN: StateAgent = 'offline';
+export const PRESENCE_ON_RELOAD: StateAgent = 'offline';
+export const PRESENCE_ON_LOGOUT: StateAgent = 'offline';
+/** With "Continuar online", an agent that was Online stays Online across close/F5. */
+export const KEEP_ONLINE_KEEPS_PREVIOUS = true;
+
+/** State to apply when the Desk opens; null means keep the current one. */
+export function stateOnDeskOpening(
+  previous: StateAgent,
+  opening: { reload: boolean; keepOnline: boolean },
+): StateAgent | null {
+  if (opening.keepOnline && KEEP_ONLINE_KEEPS_PREVIOUS && previous === 'online') return null;
+  return opening.reload ? PRESENCE_ON_RELOAD : PRESENCE_ON_REOPEN;
+}
+
 export interface PedidoDeStatus {
   tenantId: string;
   /** Requesting actor; null means an integration. */
@@ -51,9 +71,9 @@ export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: St
     if (!rows[0]) throw PipeError.naoEncontrado('Atendente');
 
     await tx.execute(sql`
-      insert into status_atendente (usuario_id, tenant_id, estado, desde)
-      values (${pedido.targetUserId}, ${pedido.tenantId}, ${pedido.state}, ${agora})
-      on conflict (usuario_id) do update set estado = ${pedido.state}, desde = ${agora}
+      insert into status_atendente (usuario_id, tenant_id, estado, desde, conectado_em)
+      values (${pedido.targetUserId}, ${pedido.tenantId}, ${pedido.state}, ${agora}, ${agora})
+      on conflict (usuario_id) do update set estado = ${pedido.state}, desde = ${agora}, conectado_em = ${agora}
     `);
 
     // Sai da pausa anterior antes de abrir outra: pausa aberta em duplicidade conta o
