@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 03.2 UI-SPEC approved
-last_updated: "2026-09-30T23:36:04.647Z"
-last_activity: 2026-09-30 -- Phase 03.2 execution started
+last_updated: "2026-10-01T00:00:03.916Z"
+last_activity: 2026-09-30 -- Phase 03.1 execution started
 progress:
   total_phases: 11
   completed_phases: 1
   total_plans: 169
-  completed_plans: 91
+  completed_plans: 92
   percent: 9
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-24)
 
 **Core value:** Atendimento multi-canal (WhatsApp/Instagram/Messenger) confiável e auditável, com CRM espelhado automaticamente e sem fricção para o atendente.
-**Current focus:** Phase 03.2 — paridade-do-atendimento-com-a-blip
+**Current focus:** Phase 03.1 — corrigir-bugs-do-invent-rio-blip-pipe
 
 ## Current Position
 
-Phase: 03.2 (paridade-do-atendimento-com-a-blip) — EXECUTING
-Plan: 3 of 25
-Status: Executing Phase 03.2
-Last activity: 2026-09-30 -- Phase 03.2 execution started
+Phase: 03.1 (corrigir-bugs-do-invent-rio-blip-pipe) — EXECUTING
+Plan: 2 of 20
+Status: Executing Phase 03.1
+Last activity: 2026-09-30 -- Phase 03.1 execution started
 
 Progress: [█████░░░░░] 54%
 
