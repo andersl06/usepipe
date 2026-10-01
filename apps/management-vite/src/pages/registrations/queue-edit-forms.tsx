@@ -41,7 +41,7 @@ import { rotuloDoNivel, type PriorityRule } from '../../lib/rules-priority';
 /* ----------------------------------------------------------- nome editável */
 
 /** Título do formulário com lápis para renomear no lugar. */
-function NomeEditavel({
+export function NomeEditavel({
   valor,
   onChange,
   rotulo,
@@ -82,7 +82,7 @@ function NomeEditavel({
 
 /* ---------------------------------------------------- editor de condições */
 
-function ConditionsEditor({
+export function ConditionsEditor({
   condicoes,
   onChange,
   combinador,

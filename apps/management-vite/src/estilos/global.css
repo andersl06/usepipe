@@ -5126,6 +5126,70 @@ tr.grupo th {
   justify-content: center;
 }
 
+/* Regras de atendimento e SLA: formulário no lugar da lista, na mesma página. */
+.regras-form-cabecalho {
+  gap: var(--p-e-2);
+}
+
+.regras-form {
+  padding: var(--g-card-pad);
+  border-radius: var(--g-r-card);
+  background: var(--g-card-background);
+  box-shadow: var(--g-shadow-card);
+}
+
+.regras-form .cl-actions {
+  justify-self: end;
+  margin-left: auto;
+}
+
+.sla-form-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 670px);
+  gap: var(--p-e-4);
+  align-items: start;
+}
+
+.sla-form-linha h3 {
+  margin: 0;
+  font-size: var(--g-t-rotulo);
+  font-weight: var(--g-peso-negrito);
+}
+
+.sla-form-controles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+}
+
+.sla-form-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-e-3);
+}
+
+.sla-form-meta .form-campo:first-child {
+  flex: 1 1 auto;
+}
+
+.sla-form-meta .selection {
+  width: 160px;
+}
+
+.sla-form-padrao {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+}
+
+.sla-form-aviso {
+  background: var(--p-info-fundo);
+  color: var(--p-info-conteudo);
+  padding: var(--p-e-2) var(--p-e-4);
+  border-radius: var(--p-r-md);
+  font-weight: var(--g-peso-negrito);
+}
+
 .interruptor.interruptor-alto {
   width: var(--p-atend-fila-interruptor-alto-largura);
   height: var(--p-atend-fila-interruptor-alto-altura);

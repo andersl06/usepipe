@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
+import { Botao, BotaoDeIcone, Carregando, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import { useContact } from '../flow/contact';
 import { withFlow } from '../../lib/flow-scope';
@@ -8,7 +8,7 @@ import { descreverRegra, regrasInalcancaveis, rotuloDoCampo } from '../../lib/ru
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { toggleRuleQueue } from '../../lib/actions';
 import { editRuleQueue, deleteRuleQueue } from '../../lib/registrations-gravar';
-import { Modal, ConfirmModal } from '@pipe/ui/modal';
+import { ConfirmModal } from '@pipe/ui/modal';
 import { RuleQueueForm } from './rules-attendance-formulario';
 
 interface QueueRules {
@@ -18,7 +18,7 @@ interface QueueRules {
 }
 
 /**
- * Regras ├ Atendimento — the entry rule. Skeleton measured in `FICHA-rules.md` §2: header with "Criar nova regra" on the right (no subtitle), search alone below, row-card with only "Nome da Regra"/"Fila" as columns (§4), and the pagination footer (§2.5). The row-card itself — label 12/400 over value 16/700, a toggle that enables/disables the record right in the list — is the same one as always. The combinator, the evaluation order, and the unreachable-rule warning aren't columns in the ficha (it only documents "Nome da Regra" and "Fila"), but they remain decisive for predicting what the rule does — so they live in the card's footer (`descreverRegra`/warnings), which is a per-row annotation, not a new column or a new block on the page. "Criar nova regra" opens a modal — Blip doesn't show the form on the page, it lives inside the closed modal the material captured for the sibling screens (`FICHA-queue-management.md` §2.6). Edit/delete (item 1, second part) were added: the "Editar" icon reopens the same modal with `FormularioRegraFila` in edit mode; the "Excluir" icon asks for confirmation via `ConfirmModal` — never `window.confirm`, which is the provisional pattern `atendentes-filas.tsx` still uses (the comment there says so itself). REORDER is the two footer arrows: each click swaps the rule's position with its neighbor and sends one `PATCH` per rule whose `order` changed — no dedicated endpoint (decision logged in `cadastros.ts`).
+ * Regras > Atendimento. Lista de cartões ("Nome da Regra", "Fila", editar, excluir, interruptor) e, no lugar dela e na mesma URL, o formulário de criar/editar regra. As regras são avaliadas de cima para baixo e a primeira que casa vence; por isso, além do que a Blip mostra, o cartão tem as setas de ordem e o rodapé que descreve a regra (`descreverRegra`) e avisa de regra inalcançável. Reordenar manda um `PATCH` por regra cuja posição mudou.
  */
 
 /** The card's toggle. A one-button form: there's nothing typed to preserve. */
@@ -74,22 +74,23 @@ function RuleActions({
         disabled={ultima}
       />
       <BotaoDeIcone nome="lapis" rotulo={`Editar a regra ${regra.name}`} onClick={onEditar} />
-      <BotaoDeIcone nome="x" rotulo={`Excluir a regra ${regra.name}`} onClick={onExcluir} />
+      <BotaoDeIcone nome="lixeira" rotulo={`Excluir a regra ${regra.name}`} onClick={onExcluir} />
     </>
   );
 }
 
 export function AttendancePageRules() {
   const { contact } = useContact();
-  const [modalAberto, setModalAberto] = useState(false);
-  const [ruleInEdit, setRuleInEdit] = useState<QueueRegisteredRule | null>(null);
+  // `null` = lista; `{}` = formulário de nova regra; `{ regra }` = edição.
+  const [formulario, setFormulario] = useState<{ regra?: QueueRegisteredRule } | null>(null);
   const [regraParaExcluir, setRegraParaExcluir] = useState<QueueRegisteredRule | null>(null);
   const [excluindo, setExcluindo] = useState(false);
   const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
   const [errorReorder, setErrorReorder] = useState<string | null>(null);
   const read = useRead<QueueRules>(withFlow('/v1/management/rules/attendance', contact.id));
-  if (!read.data) return null;
-  const { regras, queues, defaults } = read.data;
+  if (read.isError) return <Etiqueta tom="erro">Não foi possível carregar as regras de atendimento.</Etiqueta>;
+  if (!read.data) return <Carregando />;
+  const { regras, queues } = read.data;
   const mortas = new Set(regrasInalcancaveis(regras));
 
   // `regras` already comes sorted by `ordem`/id (the same order that `ordenarRegras`
@@ -130,7 +131,9 @@ export function AttendancePageRules() {
     {
       titulo: 'Regras de atendimento',
       empty:
-        'Nenhuma regra de entrada. Toda conversa cai na fila padrão da caixa de entrada por onde ela chegou.',
+        'Crie uma regra para definir como seu chatbot deve direcionar os atendimentos entre os atendentes cadastrados.',
+      emptyDescription:
+        'Sem regra, toda conversa cai na fila padrão da caixa de entrada por onde ela chegou.',
       cards: regras.map((r, indice) => ({
         id: r.id,
         campos: [
@@ -145,7 +148,7 @@ export function AttendancePageRules() {
             first={indice === 0}
             ultima={indice === regras.length - 1}
             onMover={(direction) => void mover(r.id, direction)}
-            onEditar={() => setRuleInEdit(r)}
+            onEditar={() => setFormulario({ regra: r })}
             onExcluir={() => setRegraParaExcluir(r)}
           />
         ),
@@ -163,6 +166,17 @@ export function AttendancePageRules() {
     },
   ];
 
+  if (formulario) {
+    return (
+      <RuleQueueForm
+        queues={queues}
+        regra={formulario.regra}
+        todasAsRegras={regras}
+        onFechar={() => setFormulario(null)}
+      />
+    );
+  }
+
   return (
     <>
       <div className="board-head">
@@ -171,7 +185,7 @@ export function AttendancePageRules() {
           variante="primario"
           icone="mais"
           className="board-acao"
-          onClick={() => setModalAberto(true)}
+          onClick={() => setFormulario({})}
         >
           Criar nova regra
         </Botao>
@@ -179,9 +193,7 @@ export function AttendancePageRules() {
 
       {errorReorder ? <Etiqueta tom="erro">{errorReorder}</Etiqueta> : null}
 
-      {/*
- * "Resultados por página" starts at 5, like the `bds-select value="5"` in their footer (`dom/rules.html`).
- */}
+      {/* "Resultados por página" começa em 5, como o seletor da Blip. */}
       <ListaRegras
         sections={sections}
         placeholder="Buscar regras de atendimento"
@@ -190,41 +202,13 @@ export function AttendancePageRules() {
         pageInitialSize={5}
       />
 
-      <Modal aberto={modalAberto} titulo="Nova regra" onFechar={() => setModalAberto(false)}>
-        <p className="sub">
-          As regras são avaliadas <b>de cima para baixo</b>, na ordem da lista, e a{' '}
-          <b>primeira que casa vence</b> — as de baixo nem chegam a ser testadas. Dentro de cada
-          regra, as condições se combinam com <b>E</b> (todas precisam casar) ou com <b>OU</b>
-          (basta uma). Não casou nenhuma? A conversa segue para a fila padrão da caixa de entrada
-          por onde ela chegou —{' '}
-          {defaults.length === 0
-            ? 'e não há caixa de entrada cadastrada.'
-            : defaults.map((p) => `${p.inbox}: ${p.queue ?? 'sem fila padrão'}`).join(' · ')}
-          .
-        </p>
-        <RuleQueueForm queues={queues} aoSalvar={() => setModalAberto(false)} />
-      </Modal>
-
-      <Modal
-        aberto={ruleInEdit !== null}
-        titulo="Editar regra"
-        onFechar={() => setRuleInEdit(null)}
-      >
-        {ruleInEdit ? (
-          <RuleQueueForm
-            queues={queues}
-            regraExistente={ruleInEdit}
-            aoSalvar={() => setRuleInEdit(null)}
-          />
-        ) : null}
-      </Modal>
-
       <ConfirmModal
         aberto={regraParaExcluir !== null}
         titulo="Excluir regra"
         message={
           <>
-            Excluir a regra “{regraParaExcluir?.name}”? Esta ação não pode ser desfeita.
+            Ao excluir essa regra, você removerá permanentemente o direcionamento dos tickets
+            condicionados para a fila de atendimento {regraParaExcluir?.queueDestinationName}.
           </>
         }
         error={errorDeletion}
