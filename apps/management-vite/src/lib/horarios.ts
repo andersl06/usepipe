@@ -7,6 +7,7 @@ import type { HorarioCadastrado } from './registrations';
 export const NOME_DO_HORARIO_MAX = 100;
 export const TITULO_DO_PERIODO_MAX = 100;
 export const PERIODO_DIAS_MAX = 90;
+export const DESCRICAO_DO_HORARIO_MAX = 300;
 /** Segunda a Domingo, na ordem da tela; o número é o dia da semana do servidor (0 = domingo). */
 export const DIAS_NA_TELA = [
   { dia: 1, rotulo: 'Segunda-feira' },
@@ -26,12 +27,17 @@ export interface FaixaRascunho {
 export interface PeriodoRascunho {
   chave: string;
   title: string;
+  fullDay: boolean;
   from: string;
+  fromTime: string;
   to: string;
+  toTime: string;
 }
 
 export interface RascunhoDeHorario {
   name: string;
+  description: string;
+  regular: boolean;
   queueIds: string[];
   faixas: Record<number, FaixaRascunho[]>;
   periods: PeriodoRascunho[];
@@ -49,6 +55,8 @@ export function rascunhoDe(horario?: HorarioCadastrado): RascunhoDeHorario {
   }
   return {
     name: horario?.name ?? '',
+    description: horario?.description ?? '',
+    regular: horario?.regular ?? false,
     queueIds: horario?.queueIds ?? [],
     faixas,
     periods: (horario?.periods ?? []).map((p) => ({ chave: novaChave(), ...p })),
@@ -69,9 +77,19 @@ export function diasDoPeriodo(from: string, to: string): number {
   return dia(to) - dia(from) + 1;
 }
 
+/** Chaves `AAAA-MM-DDTHH:MM` de começo e fim; o dia completo termina à meia-noite do dia seguinte. */
+function limites(p: PeriodoRascunho): { inicio: string; fim: string } {
+  if (!p.fullDay) return { inicio: `${p.from}T${p.fromTime}`, fim: `${p.to}T${p.toTime}` };
+  const seguinte = new Date((dia(p.to) + 1) * 86_400_000).toISOString().slice(0, 10);
+  return { inicio: `${p.from}T00:00`, fim: `${seguinte}T00:00` };
+}
+
 export function erroDoPeriodo(p: PeriodoRascunho): string | null {
   if (!p.from || !p.to) return 'Informe as datas do período.';
   if (p.to < p.from) return 'O fim do período é anterior ao início.';
+  if (!p.fullDay && `${p.to}T${p.toTime}` <= `${p.from}T${p.fromTime}`) {
+    return 'O fim do período tem de ser depois do início.';
+  }
   if (diasDoPeriodo(p.from, p.to) > PERIODO_DIAS_MAX) {
     return `Cada período tem no máximo ${PERIODO_DIAS_MAX} dias.`;
   }
@@ -81,6 +99,9 @@ export function erroDoPeriodo(p: PeriodoRascunho): string | null {
 /** Primeiro problema do rascunho, ou `null` se pode salvar. */
 export function erroDoRascunho(r: RascunhoDeHorario): string | null {
   if (!r.name.trim()) return 'Informe o nome do horário.';
+  if (r.description.length > DESCRICAO_DO_HORARIO_MAX) {
+    return `A descrição tem até ${DESCRICAO_DO_HORARIO_MAX} caracteres.`;
+  }
   for (const [d, lista] of Object.entries(r.faixas)) {
     const ordenadas = [...lista].sort((a, b) => minutos(a.start) - minutos(b.start));
     for (const f of ordenadas) {
@@ -98,9 +119,9 @@ export function erroDoRascunho(r: RascunhoDeHorario): string | null {
     const erro = erroDoPeriodo(p);
     if (erro) return erro;
   }
-  const porInicio = [...r.periods].sort((a, b) => a.from.localeCompare(b.from));
+  const porInicio = r.periods.map(limites).sort((a, b) => a.inicio.localeCompare(b.inicio));
   for (let i = 1; i < porInicio.length; i += 1) {
-    if (porInicio[i]!.from <= porInicio[i - 1]!.to) return 'Há períodos sem atendimento que se sobrepõem.';
+    if (porInicio[i]!.inicio < porInicio[i - 1]!.fim) return 'Há períodos sem atendimento que se sobrepõem.';
   }
   return null;
 }
@@ -108,12 +129,34 @@ export function erroDoRascunho(r: RascunhoDeHorario): string | null {
 export function pedidoDeHorario(r: RascunhoDeHorario) {
   return {
     name: r.name.trim(),
+    description: r.description.trim() || null,
+    regular: r.regular,
     queueIds: r.queueIds,
     faixas: Object.entries(r.faixas).flatMap(([d, lista]) =>
       lista.map((f) => ({ dayWeek: Number(d), start: f.start, end: f.end })),
     ),
-    periods: r.periods.map((p) => ({ title: p.title.trim(), from: p.from, to: p.to })),
+    periods: r.periods.map((p) => ({
+      title: p.title.trim(),
+      fullDay: p.fullDay,
+      from: p.from,
+      fromTime: p.fromTime,
+      to: p.to,
+      toTime: p.toTime,
+    })),
   };
+}
+
+/**
+ * Texto do alerta de exclusão. Com outro horário regular, as filas vinculadas passam a operar nele (D-H02); sem ele, funcionam 24 horas.
+ */
+export function avisoDeExclusao(alvo: Pick<HorarioCadastrado, 'id' | 'regular'>, todos: readonly Pick<HorarioCadastrado, 'id' | 'regular'>[]): string {
+  const haOutroRegular = todos.some((h) => h.regular && h.id !== alvo.id);
+  if (haOutroRegular) {
+    return 'Automaticamente, as filas que estão vinculadas a ele passarão a operar no Horário regular, mas elas podem ser vinculadas a outro horário posteriormente.';
+  }
+  return alvo.regular
+    ? 'Este é o Horário regular da operação. Sem ele, as filas que estão vinculadas a ele e as que não têm horário próprio passarão a funcionar 24 horas, até que outro horário seja definido como regular.'
+    : 'Não há outro Horário regular definido: as filas que estão vinculadas a ele passarão a funcionar 24 horas, mas elas podem ser vinculadas a outro horário posteriormente.';
 }
 
 /** Resumo da programação para o cartão da lista: `Seg a Sex 08:00–18:00`. */

@@ -4,12 +4,12 @@ import { ConfirmModal } from '@pipe/ui/modal';
 import { useRead } from '../../lib/query';
 import type { Horarios, HorarioCadastrado } from '../../lib/registrations';
 import { excluirHorario } from '../../lib/registrations-gravar';
-import { resumoDaProgramacao } from '../../lib/horarios';
+import { avisoDeExclusao, resumoDaProgramacao } from '../../lib/horarios';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { FormularioDeHorario } from './regras-horarios-formulario';
 
 /**
- * Regras > Horários. Lista de cartões (nome, programação, filas, editar e excluir) e, no lugar dela e na mesma URL, o formulário de criar/editar (`ref/verificacao/attendance-hours-blip.md`). A fila que usa um horário é a fila com esse `horario_id`; quem sai de um horário (ou o perde ao excluí-lo) fica sem horário e conta 24 horas.
+ * Regras > Horários. Lista de cartões (nome, programação, filas, editar e excluir) e, no lugar dela e na mesma URL, o formulário de criar/editar (`ref/verificacao/attendance-hours-blip.md`). A fila que usa um horário é a fila com esse `horario_id`; quem sai de um horário (ou o perde ao excluí-lo) usa o horário regular da operação e, sem regular, conta 24 horas.
  */
 export function PageHours() {
   // `null` = lista; `{}` = formulário de novo horário; `{ horario }` = edição.
@@ -38,12 +38,7 @@ export function PageHours() {
     <ConfirmModal
       aberto={paraExcluir !== null}
       titulo="Tem certeza que deseja excluir este horário?"
-      message={
-        <>
-          As filas que estão vinculadas a ele ficarão sem horário e passarão a funcionar 24 horas,
-          mas podem ser vinculadas a outro horário posteriormente.
-        </>
-      }
+      message={paraExcluir ? avisoDeExclusao(paraExcluir, horarios) : null}
       error={errorDeletion}
       confirmando={excluindo}
       onConfirmar={() => void excluir()}
@@ -76,8 +71,10 @@ export function PageHours() {
       empty: 'Nenhum horário cadastrado.',
       cards: horarios.map((h) => ({
         id: h.id,
+        selo: h.regular ? 'Horário regular' : undefined,
         campos: [
           { rotulo: 'Horário', value: h.name },
+          ...(h.description ? [{ rotulo: 'Descrição', value: h.description }] : []),
           { rotulo: 'Programação', value: resumoDaProgramacao(h.faixas) },
           { rotulo: 'Filas', value: h.queues.length > 0 ? h.queues.join(', ') : 'Nenhuma' },
         ],
@@ -99,7 +96,7 @@ export function PageHours() {
             />
           </>
         ),
-        procura: `${h.name} ${h.queues.join(' ')}`.toLowerCase(),
+        procura: `${h.name} ${h.description ?? ''} ${h.queues.join(' ')}`.toLowerCase(),
       })),
     },
   ];

@@ -101,14 +101,22 @@ export interface HourException {
 
 export interface PeriodoSemAtendimento {
   title: string;
+  /** Dia completo: sem horas; desligado, valem `fromTime` e `toTime`. */
+  fullDay: boolean;
   /** `AAAA-MM-DD`. */
   from: string;
+  /** `HH:MM` no fuso do horário. */
+  fromTime: string;
   to: string;
+  toTime: string;
 }
 
 export interface HorarioCadastrado {
   id: string;
   name: string;
+  description: string | null;
+  /** Horário regular da operação: filas sem horário próprio funcionam nele. */
+  regular: boolean;
   fuso: string;
   faixas: FaixaDoHorario[];
   exceptions: HourException[];

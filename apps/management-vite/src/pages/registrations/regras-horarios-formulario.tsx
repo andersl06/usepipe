@@ -5,6 +5,7 @@ import { ChipsInput } from '@pipe/ui/chips-input';
 import type { HorarioCadastrado } from '../../lib/registrations';
 import { gravarHorario } from '../../lib/registrations-gravar';
 import {
+  DESCRICAO_DO_HORARIO_MAX,
   DIAS_NA_TELA,
   FAIXA_PADRAO,
   NOME_DO_HORARIO_MAX,
@@ -23,10 +24,8 @@ import {
 import { Interruptor } from './regras-sla-formulario';
 
 /**
- * Formulário "Criar horário" / "Editar horário", no lugar da lista e na mesma URL: um cartão com nome, filas, programação de Segunda a Domingo (várias faixas por dia) e períodos sem atendimento (`ref/verificacao/attendance-hours-blip.md`). O servidor recebe o horário inteiro de uma vez e valida de novo. O horário regular, a descrição e o período com horas parciais ainda não têm onde ser gravados e ficam desabilitados.
+ * Formulário "Criar horário" / "Editar horário", no lugar da lista e na mesma URL: um cartão com nome, filas, programação de Segunda a Domingo (várias faixas por dia) e períodos sem atendimento (`ref/verificacao/attendance-hours-blip.md`). O servidor recebe o horário inteiro de uma vez e valida de novo. Com "Definir como horário regular da operação" ligado, o seletor de filas some (como na Blip): as filas sem horário próprio funcionam nele. O período tem "Dia completo" (sem horas) ou data e hora de início e de fim.
  */
-
-export const EM_BREVE = 'Este recurso será liberado em breve para este fluxo.';
 
 const HORAS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0'));
 const MINUTOS = Array.from({ length: 60 }, (_, m) => String(m).padStart(2, '0'));
@@ -166,12 +165,13 @@ function CartaoDoPeriodo({
         />
         <label className="horario-periodo-completo">
           <span className="sub">Dia completo</span>
-          <Interruptor
-            ligado
+            <Interruptor
+            ligado={periodo.fullDay}
             rotulo="Dia completo"
-            titulo={EM_BREVE}
-            desabilitado
-            onChange={() => undefined}
+            desabilitado={desabilitado}
+            onChange={(fullDay) =>
+              onChange(fullDay ? { fullDay, fromTime: '00:00', toTime: '23:59' } : { fullDay })
+            }
           />
         </label>
         <BotaoDeIcone
@@ -184,10 +184,10 @@ function CartaoDoPeriodo({
       <div className="horario-periodo-datas">
         {(
           [
-            ['De', 'from', '00', '00'],
-            ['Até', 'to', '23', '59'],
+            ['De', 'from', 'fromTime'],
+            ['Até', 'to', 'toTime'],
           ] as const
-        ).map(([rotulo, campo, hora, minuto]) => (
+        ).map(([rotulo, campo, campoHora]) => (
           <div key={campo} className="horario-periodo-data">
             <span className="sub">{rotulo}</span>
             <input
@@ -198,7 +198,12 @@ function CartaoDoPeriodo({
               disabled={desabilitado}
               onChange={(e) => onChange({ [campo]: e.currentTarget.value })}
             />
-            <CampoHora valor={`${hora}:${minuto}`} rotulo={`${rotulo.toLowerCase()} do período`} desabilitado />
+            <CampoHora
+              valor={periodo[campoHora]}
+              rotulo={`${rotulo.toLowerCase()} do período`}
+              desabilitado={desabilitado || periodo.fullDay}
+              onChange={(valor) => onChange({ [campoHora]: valor })}
+            />
           </div>
         ))}
       </div>
@@ -278,11 +283,13 @@ export function FormularioDeHorario({
             <label className="form-campo">
               <span className="sub">Descrição</span>
               <Campo
+                value={rascunho.description}
                 placeholder="Insira uma breve descrição sobre este horário"
-                title={EM_BREVE}
-                disabled
+                aria-label="Descrição do horário"
+                maxLength={DESCRICAO_DO_HORARIO_MAX}
+                disabled={enviando}
+                onChange={(e) => mudar({ description: e.target.value })}
               />
-              <span className="sub">{EM_BREVE}</span>
             </label>
           </div>
         </div>
@@ -296,25 +303,31 @@ export function FormularioDeHorario({
             <label className="sla-form-padrao">
               <span className="sub">Definir como horário regular da operação</span>
               <Interruptor
-                ligado={false}
+                ligado={rascunho.regular}
                 rotulo="Definir como horário regular da operação"
-                titulo={EM_BREVE}
-                desabilitado
-                onChange={() => undefined}
+                desabilitado={enviando}
+                onChange={(regular) => mudar({ regular })}
               />
             </label>
-            <span className="sub">{EM_BREVE}</span>
-            <ChipsInput
-              rotulo="Filas deste horário"
-              label="Filas deste horário"
-              placeholder="Selecione as filas de atendimento"
-              options={opcoes}
-              values={rascunho.queueIds}
-              onChange={(queueIds) => mudar({ queueIds })}
-            />
             <span className="sub">
-              {rascunho.queueIds.length} de {filas.length} filas selecionadas
+              Horário regular é aquele que se aplica para toda a sua operação. Filas sem horários
+              específicos definidos irão funcionar no horário regular.
             </span>
+            {rascunho.regular ? null : (
+              <>
+                <ChipsInput
+                  rotulo="Filas deste horário"
+                  label="Filas deste horário"
+                  placeholder="Selecione as filas de atendimento"
+                  options={opcoes}
+                  values={rascunho.queueIds}
+                  onChange={(queueIds) => mudar({ queueIds })}
+                />
+                <span className="sub">
+                  {rascunho.queueIds.length} de {filas.length} filas selecionadas
+                </span>
+              </>
+            )}
           </div>
         </div>
 
@@ -353,7 +366,15 @@ export function FormularioDeHorario({
                 onClick={() => {
                   const hoje = hojeNoFuso(new Date(), fuso);
                   mudar({
-                    periods: [...rascunho.periods, { chave: novaChave(), title: '', from: hoje, to: hoje }],
+                    periods: [...rascunho.periods, {
+                        chave: novaChave(),
+                        title: '',
+                        fullDay: true,
+                        from: hoje,
+                        fromTime: '00:00',
+                        to: hoje,
+                        toTime: '23:59',
+                      }],
                   });
                 }}
               >
