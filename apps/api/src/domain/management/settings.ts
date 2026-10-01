@@ -44,6 +44,7 @@ export interface RegraSlaConfigurada {
   deadlineSeg: number;
   alertSeg: number | null;
   scopeType: string;
+  scopeId: string | null;
   scopeName: string | null;
   ativa: boolean;
 }
@@ -107,6 +108,7 @@ export async function carregarRegras(tx: TransactionPipe): Promise<{
       queues: queues.map(({ horarioId, ...resto }) => ({ ...resto, temHorario: horarioId !== null })),
       regras: regras.map(({ scopeId, ...resto }) => ({
         ...resto,
+        scopeId,
         scopeName: scopeId ? (nameOfQueue.get(scopeId) ?? 'fila removida') : null,
       })),
     };

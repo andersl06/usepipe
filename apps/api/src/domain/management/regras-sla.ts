@@ -1,4 +1,4 @@
-import { and, eq, ne } from 'drizzle-orm';
+import { and, eq, inArray, ne } from 'drizzle-orm';
 import { queue, regraSla, slaConversation, ALVOS_SLA } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
@@ -280,5 +280,217 @@ export async function excluirRegraSla(tx: TransactionPipe, tid: string, usuarioI
     objetoTipo: 'regra_sla',
     objetoId: id,
     antes: { nome: atual.name, alvo: atual.target, ativa: atual.ativa },
+  });
+}
+
+/* ------------------------------------------------------------ política de SLA */
+
+/**
+ * Uma política de SLA (nome, filas, até três metas) é gravada como um conjunto de linhas `regra_sla` que dividem o mesmo `nome`: uma por meta e por escopo (fila, ou "toda a operação" para a regra padrão). Assim o motor (`escolherRegra`) continua escolhendo a regra por alvo e escopo, sem coluna nova. Metas fora das três da tela (`resposta`) não são tocadas na edição.
+ */
+export const METAS_DA_POLITICA = ['espera_fila', 'primeira_resposta', 'resolucao'] as const;
+type MetaDaPolitica = (typeof METAS_DA_POLITICA)[number];
+
+export interface PoliticaConferida {
+  name: string;
+  padrao: boolean;
+  queueIds: string[];
+  metas: { target: MetaDaPolitica; deadlineSeg: number }[];
+}
+
+/** Valida o corpo da política sem tocar no banco. Prazos em segundos. */
+export function politicaConferida(bruto: unknown): PoliticaConferida {
+  if (typeof bruto !== 'object' || bruto === null || Array.isArray(bruto)) {
+    throw PipeError.request('policy_invalid', 'Pedido de regra de SLA inválido.');
+  }
+  const corpo = bruto as Record<string, unknown>;
+  const name = nomeConferido(corpo['name']);
+  if (name.length > 100) throw PipeError.request('name_too_long', 'O nome da regra tem no máximo 100 caracteres.');
+
+  const filas = corpo['queueIds'] ?? [];
+  if (!Array.isArray(filas) || filas.some((f) => typeof f !== 'string' || !f)) {
+    throw PipeError.request('queues_invalid', 'Lista de filas inválida.');
+  }
+  const queueIds = [...new Set(filas as string[])];
+  const padrao = corpo['padrao'] === true;
+  if (!padrao && queueIds.length === 0) {
+    throw PipeError.request('scope_required', 'Escolha ao menos uma fila ou use a regra como padrão.');
+  }
+
+  const metasBrutas = corpo['metas'];
+  if (typeof metasBrutas !== 'object' || metasBrutas === null || Array.isArray(metasBrutas)) {
+    throw PipeError.request('metas_required', 'Configure pelo menos uma meta de SLA.');
+  }
+  const metas: PoliticaConferida['metas'] = [];
+  for (const [target, seg] of Object.entries(metasBrutas)) {
+    if (!(METAS_DA_POLITICA as readonly string[]).includes(target)) {
+      throw PipeError.request('target_invalid', `"${target}" não é uma meta de SLA válida.`);
+    }
+    metas.push({ target: target as MetaDaPolitica, deadlineSeg: prazoConferido(seg) });
+  }
+  if (metas.length === 0) throw PipeError.request('metas_required', 'Configure pelo menos uma meta de SLA.');
+  return { name, padrao, queueIds, metas };
+}
+
+async function correndoEm(tx: TransactionPipe, ids: string[]): Promise<boolean> {
+  if (ids.length === 0) return false;
+  const [linha] = await tx
+    .select({ id: slaConversation.id })
+    .from(slaConversation)
+    .where(and(inArray(slaConversation.regraId, ids), eq(slaConversation.state, 'correndo')))
+    .limit(1);
+  return linha !== undefined;
+}
+
+async function linhasDaPolitica(tx: TransactionPipe, tid: string, id: string) {
+  const [ancora] = await tx
+    .select({ nome: regraSla.nome })
+    .from(regraSla)
+    .where(and(eq(regraSla.tenantId, tid), eq(regraSla.id, id)))
+    .limit(1);
+  if (!ancora) throw PipeError.naoEncontrado('regra de SLA');
+  const linhas = await tx
+    .select({
+      id: regraSla.id,
+      alvo: regraSla.alvo,
+      alertaSeg: regraSla.alertaSeg,
+      escopoTipo: regraSla.escopoTipo,
+      escopoId: regraSla.escopoId,
+      ativa: regraSla.ativa,
+    })
+    .from(regraSla)
+    .where(and(eq(regraSla.tenantId, tid), eq(regraSla.nome, ancora.nome)));
+  return { nome: ancora.nome, linhas };
+}
+
+/** Cria (sem `id`) ou substitui (com o `id` de qualquer linha da política) a política inteira, na mesma transação. */
+export async function salvarPoliticaSla(
+  tx: TransactionPipe,
+  tid: string,
+  userId: string,
+  bruto: unknown,
+  id?: string,
+): Promise<{ id: string }> {
+  await requirePermission(tx, userId, RULE_MANAGE);
+  const p = politicaConferida(bruto);
+  const atual = id ? await linhasDaPolitica(tx, tid, id) : { nome: null, linhas: [] };
+
+  if (p.queueIds.length > 0) {
+    const donas = await tx
+      .select({ id: queue.id })
+      .from(queue)
+      .where(and(eq(queue.tenantId, tid), inArray(queue.id, p.queueIds)));
+    if (donas.length !== p.queueIds.length) throw PipeError.request('queue_not_found', 'Fila não encontrada.');
+  }
+
+  if (p.name !== atual.nome) {
+    const [uso] = await tx
+      .select({ id: regraSla.id })
+      .from(regraSla)
+      .where(and(eq(regraSla.tenantId, tid), eq(regraSla.nome, p.name)))
+      .limit(1);
+    if (uso) throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${p.name}".`);
+  }
+
+  const escopos: { tipo: ScopeSla; id: string | null }[] = [
+    ...(p.padrao ? [{ tipo: 'tenant' as const, id: null }] : []),
+    ...p.queueIds.map((q) => ({ tipo: 'fila' as const, id: q })),
+  ];
+  const chave = (alvo: string, tipo: string, escopoId: string | null) => `${alvo}|${tipo}|${escopoId ?? ''}`;
+  const pedidas = new Set(p.metas.flatMap((m) => escopos.map((e) => chave(m.target, e.tipo, e.id))));
+
+  // Outra política não pode definir a mesma meta para o mesmo escopo: o motor escolheria uma ao acaso.
+  const daPolitica = new Set(atual.linhas.map((l) => l.id));
+  const ativas = await tx
+    .select({ id: regraSla.id, nome: regraSla.nome, alvo: regraSla.alvo, escopoTipo: regraSla.escopoTipo, escopoId: regraSla.escopoId })
+    .from(regraSla)
+    .where(and(eq(regraSla.tenantId, tid), eq(regraSla.ativa, true)));
+  const choque = ativas.find((o) => !daPolitica.has(o.id) && pedidas.has(chave(o.alvo, o.escopoTipo, o.escopoId)));
+  if (choque) {
+    throw PipeError.conflito(
+      'sla_scope_conflict',
+      `A regra "${choque.nome}" já define esta meta para o mesmo escopo. Tire a fila ou a meta de uma das duas.`,
+    );
+  }
+
+  const existentes = new Map(atual.linhas.map((l) => [chave(l.alvo, l.escopoTipo, l.escopoId), l]));
+  const geridas = new Set<string>(METAS_DA_POLITICA);
+  const remover = atual.linhas.filter(
+    (l) => geridas.has(l.alvo) && !pedidas.has(chave(l.alvo, l.escopoTipo, l.escopoId)),
+  );
+  if (await correndoEm(tx, remover.map((l) => l.id))) {
+    throw PipeError.conflito(
+      'rule_with_sla_running',
+      'Esta regra tem cronômetro de SLA correndo em conversa aberta. Espere as conversas encerrarem antes de remover metas ou filas.',
+    );
+  }
+
+  const ativa = atual.linhas.length === 0 || atual.linhas.some((l) => l.ativa);
+  for (const m of p.metas) {
+    for (const e of escopos) {
+      const linha = existentes.get(chave(m.target, e.tipo, e.id));
+      if (linha) {
+        await tx
+          .update(regraSla)
+          .set({
+            prazoSeg: m.deadlineSeg,
+            // Alerta que passa a ficar depois do novo prazo nunca dispararia: some.
+            alertaSeg: linha.alertaSeg !== null && linha.alertaSeg >= m.deadlineSeg ? null : linha.alertaSeg,
+            atualizadoEm: new Date(),
+          })
+          .where(and(eq(regraSla.tenantId, tid), eq(regraSla.id, linha.id)));
+      } else {
+        await tx
+          .insert(regraSla)
+          .values({ tenantId: tid, nome: p.name, alvo: m.target, prazoSeg: m.deadlineSeg, escopoTipo: e.tipo, escopoId: e.id, ativa });
+      }
+    }
+  }
+  if (remover.length > 0) {
+    await tx.delete(regraSla).where(and(eq(regraSla.tenantId, tid), inArray(regraSla.id, remover.map((l) => l.id))));
+  }
+  // Todas as linhas da política (inclusive as metas que a tela não gerencia) acompanham o novo nome.
+  if (atual.nome !== null && atual.nome !== p.name) {
+    await tx
+      .update(regraSla)
+      .set({ nome: p.name, atualizadoEm: new Date() })
+      .where(and(eq(regraSla.tenantId, tid), eq(regraSla.nome, atual.nome)));
+  }
+
+  // Uma linha que sobrou identifica a política para quem chamou (a primeira pode ter sido removida acima).
+  const [ancora] = await tx
+    .select({ id: regraSla.id })
+    .from(regraSla)
+    .where(and(eq(regraSla.tenantId, tid), eq(regraSla.nome, p.name)))
+    .limit(1);
+  const primeiro = ancora?.id ?? '';
+
+  await registrarAuditoria(tx, tid, {
+    ator: { type: 'usuario', id: userId },
+    acao: id ? 'alterou' : 'criou',
+    objetoTipo: 'regra_sla',
+    objetoId: primeiro,
+    depois: { nome: p.name, padrao: p.padrao, filas: p.queueIds, metas: p.metas },
+  });
+  return { id: primeiro };
+}
+
+/** Exclui todas as linhas da política a que `id` pertence. */
+export async function excluirPoliticaSla(tx: TransactionPipe, tid: string, userId: string, id: string): Promise<void> {
+  await requirePermission(tx, userId, RULE_MANAGE);
+  const { nome, linhas } = await linhasDaPolitica(tx, tid, id);
+  if (await correndoEm(tx, linhas.map((l) => l.id))) {
+    throw PipeError.conflito(
+      'rule_with_sla_running',
+      'Esta regra tem cronômetro de SLA correndo em conversa aberta. Espere as conversas encerrarem antes de excluir.',
+    );
+  }
+  await tx.delete(regraSla).where(and(eq(regraSla.tenantId, tid), eq(regraSla.nome, nome)));
+  await registrarAuditoria(tx, tid, {
+    ator: { type: 'usuario', id: userId },
+    acao: 'excluiu',
+    objetoTipo: 'regra_sla',
+    objetoId: id,
+    antes: { nome, linhas: linhas.length },
   });
 }

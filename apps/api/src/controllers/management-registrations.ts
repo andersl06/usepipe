@@ -411,6 +411,40 @@ export class ManagementRegistrationsController {
     );
   }
 
+  @Post('settings/rules/policy')
+  @WithSession()
+  async criarPoliticaSla(@Req() requisicao: RequestWithSession, @Body() corpo: unknown): Promise<{ id: string }> {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) =>
+      regrasSla.salvarPoliticaSla(tx, sessao.tenantId, sessao.userId, corpo),
+    );
+  }
+
+  @Put('settings/rules/policy/:id')
+  @WithSession()
+  async substituirPoliticaSla(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Body() corpo: unknown,
+  ): Promise<{ id: string }> {
+    const sessao = sessionOf(requisicao);
+    idOu404(id, 'regra de SLA');
+    return noTenant(sessao.tenantId, (tx) =>
+      regrasSla.salvarPoliticaSla(tx, sessao.tenantId, sessao.userId, corpo, id),
+    );
+  }
+
+  @Delete('settings/rules/policy/:id')
+  @HttpCode(204)
+  @WithSession()
+  async excluirPoliticaSla(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+    const sessao = sessionOf(requisicao);
+    idOu404(id, 'regra de SLA');
+    await noTenant(sessao.tenantId, (tx) =>
+      regrasSla.excluirPoliticaSla(tx, sessao.tenantId, sessao.userId, id),
+    );
+  }
+
   @Patch('settings/rules/:id')
   @WithSession()
   async editarRegraSla(
