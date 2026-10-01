@@ -39,6 +39,14 @@ const CABECALHO_DA_META: Readonly<Record<string, string>> = {
 const NOME_VALIDO = /^[a-z0-9_]{1,512}$/;
 const CORPO_MAX = 1024;
 const CABECALHO_TEXTO_MAX = 60;
+/** Limits from 03.1-ENSAIOS template.*: footer 60; 3 buttons (at most 2 URL and 1 phone); button text 20; URL 2000. */
+const RODAPE_MAX = 60;
+const BOTOES_MAX = 3;
+const BOTAO_TEXTO_MAX = 20;
+const BOTAO_URL_MAX = 2000;
+const BOTOES_URL_MAX = 2;
+const BOTOES_TELEFONE_MAX = 1;
+const TELEFONE_VALIDO = /^\+[1-9]\d{7,14}$/;
 
 /**
  * Cloud API Authentication Templates: `OTP`/`COPY_CODE` labels have a 25-character limit, `code_expiration_minutes` is 1–90, and the default button text is Blip's `copyButton` ("Copiar código", `blip-conteudos-templates.md`).
@@ -223,6 +231,13 @@ export interface OptionsOfAuthentication {
   textoDoBotao?: string;
 }
 
+export interface ButtonOfTemplate {
+  tipo: 'resposta' | 'url' | 'telefone';
+  texto: string;
+  url?: string;
+  telefone?: string;
+}
+
 export interface RequestOfTemplate {
   name?: string;
   idioma?: string;
@@ -235,6 +250,8 @@ export interface RequestOfTemplate {
   headerMedia?: string;
   body?: string;
   rodape?: string;
+  /** Quick replies (`resposta`) or action buttons (`url`, `telefone`); order is kept. */
+  botoes?: ButtonOfTemplate[];
   /** Meta requires one sample per body variable in occurrence order. */
   exemplos?: string[];
   /** Sample for a text header variable, if present. */
@@ -348,6 +365,40 @@ function assembleComponentsOfAuthentication(pedido: RequestOfTemplate): Componen
   return componentes;
 }
 
+function assembleButtons(botoes: RequestOfTemplate['botoes']): NonNullable<ComponentOfTemplate['buttons']> {
+  const lista = botoes ?? [];
+  if (lista.length > BOTOES_MAX) throw recusa('botoes', `São aceitos no máximo ${BOTOES_MAX} botões.`);
+  let urls = 0;
+  let telefones = 0;
+  return lista.map((b) => {
+    const text = String(b.texto ?? '').trim();
+    if (!text) throw recusa('botoes', 'Todo botão precisa de texto.');
+    if (text.length > BOTAO_TEXTO_MAX) {
+      throw recusa('botoes', `O texto do botão aceita no máximo ${BOTAO_TEXTO_MAX} caracteres.`);
+    }
+    if (b.tipo === 'resposta') return { type: 'QUICK_REPLY', text };
+    if (b.tipo === 'url') {
+      const url = String(b.url ?? '').trim();
+      if (!/^https:\/\/\S+$/.test(url) || url.length > BOTAO_URL_MAX) {
+        throw recusa('botoes', `A URL do botão começa com https:// e tem até ${BOTAO_URL_MAX} caracteres.`);
+      }
+      if (++urls > BOTOES_URL_MAX) throw recusa('botoes', `São aceitos no máximo ${BOTOES_URL_MAX} botões de URL.`);
+      return { type: 'URL', text, url };
+    }
+    if (b.tipo === 'telefone') {
+      const phone_number = String(b.telefone ?? '').trim();
+      if (!TELEFONE_VALIDO.test(phone_number)) {
+        throw recusa('botoes', 'O telefone do botão usa o formato internacional (ex.: +5531999999999).');
+      }
+      if (++telefones > BOTOES_TELEFONE_MAX) {
+        throw recusa('botoes', `É aceito no máximo ${BOTOES_TELEFONE_MAX} botão de telefone.`);
+      }
+      return { type: 'PHONE_NUMBER', text, phone_number };
+    }
+    throw recusa('botoes', 'Este tipo de botão não é aceito.');
+  });
+}
+
 /**
  * Validate the entire request before `subirMidia`: invalid body, media type, or size must fail without a Meta upload.
  */
@@ -380,9 +431,10 @@ export async function assembleTemplate(
   }
 
   const rodape = (pedido.rodape ?? '').trim();
-  if (rodape.length > CABECALHO_TEXTO_MAX) {
-    throw recusa('rodape', `O rodapé aceita no máximo ${CABECALHO_TEXTO_MAX} caracteres.`);
+  if (rodape.length > RODAPE_MAX) {
+    throw recusa('rodape', `O rodapé aceita no máximo ${RODAPE_MAX} caracteres.`);
   }
+  const botoes = assembleButtons(pedido.botoes);
 
   // After validation, only assemble components; upload the file now, when no later validation can reject it.
   const componentes: ComponentOfTemplate[] = [];
@@ -401,6 +453,7 @@ export async function assembleTemplate(
   componentes.push(componentOfBody);
 
   if (rodape) componentes.push({ type: 'FOOTER', text: rodape });
+  if (botoes.length > 0) componentes.push({ type: 'BUTTONS', buttons: botoes });
 
   return { name: nome, language: idioma, category: categoria, components: componentes };
 }

@@ -937,6 +937,94 @@ describe('Build Meta authentication templates with their fixed components', () =
   });
 });
 
+describe('Submit footer and buttons of marketing/utility templates', () => {
+  it('Send BODY, FOOTER and BUTTONS in this order with quick replies', async () => {
+    const canal = await conectar(A, { code: `modelos-botoes-${S}` });
+    ClienteGraphDuble.reiniciar();
+    await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
+      name: 'com_botoes',
+      category: 'utilidade',
+      body: 'Olá',
+      rodape: 'Obrigado',
+      botoes: [
+        { tipo: 'resposta', texto: 'Sim' },
+        { tipo: 'resposta', texto: 'Não' },
+      ],
+    });
+    const enviado = ClienteGraphDuble.modelos.get(canal.wabaId!)![0]!;
+    expect(enviado.components).toEqual([
+      { type: 'BODY', text: 'Olá' },
+      { type: 'FOOTER', text: 'Obrigado' },
+      {
+        type: 'BUTTONS',
+        buttons: [
+          { type: 'QUICK_REPLY', text: 'Sim' },
+          { type: 'QUICK_REPLY', text: 'Não' },
+        ],
+      },
+    ]);
+  });
+
+  it('Send URL and phone action buttons', async () => {
+    const canal = await conectar(A, { code: `modelos-acao-${S}` });
+    ClienteGraphDuble.reiniciar();
+    await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
+      name: 'com_acao',
+      category: 'marketing',
+      body: 'Olá',
+      botoes: [
+        { tipo: 'url', texto: 'Site', url: 'https://pipe.exemplo/x' },
+        { tipo: 'telefone', texto: 'Ligar', telefone: '+5531999999999' },
+      ],
+    });
+    const enviado = ClienteGraphDuble.modelos.get(canal.wabaId!)![0]!;
+    expect(enviado.components![1]).toEqual({
+      type: 'BUTTONS',
+      buttons: [
+        { type: 'URL', text: 'Site', url: 'https://pipe.exemplo/x' },
+        { type: 'PHONE_NUMBER', text: 'Ligar', phone_number: '+5531999999999' },
+      ],
+    });
+  });
+
+  it('Reject footer and buttons beyond the limits before calling Meta', async () => {
+    const canal = await conectar(A, { code: `modelos-botoes-recusa-${S}` });
+    ClienteGraphDuble.reiniciar();
+    const criar = (p: object) =>
+      createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
+        name: 'x',
+        category: 'utilidade',
+        body: 'Olá',
+        ...p,
+      });
+    const r = (texto: string) => ({ tipo: 'resposta' as const, texto });
+    await expect(criar({ rodape: 'x'.repeat(61) })).rejects.toMatchObject({ detalhe: { campo: 'rodape' } });
+    await expect(criar({ botoes: [r('a'), r('b'), r('c'), r('d')] })).rejects.toMatchObject({
+      detalhe: { campo: 'botoes' },
+    });
+    await expect(criar({ botoes: [r('x'.repeat(21))] })).rejects.toMatchObject({ detalhe: { campo: 'botoes' } });
+    await expect(criar({ botoes: [r('')] })).rejects.toMatchObject({ detalhe: { campo: 'botoes' } });
+    await expect(
+      criar({ botoes: [{ tipo: 'url', texto: 'Site', url: 'http://inseguro.exemplo' }] }),
+    ).rejects.toMatchObject({ detalhe: { campo: 'botoes' } });
+    await expect(
+      criar({
+        botoes: [
+          { tipo: 'telefone', texto: 'A', telefone: '+5531999999999' },
+          { tipo: 'telefone', texto: 'B', telefone: '+5531888888888' },
+        ],
+      }),
+    ).rejects.toMatchObject({ detalhe: { campo: 'botoes' } });
+    await expect(criar({ botoes: [{ tipo: 'telefone', texto: 'A', telefone: 'abc' }] })).rejects.toMatchObject({
+      detalhe: { campo: 'botoes' },
+    });
+    await expect(criar({ botoes: [{ tipo: 'outro', texto: 'A' }] })).rejects.toMatchObject({
+      detalhe: { campo: 'botoes' },
+    });
+    expect(chamadas('criar_modelo')).toHaveLength(0);
+  });
+});
+
 describe('Read and update channel and alert preferences', () => {
   it('Default both switches on, update only supplied preferences, and parse comma-separated emails', async () => {
     const canal = await conectar(A, { code: `pref-${S}` });
