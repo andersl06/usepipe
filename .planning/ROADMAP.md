@@ -386,7 +386,7 @@ Plans:
 **Goal:** Bugs reais encontrados na comparação Blip×Pipe (isolamento de filas/regras por fluxo, presença do Desk, atalho de respostas prontas, template WhatsApp que perde rodapé/botões, Click Tracker que mostra "Conectado" sem token, identidade roteador/subbot) ficam corrigidos e cobertos por teste, e as frentes ainda não auditadas (Builder, APIs/LIME, canais, Portal) têm inventário complementar com a régua de evidência, conduzido de forma proativa pelo Claude (trazer ao dono bugs e regras da Blip que o Pipe não aplica). Insumos: `insumos/` da fase.
 **Requirements**: D-01..D-15 (decisões de 03.1-CONTEXT.md; D-15 = ticket só no transbordo, desfaz com_bot)
 **Depends on:** Phase 3 (insumo: auditorias Blip×Pipe de 2026-09-30)
-**Plans:** 11/20 plans executed
+**Plans:** 12/20 plans executed
 
 Plans:
 
@@ -395,7 +395,7 @@ Plans:
 - [x] 03.1-03-PLAN.md — Inventário proativo Builder/APIs-LIME/canais/Portal
 - [x] 03.1-04-PLAN.md — Funil enterQueue/chooseQueue com fluxo e validação cross-fluxo
 - [x] 03.1-05-PLAN.md — API de gestão de filas/regras/prioridade/fila padrão por fluxo
-- [ ] 03.1-06-PLAN.md — Presença do Desk conforme a Blip (logout, abertura, F5, TTL)
+- [x] 03.1-06-PLAN.md — Presença do Desk conforme a Blip (logout, abertura, F5, TTL)
 - [ ] 03.1-07-PLAN.md — Gatilho de respostas prontas no compositor + spec reconciliada
 - [ ] 03.1-08-PLAN.md — Template WhatsApp sem perda de rodapé/botões
 - [ ] 03.1-09-PLAN.md — Click Tracker sem "Conectado" falso / remoção
