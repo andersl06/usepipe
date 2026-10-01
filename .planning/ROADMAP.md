@@ -428,13 +428,13 @@ Plans:
   4. O dono aprova a comparação visual
 
 **UI hint**: yes
-**Plans:** 2/25 plans executed
+**Plans:** 3/25 plans executed
 
 Plans:
 
 - [x] 03.2-01-PLAN.md — ref/ (método, inventário congelado, capturas pendentes, conflitos de rota, questões ao dono, dependências 03.1)
 - [x] 03.2-02-PLAN.md — censo de componentes Blip x Pipe + teste da matemática da paginação
-- [ ] 03.2-03-PLAN.md — medição e correção da casca; medição das skins de paginação e do tblwrap
+- [x] 03.2-03-PLAN.md — medição e correção da casca; medição das skins de paginação e do tblwrap
 - [ ] 03.2-04-PLAN.md — dono envia capturas de estados abertos (não bloqueia)
 - [ ] 03.2-05-PLAN.md — portão da Onda 0: decisões do dono (Q1-Q7, R-NN) e aprovação da casca
 - [ ] 03.2-06-PLAN.md — rotas conforme decisões D-04

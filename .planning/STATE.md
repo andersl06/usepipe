@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 03.2 UI-SPEC approved
-last_updated: "2026-10-01T00:09:44.203Z"
+last_updated: "2026-10-01T00:10:00.687Z"
 last_activity: 2026-09-30 -- Phase 03.1 execution started
 progress:
   total_phases: 11
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-24)
 ## Current Position
 
 Phase: 03.1 (corrigir-bugs-do-invent-rio-blip-pipe) — EXECUTING
-Plan: 4 of 20
+Plan: 5 of 20
 Status: Executing Phase 03.1
 Last activity: 2026-09-30 -- Phase 03.1 execution started
 
@@ -56,6 +56,7 @@ Progress: [██████░░░░] 56%
 | Phase 02 P07 | 15min | 4 tasks | 6 files |
 | Phase 02 P05 | 40min | 3 tasks | 8 files |
 | Phase 03.1 P03 | 50min | 2 tasks | 1 files |
+| Phase 03.2 P03 | 75min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,8 @@ Decisões completas em PROJECT.md (Key Decisions). Resumo relevante para o traba
 - [Phase 02]: D-26 implementado com fila BullMQ dedicada (pipe-process-http-sweep) para a varredura de process_http_execucao presa, além do modo memória já existente.
 - [Phase 02]: recoverStuckProcessHttp devolve {tenantId, processoId}[] em vez de string[]: uma varredura pode recuperar linhas de tenants diferentes na mesma rodada.
 - [Phase 02]: D-27 (duplicate-key na retomada de ProcessHttp) já estava corrigido antes desta plan (commit 8dac98b); reforçada a regressão com asserção de contagem e prova por mutação manual revertida.
+- [Phase ?]: 03.2-03: tokens --p-atend-* de medida (sem cor) ficam no :root de tokens.css
+- [Phase ?]: 03.2-03: evidência de Q3 favorece colapsar grade+lista (Blip tem uma aparência só no Atendimento)
 
 ### Pending Todos
 
@@ -119,6 +122,6 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 
 ## Session Continuity
 
-Last session: 2026-10-01T00:09:36.062Z
+Last session: 2026-10-01T00:09:52.467Z
 Stopped at: Phase 03.2 UI-SPEC approved
 Resume file: .planning/phases/03.2-paridade-do-atendimento-com-a-blip/03.2-UI-SPEC.md
