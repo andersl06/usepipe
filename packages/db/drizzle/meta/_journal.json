@@ -421,6 +421,13 @@
       "when": 1790230000000,
       "tag": "0087_conversa_alerta_inatividade",
       "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1790240000000,
+      "tag": "0088_horario_regular_e_periodos",
+      "breakpoints": true
     }
   ]
 }

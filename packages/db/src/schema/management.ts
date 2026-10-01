@@ -13,6 +13,7 @@ import {
   smallint,
   text,
   time,
+  timestamp,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
@@ -274,13 +275,25 @@ export const palavraProibida = pgTable(
   ],
 );
 
-export const scheduleAttendance = pgTable('horario_atendimento', {
-  id: id(),
-  tenantId: refTenant(),
-  nome: text('nome').notNull(),
-  fuso: text('fuso').notNull().default('America/Sao_Paulo'),
-  ...carimbos(),
-});
+export const scheduleAttendance = pgTable(
+  'horario_atendimento',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    nome: text('nome').notNull(),
+    descricao: text('descricao'),
+    /** Horário que vale para toda a operação: filas sem horário próprio funcionam nele. No máximo um por tenant. */
+    regular: boolean('regular').notNull().default(false),
+    fuso: text('fuso').notNull().default('America/Sao_Paulo'),
+    ...carimbos(),
+  },
+  (t) => [
+    uniqueIndex('horario_atendimento_regular_uk')
+      .on(t.tenantId)
+      .where(sql`${t.regular}`),
+    check('horario_atendimento_descricao_ck', sql`${t.descricao} is null or char_length(${t.descricao}) <= 300`),
+  ],
+);
 
 export const horarioFaixa = pgTable(
   'horario_faixa',
@@ -311,8 +324,21 @@ export const scheduleException = pgTable(
     inicio: time('inicio'),
     fim: time('fim'),
     motivo: text('motivo'),
+    /** Período sem atendimento: início e fim absolutos (data e hora no fuso do horário). Nulos na exceção de um dia só. */
+    inicioEm: timestamp('inicio_em', { withTimezone: true }),
+    fimEm: timestamp('fim_em', { withTimezone: true }),
+    diaCompleto: boolean('dia_completo').notNull().default(true),
   },
-  (t) => [uniqueIndex('horario_excecao_uk').on(t.horarioId, t.data)],
+  (t) => [
+    uniqueIndex('horario_excecao_dia_uk')
+      .on(t.horarioId, t.data)
+      .where(sql`${t.inicioEm} is null`),
+    index('horario_excecao_horario_idx').on(t.horarioId, t.data),
+    check(
+      'horario_excecao_periodo_ck',
+      sql`(${t.inicioEm} is null and ${t.fimEm} is null) or (${t.inicioEm} is not null and ${t.fimEm} is not null and ${t.fimEm} > ${t.inicioEm})`,
+    ),
+  ],
 );
 
 export const TIPOS_PESQUISA = ['csat', 'nps'] as const;
