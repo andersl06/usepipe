@@ -1,11 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import {
-  LIMITE_VISIVEL,
-  itensDoMenu,
-  numeroDaHome,
-  pilhaDaEquipe,
-} from '../src/pages/flow/itens';
+import { LIMITE_VISIVEL, itensDoMenu, numeroDaHome, pilhaDaEquipe } from '../src/pages/flow/itens';
 
 /**
  * The contact bar's row (`/fluxo/{id}`).
@@ -17,21 +12,21 @@ const ID = '5b6843ae-b4f8-4bc0-bce2-e32318043297';
 /** `base` is `flowPath(shortName)` (D-52) — the tree is single now, no `/flow/` or `/router/` prefix to pick. */
 const BASE = `/application/detail/${ID}`;
 
-test('analytics leads to the contact\'s OWN analytics', () => {
+test("analytics leads to the contact's OWN analytics", () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const analytics = itensDoMenu(tipo, BASE).find((i) => i.rotulo === 'Análise');
     assert.equal(analytics?.href, `${BASE}/analytics`);
   }
 });
 
-test('Channels leads to the contact\'s OWN channels', () => {
+test("Channels leads to the contact's OWN channels", () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const channels = itensDoMenu(tipo, BASE).find((i) => i.rotulo === 'Canais');
     assert.equal(channels?.href, `${BASE}/channels`);
   }
 });
 
-test('Contacts and Content open their areas within the contact\'s context', () => {
+test("Contacts and Content open their areas within the contact's context", () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const itens = itensDoMenu(tipo, BASE);
     /* `contacts` → `users` (D-54, route-inventory.md §2). */
@@ -40,20 +35,20 @@ test('Contacts and Content open their areas within the contact\'s context', () =
   }
 });
 
-test('Growth and Log open their screens within the contact\'s context', () => {
+test("Growth and Log open their screens within the contact's context", () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const itens = itensDoMenu(tipo, BASE);
-    assert.equal(
-      itens.find((i) => i.rotulo === 'Growth')?.href,
-      `${BASE}/growth/active-messages`,
-    );
+    assert.equal(itens.find((i) => i.rotulo === 'Growth')?.href, `${BASE}/growth/active-messages`);
     assert.equal(itens.find((i) => i.rotulo === 'Log')?.href, `${BASE}/log`);
   }
 });
 
 test('AI model is discoverable from the bot navigation', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
-    assert.equal(itensDoMenu(tipo, BASE).find((item) => item.rotulo === 'Inteligência artificial')?.href, `${BASE}/ai/model`);
+    assert.equal(
+      itensDoMenu(tipo, BASE).find((item) => item.rotulo === 'Inteligência artificial')?.href,
+      `${BASE}/ai/model`,
+    );
   }
 });
 
@@ -139,7 +134,7 @@ const SO_ISSO = (permissoes: Record<string, 'nenhum' | 'ler' | 'escrever'>) => (
   editsByAccount: false,
 });
 
-test('the flow\'s permissions hide what the person cannot see', () => {
+test("the flow's permissions hide what the person cannot see", () => {
   const itens = itensDoMenu('fluxo', BASE, SO_ISSO({ builder: 'escrever', analysis: 'ler' }));
   assert.deepEqual(
     itens.map((i) => i.rotulo),
@@ -176,7 +171,7 @@ test('whoever edits the flow through the ACCOUNT still sees the entire row', () 
   assert.deepEqual(itensDoMenu('fluxo', BASE, account), itensDoMenu('fluxo', BASE));
 });
 
-test('the router template\'s item does not go through the permission sieve', () => {
+test("the router template's item does not go through the permission sieve", () => {
   /*
    * `getTemplateSetupItem()` runs BEFORE `getUpdatedMenus()` and isn't from the catalog: "Serviços" stays even when the person has no resource at all.
    */
@@ -204,4 +199,15 @@ test('o número da home arredonda para baixo, com "+", como o processNumber', ()
   assert.equal(numeroDaHome(25000), '+20K');
   assert.equal(numeroDaHome(250000), '+200K');
   assert.equal(numeroDaHome(3500000), '+3M');
+});
+
+test('api do bot: OAuth fields are disabled and never read from typed state', async () => {
+  const { readFileSync } = await import('node:fs');
+  const fonte = readFileSync('src/pages/flow/settings/api/tela.tsx', 'utf8');
+  assert.doesNotMatch(fonte, /clientSecret|setClientId|setUrlAuthorization/);
+  for (const id of ['oAuthAuthorizationServerUri', 'oAuthClientId', 'oAuthClientSecret']) {
+    const bloco = fonte.slice(fonte.indexOf(`id="${id}"`)).split('/>')[0] ?? '';
+    assert.match(bloco, /desabilitado/);
+    assert.match(bloco, /NAO_DISPONIVEL/);
+  }
 });

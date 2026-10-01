@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BotaoBds, PageHeader, CampoBds, CampoCopiavel, Interruptor, Role } from '../pecas';
 import { useRead } from '../../../../lib/query';
+import { NAO_DISPONIVEL } from '../../contacts/regras';
 import { salvarConexao, type FlowConnection } from './gravar';
 
 /**
@@ -13,7 +14,7 @@ import { salvarConexao, type FlowConnection } from './gravar';
  *
  * What became REAL (`GET/PUT /v1/gestao/fluxos/:id/conexao`, `dominio/gestao/integracoes.ts`): the identifier (always was), the `api`'s endpoint, the flow's active key prefix (never the secret — the "Chaves de acesso" screen is what issues it) and the two HTTP form URLs, which become `webhook_saida`.
  *
- * ponytail: `wsEndpoint`/`tcpEndpoint` (SDK) and the "Endpoints HTTP" below (sendMessagesUrl/sendNotificationsUrl/sendCommandsUrl) would require an SDK server and send routes that Pipe doesn't have — they stay empty, as before. Same for the HTTP card's OAuth 2.0: a visual field, no write (the source doesn't resolve `isCheckedOAuth` in the mock either).
+ * ponytail: `wsEndpoint`/`tcpEndpoint` (SDK) and the "Endpoints HTTP" below (sendMessagesUrl/sendNotificationsUrl/sendCommandsUrl) would require an SDK server and send routes that Pipe doesn't have — they stay empty, as before. Same for the HTTP card's OAuth 2.0: disabled with "não disponível no Pipe" until secrets can be stored encrypted (the source doesn't resolve `isCheckedOAuth` in the mock either).
  */
 export function TelaDeConexao({ flowId }: { flowId: string }) {
   const caminho = `/v1/management/flows/${flowId}/connection`;
@@ -23,9 +24,6 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
   const [oauth, setOauth] = useState(false);
   const [urlMessages, setUrlMessages] = useState('');
   const [urlNotifications, setUrlNotifications] = useState('');
-  const [urlAuthorization, setUrlAuthorization] = useState('');
-  const [clientId, setClientId] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
   const [aviso, setAviso] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [sujo, setSujo] = useState(false);
@@ -187,12 +185,7 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
                       <span className="cf-oauth-nome">OAuth 2.0</span>
                       <span className="cf-oauth-legenda">Configurações de autenticação</span>
                     </div>
-                    <Interruptor
-                      curto
-                      ligado={oauth}
-                      aoMudar={setOauth}
-                      rotulo="OAuth 2.0"
-                    />
+                    <Interruptor curto ligado={oauth} aoMudar={setOauth} rotulo="OAuth 2.0" />
                   </div>
                   {oauth ? (
                     <div className="cf-oauth-corpo">
@@ -206,8 +199,9 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
                           <CampoBds
                             id="oAuthAuthorizationServerUri"
                             rotulo="URL de autorização"
-                            value={urlAuthorization}
-                            aoMudar={setUrlAuthorization}
+                            value=""
+                            placeholder={NAO_DISPONIVEL}
+                            desabilitado
                           />
                         </div>
                         <div className="cf-w-10" />
@@ -224,8 +218,9 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
                           <CampoBds
                             id="oAuthClientId"
                             rotulo="Client ID"
-                            value={clientId}
-                            aoMudar={setClientId}
+                            value=""
+                            placeholder={NAO_DISPONIVEL}
+                            desabilitado
                           />
                         </div>
                         <div className="cf-w-10" />
@@ -233,24 +228,12 @@ export function TelaDeConexao({ flowId }: { flowId: string }) {
                           <CampoBds
                             id="oAuthClientSecret"
                             rotulo="Client Secret"
-                            value={clientSecret}
-                            aoMudar={setClientSecret}
+                            value=""
+                            placeholder={NAO_DISPONIVEL}
+                            desabilitado
                             senha
                           />
                         </div>
-                      </div>
-                      <div className="cf-oauth-rodape">
-                        <BotaoBds
-                          variante="secondary"
-                          name="clearOAuth"
-                          onClick={() => {
-                            setUrlAuthorization('');
-                            setClientId('');
-                            setClientSecret('');
-                          }}
-                        >
-                          Limpar dados
-                        </BotaoBds>
                       </div>
                     </div>
                   ) : null}

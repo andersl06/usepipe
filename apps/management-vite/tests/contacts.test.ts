@@ -40,10 +40,24 @@ describe('contacts: opening the detail view', () => {
     assert.equal(messageSide('interna'), 'esquerda');
   });
 
-  it('stamps the message as day - time and translates the ticket\'s state', () => {
+  it("stamps the message as day - time and translates the ticket's state", () => {
     assert.equal(messageStamp(new Date(2026, 8, 16, 13, 26)), '16/09/2026 - 13:26');
     assert.equal(rotuloDoStatus('encerrada'), 'Atendido');
     assert.equal(rotuloDoStatus('na_fila'), 'Na fila');
     assert.equal(rotuloDoStatus('outro'), 'outro');
+  });
+});
+
+describe('contacts: controls without backend', () => {
+  it('filter and period controls are disabled and say why', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { NAO_DISPONIVEL } = await import('../src/pages/flow/contacts/regras');
+    assert.equal(NAO_DISPONIVEL, 'não disponível no Pipe');
+    const fonte = readFileSync('src/pages/flow/contacts/lista.tsx', 'utf8');
+    assert.match(
+      fonte,
+      /className="ct-add-filter" type="button" disabled title=\{NAO_DISPONIVEL\}/,
+    );
+    assert.equal(fonte.match(/readOnly\s+disabled/g)?.length, 2);
   });
 });

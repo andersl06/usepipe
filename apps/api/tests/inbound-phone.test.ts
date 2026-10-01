@@ -88,4 +88,16 @@ describe('Match inbound phone numbers across Brazilian ninth-digit variants', ()
     expect(await contactsWithPhone('+551133334444')).toHaveLength(1);
     expect(await contactsWithPhone('+5511933334444')).toEqual([]);
   });
+
+  it('identificador não numérico (BSUID) não vira telefone, mas fica como identidade', async () => {
+    await falar('BR.13491208655302741918', 'sem telefone exposto');
+
+    expect(await contactsWithPhone('+BR.13491208655302741918')).toEqual([]);
+    const { rows } = await cenario.dono.execute<{ telefone: string | null }>(sql`
+      select c.telefone_e164 as telefone
+        from contato_identidade i join contato c on c.id = i.contato_id
+       where i.tenant_id = ${cenario.tenantId}::uuid and i.identificador = 'BR.13491208655302741918'
+    `);
+    expect(rows).toEqual([{ telefone: null }]);
+  });
 });

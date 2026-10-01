@@ -442,7 +442,10 @@ async function findOrCreateContact(
 
   // Populate phone only for WhatsApp; on Instagram the identifier is the account,
   // e escrever conta de Instagram em `telefone_e164` estragaria a busca por telefone.
-  const telefone = canal.type === 'whatsapp_cloud' ? `+${normalizarWaid(identificador)}` : null;
+  const telefone =
+    canal.type === 'whatsapp_cloud' && /^[0-9]+$/.test(identificador)
+      ? `+${normalizarWaid(identificador)}`
+      : null;
   const { rows: criado } = await tx.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome, telefone_e164)
     values (${canal.tenantId}, ${nome}, ${telefone})

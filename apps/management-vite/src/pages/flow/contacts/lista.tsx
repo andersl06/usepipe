@@ -9,6 +9,7 @@ import {
   periodDefault,
   countLabel,
   channelLabel,
+  NAO_DISPONIVEL,
 } from './regras';
 
 /*
@@ -26,14 +27,13 @@ export function BotListContacts() {
       <aside className="ct-filters">
         <header className="ct-filters-header">
           <span className="ct-filters-title">Filtros</span>
-          {/* ponytail: dimension filters have no backend; the button starts disabled, as in the origin. */}
-          <button className="ct-aplicar" type="button" disabled>
+          <button className="ct-aplicar" type="button" disabled title={NAO_DISPONIVEL}>
             Aplicar
           </button>
         </header>
         <div className="ct-filters-body">
           <div className="ct-dimensao">
-            <button className="ct-add-filter" type="button">
+            <button className="ct-add-filter" type="button" disabled title={NAO_DISPONIVEL}>
               + Adicionar filtros
             </button>
           </div>
@@ -67,8 +67,7 @@ export function BotListContacts() {
             <div className="ct-count">
               <span>{countLabel(contacts.length)}</span>
             </div>
-            {/* ponytail: the period picker is visual only; date filtering has no backend. */}
-            <div className="ct-period" aria-label="Período">
+            <div className="ct-period" aria-label="Período" title={NAO_DISPONIVEL}>
               <span className="ct-period-icon">
                 <IconePortal nome="calendario" tamanho={21} />
               </span>
@@ -76,6 +75,7 @@ export function BotListContacts() {
                 className="ct-period-data"
                 aria-label="Data inicial"
                 readOnly
+                disabled
                 value={formatPeriodLimit(period.inicio)}
               />
               <span>~</span>
@@ -83,6 +83,7 @@ export function BotListContacts() {
                 className="ct-period-data"
                 aria-label="Data final"
                 readOnly
+                disabled
                 value={formatPeriodLimit(period.fim)}
               />
             </div>
@@ -92,11 +93,7 @@ export function BotListContacts() {
           ) : (
             <div className="ct-cards">
               {contacts.map((contact) => (
-                <Link
-                  className="ct-user"
-                  href={`${base}/users/${contact.id}`}
-                  key={contact.id}
-                >
+                <Link className="ct-user" href={`${base}/users/${contact.id}`} key={contact.id}>
                   <span className="ct-section ct-section-avatar">
                     <span className="ct-avatar">
                       {contact.avatarUrl ? (

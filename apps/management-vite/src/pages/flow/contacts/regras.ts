@@ -86,3 +86,6 @@ export function ticketAtivo<T extends { id: string }>(
 ): T | undefined {
   return tickets.find((item) => item.id === ticketId) ?? tickets[0];
 }
+
+/** Text shown on controls whose capability Pipe does not have (no backend behind them). */
+export const NAO_DISPONIVEL = 'não disponível no Pipe';
