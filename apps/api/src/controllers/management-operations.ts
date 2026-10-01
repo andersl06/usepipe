@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestj
 import type { CloseConversationInput } from '@pipe/contracts';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
+import { lerPagina } from '../pagination.js';
 import { WithSession, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import { carregarCabecalho, type HeaderOfManagement } from '../domain/management/cabecalho.js';
@@ -85,7 +86,9 @@ export interface ResponseOfHistory {
   ate: string;
   catalogos: Catalogos;
   linhas: LineHistory[];
-  truncado: boolean;
+  total: number;
+  pagina: number;
+  porPagina: number;
 }
 
 export interface ResponseOfReportOfAttendance {
@@ -229,18 +232,25 @@ export class ManagementOperationsController {
     @Query('etiqueta') etiqueta?: string,
     @Query('from') de?: string,
     @Query('to') ate?: string,
+    @Query('ticket') tickets?: string,
+    @Query('contact') contato?: string,
+    @Query('pagina') paginaBruta?: string,
+    @Query('porPagina') porPaginaBruta?: string,
   ): Promise<ResponseOfHistory> {
     const sessao = sessionOf(requisicao);
+    const { pagina, porPagina, offset } = lerPagina(paginaBruta, porPaginaBruta);
     return noTenant(sessao.tenantId, async (tx) => {
       const fuso = await fusoDoTenant(tx);
       const p = await periodHistory(tx, fuso, dataOuNada(de), dataOuNada(ate));
       const catalogos = await carregarCatalogos(tx);
-      const { linhas, truncado } = await loadHistory(tx, p.janela, {
+      const { linhas, total } = await loadHistory(tx, p.janela, {
         queueId: uuidOuNada(fila),
         agentId: uuidOuNada(atendente),
         labelId: uuidOuNada(etiqueta),
-      });
-      return { fuso, de: p.de, ate: p.ate, catalogos, linhas, truncado };
+        tickets: (tickets ?? '').split(/[\s,]+/).filter(Boolean).slice(0, 20),
+        contact: contato?.slice(0, 100),
+      }, { limit: porPagina, offset });
+      return { fuso, de: p.de, ate: p.ate, catalogos, linhas, total, pagina, porPagina };
     });
   }
 

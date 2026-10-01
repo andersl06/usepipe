@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, inArray, isNotNull, lt } from 'drizzle-orm';
+import { and, count, desc, eq, gte, ilike, inArray, isNotNull, lt, or, sql } from 'drizzle-orm';
 import {
   classifyClosure,
   derivarMarcos,
@@ -51,16 +51,26 @@ export interface HistoryFilter {
   queueId?: string | undefined;
   agentId?: string | undefined;
   labelId?: string | undefined;
+  /** Ticket ids as typed ("#A1B2C3"); a row matches when its ticket contains any of them. */
+  tickets?: readonly string[] | undefined;
+  /** Part of the contact name. */
+  contact?: string | undefined;
 }
+
+/** One page of the result: the SQL window, never a client-side slice. */
+export interface HistoryWindow {
+  limit: number;
+  offset: number;
+}
+
+/** Escape LIKE wildcards so user text matches literally. */
+const likeLiteral = (t: string) => t.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 export interface Catalogos {
   queues: { id: string; name: string }[];
   agents: { id: string; name: string }[];
   labels: { id: string; name: string }[];
 }
-
-/** Teto de linhas: o histórico é uma tela de consulta, não de exportação. */
-export const LIMIT_HISTORY = 200;
 
 export async function carregarCatalogos(tx: TransactionPipe): Promise<Catalogos> {
   return consultar(tx, async (tx) => ({
@@ -81,12 +91,38 @@ export async function loadHistory(
   tx: TransactionPipe,
   window: Window,
   filter: HistoryFilter = {},
-): Promise<{ linhas: LineHistory[]; truncado: boolean }> {
+  pagina: HistoryWindow = { limit: 50, offset: 0 },
+): Promise<{ linhas: LineHistory[]; total: number }> {
   return consultar(tx, async (tx) => {
-    const recorte = [
+    const termosTicket = (filter.tickets ?? [])
+      .map((t) => t.replace(/^#/, '').trim().toUpperCase())
+      .filter(Boolean);
+    const contato = filter.contact?.trim();
+    const where = and(
+      isNotNull(conversation.encerradaEm),
+      gte(conversation.encerradaEm, window.start),
+      lt(conversation.encerradaEm, window.end),
       filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
       filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
-    ].filter((c) => c !== undefined);
+      filter.labelId
+        ? inArray(
+            conversation.id,
+            tx
+              .select({ id: conversationLabel.conversaId })
+              .from(conversationLabel)
+              .where(eq(conversationLabel.etiquetaId, filter.labelId)),
+          )
+        : undefined,
+      termosTicket.length > 0
+        ? or(
+            ...termosTicket.map(
+              (t) =>
+                sql`upper(right(replace(${conversation.id}::text, '-', ''), 6)) like ${`%${likeLiteral(t)}%`}`,
+            ),
+          )
+        : undefined,
+      contato ? ilike(contact.nome, `%${likeLiteral(contato)}%`) : undefined,
+    );
 
     const base = tx
       .select({
@@ -101,32 +137,19 @@ export async function loadHistory(
       .leftJoin(user, eq(user.id, conversation.agentId))
       .leftJoin(contact, eq(contact.id, conversation.contatoId));
 
-    const comEtiqueta = filter.labelId
-      ? base.innerJoin(
-          conversationLabel,
-          and(
-            eq(conversationLabel.conversaId, conversation.id),
-            eq(conversationLabel.etiquetaId, filter.labelId),
-          ),
-        )
-      : base;
+    const [{ n: total = 0 } = {}] = await tx
+      .select({ n: count() })
+      .from(conversation)
+      .leftJoin(contact, eq(contact.id, conversation.contatoId))
+      .where(where);
 
-    const cru = await comEtiqueta
-      .where(
-        and(
-          isNotNull(conversation.encerradaEm),
-          gte(conversation.encerradaEm, window.start),
-          lt(conversation.encerradaEm, window.end),
-          ...recorte,
-        ),
-      )
-      .orderBy(desc(conversation.encerradaEm))
-      .limit(LIMIT_HISTORY + 1);
-
-    const truncado = cru.length > LIMIT_HISTORY;
-    const page = cru.slice(0, LIMIT_HISTORY);
+    const page = await base
+      .where(where)
+      .orderBy(desc(conversation.encerradaEm), desc(conversation.id))
+      .limit(pagina.limit)
+      .offset(pagina.offset);
     const ids = page.map((c) => c.id);
-    if (ids.length === 0) return { linhas: [], truncado: false };
+    if (ids.length === 0) return { linhas: [], total };
 
     const eventos = await tx
       .select({
@@ -192,7 +215,7 @@ export async function loadHistory(
       };
     });
 
-    return { linhas, truncado };
+    return { linhas, total };
   });
 }
 

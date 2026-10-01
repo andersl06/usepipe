@@ -115,3 +115,26 @@ export function assemblePage<T>(
     },
   };
 }
+
+/** Items-per-page options of the screens that show page numbers; the ceiling bounds the query. */
+export const TAMANHOS_PAGINA = [5, 10, 15, 25, 50, 100, 250, 500] as const;
+
+/**
+ * Numbered pages (`pagina`, `porPagina`) for screens whose footer shows the total and jumps to the
+ * last page, which a cursor cannot do. Anything outside `TAMANHOS_PAGINA` is refused, never clamped.
+ */
+export function lerPagina(
+  paginaBruta: unknown,
+  porPaginaBruta: unknown,
+): { pagina: number; porPagina: number; offset: number } {
+  const vazio = (v: unknown) => v === undefined || v === null || v === '';
+  const pagina = vazio(paginaBruta) ? 1 : Number(paginaBruta);
+  const porPagina = vazio(porPaginaBruta) ? LIMITE_PADRAO : Number(porPaginaBruta);
+  if (!Number.isInteger(pagina) || pagina < 1) {
+    throw PipeError.request('pagina_invalid', 'pagina precisa ser inteiro maior que zero.');
+  }
+  if (!(TAMANHOS_PAGINA as readonly number[]).includes(porPagina)) {
+    throw PipeError.request('porPagina_invalid', `porPagina aceita ${TAMANHOS_PAGINA.join(', ')}.`);
+  }
+  return { pagina, porPagina, offset: (pagina - 1) * porPagina };
+}

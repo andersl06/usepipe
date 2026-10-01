@@ -11,7 +11,7 @@ const duplos = vi.hoisted(() => ({
     start: new Date(`${de}T00:00:00.000Z`),
     end: new Date(`${ate}T00:00:00.000Z`),
   })),
-  loadHistory: vi.fn(async () => ({ linhas: [], truncado: false })),
+  loadHistory: vi.fn(async () => ({ linhas: [], total: 0 })),
 }));
 
 vi.mock('../src/database.js', () => ({
