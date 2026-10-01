@@ -425,7 +425,6 @@ export async function salvarPoliticaSla(
     );
   }
 
-  const ativa = atual.linhas.length === 0 || atual.linhas.some((l) => l.ativa);
   for (const m of p.metas) {
     for (const e of escopos) {
       const linha = existentes.get(chave(m.target, e.tipo, e.id));
@@ -434,6 +433,8 @@ export async function salvarPoliticaSla(
           .update(regraSla)
           .set({
             prazoSeg: m.deadlineSeg,
+            // Salvar pela tela é querer a política valendo: reativa linhas que estivessem desligadas.
+            ativa: true,
             // Alerta que passa a ficar depois do novo prazo nunca dispararia: some.
             alertaSeg: linha.alertaSeg !== null && linha.alertaSeg >= m.deadlineSeg ? null : linha.alertaSeg,
             atualizadoEm: new Date(),
@@ -442,7 +443,7 @@ export async function salvarPoliticaSla(
       } else {
         await tx
           .insert(regraSla)
-          .values({ tenantId: tid, nome: p.name, alvo: m.target, prazoSeg: m.deadlineSeg, escopoTipo: e.tipo, escopoId: e.id, ativa });
+          .values({ tenantId: tid, nome: p.name, alvo: m.target, prazoSeg: m.deadlineSeg, escopoTipo: e.tipo, escopoId: e.id, ativa: true });
       }
     }
   }

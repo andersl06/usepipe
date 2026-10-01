@@ -1,110 +1,88 @@
 import { useState } from 'react';
-import { Botao, BotaoDeIcone } from '@pipe/ui';
+import { Botao, BotaoDeIcone, Carregando, Etiqueta } from '@pipe/ui';
+import { ConfirmModal } from '@pipe/ui/modal';
 import { useRead } from '../../lib/query';
-import { ROTULO_ALVO, type QueueConfigured, type RegraSlaConfigurada } from '../../lib/settings';
-import { editarRegraSla, excluirRegraSla } from '../../lib/settings-gravar';
-import { duration } from '../../lib/format';
+import type { QueueConfigured, RegraSlaConfigurada } from '../../lib/settings';
+import { excluirPoliticaSla } from '../../lib/settings-gravar';
+import { agruparPoliticas, descreverPrazo, type PoliticaSla } from '../../lib/politica-sla';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
-import { Modal, ConfirmModal } from '@pipe/ui/modal';
 import { FormularioRegraSla } from './regras-sla-formulario';
 
 /**
- * The acronym their "Metas" column uses for each target (`dom/sla-policy.html`: "TME, TMR1, TMA" — average wait time, average first-response time, average handling time; `FICHA-sla-policy.md` §8). Our target is a single one per rule, so the column shows one acronym; the deadline and the alert go in the cell's `title`, which is where they fit without opening a column their screen doesn't have.
+ * Regras > SLA. Lista de cartões (nome, metas, filas atribuídas, etiqueta "Padrão", editar e excluir; sem interruptor) e, no lugar dela e na mesma URL, o formulário de criar/editar. Cada cartão é uma política: o servidor guarda uma linha por meta e por escopo, e a tela as junta pelo nome.
  */
-const SIGLA_DO_ALVO: Record<string, string> = {
-  espera_fila: 'TME',
-  primeira_resposta: 'TMR1',
-  resposta: 'TMR',
-  resolucao: 'TMA',
-};
-
-/**
- * Regras ├ SLA — the source's `attendance/desk/sla-policy`, measured in `referencias-blip/fichas/FICHA-sla-policy.md` and checked against the `fotos/original-sla-policy.png` screenshot. Same skeleton as theirs (§2): header, search alone below ("Buscar regras de SLA", §3), card list, and the pagination footer (§5). The card has FOUR columns — "Regras de SLA", "Metas", "Filas atribuídas" and the unlabeled "Padrão" badge (§4) — and nothing else on the row besides the actions. DATA divergences, not layout ones: - **One target per rule.** There, one policy combines several targets ("TME, TMR1"); here `regra_sla.alvo` is a single value. The column shows the target's acronym, and the deadline/alert go in the `title`. - **"Padrão" comes from scope.** What the source calls the default policy is, here, the `tenant`-scope rule — the one `escolherRegra` uses as fallback. The badge is that rule, not a new flag. - **"Filas atribuídas"** is at most one queue (or the whole operation): `scopeType`/`scopeId` tie the rule to a single scope. `TODO(escrita)` removed: real `PATCH`/`POST`/`DELETE` on `/v1/gestao/configuracoes/regras` (item 2 of the Attendance registration task) — "Criar regra" and the card's "Editar"/"Excluir" icons (§5) are wired up the same way as `regras-atendimento.tsx`: toggle + `ConfirmModal` for delete, never `window.confirm`.
- */
-
-/** Switch + edit/delete — the row-card's `acao` slot. */
-function RuleSlaActions({
-  regra,
-  onEditar,
-  onExcluir,
-}: {
-  regra: RegraSlaConfigurada;
-  onEditar: () => void;
-  onExcluir: () => void;
-}) {
-  const alternar = async () => {
-    await editarRegraSla(regra.id, { active: !regra.ativa });
-  };
-  return (
-    <>
-      <button
-        type="button"
-        className="interruptor"
-        role="switch"
-        aria-checked={regra.ativa}
-        aria-label={regra.ativa ? `Desativar a regra ${regra.name}` : `Ativar a regra ${regra.name}`}
-        title={regra.ativa ? 'Desativar esta regra' : 'Ativar esta regra'}
-        onClick={() => void alternar()}
-      >
-        <span className="interruptor-bolinha" />
-      </button>
-      <BotaoDeIcone nome="lapis" rotulo={`Editar a regra ${regra.name}`} onClick={onEditar} />
-      <BotaoDeIcone nome="x" rotulo={`Excluir a regra ${regra.name}`} onClick={onExcluir} />
-    </>
-  );
-}
 
 export function SlaPageRules() {
-  const [modalAberto, setModalAberto] = useState(false);
-  const [ruleInEdit, setRuleInEdit] = useState<RegraSlaConfigurada | null>(null);
-  const [regraParaExcluir, setRegraParaExcluir] = useState<RegraSlaConfigurada | null>(null);
+  // `null` = lista; `{}` = formulário de nova regra; `{ politica }` = edição.
+  const [formulario, setFormulario] = useState<{ politica?: PoliticaSla } | null>(null);
+  const [paraExcluir, setParaExcluir] = useState<PoliticaSla | null>(null);
   const [excluindo, setExcluindo] = useState(false);
   const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
   const read = useRead<{ queues: QueueConfigured[]; regras: RegraSlaConfigurada[] }>(
     '/v1/management/settings/rules',
   );
-  if (!read.data) return null;
+  if (read.isError) return <Etiqueta tom="erro">Não foi possível carregar as regras de SLA.</Etiqueta>;
+  if (!read.data) return <Carregando />;
   const { queues, regras } = read.data;
 
+  if (formulario) {
+    return (
+      <FormularioRegraSla
+        queues={queues}
+        politica={formulario.politica}
+        onFechar={() => setFormulario(null)}
+      />
+    );
+  }
+
   async function excluir() {
-    if (!regraParaExcluir) return;
+    if (!paraExcluir) return;
     setExcluindo(true);
     setErrorDeletion(null);
-    const resultado = await excluirRegraSla(regraParaExcluir.id);
+    const resultado = await excluirPoliticaSla(paraExcluir.id);
     setExcluindo(false);
-    if (resultado.ok) setRegraParaExcluir(null);
+    if (resultado.ok) setParaExcluir(null);
     else setErrorDeletion(resultado.error);
   }
 
   const sections: RulesSection[] = [
     {
       titulo: 'Regras de SLA',
-      empty: 'Nenhuma regra de SLA cadastrada',
-      emptyDescription: 'Toda conversa aparece como “Sem regra” no Monitoramento.',
-      cards: regras.map((r) => {
-        const queueAssigned = r.scopeType === 'tenant' ? '' : (r.scopeName ?? 'fila removida');
-        const meta = SIGLA_DO_ALVO[r.target] ?? r.target;
-        const prazo = `${ROTULO_ALVO[r.target] ?? r.target}: prazo ${duration(r.deadlineSeg)}${
-          r.alertSeg === null ? '' : `, alerta ${duration(r.alertSeg)}`
-        }`;
+      empty: 'Você ainda não possui nenhuma regra de SLA',
+      emptyDescription:
+        'Defina as regras de SLA para determinar os prazos e condições de atendimento dos tickets.',
+      cards: agruparPoliticas(regras).map((p) => {
+        const filas = p.filas.map((f) => f.name).join(', ');
+        const metas = p.metas.map((m) => m.sigla).join(', ');
         return {
-          id: r.id,
+          id: p.id,
           campos: [
-            { rotulo: 'Regras de SLA', value: r.name },
-            { rotulo: 'Metas', value: meta, titulo: prazo },
-            { rotulo: 'Filas atribuídas', value: queueAssigned },
+            { rotulo: 'Regras de SLA', value: p.name },
+            {
+              rotulo: 'Metas',
+              value: metas,
+              titulo: p.metas.map((m) => `${m.sigla}: ${descreverPrazo(m.prazoSeg)}`).join(' · '),
+            },
+            { rotulo: 'Filas atribuídas', value: filas },
           ],
-          selo: r.scopeType === 'tenant' ? 'Padrão' : undefined,
-          situation: r.ativa ? 'Ativa' : 'Desativada',
-          active: r.ativa,
+          selo: p.padrao ? 'Padrão' : undefined,
+          situation: 'Ativa',
+          active: true,
           acao: (
-            <RuleSlaActions
-              regra={r}
-              onEditar={() => setRuleInEdit(r)}
-              onExcluir={() => setRegraParaExcluir(r)}
-            />
+            <>
+              <BotaoDeIcone
+                nome="lapis"
+                rotulo={`Editar a regra ${p.name}`}
+                onClick={() => setFormulario({ politica: p })}
+              />
+              <BotaoDeIcone
+                nome="lixeira"
+                rotulo={`Excluir a regra ${p.name}`}
+                onClick={() => setParaExcluir(p)}
+              />
+            </>
           ),
-          procura: `${r.name} ${meta} ${ROTULO_ALVO[r.target] ?? r.target} ${queueAssigned}`.toLowerCase(),
+          procura: `${p.name} ${metas} ${filas}`.toLowerCase(),
         };
       }),
     },
@@ -118,9 +96,9 @@ export function SlaPageRules() {
           variante="primario"
           icone="mais"
           className="board-acao"
-          onClick={() => setModalAberto(true)}
+          onClick={() => setFormulario({})}
         >
-          Nova regra
+          Criar regra
         </Botao>
       </div>
 
@@ -132,37 +110,21 @@ export function SlaPageRules() {
         pageInitialSize={5}
       />
 
-      <Modal aberto={modalAberto} titulo="Nova regra de SLA" onFechar={() => setModalAberto(false)}>
-        <FormularioRegraSla queues={queues} aoSalvar={() => setModalAberto(false)} />
-      </Modal>
-
-      <Modal
-        aberto={ruleInEdit !== null}
-        titulo="Editar regra de SLA"
-        onFechar={() => setRuleInEdit(null)}
-      >
-        {ruleInEdit ? (
-          <FormularioRegraSla
-            queues={queues}
-            regraExistente={ruleInEdit}
-            aoSalvar={() => setRuleInEdit(null)}
-          />
-        ) : null}
-      </Modal>
-
       <ConfirmModal
-        aberto={regraParaExcluir !== null}
+        aberto={paraExcluir !== null}
         titulo="Excluir regra de SLA"
         message={
           <>
-            Excluir a regra “{regraParaExcluir?.name}”? Esta ação não pode ser desfeita.
+            Ao excluir, novos tickets das filas que seguiam essa regra não serão mais considerados
+            nos indicadores de SLA em Relatórios e em Monitoramento. Deseja realmente excluir a
+            regra de SLA?
           </>
         }
         error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
-          setRegraParaExcluir(null);
+          setParaExcluir(null);
           setErrorDeletion(null);
         }}
       />

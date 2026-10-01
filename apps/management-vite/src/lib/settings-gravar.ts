@@ -66,3 +66,37 @@ export async function excluirRegraSla(id: string): Promise<Resultado<void>> {
     return { ok: false, error: motivoDe(error, 'Não foi possível excluir a regra de SLA.') };
   }
 }
+
+export interface PedidoDePolitica {
+  name: string;
+  padrao: boolean;
+  queueIds: string[];
+  /** Prazo em segundos por meta: `espera_fila`, `primeira_resposta`, `resolucao`. */
+  metas: Record<string, number>;
+}
+
+/** Cria (sem `id`) ou substitui a política de SLA inteira: o servidor grava uma linha por meta e por escopo. */
+export async function salvarPoliticaSla(
+  pedido: PedidoDePolitica,
+  id?: string,
+): Promise<Resultado<{ id: string }>> {
+  try {
+    const gravada = id
+      ? await api.put<{ id: string }>(`/v1/management/settings/rules/policy/${id}`, pedido)
+      : await api.post<{ id: string }>('/v1/management/settings/rules/policy', pedido);
+    atualizarLeituras();
+    return { ok: true, value: gravada };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Erro ao salvar regra!') };
+  }
+}
+
+export async function excluirPoliticaSla(id: string): Promise<Resultado<void>> {
+  try {
+    await api.delete(`/v1/management/settings/rules/policy/${id}`);
+    atualizarLeituras();
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Ocorreu um erro ao excluir a regra de SLA') };
+  }
+}

@@ -19,6 +19,7 @@ export interface RegraSlaConfigurada {
   deadlineSeg: number;
   alertSeg: number | null;
   scopeType: string;
+  scopeId: string | null;
   scopeName: string | null;
   ativa: boolean;
 }
@@ -34,15 +35,15 @@ export interface QueueConfigured {
 
 /** Rótulos do banco em português corrente. O alvo é enum, não texto livre. */
 export const ROTULO_ALVO: Record<string, string> = {
-  firstResponse: 'Primeira resposta',
+  primeira_resposta: 'Primeira resposta',
   resposta: 'Tempo de resposta',
-  resolution: 'Encerramento',
-  waitQueue: 'Espera na fila',
+  resolucao: 'Encerramento',
+  espera_fila: 'Espera na fila',
 };
 
 export const LABEL_SCOPE: Record<string, string> = {
   tenant: 'Toda a operação',
-  queue: 'Fila',
+  fila: 'Fila',
 };
 
 /*
