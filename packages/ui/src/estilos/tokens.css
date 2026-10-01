@@ -290,6 +290,18 @@
   --p-atend-equipe-linha-permissao: 56px;
   --p-atend-equipe-interruptor-largura: 32px;
   --p-atend-equipe-interruptor-altura: 21px;
+
+  /*
+   * ================================== Attendance: queue edit page
+   *      Five stacked cards measured live 2026-10-01 (`ref/verificacao/queue-management-editar-blip.md`):
+   *      16px radius, 40px padding, 20px between cards, soft shadow. The Blip card fill (#f6f6f6)
+   *      has no brand twin, so Pipe keeps the white card surface.
+   */
+  --p-atend-fila-cartao-raio: 16px;
+  --p-atend-fila-cartao-padding: 40px;
+  --p-atend-fila-cartao-margem: 20px;
+  --p-atend-fila-cartao-sombra: 0 2px 8px -2px rgba(0, 0, 0, 0.16);
+  --p-atend-fila-busca-borda: 1px;
 }
 
 /*

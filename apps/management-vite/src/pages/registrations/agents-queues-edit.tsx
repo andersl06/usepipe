@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Botao, BotaoDeIcone, Campo, Card, Etiqueta, Icone } from '@pipe/ui';
 import { Pagination, usePage } from '@pipe/ui/pagination';
 import { useRead } from '../../lib/query';
@@ -27,16 +27,16 @@ import { ConfirmModal } from '@pipe/ui/modal';
 /**
  * Editing a queue — its OWN PAGE, not a modal.
  *
- * The source's `attendance.desk.queueManagement.edit` is `url:"/edit/:id"` (`FICHA-atendentes-filas-pausas.md` §a.1) — what the owner asked for. The anatomy follows §a.3: three sections in the order **Atendentes → Regras de Priorização → Tags**, with the literal text from `i18n.js`.
+ * Served at the SAME path as the list (`queue-management`), like the Blip, which keeps the URL while editing; the queue id travels in `?fila=`, so reload and deep links still work. The anatomy follows the live Blip capture: five stacked cards (Atendentes, Regras de Atendimento, Regras de Priorização, Tags, Encerramento automático).
  *
- * **Tags was left out.** The source has "Gerenciar tags da fila", but in Pipe `etiqueta` is per TENANT, with no link to a queue (§e.7 of the ficha) — building that link is migration + domain + route + Desk consumption, and it's logged as a pending item, not invented here.
+ * **Tags and automatic closing are shown disabled.** The Blip has them per queue, but in Pipe `etiqueta` is per TENANT, with no link to a queue (§e.7 of the ficha) — building that link is migration + domain + route + Desk consumption, so they wait for a backend.
  *
  * **"Adicionar atendente" NAVIGATES, it doesn't open a form here.** The source proves this with the empty-state text itself (`noAttendantsBody`: "clicking Adicionar atendente redirects to the Equipe de atendimento page"). In Pipe, linking someone into the queue is the SAME save as batch "Editar atendente" (`POST .../filas/:id/atendentes`) — which is why the button goes to `atendentes/gestao`, not to a picker on this page.
  *
- * **"Dados da fila" is a section that's ours alone**, with no sub-route in the source: color, order, default capacity, schedule, and the "Ativa" toggle moved here from the creation modal (`atendentes-filas-formulario.tsx` already documented this).
+ * **"Configurações do Pipe" is a disclosure that's ours alone**, collapsed at the very bottom: color, order, default capacity, schedule, and the "Ativa" toggle (the Blip has no card for them).
  */
 export function QueuePageEdit() {
-  const { queueId } = useParams<{ queueId: string }>();
+  const queueId = useSearchParams()[0].get('fila');
   const navegar = useNavigate();
   const { contact } = useContact();
   const base = attendanceBase(contact);
@@ -204,7 +204,8 @@ function QueueData({
   }
 
   return (
-    <Card titulo="Dados da fila">
+    <details className="fila-pipe">
+      <summary>Configurações do Pipe</summary>
       <form className="form-registration" onSubmit={(e) => void salvar(e)}>
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '280px' }}>
@@ -276,7 +277,7 @@ function QueueData({
           </Botao>
         </div>
       </form>
-    </Card>
+    </details>
   );
 }
 
@@ -316,6 +317,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
 
   return (
     <Card
+      className="fila-cartao"
       titulo="Atendentes atribuídos"
       actions={
         <Botao variante="primario" icone="mais" onClick={() => navegar(`${base}/team`)}>
@@ -449,6 +451,7 @@ function SectionRulesAttendance({
 
   return (
     <Card
+      className="fila-cartao"
       titulo="Regras de Atendimento"
       actions={
         <Botao variante="primario" icone="mais" onClick={() => navegar(`${base}/rules`)}>
@@ -507,7 +510,7 @@ function SectionPendente({
   interruptor?: boolean;
 }) {
   return (
-    <Card titulo={titulo}>
+    <Card className="fila-cartao" titulo={titulo}>
       <p className="sub">{descricao}</p>
       {interruptor ? (
         <button
@@ -557,6 +560,7 @@ function PrioritySectionRules({
 
   return (
     <Card
+      className="fila-cartao"
       titulo="Regras de Priorização"
       actions={
         <Botao variante="primario" icone="mais" onClick={() => setCriando(true)} disabled={criando}>

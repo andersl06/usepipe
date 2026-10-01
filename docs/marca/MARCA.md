@@ -108,6 +108,11 @@ Mesmo rodapé "Resultados por página" em grades e listas; só a margem de cima 
 | `--p-atend-equipe-avatar` | `56px` | Lado do avatar de iniciais acima do cartão de Editar e Permissões | `atendentes-medidas-blip.md` ([M]) |
 | `--p-atend-equipe-linha-permissao` | `56px` | Altura de cada linha de permissão | `atendentes-medidas-blip.md` ([M]) |
 | `--p-atend-equipe-interruptor-largura` / `-altura` | `32px` / `21px` | Interruptor curto das páginas de atendente (altura 18px em Adicionar, 21,3px em Editar [M]; 21px adotado) | `atendentes-medidas-blip.md` ([M]) |
+| `--p-atend-fila-cartao-raio` | `16px` | Raio dos cinco cartões da edição de fila | `queue-management-editar-blip.md` ([M]) |
+| `--p-atend-fila-cartao-padding` | `40px` | Padding dos cartões da edição de fila | `queue-management-editar-blip.md` ([M]) |
+| `--p-atend-fila-cartao-margem` | `20px` | Espaço entre os cartões empilhados | `queue-management-editar-blip.md` ([M]) |
+| `--p-atend-fila-cartao-sombra` | `0 2px 8px -2px rgba(0,0,0,.16)` | Sombra do cartão (o fundo `#f6f6f6` da Blip não foi adotado: o Pipe mantém a superfície branca do cartão) | `queue-management-editar-blip.md` ([M]) |
+| `--p-atend-fila-busca-borda` | `1px` | Borda do campo de busca da fila (a Blip mede 0,889px por DPR 1,125) | `queue-management-editar-blip.md` ([M]) |
 
 ## Tipografia
 - Texto e títulos: **IBM Plex Sans** (system stack com Helvetica/Arial de reserva). Uma família só

@@ -4979,6 +4979,24 @@ tr.grupo th {
   gap: 8px;
 }
 
+/* Edição de fila: cartões empilhados como na Blip e disclosure das configurações próprias do Pipe. */
+.card.fila-cartao {
+  margin-bottom: var(--p-atend-fila-cartao-margem);
+  padding: var(--p-atend-fila-cartao-padding);
+  border-radius: var(--p-atend-fila-cartao-raio);
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-atend-fila-cartao-sombra);
+}
+
+.fila-cartao .search-top {
+  border-width: var(--p-atend-fila-busca-borda);
+}
+
+.fila-pipe > summary {
+  cursor: pointer;
+  font-weight: var(--p-peso-forte);
+}
+
 .fila-cab-nome {
   display: flex;
   align-items: center;
