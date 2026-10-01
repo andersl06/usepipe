@@ -57,7 +57,7 @@ Estrutura da Blip, de cima para baixo [M] (texto do HTML):
 | Regras de Atendimento da fila | parcial | não | lista as regras de entrada cujo destino é a fila; "Criar regra" e "Editar" levam à página de regras; "Excluir" apaga pela API existente. Criar/editar dentro da fila (modal) não foi capturado | NEEDS VALIDATION (C-15) |
 | Regras de Priorização da fila | sim | não | já existia; rótulos e vazio igualados à Blip | NEEDS VALIDATION (C-15) |
 | Tags da fila | não | sim (tag por fila exige vínculo etiqueta-fila no domínio) | campo de chips funcional (coluna `fila.etiquetas`, migração 0086), Salvar alterações próprio, desabilitado até mudar | NEEDS VALIDATION (C-15) |
-| Encerramento automático por inatividade | não | sim (regra por fila no motor) | interruptor funcional (grava na hora, reverte com mensagem se falhar), conteúdo completo e Salvar; o processo que encerra existe e vem desligado por padrão (`PIPE_ENCERRAMENTO_AUTOMATICO`) | NEEDS VALIDATION (C-15) |
+| Encerramento automático por inatividade | não | sim (regra por fila no motor) | interruptor funcional (grava na hora, reverte com mensagem se falhar), conteúdo completo e Salvar; o processo que encerra roda sempre e age só nas filas com o interruptor ligado; o alerta de inatividade é enviado uma vez por ciclo como mensagem automática do sistema | NEEDS VALIDATION (C-15) |
 | Cor, capacidade padrão, ordem, horário e "Ativa" | sim | não | disclosure "Configurações do Pipe" **removido a pedido do dono (2026-10-01)**. Nome: renomeia no lugar (lápis do cabeçalho). Ativa: interruptor na lista de filas. **Sem edição em nenhum lugar agora: cor, capacidade padrão, ordem e horário** (colunas e campos da API mantidos; a criação grava os padrões) | pendente do dono: onde editar esses quatro, se for o caso |
 | Cinco cartões empilhados (ordem Atendentes, Regras de Atendimento, Regras de Priorização, Tags, Encerramento) com raio 16, padding 40, 20 entre cartões, sombra `0 2px 8px -2px rgba(0,0,0,.16)` | sim | não | classe `fila-cartao` com tokens `--p-atend-fila-*`; **medido na Blip [M], declarado no Pipe**: fundo `#f6f6f6` não adotado (superfície branca do Pipe), busca com borda de 1px | NEEDS VALIDATION (sem render no Pipe) |
 | URL da edição | sim | não | mesmo caminho da lista, `queue-management?fila={id}`; a antiga `queue-management/:id/edit` redireciona | NEEDS VALIDATION (declarado) |
@@ -93,7 +93,18 @@ Medidas da Blip: `queue-management-cartoes-blip.md` [M]. Nenhuma linha abaixo fo
 | Regra de atendimento (formulário inline) | título editável com lápis, Se/Condição/Valor, E/OU, Adicionar condição, remover, Cancelar/Salvar [M] | igual; "Se": Mensagem, Nome Contato, Email Contato, Extras Contato (com chave); conector único para a regra toda (o Pipe grava um combinador por regra) | NEEDS VALIDATION |
 | Regra de priorização (formulário inline) | título editável, Grau de urgência (Baixa/Média/Alta), checkbox de condições, editor de condições [M] | igual; condição gravada como expressão do motor; sem a opção Máxima no select (só aparece ao editar uma regra que já a tem) | NEEDS VALIDATION |
 | Tags da fila | campo de chips + Salvar alterações [M] | campo de chips e Salvar alterações funcionais (tags gravadas na fila; limites 30 tags de 40 caracteres, sem HTML) | NEEDS VALIDATION |
-| Encerramento automático | interruptor alto grava na hora; conteúdo com tempo/unidade, 3 checkboxes, alerta, tags, Salvar [M]/[B] | cabeçalho com interruptor que grava na hora; tempo/unidade (> 0, até 30 dias), 3 checkboxes, alerta (mensagem, antecedência menor que a inatividade), tags de encerramento e Salvar; o envio do alerta ao cliente ainda não está ativo (aviso no cartão) | NEEDS VALIDATION |
+| Encerramento automático | interruptor alto grava na hora; conteúdo com tempo/unidade, 3 checkboxes, alerta, tags, Salvar [M]/[B] | cabeçalho com interruptor que grava na hora; tempo/unidade (> 0, até 30 dias), 3 checkboxes, alerta (mensagem, antecedência menor que a inatividade), tags de encerramento e Salvar; o alerta ao cliente é enviado de verdade (sem aviso de "não ativo"); todas as seleções (Se, Condição, Grau de urgência, unidades, conector E/OU) usam o select global | NEEDS VALIDATION |
+
+## Correções C4 (2026-10-01)
+
+| Item | Estado |
+|---|---|
+| Seleções da edição de fila (Se, Condição, Grau de urgência, Minutos/Horas, conector E/OU) | trocadas do `<select>` nativo (`Seletor`) pelo `Select` global (combobox/listbox, setas, Enter, Esc, busca por letra); NEEDS VALIDATION no navegador |
+| `PIPE_ENCERRAMENTO_AUTOMATICO` | removida; o worker roda sempre e age só em filas com `encerramento_automatico.ativo`. `PIPE_ENCERRAMENTO_AUTOMATICO_MS` (intervalo, padrão 60000) fica como ajuste opcional |
+| Alerta de inatividade | enviado uma vez por ciclo, `antecedencia` antes de vencer, pela outbox como mensagem do sistema (`autor_tipo = 'sistema'`, `dados.automatica`); não toca em `ultima_mensagem_*`, nem no estado, nem na linha do tempo, então não reinicia a contagem nem afeta primeira resposta/esforço. Marca em `conversa.alerta_inatividade_em` (migração 0087). Mensagem mais nova (cliente ou atendente) abre novo ciclo |
+| Mensagem de encerramento | NÃO enviada: a configuração gravada não tem texto de encerramento (a Blip manda personalizar no builder, nas condições de saída) |
+
+Pendentes de C3 fechados em C4: 1 (variável geral removida) e 2 (alerta enviado e marca "alerta já enviado"). Seguem abertos: 2 (só a mensagem de encerramento), 3 (`removerDaTela`), 4 a 10.
 
 ## Lacunas
 
