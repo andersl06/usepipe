@@ -146,7 +146,9 @@ const contactRoutes = (
       <Route path="rules" element={<AttendancePageRules />} />
       <Route path="sla-policy" element={<SlaPageRules />} />
       <Route path="attendance-hours" element={<PageHours />} />
-      <Route path="preferences/general" element={<PageSettingsGeneral />} />
+      {/* `preferences/general` -> `general-settings` (03.2 D-04, R-01); o endereço antigo redireciona. `preferences/data` e `preferences/rules` ficam como estão até a tela definir as abas. */}
+      <Route path="general-settings" element={<PageSettingsGeneral />} />
+      <Route path="preferences/general" element={<Navigate to="../general-settings" replace />} />
       <Route path="preferences/data" element={<PageData />} />
       <Route path="preferences/rules" element={<PageRules />} />
       <Route path="channels" element={<PageChannels />} />

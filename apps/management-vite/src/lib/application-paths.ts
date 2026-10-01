@@ -75,6 +75,7 @@ const CONTACT_SEGMENT_RENAMES: readonly [string, string][] = [
   ['attendance/agents/management/permissions', 'attendance/team/permission'],
   ['attendance/agents/management', 'attendance/team'],
   ['attendance/agents/breaks', 'attendance/personalizedbreaks'],
+  ['attendance/preferences/general', 'attendance/general-settings'],
   ['attendance/rules/sla', 'attendance/sla-policy'],
   ['attendance/rules/attendance', 'attendance/rules'],
   ['attendance/rules/hours', 'attendance/attendance-hours'],
