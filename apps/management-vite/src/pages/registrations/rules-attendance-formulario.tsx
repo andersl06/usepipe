@@ -1,6 +1,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
 import { saveRuleQueue, type Resultado } from '../../lib/actions';
+import { useContact } from '../flow/contact';
 import { editRuleQueue } from '../../lib/registrations-gravar';
 import {
   CAMPOS_DE_REGRA,
@@ -95,7 +96,7 @@ function ConditionRow({
 }
 
 /** `(prev, dados) => Resultado` no mesmo formato de `acaoRemota`, mas chamando o `PATCH` REST em vez de `acoes/:acao`. */
-function editAction(id: string) {
+function editAction(flowId: string, id: string) {
   return async (_anterior: Resultado, data: FormData): Promise<Resultado> => {
     const campos = data.getAll('campo').map((v) => String(v));
     const operadores = data.getAll('operador').map((v) => String(v));
@@ -109,7 +110,7 @@ function editAction(id: string) {
       // A blank row isn't included — same filter as `salvarRegraFila` (create action).
       .filter((c) => c.campo || c.value);
 
-    const resultado = await editRuleQueue(id, {
+    const resultado = await editRuleQueue(flowId, id, {
       nome: String(data.get('nome') ?? '').trim(),
       queueDestinationId: String(data.get('filaDestinoId') ?? '').trim(),
       combinador: (String(data.get('combinador') ?? 'e') as 'e' | 'ou'),
@@ -141,6 +142,7 @@ export function RuleQueueForm({
    */
   destinoFixo?: { id: string; name: string };
 }) {
+  const { contact } = useContact();
   const editando = regraExistente !== undefined;
   const formRef = useRef<HTMLFormElement>(null);
   const [linhas, setLinhas] = useState(regraExistente?.conditions.length ?? 1);
@@ -149,7 +151,7 @@ export function RuleQueueForm({
    */
   const [generation, setGeneration] = useState(0);
   const [resultado, enviar, enviando] = useActionState(
-    regraExistente ? editAction(regraExistente.id) : saveRuleQueue,
+    regraExistente ? editAction(contact.id, regraExistente.id) : saveRuleQueue,
     { ok: true },
   );
   /*
@@ -186,6 +188,7 @@ export function RuleQueueForm({
             const fixo = (CAMPOS_DE_REGRA as readonly string[]).includes(c);
             data.append('campo', fixo || c === '' ? c : `${PREFIX_ATTRIBUTE}${c}`);
           }
+          data.set('fluxoId', contact.id);
           enviar(data);
         })}
         className="form-registration"

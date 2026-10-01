@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Botao, BotaoDeIcone, Campo, Card, Etiqueta, Icone } from '@pipe/ui';
 import { Pagination, usePage } from '@pipe/ui/pagination';
 import { useRead } from '../../lib/query';
+import { withFlow } from '../../lib/flow-scope';
 import type { QueueRegistered, QueueRegisteredRule, Horarios } from '../../lib/registrations';
 import { descreverRegra } from '../../lib/rule-queue';
 import {
@@ -40,13 +41,15 @@ export function QueuePageEdit() {
   const { contact } = useContact();
   const base = attendanceBase(contact);
 
-  const readQueues = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
+  const readQueues = useRead<{ queues: QueueRegistered[] }>(
+    withFlow('/v1/management/agents/queues', contact.id),
+  );
   const readHours = useRead<Horarios & { fuso: string }>('/v1/management/rules/schedules');
   const readRules = useRead<PriorityRule[]>(
-    '/v1/management/rules/priority',
+    withFlow('/v1/management/rules/priority', contact.id),
   );
   const readRulesAttendance = useRead<{ regras: QueueRegisteredRule[] }>(
-    '/v1/management/rules/attendance',
+    withFlow('/v1/management/rules/attendance', contact.id),
   );
 
   if (!readQueues.data || !readHours.data || !readRules.data || !readRulesAttendance.data) return null;
@@ -92,6 +95,7 @@ export function QueuePageEdit() {
 
 /** Voltar, nome da fila e lápis que renomeia no lugar. */
 function QueueHeader({ queue, base }: { queue: QueueRegistered; base: string }) {
+  const { contact } = useContact();
   const navegar = useNavigate();
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState(queue.name);
@@ -107,7 +111,7 @@ function QueueHeader({ queue, base }: { queue: QueueRegistered; base: string }) 
     }
     setSalvando(true);
     setError(null);
-    const resultado = await editQueue(queue.id, { nome: nome.trim() });
+    const resultado = await editQueue(contact.id, queue.id, { nome: nome.trim() });
     setSalvando(false);
     if (resultado.ok) setEditando(false);
     else setError(falhaAoSalvar(resultado.error));
@@ -164,6 +168,7 @@ function QueueData({
   queue: QueueRegistered;
   horarios: readonly { id: string; name: string }[];
 }) {
+  const { contact } = useContact();
   const [nome, setNome] = useState(queue.name);
   const [cor, setCor] = useState(queue.color ?? '#5b5fed');
   const [capacity, setCapacity] = useState(String(queue.capacityDefault));
@@ -186,7 +191,7 @@ function QueueData({
     if (!mudou || !nome.trim()) return;
     setSalvando(true);
     setError(null);
-    const resultado = await editQueue(queue.id, {
+    const resultado = await editQueue(contact.id, queue.id, {
       nome: nome.trim(),
       cor,
       capacityDefault: Number(capacity),
@@ -284,6 +289,7 @@ function inicial(a: { name: string; email: string }): string {
 }
 
 function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }) {
+  const { contact } = useContact();
   const navegar = useNavigate();
   const [search, setSearch] = useState('');
   const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
@@ -302,7 +308,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
     if (!paraRemover) return;
     setRemovendo(true);
     setError(null);
-    const resultado = await queueUnlinkAgent(queue.id, paraRemover.id);
+    const resultado = await queueUnlinkAgent(contact.id, queue.id, paraRemover.id);
     setRemovendo(false);
     if (resultado.ok) setParaRemover(null);
     else setError(falhaAoSalvar(resultado.error));
@@ -424,6 +430,7 @@ function SectionRulesAttendance({
   regras: readonly QueueRegisteredRule[];
   base: string;
 }) {
+  const { contact } = useContact();
   const navegar = useNavigate();
   const pagina = usePage(regras, 5);
   const [paraExcluir, setParaExcluir] = useState<QueueRegisteredRule | null>(null);
@@ -434,7 +441,7 @@ function SectionRulesAttendance({
     if (!paraExcluir) return;
     setExcluindo(true);
     setError(null);
-    const resultado = await deleteRuleQueue(paraExcluir.id);
+    const resultado = await deleteRuleQueue(contact.id, paraExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setParaExcluir(null);
     else setError(falhaAoSalvar(resultado.error));
@@ -530,6 +537,7 @@ function PrioritySectionRules({
   queue: QueueRegistered;
   regras: readonly PriorityRule[];
 }) {
+  const { contact } = useContact();
   const [criando, setCriando] = useState(false);
   const [paraExcluir, setParaExcluir] = useState<{ id: string; nome: string } | null>(null);
   const [excluindo, setExcluindo] = useState(false);
@@ -541,7 +549,7 @@ function PrioritySectionRules({
     if (!paraExcluir) return;
     setExcluindo(true);
     setError(null);
-    const resultado = await priorityDeleteRule(paraExcluir.id);
+    const resultado = await priorityDeleteRule(contact.id, paraExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setParaExcluir(null);
     else setError(falhaAoSalvar(resultado.error));
@@ -598,6 +606,7 @@ function PrioritySectionRules({
 }
 
 function PriorityFormRule({ queueId, onFechar }: { queueId: string; onFechar: () => void }) {
+  const { contact } = useContact();
   const [nome, setNome] = useState('');
   const [nivel, setNivel] = useState(NIVEIS_ATRIBUIVEIS[0] ?? '');
   const [enviando, setEnviando] = useState(false);
@@ -608,7 +617,7 @@ function PriorityFormRule({ queueId, onFechar }: { queueId: string; onFechar: ()
     if (!nome.trim()) return;
     setEnviando(true);
     setError(null);
-    const resultado = await priorityCreateRule({
+    const resultado = await priorityCreateRule(contact.id, {
       nome: nome.trim(),
       nivel,
       scopeType: 'fila',

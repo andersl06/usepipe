@@ -77,7 +77,7 @@ export async function saveAgent(
   capacity: number | null | undefined,
 ): Promise<Resultado<void>> {
   const alvo = capacity === undefined ? next.filter((f) => !current.includes(f)) : next;
-  const r = await applyInSelection([userId], alvo, capacity ?? null);
+  const r = await applyInSelection(flowId, [userId], alvo, capacity ?? null);
   if (!r.ok) return r;
   for (const queueId of current.filter((f) => !next.includes(f))) {
     const u = await queueUnlinkAgent(flowId, queueId, userId);

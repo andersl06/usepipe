@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
+import { withFlow } from '../../lib/flow-scope';
 import type { QueueRegistered } from '../../lib/registrations';
-import { toggleQueue, deleteQueue, falhaAoSalvar } from '../../lib/registrations-gravar';
+import { toggleQueue, deleteQueue, falhaAoSalvar, setDefaultQueue } from '../../lib/registrations-gravar';
 import { numero } from '../../lib/format';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { useContact } from '../flow/contact';
@@ -35,12 +36,21 @@ function QueueActions({
   onEditar: () => void;
   onExcluir: () => void;
 }) {
+  const { contact } = useContact();
   const alternar = async () => {
-    const r = await toggleQueue(queue.id, queue.ativa);
+    const r = await toggleQueue(contact.id, queue.id, queue.ativa);
+    if (!r.ok) onErrorToggle(falhaAoSalvar(r.error));
+  };
+  const padrao = async () => {
+    const r = await setDefaultQueue(contact.id, queue.isDefault ? null : queue.id);
     if (!r.ok) onErrorToggle(falhaAoSalvar(r.error));
   };
   return (
     <>
+      {queue.isDefault ? <Etiqueta>Padrão</Etiqueta> : null}
+      <Botao type="button" onClick={() => void padrao()}>
+        {queue.isDefault ? 'Remover padrão' : 'Definir como padrão'}
+      </Botao>
       <BotaoDeIcone nome="lapis" rotulo="Editar" onClick={onEditar} />
       <BotaoDeIcone nome="x" rotulo="Excluir" onClick={onExcluir} />
       <button
@@ -67,7 +77,7 @@ export function PageQueues() {
   const [excluindo, setExcluindo] = useState(false);
   const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
   const [errorToggle, setErrorToggle] = useState<string | null>(null);
-  const read = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
+  const read = useRead<{ queues: QueueRegistered[] }>(withFlow('/v1/management/agents/queues', contact.id));
   if (!read.data) return null;
   const { queues } = read.data;
 
@@ -75,7 +85,7 @@ export function PageQueues() {
     if (!queueForDelete) return;
     setExcluindo(true);
     setErrorDeletion(null);
-    const resultado = await deleteQueue(queueForDelete.id);
+    const resultado = await deleteQueue(contact.id, queueForDelete.id);
     setExcluindo(false);
     if (resultado.ok) setQueueForDelete(null);
     else setErrorDeletion(falhaAoSalvar(resultado.error));

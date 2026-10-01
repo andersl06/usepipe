@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
+import { useContact } from '../flow/contact';
+import { withFlow } from '../../lib/flow-scope';
 import type { QueueForChoose, QueueRegisteredRule } from '../../lib/registrations';
 import { descreverRegra, regrasInalcancaveis, rotuloDoCampo } from '../../lib/rule-queue';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
@@ -21,8 +23,10 @@ interface QueueRules {
 
 /** The card's toggle. A one-button form: there's nothing typed to preserve. */
 function Interruptor({ id, active, nome }: { id: string; active: boolean; nome: string }) {
+  const { contact } = useContact();
   return (
     <form action={(data: FormData) => void toggleRuleQueue({ ok: true }, data)}>
+      <input type="hidden" name="fluxoId" value={contact.id} />
       <input type="hidden" name="id" value={id} />
       <button
         type="submit"
@@ -76,13 +80,14 @@ function RuleActions({
 }
 
 export function AttendancePageRules() {
+  const { contact } = useContact();
   const [modalAberto, setModalAberto] = useState(false);
   const [ruleInEdit, setRuleInEdit] = useState<QueueRegisteredRule | null>(null);
   const [regraParaExcluir, setRegraParaExcluir] = useState<QueueRegisteredRule | null>(null);
   const [excluindo, setExcluindo] = useState(false);
   const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
   const [errorReorder, setErrorReorder] = useState<string | null>(null);
-  const read = useRead<QueueRules>('/v1/management/rules/attendance');
+  const read = useRead<QueueRules>(withFlow('/v1/management/rules/attendance', contact.id));
   if (!read.data) return null;
   const { regras, queues, defaults } = read.data;
   const mortas = new Set(regrasInalcancaveis(regras));
@@ -103,7 +108,7 @@ export function AttendancePageRules() {
     nova[j] = tmp;
     for (const [indice, r] of nova.entries()) {
       if (r.order === indice) continue;
-      const resultado = await editRuleQueue(r.id, { order: indice });
+      const resultado = await editRuleQueue(contact.id, r.id, { order: indice });
       if (!resultado.ok) {
         setErrorReorder(resultado.error);
         return;
@@ -115,7 +120,7 @@ export function AttendancePageRules() {
     if (!regraParaExcluir) return;
     setExcluindo(true);
     setErrorDeletion(null);
-    const resultado = await deleteRuleQueue(regraParaExcluir.id);
+    const resultado = await deleteRuleQueue(contact.id, regraParaExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setRegraParaExcluir(null);
     else setErrorDeletion(resultado.error);

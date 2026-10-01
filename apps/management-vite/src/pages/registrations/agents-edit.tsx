@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Botao, Etiqueta } from '@pipe/ui';
 import { ChipsInput } from '@pipe/ui/chips-input';
 import { useRead } from '../../lib/query';
+import { withFlow } from '../../lib/flow-scope';
 import type { AgentRegistered, QueueRegistered } from '../../lib/registrations';
 import { applyInSelection, saveAgent } from '../../lib/agents-gravar';
 import { editTitle, resolveEmails } from '../../lib/agents';
@@ -22,7 +23,7 @@ export function AgentPageEdit({ modo }: { modo: 'editar' | 'adicionar' }) {
   const { contact } = useContact();
   const base = attendanceBase(contact);
   const readAgents = useRead<AgentRegistered[]>('/v1/management/agents/management');
-  const readQueues = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
+  const readQueues = useRead<{ queues: QueueRegistered[] }>(withFlow('/v1/management/agents/queues', contact.id));
   if (!readAgents.data || !readQueues.data) return null;
   const queues = readQueues.data.queues.map((f) => ({ id: f.id, nome: f.name }));
 
@@ -62,6 +63,7 @@ function capacidadeDe(padrao: boolean, valor: string): number | null {
 }
 
 function Adicionar({ agents, queues, base }: { agents: AgentRegistered[]; queues: Opcoes; base: string }) {
+  const { contact } = useContact();
   const navegar = useNavigate();
   const [emails, setEmails] = useState<string[]>([]);
   const [filas, setFilas] = useState<string[]>([]);
@@ -79,7 +81,7 @@ function Adicionar({ agents, queues, base }: { agents: AgentRegistered[]; queues
     }
     setEnviando(true);
     setError(null);
-    const resultado = await applyInSelection(ids, filas, capacidadeDe(padrao, valor));
+    const resultado = await applyInSelection(contact.id, ids, filas, capacidadeDe(padrao, valor));
     setEnviando(false);
     if (resultado.ok) navegar(`${base}/team`);
     else setError(resultado.error);
@@ -140,6 +142,7 @@ function Editar({
   base: string;
 }) {
   const navegar = useNavigate();
+  const { contact } = useContact();
   const unico = selecionados.length === 1 ? selecionados[0]! : null;
   const atuais = unico?.queueIds ?? [];
   const [filas, setFilas] = useState<string[]>(atuais);
@@ -168,8 +171,9 @@ function Editar({
     setError(null);
     const capacidade = tocouTeto ? capacidadeDe(padrao, valor) : undefined;
     const resultado = unico
-      ? await saveAgent(unico.id, atuais, filas, capacidade)
+      ? await saveAgent(contact.id, unico.id, atuais, filas, capacidade)
       : await applyInSelection(
+          contact.id,
           selecionados.map((a) => a.id),
           filas,
           capacidade ?? null,

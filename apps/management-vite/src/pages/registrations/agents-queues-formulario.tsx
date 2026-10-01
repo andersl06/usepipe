@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useActionState } from 'react';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
 import { saveQueue } from '../../lib/actions';
+import { useContact } from '../flow/contact';
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
@@ -23,6 +24,7 @@ export function QueueForm({
   /** Closes the modal when the save succeeds. */
   aoSalvar?: () => void;
 }) {
+  const { contact } = useContact();
   const formRef = useRef<HTMLFormElement>(null);
   /*
    * Controlled only so "Salvar" starts disabled, like the source's `save-button` — not to hold the value, which `FormData` already carries.
@@ -62,6 +64,7 @@ export function QueueForm({
       {/*
  * The new queue's defaults. Editable in "Dados da fila", on the edit page — they only exist here because `criarFila` requires the capacity.
  */}
+      <input type="hidden" name="fluxoId" value={contact.id} />
       <input type="hidden" name="capacidadePadrao" value={5} />
       <input type="hidden" name="ordem" value={0} />
       <input type="hidden" name="ativa" value="on" />

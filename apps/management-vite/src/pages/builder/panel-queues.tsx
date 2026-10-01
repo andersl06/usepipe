@@ -1,6 +1,8 @@
 import { useReducer, useState, type FormEvent } from 'react';
 import { Botao, Campo, Carregando, Etiqueta, Icone, Illustration } from '@pipe/ui';
 import { useRead } from '../../lib/query';
+import { withFlow } from '../../lib/flow-scope';
+import { useContact } from '../flow/contact';
 import type { QueueRegistered } from '../../lib/registrations';
 import { toggleQueue } from '../../lib/registrations-gravar';
 import { saveQueue } from '../../lib/actions';
@@ -11,7 +13,7 @@ import { QueueRulesView } from './queue-rules';
 
 /**
  * The Builder's embedded queue manager (D-56 item 4, reverting D-15): list, search (Enter-only),
- * card switch, and create form, all writing to the same queues the Desk registry reads
+ * card switch, and create form, scoped to the open flow (as filas deste fluxo, D-04)
  * (`/v1/management/agents/queues`, `toggleQueue`/`saveQueue` from `registrations-gravar.ts`/
  * `actions.ts`). Rules live in `queues-panel.ts`; this component only wires them to the read and
  * the two writes. The "regras" mode renders `QueueRulesView` (`queue-rules.tsx`), which owns its
@@ -27,7 +29,8 @@ export function QueuesPanel({
   onFechar: () => void;
   onAviso: (aviso: QueuesAviso) => void;
 }) {
-  const read = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
+  const { contact } = useContact();
+  const read = useRead<{ queues: QueueRegistered[] }>(withFlow('/v1/management/agents/queues', contact.id));
   const [modo, despacharModo] = useReducer(queuesPanelReducer, { modo: 'lista' });
   const [termoDigitado, setTermoDigitado] = useState('');
   const [termoAplicado, setTermoAplicado] = useState('');
@@ -46,7 +49,7 @@ export function QueuesPanel({
   };
 
   const alternar = async (queue: QueueRegistered) => {
-    const resultado = await toggleQueue(queue.id, queue.ativa);
+    const resultado = await toggleQueue(contact.id, queue.id, queue.ativa);
     if (!resultado.ok) onAviso({ tom: 'erro', texto: resultado.error });
   };
 
@@ -199,6 +202,7 @@ function QueuesList({
                 <div className="bl-queue-card-info">
                   <span className="bl-queue-card-label">Fila de Atendimento</span>
                   <span className="bl-queue-card-name">{queue.name}</span>
+                  {queue.isDefault && <Etiqueta>Padrão</Etiqueta>}
                 </div>
                 <div className="bl-queue-card-right">
                   <div className="bl-queue-card-actions">
@@ -252,6 +256,7 @@ function QueueCreateForm({
   onSalvo: (nome: string) => void;
   onAviso: (aviso: QueuesAviso) => void;
 }) {
+  const { contact } = useContact();
   const [nome, setNome] = useState('');
   const [erroCampo, setErroCampo] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
@@ -275,6 +280,7 @@ function QueueCreateForm({
     if (!validar()) return;
     setEnviando(true);
     const dados = new FormData();
+    dados.set('fluxoId', contact.id);
     dados.set('nome', nome.trim());
     dados.set('capacidadePadrao', '5');
     dados.set('ordem', '0');

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Botao, Campo, Carregando, Etiqueta, Icone, Illustration } from '@pipe/ui';
 import { useRead } from '../../lib/query';
+import { withFlow } from '../../lib/flow-scope';
+import { useContact } from '../flow/contact';
 import type { QueueForChoose, QueueRegistered, QueueRegisteredRule } from '../../lib/registrations';
 import { deleteRuleQueue, editQueue, editRuleQueue } from '../../lib/registrations-gravar';
 import { saveRuleQueue, toggleRuleQueue } from '../../lib/actions';
@@ -61,7 +63,8 @@ export function QueueRulesView({
   onVoltar: () => void;
   onAviso: (aviso: QueuesAviso) => void;
 }) {
-  const read = useRead<QueueRulesRead>('/v1/management/rules/attendance');
+  const { contact } = useContact();
+  const read = useRead<QueueRulesRead>(withFlow('/v1/management/rules/attendance', contact.id));
   const [aberta, setAberta] = useState<{ id: string; draft: RuleDraft } | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [termoDigitado, setTermoDigitado] = useState('');
@@ -117,7 +120,7 @@ export function QueueRulesView({
       return;
     }
     setSalvandoNome(true);
-    const resultado = await editQueue(fila.id, { nome: nomeEditado.trim() });
+    const resultado = await editQueue(contact.id, fila.id, { nome: nomeEditado.trim() });
     setSalvandoNome(false);
     if (!resultado.ok) {
       onAviso({ tom: 'erro', texto: resultado.error });
@@ -140,6 +143,7 @@ export function QueueRulesView({
       // Order is global across queues: a new rule goes after every existing one, like the Desk's default.
       const ordem = Math.min(999, todasRegras.reduce((max, r) => Math.max(max, r.order + 1), 0));
       const dados = new FormData();
+      dados.set('fluxoId', contact.id);
       dados.set('nome', nome);
       dados.set('filaDestinoId', fila.id);
       dados.set('combinador', payload.combiner);
@@ -152,7 +156,7 @@ export function QueueRulesView({
       const resultado = await saveRuleQueue({ ok: true }, dados);
       if (!resultado.ok) erro = resultado.error ?? 'Não foi possível salvar.';
     } else {
-      const resultado = await editRuleQueue(aberta.id, {
+      const resultado = await editRuleQueue(contact.id, aberta.id, {
         nome,
         combinador: payload.combiner,
         conditions: payload.conditions,
@@ -175,7 +179,7 @@ export function QueueRulesView({
   const confirmarExclusao = async () => {
     if (!paraExcluir) return;
     setExcluindo(true);
-    const resultado = await deleteRuleQueue(paraExcluir.id);
+    const resultado = await deleteRuleQueue(contact.id, paraExcluir.id);
     setExcluindo(false);
     if (!resultado.ok) {
       setErroExclusao(resultado.error);
@@ -187,6 +191,7 @@ export function QueueRulesView({
 
   const alternar = async (regra: QueueRegisteredRule) => {
     const dados = new FormData();
+    dados.set('fluxoId', contact.id);
     dados.set('id', regra.id);
     const resultado = await toggleRuleQueue({ ok: true }, dados);
     if (!resultado.ok) onAviso({ tom: 'erro', texto: resultado.error ?? 'Não foi possível alterar a regra.' });

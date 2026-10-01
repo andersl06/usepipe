@@ -70,7 +70,7 @@ export function AgentsPageManagement() {
     if (!paraExcluir) return;
     setExcluindo(true);
     setErrorDeletion(null);
-    const resultado = await removeFromAllQueues(paraExcluir.id, paraExcluir.queueIds);
+    const resultado = await removeFromAllQueues(contact.id, paraExcluir.id, paraExcluir.queueIds);
     setExcluindo(false);
     if (resultado.ok) setParaExcluir(null);
     else setErrorDeletion(resultado.error);
