@@ -69,6 +69,20 @@ describe('GET /v1/management/history', () => {
     expect(duplos.windowOfDates).toHaveBeenLastCalledWith({}, 'UTC', '2026-07-01', '2026-07-15');
   });
 
+  it('aceita exatamente 90 dias e recusa 91 com 400', async () => {
+    const ok = await controller.history(request, undefined, undefined, undefined, '2026-06-26', '2026-09-23');
+    expect([ok.de, ok.ate]).toEqual(['2026-06-26', '2026-09-23']);
+    await expect(
+      controller.history(request, undefined, undefined, undefined, '2026-06-25', '2026-09-23'),
+    ).rejects.toMatchObject({ status: 400, codigo: 'periodo_longo_demais' });
+  });
+
+  it('recusa data final anterior à inicial com 400', async () => {
+    await expect(
+      controller.history(request, undefined, undefined, undefined, '2026-07-15', '2026-07-01'),
+    ).rejects.toMatchObject({ status: 400, codigo: 'periodo_invalido' });
+  });
+
   it('Preserve legacy date calculations for other reports across daylight saving transitions', async () => {
     duplos.fusoDoTenant.mockResolvedValue('America/New_York');
     duplos.windowOfToday.mockResolvedValue({

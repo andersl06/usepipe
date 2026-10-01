@@ -78,6 +78,17 @@ async function period(
   return { de: deFinal, ate: ateFinal, window: await windowOfDates(tx, fuso, deFinal, ateFinal) };
 }
 
+/** Decisão do dono: o intervalo personalizado do Histórico tem no máximo 90 dias (inclusive). */
+export const MAX_DIAS_PERIODO = 90;
+
+function validarIntervalo(de: string, ate: string): void {
+  const dias = (Date.parse(`${ate}T00:00:00Z`) - Date.parse(`${de}T00:00:00Z`)) / 86_400_000 + 1;
+  if (Number.isNaN(dias) || dias < 1) throw PipeError.request('periodo_invalido', 'A data final não pode ser anterior à inicial.');
+  if (dias > MAX_DIAS_PERIODO) {
+    throw PipeError.request('periodo_longo_demais', `O período pode ter no máximo ${MAX_DIAS_PERIODO} dias.`, { maximoDias: MAX_DIAS_PERIODO });
+  }
+}
+
 /** Only History counts 30 civil dates, including across timezone or DST changes. */
 async function periodHistory(
   tx: TransactionPipe,
@@ -91,6 +102,7 @@ async function periodHistory(
   const dia = new Date(`${hojeLocal}T00:00:00.000Z`);
   dia.setUTCDate(dia.getUTCDate() - 29);
   const deFinal = de || dia.toISOString().slice(0, 10);
+  validarIntervalo(deFinal, ateFinal);
   return { de: deFinal, ate: ateFinal, janela: await windowOfDates(tx, fuso, deFinal, ateFinal) };
 }
 
