@@ -1,10 +1,12 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react';
 import { Botao, BotaoDeIcone, Etiqueta } from './primitivos';
 
 /**
  * The product's one modal: a backdrop and a centered dialog box.
  *
  * Without `skin` it draws the registrations `bds-modal` (`FICHA-queue-management.md` §2.6, `FICHA-personalizedbreaks.md` §2.3, `FICHA-replies.md` §2.3): title, "x" to close and a body. With `skin` it only provides the shell — backdrop, dialog semantics and closing — under the classes a screen already measured (Desk `dk-veu`/`dk-modal`, Monitoring `mon-modal`, Settings `cf-modal`, Growth `gr-modal`), and the children draw their own header, so adopting it never restyles a screen. The CSS stays next to each screen's stylesheet.
+ *
+ * Dialog behavior: focus moves into the box on open (unless a child already took it), Tab cycles inside it, Esc closes (when `onFechar` exists) and focus returns to the element that opened it.
  *
  * Closing on the backdrop reacts to a `mousedown` that starts on the backdrop itself, so a text selection dragged from inside the box to outside never closes it. Leave `onFechar` out when the backdrop must not close the dialog (e.g. a key shown only once).
  */
@@ -25,7 +27,38 @@ export function Modal({
   skin?: { fundo: string; caixa: string; elemento?: 'div' | 'section' };
   children: ReactNode;
 }) {
+  const caixa = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!aberto) return;
+    const anterior = document.activeElement as HTMLElement | null;
+    const el = caixa.current;
+    if (el && !el.contains(document.activeElement)) (focaveis(el)[0] ?? el).focus();
+    return () => anterior?.focus?.();
+  }, [aberto]);
+
   if (!aberto) return null;
+
+  function teclar(evento: KeyboardEvent) {
+    if (evento.key === 'Escape' && onFechar) {
+      evento.stopPropagation();
+      onFechar();
+      return;
+    }
+    if (evento.key !== 'Tab' || !caixa.current) return;
+    const lista = focaveis(caixa.current);
+    const primeiro = lista[0];
+    const ultimo = lista[lista.length - 1];
+    if (!primeiro || !ultimo) return;
+    const ativo = document.activeElement;
+    if (evento.shiftKey && (ativo === primeiro || ativo === caixa.current)) {
+      evento.preventDefault();
+      ultimo.focus();
+    } else if (!evento.shiftKey && ativo === ultimo) {
+      evento.preventDefault();
+      primeiro.focus();
+    }
+  }
+
   const Caixa = skin?.elemento ?? 'div';
   return (
     <div
@@ -35,6 +68,9 @@ export function Modal({
     >
       <Caixa
         className={skin?.caixa ?? 'modal-caixa'}
+        ref={caixa}
+        tabIndex={-1}
+        onKeyDown={teclar}
         role="dialog"
         aria-modal="true"
         aria-label={rotuloId ? undefined : titulo}
@@ -98,4 +134,10 @@ export function ConfirmModal({
       </div>
     </Modal>
   );
+}
+
+const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function focaveis(raiz: HTMLElement): HTMLElement[] {
+  return [...raiz.querySelectorAll<HTMLElement>(FOCAVEIS)].filter((e) => e.offsetParent !== null || e === document.activeElement);
 }
