@@ -240,6 +240,17 @@
   --p-icone-md: 16px;
   --p-icone-lg: 20px;
   --p-icone-traco: 1.75;
+
+  /*
+   * ============================================ Attendance: desk-sidebar
+   *      Blip measurements by role (`blip-medidas-monitoramento.md` §3.3). The
+   *      subitem box starts 37px past the tree indent, with a 1px border like the
+   *      first-level item, and the active bar hangs 15px left of its padding
+   *      edge, on top of the group's vertical guide.
+   */
+  --p-atend-lateral-subitem-recuo: 37px;
+  --p-atend-lateral-borda: 1px;
+  --p-atend-lateral-marca-desloc: -15px;
 }
 
 /*

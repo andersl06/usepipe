@@ -20,17 +20,24 @@
  *    it's the same source `desk-sidebar`; only the shell around it changed.
  */
 
+/*
+ * The shell also cancels `.pt-conteudo`'s own gutter (`0 var(--p-e-4) var(--p-e-10)`):
+ * the source `desk-sidebar` starts at x=0 and runs to the bottom of the page
+ * (`blip-medidas-monitoramento.md` §3); without this it sat 16px in from the edge.
+ */
 .at-shell {
 
   display: flex;
 
   align-items: stretch;
 
-  width: calc(100% + 40px);
+  width: calc(100% + 2 * var(--p-e-5) + 2 * var(--p-e-4));
 
   min-height: calc(100dvh - var(--g-topo-h));
 
-  margin-left: -20px;
+  margin-left: calc(-1 * (var(--p-e-5) + var(--p-e-4)));
+
+  margin-bottom: calc(-1 * var(--p-e-10));
 
 }
 
@@ -38,9 +45,9 @@
 
   .at-shell {
 
-    width: 111.1112%;
+    width: calc(111.1112% + 2 * var(--p-e-4));
 
-    margin-left: -5.5556%;
+    margin-left: calc(-5.5556% - var(--p-e-4));
 
   }
 
@@ -50,11 +57,44 @@
 
   .at-shell {
 
-    width: 125%;
+    width: calc(125% + 2 * var(--p-e-4));
 
-    margin-left: -12.5%;
+    margin-left: calc(-12.5% - var(--p-e-4));
 
   }
+
+}
+
+/*
+ * desk-sidebar subitem, as measured in `blip-medidas-monitoramento.md` §3.3: the
+ * box starts 37px past the tree indent (x=53 against 16), 8px padding inside a
+ * 1px border, label 46px in. The active bar keeps its place over the group's
+ * guide by hanging 15px left of the padding edge (`left: -15px` in the source).
+ */
+.g-lateral .g-grupo-filhos {
+
+  padding-left: var(--p-atend-lateral-subitem-recuo);
+
+}
+
+.g-lateral .g-subitem {
+
+  padding: var(--p-e-2);
+
+  border: var(--p-atend-lateral-borda) solid transparent;
+
+}
+
+.g-lateral .g-subitem::before {
+
+  left: var(--p-atend-lateral-marca-desloc);
+
+}
+
+/* The footer spans the nav's full width and closes the scroll, as in §3.4. */
+.g-lateral .g-lateral-rodape {
+
+  margin: auto calc(-1 * var(--g-lateral-recuo)) calc(-1 * var(--g-lateral-recuo));
 
 }
 

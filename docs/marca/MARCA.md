@@ -71,6 +71,18 @@ medido (D-32). Os papéis `brilho`, `sombra` e `gradiente` ainda não têm captu
 | `--p-builder-marca-sobreposicao` | `color-mix(in srgb, var(--p-marca) 20%, transparent)` | Véu/tingimento de fundo a 20% (medido: cartão selecionado do stepper, `rgba(63,125,232,.2)`) | Fundo de cartão/opção selecionada |
 | `--p-builder-marca-gradiente` | `linear-gradient(135deg, var(--p-marca), var(--p-marca-forte))` | Gradiente de marca (sem captura ao vivo confirmada — valor semente) | Reservado; nenhum uso ainda |
 
+### Medidas do Atendimento (desk-sidebar)
+
+Medidas da Blip por papel, sem cor: valem nos dois temas e moram no `:root` de `tokens.css`. O
+azul da Blip no Atendimento continua mapeado para `--p-marca`, `--p-marca-forte`, `--p-marca-suave`
+e `--p-marca-linha`; nenhum papel azul novo apareceu na casca.
+
+| Token | Valor | Papel | Fonte |
+|---|---|---|---|
+| `--p-atend-lateral-subitem-recuo` | `37px` | Recuo da caixa do subitem em relação à árvore da lateral (caixa em x=53 contra 16) | `referencias-blip/pesquisa/blip-medidas-monitoramento.md` §3.3 |
+| `--p-atend-lateral-borda` | `1px` | Borda transparente do subitem, igual à do item de primeiro nível; fecha os 39px e põe o rótulo a 46px da árvore | `blip-medidas-monitoramento.md` §3.1 e §3.3 (rótulo em x=62) |
+| `--p-atend-lateral-marca-desloc` | `-15px` | Deslocamento da barra de 2px do subitem ativo à esquerda da borda de padding, sobre a guia do grupo | `blip-medidas-monitoramento.md` §3.3 (`::before` com `left: -15px`) |
+
 ## Tipografia
 - Texto e títulos: **IBM Plex Sans** (system stack com Helvetica/Arial de reserva). Uma família só
   no corpo.
