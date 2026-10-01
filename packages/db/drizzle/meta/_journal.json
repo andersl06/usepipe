@@ -414,6 +414,13 @@
       "when": 1790220000000,
       "tag": "0086_fila_etiquetas_encerramento_automatico",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1790230000000,
+      "tag": "0087_conversa_alerta_inatividade",
+      "breakpoints": true
     }
   ]
 }

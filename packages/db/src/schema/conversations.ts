@@ -291,6 +291,8 @@ export const conversation = pgTable(
     lastMessageAt: moment('ultima_mensagem_em'),
     /** Supports automatic-close guard: do not close while an agent owes the next response. */
     lastMessageOf: text('ultima_mensagem_de'),
+    /** When the inactivity alert was sent; cleared by the sweep once the customer writes again. */
+    inactivityAlertAt: moment('alerta_inatividade_em'),
     /**
      * WhatsApp 24-hour service window, recalculated for each inbound contact message. Null for channels without a window, such as email and widget.
      */
