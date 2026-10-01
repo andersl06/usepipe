@@ -33,7 +33,7 @@ import { requirePermission } from '../../session.js';
 import { corValida } from './colors-of-queue.js';
 import { blocksReferencingQueue, describeBlocks } from './queue-references.js';
 import { minutosDoRelogio, relogio, relogioValido } from './format.js';
-import { agruparPeriodos, type PeriodoAgrupado } from './horarios.js';
+import { periodosDasExcecoes, type PeriodoAgrupado } from './horarios.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
@@ -321,13 +321,16 @@ export interface ExceptionOfSchedule {
 export interface HorarioCadastrado {
   id: string;
   name: string;
+  description: string | null;
+  /** Horário regular da operação: as filas sem horário próprio funcionam nele. */
+  regular: boolean;
   fuso: string;
   faixas: FaixaDoHorario[];
   exceptions: ExceptionOfSchedule[];
   /** Nomes das filas que apontam para este horário. Vazio = horário sem uso. */
   queues: string[];
   queueIds: string[];
-  /** Períodos sem atendimento (dias fechados consecutivos com o mesmo título). */
+  /** Períodos sem atendimento (dia completo ou com data e hora de início e fim). */
   periods: PeriodoAgrupado[];
   abertoAgora: boolean;
   /** `null` = nenhuma abertura no horizonte do core — horário sem faixa nenhuma. */
@@ -358,6 +361,8 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
       .select({
         id: scheduleAttendance.id,
         name: scheduleAttendance.nome,
+        description: scheduleAttendance.descricao,
+        regular: scheduleAttendance.regular,
         fuso: scheduleAttendance.fuso,
       })
       .from(scheduleAttendance)
@@ -383,6 +388,9 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
         inicio: scheduleException.inicio,
         fim: scheduleException.fim,
         motivo: scheduleException.motivo,
+        inicioEm: scheduleException.inicioEm,
+        fimEm: scheduleException.fimEm,
+        diaCompleto: scheduleException.diaCompleto,
       })
       .from(scheduleException)
       .orderBy(asc(scheduleException.data));
@@ -424,9 +432,7 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
         exceptions: myExceptions,
         queues: queues.filter((f) => f.horarioId === h.id).map((f) => f.nome),
         queueIds: queues.filter((f) => f.horarioId === h.id).map((f) => f.id),
-        periods: agruparPeriodos(
-          myExceptionsCore.filter((e) => e.fechado).map((e) => ({ data: e.data, motivo: e.motivo })),
-        ),
+        periods: periodosDasExcecoes(myExceptionsCore, h.fuso),
         abertoAgora: dentroDoExpediente(agora, paraOCore),
         proximaAberturaEm: proximaAbertura(agora, paraOCore),
         seteDiasSeg: durationTotalSeg(

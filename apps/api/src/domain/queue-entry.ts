@@ -225,8 +225,8 @@ export async function chooseQueueOfContact(
 
 /**
  * The first of `checks` that fails for the queue: a closed queue (its `horario_id` schedule,
- * exceptions included) before a queue with nobody online. A queue without a schedule is always
- * open; no queue means nothing to check.
+ * exceptions included) before a queue with nobody online. A queue without a schedule uses the tenant's
+ * regular schedule; with no regular schedule either it is always open (24h). No queue means nothing to check.
  */
 export async function queueUnavailability(
   tx: TransactionPipe,
@@ -246,10 +246,15 @@ export async function queueUnavailability(
   return null;
 }
 
-async function scheduleOfQueue(tx: TransactionPipe, tenantId: string, queueId: string): Promise<HourAttendance | null> {
+/**
+ * The schedule that governs a queue: its own `horario_id`, else the tenant's regular schedule (a deleted schedule
+ * leaves `horario_id` null, so its queues fall back too). Null means no schedule at all: the queue works 24h.
+ */
+export async function scheduleOfQueue(tx: TransactionPipe, tenantId: string, queueId: string): Promise<HourAttendance | null> {
   const { rows } = await tx.execute<{ id: string; fuso: string }>(sql`
     select h.id, h.fuso from fila f
-      join horario_atendimento h on h.id = f.horario_id and h.tenant_id = f.tenant_id
+      join horario_atendimento h on h.tenant_id = f.tenant_id
+       and h.id = coalesce(f.horario_id, (select r.id from horario_atendimento r where r.tenant_id = f.tenant_id and r.regular limit 1))
      where f.id = ${queueId}::uuid and f.tenant_id = ${tenantId}::uuid
   `);
   const head = rows[0];
@@ -258,11 +263,27 @@ async function scheduleOfQueue(tx: TransactionPipe, tenantId: string, queueId: s
     select dia_semana as "diaSemana", inicio::text as inicio, fim::text as fim
       from horario_faixa where horario_id = ${head.id}::uuid and tenant_id = ${tenantId}::uuid
   `);
-  const { rows: exceptions } = await tx.execute<{ data: string; fechado: boolean; inicio: string | null; fim: string | null }>(sql`
-    select data::text as data, fechado, inicio::text as inicio, fim::text as fim
+  const { rows: exceptions } = await tx.execute<{
+    data: string;
+    fechado: boolean;
+    inicio: string | null;
+    fim: string | null;
+    inicioEm: string | null;
+    fimEm: string | null;
+  }>(sql`
+    select data::text as data, fechado, inicio::text as inicio, fim::text as fim,
+           inicio_em as "inicioEm", fim_em as "fimEm"
       from horario_excecao where horario_id = ${head.id}::uuid and tenant_id = ${tenantId}::uuid
   `);
-  return { fuso: head.fuso, faixas, exceptions };
+  return {
+    fuso: head.fuso,
+    faixas,
+    exceptions: exceptions.map((e) => ({
+      ...e,
+      inicioEm: e.inicioEm ? new Date(e.inicioEm) : null,
+      fimEm: e.fimEm ? new Date(e.fimEm) : null,
+    })),
+  };
 }
 
 export async function enterQueue(tx: TransactionPipe, input: EnterQueueInput): Promise<QueueEntry> {

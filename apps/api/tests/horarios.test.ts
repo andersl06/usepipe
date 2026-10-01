@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 import { dentroDoExpediente } from '@pipe/core';
 
@@ -12,6 +12,7 @@ const { montarCenario } = await import('./ajuda.js');
 const { agruparPeriodos, diasDoPeriodo, excluirHorario, horarioConferido, salvarHorarioCompleto } =
   await import('../src/domain/management/horarios.js');
 const { carregarHorarios } = await import('../src/domain/management/registrations.js');
+const { queueUnavailability } = await import('../src/domain/queue-entry.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
@@ -27,9 +28,11 @@ describe('horarioConferido', () => {
       }),
     ).toEqual({
       name: 'Comercial',
+      description: null,
+      regular: false,
       queueIds: [],
       faixas: [{ dayWeek: 1, start: '08:00', end: '18:00' }],
-      periods: [{ title: 'Recesso', from: '2026-12-24', to: '2026-12-26' }],
+      periods: [{ title: 'Recesso', fullDay: true, from: '2026-12-24', fromTime: '00:00', to: '2026-12-26', toTime: '23:59' }],
     });
   });
 
@@ -103,9 +106,9 @@ describe('dias do período', () => {
         { data: '2026-12-29', motivo: null },
       ]),
     ).toEqual([
-      { title: 'Recesso', from: '2026-12-24', to: '2026-12-26' },
-      { title: 'Outro', from: '2026-12-27', to: '2026-12-27' },
-      { title: '', from: '2026-12-29', to: '2026-12-29' },
+      { title: 'Recesso', fullDay: true, from: '2026-12-24', fromTime: '00:00', to: '2026-12-26', toTime: '23:59' },
+      { title: 'Outro', fullDay: true, from: '2026-12-27', fromTime: '00:00', to: '2026-12-27', toTime: '23:59' },
+      { title: '', fullDay: true, from: '2026-12-29', fromTime: '00:00', to: '2026-12-29', toTime: '23:59' },
     ]);
   });
 
@@ -162,7 +165,7 @@ describe('horário gravado no banco', () => {
     const h = lido.horarios.find((x) => x.id === id)!;
     expect(h.faixas).toHaveLength(2);
     expect(h.queueIds).toEqual([a.queueId]);
-    expect(h.periods).toEqual([{ title: 'Recesso', from: '2026-12-24', to: '2026-12-26' }]);
+    expect(h.periods).toEqual([{ title: 'Recesso', fullDay: true, from: '2026-12-24', fromTime: '00:00', to: '2026-12-26', toTime: '23:59' }]);
     expect(lido.queueList.map((q) => q.id)).toContain(a.queueId);
 
     await salvar(
@@ -200,7 +203,6 @@ describe('horário gravado no banco', () => {
     `);
     expect(rows).toEqual([
       { data: '2026-11-01', fechado: true },
-      { data: '2026-11-02', fechado: true },
       { data: '2026-11-20', fechado: false },
     ]);
     await expect(
@@ -235,5 +237,159 @@ describe('horário gravado no banco', () => {
     } finally {
       await c.encerrar();
     }
+  });
+});
+
+describe('horarioConferido: descrição, regular e períodos com hora', () => {
+  const periodo = (extra: Record<string, unknown>) => ({
+    ...base,
+    periods: [{ title: 'p', from: '2026-12-24', to: '2026-12-24', fullDay: false, fromTime: '14:00', toTime: '18:00', ...extra }],
+  });
+
+  it('aceita descrição, regular e período com hora', () => {
+    expect(horarioConferido({ ...periodo({}), description: ' Padrão ', regular: true })).toMatchObject({
+      description: 'Padrão',
+      regular: true,
+      periods: [{ fullDay: false, fromTime: '14:00', toTime: '18:00' }],
+    });
+  });
+
+  it.each([
+    ['descrição acima de 300', { ...base, description: 'x'.repeat(301) }],
+    ['fim antes do início no mesmo dia', periodo({ fromTime: '18:00', toTime: '14:00' })],
+    ['fim igual ao início', periodo({ toTime: '14:00' })],
+    ['hora inválida', periodo({ fromTime: '25:00' })],
+    ['hora ausente sem dia completo', periodo({ fromTime: undefined })],
+    [
+      'períodos com hora que se sobrepõem',
+      { ...base, periods: [periodo({}).periods[0], periodo({ fromTime: '17:00', toTime: '19:00' }).periods[0]] },
+    ],
+    [
+      'dia completo em cima de período com hora',
+      { ...base, periods: [periodo({}).periods[0], { title: '', from: '2026-12-24', to: '2026-12-24' }] },
+    ],
+  ])('recusa %s', (_nome, corpo) => {
+    expect(() => horarioConferido(corpo)).toThrow();
+  });
+
+  it('aceita períodos com hora encostados no mesmo dia e vários dias com hora', () => {
+    expect(() =>
+      horarioConferido({
+        ...base,
+        periods: [
+          periodo({ toTime: '16:00' }).periods[0],
+          periodo({ fromTime: '16:00', toTime: '18:00' }).periods[0],
+          { title: '', from: '2027-01-01', to: '2027-03-31', fullDay: false, fromTime: '10:00', toTime: '09:00' },
+        ],
+      }),
+    ).not.toThrow();
+  });
+});
+
+describe('horário regular e fila sem horário', () => {
+  const AGORA = new Date('2026-10-14T15:00:00Z');
+  const DIA_TODO = [0, 1, 2, 3, 4, 5, 6].map((dayWeek) => ({ dayWeek, start: '00:00', end: '23:59' }));
+  let a: Cenario;
+  let b: Cenario;
+  const salvar = (c: Cenario, corpo: unknown, id?: string) =>
+    noTenant(c.tenantId, (tx) => salvarHorarioCompleto(tx, c.tenantId, c.agentId, corpo, id));
+  const ler = (c: Cenario) => noTenant(c.tenantId, (tx) => carregarHorarios(tx));
+  const excluir = (c: Cenario, id: string) =>
+    noTenant(c.tenantId, (tx) => excluirHorario(tx, c.tenantId, c.agentId, id));
+  const situacao = (c: Cenario, em: Date = AGORA) =>
+    noTenant(c.tenantId, (tx) => queueUnavailability(tx, c.tenantId, c.queueId, em, ['OutOfAttendanceHour']));
+  /** Fechado sempre: sem faixa nenhuma. */
+  const fechado = { ...base, faixas: [] };
+  const aberto = { ...base, faixas: DIA_TODO };
+
+  beforeAll(async () => {
+    a = await montarCenario(`reg-a-${randomUUID().slice(0, 8)}`);
+    b = await montarCenario(`reg-b-${randomUUID().slice(0, 8)}`);
+    for (const c of [a, b]) {
+      await c.dono.execute(sql`
+        insert into usuario_permissao (tenant_id, usuario_id, permissao_codigo, concedida)
+        values (${c.tenantId}::uuid, ${c.agentId}::uuid, 'horario.gerenciar', true)
+      `);
+    }
+  }, 180_000);
+
+  beforeEach(async () => {
+    for (const c of [a, b]) {
+      await c.dono.execute(sql`delete from horario_atendimento where tenant_id = ${c.tenantId}::uuid`);
+    }
+  });
+
+  afterAll(async () => {
+    await a?.encerrar();
+    await b?.encerrar();
+  });
+
+  it('fila sem horário usa o regular: regular fechado dá OutOfAttendanceHour', async () => {
+    expect(await situacao(a)).toBeNull();
+    await salvar(a, { ...fechado, name: 'Regular', regular: true });
+    expect(await situacao(a)).toBe('OutOfAttendanceHour');
+  });
+
+  it('fila com horário próprio não é afetada pelo regular', async () => {
+    await salvar(a, { ...fechado, name: 'Regular', regular: true });
+    await salvar(a, { ...aberto, name: 'Próprio', queueIds: [a.queueId] });
+    expect(await situacao(a)).toBeNull();
+  });
+
+  it('excluir o horário da fila faz a fila usar o regular; sem regular, volta a 24 horas', async () => {
+    const { id: regular } = await salvar(a, { ...aberto, name: 'Regular', regular: true });
+    const { id: proprio } = await salvar(a, { ...fechado, name: 'Fechado', queueIds: [a.queueId] });
+    expect(await situacao(a)).toBe('OutOfAttendanceHour');
+    await excluir(a, proprio);
+    expect(await situacao(a)).toBeNull(); // regular aberto
+    await salvar(a, { ...fechado, name: 'Regular', regular: true }, regular);
+    expect(await situacao(a)).toBe('OutOfAttendanceHour'); // regular fechado
+    await excluir(a, regular);
+    expect(await situacao(a)).toBeNull(); // nenhum horário: 24 horas
+  });
+
+  it('marcar outro horário como regular desmarca o anterior; no máximo um por tenant', async () => {
+    const { id: um } = await salvar(a, { ...aberto, name: 'Um', regular: true });
+    const { id: dois } = await salvar(a, { ...aberto, name: 'Dois', regular: true });
+    const lido = (await ler(a)).horarios;
+    expect(lido.find((h) => h.id === um)?.regular).toBe(false);
+    expect(lido.find((h) => h.id === dois)?.regular).toBe(true);
+    await salvar(a, { ...aberto, name: 'Dois', regular: false }, dois);
+    expect((await ler(a)).horarios.some((h) => h.regular)).toBe(false);
+  });
+
+  it('o horário regular de outro tenant não vale para a fila deste', async () => {
+    await salvar(b, { ...fechado, name: 'Regular do B', regular: true });
+    expect(await situacao(a)).toBeNull();
+    expect(await situacao(b)).toBe('OutOfAttendanceHour');
+  });
+
+  it('grava e lê descrição, dia completo e período com hora; o fuso do tenant decide a virada', async () => {
+    const { id } = await salvar(a, {
+      ...aberto,
+      name: 'Com períodos',
+      description: 'Horário de feriados',
+      queueIds: [a.queueId],
+      periods: [
+        { title: 'Natal', from: '2026-12-24', to: '2026-12-25', fullDay: true },
+        { title: 'Tarde', from: '2026-12-30', to: '2026-12-31', fullDay: false, fromTime: '14:00', toTime: '09:00' },
+      ],
+    });
+    const h = (await ler(a)).horarios.find((x) => x.id === id)!;
+    expect(h.description).toBe('Horário de feriados');
+    expect(h.periods).toEqual([
+      { title: 'Natal', fullDay: true, from: '2026-12-24', fromTime: '00:00', to: '2026-12-25', toTime: '23:59' },
+      { title: 'Tarde', fullDay: false, from: '2026-12-30', fromTime: '14:00', to: '2026-12-31', toTime: '09:00' },
+    ]);
+    // dia completo: 24/12 00:00 a 26/12 00:00 em America/Sao_Paulo (UTC-3)
+    expect(await situacao(a, new Date('2026-12-24T02:58:00Z'))).toBeNull();
+    expect(await situacao(a, new Date('2026-12-24T03:00:00Z'))).toBe('OutOfAttendanceHour');
+    expect(await situacao(a, new Date('2026-12-26T02:59:00Z'))).toBe('OutOfAttendanceHour');
+    expect(await situacao(a, new Date('2026-12-26T03:00:00Z'))).toBeNull();
+    // com hora: 30/12 14:00 a 31/12 09:00 locais
+    expect(await situacao(a, new Date('2026-12-30T16:59:00Z'))).toBeNull();
+    expect(await situacao(a, new Date('2026-12-30T17:00:00Z'))).toBe('OutOfAttendanceHour');
+    expect(await situacao(a, new Date('2026-12-31T11:59:00Z'))).toBe('OutOfAttendanceHour');
+    expect(await situacao(a, new Date('2026-12-31T12:00:00Z'))).toBeNull();
   });
 });
