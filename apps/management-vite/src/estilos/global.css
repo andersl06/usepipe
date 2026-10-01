@@ -1640,7 +1640,7 @@
 }
 
 .tblwrap td {
-  /* Body row measured live at 49px (dense `bds-table-row`); border-box so the declared height is the drawn one. */
+  /* Body row measured live at 49px (dense variant); border-box so the declared height is the drawn one. */
   box-sizing: border-box;
   height: 49px;
   padding: 0 var(--p-e-2);
