@@ -12,7 +12,7 @@ process.env['PIPE_COOKIE_DOMINIO'] = '';
 const { createToken } = await import('@pipe/authentication');
 const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
-const { montarCenario } = await import('./ajuda.js');
+const { montarCenario, montarDoisFluxos } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -85,13 +85,19 @@ function comCookie(token: string): Record<string, string> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Corpo = Record<string, any>;
 
+/** Rotas de fila, regra de atendimento e prioridade exigem o fluxo da tela. */
+const ESCOPADA_POR_FLUXO = /\/v1\/management\/(agents\/queues|rules\/attendance|rules\/priority)/;
+
 async function pedir(
   metodo: string,
   caminho: string,
   sessao: string,
   corpo?: Record<string, unknown>,
+  flowId: string = a.flowId,
 ): Promise<{ status: number; body: Corpo }> {
-  const resposta = await fetch(`${api.url}${caminho}`, {
+  const comFluxo = ESCOPADA_POR_FLUXO.test(caminho) && !caminho.includes('flowId=');
+  const url = comFluxo ? `${caminho}${caminho.includes('?') ? '&' : '?'}flowId=${flowId}` : caminho;
+  const resposta = await fetch(`${api.url}${url}`, {
     method: metodo,
     headers: comCookie(sessao),
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
@@ -268,7 +274,7 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
 describe('DELETE /v1/management/agents/queues/:id', () => {
   it('Delete a queue with 204 and record the action in the audit log', async () => {
     const { body: criada } = await createQueue(sessionManager, {});
-    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}?flowId=${a.flowId}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -293,7 +299,7 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
       values (${a.tenantId}, ${a.inboxId}::uuid, ${contacts[0]!.id}::uuid, ${criada.id}::uuid)
     `);
 
-    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}?flowId=${a.flowId}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -304,7 +310,7 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
 
   it('Return 409 when deleting the inbox default queue', async () => {
     // // `a.filaId` is `a.inboxId`'s default queue (built in `montarCenario`).
-    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${a.queueId}`, {
+    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${a.queueId}?flowId=${a.flowId}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -321,7 +327,7 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
       values (${a.tenantId}, ${`Regra ${randomUUID().slice(0, 6)}`}, ${criada.id}::uuid, 0)
     `);
 
-    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}?flowId=${a.flowId}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -333,13 +339,13 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
   it('Return 403 without `fila.gerenciar` and 404 for another tenant\'s queue', async () => {
     const { body: criada } = await createQueue(sessionManager, {});
 
-    const semPoder = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
+    const semPoder = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}?flowId=${a.flowId}`, {
       method: 'DELETE',
       headers: comCookie(sessionWithoutAuthority),
     });
     expect(semPoder.status).toBe(403);
 
-    const outroTenant = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
+    const outroTenant = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}?flowId=${a.flowId}`, {
       method: 'DELETE',
       headers: comCookie(sessionOfOtherTenant),
     });
@@ -400,13 +406,13 @@ describe('Assign and unassign agents from a queue', () => {
   it('desvincula, e desvincular de novo é 404', async () => {
     // // `a.atendenteId` is already in `a.filaId` (built in `montarCenario`).
     const resposta = await fetch(
-      `${api.url}/v1/management/agents/queues/${a.queueId}/agents/${a.agentId}`,
+      `${api.url}/v1/management/agents/queues/${a.queueId}/agents/${a.agentId}?flowId=${a.flowId}`,
       { method: 'DELETE', headers: comCookie(sessionManager) },
     );
     expect(resposta.status).toBe(204);
 
     const de_novo = await fetch(
-      `${api.url}/v1/management/agents/queues/${a.queueId}/agents/${a.agentId}`,
+      `${api.url}/v1/management/agents/queues/${a.queueId}/agents/${a.agentId}?flowId=${a.flowId}`,
       { method: 'DELETE', headers: comCookie(sessionManager) },
     );
     expect(de_novo.status).toBe(404);
@@ -681,7 +687,7 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
 describe('DELETE /v1/management/rules/attendance/:id', () => {
   it('Delete a queue with 204 and record the action in the audit log', async () => {
     const { id } = await createRuleQueueSql(a.queueId);
-    const resposta = await fetch(`${api.url}/v1/management/rules/attendance/${id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/rules/attendance/${id}?flowId=${a.flowId}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -699,13 +705,13 @@ describe('DELETE /v1/management/rules/attendance/:id', () => {
   it('Return 403 without `regra.gerenciar` and 404 for another tenant\'s queue routing rule', async () => {
     const { id } = await createRuleQueueSql(a.queueId);
 
-    const semPoder = await fetch(`${api.url}/v1/management/rules/attendance/${id}`, {
+    const semPoder = await fetch(`${api.url}/v1/management/rules/attendance/${id}?flowId=${a.flowId}`, {
       method: 'DELETE',
       headers: comCookie(sessionOnlyQueues),
     });
     expect(semPoder.status).toBe(403);
 
-    const outroTenant = await fetch(`${api.url}/v1/management/rules/attendance/${id}`, {
+    const outroTenant = await fetch(`${api.url}/v1/management/rules/attendance/${id}?flowId=${a.flowId}`, {
       method: 'DELETE',
       headers: comCookie(sessionOfOtherTenant),
     });
@@ -1184,7 +1190,7 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
 
   it('Delete a schedule exception with 204', async () => {
     const { body: criada } = await createRulePriority(sessionManager);
-    const resposta = await fetch(`${api.url}/v1/management/rules/priority/${criada.id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/rules/priority/${criada.id}?flowId=${a.flowId}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -1194,5 +1200,211 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
       sql`select count(*)::text as n from regra_prioridade where id = ${criada.id}::uuid`,
     );
     expect(rows[0]?.n).toBe('0');
+  });
+});
+
+/* =========================================================================
+ * Posse por fluxo: filas, vínculos, regras e fila padrão só existem dentro do fluxo
+ * ========================================================================= */
+
+describe('Gestão escopada por fluxo', () => {
+  let dois: Awaited<ReturnType<typeof montarDoisFluxos>>;
+  let gestor: string;
+  const urlFila = (id: string, flowId: string) => `/v1/management/agents/queues/${id}?flowId=${flowId}`;
+
+  const ids = (lista: unknown) => (lista as { id: string }[]).map((i) => i.id);
+  const pedirDe = (metodo: string, caminho: string, corpo?: Record<string, unknown>) =>
+    pedir(metodo, caminho, gestor, corpo, dois.flowA);
+
+  beforeAll(async () => {
+    dois = await montarDoisFluxos(`ct-${randomUUID().slice(0, 8)}`);
+    const todas = ['fila.gerenciar', 'regra.gerenciar'];
+    gestor = await openSession(dois.cenario, await pessoaCom(dois.cenario, todas));
+  }, 180_000);
+
+  afterAll(async () => {
+    await dois?.cenario.encerrar();
+  });
+
+  async function acao(nome: string, campos: Record<string, string | string[]>) {
+    return pedir('POST', `/v1/management/actions/${nome}`, gestor, { campos });
+  }
+
+  it('lista só as filas do fluxo e exige flowId válido do próprio tenant', async () => {
+    const listaA = await pedirDe('GET', '/v1/management/agents/queues');
+    expect(listaA.status).toBe(200);
+    expect(ids(listaA.body.queues)).toContain(dois.queueA);
+    expect(ids(listaA.body.queues)).not.toContain(dois.queueB);
+
+    const listaB = await pedir('GET', '/v1/management/agents/queues', gestor, undefined, dois.flowB);
+    expect(ids(listaB.body.queues)).toEqual([dois.queueB]);
+
+    const semFluxo = await pedir('GET', '/v1/management/agents/queues?flowId=', gestor);
+    expect(semFluxo.status).toBe(400);
+    expect(semFluxo.body.error.code).toBe('flow_required');
+    const naoUuid = await pedir('GET', '/v1/management/agents/queues?flowId=abc', gestor);
+    expect(naoUuid.status).toBe(400);
+
+    // flow of ANOTHER tenant is a 404, never a read
+    const deOutroTenant = await pedir('GET', '/v1/management/agents/queues', gestor, undefined, a.flowId);
+    expect(deOutroTenant.status).toBe(404);
+  });
+
+  it('cria a fila no fluxo da tela e recusa nome repetido dentro do fluxo', async () => {
+    const nome = `Nova ${randomUUID().slice(0, 6)}`;
+    const criada = await pedirDe('POST', '/v1/management/agents/queues', { name: nome, capacityDefault: 4 });
+    expect(criada.status).toBe(201);
+    const { rows } = await dois.cenario.dono.execute<{ fluxo_id: string }>(
+      sql`select fluxo_id from fila where id = ${criada.body.id}::uuid`,
+    );
+    expect(rows[0]?.fluxo_id).toBe(dois.flowA);
+
+    const repetida = await pedirDe('POST', '/v1/management/agents/queues', { name: nome, capacityDefault: 4 });
+    expect(repetida.status).toBe(409);
+    expect(repetida.body.error.code).toBe('name_in_use');
+
+    const semFluxo = await fetch(`${api.url}/v1/management/agents/queues`, {
+      method: 'POST',
+      headers: comCookie(gestor),
+      body: JSON.stringify({ name: 'Sem fluxo', capacityDefault: 4 }),
+    });
+    expect(semFluxo.status).toBe(400);
+  });
+
+  it('editar, ativar/desativar, excluir e vincular atendente em fila de outro fluxo é 404', async () => {
+    const editar = await pedirDe('PATCH', `/v1/management/agents/queues/${dois.queueB}`, { name: 'Invasor' });
+    expect(editar.status).toBe(404);
+    const desativar = await pedirDe('PATCH', `/v1/management/agents/queues/${dois.queueB}`, { ativa: false });
+    expect(desativar.status).toBe(404);
+    const vincular = await pedirDe('POST', `/v1/management/agents/queues/${dois.queueB}/agents`, {
+      userId: dois.userShared,
+    });
+    expect(vincular.status).toBe(404);
+    const desvincular = await fetch(
+      `${api.url}/v1/management/agents/queues/${dois.queueB}/agents/${dois.userShared}?flowId=${dois.flowA}`,
+      { method: 'DELETE', headers: comCookie(gestor) },
+    );
+    expect(desvincular.status).toBe(404);
+    const excluir = await fetch(`${api.url}${urlFila(dois.queueB, dois.flowA)}`, {
+      method: 'DELETE',
+      headers: comCookie(gestor),
+    });
+    expect(excluir.status).toBe(404);
+
+    const { rows } = await dois.cenario.dono.execute<{ n: string }>(sql`
+      select count(*)::text as n from fila_atendente where fila_id = ${dois.queueB}::uuid
+    `);
+    expect(rows[0]?.n).toBe('1');
+    // in its own flow the same queue answers normally
+    const ok = await pedir('PATCH', `/v1/management/agents/queues/${dois.queueB}`, gestor, { ativa: true }, dois.flowB);
+    expect(ok.status).toBe(200);
+  });
+
+  it('fila padrão do fluxo só aceita fila do próprio fluxo; null limpa', async () => {
+    const dequeB = await pedirDe('PUT', '/v1/management/agents/queues/default', { queueId: dois.queueB });
+    expect(dequeB.status).toBe(404);
+
+    const deA = await pedirDe('PUT', '/v1/management/agents/queues/default', { queueId: dois.queueA });
+    expect(deA.status).toBe(200);
+    const { rows } = await dois.cenario.dono.execute<{ fila_padrao_id: string | null }>(
+      sql`select fila_padrao_id from fluxo where id = ${dois.flowA}::uuid`,
+    );
+    expect(rows[0]?.fila_padrao_id).toBe(dois.queueA);
+    const lista = await pedirDe('GET', '/v1/management/agents/queues');
+    expect(lista.body.queues.find((q: { id: string }) => q.id === dois.queueA).isDefault).toBe(true);
+
+    const limpa = await pedirDe('PUT', '/v1/management/agents/queues/default', { queueId: null });
+    expect(limpa.status).toBe(200);
+    const { rows: depois } = await dois.cenario.dono.execute<{ fila_padrao_id: string | null }>(
+      sql`select fila_padrao_id from fluxo where id = ${dois.flowA}::uuid`,
+    );
+    expect(depois[0]?.fila_padrao_id).toBeNull();
+  });
+
+  it('regra de atendimento: lista, edita e exclui só no fluxo; destino de outro fluxo é recusado', async () => {
+    const lista = await pedirDe('GET', '/v1/management/rules/attendance');
+    expect(lista.status).toBe(200);
+    expect(lista.body.regras.map((r: { queueDestinationId: string }) => r.queueDestinationId)).toEqual([dois.queueA]);
+    expect(ids(lista.body.queues)).toContain(dois.queueA);
+    expect(ids(lista.body.queues)).not.toContain(dois.queueB);
+
+    const { rows: regrasB } = await dois.cenario.dono.execute<{ id: string }>(
+      sql`select id from regra_fila where fila_destino_id = ${dois.queueB}::uuid`,
+    );
+    const regraB = regrasB[0]!.id;
+    expect((await pedirDe('PATCH', `/v1/management/rules/attendance/${regraB}`, { name: 'Invasor' })).status).toBe(404);
+    const excluir = await fetch(`${api.url}/v1/management/rules/attendance/${regraB}?flowId=${dois.flowA}`, {
+      method: 'DELETE',
+      headers: comCookie(gestor),
+    });
+    expect(excluir.status).toBe(404);
+
+    const { rows: regrasA } = await dois.cenario.dono.execute<{ id: string }>(
+      sql`select id from regra_fila where fila_destino_id = ${dois.queueA}::uuid`,
+    );
+    const paraOutraFila = await pedirDe('PATCH', `/v1/management/rules/attendance/${regrasA[0]!.id}`, {
+      queueDestinationId: dois.queueB,
+    });
+    expect(paraOutraFila.status).toBe(400);
+    expect(paraOutraFila.body.error.code).toBe('queue_not_found');
+
+    const comDestinoB = await acao('salvarRegraFila', {
+      fluxoId: dois.flowA,
+      nome: `Destino B ${randomUUID().slice(0, 6)}`,
+      filaDestinoId: dois.queueB,
+      combinador: 'e',
+      ordem: '1',
+      campo: ['mensagem'],
+      operador: ['contem'],
+      valor: ['oi'],
+    });
+    expect(comDestinoB.body).toEqual({ ok: false, error: 'Fila de destino não encontrada.' });
+  });
+
+  it('nome de regra de atendimento é único dentro do fluxo, não entre fluxos', async () => {
+    const nome = `Mesma ${randomUUID().slice(0, 6)}`;
+    const base = { nome, combinador: 'e', ordem: '2', campo: ['mensagem'], operador: ['contem'], valor: ['x'] };
+    expect((await acao('salvarRegraFila', { ...base, fluxoId: dois.flowA, filaDestinoId: dois.queueA })).body).toEqual({ ok: true });
+    expect((await acao('salvarRegraFila', { ...base, fluxoId: dois.flowB, filaDestinoId: dois.queueB })).body).toEqual({ ok: true });
+    const repetida = await acao('salvarRegraFila', { ...base, fluxoId: dois.flowA, filaDestinoId: dois.queueA });
+    expect(repetida.body.ok).toBe(false);
+    expect(repetida.body.error).toContain('Já existe uma regra');
+  });
+
+  it('regra de prioridade pertence ao fluxo e o escopo fila só aceita fila do fluxo', async () => {
+    const nome = `Prio ${randomUUID().slice(0, 6)}`;
+    const emA = await pedirDe('POST', '/v1/management/rules/priority', { name: nome, level: 'alta' });
+    expect(emA.status).toBe(201);
+    const emB = await pedir('POST', '/v1/management/rules/priority', gestor, { name: nome, level: 'alta' }, dois.flowB);
+    expect(emB.status).toBe(201);
+    const repetida = await pedirDe('POST', '/v1/management/rules/priority', { name: nome, level: 'alta' });
+    expect(repetida.status).toBe(409);
+
+    const listaA = await pedirDe('GET', '/v1/management/rules/priority');
+    expect(ids(listaA.body)).toContain(emA.body.id);
+    expect(ids(listaA.body)).not.toContain(emB.body.id);
+
+    const escopoOutraFila = await pedirDe('POST', '/v1/management/rules/priority', {
+      name: `Esc ${randomUUID().slice(0, 6)}`,
+      level: 'alta',
+      scopeType: 'fila',
+      scopeId: dois.queueB,
+    });
+    expect(escopoOutraFila.status).toBe(400);
+    expect(escopoOutraFila.body.error.code).toBe('queue_not_found');
+    const escopoPropria = await pedirDe('POST', '/v1/management/rules/priority', {
+      name: `Esc ${randomUUID().slice(0, 6)}`,
+      level: 'alta',
+      scopeType: 'fila',
+      scopeId: dois.queueA,
+    });
+    expect(escopoPropria.status).toBe(201);
+
+    expect((await pedirDe('PATCH', `/v1/management/rules/priority/${emB.body.id}`, { level: 'baixa' })).status).toBe(404);
+    const excluir = await fetch(`${api.url}/v1/management/rules/priority/${emB.body.id}?flowId=${dois.flowA}`, {
+      method: 'DELETE',
+      headers: comCookie(gestor),
+    });
+    expect(excluir.status).toBe(404);
   });
 });

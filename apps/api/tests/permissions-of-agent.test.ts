@@ -261,7 +261,7 @@ describe('PATCH /v1/management/agents/permissions', () => {
   it('Apply agent permission overrides to routes immediately', async () => {
     /* `regra.gerenciar` is what `POST /v1/gestao/regras/prioridade` requires. */
     const create = () =>
-      fetch(`${api.url}/v1/management/rules/priority`, {
+      fetch(`${api.url}/v1/management/rules/priority?flowId=${a.flowId}`, {
         method: 'POST',
         headers: comCookie(sessionAgent),
         body: JSON.stringify({ name: `Regra ${randomUUID().slice(0, 6)}`, level: 'alta' }),

@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
 } from '@nestjs/common';
@@ -39,6 +40,16 @@ function idOu404(value: string, oQue: string): string {
 }
 
 /**
+ * The flow of the screen comes in the query (preferred, so DELETE needs no body) or in the body; a missing or malformed value is a 400.
+ */
+function flowRequired(query: string | undefined, corpo?: { flowId?: unknown }): string {
+  const bruto = query ?? corpo?.flowId;
+  const flowId = typeof bruto === 'string' ? uuidOuNada(bruto) : undefined;
+  if (!flowId) throw PipeError.request('flow_required', 'Informe o fluxo.');
+  return flowId;
+}
+
+/**
  * Management registrations for Rules, Attendants, Communication and Preferences use browser sessions for screen reads and form actions. The actions are Next Management Server Actions moved unchanged to `dominio/gestao/acoes/*`: the form sends JSON `{ campos }`, `Campos` exposes `get`/`getAll` like `FormData`, and returns the same `Resultado`, either `ok` or a reason shown beside the button. The action-name allowlist is closed: names outside the map return 404 and never reach `eval`.
  */
 type Acao = (tx: TransactionPipe, tid: string, ator: Ator, data: Campos) => Promise<Resultado>;
@@ -64,9 +75,10 @@ export class ManagementRegistrationsController {
 
   @Get('rules/attendance')
   @WithSession()
-  rulesOfAttendance(@Req() requisicao: RequestWithSession) {
+  rulesOfAttendance(@Req() requisicao: RequestWithSession, @Query('flowId') flowId?: string) {
     const sessao = sessionOf(requisicao);
-    return noTenant(sessao.tenantId, (tx) => cadastros.loadRulesOfQueue(tx));
+    const flow = flowRequired(flowId);
+    return noTenant(sessao.tenantId, (tx) => cadastros.loadRulesOfQueue(tx, sessao.tenantId, flow));
   }
 
   @Get('rules/schedules')
@@ -88,9 +100,10 @@ export class ManagementRegistrationsController {
 
   @Get('agents/queues')
   @WithSession()
-  queues(@Req() request: RequestWithSession) {
+  queues(@Req() request: RequestWithSession, @Query('flowId') flowId?: string) {
     const session = sessionOf(request);
-    return noTenant(session.tenantId, (tx) => cadastros.loadQueues(tx));
+    const flow = flowRequired(flowId);
+    return noTenant(session.tenantId, (tx) => cadastros.loadQueues(tx, session.tenantId, flow));
   }
 
   @Get('agents/pauses')
@@ -148,9 +161,10 @@ export class ManagementRegistrationsController {
 
   @Get('rules/priority')
   @WithSession()
-  rulesOfPriority(@Req() requisicao: RequestWithSession) {
+  rulesOfPriority(@Req() requisicao: RequestWithSession, @Query('flowId') flowId?: string) {
     const sessao = sessionOf(requisicao);
-    return noTenant(sessao.tenantId, (tx) => regrasPrioridade.loadRulesOfPriority(tx));
+    const flow = flowRequired(flowId);
+    return noTenant(sessao.tenantId, (tx) => regrasPrioridade.loadRulesOfPriority(tx, sessao.tenantId, flow));
   }
 
   /* -------------------------------------------------------- filas (item 1) */
@@ -159,11 +173,30 @@ export class ManagementRegistrationsController {
   @WithSession()
   async createQueue(
     @Req() requisicao: RequestWithSession,
-    @Body() corpo: cadastros.RequestOfQueue,
+    @Body() corpo: cadastros.RequestOfQueue & { flowId?: string },
+    @Query('flowId') flowId?: string,
   ): Promise<{ id: string }> {
     const sessao = sessionOf(requisicao);
+    const flow = flowRequired(flowId, corpo);
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.createQueue(tx, sessao.tenantId, sessao.userId, corpo),
+      cadastros.createQueue(tx, sessao.tenantId, flow, sessao.userId, corpo),
+    );
+  }
+
+  /** The default queue of the flow; `queueId: null` clears it. */
+  @Put('agents/queues/default')
+  @WithSession()
+  async setDefaultQueue(
+    @Req() requisicao: RequestWithSession,
+    @Body() corpo: { flowId?: string; queueId?: string | null },
+    @Query('flowId') flowId?: string,
+  ): Promise<{ queueId: string | null }> {
+    const sessao = sessionOf(requisicao);
+    const flow = flowRequired(flowId, corpo);
+    const queueId = corpo?.queueId ?? null;
+    if (queueId !== null) idOu404(String(queueId), 'Fila');
+    return noTenant(sessao.tenantId, (tx) =>
+      cadastros.setDefaultQueueOfFlow(tx, sessao.tenantId, sessao.userId, flow, queueId),
     );
   }
 
@@ -172,23 +205,30 @@ export class ManagementRegistrationsController {
   async editQueue(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: cadastros.RequestOfEditOfQueue,
+    @Body() corpo: cadastros.RequestOfEditOfQueue & { flowId?: string },
+    @Query('flowId') flowId?: string,
   ): Promise<cadastros.QueueWritten> {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'fila');
+    const flow = flowRequired(flowId, corpo);
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.editQueue(tx, sessao.tenantId, sessao.userId, id, corpo),
+      cadastros.editQueue(tx, sessao.tenantId, flow, sessao.userId, id, corpo),
     );
   }
 
   @Delete('agents/queues/:id')
   @HttpCode(204)
   @WithSession()
-  async deleteQueue(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+  async deleteQueue(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Query('flowId') flowId?: string,
+  ): Promise<void> {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'fila');
+    const flow = flowRequired(flowId);
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.deleteQueue(tx, sessao.tenantId, sessao.userId, id),
+      cadastros.deleteQueue(tx, sessao.tenantId, flow, sessao.userId, id),
     );
   }
 
@@ -197,15 +237,18 @@ export class ManagementRegistrationsController {
   async linkAgent(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: { userId?: string; capacityOverride?: number | null },
+    @Body() corpo: { userId?: string; capacityOverride?: number | null; flowId?: string },
+    @Query('flowId') flowId?: string,
   ): Promise<{ ok: true }> {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'fila');
     const agentId = idOu404(String(corpo?.userId ?? ''), 'atendente');
+    const flow = flowRequired(flowId, corpo);
     await noTenant(sessao.tenantId, (tx) =>
       cadastros.linkAgentInQueue(
         tx,
         sessao.tenantId,
+        flow,
         sessao.userId,
         id,
         agentId,
@@ -222,12 +265,14 @@ export class ManagementRegistrationsController {
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Param('agentId') agentId: string,
+    @Query('flowId') flowId?: string,
   ): Promise<void> {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'fila');
     idOu404(agentId, 'atendente');
+    const flow = flowRequired(flowId);
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.unlinkAgentOfQueue(tx, sessao.tenantId, sessao.userId, id, agentId),
+      cadastros.unlinkAgentOfQueue(tx, sessao.tenantId, flow, sessao.userId, id, agentId),
     );
   }
 
@@ -238,23 +283,30 @@ export class ManagementRegistrationsController {
   async editRuleQueue(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: cadastros.RequestOfEditOfRuleQueue,
+    @Body() corpo: cadastros.RequestOfEditOfRuleQueue & { flowId?: string },
+    @Query('flowId') flowId?: string,
   ): Promise<cadastros.RuleQueueWritten> {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'regra');
+    const flow = flowRequired(flowId, corpo);
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.editRuleQueue(tx, sessao.tenantId, sessao.userId, id, corpo),
+      cadastros.editRuleQueue(tx, sessao.tenantId, flow, sessao.userId, id, corpo),
     );
   }
 
   @Delete('rules/attendance/:id')
   @HttpCode(204)
   @WithSession()
-  async deleteRuleQueue(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+  async deleteRuleQueue(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Query('flowId') flowId?: string,
+  ): Promise<void> {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'regra');
+    const flow = flowRequired(flowId);
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.deleteRuleQueue(tx, sessao.tenantId, sessao.userId, id),
+      cadastros.deleteRuleQueue(tx, sessao.tenantId, flow, sessao.userId, id),
     );
   }
 
@@ -406,11 +458,13 @@ export class ManagementRegistrationsController {
   @WithSession()
   async createRulePriority(
     @Req() requisicao: RequestWithSession,
-    @Body() corpo: regrasPrioridade.RequestOfRulePriority,
+    @Body() corpo: regrasPrioridade.RequestOfRulePriority & { flowId?: string },
+    @Query('flowId') flowId?: string,
   ): Promise<{ id: string }> {
     const sessao = sessionOf(requisicao);
+    const flow = flowRequired(flowId, corpo);
     return noTenant(sessao.tenantId, (tx) =>
-      regrasPrioridade.createRulePriority(tx, sessao.tenantId, sessao.userId, corpo),
+      regrasPrioridade.createRulePriority(tx, sessao.tenantId, flow, sessao.userId, corpo),
     );
   }
 
@@ -419,23 +473,30 @@ export class ManagementRegistrationsController {
   async editRulePriority(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: regrasPrioridade.RequestOfEditOfRulePriority,
+    @Body() corpo: regrasPrioridade.RequestOfEditOfRulePriority & { flowId?: string },
+    @Query('flowId') flowId?: string,
   ): Promise<regrasPrioridade.RulePriorityWritten> {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'regra de prioridade');
+    const flow = flowRequired(flowId, corpo);
     return noTenant(sessao.tenantId, (tx) =>
-      regrasPrioridade.editRulePriority(tx, sessao.tenantId, sessao.userId, id, corpo),
+      regrasPrioridade.editRulePriority(tx, sessao.tenantId, flow, sessao.userId, id, corpo),
     );
   }
 
   @Delete('rules/priority/:id')
   @HttpCode(204)
   @WithSession()
-  async deleteRulePriority(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+  async deleteRulePriority(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Query('flowId') flowId?: string,
+  ): Promise<void> {
     const sessao = sessionOf(requisicao);
     idOu404(id, 'regra de prioridade');
+    const flow = flowRequired(flowId);
     await noTenant(sessao.tenantId, (tx) =>
-      regrasPrioridade.deleteRulePriority(tx, sessao.tenantId, sessao.userId, id),
+      regrasPrioridade.deleteRulePriority(tx, sessao.tenantId, flow, sessao.userId, id),
     );
   }
 

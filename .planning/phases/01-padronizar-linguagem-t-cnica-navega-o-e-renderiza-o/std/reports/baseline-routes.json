@@ -124,7 +124,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 546
+    "line": 607
   },
   {
     "method": "DELETE",
@@ -145,7 +145,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 218
+    "line": 261
   },
   {
     "method": "DELETE",
@@ -166,7 +166,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 184
+    "line": 219
   },
   {
     "method": "DELETE",
@@ -187,7 +187,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 504
+    "line": 565
   },
   {
     "method": "DELETE",
@@ -469,7 +469,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 250
+    "line": 297
   },
   {
     "method": "DELETE",
@@ -490,7 +490,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 431
+    "line": 487
   },
   {
     "method": "DELETE",
@@ -511,7 +511,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 302
+    "line": 354
   },
   {
     "method": "DELETE",
@@ -532,7 +532,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 277
+    "line": 329
   },
   {
     "method": "DELETE",
@@ -553,7 +553,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 341
+    "line": 393
   },
   {
     "method": "DELETE",
@@ -574,7 +574,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 389
+    "line": 441
   },
   {
     "method": "DELETE",
@@ -1174,7 +1174,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 82
+    "line": 94
   },
   {
     "method": "GET",
@@ -1189,7 +1189,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 96
+    "line": 109
   },
   {
     "method": "GET",
@@ -1204,7 +1204,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 446
+    "line": 507
   },
   {
     "method": "GET",
@@ -1219,7 +1219,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 89
+    "line": 101
   },
   {
     "method": "GET",
@@ -1234,7 +1234,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 121
+    "line": 134
   },
   {
     "method": "GET",
@@ -1249,7 +1249,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 114
+    "line": 127
   },
   {
     "method": "GET",
@@ -1264,7 +1264,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 103
+    "line": 116
   },
   {
     "method": "GET",
@@ -2014,7 +2014,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 65
+    "line": 76
   },
   {
     "method": "GET",
@@ -2029,7 +2029,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 149
+    "line": 162
   },
   {
     "method": "GET",
@@ -2044,7 +2044,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 72
+    "line": 84
   },
   {
     "method": "GET",
@@ -2074,7 +2074,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 135
+    "line": 148
   },
   {
     "method": "GET",
@@ -2089,7 +2089,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 142
+    "line": 155
   },
   {
     "method": "GET",
@@ -2104,7 +2104,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 128
+    "line": 141
   },
   {
     "method": "GET",
@@ -2119,7 +2119,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 354
+    "line": 406
   },
   {
     "method": "GET",
@@ -2315,7 +2315,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 532
+    "line": 593
   },
   {
     "method": "PATCH",
@@ -2330,7 +2330,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 463
+    "line": 524
   },
   {
     "method": "PATCH",
@@ -2345,7 +2345,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 170
+    "line": 203
   },
   {
     "method": "PATCH",
@@ -2360,7 +2360,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 490
+    "line": 551
   },
   {
     "method": "PATCH",
@@ -2480,7 +2480,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 236
+    "line": 281
   },
   {
     "method": "PATCH",
@@ -2495,7 +2495,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 417
+    "line": 471
   },
   {
     "method": "PATCH",
@@ -2510,7 +2510,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 288
+    "line": 340
   },
   {
     "method": "PATCH",
@@ -2525,7 +2525,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 263
+    "line": 315
   },
   {
     "method": "PATCH",
@@ -2540,7 +2540,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 327
+    "line": 379
   },
   {
     "method": "PATCH",
@@ -2555,7 +2555,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 375
+    "line": 427
   },
   {
     "method": "PATCH",
@@ -3184,7 +3184,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 563
+    "line": 624
   },
   {
     "method": "POST",
@@ -3199,7 +3199,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 520
+    "line": 581
   },
   {
     "method": "POST",
@@ -3214,7 +3214,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 195
+    "line": 235
   },
   {
     "method": "POST",
@@ -3229,7 +3229,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 158
+    "line": 172
   },
   {
     "method": "POST",
@@ -3244,7 +3244,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 478
+    "line": 539
   },
   {
     "method": "POST",
@@ -3604,7 +3604,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 405
+    "line": 457
   },
   {
     "method": "POST",
@@ -3619,7 +3619,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 315
+    "line": 367
   },
   {
     "method": "POST",
@@ -3634,7 +3634,7 @@
       }
     ],
     "file": "apps/api/src/controllers/management-registrations.ts",
-    "line": 363
+    "line": 415
   },
   {
     "method": "POST",
@@ -3783,6 +3783,21 @@
     ],
     "file": "apps/api/src/controllers/webhooks-whatsapp.ts",
     "line": 89
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/management/agents/queues/default",
+    "rawPath": "/v1/management/agents/queues/default",
+    "controller": "ManagementRegistrationsController",
+    "handler": "setDefaultQueue",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 187
   },
   {
     "method": "PUT",
