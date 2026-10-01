@@ -113,6 +113,8 @@ export interface RequestOfRuleOfPriority {
   nivel: string;
   scopeType: 'fila' | 'tenant';
   scopeId: string | null;
+  /** Expressão `{ combinador, condicoes }` ou `{}` (vale para toda a fila). */
+  condition?: Record<string, unknown>;
 }
 
 export async function priorityCreateRule(
@@ -120,11 +122,29 @@ export async function priorityCreateRule(
   pedido: RequestOfRuleOfPriority,
 ): Promise<Resultado<void>> {
   try {
-    await api.post(withFlow('/v1/management/rules/priority', flowId), { flowId, name: pedido.nome, level: pedido.nivel, scopeType: pedido.scopeType, scopeId: pedido.scopeId });
+    await api.post(withFlow('/v1/management/rules/priority', flowId), { flowId, name: pedido.nome, level: pedido.nivel, scopeType: pedido.scopeType, scopeId: pedido.scopeId, condition: pedido.condition });
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
     return { ok: false, error: motivoDe(error, 'Não foi possível criar a regra de priorização.') };
+  }
+}
+
+export async function priorityEditRule(
+  flowId: string,
+  id: string,
+  pedido: { nome: string; nivel: string; condition: Record<string, unknown> },
+): Promise<Resultado<void>> {
+  try {
+    await api.patch(withFlow(`/v1/management/rules/priority/${id}`, flowId), {
+      name: pedido.nome,
+      level: pedido.nivel,
+      condition: pedido.condition,
+    });
+    atualizarLeituras();
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível editar a regra de priorização.') };
   }
 }
 

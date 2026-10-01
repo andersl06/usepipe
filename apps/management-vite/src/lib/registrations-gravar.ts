@@ -1,5 +1,5 @@
 import { api, ApiError } from '@pipe/ui/api';
-import { atualizarLeituras } from './actions';
+import { atualizarLeituras, saveRuleQueue, toggleRuleQueue } from './actions';
 import { withFlow } from './flow-scope';
 import { motivoDe, type Resultado } from './rest';
 import type { OperadorDeRegra } from './rule-queue';
@@ -195,3 +195,42 @@ export async function deleteRuleQueue(flowId: string, id: string): Promise<Resul
   }
 }
 
+
+/** Cria a regra de atendimento da fila pela ação `salvarRegraFila` (a fila de destino é a que está sendo editada). */
+export async function createRuleQueue(
+  flowId: string,
+  pedido: {
+    nome: string;
+    order: number;
+    combinador: 'e' | 'ou';
+    queueDestinationId: string;
+    conditions: readonly { campo: string; operador: OperadorDeRegra; valor: string }[];
+  },
+): Promise<Resultado<void>> {
+  const dados = new FormData();
+  dados.set('fluxoId', flowId);
+  dados.set('nome', pedido.nome);
+  dados.set('filaDestinoId', pedido.queueDestinationId);
+  dados.set('combinador', pedido.combinador);
+  dados.set('ordem', String(pedido.order));
+  for (const c of pedido.conditions) {
+    dados.append('campo', c.campo);
+    dados.append('operador', c.operador);
+    dados.append('valor', c.valor);
+  }
+  const resultado = await saveRuleQueue({ ok: true }, dados);
+  return resultado.ok
+    ? { ok: true, value: undefined }
+    : { ok: false, error: resultado.error ?? 'Não foi possível criar a regra.' };
+}
+
+/** Liga ou desliga a regra de atendimento (a ação inverte o estado atual). */
+export async function toggleRuleQueueActive(flowId: string, id: string): Promise<Resultado<void>> {
+  const dados = new FormData();
+  dados.set('fluxoId', flowId);
+  dados.set('id', id);
+  const resultado = await toggleRuleQueue({ ok: true }, dados);
+  return resultado.ok
+    ? { ok: true, value: undefined }
+    : { ok: false, error: resultado.error ?? 'Não foi possível alterar a regra.' };
+}
