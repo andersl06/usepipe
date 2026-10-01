@@ -195,13 +195,3 @@ export async function deleteRuleQueue(flowId: string, id: string): Promise<Resul
   }
 }
 
-/** Define (ou limpa, com `null`) a fila padrão do fluxo. */
-export async function setDefaultQueue(flowId: string, queueId: string | null): Promise<Resultado<void>> {
-  try {
-    await api.put('/v1/management/agents/queues/default', { flowId, queueId });
-    atualizarLeituras();
-    return { ok: true, value: undefined };
-  } catch (error) {
-    return { ok: false, error: motivoDe(error, 'Não foi possível definir a fila padrão.') };
-  }
-}

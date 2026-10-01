@@ -4,7 +4,7 @@ import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import { withFlow } from '../../lib/flow-scope';
 import type { QueueRegistered } from '../../lib/registrations';
-import { toggleQueue, deleteQueue, falhaAoSalvar, setDefaultQueue } from '../../lib/registrations-gravar';
+import { toggleQueue, deleteQueue, falhaAoSalvar } from '../../lib/registrations-gravar';
 import { numero } from '../../lib/format';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { useContact } from '../flow/contact';
@@ -41,16 +41,8 @@ function QueueActions({
     const r = await toggleQueue(contact.id, queue.id, queue.ativa);
     if (!r.ok) onErrorToggle(falhaAoSalvar(r.error));
   };
-  const padrao = async () => {
-    const r = await setDefaultQueue(contact.id, queue.isDefault ? null : queue.id);
-    if (!r.ok) onErrorToggle(falhaAoSalvar(r.error));
-  };
   return (
     <>
-      {queue.isDefault ? <Etiqueta>Padrão</Etiqueta> : null}
-      <Botao type="button" onClick={() => void padrao()}>
-        {queue.isDefault ? 'Remover padrão' : 'Definir como padrão'}
-      </Botao>
       <BotaoDeIcone nome="lapis" rotulo="Editar" onClick={onEditar} />
       <BotaoDeIcone nome="x" rotulo="Excluir" onClick={onExcluir} />
       <button
