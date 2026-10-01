@@ -2730,15 +2730,6 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
-.campo-cor {
-  width: 40px;
-  height: 40px;
-  padding: 2px;
-  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
-  border-radius: var(--p-r-md);
-  background: var(--p-superficie-0);
-}
-
 /*
  * ============================ the channels grid (/preferencias/canais)
  *    `FICHA-channels.md` §2: `bds-grid direction="row"` with four `bds-paper` at 242×292 (measured from the capture's boot-log). Each card: icon on top, title 16/700, subtitle 14/400 and the button at the foot, flush right.
@@ -2800,6 +2791,7 @@ tr.grupo th {
  */
 .interruptor {
   display: inline-flex;
+  flex: none;
   align-items: center;
   width: 38px;
   height: 22px;
@@ -2813,6 +2805,17 @@ tr.grupo th {
 
 .interruptor[aria-checked='true'] {
   background: var(--p-marca);
+}
+
+/*
+ * Spacing between a text block and the switch that follows it, set once for every screen: beside the text in a row, below it when the text is a paragraph in a stacked card.
+ */
+:is(span, div, small, h3, label) + .interruptor {
+  margin-inline-start: var(--p-e-3);
+}
+
+:is(p, .sub, .note) + .interruptor {
+  margin-block: var(--p-e-3);
 }
 
 .interruptor-bolinha {
@@ -5022,11 +5025,6 @@ tr.grupo th {
   border-width: var(--p-atend-fila-busca-borda);
 }
 
-.fila-pipe > summary {
-  cursor: pointer;
-  font-weight: var(--p-peso-forte);
-}
-
 .fila-cab-nome {
   display: flex;
   align-items: center;
@@ -5152,7 +5150,6 @@ tr.grupo th {
   transform: translateX(11px);
 }
 
-.atend-perm-cab,
 .atend-perm-aviso {
   display: block;
   font-size: var(--g-t-celula);
@@ -5163,14 +5160,27 @@ tr.grupo th {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--p-e-4);
   box-sizing: border-box;
   min-height: var(--p-atend-equipe-linha-permissao);
   padding: 16px;
 }
 
+.atend-perm-celula {
+  display: flex;
+  flex: none;
+}
+
 .atend-perm-cab {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--p-e-4);
+  box-sizing: border-box;
   min-height: 44px;
-  padding-block: 0 20px;
+  padding: 0 16px 20px;
+  line-height: 24px;
+  color: var(--p-conteudo);
   font-size: var(--p-t-lg);
   font-weight: var(--p-peso-forte);
 }

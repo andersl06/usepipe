@@ -2,11 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Botao, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
-import {
-  permissionsPath,
-  savePermissions,
-  type AgentPermissions,
-} from '../../lib/agents-gravar';
+import { permissionsPath, savePermissions, type AgentPermissions } from '../../lib/agents-gravar';
 import { permissionsDescription } from '../../lib/agents';
 import { TabelaCarregando, TabelaErro } from '../../components/estados-tabela';
 import { CabecalhoAtendente, SubtituloAtendente } from './agents-pagina';
@@ -84,10 +80,10 @@ export function AgentPagePermissions() {
       </SubtituloAtendente>
 
       <div className="atend-cartao atend-cartao-permissoes">
-        <section>
-          <div className="atend-perm-cab">
-            <span>Gerais</span>
-            <span>Status</span>
+        <section role="table" aria-label="Permissões gerais">
+          <div className="atend-perm-cab" role="row">
+            <span role="columnheader">Gerais</span>
+            <span role="columnheader">Status</span>
           </div>
           {permissions.map((p) => {
             const code = p.code;
@@ -95,8 +91,8 @@ export function AgentPagePermissions() {
             const ligada = ativa ? valueCurrent(code, p.ligada) : false;
             const parcial = ativa && !(code in editado) && p.parcial;
             return (
-              <div key={p.key} className="atend-perm-linha">
-                <span>
+              <div key={p.key} className="atend-perm-linha" role="row">
+                <span role="cell">
                   {p.description}
                   {ativa ? null : (
                     <small className="atend-perm-aviso" role="status">
@@ -106,19 +102,21 @@ export function AgentPagePermissions() {
                     </small>
                   )}
                 </span>
-                <button
-                  type="button"
-                  className="interruptor interruptor-curto"
-                  role="switch"
-                  aria-checked={ligada}
-                  data-parcial={parcial ? 'true' : undefined}
-                  aria-label={p.description}
-                  title={parcial ? 'Uns têm, outros não' : undefined}
-                  disabled={!ativa}
-                  onClick={() => ativa && alternar(code, ligada)}
-                >
-                  <span className="interruptor-bolinha" />
-                </button>
+                <span role="cell" className="atend-perm-celula">
+                  <button
+                    type="button"
+                    className="interruptor interruptor-curto"
+                    role="switch"
+                    aria-checked={ligada}
+                    data-parcial={parcial ? 'true' : undefined}
+                    aria-label={p.description}
+                    title={parcial ? 'Uns têm, outros não' : undefined}
+                    disabled={!ativa}
+                    onClick={() => ativa && alternar(code, ligada)}
+                  >
+                    <span className="interruptor-bolinha" />
+                  </button>
+                </span>
               </div>
             );
           })}
