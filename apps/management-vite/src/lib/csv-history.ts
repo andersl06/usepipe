@@ -37,7 +37,9 @@ function valuesOf(c: CardHistory): string[] {
  * Always quote each CSV field and double embedded quotes, so contact names containing semicolons, quotes, or newlines survive.
  */
 export function celulaCsv(value: string): string {
-  return `"${value.replace(/"/g, '""')}"`;
+  // Spreadsheets run cells starting with = + - @ tab or CR as formulas; the apostrophe makes them text.
+  const seguro = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+  return `"${seguro.replace(/"/g, '""')}"`;
 }
 
 export function montarCsv(cards: readonly CardHistory[]): string {

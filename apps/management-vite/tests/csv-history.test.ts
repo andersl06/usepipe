@@ -31,6 +31,17 @@ function linhasDe(csv: string): string[] {
   return csv.slice(1).trimEnd().split('\r\n');
 }
 
+test('cells starting with a formula trigger are prefixed with an apostrophe', () => {
+  /* A contact named "=SUM(A1)" would otherwise run as a formula when the spreadsheet opens. */
+  assert.equal(celulaCsv('=SUM(A1)'), `"'=SUM(A1)"`);
+  assert.equal(celulaCsv('+55 11'), `"'+55 11"`);
+  assert.equal(celulaCsv('-1'), `"'-1"`);
+  assert.equal(celulaCsv('@x'), `"'@x"`);
+  assert.equal(celulaCsv('\tx'), `"'\tx"`);
+  assert.equal(celulaCsv('\rx'), `"'\rx"`);
+  assert.equal(celulaCsv('Ana "Bia"'), `"Ana ""Bia"""`);
+});
+
 test('the file starts with a BOM', () => {
   /*
    * Without the BOM, Excel in Portuguese opens the file as latin-1 and every accented name turns into garbage — "Conceição" disappears from the whole spreadsheet.
