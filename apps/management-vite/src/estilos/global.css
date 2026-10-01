@@ -1623,10 +1623,12 @@
 }
 
 /*
- * Column header: 14/600 in normal case. Uppercase with letter spacing was our own invention — their column has the same body as the cell and separates only by weight.
+ * Column header: 14/600 in normal case, 48px tall, no fill of its own (it takes the table's). Uppercase with letter spacing was our own invention — their column has the same body as the cell and separates only by weight. Dense variant measured live on "Monitoramento detalhado".
  */
 .tblwrap th {
-  height: 64px;
+  box-sizing: border-box;
+  height: 48px;
+  background: transparent;
   padding: 0 var(--p-e-2);
   font-size: var(--g-t-column);
   font-weight: var(--g-peso-forte);
@@ -1638,10 +1640,9 @@
 }
 
 .tblwrap td {
-  /*
-   * The HTML table cell adds 6px of content to the declared height; 58px produces Blip's `bds-table-row`'s visual 64px line.
-   */
-  height: 58px;
+  /* Body row measured live at 49px (dense `bds-table-row`); border-box so the declared height is the drawn one. */
+  box-sizing: border-box;
+  height: 49px;
   padding: 0 var(--p-e-2);
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-normal);
@@ -1771,6 +1772,44 @@
 
 .tblwrap td.acts .iconbtn:hover {
   background: var(--p-superficie-2);
+}
+
+/*
+ * Table states. Loading keeps the table's geometry (48px header, 49px rows) so nothing jumps when the data arrives; error pairs the error background/content tokens with the retry button.
+ */
+.tblwrap-esqueleto .linha {
+  display: grid;
+  grid-template-columns: repeat(var(--colunas, 4), minmax(0, 1fr));
+  align-items: center;
+  gap: var(--p-e-4);
+  box-sizing: border-box;
+  height: 49px;
+  padding: 0 var(--p-e-4);
+  border-bottom: 1px solid var(--p-linha-media);
+}
+
+.tblwrap-esqueleto .linha:first-child {
+  height: 48px;
+}
+
+.tblwrap-esqueleto .celula {
+  width: 75%;
+  height: var(--g-lh-rotulo);
+}
+
+.tblwrap-erro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: var(--p-e-4);
+  text-align: center;
+  background: var(--p-error-background);
+  color: var(--p-error-content);
+}
+
+.tblwrap-erro p {
+  margin: 0;
 }
 
 /*

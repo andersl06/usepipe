@@ -292,9 +292,9 @@
 
 .mon-tabela-carregando { margin-top: 10px; }
 
-.mon-tabela-linha { display: grid; grid-template-columns: repeat(5, minmax(100px, 1fr)); align-items: center; gap: var(--p-e-4); min-width: 680px; min-height: 58px; padding: 0 var(--p-e-4); border-bottom: 1px solid var(--p-linha-media); }
+.mon-tabela-linha { display: grid; grid-template-columns: repeat(5, minmax(100px, 1fr)); align-items: center; gap: var(--p-e-4); min-width: 680px; min-height: 49px; padding: 0 var(--p-e-4); border-bottom: 1px solid var(--p-linha-media); }
 
-.mon-tabela-linha:first-child { min-height: 64px; }
+.mon-tabela-linha:first-child { min-height: 48px; }
 
 .mon-tabela-linha .celula { width: 75%; height: var(--g-lh-rotulo); }
 
@@ -1326,9 +1326,9 @@
 
   overflow-x: auto;
 
-  border: 0;
+  border: 1px solid var(--p-linha);
 
-  border-radius: 0;
+  border-radius: var(--p-r-md);
 
   background: transparent;
 
