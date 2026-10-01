@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { ManagementIcon } from './icones-management';
 
 /**
- * Render History as cards rather than a table, as in `referencias-blip/fichas/FICHA-history.md` and the results capture: each row is a `bds-paper` card with a checkbox, Ticket, Atendente, Contato, three durations and a button that opens the ticket detail. A card keeps labels beside values across widths. Match their layout (selection bar above; small label over strong value) with our `--p-*` colors, not their hex values. `PageHistory` owns selection because CSV export outside this component depends on it; this component owns Select all and the visible-card count.
+ * Render History as cards rather than a table, as in `referencias-blip/fichas/FICHA-history.md` and the results capture: each row is a static card with a checkbox, Ticket, Atendente, Contato, three durations and a button that opens the ticket detail. A card keeps labels beside values across widths. Match their layout (selection bar above; small label over strong value) with our `--p-*` colors, not their hex values. `PageHistory` owns selection because CSV export outside this component depends on it; this component owns Select all and the visible-card count.
  */
 
 export interface CardHistory {
