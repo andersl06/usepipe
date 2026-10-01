@@ -1,27 +1,22 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Botao, BotaoDeIcone, Campo, Card, Etiqueta, Icone } from '@pipe/ui';
+import { Botao, BotaoDeIcone, Campo, Card, Etiqueta, Icone, Illustration } from '@pipe/ui';
 import { Pagination, usePage } from '@pipe/ui/pagination';
 import { useRead } from '../../lib/query';
 import { withFlow } from '../../lib/flow-scope';
 import type { QueueRegistered, QueueRegisteredRule } from '../../lib/registrations';
-import { descreverRegra } from '../../lib/rule-queue';
+import { AddAttendantsModal, RuleAttendanceForm, RulePriorityForm } from './queue-edit-forms';
 import {
   queueUnlinkAgent,
   editQueue,
   deleteRuleQueue,
+  toggleRuleQueueActive,
   falhaAoSalvar,
 } from '../../lib/registrations-gravar';
-import { priorityCreateRule, priorityDeleteRule } from '../../lib/agents-gravar';
-import {
-  NIVEIS_ATRIBUIVEIS,
-  queueRules,
-  rotuloDoNivel,
-  type PriorityRule,
-} from '../../lib/rules-priority';
+import { priorityDeleteRule } from '../../lib/agents-gravar';
+import { queueRules, rotuloDoNivel, type PriorityRule } from '../../lib/rules-priority';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
-import { Select } from '@pipe/ui/select';
 import { ConfirmModal } from '@pipe/ui/modal';
 
 /**
@@ -29,9 +24,9 @@ import { ConfirmModal } from '@pipe/ui/modal';
  *
  * Served at the SAME path as the list (`queue-management`), like the Blip, which keeps the URL while editing; the queue id travels in `?fila=`, so reload and deep links still work. The anatomy follows the live Blip capture: five stacked cards (Atendentes, Regras de Atendimento, Regras de Priorização, Tags, Encerramento automático).
  *
- * **Tags and automatic closing are shown disabled.** The Blip has them per queue, but in Pipe `etiqueta` is per TENANT, with no link to a queue (§e.7 of the ficha) — building that link is migration + domain + route + Desk consumption, so they wait for a backend.
+ * **Tags and automatic closing are shown disabled.** The Blip has them per queue, but in Pipe `etiqueta` is per TENANT, with no link to a queue (§e.7 of the ficha), and the `fila` table has no column for either: they wait for a migration, so the cards keep the Blip layout but stay off.
  *
- * **"Adicionar atendente" NAVIGATES, it doesn't open a form here.** The source proves this with the empty-state text itself (`noAttendantsBody`: "clicking Adicionar atendente redirects to the Equipe de atendimento page"). In Pipe, linking someone into the queue is the SAME save as batch "Editar atendente" (`POST .../filas/:id/atendentes`) — which is why the button goes to `atendentes/gestao`, not to a picker on this page.
+ * **Everything else happens in this page.** "Adicionar atendentes" opens a modal (assigns existing tenant users by e-mail through `POST .../filas/:id/atendentes`; it never creates accounts) and "Criar regra" opens an inline form that replaces the list inside the card, as in the Blip.
  */
 export function QueuePageEdit() {
   const queueId = useSearchParams()[0].get('fila');
@@ -66,21 +61,11 @@ export function QueuePageEdit() {
   return (
     <>
       <QueueHeader queue={queue} base={base} />
-      <SectionAgents queue={queue} base={base} />
-      <SectionRulesAttendance
-        regras={readRulesAttendance.data.regras.filter((r) => r.queueDestinationId === queue.id)}
-        base={base}
-      />
+      <SectionAgents queue={queue} />
+      <SectionRulesAttendance queue={queue} todasAsRegras={readRulesAttendance.data.regras} />
       <PrioritySectionRules queue={queue} regras={readRules.data} />
-      <SectionPendente
-        titulo="Tags da fila"
-        descricao="Adicione ou edite as tags disponíveis para os atendentes desta fila."
-      />
-      <SectionPendente
-        titulo="Encerramento automático de tickets"
-        descricao="Encerre automaticamente os tickets por inatividade"
-        interruptor
-      />
+      <SectionTags />
+      <SectionAutoClose />
     </>
   );
 }
@@ -165,9 +150,9 @@ function inicial(a: { name: string; email: string }): string {
   return ((partes[0]?.[0] ?? '') + (partes[1]?.[0] ?? '')).toUpperCase();
 }
 
-function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }) {
+function SectionAgents({ queue }: { queue: QueueRegistered }) {
   const { contact } = useContact();
-  const navegar = useNavigate();
+  const [adicionando, setAdicionando] = useState(false);
   const [search, setSearch] = useState('');
   const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
   const [paraRemover, setParaRemover] = useState<{ id: string; nome: string } | null>(null);
@@ -198,7 +183,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
       className="fila-cartao"
       titulo="Atendentes atribuídos"
       actions={
-        <Botao variante="primario" icone="mais" onClick={() => navegar(`${base}/team`)}>
+        <Botao variante="primario" icone="mais" onClick={() => setAdicionando(true)}>
           Adicionar atendentes
         </Botao>
       }
@@ -208,8 +193,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
         <div className="empty">
           <b>Ops! Essa fila não possui nenhum atendente.</b>
           <p>
-            Ao clicar em <b>Adicionar atendentes</b>, um direcionamento será feito para a página{' '}
-            <b>Equipe de atendimento</b>.
+            Clique em <b>Adicionar atendentes</b> para atribuir pessoas a esta fila.
           </p>
         </div>
       ) : (
@@ -290,6 +274,10 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
 
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
+      {adicionando ? (
+        <AddAttendantsModal queue={queue} onFechar={() => setAdicionando(false)} />
+      ) : null}
+
       <ConfirmModal
         aberto={paraRemover !== null}
         titulo="Você deseja remover este atendente da fila?"
@@ -306,18 +294,23 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
 /* ------------------------------------------------- regras de atendimento */
 
 function SectionRulesAttendance({
-  regras,
-  base,
+  queue,
+  todasAsRegras,
 }: {
-  regras: readonly QueueRegisteredRule[];
-  base: string;
+  queue: QueueRegistered;
+  todasAsRegras: readonly QueueRegisteredRule[];
 }) {
   const { contact } = useContact();
-  const navegar = useNavigate();
-  const pagina = usePage(regras, 5);
+  const [search, setSearch] = useState('');
+  const [formulario, setFormulario] = useState<'novo' | QueueRegisteredRule | null>(null);
   const [paraExcluir, setParaExcluir] = useState<QueueRegisteredRule | null>(null);
   const [excluindo, setExcluindo] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const regras = todasAsRegras.filter((r) => r.queueDestinationId === queue.id);
+  const alvo = search.trim().toLowerCase();
+  const filtradas = alvo ? regras.filter((r) => r.name.toLowerCase().includes(alvo)) : regras;
+  const pagina = usePage(filtradas, 5);
 
   async function excluir() {
     if (!paraExcluir) return;
@@ -329,49 +322,95 @@ function SectionRulesAttendance({
     else setError(falhaAoSalvar(resultado.error));
   }
 
+  async function alternar(regra: QueueRegisteredRule) {
+    setError(null);
+    const resultado = await toggleRuleQueueActive(contact.id, regra.id);
+    if (!resultado.ok) setError(falhaAoSalvar(resultado.error));
+  }
+
   return (
     <Card
       className="fila-cartao"
       titulo="Regras de Atendimento"
       actions={
-        <Botao variante="primario" icone="mais" onClick={() => navegar(`${base}/rules`)}>
+        <Botao
+          variante="primario"
+          icone="mais"
+          onClick={() => setFormulario('novo')}
+          disabled={formulario !== null}
+        >
           Criar regra
         </Botao>
       }
     >
       <p className="sub">Defina as regras de atendimento para a fila</p>
-      {pagina.visiveis.map((r) => (
-        <article key={r.id} className="card-list">
-          <span />
-          <div className="cl-campos" style={{ '--cl-colunas': 2 } as React.CSSProperties}>
-            <div className="cl-campo">
-              <span className="r">Nome da regra</span>
-              <span className="v" title={r.name}>
-                {r.name}
-              </span>
+      {formulario !== null ? (
+        <RuleAttendanceForm
+          queue={queue}
+          regra={formulario === 'novo' ? undefined : formulario}
+          todasAsRegras={todasAsRegras}
+          onFechar={() => setFormulario(null)}
+        />
+      ) : (
+        <>
+          {regras.length > 0 ? (
+            <div className="search-top">
+              <Icone nome="busca" tamanho={20} />
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  pagina.setPage(1);
+                }}
+                placeholder="Buscar regra"
+                aria-label="Buscar regra"
+              />
             </div>
-            <div className="cl-campo">
-              <span className="r">Regra</span>
-              <span className="v" title={descreverRegra(r)}>
-                {descreverRegra(r)}
-              </span>
+          ) : null}
+          {pagina.visiveis.map((r) => (
+            <article key={r.id} className="card-list fila-regra">
+              <div className="cl-campos" style={{ '--cl-colunas': 1 } as React.CSSProperties}>
+                <div className="cl-campo">
+                  <span className="r">Nome da regra</span>
+                  <span className="v" title={r.name}>
+                    {r.name}
+                  </span>
+                </div>
+              </div>
+              <div className="cl-actions">
+                <BotaoDeIcone
+                  nome="lapis"
+                  rotulo={`Editar a regra ${r.name}`}
+                  onClick={() => setFormulario(r)}
+                />
+                <BotaoDeIcone
+                  nome="x"
+                  rotulo={`Excluir a regra ${r.name}`}
+                  onClick={() => setParaExcluir(r)}
+                />
+                <button
+                  type="button"
+                  className="interruptor"
+                  role="switch"
+                  aria-checked={r.active}
+                  aria-label={r.active ? `Desativar a regra ${r.name}` : `Ativar a regra ${r.name}`}
+                  onClick={() => void alternar(r)}
+                >
+                  <span className="interruptor-bolinha" />
+                </button>
+              </div>
+            </article>
+          ))}
+          {regras.length > 0 && filtradas.length === 0 ? (
+            <div className="empty">
+              <b>Nenhum resultado encontrado</b>
+              <p>Não encontramos nenhuma regra a partir da pesquisa realizada.</p>
             </div>
-          </div>
-          <div className="cl-actions">
-            <BotaoDeIcone
-              nome="lapis"
-              rotulo={`Editar a regra ${r.name}`}
-              onClick={() => navegar(`${base}/rules`)}
-            />
-            <BotaoDeIcone
-              nome="x"
-              rotulo={`Excluir a regra ${r.name}`}
-              onClick={() => setParaExcluir(r)}
-            />
-          </div>
-        </article>
-      ))}
-      <Pagination layout="grade" afastado state={pagina} />
+          ) : null}
+          {regras.length > 0 ? <Pagination layout="grade" afastado state={pagina} /> : null}
+        </>
+      )}
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
       <ConfirmModal
         aberto={paraExcluir !== null}
@@ -387,23 +426,39 @@ function SectionRulesAttendance({
 
 /* ------------------------------------------- recursos ainda sem regra */
 
-/** Seção que a Blip mostra e o Pipe ainda não grava por fila. */
-function SectionPendente({
-  titulo,
-  descricao,
-  interruptor = false,
-}: {
-  titulo: string;
-  descricao: string;
-  interruptor?: boolean;
-}) {
+const EM_BREVE = 'Este recurso será liberado em breve para este fluxo.';
+
+/** Cartão de tags no layout da Blip (campo de chips + Salvar alterações), desligado até haver onde gravar as tags por fila. */
+function SectionTags() {
   return (
-    <Card className="fila-cartao" titulo={titulo}>
-      <p className="sub">{descricao}</p>
-      {interruptor ? (
+    <Card className="fila-cartao" titulo="Tags da fila">
+      <p className="sub">Adicione ou edite as tags disponíveis para os atendentes desta fila.</p>
+      <Campo
+        placeholder="Insira as tags separando por vírgulas"
+        aria-label="Tags da fila"
+        disabled
+      />
+      <div className="cl-actions">
+        <Botao type="button" variante="primario" disabled>
+          Salvar alterações
+        </Botao>
+      </div>
+      <p className="note">{EM_BREVE}</p>
+    </Card>
+  );
+}
+
+/** Cartão de encerramento automático: o interruptor fica desligado e desabilitado até existir configuração por fila e o processo que encerra os tickets. */
+function SectionAutoClose() {
+  const titulo = 'Encerramento automático de tickets';
+  return (
+    <Card
+      className="fila-cartao"
+      titulo={titulo}
+      actions={
         <button
           type="button"
-          className="interruptor"
+          className="interruptor interruptor-alto"
           role="switch"
           aria-checked={false}
           aria-label={titulo}
@@ -411,10 +466,10 @@ function SectionPendente({
         >
           <span className="interruptor-bolinha" />
         </button>
-      ) : (
-        <Campo placeholder="Insira as tags separando por vírgulas" disabled aria-label={titulo} />
-      )}
-      <p className="note">Este recurso será liberado em breve para este fluxo.</p>
+      }
+    >
+      <p className="sub">Encerre automaticamente os tickets por inatividade</p>
+      <p className="note">{EM_BREVE}</p>
     </Card>
   );
 }
@@ -429,12 +484,13 @@ function PrioritySectionRules({
   regras: readonly PriorityRule[];
 }) {
   const { contact } = useContact();
-  const [criando, setCriando] = useState(false);
+  const [formulario, setFormulario] = useState<'novo' | PriorityRule | null>(null);
   const [paraExcluir, setParaExcluir] = useState<{ id: string; nome: string } | null>(null);
   const [excluindo, setExcluindo] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const ofQueue = queueRules(regras, queue.id);
+  const pagina = usePage(ofQueue, 5);
 
   async function excluir() {
     if (!paraExcluir) return;
@@ -451,7 +507,12 @@ function PrioritySectionRules({
       className="fila-cartao"
       titulo="Regras de Priorização"
       actions={
-        <Botao variante="primario" icone="mais" onClick={() => setCriando(true)} disabled={criando}>
+        <Botao
+          variante="primario"
+          icone="mais"
+          onClick={() => setFormulario('novo')}
+          disabled={formulario !== null}
+        >
           Criar regra
         </Botao>
       }
@@ -459,26 +520,51 @@ function PrioritySectionRules({
       <p className="sub">
         Defina a prioridade para todos os atendimentos da fila ou crie condições para a priorização
       </p>
-      {criando ? <PriorityFormRule queueId={queue.id} onFechar={() => setCriando(false)} /> : null}
-
-      {ofQueue.length === 0 ? (
+      {formulario !== null ? (
+        <RulePriorityForm
+          queueId={queue.id}
+          regra={formulario === 'novo' ? undefined : formulario}
+          nomesExistentes={regras.map((r) => r.name)}
+          onFechar={() => setFormulario(null)}
+        />
+      ) : ofQueue.length === 0 ? (
         <div className="empty">
+          <Illustration nome="vazio" tamanho={96} />
           <b>Esta fila ainda não tem regras de priorização!</b>
           <p>Crie uma regra para definir a prioridade de atendimento dos clientes.</p>
         </div>
       ) : (
-        ofQueue.map((r) => (
-          <div key={r.id} className="form-linha linha-lista">
-            <span className="sub">
-              {r.name} · {rotuloDoNivel(r.level)}
-            </span>
-            <BotaoDeIcone
-              nome="x"
-              rotulo={`Excluir a regra ${r.name}`}
-              onClick={() => setParaExcluir({ id: r.id, nome: r.name })}
-            />
-          </div>
-        ))
+        <>
+          {pagina.visiveis.map((r) => (
+            <article key={r.id} className="card-list fila-regra">
+              <div className="cl-campos" style={{ '--cl-colunas': 2 } as React.CSSProperties}>
+                <div className="cl-campo">
+                  <span className="r">Nome da regra</span>
+                  <span className="v" title={r.name}>
+                    {r.name}
+                  </span>
+                </div>
+                <div className="cl-campo">
+                  <span className="r">Grau de urgência</span>
+                  <span className="v">{rotuloDoNivel(r.level)}</span>
+                </div>
+              </div>
+              <div className="cl-actions">
+                <BotaoDeIcone
+                  nome="lapis"
+                  rotulo={`Editar a regra ${r.name}`}
+                  onClick={() => setFormulario(r)}
+                />
+                <BotaoDeIcone
+                  nome="x"
+                  rotulo={`Excluir a regra ${r.name}`}
+                  onClick={() => setParaExcluir({ id: r.id, nome: r.name })}
+                />
+              </div>
+            </article>
+          ))}
+          <Pagination layout="grade" afastado state={pagina} />
+        </>
       )}
 
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
@@ -492,71 +578,5 @@ function PrioritySectionRules({
         onCancelar={() => setParaExcluir(null)}
       />
     </Card>
-  );
-}
-
-function PriorityFormRule({ queueId, onFechar }: { queueId: string; onFechar: () => void }) {
-  const { contact } = useContact();
-  const [nome, setNome] = useState('');
-  const [nivel, setNivel] = useState(NIVEIS_ATRIBUIVEIS[0] ?? '');
-  const [enviando, setEnviando] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function create(evento: FormEvent) {
-    evento.preventDefault();
-    if (!nome.trim()) return;
-    setEnviando(true);
-    setError(null);
-    const resultado = await priorityCreateRule(contact.id, {
-      nome: nome.trim(),
-      nivel,
-      scopeType: 'fila',
-      scopeId: queueId,
-    });
-    setEnviando(false);
-    if (resultado.ok) onFechar();
-    else setError(resultado.error);
-  }
-
-  return (
-    <form className="form-registration" onSubmit={(e) => void create(e)}>
-      <div className="form-linha">
-        <label className="form-campo">
-          <span className="sub">Nome da regra de priorização</span>
-          <Campo
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            required
-            disabled={enviando}
-          />
-        </label>
-        <label className="form-campo" style={{ flexBasis: '200px' }}>
-          <span className="sub">Nível</span>
-          <Select
-            value={nivel}
-            onChange={(e) => setNivel(e.target.value)}
-            disabled={enviando}
-            aria-label="Nível"
-          >
-            {NIVEIS_ATRIBUIVEIS.map((n) => (
-              <option key={n} value={n}>
-                {rotuloDoNivel(n)}
-              </option>
-            ))}
-          </Select>
-        </label>
-      </div>
-
-      {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
-
-      <div className="cl-actions">
-        <Botao type="button" onClick={onFechar} disabled={enviando}>
-          Cancelar
-        </Botao>
-        <Botao type="submit" variante="primario" disabled={enviando || !nome.trim()}>
-          {enviando ? 'Criando…' : 'Criar'}
-        </Botao>
-      </div>
-    </form>
   );
 }

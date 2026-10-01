@@ -5053,6 +5053,178 @@ tr.grupo th {
   font-weight: 700;
 }
 
+
+/* Edição de fila: formulários inline das regras, interruptor alto e modal Adicionar atendentes. */
+.fila-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-4);
+}
+
+.fila-form-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fila-form-titulo h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--g-peso-negrito);
+}
+
+.fila-form-nome {
+  max-width: 420px;
+}
+
+.fila-urgencia {
+  max-width: 320px;
+}
+
+.fila-condicoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+}
+
+.fila-condicao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+}
+
+.fila-condicao-recuada {
+  padding-inline-start: var(--p-e-6);
+}
+
+.fila-condicao-linha {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--p-e-3);
+}
+
+.fila-condicao-linha .form-campo {
+  flex: 1 1 0;
+}
+
+.fila-condicao-extra {
+  max-width: 320px;
+}
+
+.fila-conector {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+}
+
+.fila-conector .seletor {
+  width: 80px;
+}
+
+.fila-condicoes-adicionar {
+  display: flex;
+  justify-content: center;
+}
+
+.interruptor.interruptor-alto {
+  width: var(--p-atend-fila-interruptor-alto-largura);
+  height: var(--p-atend-fila-interruptor-alto-altura);
+  padding: 3px;
+}
+
+.interruptor-alto .interruptor-bolinha {
+  width: 26px;
+  height: 26px;
+}
+
+.interruptor-alto[aria-checked='true'] .interruptor-bolinha {
+  transform: translateX(24px);
+}
+
+.interruptor:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.fila-regra {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.fila-modal-atribuir {
+  position: relative;
+  display: flex;
+  gap: var(--p-e-6);
+  width: 100%;
+  max-width: var(--p-atend-fila-modal-largura);
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: var(--p-atend-fila-modal-padding);
+  border-radius: var(--p-atend-fila-modal-raio);
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-sombra-2);
+}
+
+.fila-modal-atribuir:focus {
+  outline: none;
+}
+
+.fila-modal-fechar {
+  position: absolute;
+  top: var(--p-e-3);
+  right: var(--p-e-3);
+}
+
+.fila-modal-arte {
+  flex: none;
+  align-self: center;
+}
+
+.fila-modal-conteudo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--p-e-4);
+  min-width: 0;
+}
+
+.fila-modal-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--p-e-4);
+  padding-inline-end: var(--p-e-6);
+}
+
+.fila-modal-cabecalho h3 {
+  margin: 0;
+  font-size: var(--g-t-block);
+  font-weight: var(--g-peso-negrito);
+}
+
+.fila-modal-massa {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  white-space: nowrap;
+}
+
+.fila-modal-erros {
+  margin: 0;
+  padding-inline-start: var(--p-e-4);
+  color: var(--p-error-content);
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .fila-modal-arte {
+    display: none;
+  }
+
+  .fila-condicao-linha {
+    flex-wrap: wrap;
+  }
+}
 /*
  * ============== attendant pages (team/create, team/edit, team/permission)
  *    Measures from `ref/verificacao/atendentes-medidas-blip.md`: header 56.9px + 16px, 24px title, card

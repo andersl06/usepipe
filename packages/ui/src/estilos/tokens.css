@@ -303,6 +303,11 @@
   --p-atend-fila-cartao-margem: 20px;
   --p-atend-fila-cartao-sombra: 0 2px 8px -2px rgba(0, 0, 0, 0.16);
   --p-atend-fila-busca-borda: 1px;
+  --p-atend-fila-modal-largura: 790px;
+  --p-atend-fila-modal-raio: 8px;
+  --p-atend-fila-modal-padding: 32px;
+  --p-atend-fila-interruptor-alto-largura: 56px;
+  --p-atend-fila-interruptor-alto-altura: 32px;
 }
 
 /*
