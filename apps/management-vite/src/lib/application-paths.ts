@@ -24,10 +24,9 @@
  *
  * Segment names for the 26 differing pairs come from `route-inventory.md` §2, itself derived
  * from the `url:` declarations of the captured Blip bundles. One exception: `growth/tracked-links`
- * keeps our name instead of the table's `clicktracker` — Blip's `clicktracker` already names our
- * own matching `growth/clicktracker` screen (Click-to-WhatsApp ad performance), and
- * `growth/navigation.tsx`'s own comment documents that tracked links have no Blip counterpart;
- * adopting the table's literal value would collide two different screens onto the same address.
+ * keeps our name instead of the table's `clicktracker` — `growth/navigation.tsx`'s own comment
+ * documents that tracked links have no Blip counterpart, and the Click Tracker screen itself was
+ * removed (03.1-DECISOES), so the old address must not be reintroduced.
  */
 
 export const APPLICATION = '/application';

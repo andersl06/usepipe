@@ -22,7 +22,6 @@ import { PageWebhook } from './pages/flow/integrations/webhook/webhook';
 import { PageLog } from './pages/flow/log/log';
 import { GrowthShell } from './pages/flow/growth/shell';
 import { PageActiveMessages } from './pages/flow/growth/active-messages/active-messages';
-import PageClickTracker from './pages/flow/growth/clicktracker/clicktracker';
 import PageAds from './pages/flow/growth/ads/anuncios';
 import PaymentsPageReport from './pages/flow/growth/payments/payments';
 import PageTrackedLinks from './pages/flow/growth/tracked-links/links-rastreados';
@@ -175,16 +174,10 @@ const contactRoutes = (
     <Route path="growth" element={<GrowthShell />}>
       <Route index element={<Navigate to="active-messages" replace />} />
       <Route path="active-messages" element={<PageActiveMessages />} />
-      <Route path="clicktracker" element={<PageClickTracker />} />
       {/* `ads` → `adsbuying`, `payments` → `paymentsReport` (D-54). */}
       <Route path="adsbuying" element={<PageAds />} />
       <Route path="paymentsReport" element={<PaymentsPageReport />} />
-      {/*
- * Kept as our own name (D-54): Blip's `clicktracker` already names the item above
- * (Click-to-WhatsApp ad performance). Tracked links have no Blip counterpart
- * (`growth/navigation.tsx`); adopting `clicktracker` here too would collide two screens
- * onto the same address.
- */}
+      {/* Tracked links have no Blip counterpart (`growth/navigation.tsx`), so the screen keeps its own name (D-54). */}
       <Route path="tracked-links" element={<PageTrackedLinks />} />
     </Route>
 

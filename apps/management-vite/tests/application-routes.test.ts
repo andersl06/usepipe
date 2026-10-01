@@ -135,7 +135,7 @@ test('renameContactSubpath aplica as rotas da Blip decididas na 03.2 (D-04)', ()
 });
 
 test('renameContactSubpath keeps a screen with no Blip name unchanged', () => {
-  /* growth/tracked-links stays ours: Blip's `clicktracker` already names growth/clicktracker. */
+  /* growth/tracked-links stays ours: it has no Blip counterpart. */
   assert.equal(renameContactSubpath('growth/tracked-links'), 'growth/tracked-links');
   assert.equal(renameContactSubpath('channels'), 'channels');
   assert.equal(renameContactSubpath('attendance/monitoring'), 'attendance/monitoring');
