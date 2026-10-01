@@ -27,3 +27,11 @@ Respostas literais do dono, dadas no chat em 2026-09-30. O Claude não decidiu n
 
 - Q4: o pacote de PDF no servidor só é instalado depois do checkpoint de legitimidade do pacote, executado no plano 03.2-12.
 - Q2: o contrato de API do Histórico passa a paginar no servidor; testes de `apps/api` mudam junto.
+
+## Decisões adicionais (2026-10-01)
+
+| ID | Pergunta | Resposta do dono | Data | Planos afetados |
+|---|---|---|---|---|
+| D-C11 | Seleção múltipla nos filtros Atendentes e Tags do Histórico (e filtro por Fila) | Seguir o mesmo visual de seleção do filtro de Atendentes do Monitoramento (resposta literal: "esse pode seguir o mesmo visual de seleção da parte de atendentes do monitoramento, até mesmo o filtro por fila no plano c-11") | 2026-10-01 | 03.2-16 (portão do Histórico), correção pendente da multisseleção em history.md |
+| D-C02 | Filtro de Atendentes do Monitoramento (C-02) | Não precisa mudar visualmente; o estado atual do Pipe está bom | 2026-10-01 | 03.2-10 (nada a corrigir) |
+| E-01 | Evidência enviada pelo dono: trecho do contêiner `sidebar` da Blip (`type_over`, `position_right`, fundo `surface-1`, `is_open`, largura 420px, cabeçalho com botão fechar, corpo rolável, rodapé). Arquivo guardado fora do Git em `referencias-blip/atendimento/03.2-capturas/2026-10-01-sidebar-type_over-position_right.html.txt`. Não diz se é o painel de filtros ou o de detalhe do ticket; o 03.2-09 usou 444px no painel de detalhe, então conferir a largura | — | 2026-10-01 | 03.2-09 (largura do painel), 03.2-10, 03.2-11 |
