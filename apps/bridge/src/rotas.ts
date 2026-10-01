@@ -138,9 +138,12 @@ const rotas: Rota[] = [
     async ({ session, cmd }) => {
       const r = (cmd.resource ?? {}) as { id?: string; status?: string; tags?: string[] };
       /*
-       * The screen uses this command to close when status begins with `Closed`, and for other changes not yet translated. Return an empty response for non-close changes rather than performing the wrong database operation.
+       * Only a `Closed*` status maps to a domain operation. Any other status fails explicitly rather than reporting a success that changed nothing.
        */
-      if (!r.id || !String(r.status ?? '').startsWith('Closed')) return ok({});
+      if (!r.id) return falha(5, 'faltou o id do ticket');
+      if (!statusEncerra(r.status)) {
+        return falha(4, `mudança para o status "${String(r.status ?? '')}" não disponível no Pipe`);
+      }
       await encerrar(session, r.id, r.tags ?? []);
       return ok({});
     },
