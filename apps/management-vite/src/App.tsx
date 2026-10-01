@@ -48,6 +48,7 @@ import { DictionaryPage } from './pages/flow/analytics/data-dictionary/dictionar
 import { AttendanceShell } from './pages/operation/shell';
 import { PageMonitoring } from './pages/operation/monitoring';
 import { PageHistory } from './pages/operation/history';
+import { PageHistoryDetail } from './pages/operation/history-detail';
 import { PageAttendance } from './pages/operation/reports-attendance';
 import { PageEffort } from './pages/operation/reports-effort';
 import { PageSatisfaction } from './pages/operation/reports-satisfaction';
@@ -122,6 +123,7 @@ const contactRoutes = (
       <Route index element={<Navigate to="monitoring" replace />} />
       <Route path="monitoring" element={<PageMonitoring />} />
       <Route path="history" element={<PageHistory />} />
+      <Route path="history/:id" element={<PageHistoryDetail />} />
       {/* `quality-review` → `quality-assurance` (D-54). */}
       <Route path="quality-assurance" element={<PageQualityReview />} />
       <Route path="quality-assurance/:id" element={<EvaluationPageRecord />} />

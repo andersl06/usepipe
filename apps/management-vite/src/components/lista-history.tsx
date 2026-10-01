@@ -1,7 +1,8 @@
 import { memo } from 'react';
+import { ManagementIcon } from './icones-management';
 
 /**
- * Render History as cards rather than a ten-column table, as measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` Sections 3 and 5.2: six of eight Blip Attendance screens use cards and none use a table. A card keeps labels beside values across widths. Match their layout (selection bar above; small label over strong value) with our `--p-*` colors, not their hex values. `PageHistory` owns selection because CSV export outside this component depends on it; this component owns Select all and the visible-card count.
+ * Render History as cards rather than a table, as in `referencias-blip/fichas/FICHA-history.md` and the results capture: each row is a `bds-paper` card with a checkbox, Ticket, Atendente, Contato, three durations and a button that opens the ticket detail. A card keeps labels beside values across widths. Match their layout (selection bar above; small label over strong value) with our `--p-*` colors, not their hex values. `PageHistory` owns selection because CSV export outside this component depends on it; this component owns Select all and the visible-card count.
  */
 
 export interface CardHistory {
@@ -37,22 +38,24 @@ function Campo({ rotulo, value, classe }: { rotulo: string; value: string; class
 }
 
 
-const OITO_COLUNAS = { '--cl-colunas': 8 } as React.CSSProperties;
+const SEIS_COLUNAS = { '--cl-colunas': 6 } as React.CSSProperties;
 
 /**
  * Memoizing the card is measured necessity, not speculative optimization: a query can return 200 conversations with eight fields each; without `memo`, checking one box rebuilt all 200 cards and froze the screen for tens of seconds. With `memo` and stable `aoAlternar`, only one card rerenders.
  */
 const Card = memo(function Cartao({
   card,
+  href,
   marcado,
   aoAlternar,
 }: {
   card: CardHistory;
+  href: string;
   marcado: boolean;
   aoAlternar: (id: string) => void;
 }) {
   return (
-    <article className={card.critico ? 'card-list critico' : 'card-list'}>
+    <article className="card-list">
       <label className="cl-sel">
         <input
           type="checkbox"
@@ -62,30 +65,27 @@ const Card = memo(function Cartao({
         />
       </label>
 
-      <div className="cl-campos" style={OITO_COLUNAS}>
+      <div className="cl-campos" style={SEIS_COLUNAS}>
         <Campo rotulo="Ticket" value={card.ticket} classe="id" />
-        <Campo rotulo="Encerrada" value={card.encerrada} classe="num" />
-        <Campo rotulo="Contato" value={card.contact} />
-        <Campo rotulo="Fila" value={card.queue} />
         <Campo rotulo="Atendente" value={card.agent} />
-        <Campo rotulo="Espera do cliente" value={card.espera} classe="num" />
-        <Campo rotulo="1ª resposta" value={card.firstResponse} classe="num" />
-        <Campo rotulo="Atendimento" value={card.attendance} classe="num" />
+        <Campo rotulo="Contato" value={card.contact} />
+        <Campo rotulo="Tempo de espera" value={card.espera} classe="num" />
+        <Campo rotulo="Tempo de 1ª resposta" value={card.firstResponse} classe="num" />
+        <Campo rotulo="Tempo de atendimento" value={card.attendance} classe="num" />
       </div>
 
       <div className="cl-actions">
-        <span className={card.statusClasse}>{card.statusTexto}</span>
+        <a
+          className="iconbtn"
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Consultar detalhes do ticket"
+          aria-label={`Consultar detalhes do ticket ${card.ticket}`}
+        >
+          <ManagementIcon nome="direita" tamanho={24} />
+        </a>
       </div>
-
-      {card.etiquetas.length > 0 ? (
-        <div className="cl-rodape">
-          {card.etiquetas.map((e) => (
-            <span key={e} className="etiqueta">
-              {e}
-            </span>
-          ))}
-        </div>
-      ) : null}
     </article>
   );
 });
@@ -96,6 +96,7 @@ export function ListHistory({
   marcados,
   aoAlternar,
   aoAlternarTodos,
+  hrefDetalhe,
 }: {
   groups: readonly CardsGroup[];
   /** Keep one deduplicated list for Select all, rather than repeating cards in each group. */
@@ -103,6 +104,8 @@ export function ListHistory({
   marcados: ReadonlySet<string>;
   aoAlternar: (id: string) => void;
   aoAlternarTodos: () => void;
+  /** Where the detail of a ticket opens (a new tab, like their chevron button). */
+  hrefDetalhe: (card: CardHistory) => string;
 }) {
   const selecionados = todos.filter((c) => marcados.has(c.id));
   const tudoMarcado = todos.length > 0 && selecionados.length === todos.length;
@@ -133,6 +136,7 @@ export function ListHistory({
               <Card
                 key={`${grupo.titulo}-${c.id}`}
                 card={c}
+                href={hrefDetalhe(c)}
                 marcado={marcados.has(c.id)}
                 aoAlternar={aoAlternar}
               />

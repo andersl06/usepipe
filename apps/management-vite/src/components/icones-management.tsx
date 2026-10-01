@@ -12,6 +12,8 @@ const CAMINHOS = {
   atualizar: 'M20 11a8.1 8.1 0 0 0 -15.5 -2M4 5v4h4M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4',
   baixar: 'M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2M7 11l5 5l5 -5M12 4l0 12',
   baixo: 'M6 9l6 6l6 -6',
+  direita: 'M9 6l6 6l-6 6',
+  esquerda: 'M15 6l-6 6l6 6',
   biblioteca:
     'M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0M3 6l0 13M12 6l0 13M21 6l0 13',
   circuloOk: 'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M9 12l2 2l4 -4',

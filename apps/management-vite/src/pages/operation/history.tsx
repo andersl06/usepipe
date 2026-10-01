@@ -4,7 +4,6 @@ import {
   groupingValid,
   groupHistory,
   alternarTodosVisiveis,
-  HISTORY_LIMIT,
   reconciliarMarcados,
   type Catalogos,
   type HistoryRow,
@@ -17,6 +16,7 @@ import { EmptyState, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
 import { PanelField, FieldPeriod, PanelFilters } from '../../components/panel-filters';
 import { Select } from '@pipe/ui/select';
+import { Pagination, type PaginationState } from '@pipe/ui/pagination';
 import { montarCsv } from '../../lib/csv-history';
 import { ListHistory, type CardHistory } from '../../components/lista-history';
 import { useContact } from '../flow/contact';
@@ -28,7 +28,10 @@ interface HistoryResponse {
   ate: string;
   catalogos: Catalogos;
   linhas: HistoryRow[];
-  truncado: boolean;
+  /** Rows matching the filters across all pages; `linhas` holds only the requested page. */
+  total: number;
+  pagina: number;
+  porPagina: number;
 }
 
 interface Search {
@@ -97,7 +100,14 @@ export function PageHistory() {
   const { contact } = useContact();
   const base = attendanceBase(contact);
   const [search] = useSearchParams();
-  const crus = Object.fromEntries(search.entries()) as Search;
+  /* The filter form submits fila/atendente/contato; Search names them queue/agent/contact. */
+  const brutos = Object.fromEntries(search.entries()) as Record<string, string | undefined>;
+  const crus: Search = {
+    ...brutos,
+    queue: brutos.fila,
+    agent: brutos.atendente,
+    contact: brutos.contato,
+  };
   /* Conferido na entrada: id torto e data torta viram "sem filtro", em vez de
      virarem erro de servidor no `::uuid` e no `::date` do Postgres. */
   const params: Search = {
@@ -109,10 +119,19 @@ export function PageHistory() {
     ate: dataOuNada(crus.ate),
   };
   const q = new URLSearchParams();
-  for (const key of ['queue', 'agent', 'etiqueta', 'de', 'ate'] as const) {
-    if (params[key]) q.set(key === "de" ? "from" : key === "ate" ? "to" : key, params[key] as string);
+  for (const key of ['queue', 'agent', 'etiqueta', 'de', 'ate', 'ticket', 'contact'] as const) {
+    if (params[key]) q.set(key === 'de' ? 'from' : key === 'ate' ? 'to' : key, params[key] as string);
   }
-  const read = useRead<HistoryResponse>(`/v1/management/history?${q}`);
+  /* Server-side pages: changing any filter goes back to page 1. */
+  const chaveFiltros = q.toString();
+  const [paginacao, setPaginacao] = useState({ chave: chaveFiltros, page: 1, byPage: 100 });
+  const page = paginacao.chave === chaveFiltros ? paginacao.page : 1;
+  const { byPage } = paginacao;
+  q.set('pagina', String(page));
+  q.set('porPagina', String(byPage));
+  const read = useRead<HistoryResponse>(`/v1/management/history?${q}`, {
+    placeholderData: (anterior) => anterior,
+  });
   const [panelOpen, setPanelOpen] = useState(false);
   const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
 
@@ -131,15 +150,6 @@ export function PageHistory() {
    */
   const data = read.data;
   const by = groupingValid(params.agrupar);
-
-  /*
-   * The two client-side filters: the API has neither `?ticket=` nor `?contato=`, but the rows already carry `ticket` and `contatoNome` — filtering here costs no extra round trip to the server, and doesn't invent data the query didn't return.
-   */
-  const idsDosTickets = (params.ticket ?? '')
-    .split(/[\s,]+/)
-    .map((t) => t.trim().toLowerCase())
-    .filter(Boolean);
-  const contactFetched = (params.contact ?? '').trim().toLowerCase();
 
   /*
    * Everything crosses over to the card already formatted: no Date and no null passes through, and the tenant's timezone formatting gets decided in one place.
@@ -164,21 +174,7 @@ export function PageHistory() {
       };
     };
 
-  const linhas = useMemo(() => {
-    if (!data) return [];
-    return data.linhas.filter((l) => {
-      if (
-        idsDosTickets.length > 0 &&
-        !idsDosTickets.some((id) => l.ticket.toLowerCase().includes(id))
-      ) {
-        return false;
-      }
-      if (contactFetched && !l.contactName.toLowerCase().includes(contactFetched)) return false;
-      return true;
-    });
-    // Real dependencies: the two URL strings, not the arrays derived
-    // delas (novos a cada render).
-  }, [data, params.ticket, params.contact]);
+  const linhas = data?.linhas ?? [];
 
   const groups = useMemo(() => {
     if (!data) return [];
@@ -227,7 +223,14 @@ export function PageHistory() {
     );
   }
   /* Default (in the `api`): the last thirty days, including today. */
-  const { fuso, de, ate, catalogos, truncado } = data;
+  const { fuso, de, ate, catalogos, total } = data;
+  const pg: PaginationState = {
+    page,
+    byPage,
+    total,
+    setPage: (n) => setPaginacao({ chave: chaveFiltros, page: n, byPage }),
+    setByPage: (n) => setPaginacao({ chave: chaveFiltros, page: 1, byPage: n }),
+  };
 
   /*
    * Period always exists; queue, agent, tag, ticket and contact are the optional filter. The distinction decides the server's empty-state phrase (truncation) — the screen's own text is fixed, like theirs.
@@ -235,7 +238,7 @@ export function PageHistory() {
   const hasFilter = Boolean(
     params.queue || params.agent || params.etiqueta || params.ticket || params.contact,
   );
-  const clearFilters = `${base}/history?de=${de}&to=${ate}`;
+  const clearFilters = `${base}/history?de=${de}&ate=${ate}`;
 
   return (
     <>
@@ -372,7 +375,7 @@ export function PageHistory() {
  * "Área de resultados", `FICHA-history.md` §2: their empty state OR our list, and the "Termo de responsabilidade" link in the corner — it lives in this area in BOTH states, because that's where the capture recorded it (their capture is empty, and the link is there anyway).
  */}
       <div className="hist-resultados">
-        {linhas.length === 0 ? (
+        {total === 0 ? (
           /* The text is theirs, literal — `FICHA-history.md` §6. */
           <EmptyState titulo="Nenhum resultado encontrado" illustration="busca">
             <p>
@@ -409,13 +412,7 @@ export function PageHistory() {
                   </option>
                 ))}
               </Select>
-              {truncado ? (
-                <span className="sub">
-                  {numero(linhas.length)} conversas · as {HISTORY_LIMIT} mais recentes
-                </span>
-              ) : (
-                <span className="sub">{numero(linhas.length)} conversas</span>
-              )}
+              <span className="sub">{numero(total)} conversas</span>
             </form>
 
             <ListHistory
@@ -426,7 +423,9 @@ export function PageHistory() {
               aoAlternarTodos={() =>
                 setMarcados((atual) => alternarTodosVisiveis(atual, idsVisiveis))
               }
+              hrefDetalhe={(c) => `${base}/history/${c.id}?ticketId=${encodeURIComponent(c.ticket)}`}
             />
+            <Pagination layout="grade" state={pg} grade="history-grid" afastado />
           </>
         )}
 
