@@ -39,6 +39,10 @@
       "types": "./dist/window/index.d.ts",
       "default": "./dist/window/index.js"
     },
+    "./csv-history": {
+      "types": "./dist/csv-history.d.ts",
+      "default": "./dist/csv-history.js"
+    },
     "./analytics": {
       "types": "./dist/analytics/index.d.ts",
       "default": "./dist/analytics/index.js"
