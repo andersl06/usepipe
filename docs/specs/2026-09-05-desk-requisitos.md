@@ -73,24 +73,27 @@ atendente (`atendente.nome`, `atendente.primeiro_nome`, `atendente.email`).
 
 ### Os gatilhos de teclado
 
-O Blip Desk usa `#` no campo de mensagem para abrir a lista de respostas prontas. Isso **não está
-em lugar nenhum da documentação** — o artigo de cadastro de resposta pronta está fora do ar e não
-existe artigo de atalhos —, mas é o gesto que o atendente já tem no dedo. O Pipe mantém, e separa
-por tipo de coisa:
+O gatilho é o do Blip Desk, confirmado no ensaio 4 de 2026-10-01 (leitura do código do Desk, em
+`03.1-ENSAIOS.md`, chaves `compositor.*`) e citado no Help oficial
+[Acessibilidade no Blip Desk](https://help.blip.ai/hc/pt-br/articles/34953352607511-Acessibilidade-no-Blip-Desk):
+
+- **`#` é o único gatilho** das respostas prontas. Não existe `/` no Desk da Blip.
+- Só abre com `#` **no início** do texto; `#` depois de uma palavra não abre.
+- O texto após o `#` filtra pelo nome da resposta: prefixo do nome ou de qualquer palavra do nome,
+  sem diferenciar maiúsculas.
+- Enter com a lista aberta coloca o texto da resposta no campo (variáveis substituídas) **sem
+  enviar**; o cursor fica no fim para o atendente completar. Inserir e enviar são dois gestos.
+  Respostas que não são texto abrem o modal de envio de cartão. Esc fecha e esvazia o campo; as
+  setas navegam. O botão de respostas prontas do compositor abre a mesma lista.
 
 | Gatilho | Abre |
 |---|---|
-| `#` | Respostas prontas — as da empresa e as pessoais, na mesma lista, com a origem marcada |
+| `#` no início | Respostas prontas — as da empresa e as pessoais, na mesma lista, com a origem marcada |
 | `#` fora da janela de 24h | A mesma lista, com as respostas de texto livre desabilitadas e os **templates aprovados** em primeiro plano, cada um com a categoria e o custo |
-| `/` | Comandos da conversa: transferir, encerrar, em espera, etiquetar, acionar automação |
-| `@` | Menção a colega numa nota interna |
 
-A separação é deliberada: `#` insere **conteúdo** na mensagem, `/` executa uma **ação** na conversa.
-Misturar os dois na mesma lista é o que faz o atendente encerrar um atendimento querendo mandar
-uma saudação.
-
-Digitar `#` seguido do atalho filtra a lista; Enter insere e o cursor fica no fim do texto, para o
-atendente completar. Nada é enviado automaticamente — inserir e enviar são dois gestos.
+A Blip não tem atalho `/` nem `@` no campo de mensagem. Comandos da conversa (transferir,
+encerrar, em espera, etiquetar) ficam nos botões e menus da tela, como na Blip; `/` para comandos e
+`@` para menção em nota interna são ideias do Pipe **não implementadas**, a decidir em fase própria.
 
 Ficam em cache local e continuam funcionando com a rede oscilando — é uma das reclamações
 recorrentes contra o Blip, e é irritação diária de quem atende.
