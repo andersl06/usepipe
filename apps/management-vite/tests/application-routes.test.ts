@@ -126,6 +126,14 @@ test('renameContactSubpath applies the D-54 segment renames', () => {
   assert.equal(renameContactSubpath('attendance/rules/sla'), 'attendance/sla-policy');
 });
 
+test('renameContactSubpath aplica as rotas da Blip decididas na 03.2 (D-04)', () => {
+  // R-01: configurações gerais do atendimento
+  assert.equal(
+    renameContactSubpath('attendance/preferences/general'),
+    'attendance/general-settings',
+  );
+});
+
 test('renameContactSubpath keeps a screen with no Blip name unchanged', () => {
   /* growth/tracked-links stays ours: Blip's `clicktracker` already names growth/clicktracker. */
   assert.equal(renameContactSubpath('growth/tracked-links'), 'growth/tracked-links');
