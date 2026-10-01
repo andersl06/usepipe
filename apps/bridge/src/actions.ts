@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { closeConversation, transferConversation } from '@pipe/api/domain/conversation';
 import { assumeConversation } from '@pipe/api/domain/assume';
+import { flowOfConversation } from '@pipe/api/domain/queue-entry';
 import { sendMessage } from '@pipe/api/domain/sending';
 import { noTenant } from './database.js';
 import type { Session } from './rotas.js';
@@ -84,9 +85,14 @@ export async function transferForQueue(
   queueName: string,
 ): Promise<void> {
   const queueId = await noTenant(session.tenantId, async (tx) => {
-    const { rows } = await tx.execute<{ id: string }>(
-      sql`select id from fila where nome = ${queueName} limit 1`,
-    );
+    // Names repeat across flows (unique per flow only): look only inside the flow serving this conversation.
+    const flowId = await flowOfConversation(tx, session.tenantId, conversationId);
+    if (!flowId) return null;
+    const { rows } = await tx.execute<{ id: string }>(sql`
+      select id from fila
+       where tenant_id = ${session.tenantId}::uuid and fluxo_id = ${flowId}::uuid and ativa and nome = ${queueName}
+       limit 1
+    `);
     return rows[0]?.id ?? null;
   });
   if (!queueId) throw new Error(`fila "${queueName}" não existe neste cliente`);
@@ -94,33 +100,26 @@ export async function transferForQueue(
 }
 
 /**
- * Closing requires a tag: a closed conversation without a reason makes later reports meaningless, and the source screen already enforced this. The screen sends selected tag names. Use the first supplied tag if it exists; otherwise use the client's first conversation tag. If the client has none, create the supplied name or "Encerrado pelo atendente" when no name was supplied. New companies commonly have no tags, and blocking closure would be worse than recording a generic reason.
+ * The screen sends the selected tag names; each is looked up by name among the client's conversation tags. A name with no matching tag is reported and skipped: no other tag is substituted and none is created (that is the tag screen's job), and the conversation closes with the tags found, if any. Mandatory tags are still enforced by `closeConversation`.
  */
 export async function encerrar(
   session: Session,
   conversationId: string,
   nomes: string[] = [],
 ): Promise<void> {
-  const etiquetaId = await noTenant(session.tenantId, async (tx) => {
-    const nome = nomes[0];
-    if (nome) {
-      const { rows } = await tx.execute<{ id: string }>(
-        sql`select id from etiqueta where nome = ${nome} limit 1`,
-      );
-      if (rows[0]) return rows[0].id;
+  const etiquetaIds = await noTenant(session.tenantId, async (tx) => {
+    const ids: string[] = [];
+    for (const nome of nomes) {
+      const { rows } = await tx.execute<{ id: string }>(sql`
+        select id from etiqueta
+         where tenant_id = ${session.tenantId}::uuid and nome = ${nome} and escopo in ('conversa', 'ambos')
+         limit 1
+      `);
+      if (rows[0]) ids.push(rows[0].id);
+      else console.warn(`[bridge] etiqueta "${nome}" não existe neste cliente; encerrando sem ela (conversa ${conversationId})`);
     }
-    const { rows: first } = await tx.execute<{ id: string }>(
-      sql`select id from etiqueta where escopo = 'conversa' order by criado_em limit 1`,
-    );
-    if (first[0]) return first[0].id;
-
-    const { rows: criada } = await tx.execute<{ id: string }>(sql`
-      insert into etiqueta (tenant_id, nome, escopo)
-      values (${session.tenantId}::uuid, ${nome ?? 'Encerrado pelo atendente'}, 'conversa')
-      returning id
-    `);
-    return criada[0]!.id;
+    return ids;
   });
 
-  await closeConversation(ator(session, true), { conversationId, etiquetaIds: [etiquetaId] });
+  await closeConversation(ator(session, true), { conversationId, etiquetaIds });
 }

@@ -31,6 +31,10 @@
       "types": "./dist/domain/envio.d.ts",
       "default": "./dist/domain/envio.js"
     },
+    "./domain/queue-entry": {
+      "types": "./dist/domain/queue-entry.d.ts",
+      "default": "./dist/domain/queue-entry.js"
+    },
     "./domain/assume": {
       "types": "./dist/domain/assumir.d.ts",
       "default": "./dist/domain/assumir.js"
