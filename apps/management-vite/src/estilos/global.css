@@ -960,7 +960,8 @@
 /*
  * Header and card-corner icon button: on their screen it's the LOOSE GLYPH, no border and no background. The 28px white box was ours.
  */
-.board-head .iconbtn {
+.board-head .iconbtn,
+.atend-cab .iconbtn {
   width: 40px;
   height: 40px;
   border: 0;
@@ -972,12 +973,14 @@
 /*
  * The "Atualizar tela"/"Expandir tela" glyph is their `bds-icon size medium`: 24px, not the 14 ours used to draw (see `dom/monitoring.html`, `bds-icon__size--medium` inside `bds-button icon="refresh"`).
  */
-.board-head .iconbtn svg {
+.board-head .iconbtn svg,
+.atend-cab .iconbtn svg {
   width: 24px;
   height: 24px;
 }
 
-.board-head .iconbtn:hover:not(:disabled) {
+.board-head .iconbtn:hover:not(:disabled),
+.atend-cab .iconbtn:hover:not(:disabled) {
   background: var(--p-superficie-2);
 }
 

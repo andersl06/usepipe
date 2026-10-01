@@ -42,6 +42,9 @@ export function LinhaConfig({
   );
 }
 
+/** Valor exibido no texto do interruptor; o padrão real é a capacidade de cada fila (`fila.capacidade_padrao`), sem número único. */
+const TICKETS_PADRAO_EXIBIDO = 200;
+
 /** Tickets simultâneos: interruptor "padrão" e, desligado, campo numérico. */
 export function TicketsSimultaneos({
   padrao,
@@ -70,7 +73,7 @@ export function TicketsSimultaneos({
         >
           <span className="interruptor-bolinha" />
         </button>
-        <span>padrão</span>
+        <span>Usar configuração padrão ({TICKETS_PADRAO_EXIBIDO} tickets simultâneos)</span>
       </div>
       {padrao ? null : (
         <input
