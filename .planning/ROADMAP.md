@@ -428,7 +428,7 @@ Plans:
   4. O dono aprova a comparação visual
 
 **UI hint**: yes
-**Plans:** 6/25 plans executed
+**Plans:** 7/25 plans executed
 
 Plans:
 
@@ -438,7 +438,7 @@ Plans:
 - [x] 03.2-04-PLAN.md — dono envia capturas de estados abertos (não bloqueia)
 - [x] 03.2-05-PLAN.md — portão da Onda 0: decisões do dono (Q1-Q7, R-NN) e aprovação da casca
 - [x] 03.2-06-PLAN.md — rotas conforme decisões D-04
-- [ ] 03.2-07-PLAN.md — "Resultados por página" unificado e medido
+- [x] 03.2-07-PLAN.md — "Resultados por página" unificado e medido
 - [ ] 03.2-08-PLAN.md — tblwrap único + paginação/estados nas telas do censo
 - [ ] 03.2-09-PLAN.md — Monitoramento: barra e detalhe do ticket, menu de três pontos, Transferir/Finalizar
 - [ ] 03.2-10-PLAN.md — Monitoramento: filtros rápidos, Falar com atendente (D-14), estados
