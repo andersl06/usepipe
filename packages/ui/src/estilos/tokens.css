@@ -275,6 +275,21 @@
   --p-atend-menu-largura: 240px;
   --p-atend-ticket-detalhe-largura: 444px;
   --p-atend-sombra-flutuante: 0 6px 16px -4px rgba(0, 0, 0, 0.16);
+
+  /*
+   * ================================== Attendance: attendant pages
+   *      Add, edit and permissions pages (`ref/verificacao/atendentes-medidas-blip.md`,
+   *      measured live 2026-10-01): 16px card with 40px padding, 56px avatar, 56px
+   *      permission rows, 643.5px field column.
+   */
+  --p-atend-equipe-cartao-raio: 16px;
+  --p-atend-equipe-cartao-padding: 40px;
+  --p-atend-equipe-cartao-margem: 20px;
+  --p-atend-equipe-campo-largura: 643.5px;
+  --p-atend-equipe-avatar: 56px;
+  --p-atend-equipe-linha-permissao: 56px;
+  --p-atend-equipe-interruptor-largura: 32px;
+  --p-atend-equipe-interruptor-altura: 21px;
 }
 
 /*
@@ -487,4 +502,17 @@
   --p-t-2xl: var(--p-t-numero);
   --p-r-xs: var(--p-r-sm);
   --p-r-lg: var(--p-r-md);
+  /*
+   * ================================== Attendance: attendant pages
+   *      Add, edit and permissions pages (, measured live
+   *      2026-10-01): 16px card with 40px padding, 56px avatar, 56px permission rows, field column 643.5px.
+   */
+  --p-atend-equipe-cartao-raio: 16px;
+  --p-atend-equipe-cartao-padding: 40px;
+  --p-atend-equipe-cartao-margem: 20px;
+  --p-atend-equipe-campo-largura: 643.5px;
+  --p-atend-equipe-avatar: 56px;
+  --p-atend-equipe-linha-permissao: 56px;
+  --p-atend-equipe-interruptor-largura: 32px;
+  --p-atend-equipe-interruptor-altura: 21px;
 }

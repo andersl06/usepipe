@@ -70,7 +70,7 @@ export function AgentsPageManagement() {
     if (!paraExcluir) return;
     setExcluindo(true);
     setErrorDeletion(null);
-    const resultado = await removeFromAllQueues(paraExcluir.id, paraExcluir.queues);
+    const resultado = await removeFromAllQueues(paraExcluir.id, paraExcluir.queueIds);
     setExcluindo(false);
     if (resultado.ok) setParaExcluir(null);
     else setErrorDeletion(resultado.error);
@@ -79,7 +79,7 @@ export function AgentsPageManagement() {
   const sections: RulesSection[] = [
     {
       titulo: 'Gestão de atendentes',
-      empty: 'Nenhum atendente cadastrado.',
+      empty: "Nenhum atendente cadastrado. Adicione um atendente para começar a atender.",
       cards: filtrados.map((a) => ({
         id: a.id,
         esquerda: (
@@ -171,13 +171,9 @@ export function AgentsPageManagement() {
 
       <ConfirmModal
         aberto={paraExcluir !== null}
-        titulo="Excluir atendente"
-        message={
-          <>
-            Tirar "{paraExcluir?.name}" de todas as filas? A pessoa deixa de receber conversa e continua com a
-            conta.
-          </>
-        }
+        titulo="Remover atendente"
+        rotuloConfirmar="Remover atendente"
+        message="Remover atendente: a pessoa perde acesso ao atendimento deste fluxo. Tickets em andamento precisam ser transferidos antes."
         error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}

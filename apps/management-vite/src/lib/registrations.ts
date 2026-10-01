@@ -173,6 +173,8 @@ export interface AgentRegistered {
   /** `null` quando a pessoa nunca conectou: não é "offline", é "nunca esteve". */
   state: string | null;
   queues: string[];
+  /** Ids das mesmas filas, na mesma ordem. */
+  queueIds: string[];
   /**
    * Teto de conversas simultâneas. `null` quando a pessoa não está em fila
    * nenhuma — aí não há teto porque não há de onde receber.

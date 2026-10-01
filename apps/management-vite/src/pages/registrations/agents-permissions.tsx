@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Avatar, Botao, Etiqueta } from '@pipe/ui';
+import { Botao, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import {
   permissionsPath,
@@ -9,6 +9,7 @@ import {
 } from '../../lib/agents-gravar';
 import { permissionsDescription } from '../../lib/agents';
 import { TabelaCarregando, TabelaErro } from '../../components/estados-tabela';
+import { CabecalhoAtendente, SubtituloAtendente } from './agents-pagina';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
 
@@ -75,66 +76,55 @@ export function AgentPagePermissions() {
     }
   }
 
+  const grupos: { grupo: string; linhas: typeof permissions }[] = [];
+  for (const p of permissions) {
+    const g = grupos.find((x) => x.grupo === p.group);
+    if (g) g.linhas.push(p);
+    else grupos.push({ grupo: p.group, linhas: [p] });
+  }
+
   return (
     <>
-      <div className="board-head">
-        <h2>Permissões</h2>
-      </div>
+      <CabecalhoAtendente titulo="Permissões" aoVoltar={() => navegar(`${base}/team`)} />
+      <SubtituloAtendente nome={agents.map((a) => a.name).join(', ')}>
+        {permissionsDescription(agents.map((a) => a.name))}
+      </SubtituloAtendente>
 
-      <p className="sub">{permissionsDescription(agents.map((a) => a.name))}</p>
-
-      <div className="lista-selecionados">
-        {agents.map((a) => (
-          <span key={a.id} className="selecionado-chip">
-            <Avatar nome={a.name} /> {a.name}
-          </span>
+      <div className="atend-cartao atend-cartao-permissoes">
+        {grupos.map((g) => (
+          <section key={g.grupo}>
+            <div className="atend-perm-cab">
+              <span>{g.grupo}</span>
+              <span>Status</span>
+            </div>
+            {g.linhas.map((p) => {
+              const ligada = valueCurrent(p.code, p.ligada);
+              const parcial = !(p.code in editado) && p.parcial;
+              return (
+                <div key={p.code} className="atend-perm-linha">
+                  <span>{p.description}</span>
+                  <button
+                    type="button"
+                    className="interruptor interruptor-curto"
+                    role="switch"
+                    aria-checked={ligada}
+                    data-parcial={parcial ? 'true' : undefined}
+                    aria-label={p.description}
+                    title={parcial ? 'Uns têm, outros não' : undefined}
+                    onClick={() => alternar(p.code, ligada)}
+                  >
+                    <span className="interruptor-bolinha" />
+                  </button>
+                </div>
+              );
+            })}
+          </section>
         ))}
-      </div>
-
-      <div className="tblwrap">
-        <div className="tblhead">
-          <h3>Permissões disponíveis</h3>
-        </div>
-        <div className="scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Tipo de permissão</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {permissions.map((p) => {
-                const ligada = valueCurrent(p.code, p.ligada);
-                const parcial = !(p.code in editado) && p.parcial;
-                return (
-                  <tr key={p.code}>
-                    <td>{p.description}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="interruptor"
-                        role="switch"
-                        aria-checked={ligada}
-                        data-parcial={parcial ? 'true' : undefined}
-                        aria-label={p.description}
-                        title={parcial ? 'Uns têm, outros não' : undefined}
-                        onClick={() => alternar(p.code, ligada)}
-                      >
-                        <span className="interruptor-bolinha" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
       </div>
 
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-      <div className="cl-actions">
+      <div className="atend-rodape">
         <Botao type="button" onClick={() => navegar(`${base}/team`)} disabled={salvando}>
           Cancelar
         </Botao>
@@ -144,7 +134,7 @@ export function AgentPagePermissions() {
           onClick={() => void saveChanges()}
           disabled={salvando || Object.keys(editado).length === 0}
         >
-          {salvando ? 'Salvando…' : 'Salvar alterações'}
+          {salvando ? 'Salvando…' : 'Salvar'}
         </Botao>
       </div>
     </>

@@ -1148,6 +1148,8 @@ export interface AgentRegistered {
   /** `null` quando a pessoa nunca conectou: não é "offline", é "nunca esteve". */
   state: string | null;
   queues: string[];
+  /** Ids das mesmas filas, na mesma ordem: a gestão do atendente grava por id. */
+  queueIds: string[];
   /**
    * Teto de conversas simultâneas. `null` quando a pessoa não está em fila
    * nenhuma — aí não há teto porque não há de onde receber.
@@ -1175,6 +1177,7 @@ export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]
     const members = await tx
       .select({
         usuarioId: queueAgent.userId,
+        filaId: queue.id,
         filaNome: queue.nome,
         override: queueAgent.capacityOverride,
         padrao: queue.capacityDefault,
@@ -1183,10 +1186,11 @@ export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]
       .innerJoin(queue, eq(queue.id, queueAgent.queueId))
       .orderBy(asc(queue.order), asc(queue.nome));
 
-    const byPerson = new Map<string, { queues: string[]; limit: number }>();
+    const byPerson = new Map<string, { queues: string[]; queueIds: string[]; limit: number }>();
     for (const m of members) {
-      const atual = byPerson.get(m.usuarioId) ?? { queues: [], limit: 0 };
+      const atual = byPerson.get(m.usuarioId) ?? { queues: [], queueIds: [], limit: 0 };
       atual.queues.push(m.filaNome);
+      atual.queueIds.push(m.filaId);
       atual.limit = Math.max(atual.limit, m.override ?? m.padrao);
       byPerson.set(m.usuarioId, atual);
     }
@@ -1196,6 +1200,7 @@ export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]
       return {
         ...p,
         queues: dela?.queues ?? [],
+        queueIds: dela?.queueIds ?? [],
         limiteSimultaneo: dela ? dela.limit : null,
       };
     });

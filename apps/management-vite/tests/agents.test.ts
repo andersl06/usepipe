@@ -7,6 +7,7 @@ import {
   queuesInCard,
   filterAgents,
   editTitle,
+  resolveEmails,
 } from '../src/lib/agents.ts';
 
 /**
@@ -21,7 +22,7 @@ function pessoa(
   queues: string[],
   limiteSimultaneo: number | null = 5,
 ): AgentRegistered {
-  return { id: nome, name: nome, email, active: true, state: 'online', queues, limiteSimultaneo };
+  return { id: nome, name: nome, email, active: true, state: 'online', queues, queueIds: [], limiteSimultaneo };
 }
 
 const LISTA = [
@@ -85,4 +86,11 @@ test('the permissions page\'s description has the three variants from the source
 test('the bulk-edit title agrees in number', () => {
   assert.equal(editTitle(1), 'Editar 1 atendente');
   assert.equal(editTitle(3), 'Editar 3 atendentes');
+});
+
+test('resolveEmails separa quem tem cadastro de quem não tem, sem repetir', () => {
+  const lista = [pessoa('Ana', 'ana@x.com', []), pessoa('Beto', 'beto@x.com', [])];
+  const r = resolveEmails(lista, ['ANA@x.com', 'ana@x.com', 'ninguem@x.com']);
+  assert.deepEqual(r.ids, ['Ana']);
+  assert.deepEqual(r.unknown, ['ninguem@x.com']);
 });

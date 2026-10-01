@@ -52,12 +52,33 @@ export async function savePermissions(
  */
 export async function applyInSelection(
   userIds: readonly string[],
-  queueId: string,
+  queueIds: readonly string[],
   capacityOverride: number | null,
 ): Promise<Resultado<void>> {
   for (const id of userIds) {
-    const r = await linkAgentInQueue(queueId, id, capacityOverride);
-    if (!r.ok) return { ok: false, error: r.error };
+    for (const queueId of queueIds) {
+      const r = await linkAgentInQueue(queueId, id, capacityOverride);
+      if (!r.ok) return { ok: false, error: r.error };
+    }
+  }
+  return { ok: true, value: undefined };
+}
+
+/**
+ * Grava a edição de UM atendente: entra nas filas marcadas (aplicando o teto individual; `null` volta ao padrão da fila; `undefined` não mexe nas filas em que já está) e sai das desmarcadas.
+ */
+export async function saveAgent(
+  userId: string,
+  current: readonly string[],
+  next: readonly string[],
+  capacity: number | null | undefined,
+): Promise<Resultado<void>> {
+  const alvo = capacity === undefined ? next.filter((f) => !current.includes(f)) : next;
+  const r = await applyInSelection([userId], alvo, capacity ?? null);
+  if (!r.ok) return r;
+  for (const queueId of current.filter((f) => !next.includes(f))) {
+    const u = await queueUnlinkAgent(queueId, userId);
+    if (!u.ok) return u;
   }
   return { ok: true, value: undefined };
 }

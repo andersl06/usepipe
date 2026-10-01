@@ -63,3 +63,19 @@ export function permissionsDescription(nomes: readonly string[]): string {
 export function editTitle(quantity: number): string {
   return `Editar ${quantity} atendente${quantity === 1 ? '' : 's'}`;
 }
+
+/** Separa os e-mails digitados entre pessoas já cadastradas no tenant e e-mails sem cadastro (a comparação ignora maiúsculas). */
+export function resolveEmails(
+  agents: readonly AgentRegistered[],
+  emails: readonly string[],
+): { ids: string[]; unknown: string[] } {
+  const porEmail = new Map(agents.map((a) => [a.email.toLowerCase(), a.id]));
+  const ids: string[] = [];
+  const unknown: string[] = [];
+  for (const email of emails) {
+    const id = porEmail.get(email.trim().toLowerCase());
+    if (id) ids.push(id);
+    else unknown.push(email);
+  }
+  return { ids: [...new Set(ids)], unknown };
+}

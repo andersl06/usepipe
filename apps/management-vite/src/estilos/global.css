@@ -4964,3 +4964,128 @@ tr.grupo th {
   font-size: 12px;
   font-weight: 700;
 }
+
+/*
+ * ============== attendant pages (team/create, team/edit, team/permission)
+ *    Measures from `ref/verificacao/atendentes-medidas-blip.md`: header 56.9px + 16px, 24px title, card
+ *    with 16px radius and 40px padding, rows with labels on the left and a 643.5px field column on the
+ *    right, 56px permission rows alternating background.
+ */
+.atend-cab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.atend-cab h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: var(--p-peso-normal);
+  line-height: 1.37;
+}
+
+.atend-avatar.avatar {
+  width: var(--p-atend-equipe-avatar);
+  height: var(--p-atend-equipe-avatar);
+  border-radius: 40px;
+}
+
+.atend-subtitulo {
+  margin: 8px 0 0;
+  font-size: var(--p-t-titulo);
+  line-height: 1;
+  font-weight: var(--p-peso-normal);
+}
+
+.atend-cartao {
+  margin-top: var(--p-atend-equipe-cartao-margem);
+  padding: var(--p-atend-equipe-cartao-padding);
+  border-radius: var(--p-atend-equipe-cartao-raio);
+  background: var(--p-superficie-0);
+  border: 1px solid var(--p-linha);
+}
+
+.atend-cartao-permissoes {
+  padding-bottom: 20px;
+}
+
+.atend-linha {
+  display: grid;
+  grid-template-columns: 1fr var(--p-atend-equipe-campo-largura);
+  gap: var(--p-e-4);
+  padding-block: var(--p-e-3);
+}
+
+.atend-linha-rotulo {
+  font-size: var(--p-t-lg);
+  line-height: 24px;
+  font-weight: var(--p-peso-forte);
+}
+
+.atend-linha-ajuda {
+  font-size: var(--p-t-md);
+  line-height: 21px;
+}
+
+.atend-linha-campo .atend-linha-ajuda {
+  margin: 4px 0 0;
+  font-size: var(--p-t-sm);
+  line-height: 18px;
+}
+
+.atend-padrao {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--p-t-md);
+  line-height: 21px;
+}
+
+.atend-numero {
+  width: 100%;
+  margin-top: var(--p-e-2);
+}
+
+.interruptor.interruptor-curto {
+  width: var(--p-atend-equipe-interruptor-largura);
+  height: var(--p-atend-equipe-interruptor-altura);
+}
+
+.interruptor-curto .interruptor-bolinha {
+  width: 17px;
+  height: 17px;
+}
+
+.interruptor-curto[aria-checked='true'] .interruptor-bolinha {
+  transform: translateX(11px);
+}
+
+.atend-perm-cab,
+.atend-perm-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  min-height: var(--p-atend-equipe-linha-permissao);
+  padding: 16px;
+}
+
+.atend-perm-cab {
+  min-height: 44px;
+  padding-block: 0 20px;
+  font-size: var(--p-t-lg);
+  font-weight: var(--p-peso-forte);
+}
+
+.atend-perm-linha:nth-of-type(odd) {
+  background: var(--p-superficie-1);
+}
+
+.atend-rodape {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: var(--p-e-4);
+}
