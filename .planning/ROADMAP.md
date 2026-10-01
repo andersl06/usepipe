@@ -428,7 +428,7 @@ Plans:
   4. O dono aprova a comparação visual
 
 **UI hint**: yes
-**Plans:** 15/25 plans executed
+**Plans:** 16/25 plans executed
 
 Plans:
 
@@ -447,7 +447,7 @@ Plans:
 - [x] 03.2-13-PLAN.md — Histórico: modais Exportar CSV/PDF e Enviar por e-mail
 - [x] 03.2-14-PLAN.md — Filas: lista e gestão da fila ao clicar
 - [x] 03.2-15-PLAN.md — Atendentes: lista, gestão ao clicar, permissões
-- [ ] 03.2-16-PLAN.md — portão da Onda 1
+- [x] 03.2-16-PLAN.md — portão da Onda 1
 - [ ] 03.2-17-PLAN.md — Regras e SLA
 - [ ] 03.2-18-PLAN.md — Horários e Pausas personalizadas
 - [ ] 03.2-19-PLAN.md — portão da Onda 2
