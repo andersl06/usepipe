@@ -1,5 +1,6 @@
 import { useId, useMemo, useState, type FormEvent } from 'react';
-import { Botao, BotaoDeIcone, Campo, Etiqueta, Illustration, Seletor } from '@pipe/ui';
+import { Botao, BotaoDeIcone, Campo, Etiqueta, Illustration } from '@pipe/ui';
+import { Select } from '@pipe/ui/select';
 import { ChipsInput } from '@pipe/ui/chips-input';
 import { Modal } from '@pipe/ui/modal';
 import { useRead } from '../../lib/query';
@@ -106,7 +107,7 @@ function ConditionsEditor({
           <div key={i} className={i > 0 ? 'fila-condicao fila-condicao-recuada' : 'fila-condicao'}>
             {i === 1 ? (
               <div className="fila-conector">
-                <Seletor
+                <Select
                   value={combinador}
                   onChange={(e) => onCombinador(e.target.value as 'e' | 'ou')}
                   disabled={desabilitado}
@@ -114,7 +115,7 @@ function ConditionsEditor({
                 >
                   <option value="e">E</option>
                   <option value="ou">OU</option>
-                </Seletor>
+                </Select>
                 <span className="sub">
                   {combinador === 'ou'
                     ? 'qualquer uma das condições abaixo'
@@ -125,7 +126,7 @@ function ConditionsEditor({
             <div className="fila-condicao-linha">
               <label className="form-campo" htmlFor={`${base}-campo-${i}`}>
                 <span className="sub">Se</span>
-                <Seletor
+                <Select
                   id={`${base}-campo-${i}`}
                   value={c.campo}
                   onChange={(e) => mudar(i, { campo: e.target.value })}
@@ -137,11 +138,11 @@ function ConditionsEditor({
                       {f.rotulo}
                     </option>
                   ))}
-                </Seletor>
+                </Select>
               </label>
               <label className="form-campo" htmlFor={`${base}-op-${i}`}>
                 <span className="sub">Condição</span>
-                <Seletor
+                <Select
                   id={`${base}-op-${i}`}
                   value={c.operador}
                   onChange={(e) =>
@@ -154,7 +155,7 @@ function ConditionsEditor({
                       {o.rotulo}
                     </option>
                   ))}
-                </Seletor>
+                </Select>
               </label>
               <label className="form-campo" htmlFor={`${base}-valor-${i}`}>
                 <span className="sub">Valor</span>
@@ -362,7 +363,7 @@ export function RulePriorityForm({
       />
       <label className="form-campo fila-urgencia">
         <span className="sub">Grau de urgência</span>
-        <Seletor value={nivel} onChange={(e) => setNivel(e.target.value)} disabled={enviando}>
+        <Select value={nivel} onChange={(e) => setNivel(e.target.value)} disabled={enviando}>
           {niveis.map((n) => (
             <option key={n} value={n}>
               {n === 'baixa' || n === 'media' || n === 'alta'
@@ -370,7 +371,7 @@ export function RulePriorityForm({
                 : rotuloDoNivel(n)}
             </option>
           ))}
-        </Seletor>
+        </Select>
       </label>
       <label className="form-caixa">
         <input

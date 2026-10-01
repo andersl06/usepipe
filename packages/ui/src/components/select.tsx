@@ -37,6 +37,7 @@ export function Select({
   className,
   defaultValue,
   disabled,
+  id,
   name,
   onChange,
   value,
@@ -91,6 +92,14 @@ export function Select({
       setAberto((state) => !state);
       return;
     }
+    // Type-ahead: a printable key jumps to the next option whose label starts with it.
+    if (evento.key.length === 1 && !evento.ctrlKey && !evento.metaKey && !evento.altKey && evento.key !== ' ') {
+      const letra = evento.key.toLocaleLowerCase();
+      const comecaCom = (option: Option) => typeof option.rotulo === 'string' && option.rotulo.toLocaleLowerCase().startsWith(letra);
+      const proxima = [...disponiveis.slice(indice + 1), ...disponiveis.slice(0, indice + 1)].find(comecaCom);
+      if (proxima) escolher(proxima.value);
+      return;
+    }
     const destination =
       evento.key === 'ArrowDown' ? disponiveis[Math.min(indice + 1, disponiveis.length - 1)] :
       evento.key === 'ArrowUp' ? disponiveis[Math.max(indice - 1, 0)] :
@@ -107,6 +116,7 @@ export function Select({
       <input ref={campo} type="hidden" name={name} value={atual} />
       <button
         type="button"
+        id={id}
         className="selection-control"
         disabled={disabled}
         role="combobox"

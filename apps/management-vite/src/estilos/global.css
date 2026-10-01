@@ -5117,7 +5117,7 @@ tr.grupo th {
   gap: var(--p-e-3);
 }
 
-.fila-conector .seletor {
+.fila-conector .selection {
   width: 80px;
 }
 

@@ -1,5 +1,6 @@
 import { useId, useState, type FormEvent } from 'react';
-import { Botao, Campo, Card, Etiqueta, Seletor } from '@pipe/ui';
+import { Botao, Campo, Card, Etiqueta } from '@pipe/ui';
+import { Select } from '@pipe/ui/select';
 import { ChipsInput } from '@pipe/ui/chips-input';
 import type { QueueRegistered } from '../../lib/registrations';
 import { saveAutoClose, saveQueueTags } from '../../lib/registrations-gravar';
@@ -87,13 +88,13 @@ function Unidade({
   disabled: boolean;
 }) {
   return (
-    <Seletor id={id} value={value} onChange={(e) => onChange(e.target.value as UnidadeDeTempo)} disabled={disabled}>
+    <Select id={id} value={value} onChange={(e) => onChange(e.target.value as UnidadeDeTempo)} disabled={disabled}>
       {UNIDADES.map((u) => (
         <option key={u.valor} value={u.valor}>
           {u.rotulo}
         </option>
       ))}
-    </Seletor>
+    </Select>
   );
 }
 
@@ -308,7 +309,6 @@ export function SectionAutoClose({ queue }: { queue: QueueRegistered }) {
                     />
                   </div>
                 </div>
-                <p className="note">O envio do alerta ao cliente ainda não está ativo: a mensagem fica salva até ele ser liberado.</p>
               </>
             ) : null}
           </section>
