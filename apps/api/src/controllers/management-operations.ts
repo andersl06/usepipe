@@ -30,6 +30,15 @@ import {
 } from '../domain/management/quality-review.js';
 import type { TransactionPipe } from '@pipe/db';
 import { registrarAuditoria } from '@pipe/db';
+import { montarCsv } from '@pipe/core/csv-history';
+import { enviarEmailSemDerrubar } from '../domain/email.js';
+import {
+  MAX_LINHAS_EXPORTACAO,
+  exigirUsuariosDoTenant,
+  linhaParaCsv,
+  montarPdf,
+  validarDestinatarios,
+} from '../domain/management/history-export.js';
 import { closeConversation, transferConversation } from '../domain/conversation.js';
 import { requirePermission } from '../session.js';
 
@@ -42,6 +51,17 @@ const uuidOuNada = (v?: string) => (v && UUID.test(v) ? v : undefined);
 const uuidsOfFilter = (v?: string | string[]) => [...new Set((Array.isArray(v) ? v : [v ?? ''])
   .flatMap(item => item.split(',')).map(item => item.trim()).filter(item => UUID.test(item)))];
 const dataOuNada = (v?: string) => (v && DATA.test(v) ? v : undefined);
+
+/** Filtros do Histórico, iguais para a lista e para a exportação. */
+function filtroDeHistory(f: { queue?: string | undefined; agent?: string | undefined; etiqueta?: string | undefined; ticket?: string | undefined; contact?: string | undefined }) {
+  return {
+    queueId: uuidOuNada(f.queue),
+    agentId: uuidOuNada(f.agent),
+    labelId: uuidOuNada(f.etiqueta),
+    tickets: (f.ticket ?? '').split(/[\s,]+/).filter(Boolean).slice(0, 20),
+    contact: f.contact?.slice(0, 100),
+  };
+}
 
 /** Use the requested period or the last `dias` days, including today. */
 async function period(
@@ -244,14 +264,55 @@ export class ManagementOperationsController {
       const p = await periodHistory(tx, fuso, dataOuNada(de), dataOuNada(ate));
       const catalogos = await carregarCatalogos(tx);
       const { linhas, total } = await loadHistory(tx, p.janela, {
-        queueId: uuidOuNada(fila),
-        agentId: uuidOuNada(atendente),
-        labelId: uuidOuNada(etiqueta),
-        tickets: (tickets ?? '').split(/[\s,]+/).filter(Boolean).slice(0, 20),
-        contact: contato?.slice(0, 100),
+        ...filtroDeHistory({ queue: fila, agent: atendente, etiqueta, ticket: tickets, contact: contato }),
       }, { limit: porPagina, offset });
       return { fuso, de: p.de, ate: p.ate, catalogos, linhas, total, pagina, porPagina };
     });
+  }
+
+  /**
+   * Envia o Histórico filtrado por e-mail. Tenant só da sessão; destinatários só entre usuários ativos desse tenant; assunto e remetente são montados no servidor.
+   */
+  @Post('history/export-email')
+  @HttpCode(202)
+  @WithSession()
+  async exportHistoryByEmail(
+    @Req() requisicao: RequestWithSession,
+    @Body() corpo: { destinatarios?: unknown; formato?: unknown; filtros?: Record<string, unknown> },
+  ): Promise<{ enviado: boolean }> {
+    const sessao = sessionOf(requisicao);
+    const destinatarios = validarDestinatarios(corpo?.destinatarios);
+    const formato = corpo?.formato;
+    if (formato !== 'csv' && formato !== 'pdf') {
+      throw PipeError.request('formato_invalid', 'formato precisa ser csv ou pdf.');
+    }
+    const f = corpo?.filtros ?? {};
+    const texto = (k: string): string | undefined => (typeof f[k] === 'string' ? (f[k] as string) : undefined);
+    const { de, ate, anexo } = await noTenant(sessao.tenantId, async (tx) => {
+      await exigirUsuariosDoTenant(tx, sessao.tenantId, destinatarios);
+      const fuso = await fusoDoTenant(tx);
+      const p = await periodHistory(tx, fuso, dataOuNada(texto('from')), dataOuNada(texto('to')));
+      const { linhas, total } = await loadHistory(tx, p.janela, filtroDeHistory({
+        queue: texto('queue'), agent: texto('agent'), etiqueta: texto('etiqueta'), ticket: texto('ticket'), contact: texto('contact'),
+      }), { limit: MAX_LINHAS_EXPORTACAO, offset: 0 });
+      if (total > MAX_LINHAS_EXPORTACAO) {
+        throw new PipeError(413, 'exportacao_grande_demais',
+          `A exportação passa de ${MAX_LINHAS_EXPORTACAO} linhas. Reduza o período ou os filtros.`);
+      }
+      const cartoes = linhas.map((l) => linhaParaCsv(l, fuso));
+      const nome = `historico-${p.de}-a-${p.ate}`;
+      const anexo = formato === 'csv'
+        ? { nome: `${nome}.csv`, tipo: 'text/csv; charset=utf-8', conteudoBase64: Buffer.from(montarCsv(cartoes), 'utf8').toString('base64') }
+        : { nome: `${nome}.pdf`, tipo: 'application/pdf', conteudoBase64: (await montarPdf(cartoes, `Histórico de ${p.de} a ${p.ate}`)).toString('base64') };
+      return { de: p.de, ate: p.ate, anexo };
+    });
+    const enviado = await enviarEmailSemDerrubar({
+      para: destinatarios,
+      assunto: `Exportação do Histórico (${de} a ${ate})`,
+      texto: `Segue em anexo a exportação do Histórico de atendimentos de ${de} a ${ate}.`,
+      anexos: [anexo],
+    }, 'exportacao-historico');
+    return { enviado };
   }
 
   @Get('reports/attendance')

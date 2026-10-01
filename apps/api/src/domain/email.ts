@@ -11,6 +11,8 @@ export interface Email {
   /** Plain text is authoritative; optional `html` is a styled rendering of the same content. */
   texto: string;
   html?: string;
+  /** Anexos em base64, por exemplo o CSV ou o PDF do Histórico. */
+  anexos?: { nome: string; tipo: string; conteudoBase64: string }[];
 }
 
 export function modoDoEmail(): 'real' | 'duble' {
@@ -64,6 +66,9 @@ export class RemetenteHttp extends RemetenteDeEmail {
           subject: email.assunto,
           text: email.texto,
           ...(email.html ? { html: email.html } : {}),
+          ...(email.anexos?.length
+            ? { attachments: email.anexos.map((a) => ({ filename: a.nome, content: a.conteudoBase64 })) }
+            : {}),
         }),
         signal: AbortSignal.timeout(timeoutMs),
       });
@@ -125,7 +130,8 @@ export async function enviarEmailSemDerrubar(email: Email, context: string): Pro
     await remetente().enviar(email);
     return true;
   } catch (error) {
-    console.error(`[email] não enviou ${context} para ${email.para.join(', ')}: ${(error as Error).message}`);
+    // Sem endereços no log: são dados pessoais.
+    console.error(`[email] não enviou ${context} (${email.para.length} destinatário(s)): ${(error as Error).message}`);
     return false;
   }
 }
