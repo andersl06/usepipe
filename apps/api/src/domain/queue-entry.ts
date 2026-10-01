@@ -9,6 +9,7 @@ import {
   type QueueRuleContext,
 } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
+import { PipeError } from '../errors.js';
 import { teamsWithAgentsOnline } from './desk-commands.js';
 import { distributeConversation } from './distribution.js';
 import { registrarEvento } from './eventos.js';
@@ -26,6 +27,8 @@ import { evaluatePriority, loadRulesOfPriorityActive } from './management/priori
 export interface EnterQueueInput {
   tenantId: string;
   conversationId: string;
+  /** Flow serving the conversation: rules, `teams`, default queue and priority are read only inside it. */
+  flowId: string | null;
   /** Explicit destination; `null` lets the attendance rules decide. */
   queueId: string | null;
   /** Used when there is no explicit queue and no rule matches. */
@@ -62,12 +65,13 @@ type ContactRow = {
 };
 
 /** Active rules pointing at an active queue, with their conditions. Tenant filter explicit on top of RLS. */
-export async function loadActiveQueueRules(tx: TransactionPipe, tenantId: string): Promise<QueueRule[]> {
+export async function loadActiveQueueRules(tx: TransactionPipe, tenantId: string, flowId: string): Promise<QueueRule[]> {
   const { rows: heads } = await tx.execute<Omit<QueueRule, 'conditions'>>(sql`
     select r.id, r.nome as name, r.ordem as "order", r.combinador as combiner,
            r.fila_destino_id as "queueDestinationId", f.nome as "queueDestinationName", r.ativa as active
       from regra_fila r
       join fila f on f.id = r.fila_destino_id and f.tenant_id = r.tenant_id and f.ativa
+             and f.fluxo_id = ${flowId}::uuid
      where r.tenant_id = ${tenantId}::uuid and r.ativa
   `);
   if (heads.length === 0) return [];
@@ -91,30 +95,87 @@ export interface QueueChoice {
   ruleId: string | null;
 }
 
+const WRONG_FLOW_QUEUE = ['fila_de_outro_fluxo', 'A fila escolhida não pertence a este fluxo.'] as const;
+
+/** Throws unless the queue is an active queue of this flow (tenant and flow filters explicit on top of RLS). */
+export async function assertQueueOfFlow(tx: TransactionPipe, tenantId: string, flowId: string, queueId: string): Promise<void> {
+  const { rows } = await tx.execute<{ id: string }>(sql`
+    select id from fila
+     where id = ${queueId}::uuid and tenant_id = ${tenantId}::uuid and ativa and fluxo_id = ${flowId}::uuid
+  `);
+  if (!rows[0]) throw PipeError.request(...WRONG_FLOW_QUEUE);
+}
+
 /**
- * Where a conversation without a queue lands: the explicit queue (ForwardToDesk `filaId`,
- * `/transfer`, Desk transfer); else the first attendance rule (`regra_fila`) matching the message
- * and the contact; else the active queue named by `contact.extras.teams` (Blip flows `MergeContact`
- * the queue name there before the handoff); else the default queue (`inbox.fila_padrao_id`).
+ * Where a conversation without a queue lands, always inside `flowId`: the explicit queue (ForwardToDesk
+ * `filaId`, `/transfer`, Desk transfer; rejected when it belongs to another flow); else the first
+ * attendance rule (`regra_fila`) matching the message and the contact; else the active queue named by
+ * `contact.extras.teams` (Blip flows `MergeContact` the queue name there before the handoff); else the
+ * flow default queue (`fluxo.fila_padrao_id`, then `inbox.fila_padrao_id` if it is a queue of the flow).
  */
 export async function chooseQueue(
   tx: TransactionPipe,
   tenantId: string,
-  input: Pick<EnterQueueInput, 'queueId' | 'defaultQueueId' | 'message'> & { contact: QueueRuleContext['contact'] },
+  input: Pick<EnterQueueInput, 'flowId' | 'queueId' | 'defaultQueueId' | 'message'> & { contact: QueueRuleContext['contact'] },
 ): Promise<QueueChoice> {
-  if (input.queueId) return { queueId: input.queueId, ruleId: null };
-  const match = destinationQueue(await loadActiveQueueRules(tx, tenantId), { message: input.message, contact: input.contact });
+  const { flowId } = input;
+  if (!flowId) {
+    if (input.queueId) throw PipeError.request(...WRONG_FLOW_QUEUE);
+    return { queueId: null, ruleId: null };
+  }
+  if (input.queueId) {
+    await assertQueueOfFlow(tx, tenantId, flowId, input.queueId);
+    return { queueId: input.queueId, ruleId: null };
+  }
+  const match = destinationQueue(await loadActiveQueueRules(tx, tenantId, flowId), { message: input.message, contact: input.contact });
   if (match) return { queueId: match.queueDestinationId, ruleId: match.regraId };
   const teams = input.contact?.extras?.['teams'];
   if (typeof teams === 'string' && teams.trim()) {
     const { rows } = await tx.execute<{ id: string }>(sql`
       select id from fila
-       where tenant_id = ${tenantId}::uuid and ativa and lower(nome) = lower(${teams.trim()})
+       where tenant_id = ${tenantId}::uuid and fluxo_id = ${flowId}::uuid and ativa and lower(nome) = lower(${teams.trim()})
        order by ordem limit 1
     `);
     if (rows[0]) return { queueId: rows[0].id, ruleId: null };
   }
-  return { queueId: input.defaultQueueId, ruleId: null };
+  const { rows: flowRows } = await tx.execute<{ id: string | null }>(sql`
+    select fila_padrao_id as id from fluxo where id = ${flowId}::uuid and tenant_id = ${tenantId}::uuid
+  `);
+  if (flowRows[0]?.id) return { queueId: flowRows[0].id, ruleId: null };
+  if (!input.defaultQueueId) return { queueId: null, ruleId: null };
+  const { rows: inboxRows } = await tx.execute<{ id: string }>(sql`
+    select id from fila
+     where id = ${input.defaultQueueId}::uuid and tenant_id = ${tenantId}::uuid and fluxo_id = ${flowId}::uuid and ativa
+  `);
+  return { queueId: inboxRows[0]?.id ?? null, ruleId: null };
+}
+
+/**
+ * The flow serving a conversation: its queue's flow; else the flow of its latest execution; else the
+ * live flow (or router) of the inbox channel; else null.
+ */
+export async function flowOfConversation(tx: TransactionPipe, tenantId: string, conversationId: string): Promise<string | null> {
+  const first = async (query: ReturnType<typeof sql>) => (await tx.execute<{ id: string }>(query)).rows[0]?.id ?? null;
+  return (
+    (await first(sql`
+      select f.fluxo_id as id from conversa c join fila f on f.id = c.fila_id
+       where c.id = ${conversationId}::uuid and c.tenant_id = ${tenantId}::uuid
+    `)) ??
+    (await first(sql`
+      select v.fluxo_id as id from execucao_fluxo e join fluxo_versao v on v.id = e.fluxo_versao_id
+       where e.conversa_id = ${conversationId}::uuid and e.tenant_id = ${tenantId}::uuid
+       order by e.iniciada_em desc limit 1
+    `)) ??
+    (await first(sql`
+      select f.id from conversa c
+        join inbox i on i.id = c.inbox_id
+        join fluxo f on f.tenant_id = c.tenant_id and f.estado <> 'arquivado'
+         and (f.canal_id = i.canal_id or exists (
+           select 1 from roteador_canal rc where rc.roteador_id = f.id and rc.canal_id = i.canal_id))
+       where c.id = ${conversationId}::uuid and c.tenant_id = ${tenantId}::uuid
+       order by f.criado_em limit 1
+    `))
+  );
 }
 
 async function contactOfConversation(tx: TransactionPipe, tenantId: string, conversationId: string): Promise<ContactRow> {
@@ -133,7 +194,7 @@ async function contactOfConversation(tx: TransactionPipe, tenantId: string, conv
 /** `chooseQueue` for an existing conversation, reading its contact. */
 export async function chooseQueueOfConversation(
   tx: TransactionPipe,
-  input: Pick<EnterQueueInput, 'tenantId' | 'conversationId' | 'queueId' | 'defaultQueueId' | 'message'>,
+  input: Pick<EnterQueueInput, 'tenantId' | 'conversationId' | 'flowId' | 'queueId' | 'defaultQueueId' | 'message'>,
 ): Promise<QueueChoice> {
   const contact = await contactOfConversation(tx, input.tenantId, input.conversationId);
   return chooseQueue(tx, input.tenantId, { ...input, contact });
@@ -198,7 +259,7 @@ export async function enterQueue(tx: TransactionPipe, input: EnterQueueInput): P
 
   // An explicit priority (inherited on transfer, or set by the bot's `/priority`) wins over the rules.
   if (row.priority === 'sem_prioridade') {
-    const priorityRules = await loadRulesOfPriorityActive(tx);
+    const priorityRules = await loadRulesOfPriorityActive(tx, input.flowId);
     const level = priorityRules.length
       ? evaluatePriority(priorityRules, {
           queueId,

@@ -18,7 +18,9 @@ export interface RulePriorityForEngine {
 
 export async function loadRulesOfPriorityActive(
   tx: TransactionPipe,
+  flowId: string | null,
 ): Promise<RulePriorityForEngine[]> {
+  if (!flowId) return [];
   const linhas = await tx
     .select({
       id: rulePriority.id,
@@ -29,7 +31,7 @@ export async function loadRulesOfPriorityActive(
       criadoEm: rulePriority.criadoEm,
     })
     .from(rulePriority)
-    .where(and(eq(rulePriority.ativa, true)))
+    .where(and(eq(rulePriority.ativa, true), eq(rulePriority.flowId, flowId)))
     .orderBy(asc(rulePriority.criadoEm), asc(rulePriority.id));
   return linhas.map((l) => ({ ...l, condition: (l.condition ?? {}) as Record<string, unknown> }));
 }
