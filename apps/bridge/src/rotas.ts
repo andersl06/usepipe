@@ -246,9 +246,11 @@ const rotas: Rota[] = [
   [
     ROUTE_QUEUES,
     async ({ session }) => {
+      // Queue names repeat across flows: list only the flow this bridge serves.
+      const flowId = await bridgeFlow(session);
       const queues = await noTenant(session.tenantId, async (tx) => {
         const { rows } = await tx.execute<{ id: string; nome: string }>(
-          sql`select id, nome from fila order by nome`,
+          sql`select id, nome from fila where fluxo_id = ${flowId}::uuid and ativa order by nome`,
         );
         return rows;
       });
