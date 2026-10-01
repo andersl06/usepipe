@@ -4861,13 +4861,43 @@ tr.grupo th {
  */
 .panel-dates {
   display: flex;
-  gap: var(--p-e-2);
+  flex-direction: column;
+  gap: var(--p-e-3);
   margin-top: var(--p-e-2);
 }
 
-.panel-dates input {
+.panel-date {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--p-e-2);
+}
+
+.panel-date label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
   flex: 1;
   min-width: 0;
+}
+
+.panel-time {
+  display: flex;
+  gap: var(--p-e-2);
+}
+
+.panel-time > * {
+  width: 83px;
+}
+
+.panel-date-error {
+  margin: 0;
+  color: var(--p-erro, #c0392b);
+}
+
+.panel-date-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--p-e-2);
 }
 
 /*

@@ -351,7 +351,7 @@ export function PageHistory() {
         limpar={hasFilter ? clearFilters : null}
       >
         <CamposEscondidos atual={params} exceto={['de', 'ate']} />
-        <FieldPeriod de={de} ate={ate} fuso={fuso} />
+        <FieldPeriod de={de} ate={ate} fuso={fuso} maxDias={90} />
 
         <PanelField
           rotulo="IDs dos tickets"

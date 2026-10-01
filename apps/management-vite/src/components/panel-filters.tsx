@@ -4,6 +4,7 @@ import { IconePortal } from '@pipe/ui/icones-portal';
 import { PERIODOS, calculatePeriod, periodCurrent } from '../lib/periodos';
 import { Select } from '@pipe/ui/select';
 import { pedir } from '@pipe/ui/api';
+import { dataIso } from '../lib/format';
 
 /**
  * Reference Filter sidebar `data-testid="saved-filters-sidebar"` (`referencias-blip/fichas/FICHA-monitoring.md`, `FICHA-history.md`) starts closed, with title/subtitle, New query and Saved filters tabs, screen fields, saved-filter switch, and two footer buttons. Saved filters are structural only: no storage exists, so show an honest empty state; disable the footer switch with a reason. Apply uses a GET form, closes the panel, and navigates while state remains in the URL.
@@ -182,25 +183,37 @@ export function PanelField({
 }
 
 /**
- * The Period filter matches reference `bds-select data-testid="period-filter-select"` in History and both Reports: `PERIODOS` shortcuts plus Custom, whose choice fills the date pair.
+ * Filtro de Período como na Blip (`ref/verificacao/periodo-blip.md`): atalhos na ordem medida e Personalizado por último. Início e Fim só aparecem em Personalizado, com limite de 5 anos atrás (início) e hoje (fim). O servidor aplica dias inteiros: hora e minuto aparecem como na Blip, mas desabilitados.
+ * `maxDias` limita o intervalo personalizado (inclusive); o excedente bloqueia o envio com mensagem.
  */
-export function FieldPeriod({ de, ate, fuso }: { de: string; ate: string; fuso: string }) {
+export function FieldPeriod({ de, ate, fuso, maxDias }: { de: string; ate: string; fuso: string; maxDias?: number }) {
+  const hoje = dataIso(new Date(), fuso);
+  const [periodo, setPeriodo] = useState(() => periodCurrent(de, ate, fuso));
+  const [inicio, setInicio] = useState(de);
+  const [fim, setFim] = useState(ate);
+  const personalizado = periodo === 'personalizado';
+  const dias = (Date.parse(`${fim}T00:00:00Z`) - Date.parse(`${inicio}T00:00:00Z`)) / 86_400_000 + 1;
+  const erro =
+    !personalizado || !inicio || !fim
+      ? ''
+      : dias < 1
+        ? 'A data final não pode ser anterior à inicial.'
+        : maxDias && dias > maxDias
+          ? `O período pode ter no máximo ${maxDias} dias.`
+          : '';
+  const limiteInicio = dataIso(new Date(Date.parse(`${hoje}T00:00:00Z`) - 5 * 365.25 * 86_400_000), 'UTC');
+
+  function escolher(chave: string) {
+    setPeriodo(chave);
+    const calc = calculatePeriod(chave, fuso);
+    if (!calc) return;
+    setInicio(calc.de);
+    setFim(calc.ate);
+  }
+
   return (
     <PanelField rotulo="Período" apoio="Selecione um intervalo de datas">
-      <Select
-        name="periodo"
-        defaultValue={periodCurrent(de, ate, fuso)}
-        aria-label="Atalho de período"
-        onChange={(e) => {
-          const calc = calculatePeriod(e.currentTarget.value, fuso);
-          if (!calc) return;
-          const form = e.currentTarget.form;
-          const campoDe = form?.elements.namedItem('de');
-          const campoAte = form?.elements.namedItem('ate');
-          if (campoDe instanceof HTMLInputElement) campoDe.value = calc.de;
-          if (campoAte instanceof HTMLInputElement) campoAte.value = calc.ate;
-        }}
-      >
+      <Select name="periodo" value={periodo} aria-label="Atalho de período" onChange={(e) => escolher(e.currentTarget.value)}>
         {PERIODOS.map((p) => (
           <option key={p.chave} value={p.chave}>
             {p.rotulo}
@@ -208,10 +221,58 @@ export function FieldPeriod({ de, ate, fuso }: { de: string; ate: string; fuso: 
         ))}
         <option value="personalizado">Personalizado</option>
       </Select>
-      <div className="panel-dates">
-        <input type="date" name="de" defaultValue={de} aria-label="De" />
-        <input type="date" name="ate" defaultValue={ate} aria-label="Até" />
-      </div>
+      {personalizado ? (
+        <div className="panel-dates">
+          {(
+            [
+              ['Início', 'de', inicio, setInicio, '00', '00', limiteInicio, undefined],
+              ['Fim', 'ate', fim, setFim, '23', '59', undefined, hoje],
+            ] as const
+          ).map(([rotulo, nome, valor, definir, hora, minuto, min, max]) => (
+            <div className="panel-date" key={nome}>
+              <label>
+                <span>{rotulo}</span>
+                <input
+                  type="date"
+                  name={nome}
+                  value={valor}
+                  min={min ?? limiteInicio}
+                  max={max ?? hoje}
+                  required
+                  aria-label={rotulo}
+                  onChange={(e) => definir(e.currentTarget.value)}
+                  ref={nome === 'ate' ? (el) => el?.setCustomValidity(erro) : undefined}
+                />
+              </label>
+              <div className="panel-time">
+                <Select disabled defaultValue={hora} aria-label={`Hora de ${rotulo.toLowerCase()}`} title="O período é aplicado por dias inteiros.">
+                  {Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0')).map((h) => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </Select>
+                <Select disabled defaultValue={minuto} aria-label={`Minuto de ${rotulo.toLowerCase()}`} title="O período é aplicado por dias inteiros.">
+                  {Array.from({ length: 60 }, (_, m) => String(m).padStart(2, '0')).map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+          ))}
+          {erro ? <p className="panel-date-error" role="alert">{erro}</p> : null}
+          <div className="panel-date-actions">
+            <button type="button" className="btn" onClick={() => escolher('30')}>Redefinir</button>
+            <button type="button" className="btn primary" title="Confirma as datas e leva ao botão Aplicar" disabled={!!erro || !inicio || !fim} onClick={(e) => {
+              const form = e.currentTarget.form;
+              if (form?.reportValidity()) form.querySelector<HTMLElement>('button[type="submit"]')?.focus();
+            }}>Concluir</button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <input type="hidden" name="de" value={inicio} />
+          <input type="hidden" name="ate" value={fim} />
+        </>
+      )}
     </PanelField>
   );
 }
