@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   GROUPINGS,
   groupingValid,
@@ -18,6 +18,7 @@ import { PanelField, FieldPeriod, PanelFilters } from '../../components/panel-fi
 import { Select } from '@pipe/ui/select';
 import { Pagination, type PaginationState } from '@pipe/ui/pagination';
 import { montarCsv } from '../../lib/csv-history';
+import { ModalExportHistory } from '../../components/modal-exportar-history';
 import { ListHistory, type CardHistory } from '../../components/lista-history';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from './shell';
@@ -124,6 +125,7 @@ export function PageHistory() {
   }
   /* Server-side pages: changing any filter goes back to page 1. */
   const chaveFiltros = q.toString();
+  const filtrosExportacao = Object.fromEntries(q.entries());
   const [paginacao, setPaginacao] = useState({ chave: chaveFiltros, page: 1, byPage: 100 });
   const page = paginacao.chave === chaveFiltros ? paginacao.page : 1;
   const { byPage } = paginacao;
@@ -133,6 +135,13 @@ export function PageHistory() {
     placeholderData: (anterior) => anterior,
   });
   const [panelOpen, setPanelOpen] = useState(false);
+  const [menuEnviar, setMenuEnviar] = useState(false);
+  const [exportando, setExportando] = useState<'csv' | 'pdf' | null>(null);
+  const gatilho = useRef<HTMLButtonElement>(null);
+  const fecharExportacao = useCallback(() => {
+    setExportando(null);
+    gatilho.current?.focus();
+  }, []);
   const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
 
   const aoAlternar = useCallback(
@@ -245,16 +254,55 @@ export function PageHistory() {
       <div className="board-head">
         <h2>Histórico</h2>
         <div className="filters">
-          {/* The available action downloads the CSV of the selected conversations. */}
-          <button
-            type="button"
-            className="btn primario"
-            disabled={selecionados.length === 0}
-            onClick={() => baixarCsv(selecionados)}
-          >
-            <ManagementIcon nome="baixar" tamanho={24} />
-            Exportar CSV
-          </button>
+          <div className="hist-menu-envio">
+            <button
+              ref={gatilho}
+              type="button"
+              className="btn primario"
+              aria-haspopup="menu"
+              aria-expanded={menuEnviar}
+              onClick={() => setMenuEnviar((aberto) => !aberto)}
+              onKeyDown={(e) => e.key === 'Escape' && setMenuEnviar(false)}
+            >
+              <ManagementIcon nome="baixar" tamanho={24} />
+              Enviar por e-mail
+            </button>
+            {menuEnviar ? (
+              <div
+                className="hist-menu"
+                role="menu"
+                onKeyDown={(e) => {
+                  if (e.key !== 'Escape') return;
+                  setMenuEnviar(false);
+                  gatilho.current?.focus();
+                }}
+              >
+                <button type="button" role="menuitem" onClick={() => { setMenuEnviar(false); setExportando('csv'); }}>
+                  <b>Lista de tickets</b>
+                  <span>Exporta uma planilha CSV com os dados dos tickets filtrados</span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={selecionados.length === 0 || selecionados.length > 20}
+                  title={selecionados.length > 20 ? 'Selecione no máximo 20 tickets' : undefined}
+                  onClick={() => { setMenuEnviar(false); setExportando('pdf'); }}
+                >
+                  <b>Histórico de conversas (.pdf)</b>
+                  <span>Gera um arquivo PDF com o histórico das conversas</span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={selecionados.length === 0}
+                  onClick={() => { setMenuEnviar(false); baixarCsv(selecionados); }}
+                >
+                  <b>Baixar planilha (.csv)</b>
+                  <span>Baixa os tickets selecionados neste computador</span>
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
 
@@ -304,6 +352,18 @@ export function PageHistory() {
           </button>
         </div>
       </div>
+
+      {exportando ? (
+        <ModalExportHistory
+          tipo={exportando}
+          filtros={
+            exportando === 'pdf'
+              ? { ...filtrosExportacao, ticket: selecionados.map((c) => c.ticket).join(' ') }
+              : filtrosExportacao
+          }
+          aoFechar={fecharExportacao}
+        />
+      ) : null}
 
       <PanelFilters
         aberto={panelOpen}
