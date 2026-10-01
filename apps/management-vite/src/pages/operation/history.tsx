@@ -17,7 +17,6 @@ import { ManagementIcon } from '../../components/icones-management';
 import { FieldContact, PanelField, FieldPeriod, PanelFilters } from '../../components/panel-filters';
 import { Select } from '@pipe/ui/select';
 import { Pagination, type PaginationState } from '@pipe/ui/pagination';
-import { montarCsv } from '../../lib/csv-history';
 import { ModalExportHistory } from '../../components/modal-exportar-history';
 import { ListHistory, type CardHistory } from '../../components/lista-history';
 import { useContact } from '../flow/contact';
@@ -57,17 +56,6 @@ const ROTULO_STATUS: Record<string, { texto: string; classe: string }> = {
   abandonada: { texto: 'Abandonada', classe: 'etiqueta alerta' },
   finalizada: { texto: 'Finalizada', classe: 'etiqueta' },
 };
-
-function baixarCsv(cards: readonly CardHistory[]) {
-  const url = URL.createObjectURL(
-    new Blob([montarCsv(cards)], { type: 'text/csv;charset=utf-8' }),
-  );
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `historico-${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
 /** Fields the panel form doesn't display but must still be loaded, or they disappear once the filter is applied. */
 function CamposEscondidos({ atual, exceto }: { atual: Search; exceto: readonly string[] }) {
@@ -290,15 +278,6 @@ export function PageHistory() {
                 >
                   <b>Histórico de conversas (.pdf)</b>
                   <span>Gera um arquivo PDF com o histórico das conversas</span>
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  disabled={selecionados.length === 0}
-                  onClick={() => { setMenuEnviar(false); baixarCsv(selecionados); }}
-                >
-                  <b>Baixar planilha (.csv)</b>
-                  <span>Baixa os tickets selecionados neste computador</span>
                 </button>
               </div>
             ) : null}
