@@ -81,32 +81,52 @@ export async function fusoDoTenant(tx: TransactionPipe): Promise<string> {
 
 /* ------------------------------------------------------------- Contatos */
 
+/**
+ * The (contact, inbox, moment) pairs a flow serves: contacts with an execution of any version of the flow
+ * (a router service has no channel of its own) and contacts with a conversation in its linked channels.
+ */
+function originsOfFlow(tid: string, flowId: string, channelIds: string[]) {
+  const channels = channelIds.length ? sql`array[${sql.join(channelIds.map((id) => sql`${id}::uuid`), sql`, `)}]` : sql`'{}'::uuid[]`;
+  return sql`
+    select e.contato_id, e.inbox_id, e.iniciada_em as quando
+      from execucao_fluxo e join fluxo_versao v on v.id = e.fluxo_versao_id
+     where v.fluxo_id = ${flowId}::uuid and v.tenant_id = ${tid}::uuid
+       and e.tenant_id = ${tid}::uuid and e.contato_id is not null
+    union
+    select cv.contato_id, cv.inbox_id, null::timestamptz
+      from conversa cv join inbox i on i.id = cv.inbox_id
+     where cv.tenant_id = ${tid}::uuid and i.canal_id = any(${channels})
+  `;
+}
+
 export async function listContactsOfFlow(tx: TransactionPipe, tid: string, fluxoId: string) {
   const channelIds = await linkedChannelIdsOfFlow(tx, tid, fluxoId);
-  if (!channelIds.length) return [];
-
-  return tx
-    .select({
-      id: contact.id,
-      nome: contact.nome,
-      email: contact.email,
-      telefone: contact.telefoneE164,
-      avatarUrl: contact.avatarUrl,
-      canalNome: channel.nome,
-      canalTipo: channel.tipo,
-      conversas: sql<number>`count(distinct ${conversation.id})::int`,
-      ultimaConversa: sql<Date | null>`max(coalesce(${conversation.lastMessageAt}, ${conversation.criadaEm}))`,
-    })
-    .from(contact)
-    .innerJoin(conversation, eq(conversation.contatoId, contact.id))
-    .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
-    .innerJoin(channel, eq(channel.id, inbox.channelId))
-    .where(
-      and(eq(contact.tenantId, tid), inArray(inbox.channelId, channelIds), isNull(contact.excluidoEm)),
-    )
-    .groupBy(contact.id, channel.id)
-    .orderBy(asc(contact.nome))
-    .limit(500);
+  const { rows } = await tx.execute<{
+    id: string;
+    nome: string | null;
+    email: string | null;
+    telefone: string | null;
+    avatarUrl: string | null;
+    canalNome: string | null;
+    canalTipo: string | null;
+    conversas: number;
+    ultimaConversa: Date | null;
+  }>(sql`
+    select ct.id, ct.nome, ct.email, ct.telefone_e164 as telefone, ct.avatar_url as "avatarUrl",
+           ch.nome as "canalNome", ch.tipo as "canalTipo",
+           count(distinct cv.id)::int as conversas,
+           max(greatest(coalesce(cv.ultima_mensagem_em, cv.criada_em), o.quando)) as "ultimaConversa"
+      from (${originsOfFlow(tid, fluxoId, channelIds)}) o
+      join contato ct on ct.id = o.contato_id and ct.tenant_id = ${tid}::uuid
+      left join inbox ib on ib.id = o.inbox_id
+      left join canal ch on ch.id = ib.canal_id
+      left join conversa cv on cv.contato_id = ct.id and cv.inbox_id = o.inbox_id and cv.tenant_id = ${tid}::uuid
+     where ct.excluido_em is null
+     group by ct.id, ch.id
+     order by ct.nome asc
+     limit 500
+  `);
+  return rows;
 }
 
 export type ContactListed = Awaited<ReturnType<typeof listContactsOfFlow>>[number];
@@ -126,6 +146,13 @@ export async function loadDetailContactOfFlow(
     .limit(1);
   if (!bot) return null;
   const channelIds = await linkedChannelIdsOfFlow(tx, tid, flowId);
+  // The contact must be one the flow serves; the inboxes it talked through bound its conversations.
+  const { rows: origens } = await tx.execute<{ inboxId: string | null }>(sql`
+    select distinct o.inbox_id as "inboxId" from (${originsOfFlow(tid, flowId, channelIds)}) o
+     where o.contato_id = ${contactId}::uuid
+  `);
+  if (!origens.length) return null;
+  const inboxIds = origens.flatMap((o) => (o.inboxId ? [o.inboxId] : []));
 
   const [pessoa] = await tx
     .select({
@@ -143,7 +170,7 @@ export async function loadDetailContactOfFlow(
     .limit(1);
   if (!pessoa) return null;
 
-  const conversations = channelIds.length
+  const conversations = inboxIds.length
     ? await tx
         .select({
           id: conversation.id,
@@ -168,7 +195,7 @@ export async function loadDetailContactOfFlow(
           and(
             eq(conversation.tenantId, tid),
             eq(conversation.contatoId, contactId),
-            inArray(inbox.channelId, channelIds),
+            inArray(conversation.inboxId, inboxIds),
           ),
         )
         .orderBy(desc(conversation.criadaEm))
