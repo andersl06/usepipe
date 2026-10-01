@@ -345,3 +345,32 @@ describe('start and fulfillment per target', () => {
     expect(targetFulfillment('encerramento', marcos)).toEqual(marcos.encerradaEm);
   });
 });
+
+describe('período sem atendimento com data e hora', () => {
+  const utc = (iso: string) => new Date(iso);
+  // Segunda 02/03 a quarta 04/03, comercial 09:00–18:00 (12:00Z–21:00Z). Fechado de terça 03/03 15:00 local até quarta 04/03 10:00 local.
+  const COM_PERIODO: HourAttendance = {
+    ...COMERCIAL,
+    exceptions: [
+      {
+        data: '2026-03-03',
+        fechado: true,
+        inicioEm: utc('2026-03-03T18:00:00Z'),
+        fimEm: utc('2026-03-04T13:00:00Z'),
+      },
+    ],
+  };
+
+  it('fecha só o trecho do período, inclusive nas bordas do dia', () => {
+    expect(dentroDoExpediente(utc('2026-03-03T17:59:00Z'), COM_PERIODO)).toBe(true);
+    expect(dentroDoExpediente(utc('2026-03-03T18:00:00Z'), COM_PERIODO)).toBe(false);
+    expect(dentroDoExpediente(utc('2026-03-04T12:30:00Z'), COM_PERIODO)).toBe(false);
+    expect(dentroDoExpediente(utc('2026-03-04T13:00:00Z'), COM_PERIODO)).toBe(true);
+  });
+
+  it('a próxima abertura e os segundos úteis respeitam o período', () => {
+    expect(proximaAbertura(utc('2026-03-03T19:00:00Z'), COM_PERIODO)?.toISOString()).toBe('2026-03-04T13:00:00.000Z');
+    // terça 09:00–15:00 locais = 6 h úteis
+    expect(segundosUteisEntre(utc('2026-03-03T12:00:00Z'), utc('2026-03-03T21:00:00Z'), COM_PERIODO)).toBe(6 * 3600);
+  });
+});

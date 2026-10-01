@@ -18,6 +18,11 @@ export interface ExceptionWorkingHours {
   inicio?: string | null;
   fim?: string | null;
   motivo?: string | null;
+  /**
+   * Período sem atendimento com início e fim absolutos (data e hora). Presente, a linha é um intervalo fechado que atravessa dias e horas parciais; ausente, vale `data`/`fechado`/`inicio`/`fim` como exceção de um dia.
+   */
+  inicioEm?: Date | null;
+  fimEm?: Date | null;
 }
 
 export interface HourAttendance {
@@ -149,6 +154,15 @@ function mesclar(faixas: { de: number; ate: number }[]): { de: number; ate: numb
   return saida;
 }
 
+/** Períodos sem atendimento (início e fim absolutos) como intervalos a descontar. */
+function periodosFechados(horario: HourAttendance): Espera[] {
+  const saida: Espera[] = [];
+  for (const e of horario.exceptions ?? []) {
+    if (e.inicioEm && e.fimEm) saida.push({ inicio: e.inicioEm, fim: e.fimEm });
+  }
+  return saida;
+}
+
 /**
  * Business-hour ranges for a local calendar day, in minutes from midnight. A date-specific exception overrides the weekly schedule, enabling holidays.
  */
@@ -158,7 +172,7 @@ export function faixasDoDia(
   mes: number,
   dia: number,
 ): { de: number; ate: number }[] {
-  const exception = horario.exceptions?.find((e) => e.data === dayKey(ano, mes, dia));
+  const exception = horario.exceptions?.find((e) => !e.inicioEm && e.data === dayKey(ano, mes, dia));
   if (exception) {
     if (exception.fechado) return [];
     if (exception.inicio && exception.fim) {
@@ -216,7 +230,7 @@ export function intervalosUteis(
     if (cursor > limite) break;
   }
 
-  return saida.sort((a, b) => a.inicio.getTime() - b.inicio.getTime());
+  return subtrairEsperas(saida, periodosFechados(horario));
 }
 
 /** Subtract waiting periods from business-hour intervals. */
@@ -316,6 +330,8 @@ export function dentroDoExpediente(
   horario: HourAttendance | null | undefined,
 ): boolean {
   if (!horario) return true;
+  const t = instante.getTime();
+  if (periodosFechados(horario).some((x) => t >= x.inicio.getTime() && t < (x.fim as Date).getTime())) return false;
   const p = partesNoFuso(instante, horario.fuso);
   const minutos = p.hora * 60 + p.minuto + p.segundo / 60;
   return faixasDoDia(horario, p.ano, p.mes, p.dia).some(
