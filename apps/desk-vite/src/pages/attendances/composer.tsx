@@ -6,6 +6,7 @@ import { Modal } from '@pipe/ui/modal';
 import { atualizarLeituras } from '../../lib/actions';
 import { MAX_FILES_BY_SENDING, recusaDoLote } from '../../lib/attachments';
 import { windowOpen } from '../../lib/order';
+import { TRIGGERS, combinaComTermo, responsesTrigger } from '../../lib/composer-trigger';
 import { numeroDoTicket } from '../../lib/channel';
 
 /**
@@ -137,7 +138,10 @@ export function Composer({
       e.preventDefault();
       void enviar();
     }
-    if (e.key === 'Escape') setPanelResponses(false);
+    if (e.key === 'Escape' && panelResponses) {
+      if (responsesTrigger(texto).aberto) setTexto('');
+      setPanelResponses(false);
+    }
   }
 
   function usarResposta(r: RespostaProntaDoDesk) {
@@ -174,7 +178,7 @@ export function Composer({
     <div className="dk-composer">
       <div className="dk-composer-paper">
         {panelResponses ? (
-          <ResponsesPanel respostas={respostas} termo={texto} aoEscolher={usarResposta} />
+          <ResponsesPanel respostas={respostas} termo={responsesTrigger(texto).termo} aoEscolher={usarResposta} />
         ) : null}
         <div className="dk-composer-core">
           <div className="dk-composer-field">
@@ -187,6 +191,7 @@ export function Composer({
               onChange={(e) => {
                 setTexto(e.target.value);
                 setRespostaProntaId(null);
+                setPanelResponses(responsesTrigger(e.target.value).aberto);
               }}
               onKeyDown={aoTeclar}
               disabled={enviando}
@@ -309,11 +314,7 @@ function ResponsesPanel({
   aoEscolher: (r: RespostaProntaDoDesk) => void;
 }) {
   const [indice, setIndice] = useState(0);
-  const filter = termo.trim().replace(/^\//, '').toLowerCase();
-  const lista = respostas.filter(
-    (r) =>
-      !filter || r.titulo.toLowerCase().includes(filter) || r.atalho.toLowerCase().includes(filter),
-  );
+  const lista = respostas.filter((r) => combinaComTermo(r.titulo, termo));
   const atual = lista[Math.min(indice, lista.length - 1)] ?? null;
 
   useEffect(() => {
@@ -356,7 +357,7 @@ function ResponsesPanel({
             onClick={() => aoEscolher(r)}
           >
             {r.titulo}
-            <small>/{r.atalho}</small>
+            <small>{TRIGGERS[0]}{r.atalho}</small>
           </button>
         ))}
       </div>
