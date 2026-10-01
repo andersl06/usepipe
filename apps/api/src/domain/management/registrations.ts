@@ -127,6 +127,10 @@ export interface QueueRegistered {
   ativa: boolean;
   scheduleId: string | null;
   horarioNome: string | null;
+  /** Tags da fila (`fila.etiquetas`). */
+  tags: string[];
+  /** Encerramento automático; `null` = nunca configurado. */
+  autoClose: Record<string, unknown> | null;
   agents: AgentOfQueue[];
   /** Is the default queue of the flow (`fluxo.fila_padrao_id`). */
   isDefault: boolean;
@@ -159,6 +163,8 @@ export async function loadQueues(tx: TransactionPipe, tid: string, flowId: strin
         ativa: queue.ativa,
         scheduleId: queue.horarioId,
         horarioNome: scheduleAttendance.nome,
+        tags: queue.etiquetas,
+        autoClose: queue.encerramentoAutomatico,
       })
       .from(queue)
       .leftJoin(scheduleAttendance, eq(scheduleAttendance.id, queue.horarioId))

@@ -19,6 +19,7 @@ import type { RequestWithSession } from '../session.js';
 import { fusoDoTenant } from '../domain/management/window.js';
 import { uuidOuNada } from '../domain/management/format.js';
 import * as cadastros from '../domain/management/registrations.js';
+import * as autoEncerramento from '../domain/management/queue-auto-close.js';
 import * as comunicacao from '../domain/management/communication.js';
 import * as configuracoes from '../domain/management/settings.js';
 import * as palavrasProibidas from '../domain/management/palavras-proibidas.js';
@@ -213,6 +214,40 @@ export class ManagementRegistrationsController {
     const flow = flowRequired(flowId, corpo);
     return noTenant(sessao.tenantId, (tx) =>
       cadastros.editQueue(tx, sessao.tenantId, flow, sessao.userId, id, corpo),
+    );
+  }
+
+  /** Tags da fila: lista completa substitui a anterior. */
+  @Put('agents/queues/:id/tags')
+  @WithSession()
+  async saveQueueTags(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Body() corpo: { tags?: unknown; flowId?: string },
+    @Query('flowId') flowId?: string,
+  ): Promise<{ tags: string[] }> {
+    const sessao = sessionOf(requisicao);
+    idOu404(id, 'fila');
+    const flow = flowRequired(flowId, corpo);
+    return noTenant(sessao.tenantId, (tx) =>
+      autoEncerramento.saveQueueTags(tx, sessao.tenantId, flow, sessao.userId, id, corpo?.tags),
+    );
+  }
+
+  /** Configuração de encerramento automático por inatividade (inclui o interruptor `ativo`). */
+  @Put('agents/queues/:id/auto-close')
+  @WithSession()
+  async saveAutoClose(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Body() corpo: Record<string, unknown>,
+    @Query('flowId') flowId?: string,
+  ): Promise<autoEncerramento.AutoCloseConfig> {
+    const sessao = sessionOf(requisicao);
+    idOu404(id, 'fila');
+    const flow = flowRequired(flowId, corpo as { flowId?: unknown });
+    return noTenant(sessao.tenantId, (tx) =>
+      autoEncerramento.saveAutoClose(tx, sessao.tenantId, flow, sessao.userId, id, corpo),
     );
   }
 

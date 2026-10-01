@@ -1156,10 +1156,10 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
       'PATCH',
       `/v1/management/rules/priority/${criada.id}`,
       sessionManager,
-      { level: 'maxima', condition: { etiqueta: 'vip' } },
+      { level: 'maxima', condition: { combinador: 'e', condicoes: [{ campo: 'mensagem', operador: 'contem', valor: 'vip' }] } },
     );
     expect(editada.status).toBe(200);
-    expect(editada.body).toMatchObject({ level: 'maxima', condition: { etiqueta: 'vip' } });
+    expect(editada.body).toMatchObject({ level: 'maxima', condition: { combinador: 'e', condicoes: [{ campo: 'mensagem', operador: 'contem', valor: 'vip' }] } });
   });
 
   it('Return 403 without `regra.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
