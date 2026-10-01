@@ -31,6 +31,7 @@ import type { TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { requirePermission } from '../../session.js';
 import { corValida } from './colors-of-queue.js';
+import { blocksReferencingQueue, describeBlocks } from './queue-references.js';
 import { minutosDoRelogio, relogio, relogioValido } from './format.js';
 import { agruparPeriodos, type PeriodoAgrupado } from './horarios.js';
 
@@ -1328,6 +1329,26 @@ function conflictOfNameOfQueue(nome: string): PipeError {
   return PipeError.conflito('name_in_use', `Já existe uma fila chamada "${nome}".`);
 }
 
+async function defaultQueueIdOfFlow(tx: TransactionPipe, tid: string, flowId: string): Promise<string | null> {
+  const [row] = await tx
+    .select({ id: flow.queueDefaultId })
+    .from(flow)
+    .where(and(eq(flow.tenantId, tid), eq(flow.id, flowId)))
+    .limit(1);
+  return row?.id ?? null;
+}
+
+/** First active queue of the flow by `ordem` then name, other than `exceptId`. */
+async function firstActiveQueueOfFlow(tx: TransactionPipe, tid: string, flowId: string, exceptId?: string): Promise<string | null> {
+  const [row] = await tx
+    .select({ id: queue.id })
+    .from(queue)
+    .where(and(eq(queue.tenantId, tid), eq(queue.flowId, flowId), eq(queue.ativa, true), exceptId ? ne(queue.id, exceptId) : undefined))
+    .orderBy(asc(queue.order), asc(queue.nome))
+    .limit(1);
+  return row?.id ?? null;
+}
+
 export async function createQueue(
   tx: TransactionPipe,
   tid: string,
@@ -1355,6 +1376,10 @@ export async function createQueue(
     .values({ tenantId: tid, flowId, nome, cor, horarioId, capacityDefault, order, ativa: active })
     .returning({ id: queue.id });
   if (!criada) throw PipeError.request('queue_not_created', 'Não consegui gravar a fila.');
+  // The flow's first queue becomes its default: without one, handoffs would land in no queue.
+  if (active && (await defaultQueueIdOfFlow(tx, tid, flowId)) === null) {
+    await setDefaultQueueOfFlow(tx, tid, usuarioId, flowId, criada.id);
+  }
 
   await registrarAuditoria(tx, tid, {
     ator: ator(usuarioId),
@@ -1406,6 +1431,26 @@ export async function editQueue(
     throw conflictOfNameOfQueue(depois.name);
   }
 
+  let promoteAsDefault: string | null = null;
+  if (antes.ativa && !depois.ativa && (await defaultQueueIdOfFlow(tx, tid, flowId)) === id) {
+    promoteAsDefault = await firstActiveQueueOfFlow(tx, tid, flowId, id);
+    if (!promoteAsDefault) {
+      throw PipeError.conflito(
+        'queue_default_of_flow',
+        'Esta é a fila padrão do fluxo e a única ativa. Ative ou crie outra fila antes de desativá-la.',
+      );
+    }
+  }
+  if (depois.name !== antes.name) {
+    const blocks = await blocksReferencingQueue(tx, tid, flowId, id, antes.name, 'nome');
+    if (blocks.length > 0) {
+      throw PipeError.conflito(
+        'queue_name_in_blocks',
+        `O nome "${antes.name}" é usado por blocos do Builder (${describeBlocks(blocks)}). Ajuste os blocos antes de renomear a fila.`,
+      );
+    }
+  }
+
   const [gravada] = await tx
     .update(queue)
     .set({
@@ -1428,6 +1473,7 @@ export async function editQueue(
       ativa: queue.ativa,
     });
   if (!gravada) throw PipeError.naoEncontrado('fila');
+  if (promoteAsDefault) await setDefaultQueueOfFlow(tx, tid, usuarioId, flowId, promoteAsDefault);
 
   await registrarAuditoria(tx, tid, {
     ator: ator(usuarioId),
@@ -1489,6 +1535,34 @@ export async function deleteQueue(
       'queue_used_in_rule',
       `A regra de entrada "${asDestinationOfRule.nome}" manda conversa para esta fila. Edite ou exclua a regra antes.`,
     );
+  }
+
+  // The default of a flow with other active queues is released by deactivating it (another one takes over).
+  if ((await defaultQueueIdOfFlow(tx, tid, flowId)) === id && (await firstActiveQueueOfFlow(tx, tid, flowId, id))) {
+    throw PipeError.conflito(
+      'queue_default_of_flow',
+      'Esta é a fila padrão do fluxo. Desative-a antes (outra fila ativa passa a ser a padrão) e então exclua.',
+    );
+  }
+
+  const blocks = await blocksReferencingQueue(tx, tid, flowId, id, atual.name);
+  if (blocks.length > 0) {
+    throw PipeError.conflito(
+      'queue_used_in_blocks',
+      `Blocos do Builder usam esta fila (${describeBlocks(blocks)}). Ajuste os blocos antes de excluir.`,
+    );
+  }
+
+  const { rows: scopedRules } = await tx.execute<{ nome: string; tipo: string }>(sql`
+    select nome, 'prioridade' as tipo from regra_prioridade
+     where tenant_id = ${tid}::uuid and escopo_tipo = 'fila' and escopo_id = ${id}::uuid
+    union all
+    select nome, 'SLA' as tipo from regra_sla
+     where tenant_id = ${tid}::uuid and escopo_tipo = 'fila' and escopo_id = ${id}::uuid
+  `);
+  if (scopedRules.length > 0) {
+    const list = scopedRules.slice(0, 5).map((r) => `${r.tipo} "${r.nome}"`).join(', ');
+    throw PipeError.conflito('queue_used_in_scoped_rule', `Regras têm esta fila como escopo (${list}). Edite ou exclua as regras antes.`);
   }
 
   await tx.delete(queue).where(and(eq(queue.tenantId, tid), eq(queue.id, id)));

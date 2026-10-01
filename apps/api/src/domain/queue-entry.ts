@@ -111,7 +111,8 @@ export async function assertQueueOfFlow(tx: TransactionPipe, tenantId: string, f
  * `filaId`, `/transfer`, Desk transfer; rejected when it belongs to another flow); else the first
  * attendance rule (`regra_fila`) matching the message and the contact; else the active queue named by
  * `contact.extras.teams` (Blip flows `MergeContact` the queue name there before the handoff); else the
- * flow default queue (`fluxo.fila_padrao_id`, then `inbox.fila_padrao_id` if it is a queue of the flow).
+ * flow default queue (`fluxo.fila_padrao_id`, then `inbox.fila_padrao_id` if it is a queue of the flow), else
+ * the flow's first active queue. Inactive queues are never chosen.
  */
 export async function chooseQueue(
   tx: TransactionPipe,
@@ -139,15 +140,25 @@ export async function chooseQueue(
     if (rows[0]) return { queueId: rows[0].id, ruleId: null };
   }
   const { rows: flowRows } = await tx.execute<{ id: string | null }>(sql`
-    select fila_padrao_id as id from fluxo where id = ${flowId}::uuid and tenant_id = ${tenantId}::uuid
+    select f.fila_padrao_id as id from fluxo f
+      join fila q on q.id = f.fila_padrao_id and q.tenant_id = f.tenant_id and q.fluxo_id = f.id and q.ativa
+     where f.id = ${flowId}::uuid and f.tenant_id = ${tenantId}::uuid
   `);
   if (flowRows[0]?.id) return { queueId: flowRows[0].id, ruleId: null };
-  if (!input.defaultQueueId) return { queueId: null, ruleId: null };
-  const { rows: inboxRows } = await tx.execute<{ id: string }>(sql`
+  if (input.defaultQueueId) {
+    const { rows: inboxRows } = await tx.execute<{ id: string }>(sql`
+      select id from fila
+       where id = ${input.defaultQueueId}::uuid and tenant_id = ${tenantId}::uuid and fluxo_id = ${flowId}::uuid and ativa
+    `);
+    if (inboxRows[0]) return { queueId: inboxRows[0].id, ruleId: null };
+  }
+  // No usable default: the flow's first active queue, so the ticket is still distributed, timed and closed.
+  const { rows: firstRows } = await tx.execute<{ id: string }>(sql`
     select id from fila
-     where id = ${input.defaultQueueId}::uuid and tenant_id = ${tenantId}::uuid and fluxo_id = ${flowId}::uuid and ativa
+     where tenant_id = ${tenantId}::uuid and fluxo_id = ${flowId}::uuid and ativa
+     order by ordem, nome limit 1
   `);
-  return { queueId: inboxRows[0]?.id ?? null, ruleId: null };
+  return { queueId: firstRows[0]?.id ?? null, ruleId: null };
 }
 
 /**

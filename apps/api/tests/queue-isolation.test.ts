@@ -79,7 +79,8 @@ describe('funil de entrada em fila com escopo de fluxo', () => {
     await f.cenario.dono.execute(sql`update fila set nome = 'So A' where id = ${f.queueA}`);
     const rows = [{ nome: 'So A' }];
     const r = await choose(f.flowB, { message: 'oi', contact: contact({ teams: rows[0]!.nome }) });
-    expect(r.queueId).toBeNull();
+    // the name of A's queue does not resolve; B's own first active queue takes over
+    expect(r.queueId).toBe(f.queueB);
     await f.cenario.dono.execute(sql`update fluxo set fila_padrao_id = ${f.queueB} where id = ${f.flowB}`);
     expect((await choose(f.flowB, { message: 'oi', contact: contact({ teams: rows[0]!.nome }) })).queueId).toBe(f.queueB);
   });
@@ -91,7 +92,7 @@ describe('funil de entrada em fila com escopo de fluxo', () => {
 
   it('a fila padrão da inbox de outro fluxo é ignorada; a do fluxo vale', async () => {
     const semRegra = { message: 'oi' };
-    expect((await choose(f.flowB, { ...semRegra, defaultQueueId: f.queueA })).queueId).toBeNull();
+    expect((await choose(f.flowB, { ...semRegra, defaultQueueId: f.queueA })).queueId).toBe(f.queueB);
     expect((await choose(f.flowB, { ...semRegra, defaultQueueId: f.queueB })).queueId).toBe(f.queueB);
     await f.cenario.dono.execute(sql`update fluxo set fila_padrao_id = ${f.queueB} where id = ${f.flowB}`);
     expect((await choose(f.flowB, { ...semRegra, defaultQueueId: f.queueA })).queueId).toBe(f.queueB);
