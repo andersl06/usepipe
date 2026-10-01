@@ -20,7 +20,7 @@ import { INPUT_EXPIRATION_JOB } from './input-expiration.js';
 type ClaimedExpiration = {
   stateId: string;
   expiresAt: Date;
-  conversationId: string;
+  conversationId: string | null;
   contactId: string;
   channelId: string;
   queueId: string | null;
@@ -52,14 +52,15 @@ export async function fireInputExpiration(tenantId: string, executionId: string)
     if (!armed?.stateId || !armed.expiresAt) return null;
     const { stateId, expiresAt } = armed;
     const { rows: details } = await tx.execute<Omit<ClaimedExpiration, 'stateId' | 'expiresAt'>>(sql`
-      select e.conversa_id as "conversationId", e.contato_id as "contactId", f.canal_id as "channelId",
+      select e.conversa_id as "conversationId", coalesce(e.contato_id, c.contato_id) as "contactId",
+             f.canal_id as "channelId",
              c.fila_id as "queueId", c.atendente_id as "agentId", i.fila_padrao_id as "queueDefaultId",
-             c.estado = 'encerrada' as closed
+             coalesce(c.estado = 'encerrada', false) as closed
         from execucao_fluxo e
-        join conversa c on c.id = e.conversa_id
+        left join conversa c on c.id = e.conversa_id
         join fluxo_versao v on v.id = e.fluxo_versao_id
         join fluxo f on f.id = v.fluxo_id
-        join inbox i on i.id = c.inbox_id
+        join inbox i on i.id = coalesce(c.inbox_id, e.inbox_id)
        where e.id = ${executionId}::uuid
     `);
     const claimed: ClaimedExpiration | undefined = details[0]
@@ -67,6 +68,9 @@ export async function fireInputExpiration(tenantId: string, executionId: string)
       : undefined;
     // A closed conversation no longer talks to the bot; the next customer message opens a new one.
     if (!claimed || claimed.closed || !claimed.channelId || !claimed.contactId) return null;
+    // ponytail: the flow engine still needs a conversation id to run; an execution without one is
+    // selected here but only runs once the engine accepts conversation-less executions.
+    if (!claimed.conversationId) return null;
     const publicado = await flowPublishedOfChannel(tx, claimed.channelId, claimed.contactId);
     if (!publicado) return null;
     return runFlowInInbound(tx, publicado, {

@@ -25,6 +25,14 @@ import {
  * Read contact ANALYSIS (`/fluxo/:id/analise/**`) from the database. These queries moved from `apps/gestao/src/lib/analise.ts` and `analise-portal.ts` with query logic intact; the caller supplies a transaction with tenant fixed. Pure period, formatting, and type logic stays in `@pipe/core/analise`.
  */
 
+/**
+ * A message belongs to a flow when an execution of it is tied to the message's conversation or to the message itself (a bot message with no conversation); one `exists` counts each message once.
+ */
+function messageOfFlow(flowId: string) {
+  return sql`exists (select 1 from execucao_fluxo e join fluxo_versao v on v.id = e.fluxo_versao_id
+                      where v.fluxo_id = ${flowId} and (e.conversa_id = m.conversa_id or e.id = m.execucao_id))`;
+}
+
 /** An interval of instants already in the account time zone; see `janelaDeDatas` in banco.ts. */
 export async function windowOfDates(
   tx: TransactionPipe,
@@ -69,17 +77,14 @@ export async function carregarDashboard(
         withInteraction: number;
         recorrentes: number;
       }>(sql`
-        with conv as (
-          select distinct e.conversa_id, c.contato_id
-            from execucao_fluxo e
-            join fluxo_versao v on v.id = e.fluxo_versao_id
-            join conversa c on c.id = e.conversa_id
-           where v.fluxo_id = ${fluxoId}
-        ), msg as (
-          select conv.contato_id, m.direcao, (m.criada_em at time zone ${fuso})::date as dia
+        with msg as (
+          select coalesce(cv.contato_id, ex.contato_id) as contato_id, m.direcao,
+                 (m.criada_em at time zone ${fuso})::date as dia
             from mensagem m
-            join conv on conv.conversa_id = m.conversa_id
+            left join conversa cv on cv.id = m.conversa_id
+            left join execucao_fluxo ex on ex.id = m.execucao_id
            where m.direcao in ('entrada', 'saida')
+             and ${messageOfFlow(fluxoId)}
              and m.criada_em >= (${i.inicio}::date)::timestamp at time zone ${fuso}
              and m.criada_em < ((${i.fim}::date + 1)::timestamp) at time zone ${fuso}
         ), dias as (
@@ -141,11 +146,11 @@ export async function carregarDashboard(
       select c.id, c.nome as "name", c.telefone_e164 as "phone",
              (count(distinct (m.criada_em at time zone ${fuso})::date) - 1)::int as recorrencia
         from mensagem m
-        join conversa cv on cv.id = m.conversa_id
-        join contato c on c.id = cv.contato_id
+        left join conversa cv on cv.id = m.conversa_id
+        left join execucao_fluxo ex on ex.id = m.execucao_id
+        join contato c on c.id = coalesce(cv.contato_id, ex.contato_id)
        where m.direcao = 'entrada'
-         and exists (select 1 from execucao_fluxo e join fluxo_versao v on v.id = e.fluxo_versao_id
-                      where e.conversa_id = cv.id and v.fluxo_id = ${fluxoId})
+         and ${messageOfFlow(fluxoId)}
          and m.criada_em >= (${intervalo.inicio}::date)::timestamp at time zone ${fuso}
          and m.criada_em < ((${intervalo.fim}::date + 1)::timestamp) at time zone ${fuso}
        group by c.id
@@ -209,11 +214,11 @@ export async function loadListOfContacts(
     const { rows } = await tx.execute<{ name: string }>(sql`
       select coalesce(c.nome, c.telefone_e164, c.id::text) as "name"
         from mensagem m
-        join conversa cv on cv.id = m.conversa_id
-        join contato c on c.id = cv.contato_id
+        left join conversa cv on cv.id = m.conversa_id
+        left join execucao_fluxo ex on ex.id = m.execucao_id
+        join contato c on c.id = coalesce(cv.contato_id, ex.contato_id)
        where m.direcao in ('entrada', 'saida')
-         and exists (select 1 from execucao_fluxo e join fluxo_versao v on v.id = e.fluxo_versao_id
-                      where e.conversa_id = cv.id and v.fluxo_id = ${flowId})
+         and ${messageOfFlow(flowId)}
          and m.criada_em >= (${intervalo.inicio}::date)::timestamp at time zone ${fuso}
          and m.criada_em < ((${intervalo.fim}::date + 1)::timestamp) at time zone ${fuso}
        group by c.id
@@ -251,21 +256,16 @@ export async function carregarVisaoGeral(
   fuso: string,
 ): Promise<VisaoGeral> {
   const base = sql`
-    with conversas as (
-      select distinct ef.conversa_id as id
-        from execucao_fluxo ef
-        join fluxo_versao fv on fv.id = ef.fluxo_versao_id
-       where fv.fluxo_id = ${fluxoId} and ef.conversa_id is not null
-    ),
-    msgs as (
-      select m.direcao, m.dentro_da_janela, c.contato_id, i.canal_id,
+    with msgs as (
+      select m.direcao, m.dentro_da_janela, coalesce(c.contato_id, ex.contato_id) as contato_id, i.canal_id,
              to_char((m.criada_em at time zone ${fuso})::date, 'YYYY-MM-DD') as dia
         from mensagem m
-        join conversas cv on cv.id = m.conversa_id
-        join conversa c on c.id = m.conversa_id
-        join inbox i on i.id = c.inbox_id
+        left join conversa c on c.id = m.conversa_id
+        left join execucao_fluxo ex on ex.id = m.execucao_id
+        join inbox i on i.id = coalesce(c.inbox_id, ex.inbox_id)
        where m.criada_em >= ${period.inicio} and m.criada_em < ${period.fim}
          and m.direcao <> 'interna'
+         and ${messageOfFlow(fluxoId)}
     )`;
 
   {
@@ -430,9 +430,10 @@ export async function loadLogOfMessages(
            m.dados as metadata,
            coalesce(ct.nome, ct.telefone_e164) as contact, ca.nome as channel
       from mensagem m
-      join conversa cv on cv.id = m.conversa_id
-      join contato ct on ct.id = cv.contato_id
-      join inbox i on i.id = cv.inbox_id
+      left join conversa cv on cv.id = m.conversa_id
+      left join execucao_fluxo ex on ex.id = m.execucao_id
+      join contato ct on ct.id = coalesce(cv.contato_id, ex.contato_id)
+      join inbox i on i.id = coalesce(cv.inbox_id, ex.inbox_id)
       join canal ca on ca.id = i.canal_id
      where i.canal_id in (${sql.join(channelIds.map((id) => sql`${id}::uuid`), sql`, `)})
        and ${filterSearch} and ${filterDirection} and ${filterType} and ${filterOf} and ${filterUntil}

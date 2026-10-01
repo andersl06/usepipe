@@ -132,9 +132,10 @@ async function entregarUma(
              a.mime as anexo_mime, a.bytes as anexo_bytes,
              a.chave_storage as anexo_chave, a.nome_original as anexo_nome
         from mensagem m
-        join conversa c on c.id = m.conversa_id
-        join contato ct on ct.id = c.contato_id
-        join inbox ib on ib.id = c.inbox_id
+        left join conversa c on c.id = m.conversa_id
+        left join execucao_fluxo ex on ex.id = m.execucao_id
+        join contato ct on ct.id = coalesce(c.contato_id, ex.contato_id)
+        join inbox ib on ib.id = coalesce(c.inbox_id, ex.inbox_id)
         join canal ca on ca.id = ib.canal_id
         left join contato_identidade ci
                on ci.contato_id = ct.id and ci.canal_tipo = ca.tipo
