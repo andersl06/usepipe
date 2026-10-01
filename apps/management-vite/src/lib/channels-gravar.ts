@@ -152,13 +152,20 @@ export async function channelSyncTemplates(id: string): Promise<Resultado<SyncRe
   }
 }
 
+/** Field names are the ones the API reads (`RequestOfTemplate`). */
 export interface TemplateRequest {
-  nome: string;
+  name: string;
   idioma: string;
-  categoria: string;
+  category: string;
   cabecalho?: string;
-  corpo: string;
+  body: string;
   rodape?: string;
+  botoes?: {
+    tipo: 'resposta' | 'url' | 'telefone';
+    texto: string;
+    url?: string;
+    telefone?: string;
+  }[];
   exemplos?: string[];
   exemploDoCabecalho?: string;
 }

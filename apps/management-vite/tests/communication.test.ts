@@ -5,6 +5,7 @@ import {
   headerHasMedia,
   headerOffset,
 } from '../src/lib/communication.ts';
+import { templatePayload } from '../src/lib/template-payload.ts';
 
 /**
  * The WhatsApp template variable offset.
@@ -44,4 +45,43 @@ test('every header in the catalog has a decided offset', () => {
    */
   const mapa = Object.fromEntries(CABECALHOS_TEMPLATE.map((c) => [c, headerOffset(c)]));
   assert.deepEqual(mapa, { nenhum: 0, texto: 0, imagem: 1, video: 1, documento: 1 });
+});
+
+const base = { nome: 'promo', categoria: 'marketing' };
+const traducao = { idioma: 'pt_BR', texto: 'Olá', exemplos: [], rodape: '', buttons: [], acoes: [] };
+
+test('templatePayload sends footer, quick replies and action buttons, and drops empty ones', () => {
+  assert.equal(templatePayload(base, traducao).rodape, undefined);
+  assert.equal(templatePayload(base, { ...traducao, rodape: '  ' }).rodape, undefined);
+  assert.equal(templatePayload(base, { ...traducao, rodape: 'Obrigado' }).rodape, 'Obrigado');
+  assert.equal(templatePayload(base, traducao).botoes, undefined);
+  assert.deepEqual(templatePayload(base, { ...traducao, buttons: ['Sim', '', ' Não '] }).botoes, [
+    { tipo: 'resposta', texto: 'Sim' },
+    { tipo: 'resposta', texto: 'Não' },
+  ]);
+  assert.deepEqual(
+    templatePayload(base, {
+      ...traducao,
+      acoes: [
+        { tipo: 'url', texto: 'Site', valor: 'https://pipe.exemplo' },
+        { tipo: 'telefone', texto: 'Ligar', valor: '+5531999999999' },
+        { tipo: 'url', texto: '', valor: '' },
+      ],
+    }).botoes,
+    [
+      { tipo: 'url', texto: 'Site', url: 'https://pipe.exemplo' },
+      { tipo: 'telefone', texto: 'Ligar', telefone: '+5531999999999' },
+    ],
+  );
+});
+
+test('templatePayload uses the field names the API reads', () => {
+  const p = templatePayload(base, { ...traducao, exemplos: ['Ana'] });
+  assert.deepEqual(p, {
+    name: 'promo',
+    idioma: 'pt_BR',
+    category: 'marketing',
+    body: 'Olá',
+    exemplos: ['Ana'],
+  });
 });

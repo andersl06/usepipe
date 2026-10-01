@@ -73,10 +73,10 @@ export function TemplateForm({ channels }: { channels: { id: string; name: strin
     }
     setEnviando(true);
     const resultado = await createTemplateInChannel(channelId, {
-      nome,
+      name: nome,
       idioma,
-      categoria,
-      corpo,
+      category: categoria,
+      body: corpo,
       ...(cabecalhoTipo === 'texto' && cabecalho ? { cabecalho } : {}),
       ...(cabecalhoTipo === 'texto' && headerVariables.length === 1 ? { exemploDoCabecalho } : {}),
       ...(rodape ? { rodape } : {}),

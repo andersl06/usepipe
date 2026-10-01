@@ -6,6 +6,7 @@ import { IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 import { Select } from '@pipe/ui/select';
 import type { TemplateListed } from '@pipe/contracts';
 import { createTemplateInChannel } from '../../../lib/channels-gravar';
+import { templatePayload, type ActionButton } from '../../../lib/template-payload';
 import {
   CATEGORIAS,
   blocosDoMenu,
@@ -71,6 +72,9 @@ const COR_DO_STATUS: Record<string, string> = {
   rejeitado: 'rejeitado',
   pausado: 'pausado',
 };
+
+/** Media header blocks stay unavailable: the sample upload needs a Meta App ID (03.1-DECISOES template.midia). */
+const MIDIA_NAO_ENVIADA: readonly string[] = ['imagem', 'documento', 'video'];
 
 /* `attachment.<tipo>.link` e `.compatibility`. */
 const ATTACHMENT: Record<'imagem' | 'documento' | 'video', { link: string; compat: string }> = {
@@ -149,6 +153,7 @@ interface TranslationInEdit extends Translation {
   link: string;
   rodape: string;
   buttons: string[];
+  acoes: ActionButton[];
   editando: boolean;
   rascunho: string;
   /** One example per body variable — Meta requires it for approval (`{{1}}` → `exemplos['1']`). */
@@ -162,6 +167,7 @@ function newTranslation(idioma = 'pt_BR'): TranslationInEdit {
     link: '',
     rodape: '',
     buttons: [],
+    acoes: [],
     editando: false,
     rascunho: '',
     exemplos: {},
@@ -367,14 +373,13 @@ function NewTemplateSidebar({
     setAviso('');
     try {
       for (const t of translations) {
-        const variables = textVariables(t.texto);
-        const resultado = await createTemplateInChannel(channelId, {
-          nome,
-          idioma: t.idioma,
-          categoria: categoria as 'marketing' | 'utilidade',
-          corpo: t.texto,
-          exemplos: variables.map((v) => t.exemplos[v]!.trim()),
-        });
+        const resultado = await createTemplateInChannel(
+          channelId,
+          templatePayload(
+            { nome, categoria },
+            { ...t, exemplos: textVariables(t.texto).map((v) => t.exemplos[v]!.trim()) },
+          ),
+        );
         if (!resultado.ok) {
           setAviso(`Idioma "${t.idioma}": ${resultado.error}`);
           return;
@@ -532,6 +537,12 @@ function NewTemplateSidebar({
                                 : 'ct-menu-item'
                             }
                             key={block}
+                            disabled={MIDIA_NAO_ENVIADA.includes(block)}
+                            title={
+                              MIDIA_NAO_ENVIADA.includes(block)
+                                ? 'Cabeçalho de mídia exige um app Meta e ainda não é enviado por aqui.'
+                                : undefined
+                            }
                             onClick={() => setTipo(block)}
                           >
                             <IconePortal
@@ -662,11 +673,16 @@ function TextCard({
         ) : (
           <span className="ct-card-placeholder">Insira aqui o conteúdo da mensagem</span>
         )}
-        {translation.buttons.length ? (
+        {translation.buttons.length || translation.acoes.length ? (
           <div className="ct-card-buttons">
             {translation.buttons.map((botao, i) => (
               <div className="ct-card-reply" key={i}>
                 <span>{botao}</span>
+              </div>
+            ))}
+            {translation.acoes.map((acao, i) => (
+              <div className="ct-card-reply" key={`a${i}`}>
+                <span>{acao.texto}</span>
               </div>
             ))}
           </div>
@@ -714,7 +730,7 @@ function TextCard({
         </button>
       </div>
       <VariableExamples translation={translation} aoMudar={aoMudar} />
-      <TemplateButtons buttons={translation.buttons} aoMudar={(buttons) => aoMudar({ buttons })} />
+      <TemplateButtons translation={translation} aoMudar={aoMudar} />
     </section>
   );
 }
@@ -752,17 +768,19 @@ function VariableExamples({
 
 /**
  * `<message-template-buttons>`: `.menu-buttons-list` with "Botões de ação" and "Respostas rápidas"; under quick replies, one "Texto do botão" field per button (up to 3, 20 characters) and "Adicionar outro botão". The `CallToAction`/`QuickReply` icons come from the `blip-toolkit` font (not present here).
- * ponytail: action buttons (phone, link, contact data) stay choice-only; Pipe doesn't model buttons in `template_mensagem` yet.
+ * Quick replies and link/phone action buttons are both submitted to Meta; "Solicitar informação de contato" is not, so it stays disabled.
  */
 function TemplateButtons({
-  buttons,
-  aoMudar,
+  translation,
+  aoMudar: aoMudarTraducao,
 }: {
-  buttons: string[];
-  aoMudar: (buttons: string[]) => void;
+  translation: TranslationInEdit;
+  aoMudar: (mudanca: Partial<TranslationInEdit>) => void;
 }) {
+  const { buttons, acoes } = translation;
+  const aoMudar = (buttons: string[]) => aoMudarTraducao({ buttons });
   const [modo, setModo] = useState<'default' | 'quick_reply' | 'call_to_action'>(
-    buttons.length ? 'quick_reply' : 'default',
+    buttons.length ? 'quick_reply' : acoes.length ? 'call_to_action' : 'default',
   );
   if (modo === 'default') {
     return (
@@ -770,7 +788,10 @@ function TemplateButtons({
         <button
           type="button"
           className="ct-menu-buttons-item"
-          onClick={() => setModo('call_to_action')}
+          onClick={() => {
+            setModo('call_to_action');
+            aoMudarTraducao({ acoes: acoes.length ? acoes : [{ tipo: 'url', texto: '', valor: '' }] });
+          }}
         >
           <span>Botões de ação</span>
         </button>
@@ -788,18 +809,49 @@ function TemplateButtons({
     );
   }
   if (modo === 'call_to_action') {
+    const muda = (i: number, mudanca: Partial<ActionButton>) =>
+      aoMudarTraducao({ acoes: acoes.map((x, j) => (j === i ? { ...x, ...mudanca } : x)) });
     return (
       <div className="ct-buttons-edit">
-        <label className="ct-campo ct-campo--cheio">
-          <span className="ct-campo-rotulo">Tipo</span>
-          <Select defaultValue="url" aria-label="Tipo">
-            <option value="url">Link do website</option>
-            <option value="phone_number">Número de telefone</option>
-            <option value="request_contact_info">Solicitar informação de contato</option>
-          </Select>
-        </label>
-        <input className="ct-card-input" placeholder="Texto do botão" />
-        <input className="ct-card-input" placeholder="https://exemplo.com" />
+        {acoes.map((acao, i) => (
+          <div className="ct-buttons-line" key={i}>
+            <Select
+              value={acao.tipo}
+              aria-label="Tipo"
+              onChange={(evento) => muda(i, { tipo: evento.target.value as ActionButton['tipo'], valor: '' })}
+            >
+              <option value="url">Link do website</option>
+              <option value="telefone">Número de telefone</option>
+              <option value="request_contact_info" disabled>
+                Solicitar informação de contato (não enviado à Meta)
+              </option>
+            </Select>
+            <input
+              className={acao.texto.length > 20 ? 'ct-card-input ct-card-input--invalid' : 'ct-card-input'}
+              placeholder="Texto do botão"
+              value={acao.texto}
+              onChange={(evento) => muda(i, { texto: evento.target.value })}
+            />
+            {acao.texto.length > 20 ? <span className="ct-error">Máximo de 20 caracteres</span> : null}
+            <input
+              className="ct-card-input"
+              placeholder={acao.tipo === 'url' ? 'https://exemplo.com' : '+5531999999999'}
+              value={acao.valor}
+              onChange={(evento) => muda(i, { valor: evento.target.value })}
+            />
+          </div>
+        ))}
+        {acoes.length < 3 ? (
+          <button
+            type="button"
+            className="ct-botao-tracejado"
+            disabled={acoes.some((x) => !x.texto.trim() || !x.valor.trim())}
+            onClick={() => aoMudarTraducao({ acoes: [...acoes, { tipo: 'url', texto: '', valor: '' }] })}
+          >
+            <IconePortal nome="mais" tamanho={20} />
+            <span>Adicionar outro botão</span>
+          </button>
+        ) : null}
       </div>
     );
   }
@@ -935,7 +987,7 @@ function AttachmentCard({
         value={translation.rodape}
         onChange={(evento) => aoMudar({ rodape: evento.target.value })}
       />
-      <TemplateButtons buttons={translation.buttons} aoMudar={(buttons) => aoMudar({ buttons })} />
+      <TemplateButtons translation={translation} aoMudar={aoMudar} />
     </section>
   );
 }
