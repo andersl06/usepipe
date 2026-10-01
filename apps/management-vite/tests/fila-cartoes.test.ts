@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  chaveDoExtraAviso,
   CAMPO_EXTRA,
   condicaoDePriorizacao,
   condicoesGravaveis,
@@ -68,4 +69,10 @@ test('e-mails em lote: recusa sem conta, inválido, já na fila e desativado; n�
     ['bia@x.com', 'cris@x.com', 'fora@outro.com', 'sem-arroba'],
   );
   assert.match(r.recusados[2]?.motivo ?? '', /não tem conta/);
+});
+
+test('chave do extra: avisa só quando a regra não aceitaria a chave', () => {
+  assert.equal(chaveDoExtraAviso('plano_2'), null);
+  assert.equal(chaveDoExtraAviso(''), null);
+  assert.match(chaveDoExtraAviso('meu-campo') ?? '', /letras, números e sublinhado/);
 });

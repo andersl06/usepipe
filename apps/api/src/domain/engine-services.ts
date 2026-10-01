@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { DeskUnavailable, type ClosedBy, type CommandRequest, type ServicosDoMotor } from '@pipe/core';
+import { DeskUnavailable, LEVELS_PRIORITY, type ClosedBy, type CommandRequest, type ServicosDoMotor } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { chamarComMtls } from './mtls.js';
 import { runFlowScript, scriptFetch } from './script-sandbox.js';
@@ -39,7 +39,6 @@ const PIPE_TICKET_ROUTES = [
   'pipe.tickets.priority',
 ] as const;
 
-const PRIORITY_LEVELS = ['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'] as const;
 const CLOSED_BY_CUSTOMER: readonly ClosedBy[] = ['cliente', 'inatividade'];
 
 /** Where the bot's `pipe.tickets.*` writes land: the current conversation, or the test run's memory. */
@@ -204,7 +203,7 @@ export async function executeCommand(
     result['resource'] = { status };
   } else if (route === 'pipe.tickets.priority') {
     const priority = text('priority', 'prioridade');
-    if (!priority || !(PRIORITY_LEVELS as readonly string[]).includes(priority)) {
+    if (!priority || !(LEVELS_PRIORITY as readonly string[]).includes(priority)) {
       throw new Error('O comando de prioridade exige um nível do Pipe válido.');
     }
     await tickets.setPriority(tx, priority);

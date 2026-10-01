@@ -59,6 +59,15 @@ export interface CondicaoGravada {
   valor: string;
 }
 
+const CHAVE_EXTRA = /^[A-Za-z0-9_]+$/;
+
+/** Aviso da chave do campo extra: as regras só aceitam letras, números e sublinhado, mas o Builder grava qualquer chave em `extras` (`MergeContact`). */
+export function chaveDoExtraAviso(chave: string): string | null {
+  const c = chave.trim();
+  if (!c || CHAVE_EXTRA.test(c)) return null;
+  return 'A chave do campo extra aceita só letras, números e sublinhado (sem espaços, hífen ou acentos). Chaves gravadas pelo Builder com outros caracteres não podem ser usadas em regras.';
+}
+
 /** `null` quando o rascunho está incompleto (sem valor ou sem chave do extra): o botão Salvar fica desabilitado. */
 export function condicoesGravaveis(
   rascunhos: readonly CondicaoRascunho[],
@@ -69,7 +78,7 @@ export function condicoesGravaveis(
     const chave = c.chave.trim();
     if (!valor) return null;
     if (c.campo === CAMPO_EXTRA) {
-      if (!/^[A-Za-z0-9_]+$/.test(chave)) return null;
+      if (!CHAVE_EXTRA.test(chave)) return null;
       saida.push({ campo: `${PREFIX_ATTRIBUTE}${chave}`, operador: c.operador, valor });
     } else {
       saida.push({ campo: c.campo, operador: c.operador, valor });

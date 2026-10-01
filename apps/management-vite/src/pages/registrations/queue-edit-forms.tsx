@@ -17,6 +17,7 @@ import {
   OPERADORES_DO_FORMULARIO,
   condicaoDePriorizacao,
   condicaoEmBranco,
+  chaveDoExtraAviso,
   condicoesGravaveis,
   lerCondicaoDePriorizacao,
   lerEmails,
@@ -187,6 +188,7 @@ export function ConditionsEditor({
                   onChange={(e) => mudar(i, { chave: e.target.value })}
                   disabled={desabilitado}
                 />
+                {chaveDoExtraAviso(c.chave) ? <span className="sub" role="alert">{chaveDoExtraAviso(c.chave)}</span> : null}
               </label>
             ) : null}
           </div>
