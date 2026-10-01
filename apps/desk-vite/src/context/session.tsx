@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Eu } from '@pipe/contracts';
 import { api, ApiError } from '@pipe/ui/api';
+import { readPreferences } from '../lib/preferences';
+import { isReload, markOpened } from '../lib/presence';
 
 /**
  * Quem está logado — a única fonte, alimentada por `GET /v1/eu`.
@@ -39,6 +41,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void atualizar();
   }, [atualizar]);
+
+  // Presence: report the opening once per load (new tab vs F5) and keep stamping while the tab lives, so the API can drop an agent whose tab died.
+  const userId = eu?.user.id;
+  useEffect(() => {
+    if (!userId) return;
+    const reload = isReload(sessionStorage);
+    markOpened(sessionStorage);
+    api
+      .post('/v1/eu/presenca/abertura', { reload, keepOnline: readPreferences().continuarOnline })
+      .catch(() => undefined);
+    const timer = setInterval(() => {
+      api.post('/v1/eu/presenca/sinal', { keepOnline: readPreferences().continuarOnline }).catch(() => undefined);
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, [userId]);
 
   const sair = useCallback(async () => {
     try {

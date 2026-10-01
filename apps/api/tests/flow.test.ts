@@ -197,7 +197,7 @@ describe('bot com o dublê do WhatsApp', () => {
     expect(await doBot(sessao.id)).toHaveLength(respostas);
 
     await cenario.dono.execute(
-      sql`update status_atendente set estado = 'online' where usuario_id = ${cenario.agentId}::uuid`,
+      sql`update status_atendente set estado = 'online', conectado_em = now() where usuario_id = ${cenario.agentId}::uuid`,
     );
     await falar(ANA, 'tem alguém aí?');
     const atribuida = await conversationOpen(ANA);

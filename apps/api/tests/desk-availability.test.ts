@@ -9,6 +9,9 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
+const { createToken } = await import('@pipe/authentication');
+const { SESSION_COOKIE_NAME } = await import('../src/session.js');
+const statusAgentModule = await import('../src/domain/status-agent.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
 const { chooseQueue, queueUnavailability } = await import('../src/domain/queue-entry.js');
 const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
@@ -234,5 +237,55 @@ describe('queue-entry helpers', () => {
     // An agent that is offline does not count.
     await cenario.dono.execute(sql`update status_atendente set estado = 'offline' where usuario_id = ${cenario.agentId}::uuid`);
     expect(await check(cenario.queueId, ['NoAgentAvailable'])).toBe('NoAgentAvailable');
+  });
+});
+
+describe('Desk presence (Blip rule)', () => {
+  const { stateOnDeskOpening } = statusAgentModule;
+
+  it('stateOnDeskOpening: Offline unless "Continuar online" keeps Online; F5 equals reopening', () => {
+    for (const reload of [false, true]) {
+      expect(stateOnDeskOpening('online', { reload, keepOnline: false })).toBe('offline');
+      expect(stateOnDeskOpening('online', { reload, keepOnline: true })).toBeNull();
+      expect(stateOnDeskOpening('pausa', { reload, keepOnline: true })).toBe('offline');
+      expect(stateOnDeskOpening('invisivel', { reload, keepOnline: true })).toBe('offline');
+    }
+  });
+
+  async function sessao(): Promise<Record<string, string>> {
+    const novo = createToken();
+    await cenario.dono.execute(sql`
+      insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
+      values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    `);
+    return { cookie: `${SESSION_COOKIE_NAME}=${novo.token}`, 'content-type': 'application/json' };
+  }
+  const estadoDoAgente = async (): Promise<string> =>
+    (await cenario.dono.execute<{ estado: string }>(sql`select estado from status_atendente where usuario_id = ${cenario.agentId}::uuid`)).rows[0]!.estado;
+  const abrir = (headers: Record<string, string>, corpo: object) =>
+    fetch(`${api.url}/v1/eu/presenca/abertura`, { method: 'POST', headers, body: JSON.stringify(corpo) });
+
+  it('logout leaves the agent Offline and out of the distribution', async () => {
+    const headers = await sessao();
+    expect((await fetch(`${api.url}/v1/auth/sair`, { method: 'POST', headers })).status).toBe(204);
+    expect(await estadoDoAgente()).toBe('offline');
+  });
+
+  it('opening the Desk: Offline without the preference, Online kept with it', async () => {
+    const headers = await sessao();
+    expect(await (await abrir(headers, { reload: true, keepOnline: true })).json()).toEqual({ state: 'online' });
+    expect(await estadoDoAgente()).toBe('online');
+    expect(await (await abrir(headers, { reload: false, keepOnline: false })).json()).toEqual({ state: 'offline' });
+    expect(await estadoDoAgente()).toBe('offline');
+  });
+
+  it('online without a presence signal for 4 minutes does not receive; a fresh signal does', async () => {
+    await cenario.dono.execute(sql`update status_atendente set conectado_em = now() - interval '4 minutes' where usuario_id = ${cenario.agentId}::uuid`);
+    await publicar({ teams: await nomeDaFila(cenario.queueId), withExits: true });
+    await falar('5511955550007', 'quero atendimento');
+    expect((await resultadoDe('5511955550007')).status).toBe('NoAgentAvailable');
+    await cenario.dono.execute(sql`update status_atendente set conectado_em = now() where usuario_id = ${cenario.agentId}::uuid`);
+    await falar('5511955550008', 'quero atendimento');
+    expect((await resultadoDe('5511955550008')).status).toBe('Success');
   });
 });

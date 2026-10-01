@@ -6,6 +6,13 @@ import { emitir } from '../webhooks-saida.js';
 import { registrarEvento } from './eventos.js';
 
 /**
+ * Status the distribution trusts: an agent without a presence signal in the last 3 minutes counts as offline (without "Continuar online", Blip drops an agent whose tab closed). The signal is `status_atendente.conectado_em`, stamped by the Desk (`infinity` with "Continuar online").
+ * ponytail: fixed 3 min TTL; make it configurable per bot if Blip exposes it.
+ */
+export const PRESENCE_TTL_SQL = sql.raw(`(s.conectado_em > now() - interval '3 minutes')`);
+export const PRESENCE_STATE_SQL = sql`(case when ${PRESENCE_TTL_SQL} then coalesce(s.estado, 'offline') else 'offline' end)`;
+
+/**
  * Distribute by actual load (spec §4.3, metrics spec §7). `@pipe/core` owns the decision; this file collects agent state for `escolherAtendente` rather than reimplementing weighted-load tie breaking in `api`. The core rule has table-driven tests.
  */
 
@@ -25,7 +32,7 @@ export async function candidatesOfQueue(
 ): Promise<AgentAvailable[]> {
   const { rows } = await tx.execute<LineAgent>(sql`
     select u.id,
-           coalesce(s.estado, 'offline') as state,
+           ${PRESENCE_STATE_SQL} as state,
            coalesce(fa.capacidade_override, f.capacidade_padrao) as "limit",
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada')::text as ativas,
@@ -71,7 +78,7 @@ export async function queuesOfAgent(
 ): Promise<AgentAvailable[]> {
   const { rows } = await tx.execute<LineAgent & { queueId: string }>(sql`
     select u.id, fa.fila_id as "queueId",
-           coalesce(s.estado, 'offline') as state,
+           ${PRESENCE_STATE_SQL} as state,
            coalesce(fa.capacidade_override, f.capacidade_padrao) as "limit",
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada')::text as ativas,

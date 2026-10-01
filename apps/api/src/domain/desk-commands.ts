@@ -1,6 +1,7 @@
 import { sql, type SQL } from 'drizzle-orm';
 import type { CommandMatch } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
+import { PRESENCE_STATE_SQL } from './distribution.js';
 
 /**
  * Desk read commands a bot sends to `postmaster@desk.msging.net`, answered from Pipe data in Blip's
@@ -202,7 +203,7 @@ export async function teamsWithAgentsOnline(
 ): Promise<{ id: string; name: string; agentsOnline: number }[]> {
   const { rows } = await tx.execute<{ id: string; name: string; agentsOnline: number }>(sql`
     select f.id, f.nome as name,
-           count(distinct u.id) filter (where s.estado = 'online')::int as "agentsOnline"
+           count(distinct u.id) filter (where ${PRESENCE_STATE_SQL} = 'online')::int as "agentsOnline"
       from fila f
       left join fila_atendente fa on fa.fila_id = f.id and fa.tenant_id = f.tenant_id
       left join usuario u on u.id = fa.usuario_id and u.tenant_id = f.tenant_id and u.ativo

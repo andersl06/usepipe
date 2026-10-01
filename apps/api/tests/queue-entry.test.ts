@@ -116,7 +116,7 @@ async function agenteNoFinanceiro(): Promise<string> {
     insert into fila_atendente (tenant_id, fila_id, usuario_id) values (${cenario.tenantId}, ${financeiroId}, ${id})
   `);
   await cenario.dono.execute(sql`
-    insert into status_atendente (usuario_id, tenant_id, estado, desde) values (${id}, ${cenario.tenantId}, 'online', now())
+    insert into status_atendente (usuario_id, tenant_id, estado, desde, conectado_em) values (${id}, ${cenario.tenantId}, 'online', now(), now())
   `);
   return id;
 }
