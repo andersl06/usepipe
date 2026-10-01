@@ -281,14 +281,14 @@ type LinhaEvento = {
 function agruparEventos(linhas: readonly LinhaEvento[]): Map<string, ConversationEvents> {
   const mapa = new Map<string, ConversationEvents & { eventos: EventAttendance[] }>();
   for (const linha of linhas) {
-    const data = (linha.data ?? {}) as { closedBy?: string };
+    const data = (linha.data ?? {}) as { encerrada_por?: string; closedBy?: string };
     const evento: EventAttendance = {
       conversationId: linha.conversationId,
       tipo: linha.type as TipoEvento,
       em: linha.at,
       userId: linha.userId,
       queueId: linha.queueId,
-      closedBy: (data.closedBy ?? null) as ClosedBy | null,
+      closedBy: (data.encerrada_por ?? data.closedBy ?? null) as ClosedBy | null,
     };
     const atual = mapa.get(linha.conversationId);
     if (atual) atual.eventos.push(evento);

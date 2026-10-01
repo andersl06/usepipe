@@ -196,13 +196,13 @@ export async function loadAttendance(
 
     const byConversation = new Map<string, EventAttendance[]>();
     for (const e of eventos) {
-      const data = (e.dados ?? {}) as { closedBy?: string };
+      const data = (e.dados ?? {}) as { encerrada_por?: string; closedBy?: string };
       const evento: EventAttendance = {
         conversationId: e.conversaId,
         tipo: e.tipo as TipoEvento,
         em: e.em,
         userId: e.usuarioId,
-        closedBy: (data.closedBy ?? null) as ClosedBy | null,
+        closedBy: (data.encerrada_por ?? data.closedBy ?? null) as ClosedBy | null,
       };
       const atual = byConversation.get(e.conversaId);
       if (atual) atual.push(evento);
