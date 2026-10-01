@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, ilike, inArray, isNotNull, lt, or, sql } from 'drizzle-orm';
+import { and, count, desc, eq, gte, inArray, isNotNull, lt, or, sql } from 'drizzle-orm';
 import {
   classifyClosure,
   derivarMarcos,
@@ -63,8 +63,8 @@ export interface HistoryWindow {
   offset: number;
 }
 
-/** Escape LIKE wildcards so user text matches literally. */
-const likeLiteral = (t: string) => t.replace(/[\\%_]/g, (c) => `\\${c}`);
+/** Escapa os curingas do LIKE com `!` (usar `escape '!'` na consulta): a barra invertida não chega intacta ao Postgres por este driver. */
+export const likeLiteral = (t: string) => t.replace(/[!%_]/g, (c) => `!${c}`);
 
 export interface Catalogos {
   queues: { id: string; name: string }[];
@@ -117,11 +117,11 @@ export async function loadHistory(
         ? or(
             ...termosTicket.map(
               (t) =>
-                sql`upper(right(replace(${conversation.id}::text, '-', ''), 6)) like ${`%${likeLiteral(t)}%`}`,
+                sql`upper(right(replace(${conversation.id}::text, '-', ''), 6)) like ${`%${likeLiteral(t)}%`} escape '!'`,
             ),
           )
         : undefined,
-      contato ? ilike(contact.nome, `%${likeLiteral(contato)}%`) : undefined,
+      contato ? sql`${contact.nome} ilike ${`%${likeLiteral(contato)}%`} escape '!'` : undefined,
     );
 
     const base = tx
