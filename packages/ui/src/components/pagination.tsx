@@ -8,15 +8,14 @@ import { Select } from './select';
  * skin (markup and classes) the screen already reproduces, so adopting this component never
  * restyles a screen:
  *
- * - `grade` — Detailed Monitoring and Team grids (`FICHA-monitoring.md` §5): "Resultados por
- *   página", counter and four icon buttons; hidden while there is nothing to show.
- * - `lista` — rules and queue cards (`FICHA-rules.md`, `FICHA-queue-management.md` §2.5/§5):
- *   the same parts with the list footer skin; `ocultarTamanho` drops the size select
- *   (`personalizedbreaks`, `FICHA-atendentes-filas-pausas.md` §b.3/§c).
+ * - `grade` — the Attendance footer, the same in grids (Detailed Monitoring, Team) and lists (rules,
+ *   queues, `paginacao.md`): "Resultados por página", counter and four icon buttons. `afastado` takes
+ *   the list's top margin; `ocultarTamanho` drops the size select (`personalizedbreaks`); hidden while
+ *   there is nothing to show unless `ocultarVazio={false}`.
  * - `portal` — the portal's `bds-pagination` ("Itens por página:", `de N páginas`, the current
  *   page as a select); always shown, even with one page (the eleven-bot DOM shows "1-11 de 11").
  *
- * The CSS for the three skins lives in the Gestão stylesheet next to the screen overrides that
+ * The CSS for both skins lives in the Gestão stylesheet next to the screen overrides that
  * refine it; moving it here would reorder the cascade.
  */
 export { PAGE_SIZES } from './pagination-math';
@@ -68,14 +67,20 @@ export function Pagination({
   sizes = PAGE_SIZES,
   grade,
   ocultarTamanho = false,
+  afastado = false,
+  ocultarVazio = true,
 }: {
   state: PaginationState;
-  layout: 'grade' | 'lista' | 'portal';
+  layout: 'grade' | 'portal';
   sizes?: readonly number[];
   /** `grade` only: suffix of the reference `data-testid` of the grid being paginated. */
   grade?: string;
-  /** `lista` only: no size select, only the counter and the arrows. */
+  /** `grade` only: no size select, only the counter and the arrows. */
   ocultarTamanho?: boolean;
+  /** `grade` only: the list footer's 20px top margin instead of the grid's 10px. */
+  afastado?: boolean;
+  /** `grade` only: render nothing while there is no row (default). */
+  ocultarVazio?: boolean;
 }) {
   const { page, total, setPage } = state;
   const byPage = layout === 'portal' && !sizes.includes(state.byPage) ? sizes[0]! : state.byPage;
@@ -142,33 +147,7 @@ export function Pagination({
     );
   }
 
-  if (layout === 'lista') {
-    const seta = (d: Direction) => (
-      <button type="button" disabled={desabilitado(d)} onClick={() => setPage(destino[d])} aria-label={ARIA[d]}>
-        <ListArrow tipo={d} />
-      </button>
-    );
-    return (
-      <div className="footer-pagination">
-        {ocultarTamanho ? null : (
-          <label className="rp-tamanho">
-            Resultados por página
-            {tamanho('Resultados por página', state.setByPage)}
-          </label>
-        )}
-        <span className="rp-count">{`${primeiro}-${ultimo} de ${total}`}</span>
-        <div className="rp-nav">
-          {seta('primeira')}
-          {seta('anterior')}
-          <span className="rp-atual">{page}</span>
-          {seta('proxima')}
-          {seta('ultima')}
-        </div>
-      </div>
-    );
-  }
-
-  if (total === 0) return null;
+  if (total === 0 && ocultarVazio) return null;
   const seta = (d: Direction) => (
     <button
       type="button"
@@ -182,11 +161,13 @@ export function Pagination({
     </button>
   );
   return (
-    <div className="pg" data-testid={grade ? `desk-grid-tabled-paginated-pagination-container-${grade}` : undefined}>
-      <label className="pg-per-page">
-        Resultados por página
-        {tamanho('Resultados por página', state.setByPage)}
-      </label>
+    <div className={afastado ? 'pg pg-lista' : 'pg'} data-testid={grade ? `desk-grid-tabled-paginated-pagination-container-${grade}` : undefined}>
+      {ocultarTamanho ? null : (
+        <label className="pg-per-page">
+          Resultados por página
+          {tamanho('Resultados por página', state.setByPage)}
+        </label>
+      )}
       <div className="pg-direita">
         <span className="pg-contador" aria-live="polite">
           {primeiro}-{ultimo} de {total}
@@ -213,21 +194,6 @@ function GridIcon({ tipo }: { tipo: Direction }) {
     <svg className="pg-icone" viewBox="0 0 24 24" aria-hidden="true">
       {dupla ? <path d={esquerda ? 'M6 5v14' : 'M18 5v14'} /> : null}
       <path d={esquerda ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
-    </svg>
-  );
-}
-
-/** `arrow-first`, `arrow-left`, `arrow-right`, `arrow-last` of the list footer (`FICHA-rules.md` §5). */
-function ListArrow({ tipo }: { tipo: Direction }) {
-  const caminhos: Record<Direction, string> = {
-    primeira: 'M11 7l-5 5l5 5M17 7l-5 5l5 5',
-    anterior: 'M15 6l-6 6l6 6',
-    proxima: 'M9 6l6 6l-6 6',
-    ultima: 'M7 7l5 5l-5 5M13 7l5 5l-5 5',
-  };
-  return (
-    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d={caminhos[tipo]} />
     </svg>
   );
 }

@@ -238,7 +238,9 @@ export function ListaRegras({
 
       {podePaginar && !nenhuma ? (
         <Pagination
-          layout="lista"
+          layout="grade"
+          afastado
+          ocultarVazio={false}
           state={{ page: pageCurrent, byPage: tamanho, total: totalItens, setPage, setByPage: setTamanho }}
           ocultarTamanho={pageHideSize}
         />

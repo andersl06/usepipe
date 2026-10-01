@@ -83,6 +83,19 @@ e `--p-marca-linha`; nenhum papel azul novo apareceu na casca.
 | `--p-atend-lateral-borda` | `1px` | Borda transparente do subitem, igual à do item de primeiro nível; fecha os 39px e põe o rótulo a 46px da árvore | `blip-medidas-monitoramento.md` §3.1 e §3.3 (rótulo em x=62) |
 | `--p-atend-lateral-marca-desloc` | `-15px` | Deslocamento da barra de 2px do subitem ativo à esquerda da borda de padding, sobre a guia do grupo | `blip-medidas-monitoramento.md` §3.3 (`::before` com `left: -15px`) |
 
+### Medidas do Atendimento (rodapé de paginação)
+
+Mesmo rodapé "Resultados por página" em grades e listas; só a margem de cima muda. Fonte:
+`.planning/phases/03.2-paridade-do-atendimento-com-a-blip/ref/verificacao/paginacao.md`.
+
+| Token | Valor | Papel | Fonte |
+|---|---|---|---|
+| `--p-atend-paginacao-margem-grade` | `10px` | Margem acima do rodapé nas grades (`mt3`) | `paginacao.md` §grade |
+| `--p-atend-paginacao-margem-lista` | `20px` | Margem acima do rodapé nas listas (`mt4`) | `paginacao.md` §lista |
+| `--p-atend-paginacao-seletor` | `74px` | Largura do seletor de tamanho (`ResultsSelect`) | `paginacao.md` |
+| `--p-atend-paginacao-botao` | `40px` | Lado dos botões de navegação (`bds-button-icon` short) | `paginacao.md` |
+| `--p-atend-paginacao-icone` | `24px` | Lado do ícone dos botões | `paginacao.md` |
+
 ## Tipografia
 - Texto e títulos: **IBM Plex Sans** (system stack com Helvetica/Arial de reserva). Uma família só
   no corpo.

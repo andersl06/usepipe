@@ -251,6 +251,17 @@
   --p-atend-lateral-subitem-recuo: 37px;
   --p-atend-lateral-borda: 1px;
   --p-atend-lateral-marca-desloc: -15px;
+
+  /*
+   * ======================================== Attendance: pagination footer
+   *      Same footer in grids and lists; only the top margin differs
+   *      (`mt3` 10px in the grid, `mt4` 20px in the list).
+   */
+  --p-atend-paginacao-margem-grade: 10px;
+  --p-atend-paginacao-margem-lista: 20px;
+  --p-atend-paginacao-seletor: 74px;
+  --p-atend-paginacao-botao: 40px;
+  --p-atend-paginacao-icone: 24px;
 }
 
 /*

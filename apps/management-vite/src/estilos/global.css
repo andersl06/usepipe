@@ -4690,10 +4690,13 @@ tr.grupo th {
 .pg {
   display: flex;
   align-items: center;
-  gap: var(--p-e-5);
-  margin-top: var(--p-e-4);
+  margin-top: var(--p-atend-paginacao-margem-grade);
   font-size: var(--g-t-item);
   color: var(--p-conteudo);
+}
+
+.pg-lista {
+  margin-top: var(--p-atend-paginacao-margem-lista);
 }
 
 .pg-per-page {
@@ -4702,65 +4705,74 @@ tr.grupo th {
   gap: var(--p-e-5);
 }
 
-.pg-per-page select {
-  height: 40px;
-  min-width: 74px;
-  padding: 0 var(--p-e-2);
-  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
-  border-radius: var(--p-r-md);
-  background: var(--p-superficie-0);
-  font: inherit;
-  font-size: var(--g-t-item);
-  color: var(--p-conteudo);
+.pg-per-page .selection {
+  width: var(--p-atend-paginacao-seletor);
+}
+
+.pg-direita {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
 }
 
 .pg-contador {
-  margin: 0 auto;
+  margin-right: var(--p-e-5);
 }
 
 .pg-nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 50%;
+  gap: var(--p-e-2);
 }
 
 .pg-nav .iconbtn {
-  width: 40px;
-  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--p-atend-paginacao-botao);
+  height: var(--p-atend-paginacao-botao);
+  padding: var(--p-e-2);
   border: 0;
   background: transparent;
   color: var(--p-conteudo);
   border-radius: var(--p-r-md);
+  cursor: pointer;
 }
 
 .pg-nav .iconbtn:hover:not(:disabled) {
   background: var(--p-superficie-2);
 }
 
+.pg-nav .iconbtn:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
 .pg-nav .iconbtn:disabled {
-  opacity: 0.35;
+  opacity: 0.5;
   cursor: default;
 }
 
-.pg-nav .iconbtn:disabled:hover {
-  background: transparent;
-}
-
-.pg-dupla {
-  display: inline-flex;
-}
-
-.pg-dupla svg + svg {
-  margin-left: -9px;
+.pg-icone {
+  display: block;
+  width: var(--p-atend-paginacao-icone);
+  height: var(--p-atend-paginacao-icone);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /*
- * The current page number, between "anterior" and "próxima" (`bds-grid margin="x-1"` with `bds-typo fs-14`).
+ * The current page number, between "anterior" and "próxima" (`bds-grid margin="x-1"` with `bds-typo fs-14`), in brand green.
  */
 .pg-atual {
   min-width: 16px;
+  margin: 0 var(--p-e-2);
   text-align: center;
+  font-weight: var(--p-rotulo-peso);
+  color: var(--p-marca);
 }
 
 /*
@@ -4878,80 +4890,4 @@ tr.grupo th {
 .modal-corpo .card {
   box-shadow: none;
   padding: 0;
-}
-
-/*
- * ================================================== pagination footer
- *    The "Resultados por página" + "X-Y de Z" + arrows footer, measured in `FICHA-rules.md` and `FICHA-queue-management.md` §5 — pagination in the browser, over the list the search has already filtered.
- */
-/*
- * Same ruler as `.pg` above (it's their same `pagination-and-search` in `dom/rules.html`/`dom/sla-policy.html`): spread across the width, no rule.
- */
-.footer-pagination {
-  display: flex;
-  align-items: center;
-  gap: var(--p-e-5);
-  margin-top: var(--p-e-4);
-  font-size: var(--g-t-item);
-  color: var(--p-conteudo);
-}
-
-.rp-tamanho {
-  display: flex;
-  align-items: center;
-  gap: var(--p-e-5);
-}
-
-.rp-tamanho select {
-  height: 40px;
-  min-width: 74px;
-  padding: 0 var(--p-e-2);
-  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
-  border-radius: var(--p-r-md);
-  background: var(--p-superficie-0);
-  font: inherit;
-  font-size: var(--g-t-item);
-  color: var(--p-conteudo);
-}
-
-.rp-count {
-  margin: 0 auto;
-}
-
-.rp-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 50%;
-}
-
-.rp-nav button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 0;
-  border-radius: var(--p-r-md);
-  background: none;
-  color: var(--p-conteudo);
-  cursor: pointer;
-}
-
-.rp-nav button:hover:not(:disabled) {
-  background: var(--p-superficie-2);
-  color: var(--p-conteudo);
-}
-
-.rp-nav button:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-/* The page number is `bds-typo fs-14` with no weight — same as the rest of the footer. */
-.rp-atual {
-  min-width: 16px;
-  text-align: center;
-  font-weight: var(--g-peso-normal);
-  color: var(--p-conteudo);
 }
