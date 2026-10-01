@@ -691,4 +691,173 @@ describe('Route conversations through services', () => {
     expect(await ultimaDoBot(FABIO)).toBe('Suporte: atendimento encerrado');
     expect((await position(FABIO)).serviceId).toBe(suporteId);
   });
+
+  // D-13 ensaio 5: services for context isolation, Redirect context delivery and chained redirects.
+  const mesclar = { type: 'MergeContact', settings: { extras: { plano: 'ouro' } } };
+  const gravaELe = (nome: string) => ({
+    states: [
+      { id: 'inicio', root: true, input: {}, outputs: [{ stateId: 'grava' }] },
+      { id: 'grava', inputActions: [mesclar, enviar(`${nome} gravou`)], input: {}, outputs: [{ stateId: 'le' }] },
+      { id: 'le', inputActions: [enviar(`${nome} le: [{{contact.extras.plano}}]`)], input: {}, outputs: [{ stateId: 'le' }] },
+    ],
+  });
+  const soLe = (nome: string) => ({
+    states: [
+      { id: 'inicio', root: true, input: {}, outputs: [{ stateId: 'le' }] },
+      { id: 'le', inputActions: [enviar(`${nome} le: [{{contact.extras.plano}}]`)], input: {}, outputs: [{ stateId: 'le' }] },
+    ],
+  });
+  const ORIGEM = {
+    states: [
+      {
+        id: 'inicio', root: true, input: {},
+        outputs: [{ order: 0, stateId: 'sem', conditions: igual('sem') }, { order: 1, stateId: 'vai' }],
+      },
+      {
+        id: 'vai',
+        inputActions: [{ type: 'Redirect', settings: { address: 'Destino', context: 'quero boleto' } }],
+        input: {},
+        outputs: [{ stateId: 'vai' }],
+      },
+      { id: 'sem', inputActions: [enviar('Origem: sem contexto'), redirecionar('Destino')], input: {}, outputs: [{ stateId: 'sem' }] },
+    ],
+  };
+  const DESTINO = {
+    states: [
+      { id: 'inicio', root: true, input: { variable: 'pedido' }, outputs: [{ stateId: 'resp' }] },
+      { id: 'resp', inputActions: [enviar('Destino: [{{pedido}}]')], input: {}, outputs: [{ stateId: 'resp' }] },
+    ],
+  };
+  const laco = (para: string, texto: string) => ({
+    states: [
+      { id: 'inicio', root: true, input: {}, outputs: [{ stateId: 'go' }] },
+      {
+        id: 'go',
+        inputActions: [{ type: 'Redirect', settings: { address: para, context: texto } }],
+        input: {},
+        outputs: [{ stateId: 'go' }],
+      },
+    ],
+  });
+  const ids: Record<string, string> = {};
+
+  beforeAll(async () => {
+    const servicos: Array<[string, string, unknown]> = [
+      ['IsoA', 'Serviço iso A', gravaELe('A')],
+      ['IsoB', 'Serviço iso B', soLe('B')],
+      ['CtxA', 'Serviço ctx A', gravaELe('A')],
+      ['CtxB', 'Serviço ctx B', soLe('B')],
+      ['Origem', 'Serviço origem', ORIGEM],
+      ['Destino', 'Serviço destino', DESTINO],
+      ['Laco1', 'Serviço laço 1', laco('Laco2', 'ping')],
+      ['Laco2', 'Serviço laço 2', laco('Laco1', 'pong')],
+    ];
+    for (const [nome, titulo, json] of servicos) ids[nome] = await publishService(titulo, json);
+    await a.dono.execute(sql`
+      update fluxo set usa_contexto_do_roteador = true where id in (${ids['CtxA']}::uuid, ${ids['CtxB']}::uuid)
+    `);
+    for (const [nome] of servicos) {
+      await a.dono.execute(sql`
+        insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal, persistente, expiracao_min)
+        values (${a.tenantId}, ${routerId}, ${ids[nome]}, ${nome}, false, true, null)
+      `);
+    }
+  }, 60_000);
+
+  async function irPara(telefone: string, service: string): Promise<void> {
+    const { contactId } = await position(telefone);
+    await noTenant(a.tenantId, (tx) =>
+      redirectInRouter(tx, { tenantId: a.tenantId, routerId, contactId, service }),
+    );
+  }
+
+  async function contatosDe(telefone: string): Promise<Array<{ atributos: Record<string, string> | null }>> {
+    const { rows } = await a.dono.execute<{ atributos: Record<string, string> | null }>(sql`
+      select atributos from contato where tenant_id = ${a.tenantId}::uuid and telefone_e164 = ${`+${telefone}`}
+    `);
+    return rows;
+  }
+
+  it('D-13 ensaio 5: isolate contact attributes per service when the router context is off', async () => {
+    const GIL = '5511922220007';
+    await falar(GIL, 'oi');
+    await irPara(GIL, 'IsoA');
+    await falar(GIL, 'x');
+    expect(await ultimaDoBot(GIL)).toBe('A gravou');
+    await irPara(GIL, 'IsoB');
+    await falar(GIL, 'y');
+    expect(await ultimaDoBot(GIL)).toBe('B le: []');
+    await irPara(GIL, 'IsoA');
+    await falar(GIL, 'z');
+    expect(await ultimaDoBot(GIL)).toBe('A le: [ouro]');
+    // D-14: still one contact, and the tenant record never received the isolated attribute.
+    const contatos = await contatosDe(GIL);
+    expect(contatos).toHaveLength(1);
+    expect(contatos[0]!.atributos?.['plano']).toBeUndefined();
+  });
+
+  it('D-13 ensaio 5: share contact attributes across services when the router context is on', async () => {
+    const HELO = '5511922220008';
+    await falar(HELO, 'oi');
+    await irPara(HELO, 'CtxA');
+    await falar(HELO, 'x');
+    await irPara(HELO, 'CtxB');
+    await falar(HELO, 'y');
+    expect(await ultimaDoBot(HELO)).toBe('B le: [ouro]');
+    expect(await contatosDe(HELO)).toHaveLength(1);
+  });
+
+  it('D-13 ensaio 5: deliver the Redirect context to the destination in the same message', async () => {
+    const IVO = '5511922220009';
+    await falar(IVO, 'oi');
+    await irPara(IVO, 'Origem');
+    await falar(IVO, 'vai');
+    expect(await ultimaDoBot(IVO)).toBe('Destino: [quero boleto]');
+    expect((await position(IVO)).serviceId).toBe(ids['Destino']);
+  });
+
+  it('D-13 ensaio 5: a Redirect without context starts the destination on the next message', async () => {
+    const JOCA = '5511922220010';
+    await falar(JOCA, 'oi');
+    await irPara(JOCA, 'Origem');
+    await falar(JOCA, 'sem');
+    expect(await ultimaDoBot(JOCA)).toBe('Origem: sem contexto');
+    expect((await position(JOCA)).serviceId).toBe(ids['Destino']);
+    await falar(JOCA, 'ola');
+    expect(await ultimaDoBot(JOCA)).toBe('Destino: [ola]');
+  });
+
+  it('D-13 ensaio 5: stop a chain of Redirect contexts at REDIRECT_MAX_DEPTH', async () => {
+    const KIKA = '5511922220011';
+    await falar(KIKA, 'oi');
+    await irPara(KIKA, 'Laco1');
+    await falar(KIKA, 'comeca');
+    const { rows } = await a.dono.execute<{ n: number; falhou: number }>(sql`
+      select count(*)::int as n, count(*) filter (where e.estado = 'falhou')::int as falhou
+        from execucao_fluxo e join fluxo_versao v on v.id = e.fluxo_versao_id
+        join contato ct on ct.id = e.contato_id
+       where ct.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${KIKA}`}
+         and v.fluxo_id in (${ids['Laco1']}::uuid, ${ids['Laco2']}::uuid)
+    `);
+    // Laco1 -> Laco2 -> Laco1 -> Laco2: the fourth Redirect is refused and fails the action.
+    expect(rows[0]).toEqual({ n: 4, falhou: 1 });
+  });
+
+  it('D-13 ensaio 5: returning to a visited service resumes the block it left', async () => {
+    const LIA = '5511922220012';
+    await falar(LIA, 'oi');
+    await falar(LIA, 'suporte');
+    await falar(LIA, 'meu pc');
+    await falar(LIA, 'tela azul');
+    expect(await ultimaDoBot(LIA)).toBe('Suporte: anotado tela azul');
+    await irPara(LIA, 'Principal');
+    // Principal also resumes where it stopped (`ir-suporte`), which leads to its menu.
+    await falar(LIA, 'oi');
+    expect(await ultimaDoBot(LIA)).toBe('Principal: menu');
+    await falar(LIA, 'suporte');
+    expect((await position(LIA)).serviceId).toBe(suporteId);
+    // Back in Suporte: from `resposta` "voltar" leaves; from the root it would only ask again.
+    await falar(LIA, 'voltar');
+    expect(await ultimaDoBot(LIA)).toBe('Suporte: voltando');
+  });
 });

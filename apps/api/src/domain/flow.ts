@@ -181,6 +181,20 @@ export interface InboundInFlow {
   message: { id: string | null; idProvedor: string; type: string; content: string | null };
   /** P8: this "message" is the expiration of the block the contact waited in (`input-expiration-job.ts`). */
   inputExpiration?: { stateId: string };
+  /** How many Redirect context deliveries led to this run; 0 for a customer message. */
+  redirectDepth?: number;
+}
+
+/** A Redirect chain (A to B to A ...) inside one customer message stops after this many deliveries. */
+export const REDIRECT_MAX_DEPTH = 3;
+
+/** Contact attributes of a service that does not share the router context, kept in its own context. */
+const CONTACT_EXTRAS = 'pipe.contato.extras';
+
+/** Text of a Redirect `context` (a string or a document with a text `content`); null when empty. */
+function redirectText(context: unknown): string | null {
+  const text = typeof context === 'string' ? context : (context as { content?: unknown } | null)?.content;
+  return typeof text === 'string' && text.trim() !== '' ? text : null;
 }
 
 export interface ResultOfFlow {
@@ -356,8 +370,10 @@ export async function runFlowInInbound(
   };
   if (roteador?.reiniciar) {
     // Apply Change-User-State after Master-State: the destination starts at the requested block or at root.
+    // ponytail: ASSUMPTION (03.1-ENSAIOS.md roteador.retorno_bloco_anterior is nao_verificado): without
+    // an explicit block the destination keeps its saved block, so returning to a visited service resumes
+    // the block it left; a first visit has no saved block and starts at root. Not verified Blip behavior.
     if (roteador.blockInitial) variables[stateKey(flow.id)] = roteador.blockInitial;
-    else delete variables[stateKey(flow.id)];
     await tx.execute(sql`
       update posicao_no_roteador set reiniciar = false, bloco_inicial = null
        where roteador_id = ${roteador.id} and contato_id = ${e.contactId}
@@ -372,7 +388,17 @@ export async function runFlowInInbound(
     `);
   };
   const application = await loadApplicationIdentity(tx, publicado.flowId, roteador?.id ?? null);
-  const contact = await loadContact(tx, e.contactId, application.routerIdentifier !== null);
+  // ponytail: ASSUMPTION (03.1-ENSAIOS.md roteador.contexto_desligado_isola_contato is nao_verificado):
+  // a service under a router that does not share its context has an isolated contact context, so its
+  // contact attributes (`extras`) live in this overlay, starting empty. Name/e-mail/phone stay on the
+  // tenant contact (D-14, no second contact). Not verified Blip behavior.
+  const isolatesContact = roteador !== null && !roteador.sharesContext;
+  const contact = await loadContact(
+    tx,
+    e.contactId,
+    application.routerIdentifier !== null,
+    isolatesContact ? (JSON.parse(variables[CONTACT_EXTRAS] ?? '{}') as Record<string, unknown>) : null,
+  );
   const relogio = relogioCrescente();
   const eventos: Record<string, unknown>[] = [];
   let respostas = 0;
@@ -497,9 +523,15 @@ export async function runFlowInInbound(
       // contact, so a flow setting contact_id cannot cross tenant boundaries.
       saveContact: async ({ columns, extras }) => {
         const updates = Object.entries(columns).map(([column, value]) => sql`${sql.raw(column)} = ${value ?? null}`);
-        if (Object.keys(extras).length > 0) {
+        if (isolatesContact && Object.keys(extras).length > 0) {
+          variables[CONTACT_EXTRAS] = JSON.stringify({
+            ...(JSON.parse(variables[CONTACT_EXTRAS] ?? '{}') as Record<string, unknown>),
+            ...extras,
+          });
+        } else if (Object.keys(extras).length > 0) {
           updates.push(sql`atributos = coalesce(atributos, '{}'::jsonb) || ${JSON.stringify(extras)}::jsonb`);
         }
+        if (updates.length === 0) return;
         await emSavepoint((sp) => sp.execute(sql`update contato set ${sql.join(updates, sql`, `)}, atualizado_em = now()
           where id = ${e.contactId}`));
       },
@@ -626,12 +658,18 @@ export async function runFlowInInbound(
     // O cursor fica committed antes de liberar a chamada externa.
     throw new SuspensaoDeProcessHttp(pedido, cursor);
   };
-  // The Redirect `context` is not delivered as the destination's first input; the destination
-  // starts on the next customer message. Delivering it immediately would require running the
-  // destination flow engine here, with its flow loaded.
+  // A Redirect with a `context` message runs the destination service on that text in this same
+  // transaction, after the current run ends (never nested inside the action). ponytail: ASSUMPTION
+  // (03.1-ENSAIOS.md roteador.redirect_entrega_contexto is nao_verificado): delivery per Blip docs
+  // (Redirect accepts content.context). A Redirect without context starts on the next customer message.
+  let pendingRedirect: string | null = null;
   if (roteador) {
-    servicos.redirect = async ({ endereco }) => {
+    servicos.redirect = async ({ endereco, context }) => {
+      if ((e.redirectDepth ?? 0) >= REDIRECT_MAX_DEPTH) {
+        throw new Error(`Redirect em cadeia excedeu o limite de ${REDIRECT_MAX_DEPTH} entregas.`);
+      }
       await redirectInRouter(tx, { tenantId: e.tenantId, routerId: roteador.id, contactId: e.contactId, service: endereco });
+      pendingRedirect = redirectText(context);
     };
   }
 
@@ -777,7 +815,43 @@ export async function runFlowInInbound(
     flow,
     certo && !transferida && !processHttpId ? stateSaved(variables, flow.id) : null,
   );
-  return { tratou: true, respostas, ...(processHttpId ? { processHttpId } : {}), ...(ticketCreated ? { ticketId: ticketCreated } : {}) };
+  const resultado: ResultOfFlow = {
+    tratou: true,
+    respostas,
+    ...(processHttpId ? { processHttpId } : {}),
+    ...(ticketCreated ? { ticketId: ticketCreated } : {}),
+  };
+  const contexto = pendingRedirect as string | null;
+  if (contexto && roteador && certo && !transferida && !processHttpId) {
+    const depth = (e.redirectDepth ?? 0) + 1;
+    const destino = await serviceOfRouter(tx, { id: roteador.id, tenantId: e.tenantId }, e.contactId);
+    if (destino) {
+      // Same switch the next customer message would make, done here: end this execution and open the
+      // destination's. Not `botSessionOf`: executions of one transaction share `iniciada_em`, so
+      // "the latest" would be ambiguous inside a chain.
+      await tx.execute(sql`update execucao_fluxo set estado = 'concluida', encerrada_em = now() where id = ${executionId}`);
+      const sessao = await createExecution(tx, {
+        tenantId: e.tenantId,
+        versaoId: destino.versaoId,
+        flowId: destino.flowId,
+        contactId: e.contactId,
+        inboxId: e.inboxId,
+        conversationId: ticketId,
+      });
+      const { inputExpiration: _expiracao, ...base } = e;
+      const interno = await runFlowInInbound(tx, destino, {
+        ...base,
+        executionId: sessao.id,
+        newExecution: false,
+        redirectDepth: depth,
+        message: { id: null, idProvedor: `redirect:${executionId}:${depth}`, type: 'texto', content: contexto },
+      });
+      resultado.respostas += interno.respostas;
+      if (interno.processHttpId) resultado.processHttpId = interno.processHttpId;
+      if (interno.ticketId) resultado.ticketId = interno.ticketId;
+    }
+  }
+  return resultado;
 }
 
 /** Perform HTTP outside the transaction, then resume the saved cursor in a second transaction. */
@@ -1198,7 +1272,7 @@ async function transbordarSemFalhar(
 /** Variables collected by the bot, excluding engine control keys. */
 export function summaryOfContext(variaveis: Record<string, string>, motivo: string | null): string {
   const linhas = Object.entries(variaveis)
-    .filter(([k]) => !/^(previous-)?stateId@/.test(k) && !k.startsWith('desk_') && !k.startsWith('#') && !k.startsWith('pipe.ticket.'))
+    .filter(([k]) => !/^(previous-)?stateId@/.test(k) && !k.startsWith('desk_') && !k.startsWith('#') && !k.startsWith('pipe.ticket.') && k !== CONTACT_EXTRAS)
     .map(([k, v]) => `- ${k}: ${v}`);
   return [
     motivo ? `Transferida pelo bot (${motivo}).` : 'Transferida pelo bot.',
@@ -1512,6 +1586,7 @@ async function loadContact(
   tx: TransactionPipe,
   contactId: string,
   behindRouter: boolean,
+  extrasOverlay: Record<string, unknown> | null = null,
 ): Promise<Record<string, unknown> | null> {
   const { rows } = await tx.execute<{
     name: string | null;
@@ -1530,7 +1605,7 @@ async function loadContact(
         name: c.name,
         phoneNumber: c.phoneE164,
         email: c.email,
-        extras: c.atributos ?? {},
+        extras: extrasOverlay ?? c.atributos ?? {},
       }
     : null;
 }
