@@ -183,7 +183,9 @@ export const rulePriority = pgTable(
     scopeType: text('escopo_tipo').notNull().default('tenant'),
     scopeId: uuid('escopo_id'),
     /** Fluxo dono da regra (D-04). */
-    flowId: uuid('fluxo_id').references(() => flow.id, { onDelete: 'cascade' }),
+    flowId: uuid('fluxo_id')
+      .notNull()
+      .references(() => flow.id, { onDelete: 'cascade' }),
     condition: jsonb('condicao')
       .notNull()
       .default(sql`'{}'::jsonb`),

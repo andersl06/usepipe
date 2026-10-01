@@ -77,14 +77,16 @@ export const queue = pgTable(
      */
     horarioId: uuid('horario_id'),
     /** Fluxo dono da fila (D-04). */
-    flowId: uuid('fluxo_id').references(() => flow.id, { onDelete: 'cascade' }),
+    flowId: uuid('fluxo_id')
+      .notNull()
+      .references(() => flow.id, { onDelete: 'cascade' }),
     capacityDefault: integer('capacidade_padrao').notNull().default(5),
     order: integer('ordem').notNull().default(0),
     ativa: boolean('ativa').notNull().default(true),
     ...carimbos(),
   },
   (t) => [
-    uniqueIndex('fila_tenant_nome_uk').on(t.tenantId, t.nome),
+    uniqueIndex('fila_tenant_fluxo_nome_uk').on(t.tenantId, t.flowId, t.nome),
     index('fila_tenant_fluxo_idx').on(t.tenantId, t.flowId),
   ],
 );

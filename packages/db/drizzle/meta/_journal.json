@@ -400,6 +400,13 @@
       "when": 1790200000000,
       "tag": "0084_conversa_estado_sem_com_bot",
       "breakpoints": true
+    },
+    {
+      "idx": 85,
+      "version": "7",
+      "when": 1790210000000,
+      "tag": "0085_fila_por_fluxo_contract",
+      "breakpoints": true
     }
   ]
 }

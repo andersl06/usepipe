@@ -509,8 +509,8 @@
 	"fluxo_id" uuid NOT NULL,
 	"fluxo_id" uuid NOT NULL,
 	"fluxo_id" uuid NOT NULL,
-	"fluxo_id" uuid,
-	"fluxo_id" uuid,
+	"fluxo_id" uuid NOT NULL,
+	"fluxo_id" uuid NOT NULL,
 	"fluxo_id" uuid,
 	"fluxo_id" uuid,
 	"fluxo_id" uuid,
@@ -1782,7 +1782,7 @@ CREATE UNIQUE INDEX "esforco_conversa_uk" ON "esforco_conversa" USING btree ("co
 CREATE UNIQUE INDEX "etiqueta_tenant_nome_uk" ON "etiqueta" USING btree ("tenant_id","nome");
 CREATE UNIQUE INDEX "execucao_passo_entrada_uk" ON "execucao_passo" USING btree ("tenant_id",("entrada" ->> 'id_provedor')) WHERE "execucao_passo"."entrada" ? 'id_provedor';
 CREATE UNIQUE INDEX "faixa_score_uk" ON "faixa_score" USING btree ("tenant_id","versao","nome");
-CREATE UNIQUE INDEX "fila_tenant_nome_uk" ON "fila" USING btree ("tenant_id","nome");
+CREATE UNIQUE INDEX "fila_tenant_fluxo_nome_uk" ON "fila" USING btree ("tenant_id","fluxo_id","nome");
 CREATE UNIQUE INDEX "fluxo_membro_uk" ON "fluxo_membro" USING btree ("fluxo_id","usuario_id");
 CREATE UNIQUE INDEX "fluxo_short_name_vivo_uk" ON "fluxo" USING btree ("tenant_id","short_name") WHERE estado <> 'arquivado';
 CREATE UNIQUE INDEX "fluxo_versao_uk" ON "fluxo_versao" USING btree ("fluxo_id","versao");
