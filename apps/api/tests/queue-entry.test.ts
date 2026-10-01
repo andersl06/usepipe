@@ -194,7 +194,11 @@ describe('who closed', () => {
   }
 
   it('a bot closure is ClosedClient', async () => {
-    await publicar([{ type: 'SendCommand', settings: { uri: '/tickets/atual/status', resource: { status: 'encerrada' } } }]);
+    // D-15: o ticket nasce no encaminhamento; só então há o que encerrar
+    await publicar([
+      { type: 'ForwardToDesk', settings: {} },
+      { type: 'SendCommand', settings: { uri: '/tickets/atual/status', resource: { status: 'encerrada' } } },
+    ]);
     await falar('5511944440007', 'tchau');
     const conversa = await conversaDe('5511944440007');
     expect(conversa.estado).toBe('encerrada');
@@ -203,6 +207,7 @@ describe('who closed', () => {
 
   it('a bot closure for inactivity is ClosedClientInactivity', async () => {
     await publicar([
+      { type: 'ForwardToDesk', settings: {} },
       { type: 'SendCommand', settings: { uri: '/tickets/atual/status', resource: { status: 'encerrada', closedBy: 'inatividade' } } },
     ]);
     await falar('5511944440008', 'oi');

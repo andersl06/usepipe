@@ -237,9 +237,10 @@ async function falar(de: string, texto: string): Promise<void> {
 
 async function conversationOf(telefone: string): Promise<{ id: string; contactId: string }> {
   const { rows } = await a.dono.execute<{ id: string; contactId: string }>(sql`
-    select c.id, c.contato_id as "contactId" from conversa c join contato ct on ct.id = c.contato_id
-     where c.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
-     order by c.criada_em desc limit 1
+    -- D-15: sem ticket antes do transbordo, a conversa do bot é a execução
+    select e.id, e.contato_id as "contactId" from execucao_fluxo e join contato ct on ct.id = e.contato_id
+     where e.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
+     order by e.iniciada_em desc limit 1
   `);
   expect(rows[0]).toBeDefined();
   return rows[0]!;
@@ -248,7 +249,7 @@ async function conversationOf(telefone: string): Promise<{ id: string; contactId
 async function doBot(conversationId: string): Promise<string[]> {
   const { rows } = await a.dono.execute<{ content: string }>(sql`
     select conteudo as "content" from mensagem
-     where conversa_id = ${conversationId}::uuid and autor_tipo = 'bot' order by criada_em
+     where execucao_id = ${conversationId}::uuid and autor_tipo = 'bot' order by criada_em
   `);
   return rows.map((r) => r.content);
 }
@@ -259,7 +260,7 @@ async function executionOf(conversaId: string): Promise<LineExecution> {
   const { rows } = await a.dono.execute<LineExecution>(sql`
     select e.estado, e.fluxo_versao_id, b.versao_id as bloco_versao_id
       from execucao_fluxo e left join bloco b on b.id = e.bloco_atual_id
-     where e.conversa_id = ${conversaId}::uuid
+     where e.id = ${conversaId}::uuid
      order by e.iniciada_em desc limit 1
   `);
   expect(rows[0]).toBeDefined();

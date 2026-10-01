@@ -59,10 +59,10 @@ async function falar(texto: string): Promise<void> {
 
 async function conversa(): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
-    select c.id from conversa c join contato ct on ct.id = c.contato_id
-     where c.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
-       and c.estado <> 'encerrada'
-     order by c.criada_em desc limit 1
+    -- D-15: sem ticket antes do transbordo, a conversa do bot é a execução
+    select e.id from execucao_fluxo e join contato ct on ct.id = e.contato_id
+     where e.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
+     order by e.iniciada_em desc limit 1
   `);
   expect(rows[0]).toBeDefined();
   return rows[0]!.id;
@@ -71,7 +71,7 @@ async function conversa(): Promise<string> {
 async function textosDoBot(conversationId: string): Promise<string[]> {
   const { rows } = await cenario.dono.execute<{ conteudo: string | null }>(sql`
     select conteudo from mensagem
-     where conversa_id = ${conversationId}::uuid and autor_tipo = 'bot'
+     where execucao_id = ${conversationId}::uuid and autor_tipo = 'bot'
      order by criada_em, id
   `);
   return rows.map((r) => r.conteudo ?? '');
@@ -79,8 +79,7 @@ async function textosDoBot(conversationId: string): Promise<string[]> {
 
 async function execucao(conversationId: string): Promise<{ id: string; contexto: Record<string, string>; estado: string }> {
   const { rows } = await cenario.dono.execute<{ id: string; contexto: Record<string, string>; estado: string }>(sql`
-    select id, contexto, estado from execucao_fluxo where conversa_id = ${conversationId}::uuid
-     order by iniciada_em desc limit 1
+    select id, contexto, estado from execucao_fluxo where id = ${conversationId}::uuid
   `);
   expect(rows[0]).toBeDefined();
   return rows[0]!;

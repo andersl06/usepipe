@@ -587,8 +587,8 @@ describe('Route messages from a connected phone number to its router bot', () =>
 
     const { rows } = await a.dono.execute<{ conteudo: string }>(sql`
       select m.conteudo from mensagem m
-        join conversa c on c.id = m.conversa_id
-        join contato ct on ct.id = c.contato_id
+        join execucao_fluxo x on x.id = m.execucao_id
+        join contato ct on ct.id = x.contato_id
        where ct.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
          and m.autor_tipo = 'bot'
        order by m.criada_em desc limit 1

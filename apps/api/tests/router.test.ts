@@ -511,8 +511,8 @@ describe('Route conversations through services', () => {
   async function ultimaDoBot(telefone: string): Promise<string | undefined> {
     const { rows } = await a.dono.execute<{ content: string }>(sql`
       select m.conteudo as "content" from mensagem m
-        join conversa c on c.id = m.conversa_id
-        join contato ct on ct.id = c.contato_id
+        join execucao_fluxo x on x.id = m.execucao_id
+        join contato ct on ct.id = x.contato_id
        where ct.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
          and m.autor_tipo = 'bot'
        order by m.criada_em desc limit 1
@@ -545,7 +545,8 @@ describe('Route conversations through services', () => {
     const p = await position(ANA);
     expect(p.serviceId).toBe(principalId);
     expect(p.expira_em).toBeNull();
-    expect((await conversationOpen(ANA)).queueId).toBeNull();
+    // D-15: sem ticket antes do transbordo
+    await expect(conversationOpen(ANA)).rejects.toThrow();
   });
 
   it('Give a router service its own and the router short names for application.* and tunnel.*', async () => {
@@ -581,11 +582,11 @@ describe('Route conversations through services', () => {
     expect(await ultimaDoBot(BIA)).toBe('Suporte: anotado tela azul');
 
     // The same conversation: the main flow's execution ended, and support's is the live one.
-    const conversation = await conversationOpen(BIA);
     const { rows } = await a.dono.execute<{ flowId: string; state: string }>(sql`
       select v.fluxo_id as "flowId", e.estado as "state" from execucao_fluxo e
         join fluxo_versao v on v.id = e.fluxo_versao_id
-       where e.conversa_id = ${conversation.id}::uuid order by e.iniciada_em
+        join contato ct on ct.id = e.contato_id
+       where ct.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${BIA}`} order by e.iniciada_em
     `);
     expect(rows.map((r) => [r.flowId, r.state])).toEqual([
       [principalId, 'concluida'],
@@ -685,9 +686,8 @@ describe('Route conversations through services', () => {
     );
 
     await falar(FABIO, 'voltei');
-    const nova = await conversationOpen(FABIO);
-    expect(nova.id).not.toBe(conversa.id);
-    expect(nova.queueId).toBeNull();
+    // D-15: depois do ticket encerrado, o bot volta sem criar conversa
+    await expect(conversationOpen(FABIO)).rejects.toThrow();
     expect(await ultimaDoBot(FABIO)).toBe('Suporte: atendimento encerrado');
     expect((await position(FABIO)).serviceId).toBe(suporteId);
   });

@@ -110,10 +110,21 @@ async function conversa(): Promise<{ id: string; contatoId: string }> {
   return rows[0]!;
 }
 
+/** D-15: sem ticket antes do transbordo, a conversa do bot é a execução. */
+async function sessao(): Promise<{ id: string }> {
+  const { rows } = await cenario.dono.execute<{ id: string }>(sql`
+    select e.id from execucao_fluxo e join contato ct on ct.id = e.contato_id
+     where e.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
+     order by e.iniciada_em desc limit 1
+  `);
+  expect(rows[0]).toBeDefined();
+  return rows[0]!;
+}
+
 async function ultimaMensagemDoBot(conversationId: string): Promise<{ tipo: string; conteudo: string | null; dados: unknown }> {
   const { rows } = await cenario.dono.execute<{ tipo: string; conteudo: string | null; dados: unknown }>(sql`
     select tipo, conteudo, dados from mensagem
-     where conversa_id = ${conversationId}::uuid and autor_tipo = 'bot'
+     where (conversa_id = ${conversationId}::uuid or execucao_id = ${conversationId}::uuid) and autor_tipo = 'bot'
      order by criada_em desc limit 1
   `);
   expect(rows[0]).toBeDefined();
@@ -145,7 +156,7 @@ afterAll(async () => {
 describe('SendRawMessage with any channel MIME', () => {
   it('delivers a web link whose type and content come from a variable, as in the Blip export', async () => {
     await falar('raw');
-    const linha = await ultimaMensagemDoBot((await conversa()).id);
+    const linha = await ultimaMensagemDoBot((await sessao()).id);
     expect(linha.tipo).toBe('texto');
     expect(linha.conteudo).toBe('Segunda via\nhttps://exemplo.com/segunda-via');
     expect(linha.dados).toEqual({ webLink: { uri: 'https://exemplo.com/segunda-via' } });
@@ -162,7 +173,7 @@ describe('SetVariable.expiration', () => {
   it('is saved with the execution context and never shown to the agent', async () => {
     await falar('expira');
     const { rows } = await cenario.dono.execute<{ contexto: Record<string, string> }>(sql`
-      select contexto from execucao_fluxo where conversa_id = ${(await conversa()).id}::uuid
+      select contexto from execucao_fluxo where id = ${(await sessao()).id}::uuid
        order by iniciada_em desc limit 1
     `);
     const contexto = rows[0]!.contexto;

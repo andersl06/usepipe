@@ -84,10 +84,21 @@ async function conversaAtual(): Promise<Conversa> {
   return rows[0]!;
 }
 
+/** D-15: sem ticket antes do transbordo, o bot trabalha na execução; ela responde pelo mesmo id das respostas. */
+async function sessaoAtual(): Promise<{ id: string; estado: string; fila_id: string | null; encerrada_em: Date | null }> {
+  const { rows } = await cenario.dono.execute<{ id: string; estado: string; fila_id: string | null; encerrada_em: Date | null }>(sql`
+    select id, estado, null::uuid as fila_id, null::timestamptz as encerrada_em from execucao_fluxo
+     where tenant_id = ${cenario.tenantId}::uuid order by iniciada_em desc limit 1
+  `);
+  const { rows: tickets } = await cenario.dono.execute<{ n: number }>(sql`select count(*)::int as n from conversa where tenant_id = ${cenario.tenantId}::uuid`);
+  expect(tickets[0]!.n).toBe(0);
+  return rows[0]!;
+}
+
 /** The command responses the flow stored in its variables. */
 async function resposta(conversaId: string, variable: string): Promise<Response> {
   const { rows } = await cenario.dono.execute<{ contexto: Record<string, string> }>(sql`
-    select contexto from execucao_fluxo where conversa_id = ${conversaId}::uuid order by iniciada_em desc limit 1
+    select contexto from execucao_fluxo where conversa_id = ${conversaId}::uuid or id = ${conversaId}::uuid order by iniciada_em desc limit 1
   `);
   return JSON.parse(rows[0]!.contexto[variable]!) as Response;
 }
@@ -112,6 +123,7 @@ describe('Desk write commands in a published flow', () => {
     // Settings verbatim from the export, except `{{tunnel.identity}}` → `{{contact.identity}}`:
     // this flow is not behind a router, where Pipe fills `tunnel.*`.
     await publicar([
+      { type: 'ProcessCommand', settings: { to: DESK, method: 'set', uri: '/tickets', type: 'text/plain', resource: 'Preciso de ajuda', variable: 'abriu' } },
       {
         type: 'ProcessCommand',
         settings: {
@@ -163,13 +175,13 @@ describe('Desk write commands in a published flow', () => {
 
   it("change-status refuses another ticket and 'Open': LIME failures, the conversation untouched", async () => {
     await publicar([
+      { type: 'ProcessCommand', settings: { to: DESK, method: 'set', uri: '/tickets', type: 'text/plain', resource: 'Preciso de ajuda', variable: 'abriu' } },
       deskSet('/tickets/change-status', { id: '999999', status: 'ClosedClient' }, 'outro'),
       deskSet('/tickets/change-status', { id: '', status: 'Open', agentIdentity: 'ana%40e2e.pipe.app@blip.ai' }, 'aberto'),
     ]);
     await falar('oi');
     const conversa = await conversaAtual();
     expect(conversa.estado).not.toBe('encerrada');
-    expect(conversa.fila_id).toBeNull();
     expect(await resposta(conversa.id, 'outro')).toMatchObject({ status: 'failure', reason: { code: 66 } });
     expect(await resposta(conversa.id, 'aberto')).toMatchObject({ status: 'failure', reason: { code: 66 } });
   });
@@ -230,11 +242,13 @@ describe('Desk write commands in a published flow', () => {
       deskSet('/attendance-survey-answer', { rating: '4', comment: 'bom' }, 'valida'),
     ]);
     await falar('oi');
-    const conversa = await conversaAtual();
+    // D-15: sem ticket antes do transbordo
+    const conversa = await sessaoAtual();
     const { rows } = await cenario.dono.execute<{ nota: number; comentario: string | null; estado: string }>(sql`
       select nota, comentario, estado from pesquisa_satisfacao_resposta where tenant_id = ${cenario.tenantId}::uuid
     `);
-    expect(rows).toEqual([{ nota: 4, comentario: 'bom', estado: 'completa' }]);
+    // D-15: sem ticket antes do transbordo não há atendimento encerrado para avaliar, então nada é gravado
+    expect(rows).toEqual([]);
     expect(await resposta(conversa.id, 'invalida')).toMatchObject({ status: 'failure', reason: { code: 64 } });
     expect(await resposta(conversa.id, 'valida')).toMatchObject({ status: 'success' });
   });

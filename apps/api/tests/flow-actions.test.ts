@@ -281,7 +281,7 @@ describe('context action services', () => {
   });
 
   /** Publish a one-block flow whose root runs a single SendCommand. */
-  async function publicarComando(uri: string, resource: unknown): Promise<void> {
+  async function publicarComando(uri: string, resource: unknown, antes: unknown[] = []): Promise<void> {
     const r = await noTenant(cenario.tenantId, (tx) => importFlowOfBlip(tx, {
       tenantId: cenario.tenantId,
       name: 'Ações de contexto',
@@ -290,7 +290,7 @@ describe('context action services', () => {
         id: 'comando',
         states: [{
           id: 'raiz', root: true, input: {},
-          outputActions: [{ type: 'SendCommand', settings: { uri, resource } }],
+          outputActions: [...antes, { type: 'SendCommand', settings: { uri, resource } }],
           outputs: [],
         }],
       },
@@ -345,7 +345,8 @@ describe('context action services', () => {
   });
 
   it('SendCommand /status encerrada closes through the domain closure: encerrada_em and event (WR-01)', async () => {
-    await publicarComando('/tickets/atual/status', { status: 'encerrada' });
+    // D-15: sem ticket antes do transbordo não há o que encerrar; o ticket nasce no encaminhamento
+    await publicarComando('/tickets/atual/status', { status: 'encerrada' }, [{ type: 'ForwardToDesk', settings: {} }]);
     await falar('oi');
     const conversa = await conversaAtual();
     expect(conversa.estado).toBe('encerrada');
@@ -363,6 +364,12 @@ describe('context action services', () => {
 
   it('the native satisfaction survey block sends its question to the channel and records the reply (CR-03)', async () => {
     await falar('pesquisa');
+    // D-15: a resposta avalia um atendimento encerrado do contato
+    await cenario.dono.execute(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, estado, encerrada_em)
+      select e.tenant_id, ${cenario.inboxId}::uuid, e.contato_id, 'encerrada', now() from execucao_fluxo e
+       where e.tenant_id = ${cenario.tenantId}::uuid order by e.iniciada_em desc limit 1
+    `);
     const { rows: bot } = await cenario.dono.execute<{ conteudo: string }>(sql`
       select conteudo from mensagem where tenant_id = ${cenario.tenantId}::uuid and autor_tipo = 'bot'
     `);

@@ -123,7 +123,7 @@ async function executionOf(telefone: string): Promise<Execution> {
 
 async function doBot(conversationId: string): Promise<string[]> {
   const { rows } = await cenario.dono.execute<{ conteudo: string }>(sql`
-    select conteudo from mensagem where conversa_id = ${conversationId}::uuid and autor_tipo = 'bot' order by criada_em
+    select conteudo from mensagem where execucao_id = ${conversationId}::uuid and autor_tipo = 'bot' order by criada_em
   `);
   return rows.map((r) => r.conteudo);
 }
@@ -144,7 +144,7 @@ describe('input expiration in production (P8)', () => {
     const seconds = (new Date(armada.entrada_expira_em!).getTime() - Date.now()) / 1000;
     expect(seconds).toBeGreaterThan(50);
     expect(seconds).toBeLessThanOrEqual(61);
-    expect(await doBot(armada.conversa_id)).toEqual(['Qual é o número do pedido?']);
+    expect(await doBot(armada.id)).toEqual(['Qual é o número do pedido?']);
 
     // Not due yet: the job finds nothing to claim.
     expect(await fireInputExpiration(cenario.tenantId, armada.id)).toBeNull();
@@ -156,7 +156,7 @@ describe('input expiration in production (P8)', () => {
       fireInputExpiration(cenario.tenantId, armada.id),
     ]);
     expect([first, second].filter((r) => r?.tratou).length).toBe(1);
-    expect(await doBot(armada.conversa_id)).toEqual(['Qual é o número do pedido?', 'Você ainda está aí?']);
+    expect(await doBot(armada.id)).toEqual(['Qual é o número do pedido?', 'Você ainda está aí?']);
 
     const depois = await executionOf(tel);
     expect(depois.entrada_expira_bloco).toBe('inatividade');
@@ -169,7 +169,7 @@ describe('input expiration in production (P8)', () => {
     // The id carries the armed time (the claim reads the pre-update row, not the cleared one).
     expect(passos.some((p) => /^expiracao-entrada:[0-9a-f-]+:[1-9][0-9]+$/.test(String(p.entrada?.['id_provedor'])))).toBe(true);
     const { rows: entradas } = await cenario.dono.execute<{ n: string }>(sql`
-      select count(*)::text as n from mensagem where conversa_id = ${armada.conversa_id}::uuid and direcao = 'entrada'
+      select count(*)::text as n from mensagem where execucao_id = ${armada.id}::uuid and direcao = 'entrada'
     `);
     expect(Number(entradas[0]!.n)).toBe(1);
 
@@ -188,11 +188,11 @@ describe('input expiration in production (P8)', () => {
     await falar(tel, '777');
     const respondida = await executionOf(tel);
     expect(respondida.entrada_expira_em).toBeNull();
-    expect(await doBot(armada.conversa_id)).toEqual(['Qual é o número do pedido?', 'Obrigado, pedido 777.']);
+    expect(await doBot(armada.id)).toEqual(['Qual é o número do pedido?', 'Obrigado, pedido 777.']);
 
     // A job that was already queued wakes up late: nothing is claimed, nothing is sent.
     expect(await fireInputExpiration(cenario.tenantId, armada.id)).toBeNull();
-    expect(await doBot(armada.conversa_id)).toHaveLength(2);
+    expect(await doBot(armada.id)).toHaveLength(2);
   });
 
   it('an expiration for a block the contact already left is ignored by the engine', async () => {
@@ -207,20 +207,24 @@ describe('input expiration in production (P8)', () => {
     `);
     const r = await fireInputExpiration(cenario.tenantId, armada.id);
     expect(r?.respostas ?? 0).toBe(0);
-    expect(await doBot(armada.conversa_id)).toEqual(['Qual é o número do pedido?']);
+    expect(await doBot(armada.id)).toEqual(['Qual é o número do pedido?']);
   });
 
   it('does nothing once a person owns the conversation', async () => {
     const tel = '5511922220004';
     await falar(tel, 'oi');
     const armada = await executionOf(tel);
-    await cenario.dono.execute(sql`
-      update conversa set atendente_id = ${cenario.agentId}::uuid where id = ${armada.conversa_id}::uuid
+    // A person owns the conversation: a ticket exists and has an agent.
+    const { rows: tk } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado)
+      select e.tenant_id, ${cenario.inboxId}::uuid, e.contato_id, ${cenario.queueId}::uuid, ${cenario.agentId}::uuid, 'atribuida'
+        from execucao_fluxo e where e.id = ${armada.id}::uuid returning id
     `);
+    await cenario.dono.execute(sql`update execucao_fluxo set conversa_id = ${tk[0]!.id}::uuid where id = ${armada.id}::uuid`);
     await makeDue(armada.id);
     const r = await fireInputExpiration(cenario.tenantId, armada.id);
     expect(r?.tratou ?? false).toBe(false);
-    expect(await doBot(armada.conversa_id)).toEqual(['Qual é o número do pedido?']);
+    expect(await doBot(armada.id)).toEqual(['Qual é o número do pedido?']);
     // Claimed and cleared: the sweep will not pick it up again.
     const depois = await executionOf(tel);
     expect(depois.entrada_expira_em).toBeNull();

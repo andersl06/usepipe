@@ -156,10 +156,11 @@ async function falar(de: string, texto: string): Promise<{ fila_id: string | nul
   });
   expect(resposta.status).toBe(200);
   const { rows } = await f.cenario.dono.execute<{ fila_id: string | null }>(sql`
-    select c.fila_id from conversa c join contato ct on ct.id = c.contato_id
-     where c.tenant_id = ${tenantId}::uuid and ct.telefone_e164 = ${`+${de}`} order by c.criada_em desc limit 1
+    select c.fila_id from contato ct left join conversa c on c.contato_id = ct.id
+     where ct.tenant_id = ${tenantId}::uuid and ct.telefone_e164 = ${`+${de}`} order by c.criada_em desc nulls last limit 1
   `);
-  return rows[0]!;
+  // D-15: sem ticket antes do transbordo, uma ação que falha deixa o contato com o bot (fila nula)
+  return { fila_id: rows[0]?.fila_id ?? null };
 }
 
 describe('ponta a ponta com dois fluxos', () => {

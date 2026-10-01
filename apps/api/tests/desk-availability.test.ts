@@ -121,21 +121,23 @@ type Resultado = { id: string; fila_id: string | null; estado: string; status: s
 
 async function resultadoDe(telefone: string): Promise<Resultado> {
   const { rows } = await cenario.dono.execute<{ id: string; fila_id: string | null; estado: string }>(sql`
-    select c.id, c.fila_id, c.estado
-      from conversa c join contato ct on ct.id = c.contato_id
-     where c.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
-     order by c.criada_em desc limit 1
+    -- D-15: sem ticket antes do transbordo, o resultado é lido da execução; o ticket só existe após o transbordo
+    select e.id, c.fila_id, c.estado
+      from execucao_fluxo e join contato ct on ct.id = e.contato_id
+      left join conversa c on c.id = e.conversa_id
+     where e.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
+     order by e.iniciada_em desc limit 1
   `);
   const conversa = rows[0]!;
   expect(conversa).toBeDefined();
   const { rows: bot } = await cenario.dono.execute<{ conteudo: string }>(sql`
-    select conteudo from mensagem where conversa_id = ${conversa.id}::uuid and autor_tipo = 'bot' order by criada_em
+    select conteudo from mensagem where execucao_id = ${conversa.id}::uuid and autor_tipo = 'bot' order by criada_em
   `);
   const { rows: contexto } = await cenario.dono.execute<{ contexto: Record<string, string> }>(sql`
-    select contexto from execucao_fluxo where conversa_id = ${conversa.id}::uuid order by iniciada_em desc limit 1
+    select contexto from execucao_fluxo where id = ${conversa.id}::uuid
   `);
   const { rows: entradas } = await cenario.dono.execute<{ n: number }>(sql`
-    select count(*)::int as n from evento_atendimento where conversa_id = ${conversa.id}::uuid and tipo = 'enfileirada'
+    select count(*)::int as n from evento_atendimento ev join execucao_fluxo x on x.conversa_id = ev.conversa_id where x.id = ${conversa.id}::uuid and ev.tipo = 'enfileirada'
   `);
   return {
     ...conversa,

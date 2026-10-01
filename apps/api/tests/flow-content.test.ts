@@ -101,7 +101,7 @@ type LinhaMensagem = { id: string; tipo: string; conteudo: string | null; dados:
 async function ultimaMensagemDoBot(conversationId: string): Promise<LinhaMensagem> {
   const { rows } = await cenario.dono.execute<LinhaMensagem>(sql`
     select id, tipo, conteudo, dados from mensagem
-     where conversa_id = ${conversationId}::uuid and autor_tipo = 'bot'
+     where execucao_id = ${conversationId}::uuid and autor_tipo = 'bot'
      order by criada_em desc limit 1
   `);
   expect(rows[0]).toBeDefined();
@@ -110,10 +110,10 @@ async function ultimaMensagemDoBot(conversationId: string): Promise<LinhaMensage
 
 async function conversationId(): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
-    select c.id from conversa c join contato ct on ct.id = c.contato_id
-     where c.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
-       and c.estado <> 'encerrada'
-     order by c.criada_em desc limit 1
+    -- D-15: sem ticket antes do transbordo, a conversa do bot é a execução
+    select e.id from execucao_fluxo e join contato ct on ct.id = e.contato_id
+     where e.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
+     order by e.iniciada_em desc limit 1
   `);
   expect(rows[0]).toBeDefined();
   return rows[0]!.id;
@@ -176,7 +176,7 @@ describe('bot entrega os cinco tipos do slot conteudo-midia', () => {
     const contarMensagensDoBot = async (): Promise<number> => {
       const { rows } = await cenario.dono.execute<{ n: string }>(sql`
         select count(*)::text as n from mensagem
-         where conversa_id = ${conversaId}::uuid and autor_tipo = 'bot'
+         where execucao_id = ${conversaId}::uuid and autor_tipo = 'bot'
       `);
       return Number(rows[0]?.n ?? 0);
     };
@@ -188,13 +188,12 @@ describe('bot entrega os cinco tipos do slot conteudo-midia', () => {
     expect(await contarMensagensDoBot()).toBe(antes);
 
     const { rows: execucao } = await cenario.dono.execute<{ estado: string }>(sql`
-      select estado from execucao_fluxo where conversa_id = ${conversaId}::uuid
-       order by iniciada_em desc limit 1
+      select estado from execucao_fluxo where id = ${conversaId}::uuid
     `);
     expect(execucao[0]?.estado).toBe('falhou');
 
     const { rows: conversa } = await cenario.dono.execute<{ fila_id: string | null }>(sql`
-      select fila_id from conversa where id = ${conversaId}::uuid
+      select c.fila_id from conversa c join execucao_fluxo x on x.conversa_id = c.id where x.id = ${conversaId}::uuid
     `);
     expect(conversa[0]?.fila_id).not.toBeNull();
   });

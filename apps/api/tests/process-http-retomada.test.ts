@@ -125,8 +125,7 @@ async function processoDoContato(contato: string = CONTATO): Promise<ProcessoHtt
   const { rows } = await cenario.dono.execute<ProcessoHttp>(sql`
     select p.id, p.estado, p.entrada, p.resposta, p.atualizado_em from process_http_execucao p
       join execucao_fluxo e on e.id = p.execucao_id
-      join conversa c on c.id = e.conversa_id
-      join contato ct on ct.id = c.contato_id
+      join contato ct on ct.id = e.contato_id
      where p.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${contato}`}
      order by p.criado_em desc limit 1
   `);
@@ -137,9 +136,9 @@ async function processoDoContato(contato: string = CONTATO): Promise<ProcessoHtt
 async function doBot(contato: string = CONTATO): Promise<string[]> {
   const { rows } = await cenario.dono.execute<{ conteudo: string }>(sql`
     select m.conteudo from mensagem m
-      join conversa c on c.id = m.conversa_id
-      join contato ct on ct.id = c.contato_id
-     where c.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${contato}`}
+      join execucao_fluxo x on x.id = m.execucao_id
+      join contato ct on ct.id = x.contato_id
+     where x.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${contato}`}
        and m.autor_tipo = 'bot'
      order by m.criada_em
   `);

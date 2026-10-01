@@ -14,7 +14,7 @@ const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
 const { closeConversation } = await import('../src/domain/conversation.js');
-const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage, respostasDoBot, sessaoDoBot } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -93,13 +93,17 @@ async function conversationOpen(telefone: string): Promise<Conversation> {
   return rows[0]!;
 }
 
-async function doBot(conversationId: string): Promise<string[]> {
-  const { rows } = await cenario.dono.execute<{ conteudo: string }>(sql`
-    select conteudo from mensagem
-     where conversa_id = ${conversationId}::uuid and autor_tipo = 'bot'
-     order by criada_em
+async function doBot(executionId: string): Promise<string[]> {
+  return respostasDoBot(cenario, executionId);
+}
+
+/** D-15: sem ticket antes do transbordo, o bot conversa na execução. */
+async function semTicket(telefone: string): Promise<void> {
+  const { rows } = await cenario.dono.execute<{ n: number }>(sql`
+    select count(*)::int as n from conversa c join contato ct on ct.id = c.contato_id
+     where c.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`} and c.estado <> 'encerrada'
   `);
-  return rows.map((r) => r.conteudo);
+  expect(rows[0]!.n).toBe(0);
 }
 
 async function eventos(conversaId: string): Promise<string[]> {
@@ -112,15 +116,11 @@ async function eventos(conversaId: string): Promise<string[]> {
 describe('bot com o dublê do WhatsApp', () => {
   it('Queue a bot reply in the outbox without assigning the conversation to a queue', async () => {
     await falar(ANA, 'oi');
-    const conversation = await conversationOpen(ANA);
-    expect(conversation.fila_id).toBeNull();
-    expect(conversation.atendente_id).toBeNull();
+    // D-15: sem ticket antes do transbordo
+    await semTicket(ANA);
+    const conversation = await sessaoDoBot(cenario, ANA);
+    expect(conversation.conversa_id).toBeNull();
     expect(await doBot(conversation.id)).toEqual(['Olá! Qual é o seu nome?']);
-
-    // Time spent with the bot is not queue time: neither `criada` nor `enfileirada` has happened yet.
-    const tipos = await eventos(conversation.id);
-    expect(tipos).not.toContain('criada');
-    expect(tipos).not.toContain('enfileirada');
 
     const antes = dubleWhatsApp.chamadas.length;
     const resultados = await processarOutbox();
@@ -129,14 +129,14 @@ describe('bot com o dublê do WhatsApp', () => {
       dubleWhatsApp.chamadas.slice(antes).some((c) => c.para === ANA && c.tipo === 'texto'),
     ).toBe(true);
     const { rows } = await cenario.dono.execute<{ estado_entrega: string }>(sql`
-      select estado_entrega from mensagem where conversa_id = ${conversation.id}::uuid and autor_tipo = 'bot'
+      select estado_entrega from mensagem where execucao_id = ${conversation.id}::uuid and autor_tipo = 'bot'
     `);
     expect(rows.map((r) => r.estado_entrega)).toEqual(['enviada']);
   });
 
   it('Use a customer reply as a variable in the bot menu', async () => {
     await falar(ANA, 'Ana');
-    const conversa = await conversationOpen(ANA);
+    const conversa = await sessaoDoBot(cenario, ANA);
     expect((await doBot(conversa.id)).at(-1)).toBe(
       'Prazer, Ana. Como posso ajudar?\n1. Financeiro\n2. Suporte',
     );
@@ -144,7 +144,7 @@ describe('bot com o dublê do WhatsApp', () => {
     // The menu is structured in `dados`, and with 2 options the worker sends it as buttons
     // (quick reply is enabled by default). The numbered text remains the content that gets recorded.
     const { rows } = await cenario.dono.execute<{ dados: unknown }>(sql`
-      select dados from mensagem where conversa_id = ${conversa.id}::uuid and autor_tipo = 'bot'
+      select dados from mensagem where execucao_id = ${conversa.id}::uuid and autor_tipo = 'bot'
        order by criada_em desc limit 1
     `);
     expect(rows[0]?.dados).toEqual({
@@ -190,10 +190,11 @@ describe('bot com o dublê do WhatsApp', () => {
 
   it('Keep the bot silent while a human ticket waits in a queue or has an agent', async () => {
     const conversa = await conversationOpen(ANA);
-    const respostas = (await doBot(conversa.id)).length;
+    const sessao = await sessaoDoBot(cenario, ANA);
+    const respostas = (await doBot(sessao.id)).length;
 
     await falar(ANA, 'alô?');
-    expect(await doBot(conversa.id)).toHaveLength(respostas);
+    expect(await doBot(sessao.id)).toHaveLength(respostas);
 
     await cenario.dono.execute(
       sql`update status_atendente set estado = 'online' where usuario_id = ${cenario.agentId}::uuid`,
@@ -202,7 +203,7 @@ describe('bot com o dublê do WhatsApp', () => {
     const atribuida = await conversationOpen(ANA);
     expect(atribuida.id).toBe(conversa.id);
     expect(atribuida.atendente_id).toBe(cenario.agentId);
-    expect(await doBot(conversa.id)).toHaveLength(respostas);
+    expect(await doBot(sessao.id)).toHaveLength(respostas);
   });
 
   it('Resume the flow at the block selected by human ticket closure', async () => {
@@ -217,9 +218,10 @@ describe('bot com o dublê do WhatsApp', () => {
     );
 
     await falar(ANA, 'oi de novo');
-    const nova = await conversationOpen(ANA);
-    expect(nova.id).not.toBe(conversa.id);
-    expect(nova.fila_id).toBeNull();
+    // D-15: sem ticket antes do transbordo
+    await semTicket(ANA);
+    const nova = await sessaoDoBot(cenario, ANA);
+    expect(nova.conversa_id).toBeNull();
     expect(await doBot(nova.id)).toEqual([
       'Seu atendimento foi encerrado. Posso ajudar em algo mais?',
     ]);
@@ -230,7 +232,7 @@ describe('bot com o dublê do WhatsApp', () => {
       codigo: string;
     }>(sql`
       select e.contexto, b.codigo from execucao_fluxo e join bloco b on b.id = e.bloco_atual_id
-       where e.conversa_id = ${nova.id}::uuid
+       where e.id = ${nova.id}::uuid
     `);
     expect(rows[0]!.contexto['nome']).toBe('Ana');
     expect(rows[0]!.codigo).toBe('pos-atendimento');
@@ -240,7 +242,7 @@ describe('bot com o dublê do WhatsApp', () => {
     const id = `wamid.REPETIDA.${randomUUID()}`;
     await falar(BIA, 'oi', id);
     await falar(BIA, 'oi', id);
-    const conversa = await conversationOpen(BIA);
+    const conversa = await sessaoDoBot(cenario, BIA);
     expect(await doBot(conversa.id)).toEqual(['Olá! Qual é o seu nome?']);
     const { rows } = await cenario.dono.execute<{ total: string }>(
       sql`select count(*)::text as total from execucao_passo where entrada->>'id_provedor' = ${id}`,
@@ -250,14 +252,19 @@ describe('bot com o dublê do WhatsApp', () => {
 
   it('Stop bot replies when a human agent takes over mid-flow', async () => {
     await falar(CAIO, 'oi');
-    const conversa = await conversationOpen(CAIO);
-    await cenario.dono.execute(sql`
-      update conversa set atendente_id = ${cenario.agentId}::uuid, fila_id = ${cenario.queueId}::uuid,
-                          estado = 'atribuida'
-       where id = ${conversa.id}::uuid
+    const sessao = await sessaoDoBot(cenario, CAIO);
+    // A person takes over: the ticket exists now and owns the session.
+    const { rows: ct } = await cenario.dono.execute<{ id: string }>(sql`
+      select contato_id as id from execucao_fluxo where id = ${sessao.id}::uuid
     `);
+    const { rows: tk } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado)
+      values (${cenario.tenantId}::uuid, ${cenario.inboxId}::uuid, ${ct[0]!.id}::uuid, ${cenario.queueId}::uuid,
+              ${cenario.agentId}::uuid, 'atribuida') returning id
+    `);
+    await cenario.dono.execute(sql`update execucao_fluxo set conversa_id = ${tk[0]!.id}::uuid where id = ${sessao.id}::uuid`);
     await falar(CAIO, 'Caio');
-    expect(await doBot(conversa.id)).toEqual(['Olá! Qual é o seu nome?']);
+    expect(await doBot(sessao.id)).toEqual(['Olá! Qual é o seu nome?']);
   });
 
   it('Send a failed flow to a queue so the customer still gets help', async () => {
