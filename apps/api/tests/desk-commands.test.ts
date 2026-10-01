@@ -124,6 +124,24 @@ describe('Desk read commands', () => {
     expect(esperando.resource.items).toHaveLength(2);
   });
 
+  it('D-15: a contact talking to the bot without a handoff has no ticket; after the handoff it has exactly one', async () => {
+    const cliente = await contato(a, '5511911110009');
+    const { rows: versoes } = await a.dono.execute<{ id: string }>(sql`
+      insert into fluxo_versao (tenant_id, fluxo_id, versao, estado) values (${a.tenantId}, ${a.flowId}, 1, 'publicada') returning id
+    `);
+    await a.dono.execute(sql`
+      insert into execucao_fluxo (tenant_id, fluxo_versao_id, contato_id, inbox_id, estado)
+      values (${a.tenantId}, ${versoes[0]!.id}, ${cliente}, ${a.inboxId}, 'aguardando')
+    `);
+    const filtro = `/tickets?$filter=customerIdentity%20eq%20'${cliente}'`;
+    expect((await desk(a, filtro)).resource.items).toHaveLength(0);
+    expect((await desk(a, `/tickets?$filter=status%20eq%20'waiting'`)).resource.items).toHaveLength(0);
+
+    const ticket = await conversa(a, cliente, 'na_fila', '2026-09-04T10:00:00Z');
+    expect((await desk(a, filtro)).resource.items.map((t) => t.id)).toEqual([ticket]);
+    expect((await desk(a, `/tickets?$filter=status%20eq%20'waiting'`)).resource.items).toHaveLength(1);
+  });
+
   it('get /ticket/{id} and /tickets/{id} return one ticket; another tenant gets resource-not-found', async () => {
     const cliente = await contato(a, '5511911110003');
     const id = await conversa(a, cliente, 'em_atendimento', '2026-09-02T10:00:00Z');

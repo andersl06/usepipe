@@ -26,7 +26,6 @@ export const dynamic = 'force-dynamic';
  */
 
 const LABEL_STATE: Record<string, string> = {
-  com_bot: 'Com o bot',
   na_fila: 'Na fila',
   atribuida: 'Atribuída',
   em_atendimento: 'Em atendimento',

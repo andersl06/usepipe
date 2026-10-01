@@ -61,7 +61,7 @@ async function conversa(): Promise<string> {
   `);
   const { rows } = await c.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, estado)
-    values (${tenantId}, ${c.inboxId}, ${ct[0]!.id}, 'com_bot') returning id
+    values (${tenantId}, ${c.inboxId}, ${ct[0]!.id}, 'na_fila') returning id
   `);
   return rows[0]!.id;
 }

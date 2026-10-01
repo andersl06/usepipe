@@ -18,8 +18,6 @@ export function situationLabel(h: { estado: StateConversation; closedBy?: string
   switch (h.estado) {
     case 'encerrada':
       return closedByLabel(h.closedBy);
-    case 'com_bot':
-      return 'Com o bot';
     case 'na_fila':
       return 'Aguardando';
     case 'atribuida':

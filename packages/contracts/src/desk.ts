@@ -2,7 +2,7 @@
  * Desk screen contracts describe responses from `GET /v1/desk/…` rendered by the front end. Dates cross JSON as ISO 8601 text; the display converts them with `new Date(...)`, never the contract. This was the sole shape change in the Next Desk migration, where page and database shared a process and queries returned `Date`. These shapes follow queries in `apps/api/src/dominio/desk/*.ts`; changing a query column requires a matching contract change, surfaced by front-end `tsc`.
  */
 
-export type StateConversation = 'com_bot' | 'na_fila' | 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
+export type StateConversation = 'na_fila' | 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
 /**
  * Priority levels match `@pipe/core/conversa` (`NIVEIS_PRIORIDADE`) but are spelled out here because the contracts package imports no packages. All five literals match; front-end `tsc` catches divergence when indexing `ROTULOS_PRIORIDADE` with this type.
  */

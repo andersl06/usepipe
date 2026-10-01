@@ -6,8 +6,6 @@ import type { StateConversation } from '@pipe/core';
 
 /** Map Pipe states to the `status` values Desk uses to distinguish queued from active conversations. */
 const STATUS_BY_STATE: Record<StateConversation, string> = {
-  // Never listed (`ABERTAS` leaves it out): with the bot there is no ticket, and it is not waiting for an agent.
-  com_bot: 'Open',
   na_fila: 'Waiting',
   atribuida: 'Open',
   em_atendimento: 'Open',

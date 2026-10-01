@@ -129,6 +129,32 @@ describe('Monitor conversations across queues and agents', () => {
     expect(corpo.data.abertas.map(c => c.id)).toEqual([segunda]);
   });
 
+  it('D-15: a contact with the bot and no ticket is not in the monitoring queue; the ticket appears once after the handoff', async () => {
+    const { rows: ct } = await a.dono.execute<{ id: string }>(sql`
+      insert into contato (tenant_id, nome, telefone_e164) values (${a.tenantId}, 'Bot', ${`+55118${Math.floor(Math.random() * 1e8)}`}) returning id
+    `);
+    const { rows: versoes } = await a.dono.execute<{ id: string }>(sql`
+      insert into fluxo_versao (tenant_id, fluxo_id, versao, estado) values (${a.tenantId}, ${a.flowId}, 2, 'publicada') returning id
+    `);
+    await a.dono.execute(sql`
+      insert into execucao_fluxo (tenant_id, fluxo_versao_id, contato_id, inbox_id, estado)
+      values (${a.tenantId}, ${versoes[0]!.id}, ${ct[0]!.id}, ${a.inboxId}, 'aguardando')
+    `);
+    const ler = async () => {
+      const r = await pedir(gestor, 'GET', `/v1/management/monitoring?queue=${a.queueId}`);
+      expect(r.status).toBe(200);
+      return (await r.json() as { data: { abertas: { id: string }[] } }).data.abertas.map(c => c.id);
+    };
+    const antes = await ler();
+    const { rows } = await a.dono.execute<{ id: string }>(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado)
+      values (${a.tenantId}, ${a.inboxId}, ${ct[0]!.id}, ${a.queueId}, 'na_fila') returning id
+    `);
+    const depois = await ler();
+    expect(depois.filter(id => id === rows[0]!.id)).toHaveLength(1);
+    expect(depois).toHaveLength(antes.length + 1);
+  });
+
   it('lê a prévia, grava nota e deixa auditoria', async () => {
     const id = await conversation();
     const previa = await pedir(gestor, 'GET', `/v1/management/monitoring/conversations/${id}`);
