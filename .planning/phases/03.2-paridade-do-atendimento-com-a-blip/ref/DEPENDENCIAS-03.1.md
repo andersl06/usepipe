@@ -10,3 +10,4 @@ Lista única das funções cuja regra de negócio depende de trabalho fora da 03
 | Distribuição automática | Filas e Regras | Motor de distribuição automática de tickets | visual igual à Blip | Este recurso será liberado em breve para este fluxo. |
 | Identidade roteador/subbot | Casca e Canais | Identidade do roteador e dos subbots por contato | visual igual à Blip | Este recurso será liberado em breve para este fluxo. |
 | SLA como regra | SLA (sla-policy) | SLA aplicado como regra de atendimento (hoje só tela) | visual igual à Blip | Este recurso será liberado em breve para este fluxo. |
+| Dashboards de ligações e vendas (calls-dashboard, sales-dashboard) | Dashboards | Dado de ligação e de venda (o Pipe não tem) | tela não entregue (decisão do dono Q6, 2026-09-30); a rota depende da tensão T-01 em `DECISOES-DONO.md` | Este recurso será liberado em breve para este fluxo. |

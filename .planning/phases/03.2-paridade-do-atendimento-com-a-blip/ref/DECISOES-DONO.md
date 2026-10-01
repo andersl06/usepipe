@@ -1,0 +1,29 @@
+# Decisões do dono (portão da Onda 0)
+
+Respostas literais do dono, dadas no chat em 2026-09-30. O Claude não decidiu nenhum item (D-04). Fonte das perguntas: `QUESTOES-DONO.md` e `CONFLITOS-ROTA.md`.
+
+| ID | Pergunta | Resposta do dono | Data | Planos afetados |
+|---|---|---|---|---|
+| Q1 | Tolerância de medida | 1px (tolerância 1px, como na Fase 2). Gravada em `METODO.md` | 2026-09-30 | todos os planos de tela (07 a 24) |
+| Q2 | Paginação no servidor para o Histórico | Sim, paginação no servidor (usar `apps/api/src/pagination.ts`) | 2026-09-30 | 03.2-07, 03.2-11 (muda contrato de API e testes) |
+| Q3 | Skins de paginação `grade` e `lista` | Colapsar as skins grade e lista em uma só (evidência: `ref/verificacao/paginacao.md`, §Conclusão para Q3); `portal` fica à parte | 2026-09-30 | 03.2-07 |
+| Q4 | Exportar PDF do Histórico | Biblioteca no servidor para o PDF; o PDF também vai por e-mail. Anotação: o plano 03.2-12 executa o checkpoint de legitimidade do pacote antes de instalar | 2026-09-30 | 03.2-12, 03.2-13 |
+| Q5 | Fonte do Atendimento | Manter IBM Plex Sans (lacuna aprovada; registrada em `LACUNAS-APROVADAS.md`) | 2026-09-30 | todos os planos de tela |
+| Q6 | Dashboards de ligações e vendas | Dependência: não entregar as telas de dashboards calls/sales agora (registrada em `DEPENDENCIAS-03.1.md`) | 2026-09-30 | 03.2-24 |
+| R-01 | `preferences/*` x `general-settings` | Adotar Blip (`general-settings`), com redirecionamento do antigo | 2026-09-30 | 03.2-06, 03.2-21 |
+| R-02 | `queue-management/:queueId/edit` | Adiado | 2026-09-30 | nenhum (fica como hoje no Pipe; volta no portão seguinte) |
+| R-03 | `team/create`, `team/edit`, `team/permission` sem `:id` | Adotar Blip (`team/create|edit|permission` sem `:id`) | 2026-09-30 | 03.2-06 |
+| R-04 | `calls-dashboard` e `sales-dashboard` sem rota | Adotar Blip (criar rotas `calls-dashboard` e `sales-dashboard`). Ver tensão T-01 abaixo | 2026-09-30 | 03.2-06, 03.2-24 |
+| R-05 | `personalizedbreaks` e `survey-dashboard` | Adotar Blip (manter os segmentos `personalizedbreaks` e `survey-dashboard`) | 2026-09-30 | 03.2-06 |
+| R-06 | Dois `channels` | Manter os dois channels como na Blip | 2026-09-30 | nenhum |
+| R-07 | Segmentos sem rota (`attendants`, `sla`, `blip-copilot`) | Adiado | 2026-09-30 | nenhum (volta no portão seguinte) |
+| R-08 | Detalhe do ticket do Histórico | Adotar Blip: rota e nova aba `attendance/history/{id}@tunnel.msging.net?ticketId=...` | 2026-09-30 | 03.2-06, 03.2-11 |
+
+## Tensão em aberto (resolver com o dono nos planos 03.2-06 e 03.2-24)
+
+**T-01. R-04 x Q6.** R-04 manda criar as rotas `calls-dashboard` e `sales-dashboard`, mas Q6 manda não entregar as telas. Resultado: rota sem tela entregue. Os planos 03.2-06 (rotas) e 03.2-24 (dashboards) devem decidir com o dono: (a) criar a rota com um placeholder (texto de dependência do UI-SPEC) ou (b) postergar a criação da rota até a tela existir. Não decidido aqui.
+
+## Anotações de execução
+
+- Q4: o pacote de PDF no servidor só é instalado depois do checkpoint de legitimidade do pacote, executado no plano 03.2-12.
+- Q2: o contrato de API do Histórico passa a paginar no servidor; testes de `apps/api` mudam junto.

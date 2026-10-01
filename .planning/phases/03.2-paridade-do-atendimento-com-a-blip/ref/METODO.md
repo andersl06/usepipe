@@ -22,7 +22,7 @@ Contrato de "igual" (D-11). Todo plano de tela desta fase mede e registra do mes
 - `VISUALLY VERIFIED`: geometria, espaçamento e tipografia batem dentro da tolerância e a única diferença de cor é azul da Blip -> token verde `--p-*`.
 - Qualquer outra diferença vira correção ou lacuna.
 - Estado sem captura = `NEEDS VALIDATION`, nunca aprovado.
-- Tolerância: PENDENTE DE DECISÃO DO DONO (Q1 em QUESTOES-DONO.md): 0px pelo UI-SPEC ou 1px pela Fase 2; até a decisão, registrar a diferença numérica exata em toda linha.
+- Tolerância: 1px em dimensão e espaçamento medidos, como na Fase 2 (decisão do dono Q1, 2026-09-30, `DECISOES-DONO.md`). Diferença de 1px ou menos não vira lacuna; registrar mesmo assim o valor numérico.
 
 ## Procedimento por tela
 
