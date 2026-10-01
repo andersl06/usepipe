@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { filterIds, parametersWithFilters, urlForClearFilters } from '../src/lib/filters-monitoring.ts';
+import { filterIds, matchesListFilters, parametersWithFilters, urlForClearFilters } from '../src/lib/filters-monitoring.ts';
 
 test('multiple selection survives submission and reopening, including in old links', () => {
   const a = '11111111-1111-4111-8111-111111111111';
@@ -46,4 +46,17 @@ test('applying multiple values keeps repeats where the query allows it', () => {
   const proximos = parametersWithFilters(new URLSearchParams('aba=espera&tag=antiga'), { tag: ['nova', 'urgente'] });
   assert.deepEqual(proximos.getAll('tag'), ['nova', 'urgente']);
   assert.equal(proximos.get('aba'), 'espera');
+});
+
+test('contact and agent status filter the rows of the detailed list', () => {
+  assert.equal(matchesListFilters({ contactName: 'Ana Souza', agentState: 'online' }, { contact: 'ana', status: 'online' }), true);
+  assert.equal(matchesListFilters({ contactName: 'Bia', agentState: 'online' }, { contact: 'ana' }), false);
+  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'pausa' }, { status: 'online' }), false);
+  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: undefined }, { status: 'online' }), false);
+});
+
+test('empty filters let every row through and invisible matches no one yet', () => {
+  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: undefined }, {}), true);
+  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'online' }, { contact: '  ', status: '' }), true);
+  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'online' }, { status: 'invisivel' }), false);
 });

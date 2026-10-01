@@ -54,7 +54,7 @@ interface Search {
 
 const STATES_OF_AGENT = [
   { id: 'online', nome: 'Online' },
-  { id: 'pausa', nome: 'Em pausa' },
+  { id: 'pausa', nome: 'Em Pausa' },
   { id: 'invisivel', nome: 'Invisível' },
 ] as const;
 
@@ -201,7 +201,7 @@ function CardLoading({
 
 function MonitoringLoading() {
   return (
-    <div className="mon-page mon-carregando" role="status" aria-label="Carregando monitoramento">
+    <div className="mon-page mon-carregando" role="status" aria-busy="true" aria-label="Carregando monitoramento">
       <div className="board-head">
         <h2>Monitoramento</h2>
         <div className="filters" aria-hidden="true">
@@ -271,8 +271,10 @@ export function PageMonitoring() {
   const [search, setSearch] = useSearchParams();
   const [panelOpen, setPanelOpen] = useState(false);
   const [fieldPanel, setFieldPanel] = useState<string | null>(null);
+  const [statusEscolhido, setStatusEscolhido] = useState(search.get('status') ?? '');
   const openPanel = (campo: string | null = null) => {
     setFieldPanel(campo);
+    setStatusEscolhido(search.get('status') ?? '');
     setPanelOpen(true);
   };
   const [modoTv, setModoTv] = useState(false);
@@ -584,13 +586,14 @@ export function PageMonitoring() {
               />
             </PanelField>
             <PanelField rotulo="Contato" apoio="Busque pelo nome do contato">
-              <input type="search" name="contato" defaultValue={params.contact ?? ''} />
+              <input type="search" name="contato" defaultValue={params.contact ?? ''} placeholder="Digite parte do nome, e-mail ou telefone do contato" />
             </PanelField>
-            <PanelField rotulo="Status do atendente" apoio="Disponibilidade atual do atendente">
+            <PanelField rotulo="Status do atendente" apoio="Selecione um status">
               <Select
                 name="status"
                 defaultValue={params.status ?? ''}
                 aria-label="Status do atendente"
+                onChange={(e) => setStatusEscolhido(e.currentTarget.value)}
               >
                 <option value="">Todos os status</option>
                 {STATES_OF_AGENT.map((state) => (
@@ -599,6 +602,9 @@ export function PageMonitoring() {
                   </option>
                 ))}
               </Select>
+              {statusEscolhido === 'invisivel' ? (
+                <p className="panel-support" role="status">Este recurso será liberado em breve para este fluxo.</p>
+              ) : null}
             </PanelField>
           </>
         ) : null}

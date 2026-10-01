@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import { PERIODOS, calculatePeriod, periodCurrent } from '../lib/periodos';
@@ -28,12 +28,44 @@ export function PanelFilters({
   children: ReactNode;
 }) {
   const [aba, setAba] = useState<'nova' | 'salvos'>('nova');
+  const painel = useRef<HTMLElement>(null);
+
+  /* Focus goes into the panel on open and returns to the pill that opened it on close. */
+  useEffect(() => {
+    if (!aberto) return;
+    const gatilho = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    painel.current?.focus();
+    return () => gatilho?.focus();
+  }, [aberto]);
+
   if (!aberto) return null;
+
+  function teclado(evento: KeyboardEvent<HTMLElement>) {
+    if (evento.key === 'Escape') {
+      evento.stopPropagation();
+      aoFechar();
+      return;
+    }
+    if (evento.key !== 'Tab' || !painel.current) return;
+    const alvos = [...painel.current.querySelectorAll<HTMLElement>('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(
+      (el) => !el.hasAttribute('disabled') && el.offsetParent !== null,
+    );
+    const primeiro = alvos[0];
+    const ultimo = alvos[alvos.length - 1];
+    if (!primeiro || !ultimo) return;
+    if (evento.shiftKey && (document.activeElement === primeiro || document.activeElement === painel.current)) {
+      evento.preventDefault();
+      ultimo.focus();
+    } else if (!evento.shiftKey && document.activeElement === ultimo) {
+      evento.preventDefault();
+      primeiro.focus();
+    }
+  }
 
   return (
     <>
       <div className="panel-background" onClick={aoFechar} />
-      <aside className="panel-side" role="dialog" aria-modal="true" aria-label="Filtros">
+      <aside ref={painel} tabIndex={-1} className="panel-side" role="dialog" aria-modal="true" aria-label="Filtros" onKeyDown={teclado}>
         <div className="panel-header">
           <div>
             <h3>Filtros</h3>

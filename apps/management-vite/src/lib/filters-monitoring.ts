@@ -27,3 +27,16 @@ export function parametersWithFilters(
   }
   return proximos;
 }
+
+/**
+ * Contact and agent-status filters of the detailed list. Rows without an agent (or an agent whose status is unknown) never match a status filter.
+ */
+export function matchesListFilters(
+  row: { contactName: string; agentState: string | undefined },
+  filter: { contact?: string; status?: string },
+): boolean {
+  const contact = (filter.contact ?? '').trim().toLowerCase();
+  if (contact && !row.contactName.toLowerCase().includes(contact)) return false;
+  if (filter.status && row.agentState !== filter.status) return false;
+  return true;
+}

@@ -13,7 +13,8 @@ type Parametros = {
   search?: string;
 };
 
-function PillOptions({
+/** The quick-filter pill: one trigger for every field, always opening the shared filter panel. */
+function Pill({
   rotulo,
   value,
   toOpenPanel,
@@ -34,22 +35,6 @@ function PillOptions({
         onClick={toOpenPanel}
       >
         <span className="pilula-rotulo">{rotulo}</span>
-      </button>
-    </div>
-  );
-}
-
-function PillContact({ value, toOpenPanel, panelOpen }: { value: string; toOpenPanel: () => void; panelOpen: boolean }) {
-  return (
-    <div className="at-filter">
-      <button
-        type="button"
-        className={value ? 'pilula active at-filter-trigger' : 'pilula at-filter-trigger'}
-        aria-haspopup="dialog"
-        aria-expanded={panelOpen}
-        onClick={toOpenPanel}
-      >
-        <span className="pilula-rotulo">Contato</span>
       </button>
     </div>
   );
@@ -85,7 +70,7 @@ export function SOperationFilter({ atual, toOpenPanel, panelOpen, aoLimparQueue 
   return (
     <div className="strip-filters">
       <span className="lbl">Filtros rápidos:</span>
-      <PillOptions rotulo="Filas" value={atual.queue ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
+      <Pill rotulo="Filas" value={atual.queue ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
       <ButtonFilters toOpenPanel={toOpenPanel} aoLimpar={aoLimparQueue} hasFilters={Boolean(atual.queue)} />
     </div>
   );
@@ -107,9 +92,9 @@ export function SListFilter({ atual, toOpenPanel, panelOpen, aoLimparAgent }: {
   return (
     <div className="strip-filters">
       <span className="lbl">Filtros rápidos:</span>
-      <PillOptions rotulo="Atendentes" value={atual.agent ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
-      <PillContact value={atual.contact ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
-      <PillOptions rotulo="Status do atendente" value={atual.status ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
+      <Pill rotulo="Atendentes" value={atual.agent ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
+      <Pill rotulo="Contato" value={atual.contact ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
+      <Pill rotulo="Status do atendente" value={atual.status ?? ''} toOpenPanel={toOpenPanel} panelOpen={panelOpen} />
       <ButtonFilters
         toOpenPanel={toOpenPanel}
         aoLimpar={() => {
