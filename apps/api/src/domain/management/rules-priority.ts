@@ -1,4 +1,5 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
+import { campoValido, operadorValido } from '@pipe/core';
 import { NIVEIS_ATRIBUIVEIS } from '@pipe/core/conversation';
 import { rulePriority } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
@@ -95,13 +96,37 @@ function nivelConferido(bruto: unknown): string {
   return nivel;
 }
 
-/** Require a plain object for rule conditions, not an array or scalar; `jsonb` accepts any JSON but a rule condition must map criteria. */
-function conditionChecked(bruto: unknown): Record<string, unknown> {
+/**
+ * A rule condition is `{}` (every conversation in scope) or the same expression the engine evaluates: `{ combinador: 'e' | 'ou', condicoes: [{ campo, operador, valor }] }`, with the known fields and operators of the queue rules. Anything else would be stored and then silently never match.
+ */
+export function conditionChecked(bruto: unknown): Record<string, unknown> {
   if (bruto === undefined) return {};
   if (bruto === null || typeof bruto !== 'object' || Array.isArray(bruto)) {
     throw PipeError.request('condition_invalid', 'A condição é um objeto (chave/valor), não lista nem texto solto.');
   }
-  return bruto as Record<string, unknown>;
+  const condition = bruto as Record<string, unknown>;
+  if (Object.keys(condition).length === 0) return condition;
+
+  const { combinador, condicoes } = condition;
+  if (combinador !== 'e' && combinador !== 'ou') {
+    throw PipeError.request('condition_invalid', 'Combinador inválido: use "e" ou "ou".');
+  }
+  if (!Array.isArray(condicoes) || condicoes.length === 0) {
+    throw PipeError.request('condition_invalid', 'Informe pelo menos uma condição ou deixe a regra sem condição.');
+  }
+  const limpas = condicoes.map((c: unknown) => {
+    const item = (c ?? {}) as Record<string, unknown>;
+    const campo = String(item['campo'] ?? '').trim();
+    const operador = String(item['operador'] ?? '').trim();
+    const valor = String(item['valor'] ?? '').trim();
+    if (!campoValido(campo)) {
+      throw PipeError.request('condition_invalid', `"${campo}" não é um campo válido para a condição.`);
+    }
+    if (!operadorValido(operador)) throw PipeError.request('condition_invalid', 'Operador inválido.');
+    if (!valor) throw PipeError.request('condition_invalid', `A condição sobre "${campo}" ficou sem valor.`);
+    return { campo, operador, valor };
+  });
+  return { combinador, condicoes: limpas };
 }
 
 async function scopeChecked(
