@@ -1271,6 +1271,19 @@ describe('Gestão escopada por fluxo', () => {
     expect(semFluxo.status).toBe(400);
   });
 
+  it('o mesmo nome de fila vale em outro fluxo do tenant, mas não duas vezes no mesmo', async () => {
+    const nome = `Comum ${randomUUID().slice(0, 6)}`;
+    const emA = await pedirDe('POST', '/v1/management/agents/queues', { name: nome, capacityDefault: 4 });
+    expect(emA.status).toBe(201);
+    const emB = await pedir('POST', '/v1/management/agents/queues', gestor, { name: nome, capacityDefault: 4 }, dois.flowB);
+    expect(emB.status).toBe(201);
+    const repetidaEmB = await pedir('POST', '/v1/management/agents/queues', gestor, { name: nome, capacityDefault: 4 }, dois.flowB);
+    expect(repetidaEmB.status).toBe(409);
+    expect(repetidaEmB.body.error.code).toBe('name_in_use');
+    const suporte = await pedirDe('POST', '/v1/management/agents/queues', { name: 'Suporte', capacityDefault: 4 });
+    expect(suporte.status).toBe(409);
+  });
+
   it('editar, ativar/desativar, excluir e vincular atendente em fila de outro fluxo é 404', async () => {
     const editar = await pedirDe('PATCH', `/v1/management/agents/queues/${dois.queueB}`, { name: 'Invasor' });
     expect(editar.status).toBe(404);

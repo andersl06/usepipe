@@ -122,9 +122,9 @@ export async function montarDoisFluxos(sufixo: string) {
     returning id
   `);
   const queueA = cenario.queueId;
-  // plano 18: mesmo nome após trocar fila_tenant_nome_uk
+  await dono.execute(sql`update fila set nome = 'Suporte' where id = ${queueA}`);
   const queueB = await um(sql`
-    insert into fila (tenant_id, fluxo_id, nome) values (${tenantId}, ${flowB}, ${`Suporte B ${sufixo}`}) returning id
+    insert into fila (tenant_id, fluxo_id, nome) values (${tenantId}, ${flowB}, 'Suporte') returning id
   `);
   await dono.execute(sql`
     insert into fila_atendente (tenant_id, fila_id, usuario_id) values (${tenantId}, ${queueB}, ${cenario.agentId})

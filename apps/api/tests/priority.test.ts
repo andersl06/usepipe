@@ -155,8 +155,8 @@ describe('Evaluate priority when a conversation enters a queue', () => {
     try {
       // A rule that exists ONLY in the `outro` tenant, matching any message (empty condition).
       await outro.dono.execute(sql`
-        insert into regra_prioridade (tenant_id, nome, nivel, condicao)
-        values (${outro.tenantId}::uuid, 'regra do outro tenant', 'maxima', '{}'::jsonb)
+        insert into regra_prioridade (tenant_id, fluxo_id, nome, nivel, condicao)
+        values (${outro.tenantId}::uuid, ${outro.flowId}::uuid, 'regra do outro tenant', 'maxima', '{}'::jsonb)
       `);
 
       // The message arrives at the main tenant, which has no rule registered at all.

@@ -14,6 +14,7 @@ const { upApi } = await import('../src/servidor.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
 const { executeCommand } = await import('../src/domain/engine-services.js');
 const { assinar, montarDoisFluxos, payloadOfMessage } = await import('./ajuda.js');
+const { transferConversation } = await import('../src/domain/conversation.js');
 
 type Dois = Awaited<ReturnType<typeof montarDoisFluxos>>;
 
@@ -75,7 +76,8 @@ describe('funil de entrada em fila com escopo de fluxo', () => {
   });
 
   it('teams com o nome da fila de A não resolve no fluxo B', async () => {
-    const { rows } = await f.cenario.dono.execute<{ nome: string }>(sql`select nome from fila where id = ${f.queueA}`);
+    await f.cenario.dono.execute(sql`update fila set nome = 'So A' where id = ${f.queueA}`);
+    const rows = [{ nome: 'So A' }];
     const r = await choose(f.flowB, { message: 'oi', contact: contact({ teams: rows[0]!.nome }) });
     expect(r.queueId).toBeNull();
     await f.cenario.dono.execute(sql`update fluxo set fila_padrao_id = ${f.queueB} where id = ${f.flowB}`);
@@ -187,5 +189,116 @@ describe('ponta a ponta com dois fluxos', () => {
     };
     await expect(run(f.queueA)).rejects.toThrow('não existe neste Pipe');
     expect(await run(f.queueB)).toEqual([f.queueB]);
+  });
+});
+
+describe('filas com o mesmo nome em fluxos diferentes', () => {
+  it('as duas filas se chamam Suporte e o nome só é único dentro do fluxo', async () => {
+    const { rows } = await f.cenario.dono.execute<{ nome: string }>(sql`select nome from fila where id in (${f.queueA}, ${f.queueB})`);
+    expect(rows.map((r) => r.nome)).toEqual(['Suporte', 'Suporte']);
+    await expect(
+      f.cenario.dono.execute(sql`insert into fila (tenant_id, fluxo_id, nome) values (${tenantId}, ${f.flowA}, 'Suporte')`),
+    ).rejects.toThrow();
+  });
+
+  it('teams "Suporte" resolve para a fila do próprio fluxo', async () => {
+    const semRegra = { message: 'oi', contact: contact({ teams: 'Suporte' }) };
+    expect((await choose(f.flowA, semRegra)).queueId).toBe(f.queueA);
+    expect((await choose(f.flowB, semRegra)).queueId).toBe(f.queueB);
+  });
+
+  it('transferência de ticket de A para o "Suporte" de B é recusada com fila_de_outro_fluxo', async () => {
+    const c = f.cenario;
+    const { rows: ct } = await c.dono.execute<{ id: string }>(sql`
+      insert into contato (tenant_id, nome) values (${tenantId}, 'Cli') returning id
+    `);
+    const { rows } = await c.dono.execute<{ id: string }>(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, atribuida_em)
+      values (${tenantId}, ${c.inboxId}, ${ct[0]!.id}, ${f.queueA}, ${f.userShared}, 'em_atendimento', now()) returning id
+    `);
+    await expect(
+      transferConversation(
+        { tenantId, agentId: f.userShared, requireAssignment: false },
+        { conversationId: rows[0]!.id, forQueueId: f.queueB },
+      ),
+    ).rejects.toMatchObject({ codigo: 'fila_de_outro_fluxo' });
+  });
+});
+
+const igual = (value: string) => [{ source: 'input', comparison: 'equals', values: [value] }];
+const redirecionar = (service: string) => ({ type: 'Redirect', settings: { address: service } });
+const DESK = { states: [{ id: 'raiz', root: true, input: {}, outputActions: [{ type: 'ForwardToDesk', settings: {} }], outputs: [] }] };
+const MENU = {
+  states: [
+    {
+      id: 'inicio',
+      root: true,
+      input: {},
+      outputs: [
+        { order: 0, stateId: 'ir-a', conditions: igual('a') },
+        { order: 1, stateId: 'ir-b', conditions: igual('b') },
+        { order: 2, stateId: 'inicio' },
+      ],
+    },
+    { id: 'ir-a', inputActions: [redirecionar('Servico A')], input: {}, outputs: [{ stateId: 'inicio' }] },
+    { id: 'ir-b', inputActions: [redirecionar('Servico B')], input: {}, outputs: [{ stateId: 'inicio' }] },
+  ],
+};
+
+describe('D-07 roteador', () => {
+  beforeEach(async () => {
+    const publicar = async (nome: string, json: unknown) => {
+      const r = await noTenant(tenantId, (tx) => importFlowOfBlip(tx, { tenantId, name: nome, channelId: null, json, publicar: true }));
+      expect(r.errorOfValidation).toBeNull();
+      return r.flowId;
+    };
+    const principal = await publicar('Principal', MENU);
+    const servicoA = await publicar('Servico A', DESK);
+    const servicoB = await publicar('Servico B', DESK);
+    const dono = f.cenario.dono;
+    // o roteador toma o canal; os fluxos de montarDoisFluxos ficam sem uso
+    await dono.execute(sql`update fluxo set canal_id = null where tenant_id = ${tenantId}::uuid and canal_id is not null`);
+    const { rows } = await dono.execute<{ id: string }>(sql`
+      insert into fluxo (tenant_id, nome, tipo, estado, canal_id, short_name)
+      values (${tenantId}, 'roteador', 'roteador', 'rascunho', ${f.cenario.channelId}, ${`rot-${randomUUID().slice(0, 8)}`}) returning id
+    `);
+    await dono.execute(sql`
+      insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal, persistente, expiracao_min) values
+        (${tenantId}, ${rows[0]!.id}, ${principal}, 'Principal', true, false, null),
+        (${tenantId}, ${rows[0]!.id}, ${servicoA}, 'Servico A', false, true, null),
+        (${tenantId}, ${rows[0]!.id}, ${servicoB}, 'Servico B', false, true, null)
+    `);
+    await dono.execute(sql`update fila set fluxo_id = ${servicoA} where id = ${f.queueA}`);
+    await dono.execute(sql`update fila set fluxo_id = ${servicoB} where id = ${f.queueB}`);
+    await dono.execute(sql`update fluxo set fila_padrao_id = ${f.queueB} where id = ${servicoB}`);
+  }, 60_000);
+
+  async function pelo(servico: 'a' | 'b', de: string, texto: string): Promise<{ fila_id: string | null; atendente_id: string | null }> {
+    await falar(de, 'oi');
+    await falar(de, servico);
+    await falar(de, texto);
+    const { rows } = await f.cenario.dono.execute<{ fila_id: string | null; atendente_id: string | null }>(sql`
+      select c.fila_id, c.atendente_id from contato ct join conversa c on c.contato_id = ct.id
+       where ct.tenant_id = ${tenantId}::uuid and ct.telefone_e164 = ${`+${de}`} order by c.criada_em desc limit 1
+    `);
+    expect(rows[0]).toBeDefined();
+    return rows[0]!;
+  }
+
+  it('a mensagem boleto cai na fila do serviço que atende o contato', async () => {
+    expect((await pelo('b', '5511933340001', 'boleto')).fila_id).toBe(f.queueB);
+    expect((await pelo('a', '5511933340002', 'boleto')).fila_id).toBe(f.queueA);
+  });
+
+  it('o usuário compartilhado recebe o ticket das duas filas', async () => {
+    const b = await pelo('b', '5511933340003', 'boleto');
+    const a = await pelo('a', '5511933340004', 'boleto');
+    expect([a.atendente_id, b.atendente_id]).toEqual([f.userShared, f.userShared]);
+  });
+
+  it('sem regra casada, o serviço B usa a fila padrão do fluxo B mesmo com a inbox apontando para A', async () => {
+    const { rows } = await f.cenario.dono.execute<{ fila_padrao_id: string }>(sql`select fila_padrao_id from inbox where id = ${f.cenario.inboxId}`);
+    expect(rows[0]!.fila_padrao_id).toBe(f.queueA);
+    expect((await pelo('b', '5511933340005', 'bom dia')).fila_id).toBe(f.queueB);
   });
 });
