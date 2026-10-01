@@ -89,7 +89,7 @@ export function ConfirmModal({
       <p className="sub">{message}</p>
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
       <div className="cl-actions">
-        <Botao type="button" onClick={onCancelar} disabled={confirmando}>
+        <Botao type="button" autoFocus onClick={onCancelar} disabled={confirmando}>
           {rotuloCancelar}
         </Botao>
         <Botao type="button" variante="perigo" onClick={onConfirmar} disabled={confirmando}>

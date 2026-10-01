@@ -110,6 +110,7 @@ export async function requireQueueOfFlow(
 export interface AgentOfQueue {
   id: string;
   name: string;
+  email: string;
   state: string | null;
   /** `fila_atendente.capacidade_override` ou a capacidade padrão da fila. */
   capacity: number;
@@ -169,6 +170,7 @@ export async function loadQueues(tx: TransactionPipe, tid: string, flowId: strin
         filaId: queueAgent.queueId,
         usuarioId: queueAgent.userId,
         nome: user.nome,
+        email: user.email,
         override: queueAgent.capacityOverride,
         estado: statusAgent.estado,
       })
@@ -189,6 +191,7 @@ export async function loadQueues(tx: TransactionPipe, tid: string, flowId: strin
       const agent: AgentOfQueue = {
         id: m.usuarioId,
         name: m.nome,
+        email: m.email,
         state: m.estado,
         capacity: m.override ?? padrao,
         temOverride: m.override !== null,

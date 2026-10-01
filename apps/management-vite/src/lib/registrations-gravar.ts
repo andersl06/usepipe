@@ -8,6 +8,10 @@ import type { OperadorDeRegra } from './rule-queue';
  */
 
 /** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */
+/** Texto de erro de gravação nas telas de Filas: o que foi digitado continua na tela. */
+export const falhaAoSalvar = (motivo: string) =>
+  `Não foi possível salvar: ${motivo}. Suas alterações continuam na tela; tente novamente.`;
+
 export async function toggleQueue(id: string, active: boolean): Promise<Resultado<void>> {
   try {
     await api.patch(`/v1/management/agents/queues/${id}`, { ativa: !active });

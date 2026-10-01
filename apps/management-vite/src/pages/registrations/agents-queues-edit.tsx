@@ -1,9 +1,16 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Botao, BotaoDeIcone, Campo, Card, Etiqueta } from '@pipe/ui';
+import { Botao, BotaoDeIcone, Campo, Card, Etiqueta, Icone } from '@pipe/ui';
+import { Pagination, usePage } from '@pipe/ui/pagination';
 import { useRead } from '../../lib/query';
-import type { QueueRegistered, Horarios } from '../../lib/registrations';
-import { queueUnlinkAgent, editQueue } from '../../lib/registrations-gravar';
+import type { QueueRegistered, QueueRegisteredRule, Horarios } from '../../lib/registrations';
+import { descreverRegra } from '../../lib/rule-queue';
+import {
+  queueUnlinkAgent,
+  editQueue,
+  deleteRuleQueue,
+  falhaAoSalvar,
+} from '../../lib/registrations-gravar';
 import { priorityCreateRule, priorityDeleteRule } from '../../lib/agents-gravar';
 import {
   NIVEIS_ATRIBUIVEIS,
@@ -38,8 +45,11 @@ export function QueuePageEdit() {
   const readRules = useRead<PriorityRule[]>(
     '/v1/management/rules/priority',
   );
+  const readRulesAttendance = useRead<{ regras: QueueRegisteredRule[] }>(
+    '/v1/management/rules/attendance',
+  );
 
-  if (!readQueues.data || !readHours.data || !readRules.data) return null;
+  if (!readQueues.data || !readHours.data || !readRules.data || !readRulesAttendance.data) return null;
 
   const queue = readQueues.data.queues.find((f) => f.id === queueId);
   if (!queue) {
@@ -57,14 +67,91 @@ export function QueuePageEdit() {
 
   return (
     <>
-      <div className="board-head">
-        <h2>{queue.name}</h2>
-      </div>
-
-      <QueueData queue={queue} horarios={readHours.data.horarios} />
+      <QueueHeader queue={queue} base={base} />
       <SectionAgents queue={queue} base={base} />
+      <SectionRulesAttendance
+        regras={readRulesAttendance.data.regras.filter((r) => r.queueDestinationId === queue.id)}
+        base={base}
+      />
       <PrioritySectionRules queue={queue} regras={readRules.data} />
+      <SectionPendente
+        titulo="Tags da fila"
+        descricao="Adicione ou edite as tags disponíveis para os atendentes desta fila."
+      />
+      <SectionPendente
+        titulo="Encerramento automático de tickets"
+        descricao="Encerre automaticamente os tickets por inatividade"
+        interruptor
+      />
+      <QueueData queue={queue} horarios={readHours.data.horarios} />
     </>
+  );
+}
+
+/* ---------------------------------------------------------------- cabeçalho */
+
+/** Voltar, nome da fila e lápis que renomeia no lugar. */
+function QueueHeader({ queue, base }: { queue: QueueRegistered; base: string }) {
+  const navegar = useNavigate();
+  const [editando, setEditando] = useState(false);
+  const [nome, setNome] = useState(queue.name);
+  const [salvando, setSalvando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function renomear(evento: FormEvent) {
+    evento.preventDefault();
+    if (!nome.trim()) return;
+    if (nome.trim() === queue.name) {
+      setEditando(false);
+      return;
+    }
+    setSalvando(true);
+    setError(null);
+    const resultado = await editQueue(queue.id, { nome: nome.trim() });
+    setSalvando(false);
+    if (resultado.ok) setEditando(false);
+    else setError(falhaAoSalvar(resultado.error));
+  }
+
+  return (
+    <div className="board-head fila-cab">
+      <BotaoDeIcone
+        nome="esquerda"
+        rotulo="Voltar para Filas de atendimento"
+        onClick={() => navegar(`${base}/queue-management`)}
+      />
+      {editando ? (
+        <form className="fila-cab-nome" onSubmit={(e) => void renomear(e)}>
+          <Campo
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            aria-label="Nome da fila"
+            autoFocus
+            disabled={salvando}
+          />
+          <Botao
+            type="button"
+            onClick={() => {
+              setNome(queue.name);
+              setError(null);
+              setEditando(false);
+            }}
+            disabled={salvando}
+          >
+            Cancelar
+          </Botao>
+          <Botao type="submit" variante="primario" disabled={salvando || !nome.trim()}>
+            {salvando ? 'Salvando…' : 'Salvar'}
+          </Botao>
+        </form>
+      ) : (
+        <>
+          <h2>{queue.name}</h2>
+          <BotaoDeIcone nome="lapis" rotulo="Editar nome da fila" onClick={() => setEditando(true)} />
+        </>
+      )}
+      {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
+    </div>
   );
 }
 
@@ -108,7 +195,7 @@ function QueueData({
       active,
     });
     setSalvando(false);
-    if (!resultado.ok) setError(resultado.error);
+    if (!resultado.ok) setError(falhaAoSalvar(resultado.error));
   }
 
   return (
@@ -190,19 +277,26 @@ function QueueData({
 
 /* ----------------------------------------------------------- atendentes */
 
-const STEP_AGENTS = 10;
+function inicial(a: { name: string; email: string }): string {
+  const partes = a.name.trim().split(/\s+/);
+  if (a.name === a.email || partes.length < 2) return (partes[0]?.[0] ?? '?').toUpperCase();
+  return ((partes[0]?.[0] ?? '') + (partes[1]?.[0] ?? '')).toUpperCase();
+}
 
 function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }) {
   const navegar = useNavigate();
   const [search, setSearch] = useState('');
-  const [visiveis, setVisiveis] = useState(STEP_AGENTS);
+  const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
   const [paraRemover, setParaRemover] = useState<{ id: string; nome: string } | null>(null);
   const [removendo, setRemovendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const alvo = search.trim().toLowerCase();
-  const filtrados = alvo ? queue.agents.filter((a) => a.name.toLowerCase().includes(alvo)) : queue.agents;
-  const mostrados = filtrados.slice(0, visiveis);
+  const filtrados = alvo
+    ? queue.agents.filter((a) => a.name.toLowerCase().includes(alvo) || a.email.toLowerCase().includes(alvo))
+    : queue.agents;
+  const pagina = usePage(filtrados, 5);
+  const todosMarcados = filtrados.length > 0 && filtrados.every((a) => marcados.has(a.id));
 
   async function remover() {
     if (!paraRemover) return;
@@ -211,40 +305,50 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
     const resultado = await queueUnlinkAgent(queue.id, paraRemover.id);
     setRemovendo(false);
     if (resultado.ok) setParaRemover(null);
-    else setError(resultado.error);
+    else setError(falhaAoSalvar(resultado.error));
   }
 
   return (
     <Card
-      titulo="Atendentes"
+      titulo="Atendentes atribuídos"
       actions={
-        <Botao variante="primario" onClick={() => navegar(`${base}/team`)}>
-          Adicionar atendente
+        <Botao variante="primario" icone="mais" onClick={() => navegar(`${base}/team`)}>
+          Adicionar atendentes
         </Botao>
       }
     >
+      <p className="sub">Defina os atendentes que irão atender nesta fila</p>
       {queue.agents.length === 0 ? (
         <div className="empty">
           <b>Ops! Essa fila não possui nenhum atendente.</b>
           <p>
-            Ops! Não há agentes nessa fila. Ao clicar em <b>Adicionar atendente</b>, um direcionamento será feito
-            para a página <b>Equipe de atendimento</b>.
+            Ao clicar em <b>Adicionar atendentes</b>, um direcionamento será feito para a página{' '}
+            <b>Equipe de atendimento</b>.
           </p>
         </div>
       ) : (
         <>
           <div className="search-top">
+            <Icone nome="busca" tamanho={20} />
             <input
               type="search"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
-                setVisiveis(STEP_AGENTS);
+                pagina.setPage(1);
               }}
-              placeholder="Pesquisar atendente"
-              aria-label="Pesquisar atendente"
+              placeholder="Buscar por nome ou e-mail"
+              aria-label="Buscar por nome ou e-mail"
             />
           </div>
+          <label className="form-caixa fila-selecionar-todos">
+            <input
+              type="checkbox"
+              checked={todosMarcados}
+              onChange={(e) => setMarcados(e.target.checked ? new Set(filtrados.map((a) => a.id)) : new Set())}
+            />
+            <span className="sub">Selecionar todos</span>
+          </label>
 
           {filtrados.length === 0 ? (
             <div className="empty">
@@ -252,34 +356,47 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
               <p>Não há atendente cadastrados com esse nome.</p>
             </div>
           ) : (
-            <>
-              {mostrados.map((a) => (
-                <div key={a.id} className="form-linha linha-lista">
-                  <span className="sub">
-                    {a.name} · {a.capacity}
-                    {a.temOverride ? ' próprio' : ''}
-                  </span>
+            pagina.visiveis.map((a) => (
+              <article key={a.id} className="card-list fila-atendente">
+                <input
+                  type="checkbox"
+                  aria-label={`Selecionar ${a.name}`}
+                  checked={marcados.has(a.id)}
+                  onChange={(e) => {
+                    const novo = new Set(marcados);
+                    if (e.target.checked) novo.add(a.id);
+                    else novo.delete(a.id);
+                    setMarcados(novo);
+                  }}
+                />
+                <span className="fila-avatar" aria-hidden="true">
+                  {inicial(a)}
+                </span>
+                <div className="cl-campos" style={{ '--cl-colunas': 2 } as React.CSSProperties}>
+                  <div className="cl-campo">
+                    <span className="r">Nome</span>
+                    <span className="v" title={a.name}>
+                      {a.name}
+                    </span>
+                  </div>
+                  <div className="cl-campo">
+                    <span className="r">E-mail</span>
+                    <span className="v" title={a.email}>
+                      {a.email}
+                    </span>
+                  </div>
+                </div>
+                <div className="cl-actions">
                   <BotaoDeIcone
                     nome="x"
-                    rotulo={`Remover ${a.name} da fila`}
+                    rotulo={`Excluir ${a.name} da fila`}
                     onClick={() => setParaRemover({ id: a.id, nome: a.name })}
                   />
                 </div>
-              ))}
-              <p className="sub section-footer">
-                Exibindo {mostrados.length} de {filtrados.length}
-                {mostrados.length < filtrados.length ? (
-                  <button
-                    type="button"
-                    className="link-carregar-mais"
-                    onClick={() => setVisiveis((v) => v + STEP_AGENTS)}
-                  >
-                    Carregar mais
-                  </button>
-                ) : null}
-              </p>
-            </>
+              </article>
+            ))
           )}
+          <Pagination layout="grade" afastado state={pagina} />
         </>
       )}
 
@@ -294,6 +411,112 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
         onConfirmar={() => void remover()}
         onCancelar={() => setParaRemover(null)}
       />
+    </Card>
+  );
+}
+
+/* ------------------------------------------------- regras de atendimento */
+
+function SectionRulesAttendance({
+  regras,
+  base,
+}: {
+  regras: readonly QueueRegisteredRule[];
+  base: string;
+}) {
+  const navegar = useNavigate();
+  const pagina = usePage(regras, 5);
+  const [paraExcluir, setParaExcluir] = useState<QueueRegisteredRule | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function excluir() {
+    if (!paraExcluir) return;
+    setExcluindo(true);
+    setError(null);
+    const resultado = await deleteRuleQueue(paraExcluir.id);
+    setExcluindo(false);
+    if (resultado.ok) setParaExcluir(null);
+    else setError(falhaAoSalvar(resultado.error));
+  }
+
+  return (
+    <Card
+      titulo="Regras de Atendimento"
+      actions={
+        <Botao variante="primario" icone="mais" onClick={() => navegar(`${base}/rules`)}>
+          Criar regra
+        </Botao>
+      }
+    >
+      <p className="sub">Defina as regras de atendimento para a fila</p>
+      {pagina.visiveis.map((r) => (
+        <article key={r.id} className="card-list">
+          <span />
+          <div className="cl-campos" style={{ '--cl-colunas': 2 } as React.CSSProperties}>
+            <div className="cl-campo">
+              <span className="r">Nome da regra</span>
+              <span className="v" title={r.name}>
+                {r.name}
+              </span>
+            </div>
+            <div className="cl-campo">
+              <span className="r">Regra</span>
+              <span className="v" title={descreverRegra(r)}>
+                {descreverRegra(r)}
+              </span>
+            </div>
+          </div>
+          <div className="cl-actions">
+            <BotaoDeIcone nome="lapis" rotulo={`Editar a regra ${r.name}`} onClick={() => navegar(`${base}/rules`)} />
+            <BotaoDeIcone nome="x" rotulo={`Excluir a regra ${r.name}`} onClick={() => setParaExcluir(r)} />
+          </div>
+        </article>
+      ))}
+      <Pagination layout="grade" afastado state={pagina} />
+      {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
+      <ConfirmModal
+        aberto={paraExcluir !== null}
+        titulo="Confirmar exclusão"
+        message={<>Excluir a regra "{paraExcluir?.name}"? Esta ação não pode ser desfeita.</>}
+        confirmando={excluindo}
+        onConfirmar={() => void excluir()}
+        onCancelar={() => setParaExcluir(null)}
+      />
+    </Card>
+  );
+}
+
+/* ------------------------------------------- recursos ainda sem regra */
+
+/** Seção que a Blip mostra e o Pipe ainda não grava por fila. */
+function SectionPendente({
+  titulo,
+  descricao,
+  interruptor = false,
+}: {
+  titulo: string;
+  descricao: string;
+  interruptor?: boolean;
+}) {
+  return (
+    <Card titulo={titulo}>
+      <p className="sub">{descricao}</p>
+      {interruptor ? (
+        <button
+          type="button"
+          className="interruptor"
+          role="switch"
+          aria-checked={false}
+          aria-label={titulo}
+          disabled
+        >
+          <span className="interruptor-bolinha" />
+        </button>
+      ) : (
+        <Campo placeholder="Insira as tags separando por vírgulas" disabled aria-label={titulo} />
+      )}
+      <p className="note">Este recurso será liberado em breve para este fluxo.</p>
     </Card>
   );
 }
@@ -321,26 +544,29 @@ function PrioritySectionRules({
     const resultado = await priorityDeleteRule(paraExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setParaExcluir(null);
-    else setError(resultado.error);
+    else setError(falhaAoSalvar(resultado.error));
   }
 
   return (
     <Card
       titulo="Regras de Priorização"
       actions={
-        <Botao variante="primario" onClick={() => setCriando(true)} disabled={criando}>
-          Criar nova regra de priorização
+        <Botao variante="primario" icone="mais" onClick={() => setCriando(true)} disabled={criando}>
+          Criar regra
         </Botao>
       }
     >
+      <p className="sub">
+        Defina a prioridade para todos os atendimentos da fila ou crie condições para a priorização
+      </p>
       {criando ? (
         <PriorityFormRule queueId={queue.id} onFechar={() => setCriando(false)} />
       ) : null}
 
       {ofQueue.length === 0 ? (
         <div className="empty">
-          <b>Essa fila ainda não possui regras de priorização!</b>
-          <p>Adicione sua primeira regra e defina a prioridade em que os clientes devem ser atendidos</p>
+          <b>Esta fila ainda não tem regras de priorização!</b>
+          <p>Crie uma regra para definir a prioridade de atendimento dos clientes.</p>
         </div>
       ) : (
         ofQueue.map((r) => (

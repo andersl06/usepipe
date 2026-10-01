@@ -4930,3 +4930,37 @@ tr.grupo th {
   box-shadow: none;
   padding: 0;
 }
+
+/* Gestão da fila: cabeçalho com voltar/nome/lápis e linha de atendente (checkbox, avatar, nome, e-mail, excluir). */
+.fila-cab {
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.fila-cab-nome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fila-selecionar-todos {
+  margin: 8px 0;
+}
+
+.fila-atendente {
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.fila-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--p-superficie-3, #e5e5e5);
+  font-size: 12px;
+  font-weight: 700;
+}

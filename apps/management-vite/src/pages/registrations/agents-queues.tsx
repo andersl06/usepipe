@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import type { QueueRegistered } from '../../lib/registrations';
-import { toggleQueue, deleteQueue } from '../../lib/registrations-gravar';
+import { toggleQueue, deleteQueue, falhaAoSalvar } from '../../lib/registrations-gravar';
 import { numero } from '../../lib/format';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { useContact } from '../flow/contact';
@@ -37,10 +37,12 @@ function QueueActions({
 }) {
   const alternar = async () => {
     const r = await toggleQueue(queue.id, queue.ativa);
-    if (!r.ok) onErrorToggle(r.error);
+    if (!r.ok) onErrorToggle(falhaAoSalvar(r.error));
   };
   return (
     <>
+      <BotaoDeIcone nome="lapis" rotulo="Editar" onClick={onEditar} />
+      <BotaoDeIcone nome="x" rotulo="Excluir" onClick={onExcluir} />
       <button
         type="button"
         className="interruptor"
@@ -52,8 +54,6 @@ function QueueActions({
       >
         <span className="interruptor-bolinha" />
       </button>
-      <BotaoDeIcone nome="lapis" rotulo="Editar" onClick={onEditar} />
-      <BotaoDeIcone nome="x" rotulo="Excluir" onClick={onExcluir} />
     </>
   );
 }
@@ -78,13 +78,14 @@ export function PageQueues() {
     const resultado = await deleteQueue(queueForDelete.id);
     setExcluindo(false);
     if (resultado.ok) setQueueForDelete(null);
-    else setErrorDeletion(resultado.error);
+    else setErrorDeletion(falhaAoSalvar(resultado.error));
   }
 
   const sections: RulesSection[] = [
     {
       titulo: 'Filas de atendimento',
-      empty: 'Ops! Você ainda não tem nenhuma fila de atendimento.',
+      empty: 'Nenhuma fila cadastrada',
+      emptyDescription: 'Crie a primeira fila para distribuir os atendimentos.',
       cards: queues.map((f) => ({
         id: f.id,
         campos: [
@@ -136,8 +137,9 @@ export function PageQueues() {
 
       <ConfirmModal
         aberto={queueForDelete !== null}
-        titulo="Confirmar exclusão"
-        message={<>Excluir a fila "{queueForDelete?.name}"? Esta ação não pode ser desfeita.</>}
+        titulo="Excluir fila"
+        message="Excluir fila: os atendentes da fila ficam sem esta fila e tickets novos não serão direcionados a ela. Esta ação não pode ser desfeita."
+        rotuloConfirmar="Excluir fila"
         error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}

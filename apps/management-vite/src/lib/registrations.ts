@@ -25,6 +25,7 @@ import type { OperadorDeRegra, QueueRule } from './rule-queue';
 export interface QueueAgent {
   id: string;
   name: string;
+  email: string;
   state: string | null;
   /** `fila_atendente.capacidade_override` ou a capacidade padrão da fila. */
   capacity: number;
