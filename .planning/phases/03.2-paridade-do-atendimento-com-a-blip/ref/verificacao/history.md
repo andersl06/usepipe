@@ -23,7 +23,7 @@ Tema: claro (cartões cinza-claro sobre fundo claro nas capturas `.jpg`; o HTML 
 | Espaço entre cartões | ~6 na imagem, ~11 após a escala [A] | 8 | igual (8) | NEEDS VALIDATION [A] |
 | Padding / raio do cartão | utilitários `pa4`, `mv3` no DOM [M] sem valor em px na captura | 20 / 16 | igual | NEEDS VALIDATION |
 | Selo de status, etiquetas, "Encerrada", "Fila" | não aparecem no cartão [M] | apareciam | removidos da tela (continuam no CSV) | pendente do dono (ver Lacunas) |
-| Seleção para exportar | limite de 1 a 20 tickets, tooltip no botão desabilitado [M] | sem limite, botão "Exportar CSV" | sem limite, botão "Exportar CSV" | lacuna (plano 12: Enviar por e-mail) |
+| Seleção para exportar | limite de 1 a 20 tickets, tooltip no botão desabilitado [M] | sem limite, botão "Exportar CSV" | sem limite, botão "Exportar CSV" | resolvido no menu "Enviar por e-mail" (plano 13); o limite de 20 vale só para o PDF |
 
 ## Estado: rodapé de paginação
 
@@ -74,6 +74,47 @@ Tema: claro (cartões cinza-claro sobre fundo claro nas capturas `.jpg`; o HTML 
 | Lista "Tickets" do contato | data, hora, número, atendente, fila, tags, tempo médio, status, relacionar ticket, baixar [M, jpg] | não existe | falta | lacuna: depende de API de contato |
 | Painel "Histórico de Conversa" | lateral direito, mensagens, notas e eventos [M, jpg] | seção "Histórico de Conversa" com as mensagens e notas da rota de prévia do Monitoramento | layout próprio | NEEDS VALIDATION (render); a rota exige a permissão de monitoramento em tempo real |
 
+## Estado: Enviar por e-mail aberto (menu e modais de exportação)
+
+Capturas de 2026-09-30 (C-12 a C-14, parciais): `historico-selecao-1-ticket-menu-enviar`, `historico-enviar-por-email-menu-sem-selecao`, `historico-enviar-lista-tickets-modal`, `historico-enviar-pdf-modal` (fora do Git; o e-mail que aparece nelas é dado pessoal e não foi copiado). Todas as medidas abaixo são [A] (imagem reduzida) ou texto lido na imagem; nenhuma geometria foi medida no Pipe (sem conversas encerradas no tenant local, sem CDP). Nada aqui fecha a tolerância de 1px.
+
+### Menu (botão "Enviar por e-mail")
+
+| Elemento | Blip | Pipe | Status |
+|---|---|---|---|
+| Controle | um botão primário "Enviar por e-mail" com ícone de envelope; não há botão "Exportar CSV" nem "Exportar PDF" separados | botão primário "Enviar por e-mail" que abre menu; ícone provisório (`baixar`) | NEEDS VALIDATION (ícone de envelope não desenhado) |
+| Itens | "Lista de tickets / Exporta uma planilha CSV com os dados dos tickets filtrados"; "Histórico de conversas (.pdf) / Gera um arquivo PDF com o histórico das conversas" | mesmos dois itens e textos | NEEDS VALIDATION (render, geometria) |
+| Sem seleção | "Lista de tickets" habilitado, PDF desabilitado (esmaecido) | igual; PDF também desabilita com mais de 20 selecionados (limite lido no DOM, plano 11) | NEEDS VALIDATION (render) |
+| Largura do menu | ~190 px na imagem (~360 após a escala) [A] | 360 | NEEDS VALIDATION [A] |
+| Ícones nos itens | ícone à esquerda de cada item | ausentes | lacuna |
+| Item extra | não existe | "Baixar planilha (.csv)" baixa a seleção no navegador (comportamento anterior do Pipe) | pendente do dono: manter ou retirar |
+
+### Estado: Exportar CSV aberto (Lista de tickets)
+
+| Elemento | Blip | Pipe | Status |
+|---|---|---|---|
+| Título e texto | "Enviar lista de tickets"; "Informe o e-mail para receber a planilha (.CSV) com os tickets selecionados:" | iguais (texto literal da captura) | NEEDS VALIDATION (render) |
+| Campo | rótulo flutuante "Email", pré-preenchido com o e-mail do usuário | campo "Email" pré-preenchido com o e-mail da sessão; rótulo acima, não flutuante | lacuna: rótulo flutuante |
+| Termo | caixa "Li e estou ciente do Termo de responsabilidade." com link | igual; link abre `/termo-de-responsabilidade` em nova aba | NEEDS VALIDATION; texto do termo sem captura (C-13 pendente) |
+| Botões | "Cancelar" (texto) e "Enviar" desabilitado até aceitar o termo; "X" no canto | igual; botão "Cancelar" com estilo `btn`, "X" da casca padrão | NEEDS VALIDATION (render) |
+| Ilustração | envelope com tickets à esquerda | ausente (arte da Blip não é copiada) | lacuna: arte própria do Pipe |
+| Largura da caixa | ~366 px na imagem (~690 após a escala) [A] | 520 | diferença [A]; NEEDS VALIDATION |
+
+### Estado: Exportar PDF aberto
+
+| Elemento | Blip | Pipe | Status |
+|---|---|---|---|
+| Título e texto | "Enviar histórico de conversas"; "Informe o e-mail para receber o arquivo (.PDF) com o histórico completo das conversas selecionadas:" | iguais | NEEDS VALIDATION (render) |
+| Demais itens | iguais ao modal CSV; ilustração de documento PDF | iguais ao modal CSV, sem ilustração | NEEDS VALIDATION; termo sem captura (C-14 pendente) |
+| Origem do PDF (Q4) | n/a | gerado no servidor com pdfkit e enviado por e-mail (plano 12); filtro `ticket` = selecionados | decisão do dono aplicada; aparência do PDF pendente do dono |
+
+### Estado: envio com erro
+
+| Elemento | Blip | Pipe | Status |
+|---|---|---|---|
+| Texto e aspecto | sem captura (confirmação e erro pendentes em C-12) | "Não foi possível enviar: {motivo do servidor}", `role="alert"`, formulário mantido, Enviar volta a habilitar | NEEDS VALIDATION (texto não vem da Blip) |
+| Sucesso | sem captura | "O arquivo foi enviado para {e-mail}." e botão "Fechar" | NEEDS VALIDATION |
+
 ## Navegação
 
 | Clique | Destino Blip (tela/modal/painel + URL) | Destino Pipe | Status |
@@ -81,7 +122,7 @@ Tema: claro (cartões cinza-claro sobre fundo claro nas capturas `.jpg`; o HTML 
 | Botão de seta do cartão (Consultar detalhes do ticket) | nova aba `attendance/history/{id}@tunnel.msging.net?ticketId=...` (R-08) | nova aba `attendance/history/{conversaId}?ticketId={ticket}` | NEEDS VALIDATION (render; casca e segmento `@tunnel.msging.net` não reproduzidos, decisão R-08 aplicada ao segmento de rota) |
 | Número do ticket | sem link no DOM [M] | sem link | VISUALLY VERIFIED (mesmo comportamento) |
 | Nome do contato | sem link no DOM da lista [M] | sem link | VISUALLY VERIFIED (mesmo comportamento) |
-| Exportar | "Enviar por e-mail": menu com lista de tickets (CSV) e PDF, modais (C-12 a C-14) | botão "Exportar CSV" baixa o arquivo dos selecionados | lacuna: menu, modais e PDF no plano 12 |
+| Enviar por e-mail | menu com "Lista de tickets" (CSV) e "Histórico de conversas (.pdf)", cada um abre um modal de e-mail (C-12 a C-14) | botão "Enviar por e-mail" abre o mesmo menu; cada item abre o modal; "Baixar planilha (.csv)" baixa a seleção | NEEDS VALIDATION (render; termos sem captura) |
 | Pílulas IDs dos tickets, Atendentes, Tags e Filtros | painel lateral Filtros | painel lateral Filtros | NEEDS VALIDATION (render) |
 | Redefinir filtros | limpa os filtros | recarrega com período atual | NEEDS VALIDATION |
 | Termo de responsabilidade | link no rodapé da área | `/termo-de-responsabilidade` | NEEDS VALIDATION |
@@ -96,5 +137,5 @@ Tema: claro (cartões cinza-claro sobre fundo claro nas capturas `.jpg`; o HTML 
 - Filtros por chips e multisseleção, e-mail e telefone no filtro de contato, filtros salvos: dependem de contrato de API novo.
 - Detalhe do ticket sem bloco de dados do contato, lista de tickets do contato e eventos; leitura do histórico depende da permissão de monitoramento. Dependem da 03.1 e de rota de leitura própria do Histórico.
 - Carregando e erro sem captura da Blip (C-20, C-21): textos do UI-SPEC, aspecto NEEDS VALIDATION.
-- Enviar por e-mail (CSV e PDF): plano 12.
+- Enviar por e-mail (CSV e PDF): endpoint no plano 12, menu e modais no plano 13. Faltam: ilustrações, ícones do menu, rótulo flutuante, texto do termo de responsabilidade, confirmação e erro da Blip, e a pergunta se a Blip aceita destinatário fora do tenant (hoje só usuários do tenant).
 - Nenhum `--p-atend-historico-*` novo foi criado: todos os valores usados já existiam na escala; `tokens.css` e `MARCA.md` ficaram sem mudança.
