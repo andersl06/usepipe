@@ -7,6 +7,7 @@ import {
 } from '@pipe/core';
 import type { StateDelivery } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
+import type { ResultOfFlow } from './flow.js';
 import { noTenant } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { contar } from '../metrics.js';
@@ -23,7 +24,7 @@ import { distributeConversation } from './distribution.js';
 import { registrarEvento } from './eventos.js';
 import { enterQueue, flowOfConversation } from './queue-entry.js';
 import { applyEventsOfTemplate } from './whatsapp/events-of-template.js';
-import { flowPublishedOfChannel, runFlowInInbound } from './flow.js';
+import { botSessionOf, flowPublishedOfChannel, runFlowInInbound } from './flow.js';
 import { payloadDoInstagram, valuesOfInstagram } from './instagram/inbound.js';
 import { payloadDoMessenger, valuesOfMessenger } from './messenger/inbound.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
@@ -141,7 +142,7 @@ export async function processarPayload(
       const recebida = await receiveMessage(channel, value, message);
       if (recebida) {
         resumo.messagesReceived += 1;
-        tocadas.add(recebida.conversationId);
+        if (recebida.conversationId) tocadas.add(recebida.conversationId);
         enteredInQueue = true;
         respostasDoBot += recebida.respostasDoBot;
         if (recebida.processHttpId) {
@@ -156,10 +157,11 @@ export async function processarPayload(
       } else resumo.ignorados += 1;
     }
     for (const status of value.statuses ?? []) {
-      const conversationId = await aplicarStatus(channel, status);
-      if (conversationId) {
+      const aplicado = await aplicarStatus(channel, status);
+      if (aplicado) {
         resumo.statusAplicados += 1;
-        tocadas.add(conversationId);
+        // A bot message before the handoff has no ticket to repaint.
+        if (aplicado.conversationId) tocadas.add(aplicado.conversationId);
       } else resumo.ignorados += 1;
     }
   }
@@ -202,7 +204,7 @@ async function receiveMessage(
   valor: ValueOfWebhook,
   mensagem: MessageOfMeta,
 ): Promise<{
-  conversationId: string;
+  conversationId: string | null;
   respostasDoBot: number;
   attachmentId: string | null;
   processHttpId?: string;
@@ -226,50 +228,62 @@ async function receiveMessage(
 
     const inbox = await acharInbox(tx, canal.id);
     const contactId = await findOrCreateContact(tx, canal, de, nomeDoPerfil);
-    // With a published flow or router on the channel, a new conversation belongs to the bot and starts without a queue.
+    // With a published flow or router on the channel the bot talks first, with no ticket: the
+    // conversation lives in the bot session and only a handoff creates the ticket.
     const flow = await flowPublishedOfChannel(tx, canal.id, contactId);
-    // Read BEFORE opening the conversation: the attendance and priority rules may test the first message.
+    // Read BEFORE opening the ticket: the attendance and priority rules may test the first message.
     const conteudo = textoDe(mensagem);
-    const conversation = await findOrOpenConversation(tx, canal, inbox, contactId, em, flow !== null, conteudo);
+    let conversation = await findOpenTicket(tx, inbox, contactId);
+    if (!conversation && !flow) {
+      conversation = await openTicketAtEntry(tx, canal, inbox, contactId, em, conteudo);
+    }
+    // A ticket owned by a person (queue or agent) silences the bot; otherwise the session answers.
+    const session =
+      flow && !(conversation && (conversation.agentId || conversation.queueId))
+        ? await botSessionOf(tx, { tenantId: canal.tenantId, contactId, inboxId: inbox.id, publicado: flow })
+        : null;
 
     const tipo = TIPO_DA_META[mensagem.type ?? 'text'] ?? 'texto';
     const attachmentId = await saveAttachment(tx, canal.tenantId, canal.id, mensagem);
 
     const { rows: criada } = await tx.execute<{ id: string }>(sql`
       insert into mensagem (
-        tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, anexo_id,
+        tenant_id, conversa_id, execucao_id, direcao, autor_tipo, tipo, conteudo, anexo_id,
         id_provedor, criada_em, dentro_da_janela
       ) values (
-        ${canal.tenantId}, ${conversation.id}, 'entrada', 'contato', ${tipo}, ${conteudo},
+        ${canal.tenantId}, ${conversation?.id ?? null}, ${session?.id ?? null}, 'entrada', 'contato', ${tipo}, ${conteudo},
         ${attachmentId}, ${idProvedor}, ${em}, true
       )
       returning id
     `);
     const messageId = criada[0]?.id ?? null;
 
-    // Recalculate the 24-hour window after every inbound contact message; the rule
-    // lives in `@pipe/core`, not here.
-    const window = contactRegisterMessage(em, messageId ?? undefined);
-    await tx.execute(sql`
-      update conversa
-         set ultima_mensagem_em = ${em}, ultima_mensagem_de = 'contato',
-             janela_expira_em = ${window.expiraEm},
-             janela_aberta_por_mensagem_id = ${window.openByMessageId ?? null},
-             atualizado_em = now()
-       where id = ${conversation.id}
-    `);
+    if (conversation) {
+      // Recalculate the 24-hour window after every inbound contact message; the rule
+      // lives in `@pipe/core`, not here.
+      const window = contactRegisterMessage(em, messageId ?? undefined);
+      await tx.execute(sql`
+        update conversa
+           set ultima_mensagem_em = ${em}, ultima_mensagem_de = 'contato',
+               janela_expira_em = ${window.expiraEm},
+               janela_aberta_por_mensagem_id = ${window.openByMessageId ?? null},
+               atualizado_em = now()
+         where id = ${conversation.id}
+      `);
 
-    await registrarEvento(tx, {
-      tenantId: canal.tenantId,
-      conversationId: conversation.id,
-      type: 'mensagem_entrada',
-      at: em,
-      queueId: conversation.queueId,
-    });
+      await registrarEvento(tx, {
+        tenantId: canal.tenantId,
+        conversationId: conversation.id,
+        type: 'mensagem_entrada',
+        at: em,
+        queueId: conversation.queueId,
+      });
+    }
 
     await emitir(tx, canal.tenantId, 'mensagem.criada', {
       mensagem_id: messageId,
-      conversa_id: conversation.id,
+      conversa_id: conversation?.id ?? null,
+      execucao_id: session?.id ?? null,
       direcao: 'entrada',
       tipo,
       conteudo,
@@ -277,27 +291,29 @@ async function receiveMessage(
 
     // The bot speaks first. If it handled the message, it owns the conversation, or
     // has already transferred it and triggered distribution inside that path.
-    const bot = await runFlowInInbound(tx, flow, {
-      tenantId: canal.tenantId,
-      conversation: {
-        id: conversation.id,
-        nova: conversation.nova,
-        queueId: conversation.queueId,
-        agentId: conversation.agentId,
-        queueDefaultId: inbox.queueDefaultId,
-      },
-      contactId,
-      message: { id: messageId, idProvedor, type: tipo, content: conteudo },
-    });
+    const bot: ResultOfFlow = session
+      ? await runFlowInInbound(tx, flow, {
+          tenantId: canal.tenantId,
+          inboxId: inbox.id,
+          executionId: session.id,
+          newExecution: session.created,
+          conversation: conversation
+            ? { id: conversation.id, queueId: conversation.queueId, agentId: conversation.agentId }
+            : null,
+          queueDefaultId: inbox.queueDefaultId,
+          contactId,
+          message: { id: messageId, idProvedor, type: tipo, content: conteudo },
+        })
+      : { tratou: false, respostas: 0 };
 
     // A conversation still queued is eligible for distribution on each new message if
     // atendente entrou online depois da primeira, ela sai da fila agora.
-    if (!bot.tratou && !conversation.nova && conversation.state === 'na_fila' && !conversation.agentId && conversation.queueId) {
+    if (!bot.tratou && conversation && !conversation.nova && conversation.state === 'na_fila' && !conversation.agentId && conversation.queueId) {
       await distributeConversation(tx, canal.tenantId, conversation.id, conversation.queueId, em);
     }
 
     return {
-      conversationId: conversation.id,
+      conversationId: conversation?.id ?? bot.ticketId ?? null,
       respostasDoBot: bot.respostas,
       attachmentId,
       ...(bot.processHttpId ? { processHttpId: bot.processHttpId } : {}),
@@ -305,7 +321,10 @@ async function receiveMessage(
   });
 }
 
-async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Promise<string | null> {
+async function aplicarStatus(
+  canal: ChannelResolved,
+  status: StatusDaMeta,
+): Promise<{ conversationId: string | null } | null> {
   const idProvedor = status.id;
   const alvo = STATUS_DA_META[status.status ?? ''];
   if (!idProvedor || !alvo) return null;
@@ -316,7 +335,7 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
   return noTenant(canal.tenantId, async (tx) => {
     const { rows } = await tx.execute<{
       id: string;
-      conversationId: string;
+      conversationId: string | null;
       stateDelivery: StateDelivery | null;
     }>(sql`
       select id, conversa_id as "conversationId", estado_entrega as "stateDelivery" from mensagem
@@ -377,7 +396,7 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
       });
     }
 
-    return message.conversationId;
+    return { conversationId: message.conversationId };
   });
 }
 
@@ -456,15 +475,11 @@ interface ConversationResolved {
   nova: boolean;
 }
 
-async function findOrOpenConversation(
+async function findOpenTicket(
   tx: TransactionPipe,
-  canal: ChannelResolved,
   inbox: InboxResolvida,
   contactId: string,
-  em: Date,
-  comBot: boolean,
-  message: string | null,
-): Promise<ConversationResolved> {
+): Promise<ConversationResolved | null> {
   const { rows } = await tx.execute<{
     id: string;
     state: string;
@@ -477,35 +492,26 @@ async function findOrOpenConversation(
      limit 1
   `);
   const aberta = rows[0];
-  if (aberta) {
-    return {
-      id: aberta.id,
-      state: aberta.state,
-      agentId: aberta.agentId,
-      queueId: aberta.queueId,
-      nova: false,
-    };
-  }
+  return aberta ? { ...aberta, nova: false } : null;
+}
 
-  // Born without a queue. With a bot it is `com_bot` (no ticket yet, as in Blip) and joins a queue
-  // only when the bot hands it off; without a bot it enters now, through the same path as the
-  // handoff (attendance rules, priority, distribution).
-  const initialState = comBot ? 'com_bot' : 'na_fila';
+/** Channel without a bot: the ticket is born at entry, through the same path as a handoff (rules, priority, distribution). */
+async function openTicketAtEntry(
+  tx: TransactionPipe,
+  canal: ChannelResolved,
+  inbox: InboxResolvida,
+  contactId: string,
+  em: Date,
+  message: string | null,
+): Promise<ConversationResolved> {
   const { rows: criada } = await tx.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em)
-    values (${canal.tenantId}, ${inbox.id}, ${contactId}, null, ${initialState}, ${em})
+    values (${canal.tenantId}, ${inbox.id}, ${contactId}, null, 'na_fila', ${em})
     returning id
   `);
   const conversaId = criada[0]?.id;
   if (!conversaId) throw new Error('não criou a conversa');
 
-  const emitCreated = async (queueId: string | null): Promise<void> => {
-    await emitir(tx, canal.tenantId, 'conversa.criada', { conversa_id: conversaId, contato_id: contactId, fila_id: queueId });
-  };
-  if (comBot) {
-    await emitCreated(null);
-    return { id: conversaId, state: 'com_bot', agentId: null, queueId: null, nova: true };
-  }
   const entry = await enterQueue(tx, {
     tenantId: canal.tenantId,
     conversationId: conversaId,
@@ -515,7 +521,9 @@ async function findOrOpenConversation(
     message,
     at: em,
     origin: 'entrada',
-    beforeDistribution: emitCreated,
+    beforeDistribution: async (queueId) => {
+      await emitir(tx, canal.tenantId, 'conversa.criada', { conversa_id: conversaId, contato_id: contactId, fila_id: queueId });
+    },
   });
   return {
     id: conversaId,

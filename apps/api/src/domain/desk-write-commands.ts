@@ -127,9 +127,9 @@ async function answerWithTicket(tx: TransactionPipe, tenantId: string, tickets: 
  * A second call is a no-op (`enterQueue` enters once) and answers the same ticket.
  */
 const createTicket: DeskWriteHandler = async (tx, tenantId, _request, { tickets }) => {
+  // The ticket is born here when the bot has not handed off yet.
   const current = await currentTicket(tx, tenantId, tickets);
-  if (!current) return failure(NOT_FOUND, 'A conversa deste bot não tem ticket.');
-  if (!current.closed) await tickets.enqueue(tx);
+  if (!current?.closed) await tickets.enqueue(tx);
   return answerWithTicket(tx, tenantId, tickets);
 };
 
@@ -185,9 +185,13 @@ const closeTicket: DeskWriteHandler = async (tx, tenantId, { resource, command }
 const transferTicket: DeskWriteHandler = async (tx, tenantId, { resource, command }, { tickets }) => {
   const team = textOf(bodyOf(resource), 'team');
   if (!team) return failure(INVALID_ARGUMENT, "O comando de transferência exige 'team' (o nome da fila).");
-  const target = await targetTicket(tx, tenantId, tickets, command.params['id'] ?? '');
-  if (isFailure(target)) return target;
-  if (target.closed) return failure(NOT_ALLOWED, 'O ticket já está encerrado.');
+  // Without a ticket yet (the bot still holds the contact) the transfer is the handoff that creates it.
+  const given = command.params['id'] ?? '';
+  if ((await currentTicket(tx, tenantId, tickets)) || given) {
+    const target = await targetTicket(tx, tenantId, tickets, given);
+    if (isFailure(target)) return target;
+    if (target.closed) return failure(NOT_ALLOWED, 'O ticket já está encerrado.');
+  }
   const { rows } = await tx.execute<{ id: string }>(sql`
     select id from fila where tenant_id = ${tenantId}::uuid and ativa and lower(nome) = lower(${team})
      order by ordem, nome limit 1

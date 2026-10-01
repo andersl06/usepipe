@@ -23,6 +23,7 @@ type ClaimedExpiration = {
   conversationId: string | null;
   contactId: string;
   channelId: string;
+  inboxId: string;
   queueId: string | null;
   agentId: string | null;
   queueDefaultId: string | null;
@@ -53,7 +54,7 @@ export async function fireInputExpiration(tenantId: string, executionId: string)
     const { stateId, expiresAt } = armed;
     const { rows: details } = await tx.execute<Omit<ClaimedExpiration, 'stateId' | 'expiresAt'>>(sql`
       select e.conversa_id as "conversationId", coalesce(e.contato_id, c.contato_id) as "contactId",
-             f.canal_id as "channelId",
+             f.canal_id as "channelId", i.id as "inboxId",
              c.fila_id as "queueId", c.atendente_id as "agentId", i.fila_padrao_id as "queueDefaultId",
              coalesce(c.estado = 'encerrada', false) as closed
         from execucao_fluxo e
@@ -68,20 +69,17 @@ export async function fireInputExpiration(tenantId: string, executionId: string)
       : undefined;
     // A closed conversation no longer talks to the bot; the next customer message opens a new one.
     if (!claimed || claimed.closed || !claimed.channelId || !claimed.contactId) return null;
-    // ponytail: the flow engine still needs a conversation id to run; an execution without one is
-    // selected here but only runs once the engine accepts conversation-less executions.
-    if (!claimed.conversationId) return null;
     const publicado = await flowPublishedOfChannel(tx, claimed.channelId, claimed.contactId);
     if (!publicado) return null;
     return runFlowInInbound(tx, publicado, {
       tenantId,
-      conversation: {
-        id: claimed.conversationId,
-        nova: false,
-        queueId: claimed.queueId,
-        agentId: claimed.agentId,
-        queueDefaultId: claimed.queueDefaultId,
-      },
+      inboxId: claimed.inboxId,
+      executionId,
+      newExecution: false,
+      queueDefaultId: claimed.queueDefaultId,
+      conversation: claimed.conversationId
+        ? { id: claimed.conversationId, queueId: claimed.queueId, agentId: claimed.agentId }
+        : null,
       contactId: claimed.contactId,
       message: {
         id: null,

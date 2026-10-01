@@ -17,6 +17,7 @@ import {
   SuspensaoDeProcessHttp,
   SURVEY_CONTENT_TYPE,
   validateFlow,
+  contactRegisterMessage,
 } from '@pipe/core';
 import { nomeCurto } from './management/regras-de-nome.js';
 import type {
@@ -47,7 +48,7 @@ import { closeInTransaction, type LineConversation } from './conversation.js';
 import { engineServices, isFlowOfTenant, type TicketEffects } from './engine-services.js';
 import { databaseMessagingEffects } from './scheduling-commands.js';
 import { syncInputExpiration } from './input-expiration.js';
-import { chooseQueueOfConversation, enterQueue, flowOfConversation } from './queue-entry.js';
+import { chooseQueueOfContact, chooseQueueOfConversation, enterQueue } from './queue-entry.js';
 import type { TipoEnvio } from './envio.js';
 
 /**
@@ -162,14 +163,18 @@ export async function loadFlow(
 
 export interface InboundInFlow {
   tenantId: string;
+  inboxId: string;
+  /** The bot session (`botSessionOf`) the message belongs to. */
+  executionId: string;
+  /** The session was created by this message; only a new session receives the closed `Ticket`. */
+  newExecution: boolean;
+  /** The open ticket, or null while the contact only talks to the bot. */
   conversation: {
     id: string;
-    /** Created by this message; only a new conversation starts a flow. */
-    nova: boolean;
     queueId: string | null;
     agentId: string | null;
-    queueDefaultId: string | null;
-  };
+  } | null;
+  queueDefaultId: string | null;
   contactId: string;
   message: { id: string | null; idProvedor: string; type: string; content: string | null };
   /** P8: this "message" is the expiration of the block the contact waited in (`input-expiration-job.ts`). */
@@ -182,6 +187,8 @@ export interface ResultOfFlow {
   /** Number of replies written to the outbox, used to nudge delivery after commit. */
   respostas: number;
   processHttpId?: string;
+  /** The ticket the handoff created during this run. */
+  ticketId?: string;
 }
 
 const NAO_TRATOU: ResultOfFlow = { tratou: false, respostas: 0 };
@@ -192,6 +199,71 @@ type LineExecution = {
   flowId: string;
   context: Record<string, string>;
 };
+
+/** What the bot set for the ticket before the handoff creates it, kept in the execution context. */
+const PENDING_PRIORITY = 'pipe.ticket.prioridade';
+const PENDING_TAGS = 'pipe.ticket.etiquetas';
+
+async function createExecution(
+  tx: TransactionPipe,
+  p: { tenantId: string; versaoId: string; flowId: string; contactId: string; inboxId: string; conversationId: string | null },
+): Promise<LineExecution> {
+  // Context belongs to the CONTACT, as in Blip: the new session inherits what the bot knew.
+  const { rows: anteriores } = await tx.execute<{ contexto: Record<string, string> }>(sql`
+    select e.contexto from execucao_fluxo e
+      join fluxo_versao v on v.id = e.fluxo_versao_id
+     where e.contato_id = ${p.contactId} and v.fluxo_id = ${p.flowId}
+     order by e.iniciada_em desc
+     limit 1
+  `);
+  const { rows } = await tx.execute<LineExecution>(sql`
+    insert into execucao_fluxo (tenant_id, fluxo_versao_id, conversa_id, contato_id, inbox_id, estado, contexto)
+    values (
+      ${p.tenantId}, ${p.versaoId}, ${p.conversationId}, ${p.contactId}, ${p.inboxId}, 'executando',
+      ${JSON.stringify(anteriores[0]?.contexto ?? {})}::jsonb
+    )
+    returning id, fluxo_versao_id as "flowVersionId",
+              ${p.flowId}::uuid as "flowId", contexto as context
+  `);
+  return rows[0]!;
+}
+
+/**
+ * The bot session of a contact in an inbox: the latest execution, unless its ticket is already closed
+ * (then the next message starts a new session that inherits the contact context). The conversation with
+ * the bot lives here, not in `conversa`. Serialised per contact and inbox so two simultaneous messages
+ * never open two sessions.
+ */
+export async function botSessionOf(
+  tx: TransactionPipe,
+  p: { tenantId: string; contactId: string; inboxId: string; publicado: FlowPublished },
+): Promise<LineExecution & { created: boolean }> {
+  await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`bot:${p.contactId}:${p.inboxId}`}))`);
+  const { rows } = await tx.execute<LineExecution & { ticketState: string | null }>(sql`
+    select e.id, e.fluxo_versao_id as "flowVersionId", v.fluxo_id as "flowId",
+           e.contexto as context, c.estado as "ticketState"
+      from execucao_fluxo e
+      join fluxo_versao v on v.id = e.fluxo_versao_id
+      left join conversa c on c.id = e.conversa_id
+     where e.tenant_id = ${p.tenantId} and e.contato_id = ${p.contactId} and e.inbox_id = ${p.inboxId}
+     order by e.iniciada_em desc
+     limit 1
+     for update of e
+  `);
+  const latest = rows[0];
+  if (latest && latest.ticketState !== 'encerrada') {
+    return { id: latest.id, flowVersionId: latest.flowVersionId, flowId: latest.flowId, context: latest.context, created: false };
+  }
+  const created = await createExecution(tx, {
+    tenantId: p.tenantId,
+    versaoId: p.publicado.versaoId,
+    flowId: p.publicado.flowId,
+    contactId: p.contactId,
+    inboxId: p.inboxId,
+    conversationId: null,
+  });
+  return { ...created, created: true };
+}
 
 /** Map Pipe's closing actor to Blip `Ticket.Status`. */
 const STATUS_DO_TICKET: Readonly<Record<string, string>> = {
@@ -209,21 +281,23 @@ export async function runFlowInInbound(
 ): Promise<ResultOfFlow> {
   const { conversation } = e;
   // Human ownership wins: the bot does not speak while an agent is assigned.
-  if (conversation.agentId && !retomada) return NAO_TRATOU;
+  if (conversation?.agentId && !retomada) return NAO_TRATOU;
 
   // `for update`: duas mensagens do mesmo cliente ao mesmo tempo andam uma de cada vez.
   const { rows: executions } = await tx.execute<LineExecution>(sql`
     select e.id, e.fluxo_versao_id as "flowVersionId", v.fluxo_id as "flowId",
            e.contexto as context from execucao_fluxo e
       join fluxo_versao v on v.id = e.fluxo_versao_id
-     where e.conversa_id = ${conversation.id}
-     order by e.iniciada_em desc
-     limit 1
+     where e.id = ${e.executionId}
      for update of e
   `);
   let execution = executions[0] ?? null;
+  if (!execution) return NAO_TRATOU;
+  // The ticket the bot works on: open at the start, or created by the handoff during this run.
+  let ticketId: string | null = conversation?.id ?? null;
+  let ticketCreated: string | undefined;
 
-  if (execution && !retomada) {
+  if (!retomada) {
     const { rows: pendentes } = await tx.execute<{ id: string }>(sql`
       select id from process_http_execucao
        where execucao_id = ${execution.id} and estado in ('pendente', 'chamando')
@@ -235,45 +309,30 @@ export async function runFlowInInbound(
   }
 
   // Already queued and waiting for a person is also human-owned.
-  if (conversation.queueId && !retomada) return NAO_TRATOU;
-  if (!execution && (!conversation.nova || !publicado) && !retomada) return NAO_TRATOU;
+  if (conversation?.queueId && !retomada) return NAO_TRATOU;
 
   if (!publicado) {
     // If the conversation belonged to the bot but its flow was unpublished, move it to the queue rather than leave it silent.
-    await transbordarSemFalhar(tx, e, await flowOfConversation(tx, e.tenantId, e.conversation.id), execution?.context ?? {}, 'o fluxo do canal saiu do ar');
+    await transbordarSemFalhar(tx, e, execution.id, execution.flowId, execution.context, 'o fluxo do canal saiu do ar');
     return { tratou: true, respostas: 0 };
   }
 
   const roteador = publicado.router ?? null;
-  if (execution && execution.flowId !== publicado.flowId) {
-    // The router sent the contact to another service; end the prior execution here.
+  // Only a new session receives the `Ticket` from the closed attendance session.
+  const nova = e.newExecution;
+  if (execution.flowId !== publicado.flowId) {
+    // The router sent the contact to another service; end the prior execution and start the service's own.
     await tx.execute(sql`
       update execucao_fluxo set estado = 'concluida', encerrada_em = now() where id = ${execution.id}
     `);
-    execution = null;
-  }
-
-  // Only a new conversation receives the `Ticket` from the closed attendance session.
-  const nova = execution === null && conversation.nova;
-  if (!execution) {
-    // Context belongs to the CONTACT, as in Blip: the new conversation inherits what the bot knew.
-    const { rows: anteriores } = await tx.execute<{ contexto: Record<string, string> }>(sql`
-      select e.contexto from execucao_fluxo e
-        join fluxo_versao v on v.id = e.fluxo_versao_id
-       where e.contato_id = ${e.contactId} and v.fluxo_id = ${publicado.flowId}
-       order by e.iniciada_em desc
-       limit 1
-    `);
-    const { rows: criada } = await tx.execute<LineExecution>(sql`
-      insert into execucao_fluxo (tenant_id, fluxo_versao_id, conversa_id, contato_id, estado, contexto)
-      values (
-        ${e.tenantId}, ${publicado.versaoId}, ${conversation.id}, ${e.contactId}, 'executando',
-        ${JSON.stringify(anteriores[0]?.contexto ?? {})}::jsonb
-      )
-      returning id, fluxo_versao_id as "flowVersionId",
-                ${publicado.flowId}::uuid as "flowId", contexto as context
-    `);
-    execution = criada[0]!;
+    execution = await createExecution(tx, {
+      tenantId: e.tenantId,
+      versaoId: publicado.versaoId,
+      flowId: publicado.flowId,
+      contactId: e.contactId,
+      inboxId: e.inboxId,
+      conversationId: ticketId,
+    });
   } else if (execution.flowVersionId !== publicado.versaoId) {
     // If a new version is published during a conversation, retain the same context. A state
     // that no longer exists falls back to root, as `FlowManager` does.
@@ -324,19 +383,31 @@ export async function runFlowInInbound(
   // failure (`EngineError` → overflow to the queue) and the inbound transaction stays usable.
   const emSavepoint = <T>(fn: (sp: TransactionPipe) => Promise<T>): Promise<T> => tx.transaction(fn);
   /** The bot's attendance handoff, shared by `forwardForAttendance` and the `/transfer` command. */
-  const transferirPeloBot = async (sp: TransactionPipe, queueId: string | null): Promise<void> => {
-    await transbordar(sp, e, publicado.flowId, queueId, variables, null, relogio());
+  const transferirPeloBot = async (sp: TransactionPipe, queueId: string | null): Promise<string> => {
+    const id = await transbordar(sp, e, execution.id, publicado.flowId, queueId, variables, null, relogio());
+    if (ticketId !== id) ticketCreated = id;
+    ticketId = id;
     transferida = true;
+    return id;
   };
+  const NO_TICKET = 'Não há ticket aberto para esta conversa.';
 
   const tickets: TicketEffects = {
     get: async (sp) => {
+      if (!ticketId) return null;
       const { rows } = await sp.execute<{ id: string; estado: string; prioridade: string; fila_id: string | null }>(sql`
-        select id, estado, prioridade, fila_id from conversa where id = ${e.conversation.id} and tenant_id = ${e.tenantId}
+        select id, estado, prioridade, fila_id from conversa where id = ${ticketId} and tenant_id = ${e.tenantId}
       `);
       return rows[0] ?? null;
     },
     changeTags: async (sp, tags) => {
+      if (!ticketId) {
+        // No ticket yet: the handoff applies them when it creates it.
+        const pending = new Set<string>(JSON.parse(variables[PENDING_TAGS] ?? '[]') as string[]);
+        for (const name of tags) pending.add(name);
+        variables[PENDING_TAGS] = JSON.stringify([...pending]);
+        return;
+      }
       for (const name of tags) {
         const { rows } = await sp.execute<{ id: string }>(sql`
           insert into etiqueta (tenant_id, nome, escopo, atualizado_em)
@@ -346,22 +417,27 @@ export async function runFlowInInbound(
         `);
         await sp.execute(sql`
           insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, em)
-          values (${e.tenantId}, ${e.conversation.id}, ${rows[0]!.id}, now()) on conflict do nothing
+          values (${e.tenantId}, ${ticketId}, ${rows[0]!.id}, now()) on conflict do nothing
         `);
       }
     },
-    transfer: (sp, queueId) => transferirPeloBot(sp, queueId),
-    enqueue: (sp) => transferirPeloBot(sp, null),
+    transfer: async (sp, queueId) => { await transferirPeloBot(sp, queueId); },
+    enqueue: async (sp) => { await transferirPeloBot(sp, null); },
     close: async (sp, closedBy) => {
+      if (!ticketId) throw new Error(NO_TICKET);
       const { rows } = await sp.execute<LineConversation>(sql`
         select id, estado as state, fila_id as "queueId", atendente_id as "agentId", em_espera_desde
-          from conversa where id = ${e.conversation.id} and tenant_id = ${e.tenantId}::uuid limit 1
+          from conversa where id = ${ticketId} and tenant_id = ${e.tenantId}::uuid limit 1
       `);
       if (!rows[0]) throw new Error('A conversa não existe.');
       await closeInTransaction(sp, e.tenantId, rows[0], null, [], new Date(), closedBy);
     },
     setPriority: async (sp, priority) => {
-      await sp.execute(sql`update conversa set prioridade = ${priority}, atualizado_em = now() where id = ${e.conversation.id} and tenant_id = ${e.tenantId}`);
+      if (!ticketId) {
+        variables[PENDING_PRIORITY] = priority;
+        return;
+      }
+      await sp.execute(sql`update conversa set prioridade = ${priority}, atualizado_em = now() where id = ${ticketId} and tenant_id = ${e.tenantId}`);
     },
   };
 
@@ -381,7 +457,7 @@ export async function runFlowInInbound(
         await emSavepoint((sp) => gravarRespostaDoBot(
           sp,
           e.tenantId,
-          conversation.id,
+          { conversationId: ticketId, executionId: execution.id },
           saida.texto,
           relogio(),
           saida.dados,
@@ -392,19 +468,25 @@ export async function runFlowInInbound(
       // The ticket, in the queue `chooseQueue` decides (`enterQueue`).
       forwardForAttendance: async ({ settings }) => {
         const queueId = typeof settings?.['filaId'] === 'string' ? settings['filaId'] : null;
-        return emSavepoint(async (sp) => {
-          await transferirPeloBot(sp, queueId);
-          return ticketOfConversation(sp, conversation.id);
-        });
+        return emSavepoint(async (sp) => ticketOfConversation(sp, await transferirPeloBot(sp, queueId)));
       },
-      queueOfHandoff: async (sp, queueId) => (await chooseQueueOfConversation(sp, {
-        tenantId: e.tenantId,
-        conversationId: conversation.id,
-        flowId: publicado.flowId,
-        queueId,
-        defaultQueueId: e.conversation.queueDefaultId,
-        message: e.message.content,
-      })).queueId,
+      queueOfHandoff: async (sp, queueId) => (ticketId
+        ? await chooseQueueOfConversation(sp, {
+            tenantId: e.tenantId,
+            conversationId: ticketId,
+            flowId: publicado.flowId,
+            queueId,
+            defaultQueueId: e.queueDefaultId,
+            message: e.message.content,
+          })
+        : await chooseQueueOfContact(sp, {
+            tenantId: e.tenantId,
+            contactId: e.contactId,
+            flowId: publicado.flowId,
+            queueId,
+            defaultQueueId: e.queueDefaultId,
+            message: e.message.content,
+          })).queueId,
       messaging: databaseMessagingEffects({ tenantId: e.tenantId, flowId: publicado.flowId, contactId: e.contactId }),
       registerEvent: async (evento) => {
         eventos.push(evento);
@@ -420,15 +502,20 @@ export async function runFlowInInbound(
           where id = ${e.contactId}`));
       },
       recordSatisfactionAnswer: (answer) => emSavepoint(async (tx) => {
-        const recent = await mostRecentClosedAttendance(tx, e.contactId, conversation.id);
+        const recent = await mostRecentClosedAttendance(tx, e.contactId, ticketId);
+        // The answer evaluates a closed attendance; without one there is nothing to evaluate.
+        if (!recent) {
+          console.warn('[fluxo] pesquisa sem atendimento para avaliar');
+          return;
+        }
         const blockId = variables[stateKey(flow.id)] ?? null;
         await tx.execute(sql`
           insert into pesquisa_satisfacao_resposta (
             tenant_id, conversa_id, conversa_atendimento_id, fluxo_bloco_id, fila_id,
             atendente_id, contato_id, nota, comentario, estado, respondida_em
           ) values (
-            ${e.tenantId}, ${conversation.id}, ${recent?.id ?? null}, ${blockId},
-            ${recent?.queueId ?? null}, ${recent?.agentId ?? null}, ${e.contactId},
+            ${e.tenantId}, ${recent.id}, ${recent.id}, ${blockId},
+            ${recent.queueId}, ${recent.agentId}, ${e.contactId},
             ${answer.rating}, ${answer.comment}, ${answer.status},
             ${answer.status === 'sem_resposta' ? null : relogio()}
           )
@@ -617,8 +704,9 @@ export async function runFlowInInbound(
       `);
       await saveContextOfRouter();
       // Blip would leave the user waiting without a reply; here the conversation goes to the queue.
-      if (!transferida)
-        await transbordarSemFalhar(tx, e, publicado.flowId, variables, `o fluxo falhou: ${erro.message}`);
+      if (!transferida) {
+        ticketCreated = (await transbordarSemFalhar(tx, e, executionId, publicado.flowId, variables, `o fluxo falhou: ${erro.message}`)) ?? ticketCreated;
+      }
       return false;
     }
   };
@@ -636,7 +724,7 @@ export async function runFlowInInbound(
     stateBefore?.startsWith('desk:') &&
     sessionBefore.flow.states.some((s) => s.id === stateBefore)
   ) {
-    const ticket = await lastAttendance(tx, e.contactId, conversation.id);
+    const ticket = await lastAttendance(tx, e.contactId, ticketId, executionId);
     idProvedorUsado = true;
     const certo = await rodar(
       {
@@ -647,7 +735,7 @@ export async function runFlowInInbound(
       },
       { ticket, id_provedor: e.message.idProvedor, mensagem_id: e.message.id },
     );
-    if (!certo) return { tratou: true, respostas };
+    if (!certo) return { tratou: true, respostas, ...(ticketCreated ? { ticketId: ticketCreated } : {}) };
     // The bot stopped after replying to the customer; the next customer message wakes it.
     // After returning to the root or leaving the flow, treat this message as the first input, as Blip does.
     const sessionAfter = activeFlowSession(variables, flow);
@@ -656,7 +744,7 @@ export async function runFlowInInbound(
       await saveExecution(tx, executionId, variables, flow.id, blockByCode, transferida);
       await saveContextOfRouter();
       await syncInputExpiration(tx, e.tenantId, executionId, flow, transferida ? null : depois);
-      return { tratou: true, respostas };
+      return { tratou: true, respostas, ...(ticketCreated ? { ticketId: ticketCreated } : {}) };
     }
   }
 
@@ -687,7 +775,7 @@ export async function runFlowInInbound(
     flow,
     certo && !transferida && !processHttpId ? stateSaved(variables, flow.id) : null,
   );
-  return { tratou: true, respostas, ...(processHttpId ? { processHttpId } : {}) };
+  return { tratou: true, respostas, ...(processHttpId ? { processHttpId } : {}), ...(ticketCreated ? { ticketId: ticketCreated } : {}) };
 }
 
 /** Perform HTTP outside the transaction, then resume the saved cursor in a second transaction. */
@@ -762,18 +850,18 @@ async function resumeCallOfProcessHttp(
     const { rows } = await tx.execute<{
       executionId: string; bloco_codigo: string; lista: CursorDeProcessHttp['lista'];
       indice: number; entrada: Record<string, unknown>; contexto: Record<string, string>;
-      conversationId: string; contactId: string; channelId: string; queueId: string | null;
+      conversationId: string | null; contactId: string; channelId: string; inboxId: string; queueId: string | null;
       agentId: string | null; queueDefaultId: string | null;
     }>(sql`
       select p.execucao_id as "executionId", p.bloco_codigo, p.lista, p.indice, p.entrada, p.contexto,
-             e.conversa_id as "conversationId", e.contato_id as "contactId", i.canal_id as "channelId", c.fila_id as "queueId", c.atendente_id as "agentId",
+             e.conversa_id as "conversationId", e.contato_id as "contactId", i.canal_id as "channelId", i.id as "inboxId", c.fila_id as "queueId", c.atendente_id as "agentId",
              i.fila_padrao_id as "queueDefaultId"
         from process_http_execucao p
         join execucao_fluxo e on e.id = p.execucao_id
-        join conversa c on c.id = e.conversa_id
+        left join conversa c on c.id = e.conversa_id
         join fluxo_versao v on v.id = e.fluxo_versao_id
         join fluxo f on f.id = v.fluxo_id
-        join inbox i on i.id = c.inbox_id
+        join inbox i on i.id = coalesce(c.inbox_id, e.inbox_id)
        where p.id = ${processoId} and p.estado = 'chamando'
        for update of p
     `);
@@ -788,10 +876,13 @@ async function resumeCallOfProcessHttp(
     if (!publicado) return;
     const retomada = await runFlowInInbound(tx, publicado, {
       tenantId,
-      conversation: {
-        id: p.conversationId, nova: false, queueId: p.queueId,
-        agentId: p.agentId, queueDefaultId: p.queueDefaultId,
-      },
+      inboxId: p.inboxId,
+      executionId: p.executionId,
+      newExecution: false,
+      queueDefaultId: p.queueDefaultId,
+      conversation: p.conversationId
+        ? { id: p.conversationId, queueId: p.queueId, agentId: p.agentId }
+        : null,
       contactId: p.contactId,
       message: {
         id: typeof p.entrada['id'] === 'string' ? p.entrada['id'] : null,
@@ -811,7 +902,7 @@ async function resumeCallOfProcessHttp(
     }>(sql`
       select m.id, m.id_provedor as "idProvider", m.tipo as "type", m.conteudo as "content"
         from mensagem m
-       where m.conversa_id = ${p.conversationId} and m.direcao = 'entrada'
+       where (m.execucao_id = ${p.executionId} or m.conversa_id = ${p.conversationId}::uuid) and m.direcao = 'entrada'
          and not exists (
            select 1 from execucao_passo ep
             where ep.execucao_id = ${p.executionId}
@@ -822,10 +913,13 @@ async function resumeCallOfProcessHttp(
     for (const mensagem of messagesPending) {
       const atual = await runFlowInInbound(tx, publicado, {
         tenantId,
-        conversation: {
-          id: p.conversationId, nova: false, queueId: null,
-          agentId: null, queueDefaultId: p.queueDefaultId,
-        },
+        inboxId: p.inboxId,
+        executionId: p.executionId,
+        newExecution: false,
+        queueDefaultId: p.queueDefaultId,
+        conversation: p.conversationId
+          ? { id: p.conversationId, queueId: null, agentId: null }
+          : null,
         contactId: p.contactId,
         message: {
           id: mensagem.id,
@@ -984,67 +1078,125 @@ async function gravarPassos(
 async function transbordar(
   tx: TransactionPipe,
   e: InboundInFlow,
+  executionId: string,
   flowId: string | null,
   queueId: string | null,
   variaveis: Record<string, string>,
   motivo: string | null,
   em: Date,
-): Promise<void> {
+  requireQueue = false,
+): Promise<string> {
+  // The ticket is born here (D-15). An open one (existing, or created earlier in this run) is reused.
+  let ticketId = e.conversation?.id ?? null;
+  if (!ticketId) {
+    const { rows } = await tx.execute<{ id: string }>(sql`
+      select c.id from execucao_fluxo x join conversa c on c.id = x.conversa_id
+       where x.id = ${executionId} and x.tenant_id = ${e.tenantId} and c.estado <> 'encerrada'
+    `);
+    ticketId = rows[0]?.id ?? null;
+  }
+  const tags = variaveis[PENDING_TAGS] ? (JSON.parse(variaveis[PENDING_TAGS]) as string[]) : [];
+  if (!ticketId) {
+    const { rows: ultima } = await tx.execute<{ id: string; em: Date; autor: string; entrada: Date | null; entradaId: string | null }>(sql`
+      select id, criada_em as em, autor_tipo as autor,
+             (select max(criada_em) from mensagem where execucao_id = ${executionId} and direcao = 'entrada') as entrada,
+             (select id from mensagem where execucao_id = ${executionId} and direcao = 'entrada' order by criada_em desc limit 1) as "entradaId"
+        from mensagem where execucao_id = ${executionId} and tenant_id = ${e.tenantId}
+       order by criada_em desc limit 1
+    `);
+    const last = ultima[0];
+    const window = last?.entrada ? contactRegisterMessage(new Date(last.entrada), last.entradaId ?? undefined) : null;
+    const priority = variaveis[PENDING_PRIORITY] ?? 'sem_prioridade';
+    const { rows: criada } = await tx.execute<{ id: string }>(sql`
+      insert into conversa (
+        tenant_id, inbox_id, contato_id, fila_id, estado, prioridade, criada_em,
+        ultima_mensagem_em, ultima_mensagem_de, janela_expira_em, janela_aberta_por_mensagem_id
+      ) values (
+        ${e.tenantId}, ${e.inboxId}, ${e.contactId}, null, 'na_fila', ${priority}, ${em},
+        ${last ? new Date(last.em) : null}, ${last?.autor ?? null},
+        ${window?.expiraEm ?? null}, ${window?.openByMessageId ?? null}
+      )
+      returning id
+    `);
+    ticketId = criada[0]!.id;
+    await tx.execute(sql`update execucao_fluxo set conversa_id = ${ticketId} where id = ${executionId} and tenant_id = ${e.tenantId}`);
+    // Adopt the bot history: only this session's messages of this tenant that have no ticket yet.
+    await tx.execute(sql`
+      update mensagem set conversa_id = ${ticketId}
+       where execucao_id = ${executionId} and conversa_id is null and tenant_id = ${e.tenantId}
+    `);
+    for (const name of tags) {
+      const { rows } = await tx.execute<{ id: string }>(sql`
+        insert into etiqueta (tenant_id, nome, escopo, atualizado_em)
+        values (${e.tenantId}, ${name}, 'conversa', now())
+        on conflict (tenant_id, nome) do update set atualizado_em = now()
+        returning id
+      `);
+      await tx.execute(sql`
+        insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, em)
+        values (${e.tenantId}, ${ticketId}, ${rows[0]!.id}, now()) on conflict do nothing
+      `);
+    }
+    await emitir(tx, e.tenantId, 'conversa.criada', { conversa_id: ticketId, contato_id: e.contactId, fila_id: null });
+  }
+  const id = ticketId;
   await enterQueue(tx, {
     tenantId: e.tenantId,
-    conversationId: e.conversation.id,
+    conversationId: id,
     flowId,
     queueId,
-    defaultQueueId: e.conversation.queueDefaultId,
+    defaultQueueId: e.queueDefaultId,
     message: e.message.content,
     at: em,
     origin: 'fluxo',
-    requireQueue: true,
+    requireQueue: requireQueue,
     eventData: { origem: 'fluxo', ...(motivo ? { motivo } : {}) },
     beforeDistribution: async (destination) => {
       // Give the agent what the bot collected about the customer in the note shown by Desk.
       await tx.execute(sql`
         insert into nota_interna (tenant_id, conversa_id, corpo, em)
-        values (${e.tenantId}, ${e.conversation.id}, ${summaryOfContext(variaveis, motivo)}, ${em})
+        values (${e.tenantId}, ${id}, ${summaryOfContext(variaveis, motivo)}, ${em})
       `);
       await emitir(tx, e.tenantId, 'conversa.estado_alterado', {
-        conversa_id: e.conversation.id,
+        conversa_id: id,
         estado: 'na_fila',
         fila_id: destination,
       });
     },
   });
+  delete variaveis[PENDING_TAGS];
+  delete variaveis[PENDING_PRIORITY];
+  return id;
 }
 
-/** The emergency fallback must not abort the incoming message. */
+/** The emergency fallback must not abort the incoming message. Returns the ticket it created, if any. */
 async function transbordarSemFalhar(
   tx: TransactionPipe,
   e: InboundInFlow,
+  executionId: string,
   flowId: string | null,
   variaveis: Record<string, string>,
   motivo: string,
-): Promise<void> {
+): Promise<string | undefined> {
+  // Each attempt in a savepoint: a failed attempt leaves no half-created ticket behind.
   try {
-    await transbordar(tx, e, flowId, null, variaveis, motivo, new Date());
+    return await tx.transaction((sp) => transbordar(sp, e, executionId, flowId, null, variaveis, motivo, new Date(), true));
   } catch (erro) {
-    console.error(`[fluxo] conversa ${e.conversation.id} ficou sem fila: ${(erro as Error).message}`);
-    // No queue to go to (no rule, no inbox default): the bot gave up, so the conversation must not
-    // stay hidden `com_bot`. It waits queueless for any agent, as a queueless inbound one does.
-    try {
-      await tx.execute(sql`
-        update conversa set estado = 'na_fila', atualizado_em = now()
-         where id = ${e.conversation.id} and estado = 'com_bot'
-      `);
-    } catch (falha) {
-      console.error(`[fluxo] conversa ${e.conversation.id} ficou com o bot: ${(falha as Error).message}`);
-    }
+    console.error(`[fluxo] execução ${executionId} ficou sem fila: ${(erro as Error).message}`);
+  }
+  // No queue to go to (no rule, no inbox default): the ticket waits queueless for any agent.
+  try {
+    return await tx.transaction((sp) => transbordar(sp, e, executionId, flowId, null, variaveis, motivo, new Date(), false));
+  } catch (falha) {
+    console.error(`[fluxo] execução ${executionId} ficou com o bot: ${(falha as Error).message}`);
+    return undefined;
   }
 }
 
 /** Variables collected by the bot, excluding engine control keys. */
 export function summaryOfContext(variaveis: Record<string, string>, motivo: string | null): string {
   const linhas = Object.entries(variaveis)
-    .filter(([k]) => !/^(previous-)?stateId@/.test(k) && !k.startsWith('desk_') && !k.startsWith('#'))
+    .filter(([k]) => !/^(previous-)?stateId@/.test(k) && !k.startsWith('desk_') && !k.startsWith('#') && !k.startsWith('pipe.ticket.'))
     .map(([k, v]) => `- ${k}: ${v}`);
   return [
     motivo ? `Transferida pelo bot (${motivo}).` : 'Transferida pelo bot.',
@@ -1059,7 +1211,7 @@ export function summaryOfContext(variaveis: Record<string, string>, motivo: stri
 async function gravarRespostaDoBot(
   tx: TransactionPipe,
   tenantId: string,
-  conversationId: string,
+  where: { conversationId: string | null; executionId: string },
   texto: string | null,
   em: Date,
   /** `{ pergunta }` for a menu (the worker chooses buttons, a list, or text) or `{ midia }` for a media type. */
@@ -1073,10 +1225,10 @@ async function gravarRespostaDoBot(
   });
   const { rows } = await tx.execute<{ id: string }>(sql`
     insert into mensagem (
-      tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, estado_entrega, criada_em,
+      tenant_id, conversa_id, execucao_id, direcao, autor_tipo, tipo, conteudo, estado_entrega, criada_em,
       dentro_da_janela, categoria_cobranca, dados
     ) values (
-      ${tenantId}, ${conversationId}, 'saida', 'bot', ${tipo}, ${texto}, 'pendente', ${em}, true, ${categoria},
+      ${tenantId}, ${where.conversationId}, ${where.executionId}, 'saida', 'bot', ${tipo}, ${texto}, 'pendente', ${em}, true, ${categoria},
       ${data ? JSON.stringify(data) : null}::jsonb
     )
     returning id
@@ -1086,15 +1238,18 @@ async function gravarRespostaDoBot(
   await tx.execute(sql`
     insert into outbox_mensagem (tenant_id, mensagem_id, estado) values (${tenantId}, ${messageId}, 'pendente')
   `);
-  await tx.execute(sql`
-    update conversa set ultima_mensagem_em = ${em}, ultima_mensagem_de = 'bot', atualizado_em = now()
-     where id = ${conversationId}
-  `);
-  // A null `usuarioId` distinguishes bot output from agent output in metrics.
-  await registrarEvento(tx, { tenantId, conversationId, type: 'mensagem_saida', at: em });
+  if (where.conversationId) {
+    await tx.execute(sql`
+      update conversa set ultima_mensagem_em = ${em}, ultima_mensagem_de = 'bot', atualizado_em = now()
+       where id = ${where.conversationId}
+    `);
+    // A null `usuarioId` distinguishes bot output from agent output in metrics.
+    await registrarEvento(tx, { tenantId, conversationId: where.conversationId, type: 'mensagem_saida', at: em });
+  }
   await emitir(tx, tenantId, 'mensagem.criada', {
     mensagem_id: messageId,
-    conversa_id: conversationId,
+    conversa_id: where.conversationId,
+    execucao_id: where.executionId,
     direcao: 'saida',
     tipo,
     conteudo: texto,
@@ -1398,7 +1553,7 @@ type RecentAttendance = {
 async function mostRecentClosedAttendance(
   tx: TransactionPipe,
   contatoId: string,
-  conversationCurrentId: string,
+  conversationCurrentId: string | null,
 ): Promise<RecentAttendance | null> {
   const { rows } = await tx.execute<RecentAttendance>(sql`
     select c.id,
@@ -1418,7 +1573,7 @@ async function mostRecentClosedAttendance(
       from conversa c
       left join fila q on q.id = c.fila_id
       left join usuario u on u.id = c.atendente_id
-     where c.contato_id = ${contatoId} and c.estado = 'encerrada' and c.id <> ${conversationCurrentId}
+     where c.contato_id = ${contatoId} and c.estado = 'encerrada' and (${conversationCurrentId}::uuid is null or c.id <> ${conversationCurrentId}::uuid)
      order by c.encerrada_em desc nulls last
      limit 1
   `);
@@ -1429,7 +1584,8 @@ async function mostRecentClosedAttendance(
 async function lastAttendance(
   tx: TransactionPipe,
   contatoId: string,
-  conversationCurrentId: string,
+  conversationCurrentId: string | null,
+  executionId: string,
 ): Promise<{
   id: string;
   status: string;
@@ -1444,7 +1600,7 @@ async function lastAttendance(
 }> {
   const recent = await mostRecentClosedAttendance(tx, contatoId, conversationCurrentId);
   return {
-    id: recent?.id ?? conversationCurrentId,
+    id: recent?.id ?? executionId,
     status: STATUS_DO_TICKET[recent?.by ?? ''] ?? 'ClosedAttendant',
     closed: true,
     tags: recent?.tags ?? [],

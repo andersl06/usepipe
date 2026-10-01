@@ -203,3 +203,26 @@ export function payloadOfMessage(
 export async function adotarFilas(cenario: Pick<Cenario, 'dono' | 'tenantId'>, flowId: string): Promise<void> {
   await cenario.dono.execute(sql`update fila set fluxo_id = ${flowId}::uuid where tenant_id = ${cenario.tenantId}::uuid`);
 }
+
+/** The bot session of a contact: the latest execution, which holds the talk until a handoff creates the ticket. */
+export async function sessaoDoBot(
+  cenario: Pick<Cenario, 'dono' | 'tenantId'>,
+  telefone: string,
+): Promise<{ id: string; estado: string; conversa_id: string | null }> {
+  const { rows } = await cenario.dono.execute<{ id: string; estado: string; conversa_id: string | null }>(sql`
+    select e.id, e.estado, e.conversa_id
+      from execucao_fluxo e join contato ct on ct.id = e.contato_id
+     where e.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
+     order by e.iniciada_em desc limit 1
+  `);
+  if (!rows[0]) throw new Error(`sem sessão do bot para ${telefone}`);
+  return rows[0];
+}
+
+/** What the bot said in a session, whether or not a ticket adopted the messages. */
+export async function respostasDoBot(cenario: Pick<Cenario, 'dono'>, execucaoId: string): Promise<string[]> {
+  const { rows } = await cenario.dono.execute<{ conteudo: string }>(sql`
+    select conteudo from mensagem where execucao_id = ${execucaoId}::uuid and autor_tipo = 'bot' order by criada_em
+  `);
+  return rows.map((r) => r.conteudo);
+}

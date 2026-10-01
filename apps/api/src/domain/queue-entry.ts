@@ -200,6 +200,18 @@ export async function chooseQueueOfConversation(
   return chooseQueue(tx, input.tenantId, { ...input, contact });
 }
 
+/** `chooseQueue` before any ticket exists (the bot still holds the contact), reading the contact. */
+export async function chooseQueueOfContact(
+  tx: TransactionPipe,
+  input: Pick<EnterQueueInput, 'tenantId' | 'flowId' | 'queueId' | 'defaultQueueId' | 'message'> & { contactId: string },
+): Promise<QueueChoice> {
+  const { rows } = await tx.execute<Omit<ContactRow, 'priority'>>(sql`
+    select nome as name, email, telefone_e164 as phone, atributos as extras
+      from contato where id = ${input.contactId}::uuid and tenant_id = ${input.tenantId}::uuid limit 1
+  `);
+  return chooseQueue(tx, input.tenantId, { ...input, contact: rows[0] ?? null });
+}
+
 /**
  * The first of `checks` that fails for the queue: a closed queue (its `horario_id` schedule,
  * exceptions included) before a queue with nobody online. A queue without a schedule is always
