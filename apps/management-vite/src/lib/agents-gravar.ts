@@ -1,5 +1,6 @@
 import { api } from '@pipe/ui/api';
 import { atualizarLeituras } from './actions';
+import { withFlow } from './flow-scope';
 import { motivoDe, type Resultado } from './rest';
 import { queueUnlinkAgent, linkAgentInQueue } from './registrations-gravar';
 
@@ -51,13 +52,14 @@ export async function savePermissions(
  * Reference bulk edit (`Editar N atendentes`, requiring at least one field) assigns selected agents to a queue and/or sets an individual concurrent-ticket limit. Pipe has no separate edit-agent route: concurrency comes from queue membership (`fila_atendente.capacidade_override` over `fila.capacidade_padrao`), so both fields write through `POST /filas/:id/atendentes`. Existing members get an updated capacity; others join.
  */
 export async function applyInSelection(
+  flowId: string,
   userIds: readonly string[],
   queueIds: readonly string[],
   capacityOverride: number | null,
 ): Promise<Resultado<void>> {
   for (const id of userIds) {
     for (const queueId of queueIds) {
-      const r = await linkAgentInQueue(queueId, id, capacityOverride);
+      const r = await linkAgentInQueue(flowId, queueId, id, capacityOverride);
       if (!r.ok) return { ok: false, error: r.error };
     }
   }
@@ -68,6 +70,7 @@ export async function applyInSelection(
  * Grava a edição de UM atendente: entra nas filas marcadas (aplicando o teto individual; `null` volta ao padrão da fila; `undefined` não mexe nas filas em que já está) e sai das desmarcadas.
  */
 export async function saveAgent(
+  flowId: string,
   userId: string,
   current: readonly string[],
   next: readonly string[],
@@ -77,7 +80,7 @@ export async function saveAgent(
   const r = await applyInSelection([userId], alvo, capacity ?? null);
   if (!r.ok) return r;
   for (const queueId of current.filter((f) => !next.includes(f))) {
-    const u = await queueUnlinkAgent(queueId, userId);
+    const u = await queueUnlinkAgent(flowId, queueId, userId);
     if (!u.ok) return u;
   }
   return { ok: true, value: undefined };
@@ -87,11 +90,12 @@ export async function saveAgent(
  * Recorded difference from the reference: its Excluir icon removes a person from the attendance team. Pipe has no such team record; tenant `usuario` is the account, and only queue members receive conversations. Here Excluir removes the agent from all queues while retaining the account and conversation history. Deleting the user would destroy history and exceed what the icon promises.
  */
 export async function removeFromAllQueues(
+  flowId: string,
   agentId: string,
   queueIds: readonly string[],
 ): Promise<Resultado<void>> {
   for (const queueId of queueIds) {
-    const r = await queueUnlinkAgent(queueId, agentId);
+    const r = await queueUnlinkAgent(flowId, queueId, agentId);
     if (!r.ok) return r;
   }
   return { ok: true, value: undefined };
@@ -107,10 +111,11 @@ export interface RequestOfRuleOfPriority {
 }
 
 export async function priorityCreateRule(
+  flowId: string,
   pedido: RequestOfRuleOfPriority,
 ): Promise<Resultado<void>> {
   try {
-    await api.post('/v1/management/rules/priority', { name: pedido.nome, level: pedido.nivel, scopeType: pedido.scopeType, scopeId: pedido.scopeId });
+    await api.post(withFlow('/v1/management/rules/priority', flowId), { flowId, name: pedido.nome, level: pedido.nivel, scopeType: pedido.scopeType, scopeId: pedido.scopeId });
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -118,9 +123,9 @@ export async function priorityCreateRule(
   }
 }
 
-export async function priorityDeleteRule(id: string): Promise<Resultado<void>> {
+export async function priorityDeleteRule(flowId: string, id: string): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/management/rules/priority/${id}`);
+    await api.delete(withFlow(`/v1/management/rules/priority/${id}`, flowId));
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

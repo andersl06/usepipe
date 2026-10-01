@@ -40,6 +40,7 @@ export interface QueueRegistered {
   capacityDefault: number;
   order: number;
   ativa: boolean;
+  isDefault?: boolean;
   scheduleId: string | null;
   horarioNome: string | null;
   agents: QueueAgent[];

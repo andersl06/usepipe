@@ -244,3 +244,10 @@ test('ruleToDraft -> draftToApi preserva a regra guardada', () => {
     conditions: mista.conditions.map((c) => ({ campo: c.field, operador: c.operator, value: c.value })),
   });
 });
+
+test('withFlow anexa flowId codificado', async () => {
+  const { withFlow } = await import('../src/lib/flow-scope.ts');
+  assert.equal(withFlow('/v1/management/agents/queues', 'f1'), '/v1/management/agents/queues?flowId=f1');
+  assert.equal(withFlow('/x?a=1', 'f1'), '/x?a=1&flowId=f1');
+  assert.equal(withFlow('/x', 'a b'), '/x?flowId=a%20b');
+});

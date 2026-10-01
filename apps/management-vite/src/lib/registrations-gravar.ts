@@ -1,5 +1,6 @@
 import { api, ApiError } from '@pipe/ui/api';
 import { atualizarLeituras } from './actions';
+import { withFlow } from './flow-scope';
 import { motivoDe, type Resultado } from './rest';
 import type { OperadorDeRegra } from './rule-queue';
 
@@ -12,9 +13,9 @@ import type { OperadorDeRegra } from './rule-queue';
 export const falhaAoSalvar = (motivo: string) =>
   `Não foi possível salvar: ${motivo}. Suas alterações continuam na tela; tente novamente.`;
 
-export async function toggleQueue(id: string, active: boolean): Promise<Resultado<void>> {
+export async function toggleQueue(flowId: string, id: string, active: boolean): Promise<Resultado<void>> {
   try {
-    await api.patch(`/v1/management/agents/queues/${id}`, { ativa: !active });
+    await api.patch(withFlow(`/v1/management/agents/queues/${id}`, flowId), { ativa: !active });
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -22,9 +23,9 @@ export async function toggleQueue(id: string, active: boolean): Promise<Resultad
   }
 }
 
-export async function deleteQueue(id: string): Promise<Resultado<void>> {
+export async function deleteQueue(flowId: string, id: string): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/management/agents/queues/${id}`);
+    await api.delete(withFlow(`/v1/management/agents/queues/${id}`, flowId));
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -76,12 +77,13 @@ export interface RequestOfEditOfQueue {
 }
 
 export async function editQueue(
+  flowId: string,
   id: string,
   pedido: RequestOfEditOfQueue,
 ): Promise<ResultadoComCampo<void>> {
   try {
     // Body keys follow the API (`RequestOfEditOfQueue`: name, color, scheduleId, ativa).
-    await api.patch(`/v1/management/agents/queues/${id}`, {
+    await api.patch(withFlow(`/v1/management/agents/queues/${id}`, flowId), {
       name: pedido.nome,
       color: pedido.cor,
       scheduleId: pedido.horarioId,
@@ -98,12 +100,14 @@ export async function editQueue(
 
 /** Link an agent to a queue through `POST .../filas/:id/atendentes`; omitting capacity uses the queue default. */
 export async function linkAgentInQueue(
+  flowId: string,
   queueId: string,
   agentId: string,
   capacityOverride?: number | null,
 ): Promise<ResultadoComCampo<void>> {
   try {
-    await api.post(`/v1/management/agents/queues/${queueId}/agents`, {
+    await api.post(withFlow(`/v1/management/agents/queues/${queueId}/agents`, flowId), {
+      flowId,
       userId: agentId,
       ...(capacityOverride != null ? { capacityOverride } : {}),
     });
@@ -116,11 +120,12 @@ export async function linkAgentInQueue(
 
 /** Desvincular atendente da fila — `DELETE .../filas/:id/atendentes/:atendenteId`. */
 export async function queueUnlinkAgent(
+  flowId: string,
   queueId: string,
   agentId: string,
 ): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/management/agents/queues/${queueId}/agents/${agentId}`);
+    await api.delete(withFlow(`/v1/management/agents/queues/${queueId}/agents/${agentId}`, flowId));
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -160,12 +165,13 @@ export interface RequestOfEditOfRuleQueue {
 }
 
 export async function editRuleQueue(
+  flowId: string,
   id: string,
   pedido: RequestOfEditOfRuleQueue,
 ): Promise<Resultado<void>> {
   try {
     // Body keys follow the API (`RequestOfEditOfRuleQueue`: name, combiner, condicoes[field, operator]).
-    await api.patch(`/v1/management/rules/attendance/${id}`, {
+    await api.patch(withFlow(`/v1/management/rules/attendance/${id}`, flowId), {
       name: pedido.nome,
       order: pedido.order,
       combiner: pedido.combinador,
@@ -179,12 +185,23 @@ export async function editRuleQueue(
   }
 }
 
-export async function deleteRuleQueue(id: string): Promise<Resultado<void>> {
+export async function deleteRuleQueue(flowId: string, id: string): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/management/rules/attendance/${id}`);
+    await api.delete(withFlow(`/v1/management/rules/attendance/${id}`, flowId));
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
     return { ok: false, error: motivoDe(error, 'Não foi possível excluir a regra.') };
+  }
+}
+
+/** Define (ou limpa, com `null`) a fila padrão do fluxo. */
+export async function setDefaultQueue(flowId: string, queueId: string | null): Promise<Resultado<void>> {
+  try {
+    await api.put('/v1/management/agents/queues/default', { flowId, queueId });
+    atualizarLeituras();
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível definir a fila padrão.') };
   }
 }
