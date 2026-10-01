@@ -11,12 +11,14 @@ import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
+import { flowOfConversation } from '../domain/queue-entry.js';
 import * as consultas from '../domain/desk/consultas.js';
 import { loadMetrics } from '../domain/desk/metrics.js';
 import * as acoesDesk from '../domain/desk/actions.js';
 import * as marcacoes from '../domain/desk/taggings.js';
 import { listLabelsOfContact } from '../domain/etiquetas.js';
 import { Campos, type CamposCrus, type Resultado } from '../domain/management/actions/campos.js';
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * The browser-session Desk API serves screen reads and actions formerly written directly to the database. Reads moved from the Next Desk into `dominio/desk/consultas.ts` and `metricas.ts`: each screen makes one request for its queue and catalogs, conversation items and panel, old ticket or metrics, in a single transaction with serial queries. The attendant always comes from the session; no parameter can inspect someone else's queue or metrics. Server Actions moved unchanged to `dominio/desk/acoes.ts`: forms send JSON `{ campos }`, `Campos` exposes `get`/`getAll` as `FormData` did, and returns the same `Resultado`. The action-name allowlist is closed; an unknown name returns 404. Send, retry, close and wait use existing `POST /v1/conversas/…` routes directly.
@@ -103,9 +105,16 @@ export class DeskController {
   @WithSession()
   queues(
     @Req() request: RequestWithSession,
-  ): Promise<{ queues: { id: string; name: string }[] }> {
+    @Query('conversationId') conversationId?: string,
+  ): Promise<{ queues: { id: string; name: string; flowId: string; flowName: string }[] }> {
     const session = sessionOf(request);
-    return noTenant(session.tenantId, async (tx) => ({ queues: await consultas.listQueues(tx) }));
+    if (conversationId !== undefined && !UUID.test(conversationId)) throw PipeError.naoEncontrado('Conversa');
+    return noTenant(session.tenantId, async (tx) => {
+      const flowId = conversationId ? await flowOfConversation(tx, session.tenantId, conversationId) : null;
+      // An open conversation without a flow has no queue to offer.
+      if (conversationId && !flowId) return { queues: [] };
+      return { queues: await consultas.listQueues(tx, flowId) };
+    });
   }
 
 

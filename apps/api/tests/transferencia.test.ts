@@ -299,3 +299,21 @@ describe('recusas', () => {
     expect((await conversation(deOutro)).state).toBe('encerrada');
   });
 });
+
+describe('fila de outro fluxo', () => {
+  it('recusa a transferência para a fila de outro fluxo e mantém a conversa aberta', async () => {
+    const { rows: fl } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into fluxo (tenant_id, nome, short_name)
+      values (${cenario.tenantId}, 'Outro fluxo', ${`outro${randomUUID().slice(0, 6)}`}) returning id
+    `);
+    const { rows: fi } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into fila (tenant_id, fluxo_id, nome)
+      values (${cenario.tenantId}, ${fl[0]!.id}, ${`Outra ${randomUUID().slice(0, 6)}`}) returning id
+    `);
+    const antiga = await newConversation();
+    const resposta = await transferir(antiga, { forQueueId: fi[0]!.id });
+    expect(resposta.status).toBe(400);
+    expect(await resposta.json()).toMatchObject({ error: { code: 'fila_de_outro_fluxo' } });
+    expect((await conversation(antiga)).state).toBe('em_atendimento');
+  });
+});

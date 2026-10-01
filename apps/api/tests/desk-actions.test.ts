@@ -529,3 +529,59 @@ describe('Transfer selected conversations in bulk', () => {
     expect(typeof body['error']).toBe('string');
   });
 });
+
+describe('Filas por fluxo', () => {
+  let outraFila: string;
+  let outroFluxo: string;
+
+  beforeAll(async () => {
+    const { rows: fl } = await a.dono.execute<{ id: string }>(sql`
+      insert into fluxo (tenant_id, nome, short_name)
+      values (${a.tenantId}, 'Outro fluxo', ${`outro${randomUUID().slice(0, 6)}`}) returning id
+    `);
+    outroFluxo = fl[0]!.id;
+    const { rows: fi } = await a.dono.execute<{ id: string }>(sql`
+      insert into fila (tenant_id, fluxo_id, nome)
+      values (${a.tenantId}, ${outroFluxo}, ${`Outra ${randomUUID().slice(0, 6)}`}) returning id
+    `);
+    outraFila = fi[0]!.id;
+  });
+
+  const filas = async (query = '') => {
+    const r = await fetch(`${api.url}/v1/desk/queues${query}`, { headers: comCookie(sessionAgent) });
+    return (await r.json()) as { queues: { id: string; flowId: string; flowName: string }[] };
+  };
+
+  it('lista só as filas do fluxo da conversa aberta', async () => {
+    const conversaId = await createConversationAssigned(a.agentId);
+    const ids = (await filas(`?conversationId=${conversaId}`)).queues.map((q) => q.id);
+    expect(ids).toContain(a.queueId);
+    expect(ids).not.toContain(outraFila);
+  });
+
+  it('sem conversa lista todas, cada uma com seu fluxo', async () => {
+    const { queues } = await filas();
+    expect(queues.find((q) => q.id === outraFila)).toMatchObject({ flowId: outroFluxo, flowName: 'Outro fluxo' });
+    expect(queues.some((q) => q.id === a.queueId)).toBe(true);
+  });
+
+  it('transferência em massa: a conversa do fluxo entra, a de outro fluxo falha sem abortar', async () => {
+    const { rows: q } = await a.dono.execute<{ id: string }>(sql`
+      insert into fila (tenant_id, fluxo_id, nome)
+      values (${a.tenantId}, ${a.flowId}, ${`Destino ${randomUUID().slice(0, 6)}`}) returning id
+    `);
+    const doFluxo = await createConversationAssigned(a.agentId);
+    const contatoId = await createContact();
+    const { rows: c } = await a.dono.execute<{ id: string }>(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, atribuida_em)
+      values (${a.tenantId}, ${a.inboxId}::uuid, ${contatoId}::uuid, ${outraFila}::uuid, ${a.agentId}::uuid, 'atribuida', now())
+      returning id
+    `);
+    const { body } = await acao(sessionAgent, 'transferirEmMassa', {
+      conversaId: [c[0]!.id, doFluxo],
+      paraFilaId: q[0]!.id,
+    });
+    expect(body).toMatchObject({ ok: true, transferidas: 1 });
+    expect(typeof body['error']).toBe('string');
+  });
+});

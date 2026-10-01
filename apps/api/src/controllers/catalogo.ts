@@ -282,6 +282,11 @@ export class QueuesController {
 
     const filters: SQL[] = [];
     if (query['ativa']) filters.push(sql`ativa = ${query['ativa'] === 'true'}`);
+    const flowId = query['flowId'];
+    if (flowId !== undefined) {
+      if (!UUID.test(flowId)) throw PipeError.request('flowid_invalido', 'flowId inválido.');
+      filters.push(sql`f.fluxo_id = ${flowId}::uuid`);
+    }
 
     const linhas = await noTenant(tenantId, async (tx) => {
       const { rows } = await tx.execute<{
@@ -291,10 +296,11 @@ export class QueuesController {
         order: number;
         active: boolean;
         capacityDefault: number;
+        flowId: string;
         aguardando: string;
         inAttendance: string;
       }>(sql`
-        select f.id, f.nome as "name", f.cor as "color", f.ordem as "order", f.ativa as "active", f.capacidade_padrao as "capacityDefault",
+        select f.id, f.nome as "name", f.cor as "color", f.ordem as "order", f.ativa as "active", f.capacidade_padrao as "capacityDefault", f.fluxo_id as "flowId",
                (select count(*) from conversa c
                  where c.fila_id = f.id and c.estado = 'na_fila')::text as aguardando,
                (select count(*) from conversa c
@@ -319,6 +325,7 @@ export class QueuesController {
         ordem: l.order,
         ativa: l.active,
         capacidade_padrao: l.capacityDefault,
+        flowId: l.flowId,
         aguardando: Number(l.aguardando),
         inAttendance: Number(l.inAttendance),
       })),

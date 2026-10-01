@@ -4,6 +4,7 @@ import { noTenant } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
+import { chooseQueueOfConversation, flowOfConversation } from './queue-entry.js';
 import { sendMessage } from './envio.js';
 import { emitir } from '../webhooks-saida.js';
 
@@ -56,6 +57,8 @@ export interface PedidoDeDisparo {
   parametros?: string[];
   /** Initiating agent; assign the new conversation to that person, as in Blip Desk. */
   agentId?: string | null;
+  /** Explicit queue; must belong to the flow serving the channel. Without it, the flow default queue (or none). */
+  queueId?: string | null;
 }
 
 /**
@@ -238,14 +241,27 @@ async function openConversationOfTrigger(
   const state = agent ? 'atribuida' : 'na_fila';
 
   const { rows } = await tx.execute<{ id: string }>(sql`
-    insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado,
+    insert into conversa (tenant_id, inbox_id, contato_id, atendente_id, estado,
                           criada_em, atribuida_em)
-    values (${canal.tenantId}, ${inbox.id}, ${contactId}, ${inbox.queueDefaultId},
+    values (${canal.tenantId}, ${inbox.id}, ${contactId},
             ${agent}, ${state}, ${agora}, ${agent ? agora : null})
     returning id
   `);
   const conversaId = rows[0]?.id;
   if (!conversaId) throw new Error('não criou a conversa do disparo');
+
+  // Born without a queue: the flow serving the channel is resolved and the queue chosen inside it.
+  const { queueId } = await chooseQueueOfConversation(tx, {
+    tenantId: canal.tenantId,
+    conversationId: conversaId,
+    flowId: await flowOfConversation(tx, canal.tenantId, conversaId),
+    queueId: pedido.queueId ?? null,
+    defaultQueueId: inbox.queueDefaultId,
+    message: null,
+  });
+  if (queueId) {
+    await tx.execute(sql`update conversa set fila_id = ${queueId}::uuid where id = ${conversaId}::uuid`);
+  }
 
   await registrarEvento(tx, {
     tenantId: canal.tenantId,
@@ -253,7 +269,7 @@ async function openConversationOfTrigger(
     type: 'criada',
     at: agora,
     userId: agent,
-    queueId: inbox.queueDefaultId,
+    queueId,
     data: { origem: 'mensagem_ativa' },
   });
   await registrarEvento(tx, {
@@ -262,12 +278,12 @@ async function openConversationOfTrigger(
     type: agent ? 'atribuida' : 'enfileirada',
     at: agora,
     userId: agent,
-    queueId: inbox.queueDefaultId,
+    queueId,
   });
   await emitir(tx, canal.tenantId, 'conversa.criada', {
     conversa_id: conversaId,
     contato_id: contactId,
-    fila_id: inbox.queueDefaultId,
+    fila_id: queueId,
     origem: 'mensagem_ativa',
   });
   return conversaId;

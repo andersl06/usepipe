@@ -476,9 +476,19 @@ export async function contarAguardando(tx: TransactionPipe, atendenteId: string)
 }
 
 
-export async function listQueues(tx: TransactionPipe): Promise<{ id: string; name: string }[]> {
-  const { rows } = await tx.execute<{ id: string; name: string }>(sql`
-    select id, nome as "name" from fila where ativa order by nome
+/**
+ * Active queues. With `flowId`, only that flow's queues (transfer from an open conversation); without it,
+ * every active queue with its flow, for the bulk selection (the server validates each conversation).
+ */
+export async function listQueues(
+  tx: TransactionPipe,
+  flowId: string | null,
+): Promise<{ id: string; name: string; flowId: string; flowName: string }[]> {
+  const { rows } = await tx.execute<{ id: string; name: string; flowId: string; flowName: string }>(sql`
+    select f.id, f.nome as "name", f.fluxo_id as "flowId", fl.nome as "flowName"
+      from fila f join fluxo fl on fl.id = f.fluxo_id
+     where f.ativa ${flowId ? sql`and f.fluxo_id = ${flowId}::uuid` : sql``}
+     order by f.nome, fl.nome
   `);
   return rows;
 }

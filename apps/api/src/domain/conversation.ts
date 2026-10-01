@@ -4,7 +4,7 @@ import type { ClosedBy, StateConversation } from '@pipe/core';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
-import { enterQueue, flowOfConversation } from './queue-entry.js';
+import { assertQueueOfFlow, enterQueue, flowOfConversation } from './queue-entry.js';
 import { requirePermission } from '../session.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../realtime.js';
@@ -336,6 +336,10 @@ export async function transferConversation(
         sql`select id from fila where id = ${forQueue}::uuid and ativa limit 1`,
       );
       if (!f[0]) throw PipeError.naoEncontrado('Fila');
+      // The destination must belong to the flow serving the conversation (`enterQueue` checks it again).
+      const flowId = await flowOfConversation(tx, ator.tenantId, conversa.id);
+      if (!flowId) throw PipeError.request('fila_de_outro_fluxo', 'A fila escolhida não pertence a este fluxo.');
+      await assertQueueOfFlow(tx, ator.tenantId, flowId, forQueue);
       if (forQueue === conversa.queueId && !conversa.agentId) {
         throw PipeError.conflito('same_destination', 'A conversa já está nesta fila.');
       }
