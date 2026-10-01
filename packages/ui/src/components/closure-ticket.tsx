@@ -120,7 +120,7 @@ export function CardClosureTicket({
         </div>
         {error ? <p className="pipe-closure-error" role="alert">{error}</p> : null}
         <div className="pipe-closure-actions">
-          <button type="button" className="secundario" onClick={aoCancelar} disabled={enviando}>Cancelar</button>
+          <button type="button" className="secundario" autoFocus onClick={aoCancelar} disabled={enviando}>Cancelar</button>
           <button type="button" className="primario" onClick={aoFinalizar} disabled={!podeFinalizar}>Finalizar</button>
         </div>
       </section>

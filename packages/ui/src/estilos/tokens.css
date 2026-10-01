@@ -262,6 +262,19 @@
   --p-atend-paginacao-seletor: 74px;
   --p-atend-paginacao-botao: 40px;
   --p-atend-paginacao-icone: 24px;
+
+  /*
+   * ========================================== Attendance: ticket actions
+   *      Actions column icon (20px, no box), the click target Pipe keeps around it and the gap that
+   *      leaves 8px between icons; floating menu and detail panel measures
+   *      (`ref/verificacao/monitoring.md`).
+   */
+  --p-atend-acao-icone: 20px;
+  --p-atend-acao-alvo: 24px;
+  --p-atend-acao-gap: 4px;
+  --p-atend-menu-largura: 240px;
+  --p-atend-ticket-detalhe-largura: 444px;
+  --p-atend-sombra-flutuante: 0 6px 16px -4px rgba(0, 0, 0, 0.16);
 }
 
 /*

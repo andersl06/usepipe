@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from './link';
 import { Icone } from '@pipe/ui';
@@ -57,12 +57,56 @@ function durationMonitoring(segundos: number | null | undefined): string {
   return dias > 0 ? `${dias}d ${horario}` : horario;
 }
 
-/** Blip `transfer` is used only in this column; keep it local rather than touching sidebar icons. */
-function IconeTransferir() {
+/**
+ * Action icons are drawn by Pipe as 24px outlines with the shared stroke width, never taken from
+ * the reference. `IconeTransferir` is two opposed arrows; `IconeFinalizar` a check inside a circle;
+ * `IconeOpcoes` three stacked dots.
+ */
+type PropsIcone = { tamanho?: number };
+
+function IconeTraco({ tamanho = 20, children }: PropsIcone & { children: ReactNode }) {
   return (
-    <svg className="mon-icone-transferir" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path fillRule="evenodd" clipRule="evenodd" d="M21.59 7.87991C21.5948 7.91977 21.5948 7.96006 21.59 7.99991L21.57 8.04991L21.5 8.13991C21.45 8.16991 21.45 8.23991 21.45 8.23991L18.78 11.2399C18.7113 11.3215 18.6256 11.3871 18.5288 11.432C18.4321 11.477 18.3267 11.5001 18.22 11.4999C18.0394 11.496 17.866 11.4288 17.73 11.3099C17.5822 11.1774 17.4921 10.9923 17.479 10.7942C17.466 10.5961 17.5309 10.4007 17.66 10.2499L19.22 8.49991H8C7.80109 8.49991 7.61032 8.4209 7.46967 8.28024C7.32902 8.13959 7.25 7.94883 7.25 7.74991C7.25 7.551 7.32902 7.36023 7.46967 7.21958C7.61032 7.07893 7.80109 6.99991 8 6.99991H19.22L17.66 5.24991C17.5309 5.09909 17.466 4.90374 17.479 4.70565C17.4921 4.50756 17.5822 4.32245 17.73 4.18991C17.8076 4.12526 17.8975 4.07716 17.9944 4.04858C18.0912 4.02 18.1929 4.01153 18.2931 4.02371C18.3933 4.03589 18.49 4.06845 18.5772 4.11939C18.6644 4.17033 18.7402 4.23857 18.8 4.31991L21.47 7.31991C21.52 7.34991 21.52 7.40991 21.52 7.40991L21.59 7.50991C21.5948 7.55311 21.5948 7.59671 21.59 7.63991V7.75991V7.87991ZM4.41976 15.2701H15.6098C15.8087 15.2701 15.9994 15.3491 16.1401 15.4898C16.2807 15.6304 16.3598 15.8212 16.3598 16.0201C16.3598 16.219 16.2807 16.4098 16.1401 16.5504C15.9994 16.6911 15.8087 16.7701 15.6098 16.7701H4.41976L5.99976 18.5201C6.09648 18.6733 6.13361 18.8567 6.10412 19.0355C6.07463 19.2143 5.98057 19.3761 5.83976 19.4901C5.7671 19.5556 5.68219 19.606 5.58993 19.6384C5.49767 19.6709 5.39989 19.6847 5.30225 19.6791C5.20461 19.6735 5.10905 19.6487 5.02108 19.6059C4.93312 19.5632 4.8545 19.5034 4.78976 19.4301L2.11976 16.4301C2.05976 16.4101 2.05976 16.3401 2.05976 16.3401C2.03399 16.3106 2.01367 16.2767 1.99976 16.2401C1.99422 16.197 1.99422 16.1533 1.99976 16.1101V16.0001L2.08976 15.8401C2.08422 15.797 2.08422 15.7533 2.08976 15.7101C2.10367 15.6735 2.12399 15.6396 2.14976 15.6101C2.16623 15.5779 2.18637 15.5477 2.20976 15.5201L4.87976 12.5201C4.94372 12.4456 5.02205 12.3848 5.11007 12.3413C5.19808 12.2977 5.29398 12.2724 5.392 12.2668C5.49003 12.2612 5.58818 12.2754 5.68059 12.3087C5.77299 12.3419 5.85774 12.3934 5.92976 12.4601C6.07756 12.5927 6.16764 12.7778 6.18072 12.9759C6.1938 13.1739 6.12885 13.3693 5.99976 13.5201L4.41976 15.2701Z" />
+    <svg
+      width={tamanho}
+      height={tamanho}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ strokeWidth: 'var(--p-icone-traco)' }}
+      aria-hidden="true"
+      focusable="false"
+    >
+      {children}
     </svg>
+  );
+}
+
+function IconeTransferir({ tamanho }: PropsIcone) {
+  return (
+    <IconeTraco tamanho={tamanho}>
+      <path d="M4 8h16M16 4l4 4-4 4M20 16H4M8 12l-4 4 4 4" />
+    </IconeTraco>
+  );
+}
+
+function IconeFinalizar({ tamanho }: PropsIcone) {
+  return (
+    <IconeTraco tamanho={tamanho}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8 12.5l2.7 2.7L16 9.5" />
+    </IconeTraco>
+  );
+}
+
+function IconeOpcoes({ tamanho }: PropsIcone) {
+  return (
+    <IconeTraco tamanho={tamanho}>
+      <circle cx="12" cy="5.5" r="1" fill="currentColor" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" />
+      <circle cx="12" cy="18.5" r="1" fill="currentColor" />
+    </IconeTraco>
   );
 }
 
@@ -104,70 +148,187 @@ function WithoutData() {
 }
 
 
-function TicketActions({
+type AcaoTicket = 'transferir' | 'finalizar';
+type AbaDetalhe = 'atendimento' | 'falar' | 'informacoes';
+type AbrirDetalhe = (id: string, aba?: AbaDetalhe) => void;
+type AoAcionar = (acao: AcaoTicket, linha: ConversationOpenRow) => void;
+
+/**
+ * Icon-only button of the Actions column: a bare 20px icon with a 24px click target and a tooltip
+ * (`FICHA-monitoring.md` §4, captures `monitoramento-menu-tres-pontos-atribuido` and
+ * `monitoramento-aba-aguardando-atendimento`). Tooltip text is the visible name; `aria-label`
+ * carries the ticket number for assistive technology.
+ */
+function BotaoAcao({
+  rotulo,
+  rotuloAcessivel,
+  posicao = 'centro',
+  onClick,
+  children,
+}: {
+  rotulo: string;
+  rotuloAcessivel: string;
+  posicao?: 'centro' | 'direita';
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className="iconbtn mon-acao"
+      data-tooltip={rotulo}
+      data-tooltip-pos={posicao}
+      aria-label={rotuloAcessivel}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
+/**
+ * Three-dot menu of the assigned-ticket row. It opens to the left of its trigger, moves focus with
+ * the arrow keys, Home and End, chooses with Enter or Space (native buttons), closes with Escape,
+ * Tab or a click outside, and returns focus to the trigger.
+ */
+function MenuTicket({
   linha,
-  catalogos,
-  aoAbrir,
+  itens,
 }: {
   linha: ConversationOpenRow;
-  catalogos: MonitoringActions;
-  aoAbrir: (id: string) => void;
+  itens: { rotulo: string; icone: ReactNode; aoEscolher: () => void }[];
 }) {
   const [aberto, setAberto] = useState(false);
-  const [modal, setModal] = useState<'transferir' | 'finalizar' | null>(null);
+  const gatilho = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!aberto) return;
+    menu.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+    const fora = (evento: MouseEvent) => {
+      const alvo = evento.target as Node;
+      if (!menu.current?.contains(alvo) && !gatilho.current?.contains(alvo)) setAberto(false);
+    };
+    document.addEventListener('mousedown', fora);
+    return () => document.removeEventListener('mousedown', fora);
+  }, [aberto]);
+
+  function fechar() {
+    setAberto(false);
+    gatilho.current?.focus();
+  }
+
+  function teclas(evento: KeyboardEvent<HTMLDivElement>) {
+    const lista = [...(menu.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
+    const atual = lista.indexOf(document.activeElement as HTMLElement);
+    const ir = (indice: number) => {
+      evento.preventDefault();
+      lista[(indice + lista.length) % lista.length]?.focus();
+    };
+    if (evento.key === 'ArrowDown') ir(atual + 1);
+    else if (evento.key === 'ArrowUp') ir(atual - 1);
+    else if (evento.key === 'Home') ir(0);
+    else if (evento.key === 'End') ir(lista.length - 1);
+    else if (evento.key === 'Escape') {
+      evento.preventDefault();
+      evento.stopPropagation();
+      fechar();
+    } else if (evento.key === 'Tab') setAberto(false);
+  }
+
+  return (
+    <span className="mon-menu-ancora">
+      <button
+        ref={gatilho}
+        type="button"
+        className="iconbtn mon-acao"
+        aria-label={`Mais opções do ticket ${linha.ticket}`}
+        aria-haspopup="menu"
+        aria-expanded={aberto}
+        onClick={() => setAberto((valor) => !valor)}
+        onKeyDown={(evento) => {
+          if (evento.key === 'ArrowDown') {
+            evento.preventDefault();
+            setAberto(true);
+          }
+        }}
+      >
+        <IconeOpcoes />
+      </button>
+      {aberto ? (
+        <div ref={menu} className="mon-menu-actions" role="menu" aria-label={`Ações do ticket ${linha.ticket}`} onKeyDown={teclas}>
+          {itens.map((item) => (
+            <button
+              key={item.rotulo}
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setAberto(false);
+                item.aoEscolher();
+              }}
+            >
+              {item.icone}
+              {item.rotulo}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </span>
+  );
+}
+
+/**
+ * Actions column. Assigned tickets show Transferir, Falar com atendente and a three-dot menu whose
+ * only item is Finalizar ticket; waiting tickets show Transferir and Finalizar directly
+ * (`FICHA-monitoring.md` §4).
+ */
+function TicketActions({
+  linha,
+  aguardando,
+  aoAbrir,
+  aoAcionar,
+}: {
+  linha: ConversationOpenRow;
+  aguardando: boolean;
+  aoAbrir: AbrirDetalhe;
+  aoAcionar: AoAcionar;
+}) {
   return (
     <td className="acts" onClick={(evento) => evento.stopPropagation()}>
       <div className="mon-actions">
-        <button
-          type="button"
-          className="iconbtn mon-acao"
-          data-tooltip="Transferir"
-          title="Transferir"
-          aria-label={`Transferir ticket ${linha.ticket}`}
-          onClick={() => setModal('transferir')}
-        >
+        <BotaoAcao rotulo="Transferir" rotuloAcessivel={`Transferir ticket ${linha.ticket}`} onClick={() => aoAcionar('transferir', linha)}>
           <IconeTransferir />
-        </button>
-        <button type="button" className="iconbtn mon-acao" data-tooltip="Falar com atendente" title="Falar com atendente" aria-label={`Falar com atendente do ticket ${linha.ticket}`} onClick={() => aoAbrir(linha.id)}>
-          <IconePortal nome="comunicacao" tamanho={24} />
-        </button>
-        <button
-          type="button"
-          className="iconbtn mon-acao"
-          data-tooltip="Mais opções"
-          title="Mais opções"
-          aria-label={`Mais opções do ticket ${linha.ticket}`}
-          aria-expanded={aberto}
-          onClick={() => setAberto((value) => !value)}
-        >
-          <IconePortal nome="mais" tamanho={24} />
-        </button>
-        {aberto ? (
-          <div className="mon-menu-actions" role="menu" aria-label={`Ações do ${linha.ticket}`}>
-            <button type="button" role="menuitem" onClick={() => aoAbrir(linha.id)}>Abrir conversa</button>
-            <button type="button" role="menuitem" className="perigo" onClick={() => { setAberto(false); setModal('finalizar'); }}>
-              Finalizar
-            </button>
-          </div>
-        ) : null}
+        </BotaoAcao>
+        {aguardando ? (
+          <BotaoAcao rotulo="Finalizar" rotuloAcessivel={`Finalizar ticket ${linha.ticket}`} onClick={() => aoAcionar('finalizar', linha)}>
+            <IconeFinalizar />
+          </BotaoAcao>
+        ) : (
+          <>
+            <BotaoAcao
+              rotulo="Falar com atendente"
+              rotuloAcessivel={`Falar com atendente do ticket ${linha.ticket}`}
+              posicao="direita"
+              onClick={() => aoAbrir(linha.id, 'falar')}
+            >
+              <IconePortal nome="comunicacao" tamanho={20} />
+            </BotaoAcao>
+            <MenuTicket
+              linha={linha}
+              itens={[{ rotulo: 'Finalizar ticket', icone: <IconeFinalizar tamanho={24} />, aoEscolher: () => aoAcionar('finalizar', linha) }]}
+            />
+          </>
+        )}
       </div>
-      {modal === 'transferir' ? (
-        <ModalTransferMonitoring
-          linha={linha}
-          catalogos={catalogos}
-          aoFechar={() => setModal(null)}
-        />
-      ) : null}
-      {modal === 'finalizar' ? (
-        <ModalFinishMonitoring
-          linha={linha}
-          aoFechar={() => setModal(null)}
-        />
-      ) : null}
     </td>
   );
 }
 
+/**
+ * Transfer dialog (`FICHA-monitoring.md` §4, captures `monitoramento-transferir-*`): Fila or
+ * Atendente radio, a selector with the matching placeholder, Cancelar and the primary
+ * `Transferir ticket`, disabled until a destination is chosen. Saves through the existing route.
+ */
 function ModalTransferMonitoring({
   linha,
   catalogos,
@@ -204,25 +365,24 @@ function ModalTransferMonitoring({
     <MonitoringModal titulo={`Transferir atendimento do Ticket ${linha.ticket}`} aoFechar={aoFechar}>
       <div className="mon-radios">
         <label>
-          <input type="radio" checked={alvo === 'fila'} onChange={() => { setAlvo('fila'); setDestination(''); }} />
+          <input type="radio" name="mon-transferir-alvo" checked={alvo === 'fila'} onChange={() => { setAlvo('fila'); setDestination(''); }} />
           Fila
         </label>
         <label>
-          <input type="radio" checked={alvo === 'atendente'} onChange={() => { setAlvo('atendente'); setDestination(''); }} />
+          <input type="radio" name="mon-transferir-alvo" checked={alvo === 'atendente'} onChange={() => { setAlvo('atendente'); setDestination(''); }} />
           Atendente
         </label>
       </div>
-      <label className="mon-campo">
-        {alvo === 'fila' ? 'Fila' : 'Atendente'}
+      <div className="mon-campo">
         <Select value={destination} onChange={(evento) => setDestination(evento.target.value)} aria-label={alvo === 'fila' ? 'Fila' : 'Atendente'}>
           <option value="">{alvo === 'fila' ? 'Selecionar fila' : 'Selecionar atendente'}</option>
           {options.map((option) => (
             <option key={option.id} value={option.id}>{option.name}</option>
           ))}
         </Select>
-      </label>
+      </div>
       <p className="mon-modal-aviso">A transferência encerra este ticket e cria um novo no destino.</p>
-      {error ? <p className="mon-modal-error">{error}</p> : null}
+      {error ? <p className="mon-modal-error" role="alert">{error}</p> : null}
       <div className="mon-modal-actions">
         <button type="button" className="btn" onClick={aoFechar}>Cancelar</button>
         <button type="button" className="btn primary" disabled={!destination || enviando} onClick={() => void transferir()}>
@@ -277,12 +437,12 @@ function ActionViewConversations({ filter, agentId }: { filter: Filter; agentId:
  */
 function TabelaAtribuidas({
   linhas,
-  catalogos,
   aoAbrir,
+  aoAcionar,
 }: {
   linhas: readonly ConversationOpenRow[];
-  catalogos: MonitoringActions;
-  aoAbrir: (id: string) => void;
+  aoAbrir: AbrirDetalhe;
+  aoAcionar: AoAcionar;
 }) {
   const pg = usePage(linhas);
   return (
@@ -326,7 +486,7 @@ function TabelaAtribuidas({
               <td className="who">{l.contactName}</td>
               <td>{l.queueName ?? '—'}</td>
               <td>{l.agentName ?? '—'}</td>
-              <TicketActions linha={l} catalogos={catalogos} aoAbrir={aoAbrir} />
+              <TicketActions linha={l} aguardando={false} aoAbrir={aoAbrir} aoAcionar={aoAcionar} />
             </tr>
           ))}
         </tbody>
@@ -346,12 +506,12 @@ function TabelaAtribuidas({
  */
 function TabelaAguardando({
   linhas,
-  catalogos,
   aoAbrir,
+  aoAcionar,
 }: {
   linhas: readonly ConversationOpenRow[];
-  catalogos: MonitoringActions;
-  aoAbrir: (id: string) => void;
+  aoAbrir: AbrirDetalhe;
+  aoAcionar: AoAcionar;
 }) {
   const pg = usePage(linhas);
   return (
@@ -383,7 +543,7 @@ function TabelaAguardando({
               <td className="who">{l.contactName}</td>
               <td>{l.queueName ?? '—'}</td>
               <td>{l.agentName ?? '—'}</td>
-              <TicketActions linha={l} catalogos={catalogos} aoAbrir={aoAbrir} />
+              <TicketActions linha={l} aguardando={true} aoAbrir={aoAbrir} aoAcionar={aoAcionar} />
             </tr>
           ))}
         </tbody>
@@ -518,12 +678,52 @@ type Previa = {
   itens: { id: string; at: string; type: 'mensagem' | 'nota'; direction?: string; texto: string; autor?: string | null }[];
 };
 
-function ConversationPreview({ id, aoFechar }: { id: string; aoFechar: () => void }) {
+/**
+ * Side panel of an open ticket (reference side panel `thread-message-sidebar`, captures
+ * `monitoramento-ticket-aberto-*` and `monitoramento-ticket-falar-com-atendente`): title and
+ * contact on the left, Transferir ticket / Finalizar ticket / close on the right, then the
+ * Atendimento and Informações tabs. Opening it through Falar com atendente adds the middle tab with
+ * the message field.
+ */
+function ConversationPreview({
+  id,
+  linha,
+  abaInicial,
+  aoFechar,
+  aoAcionar,
+}: {
+  id: string;
+  linha: ConversationOpenRow | undefined;
+  abaInicial: AbaDetalhe;
+  aoFechar: () => void;
+  aoAcionar: AoAcionar;
+}) {
   const read = useRead<Previa>(`/v1/management/monitoring/conversations/${id}`);
+  const [aba, setAba] = useState<AbaDetalhe>(abaInicial);
   const [texto, setTexto] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const consultas = useQueryClient();
+  const painel = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    painel.current?.focus();
+  }, []);
+
+  const abas: { chave: AbaDetalhe; rotulo: string }[] = [
+    { chave: 'atendimento', rotulo: 'Atendimento' },
+    ...(abaInicial === 'falar' ? [{ chave: 'falar' as const, rotulo: 'Falar com atendente' }] : []),
+    { chave: 'informacoes', rotulo: 'Informações' },
+  ];
+
+  function navegarAbas(evento: KeyboardEvent<HTMLDivElement>) {
+    const passo = evento.key === 'ArrowRight' ? 1 : evento.key === 'ArrowLeft' ? -1 : 0;
+    if (!passo) return;
+    evento.preventDefault();
+    const proxima = abas[(abas.findIndex((a) => a.chave === aba) + passo + abas.length) % abas.length]!;
+    setAba(proxima.chave);
+    document.getElementById(`mon-previa-aba-${proxima.chave}`)?.focus();
+  }
 
   async function enviar(evento: FormEvent) {
     evento.preventDefault();
@@ -541,33 +741,88 @@ function ConversationPreview({ id, aoFechar }: { id: string; aoFechar: () => voi
     }
   }
 
+  const numeroDoTicket = linha?.ticket ?? read.data?.ticket;
+
   return (
     <>
       <div className="mon-previa-fundo" onClick={aoFechar} />
-      <aside className="mon-previa" role="dialog" aria-modal="true" aria-label="Conversa">
+      <aside
+        ref={painel}
+        tabIndex={-1}
+        className="mon-previa"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Conversa"
+        onKeyDown={(evento) => {
+          if (evento.key === 'Escape') aoFechar();
+        }}
+      >
         <header>
-          <div>
-            <h3>{read.data ? `Ticket ${read.data.ticket}` : 'Conversa'}</h3>
-            {read.data ? <p>{read.data.contactName}{read.data.agentName ? ` · ${read.data.agentName}` : ''}</p> : null}
+          <div className="mon-previa-titulo">
+            <h3>{numeroDoTicket ? `Ticket ${numeroDoTicket}` : 'Conversa'}</h3>
+            {read.data ? <p>Conversa com {read.data.contactName}</p> : null}
           </div>
-          <button type="button" className="iconbtn" aria-label="Fechar conversa" onClick={aoFechar}><Icone nome="x" tamanho={16} /></button>
+          <div className="mon-previa-acoes">
+            {linha ? (
+              <>
+                <button type="button" className="mon-previa-botao mon-acao" data-tooltip="Transferir ticket" data-tooltip-pos="baixo" aria-label="Transferir ticket" onClick={() => aoAcionar('transferir', linha)}>
+                  <IconeTransferir tamanho={24} />
+                </button>
+                <button type="button" className="mon-previa-botao mon-acao" data-tooltip="Finalizar ticket" data-tooltip-pos="baixo" aria-label="Finalizar ticket" onClick={() => aoAcionar('finalizar', linha)}>
+                  <IconeFinalizar tamanho={24} />
+                </button>
+              </>
+            ) : null}
+            <button type="button" className="mon-previa-fechar" aria-label="Fechar conversa" onClick={aoFechar}><Icone nome="x" tamanho={20} /></button>
+          </div>
         </header>
-        <div className="mon-preview-history" aria-live="polite">
-          {read.isLoading ? <p>Carregando conversa…</p> : null}
-          {read.isError ? <p>Não foi possível carregar a conversa.</p> : null}
-          {read.data?.itens.map((item) => (
-            item.type === 'nota' ? <p key={item.id} className="mon-previa-nota"><b>{item.autor ?? 'Nota interna'}</b>{item.texto}</p> :
-            <div key={item.id} className={item.direction === 'entrada' ? 'mon-balao inbound' : 'mon-balao saida'}>
-              <p>{item.texto || 'Conteúdo sem texto'}</p><small>{item.autor ?? ''}</small>
-            </div>
+        <div className="mon-previa-abas" role="tablist" aria-label="Seções do ticket" onKeyDown={navegarAbas}>
+          {abas.map((a) => (
+            <button
+              key={a.chave}
+              id={`mon-previa-aba-${a.chave}`}
+              type="button"
+              role="tab"
+              aria-selected={aba === a.chave}
+              aria-controls="mon-previa-secao"
+              tabIndex={aba === a.chave ? 0 : -1}
+              onClick={() => setAba(a.chave)}
+            >
+              {a.rotulo}
+            </button>
           ))}
         </div>
-        <form className="mon-preview-composer" onSubmit={enviar}>
-          <label htmlFor="mensagem-atendente">Falar com atendente</label>
-          <textarea id="mensagem-atendente" value={texto} onChange={(evento) => setTexto(evento.target.value)} placeholder="Escreva uma mensagem..." rows={3} />
-          {error ? <p className="mon-modal-error">{error}</p> : null}
-          <button type="submit" className="btn primary" disabled={!texto.trim() || enviando}>Enviar</button>
-        </form>
+        <div id="mon-previa-secao" role="tabpanel" aria-labelledby={`mon-previa-aba-${aba}`} className="mon-previa-secao">
+          {aba === 'informacoes' ? (
+            <dl className="mon-previa-dados">
+              <h4>Dados do atendimento</h4>
+              <dt>Nome do contato</dt>
+              <dd>{read.data?.contactName ?? '—'}</dd>
+              <dt>Atendente</dt>
+              <dd>{read.data?.agentName ?? '—'}</dd>
+              <dt>Fila</dt>
+              <dd>{read.data?.queueName ?? '—'}</dd>
+            </dl>
+          ) : (
+            <div className="mon-preview-history" aria-live="polite">
+              {read.isLoading ? <p>Carregando conversa…</p> : null}
+              {read.isError ? <p>Não foi possível carregar a conversa.</p> : null}
+              {read.data?.itens.map((item) => (
+                item.type === 'nota' ? <p key={item.id} className="mon-previa-nota"><b>{item.autor ?? 'Nota interna'}</b>{item.texto}</p> :
+                <div key={item.id} className={item.direction === 'entrada' ? 'mon-balao inbound' : 'mon-balao saida'}>
+                  <p>{item.texto || 'Conteúdo sem texto'}</p><small>{item.autor ?? ''}</small>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {aba === 'falar' ? (
+          <form className="mon-preview-composer" onSubmit={enviar}>
+            <textarea value={texto} onChange={(evento) => setTexto(evento.target.value)} placeholder="Digite sua mensagem aqui" aria-label="Falar com atendente" rows={3} />
+            {error ? <p className="mon-modal-error" role="alert">{error}</p> : null}
+            <button type="submit" className="btn primary" disabled={!texto.trim() || enviando}>Enviar</button>
+          </form>
+        ) : null}
       </aside>
     </>
   );
@@ -584,7 +839,10 @@ export function MonitoringDetailed({
   search: string;
   filter: Filter;
 }) {
-  const [conversationOpen, setConversationOpen] = useState<string | null>(null);
+  const [detalhe, setDetalhe] = useState<{ id: string; aba: AbaDetalhe } | null>(null);
+  const [acao, setAcao] = useState<{ tipo: AcaoTicket; linha: ConversationOpenRow } | null>(null);
+  const abrirDetalhe: AbrirDetalhe = (id, aba = 'atendimento') => setDetalhe({ id, aba });
+  const aoAcionar: AoAcionar = (tipo, linha) => setAcao({ tipo, linha });
   const termo = search.trim().toLowerCase();
   const contact = (filter.contact ?? '').trim().toLowerCase();
 
@@ -656,14 +914,27 @@ export function MonitoringDetailed({
         ))}
       </div>
 
-      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} catalogos={actionCatalogs} aoAbrir={setConversationOpen} /> : null}
-      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} catalogos={actionCatalogs} aoAbrir={setConversationOpen} /> : null}
+      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} aoAbrir={abrirDetalhe} aoAcionar={aoAcionar} /> : null}
+      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} aoAbrir={abrirDetalhe} aoAcionar={aoAcionar} /> : null}
       {aba === 'atendentes' ? (
         <TableAgents agents={monitoring.carga} filter={filter} />
       ) : null}
       {aba === 'filas' ? <TableQueues queues={monitoring.queues} /> : null}
       {aba === 'etiquetas' ? <TabelaTags etiquetas={monitoring.labels} /> : null}
-      {conversationOpen ? <ConversationPreview id={conversationOpen} aoFechar={() => setConversationOpen(null)} /> : null}
+      {detalhe ? (
+        <ConversationPreview
+          key={`${detalhe.id}-${detalhe.aba}`}
+          id={detalhe.id}
+          linha={monitoring.abertas.find((l) => l.id === detalhe.id)}
+          abaInicial={detalhe.aba}
+          aoFechar={() => setDetalhe(null)}
+          aoAcionar={aoAcionar}
+        />
+      ) : null}
+      {acao?.tipo === 'transferir' ? (
+        <ModalTransferMonitoring linha={acao.linha} catalogos={actionCatalogs} aoFechar={() => setAcao(null)} />
+      ) : null}
+      {acao?.tipo === 'finalizar' ? <ModalFinishMonitoring linha={acao.linha} aoFechar={() => setAcao(null)} /> : null}
     </div>
   );
 }
