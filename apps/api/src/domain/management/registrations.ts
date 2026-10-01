@@ -32,6 +32,7 @@ import { PipeError } from '../../errors.js';
 import { requirePermission } from '../../session.js';
 import { corValida } from './colors-of-queue.js';
 import { minutosDoRelogio, relogio, relogioValido } from './format.js';
+import { agruparPeriodos, type PeriodoAgrupado } from './horarios.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
@@ -324,6 +325,9 @@ export interface HorarioCadastrado {
   exceptions: ExceptionOfSchedule[];
   /** Nomes das filas que apontam para este horário. Vazio = horário sem uso. */
   queues: string[];
+  queueIds: string[];
+  /** Períodos sem atendimento (dias fechados consecutivos com o mesmo título). */
+  periods: PeriodoAgrupado[];
   abertoAgora: boolean;
   /** `null` = nenhuma abertura no horizonte do core — horário sem faixa nenhuma. */
   proximaAberturaEm: Date | null;
@@ -335,6 +339,8 @@ export interface Horarios {
   horarios: HorarioCadastrado[];
   /** Filas ativas sem horário: nelas o relógio do SLA corre 24×7. */
   queuesWithoutSchedule: string[];
+  /** Todas as filas do tenant, para o seletor de filas do formulário. */
+  queueList: { id: string; name: string }[];
   agora: Date;
 }
 
@@ -381,7 +387,7 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
       .orderBy(asc(scheduleException.data));
 
     const queues = await tx
-      .select({ nome: queue.nome, horarioId: queue.horarioId, ativa: queue.ativa })
+      .select({ id: queue.id, nome: queue.nome, horarioId: queue.horarioId, ativa: queue.ativa })
       .from(queue)
       .orderBy(asc(queue.order), asc(queue.nome));
 
@@ -416,6 +422,10 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
         faixas: minhasFaixas,
         exceptions: myExceptions,
         queues: queues.filter((f) => f.horarioId === h.id).map((f) => f.nome),
+        queueIds: queues.filter((f) => f.horarioId === h.id).map((f) => f.id),
+        periods: agruparPeriodos(
+          myExceptionsCore.filter((e) => e.fechado).map((e) => ({ data: e.data, motivo: e.motivo })),
+        ),
         abertoAgora: dentroDoExpediente(agora, paraOCore),
         proximaAberturaEm: proximaAbertura(agora, paraOCore),
         seteDiasSeg: durationTotalSeg(
@@ -427,6 +437,9 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
     return {
       horarios,
       queuesWithoutSchedule: queues.filter((f) => f.ativa && f.horarioId === null).map((f) => f.nome),
+      queueList: [...queues]
+        .map((f) => ({ id: f.id, name: f.nome }))
+        .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')),
       agora,
     };
   });
@@ -1649,10 +1662,10 @@ function nomeDeMotivoConferido(bruto: unknown): string {
 function durationSuggestedChecked(bruto: unknown): number | null {
   if (bruto === undefined || bruto === null || bruto === '') return null;
   const n = Number(bruto);
-  if (!Number.isInteger(n) || n < 1 || n > 480) {
+  if (!Number.isInteger(n) || n < 1 || n > 999) {
     throw PipeError.request(
       'duration_invalid',
-      'A duração sugerida é um inteiro de 1 a 480 minutos.',
+      'A duração sugerida é um inteiro de 1 a 999 minutos.',
     );
   }
   return n;

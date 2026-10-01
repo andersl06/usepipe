@@ -34,16 +34,18 @@ function rascunhosIniciais(politica?: PoliticaSla): Record<MetaDaPolitica, MetaE
   };
 }
 
-function Interruptor({
+export function Interruptor({
   ligado,
   rotulo,
   onChange,
   desabilitado,
+  titulo,
 }: {
   ligado: boolean;
   rotulo: string;
   onChange: (ligado: boolean) => void;
   desabilitado: boolean;
+  titulo?: string;
 }) {
   return (
     <button
@@ -52,6 +54,7 @@ function Interruptor({
       role="switch"
       aria-checked={ligado}
       aria-label={rotulo}
+      title={titulo}
       disabled={desabilitado}
       onClick={() => onChange(!ligado)}
     >

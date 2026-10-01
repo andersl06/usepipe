@@ -99,6 +99,13 @@ export interface HourException {
   reason: string | null;
 }
 
+export interface PeriodoSemAtendimento {
+  title: string;
+  /** `AAAA-MM-DD`. */
+  from: string;
+  to: string;
+}
+
 export interface HorarioCadastrado {
   id: string;
   name: string;
@@ -107,6 +114,9 @@ export interface HorarioCadastrado {
   exceptions: HourException[];
   /** Nomes das filas que apontam para este horário. Vazio = horário sem uso. */
   queues: string[];
+  queueIds: string[];
+  /** Períodos sem atendimento (dias fechados consecutivos com o mesmo título). */
+  periods: PeriodoSemAtendimento[];
   abertoAgora: boolean;
   /** `null` = nenhuma abertura no horizonte do core — horário sem faixa nenhuma. */
   proximaAberturaEm: string | null;
@@ -118,6 +128,8 @@ export interface Horarios {
   horarios: HorarioCadastrado[];
   /** Filas ativas sem horário: nelas o relógio do SLA corre 24×7. */
   queuesWithoutSchedule: string[];
+  /** Todas as filas do tenant, para o seletor de filas do formulário. */
+  queueList: { id: string; name: string }[];
   agora: string;
 }
 

@@ -23,6 +23,7 @@ import * as autoEncerramento from '../domain/management/queue-auto-close.js';
 import * as comunicacao from '../domain/management/communication.js';
 import * as configuracoes from '../domain/management/settings.js';
 import * as palavrasProibidas from '../domain/management/palavras-proibidas.js';
+import * as horarios from '../domain/management/horarios.js';
 import * as regrasSla from '../domain/management/regras-sla.js';
 import * as regrasPrioridade from '../domain/management/rules-priority.js';
 import * as permissoesDoAtendente from '../domain/management/permissions-of-agent.js';
@@ -346,6 +347,36 @@ export class ManagementRegistrationsController {
   }
 
 
+
+  @Post('rules/schedules')
+  @WithSession()
+  async criarHorario(@Req() requisicao: RequestWithSession, @Body() corpo: unknown): Promise<{ id: string }> {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => horarios.salvarHorarioCompleto(tx, sessao.tenantId, sessao.userId, corpo));
+  }
+
+  @Put('rules/schedules/:id')
+  @WithSession()
+  async substituirHorario(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Body() corpo: unknown,
+  ): Promise<{ id: string }> {
+    const sessao = sessionOf(requisicao);
+    idOu404(id, 'horário de atendimento');
+    return noTenant(sessao.tenantId, (tx) =>
+      horarios.salvarHorarioCompleto(tx, sessao.tenantId, sessao.userId, corpo, id),
+    );
+  }
+
+  @Delete('rules/schedules/:id')
+  @HttpCode(204)
+  @WithSession()
+  async excluirHorario(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+    const sessao = sessionOf(requisicao);
+    idOu404(id, 'horário de atendimento');
+    await noTenant(sessao.tenantId, (tx) => horarios.excluirHorario(tx, sessao.tenantId, sessao.userId, id));
+  }
 
   @Patch('rules/schedules/ranges/:id')
   @WithSession()

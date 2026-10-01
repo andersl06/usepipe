@@ -530,12 +530,12 @@ describe('POST /v1/management/agents/pauses', () => {
     expect(log[0]).toMatchObject({ acao: 'criou', depois: { durationSuggestedMin: 15 } });
   });
 
-  it('Reject pause names over 30 characters, durations outside 1?480 minutes, and duplicate names', async () => {
+  it('Reject pause names over 30 characters, durations outside 1-999 minutes, and duplicate names', async () => {
     const nomeLongo = await createPause(sessionManager, { name: 'x'.repeat(31) });
     expect(nomeLongo.status).toBe(400);
     expect(nomeLongo.body.error.code).toBe('name_size');
 
-    const durationInvalid = await createPause(sessionManager, { durationSuggestedMin: 481 });
+    const durationInvalid = await createPause(sessionManager, { durationSuggestedMin: 1000 });
     expect(durationInvalid.status).toBe(400);
     expect(durationInvalid.body.error.code).toBe('duration_invalid');
 

@@ -1,65 +1,105 @@
+import { useState } from 'react';
+import { Botao, BotaoDeIcone, Carregando, Etiqueta } from '@pipe/ui';
+import { ConfirmModal } from '@pipe/ui/modal';
 import { useRead } from '../../lib/query';
-import type { Horarios } from '../../lib/registrations';
-import { dataHora, durationLong, DIAS_DA_SEMANA, numero } from '../../lib/format';
+import type { Horarios, HorarioCadastrado } from '../../lib/registrations';
+import { excluirHorario } from '../../lib/registrations-gravar';
+import { resumoDaProgramacao } from '../../lib/horarios';
 import { ListaRegras, type RulesSection } from '../../components/lista-regras';
-import { FormulariosDeHorario } from './regras-horarios-formulario';
+import { FormularioDeHorario } from './regras-horarios-formulario';
 
 /**
- * Business hours. It's the missing reference for SLA. `@pipe/core`'s `avaliarSla` receives the queue's business hours and, without it, counts all 24 hours of the day: a two-hour deadline opened at 5:50pm on a Friday breaches Saturday morning, without anyone having actually taken long at all. The comment at the top of `lib/sla.ts` records exactly this — the clock runs with no business hours because none had been registered. The screen's numbers come from the same core functions the SLA uses (`dentroDoExpediente`, `proximaAbertura`, `intervalosUteis`): what the screen shows is what the calculation sees, including holidays and daylight saving time.
+ * Regras > Horários. Lista de cartões (nome, programação, filas, editar e excluir) e, no lugar dela e na mesma URL, o formulário de criar/editar (`ref/verificacao/attendance-hours-blip.md`). A fila que usa um horário é a fila com esse `horario_id`; quem sai de um horário (ou o perde ao excluí-lo) fica sem horário e conta 24 horas.
  */
 export function PageHours() {
+  // `null` = lista; `{}` = formulário de novo horário; `{ horario }` = edição.
+  const [formulario, setFormulario] = useState<{ horario?: HorarioCadastrado } | null>(null);
+  const [paraExcluir, setParaExcluir] = useState<HorarioCadastrado | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
   const read = useRead<Horarios & { fuso: string }>('/v1/management/rules/schedules');
-  if (!read.data) return null;
-  const { fuso, horarios, queuesWithoutSchedule, agora } = read.data;
+  if (read.isError) return <Etiqueta tom="erro">Não foi possível carregar os horários.</Etiqueta>;
+  if (!read.data) return <Carregando />;
+  const { fuso, horarios, queueList } = read.data;
 
-  const withoutQueue = horarios.filter((h) => h.queues.length === 0);
-  const semFaixa = horarios.filter((h) => h.faixas.length === 0);
+  async function excluir() {
+    if (!paraExcluir) return;
+    setExcluindo(true);
+    setErrorDeletion(null);
+    const resultado = await excluirHorario(paraExcluir.id);
+    setExcluindo(false);
+    if (resultado.ok) {
+      setParaExcluir(null);
+      setFormulario(null);
+    } else setErrorDeletion(resultado.error);
+  }
+
+  const confirmacao = (
+    <ConfirmModal
+      aberto={paraExcluir !== null}
+      titulo="Tem certeza que deseja excluir este horário?"
+      message={
+        <>
+          As filas que estão vinculadas a ele ficarão sem horário e passarão a funcionar 24 horas,
+          mas podem ser vinculadas a outro horário posteriormente.
+        </>
+      }
+      error={errorDeletion}
+      confirmando={excluindo}
+      onConfirmar={() => void excluir()}
+      onCancelar={() => {
+        setParaExcluir(null);
+        setErrorDeletion(null);
+      }}
+    />
+  );
+
+  if (formulario) {
+    const { horario } = formulario;
+    return (
+      <>
+        <FormularioDeHorario
+          horario={horario}
+          fuso={horario?.fuso ?? fuso}
+          filas={queueList}
+          onFechar={() => setFormulario(null)}
+          onExcluir={horario ? () => setParaExcluir(horario) : undefined}
+        />
+        {confirmacao}
+      </>
+    );
+  }
 
   const sections: RulesSection[] = [
     {
-      titulo: 'Horários',
-      empty:
-        'Nenhum horário cadastrado. Todo SLA conta as 24 horas do dia, e conversa que chega de madrugada já nasce atrasada.',
+      titulo: 'Regras de horários',
+      empty: 'Nenhum horário cadastrado.',
       cards: horarios.map((h) => ({
         id: h.id,
         campos: [
           { rotulo: 'Horário', value: h.name },
-          { rotulo: 'Fuso', value: h.fuso },
-          {
-            rotulo: 'Agora',
-            value: h.abertoAgora
-              ? 'Aberto'
-              : h.proximaAberturaEm
-                ? `Fechado · abre ${dataHora(h.proximaAberturaEm, h.fuso)}`
-                : 'Fechado · sem abertura prevista',
-          },
-          { rotulo: 'Próximos 7 dias', value: durationLong(h.seteDiasSeg), classe: 'num' },
-          { rotulo: 'Faixas', value: numero(h.faixas.length), classe: 'num' },
-          { rotulo: 'Exceções', value: numero(h.exceptions.length), classe: 'num' },
-          {
-            rotulo: 'Filas que usam',
-            value: h.queues.length > 0 ? h.queues.join(', ') : 'Nenhuma',
-          },
+          { rotulo: 'Programação', value: resumoDaProgramacao(h.faixas) },
+          { rotulo: 'Filas', value: h.queues.length > 0 ? h.queues.join(', ') : 'Nenhuma' },
         ],
-        // The card's status is USAGE, not a toggle: a schedule with no queue at
-        // all isn't a data error, it's unfinished work — registered and
-        // never turned on. It shows as an alert tag, which is already what the list knows
-        // fazer com `active: false`.
-        situation:
-          h.queues.length > 0
-            ? `Em uso por ${numero(h.queues.length)} fila(s)`
-            : 'Nenhuma fila usa este horário',
-        active: h.queues.length > 0,
-        rodape: [
-          ...h.faixas.map(
-            (f) => `${DIAS_DA_SEMANA[f.dayWeek] ?? String(f.dayWeek)} ${f.start}–${f.end}`,
-          ),
-          ...h.exceptions.map(
-            (e) =>
-              `${e.data} · ${e.closed ? 'fechado' : `${e.start}–${e.end}`}${e.reason ? ` · ${e.reason}` : ''}`,
-          ),
-        ],
-        procura: `${h.name} ${h.fuso} ${h.queues.join(' ')}`.toLowerCase(),
+        situation: 'Em uso',
+        active: true,
+        acao: (
+          <>
+            <BotaoDeIcone
+              nome="lapis"
+              title="Editar"
+              rotulo={`Editar o horário ${h.name}`}
+              onClick={() => setFormulario({ horario: h })}
+            />
+            <BotaoDeIcone
+              nome="lixeira"
+              title="Excluir"
+              rotulo={`Excluir o horário ${h.name}`}
+              onClick={() => setParaExcluir(h)}
+            />
+          </>
+        ),
+        procura: `${h.name} ${h.queues.join(' ')}`.toLowerCase(),
       })),
     },
   ];
@@ -67,60 +107,15 @@ export function PageHours() {
   return (
     <>
       <div className="board-head">
-        <h2>Horários de atendimento</h2>
-        <span className="sub">
-          {numero(horarios.length)} horários. “Aberto agora” foi medido em {dataHora(agora, fuso)},
-          no fuso do tenant.
-        </span>
+        <h2>Regras de horários</h2>
+        <Botao variante="primario" icone="mais" className="board-acao" onClick={() => setFormulario({})}>
+          Criar horário
+        </Botao>
       </div>
 
-      <section className="card">
-        <h3>Sem horário, o SLA não tem contra o que contar</h3>
-        <p className="sub">
-          O prazo de SLA corre em tempo <b>útil</b>: o relógio só anda dentro do expediente da fila
-          e para quando a operação fecha. É o horário cadastrado aqui que diz quando é dentro. Sem
-          ele, o cálculo conta as 24 horas do dia — uma conversa que chega às 17h50 de sexta com
-          prazo de duas horas estoura no sábado de manhã sem ninguém ter demorado nada, e o
-          relatório do mês registra um atraso que não houve.
-        </p>
-        <p className="sub">
-          O horário se liga à fila, não à regra de SLA: cada fila aponta para um horário em{' '}
-          <b>Filas de atendimento</b>. Um horário que nenhuma fila usa está cadastrado e desligado —
-          por isso a lista abaixo marca esse caso em vez de deixá-lo passar.
-        </p>
-        <p className="note">
-          “Próximos 7 dias” é o expediente que o <code>@pipe/core</code> enxerga a partir de agora,
-          com feriado descontado e virada de horário de verão incluída. Se o número vier menor do
-          que o esperado, é porque há exceção no caminho — ou porque falta faixa.
-        </p>
-      </section>
+      <ListaRegras sections={sections} sectionHideHeader hideSearch />
 
-      <FormulariosDeHorario horarios={horarios.map((h) => ({ id: h.id, name: h.name }))} />
-
-      {semFaixa.length > 0 ? (
-        <div className="note">
-          Sem nenhuma faixa, e por isso fechado o tempo todo:{' '}
-          {semFaixa.map((h) => h.name).join(', ')}. A fila que usar um destes nunca vai ter o
-          relógio de SLA correndo.
-        </div>
-      ) : null}
-
-      {withoutQueue.length > 0 ? (
-        <div className="note">
-          Cadastrados e sem fila nenhuma apontando para eles:{' '}
-          {withoutQueue.map((h) => h.name).join(', ')}. Ligue-os em Filas de atendimento, ou eles não
-          mudam o SLA de conversa nenhuma.
-        </div>
-      ) : null}
-
-      {queuesWithoutSchedule.length > 0 ? (
-        <div className="note">
-          Filas ativas sem horário, com o relógio de SLA correndo 24×7: {queuesWithoutSchedule.join(', ')}
-          .
-        </div>
-      ) : null}
-
-      <ListaRegras sections={sections} placeholder="Buscar por horário, fuso ou fila" />
+      {confirmacao}
     </>
   );
 }

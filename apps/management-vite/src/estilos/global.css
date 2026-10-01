@@ -5469,3 +5469,65 @@ tr.grupo th {
   gap: 5px;
   margin-top: var(--p-e-4);
 }
+
+/* Regras > Horários: programação por dia, períodos sem atendimento e rodapé do formulário. */
+.horario-programacao,
+.horario-faixas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+}
+
+.horario-dia {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+}
+
+.horario-dia-nome {
+  flex: none;
+  width: 120px;
+  font-weight: var(--g-peso-negrito);
+}
+
+.horario-faixa {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.horario-periodos-topo {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+}
+
+.horario-periodo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+  padding: var(--p-e-3);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+}
+
+.horario-periodo-cabecalho,
+.horario-periodo-data,
+.horario-periodo-datas {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+}
+
+.horario-periodo-cabecalho > input {
+  flex: 1 1 auto;
+}
+
+.horario-periodo-completo {
+  display: flex;
+  align-items: center;
+}
+
+.regras-form .horario-rodape > .btn.perigo {
+  margin-right: auto;
+}

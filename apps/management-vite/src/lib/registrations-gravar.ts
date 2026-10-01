@@ -247,6 +247,52 @@ export async function createRuleQueue(
     : { ok: false, error: resultado.error ?? 'Não foi possível criar a regra.' };
 }
 
+/** Corpo de `POST/PUT /v1/management/rules/schedules`: o horário inteiro de uma vez. */
+export interface PedidoDeHorario {
+  name: string;
+  queueIds: string[];
+  faixas: { dayWeek: number; start: string; end: string }[];
+  periods: { title: string; from: string; to: string }[];
+}
+
+export async function gravarHorario(pedido: PedidoDeHorario, id?: string): Promise<Resultado<{ id: string }>> {
+  try {
+    const gravado = id
+      ? await api.put<{ id: string }>(`/v1/management/rules/schedules/${id}`, pedido)
+      : await api.post<{ id: string }>('/v1/management/rules/schedules', pedido);
+    atualizarLeituras();
+    return { ok: true, value: gravado };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível salvar o horário.') };
+  }
+}
+
+export async function excluirHorario(id: string): Promise<Resultado<void>> {
+  try {
+    await api.delete(`/v1/management/rules/schedules/${id}`);
+    atualizarLeituras();
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível excluir o horário.') };
+  }
+}
+
+export interface PedidoDeMotivoPausa {
+  name: string;
+  durationSuggestedMin: number;
+  countsAsProductive: boolean;
+}
+
+export async function criarMotivoPausa(pedido: PedidoDeMotivoPausa): Promise<Resultado<{ id: string }>> {
+  try {
+    const criado = await api.post<{ id: string }>('/v1/management/agents/pauses', { ...pedido, active: true });
+    atualizarLeituras();
+    return { ok: true, value: criado };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível criar a pausa.') };
+  }
+}
+
 /** Liga ou desliga a regra de atendimento (a ação inverte o estado atual). */
 export async function toggleRuleQueueActive(flowId: string, id: string): Promise<Resultado<void>> {
   const dados = new FormData();
