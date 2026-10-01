@@ -46,3 +46,30 @@
 | L-32 | Detalhe do ticket do Histórico sem dados do contato, lista de tickets do contato e eventos | history.md, 03.2-11 | Depende da 03.1 (API de contato) | 2026-10-01 (portão da Onda 1: aprovada a proposta, após correções A a C4) |
 | L-33 | Filtros do Histórico sem chips e multisseleção, sem e-mail e telefone no Contato e sem filtros salvos | history.md | Depende de contrato de API novo | 2026-10-01 (portão da Onda 1: aprovada a proposta, após correções A a C4) |
 | L-34 | Geometria sem render nas telas da Onda 1 (tenant local sem tickets, conversas encerradas e atendentes carregados) | monitoring.md, history.md, queue-management.md, team.md | Medir por CDP com dados de teste | 2026-10-01 (portão da Onda 1: aprovada a proposta, após correções A a C4) |
+
+# Lacunas da Onda 2 (Regras, SLA, Horários, Pausas)
+
+**Origem:** `ref/verificacao/rules.md`, `sla-policy.md`, `attendance-hours.md` e `personalizedbreaks.md`, os itens "Decisões do dono pendentes" de `03.2-17-SUMMARY.md` e `03.2-18-SUMMARY.md` e os "Pendentes" de `03.2-16-CORRECOES-C5-SUMMARY.md`. Consolidadas em `VERIFICACAO-VISUAL.md` (`## Onda 2`, com as perguntas ao dono). A coluna "Aprovada pelo dono" fica vazia até o portão da Onda 2 (Tarefa 2 do plano 03.2-19).
+
+| ID | Lacuna | Origem | Proposta | Aprovada pelo dono |
+|---|---|---|---|---|
+| L-35 | Regras: valor em chips (vários valores por condição); o Pipe grava um texto por condição | rules.md, 03.2-17 | Decidir modelo de dados e motor | |
+| L-36 | Regras: conector E/OU por grupo adicional; o Pipe grava um combinador por regra | rules.md, 03.2-17 | Decidir modelo e motor | |
+| L-37 | Regras: setas de ordem e rodapé do cartão não existem na Blip; a ordem decide qual regra casa primeiro | rules.md, 03.2-17 | Manter ou retirar | |
+| L-38 | Regras: mensagem "Ops! Este campo precisa ser preenchido" no nome; o Pipe só desabilita Salvar | rules.md | Igualar | |
+| L-39 | Regras: fila desativada aparece como "(desativada)" na seleção; a Blip não foi observada nesse caso | rules.md | Conferir na Blip | |
+| L-40 | SLA: política guardada como linhas `regra_sla` com o mesmo nome (renomear renomeia todas); alternativa é tabela própria (migração não autorizada) | sla-policy.md, 03.2-17 | Manter ou evoluir com migração | |
+| L-41 | SLA: "Padrão" e filas ao mesmo tempo (o Pipe aceita as duas); duas políticas na mesma meta e escopo (o servidor recusa); a Blip não foi observada | sla-policy.md, 03.2-17 | Decidir e validar | |
+| L-42 | SLA: lista com regras e edição não vistas na Blip (o bot de desenvolvimento não tinha regra); montadas pela ficha e pelo padrão de Regras | sla-policy.md | Validar com bot que tenha regras de SLA | |
+| L-43 | SLA: alerta e ação de estouro por linha existem só no Pipe (linhas antigas continuam valendo); SLA como regra (indicadores e alerta) depende da 03.1 | sla-policy.md, DEPENDENCIAS-03.1.md | Manter; regra na 03.1 | |
+| L-44 | Ilustrações do vazio de SLA, do vazio de Pausas e do modal de Pausas (arte própria; a lista compartilhada hoje não aceita ilustração) | sla-policy.md, personalizedbreaks.md, 03.2-17, 03.2-18 | Desenhar arte própria, se o dono quiser | |
+| L-45 | Horários: descrição, interruptor e chip "Horário regular" desabilitados; exigem colunas novas em `horario_atendimento` (descrição e marca de horário regular com índice único por tenant). Migração não autorizada | attendance-hours.md, 03.2-18 | Autorizar a migração (pergunta principal da Onda 2) | |
+| L-46 | Horários: período com horas parciais ("Dia completo" desligado) exige modelo de período com data e hora de início e de fim; hoje um dia fechado por dia | attendance-hours.md, 03.2-18 | Autorizar junto com L-45 | |
+| L-47 | Horários: texto do alerta de exclusão do Pipe ("ficarão sem horário e passarão a funcionar 24 horas") difere do da Blip ("passarão a operar no Horário regular") | attendance-hours.md, 03.2-18 | Manter o do Pipe até existir horário regular | |
+| L-48 | Horários x Builder: fila sem horário conta 24 horas e o `OutOfAttendanceHour` do `ForwardToDesk` (que consome `horario_id` da fila) nunca dispara para ela; entrada na fila e relógio de SLA não usam horário regular | 03.2-18, INTEGRACAO-BUILDER.md | Definir junto com L-45 | |
+| L-49 | Pausas: "Conta como produtivo" existe só no Pipe (grava e alimenta o relatório de esforço) | personalizedbreaks.md, 03.2-18 | Manter ou retirar | |
+| L-50 | Pausas: sem edição na tela (a ficha não tem lápis); o servidor aceita PATCH (ativar, desativar, produtivo) | personalizedbreaks.md, 03.2-18 | Manter ou oferecer edição | |
+| L-51 | Pausas: duração mínima (a Blip aceita 0 no campo; o Pipe exige 1) e mensagens de validação da Blip não observadas | personalizedbreaks.md, 03.2-18 | Confirmar na Blip e igualar | |
+| L-52 | Pausas: lista com pausas, colunas reais, ordenação e confirmação de exclusão da Blip não capturadas (o bot não tem pausas; criar uma gravaria) | personalizedbreaks.md | Capturar quando houver pausa de teste | |
+| L-53 | Regras, SLA, Horários e Pausas: geometria, tipografia, tema escuro e larguras medidas (Regras 300/298/684/1302; SLA cartão 1402, campo 671, unidade 155) sem render no Pipe; cartão `#f6f6f6` da Blip x token de cartão do Pipe | rules.md, sla-policy.md, attendance-hours.md, personalizedbreaks.md | Medir por CDP com dados de teste; token só se divergir além de 1px | |
+| L-54 | Integração com o Builder: tela de CRUD de etiquetas; seletores de fila e etiqueta no Builder; futuro do painel de filas do Builder; mensagem de encerramento no encerramento automático | 03.2-16-CORRECOES-C5-SUMMARY.md, INTEGRACAO-BUILDER.md | Decidir cada um | |

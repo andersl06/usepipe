@@ -139,3 +139,106 @@ Cada item vem dos resumos 03.2-09 a 03.2-15 e de `ref/verificacao/*.md`; as lacu
 ### Estado do portão da Onda 1
 
 Pendente do dono: percorrer as telas ao lado da Blip, responder "aprovada" ou "corrigir" para cada lacuna L-11 a L-34 de `LACUNAS-APROVADAS.md` e às perguntas acima. Ver `03.2-16-SUMMARY.md` (status partial).
+
+## Onda 2
+
+**Fonte das linhas:** `ref/verificacao/rules.md`, `sla-policy.md`, `attendance-hours.md` e `personalizedbreaks.md` (cada uma com `Base:` e as medidas completas), mais o lote de integração C5 (`03.2-16-CORRECOES-C5-SUMMARY.md` e `ref/INTEGRACAO-BUILDER.md`). A medição da Blip é de 2026-10-01 (`ref/verificacao/rules-blip.md`, `sla-policy-blip.md`, `attendance-hours-blip.md`, `personalizedbreaks-blip.md`; [M] medido, [B] texto do pacote do desk, [A] estimado). Do lado do Pipe, só leitura de CSS e TSX e testes automáticos (servidor com banco real); nenhuma sessão foi forjada e o navegador não foi usado. Por isso nenhuma linha visual está VISUALLY VERIFIED: tudo que depende de aparência é NEEDS VALIDATION. As linhas "verificadas por código ou teste" valem para texto, ordem do menu e regra no servidor, não para geometria. Na lista de SLA e na lista de Pausas a Blip não tinha dados no bot de desenvolvimento: essas linhas vêm de ficha e do padrão de Regras. As contagens de cada resumo são linhas de tabela do arquivo de origem que citam o status (incluem as linhas de cabeçalho e separador de cada tabela).
+
+### Perguntas ao dono
+
+Cada item vem, sem acréscimo, dos "Decisões do dono pendentes" de `03.2-17-SUMMARY.md` (itens R) e `03.2-18-SUMMARY.md` (itens H) e dos "Pendentes" de `03.2-16-CORRECOES-C5-SUMMARY.md` (itens C); as lacunas correspondentes estão em `LACUNAS-APROVADAS.md` (L-35 a L-54).
+
+1. Horários, migração (pergunta principal): autorizar a migração de `horario_atendimento` com descrição, marca de horário regular (índice único por tenant onde regular) e um modelo de período com data e hora de início e de fim (para "Dia completo" desligado)? Sem ela, descrição, interruptor "regular" e "Dia completo" ficam desabilitados. Impacto no Builder: hoje a fila sem horário conta 24 horas e o `OutOfAttendanceHour` do `ForwardToDesk` nunca dispara para ela; só com horário regular a fila sem horário passa a ter janela. (H1; L-45, L-46, L-48)
+2. Horários: quando houver horário regular, a entrada na fila e o relógio de SLA devem usá-lo para fila sem horário (hoje conta 24 horas); só então o texto de exclusão da Blip passa a ser verdadeiro. (H2; L-48)
+3. Horários: texto do alerta de exclusão, o do Pipe (honesto: "ficarão sem horário e passarão a funcionar 24 horas") ou o da Blip? (H3; L-47)
+4. SLA: política como linhas com o mesmo nome (sem migração) ou tabela própria de política (exige migração, não autorizada)? (R1; L-40)
+5. Regras: valor em chips por condição e conector E/OU por grupo (motor e modelo hoje têm um valor e um combinador por regra). (R2; L-35, L-36)
+6. Regras: manter as setas de ordem e o rodapé do cartão, que a Blip não tem (a ordem decide qual regra casa primeiro)? (R3; L-37)
+7. SLA: "Padrão" e filas ao mesmo tempo (o Pipe aceita as duas); duas políticas na mesma meta e escopo (o servidor recusa). (R4; L-41)
+8. SLA, Pausas: ilustração própria do Pipe para o vazio do SLA, o vazio de Pausas e o modal de Pausas. (R5, H6; L-44)
+9. SLA: cartão `#f6f6f6` da Blip x token de cartão do Pipe (mantido o do Pipe). (R6; L-53)
+10. Pausas: "Conta como produtivo" (a Blip não tem; o campo do Pipe grava e alimenta o relatório de esforço). (H4; L-49)
+11. Pausas: pausa sem editar na tela (a ficha não tem lápis; o servidor aceita PATCH). (H5; L-50)
+12. Pausas: duração mínima (a Blip aceita 0 no campo; o Pipe exige 1). (H7; L-51)
+13. Integração com o Builder (C5): tela de CRUD de etiquetas; seletores de fila e etiqueta no Builder; futuro do painel de filas do Builder; mensagem de encerramento no encerramento automático. (C; L-54)
+
+### Regras (`ref/verificacao/rules.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Lista: título, botão "+ Criar nova regra" 166x40, busca 420x42 | 24px/400; azul; busca por nome [M] | declarado igual; a busca do Pipe também casa fila e condições | texto e ícone do botão a mais | NEEDS VALIDATION |
+| Lista: cartão (Nome da Regra, Fila, lápis, lixeira, interruptor) | rótulo 12px sobre valor 16px/700 [M] | igual nas duas colunas e nas três ações; lixeira desenhada no Pipe | sem medida renderizada | NEEDS VALIDATION |
+| Lista: setas de ordem e rodapé do cartão | não existem [M] | mantidos (a ordem decide a regra que casa) | extra do Pipe | NEEDS VALIDATION; lacuna L-37 |
+| Lista: paginação | "Resultados por página" (início 5), "1-5 de 12" [M] | componente compartilhado, início 5 | n/a | NEEDS VALIDATION |
+| Uma regra por fila | uma fila por regra [M] | igual | n/a | VERIFIED por leitura de código |
+| Vazio | "Crie uma regra para definir como seu chatbot deve direcionar os atendimentos entre os atendentes cadastrados." [B] | mesmo texto; apoio sobre a fila padrão | sem ilustração | NEEDS VALIDATION |
+| Carregando, erro de leitura, erro ao salvar | rotação 64px [M]; erro de leitura não capturado | indicador compartilhado; mensagem de erro (antes, página em branco) | sem captura de erro | NEEDS VALIDATION |
+| Formulário (criar e editar): cabeçalho, nome editável, Se, Condição, Encaminhar para, Salvar, Cancelar | mesma URL; voltar 40x40; "Regra N"; quatro opções em Se e em Condição; filas em ordem alfabética [M] | igual, com `Select` do produto | sem mensagem "Ops! Este campo precisa ser preenchido" (L-38); fila desativada marcada "(desativada)" (L-39) | NEEDS VALIDATION |
+| Formulário: Valor e conector | campo de chips; um conector por grupo [M] | um valor de texto por condição; um combinador por regra | modelo e motor | lacuna L-35, L-36 |
+| Excluir regra | título, corpo e botões [B] | mesmo texto; foco em Cancelar | a Blip não foi aberta ao vivo | NEEDS VALIDATION |
+| Navegação (Menu Regras: Atendimento, SLA, Horários; criar, lápis, voltar, Cancelar, lixeira) | formulário no lugar da lista, URL igual [M] | igual | n/a | VERIFIED por leitura de código (menu); NEEDS VALIDATION (demais) |
+| Resumo | 43 linhas de tabela no arquivo: 0 VISUALLY VERIFIED, 2 verificadas por código, 25 NEEDS VALIDATION, 2 com lacuna; 7 lacunas listadas | | | |
+
+### SLA (`ref/verificacao/sla-policy.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Lista: título, botão "+ Criar regra" 132x40, busca | "Regras de SLA"; busca [B] | igual | lista montada pela ficha e pelo padrão de Regras (sem regras no bot) | NEEDS VALIDATION |
+| Lista: cartão (Regras de SLA, Metas TME/TMR1/TMA, Filas atribuídas, etiqueta "Padrão"), lápis e lixeira | [ficha] | igual; sem interruptor; prazo na dica de "Metas" | uma política vira várias linhas com o mesmo nome | NEEDS VALIDATION; lacuna L-40 |
+| Vazio | título 16px negrito e descrição; ilustração 160x166 [M] | mesmos textos | sem ilustração | NEEDS VALIDATION (texto); lacuna L-44 |
+| Carregando, erro | sem captura | indicador compartilhado; mensagem do servidor; "Erro ao salvar regra!" [B] | n/a | NEEDS VALIDATION |
+| Formulário (criar e editar): nome (até 100), filas (chips), "Utilizar regra como padrão", aviso, três metas com interruptor, tempo e unidade, Salvar | duas colunas (670px); unidades Segundos a Dias [M] | igual; `ChipsInput` e `Select` do produto; recusa zero, fracionado e mais de 7 dias | alerta e ação de estouro por linha só no Pipe (L-43); padrão e filas juntos (L-41) | NEEDS VALIDATION |
+| Excluir política | texto sobre indicadores de SLA [B] | mesmo texto; foco em Cancelar | n/a | NEEDS VALIDATION |
+| Excluir com cronômetro correndo | não observado | o servidor recusa | n/a | VERIFIED por teste de código |
+| Navegação (menu; criar, lápis, voltar, Cancelar) | SLA é o segundo item; formulário no lugar da lista [M] | igual | n/a | VERIFIED por leitura de código (menu); NEEDS VALIDATION (demais) |
+| Resumo | 34 linhas de tabela no arquivo: 0 VISUALLY VERIFIED, 2 verificadas por código, 21 NEEDS VALIDATION, 1 com lacuna; 7 lacunas listadas | | | |
+
+### Horários (`ref/verificacao/attendance-hours.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Lista: título, botão "+ Criar horário" 144x40, cartão com nome, lápis e lixeira (dicas "Editar" e "Excluir") | 24px; fundo `#f6f6f6`, raio 16 [M] | mesmos textos; programação resumida e filas | fundo é o cartão do Pipe | NEEDS VALIDATION |
+| Lista: chip "Horário regular" e descrição | presentes [M] | ausentes: não há onde gravar | migração pendente | lacuna L-45 |
+| Vazio, carregando, erro | vazio não visto; spinner [M]; erro não visto | "Nenhum horário cadastrado."; indicador; "Não foi possível carregar os horários." | sem captura | NEEDS VALIDATION |
+| Formulário: cartão, nome (663), Filas (contador "0 de 17 filas selecionadas"), Programação Segunda a Domingo (08:00–18:00, várias faixas), Rodapé | [M] | igual; `ChipsInput` e dois `Select` por hora; faixa inválida bloqueia Salvar e é recusada pelo servidor | nenhuma medida do Pipe renderizada | NEEDS VALIDATION |
+| Formulário: descrição e interruptor "Horário regular" | campo e interruptor que some o seletor de filas [M] | desabilitados, com "Este recurso será liberado em breve para este fluxo." | migração pendente | lacuna L-45 |
+| Períodos sem atendimento: "Dia completo" ligado, De/Até com data e hora | [M] | igual; datas nativas; "Dia completo" ligado e desabilitado; até 90 dias, sem sobreposição | um período vira um dia fechado por dia | NEEDS VALIDATION |
+| Períodos com horas parciais | possível [M] | não implementado | modelo de período | lacuna L-46 |
+| Excluir (alerta): título e botões | "Tem certeza que deseja excluir este horário?" [M] | mesmo | n/a | NEEDS VALIDATION |
+| Excluir (alerta): corpo | "as filas ... passarão a operar no Horário regular" [M] | "ficarão sem horário e passarão a funcionar 24 horas" | divergência de propósito | DIVERGÊNCIA (dono decide, L-47) |
+| Navegação (criar, lápis, lixeira, voltar, Cancelar, Salvar; menu) | mesma URL; ordem do grupo Regras [M] | igual; "Dados" foi para o fim de Preferências | "Dados" extra (L-04) | NEEDS VALIDATION |
+| Resumo | 41 linhas de tabela no arquivo: 0 VISUALLY VERIFIED, 22 NEEDS VALIDATION, 5 com lacuna ou divergência; 4 lacunas listadas | | | |
+
+### Pausas personalizadas (`ref/verificacao/personalizedbreaks.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Lista: título, botão "+ Nova Pausa" 138x40, cartão (Nome da pausa, Duração, lixeira), paginação só com setas | [M] e [ficha]; sem busca, interruptor nem lápis | igual; seletor de tamanho oculto, busca oculta, início 5 | lista com pausas não capturada | NEEDS VALIDATION; lacuna L-52 |
+| Editar pausa | não existe | a tela não oferece; o servidor aceita PATCH | extra no servidor | NEEDS VALIDATION; lacuna L-50 |
+| Vazio | título e texto [M]; ilustração 160x165 | mesmos textos; sem ilustração | arte própria | NEEDS VALIDATION (texto); lacuna L-44 |
+| Carregando, erro | não visto | indicador; "Não foi possível carregar as pausas personalizadas." | sem captura | NEEDS VALIDATION |
+| Modal criar: nome (máx. 30), duração (inicial 0, máx. 999), Criar desabilitado até válido, Cancelar | [M] | igual; servidor aceita 1 a 999 (antes 480) | Blip aceita 0 no campo (L-51) | NEEDS VALIDATION |
+| Modal: "Conta como produtivo" | não existe [M] | caixa de marcação do Pipe, grava | extra do Pipe | DIVERGÊNCIA (dono decide, L-49) |
+| Modal: ilustração 178x191 e X de fechar | [M] | botão de fechar do `Modal` compartilhado; sem ilustração | arte própria | lacuna L-44 |
+| Excluir pausa | não capturada; "Excluir pausa: esta ação não pode ser desfeita." | mesmo texto; pausas históricas ficam sem motivo (testado) | n/a | NEEDS VALIDATION |
+| Navegação (Nova Pausa, Criar, Cancelar, lixeira; menu) | modal sobre a lista, mesma URL [M] | igual | n/a | NEEDS VALIDATION |
+| Resumo | 39 linhas de tabela no arquivo: 0 VISUALLY VERIFIED, 22 NEEDS VALIDATION, 3 com lacuna ou divergência; 3 lacunas listadas | | | |
+
+### Integração com o Builder (lote C5)
+
+Fonte: `03.2-16-CORRECOES-C5-SUMMARY.md` e `ref/INTEGRACAO-BUILDER.md`. Verificação por testes de API com banco real e tipos; sem navegador.
+
+| Item | Situação | Status |
+|---|---|---|
+| Fila padrão (só ativa e do próprio fluxo; primeira fila vira padrão; desativar promove outra) | testes `queue-builder-integration` (11), `queue-isolation` ajustado | VERIFIED por teste de código |
+| Proteções (renomear, desativar e excluir fila usada por bloco, regra de prioridade ou SLA) | recusa 409 com mensagem em pt-BR | VERIFIED por teste de código |
+| Chave do evento (`encerrada_por` com `closedBy` de linhas antigas) | `closure-event-key` (3) | VERIFIED por teste de código |
+| Tags do encerramento automático (sem diferenciar caixa; motivo da tag preservado; `tags_nao_encontradas`) | `auto-close` (2 novos) | VERIFIED por teste de código |
+| Aviso da chave do extra no editor de regra | teste `chaveDoExtraAviso` | VERIFIED por teste de código (aviso) |
+| Bridge: transferência só para fila ativa do fluxo; encerrar por tag com aviso | só tipado e revisado; o bridge não tem teste de ações | NEEDS VALIDATION |
+| Horário de atendimento (`OutOfAttendanceHour` consome `horario_id` da fila) | sem mudança; alterações de horário dependem de migração | pendente (pergunta 1) |
+| Pendentes do dono | CRUD de etiquetas, seletores de fila e etiqueta no Builder, painel de filas do Builder, mensagem de encerramento no encerramento automático | pendente (pergunta 13) |
+
+### Estado do portão da Onda 2
+
+Pendente do dono: percorrer `rules`, `sla-policy`, `attendance-hours` e `personalizedbreaks` ao lado da Blip, criar, editar e excluir um item em cada tela, responder "aprovada" ou "corrigir" para cada lacuna L-35 a L-54 de `LACUNAS-APROVADAS.md` e às perguntas acima, começando pela migração de Horários. Ver `03.2-19-SUMMARY.md` (status partial). Contagem desta onda: 0 VISUALLY VERIFIED, 90 linhas de tabela NEEDS VALIDATION nos quatro arquivos de origem (25 + 21 + 22 + 22), 4 linhas verificadas só por código ou teste nas telas (mais as da integração), 11 linhas de lacuna ou divergência nas telas, 20 lacunas novas (L-35 a L-54).
