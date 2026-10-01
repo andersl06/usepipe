@@ -97,6 +97,7 @@ Mesmo rodapé "Resultados por página" em grades e listas; só a margem de cima 
 | `--p-atend-paginacao-icone` | `24px` | Lado do ícone dos botões | `paginacao.md` |
 | `--p-atend-acao-icone` | `20px` | Lado do ícone da coluna Ações do Monitoramento (ícone nu, sem caixa) | `monitoring.md` §lista; ícone `small` da Blip = 20px [M] |
 | `--p-atend-acao-alvo` | `24px` | Alvo de clique em volta do ícone (mínimo de acessibilidade; a Blip não tem caixa) | `monitoring.md` §lista |
+| `--p-atend-tabela-borda` | claro `rgba(0, 0, 0, 0.06)`; escuro `rgba(237, 236, 227, 0.08)` | Borda fina das linhas das tabelas do atendimento. No tema escuro segue a mesma família neutra de `--p-linha` (`rgba(237, 236, 227, ...)`), em opacidade menor, para continuar mais fraca que a linha comum | `monitoring.md` §lista |
 | `--p-atend-acao-gap` | `4px` | Espaço entre alvos de 24px; deixa 8px entre ícones de 20px | `monitoring.md` §lista ([A], `gap` 1 da grade da Blip) |
 | `--p-atend-menu-largura` | `240px` | Largura mínima do menu de três pontos | `monitoring.md` §menu ([M], menu suspenso da Blip) |
 | `--p-atend-ticket-detalhe-largura` | `444px` | Largura do painel lateral de detalhe do ticket | `monitoring.md` §detalhe ([M], `width=444` do painel lateral da Blip) |

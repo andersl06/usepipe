@@ -339,6 +339,7 @@
     --p-linha: rgba(237, 236, 227, 0.12);
     --p-linha-media: rgba(237, 236, 227, 0.2);
     --p-linha-forte: rgba(237, 236, 227, 0.32);
+    --p-atend-tabela-borda: rgba(237, 236, 227, 0.08);
 
     --p-marca: #a3b76a;
     --p-marca-forte: #b7c983;
@@ -428,6 +429,7 @@
   --p-linha: rgba(237, 236, 227, 0.12);
   --p-linha-media: rgba(237, 236, 227, 0.2);
   --p-linha-forte: rgba(237, 236, 227, 0.32);
+  --p-atend-tabela-borda: rgba(237, 236, 227, 0.08);
 
   --p-marca: #a3b76a;
   --p-marca-forte: #b7c983;
