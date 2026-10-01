@@ -1,4 +1,4 @@
-Base: 9a539e7bc02569db0ff5eaec5ea0caa0077c5951
+Base: c57b671e866aee94c48600e3af29ea828f740b35
 Tema: claro (cartões cinza-claro sobre fundo claro nas capturas `.jpg`; o HTML não traz `data-theme`; D-12).
 
 # Verificação: lista, filtros, detalhe e estados do Histórico (Blip x Pipe)
@@ -139,3 +139,17 @@ Capturas de 2026-09-30 (C-12 a C-14, parciais): `historico-selecao-1-ticket-menu
 - Carregando e erro sem captura da Blip (C-20, C-21): textos do UI-SPEC, aspecto NEEDS VALIDATION.
 - Enviar por e-mail (CSV e PDF): endpoint no plano 12, menu e modais no plano 13. Faltam: ilustrações, ícones do menu, rótulo flutuante, texto do termo de responsabilidade, confirmação e erro da Blip, e a pergunta se a Blip aceita destinatário fora do tenant (hoje só usuários do tenant).
 - Nenhum `--p-atend-historico-*` novo foi criado: todos os valores usados já existiam na escala; `tokens.css` e `MARCA.md` ficaram sem mudança.
+
+## Correção B2: Período e busca (D-T01 c)
+
+Fonte Blip: `periodo-blip.md` (medido ao vivo em 2026-10-01 [M]). Pipe: código; sem render medido em Chrome headless (não houve sessão autorizada para abrir a tela autenticada), então nada abaixo é VISUALLY VERIFIED.
+
+| Elemento | Blip | Pipe | Diferença | Status |
+|---|---|---|---|---|
+| Opções do Período | Hoje, Ontem, Últimos 7, 15, 30, 60, 90, 120, 180 dias, Personalizado por último [M] | mesma ordem (`PERIODOS` + Personalizado) | 0 | NEEDS VALIDATION (render) |
+| Início e Fim | só aparecem em Personalizado [M] | só aparecem em Personalizado; nos atalhos vão como campos ocultos | 0 | NEEDS VALIDATION (render) |
+| Limites | início mínimo hoje menos 5 anos; fim máximo hoje [M] | `min`/`max` do campo de data nativo | calendário é o nativo do navegador, não o da Blip | NEEDS VALIDATION |
+| Hora e minuto | seletores 83x40, padrão 00:00 e 23:59 [M] | seletores do Pipe, desabilitados (o servidor aplica dias inteiros) | DIVERGE: sem hora e minuto efetivos | DIVERGE (pendente) |
+| Redefinir e Concluir | rodapé do calendário [M] | botões abaixo dos campos: Redefinir volta a 30 dias; Concluir valida e leva ao Aplicar | calendário flutuante não replicado | NEEDS VALIDATION |
+| Limite de 90 dias (dono) | não observado na Blip | cliente: mensagem e bloqueio do envio (apenas no Histórico); servidor: 400 `periodo_longo_demais` acima de 90 dias inclusive e `periodo_invalido` se fim < início, na lista e na exportação | presets 120 e 180 dias passam de 90 (pendente) | testes de API passam |
+| Busca de contato e ticket | n/a | `likeLiteral` escapa `!`, `%` e `_` com `escape '!'`; `%` e `_` não casam com tudo | 0 | testes com banco passam |

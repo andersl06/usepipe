@@ -1,4 +1,4 @@
-Base: 4024f5e7357171b7d226bdf138a889f7f0404cdf
+Base: c57b671e866aee94c48600e3af29ea828f740b35
 Tema: claro (cartão cinza-claro e painel `surface-1` sobre conteúdo claro; D-12). O HTML não traz `data-theme`; a captura `.jpg` mostra fundo claro.
 
 # Verificação: barra de botões, detalhe, menu ⋮ e modais do Monitoramento (Blip x Pipe)
@@ -167,3 +167,23 @@ Os quatro cartões de métricas (tempo real, status dos atendentes, atendimento 
 - Contato: a Blip busca por nome, e-mail e telefone; o Pipe filtra só por nome (a linha da lista não traz e-mail nem telefone).
 - Vazio, carregando e erro (C-17..C-19) e cartões do topo: sem captura ou sem geometria; textos do UI-SPEC, medidas NEEDS VALIDATION.
 - Falar com atendente não envia mensagem (D-14); tudo que sobra depende da 03.1.
+
+## Correção B2: tabela das abas (D-T01 h)
+
+Fonte Blip: `monitoramento-tabela-blip.md` (medido ao vivo em 2026-10-01 [M]). Pipe: código e CSS (`monitoring-detailed.tsx`, `attendance.css`); sem render medido em Chrome headless nesta correção (não houve sessão autorizada para abrir a tela autenticada), por isso nenhuma linha abaixo é VISUALLY VERIFIED.
+
+| Elemento | Blip | Pipe | Diferença | Status |
+|---|---|---|---|---|
+| Bloco da tabela | fundo #ffffff, raio 8, borda 1px rgba(0,0,0,.06) [M] | `.mon-detalhado .scroll`: `--p-superficie-0`, `--p-r-md`, borda `--p-atend-tabela-borda` (rgba(0,0,0,.06)) | 0 no código | NEEDS VALIDATION (render) |
+| Colunas | largura igual (~165,6 em 1327) [M] | `table-layout: fixed` sem largura por coluna | 0 no código | NEEDS VALIDATION (render) |
+| Célula | padding `0 8px 0 16px`, 14px `#282828`, linha 48,9 e cabeçalho 48,4 [M] | `0 8px 0 16px`, 14px, linha 49 e cabeçalho 48 | 0 | NEEDS VALIDATION (render) |
+| Alinhamento | tempos e Ticket centralizados; Contato, Fila e Atendente à esquerda [M] | `th.ctr` e `td.num` centralizados; demais à esquerda | 0 | NEEDS VALIDATION (render) |
+| Ticket | texto simples "#27", sem botão [M] | continua `<button>` (acesso por teclado) sem aparência de botão e sem sublinhado | semântica mantida de propósito | NEEDS VALIDATION (render) |
+| Contato | ícone de pessoa 16x16 + nome [M] | `Icone pessoa` 16 + nome | 0 | NEEDS VALIDATION (render) |
+| Ações | ícones 20x20 sem caixa [M] | ícone 20 (`--p-atend-acao-icone`), alvo de clique 24 transparente | alvo de 24 mantido para clique e foco | NEEDS VALIDATION (render) |
+| Aba Aguardando: prioridade | texto ("Sem prioridade") [M] | texto de `LABELS_PRIORITY` | 0 | NEEDS VALIDATION (render) |
+| Aba Aguardando: ações | transferir e assumir (check no círculo) [M] | transferir e finalizar | DIVERGE: não existe "assumir" no Pipe; pendente do dono | DIVERGE |
+| Aba Aguardando: Atendente | "Transferência direta" quando houve transferência para atendente [M] | atendente ou traço | DIVERGE: sem dado de transferência direta | DIVERGE |
+| Tempo de atendimento sem 1ª resposta | não visto na captura (nenhuma linha destacada) | traço (antes "Aguardando...") | a medir | NEEDS VALIDATION |
+| Abas e colunas | Atribuído/Em andamento, Aguardando atendimento, Atendentes, Filas, Tags com as colunas de `monitoramento-tabela-blip.md` [M] | mesmas colunas e ordem | 0 | NEEDS VALIDATION (render) |
+| Legenda amarela | só na aba Atribuído [A] | `tbl-legenda` só na aba Atribuído | 0 | NEEDS VALIDATION (render) |
