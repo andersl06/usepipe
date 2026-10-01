@@ -1,4 +1,4 @@
-Base: ad159621cfd1a8c04082c983331906dcfff3c857
+Base: eeca2959567b3daf8924c0738e02efb63d3692a6
 Tema: claro (cartões cinza-claro sobre fundo claro nas capturas `.jpg`; o HTML não traz `data-theme`; D-12).
 
 # Verificação: Filas (queue-management) Blip x Pipe
@@ -58,7 +58,9 @@ Estrutura da Blip, de cima para baixo [M] (texto do HTML):
 | Regras de Priorização da fila | sim | não | já existia; rótulos e vazio igualados à Blip | NEEDS VALIDATION (C-15) |
 | Tags da fila | não | sim (tag por fila exige vínculo etiqueta-fila no domínio) | campo desabilitado com "Este recurso será liberado em breve para este fluxo." | NEEDS VALIDATION (C-15) |
 | Encerramento automático por inatividade | não | sim (regra por fila no motor) | interruptor desabilitado com o mesmo texto | NEEDS VALIDATION (C-15) |
-| Cor, capacidade padrão, ordem, horário e "Ativa" | sim | não | **não existem na Blip**; mantidos no cartão final "Dados da fila" para não perder função | pendente do dono (ver SUMMARY) |
+| Cor, capacidade padrão, ordem, horário e "Ativa" | sim | não | **não existem na Blip**; mantidos em UM disclosure recolhido "Configurações do Pipe", no fim da página (antes era o cartão "Dados da fila") | pendente do dono: manter ou remover |
+| Cinco cartões empilhados (ordem Atendentes, Regras de Atendimento, Regras de Priorização, Tags, Encerramento) com raio 16, padding 40, 20 entre cartões, sombra `0 2px 8px -2px rgba(0,0,0,.16)` | sim | não | classe `fila-cartao` com tokens `--p-atend-fila-*`; **medido na Blip [M], declarado no Pipe**: fundo `#f6f6f6` não adotado (superfície branca do Pipe), busca com borda de 1px | NEEDS VALIDATION (sem render no Pipe) |
+| URL da edição | sim | não | mesmo caminho da lista, `queue-management?fila={id}`; a antiga `queue-management/:id/edit` redireciona | NEEDS VALIDATION (declarado) |
 | Paginação de atendentes e de regras | sim | não | `Pagination` (`grade`), 5 por página | NEEDS VALIDATION (C-15, medida) |
 
 ## Estado: criar fila
@@ -75,7 +77,7 @@ Estrutura da Blip, de cima para baixo [M] (texto do HTML):
 
 ## Navegação
 
-- Clique no lápis de uma fila: tela da fila, rota `queue-management/:queueId/edit` (R-02 adiado pelo dono: fica como hoje no Pipe).
+- Clique no lápis de uma fila: tela da fila no MESMO caminho da lista (`queue-management?fila={id}`), como a Blip, que não muda a URL ao editar (R-02 decidido pelo dono em 2026-10-01; o uso da query `?fila=` é escolha da execução, pendente de confirmação do dono). A rota antiga `queue-management/:id/edit` redireciona para ela.
 - Clique em "Nova fila": abre o modal de criação; Salvar fecha o modal e a fila entra na lista.
 - Seta voltar da tela da fila: lista de filas.
 - Lixeira do cartão: abre a confirmação de excluir.

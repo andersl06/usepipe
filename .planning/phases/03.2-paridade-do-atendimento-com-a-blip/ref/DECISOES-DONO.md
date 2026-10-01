@@ -11,7 +11,7 @@ Respostas literais do dono, dadas no chat em 2026-09-30. O Claude não decidiu n
 | Q5 | Fonte do Atendimento | Manter IBM Plex Sans (lacuna aprovada; registrada em `LACUNAS-APROVADAS.md`) | 2026-09-30 | todos os planos de tela |
 | Q6 | Dashboards de ligações e vendas | Dependência: não entregar as telas de dashboards calls/sales agora (registrada em `DEPENDENCIAS-03.1.md`) | 2026-09-30 | 03.2-24 |
 | R-01 | `preferences/*` x `general-settings` | Adotar Blip (`general-settings`), com redirecionamento do antigo | 2026-09-30 | 03.2-06, 03.2-21 |
-| R-02 | `queue-management/:queueId/edit` | Adiado | 2026-09-30 | nenhum (fica como hoje no Pipe; volta no portão seguinte) |
+| R-02 | `queue-management/:queueId/edit` | Decidido | 2026-10-01 | a edição é servida em `attendance/queue-management` (sem `/:id/edit`, como a Blip); o id da fila segue em `?fila={id}` (escolha da execução, pendente do dono); a rota antiga redireciona (linha D-T01, item g) |
 | R-03 | `team/create`, `team/edit`, `team/permission` sem `:id` | Adotar Blip (`team/create|edit|permission` sem `:id`) | 2026-09-30 | 03.2-06 |
 | R-04 | `calls-dashboard` e `sales-dashboard` sem rota | Adotar Blip (criar rotas `calls-dashboard` e `sales-dashboard`). Ver tensão T-01 abaixo | 2026-09-30 | 03.2-06, 03.2-24 |
 | R-05 | `personalizedbreaks` e `survey-dashboard` | Adotar Blip (manter os segmentos `personalizedbreaks` e `survey-dashboard`) | 2026-09-30 | 03.2-06 |
