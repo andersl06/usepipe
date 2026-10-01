@@ -7,6 +7,7 @@
  */
 
 import type { CommandRequest, Context } from './context.js';
+import { channelIdentity, contactIdFromIdentity } from './identity.js';
 import {
   EXPIRATIONS_KEY,
   contextGetVariable,
@@ -49,16 +50,16 @@ const digits = (value: unknown): string => (typeof value === 'string' ? value.re
 
 /**
  * The execution's contact under any identity a Blip flow sends: Pipe's id (`contact.identity`,
- * `tunnel.identity`) or a channel identity (`5511…@wa.gw.msging.net`).
+ * `tunnel.identity`) or a channel identity (phone digits at the WhatsApp gateway).
  * ponytail: other contacts are refused; add a DB lookup of their execution if a flow needs it.
  */
 function isCurrentContact(context: Context, identity: string): boolean {
-  const local = identity.includes('@') ? identity.slice(0, identity.indexOf('@')) : identity;
-  if ([identity, local].includes(context.user)) return true;
-  const contactId = context.contact?.['identity'];
-  if (typeof contactId === 'string' && [identity, local].includes(contactId)) return true;
-  const phone = digits(context.contact?.['phoneNumber']);
-  return phone.length > 0 && digits(local) === phone;
+  const phone = context.contact?.['phoneNumber'];
+  const known = { contactId: context.user, phone: typeof phone === 'string' ? phone : null };
+  if (contactIdFromIdentity(identity, known) !== null) return true;
+  // The value the flow got from {{contact.identity}}.
+  const shown = context.contact?.['identity'];
+  return typeof shown === 'string' && identity === shown;
 }
 
 /**
@@ -193,7 +194,7 @@ function tunnelCommand(context: Context, request: CommandRequest): CommandRespon
   const phone = digits(context.contact?.['phoneNumber']);
   return success(method, 'application/vnd.iris.tunnel+json', {
     owner,
-    originator: phone ? `${phone}@wa.gw.msging.net` : context.user,
+    originator: channelIdentity({ contactId: context.user, phone }),
     destination: self,
   });
 }

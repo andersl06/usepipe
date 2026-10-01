@@ -18,6 +18,8 @@ import {
   SURVEY_CONTENT_TYPE,
   validateFlow,
   contactRegisterMessage,
+  channelIdentity,
+  tunnelIdentity,
 } from '@pipe/core';
 import { nomeCurto } from './management/regras-de-nome.js';
 import type {
@@ -369,8 +371,8 @@ export async function runFlowInInbound(
        where roteador_id = ${roteador.id} and contato_id = ${e.contactId}
     `);
   };
-  const contact = await loadContact(tx, e.contactId);
   const application = await loadApplicationIdentity(tx, publicado.flowId, roteador?.id ?? null);
+  const contact = await loadContact(tx, e.contactId, application.routerIdentifier !== null);
   const relogio = relogioCrescente();
   const eventos: Record<string, unknown>[] = [];
   let respostas = 0;
@@ -1509,6 +1511,7 @@ export async function loadApplicationIdentity(
 async function loadContact(
   tx: TransactionPipe,
   contactId: string,
+  behindRouter: boolean,
 ): Promise<Record<string, unknown> | null> {
   const { rows } = await tx.execute<{
     name: string | null;
@@ -1522,7 +1525,8 @@ async function loadContact(
   // Use Blip `Contact` vocabulary because the imported flow expects it.
   return c
     ? {
-        identity: contactId,
+        // Behind a router the subbot sees the tunnel form (03.1-ENSAIOS.md roteador.contact_identity_no_subbot).
+        identity: behindRouter ? tunnelIdentity(contactId) : channelIdentity({ contactId, phone: c.phoneE164 }),
         name: c.name,
         phoneNumber: c.phoneE164,
         email: c.email,

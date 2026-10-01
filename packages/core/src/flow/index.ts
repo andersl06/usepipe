@@ -4,6 +4,7 @@
 export * from './condition.js';
 export * from './modelos.js';
 export * from './context.js';
+export * from './identity.js';
 export * from './actions.js';
 export * from './ai-agent.js';
 export * from './ai-answers.js';

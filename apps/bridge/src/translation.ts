@@ -2,7 +2,7 @@
  * Translate Pipe records into objects the Blip screen can render. Never invent fields: when Blip has a concept Pipe lacks, either omit the field and document it here or omit the entire value. A guessed value would appear on screen as genuine client data.
  */
 
-import type { StateConversation } from '@pipe/core';
+import { channelIdentity, type StateConversation } from '@pipe/core';
 
 /** Map Pipe states to the `status` values Desk uses to distinguish queued from active conversations. */
 const STATUS_BY_STATE: Record<StateConversation, string> = {
@@ -97,7 +97,7 @@ export function comoTicket(linha: ConversationRow, domain?: string): Record<stri
     sequentialId: numeroVisivel(linha.id),
     // Pipe has no router here; the conversation owner is the channel through which it arrived.
     ownerIdentity: `${linha.channelType ?? 'canal'}@pipe.local`,
-    customerIdentity: telefone ? `${telefone.replace('+', '')}@wa.gw.msging.net` : linha.contactId,
+    customerIdentity: channelIdentity({ contactId: linha.contactId, phone: telefone }),
     customerName: linha.contactName ?? 'Sem nome',
     customerPhoneNumber: telefone,
     agentIdentity: linha.agentEmail ? identity(linha.agentEmail, domain) : null,
@@ -124,7 +124,7 @@ export function comoTicket(linha: ConversationRow, domain?: string): Record<stri
     sequentialSuffix: '',
     tags: [],
     customerAccount: {
-      identity: telefone ? `${telefone.replace('+', '')}@wa.gw.msging.net` : linha.contactId,
+      identity: channelIdentity({ contactId: linha.contactId, phone: telefone }),
       name: linha.contactName ?? 'Sem nome',
       fullName: linha.contactName ?? 'Sem nome',
       phoneNumber: telefone,

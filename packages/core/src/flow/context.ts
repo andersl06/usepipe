@@ -9,6 +9,7 @@ import { analyzeInbound, inboundContentAssistant, type ContentMatch, type Conten
 import type { KnowledgeSearchRequest, KnowledgeSearchResult, McpServer, McpToolInfo, McpToolResult } from './knowledge.js';
 import type { Acao, FlowBlip } from './modelos.js';
 import { KEYS_OF_STATE } from './modelos.js';
+import { channelIdentity, tunnelIdentity } from './identity.js';
 
 /** `VariableSource`, na ordem do original. */
 export const SOURCES_OF_VARIABLE = [
@@ -713,8 +714,8 @@ function applicationProvider(nome: string, c: Context): string | null {
 }
 
 /**
- * `tunnel.*` exists only behind a router, as in Blip. Pipe has no tunnel identity: the contact is unique
- * in the tenant, so `identity` and `originator` are the contact itself (same as `contact.identity`);
+ * `tunnel.*` exists only behind a router, as in Blip. Pipe has no tunnel table: `identity` is derived from the
+ * contact id (`<id>@tunnel.msging.net`) and `originator` is the contact's channel identity (identity.ts);
  * `owner` is the router and `destination` this service.
  */
 function tunnelProvider(nome: string, c: Context): string | null {
@@ -722,8 +723,9 @@ function tunnelProvider(nome: string, c: Context): string | null {
   if (!router || !c.application?.identifier) return null;
   switch (nome.toLowerCase()) {
     case 'identity':
+      return tunnelIdentity(c.user);
     case 'originator':
-      return c.user;
+      return channelIdentity({ contactId: c.user, phone: c.contact?.['phoneNumber'] as string | undefined });
     case 'owner':
       return `${router}@${BOT_DOMAIN}`;
     case 'destination':

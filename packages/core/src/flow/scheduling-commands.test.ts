@@ -118,7 +118,7 @@ describe('get /tunnels/{id}', () => {
     c.contact = { identity: 'contato-1', extras: {} };
     await processInbound(c);
     expect(response(c, 'r')).toMatchObject({
-      resource: { owner: 'atendimento@msging.net', originator: 'contato-1', destination: 'atendimento@msging.net' },
+      resource: { owner: 'atendimento@msging.net', originator: 'contato-1@wa.gw.msging.net', destination: 'atendimento@msging.net' }, // D-13: formato do ensaio 5
     });
   });
 });

@@ -117,8 +117,8 @@ describe('application and tunnel variable sources', () => {
 
   it('fills tunnel.* only behind a router, with the contact as the tunnel identity', async () => {
     const c = context({ application: service });
-    await expect(getVariable(c, 'tunnel.identity')).resolves.toBe('contato-1');
-    await expect(getVariable(c, 'tunnel.originator')).resolves.toBe('contato-1');
+    await expect(getVariable(c, 'tunnel.identity')).resolves.toBe('contato-1@tunnel.msging.net'); // D-13: formato do ensaio 5
+    await expect(getVariable(c, 'tunnel.originator')).resolves.toBe('contato-1@wa.gw.msging.net'); // D-13: formato do ensaio 5
     await expect(getVariable(c, 'tunnel.owner')).resolves.toBe('roteador1@msging.net');
     await expect(getVariable(c, 'tunnel.destination')).resolves.toBe('desk180326@msging.net');
     const direto = context({ application: { identifier: 'desk180326' } });
@@ -135,11 +135,11 @@ describe('application and tunnel variable sources', () => {
     const c = context({ application: service, variables: { ticketId: 't-9' } });
     type Settings = { uri?: string; from?: string; value?: string; resource?: Record<string, string> };
     const [lista, fechar, definir] = JSON.parse(await replaceVariables(trecho, c)) as Settings[];
-    expect(lista?.uri).toBe("/tickets?$filter=customerIdentity%20eq%20'contato-1'");
+    expect(lista?.uri).toBe("/tickets?$filter=customerIdentity%20eq%20'contato-1@tunnel.msging.net'"); // D-13: formato do ensaio 5
     expect(lista?.from).toBe('desk180326@msging.net');
     expect(fechar?.uri).toBe('/tickets/t-9/close');
     expect(fechar?.resource?.['id']).toMatch(/^[0-9a-f-]{36}$/);
-    expect(fechar?.resource?.['customerIdentity']).toBe('contato-1');
+    expect(fechar?.resource?.['customerIdentity']).toBe('contato-1@tunnel.msging.net');
     expect(fechar?.resource?.['ownerIdentity']).toBe(fechar?.from);
     expect(definir?.value).toBe('desk180326');
   });
