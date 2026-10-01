@@ -1619,3 +1619,11 @@
 .mon-previa-dados dt { margin-top: 12px; font-size: 12px; line-height: 18px; }
 
 .mon-previa-dados dd { margin: 0; font-size: 14px; line-height: 21px; }
+
+.mon-preview-composer textarea:disabled { background: var(--p-superficie-1); color: var(--p-conteudo-desabilitado); cursor: not-allowed; }
+
+.mon-preview-composer p { margin: 0; font-size: 14px; line-height: 22px; color: var(--p-conteudo-claro); }
+
+.mon-detalhado .empty-line { display: grid; place-content: center; gap: 4px; text-align: center; }
+
+.mon-detalhado .empty-line p { margin: 0; font-weight: 400; }

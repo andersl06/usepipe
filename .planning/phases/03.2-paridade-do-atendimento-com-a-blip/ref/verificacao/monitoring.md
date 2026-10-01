@@ -82,13 +82,72 @@ Sem captura do modal aberto (C-08 parcial: só o menu). Fonte: `FICHA-encerrar-t
 | Foco inicial | n/a | nenhum | "Cancelar" recebe o foco ao abrir (T-03.2-15) | NEEDS VALIDATION (C-08: render; foco não exercitado em navegador) |
 | Gravação | rota existente | `.../finalize` com `etiqueta_ids` | idem, sem mudança | VISUALLY VERIFIED (código) |
 
+## Estado: filtros abertos
+
+C-01 a C-04 (`monitoramento-filtro-filas-aberto`, `-filtro-atendentes-aberto`, `-filtro-contato-sem-resultado`, `-filtro-status-atendente-aberto`). **Achado: na Blip os filtros rápidos abrem um painel lateral à direita ("Filtros", aba Nova consulta / Filtros salvos, rodapé com a chave "Criar Filtro Salvo com estes parâmetros", "Limpar tudo" e "Aplicar"), não um popover.** O Pipe já tinha esse painel (`PanelFilters`); o plano previa um popover, e foi mantido o painel por ser o que a captura mostra (ver Desvios no SUMMARY). Não há contador de filtros ativos nas pílulas da Blip (a pílula ativa só muda de estilo), então o contador não foi criado. Medidas só por imagem (.jpg, o HTML salvo não guarda geometria): [A].
+
+| Elemento | Blip | Pipe | Diferença | Status |
+|---|---|---|---|---|
+| Gatilho | pílulas Filas (faixa de cima); Atendentes, Contato, Status do atendente (faixa de baixo) [M, jpg] | as mesmas quatro, todas com `aria-haspopup="dialog"` e `aria-expanded` | nenhuma de ordem ou rótulo | NEEDS VALIDATION (C-01..C-04: render do Pipe) |
+| Destino do clique | painel lateral à direita com os campos da faixa [M, jpg] | Filas abre o painel só com Filas; as outras três abrem o painel com Atendentes, Contato e Status | Blip: Atendentes, Contato e Status também aparecem juntos [M, jpg] | NEEDS VALIDATION (qual pílula recebe o foco na Blip) |
+| Campo Filas | rótulo "Filas", apoio "Selecione uma ou mais filas", seleção múltipla, placeholder "Selecione as filas" [M] | idem (chips) | nenhuma | NEEDS VALIDATION (render) |
+| Campo Atendentes | "Selecione um ou mais atendentes", "Selecione os atendentes" [M] | idem | nenhuma | NEEDS VALIDATION (render) |
+| Campo Contato | busca com placeholder "Digite parte do nome, e-mail ou telefone do contato" [M] | campo de busca com o mesmo placeholder; filtra por nome | Blip busca também e-mail e telefone; a linha do Pipe só traz o nome | Lacunas |
+| Campo Status do atendente | "Selecione um status"; opções Online, Em Pausa, Invisível [M] | idem; Invisível mostra "Este recurso será liberado em breve para este fluxo." | opção Invisível sem regra (D-14) | NEEDS VALIDATION (render); DEPENDENCIAS-03.1 |
+| Rodapé | chave "Criar Filtro Salvo com estes parâmetros", "Limpar tudo", "Aplicar" [M, jpg] | idem (chave desabilitada com motivo) | nenhuma | NEEDS VALIDATION (render) |
+| Teclado | não verificável no HTML salvo | Esc fecha e devolve o foco à pílula; foco preso (Tab e Shift+Tab ciclam); clique na cortina fecha | n/a | NEEDS VALIDATION (não exercitado em navegador) |
+| Função | n/a | Filas e Atendentes consultam a API (`queue`, `agent`, validados como UUID); Contato e Status filtram as linhas já carregadas (`matchesListFilters`, testado) | nenhuma mudança na API: o handler não precisou de filtro novo | VISUALLY VERIFIED (código e teste) |
+| Largura do painel, espaços e tipografia | sem geometria renderizada nas capturas (HTML sem estilo computado) | `attendance.css` (`.mon-page .panel-side`) | não medido | NEEDS VALIDATION |
+| Contato com resultados reais; Atendentes com dois marcados | sem captura (C-02 e C-03 parciais) | n/a | n/a | NEEDS VALIDATION |
+
+## Estado: vazio
+
+Sem captura da Blip (C-17 pendente). Texto do UI-SPEC (§Copywriting), não inventado.
+
+| Elemento | Blip | Pipe | Diferença | Status |
+|---|---|---|---|---|
+| Sem ticket aberto (abas Atribuído e Aguardando) | sem captura | título "Nenhum atendimento em andamento" e corpo "Quando um cliente pedir atendimento humano, o ticket aparece aqui." (`VazioTickets`) | n/a | NEEDS VALIDATION (C-17) |
+| Filtros sem resultado | sem captura da lista (C-03 mostra só o campo Contato sem resultado) | "Nenhum resultado encontrado" e "Ajuste os filtros para ver atendimentos." | n/a | NEEDS VALIDATION (C-17) |
+| Geometria da área vazia | sem captura | altura mínima 108 (já existente), conteúdo centrado | n/a | NEEDS VALIDATION |
+
+## Estado: carregando
+
+Sem captura (C-18 pendente).
+
+| Elemento | Blip | Pipe | Diferença | Status |
+|---|---|---|---|---|
+| Esqueleto | sem captura (a captura do filtro de status mostra um spinner circular sobre a grade durante o recarregamento) [M, jpg] | esqueleto com a geometria final: faixas, quatro cartões, tabela (`MonitoringLoading`), `role="status"`, `aria-busy="true"`, texto para leitor de tela; faixas de filtro e paginação sem ação | Blip usa spinner no recarregamento | NEEDS VALIDATION (C-18) |
+
+## Estado: erro
+
+Sem captura (C-19 pendente).
+
+| Elemento | Blip | Pipe | Diferença | Status |
+|---|---|---|---|---|
+| Erro de carga | sem captura | "Não foi possível carregar os dados. Verifique a conexão e tente novamente." com "Tentar novamente" chamando `refetch` (`TabelaErro`); a mensagem do servidor não é exibida | n/a | NEEDS VALIDATION (C-19) |
+
+## Estado: Falar com atendente
+
+C-06 (`monitoramento-ticket-falar-com-atendente`): aba "Falar com atendente" entre Atendimento e Informações, campo "Digite sua mensagem aqui" no rodapé do painel lateral.
+
+| Elemento | Blip | Pipe | Diferença | Status |
+|---|---|---|---|---|
+| Controle e destino | ícone na coluna Ações, abre o painel lateral na aba Falar com atendente [M] | idem (`TicketActions` e `PreviaConversa` em `monitoring-detailed.tsx`) | nenhuma | NEEDS VALIDATION (C-06: render) |
+| Campo de mensagem | ativo, envia ao cliente [M, jpg] | campo visível e desabilitado, com "Este recurso será liberado em breve para este fluxo." | o Pipe não envia: depende de presença e sessão do atendente (D-14); antes gravava uma nota interna, que fingia o envio | DEPENDENCIAS-03.1 |
+| Gravação | n/a | nenhuma; a rota de notas (`/notes`) continua existindo e não é mais chamada por esta tela | n/a | VISUALLY VERIFIED (código) |
+
+## Cartões do topo
+
+Os quatro cartões de métricas (tempo real, status dos atendentes, atendimento hoje, status dos tickets): o HTML das capturas de 2026-09-30 não guarda geometria renderizada, e o .jpg só permite ver a ordem (Na fila, Tempo máximo na fila, Tempo máximo até 1ª resposta, Em atendimento, Média de tickets por atendente; Atendimento hoje com quatro tempos). Nenhum valor foi medido ou alterado nesta rodada: NEEDS VALIDATION. Reabrir com medição por CDP e dados de teste.
+
 ## Navegação
 
 | Clique | Destino Blip (tela/modal/painel + URL) | Destino Pipe | Status |
 |---|---|---|---|
 | Linha ou número do ticket | painel lateral, abas Atendimento e Informações (C-05) | painel lateral (`ConversationPreview`) | NEEDS VALIDATION (C-05: render) |
 | Transferir (linha) | modal Transferir (C-07) | modal Transferir | NEEDS VALIDATION (C-07: render) |
-| Falar com atendente | painel lateral com a aba Falar com atendente (C-06) | painel lateral aberto nessa aba | NEEDS VALIDATION (C-06: render) |
+| Falar com atendente | painel lateral com a aba Falar com atendente (C-06) | painel lateral aberto nessa aba, com o aviso de indisponível (D-14) | NEEDS VALIDATION (C-06: render) |
+| Pílulas Filas, Atendentes, Contato, Status do atendente | painel lateral Filtros (C-01..C-04) | painel lateral Filtros | NEEDS VALIDATION (render) |
 | ⋮ > Finalizar ticket | modal Finalizar | modal Finalizar | NEEDS VALIDATION (C-08) |
 | Finalizar (aba Aguardando) | modal Finalizar (sem captura do modal) | modal Finalizar | NEEDS VALIDATION (C-08) |
 | Transferir ticket / Finalizar ticket (cabeçalho do painel) | modal Transferir / modal Finalizar | os mesmos modais, sobre o painel | NEEDS VALIDATION (C-05) |
@@ -104,3 +163,7 @@ Sem captura do modal aberto (C-08 parcial: só o menu). Fonte: `FICHA-encerrar-t
 - Ícones de transferir, finalizar e 3 pontos são desenhados no Pipe e não são cópia dos da Blip; a semelhança de traço só se confirma no render.
 - Hover, ativo, foco e desabilitado dos ícones, tamanho do botão de contorno do painel e histórico de mensagens, sem captura: NEEDS VALIDATION.
 - O ícone de Falar com atendente usa o desenho já existente `comunicacao` do portal (herdado de antes deste plano).
+- Filtros rápidos: a Blip abre painel lateral, não popover (C-01..C-04); mantido o painel. Contador de filtros ativos nas pílulas não existe na Blip e não foi criado.
+- Contato: a Blip busca por nome, e-mail e telefone; o Pipe filtra só por nome (a linha da lista não traz e-mail nem telefone).
+- Vazio, carregando e erro (C-17..C-19) e cartões do topo: sem captura ou sem geometria; textos do UI-SPEC, medidas NEEDS VALIDATION.
+- Falar com atendente não envia mensagem (D-14); tudo que sobra depende da 03.1.

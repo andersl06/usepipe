@@ -4,8 +4,8 @@ Lista única das funções cuja regra de negócio depende de trabalho fora da 03
 
 | Função | Tela | Regra que falta (03.1/Fase 3) | Entregue na 03.2 | Estado mostrado |
 |---|---|---|---|---|
-| Falar com atendente | Monitoramento (barra do ticket) | Presença e sessão do atendente no desk | visual igual à Blip | Este recurso será liberado em breve para este fluxo. |
-| Filtro Status do atendente: Invisível | Monitoramento | Presença (Invisível não tem equivalente hoje) | visual igual à Blip | Este recurso será liberado em breve para este fluxo. |
+| Falar com atendente | Monitoramento (barra do ticket) | Presença e sessão do atendente no desk | visual igual à Blip; campo desabilitado na aba do painel (`PreviaConversa`, `apps/management-vite/src/components/monitoring-detailed.tsx`); não grava nota nem mensagem | Este recurso será liberado em breve para este fluxo. |
+| Filtro Status do atendente: Invisível | Monitoramento | Presença (Invisível não tem equivalente hoje) | visual igual à Blip; opção e aviso em `apps/management-vite/src/pages/operation/monitoring.tsx` (`PanelFilters`) | Este recurso será liberado em breve para este fluxo. |
 | Fila por fluxo | Filas e Regras | Isolamento de filas por fluxo | visual igual à Blip | Este recurso será liberado em breve para este fluxo. |
 | Distribuição automática | Filas e Regras | Motor de distribuição automática de tickets | visual igual à Blip | Este recurso será liberado em breve para este fluxo. |
 | Identidade roteador/subbot | Casca e Canais | Identidade do roteador e dos subbots por contato | visual igual à Blip | Este recurso será liberado em breve para este fluxo. |

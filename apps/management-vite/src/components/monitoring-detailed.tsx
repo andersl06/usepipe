@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from './link';
 import { Icone } from '@pipe/ui';
@@ -9,6 +9,7 @@ import {
   type Monitoring,
 } from '../lib/monitoring';
 import { numero } from '../lib/format';
+import { matchesListFilters } from '../lib/filters-monitoring';
 import { api } from '@pipe/ui/api';
 import { ManagementIcon } from './icones-management';
 import { IconePortal } from '@pipe/ui/icones-portal';
@@ -147,6 +148,21 @@ function WithoutData() {
   return <div className="empty-line">Dados insuficientes</div>;
 }
 
+
+/** Empty state of the two ticket tabs: no open ticket, or filters that match none. */
+function VazioTickets({ filtrado }: { filtrado: boolean }) {
+  return filtrado ? (
+    <div className="empty-line">
+      <b>Nenhum resultado encontrado</b>
+      <p>Ajuste os filtros para ver atendimentos.</p>
+    </div>
+  ) : (
+    <div className="empty-line">
+      <b>Nenhum atendimento em andamento</b>
+      <p>Quando um cliente pedir atendimento humano, o ticket aparece aqui.</p>
+    </div>
+  );
+}
 
 type AcaoTicket = 'transferir' | 'finalizar';
 type AbaDetalhe = 'atendimento' | 'falar' | 'informacoes';
@@ -437,10 +453,12 @@ function ActionViewConversations({ filter, agentId }: { filter: Filter; agentId:
  */
 function TabelaAtribuidas({
   linhas,
+  filtrado,
   aoAbrir,
   aoAcionar,
 }: {
   linhas: readonly ConversationOpenRow[];
+  filtrado: boolean;
   aoAbrir: AbrirDetalhe;
   aoAcionar: AoAcionar;
 }) {
@@ -462,7 +480,7 @@ function TabelaAtribuidas({
           </tr>
         </thead>
         <tbody>
-          {linhas.length === 0 ? <tr><td colSpan={8}><WithoutData /></td></tr> : pg.visiveis.map((l) => (
+          {linhas.length === 0 ? <tr><td colSpan={8}><VazioTickets filtrado={filtrado} /></td></tr> : pg.visiveis.map((l) => (
             <tr key={l.id} className={classeDaLinha(l)} onClick={() => aoAbrir(l.id)}>
               <td className="num">
                 {durationMonitoring(l.inQueueSeg)}
@@ -506,10 +524,12 @@ function TabelaAtribuidas({
  */
 function TabelaAguardando({
   linhas,
+  filtrado,
   aoAbrir,
   aoAcionar,
 }: {
   linhas: readonly ConversationOpenRow[];
+  filtrado: boolean;
   aoAbrir: AbrirDetalhe;
   aoAcionar: AoAcionar;
 }) {
@@ -530,7 +550,7 @@ function TabelaAguardando({
           </tr>
         </thead>
         <tbody>
-          {linhas.length === 0 ? <tr><td colSpan={7}><WithoutData /></td></tr> : pg.visiveis.map((l) => (
+          {linhas.length === 0 ? <tr><td colSpan={7}><VazioTickets filtrado={filtrado} /></td></tr> : pg.visiveis.map((l) => (
             <tr key={l.id} className={classeDaLinha(l)} onClick={() => aoAbrir(l.id)}>
               <td className="num">
                 {durationMonitoring(l.inQueueSeg)}
@@ -700,10 +720,6 @@ function ConversationPreview({
 }) {
   const read = useRead<Previa>(`/v1/management/monitoring/conversations/${id}`);
   const [aba, setAba] = useState<AbaDetalhe>(abaInicial);
-  const [texto, setTexto] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [enviando, setEnviando] = useState(false);
-  const consultas = useQueryClient();
   const painel = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -723,22 +739,6 @@ function ConversationPreview({
     const proxima = abas[(abas.findIndex((a) => a.chave === aba) + passo + abas.length) % abas.length]!;
     setAba(proxima.chave);
     document.getElementById(`mon-previa-aba-${proxima.chave}`)?.focus();
-  }
-
-  async function enviar(evento: FormEvent) {
-    evento.preventDefault();
-    if (!texto.trim() || enviando) return;
-    setEnviando(true);
-    setError(null);
-    try {
-      await api.post(`/v1/management/monitoring/conversations/${id}/notes`, { texto });
-      setTexto('');
-      await consultas.invalidateQueries({ queryKey: ['api', `/v1/management/monitoring/conversations/${id}`] });
-    } catch (causa) {
-      setError(causa instanceof Error ? causa.message : 'Não foi possível falar com o atendente.');
-    } finally {
-      setEnviando(false);
-    }
   }
 
   const numeroDoTicket = linha?.ticket ?? read.data?.ticket;
@@ -817,11 +817,10 @@ function ConversationPreview({
           )}
         </div>
         {aba === 'falar' ? (
-          <form className="mon-preview-composer" onSubmit={enviar}>
-            <textarea value={texto} onChange={(evento) => setTexto(evento.target.value)} placeholder="Digite sua mensagem aqui" aria-label="Falar com atendente" rows={3} />
-            {error ? <p className="mon-modal-error" role="alert">{error}</p> : null}
-            <button type="submit" className="btn primary" disabled={!texto.trim() || enviando}>Enviar</button>
-          </form>
+          <div className="mon-preview-composer">
+            <textarea disabled placeholder="Digite sua mensagem aqui" aria-label="Falar com atendente" aria-describedby="mon-falar-aviso" rows={3} />
+            <p id="mon-falar-aviso" role="status">Este recurso será liberado em breve para este fluxo.</p>
+          </div>
         ) : null}
       </aside>
     </>
@@ -844,7 +843,7 @@ export function MonitoringDetailed({
   const abrirDetalhe: AbrirDetalhe = (id, aba = 'atendimento') => setDetalhe({ id, aba });
   const aoAcionar: AoAcionar = (tipo, linha) => setAcao({ tipo, linha });
   const termo = search.trim().toLowerCase();
-  const contact = (filter.contact ?? '').trim().toLowerCase();
+  const filtrado = Boolean(termo || filter.contact?.trim() || filter.status);
 
   /*
    * `carga` already includes each agent's status, so the `Status do atendente` filter needs no extra request.
@@ -856,12 +855,10 @@ export function MonitoringDetailed({
      * Search inside this card uses the ticket number only; Contact has its own field in the filter strip.
      */
     if (termo && !l.ticket.toLowerCase().includes(termo)) return false;
-    if (contact && !l.contactName.toLowerCase().includes(contact)) return false;
-    if (filter.status) {
-      const state = l.agentId ? stateByAgent.get(l.agentId) : undefined;
-      if (state !== filter.status) return false;
-    }
-    return true;
+    return matchesListFilters(
+      { contactName: l.contactName, agentState: l.agentId ? stateByAgent.get(l.agentId) : undefined },
+      filter,
+    );
   };
 
   const atribuidas = monitoring.abertas.filter((l) => l.agentId !== null).filter(casa);
@@ -914,8 +911,8 @@ export function MonitoringDetailed({
         ))}
       </div>
 
-      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} aoAbrir={abrirDetalhe} aoAcionar={aoAcionar} /> : null}
-      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} aoAbrir={abrirDetalhe} aoAcionar={aoAcionar} /> : null}
+      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} filtrado={filtrado} aoAbrir={abrirDetalhe} aoAcionar={aoAcionar} /> : null}
+      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} filtrado={filtrado} aoAbrir={abrirDetalhe} aoAcionar={aoAcionar} /> : null}
       {aba === 'atendentes' ? (
         <TableAgents agents={monitoring.carga} filter={filter} />
       ) : null}
