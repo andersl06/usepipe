@@ -300,9 +300,7 @@
 
 .mon-tabela-linha .celula:nth-child(2n) { width: 90%; }
 
-.mon-error { min-height: 180px; }
 
-.mon-error p { color: var(--p-conteudo-desabilitado); }
 
 
 

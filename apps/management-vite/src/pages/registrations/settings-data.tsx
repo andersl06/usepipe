@@ -1,4 +1,5 @@
 import Link from '../../components/link';
+import { TabelaCarregando, TabelaErro } from '../../components/estados-tabela';
 import { useRead } from '../../lib/query';
 import type { ChannelConfigured, EtiquetaConfigurada } from '../../lib/settings';
 import { numero } from '../../lib/format';
@@ -20,7 +21,8 @@ export function PageData() {
   const read = useRead<{ etiquetas: EtiquetaConfigurada[]; channels: ChannelConfigured[] }>(
     '/v1/management/settings/data',
   );
-  if (!read.data) return null;
+  if (read.isError && !read.data) return <TabelaErro aoTentar={() => void read.refetch()} />;
+  if (!read.data) return <TabelaCarregando />;
   const { etiquetas, channels } = read.data;
 
   return (

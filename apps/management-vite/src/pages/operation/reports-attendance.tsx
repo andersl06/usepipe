@@ -6,6 +6,7 @@ import { ManagementIcon } from '../../components/icones-management';
 import { PanelField, FieldPeriod, PanelFilters } from '../../components/panel-filters';
 import { Select } from '@pipe/ui/select';
 import { Dica, Metrica } from '../../components/metrica';
+import { TabelaCarregando, TabelaErro } from '../../components/estados-tabela';
 import { useRead } from '../../lib/query';
 import type { Catalogos } from '../../lib/history';
 import { type ReportAttendance, type LinhaDeQuebra } from '../../lib/attendance';
@@ -182,7 +183,8 @@ export function PageAttendance() {
     `/v1/management/reports/attendance?${q}`,
   );
   const [panelOpen, setPanelOpen] = useState(false);
-  if (!read.data) return null;
+  if (read.isError && !read.data) return <TabelaErro aoTentar={() => void read.refetch()} />;
+  if (!read.data) return <TabelaCarregando colunas={5} />;
   const { fuso, de, ate, catalogos, report } = read.data;
   const geral = report.geral;
   const enc = geral.closures;

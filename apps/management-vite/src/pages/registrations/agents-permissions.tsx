@@ -8,6 +8,7 @@ import {
   type AgentPermissions,
 } from '../../lib/agents-gravar';
 import { permissionsDescription } from '../../lib/agents';
+import { TabelaCarregando, TabelaErro } from '../../components/estados-tabela';
 import { useContact } from '../flow/contact';
 import { attendanceBase } from '../operation/shell';
 
@@ -45,7 +46,8 @@ export function AgentPagePermissions() {
     );
   }
 
-  if (!read.data) return null;
+  if (read.isError && !read.data) return <TabelaErro aoTentar={() => void read.refetch()} />;
+  if (!read.data) return <TabelaCarregando colunas={2} />;
   const { agents, permissions } = read.data;
 
   function valueCurrent(code: string, ligada: boolean): boolean {

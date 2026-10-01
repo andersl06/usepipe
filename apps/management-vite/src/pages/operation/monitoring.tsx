@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Monitoring } from '../../lib/monitoring';
+import { TabelaErro } from '../../components/estados-tabela';
 import { useRead } from '../../lib/query';
 import { denominador, duration, numero } from '../../lib/format';
 import { ManagementIcon } from '../../components/icones-management';
@@ -230,7 +231,7 @@ function MonitoringLoading() {
           <span className="mon-esqueletico botao" />
         </div>
       </div>
-      <div className="tblwrap" aria-hidden="true">
+      <div className="tblwrap" aria-hidden="true" aria-busy="true">
         <div className="tblhead">
           <h3>Monitoramento detalhado</h3>
           <span className="mon-esqueletico search" />
@@ -326,13 +327,7 @@ export function PageMonitoring() {
         <div className="board-head">
           <h2>Monitoramento</h2>
         </div>
-        <div className="card mon-error" role="alert">
-          <h3>Não foi possível carregar o monitoramento</h3>
-          <p>Verifique a conexão e tente novamente.</p>
-          <button type="button" className="btn" onClick={() => void read.refetch()}>
-            Tentar novamente
-          </button>
-        </div>
+        <TabelaErro aoTentar={() => void read.refetch()} />
       </div>
     );
   }
