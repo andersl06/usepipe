@@ -198,3 +198,8 @@ export function payloadOfMessage(
     ],
   };
 }
+
+/** The flow a test publishes via `importFlowOfBlip` is a new one: queues of the scenario move into it so its handoff can use them. */
+export async function adotarFilas(cenario: Pick<Cenario, 'dono' | 'tenantId'>, flowId: string): Promise<void> {
+  await cenario.dono.execute(sql`update fila set fluxo_id = ${flowId}::uuid where tenant_id = ${cenario.tenantId}::uuid`);
+}

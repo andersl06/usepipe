@@ -156,6 +156,7 @@ function servicesOfTestRun(
   const queueOf = async (sp: TransactionPipe, queueId: string | null): Promise<string | null> => {
     const contact = store.contact;
     const choice = await chooseQueue(sp, tid, {
+      flowId: flowId ?? null,
       queueId,
       defaultQueueId: null,
       message: input,

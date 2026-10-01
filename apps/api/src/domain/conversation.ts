@@ -4,7 +4,7 @@ import type { ClosedBy, StateConversation } from '@pipe/core';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
-import { enterQueue } from './queue-entry.js';
+import { enterQueue, flowOfConversation } from './queue-entry.js';
 import { requirePermission } from '../session.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../realtime.js';
@@ -444,6 +444,8 @@ export async function transferConversation(
     const entry = await enterQueue(tx, {
       tenantId: ator.tenantId,
       conversationId: novaId,
+      // The flow of the ORIGIN conversation: the new one is born without a queue.
+      flowId: await flowOfConversation(tx, ator.tenantId, conversa.id),
       queueId: forQueue,
       defaultQueueId: null,
       message: null,

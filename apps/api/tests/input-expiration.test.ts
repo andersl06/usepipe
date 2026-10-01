@@ -16,7 +16,7 @@ const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
 const { fireInputExpiration, dueInputExpirations } = await import('../src/domain/input-expiration-job.js');
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -83,6 +83,7 @@ beforeAll(async () => {
     importFlowOfBlip(tx, { tenantId: cenario.tenantId, name: 'Expiração', channelId: cenario.channelId, json: desenho(), publicar: true }),
   );
   expect(r.errorOfValidation).toBeNull();
+  await adotarFilas(cenario, r.flowId);
   expect(r.report.naoSuportado['entrada:expiracao']).toBeUndefined();
 }, 180_000);
 

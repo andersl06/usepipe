@@ -12,7 +12,7 @@ const { dubleWhatsApp, processarOutbox } = await import('@pipe/workers');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip, resolveDynamicContent, toChannelOutput } = await import('../src/domain/flow.js');
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 const { DYNAMIC_CONTENT_TYPE, dynamicContentRaw } = await import('@pipe/core');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
@@ -133,6 +133,7 @@ beforeAll(async () => {
     }),
   );
   expect(r.errorOfValidation).toBeNull();
+  await adotarFilas(cenario, r.flowId);
 }, 180_000);
 
 afterAll(async () => {

@@ -134,6 +134,7 @@ export async function executeCommand(
   tickets: TicketEffects,
   recordSatisfactionAnswer?: ServicosDoMotor['recordSatisfactionAnswer'],
   messaging?: MessagingEffects,
+  flowId?: string,
 ): Promise<unknown> {
   const { uri, resource, command } = request;
   const builderCommand = BUILDER_COMMANDS[command.route];
@@ -175,7 +176,8 @@ export async function executeCommand(
     if (!UUID.test(queueId)) throw new Error(`O comando de transferência recebeu um 'queueId' inválido: '${queueId}'.`);
     // Explicit tenant filter: the foreign key alone accepts another tenant's queue (it ignores RLS).
     const { rows } = await tx.execute<{ id: string }>(sql`
-      select id from fila where id = ${queueId}::uuid and tenant_id = ${tenantId}::uuid and ativa limit 1
+      select id from fila where id = ${queueId}::uuid and tenant_id = ${tenantId}::uuid and ativa
+         and fluxo_id = ${flowId ?? null}::uuid limit 1
     `);
     if (!rows[0]) throw new Error(`A fila '${queueId}' não existe neste Pipe.`);
     await tickets.transfer(tx, queueId);
@@ -304,10 +306,10 @@ export function engineServices({ tenantId, flowFunctions, isolate, effects, flow
       await effects.bucketSet?.(request);
     },
     sendCommand: async (request) => {
-      await isolate((tx) => executeCommand(tx, tenantId, request, false, tickets, effects.recordSatisfactionAnswer, messaging));
+      await isolate((tx) => executeCommand(tx, tenantId, request, false, tickets, effects.recordSatisfactionAnswer, messaging, flowId));
     },
     processCommand: (request) =>
-      isolate((tx) => executeCommand(tx, tenantId, request, true, tickets, effects.recordSatisfactionAnswer, messaging)),
+      isolate((tx) => executeCommand(tx, tenantId, request, true, tickets, effects.recordSatisfactionAnswer, messaging, flowId)),
     // AI agent (P14): the provider key is this flow's secret, decrypted per call and never returned.
     callAgentModel: agentModelService({ loadSecret, stubWhenNoKey: agentStub ?? false }),
     // Knowledge search and MCP tools (P15): embeddings key and MCP auth are this flow's secrets.

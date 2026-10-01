@@ -20,7 +20,7 @@ const { upApi } = await import('../src/servidor.js');
 const { keyring, noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
 const { knowledgeService } = await import('../src/domain/knowledge/search.js');
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 /**
  * P15 (plan 02-55): the tenant's knowledge bases and the AI agent's MCP servers, against the real
@@ -344,6 +344,7 @@ describe('AI agent with knowledge and MCP in production (P15)', () => {
       publicar: true,
     }));
     expect(result.errorOfValidation).toBeNull();
+    await adotarFilas(cenario, result.flowId);
     expect(result.report.naoSuportado).toEqual({});
     for (const [name, value] of [['OPENAI_API_KEY', OPENAI_KEY], ['MCP_TOKEN', MCP_TOKEN]] as const) {
       await cenario.dono.execute(sql`

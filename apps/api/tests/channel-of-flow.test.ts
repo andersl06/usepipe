@@ -571,6 +571,8 @@ describe('Route messages from a connected phone number to its router bot', () =>
       values (${a.tenantId}, ${routerId}, ${principal.flowId}, 'Principal', true, false, null)
     `);
 
+    // The scenario's own flow holds the channel; the router takes it over.
+    await a.dono.execute(sql`update fluxo set canal_id = null where id = ${a.flowId}::uuid`);
     // // Through the screen: the scenario's channel (the number that receives the webhook) becomes the router's channel.
     expect((await ligar(sessionEditor, routerId, a.channelId)).status).toBe(200);
 

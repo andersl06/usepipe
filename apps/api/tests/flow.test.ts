@@ -14,7 +14,7 @@ const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
 const { closeConversation } = await import('../src/domain/conversation.js');
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -49,6 +49,7 @@ async function publicar(json: unknown): Promise<void> {
     }),
   );
   expect(r.errorOfValidation).toBeNull();
+  await adotarFilas(cenario, r.flowId);
   expect(r.report.naoSuportado).toBeDefined();
 }
 

@@ -11,7 +11,7 @@ const { dubleWhatsApp, processarOutbox } = await import('@pipe/workers');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 const PHONE = '5511933330001';
 
@@ -160,6 +160,7 @@ beforeEach(async () => {
     publicar: true,
   }));
   expect(resultado.errorOfValidation).toBeNull();
+  await adotarFilas(cenario, resultado.flowId);
 }, 180_000);
 
 afterEach(async () => {
@@ -296,6 +297,7 @@ describe('context action services', () => {
       publicar: true,
     }));
     expect(r.errorOfValidation).toBeNull();
+    await adotarFilas(cenario, r.flowId);
   }
 
   async function conversaAtual(): Promise<{ id: string; fila_id: string | null; estado: string; encerrada_em: Date | null }> {

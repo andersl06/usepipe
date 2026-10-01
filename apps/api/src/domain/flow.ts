@@ -47,7 +47,7 @@ import { closeInTransaction, type LineConversation } from './conversation.js';
 import { engineServices, isFlowOfTenant, type TicketEffects } from './engine-services.js';
 import { databaseMessagingEffects } from './scheduling-commands.js';
 import { syncInputExpiration } from './input-expiration.js';
-import { chooseQueueOfConversation, enterQueue } from './queue-entry.js';
+import { chooseQueueOfConversation, enterQueue, flowOfConversation } from './queue-entry.js';
 import type { TipoEnvio } from './envio.js';
 
 /**
@@ -240,7 +240,7 @@ export async function runFlowInInbound(
 
   if (!publicado) {
     // If the conversation belonged to the bot but its flow was unpublished, move it to the queue rather than leave it silent.
-    await transbordarSemFalhar(tx, e, execution?.context ?? {}, 'o fluxo do canal saiu do ar');
+    await transbordarSemFalhar(tx, e, await flowOfConversation(tx, e.tenantId, e.conversation.id), execution?.context ?? {}, 'o fluxo do canal saiu do ar');
     return { tratou: true, respostas: 0 };
   }
 
@@ -325,7 +325,7 @@ export async function runFlowInInbound(
   const emSavepoint = <T>(fn: (sp: TransactionPipe) => Promise<T>): Promise<T> => tx.transaction(fn);
   /** The bot's attendance handoff, shared by `forwardForAttendance` and the `/transfer` command. */
   const transferirPeloBot = async (sp: TransactionPipe, queueId: string | null): Promise<void> => {
-    await transbordar(sp, e, queueId, variables, null, relogio());
+    await transbordar(sp, e, publicado.flowId, queueId, variables, null, relogio());
     transferida = true;
   };
 
@@ -400,6 +400,7 @@ export async function runFlowInInbound(
       queueOfHandoff: async (sp, queueId) => (await chooseQueueOfConversation(sp, {
         tenantId: e.tenantId,
         conversationId: conversation.id,
+        flowId: publicado.flowId,
         queueId,
         defaultQueueId: e.conversation.queueDefaultId,
         message: e.message.content,
@@ -617,7 +618,7 @@ export async function runFlowInInbound(
       await saveContextOfRouter();
       // Blip would leave the user waiting without a reply; here the conversation goes to the queue.
       if (!transferida)
-        await transbordarSemFalhar(tx, e, variables, `o fluxo falhou: ${erro.message}`);
+        await transbordarSemFalhar(tx, e, publicado.flowId, variables, `o fluxo falhou: ${erro.message}`);
       return false;
     }
   };
@@ -983,6 +984,7 @@ async function gravarPassos(
 async function transbordar(
   tx: TransactionPipe,
   e: InboundInFlow,
+  flowId: string | null,
   queueId: string | null,
   variaveis: Record<string, string>,
   motivo: string | null,
@@ -991,6 +993,7 @@ async function transbordar(
   await enterQueue(tx, {
     tenantId: e.tenantId,
     conversationId: e.conversation.id,
+    flowId,
     queueId,
     defaultQueueId: e.conversation.queueDefaultId,
     message: e.message.content,
@@ -1017,11 +1020,12 @@ async function transbordar(
 async function transbordarSemFalhar(
   tx: TransactionPipe,
   e: InboundInFlow,
+  flowId: string | null,
   variaveis: Record<string, string>,
   motivo: string,
 ): Promise<void> {
   try {
-    await transbordar(tx, e, null, variaveis, motivo, new Date());
+    await transbordar(tx, e, flowId, null, variaveis, motivo, new Date());
   } catch (erro) {
     console.error(`[fluxo] conversa ${e.conversation.id} ficou sem fila: ${(erro as Error).message}`);
     // No queue to go to (no rule, no inbox default): the bot gave up, so the conversation must not

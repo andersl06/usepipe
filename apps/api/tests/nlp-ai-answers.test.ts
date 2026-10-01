@@ -18,7 +18,7 @@ const { SESSION_COOKIE_NAME } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { keyring, noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 /**
  * P16: NLP (intents/entities, `input.contentAssistant.*`) and AI Answers (`ProcessAnswers`,
@@ -174,6 +174,7 @@ describe('NLP and AI Answers in production (P16)', () => {
       publicar: true,
     }));
     expect(result.errorOfValidation).toBeNull();
+    await adotarFilas(cenario, result.flowId);
     expect(result.report.naoSuportado).toEqual({});
     await cenario.dono.execute(sql`
       insert into modelo_ia_do_fluxo (tenant_id, fluxo_id, configuracao, intencoes, entidades, conteudos, assistentes)

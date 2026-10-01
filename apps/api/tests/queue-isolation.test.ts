@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
 process.env['PIPE_FILAS'] = 'memoria';
@@ -9,7 +9,11 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 
 const { noTenant } = await import('../src/database.js');
 const { chooseQueue, enterQueue, flowOfConversation } = await import('../src/domain/queue-entry.js');
-const { montarDoisFluxos } = await import('./ajuda.js');
+const { matchCommand } = await import('@pipe/core');
+const { upApi } = await import('../src/servidor.js');
+const { importFlowOfBlip } = await import('../src/domain/flow.js');
+const { executeCommand } = await import('../src/domain/engine-services.js');
+const { assinar, montarDoisFluxos, payloadOfMessage } = await import('./ajuda.js');
 
 type Dois = Awaited<ReturnType<typeof montarDoisFluxos>>;
 
@@ -19,6 +23,15 @@ type Dois = Awaited<ReturnType<typeof montarDoisFluxos>>;
  */
 let f: Dois;
 let tenantId: string;
+let api: Awaited<ReturnType<typeof upApi>>;
+
+beforeAll(async () => {
+  api = await upApi(0);
+}, 180_000);
+
+afterAll(async () => {
+  await api?.fechar();
+});
 
 beforeEach(async () => {
   f = await montarDoisFluxos(`iso-${randomUUID().slice(0, 8)}`);
@@ -29,7 +42,7 @@ afterEach(async () => {
   await f?.cenario.encerrar();
 });
 
-const contact = (extras: Record<string, unknown> = {}) => ({ nome: 'Cli', email: null, telefone: null, atributos: extras });
+const contact = (extras: Record<string, unknown> = {}) => ({ name: 'Cli', email: null, phone: null, extras });
 const input = (flowId: string | null, over: Record<string, unknown> = {}) => ({
   flowId,
   queueId: null,
@@ -113,5 +126,65 @@ describe('funil de entrada em fila com escopo de fluxo', () => {
     await f.cenario.dono.execute(sql`update conversa set fila_id = null where id = ${id}`);
     await f.cenario.dono.execute(sql`update fluxo set estado = 'arquivado' where id = ${f.flowA}`);
     expect(await flowOf(id)).toBeNull();
+  });
+});
+
+/** Publishes a bot on the channel whose single handoff is `action`, and moves the given queues into it. */
+async function publicarNoFluxoB(action: unknown, filasDoFluxo: string[]): Promise<string> {
+  const r = await noTenant(tenantId, (tx) =>
+    importFlowOfBlip(tx, {
+      tenantId,
+      name: 'Transbordo B',
+      channelId: f.cenario.channelId,
+      json: { id: 'transbordo-b', states: [{ id: 'raiz', root: true, input: {}, outputActions: [action], outputs: [] }] },
+      publicar: true,
+    }),
+  );
+  expect(r.errorOfValidation).toBeNull();
+  await f.cenario.dono.execute(
+    sql`update fila set fluxo_id = ${r.flowId} where id in (${sql.join(filasDoFluxo.map((q) => sql`${q}::uuid`), sql`, `)})`,
+  );
+  return r.flowId;
+}
+
+async function falar(de: string, texto: string): Promise<{ fila_id: string | null }> {
+  const corpo = JSON.stringify(payloadOfMessage(de, texto));
+  const resposta = await fetch(`${api.url}/webhooks/whatsapp/${f.cenario.channelId}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-hub-signature-256': assinar(corpo) },
+    body: corpo,
+  });
+  expect(resposta.status).toBe(200);
+  const { rows } = await f.cenario.dono.execute<{ fila_id: string | null }>(sql`
+    select c.fila_id from conversa c join contato ct on ct.id = c.contato_id
+     where c.tenant_id = ${tenantId}::uuid and ct.telefone_e164 = ${`+${de}`} order by c.criada_em desc limit 1
+  `);
+  return rows[0]!;
+}
+
+describe('ponta a ponta com dois fluxos', () => {
+  it('transbordo do fluxo B com a regra Boleto de A e de B cai na fila de B', async () => {
+    await publicarNoFluxoB({ type: 'ForwardToDesk', settings: {} }, [f.queueB]);
+    expect((await falar('5511933330001', 'quero o boleto')).fila_id).toBe(f.queueB);
+  });
+
+  it('ForwardToDesk com filaId de outro fluxo não deixa a conversa na fila de A', async () => {
+    await publicarNoFluxoB({ type: 'ForwardToDesk', settings: { filaId: f.queueA } }, [f.queueB]);
+    expect((await falar('5511933330002', 'oi')).fila_id).not.toBe(f.queueA);
+  });
+
+  it('/transfer do engine com fila de outro fluxo é recusado como fila inexistente', async () => {
+    const run = (queueId: string) => {
+      const uri = '/tickets/atual/transfer';
+      const command = matchCommand({ method: 'set', uri });
+      if (!command) throw new Error('sem rota');
+      const transfers: string[] = [];
+      const tickets = { transfer: async (_tx: unknown, q: string) => void transfers.push(q) } as Parameters<typeof executeCommand>[4];
+      return noTenant(tenantId, (tx) =>
+        executeCommand(tx, tenantId, { uri, method: 'SET', resource: { queueId }, command }, true, tickets, undefined, undefined, f.flowB),
+      ).then(() => transfers);
+    };
+    await expect(run(f.queueA)).rejects.toThrow('não existe neste Pipe');
+    expect(await run(f.queueB)).toEqual([f.queueB]);
   });
 });

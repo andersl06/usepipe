@@ -21,7 +21,7 @@ import {
 } from '../queues.js';
 import { distributeConversation } from './distribution.js';
 import { registrarEvento } from './eventos.js';
-import { enterQueue } from './queue-entry.js';
+import { enterQueue, flowOfConversation } from './queue-entry.js';
 import { applyEventsOfTemplate } from './whatsapp/events-of-template.js';
 import { flowPublishedOfChannel, runFlowInInbound } from './flow.js';
 import { payloadDoInstagram, valuesOfInstagram } from './instagram/inbound.js';
@@ -509,6 +509,7 @@ async function findOrOpenConversation(
   const entry = await enterQueue(tx, {
     tenantId: canal.tenantId,
     conversationId: conversaId,
+    flowId: await flowOfConversation(tx, canal.tenantId, conversaId),
     queueId: null,
     defaultQueueId: inbox.queueDefaultId,
     message,

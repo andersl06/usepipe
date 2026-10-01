@@ -17,7 +17,7 @@ const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip, loadApplicationIdentity } = await import('../src/domain/flow.js');
 const { redirectInRouter } = await import('../src/domain/router.js');
 const { closeConversation } = await import('../src/domain/conversation.js');
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -661,6 +661,7 @@ describe('Route conversations through services', () => {
 
   it('Return from a human ticket to the previous service, not the primary one', async () => {
     const FABIO = '5511922220006';
+    await adotarFilas(a, suporteId);
     await falar(FABIO, 'oi');
     await falar(FABIO, 'suporte');
     await falar(FABIO, 'meu pc');

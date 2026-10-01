@@ -11,7 +11,7 @@ const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
 const { chooseQueue, queueUnavailability } = await import('../src/domain/queue-entry.js');
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
@@ -104,6 +104,7 @@ async function publicar({ teams, withExits }: { teams?: string; withExits: boole
     }),
   );
   expect(r.errorOfValidation).toBeNull();
+  await adotarFilas(cenario, r.flowId);
 }
 
 async function falar(de: string, texto: string): Promise<void> {
@@ -205,6 +206,7 @@ describe('queue-entry helpers', () => {
     const choose = (queueId: string | null, teams: string | null) =>
       noTenant(cenario.tenantId, (tx) =>
         chooseQueue(tx, cenario.tenantId, {
+          flowId: cenario.flowId,
           queueId,
           defaultQueueId: cenario.queueId,
           message: 'oi',

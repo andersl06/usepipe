@@ -18,7 +18,7 @@ const { SESSION_COOKIE_NAME } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
 const { keyring, noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 /**
  * P14 (D-58): the AI agent block in production (WhatsApp webhook) and in the Builder test run, with
@@ -163,6 +163,7 @@ async function importAgentFlow(): Promise<string> {
     publicar: true,
   }));
   expect(result.errorOfValidation).toBeNull();
+  await adotarFilas(cenario, result.flowId);
   expect(result.report.naoSuportado).toEqual({});
   return result.flowId;
 }

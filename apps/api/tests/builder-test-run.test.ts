@@ -14,7 +14,7 @@ process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 41).toString('b
 const { createToken } = await import('@pipe/authentication');
 const { SESSION_COOKIE_NAME: NOME_DO_COOKIE } = await import('../src/session.js');
 const { upApi } = await import('../src/servidor.js');
-const { montarCenario } = await import('./ajuda.js');
+const { adotarFilas, montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -476,6 +476,7 @@ describe('POST /v1/management/flows/:id/builder/test-runs', () => {
     const { rows } = await a.dono.execute<{ nome: string }>(sql`select nome from fila where id = ${a.queueId}::uuid`);
     const suporte = rows[0]!.nome;
     const id = await criado(`Transbordo ${randomUUID().slice(0, 6)}`);
+    await adotarFilas(a, id);
 
     await salvar(sessionEditor, id, block(vazia));
     const semNinguem = await testRun(sessionEditor, id, { input: 'quero atendimento' });

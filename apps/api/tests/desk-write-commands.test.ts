@@ -12,7 +12,7 @@ const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip } = await import('../src/domain/flow.js');
 const { DESK_READ_COMMANDS } = await import('../src/domain/desk-commands.js');
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type Response = { method: string; status: string; type?: string; resource?: Record<string, unknown>; reason?: { code: number } };
@@ -56,6 +56,7 @@ async function publicar(outputActions: unknown[]): Promise<void> {
     }),
   );
   expect(r.errorOfValidation).toBeNull();
+  await adotarFilas(cenario, r.flowId);
 }
 
 const deskSet = (uri: string, resource: unknown, variable: string) => ({

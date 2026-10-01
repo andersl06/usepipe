@@ -106,9 +106,9 @@ describe('Evaluate priority when a conversation enters a queue', () => {
     condition?: Record<string, unknown>;
   }): Promise<void> {
     await cenario.dono.execute(sql`
-      insert into regra_prioridade (tenant_id, nome, nivel, condicao)
+      insert into regra_prioridade (tenant_id, fluxo_id, nome, nivel, condicao)
       values (
-        ${cenario.tenantId}::uuid, ${`regra ${randomUUID().slice(0, 8)}`}, ${opts.level},
+        ${cenario.tenantId}::uuid, ${cenario.flowId}::uuid, ${`regra ${randomUUID().slice(0, 8)}`}, ${opts.level},
         ${JSON.stringify(opts.condition ?? {})}::jsonb
       )
     `);

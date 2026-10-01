@@ -20,7 +20,7 @@ const { noTenant } = await import('../src/database.js');
 const { importFlowOfBlip, executarProcessHttp, recoverStuckProcessHttp } = await import(
   '../src/domain/flow.js'
 );
-const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
+const { adotarFilas, assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -91,6 +91,7 @@ beforeAll(async () => {
     }),
   );
   expect(r.errorOfValidation).toBeNull();
+  await adotarFilas(cenario, r.flowId);
 }, 180_000);
 
 afterAll(async () => {
