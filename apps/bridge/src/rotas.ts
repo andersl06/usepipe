@@ -1,10 +1,10 @@
 import { sql } from 'drizzle-orm';
 import { noTenant } from './database.js';
-import { ausente, collection, falha, ok, partirUri, TYPE_DOCUMENT, TIPO_TICKET } from './lime.js';
+import { ausente, collection, falha, ok, pagina, partirUri, statusEncerra, TYPE_DOCUMENT, TIPO_TICKET } from './lime.js';
 import type { ComandoLime, RespostaLime } from './lime.js';
 import { asAccount, asDocuments, comoTicket, comoTime } from './translation.js';
 import type { ConversationRow, MessageRow } from './translation.js';
-import { loadGlobal, carregarRascunho, saveFlow } from './builder.js';
+import { bridgeFlow, loadGlobal, carregarRascunho, saveFlow } from './builder.js';
 import {
   assumirProximo,
   identityConversation,
@@ -258,20 +258,24 @@ const rotas: Rota[] = [
    */
   [
     ROUTE_MESSAGES,
-    async ({ session, path }) => {
+    async ({ session, path, query }) => {
       const id = path.split('/')[2];
       if (!id) return collection([], TYPE_DOCUMENT);
-      const linhas = await noTenant(session.tenantId, async (tx) => {
+      const { skip, take } = pagina(query);
+      const { linhas, total } = await noTenant(session.tenantId, async (tx) => {
         const { rows } = await tx.execute<MessageRow>(sql`
           select id, criada_em, direcao as direction, autor_tipo, tipo, conteudo
             from mensagem
            where conversa_id = ${id}::uuid
            order by criada_em
-           limit 200
+           limit ${take} offset ${skip}
         `);
-        return rows;
+        const { rows: cont } = await tx.execute<{ total: number }>(sql`
+          select count(*)::int as total from mensagem where conversa_id = ${id}::uuid
+        `);
+        return { linhas: rows, total: cont[0]?.total ?? rows.length };
       });
-      return collection(asDocuments(linhas), TYPE_DOCUMENT);
+      return collection(asDocuments(linhas), TYPE_DOCUMENT, total);
     },
   ],
 

@@ -41,6 +41,20 @@ export function collection(itens: unknown[], tipoItem?: string, total?: number):
   );
 }
 
+/** Reads `$skip`/`$take` from the query; `$take` is capped at 100 as the source platform does. */
+export function pagina(query: URLSearchParams): { skip: number; take: number } {
+  const num = (k: string, padrao: number) => {
+    const n = Number.parseInt(query.get(k) ?? '', 10);
+    return Number.isFinite(n) && n >= 0 ? n : padrao;
+  };
+  return { skip: num('$skip', 0), take: Math.min(num('$take', 100), 100) };
+}
+
+/** Only a `Closed*` status maps to an operation the domain has (closing the conversation). */
+export function statusEncerra(status: unknown): boolean {
+  return String(status ?? '').startsWith('Closed');
+}
+
 export function empty(tipoItem?: string): RespostaLime {
   return collection([], tipoItem);
 }
