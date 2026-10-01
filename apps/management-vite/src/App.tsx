@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams, useSearchParams } from 'react-router-dom';
 import { ClosureNotice } from '@pipe/ui';
 import { RequireSession } from './components/exigir-session';
 import { useRegisterNavigation } from './lib/navigation';
@@ -136,9 +136,9 @@ const contactRoutes = (
       <Route path="team/create" element={<AgentPageEdit modo="adicionar" />} />
       <Route path="team/edit" element={<AgentPageEdit modo="editar" />} />
       <Route path="team/permission" element={<AgentPagePermissions />} />
-      {/* `agents/queues` → `queue-management` (D-54); child mirrors source `/queue-management/edit/:id` as a separate page, not a modal. */}
-      <Route path="queue-management" element={<PageQueues />} />
-      <Route path="queue-management/:queueId/edit" element={<QueuePageEdit />} />
+      {/* `agents/queues` → `queue-management` (D-54). Like the Blip, editing keeps the same path: the queue id travels in `?fila=`; the old `/:queueId/edit` address redirects there. */}
+      <Route path="queue-management" element={<QueueManagement />} />
+      <Route path="queue-management/:queueId/edit" element={<QueueEditLegacy />} />
       {/* `agents/breaks` → `personalizedbreaks` (D-54). */}
       <Route path="personalizedbreaks" element={<PageBreaks />} />
       {/* `communication/templates|canned-responses` → `message-template`, `replies` (D-54). */}
@@ -221,6 +221,16 @@ const contactRoutes = (
     <Route path="ai/model" element={<AiModelPage />} />
   </>
 );
+
+/** The list, or the edit page of the queue named by `?fila=` (same path, as in the Blip). */
+function QueueManagement() {
+  return useSearchParams()[0].get('fila') ? <QueuePageEdit /> : <PageQueues />;
+}
+
+function QueueEditLegacy() {
+  const { queueId = '' } = useParams();
+  return <Navigate to={`../queue-management?fila=${encodeURIComponent(queueId)}`} replace />;
+}
 
 function DeniedTenantNotice() {
   const [slug] = useState(() => readDeniedTenantNotice(window.location.search));

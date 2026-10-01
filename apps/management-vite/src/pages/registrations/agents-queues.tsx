@@ -19,7 +19,7 @@ import { Modal, ConfirmModal } from '@pipe/ui/modal';
  *
  * **What left the card, and why.** It used to carry a footer with color, default capacity, order, schedule, simultaneous cap, and the list of enabled attendants — six lines of information the source doesn't put here (ficha §d.1: "Card footer: doesn't exist"). All of that moved to the queue's edit page, which is also where the source puts configuration. The card went back to being just a card.
  *
- * **"Editar" opens a PAGE, not a modal.** That's what the owner asked for, and what the source's router says: `attendance.desk.queueManagement.edit` has `url:"/edit/:id"` (ficha §a.1). Here: `atendentes/filas/:id/editar`.
+ * **"Editar" opens a PAGE, not a modal**, at the same path with `?fila={id}` (the Blip keeps the URL unchanged while editing).
  *
  * Toggle and deletion stay on the card (`PATCH`/`DELETE` on `/v1/gestao/atendentes/filas/:id`), confirmed via `ConfirmModal` — never `window.confirm`/`window.alert`. A toggle rejection becomes an `Etiqueta` above the list, since there's no open modal for it to live in.
  */
@@ -100,7 +100,7 @@ export function PageQueues() {
           <QueueActions
             queue={f}
             onErrorToggle={setErrorToggle}
-            onEditar={() => navegar(`${base}/queue-management/${f.id}/edit`)}
+            onEditar={() => navegar(`${base}/queue-management?fila=${f.id}`)}
             onExcluir={() => setQueueForDelete(f)}
           />
         ),

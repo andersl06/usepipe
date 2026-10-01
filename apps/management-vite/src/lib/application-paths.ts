@@ -64,7 +64,7 @@ export function tenantPath(segment: string): string {
 
 /**
  * Segment renames applied to a contact sub-path (the part after `/detail/:shortName/`), longest
- * prefix first so a child (`attendance/agents/queues/:id/edit`) matches before its parent
+ * prefix first so a child (`attendance/agents/queues/:id/edit`, which becomes `queue-management?fila=:id`) matches before its parent
  * (`attendance/agents/queues`). Pairs with no Blip name keep ours and are absent here.
  */
 const CONTACT_SEGMENT_RENAMES: readonly [string, string][] = [
@@ -98,6 +98,8 @@ const CONTACT_SEGMENT_RENAMES: readonly [string, string][] = [
 
 /** Applies the D-54 segment renames to a contact sub-path (no leading slash). */
 export function renameContactSubpath(rest: string): string {
+  const editarFila = /^attendance\/agents\/queues\/([^/]+)\/edit$/.exec(rest);
+  if (editarFila) return `attendance/queue-management?fila=${editarFila[1]}`;
   for (const [from, to] of CONTACT_SEGMENT_RENAMES) {
     if (rest === from || rest.startsWith(from)) {
       return to + rest.slice(from.length);

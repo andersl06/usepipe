@@ -113,7 +113,7 @@ test('renameContactSubpath applies the D-54 segment renames', () => {
   assert.equal(renameContactSubpath('attendance/agents/queues'), 'attendance/queue-management');
   assert.equal(
     renameContactSubpath('attendance/agents/queues/f1/edit'),
-    'attendance/queue-management/f1/edit',
+    'attendance/queue-management?fila=f1',
   );
   assert.equal(renameContactSubpath('attendance/agents/management'), 'attendance/team');
   assert.equal(renameContactSubpath('attendance/agents/management/add'), 'attendance/team/create');
