@@ -407,6 +407,13 @@
       "when": 1790210000000,
       "tag": "0085_fila_por_fluxo_contract",
       "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "7",
+      "when": 1790220000000,
+      "tag": "0086_fila_etiquetas_encerramento_automatico",
+      "breakpoints": true
     }
   ]
 }

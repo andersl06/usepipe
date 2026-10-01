@@ -83,9 +83,18 @@ export const queue = pgTable(
     capacityDefault: integer('capacidade_padrao').notNull().default(5),
     order: integer('ordem').notNull().default(0),
     ativa: boolean('ativa').notNull().default(true),
+    /** Tags (nomes) que os atendentes da fila podem aplicar. */
+    etiquetas: jsonb('etiquetas').$type<string[]>().notNull().default(sql`'[]'::jsonb`),
+    /** Configuração de encerramento por inatividade; nulo = nunca configurado. */
+    encerramentoAutomatico: jsonb('encerramento_automatico').$type<Record<string, unknown>>(),
     ...carimbos(),
   },
   (t) => [
+    check('fila_etiquetas_array_ck', sql`jsonb_typeof(${t.etiquetas}) = 'array'`),
+    check(
+      'fila_encerramento_objeto_ck',
+      sql`${t.encerramentoAutomatico} is null or jsonb_typeof(${t.encerramentoAutomatico}) = 'object'`,
+    ),
     uniqueIndex('fila_tenant_fluxo_nome_uk').on(t.tenantId, t.flowId, t.nome),
     index('fila_tenant_fluxo_idx').on(t.tenantId, t.flowId),
   ],
