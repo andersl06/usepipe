@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Botao, BotaoDeIcone } from '@pipe/ui';
+import { Botao, BotaoDeIcone, Carregando, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import type { MotivoDePausa, UsoDePausas } from '../../lib/registrations';
 import { excluirMotivoPausa } from '../../lib/registrations-gravar';
@@ -12,7 +12,7 @@ import { Modal, ConfirmModal } from '@pipe/ui/modal';
  * Only "Excluir" — the source has no toggle or edit on this row, and no "Resultados por página" in the footer (`FICHA-atendentes-filas-pausas.md` §a.5 and §b.3: "There's no edit icon, no toggle" / "just the arrows + page number + counter"). `alternarMotivoPausa` (`cadastros-gravar.ts`) goes unused on this screen for that reason — it wasn't deleted because the `PATCH .../pausas/:id` route is still valid and tested.
  */
 function ReasonActions({ motivo, onExcluir }: { motivo: MotivoDePausa; onExcluir: () => void }) {
-  return <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.name}`} onClick={onExcluir} />;
+  return <BotaoDeIcone nome="lixeira" title="Excluir" rotulo={`Excluir a pausa ${motivo.name}`} onClick={onExcluir} />;
 }
 
 /**
@@ -28,7 +28,8 @@ export function PageBreaks() {
   const [excluindo, setExcluindo] = useState(false);
   const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
   const read = useRead<UsoDePausas>('/v1/management/agents/pauses');
-  if (!read.data) return null;
+  if (read.isError) return <Etiqueta tom="erro">Não foi possível carregar as pausas personalizadas.</Etiqueta>;
+  if (!read.data) return <Carregando />;
   const { motivos, dias, semMotivo, abertas } = read.data;
 
   async function excluir() {
@@ -44,7 +45,9 @@ export function PageBreaks() {
   const sections: RulesSection[] = [
     {
       titulo: 'Pausas personalizadas',
-      empty: 'Nenhum motivo cadastrado.',
+      empty: 'Que tal personalizar os tipos de pausa disponíveis para sua equipe de atendimento?',
+      emptyDescription:
+        'Pausas personalizadas ajudam atendentes a ter mais autonomia na gestão de tempo e te dão mais controle sobre sua operação.',
       cards: motivos.map((m) => ({
         id: m.id,
         campos: [
@@ -103,8 +106,9 @@ export function PageBreaks() {
 
       <ConfirmModal
         aberto={motivoParaExcluir !== null}
-        titulo="Excluir motivo"
-        message={<>Excluir o motivo "{motivoParaExcluir?.name}"? Esta ação não pode ser desfeita.</>}
+        titulo="Excluir pausa"
+        rotuloConfirmar="Excluir pausa"
+        message={<>Esta ação não pode ser desfeita.</>}
         error={errorDeletion}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
