@@ -262,8 +262,7 @@ export const conversation = pgTable(
     filaId: uuid('fila_id').references(() => queue.id, { onDelete: 'set null' }),
     agentId: uuid('atendente_id').references(() => user.id, { onDelete: 'set null' }),
     /*
-     * Inbound sets it explicitly: `com_bot` when the channel's flow takes the conversation, else the
-     * queue entry. The default stays `na_fila` for the paths that open straight into attendance.
+     * The ticket is born at the handoff (or on a channel without a flow), so it starts `na_fila`.
      */
     state: text('estado').notNull().default('na_fila'),
     /*

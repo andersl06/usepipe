@@ -381,13 +381,6 @@
       "breakpoints": true
     },
     {
-      "idx": 81,
-      "version": "7",
-      "when": 1790170000000,
-      "tag": "0081_conversa_com_bot",
-      "breakpoints": true
-    },
-    {
       "idx": 82,
       "version": "7",
       "when": 1790180000000,
@@ -399,6 +392,13 @@
       "version": "7",
       "when": 1790190000000,
       "tag": "0083_ticket_no_transbordo",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1790200000000,
+      "tag": "0084_conversa_estado_sem_com_bot",
       "breakpoints": true
     }
   ]

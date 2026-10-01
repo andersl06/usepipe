@@ -1105,7 +1105,7 @@
 	CONSTRAINT "contato_etiqueta_contato_id_etiqueta_id_pk" PRIMARY KEY("contato_id","etiqueta_id")
 	CONSTRAINT "contato_identidade_canal_tipo_ck" CHECK ("canal_tipo" in ('whatsapp_cloud', 'instagram', 'messenger', 'email', 'widget'))
 	CONSTRAINT "contestacao_estado_ck" CHECK ("estado" in ('aberta', 'aceita', 'recusada'))
-	CONSTRAINT "conversa_estado_ck" CHECK ("estado" in ('com_bot', 'na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada')),
+	CONSTRAINT "conversa_estado_ck" CHECK ("estado" in ('na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada')),
 	CONSTRAINT "conversa_etiqueta_conversa_id_etiqueta_id_pk" PRIMARY KEY("conversa_id","etiqueta_id")
 	CONSTRAINT "conversa_prioridade_ck" CHECK ("prioridade" in ('maxima', 'alta', 'media', 'baixa', 'sem_prioridade')),
 	CONSTRAINT "conversa_ultima_mensagem_de_ck" CHECK ("ultima_mensagem_de" in ('contato', 'atendente', 'bot'))
