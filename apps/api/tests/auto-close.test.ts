@@ -182,6 +182,23 @@ describe('varredura de encerramento automático', () => {
     expect((await eventosEncerrada(a, id))[0]).toMatchObject({ etiquetas: ['Inativo'] });
   });
 
+  it('casa a tag sem diferenciar maiúsculas, mantém o motivo da tag e registra a que não existe', async () => {
+    await a.dono.execute(sql`insert into etiqueta (tenant_id, nome, escopo) values (${a.tenantId}::uuid, 'Sem Retorno', 'conversa')`);
+    await setConfig(a, config({ tags: { ativo: true, tags: ['sem retorno', 'Fantasma'] } }));
+    const id = await conversa(a, { ultima: depois(-100) });
+    await tick(depois(0));
+    expect(await estado(a, id)).toMatchObject({ estado: 'encerrada', motivo: 'Sem Retorno' });
+    expect((await eventosEncerrada(a, id))[0]).toMatchObject({ etiquetas: ['Sem Retorno'], tags_nao_encontradas: ['Fantasma'] });
+  });
+
+  it('sem nenhuma tag existente o motivo genérico continua', async () => {
+    await setConfig(a, config({ tags: { ativo: true, tags: ['Fantasma'] } }));
+    const id = await conversa(a, { ultima: depois(-100) });
+    await tick(depois(0));
+    expect((await estado(a, id)).motivo).toBe(AUTO_CLOSE_REASON);
+    expect((await eventosEncerrada(a, id))[0]).toMatchObject({ tags_nao_encontradas: ['Fantasma'] });
+  });
+
   it('respeita o limite do lote e termina o restante no tick seguinte', async () => {
     await setConfig(a, config());
     const ids = [await conversa(a, { ultima: depois(-300) }), await conversa(a, { ultima: depois(-299) }), await conversa(a, { ultima: depois(-298) })];

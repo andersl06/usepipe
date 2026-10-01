@@ -145,7 +145,7 @@ export async function autoCloseConversation(
         ? (
             await tx.execute<{ id: string; name: string }>(sql`
               select id, nome as name from etiqueta
-               where nome in (${sql.join(config.tags.tags.map((t) => sql`${t}`), sql`, `)})
+               where lower(nome) in (${sql.join(config.tags.tags.map((t) => sql`${t.toLowerCase()}`), sql`, `)})
                  and escopo in ('conversa', 'ambos')
             `)
           ).rows
@@ -158,10 +158,18 @@ export async function autoCloseConversation(
       agentId: linha.agentId,
       em_espera_desde: linha.em_espera_desde,
     };
-    await closeInTransaction(tx, c.tenantId, conversa, null, etiquetas, agora, 'inatividade');
-    await tx.execute(sql`
-      update conversa set motivo_encerramento = ${AUTO_CLOSE_REASON} where id = ${linha.id}::uuid
-    `);
+    const found = new Set(etiquetas.map((e) => e.name.toLowerCase()));
+    const notFound = config.tags.ativo ? config.tags.tags.filter((t) => !found.has(t.toLowerCase())) : [];
+    const reason = await closeInTransaction(
+      tx, c.tenantId, conversa, null, etiquetas, agora, 'inatividade',
+      notFound.length > 0 ? { tags_nao_encontradas: notFound } : {},
+    );
+    // The generic reason only stands in when no tag set one.
+    if (!reason) {
+      await tx.execute(sql`
+        update conversa set motivo_encerramento = ${AUTO_CLOSE_REASON} where id = ${linha.id}::uuid
+      `);
+    }
     return true;
   });
   if (encerrou) await efeitos.afterCommit(c.tenantId, c.conversationId);

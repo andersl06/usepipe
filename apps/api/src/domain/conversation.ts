@@ -74,6 +74,7 @@ export async function closeInTransaction(
   etiquetas: readonly { id: string; name: string }[],
   agora: Date,
   closedBy: ClosedBy = agentId ? 'atendente' : 'transferencia',
+  extraEventData: Record<string, unknown> = {},
 ): Promise<string> {
   requireTransition(conversa.state, 'encerrada');
   for (const etiqueta of etiquetas) {
@@ -124,6 +125,7 @@ export async function closeInTransaction(
       encerrada_por: closedBy,
       ...(etiquetas.length === 1 ? { etiqueta: etiquetas[0]!.name } : {}),
       etiquetas: etiquetas.map((etiqueta) => etiqueta.name),
+      ...extraEventData,
     },
   });
 
