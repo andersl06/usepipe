@@ -149,7 +149,7 @@ export async function executeCommand(
   }
   const deskWrite = DESK_WRITE_COMMANDS[command.route];
   if (deskWrite) {
-    const response = await deskWrite(tx, tenantId, { resource, command }, { tickets, recordSatisfactionAnswer });
+    const response = await deskWrite(tx, tenantId, { resource, command }, { tickets, recordSatisfactionAnswer, ...(flowId ? { flowId } : {}) });
     return waitForResponse ? response : undefined;
   }
   const scheduling = SCHEDULING_COMMANDS[command.route];

@@ -17,6 +17,8 @@ import type { TicketEffects } from './engine-services.js';
 export interface DeskWriteEffects {
   tickets: TicketEffects;
   recordSatisfactionAnswer?: ServicosDoMotor['recordSatisfactionAnswer'];
+  /** Flow running the command: the queue named by `team` is looked up only inside it. */
+  flowId?: string;
 }
 
 type DeskWriteHandler = (
@@ -182,7 +184,7 @@ const closeTicket: DeskWriteHandler = async (tx, tenantId, { resource, command }
  * `set /tickets/{id}/transfer` `{team[, agentIdentity]}`: the queue by name (Blip's team is the
  * queue name). A requested agent is not forced: the queue's distribution assigns.
  */
-const transferTicket: DeskWriteHandler = async (tx, tenantId, { resource, command }, { tickets }) => {
+const transferTicket: DeskWriteHandler = async (tx, tenantId, { resource, command }, { tickets, flowId }) => {
   const team = textOf(bodyOf(resource), 'team');
   if (!team) return failure(INVALID_ARGUMENT, "O comando de transferência exige 'team' (o nome da fila).");
   // Without a ticket yet (the bot still holds the contact) the transfer is the handoff that creates it.
@@ -193,10 +195,10 @@ const transferTicket: DeskWriteHandler = async (tx, tenantId, { resource, comman
     if (target.closed) return failure(NOT_ALLOWED, 'O ticket já está encerrado.');
   }
   const { rows } = await tx.execute<{ id: string }>(sql`
-    select id from fila where tenant_id = ${tenantId}::uuid and ativa and lower(nome) = lower(${team})
+    select id from fila where tenant_id = ${tenantId}::uuid and ativa and fluxo_id = ${flowId ?? null}::uuid and lower(nome) = lower(${team})
      order by ordem, nome limit 1
   `);
-  if (!rows[0]) return failure(NOT_FOUND, `A fila '${team}' não existe neste Pipe.`);
+  if (!rows[0]) return failure(NOT_FOUND, `A fila '${team}' não existe neste fluxo.`);
   await tickets.transfer(tx, rows[0].id);
   return answerWithTicket(tx, tenantId, tickets);
 };

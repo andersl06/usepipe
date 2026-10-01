@@ -467,7 +467,7 @@ function ModalTransferir({
   const [agentId, setAgentId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
-  const queues = useQueues();
+  const queues = useQueues(conversationId);
 
   async function transferir() {
     setEnviando(true);
@@ -520,7 +520,7 @@ function ModalTransferir({
             <option value="">Selecionar fila</option>
             {queues.map((f) => (
               <option key={f.id} value={f.id}>
-                {f.nome}
+                {f.name}
               </option>
             ))}
           </select>
@@ -625,8 +625,11 @@ function ModalFinalizar({
 }
 
 
-function useQueues(): { id: string; nome: string }[] {
-  const read = useRead<{ queues: { id: string; nome: string }[] }>('/v1/desk/queues');
+/** Only the queues of the flow serving the open conversation. */
+function useQueues(conversationId: string): { id: string; name: string }[] {
+  const read = useRead<{ queues: { id: string; name: string }[] }>(
+    `/v1/desk/queues?conversationId=${encodeURIComponent(conversationId)}`,
+  );
   return read.data?.queues ?? [];
 }
 

@@ -12,7 +12,7 @@ import { displayName } from '../../lib/order';
 export function PageBulkActions() {
   const navegar = useNavigate();
   const queue = useRead<QueueOfDesk>('/v1/desk/queue');
-  const queues = useRead<{ queues: { id: string; nome: string }[] }>('/v1/desk/queues');
+  const queues = useRead<{ queues: { id: string; name: string; flowName: string }[] }>('/v1/desk/queues');
   const [marcadas, setMarcadas] = useState<Set<string>>(new Set());
   const [alvo, setAlvo] = useState<'fila' | 'atendente'>('fila');
   const [queueId, setQueueId] = useState('');
@@ -128,7 +128,7 @@ export function PageBulkActions() {
                 <option value="">Selecionar fila</option>
                 {queues.data?.queues.map((f) => (
                   <option key={f.id} value={f.id}>
-                    {f.nome}
+                    {`${f.name} · ${f.flowName}`}
                   </option>
                 ))}
               </select>
